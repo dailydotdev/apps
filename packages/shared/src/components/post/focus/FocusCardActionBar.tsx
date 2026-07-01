@@ -91,11 +91,6 @@ export const FocusCardActionBar = ({
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
-  // The bar floats (sticky) from tablet up, so surface the metrics + menu
-  // whenever it's actually pinned there — including when a long post floats it
-  // at the bottom on load, where the stats row above has scrolled off. Below
-  // tablet the bar is plain in-flow, so keep it stable (no counts) — that's the
-  // width where toggling on scroll looked like flicker.
   // Sticky to the BOTTOM only (tablet up) — the bar floats near the bottom of
   // the scroll area while reading and settles into its resting spot once
   // scrolled to. It never pins to the top (that fought the header and read as
@@ -190,107 +185,102 @@ export const FocusCardActionBar = ({
       <div
         ref={barRef}
         className={classNames(
-          // Floating-pill design (translucent surface, blur, soft shadow, full
-          // border). From tablet up it floats as a centred pill pinned to the
-          // BOTTOM of the scroll area (never the top). Below tablet it stays
-          // in-flow, full width.
-          'relative z-3 flex items-center justify-between gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem] tablet:sticky tablet:bottom-4 tablet:mx-auto tablet:w-fit',
+          // Full-width bar (translucent surface, blur, soft shadow, full
+          // border) with the actions spread edge-to-edge (justify-between) so
+          // they read as an evenly spaced, consistent set. From tablet up it
+          // floats pinned to the BOTTOM of the scroll area (never the top).
+          'relative z-3 flex w-full items-center justify-between gap-1 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem] tablet:sticky tablet:bottom-4',
           className,
         )}
       >
-        <div className="flex items-center gap-1">
-          <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
-            <CardAction
-              id="upvote-post-btn"
-              label="Upvote"
-              color={ButtonColor.Avocado}
-              icon={<UpvoteButtonIcon />}
-              iconPressed={<UpvoteButtonIcon secondary />}
-              count={isPinned ? upvotes : undefined}
-              pressed={isUpvoteActive}
-              onClick={onToggleUpvote}
-            />
-          </Tooltip>
-          <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
-            <CardAction
-              id="downvote-post-btn"
-              label="Downvote"
-              color={ButtonColor.Ketchup}
-              icon={<DownvoteIcon />}
-              iconPressed={<DownvoteIcon secondary />}
-              pressed={isDownvoteActive}
-              onClick={onToggleDownvote}
-            />
-          </Tooltip>
-          <Tooltip content="Comment">
-            <CardAction
-              id="comment-post-btn"
-              label="Comment"
-              color={ButtonColor.BlueCheese}
-              icon={<CommentIcon />}
-              iconPressed={<CommentIcon secondary />}
-              count={isPinned ? comments : undefined}
-              pressed={post.commented}
-              onClick={onComment}
-            />
-          </Tooltip>
-          {canAward && (
-            <Tooltip
-              content={isAwarded ? 'You already awarded this post!' : 'Award'}
-            >
-              <CardAction
-                id="award-post-btn"
-                label="Award"
-                color={ButtonColor.Cabbage}
-                icon={<MedalBadgeIcon secondary />}
-                iconPressed={<MedalBadgeIcon />}
-                count={isPinned ? awards : undefined}
-                pressed={isAwarded}
-                onClick={onGiveAward}
-              />
-            </Tooltip>
-          )}
-        </div>
-
-        <div className="flex items-center gap-1">
-          <BookmarkButton
-            post={post}
-            iconSize={IconSize.Small}
-            buttonProps={{
-              id: 'bookmark-post-btn',
-              pressed: post.bookmarked,
-              onClick: onToggleBookmark,
-              size: ButtonSize.Medium,
-            }}
+        <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
+          <CardAction
+            id="upvote-post-btn"
+            label="Upvote"
+            color={ButtonColor.Avocado}
+            icon={<UpvoteButtonIcon />}
+            iconPressed={<UpvoteButtonIcon secondary />}
+            count={isPinned ? upvotes : undefined}
+            pressed={isUpvoteActive}
+            onClick={onToggleUpvote}
           />
-          {/* Bookmark stays — it is the primary save action. Copy link folds
+        </Tooltip>
+        <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
+          <CardAction
+            id="downvote-post-btn"
+            label="Downvote"
+            color={ButtonColor.Ketchup}
+            icon={<DownvoteIcon />}
+            iconPressed={<DownvoteIcon secondary />}
+            pressed={isDownvoteActive}
+            onClick={onToggleDownvote}
+          />
+        </Tooltip>
+        <Tooltip content="Comment">
+          <CardAction
+            id="comment-post-btn"
+            label="Comment"
+            color={ButtonColor.BlueCheese}
+            icon={<CommentIcon />}
+            iconPressed={<CommentIcon secondary />}
+            count={isPinned ? comments : undefined}
+            pressed={post.commented}
+            onClick={onComment}
+          />
+        </Tooltip>
+        {canAward && (
+          <Tooltip
+            content={isAwarded ? 'You already awarded this post!' : 'Award'}
+          >
+            <CardAction
+              id="award-post-btn"
+              label="Award"
+              color={ButtonColor.Cabbage}
+              icon={<MedalBadgeIcon secondary />}
+              iconPressed={<MedalBadgeIcon />}
+              count={isPinned ? awards : undefined}
+              pressed={isAwarded}
+              onClick={onGiveAward}
+            />
+          </Tooltip>
+        )}
+        <BookmarkButton
+          post={post}
+          iconSize={IconSize.Small}
+          buttonProps={{
+            id: 'bookmark-post-btn',
+            pressed: post.bookmarked,
+            onClick: onToggleBookmark,
+            size: ButtonSize.Medium,
+          }}
+        />
+        {/* Bookmark stays — it is the primary save action. Copy link folds
               out when space is tight (see the overflow effect); the
               `hidden tablet:flex` classes are only the pre-measurement (SSR)
               fallback — the effect overrides display once it measures. The "…"
               menu and analytics now live in the card header / stats row. */}
-          <div ref={copyLinkRef} className="hidden tablet:flex">
-            <Tooltip content="Copy link">
-              <CardAction
-                label="Copy link"
-                color={ButtonColor.Cabbage}
-                icon={<LinkIcon />}
-                onClick={() => onCopyLinkClick?.(post)}
-              />
-            </Tooltip>
-          </div>
-          {post.clickbaitTitleDetected && (
-            <PostClickbaitShield post={post} iconOnly />
-          )}
-          {/* While pinned, the article header (which owns the "…" menu) has
-              scrolled away, so surface the menu here — to the left of the X. */}
-          {isPinned && (
-            <PostMenuOptions
-              post={post}
-              origin={origin}
-              buttonSize={ButtonSize.Medium}
+        <div ref={copyLinkRef} className="hidden tablet:flex">
+          <Tooltip content="Copy link">
+            <CardAction
+              label="Copy link"
+              color={ButtonColor.Cabbage}
+              icon={<LinkIcon />}
+              onClick={() => onCopyLinkClick?.(post)}
             />
-          )}
+          </Tooltip>
         </div>
+        {post.clickbaitTitleDetected && (
+          <PostClickbaitShield post={post} iconOnly />
+        )}
+        {/* While pinned, the article header (which owns the "…" menu) has
+              scrolled away, so surface the menu here — to the left of the X. */}
+        {isPinned && (
+          <PostMenuOptions
+            post={post}
+            origin={origin}
+            buttonSize={ButtonSize.Medium}
+          />
+        )}
       </div>
     </>
   );
