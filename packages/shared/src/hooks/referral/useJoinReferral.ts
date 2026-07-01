@@ -19,35 +19,49 @@ export const useJoinReferral = (): void => {
     const campaign = cid as string;
     const referringUserId = userid as string;
 
-    if (campaign && referringUserId) {
-      setCookie('join_referral', `${referringUserId}:${campaign}`, {
-        path: '/',
-        maxAge: oneYear,
-        secure: !isDevelopment,
-        domain: process.env.NEXT_PUBLIC_DOMAIN,
-        sameSite: 'lax',
+    if (!campaign) {
+      return null;
+    }
+
+    const cookieOptions = {
+      path: '/',
+      maxAge: oneYear,
+      secure: !isDevelopment,
+      domain: process.env.NEXT_PUBLIC_DOMAIN,
+      sameSite: 'lax' as const,
+    };
+
+    // Campaign-only referral (e.g. the Instagram/Facebook onboarding link):
+    // no referring user, so store just the campaign as referralOrigin. The
+    // cookie's referralId segment is left empty (`:campaign`), and there's no
+    // referring user to validate.
+    if (!referringUserId) {
+      setCookie('join_referral', `:${campaign}`, cookieOptions);
+      refetchBoot?.();
+      return null;
+    }
+
+    setCookie('join_referral', `${referringUserId}:${campaign}`, cookieOptions);
+
+    try {
+      await gqlClient.request<boolean>(GET_REFERRING_USER_QUERY, {
+        id: referringUserId,
       });
 
-      try {
-        await gqlClient.request<boolean>(GET_REFERRING_USER_QUERY, {
-          id: referringUserId,
+      if (!refetchBoot) {
+        throw new Error('Missing refetchBoot after setting join referral');
+      }
+
+      refetchBoot();
+    } catch (error) {
+      if (
+        (error as ApiErrorResult).response?.errors?.[0]?.message ===
+        'user not found'
+      ) {
+        expireCookie('join_referral', {
+          path: '/',
+          domain: process.env.NEXT_PUBLIC_DOMAIN,
         });
-
-        if (!refetchBoot) {
-          throw new Error('Missing refetchBoot after setting join referral');
-        }
-
-        refetchBoot();
-      } catch (error) {
-        if (
-          (error as ApiErrorResult).response?.errors?.[0]?.message ===
-          'user not found'
-        ) {
-          expireCookie('join_referral', {
-            path: '/',
-            domain: process.env.NEXT_PUBLIC_DOMAIN,
-          });
-        }
       }
     }
 
