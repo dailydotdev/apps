@@ -120,10 +120,12 @@ export const GivebackFunnel = ({
         role="dialog"
         aria-modal
         aria-label="How daily.dev Giveback works"
-        // `overflow-x-clip` guards this portaled overlay directly: it renders
-        // outside GivebackPage's clip (RootPortal), so it can't rely on the
-        // page's guard to stop a wide descendant from bleeding past the edge.
-        className="fixed inset-0 z-modal overflow-x-clip bg-background-default"
+        // No `overflow-x-clip` here on purpose: GivebackBackground bleeds a few px
+        // past this box (`laptop:-inset-1`) so the gradient reaches into the app
+        // card's rounded corners; clipping it here would starve those corners and
+        // leave a dark crescent. Horizontal overflow is instead contained by the
+        // scroll container below and the html-level document lock (see effect).
+        className="fixed inset-0 z-modal bg-background-default"
       >
         {/* Background lives outside the scroll container, so it stays fixed and the
           page behind is never revealed no matter how far the content scrolls. */}
