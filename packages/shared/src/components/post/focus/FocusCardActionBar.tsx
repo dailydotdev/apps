@@ -13,14 +13,13 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import { Origin } from '../../../lib/log';
 import { AuthTriggers } from '../../../lib/auth';
-import { ButtonSize, ButtonIconPosition } from '../../buttons/Button';
+import { ButtonSize } from '../../buttons/Button';
 import { ButtonColor } from '../../buttons/ButtonV2';
 import { CardAction } from '../../buttons/CardAction';
-import { BookmarkButton } from '../../buttons/BookmarkButton';
 import InteractionCounter from '../../InteractionCounter';
 import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
-import { IconSize } from '../../Icon';
 import {
+  BookmarkIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
@@ -45,8 +44,6 @@ const PILL = '!rounded-10';
 // Each action sits in a bordered surface pill matching our button styling.
 const PILL_WRAP =
   'flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float';
-// Match the other pill labels (e.g. "Copy link"): muted, footnote, not bold.
-const LABEL = 'font-medium text-text-tertiary typo-footnote';
 
 /**
  * Engagement bar for the redesign focus card. Post-contribution actions (vote,
@@ -224,23 +221,22 @@ export const FocusCardActionBar = ({
           </Tooltip>
         </div>
 
-        {/* Save — keeps the bookmark-reminder dropdown; label styled to match
-            the other pill labels (not the button's default bold/primary). */}
+        {/* Save — a CardAction like Copy link so the label sizes and styles
+            consistently (the deprecated BookmarkButton clipped its label). */}
         <div className={PILL_WRAP}>
-          <BookmarkButton
-            post={post}
-            iconSize={IconSize.Small}
-            buttonProps={{
-              id: 'bookmark-post-btn',
-              pressed: post.bookmarked,
-              onClick: onToggleBookmark,
-              size: ButtonSize.Medium,
-              iconPosition: ButtonIconPosition.Left,
-              className: PILL,
-            }}
-          >
-            <span className={LABEL}>{post.bookmarked ? 'Saved' : 'Save'}</span>
-          </BookmarkButton>
+          <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
+            <CardAction
+              id="bookmark-post-btn"
+              label={post.bookmarked ? 'Saved' : 'Save'}
+              labelVisible
+              color={ButtonColor.Bun}
+              icon={<BookmarkIcon />}
+              iconPressed={<BookmarkIcon secondary />}
+              pressed={post.bookmarked}
+              onClick={onToggleBookmark}
+              className={PILL}
+            />
+          </Tooltip>
         </div>
 
         <div className={PILL_WRAP}>
