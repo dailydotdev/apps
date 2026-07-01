@@ -39,9 +39,10 @@ interface FocusCardActionBarProps {
 // Inner buttons round slightly tighter than their pill so the hover sits
 // cleanly inside the border.
 const PILL = '!rounded-10';
-// Each action sits in a bordered surface pill matching our button styling.
+// Each side is one floating glass bar (macOS/iOS style): a translucent,
+// blurred surface with a soft shadow, rounded to match our buttons.
 const PILL_WRAP =
-  'flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float';
+  'flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem]';
 
 /**
  * Engagement bar for the redesign focus card. Post-contribution actions (vote,
