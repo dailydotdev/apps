@@ -411,11 +411,13 @@ export const CoverGrid = (): ReactElement => {
         </ol>
       ) : (
         <ol className={LIST_CLASS}>
-          {isPending && !posts.length
-            ? Array.from({ length: PICKS_PLACEHOLDER_COUNT }, (_, i) => i).map(
-                (i) => <PickRowSkeleton key={`pick-skeleton-${i}`} />,
-              )
-            : posts.map((post, idx) => (
+          {isPending && !posts.length ? (
+            Array.from({ length: PICKS_PLACEHOLDER_COUNT }, (_, i) => i).map(
+              (i) => <PickRowSkeleton key={`pick-skeleton-${i}`} />,
+            )
+          ) : (
+            <>
+              {posts.map((post, idx) => (
                 <React.Fragment key={post.id}>
                   {idx === AD_SLOT_INDEX && ad ? <AdRow ad={ad} /> : null}
                   <PickRow
@@ -427,6 +429,12 @@ export const CoverGrid = (): ReactElement => {
                   />
                 </React.Fragment>
               ))}
+              {/* inject ad when not enough posts for ad slot  */}
+              {!!ad && posts.length > 0 && posts.length <= AD_SLOT_INDEX ? (
+                <AdRow ad={ad} />
+              ) : null}
+            </>
+          )}
         </ol>
       )}
     </section>
