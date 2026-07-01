@@ -21,7 +21,7 @@ const seo: NextSeoProps = {
   },
   ...defaultSeo,
   description:
-    'Help daily.dev grow and we will fund good causes. Complete community actions to help unlock donations toward a shared goal.',
+    'daily.dev would rather fund real-world causes than pay for ads. Take small actions to help us grow, and we turn that budget into donations to the causes you choose, at no cost to you.',
   nofollow: true,
   noindex: true,
 };
