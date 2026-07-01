@@ -26,6 +26,7 @@ import {
   ReferralCampaignKey,
 } from '../../../hooks/referral/useReferralCampaign';
 import { InviteLinkInput } from '../../../components/referral/InviteLinkInput';
+import { Loader } from '../../../components/Loader';
 import type { ContributionAction } from '../types';
 import { ContributionAssistType } from '../types';
 import { formatDonationAmount } from '../utils';
@@ -215,9 +216,13 @@ const ReferralPanel = ({
 }: {
   action: ContributionAction;
 }): ReactElement => {
-  const { url } = useReferralCampaign({
+  const { url, isReady } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
+  // Wait for the personalized link rather than flashing the daily.dev fallback;
+  // once the query settles we show the real URL (or the fallback for the rare
+  // case it resolves empty).
+  const isLoading = !url && !isReady;
   const inviteLink = url || appLinks.referral.defaultUrl;
   const friendsCredited = action.userCompletions;
 
@@ -231,13 +236,20 @@ const ReferralPanel = ({
       >
         Your invite link
       </Typography>
-      <InviteLinkInput
-        link={inviteLink}
-        logProps={{
-          event_name: LogEvent.CopyGivebackReferralLink,
-          target_id: action.id,
-        }}
-      />
+      {isLoading ? (
+        // Match InviteLinkInput's h-12 so swapping in the field causes no shift.
+        <FlexRow className="h-12 items-center justify-center">
+          <Loader role="status" aria-label="Loading your invite link" />
+        </FlexRow>
+      ) : (
+        <InviteLinkInput
+          link={inviteLink}
+          logProps={{
+            event_name: LogEvent.CopyGivebackReferralLink,
+            target_id: action.id,
+          }}
+        />
+      )}
       <Typography
         type={TypographyType.Footnote}
         color={TypographyColor.Tertiary}

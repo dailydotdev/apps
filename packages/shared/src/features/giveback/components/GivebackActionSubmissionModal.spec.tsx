@@ -4,6 +4,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { GivebackActionSubmissionModal } from './GivebackActionSubmissionModal';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
+import { useReferralCampaign } from '../../../hooks/referral/useReferralCampaign';
 import type { ContributionAction } from '../types';
 import { ContributionAssistType } from '../types';
 
@@ -23,8 +24,17 @@ jest.mock('../../../contexts/LogContext', () => ({
 
 jest.mock('../../../hooks/referral/useReferralCampaign', () => ({
   ...jest.requireActual('../../../hooks/referral/useReferralCampaign'),
-  useReferralCampaign: () => ({ url: 'https://dly.to/abc' }),
+  useReferralCampaign: jest.fn(),
 }));
+
+const mockedUseReferralCampaign = useReferralCampaign as jest.Mock;
+
+beforeEach(() => {
+  mockedUseReferralCampaign.mockReturnValue({
+    url: 'https://dly.to/abc',
+    isReady: true,
+  });
+});
 
 const makeAction = (
   overrides: Partial<ContributionAction> = {},
@@ -76,4 +86,16 @@ it('surfaces how many invited friends have counted so far', () => {
   renderModal(makeAction({ userCompletions: 3 }));
 
   expect(screen.getByText(/3 credited so far/)).toBeInTheDocument();
+});
+
+it('shows a spinner instead of the fallback link while the invite link loads', () => {
+  mockedUseReferralCampaign.mockReturnValue({ url: undefined, isReady: false });
+  renderModal(makeAction());
+
+  expect(
+    screen.getByRole('status', { name: 'Loading your invite link' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByDisplayValue('https://daily.dev'),
+  ).not.toBeInTheDocument();
 });
