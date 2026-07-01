@@ -216,85 +216,68 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   // squad activity). Source posts & system land in `Updates` and stay clean.
   const showBadge =
     hasAvatar && category !== NotificationFilterCategory.Updates;
-  // The diamond needs a full set of faces to stay balanced: 3 faces + the
-  // badge, or 4 faces when there's no badge. Only switch to it for more than
-  // three actors AND when enough real avatars were sent to fill it — otherwise
-  // fall back to the single lead (the total still shows in the title) rather
-  // than rendering a lopsided cluster with empty points.
-  const diamondFaceCount = showBadge ? 3 : 4;
-  const showGrid =
-    totalAvatars > 3 && filteredAvatars.length >= diamondFaceCount;
+  // More than three actors render as a tight overlapping stack of up to three
+  // rounded-square faces — sized like one avatar so the lead never grows wider
+  // and every row stays aligned. The exact count still lives in the title.
+  const showStack = filteredAvatars.length > 1 && totalAvatars > 3;
 
-  // Up to three actors render a single avatar (with a corner badge). More than
-  // three render as a "diamond" cluster the size of one avatar — rounded-square
-  // faces at the diamond points so the lead never grows wider and every row
-  // stays aligned. When the row carries a category badge, the bottom point
-  // becomes the colored mark instead of a fourth face.
   let avatarContent: ReactElement | null = null;
-  if (showGrid) {
-    // top, left, right, bottom points of the diamond.
-    const diamondPoints = [
-      'left-1/2 top-0 -translate-x-1/2',
-      'left-0 top-1/2 -translate-y-1/2',
-      'right-0 top-1/2 -translate-y-1/2',
-      'bottom-0 left-1/2 -translate-x-1/2',
-    ];
-    const faces = filteredAvatars
-      .slice(0, diamondFaceCount)
-      .map((avatar, index) => {
-        const positioned = (child: ReactElement) => (
-          <span
-            key={avatar.referenceId ?? index}
-            className={classNames('absolute', diamondPoints[index])}
-          >
-            {child}
-          </span>
-        );
-        // Only image-backed actors (the ones that actually appear in a >3 stack)
-        // render as a compact face. Icon-backed types (badges/briefs/digests)
-        // never reach this path, but fall back to the full avatar renderer rather
-        // than a broken <img> if one ever does.
-        const isImageBacked =
-          avatar.type === NotificationAvatarType.User ||
-          avatar.type === NotificationAvatarType.Source ||
-          avatar.type === NotificationAvatarType.Organization;
-        if (!isImageBacked) {
-          return positioned(<NotificationItemAvatar {...avatar} />);
-        }
-        const image = (
-          <Image
-            className="size-5 rounded-8 border-2 border-background-default object-cover"
-            src={avatar.image}
-            alt={`${avatar.name} avatar`}
-          />
-        );
-        return positioned(
-          avatar.type === NotificationAvatarType.User ? (
-            <ProfileTooltip
-              userId={avatar.referenceId}
-              link={{ href: avatar.targetUrl }}
-            >
-              {image}
-            </ProfileTooltip>
-          ) : (
-            image
-          ),
-        );
-      });
-
+  if (showStack) {
+    const faces = filteredAvatars.slice(0, 3);
     avatarContent = (
-      <div className="relative size-10">
-        {faces}
-        {showBadge && (
-          <span
-            className={classNames(
-              'absolute bottom-0 left-1/2 flex size-5 -translate-x-1/2 items-center justify-center rounded-8 border-2 border-background-default',
-              badge.bg,
-            )}
-          >
-            <BadgeIcon secondary size={IconSize.XXSmall} className={badge.fg} />
-          </span>
-        )}
+      <div className="flex -space-x-4">
+        {faces.map((avatar, index) => {
+          // Icon-backed types (briefs/digests/badges) never reach a >3 stack,
+          // but fall back to the full avatar renderer rather than a broken
+          // <img> if one ever does.
+          const isImageBacked =
+            avatar.type === NotificationAvatarType.User ||
+            avatar.type === NotificationAvatarType.Source ||
+            avatar.type === NotificationAvatarType.Organization;
+          const isFront = index === faces.length - 1;
+          const face = isImageBacked ? (
+            <Image
+              className="size-6 rounded-8 border-2 border-background-default object-cover"
+              src={avatar.image}
+              alt={`${avatar.name} avatar`}
+            />
+          ) : (
+            <NotificationItemAvatar {...avatar} />
+          );
+          return (
+            <span
+              key={avatar.referenceId ?? index}
+              className={classNames('relative', isFront && 'z-1')}
+            >
+              {avatar.type === NotificationAvatarType.User ? (
+                <ProfileTooltip
+                  userId={avatar.referenceId}
+                  link={{ href: avatar.targetUrl }}
+                >
+                  {face}
+                </ProfileTooltip>
+              ) : (
+                face
+              )}
+              {/* Category badge centered on the bottom-right corner of the
+                  front face (straddling it), matching the single-avatar lead. */}
+              {isFront && showBadge && (
+                <span
+                  className={classNames(
+                    'absolute bottom-0 right-0 z-2 flex size-5 translate-x-1/2 translate-y-1/2 items-center justify-center rounded-8 border-2 border-background-default',
+                    badge.bg,
+                  )}
+                >
+                  <BadgeIcon
+                    secondary
+                    size={IconSize.XXSmall}
+                    className={badge.fg}
+                  />
+                </span>
+              )}
+            </span>
+          );
+        })}
       </div>
     );
   }
@@ -350,10 +333,10 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
 
       {/* Leading avatar + colored type badge — the eye-catching, type-at-a-
           glance cue (Instagram/Facebook/TikTok). System rows with no person
-          fall back to the plain type icon. The >3-actor grid is a list-only
-          layout; everything else uses the shared single-actor lead. */}
+          fall back to the plain type icon. More than three actors render as an
+          overlapping stack; everything else uses the shared single-actor lead. */}
       <div className="flex w-10 shrink-0 items-center justify-start">
-        {showGrid ? (
+        {showStack ? (
           avatarContent
         ) : (
           <NotificationItemLead type={type} icon={icon} avatar={leadAvatar} />
