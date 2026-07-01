@@ -328,6 +328,13 @@ export default function Feed<T>({
         containIntrinsicSize: shouldUseListFeedLayout
           ? 'auto 12rem'
           : 'auto 24rem',
+        // `content-visibility: auto` applies paint containment, which clips
+        // anything drawn outside the box — including the "Video" type label and
+        // the "Hot"/"Pinned" flag, which straddle the card's top edge with a
+        // negative offset. Extend the paint-clip region so those labels aren't
+        // truncated. Covers the tallest overhang (the grid flag, ~1.25rem)
+        // without any layout shift.
+        overflowClipMargin: '1.5rem',
       }
     : undefined;
   const {
@@ -741,6 +748,8 @@ export default function Feed<T>({
               } else if (useContentVisibility) {
                 // List cards stack at natural height; grid cards must keep
                 // filling their equal-height row, so preserve the h-full pass-through.
+                // The overhanging card labels are handled by `overflowClipMargin`
+                // on `contentVisibilityStyle` (see above), so both branches are safe.
                 renderedItem = (
                   <div
                     className={
