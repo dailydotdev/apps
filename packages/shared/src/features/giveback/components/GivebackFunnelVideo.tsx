@@ -97,7 +97,7 @@ export const GivebackFunnelVideo = ({
 
   return (
     <div
-      className="z-10 fixed max-w-[calc(100vw-2rem)] transition-[top,left,width] duration-500 ease-in-out motion-reduce:transition-none"
+      className="z-10 fixed transition-[top,left,width] duration-500 ease-in-out motion-reduce:transition-none"
       style={style}
     >
       <div className="relative shadow-2">
