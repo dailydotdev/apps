@@ -14,14 +14,14 @@ import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { sanitizeMessage } from '../shared';
 
 function InnerFunnelProfileForm({
-  parameters: { headline },
+  parameters: { headline, extraFields },
   onTransition,
-}: FunnelStepProfileForm): ReactElement {
+}: FunnelStepProfileForm): ReactElement | null {
   const headlineHtml = useMemo(() => sanitizeMessage(headline), [headline]);
   const { user, refetchBoot } = useAuthContext();
   const { updateUserProfile, hint, onUpdateHint } = useProfileForm({
     onSuccess: async () => {
-      await refetchBoot();
+      await refetchBoot?.();
       onTransition({ type: FunnelStepTransitionType.Complete });
     },
   });
@@ -62,6 +62,7 @@ function InnerFunnelProfileForm({
           onSubmit={handleSubmit}
           errors={hint}
           onResetErrors={handleResetErrors}
+          extraFields={extraFields}
         />
       </div>
     </div>

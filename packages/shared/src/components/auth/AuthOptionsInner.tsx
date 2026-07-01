@@ -149,6 +149,7 @@ function AuthOptionsInner({
   preferGithub,
   autoTriggerProvider,
   socialProviderScopes,
+  registrationExtraFields,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -782,6 +783,7 @@ function AuthOptionsInner({
           <RegistrationForm
             formRef={formRef}
             simplified={simplified}
+            extraFields={registrationExtraFields}
             hints={registrationHints}
             onBack={
               defaultDisplay !== AuthDisplay.Registration
