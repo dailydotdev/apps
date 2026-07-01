@@ -192,15 +192,13 @@ export const HeadlinesSettingsModal = ({
             Pick which topical digests show up in your Headlines section.
           </Typography>
         </div>
-        <ul className="w-full border-t border-border-subtlest-quaternary">
-          <BriefSettingsRow />
-        </ul>
         {isPending ? (
           <div className="flex justify-center py-10">
             <Loader />
           </div>
         ) : (
           <ul className="flex min-h-0 w-full flex-1 flex-col divide-y divide-border-subtlest-quaternary overflow-y-auto border-t border-border-subtlest-quaternary">
+            <BriefSettingsRow />
             {rows.map(({ channel, source }) => (
               <ChannelRow
                 key={channel.channel}
