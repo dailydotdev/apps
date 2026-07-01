@@ -41,7 +41,7 @@ interface FocusCardActionBarProps {
 const PILL = '!rounded-10';
 // Each action sits in a bordered surface pill matching our button styling.
 const PILL_WRAP =
-  'flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float py-1';
+  'flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float';
 
 /**
  * Engagement bar for the redesign focus card. Post-contribution actions (vote,

@@ -602,9 +602,9 @@ export const PostFocusCard = ({
             origin={origin}
             onComment={scrollToComment}
             onCopyLinkClick={onCopyPostLink}
-            // Tighten the gap to the stats row above (the column's gap-4 alone
-            // read as too large here).
-            className="-mt-2"
+            // Extra breathing room above and below the action row (on top of
+            // the column's gap-4).
+            className="my-2"
           />
 
           <div ref={discussionRef} className="scroll-mt-16">
