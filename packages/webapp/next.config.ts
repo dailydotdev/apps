@@ -59,6 +59,7 @@ const nextConfig: NextConfig = {
   experimental: {
     turbopackFileSystemCacheForDev: false,
     turbopackFileSystemCacheForBuild: true,
+    turbopackMemoryLimit: 4 * 1024 * 1024 * 1024,
   },
   ...withBundleAnalyzer({
     compiler: {
