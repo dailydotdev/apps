@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
-import { useViewSize, useVotePost, ViewSize } from '../../../hooks';
+import { useVotePost } from '../../../hooks';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
@@ -15,7 +15,6 @@ import { Origin } from '../../../lib/log';
 import { AuthTriggers } from '../../../lib/auth';
 import { ButtonColor } from '../../buttons/ButtonV2';
 import { CardAction } from '../../buttons/CardAction';
-import InteractionCounter from '../../InteractionCounter';
 import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
 import {
   BookmarkIcon,
@@ -36,19 +35,11 @@ interface FocusCardActionBarProps {
   className?: string;
 }
 
-// Inner buttons round slightly tighter than their pill so the hover sits
-// cleanly inside the border.
-const PILL = '!rounded-10';
-// Each side is one floating glass bar (macOS/iOS style): a translucent,
-// blurred surface with a soft shadow, rounded to match our buttons.
-const PILL_WRAP =
-  'flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem]';
-
 /**
- * Engagement bar for the redesign focus card. Post-contribution actions (vote,
- * comment, award) sit on the left; utility actions (copy link, save, menu) on
- * the right. Each is a bordered surface pill matching our buttons. On tablet up
- * the row floats pinned to the bottom of the scroll area.
+ * Engagement bar for the redesign focus card: one full-width floating glass bar
+ * (translucent, blurred, soft shadow) with post-contribution actions on the
+ * left and utility actions on the right. Floats pinned to the BOTTOM of the
+ * scroll area on tablet up (never the top).
  */
 export const FocusCardActionBar = ({
   post,
@@ -67,15 +58,9 @@ export const FocusCardActionBar = ({
     receivingUser: post.author as LoggedUser | undefined,
   });
 
-  // Labels show from tablet up; below that Save / Copy link are icon-only so
-  // they collapse to a clean square button (no leftover label space).
-  const showLabels = useViewSize(ViewSize.Tablet);
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
   const isAwarded = !!post?.userState?.awarded;
-  const upvotes = post.numUpvotes || 0;
-  const comments = post.numComments || 0;
-  const awards = post.numAwards || 0;
 
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserVote.None) {
@@ -122,15 +107,15 @@ export const FocusCardActionBar = ({
   return (
     <div
       className={classNames(
-        // Left: post-contribution actions. Right: utility actions. From tablet
-        // up the row floats pinned to the bottom of the scroll area.
-        'relative z-3 flex w-full flex-wrap items-center justify-between gap-2 tablet:sticky tablet:bottom-4',
+        // One full-width floating glass bar (macOS/iOS style): translucent,
+        // blurred, soft shadow. Post-contribution actions on the left, utility
+        // actions on the right. Floats pinned to the bottom from tablet up
+        // (never the top).
+        'relative z-3 flex w-full items-center justify-between gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem] tablet:sticky tablet:bottom-4',
         className,
       )}
     >
-      {/* Left group: all post-contribution actions share one container.
-          Vote is Reddit-style with the score between the arrows. */}
-      <div className={PILL_WRAP}>
+      <div className="flex items-center gap-1">
         <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
           <CardAction
             id="upvote-post-btn"
@@ -140,20 +125,8 @@ export const FocusCardActionBar = ({
             iconPressed={<UpvoteButtonIcon secondary />}
             pressed={isUpvoteActive}
             onClick={onToggleUpvote}
-            className={PILL}
           />
         </Tooltip>
-        {upvotes > 0 && (
-          <span
-            className={classNames(
-              'min-w-[1.25rem] text-center font-bold tabular-nums typo-footnote',
-              isUpvoteActive ? 'text-text-primary' : 'text-text-tertiary',
-            )}
-            aria-hidden
-          >
-            <InteractionCounter value={upvotes} />
-          </span>
-        )}
         <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
           <CardAction
             id="downvote-post-btn"
@@ -163,7 +136,6 @@ export const FocusCardActionBar = ({
             iconPressed={<DownvoteIcon secondary />}
             pressed={isDownvoteActive}
             onClick={onToggleDownvote}
-            className={PILL}
           />
         </Tooltip>
         <Tooltip content="Comment">
@@ -173,10 +145,8 @@ export const FocusCardActionBar = ({
             color={ButtonColor.BlueCheese}
             icon={<CommentIcon />}
             iconPressed={<CommentIcon secondary />}
-            count={comments}
             pressed={post.commented}
             onClick={onComment}
-            className={PILL}
           />
         </Tooltip>
         {canAward && (
@@ -189,44 +159,36 @@ export const FocusCardActionBar = ({
               color={ButtonColor.Cabbage}
               icon={<MedalBadgeIcon secondary />}
               iconPressed={<MedalBadgeIcon />}
-              count={awards}
               pressed={isAwarded}
               onClick={onGiveAward}
-              className={PILL}
             />
           </Tooltip>
         )}
       </div>
 
-      {/* Right group: utility actions share one container. Save then Copy
-          link; both collapse to icon-only below tablet. */}
-      <div className={PILL_WRAP}>
-        {post.clickbaitTitleDetected && (
-          <PostClickbaitShield post={post} iconOnly />
-        )}
+      <div className="flex items-center gap-1">
         <Tooltip content={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}>
           <CardAction
             id="bookmark-post-btn"
-            label={post.bookmarked ? 'Saved' : 'Save'}
-            labelVisible={showLabels}
+            label={post.bookmarked ? 'Remove bookmark' : 'Bookmark'}
             color={ButtonColor.Bun}
             icon={<BookmarkIcon />}
             iconPressed={<BookmarkIcon secondary />}
             pressed={post.bookmarked}
             onClick={onToggleBookmark}
-            className={PILL}
           />
         </Tooltip>
         <Tooltip content="Copy link">
           <CardAction
             label="Copy link"
-            labelVisible={showLabels}
             color={ButtonColor.Cabbage}
             icon={<LinkIcon />}
             onClick={() => onCopyLinkClick?.(post)}
-            className={PILL}
           />
         </Tooltip>
+        {post.clickbaitTitleDetected && (
+          <PostClickbaitShield post={post} iconOnly />
+        )}
       </div>
     </div>
   );
