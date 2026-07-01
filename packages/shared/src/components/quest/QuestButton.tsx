@@ -39,6 +39,7 @@ import { QUEST_REWARD_COUNTER_EVENT } from '../../lib/questRewardAnimation';
 import type { QuestRewardCounterEventDetail } from '../../lib/questRewardAnimation';
 import { PopoverContent } from '../popover/Popover';
 import { Tooltip } from '../tooltip/Tooltip';
+import { WeeklyQuestResetTimer } from './WeeklyQuestResetTimer';
 import { useScrollFade } from '../../hooks/useScrollFade';
 import {
   QuestCard,
@@ -159,6 +160,7 @@ export const QuestSection = ({
   initialVisibleCount,
   showMoreLabel = 'Show more',
   showLessLabel = 'Show less',
+  headerAddon,
 }: {
   title: string;
   quests: UserQuest[];
@@ -181,6 +183,7 @@ export const QuestSection = ({
   initialVisibleCount?: number;
   showMoreLabel?: string;
   showLessLabel?: string;
+  headerAddon?: ReactElement;
 }): ReactElement => {
   const [isExpanded, setIsExpanded] = useState(false);
   const canToggleExpanded =
@@ -191,10 +194,24 @@ export const QuestSection = ({
       ? quests.slice(0, initialVisibleCount)
       : quests;
 
+  const titleHeading = (
+    <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+  );
+  // Only wrap the title when there is an addon to place beside it, so sections
+  // without one keep their original DOM (consumers query the heading's sibling).
+  const header = headerAddon ? (
+    <div className="flex items-center justify-between gap-2">
+      {titleHeading}
+      {headerAddon}
+    </div>
+  ) : (
+    titleHeading
+  );
+
   if (!quests.length) {
     return (
       <section className="flex flex-col gap-2">
-        <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+        {header}
         <p className="text-text-tertiary typo-caption1">{emptyLabel}</p>
       </section>
     );
@@ -202,7 +219,7 @@ export const QuestSection = ({
 
   return (
     <section className="flex flex-col gap-2">
-      <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+      {header}
 
       <div
         className={classNames(
@@ -563,6 +580,7 @@ const QuestDropdownPanel = ({
               }
               deferredClaimedStampRotationIds={deferredClaimedStampRotationIds}
               onClaim={onClaim}
+              headerAddon={<WeeklyQuestResetTimer />}
             />
             {(data.daily.plus.length > 0 || data.weekly.plus.length > 0) && (
               <section className="flex flex-col gap-4">
@@ -600,6 +618,7 @@ const QuestDropdownPanel = ({
                   }
                   onClaim={onClaim}
                   emptyLabel="No active plus quests yet."
+                  headerAddon={<WeeklyQuestResetTimer />}
                 />
               </section>
             )}
