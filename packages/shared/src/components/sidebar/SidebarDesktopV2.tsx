@@ -116,6 +116,8 @@ import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import { useSquadNavigation } from '../../hooks';
 import { useAddBookmarkFolder } from '../../hooks/bookmark/useAddBookmarkFolder';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureGiveback } from '../../lib/featureManagement';
 import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -259,16 +261,29 @@ const RailHoverCard = ({
 };
 
 // Theme toggling now lives in the profile dropdown (ThemeSection, matching
-// production). The rail slot is reused for a quick "Invite friends" shortcut.
-const SidebarInviteButton = (): ReactElement => (
-  <Tooltip side="right" content="Invite friends">
-    <Link href={`${settingsUrl}/invite`} passHref>
-      <a aria-label="Invite friends" className={railButtonClass}>
-        <GiftIcon size={IconSize.Small} aria-hidden />
-      </a>
-    </Link>
-  </Tooltip>
-);
+// production). The rail gift points to giveback when that experiment is on for
+// the user, and falls back to the "Invite friends" shortcut otherwise.
+const SidebarInviteButton = (): ReactElement => {
+  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const { value: givebackEnabled } = useConditionalFeature({
+    feature: featureGiveback,
+    shouldEvaluate: isAuthReady && isLoggedIn,
+  });
+
+  const target = givebackEnabled
+    ? { href: `${webappUrl}giveback`, label: 'Giveback' }
+    : { href: `${settingsUrl}/invite`, label: 'Invite friends' };
+
+  return (
+    <Tooltip side="right" content={target.label}>
+      <Link href={target.href} passHref>
+        <a aria-label={target.label} className={railButtonClass}>
+          <GiftIcon size={IconSize.Small} aria-hidden />
+        </a>
+      </Link>
+    </Tooltip>
+  );
+};
 
 const supportItems: ProfileSectionItemProps[] = [
   {
