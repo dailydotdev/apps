@@ -38,8 +38,9 @@ interface FocusCardActionBarProps {
   className?: string;
 }
 
-// Shared surface pill for a standalone action (comment, award, copy link).
-const PILL = '!rounded-full';
+// Inner buttons round slightly tighter than their surrounding pill so the
+// hover sits cleanly inside the pill's border.
+const PILL = '!rounded-10';
 
 /**
  * Engagement bar for the redesign focus card, styled like YouTube's action row:
@@ -150,7 +151,7 @@ export const FocusCardActionBar = ({
       >
         {/* Vote pill: upvote (+ count) and downvote share one surface pill,
             split by a divider — like YouTube's like/dislike. */}
-        <div className="flex items-center rounded-full bg-surface-float">
+        <div className="flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float">
           <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
             <CardAction
               id="upvote-post-btn"
@@ -179,7 +180,7 @@ export const FocusCardActionBar = ({
           </Tooltip>
         </div>
 
-        <div className="flex rounded-full bg-surface-float">
+        <div className="flex rounded-12 border border-border-subtlest-tertiary bg-surface-float">
           <Tooltip content="Comment">
             <CardAction
               id="comment-post-btn"
@@ -196,7 +197,7 @@ export const FocusCardActionBar = ({
         </div>
 
         {canAward && (
-          <div className="flex rounded-full bg-surface-float">
+          <div className="flex rounded-12 border border-border-subtlest-tertiary bg-surface-float">
             <Tooltip
               content={isAwarded ? 'You already awarded this post!' : 'Award'}
             >
@@ -217,7 +218,7 @@ export const FocusCardActionBar = ({
 
         {/* Save pill — wrapped so the surface shows through; keeps the
             bookmark-reminder dropdown. */}
-        <div className="flex rounded-full bg-surface-float">
+        <div className="flex rounded-12 border border-border-subtlest-tertiary bg-surface-float">
           <BookmarkButton
             post={post}
             iconSize={IconSize.Small}
@@ -232,7 +233,7 @@ export const FocusCardActionBar = ({
         </div>
 
         {/* Copy link — a labelled pill (text inside, YouTube "Share"-style). */}
-        <div className="flex rounded-full bg-surface-float">
+        <div className="flex rounded-12 border border-border-subtlest-tertiary bg-surface-float">
           <Tooltip content="Copy link">
             <CardAction
               label="Copy link"
@@ -252,7 +253,7 @@ export const FocusCardActionBar = ({
         {/* While floated, the header (which owns the "…" menu) has scrolled
             away, so surface the menu here as its own pill. */}
         {isPinned && (
-          <div className="flex rounded-full bg-surface-float">
+          <div className="flex rounded-12 border border-border-subtlest-tertiary bg-surface-float">
             <PostMenuOptions
               post={post}
               origin={origin}
