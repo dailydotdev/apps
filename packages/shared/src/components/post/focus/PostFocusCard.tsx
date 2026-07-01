@@ -579,7 +579,6 @@ export const PostFocusCard = ({
             origin={origin}
             onComment={scrollToComment}
             onCopyLinkClick={onCopyPostLink}
-            onClose={onClose}
             // Tighten the gap to the stats row above (the column's gap-4 alone
             // read as too large here).
             className="-mt-2"

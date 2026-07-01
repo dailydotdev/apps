@@ -9,7 +9,6 @@ import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
-import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import { Origin } from '../../../lib/log';
@@ -18,7 +17,6 @@ import { ButtonSize } from '../../buttons/Button';
 import { ButtonColor } from '../../buttons/ButtonV2';
 import { CardAction } from '../../buttons/CardAction';
 import { BookmarkButton } from '../../buttons/BookmarkButton';
-import CloseButton from '../../CloseButton';
 import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
 import { IconSize } from '../../Icon';
 import {
@@ -37,27 +35,24 @@ interface FocusCardActionBarProps {
   origin?: PostOrigin;
   onComment?: () => void;
   onCopyLinkClick?: (post?: Post) => void;
-  /** When provided (post modal), renders an X close button next to the menu. */
-  onClose?: () => void;
   className?: string;
 }
 
 /**
  * Engagement bar for the redesign focus card, built on the CardAction
  * primitives (PR #6064 guideline): each action's count lives inside the click
- * target so the icon or number performs the action. Sticks to the top while
- * scrolling; the modal X appears only once the bar is pinned.
+ * target so the icon or number performs the action. On tablet up it floats as a
+ * centred pill pinned to the BOTTOM of the scroll area while reading (never the
+ * top), matching the reader and mobile bars.
  */
 export const FocusCardActionBar = ({
   post,
   origin = Origin.ArticlePage,
   onComment,
   onCopyLinkClick,
-  onClose,
   className,
 }: FocusCardActionBarProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
-  const { isV2 } = useLayoutVariant();
   const { toggleUpvote, toggleDownvote } = useVotePost();
   const { toggleBookmark } = useBookmarkPost();
   const { onShowPanel, onClose: onCloseBlockPanel } = useBlockPostPanel(post);
@@ -67,28 +62,20 @@ export const FocusCardActionBar = ({
     receivingUser: post.author as LoggedUser | undefined,
   });
 
-  // Track whether the bar is pinned, and at which edge. The sentinel sits just
-  // above the bar: when it scrolls above the viewport top the bar is pinned at
-  // the TOP; when it's still below the viewport the bar is floating at the
-  // BOTTOM. The modal's X is only useful at the top (where the top nav strip
-  // has scrolled away) — at the bottom that strip is still on screen.
+  // The sentinel sits just above the bar; once it leaves the viewport the bar
+  // has floated away from its resting spot, so surface the counts + menu that
+  // the (now scrolled-off) stats row and header normally carry.
   const sentinelRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   const copyLinkRef = useRef<HTMLDivElement>(null);
   const [isStuck, setIsStuck] = useState(false);
-  const [isStuckTop, setIsStuckTop] = useState(false);
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || typeof IntersectionObserver === 'undefined') {
       return undefined;
     }
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        const stuck = !entry.isIntersecting;
-        setIsStuck(stuck);
-        const rootTop = entry.rootBounds?.top ?? 0;
-        setIsStuckTop(stuck && entry.boundingClientRect.top < rootTop);
-      },
+      ([entry]) => setIsStuck(!entry.isIntersecting),
       { threshold: 0 },
     );
     observer.observe(el);
@@ -109,26 +96,13 @@ export const FocusCardActionBar = ({
   // at the bottom on load, where the stats row above has scrolled off. Below
   // tablet the bar is plain in-flow, so keep it stable (no counts) — that's the
   // width where toggling on scroll looked like flicker.
+  // Sticky to the BOTTOM only (tablet up) — the bar floats near the bottom of
+  // the scroll area while reading and settles into its resting spot once
+  // scrolled to. It never pins to the top (that fought the header and read as
+  // odd). Below tablet it stays in-flow; the dedicated mobile bar handles the
+  // pinned behaviour there.
   const barFloats = useViewSize(ViewSize.Tablet);
   const isPinned = isStuck && barFloats;
-  // The X (modal close) only makes sense when pinned at the top; at the bottom
-  // the modal's top strip — and its own close — are still on screen.
-  const isPinnedTop = isStuckTop && barFloats;
-  // Sticky at BOTH edges (`top` + `bottom`), tablet and up only — on mobile the
-  // dedicated floating bottom bar already covers this, so the desktop treatment
-  // is excluded there. While its natural spot is still below the fold the bar
-  // pins near the bottom (always reachable), scrolls naturally through the
-  // viewport, then pins near the top once it scrolls above. `top-4`/`bottom-4`
-  // leave a gap from each edge so the pill reads as floating. The top offset
-  // also accounts for the top chrome — the modal has no app header; on the post
-  // page the v2 rail hides the global header on laptop for logged-in users, so
-  // the bar floats near the top, while the legacy/logged-out layout must clear
-  // a fixed 4rem header (4rem + 1rem gap = top-20). `onClose` is modal-only.
-  const railOwnsHeader = isV2 && !!user;
-  const stickyOffsetClassName =
-    onClose || railOwnsHeader
-      ? 'tablet:top-4 tablet:bottom-4'
-      : 'tablet:top-4 tablet:bottom-4 laptop:top-20';
 
   // Fold copy link out of the row when the bar would overflow, and bring it
   // back inline when there is room again. Measured against the real available
@@ -216,12 +190,11 @@ export const FocusCardActionBar = ({
       <div
         ref={barRef}
         className={classNames(
-          // Same floating-pill design on every resolution (incl. the
-          // translucent surface): rounded, blur, soft shadow, full border.
-          // Sticky from tablet up only — on mobile it stays in-flow, since the
-          // dedicated footer floating bar handles the pinned behavior there.
-          'relative z-3 flex items-center justify-between gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem] tablet:sticky',
-          stickyOffsetClassName,
+          // Floating-pill design (translucent surface, blur, soft shadow, full
+          // border). From tablet up it floats as a centred pill pinned to the
+          // BOTTOM of the scroll area (never the top). Below tablet it stays
+          // in-flow, full width.
+          'relative z-3 flex items-center justify-between gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-2 py-1 shadow-[0_0.25rem_1.5rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem] tablet:sticky tablet:bottom-4 tablet:mx-auto tablet:w-fit',
           className,
         )}
       >
@@ -316,9 +289,6 @@ export const FocusCardActionBar = ({
               origin={origin}
               buttonSize={ButtonSize.Medium}
             />
-          )}
-          {isPinnedTop && onClose && (
-            <CloseButton size={ButtonSize.Medium} onClick={() => onClose()} />
           )}
         </div>
       </div>
