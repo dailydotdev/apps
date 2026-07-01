@@ -40,7 +40,7 @@ const postAttachment = (seed: string, title: string) => ({
 });
 
 const meta: Meta<typeof NotificationItem> = {
-  title: 'Components/NotificationItem',
+  title: 'Components/Notifications/List item — all types',
   component: NotificationItem,
   tags: ['autodocs'],
   decorators: [
