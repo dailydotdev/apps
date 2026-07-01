@@ -189,7 +189,7 @@ const InstructionsBlock = ({
                 tag={TypographyTag.Span}
                 type={TypographyType.Callout}
                 color={TypographyColor.Secondary}
-                className="[text-wrap:pretty]"
+                className="min-w-0 flex-1 [text-wrap:pretty]"
               >
                 {step}
               </Typography>
