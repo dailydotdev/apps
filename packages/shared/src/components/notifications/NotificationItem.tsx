@@ -7,11 +7,11 @@ import type { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
 import NotificationItemAvatar from './NotificationItemAvatar';
 import { NotificationItemLead } from './NotificationItemLead';
+import { NotificationCategoryBadge } from './NotificationCategoryBadge';
 import { getNotificationLeadAvatar } from './leadAvatar';
 import {
   getNotificationCategory,
   NotificationFilterCategory,
-  notificationCategoryBadge,
   notificationMutingCopy,
   NotificationType,
   notificationTypeNotClickable,
@@ -210,8 +210,6 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   const [attachment] = attachments ?? [];
 
   const category = getNotificationCategory(type);
-  const badge = notificationCategoryBadge[category];
-  const BadgeIcon = badge.Icon;
   // Badge only for notifications about you (upvotes/comments/mentions/follows/
   // squad activity). Source posts & system land in `Updates` and stay clean.
   const showBadge =
@@ -259,21 +257,14 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
               ) : (
                 face
               )}
-              {/* Category badge centered on the bottom-right corner of the
-                  front face (straddling it), matching the single-avatar lead. */}
+              {/* Same category badge as the single-actor lead, straddling the
+                  front face's bottom-right corner (translate centering keeps it
+                  from swamping the smaller stacked face). */}
               {isFront && showBadge && (
-                <span
-                  className={classNames(
-                    'absolute bottom-0 right-0 z-2 flex size-5 translate-x-1/2 translate-y-1/2 items-center justify-center rounded-8 border-2 border-background-default',
-                    badge.bg,
-                  )}
-                >
-                  <BadgeIcon
-                    secondary
-                    size={IconSize.XXSmall}
-                    className={badge.fg}
-                  />
-                </span>
+                <NotificationCategoryBadge
+                  category={category}
+                  className="bottom-0 right-0 translate-x-1/2 translate-y-1/2"
+                />
               )}
             </span>
           );
@@ -304,7 +295,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   return (
     <div
       className={classNames(
-        'group relative flex min-h-14 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active laptop:min-h-16 laptop:py-4',
+        'relative flex min-h-14 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active laptop:min-h-16 laptop:py-4',
         isUnread && 'bg-surface-float',
       )}
     >
