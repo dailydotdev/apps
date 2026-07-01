@@ -175,3 +175,18 @@ it('shuffles the pool on request', () => {
   fireEvent.click(screen.getByRole('button', { name: /shuffle/i }));
   expect(shuffle).toHaveBeenCalled();
 });
+
+it('disables shuffle while a fresh set is loading', () => {
+  mockedUseContributionActionLinks.mockReturnValue({
+    links: [
+      { id: 'l1', url: 'https://reddit.com/r/webdev/comments/1', label: 'One' },
+    ],
+    isPending: false,
+    isFetching: true,
+    shuffle: jest.fn(),
+  });
+
+  renderModal(makeLinkPoolAction());
+
+  expect(screen.getByRole('button', { name: /shuffle/i })).toBeDisabled();
+});

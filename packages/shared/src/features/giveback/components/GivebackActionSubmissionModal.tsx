@@ -358,7 +358,7 @@ const LinkPoolPanel = ({
             disabled={isFetching}
             className="hover:opacity-80 disabled:opacity-60 flex items-center gap-1 uppercase tracking-wide text-text-tertiary transition-opacity typo-caption2 [&_svg]:size-3.5"
           >
-            <RefreshIcon />
+            <RefreshIcon className={isFetching ? 'animate-spin' : undefined} />
             Shuffle
           </button>
         )}
