@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
-import { useViewSize, useVotePost, ViewSize } from '../../../hooks';
+import { useVotePost } from '../../../hooks';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
@@ -39,15 +39,20 @@ interface FocusCardActionBarProps {
   className?: string;
 }
 
-// Inner buttons round slightly tighter than their surrounding pill so the
-// hover sits cleanly inside the pill's border.
+// Inner buttons round slightly tighter than their pill so the hover sits
+// cleanly inside the border.
 const PILL = '!rounded-10';
+// Each action sits in a bordered surface pill matching our button styling.
+const PILL_WRAP =
+  'flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float';
+// Match the other pill labels (e.g. "Copy link"): muted, footnote, not bold.
+const LABEL = 'font-medium text-text-tertiary typo-footnote';
 
 /**
- * Engagement bar for the redesign focus card, styled like YouTube's action row:
- * each action is its own surface pill (some with a label, some icon-only), the
- * vote actions share one pill split by a divider, and pills are separated by
- * gaps. On tablet up the row floats pinned to the BOTTOM of the scroll area.
+ * Engagement bar for the redesign focus card. Post-contribution actions (vote,
+ * comment, award) sit on the left; utility actions (copy link, save, menu) on
+ * the right. Each is a bordered surface pill matching our buttons. On tablet up
+ * the row floats pinned to the bottom of the scroll area.
  */
 export const FocusCardActionBar = ({
   post,
@@ -66,35 +71,12 @@ export const FocusCardActionBar = ({
     receivingUser: post.author as LoggedUser | undefined,
   });
 
-  // The sentinel sits just above the bar; once it leaves the viewport the bar
-  // has floated away from its resting spot, so surface the "…" menu the
-  // (now scrolled-off) header normally carries.
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const [isStuck, setIsStuck] = useState(false);
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el || typeof IntersectionObserver === 'undefined') {
-      return undefined;
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsStuck(!entry.isIntersecting),
-      { threshold: 0 },
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
   const isAwarded = !!post?.userState?.awarded;
   const upvotes = post.numUpvotes || 0;
   const comments = post.numComments || 0;
   const awards = post.numAwards || 0;
-  // Sticky to the BOTTOM only (tablet up); it never pins to the top. Below
-  // tablet the pills stay in-flow. The "…" menu surfaces only once the bar has
-  // floated away from the header that normally owns it.
-  const barFloats = useViewSize(ViewSize.Tablet);
-  const isPinned = isStuck && barFloats;
 
   const onToggleUpvote = async () => {
     if (post?.userState?.vote === UserVote.None) {
@@ -139,20 +121,17 @@ export const FocusCardActionBar = ({
   };
 
   return (
-    <>
-      <div ref={sentinelRef} aria-hidden className="pointer-events-none h-0" />
-      <div
-        className={classNames(
-          // YouTube-style row: each action is its own surface pill separated by
-          // gaps (no shared bar). From tablet up the row floats pinned to the
-          // bottom of the scroll area.
-          'relative z-3 flex flex-wrap items-center gap-2 tablet:sticky tablet:bottom-4',
-          className,
-        )}
-      >
-        {/* Vote pill (Reddit-style): upvote and downvote share one surface pill
-            with the score sitting between the two arrows. */}
-        <div className="flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float">
+    <div
+      className={classNames(
+        // Left: post-contribution actions. Right: utility actions. From tablet
+        // up the row floats pinned to the bottom of the scroll area.
+        'relative z-3 flex w-full flex-wrap items-center justify-between gap-2 tablet:sticky tablet:bottom-4',
+        className,
+      )}
+    >
+      <div className="flex items-center gap-2">
+        {/* Vote pill (Reddit-style): the score sits between the arrows. */}
+        <div className={PILL_WRAP}>
           <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
             <CardAction
               id="upvote-post-btn"
@@ -190,7 +169,7 @@ export const FocusCardActionBar = ({
           </Tooltip>
         </div>
 
-        <div className="flex rounded-12 border border-border-subtlest-tertiary bg-surface-float">
+        <div className={PILL_WRAP}>
           <Tooltip content="Comment">
             <CardAction
               id="comment-post-btn"
@@ -207,7 +186,7 @@ export const FocusCardActionBar = ({
         </div>
 
         {canAward && (
-          <div className="flex rounded-12 border border-border-subtlest-tertiary bg-surface-float">
+          <div className={PILL_WRAP}>
             <Tooltip
               content={isAwarded ? 'You already awarded this post!' : 'Award'}
             >
@@ -225,28 +204,14 @@ export const FocusCardActionBar = ({
             </Tooltip>
           </div>
         )}
+      </div>
 
-        {/* Save pill — labelled (Save / Saved), wrapped so the surface shows
-            through; keeps the bookmark-reminder dropdown. */}
-        <div className="flex rounded-12 border border-border-subtlest-tertiary bg-surface-float">
-          <BookmarkButton
-            post={post}
-            iconSize={IconSize.Small}
-            buttonProps={{
-              id: 'bookmark-post-btn',
-              pressed: post.bookmarked,
-              onClick: onToggleBookmark,
-              size: ButtonSize.Medium,
-              iconPosition: ButtonIconPosition.Left,
-              className: PILL,
-            }}
-          >
-            {post.bookmarked ? 'Saved' : 'Save'}
-          </BookmarkButton>
-        </div>
+      <div className="flex items-center gap-2">
+        {post.clickbaitTitleDetected && (
+          <PostClickbaitShield post={post} iconOnly />
+        )}
 
-        {/* Copy link — a labelled pill (text inside, YouTube "Share"-style). */}
-        <div className="flex rounded-12 border border-border-subtlest-tertiary bg-surface-float">
+        <div className={PILL_WRAP}>
           <Tooltip content="Copy link">
             <CardAction
               label="Copy link"
@@ -259,22 +224,33 @@ export const FocusCardActionBar = ({
           </Tooltip>
         </div>
 
-        {post.clickbaitTitleDetected && (
-          <PostClickbaitShield post={post} iconOnly />
-        )}
+        {/* Save — keeps the bookmark-reminder dropdown; label styled to match
+            the other pill labels (not the button's default bold/primary). */}
+        <div className={PILL_WRAP}>
+          <BookmarkButton
+            post={post}
+            iconSize={IconSize.Small}
+            buttonProps={{
+              id: 'bookmark-post-btn',
+              pressed: post.bookmarked,
+              onClick: onToggleBookmark,
+              size: ButtonSize.Medium,
+              iconPosition: ButtonIconPosition.Left,
+              className: PILL,
+            }}
+          >
+            <span className={LABEL}>{post.bookmarked ? 'Saved' : 'Save'}</span>
+          </BookmarkButton>
+        </div>
 
-        {/* While floated, the header (which owns the "…" menu) has scrolled
-            away, so surface the menu here as its own pill. */}
-        {isPinned && (
-          <div className="flex rounded-12 border border-border-subtlest-tertiary bg-surface-float">
-            <PostMenuOptions
-              post={post}
-              origin={origin}
-              buttonSize={ButtonSize.Medium}
-            />
-          </div>
-        )}
+        <div className={PILL_WRAP}>
+          <PostMenuOptions
+            post={post}
+            origin={origin}
+            buttonSize={ButtonSize.Medium}
+          />
+        </div>
       </div>
-    </>
+    </div>
   );
 };
