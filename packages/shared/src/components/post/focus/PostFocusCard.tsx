@@ -231,6 +231,11 @@ export const PostFocusCard = ({
       : undefined;
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
+  // A share post carries the user's own commentary in `post.title` (separate
+  // from the shared article's title). Surface it so the text the user actually
+  // wrote isn't dropped; skip it when it just mirrors the article's title.
+  const commentary =
+    isShared && post.title && post.title !== article.title ? post.title : null;
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { openModal } = useLazyModal();
   const { onShowUpvoted } = useUpvoteQuery();
@@ -406,6 +411,12 @@ export const PostFocusCard = ({
             )}
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
+            )}
+            {/* The sharer's own words, above the shared article they reference. */}
+            {commentary && (
+              <p className="whitespace-pre-line break-words font-bold text-text-primary typo-title3">
+                {commentary}
+              </p>
             )}
             {/* Title column and cover image sit side by side. Below tablet
                 the image is a top-aligned square (its original look); from
