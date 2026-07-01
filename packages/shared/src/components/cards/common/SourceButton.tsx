@@ -51,7 +51,7 @@ export default function SourceButton({
         size={size}
         rounded={rounded}
         user={{
-          id: source.id,
+          id: source.id ?? source.handle,
           image: source.image,
           username: source.handle,
         }}
@@ -68,7 +68,7 @@ export default function SourceButton({
           className={className}
           picture={{ size, rounded }}
           user={{
-            id: source.id,
+            id: source.id ?? source.handle,
             image: source.image,
             permalink: source.permalink,
             username: source.handle,
@@ -90,7 +90,7 @@ export default function SourceButton({
           className={className}
           picture={{ size, rounded }}
           user={{
-            id: source.id,
+            id: source.id ?? source.handle,
             image: source.image,
             permalink: source.permalink,
             username: source.handle,
