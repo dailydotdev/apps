@@ -416,8 +416,8 @@ const renderVariant = (
 export const GivebackCausesBreakdown = ({
   allocations,
   variant = 'stacked',
-  title = 'Where the money lands',
-  description = 'Every action the community takes turns into a real donation. Here is how the pool you are growing is split across the causes developers picked.',
+  title = 'Where the money will go',
+  description,
   flat = false,
   className,
 }: GivebackCausesBreakdownProps): ReactElement | null => {
@@ -446,15 +446,11 @@ export const GivebackCausesBreakdown = ({
       )}
 
       <FlexCol className="relative gap-6">
-        <FlexRow className="flex-col items-start justify-between gap-3 tablet:flex-row tablet:items-end">
-          <FlexCol className="min-w-0 flex-1 gap-1.5">
-            <Typography
-              tag={TypographyTag.H2}
-              type={TypographyType.Title3}
-              bold
-            >
-              {title}
-            </Typography>
+        <FlexCol className="gap-1.5">
+          <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
+            {title}
+          </Typography>
+          {description != null && (
             <Typography
               tag={TypographyTag.P}
               type={TypographyType.Callout}
@@ -463,27 +459,8 @@ export const GivebackCausesBreakdown = ({
             >
               {description}
             </Typography>
-          </FlexCol>
-
-          <FlexRow className="shrink-0 items-center gap-2 rounded-10 border border-border-subtlest-tertiary bg-background-default px-3 py-1.5">
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Callout}
-              bold
-              color={TypographyColor.StatusSuccess}
-              className="tabular-nums"
-            >
-              {formatDonationAmount(total)}
-            </Typography>
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              across {slices.length} causes
-            </Typography>
-          </FlexRow>
-        </FlexRow>
+          )}
+        </FlexCol>
 
         {renderVariant(variant, slices, total)}
       </FlexCol>
