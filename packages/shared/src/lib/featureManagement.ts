@@ -182,7 +182,9 @@ export const featureReaderModalNudge = new Feature('reader_modal_v3', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
-export const featureGiveback = new Feature('giveback', isDevelopment);
+// TEMP PREVIEW — remove after design review (restore `isDevelopment`). Forces
+// the giveback route on everywhere so the page can be viewed locally.
+export const featureGiveback = new Feature('giveback', true);
 
 export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',

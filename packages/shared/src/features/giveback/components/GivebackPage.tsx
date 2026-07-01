@@ -51,6 +51,19 @@ const buildCausesBreakdown = (
   }));
 };
 
+// TEMP PREVIEW — remove after design review. Hardcoded allocations + the
+// PREVIEW_BREAKDOWN flag below force the breakdown (and the page body) to render
+// locally without a live campaign pool, eligibility, or saved causes.
+const PREVIEW_BREAKDOWN = true;
+const DEMO_CAUSES_BREAKDOWN: GivebackCauseAllocation[] = [
+  { cause: { id: 'demo-oss', title: 'Open-source maintainers', url: null, description: null, category: 'Open source', logoUrl: null }, amount: 4200 },
+  { cause: { id: 'demo-scholar', title: 'Dev scholarships', url: null, description: null, category: 'Education', logoUrl: null }, amount: 2600 },
+  { cause: { id: 'demo-access', title: 'Access to tech', url: null, description: null, category: 'Accessibility', logoUrl: null }, amount: 1800 },
+  { cause: { id: 'demo-climate', title: 'Climate tech', url: null, description: null, category: 'Climate', logoUrl: null }, amount: 1100 },
+  { cause: { id: 'demo-mentor', title: 'Mentorship programs', url: null, description: null, category: 'Education', logoUrl: null }, amount: 700 },
+  { cause: { id: 'demo-docs', title: 'Better docs', url: null, description: null, category: 'Open source', logoUrl: null }, amount: 400 },
+];
+
 const scrollIntoView = (node: HTMLElement | null): void => {
   if (!node || typeof node.scrollIntoView !== 'function') {
     return;
@@ -84,7 +97,9 @@ export const GivebackPage = (): ReactElement => {
   const needsOnboarding =
     isEligible && !selection.hasSavedCauses && !completedOnboarding;
   const forcedFunnel = onboardingResolved && needsOnboarding;
-  const showFunnel = replayFunnel || forcedFunnel;
+  // TEMP PREVIEW — remove after design review. Keeps the forced funnel from
+  // covering the page so the breakdown is visible.
+  const showFunnel = !PREVIEW_BREAKDOWN && (replayFunnel || forcedFunnel);
   const showTabs = selection.hasSavedCauses || completedOnboarding;
 
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -147,10 +162,9 @@ export const GivebackPage = (): ReactElement => {
 
   const activeLabel = givebackTabs.find((tab) => tab.id === activeTab)?.label;
 
-  const causesBreakdown = buildCausesBreakdown(
-    selection.causes,
-    status?.currentCyclePoints ?? 0,
-  );
+  const causesBreakdown = PREVIEW_BREAKDOWN
+    ? DEMO_CAUSES_BREAKDOWN
+    : buildCausesBreakdown(selection.causes, status?.currentCyclePoints ?? 0);
 
   // `overflow-x-clip` on the root guards against any descendant (decorative glow,
   // popover, wide row) bleeding past the viewport: such bleed widens the document
@@ -165,13 +179,13 @@ export const GivebackPage = (): ReactElement => {
           full-screen overlay on the same background, so revealing the hero/tabs
           first would flash them on screen before it covers them. While resolving,
           only the shared background shows, so there's no flash and no shift. */}
-      {onboardingResolved && !forcedFunnel && (
+      {(PREVIEW_BREAKDOWN || (onboardingResolved && !forcedFunnel)) && (
         <FlexCol className="relative gap-6 py-6 tablet:gap-8 tablet:py-8">
           <div className={column}>
             <GivebackHero onHowItWorks={handleHowItWorks} />
           </div>
 
-          {showTabs && causesBreakdown.length > 0 && (
+          {(PREVIEW_BREAKDOWN || (showTabs && causesBreakdown.length > 0)) && (
             <div className={column}>
               <GivebackCausesBreakdown
                 variant="donut"
