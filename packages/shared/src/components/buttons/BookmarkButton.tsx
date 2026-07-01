@@ -102,7 +102,7 @@ export function BookmarkButton({
         {...buttonProps}
         type="button"
         pressed={post.bookmarked}
-        iconPosition={buttonIconPosition}
+        iconPosition={buttonProps.iconPosition ?? buttonIconPosition}
         onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
           buttonProps.onClick?.(e)
         }

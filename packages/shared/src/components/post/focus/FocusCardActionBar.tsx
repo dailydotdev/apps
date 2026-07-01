@@ -13,10 +13,11 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import { Origin } from '../../../lib/log';
 import { AuthTriggers } from '../../../lib/auth';
-import { ButtonSize } from '../../buttons/Button';
+import { ButtonSize, ButtonIconPosition } from '../../buttons/Button';
 import { ButtonColor } from '../../buttons/ButtonV2';
 import { CardAction } from '../../buttons/CardAction';
 import { BookmarkButton } from '../../buttons/BookmarkButton';
+import InteractionCounter from '../../InteractionCounter';
 import { UpvoteButtonIcon } from '../../cards/common/UpvoteButtonIcon';
 import { IconSize } from '../../Icon';
 import {
@@ -149,8 +150,8 @@ export const FocusCardActionBar = ({
           className,
         )}
       >
-        {/* Vote pill: upvote (+ count) and downvote share one surface pill,
-            split by a divider — like YouTube's like/dislike. */}
+        {/* Vote pill (Reddit-style): upvote and downvote share one surface pill
+            with the score sitting between the two arrows. */}
         <div className="flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float">
           <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
             <CardAction
@@ -159,13 +160,22 @@ export const FocusCardActionBar = ({
               color={ButtonColor.Avocado}
               icon={<UpvoteButtonIcon />}
               iconPressed={<UpvoteButtonIcon secondary />}
-              count={upvotes}
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
               className={PILL}
             />
           </Tooltip>
-          <div className="h-5 w-px bg-border-subtlest-tertiary" aria-hidden />
+          {upvotes > 0 && (
+            <span
+              className={classNames(
+                'min-w-[1.25rem] text-center font-bold tabular-nums typo-footnote',
+                isUpvoteActive ? 'text-text-primary' : 'text-text-tertiary',
+              )}
+              aria-hidden
+            >
+              <InteractionCounter value={upvotes} />
+            </span>
+          )}
           <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
             <CardAction
               id="downvote-post-btn"
@@ -216,8 +226,8 @@ export const FocusCardActionBar = ({
           </div>
         )}
 
-        {/* Save pill — wrapped so the surface shows through; keeps the
-            bookmark-reminder dropdown. */}
+        {/* Save pill — labelled (Save / Saved), wrapped so the surface shows
+            through; keeps the bookmark-reminder dropdown. */}
         <div className="flex rounded-12 border border-border-subtlest-tertiary bg-surface-float">
           <BookmarkButton
             post={post}
@@ -227,9 +237,12 @@ export const FocusCardActionBar = ({
               pressed: post.bookmarked,
               onClick: onToggleBookmark,
               size: ButtonSize.Medium,
+              iconPosition: ButtonIconPosition.Left,
               className: PILL,
             }}
-          />
+          >
+            {post.bookmarked ? 'Saved' : 'Save'}
+          </BookmarkButton>
         </div>
 
         {/* Copy link — a labelled pill (text inside, YouTube "Share"-style). */}
