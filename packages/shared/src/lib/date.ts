@@ -38,6 +38,23 @@ export const getDefaultStartOfWeek = (weekStart?: number): string => {
   return (weekStart as number).toString();
 };
 
+// Weekly quests rotate at the start of each week (Monday 00:00 UTC), matching
+// DEFAULT_WEEK_START and the server's UTC rotation boundary. `|| 7` keeps the
+// reset a full week out on Monday itself rather than collapsing to today.
+export const getDaysUntilWeeklyQuestReset = (from: Date = new Date()): number =>
+  (8 - from.getUTCDay()) % 7 || 7;
+
+// The instant the current weekly period ends (the next Monday at 00:00 UTC).
+export const getWeeklyQuestPeriodEnd = (from: Date = new Date()): Date => {
+  const periodEnd = new Date(from);
+  periodEnd.setUTCDate(
+    periodEnd.getUTCDate() + getDaysUntilWeeklyQuestReset(from),
+  );
+  periodEnd.setUTCHours(0, 0, 0, 0);
+
+  return periodEnd;
+};
+
 export const isOlderThan = (seconds: number, date: Date) => {
   const currentDate = getTodayTz('UTC', new Date());
   return date.getTime() < currentDate.getTime() - seconds;
