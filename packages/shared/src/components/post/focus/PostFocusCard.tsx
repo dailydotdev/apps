@@ -418,12 +418,12 @@ export const PostFocusCard = ({
                 {commentary}
               </p>
             )}
-            {/* Title column and cover image sit side by side. Below tablet
-                the image is a top-aligned square (its original look); from
-                tablet up it stretches to match the title + read button column
-                height. The cover image opens a lightbox rather than navigating
-                away. */}
-            <div className="flex min-w-0 flex-row items-start gap-4 tablet:items-stretch">
+            {/* Title column and cover image sit side by side, top-aligned. The
+                image keeps a fixed ratio (square on mobile/small tablet, the
+                wide open-graph cover ratio from tablet up) so a short title
+                can't squash it. The cover opens a lightbox rather than
+                navigating away. */}
+            <div className="flex min-w-0 flex-row items-start gap-4">
               <div className="flex min-w-0 flex-1 flex-col gap-4">
                 <h1
                   className={classNames(
@@ -470,10 +470,10 @@ export const PostFocusCard = ({
                 >
                   <LazyImage
                     eager
-                    // Square below tablet; from tablet up it fills the button,
-                    // which stretches to the title column height. object-cover
-                    // crops the cover to fit either way.
-                    className="aspect-square w-full tablet:aspect-auto tablet:h-full"
+                    // Square below tablet; from tablet up the wide open-graph
+                    // cover ratio (52% => 25/13). Fixed either way so the image
+                    // never distorts; object-cover crops to fit.
+                    className="aspect-square w-full tablet:aspect-[25/13]"
                     fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                     fetchPriority="high"
                     imgAlt="Post cover image"
