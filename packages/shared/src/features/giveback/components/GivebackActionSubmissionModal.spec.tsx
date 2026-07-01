@@ -1,10 +1,11 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { GivebackActionSubmissionModal } from './GivebackActionSubmissionModal';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { useReferralCampaign } from '../../../hooks/referral/useReferralCampaign';
+import { useContributionActionLinks } from '../hooks/useContributionActionLinks';
 import type { ContributionAction } from '../types';
 import { ContributionAssistType } from '../types';
 
@@ -27,12 +28,24 @@ jest.mock('../../../hooks/referral/useReferralCampaign', () => ({
   useReferralCampaign: jest.fn(),
 }));
 
+jest.mock('../hooks/useContributionActionLinks', () => ({
+  useContributionActionLinks: jest.fn(),
+}));
+
 const mockedUseReferralCampaign = useReferralCampaign as jest.Mock;
+const mockedUseContributionActionLinks =
+  useContributionActionLinks as jest.Mock;
 
 beforeEach(() => {
   mockedUseReferralCampaign.mockReturnValue({
     url: 'https://dly.to/abc',
     isReady: true,
+  });
+  mockedUseContributionActionLinks.mockReturnValue({
+    links: [],
+    isPending: false,
+    isFetching: false,
+    shuffle: jest.fn(),
   });
 });
 
@@ -98,4 +111,67 @@ it('shows a spinner instead of the fallback link while the invite link loads', (
   expect(
     screen.queryByDisplayValue('https://daily.dev'),
   ).not.toBeInTheDocument();
+});
+
+const makeLinkPoolAction = (): ContributionAction =>
+  makeAction({
+    title: 'Mention daily.dev in a relevant Reddit discussion',
+    evidence: { url: { required: true } },
+    metadata: {
+      platform: 'reddit',
+      instructions: null,
+      externalUrl: null,
+      isLoveAction: false,
+      assistType: ContributionAssistType.LinkPool,
+    },
+  });
+
+it('surfaces suggested pool threads and still asks for proof for a link_pool action', () => {
+  mockedUseContributionActionLinks.mockReturnValue({
+    links: [
+      {
+        id: 'l1',
+        url: 'https://reddit.com/r/webdev/comments/1',
+        label: 'r/webdev: keep up with dev news',
+      },
+      { id: 'l2', url: 'https://reddit.com/r/x/comments/2', label: null },
+    ],
+    isPending: false,
+    isFetching: false,
+    shuffle: jest.fn(),
+  });
+
+  renderModal(makeLinkPoolAction());
+
+  expect(screen.getByText('Suggested threads')).toBeInTheDocument();
+  const firstThread = screen.getByText('r/webdev: keep up with dev news');
+  expect(firstThread.closest('a')).toHaveAttribute(
+    'href',
+    'https://reddit.com/r/webdev/comments/1',
+  );
+  // A label-less link falls back to its URL.
+  expect(
+    screen.getByText('https://reddit.com/r/x/comments/2'),
+  ).toBeInTheDocument();
+  // link_pool keeps the proof flow (unlike referral).
+  expect(
+    screen.getByRole('button', { name: 'Submit for review' }),
+  ).toBeInTheDocument();
+});
+
+it('shuffles the pool on request', () => {
+  const shuffle = jest.fn();
+  mockedUseContributionActionLinks.mockReturnValue({
+    links: [
+      { id: 'l1', url: 'https://reddit.com/r/webdev/comments/1', label: 'One' },
+    ],
+    isPending: false,
+    isFetching: false,
+    shuffle,
+  });
+
+  renderModal(makeLinkPoolAction());
+
+  fireEvent.click(screen.getByRole('button', { name: /shuffle/i }));
+  expect(shuffle).toHaveBeenCalled();
 });
