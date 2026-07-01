@@ -27,6 +27,7 @@ import {
 } from '../../../hooks/referral/useReferralCampaign';
 import { InviteLinkInput } from '../../../components/referral/InviteLinkInput';
 import { Loader } from '../../../components/Loader';
+import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import type { ContributionAction } from '../types';
 import { ContributionAssistType } from '../types';
 import { formatDonationAmount } from '../utils';
@@ -264,6 +265,14 @@ const ReferralPanel = ({
   );
 };
 
+// Shared box for both real and skeleton pool rows. The fixed min height keeps
+// the two identical so swapping the skeleton for real links causes no shift.
+const POOL_ROW_CLASS =
+  'flex min-h-10 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-2';
+// Mirrors the backend's default handful size, so the skeleton reserves the exact
+// height the loaded list will occupy.
+const POOL_PLACEHOLDER_KEYS = ['s0', 's1', 's2', 's3', 's4'];
+
 // link_pool actions carry a curated pool of targets (e.g. Reddit threads). We
 // surface a randomized handful the user can open, with a shuffle for a fresh set,
 // then they submit their own comment link as proof below.
@@ -289,9 +298,18 @@ const LinkPoolPanel = ({
   const renderBody = (): ReactElement => {
     if (isPending) {
       return (
-        <FlexRow className="h-10 items-center justify-center">
-          <Loader role="status" aria-label="Loading suggested threads" />
-        </FlexRow>
+        <FlexCol
+          className="gap-2"
+          role="status"
+          aria-label="Loading suggested threads"
+        >
+          {POOL_PLACEHOLDER_KEYS.map((key) => (
+            <div key={key} aria-hidden className={POOL_ROW_CLASS}>
+              <ElementPlaceholder className="h-3.5 flex-1 animate-pulse rounded-8" />
+              <ElementPlaceholder className="size-4 shrink-0 animate-pulse rounded-full" />
+            </div>
+          ))}
+        </FlexCol>
       );
     }
 
@@ -323,7 +341,7 @@ const LinkPoolPanel = ({
                 extra: JSON.stringify({ url: poolLink.url }),
               })
             }
-            className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-2 transition-colors hover:bg-surface-hover"
+            className={`${POOL_ROW_CLASS} transition-colors hover:bg-surface-hover`}
           >
             <Typography
               type={TypographyType.Footnote}

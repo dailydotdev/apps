@@ -176,6 +176,21 @@ it('shuffles the pool on request', () => {
   expect(shuffle).toHaveBeenCalled();
 });
 
+it('reserves space with placeholder rows while the pool loads', () => {
+  mockedUseContributionActionLinks.mockReturnValue({
+    links: [],
+    isPending: true,
+    isFetching: false,
+    shuffle: jest.fn(),
+  });
+
+  renderModal(makeLinkPoolAction());
+
+  expect(
+    screen.getByRole('status', { name: 'Loading suggested threads' }),
+  ).toBeInTheDocument();
+});
+
 it('disables shuffle while a fresh set is loading', () => {
   mockedUseContributionActionLinks.mockReturnValue({
     links: [
