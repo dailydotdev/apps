@@ -58,6 +58,27 @@ export const GivebackFunnel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Lock the underlying document while this full-screen overlay is open. Two
+  // reasons: it stops the page behind from scrolling, and - critically - it
+  // collapses Android's layout viewport back to device width. Any horizontal
+  // document bleed makes Android widen the initial containing block; this
+  // `fixed inset-0` overlay (and its centered footer/close) then render wider
+  // than the screen and clip on the right. The global `body { overflow-x }`
+  // guard isn't enough here: it lives on `body`, not `html`, and doesn't
+  // constrain fixed descendants. iOS keeps the layout viewport pinned to
+  // device width regardless, which is why this only broke on Android.
+  useEffect(() => {
+    const { body } = document;
+    const html = document.documentElement;
+    const prevHtmlOverflowX = html.style.overflowX;
+    body.classList.add('hidden-scrollbar');
+    html.style.overflowX = 'clip';
+    return () => {
+      body.classList.remove('hidden-scrollbar');
+      html.style.overflowX = prevHtmlOverflowX;
+    };
+  }, []);
+
   useEffect(() => {
     logEvent({
       event_name: LogEvent.ViewGivebackFunnelStep,
@@ -99,13 +120,16 @@ export const GivebackFunnel = ({
         role="dialog"
         aria-modal
         aria-label="How daily.dev Giveback works"
-        className="fixed inset-0 z-modal bg-background-default"
+        // `overflow-x-clip` guards this portaled overlay directly: it renders
+        // outside GivebackPage's clip (RootPortal), so it can't rely on the
+        // page's guard to stop a wide descendant from bleeding past the edge.
+        className="fixed inset-0 z-modal overflow-x-clip bg-background-default"
       >
         {/* Background lives outside the scroll container, so it stays fixed and the
           page behind is never revealed no matter how far the content scrolls. */}
         <GivebackBackground />
 
-        <div className="relative flex h-full flex-col overflow-y-auto overscroll-contain">
+        <div className="relative flex h-full flex-col overflow-y-auto overflow-x-clip overscroll-contain">
           {/* Just a close affordance on replay - the heavy progress bar is gone. */}
           <header className="relative flex h-12 items-center justify-end px-4">
             {canClose && (

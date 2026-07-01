@@ -29,11 +29,19 @@ export const GivebackFunnelVideo = ({
     }
     const update = () => {
       if (docked) {
-        const width = Math.min(DOCK_WIDTH, window.innerWidth - 32);
+        // Pin to the visual viewport (the actually-visible area), not
+        // `window.innerWidth`/`innerHeight`. On Android the layout viewport can
+        // be wider than the screen, and positioning this fixed player from it
+        // drops the video off the right/bottom edge. The visual viewport always
+        // tracks what the user sees, so the corner stays on-screen everywhere.
+        const vv = window.visualViewport;
+        const viewportWidth = vv?.width ?? window.innerWidth;
+        const viewportHeight = vv?.height ?? window.innerHeight;
+        const width = Math.min(DOCK_WIDTH, viewportWidth - 32);
         const height = (width * 9) / 16;
         setStyle({
-          top: window.innerHeight - height - 16,
-          left: window.innerWidth - width - 16,
+          top: viewportHeight - height - 16,
+          left: viewportWidth - width - 16,
           width,
         });
         return;
@@ -62,6 +70,10 @@ export const GivebackFunnelVideo = ({
     update();
     window.addEventListener('resize', scheduleUpdate);
     window.addEventListener('scroll', scheduleUpdate, true);
+    // The visual viewport changes as the mobile URL bar shows/hides without
+    // firing a window resize, so track it too to keep the docked player pinned.
+    window.visualViewport?.addEventListener('resize', scheduleUpdate);
+    window.visualViewport?.addEventListener('scroll', scheduleUpdate);
     let observer: ResizeObserver | undefined;
     if (typeof ResizeObserver !== 'undefined' && slotRef.current) {
       observer = new ResizeObserver(scheduleUpdate);
@@ -73,6 +85,8 @@ export const GivebackFunnelVideo = ({
       }
       window.removeEventListener('resize', scheduleUpdate);
       window.removeEventListener('scroll', scheduleUpdate, true);
+      window.visualViewport?.removeEventListener('resize', scheduleUpdate);
+      window.visualViewport?.removeEventListener('scroll', scheduleUpdate);
       observer?.disconnect();
     };
   }, [docked, slotRef]);
@@ -83,7 +97,7 @@ export const GivebackFunnelVideo = ({
 
   return (
     <div
-      className="z-10 fixed transition-[top,left,width] duration-500 ease-in-out motion-reduce:transition-none"
+      className="z-10 fixed max-w-[calc(100vw-2rem)] transition-[top,left,width] duration-500 ease-in-out motion-reduce:transition-none"
       style={style}
     >
       <div className="relative shadow-2">
