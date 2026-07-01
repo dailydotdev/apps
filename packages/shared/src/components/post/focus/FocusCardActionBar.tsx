@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
-import { useVotePost } from '../../../hooks';
+import { useViewSize, useVotePost, ViewSize } from '../../../hooks';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
@@ -41,10 +41,7 @@ interface FocusCardActionBarProps {
 const PILL = '!rounded-10';
 // Each action sits in a bordered surface pill matching our button styling.
 const PILL_WRAP =
-  'flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float';
-// Below tablet, collapse the label to an icon-only button; show it from tablet.
-const HIDE_LABEL_MOBILE =
-  '[&_.card-action-content]:hidden tablet:[&_.card-action-content]:inline-flex';
+  'flex items-center rounded-12 border border-border-subtlest-tertiary bg-surface-float py-1';
 
 /**
  * Engagement bar for the redesign focus card. Post-contribution actions (vote,
@@ -69,6 +66,9 @@ export const FocusCardActionBar = ({
     receivingUser: post.author as LoggedUser | undefined,
   });
 
+  // Labels show from tablet up; below that Save / Copy link are icon-only so
+  // they collapse to a clean square button (no leftover label space).
+  const showLabels = useViewSize(ViewSize.Tablet);
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
   const isAwarded = !!post?.userState?.awarded;
@@ -215,13 +215,13 @@ export const FocusCardActionBar = ({
             <CardAction
               id="bookmark-post-btn"
               label={post.bookmarked ? 'Saved' : 'Save'}
-              labelVisible
+              labelVisible={showLabels}
               color={ButtonColor.Bun}
               icon={<BookmarkIcon />}
               iconPressed={<BookmarkIcon secondary />}
               pressed={post.bookmarked}
               onClick={onToggleBookmark}
-              className={classNames(PILL, HIDE_LABEL_MOBILE)}
+              className={PILL}
             />
           </Tooltip>
         </div>
@@ -230,11 +230,11 @@ export const FocusCardActionBar = ({
           <Tooltip content="Copy link">
             <CardAction
               label="Copy link"
-              labelVisible
+              labelVisible={showLabels}
               color={ButtonColor.Cabbage}
               icon={<LinkIcon />}
               onClick={() => onCopyLinkClick?.(post)}
-              className={classNames(PILL, HIDE_LABEL_MOBILE)}
+              className={PILL}
             />
           </Tooltip>
         </div>
