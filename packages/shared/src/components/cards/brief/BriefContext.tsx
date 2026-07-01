@@ -35,7 +35,7 @@ const [BriefContextProvider, useBriefContext] = createContextProvider(
         return undefined;
       }
 
-      return { ...storedBrief, createdAt };
+      return storedBrief;
     }, [storedBrief]);
 
     return {
