@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { useTimedAnimation } from '../../../hooks/useTimedAnimation';
 import {
   Button,
   ButtonSize,
@@ -28,6 +29,8 @@ export interface GivebackInvitePromptProps {
   // support/settings/profile menus, instead of anchored to the gift with a tail.
   dropdown?: boolean;
   autoDismissMs?: number;
+  // Externally pause the auto-dismiss (e.g. while the cursor is over the gift).
+  paused?: boolean;
   onClick?: () => void;
   onClose?: () => void;
   className?: string;
@@ -49,31 +52,61 @@ export const GivebackInvitePrompt = ({
   align = 'end',
   dropdown = false,
   autoDismissMs = 5000,
+  paused = false,
   onClick,
   onClose,
   className,
 }: GivebackInvitePromptProps): ReactElement | null => {
-  // Bumps every time the prompt opens, so the confetti and the countdown ring
-  // restart even when one prompt replaces another.
+  // Bumps every time the prompt opens, so the confetti restarts even when one
+  // prompt replaces another.
   const [runId, setRunId] = useState(0);
+  const [hovered, setHovered] = useState(false);
 
+  // Keep onClose fresh without re-arming the timer every render.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+  const handleEnd = useCallback(() => onCloseRef.current?.(), []);
+
+  const { timer, startAnimation, pauseAnimation, resumeAnimation } =
+    useTimedAnimation({
+      autoEndAnimation: true,
+      outAnimationDuration: 150,
+      onAnimationEnd: handleEnd,
+    });
+
+  // Arm the countdown when the prompt opens (once — not on every render).
   useEffect(() => {
     if (!open) {
       return undefined;
     }
     setRunId((current) => current + 1);
-    if (!autoDismissMs || !onClose) {
-      return undefined;
+    startAnimation(autoDismissMs);
+    return () => pauseAnimation();
+  }, [open, autoDismissMs, startAnimation, pauseAnimation]);
+
+  // Pause the countdown while the pointer rests on the gift or the toast, and
+  // resume from where it left off (never restart) when it leaves.
+  const isPaused = paused || hovered;
+  useEffect(() => {
+    if (!open) {
+      return;
     }
-    const timer = window.setTimeout(onClose, autoDismissMs);
-    return () => window.clearTimeout(timer);
-  }, [open, autoDismissMs, onClose]);
+    if (isPaused) {
+      pauseAnimation();
+    } else {
+      resumeAnimation();
+    }
+  }, [isPaused, open, pauseAnimation, resumeAnimation]);
 
   if (!open) {
     return null;
   }
 
   const isAbove = placement === 'above';
+  // Countdown ring: drains 0 -> 100 as the remaining time elapses, and freezes
+  // while paused (the timer stops ticking).
+  const remaining = autoDismissMs > 0 ? (timer / autoDismissMs) * 100 : 0;
+  const dashoffset = Math.min(100, Math.max(0, 100 - remaining));
   const giftSide = align === 'end' ? 'right-6' : 'left-6';
 
   const content = (
@@ -117,7 +150,11 @@ export const GivebackInvitePrompt = ({
         />
       )}
 
-      <div className="giveback-toast-in relative flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-accent-cabbage-flat to-background-popover p-3.5 antialiased shadow-3">
+      <div
+        className="giveback-toast-in relative flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-accent-cabbage-flat to-background-popover p-3.5 antialiased shadow-3"
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
         {/* Close button (top-right corner) with the auto-dismiss countdown ring. */}
         <button
           type="button"
@@ -132,8 +169,6 @@ export const GivebackInvitePrompt = ({
               aria-hidden
             >
               <circle
-                key={runId}
-                className="giveback-dismiss-ring"
                 cx="18"
                 cy="18"
                 r="15"
@@ -142,7 +177,7 @@ export const GivebackInvitePrompt = ({
                 strokeWidth="2.5"
                 pathLength={100}
                 strokeDasharray="100"
-                style={{ animationDuration: `${autoDismissMs}ms` }}
+                strokeDashoffset={dashoffset}
               />
             </svg>
           )}

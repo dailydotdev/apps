@@ -65,7 +65,10 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   const [pops, setPops] = useState<ValuePop[]>([]);
   const [popping, setPopping] = useState(false);
   const [glowKey, setGlowKey] = useState(0);
+  const [giftHovered, setGiftHovered] = useState(false);
   const [prompt, setPrompt] = useState<GivebackInvitePromptData | null>(null);
+  // Bumps per show so a replacing prompt remounts (fresh timer + confetti).
+  const [promptSeq, setPromptSeq] = useState(0);
   const timers = useRef<number[]>([]);
 
   const track = useCallback((id: number) => {
@@ -101,7 +104,12 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         setGlowKey((current) => current + 1);
       }
       popGift();
-      track(window.setTimeout(() => setPrompt(next), MILESTONE_TOAST_DELAY_MS));
+      track(
+        window.setTimeout(() => {
+          setPromptSeq((current) => current + 1);
+          setPrompt(next);
+        }, MILESTONE_TOAST_DELAY_MS),
+      );
     },
     [popGift, track],
   );
@@ -127,6 +135,8 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
           'relative inline-flex',
           popping && 'giveback-gift-pop',
         )}
+        onMouseEnter={() => setGiftHovered(true)}
+        onMouseLeave={() => setGiftHovered(false)}
       >
         {/* Soft glow bloom on a celebratory community moment. */}
         {glowKey > 0 && (
@@ -162,6 +172,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
       </div>
 
       <GivebackInvitePrompt
+        key={promptSeq}
         open={Boolean(prompt)}
         eyebrow={prompt?.eyebrow}
         headline={prompt?.headline}
@@ -169,6 +180,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         ctaLabel={prompt?.ctaLabel}
         celebrate={prompt?.celebrate}
         dropdown={isRail}
+        paused={giftHovered}
         placement={promptPlacement ?? (isRail ? 'above' : 'below')}
         align={promptAlign ?? (isRail ? 'start' : 'end')}
         onClick={onOpenGiveback}

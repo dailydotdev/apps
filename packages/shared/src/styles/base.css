@@ -1178,23 +1178,6 @@ meter::-webkit-meter-bar {
     will-change: transform, opacity;
   }
 
-  /* Auto-dismiss countdown ring around the invite prompt's close (X) button —
-     the stroke drains away as the time elapses (pathLength/dasharray = 100).
-     Duration is set inline to match autoDismissMs. */
-  @keyframes giveback-dismiss-ring {
-    from {
-      stroke-dashoffset: 0;
-    }
-
-    to {
-      stroke-dashoffset: 100;
-    }
-  }
-
-  .giveback-dismiss-ring {
-    animation: giveback-dismiss-ring linear forwards;
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .giveback-confetti-piece,
     .giveback-value-rise,
@@ -1203,8 +1186,7 @@ meter::-webkit-meter-bar {
     }
 
     .giveback-toast-in,
-    .giveback-gift-pop,
-    .giveback-dismiss-ring {
+    .giveback-gift-pop {
       animation: none;
     }
   }
