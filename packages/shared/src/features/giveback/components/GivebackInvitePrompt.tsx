@@ -8,6 +8,7 @@ import {
 } from '../../../components/buttons/Button';
 import { MiniCloseIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import { RootPortal } from '../../../components/tooltips/Portal';
 import { cloudinaryCharmInviteFriends } from '../../../lib/image';
 import { GivebackConfettiBurst } from './GivebackConfettiBurst';
 
@@ -23,6 +24,9 @@ export interface GivebackInvitePromptProps {
   placement?: 'below' | 'above';
   // Horizontal edge the tail points to — matches where the gift sits.
   align?: 'start' | 'end';
+  // Open like a rail dropdown: portaled + fixed at the same left margin as the
+  // support/settings/profile menus, instead of anchored to the gift with a tail.
+  dropdown?: boolean;
   autoDismissMs?: number;
   onClick?: () => void;
   onClose?: () => void;
@@ -43,6 +47,7 @@ export const GivebackInvitePrompt = ({
   celebrate = false,
   placement = 'below',
   align = 'end',
+  dropdown = false,
   autoDismissMs = 5000,
   onClick,
   onClose,
@@ -71,12 +76,17 @@ export const GivebackInvitePrompt = ({
   const isAbove = placement === 'above';
   const giftSide = align === 'end' ? 'right-6' : 'left-6';
 
-  return (
+  const content = (
     <div
       className={classNames(
-        'absolute z-3 w-[25rem] max-w-[calc(100vw-2rem)]',
-        isAbove ? 'bottom-full mb-3' : 'top-full mt-3',
-        align === 'end' ? 'right-0' : 'left-0',
+        'w-[25rem]',
+        dropdown
+          ? 'fixed bottom-3 left-20 z-popup ml-2 max-w-[calc(100vw-6rem)]'
+          : classNames(
+              'absolute z-3 max-w-[calc(100vw-2rem)]',
+              isAbove ? 'bottom-full mb-3' : 'top-full mt-3',
+              align === 'end' ? 'right-0' : 'left-0',
+            ),
         className,
       )}
       role="status"
@@ -85,24 +95,27 @@ export const GivebackInvitePrompt = ({
         <div
           className={classNames(
             'pointer-events-none absolute',
-            isAbove ? 'bottom-0' : 'top-0',
-            giftSide,
+            dropdown
+              ? 'inset-x-0 top-0'
+              : [isAbove ? 'bottom-0' : 'top-0', giftSide],
           )}
         >
           <GivebackConfettiBurst trigger={runId} />
         </div>
       )}
 
-      {/* Tail pointing to the gift. */}
-      <div
-        className={classNames(
-          'absolute size-3 rotate-45 border border-border-subtlest-tertiary bg-background-popover',
-          giftSide,
-          isAbove
-            ? 'bottom-[-6px] border-l-0 border-t-0'
-            : 'top-[-6px] border-b-0 border-r-0',
-        )}
-      />
+      {/* Tail pointing to the gift (anchored mode only). */}
+      {!dropdown && (
+        <div
+          className={classNames(
+            'absolute size-3 rotate-45 border border-border-subtlest-tertiary bg-background-popover',
+            giftSide,
+            isAbove
+              ? 'bottom-[-6px] border-l-0 border-t-0'
+              : 'top-[-6px] border-b-0 border-r-0',
+          )}
+        />
+      )}
 
       <div className="giveback-toast-in relative flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-accent-cabbage-flat to-background-popover p-3.5 antialiased shadow-3">
         {/* Close button (top-right corner) with the auto-dismiss countdown ring. */}
@@ -176,6 +189,8 @@ export const GivebackInvitePrompt = ({
       </div>
     </div>
   );
+
+  return dropdown ? <RootPortal>{content}</RootPortal> : content;
 };
 
 export default GivebackInvitePrompt;

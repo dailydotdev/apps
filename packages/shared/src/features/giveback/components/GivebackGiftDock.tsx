@@ -168,6 +168,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         body={prompt?.body}
         ctaLabel={prompt?.ctaLabel}
         celebrate={prompt?.celebrate}
+        dropdown={isRail}
         placement={promptPlacement ?? (isRail ? 'above' : 'below')}
         align={promptAlign ?? (isRail ? 'start' : 'end')}
         onClick={onOpenGiveback}
