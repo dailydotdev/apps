@@ -5,12 +5,13 @@ import type { Post } from '../../../graphql/posts';
 import InteractionCounter from '../../InteractionCounter';
 import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import {
+  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode, useViewSize, ViewSize } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
@@ -21,6 +22,9 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
+import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
+import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
+import { formatImpressions } from '../../../lib/impressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
 import ActionButtonsV2 from './ActionButtons.v2';
 
@@ -78,6 +82,14 @@ const ActionButtonsV1 = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const { buttonSize, iconSize } = config;
+  // On mobile/tablet keep full-size icons but shrink the count so the icon
+  // reads as the primary affordance and the number as a subtle stat.
+  const counterClassName = classNames(
+    'tabular-nums',
+    isLaptop ? variant === 'grid' && 'typo-footnote' : 'typo-caption1',
+  );
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
@@ -114,6 +126,13 @@ const ActionButtonsV1 = ({
     };
   }, [getUpvoteAnimation, post.tags]);
 
+  const onImpressionsClick = usePostImpressionsModal(post);
+  const {
+    enabled: impressionsEnabled,
+    showImpressions,
+    impressions,
+  } = usePostImpressions(post);
+
   if (isFeedPreview) {
     return null;
   }
@@ -135,13 +154,16 @@ const ActionButtonsV1 = ({
         href={post.commentsPermalink}
         pressed={post.commented}
         variant={ButtonVariant.Tertiary}
-        size={config.buttonSize}
-        icon={<CommentIcon secondary={post.commented} size={config.iconSize} />}
+        size={buttonSize}
+        icon={<CommentIcon secondary={post.commented} size={iconSize} />}
         onClick={() => onCommentClick?.(post)}
       >
         {commentCount > 0 && (
           <InteractionCounter
-            className={classNames('tabular-nums', !commentCount && 'invisible')}
+            className={classNames(
+              counterClassName,
+              !commentCount && 'invisible',
+            )}
             value={commentCount}
           />
         )}
@@ -152,16 +174,16 @@ const ActionButtonsV1 = ({
       <QuaternaryButton
         labelClassName="!pl-[1px]"
         id={`post-${post.id}-comment-btn`}
-        icon={<CommentIcon secondary={post.commented} size={config.iconSize} />}
+        icon={<CommentIcon secondary={post.commented} size={iconSize} />}
         pressed={post.commented}
         onClick={() => onCommentClick?.(post)}
-        size={config.buttonSize}
+        size={buttonSize}
         className="btn-tertiary-blueCheese"
       >
         {commentCount > 0 && (
           <InteractionCounter
             className={classNames(
-              'tabular-nums !typo-footnote',
+              counterClassName,
               !commentCount && 'invisible',
             )}
             value={commentCount}
@@ -192,26 +214,24 @@ const ActionButtonsV1 = ({
             pressed={isUpvoteActive}
             onClick={onToggleUpvote}
             variant={ButtonVariant.Tertiary}
-            size={config.buttonSize}
+            size={buttonSize}
             icon={
               <UpvoteButtonIcon
                 secondary={isUpvoteActive}
-                size={config.iconSize}
+                size={iconSize}
                 brandAnimation={brandAnimation}
               />
             }
           >
             {upvoteCount > 0 && (
               <InteractionCounter
-                className={classNames(
-                  'tabular-nums',
-                  variant === 'grid' && 'typo-footnote',
-                )}
+                className={counterClassName}
                 value={upvoteCount}
               />
             )}
           </QuaternaryButton>
         </Tooltip>
+        {commentButton}
         {showDownvoteAction && (
           <Tooltip
             content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
@@ -222,21 +242,20 @@ const ActionButtonsV1 = ({
               id={`post-${post.id}-downvote-btn`}
               color={ButtonColor.Ketchup}
               icon={
-                <DownvoteIcon
-                  secondary={isDownvoteActive}
-                  size={config.iconSize}
-                />
+                <DownvoteIcon secondary={isDownvoteActive} size={iconSize} />
               }
               pressed={isDownvoteActive}
               onClick={onToggleDownvote}
               variant={ButtonVariant.Tertiary}
-              size={config.buttonSize}
+              size={buttonSize}
             />
           </Tooltip>
         )}
-        {commentButton}
-        {showAwardAction && (
-          <PostAwardAction post={post} iconSize={config.iconSize} />
+        {/* When impressions are enabled, drop awards below laptop to make room
+            for the extra action; with the flag off, awards stay on every
+            viewport (unchanged from control). */}
+        {showAwardAction && (!impressionsEnabled || isLaptop) && (
+          <PostAwardAction post={post} iconSize={iconSize} />
         )}
         <BookmarkButton
           tooltipSide={variant === 'grid' ? 'bottom' : undefined}
@@ -244,7 +263,7 @@ const ActionButtonsV1 = ({
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
-            size: config.buttonSize,
+            size: buttonSize,
             className: classNames(
               'btn-tertiary-bun',
               variant === 'list' && 'pointer-events-auto',
@@ -253,7 +272,7 @@ const ActionButtonsV1 = ({
               variant: ButtonVariant.Tertiary,
             }),
           }}
-          iconSize={config.iconSize}
+          iconSize={iconSize}
         />
         <Tooltip
           content="Copy link"
@@ -261,14 +280,40 @@ const ActionButtonsV1 = ({
         >
           <QuaternaryButton
             id="copy-post-btn"
-            size={config.buttonSize}
-            icon={<LinkIcon size={config.iconSize} />}
+            size={buttonSize}
+            icon={<LinkIcon size={iconSize} />}
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Cabbage}
             className={variant === 'list' ? 'pointer-events-auto' : undefined}
           />
         </Tooltip>
+        {showImpressions && (
+          <Tooltip
+            content="Impressions"
+            side={variant === 'grid' ? 'bottom' : undefined}
+          >
+            <QuaternaryButton
+              labelClassName={variant === 'grid' ? '!pl-[1px]' : '!pl-0'}
+              id={`post-${post.id}-impressions-btn`}
+              size={buttonSize}
+              icon={<AnalyticsIcon size={iconSize} />}
+              onClick={onImpressionsClick}
+              variant={ButtonVariant.Tertiary}
+              color={ButtonColor.Cheese}
+              className={classNames(
+                'btn-tertiary-cheese',
+                variant === 'list' && 'pointer-events-auto',
+              )}
+            >
+              <InteractionCounter
+                className={counterClassName}
+                value={impressions}
+                format={formatImpressions}
+              />
+            </QuaternaryButton>
+          </Tooltip>
+        )}
       </div>
     </div>
   );

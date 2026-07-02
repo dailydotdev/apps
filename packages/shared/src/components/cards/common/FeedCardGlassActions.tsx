@@ -7,6 +7,7 @@ import InteractionCounter from '../../InteractionCounter';
 import { QuaternaryButton } from '../../buttons/QuaternaryButton';
 import { BookmarkButton } from '../../buttons/BookmarkButton';
 import {
+  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   DownvoteIcon,
   LinkIcon,
@@ -16,6 +17,9 @@ import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
+import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
+import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
+import { formatImpressions } from '../../../lib/impressions';
 
 // Full-bleed cover: drop side padding/bottom margin and round only the bottom
 // corners so the image meets the card edges. Height/crop are untouched.
@@ -32,10 +36,14 @@ const outerClasses = 'pointer-events-none absolute inset-x-2 bottom-2 z-1';
 // actions evenly across the pill: the icons keep equal gaps and a long counter
 // (e.g. 900 upvotes / 900 comments) just grows its own button instead of
 // clipping or shoving a neighbour off its mark.
-// `px-1` matches the 4px the h-10 pill leaves above/below its h-8 buttons, so
-// the padding is equal on all four sides.
+// The pill stays h-10 (its original height) so it reads as a comfortable bar,
+// while the buttons themselves are the smaller XSmall size.
+// Asymmetric `pl-1 pr-2.5`: the left edge holds the upvote icon while the right
+// edge holds the impressions number — a number reads tighter against the edge
+// than an icon, so it needs more padding to look optically balanced (per
+// jakub.kr "details that make interfaces feel better").
 const pillClasses = classNames(
-  'pointer-events-auto flex h-10 w-full items-center justify-between gap-1 overflow-hidden px-1',
+  'pointer-events-auto flex h-10 w-full items-center justify-between overflow-hidden pl-1 pr-2.5',
   'rounded-12 border border-border-subtlest-tertiary',
   'text-text-primary backdrop-blur-xl backdrop-saturate-150',
   '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
@@ -49,9 +57,10 @@ const pillClasses = classNames(
 const glassBackground =
   'linear-gradient(rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.08)), var(--theme-blur-blur-bg)';
 
-// Keep the counter compact: monospaced digits so it never jitters, and the
-// `pr-1` breathing room mirrors the standard grid action bar.
-const countLabelClasses = '!pl-0.5 pr-1';
+// Keep the counter compact: monospaced digits so it never jitters, and a hair
+// of padding on each side so six actions (incl. impressions) still fit a narrow
+// card without the trailing icon clipping.
+const countLabelClasses = '!pl-0.5 pr-0.5';
 const countClasses = 'tabular-nums typo-footnote';
 
 // Dark glow behind the pill so it stays readable over busy cover images. Fixed
@@ -86,6 +95,8 @@ export function FeedCardGlassActions({
     onBookmarkClick,
     onCopyLinkClick,
   });
+  const onImpressionsClick = usePostImpressionsModal(post);
+  const { showImpressions, impressions } = usePostImpressions(post);
 
   if (isFeedPreview) {
     return null;
@@ -117,11 +128,11 @@ export function FeedCardGlassActions({
               pressed={isUpvoteActive}
               onClick={onToggleUpvote}
               variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
+              size={ButtonSize.XSmall}
               icon={
                 <UpvoteButtonIcon
                   secondary={isUpvoteActive}
-                  size={IconSize.XSmall}
+                  size={IconSize.Size16}
                 />
               }
             >
@@ -140,12 +151,12 @@ export function FeedCardGlassActions({
               icon={
                 <CommentIcon
                   secondary={post.commented}
-                  size={IconSize.XSmall}
+                  size={IconSize.Size16}
                 />
               }
               pressed={post.commented}
               onClick={() => onCommentClick?.(post)}
-              size={ButtonSize.Small}
+              size={ButtonSize.XSmall}
               className="btn-tertiary-blueCheese pointer-events-auto"
             >
               {commentCount > 0 && (
@@ -168,13 +179,13 @@ export function FeedCardGlassActions({
                 icon={
                   <DownvoteIcon
                     secondary={isDownvoteActive}
-                    size={IconSize.XSmall}
+                    size={IconSize.Size16}
                   />
                 }
                 pressed={isDownvoteActive}
                 onClick={onToggleDownvote}
                 variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
+                size={ButtonSize.XSmall}
               />
             </Tooltip>
           )}
@@ -184,22 +195,42 @@ export function FeedCardGlassActions({
             buttonProps={{
               id: `post-${post.id}-bookmark-btn`,
               onClick: onToggleBookmark,
-              size: ButtonSize.Small,
+              size: ButtonSize.XSmall,
               className: 'btn-tertiary-bun pointer-events-auto',
             }}
-            iconSize={IconSize.XSmall}
+            iconSize={IconSize.Size16}
           />
           <Tooltip content="Copy link" side="bottom">
             <QuaternaryButton
               id="copy-post-btn"
-              size={ButtonSize.Small}
-              icon={<LinkIcon size={IconSize.XSmall} />}
+              size={ButtonSize.XSmall}
+              icon={<LinkIcon size={IconSize.Size16} />}
               onClick={onCopyLink}
               variant={ButtonVariant.Tertiary}
               color={ButtonColor.Cabbage}
               className="pointer-events-auto"
             />
           </Tooltip>
+          {showImpressions && (
+            <Tooltip content="Impressions" side="bottom">
+              <QuaternaryButton
+                labelClassName={countLabelClasses}
+                id={`post-${post.id}-impressions-btn`}
+                icon={<AnalyticsIcon size={IconSize.Size16} />}
+                size={ButtonSize.XSmall}
+                variant={ButtonVariant.Tertiary}
+                color={ButtonColor.Cheese}
+                onClick={onImpressionsClick}
+                className="btn-tertiary-cheese pointer-events-auto"
+              >
+                <InteractionCounter
+                  className={countClasses}
+                  value={impressions}
+                  format={formatImpressions}
+                />
+              </QuaternaryButton>
+            </Tooltip>
+          )}
         </div>
       </div>
     </>

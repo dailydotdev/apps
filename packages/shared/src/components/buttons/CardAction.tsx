@@ -46,6 +46,8 @@ type CardActionBaseProps = CardActionPassthroughProps & {
   iconPressed?: IconElement;
   label: string;
   count?: number | null;
+  /** Override the counter formatter (defaults to `largeNumberFormat`). */
+  countFormat?: (value: number | null) => string | null;
   color?: ColorName;
   pressed?: boolean;
   loading?: boolean;
@@ -64,6 +66,7 @@ function CardActionComponent(
     iconPressed,
     label,
     count,
+    countFormat,
     color,
     pressed,
     loading,
@@ -121,7 +124,9 @@ function CardActionComponent(
           {showLabel && (
             <span className="card-action-label truncate">{label}</span>
           )}
-          {showCount && <InteractionCounter value={count ?? 0} />}
+          {showCount && (
+            <InteractionCounter value={count ?? 0} format={countFormat} />
+          )}
         </span>
       )}
     </ButtonV2>
