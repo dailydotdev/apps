@@ -144,9 +144,10 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         )}
         onMouseEnter={() => setGiftHovered(true)}
         onMouseLeave={() => setGiftHovered(false)}
-        // A custom anchor (rail link) navigates on its own; still dismiss the
-        // toast when it's clicked (capture phase — the link stays interactive).
-        onClickCapture={children ? () => setPrompt(null) : undefined}
+        // A custom anchor (rail link) navigates on its own via its href; on click
+        // (capture phase, so the link stays interactive) still run handleOpen to
+        // dismiss the toast and log the entry click, matching the header button.
+        onClickCapture={children ? handleOpen : undefined}
       >
         {/* Soft glow bloom on a celebratory community moment. */}
         {glowKey > 0 && (

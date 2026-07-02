@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
+import { usePrefersReducedMotion } from '../useGivebackMotion';
 
 // Money-forward palette: gold + green lead (cash/coins), brand accents fill in.
 const CONFETTI_COLORS = [
@@ -18,11 +19,6 @@ interface ConfettiPiece {
   durationMs: number;
   color: string;
 }
-
-const prefersReducedMotion = (): boolean =>
-  typeof window !== 'undefined' &&
-  typeof window.matchMedia === 'function' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Fan the pieces mostly upward and outward, then let gravity pull them down —
 // a quick celebratory pop rather than a full-screen confetti dump.
@@ -61,7 +57,7 @@ export const GivebackConfettiBurst = ({
   onDone,
   className,
 }: GivebackConfettiBurstProps): ReactElement | null => {
-  const reduced = prefersReducedMotion();
+  const reduced = usePrefersReducedMotion();
 
   const pieces = useMemo(
     () => (reduced ? [] : buildPieces(pieceCount, spread)),

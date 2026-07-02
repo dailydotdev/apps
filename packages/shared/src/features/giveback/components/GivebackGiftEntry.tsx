@@ -110,7 +110,11 @@ export function GivebackGiftEntry({
 
   const openGiveback = () => {
     logEvent({ event_name: LogEvent.ClickGivebackGiftEntry });
-    router.push(`${webappUrl}giveback`);
+    // The rail passes its own anchor (with an href) as children, so it navigates
+    // itself — only the built-in header button needs an explicit push here.
+    if (!children) {
+      router.push(`${webappUrl}giveback`);
+    }
   };
 
   return (
