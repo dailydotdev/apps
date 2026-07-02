@@ -1,29 +1,39 @@
-import type { ReactElement, RefObject } from 'react';
-import React, { useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { RootPortal } from '../../../components/tooltips/Portal';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import type { GivebackGiftDockHandle } from './GivebackGiftDock';
+import { GivebackGiftDock } from './GivebackGiftDock';
 import { givebackInvitePrompts } from '../givebackInvitePrompts';
 
 const PULSE_AMOUNTS = [1, 2, 3, 5, 8, 12];
 
-interface GivebackDevPanelProps {
-  dock: RefObject<GivebackGiftDockHandle>;
-}
-
-// A floating QA panel for testing the gift entry point on a preview deploy (or
-// locally). Opt-in via the `?giveback_debug` query param so it never shows for
-// real users. Sits above everything, bottom-right; each button drives the gift
-// dock so you can watch the money jump, the invite prompts, and the celebration
-// on the header entry in real time.
-export function GivebackDevPanel({
-  dock,
-}: GivebackDevPanelProps): ReactElement {
+// A self-contained QA panel for reviewing the gift entry point on any layout /
+// preview deploy. Opt in with the `?giveback_debug` query param (so it never
+// shows for real users); it mounts globally, independent of the header, and
+// carries its OWN live gift preview so the money jump, invite prompts and
+// celebration are visible even on the new layout where the header entry is
+// hidden. Sits above everything, bottom-right.
+export function GivebackDevPanel(): ReactElement | null {
+  const { isLoggedIn } = useAuthContext();
+  const [enabled, setEnabled] = useState(false);
   const [open, setOpen] = useState(true);
+  const dock = useRef<GivebackGiftDockHandle>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setEnabled(window.location.search.includes('giveback_debug'));
+    }
+  }, []);
+
+  if (!enabled || !isLoggedIn) {
+    return null;
+  }
 
   const pulse = () => {
     const amount =
@@ -34,7 +44,7 @@ export function GivebackDevPanel({
   return (
     <RootPortal>
       <div
-        className="fixed bottom-4 right-4 flex w-56 flex-col gap-2 rounded-12 border border-border-subtlest-secondary bg-background-popover p-3 shadow-3"
+        className="fixed bottom-4 right-4 flex w-60 flex-col gap-2 rounded-12 border border-border-subtlest-secondary bg-background-popover p-3 shadow-3"
         style={{ zIndex: 2147483647 }}
       >
         <div className="flex items-center justify-between gap-2">
@@ -52,7 +62,21 @@ export function GivebackDevPanel({
         </div>
 
         {open && (
-          <div className="flex flex-col gap-1.5">
+          <>
+            {/* Live preview of the entry point — the prompt opens above/left so
+               it stays on screen from the bottom-right corner. */}
+            <div className="flex items-center justify-between gap-2 rounded-8 bg-surface-float px-2 py-1.5">
+              <span className="text-text-tertiary typo-caption2">
+                Live preview
+              </span>
+              <GivebackGiftDock
+                ref={dock}
+                variant="header"
+                promptPlacement="above"
+                promptAlign="end"
+              />
+            </div>
+
             <Button
               type="button"
               size={ButtonSize.XSmall}
@@ -82,7 +106,7 @@ export function GivebackDevPanel({
             >
               Reset
             </Button>
-          </div>
+          </>
         )}
       </div>
     </RootPortal>

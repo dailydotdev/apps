@@ -40,6 +40,7 @@ import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
 import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
+import { GivebackDevPanel } from '../features/giveback/components/GivebackDevPanel';
 import {
   HomepageTopBanners,
   useHomepageTopBannersVisibility,
@@ -302,6 +303,7 @@ function MainLayoutComponent({
       <QuestUpdatesListener />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
+      <GivebackDevPanel />
       <BootPopups />
       <SpotlightHost />
       <StreakMilestonePopup />

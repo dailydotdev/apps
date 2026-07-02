@@ -36,6 +36,9 @@ interface GivebackGiftDockProps {
   variant?: GivebackGiftButtonVariant;
   showLabel?: boolean;
   onOpenGiveback?: () => void;
+  // Override where the invite prompt opens (defaults follow the variant).
+  promptPlacement?: 'below' | 'above';
+  promptAlign?: 'start' | 'end';
 }
 
 const GIFT_POP_MS = 380;
@@ -49,6 +52,8 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
     variant = 'header',
     showLabel = false,
     onOpenGiveback,
+    promptPlacement,
+    promptAlign,
   }: GivebackGiftDockProps,
   ref: ForwardedRef<GivebackGiftDockHandle>,
 ): ReactElement {
@@ -162,8 +167,8 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         body={prompt?.body}
         ctaLabel={prompt?.ctaLabel}
         celebrate={prompt?.celebrate}
-        placement={isRail ? 'above' : 'below'}
-        align={isRail ? 'start' : 'end'}
+        placement={promptPlacement ?? (isRail ? 'above' : 'below')}
+        align={promptAlign ?? (isRail ? 'start' : 'end')}
         onClick={onOpenGiveback}
         onClose={() => setPrompt(null)}
       />
