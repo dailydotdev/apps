@@ -166,7 +166,11 @@ export const GivebackFunnel = ({
                   type="button"
                   size={ButtonSize.Large}
                   variant={ButtonVariant.Float}
-                  className="flex-1"
+                  // Two buttons share one fixed-width bar: at 360px (Galaxy S8+)
+                  // the Large `px-6` leaves too little room and the CTA label
+                  // wraps to two lines / spills the button. Tighten the padding
+                  // on mobile and never wrap the label; restore `px-6` at tablet+.
+                  className="flex-1 whitespace-nowrap !px-3 tablet:!px-6"
                   onClick={goBack}
                 >
                   Back
@@ -176,7 +180,7 @@ export const GivebackFunnel = ({
                 type="button"
                 size={ButtonSize.Large}
                 variant={ButtonVariant.Primary}
-                className="flex-1"
+                className="flex-1 whitespace-nowrap !px-3 tablet:!px-6"
                 disabled={
                   causesBlock || (stepKey === 'causes' && selection.isSaving)
                 }
