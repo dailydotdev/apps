@@ -75,6 +75,7 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
             instructions
             externalUrl
             isLoveAction
+            assistType
           }
           cooldownSeconds
           maxPerUser
@@ -118,6 +119,18 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
           }
         }
       }
+    }
+  }
+`;
+
+// A randomized handful of targets for a link_pool action. Re-fetched to shuffle,
+// so the user always has fresh threads to pick from.
+export const CONTRIBUTION_ACTION_LINKS_QUERY = `
+  query ContributionActionLinks($actionId: ID!, $limit: Int) {
+    contributionActionLinks(actionId: $actionId, limit: $limit) {
+      id
+      url
+      label
     }
   }
 `;
