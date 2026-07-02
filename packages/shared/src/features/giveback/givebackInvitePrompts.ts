@@ -24,7 +24,7 @@ export const givebackInvitePrompts: GivebackInvitePromptData[] = [
     id: 'community-raised',
     eyebrow: 'Raised together',
     headline: 'The community just crossed $12,340 for good causes',
-    body: 'All of it funded by everyday daily.dev activity — not out of anyone’s pocket.',
+    body: 'All of it funded by everyday daily.dev activity, not out of anyone’s pocket.',
     ctaLabel: 'Join in',
     celebrate: true,
   },

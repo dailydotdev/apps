@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
@@ -107,12 +106,12 @@ export const GivebackInvitePrompt = ({
 
       <div className="giveback-toast-in relative flex gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-accent-cabbage-flat to-background-popover p-3.5 antialiased shadow-3">
         {/* Left: full-width message + CTA. */}
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
           <div className="flex flex-col gap-1">
-            <span className="font-bold uppercase tracking-wide text-accent-cabbage-default typo-caption2">
+            <span className="font-medium uppercase tracking-wide text-accent-cabbage-default typo-caption2">
               {eyebrow}
             </span>
-            <p className="font-bold text-text-primary typo-callout [text-wrap:balance]">
+            <p className="font-semibold text-text-primary typo-callout [text-wrap:balance]">
               {headline}
             </p>
             <p className="text-text-secondary typo-caption1 [text-wrap:pretty]">
@@ -123,7 +122,6 @@ export const GivebackInvitePrompt = ({
           <Button
             type="button"
             variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
             size={ButtonSize.Small}
             onClick={onClick}
             className="w-full"
@@ -132,8 +130,8 @@ export const GivebackInvitePrompt = ({
           </Button>
         </div>
 
-        {/* Right rail: countdown-ring close on top, mascot tucked below it. */}
-        <div className="flex shrink-0 flex-col items-end justify-between">
+        {/* Right rail: countdown-ring close on top, mascot below it. */}
+        <div className="flex shrink-0 flex-col items-end gap-2">
           <button
             type="button"
             aria-label="Dismiss"
@@ -164,15 +162,15 @@ export const GivebackInvitePrompt = ({
             <MiniCloseIcon size={IconSize.Small} />
           </button>
 
-          <div className="relative flex size-16 items-center justify-center">
+          <div className="relative flex h-24 w-20 items-end justify-center">
             <span
               aria-hidden
-              className="absolute inset-1 rounded-full bg-accent-cabbage-flat blur-md"
+              className="absolute bottom-1 left-1/2 size-16 -translate-x-1/2 rounded-full bg-accent-cabbage-flat blur-md"
             />
             <img
               src={cloudinaryCharmInviteFriends}
               alt="daily.dev mascot"
-              className="mascot-bob relative size-16 object-contain"
+              className="mascot-bob relative h-24 w-full object-contain object-bottom"
             />
           </div>
         </div>
