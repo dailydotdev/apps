@@ -51,6 +51,7 @@ const createFeedMock = (
     loggedIn: true,
     sort: BookmarkSort.TimeDesc,
     supportedTypes: supportedTypesForPrivateSources,
+    columns: 1,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {

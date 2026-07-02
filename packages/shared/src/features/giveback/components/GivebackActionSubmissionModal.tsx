@@ -13,17 +13,27 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { RootPortal } from '../../../components/tooltips/Portal';
-import { OpenLinkIcon } from '../../../components/icons';
+import { OpenLinkIcon, RefreshIcon } from '../../../components/icons';
 import { uploadContentImage } from '../../../graphql/posts';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { labels } from '../../../lib/labels';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { link as appLinks } from '../../../lib/links';
+import {
+  useReferralCampaign,
+  ReferralCampaignKey,
+} from '../../../hooks/referral/useReferralCampaign';
+import { InviteLinkInput } from '../../../components/referral/InviteLinkInput';
+import { Loader } from '../../../components/Loader';
+import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import type { ContributionAction } from '../types';
+import { ContributionAssistType } from '../types';
 import { formatDonationAmount } from '../utils';
 import { getActionPlatformVisual } from '../actionPlatform';
 import { useSubmitContributionAction } from '../hooks/useSubmitContributionAction';
+import { useContributionActionLinks } from '../hooks/useContributionActionLinks';
 import { GivebackScreenshotField } from './GivebackScreenshotField';
 import { GivebackPlatformLogo } from './GivebackPlatformLogo';
 
@@ -180,7 +190,7 @@ const InstructionsBlock = ({
                 tag={TypographyTag.Span}
                 type={TypographyType.Callout}
                 color={TypographyColor.Secondary}
-                className="[text-wrap:pretty]"
+                className="min-w-0 flex-1 [text-wrap:pretty]"
               >
                 {step}
               </Typography>
@@ -196,6 +206,182 @@ const InstructionsBlock = ({
           {instructions}
         </Typography>
       )}
+    </FlexCol>
+  );
+};
+
+// Referral actions are credited automatically when an invited friend activates,
+// so there's no proof to submit. Instead we hand the user their own invite link
+// to copy and share, and show how many friends have counted so far.
+const ReferralPanel = ({
+  action,
+}: {
+  action: ContributionAction;
+}): ReactElement => {
+  const { url, isReady } = useReferralCampaign({
+    campaignKey: ReferralCampaignKey.Generic,
+  });
+  // Wait for the personalized link rather than flashing the daily.dev fallback;
+  // once the query settles we show the real URL (or the fallback for the rare
+  // case it resolves empty).
+  const isLoading = !url && !isReady;
+  const inviteLink = url || appLinks.referral.defaultUrl;
+  const friendsCredited = action.userCompletions;
+
+  return (
+    <FlexCol className="gap-3 rounded-16 bg-surface-float p-4">
+      <Typography
+        tag={TypographyTag.Span}
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+        bold
+      >
+        Your invite link
+      </Typography>
+      {isLoading ? (
+        // Match InviteLinkInput's h-12 so swapping in the field causes no shift.
+        <FlexRow className="h-12 items-center justify-center">
+          <Loader role="status" aria-label="Loading your invite link" />
+        </FlexRow>
+      ) : (
+        <InviteLinkInput
+          link={inviteLink}
+          logProps={{
+            event_name: LogEvent.CopyGivebackReferralLink,
+            target_id: action.id,
+          }}
+        />
+      )}
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+        className="[text-wrap:pretty]"
+      >
+        {friendsCredited > 0
+          ? `Points land automatically when a friend joins and gets going — ${friendsCredited} credited so far.`
+          : 'Points land automatically when a friend joins and gets going.'}
+      </Typography>
+    </FlexCol>
+  );
+};
+
+// Shared box for both real and skeleton pool rows. The fixed min height keeps
+// the two identical so swapping the skeleton for real links causes no shift.
+const POOL_ROW_CLASS =
+  'flex min-h-10 items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default px-3 py-2';
+// Mirrors the backend's default handful size, so the skeleton reserves the exact
+// height the loaded list will occupy.
+const POOL_PLACEHOLDER_KEYS = ['s0', 's1', 's2', 's3', 's4'];
+
+// link_pool actions carry a curated pool of targets (e.g. Reddit threads). We
+// surface a randomized handful the user can open, with a shuffle for a fresh set,
+// then they submit their own comment link as proof below.
+const LinkPoolPanel = ({
+  action,
+}: {
+  action: ContributionAction;
+}): ReactElement => {
+  const { logEvent } = useLogContext();
+  const { links, isPending, isFetching, shuffle } = useContributionActionLinks({
+    actionId: action.id,
+    enabled: true,
+  });
+
+  const onShuffle = () => {
+    logEvent({
+      event_name: LogEvent.ShuffleGivebackPoolLinks,
+      target_id: action.id,
+    });
+    shuffle();
+  };
+
+  const renderBody = (): ReactElement => {
+    if (isPending) {
+      return (
+        <FlexCol
+          className="gap-2"
+          role="status"
+          aria-label="Loading suggested threads"
+        >
+          {POOL_PLACEHOLDER_KEYS.map((key) => (
+            <div key={key} aria-hidden className={POOL_ROW_CLASS}>
+              <ElementPlaceholder className="h-3.5 flex-1 animate-pulse rounded-8" />
+              <ElementPlaceholder className="size-4 shrink-0 animate-pulse rounded-full" />
+            </div>
+          ))}
+        </FlexCol>
+      );
+    }
+
+    if (links.length === 0) {
+      return (
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+          className="[text-wrap:pretty]"
+        >
+          No suggestions right now. Pick any relevant thread and share your
+          comment below.
+        </Typography>
+      );
+    }
+
+    return (
+      <FlexCol className="gap-2">
+        {links.map((poolLink) => (
+          <a
+            key={poolLink.id}
+            href={poolLink.url}
+            target="_blank"
+            rel={anchorDefaultRel}
+            onClick={() =>
+              logEvent({
+                event_name: LogEvent.ClickGivebackPoolLink,
+                target_id: action.id,
+                extra: JSON.stringify({ url: poolLink.url }),
+              })
+            }
+            className={`${POOL_ROW_CLASS} transition-colors hover:bg-surface-hover`}
+          >
+            <Typography
+              type={TypographyType.Footnote}
+              className="min-w-0 flex-1 truncate"
+            >
+              {poolLink.label || poolLink.url}
+            </Typography>
+            <span className="shrink-0 text-text-tertiary [&_svg]:size-4">
+              <OpenLinkIcon />
+            </span>
+          </a>
+        ))}
+      </FlexCol>
+    );
+  };
+
+  return (
+    <FlexCol className="gap-3 rounded-16 bg-surface-float p-4">
+      <FlexRow className="items-center justify-between gap-3">
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          bold
+        >
+          Suggested threads
+        </Typography>
+        {links.length > 0 && (
+          <button
+            type="button"
+            onClick={onShuffle}
+            disabled={isFetching}
+            className="hover:opacity-80 disabled:opacity-60 flex items-center gap-1 uppercase tracking-wide text-text-tertiary transition-opacity typo-caption2 [&_svg]:size-3.5"
+          >
+            <RefreshIcon className={isFetching ? 'animate-spin' : undefined} />
+            Shuffle
+          </button>
+        )}
+      </FlexRow>
+      {renderBody()}
     </FlexCol>
   );
 };
@@ -219,6 +405,9 @@ export const GivebackActionSubmissionModal = ({
 
   const { evidence, metadata } = action;
   const isLove = metadata.isLoveAction;
+  const isReferral =
+    metadata.assistType === ContributionAssistType.ReferralLink;
+  const isLinkPool = metadata.assistType === ContributionAssistType.LinkPool;
   const showUrl = !!evidence.url;
   const showScreenshot = !!evidence.screenshot;
   const showNote = !!evidence.note;
@@ -309,6 +498,61 @@ export const GivebackActionSubmissionModal = ({
     onClose();
   };
 
+  // Referral and love actions have nothing to submit — both close with a single
+  // acknowledge button. Only the proof flow shows the cancel/submit pair.
+  const renderFooterActions = (): ReactElement => {
+    if (isReferral) {
+      return (
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          onClick={onClose}
+        >
+          Done
+        </Button>
+      );
+    }
+
+    if (isLove) {
+      return (
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Primary}
+          onClick={onLoveAcknowledge}
+        >
+          Got it
+        </Button>
+      );
+    }
+
+    return (
+      <>
+        <Button
+          type="button"
+          size={ButtonSize.Small}
+          variant={ButtonVariant.Tertiary}
+          onClick={onClose}
+        >
+          {isSubmitted ? 'Done' : 'Cancel'}
+        </Button>
+        {!isSubmitted && (
+          <Button
+            type="button"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            disabled={!canSubmit}
+            loading={isPending}
+            onClick={onSubmit}
+          >
+            Submit for review
+          </Button>
+        )}
+      </>
+    );
+  };
+
   return (
     <RootPortal>
       <div className="fixed inset-0 z-modal flex items-center justify-center bg-overlay-primary-pepper px-4 backdrop-blur-sm">
@@ -347,6 +591,10 @@ export const GivebackActionSubmissionModal = ({
               <InstructionsBlock instructions={metadata.instructions} />
             )}
 
+            {isLinkPool && !isSubmitted && <LinkPoolPanel action={action} />}
+
+            {isReferral && !isSubmitted && <ReferralPanel action={action} />}
+
             {isLove && !isSubmitted && (
               <Typography
                 type={TypographyType.Footnote}
@@ -378,7 +626,7 @@ export const GivebackActionSubmissionModal = ({
               </FlexCol>
             )}
 
-            {!isLove && !isSubmitted && (
+            {!isLove && !isReferral && !isSubmitted && (
               <FlexCol className="gap-4">
                 <Typography
                   type={TypographyType.Caption1}
@@ -441,39 +689,7 @@ export const GivebackActionSubmissionModal = ({
           {/* Pinned action bar: stays visible while the body above scrolls, so
               the submit control is always reachable on tall forms. */}
           <FlexRow className="relative shrink-0 justify-end gap-2 border-t border-border-subtlest-tertiary px-4 py-3 tablet:px-5">
-            {isLove ? (
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Primary}
-                onClick={onLoveAcknowledge}
-              >
-                Got it
-              </Button>
-            ) : (
-              <>
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                  onClick={onClose}
-                >
-                  {isSubmitted ? 'Done' : 'Cancel'}
-                </Button>
-                {!isSubmitted && (
-                  <Button
-                    type="button"
-                    size={ButtonSize.Small}
-                    variant={ButtonVariant.Primary}
-                    disabled={!canSubmit}
-                    loading={isPending}
-                    onClick={onSubmit}
-                  >
-                    Submit for review
-                  </Button>
-                )}
-              </>
-            )}
+            {renderFooterActions()}
           </FlexRow>
         </section>
       </div>

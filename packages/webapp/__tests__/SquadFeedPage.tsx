@@ -114,6 +114,7 @@ const createFeedMock = (
     source: defaultSquad.id,
     ranking: 'TIME',
     supportedTypes: supportedTypesForPrivateSources,
+    columns: 1,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
