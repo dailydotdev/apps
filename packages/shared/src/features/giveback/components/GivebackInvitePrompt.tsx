@@ -162,15 +162,15 @@ export const GivebackInvitePrompt = ({
             <MiniCloseIcon size={IconSize.Small} />
           </button>
 
-          <div className="relative flex h-24 w-20 items-end justify-center">
+          <div className="relative flex h-28 w-24 items-end justify-center">
             <span
               aria-hidden
-              className="absolute bottom-1 left-1/2 size-16 -translate-x-1/2 rounded-full bg-accent-cabbage-flat blur-md"
+              className="absolute bottom-1 left-1/2 size-20 -translate-x-1/2 rounded-full bg-accent-cabbage-flat blur-md"
             />
             <img
               src={cloudinaryCharmInviteFriends}
               alt="daily.dev mascot"
-              className="mascot-bob relative h-24 w-full object-contain object-bottom"
+              className="mascot-bob relative h-28 w-full object-contain object-bottom"
             />
           </div>
         </div>
