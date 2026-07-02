@@ -5,16 +5,16 @@ import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
 import type { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
-import NotificationItemIcon from './NotificationIcon';
 import NotificationItemAvatar from './NotificationItemAvatar';
+import { NotificationItemLead } from './NotificationItemLead';
+import { NotificationCategoryBadge } from './NotificationCategoryBadge';
+import { getNotificationLeadAvatar } from './leadAvatar';
 import {
   getNotificationCategory,
   NotificationFilterCategory,
-  notificationCategoryBadge,
   notificationMutingCopy,
   NotificationType,
   notificationTypeNotClickable,
-  notificationTypeTheme,
 } from './utils';
 import { KeyboardCommand } from '../../lib/element';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
@@ -154,9 +154,6 @@ const NotificationOptionsButton = ({
           // Tertiary is the flat variant — transparent, no background or
           // border (Float carries a faint surface-float background).
           variant={ButtonVariant.Tertiary}
-          // Visible by default on mobile (no hover); reveal on hover from
-          // tablet up.
-          className="tablet:invisible tablet:group-hover:visible"
           icon={<MenuIcon className="rotate-90" />}
           size={ButtonSize.XSmall}
         />
@@ -200,100 +197,79 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     return null;
   }
 
-  const [primaryAvatar] = filteredAvatars;
+  // Lead with the human actor, not whatever avatar the backend listed first
+  // (squad comments/posts arrive source-first). Falls back to the source for
+  // source-only notifications.
+  const leadAvatar = getNotificationLeadAvatar(filteredAvatars);
   const hasAvatar = filteredAvatars.length > 0;
   // `numTotalAvatars` can arrive as 0 from the backend even when avatars are
   // present, so take the larger of the two rather than `??` (which keeps 0).
   const totalAvatars = Math.max(numTotalAvatars ?? 0, filteredAvatars.length);
-  // Only show the multi-image grid for more than three actors; one/two/three
-  // just show a single avatar (with a corner badge).
-  const showGrid = filteredAvatars.length > 1 && totalAvatars > 3;
   const renderLink = onClick && isClickable;
   const hasOptions = Object.keys(notificationMutingCopy).includes(type);
   const [attachment] = attachments ?? [];
 
-  // When there is a person/source involved we show their avatar with a colored
-  // type badge; otherwise (system/digest/streak) the type icon is the lead.
-  const leadIcon = (
-    <NotificationItemIcon icon={icon} iconTheme={notificationTypeTheme[type]} />
-  );
   const category = getNotificationCategory(type);
-  const badge = notificationCategoryBadge[category];
-  const BadgeIcon = badge.Icon;
   // Badge only for notifications about you (upvotes/comments/mentions/follows/
   // squad activity). Source posts & system land in `Updates` and stay clean.
   const showBadge =
     hasAvatar && category !== NotificationFilterCategory.Updates;
+  // More than three actors render as a tight overlapping stack of up to three
+  // rounded-square faces — sized like one avatar so the lead never grows wider
+  // and every row stays aligned. The exact count still lives in the title.
+  const showStack = filteredAvatars.length > 1 && totalAvatars > 3;
 
-  // Up to three actors render a single avatar (with a corner badge). More than
-  // three render as a 2x2 grid the size of one avatar — up to three faces plus
-  // the action icon — so the lead never grows wider and every row stays aligned.
   let avatarContent: ReactElement | null = null;
-  if (!showGrid) {
-    avatarContent = hasAvatar ? (
-      <NotificationItemAvatar className="z-1" {...primaryAvatar} />
-    ) : null;
-  } else {
-    // 2x2 of separate, individually-rounded face boxes (no connecting frame,
-    // no "+N" count) plus a circular action cell, sized like one avatar so the
-    // lead width never grows. Each face keeps its hover profile tooltip.
-    const slots = showBadge ? 3 : 4;
-    const cells: ReactElement[] = filteredAvatars
-      .slice(0, slots)
-      .map((avatar) => {
-        // Only image-backed actors (the ones that actually appear in a >3
-        // stack) render as a compact face. Icon-backed types (badges/briefs/
-        // digests) never reach this path, but fall back to the full avatar
-        // renderer rather than a broken <img> if one ever does.
-        const isImageBacked =
-          avatar.type === NotificationAvatarType.User ||
-          avatar.type === NotificationAvatarType.Source ||
-          avatar.type === NotificationAvatarType.Organization;
-        if (!isImageBacked) {
-          return (
-            <NotificationItemAvatar key={avatar.referenceId} {...avatar} />
-          );
-        }
-        const image = (
-          <Image
-            key={avatar.referenceId}
-            className="size-full rounded-4 object-cover"
-            src={avatar.image}
-            alt={`${avatar.name} avatar`}
-          />
-        );
-        return avatar.type === NotificationAvatarType.User ? (
-          <ProfileTooltip
-            key={avatar.referenceId}
-            userId={avatar.referenceId}
-            link={{ href: avatar.targetUrl }}
-          >
-            {image}
-          </ProfileTooltip>
-        ) : (
-          image
-        );
-      });
-    // Pad empty face cells so the circular action always lands bottom-right.
-    while (cells.length < slots) {
-      cells.push(<span key={`empty-${cells.length}`} />);
-    }
-    if (showBadge) {
-      cells.push(
-        <span
-          key="action"
-          className={classNames(
-            'flex items-center justify-center rounded-full',
-            badge.bg,
-          )}
-        >
-          <BadgeIcon secondary size={IconSize.XXSmall} className="text-white" />
-        </span>,
-      );
-    }
-
+  if (showStack) {
+    const faces = filteredAvatars.slice(0, 3);
     avatarContent = (
-      <div className="grid size-8 grid-cols-2 grid-rows-2 gap-0.5">{cells}</div>
+      <div className="flex -space-x-4">
+        {faces.map((avatar, index) => {
+          // Icon-backed types (briefs/digests/badges) never reach a >3 stack,
+          // but fall back to the full avatar renderer rather than a broken
+          // <img> if one ever does.
+          const isImageBacked =
+            avatar.type === NotificationAvatarType.User ||
+            avatar.type === NotificationAvatarType.Source ||
+            avatar.type === NotificationAvatarType.Organization;
+          const isFront = index === faces.length - 1;
+          const face = isImageBacked ? (
+            <Image
+              className="size-6 rounded-8 border-2 border-background-default object-cover"
+              src={avatar.image}
+              alt={`${avatar.name} avatar`}
+            />
+          ) : (
+            <NotificationItemAvatar {...avatar} />
+          );
+          return (
+            <span
+              key={avatar.referenceId ?? index}
+              className={classNames('relative', isFront && 'z-1')}
+            >
+              {avatar.type === NotificationAvatarType.User ? (
+                <ProfileTooltip
+                  userId={avatar.referenceId}
+                  link={{ href: avatar.targetUrl }}
+                >
+                  {face}
+                </ProfileTooltip>
+              ) : (
+                face
+              )}
+              {/* Same category badge as the single-actor lead, straddling the
+                  front face's bottom-right corner (translate centering keeps it
+                  from swamping the smaller stacked face). */}
+              {isFront && showBadge && (
+                <NotificationCategoryBadge
+                  category={category}
+                  className="bottom-0 right-0 translate-x-1/2 translate-y-1/2"
+                />
+              )}
+            </span>
+          );
+        })}
+      </div>
     );
   }
   const timeText = createdAt ? publishTimeRelativeShort(createdAt) : '';
@@ -319,7 +295,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
   return (
     <div
       className={classNames(
-        'group relative flex min-h-16 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active',
+        'relative flex min-h-14 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active laptop:min-h-16 laptop:py-4',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -348,50 +324,33 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
 
       {/* Leading avatar + colored type badge — the eye-catching, type-at-a-
           glance cue (Instagram/Facebook/TikTok). System rows with no person
-          fall back to the plain type icon. */}
-      <div className="mt-1 flex w-10 shrink-0 items-center justify-start self-start">
-        <div className="relative flex items-center">
-          {hasAvatar ? avatarContent : leadIcon}
-          {showBadge && !showGrid && (
-            <span
-              className={classNames(
-                'absolute -bottom-1 -right-1 z-2 flex size-5 items-center justify-center rounded-full border-2 border-background-default',
-                badge.bg,
-              )}
-            >
-              <BadgeIcon
-                secondary
-                size={IconSize.XXSmall}
-                className="text-white"
-              />
-            </span>
-          )}
-        </div>
+          fall back to the plain type icon. More than three actors render as an
+          overlapping stack; everything else uses the shared single-actor lead. */}
+      <div className="flex w-10 shrink-0 items-center justify-start">
+        {showStack ? (
+          avatarContent
+        ) : (
+          <NotificationItemLead type={type} icon={icon} avatar={leadAvatar} />
+        )}
       </div>
 
-      {/* Bold headline, then the comment (if any), then the referenced post's
-          title so it's clear which post/article the notification is about. */}
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5 text-left">
-        <span
-          className="multi-truncate line-clamp-2 break-words font-bold text-text-primary typo-callout [&_p]:m-0"
-          dangerouslySetInnerHTML={{
-            __html: memoizedTitle,
-          }}
-        />
-        {/* Meta line leads with the time, then a dot, then the comment (or the
-            post title when there's no comment). */}
-        {(timeText || showDescription || showAttachmentTitle) && (
-          <div className="multi-truncate line-clamp-3 break-words text-text-tertiary typo-footnote [&_p]:m-0 [&_p]:inline">
-            {timeText && (
-              <Tooltip content={fullDate}>
-                <time className="relative z-1 text-text-quaternary">
-                  {timeText}
-                </time>
-              </Tooltip>
-            )}
-            {timeText && (showDescription || showAttachmentTitle) && (
-              <span className="text-text-quaternary"> · </span>
-            )}
+      {/* Headline (actor name bold, the rest regular for a scannable
+          hierarchy) with the relative time flowing inline right after it — so a
+          row reads "what happened" first and the time is a quiet suffix, not a
+          right-aligned column. Then the comment, then the post's title. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-1 text-left">
+        <div className="break-words font-normal text-text-primary typo-callout [&_b]:font-bold [&_p]:m-0 [&_p]:inline [&_strong]:font-bold">
+          <span dangerouslySetInnerHTML={{ __html: memoizedTitle }} />
+          {timeText && (
+            <Tooltip content={fullDate}>
+              <time className="relative z-1 ml-1.5 whitespace-nowrap text-text-tertiary typo-footnote">
+                · {timeText}
+              </time>
+            </Tooltip>
+          )}
+        </div>
+        {(showDescription || showAttachmentTitle) && (
+          <div className="multi-truncate line-clamp-2 break-words text-text-tertiary typo-subhead [&_p]:m-0 [&_p]:inline">
             {showDescription ? (
               <span dangerouslySetInnerHTML={{ __html: memoizedDescription }} />
             ) : (
@@ -402,7 +361,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         {/* When there's both a comment and a post, name the post on its own
             line so it's clear which article it's about. */}
         {showDescription && showAttachmentTitle && (
-          <div className="multi-truncate line-clamp-1 break-words text-text-quaternary typo-footnote">
+          <div className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote">
             {attachmentTitle}
           </div>
         )}
@@ -413,13 +372,13 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
       </div>
 
-      {/* Trailing actions: the post cover plus a fixed-width menu slot. The
-          slot is always reserved whenever a row has a cover and/or a menu, so
-          every cover image lands at the same x regardless of whether that row
-          has a menu — keeping covers aligned down the whole feed. The cover is
-          top-aligned with the title (centered-looking on a two-line row). */}
+      {/* Trailing: the post cover and/or the options menu, both top-aligned with
+          the title (the menu is the rightmost element, so it pins to the
+          top-right corner). The menu column is only reserved when the row
+          actually has a menu — otherwise the cover sits flush to the right edge
+          instead of leaving an empty gap. */}
       {(attachment?.image || hasOptions) && (
-        <div className="mt-1 flex shrink-0 items-start gap-2 self-start">
+        <div className="flex shrink-0 items-start gap-2">
           {attachment?.image && (
             <span className="relative flex size-12 shrink-0">
               <Image
@@ -445,11 +404,11 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
               )}
             </span>
           )}
-          <div className="relative z-1 flex w-7 shrink-0 justify-center">
-            {hasOptions && (
+          {hasOptions && (
+            <div className="relative z-1 flex w-7 shrink-0 justify-center">
               <NotificationOptionsButton notification={{ type, referenceId }} />
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>
