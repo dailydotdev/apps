@@ -92,18 +92,22 @@ const Dot = ({ className }: { className: string }): ReactElement => (
 );
 
 // Shared name + percentage + amount row used under the stacked bar and the
-// donut so both read from the same legend. The title is capped (not stretched)
-// so the percentage and amount hug it: each entry is only as wide as its own
-// content, keeping the groups tight instead of spread across the full column.
+// donut so both read from the same legend. The percentage and amount stay in
+// fixed-width, right-aligned columns so the numbers line up across rows; the
+// whole entry is capped (`max-w`) so those columns sit close to the title
+// instead of being pushed to the far edge of the wide legend grid.
 const Legend = ({ slices }: { slices: Slice[] }): ReactElement => (
   <div className="grid grid-cols-1 gap-x-6 gap-y-2.5 tablet:grid-cols-2">
     {slices.map((slice) => (
-      <FlexRow key={slice.cause.id} className="items-center gap-2">
+      <FlexRow
+        key={slice.cause.id}
+        className="w-full max-w-72 items-center gap-2"
+      >
         <Dot className={slice.color.fill} />
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Footnote}
-          className="min-w-0 max-w-[10rem] truncate"
+          className="min-w-0 flex-1 truncate"
         >
           {slice.cause.title}
         </Typography>
@@ -111,7 +115,7 @@ const Legend = ({ slices }: { slices: Slice[] }): ReactElement => (
           tag={TypographyTag.Span}
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
-          className="shrink-0 tabular-nums"
+          className="w-9 shrink-0 text-right tabular-nums"
         >
           {formatPercentage(slice.percentage)}
         </Typography>
@@ -119,7 +123,7 @@ const Legend = ({ slices }: { slices: Slice[] }): ReactElement => (
           tag={TypographyTag.Span}
           type={TypographyType.Footnote}
           bold
-          className="shrink-0 tabular-nums"
+          className="w-16 shrink-0 text-right tabular-nums"
         >
           {formatDonationAmount(slice.amount)}
         </Typography>
