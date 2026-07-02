@@ -68,6 +68,59 @@ describe('useJoinReferral hook', () => {
     );
   });
 
+  it('should set a campaign-only referral cookie when no referring user id is present', async () => {
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          query: {
+            cid: 'giveback',
+          },
+        } as unknown as NextRouter),
+    );
+
+    renderHook(() => useJoinReferral(), {
+      wrapper: createWrapper({}),
+    });
+
+    await waitFor(() =>
+      expect(document.cookie).toBe(
+        `join_referral=${encodeURIComponent(
+          ':giveback',
+        )}; max-age=31536000; path=/; samesite=lax; secure`,
+      ),
+    );
+  });
+
+  it('should not validate a referring user for a campaign-only referral', async () => {
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          query: {
+            cid: 'giveback',
+          },
+        } as unknown as NextRouter),
+    );
+
+    // Fail loudly if the campaign-only path tries to validate a referring user.
+    const validate = jest.fn();
+    mockGraphQL({
+      request: { query: GET_REFERRING_USER_QUERY, variables: { id: '' } },
+      result: () => {
+        validate();
+        return { data: { user: { id: '' } } };
+      },
+    });
+
+    renderHook(() => useJoinReferral(), {
+      wrapper: createWrapper({}),
+    });
+
+    await waitFor(() =>
+      expect(document.cookie).toContain(encodeURIComponent(':giveback')),
+    );
+    expect(validate).not.toHaveBeenCalled();
+  });
+
   it('should not set referral cookie if params missing', () => {
     jest.mocked(useRouter).mockImplementation(
       () =>

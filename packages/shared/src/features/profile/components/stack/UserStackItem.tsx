@@ -28,6 +28,7 @@ import { useEngagementAdsContext } from '../../../../contexts/EngagementAdsConte
 import { SponsoredTooltip } from '../../../../components/brand/SponsoredTooltip';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, Origin } from '../../../../lib/log';
+import { getEngagementLogExtra } from '../../../../lib/engagementAds';
 
 interface UserStackItemProps {
   item: UserStack;
@@ -73,7 +74,7 @@ function UserStackItemBody({
       target_id: title,
       extra: JSON.stringify({
         origin: Origin.ProfileStack,
-        gen_id: sponsoredCreative.genId,
+        ...getEngagementLogExtra(sponsoredCreative),
       }),
     });
   }, [logEvent, sponsoredCreative, title]);
