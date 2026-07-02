@@ -128,6 +128,13 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
     reset,
   ]);
 
+  // Opening giveback (clicking the gift or the toast CTA) navigates to the page,
+  // so dismiss the prompt — the user is already there, no need to keep nagging.
+  const handleOpen = useCallback(() => {
+    setPrompt(null);
+    onOpenGiveback?.();
+  }, [onOpenGiveback]);
+
   return (
     <div className="relative inline-flex">
       <span
@@ -137,6 +144,9 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         )}
         onMouseEnter={() => setGiftHovered(true)}
         onMouseLeave={() => setGiftHovered(false)}
+        // A custom anchor (rail link) navigates on its own; still dismiss the
+        // toast when it's clicked (capture phase — the link stays interactive).
+        onClickCapture={children ? () => setPrompt(null) : undefined}
       >
         {/* Soft glow bloom on a celebratory community moment. */}
         {glowKey > 0 && (
@@ -150,7 +160,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
           <GivebackGiftButton
             variant={variant}
             showLabel={showLabel}
-            onClick={onOpenGiveback}
+            onClick={handleOpen}
           />
         )}
       </span>
@@ -183,7 +193,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         paused={giftHovered}
         placement={promptPlacement ?? (isRail ? 'above' : 'below')}
         align={promptAlign ?? (isRail ? 'start' : 'end')}
-        onClick={onOpenGiveback}
+        onClick={handleOpen}
         onClose={() => setPrompt(null)}
       />
     </div>
