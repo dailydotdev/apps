@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import type { GivebackGiftButtonVariant } from './GivebackGiftButton';
 import type { GivebackGiftDockHandle } from './GivebackGiftDock';
 import { GivebackGiftDock } from './GivebackGiftDock';
+import { GivebackDevPanel } from './GivebackDevPanel';
 import { givebackInvitePrompts } from '../givebackInvitePrompts';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -95,13 +96,21 @@ export function GivebackGiftEntry({
     router.push(`${webappUrl}giveback`);
   };
 
+  // Opt-in QA panel (append ?giveback_debug to the URL) for driving the entry
+  // point manually on a preview deploy. Only the header instance renders it.
+  const showDevPanel =
+    variant === 'header' && router.query.giveback_debug !== undefined;
+
   return (
-    <GivebackGiftDock
-      ref={dock}
-      variant={variant}
-      showLabel={showLabel}
-      onOpenGiveback={openGiveback}
-    />
+    <>
+      <GivebackGiftDock
+        ref={dock}
+        variant={variant}
+        showLabel={showLabel}
+        onOpenGiveback={openGiveback}
+      />
+      {showDevPanel && <GivebackDevPanel dock={dock} />}
+    </>
   );
 }
 
