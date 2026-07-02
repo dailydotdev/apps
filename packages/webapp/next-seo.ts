@@ -40,6 +40,34 @@ export const defaultSeo: Partial<NextSeoProps> = {
   ],
 };
 
+// Contextual share images rendered by the webapp and screenshotted by
+// daily-api at /og/<type>/<id>.png (mirrors the devcard v2 image pipeline).
+export type ShareImageType =
+  | 'posts'
+  | 'comments'
+  | 'sources'
+  | 'squads'
+  | 'tags'
+  | 'invite'
+  | 'plus';
+
+export const getShareImageUrl = (
+  type: ShareImageType,
+  id: string,
+  params?: Record<string, string | undefined>,
+): string => {
+  const url = new URL(
+    `/og/${type}/${encodeURIComponent(id)}.png`,
+    process.env.NEXT_PUBLIC_API_URL,
+  );
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    }
+  });
+  return url.toString();
+};
+
 export const getSquadOpenGraph = ({
   squad,
 }: {

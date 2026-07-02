@@ -69,7 +69,7 @@ import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
 import Custom404 from '../404';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
@@ -463,6 +463,13 @@ export async function getStaticProps({
       openGraph: {
         ...defaultOpenGraph,
         ...seoTitles.openGraph,
+        images: [
+          {
+            url: getShareImageUrl('sources', source.id ?? ''),
+            width: 1200,
+            height: 630,
+          },
+        ],
       },
       description: source?.description || defaultSeo.description,
     };

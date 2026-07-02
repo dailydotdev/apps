@@ -51,6 +51,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
+import { getShareImageUrl } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -362,7 +363,7 @@ export async function getStaticProps({
         ...pageSeoTitles.openGraph,
         images: [
           {
-            url: `https://og.daily.dev/api/posts/${post?.id}`,
+            url: getShareImageUrl('posts', post?.id ?? ''),
             width: 1200,
             height: 630,
             alt: post?.title || 'Post cover image',

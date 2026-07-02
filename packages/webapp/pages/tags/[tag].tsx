@@ -24,7 +24,7 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
 import type { DynamicSeoProps } from '../../components/common';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { defaultOpenGraph, defaultSeo, getShareImageUrl } from '../../next-seo';
 import { getAppOrigin } from '../../lib/seo';
 
 const appOrigin = getAppOrigin();
@@ -144,6 +144,7 @@ interface TagPageParams extends ParsedUrlQuery {
 const getSeoData = (
   title: string,
   description = `Find all the recent posts, videos, updates and discussions about ${title}`,
+  tagSlug = title,
 ): NextSeoProps => {
   const seoTitles = getPageSeoTitles(`${title} posts`);
 
@@ -153,6 +154,13 @@ const getSeoData = (
     openGraph: {
       ...defaultOpenGraph,
       ...seoTitles.openGraph,
+      images: [
+        {
+          url: getShareImageUrl('tags', tagSlug),
+          width: 1200,
+          height: 630,
+        },
+      ],
     },
     description,
   };
@@ -227,6 +235,7 @@ export async function getStaticProps({
     const seo = getSeoData(
       initialData.flags?.title || tag,
       initialData.flags?.description,
+      tag,
     );
 
     return {
