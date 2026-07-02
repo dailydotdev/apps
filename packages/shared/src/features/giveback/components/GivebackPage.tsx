@@ -119,13 +119,12 @@ export const GivebackPage = (): ReactElement => {
 
   const activeLabel = givebackTabs.find((tab) => tab.id === activeTab)?.label;
 
-  // `overflow-x-clip` on the root guards against any descendant (decorative glow,
-  // popover, wide row) bleeding past the viewport: such bleed widens the document
-  // and makes Android expand the layout viewport, which then mis-sizes fixed
-  // overlays like the funnel (X/CTA pushed off-screen). `clip` (not `hidden`) adds
-  // no scroll container, so the sticky tab nav keeps working.
+  // No `overflow-x-clip` on the root: it would clip GivebackBackground's
+  // `laptop:-inset-1` corner bleed and leave a dark crescent inside the app
+  // card's rounded corner. Stray horizontal bleed is still caught by the global
+  // `body { overflow-x: hidden }` and the card's own `laptop:overflow-clip`.
   return (
-    <div className="relative min-h-page w-full overflow-x-clip">
+    <div className="relative min-h-page w-full">
       <GivebackBackground />
 
       {/* Hold the body until we know whether to force the funnel. The funnel is a
