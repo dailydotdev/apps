@@ -9,6 +9,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { withGiveback } from './giveback.mocks';
 
 const ControlButton = ({
   children,
@@ -26,19 +27,26 @@ const ControlButton = ({
   </Button>
 );
 
+// Mirrors the real old-layout header (MainLayoutHeader → HeaderButtons): full
+// width, bottom border, h-16, logo left, and the action cluster right in the
+// real order — opportunity, quests, [giveback gift], notifications, profile.
+// The neighbours are Float-button-sized placeholders; the gift is the real
+// component so it can be validated in its true header context.
 const HeaderBar = ({
   children,
 }: {
   children: React.ReactNode;
 }): React.ReactElement => (
-  <div className="flex w-full items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-default px-4 py-3">
+  <header className="flex h-16 w-full items-center gap-3 border-b border-border-subtlest-tertiary bg-background-default px-4">
     <span className="font-bold text-text-primary typo-title3">daily.dev</span>
     <div className="ml-auto flex items-center gap-3">
+      <span className="size-10 rounded-full bg-surface-float" />
+      <span className="size-10 rounded-full bg-surface-float" />
       {children}
-      <span className="size-8 rounded-full bg-surface-float" />
-      <span className="size-8 rounded-full bg-surface-float" />
+      <span className="size-10 rounded-full bg-surface-float" />
+      <span className="size-10 rounded-full bg-surface-float" />
     </div>
-  </div>
+  </header>
 );
 
 const LivePlayground = ({
@@ -147,6 +155,7 @@ const LivePlayground = ({
 
 const meta: Meta = {
   title: 'Features/Giveback/Entry points/Live playground',
+  decorators: [withGiveback()],
   parameters: {
     layout: 'centered',
     controls: { disable: true },
@@ -164,17 +173,9 @@ export default meta;
 type Story = StoryObj;
 
 export const Header: Story = {
-  render: () => (
-    <div className="bg-background-default p-6 text-text-primary">
-      <LivePlayground variant="header" />
-    </div>
-  ),
+  render: () => <LivePlayground variant="header" />,
 };
 
 export const Rail: Story = {
-  render: () => (
-    <div className="bg-background-default p-6 text-text-primary">
-      <LivePlayground variant="rail" />
-    </div>
-  ),
+  render: () => <LivePlayground variant="rail" />,
 };
