@@ -104,9 +104,40 @@ export const GivebackInvitePrompt = ({
         )}
       />
 
-      <div className="giveback-toast-in relative flex gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-accent-cabbage-flat to-background-popover p-3.5 antialiased shadow-3">
+      <div className="giveback-toast-in relative flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-accent-cabbage-flat to-background-popover p-3.5 antialiased shadow-3">
+        {/* Close button (top-right corner) with the auto-dismiss countdown ring. */}
+        <button
+          type="button"
+          aria-label="Dismiss"
+          onClick={onClose}
+          className="absolute right-2.5 top-2.5 z-1 grid size-7 place-items-center rounded-full text-text-tertiary transition-colors hover:bg-surface-float hover:text-text-primary"
+        >
+          {autoDismissMs > 0 && (
+            <svg
+              viewBox="0 0 36 36"
+              className="pointer-events-none absolute inset-0 size-full -rotate-90 text-accent-cabbage-default"
+              aria-hidden
+            >
+              <circle
+                key={runId}
+                className="giveback-dismiss-ring"
+                cx="18"
+                cy="18"
+                r="15"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                pathLength={100}
+                strokeDasharray="100"
+                style={{ animationDuration: `${autoDismissMs}ms` }}
+              />
+            </svg>
+          )}
+          <MiniCloseIcon size={IconSize.Small} />
+        </button>
+
         {/* Left: full-width message + CTA. */}
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div className="flex flex-col gap-1">
             <span className="font-medium uppercase tracking-wide text-accent-cabbage-default typo-caption2">
               {eyebrow}
@@ -130,49 +161,17 @@ export const GivebackInvitePrompt = ({
           </Button>
         </div>
 
-        {/* Right rail: countdown-ring close on top, mascot below it. */}
-        <div className="flex shrink-0 flex-col items-end gap-2">
-          <button
-            type="button"
-            aria-label="Dismiss"
-            onClick={onClose}
-            className="relative grid size-7 shrink-0 place-items-center rounded-full text-text-tertiary transition-colors hover:bg-surface-float hover:text-text-primary"
-          >
-            {autoDismissMs > 0 && (
-              <svg
-                viewBox="0 0 36 36"
-                className="pointer-events-none absolute inset-0 size-full -rotate-90 text-accent-cabbage-default"
-                aria-hidden
-              >
-                <circle
-                  key={runId}
-                  className="giveback-dismiss-ring"
-                  cx="18"
-                  cy="18"
-                  r="15"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  pathLength={100}
-                  strokeDasharray="100"
-                  style={{ animationDuration: `${autoDismissMs}ms` }}
-                />
-              </svg>
-            )}
-            <MiniCloseIcon size={IconSize.Small} />
-          </button>
-
-          <div className="relative flex h-28 w-24 items-end justify-center">
-            <span
-              aria-hidden
-              className="absolute bottom-1 left-1/2 size-20 -translate-x-1/2 rounded-full bg-accent-cabbage-flat blur-md"
-            />
-            <img
-              src={cloudinaryCharmInviteFriends}
-              alt="daily.dev mascot"
-              className="mascot-bob relative h-28 w-full object-contain object-bottom"
-            />
-          </div>
+        {/* The daily.dev mascot, bobbing on a soft cabbage glow. */}
+        <div className="relative flex h-32 w-28 shrink-0 items-center justify-center">
+          <span
+            aria-hidden
+            className="absolute left-1/2 top-1/2 size-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent-cabbage-flat blur-md"
+          />
+          <img
+            src={cloudinaryCharmInviteFriends}
+            alt="daily.dev mascot"
+            className="mascot-bob relative size-full object-contain"
+          />
         </div>
       </div>
     </div>
