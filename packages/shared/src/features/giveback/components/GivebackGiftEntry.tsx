@@ -40,12 +40,15 @@ export function GivebackGiftEntry({
   const { logEvent } = useLogContext();
   const dock = useRef<GivebackGiftDockHandle>(null);
 
+  // QA override: `?giveback_debug` force-shows the entry (and its panel) even
+  // when the feature flag is off, so it's testable on a preview deploy.
+  const debug = router.query.giveback_debug !== undefined;
   const shouldEvaluate = isAuthReady && isLoggedIn;
   const { value: isEnabled } = useConditionalFeature({
     feature: featureGiveback,
     shouldEvaluate,
   });
-  const show = shouldEvaluate && isEnabled;
+  const show = shouldEvaluate && (isEnabled || debug);
 
   // Only the header instance drives the ambient cadence, so a second mount (the
   // rail) never double-fires prompts.
@@ -98,8 +101,7 @@ export function GivebackGiftEntry({
 
   // Opt-in QA panel (append ?giveback_debug to the URL) for driving the entry
   // point manually on a preview deploy. Only the header instance renders it.
-  const showDevPanel =
-    variant === 'header' && router.query.giveback_debug !== undefined;
+  const showDevPanel = variant === 'header' && debug;
 
   return (
     <>
