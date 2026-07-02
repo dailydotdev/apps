@@ -45,10 +45,14 @@ const buildCausesBreakdown = (
   const weights = used.map((_, index) => BREAKDOWN_WEIGHTS[index] ?? 3);
   const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
 
-  return used.map((cause, index) => ({
-    cause,
-    amount: Math.round((pool * weights[index]) / weightSum),
-  }));
+  // Drop slivers that round to $0 on a tiny pool so the breakdown never renders
+  // an empty "$0 / 0%" row.
+  return used
+    .map((cause, index) => ({
+      cause,
+      amount: Math.round((pool * weights[index]) / weightSum),
+    }))
+    .filter(({ amount }) => amount > 0);
 };
 
 const scrollIntoView = (node: HTMLElement | null): void => {

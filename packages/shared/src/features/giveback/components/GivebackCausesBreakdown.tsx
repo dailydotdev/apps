@@ -180,9 +180,9 @@ const Donut = ({
   let cumulative = 0;
 
   return (
-    <FlexRow
+    <FlexCol
       ref={ref}
-      className="flex-col items-center gap-6 tablet:flex-row tablet:gap-8"
+      className="items-center gap-6 tablet:flex-row tablet:gap-8"
     >
       <div className="relative shrink-0">
         <svg
@@ -244,7 +244,7 @@ const Donut = ({
       <div className="min-w-0 flex-1">
         <Legend slices={slices} />
       </div>
-    </FlexRow>
+    </FlexCol>
   );
 };
 
