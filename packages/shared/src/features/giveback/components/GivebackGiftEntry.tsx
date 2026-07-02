@@ -9,6 +9,7 @@ import type { GivebackQaAction } from '../givebackQa';
 import { GIVEBACK_QA_EVENT } from '../givebackQa';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
+import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureGiveback } from '../../../lib/featureManagement';
 import { webappUrl } from '../../../lib/constants';
@@ -66,7 +67,10 @@ export function GivebackGiftEntry({
     }
   }, []);
 
-  const shouldEvaluate = isAuthReady && isLoggedIn;
+  // Desktop-only for now — the mobile placement is parked for a later PR, so
+  // the entry never shows on smaller viewports (header/rail are desktop anyway).
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const shouldEvaluate = isAuthReady && isLoggedIn && isLaptop;
   const { value: isEnabled } = useConditionalFeature({
     feature: featureGiveback,
     shouldEvaluate,
