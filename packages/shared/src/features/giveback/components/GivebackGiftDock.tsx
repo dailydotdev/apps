@@ -1,4 +1,4 @@
-import type { ForwardedRef, ReactElement } from 'react';
+import type { ForwardedRef, ReactElement, ReactNode } from 'react';
 import React, {
   forwardRef,
   useCallback,
@@ -39,6 +39,9 @@ interface GivebackGiftDockProps {
   // Override where the invite prompt opens (defaults follow the variant).
   promptPlacement?: 'below' | 'above';
   promptAlign?: 'start' | 'end';
+  // Custom anchor (e.g. the sidebar's own styled gift link). When provided it
+  // replaces the built-in gift button; the money/prompt overlays anchor to it.
+  children?: ReactNode;
 }
 
 const GIFT_POP_MS = 380;
@@ -54,6 +57,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
     onOpenGiveback,
     promptPlacement,
     promptAlign,
+    children,
   }: GivebackGiftDockProps,
   ref: ForwardedRef<GivebackGiftDockHandle>,
 ): ReactElement {
@@ -117,10 +121,10 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   ]);
 
   return (
-    <div className={classNames('relative inline-flex', isRail && 'w-full')}>
+    <div className="relative inline-flex">
       <span
         className={classNames(
-          'relative inline-flex w-full',
+          'relative inline-flex',
           popping && 'giveback-gift-pop',
         )}
       >
@@ -132,23 +136,20 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
             className="giveback-glow-bloom bg-accent-cabbage-default/50 pointer-events-none absolute left-1/2 top-1/2 size-16 rounded-full blur-lg"
           />
         )}
-        <GivebackGiftButton
-          variant={variant}
-          showLabel={showLabel}
-          onClick={onOpenGiveback}
-        />
+        {children ?? (
+          <GivebackGiftButton
+            variant={variant}
+            showLabel={showLabel}
+            onClick={onOpenGiveback}
+          />
+        )}
       </span>
 
       {/* Community money landing in the pot — bare green numerals that pop in
          beside the gift and drift up (Polymarket-style real-time jump). Offset
          to the right of the icon per-pop so they stay legible, not on the
          glyph. */}
-      <div
-        className={classNames(
-          'pointer-events-none absolute top-0 h-full',
-          isRail ? 'left-0 w-9' : 'inset-x-0',
-        )}
-      >
+      <div className="pointer-events-none absolute inset-0">
         {pops.map((pop) => (
           <span
             key={pop.id}

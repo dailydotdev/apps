@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   ButtonSize,
@@ -7,23 +7,18 @@ import {
 } from '../../../components/buttons/Button';
 import { RootPortal } from '../../../components/tooltips/Portal';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import type { GivebackGiftDockHandle } from './GivebackGiftDock';
-import { GivebackGiftDock } from './GivebackGiftDock';
 import { givebackInvitePrompts } from '../givebackInvitePrompts';
+import { emitGivebackQa } from '../givebackQa';
 
-const PULSE_AMOUNTS = [1, 2, 3, 5, 8, 12];
-
-// A self-contained QA panel for reviewing the gift entry point on any layout /
-// preview deploy. Opt in with the `?giveback_debug` query param (so it never
-// shows for real users); it mounts globally, independent of the header, and
-// carries its OWN live gift preview so the money jump, invite prompts and
-// celebration are visible even on the new layout where the header entry is
-// hidden. Sits above everything, bottom-right.
+// A floating QA panel for reviewing the gift entry point on any layout / preview
+// deploy. Opt in with the `?giveback_debug` query param (never shows for real
+// users). It drives the REAL mounted gift entry (header or sidebar) via the QA
+// event bus, so the money jump, invite prompts and celebration play on the
+// actual gift icon — not a separate preview.
 export function GivebackDevPanel(): ReactElement | null {
   const { isLoggedIn } = useAuthContext();
   const [enabled, setEnabled] = useState(false);
   const [open, setOpen] = useState(true);
-  const dock = useRef<GivebackGiftDockHandle>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -34,12 +29,6 @@ export function GivebackDevPanel(): ReactElement | null {
   if (!enabled || !isLoggedIn) {
     return null;
   }
-
-  const pulse = () => {
-    const amount =
-      PULSE_AMOUNTS[Math.floor(Math.random() * PULSE_AMOUNTS.length)];
-    dock.current?.pulseActivity(`+$${amount}`);
-  };
 
   return (
     <RootPortal>
@@ -63,35 +52,24 @@ export function GivebackDevPanel(): ReactElement | null {
 
         {open && (
           <>
-            {/* Live preview of the entry point — the prompt opens above/left so
-               it stays on screen from the bottom-right corner. */}
-            <div className="flex items-center justify-between gap-2 rounded-8 bg-surface-float px-2 py-1.5">
-              <span className="text-text-tertiary typo-caption2">
-                Live preview
-              </span>
-              <GivebackGiftDock
-                ref={dock}
-                variant="header"
-                promptPlacement="above"
-                promptAlign="end"
-              />
-            </div>
-
+            <span className="text-text-tertiary typo-caption2">
+              Plays on the live gift icon
+            </span>
             <Button
               type="button"
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Primary}
-              onClick={pulse}
+              onClick={() => emitGivebackQa({ type: 'pulse' })}
             >
               💸 Money jump
             </Button>
-            {givebackInvitePrompts.map((prompt) => (
+            {givebackInvitePrompts.map((prompt, index) => (
               <Button
                 key={prompt.id}
                 type="button"
                 size={ButtonSize.XSmall}
                 variant={ButtonVariant.Secondary}
-                onClick={() => dock.current?.showPrompt(prompt)}
+                onClick={() => emitGivebackQa({ type: 'prompt', index })}
                 className="!justify-start"
               >
                 {prompt.celebrate ? '🎉 ' : '💬 '}
@@ -102,7 +80,7 @@ export function GivebackDevPanel(): ReactElement | null {
               type="button"
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Subtle}
-              onClick={() => dock.current?.reset()}
+              onClick={() => emitGivebackQa({ type: 'reset' })}
             >
               Reset
             </Button>

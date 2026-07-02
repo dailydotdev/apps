@@ -161,16 +161,16 @@ export const GivebackInvitePrompt = ({
           </Button>
         </div>
 
-        {/* The daily.dev mascot, bobbing on a soft cabbage glow. */}
-        <div className="relative flex h-32 w-28 shrink-0 items-center justify-center">
+        {/* The daily.dev mascot, bottom-anchored and bobbing on a soft glow. */}
+        <div className="relative flex h-36 w-32 shrink-0 items-end justify-center self-stretch">
           <span
             aria-hidden
-            className="absolute left-1/2 top-1/2 size-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent-cabbage-flat blur-md"
+            className="absolute bottom-0 left-1/2 size-28 -translate-x-1/2 rounded-full bg-accent-cabbage-flat blur-md"
           />
           <img
             src={cloudinaryCharmInviteFriends}
             alt="daily.dev mascot"
-            className="mascot-bob relative size-full object-contain"
+            className="mascot-bob relative h-full w-full object-contain object-bottom"
           />
         </div>
       </div>
