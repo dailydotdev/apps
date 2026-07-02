@@ -8,6 +8,7 @@ import classed from '../../lib/classed';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 import { QuestHeaderButton } from '../header/QuestHeaderButton';
+import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
 
 interface HeaderButtonsProps {
   additionalButtons?: ReactNode;
@@ -42,6 +43,7 @@ export function HeaderButtons({
     <Container>
       <OpportunityEntryButton />
       <QuestHeaderButton />
+      <GivebackGiftEntry />
       {additionalButtons}
       <NotificationsBell />
       <ProfileButton className="hidden laptop:flex" />
