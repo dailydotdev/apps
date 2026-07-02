@@ -21,6 +21,8 @@ export interface GivebackGiftButtonProps {
   className?: string;
 }
 
+const pressClass = 'transition-transform duration-150 ease-out active:scale-90';
+
 // The persistent giveback entry point. Calm at rest — a plain gift, no ambient
 // progress meter and no notification badge. Ref-forwarding so the dock can
 // anchor money jumps and the milestone glow to the icon.
@@ -37,25 +39,46 @@ export const GivebackGiftButton = forwardRef(function GivebackGiftButton(
 ): ReactElement {
   const isRail = variant === 'rail';
 
-  const button = (
+  // Header: a square icon button that matches the notification bell exactly
+  // (Float, w-10, centered, no side padding) so it's not wider than its
+  // neighbours.
+  if (!isRail) {
+    return (
+      <Tooltip content={tooltip} side="bottom">
+        <Button
+          ref={ref}
+          type="button"
+          variant={ButtonVariant.Float}
+          aria-label={tooltip}
+          onClick={onClick}
+          icon={<GiftIcon />}
+          className={classNames(
+            'relative w-10 justify-center',
+            pressClass,
+            className,
+          )}
+        />
+      </Tooltip>
+    );
+  }
+
+  const railButton = (
     <Button
       ref={ref}
       type="button"
-      variant={isRail ? ButtonVariant.Tertiary : ButtonVariant.Float}
-      size={isRail ? ButtonSize.Small : ButtonSize.Medium}
+      variant={ButtonVariant.Tertiary}
+      size={ButtonSize.Small}
       onClick={onClick}
       aria-label={tooltip}
       className={classNames(
-        'relative transition-transform duration-150 ease-out active:scale-90',
-        isRail && showLabel && '!justify-start gap-3',
+        'relative',
+        pressClass,
+        showLabel && '!justify-start gap-3',
         className,
       )}
     >
-      <GiftIcon
-        size={isRail ? IconSize.Small : IconSize.Medium}
-        className="text-text-primary"
-      />
-      {isRail && showLabel && (
+      <GiftIcon size={IconSize.Small} className="text-text-primary" />
+      {showLabel && (
         <span className="font-bold text-text-primary typo-callout">
           {label}
         </span>
@@ -63,13 +86,13 @@ export const GivebackGiftButton = forwardRef(function GivebackGiftButton(
     </Button>
   );
 
-  if (isRail && showLabel) {
-    return button;
+  if (showLabel) {
+    return railButton;
   }
 
   return (
-    <Tooltip content={tooltip} side={isRail ? 'right' : 'bottom'}>
-      {button}
+    <Tooltip content={tooltip} side="right">
+      {railButton}
     </Tooltip>
   );
 });
