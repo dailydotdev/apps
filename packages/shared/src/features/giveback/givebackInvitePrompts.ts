@@ -15,8 +15,6 @@ export interface GivebackInvitePromptData {
   ctaLabel: string;
   // Festive community moment — fires confetti + glow. Use sparingly.
   celebrate?: boolean;
-  // Shows the pulsing "live" dot in the eyebrow (social-proof signal).
-  live?: boolean;
 }
 
 // A rotating set so the header stays fresh and hits different motivations:
@@ -29,7 +27,6 @@ export const givebackInvitePrompts: GivebackInvitePromptData[] = [
     body: 'All of it funded by everyday daily.dev activity — not out of anyone’s pocket.',
     ctaLabel: 'Join in',
     celebrate: true,
-    live: true,
   },
   {
     id: 'how-it-works',
@@ -52,6 +49,5 @@ export const givebackInvitePrompts: GivebackInvitePromptData[] = [
     headline: 'Give back while you read',
     body: 'Developers are turning their daily habit into donations right now. Add yours.',
     ctaLabel: 'Start giving back',
-    live: true,
   },
 ];

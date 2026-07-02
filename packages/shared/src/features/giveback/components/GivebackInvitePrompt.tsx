@@ -20,8 +20,6 @@ export interface GivebackInvitePromptProps {
   ctaLabel?: string;
   // Festive community moment — confetti bursts from the gift.
   celebrate?: boolean;
-  // Pulsing "live" dot in the eyebrow (social-proof signal).
-  live?: boolean;
   // Opens above the gift (rail, bottom-left) instead of below it (header).
   placement?: 'below' | 'above';
   // Horizontal edge the tail points to — matches where the gift sits.
@@ -44,7 +42,6 @@ export const GivebackInvitePrompt = ({
   body = 'All from everyday daily.dev activity. Pick the causes you care about.',
   ctaLabel = 'Join in',
   celebrate = false,
-  live = false,
   placement = 'below',
   align = 'end',
   autoDismissMs = 5000,
@@ -108,42 +105,35 @@ export const GivebackInvitePrompt = ({
         )}
       />
 
-      <div className="giveback-toast-in ring-accent-cabbage-default/25 relative flex items-stretch gap-3.5 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-accent-cabbage-flat to-background-popover p-3.5 antialiased shadow-3 ring-1">
-        {/* The daily.dev mascot, bobbing on a soft cabbage glow. */}
-        <div className="relative flex w-20 shrink-0 items-center justify-center self-center">
-          <span
-            aria-hidden
-            className="absolute inset-2 rounded-full bg-accent-cabbage-flat blur-md"
-          />
-          <img
-            src={cloudinaryCharmInviteFriends}
-            alt="daily.dev mascot"
-            className="mascot-bob relative size-20 object-contain"
-          />
-        </div>
-
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5">
-          <div className="flex items-center gap-1.5">
-            {live && (
-              <span className="relative flex size-2" aria-hidden>
-                <span className="opacity-75 absolute inline-flex size-full animate-ping rounded-full bg-accent-avocado-default" />
-                <span className="relative inline-flex size-2 rounded-full bg-accent-avocado-default" />
-              </span>
-            )}
-            <span className="truncate font-bold uppercase tracking-wide text-accent-cabbage-default typo-caption2">
+      <div className="giveback-toast-in relative flex gap-3 rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-accent-cabbage-flat to-background-popover p-3.5 antialiased shadow-3">
+        {/* Left: full-width message + CTA. */}
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <div className="flex flex-col gap-1">
+            <span className="font-bold uppercase tracking-wide text-accent-cabbage-default typo-caption2">
               {eyebrow}
             </span>
+            <p className="font-bold text-text-primary typo-callout [text-wrap:balance]">
+              {headline}
+            </p>
+            <p className="text-text-secondary typo-caption1 [text-wrap:pretty]">
+              {body}
+            </p>
           </div>
-          <p className="font-bold text-text-primary typo-callout [text-wrap:balance]">
-            {headline}
-          </p>
-          <p className="text-text-secondary typo-caption1 [text-wrap:pretty]">
-            {body}
-          </p>
+
+          <Button
+            type="button"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            size={ButtonSize.Small}
+            onClick={onClick}
+            className="w-full"
+          >
+            {ctaLabel} →
+          </Button>
         </div>
 
-        {/* Right rail: the countdown-ring close on top, the CTA below. */}
-        <div className="flex shrink-0 flex-col items-end justify-between gap-2">
+        {/* Right rail: countdown-ring close on top, mascot tucked below it. */}
+        <div className="flex shrink-0 flex-col items-end justify-between">
           <button
             type="button"
             aria-label="Dismiss"
@@ -174,16 +164,17 @@ export const GivebackInvitePrompt = ({
             <MiniCloseIcon size={IconSize.Small} />
           </button>
 
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            color={ButtonColor.Cabbage}
-            size={ButtonSize.Small}
-            onClick={onClick}
-            className="shrink-0"
-          >
-            {ctaLabel} →
-          </Button>
+          <div className="relative flex size-16 items-center justify-center">
+            <span
+              aria-hidden
+              className="absolute inset-1 rounded-full bg-accent-cabbage-flat blur-md"
+            />
+            <img
+              src={cloudinaryCharmInviteFriends}
+              alt="daily.dev mascot"
+              className="mascot-bob relative size-16 object-contain"
+            />
+          </div>
         </div>
       </div>
     </div>
