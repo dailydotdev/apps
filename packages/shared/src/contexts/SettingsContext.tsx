@@ -58,6 +58,11 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleOptOutCompanion: () => Promise<void>;
   isGamificationEnabled: boolean;
   toggleAllGamification: () => Promise<void>;
+  // The quest experience as one switch: levels + quests + achievements together
+  // (reading streaks stay separate). Needed because the individual toggles each
+  // setState off the same captured snapshot, so they can't be chained.
+  isQuestExperienceEnabled: boolean;
+  toggleQuestExperience: () => Promise<void>;
   toggleAutoDismissNotifications: () => Promise<void>;
   toggleShowFeedbackButton: () => Promise<void>;
   loadedSettings: boolean;
@@ -299,6 +304,22 @@ export const SettingsContextProvider = ({
         return setSettings({
           ...settings,
           optOutReadingStreak: anyEnabled,
+          optOutLevelSystem: anyEnabled,
+          optOutQuestSystem: anyEnabled,
+          optOutAchievements: anyEnabled,
+        });
+      },
+      isQuestExperienceEnabled:
+        !settings.optOutLevelSystem ||
+        !settings.optOutQuestSystem ||
+        !settings.optOutAchievements,
+      toggleQuestExperience: () => {
+        const anyEnabled =
+          !settings.optOutLevelSystem ||
+          !settings.optOutQuestSystem ||
+          !settings.optOutAchievements;
+        return setSettings({
+          ...settings,
           optOutLevelSystem: anyEnabled,
           optOutQuestSystem: anyEnabled,
           optOutAchievements: anyEnabled,

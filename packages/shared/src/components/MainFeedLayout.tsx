@@ -77,6 +77,7 @@ import { ClientQuestEventType } from '../graphql/quests';
 import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
+import { FeedExploreTabs } from './header/FeedExploreTabs';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
@@ -85,8 +86,6 @@ import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
 import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
-import { ExploreSectionTabs } from './header/ExploreSectionTabs';
-import { ExploreSortDropdown } from './header/ExploreSortDropdown';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -250,7 +249,6 @@ export default function MainFeedLayout({
     isPopular,
     isAnyExplore,
     isExploreLatest,
-    isDiscussed,
     isSortableFeed,
     isCustomFeed,
     isSearch: isSearchPage,
@@ -708,14 +706,11 @@ export default function MainFeedLayout({
     );
   }, [isLaptop, onTabChange, tab]);
 
-  // v2 hoists the explore section tabs into the floating card's
-  // page-header strip (matching the SquadDirectoryLayout pattern). The
-  // inline FeedExploreComponent is suppressed below to avoid showing
-  // the same tabs twice.
-  // The Discussions feed (/discussed) is part of the Explore hub — show the
-  // same section tabs there so the hub persists. The Sort dropdown is only
-  // for the actual Explore sorts, so it stays gated on isAnyExplore.
-  const showExploreV2PageHeader = (isAnyExplore || isDiscussed) && isV2;
+  // v2 reaches the Explore hub sections (Explore, Tags, Sources, Leaderboard,
+  // Discussions) from the sidebar's Explore panel, so the page header no longer
+  // carries a section-tab strip. The header now only hosts the Explore sort
+  // dropdown, so it's gated on isAnyExplore.
+  const showExploreV2PageHeader = isAnyExplore && isV2;
 
   // v2 also hoists the regular page-header strip up here, OUTSIDE
   // `FeedPageLayoutComponent`, so it can span the full floating-card
@@ -754,8 +749,9 @@ export default function MainFeedLayout({
     <>
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
-          <ExploreSectionTabs />
-          {isAnyExplore && <ExploreSortDropdown />}
+          {/* Sort options as pill tabs — same navbar as the Tags / Squad
+              directory pages, not the underlined TabContainer. */}
+          <FeedExploreTabs />
         </header>
       )}
       {showFeedV2PageHeader && (
