@@ -99,6 +99,8 @@ export enum Origin {
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
   DailyPage = 'daily page',
+  EngagementBanner = 'engagement banner',
+  EngagementFeedStrip = 'engagement feed strip',
 }
 
 export enum LogEvent {

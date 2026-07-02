@@ -3,6 +3,8 @@ import React from 'react';
 import classNames from 'classnames';
 import { EngagementAdCta } from './EngagementAdCta';
 import type { ResolvedCreative } from '../../lib/engagementAds';
+import { useEngagementPlacementLog } from '../../hooks/useEngagementPlacementLog';
+import { Origin } from '../../lib/log';
 
 type EngagementFeedStripProps = {
   creative: ResolvedCreative;
@@ -21,9 +23,14 @@ export const EngagementFeedStrip = ({
   style,
 }: EngagementFeedStripProps): ReactElement => {
   const { name, body, cta, url, logo, primaryColor, secondaryColor } = creative;
+  const { ref, onClick } = useEngagementPlacementLog({
+    creative,
+    origin: Origin.EngagementFeedStrip,
+  });
 
   return (
     <div
+      ref={ref}
       className={classNames(
         'flex flex-col items-center gap-4 rounded-16 px-4 py-6 text-center',
         className,
@@ -40,7 +47,12 @@ export const EngagementFeedStrip = ({
         <h3 className="font-bold typo-title3">{name}</h3>
         <p className="typo-callout">{body}</p>
       </div>
-      <EngagementAdCta href={url} brandColor={primaryColor} inverted>
+      <EngagementAdCta
+        href={url}
+        brandColor={primaryColor}
+        inverted
+        onClick={onClick}
+      >
         {cta}
       </EngagementAdCta>
     </div>

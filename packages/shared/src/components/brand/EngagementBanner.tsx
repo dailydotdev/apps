@@ -11,6 +11,8 @@ import CloseButton from '../CloseButton';
 import { ButtonSize } from '../buttons/Button';
 import { EngagementAdCta } from './EngagementAdCta';
 import type { ResolvedCreative } from '../../lib/engagementAds';
+import { useEngagementPlacementLog } from '../../hooks/useEngagementPlacementLog';
+import { Origin } from '../../lib/log';
 
 // Append an 8-digit-hex alpha to a #rrggbb brand color so the banner's
 // background wash and hairline stay subtle. Returns the color unchanged if it
@@ -36,6 +38,10 @@ export const EngagementBanner = ({
   onDismiss,
 }: EngagementBannerProps): ReactElement | null => {
   const [dismissed, setDismissed] = useState(false);
+  const { ref, onClick } = useEngagementPlacementLog({
+    creative,
+    origin: Origin.EngagementBanner,
+  });
 
   if (dismissed) {
     return null;
@@ -45,6 +51,7 @@ export const EngagementBanner = ({
 
   return (
     <div
+      ref={ref}
       className={classNames(
         'flex w-full items-center gap-3 overflow-hidden rounded-12 px-3 py-2',
         className,
@@ -86,6 +93,7 @@ export const EngagementBanner = ({
         href={url}
         brandColor={primaryColor}
         className="shrink-0 !px-4 !py-1.5 typo-footnote"
+        onClick={onClick}
       >
         {cta}
       </EngagementAdCta>

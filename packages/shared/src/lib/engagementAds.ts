@@ -43,6 +43,9 @@ export const engagementCreativeSchema = z.object({
   // micro-interactions). Matching against EngagementPlacement is done at
   // lookup time in findCreativeForPlacement.
   placements: z.array(z.string()).optional().default([]),
+  // CPA campaign source id (from skadi). Optional — only CPA campaigns carry
+  // it. Sent alongside gen_id in engagement tracking for attribution.
+  source_id: z.string().optional(),
 });
 
 export type EngagementCreative = z.infer<typeof engagementCreativeSchema>;
@@ -63,6 +66,7 @@ export interface ResolvedCreative {
   keywords: string[];
   tags: string[];
   placements: string[];
+  sourceId?: string;
 }
 
 /**
@@ -101,6 +105,19 @@ export const resolveCreative = (
   keywords: creative.keywords,
   tags: creative.tags,
   placements: creative.placements,
+  sourceId: creative.source_id,
+});
+
+/**
+ * Build the engagement-ad tracking `extra` payload for a creative: always the
+ * gen_id, plus the CPA source_id when the creative carries one. Shared so every
+ * surface that attributes an engagement creative reports it the same way.
+ */
+export const getEngagementLogExtra = (
+  creative: Pick<ResolvedCreative, 'genId' | 'sourceId'>,
+): { gen_id: string; source_id?: string } => ({
+  gen_id: creative.genId,
+  ...(creative.sourceId ? { source_id: creative.sourceId } : {}),
 });
 
 /** Find the first creative whose tags overlap with the given tags */
