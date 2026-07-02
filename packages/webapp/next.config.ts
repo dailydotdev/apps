@@ -1,4 +1,3 @@
-import { withSerwist } from '@serwist/turbopack';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import withBundleAnalyzerInit from '@next/bundle-analyzer';
 import { readFileSync } from 'fs';
@@ -59,6 +58,8 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     turbopackFileSystemCacheForDev: false,
+    turbopackFileSystemCacheForBuild: true,
+    turbopackMemoryLimit: 4 * 1024 * 1024 * 1024,
   },
   ...withBundleAnalyzer({
     compiler: {
@@ -351,4 +352,4 @@ const nextConfig: NextConfig = {
   }),
 };
 
-export default withSerwist(nextConfig);
+export default nextConfig;
