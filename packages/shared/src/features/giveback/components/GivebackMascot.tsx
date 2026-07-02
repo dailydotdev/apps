@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { cloudinaryCharmGiveback } from '../../../lib/image';
 
 // The daily.dev charm, themed as a "wish-granting genie" for Giveback: you make
 // a wish (pick a cause / take an action) and daily.dev grants it.
 const GIVEBACK_CHARM_IMAGE = {
-  src: 'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)',
+  src: cloudinaryCharmGiveback,
   alt: 'daily.dev charm celebrating community impact for the Giveback campaign',
 };
 

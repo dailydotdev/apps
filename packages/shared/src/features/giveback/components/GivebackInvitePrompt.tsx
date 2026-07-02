@@ -10,7 +10,7 @@ import {
 import { MiniCloseIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { RootPortal } from '../../../components/tooltips/Portal';
-import { cloudinaryCharmInviteFriends } from '../../../lib/image';
+import { cloudinaryCharmGiveback } from '../../../lib/image';
 import { GivebackConfettiBurst } from './GivebackConfettiBurst';
 
 export interface GivebackInvitePromptProps {
@@ -209,16 +209,17 @@ export const GivebackInvitePrompt = ({
           </Button>
         </div>
 
-        {/* The daily.dev mascot, bottom-anchored and bobbing on a soft glow. */}
-        <div className="relative flex h-36 w-32 shrink-0 items-end justify-center self-stretch">
+        {/* The Giveback charm, bobbing on a soft glow. Its artwork sits on black,
+           so mix-blend-screen drops the black on the dark card. */}
+        <div className="relative flex h-36 w-32 shrink-0 items-center justify-center self-stretch">
           <span
             aria-hidden
-            className="absolute bottom-0 left-1/2 size-28 -translate-x-1/2 rounded-full bg-accent-cabbage-flat blur-md"
+            className="bg-accent-cabbage-default/20 absolute left-1/2 top-1/2 size-28 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
           />
           <img
-            src={cloudinaryCharmInviteFriends}
-            alt="daily.dev mascot"
-            className="mascot-bob relative h-full w-full object-contain object-bottom"
+            src={cloudinaryCharmGiveback}
+            alt="daily.dev Giveback charm"
+            className="mascot-bob relative h-full w-full object-contain mix-blend-screen"
           />
         </div>
       </div>
