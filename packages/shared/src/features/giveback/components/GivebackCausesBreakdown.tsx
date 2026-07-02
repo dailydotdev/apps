@@ -111,22 +111,24 @@ const Legend = ({ slices }: { slices: Slice[] }): ReactElement => (
         >
           {slice.cause.title}
         </Typography>
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="w-9 shrink-0 text-right tabular-nums"
-        >
-          {formatPercentage(slice.percentage)}
-        </Typography>
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Footnote}
-          bold
-          className="w-16 shrink-0 text-right tabular-nums"
-        >
-          {formatDonationAmount(slice.amount)}
-        </Typography>
+        <FlexRow className="shrink-0 items-center gap-1">
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+            className="w-9 text-right tabular-nums"
+          >
+            {formatPercentage(slice.percentage)}
+          </Typography>
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Footnote}
+            bold
+            className="w-16 text-right tabular-nums"
+          >
+            {formatDonationAmount(slice.amount)}
+          </Typography>
+        </FlexRow>
       </FlexRow>
     ))}
   </div>
