@@ -1,10 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { GivebackCausesBreakdown } from './GivebackCausesBreakdown';
-import type {
-  GivebackBreakdownVariant,
-  GivebackCauseAllocation,
-} from './GivebackCausesBreakdown';
+import type { GivebackCauseAllocation } from './GivebackCausesBreakdown';
 import type { ContributionCause } from '../types';
 
 // Resolve the reveal/count-up animations synchronously so assertions read the
@@ -59,18 +56,12 @@ describe('GivebackCausesBreakdown', () => {
     ).toBeInTheDocument();
   });
 
-  it.each<GivebackBreakdownVariant>(['stacked', 'donut', 'silos', 'mosaic'])(
-    'renders the %s variant without crashing',
-    (variant) => {
-      render(
-        <GivebackCausesBreakdown allocations={allocations} variant={variant} />,
-      );
+  it('renders the pool total in the donut hole', () => {
+    render(<GivebackCausesBreakdown allocations={allocations} />);
 
-      expect(
-        screen.getAllByText('Open-source maintainers').length,
-      ).toBeGreaterThan(0);
-    },
-  );
+    // Total 4200+2600+1800+1100+700+400 = 10,800.
+    expect(screen.getByText('$10,800')).toBeInTheDocument();
+  });
 
   it('renders nothing when there are no allocations', () => {
     const { container } = render(<GivebackCausesBreakdown allocations={[]} />);

@@ -176,11 +176,7 @@ export const GivebackPage = (): ReactElement => {
 
           {showTabs && causesBreakdown.length > 0 && (
             <div className={column}>
-              <GivebackCausesBreakdown
-                variant="donut"
-                flat
-                allocations={causesBreakdown}
-              />
+              <GivebackCausesBreakdown flat allocations={causesBreakdown} />
             </div>
           )}
 
