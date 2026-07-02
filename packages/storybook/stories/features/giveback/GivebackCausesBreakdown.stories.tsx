@@ -137,3 +137,43 @@ export const FewCauses: Story = {
     </Frame>
   ),
 };
+
+// A deliberately long cause name so the capped, truncating title is visible
+// alongside the normal roster.
+const longTitleAllocations: GivebackCauseAllocation[] = [
+  {
+    cause: {
+      ...mockCauses()[0],
+      title: 'Open-source maintainers, docs & tooling grants',
+    },
+    amount: 4200,
+  },
+  ...allocations.slice(1),
+];
+
+// Legend spacing review — the percentage and amount now hug each cause title
+// instead of being pushed to the far right edge, so every entry is only as wide
+// as its own content. Shown on the two Legend-driven variants (stacked + donut),
+// with a long-title row to confirm the title caps and truncates cleanly.
+export const LegendSpacing: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Tighter legend groups: the share and dollar amount sit right next to the cause name rather than spread across the full column. The last block shows a long title truncating at its cap.',
+      },
+    },
+  },
+  render: () => (
+    <Frame>
+      <div className="flex flex-col gap-8">
+        <GivebackCausesBreakdown allocations={allocations} variant="stacked" />
+        <GivebackCausesBreakdown allocations={allocations} variant="donut" />
+        <GivebackCausesBreakdown
+          allocations={longTitleAllocations}
+          variant="stacked"
+        />
+      </div>
+    </Frame>
+  ),
+};

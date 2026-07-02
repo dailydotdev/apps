@@ -92,16 +92,18 @@ const Dot = ({ className }: { className: string }): ReactElement => (
 );
 
 // Shared name + percentage + amount row used under the stacked bar and the
-// donut so both read from the same legend.
+// donut so both read from the same legend. The title is capped (not stretched)
+// so the percentage and amount hug it: each entry is only as wide as its own
+// content, keeping the groups tight instead of spread across the full column.
 const Legend = ({ slices }: { slices: Slice[] }): ReactElement => (
   <div className="grid grid-cols-1 gap-x-6 gap-y-2.5 tablet:grid-cols-2">
     {slices.map((slice) => (
-      <FlexRow key={slice.cause.id} className="items-center gap-2.5">
+      <FlexRow key={slice.cause.id} className="items-center gap-2">
         <Dot className={slice.color.fill} />
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Footnote}
-          className="min-w-0 flex-1 truncate"
+          className="min-w-0 max-w-[10rem] truncate"
         >
           {slice.cause.title}
         </Typography>
@@ -109,7 +111,7 @@ const Legend = ({ slices }: { slices: Slice[] }): ReactElement => (
           tag={TypographyTag.Span}
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
-          className="tabular-nums"
+          className="shrink-0 tabular-nums"
         >
           {formatPercentage(slice.percentage)}
         </Typography>
@@ -117,7 +119,7 @@ const Legend = ({ slices }: { slices: Slice[] }): ReactElement => (
           tag={TypographyTag.Span}
           type={TypographyType.Footnote}
           bold
-          className="w-16 shrink-0 text-right tabular-nums"
+          className="shrink-0 tabular-nums"
         >
           {formatDonationAmount(slice.amount)}
         </Typography>
