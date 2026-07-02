@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import type { GivebackGiftButtonVariant } from './GivebackGiftButton';
 import type { GivebackGiftDockHandle } from './GivebackGiftDock';
@@ -41,8 +41,16 @@ export function GivebackGiftEntry({
   const dock = useRef<GivebackGiftDockHandle>(null);
 
   // QA override: `?giveback_debug` force-shows the entry (and its panel) even
-  // when the feature flag is off, so it's testable on a preview deploy.
-  const debug = router.query.giveback_debug !== undefined;
+  // when the feature flag is off, so it's testable on a preview deploy. Read
+  // from the URL directly on the client — router.query can be empty during
+  // static render/hydration.
+  const [debug, setDebug] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setDebug(window.location.search.includes('giveback_debug'));
+    }
+  }, []);
+
   const shouldEvaluate = isAuthReady && isLoggedIn;
   const { value: isEnabled } = useConditionalFeature({
     feature: featureGiveback,
