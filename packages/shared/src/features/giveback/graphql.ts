@@ -75,6 +75,7 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
             instructions
             externalUrl
             isLoveAction
+            assistType
           }
           cooldownSeconds
           maxPerUser

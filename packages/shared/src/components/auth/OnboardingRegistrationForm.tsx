@@ -39,6 +39,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   compact?: boolean;
   splitSignupStyle?: boolean;
   preferGithub?: boolean;
+  onAuthOpenLogged?: () => void;
 }
 
 export const isWebView = (): boolean => {
@@ -116,6 +117,7 @@ export const OnboardingRegistrationForm = ({
   compact,
   splitSignupStyle = false,
   preferGithub,
+  onAuthOpenLogged,
 }: OnboardingRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
   const isOnboardingTrigger = trigger === AuthTriggers.Onboarding;
@@ -138,6 +140,8 @@ export const OnboardingRegistrationForm = ({
       extra: JSON.stringify({ trigger }),
       target_id: targetId,
     });
+
+    onAuthOpenLogged?.();
     // Need to run only once on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

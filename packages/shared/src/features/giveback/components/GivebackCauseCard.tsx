@@ -12,6 +12,8 @@ import { OpenLinkIcon, PlusIcon, VIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { CauseEmblem } from './CauseEmblem';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import type { ContributionCause } from '../types';
 
 interface GivebackCauseCardProps {
@@ -33,6 +35,7 @@ export const GivebackCauseCard = ({
   onToggle,
   buttonToggle = false,
 }: GivebackCauseCardProps): ReactElement => {
+  const { logEvent } = useLogContext();
   const toggle = () => onToggle(cause.id);
   const cardClickable = !buttonToggle;
 
@@ -131,7 +134,13 @@ export const GivebackCauseCard = ({
           href={cause.url}
           target="_blank"
           rel={anchorDefaultRel}
-          onClick={(event) => event.stopPropagation()}
+          onClick={(event) => {
+            event.stopPropagation();
+            logEvent({
+              event_name: LogEvent.ClickGivebackCause,
+              target_id: cause.id,
+            });
+          }}
           className="group/learn relative z-1 inline-flex w-fit items-center gap-1 font-bold text-text-link underline-offset-2 typo-footnote hover:underline focus-visible:underline"
         >
           Learn more

@@ -92,7 +92,9 @@ export const useGivebackCauseSelection = (
   const save = useCallback(async () => {
     try {
       await saveCausePreferences([...selectedIds]);
-      displayToast('Your causes are saved');
+      // Auto-dismisses for users who keep notifications on auto-dismiss (the
+      // default); others have explicitly chosen to dismiss toasts themselves.
+      displayToast('Your causes are saved', { timer: 3000 });
       return true;
     } catch {
       displayToast(labels.error.generic);
