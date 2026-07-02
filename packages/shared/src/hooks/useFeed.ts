@@ -329,6 +329,7 @@ export default function useFeed<T>(
         first: pageSize,
         after: pageParam,
         loggedIn: !!user,
+        columns: virtualizedNumCards,
       });
       const res = normalizeFeedPage(rawResult);
 

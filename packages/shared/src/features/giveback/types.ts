@@ -110,6 +110,14 @@ export interface ContributionActionMetadata {
   assistType: ContributionAssistType | null;
 }
 
+// A single target from a link_pool action's pool (e.g. a Reddit thread to
+// comment on). The catalog surfaces a randomized handful at a time.
+export interface ContributionActionLink {
+  id: string;
+  url: string;
+  label: string | null;
+}
+
 // Which kinds of proof an action asks for, and whether each is mandatory. Drives
 // the submission form: a field is only rendered when its key is present.
 export interface ContributionActionEvidence {

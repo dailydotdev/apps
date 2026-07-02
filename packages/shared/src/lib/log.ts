@@ -509,6 +509,8 @@ export enum LogEvent {
   SubmitGivebackActionError = 'submit giveback action error',
   ClickGivebackLoveAction = 'click giveback love action',
   CopyGivebackReferralLink = 'copy giveback referral link',
+  ClickGivebackPoolLink = 'click giveback pool link',
+  ShuffleGivebackPoolLinks = 'shuffle giveback pool links',
   ClaimGivebackReward = 'claim giveback reward',
   ClickGivebackCause = 'click giveback cause',
   ClickGivebackFaq = 'click giveback faq',

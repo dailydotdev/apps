@@ -45,7 +45,7 @@ export interface TextFormHandle {
   toggleMarkdownMode: () => void;
 }
 
-const BODY_MAX_LENGTH = 10_000;
+const BODY_MAX_LENGTH = 20_000;
 
 export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
   function TextForm(

@@ -255,9 +255,9 @@ export const GivebackFunnelStep = ({
                 // finale short; stacks/centers in the 3-up grid on tablet+.
                 <FlexRow
                   key={value.title}
-                  className="items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left tablet:h-full tablet:flex-col tablet:items-center tablet:gap-2 tablet:p-5 tablet:text-center"
+                  className="items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left tablet:h-full tablet:flex-col tablet:items-center tablet:gap-2 tablet:p-5 tablet:text-center"
                 >
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-14 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default text-white [&_svg]:size-6">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default text-white tablet:size-11 tablet:rounded-14 [&_svg]:size-5 tablet:[&_svg]:size-6">
                     {value.icon}
                   </span>
                   <FlexCol className="min-w-0 gap-0.5 tablet:items-center">
@@ -269,9 +269,10 @@ export const GivebackFunnelStep = ({
                       {value.title}
                     </Typography>
                     <Typography
-                      type={TypographyType.Callout}
                       color={TypographyColor.Secondary}
-                      className="[text-wrap:pretty]"
+                      // Smaller on mobile so the longest sub ("...picked by you.")
+                      // clears the card edge; full Callout size at tablet+.
+                      className="typo-footnote [text-wrap:pretty] tablet:typo-callout"
                     >
                       {value.sub}
                     </Typography>

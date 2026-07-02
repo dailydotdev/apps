@@ -89,6 +89,7 @@ const createFeedMock = (
     tag: 'react',
     ranking: 'TIME',
     supportedTypes: tagFeedSupportedTypes,
+    columns: 1,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -280,6 +281,7 @@ it('should show follow and block buttons when logged-out', async () => {
         tag: 'react',
         ranking: 'TIME',
         supportedTypes: tagFeedSupportedTypes,
+        columns: 1,
       }),
     ],
     null,
@@ -301,6 +303,7 @@ it('should show login popup when logged-out on follow click', async () => {
         tag: 'react',
         ranking: 'TIME',
         supportedTypes: tagFeedSupportedTypes,
+        columns: 1,
       }),
     ],
     null,
@@ -331,6 +334,7 @@ it('should show login popup when logged-out on block click', async () => {
         tag: 'react',
         ranking: 'TIME',
         supportedTypes: tagFeedSupportedTypes,
+        columns: 1,
       }),
     ],
     null,
