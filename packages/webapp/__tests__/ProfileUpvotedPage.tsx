@@ -48,6 +48,7 @@ const createFeedMock = (
       first: 7,
       after: '',
       loggedIn: true,
+      columns: 1,
     },
   },
   result: {
