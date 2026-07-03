@@ -47,6 +47,8 @@ import {
 
 const AD_SLOT_INDEX = 1;
 const DAILY_FEED_NAME = 'daily';
+const LIST_CLASS =
+  '-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary';
 
 // Picks is a single-column list, so grid position is always column 0 of 1.
 const dailyFeedExtra = () =>
@@ -381,24 +383,60 @@ export const CoverGrid = (): ReactElement => {
           Picks
         </Typography>
       </div>
-      <ol className="-mx-4 divide-y divide-border-subtlest-quaternary overflow-hidden bg-background-default tablet:mx-0 tablet:rounded-12 tablet:border tablet:border-border-subtlest-quaternary">
-        {isPending && !posts.length
-          ? Array.from({ length: PICKS_PLACEHOLDER_COUNT }, (_, i) => i).map(
+      {!isPending && !posts.length ? (
+        <ol className={LIST_CLASS}>
+          <li className="flex flex-col items-center gap-2 px-6 py-5 text-center">
+            <div className="flex size-12 items-center justify-center rounded-full bg-accent-cabbage-flat text-accent-cabbage-default">
+              <StarIcon size={IconSize.Medium} secondary />
+            </div>
+            <div className="flex max-w-xs flex-col items-center gap-1">
+              <Typography
+                tag={TypographyTag.H3}
+                type={TypographyType.Body}
+                bold
+                color={TypographyColor.Primary}
+              >
+                No picks today
+              </Typography>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                We couldn&apos;t find posts worth your time today. Come back
+                tomorrow!
+              </Typography>
+            </div>
+          </li>
+          {ad ? <AdRow ad={ad} /> : null}
+        </ol>
+      ) : (
+        <ol className={LIST_CLASS}>
+          {isPending && !posts.length ? (
+            Array.from({ length: PICKS_PLACEHOLDER_COUNT }, (_, i) => i).map(
               (i) => <PickRowSkeleton key={`pick-skeleton-${i}`} />,
             )
-          : posts.map((post, idx) => (
-              <React.Fragment key={post.id}>
-                {idx === AD_SLOT_INDEX && ad ? <AdRow ad={ad} /> : null}
-                <PickRow
-                  post={post}
-                  position={idx}
-                  onExpand={() => onPickClick(post, idx)}
-                  onBookmark={() => onPickBookmark(post, idx)}
-                  onVoteMutate={onVoteMutate}
-                />
-              </React.Fragment>
-            ))}
-      </ol>
+          ) : (
+            <>
+              {posts.map((post, idx) => (
+                <React.Fragment key={post.id}>
+                  {idx === AD_SLOT_INDEX && ad ? <AdRow ad={ad} /> : null}
+                  <PickRow
+                    post={post}
+                    position={idx}
+                    onExpand={() => onPickClick(post, idx)}
+                    onBookmark={() => onPickBookmark(post, idx)}
+                    onVoteMutate={onVoteMutate}
+                  />
+                </React.Fragment>
+              ))}
+              {/* inject ad when not enough posts for ad slot  */}
+              {!!ad && posts.length > 0 && posts.length <= AD_SLOT_INDEX ? (
+                <AdRow ad={ad} />
+              ) : null}
+            </>
+          )}
+        </ol>
+      )}
     </section>
   );
 };

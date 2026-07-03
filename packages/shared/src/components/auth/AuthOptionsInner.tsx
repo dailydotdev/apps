@@ -149,6 +149,7 @@ function AuthOptionsInner({
   preferGithub,
   autoTriggerProvider,
   socialProviderScopes,
+  registrationExtraFields,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -647,13 +648,16 @@ function AuthOptionsInner({
     await handleLoginMessage();
   };
 
+  const [hasLoggedAuthOpen, setHasLoggedAuthOpen] = useState(false);
+
   const canUseOneTap =
     isAuthReady &&
     !user &&
     !checkIsExtension() &&
     !isIOSNative() &&
     !isAndroidApp &&
-    !isNativeAuthSupported('google');
+    !isNativeAuthSupported('google') &&
+    hasLoggedAuthOpen;
   const { value: isOneTapEnabled } = useConditionalFeature({
     feature: featureAuthGoogleOneTap,
     shouldEvaluate: canUseOneTap,
@@ -762,6 +766,7 @@ function AuthOptionsInner({
             providers={providers}
             simplified={simplified}
             trigger={trigger}
+            onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
           />
         </Tab>
         <Tab label={AuthDisplay.SocialRegistration}>
@@ -782,6 +787,7 @@ function AuthOptionsInner({
           <RegistrationForm
             formRef={formRef}
             simplified={simplified}
+            extraFields={registrationExtraFields}
             hints={registrationHints}
             onBack={
               defaultDisplay !== AuthDisplay.Registration
@@ -857,6 +863,7 @@ function AuthOptionsInner({
             compact={compact}
             splitSignupStyle={splitSignupStyle}
             preferGithub={preferGithub}
+            onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

@@ -99,6 +99,8 @@ export enum Origin {
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
   DailyPage = 'daily page',
+  EngagementBanner = 'engagement banner',
+  EngagementFeedStrip = 'engagement feed strip',
 }
 
 export enum LogEvent {
@@ -130,6 +132,7 @@ export enum LogEvent {
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
   GlobalError = 'global error',
+  GoogleOneTapPrompt = 'google one tap prompt',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',
@@ -495,7 +498,6 @@ export enum LogEvent {
   ExtensionPrimerCtaClick = 'click extension primer cta',
   ExtensionPrimerSkipped = 'skip extension primer',
   // Giveback
-  ClickJoinGiveback = 'click join giveback',
   ClickGivebackSponsor = 'click giveback sponsor',
   SaveGivebackCauses = 'save giveback causes',
   ClickGivebackTab = 'click giveback tab',
@@ -506,10 +508,16 @@ export enum LogEvent {
   SubmitGivebackAction = 'submit giveback action',
   SubmitGivebackActionError = 'submit giveback action error',
   ClickGivebackLoveAction = 'click giveback love action',
+  CopyGivebackReferralLink = 'copy giveback referral link',
+  ClickGivebackPoolLink = 'click giveback pool link',
+  ShuffleGivebackPoolLinks = 'shuffle giveback pool links',
   ClaimGivebackReward = 'claim giveback reward',
-  ClickGivebackEditCauses = 'click giveback edit causes',
   ClickGivebackCause = 'click giveback cause',
   ClickGivebackFaq = 'click giveback faq',
+  StartGivebackFunnel = 'start giveback funnel',
+  ViewGivebackFunnelStep = 'view giveback funnel step',
+  CompleteGivebackFunnel = 'complete giveback funnel',
+  ClickGivebackHowItWorks = 'click giveback how it works',
   // Daily homepage
   DailyFeedback = 'daily feedback',
 }

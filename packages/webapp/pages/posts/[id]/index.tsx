@@ -46,6 +46,7 @@ import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExt
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
+import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
@@ -276,7 +277,7 @@ export const PostPage = ({
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
-            ...(creative && { gen_id: creative.genId }),
+            ...(creative && getEngagementLogExtra(creative)),
           };
         }}
       >

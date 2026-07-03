@@ -27,6 +27,7 @@ import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary'
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { useJoinReferral } from '@dailydotdev/shared/src/hooks/referral/useJoinReferral';
 import { swipeOnboardingFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import type {
   AuthOptionsProps,
@@ -291,6 +292,10 @@ const useOnboardingAuth = () => {
 
 function Onboarding({ initialStepId }: PageProps): ReactElement | null {
   const router = useRouter();
+  // Capture a campaign referral from the onboarding link (e.g.
+  // /onboarding?id=…&cid=<campaign>) into referralOrigin, so downstream
+  // (engagement-ad skadi request) can target the campaign.
+  useJoinReferral();
   const {
     isAuthenticating,
     isAuthReady,

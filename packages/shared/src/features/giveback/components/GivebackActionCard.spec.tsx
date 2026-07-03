@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { GivebackActionCard } from './GivebackActionCard';
 import type { ContributionAction } from '../types';
-import { ContributionSubmissionStatus } from '../types';
+import { ContributionAssistType, ContributionSubmissionStatus } from '../types';
 
 const makeAction = (
   overrides: Partial<ContributionAction> = {},
@@ -18,6 +18,7 @@ const makeAction = (
     instructions: null,
     externalUrl: null,
     isLoveAction: false,
+    assistType: null,
   },
   cooldownSeconds: null,
   maxPerUser: null,
@@ -42,6 +43,25 @@ it('renders an actionable card with the payout and platform, and submits', () =>
     screen.getByRole('button', { name: 'Submit proof for Post about us on X' }),
   );
   expect(onSubmit).toHaveBeenCalledWith(makeAction());
+});
+
+it('labels a referral action as an invite rather than a proof submission', () => {
+  const action = makeAction({
+    title: 'Invite a friend',
+    metadata: {
+      platform: null,
+      instructions: null,
+      externalUrl: null,
+      isLoveAction: false,
+      assistType: ContributionAssistType.ReferralLink,
+    },
+  });
+  render(<GivebackActionCard action={action} onSubmit={onSubmit} />);
+
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Invite friends: Invite a friend' }),
+  );
+  expect(onSubmit).toHaveBeenCalledWith(action);
 });
 
 it('locks an approved action into a non-interactive Done state', () => {
@@ -180,6 +200,7 @@ it('renders a love action with its appreciation tag instead of a payout', () => 
           instructions: null,
           externalUrl: null,
           isLoveAction: true,
+          assistType: null,
         },
       })}
       onSubmit={onSubmit}

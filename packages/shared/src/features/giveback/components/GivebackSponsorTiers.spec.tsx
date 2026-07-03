@@ -38,7 +38,7 @@ const sponsor = (
   ...overrides,
 });
 
-it('groups sponsors under their tier labels and renders brand logo cards', () => {
+it('renders a brand logo card with an explicit tier pill per sponsor', () => {
   mockUseContributionSponsors.mockReturnValue({
     sponsors: [
       sponsor({ id: '1', name: 'Vercel', tier: ContributionSponsorTier.Gold }),

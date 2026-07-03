@@ -89,14 +89,33 @@ export interface ContributionSubmission {
   reviewedAt: string | null;
 }
 
+// How the card helps the user complete an action: open an outbound link, surface
+// their own invite link, or pick from a rotating pool of targets. Drives which
+// assist UI the submission modal renders.
+export enum ContributionAssistType {
+  ExternalLink = 'external_link',
+  ReferralLink = 'referral_link',
+  LinkPool = 'link_pool',
+}
+
 // What the action reads as on the catalog (which surface it lives on) plus the
 // optional how-to and outbound link. `isLoveAction` marks a voluntary
-// thank-you that carries no points and skips the proof flow.
+// thank-you that carries no points and skips the proof flow. `assistType` picks
+// the completion helper (see ContributionAssistType).
 export interface ContributionActionMetadata {
   platform: string | null;
   instructions: string | null;
   externalUrl: string | null;
   isLoveAction: boolean;
+  assistType: ContributionAssistType | null;
+}
+
+// A single target from a link_pool action's pool (e.g. a Reddit thread to
+// comment on). The catalog surfaces a randomized handful at a time.
+export interface ContributionActionLink {
+  id: string;
+  url: string;
+  label: string | null;
 }
 
 // Which kinds of proof an action asks for, and whether each is mandatory. Drives
