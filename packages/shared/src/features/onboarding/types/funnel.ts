@@ -2,7 +2,11 @@ import type { ComponentProps } from 'react';
 import type { Review, StepHeadlineAlign } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
 import type { ThemeMode } from '../../../contexts/SettingsContext';
-import type { AnonymousUser, LoggedUser } from '../../../lib/user';
+import type {
+  AnonymousUser,
+  LoggedUser,
+  ProfileExtraField,
+} from '../../../lib/user';
 import type { BrowserName } from '../../../lib/func';
 import type {
   FunnelStepPricingParameters,
@@ -275,6 +279,9 @@ export interface FunnelStepProfileForm
     headline: string;
     image: string;
     imageMobile: string;
+    // Extra profile fields to collect, set per funnel in Freyja (e.g. for an
+    // Instagram/Facebook campaign). Omitted = default fields only.
+    extraFields?: ProfileExtraField[];
   }> {
   type: FunnelStepType.ProfileForm;
   onTransition: FunnelStepTransitionCallback;
@@ -283,7 +290,11 @@ export interface FunnelStepProfileForm
 export interface FunnelStepEditTags
   extends FunnelStepCommon<{
     headline: string;
+    cta?: string;
     minimumRequirement: number;
+    // Tag names to surface first on the selection grid, set per funnel in
+    // Freyja (e.g. cloud-related tags for the campaign cohort).
+    featuredTags?: string[];
   }> {
   type: FunnelStepType.EditTags;
   onTransition: FunnelStepTransitionCallback<{
@@ -309,6 +320,9 @@ export interface FunnelStepOrganicSignup
     explainer: string;
     image: string;
     imageMobile: string;
+    // Extra profile fields to collect on the email registration form, set per
+    // funnel in Freyja (e.g. Instagram/Facebook campaign). Omitted = none.
+    extraFields?: ProfileExtraField[];
   }> {
   type: FunnelStepType.OrganicSignup;
   onTransition: FunnelStepTransitionCallback<{

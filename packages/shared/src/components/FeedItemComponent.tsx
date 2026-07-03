@@ -44,7 +44,10 @@ import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
 import { adLogEvent, feedHighlightsLogEvent, feedLogExtra } from '../lib/feed';
-import { findCreativeForTags } from '../lib/engagementAds';
+import {
+  findCreativeForTags,
+  getEngagementLogExtra,
+} from '../lib/engagementAds';
 import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketing/cta/common';
@@ -237,7 +240,7 @@ export const withFeedLogExtraContext = (
               ) {
                 const creative = findCreativeForTags(creatives, post.tags);
                 if (creative) {
-                  extraData.gen_id = creative.genId;
+                  Object.assign(extraData, getEngagementLogExtra(creative));
                 }
               }
             }

@@ -26,6 +26,7 @@ interface EditTagProps {
   headline?: string;
   requiredTags?: number;
   hidePreview?: boolean;
+  featuredTags?: string[];
 }
 export const EditTag = ({
   feedSettings,
@@ -33,6 +34,7 @@ export const EditTag = ({
   headline,
   requiredTags = REQUIRED_TAGS_THRESHOLD,
   hidePreview,
+  featuredTags,
 }: EditTagProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
@@ -95,6 +97,7 @@ export const EditTag = ({
       <div ref={tagsRef} className="flex w-full flex-col items-center">
         <TagSelection
           className={classNames('max-w-4xl', showPersonas ? 'mt-6' : 'mt-10')}
+          featuredTags={featuredTags}
           searchElement={
             <SearchField
               aria-label="Pick tags that are relevant to you"
