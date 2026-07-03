@@ -7,6 +7,7 @@ import { DiscussIcon } from '@dailydotdev/shared/src/components/icons/Discuss';
 import { SquadIcon } from '@dailydotdev/shared/src/components/icons/Squad';
 import { DocsIcon } from '@dailydotdev/shared/src/components/icons/Docs';
 import { UserIcon } from '@dailydotdev/shared/src/components/icons/User';
+import DevPlusLogo from '@dailydotdev/shared/src/components/icons/DevPlus/filled.svg';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   cloudinaryCharmEmptySquads,
@@ -144,7 +145,7 @@ const Subtitle = ({ children }: { children: ReactNode }): ReactElement => (
 );
 
 const GlassBar = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="flex items-center rounded-24 border-2 border-[rgba(255,255,255,0.22)] bg-[rgba(255,255,255,0.1)] px-8 py-5 shadow-[inset_0_2px_0_rgba(255,255,255,0.12)] backdrop-blur-md">
+  <div className="flex items-center rounded-24 border-2 border-[rgba(255,255,255,0.22)] bg-[rgba(255,255,255,0.1)] px-8 py-5 backdrop-blur-md">
     {children}
   </div>
 );
@@ -372,9 +373,10 @@ export const PostShareCard = ({
         fallback: true,
         meta: data.readTime ? `${data.readTime}m read` : undefined,
       };
-  // On a shared card the source name is the subtitle (like the storybook mock);
-  // on a regular article it's the post summary.
-  const subtitle = data.sharer ? data.source?.name : data.summary;
+  // On a shared card the source name gives identity context; a regular article
+  // shows no subtitle — a 2-line clamped summary reads as noise, so we let the
+  // title use the full content column instead.
+  const subtitle = data.sharer ? data.source?.name : undefined;
   return (
     <OgFrame
       backdrop={data.image}
@@ -387,7 +389,9 @@ export const PostShareCard = ({
         />
       }
     >
-      <Title>{data.title}</Title>
+      <Title lines={subtitle ? 'line-clamp-4' : 'line-clamp-5'}>
+        {data.title}
+      </Title>
       {!!subtitle && <Subtitle>{subtitle}</Subtitle>}
     </OgFrame>
   );
@@ -703,9 +707,7 @@ export const PlusShareCard = (): ReactElement => (
     identity={{ name: 'daily.dev Plus' }}
     art={
       <Tile>
-        <span className="text-[200px] font-bold leading-none text-white">
-          +
-        </span>
+        <DevPlusLogo className="h-[220px] w-[220px] text-white" />
       </Tile>
     }
     meta={<PrimaryButton>Upgrade to Plus</PrimaryButton>}
