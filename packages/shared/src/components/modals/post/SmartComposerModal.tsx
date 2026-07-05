@@ -357,8 +357,6 @@ export function SmartComposerModal({
     submitLabel = isStandupScheduled ? 'Schedule standup' : 'Create standup';
   } else if (canSchedule && schedule.isScheduled) {
     submitLabel = 'Schedule post';
-  } else if (kind === 'poll') {
-    submitLabel = 'Post poll';
   } else {
     submitLabel = 'Post';
   }
@@ -405,16 +403,18 @@ export function SmartComposerModal({
       size={ButtonSize.Small}
       disabled={isSubmitDisabled || isCoverUploading || (isEditing && !isDirty)}
       loading={isInFlight || isCoverUploading}
-      className="ml-2 px-5"
+      className="px-5"
     >
       {submitLabel}
     </Button>
   );
+  // Self-contained flex with its own gap so the button pair keeps identical
+  // spacing regardless of the parent (rich-text toolbar vs. bottom action bar).
   const primaryActionsNode = (
-    <>
+    <div className="flex items-center gap-2">
       {scheduleButtonNode}
       {postButtonNode}
-    </>
+    </div>
   );
   const notificationToggleNode = shouldShowCta ? (
     <Switch
