@@ -518,6 +518,8 @@ export enum LogEvent {
   ViewGivebackFunnelStep = 'view giveback funnel step',
   CompleteGivebackFunnel = 'complete giveback funnel',
   ClickGivebackHowItWorks = 'click giveback how it works',
+  ClickGivebackGiftEntry = 'click giveback gift entry',
+  ViewGivebackPrompt = 'view giveback prompt',
   // Daily homepage
   DailyFeedback = 'daily feedback',
 }

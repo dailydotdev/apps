@@ -280,6 +280,7 @@ export enum RequestKey {
   ContributionCausePicker = 'contribution_cause_picker',
   ContributionActions = 'contribution_actions',
   ContributionActionLinks = 'contribution_action_links',
+  ContributionLastMilestone = 'contribution_last_milestone',
   LeaderboardPosition = 'leaderboard_position',
 }
 

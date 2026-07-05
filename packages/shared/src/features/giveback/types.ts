@@ -17,6 +17,25 @@ export interface ContributionStatus {
   userPoints: number | null;
 }
 
+// Real-time event fired when an approved action lands. Drives the live "+$"
+// pop on the gift entry point. `awardedPoints` maps 1:1 to currency.
+export interface ContributionActionCompleted {
+  submissionId: string;
+  userId: string;
+  actionId: string;
+  awardedPoints: number;
+}
+
+// A global campaign milestone (a lifetime approved-points threshold, which maps
+// 1:1 to currency). `contributionLastReachedMilestone` returns the highest one
+// crossed so far; crossing a new one pops the celebratory popover.
+export interface ContributionMilestone {
+  id: string;
+  value: number;
+  title: string | null;
+  reachedAt: string | null;
+}
+
 // Derived from the sponsored amount on the backend, so a pledge can never
 // disagree with its badge.
 export enum ContributionSponsorTier {
