@@ -25,7 +25,7 @@ const MILESTONE_POLL_MS = 60_000;
 // The community stream is global, so events can arrive in bursts. Pop at most
 // one money numeral per window and sum the amounts landing in between, so the
 // gift shows a single "+$<total>" jump instead of a flood of stacked labels.
-const POP_THROTTLE_MS = 1500;
+const POP_THROTTLE_MS = 500;
 // A crossed milestone only celebrates once per browser, so a reload never
 // re-pops one the visitor already saw.
 const LAST_MILESTONE_STORAGE_KEY = `${APP_KEY_PREFIX}:giveback:last-milestone`;
