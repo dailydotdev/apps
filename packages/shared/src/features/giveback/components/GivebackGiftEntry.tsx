@@ -1,10 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import type { GivebackGiftButtonVariant } from './GivebackGiftButton';
 import type { GivebackGiftDockHandle } from './GivebackGiftDock';
 import { GivebackGiftDock } from './GivebackGiftDock';
-import { givebackInvitePrompts } from '../givebackInvitePrompts';
+import { GivebackLiveActivityListener } from './GivebackLiveActivityListener';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useViewSize, ViewSize } from '../../../hooks/useViewSize';
@@ -18,91 +18,80 @@ interface GivebackGiftEntryProps {
   showLabel?: boolean;
   promptPlacement?: 'below' | 'above';
   promptAlign?: 'start' | 'end';
+  // When the parent already evaluated `featureGiveback` (e.g. the rail, which
+  // branches on it), pass the value so we don't evaluate the flag a second time.
+  isFeatureEnabled?: boolean;
   // Custom anchor (e.g. the sidebar's own styled gift link).
   children?: ReactNode;
 }
 
-// Rotate a different opening message on each load.
-let promptCursor = 0;
-// Only one mounted entry runs the ambient cadence, so header + rail can't both
-// fire (whichever mounts first claims it).
-let cadenceClaimed = false;
+// The header and rail both mount an entry, but the live activity (money pops and
+// the milestone popover) should play on a single gift. We elect one owner across
+// all mounted entries and re-elect on mount/unmount, so ownership hands off
+// cleanly when the current owner disappears (a surviving sibling takes over).
+let liveOwners: string[] = [];
+const ownerListeners = new Set<() => void>();
+const notifyOwnerListeners = (): void => {
+  ownerListeners.forEach((listener) => listener());
+};
 
-// PLACEHOLDER CADENCE — the money pulses and the invite prompt are currently
-// driven on a local timer as a stand-in. Before this graduates past the
-// experiment, replace this timer with live backend community-activity signals
-// (real amounts landing in the pot) and drop the hardcoded figures in
-// `givebackInvitePrompts`. This whole surface is gated behind `featureGiveback`,
-// so it stays off in production until the experiment is turned on per cohort.
-const FIRST_PULSE_MS = 3500;
-const PULSE_INTERVAL_MS = 22000;
-const PROMPT_MS = 6000;
-const PULSE_AMOUNTS = [1, 2, 3, 5, 8];
-
-const randomPulse = (): string =>
-  `+$${PULSE_AMOUNTS[Math.floor(Math.random() * PULSE_AMOUNTS.length)]}`;
+// The live activity only plays for established accounts (older than a week).
+// Brand-new users get the calm gift without the attention-grabbing motion.
+const LIVE_ACTIVITY_MIN_ACCOUNT_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 // The persistent giveback entry point. Gated on the same `featureGiveback` flag
-// as the page, so it shows wherever giveback is enabled. It drives its dock from
-// the ambient cadence, so the money jumps and invite prompts play on the real
-// gift (header or sidebar).
+// as the page, so it shows wherever giveback is enabled. The owning instance
+// drives its dock from remote community activity: real approved actions pop a
+// live "+$" jump and crossing a global milestone fires the celebratory popover.
 export function GivebackGiftEntry({
   variant = 'header',
   showLabel = false,
   promptPlacement,
   promptAlign,
+  isFeatureEnabled,
   children,
 }: GivebackGiftEntryProps): ReactElement | null {
   const router = useRouter();
-  const { isLoggedIn, isAuthReady } = useAuthContext();
+  const { user, isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const dock = useRef<GivebackGiftDockHandle>(null);
 
-  // Desktop-only for now — the mobile placement is parked for a later PR, so
-  // the entry never shows on smaller viewports (header/rail are desktop anyway).
+  // Desktop-only for now. The mobile placement is parked for a later PR, so the
+  // entry never shows on smaller viewports (header/rail are desktop anyway).
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const shouldEvaluate = isAuthReady && isLoggedIn && isLaptop;
-  const { value: isEnabled } = useConditionalFeature({
+  const baseGate = isAuthReady && isLoggedIn && isLaptop;
+  const hasExternalFlag = isFeatureEnabled !== undefined;
+  const { value: selfEnabled } = useConditionalFeature({
     feature: featureGiveback,
-    shouldEvaluate,
+    shouldEvaluate: baseGate && !hasExternalFlag,
   });
-  const show = shouldEvaluate && isEnabled;
+  const isEnabled = hasExternalFlag ? isFeatureEnabled : selfEnabled;
+  const show = baseGate && isEnabled;
 
-  // Ambient cadence (claimed by a single instance). See PLACEHOLDER note above.
+  const isEstablishedUser = user?.createdAt
+    ? Date.now() - new Date(user.createdAt).getTime() >
+      LIVE_ACTIVITY_MIN_ACCOUNT_AGE_MS
+    : false;
+  const canRunLiveActivity = show && isEstablishedUser;
+
+  // Elect a single owner for the live activity (see note above).
+  const instanceId = useId();
+  const [isLiveOwner, setIsLiveOwner] = useState(false);
   useEffect(() => {
-    if (!show || cadenceClaimed) {
+    if (!canRunLiveActivity) {
       return undefined;
     }
-    cadenceClaimed = true;
-
-    const timeouts: number[] = [];
-    timeouts.push(
-      window.setTimeout(() => {
-        dock.current?.pulseActivity(randomPulse());
-      }, FIRST_PULSE_MS),
-    );
-    timeouts.push(
-      window.setTimeout(() => {
-        const prompt =
-          givebackInvitePrompts[promptCursor % givebackInvitePrompts.length];
-        promptCursor += 1;
-        dock.current?.showPrompt(prompt);
-        logEvent({
-          event_name: LogEvent.ViewGivebackPrompt,
-          extra: JSON.stringify({ prompt: prompt.id }),
-        });
-      }, PROMPT_MS),
-    );
-    const pulse = window.setInterval(() => {
-      dock.current?.pulseActivity(randomPulse());
-    }, PULSE_INTERVAL_MS);
-
+    liveOwners.push(instanceId);
+    const sync = () => setIsLiveOwner(liveOwners[0] === instanceId);
+    ownerListeners.add(sync);
+    notifyOwnerListeners();
     return () => {
-      timeouts.forEach((id) => window.clearTimeout(id));
-      window.clearInterval(pulse);
-      cadenceClaimed = false;
+      ownerListeners.delete(sync);
+      liveOwners = liveOwners.filter((id) => id !== instanceId);
+      setIsLiveOwner(false);
+      notifyOwnerListeners();
     };
-  }, [show, logEvent]);
+  }, [canRunLiveActivity, instanceId]);
 
   if (!show) {
     return null;
@@ -111,23 +100,26 @@ export function GivebackGiftEntry({
   const openGiveback = () => {
     logEvent({ event_name: LogEvent.ClickGivebackGiftEntry });
     // The rail passes its own anchor (with an href) as children, so it navigates
-    // itself — only the built-in header button needs an explicit push here.
+    // itself. Only the built-in header button needs an explicit push here.
     if (!children) {
       router.push(`${webappUrl}giveback`);
     }
   };
 
   return (
-    <GivebackGiftDock
-      ref={dock}
-      variant={variant}
-      showLabel={showLabel}
-      onOpenGiveback={openGiveback}
-      promptPlacement={promptPlacement}
-      promptAlign={promptAlign}
-    >
-      {children}
-    </GivebackGiftDock>
+    <>
+      <GivebackGiftDock
+        ref={dock}
+        variant={variant}
+        showLabel={showLabel}
+        onOpenGiveback={openGiveback}
+        promptPlacement={promptPlacement}
+        promptAlign={promptAlign}
+      >
+        {children}
+      </GivebackGiftDock>
+      {isLiveOwner && <GivebackLiveActivityListener dock={dock} />}
+    </>
   );
 }
 

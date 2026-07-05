@@ -165,3 +165,31 @@ export const UPDATE_CONTRIBUTION_CAUSE_PREFERENCES_MUTATION = `
     }
   }
 `;
+
+// Real-time community activity: every approved action lands here so the gift
+// entry point can pop a live "+$" jump. `awardedPoints` maps 1:1 to USD, like
+// the campaign totals.
+export const CONTRIBUTION_ACTION_COMPLETED_SUBSCRIPTION = `
+  subscription ContributionActionCompleted {
+    contributionActionCompleted {
+      submissionId
+      userId
+      actionId
+      awardedPoints
+    }
+  }
+`;
+
+// The highest global milestone reached, served from cache for the gift-icon
+// poll. Null until the first milestone is crossed. Drives the celebratory
+// popover on the header/rail gift.
+export const CONTRIBUTION_LAST_MILESTONE_QUERY = `
+  query ContributionLastReachedMilestone {
+    contributionLastReachedMilestone {
+      id
+      value
+      title
+      reachedAt
+    }
+  }
+`;

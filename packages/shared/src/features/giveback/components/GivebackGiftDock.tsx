@@ -2,6 +2,7 @@ import type { ForwardedRef, ReactElement, ReactNode } from 'react';
 import React, {
   forwardRef,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useRef,
   useState,
@@ -13,7 +14,7 @@ import { GivebackInvitePrompt } from './GivebackInvitePrompt';
 import type { GivebackInvitePromptData } from '../givebackInvitePrompts';
 
 // Imperative API the header/rail wiring drives. This surface is an acquisition
-// hook — everything here is generic + community-framed to pull people into
+// hook: everything here is generic + community-framed to pull people into
 // /giveback, never a personal reward notice.
 export interface GivebackGiftDockHandle {
   // Ambient community money landing in the pot (social proof), e.g. "+$8".
@@ -47,6 +48,9 @@ interface GivebackGiftDockProps {
 const GIFT_POP_MS = 380;
 const VALUE_POP_LIFETIME_MS = 2000;
 const MILESTONE_TOAST_DELAY_MS = 180;
+// Hard cap on concurrent money numerals so a burst of community events can never
+// stack dozens of overlapping labels beside the gift.
+const MAX_CONCURRENT_POPS = 4;
 
 let popCounter = 0;
 
@@ -71,15 +75,32 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   const [promptSeq, setPromptSeq] = useState(0);
   const timers = useRef<number[]>([]);
 
-  const track = useCallback((id: number) => {
-    timers.current.push(id);
+  const clearTimers = useCallback(() => {
+    timers.current.forEach((id) => window.clearTimeout(id));
+    timers.current = [];
   }, []);
+
+  // Track pending timeouts so they can be cleared on unmount, and self-prune
+  // each id once it fires so the list can't grow without bound over a long,
+  // event-heavy session.
+  const setTrackedTimeout = useCallback((callback: () => void, ms: number) => {
+    const id = window.setTimeout(() => {
+      timers.current = timers.current.filter((timerId) => timerId !== id);
+      callback();
+    }, ms);
+    timers.current.push(id);
+    return id;
+  }, []);
+
+  // Clear any pending timeouts when the dock unmounts so they never fire on an
+  // unmounted component (production never calls reset()).
+  useEffect(() => clearTimers, [clearTimers]);
 
   const popGift = useCallback(() => {
     setPopping(false);
     window.requestAnimationFrame(() => setPopping(true));
-    track(window.setTimeout(() => setPopping(false), GIFT_POP_MS + 40));
-  }, [track]);
+    setTrackedTimeout(() => setPopping(false), GIFT_POP_MS + 40);
+  }, [setTrackedTimeout]);
 
   const pulseActivity = useCallback(
     (label: string) => {
@@ -87,15 +108,15 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
       const id = `giveback-pop-${popCounter.toString()}`;
       // Bias to the right of the icon with a little spread.
       const dx = Math.round(Math.random() * 18) + 6;
-      setPops((current) => [...current, { id, label, dx }]);
-      popGift();
-      track(
-        window.setTimeout(() => {
-          setPops((current) => current.filter((pop) => pop.id !== id));
-        }, VALUE_POP_LIFETIME_MS),
+      setPops((current) =>
+        [...current, { id, label, dx }].slice(-MAX_CONCURRENT_POPS),
       );
+      popGift();
+      setTrackedTimeout(() => {
+        setPops((current) => current.filter((pop) => pop.id !== id));
+      }, VALUE_POP_LIFETIME_MS);
     },
-    [popGift, track],
+    [popGift, setTrackedTimeout],
   );
 
   const showPrompt = useCallback(
@@ -104,23 +125,20 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         setGlowKey((current) => current + 1);
       }
       popGift();
-      track(
-        window.setTimeout(() => {
-          setPromptSeq((current) => current + 1);
-          setPrompt(next);
-        }, MILESTONE_TOAST_DELAY_MS),
-      );
+      setTrackedTimeout(() => {
+        setPromptSeq((current) => current + 1);
+        setPrompt(next);
+      }, MILESTONE_TOAST_DELAY_MS);
     },
-    [popGift, track],
+    [popGift, setTrackedTimeout],
   );
 
   const reset = useCallback(() => {
-    timers.current.forEach((id) => window.clearTimeout(id));
-    timers.current = [];
+    clearTimers();
     setPops([]);
     setPopping(false);
     setPrompt(null);
-  }, []);
+  }, [clearTimers]);
 
   useImperativeHandle(ref, () => ({ pulseActivity, showPrompt, reset }), [
     pulseActivity,
@@ -129,7 +147,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   ]);
 
   // Opening giveback (clicking the gift or the toast CTA) navigates to the page,
-  // so dismiss the prompt — the user is already there, no need to keep nagging.
+  // so dismiss the prompt since the user is already there, no need to keep nagging.
   const handleOpen = useCallback(() => {
     setPrompt(null);
     onOpenGiveback?.();
@@ -166,7 +184,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         )}
       </span>
 
-      {/* Community money landing in the pot — bare green numerals that pop in
+      {/* Community money landing in the pot: bare green numerals that pop in
          beside the gift and drift up (Polymarket-style real-time jump). Offset
          to the right of the icon per-pop so they stay legible, not on the
          glyph. */}

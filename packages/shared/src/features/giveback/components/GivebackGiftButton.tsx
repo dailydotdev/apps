@@ -23,7 +23,7 @@ export interface GivebackGiftButtonProps {
 
 const pressClass = 'transition-transform duration-150 ease-out active:scale-90';
 
-// The persistent giveback entry point. Calm at rest — a plain gift, no ambient
+// The persistent giveback entry point. Calm at rest: a plain gift, no ambient
 // progress meter and no notification badge. Ref-forwarding so the dock can
 // anchor money jumps and the milestone glow to the icon.
 export const GivebackGiftButton = forwardRef(function GivebackGiftButton(

@@ -20,7 +20,7 @@ interface ConfettiPiece {
   color: string;
 }
 
-// Fan the pieces mostly upward and outward, then let gravity pull them down —
+// Fan the pieces mostly upward and outward, then let gravity pull them down:
 // a quick celebratory pop rather than a full-screen confetti dump.
 const buildPieces = (count: number, spread: number): ConfettiPiece[] => {
   return Array.from({ length: count }, (_, index) => {

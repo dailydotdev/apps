@@ -2,8 +2,16 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import { GivebackGiftButton } from '@dailydotdev/shared/src/features/giveback/components/GivebackGiftButton';
 import { GivebackInvitePrompt } from '@dailydotdev/shared/src/features/giveback/components/GivebackInvitePrompt';
-import { givebackInvitePrompts } from '@dailydotdev/shared/src/features/giveback/givebackInvitePrompts';
+import { buildGivebackMilestonePrompt } from '@dailydotdev/shared/src/features/giveback/givebackInvitePrompts';
 import { withGiveback } from './giveback.mocks';
+
+// The popover celebrates one thing only: a global milestone being crossed.
+const milestonePrompt = buildGivebackMilestonePrompt({
+  id: 'milestone-12k',
+  value: 12340,
+  title: null,
+  reachedAt: null,
+});
 
 // A stand-in for the old-layout top header so the gift can be judged in its real
 // neighbourhood (logo left, action cluster right).
@@ -35,7 +43,7 @@ const meta: Meta = {
     docs: {
       description: {
         component:
-          'Static poses of the header gift entry on the old layout, for review: resting icon, a community dollar jump, and the invite toast (celebration + plain).',
+          'Static poses of the header gift entry on the old layout, for review: resting icon, a community dollar jump, and the global-milestone popover.',
       },
     },
   },
@@ -75,40 +83,18 @@ export const AllStates: Story = {
         data-testid="state-toast-celebrate"
         className="flex flex-col gap-2 pb-52"
       >
-        <Label text="3 · Invite toast — celebratory community moment" />
+        <Label text="3 · Milestone popover — global community moment" />
         <Header>
           <span className="relative inline-flex">
             <GivebackGiftButton />
             <GivebackInvitePrompt
               open
               autoDismissMs={600000}
-              celebrate
-              eyebrow={givebackInvitePrompts[0].eyebrow}
-              headline={givebackInvitePrompts[0].headline}
-              body={givebackInvitePrompts[0].body}
-              ctaLabel={givebackInvitePrompts[0].ctaLabel}
-              placement="below"
-              align="end"
-            />
-          </span>
-        </Header>
-      </section>
-
-      <section
-        data-testid="state-toast-plain"
-        className="flex flex-col gap-2 pb-52"
-      >
-        <Label text="4 · Invite toast — plain message variant" />
-        <Header>
-          <span className="relative inline-flex">
-            <GivebackGiftButton />
-            <GivebackInvitePrompt
-              open
-              autoDismissMs={600000}
-              eyebrow={givebackInvitePrompts[1].eyebrow}
-              headline={givebackInvitePrompts[1].headline}
-              body={givebackInvitePrompts[1].body}
-              ctaLabel={givebackInvitePrompts[1].ctaLabel}
+              celebrate={milestonePrompt.celebrate}
+              eyebrow={milestonePrompt.eyebrow}
+              headline={milestonePrompt.headline}
+              body={milestonePrompt.body}
+              ctaLabel={milestonePrompt.ctaLabel}
               placement="below"
               align="end"
             />

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import React, { useEffect, useRef, useState } from 'react';
 import type { GivebackGiftDockHandle } from '@dailydotdev/shared/src/features/giveback/components/GivebackGiftDock';
 import { GivebackGiftDock } from '@dailydotdev/shared/src/features/giveback/components/GivebackGiftDock';
-import { givebackInvitePrompts } from '@dailydotdev/shared/src/features/giveback/givebackInvitePrompts';
+import { buildGivebackMilestonePrompt } from '@dailydotdev/shared/src/features/giveback/givebackInvitePrompts';
 import { useCountUp } from '@dailydotdev/shared/src/features/giveback/useGivebackMotion';
 import {
   Button,
@@ -55,16 +55,21 @@ const LivePlayground = ({
   variant: 'header' | 'rail';
 }): React.ReactElement => {
   const dock = useRef<GivebackGiftDockHandle>(null);
-  const promptIndex = useRef(0);
   const [raisedToday, setRaisedToday] = useState(12340);
   const [ambient, setAmbient] = useState(false);
   const raised = useCountUp(raisedToday, true, 700);
 
-  const cyclePrompt = () => {
-    const next = givebackInvitePrompts[promptIndex.current];
-    promptIndex.current =
-      (promptIndex.current + 1) % givebackInvitePrompts.length;
-    dock.current?.showPrompt(next);
+  // The real popover is driven by a remote global-milestone event; here we fake
+  // one crossing so the single milestone variation can be reviewed.
+  const showMilestone = () => {
+    dock.current?.showPrompt(
+      buildGivebackMilestonePrompt({
+        id: `milestone-${raisedToday.toString()}`,
+        value: raisedToday,
+        title: null,
+        reachedAt: null,
+      }),
+    );
   };
 
   // Ambient community activity — money keeps landing on its own (social proof).
@@ -125,8 +130,8 @@ const LivePlayground = ({
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <ControlButton onClick={cyclePrompt}>
-            Show invite prompt →
+          <ControlButton onClick={showMilestone}>
+            Reach a milestone →
           </ControlButton>
           <ControlButton onClick={() => setAmbient((v) => !v)}>
             {ambient ? 'Stop' : 'Start'} community activity
@@ -136,7 +141,6 @@ const LivePlayground = ({
               dock.current?.reset();
               setRaisedToday(12340);
               setAmbient(false);
-              promptIndex.current = 0;
             }}
           >
             Reset
@@ -144,9 +148,9 @@ const LivePlayground = ({
         </div>
 
         <span className="text-text-tertiary typo-caption2 [text-wrap:pretty]">
-          “Show invite prompt” cycles through the message variants (social proof,
-          how-it-works, cause spotlight, plain invite). Celebratory ones bloom +
-          confetti.
+          In production the dollar jumps come from real approved actions and the
+          popover from a global milestone being crossed. “Reach a milestone”
+          fakes that one crossing — it blooms + confetti.
         </span>
       </div>
     </div>
@@ -162,7 +166,7 @@ const meta: Meta = {
     docs: {
       description: {
         component:
-          'The gift entry point as an acquisition hook. Community money lands on the gift in real time — bare Polymarket-style dollar jumps (no chip) that flash on the button and leap up. A rotating generic invite prompt (with a visible auto-dismiss countdown) draws the eye into /giveback. No personal tracking. Motion is bounce:0 per the Jakub Krehel craft playbook.',
+          'The gift entry point as an acquisition hook. Community money lands on the gift in real time — bare Polymarket-style dollar jumps (no chip) that flash on the button and leap up, driven by real approved actions. Crossing a global milestone fires a single celebratory popover (with a visible auto-dismiss countdown) that draws the eye into /giveback. No personal tracking. Motion is bounce:0 per the Jakub Krehel craft playbook.',
       },
     },
   },

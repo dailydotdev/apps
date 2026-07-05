@@ -19,11 +19,11 @@ export interface GivebackInvitePromptProps {
   headline?: string;
   body?: string;
   ctaLabel?: string;
-  // Festive community moment — confetti bursts from the gift.
+  // Festive community moment. Confetti bursts from the gift.
   celebrate?: boolean;
   // Opens above the gift (rail, bottom-left) instead of below it (header).
   placement?: 'below' | 'above';
-  // Horizontal edge the tail points to — matches where the gift sits.
+  // Horizontal edge the tail points to, matching where the gift sits.
   align?: 'start' | 'end';
   // Open like a rail dropdown: portaled + fixed at the same left margin as the
   // support/settings/profile menus, instead of anchored to the gift with a tail.
@@ -37,7 +37,7 @@ export interface GivebackInvitePromptProps {
 }
 
 // A playful, community-framed invitation fronted by the daily.dev mascot. It's
-// an acquisition hook, not a personal reward notice — it leads with social
+// an acquisition hook, not a personal reward notice. It leads with social
 // proof + the honest trade and always ends in a clear way into /giveback. The
 // close button carries the auto-dismiss countdown ring (drains as it nears
 // exit), so there's no bulky progress bar.
@@ -74,7 +74,7 @@ export const GivebackInvitePrompt = ({
       onAnimationEnd: handleEnd,
     });
 
-  // Arm the countdown when the prompt opens (once — not on every render).
+  // Arm the countdown when the prompt opens (once, not on every render).
   useEffect(() => {
     if (!open) {
       return undefined;
@@ -219,7 +219,7 @@ export const GivebackInvitePrompt = ({
           <img
             src={cloudinaryCharmGiveback}
             alt="daily.dev Giveback charm"
-            className="mascot-bob relative h-full w-full object-contain mix-blend-screen"
+            className="relative h-full w-full animate-mascot-bob object-contain mix-blend-screen"
           />
         </div>
       </div>

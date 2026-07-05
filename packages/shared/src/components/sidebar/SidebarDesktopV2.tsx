@@ -285,7 +285,7 @@ const SidebarInviteButton = (): ReactElement => {
 
   if (givebackEnabled) {
     return (
-      <GivebackGiftEntry variant="rail">
+      <GivebackGiftEntry variant="rail" isFeatureEnabled={givebackEnabled}>
         {railGiftLink('Giveback', `${webappUrl}giveback`)}
       </GivebackGiftEntry>
     );
