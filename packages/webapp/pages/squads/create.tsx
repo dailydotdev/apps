@@ -17,14 +17,25 @@ import TabContainer, {
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
 import {
   generateDefaultSquad,
+  generateUserSourceAsSquad,
   MultipleSourceSelect,
 } from '@dailydotdev/shared/src/components/post/write';
+import { moderationRequired } from '@dailydotdev/shared/src/components/squads/utils';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  PostType,
+  submitExternalLink,
+} from '@dailydotdev/shared/src/graphql/posts';
+import { useLogPostCreated } from '@dailydotdev/shared/src/hooks/post/useLogPostCreated';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { useSchedulePost } from '@dailydotdev/shared/src/components/post/schedule/useSchedulePost';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
   useConditionalFeature,
+  usePostToSquad,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -33,7 +44,7 @@ import {
   WriteFormTab,
   WriteFormTabToFormID,
 } from '@dailydotdev/shared/src/components/fields/form/common';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import CreatePoll from '@dailydotdev/shared/src/components/post/poll/CreatePoll';
 import { CreateLiveRoomForm } from '@dailydotdev/shared/src/components/liveRooms/CreateLiveRoomForm';
 import { featureStandupCreation } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -191,14 +202,132 @@ function CreatePost(): ReactElement {
     },
   });
 
+  // Scheduling is single-source and non-moderated only.
+  const schedule = useSchedulePost();
+  const logPostCreated = useLogPostCreated();
+  const singleSourceId =
+    selectedSourceIds.length === 1 ? selectedSourceIds[0] : undefined;
+  const selectedSquad = squads?.find(({ id }) => id === singleSourceId);
+  const isOwnSource = !!singleSourceId && singleSourceId === user?.id;
+  // Only schedule when the single target is the user's own source or a real,
+  // non-moderated squad — never the "Create new Squad" placeholder.
+  const canSchedule =
+    !!singleSourceId &&
+    (selectedSquad ? !moderationRequired(selectedSquad) : isOwnSource);
+
+  const {
+    onSubmitFreeformPost,
+    onSubmitPollPost,
+    isPosting: isSchedulePosting,
+  } = usePostToSquad({
+    onPostSuccess: () => {
+      displayToast('✅ Your post has been scheduled!');
+      clearFormOnSuccess();
+      push(`${webappUrl}${user?.username}/posts/`);
+    },
+    onError: (data) => {
+      if (data?.response?.errors?.[0]) {
+        displayToast(data?.response?.errors?.[0].message);
+      }
+      onAskConfirmation(true);
+    },
+  });
+
+  // submitExternalLink returns EmptyResponse, so the shared post-success path
+  // in usePostToSquad can't handle it — schedule external-link shares directly.
+  const { mutateAsync: scheduleExternalLink, isPending: isSchedulingLink } =
+    useMutation({
+      mutationFn: submitExternalLink,
+      onSuccess: () => {
+        logPostCreated({ postType: PostType.Share, sourceCount: 1 });
+        displayToast('✅ Your post has been scheduled!');
+        clearFormOnSuccess();
+        push(`${webappUrl}${user?.username}/posts/`);
+      },
+      onError: (data: ApiErrorResult) => {
+        if (data?.response?.errors?.[0]) {
+          displayToast(data.response.errors[0].message);
+        }
+        onAskConfirmation(true);
+      },
+    });
+
+  const submitScheduledPost = async (
+    params: Omit<WriteForm, 'image'> & {
+      image?: File;
+      externalLink?: string;
+      imageUrl?: string;
+      commentary?: string;
+    },
+    type: Post['type'],
+  ): Promise<boolean> => {
+    const resolved = schedule.resolveScheduledAt();
+    if (resolved.error) {
+      displayToast(resolved.error);
+      return true;
+    }
+    const scheduledAt = resolved.iso;
+    if (!scheduledAt) {
+      return false;
+    }
+
+    const squad = selectedSquad ?? generateUserSourceAsSquad(user);
+    const { options, image, title, content, duration } = params;
+    const validImage =
+      image instanceof File && image.size > 0 ? image : undefined;
+    if (type === PostType.Share) {
+      if (!params.externalLink || !title) {
+        displayToast('Invalid link');
+        return true;
+      }
+      await scheduleExternalLink({
+        url: params.externalLink,
+        title,
+        image: params.imageUrl,
+        sourceId: squad.id,
+        commentary: params.commentary ?? '',
+        scheduledAt,
+      });
+    } else if (type === PostType.Poll) {
+      await onSubmitPollPost(
+        { title, options: options ?? [], duration, scheduledAt },
+        squad,
+      );
+    } else {
+      await onSubmitFreeformPost(
+        { title, content, image: validImage, scheduledAt },
+        squad,
+      );
+    }
+    return true;
+  };
+
   const onClickSubmit = async (
     e: FormEvent<HTMLFormElement>,
-    params: Omit<WriteForm, 'image'> & { image?: File },
+    params: Omit<WriteForm, 'image'> & {
+      image?: File;
+      externalLink?: string;
+      imageUrl?: string;
+      commentary?: string;
+    },
+    type: Post['type'],
   ) => {
     e.preventDefault();
 
-    if (isPending || !selectedSourceIds.length) {
+    if (
+      isPending ||
+      isSchedulePosting ||
+      isSchedulingLink ||
+      !selectedSourceIds.length
+    ) {
       return;
+    }
+
+    if (canSchedule && schedule.isScheduled) {
+      const handled = await submitScheduledPost(params, type);
+      if (handled) {
+        return;
+      }
     }
 
     const { options, image, ...args } = params;
@@ -303,11 +432,16 @@ function CreatePost(): ReactElement {
       squad={null}
       formRef={formRef}
       isUpdatingDraft={isUpdatingDraft}
-      isPosting={isPending}
+      isPosting={isPending || isSchedulePosting || isSchedulingLink}
       updateDraft={updateDraft}
       onSubmitForm={onClickSubmit}
       formId={WriteFormTabToFormID[display]}
-      rightCopy={getSubmitCopy(display)}
+      rightCopy={
+        canSchedule && schedule.isScheduled
+          ? 'Schedule'
+          : getSubmitCopy(display)
+      }
+      schedule={canSchedule ? schedule : undefined}
       enableUpload
     >
       <WritePageContainer>

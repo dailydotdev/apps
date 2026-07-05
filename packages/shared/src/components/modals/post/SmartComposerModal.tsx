@@ -34,7 +34,9 @@ import { LogEvent } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePrompt } from '../../../hooks/usePrompt';
 import type { ExternalLinkPreview, Post } from '../../../graphql/posts';
+import type { Squad } from '../../../graphql/sources';
 import { getPostByIdKey } from '../../../lib/query';
+import { moderationRequired } from '../../squads/utils';
 import { AudienceChip } from '../../post/composer/AudienceChip';
 import { KindModePicker } from '../../post/composer/KindModePicker';
 import {
@@ -52,6 +54,8 @@ import {
 } from '../../post/composer/useComposerAudience';
 import { useComposerSubmit } from '../../post/composer/useComposerSubmit';
 import { useStandupCreation } from '../../../hooks/liveRooms/useStandupCreation';
+import { useSchedulePost } from '../../post/schedule/useSchedulePost';
+import { SchedulePostButton } from '../../post/schedule/SchedulePostButton';
 import {
   DEFAULT_LINK,
   DEFAULT_POLL,
@@ -299,6 +303,16 @@ export function SmartComposerModal({
   const primary = selected[0];
   const isMulti = selected.length > 1;
 
+  const schedule = useSchedulePost();
+  // Scheduling: single-source, non-moderated create only (any post type
+  // except standups, which schedule themselves).
+  const canSchedule =
+    kind !== 'standup' &&
+    !isEditing &&
+    !isMulti &&
+    !!primary &&
+    !moderationRequired(primary as Squad);
+
   const {
     handleSubmit,
     isSubmitDisabled,
@@ -319,6 +333,7 @@ export function SmartComposerModal({
     isMulti,
     initialPreview,
     editPostId: editPost?.id,
+    resolveScheduledAt: canSchedule ? schedule.resolveScheduledAt : undefined,
     onComplete: () => {
       if (editPost?.id) {
         queryClient.invalidateQueries({
@@ -340,8 +355,8 @@ export function SmartComposerModal({
     submitLabel = 'Save changes';
   } else if (isStandup) {
     submitLabel = isStandupScheduled ? 'Schedule standup' : 'Create standup';
-  } else if (kind === 'poll') {
-    submitLabel = 'Post poll';
+  } else if (canSchedule && schedule.isScheduled) {
+    submitLabel = 'Schedule post';
   } else {
     submitLabel = 'Post';
   }
@@ -367,6 +382,19 @@ export function SmartComposerModal({
   );
 
   const isCoverUploading = !!cover?.isUploading;
+  const scheduleButtonNode = canSchedule ? (
+    <SchedulePostButton
+      isScheduled={schedule.isScheduled}
+      scheduledStart={schedule.scheduledStart}
+      timezone={schedule.timezone}
+      error={schedule.error}
+      disabled={isInFlight}
+      onScheduledStartChange={schedule.setScheduledStart}
+      onSeedDefault={schedule.seedDefault}
+      onConfirm={schedule.confirmSchedule}
+      onClear={schedule.clearSchedule}
+    />
+  ) : null;
   const postButtonNode = (
     <Button
       form="smart_composer"
@@ -375,10 +403,18 @@ export function SmartComposerModal({
       size={ButtonSize.Small}
       disabled={isSubmitDisabled || isCoverUploading || (isEditing && !isDirty)}
       loading={isInFlight || isCoverUploading}
-      className="ml-2 px-5"
+      className="px-5"
     >
       {submitLabel}
     </Button>
+  );
+  // Self-contained flex with its own gap so the button pair keeps identical
+  // spacing regardless of the parent (rich-text toolbar vs. bottom action bar).
+  const primaryActionsNode = (
+    <div className="flex items-center gap-2">
+      {scheduleButtonNode}
+      {postButtonNode}
+    </div>
   );
   const notificationToggleNode = shouldShowCta ? (
     <Switch
@@ -493,7 +529,7 @@ export function SmartComposerModal({
             cover={cover}
             onCoverChange={onCoverChange}
             toolbarLeading={kindPickerNode}
-            toolbarRightActions={postButtonNode}
+            toolbarRightActions={primaryActionsNode}
             onMarkdownModeChange={onMarkdownModeChange}
           />
           {!isMarkdownMode && notificationToggleNode && (
@@ -535,7 +571,9 @@ export function SmartComposerModal({
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
           <div className="flex items-center justify-between gap-3">
             {kindPickerNode}
-            <span className="ml-auto">{postButtonNode}</span>
+            <span className="ml-auto flex items-center">
+              {primaryActionsNode}
+            </span>
           </div>
           {notificationToggleNode}
         </div>
