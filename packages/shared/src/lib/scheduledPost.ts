@@ -16,6 +16,14 @@ export const getDefaultPostScheduledStart = (timezone?: string): string =>
     timezone,
   );
 
+// Convert a stored ISO/UTC scheduledAt into the `datetime-local` string the
+// picker expects, rendered in the given timezone.
+export const formatScheduledAtInput = (
+  iso: string,
+  timezone?: string,
+): string =>
+  dateFormatInTimezone(new Date(iso), "yyyy-MM-dd'T'HH:mm", timezone);
+
 export const parsePostScheduledStart = (
   value: string | undefined | null,
   timezone?: string,

@@ -50,7 +50,12 @@ import { CreateLiveRoomForm } from '@dailydotdev/shared/src/components/liveRooms
 import { featureStandupCreation } from '@dailydotdev/shared/src/lib/featureManagement';
 import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
-import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  scheduledPostsUrl,
+  settingsUrl,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
+import { ScheduledPostsNavButton } from '@dailydotdev/shared/src/components/post/schedule/ScheduledPostsNavButton';
 import type { WriteForm } from '@dailydotdev/shared/src/contexts';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useDisableSpotlightShortcut } from '@dailydotdev/shared/src/components/spotlight/SpotlightContext';
@@ -442,6 +447,13 @@ function CreatePost(): ReactElement {
           : getSubmitCopy(display)
       }
       schedule={canSchedule ? schedule : undefined}
+      headerExtraActions={
+        // Desktop/tablet render the button in the TabContainer header
+        // (extraHeaderContent); only mobile relies on the FormWrapper header.
+        isMobile ? (
+          <ScheduledPostsNavButton onClick={() => push(scheduledPostsUrl)} />
+        ) : undefined
+      }
       enableUpload
     >
       <WritePageContainer>
@@ -453,24 +465,30 @@ function CreatePost(): ReactElement {
           showHeader={isTablet}
           extraHeaderContent={
             !isMobile && (
-              <LinkWithTooltip
-                tooltip={{
-                  content: (
-                    <div className="max-w-48">
-                      You can change the default post type settings
-                    </div>
-                  ),
-                  placement: 'left',
-                }}
-                href={`${settingsUrl}/composition`}
-                passHref
-              >
-                <Button
-                  icon={<SettingsIcon />}
-                  size={ButtonSize.Small}
-                  className="ml-auto mr-3 self-center text-text-quaternary"
+              <div className="ml-auto mr-3 flex items-center gap-1 self-center">
+                <ScheduledPostsNavButton
+                  onClick={() => push(scheduledPostsUrl)}
+                  className="text-text-quaternary"
                 />
-              </LinkWithTooltip>
+                <LinkWithTooltip
+                  tooltip={{
+                    content: (
+                      <div className="max-w-48">
+                        You can change the default post type settings
+                      </div>
+                    ),
+                    placement: 'left',
+                  }}
+                  href={`${settingsUrl}/composition`}
+                  passHref
+                >
+                  <Button
+                    icon={<SettingsIcon />}
+                    size={ButtonSize.Small}
+                    className="self-center text-text-quaternary"
+                  />
+                </LinkWithTooltip>
+              </div>
             )
           }
         >

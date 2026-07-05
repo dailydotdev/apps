@@ -1220,6 +1220,45 @@ export const RELATED_POSTS_QUERY = gql`
   ${RELATED_POST_FRAGMENT}
 `;
 
+export const SCHEDULED_POSTS_PER_PAGE_DEFAULT = 20;
+
+export type ScheduledPost = Pick<
+  Post,
+  'id' | 'title' | 'image' | 'type' | 'createdAt' | 'flags'
+> & {
+  source: Pick<Source, 'id' | 'handle' | 'name' | 'image' | 'type'>;
+};
+
+export const SCHEDULED_POSTS_QUERY = gql`
+  query ScheduledPosts($after: String, $first: Int) {
+    scheduledPosts(after: $after, first: $first) {
+      edges {
+        node {
+          id
+          title
+          image
+          type
+          createdAt
+          flags {
+            scheduledAt
+          }
+          source {
+            id
+            handle
+            name
+            image
+            type
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
+`;
+
 export const POST_CODE_SNIPPETS_PER_PAGE_DEFAULT = 5;
 
 export type PostCodeSnippet = {

@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
 import type { LazyModalCommonProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
@@ -26,6 +27,7 @@ import { Tooltip } from '../../tooltip/Tooltip';
 import { Switch } from '../../fields/Switch';
 import { Drawer, DrawerPosition } from '../../drawers/Drawer';
 import { labels } from '../../../lib/labels';
+import { scheduledPostsUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
@@ -56,6 +58,7 @@ import { useComposerSubmit } from '../../post/composer/useComposerSubmit';
 import { useStandupCreation } from '../../../hooks/liveRooms/useStandupCreation';
 import { useSchedulePost } from '../../post/schedule/useSchedulePost';
 import { SchedulePostButton } from '../../post/schedule/SchedulePostButton';
+import { ScheduledPostsNavButton } from '../../post/schedule/ScheduledPostsNavButton';
 import {
   DEFAULT_LINK,
   DEFAULT_POLL,
@@ -110,6 +113,7 @@ export function SmartComposerModal({
 }: SmartComposerModalProps): ReactElement {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const queryClient = useQueryClient();
   const { showPrompt } = usePrompt();
@@ -204,36 +208,47 @@ export function SmartComposerModal({
     return false;
   }, [cover, text, link, poll, standup, editPost]);
 
+  const confirmDiscardIfDirty = useCallback(async () => {
+    if (!isDirty) {
+      return true;
+    }
+
+    return showPrompt({
+      title: isEditing ? 'Discard changes?' : 'Discard draft?',
+      description:
+        'You have unsaved changes. Are you sure you want to discard them?',
+      okButton: {
+        title: 'Discard',
+        variant: ButtonVariant.Primary,
+        color: ButtonColor.Ketchup,
+      },
+      cancelButton: { title: 'Keep editing' },
+    });
+  }, [isDirty, isEditing, showPrompt]);
+
   const handleClose = useCallback(
     async (event?: React.MouseEvent | React.KeyboardEvent) => {
-      const closeAndLog = () => {
-        logEvent({
-          event_name: LogEvent.CloseSmartComposer,
-          extra: JSON.stringify({ kind, isDirty }),
-        });
-        onRequestClose?.(event);
-      };
-      if (!isDirty) {
-        closeAndLog();
+      if (!(await confirmDiscardIfDirty())) {
         return;
       }
-      const confirmed = await showPrompt({
-        title: isEditing ? 'Discard changes?' : 'Discard draft?',
-        description:
-          'You have unsaved changes. Are you sure you want to discard them?',
-        okButton: {
-          title: 'Discard',
-          variant: ButtonVariant.Primary,
-          color: ButtonColor.Ketchup,
-        },
-        cancelButton: { title: 'Keep editing' },
+
+      logEvent({
+        event_name: LogEvent.CloseSmartComposer,
+        extra: JSON.stringify({ kind, isDirty }),
       });
-      if (confirmed) {
-        closeAndLog();
-      }
+      onRequestClose?.(event);
     },
-    [isDirty, kind, logEvent, onRequestClose, showPrompt, isEditing],
+    [confirmDiscardIfDirty, isDirty, kind, logEvent, onRequestClose],
   );
+
+  const handleViewScheduled = useCallback(async () => {
+    if (!(await confirmDiscardIfDirty())) {
+      return;
+    }
+
+    onRequestClose?.();
+    router.push(scheduledPostsUrl);
+  }, [confirmDiscardIfDirty, onRequestClose, router]);
 
   useEffect(() => {
     logEvent({
@@ -460,6 +475,10 @@ export function SmartComposerModal({
           )}
         </div>
         <div className="flex shrink-0 items-center gap-1">
+          <ScheduledPostsNavButton
+            onClick={handleViewScheduled}
+            disabled={isInFlight}
+          />
           {kind === 'text' && (
             <Tooltip
               content={

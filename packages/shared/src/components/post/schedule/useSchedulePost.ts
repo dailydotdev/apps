@@ -1,7 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { DEFAULT_TIMEZONE } from '../../../lib/timezones';
 import {
+  formatScheduledAtInput,
   getDefaultPostScheduledStart,
   validatePostScheduledStart,
 } from '../../../lib/scheduledPost';
@@ -11,11 +12,20 @@ export interface ResolvedScheduledAt {
   error?: string;
 }
 
+export interface UseSchedulePostProps {
+  // When editing an already-scheduled post, seed the picker with its time.
+  initialScheduledAt?: string | null;
+  // Label for the clear action. Composer: "Publish now" (post immediately on
+  // submit). Editor: "Cancel scheduling" (publish with edits on submit).
+  clearLabel?: string;
+}
+
 export interface UseSchedulePost {
   isScheduled: boolean;
   scheduledStart: string;
   timezone: string;
   error: string | null;
+  clearLabel: string;
   setScheduledStart: (value: string) => void;
   seedDefault: () => void;
   confirmSchedule: () => boolean;
@@ -23,12 +33,31 @@ export interface UseSchedulePost {
   resolveScheduledAt: () => ResolvedScheduledAt;
 }
 
-export const useSchedulePost = (): UseSchedulePost => {
+export const useSchedulePost = ({
+  initialScheduledAt,
+  clearLabel = 'Publish now',
+}: UseSchedulePostProps = {}): UseSchedulePost => {
   const { user } = useAuthContext();
   const timezone = user?.timezone || DEFAULT_TIMEZONE;
   const [isScheduled, setIsScheduled] = useState(false);
   const [scheduledStart, setScheduledStartState] = useState('');
   const [error, setError] = useState<string | null>(null);
+
+  // Seed once when an existing schedule becomes available (post loads async).
+  // Wait for the user so we format against their real timezone, not the default
+  // (seeding early would lock in a wrong-tz value that resolves to a wrong instant).
+  const hasSeeded = useRef(false);
+  useEffect(() => {
+    if (hasSeeded.current || !initialScheduledAt || !user) {
+      return;
+    }
+
+    hasSeeded.current = true;
+    setScheduledStartState(
+      formatScheduledAtInput(initialScheduledAt, timezone),
+    );
+    setIsScheduled(true);
+  }, [initialScheduledAt, timezone, user]);
 
   const setScheduledStart = useCallback((value: string) => {
     setScheduledStartState(value);
@@ -81,6 +110,7 @@ export const useSchedulePost = (): UseSchedulePost => {
     scheduledStart,
     timezone,
     error,
+    clearLabel,
     setScheduledStart,
     seedDefault,
     confirmSchedule,
