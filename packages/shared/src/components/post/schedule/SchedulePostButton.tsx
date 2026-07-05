@@ -27,6 +27,7 @@ interface SchedulePostButtonProps {
   scheduledStart: string;
   timezone: string;
   error?: string | null;
+  clearLabel?: string;
   disabled?: boolean;
   onScheduledStartChange: (value: string) => void;
   onSeedDefault: () => void;
@@ -39,6 +40,7 @@ export function SchedulePostButton({
   scheduledStart,
   timezone,
   error,
+  clearLabel = 'Publish now',
   disabled,
   onScheduledStartChange,
   onSeedDefault,
@@ -59,6 +61,20 @@ export function SchedulePostButton({
       onSeedDefault();
     }
   };
+
+  const clearNode = isScheduled ? (
+    <Button
+      type="button"
+      variant={ButtonVariant.Subtle}
+      size={ButtonSize.Small}
+      onClick={() => {
+        onClear();
+        setOpen(false);
+      }}
+    >
+      {clearLabel}
+    </Button>
+  ) : null;
 
   const pickerBody = (
     <>
@@ -109,21 +125,7 @@ export function SchedulePostButton({
         )}
       </div>
       <div className="flex items-center justify-between gap-2">
-        {isScheduled ? (
-          <Button
-            type="button"
-            variant={ButtonVariant.Subtle}
-            size={ButtonSize.Small}
-            onClick={() => {
-              onClear();
-              setOpen(false);
-            }}
-          >
-            Publish now
-          </Button>
-        ) : (
-          <span />
-        )}
+        {clearNode || <span />}
         <Button
           type="button"
           variant={ButtonVariant.Primary}

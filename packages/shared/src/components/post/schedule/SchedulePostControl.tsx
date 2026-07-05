@@ -18,6 +18,7 @@ export function SchedulePostControl({
       scheduledStart={schedule.scheduledStart}
       timezone={schedule.timezone}
       error={schedule.error}
+      clearLabel={schedule.clearLabel}
       disabled={disabled}
       onScheduledStartChange={schedule.setScheduledStart}
       onSeedDefault={schedule.seedDefault}

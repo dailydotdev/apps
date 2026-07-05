@@ -3,6 +3,7 @@ import type {
   MutableRefObject,
   PropsWithChildren,
   ReactElement,
+  ReactNode,
 } from 'react';
 import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
@@ -59,6 +60,8 @@ export interface WritePostProps {
   formId?: string;
   // When provided, the schedule control is offered next to the submit button.
   schedule?: UseSchedulePost;
+  // Extra actions rendered in the mobile header (e.g. the scheduled-posts link).
+  headerExtraActions?: ReactNode;
 }
 
 export const WritePostContext = React.createContext<WritePostProps>({
@@ -100,11 +103,16 @@ export const WritePostContextProvider = ({
             rightButtonProps={{ disabled: props.isPosting }}
             leftButtonProps={{ onClick: () => router.back() }}
             headerActions={
-              props.schedule ? (
-                <SchedulePostControl
-                  schedule={props.schedule}
-                  disabled={props.isPosting}
-                />
+              props.headerExtraActions || props.schedule ? (
+                <>
+                  {props.headerExtraActions}
+                  {props.schedule ? (
+                    <SchedulePostControl
+                      schedule={props.schedule}
+                      disabled={props.isPosting}
+                    />
+                  ) : null}
+                </>
               ) : undefined
             }
             form={formId}
