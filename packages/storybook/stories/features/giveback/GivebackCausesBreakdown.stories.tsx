@@ -2,31 +2,28 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement } from 'react';
 import React from 'react';
 import { GivebackCausesBreakdown } from '@dailydotdev/shared/src/features/giveback/components/GivebackCausesBreakdown';
-import type { GivebackCauseAllocation } from '@dailydotdev/shared/src/features/giveback/components/GivebackCausesBreakdown';
-import { mockCauses, withGiveback } from './giveback.mocks';
+import type { ContributionCauseCategoryBreakdown } from '@dailydotdev/shared/src/features/giveback/types';
+import { withGiveback } from './giveback.mocks';
 
-// Pair the shared mock causes with a plausible, uneven split of the community
-// pool (whole dollars, biggest-first) so the donut has real proportions to draw.
-const allocations: GivebackCauseAllocation[] = mockCauses().map(
-  (cause, index) => ({
-    cause,
-    amount: [4200, 2600, 1800, 1100, 700, 400][index] ?? 300,
-  }),
-);
+// A plausible, uneven split of the community pool by cause category (whole
+// dollars, biggest-first), matching the shape the `contributionCauseBreakdown`
+// query returns, so the donut has real proportions to draw.
+const breakdown: ContributionCauseCategoryBreakdown[] = [
+  { category: 'Open source', points: 4200 },
+  { category: 'Education', points: 2600 },
+  { category: 'Accessibility', points: 1800 },
+  { category: 'Climate', points: 1100 },
+  { category: 'Mentorship', points: 700 },
+  { category: 'Better docs', points: 400 },
+];
 
-const fewAllocations: GivebackCauseAllocation[] = allocations.slice(0, 3);
+const fewCategories: ContributionCauseCategoryBreakdown[] = breakdown.slice(0, 3);
 
-// A deliberately long cause name so the capped, truncating legend title stays
+// A deliberately long category name so the capped, truncating legend label stays
 // visible alongside the normal roster.
-const longTitleAllocations: GivebackCauseAllocation[] = [
-  {
-    cause: {
-      ...mockCauses()[0],
-      title: 'Open-source maintainers, docs & tooling grants',
-    },
-    amount: 4200,
-  },
-  ...allocations.slice(1),
+const longLabelBreakdown: ContributionCauseCategoryBreakdown[] = [
+  { category: 'Open-source maintainers, docs & tooling grants', points: 4200 },
+  ...breakdown.slice(1),
 ];
 
 // Constrain to the page column width so the donut reads the way it would
@@ -43,7 +40,7 @@ const meta: Meta<typeof GivebackCausesBreakdown> = {
     docs: {
       description: {
         component:
-          'The causes breakdown block that sits below the hero and above the tabs, turning "the pool you are growing" into a picture: an SVG donut with the pool total counting up in the hole and a legend of causes with their share and amount, all sharing the giveback food-palette accents.',
+          'The causes breakdown block that sits below the hero and above the tabs, turning "the pool you are growing" into a picture: an SVG donut with the pool total counting up in the hole and a legend of cause categories with their share and amount, all sharing the giveback food-palette accents. The backend groups the pool by category (via `contributionCauseBreakdown`) so the donut stays a handful of slices instead of one sliver per nonprofit.',
       },
     },
   },
@@ -58,7 +55,7 @@ type Story = StoryObj<typeof GivebackCausesBreakdown>;
 export const Default: Story = {
   render: () => (
     <Frame>
-      <GivebackCausesBreakdown allocations={allocations} />
+      <GivebackCausesBreakdown breakdown={breakdown} />
     </Frame>
   ),
 };
@@ -77,27 +74,27 @@ export const FlatOnPage: Story = {
   },
   render: () => (
     <Frame>
-      <GivebackCausesBreakdown allocations={allocations} flat />
+      <GivebackCausesBreakdown breakdown={breakdown} flat />
     </Frame>
   ),
 };
 
-// A leaner three-cause pool, so the donut holds up before the community spreads
-// across the full roster.
-export const FewCauses: Story = {
+// A leaner three-category pool, so the donut holds up before the community
+// spreads across the full roster.
+export const FewCategories: Story = {
   render: () => (
     <Frame>
-      <GivebackCausesBreakdown allocations={fewAllocations} />
+      <GivebackCausesBreakdown breakdown={fewCategories} />
     </Frame>
   ),
 };
 
-// A long cause name to confirm the legend title caps and truncates cleanly while
-// the share and amount stay right-aligned.
-export const LongTitle: Story = {
+// A long category name to confirm the legend label caps and truncates cleanly
+// while the share and amount stay right-aligned.
+export const LongLabel: Story = {
   render: () => (
     <Frame>
-      <GivebackCausesBreakdown allocations={longTitleAllocations} />
+      <GivebackCausesBreakdown breakdown={longLabelBreakdown} />
     </Frame>
   ),
 };
