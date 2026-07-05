@@ -70,6 +70,15 @@ export interface ContributionActionCategory {
   title: string;
 }
 
+// The community pool's projected current-cycle points, grouped by cause
+// category, as returned by `contributionCauseBreakdown`. Points map 1:1 to
+// currency, so the causes breakdown donut renders them straight as dollars.
+// `category` is null for the bucket of causes without one.
+export interface ContributionCauseCategoryBreakdown {
+  category: string | null;
+  points: number;
+}
+
 // The kind of perk a reward tier grants, used to pick the roadmap node's icon.
 export enum ContributionRewardType {
   Cores = 'cores',

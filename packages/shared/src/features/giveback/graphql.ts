@@ -1,7 +1,13 @@
-// Public campaign data shown on load: the funding status and the sponsor wall
-// come back in a single request so the hero renders from one round trip.
+// Public campaign data shown on load: the funding status and the by-category
+// pool breakdown come back in a single request so the hero and the causes
+// breakdown render from one round trip.
+//
+// The sponsor wall (contributionSponsors) is commented out for now: nothing on
+// the page renders GivebackSponsorTiers yet, so fetching it here just wastes a
+// round trip. Re-enable the block and the $first variable once the sponsor wall
+// is mounted.
 export const CONTRIBUTION_OVERVIEW_QUERY = `
-  query ContributionOverview($first: Int) {
+  query ContributionOverview {
     contributionStatus {
       enabled
       eligible
@@ -12,20 +18,30 @@ export const CONTRIBUTION_OVERVIEW_QUERY = `
       contributorsCount
       userPoints
     }
-    contributionSponsors(first: $first) {
-      edges {
-        node {
-          id
-          name
-          amountCents
-          url
-          logoUrl
-          tier
-        }
-      }
+    contributionCauseBreakdown {
+      category
+      points
     }
   }
 `;
+
+// export const CONTRIBUTION_OVERVIEW_QUERY = `
+//   query ContributionOverview($first: Int) {
+//     ...
+//     contributionSponsors(first: $first) {
+//       edges {
+//         node {
+//           id
+//           name
+//           amountCents
+//           url
+//           logoUrl
+//           tier
+//         }
+//       }
+//     }
+//   }
+// `;
 
 // The cause picker needs the catalog and the visitor's saved picks together, so
 // they share one request fired when the visitor opts in.

@@ -8,23 +8,15 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import type { ContributionCause } from '../types';
+import type { ContributionCauseCategoryBreakdown } from '../types';
 import { formatDonationAmount } from '../utils';
 import { useCountUp, useInView } from '../useGivebackMotion';
 
-// A slice of the community pool directed at one cause. `amount` is in whole
-// currency units, matching the funding meter (points map 1:1 to dollars), so it
-// formats straight through `formatDonationAmount`.
-export interface GivebackCauseAllocation {
-  cause: ContributionCause;
-  amount: number;
-}
-
-// One stable food-palette accent per cause, pinned by the cause's sorted
-// position so a cause keeps the same colour across the donut arc and its legend
-// dot. `fill` paints the legend dot; `text` drives `currentColor` for the SVG
-// arc stroke.
-const CAUSE_COLORS = [
+// One stable food-palette accent per slice, pinned by the slice's sorted
+// position so a category keeps the same colour across the donut arc and its
+// legend dot. `fill` paints the legend dot; `text` drives `currentColor` for
+// the SVG arc stroke.
+const SLICE_COLORS = [
   { fill: 'bg-accent-cabbage-default', text: 'text-accent-cabbage-default' },
   { fill: 'bg-accent-avocado-default', text: 'text-accent-avocado-default' },
   { fill: 'bg-accent-cheese-default', text: 'text-accent-cheese-default' },
@@ -33,26 +25,34 @@ const CAUSE_COLORS = [
   { fill: 'bg-accent-bun-default', text: 'text-accent-bun-default' },
 ] as const;
 
+// The label for the bucket of causes without a category (`category: null`).
+const UNCATEGORISED_LABEL = 'Other causes';
+
 interface Slice {
-  cause: ContributionCause;
+  key: string;
+  label: string;
   amount: number;
   percentage: number;
-  color: (typeof CAUSE_COLORS)[number];
+  color: (typeof SLICE_COLORS)[number];
 }
 
-// Sort biggest-first so the donut leads with the causes the community backs
-// most, and pin a stable colour to each by its sorted position.
+// The backend already groups the pool by cause category (points map 1:1 to
+// dollars), so we only sort biggest-first, compute each share and pin a stable
+// colour by sorted position. Zero rows are dropped so the donut never renders an
+// empty "$0 / 0%" slice.
 const toSlices = (
-  allocations: GivebackCauseAllocation[],
+  breakdown: ContributionCauseCategoryBreakdown[],
   total: number,
 ): Slice[] =>
-  [...allocations]
-    .sort((a, b) => b.amount - a.amount)
-    .map((allocation, index) => ({
-      cause: allocation.cause,
-      amount: allocation.amount,
-      percentage: total > 0 ? (allocation.amount / total) * 100 : 0,
-      color: CAUSE_COLORS[index % CAUSE_COLORS.length],
+  [...breakdown]
+    .filter(({ points }) => points > 0)
+    .sort((a, b) => b.points - a.points)
+    .map(({ category, points }, index) => ({
+      key: category ?? UNCATEGORISED_LABEL,
+      label: category ?? UNCATEGORISED_LABEL,
+      amount: points,
+      percentage: total > 0 ? (points / total) * 100 : 0,
+      color: SLICE_COLORS[index % SLICE_COLORS.length],
     }));
 
 const formatPercentage = (percentage: number): string =>
@@ -69,17 +69,14 @@ const Dot = ({ className }: { className: string }): ReactElement => (
 const Legend = ({ slices }: { slices: Slice[] }): ReactElement => (
   <div className="grid grid-cols-1 gap-x-6 gap-y-2.5 tablet:grid-cols-2">
     {slices.map((slice) => (
-      <FlexRow
-        key={slice.cause.id}
-        className="w-full max-w-72 items-center gap-2"
-      >
+      <FlexRow key={slice.key} className="w-full max-w-72 items-center gap-2">
         <Dot className={slice.color.fill} />
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Footnote}
           className="min-w-0 flex-1 truncate"
         >
-          {slice.cause.title}
+          {slice.label}
         </Typography>
         <FlexRow className="shrink-0 items-center gap-1">
           <Typography
@@ -147,7 +144,7 @@ const Donut = ({
             cumulative += slice.percentage;
             return (
               <circle
-                key={slice.cause.id}
+                key={slice.key}
                 cx="18"
                 cy="18"
                 r="15.915"
@@ -189,7 +186,7 @@ const Donut = ({
 };
 
 interface GivebackCausesBreakdownProps {
-  allocations: GivebackCauseAllocation[];
+  breakdown: ContributionCauseCategoryBreakdown[];
   title?: ReactNode;
   description?: ReactNode;
   // Drops the card chrome (border, surface fill, padding, glow) so the block
@@ -205,19 +202,19 @@ interface GivebackCausesBreakdownProps {
 // `flat` renders it open in the page flow; the default is a framed card with a
 // soft brand glow for standalone use.
 export const GivebackCausesBreakdown = ({
-  allocations,
+  breakdown,
   title = 'Where the money will go',
   description,
   flat = false,
   className,
 }: GivebackCausesBreakdownProps): ReactElement | null => {
-  const total = allocations.reduce((sum, { amount }) => sum + amount, 0);
+  const total = breakdown.reduce((sum, { points }) => sum + points, 0);
 
-  if (allocations.length === 0 || total === 0) {
+  if (total === 0) {
     return null;
   }
 
-  const slices = toSlices(allocations, total);
+  const slices = toSlices(breakdown, total);
 
   return (
     <section

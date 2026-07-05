@@ -12,48 +12,18 @@ import { GivebackTabHeading } from './GivebackTabHeading';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
 import { GivebackCausesPanel } from './GivebackCausesPanel';
 import { GivebackCausesBreakdown } from './GivebackCausesBreakdown';
-import type { GivebackCauseAllocation } from './GivebackCausesBreakdown';
 import { GivebackFaq } from './GivebackFaq';
 import type { GivebackTabId } from './GivebackTabNav';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useContributionStatus } from '../hooks/useContributionStatus';
+import { useContributionCauseBreakdown } from '../hooks/useContributionCauseBreakdown';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
-import type { ContributionCause } from '../types';
 
 // Single source of truth for the page gutter, shared by the hero, the tab
 // content and the footer so every row lines up at the exact same left/right
 // padding. Scales up on wider screens so content isn't edge-tight.
 const column = 'mx-auto w-full max-w-6xl px-4 tablet:px-8 laptop:px-12';
-
-// Placeholder split for the "Where the money will go" breakdown. The
-// contribution API has no per-cause amounts yet, so we spread the current cycle
-// pool across the campaign causes with a stable descending weight purely to
-// visualize the block in context. Swap this for real per-cause figures once the
-// backend exposes them.
-const BREAKDOWN_WEIGHTS = [42, 26, 18, 11, 7, 4];
-
-const buildCausesBreakdown = (
-  causes: ContributionCause[],
-  pool: number,
-): GivebackCauseAllocation[] => {
-  if (pool <= 0 || causes.length === 0) {
-    return [];
-  }
-
-  const used = causes.slice(0, BREAKDOWN_WEIGHTS.length);
-  const weights = used.map((_, index) => BREAKDOWN_WEIGHTS[index] ?? 3);
-  const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
-
-  // Drop slivers that round to $0 on a tiny pool so the breakdown never renders
-  // an empty "$0 / 0%" row.
-  return used
-    .map((cause, index) => ({
-      cause,
-      amount: Math.round((pool * weights[index]) / weightSum),
-    }))
-    .filter(({ amount }) => amount > 0);
-};
 
 const scrollIntoView = (node: HTMLElement | null): void => {
   if (!node || typeof node.scrollIntoView !== 'function') {
@@ -65,6 +35,7 @@ const scrollIntoView = (node: HTMLElement | null): void => {
 export const GivebackPage = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { status } = useContributionStatus();
+  const { breakdown } = useContributionCauseBreakdown();
   // Eligibility gates the cause picker query (backend-gated), so only eligible
   // visitors load their picks - which also tells us whether to show the tabs.
   const isEligible = status?.eligible === true;
@@ -151,11 +122,6 @@ export const GivebackPage = (): ReactElement => {
 
   const activeLabel = givebackTabs.find((tab) => tab.id === activeTab)?.label;
 
-  const causesBreakdown = buildCausesBreakdown(
-    selection.causes,
-    status?.currentCyclePoints ?? 0,
-  );
-
   // No `overflow-x-clip` on the root: it would clip GivebackBackground's
   // `laptop:-inset-1` corner bleed and leave a dark crescent inside the app
   // card's rounded corner. Stray horizontal bleed is still caught by the global
@@ -174,9 +140,9 @@ export const GivebackPage = (): ReactElement => {
             <GivebackHero onHowItWorks={handleHowItWorks} />
           </div>
 
-          {showTabs && causesBreakdown.length > 0 && (
+          {showTabs && breakdown.length > 0 && (
             <div className={column}>
-              <GivebackCausesBreakdown flat allocations={causesBreakdown} />
+              <GivebackCausesBreakdown flat breakdown={breakdown} />
             </div>
           )}
 
