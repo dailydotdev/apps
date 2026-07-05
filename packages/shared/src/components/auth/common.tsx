@@ -4,7 +4,11 @@ import { FacebookIcon, GoogleIcon, GitHubIcon, AppleIcon } from '../icons';
 import classed from '../../lib/classed';
 import type { IconType, ButtonProps } from '../buttons/Button';
 import type { CloseAuthModalFunc } from '../../hooks/useAuthForms';
-import type { AnonymousUser, LoggedUser } from '../../lib/user';
+import type {
+  AnonymousUser,
+  LoggedUser,
+  ProfileExtraField,
+} from '../../lib/user';
 import type { AuthTriggersType } from '../../lib/auth';
 
 export interface Provider {
@@ -16,26 +20,15 @@ export interface Provider {
 export const AFTER_AUTH_PARAM = 'after_auth';
 
 export enum SocialProvider {
-  // Twitter = 'twitter',
-  Facebook = 'facebook',
   Google = 'google',
   GitHub = 'github',
   Apple = 'apple',
+  Facebook = 'facebook',
 }
 
 type ProviderMap = Record<SocialProvider, Provider>;
 
 export const providerMap: ProviderMap = {
-  // twitter: {
-  //   icon: <TwitterIcon />,
-  //   provider: 'Twitter',
-  //   style: { backgroundColor: '#1D9BF0' },
-  // },
-  facebook: {
-    icon: <FacebookIcon className="socialIcon" secondary />,
-    label: 'Facebook',
-    value: 'facebook',
-  },
   google: {
     icon: <GoogleIcon className="socialIcon" secondary />,
     label: 'Google',
@@ -50,6 +43,11 @@ export const providerMap: ProviderMap = {
     icon: <AppleIcon className="socialIcon" secondary />,
     label: 'Apple',
     value: 'apple',
+  },
+  facebook: {
+    icon: <FacebookIcon className="socialIcon" secondary />,
+    label: 'Facebook',
+    value: 'facebook',
   },
 };
 
@@ -132,7 +130,13 @@ export interface AuthOptionsProps {
   onboardingSignupButton?: ButtonProps<'button'>;
   hideLoginLink?: boolean;
   compact?: boolean;
+  /** X-style split onboarding: "Sign up with", "Create account", Sign in button */
+  splitSignupStyle?: boolean;
+  /** Order GitHub before Google in the OAuth provider list (developer-first). */
+  preferGithub?: boolean;
   autoTriggerProvider?: string;
   socialProviderScopes?: string[];
-  acceptedMarketing?: boolean;
+  /** Extra profile fields to collect on the email registration form, driven
+   * by the onboarding funnel (campaign cohorts). */
+  registrationExtraFields?: ProfileExtraField[];
 }

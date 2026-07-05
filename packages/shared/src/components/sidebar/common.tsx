@@ -51,6 +51,12 @@ interface NavItemProps {
 
 export const navBtnClass =
   'flex flex-1 items-center pl-2 laptop:pl-0 pr-5 laptop:pr-3 h-10 laptop:h-9 overflow-hidden';
+// Vertical icon+label item used on the v2 desktop rail. Shared so the
+// notifications bell matches the hard-coded category tabs. Callers append
+// the active state (`bg-background-default !text-text-primary`).
+export const railTabClass =
+  'focus-outline group relative flex w-full flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary';
+export const railTabLabelClass = 'typo-caption2 leading-tight text-center';
 export const SidebarAside = classed(
   'aside',
   'flex flex-col z-sidebarOverlay laptop:z-sidebar laptop:-translate-x-0 left-0 bg-background-default border-r border-border-subtlest-tertiary transition-[width,transform] duration-300 ease-in-out group fixed top-0 h-full',
@@ -74,6 +80,21 @@ const RawNavItem = classed(
 export const ListIcon = ({ Icon }: ListIconProps): ReactElement => (
   <Icon className="pointer-events-none h-5 w-5" />
 );
+
+// Compares a (possibly absolute, possibly query-bearing) menu href against
+// the current page so v2 rail panels can flag the active row with a single
+// shared rule instead of each panel rolling its own check.
+export const isSidebarItemActive = (
+  activePage: string | undefined,
+  href: string,
+): boolean => {
+  if (!activePage) {
+    return false;
+  }
+  const current = activePage.split('?')[0];
+  const target = href.replace(/^https?:\/\/[^/]+/, '').split('?')[0];
+  return current === target;
+};
 
 type ItemInnerIconProps = Pick<SidebarMenuItem, 'alert' | 'icon' | 'active'> & {
   iconClassName?: string;

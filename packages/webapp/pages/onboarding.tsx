@@ -27,8 +27,8 @@ import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary'
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureOnboardingV2 } from '@dailydotdev/shared/src/lib/featureManagement';
-import dynamic from 'next/dynamic';
+import { useJoinReferral } from '@dailydotdev/shared/src/hooks/referral/useJoinReferral';
+import { swipeOnboardingFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import type {
   AuthOptionsProps,
   AuthProps,
@@ -65,15 +65,10 @@ import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/share
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
+import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { getPageSeoTitles } from '../components/layouts/utils';
+import { FunnelSwipeOnboardingStep } from '../components/onboarding/FunnelSwipeOnboardingStep';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
-import { HotJarTracking } from '../components/Pixels';
-
-const OnboardingV2 = dynamic(
-  () =>
-    import('../components/onboarding/OnboardingV2').then((m) => m.OnboardingV2),
-  { ssr: false },
-);
 
 const seoTitles = getPageSeoTitles('Get started');
 const seo: NextSeoProps = {
@@ -87,6 +82,13 @@ type PageProps = {
   initialStepId: string | null;
   showCookieBanner?: boolean;
 };
+
+const isSwipeOnboardingPreviewQueryForced = (
+  query: string | string[] | undefined,
+): boolean =>
+  query === '1' ||
+  query === 'true' ||
+  (Array.isArray(query) && (query.includes('1') || query.includes('true')));
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async ({
   query,
@@ -167,15 +169,22 @@ const isValidAction = (
   return typeof action === 'string' && action in actionToAuthDisplay;
 };
 
+// login/signup are no-ops for an already-authenticated user: there is nothing
+// to authenticate, so we redirect to the app instead of rendering a blank
+// funnel. verify/recover/changePassword stay valid for a logged-in user.
+const isLoginOrSignupAction = (action?: string | string[]): boolean =>
+  action === OnboardingActions.Login || action === OnboardingActions.Signup;
+
 const useOnboardingAuth = () => {
-  const formRef = useRef<HTMLFormElement>();
+  const formRef = useRef<HTMLFormElement>(null as unknown as HTMLFormElement);
   const isMobile = useViewSize(ViewSize.MobileL);
   const { isAuthReady, anonymous, loginState, isLoggedIn } = useAuthContext();
   const router = useRouter();
-  const action = isValidAction(router.query.action) && router.query.action;
-  const {
-    data: { funnelState },
-  } = useOnboardingBoot();
+  const action = isValidAction(router.query.action)
+    ? router.query.action
+    : undefined;
+  const { data } = useOnboardingBoot();
+  const funnelState = data?.funnelState;
 
   const [auth, setAuth] = useAtom(authAtom);
   const { isLoginFlow, defaultDisplay } = auth;
@@ -249,8 +258,10 @@ const useOnboardingAuth = () => {
       targetId: ExperimentWinner.OnboardingV4,
       onSuccessfulRegistration: () => updateAuth({ isAuthenticating: false }),
       onSuccessfulLogin: () => updateAuth({ isAuthenticating: false }),
-      onAuthStateUpdate: (props: AuthProps) =>
-        updateAuth({ isAuthenticating: true, ...props }),
+      onAuthStateUpdate: (props: Partial<AuthProps>) => {
+        const { isAuthenticating: incoming, ...rest } = props;
+        updateAuth({ isAuthenticating: incoming ?? true, ...rest });
+      },
       onboardingSignupButton: {
         size: isMobile ? ButtonSize.Medium : ButtonSize.Large,
         variant: ButtonVariant.Primary,
@@ -275,21 +286,51 @@ const useOnboardingAuth = () => {
     isAuthenticating: auth.isAuthenticating,
     updateAuth,
     isLoggedIn,
+    shouldVerify: anonymous?.shouldVerify,
   };
 };
 
-function Onboarding({ initialStepId }: PageProps): ReactElement {
+function Onboarding({ initialStepId }: PageProps): ReactElement | null {
   const router = useRouter();
+  // Capture a campaign referral from the onboarding link (e.g.
+  // /onboarding?id=…&cid=<campaign>) into referralOrigin, so downstream
+  // (engagement-ad skadi request) can target the campaign.
+  useJoinReferral();
   const {
     isAuthenticating,
     isAuthReady,
     authOptionProps,
     funnelState,
     isLoggedIn,
+    shouldVerify,
   } = useOnboardingAuth();
   const { isOnboardingComplete, isOnboardingActionsReady, completeStep } =
     useOnboardingActions();
   const [isFunnelReady, setFunnelReady] = useState(false);
+  const { value: isSwipeOnboardingEnabled } = useConditionalFeature({
+    feature: swipeOnboardingFeature,
+    shouldEvaluate: isAuthReady && !!funnelState,
+  });
+  const swipeOnboardingPreviewQuery = router.query.swipeOnboardingPreview;
+  const isSwipeOnboardingPreviewForced = isSwipeOnboardingPreviewQueryForced(
+    swipeOnboardingPreviewQuery,
+  );
+  const stepComponentOverrides = useMemo(
+    () =>
+      isSwipeOnboardingEnabled || isSwipeOnboardingPreviewForced
+        ? {
+            [FunnelStepType.EditTags]: FunnelSwipeOnboardingStep,
+          }
+        : undefined,
+    [isSwipeOnboardingEnabled, isSwipeOnboardingPreviewForced],
+  );
+  const swipeOnboardingStepId = useMemo(
+    () =>
+      funnelState?.funnel.chapters
+        .flatMap((chapter) => chapter.steps)
+        .find((step) => step.type === FunnelStepType.EditTags)?.id,
+    [funnelState?.funnel.chapters],
+  );
 
   const onComplete = useCallback(async () => {
     completeStep(ActionType.CompletedOnboarding);
@@ -307,17 +348,28 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
       query: { action },
     } = router;
 
+    if (!isAuthReady) {
+      return;
+    }
+
+    // A logged-in user (with no pending verification) can't act on a
+    // login/signup action, so redirect to the app instead of leaving them on a
+    // blank render. redirectToApp handles query cleanup and the afterAuth target.
+    if (isLoggedIn && !shouldVerify && isLoginOrSignupAction(action)) {
+      redirectToApp(router);
+      return;
+    }
+
     if (
       action ||
       isAuthenticating !== false || // also cover the case when auth is still undefined at load time
-      !isAuthReady ||
       isFunnelReady ||
       (isLoggedIn && !isOnboardingActionsReady)
     ) {
       return;
     }
 
-    if (isOnboardingComplete) {
+    if (isOnboardingComplete && !isSwipeOnboardingPreviewForced) {
       // If the user is logged in and has completed the onboarding steps,
       // AND no active stepId is there, redirect them to app.
       redirectToApp(router);
@@ -332,7 +384,9 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     isAuthReady,
     isAuthenticating,
     isFunnelReady,
+    isSwipeOnboardingPreviewForced,
     isLoggedIn,
+    shouldVerify,
     isOnboardingActionsReady,
     router,
   ]);
@@ -353,35 +407,27 @@ function Onboarding({ initialStepId }: PageProps): ReactElement {
     );
   }
 
+  if (!isFunnelReady || !funnelState) {
+    return null;
+  }
+
   return (
-    isFunnelReady && (
-      <div className="flex min-h-dvh min-w-full flex-col">
-        <FunnelStepper
-          {...funnelState}
-          initialStepId={initialStepId}
-          onComplete={onComplete}
-        />
-        <HotJarTracking hotjarId="3871311" />
-      </div>
-    )
+    <div className="flex min-h-dvh min-w-full flex-col">
+      <FunnelStepper
+        {...funnelState}
+        initialStepId={
+          isSwipeOnboardingPreviewForced ? swipeOnboardingStepId : initialStepId
+        }
+        onComplete={onComplete}
+        stepComponentOverrides={stepComponentOverrides}
+      />
+      {/* <HotJarTracking hotjarId="3871311" /> */}
+    </div>
   );
 }
 
 function Page(props: PageProps) {
   const { autoDismissNotifications } = useSettingsContext();
-  const { value: isOnboardingV2 } = useConditionalFeature({
-    feature: featureOnboardingV2,
-  });
-
-  if (isOnboardingV2) {
-    return (
-      <ErrorBoundary feature="onboarding">
-        <OnboardingV2 />
-        <HotJarTracking hotjarId="3871311" />
-        <Toast autoDismissNotifications={autoDismissNotifications} />
-      </ErrorBoundary>
-    );
-  }
 
   return (
     <JotaiProvider>

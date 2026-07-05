@@ -17,8 +17,9 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import type { TooltipPosition } from '../tooltips/BaseTooltipContainer';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { isSameDayInTimezone } from '../../lib/timezones';
-import { IconWrapper } from '../Icon';
+import { IconSize, IconWrapper } from '../Icon';
 import { useStreakTimezoneOk } from '../../hooks/streaks/useStreakTimezoneOk';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 interface ReadingStreakButtonProps {
   streak: UserStreak;
@@ -26,6 +27,11 @@ interface ReadingStreakButtonProps {
   compact?: boolean;
   iconPosition?: ButtonIconPosition;
   className?: string;
+  // Portal the popup to <body> so it escapes parents with `overflow:hidden`
+  // (e.g. the sidebar panel). Pair with `zIndex` so it stacks above the
+  // sidebar surface.
+  appendTooltipToBody?: boolean;
+  zIndex?: number;
 }
 
 interface CustomStreaksTooltipProps {
@@ -34,6 +40,8 @@ interface CustomStreaksTooltipProps {
   shouldShowStreaks?: boolean;
   setShouldShowStreaks?: (value: boolean) => void;
   placement: TooltipPosition;
+  appendTooltipToBody?: boolean;
+  zIndex?: number;
 }
 
 function CustomStreaksTooltip({
@@ -42,6 +50,8 @@ function CustomStreaksTooltip({
   shouldShowStreaks,
   setShouldShowStreaks,
   placement,
+  appendTooltipToBody,
+  zIndex,
 }: CustomStreaksTooltipProps): ReactElement {
   return (
     <SimpleTooltip
@@ -50,6 +60,8 @@ function CustomStreaksTooltip({
       placement={placement}
       visible={shouldShowStreaks}
       forceLoad={!isTesting}
+      appendTo={appendTooltipToBody ? () => document.body : undefined}
+      zIndex={zIndex}
       container={{
         paddingClassName: 'p-0',
         bgClassName: 'bg-accent-pepper-subtlest',
@@ -70,11 +82,14 @@ export function ReadingStreakButton({
   compact,
   iconPosition,
   className,
+  appendTooltipToBody,
+  zIndex,
 }: ReadingStreakButtonProps): ReactElement {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const { isV2 } = useLayoutVariant();
   const [shouldShowStreaks, setShouldShowStreaks] = useState(false);
   const hasReadToday =
     streak?.lastViewAt &&
@@ -112,6 +127,8 @@ export function ReadingStreakButton({
             shouldShowStreaks={shouldShowStreaks}
             setShouldShowStreaks={setShouldShowStreaks}
             placement={!isMobile && !isLaptop ? 'bottom-start' : 'bottom-end'}
+            appendTooltipToBody={appendTooltipToBody}
+            zIndex={zIndex}
           >
             {children}
           </Tooltip>
@@ -122,22 +139,38 @@ export function ReadingStreakButton({
           type="button"
           iconPosition={iconPosition}
           icon={
-            <IconWrapper wrapperClassName="relative flex items-center gap-2">
-              <ReadingStreakIcon secondary={hasReadToday} />
-              {!isTimezoneOk && (
-                <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
-              )}
-            </IconWrapper>
+            compact ? (
+              <div className="relative flex h-6 w-6 items-center justify-center">
+                <IconWrapper
+                  size={IconSize.XSmall}
+                  wrapperClassName="flex h-full w-full items-center justify-center"
+                >
+                  <ReadingStreakIcon secondary={hasReadToday} />
+                </IconWrapper>
+                {!isTimezoneOk && (
+                  <WarningIcon
+                    size={IconSize.Size16}
+                    className="!absolute -bottom-1.5 -left-1.5 text-raw-cheese-40"
+                    secondary
+                  />
+                )}
+              </div>
+            ) : (
+              <IconWrapper wrapperClassName="relative flex items-center gap-2">
+                <ReadingStreakIcon secondary={hasReadToday} />
+                {!isTimezoneOk && (
+                  <WarningIcon className="!mr-0 text-raw-cheese-40" secondary />
+                )}
+              </IconWrapper>
+            )
           }
           variant={
-            isLaptop || isMobile ? ButtonVariant.Tertiary : ButtonVariant.Float
+            compact || isLaptop || isMobile
+              ? ButtonVariant.Tertiary
+              : ButtonVariant.Float
           }
           onClick={handleToggle}
-          className={classnames(
-            'gap-1',
-            compact && 'text-accent-bacon-default',
-            className,
-          )}
+          className={classnames(isV2 ? 'gap-0.5' : 'gap-1', className)}
           size={!compact && !isMobile ? ButtonSize.Medium : ButtonSize.Small}
         >
           {streak?.current}

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import type { FeedList, Feed } from '../../graphql/feed';
 import {
   FEED_LIST_QUERY,
@@ -11,6 +12,11 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { labels } from '../../lib';
 import { useToastNotification } from '../useToastNotification';
 import { gqlClient } from '../../graphql/common';
+import { useConditionalFeature } from '../useConditionalFeature';
+import {
+  FeedChipsVariant,
+  featureFeedChips,
+} from '../../lib/featureManagement';
 
 export type CreateFeedProps = {
   name: string;
@@ -22,7 +28,7 @@ export type UpdateFeedProps = { feedId: string } & CreateFeedProps;
 export type DeleteFeedProps = Pick<UpdateFeedProps, 'feedId'>;
 
 export type UseFeeds = {
-  feeds: FeedList['feedList'];
+  feeds: FeedList['feedList'] | undefined;
   createFeed: (props: CreateFeedProps) => Promise<Feed>;
   updateFeed: (props: UpdateFeedProps) => Promise<Feed>;
   deleteFeed: (props: DeleteFeedProps) => Promise<Pick<Feed, 'id'>>;
@@ -31,18 +37,39 @@ export type UseFeeds = {
 export const useFeeds = (): UseFeeds => {
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
-  const { user } = useAuthContext();
+  const { user, feeds: bootFeeds } = useAuthContext();
   const queryKey = generateQueryKey(RequestKey.Feeds, user);
+
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
+    shouldEvaluate: !!user,
+  });
+  const includeTagChipFeeds = feedChipsVariant === FeedChipsVariant.V2;
+
+  const initialData: FeedList['feedList'] | undefined = useMemo(() => {
+    if (!bootFeeds) {
+      return undefined;
+    }
+
+    return {
+      edges: bootFeeds.map((node) => ({ node })),
+      pageInfo: { hasNextPage: false },
+    };
+  }, [bootFeeds]);
 
   const { data: feeds } = useQuery({
     queryKey,
 
     queryFn: async () => {
-      const result = await gqlClient.request<FeedList>(FEED_LIST_QUERY);
+      const result = await gqlClient.request<FeedList>(FEED_LIST_QUERY, {
+        includeTagChipFeeds,
+      });
 
       return result.feedList;
     },
     enabled: !!user,
+    initialData,
+    initialDataUpdatedAt: 0, // to interim force re-fetch until we sunset boot feeds data
     staleTime: StaleTime.OneHour,
   });
 
@@ -59,6 +86,7 @@ export const useFeeds = (): UseFeeds => {
     onSuccess: (data) => {
       queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
         return {
+          pageInfo: { hasNextPage: false },
           ...current,
           edges: [
             ...(current?.edges || []),
@@ -88,6 +116,7 @@ export const useFeeds = (): UseFeeds => {
     onSuccess: (data) => {
       queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
         return {
+          pageInfo: { hasNextPage: false },
           ...current,
           edges: (current?.edges || []).map((edge) => {
             if (edge.node.id === data.id) {
@@ -116,15 +145,27 @@ export const useFeeds = (): UseFeeds => {
       return { id: feedId };
     },
 
-    onSuccess: (data) => {
+    onMutate: async ({ feedId }) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData<FeedList['feedList']>(queryKey);
       queryClient.setQueryData<FeedList['feedList']>(queryKey, (current) => {
         return {
+          pageInfo: { hasNextPage: false },
           ...current,
           edges: (current?.edges || []).filter(
-            (edge) => edge.node.id !== data.id,
+            (edge) => edge.node.id !== feedId,
           ),
         };
       });
+
+      return { previous };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(queryKey, ctx.previous);
+      }
+
+      displayToast(labels.error.generic);
     },
   });
 

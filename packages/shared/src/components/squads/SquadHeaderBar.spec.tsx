@@ -11,6 +11,13 @@ import {
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { SourcePermissions } from '../../graphql/sources';
 
+jest.mock('../../hooks/integrations/useSourceIntegrationQuery', () => ({
+  useSourceIntegrationQuery: jest.fn(() => ({
+    data: null,
+    isPending: false,
+  })),
+}));
+
 const client = new QueryClient();
 const mock = {
   squad: generateTestSquad(),

@@ -7,7 +7,10 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getShouldRedirect } from '@dailydotdev/shared/src/components/utilities';
 import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
+import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import dynamic from 'next/dynamic';
+import { useDailyPage } from '@dailydotdev/shared/src/hooks/feed/useDailyPage';
+import { DailyHome } from '@dailydotdev/shared/src/features/daily/DailyHome';
 import { getLayout } from './FeedLayout';
 
 const MainFeedLayout = dynamic(
@@ -37,6 +40,10 @@ const getInternalFeedName = (
 
   if (path.startsWith('/feeds/')) {
     return getFeedName(path, options);
+  }
+
+  if (path === '/explore/[tag]' || path.startsWith('/explore/')) {
+    return OtherFeedPage.ExploreTag;
   }
 
   return path.replace(/^\/+/, '');
@@ -98,8 +105,25 @@ export default function MainFeedPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.pathname]);
 
+  const { isDailyAsDefault, setShowDaily } = useDailyPage();
+
+  if (router.pathname === '/daily') {
+    return <>{children}</>;
+  }
+
   if (!feedName) {
     return <></>;
+  }
+
+  if (feedName === 'default' && !isSearchOn && isDailyAsDefault) {
+    return (
+      <DailyHome
+        onBackToFeed={() => {
+          setShowDaily(false);
+          window.scrollTo({ top: 0 });
+        }}
+      />
+    );
   }
 
   return (

@@ -4,10 +4,11 @@ import classNames from 'classnames';
 import { ClickableNavItem } from './ClickableNavItem';
 import type { AuthTriggersType } from '../../lib/auth';
 import type { SidebarMenuItem } from './common';
-import { ItemInner, NavItem } from './common';
+import { isSidebarItemActive, ItemInner, NavItem } from './common';
 import AuthContext from '../../contexts/AuthContext';
 import type { SidebarSectionProps } from './sections/common';
 import { SimpleTooltip } from '../tooltips';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 type SidebarItemProps = Pick<
   SidebarSectionProps,
@@ -23,7 +24,9 @@ export const SidebarItem = ({
   shouldShowLabel,
 }: SidebarItemProps): ReactElement => {
   const { user, showLogin } = useContext(AuthContext);
-  const isActive = item.active || item.path === activePage;
+  const { isV2 } = useLayoutVariant();
+  const isActive =
+    item.active || (!!item.path && isSidebarItemActive(activePage, item.path));
   const isCollapsed = !shouldShowLabel;
 
   const navItem = (
@@ -33,7 +36,7 @@ export const SidebarItem = ({
       color={item.color}
       disableDefaultBackground={item.disableDefaultBackground}
       className={classNames(
-        'mx-1 rounded-10',
+        isV2 ? 'mx-3 rounded-10' : 'mx-1 rounded-10',
         item.itemClassName,
         isCollapsed && 'justify-center',
       )}

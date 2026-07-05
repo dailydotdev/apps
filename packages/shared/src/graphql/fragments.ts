@@ -290,6 +290,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       username
       permalink
       reputation
+      createdAt
       bio
       companies {
         name
@@ -302,6 +303,7 @@ export const FEED_POST_INFO_FRAGMENT = gql`
     }
     type
     subType
+    videoId
     tags
     source {
       id
@@ -352,6 +354,13 @@ export const FEED_POST_INFO_FRAGMENT = gql`
       numVotes
     }
     endsAt
+    liveRoom {
+      id
+      topic
+      status
+      scheduledStart
+      subscribed
+    }
   }
   ${POST_TRANSLATEABLE_FIELDS_FRAGMENT}
 `;
@@ -409,6 +418,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
       savedTime
       generatedAt
       digestPostIds
+      scheduledAt
       ad {
         type
         index
@@ -521,6 +531,7 @@ export const CUSTOM_FEED_FRAGMENT = gql`
       minUpvotes
       minViews
       disableEngagementFilter
+      origin
     }
     slug
     createdAt
@@ -633,6 +644,7 @@ export const FEED_POST_FRAGMENT = gql`
       createdAt
       type
       subType
+      videoId
       tags
       private
       yggdrasilId
@@ -686,6 +698,13 @@ export const FEED_POST_FRAGMENT = gql`
         value
         name
       }
+    }
+    hero {
+      id
+      headline
+      significance
+      size
+      highlightedAt
     }
   }
   ${FEED_POST_INFO_FRAGMENT}

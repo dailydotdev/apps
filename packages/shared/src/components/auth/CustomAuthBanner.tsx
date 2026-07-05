@@ -5,7 +5,7 @@ import { useOnboardingActions } from '../../hooks/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../hooks';
 import LoginButton from '../LoginButton';
-import { authGradientBg } from '../banners';
+import { authGradientBg } from '../marketing/banners';
 
 const CustomAuthBanner = (): ReactElement | null => {
   const { shouldShowAuthBanner } = useOnboardingActions();

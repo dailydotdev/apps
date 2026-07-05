@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import type { BasicSourceMember, Squad } from '../../graphql/sources';
 import { SourceMemberRole, SourcePermissions } from '../../graphql/sources';
@@ -21,6 +21,7 @@ import {
 } from '../../lib/config';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
+import { useSmartComposer } from '../../hooks/post/useSmartComposer';
 import { LazyModal } from '../modals/common/types';
 import { SquadStat } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
@@ -37,6 +38,12 @@ interface SquadPageHeaderProps {
   squad: Squad;
   members: BasicSourceMember[];
   shouldUseListMode: boolean;
+  /**
+   * v2: hide the in-card `<SquadHeaderBar>` when the unified PageHeader at
+   * the top of the floating card already hosts the action bar. Keeps the
+   * squad identity card focused on identity + sharing.
+   */
+  hideHeaderBar?: boolean;
 }
 
 const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
@@ -46,8 +53,11 @@ export function SquadPageHeader({
   squad,
   members,
   shouldUseListMode,
+  hideHeaderBar = false,
 }: SquadPageHeaderProps): ReactElement {
   const { openModal } = useLazyModal();
+  const { evaluateSmartComposer } = useSmartComposer();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
   const { category } = squad;
   const squadId = squad.id ?? '';
@@ -63,6 +73,20 @@ export function SquadPageHeader({
   const listMax = isMobile
     ? MAX_VISIBLE_PRIVILEGED_MEMBERS_MOBILE
     : MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP;
+  const onNewPostClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => {
+      if (!isLaptop || !evaluateSmartComposer()) {
+        return;
+      }
+
+      event.preventDefault();
+      openModal({
+        type: LazyModal.SmartComposer,
+        props: { initialSquadHandle: squad.handle },
+      });
+    },
+    [evaluateSmartComposer, isLaptop, openModal, squad.handle],
+  );
 
   return (
     <FlexCol
@@ -154,7 +178,9 @@ export function SquadPageHeader({
           {squad.description}
         </Typography>
       )}
-      <SquadHeaderBar squad={squad} members={members} className="mt-5" />
+      {!hideHeaderBar && (
+        <SquadHeaderBar squad={squad} members={members} className="mt-5" />
+      )}
       <Typography
         bold
         className="mt-6"
@@ -248,6 +274,7 @@ export function SquadPageHeader({
               <Button
                 tag="a"
                 href={`${link.post.create}?sid=${squad.handle}`}
+                onClick={onNewPostClick}
                 variant={ButtonVariant.Primary}
                 color={ButtonColor.Cabbage}
                 className="w-full tablet:w-auto"

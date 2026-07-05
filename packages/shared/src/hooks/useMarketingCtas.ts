@@ -6,7 +6,7 @@ import {
   isMarketingCtaTarget,
   type MarketingCta,
   type MarketingCtaVariant,
-} from '../components/marketingCta/common';
+} from '../components/marketing/cta/common';
 import { gqlClient } from '../graphql/common';
 import { MARKETING_CTAS_BY_VARIANT_QUERY } from '../graphql/marketingCta';
 import { CLEAR_MARKETING_CTA_MUTATION } from '../graphql/users';
@@ -54,7 +54,8 @@ export function useMarketingCtas(
   });
 
   const targetedCtas = (data ?? []).filter(
-    (cta) => !cta.targets || isMarketingCtaTarget(cta.targets),
+    (cta) =>
+      !cta.targets || isMarketingCtaTarget(cta.targets, bootData?.isAndroidApp),
   );
 
   const dismissMutation = useMutation({

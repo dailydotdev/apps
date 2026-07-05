@@ -3,6 +3,12 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { Tab, TabContainer } from '../tabs/TabContainer';
+import UnifiedMobileFeedNav from './UnifiedMobileFeedNav';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import {
+  FeedChipsVariant,
+  featureFeedChips,
+} from '../../lib/featureManagement';
 import { useActiveFeedNameContext } from '../../contexts';
 import useActiveNav from '../../hooks/useActiveNav';
 import { useFeeds, useViewSize, ViewSize } from '../../hooks';
@@ -29,7 +35,7 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
 import MyFeedHeading from '../filters/MyFeedHeading';
 import { SharedFeedPage } from '../utilities';
-import PlusMobileEntryBanner from '../banners/PlusMobileEntryBanner';
+import PlusMobileEntryBanner from '../marketing/banners/PlusMobileEntryBanner';
 import { TargetType } from '../../lib/log';
 import usePlusEntry from '../../hooks/usePlusEntry';
 
@@ -59,6 +65,12 @@ function FeedNav(): ReactElement | null {
   const { isSortableFeed } = useFeedName({ feedName });
   const { home, bookmarks } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isBelowLaptop = !useViewSize(ViewSize.Laptop);
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
+    shouldEvaluate: isBelowLaptop,
+  });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,
@@ -125,7 +137,8 @@ function FeedNav(): ReactElement | null {
     isCustomDefaultFeed,
   ]);
 
-  const shouldRenderNav = home || (isMobile && bookmarks);
+  const isDailyPage = router.pathname === '/daily';
+  const shouldRenderNav = home || isDailyPage || (isMobile && bookmarks);
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }
@@ -139,38 +152,42 @@ function FeedNav(): ReactElement | null {
     >
       {isMobile && <MobileFeedActions />}
       <div className="mb-4 h-[3.25rem] tablet:relative tablet:mb-0 tablet:h-auto tablet:min-h-[3.25rem]">
-        <TabContainer
-          controlledActive={urlToTab[router.asPath] ?? ''}
-          shouldMountInactive
-          className={{
-            header: classNames(
-              'no-scrollbar overflow-x-auto px-2',
-              isSortableFeed && sortingEnabled && 'pr-28',
-            ),
-          }}
-          tabListProps={{
-            className: {
-              indicator: '!w-6',
-              item: 'px-1 tablet:last-of-type:mr-12',
-            },
-            autoScrollActive: true,
-          }}
-          renderTab={({ label }) => {
-            if (label === FeedNavTab.NewFeed) {
-              return (
-                <div className="flex size-6 items-center justify-center rounded-6 bg-background-subtle">
-                  <PlusIcon />
-                </div>
-              );
-            }
+        {(isBelowLaptop && isFeedChipsEnabled) || isDailyPage ? (
+          <UnifiedMobileFeedNav />
+        ) : (
+          <TabContainer
+            controlledActive={urlToTab[router.asPath] ?? ''}
+            shouldMountInactive
+            className={{
+              header: classNames(
+                'no-scrollbar overflow-x-auto px-2',
+                isSortableFeed && sortingEnabled && 'pr-28',
+              ),
+            }}
+            tabListProps={{
+              className: {
+                indicator: '!w-6',
+                item: 'px-1 tablet:last-of-type:mr-12',
+              },
+              autoScrollActive: true,
+            }}
+            renderTab={({ label }) => {
+              if (label === FeedNavTab.NewFeed) {
+                return (
+                  <div className="flex size-6 items-center justify-center rounded-6 bg-background-subtle">
+                    <PlusIcon />
+                  </div>
+                );
+              }
 
-            return null;
-          }}
-        >
-          {Object.entries(urlToTab).map(([url, label]) => (
-            <Tab key={`${label}-${url}`} label={label} url={url} />
-          ))}
-        </TabContainer>
+              return null;
+            }}
+          >
+            {Object.entries(urlToTab).map(([url, label]) => (
+              <Tab key={`${label}-${url}`} label={label} url={url} />
+            ))}
+          </TabContainer>
+        )}
 
         {showStickyButton && (
           <StickyNavIconWrapper

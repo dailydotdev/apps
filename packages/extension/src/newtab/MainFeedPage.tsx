@@ -2,12 +2,10 @@ import type { ReactElement, ReactNode } from 'react';
 import React, {
   useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
 } from 'react';
-import browser from 'webextension-polyfill';
 import MainLayout from '@dailydotdev/shared/src/components/MainLayout';
 import MainFeedLayout from '@dailydotdev/shared/src/components/MainFeedLayout';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
@@ -19,21 +17,19 @@ import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useFeedLayout } from '@dailydotdev/shared/src/hooks';
+import { useDailyPage } from '@dailydotdev/shared/src/hooks/feed/useDailyPage';
+import { DailyHome } from '@dailydotdev/shared/src/features/daily/DailyHome';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useShortcutLinks } from '@dailydotdev/shared/src/features/shortcuts/hooks/useShortcutLinks';
 import { useDndContext } from '@dailydotdev/shared/src/contexts/DndContext';
 import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import useCustomDefaultFeed from '@dailydotdev/shared/src/hooks/feed/useCustomDefaultFeed';
-import {
-  CustomizeNewTabProvider,
-  useCustomizeNewTab,
-} from '@dailydotdev/shared/src/features/customizeNewTab/CustomizeNewTabContext';
-import { CustomizeNewTabSidebar } from '@dailydotdev/shared/src/features/customizeNewTab/CustomizeNewTabSidebar';
-import { isFocusActiveAt } from '@dailydotdev/shared/src/features/customizeNewTab/lib/focusSchedule';
-import { normaliseNewTabMode } from '@dailydotdev/shared/src/features/customizeNewTab/lib/newTabMode';
 import { DndBanner } from '@dailydotdev/shared/src/components/DndBanner';
 import ShortcutLinks from './ShortcutLinks/ShortcutLinks';
+import { ExtensionTopBanners } from './ExtensionTopBanners';
+import { ExtensionSignInStrip } from './ExtensionSignInStrip';
 import { CompanionPopupButton } from '../companion/CompanionPopupButton';
 import { useCompanionSettings } from '../companion/useCompanionSettings';
-import { getDefaultLink } from './dnd';
 
 const PostsSearch = dynamic(
   () =>
@@ -70,32 +66,6 @@ const getInitialFeedName = (page?: string): string => {
   return normalizedPage;
 };
 
-const FocusRedirectEffect = (): null => {
-  const { flags } = useSettingsContext();
-  useEffect(() => {
-    const mode = normaliseNewTabMode(flags?.newTabMode);
-    if (mode !== 'focus') {
-      return;
-    }
-    if (!isFocusActiveAt(flags?.focusSchedule, new Date())) {
-      return;
-    }
-    // Replace the daily.dev tab with the browser's native new tab. We accept
-    // a brief flash before the redirect because Focus is opt-in; reading the
-    // schedule pre-React would require mirroring it into chrome.storage.local.
-    const redirect = async () => {
-      const tab = await browser.tabs.getCurrent();
-      if (tab?.id == null) {
-        return;
-      }
-      window.stop();
-      await browser.tabs.update(tab.id, { url: getDefaultLink() });
-    };
-    redirect().catch(() => undefined);
-  }, [flags?.newTabMode, flags?.focusSchedule]);
-  return null;
-};
-
 const MainFeedPageInner = ({
   onPageChanged,
   initialPage,
@@ -110,9 +80,13 @@ const MainFeedPageInner = ({
   );
   const [searchQuery, setSearchQuery] = useState<string>();
   const { shouldUseListFeedLayout } = useFeedLayout({ feedRelated: false });
+  const { isV2 } = useLayoutVariant();
   useCompanionSettings();
   const { isActive: isDndActive, showDnd, setShowDnd } = useDndContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const { isDailyAsDefault, setShowDaily } = useDailyPage();
+  const showDailyHome =
+    feedName === 'default' && !isSearchOn && isDailyAsDefault;
 
   useLayoutEffect(() => {
     if (!initialPage || !shouldInitializeCurrentPage) {
@@ -170,20 +144,15 @@ const MainFeedPageInner = ({
     setSearchQuery(undefined);
   };
 
-  const { optOutCompanion } = useSettingsContext();
-  // Push the entire main column left by the panel width so the user
-  // sees their feed shrink alongside the sidebar sliding in. This is a
-  // visual signal that customizer changes affect THEIR feed, not just
-  // a panel-shaped overlay.
-  const { panelWidth } = useCustomizeNewTab();
+  const { optOutCompanion, showTopSites } = useSettingsContext();
+  // Mirror `ExtensionTopBanners`' "Add shortcuts" gate so the topBanner
+  // shortcut row and the marketing CTA card are mutually exclusive.
+  const { shortcutLinks } = useShortcutLinks();
+  const hasShortcutsToShow = showTopSites && (shortcutLinks?.length ?? 0) > 0;
 
   return (
     <>
-      <FocusRedirectEffect />
-      <div
-        className="min-h-screen transition-[padding] duration-200 ease-in-out"
-        style={{ paddingRight: panelWidth }}
-      >
+      <div className="min-h-screen">
         <div className="fixed bottom-0 left-0 z-2 w-full">
           <ScrollToTopButton />
         </div>
@@ -198,53 +167,70 @@ const MainFeedPageInner = ({
           additionalButtons={
             !loadingUser && !optOutCompanion && <CompanionPopupButton />
           }
+          topBanner={
+            <>
+              <ExtensionSignInStrip />
+              {isV2 && hasShortcutsToShow && (
+                <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">
+                  <ShortcutLinks shouldUseListFeedLayout={false} />
+                </div>
+              )}
+              <ExtensionTopBanners />
+            </>
+          }
         >
           <FeedLayoutProvider>
-            <MainFeedLayout
-              feedName={feedName}
-              isSearchOn={isSearchOn}
-              searchQuery={searchQuery}
-              onNavTabClick={onNavTabClick}
-              searchChildren={
-                <PostsSearch
-                  onSubmitQuery={async (query, extraFlags) => {
-                    logEvent({
-                      event_name: LogEvent.SubmitSearch,
-                      extra: JSON.stringify({
-                        query,
-                        provider: SearchProviderEnum.Posts,
-                        ...extraFlags,
-                      }),
-                    });
+            {showDailyHome ? (
+              <DailyHome
+                onBackToFeed={() => {
+                  setShowDaily(false);
+                  window.scrollTo({ top: 0 });
+                }}
+              />
+            ) : (
+              <MainFeedLayout
+                feedName={feedName}
+                isSearchOn={isSearchOn}
+                searchQuery={searchQuery}
+                onNavTabClick={onNavTabClick}
+                searchChildren={
+                  <PostsSearch
+                    onSubmitQuery={async (query, extraFlags) => {
+                      logEvent({
+                        event_name: LogEvent.SubmitSearch,
+                        extra: JSON.stringify({
+                          query,
+                          provider: SearchProviderEnum.Posts,
+                          ...extraFlags,
+                        }),
+                      });
 
-                    setSearchQuery(query);
-                  }}
-                  onFocus={() => {
-                    logEvent({ event_name: LogEvent.FocusSearch });
-                  }}
-                />
-              }
-              shortcuts={
-                shortcuts ?? (
-                  <ShortcutLinks
-                    shouldUseListFeedLayout={shouldUseListFeedLayout}
+                      setSearchQuery(query);
+                    }}
+                    onFocus={() => {
+                      logEvent({ event_name: LogEvent.FocusSearch });
+                    }}
                   />
-                )
-              }
-            />
+                }
+                shortcuts={
+                  isV2
+                    ? undefined
+                    : shortcuts ?? (
+                        <ShortcutLinks
+                          shouldUseListFeedLayout={shouldUseListFeedLayout}
+                        />
+                      )
+                }
+              />
+            )}
           </FeedLayoutProvider>
           <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
         </MainLayout>
       </div>
-      <CustomizeNewTabSidebar />
     </>
   );
 };
 
 export default function MainFeedPage(props: MainFeedPageProps): ReactElement {
-  return (
-    <CustomizeNewTabProvider>
-      <MainFeedPageInner {...props} />
-    </CustomizeNewTabProvider>
-  );
+  return <MainFeedPageInner {...props} />;
 }

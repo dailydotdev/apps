@@ -80,7 +80,7 @@ function PostSourceInfo({
             {!isUserSource && (
               <Link href={sourcePermalink}>
                 <a className="text-text-secondary typo-callout">
-                  {sourceHandle}
+                  {sourceName || sourceHandle}
                 </a>
               </Link>
             )}

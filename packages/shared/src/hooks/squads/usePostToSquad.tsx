@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import type { UseMutateAsyncFunction } from '@tanstack/react-query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { BaseSyntheticEvent } from 'react';
@@ -39,6 +39,7 @@ import { moderationRequired } from '../../components/squads/utils';
 import useNotificationSettings from '../notifications/useNotificationSettings';
 import { ButtonSize } from '../../components/buttons/common';
 import { BellIcon } from '../../components/icons';
+import { useLogPostCreated } from '../post/useLogPostCreated';
 
 const isApiErrorResult = (error: unknown): error is ApiErrorResult =>
   !!(error as ApiErrorResult)?.response?.errors;
@@ -62,6 +63,7 @@ interface UsePostToSquad {
     e: BaseSyntheticEvent,
     squad: Squad,
     commentary: string,
+    scheduledAt?: string,
   ) => Promise<unknown>;
   onSubmitFreeformPost: (post: CreatePostProps, squad: Squad) => Promise<void>;
   onSubmitPollPost: (post: CreatePollPostForm, squad: Squad) => Promise<void>;
@@ -84,6 +86,7 @@ interface UsePostToSquadProps {
   initialPreview?: ExternalLinkPreview;
   onMutate?: (data: unknown) => void;
   onError?: (error: ApiErrorResult) => void;
+  displayMutationErrors?: boolean;
 }
 
 const getSquadIdOrThrow = (squad: Squad): string => {
@@ -103,12 +106,15 @@ export const usePostToSquad = ({
   onSourcePostModerationSuccess,
   getSharedPostSuccessToast,
   initialPreview,
+  displayMutationErrors = false,
 }: UsePostToSquadProps = {}): UsePostToSquad => {
   const { toggleGroup, getGroupStatus } = useNotificationSettings();
   const { displayToast } = useToastNotification();
+  const logPostCreated = useLogPostCreated();
   const { user } = useAuthContext();
   const client = useQueryClient();
   const { completeAction } = useActions();
+  const moderationCreationRef = useRef<PostType | null>(null);
   const [preview, setPreview] = useState<ExternalLinkPreview>(
     initialPreview ?? {},
   );
@@ -116,14 +122,19 @@ export const usePostToSquad = ({
   const requestMethod = requestMethodContext ?? gqlClient.request;
 
   const handleMutationError = useCallback(
-    (err: unknown): void => {
+    (err: unknown, options: { displayError?: boolean } = {}): void => {
       if (!isApiErrorResult(err)) {
         return;
       }
 
+      const { displayError = true } = options;
+      if (displayMutationErrors && displayError) {
+        displayToast(err.response?.errors?.[0]?.message ?? DEFAULT_ERROR);
+      }
+
       onError?.(err);
     },
-    [onError],
+    [displayMutationErrors, displayToast, onError],
   );
 
   const handlePostSuccess = useCallback(
@@ -143,8 +154,16 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: createPost,
     onMutate,
-    onError: handleMutationError,
-    onSuccess: handlePostSuccess,
+    onError: (err) => handleMutationError(err),
+    onSuccess: (data) => {
+      logPostCreated({
+        postId: data.id,
+        postType: data.type,
+        sourceCount: 1,
+        targetType: 'post',
+      });
+      handlePostSuccess(data);
+    },
   });
   const {
     mutateAsync: editPostMutation,
@@ -154,7 +173,7 @@ export const usePostToSquad = ({
     mutationFn: editPost,
     onMutate,
     onSuccess: handlePostSuccess,
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const {
@@ -171,16 +190,21 @@ export const usePostToSquad = ({
             onClick: () => toggleGroup('pollResult', true, 'inApp'),
             copy: 'Enable',
             buttonProps: {
-              className: 'bg-background-default text-text-primary',
               size: ButtonSize.Small,
               icon: <BellIcon />,
             },
           },
         });
       }
+      logPostCreated({
+        postId: data.id,
+        postType: data.type,
+        sourceCount: 1,
+        targetType: 'post',
+      });
       handlePostSuccess(data);
     },
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const { mutateAsync: getLinkPreview, isPending: isLoadingPreview } =
@@ -196,7 +220,7 @@ export const usePostToSquad = ({
         const rateLimited = getApiError(err, ApiError.RateLimited);
         const message = rateLimited?.message ?? DEFAULT_ERROR;
         displayToast(message);
-        handleMutationError(err);
+        handleMutationError(err, { displayError: false });
       },
     });
 
@@ -206,12 +230,24 @@ export const usePostToSquad = ({
     isPending: isPostModerationLoading,
   } = useSourcePostModeration({
     onSuccess: (data) => {
+      if (moderationCreationRef.current) {
+        logPostCreated({
+          postId: data.id,
+          postType: moderationCreationRef.current,
+          sourceCount: 1,
+          moderationCount: 1,
+          targetType: 'moderation_item',
+        });
+      }
       completeAction(ActionType.SquadFirstPost);
       onSourcePostModerationSuccess?.(data);
       handleComplete();
     },
     onError: () => {
       displayToast(DEFAULT_ERROR);
+    },
+    onSettled: () => {
+      moderationCreationRef.current = null;
     },
   });
 
@@ -223,9 +259,12 @@ export const usePostToSquad = ({
 
       if (moderationRequired(squad)) {
         const squadId = getSquadIdOrThrow(squad);
+        moderationCreationRef.current = null;
 
+        // Scheduling isn't supported for moderated posts.
+        const { scheduledAt, ...moderationPost } = editedPost;
         await onCreatePostModeration({
-          ...editedPost,
+          ...moderationPost,
           type: PostType.Freeform,
           postId: editedPost.id,
           sourceId: squadId,
@@ -243,16 +282,23 @@ export const usePostToSquad = ({
     ],
   );
 
-  const onSharedPostSuccessfully = async (update = false) => {
-    const customToast = getSharedPostSuccessToast?.({ isUpdate: update });
-    if (customToast) {
-      displayToast(customToast.message, customToast.options);
-    } else {
-      displayToast(
-        update
-          ? 'The post has been updated'
-          : 'This post has been shared to your squad',
-      );
+  const onSharedPostSuccessfully = async (
+    update = false,
+    isScheduled = false,
+  ) => {
+    // Scheduled posts aren't live yet — the "scheduled" toast is shown by the
+    // caller, so suppress the misleading "shared to your squad" copy here.
+    if (!isScheduled) {
+      const customToast = getSharedPostSuccessToast?.({ isUpdate: update });
+      if (customToast) {
+        displayToast(customToast.message, customToast.options);
+      } else {
+        displayToast(
+          update
+            ? 'The post has been updated'
+            : 'This post has been shared to your squad',
+        );
+      }
     }
     await client.invalidateQueries({
       queryKey: ['sourceFeed', user?.id],
@@ -266,11 +312,17 @@ export const usePostToSquad = ({
     isSuccess: isPostSuccess,
   } = useMutation({
     mutationFn: addPostToSquad(requestMethod),
-    onSuccess: (data) => {
-      onSharedPostSuccessfully();
+    onSuccess: (data, variables) => {
+      logPostCreated({
+        postId: data.id,
+        postType: data.type,
+        sourceCount: 1,
+        targetType: 'post',
+      });
+      onSharedPostSuccessfully(false, !!variables.scheduledAt);
       handlePostSuccess(data);
     },
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const {
@@ -283,7 +335,7 @@ export const usePostToSquad = ({
       onSharedPostSuccessfully(true);
       handlePostSuccess(data);
     },
-    onError: handleMutationError,
+    onError: (err) => handleMutationError(err),
   });
 
   const {
@@ -293,8 +345,13 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: (params: SubmitExternalLink) =>
       submitExternalLink(params, requestMethod),
-    onSuccess: (_, { url }) => {
-      onSharedPostSuccessfully();
+    onSuccess: (_, variables) => {
+      logPostCreated({
+        postType: PostType.Share,
+        sourceCount: 1,
+      });
+      onSharedPostSuccessfully(false, !!variables.scheduledAt);
+      const { url } = variables;
       if (!url) {
         throw new Error('Missing external link url in usePostToSquad');
       }
@@ -305,7 +362,7 @@ export const usePostToSquad = ({
       const rateLimited = getApiError(err, ApiError.RateLimited);
       const message = rateLimited?.message ?? DEFAULT_ERROR;
       displayToast(message);
-      handleMutationError(err);
+      handleMutationError(err, { displayError: false });
     },
   });
 
@@ -329,7 +386,7 @@ export const usePostToSquad = ({
     isEditPostSuccess;
 
   const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
-    async (e, squad, commentary) => {
+    async (e, squad, commentary, scheduledAt) => {
       e?.preventDefault();
       if (isPosting) {
         return Promise.resolve();
@@ -339,6 +396,7 @@ export const usePostToSquad = ({
 
       if (preview.id) {
         if (moderationRequired(squad)) {
+          moderationCreationRef.current = PostType.Share;
           return onCreatePostModeration({
             type: PostType.Share,
             sourceId: squadId,
@@ -351,6 +409,7 @@ export const usePostToSquad = ({
           id: preview.id,
           sourceId: squadId,
           commentary,
+          ...(scheduledAt ? { scheduledAt } : {}),
         });
       }
 
@@ -363,6 +422,7 @@ export const usePostToSquad = ({
       }
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = null;
         return onCreatePostModeration({
           externalLink: url,
           title,
@@ -379,6 +439,7 @@ export const usePostToSquad = ({
         image,
         sourceId: squadId,
         commentary,
+        ...(scheduledAt ? { scheduledAt } : {}),
       });
     },
     [
@@ -402,6 +463,7 @@ export const usePostToSquad = ({
       const squadId = getSquadIdOrThrow(squad);
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = PostType.Share;
         return onCreatePostModeration({
           postId,
           type: PostType.Share,
@@ -425,8 +487,11 @@ export const usePostToSquad = ({
       const squadId = getSquadIdOrThrow(squad);
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = PostType.Freeform;
+        // Scheduling isn't supported for moderated posts.
+        const { scheduledAt, ...moderationPost } = post;
         await onCreatePostModeration({
-          ...post,
+          ...moderationPost,
           sourceId: squadId,
           type: PostType.Freeform,
         });
@@ -450,8 +515,11 @@ export const usePostToSquad = ({
       }));
 
       if (moderationRequired(squad)) {
+        moderationCreationRef.current = PostType.Poll;
+        // Scheduling isn't supported for moderated posts.
+        const { scheduledAt, ...moderationPost } = post;
         await onCreatePostModeration({
-          ...post,
+          ...moderationPost,
           pollOptions: orderedOpts,
           sourceId: squadId,
           type: PostType.Poll,

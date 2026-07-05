@@ -11,11 +11,20 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { downloadBrowserExtension, isChrome } from '../../lib/constants';
+import { downloadBrowserExtension } from '../../lib/constants';
+import {
+  BrowserName,
+  getCurrentBrowserName,
+  isExtensionCapableBrowser,
+} from '../../lib/func';
 import { ChromeIcon, EdgeIcon } from '../../components/icons';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import styles from './EmbeddedBrowsingWebPrompt.module.css';
+
+type EmbeddedBrowsingWebPromptProps = {
+  onOptOut?: () => void;
+};
 
 /**
  * Webapp prompt shown when the daily.dev extension isn't installed in this
@@ -23,16 +32,24 @@ import styles from './EmbeddedBrowsingWebPrompt.module.css';
  * handled inside the iframe itself (`packages/extension/src/frame/render.ts`)
  * so the Enable click carries the user gesture Chrome requires.
  */
-export function EmbeddedBrowsingWebPrompt(): ReactElement {
+export function EmbeddedBrowsingWebPrompt({
+  onOptOut,
+}: EmbeddedBrowsingWebPromptProps = {}): ReactElement | null {
   const { logEvent } = useLogContext();
-  const isChromeBrowser = isChrome();
-  const BrowserIcon = isChromeBrowser ? ChromeIcon : EdgeIcon;
-  const installButtonLabel = isChromeBrowser
-    ? 'Install Chrome extension'
-    : 'Install Edge extension';
-  const browser = isChromeBrowser ? 'chrome' : 'edge';
+  // Defensive: callers already gate on `isExtensionCapableBrowser` so this
+  // shouldn't render on unsupported browsers, but bail just in case.
+  const isSupportedBrowser = isExtensionCapableBrowser();
+  const isEdgeBrowser = getCurrentBrowserName() === BrowserName.Edge;
+  const BrowserIcon = isEdgeBrowser ? EdgeIcon : ChromeIcon;
+  const installButtonLabel = isEdgeBrowser
+    ? 'Install Edge extension'
+    : 'Install Chrome extension';
+  const browser = isEdgeBrowser ? 'edge' : 'chrome';
 
   useEffect(() => {
+    if (!isSupportedBrowser) {
+      return;
+    }
     logEvent({
       event_name: LogEvent.ImpressionReaderInstallPrompt,
       extra: JSON.stringify({ browser }),
@@ -40,6 +57,10 @@ export function EmbeddedBrowsingWebPrompt(): ReactElement {
     // Fire once per mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!isSupportedBrowser) {
+    return null;
+  }
 
   const onInstallClick = () => {
     logEvent({
@@ -84,6 +105,16 @@ export function EmbeddedBrowsingWebPrompt(): ReactElement {
             >
               {installButtonLabel}
             </Button>
+            {onOptOut ? (
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                onClick={onOptOut}
+              >
+                I&apos;d rather not read inside daily.dev
+              </Button>
+            ) : null}
           </div>
         </div>
       </div>

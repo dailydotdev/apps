@@ -75,7 +75,7 @@ export function SocialRegistration({
         icon={providerMap[firstProvider].icon}
         data-funnel-track={FunnelTargetId.SignupProvider}
       >
-        Sign up with {providerMap[firstProvider].label}
+        Continue with {providerMap[firstProvider].label}
       </Button>
       <Button
         {...props}
@@ -84,7 +84,7 @@ export function SocialRegistration({
         icon={providerMap[SocialProvider.GitHub].icon}
         data-funnel-track={FunnelTargetId.SignupProvider}
       >
-        Sign up with {providerMap[SocialProvider.GitHub].label}
+        Continue with {providerMap[SocialProvider.GitHub].label}
       </Button>
       <Typography
         className="mt-1 text-center"

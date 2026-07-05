@@ -2,7 +2,7 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 import { usePostToSquad } from './usePostToSquad';
-import { submitExternalLink } from '../../graphql/posts';
+import { PostType, submitExternalLink } from '../../graphql/posts';
 import { addPostToSquad } from '../../graphql/squads';
 import { useToastNotification } from '../useToastNotification';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -10,6 +10,8 @@ import { useActions } from '../useActions';
 import { useRequestProtocol } from '../useRequestProtocol';
 import useSourcePostModeration from '../source/useSourcePostModeration';
 import useNotificationSettings from '../notifications/useNotificationSettings';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent } from '../../lib/log';
 
 jest.mock('../../graphql/posts', () => ({
   ...(jest.requireActual('../../graphql/posts') as Iterable<unknown>),
@@ -42,12 +44,17 @@ jest.mock('../source/useSourcePostModeration', () => jest.fn());
 
 jest.mock('../notifications/useNotificationSettings', () => jest.fn());
 
+jest.mock('../../contexts/LogContext', () => ({
+  useLogContext: jest.fn(),
+}));
+
 describe('usePostToSquad', () => {
   const displayToast = jest.fn();
   const completeAction = jest.fn();
   const requestMethod = jest.fn();
   const onComplete = jest.fn();
   const onPostSuccess = jest.fn();
+  const logEvent = jest.fn();
   let client: QueryClient;
 
   const wrapper = ({ children }: React.PropsWithChildren) => (
@@ -61,6 +68,9 @@ describe('usePostToSquad', () => {
     jest.mocked(useToastNotification).mockReturnValue({
       displayToast,
     } as unknown as ReturnType<typeof useToastNotification>);
+    jest.mocked(useLogContext).mockReturnValue({
+      logEvent,
+    } as unknown as ReturnType<typeof useLogContext>);
     jest.mocked(useAuthContext).mockReturnValue({
       user: { id: 'user-1' },
     } as ReturnType<typeof useAuthContext>);
@@ -120,12 +130,22 @@ describe('usePostToSquad', () => {
     );
     expect(onComplete).toHaveBeenCalledTimes(1);
     expect(onPostSuccess).not.toHaveBeenCalled();
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.CreatePost,
+      target_id: undefined,
+      target_type: undefined,
+      extra: JSON.stringify({
+        post_type: PostType.Share,
+        source_count: 1,
+      }),
+    });
   });
 
   it('fires onComplete alongside onPostSuccess for shared post submissions', async () => {
     const mutatePost = jest.fn().mockResolvedValue({
       id: 'post-1',
       permalink: 'https://daily.dev/posts/1',
+      type: PostType.Share,
     });
     jest.mocked(addPostToSquad).mockReturnValue(mutatePost);
 
@@ -163,5 +183,14 @@ describe('usePostToSquad', () => {
       'https://daily.dev/posts/1',
     );
     expect(onComplete).toHaveBeenCalledTimes(1);
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.CreatePost,
+      target_id: 'post-1',
+      target_type: 'post',
+      extra: JSON.stringify({
+        post_type: PostType.Share,
+        source_count: 1,
+      }),
+    });
   });
 });

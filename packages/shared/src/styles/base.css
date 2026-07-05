@@ -4,6 +4,18 @@ html, #daily-companion-wrapper {
   height: stretch;
 }
 
+/* Match the tinted v2 page background at laptop+ so overscrolling past the
+   feed doesn't reveal the darker default document background. */
+@screen laptop {
+  html.layout-v2 {
+    background: color-mix(
+      in srgb,
+      var(--theme-surface-secondary) 3%,
+      var(--theme-background-default)
+    );
+  }
+}
+
 body {
   min-width: 20rem;
   overflow-y: scroll;
@@ -653,14 +665,18 @@ body {
 html,
 html.light .invert,
 html .invert .invert,
-#daily-companion-wrapper {
+#daily-companion-wrapper,
+#daily-companion-wrapper.light .invert,
+#daily-companion-wrapper .invert .invert {
   @mixin dark-mode;
 }
 
 html.light,
 html .invert,
 html.light .invert .invert,
-#daily-companion-wrapper.light {
+#daily-companion-wrapper.light,
+#daily-companion-wrapper .invert,
+#daily-companion-wrapper.light .invert .invert {
   @mixin light-mode;
 }
 
@@ -810,7 +826,7 @@ details.right-icon {
 }
 
 .squad-background-fade {
-  background: radial-gradient(ellipse, #c029f088 0%, #c029f000 400px);
+  background: radial-gradient(ellipse, #B14BD788 0%, #B14BD700 400px);
   background-size: 1200px 500px;
   background-position: center -250px;
   background-repeat: no-repeat;
@@ -895,13 +911,19 @@ meter::-webkit-meter-bar {
     background: radial-gradient(94% 48.83% at 50% 0%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-onion-default) 75.12%, var(--theme-accent-onion-baseline) 100%);
   }
 
+  &-onboarding-tall {
+    background:
+      radial-gradient(120% 30% at 100% 0%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-cabbage-baseline) 100%),
+      radial-gradient(120% 30% at 0% 0%, var(--theme-accent-onion-default) 0%, var(--theme-accent-onion-baseline) 100%);
+  }
+
   &-hourglass {
     background: radial-gradient(192.5% 100% at 50% 100%, var(--theme-accent-cabbage-default) 0%, var(--theme-accent-cabbage-baseline) 50%),
     radial-gradient(192.5% 100% at 50% 0%, var(--theme-accent-onion-default) 0%, var(--theme-accent-onion-baseline) 50%);
   }
 
   &-best-price {
-    background: linear-gradient(135deg, #E769FB 0%, #9E70F8 44.71%, #68A6FD 100%);
+    background: linear-gradient(135deg, #D97EFE 0%, #887BF8 44.71%, #7BA7FF 100%);
   }
 }
 
@@ -1026,6 +1048,149 @@ meter::-webkit-meter-bar {
     will-change: transform, opacity;
   }
 
+  /* Giveback gift celebrations. Each confetti piece flies from the gift's
+     center to its own (x, y) offset while spinning and fading — offsets and
+     rotation are handed in per piece via CSS vars. */
+  @keyframes giveback-confetti-piece {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.2) rotate(0deg);
+    }
+
+    14% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotate(30deg);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(
+          calc(-50% + var(--giveback-confetti-x)),
+          calc(-50% + var(--giveback-confetti-y))
+        )
+        scale(0.85) rotate(var(--giveback-confetti-r));
+    }
+  }
+
+  .giveback-confetti-piece {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 1px;
+    background: currentColor;
+    animation: giveback-confetti-piece 0.9s cubic-bezier(0.12, 0.62, 0.28, 1)
+      forwards;
+    will-change: transform, opacity;
+  }
+
+  /* Real-time dollar jump beside the gift: a bare "+$" figure pops in, holds
+     legibly while drifting up a little, then fades. Slow enough to read; the
+     horizontal offset is set per-pop so it sits next to the icon, not on it. */
+  @keyframes giveback-value-rise {
+    0% {
+      opacity: 0;
+      transform: translateY(8px) scale(0.9);
+    }
+
+    16% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    70% {
+      opacity: 1;
+      transform: translateY(-14px) scale(1);
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateY(-24px) scale(1);
+    }
+  }
+
+  .giveback-value-rise {
+    animation: giveback-value-rise 1.8s cubic-bezier(0.22, 0.61, 0.36, 1)
+      forwards;
+    will-change: transform, opacity;
+  }
+
+  /* Milestone toast: signature enter — rise + de-blur + fade, from the top
+     anchor (the gift), no overshoot. */
+  @keyframes giveback-toast-in {
+    0% {
+      opacity: 0;
+      transform: translateY(-8px);
+      filter: blur(8px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+  }
+
+  .giveback-toast-in {
+    transform-origin: top center;
+    animation: giveback-toast-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    will-change: transform, opacity, filter;
+  }
+
+  /* Subtle "received" reaction on the gift when money lands — a settle up to
+     peak with no dip below rest (critically damped, no wobble). */
+  @keyframes giveback-gift-pop {
+    0% {
+      transform: scale(1);
+    }
+
+    35% {
+      transform: scale(1.12);
+    }
+
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .giveback-gift-pop {
+    animation: giveback-gift-pop 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Milestone: a soft radial glow blooms out from the gift and fades — a
+     warmer, classier beat than a hard expanding ring. */
+  @keyframes giveback-glow-bloom {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+
+    30% {
+      opacity: 0.9;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1.9);
+    }
+  }
+
+  .giveback-glow-bloom {
+    animation: giveback-glow-bloom 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    will-change: transform, opacity;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .giveback-confetti-piece,
+    .giveback-value-rise,
+    .giveback-glow-bloom {
+      animation-duration: 0.01ms;
+    }
+
+    .giveback-toast-in,
+    .giveback-gift-pop {
+      animation: none;
+    }
+  }
+
   @keyframes quest-claimed-stamp {
     0% {
       opacity: 0;
@@ -1074,6 +1239,57 @@ meter::-webkit-meter-bar {
     background: rgb(255 0 168 / 35%);
   }
 
+  .top-hero-aurora {
+    background:
+      radial-gradient(
+        80% 95% at 50% 122%,
+        color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 18%)
+          0%,
+        transparent 62%
+      ),
+      radial-gradient(
+        64% 82% at 16% 128%,
+        color-mix(in srgb, var(--theme-accent-onion-default), transparent 32%) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        64% 82% at 84% 128%,
+        color-mix(in srgb, var(--theme-accent-onion-default), transparent 32%) 0%,
+        transparent 58%
+      );
+  }
+
+  .top-hero-stage {
+    background:
+      linear-gradient(
+        118deg,
+        transparent 0%,
+        rgb(255 255 255 / 5%) 42%,
+        transparent 58%
+      ),
+      radial-gradient(
+        78% 88% at 76% 112%,
+        color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 6%)
+          0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        70% 84% at 16% 112%,
+        color-mix(in srgb, var(--theme-accent-onion-default), transparent 20%) 0%,
+        transparent 62%
+      ),
+      radial-gradient(
+        62% 72% at 92% 4%,
+        color-mix(in srgb, var(--theme-accent-bacon-default), transparent 54%) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        42% 48% at 26% 16%,
+        rgb(255 255 255 / 8%) 0%,
+        transparent 64%
+      );
+  }
+
   @keyframes enable-notification-bell-ring {
     0%,
     100% {
@@ -1091,5 +1307,56 @@ meter::-webkit-meter-bar {
     80% {
       transform: rotate(8deg);
     }
+  }
+}
+
+.modal-backdrop-rays {
+  isolation: isolate;
+}
+
+.modal-backdrop-rays::before {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  z-index: 0;
+  pointer-events: none;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 65%, transparent) 18deg,
+    transparent 40deg 80deg,
+    color-mix(in srgb, var(--theme-accent-onion-default) 55%, transparent) 100deg,
+    transparent 120deg 170deg,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent) 190deg,
+    transparent 215deg 270deg,
+    color-mix(in srgb, var(--theme-accent-onion-default) 55%, transparent) 290deg,
+    transparent 320deg 360deg
+  );
+  -webkit-mask-image: radial-gradient(
+    circle at 50% 50%,
+    transparent 18%,
+    black 35%,
+    black 70%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    circle at 50% 50%,
+    transparent 18%,
+    black 35%,
+    black 70%,
+    transparent 100%
+  );
+  animation: modal-backdrop-rays-spin 30s linear infinite;
+}
+
+@keyframes modal-backdrop-rays-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop-rays::before {
+    animation: none;
   }
 }

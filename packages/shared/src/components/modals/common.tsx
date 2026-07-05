@@ -48,6 +48,13 @@ const CreateSharedPostModal = dynamic(
     ),
 );
 
+const SmartComposerModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "smartComposerModal" */ './post/SmartComposerModal'
+    ),
+);
+
 const ReportPostModal = dynamic(
   () =>
     import(
@@ -84,6 +91,10 @@ const VideoModal = dynamic(
   () => import(/* webpackChunkName: "videoModal" */ './VideoModal'),
 );
 
+const ImageModal = dynamic(
+  () => import(/* webpackChunkName: "imageModal" */ './ImageModal'),
+);
+
 const GenericReferralModal = dynamic(
   () =>
     import(
@@ -106,7 +117,7 @@ const ReputationPrivilegesModal = dynamic(
 const MarketingCtaModal = dynamic(
   () =>
     import(
-      /* webpackChunkName: "marketingCtaModal" */ '../marketingCta/MarketingCtaModal'
+      /* webpackChunkName: "marketingCtaModal" */ '../marketing/cta/MarketingCtaModal'
     ),
 );
 
@@ -476,6 +487,31 @@ const AchievementShowcaseModal = dynamic(
     ),
 );
 
+const IntroQuestModal = dynamic(
+  () => import(/* webpackChunkName: "introQuestModal" */ './IntroQuestModal'),
+);
+
+const ReaderInstallPromptModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "readerInstallPromptModal" */ './ReaderInstallPromptModal'
+    ),
+);
+
+const ReaderExtensionInstallModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "readerExtensionInstallModal" */ './ReaderExtensionInstallModal'
+    ),
+);
+
+const ReaderPreviewLazyModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "readerPreviewLazyModal" */ './ReaderPreviewLazyModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -484,6 +520,7 @@ export const modals = {
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
   [LazyModal.SquadPromotion]: SquadPromotionModal,
   [LazyModal.CreateSharedPost]: CreateSharedPostModal,
+  [LazyModal.SmartComposer]: SmartComposerModal,
   [LazyModal.ReportPost]: ReportPostModal,
   [LazyModal.ReportComment]: ReportCommentModal,
   [LazyModal.SquadNotifications]: SquadNotificationsModal,
@@ -491,6 +528,7 @@ export const modals = {
   [LazyModal.VerifySession]: VerifySession,
   [LazyModal.GenericReferral]: GenericReferralModal,
   [LazyModal.Video]: VideoModal,
+  [LazyModal.ImageView]: ImageModal,
   [LazyModal.NewStreak]: NewStreakModal,
   [LazyModal.ReputationPrivileges]: ReputationPrivilegesModal,
   [LazyModal.MarketingCta]: MarketingCtaModal,
@@ -553,6 +591,10 @@ export const modals = {
   [LazyModal.AchievementCompletion]: AchievementCompletionModal,
   [LazyModal.CompareAchievements]: CompareAchievementsModal,
   [LazyModal.AchievementShowcase]: AchievementShowcaseModal,
+  [LazyModal.IntroQuests]: IntroQuestModal,
+  [LazyModal.ReaderInstallPrompt]: ReaderInstallPromptModal,
+  [LazyModal.ReaderExtensionInstall]: ReaderExtensionInstallModal,
+  [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
 };
 
 type GetComponentProps<T> = T extends

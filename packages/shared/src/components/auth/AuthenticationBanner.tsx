@@ -6,7 +6,7 @@ import { OnboardingHeadline } from './OnboardingHeadline';
 import AuthOptions from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { authGradientBg, BottomBannerContainer } from '../banners';
+import { authGradientBg, BottomBannerContainer } from '../marketing/banners';
 import { ButtonVariant } from '../buttons/common';
 import { Image } from '../image/Image';
 import {
@@ -85,7 +85,11 @@ export function AuthenticationBanner({
             onAuthStateUpdate={(props) => {
               showLogin({
                 trigger: AuthTriggers.Onboarding,
-                options: { isLogin: true, formValues: props },
+                options: {
+                  isLogin: !!props.isLoginFlow,
+                  defaultDisplay: props.defaultDisplay,
+                  formValues: props.email ? { email: props.email } : undefined,
+                },
               });
             }}
             onboardingSignupButton={{

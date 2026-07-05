@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   DropdownMenu,
@@ -11,6 +11,11 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Markdown from '../Markdown';
 import RichTextInput, { type RichTextInputRef } from '../fields/RichTextInput';
+import { Drawer } from '../drawers';
+import { RootPortal } from '../tooltips/Portal';
+import { EmojiPicker } from '../fields/EmojiPicker';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
+import { LIVE_ROOM_QUICK_REACTION_EMOJIS } from '../../lib/liveRoom/reactions';
 import {
   Typography,
   TypographyColor,
@@ -21,12 +26,18 @@ import {
   DiscussIcon,
   LockIcon,
   MenuIcon,
+  PlusIcon,
+  SendAirplaneIcon,
+  ShieldIcon,
   TrashIcon,
 } from '../icons';
 import { IconSize } from '../Icon';
 import type { LiveRoomChatEntry } from '../../contexts/LiveRoomContext';
 import { MarkdownCommand } from '../../hooks/input/useMarkdownInput';
+import { useViewSize, ViewSize } from '../../hooks';
+import { useTouchLongPress } from '../../hooks/useTouchLongPress';
 import { chatMarkdownToHtml } from '../../lib/liveRoom/chatMarkdown';
+import { anchorDefaultRel } from '../../lib/strings';
 import type { UserShortProfile } from '../../lib/user';
 import {
   buildParticipantProfile,
@@ -34,6 +45,7 @@ import {
 } from './liveRoomParticipants';
 import {
   LiveRoomChatReactions,
+  getChatReactionGroups,
   type ChatReactionAnalytics,
 } from './LiveRoomChatReactions';
 
@@ -59,6 +71,7 @@ const LiveRoomChatComposer = ({
   const inputRef = useRef<RichTextInputRef | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [draft, setDraft] = useState('');
+  const isTablet = useViewSize(ViewSize.Tablet);
 
   let disabledReason = 'The host disabled your chat access.';
   if (!isLoggedIn) {
@@ -66,7 +79,7 @@ const LiveRoomChatComposer = ({
   } else if (isEnded) {
     disabledReason = 'Chat has ended for this standup.';
   } else if (!isLive) {
-    disabledReason = 'Chat opens when the standup goes live.';
+    disabledReason = 'Join the lobby to chat before the standup goes live.';
   }
 
   const handleSubmit = async (body: string): Promise<void> => {
@@ -88,8 +101,8 @@ const LiveRoomChatComposer = ({
 
   if (!canChat) {
     return (
-      <div className="border-t border-border-subtlest-tertiary p-2.5">
-        <div className="flex flex-col gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary px-3 py-2.5">
+      <div className="border-t border-border-subtlest-tertiary p-1.5 pb-safe-offset-1.5 pl-safe-offset-1.5 pr-safe-offset-1.5 tablet:p-2.5">
+        <div className="flex flex-col gap-2 rounded-12 border border-dashed border-border-subtlest-tertiary px-2 py-1.5 tablet:px-3 tablet:py-2.5">
           <Typography
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
@@ -112,7 +125,7 @@ const LiveRoomChatComposer = ({
   }
 
   return (
-    <div className="border-t border-border-subtlest-tertiary">
+    <div className="border-t border-border-subtlest-tertiary pt-1.5 pb-safe-offset-2 pl-safe-offset-1.5 pr-safe-offset-2 tablet:p-0">
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -122,27 +135,44 @@ const LiveRoomChatComposer = ({
         <RichTextInput
           ref={inputRef}
           className={{
-            container: '!rounded-none !bg-transparent',
-            input: '!p-2.5',
+            container:
+              '!flex-row !items-end !gap-1 !rounded-none !bg-transparent tablet:!flex-col tablet:!items-stretch tablet:!gap-0 [&>*:first-child]:min-w-0',
+            input:
+              'max-h-[2.75rem] overflow-y-auto break-words !p-1.5 tablet:max-h-none tablet:overflow-visible tablet:!p-2.5 [&_.ProseMirror]:!min-h-[1.5rem] tablet:[&_.ProseMirror]:!min-h-[6rem]',
           }}
           showUserAvatar={false}
           submitCopy="Send"
           isLoading={isSending}
           maxInputLength={1000}
           allowBlockFormatting={false}
-          minHeightClassName="min-h-[3rem]"
+          hideToolbar={!isTablet}
+          minHeightClassName="min-h-[2rem] tablet:min-h-[3rem]"
           mentionSuggestions={mentionSuggestions}
           markdownToHtml={chatMarkdownToHtml}
           enabledCommand={{
             [MarkdownCommand.Upload]: true,
             [MarkdownCommand.Mention]: true,
+            [MarkdownCommand.Emoji]: true,
             [MarkdownCommand.Gif]: true,
           }}
           textareaProps={{
             name: 'chat-message',
             placeholder: 'Write a message',
-            rows: 2,
+            rows: isTablet ? 2 : 1,
           }}
+          footer={
+            isTablet ? undefined : (
+              <Button
+                type="submit"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Primary}
+                icon={<SendAirplaneIcon />}
+                aria-label="Send"
+                disabled={isSending || !draft.trim()}
+                loading={isSending}
+              />
+            )
+          }
           onValueUpdate={setDraft}
           onSubmit={(event) =>
             handleSubmit(event.currentTarget.value).catch(() => undefined)
@@ -186,6 +216,14 @@ interface LiveRoomChatPanelProps {
   onRequestLogin: () => void;
 }
 
+const CHAT_AUTO_SCROLL_BOTTOM_THRESHOLD_PX = 32;
+const CHAT_AUTO_SCROLL_IDLE_MS = 150;
+
+const getDistanceFromBottom = (scrollContainer: HTMLDivElement): number =>
+  scrollContainer.scrollHeight -
+  scrollContainer.scrollTop -
+  scrollContainer.clientHeight;
+
 export const LiveRoomChatPanel = ({
   chatMessages,
   participantProfilesById,
@@ -209,18 +247,130 @@ export const LiveRoomChatPanel = ({
 }: LiveRoomChatPanelProps): ReactElement => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = useRef(true);
+  const isUserScrollingRef = useRef(false);
+  const isProgrammaticScrollRef = useRef(false);
+  const pendingAutoScrollRef = useRef(false);
+  const autoScrollFrameRef = useRef<number | null>(null);
+  const releaseProgrammaticScrollRef = useRef<number | null>(null);
+  const scrollIdleTimeoutRef = useRef<number | null>(null);
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
-  const [reactionBusy, setReactionBusy] = useState<string | null>(null);
+  const [reactionBusyKeys, setReactionBusyKeys] = useState<string[]>([]);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const isMobile = !isTablet;
+  const [pickerMessageId, setPickerMessageId] = useState<string | null>(null);
+  const longPressHandlers = useTouchLongPress<string>({
+    enabled: isMobile && canChat,
+    onLongPress: (messageId) => {
+      window.getSelection()?.removeAllRanges();
+      setPickerMessageId(messageId);
+    },
+  });
+
+  const pickerMessage = pickerMessageId
+    ? chatMessages.find((m) => m.messageId === pickerMessageId) ?? null
+    : null;
+  const pickerReactionKeysSet = new Set(
+    pickerMessage
+      ? getChatReactionGroups(pickerMessage, currentParticipantId).map(
+          (r) => r.key,
+        )
+      : [],
+  );
+  const pickerQuickReactionKeys = LIVE_ROOM_QUICK_REACTION_EMOJIS.filter(
+    (key) => !pickerReactionKeysSet.has(key),
+  );
+  const pickerBaseAnalytics = {
+    activeReactionCount: pickerReactionKeysSet.size,
+    quickReactionCount: pickerQuickReactionKeys.length,
+  };
+
+  const closePicker = (): void => setPickerMessageId(null);
 
   useEffect(() => {
+    if (pickerMessageId && !pickerMessage) {
+      closePicker();
+    }
+  }, [pickerMessage, pickerMessageId]);
+
+  const clearScheduledAutoScroll = useCallback((): void => {
+    if (autoScrollFrameRef.current !== null) {
+      cancelAnimationFrame(autoScrollFrameRef.current);
+      autoScrollFrameRef.current = null;
+    }
+  }, []);
+
+  const scrollToBottom = useCallback((): void => {
     const scrollContainer = scrollRef.current;
-    if (!scrollContainer || !shouldAutoScrollRef.current) {
+    if (!scrollContainer) {
       return;
     }
 
+    if (releaseProgrammaticScrollRef.current !== null) {
+      cancelAnimationFrame(releaseProgrammaticScrollRef.current);
+    }
+
+    isProgrammaticScrollRef.current = true;
     scrollContainer.scrollTop = scrollContainer.scrollHeight;
-  }, [chatMessages]);
+    shouldAutoScrollRef.current = true;
+    pendingAutoScrollRef.current = false;
+
+    releaseProgrammaticScrollRef.current = requestAnimationFrame(() => {
+      isProgrammaticScrollRef.current = false;
+      releaseProgrammaticScrollRef.current = null;
+    });
+  }, []);
+
+  const scheduleAutoScroll = useCallback((): void => {
+    if (!shouldAutoScrollRef.current) {
+      pendingAutoScrollRef.current = false;
+      return;
+    }
+
+    if (isUserScrollingRef.current) {
+      pendingAutoScrollRef.current = true;
+      return;
+    }
+
+    clearScheduledAutoScroll();
+    autoScrollFrameRef.current = requestAnimationFrame(() => {
+      autoScrollFrameRef.current = requestAnimationFrame(() => {
+        autoScrollFrameRef.current = null;
+        if (!shouldAutoScrollRef.current || isUserScrollingRef.current) {
+          pendingAutoScrollRef.current = shouldAutoScrollRef.current;
+          return;
+        }
+
+        scrollToBottom();
+      });
+    });
+  }, [clearScheduledAutoScroll, scrollToBottom]);
+
+  const finishUserScroll = useCallback((): void => {
+    isUserScrollingRef.current = false;
+    scrollIdleTimeoutRef.current = null;
+
+    if (pendingAutoScrollRef.current && shouldAutoScrollRef.current) {
+      scheduleAutoScroll();
+    }
+  }, [scheduleAutoScroll]);
+
+  useEffect(() => {
+    scheduleAutoScroll();
+  }, [chatMessages, scheduleAutoScroll]);
+
+  useEffect(
+    () => () => {
+      clearScheduledAutoScroll();
+      if (releaseProgrammaticScrollRef.current !== null) {
+        cancelAnimationFrame(releaseProgrammaticScrollRef.current);
+      }
+      if (scrollIdleTimeoutRef.current !== null) {
+        clearTimeout(scrollIdleTimeoutRef.current);
+      }
+    },
+    [clearScheduledAutoScroll],
+  );
 
   const handleScroll = (): void => {
     const scrollContainer = scrollRef.current;
@@ -228,11 +378,27 @@ export const LiveRoomChatPanel = ({
       return;
     }
 
-    const distanceFromBottom =
-      scrollContainer.scrollHeight -
-      scrollContainer.scrollTop -
-      scrollContainer.clientHeight;
-    shouldAutoScrollRef.current = distanceFromBottom < 32;
+    shouldAutoScrollRef.current =
+      getDistanceFromBottom(scrollContainer) <
+      CHAT_AUTO_SCROLL_BOTTOM_THRESHOLD_PX;
+
+    if (!shouldAutoScrollRef.current) {
+      pendingAutoScrollRef.current = false;
+    }
+
+    if (isProgrammaticScrollRef.current) {
+      return;
+    }
+
+    isUserScrollingRef.current = true;
+    if (scrollIdleTimeoutRef.current !== null) {
+      clearTimeout(scrollIdleTimeoutRef.current);
+    }
+
+    scrollIdleTimeoutRef.current = window.setTimeout(
+      finishUserScroll,
+      CHAT_AUTO_SCROLL_IDLE_MS,
+    );
   };
 
   const runModerationAction = (
@@ -259,17 +425,35 @@ export const LiveRoomChatPanel = ({
     shouldRemove = false,
   ): void => {
     const key = `${messageId}-${reactionKey}`;
-    if (reactionBusy || !canChat) {
+    if (reactionBusyKeys.includes(key) || !canChat) {
       return;
     }
 
-    setReactionBusy(key);
+    setReactionBusyKeys((current) => [...current, key]);
     const action = shouldRemove
       ? onRemoveMessageReaction
       : onSendMessageReaction;
     action(messageId, reactionKey, analytics)
       .catch(() => undefined)
-      .finally(() => setReactionBusy(null));
+      .finally(() =>
+        setReactionBusyKeys((current) =>
+          current.filter((busyKey) => busyKey !== key),
+        ),
+      );
+  };
+
+  const applyLongPressReaction = (
+    reactionKey: string,
+    source: 'long_press_quick' | 'long_press_picker',
+  ): void => {
+    if (!pickerMessageId) {
+      return;
+    }
+    runReactionAction(pickerMessageId, reactionKey, {
+      ...pickerBaseAnalytics,
+      source,
+    });
+    closePicker();
   };
 
   return (
@@ -277,7 +461,8 @@ export const LiveRoomChatPanel = ({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex flex-1 flex-col gap-3 overflow-y-auto p-3"
+        data-testid="live-room-chat-scroll"
+        className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2"
       >
         {chatMessages.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
@@ -291,14 +476,18 @@ export const LiveRoomChatPanel = ({
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
             >
-              Chat is live and messages disappear when the standup ends.
+              {isLive
+                ? 'Chat is live and messages disappear when the standup ends.'
+                : 'Chat is available while everyone waits in the lobby.'}
             </Typography>
           </div>
         ) : (
-          chatMessages.map((message) => {
+          chatMessages.map((message, messageIndex) => {
+            const senderProfile = participantProfilesById.get(
+              message.participantId,
+            );
             const sender =
-              participantProfilesById.get(message.participantId) ??
-              buildParticipantProfile(message.participantId);
+              senderProfile ?? buildParticipantProfile(message.participantId);
             const isSenderBlocked =
               (participantChatPermissions[message.participantId] ?? true) ===
               false;
@@ -311,31 +500,89 @@ export const LiveRoomChatPanel = ({
               message.participantId !== hostParticipantId &&
               message.participantId !== '';
             const senderName = userDisplayName(sender);
+            const senderNameNode = senderProfile ? (
+              <ProfileTooltip
+                userId={senderProfile.id}
+                initialUser={senderProfile}
+              >
+                <a
+                  href={senderProfile.permalink}
+                  target="_blank"
+                  rel={anchorDefaultRel}
+                  className="font-bold hover:underline"
+                >
+                  {senderName}
+                </a>
+              </ProfileTooltip>
+            ) : (
+              <span className="font-bold">{senderName}</span>
+            );
+            const senderAvatar = senderProfile ? (
+              <ProfileTooltip
+                userId={senderProfile.id}
+                initialUser={senderProfile}
+              >
+                <a
+                  href={senderProfile.permalink}
+                  target="_blank"
+                  rel={anchorDefaultRel}
+                  aria-label={`Open ${senderName} profile`}
+                  className="shrink-0"
+                >
+                  <ProfilePicture user={sender} size={ProfileImageSize.Small} />
+                </a>
+              </ProfileTooltip>
+            ) : (
+              <ProfilePicture user={sender} size={ProfileImageSize.Small} />
+            );
 
             return (
               <article
                 key={message.messageId}
-                className="group flex items-start gap-2 px-1 py-1.5"
+                className={classNames(
+                  'group relative flex items-start gap-2 px-1 py-1',
+                  isMobile && 'select-none [-webkit-touch-callout:none]',
+                )}
+                onTouchStart={(event) =>
+                  longPressHandlers.onTouchStart(event, message.messageId)
+                }
+                onTouchEnd={longPressHandlers.onTouchEnd}
+                onTouchMove={longPressHandlers.onTouchMove}
+                onTouchCancel={longPressHandlers.onTouchCancel}
+                onContextMenu={(event) => {
+                  if (isMobile) {
+                    event.preventDefault();
+                  }
+                }}
               >
-                <ProfilePicture user={sender} size={ProfileImageSize.Small} />
+                {senderAvatar}
                 <div className="min-w-0 flex-1">
                   <div className="min-w-0 text-[0.9375rem] leading-[1.5]">
-                    <span className="mr-2 inline font-bold">{senderName}</span>
-                    {isSenderHost ? (
-                      <span className="mr-2 inline rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-bun-default">
-                        Host
-                      </span>
-                    ) : null}
-                    {isSenderCoHost ? (
-                      <span className="mr-2 inline rounded-6 bg-surface-float px-1.5 py-0.5 text-[0.6875rem] font-bold uppercase tracking-wide text-accent-water-bolder">
-                        Co-host
-                      </span>
-                    ) : null}
+                    <span className="mr-2 inline-flex items-center gap-1">
+                      {senderNameNode}
+                      {isSenderHost ? (
+                        <ShieldIcon
+                          secondary
+                          size={IconSize.XXSmall}
+                          className="text-accent-bun-default"
+                          aria-label="Host"
+                        />
+                      ) : null}
+                      {isSenderCoHost ? (
+                        <ShieldIcon
+                          secondary
+                          size={IconSize.XXSmall}
+                          className="text-accent-water-bolder"
+                          aria-label="Co-host"
+                        />
+                      ) : null}
+                    </span>
                     <Markdown
                       className="inline !text-[0.9375rem] [&_a]:!text-[0.9375rem] [&_code]:rounded-[0.375rem] [&_code]:bg-surface-hover [&_code]:px-1 [&_code]:py-0.5 [&_p]:inline [&_p]:!text-[0.9375rem] [&_p]:!leading-[1.5]"
                       content={chatMarkdownToHtml(message.body, {
                         mentions: mentionSuggestions,
                       })}
+                      openLinksInNewTab
                     />
                   </div>
                   <LiveRoomChatReactions
@@ -343,7 +590,11 @@ export const LiveRoomChatPanel = ({
                     currentParticipantId={currentParticipantId}
                     canChat={canChat}
                     senderName={senderName}
-                    reactionBusy={reactionBusy}
+                    reactionBusyKeys={reactionBusyKeys}
+                    hideQuickReactions={isMobile}
+                    floatingTrayPlacement={
+                      messageIndex === 0 ? 'below' : 'above'
+                    }
                     onReactionAction={runReactionAction}
                   />
                 </div>
@@ -443,6 +694,61 @@ export const LiveRoomChatPanel = ({
         onSendMessage={onSendMessage}
         onRequestLogin={onRequestLogin}
       />
+      <RootPortal>
+        <Drawer
+          isOpen={!!pickerMessageId}
+          onClose={closePicker}
+          title="Add reaction"
+          displayCloseButton={false}
+          className={{
+            wrapper: '!overflow-hidden',
+            title: 'sticky top-0 z-1 bg-background-default',
+          }}
+        >
+          <div className="overflow-y-auto">
+            <div className="flex flex-wrap items-center justify-center gap-2 px-3 py-2">
+              {pickerQuickReactionKeys.map((emoji) => (
+                <Button
+                  key={emoji}
+                  type="button"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Float}
+                  aria-label={`React ${emoji}`}
+                  onClick={() =>
+                    applyLongPressReaction(emoji, 'long_press_quick')
+                  }
+                >
+                  <span className="text-base leading-none">{emoji}</span>
+                </Button>
+              ))}
+              <EmojiPicker
+                value=""
+                label={null}
+                className="shrink-0"
+                onChange={(reactionKey) => {
+                  if (!reactionKey) {
+                    return;
+                  }
+                  applyLongPressReaction(reactionKey, 'long_press_picker');
+                }}
+                renderTrigger={({ isOpen, toggleOpen }) => (
+                  <Button
+                    type="button"
+                    size={ButtonSize.Small}
+                    variant={
+                      isOpen ? ButtonVariant.Primary : ButtonVariant.Float
+                    }
+                    icon={<PlusIcon />}
+                    aria-label="Custom reaction"
+                    aria-expanded={isOpen}
+                    onClick={toggleOpen}
+                  />
+                )}
+              />
+            </div>
+          </div>
+        </Drawer>
+      </RootPortal>
     </div>
   );
 };

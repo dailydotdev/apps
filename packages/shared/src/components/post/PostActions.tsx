@@ -33,6 +33,8 @@ import { Tooltip } from '../tooltip/Tooltip';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { useBrandSponsorship } from '../../hooks/useBrandSponsorship';
 import { UpvoteButtonIcon } from '../cards/common/UpvoteButtonIcon';
+import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
+import { PostActions as PostActionsV2 } from './PostActions.v2';
 
 interface PostActionsProps {
   post: Post;
@@ -42,7 +44,7 @@ interface PostActionsProps {
   onCopyLinkClick?: (post?: Post) => void;
 }
 
-export function PostActions({
+function PostActionsV1({
   onCopyLinkClick,
   post,
   onComment,
@@ -217,9 +219,7 @@ export function PostActions({
           className="flex flex-1 items-center justify-between gap-x-1 overflow-hidden py-2 pl-4 pr-6"
           ref={actionsRef}
         >
-          <Tooltip
-            content={isUpvoteActive ? 'Remove upvote' : 'More like this'}
-          >
+          <Tooltip content={isUpvoteActive ? 'Remove upvote' : 'Upvote'}>
             <QuaternaryButton
               id="upvote-post-btn"
               pressed={isUpvoteActive}
@@ -235,9 +235,7 @@ export function PostActions({
               color={ButtonColor.Avocado}
             />
           </Tooltip>
-          <Tooltip
-            content={isDownvoteActive ? 'Remove downvote' : 'Less like this'}
-          >
+          <Tooltip content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}>
             <QuaternaryButton
               id="downvote-post-btn"
               pressed={isDownvoteActive}
@@ -338,4 +336,12 @@ export function PostActions({
       )}
     </div>
   );
+}
+
+export function PostActions(props: PostActionsProps): ReactElement {
+  const useV2 = useEngagementBarV2();
+  if (useV2) {
+    return <PostActionsV2 {...props} />;
+  }
+  return <PostActionsV1 {...props} />;
 }

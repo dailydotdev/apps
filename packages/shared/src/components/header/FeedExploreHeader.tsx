@@ -66,7 +66,7 @@ const withDateRange = [
 export function FeedExploreHeader({
   tab,
   setTab,
-  className,
+  className = {},
   showBreadcrumbs = true,
   showDropdown = true,
 }: FeedExploreHeaderProps): ReactElement {
@@ -100,7 +100,7 @@ export function FeedExploreHeader({
           className.tabWrapper,
         )}
       >
-        {isExtension ? (
+        {isExtension && (
           <TabList<ExploreTabs>
             items={Object.values(ExploreTabs).map((label) => ({
               label,
@@ -108,9 +108,10 @@ export function FeedExploreHeader({
             active={tab}
             onClick={setTab}
           />
-        ) : (
+        )}
+        {!isExtension && (
           <TabContainer
-            controlledActive={tabsToFeedMap[path]}
+            controlledActive={tabsToFeedMap[path as OtherFeedPage]}
             className={{
               header: classNames('border-b-0', className.tabBarHeader),
               container: className.tabBarContainer,

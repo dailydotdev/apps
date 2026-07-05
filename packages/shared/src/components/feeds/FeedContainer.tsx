@@ -22,7 +22,7 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import type { OtherFeedPage } from '../../lib/query';
 import { isExtension } from '../../lib/func';
 import { ProfileUploadBanner } from '../../features/profile/components/ProfileUploadBanner';
-import { MarketingCtaVariant } from '../marketingCta/common';
+import { MarketingCtaVariant } from '../marketing/cta/common';
 import {
   uploadCvBgLaptop,
   uploadCvBgTablet,
@@ -30,6 +30,8 @@ import {
 } from '../../lib/image';
 import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
+import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
+import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -97,7 +99,7 @@ const cardClass = ({
   return isList ? 'grid-cols-1' : cardListClass[numberOfCards] ?? 'grid-cols-1';
 };
 
-const feedNameToHeading: Record<
+export const feedNameToHeading: Record<
   Extract<
     FeedPagesWithMobileLayoutType,
     | SharedFeedPage.Search
@@ -105,7 +107,7 @@ const feedNameToHeading: Record<
     | SharedFeedPage.Popular
     | SharedFeedPage.Upvoted
     | OtherFeedPage.Discussed
-    | OtherFeedPage.Bookmarks
+    | OtherFeedPage.Following
   >,
   string
 > = {
@@ -114,7 +116,7 @@ const feedNameToHeading: Record<
   popular: 'Popular',
   upvoted: 'Most upvoted',
   discussed: 'Best discussions',
-  bookmarks: 'Bookmarks',
+  following: 'Following',
 };
 
 export const FeedContainer = ({
@@ -137,6 +139,8 @@ export const FeedContainer = ({
   const { loadedSettings } = useContext(SettingsContext);
   const { shouldUseListFeedLayout, isListMode } = useFeedLayout();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  const isV2Laptop = isV2;
   const { feedName } = useActiveFeedNameContext();
   const activeFeedName = feedName ?? SharedFeedPage.MyFeed;
   const { isAnyExplore, isExplorePopular, isExploreLatest } = useFeedName({
@@ -193,8 +197,12 @@ export const FeedContainer = ({
       }
     },
   });
-  const shouldShowBanner =
+  const shouldEvaluateBanner =
     !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
+  const hasIntroQuests = useHasIntroQuests({
+    shouldEvaluate: shouldEvaluateBanner,
+  });
+  const shouldShowBanner = shouldEvaluateBanner && !hasIntroQuests;
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;
@@ -270,11 +278,16 @@ export const FeedContainer = ({
         >
           {inlineHeader && header}
           {topContent}
-          {isSearch && !shouldUseListFeedLayout && (
-            <span
+          {/* v2 hoists the shared page-header strip up to MainFeedLayout
+              so it can sit outside `FeedPageLayoutList`'s 680px width
+              clamp and span the full floating-card width. Non-v2 keeps
+              its in-container search header strip here. */}
+          {!isV2Laptop && isSearch && !shouldUseListFeedLayout && (
+            <header
               className={classNames(
-                'flex flex-1 items-center',
-                isExtension ? 'flex-col-reverse' : 'flex-row',
+                'flex items-center',
+                isExtension && 'flex-1 flex-col-reverse',
+                !isExtension && 'flex-1 flex-row',
               )}
             >
               {!!actionButtons && (
@@ -283,7 +296,7 @@ export const FeedContainer = ({
                 </span>
               )}
               {shortcuts}
-            </span>
+            </header>
           )}
           <ConditionalWrapper
             condition={shouldUseListFeedLayout}
@@ -291,23 +304,35 @@ export const FeedContainer = ({
               <div
                 className={classNames(
                   'flex flex-col',
+                  // v2 drops the outside border around the list-frame so
+                  // the cards sit directly inside the floating card with
+                  // a single frame; legacy layout keeps the rounded
+                  // bordered box around the list.
                   !disableListFrame &&
+                    !isV2Laptop &&
                     'rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
-                  !disableListFrame && isSearch && 'mt-6',
+                  // v2-only: swap the list-card top separator token to
+                  // match the floating-card / card hierarchy.
+                  !disableListFrame &&
+                    isV2Laptop &&
+                    '[&_article]:!border-border-subtlest-quaternary',
+                  !disableListFrame && isSearch && !isV2Laptop && 'mt-6',
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
                 )}
               >
-                <ConditionalWrapper
-                  condition={isLaptop && !!(feedHeading || actionButtons)}
-                  wrapper={(component) => (
-                    <span className="flex w-full flex-row items-center justify-between px-6 py-4">
-                      <strong className="typo-title3">{feedHeading}</strong>
-                      <span className="flex flex-row gap-3">{component}</span>
-                    </span>
-                  )}
-                >
-                  {actionButtons || null}
-                </ConditionalWrapper>
+                {!isV2Laptop && (
+                  <ConditionalWrapper
+                    condition={isLaptop && !!(feedHeading || actionButtons)}
+                    wrapper={(component) => (
+                      <span className="flex w-full flex-row items-center justify-between px-6 py-4">
+                        <strong className="typo-title3">{feedHeading}</strong>
+                        <span className="flex flex-row gap-3">{component}</span>
+                      </span>
+                    )}
+                  >
+                    {actionButtons || null}
+                  </ConditionalWrapper>
+                )}
                 {isExtension && shortcuts}
                 {child}
               </div>
@@ -316,8 +341,31 @@ export const FeedContainer = ({
             <div
               className={classNames(
                 'grid',
+                // v2: inset the grid so cards sit off the floating-card
+                // rounded edges + swap card borders to the lighter
+                // quaternary token (matches the floating-card frame so
+                // we get a clean frame → list-frame → cards hierarchy
+                // instead of two clashing layers). Scoped here so the
+                // legacy grid layout keeps its current tokens.
+                isV2Laptop &&
+                  !shouldUseListFeedLayout &&
+                  // Symmetric inset on every side — matches the designer
+                  // mock. The page-header strip above sets its own
+                  // bottom border, so cards sit p-6 inside the floating
+                  // card on all four sides.
+                  'tablet:p-2 laptop:p-6 [&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary',
+                shouldUseListFeedLayout && isLaptop && 'px-6 pt-4',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
-                isSearch && !shouldUseListFeedLayout && !isAnyExplore && 'mt-8',
+                // mt-8 is a legacy spacer below the search/action header;
+                // v2 already enforces the gap via the grid's own `p-6`
+                // inset (matches the left/right inset), so doubling up
+                // here would push the first row 32px further down than
+                // the cards sit from the floating frame's left edge.
+                isSearch &&
+                  !shouldUseListFeedLayout &&
+                  !isAnyExplore &&
+                  !isV2Laptop &&
+                  'mt-8',
                 isHorizontal &&
                   'no-scrollbar snap-x snap-mandatory grid-flow-col overflow-x-scroll scroll-smooth py-2 pt-5',
                 gapClass({

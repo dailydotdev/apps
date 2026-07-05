@@ -13,7 +13,9 @@ import { deleteAccount, logout as dispatchLogout } from '../lib/user';
 import type { AccessToken, Boot, Visit } from '../lib/boot';
 import { isCompanionActivated } from '../lib/element';
 import type { AuthTriggersType } from '../lib/auth';
+import type { AuthDisplay } from '../components/auth/common';
 import type { Squad } from '../graphql/sources';
+import type { Feed } from '../graphql/feed';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
 import { Continent, outsideGdpr } from '../lib/geo';
@@ -33,6 +35,11 @@ export interface LoginState {
   onLoginSuccess?: () => void;
   onRegistrationSuccess?: (user?: LoggedUser | AnonymousUser) => void;
   isLogin?: boolean;
+  afterAuth?: string;
+  // Lets callers (e.g. AuthenticationBanner) tell the inline modal which
+  // screen to open on, when the trigger originates from an inline AuthOptions
+  // surface that has already partially progressed the user.
+  defaultDisplay?: AuthDisplay;
 }
 
 type LoginOptions = Omit<LoginState, 'trigger'>;
@@ -72,6 +79,9 @@ export interface AuthContextData {
   isGdprCovered?: boolean;
   isValidRegion?: boolean;
   isFunnel?: boolean;
+  feeds?: Feed[];
+  daily?: boolean;
+  setDaily?: (value: boolean) => void;
 }
 
 const isExtension = checkIsExtension();
@@ -102,7 +112,7 @@ export const logout = async (reason: string): Promise<void> => {
   if (isExtension) {
     window.location.reload();
   } else {
-    window.location.replace('/');
+    window.location.replace('/onboarding');
   }
 };
 
@@ -132,6 +142,9 @@ export type AuthContextProviderProps = {
   | 'refetchBoot'
   | 'geo'
   | 'isAndroidApp'
+  | 'feeds'
+  | 'daily'
+  | 'setDaily'
 >;
 
 export const AuthContextProvider = ({
@@ -147,9 +160,12 @@ export const AuthContextProvider = ({
   visit,
   accessToken,
   squads,
+  feeds,
   firstLoad,
   geo,
   isAndroidApp,
+  daily,
+  setDaily,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -162,65 +178,93 @@ export const AuthContextProvider = ({
     [geo?.region],
   );
 
-  return (
-    <AuthContext.Provider
-      value={{
-        isFunnel: isFunnelRef.current,
-        isAuthReady: !isNullOrUndefined(firstLoad),
-        user: endUser,
-        isLoggedIn: !!endUser?.id,
-        referral: loginState?.referral ?? referral,
-        referralOrigin: loginState?.referralOrigin ?? referralOrigin,
-        firstVisit: user?.firstVisit,
-        trackingId: user?.id,
-        shouldShowLogin: loginState !== null,
-        showLogin: useCallback(
-          ({ trigger, options = {} }) => {
-            const hasCompanion = !!isCompanionActivated();
-            if (hasCompanion) {
-              const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
-              window.open(signup);
-            } else {
-              const params = new URLSearchParams(globalThis?.location.search);
+  const showLogin = useCallback(
+    ({ trigger, options = {} }) => {
+      const hasCompanion = !!isCompanionActivated();
+      if (hasCompanion) {
+        const signup = `${process.env.NEXT_PUBLIC_WEBAPP_URL}signup?close=true`;
+        window.open(signup);
+        return;
+      }
 
-              setLoginState({ ...options, trigger });
-              if (isExtension) {
-                params.delete(AFTER_AUTH_PARAM);
-              } else if (!params.get(AFTER_AUTH_PARAM)) {
-                params.set(AFTER_AUTH_PARAM, window.location.pathname);
-              }
-              const onboardingPath = `${onboardingUrl}?${params.toString()}`;
-              router.push(
-                isExtension
-                  ? onboardingPath
-                  : `/onboarding?${params.toString()}`,
-              );
-            }
-          },
-          [router],
-        ),
-        closeLogin: useCallback(() => setLoginState(null), []),
-        loginState,
-        updateUser,
-        logout,
-        loadingUser,
-        tokenRefreshed,
-        loadedUserFromCache,
-        getRedirectUri,
-        anonymous: user,
-        visit,
-        isFetched,
-        refetchBoot,
-        deleteAccount,
-        accessToken,
-        squads,
-        geo,
-        isAndroidApp,
-        isValidRegion,
-        isGdprCovered: checkIfGdprCovered(geo),
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
+      setLoginState({ ...options, trigger });
+
+      if (!isExtension) {
+        return;
+      }
+
+      const params = new URLSearchParams(globalThis?.location.search);
+      params.delete(AFTER_AUTH_PARAM);
+
+      router.push(`${onboardingUrl}?${params.toString()}`);
+    },
+    [router],
   );
+
+  const closeLogin = useCallback(() => setLoginState(null), []);
+
+  const value = useMemo<AuthContextData>(
+    () => ({
+      isFunnel: isFunnelRef.current,
+      isAuthReady: !isNullOrUndefined(firstLoad),
+      user: endUser,
+      isLoggedIn: !!endUser?.id,
+      referral: loginState?.referral ?? referral,
+      referralOrigin: loginState?.referralOrigin ?? referralOrigin,
+      firstVisit: user?.firstVisit,
+      trackingId: user?.id,
+      shouldShowLogin: loginState !== null,
+      showLogin,
+      closeLogin,
+      loginState,
+      updateUser,
+      logout,
+      loadingUser,
+      tokenRefreshed,
+      loadedUserFromCache,
+      getRedirectUri,
+      anonymous: user,
+      visit,
+      isFetched,
+      refetchBoot,
+      deleteAccount,
+      accessToken,
+      squads,
+      feeds,
+      geo,
+      isAndroidApp,
+      daily,
+      setDaily,
+      isValidRegion,
+      isGdprCovered: checkIfGdprCovered(geo),
+    }),
+    [
+      firstLoad,
+      endUser,
+      loginState,
+      referral,
+      referralOrigin,
+      user,
+      showLogin,
+      closeLogin,
+      updateUser,
+      loadingUser,
+      tokenRefreshed,
+      loadedUserFromCache,
+      getRedirectUri,
+      visit,
+      isFetched,
+      refetchBoot,
+      accessToken,
+      squads,
+      feeds,
+      geo,
+      isAndroidApp,
+      daily,
+      setDaily,
+      isValidRegion,
+    ],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

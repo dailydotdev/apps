@@ -12,7 +12,7 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import { plusUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { TargetType, Origin, LogEvent } from '../../lib/log';
-import { MarketingCtaVariant } from '../marketingCta/common';
+import { MarketingCtaVariant } from '../marketing/cta/common';
 import { useBoot } from '../../hooks';
 import Link from '../utilities/Link';
 

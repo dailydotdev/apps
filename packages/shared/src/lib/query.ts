@@ -72,6 +72,7 @@ export enum OtherFeedPage {
   Following = 'following',
   Post = 'posts[id]',
   AgentsVibes = 'agents-vibes',
+  ExploreTag = 'explore[tag]',
 }
 
 export const STALE_TIME = 30 * 1000;
@@ -144,6 +145,7 @@ export enum RequestKey {
   Tags = 'tags',
   FeedPreview = 'feedPreview',
   FeedPreviewCustom = 'feedPreviewCustom',
+  DailyFeed = 'dailyFeed',
   ReferredUsers = 'referred',
   Post = 'post',
   Prompt = 'prompt',
@@ -175,6 +177,7 @@ export enum RequestKey {
   SquadStatus = 'squad_status',
   PublicSquadRequests = 'public_squad_requests',
   Feeds = 'feeds',
+  ScheduledPosts = 'scheduled_posts',
   FeedSettings = 'feedSettings',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
@@ -270,8 +273,15 @@ export enum RequestKey {
   ShowcaseAchievements = 'showcase_achievements',
   PostHighlights = 'post_highlights',
   MarketingCtas = 'marketing_ctas',
+  HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
   LiveRooms = 'live_rooms',
+  ContributionOverview = 'contribution_overview',
+  ContributionCausePicker = 'contribution_cause_picker',
+  ContributionActions = 'contribution_actions',
+  ContributionActionLinks = 'contribution_action_links',
+  ContributionLastMilestone = 'contribution_last_milestone',
+  LeaderboardPosition = 'leaderboard_position',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
@@ -368,6 +378,7 @@ export const defaultQueryClientConfig: QueryClientConfig = {
         return failureCount < 3;
       },
       refetchOnWindowFocus: process.env.NODE_ENV !== 'development',
+      staleTime: StaleTime.Base,
     },
   },
 };

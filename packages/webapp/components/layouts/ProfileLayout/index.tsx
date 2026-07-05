@@ -21,10 +21,13 @@ import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
 import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
+import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
+import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
 import { getPageSeoTitles } from '../utils';
@@ -40,6 +43,9 @@ const appOrigin = getAppOrigin();
 export interface ProfileLayoutProps extends Partial<ProfileV2> {
   noindex: boolean;
   children?: ReactNode;
+  // v2: title shown in the shared page-header strip at the top of the
+  // floating card, above the profile sidebar + main + aside row.
+  pageHeaderTitle?: string;
 }
 
 export const getOGImageUrl = (userId: string): string => {
@@ -95,15 +101,17 @@ export default function ProfileLayout({
   user: initialUser,
   userStats,
   sources,
+  pageHeaderTitle,
   children,
 }: ProfileLayoutProps): ReactElement {
   const router = useRouter();
+  const { isV2 } = useLayoutVariant();
   const { isFallback } = router;
   const { user } = useProfile(initialUser);
   const { user: viewer } = useAuthContext();
   const [trackedView, setTrackedView] = useState(false);
   const { logEvent } = useLogContext();
-  const { referrerPost } = usePostReferrerContext();
+  const referrerPost = usePostReferrerContext()?.referrerPost;
   useTrackQuestClientEvent({
     eventType: ClientQuestEventType.ViewUserProfile,
     enabled: !!user && !!viewer?.id && viewer.id !== user.id,
@@ -141,21 +149,29 @@ export default function ProfileLayout({
   }
 
   return (
-    <div className="profile-page m-auto flex w-full flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
+    <div className="flex w-full flex-col">
       <Head>
         <link rel="preload" as="image" href={user.image} />
       </Head>
-      <main className="relative flex flex-1 flex-col laptop:max-w-2xl laptopL:max-w-3xl">
-        {children}
-      </main>
-      <aside className="hidden min-w-0 laptop:flex laptop:max-w-80 laptop:flex-shrink laptop:flex-col">
-        <ProfileWidgets
-          user={user}
-          userStats={userStats}
-          sources={sources}
-          className="w-full"
-        />
-      </aside>
+      {isV2 && pageHeaderTitle && (
+        <PageHeader title={pageHeaderTitle} className="hidden laptop:flex" />
+      )}
+      <div className="profile-page m-auto flex w-full flex-col pb-12 tablet:pb-0 laptop:min-h-page laptop:max-w-5xl laptop:flex-row laptop:gap-4 laptop:p-4 laptop:pb-6 laptopL:max-w-6xl">
+        <main className="relative flex flex-1 flex-col laptop:max-w-2xl laptopL:max-w-3xl">
+          {children}
+        </main>
+        <aside className="hidden min-w-0 laptop:flex laptop:max-w-80 laptop:flex-shrink laptop:flex-col">
+          {userStats && sources && (
+            <ProfileWidgets
+              user={user}
+              userStats={userStats}
+              sources={sources}
+              className="w-full"
+            />
+          )}
+        </aside>
+      </div>
+      <PublicPageSignupBanner />
     </div>
   );
 }
@@ -165,7 +181,7 @@ export const getLayout = (
   props: ProfileLayoutProps,
 ): ReactNode =>
   getFooterNavBarLayout(
-    getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, null, {
+    getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, undefined, {
       screenCentered: false,
       customBanner: <CustomAuthBanner />,
     }),
@@ -184,7 +200,13 @@ export async function getStaticProps({
 }: GetStaticPropsContext<ProfileParams>): Promise<
   GetStaticPropsResult<Omit<ProfileLayoutProps, 'children'>>
 > {
-  const { userId } = params;
+  const userId = params?.userId;
+  if (!userId) {
+    return {
+      props: { noindex: true },
+      revalidate: 60,
+    };
+  }
   try {
     const user = await getProfile(userId);
     if (!user) {
@@ -199,7 +221,7 @@ export async function getStaticProps({
       props: {
         user,
         ...data,
-        noindex: user.reputation <= 10,
+        noindex: !!user.noindex,
       },
       revalidate: 60,
     };

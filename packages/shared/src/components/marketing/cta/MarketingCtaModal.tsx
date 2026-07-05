@@ -1,0 +1,100 @@
+import type { ReactElement } from 'react';
+import React from 'react';
+import type { ModalProps } from '../../modals/common/Modal';
+import { Modal } from '../../modals/common/Modal';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { CardCover } from '../../cards/common/CardCover';
+import type { MarketingCta } from './common';
+import { CTAButton, Description, Header, Title } from './common';
+import { useBoot } from '../../../hooks';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent, TargetType } from '../../../lib/log';
+import { MiniCloseIcon } from '../../icons';
+
+export interface MarketingCtaModalProps extends ModalProps {
+  marketingCta: MarketingCta;
+}
+export const MarketingCtaModal = ({
+  marketingCta,
+  onRequestClose,
+  ...modalProps
+}: MarketingCtaModalProps): ReactElement => {
+  const { clearMarketingCta } = useBoot();
+  const { logEvent } = useLogContext();
+  const { campaignId, flags } = marketingCta;
+  const { tagColor, tagText, title, description, image, ctaUrl, ctaText } =
+    flags;
+
+  const onModalClose = (
+    param: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>,
+    eventName: LogEvent,
+  ) => {
+    logEvent({
+      event_name: eventName,
+      target_type: TargetType.MarketingCtaPopover,
+      target_id: campaignId,
+    });
+
+    clearMarketingCta(campaignId);
+    onRequestClose(param);
+  };
+
+  return (
+    <Modal
+      {...modalProps}
+      kind={Modal.Kind.FlexibleCenter}
+      size={Modal.Size.Small}
+      onRequestClose={(event) =>
+        onModalClose(event, LogEvent.MarketingCtaDismiss)
+      }
+    >
+      <div className="relative p-6 !pt-4">
+        {tagColor && tagText ? (
+          <Header
+            onClose={(event) =>
+              onModalClose(event, LogEvent.MarketingCtaDismiss)
+            }
+            tagColor={tagColor}
+            tagText={tagText}
+            buttonSize={ButtonSize.Medium}
+          />
+        ) : (
+          <Button
+            className="absolute right-2 top-2"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            icon={<MiniCloseIcon />}
+            aria-label="Close post"
+            onClick={(event: React.MouseEvent) =>
+              onModalClose(event, LogEvent.MarketingCtaDismiss)
+            }
+          />
+        )}
+        <Title className="!typo-large-title">{title}</Title>
+        {description && (
+          <Description className="!typo-body">{description}</Description>
+        )}
+        {image && (
+          <CardCover
+            imageProps={{
+              loading: 'lazy',
+              alt: 'Post Cover',
+              src: image,
+              className: 'w-full my-6 !h-50',
+            }}
+          />
+        )}
+        {ctaUrl && ctaText && (
+          <CTAButton
+            ctaUrl={ctaUrl}
+            ctaText={ctaText}
+            onClick={(event) => onModalClose(event, LogEvent.Click)}
+            buttonSize={ButtonSize.Medium}
+          />
+        )}
+      </div>
+    </Modal>
+  );
+};
+
+export default MarketingCtaModal;

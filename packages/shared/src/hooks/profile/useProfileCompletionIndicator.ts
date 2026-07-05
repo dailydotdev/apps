@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useActions } from '../useActions';
 import { ActionType } from '../../graphql/actions';
+import { useHasIntroQuests } from '../useHasIntroQuests';
 
 interface UseProfileCompletionIndicator {
   showIndicator: boolean;
@@ -24,8 +25,12 @@ export const useProfileCompletionIndicator =
       completeAction(ActionType.DismissProfileCompletionIndicator);
     }, [completeAction]);
 
-    const showIndicator =
+    const shouldEvaluate =
       isActionsFetched && !isDismissed && profileCompletionPercentage < 100;
+
+    const hasIntroQuests = useHasIntroQuests({ shouldEvaluate });
+
+    const showIndicator = shouldEvaluate && !hasIntroQuests;
 
     return {
       showIndicator,

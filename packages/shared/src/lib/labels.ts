@@ -26,6 +26,8 @@ export const labels = {
         '❌ We ran into an unexpected error on our end. Please try again.',
       existingEmail:
         'That email is linked to a different sign-in method. Please try another provider.',
+      githubEmailNotVerified:
+        'Your GitHub email address is not verified. Please verify it on GitHub and try again.',
     },
   },
   referral: {
@@ -88,6 +90,8 @@ export const labels = {
       globalPreferenceNotice: {
         clickbaitShield: 'Clickbait shield has been applied for all feeds',
         contentLanguage: 'New language preferences set for all feeds',
+        highlightsPlacement:
+          'Happening Now placement preference applied to all your feeds',
       },
     },
   },

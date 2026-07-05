@@ -3,6 +3,7 @@ import type {
   MutableRefObject,
   PropsWithChildren,
   ReactElement,
+  ReactNode,
 } from 'react';
 import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
@@ -14,9 +15,11 @@ import type {
 } from '../graphql/posts';
 import type { Squad } from '../graphql/sources';
 import ConditionalWrapper from '../components/ConditionalWrapper';
-import { useViewSize, ViewSize } from '../hooks';
 import { FormWrapper } from '../components/fields/form';
 import type { SourcePostModeration } from '../graphql/squads';
+import { useViewSize, ViewSize } from '../hooks/useViewSize';
+import type { UseSchedulePost } from '../components/post/schedule/useSchedulePost';
+import { SchedulePostControl } from '../components/post/schedule/SchedulePostControl';
 
 export interface WriteForm {
   title: string;
@@ -55,6 +58,10 @@ export interface WritePostProps {
   updateDraft?: (props: Partial<WriteForm>) => Promise<void>;
   isUpdatingDraft?: boolean;
   formId?: string;
+  // When provided, the schedule control is offered next to the submit button.
+  schedule?: UseSchedulePost;
+  // Extra actions rendered in the mobile header (e.g. the scheduled-posts link).
+  headerExtraActions?: ReactNode;
 }
 
 export const WritePostContext = React.createContext<WritePostProps>({
@@ -72,11 +79,16 @@ export const WritePostContext = React.createContext<WritePostProps>({
 export const useWritePostContext = (): WritePostProps =>
   useContext(WritePostContext);
 
+interface WritePostContextProviderProps extends WritePostProps {
+  rightCopy?: string;
+}
+
 export const WritePostContextProvider = ({
   children,
   formId,
+  rightCopy,
   ...props
-}: PropsWithChildren<WritePostProps>): ReactElement => {
+}: PropsWithChildren<WritePostContextProviderProps>): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const router = useRouter();
 
@@ -87,9 +99,22 @@ export const WritePostContextProvider = ({
         wrapper={(component) => (
           <FormWrapper
             className={{ container: 'w-full', header: 'border-b-0' }}
-            copy={{ right: 'Post' }}
+            copy={{ right: rightCopy ?? 'Post' }}
             rightButtonProps={{ disabled: props.isPosting }}
             leftButtonProps={{ onClick: () => router.back() }}
+            headerActions={
+              props.headerExtraActions || props.schedule ? (
+                <>
+                  {props.headerExtraActions}
+                  {props.schedule ? (
+                    <SchedulePostControl
+                      schedule={props.schedule}
+                      disabled={props.isPosting}
+                    />
+                  ) : null}
+                </>
+              ) : undefined
+            }
             form={formId}
           >
             {component}

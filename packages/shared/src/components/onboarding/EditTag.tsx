@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { FeedPreviewControls } from '../feeds';
 import { REQUIRED_TAGS_THRESHOLD } from './common';
 import { Origin } from '../../lib/log';
@@ -14,6 +15,10 @@ import { useTagSearch } from '../../hooks/useTagSearch';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { SearchField } from '../fields/SearchField';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
+import { PersonaSelector } from './PersonaSelector';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureOnboardingPersonas } from '../../lib/featureManagement';
+import { subscribePersonaSelection } from './onboardingPopBus';
 
 interface EditTagProps {
   feedSettings: FeedSettings;
@@ -21,6 +26,7 @@ interface EditTagProps {
   headline?: string;
   requiredTags?: number;
   hidePreview?: boolean;
+  featuredTags?: string[];
 }
 export const EditTag = ({
   feedSettings,
@@ -28,6 +34,7 @@ export const EditTag = ({
   headline,
   requiredTags = REQUIRED_TAGS_THRESHOLD,
   hidePreview,
+  featuredTags,
 }: EditTagProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
@@ -45,26 +52,66 @@ export const EditTag = ({
   });
   const searchTags = searchResult?.searchTags.tags || [];
 
+  const { value: showPersonas } = useConditionalFeature({
+    feature: featureOnboardingPersonas,
+    shouldEvaluate: !!feedSettings,
+  });
+
+  const tagsRef = useRef<HTMLDivElement>(null);
+  const hasScrolledToTagsRef = useRef(false);
+
+  useEffect(() => {
+    if (!isMobile || !showPersonas) {
+      return undefined;
+    }
+    return subscribePersonaSelection(() => {
+      if (hasScrolledToTagsRef.current) {
+        return;
+      }
+      hasScrolledToTagsRef.current = true;
+      tagsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }, [isMobile, showPersonas]);
+
+  // When the persona feature is on, override any caller-supplied headline
+  // (Freyja funnel JSON) with the persona-tuned copy.
+  // TODO: drop this override once Freyja's persona-experiment variant ships
+  // the new headline directly.
+  const resolvedHeadline = showPersonas
+    ? 'Tune your feed'
+    : headline || 'Pick tags that are relevant to you';
+
   return (
     <>
       <h2 className="text-center font-bold typo-large-title">
-        {headline || 'Pick tags that are relevant to you'}
+        {resolvedHeadline}
       </h2>
-      <TagSelection
-        className="mt-10 max-w-4xl"
-        searchElement={
-          <SearchField
-            aria-label="Pick tags that are relevant to you"
-            autoFocus={!isMobile}
-            className="mb-10 w-full tablet:max-w-xs"
-            inputId="search-filters"
-            placeholder="Search javascript, php, git, etc…"
-            valueChanged={onSearch}
-          />
-        }
-        searchQuery={searchQuery}
-        searchTags={searchTags}
-      />
+      {showPersonas && (
+        <>
+          <p className="mt-3 max-w-2xl text-center text-text-tertiary typo-callout">
+            Pick a role to start fast, then add tags you like.
+          </p>
+          <PersonaSelector className="mt-6" />
+        </>
+      )}
+      <div ref={tagsRef} className="flex w-full flex-col items-center">
+        <TagSelection
+          className={classNames('max-w-4xl', showPersonas ? 'mt-6' : 'mt-10')}
+          featuredTags={featuredTags}
+          searchElement={
+            <SearchField
+              aria-label="Pick tags that are relevant to you"
+              autoFocus={!isMobile}
+              className="mb-10 w-full tablet:max-w-xs"
+              inputId="search-filters"
+              placeholder="Search javascript, php, git, etc…"
+              valueChanged={onSearch}
+            />
+          }
+          searchQuery={searchQuery}
+          searchTags={searchTags}
+        />
+      </div>
       {!hidePreview && (
         <FeedPreviewControls
           isOpen={isPreviewVisible}

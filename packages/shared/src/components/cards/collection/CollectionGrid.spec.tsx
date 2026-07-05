@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { CollectionGrid } from './CollectionGrid';
 import { sharePost as collectionPost } from '../../../../__tests__/fixture/post';
 import type { PostCardProps } from '../common/common';
+import type { Post } from '../../../graphql/posts';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 
 jest.mock('next/router', () => ({
@@ -65,7 +66,7 @@ it('should call on link click on component left click', async () => {
 
 it('should call on upvote click on upvote button click', async () => {
   renderComponent();
-  const el = await screen.findByLabelText('More like this');
+  const el = await screen.findByLabelText('Upvote');
   el.click();
   await waitFor(() => expect(defaultProps.onUpvoteClick).toBeCalledWith(post));
 });
@@ -109,6 +110,17 @@ it('should hide read time when not available', async () => {
 it('should display the `collection` pill in the header', async () => {
   renderComponent();
   await screen.findByText('Collection');
+});
+
+it('should display the `Trend` pill when the post source is trends', async () => {
+  renderComponent({
+    post: {
+      ...post,
+      source: { ...post.source, id: 'trends' } as Post['source'],
+    },
+  });
+  await screen.findByText('Trend');
+  expect(screen.queryByText('Collection')).not.toBeInTheDocument();
 });
 
 it('should show options button on hover when in laptop size', async () => {

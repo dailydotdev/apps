@@ -32,6 +32,7 @@ export enum LazyModal {
   ReadingHistory = 'readingHistory',
   SquadPromotion = 'squadPromotion',
   CreateSharedPost = 'createSharedPost',
+  SmartComposer = 'smartComposer',
   ReasonSelection = 'reasonSelection',
   ReportPost = 'reportPost',
   ReportComment = 'reportComment',
@@ -40,6 +41,7 @@ export enum LazyModal {
   VerifySession = 'verifySession',
   GenericReferral = 'genericReferral',
   Video = 'video',
+  ImageView = 'imageView',
   NewStreak = 'newStreak',
   RecoverStreak = 'recoverStreak',
   ReputationPrivileges = 'reputationPrivileges',
@@ -101,6 +103,10 @@ export enum LazyModal {
   AchievementCompletion = 'achievementCompletion',
   CompareAchievements = 'compareAchievements',
   AchievementShowcase = 'achievementShowcase',
+  IntroQuests = 'introQuests',
+  ReaderInstallPrompt = 'readerInstallPrompt',
+  ReaderExtensionInstall = 'readerExtensionInstall',
+  ReaderPreview = 'readerPreview',
 }
 
 export type ModalTabItem = {

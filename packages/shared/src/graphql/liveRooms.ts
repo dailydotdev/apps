@@ -1,6 +1,8 @@
 import { gql } from 'graphql-request';
 import type { UserShortProfile } from '../lib/user';
-import { USER_SHORT_INFO_FRAGMENT } from './fragments';
+import { CONTENT_EMBED_FRAGMENT, USER_SHORT_INFO_FRAGMENT } from './fragments';
+import type { ContentEmbed } from './posts';
+import type { EmptyResponse } from './emptyResponse';
 
 export enum LiveRoomMode {
   Moderated = 'moderated',
@@ -27,18 +29,37 @@ export interface LiveRoom {
   status: LiveRoomStatus;
   startedAt: string | null;
   endedAt: string | null;
+  scheduledStart: string | null;
+  descriptionHtml?: string | null;
+  subscribed: boolean;
+  contentEmbeds?: ContentEmbed[];
   participantCount?: number | null;
   host: UserShortProfile;
+}
+
+export type LiveRoomPost = Pick<
+  LiveRoom,
+  'id' | 'topic' | 'status' | 'scheduledStart' | 'subscribed'
+>;
+
+export type ActiveLiveRoom = Pick<
+  LiveRoom,
+  'id' | 'topic' | 'status' | 'participantCount'
+> & {
+  host: Pick<
+    UserShortProfile,
+    'id' | 'name' | 'username' | 'image' | 'permalink'
+  >;
+};
+
+export interface ActiveLiveRoomsData {
+  activeLiveRooms: ActiveLiveRoom[];
 }
 
 export interface LiveRoomJoinToken {
   room: LiveRoom;
   role: LiveRoomParticipantRole;
   token: string;
-}
-
-export interface ActiveLiveRoomsData {
-  activeLiveRooms: LiveRoom[];
 }
 
 export interface LiveRoomData {
@@ -57,6 +78,14 @@ export interface EndLiveRoomData {
   endLiveRoom: LiveRoom;
 }
 
+export interface SubscribeToLiveRoomData {
+  subscribeToLiveRoom: EmptyResponse;
+}
+
+export interface UnsubscribeFromLiveRoomData {
+  unsubscribeFromLiveRoom: EmptyResponse;
+}
+
 export const LIVE_ROOM_FRAGMENT = gql`
   fragment LiveRoom on LiveRoom {
     id
@@ -67,6 +96,8 @@ export const LIVE_ROOM_FRAGMENT = gql`
     status
     startedAt
     endedAt
+    scheduledStart
+    subscribed
     host {
       ...UserShortInfo
     }
@@ -74,34 +105,54 @@ export const LIVE_ROOM_FRAGMENT = gql`
   ${USER_SHORT_INFO_FRAGMENT}
 `;
 
+export const LIVE_ROOM_DETAIL_FRAGMENT = gql`
+  fragment LiveRoomDetail on LiveRoom {
+    ...LiveRoom
+    descriptionHtml
+    contentEmbeds {
+      ...ContentEmbedFragment
+    }
+  }
+  ${LIVE_ROOM_FRAGMENT}
+  ${CONTENT_EMBED_FRAGMENT}
+`;
+
 export const LIVE_ROOM_JOIN_TOKEN_FRAGMENT = gql`
   fragment LiveRoomJoinToken on LiveRoomJoinToken {
     room {
-      ...LiveRoom
+      ...LiveRoomDetail
     }
     role
     token
   }
-  ${LIVE_ROOM_FRAGMENT}
-`;
-
-export const ACTIVE_LIVE_ROOMS_QUERY = gql`
-  query ActiveLiveRooms {
-    activeLiveRooms {
-      ...LiveRoom
-      participantCount
-    }
-  }
-  ${LIVE_ROOM_FRAGMENT}
+  ${LIVE_ROOM_DETAIL_FRAGMENT}
 `;
 
 export const LIVE_ROOM_QUERY = gql`
   query LiveRoom($id: ID!) {
     liveRoom(id: $id) {
-      ...LiveRoom
+      ...LiveRoomDetail
     }
   }
-  ${LIVE_ROOM_FRAGMENT}
+  ${LIVE_ROOM_DETAIL_FRAGMENT}
+`;
+
+export const ACTIVE_LIVE_ROOMS_QUERY = gql`
+  query ActiveLiveRooms($limit: Int) {
+    activeLiveRooms(limit: $limit) {
+      id
+      topic
+      status
+      participantCount
+      host {
+        id
+        name
+        username
+        image
+        permalink
+      }
+    }
+  }
 `;
 
 export const CREATE_LIVE_ROOM_MUTATION = gql`
@@ -129,4 +180,20 @@ export const END_LIVE_ROOM_MUTATION = gql`
     }
   }
   ${LIVE_ROOM_FRAGMENT}
+`;
+
+export const SUBSCRIBE_TO_LIVE_ROOM_MUTATION = gql`
+  mutation SubscribeToLiveRoom($roomId: ID!) {
+    subscribeToLiveRoom(roomId: $roomId) {
+      _
+    }
+  }
+`;
+
+export const UNSUBSCRIBE_FROM_LIVE_ROOM_MUTATION = gql`
+  mutation UnsubscribeFromLiveRoom($roomId: ID!) {
+    unsubscribeFromLiveRoom(roomId: $roomId) {
+      _
+    }
+  }
 `;

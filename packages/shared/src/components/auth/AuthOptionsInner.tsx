@@ -16,20 +16,35 @@ import {
 } from '../../lib/auth';
 import {
   getBetterAuthErrorMessage,
-  getBetterAuthSocialRedirectData,
   betterAuthSignInWithIdToken,
+  betterAuthOneTapCallback,
   betterAuthSendVerificationOTP,
   betterAuthVerifyEmailOTP,
+  getBetterAuthSocialRedirectData,
 } from '../../lib/betterAuth';
+import {
+  getSocialAuthCallbackError,
+  GITHUB_EMAIL_NOT_VERIFIED_ERROR,
+  hasSocialAuthBootUser,
+  refetchSocialAuthBoot,
+  SOCIAL_AUTH_RETRY_MESSAGE,
+} from './socialAuth';
 import { webappUrl, broadcastChannel, isTesting } from '../../lib/constants';
 import { getUserDefaultTimezone } from '../../lib/timezones';
-import { shouldUseSocialAuthPopup } from '../../lib/func';
+import {
+  checkIsExtension,
+  isIOSNative,
+  shouldUseSocialAuthPopup,
+} from '../../lib/func';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureAuthGoogleOneTap } from '../../lib/featureManagement';
+import { useGoogleOneTap } from '../../hooks/auth/useGoogleOneTap';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
 import useRegistration from '../../hooks/useRegistration';
 import { storageWrapper as storage } from '../../lib/storageWrapper';
 import type { AuthOptionsProps } from './common';
-import { AuthDisplay, providers } from './common';
+import { AuthDisplay, providers, SocialProvider } from './common';
 import useLogin from '../../hooks/useLogin';
 import type { UpdateProfileParameters } from '../../hooks/useProfileForm';
 import useProfileForm from '../../hooks/useProfileForm';
@@ -43,6 +58,7 @@ import {
 import type { SignBackProvider } from '../../hooks/auth/useSignBack';
 import { SIGNIN_METHOD_KEY, useSignBack } from '../../hooks/auth/useSignBack';
 import type { LoggedUser } from '../../lib/user';
+import { Origin } from '../../lib/log';
 import { labels } from '../../lib';
 import { IconSize } from '../Icon';
 import { MailIcon } from '../icons';
@@ -54,8 +70,6 @@ import {
   DATE_SINCE_ACTIONS_REQUIRED,
   onboardingCompletedActions,
 } from '../../hooks/auth';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureOnboardingV2 } from '../../lib/featureManagement';
 
 const AuthDefault = dynamic(
   () => import(/* webpackChunkName: "authDefault" */ './AuthDefault'),
@@ -112,33 +126,6 @@ const EmailCodeVerification = dynamic(
 );
 
 const CHOSEN_PROVIDER_KEY = 'chosen_provider';
-const SOCIAL_AUTH_RETRY_MESSAGE =
-  "We couldn't complete your social sign-in. Please try again.";
-
-const getSocialAuthCallbackError = (data?: unknown): string | undefined => {
-  if (!data || typeof data !== 'object') {
-    return undefined;
-  }
-
-  const callbackData = data as Record<string, unknown>;
-  const { error, error_description: errorDescription, message } = callbackData;
-  if (typeof error === 'string' && error.trim().length > 0) {
-    return error;
-  }
-
-  if (
-    typeof errorDescription === 'string' &&
-    errorDescription.trim().length > 0
-  ) {
-    return errorDescription;
-  }
-
-  if (typeof message === 'string' && message.trim().length > 0) {
-    return message;
-  }
-
-  return undefined;
-};
 
 function AuthOptionsInner({
   onClose,
@@ -158,9 +145,11 @@ function AuthOptionsInner({
   onboardingSignupButton,
   hideLoginLink,
   compact,
+  splitSignupStyle,
+  preferGithub,
   autoTriggerProvider,
   socialProviderScopes,
-  acceptedMarketing,
+  registrationExtraFields,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -170,16 +159,11 @@ function AuthOptionsInner({
   const [registrationHints, setRegistrationHints] = useState<RegistrationError>(
     {},
   );
-  const { refetchBoot, user, isFunnel } = useAuthContext();
+  const { refetchBoot, user, isFunnel, isAndroidApp, isAuthReady } =
+    useAuthContext();
   const router = useRouter();
   const isOnboardingOrFunnel =
     !!router?.pathname?.startsWith('/onboarding') || isFunnel;
-  const { value: isOnboardingV2 } = useConditionalFeature({
-    feature: featureOnboardingV2,
-    shouldEvaluate: trigger === AuthTriggers.Onboarding,
-  });
-  const shouldAutoCompleteOnboarding =
-    trigger === AuthTriggers.Onboarding && isOnboardingV2;
   const [activeDisplay, setActiveDisplay] = useState(() =>
     storage.getItem(SIGNIN_METHOD_KEY) && !forceDefaultDisplay
       ? AuthDisplay.SignBack
@@ -201,6 +185,14 @@ function AuthOptionsInner({
     CHOSEN_PROVIDER_KEY,
     null,
   );
+  const [activeSocialProvider, setActiveSocialProvider] = useState<
+    string | null
+  >(null);
+  const userSocialProvider = user?.providers?.find((provider) =>
+    Object.values(SocialProvider).includes(provider as SocialProvider),
+  );
+  const socialRegistrationProvider =
+    activeSocialProvider || chosenProvider || userSocialProvider;
   const [isRegistration, setIsRegistration] = useState(false);
   const [isSocialAuthLoading, setIsSocialAuthLoading] = useState(false);
   const windowPopup = useRef<Window | null>(null);
@@ -208,6 +200,7 @@ function AuthOptionsInner({
     null,
   );
   const authFlowCompletedRef = useRef(false);
+  const authFlowSucceededRef = useRef(false);
 
   const clearPopupCheck = () => {
     if (popupCheckIntervalRef.current) {
@@ -289,7 +282,7 @@ function AuthOptionsInner({
     }
 
     if (data.user && setSignBack) {
-      const provider = chosenProvider || 'password';
+      const provider = socialRegistrationProvider || 'password';
       onSignBackLogin(data.user as LoggedUser, provider as SignBackProvider);
     }
 
@@ -375,8 +368,6 @@ function AuthOptionsInner({
       }
     } else if (trigger === AuthTriggers.RecruiterSelfServe) {
       await autoCompleteProfile(user.email, user.name, false);
-    } else if (shouldAutoCompleteOnboarding) {
-      await autoCompleteProfile(user.email, user.name, acceptedMarketing);
     } else {
       onSetActiveDisplay(AuthDisplay.SocialRegistration);
     }
@@ -405,7 +396,12 @@ function AuthOptionsInner({
     return e.data.login === 'true' && e.data.eventKey === AuthEvent.Login;
   };
 
-  const handleLoginMessage = async (e?: MessageEvent) => {
+  const handleLoginMessage = async (
+    e?: MessageEvent,
+    providerOverride?: string,
+  ) => {
+    const authProvider = providerOverride || chosenProvider;
+    setActiveSocialProvider(authProvider);
     authFlowCompletedRef.current = true;
     clearPopupCheck();
     const popup = windowPopup.current;
@@ -422,65 +418,66 @@ function AuthOptionsInner({
     }
 
     const callbackError = getSocialAuthCallbackError(e?.data);
-    if (callbackError) {
-      setIsSocialAuthLoading(false);
-      logEvent({
-        event_name: socialErrorEventName.current,
-        extra: JSON.stringify({
-          provider: chosenProvider,
-          error: callbackError,
-          origin: 'betterauth social auth callback',
-          data:
-            typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
-        }),
-      });
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
-      return;
-    }
+    const callbackData =
+      typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined;
+    const socialErrorMessage =
+      callbackError === GITHUB_EMAIL_NOT_VERIFIED_ERROR
+        ? labels.auth.error.githubEmailNotVerified
+        : SOCIAL_AUTH_RETRY_MESSAGE;
 
     let boot;
     try {
-      ({ data: boot } = await refetchBoot());
+      boot = await refetchSocialAuthBoot(refetchBoot);
     } catch (error) {
       setIsSocialAuthLoading(false);
+      onAuthStateUpdate?.({ isLoading: false });
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
-          provider: chosenProvider,
+          provider: authProvider,
           error: getBetterAuthErrorMessage(
             error,
             'Failed to refresh Better Auth social auth state',
           ),
+          callbackError,
           origin: 'betterauth social auth boot',
-          data:
-            typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
+          data: callbackData,
         }),
       });
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      if (!authFlowSucceededRef.current) {
+        displayToast(socialErrorMessage);
+      }
       return;
     }
 
-    if (!boot.user || !('email' in boot.user)) {
+    if (!hasSocialAuthBootUser(boot?.user)) {
       setIsSocialAuthLoading(false);
+      onAuthStateUpdate?.({ isLoading: false });
       logEvent({
         event_name: socialErrorEventName.current,
         extra: JSON.stringify({
-          provider: chosenProvider,
+          provider: authProvider,
           error:
+            callbackError ||
             'Could not find authenticated user after social authentication',
-          origin: 'betterauth social auth boot',
-          data:
-            typeof e?.data === 'object' ? JSON.stringify(e.data) : undefined,
+          origin: callbackError
+            ? 'betterauth social auth callback'
+            : 'betterauth social auth boot',
+          data: callbackData,
         }),
       });
-      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      if (!authFlowSucceededRef.current) {
+        displayToast(socialErrorMessage);
+      }
       return;
     }
+
+    authFlowSucceededRef.current = true;
 
     // If user is confirmed we can proceed with logging them in
     if ('infoConfirmed' in boot.user && boot.user.infoConfirmed) {
       setIsSocialAuthLoading(false);
-      await onSignBackLogin(boot.user, chosenProvider as SignBackProvider);
+      await onSignBackLogin(boot.user, authProvider as SignBackProvider);
       const isAlreadyOnboarded = await checkForOnboardedUser(boot.user);
       if (!isAlreadyOnboarded) {
         onSuccessfulLogin?.();
@@ -488,21 +485,15 @@ function AuthOptionsInner({
       return;
     }
 
-    if (
-      trigger === AuthTriggers.RecruiterSelfServe ||
-      shouldAutoCompleteOnboarding
-    ) {
+    if (trigger === AuthTriggers.RecruiterSelfServe) {
       setIsSocialAuthLoading(false);
       const loggedUser = boot.user as LoggedUser;
-      const marketing = shouldAutoCompleteOnboarding
-        ? acceptedMarketing
-        : false;
-      await autoCompleteProfile(loggedUser.email, loggedUser.name, marketing);
+      await autoCompleteProfile(loggedUser.email, loggedUser.name, false);
       return;
     }
 
     setIsSocialAuthLoading(false);
-    await setChosenProvider(chosenProvider || 'password');
+    await setChosenProvider(authProvider || 'password');
     onAuthStateUpdate({ defaultDisplay: AuthDisplay.SocialRegistration });
     onSetActiveDisplay(AuthDisplay.SocialRegistration);
   };
@@ -524,6 +515,8 @@ function AuthOptionsInner({
       extra: JSON.stringify({ trigger }),
     });
     socialErrorEventName.current = authErrorEventName;
+    authFlowSucceededRef.current = false;
+    setActiveSocialProvider(provider);
     setIsSocialAuthLoading(true);
 
     const additionalData = { timezone: getUserDefaultTimezone() };
@@ -554,7 +547,7 @@ function AuthOptionsInner({
         return;
       }
       await setChosenProvider(provider);
-      await handleLoginMessage();
+      await handleLoginMessage(undefined, provider);
       return;
     }
     const shouldUsePopup = shouldUseSocialAuthPopup();
@@ -586,6 +579,7 @@ function AuthOptionsInner({
       return;
     }
     if (!windowPopup.current) {
+      await setChosenProvider(provider);
       window.location.href = socialUrl;
       return;
     }
@@ -597,17 +591,81 @@ function AuthOptionsInner({
     clearPopupCheck();
     const popup = windowPopup.current;
     popupCheckIntervalRef.current = setInterval(() => {
-      if (!popup || popup.closed) {
-        clearPopupCheck();
-        if (!authFlowCompletedRef.current) {
-          setIsSocialAuthLoading(false);
-          onAuthStateUpdate?.({ isLoading: false });
-          displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
-        }
-        windowPopup.current = null;
+      if (popup && !popup.closed) {
+        return;
       }
+      clearPopupCheck();
+      windowPopup.current = null;
+      if (authFlowCompletedRef.current) {
+        return;
+      }
+      // Popup closed without delivering a completion message. The user may
+      // still be authenticated (session cookies set even when postMessage is
+      // missed/dropped); verify via boot before surfacing an error toast.
+      handleLoginMessage();
     }, 500);
   };
+
+  const handleOneTapCredential = async (idToken: string) => {
+    if (isSocialAuthLoading) {
+      return;
+    }
+    const isLogin = isLoginFlow ?? true;
+    socialErrorEventName.current = isLogin
+      ? AuthEventNames.LoginError
+      : AuthEventNames.RegistrationError;
+    authFlowSucceededRef.current = false;
+    setIsSocialAuthLoading(true);
+    logEvent({
+      event_name: 'click',
+      target_type: isLogin
+        ? AuthEventNames.LoginProvider
+        : AuthEventNames.SignUpProvider,
+      target_id: 'google',
+      extra: JSON.stringify({ trigger, origin: Origin.AuthOneTap }),
+    });
+
+    const result = await betterAuthOneTapCallback({
+      idToken,
+      timezone: getUserDefaultTimezone(),
+    });
+
+    if (result.error) {
+      logEvent({
+        event_name: socialErrorEventName.current,
+        extra: JSON.stringify({
+          provider: 'google',
+          error: result.error,
+          origin: Origin.AuthOneTap,
+        }),
+      });
+      setIsSocialAuthLoading(false);
+      displayToast(SOCIAL_AUTH_RETRY_MESSAGE);
+      return;
+    }
+
+    await setChosenProvider('google');
+    await handleLoginMessage();
+  };
+
+  const [hasLoggedAuthOpen, setHasLoggedAuthOpen] = useState(false);
+
+  const canUseOneTap =
+    isAuthReady &&
+    !user &&
+    !checkIsExtension() &&
+    !isIOSNative() &&
+    !isAndroidApp &&
+    !isNativeAuthSupported('google') &&
+    hasLoggedAuthOpen;
+  const { value: isOneTapEnabled } = useConditionalFeature({
+    feature: featureAuthGoogleOneTap,
+    shouldEvaluate: canUseOneTap,
+  });
+  useGoogleOneTap({
+    enabled: canUseOneTap && isOneTapEnabled,
+    onCredential: handleOneTapCredential,
+  });
 
   const onProviderClickRef = useRef(onProviderClick);
   onProviderClickRef.current = onProviderClick;
@@ -708,17 +766,17 @@ function AuthOptionsInner({
             providers={providers}
             simplified={simplified}
             trigger={trigger}
+            onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
           />
         </Tab>
         <Tab label={AuthDisplay.SocialRegistration}>
           <SocialRegistrationForm
             formRef={formRef}
-            provider={chosenProvider}
+            provider={socialRegistrationProvider}
             onSignup={onSocialCompletion}
             hints={hint}
             isLoading={isProfileUpdateLoading}
             onUpdateHints={onUpdateHint}
-            trigger={trigger}
             simplified={simplified}
             {...(user?.isPlus && {
               title: 'Complete your profile',
@@ -729,18 +787,27 @@ function AuthOptionsInner({
           <RegistrationForm
             formRef={formRef}
             simplified={simplified}
+            extraFields={registrationExtraFields}
             hints={registrationHints}
             onBack={
               defaultDisplay !== AuthDisplay.Registration
                 ? () => onSetActiveDisplay(defaultDisplay)
                 : undefined
             }
-            onBackToIntro={() => {
-              onAuthStateUpdate({
-                isAuthenticating: undefined,
-                defaultDisplay: AuthDisplay.OnboardingSignup,
-              });
-            }}
+            onBackToIntro={
+              // Only offer "back to intro" when an OnboardingSignup screen is
+              // actually the entry point (e.g. /onboarding, auth banner).
+              // The inline modal lands on Default and there's no intro to
+              // return to.
+              defaultDisplay === AuthDisplay.OnboardingSignup
+                ? () => {
+                    onAuthStateUpdate({
+                      isAuthenticating: undefined,
+                      defaultDisplay: AuthDisplay.OnboardingSignup,
+                    });
+                  }
+                : undefined
+            }
             onExistingEmailLoginClick={() => {
               onAuthStateUpdate({
                 isLoginFlow: true,
@@ -760,24 +827,29 @@ function AuthOptionsInner({
         <Tab label={AuthDisplay.OnboardingSignup}>
           <OnboardingRegistrationForm
             onContinueWithEmail={() => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 defaultDisplay: AuthDisplay.Registration,
               });
+              setActiveDisplay(AuthDisplay.Registration);
             }}
             onSignup={(signupEmail) => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 email: signupEmail,
                 defaultDisplay: AuthDisplay.Registration,
               });
+              setEmail(signupEmail);
+              setActiveDisplay(AuthDisplay.Registration);
             }}
             onExistingEmail={(existingEmail) => {
-              onAuthStateUpdate({
+              onAuthStateUpdate?.({
                 isAuthenticating: true,
                 isLoginFlow: true,
                 email: existingEmail,
               });
+              setEmail(existingEmail);
+              setActiveDisplay(AuthDisplay.Default);
             }}
             onProviderClick={onProviderClick}
             trigger={trigger}
@@ -789,6 +861,9 @@ function AuthOptionsInner({
             onboardingSignupButton={onboardingSignupButton}
             hideLoginLink={hideLoginLink}
             compact={compact}
+            splitSignupStyle={splitSignupStyle}
+            preferGithub={preferGithub}
+            onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

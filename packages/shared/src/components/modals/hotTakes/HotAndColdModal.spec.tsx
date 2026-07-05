@@ -26,6 +26,10 @@ jest.mock('../../../contexts/AuthContext', () => ({
   useAuthContext: jest.fn(),
 }));
 
+jest.mock('../../../hooks/useRequestProtocol', () => ({
+  useRequestProtocol: () => ({ isCompanion: false }),
+}));
+
 const mockedUseDiscoverHotTakes = useDiscoverHotTakes as jest.Mock;
 const mockedUseVoteHotTake = useVoteHotTake as jest.Mock;
 const mockedUseLogContext = useLogContext as jest.Mock;
@@ -229,7 +233,7 @@ describe('HotAndColdModal', () => {
     const shareLink = screen.getByRole('link', {
       name: 'Share your hot takes',
     });
-    expect(shareLink).toHaveAttribute('href', '/tester#hot-takes');
+    expect(shareLink).toHaveAttribute('href', '/tester?addHotTake=1#hot-takes');
 
     fireEvent.click(shareLink);
 
@@ -242,7 +246,7 @@ describe('HotAndColdModal', () => {
     const addButton = screen.getByRole('link', {
       name: 'Add your own hot take',
     });
-    expect(addButton).toHaveAttribute('href', '/tester#hot-takes');
+    expect(addButton).toHaveAttribute('href', '/tester?addHotTake=1#hot-takes');
 
     fireEvent.click(addButton);
 
@@ -281,5 +285,90 @@ describe('HotAndColdModal', () => {
     expect(screen.getByText(currentTake.subtitle)).not.toHaveClass(
       'line-clamp-3',
     );
+  });
+
+  it('should keep long author names and handles shrinkable in the attribution row', () => {
+    const longName = 'Confident Coding With A Very Long Display Name';
+    const longUsername = 'confidentcodingwithaverylonghandle';
+    const currentTake = {
+      ...createHotTake('long-author'),
+      user: {
+        id: 'user-1',
+        name: longName,
+        username: longUsername,
+        image: 'https://daily.dev/avatar.png',
+        createdAt: '2026-01-01T00:00:00.000Z',
+        reputation: 42,
+        permalink: '/confidentcodingwithaverylonghandle',
+        companies: [],
+        isPlus: false,
+      },
+    };
+
+    mockedUseDiscoverHotTakes.mockReturnValue({
+      hotTakes: [currentTake],
+      currentTake,
+      nextTake: null,
+      isEmpty: false,
+      isLoading: false,
+      dismissCurrent,
+    });
+
+    renderComponent();
+
+    const authorName = screen.getByText(longName);
+    const authorHandle = screen.getByText(`@${longUsername}`);
+
+    expect(authorName.parentElement).toHaveClass(
+      'flex',
+      'min-w-0',
+      'items-center',
+      'gap-1',
+    );
+    expect(authorName).toHaveClass('min-w-0', 'truncate');
+    expect(authorHandle).toHaveClass('min-w-0', 'truncate');
+  });
+
+  it('should keep onboarding mode clipped and scrollable inside the modal shell', () => {
+    render(
+      <HotAndColdModal
+        isOpen
+        onRequestClose={jest.fn()}
+        ariaHideApp={false}
+        onboardingCards={[
+          {
+            id: 'onboarding-card-1',
+            title: 'Figma launches MCP tool for AI agents to design on canvas',
+            summary:
+              'A generated TLDR keeps the onboarding card readable while the modal stays within its shell.',
+            tags: ['ai-agents', 'figma', 'mcp'],
+            source: { name: 'daily.dev' },
+          },
+        ]}
+        topSlot={<div>Progress header</div>}
+        bottomSlot={<div>Starter feed ready</div>}
+      />,
+    );
+
+    const modalBody = document.querySelector('section');
+    expect(modalBody).toHaveClass('overflow-y-auto', 'overflow-x-hidden');
+    expect(modalBody).not.toHaveClass(
+      'tablet:!overflow-x-visible',
+      'tablet:!overflow-y-visible',
+    );
+
+    // The onboarding panel duplicates its swipe actions (one block for
+    // mobile, one for tablet) so the row stays visible at every breakpoint;
+    // JSDOM renders both, so just assert presence of at least one of each.
+    expect(
+      screen.getAllByRole('button', { name: 'Not interesting' })[0],
+    ).toBeVisible();
+    expect(
+      screen.getAllByRole('button', { name: 'Interesting' })[0],
+    ).toBeVisible();
+    expect(
+      screen.getAllByRole('img', { name: 'daily.dev source icon' })[0],
+    ).toBeVisible();
+    expect(screen.getAllByText('Starter feed ready')[0]).toBeVisible();
   });
 });

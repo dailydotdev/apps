@@ -1,0 +1,140 @@
+import type { ReactElement } from 'react';
+import React from 'react';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { MiniCloseIcon } from '../../icons';
+import { CardTitle } from '../../cards/common/Card';
+import classed from '../../../lib/classed';
+import { anchorDefaultRel } from '../../../lib/strings';
+import { Pill, PillSize } from '../../Pill';
+import { isExtension, isIOSNative, isNullOrUndefined } from '../../../lib/func';
+
+export type MarketingCtaFlags = {
+  title: string;
+  description?: string;
+  image?: string;
+  tagText?: string;
+  tagColor?: string;
+  ctaUrl: string;
+  ctaText: string;
+  asFirstCard?: boolean;
+  videoUrl?: string;
+};
+
+export enum MarketingCtaVariant {
+  Card = 'card',
+  Popover = 'popover',
+  PopoverSmall = 'popover_small',
+  Plus = 'plus',
+  PlusCard = 'plus_card',
+  PlusForYouTab = 'plus_for_you_tab',
+  PlusBookmarkTab = 'plus_bookmark_tab',
+  PlusAnnouncementBar = 'plus_announcement_bar',
+  FeedBanner = 'feed_banner',
+  BriefCard = 'brief_card',
+  YearInReview = 'year_in_review',
+  HelpGuide = 'help_guide',
+  Video = 'video',
+}
+
+interface MarketingCtaTargets {
+  webapp: boolean;
+  extension: boolean;
+  ios: boolean;
+  android: boolean;
+}
+
+export interface MarketingCta {
+  campaignId: string;
+  createdAt: Date;
+  variant: MarketingCtaVariant;
+  flags: MarketingCtaFlags;
+  targets?: MarketingCtaTargets;
+}
+
+// Android has no runtime bridge like `isIOSNative()`; it's only known via boot
+// data (`?android` param), so callers must pass the flag in from boot context.
+const platformToMarketingCtaTarget = (
+  isAndroidApp = false,
+): keyof MarketingCtaTargets => {
+  if (isIOSNative()) {
+    return 'ios';
+  }
+  if (isAndroidApp) {
+    return 'android';
+  }
+  if (isExtension) {
+    return 'extension';
+  }
+  return 'webapp';
+};
+
+export const isMarketingCtaTarget = (
+  targets: MarketingCtaTargets,
+  isAndroidApp = false,
+): boolean =>
+  isNullOrUndefined(targets) ||
+  targets[platformToMarketingCtaTarget(isAndroidApp)] === true;
+
+type HeaderProps = Pick<MarketingCtaFlags, 'tagText' | 'tagColor'> & {
+  onClose?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
+  buttonSize?: ButtonSize;
+};
+const tagColorMap: Record<string, string> = {
+  avocado: 'bg-action-upvote-float text-action-upvote-default',
+  cabbage: 'bg-theme-overlay-float-cabbage text-brand-default',
+};
+export const Header = ({
+  tagText,
+  tagColor,
+  onClose,
+  buttonSize = ButtonSize.Small,
+}: HeaderProps): ReactElement => (
+  <div className="flex w-full flex-row items-center">
+    <Pill
+      label={tagText}
+      className={tagColorMap[tagColor || 'avocado']}
+      size={PillSize.Small}
+      alignment={undefined}
+    />
+    <Button
+      className="ml-auto"
+      size={buttonSize}
+      variant={ButtonVariant.Tertiary}
+      icon={<MiniCloseIcon />}
+      aria-label="Close post"
+      onClick={onClose}
+    />
+  </div>
+);
+
+export const Title = classed(CardTitle, 'my-2');
+
+export const Description = classed('p', 'text-text-secondary typo-callout');
+
+type CTAButtonType = Pick<MarketingCtaFlags, 'ctaText' | 'ctaUrl'> & {
+  onClick?: (e?: React.MouseEvent | React.KeyboardEvent) => void;
+  className?: string;
+  buttonSize?: ButtonSize;
+  buttonVariant?: ButtonVariant;
+};
+export const CTAButton = ({
+  ctaUrl,
+  ctaText,
+  onClick,
+  className = 'mt-auto w-full',
+  buttonSize = ButtonSize.Small,
+  buttonVariant = ButtonVariant.Primary,
+}: CTAButtonType): ReactElement => (
+  <Button
+    tag="a"
+    rel={anchorDefaultRel}
+    href={ctaUrl}
+    className={className}
+    variant={buttonVariant}
+    onClick={onClick}
+    size={buttonSize}
+    target="_blank"
+  >
+    {ctaText}
+  </Button>
+);

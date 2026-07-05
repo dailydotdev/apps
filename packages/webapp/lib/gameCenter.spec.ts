@@ -77,7 +77,6 @@ describe('game center helpers', () => {
         xpInLevel: 150,
         xpToNextLevel: 250,
       },
-      hasNewQuestRotations: false,
       currentStreak: 4,
       longestStreak: 9,
       daily: {
@@ -132,6 +131,7 @@ describe('game center helpers', () => {
           },
         }),
       ],
+      intro: [],
     };
 
     const summary = getQuestSummary(dashboard);

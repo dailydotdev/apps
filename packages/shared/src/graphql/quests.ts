@@ -5,6 +5,7 @@ export enum QuestType {
   Daily = 'daily',
   Weekly = 'weekly',
   Milestone = 'milestone',
+  Intro = 'intro',
 }
 
 export enum QuestStatus {
@@ -62,10 +63,10 @@ export interface QuestDashboard {
   level: QuestLevel;
   currentStreak: number;
   longestStreak: number;
-  hasNewQuestRotations: boolean;
   daily: QuestBucket;
   weekly: QuestBucket;
   milestone: UserQuest[];
+  intro: UserQuest[];
 }
 
 export interface QuestDashboardData {
@@ -75,7 +76,7 @@ export interface QuestDashboardData {
 export interface ClaimQuestRewardData {
   claimQuestReward: Pick<
     QuestDashboard,
-    'level' | 'daily' | 'weekly' | 'milestone'
+    'level' | 'daily' | 'weekly' | 'milestone' | 'intro'
   >;
 }
 
@@ -85,23 +86,6 @@ export interface QuestUpdate {
 
 export interface QuestUpdateData {
   questUpdate: QuestUpdate;
-}
-
-export interface QuestRotationUpdate {
-  updatedAt: Date;
-  type: QuestType;
-  periodStart: Date;
-  periodEnd: Date;
-}
-
-export interface QuestRotationUpdateData {
-  questRotationUpdate: QuestRotationUpdate;
-}
-
-export interface MarkQuestRotationsViewedData {
-  markQuestRotationsViewed: {
-    _: boolean;
-  };
 }
 
 export enum ClientQuestEventType {
@@ -236,7 +220,28 @@ export const QUEST_DASHBOARD_QUERY = gql`
           amount
         }
       }
-      hasNewQuestRotations
+      intro {
+        userQuestId
+        rotationId
+        progress
+        status
+        completedAt
+        claimedAt
+        locked
+        claimable
+        quest {
+          id
+          name
+          description
+          type
+          eventType
+          targetCount
+        }
+        rewards {
+          type
+          amount
+        }
+      }
     }
   }
 `;
@@ -364,6 +369,28 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
           amount
         }
       }
+      intro {
+        userQuestId
+        rotationId
+        progress
+        status
+        completedAt
+        claimedAt
+        locked
+        claimable
+        quest {
+          id
+          name
+          description
+          type
+          eventType
+          targetCount
+        }
+        rewards {
+          type
+          amount
+        }
+      }
     }
   }
 `;
@@ -371,14 +398,6 @@ export const CLAIM_QUEST_REWARD_MUTATION = gql`
 export const TRACK_QUEST_EVENT_MUTATION = gql`
   mutation TrackQuestEvent($eventType: ClientQuestEventType!) {
     trackQuestEvent(eventType: $eventType) {
-      _
-    }
-  }
-`;
-
-export const MARK_QUEST_ROTATIONS_VIEWED_MUTATION = gql`
-  mutation MarkQuestRotationsViewed {
-    markQuestRotationsViewed {
       _
     }
   }

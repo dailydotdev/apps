@@ -9,6 +9,7 @@ import {
   HomeIcon,
   HotIcon,
   JoystickIcon,
+  MagicIcon,
   SquadIcon,
   MegaphoneIcon,
   YearInReviewIcon,
@@ -27,9 +28,12 @@ import { SharedFeedPage } from '../../utilities';
 import { isExtension } from '../../../lib/func';
 import { useConditionalFeature } from '../../../hooks';
 import {
+  DailyPageVariant,
+  featureDailyPage,
   featurePlusApiLanding,
   featureYearInReview,
 } from '../../../lib/featureManagement';
+import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
 
@@ -40,6 +44,7 @@ export const MainSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
   const { value: isApiLanding } = useConditionalFeature({
     feature: featurePlusApiLanding,
@@ -52,6 +57,11 @@ export const MainSection = ({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
   });
+  const { value: dailyVariant } = useConditionalFeature({
+    feature: featureDailyPage,
+    shouldEvaluate: isLoggedIn,
+  });
+  const showDailyPage = dailyVariant === DailyPageVariant.V1;
   const { data: questDashboard } = useQuestDashboard();
   const claimableMilestoneCount = useMemo(
     () =>
@@ -74,9 +84,13 @@ export const MainSection = ({
           path: myFeedPath,
           action: () =>
             onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/'),
-          icon: () => (
-            <ProfilePicture size={ProfileImageSize.XSmall} user={user!} />
-          ),
+          icon: isV2
+            ? (active: boolean) => (
+                <ListIcon Icon={() => <MagicIcon secondary={active} />} />
+              )
+            : () => (
+                <ProfilePicture size={ProfileImageSize.XSmall} user={user!} />
+              ),
         }
       : {
           title: 'Home',
@@ -110,28 +124,44 @@ export const MainSection = ({
       claimableMilestoneCount > 0 ? `#${gameCenterMilestoneSectionId}` : ''
     }`;
 
-    const gameCenter = isLoggedIn
-      ? {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
-          ),
-          title: 'Game Center',
-          path: gameCenterPath,
-          isForcedLink: true,
-          requiresLogin: true,
-          ...(claimableMilestoneCount > 0 && {
-            rightIcon: () => (
-              <Typography
-                color={TypographyColor.Secondary}
-                bold
-                className="rounded-6 bg-background-subtle px-1.5"
-              >
-                {claimableMilestoneCount}
-              </Typography>
+    // v2: Game Center has its own rail icon, so suppress the inline
+    // entry to avoid duplicating navigation in the Home panel list.
+    const gameCenter =
+      isLoggedIn && !isV2
+        ? {
+            icon: (active: boolean) => (
+              <ListIcon Icon={() => <JoystickIcon secondary={active} />} />
             ),
-          }),
-        }
-      : undefined;
+            title: 'Game Center',
+            path: gameCenterPath,
+            isForcedLink: true,
+            requiresLogin: true,
+            ...(claimableMilestoneCount > 0 && {
+              rightIcon: () => (
+                <Typography
+                  color={TypographyColor.Secondary}
+                  bold
+                  className="rounded-6 bg-background-subtle px-1.5"
+                >
+                  {claimableMilestoneCount}
+                </Typography>
+              ),
+            }),
+          }
+        : undefined;
+
+    const daily =
+      isLoggedIn && showDailyPage
+        ? {
+            icon: (active: boolean) => (
+              <ListIcon Icon={() => <MagicIcon secondary={active} />} />
+            ),
+            title: 'Daily',
+            path: `${webappUrl}daily`,
+            isForcedLink: true,
+            requiresLogin: true,
+          }
+        : undefined;
 
     const yearInReview = showYearInReview
       ? {
@@ -144,9 +174,23 @@ export const MainSection = ({
         }
       : undefined;
 
+    // v2 folds the old Discover hub into Home: Explore (and its sub-pages)
+    // are reached from here instead of a dedicated rail category.
+    const explore = isV2
+      ? {
+          icon: (active: boolean) => (
+            <ListIcon Icon={() => <HotIcon secondary={active} />} />
+          ),
+          title: 'Explore',
+          path: '/posts',
+          action: () => onNavTabClick?.(OtherFeedPage.Explore),
+        }
+      : undefined;
+
     return (
       [
         myFeed,
+        daily,
         {
           title: 'Following',
           // this path can be opened on extension so it purposly
@@ -158,14 +202,7 @@ export const MainSection = ({
             <ListIcon Icon={() => <SquadIcon secondary={active} />} />
           ),
         },
-        {
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <HotIcon secondary={active} />} />
-          ),
-          title: 'Explore',
-          path: '/posts',
-          action: () => onNavTabClick?.(OtherFeedPage.Explore),
-        },
+        explore,
         {
           icon: (active: boolean) => (
             <ListIcon Icon={() => <EyeIcon secondary={active} />} />
@@ -196,7 +233,9 @@ export const MainSection = ({
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,
+    isV2,
     onNavTabClick,
+    showDailyPage,
     showYearInReview,
     user,
   ]);

@@ -1,5 +1,6 @@
 import type { FeedData } from '@dailydotdev/shared/src/graphql/posts';
 import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
@@ -69,6 +70,15 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
+const tagFeedSupportedTypes = [
+  PostType.Article,
+  PostType.VideoYouTube,
+  PostType.Collection,
+  PostType.Share,
+  PostType.Freeform,
+  PostType.LiveRoom,
+];
+
 const createFeedMock = (
   page = defaultFeedPage,
   query: string = TAG_FEED_QUERY,
@@ -78,6 +88,8 @@ const createFeedMock = (
     loggedIn: true,
     tag: 'react',
     ranking: 'TIME',
+    supportedTypes: tagFeedSupportedTypes,
+    columns: 1,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {
@@ -162,6 +174,10 @@ const renderComponent = (
     optOutReadingStreak: false,
     optOutLevelSystem: false,
     optOutQuestSystem: false,
+    optOutAchievements: false,
+    isGamificationEnabled: true,
+    toggleOptOutAchievements: jest.fn().mockResolvedValue(undefined),
+    toggleAllGamification: jest.fn().mockResolvedValue(undefined),
     optOutCompanion: false,
     autoDismissNotifications: true,
     sortCommentsBy: SortCommentsBy.OldestFirst,
@@ -264,6 +280,8 @@ it('should show follow and block buttons when logged-out', async () => {
         loggedIn: false,
         tag: 'react',
         ranking: 'TIME',
+        supportedTypes: tagFeedSupportedTypes,
+        columns: 1,
       }),
     ],
     null,
@@ -284,6 +302,8 @@ it('should show login popup when logged-out on follow click', async () => {
         loggedIn: false,
         tag: 'react',
         ranking: 'TIME',
+        supportedTypes: tagFeedSupportedTypes,
+        columns: 1,
       }),
     ],
     null,
@@ -294,10 +314,10 @@ it('should show login popup when logged-out on follow click', async () => {
   expect(showLogin).toBeCalledTimes(1);
 });
 
-it('should render top contributors section from static props', async () => {
+it('should render who to follow section from static props', async () => {
   renderComponent(undefined, defaultUser, initialDataObj, [topContributor]);
 
-  expect(await screen.findByText('👥 Top contributors')).toBeInTheDocument();
+  expect(await screen.findByText('Who to follow')).toBeInTheDocument();
   expect(screen.getByText('Ido').closest('a')).toHaveAttribute(
     'href',
     '/idoshamun',
@@ -313,6 +333,8 @@ it('should show login popup when logged-out on block click', async () => {
         loggedIn: false,
         tag: 'react',
         ranking: 'TIME',
+        supportedTypes: tagFeedSupportedTypes,
+        columns: 1,
       }),
     ],
     null,

@@ -7,6 +7,7 @@ import {
   feedLogExtra,
   usePostLogEvent,
 } from '../../lib/feed';
+import type { Origin } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import { useLogContext } from '../../contexts/LogContext';
 import type { FeedItem } from '../useFeed';
@@ -29,6 +30,8 @@ export default function useLogImpression(
   row: number,
   feedName: string,
   ranking?: string,
+  highlightColSpan?: number,
+  origin?: Origin,
 ): (node?: Element | null) => void {
   const { logEventStart, logEventEnd } = useLogContext();
   const postLogEvent = usePostLogEvent();
@@ -40,6 +43,7 @@ export default function useLogImpression(
     if (item.type === 'post') {
       const eventKey = generatePostLogEventKey(item.post.id);
       if (inView && !item.post.impressionStatus) {
+        const significance = item.post.hero?.significance;
         logEventStart(
           eventKey,
           postLogEvent(LogEvent.Impression, item.post, {
@@ -47,13 +51,22 @@ export default function useLogImpression(
             column,
             row,
             extra: {
-              ...feedLogExtra(feedName, ranking, {
-                scroll_y: window.scrollY,
-              }).extra,
+              ...feedLogExtra(
+                feedName,
+                ranking,
+                { scroll_y: window.scrollY },
+                origin,
+              ).extra,
               clickbait_badge: isShareLikePost(item.post)
                 ? item.post.sharedPost?.clickbaitTitleDetected
                 : item.post.clickbaitTitleDetected,
               feedback: item.post.type === PostType.Article ? true : undefined,
+              ...(!!significance && {
+                highlight_significance: significance,
+                ...(!!highlightColSpan && {
+                  highlight_col_span: highlightColSpan,
+                }),
+              }),
             },
           }),
         );
@@ -76,7 +89,7 @@ export default function useLogImpression(
             columns,
             column,
             row,
-            ...feedLogExtra(feedName, ranking),
+            ...feedLogExtra(feedName, ranking, undefined, origin),
           }),
         );
         // eslint-disable-next-line no-param-reassign
@@ -111,6 +124,7 @@ export default function useLogImpression(
             count: item.highlights.length,
             highlightIds,
             feedMeta: item.feedMeta,
+            origin,
           }),
         );
         // eslint-disable-next-line no-param-reassign

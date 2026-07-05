@@ -115,6 +115,9 @@ export const betterAuthSignUp = async ({
   turnstileToken,
   username,
   experienceLevel,
+  company,
+  title,
+  cloudProvider,
   referral,
   referralOrigin,
   timezone,
@@ -127,6 +130,9 @@ export const betterAuthSignUp = async ({
   turnstileToken?: string;
   username?: string;
   experienceLevel?: string;
+  company?: string;
+  title?: string;
+  cloudProvider?: string;
   referral?: string;
   referralOrigin?: string;
   timezone?: string;
@@ -145,6 +151,9 @@ export const betterAuthSignUp = async ({
       password,
       username,
       experienceLevel,
+      company,
+      title,
+      cloudProvider,
       referral,
       referralOrigin,
       timezone,
@@ -238,6 +247,20 @@ export const betterAuthSignInWithIdToken = async ({
     'Native sign in failed',
   );
 };
+
+export const betterAuthOneTapCallback = async ({
+  idToken,
+  timezone,
+}: {
+  idToken: string;
+  timezone?: string;
+}): Promise<BetterAuthResponse> =>
+  betterAuthPost(
+    'one-tap/callback',
+    { idToken },
+    'One Tap sign in failed',
+    timezone ? { 'x-timezone': timezone } : undefined,
+  );
 
 export const getBetterAuthLinkSocialUrl = (
   provider: string,

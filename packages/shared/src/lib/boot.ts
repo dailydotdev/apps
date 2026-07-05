@@ -9,13 +9,17 @@ import { decrypt } from '../components/crypto';
 import type {
   MarketingCta,
   MarketingCtaVariant,
-} from '../components/marketingCta/common';
+} from '../components/marketing/cta/common';
 import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
 import type { EngagementCreative } from './engagementAds';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
+}
+
+interface LiveRoomsBootData {
+  hasLive: boolean;
 }
 
 export type PostBootData = Pick<
@@ -83,6 +87,8 @@ export type Boot = {
   };
   isAndroidApp?: boolean;
   engagementCreatives?: EngagementCreative[];
+  liveRooms?: LiveRoomsBootData;
+  daily?: boolean;
 };
 
 export type BootCacheData = Pick<
@@ -96,6 +102,7 @@ export type BootCacheData = Pick<
   | 'exp'
   | 'feeds'
   | 'geo'
+  | 'daily'
 > & { lastModifier?: string; isAndroidApp?: boolean };
 
 /**

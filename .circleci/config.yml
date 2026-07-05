@@ -3,21 +3,24 @@ version: 2.1
 jobs:
   install_deps:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     steps:
       - checkout
       - run:
-          name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
+          name: Enable pnpm
+          command: |
+            mkdir -p $HOME/.local/bin
+            corepack enable --install-directory $HOME/.local/bin
+            corepack prepare pnpm@10.33.4 --activate
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install
       - save_cache:
-          key: deps-v10-{{ checksum "pnpm-lock.yaml" }}
+          key: deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
           paths:
             - ./node_modules
             - ./packages/eslint-config/node_modules
@@ -29,14 +32,14 @@ jobs:
             - ./packages/storybook/node_modules
   test_extension:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     parallelism: 1
     steps:
       - checkout
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -50,14 +53,14 @@ jobs:
           path: ./test-results
   test_webapp:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     parallelism: 1
     steps:
       - checkout
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -71,28 +74,28 @@ jobs:
           path: ./test-results
   lint_shared:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     resource_class: large
     steps:
       - checkout
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Lint
           command: npm run pretest
           working_directory: packages/shared
   typecheck_strict_changed:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     resource_class: large
     steps:
       - checkout
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Fetch base branch
           command: git fetch origin main
@@ -101,14 +104,14 @@ jobs:
           command: npm run typecheck:strict:changed
   test_shared:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     parallelism: 1
     steps:
       - checkout
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Test
           command: |
@@ -121,17 +124,20 @@ jobs:
           path: ./test-results
   build_extension:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     resource_class: medium
     steps:
       - checkout
       - run:
-          name: Install pnpm
-          command: npm i --prefix=$HOME/.local -g pnpm@9.14.4
+          name: Enable pnpm
+          command: |
+            mkdir -p $HOME/.local/bin
+            corepack enable --install-directory $HOME/.local/bin
+            corepack prepare pnpm@10.33.4 --activate
       - restore_cache:
           keys:
-            - deps-v10-{{ checksum "pnpm-lock.yaml" }}
-            - deps-v10-{{ .Branch }}
+            - deps-pnpm-10-33-4-{{ checksum "pnpm-lock.yaml" }}
+            - deps-pnpm-10-33-4-{{ .Branch }}
       - run:
           name: Install dependencies
           command: pnpm install

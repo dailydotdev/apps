@@ -22,6 +22,8 @@ import { lazyCommentThreshold } from '../utilities';
 import { isNullOrUndefined } from '../../lib/func';
 import { useCommentContentPreferenceMutationSubscription } from './useCommentContentPreferenceMutationSubscription';
 import { generateCommentsQueryKey } from '../../lib/query';
+import { CharmEmptyState } from '../charm/CharmEmptyState';
+import { cloudinaryCharmNoComments } from '../../lib/image';
 
 const threadCommentOrigins = new Set<Origin>([
   Origin.ArticleModal,
@@ -44,6 +46,12 @@ interface PostCommentsProps {
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
   className?: CommentClassName;
   onCommented?: MainCommentProps['onCommented'];
+  /**
+   * Drop the list's top margin. Use when comments are the first element in
+   * their container (e.g. the redesign discussion panel) so they don't get an
+   * extra gap above the first item.
+   */
+  removeTopSpacing?: boolean;
 }
 
 const noopShare = (): void => {};
@@ -61,6 +69,7 @@ export function PostComments({
   joinNotificationCommentId,
   className = {},
   onCommented,
+  removeTopSpacing = false,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const container = useRef<HTMLDivElement | null>(null);
@@ -104,9 +113,13 @@ export function PostComments({
 
   if (commentsCount === 0) {
     return (
-      <div className="mb-12 mt-8 text-center text-text-quaternary typo-subhead">
-        Be the first to comment.
-      </div>
+      <CharmEmptyState
+        className="mb-12 mt-8"
+        image={cloudinaryCharmNoComments}
+        imageAlt="daily.dev charm peeking over a glowing speech bubble"
+        title="No comments yet"
+        description="The discussion is waiting for a spark. Share your take and get it started."
+      />
     );
   }
 
@@ -119,9 +132,12 @@ export function PostComments({
         isModalThread
           ? classNames(
               'mb-12 flex flex-col gap-4',
-              isComposerOpen ? 'mt-2' : 'mt-5',
+              !removeTopSpacing && (isComposerOpen ? 'mt-2' : 'mt-5'),
             )
-          : '-mx-4 mb-12 mt-6 flex flex-col gap-4 mobileL:mx-0'
+          : classNames(
+              '-mx-4 mb-12 flex flex-col gap-4 mobileL:mx-0',
+              !removeTopSpacing && 'mt-6',
+            )
       }
       ref={container}
     >

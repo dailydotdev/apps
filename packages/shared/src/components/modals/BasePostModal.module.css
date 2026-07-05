@@ -5,9 +5,28 @@
     left: 0;
     right: 0;
     bottom: 0;
-    min-height: 100vh;
     padding: 0;
     overflow-y: auto;
+    /* Keep the scroll inside the overlay so overscroll doesn't chain to the
+       page behind. */
+    overscroll-behavior: contain;
     z-index: 100;
+    /* Backdrop tint lives on the fixed pseudo-element below, not on this
+       scroll container — painting it here made it scroll away with the
+       content and expose the feed. */
+    background-color: transparent;
+  }
+
+  /* Fixed backdrop pinned to the viewport: stays put while only the modal
+     content scrolls. z-index:-1 keeps it behind the modal content but, since
+     the overlay establishes a z-index:100 stacking context, still above the
+     feed. */
+  & :global(.post-modal-overlay)::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: theme('colors.overlay.quaternary.onion');
   }
 }

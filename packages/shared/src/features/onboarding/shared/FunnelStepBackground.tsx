@@ -60,8 +60,10 @@ const alwaysDarkSteps = [
   FunnelStepType.Signup,
   FunnelStepType.Checkout,
   FunnelStepType.OrganicSignup,
+  FunnelStepType.HeroLanding,
   FunnelStepType.BrowserExtension,
 ];
+const tallTopGradientSteps = [FunnelStepType.EditTags];
 
 export const FunnelStepBackground = ({
   children,
@@ -90,6 +92,7 @@ export const FunnelStepBackground = ({
 
   const shouldShowBg =
     !isPricingV2 && !hiddenBgSteps.some((type) => type === step.type);
+  const shouldUseTallTopGradient = tallTopGradientSteps.includes(step.type);
 
   const needInvertedColors =
     (isStepForcedTo.dark && isLightMode) ||
@@ -107,7 +110,9 @@ export const FunnelStepBackground = ({
         <div
           aria-hidden
           className={classNames(
-            bgClassName,
+            shouldUseTallTopGradient
+              ? 'bg-gradient-funnel-onboarding-tall'
+              : bgClassName,
             className,
             'absolute left-0 top-0 z-1 h-full w-full transition-colors duration-150',
           )}

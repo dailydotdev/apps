@@ -9,6 +9,17 @@ import { EngagementAdsProvider } from '../../contexts/EngagementAdsContext';
 import { MentionedToolsWidget } from './MentionedToolsWidget';
 import loggedUser from '../../../__tests__/fixture/loggedUser';
 
+const mockAddToStack = jest.fn();
+const mockRemoveFromStack = jest.fn();
+
+jest.mock('../../features/profile/hooks/useUserStack', () => ({
+  useUserStack: jest.fn(() => ({
+    stackItems: [],
+    add: mockAddToStack,
+    remove: mockRemoveFromStack,
+  })),
+}));
+
 const creative: EngagementCreative = {
   gen_id: 'c1',
   promoted_name: 'Copilot',
@@ -28,6 +39,7 @@ const creative: EngagementCreative = {
   tools: ['VSCode', 'GitHub'],
   keywords: ['AI'],
   tags: ['ai'],
+  placements: [],
 };
 
 let queryClient: QueryClient;
@@ -84,7 +96,7 @@ describe('MentionedToolsWidget', () => {
 
   it('lists each tool from the matching creative', () => {
     renderWidget({ postTags: ['ai'], creatives: [creative] });
-    expect(screen.getByText('Mentioned tools')).toBeInTheDocument();
+    expect(screen.getByText('Sponsored tools')).toBeInTheDocument();
     expect(screen.getByText('VSCode')).toBeInTheDocument();
     expect(screen.getByText('GitHub')).toBeInTheDocument();
   });

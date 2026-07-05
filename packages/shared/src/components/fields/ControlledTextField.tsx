@@ -13,6 +13,8 @@ type ControlledTextFieldProps = Pick<
   | 'fieldType'
   | 'className'
   | 'readOnly'
+  | 'maxLength'
+  | 'showMaxLength'
 > & { name: string };
 
 const ControlledTextField = ({

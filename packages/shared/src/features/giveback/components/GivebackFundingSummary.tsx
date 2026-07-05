@@ -1,0 +1,182 @@
+import type { ReactElement, RefObject } from 'react';
+import React from 'react';
+import classNames from 'classnames';
+import { FlexCol, FlexRow } from '../../../components/utilities';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../../../components/typography/Typography';
+import { ProgressBar } from '../../../components/fields/ProgressBar';
+import { useContributionStatus } from '../hooks/useContributionStatus';
+import { useCountUp, useInView } from '../useGivebackMotion';
+import { formatDonationAmount, getGoalProgressPercentage } from '../utils';
+import { GivebackMeterShine } from './GivebackMeterShine';
+
+const barColor =
+  'bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default';
+
+// Quarter-way milestone markers sit on the track (like the impact roadmap's
+// nodes) so the goal reads as a journey with checkpoints, not one long fill.
+const MILESTONES = [25, 50, 75] as const;
+
+const Meter = ({
+  meterRef,
+  percentage,
+  empty = false,
+}: {
+  meterRef: RefObject<HTMLDivElement>;
+  percentage: number;
+  empty?: boolean;
+}): ReactElement => (
+  // The track owns the styling: a taller, dark (primary background) fill with a
+  // hairline border so the meter reads as a crisp, contained gauge.
+  <div
+    ref={meterRef}
+    className="relative h-5 overflow-hidden rounded-8 border border-border-subtlest-tertiary bg-background-default"
+  >
+    <ProgressBar
+      percentage={percentage}
+      className={{
+        bar: 'block h-full rounded-6 transition-[width] duration-700 ease-out',
+        barColor,
+      }}
+    />
+    {empty ? (
+      // A faint shimmer travelling across the empty track so a $0 meter reads as
+      // "ready to fill" rather than broken.
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-8"
+      >
+        <div className="via-accent-cabbage-default/40 absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent to-transparent motion-safe:animate-meter-shine" />
+      </div>
+    ) : (
+      <GivebackMeterShine percentage={percentage} radiusClassName="rounded-6" />
+    )}
+    {MILESTONES.map((milestone) => (
+      <span
+        key={milestone}
+        aria-hidden
+        className={classNames(
+          'absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-colors duration-500',
+          percentage >= milestone
+            ? 'border-white bg-white'
+            : 'border-border-subtlest-secondary bg-background-default',
+        )}
+        style={{ left: `${milestone}%` }}
+      />
+    ))}
+  </div>
+);
+
+// Compact funding block for the hero sidebar - the crowdfunding "pledge panel":
+// raised, goal and progress at a glance. Points come back from the contribution
+// API as whole currency units, so they format directly as dollars.
+export const GivebackFundingSummary = (): ReactElement => {
+  const { status } = useContributionStatus();
+  const { ref: meterRef, inView } = useInView<HTMLDivElement>();
+
+  const raised = status?.currentCyclePoints ?? 0;
+  const goal = status?.currentCycleTargetPoints ?? 0;
+  const contributorsCount = status?.contributorsCount ?? 0;
+  const percentage = getGoalProgressPercentage(raised, goal);
+  const animatedPercentage = useCountUp(Math.round(percentage), inView);
+
+  // No data yet (or no goal configured): a quiet skeleton so we never flash a
+  // wall of zeros before the campaign numbers land.
+  if (!status || goal === 0) {
+    return (
+      <FlexCol className="gap-3">
+        <div className="h-8 w-40 animate-pulse rounded-8 bg-surface-float" />
+        <div className="h-5 w-full rounded-8 bg-surface-float" />
+        <div className="h-4 w-48 animate-pulse rounded-8 bg-surface-float" />
+      </FlexCol>
+    );
+  }
+
+  // Empty state: nothing pledged yet. Lead with the goal so the panel feels
+  // aspirational instead of showing "$0 · 0% · 0 backers" everywhere.
+  if (raised === 0) {
+    return (
+      <FlexCol className="gap-3">
+        <FlexRow className="items-end gap-2">
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Title1}
+            bold
+          >
+            {formatDonationAmount(goal)}
+          </Typography>
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            className="pb-1"
+          >
+            goal we&apos;ll fund together
+          </Typography>
+        </FlexRow>
+
+        <Meter meterRef={meterRef} percentage={0} empty />
+
+        <FlexRow className="flex-wrap items-baseline gap-1">
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Footnote}
+            color={TypographyColor.Primary}
+            bold
+          >
+            Be the first to move the meter.
+          </Typography>
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            Take one action and it starts climbing.
+          </Typography>
+        </FlexRow>
+      </FlexCol>
+    );
+  }
+
+  return (
+    <FlexCol className="gap-3">
+      <FlexRow className="items-end gap-2">
+        <Typography tag={TypographyTag.Span} type={TypographyType.Title1} bold>
+          {formatDonationAmount(raised)}
+        </Typography>
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          className="pb-1"
+        >
+          unlocked of {formatDonationAmount(goal)} goal
+        </Typography>
+      </FlexRow>
+
+      <Meter meterRef={meterRef} percentage={animatedPercentage} />
+
+      <FlexRow className="flex-wrap items-baseline gap-1">
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Footnote}
+          color={TypographyColor.StatusSuccess}
+          bold
+        >
+          {Math.round(percentage)}%
+        </Typography>
+        <Typography
+          tag={TypographyTag.Span}
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          funded · {contributorsCount.toLocaleString('en-US')} contributors
+        </Typography>
+      </FlexRow>
+    </FlexCol>
+  );
+};

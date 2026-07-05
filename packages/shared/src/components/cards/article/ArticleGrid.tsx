@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 import { usePostFeedback } from '../../../hooks';
 import { isVideoPost } from '../../../graphql/posts';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
@@ -22,9 +23,14 @@ import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { PostCardFooter } from '../common/PostCardFooter';
 import ActionButtons from '../common/ActionButtons';
+import {
+  FeedCardGlassActions,
+  glassCoverImageClassName,
+} from '../common/FeedCardGlassActions';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -46,6 +52,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { className, style } = domProps;
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const { data } = useBlockPostPanel(post);
   const onPostCardClick = () => onPostClick(post);
   const onPostCardAuxClick = () => onPostAuxClick(post);
@@ -53,6 +60,24 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { showFeedback } = usePostFeedback({ post });
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
+  const glassActions = useFeedCardGlassActions();
+
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          style,
+          className: getPostClassNames(post, className, 'min-h-card'),
+        }}
+        ref={ref}
+        flagProps={{ pinnedAt, trending }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
 
   if (data?.showTagsPanel && post.tags.length > 0) {
     return (
@@ -72,7 +97,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
         className: getPostClassNames(
           post,
           classNames(className, showFeedback && '!p-0'),
-          'min-h-card',
+          glassActions && !showFeedback ? 'min-h-cardGlass' : 'min-h-card',
         ),
       }}
       ref={ref}
@@ -131,27 +156,42 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             />
           </Container>
         )}
-        <Container>
+        <Container className={glassActions ? 'flex-none' : undefined}>
           <PostCardFooter
             openNewTab={openNewTab ?? false}
             post={post}
             onShare={onShare}
             className={{
               image: classNames('px-1', showFeedback && 'mb-0'),
+              cover:
+                glassActions && !showFeedback
+                  ? glassCoverImageClassName
+                  : undefined,
             }}
             eagerLoadImage={eagerLoadImage}
           />
 
-          {!showFeedback && (
-            <ActionButtons
-              post={post}
-              onUpvoteClick={onUpvoteClick}
-              onCommentClick={onCommentClick}
-              onCopyLinkClick={onCopyLinkClick}
-              onBookmarkClick={onBookmarkClick}
-              onDownvoteClick={onDownvoteClick}
-            />
-          )}
+          {!showFeedback &&
+            (glassActions ? (
+              <FeedCardGlassActions
+                post={post}
+                onUpvoteClick={onUpvoteClick}
+                onCommentClick={onCommentClick}
+                onCopyLinkClick={onCopyLinkClick}
+                onBookmarkClick={onBookmarkClick}
+                onDownvoteClick={onDownvoteClick}
+                coverScrim
+              />
+            ) : (
+              <ActionButtons
+                post={post}
+                onUpvoteClick={onUpvoteClick}
+                onCommentClick={onCommentClick}
+                onCopyLinkClick={onCopyLinkClick}
+                onBookmarkClick={onBookmarkClick}
+                onDownvoteClick={onDownvoteClick}
+              />
+            ))}
         </Container>
       </div>
       {children}

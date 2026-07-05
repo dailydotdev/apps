@@ -61,7 +61,6 @@ export enum AuthTriggers {
   SearchSuggestion = 'search suggestion',
   LoginPage = 'login page',
   GenericReferral = 'generic referral',
-  Roast = 'roast',
   CollectionSubscribe = 'collection subscribe',
   SourceSubscribe = 'source subscribe',
   CommentDownvote = 'comment downvote',
@@ -77,6 +76,8 @@ export enum AuthTriggers {
   Gear = 'gear',
   AddToStack = 'add to stack',
   PostPage = 'post page',
+  Hackathon = 'hackathon',
+  Giveback = 'giveback',
 }
 
 export type AuthTriggersType =
@@ -113,6 +114,9 @@ export interface RegistrationParameters {
   'traits.image'?: string;
   'traits.acceptedMarketing'?: boolean;
   'traits.experienceLevel'?: string;
+  'traits.company'?: string;
+  'traits.title'?: string;
+  'traits.cloudProvider'?: string;
   'traits.language'?: string;
   optOutMarketing?: boolean;
   id_token?: string;
@@ -124,6 +128,7 @@ export type ErrorMessages<T extends string | number> = { [key in T]?: string };
 export type RegistrationError = ErrorMessages<keyof RegistrationParameters>;
 
 export interface SocialRegistrationParameters {
+  email?: string;
   name?: string;
   username?: string;
   file?: string;

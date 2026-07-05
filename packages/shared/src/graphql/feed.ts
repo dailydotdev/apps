@@ -24,6 +24,7 @@ export const baseFeedSupportedTypes = [
   PostType.VideoYouTube,
   PostType.Collection,
   PostType.Poll,
+  PostType.LiveRoom,
 ];
 
 export const supportedTypesForPrivateSources = [
@@ -35,12 +36,7 @@ const joinedTypes = baseFeedSupportedTypes.join('","');
 export const SUPPORTED_TYPES = `$supportedTypes: [String!] = ["${joinedTypes}"]`;
 export const FEED_V2_HIGHLIGHTS_LIMIT = 5;
 
-export const getFeedV2SupportedTypes = (
-  shouldSupportHighlights: boolean,
-): string[] =>
-  shouldSupportHighlights
-    ? [...baseFeedSupportedTypes, 'highlight']
-    : [...baseFeedSupportedTypes];
+export const feedV2SupportedTypes = [...baseFeedSupportedTypes, 'highlight'];
 
 export interface FeedData {
   page: Connection<Post>;
@@ -253,6 +249,10 @@ export const normalizeFeedPage = (
   throw new Error('Unsupported feed page shape');
 };
 
+export enum FeedOrigin {
+  TagChip = 'TAG_CHIP',
+}
+
 export type FeedFlags = {
   name: string;
   icon?: string;
@@ -261,6 +261,7 @@ export type FeedFlags = {
   minUpvotes?: number;
   minViews?: number;
   disableEngagementFilter?: boolean;
+  origin?: FeedOrigin;
 };
 
 export enum FeedType {
@@ -319,6 +320,7 @@ export const ANONYMOUS_FEED_QUERY = gql`
     $after: String
     $ranking: Ranking
     $version: Int
+    $columns: Int
     ${SUPPORTED_TYPES}
   ) {
     page: anonymousFeed(
@@ -327,6 +329,7 @@ export const ANONYMOUS_FEED_QUERY = gql`
       ranking: $ranking
       version: $version
       supportedTypes: $supportedTypes
+      columns: $columns
     ) {
       ...FeedPostConnection
     }
@@ -356,6 +359,28 @@ export const FEED_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const DAILY_FEED_QUERY = gql`
+  query DailyFeed(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $ranking: Ranking
+    $version: Int
+    ${SUPPORTED_TYPES}
+  ) {
+    page: dailyFeed(
+      first: $first
+      after: $after
+      ranking: $ranking
+      version: $version
+      supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
 export const FEED_V2_QUERY = gql`
   query FeedV2(
     $loggedIn: Boolean! = false
@@ -364,6 +389,7 @@ export const FEED_V2_QUERY = gql`
     $ranking: Ranking
     $version: Int
     $highlightsLimit: Int
+    $columns: Int
     ${SUPPORTED_TYPES}
   ) {
     page: feedV2(
@@ -373,6 +399,7 @@ export const FEED_V2_QUERY = gql`
       version: $version
       highlightsLimit: $highlightsLimit
       supportedTypes: $supportedTypes
+      columns: $columns
     ) {
       pageInfo {
         hasNextPage
@@ -414,8 +441,9 @@ export const MOST_UPVOTED_FEED_QUERY = gql`
     ${SUPPORTED_TYPES}
     $source: ID
     $tag: String
+    $columns: Int
   ) {
-    page: mostUpvotedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes, source: $source, tag: $tag) {
+    page: mostUpvotedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes, source: $source, tag: $tag, columns: $columns) {
       ...FeedPostConnection
     }
   }
@@ -431,8 +459,9 @@ export const MOST_DISCUSSED_FEED_QUERY = gql`
     ${SUPPORTED_TYPES}
     $source: ID
     $tag: String
+    $columns: Int
   ) {
-    page: mostDiscussedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes, source: $source, tag: $tag) {
+    page: mostDiscussedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes, source: $source, tag: $tag, columns: $columns) {
       ...FeedPostConnection
     }
   }
@@ -449,6 +478,32 @@ export const TAG_FEED_QUERY = gql`
     ${SUPPORTED_TYPES}
   ) {
     page: tagFeed(tag: $tag, first: $first, after: $after, ranking: $ranking, supportedTypes: $supportedTypes) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const FEED_BY_TAGS_QUERY = gql`
+  query FeedByTags(
+    $tags: [String!]!
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $ranking: Ranking
+    $version: Int
+    $columns: Int
+    ${SUPPORTED_TYPES}
+  ) {
+    page: feedByTags(
+      tags: $tags
+      first: $first
+      after: $after
+      ranking: $ranking
+      version: $version
+      supportedTypes: $supportedTypes
+      columns: $columns
+    ) {
       ...FeedPostConnection
     }
   }
@@ -570,12 +625,14 @@ export const FOLLOWING_FEED_QUERY = gql`
     $loggedIn: Boolean! = false
     $first: Int
     $after: String
+    $columns: Int
     ${SUPPORTED_TYPES}
   ) {
     page: followingFeed(
       first: $first
       after: $after
       supportedTypes: $supportedTypes
+      columns: $columns
     ) {
       ...FeedPostConnection
     }
@@ -645,6 +702,7 @@ export const SEARCH_POSTS_QUERY = gql`
     $contentCuration: [String]
     $time: SearchTime
     $version: Int
+    $columns: Int
   ) {
     page: searchPosts(
       first: $first,
@@ -653,7 +711,8 @@ export const SEARCH_POSTS_QUERY = gql`
       supportedTypes: $supportedTypes,
       contentCuration: $contentCuration,
       time: $time,
-      version: $version
+      version: $version,
+      columns: $columns
     ) {
       ...FeedPostConnection
     }
@@ -744,8 +803,8 @@ export const PREVIEW_FEED_QUERY = gql`
 `;
 
 export const FEED_LIST_QUERY = gql`
-  query FeedList {
-    feedList {
+  query FeedList($includeTagChipFeeds: Boolean) {
+    feedList(includeTagChipFeeds: $includeTagChipFeeds) {
       pageInfo {
         endCursor
         hasNextPage
@@ -769,6 +828,7 @@ export const CUSTOM_FEED_QUERY = gql`
     ${SUPPORTED_TYPES}
     $version: Int
     $ranking: Ranking
+    $columns: Int
   ) {
     page: customFeed(
       feedId: $feedId
@@ -777,6 +837,7 @@ export const CUSTOM_FEED_QUERY = gql`
       supportedTypes: $supportedTypes
       version: $version
       ranking: $ranking
+      columns: $columns
     ) {
       ...FeedPostConnection
     }

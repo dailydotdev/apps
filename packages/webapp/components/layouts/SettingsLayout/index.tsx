@@ -1,11 +1,13 @@
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import React, { useContext, useEffect } from 'react';
+import classNames from 'classnames';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   generateQueryKey,
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useQueryState } from '@dailydotdev/shared/src/hooks/utils/useQueryState';
 import { useRouter } from 'next/router';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
@@ -59,6 +61,12 @@ export const navigationKey = generateQueryKey(
   null,
 );
 
+// Portal target id for the v2 settings PageHeader strip. AccountPageContainer
+// renders its `<PageHeader>` into this slot so the strip spans the full
+// floating-card width instead of being trapped inside the `max-w-5xl`
+// content wrapper below.
+export const SETTINGS_PAGE_HEADER_PORTAL_ID = 'settings-page-header-portal';
+
 export default function SettingsLayout({
   children,
 }: PropsWithChildren): ReactElement {
@@ -66,6 +74,11 @@ export default function SettingsLayout({
   const { user: profile, isAuthReady } = useContext(AuthContext);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
+  // v2 + laptop: the sidebar's `SettingsPanelSection` already provides the
+  // settings navigation, so hide the inline ProfileSettingsMenuDesktop here
+  // to avoid showing the same nav twice.
+  const isV2Laptop = isV2;
   const canPurchaseCores = useCanPurchaseCores();
   const [isOpen, setIsOpen] = useQueryState({
     key: navigationKey,
@@ -149,7 +162,20 @@ export default function SettingsLayout({
           </Typography>
         </button>
       )}
-      <div className="mx-auto flex w-full max-w-5xl gap-4 tablet:p-6">
+      {/* v2 PageHeader strip slot. The header spans the full floating-card
+          width (the v2 layout guideline) — only the content column below is
+          capped at 768px. AccountPageContainer portals into this on laptop v2. */}
+      {isV2Laptop && (
+        <div id={SETTINGS_PAGE_HEADER_PORTAL_ID} className="contents" />
+      )}
+      <div
+        className={classNames(
+          'mx-auto flex w-full gap-4 tablet:p-6',
+          // v2 caps the settings content to a 768px reading column (matches the
+          // redesign post composer); control keeps the wider two-column layout.
+          isV2Laptop ? 'max-w-3xl' : 'max-w-5xl',
+        )}
+      >
         <h1 className="sr-only">Settings</h1>
         {isMobile ? (
           <ProfileSettingsMenuMobile
@@ -158,7 +184,9 @@ export default function SettingsLayout({
             onClose={() => router.push(profile.permalink)}
           />
         ) : (
-          <ProfileSettingsMenuDesktop />
+          // v2 sidebar panel already shows the settings nav — only render
+          // the desktop menu for control / tablet.
+          !isV2Laptop && <ProfileSettingsMenuDesktop />
         )}
         {children}
       </div>
@@ -168,8 +196,12 @@ export default function SettingsLayout({
 
 export const getSettingsLayout = (page: ReactNode): ReactNode =>
   getFooterNavBarLayout(
+    // Keep `showSidebar: true` so the v2 dual-sidebar rail appears alongside
+    // the settings menu (matches designer mock). Control variant also gets
+    // the legacy sidebar shown on settings pages — small UX change for
+    // control but the rail-on-settings consistency is worth it.
     getMainLayout(<SettingsLayout>{page}</SettingsLayout>, null, {
       screenCentered: true,
-      showSidebar: false,
+      showSidebar: true,
     }),
   );

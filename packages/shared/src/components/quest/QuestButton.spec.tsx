@@ -1,27 +1,16 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { QueryClient } from '@tanstack/react-query';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement, ReactNode } from 'react';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
-import loggedUser from '../../../__tests__/fixture/loggedUser';
-import type { QuestDashboard } from '../../graphql/quests';
-import {
-  QuestRewardType,
-  QuestStatus,
-  QuestType,
-  QUEST_ROTATION_UPDATE_SUBSCRIPTION,
-  QUEST_UPDATE_SUBSCRIPTION,
-} from '../../graphql/quests';
+import { QuestRewardType, QuestStatus, QuestType } from '../../graphql/quests';
 import { QuestButton } from './QuestButton';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
-import { useMarkQuestRotationsViewed } from '../../hooks/useMarkQuestRotationsViewed';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
-import useSubscription from '../../hooks/useSubscription';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
-import { generateQueryKey, RequestKey } from '../../lib/query';
 
 function mockReactModule() {
   return React;
@@ -33,15 +22,12 @@ type MockDropdownTriggerChildProps = {
 };
 
 jest.mock('../../hooks/useQuestDashboard', () => ({
+  ...jest.requireActual('../../hooks/useQuestDashboard'),
   useQuestDashboard: jest.fn(),
 }));
 
 jest.mock('../../hooks/useClaimQuestReward', () => ({
   useClaimQuestReward: jest.fn(),
-}));
-
-jest.mock('../../hooks/useMarkQuestRotationsViewed', () => ({
-  useMarkQuestRotationsViewed: jest.fn(),
 }));
 
 jest.mock('../icons', () => {
@@ -54,11 +40,6 @@ jest.mock('../icons', () => {
     ),
   };
 });
-
-jest.mock('../../hooks/useSubscription', () => ({
-  __esModule: true,
-  default: jest.fn(),
-}));
 
 jest.mock('../../hooks/usePlusSubscription', () => ({
   usePlusSubscription: jest.fn(),
@@ -183,9 +164,6 @@ jest.mock('../tooltip/Tooltip', () => {
 
 const mockUseQuestDashboard = useQuestDashboard as jest.Mock;
 const mockUseClaimQuestReward = useClaimQuestReward as jest.Mock;
-const mockUseMarkQuestRotationsViewed =
-  useMarkQuestRotationsViewed as jest.Mock;
-const mockUseSubscription = useSubscription as jest.Mock;
 const mockUsePlusSubscription = usePlusSubscription as jest.Mock;
 const mockLogSubscriptionEvent = jest.fn();
 const mockPush = jest.fn();
@@ -199,7 +177,6 @@ const questDashboard = {
   },
   currentStreak: 0,
   longestStreak: 0,
-  hasNewQuestRotations: false,
   daily: {
     regular: [
       {
@@ -230,6 +207,7 @@ const questDashboard = {
     plus: [],
   },
   milestone: [],
+  intro: [],
 };
 
 const renderComponent = ({
@@ -237,20 +215,17 @@ const renderComponent = ({
   client = new QueryClient(),
   compact = false,
   log = {},
-  auth = {},
 }: {
   optOutLevelSystem?: boolean;
   client?: QueryClient;
   compact?: boolean;
   log?: Record<string, unknown>;
-  auth?: Record<string, unknown>;
 } = {}) =>
   render(
     <TestBootProvider
       client={client}
       settings={{ optOutLevelSystem }}
       log={log}
-      auth={auth}
     >
       <QuestButton compact={compact} />
     </TestBootProvider>,
@@ -271,11 +246,6 @@ beforeEach(() => {
     isPending: false,
     variables: undefined,
   });
-  mockUseMarkQuestRotationsViewed.mockReturnValue({
-    mutate: jest.fn(),
-    isPending: false,
-  });
-  mockUseSubscription.mockReset();
   mockLogSubscriptionEvent.mockReset();
   mockUsePlusSubscription.mockReturnValue({
     isPlus: false,
@@ -621,316 +591,12 @@ describe('QuestButton', () => {
     });
   });
 
-  it('should not show a new indicator when the dashboard reports no new quest rotations', async () => {
+  it('should never render the new quest indicator bubble', () => {
     renderComponent();
 
     expect(
-      screen.getByRole('button', {
-        name: /Quests, level 7, 63% progress/i,
-      }),
-    ).toBeInTheDocument();
-    expect(
       screen.queryByTestId('quest-button-new-indicator'),
     ).not.toBeInTheDocument();
-  });
-
-  it('should show and clear the new quest indicator after a quest rotation update', async () => {
-    const client = new QueryClient();
-    const establishedUser = {
-      ...loggedUser,
-      createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-    };
-    const subscriptions: Array<{
-      query: string;
-      next?: () => unknown;
-    }> = [];
-    let questDashboardState = {
-      data: questDashboard,
-      isPending: false,
-      isError: false,
-      dataUpdatedAt: 1,
-    };
-    const markQuestRotationsViewed = jest.fn(() => {
-      questDashboardState = {
-        ...questDashboardState,
-        data: {
-          ...questDashboardState.data,
-          hasNewQuestRotations: false,
-        },
-        dataUpdatedAt: 3,
-      };
-    });
-
-    mockUseQuestDashboard.mockImplementation(() => questDashboardState);
-    mockUseMarkQuestRotationsViewed.mockReturnValue({
-      mutate: markQuestRotationsViewed,
-      isPending: false,
-    });
-    mockUseSubscription.mockImplementation(
-      (
-        request: () => { query: string },
-        callbacks: { next?: () => unknown },
-      ) => {
-        subscriptions.push({
-          query: request().query,
-          next: callbacks.next,
-        });
-      },
-    );
-
-    const view = render(
-      <TestBootProvider client={client} auth={{ user: establishedUser }}>
-        <QuestButton />
-      </TestBootProvider>,
-    );
-
-    questDashboardState = {
-      data: {
-        ...questDashboard,
-        hasNewQuestRotations: true,
-        daily: {
-          ...questDashboard.daily,
-          regular: [
-            {
-              ...questDashboard.daily.regular[0],
-              rotationId: 'daily-quest-2',
-            },
-          ],
-        },
-      },
-      isPending: false,
-      isError: false,
-      dataUpdatedAt: 2,
-    };
-
-    subscriptions
-      .find(
-        (subscription) =>
-          subscription.query === QUEST_ROTATION_UPDATE_SUBSCRIPTION,
-      )
-      ?.next?.();
-
-    view.rerender(
-      <TestBootProvider client={client} auth={{ user: establishedUser }}>
-        <QuestButton />
-      </TestBootProvider>,
-    );
-
-    expect(
-      screen.getByRole('button', {
-        name: /Quests, level 7, 63% progress, new quests available/i,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByTestId('quest-button-new-indicator'),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId('quest-button-new-indicator')).toHaveTextContent(
-      'new',
-    );
-    expect(markQuestRotationsViewed).not.toHaveBeenCalled();
-
-    await userEvent.click(
-      screen.getByRole('button', {
-        name: /Quests, level 7, 63% progress, new quests available/i,
-      }),
-    );
-
-    await waitFor(() => {
-      expect(markQuestRotationsViewed).toHaveBeenCalledTimes(1);
-    });
-
-    view.rerender(
-      <TestBootProvider client={client} auth={{ user: establishedUser }}>
-        <QuestButton />
-      </TestBootProvider>,
-    );
-
-    expect(
-      screen.queryByTestId('quest-button-new-indicator'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('should log when a quest becomes claimable after a quest update', () => {
-    const logEvent = jest.fn();
-    const client = new QueryClient();
-    const subscriptions: Array<{
-      query: string;
-      next?: () => unknown;
-    }> = [];
-    let questDashboardState: {
-      data: QuestDashboard;
-      isPending: boolean;
-      isError: boolean;
-      dataUpdatedAt: number;
-    } = {
-      data: questDashboard,
-      isPending: false,
-      isError: false,
-      dataUpdatedAt: 1,
-    };
-
-    mockUseQuestDashboard.mockImplementation(() => questDashboardState);
-    mockUseSubscription.mockImplementation(
-      (
-        request: () => { query: string },
-        callbacks: { next?: () => unknown },
-      ) => {
-        subscriptions.push({
-          query: request().query,
-          next: callbacks.next,
-        });
-      },
-    );
-
-    const view = render(
-      <TestBootProvider client={client} log={{ logEvent }}>
-        <QuestButton />
-      </TestBootProvider>,
-    );
-
-    questDashboardState = {
-      data: {
-        ...questDashboard,
-        daily: {
-          ...questDashboard.daily,
-          regular: [
-            {
-              ...questDashboard.daily.regular[0],
-              userQuestId: 'user-quest-1',
-              status: QuestStatus.Completed,
-              claimable: true,
-              completedAt: new Date('2026-04-13T10:00:00.000Z'),
-            },
-          ],
-        },
-      },
-      isPending: false,
-      isError: false,
-      dataUpdatedAt: 2,
-    };
-
-    subscriptions
-      .find((subscription) => subscription.query === QUEST_UPDATE_SUBSCRIPTION)
-      ?.next?.();
-
-    view.rerender(
-      <TestBootProvider client={client} log={{ logEvent }}>
-        <QuestButton />
-      </TestBootProvider>,
-    );
-
-    expect(logEvent).toHaveBeenCalledWith({
-      event_name: LogEvent.QuestClaimable,
-      target_id: 'quest-1',
-      target_type: TargetType.Quest,
-      extra: JSON.stringify({
-        questType: QuestType.Daily,
-        userQuestId: 'user-quest-1',
-        userId: undefined,
-        rotationId: 'daily-quest-1',
-      }),
-    });
-  });
-
-  it('should not log claimable for a locked plus quest after a quest update', () => {
-    const logEvent = jest.fn();
-    const client = new QueryClient();
-    const subscriptions: Array<{
-      query: string;
-      next?: () => unknown;
-    }> = [];
-    let questDashboardState: {
-      data: QuestDashboard;
-      isPending: boolean;
-      isError: boolean;
-      dataUpdatedAt: number;
-    } = {
-      data: {
-        ...questDashboard,
-        daily: {
-          ...questDashboard.daily,
-          plus: [
-            {
-              rotationId: 'daily-plus-quest-1',
-              userQuestId: null,
-              progress: 1,
-              status: QuestStatus.InProgress,
-              locked: true,
-              claimable: false,
-              quest: {
-                id: 'plus-quest-1',
-                name: 'Plus read posts',
-                description: 'Read 3 posts today',
-                type: QuestType.Daily,
-                eventType: 'read_post',
-                targetCount: 3,
-              },
-              rewards: [{ type: QuestRewardType.Xp, amount: 150 }],
-            },
-          ],
-        },
-      },
-      isPending: false,
-      isError: false,
-      dataUpdatedAt: 1,
-    };
-
-    mockUseQuestDashboard.mockImplementation(() => questDashboardState);
-    mockUseSubscription.mockImplementation(
-      (
-        request: () => { query: string },
-        callbacks: { next?: () => unknown },
-      ) => {
-        subscriptions.push({
-          query: request().query,
-          next: callbacks.next,
-        });
-      },
-    );
-
-    const view = render(
-      <TestBootProvider client={client} log={{ logEvent }}>
-        <QuestButton />
-      </TestBootProvider>,
-    );
-
-    questDashboardState = {
-      data: {
-        ...questDashboardState.data,
-        daily: {
-          ...questDashboardState.data.daily,
-          plus: [
-            {
-              ...questDashboardState.data.daily.plus[0],
-              userQuestId: 'user-plus-quest-1',
-              status: QuestStatus.Completed,
-              progress: 3,
-              completedAt: new Date('2026-04-13T10:00:00.000Z'),
-            },
-          ],
-        },
-      },
-      isPending: false,
-      isError: false,
-      dataUpdatedAt: 2,
-    };
-
-    subscriptions
-      .find((subscription) => subscription.query === QUEST_UPDATE_SUBSCRIPTION)
-      ?.next?.();
-
-    view.rerender(
-      <TestBootProvider client={client} log={{ logEvent }}>
-        <QuestButton />
-      </TestBootProvider>,
-    );
-
-    expect(logEvent).not.toHaveBeenCalledWith(
-      expect.objectContaining({
-        event_name: LogEvent.QuestClaimable,
-        target_id: 'plus-quest-1',
-      }),
-    );
   });
 
   it('should stay open when the page scrolls', async () => {
@@ -1320,6 +986,18 @@ describe('QuestButton', () => {
     }
   });
 
+  it('should show the weekly quest reset countdown in the weekly section', async () => {
+    renderComponent();
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(await screen.findByText(/^\d+d left$/)).toBeInTheDocument();
+  });
+
   it('should explain plus quests are additional slots', async () => {
     mockUseQuestDashboard.mockReturnValue({
       data: {
@@ -1462,94 +1140,5 @@ describe('QuestButton', () => {
       event_name: LogEvent.UpgradeSubscription,
       target_id: TargetId.QuestDropdown,
     });
-  });
-
-  it('should invalidate the quest dashboard on quest progress and rollover updates', () => {
-    const subscriptions: Array<{
-      query: string;
-      next?: () => unknown;
-    }> = [];
-    const client = new QueryClient();
-    const invalidateQueries = jest
-      .spyOn(client, 'invalidateQueries')
-      .mockResolvedValue(undefined);
-
-    mockUseSubscription.mockImplementation(
-      (
-        request: () => { query: string },
-        callbacks: { next?: () => unknown },
-      ) => {
-        subscriptions.push({
-          query: request().query,
-          next: callbacks.next,
-        });
-      },
-    );
-
-    renderComponent({ client });
-
-    expect(
-      Array.from(
-        new Set(subscriptions.map((subscription) => subscription.query)),
-      ),
-    ).toEqual([QUEST_UPDATE_SUBSCRIPTION, QUEST_ROTATION_UPDATE_SUBSCRIPTION]);
-
-    subscriptions
-      .find((subscription) => subscription.query === QUEST_UPDATE_SUBSCRIPTION)
-      ?.next?.();
-    subscriptions
-      .find(
-        (subscription) =>
-          subscription.query === QUEST_ROTATION_UPDATE_SUBSCRIPTION,
-      )
-      ?.next?.();
-
-    expect(invalidateQueries).toHaveBeenCalledTimes(2);
-    expect(invalidateQueries).toHaveBeenNthCalledWith(1, {
-      queryKey: generateQueryKey(RequestKey.QuestDashboard),
-      exact: true,
-    });
-    expect(invalidateQueries).toHaveBeenNthCalledWith(2, {
-      queryKey: generateQueryKey(RequestKey.QuestDashboard),
-      exact: true,
-    });
-  });
-
-  it('should not show new indicator for users created less than 24 hours ago', () => {
-    mockUseQuestDashboard.mockReturnValue({
-      data: { ...questDashboard, hasNewQuestRotations: true },
-      isPending: false,
-      isError: false,
-    });
-
-    const newUser = {
-      ...loggedUser,
-      createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-    };
-
-    renderComponent({ auth: { user: newUser } });
-
-    expect(
-      screen.queryByTestId('quest-button-new-indicator'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('should show new indicator for users created more than 24 hours ago', () => {
-    mockUseQuestDashboard.mockReturnValue({
-      data: { ...questDashboard, hasNewQuestRotations: true },
-      isPending: false,
-      isError: false,
-    });
-
-    const establishedUser = {
-      ...loggedUser,
-      createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-    };
-
-    renderComponent({ auth: { user: establishedUser } });
-
-    expect(
-      screen.getByTestId('quest-button-new-indicator'),
-    ).toBeInTheDocument();
   });
 });

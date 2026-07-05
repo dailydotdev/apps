@@ -6,6 +6,11 @@ import dynamic from 'next/dynamic';
 import { ThemeSection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/ThemeSection';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { useSettingsBooleanFlag } from '@dailydotdev/shared/src/hooks/useSettingsBooleanFlag';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import { useReaderModalEligibility } from '@dailydotdev/shared/src/components/post/reader/hooks/useReaderModalEligibility';
+import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
+import { useEnableReaderInside } from '@dailydotdev/shared/src/components/post/reader/hooks/useEnableReaderInside';
 import {
   Typography,
   TypographyType,
@@ -50,7 +55,36 @@ const AccountManageSubscriptionPage = (): ReactElement => {
     toggleOptOutCompanion,
     autoDismissNotifications,
     toggleAutoDismissNotifications,
+    flags,
   } = useSettingsContext();
+  const { isEligible: isReaderEligible, isReaderEnabled } =
+    useReaderModalEligibility();
+  const { optIn, optOut } = useLegacyPostLayoutOptOut();
+  const { enable: enableReaderInside } = useEnableReaderInside();
+  // The reader settings toggle is now available to every eligible user (the
+  // reader_modal_v2 experiment that used to gate it has graduated).
+  const showReaderToggle = isReaderEligible;
+  const { value: isHighlightCardsOptedOut, toggle: toggleHighlightCards } =
+    useSettingsBooleanFlag('highlightCardsOptOut');
+  const isReadInsideEnabled = isReaderEnabled;
+  const isReaderPermissionGranted =
+    flags?.readerInstallPromptAcknowledged ?? false;
+  const { isV2: isLayoutV2 } = useLayoutVariant();
+  const { value: isSidebarCompact, toggle: toggleSidebarCompact } =
+    useSettingsBooleanFlag('sidebarCompact');
+  const onToggleReadInside = () => {
+    if (isReadInsideEnabled) {
+      optOut();
+      return;
+    }
+    // Already granted permission before (just opted out) → flip back on.
+    // Otherwise drive the install/permission flow so the reader actually works.
+    if (isReaderPermissionGranted) {
+      optIn();
+      return;
+    }
+    enableReaderInside();
+  };
 
   const onLayoutToggle = useCallback(
     async (enabled: boolean) => {
@@ -88,6 +122,16 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               offLabel="Cards"
               onLabel="List"
             />
+
+            {isLayoutV2 && (
+              <SettingsSwitch
+                name="compact-sidebar"
+                checked={isSidebarCompact}
+                onToggle={toggleSidebarCompact}
+              >
+                Compact sidebar (hide labels)
+              </SettingsSwitch>
+            )}
           </FlexCol>
         )}
 
@@ -120,6 +164,24 @@ const AccountManageSubscriptionPage = (): ReactElement => {
             onToggle={toggleOptOutCompanion}
           >
             Show companion widget on external sites
+          </SettingsSwitch>
+
+          {showReaderToggle && (
+            <SettingsSwitch
+              name="read-inside-dailydev"
+              checked={isReadInsideEnabled}
+              onToggle={onToggleReadInside}
+            >
+              Read articles inside daily.dev
+            </SettingsSwitch>
+          )}
+
+          <SettingsSwitch
+            name="highlight-cards"
+            checked={!isHighlightCardsOptedOut}
+            onToggle={toggleHighlightCards}
+          >
+            Show hero cards for highlighted news
           </SettingsSwitch>
         </FlexCol>
 

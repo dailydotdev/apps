@@ -1,21 +1,16 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { GetStaticPropsResult } from 'next';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { TAG_DIRECTORY_QUERY } from '@dailydotdev/shared/src/graphql/keywords';
-import { TagLink } from '@dailydotdev/shared/src/components/TagLinks';
-import { HashtagIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
-import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
+import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
-import { TagTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
-import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/common';
+import { TagsDirectoryPage } from '@dailydotdev/shared/src/components/tags/TagsDirectoryPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -41,21 +36,21 @@ const getTagsSchemas = (tags: Keyword[]): string =>
     '@graph': [
       {
         '@type': 'CollectionPage',
-        '@id': 'https://app.daily.dev/tags#collection',
-        url: 'https://app.daily.dev/tags',
+        '@id': 'https://daily.dev/tags#collection',
+        url: 'https://daily.dev/tags',
         name: 'Explore trending tags for developers',
         description: 'Discover trending, popular, and new tags on daily.dev.',
       },
       {
         '@type': 'ItemList',
-        '@id': 'https://app.daily.dev/tags#items',
+        '@id': 'https://daily.dev/tags#items',
         itemListElement: tags.map((tag, index) => ({
           '@type': 'ListItem',
           position: index + 1,
           item: {
             '@type': 'Thing',
             name: tag.value,
-            url: `https://app.daily.dev/tags/${encodeURIComponent(tag.value)}`,
+            url: `https://daily.dev/tags/${encodeURIComponent(tag.value)}`,
           },
         })),
       },
@@ -68,47 +63,7 @@ const TagsPage = ({
   popularTags,
 }: TagsPageProps): ReactElement => {
   const { isFallback: isLoading } = useRouter();
-
-  const { feedSettings } = useFeedSettings();
-  const selectedTags = feedSettings?.includeTags || [];
-
-  const recentlyAddedTags = useMemo(() => {
-    return tags
-      ?.sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt))
-      .slice(0, 10);
-  }, [tags]);
-
-  const tagsByFirstLetter = useMemo(() => {
-    const filteredTags = tags?.reduce((acc, cur) => {
-      const rawLetter = cur.value[0].toLowerCase();
-      const firstLetter: string = new RegExp(/^[a-zA-Z]+$/).test(rawLetter)
-        ? rawLetter
-        : '#';
-      acc[firstLetter] = (acc[firstLetter] || []).concat([cur]);
-      return acc;
-    }, []);
-
-    if (!filteredTags) {
-      return null;
-    }
-
-    return Object.keys(filteredTags)
-      .sort()
-      .reduce((acc, cur) => {
-        acc[cur] = filteredTags[cur].sort((a: Keyword, b: Keyword) => {
-          if (a.value < b.value) {
-            return -1;
-          }
-
-          if (a.value > b.value) {
-            return 1;
-          }
-
-          return 0;
-        });
-        return acc;
-      }, []);
-  }, [tags]);
+  const { isV2: isV2Laptop } = useLayoutVariant();
 
   if (isLoading) {
     return <></>;
@@ -117,7 +72,8 @@ const TagsPage = ({
   const topTagsForSchema = tags.slice(0, 50);
 
   return (
-    <PageWrapperLayout className="flex flex-col gap-4">
+    <>
+      {isV2Laptop && <ExploreHubHeader />}
       <Head>
         <script
           type="application/ld+json"
@@ -126,57 +82,12 @@ const TagsPage = ({
           }}
         />
       </Head>
-      <BreadCrumbs className="mb-2">
-        <HashtagIcon size={IconSize.XSmall} secondary /> Tags
-      </BreadCrumbs>
-      <div className="grid auto-rows-fr grid-cols-1 gap-0 tablet:grid-cols-2 tablet:gap-6 laptopL:grid-cols-3">
-        <TagTopList
-          containerProps={{ title: 'Trending tags' }}
-          items={trendingTags}
-          isLoading={isLoading}
-        />
-        <TagTopList
-          containerProps={{ title: 'Popular tags' }}
-          items={popularTags}
-          isLoading={isLoading}
-        />
-        <TagTopList
-          containerProps={{
-            title: 'Recently added tags',
-            className: 'col-span-1 tablet:col-span-2 laptopL:col-span-1',
-          }}
-          items={recentlyAddedTags}
-          isLoading={isLoading}
-        />
-      </div>
-      <div className="flex h-10 items-center justify-between px-4 tablet:px-0">
-        <p className="font-bold typo-body">All tags</p>
-      </div>
-      <div className="columns-[17rem] px-4 tablet:px-0">
-        {tagsByFirstLetter &&
-          Object.entries(tagsByFirstLetter).map(([letter, value]) => {
-            return (
-              <div
-                key={letter}
-                className="mt-3 flex flex-col items-baseline gap-3 px-4 first:mt-0"
-              >
-                <p className="flex h-8 items-center font-bold text-text-tertiary typo-callout">
-                  {letter}
-                </p>
-                {value.map((tag) => (
-                  <TagLink
-                    key={tag.value}
-                    tag={tag.value}
-                    className="!line-clamp-2 !h-auto py-1.5"
-                    isSelected={selectedTags.includes(tag.value)}
-                    buttonProps={{ size: ButtonSize.Small }}
-                  />
-                ))}
-              </div>
-            );
-          })}
-      </div>
-    </PageWrapperLayout>
+      <TagsDirectoryPage
+        tags={tags}
+        trendingTags={trendingTags}
+        popularTags={popularTags}
+      />
+    </>
   );
 };
 

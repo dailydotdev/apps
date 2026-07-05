@@ -1,25 +1,35 @@
 import type { ReactNode } from 'react';
 import React, { useContext } from 'react';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import nock from 'nock';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from './AuthContext';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import type { LoggedUser, AnonymousUser } from '../lib/user';
-import { deleteAccount, LogoutReason } from '../lib/user';
+import {
+  deleteAccount,
+  logout as dispatchLogout,
+  LogoutReason,
+} from '../lib/user';
 import SettingsContext, {
   remoteThemes,
   ThemeMode,
   themeModes,
 } from './SettingsContext';
 import { mockGraphQL } from '../../__tests__/helpers/graphql';
+import { dailyClientHeader, gqlClient } from '../graphql/common';
+import { getDailyClientPlatform } from '../lib/func';
 import AlertContext from './AlertContext';
+import NotificationsContext from './NotificationsContext';
 import type { Alerts } from '../graphql/alerts';
 import { UPDATE_ALERTS } from '../graphql/alerts';
 import type { RemoteSettings, Spaciness } from '../graphql/settings';
 import { UPDATE_USER_SETTINGS_MUTATION } from '../graphql/settings';
 import { BootDataProvider } from './BootProvider';
+import { BOOT_LOCAL_KEY } from './common';
 import type { Boot, BootCacheData } from '../lib/boot';
 import { BootApp, getBootData } from '../lib/boot';
 import type { AuthTriggersType } from '../lib/auth';
@@ -42,14 +52,25 @@ jest.mock('../lib/user', () => {
   return {
     ...actual,
     deleteAccount: jest.fn(),
+    logout: jest.fn(),
   };
 });
 
 const getRedirectUriMock = jest.fn();
 
+const mockUseRouter = (router: Partial<NextRouter> = {}) => {
+  jest.mocked(useRouter).mockReturnValue({
+    query: {},
+    push: jest.fn(),
+    pathname: '/',
+    ...router,
+  } as unknown as NextRouter);
+};
+
 beforeEach(() => {
   nock.cleanAll();
   localStorage.clear();
+  mockUseRouter();
 });
 
 const defaultAlerts: Alerts = { filter: true, rankLastSeen: undefined };
@@ -64,6 +85,7 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutAchievements: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
   autoDismissNotifications: true,
@@ -400,6 +422,51 @@ it('should trigger update alerts callback', async () => {
   await expectToHaveTestValue(alertsEl, JSON.stringify(alerts));
 });
 
+interface NotificationsMockProps {
+  incrementBy?: number;
+}
+
+const NotificationsMock = ({ incrementBy = 1 }: NotificationsMockProps) => {
+  const { unreadCount, clearUnreadCount, incrementUnreadCount } =
+    useContext(NotificationsContext);
+
+  return (
+    <>
+      <button
+        onClick={clearUnreadCount}
+        type="button"
+        data-test-value={unreadCount}
+      >
+        Clear notifications
+      </button>
+      <button onClick={() => incrementUnreadCount(incrementBy)} type="button">
+        Increment notifications
+      </button>
+    </>
+  );
+};
+
+const getStoredBootData = (): BootCacheData =>
+  JSON.parse(localStorage.getItem(BOOT_LOCAL_KEY) as string);
+
+it('should persist notification count updates to local boot data', async () => {
+  renderComponent(<NotificationsMock incrementBy={2} />, {
+    ...defaultBootData,
+    notifications: { unreadNotificationsCount: 4 },
+  });
+
+  const clearNotifications = await screen.findByText('Clear notifications');
+  await expectToHaveTestValue(clearNotifications, '4');
+
+  fireEvent.click(clearNotifications);
+  await expectToHaveTestValue(clearNotifications, '0');
+  expect(getStoredBootData().notifications.unreadNotificationsCount).toEqual(0);
+
+  fireEvent.click(screen.getByText('Increment notifications'));
+  await expectToHaveTestValue(clearNotifications, '2');
+  expect(getStoredBootData().notifications.unreadNotificationsCount).toEqual(2);
+});
+
 interface AuthMockProps {
   updatedUser?: LoggedUser;
   loginTrigger?: AuthTriggersType;
@@ -483,6 +550,39 @@ it('should trigger delete account callback', async () => {
   expect(deleteAccount).toHaveBeenCalled();
 });
 
+it('should redirect to onboarding after logout', async () => {
+  const originalLocation = window.location;
+  const replace = jest.fn();
+
+  Object.defineProperty(window, 'location', {
+    value: {
+      pathname: '/settings',
+      search: '',
+      replace,
+      reload: jest.fn(),
+    },
+    configurable: true,
+  });
+
+  jest.mocked(dispatchLogout).mockResolvedValue(undefined);
+
+  try {
+    renderComponent(<AuthMock />);
+    const logout = await screen.findByText('Logout');
+    fireEvent.click(logout);
+
+    await waitFor(() =>
+      expect(dispatchLogout).toHaveBeenCalledWith(LogoutReason.ManualLogout),
+    );
+    expect(replace).toHaveBeenCalledWith('/onboarding');
+  } finally {
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      configurable: true,
+    });
+  }
+});
+
 const defaultAnonymousUser: AnonymousUser = {
   id: 'anonymous user',
   firstVisit: 'first visit',
@@ -499,6 +599,31 @@ it('should trigger show login callback', async () => {
   await expectToHaveTestValue(login, 'null');
   fireEvent.click(login);
   await expectToHaveTestValue(login, JSON.stringify({ trigger: expected }));
+});
+
+it('should keep login inline on the webapp after auth intent', async () => {
+  const push = jest.fn();
+  mockUseRouter({
+    push,
+    pathname: '/posts/shared',
+  });
+
+  renderComponent(<AuthMock loginTrigger={AuthTriggers.Comment} />, {
+    ...defaultBootData,
+    user: defaultAnonymousUser,
+  });
+
+  const login = await screen.findByText('Log in');
+  await expectToHaveTestValue(login, 'null');
+  expect(push).not.toHaveBeenCalled();
+
+  fireEvent.click(login);
+
+  await expectToHaveTestValue(
+    login,
+    JSON.stringify({ trigger: AuthTriggers.Comment }),
+  );
+  expect(push).not.toHaveBeenCalled();
 });
 
 it('should trigger close login callback', async () => {
@@ -549,4 +674,16 @@ it('should display accurate information of anonymous user', async () => {
   );
   const user = await screen.findByText('User');
   await expectToHaveTestValue(user, 'anonymous');
+});
+
+it('should set the calling platform header on the gql client', async () => {
+  const setHeaderSpy = jest.spyOn(gqlClient, 'setHeader');
+  renderComponent(<AuthMock />);
+  await waitFor(() =>
+    expect(setHeaderSpy).toHaveBeenCalledWith(
+      dailyClientHeader,
+      getDailyClientPlatform('test-version'),
+    ),
+  );
+  setHeaderSpy.mockRestore();
 });

@@ -224,6 +224,10 @@ const mainConfig = {
       import: path.join(sourcePath, 'ping', 'index.ts'),
       runtime: false,
     },
+    embedTargetReady: {
+      import: path.join(sourcePath, 'embedTargetReady', 'index.ts'),
+      runtime: false,
+    },
     newtab: {
       import: path.join(sourcePath, 'newtab', 'index.tsx'),
       runtime: 'runtime',
@@ -257,9 +261,13 @@ const mainConfig = {
     ...baseConfig.optimization,
     splitChunks: {
       chunks(chunk) {
-        return !['content', 'companion', 'manifest', 'ping'].includes(
-          chunk.name,
-        );
+        return ![
+          'content',
+          'companion',
+          'manifest',
+          'ping',
+          'embedTargetReady',
+        ].includes(chunk.name);
       },
       maxSize: 244000,
       cacheGroups: {

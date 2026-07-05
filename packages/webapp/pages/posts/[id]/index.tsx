@@ -26,7 +26,6 @@ import type { PostContentProps } from '@dailydotdev/shared/src/components/post/c
 import { useScrollTopOffset } from '@dailydotdev/shared/src/hooks/useScrollTopOffset';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import {
-  useConditionalFeature,
   useEventListener,
   useJoinReferral,
   usePostById,
@@ -38,7 +37,6 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
@@ -47,9 +45,13 @@ import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/Acti
 import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
-import { featureReaderModal } from '@dailydotdev/shared/src/lib/featureManagement';
-import { useLegacyPostLayoutOptOut } from '@dailydotdev/shared/src/components/post/reader/hooks/useLegacyPostLayoutOptOut';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
+import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
+import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
+import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
+import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -59,6 +61,7 @@ import {
 } from '../../../components/PostSEOSchema';
 import type { DynamicSeoProps } from '../../../components/common';
 import useSharedByToast from '../../../hooks/useSharedByToast';
+import { getPostCanonicalUrl } from '../../../lib/seo';
 
 const Unauthorized = dynamic(
   () =>
@@ -118,12 +121,6 @@ const DigestPostContent = dynamic(() =>
   ).then((module) => module.DigestPostContent),
 );
 
-const ReaderPostLayout = dynamic(() =>
-  import(
-    /* webpackChunkName: "lazyReaderPostLayout" */ '@dailydotdev/shared/src/components/post/reader/ReaderPostLayout'
-  ).then((module) => module.ReaderPostLayout),
-);
-
 export interface Props extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
@@ -132,15 +129,6 @@ export interface Props extends DynamicSeoProps {
 }
 
 type PostContentComponent = ComponentType<PostContentProps>;
-
-const READER_ELIGIBLE_POST_TYPES = new Set<PostType>([
-  PostType.Article,
-  PostType.Digest,
-  PostType.VideoYouTube,
-]);
-
-const READER_PAGE_LAYOUT_CLASS_NAME =
-  'flex h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] min-h-0 w-full flex-col';
 
 const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   article: PostContent as PostContentComponent,
@@ -153,6 +141,7 @@ const CONTENT_MAP: Record<PostType, ComponentType<PostContentProps>> = {
   [PostType.Poll]: PollPostContent as PostContentComponent,
   [PostType.SocialTwitter]: SocialTwitterPostContent as PostContentComponent,
   [PostType.Digest]: DigestPostContent,
+  [PostType.LiveRoom]: PostContent as PostContentComponent,
 };
 
 export interface PostParams extends ParsedUrlQuery {
@@ -210,18 +199,16 @@ export const PostPage = ({
       retry: false,
     },
   });
-  const {
-    value: readerModalFromGrowthBook,
-    isLoading: isReaderFeatureLoading,
-  } = useConditionalFeature({
-    feature: featureReaderModal,
-    shouldEvaluate: true,
+  const isRedesignEligible = isPostRedesignEligible(post);
+  const { value: isRedesignFlagOn } = useConditionalFeature({
+    feature: featurePostRedesign,
+    shouldEvaluate: isRedesignEligible,
   });
-  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  const isTabletViewport = useViewSize(ViewSize.Tablet);
-  const isReaderModalOn =
-    readerModalFromGrowthBook && !isLegacyLayoutOptedOut && isTabletViewport;
-  const isReaderModalFeatureReady = !isReaderFeatureLoading;
+  // Entry-specific flows the focus card doesn't render (author onboarding via
+  // `?author`, back-to-squad via `?squad`) stay on the classic layout.
+  const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
+  const showRedesign =
+    isRedesignEligible && !requiresClassicLayout && isRedesignFlagOn;
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -281,19 +268,6 @@ export const PostPage = ({
     return <Custom404 />;
   }
 
-  const onReaderClose = () => {
-    if (globalThis.window?.history?.length > 1) {
-      router.back();
-      return;
-    }
-    router.push(webappUrl);
-  };
-
-  const shouldUseReaderLayout =
-    isReaderModalFeatureReady &&
-    isReaderModalOn &&
-    READER_ELIGIBLE_POST_TYPES.has(post.type);
-
   return (
     <ActivePostContextProvider post={post}>
       <LogExtraContextProvider
@@ -302,7 +276,7 @@ export const PostPage = ({
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
-            ...(creative && { gen_id: creative.genId }),
+            ...(creative && getEngagementLogExtra(creative)),
           };
         }}
       >
@@ -311,13 +285,10 @@ export const PostPage = ({
             <link rel="preload" as="image" href={post?.image} />
           </Head>
           <PostSEOSchema post={post} topComments={topComments} />
-          {shouldUseReaderLayout ? (
-            <ReaderPostLayout
-              post={post}
-              onClose={onReaderClose}
-              outerClassName={READER_PAGE_LAYOUT_CLASS_NAME}
-              isPostPage
-            />
+          {showRedesign ? (
+            <div className="mx-auto w-full max-w-[63.75rem]">
+              <PostFocusCard post={post} origin={Origin.ArticlePage} />
+            </div>
           ) : (
             <Content
               position={position}
@@ -338,7 +309,10 @@ export const PostPage = ({
               }}
             />
           )}
-          {shouldShowAuthBanner && isLaptop && <PostAuthBanner />}
+          {!showRedesign && shouldShowAuthBanner && isLaptop && (
+            <PostAuthBanner />
+          )}
+          <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>
     </ActivePostContextProvider>
@@ -381,7 +355,7 @@ export async function getStaticProps({
     const topComments = commentsData.topComments || [];
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
     const seo: NextSeoProps = {
-      canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
+      canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       noindex: shouldNoindexPost(post),

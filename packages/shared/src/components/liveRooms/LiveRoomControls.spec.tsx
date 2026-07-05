@@ -92,8 +92,21 @@ jest.mock('../modals/common/Modal', () => {
     return <div>{children}</div>;
   }
 
-  function MockModal({ children }: { children: React.ReactNode }) {
-    return <div role="dialog">{children}</div>;
+  function MockModal({
+    children,
+    drawerProps,
+  }: {
+    children: React.ReactNode;
+    drawerProps?: { appendOnRoot?: boolean };
+  }) {
+    return (
+      <div
+        role="dialog"
+        data-append-on-root={drawerProps?.appendOnRoot ? 'true' : 'false'}
+      >
+        {children}
+      </div>
+    );
   }
 
   Object.assign(MockModal, {
@@ -153,6 +166,8 @@ const createContextValue = (
   },
   role: 'audience',
   participantId: 'audience',
+  disconnect: jest.fn().mockResolvedValue(undefined),
+  preflightMediaPermissions: jest.fn(),
   startRoom: jest.fn(),
   endRoom: jest.fn(),
   joinSpeakerQueue: jest.fn(),
@@ -239,9 +254,22 @@ const click = async (element: HTMLElement): Promise<void> => {
   });
 };
 
+const getEmojiButton = (label: string): HTMLButtonElement => {
+  const button = document.querySelector<HTMLButtonElement>(
+    `button[title="${label}"]`,
+  );
+
+  if (!button) {
+    throw new Error(`Could not find ${label} emoji button`);
+  }
+
+  return button;
+};
+
 describe('LiveRoomControls', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
     mockUseAuthContext.mockReturnValue({
       user: { id: 'viewer-1' },
       showLogin: mockShowLogin,
@@ -250,14 +278,21 @@ describe('LiveRoomControls', () => {
 
   it('lets an audience participant join the speaker queue', async () => {
     const joinSpeakerQueue = jest.fn(() => new Promise<void>(() => undefined));
-    mockUseLiveRoom.mockReturnValue(createContextValue({ joinSpeakerQueue }));
+    const preflightMediaPermissions = jest.fn().mockResolvedValue(undefined);
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        preflightMediaPermissions,
+        joinSpeakerQueue,
+      }),
+    );
 
     renderLiveRoomControls();
 
-    await click(screen.getByRole('button', { name: 'Join queue' }));
+    await click(screen.getByRole('button', { name: 'Ask to speak' }));
     await flushAsyncUpdates();
 
     await waitFor(() => {
+      expect(preflightMediaPermissions).toHaveBeenCalledTimes(1);
       expect(joinSpeakerQueue).toHaveBeenCalledTimes(1);
     });
   });
@@ -280,7 +315,9 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    const queuedButton = screen.getByRole('button', { name: 'Queued' });
+    const queuedButton = screen.getByRole('button', {
+      name: 'Waiting to speak',
+    });
     expect(queuedButton).toBeDisabled();
     fireEvent.click(queuedButton);
     expect(joinSpeakerQueue).not.toHaveBeenCalled();
@@ -402,11 +439,17 @@ describe('LiveRoomControls', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Reactions' }));
     fireEvent.click(screen.getByRole('button', { name: 'Custom reaction' }));
-    await click(screen.getByRole('button', { name: '⭐' }));
+    fireEvent.change(await screen.findByPlaceholderText('Search emojis...'), {
+      target: { value: 'grinning face' },
+    });
+    await waitFor(() => {
+      expect(getEmojiButton('grinning face')).toBeInTheDocument();
+    });
+    await click(getEmojiButton('grinning face'));
     await flushAsyncUpdates();
 
     await waitFor(() => {
-      expect(sendReaction).toHaveBeenCalledWith('⭐');
+      expect(sendReaction).toHaveBeenCalledWith('😀');
     });
   });
 
@@ -420,7 +463,7 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Join queue' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ask to speak' }));
 
     expect(joinSpeakerQueue).not.toHaveBeenCalled();
     expect(mockShowLogin).toHaveBeenCalledWith({
@@ -430,8 +473,10 @@ describe('LiveRoomControls', () => {
 
   it('lets an audience participant join the stage in a free-for-all room', async () => {
     const joinStage = jest.fn(() => new Promise<void>(() => undefined));
+    const preflightMediaPermissions = jest.fn().mockResolvedValue(undefined);
     mockUseLiveRoom.mockReturnValue(
       createContextValue({
+        preflightMediaPermissions,
         joinStage,
         roomState: {
           ...createRoomState(),
@@ -448,11 +493,46 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    await click(screen.getByRole('button', { name: 'Join stage' }));
+    await click(screen.getByRole('button', { name: 'Join as speaker' }));
     await flushAsyncUpdates();
 
     await waitFor(() => {
+      expect(preflightMediaPermissions).toHaveBeenCalledTimes(1);
       expect(joinStage).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('preflights media permissions before going live', async () => {
+    const preflightMediaPermissions = jest.fn().mockResolvedValue(undefined);
+    const startRoom = jest.fn(() => new Promise<void>(() => undefined));
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        preflightMediaPermissions,
+        startRoom,
+        role: 'host',
+        participantId: 'host',
+        roomState: {
+          ...createRoomState(),
+          status: 'created',
+          participants: {
+            ...createRoomState().participants,
+            host: {
+              ...createRoomState().participants.host,
+              role: 'host',
+            },
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    await click(screen.getByRole('button', { name: 'Go live' }));
+    await flushAsyncUpdates();
+
+    await waitFor(() => {
+      expect(preflightMediaPermissions).toHaveBeenCalledTimes(1);
+      expect(startRoom).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -480,6 +560,43 @@ describe('LiveRoomControls', () => {
             activeSpeakerParticipantIds: ['audience'],
             raisedHandParticipantIds: [],
             speakerLimit: 4,
+          },
+        },
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    await click(screen.getByRole('button', { name: 'Leave stage' }));
+    await flushAsyncUpdates();
+
+    await waitFor(() => {
+      expect(leaveStage).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('lets a speaker leave the stage in a moderated room', async () => {
+    const leaveStage = jest.fn(() => new Promise<void>(() => undefined));
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        leaveStage,
+        role: 'speaker',
+        roomState: {
+          ...createRoomState(),
+          participants: {
+            ...createRoomState().participants,
+            audience: {
+              participantId: 'audience',
+              role: 'speaker',
+              sessionIds: ['session-audience'],
+              joinedAt: '2026-04-27T09:01:00.000Z',
+              updatedAt: '2026-04-27T09:01:00.000Z',
+            },
+          },
+          stage: {
+            speakerQueueParticipantIds: [],
+            activeSpeakerParticipantIds: ['audience'],
+            raisedHandParticipantIds: [],
           },
         },
       }),
@@ -567,7 +684,7 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    const fullButton = screen.getByRole('button', { name: 'Stage full' });
+    const fullButton = screen.getByRole('button', { name: 'Speakers full' });
     expect(fullButton).toBeDisabled();
     fireEvent.click(fullButton);
     expect(joinStage).not.toHaveBeenCalled();
@@ -609,7 +726,7 @@ describe('LiveRoomControls', () => {
       screen.getByRole('button', { name: 'End standup' }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Join queue' }),
+      screen.queryByRole('button', { name: 'Ask to speak' }),
     ).not.toBeInTheDocument();
   });
 
@@ -635,7 +752,7 @@ describe('LiveRoomControls', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('lets a co-host start a room before it goes live', () => {
+  it('keeps go-live as a host-only action for co-hosts', () => {
     mockUseLiveRoom.mockReturnValue(
       createContextValue({
         role: 'audience',
@@ -650,7 +767,12 @@ describe('LiveRoomControls', () => {
 
     renderLiveRoomControls();
 
-    expect(screen.getByRole('button', { name: 'Go live' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Go live' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'End standup' }),
+    ).toBeInTheDocument();
   });
 
   it('shows media controls when the current participant becomes a speaker', () => {
@@ -684,7 +806,7 @@ describe('LiveRoomControls', () => {
       screen.getByRole('button', { name: 'Camera off' }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Join queue' }),
+      screen.queryByRole('button', { name: 'Ask to speak' }),
     ).not.toBeInTheDocument();
   });
 
@@ -765,6 +887,25 @@ describe('LiveRoomControls', () => {
     expect(screen.getByLabelText('Audio only')).toBeInTheDocument();
     expect(screen.queryByLabelText('Hide my preview')).not.toBeInTheDocument();
     expect(setVideoSetting).not.toHaveBeenCalled();
+  });
+
+  it('renders mobile room settings drawer outside the controls hit area', () => {
+    mockUseLiveRoom.mockReturnValue(
+      createContextValue({
+        role: 'audience',
+        participantId: 'audience',
+        canPublish: false,
+      }),
+    );
+
+    renderLiveRoomControls();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Standup settings' }));
+
+    expect(screen.getByRole('dialog')).toHaveAttribute(
+      'data-append-on-root',
+      'true',
+    );
   });
 
   it('updates the audio only setting from the room settings modal', () => {

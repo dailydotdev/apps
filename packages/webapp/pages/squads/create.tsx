@@ -17,13 +17,25 @@ import TabContainer, {
 import { ShareLink } from '@dailydotdev/shared/src/components/post/write/ShareLink';
 import {
   generateDefaultSquad,
+  generateUserSourceAsSquad,
   MultipleSourceSelect,
 } from '@dailydotdev/shared/src/components/post/write';
+import { moderationRequired } from '@dailydotdev/shared/src/components/squads/utils';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import {
+  PostType,
+  submitExternalLink,
+} from '@dailydotdev/shared/src/graphql/posts';
+import { useLogPostCreated } from '@dailydotdev/shared/src/hooks/post/useLogPostCreated';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import { useSchedulePost } from '@dailydotdev/shared/src/components/post/schedule/useSchedulePost';
 import Unauthorized from '@dailydotdev/shared/src/components/errors/Unauthorized';
 import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import {
   useActions,
+  useConditionalFeature,
+  usePostToSquad,
   useViewSize,
   ViewSize,
 } from '@dailydotdev/shared/src/hooks';
@@ -32,13 +44,21 @@ import {
   WriteFormTab,
   WriteFormTabToFormID,
 } from '@dailydotdev/shared/src/components/fields/form/common';
-import { useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import CreatePoll from '@dailydotdev/shared/src/components/post/poll/CreatePoll';
+import { CreateLiveRoomForm } from '@dailydotdev/shared/src/components/liveRooms/CreateLiveRoomForm';
+import { featureStandupCreation } from '@dailydotdev/shared/src/lib/featureManagement';
 import { Pill, PillSize } from '@dailydotdev/shared/src/components/Pill';
 import { useMultipleSourcePost } from '@dailydotdev/shared/src/features/squads/hooks/useMultipleSourcePost';
-import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  scheduledPostsUrl,
+  settingsUrl,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
+import { ScheduledPostsNavButton } from '@dailydotdev/shared/src/components/post/schedule/ScheduledPostsNavButton';
 import type { WriteForm } from '@dailydotdev/shared/src/contexts';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { useDisableSpotlightShortcut } from '@dailydotdev/shared/src/components/spotlight/SpotlightContext';
 
 import {
   Button,
@@ -60,15 +80,30 @@ const seo: NextSeoProps = {
   ...defaultSeo,
 };
 
+const TAB_CLASSNAME = 'flex flex-col gap-4 px-5 py-5';
+
+const getSubmitCopy = (tab: WriteFormTab): string => {
+  if (tab === WriteFormTab.Standup) {
+    return 'Create standup';
+  }
+  return 'Post';
+};
+
 function CreatePost(): ReactElement {
+  useDisableSpotlightShortcut();
   const client = useQueryClient();
   const { isActionsFetched, completeAction, checkHasCompleted } = useActions();
-  const hasCheckedPollTab = useMemo(
-    () => checkHasCompleted(ActionType.SeenPostPollTab),
+  const hasSeenStandupTab = useMemo(
+    () => checkHasCompleted(ActionType.SeenStandupTab),
     [checkHasCompleted],
   );
   const { push, isReady: isRouteReady, query } = useRouter();
   const { squads, user, isAuthReady, isFetched } = useAuthContext();
+  const { value: isStandupCreationEnabled, isLoading: isStandupFlagLoading } =
+    useConditionalFeature({
+      feature: featureStandupCreation,
+      shouldEvaluate: isAuthReady && !!user,
+    });
   const {
     flags: { defaultWriteTab },
     loadedSettings,
@@ -172,14 +207,132 @@ function CreatePost(): ReactElement {
     },
   });
 
+  // Scheduling is single-source and non-moderated only.
+  const schedule = useSchedulePost();
+  const logPostCreated = useLogPostCreated();
+  const singleSourceId =
+    selectedSourceIds.length === 1 ? selectedSourceIds[0] : undefined;
+  const selectedSquad = squads?.find(({ id }) => id === singleSourceId);
+  const isOwnSource = !!singleSourceId && singleSourceId === user?.id;
+  // Only schedule when the single target is the user's own source or a real,
+  // non-moderated squad — never the "Create new Squad" placeholder.
+  const canSchedule =
+    !!singleSourceId &&
+    (selectedSquad ? !moderationRequired(selectedSquad) : isOwnSource);
+
+  const {
+    onSubmitFreeformPost,
+    onSubmitPollPost,
+    isPosting: isSchedulePosting,
+  } = usePostToSquad({
+    onPostSuccess: () => {
+      displayToast('✅ Your post has been scheduled!');
+      clearFormOnSuccess();
+      push(`${webappUrl}${user?.username}/posts/`);
+    },
+    onError: (data) => {
+      if (data?.response?.errors?.[0]) {
+        displayToast(data?.response?.errors?.[0].message);
+      }
+      onAskConfirmation(true);
+    },
+  });
+
+  // submitExternalLink returns EmptyResponse, so the shared post-success path
+  // in usePostToSquad can't handle it — schedule external-link shares directly.
+  const { mutateAsync: scheduleExternalLink, isPending: isSchedulingLink } =
+    useMutation({
+      mutationFn: submitExternalLink,
+      onSuccess: () => {
+        logPostCreated({ postType: PostType.Share, sourceCount: 1 });
+        displayToast('✅ Your post has been scheduled!');
+        clearFormOnSuccess();
+        push(`${webappUrl}${user?.username}/posts/`);
+      },
+      onError: (data: ApiErrorResult) => {
+        if (data?.response?.errors?.[0]) {
+          displayToast(data.response.errors[0].message);
+        }
+        onAskConfirmation(true);
+      },
+    });
+
+  const submitScheduledPost = async (
+    params: Omit<WriteForm, 'image'> & {
+      image?: File;
+      externalLink?: string;
+      imageUrl?: string;
+      commentary?: string;
+    },
+    type: Post['type'],
+  ): Promise<boolean> => {
+    const resolved = schedule.resolveScheduledAt();
+    if (resolved.error) {
+      displayToast(resolved.error);
+      return true;
+    }
+    const scheduledAt = resolved.iso;
+    if (!scheduledAt) {
+      return false;
+    }
+
+    const squad = selectedSquad ?? generateUserSourceAsSquad(user);
+    const { options, image, title, content, duration } = params;
+    const validImage =
+      image instanceof File && image.size > 0 ? image : undefined;
+    if (type === PostType.Share) {
+      if (!params.externalLink || !title) {
+        displayToast('Invalid link');
+        return true;
+      }
+      await scheduleExternalLink({
+        url: params.externalLink,
+        title,
+        image: params.imageUrl,
+        sourceId: squad.id,
+        commentary: params.commentary ?? '',
+        scheduledAt,
+      });
+    } else if (type === PostType.Poll) {
+      await onSubmitPollPost(
+        { title, options: options ?? [], duration, scheduledAt },
+        squad,
+      );
+    } else {
+      await onSubmitFreeformPost(
+        { title, content, image: validImage, scheduledAt },
+        squad,
+      );
+    }
+    return true;
+  };
+
   const onClickSubmit = async (
     e: FormEvent<HTMLFormElement>,
-    params: Omit<WriteForm, 'image'> & { image?: File },
+    params: Omit<WriteForm, 'image'> & {
+      image?: File;
+      externalLink?: string;
+      imageUrl?: string;
+      commentary?: string;
+    },
+    type: Post['type'],
   ) => {
     e.preventDefault();
 
-    if (isPending || !selectedSourceIds.length) {
+    if (
+      isPending ||
+      isSchedulePosting ||
+      isSchedulingLink ||
+      !selectedSourceIds.length
+    ) {
       return;
+    }
+
+    if (canSchedule && schedule.isScheduled) {
+      const handled = await submitScheduledPost(params, type);
+      if (handled) {
+        return;
+      }
     }
 
     const { options, image, ...args } = params;
@@ -200,14 +353,26 @@ function CreatePost(): ReactElement {
   const initialSelected = !!activeSquads?.length && (query.sid as string);
   useEffect(() => {
     // Only run this once after router and user are ready
-    if (!user || !isRouteReady || !isDraftReady || isInitialized.current) {
+    if (
+      !user ||
+      !isRouteReady ||
+      !isDraftReady ||
+      isStandupFlagLoading ||
+      isInitialized.current
+    ) {
       return;
     }
 
     isInitialized.current = true;
 
-    if (prefillState.initialDisplay) {
-      setDisplay(prefillState.initialDisplay);
+    const initialDisplay =
+      prefillState.initialDisplay === WriteFormTab.Standup &&
+      !isStandupCreationEnabled
+        ? null
+        : prefillState.initialDisplay;
+
+    if (initialDisplay) {
+      setDisplay(initialDisplay);
     } else if (defaultWriteTab in WriteFormTab) {
       setDisplay(WriteFormTab[defaultWriteTab]);
     }
@@ -241,20 +406,23 @@ function CreatePost(): ReactElement {
     selectedSourceIds.length,
     defaultWriteTab,
     prefillState.initialDisplay,
+    isStandupCreationEnabled,
+    isStandupFlagLoading,
   ]);
 
   useEffect(() => {
-    if (!hasCheckedPollTab && display === WriteFormTab.Poll) {
-      completeAction(ActionType.SeenPostPollTab);
+    if (display === WriteFormTab.Standup && !hasSeenStandupTab) {
+      completeAction(ActionType.SeenStandupTab);
     }
-  }, [display, hasCheckedPollTab, completeAction]);
+  }, [display, hasSeenStandupTab, completeAction]);
 
   if (
     !isFetched ||
     !isAuthReady ||
     !isRouteReady ||
     !loadedSettings ||
-    !isDraftReady
+    !isDraftReady ||
+    isStandupFlagLoading
   ) {
     return <WriteFreeFormSkeleton />;
   }
@@ -269,10 +437,23 @@ function CreatePost(): ReactElement {
       squad={null}
       formRef={formRef}
       isUpdatingDraft={isUpdatingDraft}
-      isPosting={isPending}
+      isPosting={isPending || isSchedulePosting || isSchedulingLink}
       updateDraft={updateDraft}
       onSubmitForm={onClickSubmit}
       formId={WriteFormTabToFormID[display]}
+      rightCopy={
+        canSchedule && schedule.isScheduled
+          ? 'Schedule'
+          : getSubmitCopy(display)
+      }
+      schedule={canSchedule ? schedule : undefined}
+      headerExtraActions={
+        // Desktop/tablet render the button in the TabContainer header
+        // (extraHeaderContent); only mobile relies on the FormWrapper header.
+        isMobile ? (
+          <ScheduledPostsNavButton onClick={() => push(scheduledPostsUrl)} />
+        ) : undefined
+      }
       enableUpload
     >
       <WritePageContainer>
@@ -284,31 +465,34 @@ function CreatePost(): ReactElement {
           showHeader={isTablet}
           extraHeaderContent={
             !isMobile && (
-              <LinkWithTooltip
-                tooltip={{
-                  content: (
-                    <div className="max-w-48">
-                      You can change the default post type settings
-                    </div>
-                  ),
-                  placement: 'left',
-                }}
-                href={`${settingsUrl}/composition`}
-                passHref
-              >
-                <Button
-                  icon={<SettingsIcon />}
-                  size={ButtonSize.Small}
-                  className="ml-auto mr-3 self-center text-text-quaternary"
+              <div className="ml-auto mr-3 flex items-center gap-1 self-center">
+                <ScheduledPostsNavButton
+                  onClick={() => push(scheduledPostsUrl)}
+                  className="text-text-quaternary"
                 />
-              </LinkWithTooltip>
+                <LinkWithTooltip
+                  tooltip={{
+                    content: (
+                      <div className="max-w-48">
+                        You can change the default post type settings
+                      </div>
+                    ),
+                    placement: 'left',
+                  }}
+                  href={`${settingsUrl}/composition`}
+                  passHref
+                >
+                  <Button
+                    icon={<SettingsIcon />}
+                    size={ButtonSize.Small}
+                    className="self-center text-text-quaternary"
+                  />
+                </LinkWithTooltip>
+              </div>
             )
           }
         >
-          <Tab
-            label={WriteFormTab.NewPost}
-            className="flex flex-col gap-4 px-5"
-          >
+          <Tab label={WriteFormTab.NewPost} className={TAB_CLASSNAME}>
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">New post</h2>
             )}
@@ -318,7 +502,7 @@ function CreatePost(): ReactElement {
               initialContent={prefillState.initialDraft.content}
             />
           </Tab>
-          <Tab label={WriteFormTab.Share} className="flex flex-col gap-4 px-5">
+          <Tab label={WriteFormTab.Share} className={TAB_CLASSNAME}>
             {isMobile && (
               <h2 className="pt-2 font-bold typo-title3">Share a link</h2>
             )}
@@ -332,25 +516,38 @@ function CreatePost(): ReactElement {
               isPostingOnMySource={selectedSourceIds.includes(user.id)}
             />
           </Tab>
-          <Tab
-            label={WriteFormTab.Poll}
-            className="flex flex-col gap-4 px-5"
-            hint={
-              display !== WriteFormTab.Poll &&
-              isActionsFetched &&
-              !hasCheckedPollTab ? (
-                <Pill
-                  label="New"
-                  size={PillSize.XSmall}
-                  className="mt-0.5 bg-brand-float text-brand-default"
-                />
-              ) : undefined
-            }
-          >
+          <Tab label={WriteFormTab.Poll} className={TAB_CLASSNAME}>
             {isMobile && <h2 className="pt-2 font-bold typo-title3">Poll</h2>}
             <MultipleSourceSelect {...sourceSelectProps} />
             <CreatePoll />
           </Tab>
+          {isStandupCreationEnabled && (
+            <Tab
+              label={WriteFormTab.Standup}
+              className={TAB_CLASSNAME}
+              hint={
+                display !== WriteFormTab.Standup &&
+                isActionsFetched &&
+                !hasSeenStandupTab ? (
+                  <Pill
+                    label="New"
+                    size={PillSize.XSmall}
+                    className="mt-0.5 bg-brand-float text-brand-default"
+                  />
+                ) : undefined
+              }
+            >
+              {isMobile && (
+                <h2 className="pt-2 font-bold typo-title3">Start a standup</h2>
+              )}
+              <CreateLiveRoomForm
+                onCreated={(joinToken) => {
+                  clearFormOnSuccess();
+                  push(`/standups/${joinToken.room.id}`);
+                }}
+              />
+            </Tab>
+          )}
         </TabContainer>
       </WritePageContainer>
     </WritePostContextProvider>

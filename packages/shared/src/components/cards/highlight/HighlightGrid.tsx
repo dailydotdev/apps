@@ -12,14 +12,16 @@ export const HighlightGrid = forwardRef(function HighlightGrid(
     <Card
       ref={ref}
       data-testid="highlightItem"
-      className="group flex h-full flex-col overflow-hidden !bg-surface-float hover:!bg-surface-float"
+      className="group min-h-card overflow-hidden !bg-surface-float hover:!bg-surface-float"
     >
-      <HighlightCardContent
-        highlights={highlights}
-        onHighlightClick={onHighlightClick}
-        onReadAllClick={onReadAllClick}
-        variant="grid"
-      />
+      <div className="absolute inset-0 flex flex-col">
+        <HighlightCardContent
+          highlights={highlights}
+          onHighlightClick={onHighlightClick}
+          onReadAllClick={onReadAllClick}
+          variant="grid"
+        />
+      </div>
     </Card>
   );
 });

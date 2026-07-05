@@ -48,6 +48,22 @@ export const isExtension = !!process.env.TARGET_BROWSER;
 export const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 export const isChromeExtension = process.env.TARGET_BROWSER === 'chrome';
 
+// Derives the calling platform for the `X-Daily-Client` header. The extension
+// build (new tab and companion) always reports `extension`; otherwise the
+// native wrappers surface themselves through the app version (`ios`/`android`),
+// and everything else is the webapp.
+export const getDailyClientPlatform = (version?: string): string => {
+  if (isExtension) {
+    return 'extension';
+  }
+
+  if (version === 'android' || version === 'ios') {
+    return version;
+  }
+
+  return 'webapp';
+};
+
 export const isPWA = (): boolean =>
   // @ts-expect-error - Safari only, not web standard.
   globalThis?.navigator?.standalone ||
@@ -170,15 +186,11 @@ export const getCurrentBrowserName = (): BrowserName => {
 
 // Browsers we ship the daily.dev extension for — anything embed-extension
 // related (including GrowthBook enrollment for the reader experiment) should
-// gate on this so Firefox/Safari/Other users don't get dragged into a flow
-// that can never complete for them.
+// gate on this so users on browsers we don't ship for never get dragged into
+// a flow that can never complete for them. Only Chrome and Edge ship today.
 export const isExtensionCapableBrowser = (): boolean => {
   const name = getCurrentBrowserName();
-  return (
-    name === BrowserName.Chrome ||
-    name === BrowserName.Brave ||
-    name === BrowserName.Edge
-  );
+  return name === BrowserName.Chrome || name === BrowserName.Edge;
 };
 
 export const shuffleArray = <T>(array: T[]): T[] => {

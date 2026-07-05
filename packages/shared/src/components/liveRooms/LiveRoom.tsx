@@ -7,157 +7,67 @@ import React, {
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
-import classNames from 'classnames';
+import { useSwipeable } from 'react-swipeable';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../typography/Typography';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/Button';
 import { Loader } from '../Loader';
-import { LiveRoomVideoTile } from './LiveRoomVideoTile';
-import { LiveRoomControls } from './LiveRoomControls';
 import { LiveRoomChatPanel } from './LiveRoomChatPanel';
 import type { ChatReactionAnalytics } from './LiveRoomChatReactions';
 import { LiveRoomQueuePanel } from './LiveRoomQueuePanel';
 import {
   LiveRoomProvider,
   useLiveRoom as useLiveRoomConnection,
-  type LiveRoomReaction,
 } from '../../contexts/LiveRoomContext';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useLogContext } from '../../contexts/LogContext';
 import { AuthTriggers } from '../../lib/auth';
 import { isDevelopment } from '../../lib/constants';
-import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
+import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
 import { LogEvent } from '../../lib/log';
 import { useLiveRoom as useLiveRoomQuery } from '../../hooks/liveRooms/useLiveRoom';
-import { useLiveRoomParticipantProfiles } from '../../hooks/liveRooms/useLiveRoomParticipantProfiles';
-import { useLiveRoomParticipantStreams } from '../../hooks/liveRooms/useLiveRoomParticipantStreams';
 import { useStreamDuration } from '../../hooks/liveRooms/useStreamDuration';
+import { useCountdownSeconds } from '../../hooks/liveRooms/useCountdownSeconds';
+import { useLiveRoomStandupAnalytics } from '../../hooks/liveRooms/useLiveRoomStandupAnalytics';
+import { useLiveRoomSubscriptionAction } from '../../hooks/liveRooms/useLiveRoomSubscriptionAction';
+import { useLiveRoomStageModel } from '../../hooks/liveRooms/useLiveRoomStageModel';
 import useLogEventOnce from '../../hooks/log/useLogEventOnce';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useExitConfirmation } from '../../hooks/useExitConfirmation';
-import { clearStoredLiveRoomResumeSession } from '../../lib/liveRoom/resumeSessionStorage';
-import { TimerIcon, UserIcon } from '../icons';
-import { IconSize } from '../Icon';
-import type { UserShortProfile } from '../../lib/user';
-import {
-  buildDisplayProfile,
-  buildParticipantProfile,
-} from './liveRoomParticipants';
+import { useViewSize, ViewSize } from '../../hooks';
+import { BrowserName, getCurrentBrowserName } from '../../lib/func';
 import {
   LiveRoomSidePanelTabs,
   type LiveRoomSidePanelTab,
 } from './LiveRoomSidePanelTabs';
+import { LiveRoomAgendaPanel } from './LiveRoomAgendaPanel';
+import { LiveRoomControls } from './LiveRoomControls';
+import { LiveRoomHeader } from './LiveRoomHeader';
+import { LiveRoomLobby } from './LiveRoomLobby';
+import lobbyStyles from './LiveRoomLobby.module.css';
+import { LiveRoomReactionOverlay } from './LiveRoomReactionOverlay';
+import { LiveRoomStage } from './LiveRoomStage';
 
 interface LiveRoomProps {
   roomId: string;
 }
 
-const MAX_STAGE_TILES_PER_PAGE = 12;
-const EMPTY_PARTICIPANT_IDS: string[] = [];
-
-const getStageGridColumnCount = (count: number): number => {
-  if (count <= 1) {
-    return 1;
-  }
-  if (count <= 4) {
-    return 2;
-  }
-  if (count <= 9) {
-    return 3;
-  }
-  return 4;
-};
-
-const formatStreamDuration = (seconds: number): string => {
-  const safeSeconds = Math.max(0, Math.floor(seconds));
-  const hours = Math.floor(safeSeconds / 3600);
-  const minutes = Math.floor((safeSeconds % 3600) / 60);
-  const remainingSeconds = safeSeconds % 60;
-  const pad = (value: number) => value.toString().padStart(2, '0');
-
-  if (hours > 0) {
-    return `${hours}:${pad(minutes)}:${pad(remainingSeconds)}`;
-  }
-
-  return `${pad(minutes)}:${pad(remainingSeconds)}`;
-};
-
-const AnimatedCount = ({ value }: { value: number }): ReactElement => (
-  <span key={value} className="live-room-count-bump tabular-nums">
-    {value}
-  </span>
-);
-
-const ReactionOverlay = ({
-  reactions,
-}: {
-  reactions: LiveRoomReaction[];
-}): ReactElement | null => {
-  if (reactions.length === 0) {
-    return null;
-  }
-
-  return (
-    <div
-      className="pointer-events-none absolute inset-x-0 bottom-0 top-1/4 z-3 overflow-hidden"
-      aria-hidden
-    >
-      {reactions.map((reaction) => (
-        <span
-          key={reaction.id}
-          className="live-room-reaction absolute bottom-0 text-4xl"
-          style={
-            {
-              '--live-room-reaction-left': `${16 + reaction.lane * 16}%`,
-              '--live-room-reaction-drift':
-                reaction.lane % 2 === 0 ? '-1rem' : '1rem',
-            } as React.CSSProperties
-          }
-        >
-          {reaction.emoji}
-        </span>
-      ))}
-    </div>
-  );
-};
-
-const LiveBadge = ({ isLive }: { isLive: boolean }): ReactElement => (
-  <span
-    className={classNames(
-      'inline-flex items-center gap-1.5 rounded-8 px-2 py-0.5 typo-caption1',
-      isLive
-        ? 'bg-accent-ketchup-default text-white'
-        : 'bg-surface-float text-text-tertiary',
-    )}
-  >
-    <span
-      className={classNames(
-        'size-1.5 rounded-full',
-        isLive ? 'animate-pulse bg-white' : 'bg-text-quaternary',
-      )}
-    />
-    <span className="font-bold uppercase tracking-wide">
-      {isLive ? 'Live' : 'Setup'}
-    </span>
-  </span>
-);
-
 const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const router = useRouter();
   const { displayToast } = useToastNotification();
   const { isAuthReady, showLogin, user } = useAuthContext();
-  const { logEvent } = useLogContext();
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const isMobile = !isTablet;
   const {
     status,
     errorMessage,
     roomState,
     role,
     participantId,
+    disconnect,
     sendChatMessage,
     deleteChatMessage,
     sendChatMessageReaction,
@@ -175,6 +85,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     reactions,
     chatMessages,
     isMicOn,
+    toggleMic,
   } = useLiveRoomConnection();
   const privilegeState = getLiveRoomPrivilegeState(
     roomState,
@@ -186,6 +97,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     error: roomError,
     isLoading: isRoomLoading,
   } = useLiveRoomQuery(roomId);
+  const lobbyCountdown = useCountdownSeconds(room?.scheduledStart);
 
   const { onAskConfirmation } = useExitConfirmation({
     message: 'Leave the standup? You will disconnect from the stream.',
@@ -196,63 +108,35 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   const [moderationBusy, setModerationBusy] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<LiveRoomSidePanelTab>('chat');
   const [stagePage, setStagePage] = useState(0);
+  const [focusedSpeakerIndex, setFocusedSpeakerIndex] = useState<number | null>(
+    null,
+  );
+  const [hasUnseenQueueJoins, setHasUnseenQueueJoins] = useState(false);
+  const [disableAnimatedLobbyBackground, setDisableAnimatedLobbyBackground] =
+    useState(false);
+  const previousQueueLengthRef = useRef<number | null>(null);
   const lastLoggedRoomErrorRef = useRef<string | null>(null);
-  const buildStandupExtra = useCallback(
-    (extra: Record<string, unknown> = {}) =>
-      buildStandupAnalyticsExtra(
-        {
-          roomId,
-          authKind: user ? 'authenticated' : 'anonymous',
-          role,
-          roomStatus: roomState?.status ?? room?.status ?? null,
-          roomMode: roomState?.mode ?? room?.mode ?? null,
-          connectionStatus: status,
-          participantId,
-          isCoHost: privilegeState.isCoHost,
-          hasLocalAudioTrack: !!localStream?.getAudioTracks()[0],
-          hasLocalVideoTrack: !!localStream?.getVideoTracks()[0],
-          videoQuality: videoSettings.quality,
-          audioOnly: videoSettings.audioOnly,
-          hideSelfView: videoSettings.hideSelfView,
-        },
-        extra,
-      ),
-    [
-      roomId,
-      user,
-      role,
-      roomState?.status,
-      roomState?.mode,
-      room?.status,
-      room?.mode,
-      status,
-      participantId,
-      privilegeState.isCoHost,
-      localStream,
-      videoSettings.quality,
-      videoSettings.audioOnly,
-      videoSettings.hideSelfView,
-    ],
-  );
-  const logStandupAction = useCallback(
-    (
-      eventName: LogEvent,
-      targetId: string,
-      extra: Record<string, unknown> = {},
-    ) => {
-      logEvent({
-        event_name: eventName,
-        target_id: targetId,
-        extra: buildStandupExtra(extra),
-      });
-    },
-    [buildStandupExtra, logEvent],
-  );
+  const { buildStandupExtra, logStandupAction } = useLiveRoomStandupAnalytics({
+    roomId,
+    user,
+    role,
+    roomStatus: roomState?.status ?? room?.status ?? null,
+    roomMode: roomState?.mode ?? room?.mode ?? null,
+    connectionStatus: status,
+    participantId,
+    isCoHost: privilegeState.isCoHost,
+    localStream,
+    videoSettings,
+  });
+
+  const navigateHome = useCallback(async (): Promise<void> => {
+    onAskConfirmation(false);
+    await disconnect();
+    await router.push('/');
+  }, [disconnect, onAskConfirmation, router]);
 
   const handleLeave = (): void => {
-    onAskConfirmation(false);
-    clearStoredLiveRoomResumeSession(roomId);
-    router.push('/standups');
+    navigateHome().catch(() => undefined);
   };
   const handleNavigateBack = (surface: string): void => {
     logStandupAction(LogEvent.LeaveStandup, roomId, { surface });
@@ -402,6 +286,19 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     },
     [kickParticipant, logStandupAction],
   );
+  const handleToggleSelfTileMute = useCallback(async (): Promise<void> => {
+    try {
+      await toggleMic();
+      logStandupAction(LogEvent.ChangeStandupSettings, 'mic', {
+        surface: 'stage_tile',
+        value: !isMicOn,
+      });
+    } catch (error) {
+      displayToast(
+        error instanceof Error ? error.message : 'Failed to update mic',
+      );
+    }
+  }, [displayToast, isMicOn, logStandupAction, toggleMic]);
   const handleGrantCoHost = useCallback(
     async (targetParticipantId: string, surface: string): Promise<void> => {
       await grantCoHost(targetParticipantId);
@@ -420,7 +317,10 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     },
     [logStandupAction, revokeCoHost],
   );
-  const handleTabChange = (tab: LiveRoomSidePanelTab): void => {
+  const handleTabChange = (
+    tab: LiveRoomSidePanelTab,
+    source: 'tab_click' | 'swipe' = 'tab_click',
+  ): void => {
     if (tab === activeTab) {
       return;
     }
@@ -428,9 +328,43 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     logStandupAction(LogEvent.SwitchStandupPanelTab, tab, {
       surface: 'side_panel',
       previousTab: activeTab,
+      source,
     });
     setActiveTab(tab);
   };
+  const standupShareLink = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return '';
+    }
+
+    return `${window.location.origin}/standups/${roomId}`;
+  }, [roomId]);
+  const standupShareText = room
+    ? `Join me for "${room.topic}", a live developer standup on daily.dev`
+    : 'Join this developer standup on daily.dev';
+  const [, shareOrCopyStandup] = useShareOrCopyLink({
+    link: standupShareLink,
+    text: standupShareText,
+    logObject: (provider) => ({
+      event_name: LogEvent.ShareStandup,
+      target_id: roomId,
+      extra: buildStandupExtra({
+        surface: 'lobby_hero',
+        provider,
+      }),
+    }),
+  });
+  const {
+    subscribed,
+    subscriptionBusy,
+    toggleSubscription: handleToggleSubscription,
+  } = useLiveRoomSubscriptionAction({
+    room,
+    roomId,
+    hostUserId: room?.host.id,
+    surface: 'lobby_hero',
+    buildExtra: buildStandupExtra,
+  });
 
   useLogEventOnce(
     () => ({
@@ -441,180 +375,59 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     { condition: !!room && !roomError && !isRoomLoading && isAuthReady },
   );
 
-  const participantIds = useMemo(() => {
-    const ids = new Set<string>();
-    const hostId = room?.host.id;
-
-    Object.keys(roomState?.participants ?? {}).forEach((id) => {
-      if (id && id !== hostId) {
-        ids.add(id);
-      }
-    });
-
-    chatMessages.forEach((message) => {
-      if (message.participantId && message.participantId !== hostId) {
-        ids.add(message.participantId);
-      }
-    });
-
-    return [...ids];
-  }, [chatMessages, room?.host.id, roomState?.participants]);
-  const visibleRemoteStreams = useMemo(
-    () =>
-      videoSettings.audioOnly
-        ? remoteStreams.filter((stream) => stream.kind !== 'video')
-        : remoteStreams,
-    [remoteStreams, videoSettings.audioOnly],
-  );
-  const participantProfiles = useLiveRoomParticipantProfiles(participantIds);
-  const participantStreamsById = useLiveRoomParticipantStreams(
-    visibleRemoteStreams,
-    localStream,
-    participantId,
-  );
   const { hasHostPrivileges, isHost } = privilegeState;
-  const isCreated = roomState?.status === 'created';
-  const isLive = roomState?.status === 'live';
+  const isCreated = (roomState?.status ?? room?.status) === 'created';
+  const isLive = (roomState?.status ?? room?.status) === 'live';
   const isEnded = roomState?.status === 'ended' || room?.status === 'ended';
-  const roomMode = roomState?.mode ?? room?.mode ?? 'moderated';
-  const isFreeForAll = roomMode === 'free_for_all';
-  const streamTimerReference = isLive
-    ? roomState?.createdAt ?? room?.createdAt ?? null
-    : null;
+  const hasAgendaContent =
+    !!room?.descriptionHtml ||
+    (!!room?.contentEmbeds && room.contentEmbeds.length > 0);
+  const streamTimerReference = isLive ? room?.startedAt ?? null : null;
   const streamDuration = useStreamDuration(streamTimerReference);
   const participantCount = roomState
     ? Object.keys(roomState.participants).length
     : room?.participantCount ?? 0;
-  const hostId = room?.host.id ?? '';
-  const coHostParticipantIds = roomState?.coHostParticipantIds ?? [];
-  const activeSpeakerIds =
-    roomState?.stage.activeSpeakerParticipantIds.filter(
-      (id) => !!roomState.participants[id] && id !== hostId,
-    ) ?? [];
-  const queuedParticipantIds =
-    roomState?.stage.speakerQueueParticipantIds.filter(
-      (id) => !!roomState.participants[id],
-    ) ?? [];
-  const raisedHandParticipantIds =
-    roomState?.stage.raisedHandParticipantIds ?? EMPTY_PARTICIPANT_IDS;
-  const raisedHandQueuePositions = useMemo(() => {
-    const positions = new Map<string, number>();
-    if (!roomState) {
-      return positions;
-    }
-
-    raisedHandParticipantIds.forEach((id) => {
-      if (roomState.participants[id]) {
-        positions.set(id, positions.size + 1);
-      }
-    });
-
-    return positions;
-  }, [raisedHandParticipantIds, roomState]);
-  const audienceParticipantIds = roomState
-    ? Object.values(roomState.participants)
-        .map((participant) => participant.participantId)
-        .filter(
-          (id) =>
-            id !== hostId &&
-            !activeSpeakerIds.includes(id) &&
-            !queuedParticipantIds.includes(id),
-        )
-    : [];
-  const stageLimit = roomState?.stage.speakerLimit ?? null;
-  const remainingSeats =
-    stageLimit === null
-      ? null
-      : Math.max(stageLimit - activeSpeakerIds.length, 0);
-  let waitingPrompt = 'Audience can join the queue';
-  if (isFreeForAll && remainingSeats !== null) {
-    waitingPrompt =
-      remainingSeats === 0
-        ? 'The stage is full right now'
-        : `${remainingSeats} open stage spots`;
-  } else if (queuedParticipantIds.length > 0) {
-    waitingPrompt = `${queuedParticipantIds.length} in queue`;
-  }
-  const participantProfilesById = useMemo(() => {
-    const nextProfiles = new Map(participantProfiles);
-
-    if (room?.host) {
-      nextProfiles.set(room.host.id, room.host);
-    }
-
-    return nextProfiles;
-  }, [participantProfiles, room?.host]);
-  const mentionSuggestions = useMemo(() => {
-    if (!room?.host) {
-      return [] as UserShortProfile[];
-    }
-
-    const suggestions: UserShortProfile[] = [room.host];
-
-    participantIds.forEach((id) => {
-      const profile = participantProfilesById.get(id);
-      if (profile) {
-        suggestions.push(profile);
-      }
-    });
-
-    return suggestions;
-  }, [participantIds, participantProfilesById, room?.host]);
-  const audioPublisherIds = new Set(
-    Object.values(roomState?.mediaPublications ?? {})
-      .filter((publication) => publication.kind === 'audio')
-      .map((publication) => publication.participantId),
-  );
-  const isParticipantMuted = (id: string, selfView: boolean): boolean =>
-    selfView ? !isMicOn : !audioPublisherIds.has(id);
-  const stageSpeakers = room?.host
-    ? [
-        {
-          id: room.host.id,
-          profile: buildDisplayProfile(room.host),
-          stream: participantStreamsById.get(room.host.id) ?? null,
-          selfView: room.host.id === participantId,
-          isHost: true,
-          isCoHost: false,
-          raisedHandQueuePosition: raisedHandQueuePositions.get(room.host.id),
-        },
-        ...activeSpeakerIds.map((id) => ({
-          id,
-          profile: buildDisplayProfile(
-            participantProfilesById.get(id) ?? buildParticipantProfile(id),
-          ),
-          stream: participantStreamsById.get(id) ?? null,
-          selfView: id === participantId,
-          isHost: false,
-          isCoHost: coHostParticipantIds.includes(id),
-          raisedHandQueuePosition: raisedHandQueuePositions.get(id),
-        })),
-      ].map((speaker) => ({
-        ...speaker,
-        isMuted: isParticipantMuted(speaker.id, speaker.selfView),
-      }))
-    : [];
-  const visibleStageSpeakers = stageSpeakers.filter(
-    (speaker) => !speaker.selfView || !videoSettings.hideSelfView,
-  );
-  const stagePageCount = Math.max(
-    1,
-    Math.ceil(visibleStageSpeakers.length / MAX_STAGE_TILES_PER_PAGE),
-  );
-  const clampedStagePage = Math.min(stagePage, stagePageCount - 1);
-  const stagePageStart = clampedStagePage * MAX_STAGE_TILES_PER_PAGE;
-  const paginatedStageSpeakers = visibleStageSpeakers.slice(
+  const {
+    participantProfilesById,
+    mentionSuggestions,
+    roomMode,
+    isFreeForAll,
+    activeSpeakerIds,
+    queuedParticipantIds,
+    audienceParticipantIds,
+    coHostParticipantIds,
+    stageLimit,
+    waitingPrompt,
+    stagePageCount,
+    clampedStagePage,
+    visibleStageSpeakers,
+    paginatedStageSpeakers,
     stagePageStart,
-    stagePageStart + MAX_STAGE_TILES_PER_PAGE,
-  );
-  const stageGridColumnCount = getStageGridColumnCount(
-    paginatedStageSpeakers.length,
-  );
-  const stageGridRowCount = Math.max(
-    1,
-    Math.ceil(paginatedStageSpeakers.length / stageGridColumnCount),
-  );
-  const showAudienceWaiting = isCreated && !hasHostPrivileges;
+    stageTilesPerPage,
+    stageGridColumnCount,
+    stageGridRowCount,
+  } = useLiveRoomStageModel({
+    room,
+    roomState,
+    chatMessages,
+    remoteStreams,
+    localStream,
+    participantId,
+    isMicOn,
+    videoSettings,
+    isMobile,
+    stagePage,
+  });
+  const canSubscribeToLobby =
+    isCreated && !!room?.scheduledStart && user?.id !== room?.host.id;
+
+  useEffect(() => {
+    // Safari can retain rasterized layers for the infinitely scaled pulse
+    // rings, so keep the static halo but disable the animated overlay there.
+    setDisableAnimatedLobbyBackground(
+      getCurrentBrowserName() === BrowserName.Safari,
+    );
+  }, []);
 
   useEffect(() => {
     if (isFreeForAll && activeTab === 'queue') {
@@ -623,8 +436,148 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
   }, [activeTab, isFreeForAll]);
 
   useEffect(() => {
+    if (activeTab === 'agenda' && !hasAgendaContent) {
+      setActiveTab('chat');
+    }
+  }, [activeTab, hasAgendaContent]);
+
+  useEffect(() => {
+    if (!roomState) {
+      return;
+    }
+    const queueLength = queuedParticipantIds.length;
+    const previousLength = previousQueueLengthRef.current;
+    previousQueueLengthRef.current = queueLength;
+
+    if (queueLength === 0) {
+      setHasUnseenQueueJoins(false);
+      return;
+    }
+    if (previousLength === null) {
+      return;
+    }
+    if (!hasHostPrivileges || isFreeForAll) {
+      return;
+    }
+    if (activeTab === 'queue') {
+      return;
+    }
+    if (queueLength <= previousLength) {
+      return;
+    }
+    setHasUnseenQueueJoins(true);
+  }, [
+    roomState,
+    queuedParticipantIds.length,
+    hasHostPrivileges,
+    isFreeForAll,
+    activeTab,
+  ]);
+
+  useEffect(() => {
+    if (activeTab === 'queue') {
+      setHasUnseenQueueJoins(false);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
     setStagePage((currentPage) => Math.min(currentPage, stagePageCount - 1));
   }, [stagePageCount]);
+
+  useEffect(() => {
+    if (
+      focusedSpeakerIndex !== null &&
+      focusedSpeakerIndex >= visibleStageSpeakers.length
+    ) {
+      setFocusedSpeakerIndex(null);
+    }
+  }, [focusedSpeakerIndex, visibleStageSpeakers.length]);
+
+  const focusSpeaker = (globalIndex: number): void => {
+    const speaker = visibleStageSpeakers[globalIndex];
+    if (!speaker) {
+      return;
+    }
+    logStandupAction(LogEvent.FocusStandupSpeaker, speaker.id, {
+      surface: 'stage_tile',
+      action: 'open',
+      source: 'tap',
+      isSelf: !!speaker.selfView,
+      position: globalIndex,
+      totalSpeakers: visibleStageSpeakers.length,
+    });
+    setFocusedSpeakerIndex(globalIndex);
+  };
+  const unfocusSpeaker = (): void => {
+    if (focusedSpeakerIndex === null) {
+      return;
+    }
+    const speaker = visibleStageSpeakers[focusedSpeakerIndex];
+    logStandupAction(LogEvent.FocusStandupSpeaker, speaker?.id ?? '', {
+      surface: 'stage_tile',
+      action: 'close',
+      source: 'backdrop',
+      position: focusedSpeakerIndex,
+      totalSpeakers: visibleStageSpeakers.length,
+    });
+    setFocusedSpeakerIndex(null);
+  };
+  const handleSpeakerFocusNavigate = (delta: 1 | -1): void => {
+    if (focusedSpeakerIndex === null || visibleStageSpeakers.length === 0) {
+      return;
+    }
+    const total = visibleStageSpeakers.length;
+    const nextIndex = (((focusedSpeakerIndex + delta) % total) + total) % total;
+    const nextSpeaker = visibleStageSpeakers[nextIndex];
+    logStandupAction(LogEvent.FocusStandupSpeaker, nextSpeaker?.id ?? '', {
+      surface: 'stage_tile',
+      action: 'navigate',
+      source: delta === 1 ? 'swipe_next' : 'swipe_prev',
+      isSelf: !!nextSpeaker?.selfView,
+      position: nextIndex,
+      totalSpeakers: total,
+    });
+    setStagePage(Math.floor(nextIndex / stageTilesPerPage));
+    setFocusedSpeakerIndex(nextIndex);
+  };
+
+  const sidePanelTabs: {
+    id: LiveRoomSidePanelTab;
+    label: string;
+    count?: number;
+  }[] = [
+    { id: 'chat', label: 'Chat' },
+    ...(isFreeForAll
+      ? []
+      : [
+          {
+            id: 'queue' as const,
+            label: 'Queue',
+            count: queuedParticipantIds.length,
+          },
+        ]),
+    {
+      id: 'audience',
+      label: 'Audience',
+      count: audienceParticipantIds.length,
+    },
+    ...(hasAgendaContent ? [{ id: 'agenda' as const, label: 'Agenda' }] : []),
+  ];
+  const sidePanelTabIds = sidePanelTabs.map((tab) => tab.id);
+  const activeTabIndex = sidePanelTabIds.indexOf(activeTab);
+  const navigateSidePanelTab = (delta: 1 | -1): void => {
+    const nextIndex = activeTabIndex + delta;
+    if (nextIndex < 0 || nextIndex >= sidePanelTabIds.length) {
+      return;
+    }
+    handleTabChange(sidePanelTabIds[nextIndex], 'swipe');
+  };
+  const sidePanelSwipeHandlers = useSwipeable({
+    onSwipedLeft: () => navigateSidePanelTab(1),
+    onSwipedRight: () => navigateSidePanelTab(-1),
+    trackTouch: true,
+    trackMouse: false,
+  });
 
   useEffect(() => {
     if (!roomError) {
@@ -638,16 +591,12 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
     }
     lastLoggedRoomErrorRef.current = errorKey;
 
-    logEvent({
-      event_name: LogEvent.StandupError,
-      target_id: 'room query',
-      extra: buildStandupExtra({
-        surface: 'page',
-        source: 'room_query',
-        message: roomError.message,
-      }),
+    logStandupAction(LogEvent.StandupError, 'room query', {
+      surface: 'page',
+      source: 'room_query',
+      message: roomError.message,
     });
-  }, [buildStandupExtra, logEvent, roomError, roomId]);
+  }, [logStandupAction, roomError, roomId]);
 
   if (!isAuthReady || isRoomLoading) {
     return (
@@ -674,7 +623,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           variant={ButtonVariant.Primary}
           onClick={() => handleNavigateBack('load_error')}
         >
-          Back to standups
+          Back home
         </Button>
       </div>
     );
@@ -701,277 +650,160 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
           variant={ButtonVariant.Primary}
           onClick={() => handleNavigateBack('connection_error')}
         >
-          Back to standups
+          Back home
         </Button>
       </div>
     );
   }
 
+  const chatPanelNode = (
+    <LiveRoomChatPanel
+      chatMessages={chatMessages}
+      participantProfilesById={participantProfilesById}
+      mentionSuggestions={mentionSuggestions}
+      participantChatPermissions={roomState?.chatPermissions ?? {}}
+      currentParticipantId={participantId}
+      hostParticipantId={room.host.id}
+      coHostParticipantIds={coHostParticipantIds}
+      canChat={canChat}
+      isLive={!!isLive}
+      isEnded={!!isEnded}
+      isLoggedIn={!!user}
+      hasHostPrivileges={hasHostPrivileges}
+      onSendMessage={handleSendChatMessage}
+      onDeleteMessage={handleDeleteChatMessage}
+      onSendMessageReaction={handleSendChatMessageReaction}
+      onRemoveMessageReaction={handleRemoveChatMessageReaction}
+      onKickParticipant={handleKickChatParticipant}
+      onSetParticipantChatEnabled={handleSetParticipantChatEnabled}
+      onRequestLogin={handleChatLogin}
+    />
+  );
+
+  if (isCreated) {
+    return (
+      <div className="relative isolate flex flex-1 flex-col overflow-hidden tablet:gap-3 tablet:p-4">
+        <span aria-hidden="true" className={lobbyStyles.lobbyBackground}>
+          {!disableAnimatedLobbyBackground ? (
+            <>
+              <span className={lobbyStyles.pulseRing} />
+              <span
+                className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay1}`}
+              />
+              <span
+                className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay2}`}
+              />
+              <span
+                className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay3}`}
+              />
+              <span
+                className={`${lobbyStyles.pulseRing} ${lobbyStyles.pulseRingDelay4}`}
+              />
+            </>
+          ) : null}
+        </span>
+        <LiveRoomReactionOverlay reactions={reactions} />
+        <LiveRoomLobby
+          room={room}
+          lobbyCountdown={lobbyCountdown}
+          participantCount={participantCount}
+          showParticipantCount={!!roomState}
+          canSubscribeToLobby={canSubscribeToLobby}
+          subscribed={subscribed}
+          subscriptionBusy={subscriptionBusy}
+          onToggleSubscription={handleToggleSubscription}
+          isHost={isHost}
+          onNavigateBack={handleNavigateBack}
+          onShare={shareOrCopyStandup}
+          onAddToCalendar={(provider) =>
+            logStandupAction(LogEvent.AddStandupToCalendar, roomId, {
+              surface: 'lobby_hero',
+              provider,
+            })
+          }
+          audienceParticipantIds={audienceParticipantIds}
+          participantProfilesById={participantProfilesById}
+          chatPanel={chatPanelNode}
+          hostControls={
+            hasHostPrivileges && roomState ? (
+              <LiveRoomControls roomId={roomId} onLeave={handleLeave} />
+            ) : null
+          }
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="relative flex flex-1 flex-col gap-3 overflow-hidden p-3 tablet:p-4">
-      <ReactionOverlay reactions={reactions} />
+    <div className="relative flex flex-1 flex-col overflow-hidden tablet:gap-3 tablet:p-4">
+      <LiveRoomReactionOverlay reactions={reactions} />
 
-      <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4 py-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <LiveBadge isLive={!!isLive} />
-          <Typography
-            tag={TypographyTag.H1}
-            type={TypographyType.Title3}
-            bold
-            truncate
-            className="min-w-0"
-          >
-            {room.topic}
-          </Typography>
-        </div>
-        {roomState ? (
-          <div className="flex items-center gap-4 text-text-tertiary typo-caption1">
-            {isLive ? (
-              <span className="inline-flex items-center gap-1.5">
-                <TimerIcon size={IconSize.XSmall} />
-                <span className="tabular-nums text-text-secondary">
-                  {formatStreamDuration(streamDuration)}
-                </span>
-              </span>
-            ) : null}
-            <span className="inline-flex items-center gap-1.5">
-              <UserIcon size={IconSize.XSmall} />
-              <span className="font-bold text-text-primary">
-                <AnimatedCount value={participantCount} />
-              </span>
-              <span>watching</span>
-            </span>
-          </div>
-        ) : null}
-      </header>
+      <LiveRoomHeader
+        title={room.topic}
+        isLive={!!isLive}
+        isCreated={!!isCreated}
+        scheduledStart={room.scheduledStart}
+        streamDuration={streamDuration}
+        lobbyCountdown={lobbyCountdown}
+        participantCount={participantCount}
+        showParticipantCount={!!roomState}
+        canSubscribeToLobby={canSubscribeToLobby}
+        subscribed={subscribed}
+        subscriptionBusy={subscriptionBusy}
+        onToggleSubscription={handleToggleSubscription}
+      />
 
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 laptop:grid-cols-[minmax(0,1fr)_22rem]">
-        <section
-          aria-label="Speakers"
-          className="relative flex min-h-0 flex-col"
-        >
-          {stagePageCount > 1 ? (
-            <div className="flex items-center justify-end gap-2 px-1.5 pb-3">
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-              >
-                Page {clampedStagePage + 1} / {stagePageCount}
-              </Typography>
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-                disabled={clampedStagePage === 0}
-                onClick={() =>
-                  setStagePage((currentPage) => Math.max(0, currentPage - 1))
-                }
-              >
-                Prev
-              </Button>
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-                disabled={clampedStagePage >= stagePageCount - 1}
-                onClick={() =>
-                  setStagePage((currentPage) =>
-                    Math.min(stagePageCount - 1, currentPage + 1),
-                  )
-                }
-              >
-                Next
-              </Button>
-            </div>
-          ) : null}
-          {paginatedStageSpeakers.length > 0 ? (
-            <div
-              className="grid min-h-0 flex-1 gap-3 overflow-hidden p-1.5 pb-24 tablet:pb-28"
-              style={{
-                gridTemplateColumns: `repeat(${stageGridColumnCount}, minmax(0, 1fr))`,
-                gridTemplateRows: `repeat(${stageGridRowCount}, minmax(0, 1fr))`,
-              }}
-            >
-              {paginatedStageSpeakers.map((speaker) => {
-                const canModerate = hasHostPrivileges && !speaker.isHost;
-                const canManageCoHosts = isHost && !speaker.isHost;
-
-                return (
-                  <div
-                    key={speaker.id}
-                    className="flex min-h-0 min-w-0 items-center justify-center"
-                  >
-                    <LiveRoomVideoTile
-                      stream={speaker.stream}
-                      user={speaker.profile}
-                      selfView={speaker.selfView}
-                      isHost={speaker.isHost}
-                      isCoHost={speaker.isCoHost}
-                      raisedHandQueuePosition={speaker.raisedHandQueuePosition}
-                      isMuted={speaker.isMuted}
-                      onGrantCoHost={
-                        canManageCoHosts && !speaker.isCoHost
-                          ? () =>
-                              guardedModerationAction(
-                                `tile-grant-cohost-${speaker.id}`,
-                                () =>
-                                  handleGrantCoHost(speaker.id, 'stage_tile'),
-                              )
-                          : undefined
-                      }
-                      onRevokeCoHost={
-                        canManageCoHosts && speaker.isCoHost
-                          ? () =>
-                              guardedModerationAction(
-                                `tile-revoke-cohost-${speaker.id}`,
-                                () =>
-                                  handleRevokeCoHost(speaker.id, 'stage_tile'),
-                              )
-                          : undefined
-                      }
-                      onRemoveSpeaker={
-                        canModerate
-                          ? () =>
-                              guardedModerationAction(
-                                `tile-remove-${speaker.id}`,
-                                () =>
-                                  handleRemoveSpeaker(speaker.id, 'stage_tile'),
-                              )
-                          : undefined
-                      }
-                      onKick={
-                        canModerate
-                          ? () =>
-                              guardedModerationAction(
-                                `tile-kick-${speaker.id}`,
-                                () =>
-                                  handleKickParticipant(
-                                    speaker.id,
-                                    'stage_tile',
-                                  ),
-                              )
-                          : undefined
-                      }
-                      isRemoving={
-                        moderationBusy === `tile-remove-${speaker.id}`
-                      }
-                      isGrantingCoHost={
-                        moderationBusy === `tile-grant-cohost-${speaker.id}`
-                      }
-                      isRevokingCoHost={
-                        moderationBusy === `tile-revoke-cohost-${speaker.id}`
-                      }
-                      isKicking={moderationBusy === `tile-kick-${speaker.id}`}
-                      moderationDisabled={!!moderationBusy}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="flex flex-1 items-center justify-center rounded-16 border border-dashed border-border-subtlest-tertiary p-6 text-center">
-              <div className="flex flex-col items-center gap-2">
-                <span className="flex size-10 items-center justify-center rounded-full bg-surface-float text-text-tertiary">
-                  <UserIcon size={IconSize.Small} />
-                </span>
-                <Typography type={TypographyType.Footnote} bold>
-                  No visible speakers
-                </Typography>
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  {showAudienceWaiting
-                    ? 'The host will bring people on stage when the standup starts.'
-                    : waitingPrompt}
-                </Typography>
-              </div>
-            </div>
-          )}
-
-          {showAudienceWaiting ? (
-            <div className="absolute inset-x-0 top-0 flex justify-center p-3">
-              <span className="rounded-10 bg-overlay-base-tertiary px-3 py-1.5 backdrop-blur">
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  Waiting for the host to start the standup…
-                </Typography>
-              </span>
-            </div>
-          ) : null}
-
-          {isEnded ? (
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-overlay-base-tertiary backdrop-blur">
-              <div className="pointer-events-auto flex flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6 text-center">
-                <Typography type={TypographyType.Title3} bold>
-                  This standup has ended
-                </Typography>
-                <Button
-                  variant={ButtonVariant.Primary}
-                  onClick={() => handleNavigateBack('ended_state')}
-                >
-                  Back to standups
-                </Button>
-              </div>
-            </div>
-          ) : null}
-
-          {roomState && !isEnded ? (
-            <LiveRoomControls roomId={roomId} onLeave={handleLeave} />
-          ) : null}
-        </section>
+      <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[1fr_auto] tablet:grid-rows-none tablet:gap-3 laptop:grid-cols-[minmax(0,1fr)_22rem]">
+        <LiveRoomStage
+          roomId={roomId}
+          isEnded={!!isEnded}
+          stagePageCount={stagePageCount}
+          clampedStagePage={clampedStagePage}
+          setStagePage={setStagePage}
+          stageGridColumnCount={stageGridColumnCount}
+          stageGridRowCount={stageGridRowCount}
+          speakers={paginatedStageSpeakers}
+          audioSpeakers={visibleStageSpeakers}
+          stagePageStart={stagePageStart}
+          focusedSpeakerIndex={focusedSpeakerIndex}
+          waitingPrompt={waitingPrompt}
+          hasHostPrivileges={hasHostPrivileges}
+          isHost={isHost}
+          moderationBusy={moderationBusy}
+          onFocusSpeaker={focusSpeaker}
+          onUnfocusSpeaker={unfocusSpeaker}
+          onSpeakerFocusNavigate={handleSpeakerFocusNavigate}
+          guardedModerationAction={guardedModerationAction}
+          onGrantCoHost={handleGrantCoHost}
+          onRevokeCoHost={handleRevokeCoHost}
+          onRemoveSpeaker={handleRemoveSpeaker}
+          onKickParticipant={handleKickParticipant}
+          onToggleSelfMute={handleToggleSelfTileMute}
+          onNavigateBack={handleNavigateBack}
+          showControls={!!roomState}
+          onLeave={handleLeave}
+        />
 
         <aside
           aria-label="Standup side panel"
-          className="flex min-h-0 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float"
+          className="flex h-[40dvh] min-h-0 flex-col overflow-hidden rounded-none border-x-0 border-b-0 border-t border-border-subtlest-tertiary bg-surface-float tablet:h-auto tablet:rounded-16 tablet:border-x tablet:border-b"
         >
           <LiveRoomSidePanelTabs
             active={activeTab}
-            tabs={[
-              { id: 'chat', label: 'Chat' },
-              ...(isFreeForAll
-                ? []
-                : [
-                    {
-                      id: 'queue' as const,
-                      label: 'Queue',
-                      count: queuedParticipantIds.length,
-                    },
-                  ]),
-              {
-                id: 'audience',
-                label: 'Audience',
-                count: audienceParticipantIds.length,
-              },
-            ]}
+            tabs={sidePanelTabs}
             onChange={handleTabChange}
+            attentionTabId="queue"
+            hasAttention={hasUnseenQueueJoins}
           />
-          <div className="min-h-0 flex-1">
-            {activeTab === 'chat' ? (
-              <LiveRoomChatPanel
-                chatMessages={chatMessages}
-                participantProfilesById={participantProfilesById}
-                mentionSuggestions={mentionSuggestions}
-                participantChatPermissions={roomState?.chatPermissions ?? {}}
-                currentParticipantId={participantId}
-                hostParticipantId={room.host.id}
-                coHostParticipantIds={coHostParticipantIds}
-                canChat={canChat}
-                isLive={!!isLive}
-                isEnded={!!isEnded}
-                isLoggedIn={!!user}
-                hasHostPrivileges={hasHostPrivileges}
-                onSendMessage={handleSendChatMessage}
-                onDeleteMessage={handleDeleteChatMessage}
-                onSendMessageReaction={handleSendChatMessageReaction}
-                onRemoveMessageReaction={handleRemoveChatMessageReaction}
-                onKickParticipant={handleKickChatParticipant}
-                onSetParticipantChatEnabled={handleSetParticipantChatEnabled}
-                onRequestLogin={handleChatLogin}
+          <div {...sidePanelSwipeHandlers} className="min-h-0 flex-1">
+            {activeTab === 'chat' ? chatPanelNode : null}
+            {activeTab === 'agenda' ? (
+              <LiveRoomAgendaPanel
+                descriptionHtml={room.descriptionHtml}
+                contentEmbeds={room.contentEmbeds}
               />
-            ) : (
+            ) : null}
+            {activeTab === 'queue' || activeTab === 'audience' ? (
               <LiveRoomQueuePanel
                 tab={activeTab}
                 mode={roomMode}
@@ -1002,7 +834,7 @@ const LiveRoomInner = ({ roomId }: LiveRoomProps): ReactElement => {
                   handleKickParticipant(targetParticipantId, 'queue_panel')
                 }
               />
-            )}
+            ) : null}
           </div>
         </aside>
       </div>

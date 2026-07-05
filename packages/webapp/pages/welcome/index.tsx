@@ -39,7 +39,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getPathnameWithQuery } from '@dailydotdev/shared/src/lib';
 import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { authGradientBg } from '@dailydotdev/shared/src/components/banners';
+import { authGradientBg } from '@dailydotdev/shared/src/components/marketing/banners';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
@@ -99,7 +99,7 @@ const DemoPage = (): ReactElement => {
   }, [isAuthReady, isLoggedIn, router]);
 
   const [didScroll, setDidScroll] = useState(false);
-  useEventListener(globalThis, 'scroll', () => {
+  useEventListener(globalThis as unknown as Window, 'scroll', () => {
     setDidScroll(window.scrollY > 100);
   });
   const hasData = !!queryClient.getQueryData(feedProps.feedQueryKey);

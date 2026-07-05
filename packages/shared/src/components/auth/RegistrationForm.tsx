@@ -10,16 +10,23 @@ import type {
   RegistrationParameters,
 } from '../../lib/auth';
 import { AuthEventNames, AuthTriggers } from '../../lib/auth';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureOnboardingV2 } from '../../lib/featureManagement';
 import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
-import { MailIcon, UserIcon, VIcon, AtIcon, ArrowIcon } from '../icons';
+import {
+  MailIcon,
+  UserIcon,
+  VIcon,
+  AtIcon,
+  ArrowIcon,
+  BriefIcon,
+  JobIcon,
+} from '../icons';
 import type { CloseModalFunc } from '../modals/common';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
+import AuthHeader from './AuthHeader';
 import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
 import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
@@ -28,13 +35,10 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
 import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
+import CloudProviderDropdown from '../profile/CloudProviderDropdown';
+import type { ProfileExtraField } from '../../lib/user';
 import Alert, { AlertType, AlertParagraph } from '../widgets/Alert';
 import { isDevelopment, isProductionAPI } from '../../lib/constants';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '../typography/Typography';
 import { onboardingGradientClasses } from '../onboarding/common';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { authAtom } from '../../features/onboarding/store/onboarding.store';
@@ -53,6 +57,13 @@ export interface RegistrationFormProps extends AuthFormProps {
   onExistingEmailLoginClick?: () => void;
   onBackToIntro?: () => void;
   targetId?: string;
+  // Header title above the form. Defaults to "Sign up" because this form is
+  // exclusively reached via the signup flow; left overridable so the same
+  // component can reflect a login-style title if a flow ever needs it.
+  headerTitle?: string;
+  // Optional extra profile fields to collect at signup, driven by the
+  // onboarding funnel (campaign cohorts). Empty/undefined = default fields.
+  extraFields?: ProfileExtraField[];
 }
 
 export type RegistrationFormValues = Omit<
@@ -74,6 +85,8 @@ const RegistrationForm = ({
   onUpdateHints = () => undefined,
   simplified,
   targetId,
+  headerTitle = 'Sign up',
+  extraFields = [],
 }: RegistrationFormProps): ReactElement => {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -84,11 +97,7 @@ const RegistrationForm = ({
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [name, setName] = useState('');
   const isRecruiterOnboarding = trigger === AuthTriggers.RecruiterSelfServe;
-  const { value: isOnboardingV2 } = useConditionalFeature({
-    feature: featureOnboardingV2,
-    shouldEvaluate: trigger === AuthTriggers.Onboarding,
-  });
-  const hideExperienceLevel = isRecruiterOnboarding || isOnboardingV2;
+  const hideExperienceLevel = isRecruiterOnboarding;
   const {
     username,
     setUsername,
@@ -171,10 +180,14 @@ const RegistrationForm = ({
     delete values['cf-turnstile-response'];
 
     const requiresExperienceLevel = !hideExperienceLevel;
+    // Cloud provider is mandatory only when the funnel requests it (the
+    // campaign flow); company/job title stay optional.
+    const requiresCloudProvider = extraFields.includes('cloudProvider');
     if (
       !values['traits.name']?.length ||
       !values['traits.username']?.length ||
-      (requiresExperienceLevel && !values['traits.experienceLevel']?.length)
+      (requiresExperienceLevel && !values['traits.experienceLevel']?.length) ||
+      (requiresCloudProvider && !values['traits.cloudProvider']?.length)
     ) {
       const setHints = { ...hints };
 
@@ -189,6 +202,10 @@ const RegistrationForm = ({
         !values['traits.experienceLevel']?.length
       ) {
         setHints['traits.experienceLevel'] = 'Please provide experience level.';
+      }
+      if (requiresCloudProvider && !values['traits.cloudProvider']?.length) {
+        setHints['traits.cloudProvider'] =
+          'Please provide your cloud provider.';
       }
 
       onUpdateHints(setHints);
@@ -252,15 +269,30 @@ const RegistrationForm = ({
   const isUsernameValid = !hints?.['traits.username'];
   const isExperienceLevelValid =
     !isSubmitted || !hints?.['traits.experienceLevel'];
+  const isCloudProviderValid = !isSubmitted || !hints?.['traits.cloudProvider'];
   const { isAuthenticating = false } = useAtomValue(authAtom);
+
+  // Only show the valid-state checkmark once the user has actually typed
+  // a non-empty value; an untouched field shouldn't look like it passed
+  // validation.
+  const isEmailFilled = !!email?.length;
+  const isNameFilled = !!name?.length;
+  const isUsernameFilled = !!username?.length;
+  const successIcon = (
+    <VIcon
+      aria-hidden
+      role="presentation"
+      className="text-accent-avocado-default"
+    />
+  );
 
   const usernameIcon = (() => {
     if (isLoadingUsername) {
       return <Loader />;
     }
 
-    if (isUsernameValid) {
-      return <VIcon className="text-accent-avocado-default" />;
+    if (isUsernameFilled && isUsernameValid) {
+      return successIcon;
     }
 
     return undefined;
@@ -269,212 +301,237 @@ const RegistrationForm = ({
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_KEY ?? '';
 
   return (
-    <>
+    <div className="flex flex-col">
       {!isAuthenticating && (
-        <div className="flex gap-4 pt-2">
-          <Button
-            className="border-border-subtlest-tertiary text-text-secondary"
-            data-funnel-track={FunnelTargetId.StepBack}
-            icon={<ArrowIcon className="-rotate-90" />}
-            onClick={onBackToIntro}
-            size={ButtonSize.Medium}
-            type="button"
-            variant={ButtonVariant.Secondary}
-          />
-          <Typography
-            className={
-              isOnboardingV2
-                ? 'mt-0.5 flex-1 text-text-primary'
-                : classNames('mt-0.5 flex-1', onboardingGradientClasses)
-            }
-            tag={TypographyTag.H2}
-            type={
-              isOnboardingV2 ? TypographyType.Title2 : TypographyType.Title1
-            }
-            bold={isOnboardingV2}
-          >
-            Join daily.dev
-          </Typography>
-        </div>
+        <AuthHeader simplified={simplified} title={headerTitle} />
       )}
-      <AuthForm
+      <div
         className={classNames(
-          'mt-10 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',
+          // `simplified` is set by `/onboarding`, where the outer page already
+          // applies horizontal padding. Anywhere else (e.g. the inline AuthModal)
+          // the form would otherwise hug the container edge, so add it here.
+          !simplified && 'px-4 pb-4 tablet:px-6',
         )}
-        data-testid="registration_form"
-        id="auth-form"
-        onSubmit={handleFormSubmit}
-        ref={formRef}
       >
-        {token && <TokenInput token={token} />}
-        <TextField
-          autoFocus
-          autoComplete="email"
-          saveHintSpace
-          className={{ container: 'w-full' }}
-          leftIcon={<MailIcon aria-hidden role="presentation" />}
-          name="traits.email"
-          inputId="email"
-          label="Email"
-          type="email"
-          value={email}
-          rightIcon={
-            <VIcon
-              aria-hidden
-              role="presentation"
-              className="text-accent-avocado-default"
-            />
-          }
-        />
-        {hints?.['traits.email'] && !alreadyExists && (
-          <Alert
-            className="-mt-4 mb-3 min-w-full"
-            type={AlertType.Error}
-            title={hints['traits.email']}
-          />
-        )}
-        {alreadyExists && (
-          <Alert
-            className="-mt-4 mb-3 min-w-full"
-            type={AlertType.Error}
-            flexDirection="flex-row"
-          >
-            <AlertParagraph className="!mt-0 flex-1">
-              Email is taken. Existing user?{' '}
-              <button
+        {!isAuthenticating && (
+          <div className="flex items-start gap-4 pt-2">
+            {onBackToIntro && (
+              <Button
+                className="border-border-subtlest-tertiary text-text-secondary"
+                data-funnel-track={FunnelTargetId.StepBack}
+                icon={<ArrowIcon className="-rotate-90" />}
+                onClick={onBackToIntro}
+                size={ButtonSize.Medium}
                 type="button"
-                onClick={() => onExistingEmailLoginClick?.()}
-                className="font-bold underline"
-              >
-                Log in.
-              </button>
-            </AlertParagraph>
-          </Alert>
-        )}
-        <TextField
-          autoComplete="name"
-          saveHintSpace
-          className={{ container: 'w-full' }}
-          valid={isNameValid}
-          leftIcon={<UserIcon aria-hidden role="presentation" />}
-          name="traits.name"
-          inputId="traits.name"
-          label="Name"
-          hint={hints?.['traits.name']}
-          value={name}
-          onBlur={(e) => setName(e.target.value)}
-          valueChanged={() =>
-            hints?.['traits.name'] &&
-            onUpdateHints({ ...hints, 'traits.name': '' })
-          }
-          rightIcon={
-            isNameValid ? (
-              <VIcon
-                aria-hidden
-                role="presentation"
-                className="text-accent-avocado-default"
+                variant={ButtonVariant.Secondary}
               />
-            ) : undefined
-          }
-        />
-        <PasswordField
-          required
-          minLength={6}
-          maxLength={72}
-          saveHintSpace
-          className={{ container: 'w-full' }}
-          name="password"
-          inputId="password"
-          label="Create a password"
-          autoComplete="new-password"
-        />
-        <TextField
-          autoComplete="user"
-          saveHintSpace
-          className={{ container: 'w-full' }}
-          valid={isLoadingUsername || isUsernameValid}
-          leftIcon={<AtIcon aria-hidden role="presentation" secondary />}
-          name="traits.username"
-          inputId="traits.username"
-          label="Enter a username"
-          value={username}
-          onBlur={(e) => setUsername(e.target.value)}
-          hint={
-            isLoadingUsername
-              ? labels.generatingUsername
-              : hints?.['traits.username']
-          }
-          valueChanged={() =>
-            hints?.['traits.username'] &&
-            onUpdateHints({ ...hints, 'traits.username': '' })
-          }
-          rightIcon={usernameIcon}
-        />
-        {!hideExperienceLevel && (
-          <ExperienceLevelDropdown
-            className={{ container: 'w-full' }}
-            name="traits.experienceLevel"
-            valid={isExperienceLevelValid}
-            hint={hints?.['traits.experienceLevel']}
-            onChange={() =>
-              hints?.['traits.experienceLevel'] &&
-              onUpdateHints({ ...hints, 'traits.experienceLevel': '' })
-            }
-            saveHintSpace
-          />
+            )}
+            <h1 className="mx-auto mt-4 flex-1 font-bold leading-[1.3] tracking-tight typo-title1 tablet:leading-[1.22] tablet:typo-large-title">
+              <span
+                className={classNames(
+                  onboardingGradientClasses,
+                  'text-text-primary',
+                )}
+              >
+                The homepage developers deserve
+              </span>
+            </h1>
+          </div>
         )}
-        {!isOnboardingV2 && (
-          <>
-            <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
-              Your email will be used to send you product and community updates
-            </span>
-            <Checkbox name="optOutMarketing">
-              I don&apos;t want to receive updates and promotions via email
-            </Checkbox>
-          </>
-        )}
-        <ConditionalWrapper
-          condition={simplified ?? false}
-          wrapper={(component) => (
-            <AuthContainer className="!mt-0 border-t border-border-subtlest-tertiary p-3 !px-3 pb-1">
-              {component}
-            </AuthContainer>
+        <AuthForm
+          className={classNames(
+            'mt-10 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',
           )}
+          data-testid="registration_form"
+          id="auth-form"
+          onSubmit={handleFormSubmit}
+          ref={formRef}
         >
-          <Turnstile
-            ref={turnstileRef}
-            siteKey={turnstileSiteKey}
-            options={{
-              theme: 'dark',
-            }}
-            className="mx-auto min-h-[4.5rem]"
-            onWidgetLoad={() => setTurnstileLoaded(true)}
+          {token && <TokenInput token={token} />}
+          <TextField
+            autoFocus
+            autoComplete="email"
+            saveHintSpace
+            className={{ container: 'w-full' }}
+            leftIcon={<MailIcon aria-hidden role="presentation" />}
+            name="traits.email"
+            inputId="email"
+            label="Email"
+            type="email"
+            value={email}
+            rightIcon={isEmailFilled ? successIcon : undefined}
           />
-          {turnstileError && (
+          {hints?.['traits.email'] && !alreadyExists && (
             <Alert
+              className="-mt-4 mb-3 min-w-full"
               type={AlertType.Error}
-              title="Please complete the security check."
+              title={hints['traits.email']}
             />
           )}
-          {turnstileErrorLoading && (
+          {alreadyExists && (
             <Alert
+              className="-mt-4 mb-3 min-w-full"
               type={AlertType.Error}
-              title="Turnstile is taking too long to load. Please try again."
+              flexDirection="flex-row"
+            >
+              <AlertParagraph className="!mt-0 flex-1">
+                Email is taken. Existing user?{' '}
+                <button
+                  type="button"
+                  onClick={() => onExistingEmailLoginClick?.()}
+                  className="font-bold underline"
+                >
+                  Log in.
+                </button>
+              </AlertParagraph>
+            </Alert>
+          )}
+          <TextField
+            autoComplete="name"
+            saveHintSpace
+            className={{ container: 'w-full' }}
+            valid={isNameValid}
+            leftIcon={<UserIcon aria-hidden role="presentation" />}
+            name="traits.name"
+            inputId="traits.name"
+            label="Name"
+            hint={hints?.['traits.name']}
+            value={name}
+            onBlur={(e) => setName(e.target.value)}
+            valueChanged={() =>
+              hints?.['traits.name'] &&
+              onUpdateHints({ ...hints, 'traits.name': '' })
+            }
+            rightIcon={isNameFilled && isNameValid ? successIcon : undefined}
+          />
+          <PasswordField
+            required
+            minLength={6}
+            maxLength={72}
+            saveHintSpace
+            className={{ container: 'w-full' }}
+            name="password"
+            inputId="password"
+            label="Create a password"
+            autoComplete="new-password"
+          />
+          <TextField
+            autoComplete="user"
+            saveHintSpace
+            className={{ container: 'w-full' }}
+            valid={isLoadingUsername || isUsernameValid}
+            leftIcon={<AtIcon aria-hidden role="presentation" secondary />}
+            name="traits.username"
+            inputId="traits.username"
+            label="Enter a username"
+            value={username}
+            onBlur={(e) => setUsername(e.target.value)}
+            hint={
+              isLoadingUsername
+                ? labels.generatingUsername
+                : hints?.['traits.username']
+            }
+            valueChanged={() =>
+              hints?.['traits.username'] &&
+              onUpdateHints({ ...hints, 'traits.username': '' })
+            }
+            rightIcon={usernameIcon}
+          />
+          {!hideExperienceLevel && (
+            <ExperienceLevelDropdown
+              className={{ container: 'w-full' }}
+              name="traits.experienceLevel"
+              valid={isExperienceLevelValid}
+              hint={hints?.['traits.experienceLevel']}
+              onChange={() =>
+                hints?.['traits.experienceLevel'] &&
+                onUpdateHints({ ...hints, 'traits.experienceLevel': '' })
+              }
+              saveHintSpace
             />
           )}
-          <Button
-            className="w-full"
-            data-funnel-track={FunnelTargetId.StepCta}
-            disabled={isCheckPending || !turnstileLoaded}
-            form="auth-form"
-            type="submit"
-            variant={ButtonVariant.Primary}
+          {extraFields.includes('company') && (
+            <TextField
+              autoComplete="organization"
+              saveHintSpace
+              className={{ container: 'w-full' }}
+              leftIcon={<BriefIcon aria-hidden role="presentation" />}
+              name="traits.company"
+              inputId="traits.company"
+              label="Company name"
+            />
+          )}
+          {extraFields.includes('jobTitle') && (
+            <TextField
+              autoComplete="organization-title"
+              saveHintSpace
+              className={{ container: 'w-full' }}
+              leftIcon={<JobIcon aria-hidden role="presentation" />}
+              name="traits.title"
+              inputId="traits.title"
+              label="Job title"
+            />
+          )}
+          {extraFields.includes('cloudProvider') && (
+            <CloudProviderDropdown
+              className={{ container: 'w-full' }}
+              name="traits.cloudProvider"
+              valid={isCloudProviderValid}
+              hint={hints?.['traits.cloudProvider']}
+              onChange={() =>
+                hints?.['traits.cloudProvider'] &&
+                onUpdateHints({ ...hints, 'traits.cloudProvider': '' })
+              }
+              saveHintSpace
+            />
+          )}
+          <Checkbox name="optOutMarketing">
+            I don&apos;t want to receive updates and promotions via email
+          </Checkbox>
+          <ConditionalWrapper
+            condition={simplified ?? false}
+            wrapper={(component) => (
+              <AuthContainer className="!mt-0 border-t border-border-subtlest-tertiary p-3 !px-3 pb-1">
+                {component}
+              </AuthContainer>
+            )}
           >
-            Sign up
-          </Button>
-        </ConditionalWrapper>
-      </AuthForm>
-    </>
+            <Turnstile
+              ref={turnstileRef}
+              siteKey={turnstileSiteKey}
+              options={{
+                theme: 'dark',
+              }}
+              className="mx-auto min-h-[4.5rem]"
+              onWidgetLoad={() => setTurnstileLoaded(true)}
+            />
+            {turnstileError && (
+              <Alert
+                type={AlertType.Error}
+                title="Please complete the security check."
+              />
+            )}
+            {turnstileErrorLoading && (
+              <Alert
+                type={AlertType.Error}
+                title="Turnstile is taking too long to load. Please try again."
+              />
+            )}
+            <Button
+              className="w-full"
+              data-funnel-track={FunnelTargetId.StepCta}
+              disabled={isCheckPending || !turnstileLoaded}
+              form="auth-form"
+              size={ButtonSize.Large}
+              type="submit"
+              variant={ButtonVariant.Primary}
+            >
+              Sign up
+            </Button>
+          </ConditionalWrapper>
+        </AuthForm>
+      </div>
+    </div>
   );
 };
 

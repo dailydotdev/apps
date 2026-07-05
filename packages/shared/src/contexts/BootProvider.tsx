@@ -20,10 +20,18 @@ import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
-import { checkIsExtension, isIOSNative } from '../lib/func';
-import type { Feed, FeedList } from '../graphql/feed';
+import {
+  checkIsExtension,
+  getDailyClientPlatform,
+  isIOSNative,
+} from '../lib/func';
 import type { ApiErrorResult } from '../graphql/common';
-import { ApiError, getApiError, gqlClient } from '../graphql/common';
+import {
+  ApiError,
+  dailyClientHeader,
+  getApiError,
+  gqlClient,
+} from '../graphql/common';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { LogContextProvider } from './LogContext';
 import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
@@ -88,6 +96,7 @@ const updateLocalBootData = (
     'feeds',
     'geo',
     'isAndroidApp',
+    'daily',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -104,14 +113,6 @@ const getCachedOrNull = () => {
   }
 };
 
-export type PreloadFeeds = ({
-  feeds,
-  user,
-}: {
-  feeds?: Feed[];
-  user?: Pick<LoggedUser, 'id'>;
-}) => void;
-
 export const BootDataProvider = ({
   children,
   app,
@@ -122,23 +123,6 @@ export const BootDataProvider = ({
   getPage,
 }: BootDataProviderProps): ReactElement => {
   const queryClient = useQueryClient();
-  const preloadFeedsFn: PreloadFeeds = ({ feeds, user }) => {
-    if (!feeds || !user) {
-      return;
-    }
-
-    queryClient.setQueryData<FeedList['feedList']>(
-      generateQueryKey(RequestKey.Feeds, user),
-      {
-        edges: feeds.map((item) => ({ node: item })),
-        pageInfo: {
-          hasNextPage: false,
-        },
-      },
-    );
-  };
-  const preloadFeedsRef = useRef(preloadFeedsFn);
-  preloadFeedsRef.current = preloadFeedsFn;
 
   const [initialLoad, setInitialLoad] = useState<boolean>();
   const [cachedBootData, setCachedBootData] = useState<Partial<Boot>>();
@@ -162,8 +146,6 @@ export const BootDataProvider = ({
       applyTheme(themeModes[boot.settings.theme]);
     }
 
-    preloadFeedsRef.current({ feeds: boot.feeds, user: boot.user });
-
     setCachedBootData(boot);
   }, [localBootData]);
 
@@ -185,7 +167,6 @@ export const BootDataProvider = ({
     queryFn: async () => {
       const pathname = globalThis?.location?.pathname;
       const result = await getBootData({ app, pathname });
-      preloadFeedsRef.current({ feeds: result.feeds, user: result.user });
 
       return result;
     },
@@ -196,8 +177,17 @@ export const BootDataProvider = ({
 
   const isBootReady = isFetched && !isError;
   const loadedFromCache = !!cachedBootData;
-  const { user, settings, alerts, notifications, squads, geo, isAndroidApp } =
-    cachedBootData || {};
+  const {
+    user,
+    settings,
+    alerts,
+    notifications,
+    squads,
+    feeds,
+    geo,
+    isAndroidApp,
+    daily,
+  } = cachedBootData || {};
 
   useRefreshToken(remoteData?.accessToken, refetch);
 
@@ -273,9 +263,22 @@ export const BootDataProvider = ({
     [updateBootData],
   );
 
+  const setDaily = useCallback(
+    (value: boolean) => updateBootData({ daily: value }),
+    [updateBootData],
+  );
+
   const updateAlerts = useCallback(
     (updatedAlerts: BootCacheData['alerts']) =>
       updateBootData({ alerts: updatedAlerts }),
+    [updateBootData],
+  );
+
+  const updateNotificationsCount = useCallback(
+    (unreadNotificationsCount: number) =>
+      updateBootData({
+        notifications: { unreadNotificationsCount },
+      }),
     [updateBootData],
   );
 
@@ -285,6 +288,8 @@ export const BootDataProvider = ({
     },
     [cachedBootData],
   );
+
+  gqlClient.setHeader(dailyClientHeader, getDailyClientPlatform(version));
 
   if (logged?.language && logged?.isPlus) {
     gqlClient.setHeader('content-language', logged.language as string);
@@ -380,6 +385,9 @@ export const BootDataProvider = ({
         firstLoad={initialLoad}
         geo={geo}
         isAndroidApp={isAndroidApp}
+        feeds={feeds}
+        daily={daily}
+        setDaily={setDaily}
       >
         <SettingsContextProvider
           settings={settings}
@@ -403,6 +411,7 @@ export const BootDataProvider = ({
                   <NotificationsContextProvider
                     isNotificationsReady={isBootReady}
                     unreadCount={notifications?.unreadNotificationsCount}
+                    onUpdateUnreadCount={updateNotificationsCount}
                   >
                     {children}
                   </NotificationsContextProvider>

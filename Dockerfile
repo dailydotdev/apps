@@ -1,4 +1,4 @@
-FROM node:24.14-alpine
+FROM node:24.18-alpine
 RUN apk add g++ make python3
 
 RUN mkdir -p /opt/app
@@ -22,7 +22,7 @@ RUN \
   apk --no-cache add \
   libc6-compat
 
-RUN npm i -g pnpm
+RUN corepack enable && corepack prepare pnpm@10.33.4 --activate
 RUN pnpm install
 
 COPY packages ./packages

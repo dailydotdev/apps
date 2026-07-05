@@ -1,0 +1,150 @@
+@property --strip-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.strip {
+  contain: layout paint style;
+  background: linear-gradient(
+        var(--theme-background-subtle),
+        var(--theme-background-subtle)
+      )
+      padding-box,
+    conic-gradient(
+        from var(--strip-angle),
+        var(--theme-border-subtlest-tertiary) 0deg,
+        var(--theme-border-subtlest-tertiary) 210deg,
+        var(--theme-accent-bacon-default) 290deg,
+        var(--theme-border-subtlest-tertiary) 360deg
+      )
+      border-box;
+  border: 1px solid transparent;
+  animation: stripBorderSpin 6s linear infinite;
+}
+
+.carouselViewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 0.5rem,
+    #000 calc(100% - 2rem),
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 0.5rem,
+    #000 calc(100% - 2rem),
+    transparent 100%
+  );
+}
+
+@keyframes stripBorderSpin {
+  to {
+    --strip-angle: 360deg;
+  }
+}
+
+.marqueeTrack {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  will-change: transform;
+}
+
+.slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+.loadingBar {
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 0.5rem;
+  max-width: 22rem;
+  transform: translateY(-50%);
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--theme-surface-float);
+}
+
+.loadingBar span {
+  display: block;
+  width: 35%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--theme-surface-hover);
+  animation: stripLoading 1.2s ease-in-out infinite;
+}
+
+@keyframes stripLoading {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+@media (max-width: 655.98px) {
+  .strip {
+    background: var(--theme-background-subtle);
+    border: none;
+    animation: none;
+  }
+
+  .strip::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      var(--theme-accent-bacon-default) 50%,
+      transparent 100%
+    );
+    animation: stripBottomGlow 3.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+
+@keyframes stripBottomGlow {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scaleX(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .strip {
+    animation: none;
+  }
+
+  .strip::after {
+    animation: none;
+  }
+
+  .marqueeTrack {
+    transition: none !important;
+  }
+
+  .loadingBar span {
+    animation: none;
+  }
+}

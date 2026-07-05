@@ -10,6 +10,7 @@ import type { SidebarSectionProps } from './common';
 import useCustomDefaultFeed from '../../../hooks/feed/useCustomDefaultFeed';
 import { isExtension } from '../../../lib/func';
 import { useSortedFeeds } from '../../../hooks/feed/useSortedFeeds';
+import { FeedOrigin } from '../../../graphql/feed';
 
 export const CustomFeedSection = ({
   isItemsButton,
@@ -22,43 +23,47 @@ export const CustomFeedSection = ({
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const customFeeds =
-      sortedFeeds.map((feed) => {
-        const isDefaultFeed = defaultFeedId === feed.node.id;
+      sortedFeeds
+        .filter((feed) => feed.node.flags?.origin !== FeedOrigin.TagChip)
+        .map((feed) => {
+          const isDefaultFeed = defaultFeedId === feed.node.id;
 
-        if (isDefaultFeed) {
-          const isCustomFeedPageActive = [
-            `${webappUrl}feeds/${feed.node.id}`,
-            '/',
-          ].includes(defaultRenderSectionProps.activePage);
+          if (isDefaultFeed) {
+            const isCustomFeedPageActive = [
+              `${webappUrl}feeds/${feed.node.id}`,
+              '/',
+            ].includes(defaultRenderSectionProps.activePage);
+
+            return {
+              title: feed.node.flags?.name || `Feed ${feed.node.id}`,
+              // on extension we don't use router so no need for a path
+              // onNavTabClick takes care of the navigation
+              path: isExtension ? undefined : '/',
+              action: isExtension
+                ? () => onNavTabClick?.('default')
+                : undefined,
+              icon: feed.node.flags?.icon || (
+                <HashtagIcon secondary={isCustomFeedPageActive} />
+              ),
+              rightIcon: () => (
+                <StarIcon secondary className="text-surface-disabled" />
+              ),
+              active: isCustomFeedPageActive,
+            };
+          }
+
+          const feedPath = `${webappUrl}feeds/${feed.node.id}`;
 
           return {
-            title: feed.node.flags.name || `Feed ${feed.node.id}`,
-            // on extension we don't use router so no need for a path
-            // onNavTabClick takes care of the navigation
-            path: isExtension ? undefined : '/',
-            action: isExtension ? () => onNavTabClick?.('default') : undefined,
-            icon: feed.node.flags.icon || (
-              <HashtagIcon secondary={isCustomFeedPageActive} />
+            title: feed.node.flags?.name || `Feed ${feed.node.id}`,
+            path: feedPath,
+            icon: feed.node.flags?.icon || (
+              <HashtagIcon
+                secondary={defaultRenderSectionProps.activePage === feedPath}
+              />
             ),
-            rightIcon: () => (
-              <StarIcon secondary className="text-surface-disabled" />
-            ),
-            active: isCustomFeedPageActive,
           };
-        }
-
-        const feedPath = `${webappUrl}feeds/${feed.node.id}`;
-
-        return {
-          title: feed.node.flags.name || `Feed ${feed.node.id}`,
-          path: feedPath,
-          icon: feed.node.flags.icon || (
-            <HashtagIcon
-              secondary={defaultRenderSectionProps.activePage === feedPath}
-            />
-          ),
-        };
-      }) ?? [];
+        }) ?? [];
 
     return customFeeds.filter(Boolean);
   }, [

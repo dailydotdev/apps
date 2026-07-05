@@ -5,7 +5,7 @@ export interface NotificationsContextData {
   unreadCount: number;
   isNotificationsReady?: boolean;
   clearUnreadCount: () => void;
-  incrementUnreadCount: () => void;
+  incrementUnreadCount: (value?: number) => void;
 }
 
 const NotificationsContext = React.createContext<NotificationsContextData>(
@@ -18,11 +18,13 @@ export interface NotificationsContextProviderProps {
   children: ReactNode;
   unreadCount?: number;
   isNotificationsReady?: boolean;
+  onUpdateUnreadCount?: (unreadCount: number) => void;
 }
 
 export const NotificationsContextProvider = ({
   children,
   isNotificationsReady,
+  onUpdateUnreadCount,
   unreadCount = 0,
 }: NotificationsContextProviderProps): ReactElement => {
   const [currentUnreadCount, setCurrentUnreadCount] = useState(unreadCount);
@@ -31,10 +33,19 @@ export const NotificationsContextProvider = ({
     setCurrentUnreadCount(unreadCount);
   }, [unreadCount]);
 
-  const clearUnreadCount = useCallback(() => setCurrentUnreadCount(0), []);
+  const clearUnreadCount = useCallback(() => {
+    setCurrentUnreadCount(0);
+    onUpdateUnreadCount?.(0);
+  }, [onUpdateUnreadCount]);
+
   const incrementUnreadCount = useCallback(
-    (value = 1) => setCurrentUnreadCount((current) => current + value),
-    [],
+    (value = 1) => {
+      const nextUnreadCount = currentUnreadCount + value;
+
+      setCurrentUnreadCount(nextUnreadCount);
+      onUpdateUnreadCount?.(nextUnreadCount);
+    },
+    [currentUnreadCount, onUpdateUnreadCount],
   );
 
   const data: NotificationsContextData = {

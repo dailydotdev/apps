@@ -22,6 +22,7 @@ import { VerifiedCompanyUserBadge } from '../VerifiedCompanyUserBadge';
 import { locationToString } from '../../lib/utils';
 import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
+import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
 
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
@@ -60,8 +61,10 @@ const ProfileHeader = ({
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
   const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
+
   return (
     <div className="relative w-full overflow-hidden laptop:rounded-t-16">
+      <ProfileDesktopPwaBackButton className="absolute left-4 top-4 z-1" />
       <div className="h-36">
         <Image src={cover} alt="Cover" className="h-full w-full object-cover" />
       </div>
@@ -80,7 +83,7 @@ const ProfileHeader = ({
             )}
             tag="a"
             disabled={!isSameUser}
-            type={ButtonVariant.Float}
+            variant={ButtonVariant.Float}
             icon={<EditIcon />}
             aria-label="Edit profile"
           />
@@ -99,7 +102,7 @@ const ProfileHeader = ({
         <div className="flex flex-col gap-2">
           {bio && <Typography type={TypographyType.Body}>{bio}</Typography>}
           <div className="flex items-center">
-            {user?.companies?.length > 0 && (
+            {!!user?.companies?.length && (
               <VerifiedCompanyUserBadge
                 size={ProfileImageSize.XSmall}
                 user={user}
@@ -110,7 +113,7 @@ const ProfileHeader = ({
                 }}
               />
             )}
-            {user?.companies?.length > 0 && user?.location && (
+            {!!user?.companies?.length && user?.location && (
               <Separator className="text-text-secondary" />
             )}
             {user?.location && (

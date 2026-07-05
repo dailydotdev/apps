@@ -11,6 +11,7 @@ import Toast from './notifications/Toast';
 import type { MainLayoutHeaderProps } from './layout/MainLayoutHeader';
 import MainLayoutHeader from './layout/MainLayoutHeader';
 import { InAppNotificationElement } from './notifications/InAppNotification';
+import { QuestUpdatesListener } from './quest/QuestUpdatesListener';
 import { useNotificationContext } from '../contexts/NotificationsContext';
 import { LogEvent, NotificationTarget, TargetType } from '../lib/log';
 import { PromptElement } from './modals/Prompt';
@@ -29,11 +30,21 @@ import { BootPopups } from './modals/BootPopups';
 import { StreakMilestonePopup } from './modals/streaks/StreakMilestonePopup';
 import { useFeedName } from '../hooks/feed/useFeedName';
 import { AuthTriggers } from '../lib/auth';
-import PlusMobileEntryBanner from './banners/PlusMobileEntryBanner';
+import PlusMobileEntryBanner from './marketing/banners/PlusMobileEntryBanner';
 import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
+import { SpotlightProvider } from './spotlight/SpotlightContext';
+import { SpotlightHost } from './spotlight/SpotlightHost';
 import { FeedbackWidget } from './feedback';
 import { isExtension } from '../lib/func';
+import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useRecordRecentPages } from '../hooks/useRecentPages';
+import { isSidebarSettingsPath } from './sidebar/sidebarCategory';
+import {
+  HomepageTopBanners,
+  useHomepageTopBannersVisibility,
+} from './marketing/banners/HomepageTopBanners';
+import { RouteProgressBar } from './RouteProgressBar';
 
 const GoBackHeaderMobile = dynamic(
   () =>
@@ -62,6 +73,14 @@ export interface MainLayoutProps
   canGoBack?: string;
   hideBackButton?: boolean;
   hideFeedbackWidget?: boolean;
+  /**
+   * Layout v2 only. Rendered above the floating feed card, alongside the
+   * built-in reading-reminder TopHero. Pages can pass dynamic banners
+   * (e.g. the extension's onboarding hero row) and the whole strip
+   * collapses to nothing if neither the reminder nor the banner has
+   * anything to show.
+   */
+  topBanner?: ReactNode;
 }
 
 export const feeds = Object.values(SharedFeedPage);
@@ -79,25 +98,106 @@ function MainLayoutComponent({
   onNavTabClick,
   canGoBack,
   hideFeedbackWidget = false,
+  topBanner,
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
-  const { user, isAuthReady, showLogin } = useAuthContext();
+  const { user, isAuthReady, isLoggedIn, showLogin } = useAuthContext();
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { sidebarExpanded, autoDismissNotifications } =
+  const { sidebarExpanded, autoDismissNotifications, loadedSettings, flags } =
     useContext(SettingsContext);
+  const isSidebarCompact = !!flags?.sidebarCompact;
+  const v2CollapsedPadding = isSidebarCompact
+    ? 'tablet:pl-16 laptop:pl-16'
+    : 'tablet:pl-16 laptop:pl-20';
+  const v2ExpandedPadding = isSidebarCompact
+    ? 'laptop:!pl-[19rem]'
+    : 'laptop:!pl-[20rem]';
   const [hasLoggedImpression, setHasLoggedImpression] = useState(false);
   const { feedName } = useActiveFeedNameContext();
   const page = router?.route?.substring(1).trim() as SharedFeedPage;
   const currentFeedName = feedName ?? page ?? SharedFeedPage.Popular;
-  const { isCustomFeed } = useFeedName({ feedName: currentFeedName });
+  const { isCustomFeed, isExploreTag } = useFeedName({
+    feedName: currentFeedName,
+  });
   const { plusEntryAnnouncementBar } = usePlusEntry();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
+  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
+  useRecordRecentPages(isV2);
   useNotificationParams();
+
+  // Settings pages render their navigation only inside the v2 context panel,
+  // so the sidebar force-expands there regardless of the stored preference.
+  // Mirror that here so the floating content keeps its expanded-width padding
+  // and never slides under the panel. Matches the `activePage` resolution the
+  // Sidebar receives below.
+  const forceSidebarExpanded =
+    isV2 &&
+    isSidebarSettingsPath(activePage ?? router.asPath ?? router.pathname ?? '');
+
+  // The main content's left padding settles from the rail width to the
+  // expanded-sidebar width once auth, settings, and the layout-variant flag
+  // resolve on the client. Without gating, the `transition-[padding]` below
+  // animates that initial settle on every hard refresh, sliding all content
+  // sideways. The layout is "settled" only once all three are resolved
+  // (`isLayoutVariantLoading` stays true until both auth and GrowthBook are
+  // ready, so it also covers the window where `isV2` hasn't reached its
+  // final value yet).
+  const layoutSettled =
+    isAuthReady && loadedSettings && !isLayoutVariantLoading;
+  const [contentTransitionsEnabled, setContentTransitionsEnabled] =
+    useState(false);
+  useEffect(() => {
+    if (layoutSettled) {
+      setContentTransitionsEnabled(true);
+    }
+  }, [layoutSettled]);
+  // The v2 page uses a tinted background; the document root stays
+  // `background-default`, so overscroll past the feed reveals a darker strip.
+  // Flag the root while v2 is active so it can paint the same tint (laptop+,
+  // matching where the tinted page background applies — see base.css).
+  useEffect(() => {
+    if (!isV2) {
+      return undefined;
+    }
+    const root = globalThis.document?.documentElement;
+    root?.classList.add('layout-v2');
+    return () => root?.classList.remove('layout-v2');
+  }, [isV2]);
+  // v2 (experiment) snaps the initial settle into place (transitions enable
+  // one commit later, so only genuine toggles animate). The control variant
+  // keeps animating on `layoutSettled` exactly as before.
+  const animateContentPadding = isV2
+    ? contentTransitionsEnabled
+    : layoutSettled;
+
+  // On laptop the v1 and v2 chrome (sidebar + global header) look different,
+  // so rendering before the experiment resolves makes v2 users flash the v1
+  // layout and then swap. Hold the variant-specific chrome until the flag has
+  // resolved so the correct layout paints once. Below laptop there is no v2
+  // chrome and `isLayoutVariantLoading` never resolves (the flag isn't
+  // evaluated there), so treat non-laptop as always resolved.
+  const isLayoutChromeResolved = !isLaptop || !isLayoutVariantLoading;
+
+  // Extension new tab mounts its own `ExtensionTopBanners` strip, so
+  // the webapp strip is suppressed there to avoid duplicate cards.
+  const { hasAny: hasTopBannersRaw } = useHomepageTopBannersVisibility();
+  const showHomepageTopBanners = !isExtension;
+  const hasTopBanners = showHomepageTopBanners && hasTopBannersRaw;
+
+  // The dual-sidebar layout takes ownership of the global header chrome
+  // (logo + search + user actions) on laptop+ for authenticated users
+  // (and for extension new tab regardless of auth state). When that's
+  // the case the global header is hidden, the main content gets the
+  // floating-card treatment, and the global feedback widget is suppressed
+  // because the rail provides its own.
+  const sidebarOwnsHeader =
+    isV2 && (isLoggedIn || isExtension) && showSidebar && sidebarRendered;
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
@@ -117,12 +217,16 @@ function MainLayoutComponent({
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   const isPageApplicableForOnboarding =
-    !page || feeds.includes(page) || isCustomFeed;
+    !page || feeds.includes(page) || isCustomFeed || isExploreTag;
   const shouldRedirectOnboarding =
     !isExtension &&
     !user &&
     isPageReady &&
     isPageApplicableForOnboarding &&
+    // Install referrals (`?ref=install`) are routed by the permission-primer
+    // flow in `_app` (to `/activate` or `/onboarding`). Redirecting here too
+    // would race that and bounce the user off `/activate`.
+    router?.query?.ref !== 'install' &&
     !isTesting;
 
   useEffect(() => {
@@ -166,8 +270,15 @@ function MainLayoutComponent({
     });
   }, [shouldShowLogin, showLogin]);
 
+  // Pages that render the app chrome (sidebar layout) wait for boot before
+  // painting — the same `isPageReady` gate the feeds already use. The v1/v2
+  // chrome differs structurally and the variant only resolves after boot, so
+  // rendering early makes v2 users paint the v1 layout and then snap. Holding
+  // until boot lets the resolved layout paint once. The gate is
+  // breakpoint-independent (false on both server and first client render until
+  // ready), so it stays free of hydration mismatches.
   if (
-    (!isPageReady && isPageApplicableForOnboarding) ||
+    (!isPageReady && (isPageApplicableForOnboarding || showSidebar)) ||
     shouldRedirectOnboarding
   ) {
     return null;
@@ -177,14 +288,22 @@ function MainLayoutComponent({
     isLaptopXL && screenCenteredOnMobileLayout ? true : screenCentered;
 
   return (
-    <div className="antialiased">
+    <div
+      className={classNames(
+        'antialiased',
+        isV2 &&
+          'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
+      )}
+    >
       {canGoBack && <GoBackHeaderMobile />}
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
+      <QuestUpdatesListener />
       <PromptElement />
       <Toast autoDismissNotifications={autoDismissNotifications} />
       <BootPopups />
+      <SpotlightHost />
       <StreakMilestonePopup />
       {plusEntryAnnouncementBar && (
         <PlusMobileEntryBanner
@@ -194,35 +313,70 @@ function MainLayoutComponent({
         />
       )}
 
-      <MainLayoutHeader
-        hasBanner={isBannerAvailable}
-        sidebarRendered={sidebarRendered}
-        additionalButtons={additionalButtons}
-        onLogoClick={onLogoClick}
-      />
+      {!sidebarOwnsHeader && isLayoutChromeResolved && (
+        <MainLayoutHeader
+          hasBanner={isBannerAvailable}
+          sidebarRendered={sidebarRendered}
+          additionalButtons={additionalButtons}
+          onLogoClick={onLogoClick}
+        />
+      )}
       <main
         className={classNames(
-          'flex flex-col transition-[padding] duration-300 ease-in-out laptop:pt-16',
-          showSidebar && 'tablet:pl-16 laptop:pl-11',
+          'flex flex-col',
+          animateContentPadding &&
+            'transition-[padding] duration-300 ease-in-out',
+          !sidebarOwnsHeader && 'laptop:pt-16',
+          showSidebar &&
+            (isV2 ? v2CollapsedPadding : 'tablet:pl-16 laptop:pl-11'),
           className,
           isAuthReady &&
-            !isScreenCentered &&
-            sidebarExpanded &&
-            'laptop:!pl-60',
-          isBannerAvailable && 'laptop:pt-24',
+            showSidebar &&
+            (sidebarExpanded || forceSidebarExpanded) &&
+            (isV2 ? v2ExpandedPadding : !isScreenCentered && 'laptop:!pl-60'),
+          isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
         )}
       >
-        {isAuthReady && showSidebar && (
+        {isAuthReady && isLayoutChromeResolved && showSidebar && (
           <Sidebar
+            additionalButtons={additionalButtons}
             isNavButtons={isNavItemsButton}
+            showFeedbackWidget={!hideFeedbackWidget}
             onNavTabClick={onNavTabClick}
             onLogoClick={onLogoClick}
             activePage={activePage ?? router.asPath ?? router.pathname}
           />
         )}
-        {children}
+        {sidebarOwnsHeader ? (
+          <div className="flex min-h-0 flex-1 flex-col laptop:my-3 laptop:ml-1 laptop:mr-3">
+            {showHomepageTopBanners && (
+              <HomepageTopBanners className="mx-4 mb-3 laptop:mx-0" />
+            )}
+            {topBanner}
+            <div
+              className={classNames(
+                'relative flex min-h-0 flex-1 flex-col',
+                // `overflow-clip` (not `hidden`) clips content to the rounded
+                // card without establishing a scroll container, so descendant
+                // `position: sticky` elements (e.g. the post action bar) stick
+                // to the viewport instead of being inert.
+                // No drop shadow — the subtle border defines the floating card
+                // in both themes; shadow-2 cast a heavy bottom shadow.
+                'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
+                !hasTopBanners &&
+                  !topBanner &&
+                  'laptop:min-h-[calc(100vh-1.5rem)]',
+              )}
+            >
+              <RouteProgressBar />
+              {children}
+            </div>
+          </div>
+        ) : (
+          children
+        )}
       </main>
-      {!hideFeedbackWidget && <FeedbackWidget />}
+      {!hideFeedbackWidget && !sidebarOwnsHeader && <FeedbackWidget />}
     </div>
   );
 }
@@ -230,7 +384,9 @@ function MainLayoutComponent({
 const MainLayout = (props: MainLayoutProps): ReactElement => (
   <ActiveFeedNameContextProvider>
     <SearchProvider>
-      <MainLayoutComponent {...props} />
+      <SpotlightProvider>
+        <MainLayoutComponent {...props} />
+      </SpotlightProvider>
     </SearchProvider>
   </ActiveFeedNameContextProvider>
 );

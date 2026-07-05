@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { useSwipeable } from 'react-swipeable';
 import {
   Typography,
   TypographyColor,
@@ -8,17 +9,22 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import type { UserShortProfile } from '../../lib/user';
-import { MegaphoneIcon, VolumeOffIcon } from '../icons';
+import { MicrophoneIcon, ShieldIcon, VolumeOffIcon } from '../icons';
 import { RaiseHandIcon } from '../icons/RaiseHand';
 import { IconSize } from '../Icon';
-import Link from '../utilities/Link';
 import {
   SPEAKING_LEVEL_THRESHOLD,
   useLiveRoomAudioLevel,
 } from './useLiveRoomAudioLevel';
+import { pickLiveTrack } from './liveRoomMedia';
 import { LiveRoomTileActions } from './LiveRoomTileActions';
+import { Drawer } from '../drawers';
+import { RootPortal } from '../tooltips/Portal';
+import { useViewSize, ViewSize } from '../../hooks';
+import { useTouchLongPress } from '../../hooks/useTouchLongPress';
+import { anchorDefaultRel } from '../../lib/strings';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 interface LiveRoomVideoTileProps {
   stream: MediaStream | null;
@@ -30,6 +36,7 @@ interface LiveRoomVideoTileProps {
   raisedHandQueuePosition?: number;
   isMuted?: boolean;
   className?: string;
+  onToggleSelfMute?: () => void | Promise<void>;
   onGrantCoHost?: () => void;
   onRevokeCoHost?: () => void;
   onRemoveSpeaker?: () => void;
@@ -39,19 +46,12 @@ interface LiveRoomVideoTileProps {
   isRemoving?: boolean;
   isKicking?: boolean;
   moderationDisabled?: boolean;
+  isFocused?: boolean;
+  onFocus?: () => void;
+  onUnfocus?: () => void;
+  onSwipeNext?: () => void;
+  onSwipePrev?: () => void;
 }
-
-const pickLiveTrack = (
-  source: MediaStream | null,
-  kind: 'audio' | 'video',
-): MediaStreamTrack | null => {
-  if (!source) {
-    return null;
-  }
-  const tracks =
-    kind === 'audio' ? source.getAudioTracks() : source.getVideoTracks();
-  return tracks.find((t) => t.readyState === 'live') ?? null;
-};
 
 export const LiveRoomVideoTile = ({
   stream,
@@ -62,6 +62,7 @@ export const LiveRoomVideoTile = ({
   raisedHandQueuePosition,
   isMuted = false,
   className,
+  onToggleSelfMute,
   onGrantCoHost,
   onRevokeCoHost,
   onRemoveSpeaker,
@@ -71,10 +72,54 @@ export const LiveRoomVideoTile = ({
   isRemoving = false,
   isKicking = false,
   moderationDisabled = false,
+  isFocused = false,
+  onFocus,
+  onUnfocus,
+  onSwipeNext,
+  onSwipePrev,
 }: LiveRoomVideoTileProps): ReactElement => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [needsAudioGesture, setNeedsAudioGesture] = useState(false);
+  const mutedNoticeId = useId();
+  const isTablet = useViewSize(ViewSize.Tablet);
+  const isMobile = !isTablet;
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const [isMutedNoticeOpen, setIsMutedNoticeOpen] = useState(false);
+  const longPressFiredRef = useRef(false);
+  const longPressHandlers = useTouchLongPress<undefined>({
+    enabled: isMobile && !selfView,
+    onLongPress: () => {
+      longPressFiredRef.current = true;
+      setActionsOpen(true);
+    },
+  });
+  const handlePressStart = (event: React.TouchEvent): void => {
+    longPressFiredRef.current = false;
+    longPressHandlers.onTouchStart(event, undefined);
+  };
+  const handleFocusButtonClick = (): void => {
+    if (longPressFiredRef.current) {
+      longPressFiredRef.current = false;
+      return;
+    }
+    if (isFocused) {
+      return;
+    }
+    onFocus?.();
+  };
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (isFocused) {
+        onSwipeNext?.();
+      }
+    },
+    onSwipedRight: () => {
+      if (isFocused) {
+        onSwipePrev?.();
+      }
+    },
+    trackTouch: true,
+    trackMouse: false,
+  });
 
   // Pick stable track references based on the source stream so identity
   // changes only when the underlying track changes.
@@ -110,20 +155,6 @@ export const LiveRoomVideoTile = ({
   const level = useLiveRoomAudioLevel(levelStream);
   const isSpeaking = level >= SPEAKING_LEVEL_THRESHOLD;
 
-  const tryPlayAudio = (): void => {
-    const node = audioRef.current;
-    if (!node) {
-      return;
-    }
-    const playPromise = node.play();
-    if (!playPromise) {
-      return;
-    }
-    playPromise
-      .then(() => setNeedsAudioGesture(false))
-      .catch(() => setNeedsAudioGesture(true));
-  };
-
   useEffect(() => {
     const node = videoRef.current;
     if (!node) {
@@ -134,49 +165,92 @@ export const LiveRoomVideoTile = ({
     }
   }, [videoStream]);
 
-  useEffect(() => {
-    const node = audioRef.current;
-    if (!node) {
-      return;
-    }
-    if (node.srcObject !== audioStream) {
-      node.srcObject = audioStream;
-    }
-    if (audioStream) {
-      tryPlayAudio();
-    } else {
-      setNeedsAudioGesture(false);
-    }
-  }, [audioStream]);
-
-  const handleEnableAudio = (): void => {
-    tryPlayAudio();
-  };
   const hasProfileLink = !!user.permalink && user.permalink !== '#';
+  const hasProfileTooltip = hasProfileLink;
   const nameLabel = (
     <Typography
-      tag={hasProfileLink ? TypographyTag.Link : TypographyTag.Span}
+      tag={TypographyTag.Span}
       type={TypographyType.Footnote}
       bold
       truncate
       className={classNames(
-        'min-w-0 !text-white',
-        hasProfileLink && 'pointer-events-auto hover:underline',
+        'min-w-0 !text-white !typo-caption2 tablet:!typo-footnote',
+        hasProfileTooltip && 'pointer-events-auto hover:underline',
       )}
     >
       {user.name}
     </Typography>
   );
+  const linkedSpeakerName = hasProfileLink ? (
+    <a
+      href={user.permalink}
+      target="_blank"
+      rel={anchorDefaultRel}
+      className="pointer-events-auto inline-flex min-w-0 items-center"
+    >
+      {nameLabel}
+    </a>
+  ) : (
+    nameLabel
+  );
+  const speakerName = hasProfileTooltip ? (
+    <ProfileTooltip userId={user.id} initialUser={user}>
+      {linkedSpeakerName}
+    </ProfileTooltip>
+  ) : (
+    linkedSpeakerName
+  );
+
+  const gestureHandlers = isFocused
+    ? swipeHandlers
+    : {
+        onTouchStart: handlePressStart,
+        onTouchEnd: longPressHandlers.onTouchEnd,
+        onTouchMove: longPressHandlers.onTouchMove,
+        onTouchCancel: longPressHandlers.onTouchCancel,
+      };
+  const mutedBadgeCopy = 'Muted by user';
+  const isSelfMutedTile = selfView && !!onToggleSelfMute;
+  const handleMutedBadgeClick = (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ): void => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (isSelfMutedTile) {
+      onToggleSelfMute?.();
+      return;
+    }
+
+    setIsMutedNoticeOpen((current) => !current);
+  };
+  const closeMutedNotice = (): void => {
+    if (isSelfMutedTile) {
+      return;
+    }
+
+    setIsMutedNoticeOpen(false);
+  };
 
   return (
     <div
+      {...gestureHandlers}
       className={classNames(
-        'group relative flex h-full max-h-full w-full max-w-full items-center justify-center overflow-hidden rounded-16 border bg-surface-float transition-[border-color,box-shadow] duration-150',
+        'group flex items-center justify-center overflow-hidden rounded-16 border bg-surface-float transition-[border-color,box-shadow] duration-150',
+        isFocused
+          ? 'fixed left-1/2 top-1/2 z-modal h-[80vh] max-h-[90vh] w-[90vw] max-w-[64rem] -translate-x-1/2 -translate-y-1/2'
+          : 'relative h-full max-h-full w-full max-w-full cursor-zoom-in',
         isSpeaking
           ? 'border-accent-avocado-default shadow-[0_0_0_3px_var(--theme-accent-avocado-subtle)]'
           : 'border-border-subtlest-tertiary',
+        isMobile && 'select-none [-webkit-touch-callout:none]',
         className,
       )}
+      onContextMenu={(event) => {
+        if (isMobile) {
+          event.preventDefault();
+        }
+      }}
     >
       {videoStream ? (
         // eslint-disable-next-line jsx-a11y/media-has-caption
@@ -185,14 +259,6 @@ export const LiveRoomVideoTile = ({
           autoPlay
           playsInline
           muted
-          // Re-attempt audio playback once video starts — Chrome's autoplay
-          // policy sometimes blocks the audio element until something visible
-          // is playing.
-          onPlay={() => {
-            if (audioStream) {
-              tryPlayAudio();
-            }
-          }}
           className="h-full w-full object-cover"
         />
       ) : (
@@ -206,9 +272,21 @@ export const LiveRoomVideoTile = ({
           </Typography>
         </div>
       )}
-      {audioStream ? (
-        // eslint-disable-next-line jsx-a11y/media-has-caption
-        <audio ref={audioRef} autoPlay />
+      {!isFocused && onFocus ? (
+        <button
+          type="button"
+          aria-label={`Enlarge ${user.name}`}
+          className="focus-outline absolute inset-0 cursor-zoom-in"
+          onClick={handleFocusButtonClick}
+        />
+      ) : null}
+      {isFocused ? (
+        <button
+          type="button"
+          aria-label={`Close enlarged ${user.name}`}
+          className="focus-outline absolute inset-0 cursor-zoom-out"
+          onClick={() => onUnfocus?.()}
+        />
       ) : null}
       {raisedHandQueuePosition ? (
         <span
@@ -225,40 +303,76 @@ export const LiveRoomVideoTile = ({
           </span>
         </span>
       ) : null}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3">
-        <div className="flex min-w-0 items-center gap-2 rounded-12 bg-overlay-dark-dark3 px-2.5 py-1 backdrop-blur transition-[padding] duration-200 ease-out group-hover:pr-1">
-          {isHost ? (
-            <Typography
-              type={TypographyType.Caption2}
-              bold
-              className="shrink-0 uppercase tracking-wide !text-accent-bun-default"
+      {isMuted ? (
+        <button
+          type="button"
+          aria-label={isSelfMutedTile ? 'Unmute yourself' : mutedBadgeCopy}
+          aria-controls={!isSelfMutedTile ? mutedNoticeId : undefined}
+          aria-expanded={!isSelfMutedTile ? isMutedNoticeOpen : undefined}
+          className="hover:bg-overlay-dark-dark4 absolute right-3 top-3 z-1 inline-flex items-center justify-end rounded-10 bg-overlay-dark-dark3 px-1 py-1 text-white backdrop-blur transition-colors"
+          onClick={handleMutedBadgeClick}
+          onMouseLeave={closeMutedNotice}
+          onBlur={closeMutedNotice}
+        >
+          {!isSelfMutedTile ? (
+            <span
+              id={mutedNoticeId}
+              aria-hidden={!isMutedNoticeOpen}
+              className={classNames(
+                'overflow-hidden whitespace-nowrap text-left text-status-error transition-[max-width,opacity,transform,margin,padding] duration-200 ease-out typo-caption1',
+                isMutedNoticeOpen
+                  ? 'mr-1.5 max-w-[7.5rem] translate-x-0 pl-1 opacity-100'
+                  : 'max-w-0 -translate-x-1 pl-0 opacity-0',
+              )}
             >
-              Host
-            </Typography>
+              {mutedBadgeCopy}
+            </span>
           ) : null}
-          {isCoHost ? (
-            <Typography
-              type={TypographyType.Caption2}
-              bold
-              className="shrink-0 uppercase tracking-wide !text-accent-water-bolder"
-            >
-              Co-host
-            </Typography>
-          ) : null}
-          {isMuted ? (
+          <span className="flex size-5 items-center justify-center">
             <VolumeOffIcon
               size={IconSize.XSmall}
-              aria-label="Muted"
-              className="shrink-0 text-status-error"
+              className="text-status-error"
             />
+          </span>
+        </button>
+      ) : null}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 pb-3 pl-1.5 pr-3 pt-3 tablet:pl-3">
+        <div className="pointer-events-auto flex min-h-8 min-w-0 items-center gap-1.5 rounded-12 bg-overlay-dark-dark3 px-2 py-1 backdrop-blur transition-[padding] duration-200 ease-out tablet:gap-2 tablet:px-2.5 tablet:group-hover:pr-1">
+          {isHost ? (
+            <>
+              <ShieldIcon
+                secondary
+                size={IconSize.XXSmall}
+                className="shrink-0 text-accent-bun-default tablet:hidden"
+                aria-label="Host"
+              />
+              <Typography
+                type={TypographyType.Caption2}
+                bold
+                className="hidden shrink-0 uppercase tracking-wide !text-accent-bun-default tablet:inline"
+              >
+                Host
+              </Typography>
+            </>
           ) : null}
-          {hasProfileLink ? (
-            <Link href={user.permalink} passHref>
-              {nameLabel}
-            </Link>
-          ) : (
-            nameLabel
-          )}
+          {isCoHost ? (
+            <>
+              <ShieldIcon
+                secondary
+                size={IconSize.XXSmall}
+                className="shrink-0 text-accent-water-bolder tablet:hidden"
+                aria-label="Co-host"
+              />
+              <Typography
+                type={TypographyType.Caption2}
+                bold
+                className="hidden shrink-0 uppercase tracking-wide !text-accent-water-bolder tablet:inline"
+              >
+                Co-host
+              </Typography>
+            </>
+          ) : null}
+          {speakerName}
           <LiveRoomTileActions
             user={user}
             onGrantCoHost={onGrantCoHost}
@@ -277,20 +391,40 @@ export const LiveRoomVideoTile = ({
             aria-label="Speaking"
             className="pointer-events-none flex size-6 shrink-0 items-center justify-center rounded-full bg-accent-avocado-default text-white"
           >
-            <MegaphoneIcon size={IconSize.XSmall} />
+            <MicrophoneIcon size={IconSize.XSmall} />
           </span>
         ) : null}
       </div>
-      {needsAudioGesture ? (
-        <Button
-          className="absolute right-3 top-3"
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Primary}
-          onClick={handleEnableAudio}
+      <RootPortal>
+        <Drawer
+          isOpen={actionsOpen}
+          onClose={() => setActionsOpen(false)}
+          displayCloseButton={false}
         >
-          Tap to unmute
-        </Button>
-      ) : null}
+          <LiveRoomTileActions
+            user={user}
+            variant="drawer"
+            onGrantCoHost={onGrantCoHost}
+            onRevokeCoHost={onRevokeCoHost}
+            onRemoveSpeaker={onRemoveSpeaker}
+            onKick={onKick}
+            isGrantingCoHost={isGrantingCoHost}
+            isRevokingCoHost={isRevokingCoHost}
+            isRemoving={isRemoving}
+            isKicking={isKicking}
+            moderationDisabled={moderationDisabled}
+            onActionComplete={() => setActionsOpen(false)}
+          />
+        </Drawer>
+        {isFocused ? (
+          <button
+            type="button"
+            aria-label="Close enlarged tile"
+            className="fixed inset-0 z-popup cursor-zoom-out bg-overlay-quaternary-onion backdrop-blur"
+            onClick={() => onUnfocus?.()}
+          />
+        ) : null}
+      </RootPortal>
     </div>
   );
 };

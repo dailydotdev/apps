@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { BoostingLabel } from './BoostingLabel';
 import type { Post } from '../../../graphql/posts';
-import { PostType } from '../../../graphql/posts';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import { ProfileImageSize } from '../../ProfilePicture';
 import { DateFormat } from '../../utilities';
@@ -29,38 +28,12 @@ export function PostShortInfo({
   showImage = true,
   showLinkIcon = true,
 }: PostShortInfoProps): ReactElement | null {
-  const postLink = useMemo(() => {
-    if (!post) {
-      return undefined;
-    }
-
-    const postObject = post.sharedPost || post;
-
-    if (
-      [
-        PostType.Collection,
-        PostType.Brief,
-        PostType.Freeform,
-        PostType.Welcome,
-        PostType.Poll,
-        PostType.SocialTwitter,
-      ].includes(post.type)
-    ) {
-      return `${webappUrl}posts/${post.slug || post.id}`;
-    }
-
-    if (post.sharedPost?.type === PostType.Share) {
-      return `${webappUrl}posts/${post.sharedPost.id}`;
-    }
-
-    return postObject.permalink;
-  }, [post]);
-
   if (!post) {
     return null;
   }
 
   const { author, createdAt, title, image, sharedPost } = post;
+  const postLink = `${webappUrl}posts/${post.slug || post.id}`;
 
   const postTitle = title || sharedPost?.title;
   const postImage = sharedPost?.image || image;

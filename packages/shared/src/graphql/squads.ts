@@ -59,6 +59,7 @@ interface PostToSquadProps {
   id: string;
   sourceId?: string;
   commentary: string;
+  scheduledAt?: string | null;
 }
 
 export const UPDATE_MEMBER_ROLE_MUTATION = gql`
@@ -236,9 +237,22 @@ export const EDIT_SQUAD_MUTATION = gql`
 `;
 
 export const ADD_POST_TO_SQUAD_MUTATION = gql`
-  mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String) {
-    sharePost(id: $id, sourceId: $sourceId, commentary: $commentary) {
+  mutation AddPostToSquad(
+    $id: ID!
+    $sourceId: ID!
+    $commentary: String
+    $scheduledAt: DateTime
+  ) {
+    sharePost(
+      id: $id
+      sourceId: $sourceId
+      commentary: $commentary
+      scheduledAt: $scheduledAt
+    ) {
       id
+      flags {
+        scheduledAt
+      }
     }
   }
 `;
@@ -467,6 +481,14 @@ export const COLLAPSE_PINNED_POSTS_MUTATION = gql`
 export const EXPAND_PINNED_POSTS_MUTATION = gql`
   mutation ExpandPinnedPosts($sourceId: ID!) {
     expandPinnedPosts(sourceId: $sourceId) {
+      _
+    }
+  }
+`;
+
+export const TOGGLE_FAVORITE_SOURCE_MUTATION = gql`
+  mutation ToggleFavoriteSource($sourceId: ID!) {
+    toggleFavoriteSource(sourceId: $sourceId) {
       _
     }
   }
@@ -716,6 +738,16 @@ export const expandPinnedPosts = async (
   });
 
   return res.expandPinnedPosts;
+};
+
+export const toggleFavoriteSource = async (
+  sourceId: string,
+): Promise<EmptyResponse> => {
+  const res = await gqlClient.request(TOGGLE_FAVORITE_SOURCE_MUTATION, {
+    sourceId,
+  });
+
+  return res.toggleFavoriteSource;
 };
 
 export const verifyPermission = (

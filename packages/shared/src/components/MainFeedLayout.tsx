@@ -1,5 +1,11 @@
-import type { ReactElement, ReactNode, SetStateAction } from 'react';
+import type {
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  SetStateAction,
+} from 'react';
 import React, {
+  cloneElement,
   useCallback,
   useContext,
   useEffect,
@@ -11,23 +17,31 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
-import ReadingReminderHero from './banners/ReadingReminderHero';
-import ShortcutsExtensionPromo from './banners/ShortcutsExtensionPromo';
+import { FeedPageLayoutMobile } from './utilities/common';
+import { ExploreChipsBar } from './feeds/ExploreChipsBar';
+import { buildPersonalizedCategories } from './feeds/exploreCategories';
+import { useFeeds } from '../hooks/feed/useFeeds';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
-import { AskSearchBanner } from './notifications/AskSearchBanner';
+import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
+import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
+import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
+import FeedContext from '../contexts/FeedContext';
+import feedStyles from './Feed.module.css';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
 import {
   FEED_V2_HIGHLIGHTS_LIMIT,
   ANONYMOUS_FEED_QUERY,
+  baseFeedSupportedTypes,
   CUSTOM_FEED_QUERY,
+  feedV2SupportedTypes,
+  FEED_BY_TAGS_QUERY,
   FEED_V2_QUERY,
   FOLLOWING_FEED_QUERY,
   MOST_DISCUSSED_FEED_QUERY,
   MOST_UPVOTED_FEED_QUERY,
   SEARCH_POSTS_QUERY,
-  getFeedV2SupportedTypes,
 } from '../graphql/feed';
 import { generateQueryKey, OtherFeedPage, RequestKey } from '../lib/query';
 import SettingsContext from '../contexts/SettingsContext';
@@ -50,12 +64,14 @@ import {
   useViewSize,
   ViewSize,
 } from '../hooks';
+import { feedNameToHeading } from './feeds/FeedContainer';
+import { pageHeaderClassName } from './layout/PageHeader';
 import {
   customFeedVersion,
   discussedFeedVersion,
   feature,
-  featureFeedV2Highlights,
-  featureShortcutsExtensionPromo,
+  featureFeedChips,
+  FeedChipsVariant,
   followingFeedVersion,
   latestFeedVersion,
   popularFeedVersion,
@@ -74,14 +90,11 @@ import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
 import { useSearchContextProvider } from '../contexts/search/SearchContext';
 import { isDevelopment, isProductionAPI, webappUrl } from '../lib/constants';
-import { checkIsExtension, isNullOrUndefined } from '../lib/func';
-import { useActions } from '../hooks/useActions';
-import { ActionType } from '../graphql/actions';
-import { useBoot } from '../hooks/useBoot';
-import { MarketingCtaVariant } from './marketingCta/common';
-import { useReadingReminderHero } from '../hooks/notifications/useReadingReminderHero';
+import { checkIsExtension } from '../lib/func';
 import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
-import { useReadingReminderVariation } from '../hooks/notifications/useReadingReminderVariation';
+import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { ExploreSectionTabs } from './header/ExploreSectionTabs';
+import { ExploreSortDropdown } from './header/ExploreSortDropdown';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -167,6 +180,9 @@ const propsByFeed: Partial<Record<FeedConfigPage, FeedQueryProps>> = {
     query: FOLLOWING_FEED_QUERY,
     emptyScreen: <FollowingFeedEmptyScreen />,
   },
+  [OtherFeedPage.ExploreTag]: {
+    query: FEED_BY_TAGS_QUERY,
+  },
 };
 
 export interface MainFeedLayoutProps
@@ -179,8 +195,6 @@ export interface MainFeedLayoutProps
   navChildren?: ReactNode;
   isFinder?: boolean;
   onNavTabClick?: (tab: string) => void;
-  hideFeedActionButtons?: boolean;
-  disableBriefCard?: boolean;
 }
 
 const getQueryBasedOnLogin = (
@@ -220,13 +234,12 @@ export default function MainFeedLayout({
   navChildren,
   isFinder,
   onNavTabClick,
-  hideFeedActionButtons,
-  disableBriefCard,
 }: MainFeedLayoutProps): ReactElement {
   useScrollRestoration();
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
+  const { numCards: feedSpacinessCards } = useContext(FeedContext);
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -236,26 +249,17 @@ export default function MainFeedLayout({
   });
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
   const feedVersion = useFeature(feature.feedVersion);
   const { time, contentCurationFilter } = useSearchContextProvider();
-  const {
-    shouldShow: shouldShowReadingReminder,
-    title: readingReminderTitle,
-    subtitle: readingReminderSubtitle,
-    onEnable,
-    onDismiss,
-  } = useReadingReminderHero();
+  const isExtension = checkIsExtension();
   const isHomePage = router.pathname === webappUrl;
-  const shouldEvaluateReminderPlacement =
-    isHomePage && shouldShowReadingReminder;
-  const { isControl: isControlVariation } = useReadingReminderVariation({
-    shouldEvaluate: shouldEvaluateReminderPlacement,
-  });
   const {
     isUpvoted,
     isPopular,
     isAnyExplore,
     isExploreLatest,
+    isDiscussed,
     isSortableFeed,
     isCustomFeed,
     isSearch: isSearchPage,
@@ -271,10 +275,26 @@ export default function MainFeedLayout({
     enabled: feedName === OtherFeedPage.Discussed,
   });
   const {
-    shouldUseListFeedLayout,
+    shouldUseListFeedLayout: shouldUseListFeedLayoutRaw,
     shouldUseCommentFeedLayout,
-    FeedPageLayoutComponent,
+    FeedPageLayoutComponent: FeedPageLayoutComponentRaw,
   } = useFeedLayout();
+
+  // SSR renders /explore/[tag] with FeedPageLayoutMobile. On client hydration with
+  // a laptop viewport the layout swaps to FeedPage, which causes a hydration
+  // Done just for explore tag for now to avoid impact other pages
+  const isExploreTag = feedName === OtherFeedPage.ExploreTag;
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+  const enableSsrSafeLayout = isExploreTag && !hasMounted;
+  const FeedPageLayoutComponent = enableSsrSafeLayout
+    ? FeedPageLayoutMobile
+    : FeedPageLayoutComponentRaw;
+  const shouldUseListFeedLayout = enableSsrSafeLayout
+    ? true
+    : shouldUseListFeedLayoutRaw;
 
   const { value: myFeedV } = useConditionalFeature({
     feature: feature.feedVersion,
@@ -304,16 +324,41 @@ export default function MainFeedLayout({
     feature: customFeedVersion,
     shouldEvaluate: feedName === SharedFeedPage.Custom,
   });
-  const shouldEvaluateFeedV2Highlights =
-    !!user &&
-    ((feedName === SharedFeedPage.MyFeed && !isCustomDefaultFeed) ||
-      feedName === SharedFeedPage.Search ||
-      (feedName === SharedFeedPage.CustomForm &&
-        router.query?.slugOrId === user?.id));
-  const { value: isFeedV2HighlightsEnabled } = useConditionalFeature({
-    feature: featureFeedV2Highlights,
-    shouldEvaluate: shouldEvaluateFeedV2Highlights,
+
+  const isChipStripPage =
+    router.pathname === '/' ||
+    router.pathname === '/my-feed' ||
+    router.pathname === '/explore/[tag]' ||
+    router.pathname === '/feeds/[slugOrId]' ||
+    router.pathname === '/feeds/[slugOrId]/edit';
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
+    shouldEvaluate: !!user && isLaptop && isChipStripPage,
   });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
+  const showExploreChips =
+    !!user && isLaptop && isChipStripPage && isFeedChipsEnabled;
+  const { feeds } = useFeeds();
+  const exploreCategories = useMemo(
+    () =>
+      buildPersonalizedCategories(feeds?.edges ?? [], {
+        defaultFeedId,
+        isCustomDefaultFeed,
+      }),
+    [feeds?.edges, defaultFeedId, isCustomDefaultFeed],
+  );
+  const chipsNode = useMemo(
+    () =>
+      showExploreChips ? (
+        <ExploreChipsBar
+          categories={exploreCategories}
+          isPending={!feeds}
+          compact={isV2}
+          onNavTabClick={onNavTabClick}
+        />
+      ) : null,
+    [showExploreChips, exploreCategories, feeds, isV2, onNavTabClick],
+  );
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
@@ -323,7 +368,7 @@ export default function MainFeedLayout({
     }
 
     const dynamicPropsByFeed: Partial<
-      Record<SharedFeedPage, Partial<FeedQueryProps>>
+      Record<FeedConfigPage, Partial<FeedQueryProps>>
     > = {
       [SharedFeedPage.Custom]: {
         variables: {
@@ -338,6 +383,12 @@ export default function MainFeedLayout({
             : CUSTOM_FEED_QUERY,
         variables: {
           feedId: (router.query?.slugOrId as string) || user?.id,
+        },
+      },
+      [OtherFeedPage.ExploreTag]: {
+        variables: {
+          tags: router.query?.tag ? [router.query.tag as string] : [],
+          supportedTypes: baseFeedSupportedTypes,
         },
       },
     };
@@ -374,8 +425,7 @@ export default function MainFeedLayout({
       dynamicFeedConfig?.query || feedConfig.query,
       dynamicFeedConfig?.queryIfLogged || feedConfig.queryIfLogged || null,
     );
-    const shouldRequestFeedV2Highlights =
-      query === FEED_V2_QUERY && isFeedV2HighlightsEnabled;
+    const shouldRequestFeedV2Highlights = query === FEED_V2_QUERY;
 
     return {
       requestKey: feedConfig.requestKey,
@@ -385,7 +435,7 @@ export default function MainFeedLayout({
         ...dynamicFeedConfig?.variables,
         ...(shouldRequestFeedV2Highlights
           ? {
-              supportedTypes: getFeedV2SupportedTypes(true),
+              supportedTypes: feedV2SupportedTypes,
               highlightsLimit: FEED_V2_HIGHLIGHTS_LIMIT,
             }
           : {}),
@@ -398,6 +448,7 @@ export default function MainFeedLayout({
   }, [
     feedName,
     router.query?.slugOrId,
+    router.query?.tag,
     router.pathname,
     user,
     myFeedV,
@@ -409,7 +460,6 @@ export default function MainFeedLayout({
     customFeedV,
     tokenRefreshed,
     feedVersion,
-    isFeedV2HighlightsEnabled,
   ]);
 
   const [selectedAlgo, setSelectedAlgo, loadedAlgo] = usePersistentContext(
@@ -448,8 +498,13 @@ export default function MainFeedLayout({
   );
 
   const feedProps = useMemo<FeedProps<unknown> | null>(() => {
+    const isExploreTagFeed = feedName === OtherFeedPage.ExploreTag;
     const feedWithActions =
-      isUpvoted || isPopular || isSortableFeed || isCustomFeed;
+      isUpvoted ||
+      isPopular ||
+      isSortableFeed ||
+      isCustomFeed ||
+      isExploreTagFeed;
     // in list search by default we do not show any results but empty state
     // so returning false so feed does not do any requests
     if (isSearchOn && !searchQuery) {
@@ -461,6 +516,14 @@ export default function MainFeedLayout({
     if (isSortableFeed && (!loadedAlgo || !tokenRefreshed)) {
       return null;
     }
+
+    const baseEmptyScreen = propsByFeed[feedName]?.emptyScreen || (
+      <FeedEmptyScreen />
+    );
+    const emptyScreenWithChips = cloneElement(
+      baseEmptyScreen as ReactElement<{ chips?: ReactNode }>,
+      { chips: chipsNode },
+    );
 
     if (feedNameProp === 'default' && isCustomDefaultFeed) {
       if (!defaultFeedId) {
@@ -479,11 +542,15 @@ export default function MainFeedLayout({
           feedId: defaultFeedId,
           feedName: SharedFeedPage.Custom,
         },
-        emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
-        actionButtons: feedWithActions && !hideFeedActionButtons && (
+        emptyScreen: emptyScreenWithChips,
+        actionButtons: feedWithActions && (
           <SearchControlHeader
             algoState={[selectedAlgo, handleSelectedAlgoChange]}
-            feedName={feedName}
+            // On `/` with a custom default feed the rendered feed is the
+            // custom feed (not MyFeed) — pass `Custom` so derived flags
+            // (isSortableFeed, etc.) reflect that, not the outer 'default'.
+            feedName={SharedFeedPage.Custom}
+            chips={shouldUseListFeedLayout ? undefined : chipsNode}
           />
         ),
       };
@@ -558,15 +625,18 @@ export default function MainFeedLayout({
       ),
       query: config.query,
       variables,
-      emptyScreen: propsByFeed[feedName]?.emptyScreen || <FeedEmptyScreen />,
-      actionButtons: feedWithActions && !hideFeedActionButtons && (
+      emptyScreen: emptyScreenWithChips,
+      actionButtons: feedWithActions && (
         <SearchControlHeader
           algoState={[selectedAlgo, handleSelectedAlgoChange]}
           feedName={feedName}
+          chips={shouldUseListFeedLayout ? undefined : chipsNode}
         />
       ),
     };
   }, [
+    chipsNode,
+    shouldUseListFeedLayout,
     isUpvoted,
     isPopular,
     isSortableFeed,
@@ -594,7 +664,6 @@ export default function MainFeedLayout({
     isLaptop,
     loadedAlgo,
     tokenRefreshed,
-    hideFeedActionButtons,
   ]);
 
   useEffect(() => {
@@ -606,38 +675,9 @@ export default function MainFeedLayout({
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
   const disableTopPadding = isFinder || shouldUseListFeedLayout;
-  const shouldShowReadingReminderOnHomepage =
-    shouldEvaluateReminderPlacement && isControlVariation;
-
-  const { checkHasCompleted, completeAction, isActionsFetched } = useActions();
-  const { getMarketingCta } = useBoot();
-  const hasDismissedShortcutsPromo = checkHasCompleted(
-    ActionType.DismissShortcutsExtensionPromo,
-  );
-  const hasFeedBannerMarketingCta = !!getMarketingCta(
-    MarketingCtaVariant.FeedBanner,
-  );
-  const hasUploadedCv = checkHasCompleted(ActionType.UploadedCV);
-  const willShowCvUploadBanner =
-    hasFeedBannerMarketingCta && isActionsFetched && !hasUploadedCv;
-  const canShowShortcutsPromo =
-    !!user &&
-    isHomePage &&
-    isLaptop &&
-    !checkIsExtension() &&
-    isActionsFetched &&
-    !hasDismissedShortcutsPromo &&
-    !shouldShowReadingReminderOnHomepage &&
-    !willShowCvUploadBanner &&
-    isNullOrUndefined(user?.flags?.lastExtensionUse);
-  const { value: shouldShowShortcutsPromo } = useConditionalFeature({
-    feature: featureShortcutsExtensionPromo,
-    shouldEvaluate: canShowShortcutsPromo,
-  });
-
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
-      if (clickedTab === ExploreTabs.BestOf && checkIsExtension()) {
+      if (clickedTab === ExploreTabs.BestOf && isExtension) {
         window.open(`${webappUrl}posts/best-of`, '_blank', 'noopener');
         return;
       }
@@ -648,7 +688,7 @@ export default function MainFeedLayout({
 
       setTab(clickedTab);
     },
-    [onNavTabClick],
+    [isExtension, onNavTabClick],
   );
 
   const FeedExploreComponent = useCallback(() => {
@@ -667,76 +707,147 @@ export default function MainFeedLayout({
         tab={tab}
         setTab={onTabChange}
         showBreadcrumbs={false}
-        showDropdown={false}
         className={{
           container:
-            'sticky top-[7.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+            'sticky top-[4.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
           tabBarHeader: 'no-scrollbar overflow-x-auto',
-          tabBarContainer: 'w-full',
+          tabBarContainer: 'min-w-0 flex-1',
         }}
       />
     );
   }, [isLaptop, onTabChange, tab]);
 
+  // v2 hoists the explore section tabs into the floating card's
+  // page-header strip (matching the SquadDirectoryLayout pattern). The
+  // inline FeedExploreComponent is suppressed below to avoid showing
+  // the same tabs twice.
+  // The Discussions feed (/discussed) is part of the Explore hub — show the
+  // same section tabs there so the hub persists. The Sort dropdown is only
+  // for the actual Explore sorts, so it stays gated on isAnyExplore.
+  const showExploreV2PageHeader = (isAnyExplore || isDiscussed) && isV2;
+
+  // v2 also hoists the regular page-header strip up here, OUTSIDE
+  // `FeedPageLayoutComponent`, so it can span the full floating-card
+  // width without being clamped by `FeedPageLayoutList`'s 680px max
+  // (which keeps list cards at a comfortable reading width).
+  const { feeds: customFeedsData } = useFeeds();
+  const feedHeading = useMemo(() => {
+    if (feedName === SharedFeedPage.Custom) {
+      const customFeed = customFeedsData?.edges.find(
+        ({ node }) =>
+          node.id === router.query.slugOrId ||
+          node.slug === router.query.slugOrId,
+      )?.node;
+      if (customFeed?.flags?.name) {
+        return customFeed.flags.name;
+      }
+    }
+    if (feedName && feedName in feedNameToHeading) {
+      return feedNameToHeading[feedName as keyof typeof feedNameToHeading];
+    }
+    // Extension new tab passes `feedName='default'`; fall through to
+    // the user's default feed so the v2 header isn't suppressed.
+    if ((feedName as string) === 'default') {
+      return feedNameToHeading[SharedFeedPage.MyFeed];
+    }
+    return '';
+  }, [customFeedsData, feedName, router.query.slugOrId]);
+  const v2ActionButtons = feedProps?.actionButtons;
+  const showFeedV2PageHeader =
+    isV2 &&
+    !showExploreV2PageHeader &&
+    !isSearchPageLaptop &&
+    (!!v2ActionButtons || !!feedHeading);
+
   return (
-    <FeedPageLayoutComponent
-      className={classNames('relative', disableTopPadding && '!pt-0')}
-    >
-      {isAnyExplore && <FeedExploreComponent />}
-      {isSearchOn && !isSearchPageLaptop && search}
-      {isSearchOn && isFinder && !isSearchPageLaptop && (
-        <AskSearchBanner className="mx-4 mb-4" />
+    <>
+      {showExploreV2PageHeader && (
+        <header className={classNames(pageHeaderClassName, '!py-0')}>
+          <ExploreSectionTabs />
+          {isAnyExplore && <ExploreSortDropdown />}
+        </header>
       )}
-      {shouldShowReadingReminderOnHomepage && (
-        <ReadingReminderHero
-          className="px-4 pb-2"
-          title={readingReminderTitle}
-          subtitle={readingReminderSubtitle}
-          onEnable={onEnable}
-          onDismiss={onDismiss}
-        />
+      {showFeedV2PageHeader && (
+        <header className={classNames(pageHeaderClassName, '!py-0')}>
+          {v2ActionButtons || (
+            <strong className="min-w-0 flex-1 truncate typo-callout">
+              {feedHeading}
+            </strong>
+          )}
+        </header>
       )}
-      {!checkIsExtension() && isHomePage && (
-        <WebappShortcutsRow className="px-4 pb-2" />
-      )}
-      {shouldShowShortcutsPromo && (
-        <ShortcutsExtensionPromo
-          className="px-4 pb-2"
-          onDismiss={() =>
-            completeAction(ActionType.DismissShortcutsExtensionPromo)
+      <FeedPageLayoutComponent
+        className={classNames('relative', disableTopPadding && '!pt-0')}
+      >
+        {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
+        {isSearchOn && !isSearchPageLaptop && search}
+        {isSearchOn && isFinder && !isSearchPageLaptop && (
+          <AskSearchBanner className="mx-4 mb-4" />
+        )}
+        {/* Share the feed's own width container so the banner lines up with
+            the feed: full width normally, and clamped + centered to the same
+            card-based max-width as the grid on wide screens (desktopL). The
+            CSS vars feed that `styles.container` max-width calc (grid gap is
+            2rem). */}
+        <div
+          className={classNames(
+            'relative flex w-full flex-col laptopL:mx-auto',
+            feedStyles.container,
+          )}
+          style={
+            {
+              '--num-cards': feedSpacinessCards.eco,
+              '--feed-gap': '2rem',
+            } as CSSProperties
           }
-          onInstall={() =>
-            completeAction(ActionType.DismissShortcutsExtensionPromo)
-          }
-        />
-      )}
-      {shouldUseCommentFeedLayout ? (
-        <CommentFeed
-          isMainFeed
-          feedQueryKey={generateQueryKey(RequestKey.CommentFeed, undefined)}
-          query={COMMENT_FEED_QUERY}
-          logOrigin={Origin.CommentFeed}
-          emptyScreen={
-            <ProfileEmptyScreen
-              title="Nobody has replied to any post yet"
-              text="You could be the first you know?"
-            />
-          }
-          commentClassName={commentClassName}
-        />
-      ) : (
-        feedProps && (
-          <Feed
-            {...feedProps}
-            shortcuts={shortcuts}
-            disableBriefCard={disableBriefCard}
-            className={classNames(
-              shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
-            )}
+        >
+          <FeedEngagementBanner className="mb-3" />
+        </div>
+        {isHomePage && (
+          <LiveStandupsStrip className="mx-0 mb-3 tablet:mx-2 laptop:mx-0" />
+        )}
+        {!isExtension && isHomePage && (
+          <WebappShortcutsRow className="px-4 pb-2" />
+        )}
+        {shouldUseCommentFeedLayout ? (
+          <CommentFeed
+            isMainFeed
+            feedQueryKey={generateQueryKey(RequestKey.CommentFeed, undefined)}
+            query={COMMENT_FEED_QUERY}
+            logOrigin={Origin.CommentFeed}
+            emptyScreen={
+              <ProfileEmptyScreen
+                title="Nobody has replied to any post yet"
+                text="You could be the first you know?"
+              />
+            }
+            commentClassName={commentClassName}
           />
-        )
-      )}
-      {children}
-    </FeedPageLayoutComponent>
+        ) : (
+          feedProps && (
+            <Feed
+              {...feedProps}
+              shortcuts={shortcuts}
+              topContent={
+                (isExploreTag || shouldUseListFeedLayout) && chipsNode ? (
+                  <div
+                    className={classNames(
+                      'mb-8 w-full',
+                      shouldUseListFeedLayout && 'mt-8',
+                    )}
+                  >
+                    {chipsNode}
+                  </div>
+                ) : undefined
+              }
+              className={classNames(
+                shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
+              )}
+            />
+          )
+        )}
+        {children}
+      </FeedPageLayoutComponent>
+    </>
   );
 }

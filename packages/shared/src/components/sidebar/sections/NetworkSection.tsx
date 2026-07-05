@@ -2,23 +2,26 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useMemo } from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
-import { DefaultSquadIcon, SourceIcon, TimerIcon } from '../../icons';
+import { SourceIcon, TimerIcon } from '../../icons';
 import { Section } from '../Section';
 import { Origin } from '../../../lib/log';
 import { useSquadNavigation } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { SquadImage } from '../../squads/SquadImage';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
-import { webappUrl } from '../../../lib/constants';
+import { squadCategoriesPaths, webappUrl } from '../../../lib/constants';
 import type { SidebarSectionProps } from './common';
 import { useSquadPendingPosts } from '../../../hooks/squads/useSquadPendingPosts';
 import { Typography, TypographyColor } from '../../typography/Typography';
 import { SourcePostModerationStatus } from '../../../graphql/squads';
+import { createSquadMenuItem } from './squadMenuItem';
 
 export const NetworkSection = ({
   isItemsButton,
+  // v2 reframes squad "favorite" as "pin"; passed only by the v2 sidebar so
+  // this shared section keeps the v1 star when the flag is absent.
+  asPin = false,
   ...defaultRenderSectionProps
-}: SidebarSectionProps): ReactElement => {
+}: SidebarSectionProps & { asPin?: boolean }): ReactElement => {
   const { squads } = useAuthContext();
   const { openNewSquad } = useSquadNavigation();
   const { count, isModeratorInAnySquad } = useSquadPendingPosts({
@@ -31,25 +34,24 @@ export const NetworkSection = ({
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     const squadItems =
-      squads?.map((squad) => {
-        const { name, image, handle } = squad;
-        return {
-          icon: () =>
-            image ? (
-              <SquadImage className="h-5 w-5" {...squad} />
-            ) : (
-              <DefaultSquadIcon />
-            ),
-          title: name,
-          path: `${webappUrl}squads/${handle}`,
-        };
-      }) ?? [];
+      squads?.map((squad) => createSquadMenuItem(squad, asPin)) ?? [];
     return [
-      isModeratorInAnySquad &&
-        count > 0 && {
-          icon: () => <ListIcon Icon={() => <TimerIcon />} />,
-          title: 'Pending Posts',
-          path: `${webappUrl}squads/moderate`,
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <SourceIcon secondary={active} />} />
+        ),
+        title: 'Find Squads',
+        // Point at the actual landing page (`/squads` redirects here)
+        // so the active-state highlight matches the URL the user
+        // actually navigates to.
+        path: squadCategoriesPaths.discover,
+        isForcedLink: true,
+      },
+      isModeratorInAnySquad && {
+        icon: () => <ListIcon Icon={() => <TimerIcon />} />,
+        title: 'Pending Posts',
+        path: `${webappUrl}squads/moderate`,
+        ...(count > 0 && {
           rightIcon: () => (
             <Typography
               color={TypographyColor.Secondary}
@@ -59,18 +61,11 @@ export const NetworkSection = ({
               {count >= 15 ? '15+' : count}
             </Typography>
           ),
-        },
-      {
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <SourceIcon secondary={active} />} />
-        ),
-        title: 'Find Squads',
-        path: `${webappUrl}squads`,
-        isForcedLink: true,
+        }),
       },
       ...squadItems,
     ].filter(Boolean) as SidebarMenuItem[];
-  }, [squads, isModeratorInAnySquad, count]);
+  }, [squads, isModeratorInAnySquad, count, asPin]);
 
   return (
     <Section

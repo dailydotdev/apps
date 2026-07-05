@@ -1,6 +1,88 @@
+/*
+ * .btn — V1 button base, re-skinned with the V2 polish layer.
+ *
+ * The class selectors (`.btn`, `.btn-primary`, `.btn-secondary`, …) and
+ * CSS-variable names (`--button-{state}-{prop}`) are kept verbatim from
+ * V1 so every existing `<Button>` call site picks up the new look without
+ * any code change. The *values* under those names come from the V2 token
+ * map (`tailwind/buttons.ts`, mirrored from `tailwind/buttons-v2.ts`).
+ *
+ * The shared soft-label tokens (`--btn-label-on-fill-*`) are defined on
+ * the combined `.btn-v2, .btn` selector in `buttons-v2.css`.
+ */
+
 .btn {
-  transition: 0.2s ease-in-out;
-  transition-property: border, background, box-shadow, color;
+  /*
+   * Hover-lift shadow tokens — neutral, theme-aware.
+   *
+   * Mirrors V2's `--btn-v2-shadow-{hover,active}` exactly. Replaces V1's
+   * brand-tinted halo (`shadow-3-{color}` / `shadow-2-{color}` at 64 % /
+   * 40 % opacity) which read as 2017 skeumorphism.
+   *
+   * Two-layer recipe:
+   *   bottom: 1 px y, 2 px blur — defines the bottom edge
+   *   ambient: 2 px y, 4-6 px blur — soft body lift
+   *
+   * Dark theme uses pure black at higher opacity (black-on-black absorbs
+   * visibly less light). Light theme overrides to pepper.90 tint at much
+   * lower opacity (shadows on white show at a much lower threshold).
+   */
+  --btn-shadow-hover:
+    0 1px 2px 0 rgba(0, 0, 0, 0.5),
+    0 2px 6px -2px rgba(0, 0, 0, 0.3);
+
+  --btn-shadow-active:
+    inset 0 1px 0 0 rgba(0, 0, 0, 0.3),
+    inset 0 2px 3px 0 rgba(0, 0, 0, 0.2);
+
+  /*
+   * --- Type rendering ---
+   * `font-smoothing: antialiased` renders ~½ px thinner on macOS, which
+   * is THE single biggest polish lever for white text on saturated fills
+   * (bun / cheese / water Primary). Without it the labels look chunky
+   * and "fat-bordered" in Chrome / Safari / Edge on Apple displays.
+   *
+   * `tabular-nums` keeps button width stable when the label contains a
+   * number that ticks ("Loading 9/10" → "Loading 10/10").
+   */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
+
+  /*
+   * --- Mobile UX ---
+   * `touch-action: manipulation` opts out of the legacy 300 ms click
+   *   delay and double-tap-to-zoom.
+   * `tap-highlight-color: transparent` removes the iOS grey flash;
+   *   our `:active` state owns the press feedback.
+   */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  /*
+   * --- Native chrome / selection ---
+   * `appearance: none` strips Safari / iOS native <button> bevel.
+   * `user-select: none` keeps the label from highlighting on
+   *   click-and-drag.
+   */
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-user-select: none;
+  user-select: none;
+
+  /*
+   * --- Paint / stacking ---
+   * `background-clip: padding-box` stops translucent fills bleeding
+   *   into the corner antialiasing under transparent borders.
+   * `isolation: isolate` gives each button its own stacking context so
+   *   absolutely-positioned children (loader, badge, dot) can't render
+   *   OVER a neighbouring button's focus ring.
+   */
+  background-clip: padding-box;
+  isolation: isolate;
+
+  transition: 0.15s ease-out;
+  transition-property: border-color, background-color, box-shadow, color;
   background: var(--button-background, var(--button-default-background, none));
   border-color: var(--button-border-color, var(--button-default-border-color, transparent));
   color: var(--button-color, var(--button-default-color));
@@ -12,28 +94,37 @@
     font-size: 1.5rem;
   }
 
+  /*
+   * Size rules emit `height` + `border-radius` only. Horizontal padding
+   * is owned by `Button.tsx`, which computes per-size + asymmetric
+   * (icon-side) values via Tailwind utilities (`HorizontalPadding` /
+   * `IconSidePadding`). Emitting `padding: 0 X` here at specificity
+   * (0,2,0) would beat those utilities (0,1,0) and force symmetric
+   * padding regardless of icon position.
+   */
   &.xsmall {
     height: 1.5rem;
-    padding: 0 0.5rem;
     border-radius: 0.5rem;
   }
 
   &.small {
     height: 2rem;
-    padding: 0 0.75rem;
-    border-radius: 0.63rem;
+    border-radius: 0.625rem;
   }
 
   &.medium {
     height: 2.5rem;
-    padding: 0 1.25rem;
     border-radius: 0.75rem;
   }
 
   &.large {
     height: 3rem;
-    padding: 0 1.5rem;
-    border-radius: 0.88rem;
+    border-radius: 0.875rem;
+  }
+
+  &.xlarge {
+    height: 3.5rem;
+    border-radius: 1rem;
   }
 
   &.headline {
@@ -45,22 +136,23 @@
   }
 
   &.bg-accent-cabbage-default {
-    color: #FFFFFF;
+    color: var(--btn-label-on-fill-light);
   }
 
+  /*
+   * Icon margin reset — V1 used `-ml-2 mr-1` to negate the `px-2`
+   * default; V2 dropped this in favour of parent `flex gap-X`. The
+   * V1 React component (`Button.tsx`) is now updated to emit a per-size
+   * `gap-X` class and stop applying the negative margins, so the
+   * `.btn-icon-left` / `.btn-icon-right` selectors only carry the
+   * position-marker semantics.
+   *
+   * The legacy `socialIcon` margin survives because brand glyphs read
+   * tighter than UI icons and want extra breathing room before the label.
+   */
   &:not(.iconOnly) {
-    & .btn-icon-left {
-      margin-left: -0.5rem;
-      margin-right: 0.25rem;
-    }
-
-    & .btn-icon-right {
-      margin-left: 0.25rem;
-      margin-right: -0.5rem;
-    }
-
     & .socialIcon {
-      margin-right: 0.75rem;
+      margin-right: 0.5rem;
     }
   }
 
@@ -74,7 +166,7 @@
     &.small {
       width: 2rem;
       padding: 0;
-      border-radius: 0.63rem;
+      border-radius: 0.625rem;
     }
 
     &.medium {
@@ -86,14 +178,14 @@
     &.large {
       width: 3rem;
       padding: 0;
-      border-radius: 0.88rem;
+      border-radius: 0.875rem;
     }
 
     &.xlarge {
       width: 4rem;
       height: 4rem;
       padding: 0;
-      border-radius: 1.375rem;
+      border-radius: 1rem;
     }
   }
 
@@ -114,6 +206,16 @@
     box-shadow: var(--button-box-shadow, var(--button-default-box-shadow, none));
   }
 
+  &:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--theme-background-default),
+      0 0 0 4px var(
+        --button-default-focus-ring-color,
+        var(--theme-accent-blueCheese-default)
+      );
+  }
+
   &[aria-pressed="true"] {
     --button-background: var(--button-pressed-background);
     --button-border-color: var(--button-pressed-border-color);
@@ -122,7 +224,7 @@
   }
 
   &:not(.readOnly) {
-    &:hover, &.hover, &:focus:focus-visible {
+    &:hover, &.hover {
       --button-background: var(--button-hover-background);
       --button-border-color: var(--button-hover-border-color);
       --button-color: var(--button-hover-color);
@@ -144,8 +246,7 @@
     }
   }
 
-
-  &:active {
+  &:active, &.active {
     --button-background: var(--button-active-background);
     --button-border-color: var(--button-active-border-color);
     --button-color: var(--button-active-color);
@@ -167,14 +268,40 @@
     --button-box-shadow: var(--button-disabled-box-shadow);
 
     pointer-events: none;
-    cursor: default;
+    cursor: not-allowed;
   }
+
+  /*
+   * Inactive (Primer-style "looks active, behaves disabled") —
+   * keyboard-focusable, clickable, but semantically not actionable.
+   * Visuals stay at the default state so callers can wire onClick to
+   * a tooltip/toast that explains why the action isn't available.
+   */
+  &[aria-disabled="true"]:not([disabled]) {
+    cursor: not-allowed;
+  }
+}
+
+/*
+ * Light-theme override for the hover + active shadows.
+ * Tinted with pepper.90 (#0F1218) at 8 % / 6 % — same recipe Notion
+ * uses for input shadows on white surfaces.
+ */
+.light .btn,
+.invert .btn {
+  --btn-shadow-hover:
+    0 1px 2px 0 rgba(14, 18, 23, 0.08),
+    0 2px 4px -1px rgba(14, 18, 23, 0.06);
+
+  --btn-shadow-active:
+    inset 0 1px 0 0 rgba(14, 18, 23, 0.08),
+    inset 0 2px 3px 0 rgba(14, 18, 23, 0.06);
 }
 
 .btn-quaternary {
   & label {
     color: var(--button-color, var(--button-default-color));
-    transition: 0.2s ease-in-out;
+    transition: 0.15s ease-out;
     transition-property: color;
   }
 
@@ -192,9 +319,6 @@
 
   & [disabled] ~ label {
     color: var(--button-disabled-color);
-  }
-
-  & [disabled] ~ label {
     pointer-events: none;
   }
 
@@ -280,7 +404,7 @@
 
 .btn-quiz {
   @apply !border-solid border-border-subtlest-tertiary;
-  @apply rounded-10 !px-4;
+  @apply rounded-8 !px-4;
   @apply bg-surface-hover hover:bg-surface-active;
   @apply text-text-primary;
 
@@ -291,6 +415,40 @@
   &:is([aria-pressed="true"], [aria-checked="true"]) {
     @apply bg-brand-active;
     @apply border-brand-default;
+  }
+}
+
+/*
+ * Reduced-motion users get instant state changes — no transition.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition-duration: 0s;
+  }
+}
+
+/*
+ * Windows High Contrast Mode (Edge / Win11 accessibility).
+ * Pin a 1 px CanvasText border on every variant so ghost buttons
+ * (Subtle / Float / Tertiary) don't collapse to invisible. See the
+ * matching block on `.btn-v2` in `buttons-v2.css` for the rationale.
+ */
+@media (forced-colors: active) {
+  .btn {
+    border: 1px solid CanvasText;
+    forced-color-adjust: none;
+  }
+
+  .btn:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+
+  .btn[disabled],
+  .btn[aria-disabled='true'] {
+    border-color: GrayText;
+    color: GrayText;
   }
 }
 

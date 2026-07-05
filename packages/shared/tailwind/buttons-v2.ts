@@ -264,8 +264,21 @@ const focusRingDark = (color?: ColorName): string => {
  * Each override picks the *visually most brand-coherent* shade band that
  * also passes AA across all three states. See `Buttons.mdx → Contrast`.
  */
-const DARK_LABEL = '#0E1217'; // pepper.90
-const WHITE_LABEL = '#FFFFFF'; // salt.0
+/*
+ * Soft label tokens for filled-Primary surfaces. Defined in
+ * `buttons-v2.css` (and mirrored on `.btn` for V1). 92 % white /
+ * 88 % near-black — softer than the harsh pure values, AA-safe on
+ * every Primary contrast cell. See the comment block at the top of
+ * `buttons-v2.css` for the contrast audit.
+ *
+ * Note: separate constants for label vs background. Labels use the
+ * soft tokens (`--btn-label-on-fill-*`); the no-color Primary's own
+ * *fill* still uses pure white / pepper.90 so the chip silhouette
+ * stays crisp against the page bg.
+ */
+const DARK_LABEL = 'var(--btn-label-on-fill-dark)'; // ~88 % pepper.90
+const WHITE_LABEL = 'var(--btn-label-on-fill-light)'; // ~92 % salt.0
+const NEUTRAL_FILL_WHITE = '#FFFFFF'; // salt.0 — for neutral Primary bg
 
 type LabelChoice = typeof DARK_LABEL | typeof WHITE_LABEL;
 
@@ -387,11 +400,25 @@ const variations: Record<string, VariationFn> = {
   primary: (color) => {
     const dark = color ? darkLadder(color) : DEFAULT_DARK_LADDER;
     const light = color ? lightLadder(color) : DEFAULT_LIGHT_LADDER;
+    // Pressed (toggle-on) flips Primary to an outlined chip — text +
+    // border in the theme's primary text colour, transparent fill,
+    // no lift. Mirrors the V1 treatment. Required because
+    // `buttons-v2.css` always rewires `--button-v2-*` to
+    // `--button-v2-pressed-*` on `[aria-pressed="true"]`; if the
+    // pressed block is missing, those vars are undefined and the
+    // chrome collapses to invisible (real bug for any Primary +
+    // `pressed` ButtonV2 consumer).
+    const pressedBlock = {
+      color: 'var(--theme-text-primary)',
+      background: 'none',
+      'border-color': 'var(--theme-text-primary)',
+      'box-shadow': 'none',
+    };
     return {
       darkStates: {
         default: {
           color: color ? primaryLabel[color].dark : NEUTRAL_PRIMARY_LABEL.dark,
-          background: color ? palette[color][dark[0]] : WHITE_LABEL,
+          background: color ? palette[color][dark[0]] : NEUTRAL_FILL_WHITE,
           'border-color': 'transparent',
           'focus-ring-color': focusRingDark(color),
         },
@@ -414,7 +441,7 @@ const variations: Record<string, VariationFn> = {
           // brand-tinted halos.
           'box-shadow': 'var(--btn-v2-shadow-active)',
         },
-        // pressed = same as default; no jarring flip
+        pressed: pressedBlock,
         disabled: {
           color: 'var(--theme-text-disabled)',
           background: color
@@ -439,6 +466,7 @@ const variations: Record<string, VariationFn> = {
           background: color ? palette[color][light[2]] : palette.pepper['50'],
           'box-shadow': 'var(--btn-v2-shadow-active)',
         },
+        pressed: pressedBlock,
         disabled: {
           color: 'var(--theme-text-disabled)',
           background: color
@@ -462,12 +490,17 @@ const variations: Record<string, VariationFn> = {
     // saturated darks on pepper.90).
     const ghostDark = ghostTextDark(color);
     const ghostLight = ghostTextLight(color);
+    // Secondary default text + border step down to `text-secondary`
+    // (matching the ghost default treatment). The outlined chip reads
+    // softer at rest; the pressed/toggled-on state still flips to the
+    // full filled `primaryLabel` look so the "I'm selected" cue stays
+    // strong.
     return {
       darkStates: {
         default: {
-          color: 'var(--theme-text-primary)',
+          color: 'var(--theme-text-secondary)',
           background: 'none',
-          'border-color': 'var(--theme-text-primary)',
+          'border-color': 'var(--theme-text-secondary)',
           'focus-ring-color': focusRingDark(color),
         },
         hover: {
@@ -486,7 +519,7 @@ const variations: Record<string, VariationFn> = {
         },
         pressed: {
           color: color ? primaryLabel[color].dark : NEUTRAL_PRIMARY_LABEL.dark,
-          background: color ? palette[color][dark[0]] : WHITE_LABEL,
+          background: color ? palette[color][dark[0]] : NEUTRAL_FILL_WHITE,
           'border-color': 'transparent',
         },
         disabled: {
@@ -496,9 +529,9 @@ const variations: Record<string, VariationFn> = {
       },
       lightStates: {
         default: {
-          color: 'var(--theme-text-primary)',
+          color: 'var(--theme-text-secondary)',
           background: 'none',
-          'border-color': 'var(--theme-text-primary)',
+          'border-color': 'var(--theme-text-secondary)',
           'focus-ring-color': focusRingLight(color),
         },
         hover: {
@@ -535,13 +568,22 @@ const variations: Record<string, VariationFn> = {
     // ghost ladder. Bg tints stay on the universal 60 / 40 because
     // `${shade}1F` is alpha-driven and the brand cue is already carried
     // by the tint, regardless of underlying shade. See `ghostText{...}`.
+    //
+    // Default text sits at `text-secondary` (salt.50 / pepper.50) — a
+    // step softer than `text-primary` so resting ghost buttons read
+    // as confident-but-quiet rather than fluorescent. Matches Claude /
+    // ChatGPT / Vercel's ghost default treatment. Hover/active still
+    // step UP to the brand-tinted ghost ladder, so the interaction
+    // delta gets *more* pronounced (not less).
     const ghostDark = ghostTextDark(color);
     const ghostLight = ghostTextLight(color);
     return {
       darkStates: {
         default: {
-          // The headline fix: tertiary stops borrowing the disabled palette.
-          color: 'var(--theme-text-primary)',
+          // text-secondary keeps the v2 "ghost stops looking disabled"
+          // fix (was v1 `text-tertiary`) while toning down the
+          // first-pass v2's "too shiny" full-strength primary.
+          color: 'var(--theme-text-secondary)',
           background: 'none',
           'border-color': 'transparent',
           'focus-ring-color': focusRingDark(color),
@@ -558,11 +600,25 @@ const variations: Record<string, VariationFn> = {
             ? `${palette[color]['40']}33`
             : 'var(--theme-surface-active)',
         },
+        // Pressed (toggled-on) state intentionally carries NO background
+        // for the ghost ladder — same contract as v1 `Quaternary`. The
+        // pressed cue is communicated by text/icon colour and (for
+        // CardAction consumers) the outline → secondary icon swap. If
+        // pressed shipped the same bg as hover, users perceive the
+        // hover bg as "stuck" after clicking and moving away
+        // (engagement-bar Upvote / Bookmark / Award): the pseudo
+        // `:hover` releases on `mouseleave` but the identical pressed
+        // bg keeps showing. Reference platforms (Twitter / X, Reddit,
+        // YouTube, dev.to) all rely on icon swap + colour, not bg,
+        // for the pressed cue on engagement icons.
+        //
+        // `background: 'none'` is explicit (not omitted) so the
+        // `&[aria-pressed="true"] { --button-v2-background: var(...) }`
+        // cascade resolves to a real value rather than relying on
+        // CSS custom-property fallback semantics.
         pressed: {
           color: ghostDark.hover,
-          background: color
-            ? `${palette[color]['40']}1F`
-            : 'var(--theme-surface-hover)',
+          background: 'none',
         },
         disabled: {
           color: 'var(--theme-text-disabled)',
@@ -570,7 +626,7 @@ const variations: Record<string, VariationFn> = {
       },
       lightStates: {
         default: {
-          color: 'var(--theme-text-primary)',
+          color: 'var(--theme-text-secondary)',
           background: 'none',
           'border-color': 'transparent',
           'focus-ring-color': focusRingLight(color),
@@ -589,9 +645,7 @@ const variations: Record<string, VariationFn> = {
         },
         pressed: {
           color: ghostLight.hover,
-          background: color
-            ? `${palette[color]['60']}1F`
-            : 'var(--theme-surface-hover)',
+          background: 'none',
         },
         disabled: {
           color: 'var(--theme-text-disabled)',

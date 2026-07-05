@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import type { QueryFilters } from '@tanstack/react-query';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -18,7 +18,10 @@ import {
   ONBOARDING_RECOMMEND_TAGS_MUTATION,
 } from '../../graphql/feedSettings';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureOnboardingTagRecommender } from '../../lib/featureManagement';
+import {
+  featureOnboardingPersonas,
+  featureOnboardingTagRecommender,
+} from '../../lib/featureManagement';
 import { disabledRefetch, getRandomNumber } from '../../lib/func';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import type { FilterOnboardingProps } from '../onboarding/FilterOnboarding';
@@ -35,6 +38,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
+import { subscribeRecommendRequest } from '../onboarding/onboardingPopBus';
 
 const tagsSelector = (data: TagsData) => data?.tags || [];
 
@@ -56,6 +60,10 @@ export type TagSelectionProps = {
   searchTags?: TagsData['tags'];
   TagElement?: React.ComponentType<OnboardingTagProps>;
   classNameTags?: string;
+  // Tag names to pin to the front of the (otherwise shuffled) list, e.g. for a
+  // campaign funnel that wants cloud-related tags surfaced first. Missing tags
+  // are prepended so they always appear.
+  featuredTags?: string[];
 } & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
 
 export function TagSelection({
@@ -70,6 +78,7 @@ export function TagSelection({
   searchQuery,
   searchTags,
   TagElement = TagElementDefault,
+  featuredTags,
 }: TagSelectionProps): ReactElement {
   const [isShuffled, setIsShuffled] = useState(false);
   const queryClient = useQueryClient();
@@ -82,6 +91,13 @@ export function TagSelection({
     feature: featureOnboardingTagRecommender,
     shouldEvaluate: origin === Origin.Onboarding,
   });
+  // Personas always use the recswipe-backed recommender; ops doesn't need
+  // to enroll users in both experiments.
+  const { value: isPersonasEnabled } = useConditionalFeature({
+    feature: featureOnboardingPersonas,
+    shouldEvaluate: origin === Origin.Onboarding,
+  });
+  const shouldUseTagRecommender = isTagRecommenderEnabled || isPersonasEnabled;
   const { onFollowTags, onUnfollowTags } = useTagAndSource({
     origin,
     shouldUpdateAlerts,
@@ -144,6 +160,24 @@ export function TagSelection({
     return [...onboardingTags.map((item) => item.name)];
   }, [onboardingTags]);
 
+  // Pin funnel-specified tags to the front (preserving their given order);
+  // prepend any that aren't in the fetched set so they still appear first.
+  const orderedTags = useMemo(() => {
+    if (!onboardingTags || !featuredTags?.length) {
+      return onboardingTags;
+    }
+
+    const featuredSet = new Set(featuredTags);
+    const featuredFirst = featuredTags.map(
+      (name) => onboardingTags.find((item) => item.name === name) ?? { name },
+    );
+    const rest = onboardingTags.filter(
+      (item) => !item.name || !featuredSet.has(item.name),
+    );
+
+    return [...featuredFirst, ...rest];
+  }, [onboardingTags, featuredTags]);
+
   const { mutate: recommendTags, data: recommendedTags } = useMutation({
     mutationFn: async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
       const tagName = tag.name;
@@ -153,7 +187,7 @@ export function TagSelection({
 
       let recommended: TagsData['tags'];
 
-      if (isTagRecommenderEnabled) {
+      if (shouldUseTagRecommender) {
         // Read the freshest selection from the cache rather than the closure-bound
         // memo: collaborative-filtering quality depends on an accurate input set.
         // onFollowTags runs after recommendTags, so the just-clicked tag isn't
@@ -219,6 +253,16 @@ export function TagSelection({
     },
   });
 
+  useEffect(() => {
+    return subscribeRecommendRequest((tags) => {
+      tags.forEach((tagName) => {
+        if (tagName) {
+          recommendTags({ tag: { name: tagName } });
+        }
+      });
+    });
+  }, [recommendTags]);
+
   const handleClickTag = async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
     const tagName = tag.name;
     if (!tagName) {
@@ -261,7 +305,7 @@ export function TagSelection({
     refetchFeed();
   };
 
-  const tags = searchQuery ? searchTags : onboardingTags;
+  const tags = searchQuery ? searchTags : orderedTags;
   const renderedTags: Record<string, boolean> = {};
 
   return (

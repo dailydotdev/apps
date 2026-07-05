@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, {
   useRef,
   useEffect,
@@ -24,36 +24,28 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
+import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
 import { useSharePost } from '../hooks/useSharePost';
-import {
-  LogEvent,
-  NotificationCtaPlacement,
-  Origin,
-  TargetId,
-} from '../lib/log';
+import { LogEvent, Origin, TargetId } from '../lib/log';
 import { SharedFeedPage } from './utilities';
 import type { FeedContainerProps } from './feeds/FeedContainer';
 import { FeedContainer } from './feeds/FeedContainer';
-import { ActiveFeedContext } from '../contexts';
-import {
-  useActions,
-  useBoot,
-  useConditionalFeature,
-  useFeedLayout,
-  useFeedVotePost,
-  useMutationSubscription,
-  useViewSize,
-  ViewSize,
-} from '../hooks';
+import { ActiveFeedContext } from '../contexts/ActiveFeedContext';
+import { useActions } from '../hooks/useActions';
+import { useBoot } from '../hooks/useBoot';
+import { useConditionalFeature } from '../hooks/useConditionalFeature';
+import { useFeedLayout } from '../hooks/useFeedLayout';
+import { useFeedVotePost } from '../hooks/vote/useFeedVotePost';
+import { useMutationSubscription } from '../hooks/mutationSubscription/useMutationSubscription';
 import { useProfileCompletionCard } from '../hooks/profile/useProfileCompletionCard';
 import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
-import { MarketingCtaVariant } from './marketingCta/common';
-import { isExtensionCapableBrowser, isNullOrUndefined } from '../lib/func';
+import { MarketingCtaVariant } from './marketing/cta/common';
+import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
 import { acquisitionKey } from './cards/AcquisitionForm/common/common';
@@ -65,18 +57,21 @@ import usePlusEntry from '../hooks/usePlusEntry';
 import { FeedCardContext } from '../features/posts/FeedCardContext';
 import {
   briefCardFeedFeature,
-  briefFeedEntrypointPage,
   featureFeedAdTemplate,
-  featureReaderModal,
+  featureFeedContentVisibility,
 } from '../lib/featureManagement';
+import { useHasIntroQuests } from '../hooks/useHasIntroQuests';
 import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
+import { EngagementFeedStrip } from './brand/EngagementFeedStrip';
+import { isEngagementAdFeed } from '../hooks/feed/useFeedName';
 import { ActionType } from '../graphql/actions';
-import { TopHero } from './banners/HeroBottomBanner';
-import { useReadingReminderFeedHero } from '../hooks/notifications/useReadingReminderFeedHero';
-import { useLegacyPostLayoutOptOut } from './post/reader/hooks/useLegacyPostLayoutOptOut';
+import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
+import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
+import { useReaderModalEligibility } from './post/reader/hooks/useReaderModalEligibility';
+import { useQuestDashboard } from '../hooks/useQuestDashboard';
 
 const FeedErrorScreen = dynamic(
   () => import(/* webpackChunkName: "feedErrorScreen" */ './FeedErrorScreen'),
@@ -105,7 +100,7 @@ export interface FeedProps<T>
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
-  disableBriefCard?: boolean;
+  topContent?: ReactNode;
 }
 
 interface RankVariables {
@@ -146,13 +141,6 @@ const SocialTwitterPostModal = dynamic(
     ),
 );
 
-const ReaderPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "readerPostModal" */ './modals/ReaderPostModal'
-    ),
-);
-
 const BriefCardFeed = dynamic(
   () =>
     import(
@@ -167,23 +155,19 @@ const ProfileCompletionCard = dynamic(
     ),
 );
 
-const calculateRow = (index: number, numCards: number): number =>
-  Math.floor(index / numCards);
-const calculateColumn = (index: number, numCards: number): number =>
-  index % numCards;
-
-export const PostModalMap: Record<PostType, typeof ArticlePostModal> = {
-  [PostType.Article]: ArticlePostModal,
-  [PostType.Share]: SharePostModal,
-  [PostType.Welcome]: SharePostModal,
-  [PostType.Freeform]: SharePostModal,
-  [PostType.VideoYouTube]: ArticlePostModal,
-  [PostType.Collection]: CollectionPostModal,
-  [PostType.Brief]: BriefPostModal,
-  [PostType.Digest]: ArticlePostModal,
-  [PostType.Poll]: PollPostModal,
-  [PostType.SocialTwitter]: SocialTwitterPostModal,
-};
+export const PostModalMap: Partial<Record<PostType, typeof ArticlePostModal>> =
+  {
+    [PostType.Article]: ArticlePostModal,
+    [PostType.Share]: SharePostModal,
+    [PostType.Welcome]: SharePostModal,
+    [PostType.Freeform]: SharePostModal,
+    [PostType.VideoYouTube]: ArticlePostModal,
+    [PostType.Collection]: CollectionPostModal,
+    [PostType.Brief]: BriefPostModal,
+    [PostType.Digest]: ArticlePostModal,
+    [PostType.Poll]: PollPostModal,
+    [PostType.SocialTwitter]: SocialTwitterPostModal,
+  };
 
 export default function Feed<T>({
   feedName,
@@ -208,7 +192,7 @@ export default function Feed<T>({
   isHorizontal = false,
   feedContainerRef,
   disableListFrame = false,
-  disableBriefCard = false,
+  topContent: topContentProp,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
   const { logEvent } = useLogContext();
@@ -256,23 +240,32 @@ export default function Feed<T>({
     hasNoBriefAction &&
     !hasDismissedBriefCard &&
     !showProfileCompletionCard &&
-    !isProfileCompletionCardLoading &&
-    !disableBriefCard;
+    !isProfileCompletionCardLoading;
   const { value: briefCardFeatureValue } = useConditionalFeature({
     feature: briefCardFeedFeature,
     shouldEvaluate: shouldEvaluateBriefCard,
   });
-  const showBriefCard = shouldEvaluateBriefCard && briefCardFeatureValue;
+  const hasIntroQuests = useHasIntroQuests({
+    shouldEvaluate: shouldEvaluateBriefCard,
+  });
+  const { isPending: isPendingQuestDashboard } = useQuestDashboard({
+    enabled: shouldEvaluateBriefCard,
+  });
+  const showBriefCard =
+    shouldEvaluateBriefCard &&
+    briefCardFeatureValue &&
+    !isPendingQuestDashboard &&
+    !hasIntroQuests;
   const [getProducts] = useUpdateQuery(getProductsQueryOptions());
   const adTemplate = currentSettings.adTemplate ??
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
 
-  const { value: briefBannerPage } = useConditionalFeature({
-    feature: briefFeedEntrypointPage,
-    shouldEvaluate: !user?.isPlus && isMyFeed,
-  });
+  const { isV2 } = useLayoutVariant();
+  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
   const {
     items,
+    placements: itemPlacements,
+    bannerInsertions,
     updatePost,
     removePost,
     fetchPage,
@@ -297,6 +290,10 @@ export default function Feed<T>({
       query,
       variables,
       options,
+      isBriefBannerEligible: !user?.isPlus && isMyFeed,
+      engagementStripEligible: !isHorizontal && isEngagementAdFeed(feedName),
+      firstSlotOffset: Number(showFirstSlotCard),
+      disableTopHero: isV2,
       settings: {
         disableAds,
         staticAd,
@@ -315,7 +312,34 @@ export default function Feed<T>({
   const { onMenuClick, postMenuIndex, postMenuLocation } = useFeedContextMenu();
   const useList = isListMode && numCards > 1;
   const virtualizedNumCards = useList ? 1 : numCards;
-  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
+
+  // Experiment: let the browser skip layout/paint for off-screen cards on long
+  // vertical feeds. Horizontal carousels are short and scroll on the other axis,
+  // so they get no benefit and are excluded from evaluation.
+  const { value: feedContentVisibility } = useConditionalFeature({
+    feature: featureFeedContentVisibility,
+    shouldEvaluate: !isHorizontal,
+  });
+  const useContentVisibility = feedContentVisibility && !isHorizontal;
+  // `contain-intrinsic-size: auto <estimate>` reserves height for skipped cards
+  // so the scrollbar stays stable; `auto` makes the browser remember each card's
+  // real size after its first paint, so the estimate only matters for cards not
+  // yet rendered. Grid cards use the `min-h-card` baseline; list cards are shorter.
+  const contentVisibilityStyle: CSSProperties | undefined = useContentVisibility
+    ? {
+        contentVisibility: 'auto',
+        containIntrinsicSize: shouldUseListFeedLayout
+          ? 'auto 12rem'
+          : 'auto 24rem',
+        // `content-visibility: auto` applies paint containment, which clips
+        // anything drawn outside the box — including the "Video" type label and
+        // the "Hot"/"Pinned" flag, which straddle the card's top edge with a
+        // negative offset. Extend the paint-clip region so those labels aren't
+        // truncated. Covers the tallest overhang (the grid flag, ~1.25rem)
+        // without any layout shift.
+        overflowClipMargin: '1.5rem',
+      }
+    : undefined;
   const {
     onOpenModal,
     onCloseModal,
@@ -331,25 +355,7 @@ export default function Feed<T>({
     canFetchMore,
     feedName,
   });
-  // Only enroll users whose browser can install our extension into the
-  // reader-modal experiment — Firefox/Safari/Other can never complete the
-  // embedded-browsing flow, so pulling them into the test pollutes the stats.
-  const isExtensionBrowser = useMemo(() => isExtensionCapableBrowser(), []);
-  const {
-    value: readerModalFromGrowthBook,
-    isLoading: isReaderFeatureLoading,
-  } = useConditionalFeature({
-    feature: featureReaderModal,
-    shouldEvaluate: isExtensionBrowser,
-  });
-  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
-  const isTabletViewport = useViewSize(ViewSize.Tablet);
-  const isReaderModalOn =
-    isExtensionBrowser &&
-    readerModalFromGrowthBook &&
-    !isLegacyLayoutOptedOut &&
-    isTabletViewport;
-  const isReaderModalFeatureReady = !isReaderFeatureLoading;
+  const { isReaderEnabled: isReaderModalOn } = useReaderModalEligibility();
   const readerEligiblePostTypes = useMemo(
     () =>
       new Set<PostType>([
@@ -361,24 +367,23 @@ export default function Feed<T>({
   );
   const isReaderEligiblePost = useCallback(
     (post: Post): boolean =>
-      isReaderModalFeatureReady &&
-      isReaderModalOn &&
-      readerEligiblePostTypes.has(post.type),
-    [isReaderModalFeatureReady, isReaderModalOn, readerEligiblePostTypes],
+      isReaderModalOn && readerEligiblePostTypes.has(post.type),
+    [isReaderModalOn, readerEligiblePostTypes],
   );
   const {
-    adjustedHeroInsertIndex,
-    shouldShowTopHero,
-    shouldShowInFeedHero,
-    title: readingReminderTitle,
-    subtitle: readingReminderSubtitle,
-    onEnableHero,
-    onDismissHero,
-  } = useReadingReminderFeedHero({
-    itemCount: items.length,
-    itemsPerRow: virtualizedNumCards,
-    firstSlotOffset: Number(showProfileCompletionCard || showBriefCard),
-  });
+    showPromoBanner,
+    indexWhenShowingPromoBanner,
+    showEngagementStrip,
+    indexWhenShowingEngagementStrip,
+    engagementStripCreative,
+    hero: {
+      shouldShowTopHero,
+      title: readingReminderTitle,
+      subtitle: readingReminderSubtitle,
+      onEnable: onEnableHero,
+      onDismiss: onDismissHero,
+    },
+  } = bannerInsertions;
 
   useMutationSubscription({
     matcher: ({ mutation }) => {
@@ -545,20 +550,8 @@ export default function Feed<T>({
     if (!selectedPost) {
       return undefined;
     }
-    const readerEligibleTypes = new Set([
-      PostType.Article,
-      PostType.Digest,
-      PostType.VideoYouTube,
-    ]);
-    if (
-      isReaderModalFeatureReady &&
-      isReaderModalOn &&
-      readerEligibleTypes.has(selectedPost.type)
-    ) {
-      return ReaderPostModal;
-    }
     return PostModalMap[selectedPost.type];
-  }, [selectedPost, isReaderModalFeatureReady, isReaderModalOn]);
+  }, [selectedPost]);
 
   if (!loadedSettings || isFallback) {
     return <></>;
@@ -597,7 +590,9 @@ export default function Feed<T>({
     const isMiddleClick = event?.type === 'auxclick' || event?.button === 1;
     const isModifierClick = !!(event && (event.ctrlKey || event.metaKey));
     const readerEligible = isReaderEligiblePost(post);
+    const skipsPostModal = post.type === PostType.LiveRoom;
     const shouldOpenModal =
+      !skipsPostModal &&
       !isAuxClick &&
       !isMiddleClick &&
       !isModifierClick &&
@@ -656,29 +651,23 @@ export default function Feed<T>({
     feedName as SharedFeedPage,
   );
 
-  const currentPageSize = pageSize ?? currentSettings.pageSize;
-  const showPromoBanner = !!briefBannerPage;
-  const columnsDiffWithPage = currentPageSize % virtualizedNumCards;
-  const indexWhenShowingPromoBanner =
-    currentPageSize * Number(briefBannerPage) - // number of items at that page
-    columnsDiffWithPage * Number(briefBannerPage) - // cards let out of rows * page number
-    Number(showFirstSlotCard);
-
   const FeedWrapperComponent = isSearchPageLaptop
     ? SearchResultsLayout
     : FeedContainer;
   const containerProps = isSearchPageLaptop
     ? {}
     : {
-        topContent: shouldShowTopHero ? (
-          <TopHero
-            className="pt-2"
-            title={readingReminderTitle}
-            subtitle={readingReminderSubtitle}
-            onCtaClick={() => onEnableHero(NotificationCtaPlacement.TopHero)}
-            onClose={() => onDismissHero(NotificationCtaPlacement.TopHero)}
-          />
-        ) : undefined,
+        topContent:
+          topContentProp ??
+          (shouldShowTopHero ? (
+            <ReadingReminderFeedHero
+              className="pt-2"
+              title={readingReminderTitle}
+              subtitle={readingReminderSubtitle}
+              onCtaClick={onEnableHero}
+              onClose={onDismissHero}
+            />
+          ) : undefined),
         header,
         inlineHeader,
         className,
@@ -713,50 +702,20 @@ export default function Feed<T>({
                 }}
               />
             )}
-            {items.map((item, index) => (
-              <FeedCardContext.Provider
-                key={getFeedItemKey(item, index)}
-                value={{
-                  boostedBy: isBoostedPostAd(item)
-                    ? item.ad.data?.post?.author || item.ad.data?.post?.scout
-                    : undefined,
-                }}
-              >
-                {showPromoBanner && index === indexWhenShowingPromoBanner && (
-                  <BriefBannerFeed
-                    style={{
-                      gridColumn: !shouldUseListFeedLayout
-                        ? `span ${virtualizedNumCards}`
-                        : undefined,
-                    }}
-                  />
-                )}
-                {shouldShowInFeedHero && index === adjustedHeroInsertIndex && (
-                  <div
-                    style={{
-                      gridColumn: !shouldUseListFeedLayout
-                        ? `span ${virtualizedNumCards}`
-                        : undefined,
-                    }}
-                  >
-                    <TopHero
-                      className="pt-0"
-                      title={readingReminderTitle}
-                      subtitle={readingReminderSubtitle}
-                      onCtaClick={() =>
-                        onEnableHero(NotificationCtaPlacement.InFeedHero)
-                      }
-                      onClose={() =>
-                        onDismissHero(NotificationCtaPlacement.InFeedHero)
-                      }
-                    />
-                  </div>
-                )}
+            {items.map((item, index) => {
+              const placement = itemPlacements[index];
+              const { colSpan } = placement;
+              const isWidened = colSpan > 1;
+              const wideColSpan =
+                isWidened && (colSpan === 2 || colSpan === 3 || colSpan === 4)
+                  ? (colSpan as FeaturedWideColSpan)
+                  : undefined;
+              const itemNode: ReactElement = (
                 <FeedItemComponent
                   item={item}
                   index={index}
-                  row={calculateRow(index, virtualizedNumCards)}
-                  column={calculateColumn(index, virtualizedNumCards)}
+                  row={placement.row}
+                  column={placement.column}
                   columns={virtualizedNumCards}
                   openNewTab={openNewTab}
                   postMenuIndex={postMenuIndex}
@@ -774,9 +733,77 @@ export default function Feed<T>({
                   onReadArticleClick={onReadArticleClick}
                   virtualizedNumCards={virtualizedNumCards}
                   disableAdRefresh={disableAdRefresh}
+                  wideColSpan={wideColSpan}
                 />
-              </FeedCardContext.Provider>
-            ))}
+              );
+
+              let renderedItem = itemNode;
+              if (isWidened) {
+                renderedItem = (
+                  <div
+                    className="flex h-full w-full [&>*]:h-full [&>*]:w-full"
+                    style={{
+                      gridColumn: `span ${colSpan}`,
+                      ...contentVisibilityStyle,
+                    }}
+                    data-testid="feedItemColSpanWrapper"
+                  >
+                    {itemNode}
+                  </div>
+                );
+              } else if (useContentVisibility) {
+                // List cards stack at natural height; grid cards must keep
+                // filling their equal-height row, so preserve the h-full pass-through.
+                // The overhanging card labels are handled by `overflowClipMargin`
+                // on `contentVisibilityStyle` (see above), so both branches are safe.
+                renderedItem = (
+                  <div
+                    className={
+                      shouldUseListFeedLayout
+                        ? 'w-full'
+                        : 'flex h-full w-full [&>*]:h-full [&>*]:w-full'
+                    }
+                    style={contentVisibilityStyle}
+                  >
+                    {itemNode}
+                  </div>
+                );
+              }
+
+              return (
+                <FeedCardContext.Provider
+                  key={getFeedItemKey(item, index)}
+                  value={{
+                    boostedBy: isBoostedPostAd(item)
+                      ? item.ad.data?.post?.author || item.ad.data?.post?.scout
+                      : undefined,
+                  }}
+                >
+                  {showPromoBanner && index === indexWhenShowingPromoBanner && (
+                    <BriefBannerFeed
+                      style={{
+                        gridColumn: !shouldUseListFeedLayout
+                          ? `span ${virtualizedNumCards}`
+                          : undefined,
+                      }}
+                    />
+                  )}
+                  {showEngagementStrip &&
+                    engagementStripCreative &&
+                    index === indexWhenShowingEngagementStrip && (
+                      <EngagementFeedStrip
+                        creative={engagementStripCreative}
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      />
+                    )}
+                  {renderedItem}
+                </FeedCardContext.Provider>
+              );
+            })}
             {!isFetching && !isInitialLoading && !isHorizontal && (
               <InfiniteScrollScreenOffset ref={infiniteScrollRef} />
             )}

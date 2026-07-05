@@ -8,6 +8,7 @@ import {
   HashtagIcon,
   HotIcon,
   SquadIcon,
+  TourIcon,
 } from '../../icons';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
@@ -18,26 +19,35 @@ import { ActionType } from '../../../graphql/actions';
 import { webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { OtherFeedPage } from '../../../lib/query';
+import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
+
+interface DiscoverSectionProps extends SidebarSectionProps {
+  onNavTabClick?: (tab: string) => void;
+}
 
 export const DiscoverSection = ({
   isItemsButton,
+  onNavTabClick,
   ...defaultRenderSectionProps
-}: SidebarSectionProps): ReactElement => {
+}: DiscoverSectionProps): ReactElement => {
   const { completeAction } = useActions();
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const { isV2 } = useLayoutVariant();
+  const HotTakesIcon = isV2 ? TourIcon : HotIcon;
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <HotIcon secondary={active} />} />
         ),
-        title: 'Hot Takes',
-        requiresLogin: true,
-        path: `${webappUrl}?openModal=hottakes`,
-        action: () => {
-          logEvent({ event_name: LogEvent.OpenHotAndCold });
-        },
+        title: 'Explore',
+        // Bare path (not webappUrl) so it active-matches the in-place Explore
+        // feed on the extension new tab; `onNavTabClick` switches the feed
+        // client-side, so this must render as a button, not a link.
+        path: '/posts',
+        action: () => onNavTabClick?.(OtherFeedPage.Explore),
       },
       {
         icon: (active: boolean) => (
@@ -45,6 +55,7 @@ export const DiscoverSection = ({
         ),
         title: 'Tags',
         path: `${webappUrl}tags`,
+        isForcedLink: true,
       },
       {
         icon: (active: boolean) => (
@@ -52,6 +63,7 @@ export const DiscoverSection = ({
         ),
         title: 'Sources',
         path: `${webappUrl}sources`,
+        isForcedLink: true,
       },
       {
         icon: (active: boolean) => (
@@ -59,6 +71,7 @@ export const DiscoverSection = ({
         ),
         title: 'Leaderboard',
         path: `${webappUrl}users`,
+        isForcedLink: true,
       },
       {
         icon: (active: boolean) => (
@@ -66,20 +79,33 @@ export const DiscoverSection = ({
         ),
         title: 'Discussions',
         path: `${webappUrl}discussed`,
+        isForcedLink: true,
         action: () => {
           if (user) {
             completeAction(ActionType.CommentFeed);
           }
         },
       },
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <HotTakesIcon secondary={active} />} />
+        ),
+        title: 'Hot Takes',
+        requiresLogin: true,
+        path: `${webappUrl}?openModal=hottakes`,
+        isForcedLink: true,
+        action: () => {
+          logEvent({ event_name: LogEvent.OpenHotAndCold });
+        },
+      },
     ].filter(Boolean);
-  }, [completeAction, user, logEvent]);
+  }, [completeAction, user, logEvent, onNavTabClick, HotTakesIcon]);
 
   return (
     <Section
       {...defaultRenderSectionProps}
       items={menuItems}
-      isItemsButton={false}
+      isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.OtherExpanded}
     />
   );

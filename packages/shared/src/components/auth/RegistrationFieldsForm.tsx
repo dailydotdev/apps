@@ -3,7 +3,12 @@ import { TextField } from '../fields/TextField';
 import { PasswordField } from '../fields/PasswordField';
 import { Checkbox } from '../fields/Checkbox';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
-import type { UserExperienceLevel } from '../../lib/user';
+import CloudProviderDropdown from '../profile/CloudProviderDropdown';
+import type {
+  CloudProvider,
+  ProfileExtraField,
+  UserExperienceLevel,
+} from '../../lib/user';
 import { Button, ButtonVariant } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { useGenerateUsername } from '../../hooks';
@@ -19,6 +24,9 @@ export interface RegistrationFieldsFormValues {
   experienceLevel?: UserExperienceLevelKey;
   optOutMarketing: boolean;
   image?: string;
+  company?: string;
+  title?: string;
+  cloudProvider?: keyof typeof CloudProvider;
 }
 
 type FormValues = Omit<RegistrationFieldsFormValues, 'image'>;
@@ -31,6 +39,9 @@ export interface RegistrationFieldsFormProps {
   errors?: Partial<Record<keyof RegistrationFieldsFormValues, string>>;
   onResetErrors?: (field?: keyof RegistrationFieldsFormValues) => void;
   withPassword?: boolean;
+  // Optional extra profile fields to render, driven by the onboarding funnel
+  // (campaign cohorts). Empty/undefined renders the default fields only.
+  extraFields?: ProfileExtraField[];
 }
 
 const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
@@ -41,6 +52,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
   errors: serverErrors = {},
   onResetErrors,
   withPassword,
+  extraFields = [],
 }) => {
   const [values, setValues] = useState<FormValues>({
     email: initialValues.email || '',
@@ -49,7 +61,13 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
     username: initialValues.username || '',
     experienceLevel: initialValues.experienceLevel as UserExperienceLevelKey,
     optOutMarketing: initialValues.optOutMarketing || false,
+    company: initialValues.company || '',
+    title: initialValues.title || '',
+    cloudProvider: initialValues.cloudProvider,
   });
+  const showCompany = extraFields.includes('company');
+  const showJobTitle = extraFields.includes('jobTitle');
+  const showCloudProvider = extraFields.includes('cloudProvider');
   const { username, isLoading: isLoadingUsername } = useGenerateUsername(
     initialValues.username ? undefined : initialValues.name,
   );
@@ -102,7 +120,20 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
     e.preventDefault();
     setSubmitted(true);
     if (Object.keys(localErrors).length === 0) {
-      onSubmit({ ...values, username: inputUsername });
+      // `validate()` above guarantees inputUsername is non-empty when we
+      // reach this branch, but its declared type is `string | undefined`
+      // because `useGenerateUsername` can be loading. Fall back to '' to
+      // satisfy the FormValues contract without a non-null assertion.
+      // Only include the optional extra fields when they're actually rendered
+      // (and non-empty), so default registration flows never submit them and
+      // overwrite existing profile values with blanks.
+      onSubmit({
+        ...values,
+        username: inputUsername ?? '',
+        company: showCompany && values.company ? values.company : undefined,
+        title: showJobTitle && values.title ? values.title : undefined,
+        cloudProvider: showCloudProvider ? values.cloudProvider : undefined,
+      });
     }
   };
 
@@ -186,7 +217,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         required
         autoComplete="user"
         className={{ container: 'w-full' }}
-        rightIcon={isLoadingUsername ? <span className="loader" /> : null}
+        rightIcon={isLoadingUsername ? <span className="loader" /> : undefined}
       />
       <ExperienceLevelDropdown
         name="experienceLevel"
@@ -205,9 +236,46 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         }
         saveHintSpace
       />
-      <span className="border-b border-border-subtlest-tertiary pb-4 text-text-secondary typo-subhead">
-        Your email will be used to send you product and community updates
-      </span>
+      {showCompany && (
+        <TextField
+          name="company"
+          inputId="company"
+          label="Company name"
+          value={values.company}
+          onChange={handleChange('company')}
+          onBlur={handleBlur('company')}
+          hint={serverErrors.company || ''}
+          autoComplete="organization"
+          className={{ container: 'w-full' }}
+        />
+      )}
+      {showJobTitle && (
+        <TextField
+          name="title"
+          inputId="title"
+          label="Job title"
+          value={values.title}
+          onChange={handleChange('title')}
+          onBlur={handleBlur('title')}
+          hint={serverErrors.title || ''}
+          autoComplete="organization-title"
+          className={{ container: 'w-full' }}
+        />
+      )}
+      {showCloudProvider && (
+        <CloudProviderDropdown
+          name="cloudProvider"
+          className={{ container: 'w-full' }}
+          defaultValue={values.cloudProvider}
+          onChange={(val) => {
+            setValues((v) => ({ ...v, cloudProvider: val }));
+            setTouched((t) => ({ ...t, cloudProvider: true }));
+            onResetErrors?.('cloudProvider');
+          }}
+          hint={serverErrors.cloudProvider || ''}
+          saveHintSpace
+        />
+      )}
       <Checkbox
         name="optOutMarketing"
         checked={values.optOutMarketing}

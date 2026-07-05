@@ -38,6 +38,7 @@ interface AuthDefaultProps extends AuthFormProps {
   isSocialAuthLoading?: boolean;
   isReady: boolean;
   loginButton?: string;
+  onAuthOpenLogged?: () => void;
 }
 
 const AuthDefault = ({
@@ -59,6 +60,7 @@ const AuthDefault = ({
   logInTitle = 'Log in',
   loginButton,
   simplified,
+  onAuthOpenLogged,
 }: AuthDefaultProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [shouldLogin, setShouldLogin] = useState(isLoginFlow);
@@ -87,6 +89,8 @@ const AuthDefault = ({
       extra: JSON.stringify({ trigger }),
       target_id: targetId,
     });
+
+    onAuthOpenLogged?.();
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldLogin]);
@@ -159,7 +163,7 @@ const AuthDefault = ({
         >
           {providers.map(({ label, value, icon }, index) => (
             <Button
-              aria-label={`${shouldLogin ? 'Login' : 'Signup'} using ${label}`}
+              aria-label={`Continue with ${label}`}
               autoFocus={index === 0}
               disabled={!isReady || isSocialAuthLoading}
               icon={icon}
@@ -170,7 +174,7 @@ const AuthDefault = ({
               type="button"
               variant={ButtonVariant.Primary}
             >
-              {label}
+              Continue with {label}
             </Button>
           ))}
         </div>

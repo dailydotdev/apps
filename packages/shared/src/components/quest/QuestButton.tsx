@@ -3,13 +3,11 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, {
   useCallback,
   useEffect,
-  useId,
   useMemo,
   useRef,
   useState,
 } from 'react';
 import { useRouter } from 'next/router';
-import { useQueryClient } from '@tanstack/react-query';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import {
   Button,
@@ -19,39 +17,20 @@ import {
 } from '../buttons/Button';
 import { Bubble } from '../tooltips/utils';
 import { IconSize } from '../Icon';
-import {
-  ArrowIcon,
-  CoreIcon,
-  DevPlusIcon,
-  LockIcon,
-  ReputationIcon,
-  TourIcon,
-} from '../icons';
-import type {
-  QuestDashboard,
-  QuestLevel,
-  QuestReward,
-  QuestType,
-  UserQuest,
-} from '../../graphql/quests';
-import {
-  QuestRewardType,
-  QuestStatus,
-  QUEST_ROTATION_UPDATE_SUBSCRIPTION,
-  QUEST_UPDATE_SUBSCRIPTION,
-} from '../../graphql/quests';
+import { DevPlusIcon, TourIcon } from '../icons';
+import type { QuestLevel, QuestType, UserQuest } from '../../graphql/quests';
+import { QuestRewardType } from '../../graphql/quests';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
-import { useMarkQuestRotationsViewed } from '../../hooks/useMarkQuestRotationsViewed';
-import { useQuestDashboard } from '../../hooks/useQuestDashboard';
+import {
+  getClaimableQuestCount,
+  useQuestDashboard,
+} from '../../hooks/useQuestDashboard';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { plusUrl, webappUrl } from '../../lib/constants';
 import { agentsHighlightsPath } from '../../lib/links';
-import { generateQueryKey, RequestKey } from '../../lib/query';
-import useSubscription from '../../hooks/useSubscription';
-import { ProgressBar } from '../fields/ProgressBar';
 import Link from '../utilities/Link';
 import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
@@ -60,17 +39,24 @@ import { QUEST_REWARD_COUNTER_EVENT } from '../../lib/questRewardAnimation';
 import type { QuestRewardCounterEventDetail } from '../../lib/questRewardAnimation';
 import { PopoverContent } from '../popover/Popover';
 import { Tooltip } from '../tooltip/Tooltip';
+import { WeeklyQuestResetTimer } from './WeeklyQuestResetTimer';
 import { useScrollFade } from '../../hooks/useScrollFade';
+import {
+  QuestCard,
+  QUEST_CLAIMED_STAMP_ANIMATION_MS,
+  QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS,
+  type QuestDestination,
+} from './QuestCard';
+import {
+  QuestRewardFlightLayer,
+  buildQuestRewardFlights,
+  getQuestRewardHitAt,
+  QUEST_REWARD_LAYER_Z_INDEX,
+  type QuestRewardFlight,
+  type QuestRewardSource,
+} from './QuestRewardAnimations';
 
-const getProgress = (progress: number, target: number) => {
-  const safeTarget = Math.max(target, 1);
-  const safeProgress = Math.max(progress, 0);
-  return {
-    value: Math.min(safeProgress, safeTarget),
-    percentage: Math.min(100, Math.round((safeProgress / safeTarget) * 100)),
-    target: safeTarget,
-  };
-};
+export type { QuestDestination } from './QuestCard';
 
 const getLevelProgress = (level: QuestLevel) => {
   const totalForLevel = level.xpInLevel + level.xpToNextLevel;
@@ -82,50 +68,8 @@ const getLevelProgress = (level: QuestLevel) => {
   return Math.min(100, (level.xpInLevel / totalForLevel) * 100);
 };
 
-type ClaimableQuestSnapshot = {
-  rotationId: string;
-  questId: string;
-  questType: QuestType;
-  userQuestId: string | null;
-  locked: boolean;
-  claimable: boolean;
-};
-
-const getQuestClaimableSnapshots = (
-  dashboard?: QuestDashboard,
-): Map<string, ClaimableQuestSnapshot> => {
-  const snapshots = new Map<string, ClaimableQuestSnapshot>();
-
-  if (!dashboard) {
-    return snapshots;
-  }
-
-  [
-    ...dashboard.daily.regular,
-    ...dashboard.daily.plus,
-    ...dashboard.weekly.regular,
-    ...dashboard.weekly.plus,
-    ...dashboard.milestone,
-  ].forEach((quest) => {
-    snapshots.set(quest.rotationId, {
-      rotationId: quest.rotationId,
-      questId: quest.quest.id,
-      questType: quest.quest.type,
-      userQuestId: quest.userQuestId ?? null,
-      locked: quest.locked,
-      claimable: quest.claimable,
-    });
-  });
-
-  return snapshots;
-};
-
 const QUEST_LEVEL_PROGRESS_SIZE = 40;
 const QUEST_LEVEL_PROGRESS_STROKE = 4;
-const QUEST_REWARD_FLY_DURATION_MS = 1850;
-const QUEST_REWARD_HIT_PROGRESS = 0.86;
-const QUEST_REWARD_FLIGHT_STAGGER_MS = 180;
-const QUEST_REWARD_SOURCE_LIFT_PX = 34;
 const QUEST_LEVEL_FIREWORK_PARTICLE_COUNT = 18;
 const QUEST_LEVEL_FIREWORK_BURST_DELAY_MS = 120;
 const QUEST_LEVEL_FIREWORK_PARTICLE_DURATION_MS = 780;
@@ -135,85 +79,6 @@ const QUEST_LEVEL_FIREWORK_DISTANCE_VARIATION_STEPS = 5;
 const QUEST_LEVEL_FIREWORK_DISTANCE_STEP_PX = 4;
 const QUEST_LEVEL_FIREWORK_BURST_DISTANCE_OFFSET_PX = 3;
 const QUEST_LEVEL_PROGRESS_SPIKE_SETTLE_MS = 90;
-const QUEST_CLAIMED_STAMP_REVEAL_DELAY_MS = 220;
-const QUEST_CLAIMED_STAMP_ANIMATION_MS = 340;
-const QUEST_REWARD_LAYER_Z_INDEX = 2147483647;
-
-type ClaimedStampMaskHole = {
-  cx: number;
-  cy: number;
-  rx: number;
-  ry: number;
-};
-
-const buildClaimedStampMaskHoles = (): ClaimedStampMaskHole[] => {
-  const holes: ClaimedStampMaskHole[] = [];
-
-  // Small chips around top and bottom edges.
-  for (let index = 0; index < 46; index += 1) {
-    const tick = index + 1;
-    const cx = 12 + ((tick * 37) % 336);
-    const rx = 1 + ((tick * 13) % 5) * 0.38;
-    const ry = 0.6 + ((tick * 19) % 4) * 0.28;
-    const topY = 3.2 + ((tick * 11) % 7) * 0.52;
-    const bottomY = 116.8 - ((tick * 17) % 7) * 0.52;
-    const wobble = ((tick * 5) % 5) - 2;
-
-    holes.push(
-      { cx, cy: topY, rx, ry },
-      { cx: cx + wobble, cy: bottomY, rx: rx * 0.92, ry: ry * 0.9 },
-    );
-  }
-
-  // Smaller vertical chips near left and right edges.
-  for (let index = 0; index < 24; index += 1) {
-    const tick = index + 1;
-    const cy = 11 + ((tick * 29) % 98);
-    const rx = 0.55 + ((tick * 5) % 3) * 0.23;
-    const ry = 1 + ((tick * 7) % 4) * 0.45;
-    const leftX = 3.2 + ((tick * 13) % 7) * 0.25;
-    const rightX = 356.8 - ((tick * 17) % 7) * 0.25;
-    const wobble = (((tick * 3) % 5) - 2) * 0.35;
-
-    holes.push(
-      { cx: leftX, cy, rx, ry },
-      { cx: rightX, cy: cy + wobble, rx: rx * 0.95, ry: ry * 0.92 },
-    );
-  }
-
-  // Fine interior speckle to make the print feel worn.
-  for (let index = 0; index < 130; index += 1) {
-    const tick = index + 1;
-    holes.push({
-      cx: 22 + ((tick * 43) % 316),
-      cy: 23 + ((tick * 31) % 74),
-      rx: 0.45 + ((tick * 11) % 5) * 0.2,
-      ry: 0.45 + ((tick * 7) % 4) * 0.18,
-    });
-  }
-
-  return holes;
-};
-
-const CLAIMED_STAMP_MASK_HOLES = buildClaimedStampMaskHoles();
-
-const getQuestRewardHitAt = (delayMs: number): number =>
-  delayMs +
-  Math.round(QUEST_REWARD_FLY_DURATION_MS * QUEST_REWARD_HIT_PROGRESS);
-
-export type QuestRewardSource = {
-  id: string;
-  type: QuestRewardType;
-  amount: number;
-  x: number;
-  y: number;
-};
-
-type QuestRewardFlight = QuestRewardSource & {
-  dx: number;
-  dy: number;
-  delayMs: number;
-};
 
 type QuestRewardFlightLayerState = {
   claimRotationId: string;
@@ -229,81 +94,6 @@ type QuestLevelFireworkParticle = {
   delayMs: number;
   durationMs: number;
   hue: number;
-};
-
-const getStatusLabel = (quest: UserQuest): string => {
-  if (quest.status === QuestStatus.Claimed) {
-    return 'Claimed';
-  }
-
-  if (quest.claimable) {
-    return 'Ready to claim';
-  }
-
-  if (quest.status === QuestStatus.Completed) {
-    return quest.locked ? 'Plus required' : 'Completed';
-  }
-
-  return 'In progress';
-};
-
-const getRewardIcon = (reward: QuestReward): ReactElement => {
-  switch (reward.type) {
-    case QuestRewardType.Cores:
-      return <CoreIcon className="text-accent-cheese-default" />;
-    case QuestRewardType.Reputation:
-      return <ReputationIcon className="text-accent-onion-default" />;
-    case QuestRewardType.Xp:
-    default:
-      return (
-        <span className="inline-flex size-5 items-center justify-center text-[0.5625rem] font-bold lowercase leading-none !text-accent-avocado-default">
-          xp
-        </span>
-      );
-  }
-};
-
-const getRewardLabel = (reward: QuestReward): string => {
-  switch (reward.type) {
-    case QuestRewardType.Cores:
-      return 'Cores';
-    case QuestRewardType.Reputation:
-      return 'Reputation';
-    case QuestRewardType.Xp:
-    default:
-      return 'XP';
-  }
-};
-
-const getVisibleRewards = (
-  rewards: QuestReward[],
-  showLevelSystem: boolean,
-): QuestReward[] =>
-  rewards.filter(
-    (reward) => showLevelSystem || reward.type !== QuestRewardType.Xp,
-  );
-
-const QuestRewardChip = ({
-  reward,
-  rewardRef,
-}: {
-  reward: QuestReward;
-  rewardRef?: (element: HTMLSpanElement | null) => void;
-}): ReactElement => {
-  return (
-    <span
-      ref={rewardRef}
-      className="inline-flex items-center gap-1 rounded-8 bg-surface-float px-2 py-1 typo-caption1"
-    >
-      {getRewardIcon(reward)}+{reward.amount.toLocaleString()}{' '}
-      {getRewardLabel(reward)}
-    </span>
-  );
-};
-
-export type QuestDestination = {
-  label: string;
-  path: string;
 };
 
 const HOT_TAKES_MODAL_PATH = '/?openModal=hottakes';
@@ -354,265 +144,6 @@ const getQuestDestination = (
   }
 };
 
-const QuestItem = ({
-  quest,
-  onClaim,
-  onDestinationClick,
-  showLevelSystem,
-  isClaiming,
-  isClaimAnimating,
-  showClaimedStamp,
-  animateClaimedStamp,
-  suppressPersistedClaimedStamp,
-}: {
-  quest: UserQuest;
-  onClaim: (
-    userQuestId: string,
-    questId: string,
-    questType: QuestType,
-    rewardSources: QuestRewardSource[],
-    claimRotationId: string,
-  ) => void;
-  onDestinationClick: (destination: QuestDestination) => void;
-  showLevelSystem: boolean;
-  isClaiming: boolean;
-  isClaimAnimating: boolean;
-  showClaimedStamp: boolean;
-  animateClaimedStamp: boolean;
-  suppressPersistedClaimedStamp: boolean;
-}): ReactElement => {
-  const { value, percentage, target } = getProgress(
-    quest.progress,
-    quest.quest.targetCount,
-  );
-  const rewardRefs = useRef<Record<string, HTMLSpanElement | null>>({});
-  const claimedStampMaskId = `quest-claimed-stamp-mask-${useId().replace(
-    /[^a-zA-Z0-9_-]/g,
-    '',
-  )}`;
-  const hasPersistedClaim =
-    quest.status === QuestStatus.Claimed || Boolean(quest.claimedAt);
-  const isClaimed = hasPersistedClaim || showClaimedStamp;
-  const shouldShowClaimedStamp =
-    showClaimedStamp ||
-    (hasPersistedClaim && !isClaimAnimating && !suppressPersistedClaimedStamp);
-  const shouldAnimateClaimedStamp =
-    animateClaimedStamp && shouldShowClaimedStamp;
-  const isVisuallyDisabled =
-    quest.locked || isClaiming || isClaimAnimating || isClaimed;
-  const canClaim =
-    quest.claimable && !!quest.userQuestId && !isClaimAnimating && !isClaimed;
-  const visibleRewards = getVisibleRewards(quest.rewards, showLevelSystem);
-  const destination = getQuestDestination(quest.quest);
-  const shouldShowDestination =
-    Boolean(destination) && !quest.claimable && !isVisuallyDisabled;
-  const disabledContentClass = classNames(
-    'flex flex-col gap-2 transition-[opacity,filter] duration-200',
-    isVisuallyDisabled && 'opacity-50 grayscale',
-  );
-
-  return (
-    <article className="relative overflow-hidden rounded-12 border border-border-subtlest-tertiary p-2">
-      <div className="flex flex-col gap-2">
-        <div className={disabledContentClass}>
-          <header className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <div className="flex items-start gap-2">
-                <p className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
-                  {quest.quest.name}
-                </p>
-                {shouldShowDestination && destination && (
-                  <Tooltip content={`Go to ${destination.label}`}>
-                    <Button
-                      variant={ButtonVariant.Tertiary}
-                      size={ButtonSize.Small}
-                      className="!flex-none"
-                      icon={<ArrowIcon className="rotate-90" />}
-                      aria-label={`Go to ${destination.label}`}
-                      onClick={() => onDestinationClick(destination)}
-                    />
-                  </Tooltip>
-                )}
-              </div>
-              <p className="line-clamp-2 text-text-tertiary typo-caption1">
-                {quest.quest.description}
-              </p>
-            </div>
-            {quest.locked && (
-              <LockIcon className="shrink-0 text-text-tertiary" />
-            )}
-          </header>
-
-          <div className="flex items-center justify-between gap-2 text-text-tertiary typo-caption1">
-            <span>
-              {value}/{target}
-            </span>
-            <span>{getStatusLabel(quest)}</span>
-          </div>
-        </div>
-
-        <div
-          className={classNames(
-            'transition-opacity duration-200',
-            isVisuallyDisabled && 'opacity-50',
-          )}
-        >
-          <ProgressBar
-            percentage={percentage}
-            shouldShowBg
-            className={{
-              wrapper: 'h-1.5 rounded-14',
-              bar: 'h-full rounded-14',
-              barColor: quest.locked
-                ? 'bg-accent-cabbage-bolder'
-                : 'bg-accent-cabbage-default',
-            }}
-          />
-        </div>
-
-        {(visibleRewards.length > 0 || canClaim) && (
-          <div className={disabledContentClass}>
-            {visibleRewards.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {visibleRewards.map((reward, index) => {
-                  const rewardKey = `${reward.type}-${index.toString()}`;
-
-                  return (
-                    <QuestRewardChip
-                      key={`${quest.rotationId}-${
-                        reward.type
-                      }-${index.toString()}`}
-                      reward={reward}
-                      rewardRef={(element) => {
-                        rewardRefs.current[rewardKey] = element;
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            )}
-
-            {canClaim && (
-              <Button
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Small}
-                className="w-fit"
-                disabled={isClaiming}
-                loading={isClaiming}
-                onClick={() => {
-                  if (!quest.userQuestId || isClaiming) {
-                    return;
-                  }
-
-                  const rewardSources = visibleRewards.flatMap(
-                    (reward, index) => {
-                      const rewardKey = `${reward.type}-${index.toString()}`;
-                      const rewardElement = rewardRefs.current[rewardKey];
-
-                      if (!rewardElement) {
-                        return [];
-                      }
-
-                      const rect = rewardElement.getBoundingClientRect();
-
-                      return [
-                        {
-                          id: rewardKey,
-                          type: reward.type,
-                          amount: reward.amount,
-                          x: rect.left + rect.width / 2,
-                          y: rect.top + rect.height / 2,
-                        },
-                      ] satisfies QuestRewardSource[];
-                    },
-                  );
-
-                  onClaim(
-                    quest.userQuestId,
-                    quest.quest.id,
-                    quest.quest.type,
-                    rewardSources,
-                    quest.rotationId,
-                  );
-                }}
-              >
-                Claim
-              </Button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {shouldShowClaimedStamp && (
-        <div className="z-10 pointer-events-none absolute inset-0 overflow-hidden">
-          <svg
-            className={classNames(
-              'absolute left-1/2 top-1/2 w-[13.25rem] -translate-x-1/2 -translate-y-1/2 -rotate-[12deg] text-accent-avocado-default',
-              shouldAnimateClaimedStamp && 'quest-claimed-stamp',
-            )}
-            viewBox="0 0 360 120"
-            aria-hidden
-          >
-            <defs>
-              <mask
-                id={claimedStampMaskId}
-                x="0"
-                y="0"
-                width="360"
-                height="120"
-                maskUnits="userSpaceOnUse"
-              >
-                <rect x="0" y="0" width="360" height="120" fill="white" />
-                {CLAIMED_STAMP_MASK_HOLES.map((hole, index) => (
-                  <ellipse
-                    key={`${claimedStampMaskId}-hole-${index.toString()}`}
-                    cx={hole.cx}
-                    cy={hole.cy}
-                    rx={hole.rx}
-                    ry={hole.ry}
-                    fill="black"
-                  />
-                ))}
-              </mask>
-            </defs>
-            <g mask={`url(#${claimedStampMaskId})`} fill="none">
-              <rect
-                x="8"
-                y="8"
-                width="344"
-                height="104"
-                rx="14"
-                stroke="currentColor"
-                strokeWidth="8"
-              />
-              <rect
-                x="22"
-                y="22"
-                width="316"
-                height="76"
-                rx="10"
-                stroke="currentColor"
-                strokeWidth="3.5"
-              />
-              <text
-                x="180"
-                y="60"
-                fill="currentColor"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                className="font-black uppercase"
-                style={{ fontSize: '42px', letterSpacing: '0.22em' }}
-              >
-                CLAIMED
-              </text>
-            </g>
-          </svg>
-        </div>
-      )}
-    </article>
-  );
-};
-
 export const QuestSection = ({
   title,
   quests,
@@ -629,6 +160,7 @@ export const QuestSection = ({
   initialVisibleCount,
   showMoreLabel = 'Show more',
   showLessLabel = 'Show less',
+  headerAddon,
 }: {
   title: string;
   quests: UserQuest[];
@@ -651,6 +183,7 @@ export const QuestSection = ({
   initialVisibleCount?: number;
   showMoreLabel?: string;
   showLessLabel?: string;
+  headerAddon?: ReactElement;
 }): ReactElement => {
   const [isExpanded, setIsExpanded] = useState(false);
   const canToggleExpanded =
@@ -661,10 +194,24 @@ export const QuestSection = ({
       ? quests.slice(0, initialVisibleCount)
       : quests;
 
+  const titleHeading = (
+    <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+  );
+  // Only wrap the title when there is an addon to place beside it, so sections
+  // without one keep their original DOM (consumers query the heading's sibling).
+  const header = headerAddon ? (
+    <div className="flex items-center justify-between gap-2">
+      {titleHeading}
+      {headerAddon}
+    </div>
+  ) : (
+    titleHeading
+  );
+
   if (!quests.length) {
     return (
       <section className="flex flex-col gap-2">
-        <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+        {header}
         <p className="text-text-tertiary typo-caption1">{emptyLabel}</p>
       </section>
     );
@@ -672,7 +219,7 @@ export const QuestSection = ({
 
   return (
     <section className="flex flex-col gap-2">
-      <h4 className="font-bold text-text-primary typo-callout">{title}</h4>
+      {header}
 
       <div
         className={classNames(
@@ -682,10 +229,11 @@ export const QuestSection = ({
         )}
       >
         {visibleQuests.map((quest) => (
-          <QuestItem
+          <QuestCard
             key={quest.rotationId}
             quest={quest}
             onClaim={onClaim}
+            destination={getQuestDestination(quest.quest)}
             onDestinationClick={onDestinationClick}
             showLevelSystem={showLevelSystem}
             isClaiming={claimingQuestId === quest.userQuestId}
@@ -786,90 +334,6 @@ const PlusQuestSectionHeader = (): ReactElement => {
   );
 };
 
-const getQuestRewardAnimationIcon = (
-  rewardType: QuestRewardType,
-): ReactElement => {
-  switch (rewardType) {
-    case QuestRewardType.Cores:
-      return (
-        <CoreIcon
-          size={IconSize.Large}
-          className="text-accent-cheese-default drop-shadow-[0_2px_6px_rgb(0_0_0_/_0.45)]"
-        />
-      );
-    case QuestRewardType.Reputation:
-      return (
-        <ReputationIcon
-          size={IconSize.Large}
-          className="text-accent-onion-default drop-shadow-[0_2px_6px_rgb(0_0_0_/_0.45)]"
-        />
-      );
-    case QuestRewardType.Xp:
-    default:
-      return (
-        <span className="inline-flex min-w-[1.5rem] items-center justify-center text-lg font-black lowercase leading-none !text-accent-avocado-default [text-shadow:0_2px_6px_rgb(0_0_0_/_0.55)]">
-          xp
-        </span>
-      );
-  }
-};
-
-const getQuestRewardFlightCount = (
-  rewardType: QuestRewardType,
-  amount: number,
-): number => {
-  const normalizedAmount = Math.max(1, Math.round(amount));
-  const maxParticles = rewardType === QuestRewardType.Xp ? 5 : 4;
-
-  return Math.min(normalizedAmount, maxParticles);
-};
-
-const buildQuestRewardFlights = (
-  rewardSources: QuestRewardSource[],
-): QuestRewardFlight[] => {
-  if (typeof document === 'undefined') {
-    return [];
-  }
-
-  const startedAt = Date.now();
-
-  return rewardSources.flatMap((source) => {
-    const target = document.querySelector<HTMLElement>(
-      `[data-reward-target="${source.type}"]`,
-    );
-
-    if (!target) {
-      return [];
-    }
-
-    const targetRect = target.getBoundingClientRect();
-    const targetX = targetRect.left + targetRect.width / 2;
-    const targetY = targetRect.top + targetRect.height / 2;
-    const particleCount = getQuestRewardFlightCount(source.type, source.amount);
-    const horizontalSpread =
-      Math.min(0.75, 0.1875 + particleCount * 0.0625) * 16;
-
-    return Array.from({ length: particleCount }, (_, index) => {
-      const normalizedPosition =
-        particleCount > 1 ? index / (particleCount - 1) : 0.5;
-      const offsetX = (normalizedPosition - 0.5) * 2 * horizontalSpread;
-      const originX = source.x + offsetX + (index % 2 === 0 ? 2 : -2);
-      const originY = source.y - QUEST_REWARD_SOURCE_LIFT_PX;
-      const delayMs = index * QUEST_REWARD_FLIGHT_STAGGER_MS;
-
-      return {
-        ...source,
-        id: `${source.id}-${index.toString()}-${startedAt.toString()}`,
-        x: originX,
-        y: originY,
-        dx: targetX - originX,
-        dy: targetY - originY,
-        delayMs,
-      };
-    });
-  });
-};
-
 const buildQuestLevelFireworkParticles = (): QuestLevelFireworkParticle[] => {
   if (typeof document === 'undefined') {
     return [];
@@ -952,66 +416,6 @@ const getQuestRewardCounterHitSchedule = ({
   });
 };
 
-const QuestRewardFlightLayer = ({
-  flights,
-  onDone,
-}: {
-  flights: QuestRewardFlight[];
-  onDone: () => void;
-}): ReactElement | null => {
-  useEffect(() => {
-    if (!flights.length) {
-      return undefined;
-    }
-
-    const latestDelay = flights.reduce(
-      (maxDelay, flight) => Math.max(maxDelay, flight.delayMs),
-      0,
-    );
-    const timeout = window.setTimeout(
-      onDone,
-      latestDelay + QUEST_REWARD_FLY_DURATION_MS + 120,
-    );
-
-    return () => window.clearTimeout(timeout);
-  }, [flights, onDone]);
-
-  if (!flights.length) {
-    return null;
-  }
-
-  return (
-    <RootPortal>
-      <div
-        className="pointer-events-none fixed inset-0"
-        style={{ zIndex: QUEST_REWARD_LAYER_Z_INDEX }}
-      >
-        {flights.map((flight) => {
-          const style = {
-            left: `${flight.x}px`,
-            top: `${flight.y}px`,
-            '--quest-reward-fly-x': `${flight.dx}px`,
-            '--quest-reward-fly-y': `${flight.dy}px`,
-          } as CSSProperties;
-
-          return (
-            <span
-              key={flight.id}
-              className="quest-reward-flight absolute inline-flex items-center justify-center text-text-primary"
-              style={{
-                ...style,
-                animationDelay: `${flight.delayMs}ms`,
-              }}
-            >
-              {getQuestRewardAnimationIcon(flight.type)}
-            </span>
-          );
-        })}
-      </div>
-    </RootPortal>
-  );
-};
-
 const QuestLevelFireworkLayer = ({
   particles,
   onDone,
@@ -1072,6 +476,7 @@ const QuestLevelFireworkLayer = ({
 
 interface QuestButtonProps {
   compact?: boolean;
+  panelOnly?: boolean;
 }
 
 interface QuestDropdownPanelProps {
@@ -1175,6 +580,7 @@ const QuestDropdownPanel = ({
               }
               deferredClaimedStampRotationIds={deferredClaimedStampRotationIds}
               onClaim={onClaim}
+              headerAddon={<WeeklyQuestResetTimer />}
             />
             {(data.daily.plus.length > 0 || data.weekly.plus.length > 0) && (
               <section className="flex flex-col gap-4">
@@ -1212,6 +618,7 @@ const QuestDropdownPanel = ({
                   }
                   onClaim={onClaim}
                   emptyLabel="No active plus quests yet."
+                  headerAddon={<WeeklyQuestResetTimer />}
                 />
               </section>
             )}
@@ -1224,118 +631,22 @@ const QuestDropdownPanel = ({
 
 export const QuestButton = ({
   compact = false,
+  panelOnly = false,
 }: QuestButtonProps): ReactElement => {
   const router = useRouter();
   const { optOutLevelSystem } = useSettingsContext();
-  const queryClient = useQueryClient();
   const { user } = useAuthContext();
-  const { logEvent } = useLogContext();
-  const { data, isPending, isError, dataUpdatedAt } = useQuestDashboard();
+  const { data, isPending, isError } = useQuestDashboard();
   const {
     mutate: claimQuestReward,
     isPending: isClaimPending,
     variables,
   } = useClaimQuestReward();
-  const questDashboardQueryKey = generateQueryKey(
-    RequestKey.QuestDashboard,
-    user,
-  );
-  const invalidateQuestDashboard = useCallback(() => {
-    queryClient.invalidateQueries({
-      queryKey: questDashboardQueryKey,
-      exact: true,
-    });
-  }, [queryClient, questDashboardQueryKey]);
-  const shouldLogClaimableQuestRef = useRef(false);
-  const previousClaimableQuestSnapshotsRef = useRef<Map<
-    string,
-    ClaimableQuestSnapshot
-  > | null>(null);
-  const previousQuestDashboardUpdatedAtRef = useRef<number | null>(null);
-  const handleQuestDashboardRefresh = useCallback(() => {
-    shouldLogClaimableQuestRef.current = true;
-    invalidateQuestDashboard();
-  }, [invalidateQuestDashboard]);
-
-  useSubscription(
-    () => ({
-      query: QUEST_UPDATE_SUBSCRIPTION,
-    }),
-    {
-      next: handleQuestDashboardRefresh,
-    },
-    [user?.id],
-  );
-
-  useSubscription(
-    () => ({
-      query: QUEST_ROTATION_UPDATE_SUBSCRIPTION,
-    }),
-    {
-      next: handleQuestDashboardRefresh,
-    },
-    [user?.id],
-  );
-
-  useEffect(() => {
-    if (!data) {
-      return;
-    }
-
-    const currentClaimableQuestSnapshots = getQuestClaimableSnapshots(data);
-    const currentQuestDashboardUpdatedAt = dataUpdatedAt;
-    const didReceiveFreshQuestDashboard =
-      previousQuestDashboardUpdatedAtRef.current !==
-      currentQuestDashboardUpdatedAt;
-
-    if (
-      shouldLogClaimableQuestRef.current &&
-      didReceiveFreshQuestDashboard &&
-      previousClaimableQuestSnapshotsRef.current
-    ) {
-      currentClaimableQuestSnapshots.forEach((quest) => {
-        const previousQuest = previousClaimableQuestSnapshotsRef.current?.get(
-          quest.rotationId,
-        );
-
-        if (!quest.locked && !previousQuest?.claimable && quest.claimable) {
-          logEvent({
-            event_name: LogEvent.QuestClaimable,
-            target_id: quest.questId,
-            target_type: TargetType.Quest,
-            extra: JSON.stringify({
-              questType: quest.questType,
-              userQuestId: quest.userQuestId,
-              userId: user?.id,
-              rotationId: quest.rotationId,
-            }),
-          });
-        }
-      });
-
-      shouldLogClaimableQuestRef.current = false;
-    }
-
-    previousClaimableQuestSnapshotsRef.current = currentClaimableQuestSnapshots;
-    previousQuestDashboardUpdatedAtRef.current = currentQuestDashboardUpdatedAt;
-  }, [data, dataUpdatedAt, logEvent, user?.id]);
 
   const level = data?.level?.level ?? 1;
   const levelProgress = data?.level ? getLevelProgress(data.level) : 0;
   const showLevelSystem = !optOutLevelSystem;
-  const { mutate: markQuestRotationsViewed } = useMarkQuestRotationsViewed();
-  const claimableCount = useMemo(() => {
-    if (!data) {
-      return 0;
-    }
-
-    return [
-      ...data.daily.regular,
-      ...data.daily.plus,
-      ...data.weekly.regular,
-      ...data.weekly.plus,
-    ].filter((quest) => quest.claimable).length;
-  }, [data]);
+  const claimableCount = useMemo(() => getClaimableQuestCount(data), [data]);
   const claimingQuestId = isClaimPending ? variables?.userQuestId : undefined;
   const [rewardFlightLayers, setRewardFlightLayers] = useState<
     QuestRewardFlightLayerState[]
@@ -1378,11 +689,6 @@ export const QuestButton = ({
   const triggerVisualClassName = compact ? 'size-8' : 'size-10';
   const triggerLevelClassName = compact ? 'typo-caption2' : 'typo-caption1';
   const [isOpen, setIsOpen] = useState(false);
-  const isAccountOlderThan24Hours =
-    !!user?.createdAt &&
-    Date.now() - new Date(user.createdAt).getTime() > 24 * 60 * 60 * 1000;
-  const hasNewQuestRotations =
-    (data?.hasNewQuestRotations ?? false) && isAccountOlderThan24Hours;
   const claimedStampRotationIdSet = useMemo(
     () => new Set(claimedStampRotationIds),
     [claimedStampRotationIds],
@@ -1400,14 +706,6 @@ export const QuestButton = ({
     [deferredClaimedStampRotationIds],
   );
   const scrollFadeRef = useScrollFade<HTMLDivElement>();
-
-  useEffect(() => {
-    if (!isOpen || !hasNewQuestRotations) {
-      return;
-    }
-
-    markQuestRotationsViewed();
-  }, [hasNewQuestRotations, isOpen, markQuestRotationsViewed]);
 
   const clearProgressTimers = useCallback(() => {
     progressTimersRef.current.forEach((timerId) => {
@@ -1752,6 +1050,17 @@ export const QuestButton = ({
   const handleDestinationClick = useCallback(
     async (destination: QuestDestination) => {
       setIsOpen(false);
+
+      if ('href' in destination) {
+        if (destination.openInNewTab) {
+          window.open(destination.href!, '_blank', 'noopener,noreferrer');
+          return;
+        }
+
+        window.location.assign(destination.href!);
+        return;
+      }
+
       await router.push(`${webappUrl}${destination.path.replace(/^\//, '')}`);
     },
     [router],
@@ -1763,6 +1072,44 @@ export const QuestButton = ({
       clearClaimedStampTimers();
     };
   }, [clearClaimedStampTimers, clearProgressTimers]);
+
+  if (panelOnly) {
+    return (
+      <>
+        <div ref={scrollFadeRef} className="overflow-y-auto bg-inherit">
+          <QuestDropdownPanel
+            showLevelSystem={showLevelSystem}
+            renderedLevel={renderedLevel}
+            data={data}
+            isPending={isPending}
+            isError={isError}
+            claimingQuestId={claimingQuestId}
+            animatingClaimRotationIds={animatingClaimRotationIdSet}
+            claimedStampRotationIds={claimedStampRotationIdSet}
+            animatingClaimedStampRotationIds={
+              animatingClaimedStampRotationIdSet
+            }
+            deferredClaimedStampRotationIds={deferredClaimedStampRotationIdSet}
+            onClaim={handleClaim}
+            onDestinationClick={handleDestinationClick}
+          />
+        </div>
+        {rewardFlightLayers.map((layer) => (
+          <QuestRewardFlightLayer
+            key={layer.claimRotationId}
+            flights={layer.flights}
+            onDone={() => handleRewardFlightLayerDone(layer.claimRotationId)}
+          />
+        ))}
+        {levelFireworkParticles.length > 0 && (
+          <QuestLevelFireworkLayer
+            particles={levelFireworkParticles}
+            onDone={clearLevelFireworkParticles}
+          />
+        )}
+      </>
+    );
+  }
 
   return (
     <>
@@ -1782,12 +1129,8 @@ export const QuestButton = ({
                 showLevelSystem
                   ? `Quests, level ${renderedLevel}, ${Math.round(
                       renderedLevelProgress,
-                    )}% progress${
-                      hasNewQuestRotations ? ', new quests available' : ''
-                    }`
-                  : `Quests${
-                      hasNewQuestRotations ? ', new quests available' : ''
-                    }`
+                    )}% progress`
+                  : 'Quests'
               }
             >
               {showLevelSystem ? (
@@ -1845,20 +1188,6 @@ export const QuestButton = ({
                 >
                   <TourIcon size={compact ? IconSize.Small : IconSize.Large} />
                 </span>
-              )}
-              {hasNewQuestRotations && (
-                <Bubble
-                  aria-hidden
-                  data-testid="quest-button-new-indicator"
-                  className={classNames(
-                    'left-0 top-0 !min-h-0 !min-w-0 !py-0.5 px-1.5 !font-bold lowercase typo-caption2',
-                    compact
-                      ? '-translate-x-1.5 -translate-y-1'
-                      : '-translate-x-2 -translate-y-1.5',
-                  )}
-                >
-                  new
-                </Bubble>
               )}
               {claimableCount > 0 && (
                 <Bubble

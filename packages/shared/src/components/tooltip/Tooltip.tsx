@@ -20,7 +20,9 @@ export type TooltipProps = TooltipProviderProps &
     content: ReactNode;
     visible?: boolean;
     enableMobileClick?: boolean;
-    noArrow?: boolean;
+    // Arrow is off by default for a cleaner look (Linear/ChatGPT style). Opt in
+    // when the anchor is ambiguous.
+    showArrow?: boolean;
   };
 export function Tooltip({
   children,
@@ -31,7 +33,7 @@ export function Tooltip({
   className,
   enableMobileClick,
   open: controlledOpen,
-  noArrow,
+  showArrow = false,
   ...props
 }: TooltipProps) {
   const [open, setOpen] = useState(false);
@@ -62,9 +64,13 @@ export function Tooltip({
           container={container || globalThis?.document?.body}
         >
           <RadixPrimitive.Content
+            // The default `flex items-center gap-1.5` lays out simple content
+            // (leading icon + label + trailing shortcut). Full-bleed custom
+            // tooltips pass a single self-contained child and override the
+            // surface via className; the flex wrapper is a no-op around one item.
             className={classNames(
               styles.TooltipContent,
-              'z-tooltip max-w-full rounded-10 bg-text-primary px-3 py-1 text-surface-invert typo-subhead',
+              'z-tooltip flex max-w-[18rem] items-center gap-1.5 rounded-8 border border-border-subtlest-tertiary bg-background-subtle px-2 py-1 font-medium text-text-primary shadow-2 typo-caption1',
               className,
             )}
             sideOffset={5}
@@ -72,8 +78,8 @@ export function Tooltip({
             {...props}
           >
             {content}
-            {!noArrow && (
-              <RadixPrimitive.Arrow className="TooltipArrow fill-text-primary" />
+            {showArrow && (
+              <RadixPrimitive.Arrow className="TooltipArrow fill-background-subtle" />
             )}
           </RadixPrimitive.Content>
         </RadixPrimitive.Portal>

@@ -86,7 +86,6 @@ export const SignalAdList = forwardRef(function SignalAdList(
           </span>
           <span>&middot;</span>
           <AdAttribution
-            ad={ad}
             className={{
               typo: 'typo-callout',
               main: 'inline',

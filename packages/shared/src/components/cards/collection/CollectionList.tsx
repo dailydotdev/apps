@@ -13,13 +13,15 @@ import {
 import ActionButtons from '../common/ActionButtons';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { PostCardHeader } from '../common/list/PostCardHeader';
-import { CollectionPillSources } from '../../post/collection';
+import { CollectionPillSources } from '../../post/collection/CollectionPillSources';
+import { getCollectionPillLabel } from '../../post/collection/common';
 import { useTruncatedSummary, useViewSize, ViewSize } from '../../../hooks';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
 import { HIGH_PRIORITY_IMAGE_PROPS } from '../../image/Image';
 import { isPostUpdated } from '../../../graphql/posts';
 import { TimeFormatType } from '../../../lib/dateFormat';
+import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const CollectionList = forwardRef(function CollectionCard(
   {
@@ -41,6 +43,8 @@ export const CollectionList = forwardRef(function CollectionCard(
   const image = usePostImage(post);
   const { title } = useTruncatedSummary(post?.title ?? '');
   const wasUpdated = isPostUpdated(post);
+  const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
+
   const actionButtons = (
     <Container className="pointer-events-none mt-2">
       <ActionButtons
@@ -55,6 +59,26 @@ export const CollectionList = forwardRef(function CollectionCard(
       />
     </Container>
   );
+
+  if (isHidden) {
+    return (
+      <FeedItemContainer
+        domProps={{
+          ...domProps,
+          className: domProps.className,
+        }}
+        ref={ref}
+        flagProps={{
+          pinnedAt: post.pinnedAt,
+          type: post.type,
+          trending: post.trending,
+        }}
+        bookmarked={post.bookmarked}
+      >
+        {hiddenPanel}
+      </FeedItemContainer>
+    );
+  }
 
   return (
     <FeedItemContainer
@@ -95,6 +119,7 @@ export const CollectionList = forwardRef(function CollectionCard(
             sources={post.collectionSources ?? []}
             totalSources={post.numCollectionSources ?? 0}
             alwaysShowSources
+            label={getCollectionPillLabel(post)}
           />
         </PostCardHeader>
 

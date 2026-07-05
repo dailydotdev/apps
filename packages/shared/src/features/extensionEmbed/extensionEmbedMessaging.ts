@@ -3,9 +3,14 @@ import {
   extensionSiteEmbedFrameMessageSource,
   extensionSiteEmbedParentEvent,
   extensionSiteEmbedParentMessageSource,
+  extensionSiteEmbedTargetEvent,
+  extensionSiteEmbedTargetMessageSource,
   getExtensionSiteEmbedErrorMessage,
 } from './common';
-import type { ExtensionSiteEmbedFrameMessage } from './common';
+import type {
+  ExtensionSiteEmbedFrameMessage,
+  ExtensionSiteEmbedTargetMessage,
+} from './common';
 
 const getFrameOrigin = (frame: HTMLIFrameElement | null): string | null => {
   if (!frame?.src) {
@@ -62,6 +67,7 @@ type HandleExtensionSiteEmbedMessageOptions = {
   onPermissionsReady: () => void;
   onEmbeddingReady: () => void;
   onReloadRequested: () => void;
+  onOptOutRequested: () => void;
   onMissingPermission: () => void;
   onError: (payload: { message: string; reason?: string }) => void;
 };
@@ -73,6 +79,7 @@ export const handleExtensionSiteEmbedMessage = ({
   onPermissionsReady,
   onEmbeddingReady,
   onReloadRequested,
+  onOptOutRequested,
   onMissingPermission,
   onError,
 }: HandleExtensionSiteEmbedMessageOptions): void => {
@@ -101,6 +108,11 @@ export const handleExtensionSiteEmbedMessage = ({
     return;
   }
 
+  if (message.type === extensionSiteEmbedFrameEvent.OptOutRequested) {
+    onOptOutRequested();
+    return;
+  }
+
   if (message.type !== extensionSiteEmbedFrameEvent.Error) {
     return;
   }
@@ -124,4 +136,35 @@ export const handleExtensionSiteEmbedMessage = ({
     }),
     reason: message.reason,
   });
+};
+
+type HandleExtensionSiteEmbedTargetMessageOptions = {
+  event: MessageEvent;
+  expectedTargetOrigin: string | null;
+  expectedTargetSource?: MessageEventSource | null;
+  onTargetDomReady: (payload: { target: string }) => void;
+};
+
+export const handleExtensionSiteEmbedTargetMessage = ({
+  event,
+  expectedTargetOrigin,
+  expectedTargetSource,
+  onTargetDomReady,
+}: HandleExtensionSiteEmbedTargetMessageOptions): void => {
+  const isExpectedTarget = expectedTargetSource
+    ? event.source === expectedTargetSource
+    : !!expectedTargetOrigin && event.origin === expectedTargetOrigin;
+
+  if (
+    !isExpectedTarget ||
+    event.data?.source !== extensionSiteEmbedTargetMessageSource
+  ) {
+    return;
+  }
+
+  const message = event.data as ExtensionSiteEmbedTargetMessage;
+
+  if (message.type === extensionSiteEmbedTargetEvent.DomReady) {
+    onTargetDomReady({ target: message.target ?? '' });
+  }
 };

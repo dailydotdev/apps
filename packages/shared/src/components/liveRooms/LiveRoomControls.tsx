@@ -1,18 +1,14 @@
 import type { ReactElement } from 'react';
 import React, { useMemo, useState } from 'react';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { EmojiPicker } from '../fields/EmojiPicker';
 import {
-  CameraIcon,
-  MegaphoneIcon,
-  PhoneIcon,
-  PlusIcon,
-  SettingsIcon,
-} from '../icons';
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
+import { CameraIcon, ExitIcon, MicrophoneIcon, SettingsIcon } from '../icons';
 import { RaiseHandIcon } from '../icons/RaiseHand';
-import { IconSize } from '../Icon';
 import { useLiveRoom } from '../../contexts/LiveRoomContext';
-import { useLogContext } from '../../contexts/LogContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { LiveRoomMicLevel } from './LiveRoomMicLevel';
 import {
@@ -20,59 +16,36 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useViewSize, ViewSize } from '../../hooks';
 import { AuthTriggers } from '../../lib/auth';
-import { buildStandupAnalyticsExtra } from '../../lib/liveRoom/analytics';
 import { getLiveRoomPrivilegeState } from '../../lib/liveRoom/privileges';
-import { LIVE_ROOM_QUICK_REACTION_EMOJIS } from '../../lib/liveRoom/reactions';
 import { LogEvent } from '../../lib/log';
-import { Modal } from '../modals/common/Modal';
+import { useLiveRoomStandupAnalytics } from '../../hooks/liveRooms/useLiveRoomStandupAnalytics';
 import {
-  AUDIO_ONLY_LABEL,
   ControlGroup,
   DeviceSplitButton,
   Divider,
   HIDE_SELF_VIEW_LABEL,
   MIC_SETTING_ITEMS,
   MicSettingRow,
-  SelectSettingRow,
   SlashedIcon,
-  VIDEO_QUALITY_ITEMS,
-  VIDEO_QUALITY_LABEL,
 } from './LiveRoomControlPrimitives';
+import { LiveRoomSettingsModal } from './LiveRoomSettingsModal';
+import { LiveRoomReactionsToolbar } from './LiveRoomReactionsToolbar';
+import { LiveRoomTooltipButton } from './LiveRoomTooltipButton';
 
 interface LiveRoomControlsProps {
   roomId: string;
   onLeave: () => void;
 }
 
-const TooltipButton = ({
-  tooltip,
-  children,
-  wrapDisabled = false,
-}: {
-  tooltip: string;
-  children: ReactElement;
-  wrapDisabled?: boolean;
-}): ReactElement => {
-  if (wrapDisabled) {
-    return (
-      <Tooltip content={tooltip}>
-        <span className="inline-flex">{children}</span>
-      </Tooltip>
-    );
-  }
-
-  return <Tooltip content={tooltip}>{children}</Tooltip>;
-};
-
 export const LiveRoomControls = ({
   roomId,
   onLeave,
 }: LiveRoomControlsProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
-  const { logEvent } = useLogContext();
+  const isTablet = useViewSize(ViewSize.Tablet);
   const {
     status,
     canPublish,
@@ -93,6 +66,7 @@ export const LiveRoomControls = ({
     role,
     participantId,
     roomState,
+    preflightMediaPermissions,
     cameras,
     microphones,
     selectedCameraId,
@@ -121,36 +95,18 @@ export const LiveRoomControls = ({
     () => (localAudioTrack ? new MediaStream([localAudioTrack]) : null),
     [localAudioTrack],
   );
-  const buildStandupExtra = (extra: Record<string, unknown> = {}): string =>
-    buildStandupAnalyticsExtra(
-      {
-        roomId,
-        authKind: user ? 'authenticated' : 'anonymous',
-        role,
-        roomStatus: roomState?.status ?? null,
-        roomMode: roomState?.mode ?? null,
-        connectionStatus: status,
-        participantId,
-        isCoHost: privilegeState.isCoHost,
-        hasLocalAudioTrack: !!localStream?.getAudioTracks()[0],
-        hasLocalVideoTrack: !!localStream?.getVideoTracks()[0],
-        videoQuality: videoSettings.quality,
-        audioOnly: videoSettings.audioOnly,
-        hideSelfView: videoSettings.hideSelfView,
-      },
-      extra,
-    );
-  const logStandupAction = (
-    eventName: LogEvent,
-    targetId: string,
-    extra: Record<string, unknown> = {},
-  ): void => {
-    logEvent({
-      event_name: eventName,
-      target_id: targetId,
-      extra: buildStandupExtra(extra),
-    });
-  };
+  const { logStandupAction } = useLiveRoomStandupAnalytics({
+    roomId,
+    user,
+    role,
+    roomStatus: roomState?.status ?? null,
+    roomMode: roomState?.mode ?? null,
+    connectionStatus: status,
+    participantId,
+    isCoHost: privilegeState.isCoHost,
+    localStream,
+    videoSettings,
+  });
 
   const isBusy = (key: string): boolean => busyKeys.includes(key);
 
@@ -220,6 +176,7 @@ export const LiveRoomControls = ({
 
   const isAudience = role === 'audience';
   const isSpeaker = role === 'speaker';
+  const isLive = roomState?.status === 'live';
   const isModerated = roomState?.mode === 'moderated';
   const isFreeForAll = roomState?.mode === 'free_for_all';
   const isQueued =
@@ -238,102 +195,46 @@ export const LiveRoomControls = ({
     roomState?.stage.activeSpeakerParticipantIds.length ?? 0;
   const isStageFull =
     isFreeForAll &&
-    roomState?.status === 'live' &&
+    isLive &&
     speakerLimit !== null &&
     activeSpeakerCount >= speakerLimit;
-  const canJoinQueue =
-    isModerated && isAudience && roomState?.status === 'live' && !isQueued;
-  const canJoinStage =
-    isFreeForAll && isAudience && roomState?.status === 'live' && !isStageFull;
-  const canLeaveStage =
-    isFreeForAll && isSpeaker && roomState?.status === 'live';
+  const canJoinQueue = isModerated && isAudience && isLive && !isQueued;
+  const canJoinStage = isFreeForAll && isAudience && isLive && !isStageFull;
+  const canLeaveStage = isSpeaker && isLive;
   const canRaiseHand =
-    roomState?.status === 'live' &&
-    (isSpeaker || privilegeState.hasHostPrivileges);
-  const showGoLive =
-    privilegeState.hasHostPrivileges && roomState?.status === 'created';
+    isLive && (isSpeaker || privilegeState.hasHostPrivileges);
+  const showGoLive = privilegeState.isHost && roomState?.status === 'created';
+  const showMediaControls = canPublish && isLive;
+  const showLiveInteractionControls = isLive;
 
   const previewSuffix = (active: boolean, publishing: boolean): string =>
     active && !publishing ? ' (preview)' : '';
   const reactionTooltip = reactionsOpen ? 'Close reactions' : 'Reactions';
   const settingsTooltip = 'Settings';
-  const queueTooltip = isQueued ? 'Queued' : 'Join queue';
-  const joinStageTooltip = isStageFull ? 'Stage full' : 'Join stage';
+  const queueTooltip = isQueued ? 'Waiting to speak' : 'Ask to speak';
+  const joinStageTooltip = isStageFull ? 'Speakers full' : 'Join as speaker';
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-4 z-2 flex justify-center px-3 tablet:bottom-6">
-      <div className="pointer-events-auto relative flex w-full max-w-[42rem] flex-col items-center gap-2">
-        {reactionsOpen ? (
-          <div className="flex items-center gap-1 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-1.5 shadow-2">
-            {LIVE_ROOM_QUICK_REACTION_EMOJIS.map((emoji) => (
-              <TooltipButton key={emoji} tooltip={`React ${emoji}`}>
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Float}
-                  loading={isBusy(`reaction-${emoji}`)}
-                  aria-label={`React ${emoji}`}
-                  onClick={() =>
-                    runAuthenticatedAction(`reaction-${emoji}`, async () => {
-                      await sendReaction(emoji);
-                      logStandupAction(LogEvent.SendStandupReaction, emoji, {
-                        surface: 'controls',
-                      });
-                    })
-                  }
-                >
-                  <span className="text-lg leading-none">{emoji}</span>
-                </Button>
-              </TooltipButton>
-            ))}
-            <EmojiPicker
-              value=""
-              label={null}
-              onChange={(emoji) => {
-                if (!emoji) {
-                  return;
-                }
-
-                runAuthenticatedAction('reaction-custom', async () => {
-                  await sendReaction(emoji);
-                  logStandupAction(LogEvent.SendStandupReaction, emoji, {
-                    surface: 'controls',
-                  });
+    <div className="pointer-events-none absolute inset-x-0 bottom-2 z-2 px-1.5 tablet:bottom-6">
+      <div className="pointer-events-auto relative mx-auto flex w-full max-w-[42rem] flex-col items-center gap-1.5 tablet:gap-2">
+        {reactionsOpen && isLive ? (
+          <LiveRoomReactionsToolbar
+            isBusy={isBusy}
+            isAuthenticated={!!user}
+            onRequestLogin={promptSignup}
+            onSendReaction={(key, emoji) =>
+              runAuthenticatedAction(key, async () => {
+                await sendReaction(emoji);
+                logStandupAction(LogEvent.SendStandupReaction, emoji, {
+                  surface: 'controls',
                 });
-              }}
-              renderTrigger={({ isOpen, toggleOpen }) => (
-                <TooltipButton
-                  tooltip="Custom reaction"
-                  wrapDisabled={isBusy('reaction-custom')}
-                >
-                  <Button
-                    type="button"
-                    size={ButtonSize.Small}
-                    variant={
-                      isOpen ? ButtonVariant.Primary : ButtonVariant.Float
-                    }
-                    className="!w-9 shrink-0"
-                    icon={<PlusIcon size={IconSize.Size16} />}
-                    aria-label="Custom reaction"
-                    aria-expanded={isOpen}
-                    disabled={isBusy('reaction-custom')}
-                    onClick={() => {
-                      if (!user) {
-                        promptSignup();
-                        return;
-                      }
-
-                      toggleOpen();
-                    }}
-                  />
-                </TooltipButton>
-              )}
-            />
-          </div>
+              })
+            }
+          />
         ) : null}
 
-        <div className="flex items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default p-1.5 shadow-2 backdrop-blur">
-          {canPublish ? (
+        <div className="flex items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-default p-1 shadow-2 backdrop-blur tablet:gap-2 tablet:rounded-16 tablet:p-1.5">
+          {showMediaControls ? (
             <ControlGroup>
               <DeviceSplitButton
                 isOn={isMicOn}
@@ -345,7 +246,7 @@ export const LiveRoomControls = ({
                 caretAriaLabel="Microphone devices"
                 caretMenuLabel="Microphone"
                 toggleIcon={
-                  <SlashedIcon icon={<MegaphoneIcon />} slashed={!isMicOn} />
+                  <SlashedIcon icon={<MicrophoneIcon />} slashed={!isMicOn} />
                 }
                 onToggle={() =>
                   guarded('mic', async () => {
@@ -463,187 +364,201 @@ export const LiveRoomControls = ({
             </ControlGroup>
           ) : null}
 
-          {canPublish ? <Divider /> : null}
+          {showMediaControls ? <Divider /> : null}
 
-          <ControlGroup>
-            <TooltipButton tooltip={reactionTooltip}>
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={
-                  reactionsOpen
-                    ? ButtonVariant.Primary
-                    : ButtonVariant.Secondary
-                }
-                aria-label="Reactions"
-                aria-expanded={reactionsOpen}
-                onClick={() => {
-                  if (!user) {
-                    promptSignup();
-                    return;
-                  }
-
-                  setReactionsOpen((open) => {
-                    const nextOpen = !open;
-                    if (nextOpen) {
-                      logStandupAction(
-                        LogEvent.OpenStandupReactions,
-                        'reactions',
-                        { surface: 'controls' },
-                      );
+          {showLiveInteractionControls ? (
+            <>
+              <ControlGroup>
+                <LiveRoomTooltipButton tooltip={reactionTooltip}>
+                  <Button
+                    type="button"
+                    size={ButtonSize.Small}
+                    variant={
+                      reactionsOpen
+                        ? ButtonVariant.Primary
+                        : ButtonVariant.Secondary
                     }
-                    return nextOpen;
-                  });
-                }}
-              >
-                <span className="text-base leading-none">😀</span>
-              </Button>
-            </TooltipButton>
-            {canRaiseHand ? (
-              <TooltipButton
-                tooltip={isHandRaised ? 'Lower hand' : 'Raise hand'}
-                wrapDisabled={isBusy('hand')}
-              >
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={
-                    isHandRaised
-                      ? ButtonVariant.Primary
-                      : ButtonVariant.Secondary
-                  }
-                  icon={<RaiseHandIcon secondary={isHandRaised} />}
-                  loading={isBusy('hand')}
-                  disabled={isBusy('hand')}
-                  aria-label={isHandRaised ? 'Lower hand' : 'Raise hand'}
-                  onClick={() =>
-                    guarded('hand', async () => {
-                      if (isHandRaised) {
-                        await removeHand();
-                        logStandupAction(LogEvent.RemoveStandupHand, roomId, {
-                          surface: 'controls',
-                          handQueuePosition,
-                          raisedHandCount: Math.max(
-                            raisedHandParticipantIds.length - 1,
-                            0,
-                          ),
-                        });
+                    aria-label="Reactions"
+                    aria-expanded={reactionsOpen}
+                    onClick={() => {
+                      if (!user) {
+                        promptSignup();
                         return;
                       }
 
-                      await raiseHand();
-                      logStandupAction(LogEvent.RaiseStandupHand, roomId, {
-                        surface: 'controls',
-                        handQueuePosition: nextHandQueuePosition,
-                        raisedHandCount: nextHandQueuePosition,
+                      setReactionsOpen((open) => {
+                        const nextOpen = !open;
+                        if (nextOpen) {
+                          logStandupAction(
+                            LogEvent.OpenStandupReactions,
+                            'reactions',
+                            { surface: 'controls' },
+                          );
+                        }
+                        return nextOpen;
                       });
-                    })
-                  }
-                />
-              </TooltipButton>
-            ) : null}
-            <TooltipButton tooltip={settingsTooltip}>
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={
-                  isSettingsOpen
-                    ? ButtonVariant.Primary
-                    : ButtonVariant.Secondary
-                }
-                icon={<SettingsIcon />}
-                aria-label="Standup settings"
-                aria-expanded={isSettingsOpen}
-                onClick={() => {
-                  logStandupAction(LogEvent.OpenStandupSettings, 'settings', {
-                    surface: 'controls',
-                  });
-                  setIsSettingsOpen(true);
-                }}
-              />
-            </TooltipButton>
-            {isModerated && isAudience ? (
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={
-                  isQueued ? ButtonVariant.Secondary : ButtonVariant.Primary
-                }
-                icon={<MegaphoneIcon />}
-                loading={isBusy('queue')}
-                disabled={!canJoinQueue || isBusy('queue')}
-                onClick={() =>
-                  runAuthenticatedAction('queue', async () => {
-                    await joinSpeakerQueue();
-                    logStandupAction(LogEvent.JoinStandupQueue, roomId, {
-                      surface: 'controls',
-                    });
-                  })
-                }
-              >
-                {queueTooltip}
-              </Button>
-            ) : null}
-            {isFreeForAll && isAudience ? (
-              <TooltipButton
-                tooltip={joinStageTooltip}
-                wrapDisabled={!canJoinStage || isBusy('join-stage')}
-              >
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={
-                    isStageFull
-                      ? ButtonVariant.Secondary
-                      : ButtonVariant.Primary
-                  }
-                  icon={<MegaphoneIcon />}
-                  loading={isBusy('join-stage')}
-                  disabled={!canJoinStage || isBusy('join-stage')}
-                  onClick={() =>
-                    runAuthenticatedAction('join-stage', async () => {
-                      await joinStage();
-                      logStandupAction(LogEvent.JoinStandupStage, roomId, {
-                        surface: 'controls',
-                      });
-                    })
-                  }
-                >
-                  {joinStageTooltip}
-                </Button>
-              </TooltipButton>
-            ) : null}
-            {canLeaveStage ? (
-              <TooltipButton
-                tooltip="Leave stage"
-                wrapDisabled={isBusy('leave-stage')}
-              >
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Secondary}
-                  icon={<PhoneIcon />}
-                  loading={isBusy('leave-stage')}
-                  onClick={() =>
-                    guarded('leave-stage', async () => {
-                      await leaveStage();
-                      logStandupAction(LogEvent.LeaveStandupStage, roomId, {
-                        surface: 'controls',
-                      });
-                    })
-                  }
-                >
-                  Leave stage
-                </Button>
-              </TooltipButton>
-            ) : null}
-          </ControlGroup>
+                    }}
+                  >
+                    <span className="text-base leading-none">😀</span>
+                  </Button>
+                </LiveRoomTooltipButton>
+                {canRaiseHand ? (
+                  <LiveRoomTooltipButton
+                    tooltip={isHandRaised ? 'Lower hand' : 'Raise hand'}
+                    wrapDisabled={isBusy('hand')}
+                  >
+                    <Button
+                      type="button"
+                      size={ButtonSize.Small}
+                      variant={
+                        isHandRaised
+                          ? ButtonVariant.Primary
+                          : ButtonVariant.Secondary
+                      }
+                      icon={<RaiseHandIcon secondary={isHandRaised} />}
+                      loading={isBusy('hand')}
+                      disabled={isBusy('hand')}
+                      aria-label={isHandRaised ? 'Lower hand' : 'Raise hand'}
+                      onClick={() =>
+                        guarded('hand', async () => {
+                          if (isHandRaised) {
+                            await removeHand();
+                            logStandupAction(
+                              LogEvent.RemoveStandupHand,
+                              roomId,
+                              {
+                                surface: 'controls',
+                                handQueuePosition,
+                                raisedHandCount: Math.max(
+                                  raisedHandParticipantIds.length - 1,
+                                  0,
+                                ),
+                              },
+                            );
+                            return;
+                          }
 
-          <Divider />
+                          await raiseHand();
+                          logStandupAction(LogEvent.RaiseStandupHand, roomId, {
+                            surface: 'controls',
+                            handQueuePosition: nextHandQueuePosition,
+                            raisedHandCount: nextHandQueuePosition,
+                          });
+                        })
+                      }
+                    />
+                  </LiveRoomTooltipButton>
+                ) : null}
+                <LiveRoomTooltipButton tooltip={settingsTooltip}>
+                  <Button
+                    type="button"
+                    size={ButtonSize.Small}
+                    variant={
+                      isSettingsOpen
+                        ? ButtonVariant.Primary
+                        : ButtonVariant.Secondary
+                    }
+                    icon={<SettingsIcon />}
+                    aria-label="Standup settings"
+                    aria-expanded={isSettingsOpen}
+                    onClick={() => {
+                      logStandupAction(
+                        LogEvent.OpenStandupSettings,
+                        'settings',
+                        {
+                          surface: 'controls',
+                        },
+                      );
+                      setIsSettingsOpen(true);
+                    }}
+                  />
+                </LiveRoomTooltipButton>
+                {isModerated && isAudience ? (
+                  <Button
+                    type="button"
+                    size={ButtonSize.Small}
+                    variant={
+                      isQueued ? ButtonVariant.Secondary : ButtonVariant.Primary
+                    }
+                    loading={isBusy('queue')}
+                    disabled={!canJoinQueue || isBusy('queue')}
+                    onClick={() =>
+                      runAuthenticatedAction('queue', async () => {
+                        await preflightMediaPermissions();
+                        await joinSpeakerQueue();
+                        logStandupAction(LogEvent.JoinStandupQueue, roomId, {
+                          surface: 'controls',
+                        });
+                      })
+                    }
+                  >
+                    {queueTooltip}
+                  </Button>
+                ) : null}
+                {isFreeForAll && isAudience ? (
+                  <LiveRoomTooltipButton
+                    tooltip={joinStageTooltip}
+                    wrapDisabled={!canJoinStage || isBusy('join-stage')}
+                  >
+                    <Button
+                      type="button"
+                      size={ButtonSize.Small}
+                      variant={
+                        isStageFull
+                          ? ButtonVariant.Secondary
+                          : ButtonVariant.Primary
+                      }
+                      loading={isBusy('join-stage')}
+                      disabled={!canJoinStage || isBusy('join-stage')}
+                      onClick={() =>
+                        runAuthenticatedAction('join-stage', async () => {
+                          await preflightMediaPermissions();
+                          await joinStage();
+                          logStandupAction(LogEvent.JoinStandupStage, roomId, {
+                            surface: 'controls',
+                          });
+                        })
+                      }
+                    >
+                      {joinStageTooltip}
+                    </Button>
+                  </LiveRoomTooltipButton>
+                ) : null}
+                {canLeaveStage ? (
+                  <LiveRoomTooltipButton
+                    tooltip="Leave stage"
+                    wrapDisabled={isBusy('leave-stage')}
+                  >
+                    <Button
+                      type="button"
+                      size={ButtonSize.Small}
+                      variant={ButtonVariant.Secondary}
+                      loading={isBusy('leave-stage')}
+                      onClick={() =>
+                        guarded('leave-stage', async () => {
+                          await leaveStage();
+                          logStandupAction(LogEvent.LeaveStandupStage, roomId, {
+                            surface: 'controls',
+                          });
+                        })
+                      }
+                    >
+                      Leave stage
+                    </Button>
+                  </LiveRoomTooltipButton>
+                ) : null}
+              </ControlGroup>
+
+              <Divider />
+            </>
+          ) : null}
 
           <ControlGroup>
             {showGoLive ? (
-              <TooltipButton tooltip="Go live" wrapDisabled={isBusy('go-live')}>
+              <LiveRoomTooltipButton
+                tooltip="Go live"
+                wrapDisabled={isBusy('go-live')}
+              >
                 <Button
                   type="button"
                   size={ButtonSize.Small}
@@ -652,6 +567,7 @@ export const LiveRoomControls = ({
                   loading={isBusy('go-live')}
                   onClick={() =>
                     guarded('go-live', async () => {
+                      await preflightMediaPermissions();
                       await startRoom();
                       logStandupAction(LogEvent.StartStandup, roomId, {
                         surface: 'controls',
@@ -661,14 +577,17 @@ export const LiveRoomControls = ({
                 >
                   Go live
                 </Button>
-              </TooltipButton>
+              </LiveRoomTooltipButton>
             ) : null}
             {privilegeState.hasHostPrivileges ? (
               <Button
                 type="button"
                 size={ButtonSize.Small}
-                variant={ButtonVariant.Secondary}
+                variant={ButtonVariant.Primary}
+                color={ButtonColor.Ketchup}
                 loading={isBusy('end')}
+                icon={isTablet ? undefined : <ExitIcon />}
+                aria-label="End standup"
                 onClick={() =>
                   guarded('end', async () => {
                     await endRoom();
@@ -679,14 +598,15 @@ export const LiveRoomControls = ({
                   })
                 }
               >
-                End standup
+                {isTablet ? 'End standup' : null}
               </Button>
             ) : (
               <Button
                 type="button"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Primary}
-                icon={<PhoneIcon />}
+                color={ButtonColor.Ketchup}
+                icon={isTablet ? undefined : <ExitIcon />}
                 aria-label="Leave"
                 onClick={() => {
                   logStandupAction(LogEvent.LeaveStandup, roomId, {
@@ -695,58 +615,24 @@ export const LiveRoomControls = ({
                   onLeave();
                 }}
               >
-                Leave
+                {isTablet ? 'Leave' : null}
               </Button>
             )}
           </ControlGroup>
         </div>
       </div>
       {isSettingsOpen ? (
-        <Modal
-          isOpen
-          kind={Modal.Kind.FixedCenter}
-          size={Modal.Size.Small}
-          isDrawerOnMobile
-          onRequestClose={() => setIsSettingsOpen(false)}
-        >
-          <Modal.Header title="Standup settings" />
-          <Modal.Body className="gap-1">
-            <SelectSettingRow
-              label={VIDEO_QUALITY_LABEL}
-              description="Choose how aggressively remote video should use your connection."
-              value={videoSettings.quality}
-              options={VIDEO_QUALITY_ITEMS.map((item) => ({
-                value: item.value,
-                label: item.label,
-              }))}
-              onSelect={(quality) => {
-                setVideoSetting('quality', quality);
-                logStandupAction(
-                  LogEvent.ChangeStandupSettings,
-                  'video_quality',
-                  {
-                    surface: 'settings_modal',
-                    value: quality,
-                  },
-                );
-              }}
-            />
-            <MicSettingRow
-              id="live-room-video-setting-audio-only"
-              label={AUDIO_ONLY_LABEL}
-              description="Hide remote video and keep the standup playing through audio."
-              checked={videoSettings.audioOnly}
-              onToggle={() => {
-                const nextValue = !videoSettings.audioOnly;
-                setVideoSetting('audioOnly', nextValue);
-                logStandupAction(LogEvent.ChangeStandupSettings, 'audio_only', {
-                  surface: 'settings_modal',
-                  value: nextValue,
-                });
-              }}
-            />
-          </Modal.Body>
-        </Modal>
+        <LiveRoomSettingsModal
+          videoSettings={videoSettings}
+          setVideoSetting={setVideoSetting}
+          onClose={() => setIsSettingsOpen(false)}
+          onTrackSettingChange={(targetId, surface, value) => {
+            logStandupAction(LogEvent.ChangeStandupSettings, targetId, {
+              surface,
+              value,
+            });
+          }}
+        />
       ) : null}
     </div>
   );

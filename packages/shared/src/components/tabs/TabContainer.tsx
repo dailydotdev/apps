@@ -61,7 +61,7 @@ export interface TabContainerProps<T extends string = string> {
   swipeable?: boolean;
   tabListProps?: Pick<
     TabListProps,
-    'className' | 'autoScrollActive' | 'dragScroll'
+    'className' | 'autoScrollActive' | 'dragScroll' | 'variant'
   >;
   tabTag?: AllowedTabTags;
   extraHeaderContent?: ReactNode;
@@ -86,7 +86,7 @@ export function TabContainer<T extends string = string>({
 }: TabContainerProps<T>): ReactElement {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
-  const tabs = useMemo(() => children ?? [], [children]);
+  const tabs = useMemo(() => (children ?? []).filter(Boolean), [children]);
   const currentPath = getRouterPathname(router.asPath || router.pathname);
 
   const [active, setActive] = useState(() => {
@@ -240,6 +240,7 @@ export function TabContainer<T extends string = string>({
           className={tabListProps?.className}
           autoScrollActive={tabListProps?.autoScrollActive}
           dragScroll={tabListProps?.dragScroll}
+          variant={tabListProps?.variant}
           tag={tabTag}
         />
         {extraHeaderContent}

@@ -101,13 +101,13 @@ const ensureStyles = (): void => {
       margin: 0;
       font-size: 0.9375rem;
       line-height: 1.25rem;
-      color: #cfd6e6;
+      color: #CDD4E4;
     }
     .embedded-browsing-status {
       margin: 0;
       font-size: 0.8125rem;
       line-height: 1.125rem;
-      color: #a8b3cf;
+      color: #A8B3CE;
     }
     .embedded-browsing-actions {
       margin-top: 0.25rem;
@@ -127,7 +127,7 @@ const ensureStyles = (): void => {
       padding: 0 1rem;
       border: 0;
       border-radius: 12px;
-      background: #c029f0;
+      background: #b14bd7;
       color: #ffffff;
       font: inherit;
       font-size: 0.9375rem;
@@ -140,6 +140,18 @@ const ensureStyles = (): void => {
       transform: translateY(-1px);
     }
     .embedded-browsing-button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .embedded-browsing-button-secondary {
+      background: transparent;
+      color: #CDD4E4;
+      font-weight: 500;
+      min-width: 0;
+      padding: 0 0.75rem;
+    }
+    .embedded-browsing-button-secondary:hover {
+      opacity: 1;
+      color: #ffffff;
+      transform: none;
+    }
   `;
   document.head.appendChild(style);
 };
@@ -187,9 +199,11 @@ type PermissionRequestOutcome = 'granted' | 'dismissed' | 'failed';
 export const renderPermissionPrompt = ({
   root,
   onRequestPermission,
+  onOptOut,
 }: {
   root: HTMLDivElement;
   onRequestPermission: () => Promise<PermissionRequestOutcome>;
+  onOptOut?: () => void;
 }): void => {
   root.replaceChildren();
   const { shell, card } = createPromptShell();
@@ -241,6 +255,19 @@ export const renderPermissionPrompt = ({
   });
 
   actions.append(button);
+
+  if (onOptOut) {
+    const optOutButton = document.createElement('button');
+    optOutButton.type = 'button';
+    optOutButton.className =
+      'embedded-browsing-button embedded-browsing-button-secondary';
+    optOutButton.textContent = "I'd rather not read inside daily.dev";
+    optOutButton.addEventListener('click', () => {
+      onOptOut();
+    });
+    actions.append(optOutButton);
+  }
+
   card.append(heading, description, status, actions);
   root.append(shell);
 };

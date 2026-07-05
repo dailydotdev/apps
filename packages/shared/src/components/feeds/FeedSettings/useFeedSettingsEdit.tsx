@@ -15,6 +15,7 @@ import {
   REMOVE_FILTERS_FROM_FEED_MUTATION,
 } from '../../../graphql/feedSettings';
 import {
+  useConditionalFeature,
   useEventListener,
   useFeeds,
   usePlusSubscription,
@@ -22,6 +23,10 @@ import {
   useViewSizeClient,
   ViewSize,
 } from '../../../hooks';
+import {
+  FeedChipsVariant,
+  featureFeedChips,
+} from '../../../lib/featureManagement';
 import { useExitConfirmation } from '../../../hooks/useExitConfirmation';
 import type { PromptOptions } from '../../../hooks/usePrompt';
 import { usePrompt } from '../../../hooks/usePrompt';
@@ -56,6 +61,11 @@ export const useFeedSettingsEdit = ({
   isNewFeed,
 }: UseFeedSettingsEditProps): UseFeedSettingsEdit => {
   const { isPlus } = usePlusSubscription();
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
+    shouldEvaluate: !isPlus,
+  });
+  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
 
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const discardNewPrompt: PromptOptions = {
@@ -83,10 +93,10 @@ export const useFeedSettingsEdit = ({
   const { user } = useAuthContext();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
 
-  const feed = useMemo<Feed>(() => {
+  const feed = useMemo<Feed | undefined>(() => {
     // calculate main feed from user object as fallback for now
     // in the future feedList can return main feed as well
-    if (feedSlugOrId === user.id) {
+    if (user && feedSlugOrId === user.id) {
       return {
         id: user.id,
         userId: user.id,
@@ -95,7 +105,7 @@ export const useFeedSettingsEdit = ({
           name: '',
         },
         type: FeedType.Main,
-        createdAt: null,
+        createdAt: new Date(),
       };
     }
 
@@ -123,24 +133,28 @@ export const useFeedSettingsEdit = ({
 
   // remove new feed that was not modified by user on page unload
   useEventListener(globalThis?.window, 'beforeunload', () => {
-    if (isNewFeed && !isDirty) {
+    if (isNewFeed && !isDirty && feedId) {
       deleteFeed({ feedId });
     }
   });
 
   const onBackToFeed = useCallback(
     async ({ action }: { action?: 'discard' | 'save' }) => {
-      if (action === 'save' && isNewFeed && !isPlus) {
-        // for non plus members on confirm we save
-        // and navigate to plus page to upgrade
-
+      if (action === 'save' && isNewFeed && !isPlus && !isFeedChipsEnabled) {
+        // Pre-chips behavior: non-Plus saving a new feed gets redirected to
+        // the Plus upgrade page. Once the chips feature is on, free users
+        // own their feeds and land on the new feed instead.
         router.replace(plusUrl);
 
         return;
       }
 
       if (action === 'discard' && isNewFeed) {
-        await deleteFeed({ feedId });
+        if (feedId) {
+          // Fire-and-forget — onMutate updates the cache optimistically so
+          // navigation is instant; the server round-trip happens in the bg.
+          deleteFeed({ feedId });
+        }
 
         router.back();
 
@@ -171,13 +185,14 @@ export const useFeedSettingsEdit = ({
       deleteFeed,
       feedId,
       isPlus,
+      isFeedChipsEnabled,
     ],
   );
 
   const feedData = useMemo<FeedSettingsFormData>(() => {
     return {
-      name: feed?.flags.name,
-      icon: feed?.flags.icon || '',
+      name: feed?.flags?.name ?? '',
+      icon: feed?.flags?.icon || '',
       ...feed?.flags,
       ...formState,
     };
@@ -185,7 +200,16 @@ export const useFeedSettingsEdit = ({
 
   const { mutateAsync: onSubmit, isPending: isSubmitPending } = useMutation({
     mutationFn: async () => {
-      const result = await updateFeed({ ...feedData, feedId });
+      if (!feedId) {
+        throw new Error('Cannot update feed without an id');
+      }
+      // Free users can only edit name + icon; advanced flags are Plus-only and
+      // rejected server-side. Scope the payload so saving name/icon never trips
+      // that guard on feeds that already carry advanced flags.
+      const updatePayload = isPlus
+        ? { ...feedData, feedId }
+        : { feedId, name: feedData.name, icon: feedData.icon };
+      const result = await updateFeed(updatePayload);
       const tagPromises = [
         gqlClient.request(ADD_FILTERS_TO_FEED_MUTATION, {
           feedId: result.id,
@@ -263,9 +287,13 @@ export const useFeedSettingsEdit = ({
         throw new Error('User cancelled deletion');
       }
 
-      const result = await deleteFeed({ feedId });
+      if (!feedId) {
+        throw new Error('Cannot delete feed without an id');
+      }
 
-      return result;
+      deleteFeed({ feedId });
+
+      return { id: feedId };
     },
 
     onSuccess: (data) => {
@@ -293,7 +321,7 @@ export const useFeedSettingsEdit = ({
   useEffect(() => {
     return () => {
       // cleanup on discard or navigation without save
-      cleanupRef.current();
+      cleanupRef.current?.();
     };
   }, []);
 
@@ -311,18 +339,22 @@ export const useFeedSettingsEdit = ({
     onDelete,
     deleteStatus,
     onTagClick: useCallback(({ tag, action }) => {
+      if (!tag.name) {
+        return;
+      }
       setDirty(true);
+      const tagName = tag.name;
 
       if (action === 'follow') {
         setTagsToRemove((current) => {
           const newTags = { ...current };
-          delete newTags[tag.name];
+          delete newTags[tagName];
 
           return newTags;
         });
       } else {
         setTagsToRemove((current) => {
-          return { ...current, [tag.name]: true };
+          return { ...current, [tagName]: true };
         });
       }
     }, []),

@@ -88,6 +88,7 @@ export interface Squad extends Source {
   referralUrl?: string;
   category?: SourceCategory;
   moderationPostCount: number;
+  favoritedAt?: string | null;
 }
 
 interface SourceFlags {
@@ -172,6 +173,10 @@ export const SOURCES_BY_TAG_QUERY = gql`
       edges {
         node {
           ...SourceDirectoryInfo
+          membersCount
+          flags {
+            totalUpvotes
+          }
         }
       }
     }
