@@ -64,10 +64,37 @@ it('labels a referral action as an invite rather than a proof submission', () =>
   expect(onSubmit).toHaveBeenCalledWith(action);
 });
 
-it('locks an approved action into a non-interactive Done state', () => {
+it('keeps an uncapped action actionable after an approval', () => {
   render(
     <GivebackActionCard
       action={makeAction({
+        maxPerUser: null,
+        userCompletions: 1,
+        latestUserSubmission: {
+          id: 's1',
+          actionId: 'a1',
+          status: ContributionSubmissionStatus.Approved,
+          awardedPoints: 5,
+          createdAt: '2026-01-01',
+          reviewedAt: '2026-01-02',
+        },
+      })}
+      onSubmit={onSubmit}
+    />,
+  );
+
+  expect(screen.queryByText('Done')).not.toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'Submit proof for Post about us on X' }),
+  ).toBeInTheDocument();
+});
+
+it('locks a one-shot approved action into a non-interactive Done state', () => {
+  render(
+    <GivebackActionCard
+      action={makeAction({
+        maxPerUser: 1,
+        userCompletions: 1,
         latestUserSubmission: {
           id: 's1',
           actionId: 'a1',
@@ -115,6 +142,40 @@ it('treats reaching the per-user cap as Done', () => {
   );
 
   expect(screen.getByText('Done')).toBeInTheDocument();
+});
+
+it('keeps a repeatable action actionable after an approval until the cap is hit', () => {
+  render(
+    <GivebackActionCard
+      action={makeAction({
+        title: 'Invite a friend',
+        maxPerUser: 10,
+        userCompletions: 1,
+        metadata: {
+          platform: null,
+          instructions: null,
+          externalUrl: null,
+          isLoveAction: false,
+          assistType: ContributionAssistType.ReferralLink,
+        },
+        latestUserSubmission: {
+          id: 's1',
+          actionId: 'a1',
+          status: ContributionSubmissionStatus.Approved,
+          awardedPoints: 15,
+          createdAt: '2026-01-01',
+          reviewedAt: '2026-01-02',
+        },
+      })}
+      onSubmit={onSubmit}
+    />,
+  );
+
+  expect(screen.queryByText('Done')).not.toBeInTheDocument();
+  expect(screen.getByText('9 left')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'Invite friends: Invite a friend' }),
+  ).toBeInTheDocument();
 });
 
 it('keeps a rejected action submittable for a retry', () => {

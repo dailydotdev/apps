@@ -54,13 +54,16 @@ export const GivebackActionCard = ({
 
   const reachedMax =
     action.maxPerUser != null && action.userCompletions >= action.maxPerUser;
-  const isApproved =
-    latestUserSubmission?.status === ContributionSubmissionStatus.Approved;
   const isInReview =
     latestUserSubmission?.status === ContributionSubmissionStatus.Flagged;
-  // "Done" = approved or you've hit the per-user cap. A rejected submission
-  // stays clickable to retry.
-  const isDone = isApproved || reachedMax;
+  // "Done" = the action is exhausted, i.e. its per-user cap is reached. A capped
+  // action (maxPerUser set) latches once completions hit the cap - a one-shot
+  // (cap 1) after its single approval, a repeatable one only at its ceiling. An
+  // uncapped action (maxPerUser null) is unlimited, matching the backend, so a
+  // single approval never marks it done (e.g. "Invite a friend" stays open). A
+  // pending submission still reads as "In review", and a rejected one stays
+  // clickable to retry.
+  const isDone = !isInReview && reachedMax;
   // Cooldown only gates an action that would otherwise be actionable.
   const onCooldown =
     !isDone &&
