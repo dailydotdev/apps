@@ -61,7 +61,6 @@ export enum AuthTriggers {
   SearchSuggestion = 'search suggestion',
   LoginPage = 'login page',
   GenericReferral = 'generic referral',
-  Roast = 'roast',
   CollectionSubscribe = 'collection subscribe',
   SourceSubscribe = 'source subscribe',
   CommentDownvote = 'comment downvote',
