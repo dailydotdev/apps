@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { useRouter } from 'next/router';
 import type { GivebackGiftButtonVariant } from './GivebackGiftButton';
 import type { GivebackGiftDockHandle } from './GivebackGiftDock';
@@ -25,24 +25,16 @@ interface GivebackGiftEntryProps {
   children?: ReactNode;
 }
 
-// The header and rail both mount an entry, but the live activity (money pops and
-// the milestone popover) should play on a single gift. We elect one owner across
-// all mounted entries and re-elect on mount/unmount, so ownership hands off
-// cleanly when the current owner disappears (a surviving sibling takes over).
-let liveOwners: string[] = [];
-const ownerListeners = new Set<() => void>();
-const notifyOwnerListeners = (): void => {
-  ownerListeners.forEach((listener) => listener());
-};
-
 // The live activity only plays for established accounts (older than a week).
 // Brand-new users get the calm gift without the attention-grabbing motion.
 const LIVE_ACTIVITY_MIN_ACCOUNT_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 // The persistent giveback entry point. Gated on the same `featureGiveback` flag
-// as the page, so it shows wherever giveback is enabled. The owning instance
-// drives its dock from remote community activity: real approved actions pop a
-// live "+$" jump and crossing a global milestone fires the celebratory popover.
+// as the page, so it shows wherever giveback is enabled. It drives its dock from
+// remote community activity: real approved actions pop a live "+$" jump and
+// crossing a global milestone fires the celebratory popover. The header and the
+// sidebar-v2 rail are mutually exclusive layouts, so only one entry is ever
+// mounted and no cross-instance coordination is needed.
 export function GivebackGiftEntry({
   variant = 'header',
   showLabel = false,
@@ -74,25 +66,6 @@ export function GivebackGiftEntry({
     : false;
   const canRunLiveActivity = show && isEstablishedUser;
 
-  // Elect a single owner for the live activity (see note above).
-  const instanceId = useId();
-  const [isLiveOwner, setIsLiveOwner] = useState(false);
-  useEffect(() => {
-    if (!canRunLiveActivity) {
-      return undefined;
-    }
-    liveOwners.push(instanceId);
-    const sync = () => setIsLiveOwner(liveOwners[0] === instanceId);
-    ownerListeners.add(sync);
-    notifyOwnerListeners();
-    return () => {
-      ownerListeners.delete(sync);
-      liveOwners = liveOwners.filter((id) => id !== instanceId);
-      setIsLiveOwner(false);
-      notifyOwnerListeners();
-    };
-  }, [canRunLiveActivity, instanceId]);
-
   if (!show) {
     return null;
   }
@@ -118,7 +91,7 @@ export function GivebackGiftEntry({
       >
         {children}
       </GivebackGiftDock>
-      {isLiveOwner && <GivebackLiveActivityListener dock={dock} />}
+      {canRunLiveActivity && <GivebackLiveActivityListener dock={dock} />}
     </>
   );
 }
