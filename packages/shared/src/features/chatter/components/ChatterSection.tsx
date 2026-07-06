@@ -26,10 +26,6 @@ const filters: { value: ChatterFilter; label: string }[] = [
     value: ChatterPlatform.HackerNews,
     label: platformVisuals[ChatterPlatform.HackerNews].label,
   },
-  {
-    value: ChatterPlatform.Reddit,
-    label: platformVisuals[ChatterPlatform.Reddit].label,
-  },
 ];
 
 const LoadingSkeleton = (): ReactElement => (
@@ -79,8 +75,8 @@ export const ChatterSection = ({
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            An AI read of the conversation across X, Hacker News & Reddit — not
-            just the raw comments.
+            An AI read of the conversation across X & Hacker News — not just the
+            raw comments.
           </Typography>
         </div>
       </div>

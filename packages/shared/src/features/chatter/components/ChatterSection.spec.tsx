@@ -20,8 +20,8 @@ describe('ChatterSection', () => {
     expect(screen.getByText('Bottom line')).toBeInTheDocument();
     expect(screen.getByText(/strongest pushback/i)).toBeInTheDocument();
     // Cross-platform divergence read labels.
+    expect(screen.getByText('Polarized & loud')).toBeInTheDocument();
     expect(screen.getByText('Skeptical')).toBeInTheDocument();
-    expect(screen.getByText('Worried about hiring')).toBeInTheDocument();
   });
 
   it('keeps raw platform threads collapsed until requested', async () => {
