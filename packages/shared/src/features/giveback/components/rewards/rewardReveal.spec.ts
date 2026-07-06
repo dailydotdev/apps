@@ -22,6 +22,18 @@ describe('resolveRewardReveal', () => {
     expect(reveal.roastText).toBeTruthy();
   });
 
+  it('fills a trivia fact per tier so different secret levels differ', () => {
+    const first = resolveRewardReveal(
+      tier({ id: RevealSlug.Secret, thresholdPoints: 200 }),
+    );
+    const second = resolveRewardReveal(
+      tier({ id: RevealSlug.Secret, thresholdPoints: 201 }),
+    );
+    expect(first.kind).toBe('trivia');
+    expect(first.fact).toBeTruthy();
+    expect(first.fact).not.toBe(second.fact);
+  });
+
   it('derives Cores reveals and parses the amount from the title', () => {
     const reveal = resolveRewardReveal(
       tier({

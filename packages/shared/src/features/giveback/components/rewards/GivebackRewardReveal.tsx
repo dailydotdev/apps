@@ -1010,111 +1010,33 @@ const CausesStack = (): ReactElement => {
   );
 };
 
-// Suggest a cause → a celebration that the privilege is unlocked, then a form to
-// nominate one.
-// PLACEHOLDER: the submission is local-only until a backend endpoint exists.
+// Suggest a cause → a celebration that the privilege is unlocked, over the
+// carousel of causes we already fund. "Suggest now" is the entry to the real
+// nomination flow.
+// PLACEHOLDER: the nomination flow doesn't exist yet, so the CTA dismisses for
+// now — wire it to the suggest-a-cause form once that endpoint lands.
 const SuggestCauseReveal = ({
   reveal,
   levelNumber,
+  onClose,
 }: {
   reveal: RewardReveal;
   levelNumber?: number;
-}): ReactElement => {
-  const [view, setView] = useState<'unlocked' | 'form' | 'sent'>('unlocked');
-
-  if (view === 'sent') {
-    return (
-      <FlexCol className="items-center gap-4 text-center">
-        <Reveal delay={0}>
-          <span className="bg-accent-avocado-default/15 flex size-16 items-center justify-center rounded-full text-accent-avocado-default motion-safe:animate-reward-pop [&_svg]:size-8">
-            <VIcon />
-          </span>
-        </Reveal>
-        <Reveal delay={STAGGER_STEP}>
-          <Typography bold type={TypographyType.Title2}>
-            Sent for review.
-          </Typography>
-        </Reveal>
-        <Reveal delay={STAGGER_STEP * 2}>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-            className="max-w-xs [text-wrap:pretty]"
-          >
-            Thanks for the nomination. We&apos;ll vet the cause and add it to
-            the giveback list if it&apos;s a fit.
-          </Typography>
-        </Reveal>
-      </FlexCol>
-    );
-  }
-
-  if (view === 'form') {
-    return (
-      <FlexCol className="items-center gap-5">
-        <Typography bold type={TypographyType.Title2}>
-          Suggest a cause
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Secondary}
-          className="-mt-3 max-w-xs text-center [text-wrap:pretty]"
-        >
-          A nonprofit, open-source fund, or community initiative daily.dev
-          should support.
-        </Typography>
-        <FlexCol className="w-full max-w-sm gap-3">
-          <input
-            type="text"
-            placeholder="Name of the cause"
-            className="w-full rounded-12 border border-border-subtlest-tertiary bg-surface-float px-4 py-2.5 text-text-primary typo-callout placeholder:text-text-quaternary"
-          />
-          <input
-            type="url"
-            placeholder="Link (website or donation page)"
-            className="w-full rounded-12 border border-border-subtlest-tertiary bg-surface-float px-4 py-2.5 text-text-primary typo-callout placeholder:text-text-quaternary"
-          />
-          <textarea
-            rows={3}
-            placeholder="Why should we support it?"
-            className="w-full resize-none rounded-12 border border-border-subtlest-tertiary bg-surface-float px-4 py-2.5 text-text-primary typo-callout placeholder:text-text-quaternary"
-          />
-          <Button
-            type="button"
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Primary}
-            onClick={() => setView('sent')}
-            className="mt-1 self-center"
-          >
-            Submit for review
-          </Button>
-        </FlexCol>
-      </FlexCol>
-    );
-  }
-
-  return (
-    <FlexCol className="items-center gap-5">
-      <Reveal delay={0}>
-        <LevelChip levelNumber={levelNumber} />
-      </Reveal>
-      <RevealCopy reveal={reveal} delayBase={STAGGER_STEP} />
-      <Reveal delay={STAGGER_STEP * 3} className="w-full">
-        <CausesStack />
-      </Reveal>
-      <Reveal delay={STAGGER_STEP * 5}>
-        <Button
-          type="button"
-          size={ButtonSize.Medium}
-          variant={ButtonVariant.Primary}
-          onClick={() => setView('form')}
-        >
-          Suggest now
-        </Button>
-      </Reveal>
-    </FlexCol>
-  );
-};
+  onClose: () => void;
+}): ReactElement => (
+  <FlexCol className="items-center gap-5">
+    <Reveal delay={0}>
+      <LevelChip levelNumber={levelNumber} />
+    </Reveal>
+    <RevealCopy reveal={reveal} delayBase={STAGGER_STEP} />
+    <Reveal delay={STAGGER_STEP * 3} className="w-full">
+      <CausesStack />
+    </Reveal>
+    <Reveal delay={STAGGER_STEP * 5}>
+      <DismissButton label="Suggest now" onClose={onClose} />
+    </Reveal>
+  </FlexCol>
+);
 
 const TriviaReveal = ({
   reveal,
@@ -1220,7 +1142,13 @@ const revealBody = ({
     case 'swagDiscount':
       return <SwagReveal reveal={reveal} levelNumber={levelNumber} />;
     case 'suggestCause':
-      return <SuggestCauseReveal reveal={reveal} levelNumber={levelNumber} />;
+      return (
+        <SuggestCauseReveal
+          reveal={reveal}
+          levelNumber={levelNumber}
+          onClose={onClose}
+        />
+      );
     case 'council':
       return (
         <Scene

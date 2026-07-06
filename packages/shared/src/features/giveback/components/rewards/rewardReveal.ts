@@ -52,18 +52,18 @@ export interface RewardReveal {
 }
 
 // The devil-emoji art the Roast page already uses.
-export const ROAST_EMOJI_IMAGE =
+const ROAST_EMOJI_IMAGE =
   'https://media.daily.dev/image/upload/s--bLTH_SfU--/f_auto/v1707242870/public/Roast-emoji.png.png';
 
 // Placeholder roast copy. In the live flow this is generated server-side from
 // the contributor's reading history; kept here so the reveal is demoable behind
 // the flag until that endpoint exists.
-export const PLACEHOLDER_ROAST_TEXT =
+const PLACEHOLDER_ROAST_TEXT =
   'Your profile says "senior engineer." Your bookmarks say "saved 400 articles, opened 3." You star repos the way other people hoard tote bags: great intentions, zero follow-through. You have named three different side projects "final" and shipped precisely zero of them. You have strong opinions about tabs versus spaces but none about your unit tests, which do not exist. You came here to donate to a good cause, got distracted by the feed for 45 minutes, and called it "research." We see all of it. And honestly? We funded a cause anyway. You are still one of the good ones.';
 
-// The pool of secrets — one is revealed per trivia level. Org rules: brand stays
-// lowercase, never an explicit user count.
-export const TRIVIA_FACTS: ReadonlyArray<string> = [
+// The pool of secrets — one is revealed per trivia level (picked deterministically
+// per tier below). Org rules: brand stays lowercase, never an explicit user count.
+const TRIVIA_FACTS: ReadonlyArray<string> = [
   'daily.dev began as a browser extension that took over your new-tab page.',
   'The mascot is a dog named Patchy. He does not, and will not, fetch.',
   'The color palette is food-themed. There is genuinely a shade called "bacon".',
@@ -100,8 +100,9 @@ const PRESETS: Record<string, RewardReveal> = {
   [RevealSlug.Secret]: {
     kind: 'trivia',
     headline: 'A secret, unlocked.',
-    body: 'Scratch the card to reveal it. A new secret unlocks every time you level up.',
-    fact: TRIVIA_FACTS[0],
+    body: 'Scratch the card to reveal it.',
+    // `fact` is filled in per tier by resolveRewardReveal so different secret
+    // levels reveal different facts.
   },
   [RevealSlug.Swag]: {
     kind: 'swagDiscount',
@@ -143,6 +144,12 @@ export const resolveRewardReveal = (
 ): RewardReveal => {
   const preset = PRESETS[reward.id];
   if (preset) {
+    if (preset.kind === 'trivia') {
+      // Pick a fact deterministically from the tier so different secret levels
+      // reveal different facts (and it stays stable across re-renders).
+      const index = reward.thresholdPoints % TRIVIA_FACTS.length;
+      return { ...preset, fact: TRIVIA_FACTS[index] };
+    }
     return preset;
   }
 
