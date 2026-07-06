@@ -26,6 +26,8 @@ jest.mock('../../../contexts/AuthContext');
 jest.mock('../useGivebackMotion', () => ({
   useInView: () => ({ ref: { current: null }, inView: true }),
   useCountUp: (target: number) => target,
+  // Claiming now opens the reward reveal (confetti burst), which reads this.
+  usePrefersReducedMotion: () => true,
 }));
 
 const mockContribution = useGivebackContribution as jest.MockedFunction<
@@ -143,6 +145,12 @@ it('offers a claim for an unlocked, unclaimed tier and logs it', async () => {
       threshold: 25,
     }),
   });
+
+  // The reward reveal opens once the claim lands (the "note from daily.dev"
+  // card for a custom reward with no bespoke preset).
+  expect(
+    await screen.findByText('With love, the daily.dev team'),
+  ).toBeInTheDocument();
 });
 
 it('shows an empty journey when no reward tiers exist', () => {
