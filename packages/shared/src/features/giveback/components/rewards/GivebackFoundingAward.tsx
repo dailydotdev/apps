@@ -17,7 +17,8 @@ import { CoreIcon, GiftIcon, VIcon } from '../../../../components/icons';
 import { FlexCol, FlexRow } from '../../../../components/utilities';
 import type { FoundingAwardState } from './rewardReveal';
 import { FOUNDING_AWARD, PATCHY_FOUNDING_AWARD } from './rewardReveal';
-import { RevealDialogShell, Reveal } from './GivebackRewardReveal';
+import { GivebackReveal as Reveal } from '../GivebackReveal';
+import { RevealDialogShell } from './GivebackRewardReveal';
 
 // The journey's special first step: a one-time, limited "First 1,000
 // contributors" gift (a Patchy award + Cores from the CEO).
@@ -207,10 +208,12 @@ const FoundingAwardAction = ({
   state,
   memberNumber,
   onClaim,
+  onTakeAction,
 }: {
   state: FoundingAwardState;
   memberNumber: number;
   onClaim: () => void;
+  onTakeAction: () => void;
 }): ReactElement => {
   if (state === 'claimed') {
     return (
@@ -252,6 +255,7 @@ const FoundingAwardAction = ({
       type="button"
       size={ButtonSize.Small}
       variant={ButtonVariant.Primary}
+      onClick={onTakeAction}
     >
       Take action
     </Button>
@@ -262,18 +266,24 @@ interface GivebackFoundingAwardProps {
   initialState?: FoundingAwardState;
   claimedCount?: number;
   memberNumber?: number;
+  onTakeAction?: () => void;
 }
 
 export const GivebackFoundingAward = ({
   initialState = 'intro',
   claimedCount = FOUNDING_AWARD.placeholderClaimedCount,
   memberNumber = FOUNDING_AWARD.placeholderMemberNumber,
+  onTakeAction = () => undefined,
 }: GivebackFoundingAwardProps): ReactElement => {
-  const [state, setState] = useState<FoundingAwardState>(initialState);
+  // Claiming is one-way and local (no backend contract yet); everything else is
+  // derived from the incoming `initialState` so the card follows the visitor's
+  // live points instead of freezing at mount.
+  const [claimed, setClaimed] = useState(initialState === 'claimed');
   const [revealing, setRevealing] = useState(false);
+  const state: FoundingAwardState = claimed ? 'claimed' : initialState;
 
   const onClaim = () => {
-    setState('claimed');
+    setClaimed(true);
     setRevealing(true);
   };
 
@@ -335,6 +345,7 @@ export const GivebackFoundingAward = ({
                 state={state}
                 memberNumber={memberNumber}
                 onClaim={onClaim}
+                onTakeAction={onTakeAction}
               />
             </div>
           </FlexCol>

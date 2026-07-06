@@ -28,8 +28,9 @@ import {
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { FlexCol, FlexRow } from '../../../../components/utilities';
 import type { LoggedUser } from '../../../../lib/user';
-import { usePrefersReducedMotion } from '../../useGivebackMotion';
+import { useCountUp, usePrefersReducedMotion } from '../../useGivebackMotion';
 import { GivebackConfettiBurst } from '../GivebackConfettiBurst';
+import { GivebackReveal as Reveal } from '../GivebackReveal';
 import type { RewardReveal } from './rewardReveal';
 import { GivebackSecretScratch } from './GivebackSecretScratch';
 
@@ -42,49 +43,6 @@ import { GivebackSecretScratch } from './GivebackSecretScratch';
 
 const STAGGER_STEP = 70;
 const STORE_URL = 'https://store.daily.dev';
-
-export const Reveal = ({
-  children,
-  delay = 0,
-  className,
-}: {
-  children: ReactNode;
-  delay?: number;
-  className?: string;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'motion-safe:animate-funnel-step-in motion-safe:will-change-[transform,opacity,filter]',
-      className,
-    )}
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    {children}
-  </div>
-);
-
-const useCountUp = (target: number, ms = 900): number => {
-  const [value, setValue] = useState(0);
-  const reduced = usePrefersReducedMotion();
-  useEffect(() => {
-    if (reduced) {
-      setValue(target);
-      return undefined;
-    }
-    let raf = 0;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const progress = Math.min(1, (now - start) / ms);
-      setValue(Math.round(target * (1 - (1 - progress) ** 3)));
-      if (progress < 1) {
-        raf = requestAnimationFrame(tick);
-      }
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, ms, reduced]);
-  return value;
-};
 
 // The level chip (profile-image style) — no "reward unlocked" label. Hidden when
 // the level isn't known (e.g. the founding award, which isn't a numbered tier).
@@ -198,7 +156,7 @@ const DismissButton = ({
 // Cores → the real daily.dev Cores stack (art grows with the amount) on a shiny
 // multi-hue gradient with a gold border — echoing the Cores brand artwork.
 const CoresStack = ({ amount }: { amount: number }): ReactElement => {
-  const shown = useCountUp(amount);
+  const shown = useCountUp(amount, true, 900);
   return (
     <div
       className="relative flex w-72 max-w-full flex-col items-center gap-2 overflow-hidden rounded-24 p-6 shadow-2 ring-1 ring-inset ring-border-subtlest-tertiary motion-safe:animate-reward-pop"

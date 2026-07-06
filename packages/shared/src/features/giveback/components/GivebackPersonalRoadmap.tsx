@@ -329,6 +329,7 @@ export const GivebackPersonalRoadmap = ({
           <div className="max-w-2xl">
             <GivebackFoundingAward
               initialState={approved > 0 ? 'claimable' : 'intro'}
+              onTakeAction={handleTakeAction}
             />
           </div>
 

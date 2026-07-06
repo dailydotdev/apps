@@ -130,9 +130,10 @@ const parseAmount = (title: string, fallback: number): number => {
   return match ? Number(match[0]) : fallback;
 };
 
-// Pull a human duration ("1 week", "1 year") out of a Plus reward title.
+// Pull a human duration ("1 week", "1 year", "3-month") out of a Plus reward
+// title — the number and unit may be separated by spaces, a hyphen, or nothing.
 const parseDuration = (title: string): string | undefined => {
-  const match = title.match(/\d+\s*(day|week|month|year)s?/i);
+  const match = title.match(/\d+[\s-]*(day|week|month|year)s?/i);
   return match?.[0];
 };
 

@@ -28,6 +28,9 @@ export const GivebackSecretScratch = ({
 }): ReactElement => {
   const [revealed, setRevealed] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // getImageData reads the whole canvas back from the GPU, so we only sample the
+  // scratched ratio every few moves instead of on every pointermove.
+  const moveCountRef = useRef(0);
 
   // Paint the foil once, on mount.
   useEffect(() => {
@@ -89,9 +92,14 @@ export const GivebackSecretScratch = ({
 
   // Scratch just by moving the cursor over it — no click/drag needed. (Touch
   // still works: pointermove fires while a finger is down.)
+  const SAMPLE_EVERY = 6;
   const onPointerMove = (event: PointerEvent<HTMLCanvasElement>) => {
     eraseAt(event.clientX, event.clientY);
-    if (scratchedRatio() > REVEAL_AT) {
+    moveCountRef.current += 1;
+    if (
+      moveCountRef.current % SAMPLE_EVERY === 0 &&
+      scratchedRatio() > REVEAL_AT
+    ) {
       setRevealed(true);
     }
   };
