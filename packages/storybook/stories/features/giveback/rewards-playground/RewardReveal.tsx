@@ -173,10 +173,7 @@ const GameBanner = ({ tier }: { tier: PlaygroundTier }): ReactElement => {
     return <></>;
   }
   return (
-    <span
-      className="rounded-8 border border-border-subtlest-tertiary px-2.5 py-0.5 font-bold text-accent-cabbage-default typo-caption1"
-      style={{ backgroundColor: '#17111f' }}
-    >
+    <span className="rounded-8 border border-border-subtlest-tertiary bg-background-subtle px-2.5 py-0.5 font-bold text-accent-cabbage-default typo-caption1">
       Lvl {level}
     </span>
   );
