@@ -186,6 +186,15 @@ const nextConfig: NextConfig = {
       ];
 
       return [
+        // The webapp's old /assets files moved to public/app/assets (served at
+        // /app/assets, which the daily.dev router proxies to the app origin). New webapp
+        // assets go in public/app/assets/; this wildcard redirect keeps old /assets URLs
+        // working for backward compatibility.
+        {
+          source: '/assets/:path*',
+          destination: '/app/assets/:path*',
+          permanent: true,
+        },
         {
           source: '/mobile',
           destination: '/',
@@ -231,13 +240,13 @@ const nextConfig: NextConfig = {
           destination: '/posts/release-notes-updates-live--jp5x9el1t',
           permanent: true,
         },
-        ...(process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX
-          ? oldPublicAssets.map((asset) => ({
-              source: `/${asset}`,
-              destination: `${process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX}/assets/${asset}`,
-              permanent: true,
-            }))
-          : []),
+        ...oldPublicAssets.map((asset) => ({
+          source: `/${asset}`,
+          destination: `${
+            process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX || ''
+          }/app/assets/${asset}`,
+          permanent: true,
+        })),
         {
           source: '/posts/finder',
           destination: '/search?provider=posts',

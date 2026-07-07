@@ -44,25 +44,25 @@ describe('markdownConversion', () => {
   });
 
   it('should preserve images while converting html and markdown', () => {
-    const html = '<img src="https://cdn.daily.dev/image.png" alt="Preview" />';
+    const html = '<img src="https://daily.dev/image.png" alt="Preview" />';
 
     const markdown = htmlToMarkdownBasic(html);
 
-    expect(markdown).toBe('![Preview](https://cdn.daily.dev/image.png)');
+    expect(markdown).toBe('![Preview](https://daily.dev/image.png)');
 
     const convertedHtml = markdownToHtmlBasic(markdown);
 
     expect(convertedHtml).toBe(
-      '<img src="https://cdn.daily.dev/image.png" alt="Preview" />',
+      '<img src="https://daily.dev/image.png" alt="Preview" />',
     );
   });
 
   it('should keep standalone image in markdown round-trip', () => {
-    const initialMarkdown = '![Preview](https://cdn.daily.dev/image.png)';
+    const initialMarkdown = '![Preview](https://daily.dev/image.png)';
     const html = markdownToHtmlBasic(initialMarkdown);
 
     expect(html).toBe(
-      '<img src="https://cdn.daily.dev/image.png" alt="Preview" />',
+      '<img src="https://daily.dev/image.png" alt="Preview" />',
     );
 
     const markdown = htmlToMarkdownBasic(html);
@@ -71,20 +71,20 @@ describe('markdownConversion', () => {
   });
 
   it('should handle image between paragraphs', () => {
-    const md = 'hello\n\n![img](https://cdn.daily.dev/a.png)\n\nworld';
+    const md = 'hello\n\n![img](https://daily.dev/a.png)\n\nworld';
     const html = markdownToHtmlBasic(md);
 
     expect(html).toBe(
-      '<p>hello</p><img src="https://cdn.daily.dev/a.png" alt="img" /><p>world</p>',
+      '<p>hello</p><img src="https://daily.dev/a.png" alt="img" /><p>world</p>',
     );
   });
 
   it('should keep inline image within paragraph', () => {
-    const md = 'text ![img](https://cdn.daily.dev/a.png) more';
+    const md = 'text ![img](https://daily.dev/a.png) more';
     const html = markdownToHtmlBasic(md);
 
     expect(html).toBe(
-      '<p>text <img src="https://cdn.daily.dev/a.png" alt="img" /> more</p>',
+      '<p>text <img src="https://daily.dev/a.png" alt="img" /> more</p>',
     );
   });
 
