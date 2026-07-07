@@ -12,7 +12,7 @@ import type { RewardReveal } from './rewardReveal';
 import { DismissButton, Scene } from './revealScaffold';
 import {
   CoresStack,
-  MemberRing,
+  CouncilReveal,
   NoteReveal,
   PatchyPictureReveal,
   PlusCard,
@@ -70,7 +70,7 @@ const revealBody = ({
           // headline; the body line still gives context.
           hideHeadline
           object={<CoresStack amount={reveal.amount ?? 0} />}
-          action={<DismissButton label="View your balance" onClose={onClose} />}
+          action={<DismissButton label="Sweet" onClose={onClose} />}
         />
       );
     case 'plus':
@@ -79,12 +79,7 @@ const revealBody = ({
           reveal={reveal}
           levelNumber={levelNumber}
           object={<PlusCard duration={reveal.duration} />}
-          action={
-            <DismissButton
-              label="Explore what Plus unlocks"
-              onClose={onClose}
-            />
-          }
+          action={<DismissButton label="Let's go" onClose={onClose} />}
         />
       );
     case 'swagDiscount':
@@ -99,11 +94,11 @@ const revealBody = ({
       );
     case 'council':
       return (
-        <Scene
+        <CouncilReveal
           reveal={reveal}
           levelNumber={levelNumber}
-          object={<MemberRing user={user} />}
-          action={<DismissButton label="Take your seat" onClose={onClose} />}
+          user={user}
+          onClose={onClose}
         />
       );
     default:

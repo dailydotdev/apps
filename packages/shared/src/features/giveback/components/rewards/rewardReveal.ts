@@ -60,36 +60,48 @@ export const resolveRewardReveal = (
 ): RewardReveal => {
   const body =
     reward.description ?? 'A little something from us for backing the causes.';
+  // `metadata` is a raw jsonb column, so guard against a null/absent value the
+  // non-nullable type doesn't cover.
+  const metadata = reward.metadata ?? {};
 
   switch (reward.rewardType) {
     case ContributionRewardType.Cores:
-      return {
-        kind: 'cores',
-        // The tier's own threshold is the reward value; points map 1:1 to Cores
-        // (and dollars). No hardcoded amount.
-        amount: reward.thresholdPoints,
-        headline: `+${reward.title}, landed.`,
-        body: 'Yours to spend across daily.dev. Keep them coming.',
-      };
+      // A Cores reveal is only meaningful with a real amount — its whole point
+      // is the count-up. Without one, fall through to the note so we never show
+      // a fabricated figure.
+      if (typeof metadata.amount === 'number') {
+        return {
+          kind: 'cores',
+          amount: metadata.amount,
+          headline: `+${reward.title}, landed.`,
+          body: 'Yours to spend across daily.dev. Keep them coming.',
+        };
+      }
+      break;
     case ContributionRewardType.PlusDays:
       return {
         kind: 'plus',
-        duration: formatPlusDuration(reward.metadata.days),
+        duration: formatPlusDuration(metadata.days),
         headline: 'Plus, unlocked.',
         body: 'Ad-free, custom feeds, the works. Starts the moment you claim.',
       };
     case ContributionRewardType.StoreDiscount:
-      return {
-        kind: 'swagDiscount',
-        percent: reward.metadata.percent,
-        headline: 'A little surprise is waiting.',
-        body: "You've unlocked a contributor discount. Open the gift to see what's inside.",
-      };
+      // Same as Cores: the discount percent is the payoff, so skip the reveal
+      // rather than promising a made-up percentage.
+      if (typeof metadata.percent === 'number') {
+        return {
+          kind: 'swagDiscount',
+          percent: metadata.percent,
+          headline: 'A little surprise is waiting.',
+          body: "You've unlocked a contributor discount. Open the gift to see what's inside.",
+        };
+      }
+      break;
     case ContributionRewardType.PatchyPicture:
       return {
         kind: 'mascotHug',
-        headline: "Patchy's got you.",
-        body: 'Save it, post it, make it your PFP. Patchy already signed the model release.',
+        headline: 'You and Patchy, official.',
+        body: 'Save it, share it, make it your profile picture.',
         image: cloudinaryCharmInviteFriends,
       };
     case ContributionRewardType.Trivia:
@@ -103,19 +115,20 @@ export const resolveRewardReveal = (
       return { kind: 'suggestCause', headline: reward.title, body };
     case ContributionRewardType.Council:
       return { kind: 'council', headline: reward.title, body };
-    case ContributionRewardType.Joke:
-    case ContributionRewardType.Custom:
     default:
-      // A grateful/funny "note from daily.dev" — the safe, always-available
-      // payoff for a joke reward or any unmapped type.
-      return {
-        kind: 'note',
-        emoji: '💛',
-        stamp: 'Unlocked',
-        headline: reward.title,
-        body,
-      };
+      break;
   }
+
+  // A grateful/funny "note from daily.dev" — the safe, always-available payoff
+  // for a joke reward, any unmapped type, or a value-driven reward whose
+  // metadata is missing the value it needs.
+  return {
+    kind: 'note',
+    emoji: '💛',
+    stamp: 'Unlocked',
+    headline: reward.title,
+    body,
+  };
 };
 
 // ---------------------------------------------------------------------------
@@ -147,6 +160,8 @@ export const FOUNDING_AWARD = {
   totalSpots: 1000,
   ceoName: 'Nimrod',
   ceoTitle: 'Co-founder & CEO',
+  ceoImage:
+    'https://media.daily.dev/image/upload/v1682322243/avatars/avatar_1d339aa5b85c4e0ba85fdedb523c48d4.jpg',
   ceoNote:
     "You're one of the very first to back this. Thank you for helping us grow the right way. The Cores are on me.",
 };

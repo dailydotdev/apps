@@ -180,6 +180,47 @@ export const MemberRing = ({
   </FlexCol>
 );
 
+// Council → a seat in the private contributor Slack. The invite link is emailed,
+// so the reveal celebrates the seat and sends the user to their inbox rather
+// than implying there's a room to walk into right now.
+export const CouncilReveal = ({
+  reveal,
+  levelNumber,
+  user,
+  onClose,
+}: {
+  reveal: RewardReveal;
+  levelNumber?: number;
+  user: LoggedUser | null;
+  onClose: () => void;
+}): ReactElement => (
+  <FlexCol className="items-center gap-6">
+    <Reveal delay={0}>
+      <LevelChip levelNumber={levelNumber} />
+    </Reveal>
+    <Reveal
+      delay={STAGGER_STEP}
+      className="relative flex items-center justify-center"
+    >
+      <MemberRing user={user} />
+    </Reveal>
+    <RevealCopy reveal={reveal} delayBase={STAGGER_STEP * 3} />
+    <Reveal delay={STAGGER_STEP * 5}>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
+        className="max-w-xs text-center [text-wrap:pretty]"
+      >
+        Check your inbox. We&apos;ll email your invite link to the private Slack
+        shortly.
+      </Typography>
+    </Reveal>
+    <Reveal delay={STAGGER_STEP * 6}>
+      <DismissButton label="Got it" onClose={onClose} />
+    </Reveal>
+  </FlexCol>
+);
+
 // Picture with Patchy → an asset-light 2-stage flow. "Take a selfie" plays a
 // brief beat, then Patchy poses beside the visitor's photo.
 // PLACEHOLDER: uses the invite-friends charm until the bespoke animated selfie
@@ -302,7 +343,7 @@ export const PatchyPictureReveal = ({
             color={TypographyColor.Secondary}
             className="max-w-sm [text-wrap:pretty]"
           >
-            Patchy wants a photo with you. Snap one and take it anywhere.
+            Patchy wants a photo with you. Grab yours to keep forever.
           </Typography>
         </Reveal>
       </FlexCol>
@@ -433,7 +474,7 @@ export const SwagReveal = ({
   reveal: RewardReveal;
   levelNumber?: number;
 }): ReactElement => {
-  const percent = reveal.percent ?? 50;
+  const percent = reveal.percent ?? 0;
   const [stage, setStage] = useState<'gift' | 'opening' | 'revealed'>('gift');
 
   useEffect(() => {
@@ -474,8 +515,8 @@ export const SwagReveal = ({
             color={TypographyColor.Secondary}
             className="max-w-xs text-center [text-wrap:pretty]"
           >
-            Check your inbox. We&apos;ll email your code and the details within
-            24 hours.
+            Check your inbox. We&apos;ll email your discount code and the
+            details shortly.
           </Typography>
         </Reveal>
         <Reveal delay={STAGGER_STEP * 4}>

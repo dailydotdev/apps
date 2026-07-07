@@ -15,12 +15,12 @@ const tier = (
 });
 
 describe('resolveRewardReveal', () => {
-  it('derives Cores reveals and uses the tier threshold as the amount (1:1)', () => {
+  it('derives Cores reveals and reads the amount from metadata', () => {
     const reveal = resolveRewardReveal(
       tier({
         title: '1,000 Cores',
         rewardType: ContributionRewardType.Cores,
-        thresholdPoints: 1000,
+        metadata: { amount: 1000 },
       }),
     );
     expect(reveal.kind).toBe('cores');
@@ -44,6 +44,28 @@ describe('resolveRewardReveal', () => {
         }),
       ).duration,
     ).toBe('2 weeks');
+  });
+
+  it('falls back to a note (no fabricated amount) when a Cores tier lacks metadata.amount', () => {
+    const reveal = resolveRewardReveal(
+      tier({
+        title: '1,000 Cores',
+        rewardType: ContributionRewardType.Cores,
+        metadata: {},
+      }),
+    );
+    expect(reveal.kind).toBe('note');
+    expect(reveal.amount).toBeUndefined();
+  });
+
+  it('does not throw when metadata is null and falls back to a note', () => {
+    const reveal = resolveRewardReveal(
+      tier({
+        rewardType: ContributionRewardType.Cores,
+        metadata: null as unknown as ContributionRewardTier['metadata'],
+      }),
+    );
+    expect(reveal.kind).toBe('note');
   });
 
   it('derives a store-discount reveal and reads the percent from metadata', () => {

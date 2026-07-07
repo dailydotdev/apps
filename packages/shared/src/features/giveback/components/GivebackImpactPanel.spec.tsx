@@ -8,6 +8,7 @@ import { useClaimContributionReward } from '../hooks/useClaimContributionReward'
 import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
 import { useContributionActions } from '../hooks/useContributionActions';
 import { useContributionFoundingAward } from '../hooks/useContributionFoundingAward';
+import { useClaimContributionFoundingAward } from '../hooks/useClaimContributionFoundingAward';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { LogEvent } from '../../../lib/log';
@@ -20,6 +21,7 @@ jest.mock('../hooks/useClaimContributionReward');
 jest.mock('../hooks/useContributionCausePicker');
 jest.mock('../hooks/useContributionActions');
 jest.mock('../hooks/useContributionFoundingAward');
+jest.mock('../hooks/useClaimContributionFoundingAward');
 jest.mock('../../../contexts/LogContext');
 jest.mock('../../../contexts/AuthContext');
 
@@ -53,6 +55,10 @@ const mockActions = useContributionActions as jest.MockedFunction<
 const mockFoundingAward = useContributionFoundingAward as jest.MockedFunction<
   typeof useContributionFoundingAward
 >;
+const mockClaimFoundingAward =
+  useClaimContributionFoundingAward as jest.MockedFunction<
+    typeof useClaimContributionFoundingAward
+  >;
 const mockLog = useLogContext as jest.MockedFunction<typeof useLogContext>;
 const mockAuth = useAuthContext as jest.MockedFunction<typeof useAuthContext>;
 const logEvent = jest.fn();
@@ -120,6 +126,15 @@ beforeEach(() => {
       isFoundingMember: false,
       memberNumber: null,
     },
+    isPending: false,
+  });
+  mockClaimFoundingAward.mockReturnValue({
+    claim: jest.fn().mockResolvedValue({
+      totalSpots: 1000,
+      claimedCount: 744,
+      isFoundingMember: true,
+      memberNumber: 744,
+    }),
     isPending: false,
   });
   mockLog.mockReturnValue({ logEvent } as unknown as ReturnType<
@@ -204,6 +219,49 @@ it('offers a claim for an unlocked, unclaimed tier and logs it', async () => {
   expect(
     await screen.findByText('With love, the daily.dev team'),
   ).toBeInTheDocument();
+});
+
+it('claims the founding award through the mutation and reveals it', async () => {
+  const claim = jest.fn().mockResolvedValue({
+    totalSpots: 1000,
+    claimedCount: 744,
+    isFoundingMember: true,
+    memberNumber: 744,
+  });
+  mockClaimFoundingAward.mockReturnValue({ claim, isPending: false });
+
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
+
+  const claimButton = screen.getByRole('button', {
+    name: /Claim your award/,
+  });
+  await act(async () => {
+    fireEvent.click(claimButton);
+  });
+
+  expect(claim).toHaveBeenCalledTimes(1);
+  expect(
+    await screen.findByText("You're a founding contributor."),
+  ).toBeInTheDocument();
+});
+
+it('does not reveal the founding award when claiming fails', async () => {
+  const claim = jest.fn().mockRejectedValue(new Error('sold out'));
+  mockClaimFoundingAward.mockReturnValue({ claim, isPending: false });
+
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
+
+  const claimButton = screen.getByRole('button', {
+    name: /Claim your award/,
+  });
+  await act(async () => {
+    fireEvent.click(claimButton);
+  });
+
+  expect(claim).toHaveBeenCalledTimes(1);
+  expect(
+    screen.queryByText("You're a founding contributor."),
+  ).not.toBeInTheDocument();
 });
 
 it('shows an empty journey when no reward tiers exist', () => {

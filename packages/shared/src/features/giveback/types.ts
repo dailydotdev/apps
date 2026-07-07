@@ -27,9 +27,10 @@ export interface ContributionActionCompleted {
 }
 
 // The founding-contributor award: a one-time, capped gift for the first N
-// contributors, auto-granted on a contributor's first approved action. Campaign
-// fields render for everyone; `isFoundingMember`/`memberNumber` describe the
-// visitor (false/null until they sign in and become a founder).
+// contributors, granted via claimContributionFoundingAward once a contributor
+// has an approved action. Campaign fields render for everyone;
+// `isFoundingMember`/`memberNumber` describe the visitor (false/null until
+// they sign in and claim it).
 export interface ContributionFoundingAward {
   totalSpots: number;
   claimedCount: number;

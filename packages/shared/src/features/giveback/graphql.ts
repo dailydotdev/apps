@@ -153,6 +153,19 @@ export const CONTRIBUTION_FOUNDING_AWARD_QUERY = `
   }
 `;
 
+// Grants the founding award to an eligible contributor (idempotent). Returns
+// the same shape as the query above so the caller can update from one response.
+export const CLAIM_CONTRIBUTION_FOUNDING_AWARD_MUTATION = `
+  mutation ClaimContributionFoundingAward {
+    claimContributionFoundingAward {
+      totalSpots
+      claimedCount
+      isFoundingMember
+      memberNumber
+    }
+  }
+`;
+
 // A randomized handful of targets for a link_pool action. Re-fetched to shuffle,
 // so the user always has fresh threads to pick from.
 export const CONTRIBUTION_ACTION_LINKS_QUERY = `

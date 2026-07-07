@@ -68,7 +68,7 @@ export const NearTheTop: Story = {
   decorators: [
     withGiveback({
       status: mockStatus({ userPoints: 2100 }),
-      claimedRewardIds: ['t-cores', 't-plus', 't-call'],
+      claimedRewardIds: ['t-cores', 't-plus', 't-discount'],
     }),
   ],
 };

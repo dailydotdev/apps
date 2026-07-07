@@ -1,5 +1,5 @@
 import type { PointerEvent, ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Typography,
   TypographyTag,
@@ -10,14 +10,13 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
+import { VIcon } from '../../../../components/icons';
 import { FlexCol } from '../../../../components/utilities';
 
 // A single scratch-off card holding ONE secret — the secret unlocked at this
 // level. Scratch the foil away with the cursor (or hit "Reveal" if you don't
 // drag). The next level reveals the next secret.
 
-const CARD_W = 288;
-const CARD_H = 176;
 // How much of the foil must be scratched off before it auto-reveals.
 const REVEAL_AT = 0.45;
 
@@ -27,45 +26,76 @@ export const GivebackSecretScratch = ({
   fact: string;
 }): ReactElement => {
   const [revealed, setRevealed] = useState(false);
+  const cardRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // The card grows to fit the secret, so the foil buffer is sized to the card at
+  // runtime rather than a fixed constant. Tracked here so erase/sample maths use
+  // the live dimensions.
+  const sizeRef = useRef({ w: 0, h: 0 });
   // getImageData reads the whole canvas back from the GPU, so we only sample the
   // scratched ratio every few moves instead of on every pointermove.
   const moveCountRef = useRef(0);
 
-  // Paint the foil once, on mount.
+  const paintFoil = useCallback(() => {
+    const ctx = canvasRef.current?.getContext('2d');
+    const { w, h } = sizeRef.current;
+    if (!ctx || !w || !h) {
+      return;
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.clearRect(0, 0, w, h);
+    // Colorful foil (our brand sweep: purple → pink → gold) over the dark
+    // secret card behind it.
+    const foil = ctx.createLinearGradient(0, 0, w, h);
+    foil.addColorStop(0, '#8f43ff');
+    foil.addColorStop(0.5, '#fe7ab6');
+    foil.addColorStop(1, '#ffce3a');
+    ctx.fillStyle = foil;
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.textAlign = 'center';
+    ctx.font = '800 13px ui-sans-serif, system-ui, -apple-system, sans-serif';
+    ctx.fillText('SCRATCH TO REVEAL', w / 2, h / 2);
+  }, []);
+
+  // Match the foil buffer to the card's rendered size and repaint. Setting
+  // width/height clears the canvas, so this only runs on real size changes.
   useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      const ctx = canvasRef.current?.getContext('2d');
-      if (!ctx) {
+    const card = cardRef.current;
+    if (!card) {
+      return undefined;
+    }
+    const apply = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) {
         return;
       }
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.clearRect(0, 0, CARD_W, CARD_H);
-      // Colorful foil (our brand sweep: purple → pink → gold) over the dark
-      // secret card behind it.
-      const foil = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
-      foil.addColorStop(0, '#8f43ff');
-      foil.addColorStop(0.5, '#fe7ab6');
-      foil.addColorStop(1, '#ffce3a');
-      ctx.fillStyle = foil;
-      ctx.fillRect(0, 0, CARD_W, CARD_H);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-      ctx.textAlign = 'center';
-      ctx.font = '800 13px ui-sans-serif, system-ui, -apple-system, sans-serif';
-      ctx.fillText('SCRATCH TO REVEAL', CARD_W / 2, CARD_H / 2);
-    });
-    return () => cancelAnimationFrame(raf);
-  }, []);
+      const w = Math.round(card.clientWidth);
+      const h = Math.round(card.clientHeight);
+      if (!w || !h || (w === sizeRef.current.w && h === sizeRef.current.h)) {
+        return;
+      }
+      sizeRef.current = { w, h };
+      canvas.width = w;
+      canvas.height = h;
+      paintFoil();
+    };
+    apply();
+    const observer = new ResizeObserver(apply);
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, [paintFoil]);
 
   const eraseAt = (clientX: number, clientY: number) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) {
+    const { w, h } = sizeRef.current;
+    if (!canvas || !ctx || !w || !h) {
       return;
     }
     const rect = canvas.getBoundingClientRect();
-    const x = ((clientX - rect.left) * CARD_W) / rect.width;
-    const y = ((clientY - rect.top) * CARD_H) / rect.height;
+    const x = ((clientX - rect.left) * w) / rect.width;
+    const y = ((clientY - rect.top) * h) / rect.height;
     ctx.globalCompositeOperation = 'destination-out';
     ctx.beginPath();
     ctx.arc(x, y, 22, 0, Math.PI * 2);
@@ -75,10 +105,11 @@ export const GivebackSecretScratch = ({
   // How much foil is gone (sampled every few pixels for speed).
   const scratchedRatio = (): number => {
     const ctx = canvasRef.current?.getContext('2d');
-    if (!ctx) {
+    const { w, h } = sizeRef.current;
+    if (!ctx || !w || !h) {
       return 0;
     }
-    const { data } = ctx.getImageData(0, 0, CARD_W, CARD_H);
+    const { data } = ctx.getImageData(0, 0, w, h);
     let clear = 0;
     let samples = 0;
     for (let i = 3; i < data.length; i += 4 * 8) {
@@ -107,12 +138,14 @@ export const GivebackSecretScratch = ({
   return (
     <FlexCol className="w-full items-center gap-4">
       <div
-        className="relative mx-auto h-44 w-72 max-w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary"
+        ref={cardRef}
+        className="relative mx-auto w-80 max-w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary"
         // Dark secret card behind the colorful foil (fixed dark in both themes).
         style={{ backgroundColor: '#17111f' }}
       >
-        {/* The secret, underneath the foil. */}
-        <FlexCol className="absolute inset-0 justify-between p-6">
+        {/* The secret, underneath the foil. In normal flow so the card grows to
+            fit longer facts; min height keeps short secrets card-shaped. */}
+        <FlexCol className="min-h-44 justify-between gap-4 p-6">
           <span className="font-black uppercase tracking-widest text-accent-cheese-default typo-caption2">
             Secret
           </span>
@@ -128,8 +161,6 @@ export const GivebackSecretScratch = ({
         {!revealed && (
           <canvas
             ref={canvasRef}
-            width={CARD_W}
-            height={CARD_H}
             onPointerMove={onPointerMove}
             aria-label="Scratch to reveal the secret"
             className="absolute inset-0 size-full cursor-crosshair [touch-action:none]"
@@ -137,16 +168,18 @@ export const GivebackSecretScratch = ({
         )}
       </div>
 
-      {!revealed && (
-        <Button
-          type="button"
-          size={ButtonSize.Medium}
-          variant={ButtonVariant.Primary}
-          onClick={() => setRevealed(true)}
-        >
-          Reveal
-        </Button>
-      )}
+      {/* Kept mounted after reveal (swapped to a static confirmation) so the
+          column doesn't jump when the button would otherwise disappear. */}
+      <Button
+        type="button"
+        size={ButtonSize.Medium}
+        variant={revealed ? ButtonVariant.Float : ButtonVariant.Primary}
+        icon={revealed ? <VIcon secondary /> : undefined}
+        disabled={revealed}
+        onClick={() => setRevealed(true)}
+      >
+        {revealed ? 'Secret revealed' : 'Reveal'}
+      </Button>
     </FlexCol>
   );
 };

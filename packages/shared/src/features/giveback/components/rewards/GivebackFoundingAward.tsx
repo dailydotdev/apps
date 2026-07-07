@@ -21,11 +21,10 @@ import { GivebackReveal as Reveal } from '../GivebackReveal';
 import { RevealDialogShell } from './GivebackRewardReveal';
 
 // The journey's special first step: a one-time, limited "First 1,000
-// contributors" gift (a Patchy award + Cores from the CEO).
-//
-// PLACEHOLDER: there is no backend contract for the founding award yet, so the
-// spot count, member number, and CEO note are frontend placeholders (see
-// `FOUNDING_AWARD`) to be wired to live data before this leaves the flag.
+// contributors" gift (a Patchy award + Cores from the CEO). Spot count,
+// membership and founding number come from the live contributionFoundingAward
+// query/claimContributionFoundingAward mutation; only the CEO name/note in
+// `FOUNDING_AWARD` are static copy, not backend data.
 
 const coresLabel = `${PATCHY_FOUNDING_AWARD.coresValue.toLocaleString()} Cores`;
 
@@ -58,9 +57,12 @@ const AwardBadge = ({
 
 const CeoAttribution = (): ReactElement => (
   <FlexRow className="items-center gap-2">
-    <span className="flex size-6 items-center justify-center rounded-full bg-accent-cabbage-default font-bold text-white typo-caption2">
-      {FOUNDING_AWARD.ceoName.charAt(0)}
-    </span>
+    <img
+      src={FOUNDING_AWARD.ceoImage}
+      alt={FOUNDING_AWARD.ceoName}
+      loading="lazy"
+      className="size-6 rounded-full object-cover"
+    />
     <Typography type={TypographyType.Caption2} color={TypographyColor.Tertiary}>
       Gifted by {FOUNDING_AWARD.ceoName} · {FOUNDING_AWARD.ceoTitle}
     </Typography>
@@ -73,10 +75,11 @@ const RING_RADIUS = 20;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 const ScarcityRing = ({
   claimedCount,
+  totalSpots,
 }: {
   claimedCount: number;
+  totalSpots: number;
 }): ReactElement => {
-  const { totalSpots } = FOUNDING_AWARD;
   const remaining = Math.max(0, totalSpots - claimedCount);
   const pct = Math.min(100, Math.round((claimedCount / totalSpots) * 100));
   return (
@@ -143,9 +146,11 @@ const ScarcityRing = ({
 // number, and a signed note from the CEO.
 const FoundingAwardReveal = ({
   memberNumber,
+  totalSpots,
   onClose,
 }: {
   memberNumber: number;
+  totalSpots: number;
   onClose: () => void;
 }): ReactElement => (
   <RevealDialogShell onClose={onClose}>
@@ -170,8 +175,7 @@ const FoundingAwardReveal = ({
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
           >
-            #{memberNumber.toLocaleString()} of{' '}
-            {FOUNDING_AWARD.totalSpots.toLocaleString()} ·{' '}
+            #{memberNumber.toLocaleString()} of {totalSpots.toLocaleString()} ·{' '}
             {PATCHY_FOUNDING_AWARD.name} is yours to keep.
           </Typography>
         </FlexCol>
@@ -207,11 +211,15 @@ const FoundingAwardReveal = ({
 const FoundingAwardAction = ({
   state,
   memberNumber,
+  totalSpots,
+  isClaiming,
   onClaim,
   onTakeAction,
 }: {
   state: FoundingAwardState;
   memberNumber: number;
+  totalSpots: number;
+  isClaiming: boolean;
   onClaim: () => void;
   onTakeAction: () => void;
 }): ReactElement => {
@@ -232,7 +240,7 @@ const FoundingAwardAction = ({
         color={TypographyColor.Tertiary}
         bold
       >
-        All {FOUNDING_AWARD.totalSpots.toLocaleString()} claimed
+        All {totalSpots.toLocaleString()} claimed
       </Typography>
     );
   }
@@ -244,6 +252,7 @@ const FoundingAwardAction = ({
         variant={ButtonVariant.Primary}
         color={ButtonColor.Cheese}
         icon={<GiftIcon />}
+        loading={isClaiming}
         onClick={onClaim}
       >
         Claim your award
@@ -266,6 +275,11 @@ interface GivebackFoundingAwardProps {
   initialState?: FoundingAwardState;
   claimedCount?: number;
   memberNumber?: number;
+  // The live campaign cap from the query; defaults to the static content value
+  // until the query resolves.
+  totalSpots?: number;
+  isClaiming?: boolean;
+  onClaim?: () => Promise<unknown>;
   onTakeAction?: () => void;
 }
 
@@ -273,18 +287,25 @@ export const GivebackFoundingAward = ({
   initialState = 'intro',
   claimedCount = 0,
   memberNumber = 0,
+  totalSpots = FOUNDING_AWARD.totalSpots,
+  isClaiming = false,
+  onClaim = () => Promise.resolve(),
   onTakeAction = () => undefined,
 }: GivebackFoundingAwardProps): ReactElement => {
-  // The award is auto-granted on the backend on the first approved action, so
-  // claiming here is a one-way local reveal of the already-earned award; the
-  // spot count and founding number come from the live query via props.
-  const [claimed, setClaimed] = useState(initialState === 'claimed');
+  // The award is granted by the backend when claimContributionFoundingAward
+  // succeeds; `initialState` reflects the live query, so it flips to 'claimed'
+  // on its own once the claim lands. `revealing` only tracks the celebratory
+  // popup for a claim made in this session (not a membership loaded on mount).
   const [revealing, setRevealing] = useState(false);
-  const state: FoundingAwardState = claimed ? 'claimed' : initialState;
+  const state = initialState;
 
-  const onClaim = () => {
-    setClaimed(true);
-    setRevealing(true);
+  const handleClaim = async () => {
+    try {
+      await onClaim();
+      setRevealing(true);
+    } catch {
+      // The claim mutation already surfaces a toast on failure.
+    }
   };
 
   const isDone = state === 'claimed';
@@ -324,27 +345,30 @@ export const GivebackFoundingAward = ({
                 }
           }
         >
-          <ScarcityRing claimedCount={shownClaimed} />
+          <ScarcityRing claimedCount={shownClaimed} totalSpots={totalSpots} />
           <FlexCol className="min-w-0 flex-1 items-start gap-0.5">
             <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text font-bold uppercase tracking-wide text-transparent typo-caption2">
               Founding reward
             </span>
             <Typography bold type={TypographyType.Callout}>
-              First 1,000 contributors
+              Give back and earn an exclusive award
             </Typography>
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Secondary}
               className="[text-wrap:pretty]"
             >
-              {PATCHY_FOUNDING_AWARD.name} award + {coresLabel} from{' '}
-              {FOUNDING_AWARD.ceoName}
+              The first {totalSpots.toLocaleString()} to complete any giveback
+              action will receive lifetime glory and an exclusive award worth{' '}
+              {coresLabel}.
             </Typography>
             <div className="mt-3">
               <FoundingAwardAction
                 state={state}
                 memberNumber={memberNumber}
-                onClaim={onClaim}
+                totalSpots={totalSpots}
+                isClaiming={isClaiming}
+                onClaim={handleClaim}
                 onTakeAction={onTakeAction}
               />
             </div>
@@ -356,6 +380,7 @@ export const GivebackFoundingAward = ({
       {revealing && (
         <FoundingAwardReveal
           memberNumber={memberNumber}
+          totalSpots={totalSpots}
           onClose={() => setRevealing(false)}
         />
       )}

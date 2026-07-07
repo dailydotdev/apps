@@ -19,6 +19,7 @@ import { LogEvent } from '../../../lib/log';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { useContributionRewards } from '../hooks/useContributionRewards';
 import { useContributionFoundingAward } from '../hooks/useContributionFoundingAward';
+import { useClaimContributionFoundingAward } from '../hooks/useClaimContributionFoundingAward';
 import { useContributionUserRewards } from '../hooks/useContributionUserRewards';
 import { useClaimContributionReward } from '../hooks/useClaimContributionReward';
 import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
@@ -77,7 +78,10 @@ export const GivebackPersonalRoadmap = ({
   const { causes: pickerCauses, selectedCauseIds } =
     useContributionCausePicker(true);
   const { actions } = useContributionActions(true);
-  const { foundingAward } = useContributionFoundingAward(true);
+  const { foundingAward, isPending: isFoundingAwardPending } =
+    useContributionFoundingAward(true);
+  const { claim: claimFoundingAward, isPending: isClaimingFoundingAward } =
+    useClaimContributionFoundingAward();
   const [claimingId, setClaimingId] = useState<string | null>(null);
   // The tier whose reward reveal is open (set after a successful claim).
   const [revealTierId, setRevealTierId] = useState<string | null>(null);
@@ -151,6 +155,11 @@ export const GivebackPersonalRoadmap = ({
     }
     if (foundingClaimedCount >= foundingTotalSpots) {
       return 'soldOut';
+    }
+    // Until the visitor's own membership loads, hold on the intro so an existing
+    // founder doesn't briefly see (and get to click) a redundant claim button.
+    if (isFoundingAwardPending) {
+      return 'intro';
     }
     return approved > 0 ? 'claimable' : 'intro';
   })();
@@ -241,6 +250,14 @@ export const GivebackPersonalRoadmap = ({
       extra: JSON.stringify({ origin: 'roadmap' }),
     });
     onTakeAction();
+  };
+
+  const handleClaimFoundingAward = async () => {
+    logEvent({
+      event_name: LogEvent.ClaimGivebackReward,
+      target_id: 'founding',
+    });
+    await claimFoundingAward();
   };
 
   // Window: current level + the next few. "Show more" extends it; "Show
@@ -352,6 +369,9 @@ export const GivebackPersonalRoadmap = ({
               initialState={foundingState}
               claimedCount={foundingClaimedCount}
               memberNumber={foundingMemberNumber}
+              totalSpots={foundingTotalSpots}
+              isClaiming={isClaimingFoundingAward}
+              onClaim={handleClaimFoundingAward}
               onTakeAction={handleTakeAction}
             />
           </div>
