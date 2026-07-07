@@ -154,6 +154,11 @@ export const BootDataProvider = ({
   const logged = cachedBootData?.user as LoggedUser;
   const shouldRefetch = !!logged?.providers && !!logged?.id;
   const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
+  // `daily` is client-owned for the session: seeded from the server on the
+  // initial load and mutated only via `setDaily`. Background boot refetches
+  // must not revert it, otherwise the daily-as-default view is dropped
+  // mid-session (only a full refresh should re-read the server value).
+  const dailyOverrideRef = useRef<boolean>();
 
   const {
     data: remoteData,
@@ -264,7 +269,10 @@ export const BootDataProvider = ({
   );
 
   const setDaily = useCallback(
-    (value: boolean) => updateBootData({ daily: value }),
+    (value: boolean) => {
+      dailyOverrideRef.current = value;
+      updateBootData({ daily: value });
+    },
     [updateBootData],
   );
 
@@ -300,7 +308,13 @@ export const BootDataProvider = ({
   useEffect(() => {
     if (remoteData) {
       setInitialLoad(typeof initialLoad === 'undefined');
-      updateBootData(remoteData);
+      if (typeof dailyOverrideRef.current === 'undefined') {
+        dailyOverrideRef.current = remoteData.daily;
+      }
+      updateBootData({
+        ...remoteData,
+        daily: dailyOverrideRef.current ?? remoteData.daily,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remoteData]);
