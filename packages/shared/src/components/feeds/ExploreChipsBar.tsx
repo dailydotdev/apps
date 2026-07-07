@@ -98,12 +98,12 @@ export function ExploreChipsBar({
         ref={scrollRef}
         className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
       >
-        <NewStripCta
-          className={compact ? 'h-8 rounded-10 px-2.5' : 'h-10 rounded-12 px-3'}
-        />
         {showDailySwitcher && (
           <DailySwitcher reverse compact={compact} onFeedClick={onFeedClick} />
         )}
+        <NewStripCta
+          className={compact ? 'h-8 rounded-10 px-2.5' : 'h-10 rounded-12 px-3'}
+        />
         {allCategories.map((category) => {
           const isActive = category.id === activeId;
           const onClick = () => {
