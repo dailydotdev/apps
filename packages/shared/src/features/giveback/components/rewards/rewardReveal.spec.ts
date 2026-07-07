@@ -1,6 +1,6 @@
 import type { ContributionRewardTier } from '../../types';
 import { ContributionRewardType } from '../../types';
-import { resolveRewardReveal, RevealSlug } from './rewardReveal';
+import { resolveRewardReveal } from './rewardReveal';
 
 const tier = (
   overrides: Partial<ContributionRewardTier> = {},
@@ -10,77 +10,91 @@ const tier = (
   description: null,
   thresholdPoints: 100,
   rewardType: ContributionRewardType.Custom,
+  metadata: {},
   ...overrides,
 });
 
 describe('resolveRewardReveal', () => {
-  it('matches a bespoke preset by tier id', () => {
-    const reveal = resolveRewardReveal(
-      tier({ id: RevealSlug.Roast, rewardType: ContributionRewardType.Custom }),
-    );
-    expect(reveal.kind).toBe('roast');
-    expect(reveal.roastText).toBeTruthy();
-  });
-
-  it('fills a trivia fact per tier so different secret levels differ', () => {
-    const first = resolveRewardReveal(
-      tier({ id: RevealSlug.Secret, thresholdPoints: 200 }),
-    );
-    const second = resolveRewardReveal(
-      tier({ id: RevealSlug.Secret, thresholdPoints: 201 }),
-    );
-    expect(first.kind).toBe('trivia');
-    expect(first.fact).toBeTruthy();
-    expect(first.fact).not.toBe(second.fact);
-  });
-
-  it('derives Cores reveals and parses the amount from the title', () => {
+  it('derives Cores reveals and reads the amount from metadata', () => {
     const reveal = resolveRewardReveal(
       tier({
-        id: 'cores-1000',
         title: '1,000 Cores',
         rewardType: ContributionRewardType.Cores,
+        metadata: { amount: 1000 },
       }),
     );
     expect(reveal.kind).toBe('cores');
     expect(reveal.amount).toBe(1000);
   });
 
-  it('derives Plus reveals and parses the duration from the title', () => {
-    const reveal = resolveRewardReveal(
-      tier({
-        id: 'plus-year',
-        title: '1 year of Plus',
-        rewardType: ContributionRewardType.PlusDays,
-      }),
-    );
-    expect(reveal.kind).toBe('plus');
-    expect(reveal.duration).toBe('1 year');
+  it('derives Plus reveals and formats the duration from metadata days', () => {
+    expect(
+      resolveRewardReveal(
+        tier({
+          rewardType: ContributionRewardType.PlusDays,
+          metadata: { days: 365 },
+        }),
+      ).duration,
+    ).toBe('1 year');
+    expect(
+      resolveRewardReveal(
+        tier({
+          rewardType: ContributionRewardType.PlusDays,
+          metadata: { days: 14 },
+        }),
+      ).duration,
+    ).toBe('2 weeks');
   });
 
-  it('falls back to a note reveal for an unmatched custom reward', () => {
+  it('derives a store-discount reveal and reads the percent from metadata', () => {
     const reveal = resolveRewardReveal(
       tier({
-        id: 't-thanks',
+        rewardType: ContributionRewardType.StoreDiscount,
+        metadata: { percent: 50 },
+      }),
+    );
+    expect(reveal.kind).toBe('swagDiscount');
+    expect(reveal.percent).toBe(50);
+  });
+
+  it('reveals the trivia fact from the tier description', () => {
+    const reveal = resolveRewardReveal(
+      tier({
+        rewardType: ContributionRewardType.Trivia,
+        description: 'The mascot is a dog named Patchy.',
+      }),
+    );
+    expect(reveal.kind).toBe('trivia');
+    expect(reveal.fact).toBe('The mascot is a dog named Patchy.');
+  });
+
+  it('maps the content and access reward types to their reveals', () => {
+    expect(
+      resolveRewardReveal(
+        tier({ rewardType: ContributionRewardType.PatchyPicture }),
+      ).kind,
+    ).toBe('mascotHug');
+    expect(
+      resolveRewardReveal(tier({ rewardType: ContributionRewardType.Council }))
+        .kind,
+    ).toBe('council');
+    expect(
+      resolveRewardReveal(
+        tier({ rewardType: ContributionRewardType.SuggestCauses }),
+      ).kind,
+    ).toBe('suggestCause');
+  });
+
+  it('falls back to a note reveal for a joke and any unmapped type', () => {
+    const reveal = resolveRewardReveal(
+      tier({
         title: 'Thanks!',
         description: 'You are the best.',
-        rewardType: ContributionRewardType.Custom,
+        rewardType: ContributionRewardType.Joke,
       }),
     );
     expect(reveal.kind).toBe('note');
     expect(reveal.headline).toBe('Thanks!');
     expect(reveal.body).toBe('You are the best.');
-  });
-
-  it('maps the remaining reward types to their reveals', () => {
-    expect(
-      resolveRewardReveal(tier({ rewardType: ContributionRewardType.Call }))
-        .kind,
-    ).toBe('call');
-    expect(
-      resolveRewardReveal(
-        tier({ rewardType: ContributionRewardType.Privilege }),
-      ).kind,
-    ).toBe('privilege');
   });
 });

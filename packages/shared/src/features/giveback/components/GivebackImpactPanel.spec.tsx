@@ -59,6 +59,7 @@ const tiers: ContributionRewardTier[] = [
     description: 'A pack of daily.dev stickers',
     thresholdPoints: 25,
     rewardType: ContributionRewardType.Custom,
+    metadata: {},
   },
   {
     id: 't2',
@@ -66,6 +67,7 @@ const tiers: ContributionRewardTier[] = [
     description: null,
     thresholdPoints: 100,
     rewardType: ContributionRewardType.PlusDays,
+    metadata: { days: 30 },
   },
   {
     id: 't3',
@@ -73,6 +75,7 @@ const tiers: ContributionRewardTier[] = [
     description: null,
     thresholdPoints: 250,
     rewardType: ContributionRewardType.Custom,
+    metadata: {},
   },
 ];
 

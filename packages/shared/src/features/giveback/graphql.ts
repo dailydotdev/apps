@@ -124,6 +124,7 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
           description
           thresholdPoints
           rewardType
+          metadata
         }
       }
     }

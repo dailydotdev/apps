@@ -35,13 +35,16 @@ import { GivebackMeterShine } from './GivebackMeterShine';
 import { Connector } from './GivebackRoadmapRail';
 import type { RoadmapNode } from './givebackRoadmapTypes';
 
-const rewardIconByType: Record<ContributionRewardType, ReactElement> = {
-  [ContributionRewardType.Cores]: <CoreIcon />,
-  [ContributionRewardType.PlusDays]: <DevPlusIcon />,
-  [ContributionRewardType.Call]: <StarIcon />,
-  [ContributionRewardType.Privilege]: <MedalBadgeIcon />,
-  [ContributionRewardType.Custom]: <GiftIcon />,
-};
+// Content and unmapped reward types fall back to the gift icon (see usage).
+const rewardIconByType: Partial<Record<ContributionRewardType, ReactElement>> =
+  {
+    [ContributionRewardType.Cores]: <CoreIcon />,
+    [ContributionRewardType.PlusDays]: <DevPlusIcon />,
+    [ContributionRewardType.StoreDiscount]: <GiftIcon />,
+    [ContributionRewardType.Council]: <MedalBadgeIcon />,
+    [ContributionRewardType.Call]: <StarIcon />,
+    [ContributionRewardType.Privilege]: <MedalBadgeIcon />,
+  };
 
 // Directions the celebration confetti flies when a reward is claimed, fed to the
 // reaction-burst keyframe via CSS custom properties. A fuller spread of brand
@@ -190,7 +193,7 @@ export const NodeRow = ({
             'border-accent-cheese-default/50 border bg-surface-float text-accent-cheese-default',
           )}
         >
-          {rewardIconByType[reward.type]}
+          {rewardIconByType[reward.type] ?? <GiftIcon />}
         </span>
       );
     }
@@ -203,7 +206,7 @@ export const NodeRow = ({
             'bg-accent-cabbage-default text-white',
           )}
         >
-          {rewardIconByType[reward.type]}
+          {rewardIconByType[reward.type] ?? <GiftIcon />}
         </span>
       );
     }

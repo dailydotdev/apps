@@ -8,10 +8,7 @@ import {
   RevealSurface,
   RewardRevealContent,
 } from '@dailydotdev/shared/src/features/giveback/components/rewards/GivebackRewardReveal';
-import {
-  resolveRewardReveal,
-  RevealSlug,
-} from '@dailydotdev/shared/src/features/giveback/components/rewards/rewardReveal';
+import { resolveRewardReveal } from '@dailydotdev/shared/src/features/giveback/components/rewards/rewardReveal';
 import { GivebackFoundingAward } from '@dailydotdev/shared/src/features/giveback/components/rewards/GivebackFoundingAward';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import {
@@ -29,95 +26,105 @@ import { MOCK_USER, withGiveback } from './giveback.mocks';
 
 const user = MOCK_USER as unknown as LoggedUser;
 
-// Sample reward tiers, one per reveal. Bespoke reveals are matched by the tier
-// id (see `RevealSlug`); the rest derive from the reward type + copy.
+// Sample reward tiers, one per reveal. Each resolves from its reward type and
+// per-type metadata (see `resolveRewardReveal`).
 const tier = (
   id: string,
   rewardType: ContributionRewardType,
   title: string,
-  description: string | null = null,
+  {
+    description = null,
+    metadata = {},
+  }: Partial<Pick<ContributionRewardTier, 'description' | 'metadata'>> = {},
 ): ContributionRewardTier => ({
   id,
   title,
   description,
   thresholdPoints: 100,
   rewardType,
+  metadata,
 });
 
-const SAMPLE_TIERS: ReadonlyArray<{ label: string; tier: ContributionRewardTier }> =
-  [
-    {
-      label: 'Custom note',
-      tier: tier(
-        'parents-proud',
-        ContributionRewardType.Custom,
-        'Your parents will be proud of you.',
-        'You turned everyday scrolling into real donations. Somewhere, a parent is telling a neighbor about you right now.',
-      ),
-    },
-    {
-      label: 'Roast',
-      tier: tier(RevealSlug.Roast, ContributionRewardType.Custom, 'Get roasted'),
-    },
-    {
-      label: 'Picture with Patchy',
-      tier: tier(
-        RevealSlug.PatchyPicture,
-        ContributionRewardType.Custom,
-        'Picture with Patchy',
-      ),
-    },
-    {
-      label: 'daily.dev secret',
-      tier: tier(RevealSlug.Secret, ContributionRewardType.Custom, 'daily.dev secret'),
-    },
-    {
-      label: 'Cores',
-      tier: tier('cores-1000', ContributionRewardType.Cores, '1,000 Cores'),
-    },
-    {
-      label: 'Plus',
-      tier: tier('plus-1-year', ContributionRewardType.PlusDays, '1 year of Plus'),
-    },
-    {
-      label: 'Call with the team',
-      tier: tier(
-        'team-call',
-        ContributionRewardType.Call,
-        'A call with the team',
-        'Shape the product with a 1:1.',
-      ),
-    },
-    {
-      label: 'Swag discount',
-      tier: tier(
-        RevealSlug.Swag,
-        ContributionRewardType.Custom,
-        '50% off the swag store',
-      ),
-    },
-    {
-      label: 'Suggest a cause',
-      tier: tier(
-        RevealSlug.SuggestCause,
-        ContributionRewardType.Privilege,
-        'Suggest a cause',
-      ),
-    },
-    {
-      label: 'Council',
-      tier: tier(RevealSlug.Council, ContributionRewardType.Privilege, 'daily.dev Council'),
-    },
-    {
-      label: 'Privilege',
-      tier: tier(
-        'founding-badge',
-        ContributionRewardType.Privilege,
-        'Founding contributor badge',
-        'A permanent mark on your profile.',
-      ),
-    },
-  ];
+const SAMPLE_TIERS: ReadonlyArray<{
+  label: string;
+  tier: ContributionRewardTier;
+}> = [
+  {
+    label: 'Joke note',
+    tier: tier(
+      'parents-proud',
+      ContributionRewardType.Joke,
+      'Your parents will be proud of you.',
+      {
+        description:
+          'You turned everyday scrolling into real donations. Somewhere, a parent is telling a neighbor about you right now.',
+      },
+    ),
+  },
+  {
+    label: 'Picture with Patchy',
+    tier: tier(
+      'picture-with-patchy',
+      ContributionRewardType.PatchyPicture,
+      'Picture with Patchy',
+    ),
+  },
+  {
+    label: 'daily.dev secret',
+    tier: tier(
+      'daily-dev-secret',
+      ContributionRewardType.Trivia,
+      'A secret, unlocked',
+      {
+        description:
+          'The color palette is food-themed. There is genuinely a shade called "bacon".',
+      },
+    ),
+  },
+  {
+    label: 'Cores',
+    tier: tier('cores-1000', ContributionRewardType.Cores, '1,000 Cores', {
+      metadata: { amount: 1000 },
+    }),
+  },
+  {
+    label: 'Plus',
+    tier: tier(
+      'plus-1-year',
+      ContributionRewardType.PlusDays,
+      '1 year of Plus',
+      { metadata: { days: 365 } },
+    ),
+  },
+  {
+    label: 'Store discount',
+    tier: tier(
+      'store-discount',
+      ContributionRewardType.StoreDiscount,
+      '50% off the swag store',
+      { metadata: { percent: 50 } },
+    ),
+  },
+  {
+    label: 'Suggest a cause',
+    tier: tier(
+      'suggest-a-cause',
+      ContributionRewardType.SuggestCauses,
+      'Suggest a cause',
+      {
+        description:
+          'Nominate a nonprofit or open-source fund. If it fits, it joins the causes everyone can donate to.',
+      },
+    ),
+  },
+  {
+    label: 'Council',
+    tier: tier('council', ContributionRewardType.Council, 'daily.dev Council', {
+      description:
+        'A seat next to the daily.dev team, in the channels where we decide what to build next.',
+    }),
+  },
+];
 
 const meta: Meta = {
   title: 'Features/Giveback/Reward reveals',
@@ -146,7 +153,11 @@ const RevealCard = ({
 }): ReactElement => (
   <RevealSurface>
     <div className="px-6 py-8">
-      <RewardRevealContent reveal={reveal} levelNumber={levelNumber} user={user} />
+      <RewardRevealContent
+        reveal={reveal}
+        levelNumber={levelNumber}
+        user={user}
+      />
     </div>
   </RevealSurface>
 );
@@ -158,7 +169,10 @@ export const Gallery: Story = {
         <Typography tag={TypographyTag.H2} bold type={TypographyType.Title2}>
           Every claim reveal
         </Typography>
-        <Typography type={TypographyType.Callout} color={TypographyColor.Secondary}>
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Secondary}
+        >
           The payoff behind each Claim button.
         </Typography>
       </FlexCol>

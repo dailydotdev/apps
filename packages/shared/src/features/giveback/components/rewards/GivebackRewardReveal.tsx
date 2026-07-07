@@ -15,16 +15,12 @@ import {
 import CloseButton from '../../../../components/CloseButton';
 import {
   DevPlusIcon,
-  SlackIcon,
   SparkleIcon,
   UserIcon,
   VIcon,
 } from '../../../../components/icons';
 import LogoText from '../../../../svg/LogoText';
-import {
-  cloudinaryCharm404,
-  getCoreCurrencyImage,
-} from '../../../../lib/image';
+import { getCoreCurrencyImage } from '../../../../lib/image';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { FlexCol, FlexRow } from '../../../../components/utilities';
 import type { LoggedUser } from '../../../../lib/user';
@@ -262,26 +258,12 @@ const PlusCard = ({ duration }: { duration?: string }): ReactElement => (
 );
 
 // A ring of teammate tiles with the visitor standing out in a gradient frame —
-// used by both the Council seat and the team-call reveals so they read as
-// "you're in the room". The teammates are neutral tiles (no fabricated faces);
-// the visitor is the one real avatar.
+// used by the Council seat reveal so it reads as "you're in the room". The
+// teammates are neutral tiles (no fabricated faces); the visitor is the one real
+// avatar.
 const TEAMMATE_TILES = 3;
-const MemberRing = ({
-  channel,
-  user,
-}: {
-  channel?: string;
-  user: LoggedUser | null;
-}): ReactElement => (
+const MemberRing = ({ user }: { user: LoggedUser | null }): ReactElement => (
   <FlexCol className="items-center gap-4">
-    {channel && (
-      <FlexRow className="items-center gap-2 rounded-10 bg-surface-float px-3 py-1.5 motion-safe:animate-reward-pop [&_svg]:size-5">
-        <SlackIcon />
-        <Typography bold type={TypographyType.Footnote}>
-          {channel}
-        </Typography>
-      </FlexRow>
-    )}
     <FlexRow className="items-center">
       {Array.from({ length: TEAMMATE_TILES }).map((_, index) => (
         <span
@@ -664,165 +646,6 @@ const SwagReveal = ({
   );
 };
 
-// Roast → user hits "Roast me", we "generate" it (a few-second loading beat with
-// rotating status lines), then type the burn out live. In the real flow the text
-// comes from the backend; here it's placeholder copy typed the same way.
-const TYPE_MS = 15;
-const ROAST_LOADING_STEPS = [
-  'Scanning your reading history…',
-  'Counting your unopened bookmarks…',
-  'Cooking up something painful…',
-];
-const ROAST_STEP_MS = 850;
-
-const RoastReveal = ({
-  reveal,
-  levelNumber,
-  onClose,
-}: {
-  reveal: RewardReveal;
-  levelNumber?: number;
-  onClose: () => void;
-}): ReactElement => {
-  const full = reveal.roastText ?? '';
-  const reduced = usePrefersReducedMotion();
-  const [stage, setStage] = useState<'idle' | 'loading' | 'typing'>('idle');
-  const [loadingStep, setLoadingStep] = useState(0);
-  const [typed, setTyped] = useState('');
-
-  useEffect(() => {
-    if (stage !== 'loading') {
-      return undefined;
-    }
-    const stepper = setInterval(() => {
-      setLoadingStep((step) =>
-        Math.min(step + 1, ROAST_LOADING_STEPS.length - 1),
-      );
-    }, ROAST_STEP_MS);
-    const finish = setTimeout(
-      () => setStage('typing'),
-      ROAST_STEP_MS * ROAST_LOADING_STEPS.length,
-    );
-    return () => {
-      clearInterval(stepper);
-      clearTimeout(finish);
-    };
-  }, [stage]);
-
-  useEffect(() => {
-    if (stage !== 'typing') {
-      return undefined;
-    }
-    if (reduced) {
-      setTyped(full);
-      return undefined;
-    }
-    let index = 0;
-    const interval = setInterval(() => {
-      index += 1;
-      setTyped(full.slice(0, index));
-      if (index >= full.length) {
-        clearInterval(interval);
-      }
-    }, TYPE_MS);
-    return () => clearInterval(interval);
-  }, [stage, full, reduced]);
-
-  const done = typed.length >= full.length;
-
-  return (
-    <FlexCol className="items-center gap-6">
-      <Reveal delay={0}>
-        <LevelChip levelNumber={levelNumber} />
-      </Reveal>
-      {/* Patchy calmly getting roasted in the flames (the daily.dev "404" charm
-          — a dog on fire, perfect for a roast). */}
-      <Reveal delay={STAGGER_STEP}>
-        <span className="relative flex items-center justify-center">
-          <span
-            aria-hidden
-            className="bg-accent-ketchup-default/25 absolute inset-0 m-auto size-24 rounded-full blur-2xl motion-safe:animate-glow-pulse"
-          />
-          <img
-            src={cloudinaryCharm404}
-            alt="Patchy getting roasted"
-            loading="lazy"
-            className={classNames(
-              'relative h-32 w-auto select-none object-contain',
-              stage === 'loading'
-                ? 'motion-safe:animate-mascot-bob'
-                : 'motion-safe:animate-reward-pop',
-            )}
-          />
-        </span>
-      </Reveal>
-      {stage === 'idle' && (
-        <>
-          <RevealCopy reveal={reveal} delayBase={STAGGER_STEP * 2} />
-          <Reveal delay={STAGGER_STEP * 5}>
-            <Button
-              type="button"
-              size={ButtonSize.Medium}
-              variant={ButtonVariant.Primary}
-              onClick={() => setStage('loading')}
-            >
-              Roast me
-            </Button>
-          </Reveal>
-        </>
-      )}
-      {stage === 'loading' && (
-        <FlexCol className="items-center gap-4 py-2">
-          {/* Heat gauge climbs mild → charred as the burn is generated. */}
-          <div className="h-3 w-52 overflow-hidden rounded-8 bg-surface-float ring-1 ring-inset ring-border-subtlest-tertiary">
-            <div
-              className="h-full rounded-8 bg-gradient-to-r from-accent-cheese-default via-accent-bun-default to-accent-ketchup-default transition-[width] duration-700 ease-out"
-              style={{
-                width: `${
-                  ((loadingStep + 1) / ROAST_LOADING_STEPS.length) * 100
-                }%`,
-              }}
-            />
-          </div>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-            className="text-center"
-          >
-            {ROAST_LOADING_STEPS[loadingStep]}
-          </Typography>
-        </FlexCol>
-      )}
-      {stage === 'typing' && (
-        <>
-          <div className="min-h-24 w-full rounded-16 border border-border-subtlest-tertiary bg-background-default p-4 text-left">
-            <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text font-black uppercase tracking-widest text-transparent typo-caption2">
-              Fresh burn
-            </span>
-            <Typography
-              type={TypographyType.Footnote}
-              className="mt-2 italic [text-wrap:pretty]"
-            >
-              {typed}
-              {!done && (
-                <span
-                  aria-hidden
-                  className="ml-px inline-block h-4 w-0.5 translate-y-0.5 bg-text-primary motion-safe:animate-glow-pulse"
-                />
-              )}
-            </Typography>
-          </div>
-          {done && (
-            <Reveal delay={0}>
-              <DismissButton label="Ouch. Fair." onClose={onClose} />
-            </Reveal>
-          )}
-        </>
-      )}
-    </FlexCol>
-  );
-};
-
 // The causes we already fund, rendered as a looping conveyor of cards so
 // "suggest a cause" reads as joining a real, curated list.
 const CAUSES: ReadonlyArray<{
@@ -1014,13 +837,6 @@ const TriviaReveal = ({
   </FlexCol>
 );
 
-// A medal emblem for a generic privilege perk.
-const PrivilegeEmblem = (): ReactElement => (
-  <span className="relative flex size-32 items-center justify-center rounded-full bg-gradient-to-br from-accent-cabbage-default to-accent-onion-default text-white shadow-2-cabbage motion-safe:animate-reward-pop [&_svg]:size-16">
-    <SparkleIcon />
-  </span>
-);
-
 interface RevealBodyProps {
   reveal: RewardReveal;
   levelNumber?: number;
@@ -1038,14 +854,6 @@ const revealBody = ({
     case 'note':
       return (
         <NoteReveal
-          reveal={reveal}
-          levelNumber={levelNumber}
-          onClose={onClose}
-        />
-      );
-    case 'roast':
-      return (
-        <RoastReveal
           reveal={reveal}
           levelNumber={levelNumber}
           onClose={onClose}
@@ -1088,15 +896,6 @@ const revealBody = ({
           }
         />
       );
-    case 'call':
-      return (
-        <Scene
-          reveal={reveal}
-          levelNumber={levelNumber}
-          object={<MemberRing user={user} />}
-          action={<DismissButton label="Book your call" onClose={onClose} />}
-        />
-      );
     case 'swagDiscount':
       return <SwagReveal reveal={reveal} levelNumber={levelNumber} />;
     case 'suggestCause':
@@ -1112,17 +911,8 @@ const revealBody = ({
         <Scene
           reveal={reveal}
           levelNumber={levelNumber}
-          object={<MemberRing channel={reveal.channel} user={user} />}
+          object={<MemberRing user={user} />}
           action={<DismissButton label="Take your seat" onClose={onClose} />}
-        />
-      );
-    case 'privilege':
-      return (
-        <Scene
-          reveal={reveal}
-          levelNumber={levelNumber}
-          object={<PrivilegeEmblem />}
-          action={<DismissButton label="Awesome" onClose={onClose} />}
         />
       );
     default:

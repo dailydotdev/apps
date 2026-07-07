@@ -79,13 +79,29 @@ export interface ContributionCauseCategoryBreakdown {
   points: number;
 }
 
-// The kind of perk a reward tier grants, used to pick the roadmap node's icon.
+// The kind of perk a reward tier grants. Drives both the roadmap node's icon and
+// the claim reveal (see `resolveRewardReveal`). Mirrors the daily-api enum.
 export enum ContributionRewardType {
   Cores = 'cores',
   PlusDays = 'plus_days',
+  StoreDiscount = 'store_discount',
+  SuggestCauses = 'suggest_causes',
+  Council = 'council',
+  PatchyPicture = 'patchy_picture',
+  Joke = 'joke',
+  Trivia = 'trivia',
   Call = 'call',
   Privilege = 'privilege',
   Custom = 'custom',
+}
+
+// Per-type reward parameters carried on the tier's `metadata` jsonb. Only the
+// grant/reveal-driving fields are typed; each is present only for its reward
+// type (amount → cores, days → plus_days, percent → store_discount).
+export interface ContributionRewardMetadata {
+  amount?: number;
+  days?: number;
+  percent?: number;
 }
 
 // A milestone reward unlocked once a contributor's points cross its threshold.
@@ -97,6 +113,7 @@ export interface ContributionRewardTier {
   description: string | null;
   thresholdPoints: number;
   rewardType: ContributionRewardType;
+  metadata: ContributionRewardMetadata;
 }
 
 // Review outcome for a submitted action. A fresh submission lands `flagged`
