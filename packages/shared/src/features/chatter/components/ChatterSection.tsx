@@ -61,7 +61,7 @@ export const ChatterSection = ({
   return (
     <section
       aria-label="Community Pulse"
-      className={classNames('flex min-w-0 flex-col gap-4', className)}
+      className={classNames('flex w-full min-w-0 flex-col gap-4', className)}
     >
       <div className="flex items-start gap-3">
         <span className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-action-plus-float text-action-plus-default">

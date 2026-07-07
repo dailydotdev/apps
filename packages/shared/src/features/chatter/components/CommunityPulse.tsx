@@ -87,7 +87,7 @@ interface CommunityPulseProps {
 export const CommunityPulse = ({
   pulse,
 }: CommunityPulseProps): ReactElement => (
-  <div className="flex min-w-0 flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+  <div className="flex w-full min-w-0 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
     {/* Verdict + at-a-glance meta */}
     <div className="flex min-w-0 flex-col gap-3 p-4">
       <div className="flex items-center gap-2">
