@@ -120,9 +120,9 @@ export const resolveRewardReveal = (
 // Founding award — the journey's special FIRST step. A one-time, limited
 // "First 1,000 contributors" gift: a Patchy award + Cores from the CEO.
 //
-// PLACEHOLDER: there is no backend contract for the founding award yet, so the
-// spot count, member number, and CEO note below are frontend placeholders to be
-// wired to live data before this leaves the flag.
+// Live spot count + the visitor's founding number come from the backend
+// (`useContributionFoundingAward`). The values below are stable product content
+// (the cap and the CEO's note), not per-visitor data.
 // ---------------------------------------------------------------------------
 
 export type FoundingAwardState = 'intro' | 'claimable' | 'claimed' | 'soldOut';
@@ -140,12 +140,11 @@ export const PATCHY_FOUNDING_AWARD: FoundingAward = {
 };
 
 export const FOUNDING_AWARD = {
+  // Matches the backend cap (CONTRIBUTION_FOUNDING_LIMIT); the live query returns
+  // it too, used as the display fallback before the query resolves.
   totalSpots: 1000,
   ceoName: 'Nimrod',
   ceoTitle: 'Co-founder & CEO',
   ceoNote:
     "You're one of the very first to back this. Thank you for helping us grow the right way. The Cores are on me.",
-  // PLACEHOLDER counts until the backend exposes real founding-award figures.
-  placeholderClaimedCount: 743,
-  placeholderMemberNumber: 744,
 };

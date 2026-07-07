@@ -7,6 +7,7 @@ import { useContributionUserRewards } from '../hooks/useContributionUserRewards'
 import { useClaimContributionReward } from '../hooks/useClaimContributionReward';
 import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
 import { useContributionActions } from '../hooks/useContributionActions';
+import { useContributionFoundingAward } from '../hooks/useContributionFoundingAward';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { LogEvent } from '../../../lib/log';
@@ -18,6 +19,7 @@ jest.mock('../hooks/useContributionUserRewards');
 jest.mock('../hooks/useClaimContributionReward');
 jest.mock('../hooks/useContributionCausePicker');
 jest.mock('../hooks/useContributionActions');
+jest.mock('../hooks/useContributionFoundingAward');
 jest.mock('../../../contexts/LogContext');
 jest.mock('../../../contexts/AuthContext');
 
@@ -47,6 +49,9 @@ const mockCausePicker = useContributionCausePicker as jest.MockedFunction<
 >;
 const mockActions = useContributionActions as jest.MockedFunction<
   typeof useContributionActions
+>;
+const mockFoundingAward = useContributionFoundingAward as jest.MockedFunction<
+  typeof useContributionFoundingAward
 >;
 const mockLog = useLogContext as jest.MockedFunction<typeof useLogContext>;
 const mockAuth = useAuthContext as jest.MockedFunction<typeof useAuthContext>;
@@ -106,6 +111,15 @@ beforeEach(() => {
     categories: [],
     rewardTiers: [],
     claimedRewardIds: [],
+    isPending: false,
+  });
+  mockFoundingAward.mockReturnValue({
+    foundingAward: {
+      totalSpots: 1000,
+      claimedCount: 743,
+      isFoundingMember: false,
+      memberNumber: null,
+    },
     isPending: false,
   });
   mockLog.mockReturnValue({ logEvent } as unknown as ReturnType<

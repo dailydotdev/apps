@@ -26,6 +26,17 @@ export interface ContributionActionCompleted {
   awardedPoints: number;
 }
 
+// The founding-contributor award: a one-time, capped gift for the first N
+// contributors, auto-granted on a contributor's first approved action. Campaign
+// fields render for everyone; `isFoundingMember`/`memberNumber` describe the
+// visitor (false/null until they sign in and become a founder).
+export interface ContributionFoundingAward {
+  totalSpots: number;
+  claimedCount: number;
+  isFoundingMember: boolean;
+  memberNumber: number | null;
+}
+
 // A global campaign milestone (a lifetime approved-points threshold, which maps
 // 1:1 to currency). `contributionLastReachedMilestone` returns the highest one
 // crossed so far; crossing a new one pops the celebratory popover.

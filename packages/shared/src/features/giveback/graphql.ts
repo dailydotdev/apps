@@ -140,6 +140,19 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
   }
 `;
 
+// Founding-award state: campaign-wide spot count plus the visitor's own founding
+// membership + number (null when they're not a founder).
+export const CONTRIBUTION_FOUNDING_AWARD_QUERY = `
+  query ContributionFoundingAward {
+    contributionFoundingAward {
+      totalSpots
+      claimedCount
+      isFoundingMember
+      memberNumber
+    }
+  }
+`;
+
 // A randomized handful of targets for a link_pool action. Re-fetched to shuffle,
 // so the user always has fresh threads to pick from.
 export const CONTRIBUTION_ACTION_LINKS_QUERY = `

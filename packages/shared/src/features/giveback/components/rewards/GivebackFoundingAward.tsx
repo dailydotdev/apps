@@ -271,13 +271,13 @@ interface GivebackFoundingAwardProps {
 
 export const GivebackFoundingAward = ({
   initialState = 'intro',
-  claimedCount = FOUNDING_AWARD.placeholderClaimedCount,
-  memberNumber = FOUNDING_AWARD.placeholderMemberNumber,
+  claimedCount = 0,
+  memberNumber = 0,
   onTakeAction = () => undefined,
 }: GivebackFoundingAwardProps): ReactElement => {
-  // Claiming is one-way and local (no backend contract yet); everything else is
-  // derived from the incoming `initialState` so the card follows the visitor's
-  // live points instead of freezing at mount.
+  // The award is auto-granted on the backend on the first approved action, so
+  // claiming here is a one-way local reveal of the already-earned award; the
+  // spot count and founding number come from the live query via props.
   const [claimed, setClaimed] = useState(initialState === 'claimed');
   const [revealing, setRevealing] = useState(false);
   const state: FoundingAwardState = claimed ? 'claimed' : initialState;

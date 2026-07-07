@@ -18,6 +18,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { useContributionRewards } from '../hooks/useContributionRewards';
+import { useContributionFoundingAward } from '../hooks/useContributionFoundingAward';
 import { useContributionUserRewards } from '../hooks/useContributionUserRewards';
 import { useClaimContributionReward } from '../hooks/useClaimContributionReward';
 import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
@@ -33,7 +34,8 @@ import type {
 } from './givebackRoadmapTypes';
 import { GivebackFoundingAward } from './rewards/GivebackFoundingAward';
 import { RewardRevealDialog } from './rewards/GivebackRewardReveal';
-import { resolveRewardReveal } from './rewards/rewardReveal';
+import { resolveRewardReveal, FOUNDING_AWARD } from './rewards/rewardReveal';
+import type { FoundingAwardState } from './rewards/rewardReveal';
 
 // Joins up to three cause names into a natural list ("a, b, and c"), so the
 // impact headline names exactly who the visitor's actions are funding.
@@ -75,6 +77,7 @@ export const GivebackPersonalRoadmap = ({
   const { causes: pickerCauses, selectedCauseIds } =
     useContributionCausePicker(true);
   const { actions } = useContributionActions(true);
+  const { foundingAward } = useContributionFoundingAward(true);
   const [claimingId, setClaimingId] = useState<string | null>(null);
   // The tier whose reward reveal is open (set after a successful claim).
   const [revealTierId, setRevealTierId] = useState<string | null>(null);
@@ -136,6 +139,24 @@ export const GivebackPersonalRoadmap = ({
     (sum, action) => sum + action.userCompletions,
     0,
   );
+
+  // Founding award state from live data: already a founder → claimed; cap hit →
+  // sold out; contributing but not yet counted → claimable; otherwise the intro.
+  const foundingTotalSpots =
+    foundingAward?.totalSpots ?? FOUNDING_AWARD.totalSpots;
+  const foundingClaimedCount = foundingAward?.claimedCount ?? 0;
+  const foundingState: FoundingAwardState = (() => {
+    if (foundingAward?.isFoundingMember) {
+      return 'claimed';
+    }
+    if (foundingClaimedCount >= foundingTotalSpots) {
+      return 'soldOut';
+    }
+    return approved > 0 ? 'claimable' : 'intro';
+  })();
+  // Their real founding number once granted; otherwise the next prospective spot.
+  const foundingMemberNumber =
+    foundingAward?.memberNumber ?? foundingClaimedCount + 1;
   const selectedNames = pickerCauses
     .filter((cause) => selectedCauseIds.includes(cause.id))
     .map((cause) => cause.title);
@@ -328,7 +349,9 @@ export const GivebackPersonalRoadmap = ({
             giveback flag. */}
           <div className="max-w-2xl">
             <GivebackFoundingAward
-              initialState={approved > 0 ? 'claimable' : 'intro'}
+              initialState={foundingState}
+              claimedCount={foundingClaimedCount}
+              memberNumber={foundingMemberNumber}
               onTakeAction={handleTakeAction}
             />
           </div>
