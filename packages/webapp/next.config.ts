@@ -231,13 +231,13 @@ const nextConfig: NextConfig = {
           destination: '/posts/release-notes-updates-live--jp5x9el1t',
           permanent: true,
         },
-        ...oldPublicAssets.map((asset) => ({
-          source: `/${asset}`,
-          destination: `${
-            process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX || ''
-          }/assets/${asset}`,
-          permanent: true,
-        })),
+        ...(process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX
+          ? oldPublicAssets.map((asset) => ({
+              source: `/${asset}`,
+              destination: `${process.env.NEXT_PUBLIC_CDN_ASSET_PREFIX}/assets/${asset}`,
+              permanent: true,
+            }))
+          : []),
         {
           source: '/posts/finder',
           destination: '/search?provider=posts',
