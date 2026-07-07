@@ -21,9 +21,12 @@ import {
 import LogoText from '../../../../svg/LogoText';
 import { getCoreCurrencyImage } from '../../../../lib/image';
 import { anchorDefaultRel } from '../../../../lib/strings';
+import { getDomainFromUrl } from '../../../../lib/links';
 import { FlexCol, FlexRow } from '../../../../components/utilities';
 import type { LoggedUser } from '../../../../lib/user';
 import { useCountUp, usePrefersReducedMotion } from '../../useGivebackMotion';
+import { useContributionCausePicker } from '../../hooks/useContributionCausePicker';
+import type { ContributionCause } from '../../types';
 import { GivebackReveal as Reveal } from '../GivebackReveal';
 import type { RewardReveal } from './rewardReveal';
 import { GivebackSecretScratch } from './GivebackSecretScratch';
@@ -571,48 +574,26 @@ export const SwagReveal = ({
   );
 };
 
-// The causes we already fund, rendered as a looping conveyor of cards so
-// "suggest a cause" reads as joining a real, curated list.
-const CAUSES: ReadonlyArray<{
-  name: string;
-  category: string;
-  domain: string;
-}> = [
-  {
-    name: 'Electronic Frontier Foundation',
-    category: 'Digital rights',
-    domain: 'eff.org',
-  },
-  {
-    name: 'Open Source Collective',
-    category: 'Open source',
-    domain: 'opencollective.com',
-  },
-  { name: 'Girls Who Code', category: 'Education', domain: 'girlswhocode.com' },
-  {
-    name: 'Internet Archive',
-    category: 'Digital preservation',
-    domain: 'archive.org',
-  },
-  { name: 'freeCodeCamp', category: 'Education', domain: 'freecodecamp.org' },
-  {
-    name: "Let's Encrypt",
-    category: 'Web security',
-    domain: 'letsencrypt.org',
-  },
-];
+// How many of the live causes to cycle through — enough to read as a real,
+// curated list without stacking 100 absolutely-positioned cards.
+const DISPLAYED_CAUSES = 6;
 
-const CauseLogo = ({ domain }: { domain: string }): ReactElement => {
+// A cause doesn't always ship its own logo, so fall back to its site favicon.
+const faviconForUrl = (url: string | null): string | null =>
+  url ? `https://icons.duckduckgo.com/ip3/${getDomainFromUrl(url)}.ico` : null;
+
+const CauseLogo = ({ cause }: { cause: ContributionCause }): ReactElement => {
   const [failed, setFailed] = useState(false);
+  const src = cause.logoUrl ?? faviconForUrl(cause.url);
   return (
     <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-12 bg-white">
-      {failed ? (
+      {!src || failed ? (
         <span className="flex size-full items-center justify-center bg-accent-cabbage-flat text-accent-cabbage-default [&_svg]:size-4">
           <SparkleIcon />
         </span>
       ) : (
         <img
-          src={`https://icons.duckduckgo.com/ip3/${domain}.ico`}
+          src={src}
           alt=""
           loading="lazy"
           onError={() => setFailed(true)}
@@ -649,13 +630,19 @@ const causeSlot = (
   return { y: -18, scale: 0.88, z: 10, opacity: 0 };
 };
 
-const CausesStack = (): ReactElement => {
+const CausesStack = ({
+  causes,
+}: {
+  causes: ContributionCause[];
+}): ReactElement => {
+  const shown = causes.slice(0, DISPLAYED_CAUSES);
   const [front, setFront] = useState(0);
   const reduced = usePrefersReducedMotion();
-  const count = CAUSES.length;
+  const count = shown.length;
 
   useEffect(() => {
-    if (reduced) {
+    // Nothing to rotate through with a single card.
+    if (reduced || count <= 1) {
       return undefined;
     }
     const id = setInterval(
@@ -676,12 +663,12 @@ const CausesStack = (): ReactElement => {
       </Typography>
       {/* overflow-hidden clips the leaving card as it falls off the bottom. */}
       <div className="relative mx-auto h-20 w-full overflow-hidden">
-        {CAUSES.map((cause, index) => {
+        {shown.map((cause, index) => {
           const rel = (index - front + count) % count;
           const pos = causeSlot(rel, count);
           return (
             <FlexRow
-              key={cause.domain}
+              key={cause.id}
               className="absolute inset-x-0 bottom-0 items-center gap-3 rounded-12 border border-border-subtlest-tertiary p-2.5 duration-500 ease-out motion-safe:transition-[transform,opacity]"
               style={{
                 backgroundColor: '#17111f',
@@ -690,7 +677,7 @@ const CausesStack = (): ReactElement => {
                 opacity: pos.opacity,
               }}
             >
-              <CauseLogo domain={cause.domain} />
+              <CauseLogo cause={cause} />
               <FlexCol className="min-w-0 flex-1">
                 <Typography
                   bold
@@ -698,15 +685,18 @@ const CausesStack = (): ReactElement => {
                   className="truncate text-white"
                   tag={TypographyTag.Span}
                 >
-                  {cause.name}
+                  {cause.title}
                 </Typography>
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  style={{ color: 'rgba(255, 255, 255, 0.55)' }}
-                >
-                  {cause.category}
-                </Typography>
+                {cause.category && (
+                  <Typography
+                    tag={TypographyTag.Span}
+                    type={TypographyType.Caption1}
+                    className="truncate"
+                    style={{ color: 'rgba(255, 255, 255, 0.55)' }}
+                  >
+                    {cause.category}
+                  </Typography>
+                )}
               </FlexCol>
             </FlexRow>
           );
@@ -717,8 +707,8 @@ const CausesStack = (): ReactElement => {
 };
 
 // Suggest a cause → a celebration that the privilege is unlocked, over the
-// carousel of causes we already fund. "Suggest now" is the entry to the real
-// nomination flow.
+// carousel of the live causes we already fund. "Suggest now" is the entry to
+// the real nomination flow.
 // PLACEHOLDER: the nomination flow doesn't exist yet, so the CTA dismisses for
 // now — wire it to the suggest-a-cause form once that endpoint lands.
 export const SuggestCauseReveal = ({
@@ -729,20 +719,27 @@ export const SuggestCauseReveal = ({
   reveal: RewardReveal;
   levelNumber?: number;
   onClose: () => void;
-}): ReactElement => (
-  <FlexCol className="items-center gap-5">
-    <Reveal delay={0}>
-      <LevelChip levelNumber={levelNumber} />
-    </Reveal>
-    <RevealCopy reveal={reveal} delayBase={STAGGER_STEP} />
-    <Reveal delay={STAGGER_STEP * 3} className="w-full">
-      <CausesStack />
-    </Reveal>
-    <Reveal delay={STAGGER_STEP * 5}>
-      <DismissButton label="Suggest now" onClose={onClose} />
-    </Reveal>
-  </FlexCol>
-);
+}): ReactElement => {
+  // Cache hit: the roadmap already loads the cause picker, so this reuses it.
+  const { causes } = useContributionCausePicker(true);
+
+  return (
+    <FlexCol className="items-center gap-5">
+      <Reveal delay={0}>
+        <LevelChip levelNumber={levelNumber} />
+      </Reveal>
+      <RevealCopy reveal={reveal} delayBase={STAGGER_STEP} />
+      {causes.length > 0 && (
+        <Reveal delay={STAGGER_STEP * 3} className="w-full">
+          <CausesStack causes={causes} />
+        </Reveal>
+      )}
+      <Reveal delay={STAGGER_STEP * 5}>
+        <DismissButton label="Suggest now" onClose={onClose} />
+      </Reveal>
+    </FlexCol>
+  );
+};
 
 export const TriviaReveal = ({
   reveal,
