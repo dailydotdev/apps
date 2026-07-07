@@ -87,7 +87,7 @@ interface CommunityPulseProps {
 export const CommunityPulse = ({
   pulse,
 }: CommunityPulseProps): ReactElement => (
-  <div className="flex w-full min-w-0 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+  <div className="flex w-full min-w-0 flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float">
     {/* Verdict + at-a-glance meta */}
     <div className="flex min-w-0 flex-col gap-3 p-4">
       <div className="flex items-center gap-2">
@@ -201,15 +201,17 @@ export const CommunityPulse = ({
       <SectionLabel>Common ground</SectionLabel>
       <ul className="flex flex-col gap-2">
         {pulse.consensus.map((item) => (
-          <li key={item} className="flex gap-2">
+          // Icon is absolutely positioned (not a flex sibling) so the text stays
+          // a plain block child and wraps against the card width.
+          <li key={item} className="relative pl-6">
             <VIcon
               size={IconSize.XSmall}
-              className="mt-0.5 shrink-0 text-status-success"
+              className="absolute left-0 top-0.5 text-status-success"
             />
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Secondary}
-              className="min-w-0 break-words"
+              className="break-words"
             >
               {item}
             </Typography>
@@ -231,23 +233,19 @@ export const CommunityPulse = ({
       </div>
     </Section>
 
-    {/* Bottom line */}
+    {/* Bottom line — label row stays flex (short); the paragraph is a plain
+        block child so it wraps against the card width instead of clipping. */}
     <Section>
-      <div className="flex gap-2">
+      <div className="flex items-center gap-1.5">
         <SparkleIcon
-          size={IconSize.Small}
-          className="mt-0.5 shrink-0 text-action-plus-default"
+          size={IconSize.XSmall}
+          className="shrink-0 text-action-plus-default"
         />
-        <div className="flex min-w-0 flex-col gap-1">
-          <SectionLabel>Bottom line</SectionLabel>
-          <Typography
-            type={TypographyType.Callout}
-            className="min-w-0 break-words"
-          >
-            {pulse.bottomLine}
-          </Typography>
-        </div>
+        <SectionLabel>Bottom line</SectionLabel>
       </div>
+      <Typography type={TypographyType.Callout} className="break-words">
+        {pulse.bottomLine}
+      </Typography>
     </Section>
 
     {/* Strongest counterpoint */}
