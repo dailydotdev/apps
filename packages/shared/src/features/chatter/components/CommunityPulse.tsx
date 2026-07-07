@@ -6,6 +6,7 @@ import type {
   CommunityPulse as CommunityPulseData,
   CommunityStance,
   ControversyLevel,
+  HighlightKind,
   SentimentSplit,
 } from '../types';
 import { platformVisuals } from '../platforms';
@@ -19,7 +20,6 @@ import {
   ArrowIcon,
   SparkleIcon,
   TrendingIcon,
-  VIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useToggle } from '../../../hooks/useToggle';
@@ -42,6 +42,32 @@ const momentumLabel: Record<CommunityMomentum, string> = {
   rising: 'Rising',
   steady: 'Steady',
   cooling: 'Cooling',
+};
+
+const highlightMeta: Record<
+  HighlightKind,
+  { label: string; dot: string; text: string }
+> = {
+  'the-bull-case': {
+    label: 'The bull case',
+    dot: 'bg-status-success',
+    text: 'text-status-success',
+  },
+  'the-skeptic': {
+    label: 'The skeptic',
+    dot: 'bg-status-error',
+    text: 'text-status-error',
+  },
+  'the-tell': {
+    label: 'The tell',
+    dot: 'bg-accent-cabbage-default',
+    text: 'text-action-plus-default',
+  },
+  'the-receipt': {
+    label: 'The receipt',
+    dot: 'bg-accent-salt-default',
+    text: 'text-text-secondary',
+  },
 };
 
 const leanDot = (split: SentimentSplit): string => {
@@ -83,6 +109,43 @@ const SentimentBar = ({ split }: { split: SentimentSplit }): ReactElement => (
 
 const Details = ({ pulse }: { pulse: CommunityPulseData }): ReactElement => (
   <>
+    <Section>
+      <SectionLabel>Highlights</SectionLabel>
+      <div className="flex flex-col gap-2.5">
+        {pulse.highlights.map((highlight) => {
+          const meta = highlightMeta[highlight.kind];
+          return (
+            <div
+              key={highlight.text}
+              className="rounded-12 border border-border-subtlest-tertiary bg-background-subtle p-3"
+            >
+              <span className="mb-1.5 flex items-center gap-1.5">
+                <span className={classNames('size-2 rounded-4', meta.dot)} />
+                <span
+                  className={classNames(
+                    'font-bold uppercase tracking-wide typo-caption1',
+                    meta.text,
+                  )}
+                >
+                  {meta.label}
+                </span>
+              </span>
+              <Typography type={TypographyType.Callout} className="break-words">
+                “{highlight.text}”
+              </Typography>
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+                className="mt-1 break-words"
+              >
+                — {highlight.who}
+              </Typography>
+            </div>
+          );
+        })}
+      </div>
+    </Section>
+
     <Section>
       <SectionLabel>How each platform leans</SectionLabel>
       <div className="flex flex-col gap-2">
@@ -132,14 +195,11 @@ const Details = ({ pulse }: { pulse: CommunityPulseData }): ReactElement => (
     </Section>
 
     <Section>
-      <SectionLabel>Common ground</SectionLabel>
+      <SectionLabel>Where it splits</SectionLabel>
       <ul className="flex flex-col gap-2">
-        {pulse.consensus.map((item) => (
-          <li key={item} className="relative pl-6">
-            <VIcon
-              size={IconSize.XSmall}
-              className="absolute left-0 top-0.5 text-status-success"
-            />
+        {pulse.contention.map((item) => (
+          <li key={item} className="relative pl-4">
+            <span className="absolute left-0 top-2 size-1.5 rounded-4 bg-accent-salt-default" />
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Secondary}
@@ -150,19 +210,6 @@ const Details = ({ pulse }: { pulse: CommunityPulseData }): ReactElement => (
           </li>
         ))}
       </ul>
-      <div className="mt-1 flex flex-col gap-2">
-        <SectionLabel>Where it splits</SectionLabel>
-        <div className="flex flex-wrap gap-2">
-          {pulse.contention.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-8 border border-border-subtlest-tertiary bg-background-subtle px-2.5 py-1 text-text-secondary typo-caption1"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
     </Section>
 
     <Section>
@@ -176,25 +223,6 @@ const Details = ({ pulse }: { pulse: CommunityPulseData }): ReactElement => (
       <Typography type={TypographyType.Callout} className="break-words">
         {pulse.bottomLine}
       </Typography>
-    </Section>
-
-    <Section>
-      <div className="rounded-12 border-l-2 border-accent-cabbage-default bg-background-subtle p-3">
-        <SectionLabel>Strongest pushback</SectionLabel>
-        <Typography
-          type={TypographyType.Callout}
-          className="mt-1.5 break-words italic"
-        >
-          “{pulse.counterpoint.text}”
-        </Typography>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          className="mt-1.5 break-words"
-        >
-          — {pulse.counterpoint.attribution}
-        </Typography>
-      </div>
     </Section>
   </>
 );

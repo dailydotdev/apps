@@ -57,9 +57,16 @@ export interface PlatformSentiment {
   split: SentimentSplit;
 }
 
-export interface CommunityCounterpoint {
+export type HighlightKind =
+  | 'the-bull-case'
+  | 'the-skeptic'
+  | 'the-tell'
+  | 'the-receipt';
+
+export interface CommunityHighlight {
+  kind: HighlightKind;
   text: string;
-  attribution: string;
+  who: string;
 }
 
 export interface CommunityPulse {
@@ -70,13 +77,12 @@ export interface CommunityPulse {
   momentum: CommunityMomentum;
   overallSplit: SentimentSplit;
   perPlatform: PlatformSentiment[];
-  /** What the room broadly agrees on (keep to 2-3 short points). */
-  consensus: string[];
-  /** The fault lines, as short scannable tags. */
+  /** The fault lines the community splits on. */
   contention: string[];
+  /** The standout quotes, tagged by their role in the conversation. */
+  highlights: CommunityHighlight[];
   /** One-sentence synthesized takeaway. */
   bottomLine: string;
-  counterpoint: CommunityCounterpoint;
 }
 
 export interface ArticleChatter {
