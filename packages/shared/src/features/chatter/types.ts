@@ -14,7 +14,7 @@ export interface ChatterComment {
   avatar: string;
   timeAgo: string;
   text: string;
-  upvotes: number;
+  upvotes?: number;
   replies?: number;
 }
 

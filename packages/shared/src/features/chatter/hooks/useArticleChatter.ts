@@ -18,7 +18,7 @@ export const useArticleChatter = (post: Post): UseArticleChatter => {
 
   useEffect(() => {
     setChatter(undefined);
-    const timeout = setTimeout(() => setChatter(getMockChatter(post)), 500);
+    const timeout = setTimeout(() => setChatter(getMockChatter()), 500);
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post.id]);

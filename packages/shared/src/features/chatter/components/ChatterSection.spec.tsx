@@ -14,14 +14,16 @@ describe('ChatterSection', () => {
     await waitFor(() =>
       expect(screen.getByText('Community Pulse')).toBeInTheDocument(),
     );
-    expect(screen.getByText(/The room is split/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/the fight is whether the fix breaks tool portability/i),
+    ).toBeInTheDocument();
     expect(screen.getByText('Common ground')).toBeInTheDocument();
     expect(screen.getByText('Where it splits')).toBeInTheDocument();
     expect(screen.getByText('Bottom line')).toBeInTheDocument();
     expect(screen.getByText(/strongest pushback/i)).toBeInTheDocument();
     // Cross-platform divergence read labels.
-    expect(screen.getByText('Polarized & loud')).toBeInTheDocument();
-    expect(screen.getByText('Skeptical')).toBeInTheDocument();
+    expect(screen.getByText('Trading harness war-stories')).toBeInTheDocument();
+    expect(screen.getByText('Sees vendor lock-in risk')).toBeInTheDocument();
   });
 
   it('keeps raw platform threads collapsed until requested', async () => {
@@ -30,16 +32,20 @@ describe('ChatterSection', () => {
       expect(screen.getByText('Community Pulse')).toBeInTheDocument(),
     );
 
-    expect(screen.queryByText(/X · 3 posts trending/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/X · developer amplification/i),
+    ).not.toBeInTheDocument();
 
     fireEvent.click(
       screen.getByRole('button', { name: /See the raw discussion/i }),
     );
 
-    expect(screen.getByText(/X · 3 posts trending/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/X · developer amplification/i),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Hacker News · front page/i)).toBeInTheDocument();
-    // X starts expanded, so its top post is visible.
-    expect(screen.getByText(/@t3dotgg/i)).toBeInTheDocument();
+    // HN starts expanded, so its comments are visible.
+    expect(screen.getByText('mappu')).toBeInTheDocument();
   });
 
   it('filters raw sources by platform', async () => {
@@ -53,7 +59,9 @@ describe('ChatterSection', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Hacker News' }));
 
-    expect(screen.queryByText(/X · 3 posts trending/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/X · developer amplification/i),
+    ).not.toBeInTheDocument();
     expect(screen.getByText(/Hacker News · front page/i)).toBeInTheDocument();
   });
 });

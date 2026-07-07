@@ -36,52 +36,65 @@ const Avatar = ({
   </span>
 );
 
-const CommentRow = ({ comment }: { comment: ChatterComment }): ReactElement => (
-  <div className="flex gap-3 border-t border-border-subtlest-tertiary py-3 first:border-t-0">
-    <Avatar
-      background={comment.avatar}
-      initial={comment.author.replace(/[@u/]/g, '').charAt(0).toUpperCase()}
-    />
-    <div className="min-w-0 flex-1">
-      <div className="mb-0.5 flex flex-wrap items-center gap-x-2">
-        <Typography type={TypographyType.Subhead} bold tag={TypographyTag.Span}>
-          {comment.author}
-        </Typography>
-        {comment.handle && (
+const CommentRow = ({ comment }: { comment: ChatterComment }): ReactElement => {
+  const hasUpvotes = !!comment.upvotes && comment.upvotes > 0;
+  const hasReplies = !!comment.replies && comment.replies > 0;
+
+  return (
+    <div className="flex gap-3 border-t border-border-subtlest-tertiary py-3 first:border-t-0">
+      <Avatar
+        background={comment.avatar}
+        initial={comment.author.replace(/[@u/]/g, '').charAt(0).toUpperCase()}
+      />
+      <div className="min-w-0 flex-1">
+        <div className="mb-0.5 flex flex-wrap items-center gap-x-2">
+          <Typography
+            type={TypographyType.Subhead}
+            bold
+            tag={TypographyTag.Span}
+          >
+            {comment.author}
+          </Typography>
+          {comment.handle && (
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              tag={TypographyTag.Span}
+            >
+              {comment.handle}
+            </Typography>
+          )}
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
             tag={TypographyTag.Span}
           >
-            {comment.handle}
+            · {comment.timeAgo}
           </Typography>
-        )}
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          tag={TypographyTag.Span}
-        >
-          · {comment.timeAgo}
+        </div>
+        <Typography type={TypographyType.Callout} className="break-words">
+          {comment.text}
         </Typography>
-      </div>
-      <Typography type={TypographyType.Callout} className="break-words">
-        {comment.text}
-      </Typography>
-      <div className="mt-2 flex items-center gap-4 text-text-tertiary typo-footnote">
-        <span className="flex items-center gap-1">
-          <UpvoteIcon size={IconSize.XSmall} />{' '}
-          {largeNumberFormat(comment.upvotes)}
-        </span>
-        {typeof comment.replies === 'number' && (
-          <span className="flex items-center gap-1">
-            <DiscussIcon size={IconSize.XSmall} />{' '}
-            {largeNumberFormat(comment.replies)}
-          </span>
+        {(hasUpvotes || hasReplies) && (
+          <div className="mt-2 flex items-center gap-4 text-text-tertiary typo-footnote">
+            {hasUpvotes && (
+              <span className="flex items-center gap-1">
+                <UpvoteIcon size={IconSize.XSmall} />{' '}
+                {largeNumberFormat(comment.upvotes)}
+              </span>
+            )}
+            {hasReplies && (
+              <span className="flex items-center gap-1">
+                <DiscussIcon size={IconSize.XSmall} />{' '}
+                {largeNumberFormat(comment.replies)}
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 interface ChatterPlatformCardProps {
   source: ChatterSource;
