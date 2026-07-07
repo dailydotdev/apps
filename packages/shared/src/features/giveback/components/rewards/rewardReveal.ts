@@ -65,7 +65,9 @@ export const resolveRewardReveal = (
     case ContributionRewardType.Cores:
       return {
         kind: 'cores',
-        amount: reward.metadata.amount,
+        // The tier's own threshold is the reward value; points map 1:1 to Cores
+        // (and dollars). No hardcoded amount.
+        amount: reward.thresholdPoints,
         headline: `+${reward.title}, landed.`,
         body: 'Yours to spend across daily.dev. Keep them coming.',
       };

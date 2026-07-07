@@ -15,12 +15,12 @@ const tier = (
 });
 
 describe('resolveRewardReveal', () => {
-  it('derives Cores reveals and reads the amount from metadata', () => {
+  it('derives Cores reveals and uses the tier threshold as the amount (1:1)', () => {
     const reveal = resolveRewardReveal(
       tier({
         title: '1,000 Cores',
         rewardType: ContributionRewardType.Cores,
-        metadata: { amount: 1000 },
+        thresholdPoints: 1000,
       }),
     );
     expect(reveal.kind).toBe('cores');

@@ -69,7 +69,7 @@ const revealBody = ({
           // The card already shows "+N Cores" big, so skip the duplicate
           // headline; the body line still gives context.
           hideHeadline
-          object={<CoresStack amount={reveal.amount ?? 500} />}
+          object={<CoresStack amount={reveal.amount ?? 0} />}
           action={<DismissButton label="View your balance" onClose={onClose} />}
         />
       );
