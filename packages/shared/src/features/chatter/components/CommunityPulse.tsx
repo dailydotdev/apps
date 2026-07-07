@@ -16,12 +16,13 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
-  AiIcon,
+  ArrowIcon,
   SparkleIcon,
   TrendingIcon,
   VIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import { useToggle } from '../../../hooks/useToggle';
 import { largeNumberFormat } from '../../../lib/numberFormat';
 
 const stanceDot: Record<CommunityStance, string> = {
@@ -80,74 +81,8 @@ const SentimentBar = ({ split }: { split: SentimentSplit }): ReactElement => (
   </div>
 );
 
-interface CommunityPulseProps {
-  pulse: CommunityPulseData;
-}
-
-export const CommunityPulse = ({
-  pulse,
-}: CommunityPulseProps): ReactElement => (
-  <div className="flex w-full min-w-0 flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float">
-    {/* Verdict + at-a-glance meta */}
-    <div className="flex min-w-0 flex-col gap-3 p-4">
-      <div className="flex items-center gap-2">
-        <span className="flex size-5 items-center justify-center rounded-6 bg-action-plus-float text-action-plus-default">
-          <AiIcon size={IconSize.XSmall} />
-        </span>
-        <SectionLabel>Community Pulse</SectionLabel>
-      </div>
-      <Typography type={TypographyType.Title3} bold>
-        {pulse.verdict}
-      </Typography>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-tertiary typo-caption1">
-        <span className="flex items-center gap-1.5">
-          <span
-            className={classNames(
-              'size-2.5 rounded-4',
-              stanceDot[pulse.stance],
-            )}
-          />
-          <span className="font-bold capitalize text-text-primary typo-footnote">
-            {pulse.stance}
-          </span>
-        </span>
-        <span
-          className={classNames(
-            'font-bold capitalize',
-            controversyText[pulse.controversyLevel],
-          )}
-        >
-          {pulse.controversyLevel}
-        </span>
-        <span className="flex items-center gap-1">
-          <TrendingIcon size={IconSize.XSmall} />{' '}
-          {momentumLabel[pulse.momentum]}
-        </span>
-        <span>{largeNumberFormat(pulse.totalVoices)} voices</span>
-        <span>{pulse.perPlatform.length} platforms</span>
-      </div>
-    </div>
-
-    {/* Overall sentiment */}
-    <Section>
-      <SentimentBar split={pulse.overallSplit} />
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-text-secondary typo-caption1">
-        <span className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-4 bg-status-success" />
-          Agree {pulse.overallSplit.agree}%
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-4 bg-status-warning" />
-          Mixed {pulse.overallSplit.mixed}%
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="size-2.5 rounded-4 bg-status-error" />
-          Disagree {pulse.overallSplit.disagree}%
-        </span>
-      </div>
-    </Section>
-
-    {/* Cross-platform divergence — text-forward, no competing bars */}
+const Details = ({ pulse }: { pulse: CommunityPulseData }): ReactElement => (
+  <>
     <Section>
       <SectionLabel>How each platform leans</SectionLabel>
       <div className="flex flex-col gap-2">
@@ -196,13 +131,10 @@ export const CommunityPulse = ({
       </div>
     </Section>
 
-    {/* The debate — stacked, calm */}
     <Section>
       <SectionLabel>Common ground</SectionLabel>
       <ul className="flex flex-col gap-2">
         {pulse.consensus.map((item) => (
-          // Icon is absolutely positioned (not a flex sibling) so the text stays
-          // a plain block child and wraps against the card width.
           <li key={item} className="relative pl-6">
             <VIcon
               size={IconSize.XSmall}
@@ -233,8 +165,6 @@ export const CommunityPulse = ({
       </div>
     </Section>
 
-    {/* Bottom line — label row stays flex (short); the paragraph is a plain
-        block child so it wraps against the card width instead of clipping. */}
     <Section>
       <div className="flex items-center gap-1.5">
         <SparkleIcon
@@ -248,21 +178,104 @@ export const CommunityPulse = ({
       </Typography>
     </Section>
 
-    {/* Strongest counterpoint */}
     <Section>
       <div className="rounded-12 border-l-2 border-accent-cabbage-default bg-background-subtle p-3">
         <SectionLabel>Strongest pushback</SectionLabel>
-        <Typography type={TypographyType.Callout} className="mt-1.5 italic">
+        <Typography
+          type={TypographyType.Callout}
+          className="mt-1.5 break-words italic"
+        >
           “{pulse.counterpoint.text}”
         </Typography>
         <Typography
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
-          className="mt-1.5"
+          className="mt-1.5 break-words"
         >
           — {pulse.counterpoint.attribution}
         </Typography>
       </div>
     </Section>
-  </div>
+  </>
 );
+
+interface CommunityPulseProps {
+  pulse: CommunityPulseData;
+}
+
+export const CommunityPulse = ({
+  pulse,
+}: CommunityPulseProps): ReactElement => {
+  const [showDetails, toggleDetails] = useToggle(false);
+
+  return (
+    <div className="flex w-full min-w-0 flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+      {/* Glance: the whole answer in one view */}
+      <div className="flex min-w-0 flex-col gap-3 p-4">
+        <Typography type={TypographyType.Title3} bold className="break-words">
+          {pulse.verdict}
+        </Typography>
+
+        <div className="flex flex-col gap-2">
+          <SentimentBar split={pulse.overallSplit} />
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-text-secondary typo-caption1">
+            <span className="flex items-center gap-1.5">
+              <span className="size-2.5 rounded-4 bg-status-success" />
+              {pulse.overallSplit.agree}% agree
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="size-2.5 rounded-4 bg-status-warning" />
+              {pulse.overallSplit.mixed}% mixed
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="size-2.5 rounded-4 bg-status-error" />
+              {pulse.overallSplit.disagree}% disagree
+            </span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-text-tertiary typo-caption1">
+          <span className="flex items-center gap-1.5">
+            <span
+              className={classNames(
+                'size-2.5 rounded-4',
+                stanceDot[pulse.stance],
+              )}
+            />
+            <span className="font-bold capitalize text-text-primary typo-footnote">
+              {pulse.stance}
+            </span>
+          </span>
+          <span
+            className={classNames(
+              'font-bold capitalize',
+              controversyText[pulse.controversyLevel],
+            )}
+          >
+            {pulse.controversyLevel}
+          </span>
+          <span className="flex items-center gap-1">
+            <TrendingIcon size={IconSize.XSmall} />{' '}
+            {momentumLabel[pulse.momentum]}
+          </span>
+          <span>{largeNumberFormat(pulse.totalVoices)} voices</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => toggleDetails()}
+        aria-expanded={showDetails}
+        className="flex w-full items-center justify-between border-t border-border-subtlest-tertiary p-4 font-bold text-text-secondary typo-footnote hover:bg-surface-hover"
+      >
+        {showDetails ? 'Hide breakdown' : 'Show the full breakdown'}
+        <ArrowIcon
+          size={IconSize.Small}
+          className={showDetails ? undefined : 'rotate-180'}
+        />
+      </button>
+
+      {showDetails && <Details pulse={pulse} />}
+    </div>
+  );
+};

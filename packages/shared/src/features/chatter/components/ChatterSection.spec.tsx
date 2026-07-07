@@ -7,30 +7,37 @@ const post = { id: 'p1', permalink: 'https://example.com/article' } as Post;
 
 const renderComponent = () => render(<ChatterSection post={post} />);
 
-describe('ChatterSection', () => {
-  it('leads with the synthesized community pulse', async () => {
-    renderComponent();
-
-    await waitFor(() =>
-      expect(screen.getByText('Community Pulse')).toBeInTheDocument(),
-    );
+const waitForGlance = () =>
+  waitFor(() =>
     expect(
       screen.getByText(/the fight is whether the fix breaks tool portability/i),
-    ).toBeInTheDocument();
+    ).toBeInTheDocument(),
+  );
+
+describe('ChatterSection', () => {
+  it('shows a glanceable pulse and hides the breakdown by default', async () => {
+    renderComponent();
+    await waitForGlance();
+
+    // The glance: verdict + sentiment + stance, all visible at once.
+    expect(screen.getByText(/58% agree/i)).toBeInTheDocument();
+    expect(screen.getByText('divided')).toBeInTheDocument();
+
+    // The breakdown is collapsed until asked for.
+    expect(screen.queryByText('Common ground')).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Show the full breakdown/i }),
+    );
+
     expect(screen.getByText('Common ground')).toBeInTheDocument();
-    expect(screen.getByText('Where it splits')).toBeInTheDocument();
     expect(screen.getByText('Bottom line')).toBeInTheDocument();
-    expect(screen.getByText(/strongest pushback/i)).toBeInTheDocument();
-    // Cross-platform divergence read labels.
     expect(screen.getByText('Trading harness war-stories')).toBeInTheDocument();
-    expect(screen.getByText('Sees vendor lock-in risk')).toBeInTheDocument();
   });
 
   it('keeps raw platform threads collapsed until requested', async () => {
     renderComponent();
-    await waitFor(() =>
-      expect(screen.getByText('Community Pulse')).toBeInTheDocument(),
-    );
+    await waitForGlance();
 
     expect(
       screen.queryByText(/X · developer amplification/i),
@@ -44,15 +51,12 @@ describe('ChatterSection', () => {
       screen.getByText(/X · developer amplification/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/Hacker News · front page/i)).toBeInTheDocument();
-    // HN starts expanded, so its comments are visible.
     expect(screen.getByText('mappu')).toBeInTheDocument();
   });
 
   it('filters raw sources by platform', async () => {
     renderComponent();
-    await waitFor(() =>
-      expect(screen.getByText('Community Pulse')).toBeInTheDocument(),
-    );
+    await waitForGlance();
     fireEvent.click(
       screen.getByRole('button', { name: /See the raw discussion/i }),
     );
