@@ -55,7 +55,7 @@ const leanDot = (split: SentimentSplit): string => {
 };
 
 const Section = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="flex flex-col gap-2.5 border-t border-border-subtlest-tertiary p-4">
+  <div className="flex min-w-0 flex-col gap-2.5 border-t border-border-subtlest-tertiary p-4">
     {children}
   </div>
 );
@@ -87,9 +87,9 @@ interface CommunityPulseProps {
 export const CommunityPulse = ({
   pulse,
 }: CommunityPulseProps): ReactElement => (
-  <div className="flex flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+  <div className="flex min-w-0 flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float">
     {/* Verdict + at-a-glance meta */}
-    <div className="flex flex-col gap-3 p-4">
+    <div className="flex min-w-0 flex-col gap-3 p-4">
       <div className="flex items-center gap-2">
         <span className="flex size-5 items-center justify-center rounded-6 bg-action-plus-float text-action-plus-default">
           <AiIcon size={IconSize.XSmall} />
@@ -209,7 +209,7 @@ export const CommunityPulse = ({
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Secondary}
-              className="min-w-0"
+              className="min-w-0 break-words"
             >
               {item}
             </Typography>
@@ -240,7 +240,10 @@ export const CommunityPulse = ({
         />
         <div className="flex min-w-0 flex-col gap-1">
           <SectionLabel>Bottom line</SectionLabel>
-          <Typography type={TypographyType.Callout}>
+          <Typography
+            type={TypographyType.Callout}
+            className="min-w-0 break-words"
+          >
             {pulse.bottomLine}
           </Typography>
         </div>

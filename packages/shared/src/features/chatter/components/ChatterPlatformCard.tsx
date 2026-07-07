@@ -110,7 +110,7 @@ export const ChatterPlatformCard = ({
     : undefined;
 
   return (
-    <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+    <div className="relative min-w-0 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
       <span
         className={classNames(
           'absolute inset-y-0 left-0 w-[3px]',
