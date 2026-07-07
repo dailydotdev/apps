@@ -142,6 +142,42 @@ it('renders the reward-ladder journey with the current level', () => {
   expect(screen.getByText('$60 to go')).toBeInTheDocument();
 });
 
+it('keeps joke and trivia rewards a mystery until claimed', () => {
+  mockRewards.mockReturnValue({
+    rewardTiers: [
+      {
+        id: 'joke',
+        title: 'Your parents will be proud of you.',
+        description: 'A little note from us.',
+        thresholdPoints: 25,
+        rewardType: ContributionRewardType.Joke,
+        metadata: {},
+      },
+      {
+        id: 'trivia',
+        title: 'daily.dev secret fact',
+        description: 'The palette has a shade called bacon.',
+        thresholdPoints: 250,
+        rewardType: ContributionRewardType.Trivia,
+        metadata: {},
+      },
+    ],
+    isPending: false,
+  });
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
+
+  // The joke's punchline (its title) and the trivia fact stay hidden…
+  expect(
+    screen.queryByText('Your parents will be proud of you.'),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByText('The palette has a shade called bacon.'),
+  ).not.toBeInTheDocument();
+  // …shown instead as teased mystery labels echoing their claim reveals.
+  expect(screen.getByText('A note from daily.dev')).toBeInTheDocument();
+  expect(screen.getByText('A daily.dev secret')).toBeInTheDocument();
+});
+
 it('offers a claim for an unlocked, unclaimed tier and logs it', async () => {
   render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
