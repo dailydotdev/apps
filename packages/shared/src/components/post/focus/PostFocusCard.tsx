@@ -35,7 +35,10 @@ import { PostTagList } from '../tags/PostTagList';
 import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
-import { feature } from '../../../lib/featureManagement';
+import {
+  feature,
+  featureCommunitySentiment,
+} from '../../../lib/featureManagement';
 import { SourceStrip } from '../reader/SourceStrip';
 import Link from '../../utilities/Link';
 import HoverCard from '../../cards/common/HoverCard';
@@ -50,6 +53,7 @@ import { PostMenuOptions } from '../PostMenuOptions';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
+import { CommunitySentiment } from './CommunitySentiment';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -242,6 +246,9 @@ export const PostFocusCard = ({
   const { isReaderEnabled } = useReaderModalEligibility();
   const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
+  const communitySentimentEnabled = useFeature(featureCommunitySentiment);
+  // Only on the full post page, not the preview modal (which passes `onClose`).
+  const showCommunitySentiment = !onClose && communitySentimentEnabled;
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the
@@ -525,6 +532,8 @@ export const PostFocusCard = ({
           )}
 
           <PostTagList post={article} />
+
+          {showCommunitySentiment && <CommunitySentiment />}
 
           <PostUpvotesCommentsCount
             post={post}

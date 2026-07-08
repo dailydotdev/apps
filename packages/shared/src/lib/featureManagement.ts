@@ -38,6 +38,10 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
+export const featureCommunitySentiment = new Feature(
+  'community_sentiment',
+  isDevelopment,
+);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
