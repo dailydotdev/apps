@@ -193,89 +193,107 @@ export const CommunitySentiment = ({
     onSeeBreakdown?.();
   };
 
+  const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      toggle();
+    }
+  };
+
   return (
     <section
       aria-label="What the community thinks"
       className={classNames(
-        'flex flex-col gap-3 rounded-12 bg-surface-float p-3',
+        'flex flex-col rounded-12 bg-surface-float',
         className,
       )}
     >
-      <div className="flex items-center gap-2">
-        <span className="flex items-center gap-1.5 text-text-tertiary">
-          <DiscussIcon size={IconSize.Size16} />
-          <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-            bold
-          >
-            Community take
-          </Typography>
-        </span>
-        <span className="ml-auto flex items-baseline gap-1">
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Primary}
-            bold
-          >
-            {postCount}
-          </Typography>
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            discussions
-          </Typography>
-        </span>
-      </div>
-
-      <Typography
-        type={TypographyType.Body}
-        color={TypographyColor.Primary}
-        className="select-text"
+      <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
+        onClick={toggle}
+        onKeyDown={onKeyDown}
+        className={classNames(
+          'flex cursor-pointer flex-col gap-3 rounded-12 p-3 text-left transition-colors hover:bg-surface-hover',
+          isExpanded && 'rounded-b-none',
+        )}
       >
-        {tldr}
-      </Typography>
-
-      <div className="flex flex-col gap-2">
-        <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-6">
-          {BREAKDOWN_SEGMENTS.map(({ key, color }) => (
-            <span
-              key={key}
-              className={color}
-              style={{ width: `${breakdown[key]}%` }}
-            />
-          ))}
+        <div className="flex items-center gap-2">
+          <span className="flex items-center gap-1.5 text-text-tertiary">
+            <DiscussIcon size={IconSize.Size16} />
+            <Typography
+              tag={TypographyTag.H2}
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              bold
+            >
+              Community take
+            </Typography>
+          </span>
+          <span className="ml-auto flex items-baseline gap-1">
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Primary}
+              bold
+            >
+              {postCount}
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              discussions
+            </Typography>
+          </span>
         </div>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          {BREAKDOWN_SEGMENTS.map(({ key, label, color }) => (
-            <span key={key} className="flex items-center gap-1.5">
-              <span className={classNames('size-2 rounded-4', color)} />
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Secondary}
-              >
-                {breakdown[key]}% {label}
-              </Typography>
+
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Primary}
+          className="select-text"
+        >
+          {tldr}
+        </Typography>
+
+        <div className="flex flex-col gap-2">
+          <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-6">
+            {BREAKDOWN_SEGMENTS.map(({ key, color }) => (
+              <span
+                key={key}
+                className={color}
+                style={{ width: `${breakdown[key]}%` }}
+              />
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+            {BREAKDOWN_SEGMENTS.map(({ key, label, color }) => (
+              <span key={key} className="flex items-center gap-1.5">
+                <span className={classNames('size-2 rounded-4', color)} />
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Secondary}
+                >
+                  {breakdown[key]}% {label}
+                </Typography>
+              </span>
+            ))}
+            <span className="ml-auto flex items-center gap-1 font-bold text-brand-default typo-footnote">
+              {isExpanded ? 'Show less' : 'Deep dive'}
+              <ArrowIcon
+                size={IconSize.Size16}
+                className={isExpanded ? 'rotate-0' : 'rotate-180'}
+              />
             </span>
-          ))}
-          <button
-            type="button"
-            onClick={toggle}
-            aria-expanded={isExpanded}
-            className="ml-auto flex items-center gap-1 font-bold text-brand-default typo-footnote"
-          >
-            {isExpanded ? 'Show less' : 'Deep dive'}
-            <ArrowIcon
-              size={IconSize.Size16}
-              className={isExpanded ? 'rotate-0' : 'rotate-180'}
-            />
-          </button>
+          </div>
         </div>
       </div>
 
-      {isExpanded && <CommunitySentimentBreakdown data={data} />}
+      {isExpanded && (
+        <div className="px-3 pb-3">
+          <CommunitySentimentBreakdown data={data} />
+        </div>
+      )}
     </section>
   );
 };
