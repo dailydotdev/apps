@@ -124,6 +124,7 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
           description
           thresholdPoints
           rewardType
+          metadata
         }
       }
     }
@@ -135,6 +136,28 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
           }
         }
       }
+    }
+    # Founding-award state (campaign spot count + the visitor's own membership)
+    # rides along on the journey query so the roadmap loads it in one request.
+    contributionFoundingAward {
+      totalSpots
+      claimedCount
+      isFoundingMember
+      memberNumber
+    }
+  }
+`;
+
+// Grants the founding award to an eligible contributor (idempotent). Returns the
+// founding-award shape carried by the actions query so the caller can update the
+// cached journey data from one response.
+export const CLAIM_CONTRIBUTION_FOUNDING_AWARD_MUTATION = `
+  mutation ClaimContributionFoundingAward {
+    claimContributionFoundingAward {
+      totalSpots
+      claimedCount
+      isFoundingMember
+      memberNumber
     }
   }
 `;

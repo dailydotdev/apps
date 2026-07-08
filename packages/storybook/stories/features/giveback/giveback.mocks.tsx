@@ -4,11 +4,15 @@ import type { Decorator } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import { generateQueryKey, RequestKey } from '@dailydotdev/shared/src/lib/query';
+import {
+  generateQueryKey,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import type {
   ContributionAction,
   ContributionActionCategory,
   ContributionCause,
+  ContributionFoundingAward,
   ContributionRewardTier,
   ContributionSponsor,
   ContributionStatus,
@@ -160,7 +164,9 @@ export const mockCategories = (): ContributionActionCategory[] => [
   { id: 'cat-content', title: 'Content' },
 ];
 
-const action = (overrides: Partial<ContributionAction>): ContributionAction => ({
+const action = (
+  overrides: Partial<ContributionAction>,
+): ContributionAction => ({
   id: 'a-default',
   categoryId: 'cat-content',
   title: 'Action',
@@ -172,6 +178,7 @@ const action = (overrides: Partial<ContributionAction>): ContributionAction => (
     instructions: null,
     externalUrl: null,
     isLoveAction: false,
+    assistType: null,
   },
   cooldownSeconds: null,
   maxPerUser: null,
@@ -193,6 +200,7 @@ export const mockActions = (): ContributionAction[] => [
       instructions: 'Share photos and the event link.',
       externalUrl: null,
       isLoveAction: false,
+      assistType: null,
     },
   }),
   action({
@@ -213,6 +221,7 @@ export const mockActions = (): ContributionAction[] => [
       instructions: null,
       externalUrl: null,
       isLoveAction: false,
+      assistType: null,
     },
   }),
   action({
@@ -226,6 +235,7 @@ export const mockActions = (): ContributionAction[] => [
       instructions: null,
       externalUrl: null,
       isLoveAction: false,
+      assistType: null,
     },
     // An in-review submission so the catalog shows the "in review" state.
     userCompletions: 1,
@@ -267,6 +277,7 @@ export const mockActions = (): ContributionAction[] => [
       instructions: null,
       externalUrl: null,
       isLoveAction: true,
+      assistType: null,
     },
   }),
 ];
@@ -278,6 +289,7 @@ export const mockRewardTiers = (): ContributionRewardTier[] => [
     description: 'Spend them on the daily.dev store.',
     thresholdPoints: 100,
     rewardType: ContributionRewardType.Cores,
+    metadata: { amount: 500 },
   },
   {
     id: 't-plus',
@@ -285,29 +297,40 @@ export const mockRewardTiers = (): ContributionRewardTier[] => [
     description: 'Unlock the full daily.dev experience.',
     thresholdPoints: 250,
     rewardType: ContributionRewardType.PlusDays,
+    metadata: { days: 30 },
   },
   {
-    id: 't-call',
-    title: 'A call with the team',
-    description: 'Shape the product with a 1:1.',
+    id: 't-discount',
+    title: '50% off the swag store',
+    description: 'A contributor-only discount, emailed to you.',
     thresholdPoints: 500,
-    rewardType: ContributionRewardType.Call,
+    rewardType: ContributionRewardType.StoreDiscount,
+    metadata: { percent: 50 },
   },
   {
-    id: 't-privilege',
-    title: 'Founding contributor badge',
-    description: 'A permanent mark on your profile.',
+    id: 't-council',
+    title: 'daily.dev Council',
+    description: 'A seat next to the team, where we decide what to build.',
     thresholdPoints: 1000,
-    rewardType: ContributionRewardType.Privilege,
+    rewardType: ContributionRewardType.Council,
+    metadata: {},
   },
   {
-    id: 't-custom',
-    title: 'Limited-edition swag',
-    description: 'The drop only contributors get.',
+    id: 't-joke',
+    title: 'Your parents will be proud of you.',
+    description: 'You turned everyday scrolling into real donations.',
     thresholdPoints: 2000,
-    rewardType: ContributionRewardType.Custom,
+    rewardType: ContributionRewardType.Joke,
+    metadata: {},
   },
 ];
+
+export const mockFoundingAward = (): ContributionFoundingAward => ({
+  totalSpots: 1000,
+  claimedCount: 744,
+  isFoundingMember: false,
+  memberNumber: null,
+});
 
 // ---------------------------------------------------------------------------
 // Providers + query-cache seeding. Pass `null` for a slice to leave it unseeded
@@ -324,6 +347,7 @@ export interface GivebackMockOptions {
   categories?: ContributionActionCategory[];
   rewardTiers?: ContributionRewardTier[];
   claimedRewardIds?: string[];
+  foundingAward?: ContributionFoundingAward;
 }
 
 const GivebackProviders = ({
@@ -336,6 +360,7 @@ const GivebackProviders = ({
   categories = mockCategories(),
   rewardTiers = mockRewardTiers(),
   claimedRewardIds = [],
+  foundingAward = mockFoundingAward(),
 }: GivebackMockOptions & { children: ReactNode }): ReactElement => {
   const queryClient = useMemo(() => {
     const client = new QueryClient({
@@ -354,7 +379,8 @@ const GivebackProviders = ({
     client.setQueryData(
       generateQueryKey(RequestKey.ContributionOverview, MOCK_USER),
       {
-        contributionStatus: status ?? mockStatus({ currentCycleTargetPoints: 0 }),
+        contributionStatus:
+          status ?? mockStatus({ currentCycleTargetPoints: 0 }),
         contributionSponsors: {
           pageInfo: { hasNextPage: false, endCursor: null },
           edges: sponsors.map((node) => ({ node })),
@@ -369,7 +395,7 @@ const GivebackProviders = ({
 
     client.setQueryData(
       generateQueryKey(RequestKey.ContributionActions, MOCK_USER),
-      { actions, categories, rewardTiers, claimedRewardIds },
+      { actions, categories, rewardTiers, claimedRewardIds, foundingAward },
     );
 
     return client;
@@ -383,6 +409,7 @@ const GivebackProviders = ({
     categories,
     rewardTiers,
     claimedRewardIds,
+    foundingAward,
   ]);
 
   const LogContext = getLogContextStatic();

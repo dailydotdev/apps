@@ -18,6 +18,8 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { useContributionRewards } from '../hooks/useContributionRewards';
+import { useContributionFoundingAward } from '../hooks/useContributionFoundingAward';
+import { useClaimContributionFoundingAward } from '../hooks/useClaimContributionFoundingAward';
 import { useContributionUserRewards } from '../hooks/useContributionUserRewards';
 import { useClaimContributionReward } from '../hooks/useClaimContributionReward';
 import { useContributionCausePicker } from '../hooks/useContributionCausePicker';
@@ -31,6 +33,10 @@ import type {
   RoadmapLevel,
   RoadmapNode,
 } from './givebackRoadmapTypes';
+import { GivebackFoundingAward } from './rewards/GivebackFoundingAward';
+import { RewardRevealDialog } from './rewards/GivebackRewardReveal';
+import { resolveRewardReveal, FOUNDING_AWARD } from './rewards/rewardReveal';
+import type { FoundingAwardState } from './rewards/rewardReveal';
 
 // Joins up to three cause names into a natural list ("a, b, and c"), so the
 // impact headline names exactly who the visitor's actions are funding.
@@ -72,7 +78,13 @@ export const GivebackPersonalRoadmap = ({
   const { causes: pickerCauses, selectedCauseIds } =
     useContributionCausePicker(true);
   const { actions } = useContributionActions(true);
+  const { foundingAward, isPending: isFoundingAwardPending } =
+    useContributionFoundingAward(true);
+  const { claim: claimFoundingAward, isPending: isClaimingFoundingAward } =
+    useClaimContributionFoundingAward();
   const [claimingId, setClaimingId] = useState<string | null>(null);
+  // The tier whose reward reveal is open (set after a successful claim).
+  const [revealTierId, setRevealTierId] = useState<string | null>(null);
   const [showCompleted, setShowCompleted] = useState(true);
   const [showAllUpcoming, setShowAllUpcoming] = useState(false);
 
@@ -131,6 +143,29 @@ export const GivebackPersonalRoadmap = ({
     (sum, action) => sum + action.userCompletions,
     0,
   );
+
+  // Founding award state from live data: already a founder → claimed; cap hit →
+  // sold out; contributing but not yet counted → claimable; otherwise the intro.
+  const foundingTotalSpots =
+    foundingAward?.totalSpots ?? FOUNDING_AWARD.totalSpots;
+  const foundingClaimedCount = foundingAward?.claimedCount ?? 0;
+  const foundingState: FoundingAwardState = (() => {
+    if (foundingAward?.isFoundingMember) {
+      return 'claimed';
+    }
+    if (foundingClaimedCount >= foundingTotalSpots) {
+      return 'soldOut';
+    }
+    // Until the visitor's own membership loads, hold on the intro so an existing
+    // founder doesn't briefly see (and get to click) a redundant claim button.
+    if (isFoundingAwardPending) {
+      return 'intro';
+    }
+    return approved > 0 ? 'claimable' : 'intro';
+  })();
+  // Their real founding number once granted; otherwise the next prospective spot.
+  const foundingMemberNumber =
+    foundingAward?.memberNumber ?? foundingClaimedCount + 1;
   const selectedNames = pickerCauses
     .filter((cause) => selectedCauseIds.includes(cause.id))
     .map((cause) => cause.title);
@@ -202,6 +237,8 @@ export const GivebackPersonalRoadmap = ({
     setClaimingId(tierId);
     try {
       await claim(tierId);
+      // Only reveal the reward once the claim has actually landed.
+      setRevealTierId(tierId);
     } finally {
       setClaimingId(null);
     }
@@ -213,6 +250,14 @@ export const GivebackPersonalRoadmap = ({
       extra: JSON.stringify({ origin: 'roadmap' }),
     });
     onTakeAction();
+  };
+
+  const handleClaimFoundingAward = async () => {
+    logEvent({
+      event_name: LogEvent.ClaimGivebackReward,
+      target_id: 'founding',
+    });
+    await claimFoundingAward();
   };
 
   // Window: current level + the next few. "Show more" extends it; "Show
@@ -239,141 +284,176 @@ export const GivebackPersonalRoadmap = ({
       };
     });
 
-  return (
-    <section id="giveback-roadmap" className="relative w-full scroll-mt-16">
-      <FlexCol className="gap-8">
-        <FlexCol className="gap-5">
-          <GivebackTabHeading
-            title={
-              hasImpact ? (
-                <>
-                  You turned {actionsTaken}{' '}
-                  {actionsTaken === 1 ? 'action' : 'actions'} into{' '}
-                  <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
-                    {formatDonationAmount(approved)}
-                  </span>{' '}
-                  for causes you love
-                </>
-              ) : (
-                <>
-                  Turn your everyday actions into{' '}
-                  <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
-                    real donations
-                  </span>
-                </>
-              )
-            }
-            description={
-              hasImpact && causeNames
-                ? `Headed to ${causeNames}. Every action you take adds more, and it never costs you a thing.`
-                : 'Every action you take sends real money to the causes you back. daily.dev funds it all, so you never pay a cent. Take your first one.'
-            }
-          />
+  const revealTier = revealTierId
+    ? rewardTiers.find((tier) => tier.id === revealTierId)
+    : undefined;
+  const revealLevel = revealTierId
+    ? levels.find((level) => level.id === revealTierId)
+    : undefined;
 
-          <FlexCol className="gap-3">
-            <FlexRow className="flex-wrap items-center gap-3">
-              <Button
-                type="button"
-                size={ButtonSize.Medium}
-                variant={ButtonVariant.Primary}
-                onClick={handleTakeAction}
-              >
-                Take action
-              </Button>
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-                className="tabular-nums"
-              >
-                {nextLevel
-                  ? `${formatDonationAmount(amountToNext)} to your next reward`
-                  : 'Every reward unlocked'}
-              </Typography>
-            </FlexRow>
-            {claimableCount > 0 && (
-              // A status note, not a tappable control: no pill background, just
-              // the gift glyph + cheese text pointing down to the ladder.
-              <FlexRow className="items-center gap-1.5 text-accent-cheese-default [&_svg]:size-4">
-                <GiftIcon />
-                <Typography bold type={TypographyType.Footnote}>
-                  {claimableCount} {claimableCount === 1 ? 'reward' : 'rewards'}{' '}
-                  ready to claim below
+  return (
+    <>
+      <section id="giveback-roadmap" className="relative w-full scroll-mt-16">
+        <FlexCol className="gap-8">
+          <FlexCol className="gap-5">
+            <GivebackTabHeading
+              title={
+                hasImpact ? (
+                  <>
+                    You turned {actionsTaken}{' '}
+                    {actionsTaken === 1 ? 'action' : 'actions'} into{' '}
+                    <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
+                      {formatDonationAmount(approved)}
+                    </span>{' '}
+                    for causes you love
+                  </>
+                ) : (
+                  <>
+                    Turn your everyday actions into{' '}
+                    <span className="bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
+                      real donations
+                    </span>
+                  </>
+                )
+              }
+              description={
+                hasImpact && causeNames
+                  ? `Headed to ${causeNames}. Every action you take adds more, and it never costs you a thing.`
+                  : 'Every action you take sends real money to the causes you back. daily.dev funds it all, so you never pay a cent. Take your first one.'
+              }
+            />
+
+            <FlexCol className="gap-3">
+              <FlexRow className="flex-wrap items-center gap-3">
+                <Button
+                  type="button"
+                  size={ButtonSize.Medium}
+                  variant={ButtonVariant.Primary}
+                  onClick={handleTakeAction}
+                >
+                  Take action
+                </Button>
+                <Typography
+                  tag={TypographyTag.Span}
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                  className="tabular-nums"
+                >
+                  {nextLevel
+                    ? `${formatDonationAmount(
+                        amountToNext,
+                      )} to your next reward`
+                    : 'Every reward unlocked'}
                 </Typography>
+              </FlexRow>
+              {claimableCount > 0 && (
+                // A status note, not a tappable control: no pill background, just
+                // the gift glyph + cheese text pointing down to the ladder.
+                <FlexRow className="items-center gap-1.5 text-accent-cheese-default [&_svg]:size-4">
+                  <GiftIcon />
+                  <Typography bold type={TypographyType.Footnote}>
+                    {claimableCount}{' '}
+                    {claimableCount === 1 ? 'reward' : 'rewards'} ready to claim
+                    below
+                  </Typography>
+                </FlexRow>
+              )}
+            </FlexCol>
+          </FlexCol>
+
+          {/* The founding award is the journey's special first step. It sits above
+            the reward ladder and is gated (like the whole tab) behind the
+            giveback flag. */}
+          <div className="max-w-2xl">
+            <GivebackFoundingAward
+              initialState={foundingState}
+              claimedCount={foundingClaimedCount}
+              memberNumber={foundingMemberNumber}
+              totalSpots={foundingTotalSpots}
+              isClaiming={isClaimingFoundingAward}
+              onClaim={handleClaimFoundingAward}
+              onTakeAction={handleTakeAction}
+            />
+          </div>
+
+          <FlexCol className="max-w-2xl gap-4">
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              bold
+            >
+              Rewards you unlock along the way
+            </Typography>
+
+            <FlexCol>
+              {focusIndex > 0 && (
+                <RailToggle
+                  icon={
+                    <ArrowIcon
+                      className={showCompleted ? 'rotate-180' : undefined}
+                    />
+                  }
+                  label={
+                    showCompleted
+                      ? 'Hide completed levels'
+                      : `Show ${focusIndex} completed ${
+                          focusIndex === 1 ? 'level' : 'levels'
+                        }`
+                  }
+                  onClick={() => setShowCompleted((value) => !value)}
+                  connectorBelow={{ type: 'full' }}
+                />
+              )}
+
+              {visibleNodes.map((node) => (
+                <NodeRow
+                  key={node.level.id}
+                  node={node}
+                  user={user ?? null}
+                  amountToNext={amountToNext}
+                  segmentProgress={segmentProgress}
+                  isClaiming={isClaiming && claimingId === node.level.id}
+                  onClaim={onClaim}
+                  onTakeAction={handleTakeAction}
+                />
+              ))}
+
+              {hiddenUpcoming > 0 && (
+                <RailToggle
+                  icon={<ArrowIcon className="rotate-180" />}
+                  label={`Show ${hiddenUpcoming} more ${
+                    hiddenUpcoming === 1 ? 'level' : 'levels'
+                  }`}
+                  onClick={() => setShowAllUpcoming(true)}
+                />
+              )}
+            </FlexCol>
+
+            {showAllUpcoming && canCollapseUpcoming && (
+              <FlexRow className="justify-center">
+                <Button
+                  type="button"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Float}
+                  icon={<ArrowIcon />}
+                  onClick={() => setShowAllUpcoming(false)}
+                >
+                  Show less
+                </Button>
               </FlexRow>
             )}
           </FlexCol>
         </FlexCol>
-
-        <FlexCol className="max-w-2xl gap-4">
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            bold
-          >
-            Rewards you unlock along the way
-          </Typography>
-
-          <FlexCol>
-            {focusIndex > 0 && (
-              <RailToggle
-                icon={
-                  <ArrowIcon
-                    className={showCompleted ? 'rotate-180' : undefined}
-                  />
-                }
-                label={
-                  showCompleted
-                    ? 'Hide completed levels'
-                    : `Show ${focusIndex} completed ${
-                        focusIndex === 1 ? 'level' : 'levels'
-                      }`
-                }
-                onClick={() => setShowCompleted((value) => !value)}
-                connectorBelow={{ type: 'full' }}
-              />
-            )}
-
-            {visibleNodes.map((node) => (
-              <NodeRow
-                key={node.level.id}
-                node={node}
-                user={user ?? null}
-                amountToNext={amountToNext}
-                segmentProgress={segmentProgress}
-                isClaiming={isClaiming && claimingId === node.level.id}
-                onClaim={onClaim}
-                onTakeAction={handleTakeAction}
-              />
-            ))}
-
-            {hiddenUpcoming > 0 && (
-              <RailToggle
-                icon={<ArrowIcon className="rotate-180" />}
-                label={`Show ${hiddenUpcoming} more ${
-                  hiddenUpcoming === 1 ? 'level' : 'levels'
-                }`}
-                onClick={() => setShowAllUpcoming(true)}
-              />
-            )}
-          </FlexCol>
-
-          {showAllUpcoming && canCollapseUpcoming && (
-            <FlexRow className="justify-center">
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Float}
-                icon={<ArrowIcon />}
-                onClick={() => setShowAllUpcoming(false)}
-              >
-                Show less
-              </Button>
-            </FlexRow>
-          )}
-        </FlexCol>
-      </FlexCol>
-    </section>
+      </section>
+      {revealTier && (
+        <RewardRevealDialog
+          reveal={resolveRewardReveal(revealTier)}
+          levelNumber={revealLevel?.levelNumber}
+          user={user ?? null}
+          onClose={() => setRevealTierId(null)}
+        />
+      )}
+    </>
   );
 };

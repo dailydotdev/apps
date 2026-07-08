@@ -19,6 +19,8 @@ import {
   DevPlusIcon,
   GiftIcon,
   LockIcon,
+  MagicIcon,
+  MailIcon,
   MedalBadgeIcon,
   StarIcon,
   UserIcon,
@@ -35,12 +37,37 @@ import { GivebackMeterShine } from './GivebackMeterShine';
 import { Connector } from './GivebackRoadmapRail';
 import type { RoadmapNode } from './givebackRoadmapTypes';
 
-const rewardIconByType: Record<ContributionRewardType, ReactElement> = {
-  [ContributionRewardType.Cores]: <CoreIcon />,
-  [ContributionRewardType.PlusDays]: <DevPlusIcon />,
-  [ContributionRewardType.Call]: <StarIcon />,
-  [ContributionRewardType.Privilege]: <MedalBadgeIcon />,
-  [ContributionRewardType.Custom]: <GiftIcon />,
+// Content and unmapped reward types fall back to the gift icon (see usage).
+const rewardIconByType: Partial<Record<ContributionRewardType, ReactElement>> =
+  {
+    [ContributionRewardType.Cores]: <CoreIcon />,
+    [ContributionRewardType.PlusDays]: <DevPlusIcon />,
+    [ContributionRewardType.StoreDiscount]: <GiftIcon />,
+    [ContributionRewardType.Council]: <MedalBadgeIcon />,
+    [ContributionRewardType.Call]: <StarIcon />,
+    [ContributionRewardType.Privilege]: <MedalBadgeIcon />,
+  };
+
+// Joke and trivia rewards stay a mystery on the ladder until claimed — the joke's
+// title IS the punchline, and trivia hides a secret fact — so the row shows a
+// teased label + hint (echoing their scratch-card / sealed-note claim reveals)
+// instead of the real title. The payoff plays in the reward reveal on claim.
+const mysteryRewardByType: Partial<
+  Record<
+    ContributionRewardType,
+    { label: string; hint: string; icon: ReactElement }
+  >
+> = {
+  [ContributionRewardType.Trivia]: {
+    label: 'A daily.dev secret',
+    hint: 'Scratch to reveal on claim',
+    icon: <MagicIcon />,
+  },
+  [ContributionRewardType.Joke]: {
+    label: 'A note from daily.dev',
+    hint: 'Sealed until you claim',
+    icon: <MailIcon />,
+  },
 };
 
 // Directions the celebration confetti flies when a reward is claimed, fed to the
@@ -108,6 +135,9 @@ export const NodeRow = ({
   const { reward } = level;
   const isSummit = isLast;
   const canClaim = isReached && !isClaimed;
+  // Teased presentation for joke/trivia rewards; cleared once claimed so the
+  // real title shows.
+  const mystery = isClaimed ? undefined : mysteryRewardByType[reward.type];
   const [celebrate, setCelebrate] = useState(false);
 
   const handleClaim = () => {
@@ -190,7 +220,7 @@ export const NodeRow = ({
             'border-accent-cheese-default/50 border bg-surface-float text-accent-cheese-default',
           )}
         >
-          {rewardIconByType[reward.type]}
+          {mystery?.icon ?? rewardIconByType[reward.type] ?? <GiftIcon />}
         </span>
       );
     }
@@ -203,7 +233,7 @@ export const NodeRow = ({
             'bg-accent-cabbage-default text-white',
           )}
         >
-          {rewardIconByType[reward.type]}
+          {mystery?.icon ?? rewardIconByType[reward.type] ?? <GiftIcon />}
         </span>
       );
     }
@@ -357,17 +387,28 @@ export const NodeRow = ({
                     : TypographyColor.Tertiary
                 }
               >
-                {reward.title}
+                {mystery ? mystery.label : reward.title}
               </Typography>
-              {isNext && reward.description && (
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Secondary}
-                  className="[text-wrap:pretty]"
-                >
-                  {reward.description}
-                </Typography>
-              )}
+              {mystery
+                ? (isNext || canClaim) && (
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Secondary}
+                      className="[text-wrap:pretty]"
+                    >
+                      {mystery.hint}
+                    </Typography>
+                  )
+                : isNext &&
+                  reward.description && (
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Secondary}
+                      className="[text-wrap:pretty]"
+                    >
+                      {reward.description}
+                    </Typography>
+                  )}
             </FlexCol>
 
             {/* Right-hand slot for claim / done / lock. The current goal's

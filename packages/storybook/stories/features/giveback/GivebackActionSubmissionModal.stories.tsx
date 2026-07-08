@@ -32,7 +32,8 @@ const makeAction = (
   id: 'a-modal',
   categoryId: 'cat-content',
   title: 'Post about daily.dev on X',
-  description: 'A quick post about what you like helps more developers find us.',
+  description:
+    'A quick post about what you like helps more developers find us.',
   points: 120,
   evidence: { url: { required: true } },
   metadata: {
@@ -41,6 +42,7 @@ const makeAction = (
       'Write a short post about what you like in daily.dev.\nInclude a link to daily.dev so people can find it.\nCopy the link to your post and paste it below.',
     externalUrl: 'https://x.com/compose/post',
     isLoveAction: false,
+    assistType: null,
   },
   cooldownSeconds: null,
   maxPerUser: null,
@@ -74,6 +76,7 @@ export const Screenshot: Story = {
         instructions: 'Upload a photo from the meetup.',
         externalUrl: null,
         isLoveAction: false,
+        assistType: null,
       },
     }),
   },
@@ -95,7 +98,9 @@ export const FullProof: Story = {
 
 export const LoveAction: Story = {
   parameters: {
-    docs: { description: { story: 'A voluntary thank-you — no reward attached.' } },
+    docs: {
+      description: { story: 'A voluntary thank-you — no reward attached.' },
+    },
   },
   args: {
     action: makeAction({
@@ -107,6 +112,7 @@ export const LoveAction: Story = {
         instructions: null,
         externalUrl: null,
         isLoveAction: true,
+        assistType: null,
       },
     }),
   },
