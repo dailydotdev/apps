@@ -1,7 +1,20 @@
 import type { FeedItem } from '../hooks/useFeed';
 import { FeedItemType } from '../components/cards/common/common';
-import type { PostType } from '../graphql/posts';
-import { WIDENABLE_POST_TYPES } from '../components/cards/common/wideCards';
+import { PostType } from '../graphql/posts';
+
+const WIDENABLE_POST_TYPES_TUPLE = [
+  PostType.Article,
+  PostType.VideoYouTube,
+  PostType.Share,
+  PostType.Freeform,
+  PostType.Collection,
+] as const;
+
+export type WidenablePostType = (typeof WIDENABLE_POST_TYPES_TUPLE)[number];
+
+export const WIDENABLE_POST_TYPES: ReadonlySet<PostType> = new Set(
+  WIDENABLE_POST_TYPES_TUPLE,
+);
 
 /**
  * Structural eligibility check — does this post qualify for a wide hero

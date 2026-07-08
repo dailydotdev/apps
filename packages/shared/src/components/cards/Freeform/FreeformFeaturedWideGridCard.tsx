@@ -1,32 +1,20 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
-import { Container } from '../common/common';
-import FeedItemContainer from '../common/FeedItemContainer';
-import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
-import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
-import { PostTagsPanel } from '../../post/block/PostTagsPanel';
-import {
-  CardSpace,
-  CardTextContainer,
-  getPostClassNames,
-} from '../common/Card';
-import CardOverlay from '../common/CardOverlay';
+import { CardTextContainer } from '../common/Card';
 import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
-import ActionButtons from '../common/ActionButtons';
-import { FeedCardGlassActions } from '../common/FeedCardGlassActions';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { usePostImage } from '../../../hooks/post/usePostImage';
-import { HIGH_PRIORITY_IMAGE_PROPS, Image, ImageType } from '../../image/Image';
 import { stripHtmlTags } from '../../../lib/strings';
 import { HighlightChip } from '../common/HighlightChip';
-import { WhyFeaturedButton } from '../common/WhyFeaturedButton';
 import type { FeaturedWideCardProps } from '../common/featuredWide';
-import { INNER_GRID_COLS, IMAGE_COL_SPAN } from '../common/featuredWide';
+import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
+import { FeaturedWideImageColumn } from '../common/FeaturedWideImageColumn';
+import { FeaturedWideActions } from '../common/FeaturedWideActions';
 
 export const FreeformFeaturedWideGridCard = forwardRef(
   function FreeformFeaturedWideGridCard(
@@ -47,77 +35,41 @@ export const FreeformFeaturedWideGridCard = forwardRef(
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
-    const { className, style } = domProps;
-    const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
-    const { data } = useBlockPostPanel(post);
-    const onPostCardClick = () => onPostClick?.(post);
-    const onPostCardAuxClick = () => onPostAuxClick?.(post);
     const { pinnedAt, trending } = post;
     const { title } = useSmartTitle(post);
     const image = usePostImage(post);
-    const glassActions = useFeedCardGlassActions();
-    const useGlass = glassActions;
+    const useGlass = useFeedCardGlassActions();
     const significance = post.hero?.significance;
     const description = useMemo(
       () => stripHtmlTags(post.contentHtml ?? '').trim(),
       [post.contentHtml],
     );
 
-    if (isHidden) {
-      return (
-        <FeedItemContainer
-          domProps={{
-            ...domProps,
-            style,
-            className: getPostClassNames(post, className ?? '', 'min-h-card'),
-          }}
-          ref={ref}
-          flagProps={{ pinnedAt, trending }}
-          bookmarked={post.bookmarked}
-        >
-          {hiddenPanel}
-        </FeedItemContainer>
-      );
-    }
-
-    if (data?.showTagsPanel && (post.tags?.length ?? 0) > 0) {
-      return (
-        <PostTagsPanel
-          className="h-full overflow-hidden"
-          post={post}
-          toastOnSuccess
-        />
-      );
-    }
-
     return (
-      <FeedItemContainer
-        domProps={{
-          ...domProps,
-          style,
-          className: getPostClassNames(
-            post,
-            classNames(className ?? '', 'h-full overflow-hidden'),
-            useGlass ? 'min-h-cardGlass' : 'min-h-card',
-          ),
-        }}
+      <FeaturedWideCardShell
         ref={ref}
+        post={post}
+        domProps={domProps}
+        wideColSpan={wideColSpan}
+        useGlass={useGlass}
+        onPostClick={onPostClick}
+        onPostAuxClick={onPostAuxClick}
         flagProps={{ pinnedAt, trending }}
         bookmarked={post.bookmarked}
-      >
-        <CardOverlay
-          post={post}
-          onPostCardClick={onPostCardClick}
-          onPostCardAuxClick={onPostCardAuxClick}
-        />
-
-        <div
-          className={classNames(
-            'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
-            INNER_GRID_COLS[wideColSpan],
-          )}
-        >
-          <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
+        postChildren={children}
+        imageColumn={
+          image ? (
+            <FeaturedWideImageColumn
+              image={image}
+              alt={post.title ?? ''}
+              wideColSpan={wideColSpan}
+              significance={significance}
+              eagerLoadImage={eagerLoadImage}
+            />
+          ) : null
+        }
+        content={
+          <>
             <CardTextContainer
               className={
                 useGlass ? 'min-h-0 flex-1 overflow-hidden' : undefined
@@ -154,60 +106,18 @@ export const FreeformFeaturedWideGridCard = forwardRef(
                 </p>
               ) : null}
             </CardTextContainer>
-            {useGlass ? (
-              <>
-                <div aria-hidden className="h-14 shrink-0" />
-                <FeedCardGlassActions
-                  post={post}
-                  onUpvoteClick={onUpvoteClick}
-                  onCommentClick={onCommentClick}
-                  onCopyLinkClick={onCopyLinkClick}
-                  onBookmarkClick={onBookmarkClick}
-                  onDownvoteClick={onDownvoteClick}
-                />
-              </>
-            ) : (
-              <Container>
-                <CardSpace />
-                <ActionButtons
-                  post={post}
-                  onUpvoteClick={onUpvoteClick}
-                  onCommentClick={onCommentClick}
-                  onCopyLinkClick={onCopyLinkClick}
-                  onBookmarkClick={onBookmarkClick}
-                  onDownvoteClick={onDownvoteClick}
-                  variant="grid"
-                />
-              </Container>
-            )}
-          </div>
-          {image ? (
-            <div
-              className={classNames(
-                'relative flex h-full min-w-0 items-center justify-center overflow-hidden rounded-r-16',
-                IMAGE_COL_SPAN[wideColSpan],
-              )}
-            >
-              <WhyFeaturedButton significance={significance} />
-              <Image
-                aria-hidden
-                alt=""
-                src={image}
-                type={ImageType.Post}
-                className="absolute inset-0 size-full scale-110 object-cover blur-xl"
-              />
-              <Image
-                alt={post.title}
-                src={image}
-                type={ImageType.Post}
-                className="relative size-full object-contain"
-                {...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : {})}
-              />
-            </div>
-          ) : null}
-        </div>
-        {children}
-      </FeedItemContainer>
+            <FeaturedWideActions
+              post={post}
+              useGlass={useGlass}
+              onUpvoteClick={onUpvoteClick}
+              onCommentClick={onCommentClick}
+              onCopyLinkClick={onCopyLinkClick}
+              onBookmarkClick={onBookmarkClick}
+              onDownvoteClick={onDownvoteClick}
+            />
+          </>
+        }
+      />
     );
   },
 );
