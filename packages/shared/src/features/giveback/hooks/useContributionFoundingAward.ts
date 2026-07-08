@@ -1,9 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
-import { useAuthContext } from '../../../contexts/AuthContext';
-import { gqlClient } from '../../../graphql/common';
-import { disabledRefetch } from '../../../lib/func';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
-import { CONTRIBUTION_FOUNDING_AWARD_QUERY } from '../graphql';
+import { useContributionActions } from './useContributionActions';
 import type { ContributionFoundingAward } from '../types';
 
 interface UseContributionFoundingAward {
@@ -11,28 +6,14 @@ interface UseContributionFoundingAward {
   isPending: boolean;
 }
 
-// The founding award's live spot count + the visitor's own founding membership.
-// Keyed by user since the membership fields are per-visitor; only fetched once
-// the caller marks the tab reachable (signed in).
+// Thin facade over the combined journey query (see `useContributionActions`),
+// which fetches the founding-award state alongside the actions and reward tiers
+// in one request. Sharing the query key means the roadmap reuses the cached
+// result instead of firing a second request.
 export const useContributionFoundingAward = (
   enabled: boolean,
 ): UseContributionFoundingAward => {
-  const { isAuthReady, user } = useAuthContext();
-  const shouldFetch = isAuthReady && !!user && enabled;
+  const { foundingAward, isPending } = useContributionActions(enabled);
 
-  const { data, isPending } = useQuery({
-    queryKey: generateQueryKey(RequestKey.ContributionFoundingAward, user),
-    queryFn: async () => {
-      const res = await gqlClient.request<{
-        contributionFoundingAward: ContributionFoundingAward;
-      }>(CONTRIBUTION_FOUNDING_AWARD_QUERY);
-
-      return res.contributionFoundingAward;
-    },
-    enabled: shouldFetch,
-    staleTime: StaleTime.Default,
-    ...disabledRefetch,
-  });
-
-  return { foundingAward: data, isPending: shouldFetch && isPending };
+  return { foundingAward, isPending };
 };

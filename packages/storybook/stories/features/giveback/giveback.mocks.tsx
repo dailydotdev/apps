@@ -12,6 +12,7 @@ import type {
   ContributionAction,
   ContributionActionCategory,
   ContributionCause,
+  ContributionFoundingAward,
   ContributionRewardTier,
   ContributionSponsor,
   ContributionStatus,
@@ -324,6 +325,13 @@ export const mockRewardTiers = (): ContributionRewardTier[] => [
   },
 ];
 
+export const mockFoundingAward = (): ContributionFoundingAward => ({
+  totalSpots: 1000,
+  claimedCount: 744,
+  isFoundingMember: false,
+  memberNumber: null,
+});
+
 // ---------------------------------------------------------------------------
 // Providers + query-cache seeding. Pass `null` for a slice to leave it unseeded
 // (e.g. status: null + goal 0 drives skeletons). Everything is seeded fresh so
@@ -339,6 +347,7 @@ export interface GivebackMockOptions {
   categories?: ContributionActionCategory[];
   rewardTiers?: ContributionRewardTier[];
   claimedRewardIds?: string[];
+  foundingAward?: ContributionFoundingAward;
 }
 
 const GivebackProviders = ({
@@ -351,6 +360,7 @@ const GivebackProviders = ({
   categories = mockCategories(),
   rewardTiers = mockRewardTiers(),
   claimedRewardIds = [],
+  foundingAward = mockFoundingAward(),
 }: GivebackMockOptions & { children: ReactNode }): ReactElement => {
   const queryClient = useMemo(() => {
     const client = new QueryClient({
@@ -385,7 +395,7 @@ const GivebackProviders = ({
 
     client.setQueryData(
       generateQueryKey(RequestKey.ContributionActions, MOCK_USER),
-      { actions, categories, rewardTiers, claimedRewardIds },
+      { actions, categories, rewardTiers, claimedRewardIds, foundingAward },
     );
 
     return client;
@@ -399,6 +409,7 @@ const GivebackProviders = ({
     categories,
     rewardTiers,
     claimedRewardIds,
+    foundingAward,
   ]);
 
   const LogContext = getLogContextStatic();

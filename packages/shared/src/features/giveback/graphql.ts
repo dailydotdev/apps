@@ -137,13 +137,8 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
         }
       }
     }
-  }
-`;
-
-// Founding-award state: campaign-wide spot count plus the visitor's own founding
-// membership + number (null when they're not a founder).
-export const CONTRIBUTION_FOUNDING_AWARD_QUERY = `
-  query ContributionFoundingAward {
+    # Founding-award state (campaign spot count + the visitor's own membership)
+    # rides along on the journey query so the roadmap loads it in one request.
     contributionFoundingAward {
       totalSpots
       claimedCount
@@ -153,8 +148,9 @@ export const CONTRIBUTION_FOUNDING_AWARD_QUERY = `
   }
 `;
 
-// Grants the founding award to an eligible contributor (idempotent). Returns
-// the same shape as the query above so the caller can update from one response.
+// Grants the founding award to an eligible contributor (idempotent). Returns the
+// founding-award shape carried by the actions query so the caller can update the
+// cached journey data from one response.
 export const CLAIM_CONTRIBUTION_FOUNDING_AWARD_MUTATION = `
   mutation ClaimContributionFoundingAward {
     claimContributionFoundingAward {

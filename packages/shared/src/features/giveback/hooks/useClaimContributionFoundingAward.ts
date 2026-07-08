@@ -28,12 +28,19 @@ export const useClaimContributionFoundingAward =
         return res.claimContributionFoundingAward;
       },
       onSuccess: (foundingAward) => {
-        // The mutation already returns the fresh state, so write it straight
-        // into the cache instead of triggering a refetch.
-        queryClient.setQueryData(
-          generateQueryKey(RequestKey.ContributionFoundingAward, user),
-          foundingAward,
-        );
+        // Founding-award state rides on the journey query, so patch that cache
+        // entry with the fresh state the mutation returns (no refetch needed).
+        const key = generateQueryKey(RequestKey.ContributionActions, user);
+        const previous = queryClient.getQueryData<{
+          foundingAward?: ContributionFoundingAward;
+        }>(key);
+        if (!previous) {
+          // The roadmap loads the journey query before the claim is reachable;
+          // if it's somehow missing, refetch rather than drop the new state.
+          queryClient.invalidateQueries({ queryKey: key });
+          return;
+        }
+        queryClient.setQueryData(key, { ...previous, foundingAward });
       },
       onError: (error: ClientError) => {
         displayToast(

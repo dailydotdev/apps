@@ -281,7 +281,6 @@ export enum RequestKey {
   ContributionActions = 'contribution_actions',
   ContributionActionLinks = 'contribution_action_links',
   ContributionLastMilestone = 'contribution_last_milestone',
-  ContributionFoundingAward = 'contribution_founding_award',
   LeaderboardPosition = 'leaderboard_position',
 }
 
