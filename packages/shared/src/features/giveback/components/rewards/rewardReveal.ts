@@ -116,7 +116,7 @@ export const resolveRewardReveal = (
       // read as "earn the right to…", which is wrong once it's claimed.
       return {
         kind: 'suggestCause',
-        headline: 'You help shape where it goes.',
+        headline: 'Shape where it goes',
         body: "Nominate a nonprofit or open-source fund you care about, and if it's a fit, it joins the causes everyone can back.",
       };
     case ContributionRewardType.Council:
