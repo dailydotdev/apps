@@ -10,6 +10,7 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { BlockIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { Typography, TypographyType } from '../../typography/Typography';
@@ -33,6 +34,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
       onCommentClick,
       onBookmarkClick,
       onCopyLinkClick,
+      onShare,
       openNewTab,
       children,
       onReadArticleClick,
@@ -57,6 +59,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
     const tweetBody = isSharedTweet
       ? stripHtmlTags(sharedPost?.contentHtml ?? post.contentHtml ?? '').trim()
       : '';
+    const { overlay } = useCardCover({ post, onShare });
 
     return (
       <FeaturedWideCardShell
@@ -74,7 +77,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
         <div
           className={classNames(
             'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
-            image ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
+            image || overlay ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
           )}
         >
           <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
@@ -158,11 +161,12 @@ export const ShareFeaturedWideGridCard = forwardRef(
               onDownvoteClick={onDownvoteClick}
             />
           </div>
-          {!!image && (
+          {(!!image || !!overlay) && (
             <FeaturedWideImageColumn
               image={image}
               alt={sharedTitle || post.title || ''}
               wideColSpan={wideColSpan}
+              overlay={overlay}
               isVideoType={isVideoType}
               eagerLoadImage={eagerLoadImage}
             />

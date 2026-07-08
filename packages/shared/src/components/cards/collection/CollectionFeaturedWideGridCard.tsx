@@ -10,6 +10,7 @@ import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { CollectionCardHeader } from './CollectionCardHeader';
 import { HighlightChip } from '../common/HighlightChip';
 import type { FeaturedWideCardProps } from '../common/featuredWide';
@@ -29,6 +30,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
       onCommentClick,
       onBookmarkClick,
       onCopyLinkClick,
+      onShare,
       children,
       domProps = {},
       eagerLoadImage = false,
@@ -42,6 +44,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
     const useGlass = useFeedCardGlassActions();
     const significance = post.hero?.significance;
     const wasUpdated = isPostUpdated(post);
+    const { overlay } = useCardCover({ post, onShare });
 
     return (
       <FeaturedWideCardShell
@@ -58,7 +61,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
         <div
           className={classNames(
             'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
-            image ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
+            image || overlay ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
           )}
         >
           <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
@@ -110,11 +113,12 @@ export const CollectionFeaturedWideGridCard = forwardRef(
               onDownvoteClick={onDownvoteClick}
             />
           </div>
-          {!!image && (
+          {(!!image || !!overlay) && (
             <FeaturedWideImageColumn
               image={image}
               alt={post.title ?? ''}
               wideColSpan={wideColSpan}
+              overlay={overlay}
               eagerLoadImage={eagerLoadImage}
             />
           )}

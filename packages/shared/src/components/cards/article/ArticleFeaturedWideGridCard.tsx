@@ -166,13 +166,13 @@ export const ArticleFeaturedWideGridCard = forwardRef(
         <div
           className={classNames(
             'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
-            image ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
+            image || overlay ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
           )}
         >
           <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
             {showFeedback ? feedbackContent : standardContent}
           </div>
-          {!!image && (
+          {(!!image || !!overlay) && (
             <FeaturedWideImageColumn
               image={image}
               alt={post.title ?? ''}

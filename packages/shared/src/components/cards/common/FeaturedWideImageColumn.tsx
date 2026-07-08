@@ -8,7 +8,7 @@ import type { FeaturedWideColSpan } from './featuredWide';
 import { IMAGE_COL_SPAN } from './featuredWide';
 
 export type FeaturedWideImageColumnProps = {
-  image: string;
+  image?: string;
   alt: string;
   wideColSpan: FeaturedWideColSpan;
   overlay?: ReactNode;
@@ -30,13 +30,15 @@ export const FeaturedWideImageColumn = ({
       IMAGE_COL_SPAN[wideColSpan],
     )}
   >
-    <Image
-      aria-hidden
-      alt=""
-      src={image}
-      type={ImageType.Post}
-      className="absolute inset-0 size-full scale-110 object-cover blur-xl"
-    />
+    {!!image && (
+      <Image
+        aria-hidden
+        alt=""
+        src={image}
+        type={ImageType.Post}
+        className="absolute inset-0 size-full scale-110 object-cover blur-xl"
+      />
+    )}
     {overlay}
     {isVideoType && !overlay && (
       <>
@@ -52,15 +54,17 @@ export const FeaturedWideImageColumn = ({
         />
       </>
     )}
-    <Image
-      alt={alt}
-      src={image}
-      type={ImageType.Post}
-      className={classNames(
-        'relative size-full object-contain',
-        !!overlay && 'opacity-16',
-      )}
-      {...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : {})}
-    />
+    {!!image && (
+      <Image
+        alt={alt}
+        src={image}
+        type={ImageType.Post}
+        className={classNames(
+          'relative size-full object-contain',
+          !!overlay && 'opacity-16',
+        )}
+        {...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : {})}
+      />
+    )}
   </div>
 );
