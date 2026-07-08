@@ -14,14 +14,22 @@ import {
   PlusIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
 import { anchorDefaultRel } from '../../../lib/strings';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureGivebackSuggestCause } from '../../../lib/featureManagement';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 import type { ContributionCause } from '../types';
 import { GivebackFilterChip } from './GivebackFilterChip';
 import { GivebackCauseCard } from './GivebackCauseCard';
 import { GivebackTabHeading } from './GivebackTabHeading';
+import { GivebackSuggestCauseModal } from './GivebackSuggestCauseModal';
 import { CauseEmblem } from './CauseEmblem';
 
 const ALL_FILTER = 'all';
@@ -109,6 +117,19 @@ export const GivebackCausesPanel = ({
   const { causes, isLoading, selectedIds, toggleAndSave, selectedCount } =
     useGivebackCauseSelection(true);
   const [activeFilter, setActiveFilter] = useState<string>(ALL_FILTER);
+  const [isSuggestOpen, setIsSuggestOpen] = useState(false);
+  const { value: canSuggest } = useConditionalFeature({
+    feature: featureGivebackSuggestCause,
+    shouldEvaluate: true,
+  });
+
+  const openSuggest = () => {
+    logEvent({
+      event_name: LogEvent.OpenGivebackCauseSuggestion,
+      extra: JSON.stringify({ origin: 'causes_tab' }),
+    });
+    setIsSuggestOpen(true);
+  };
 
   const selectFilter = (filter: string) => {
     setActiveFilter(filter);
@@ -278,6 +299,37 @@ export const GivebackCausesPanel = ({
             </Typography>
           )}
         </FlexCol>
+      )}
+
+      {canSuggest && (
+        <FlexRow className="flex-col items-start gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary p-4 tablet:flex-row tablet:items-center tablet:justify-between">
+          <FlexCol className="min-w-0 gap-0.5">
+            <Typography bold type={TypographyType.Callout}>
+              Don&apos;t see your cause?
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="[text-wrap:pretty]"
+            >
+              Suggest a nonprofit or open-source fund and we&apos;ll review it.
+            </Typography>
+          </FlexCol>
+          <Button
+            type="button"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Secondary}
+            icon={<PlusIcon />}
+            onClick={openSuggest}
+            className="shrink-0"
+          >
+            Suggest a cause
+          </Button>
+        </FlexRow>
+      )}
+
+      {isSuggestOpen && (
+        <GivebackSuggestCauseModal onClose={() => setIsSuggestOpen(false)} />
       )}
     </FlexCol>
   );

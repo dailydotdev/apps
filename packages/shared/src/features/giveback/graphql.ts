@@ -205,6 +205,16 @@ export const UPDATE_CONTRIBUTION_CAUSE_PREFERENCES_MUTATION = `
   }
 `;
 
+// Nominate a cause for the team to review. The backend doesn't store it — it
+// posts the URL (and optional note) to Slack for a human decision.
+export const SUGGEST_CONTRIBUTION_CAUSE_MUTATION = `
+  mutation SuggestContributionCause($url: String!, $note: String) {
+    suggestContributionCause(url: $url, note: $note) {
+      _
+    }
+  }
+`;
+
 // Real-time community activity: every approved action lands here so the gift
 // entry point can pop a live "+$" jump. `awardedPoints` maps 1:1 to USD, like
 // the campaign totals.
