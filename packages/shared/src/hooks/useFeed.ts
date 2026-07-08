@@ -44,6 +44,7 @@ import {
 import { useConditionalFeature } from './useConditionalFeature';
 import { useReadingReminderFeedHero } from './notifications/useReadingReminderFeedHero';
 import {
+  SUPPORTED_WIDE_POST_TYPES,
   computeAdClamp,
   computePlacements,
   createPlacementBuilder,
@@ -412,9 +413,7 @@ export default function useFeed<T>(
   const widenableTypes = useMemo(() => {
     const allowed = heroCardsConfig.allowedPostTypes ?? {};
     return new Set<PostType>(
-      (Object.keys(allowed) as PostType[]).filter(
-        (type) => allowed[type] === true,
-      ),
+      [...SUPPORTED_WIDE_POST_TYPES].filter((type) => allowed[type] === true),
     );
   }, [heroCardsConfig.allowedPostTypes]);
 

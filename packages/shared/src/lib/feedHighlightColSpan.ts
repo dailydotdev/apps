@@ -1,6 +1,18 @@
 import type { FeedItem } from '../hooks/useFeed';
 import { FeedItemType } from '../components/cards/common/common';
-import type { PostType } from '../graphql/posts';
+import { PostType } from '../graphql/posts';
+
+export const SUPPORTED_WIDE_POST_TYPES_TUPLE = [
+  PostType.Article,
+  PostType.VideoYouTube,
+  PostType.Share,
+  PostType.Freeform,
+  PostType.Collection,
+] as const;
+
+export const SUPPORTED_WIDE_POST_TYPES: ReadonlySet<PostType> = new Set(
+  SUPPORTED_WIDE_POST_TYPES_TUPLE,
+);
 
 export const isHeroEligiblePost = (post: {
   hero?: { size?: number | null } | null;
