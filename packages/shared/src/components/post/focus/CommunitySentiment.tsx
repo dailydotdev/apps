@@ -33,6 +33,19 @@ export interface SourceSentiment {
   url?: string;
 }
 
+export interface SentimentHighlight {
+  /** Verbatim, punchy quote worth reading. */
+  quote: string;
+  /** Author handle or username. */
+  author: string;
+  /** Where it was said. */
+  source: string;
+  /** Link to the original post/comment. */
+  url: string;
+  /** Engagement metrics for the platform, e.g. ["2.4k likes", "180 replies"]. */
+  metrics: string[];
+}
+
 export interface CommunitySentimentData {
   /** How opinion splits across positive / mixed / skeptical — the surface metric. */
   breakdown: SentimentBreakdown;
@@ -52,6 +65,8 @@ export interface CommunitySentimentData {
   hottestDebate: string;
   /** Layer 2 — what the community is still asking. */
   openQuestions: string[];
+  /** Layer 3 — a few verbatim receipts worth reading. */
+  highlights: SentimentHighlight[];
 }
 
 /**
@@ -97,6 +112,50 @@ export const SAMPLE_COMMUNITY_SENTIMENT: CommunitySentimentData = {
     'At what scale does the single-Postgres approach actually break down?',
     'Does pgvector / pg_search hold up against dedicated Elasticsearch on large corpora?',
     'Is the migration cost worth the ops savings for an existing stack?',
+  ],
+  highlights: [
+    {
+      quote: `Every service I've replaced with plain Postgres is one less thing paging me at 3am.`,
+      author: '@maya_builds',
+      source: 'X',
+      url: 'https://x.com/maya_builds/status/1750000000000000000',
+      metrics: ['2.4k likes', '180 replies', '410 reposts'],
+    },
+    {
+      quote: `"Just use Postgres" is great advice, right up until your one primary is on fire and everything is down at once.`,
+      author: 'throwaway_42',
+      source: 'Hacker News',
+      url: 'https://news.ycombinator.com/item?id=39135777',
+      metrics: ['214 points', '96 comments'],
+    },
+    {
+      quote: `pgvector is genuinely good now, but for serious search at scale, Elasticsearch still eats it for lunch.`,
+      author: 'pg_curious',
+      source: 'Lobsters',
+      url: 'https://lobste.rs/s/vtfkqh',
+      metrics: ['38 votes', '22 comments'],
+    },
+    {
+      quote: `We moved our job queue from Redis to PGMQ and honestly haven't thought about it since.`,
+      author: '@kirsten_dev',
+      source: 'X',
+      url: 'https://x.com/kirsten_dev/status/1750000000000000001',
+      metrics: ['1.2k likes', '88 replies'],
+    },
+    {
+      quote: `The "one database" crowd forgets that backups, failover and vacuum tuning get scarier as that single DB grows.`,
+      author: 'dba_ghost',
+      source: 'Hacker News',
+      url: 'https://news.ycombinator.com/item?id=39135888',
+      metrics: ['156 points', '74 comments'],
+    },
+    {
+      quote: `TimescaleDB replacing our metrics stack was the single best infra decision we made last year.`,
+      author: 'metrics_maxi',
+      source: 'Lobsters',
+      url: 'https://lobste.rs/s/wq2m4p',
+      metrics: ['29 votes', '15 comments'],
+    },
   ],
 };
 
@@ -205,7 +264,7 @@ export const CommunitySentiment = ({
             type="button"
             onClick={toggle}
             aria-expanded={isExpanded}
-            className="ml-auto flex items-center gap-1 text-brand-default typo-footnote font-bold"
+            className="ml-auto flex items-center gap-1 font-bold text-brand-default typo-footnote"
           >
             {isExpanded ? 'Show less' : 'Deep dive'}
             <ArrowIcon

@@ -1,16 +1,17 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { HotIcon, OpenLinkIcon } from '../../icons';
+import { HotIcon, OpenLinkIcon, ArrowIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { anchorDefaultRel } from '../../../lib/strings';
 import type {
   CommunitySentimentData,
+  SentimentHighlight,
   SourceLean,
   SourceSentiment,
 } from './CommunitySentiment';
@@ -21,6 +22,31 @@ const SOURCE_BADGE: Record<string, { label: string; color?: string }> = {
   X: { label: '𝕏' },
   'Hacker News': { label: 'Y', color: '#FF6600' },
   Lobsters: { label: 'L', color: '#A6291F' },
+};
+
+const SourceBadge = ({
+  source,
+  className,
+}: {
+  source: string;
+  className: string;
+}): ReactElement | null => {
+  const badge = SOURCE_BADGE[source];
+  if (!badge) {
+    return null;
+  }
+  return (
+    <span
+      className={classNames(
+        'grid shrink-0 place-items-center font-bold',
+        badge.color ? 'text-white' : 'bg-text-primary text-background-default',
+        className,
+      )}
+      style={badge.color ? { backgroundColor: badge.color } : undefined}
+    >
+      {badge.label}
+    </span>
+  );
 };
 
 const LEAN_CHIP: Record<SourceLean, { label: string; className: string }> = {
@@ -127,21 +153,10 @@ const SourceRow = ({
   url,
 }: SourceSentiment): ReactElement => {
   const chip = LEAN_CHIP[lean];
-  const badge = SOURCE_BADGE[source];
 
   const content = (
     <>
-      {badge && (
-        <span
-          className={classNames(
-            'grid size-6 shrink-0 place-items-center rounded-8 text-[11px] font-bold',
-            badge.color ? 'text-white' : 'bg-text-primary text-background-default',
-          )}
-          style={badge.color ? { backgroundColor: badge.color } : undefined}
-        >
-          {badge.label}
-        </span>
-      )}
+      <SourceBadge source={source} className="size-6 rounded-8 text-[11px]" />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <div className="flex items-center gap-2">
           <Typography
@@ -153,7 +168,7 @@ const SourceRow = ({
           </Typography>
           <span
             className={classNames(
-              'inline-flex items-center rounded-6 px-1.5 py-0.5 typo-caption2 font-bold',
+              'inline-flex items-center rounded-6 px-1.5 py-0.5 font-bold typo-caption2',
               chip.className,
             )}
           >
@@ -167,11 +182,15 @@ const SourceRow = ({
           {note}
         </Typography>
       </div>
-      {url && (
-        <span className="mt-0.5 shrink-0 text-text-tertiary transition-colors group-hover:text-brand-default">
-          <OpenLinkIcon size={IconSize.Size16} />
-        </span>
-      )}
+      {/* Always reserve the link slot so rows without a link stay aligned. */}
+      <span
+        className={classNames(
+          'mt-0.5 shrink-0 text-text-tertiary transition-colors group-hover:text-brand-default',
+          !url && 'invisible',
+        )}
+      >
+        <OpenLinkIcon size={IconSize.Size16} />
+      </span>
     </>
   );
 
@@ -197,18 +216,71 @@ const SourceRow = ({
   return <div className={rowClassName}>{content}</div>;
 };
 
+const HighlightCard = ({
+  quote,
+  author,
+  source,
+  url,
+  metrics,
+}: SentimentHighlight): ReactElement => (
+  <a
+    href={url}
+    target="_blank"
+    rel={anchorDefaultRel}
+    title={`Read on ${source}`}
+    className="group flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-3 transition-colors hover:border-border-subtlest-secondary"
+  >
+    <Typography type={TypographyType.Footnote} color={TypographyColor.Primary}>
+      &ldquo;{quote}&rdquo;
+    </Typography>
+    <div className="flex items-center gap-1.5">
+      <SourceBadge source={source} className="size-5 rounded-6 text-[10px]" />
+      <div className="flex min-w-0 flex-1 items-center gap-1.5">
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Secondary}
+          bold
+          className="shrink-0"
+        >
+          {author}
+        </Typography>
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          className="truncate"
+        >
+          · {metrics.join(' · ')}
+        </Typography>
+      </div>
+      <span className="shrink-0 text-text-tertiary transition-colors group-hover:text-brand-default">
+        <OpenLinkIcon size={IconSize.Size16} />
+      </span>
+    </div>
+  </a>
+);
+
 /**
  * Community Sentiment — Layer 2. A modular set of blocks revealed by "Deep dive".
  * Each block only renders when it has content, so the layer composes itself to
  * the item's sentiment shape (a calm, consensus item shows fewer blocks than a
  * divisive one).
  */
+const INITIAL_HIGHLIGHTS = 3;
+
 export const CommunitySentimentBreakdown = ({
   data,
 }: {
   data: CommunitySentimentData;
 }): ReactElement => {
-  const { pros, cons, bySource, hottestDebate, openQuestions } = data;
+  const { pros, cons, bySource, hottestDebate, openQuestions, highlights } =
+    data;
+  const [showAllHighlights, setShowAllHighlights] = useState(false);
+
+  const visibleHighlights = showAllHighlights
+    ? highlights
+    : highlights.slice(0, INITIAL_HIGHLIGHTS);
+  const hasMoreHighlights =
+    !showAllHighlights && highlights.length > INITIAL_HIGHLIGHTS;
 
   return (
     <div className="flex animate-composer-in flex-col gap-4 border-t border-border-subtlest-tertiary pt-3">
@@ -260,6 +332,27 @@ export const CommunitySentimentBreakdown = ({
               <SourceRow key={item.source} {...item} />
             ))}
           </div>
+        </div>
+      )}
+
+      {highlights.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <BlockTitle>Top picks</BlockTitle>
+          <div className="flex flex-col gap-2">
+            {visibleHighlights.map((item) => (
+              <HighlightCard key={item.url} {...item} />
+            ))}
+          </div>
+          {hasMoreHighlights && (
+            <button
+              type="button"
+              onClick={() => setShowAllHighlights(true)}
+              className="mt-0.5 flex items-center gap-1 self-center font-bold text-text-tertiary transition-colors typo-footnote hover:text-text-primary"
+            >
+              Load more
+              <ArrowIcon size={IconSize.Size16} className="rotate-180" />
+            </button>
+          )}
         </div>
       )}
     </div>
