@@ -1,4 +1,10 @@
+import type { PostCardProps } from './common';
+
 export type FeaturedWideColSpan = 2 | 3 | 4;
+
+export type FeaturedWideCardProps = PostCardProps & {
+  wideColSpan?: FeaturedWideColSpan;
+};
 
 export const INNER_GRID_COLS: Record<FeaturedWideColSpan, string> = {
   2: 'grid-cols-2',

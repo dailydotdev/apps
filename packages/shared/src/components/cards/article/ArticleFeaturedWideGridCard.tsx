@@ -1,7 +1,6 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
-import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import FeedItemContainer from '../common/FeedItemContainer';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
@@ -33,7 +32,7 @@ import { IconSize } from '../../Icon';
 import { stripHtmlTags } from '../../../lib/strings';
 import { HighlightChip } from '../common/HighlightChip';
 import { WhyFeaturedButton } from '../common/WhyFeaturedButton';
-import type { FeaturedWideColSpan } from '../common/featuredWide';
+import type { FeaturedWideCardProps } from '../common/featuredWide';
 import { INNER_GRID_COLS, IMAGE_COL_SPAN } from '../common/featuredWide';
 
 export const ArticleFeaturedWideGridCard = forwardRef(
@@ -54,7 +53,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
       domProps = {},
       eagerLoadImage = false,
       wideColSpan = 2,
-    }: PostCardProps & { wideColSpan?: FeaturedWideColSpan },
+    }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
     const { className, style } = domProps;

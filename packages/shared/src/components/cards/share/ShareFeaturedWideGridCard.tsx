@@ -1,7 +1,6 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
-import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import FeedItemContainer from '../common/FeedItemContainer';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
@@ -24,11 +23,13 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { HIGH_PRIORITY_IMAGE_PROPS, Image, ImageType } from '../../image/Image';
-import { PlayIcon } from '../../icons';
+import { BlockIcon, PlayIcon } from '../../icons';
 import { IconSize } from '../../Icon';
+import { Typography, TypographyType } from '../../typography/Typography';
+import { DeletedPostId } from '../../../lib/constants';
 import { HighlightChip } from '../common/HighlightChip';
 import { WhyFeaturedButton } from '../common/WhyFeaturedButton';
-import type { FeaturedWideColSpan } from '../common/featuredWide';
+import type { FeaturedWideCardProps } from '../common/featuredWide';
 import { INNER_GRID_COLS, IMAGE_COL_SPAN } from '../common/featuredWide';
 
 export const ShareFeaturedWideGridCard = forwardRef(
@@ -48,7 +49,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
       domProps = {},
       eagerLoadImage = false,
       wideColSpan = 2,
-    }: PostCardProps & { wideColSpan?: FeaturedWideColSpan },
+    }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
     const { className, style } = domProps;
@@ -59,7 +60,9 @@ export const ShareFeaturedWideGridCard = forwardRef(
     const { pinnedAt, trending } = post;
     const { title } = useSmartTitle(post);
     const { sharedPost } = post;
-    const image = usePostImage(post);
+    const isDeleted = sharedPost?.id === DeletedPostId;
+    const postImage = usePostImage(post);
+    const image = isDeleted ? undefined : postImage;
     const isVideoType = isVideoPost(post);
     const isSharedTweet = isSocialTwitterPost(sharedPost);
     const glassActions = useFeedCardGlassActions();
@@ -166,16 +169,28 @@ export const ShareFeaturedWideGridCard = forwardRef(
                 isVideoType={isVideoType}
                 className="mt-1"
               />
-              {sharedTitle && sharedTitle !== title ? (
-                <p className="mt-2 line-clamp-2 break-words font-bold text-text-secondary typo-callout">
-                  {sharedTitle}
-                </p>
-              ) : null}
-              {sharedSummary ? (
-                <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
-                  {sharedSummary}
-                </p>
-              ) : null}
+              {isDeleted ? (
+                <div className="mt-2 flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary p-3 text-text-tertiary">
+                  <BlockIcon size={IconSize.Size16} />
+                  <Typography type={TypographyType.Footnote}>
+                    This post is no longer available. It might have been removed
+                    or the link has expired.
+                  </Typography>
+                </div>
+              ) : (
+                <>
+                  {sharedTitle && sharedTitle !== title ? (
+                    <p className="mt-2 line-clamp-2 break-words font-bold text-text-secondary typo-callout">
+                      {sharedTitle}
+                    </p>
+                  ) : null}
+                  {sharedSummary ? (
+                    <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
+                      {sharedSummary}
+                    </p>
+                  ) : null}
+                </>
+              )}
             </CardTextContainer>
             {useGlass ? (
               <>

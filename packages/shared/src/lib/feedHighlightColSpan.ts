@@ -1,14 +1,7 @@
 import type { FeedItem } from '../hooks/useFeed';
 import { FeedItemType } from '../components/cards/common/common';
-import { PostType } from '../graphql/posts';
-
-const WIDENABLE_POST_TYPES = new Set<PostType>([
-  PostType.Article,
-  PostType.VideoYouTube,
-  PostType.Share,
-  PostType.Freeform,
-  PostType.Collection,
-]);
+import type { PostType } from '../graphql/posts';
+import { WIDENABLE_POST_TYPES } from '../components/cards/common/wideCards';
 
 /**
  * Structural eligibility check — does this post qualify for a wide hero

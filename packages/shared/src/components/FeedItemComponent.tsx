@@ -28,11 +28,8 @@ import { FreeformList } from './cards/Freeform/FreeformList';
 import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
-import { ArticleFeaturedWideGridCard } from './cards/article/ArticleFeaturedWideGridCard';
-import { FreeformFeaturedWideGridCard } from './cards/Freeform/FreeformFeaturedWideGridCard';
-import { CollectionFeaturedWideGridCard } from './cards/collection/CollectionFeaturedWideGridCard';
-import { ShareFeaturedWideGridCard } from './cards/share/ShareFeaturedWideGridCard';
 import type { FeaturedWideColSpan } from './cards/common/featuredWide';
+import { PostTypeToWideCard } from './cards/common/wideCards';
 import { ShareGrid } from './cards/share/ShareGrid';
 import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
@@ -142,16 +139,6 @@ const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.Digest]: ArticleGrid,
   [PostType.LiveRoom]: LiveRoomPostGrid,
 };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PostTypeToWideCard: Partial<Record<PostType, React.ComponentType<any>>> =
-  {
-    [PostType.Article]: ArticleFeaturedWideGridCard,
-    [PostType.VideoYouTube]: ArticleFeaturedWideGridCard,
-    [PostType.Freeform]: FreeformFeaturedWideGridCard,
-    [PostType.Collection]: CollectionFeaturedWideGridCard,
-    [PostType.Share]: ShareFeaturedWideGridCard,
-  };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
