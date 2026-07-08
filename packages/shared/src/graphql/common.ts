@@ -16,7 +16,6 @@ export interface PageInfo {
   hasPreviousPage?: boolean | null;
   hasNextPage?: boolean | null;
   totalCount?: number | null;
-  staleCursor?: boolean;
 }
 
 export interface Connection<T> {

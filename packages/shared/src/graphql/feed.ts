@@ -297,7 +297,6 @@ const getFeedPostFragment = (fields = '') => gql`
     pageInfo {
       hasNextPage
       endCursor
-      staleCursor
     }
     edges {
       node {
@@ -404,7 +403,6 @@ export const FEED_V2_QUERY = gql`
       pageInfo {
         hasNextPage
         endCursor
-        staleCursor
       }
       edges {
         node {
