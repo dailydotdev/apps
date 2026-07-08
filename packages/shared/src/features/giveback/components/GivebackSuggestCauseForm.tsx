@@ -23,21 +23,17 @@ interface GivebackSuggestCauseFormProps {
   onClose: () => void;
   // Where the form was opened from ('reward_reveal' | 'causes_tab'), for logging.
   origin: string;
-  // The reveal renders the form on a colorful wash, so the fields need a solid
-  // surface; the plain modal doesn't. Defaults to the modal look.
-  onSurface?: boolean;
 }
 
 const NOTE_MAX_LENGTH = 1000;
 
-// The cause-nomination form, reused by both entry points (the reward reveal and
-// the Causes tab). Collects a required URL and an optional note, submits it for
-// review, then swaps to a confirmation — the backend only pings the team, so
-// there's nothing to track after submit.
+// The cause-nomination form used inside GivebackSuggestCauseModal (both entry
+// points open that modal). Collects a required URL and an optional note, submits
+// it for review, then swaps to a confirmation — the backend only pings the team,
+// so there's nothing to track after submit.
 export const GivebackSuggestCauseForm = ({
   onClose,
   origin,
-  onSurface = false,
 }: GivebackSuggestCauseFormProps): ReactElement => {
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
@@ -52,7 +48,6 @@ export const GivebackSuggestCauseForm = ({
 
   const trimmedUrl = url.trim();
   const canSubmit = isValidHttpUrl(trimmedUrl);
-  const fieldClass = onSurface ? 'bg-background-default' : 'bg-surface-float';
 
   const onSubmit = async () => {
     if (!canSubmit || isPending) {
@@ -129,7 +124,7 @@ export const GivebackSuggestCauseForm = ({
           id={urlInputId}
           type="url"
           inputMode="url"
-          className={`rounded-12 border border-border-subtlest-tertiary px-3 py-2 text-text-primary typo-callout ${fieldClass}`}
+          className="rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-primary typo-callout"
           placeholder="https://..."
           value={url}
           onChange={(event) => setUrl(event.target.value)}
@@ -150,7 +145,7 @@ export const GivebackSuggestCauseForm = ({
         <textarea
           id={noteInputId}
           maxLength={NOTE_MAX_LENGTH}
-          className={`min-h-24 rounded-12 border border-border-subtlest-tertiary px-3 py-2 text-text-primary typo-callout ${fieldClass}`}
+          className="min-h-24 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 text-text-primary typo-callout"
           placeholder="Tell us a bit about it, so we can review it faster."
           value={note}
           onChange={(event) => setNote(event.target.value)}
