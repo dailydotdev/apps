@@ -659,7 +659,7 @@ const CausesStack = ({
         type={TypographyType.Footnote}
         className="px-1 text-center"
       >
-        The causes we fund
+        Already on the list
       </Typography>
       {/* overflow-hidden clips the leaving card as it falls off the bottom. */}
       <div className="relative mx-auto h-20 w-full overflow-hidden">

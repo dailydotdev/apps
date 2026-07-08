@@ -112,7 +112,13 @@ export const resolveRewardReveal = (
         fact: reward.description ?? undefined,
       };
     case ContributionRewardType.SuggestCauses:
-      return { kind: 'suggestCause', headline: reward.title, body };
+      // Bespoke, already-unlocked copy — the tier's own title/description can
+      // read as "earn the right to…", which is wrong once it's claimed.
+      return {
+        kind: 'suggestCause',
+        headline: 'You help shape where it goes.',
+        body: "Nominate a nonprofit or open-source fund you care about, and if it's a fit, it joins the causes everyone can back.",
+      };
     case ContributionRewardType.Council:
       return { kind: 'council', headline: reward.title, body };
     default:
