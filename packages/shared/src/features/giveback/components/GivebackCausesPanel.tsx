@@ -246,6 +246,37 @@ export const GivebackCausesPanel = ({
         )}
       </FlexCol>
 
+      {/* Sits between the picks and the discovery list: once you've reviewed
+          what you back, but before browsing the rest, is the natural moment to
+          add one we don't fund yet. */}
+      {canSuggest && (
+        <FlexRow className="flex-col items-start gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary p-4 tablet:flex-row tablet:items-center tablet:justify-between">
+          <FlexCol className="min-w-0 gap-0.5">
+            <Typography bold type={TypographyType.Callout}>
+              Care about one we don&apos;t fund yet?
+            </Typography>
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="[text-wrap:pretty]"
+            >
+              Nominate a nonprofit or open-source fund. If it&apos;s a fit, it
+              joins the causes everyone can back.
+            </Typography>
+          </FlexCol>
+          <Button
+            type="button"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Secondary}
+            icon={<PlusIcon />}
+            onClick={openSuggest}
+            className="shrink-0"
+          >
+            Suggest a cause
+          </Button>
+        </FlexRow>
+      )}
+
       {/* Filters sit just above the discovery grid they control (and below your
           own causes), so the connection is obvious. */}
       {hasOtherCauses && (
@@ -299,33 +330,6 @@ export const GivebackCausesPanel = ({
             </Typography>
           )}
         </FlexCol>
-      )}
-
-      {canSuggest && (
-        <FlexRow className="flex-col items-start gap-3 rounded-16 border border-dashed border-border-subtlest-tertiary p-4 tablet:flex-row tablet:items-center tablet:justify-between">
-          <FlexCol className="min-w-0 gap-0.5">
-            <Typography bold type={TypographyType.Callout}>
-              Don&apos;t see your cause?
-            </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-              className="[text-wrap:pretty]"
-            >
-              Suggest a nonprofit or open-source fund and we&apos;ll review it.
-            </Typography>
-          </FlexCol>
-          <Button
-            type="button"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Secondary}
-            icon={<PlusIcon />}
-            onClick={openSuggest}
-            className="shrink-0"
-          >
-            Suggest a cause
-          </Button>
-        </FlexRow>
       )}
 
       {isSuggestOpen && (
