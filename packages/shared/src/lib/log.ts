@@ -520,6 +520,9 @@ export enum LogEvent {
   ClickGivebackHowItWorks = 'click giveback how it works',
   ClickGivebackGiftEntry = 'click giveback gift entry',
   ViewGivebackPrompt = 'view giveback prompt',
+  OpenGivebackCauseSuggestion = 'open giveback cause suggestion',
+  SubmitGivebackCauseSuggestion = 'submit giveback cause suggestion',
+  SubmitGivebackCauseSuggestionError = 'submit giveback cause suggestion error',
   // Daily homepage
   DailyFeedback = 'daily feedback',
 }

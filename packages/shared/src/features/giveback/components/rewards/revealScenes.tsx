@@ -24,10 +24,15 @@ import { anchorDefaultRel } from '../../../../lib/strings';
 import { getDomainFromUrl } from '../../../../lib/links';
 import { FlexCol, FlexRow } from '../../../../components/utilities';
 import type { LoggedUser } from '../../../../lib/user';
+import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
+import { featureGivebackSuggestCause } from '../../../../lib/featureManagement';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent } from '../../../../lib/log';
 import { useCountUp, usePrefersReducedMotion } from '../../useGivebackMotion';
 import { useContributionCausePicker } from '../../hooks/useContributionCausePicker';
 import type { ContributionCause } from '../../types';
 import { GivebackReveal as Reveal } from '../GivebackReveal';
+import { GivebackSuggestCauseModal } from '../GivebackSuggestCauseModal';
 import type { RewardReveal } from './rewardReveal';
 import { GivebackSecretScratch } from './GivebackSecretScratch';
 import {
@@ -707,10 +712,10 @@ const CausesStack = ({
 };
 
 // Suggest a cause → a celebration that the privilege is unlocked, over the
-// carousel of the live causes we already fund. "Suggest now" is the entry to
-// the real nomination flow.
-// PLACEHOLDER: the nomination flow doesn't exist yet, so the CTA dismisses for
-// now — wire it to the suggest-a-cause form once that endpoint lands.
+// carousel of the live causes we already fund. "Suggest now" opens the same
+// nomination modal the Causes tab uses. The flow is gated on
+// `featureGivebackSuggestCause` (the team rolls it out with the feature access);
+// when it's off the CTA just dismisses, keeping the celebration harmless.
 export const SuggestCauseReveal = ({
   reveal,
   levelNumber,
@@ -720,8 +725,26 @@ export const SuggestCauseReveal = ({
   levelNumber?: number;
   onClose: () => void;
 }): ReactElement => {
+  const { logEvent } = useLogContext();
   // Cache hit: the roadmap already loads the cause picker, so this reuses it.
   const { causes } = useContributionCausePicker(true);
+  const { value: canSuggest } = useConditionalFeature({
+    feature: featureGivebackSuggestCause,
+    shouldEvaluate: true,
+  });
+  const [showModal, setShowModal] = useState(false);
+
+  const onSuggest = () => {
+    if (!canSuggest) {
+      onClose();
+      return;
+    }
+    logEvent({
+      event_name: LogEvent.OpenGivebackCauseSuggestion,
+      extra: JSON.stringify({ origin: 'reward_reveal' }),
+    });
+    setShowModal(true);
+  };
 
   return (
     <FlexCol className="items-center gap-5">
@@ -735,8 +758,13 @@ export const SuggestCauseReveal = ({
         </Reveal>
       )}
       <Reveal delay={STAGGER_STEP * 5}>
-        <DismissButton label="Suggest now" onClose={onClose} />
+        <DismissButton label="Suggest now" onClose={onSuggest} />
       </Reveal>
+      {/* Opens over the celebration; closing it tears down the whole reveal so
+          the visitor lands back on the page, not the confetti. */}
+      {showModal && (
+        <GivebackSuggestCauseModal onClose={onClose} origin="reward_reveal" />
+      )}
     </FlexCol>
   );
 };
