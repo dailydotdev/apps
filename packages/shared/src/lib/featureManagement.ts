@@ -5,6 +5,7 @@ import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
 import type { HeroCardsConfig } from '../types';
+import { PostType } from '../types';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -237,6 +238,13 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
     notable: 'Notable',
     breakout: 'Breaking out',
     evergreen: 'Evergreen',
+  },
+  allowedPostTypes: {
+    [PostType.Article]: true,
+    [PostType.VideoYouTube]: true,
+    [PostType.Share]: false,
+    [PostType.Freeform]: false,
+    [PostType.Collection]: false,
   },
 });
 

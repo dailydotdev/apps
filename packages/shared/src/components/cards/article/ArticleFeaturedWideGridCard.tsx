@@ -17,6 +17,7 @@ import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { stripHtmlTags } from '../../../lib/strings';
 import { HighlightChip } from '../common/HighlightChip';
 import type { FeaturedWideCardProps } from '../common/featuredWide';
+import { INNER_GRID_COLS } from '../common/featuredWide';
 import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
 import { FeaturedWideImageColumn } from '../common/FeaturedWideImageColumn';
 import { FeaturedWideActions } from '../common/FeaturedWideActions';
@@ -155,15 +156,22 @@ export const ArticleFeaturedWideGridCard = forwardRef(
         ref={ref}
         post={post}
         domProps={domProps}
-        wideColSpan={wideColSpan}
         useGlass={useGlass}
         onPostClick={onPostClick}
         onPostAuxClick={onPostAuxClick}
         flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked && !showFeedback}
-        postChildren={children}
-        imageColumn={
-          image ? (
+      >
+        <div
+          className={classNames(
+            'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
+            image ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
+          )}
+        >
+          <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
+            {showFeedback ? feedbackContent : standardContent}
+          </div>
+          {image ? (
             <FeaturedWideImageColumn
               image={image}
               alt={post.title ?? ''}
@@ -173,10 +181,10 @@ export const ArticleFeaturedWideGridCard = forwardRef(
               isVideoType={isVideoType}
               eagerLoadImage={eagerLoadImage}
             />
-          ) : null
-        }
-        content={showFeedback ? feedbackContent : standardContent}
-      />
+          ) : null}
+        </div>
+        {children}
+      </FeaturedWideCardShell>
     );
   },
 );

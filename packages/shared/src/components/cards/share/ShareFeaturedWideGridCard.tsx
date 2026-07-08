@@ -16,6 +16,7 @@ import { Typography, TypographyType } from '../../typography/Typography';
 import { DeletedPostId } from '../../../lib/constants';
 import { HighlightChip } from '../common/HighlightChip';
 import type { FeaturedWideCardProps } from '../common/featuredWide';
+import { INNER_GRID_COLS } from '../common/featuredWide';
 import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
 import { FeaturedWideImageColumn } from '../common/FeaturedWideImageColumn';
 import { FeaturedWideActions } from '../common/FeaturedWideActions';
@@ -40,7 +41,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
-    const { pinnedAt, trending } = post;
+    const { pinnedAt } = post;
     const { title } = useSmartTitle(post);
     const { sharedPost } = post;
     const isDeleted = sharedPost?.id === DeletedPostId;
@@ -58,28 +59,20 @@ export const ShareFeaturedWideGridCard = forwardRef(
         ref={ref}
         post={post}
         domProps={domProps}
-        wideColSpan={wideColSpan}
         useGlass={useGlass}
         onPostClick={onPostClick}
         onPostAuxClick={onPostAuxClick}
         overlayAriaLabel={title}
-        flagProps={{ pinnedAt, trending }}
+        flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked}
-        postChildren={children}
-        imageColumn={
-          image ? (
-            <FeaturedWideImageColumn
-              image={image}
-              alt={sharedTitle || post.title || ''}
-              wideColSpan={wideColSpan}
-              significance={significance}
-              isVideoType={isVideoType}
-              eagerLoadImage={eagerLoadImage}
-            />
-          ) : null
-        }
-        content={
-          <>
+      >
+        <div
+          className={classNames(
+            'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
+            image ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
+          )}
+        >
+          <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
             <CardTextContainer
               className={
                 useGlass ? 'min-h-0 flex-1 overflow-hidden' : undefined
@@ -154,9 +147,20 @@ export const ShareFeaturedWideGridCard = forwardRef(
               onBookmarkClick={onBookmarkClick}
               onDownvoteClick={onDownvoteClick}
             />
-          </>
-        }
-      />
+          </div>
+          {image ? (
+            <FeaturedWideImageColumn
+              image={image}
+              alt={sharedTitle || post.title || ''}
+              wideColSpan={wideColSpan}
+              significance={significance}
+              isVideoType={isVideoType}
+              eagerLoadImage={eagerLoadImage}
+            />
+          ) : null}
+        </div>
+        {children}
+      </FeaturedWideCardShell>
     );
   },
 );

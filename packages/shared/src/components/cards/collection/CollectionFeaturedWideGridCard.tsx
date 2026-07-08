@@ -13,6 +13,7 @@ import { usePostImage } from '../../../hooks/post/usePostImage';
 import { CollectionCardHeader } from './CollectionCardHeader';
 import { HighlightChip } from '../common/HighlightChip';
 import type { FeaturedWideCardProps } from '../common/featuredWide';
+import { INNER_GRID_COLS } from '../common/featuredWide';
 import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
 import { FeaturedWideImageColumn } from '../common/FeaturedWideImageColumn';
 import { FeaturedWideActions } from '../common/FeaturedWideActions';
@@ -35,7 +36,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
-    const { pinnedAt, trending } = post;
+    const { pinnedAt } = post;
     const { title } = useSmartTitle(post);
     const image = usePostImage(post);
     const useGlass = useFeedCardGlassActions();
@@ -47,26 +48,19 @@ export const CollectionFeaturedWideGridCard = forwardRef(
         ref={ref}
         post={post}
         domProps={domProps}
-        wideColSpan={wideColSpan}
         useGlass={useGlass}
         onPostClick={onPostClick}
         onPostAuxClick={onPostAuxClick}
-        flagProps={{ pinnedAt, trending }}
+        flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked}
-        postChildren={children}
-        imageColumn={
-          image ? (
-            <FeaturedWideImageColumn
-              image={image}
-              alt={post.title ?? ''}
-              wideColSpan={wideColSpan}
-              significance={significance}
-              eagerLoadImage={eagerLoadImage}
-            />
-          ) : null
-        }
-        content={
-          <>
+      >
+        <div
+          className={classNames(
+            'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
+            image ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
+          )}
+        >
+          <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
             <CardTextContainer
               className={
                 useGlass ? 'min-h-0 flex-1 overflow-hidden' : undefined
@@ -114,9 +108,19 @@ export const CollectionFeaturedWideGridCard = forwardRef(
               onBookmarkClick={onBookmarkClick}
               onDownvoteClick={onDownvoteClick}
             />
-          </>
-        }
-      />
+          </div>
+          {image ? (
+            <FeaturedWideImageColumn
+              image={image}
+              alt={post.title ?? ''}
+              wideColSpan={wideColSpan}
+              significance={significance}
+              eagerLoadImage={eagerLoadImage}
+            />
+          ) : null}
+        </div>
+        {children}
+      </FeaturedWideCardShell>
     );
   },
 );

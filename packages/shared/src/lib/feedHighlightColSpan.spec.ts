@@ -49,6 +49,14 @@ const makePost = (
 const makePostItem = (post: Post): FeedItem =>
   ({ type: FeedItemType.Post, post } as FeedItem);
 
+const ALL_WIDENABLE: ReadonlySet<PostType> = new Set([
+  PostType.Article,
+  PostType.VideoYouTube,
+  PostType.Share,
+  PostType.Freeform,
+  PostType.Collection,
+]);
+
 const makeAdItem = (): FeedItem =>
   ({
     type: FeedItemType.Ad,
@@ -63,7 +71,7 @@ const makeAdItem = (): FeedItem =>
 
 describe('requestedColSpan', () => {
   it('returns 1 for items without hero', () => {
-    expect(requestedColSpan(makePostItem(makePost()))).toBe(1);
+    expect(requestedColSpan(makePostItem(makePost()), ALL_WIDENABLE)).toBe(1);
   });
 
   it.each<[PostHeroSignificance, number]>([
@@ -74,13 +82,24 @@ describe('requestedColSpan', () => {
     ['breakout', 3],
     ['evergreen', 2],
   ])('maps %s significance to span %i', (significance, expected) => {
-    expect(requestedColSpan(makePostItem(makePost({ significance })))).toBe(
-      expected,
-    );
+    expect(
+      requestedColSpan(makePostItem(makePost({ significance })), ALL_WIDENABLE),
+    ).toBe(expected);
   });
 
   it('returns 1 for ad items even when their post has a highlight', () => {
-    expect(requestedColSpan(makeAdItem())).toBe(1);
+    expect(requestedColSpan(makeAdItem(), ALL_WIDENABLE)).toBe(1);
+  });
+
+  it('returns 1 for a widenable post type when it is not in the runtime allowed set', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({ type: PostType.Share, significance: 'breaking' }),
+        ),
+        new Set([PostType.Article]),
+      ),
+    ).toBe(1);
   });
 
   it('returns 1 for non-widenable post types with a highlight', () => {
@@ -89,6 +108,7 @@ describe('requestedColSpan', () => {
         makePostItem(
           makePost({ type: PostType.Poll, significance: 'breaking' }),
         ),
+        ALL_WIDENABLE,
       ),
     ).toBe(1);
   });
@@ -99,6 +119,7 @@ describe('requestedColSpan', () => {
         makePostItem(
           makePost({ type: PostType.Share, significance: 'breaking' }),
         ),
+        ALL_WIDENABLE,
       ),
     ).toBe(4);
   });
@@ -109,6 +130,7 @@ describe('requestedColSpan', () => {
         makePostItem(
           makePost({ type: PostType.Freeform, significance: 'major' }),
         ),
+        ALL_WIDENABLE,
       ),
     ).toBe(3);
   });
@@ -119,6 +141,7 @@ describe('requestedColSpan', () => {
         makePostItem(
           makePost({ type: PostType.Collection, significance: 'notable' }),
         ),
+        ALL_WIDENABLE,
       ),
     ).toBe(2);
   });
@@ -129,6 +152,7 @@ describe('requestedColSpan', () => {
         makePostItem(
           makePost({ type: PostType.VideoYouTube, significance: 'major' }),
         ),
+        ALL_WIDENABLE,
       ),
     ).toBe(3);
   });
@@ -147,7 +171,7 @@ describe('requestedColSpan', () => {
         highlightedAt: '2026-05-25T00:00:00.000Z',
       },
     } as Post;
-    expect(requestedColSpan(makePostItem(post))).toBe(4);
+    expect(requestedColSpan(makePostItem(post), ALL_WIDENABLE)).toBe(4);
   });
 });
 
@@ -159,6 +183,7 @@ describe('createPlacementBuilder', () => {
     isEnabled: true,
     minSpacing: 10,
     startIndex: 0,
+    widenableTypes: ALL_WIDENABLE,
   };
 
   it('returns colSpan 1 with naive row/col when layout is disabled', () => {
@@ -292,6 +317,7 @@ describe('computePlacements', () => {
     isEnabled: true,
     minSpacing: 10,
     startIndex: 0,
+    widenableTypes: ALL_WIDENABLE,
   };
 
   const colSpans = (items: FeedItem[], o = opts) =>

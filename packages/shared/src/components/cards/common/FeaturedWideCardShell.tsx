@@ -10,38 +10,30 @@ import CardOverlay from './CardOverlay';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
-import type { FeaturedWideColSpan } from './featuredWide';
-import { INNER_GRID_COLS } from './featuredWide';
 
 export type FeaturedWideCardShellProps = {
   post: Post;
   domProps?: PostCardProps['domProps'];
-  wideColSpan: FeaturedWideColSpan;
   useGlass?: boolean;
   onPostClick?: PostCardProps['onPostClick'];
   onPostAuxClick?: PostCardProps['onPostAuxClick'];
   overlayAriaLabel?: string;
   flagProps?: FlagProps;
   bookmarked?: boolean;
-  content: ReactNode;
-  imageColumn?: ReactNode;
-  postChildren?: ReactNode;
+  children: ReactNode;
 };
 
 export const FeaturedWideCardShell = forwardRef(function FeaturedWideCardShell(
   {
     post,
     domProps = {},
-    wideColSpan,
     useGlass,
     onPostClick,
     onPostAuxClick,
     overlayAriaLabel,
     flagProps,
     bookmarked,
-    content,
-    imageColumn,
-    postChildren,
+    children,
   }: FeaturedWideCardShellProps,
   ref: Ref<HTMLElement>,
 ): ReactElement {
@@ -99,18 +91,7 @@ export const FeaturedWideCardShell = forwardRef(function FeaturedWideCardShell(
         onPostCardAuxClick={onPostCardAuxClick}
         ariaLabel={overlayAriaLabel}
       />
-      <div
-        className={classNames(
-          'absolute inset-0 grid h-full min-h-0 gap-3 overflow-hidden laptop:gap-4',
-          INNER_GRID_COLS[wideColSpan],
-        )}
-      >
-        <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
-          {content}
-        </div>
-        {imageColumn}
-      </div>
-      {postChildren}
+      {children}
     </FeedItemContainer>
   );
 });

@@ -1831,6 +1831,13 @@ const renderWithHighlightLayout = ({
         minSpacing,
         startIndex,
         chipLabels: {},
+        allowedPostTypes: {
+          [PostType.Article]: true,
+          [PostType.VideoYouTube]: true,
+          [PostType.Share]: true,
+          [PostType.Freeform]: true,
+          [PostType.Collection]: true,
+        },
       },
     },
     ...(briefBannerPage
