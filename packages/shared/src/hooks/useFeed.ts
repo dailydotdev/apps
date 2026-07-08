@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useContext, useMemo, useRef } from 'react';
 import type {
   InfiniteData,
   QueryKey,
@@ -301,8 +301,6 @@ export default function useFeed<T>(
   const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
     'highlightCardsOptOut',
   );
-  // Track if we're currently resetting due to stale cursor to prevent infinite loops
-  const isResettingRef = useRef(false);
   const { fetchTranslations } = useTranslation({
     queryKey: feedQueryKey,
     queryType: 'feed',
@@ -375,23 +373,6 @@ export default function useFeed<T>(
     initialPageParam: '',
     getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
   });
-
-  // Reset feed when staleCursor is detected (feed cache regenerated mid-session)
-  useEffect(() => {
-    const pages = feedQuery.data?.pages;
-    if (!pages?.length || isResettingRef.current) {
-      return;
-    }
-
-    // Check if any page has staleCursor set
-    const hasStaleCursor = pages.some((p) => p.page.pageInfo.staleCursor);
-    if (hasStaleCursor) {
-      isResettingRef.current = true;
-      queryClient.resetQueries({ queryKey: feedQueryKey }).finally(() => {
-        isResettingRef.current = false;
-      });
-    }
-  }, [feedQuery.data?.pages, feedQueryKey, queryClient]);
 
   const clientError = feedQuery?.error as ClientError;
   const adPostLength = settings?.adPostLength;
