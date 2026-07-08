@@ -133,11 +133,11 @@ export const ArticleFeaturedWideGridCard = forwardRef(
             isVideoType={isVideoType}
             className="mt-1"
           />
-          {description ? (
+          {!!description && (
             <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
               {description}
             </p>
-          ) : null}
+          )}
         </CardTextContainer>
         <FeaturedWideActions
           post={post}
@@ -161,6 +161,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
         onPostAuxClick={onPostAuxClick}
         flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked && !showFeedback}
+        significance={significance}
       >
         <div
           className={classNames(
@@ -171,17 +172,16 @@ export const ArticleFeaturedWideGridCard = forwardRef(
           <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
             {showFeedback ? feedbackContent : standardContent}
           </div>
-          {image ? (
+          {!!image && (
             <FeaturedWideImageColumn
               image={image}
               alt={post.title ?? ''}
               wideColSpan={wideColSpan}
-              significance={significance}
               overlay={overlay}
               isVideoType={isVideoType}
               eagerLoadImage={eagerLoadImage}
             />
-          ) : null}
+          )}
         </div>
         {children}
       </FeaturedWideCardShell>

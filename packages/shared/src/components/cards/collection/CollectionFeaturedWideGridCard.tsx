@@ -53,6 +53,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
         onPostAuxClick={onPostAuxClick}
         flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked}
+        significance={significance}
       >
         <div
           className={classNames(
@@ -93,11 +94,11 @@ export const CollectionFeaturedWideGridCard = forwardRef(
                 numSources={post.numCollectionSources}
                 className="mt-1"
               />
-              {post.summary ? (
+              {!!post.summary && (
                 <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
                   {post.summary}
                 </p>
-              ) : null}
+              )}
             </CardTextContainer>
             <FeaturedWideActions
               post={post}
@@ -109,15 +110,14 @@ export const CollectionFeaturedWideGridCard = forwardRef(
               onDownvoteClick={onDownvoteClick}
             />
           </div>
-          {image ? (
+          {!!image && (
             <FeaturedWideImageColumn
               image={image}
               alt={post.title ?? ''}
               wideColSpan={wideColSpan}
-              significance={significance}
               eagerLoadImage={eagerLoadImage}
             />
-          ) : null}
+          )}
         </div>
         {children}
       </FeaturedWideCardShell>

@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
+import type { PostHeroSignificance } from '../../../graphql/types';
 import type { PostCardProps } from './common';
 import FeedItemContainer from './FeedItemContainer';
 import type { FlagProps } from './FeedItemContainer';
@@ -10,6 +11,7 @@ import CardOverlay from './CardOverlay';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
+import { WhyFeaturedButton } from './WhyFeaturedButton';
 
 export type FeaturedWideCardShellProps = {
   post: Post;
@@ -20,6 +22,7 @@ export type FeaturedWideCardShellProps = {
   overlayAriaLabel?: string;
   flagProps?: FlagProps;
   bookmarked?: boolean;
+  significance?: PostHeroSignificance | null;
   children: ReactNode;
 };
 
@@ -33,6 +36,7 @@ export const FeaturedWideCardShell = forwardRef(function FeaturedWideCardShell(
     overlayAriaLabel,
     flagProps,
     bookmarked,
+    significance,
     children,
   }: FeaturedWideCardShellProps,
   ref: Ref<HTMLElement>,
@@ -92,6 +96,7 @@ export const FeaturedWideCardShell = forwardRef(function FeaturedWideCardShell(
         ariaLabel={overlayAriaLabel}
       />
       {children}
+      <WhyFeaturedButton significance={significance} />
     </FeedItemContainer>
   );
 });

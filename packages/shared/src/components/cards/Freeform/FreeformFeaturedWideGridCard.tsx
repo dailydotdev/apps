@@ -56,6 +56,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
         onPostAuxClick={onPostAuxClick}
         flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked}
+        significance={significance}
       >
         <div
           className={classNames(
@@ -94,11 +95,11 @@ export const FreeformFeaturedWideGridCard = forwardRef(
                 readTime={post.readTime}
                 className="mt-1"
               />
-              {description ? (
+              {!!description && (
                 <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
                   {description}
                 </p>
-              ) : null}
+              )}
             </CardTextContainer>
             <FeaturedWideActions
               post={post}
@@ -110,15 +111,14 @@ export const FreeformFeaturedWideGridCard = forwardRef(
               onDownvoteClick={onDownvoteClick}
             />
           </div>
-          {image ? (
+          {!!image && (
             <FeaturedWideImageColumn
               image={image}
               alt={post.title ?? ''}
               wideColSpan={wideColSpan}
-              significance={significance}
               eagerLoadImage={eagerLoadImage}
             />
-          ) : null}
+          )}
         </div>
         {children}
       </FeaturedWideCardShell>

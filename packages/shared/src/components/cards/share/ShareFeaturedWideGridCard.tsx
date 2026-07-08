@@ -14,6 +14,7 @@ import { BlockIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { Typography, TypographyType } from '../../typography/Typography';
 import { DeletedPostId } from '../../../lib/constants';
+import { stripHtmlTags } from '../../../lib/strings';
 import { HighlightChip } from '../common/HighlightChip';
 import type { FeaturedWideCardProps } from '../common/featuredWide';
 import { INNER_GRID_COLS } from '../common/featuredWide';
@@ -53,6 +54,9 @@ export const ShareFeaturedWideGridCard = forwardRef(
     const significance = post.hero?.significance;
     const sharedTitle = sharedPost?.title?.trim();
     const sharedSummary = sharedPost?.summary?.trim();
+    const tweetBody = isSharedTweet
+      ? stripHtmlTags(sharedPost?.contentHtml ?? post.contentHtml ?? '').trim()
+      : '';
 
     return (
       <FeaturedWideCardShell
@@ -65,6 +69,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
         overlayAriaLabel={title}
         flagProps={{ pinnedAt }}
         bookmarked={post.bookmarked}
+        significance={significance}
       >
         <div
           className={classNames(
@@ -125,16 +130,21 @@ export const ShareFeaturedWideGridCard = forwardRef(
                 </div>
               ) : (
                 <>
-                  {sharedTitle && sharedTitle !== title ? (
+                  {!!sharedTitle && sharedTitle !== title && (
                     <p className="mt-2 line-clamp-2 break-words font-bold text-text-secondary typo-callout">
                       {sharedTitle}
                     </p>
-                  ) : null}
-                  {sharedSummary ? (
+                  )}
+                  {!!sharedSummary && (
                     <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
                       {sharedSummary}
                     </p>
-                  ) : null}
+                  )}
+                  {!sharedSummary && !!tweetBody && (
+                    <p className="mt-2 line-clamp-6 whitespace-pre-line text-text-secondary typo-callout">
+                      {tweetBody}
+                    </p>
+                  )}
                 </>
               )}
             </CardTextContainer>
@@ -148,16 +158,15 @@ export const ShareFeaturedWideGridCard = forwardRef(
               onDownvoteClick={onDownvoteClick}
             />
           </div>
-          {image ? (
+          {!!image && (
             <FeaturedWideImageColumn
               image={image}
               alt={sharedTitle || post.title || ''}
               wideColSpan={wideColSpan}
-              significance={significance}
               isVideoType={isVideoType}
               eagerLoadImage={eagerLoadImage}
             />
-          ) : null}
+          )}
         </div>
         {children}
       </FeaturedWideCardShell>

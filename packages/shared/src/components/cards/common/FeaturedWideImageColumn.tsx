@@ -1,11 +1,9 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import type { PostHeroSignificance } from '../../../graphql/types';
 import { HIGH_PRIORITY_IMAGE_PROPS, Image, ImageType } from '../../image/Image';
 import { PlayIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import { WhyFeaturedButton } from './WhyFeaturedButton';
 import type { FeaturedWideColSpan } from './featuredWide';
 import { IMAGE_COL_SPAN } from './featuredWide';
 
@@ -13,7 +11,6 @@ export type FeaturedWideImageColumnProps = {
   image: string;
   alt: string;
   wideColSpan: FeaturedWideColSpan;
-  significance: PostHeroSignificance | null | undefined;
   overlay?: ReactNode;
   isVideoType?: boolean;
   eagerLoadImage?: boolean;
@@ -23,7 +20,6 @@ export const FeaturedWideImageColumn = ({
   image,
   alt,
   wideColSpan,
-  significance,
   overlay,
   isVideoType,
   eagerLoadImage,
@@ -34,7 +30,6 @@ export const FeaturedWideImageColumn = ({
       IMAGE_COL_SPAN[wideColSpan],
     )}
   >
-    <WhyFeaturedButton significance={significance} />
     <Image
       aria-hidden
       alt=""
