@@ -83,14 +83,44 @@ describe('requestedColSpan', () => {
     expect(requestedColSpan(makeAdItem())).toBe(1);
   });
 
-  it('returns 1 for non-article post types with a highlight', () => {
+  it('returns 1 for non-widenable post types with a highlight', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({ type: PostType.Poll, significance: 'breaking' }),
+        ),
+      ),
+    ).toBe(1);
+  });
+
+  it('allows widening for Share posts', () => {
     expect(
       requestedColSpan(
         makePostItem(
           makePost({ type: PostType.Share, significance: 'breaking' }),
         ),
       ),
-    ).toBe(1);
+    ).toBe(4);
+  });
+
+  it('allows widening for Freeform posts', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({ type: PostType.Freeform, significance: 'major' }),
+        ),
+      ),
+    ).toBe(3);
+  });
+
+  it('allows widening for Collection posts', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({ type: PostType.Collection, significance: 'notable' }),
+        ),
+      ),
+    ).toBe(2);
   });
 
   it('allows widening for VideoYouTube posts', () => {

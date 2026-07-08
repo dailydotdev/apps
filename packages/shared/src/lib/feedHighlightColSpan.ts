@@ -5,6 +5,9 @@ import { PostType } from '../graphql/posts';
 const WIDENABLE_POST_TYPES = new Set<PostType>([
   PostType.Article,
   PostType.VideoYouTube,
+  PostType.Share,
+  PostType.Freeform,
+  PostType.Collection,
 ]);
 
 /**
