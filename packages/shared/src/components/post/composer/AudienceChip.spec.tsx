@@ -5,38 +5,78 @@ import type { Squad } from '../../../graphql/sources';
 import { SourceMemberRole, SourceType } from '../../../graphql/sources';
 import { AudienceChip } from './AudienceChip';
 
-jest.mock('../../dropdown/DropdownMenu', () => ({
-  DropdownMenu: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  DropdownMenuTrigger: ({ children }: { children: React.ReactNode }) =>
-    children,
-  DropdownMenuContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
-  DropdownMenuItem: ({
-    children,
-    onSelect,
-    ...props
-  }: {
-    children: React.ReactNode;
-    onSelect?: (event: Event) => void;
-  }) => (
-    <div
-      role="menuitem"
-      tabIndex={0}
-      onClick={(event) => onSelect?.(event.nativeEvent)}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          onSelect?.(event.nativeEvent);
-        }
-      }}
-      {...props}
-    >
-      {children}
-    </div>
-  ),
-}));
+// Mirror the Radix contract we rely on: content renders only while open, the
+// trigger opens it, and selecting an item closes the menu UNLESS onSelect calls
+// preventDefault(). This lets the tests actually assert the menu stays open.
+jest.mock('../../dropdown/DropdownMenu', () => {
+  const { createContext, useContext, cloneElement } =
+    jest.requireActual<typeof React>('react');
+  const MenuContext = createContext<{
+    open: boolean;
+    setOpen: (v: boolean) => void;
+  }>({
+    open: false,
+    setOpen: () => {},
+  });
+  const select = (
+    onSelect: ((event: Event) => void) | undefined,
+    nativeEvent: Event,
+    setOpen: (v: boolean) => void,
+  ) => {
+    onSelect?.(nativeEvent);
+    if (!nativeEvent.defaultPrevented) {
+      setOpen(false);
+    }
+  };
+  return {
+    DropdownMenu: ({
+      children,
+      open,
+      onOpenChange,
+    }: {
+      children: React.ReactNode;
+      open: boolean;
+      onOpenChange: (v: boolean) => void;
+    }) => (
+      <MenuContext.Provider value={{ open, setOpen: onOpenChange }}>
+        {children}
+      </MenuContext.Provider>
+    ),
+    DropdownMenuTrigger: ({ children }: { children: React.ReactElement }) => {
+      const { setOpen } = useContext(MenuContext);
+      return cloneElement(children, { onClick: () => setOpen(true) });
+    },
+    DropdownMenuContent: ({ children }: { children: React.ReactNode }) => {
+      const { open } = useContext(MenuContext);
+      return open ? <div>{children}</div> : null;
+    },
+    DropdownMenuItem: ({
+      children,
+      onSelect,
+      ...props
+    }: {
+      children: React.ReactNode;
+      onSelect?: (event: Event) => void;
+    }) => {
+      const { setOpen } = useContext(MenuContext);
+      return (
+        <div
+          role="menuitem"
+          tabIndex={0}
+          onClick={(event) => select(onSelect, event.nativeEvent, setOpen)}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              select(onSelect, event.nativeEvent, setOpen);
+            }
+          }}
+          {...props}
+        >
+          {children}
+        </div>
+      );
+    },
+  };
+});
 
 const createAudience = (
   id: string,
@@ -74,6 +114,8 @@ const audiences = [
   designSquad,
 ];
 
+// Owns selection state so the component behaves like the real controlled
+// composer: each onChange feeds back into selectedIds and re-renders.
 const StatefulHarness = ({
   initialSelectedIds,
   onChange,
@@ -95,34 +137,32 @@ const StatefulHarness = ({
   );
 };
 
-const renderComponent = ({
+// Renders the chip and opens the menu (the menu is closed until the trigger is
+// clicked, matching Radix), returning the onChange spy and the open menu.
+const openMenu = async ({
   selectedIds = ['user-1'],
   onChange = jest.fn(),
-  stateful = false,
 }: {
   selectedIds?: string[];
   onChange?: jest.Mock;
-  stateful?: boolean;
 } = {}) => {
   render(
-    stateful ? (
-      <StatefulHarness initialSelectedIds={selectedIds} onChange={onChange} />
-    ) : (
-      <AudienceChip
-        audiences={audiences}
-        selectedIds={selectedIds}
-        onChange={onChange}
-        userAudienceId="user-1"
-      />
-    ),
+    <StatefulHarness initialSelectedIds={selectedIds} onChange={onChange} />,
   );
-
+  await userEvent.click(screen.getByRole('button', { name: /Posting to/ }));
   return { onChange };
 };
 
+// The option row and the trigger can share a label (e.g. "Everyone"); the menu
+// content renders after the trigger, so the option is the last match.
+const clickOption = (label: string) => {
+  const matches = screen.getAllByText(label);
+  return userEvent.click(matches[matches.length - 1]);
+};
+
 describe('AudienceChip', () => {
-  it('renders checkbox controls for audience options', () => {
-    renderComponent();
+  it('renders checkbox controls for audience options', async () => {
+    await openMenu();
 
     expect(
       screen.getByRole('checkbox', {
@@ -137,38 +177,36 @@ describe('AudienceChip', () => {
   });
 
   it('adds squads additively on row clicks and keeps the menu open', async () => {
-    const { onChange } = renderComponent({ stateful: true });
+    const { onChange } = await openMenu();
 
-    await userEvent.click(screen.getByText('Frontend'));
+    await clickOption('Frontend');
     expect(onChange).toHaveBeenLastCalledWith(['user-1', 'squad-frontend']);
 
-    await userEvent.click(screen.getByText('Backend'));
+    await clickOption('Backend');
     expect(onChange).toHaveBeenLastCalledWith([
       'user-1',
       'squad-frontend',
       'squad-backend',
     ]);
 
-    // menu options remain mounted and the trigger reflects the accumulated selection
-    expect(screen.getByText('Frontend')).toBeInTheDocument();
+    // options are still mounted, so the menu stayed open across both clicks
     expect(screen.getByText('Backend')).toBeInTheDocument();
     expect(screen.getByText('3 audiences')).toBeInTheDocument();
   });
 
   it('deselects an already-selected squad on row click without closing', async () => {
-    const { onChange } = renderComponent({
+    const { onChange } = await openMenu({
       selectedIds: ['user-1', 'squad-frontend'],
-      stateful: true,
     });
 
-    await userEvent.click(screen.getByText('Frontend'));
+    await clickOption('Frontend');
 
     expect(onChange).toHaveBeenLastCalledWith(['user-1']);
     expect(screen.getByText('Frontend')).toBeInTheDocument();
   });
 
   it('multi-selects an audience when clicking the checkbox exactly once', async () => {
-    const { onChange } = renderComponent();
+    const { onChange } = await openMenu();
 
     await userEvent.click(
       screen.getByRole('checkbox', {
@@ -178,43 +216,34 @@ describe('AudienceChip', () => {
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith(['user-1', 'squad-frontend']);
+    expect(screen.getByText('Frontend')).toBeInTheDocument();
   });
 
   it('enforces the 3-squad cap on row clicks', async () => {
-    const { onChange } = renderComponent({
+    const { onChange } = await openMenu({
       selectedIds: ['squad-frontend', 'squad-backend', 'squad-mobile'],
-      stateful: true,
     });
 
     expect(
       screen.getByText('You can post to up to 3 squads'),
     ).toBeInTheDocument();
 
-    await userEvent.click(screen.getByText('Design'));
+    await clickOption('Design');
     expect(onChange).not.toHaveBeenCalled();
   });
 
   it('falls back to Everyone when the last squad is removed via row click', async () => {
-    const { onChange } = renderComponent({
-      selectedIds: ['squad-frontend'],
-      stateful: true,
-    });
+    const { onChange } = await openMenu({ selectedIds: ['squad-frontend'] });
 
-    // 'Frontend' also renders as the trigger label, so target the menu option row
-    const frontendOptions = screen.getAllByText('Frontend');
-    await userEvent.click(frontendOptions[frontendOptions.length - 1]);
+    await clickOption('Frontend');
 
     expect(onChange).toHaveBeenLastCalledWith(['user-1']);
   });
 
   it('keeps Everyone selected when it is the sole audience', async () => {
-    const { onChange } = renderComponent({
-      selectedIds: ['user-1'],
-      stateful: true,
-    });
+    const { onChange } = await openMenu({ selectedIds: ['user-1'] });
 
-    const everyoneOptions = screen.getAllByText('Everyone');
-    await userEvent.click(everyoneOptions[everyoneOptions.length - 1]);
+    await clickOption('Everyone');
 
     expect(onChange).not.toHaveBeenCalled();
   });
