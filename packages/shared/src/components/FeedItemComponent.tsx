@@ -28,8 +28,8 @@ import { FreeformList } from './cards/Freeform/FreeformList';
 import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
-import { ArticleFeaturedWideGridCard } from './cards/article/ArticleFeaturedWideGridCard';
-import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
+import type { FeaturedWideColSpan } from './cards/common/featuredWide';
+import { PostTypeToWideCard } from './cards/common/wideCards';
 import { ShareGrid } from './cards/share/ShareGrid';
 import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
@@ -456,14 +456,14 @@ function FeedItemComponent({
 
     const isWidenedFeaturedPost =
       item.type === FeedItemType.Post && !!wideColSpan && wideColSpan > 1;
+    const WideCard = isWidenedFeaturedPost
+      ? PostTypeToWideCard[itemPost.type]
+      : undefined;
 
     return (
       <ActivePostContextProvider post={itemPost}>
-        {isWidenedFeaturedPost ? (
-          <ArticleFeaturedWideGridCard
-            {...postCardProps}
-            wideColSpan={wideColSpan}
-          />
+        {WideCard ? (
+          <WideCard {...postCardProps} wideColSpan={wideColSpan} />
         ) : (
           <PostTag {...postCardProps}>
             {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}

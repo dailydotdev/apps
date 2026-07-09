@@ -7,7 +7,7 @@ import type {
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
-import type { Ad, Post, PostsEngaged } from '../graphql/posts';
+import type { Ad, Post, PostsEngaged, PostType } from '../graphql/posts';
 import { POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
 import type { FeedData, FeedItemData, FeedV2Data } from '../graphql/feed';
 import { getFeedApiItemPost, normalizeFeedPage } from '../graphql/feed';
@@ -44,6 +44,7 @@ import {
 import { useConditionalFeature } from './useConditionalFeature';
 import { useReadingReminderFeedHero } from './notifications/useReadingReminderFeedHero';
 import {
+  SUPPORTED_WIDE_POST_TYPES,
   computeAdClamp,
   computePlacements,
   createPlacementBuilder,
@@ -409,6 +410,12 @@ export default function useFeed<T>(
     feature: featureHeroCards,
     shouldEvaluate: shouldEvaluateHighlightCards,
   });
+  const widenableTypes = useMemo(() => {
+    const allowed = heroCardsConfig.allowedPostTypes ?? {};
+    return new Set<PostType>(
+      [...SUPPORTED_WIDE_POST_TYPES].filter((type) => allowed[type] === true),
+    );
+  }, [heroCardsConfig.allowedPostTypes]);
 
   const { value: briefBannerPage } = useConditionalFeature({
     feature: briefFeedEntrypointPage,
@@ -610,6 +617,7 @@ export default function useFeed<T>(
         isEnabled: heroCardsConfig.enabled,
         minSpacing: heroCardsConfig.minSpacing,
         startIndex: heroCardsConfig.startIndex,
+        widenableTypes,
       });
 
       const staticAd = settings?.staticAd;
@@ -756,6 +764,7 @@ export default function useFeed<T>(
     isListContext,
     fullRowInsertionBeforeIndex,
     cadence,
+    widenableTypes,
   ]);
 
   const placements = useMemo(
@@ -767,6 +776,7 @@ export default function useFeed<T>(
         isEnabled: heroCardsConfig.enabled,
         minSpacing: heroCardsConfig.minSpacing,
         startIndex: heroCardsConfig.startIndex,
+        widenableTypes,
         fullRowInsertionBeforeIndex,
         cadence,
       }),
@@ -778,6 +788,7 @@ export default function useFeed<T>(
       heroCardsConfig,
       fullRowInsertionBeforeIndex,
       cadence,
+      widenableTypes,
     ],
   );
 
