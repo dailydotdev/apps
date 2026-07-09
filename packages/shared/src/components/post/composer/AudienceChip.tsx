@@ -133,13 +133,6 @@ export const AudienceChip = ({
     toggleSquad(option);
   };
 
-  const selectSingleOption = (option: Squad) => {
-    if (!option.id) {
-      return;
-    }
-    onChange([option.id]);
-  };
-
   const handleReset = () => {
     if (userAudienceId) {
       onChange([userAudienceId]);
@@ -223,11 +216,11 @@ export const AudienceChip = ({
                 <DropdownMenuItem
                   key={option.id}
                   onSelect={(event: Event) => {
+                    event.preventDefault();
                     if (!option.id) {
-                      event.preventDefault();
                       return;
                     }
-                    selectSingleOption(option);
+                    toggleOption(option);
                   }}
                   className="!h-9 gap-2 !overflow-visible !px-2"
                 >

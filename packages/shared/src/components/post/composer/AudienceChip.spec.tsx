@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Squad } from '../../../graphql/sources';
@@ -74,20 +74,47 @@ const audiences = [
   designSquad,
 ];
 
-const renderComponent = ({
-  selectedIds = ['user-1'],
-  onChange = jest.fn(),
+const StatefulHarness = ({
+  initialSelectedIds,
+  onChange,
 }: {
-  selectedIds?: string[];
-  onChange?: jest.Mock;
-} = {}) => {
-  render(
+  initialSelectedIds: string[];
+  onChange: jest.Mock;
+}) => {
+  const [selectedIds, setSelectedIds] = useState(initialSelectedIds);
+  return (
     <AudienceChip
       audiences={audiences}
       selectedIds={selectedIds}
-      onChange={onChange}
+      onChange={(ids) => {
+        onChange(ids);
+        setSelectedIds(ids);
+      }}
       userAudienceId="user-1"
-    />,
+    />
+  );
+};
+
+const renderComponent = ({
+  selectedIds = ['user-1'],
+  onChange = jest.fn(),
+  stateful = false,
+}: {
+  selectedIds?: string[];
+  onChange?: jest.Mock;
+  stateful?: boolean;
+} = {}) => {
+  render(
+    stateful ? (
+      <StatefulHarness initialSelectedIds={selectedIds} onChange={onChange} />
+    ) : (
+      <AudienceChip
+        audiences={audiences}
+        selectedIds={selectedIds}
+        onChange={onChange}
+        userAudienceId="user-1"
+      />
+    ),
   );
 
   return { onChange };
@@ -109,17 +136,38 @@ describe('AudienceChip', () => {
     ).toBeInTheDocument();
   });
 
-  it('single-selects an audience when clicking the row', async () => {
+  it('adds squads additively on row clicks and keeps the menu open', async () => {
+    const { onChange } = renderComponent({ stateful: true });
+
+    await userEvent.click(screen.getByText('Frontend'));
+    expect(onChange).toHaveBeenLastCalledWith(['user-1', 'squad-frontend']);
+
+    await userEvent.click(screen.getByText('Backend'));
+    expect(onChange).toHaveBeenLastCalledWith([
+      'user-1',
+      'squad-frontend',
+      'squad-backend',
+    ]);
+
+    // menu options remain mounted and the trigger reflects the accumulated selection
+    expect(screen.getByText('Frontend')).toBeInTheDocument();
+    expect(screen.getByText('Backend')).toBeInTheDocument();
+    expect(screen.getByText('3 audiences')).toBeInTheDocument();
+  });
+
+  it('deselects an already-selected squad on row click without closing', async () => {
     const { onChange } = renderComponent({
-      selectedIds: ['user-1', 'squad-backend'],
+      selectedIds: ['user-1', 'squad-frontend'],
+      stateful: true,
     });
 
     await userEvent.click(screen.getByText('Frontend'));
 
-    expect(onChange).toHaveBeenCalledWith(['squad-frontend']);
+    expect(onChange).toHaveBeenLastCalledWith(['user-1']);
+    expect(screen.getByText('Frontend')).toBeInTheDocument();
   });
 
-  it('multi-selects an audience when clicking the checkbox', async () => {
+  it('multi-selects an audience when clicking the checkbox exactly once', async () => {
     const { onChange } = renderComponent();
 
     await userEvent.click(
@@ -132,20 +180,42 @@ describe('AudienceChip', () => {
     expect(onChange).toHaveBeenCalledWith(['user-1', 'squad-frontend']);
   });
 
-  it('keeps row single-select available when the multi-select checkbox is disabled', async () => {
+  it('enforces the 3-squad cap on row clicks', async () => {
     const { onChange } = renderComponent({
       selectedIds: ['squad-frontend', 'squad-backend', 'squad-mobile'],
-    });
-    const designCheckbox = screen.getByRole('checkbox', {
-      name: 'Toggle Design for multi-audience posting',
+      stateful: true,
     });
 
-    expect(designCheckbox).toBeDisabled();
-
-    await userEvent.click(designCheckbox);
-    expect(onChange).not.toHaveBeenCalled();
+    expect(
+      screen.getByText('You can post to up to 3 squads'),
+    ).toBeInTheDocument();
 
     await userEvent.click(screen.getByText('Design'));
-    expect(onChange).toHaveBeenCalledWith(['squad-design']);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('falls back to Everyone when the last squad is removed via row click', async () => {
+    const { onChange } = renderComponent({
+      selectedIds: ['squad-frontend'],
+      stateful: true,
+    });
+
+    // 'Frontend' also renders as the trigger label, so target the menu option row
+    const frontendOptions = screen.getAllByText('Frontend');
+    await userEvent.click(frontendOptions[frontendOptions.length - 1]);
+
+    expect(onChange).toHaveBeenLastCalledWith(['user-1']);
+  });
+
+  it('keeps Everyone selected when it is the sole audience', async () => {
+    const { onChange } = renderComponent({
+      selectedIds: ['user-1'],
+      stateful: true,
+    });
+
+    const everyoneOptions = screen.getAllByText('Everyone');
+    await userEvent.click(everyoneOptions[everyoneOptions.length - 1]);
+
+    expect(onChange).not.toHaveBeenCalled();
   });
 });
