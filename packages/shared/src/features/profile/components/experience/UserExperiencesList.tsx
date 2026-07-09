@@ -83,16 +83,20 @@ const experienceTypeConfig: Record<
 };
 
 interface UserExperienceListProps<T extends UserExperience> {
-  experiences: T[];
+  experiences: T[] | undefined;
   title?: string;
   experienceType: UserExperienceType;
-  hasNextPage?: boolean;
+  hasNextPage?: boolean | null;
   user?: PublicProfile;
   showEditOnItems?: boolean;
+  // Caps the number of rendered company groups (collapsed profile). Grouping and
+  // per-company tenure are always computed from the full list, so the displayed
+  // duration matches the expanded detail page even when groups are hidden.
+  displayLimit?: number;
 }
 
 const groupListByCompany = <T extends UserExperience>(
-  experiences: T[],
+  experiences: T[] | undefined,
 ): [string, T[]][] => {
   if (!experiences?.length) {
     return [];
@@ -123,7 +127,8 @@ export function UserExperienceList<T extends UserExperience>({
   hasNextPage,
   showEditOnItems = false,
   user,
-}: UserExperienceListProps<T>): ReactElement {
+  displayLimit,
+}: UserExperienceListProps<T>): ReactElement | null {
   const { user: loggedUser } = useAuthContext();
   const { isOwner } = useProfilePreview(user);
 
@@ -132,7 +137,12 @@ export function UserExperienceList<T extends UserExperience>({
     [experiences],
   );
 
-  const hasExperiences = experiences?.length > 0;
+  // Group over the full set, then cap only the rendered groups. Tenure per group
+  // is already computed from every position it contains.
+  const visibleGroups = groupedByCompany.slice(0, displayLimit);
+  const hasHiddenGroups = visibleGroups.length < groupedByCompany.length;
+
+  const hasExperiences = (experiences?.length ?? 0) > 0;
 
   if (!user) {
     return null;
@@ -212,7 +222,7 @@ export function UserExperienceList<T extends UserExperience>({
         </div>
       ) : null}
       <ul className="flex flex-col gap-4">
-        {groupedByCompany?.map(([company, list]) => {
+        {visibleGroups?.map(([company, list]) => {
           const firstExperience = list[0];
           const experienceVerified = !!firstExperience.verified;
 
@@ -242,7 +252,7 @@ export function UserExperienceList<T extends UserExperience>({
           );
         })}
       </ul>
-      {hasNextPage && showMoreUrl && loggedUser && (
+      {(hasHiddenGroups || hasNextPage) && showMoreUrl && loggedUser && (
         <Link href={showMoreUrl} passHref>
           <Button
             tag="a"
