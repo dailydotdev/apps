@@ -51,7 +51,13 @@ export const getSquadOpenGraph = ({
       : defaultOpenGraph.images,
 });
 
-export const defaultSeoTitle = 'daily.dev | Where developers grow together';
+// Canonical marketing tagline. Static surfaces that can't import this TS
+// constant keep their own copy — the extension locale JSON
+// (`packages/extension/public/_locales/en/messages.json`) and `public/llms.txt`
+// — so update those too when the tagline changes.
+export const TAGLINE = "Where developers discover what's next";
+
+export const defaultSeoTitle = `daily.dev | ${TAGLINE}`;
 
 export const recruiterSeo: NextSeoProps = {
   title: 'daily.dev Recruiter | Dashboard',
