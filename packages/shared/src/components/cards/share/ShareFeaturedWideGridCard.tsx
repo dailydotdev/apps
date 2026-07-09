@@ -133,11 +133,6 @@ export const ShareFeaturedWideGridCard = forwardRef(
                 </div>
               ) : (
                 <>
-                  {!!sharedTitle && sharedTitle !== title && (
-                    <p className="mt-2 line-clamp-2 break-words font-bold text-text-secondary typo-callout">
-                      {sharedTitle}
-                    </p>
-                  )}
                   {!!sharedSummary && (
                     <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
                       {sharedSummary}
