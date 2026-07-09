@@ -2,6 +2,7 @@ import { utcToZonedTime } from 'date-fns-tz';
 import { isNullOrUndefined } from './func';
 import { DEFAULT_TIMEZONE } from './timezones';
 import { getTodayTz } from './dateFormat';
+import { pluralize } from './strings';
 
 export enum DayOfWeek {
   Sunday = 0,
@@ -109,4 +110,32 @@ export function calculateTotalDurationInMonths(ranges: DateRange[]): {
   const months = totalMonths % 12;
 
   return { years, months, totalMonths };
+}
+
+export interface DurationRangeInput {
+  startedAt?: string | null;
+  endedAt?: string | null;
+}
+
+export function formatTotalDuration(experiences: DurationRangeInput[]): string {
+  const ranges: DateRange[] = experiences.map((exp) => ({
+    start: exp.startedAt ? new Date(exp.startedAt) : new Date(),
+    end: exp.endedAt ? new Date(exp.endedAt) : new Date(),
+  }));
+
+  const { years, months } = calculateTotalDurationInMonths(ranges);
+
+  if (years > 0) {
+    const yearCopy = `${years} ${pluralize('year', years)}`;
+
+    if (months === 0) {
+      return yearCopy;
+    }
+
+    return `${yearCopy} ${months} ${pluralize('month', months)}`;
+  }
+
+  return months > 0
+    ? `${months} ${pluralize('month', months)}`
+    : 'Less than a month';
 }

@@ -705,102 +705,93 @@ describe('UserExperiencesList', () => {
   });
 
   describe('displayLimit (collapsed profile)', () => {
-    const companyB = {
-      id: 'compB',
-      name: 'Company B',
-      image: '',
-      createdAt: new Date('2019-01-01'),
-      updatedAt: new Date('2019-01-01'),
-    };
-    const companyC = {
-      id: 'compC',
-      name: 'Company C',
-      image: '',
-      createdAt: new Date('2019-01-01'),
-      updatedAt: new Date('2019-01-01'),
-    };
-
-    // "Tech Company" (default) has 3 positions spanning 3 non-overlapping years,
-    // followed by two single-position companies. Full grouping => 3 groups.
-    const multiGroupExperiences = [
+    // One company ("Tech Company") with five non-overlapping one-year positions.
+    // Ordered newest-first, as the API returns them. Collapsing to the first three
+    // positions is what the collapsed profile renders; the full set spans 5 years.
+    const fiveYearCompany = [
       createExperience({
-        id: 'a1',
-        title: 'Staff Engineer',
-        startedAt: '2019-01-01',
-        endedAt: '2020-01-01',
+        id: 'r2023',
+        title: 'Role 2023',
+        startedAt: '2023-01-01',
+        endedAt: '2024-01-01',
       }),
       createExperience({
-        id: 'a2',
-        title: 'Senior Engineer',
+        id: 'r2021',
+        title: 'Role 2021',
         startedAt: '2021-01-01',
         endedAt: '2022-01-01',
       }),
       createExperience({
-        id: 'a3',
-        title: 'Engineer',
-        startedAt: '2023-01-01',
-        endedAt: '2024-01-01',
+        id: 'r2019',
+        title: 'Role 2019',
+        startedAt: '2019-01-01',
+        endedAt: '2020-01-01',
       }),
-      createExperience({ id: 'b1', title: 'Role at B', company: companyB }),
-      createExperience({ id: 'c1', title: 'Role at C', company: companyC }),
+      createExperience({
+        id: 'r2017',
+        title: 'Role 2017',
+        startedAt: '2017-01-01',
+        endedAt: '2018-01-01',
+      }),
+      createExperience({
+        id: 'r2015',
+        title: 'Role 2015',
+        startedAt: '2015-01-01',
+        endedAt: '2016-01-01',
+      }),
     ];
 
-    it('computes company tenure from all positions even when groups are capped', () => {
+    it('shows tenure from all positions even when the list is truncated', () => {
       const user = createUser();
       renderComponent({
-        experiences: multiGroupExperiences,
+        experiences: fiveYearCompany,
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
-        displayLimit: 1,
+        displayLimit: 3,
         user,
       });
 
-      // Only the first company group is rendered...
-      expect(screen.getByText('Tech Company')).toBeInTheDocument();
-      expect(screen.queryByText('Company B')).not.toBeInTheDocument();
-      expect(screen.queryByText('Company C')).not.toBeInTheDocument();
+      // Full tenure (5 years) despite only the first 3 positions being rendered.
+      expect(screen.getByText('5 years')).toBeInTheDocument();
 
-      // ...but its tenure reflects all 3 positions (parity with the detail page).
-      expect(screen.getByText('3 years')).toBeInTheDocument();
-
-      // Positions within a shown group are not truncated by displayLimit.
-      expect(screen.getByText('Staff Engineer')).toBeInTheDocument();
-      expect(screen.getByText('Senior Engineer')).toBeInTheDocument();
-      expect(screen.getByText('Engineer')).toBeInTheDocument();
+      // Only the first 3 positions render; the truncated ones stay hidden.
+      expect(screen.getByText('Role 2023')).toBeInTheDocument();
+      expect(screen.getByText('Role 2021')).toBeInTheDocument();
+      expect(screen.getByText('Role 2019')).toBeInTheDocument();
+      expect(screen.queryByText('Role 2017')).not.toBeInTheDocument();
+      expect(screen.queryByText('Role 2015')).not.toBeInTheDocument();
     });
 
-    it('renders identical company tenure with and without displayLimit', () => {
+    it('shows identical tenure whether truncated (collapsed) or full (expanded)', () => {
       const user = createUser();
 
       const { unmount } = renderComponent({
-        experiences: multiGroupExperiences,
+        experiences: fiveYearCompany,
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
-        displayLimit: 1,
+        displayLimit: 3,
         user,
       });
-      expect(screen.getByText('3 years')).toBeInTheDocument();
+      expect(screen.getByText('5 years')).toBeInTheDocument();
       unmount();
 
-      // Detail-page path: no displayLimit renders every group unchanged.
       renderComponent({
-        experiences: multiGroupExperiences,
+        experiences: fiveYearCompany,
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
         user,
       });
-      expect(screen.getByText('3 years')).toBeInTheDocument();
-      expect(screen.getByText('Company B')).toBeInTheDocument();
-      expect(screen.getByText('Company C')).toBeInTheDocument();
+      expect(screen.getByText('5 years')).toBeInTheDocument();
+      expect(screen.getByText('Role 2015')).toBeInTheDocument();
     });
 
-    it('shows "Show More" when groups are hidden by displayLimit', () => {
+    it('shows "Show More" when positions are hidden by displayLimit', () => {
       const user = createUser();
       renderComponent({
-        experiences: multiGroupExperiences,
+        experiences: fiveYearCompany,
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
-        displayLimit: 1,
+        displayLimit: 3,
         user,
       });
 
@@ -809,35 +800,32 @@ describe('UserExperiencesList', () => {
       ).toBeInTheDocument();
     });
 
-    it('does not show "Show More" when displayLimit exceeds the group count', () => {
+    it('does not show "Show More" when displayLimit covers every position', () => {
       const user = createUser();
       renderComponent({
-        experiences: multiGroupExperiences,
+        experiences: fiveYearCompany,
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
         displayLimit: 10,
         user,
       });
 
-      expect(screen.getByText('Company B')).toBeInTheDocument();
-      expect(screen.getByText('Company C')).toBeInTheDocument();
       expect(
         screen.queryByRole('link', { name: /show more/i }),
       ).not.toBeInTheDocument();
     });
 
-    it('renders all groups when no displayLimit is provided (detail page)', () => {
+    it('renders all positions when no displayLimit is provided (detail page)', () => {
       const user = createUser();
       renderComponent({
-        experiences: multiGroupExperiences,
+        experiences: fiveYearCompany,
         title: 'Work Experience',
         experienceType: UserExperienceType.Work,
         user,
       });
 
-      expect(screen.getByText('Tech Company')).toBeInTheDocument();
-      expect(screen.getByText('Company B')).toBeInTheDocument();
-      expect(screen.getByText('Company C')).toBeInTheDocument();
+      expect(screen.getByText('Role 2023')).toBeInTheDocument();
+      expect(screen.getByText('Role 2015')).toBeInTheDocument();
       expect(
         screen.queryByRole('link', { name: /show more/i }),
       ).not.toBeInTheDocument();

@@ -16,9 +16,6 @@ import { UserExperienceItem } from './UserExperienceItem';
 import { currentPill } from './common';
 import { Separator } from '../../../../components/cards/common/common';
 import { LocationType } from '../../../opportunity/protobuf/util';
-import { pluralize } from '../../../../lib/strings';
-import type { DateRange } from '../../../../lib/date';
-import { calculateTotalDurationInMonths } from '../../../../lib/date';
 import { locationToString } from '../../../../lib/utils';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
@@ -29,6 +26,10 @@ import { VerifiedBadge } from './VerifiedBadge';
 interface UserExperiencesGroupedListProps {
   company: string;
   experiences: UserExperience[];
+  // Total tenure across the company's full position set, computed by the parent.
+  // Passed in (not derived from `experiences`) so a collapsed list rendering only
+  // a subset of positions still shows the correct, complete tenure.
+  duration: string;
   isExperienceVerified?: boolean;
   showEditOnItems?: boolean;
   isSameUser: boolean;
@@ -36,32 +37,10 @@ interface UserExperiencesGroupedListProps {
   editBaseUrl?: string;
 }
 
-function calculateTotalDuration(experiences: UserExperience[]): string {
-  const ranges: DateRange[] = experiences.map((exp) => ({
-    start: new Date(exp.startedAt),
-    end: exp.endedAt ? new Date(exp.endedAt) : new Date(),
-  }));
-
-  const { years, months } = calculateTotalDurationInMonths(ranges);
-
-  if (years > 0) {
-    const yearCopy = `${years} ${pluralize('year', years)}`;
-
-    if (months === 0) {
-      return yearCopy;
-    }
-
-    return `${yearCopy} ${months} ${pluralize('month', months)}`;
-  }
-
-  return months > 0
-    ? `${months} ${pluralize('month', months)}`
-    : 'Less than a month';
-}
-
 export function UserExperiencesGroupedList({
   company,
   experiences,
+  duration,
   isExperienceVerified = false,
   showEditOnItems = false,
   isSameUser,
@@ -69,7 +48,6 @@ export function UserExperiencesGroupedList({
   editBaseUrl,
 }: UserExperiencesGroupedListProps): ReactElement {
   const [first] = experiences;
-  const duration = calculateTotalDuration(experiences);
   const { openModal } = useLazyModal();
 
   const isCurrent = !first.endedAt;
@@ -95,8 +73,11 @@ export function UserExperiencesGroupedList({
           type={ImageType.Organization}
           src={
             experienceType === UserExperienceType.OpenSource
-              ? first.repository?.image || first.company?.image || first.image
-              : first.company?.image || first.image
+              ? first.repository?.image ||
+                first.company?.image ||
+                first.image ||
+                undefined
+              : first.company?.image || first.image || undefined
           }
           alt={`${company} logo`}
         />

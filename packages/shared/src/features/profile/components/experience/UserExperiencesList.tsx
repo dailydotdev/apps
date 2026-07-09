@@ -34,6 +34,7 @@ import { webappUrl } from '../../../../lib/constants';
 import type { PublicProfile } from '../../../../lib/user';
 import { useProfilePreview } from '../../../../hooks/profile/useProfilePreview';
 import type { IconProps } from '../../../../components/Icon';
+import { formatTotalDuration } from '../../../../lib/date';
 
 const experienceTypeConfig: Record<
   UserExperienceType,
@@ -89,9 +90,9 @@ interface UserExperienceListProps<T extends UserExperience> {
   hasNextPage?: boolean | null;
   user?: PublicProfile;
   showEditOnItems?: boolean;
-  // Caps the number of rendered company groups (collapsed profile). Grouping and
-  // per-company tenure are always computed from the full list, so the displayed
-  // duration matches the expanded detail page even when groups are hidden.
+  // Caps how many positions the collapsed profile renders. Per-company tenure is
+  // still computed from the full list, so a truncated company shows the same total
+  // tenure as the expanded detail page.
   displayLimit?: number;
 }
 
@@ -132,17 +133,31 @@ export function UserExperienceList<T extends UserExperience>({
   const { user: loggedUser } = useAuthContext();
   const { isOwner } = useProfilePreview(user);
 
+  // Tenure is computed from the full position set per company so it stays correct
+  // even when the collapsed view renders only the first `displayLimit` positions.
+  const durationByCompany = useMemo(() => {
+    const map = new Map<string, string>();
+    groupListByCompany(experiences).forEach(([company, list]) => {
+      map.set(company, formatTotalDuration(list));
+    });
+    return map;
+  }, [experiences]);
+
   const groupedByCompany: [string, T[]][] = useMemo(
-    () => groupListByCompany(experiences),
-    [experiences],
+    () =>
+      groupListByCompany(
+        displayLimit != null
+          ? experiences?.slice(0, displayLimit)
+          : experiences,
+      ),
+    [experiences, displayLimit],
   );
 
-  // Group over the full set, then cap only the rendered groups. Tenure per group
-  // is already computed from every position it contains.
-  const visibleGroups = groupedByCompany.slice(0, displayLimit);
-  const hasHiddenGroups = visibleGroups.length < groupedByCompany.length;
+  const totalCount = experiences?.length ?? 0;
+  const hasMore =
+    (displayLimit != null && totalCount > displayLimit) || !!hasNextPage;
 
-  const hasExperiences = (experiences?.length ?? 0) > 0;
+  const hasExperiences = totalCount > 0;
 
   if (!user) {
     return null;
@@ -222,7 +237,7 @@ export function UserExperienceList<T extends UserExperience>({
         </div>
       ) : null}
       <ul className="flex flex-col gap-4">
-        {visibleGroups?.map(([company, list]) => {
+        {groupedByCompany?.map(([company, list]) => {
           const firstExperience = list[0];
           const experienceVerified = !!firstExperience.verified;
 
@@ -243,6 +258,9 @@ export function UserExperienceList<T extends UserExperience>({
               key={company}
               company={company}
               experiences={list}
+              duration={
+                durationByCompany.get(company) ?? formatTotalDuration(list)
+              }
               isExperienceVerified={experienceVerified}
               showEditOnItems={showEditOnItems}
               isSameUser={isOwner}
@@ -252,7 +270,7 @@ export function UserExperienceList<T extends UserExperience>({
           );
         })}
       </ul>
-      {(hasHiddenGroups || hasNextPage) && showMoreUrl && loggedUser && (
+      {hasMore && showMoreUrl && loggedUser && (
         <Link href={showMoreUrl} passHref>
           <Button
             tag="a"
