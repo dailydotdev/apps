@@ -18,6 +18,11 @@ export const isHeroEligiblePost = (post: {
   hero?: { size?: number | null } | null;
 }): boolean => (post.hero?.size ?? 1) > 1;
 
+export const postHasHeroImage = (post: {
+  image?: string | null;
+  sharedPost?: { image?: string | null } | null;
+}): boolean => !!(post.sharedPost?.image || post.image);
+
 const MAX_HERO_COL_SPAN = 4;
 
 export const requestedColSpan = (
@@ -29,6 +34,10 @@ export const requestedColSpan = (
   }
 
   if (!widenableTypes.has(item.post.type)) {
+    return 1;
+  }
+
+  if (!postHasHeroImage(item.post)) {
     return 1;
   }
 

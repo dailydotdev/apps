@@ -29,7 +29,7 @@ const makePost = (
   return {
     id: rest.id ?? 'p1',
     type: rest.type ?? PostType.Article,
-    image: '',
+    image: 'https://example.com/img.jpg',
     commentsPermalink: '',
     ...(significance !== undefined && {
       hero: significance
@@ -161,7 +161,7 @@ describe('requestedColSpan', () => {
     const post = {
       id: 'p',
       type: PostType.Article,
-      image: '',
+      image: 'https://example.com/img.jpg',
       commentsPermalink: '',
       hero: {
         id: 'h',
@@ -172,6 +172,55 @@ describe('requestedColSpan', () => {
       },
     } as Post;
     expect(requestedColSpan(makePostItem(post), ALL_WIDENABLE)).toBe(4);
+  });
+
+  it('returns 1 for a widenable post with no image', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({
+            type: PostType.Article,
+            significance: 'breaking',
+            image: undefined,
+          }),
+        ),
+        ALL_WIDENABLE,
+      ),
+    ).toBe(1);
+  });
+
+  it('returns 1 for a widenable post with an empty image string', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({
+            type: PostType.Article,
+            significance: 'breaking',
+            image: '',
+          }),
+        ),
+        ALL_WIDENABLE,
+      ),
+    ).toBe(1);
+  });
+
+  it('qualifies a share post that only has sharedPost.image', () => {
+    expect(
+      requestedColSpan(
+        makePostItem(
+          makePost({
+            type: PostType.Share,
+            significance: 'notable',
+            image: undefined,
+            sharedPost: {
+              id: 'sp',
+              image: 'https://example.com/shared.jpg',
+            } as Post['sharedPost'],
+          }),
+        ),
+        ALL_WIDENABLE,
+      ),
+    ).toBe(2);
   });
 });
 
