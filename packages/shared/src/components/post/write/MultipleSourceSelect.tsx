@@ -251,13 +251,6 @@ export const MultipleSourceSelect = ({
     ],
   );
 
-  const selectSingleSource = useCallback(
-    (sourceId: string) => {
-      setSelectedSourceIds([sourceId]);
-    },
-    [setSelectedSourceIds],
-  );
-
   const isUserSourceSelected = selectedSourceIds.includes(userSource.id);
   const sourceImage = isUserSourceSelected
     ? userSource.image
@@ -312,7 +305,7 @@ export const MultipleSourceSelect = ({
             checked={isUserSourceSelected}
             name="sources[]"
             onChange={() => toggleSource(userSource.id)}
-            onRowClick={() => selectSingleSource(userSource.id)}
+            onRowClick={() => toggleSource(userSource.id)}
             source={userSource}
           />
           {!!squads.length && <Label>Squads you&#39;ve joined</Label>}
@@ -327,7 +320,7 @@ export const MultipleSourceSelect = ({
                 }
                 name="sources[]"
                 onChange={() => toggleSource(squad.id)}
-                onRowClick={() => selectSingleSource(squad.id)}
+                onRowClick={() => toggleSource(squad.id)}
                 source={squad}
               />
             );

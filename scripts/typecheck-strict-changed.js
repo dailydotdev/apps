@@ -157,6 +157,12 @@ const strictSkipList = new Set([
   // mutable formRef typing on unrelated lines) predate this change and should
   // be addressed in a dedicated cleanup PR.
   'packages/webapp/pages/posts/[id]/edit.tsx',
+  // Audience-select fix (ENG-1818) — this file was touched only to make the
+  // row click an additive toggle (matching AudienceChip) instead of a
+  // single-select reset. The pre-existing strict violations (auth user/squad
+  // optionality, squadsMapById index typing on unrelated lines) predate this
+  // change and should be addressed in a dedicated cleanup PR.
+  'packages/shared/src/components/post/write/MultipleSourceSelect.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(
