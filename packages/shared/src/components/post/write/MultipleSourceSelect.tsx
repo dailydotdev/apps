@@ -109,34 +109,11 @@ const MAX_SQUADS_COUNT = 3;
 const SourceCheckbox = ({
   source,
   disabled = false,
-  onRowClick,
-  onChange,
   ...props
 }: {
   source: Omit<Squad, 'type'> & { type: SourceType };
-  onRowClick?: () => void;
 } & CheckboxProps) => {
   const isUserSource = source.type === SourceType.User;
-
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(e);
-  };
-
-  const handleContentClick = (e: React.MouseEvent) => {
-    if (!disabled && onRowClick) {
-      e.preventDefault();
-      e.stopPropagation();
-      onRowClick();
-    }
-  };
-
-  const handleContentKeyDown = (e: React.KeyboardEvent) => {
-    if (!disabled && onRowClick && (e.key === 'Enter' || e.key === ' ')) {
-      e.preventDefault();
-      e.stopPropagation();
-      onRowClick();
-    }
-  };
 
   return (
     <ConditionalWrapper
@@ -154,16 +131,9 @@ const SourceCheckbox = ({
           {...props}
           disabled={disabled}
           className="w-full flex-row-reverse gap-2 !p-0"
-          checkmarkClassName="!mr-0 ml-2 pointer-events-auto"
-          onChange={handleCheckboxChange}
+          checkmarkClassName="!mr-0 ml-2"
         >
-          <div
-            onClick={handleContentClick}
-            onKeyDown={handleContentKeyDown}
-            role="button"
-            tabIndex={disabled ? -1 : 0}
-            className="pointer-events-auto flex min-w-0 flex-1 items-center"
-          >
+          <div className="flex min-w-0 flex-1 items-center">
             <SourceAvatar source={source} size={ProfileImageSize.Medium} />
             <div className="flex min-w-0 flex-1 flex-col">
               <Typography
@@ -305,7 +275,6 @@ export const MultipleSourceSelect = ({
             checked={isUserSourceSelected}
             name="sources[]"
             onChange={() => toggleSource(userSource.id)}
-            onRowClick={() => toggleSource(userSource.id)}
             source={userSource}
           />
           {!!squads.length && <Label>Squads you&#39;ve joined</Label>}
@@ -320,7 +289,6 @@ export const MultipleSourceSelect = ({
                 }
                 name="sources[]"
                 onChange={() => toggleSource(squad.id)}
-                onRowClick={() => toggleSource(squad.id)}
                 source={squad}
               />
             );
