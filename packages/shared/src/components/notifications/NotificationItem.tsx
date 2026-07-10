@@ -36,6 +36,7 @@ import { Image, ImageType } from '../image/Image';
 import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { NotificationFollowUserButton } from './NotificationFollowUserButton';
+import { NotificationSayThanksButton } from './NotificationSayThanksButton';
 import {
   getFullNotificationDate,
   publishTimeRelativeShort,
@@ -409,6 +410,11 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         {type === NotificationType.UserFollow && (
           <span className="relative z-1 mt-1">
             <NotificationFollowUserButton {...props} />
+          </span>
+        )}
+        {type === NotificationType.UserReceivedAward && (
+          <span className="relative z-1 mt-1">
+            <NotificationSayThanksButton {...props} />
           </span>
         )}
       </div>
