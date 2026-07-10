@@ -35,6 +35,13 @@ export type PostsSearchProps = {
     },
   ) => Promise<unknown>;
   onClearQuery?: () => Promise<unknown>;
+  /**
+   * Autocomplete suggestions (Mimir-backed) are not scoped to the current
+   * feed/source. Surfaces that search within a narrower scope (e.g. a single
+   * squad) should opt out rather than show suggestions from the wrong scope.
+   * Defaults to `true` to preserve existing behavior.
+   */
+  enableSuggestions?: boolean;
 } & Pick<HTMLAttributes<HTMLInputElement>, 'onFocus'>;
 
 const SEARCH_TYPES = {
@@ -52,6 +59,7 @@ export default function PostsSearch({
   suggestionType = 'searchPostSuggestions',
   onFocus,
   onClearQuery,
+  enableSuggestions = true,
 }: PostsSearchProps): ReactElement {
   const { time, contentCurationFilter } = useSearchContextProvider();
   const searchBoxRef = useRef<HTMLDivElement>();
@@ -59,7 +67,10 @@ export default function PostsSearch({
   const [items, setItems] = useState<string[]>([]);
   const { value: searchVersion } = useConditionalFeature({
     feature: feature.searchVersion,
-    shouldEvaluate: !!query && suggestionType === 'searchPostSuggestions',
+    shouldEvaluate:
+      !!query &&
+      suggestionType === 'searchPostSuggestions' &&
+      enableSuggestions,
   });
   const SEARCH_URL = SEARCH_TYPES[suggestionType];
   const purify = useDomPurify();
@@ -72,7 +83,7 @@ export default function PostsSearch({
     queryKey: [suggestionType, query],
     queryFn: () =>
       gqlClient.request(SEARCH_URL, { query, version: searchVersion }),
-    enabled: !!query,
+    enabled: !!query && enableSuggestions,
     staleTime: StaleTime.Default,
   });
 

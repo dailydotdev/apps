@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useMemo } from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { PinIcon } from '../icons';
@@ -8,9 +8,14 @@ import { useSquadActions } from '../../hooks';
 
 interface SquadFeedHeadingProps {
   squad: Squad;
+  /** Optional search field rendered at the start of the heading row. */
+  searchChildren?: ReactNode;
 }
 
-function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
+function SquadFeedHeading({
+  squad,
+  searchChildren,
+}: SquadFeedHeadingProps): ReactElement {
   const { items } = useContext(ActiveFeedContext);
   const { collapseSquadPinnedPosts, expandSquadPinnedPosts } = useSquadActions({
     squad,
@@ -38,6 +43,11 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
 
   return (
     <div className="flex w-full flex-row flex-wrap items-center justify-end gap-4 px-6 pb-6 laptop:px-0">
+      {searchChildren && (
+        <div className="min-w-[12rem] max-w-[20rem] flex-1">
+          {searchChildren}
+        </div>
+      )}
       <span className="ml-auto flex flex-row gap-3 border-l border-border-subtlest-tertiary pl-3">
         {isSquadMember && (
           <Button
