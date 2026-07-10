@@ -25,9 +25,17 @@ function SquadFeedHeading({
   const isSquadMember = !!squad.currentMember;
 
   const onClick = async () => {
-    return collapsePinnedPosts
-      ? await expandSquadPinnedPosts(squad.id)
-      : await collapseSquadPinnedPosts(squad.id);
+    const togglePinnedPosts = collapsePinnedPosts
+      ? expandSquadPinnedPosts
+      : collapseSquadPinnedPosts;
+
+    if (!togglePinnedPosts || !squad.id) {
+      throw new Error(
+        'SquadFeedHeading: pinned posts toggle requires a squad id and mutation',
+      );
+    }
+
+    return togglePinnedPosts(squad.id);
   };
 
   const pinnedPostsCount = useMemo(
@@ -43,13 +51,22 @@ function SquadFeedHeading({
 
   return (
     <div className="flex w-full flex-row flex-wrap items-center justify-end gap-4 px-6 pb-6 laptop:px-0">
+      {/* Mirrors the bookmarks CustomFeedHeader idiom: the search field fills
+          the row and the action buttons sit directly after it, so there is no
+          dead gap between the two. */}
       {searchChildren && (
-        <div className="min-w-[12rem] max-w-[20rem] flex-1">
+        <div className="flex min-w-[12rem] flex-1 items-center">
           {searchChildren}
         </div>
       )}
-      <span className="ml-auto flex flex-row gap-3 border-l border-border-subtlest-tertiary pl-3">
-        {isSquadMember && (
+      {isSquadMember && (
+        <span
+          className={
+            searchChildren
+              ? 'flex flex-row gap-3'
+              : 'ml-auto flex flex-row gap-3 border-l border-border-subtlest-tertiary pl-3'
+          }
+        >
           <Button
             variant={ButtonVariant.Float}
             onClick={onClick}
@@ -59,8 +76,8 @@ function SquadFeedHeading({
               ? `Show pinned posts (${pinnedPostsCount})`
               : 'Hide pinned posts'}
           </Button>
-        )}
-      </span>
+        </span>
+      )}
     </div>
   );
 }

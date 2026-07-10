@@ -22,10 +22,16 @@ import { PopoverContent } from './popover/Popover';
 import { SearchIcon } from './icons';
 import { StaleTime } from '../lib/query';
 
+const SEARCH_TYPES = {
+  searchPostSuggestions: SEARCH_POST_SUGGESTIONS,
+  searchBookmarksSuggestions: SEARCH_BOOKMARKS_SUGGESTIONS,
+  searchReadingHistorySuggestions: SEARCH_READING_HISTORY_SUGGESTIONS,
+};
+
 export type PostsSearchProps = {
   initialQuery?: string;
   placeholder?: string;
-  suggestionType?: string;
+  suggestionType?: keyof typeof SEARCH_TYPES;
   autoFocus?: boolean;
   className?: string;
   onSubmitQuery: (
@@ -44,12 +50,6 @@ export type PostsSearchProps = {
   enableSuggestions?: boolean;
 } & Pick<HTMLAttributes<HTMLInputElement>, 'onFocus'>;
 
-const SEARCH_TYPES = {
-  searchPostSuggestions: SEARCH_POST_SUGGESTIONS,
-  searchBookmarksSuggestions: SEARCH_BOOKMARKS_SUGGESTIONS,
-  searchReadingHistorySuggestions: SEARCH_READING_HISTORY_SUGGESTIONS,
-};
-
 export default function PostsSearch({
   initialQuery: initialQueryProp,
   autoFocus = true,
@@ -62,7 +62,7 @@ export default function PostsSearch({
   enableSuggestions = true,
 }: PostsSearchProps): ReactElement {
   const { time, contentCurationFilter } = useSearchContextProvider();
-  const searchBoxRef = useRef<HTMLDivElement>();
+  const searchBoxRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState<string>();
   const [items, setItems] = useState<string[]>([]);
   const { value: searchVersion } = useConditionalFeature({
@@ -99,7 +99,7 @@ export default function PostsSearch({
 
   const submitQuery = async (item?: string) => {
     const itemQuery = item?.replace?.(sanitizeSearchTitleMatch, '');
-    await onSubmitQuery(itemQuery || query, {
+    await onSubmitQuery(itemQuery || query || '', {
       filters: {
         time: time.toString(),
         contentCuration: contentCurationFilter,
@@ -137,7 +137,7 @@ export default function PostsSearch({
 
   useEffect(() => {
     if (autoFocus) {
-      searchBoxRef.current?.querySelector('input').focus();
+      searchBoxRef.current?.querySelector('input')?.focus();
     }
   }, [searchBoxRef, autoFocus]);
 
