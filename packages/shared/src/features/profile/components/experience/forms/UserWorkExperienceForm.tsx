@@ -104,6 +104,7 @@ const UserWorkExperienceForm = ({
             name="description"
             label="Key technologies, projects, and achievements"
             maxLength={5000}
+            rows={6}
           />
         </div>
         <ProfileSkills name="skills" />

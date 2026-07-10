@@ -3,12 +3,17 @@ import { Controller, useFormContext } from 'react-hook-form';
 import Textarea from './Textarea';
 import type { BaseFieldProps } from './BaseFieldContainer';
 
+type ControlledTextareaProps = Pick<
+  BaseFieldProps<HTMLTextAreaElement>,
+  'label' | 'maxLength' | 'rows'
+> & {
+  name: string;
+};
+
 const ControlledTextarea = ({
   name,
   ...restProps
-}: Pick<BaseFieldProps<HTMLTextAreaElement>, 'name' | 'label' | 'maxLength'> & {
-  name: string;
-}) => {
+}: ControlledTextareaProps) => {
   const { control } = useFormContext();
 
   return (
