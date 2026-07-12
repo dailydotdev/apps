@@ -15,7 +15,10 @@ import { anchorDefaultRel } from '../../../lib/strings';
 // purpose since the global cookie banner already covers it.
 const legalLinks: { label: string; href: string }[] = [
   { label: 'Campaign rules', href: termsOfService },
-  { label: 'Terms of Service', href: termsOfService },
+  {
+    label: 'Terms of Service',
+    href: 'https://daily.dev/giveback-program-terms/',
+  },
   { label: 'Privacy Policy', href: privacyPolicy },
 ];
 
