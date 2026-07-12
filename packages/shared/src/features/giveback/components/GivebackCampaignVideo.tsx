@@ -39,7 +39,7 @@ export const GivebackCampaignVideo = (): ReactElement => {
 
             <span className="absolute inset-0 flex items-center justify-center">
               {/* Dark halo so the button keeps strong contrast even over the
-                  bright parts of the charm. */}
+                  bright parts of the poster. */}
               <span
                 aria-hidden
                 className="absolute size-24 rounded-full bg-overlay-primary-pepper blur-2xl"
