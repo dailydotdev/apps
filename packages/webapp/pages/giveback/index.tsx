@@ -6,6 +6,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
 import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { cloudinaryGivebackOpenGraph } from '@dailydotdev/shared/src/lib/image';
 import { GivebackPage } from '@dailydotdev/shared/src/features/giveback/components/GivebackPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -18,6 +19,15 @@ const seo: NextSeoProps = {
   openGraph: {
     ...defaultOpenGraph,
     ...seoTitles.openGraph,
+    // Dedicated giveback share card, overriding the site-wide default OG image.
+    images: [
+      {
+        url: cloudinaryGivebackOpenGraph,
+        width: 1280,
+        height: 800,
+        alt: 'daily.dev Giveback — ad budgets buy clicks, ours funds real causes',
+      },
+    ],
   },
   ...defaultSeo,
   description:

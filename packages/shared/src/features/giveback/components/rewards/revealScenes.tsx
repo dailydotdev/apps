@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -14,12 +14,18 @@ import {
 } from '../../../../components/buttons/Button';
 import {
   DevPlusIcon,
+  SlackIcon,
   SparkleIcon,
-  UserIcon,
   VIcon,
 } from '../../../../components/icons';
 import LogoText from '../../../../svg/LogoText';
-import { getCoreCurrencyImage } from '../../../../lib/image';
+import {
+  cloudinaryGivebackCouncilMembers,
+  cloudinaryGivebackPatchyCardFrame,
+  cloudinaryGivebackPatchySelfieMov,
+  cloudinaryGivebackPatchySelfieWebm,
+  getCoreCurrencyImage,
+} from '../../../../lib/image';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { getDomainFromUrl } from '../../../../lib/links';
 import { FlexCol, FlexRow } from '../../../../components/utilities';
@@ -145,25 +151,35 @@ export const PlusCard = ({ duration }: { duration?: string }): ReactElement => (
   </div>
 );
 
-// A ring of teammate tiles with the visitor standing out in a gradient frame —
-// used by the Council seat reveal so it reads as "you're in the room". The
-// teammates are neutral tiles (no fabricated faces); the visitor is the one real
-// avatar.
-const TEAMMATE_TILES = 3;
+// A ring of real teammate avatars (Slack profile photos) with the visitor
+// standing out in a gradient frame — so the Council seat reveal reads as
+// "you're in the room" with the actual team.
 export const MemberRing = ({
   user,
 }: {
   user: LoggedUser | null;
 }): ReactElement => (
   <FlexCol className="items-center gap-4">
+    {/* A Slack pill above the ring — signals this is a real space you're
+        joining, not just a badge. */}
+    <FlexRow className="items-center gap-2 rounded-10 bg-surface-float px-3 py-1.5 motion-safe:animate-reward-pop [&_svg]:size-5">
+      <SlackIcon />
+      <Typography bold type={TypographyType.Footnote}>
+        daily.dev Council
+      </Typography>
+    </FlexRow>
     <FlexRow className="items-center">
-      {Array.from({ length: TEAMMATE_TILES }).map((_, index) => (
+      {cloudinaryGivebackCouncilMembers.map((src) => (
         <span
-          // eslint-disable-next-line react/no-array-index-key
-          key={index}
-          className="-ml-2.5 flex size-10 items-center justify-center rounded-12 bg-surface-float text-text-tertiary ring-2 ring-background-default first:ml-0 [&_svg]:size-5"
+          key={src}
+          className="-ml-2.5 size-10 overflow-hidden rounded-12 bg-surface-float ring-2 ring-background-default first:ml-0"
         >
-          <UserIcon />
+          <img
+            src={src}
+            alt=""
+            loading="lazy"
+            className="size-full object-cover"
+          />
         </span>
       ))}
       {/* The visitor stands out with a colorful gradient ring. Inner picture is
@@ -229,10 +245,13 @@ export const CouncilReveal = ({
   </FlexCol>
 );
 
-// Picture with Patchy → an asset-light 2-stage flow. "Take a selfie" plays a
-// brief beat, then Patchy poses beside the visitor's photo.
-// PLACEHOLDER: uses the invite-friends charm until the bespoke animated selfie
-// asset is uploaded to the CDN.
+// Picture with Patchy → a 3-stage flow built on the bespoke selfie video. A
+// single transparent <video> (WebM for most browsers, HEVC-alpha .mov for
+// Safari — the PersonaMascot source-order pattern) stays mounted across idle and
+// playing: idle shows it paused on its first frame, "Take a selfie" plays it
+// once, and onEnded advances to the result — Patchy holding a card frame with
+// the visitor's photo dropped in. Reduced motion skips playback straight to the
+// framed result.
 export const PatchyPictureReveal = ({
   reveal,
   levelNumber,
@@ -245,14 +264,33 @@ export const PatchyPictureReveal = ({
   onClose: () => void;
 }): ReactElement => {
   const [stage, setStage] = useState<'idle' | 'playing' | 'result'>('idle');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
+  // Fail-safe: `onEnded` is the normal path to the result, but if it never
+  // fires (a source that can't decode, or a browser that drops the event),
+  // don't strand the user on the playing stage. The clip is ~6s; this generous
+  // cap only trips on a genuine fault, so it won't truncate normal playback.
   useEffect(() => {
     if (stage !== 'playing') {
       return undefined;
     }
-    const done = setTimeout(() => setStage('result'), 1100);
+    const done = setTimeout(() => setStage('result'), 12000);
     return () => clearTimeout(done);
   }, [stage]);
+
+  const play = () => {
+    if (reducedMotion) {
+      setStage('result');
+      return;
+    }
+    setStage('playing');
+    // A rejected play() (autoplay policy, not-yet-ready) must not leave the
+    // user staring at a frozen frame — jump straight to the result. `play()`
+    // returns undefined outside modern browsers (jsdom, legacy), so guard the
+    // `.catch` with optional chaining too.
+    videoRef.current?.play()?.catch(() => setStage('result'));
+  };
 
   if (stage === 'result') {
     return (
@@ -261,31 +299,36 @@ export const PatchyPictureReveal = ({
           <LevelChip levelNumber={levelNumber} />
         </Reveal>
         <Reveal delay={STAGGER_STEP} className="w-full">
-          <FlexRow className="items-end justify-center gap-3 motion-safe:animate-reward-pop">
-            {reveal.image && (
-              <img
-                src={reveal.image}
-                alt="Patchy"
-                loading="lazy"
-                className="h-40 w-auto select-none object-contain"
-              />
-            )}
-            <span className="mb-2 rounded-16 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default p-0.5">
-              <span className="block size-24 overflow-hidden rounded-[14px]">
-                {user?.image ? (
-                  <img
-                    src={user.image}
-                    alt=""
-                    className="size-full object-cover"
-                  />
-                ) : (
-                  <span className="flex size-full items-center justify-center bg-accent-cabbage-default text-white [&_svg]:size-10">
-                    <VIcon />
-                  </span>
-                )}
-              </span>
+          <div className="relative mx-auto w-full max-w-xs motion-safe:animate-reward-pop">
+            <img
+              src={cloudinaryGivebackPatchyCardFrame}
+              alt="Patchy holding a frame with you in it"
+              loading="lazy"
+              className="w-full select-none object-contain"
+            />
+            {/* The visitor's photo dropped into the card frame Patchy holds. */}
+            <span
+              className="absolute overflow-hidden rounded-[10%]"
+              style={{
+                left: '45.5%',
+                top: '42%',
+                width: '39.5%',
+                height: '39.5%',
+              }}
+            >
+              {user?.image ? (
+                <img
+                  src={user.image}
+                  alt=""
+                  className="size-full object-cover"
+                />
+              ) : (
+                <span className="flex size-full items-center justify-center bg-accent-cabbage-default text-white [&_svg]:size-10">
+                  <VIcon />
+                </span>
+              )}
             </span>
-          </FlexRow>
+          </div>
         </Reveal>
         <RevealCopy reveal={reveal} delayBase={STAGGER_STEP * 3} />
         <Reveal delay={STAGGER_STEP * 6}>
@@ -295,76 +338,71 @@ export const PatchyPictureReveal = ({
     );
   }
 
-  if (stage === 'playing') {
-    return (
-      <FlexCol className="items-center gap-6">
-        <Reveal delay={0}>
-          <LevelChip levelNumber={levelNumber} />
-        </Reveal>
-        {reveal.image && (
-          <img
-            src={reveal.image}
-            alt="Patchy taking a selfie with you"
-            loading="lazy"
-            className="h-48 w-auto select-none object-contain motion-safe:animate-mascot-bob"
-          />
-        )}
+  return (
+    <FlexCol className="items-center gap-6">
+      <Reveal delay={0}>
+        <LevelChip levelNumber={levelNumber} />
+      </Reveal>
+      <video
+        ref={videoRef}
+        muted
+        playsInline
+        preload="auto"
+        onEnded={() => setStage('result')}
+        onError={() => setStage('result')}
+        aria-label="Patchy taking a selfie with you"
+        className="h-48 w-auto select-none object-contain"
+      >
+        {/* WebM first: every browser that can plays VP9 alpha uses it; Safari
+            can't, so it falls through to the HEVC-alpha .mov. */}
+        <source src={cloudinaryGivebackPatchySelfieWebm} type="video/webm" />
+        <source
+          src={cloudinaryGivebackPatchySelfieMov}
+          type='video/quicktime; codecs="hvc1"'
+        />
+      </video>
+      {stage === 'playing' ? (
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Secondary}
         >
           Say cheese…
         </Typography>
-      </FlexCol>
-    );
-  }
-
-  return (
-    <FlexCol className="items-center gap-6">
-      <Reveal delay={0}>
-        <LevelChip levelNumber={levelNumber} />
-      </Reveal>
-      {reveal.image && (
-        <Reveal delay={STAGGER_STEP}>
-          <img
-            src={reveal.image}
-            alt="Patchy"
-            loading="lazy"
-            className="h-48 w-auto select-none object-contain"
-          />
-        </Reveal>
+      ) : (
+        <>
+          <FlexCol className="items-center gap-1.5 text-center">
+            <Reveal delay={STAGGER_STEP * 2}>
+              <Typography
+                tag={TypographyTag.H3}
+                bold
+                type={TypographyType.Title1}
+                className="[text-wrap:balance]"
+              >
+                Say cheese with Patchy
+              </Typography>
+            </Reveal>
+            <Reveal delay={STAGGER_STEP * 3}>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Secondary}
+                className="max-w-sm [text-wrap:pretty]"
+              >
+                Patchy wants a photo with you. Grab yours to keep forever.
+              </Typography>
+            </Reveal>
+          </FlexCol>
+          <Reveal delay={STAGGER_STEP * 5}>
+            <Button
+              type="button"
+              size={ButtonSize.Medium}
+              variant={ButtonVariant.Primary}
+              onClick={play}
+            >
+              Take a selfie
+            </Button>
+          </Reveal>
+        </>
       )}
-      <FlexCol className="items-center gap-1.5 text-center">
-        <Reveal delay={STAGGER_STEP * 2}>
-          <Typography
-            tag={TypographyTag.H3}
-            bold
-            type={TypographyType.Title1}
-            className="[text-wrap:balance]"
-          >
-            Say cheese with Patchy
-          </Typography>
-        </Reveal>
-        <Reveal delay={STAGGER_STEP * 3}>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-            className="max-w-sm [text-wrap:pretty]"
-          >
-            Patchy wants a photo with you. Grab yours to keep forever.
-          </Typography>
-        </Reveal>
-      </FlexCol>
-      <Reveal delay={STAGGER_STEP * 5}>
-        <Button
-          type="button"
-          size={ButtonSize.Medium}
-          variant={ButtonVariant.Primary}
-          onClick={() => setStage('playing')}
-        >
-          Take a selfie
-        </Button>
-      </Reveal>
     </FlexCol>
   );
 };
