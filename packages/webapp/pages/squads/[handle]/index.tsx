@@ -268,7 +268,7 @@ const SquadPage = ({
     () => createSquadNotificationToastStateStore(user?.id),
     [user?.id],
   );
-  const { shouldShowCta, onEnable } = useEnableNotification({
+  const { shouldShowCta, onEnable, onDismiss } = useEnableNotification({
     source: NotificationPromptSource.SquadPage,
   });
 
@@ -316,12 +316,13 @@ const SquadPage = ({
         },
       },
       onClose: () => {
-        squadNotificationToastState.dismissUntilTomorrow({ squadId });
+        onDismiss();
       },
     });
   }, [
     displayToast,
     isFetched,
+    onDismiss,
     onEnable,
     shouldShowCta,
     squad?.currentMember,
