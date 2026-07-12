@@ -7,14 +7,13 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { privacyPolicy, termsOfService } from '../../../lib/constants';
+import { privacyPolicy } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 
 // Legal/footer home for the campaign. One quiet line: funding disclaimer on the
-// left, the terms/rules/privacy links on the right. Cookie policy is omitted on
+// left, the terms/privacy links on the right. Cookie policy is omitted on
 // purpose since the global cookie banner already covers it.
 const legalLinks: { label: string; href: string }[] = [
-  { label: 'Campaign rules', href: termsOfService },
   {
     label: 'Terms of Service',
     href: 'https://daily.dev/giveback-program-terms/',
