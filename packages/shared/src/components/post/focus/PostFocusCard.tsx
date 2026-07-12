@@ -16,7 +16,7 @@ import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
-import { useViewPost } from '../../../hooks/post/useViewPost';
+import { useTrackPostView } from '../../../hooks/post/useTrackPostView';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
 import { EarthIcon } from '../../icons';
@@ -51,7 +51,6 @@ import { PostMenuOptions } from '../PostMenuOptions';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
-import { useAuthContext } from '../../../contexts/AuthContext';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -242,8 +241,6 @@ export const PostFocusCard = ({
       ? post.author
       : undefined;
   const isVideoType = isVideoPost(article);
-  const { user } = useAuthContext();
-  const onSendViewPost = useViewPost();
   const { title } = useSmartTitle(article);
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { openModal } = useLazyModal();
@@ -264,16 +261,10 @@ export const PostFocusCard = ({
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
 
-  useEffect(() => {
-    if (
-      !user?.id ||
-      (!isVideoPost(post) && !viewTrackedPostTypes.includes(post.type))
-    ) {
-      return;
-    }
-
-    onSendViewPost(post.id);
-  }, [onSendViewPost, post.id, post.type, user?.id]);
+  useTrackPostView({
+    post,
+    shouldTrack: isVideoPost(post) || viewTrackedPostTypes.includes(post.type),
+  });
 
   useEffect(() => {
     if (!isVideoType || isVideoExpanded) {
