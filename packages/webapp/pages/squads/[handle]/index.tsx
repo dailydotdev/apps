@@ -1,15 +1,26 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { NextSeoProps } from 'next-seo';
 import Head from 'next/head';
 import Feed from '@dailydotdev/shared/src/components/Feed';
+import type { FeedProps } from '@dailydotdev/shared/src/components/Feed';
 import { BellIcon } from '@dailydotdev/shared/src/components/icons';
 import {
+  SEARCH_SOURCE_POSTS_QUERY,
   SOURCE_FEED_QUERY,
   supportedTypesForPrivateSources,
 } from '@dailydotdev/shared/src/graphql/feed';
+import { SearchProviderEnum } from '@dailydotdev/shared/src/graphql/search';
+import { useFeaturesReadyContext } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SquadPageHeader } from '@dailydotdev/shared/src/components/squads/SquadPageHeader';
 import { SquadHeaderBar } from '@dailydotdev/shared/src/components/squads/SquadHeaderBar';
@@ -96,6 +107,21 @@ const SquadEmptyScreen = dynamic(
     import(
       /* webpackChunkName: "squadEmptyScreen" */ '@dailydotdev/shared/src/components/squads/SquadEmptyScreen'
     ),
+);
+
+const SearchEmptyScreen = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "searchEmptyScreen" */ '@dailydotdev/shared/src/components/SearchEmptyScreen'
+    ),
+);
+
+const PostsSearch = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "postsSearch" */ '@dailydotdev/shared/src/components/PostsSearch'
+    ),
+  { ssr: false },
 );
 
 const SquadLoading = dynamic(
@@ -361,6 +387,107 @@ const SquadPage = ({
     [squadId],
   );
 
+  const searchQuery =
+    typeof router.query?.q === 'string' ? router.query.q.trim() : '';
+  const isSearching = searchQuery.length > 0;
+  const { getFeatureValue } = useFeaturesReadyContext();
+
+  const feedProps = useMemo<FeedProps<unknown>>(() => {
+    if (isSearching) {
+      return {
+        feedName: OtherFeedPage.SearchSquad,
+        feedQueryKey: [
+          'searchSourcePosts',
+          user?.id ?? 'anonymous',
+          squadId,
+          searchQuery,
+        ],
+        query: SEARCH_SOURCE_POSTS_QUERY,
+        variables: {
+          source: squadId,
+          query: searchQuery,
+          supportedTypes: supportedTypesForPrivateSources,
+          version: getFeatureValue(feature.searchVersion),
+        },
+        emptyScreen: <SearchEmptyScreen />,
+      };
+    }
+
+    return {
+      feedName: OtherFeedPage.Squads,
+      feedQueryKey: [
+        'sourceFeed',
+        user?.id ?? 'anonymous',
+        Object.values(queryVariables),
+      ],
+      query: SOURCE_FEED_QUERY,
+      variables: queryVariables,
+      emptyScreen: <SquadEmptyScreen />,
+    };
+  }, [
+    isSearching,
+    searchQuery,
+    squadId,
+    queryVariables,
+    user?.id,
+    getFeatureValue,
+  ]);
+
+  // Search submit/clear write `q` to the URL. Cannot reuse `router.pathname`
+  // here (`/squads/[handle]`) the way RouterPostsSearch does for static
+  // routes — Next's router.replace throws/produces a literal
+  // "/squads/[handle]" href when the dynamic segment isn't present in the
+  // provided query object, so we build the concrete path from `asPath`.
+  const onSubmitSquadSearch = useCallback(
+    (query: string) => {
+      logEvent({
+        event_name: LogEvent.SubmitSearch,
+        extra: JSON.stringify({
+          query,
+          provider: SearchProviderEnum.Posts,
+          squad: squadId,
+        }),
+      });
+
+      const basePath = router.asPath.split('?')[0];
+      const searchParams = new URLSearchParams(window.location.search);
+      if (query) {
+        searchParams.set('q', query);
+      } else {
+        searchParams.delete('q');
+      }
+
+      return router.replace(
+        getPathnameWithQuery(basePath, searchParams),
+        undefined,
+        { shallow: true },
+      );
+    },
+    [logEvent, router, squadId],
+  );
+
+  const onClearSquadSearch = useCallback(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+
+    if (!searchParams.has('q')) {
+      return Promise.resolve();
+    }
+
+    searchParams.delete('q');
+
+    const basePath = router.asPath.split('?')[0];
+
+    return router.replace(
+      getPathnameWithQuery(basePath, searchParams),
+      undefined,
+      { shallow: true },
+    );
+  }, [router]);
+
+  const onFocusSquadSearch = useCallback(() => {
+    logEvent({ event_name: LogEvent.FocusSearch });
+  }, [logEvent]);
+
   useEffect(() => {
     if (!isForbidden) {
       return;
@@ -465,18 +592,25 @@ const SquadPage = ({
         <FeedPageComponent>
           <Feed
             className={classNames(shouldUseListFeedLayout ? 'px-0' : 'px-6')}
-            feedName={OtherFeedPage.Squads}
-            feedQueryKey={[
-              'sourceFeed',
-              user?.id ?? 'anonymous',
-              Object.values(queryVariables),
-            ]}
-            query={SOURCE_FEED_QUERY}
-            variables={queryVariables}
+            {...feedProps}
             showSearch={false}
-            emptyScreen={<SquadEmptyScreen />}
             options={{ refetchOnMount: true }}
-            header={<SquadFeedHeading squad={squad} />}
+            header={
+              <SquadFeedHeading
+                squad={squad}
+                searchChildren={
+                  <PostsSearch
+                    autoFocus={false}
+                    enableSuggestions={false}
+                    placeholder="Search this squad"
+                    initialQuery={searchQuery}
+                    onSubmitQuery={onSubmitSquadSearch}
+                    onClearQuery={onClearSquadSearch}
+                    onFocus={onFocusSquadSearch}
+                  />
+                }
+              />
+            }
             inlineHeader
             allowPin
           />

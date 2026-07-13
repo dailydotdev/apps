@@ -47,6 +47,7 @@ export enum OtherFeedPage {
   BookmarkLater = 'bookmarkslater',
   BookmarkFolder = 'bookmarks[folderId]',
   SearchBookmarks = 'search-bookmarks',
+  SearchSquad = 'search-squad',
   Preview = 'preview',
   Author = 'author',
   UserUpvoted = 'user-upvoted',

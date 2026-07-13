@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useContext, useMemo } from 'react';
 import { Button, ButtonVariant } from '../buttons/Button';
 import { PinIcon } from '../icons';
@@ -8,9 +8,14 @@ import { useSquadActions } from '../../hooks';
 
 interface SquadFeedHeadingProps {
   squad: Squad;
+  /** Optional search field rendered at the start of the heading row. */
+  searchChildren?: ReactNode;
 }
 
-function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
+function SquadFeedHeading({
+  squad,
+  searchChildren,
+}: SquadFeedHeadingProps): ReactElement {
   const { items } = useContext(ActiveFeedContext);
   const { collapseSquadPinnedPosts, expandSquadPinnedPosts } = useSquadActions({
     squad,
@@ -20,9 +25,17 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
   const isSquadMember = !!squad.currentMember;
 
   const onClick = async () => {
-    return collapsePinnedPosts
-      ? await expandSquadPinnedPosts(squad.id)
-      : await collapseSquadPinnedPosts(squad.id);
+    const togglePinnedPosts = collapsePinnedPosts
+      ? expandSquadPinnedPosts
+      : collapseSquadPinnedPosts;
+
+    if (!togglePinnedPosts || !squad.id) {
+      throw new Error(
+        'SquadFeedHeading: pinned posts toggle requires a squad id and mutation',
+      );
+    }
+
+    return togglePinnedPosts(squad.id);
   };
 
   const pinnedPostsCount = useMemo(
@@ -38,8 +51,22 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
 
   return (
     <div className="flex w-full flex-row flex-wrap items-center justify-end gap-4 px-6 pb-6 laptop:px-0">
-      <span className="ml-auto flex flex-row gap-3 border-l border-border-subtlest-tertiary pl-3">
-        {isSquadMember && (
+      {/* Mirrors the bookmarks CustomFeedHeader idiom: the search field fills
+          the row and the action buttons sit directly after it, so there is no
+          dead gap between the two. */}
+      {searchChildren && (
+        <div className="flex min-w-[12rem] flex-1 items-center">
+          {searchChildren}
+        </div>
+      )}
+      {isSquadMember && (
+        <span
+          className={
+            searchChildren
+              ? 'flex flex-row gap-3'
+              : 'ml-auto flex flex-row gap-3 border-l border-border-subtlest-tertiary pl-3'
+          }
+        >
           <Button
             variant={ButtonVariant.Float}
             onClick={onClick}
@@ -49,8 +76,8 @@ function SquadFeedHeading({ squad }: SquadFeedHeadingProps): ReactElement {
               ? `Show pinned posts (${pinnedPostsCount})`
               : 'Hide pinned posts'}
           </Button>
-        )}
-      </span>
+        </span>
+      )}
     </div>
   );
 }
