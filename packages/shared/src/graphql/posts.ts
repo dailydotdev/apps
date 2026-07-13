@@ -332,6 +332,17 @@ export interface Ad {
   adDomain?: string;
   companyLogo?: string;
   callToAction?: string;
+  tags?: AdMeasurementTag[];
+}
+
+// Third-party measurement tags (CM360 JS/iframe, DoubleVerify) that cannot run
+// natively under the extension's MV3 CSP. Executed inline on web; inside a single
+// web-origin frame on the extension. `markup` arrives with macros unsubstituted
+// (${GDPR}, [timestamp], ...) because the client fills them at fire time.
+export interface AdMeasurementTag {
+  markup: string;
+  // true when the frame must cover the creative to measure it (e.g. DV viewability)
+  overlay?: boolean;
 }
 
 export type ReadHistoryPost = Pick<
