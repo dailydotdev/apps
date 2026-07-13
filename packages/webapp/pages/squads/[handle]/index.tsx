@@ -466,9 +466,15 @@ const SquadPage = ({
   );
 
   const onClearSquadSearch = useCallback(() => {
-    const basePath = router.asPath.split('?')[0];
     const searchParams = new URLSearchParams(window.location.search);
+
+    if (!searchParams.has('q')) {
+      return Promise.resolve();
+    }
+
     searchParams.delete('q');
+
+    const basePath = router.asPath.split('?')[0];
 
     return router.replace(
       getPathnameWithQuery(basePath, searchParams),
