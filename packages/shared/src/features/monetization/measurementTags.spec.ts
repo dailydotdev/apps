@@ -1,4 +1,4 @@
-/* eslint-disable no-template-curly-in-string -- literal CMP macro tokens under test */
+/* eslint-disable no-template-curly-in-string -- literal macro tokens under test */
 import { injectMeasurementTags, tagsRequireOverlay } from './measurementTags';
 
 const makeContainer = (): HTMLDivElement => {
@@ -33,7 +33,7 @@ describe('injectMeasurementTags', () => {
       [
         {
           markup:
-            '<script src="https://cdn.doubleverify.com/dv.js" attributionsrc data-cb="${CACHEBUSTER}"></script>',
+            '<script src="https://static.tracker.example/tag.js" attributionsrc data-cb="${CACHEBUSTER}"></script>',
         },
       ],
       {},
@@ -41,7 +41,7 @@ describe('injectMeasurementTags', () => {
 
     const script = container.querySelector('script');
     expect(script?.getAttribute('src')).toBe(
-      'https://cdn.doubleverify.com/dv.js',
+      'https://static.tracker.example/tag.js',
     );
     // attributionsrc must survive as a real attribute (Privacy Sandbox)
     expect(script?.hasAttribute('attributionsrc')).toBe(true);

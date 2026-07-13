@@ -5,15 +5,11 @@ import { GdprConsentKey } from '../../hooks/useCookieBanner';
 import type { AdMacroContext } from './adMacros';
 
 /**
- * Resolves ad-measurement consent from the user's own cookie choice rather than
- * an IAB TCF/GPP CMP (we don't run one). CM360/DoubleVerify gate on the `gdpr`
- * flag: with `gdpr=0` they measure without requiring a TCF consent string (which
- * we can't produce). So when the user has accepted marketing cookies — or is
- * outside GDPR scope — we signal `gdpr=0` and measurement proceeds; an in-scope
- * user who hasn't consented stays `gdpr=1` with no string, i.e. not measured.
- *
- * Mirrors the rest of the app, where the extension is treated as consented
- * (see `useConsentCookie`).
+ * Resolves ad-measurement consent from the user's first-party cookie choice.
+ * Accepted marketing cookies or outside GDPR scope → `gdpr=0` and measurement
+ * proceeds; in scope without consent → `gdpr=1`, which tags treat as
+ * not-consented. The extension is treated as consented (accepted on install),
+ * mirroring `useConsentCookie`.
  */
 export const hasMarketingConsent = (): boolean => {
   if (isExtension) {

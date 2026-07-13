@@ -1,14 +1,12 @@
-/* eslint-disable no-template-curly-in-string -- these are literal CMP macro tokens, not template strings */
+/* eslint-disable no-template-curly-in-string -- these are literal macro tokens, not template strings */
 /**
- * Third-party ad trackers (CM360, DoubleVerify) arrive with macro tokens that
- * must be filled at fire time on the client. The cachebuster must be unique per
- * render (so it cannot be baked server-side), and consent values are only known
- * in the browser. This module is the single substitution implementation shared by
- * the native pixel path, the web inline tag path, and the web-origin frame page,
- * so the three surfaces never drift.
+ * Ad trackers arrive with macro tokens that must be filled at fire time on the
+ * client: the cachebuster must be unique per render and consent values are only
+ * known in the browser. Single substitution implementation shared by the pixel
+ * path, the inline tag path, and the embed frame page.
  *
- * Rule: only replace the known tokens below. Every other query param
- * (dc_lat, dc_rdid, tfua, ltd, ...) passes through verbatim.
+ * Rule: only replace the known tokens below; everything else passes through
+ * verbatim.
  */
 
 export interface AdMacroContext {
@@ -33,8 +31,8 @@ export const generateCacheBuster = (): string => {
   return `${Date.now()}${cacheBusterCounter}`;
 };
 
-// gdprApplies is intentionally empty (not "0") when unknown — IAB treats an
-// absent CMP as "unknown", and a wrong "0" can misreport EU traffic as non-GDPR.
+// Intentionally empty (not "0") when unknown, so unknown consent is never
+// misreported as out-of-scope.
 const resolveGdpr = (gdprApplies?: boolean): string => {
   if (gdprApplies === undefined) {
     return '';
@@ -56,7 +54,7 @@ export const substituteMacros = (
   }
 
   const replacements: Record<string, string> = {
-    // cachebuster — a fresh value for every macro occurrence
+    // cachebuster — fresh per call; occurrences within one tag share the value
     '[timestamp]': generateCacheBuster(),
     '${CACHEBUSTER}': generateCacheBuster(),
     '%n': generateCacheBuster(),

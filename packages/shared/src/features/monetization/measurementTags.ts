@@ -3,14 +3,12 @@ import type { AdMacroContext } from './adMacros';
 import { substituteMacros } from './adMacros';
 
 /**
- * Injects third-party measurement markup (DoubleVerify / CM360 JS) into a
- * container. This is the single execution core shared by the web inline path
- * and the web-origin frame page, so tag handling never drifts between surfaces.
+ * Injects measurement markup into a container. Single execution core shared by
+ * the web inline path and the embed frame page.
  *
  * `innerHTML` does not execute injected <script> elements, so each script is
- * recreated as a fresh node with its attributes and inline body copied over.
- * All attributes are preserved verbatim, including `attributionsrc` (Privacy
- * Sandbox Attribution Reporting), which must survive as a real attribute.
+ * recreated as a fresh node with its attributes (preserved verbatim, including
+ * `attributionsrc`) and inline body copied over.
  */
 
 const injectedFlag = 'data-ddmf-injected';

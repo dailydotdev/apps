@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 import type { Ad } from '../../../../graphql/posts';
 import { isTesting } from '../../../../lib/constants';
@@ -18,14 +18,21 @@ export const AdPixel = ({ pixel }: Pick<Ad, 'pixel'>): ReactElement => {
   // filled), which would double-count.
   const ctx = useAdMacroContext(inView && !!pixel?.length);
 
+  // Memoized so re-renders keep the same cachebuster — a new value would change
+  // `src` and make the browser refetch, counting the impression again.
+  const sources = useMemo(
+    () =>
+      ctx ? pixel?.map((p) => ({ key: p, src: substituteMacros(p, ctx) })) : [],
+    [pixel, ctx],
+  );
+
   return (
     <span ref={ref} className="size-0">
       {inView &&
-        ctx &&
-        pixel?.map((p) => (
+        sources?.map(({ key, src }) => (
           <img
-            src={substituteMacros(p, ctx)}
-            key={p}
+            src={src}
+            key={key}
             data-testid="pixel"
             className="hidden size-0"
             alt="Pixel"

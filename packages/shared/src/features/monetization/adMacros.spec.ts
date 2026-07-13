@@ -1,9 +1,10 @@
-/* eslint-disable no-template-curly-in-string -- literal CMP macro tokens under test */
+/* eslint-disable no-template-curly-in-string -- literal macro tokens under test */
 import { substituteMacros } from './adMacros';
 
-// Real anonymized CM360 reference tags (see plans/cm360-doubleverify-support.md).
+// Mirrors the real tracker URL shape: semicolon-delimited params, macros mixed
+// with passthrough values.
 const IMG =
-  'https://ad.doubleclick.net/ddm/trackimp/N5295.5087813DEMANDGEN/B34721851.436824912;dc_trk_aid=629674591;dc_trk_cid=246706990;ord=[timestamp];gdpr=${GDPR};gdpr_consent=${GDPR_CONSENT_755}?';
+  'https://t.tracker.example/imp/N1.PLACEMENT/B2.3;trk_aid=629674591;trk_cid=246706990;ord=[timestamp];gdpr=${GDPR};gdpr_consent=${GDPR_CONSENT_755}?';
 
 const ordValue = (url: string): string => url.match(/ord=([^;?]*)/)?.[1] ?? '';
 const gdprValue = (url: string): string =>
@@ -45,9 +46,9 @@ describe('substituteMacros', () => {
 
   it('passes unknown params through verbatim', () => {
     const result = substituteMacros(IMG, { gdprApplies: true });
-    expect(result).toContain('dc_trk_aid=629674591');
-    expect(result).toContain('dc_trk_cid=246706990');
-    expect(result).toContain('/ddm/trackimp/N5295.5087813DEMANDGEN/');
+    expect(result).toContain('trk_aid=629674591');
+    expect(result).toContain('trk_cid=246706990');
+    expect(result).toContain('/imp/N1.PLACEMENT/');
   });
 
   it('substitutes GPP macros', () => {

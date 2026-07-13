@@ -4,24 +4,21 @@ import { useInView } from 'react-intersection-observer';
 import type { Ad, AdMeasurementTag } from '../../../../graphql/posts';
 import { isExtension } from '../../../../lib/func';
 import { isTesting } from '../../../../lib/constants';
-import { useIsLightTheme } from '../../../../hooks/utils/useThemedAsset';
 import type { AdMacroContext } from '../../../../features/monetization/adMacros';
 import { useAdMacroContext } from '../../../../features/monetization/useAdMacroContext';
 import {
   injectMeasurementTags,
   tagsRequireOverlay,
 } from '../../../../features/monetization/measurementTags';
-import type { MeasurementTheme } from '../../../../features/monetization/measurementFrame';
 import {
   getMeasurementFrameUrl,
   isMeasurementReadyMessage,
   measurementParentSource,
 } from '../../../../features/monetization/measurementFrame';
 
-// Overlay (viewability) must cover the card so the vendor measures the correct
-// element; impression-only tags stay 0-size and hidden. Both are non-interactive
-// so the native ad card keeps ownership of clicks. Positioned absolutely against
-// the card's `relative` root.
+// Overlay tags must cover the card so viewability is measured against the
+// right element; the rest stay 0-size. Both are non-interactive so the card
+// keeps ownership of clicks. Positioned against the card's `relative` root.
 const overlayClass = 'pointer-events-none absolute inset-0 size-full border-0';
 const hiddenClass = 'pointer-events-none absolute size-0 border-0';
 
@@ -31,11 +28,6 @@ interface InlineProps {
   overlay: boolean;
 }
 
-/**
- * Web path: the page CSP allows JS, so tags run inline in a container that
- * covers the card (overlay) or stays hidden (impression-only). No iframe cost.
- * Consent is read in-page via `useAdMacroContext`.
- */
 const InlineMeasurement = ({
   tags,
   ctx,
@@ -63,21 +55,17 @@ const InlineMeasurement = ({
 interface FramedProps {
   tags: AdMeasurementTag[];
   overlay: boolean;
-  theme: MeasurementTheme;
   gdprApplies?: boolean;
 }
 
 /**
- * Extension path: MV3 CSP forbids remote JS on the new-tab page, so tags run in
- * a single web-origin frame. The parent posts only plain data — the frame reads
- * consent and substitutes macros itself, so that logic ships with a webapp
- * deploy. The iframe starts loading as soon as the card is near the viewport;
- * `init` is posted the moment the frame reports ready.
+ * Extension path: tags run in an embed page on our web origin (see
+ * `measurementFrame.ts` for the handshake). The iframe starts loading as soon
+ * as the card nears the viewport; `init` is posted once the frame reports ready.
  */
 const FramedMeasurement = ({
   tags,
   overlay,
-  theme,
   gdprApplies,
 }: FramedProps): ReactElement => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -87,7 +75,13 @@ const FramedMeasurement = ({
 
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
-      if (event.origin !== frameOrigin) {
+      // Every ad card mounts its own frame on the same origin, so match the
+      // exact window too — another card's `ready` must not fire `init` at a
+      // frame that can't receive it yet (it would be silently dropped).
+      if (
+        event.origin !== frameOrigin ||
+        event.source !== iframeRef.current?.contentWindow
+      ) {
         return;
       }
 
@@ -110,12 +104,11 @@ const FramedMeasurement = ({
         source: measurementParentSource,
         type: 'init',
         tags,
-        theme,
         gdprApplies,
       },
       frameOrigin,
     );
-  }, [frameReady, tags, theme, gdprApplies, frameOrigin]);
+  }, [frameReady, tags, gdprApplies, frameOrigin]);
 
   return (
     <iframe
@@ -125,8 +118,6 @@ const FramedMeasurement = ({
       aria-hidden
       tabIndex={-1}
       scrolling="no"
-      // Real origin (daily.dev) so vendor scripts keep their storage/cookies;
-      // cross-origin to the extension page, so the extension stays isolated.
       sandbox="allow-scripts allow-same-origin"
       className={overlay ? overlayClass : hiddenClass}
     />
@@ -134,18 +125,18 @@ const FramedMeasurement = ({
 };
 
 /**
- * Renders an ad's third-party measurement tags (DoubleVerify / CM360 JS).
- * Image impression pixels stay on `AdPixel`; this handles only JS-based tags,
- * which run inline on web and inside a web-origin frame on the extension.
+ * Renders an ad's measurement tags. Image impression pixels stay on `AdPixel`;
+ * this handles the JS-based tags, inline on web and in an embed frame on the
+ * extension.
  */
 export const AdMeasurement = ({ ad }: { ad: Ad }): ReactElement | null => {
   const { tags } = ad;
   const hasTags = !!tags?.length;
   const overlay = useMemo(() => tagsRequireOverlay(tags), [tags]);
-  const theme: MeasurementTheme = useIsLightTheme() ? 'light' : 'dark';
 
-  // Pre-warm ~300px before the card enters view so measurement is ready the
-  // moment it becomes visible, without loading frames for far-off ads.
+  // Impression tags fire on injection, not on visibility, so only inject once
+  // the card nears the viewport (~300px pre-warm keeps measurement ready in
+  // time without loading tags for ads that are never seen).
   const { ref, inView } = useInView({
     triggerOnce: true,
     rootMargin: '300px',
@@ -153,8 +144,6 @@ export const AdMeasurement = ({ ad }: { ad: Ad }): ReactElement | null => {
     fallbackInView: true,
   });
 
-  // Consent decision (a boolean) is resolved here from the user's cookie choice;
-  // the macro string substitution runs where the tags do (inline / in the frame).
   const ctx = useAdMacroContext(inView && hasTags);
 
   if (!hasTags) {
@@ -168,7 +157,6 @@ export const AdMeasurement = ({ ad }: { ad: Ad }): ReactElement | null => {
           <FramedMeasurement
             tags={tags}
             overlay={overlay}
-            theme={theme}
             gdprApplies={ctx?.gdprApplies}
           />
         ) : (

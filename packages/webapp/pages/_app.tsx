@@ -513,12 +513,12 @@ const isDevReviewRoute = (pathname: string | undefined): boolean =>
   !!pathname && pathname.startsWith('/dev/');
 
 /**
- * The measurement frame (`/mf`) is embedded as a cross-origin iframe by the
- * extension and must load as fast as possible. It needs none of the app shell
- * (boot, auth, providers), so it shares the minimal short-circuit tree.
+ * `/embed/mf` is loaded as an iframe by the extension and must load as fast as
+ * possible. It needs none of the app shell (boot, auth, providers), so it
+ * shares the minimal short-circuit tree.
  */
 const isBareEmbedRoute = (pathname: string | undefined): boolean =>
-  isDevReviewRoute(pathname) || pathname === '/mf';
+  isDevReviewRoute(pathname) || pathname === '/embed/mf';
 
 export default function App(
   props: AppProps<{ dehydratedState: DehydratedState }>,
