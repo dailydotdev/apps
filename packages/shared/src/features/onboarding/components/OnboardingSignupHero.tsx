@@ -50,6 +50,10 @@ type Props = {
 
 const DEFAULT_HEADLINE = 'The homepage every developer deserves.';
 const SIGNUP_CONTENT_MAX_W = 'max-w-[360px]';
+// The expanded email form is intentionally wider than the marketing wall so the
+// fields have more room; kept as a named constant to document the deliberate
+// difference from SIGNUP_CONTENT_MAX_W.
+const SIGNUP_FORM_MAX_W = 'max-w-[440px]';
 
 export const OnboardingSignupHero = ({
   children,
@@ -94,7 +98,12 @@ export const OnboardingSignupHero = ({
           />
         </header>
         <main className="flex w-full flex-1 flex-col items-center px-5 pb-6 pt-8 tablet:pt-12">
-          <div className="flex w-full max-w-[440px] flex-col gap-6 tablet:gap-7">
+          <div
+            className={classNames(
+              'flex w-full flex-col gap-6 tablet:gap-7',
+              SIGNUP_FORM_MAX_W,
+            )}
+          >
             {children}
           </div>
         </main>
@@ -132,7 +141,7 @@ export const OnboardingSignupHero = ({
             )}
           >
             <div className="mt-5 flex flex-1 flex-col tablet:my-5 tablet:flex-grow">
-              {!isFormExpanded && headline && (
+              {headline && (
                 <div className="mb-8 flex flex-col gap-4">
                   <Typography
                     className="text-balance text-center"
@@ -152,10 +161,7 @@ export const OnboardingSignupHero = ({
         <img
           alt="Onboarding background"
           aria-hidden
-          className={classNames(
-            'pointer-events-none absolute inset-0 -z-1 size-full object-cover transition-opacity duration-150',
-            { 'opacity-[.24]': isFormExpanded },
-          )}
+          className="pointer-events-none absolute inset-0 -z-1 size-full object-cover"
           loading="eager"
           role="presentation"
           src={imageMobile}
@@ -180,7 +186,7 @@ export const OnboardingSignupHero = ({
             logoClassName={{ container: 'h-7' }}
           />
 
-          {!isFormExpanded && headline && (
+          {headline && (
             <h1 className="onb-headline text-balance text-center font-bold leading-[1.1] tracking-tight text-text-primary typo-title1 tablet:typo-large-title laptop:text-left">
               {headline}
             </h1>
@@ -297,7 +303,7 @@ export const OnboardingSignupHero = ({
               logoClassName={{ container: 'h-7' }}
             />
 
-            {!isFormExpanded && headline && (
+            {headline && (
               <h1 className="onb-headline text-balance text-center font-bold leading-[1.1] tracking-tight text-text-primary typo-title1 tablet:typo-large-title">
                 {headline}
               </h1>
