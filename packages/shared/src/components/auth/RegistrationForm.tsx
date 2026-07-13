@@ -339,7 +339,7 @@ const RegistrationForm = ({
                     'text-text-primary',
                   )}
                 >
-                  Where developers discover what's next
+                  Where developers discover what&apos;s next
                 </span>
               </h1>
             )}
