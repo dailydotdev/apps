@@ -16,6 +16,7 @@ import type { PostOrigin } from '../../../hooks/log/useLogContextData';
 import usePostContent from '../../../hooks/usePostContent';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
+import { useTrackPostView } from '../../../hooks/post/useTrackPostView';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
 import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
 import { EarthIcon } from '../../icons';
@@ -58,6 +59,13 @@ const PostCodeSnippets = dynamic(() =>
 );
 
 export type FocusCardLeftVariant = 'lean' | 'rich';
+
+const viewTrackedPostTypes = [
+  PostType.Share,
+  PostType.Collection,
+  PostType.Freeform,
+  PostType.Welcome,
+];
 
 interface PostFocusCardProps {
   post: Post;
@@ -252,6 +260,11 @@ export const PostFocusCard = ({
   const videoWrapperRef = useRef<HTMLDivElement>(null);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
+
+  useTrackPostView({
+    post,
+    shouldTrack: isVideoPost(post) || viewTrackedPostTypes.includes(post.type),
+  });
 
   useEffect(() => {
     if (!isVideoType || isVideoExpanded) {
