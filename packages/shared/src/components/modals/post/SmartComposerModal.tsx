@@ -98,6 +98,9 @@ export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialUrl?: string;
   initialSquadHandle?: string;
   initialKind?: ComposerKind;
+  initialTitle?: string;
+  initialContent?: string;
+  initialCommentary?: string;
   preview?: ExternalLinkPreview;
   editPost?: Post;
 }
@@ -107,6 +110,9 @@ export function SmartComposerModal({
   initialUrl,
   initialSquadHandle,
   initialKind,
+  initialTitle,
+  initialContent,
+  initialCommentary,
   preview: initialPreview,
   editPost,
   ...props
@@ -155,14 +161,19 @@ export function SmartComposerModal({
     flags?.defaultWriteTab,
     isStandupEnabled,
   ]);
-  const [text, setText] = useState<TextFormState>(() =>
-    editPost
-      ? { title: editPost.title ?? '', body: editPost.content ?? '' }
-      : DEFAULT_TEXT,
-  );
+  const [text, setText] = useState<TextFormState>(() => {
+    if (editPost) {
+      return { title: editPost.title ?? '', body: editPost.content ?? '' };
+    }
+    return {
+      title: initialTitle ?? DEFAULT_TEXT.title,
+      body: initialContent ?? DEFAULT_TEXT.body,
+    };
+  });
   const [link, setLink] = useState<LinkFormState>({
     ...DEFAULT_LINK,
     url: initialUrl ?? '',
+    commentary: initialCommentary ?? DEFAULT_LINK.commentary,
   });
   const [poll, setPoll] = useState<PollFormState>(DEFAULT_POLL);
   const [standup, setStandup] = useState<StandupFormState>(DEFAULT_STANDUP);
