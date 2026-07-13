@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string -- literal CMP macro token in measurement fixture */
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor, within } from '@testing-library/react';
@@ -105,6 +106,29 @@ it('should show pixel images', async () => {
   });
   const el = await screen.findByTestId('pixel');
   expect(el).toHaveAttribute('src', 'https://daily.dev/pixel');
+});
+
+it('should inject measurement tags with macros filled (web inline path)', async () => {
+  renderGridComponent({
+    ad: {
+      ...ad,
+      tags: [
+        {
+          markup:
+            '<img alt="dv" src="https://verify.example.com/i?ord=[timestamp]&gdpr=${GDPR}" />',
+        },
+      ],
+    },
+  });
+
+  const injected = await screen.findByAltText('dv');
+  expect(injected.getAttribute('src')).not.toContain('[timestamp]');
+});
+
+it('should render nothing for measurement when the ad has no tags', async () => {
+  renderGridComponent();
+  await screen.findByTestId('adItem');
+  expect(screen.queryByAltText('dv')).not.toBeInTheDocument();
 });
 
 it('should render advertise link on grid ad', () => {

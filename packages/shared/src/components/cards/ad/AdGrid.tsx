@@ -13,6 +13,7 @@ import { combinedClicks } from '../../../lib/click';
 import AdAttribution from './common/AdAttribution';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
+import { AdMeasurement } from './common/AdMeasurement';
 import type { AdCardProps } from './common/common';
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
@@ -101,6 +102,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
         />
       )}
       <AdPixel pixel={ad.pixel} />
+      <AdMeasurement ad={ad} />
     </Card>
   );
 });

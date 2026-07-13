@@ -10,6 +10,7 @@ import FeedItemContainer from '../common/list/FeedItemContainer';
 import type { AdCardProps } from './common/common';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
+import { AdMeasurement } from './common/AdMeasurement';
 import type { Ad } from '../../../graphql/posts';
 import { combinedClicks } from '../../../lib/click';
 
@@ -110,6 +111,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
         </div>
       </div>
       <AdPixel pixel={ad.pixel} />
+      <AdMeasurement ad={ad} />
     </FeedItemContainer>
   );
 });

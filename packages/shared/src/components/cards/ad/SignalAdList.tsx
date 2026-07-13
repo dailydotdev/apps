@@ -17,6 +17,7 @@ import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { RemoveAd } from './common/RemoveAd';
 import { AdPixel } from './common/AdPixel';
+import { AdMeasurement } from './common/AdMeasurement';
 import { SourceAvatar } from '../../profile/source/SourceAvatar';
 import { MiniCloseIcon } from '../../icons';
 import { getAdFaviconImageLink } from './common/getAdFaviconImageLink';
@@ -124,6 +125,7 @@ export const SignalAdList = forwardRef(function SignalAdList(
         )}
       </div>
       <AdPixel pixel={ad.pixel} />
+      <AdMeasurement ad={ad} />
     </FeedItemContainer>
   );
 });
