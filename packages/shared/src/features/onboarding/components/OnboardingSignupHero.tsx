@@ -78,6 +78,49 @@ export const OnboardingSignupHero = ({
   const isDeskVariant = background === 'desk';
   const showOrbsLayer = showOrbs;
 
+  // Once the user moves to the email registration / verification step, drop the
+  // marketing shell (feed-cards background, orbs, centered logo, bottom-anchored
+  // form) in favor of a clean, top-aligned form screen with the logo in the
+  // top-left. The form supplies its own "Sign up" title. Same treatment on all
+  // breakpoints.
+  if (isFormExpanded) {
+    return (
+      <div className="relative z-3 flex min-h-dvh w-full flex-col overflow-x-hidden bg-background-default text-text-primary">
+        <header className="flex w-full px-6 pt-6 tablet:px-10 tablet:pt-8">
+          <Logo
+            position={LogoPosition.Relative}
+            className="!left-0 !top-0 !mt-0 !translate-x-0"
+            logoClassName={{ container: 'h-7' }}
+          />
+        </header>
+        <main className="flex w-full flex-1 flex-col items-center px-5 pb-6 pt-8 tablet:pt-12">
+          <div
+            className={classNames(
+              'flex w-full flex-col gap-6 tablet:gap-7',
+              SIGNUP_CONTENT_MAX_W,
+            )}
+          >
+            {children}
+          </div>
+        </main>
+        <div className="pointer-events-auto flex w-full flex-col items-center gap-3 px-5 pb-4 tablet:hidden">
+          <div className="[&_footer]:!pb-0 [&_ul]:!mb-0">
+            <FooterLinks />
+          </div>
+          <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+        </div>
+        <div className="pointer-events-auto hidden w-full items-end justify-between gap-6 px-6 pb-4 tablet:flex">
+          <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
+            <FooterLinks />
+          </div>
+          <div className="max-w-sm text-right">
+            <SignupDisclaimer className="!text-right !text-text-tertiary typo-caption1" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (isMobile) {
     return (
       <div className="relative z-3 flex min-h-dvh w-full flex-col justify-end overflow-x-hidden bg-background-default pt-40 text-text-primary">

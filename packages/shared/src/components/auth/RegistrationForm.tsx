@@ -64,6 +64,10 @@ export interface RegistrationFormProps extends AuthFormProps {
   // Optional extra profile fields to collect at signup, driven by the
   // onboarding funnel (campaign cohorts). Empty/undefined = default fields.
   extraFields?: ProfileExtraField[];
+  // Whether to render the "The homepage developers deserve" headline above the
+  // form. The onboarding funnel already shows this copy on the signup wall, so
+  // it hides it here to avoid duplicating the message on the email step.
+  showHeadline?: boolean;
 }
 
 export type RegistrationFormValues = Omit<
@@ -87,6 +91,7 @@ const RegistrationForm = ({
   targetId,
   headerTitle = 'Sign up',
   extraFields = [],
+  showHeadline = true,
 }: RegistrationFormProps): ReactElement => {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -313,7 +318,7 @@ const RegistrationForm = ({
           !simplified && 'px-4 pb-4 tablet:px-6',
         )}
       >
-        {!isAuthenticating && (
+        {!isAuthenticating && (onBackToIntro || showHeadline) && (
           <div className="flex items-start gap-4 pt-2">
             {onBackToIntro && (
               <Button
@@ -326,16 +331,18 @@ const RegistrationForm = ({
                 variant={ButtonVariant.Secondary}
               />
             )}
-            <h1 className="mx-auto mt-4 flex-1 font-bold leading-[1.3] tracking-tight typo-title1 tablet:leading-[1.22] tablet:typo-large-title">
-              <span
-                className={classNames(
-                  onboardingGradientClasses,
-                  'text-text-primary',
-                )}
-              >
-                The homepage developers deserve
-              </span>
-            </h1>
+            {showHeadline && (
+              <h1 className="mx-auto mt-4 flex-1 font-bold leading-[1.3] tracking-tight typo-title1 tablet:leading-[1.22] tablet:typo-large-title">
+                <span
+                  className={classNames(
+                    onboardingGradientClasses,
+                    'text-text-primary',
+                  )}
+                >
+                  The homepage developers deserve
+                </span>
+              </h1>
+            )}
           </div>
         )}
         <AuthForm
