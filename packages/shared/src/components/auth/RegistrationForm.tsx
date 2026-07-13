@@ -508,8 +508,12 @@ const RegistrationForm = ({
               siteKey={turnstileSiteKey}
               options={{
                 theme: 'dark',
+                // Run the challenge silently and only surface the widget when a
+                // human interaction is actually required, so the branded box
+                // doesn't clash with the form for the common (passing) case.
+                appearance: 'interaction-only',
               }}
-              className="mx-auto min-h-[4.5rem]"
+              className="mx-auto"
               onWidgetLoad={() => setTurnstileLoaded(true)}
             />
             {turnstileError && (
