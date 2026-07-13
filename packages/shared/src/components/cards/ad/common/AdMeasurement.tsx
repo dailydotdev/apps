@@ -4,6 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import type { Ad, AdMeasurementTag } from '../../../../graphql/posts';
 import { isExtension } from '../../../../lib/func';
 import { isTesting } from '../../../../lib/constants';
+import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useIsLightTheme } from '../../../../hooks/utils/useThemedAsset';
 import type { AdMacroContext } from '../../../../features/monetization/adMacros';
 import { useAdMacroContext } from '../../../../features/monetization/useAdMacroContext';
@@ -18,13 +19,6 @@ import {
   measurementParentSource,
 } from '../../../../features/monetization/measurementFrame';
 
-interface PathProps {
-  tags: AdMeasurementTag[];
-  ctx: AdMacroContext | null;
-  overlay: boolean;
-  theme: MeasurementTheme;
-}
-
 // Overlay (viewability) must cover the card so the vendor measures the correct
 // element; impression-only tags stay 0-size and hidden. Both are non-interactive
 // so the native ad card keeps ownership of clicks. Positioned absolutely against
@@ -32,11 +26,22 @@ interface PathProps {
 const overlayClass = 'pointer-events-none absolute inset-0 size-full border-0';
 const hiddenClass = 'pointer-events-none absolute size-0 border-0';
 
+interface InlineProps {
+  tags: AdMeasurementTag[];
+  ctx: AdMacroContext | null;
+  overlay: boolean;
+}
+
 /**
  * Web path: the page CSP allows JS, so tags run inline in a container that
  * covers the card (overlay) or stays hidden (impression-only). No iframe cost.
+ * Consent is read in-page via `useAdMacroContext`.
  */
-const InlineMeasurement = ({ tags, ctx, overlay }: PathProps): ReactElement => {
+const InlineMeasurement = ({
+  tags,
+  ctx,
+  overlay,
+}: InlineProps): ReactElement => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -56,18 +61,26 @@ const InlineMeasurement = ({ tags, ctx, overlay }: PathProps): ReactElement => {
   );
 };
 
+interface FramedProps {
+  tags: AdMeasurementTag[];
+  overlay: boolean;
+  theme: MeasurementTheme;
+  gdprApplies?: boolean;
+}
+
 /**
  * Extension path: MV3 CSP forbids remote JS on the new-tab page, so tags run in
- * a single web-origin frame. The iframe starts loading as soon as the card is
- * near the viewport (in parallel with the consent read); `init` is posted once
- * both the frame is ready and consent resolved.
+ * a single web-origin frame. The parent posts only plain data — the frame reads
+ * consent and substitutes macros itself, so that logic ships with a webapp
+ * deploy. The iframe starts loading as soon as the card is near the viewport;
+ * `init` is posted the moment the frame reports ready.
  */
 const FramedMeasurement = ({
   tags,
-  ctx,
   overlay,
   theme,
-}: PathProps): ReactElement => {
+  gdprApplies,
+}: FramedProps): ReactElement => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [frameReady, setFrameReady] = useState(false);
   const frameUrl = useMemo(getMeasurementFrameUrl, []);
@@ -89,15 +102,21 @@ const FramedMeasurement = ({
   }, [frameOrigin]);
 
   useEffect(() => {
-    if (!frameReady || !ctx) {
+    if (!frameReady) {
       return;
     }
 
     iframeRef.current?.contentWindow?.postMessage(
-      { source: measurementParentSource, type: 'init', tags, ctx, theme },
+      {
+        source: measurementParentSource,
+        type: 'init',
+        tags,
+        theme,
+        gdprApplies,
+      },
       frameOrigin,
     );
-  }, [frameReady, ctx, tags, theme, frameOrigin]);
+  }, [frameReady, tags, theme, gdprApplies, frameOrigin]);
 
   return (
     <iframe
@@ -125,6 +144,7 @@ export const AdMeasurement = ({ ad }: { ad: Ad }): ReactElement | null => {
   const hasTags = !!tags?.length;
   const overlay = useMemo(() => tagsRequireOverlay(tags), [tags]);
   const theme: MeasurementTheme = useIsLightTheme() ? 'light' : 'dark';
+  const { isGdprCovered } = useAuthContext();
 
   // Pre-warm ~300px before the card enters view so measurement is ready the
   // moment it becomes visible, without loading frames for far-off ads.
@@ -135,7 +155,8 @@ export const AdMeasurement = ({ ad }: { ad: Ad }): ReactElement | null => {
     fallbackInView: true,
   });
 
-  const ctx = useAdMacroContext(inView && hasTags);
+  // Web reads consent in-page; the extension defers it to the frame.
+  const ctx = useAdMacroContext(inView && hasTags && !isExtension);
 
   if (!hasTags) {
     return null;
@@ -147,17 +168,12 @@ export const AdMeasurement = ({ ad }: { ad: Ad }): ReactElement | null => {
         (isExtension ? (
           <FramedMeasurement
             tags={tags}
-            ctx={ctx}
             overlay={overlay}
             theme={theme}
+            gdprApplies={isGdprCovered}
           />
         ) : (
-          <InlineMeasurement
-            tags={tags}
-            ctx={ctx}
-            overlay={overlay}
-            theme={theme}
-          />
+          <InlineMeasurement tags={tags} ctx={ctx} overlay={overlay} />
         ))}
     </span>
   );

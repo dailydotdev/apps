@@ -1,5 +1,4 @@
 import type { AdMeasurementTag } from '../../graphql/posts';
-import type { AdMacroContext } from './adMacros';
 import { webappUrl } from '../../lib/constants';
 
 /**
@@ -8,9 +7,13 @@ import { webappUrl } from '../../lib/constants';
  * extension's MV3 CSP forbids on its own page. The discriminators live only in
  * message payloads (never in the URL) so ad blockers cannot key on them.
  *
+ * The parent sends only plain data (raw tags, theme, a geo hint). All macro
+ * logic — consent read, cachebuster, substitution — runs inside the frame, so
+ * it ships with a webapp deploy and never waits for extension-store adoption.
+ *
  * Handshake: the frame posts `ready` as soon as its listener is attached; the
- * parent replies with `init` carrying the tags + resolved consent + theme. This
- * avoids the race where the parent posts before the frame can receive.
+ * parent replies with `init`. This avoids the race where the parent posts
+ * before the frame can receive.
  */
 
 // Neutral, no "ad"/"measurement" tokens: the path is visible to ad blockers.
@@ -33,8 +36,10 @@ export interface MeasurementInitMessage {
   source: typeof measurementParentSource;
   type: 'init';
   tags: AdMeasurementTag[];
-  ctx: AdMacroContext;
   theme: MeasurementTheme;
+  // Geo hint only: whether GDPR applies. The frame reads the actual consent
+  // string itself, so consent logic stays deployable with the webapp.
+  gdprApplies?: boolean;
 }
 
 export const isMeasurementReadyMessage = (
