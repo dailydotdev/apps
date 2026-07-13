@@ -94,12 +94,7 @@ export const OnboardingSignupHero = ({
           />
         </header>
         <main className="flex w-full flex-1 flex-col items-center px-5 pb-6 pt-8 tablet:pt-12">
-          <div
-            className={classNames(
-              'flex w-full flex-col gap-6 tablet:gap-7',
-              SIGNUP_CONTENT_MAX_W,
-            )}
-          >
+          <div className="flex w-full max-w-[440px] flex-col gap-6 tablet:gap-7">
             {children}
           </div>
         </main>
