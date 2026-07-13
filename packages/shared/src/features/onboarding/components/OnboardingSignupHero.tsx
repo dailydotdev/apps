@@ -90,7 +90,7 @@ export const OnboardingSignupHero = ({
           <Logo
             position={LogoPosition.Relative}
             className="!left-0 !top-0 !mt-0 !translate-x-0"
-            logoClassName={{ container: 'h-7' }}
+            logoClassName={{ container: 'h-5' }}
           />
         </header>
         <main className="flex w-full flex-1 flex-col items-center px-5 pb-6 pt-8 tablet:pt-12">
