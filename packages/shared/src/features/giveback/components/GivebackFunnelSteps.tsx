@@ -9,7 +9,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { CoinIcon, GiftIcon, VIcon } from '../../../components/icons';
-import { cloudinaryCharmBookmarks } from '../../../lib/image';
+import { cloudinaryGivebackFunnelImpact } from '../../../lib/image';
 import { GivebackMascot } from './GivebackMascot';
 import { GivebackCauseSelection } from './GivebackCauseSelection';
 import { GivebackReveal as Reveal } from './GivebackReveal';
@@ -196,8 +196,8 @@ export const GivebackFunnelStep = ({
               <GivebackMascot
                 imageClassName="h-28 tablet:h-36"
                 image={{
-                  src: cloudinaryCharmBookmarks,
-                  alt: 'daily.dev charm celebrating your causes',
+                  src: cloudinaryGivebackFunnelImpact,
+                  alt: 'Patchy holding a Cores coin, celebrating your causes',
                 }}
               />
             </Stage>

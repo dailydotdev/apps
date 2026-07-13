@@ -1,6 +1,6 @@
 import type { ContributionRewardTier } from '../../types';
 import { ContributionRewardType } from '../../types';
-import { cloudinaryCharmInviteFriends } from '../../../../lib/image';
+import { cloudinaryGivebackPatchyFounding } from '../../../../lib/image';
 
 // The reward-claim "reveal": the cinematic pop-up shown after a contributor
 // claims a reward tier on the journey. Each reward gets a bespoke payoff moment
@@ -33,8 +33,6 @@ export interface RewardReveal {
   duration?: string;
   // swagDiscount: discount percent.
   percent?: number;
-  // an anchor illustration where one helps (e.g. Patchy).
-  image?: string;
 }
 
 // Format a Plus grant's day count into the human label the reveal shows.
@@ -102,7 +100,6 @@ export const resolveRewardReveal = (
         kind: 'mascotHug',
         headline: 'You and Patchy, official.',
         body: 'Save it, share it, make it your profile picture.',
-        image: cloudinaryCharmInviteFriends,
       };
     case ContributionRewardType.Trivia:
       return {
@@ -156,7 +153,7 @@ export interface FoundingAward {
 
 export const PATCHY_FOUNDING_AWARD: FoundingAward = {
   name: 'Founding Patchy',
-  image: cloudinaryCharmInviteFriends,
+  image: cloudinaryGivebackPatchyFounding,
   coresValue: 1000,
 };
 
