@@ -600,6 +600,7 @@ export function SmartComposerModal({
               onDismissPreview={() =>
                 logEvent({ event_name: LogEvent.DismissComposerPreview })
               }
+              initialUrl={initialUrl ? link.url : undefined}
             />
           )}
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
