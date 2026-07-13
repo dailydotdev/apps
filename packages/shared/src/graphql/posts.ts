@@ -332,6 +332,12 @@ export interface Ad {
   adDomain?: string;
   companyLogo?: string;
   callToAction?: string;
+  tags?: AdMeasurementTag[];
+}
+
+export interface AdMeasurementTag {
+  markup: string;
+  overlay?: boolean;
 }
 
 export type ReadHistoryPost = Pick<
