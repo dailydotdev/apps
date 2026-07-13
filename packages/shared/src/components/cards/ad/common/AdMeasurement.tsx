@@ -4,7 +4,6 @@ import { useInView } from 'react-intersection-observer';
 import type { Ad, AdMeasurementTag } from '../../../../graphql/posts';
 import { isExtension } from '../../../../lib/func';
 import { isTesting } from '../../../../lib/constants';
-import { useAuthContext } from '../../../../contexts/AuthContext';
 import { useIsLightTheme } from '../../../../hooks/utils/useThemedAsset';
 import type { AdMacroContext } from '../../../../features/monetization/adMacros';
 import { useAdMacroContext } from '../../../../features/monetization/useAdMacroContext';
@@ -144,7 +143,6 @@ export const AdMeasurement = ({ ad }: { ad: Ad }): ReactElement | null => {
   const hasTags = !!tags?.length;
   const overlay = useMemo(() => tagsRequireOverlay(tags), [tags]);
   const theme: MeasurementTheme = useIsLightTheme() ? 'light' : 'dark';
-  const { isGdprCovered } = useAuthContext();
 
   // Pre-warm ~300px before the card enters view so measurement is ready the
   // moment it becomes visible, without loading frames for far-off ads.
@@ -155,8 +153,9 @@ export const AdMeasurement = ({ ad }: { ad: Ad }): ReactElement | null => {
     fallbackInView: true,
   });
 
-  // Web reads consent in-page; the extension defers it to the frame.
-  const ctx = useAdMacroContext(inView && hasTags && !isExtension);
+  // Consent decision (a boolean) is resolved here from the user's cookie choice;
+  // the macro string substitution runs where the tags do (inline / in the frame).
+  const ctx = useAdMacroContext(inView && hasTags);
 
   if (!hasTags) {
     return null;
@@ -170,7 +169,7 @@ export const AdMeasurement = ({ ad }: { ad: Ad }): ReactElement | null => {
             tags={tags}
             overlay={overlay}
             theme={theme}
-            gdprApplies={isGdprCovered}
+            gdprApplies={ctx?.gdprApplies}
           />
         ) : (
           <InlineMeasurement tags={tags} ctx={ctx} overlay={overlay} />

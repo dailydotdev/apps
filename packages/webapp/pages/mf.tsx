@@ -2,7 +2,6 @@ import type { GetServerSideProps } from 'next';
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import { injectMeasurementTags } from '@dailydotdev/shared/src/features/monetization/measurementTags';
-import { readAdConsent } from '@dailydotdev/shared/src/features/monetization/adConsent';
 import {
   isMeasurementInitMessage,
   measurementFrameSource,
@@ -14,10 +13,9 @@ import {
  * cross-origin iframe whose CSP we control. The page is intentionally bare and
  * excluded from the app shell in `_app.tsx` so it loads as fast as possible.
  *
- * All macro logic (consent read, cachebuster, substitution) lives here rather
- * than in the extension, so bugs are fixed with a webapp deploy instead of
- * waiting for extension-store adoption. The parent only sends raw tags + theme
- * + a geo hint.
+ * Macro substitution (cachebuster, gdpr flag) runs here, so bugs are fixed with
+ * a webapp deploy instead of waiting for extension-store adoption. The parent
+ * sends raw tags + theme + the resolved gdpr decision.
  *
  * The route is `/mf` (no "ad"/"measurement" tokens) so ad blockers don't key on
  * the URL. Framing is locked to our extension origins via `frame-ancestors`.
@@ -59,11 +57,7 @@ export default function MeasurementFrame(): ReactElement {
         document.documentElement.dataset.theme = theme;
       }
 
-      // Consent is read here (web origin) so the whole pipeline is deployable
-      // with the webapp; the geo hint only seeds gdprApplies when no CMP answers.
-      readAdConsent(gdprApplies).then((ctx) => {
-        injectMeasurementTags(document.body, tags, ctx);
-      });
+      injectMeasurementTags(document.body, tags, { gdprApplies });
     };
 
     globalThis.addEventListener('message', onMessage);

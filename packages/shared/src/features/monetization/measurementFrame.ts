@@ -7,9 +7,9 @@ import { webappUrl } from '../../lib/constants';
  * extension's MV3 CSP forbids on its own page. The discriminators live only in
  * message payloads (never in the URL) so ad blockers cannot key on them.
  *
- * The parent sends only plain data (raw tags, theme, a geo hint). All macro
- * logic — consent read, cachebuster, substitution — runs inside the frame, so
- * it ships with a webapp deploy and never waits for extension-store adoption.
+ * The parent sends only plain data (raw tags, theme, the resolved gdpr
+ * decision). Macro substitution (cachebuster, gdpr flag) runs inside the frame,
+ * so it ships with a webapp deploy and never waits for extension-store adoption.
  *
  * Handshake: the frame posts `ready` as soon as its listener is attached; the
  * parent replies with `init`. This avoids the race where the parent posts
@@ -37,8 +37,9 @@ export interface MeasurementInitMessage {
   type: 'init';
   tags: AdMeasurementTag[];
   theme: MeasurementTheme;
-  // Geo hint only: whether GDPR applies. The frame reads the actual consent
-  // string itself, so consent logic stays deployable with the webapp.
+  // Resolved from the user's first-party cookie choice by the parent: true only
+  // when GDPR applies and the user has not consented (so the frame emits gdpr=1
+  // and the vendor withholds measurement); false means measurement proceeds.
   gdprApplies?: boolean;
 }
 
