@@ -37,6 +37,13 @@ function SharePostBar({
 
   const shouldRenderReadingHistory = !urlFocused && url.length === 0;
 
+  const clearInput = () => {
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
+    setUrl('');
+  };
+
   const onOpenCreatePost = (preview: ExternalLinkPreview, link?: string) => {
     openModal({
       type: LazyModal.SmartComposer,
@@ -44,6 +51,7 @@ function SharePostBar({
         initialUrl: link,
         initialSquadHandle: squad.handle,
         preview: { ...preview, url: link },
+        onAfterClose: clearInput,
       },
     });
   };

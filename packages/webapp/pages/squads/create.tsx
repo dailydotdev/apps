@@ -59,6 +59,7 @@ function CreatePost(): ReactElement {
       isOpen
       onRequestClose={() => router.push(webappUrl)}
       initialSquadHandle={getFirstQueryParam(query.sid)}
+      initialSquadId={getFirstQueryParam(query.sid)}
       initialKind={displayToKind(prefill.initialDisplay)}
       initialUrl={prefill.initialShareUrl}
       initialTitle={prefill.initialDraft.title}

@@ -97,6 +97,7 @@ const resolveDefaultKind = (
 export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialUrl?: string;
   initialSquadHandle?: string;
+  initialSquadId?: string;
   initialKind?: ComposerKind;
   initialTitle?: string;
   initialContent?: string;
@@ -109,6 +110,7 @@ export function SmartComposerModal({
   onRequestClose,
   initialUrl,
   initialSquadHandle,
+  initialSquadId,
   initialKind,
   initialTitle,
   initialContent,
@@ -136,6 +138,9 @@ export function SmartComposerModal({
       return 'link';
     }
     if (initialKind) {
+      if (initialKind === 'standup' && !isStandupEnabled) {
+        return 'text';
+      }
       return initialKind;
     }
     return resolveDefaultKind(flags?.defaultWriteTab, isStandupEnabled);
@@ -325,7 +330,10 @@ export function SmartComposerModal({
   );
 
   const { audiences, selectedIds, selected, setSelectedIds, userAudienceId } =
-    useComposerAudience(initialSquadHandle, editPost?.source?.id);
+    useComposerAudience(
+      initialSquadHandle,
+      initialSquadId ?? editPost?.source?.id,
+    );
   const primary = selected[0];
   const isMulti = selected.length > 1;
 
@@ -620,6 +628,7 @@ export function SmartComposerModal({
         onClose={() => {
           handleClose();
         }}
+        onAfterClose={props.onAfterClose}
         className={{ wrapper: 'flex flex-col p-0' }}
       >
         {formContent}
