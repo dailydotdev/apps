@@ -139,4 +139,8 @@ export interface AuthOptionsProps {
   /** Extra profile fields to collect on the email registration form, driven
    * by the onboarding funnel (campaign cohorts). */
   registrationExtraFields?: ProfileExtraField[];
+  /** Hide the "The homepage developers deserve" headline on the email
+   * registration form (e.g. when the onboarding funnel already shows that copy
+   * on the signup wall). */
+  hideRegistrationHeadline?: boolean;
 }
