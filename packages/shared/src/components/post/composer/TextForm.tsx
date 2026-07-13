@@ -71,7 +71,13 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
     }));
 
     useEffect(() => {
-      titleRef.current?.focus();
+      const titleEl = titleRef.current;
+      if (!titleEl) {
+        return;
+      }
+      titleEl.focus();
+      const end = titleEl.value.length;
+      titleEl.setSelectionRange(end, end);
     }, []);
 
     useLayoutEffect(() => {

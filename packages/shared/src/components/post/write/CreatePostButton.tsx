@@ -5,7 +5,6 @@ import { link } from '../../../lib/links';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions, useSquad, useViewSize, ViewSize } from '../../../hooks';
 import { useLazyModal } from '../../../hooks/useLazyModal';
-import { useSmartComposer } from '../../../hooks/post/useSmartComposer';
 import { LazyModal } from '../../modals/common/types';
 import { verifyPermission } from '../../../graphql/squads';
 import { SourcePermissions } from '../../../graphql/sources';
@@ -44,7 +43,6 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const { user, squads } = useAuthContext();
   const { route, query } = useRouter();
   const { openModal } = useLazyModal();
-  const { evaluateSmartComposer } = useSmartComposer();
   const isTablet = useViewSize(ViewSize.Tablet);
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isLaptopL = useViewSize(ViewSize.LaptopL);
@@ -109,10 +107,6 @@ export function CreatePostButton<Tag extends AllowedTags>({
   const onCreatePostClick = (
     event: React.MouseEvent<AllowedElements, MouseEvent>,
   ) => {
-    if (!isLaptop || !evaluateSmartComposer()) {
-      return;
-    }
-
     openSmartComposer(event);
   };
 
