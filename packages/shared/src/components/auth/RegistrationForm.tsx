@@ -427,7 +427,7 @@ const RegistrationForm = ({
             saveHintSpace
             className={{ container: 'w-full' }}
             valid={isLoadingUsername || isUsernameValid}
-            leftIcon={<AtIcon aria-hidden role="presentation" secondary />}
+            leftIcon={<AtIcon aria-hidden role="presentation" />}
             name="traits.username"
             inputId="traits.username"
             label="Enter a username"
