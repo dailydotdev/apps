@@ -128,4 +128,23 @@ describe('OnboardingSignupHero', () => {
     expect(screen.getByTestId('auth-form')).toBeInTheDocument();
     expect(screen.getByText('Hello devs')).toBeInTheDocument();
   });
+
+  describe('when the form is expanded (email step)', () => {
+    it('drops the marketing background and headline', () => {
+      renderHero({ headline: 'Hello devs', isFormExpanded: true });
+      expect(screen.getByTestId('auth-form')).toBeInTheDocument();
+      expect(screen.queryByTestId('bg-layer')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('hero-orbs')).not.toBeInTheDocument();
+      expect(screen.queryByText('Hello devs')).not.toBeInTheDocument();
+    });
+
+    it('drops the background on mobile too', () => {
+      mockUseViewSize.mockReturnValue(true);
+      renderHero({ isFormExpanded: true });
+      expect(
+        screen.queryByAltText('Onboarding background'),
+      ).not.toBeInTheDocument();
+      expect(screen.getByTestId('logo')).toBeInTheDocument();
+    });
+  });
 });

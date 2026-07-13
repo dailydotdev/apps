@@ -150,6 +150,7 @@ function AuthOptionsInner({
   autoTriggerProvider,
   socialProviderScopes,
   registrationExtraFields,
+  hideRegistrationHeadline,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -787,6 +788,7 @@ function AuthOptionsInner({
           <RegistrationForm
             formRef={formRef}
             simplified={simplified}
+            showHeadline={!hideRegistrationHeadline}
             extraFields={registrationExtraFields}
             hints={registrationHints}
             onBack={
