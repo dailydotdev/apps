@@ -1,4 +1,3 @@
-import type { GetServerSideProps } from 'next';
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
 import { injectMeasurementTags } from '@dailydotdev/shared/src/features/monetization/measurementTags';
@@ -10,43 +9,33 @@ import {
 /**
  * Embed page that runs ad measurement tags on behalf of the extension, which
  * cannot run them on its own pages. The parent posts the tags via the
- * handshake defined in `measurementFrame.ts`. Kept bare (excluded from the app
- * shell in `_app.tsx`) so it loads fast.
+ * handshake defined in `measurementFrame.ts`.
+ *
+ * Load path is tuned end to end: the page is fully static (no data fetching,
+ * so it prerenders and serves from cache), it is excluded from the app shell
+ * in `_app.tsx`, and the inline script below runs the handshake at document
+ * parse so the parent's `init` arrives while the page JS is still loading.
+ * Framing is restricted via the `frame-ancestors` header in `next.config.ts`.
  */
 
-export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  // NEXT_PUBLIC_DAILY_EXTENSION_ID is inlined at build time (next.config.ts),
-  // so the header stays correct even if the runtime env misses the raw ids.
-  const chromeId =
-    process.env.EXTENSION_ID_CHROME ||
-    process.env.NEXT_PUBLIC_DAILY_EXTENSION_ID;
-  const edgeId = process.env.EXTENSION_ID_EDGE;
-  const operaId = process.env.EXTENSION_ID_OPERA;
-
-  const frameAncestors = [
-    "'self'",
-    chromeId && `chrome-extension://${chromeId}`,
-    edgeId && `chrome-extension://${edgeId}`,
-    operaId && `chrome-extension://${operaId}`,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  res.setHeader('Content-Security-Policy', `frame-ancestors ${frameAncestors}`);
-  // Static per deploy; cache so a feed full of ads doesn't SSR it repeatedly.
-  res.setHeader(
-    'Cache-Control',
-    'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400',
-  );
-
-  return { props: {} };
+type EarlyHandshakeWindow = typeof globalThis & {
+  ddmfQueue?: MessageEvent[];
+  ddmfEarly?: (event: MessageEvent) => void;
 };
+
+// Executes at document parse, long before hydration: buffer incoming messages
+// and announce readiness immediately so the round-trip overlaps the JS load.
+const earlyHandshakeScript =
+  'window.ddmfQueue=[];' +
+  'window.ddmfEarly=function(e){window.ddmfQueue.push(e)};' +
+  'window.addEventListener("message",window.ddmfEarly);' +
+  `window.parent!==window&&window.parent.postMessage({source:"${measurementFrameSource}",type:"ready"},"*");`;
 
 /**
  * Only the window that frames this page may inject tags — `frame-ancestors`
- * above restricts that to our own origin and our extension ids. Any other
- * window holding a reference (e.g. an opener) is rejected, since its `init`
- * would execute arbitrary markup on our origin.
+ * restricts that to our own origin and our extension ids. Any other window
+ * holding a reference (e.g. an opener) is rejected, since its `init` would
+ * execute arbitrary markup on our origin.
  */
 const isTrustedEmbedder = (event: MessageEvent): boolean => {
   const { parent } = globalThis;
@@ -73,8 +62,18 @@ export default function MeasurementFrame(): ReactElement {
 
     globalThis.addEventListener('message', onMessage);
 
-    // Announce readiness so the parent posts `init` only once we can receive it.
-    // No secrets in this message, so a wildcard target origin is safe.
+    // Take over from the early inline listener and drain anything it buffered
+    // (validation runs here — queued events keep their source/origin).
+    const early = globalThis as EarlyHandshakeWindow;
+    if (early.ddmfEarly) {
+      globalThis.removeEventListener('message', early.ddmfEarly);
+      delete early.ddmfEarly;
+    }
+    early.ddmfQueue?.forEach(onMessage);
+    delete early.ddmfQueue;
+
+    // Repeat `ready` as a fallback for the early script; a duplicate is
+    // harmless on the parent side. No secrets, so wildcard target is safe.
     globalThis.parent?.postMessage(
       { source: measurementFrameSource, type: 'ready' },
       '*',
@@ -88,6 +87,10 @@ export default function MeasurementFrame(): ReactElement {
       {/* Transparent so the frame never visually hides the card beneath it;
           the parent iframe is pointer-events:none so clicks pass through. */}
       <style>{'html,body{margin:0;background:transparent!important}'}</style>
+      <script
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: earlyHandshakeScript }}
+      />
       <div style={{ width: 0, height: 0 }} />
     </>
   );
