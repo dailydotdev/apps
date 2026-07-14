@@ -38,9 +38,16 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
+// Experiment: community takes — an LLM-generated digest of what the developer
+// community on HN/Lobsters thinks about a post. Control hides the surface,
+// treatment shows it. Enrollment is conditional on the post actually having a
+// take (see PostFocusCard's `shouldEvaluate`), so exposure is only logged when
+// there's something to show — take-less posts never dilute the split. Backend
+// generation is unconditional; this flag gates rendering only, so flipping it
+// needs no data backfill. Default MUST stay `false` — see the rule below.
 export const featureCommunitySentiment = new Feature(
   'community_sentiment',
-  isDevelopment,
+  false,
 );
 
 // @ts-expect-error stale feature without default
