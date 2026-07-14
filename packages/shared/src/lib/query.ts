@@ -278,6 +278,7 @@ export enum RequestKey {
   BrowserExtensionInstalled = 'browser_extension_installed',
   LiveRooms = 'live_rooms',
   ContributionOverview = 'contribution_overview',
+  ContributionLeaderboard = 'contribution_leaderboard',
   ContributionCausePicker = 'contribution_cause_picker',
   ContributionActions = 'contribution_actions',
   ContributionActionLinks = 'contribution_action_links',
