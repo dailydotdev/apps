@@ -152,14 +152,14 @@ it('should substitute macros in the click url', async () => {
   renderGridComponent({
     ad: {
       ...ad,
-      link: 'https://ad.doubleclick.net/ddm/trackclk/x;ord=[timestamp];gdpr=${GDPR}?',
+      link: 'https://t.tracker.example/click/x;ord=[timestamp];gdpr=${GDPR}?',
     },
   });
   const el = await screen.findByTestId('adItem');
   const links = await within(el).findAllByRole('link');
   const clickHref = links
     .map((l) => l.getAttribute('href'))
-    .find((h) => h?.includes('doubleclick.net/ddm/trackclk'));
+    .find((h) => h?.includes('t.tracker.example/click'));
   expect(clickHref).toBeDefined();
   expect(clickHref).not.toContain('[timestamp]');
 });

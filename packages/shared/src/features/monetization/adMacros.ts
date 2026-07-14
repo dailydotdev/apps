@@ -9,13 +9,12 @@
  * verbatim.
  */
 
+// Consent signals used to fill the matching tracker macros. Populated from the
+// user's consent state; absent values resolve to empty.
 export interface AdMacroContext {
-  // IAB TCF: whether GDPR applies (1/0) and the TC consent string.
   gdprApplies?: boolean;
   consentString?: string;
-  // Google Additional Consent string.
   addtlConsent?: string;
-  // IAB GPP string + applicable section ids.
   gppString?: string;
   gppSid?: string;
 }
