@@ -11,11 +11,20 @@ import {
 import { ProgressBar } from '../../../components/fields/ProgressBar';
 import { useContributionStatus } from '../hooks/useContributionStatus';
 import { useCountUp, useInView } from '../useGivebackMotion';
-import { formatDonationAmount, getGoalProgressPercentage } from '../utils';
+import {
+  formatDonationAmount,
+  getGoalProgressPercentage,
+} from '../utils';
 import { GivebackMeterShine } from './GivebackMeterShine';
 
 const barColor =
   'bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default';
+
+const formatFundingPercentage = (percentage: number): string =>
+  `${new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(percentage)}%`;
 
 // Quarter-way milestone markers sit on the track (like the impact roadmap's
 // nodes) so the goal reads as a journey with checkpoints, not one long fill.
@@ -167,7 +176,7 @@ export const GivebackFundingSummary = (): ReactElement => {
           color={TypographyColor.StatusSuccess}
           bold
         >
-          {Math.round(percentage)}%
+          {formatFundingPercentage(percentage)}
         </Typography>
         <Typography
           tag={TypographyTag.Span}
