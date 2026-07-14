@@ -512,6 +512,14 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
 const isDevReviewRoute = (pathname: string | undefined): boolean =>
   !!pathname && pathname.startsWith('/dev/');
 
+/**
+ * `/embed/mf` is loaded as an iframe by the extension and must load as fast as
+ * possible. It needs none of the app shell (boot, auth, providers), so it
+ * shares the minimal short-circuit tree.
+ */
+const isBareEmbedRoute = (pathname: string | undefined): boolean =>
+  isDevReviewRoute(pathname) || pathname === '/embed/mf';
+
 export default function App(
   props: AppProps<{ dehydratedState: DehydratedState }>,
 ): ReactElement {
@@ -527,7 +535,7 @@ export default function App(
   const { Component, pageProps, router } = props;
   const { dehydratedState } = pageProps;
 
-  if (isDevReviewRoute(router?.pathname)) {
+  if (isBareEmbedRoute(router?.pathname)) {
     return (
       <QueryClientProvider client={queryClient}>
         <HydrationBoundary state={dehydratedState}>
