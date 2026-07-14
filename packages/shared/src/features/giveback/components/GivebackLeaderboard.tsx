@@ -99,7 +99,7 @@ export const GivebackLeaderboard = ({
       : 0;
 
   return (
-    <FlexCol className="mx-auto w-full max-w-5xl gap-5">
+    <FlexCol className="w-full max-w-2xl gap-5">
       <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
         Weekly leaderboard
       </Typography>
