@@ -121,14 +121,14 @@ export const GivebackInvitePrompt = ({
     <div
       className={classNames(
         dropdown &&
-          'w-[25rem] fixed bottom-3 left-20 z-popup ml-2 max-w-[calc(100vw-6rem)]',
+          'fixed bottom-3 left-20 z-popup ml-2 w-[25rem] max-w-[calc(100vw-6rem)]',
         !dropdown &&
           compact &&
           'fixed left-1/2 top-[calc(env(safe-area-inset-top,0px)+3.5rem)] z-popup w-[calc(100vw-2rem)] max-w-[25rem] -translate-x-1/2',
         !dropdown &&
           !compact &&
           classNames(
-            'w-[25rem] absolute z-3 max-w-[calc(100vw-2rem)]',
+            'absolute z-3 w-[25rem] max-w-[calc(100vw-2rem)]',
             isAbove ? 'bottom-full mb-3' : 'top-full mt-3',
             align === 'end' ? 'right-0' : 'left-0',
           ),
