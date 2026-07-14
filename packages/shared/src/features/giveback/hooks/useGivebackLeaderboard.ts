@@ -63,7 +63,11 @@ export const useGivebackLeaderboard = (): UseGivebackLeaderboard => {
     })) ?? [];
 
   const viewerRank = data?.contributionUserRank;
-  if (!user || !viewerRank || leaderboard.some((entry) => entry.isCurrentUser)) {
+  if (
+    !user ||
+    !viewerRank ||
+    leaderboard.some((entry) => entry.isCurrentUser)
+  ) {
     return { leaderboard, isPending };
   }
 

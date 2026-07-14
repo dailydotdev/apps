@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
-import type { ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { gqlClient } from '../../../graphql/common';
 import { useGivebackLeaderboard } from './useGivebackLeaderboard';
