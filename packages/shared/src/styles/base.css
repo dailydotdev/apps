@@ -4,6 +4,14 @@ html, #daily-companion-wrapper {
   height: stretch;
 }
 
+/* `body` already sets `overflow-x: hidden`, but iOS Safari still lets the
+   viewport scroll horizontally when a descendant overflows. `clip` on the root
+   stops that without creating a scroll container, so `position: sticky` (feed
+   nav, headers) keeps working - which `overflow-x: hidden` here would break. */
+html {
+  overflow-x: clip;
+}
+
 /* Match the tinted v2 page background at laptop+ so overscrolling past the
    feed doesn't reveal the darker default document background. */
 @screen laptop {
