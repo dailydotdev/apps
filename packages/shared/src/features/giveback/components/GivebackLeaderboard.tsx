@@ -101,7 +101,7 @@ export const GivebackLeaderboard = ({
   return (
     <FlexCol className="w-full max-w-2xl gap-5">
       <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
-        All-time leaderboard
+        Top contributors
       </Typography>
 
       <FlexCol className="gap-0.5">
