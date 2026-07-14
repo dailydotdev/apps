@@ -78,6 +78,10 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   // Bumps per show so a replacing prompt remounts (fresh timer + confetti).
   const [promptSeq, setPromptSeq] = useState(0);
   const timers = useRef<number[]>([]);
+  // The compact prompt is viewport-fixed, so anchor it just below the real gift
+  // instead of a hardcoded top offset (which misaligns with banners/safe areas).
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const [promptTop, setPromptTop] = useState<number | null>(null);
 
   const clearTimers = useCallback(() => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -99,6 +103,18 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   // Clear any pending timeouts when the dock unmounts so they never fire on an
   // unmounted component (production never calls reset()).
   useEffect(() => clearTimers, [clearTimers]);
+
+  // Measure the gift's viewport position each time the compact prompt opens; the
+  // header is sticky, so a single read holds for the prompt's short lifetime.
+  useEffect(() => {
+    if (!compact || !prompt) {
+      return;
+    }
+    const rect = anchorRef.current?.getBoundingClientRect();
+    if (rect) {
+      setPromptTop(Math.round(rect.bottom + 12));
+    }
+  }, [compact, prompt]);
 
   const popGift = useCallback(() => {
     setPopping(false);
@@ -158,7 +174,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   }, [onOpenGiveback]);
 
   return (
-    <div className="relative inline-flex">
+    <div ref={anchorRef} className="relative inline-flex">
       <span
         className={classNames(
           'relative inline-flex',
@@ -215,6 +231,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         celebrate={prompt?.celebrate}
         dropdown={isRail}
         compact={compact}
+        compactTop={promptTop}
         paused={giftHovered}
         placement={promptPlacement ?? (isRail ? 'above' : 'below')}
         align={promptAlign ?? (isRail ? 'start' : 'end')}

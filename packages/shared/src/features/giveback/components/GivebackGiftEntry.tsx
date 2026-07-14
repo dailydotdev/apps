@@ -16,6 +16,10 @@ import { LogEvent } from '../../../lib/log';
 interface GivebackGiftEntryProps {
   variant?: GivebackGiftButtonVariant;
   showLabel?: boolean;
+  // Flat, compact styling + viewport-pinned prompt for the mobile header
+  // placements. Set by the caller that mounts the entry on a mobile surface, so
+  // the styling follows the placement rather than being guessed from viewport.
+  compact?: boolean;
   promptPlacement?: 'below' | 'above';
   promptAlign?: 'start' | 'end';
   // When the parent already evaluated `featureGiveback` (e.g. the rail, which
@@ -32,12 +36,15 @@ const LIVE_ACTIVITY_MIN_ACCOUNT_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 // The persistent giveback entry point. Gated on the same `featureGiveback` flag
 // as the page, so it shows wherever giveback is enabled. It drives its dock from
 // remote community activity: real approved actions pop a live "+$" jump and
-// crossing a global milestone fires the celebratory popover. The header and the
-// sidebar-v2 rail are mutually exclusive layouts, so only one entry is ever
-// mounted and no cross-instance coordination is needed.
+// crossing a global milestone fires the celebratory popover. Its mount points -
+// the desktop header, the sidebar-v2 rail, and the mobile feed header (phone via
+// MobileFeedActions, tablet via FeedNav) - are laid out to be mutually
+// exclusive, so only one entry is ever mounted and no cross-instance
+// coordination is needed. Adding a new mount point must preserve that.
 export function GivebackGiftEntry({
   variant = 'header',
   showLabel = false,
+  compact = false,
   promptPlacement,
   promptAlign,
   isFeatureEnabled,
@@ -86,7 +93,7 @@ export function GivebackGiftEntry({
         ref={dock}
         variant={variant}
         showLabel={showLabel}
-        compact={variant === 'header' && !isLaptop}
+        compact={compact}
         onOpenGiveback={openGiveback}
         promptPlacement={promptPlacement}
         promptAlign={promptAlign}

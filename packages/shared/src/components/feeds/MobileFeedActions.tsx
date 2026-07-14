@@ -48,7 +48,7 @@ export function MobileFeedActions(): ReactElement {
           />
         )}
         <QuestHeaderButton compact />
-        <GivebackGiftEntry />
+        <GivebackGiftEntry compact />
         <Divider className="bg-border-subtlest-tertiary" vertical />
         {user && (
           <>

@@ -31,6 +31,9 @@ export interface GivebackInvitePromptProps {
   // Mobile header: pin to the viewport (centered, below the header) instead of
   // anchoring to the mid-header gift, so the wide card never overflows the edge.
   compact?: boolean;
+  // Measured viewport `top` (px) for the compact prompt, so it sits just below
+  // the real gift. Falls back to a safe-area-aware offset until it's measured.
+  compactTop?: number | null;
   autoDismissMs?: number;
   // Externally pause the auto-dismiss (e.g. while the cursor is over the gift).
   paused?: boolean;
@@ -55,6 +58,7 @@ export const GivebackInvitePrompt = ({
   align = 'end',
   dropdown = false,
   compact = false,
+  compactTop = null,
   autoDismissMs = 5000,
   paused = false,
   onClick,
@@ -120,7 +124,7 @@ export const GivebackInvitePrompt = ({
           'w-[25rem] fixed bottom-3 left-20 z-popup ml-2 max-w-[calc(100vw-6rem)]',
         !dropdown &&
           compact &&
-          'fixed left-1/2 top-16 z-popup w-[calc(100vw-2rem)] max-w-[25rem] -translate-x-1/2',
+          'fixed left-1/2 top-[calc(env(safe-area-inset-top,0px)+3.5rem)] z-popup w-[calc(100vw-2rem)] max-w-[25rem] -translate-x-1/2',
         !dropdown &&
           !compact &&
           classNames(
@@ -130,6 +134,7 @@ export const GivebackInvitePrompt = ({
           ),
         className,
       )}
+      style={compact && compactTop != null ? { top: compactTop } : undefined}
       role="status"
     >
       {celebrate && (
