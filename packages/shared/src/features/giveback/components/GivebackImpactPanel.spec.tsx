@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
 import { useGivebackContribution } from '../hooks/useGivebackContribution';
 import { useContributionRewards } from '../hooks/useContributionRewards';
@@ -146,17 +145,8 @@ beforeEach(() => {
   >);
 });
 
-// The panel now includes the leaderboard, whose avatars pull in a query-backed
-// hook, so the tree needs a QueryClient in scope.
-const renderPanel = (onTakeAction: () => void = jest.fn()) =>
-  render(
-    <QueryClientProvider client={new QueryClient()}>
-      <GivebackImpactPanel onTakeAction={onTakeAction} />
-    </QueryClientProvider>,
-  );
-
 it('renders the reward-ladder journey with the current level', () => {
-  renderPanel();
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
   expect(screen.getByText(/for causes you love/)).toBeInTheDocument();
   expect(screen.getByText('Sticker pack')).toBeInTheDocument();
@@ -189,7 +179,7 @@ it('keeps joke and trivia rewards a mystery until claimed', () => {
     ],
     isPending: false,
   });
-  renderPanel();
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
   // The joke's punchline (its title) and the trivia fact stay hidden…
   expect(
@@ -204,7 +194,7 @@ it('keeps joke and trivia rewards a mystery until claimed', () => {
 });
 
 it('offers a claim for an unlocked, unclaimed tier and logs it', async () => {
-  renderPanel();
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
   // The $25 tier is reached at $40 and not yet claimed.
   const claimButton = screen.getByRole('button', { name: /Claim reward/ });
@@ -240,7 +230,7 @@ it('claims the founding award through the mutation and reveals it', async () => 
   });
   mockClaimFoundingAward.mockReturnValue({ claim, isPending: false });
 
-  renderPanel();
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
   const claimButton = screen.getByRole('button', {
     name: /Claim your award/,
@@ -259,7 +249,7 @@ it('does not reveal the founding award when claiming fails', async () => {
   const claim = jest.fn().mockRejectedValue(new Error('sold out'));
   mockClaimFoundingAward.mockReturnValue({ claim, isPending: false });
 
-  renderPanel();
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
   const claimButton = screen.getByRole('button', {
     name: /Claim your award/,
@@ -276,7 +266,7 @@ it('does not reveal the founding award when claiming fails', async () => {
 
 it('shows an empty journey when no reward tiers exist', () => {
   mockRewards.mockReturnValue({ rewardTiers: [], isPending: false });
-  renderPanel();
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 
   expect(screen.getByText('Your journey starts soon')).toBeInTheDocument();
 });

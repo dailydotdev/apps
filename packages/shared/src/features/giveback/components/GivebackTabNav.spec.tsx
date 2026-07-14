@@ -7,6 +7,7 @@ it('renders the tabs from the shared tab list', () => {
 
   expect(screen.getByText('Take action')).toBeInTheDocument();
   expect(screen.getByText('Your impact')).toBeInTheDocument();
+  expect(screen.getByText('Leaderboard')).toBeInTheDocument();
   expect(screen.getByText('Causes')).toBeInTheDocument();
   expect(screen.getByText('FAQ')).toBeInTheDocument();
 });
