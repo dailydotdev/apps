@@ -48,10 +48,11 @@ export function GivebackGiftEntry({
   const { logEvent } = useLogContext();
   const dock = useRef<GivebackGiftDockHandle>(null);
 
-  // Desktop-only for now. The mobile placement is parked for a later PR, so the
-  // entry never shows on smaller viewports (header/rail are desktop anyway).
+  // The rail lives in the desktop sidebar, so it stays laptop-gated; the header
+  // variant also serves mobile, where it's the only giveback entry point.
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const baseGate = isAuthReady && isLoggedIn && isLaptop;
+  const baseGate =
+    isAuthReady && isLoggedIn && (variant === 'header' || isLaptop);
   const hasExternalFlag = isFeatureEnabled !== undefined;
   const { value: selfEnabled } = useConditionalFeature({
     feature: featureGiveback,
