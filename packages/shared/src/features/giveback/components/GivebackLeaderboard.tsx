@@ -190,11 +190,7 @@ export const GivebackLeaderboard = ({
                 </span>
               </Typography>
             </FlexRow>
-          ) : (
-            <Typography bold type={TypographyType.Footnote}>
-              You&apos;re #1 — hold the crown.
-            </Typography>
-          )}
+          ) : null}
         </FlexCol>
       )}
     </FlexCol>

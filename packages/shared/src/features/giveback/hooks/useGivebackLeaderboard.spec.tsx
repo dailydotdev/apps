@@ -34,7 +34,7 @@ it('uses the API rankings and appends the current user outside the top results',
       username: 'viewer',
       image: 'https://example.com/viewer.png',
     },
-  } as ReturnType<typeof useAuthContext>);
+  } as unknown as ReturnType<typeof useAuthContext>);
   mockRequest.mockResolvedValue({
     contributionLeaderboard: {
       edges: [
@@ -83,7 +83,7 @@ it('loads public rankings without requesting an authenticated viewer rank', asyn
   mockAuth.mockReturnValue({
     isAuthReady: true,
     user: null,
-  } as ReturnType<typeof useAuthContext>);
+  } as unknown as ReturnType<typeof useAuthContext>);
   mockRequest.mockResolvedValue({
     contributionLeaderboard: {
       edges: [
