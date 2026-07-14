@@ -56,7 +56,7 @@ import {
   WebKitMessageHandlers,
 } from '@dailydotdev/shared/src/lib/ios';
 import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation';
-import Seo, { defaultSeo, defaultSeoTitle } from '../next-seo';
+import Seo, { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
 import { PixelsProvider } from '../context/PixelsContext';
@@ -470,8 +470,9 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
             url: canonical,
           }}
           titleTemplate={unreadCount ? `(${unreadText}) %s` : '%s'}
+          robotsProps={robotsProps}
         />
-        {!!seo && <NextSeo {...seo} />}
+        {!!seo && <NextSeo robotsProps={robotsProps} {...seo} />}
         <LazyModalElement />
         <DndContextProvider>
           {getLayout(<Component {...pageProps} />, pageProps, layoutProps)}
