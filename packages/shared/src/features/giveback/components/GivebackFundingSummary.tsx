@@ -11,10 +11,7 @@ import {
 import { ProgressBar } from '../../../components/fields/ProgressBar';
 import { useContributionStatus } from '../hooks/useContributionStatus';
 import { useCountUp, useInView } from '../useGivebackMotion';
-import {
-  formatDonationAmount,
-  getGoalProgressPercentage,
-} from '../utils';
+import { formatDonationAmount, getGoalProgressPercentage } from '../utils';
 import { GivebackMeterShine } from './GivebackMeterShine';
 
 const barColor =
