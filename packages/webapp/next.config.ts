@@ -320,6 +320,20 @@ const nextConfig: NextConfig = {
       ];
     },
     headers: async () => {
+      // NEXT_PUBLIC_DAILY_EXTENSION_ID is the build-time fallback in case the
+      // runtime env misses the raw ids.
+      const extensionIds = [
+        process.env.EXTENSION_ID_CHROME ||
+          process.env.NEXT_PUBLIC_DAILY_EXTENSION_ID,
+        process.env.EXTENSION_ID_EDGE,
+        process.env.EXTENSION_ID_OPERA,
+        'iadegcabbmekpelhfjkhehnbnbahjejh',
+      ].filter(Boolean);
+      const embedFrameAncestors = [
+        "'self'",
+        ...extensionIds.map((id) => `chrome-extension://${id}`),
+      ].join(' ');
+
       return [
         {
           source: '/:path*',
@@ -349,6 +363,18 @@ const nextConfig: NextConfig = {
             {
               key: 'Cache-Control',
               value: 'public, max-age=86400, stale-while-revalidate=604800',
+            },
+          ],
+        },
+        {
+          // Static page (headers can't come from the page itself); framing is
+          // limited to our own origin and our extensions. This CSP takes
+          // precedence over the global X-Frame-Options in modern browsers.
+          source: '/embed/mf',
+          headers: [
+            {
+              key: 'Content-Security-Policy',
+              value: `frame-ancestors ${embedFrameAncestors}`,
             },
           ],
         },
