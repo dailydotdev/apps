@@ -45,8 +45,18 @@ it('renders campaign points as dollars against the cycle goal with contributors'
 
   expect(screen.getByText('$5,000')).toBeInTheDocument();
   expect(screen.getByText('unlocked of $10,000 goal')).toBeInTheDocument();
-  expect(screen.getByText('50%')).toBeInTheDocument();
+  expect(screen.getByText('50.00%')).toBeInTheDocument();
   expect(screen.getByText(/12,480 contributors/)).toBeInTheDocument();
+});
+
+it('shows two decimal places for small funding percentages', () => {
+  renderSummary({
+    currentCyclePoints: 1,
+    currentCycleTargetPoints: 10000,
+    contributorsCount: 1,
+  });
+
+  expect(screen.getByText('0.01%')).toBeInTheDocument();
 });
 
 it('shows a goal-forward empty state when nothing is unlocked yet', () => {

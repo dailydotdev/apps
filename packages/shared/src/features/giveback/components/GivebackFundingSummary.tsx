@@ -17,6 +17,12 @@ import { GivebackMeterShine } from './GivebackMeterShine';
 const barColor =
   'bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default';
 
+const formatFundingPercentage = (percentage: number): string =>
+  `${new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(percentage)}%`;
+
 // Quarter-way milestone markers sit on the track (like the impact roadmap's
 // nodes) so the goal reads as a journey with checkpoints, not one long fill.
 const MILESTONES = [25, 50, 75] as const;
@@ -167,7 +173,7 @@ export const GivebackFundingSummary = (): ReactElement => {
           color={TypographyColor.StatusSuccess}
           bold
         >
-          {Math.round(percentage)}%
+          {formatFundingPercentage(percentage)}
         </Typography>
         <Typography
           tag={TypographyTag.Span}

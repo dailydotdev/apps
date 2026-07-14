@@ -39,6 +39,17 @@ export const MOCK_USER = {
 
 const noop = (): void => undefined;
 
+type ContributionLeaderboardNode = {
+  user: {
+    id: string;
+    name: string;
+    username: string;
+    image: string | null;
+  };
+  points: number;
+  rank: number;
+};
+
 // ---------------------------------------------------------------------------
 // Mock data builders. Every builder takes overrides so a story can tweak one
 // field (e.g. userPoints) without restating the whole object.
@@ -332,6 +343,54 @@ export const mockFoundingAward = (): ContributionFoundingAward => ({
   memberNumber: null,
 });
 
+const mockLeaderboard = (): ContributionLeaderboardNode[] => [
+  {
+    user: {
+      id: 'lb-1',
+      name: 'Ana Pereira',
+      username: 'anapereira',
+      image: null,
+    },
+    points: 520,
+    rank: 1,
+  },
+  {
+    user: {
+      id: 'lb-2',
+      name: 'Marco Reyes',
+      username: 'marcoreyes',
+      image: null,
+    },
+    points: 460,
+    rank: 2,
+  },
+  {
+    user: {
+      id: 'lb-3',
+      name: 'Priya Nair',
+      username: 'priyanair',
+      image: null,
+    },
+    points: 380,
+    rank: 3,
+  },
+  {
+    user: MOCK_USER,
+    points: 320,
+    rank: 4,
+  },
+  {
+    user: {
+      id: 'lb-5',
+      name: 'Kenji Watanabe',
+      username: 'kenjiwatanabe',
+      image: null,
+    },
+    points: 90,
+    rank: 5,
+  },
+];
+
 // ---------------------------------------------------------------------------
 // Providers + query-cache seeding. Pass `null` for a slice to leave it unseeded
 // (e.g. status: null + goal 0 drives skeletons). Everything is seeded fresh so
@@ -348,6 +407,7 @@ export interface GivebackMockOptions {
   rewardTiers?: ContributionRewardTier[];
   claimedRewardIds?: string[];
   foundingAward?: ContributionFoundingAward;
+  leaderboard?: ContributionLeaderboardNode[];
 }
 
 const GivebackProviders = ({
@@ -361,6 +421,7 @@ const GivebackProviders = ({
   rewardTiers = mockRewardTiers(),
   claimedRewardIds = [],
   foundingAward = mockFoundingAward(),
+  leaderboard = mockLeaderboard(),
 }: GivebackMockOptions & { children: ReactNode }): ReactElement => {
   const queryClient = useMemo(() => {
     const client = new QueryClient({
@@ -398,6 +459,16 @@ const GivebackProviders = ({
       { actions, categories, rewardTiers, claimedRewardIds, foundingAward },
     );
 
+    client.setQueryData(
+      generateQueryKey(RequestKey.ContributionLeaderboard, MOCK_USER),
+      {
+        contributionLeaderboard: {
+          edges: leaderboard.map((node) => ({ node })),
+        },
+        contributionUserRank: { points: 320, rank: 4 },
+      },
+    );
+
     return client;
     // Rebuild only when the story's mock inputs change.
   }, [
@@ -410,6 +481,7 @@ const GivebackProviders = ({
     rewardTiers,
     claimedRewardIds,
     foundingAward,
+    leaderboard,
   ]);
 
   const LogContext = getLogContextStatic();

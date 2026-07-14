@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import dynamic from 'next/dynamic';
 import type { Post } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
@@ -15,8 +15,7 @@ import { combinedClicks } from '../../lib/click';
 import type { PostContentProps, PostNavigationProps } from './common';
 import { PostContainer } from './common';
 import YoutubeVideo from '../video/YoutubeVideo';
-import { useAuthContext } from '../../contexts/AuthContext';
-import { useViewPost } from '../../hooks/post';
+import { useTrackPostView } from '../../hooks/post/useTrackPostView';
 import { TruncateText } from '../utilities';
 import { useFeature } from '../GrowthBookProvider';
 import { feature } from '../../lib/featureManagement';
@@ -83,7 +82,6 @@ export function PostContentRaw({
   isBannerVisible,
   isPostPage,
 }: PostContentRawProps): ReactElement {
-  const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
     origin,
@@ -104,7 +102,6 @@ export function PostContentRaw({
     }
     onReadArticle();
   };
-  const onSendViewPost = useViewPost();
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const { title } = useSmartTitle(post);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -137,14 +134,7 @@ export function PostContentRaw({
     hideSubscribeAction,
   };
 
-  // Only send view post if the post is a video type
-  useEffect(() => {
-    if (!isVideoType || !post?.id || !user?.id) {
-      return;
-    }
-
-    onSendViewPost(post.id);
-  }, [isVideoType, onSendViewPost, post.id, user?.id]);
+  useTrackPostView({ post, shouldTrack: isVideoType });
 
   const postMainColumn = (
     <PostContainer
