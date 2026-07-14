@@ -11,7 +11,7 @@ interface GivebackTab {
 
 export const givebackTabs: GivebackTab[] = [
   { id: 'actions', label: 'Take action' },
-  { id: 'impact', label: 'Your impact' },
+  { id: 'impact', label: 'Rewards' },
   { id: 'causes', label: 'Causes' },
   { id: 'faq', label: 'FAQ' },
 ];
