@@ -14,6 +14,7 @@ import AdAttribution from './common/AdAttribution';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
 import { AdMeasurement } from './common/AdMeasurement';
+import { useAdClickUrl } from '../../../features/monetization/useAdClickUrl';
 import type { AdCardProps } from './common/common';
 import { RemoveAd } from './common/RemoveAd';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
@@ -43,6 +44,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
     forwardedRef as InViewRef,
   );
   const matchingTags = ad?.matchingTags ?? [];
+  const clickUrl = useAdClickUrl(ad);
 
   return (
     <Card {...domProps} data-testid="adItem" ref={ref}>
@@ -67,7 +69,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
           {!!ad.callToAction && (
             <Button
               tag="a"
-              href={ad.link}
+              href={clickUrl}
               target="_blank"
               rel="noopener"
               variant={ButtonVariant.Primary}

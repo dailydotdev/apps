@@ -11,6 +11,7 @@ import type { AdCardProps } from './common/common';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
 import { AdMeasurement } from './common/AdMeasurement';
+import { useAdClickUrl } from '../../../features/monetization/useAdClickUrl';
 import type { Ad } from '../../../graphql/posts';
 import { combinedClicks } from '../../../lib/click';
 
@@ -30,13 +31,15 @@ import { AdvertiseLink } from './common/AdvertiseLink';
 
 const getLinkProps = ({
   ad,
+  href,
   onLinkClick,
 }: {
   ad: Ad;
+  href: string;
   onLinkClick: (ad: Ad) => unknown;
 }): AnchorHTMLAttributes<HTMLAnchorElement> => {
   return {
-    href: ad.link,
+    href,
     target: '_blank',
     rel: 'noopener',
     title: ad.description,
@@ -57,6 +60,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
     forwardedRef as InViewRef,
   );
   const matchingTags = ad?.matchingTags ?? [];
+  const clickUrl = useAdClickUrl(ad);
 
   return (
     <FeedItemContainer
@@ -65,6 +69,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
       data-testid="adItem"
       linkProps={getLinkProps({
         ad,
+        href: clickUrl,
         onLinkClick: onLinkClick ?? (() => undefined),
       })}
     >
@@ -86,7 +91,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
         {!!ad.callToAction && (
           <Button
             tag="a"
-            href={ad.link}
+            href={clickUrl}
             target="_blank"
             rel="noopener"
             variant={ButtonVariant.Primary}

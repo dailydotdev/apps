@@ -148,6 +148,22 @@ it('should inject measurement tags with macros filled (web inline path)', async 
   expect(injected.getAttribute('src')).not.toContain('[timestamp]');
 });
 
+it('should substitute macros in the click url', async () => {
+  renderGridComponent({
+    ad: {
+      ...ad,
+      link: 'https://ad.doubleclick.net/ddm/trackclk/x;ord=[timestamp];gdpr=${GDPR}?',
+    },
+  });
+  const el = await screen.findByTestId('adItem');
+  const links = await within(el).findAllByRole('link');
+  const clickHref = links
+    .map((l) => l.getAttribute('href'))
+    .find((h) => h?.includes('doubleclick.net/ddm/trackclk'));
+  expect(clickHref).toBeDefined();
+  expect(clickHref).not.toContain('[timestamp]');
+});
+
 it('should render nothing for measurement when the ad has no tags', async () => {
   renderGridComponent();
   await screen.findByTestId('adItem');
