@@ -29,6 +29,7 @@ import { useNotificationPreference } from '../../hooks/notifications';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 import { Loader } from '../Loader';
 import { NotificationFollowUserButton } from './NotificationFollowUserButton';
+import { NotificationSayThanksButton } from './NotificationSayThanksButton';
 
 import { DateFormat } from '../utilities';
 import { TimeFormatType } from '../../lib/dateFormat';
@@ -282,6 +283,9 @@ function NotificationItemLegacy(
         )}
         {type === NotificationType.UserFollow && (
           <NotificationFollowUserButton {...props} />
+        )}
+        {type === NotificationType.UserReceivedAward && (
+          <NotificationSayThanksButton referenceId={referenceId} />
         )}
         {attachments?.map(({ title: attachment, ...restAttachmentProps }) => (
           <NotificationItemAttachment

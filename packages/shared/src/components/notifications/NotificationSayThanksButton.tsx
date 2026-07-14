@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import type { ReactElement, MouseEvent } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import type { NotificationItemProps } from './NotificationItem';
+import type { Notification } from '../../graphql/notifications';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { VIcon } from '../icons';
+import { VIcon } from '../icons/V';
 import { sayThanksForAward } from '../../graphql/njord';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import {
@@ -15,7 +15,7 @@ import {
 
 export const NotificationSayThanksButton = ({
   referenceId,
-}: NotificationItemProps): ReactElement => {
+}: Pick<Notification, 'referenceId'>): ReactElement => {
   const { displayToast } = useToastNotification();
   const [thanked, setThanked] = useState(false);
 

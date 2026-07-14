@@ -6,6 +6,7 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { NotificationItemProps } from './NotificationItem';
 import NotificationItem from './NotificationItem';
+import NotificationItemLegacy from './NotificationItemLegacy';
 import {
   NotificationAttachmentType,
   NotificationAvatarType,
@@ -241,6 +242,11 @@ describe('UserReceivedAward say thanks action', () => {
     await screen.findByText('Say thanks');
   });
 
+  it('should render the "Say thanks" action in the legacy notification item', async () => {
+    renderComponent(<NotificationItemLegacy {...receivedAwardNotification} />);
+    await screen.findByRole('button', { name: 'Say thanks' });
+  });
+
   it('should not render the action on other notification types', async () => {
     renderComponent(<NotificationItem {...sampleNotification} />);
     await screen.findByText(sampleNotificationTitle);
@@ -250,7 +256,7 @@ describe('UserReceivedAward say thanks action', () => {
   it('should call the mutation and swap to the "Thanked" state on success', async () => {
     const spy = jest
       .spyOn(njord, 'sayThanksForAward')
-      .mockResolvedValue({} as njord.UserTransaction);
+      .mockResolvedValue(undefined);
 
     renderComponent(<NotificationItem {...receivedAwardNotification} />);
 

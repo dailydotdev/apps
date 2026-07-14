@@ -414,7 +414,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
         {type === NotificationType.UserReceivedAward && (
           <span className="relative z-1 mt-1">
-            <NotificationSayThanksButton {...props} />
+            <NotificationSayThanksButton referenceId={referenceId} />
           </span>
         )}
       </div>

@@ -79,10 +79,7 @@ export const award = async ({
 export const SAY_THANKS_FOR_AWARD_MUTATION = gql`
   mutation SayThanksForAward($transactionId: ID!) {
     sayThanksForAward(transactionId: $transactionId) {
-      id
-      flags {
-        thankedAt
-      }
+      _
     }
   }
 `;
@@ -91,12 +88,8 @@ export const sayThanksForAward = async ({
   transactionId,
 }: {
   transactionId: string;
-}): Promise<UserTransaction> => {
-  const result = await gqlClient.request<{
-    sayThanksForAward: UserTransaction;
-  }>(SAY_THANKS_FOR_AWARD_MUTATION, { transactionId });
-
-  return result.sayThanksForAward;
+}): Promise<void> => {
+  await gqlClient.request(SAY_THANKS_FOR_AWARD_MUTATION, { transactionId });
 };
 
 export enum ProductType {
