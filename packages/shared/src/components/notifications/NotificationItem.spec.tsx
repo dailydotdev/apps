@@ -253,7 +253,7 @@ describe('UserReceivedAward say thanks action', () => {
     expect(screen.queryByText('Say thanks')).not.toBeInTheDocument();
   });
 
-  it('should call the mutation and swap to the "Thanked" state on success', async () => {
+  it('should call the mutation and swap to the "Thanks sent" state on success', async () => {
     const spy = jest
       .spyOn(njord, 'sayThanksForAward')
       .mockResolvedValue(undefined);
@@ -263,18 +263,18 @@ describe('UserReceivedAward say thanks action', () => {
     const button = await screen.findByText('Say thanks');
     fireEvent.click(button);
 
-    await screen.findByText('Thanked');
+    await screen.findByText('Thanks sent');
     expect(spy).toHaveBeenCalledWith({
       transactionId: receivedAwardNotification.referenceId,
     });
     expect(screen.queryByText('Say thanks')).not.toBeInTheDocument();
   });
 
-  it('should render the sender UserAwardThanked notification without a say thanks action', async () => {
+  it('should render the sender UserAwardThanks notification without a say thanks action', async () => {
     renderComponent(
       <NotificationItem
         {...receivedAwardNotification}
-        type={NotificationType.UserAwardThanked}
+        type={NotificationType.UserAwardThanks}
         title="<p><b>user</b> said thanks for your Award</p>"
       />,
     );

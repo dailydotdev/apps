@@ -168,7 +168,7 @@ export type UserTransaction = {
   flags: Partial<{
     note: string;
     error: string;
-    thankedAt: string;
+    thanksAt: string;
   }>;
   balance: LoggedUser['balance'];
   createdAt: Date;

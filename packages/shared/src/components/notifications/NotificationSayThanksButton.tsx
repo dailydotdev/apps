@@ -17,16 +17,16 @@ export const NotificationSayThanksButton = ({
   referenceId,
 }: Pick<Notification, 'referenceId'>): ReactElement => {
   const { displayToast } = useToastNotification();
-  const [thanked, setThanked] = useState(false);
+  const [thanksSent, setThanksSent] = useState(false);
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => sayThanksForAward({ transactionId: referenceId }),
-    onSuccess: () => setThanked(true),
+    onSuccess: () => setThanksSent(true),
     onError: (error: ApiErrorResult) => {
-      // The Award was already thanked (e.g. from another session) — reflect
+      // The Award thanks were already sent (e.g. from another session) — reflect
       // the final state rather than surfacing an error.
       if (getApiError(error, ApiError.Conflict)) {
-        setThanked(true);
+        setThanksSent(true);
         return;
       }
 
@@ -34,7 +34,7 @@ export const NotificationSayThanksButton = ({
     },
   });
 
-  if (thanked) {
+  if (thanksSent) {
     return (
       <Button
         variant={ButtonVariant.Primary}
@@ -43,7 +43,7 @@ export const NotificationSayThanksButton = ({
         disabled
         className="pointer-events-none mt-3"
       >
-        Thanked
+        Thanks sent
       </Button>
     );
   }
