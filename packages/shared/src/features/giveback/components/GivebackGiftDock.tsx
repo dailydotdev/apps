@@ -36,6 +36,9 @@ interface ValuePop {
 interface GivebackGiftDockProps {
   variant?: GivebackGiftButtonVariant;
   showLabel?: boolean;
+  // Mobile header: flat button + viewport-pinned prompt (see GivebackGiftButton
+  // and GivebackInvitePrompt).
+  compact?: boolean;
   onOpenGiveback?: () => void;
   // Override where the invite prompt opens (defaults follow the variant).
   promptPlacement?: 'below' | 'above';
@@ -58,6 +61,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   {
     variant = 'header',
     showLabel = false,
+    compact = false,
     onOpenGiveback,
     promptPlacement,
     promptAlign,
@@ -179,6 +183,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
           <GivebackGiftButton
             variant={variant}
             showLabel={showLabel}
+            compact={compact}
             onClick={handleOpen}
           />
         )}
@@ -209,6 +214,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         ctaLabel={prompt?.ctaLabel}
         celebrate={prompt?.celebrate}
         dropdown={isRail}
+        compact={compact}
         paused={giftHovered}
         placement={promptPlacement ?? (isRail ? 'above' : 'below')}
         align={promptAlign ?? (isRail ? 'start' : 'end')}

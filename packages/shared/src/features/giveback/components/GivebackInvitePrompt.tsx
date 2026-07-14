@@ -28,6 +28,9 @@ export interface GivebackInvitePromptProps {
   // Open like a rail dropdown: portaled + fixed at the same left margin as the
   // support/settings/profile menus, instead of anchored to the gift with a tail.
   dropdown?: boolean;
+  // Mobile header: pin to the viewport (centered, below the header) instead of
+  // anchoring to the mid-header gift, so the wide card never overflows the edge.
+  compact?: boolean;
   autoDismissMs?: number;
   // Externally pause the auto-dismiss (e.g. while the cursor is over the gift).
   paused?: boolean;
@@ -51,6 +54,7 @@ export const GivebackInvitePrompt = ({
   placement = 'below',
   align = 'end',
   dropdown = false,
+  compact = false,
   autoDismissMs = 5000,
   paused = false,
   onClick,
@@ -112,14 +116,18 @@ export const GivebackInvitePrompt = ({
   const content = (
     <div
       className={classNames(
-        'w-[25rem]',
-        dropdown
-          ? 'fixed bottom-3 left-20 z-popup ml-2 max-w-[calc(100vw-6rem)]'
-          : classNames(
-              'absolute z-3 max-w-[calc(100vw-2rem)]',
-              isAbove ? 'bottom-full mb-3' : 'top-full mt-3',
-              align === 'end' ? 'right-0' : 'left-0',
-            ),
+        dropdown &&
+          'w-[25rem] fixed bottom-3 left-20 z-popup ml-2 max-w-[calc(100vw-6rem)]',
+        !dropdown &&
+          compact &&
+          'fixed left-1/2 top-16 z-popup w-[calc(100vw-2rem)] max-w-[25rem] -translate-x-1/2',
+        !dropdown &&
+          !compact &&
+          classNames(
+            'w-[25rem] absolute z-3 max-w-[calc(100vw-2rem)]',
+            isAbove ? 'bottom-full mb-3' : 'top-full mt-3',
+            align === 'end' ? 'right-0' : 'left-0',
+          ),
         className,
       )}
       role="status"
@@ -128,7 +136,7 @@ export const GivebackInvitePrompt = ({
         <div
           className={classNames(
             'pointer-events-none absolute',
-            dropdown
+            dropdown || compact
               ? 'inset-x-0 top-0'
               : [isAbove ? 'bottom-0' : 'top-0', giftSide],
           )}
@@ -138,7 +146,7 @@ export const GivebackInvitePrompt = ({
       )}
 
       {/* Tail pointing to the gift (anchored mode only). */}
-      {!dropdown && (
+      {!dropdown && !compact && (
         <div
           className={classNames(
             'absolute size-3 rotate-45 border border-border-subtlest-tertiary bg-background-popover',
@@ -226,7 +234,7 @@ export const GivebackInvitePrompt = ({
     </div>
   );
 
-  return dropdown ? <RootPortal>{content}</RootPortal> : content;
+  return dropdown || compact ? <RootPortal>{content}</RootPortal> : content;
 };
 
 export default GivebackInvitePrompt;

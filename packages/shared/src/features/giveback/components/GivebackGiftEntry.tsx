@@ -86,6 +86,7 @@ export function GivebackGiftEntry({
         ref={dock}
         variant={variant}
         showLabel={showLabel}
+        compact={variant === 'header' && !isLaptop}
         onOpenGiveback={openGiveback}
         promptPlacement={promptPlacement}
         promptAlign={promptAlign}
