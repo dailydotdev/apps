@@ -11,7 +11,7 @@ import { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
 // would flush, so we can assert exactly one robots tag survives and the
 // page-level noindex wins — the whole point of moving robots off
 // `additionalMetaTags` and onto next-seo's first-class robots handling.
-const renderRobotsTags = (seo?: NextSeoProps): ReactElement[] => {
+const getRobotsTags = (seo?: NextSeoProps): ReactElement[] => {
   let headState: ReactElement[] = [];
   const headManager = {
     mountedInstances: new Set(),
@@ -41,13 +41,13 @@ const contentOf = (tag: ReactElement): string =>
 
 describe('app SEO robots tag', () => {
   it('emits exactly one robots tag for a public page', () => {
-    const robots = renderRobotsTags({ title: 'Public page' });
+    const robots = getRobotsTags({ title: 'Public page' });
 
     expect(robots).toHaveLength(1);
   });
 
   it('keeps the max-* directives on public pages after migrating off additionalMetaTags', () => {
-    const [robots] = renderRobotsTags({ title: 'Public page' });
+    const [robots] = getRobotsTags({ title: 'Public page' });
 
     expect(contentOf(robots)).toBe(
       'index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1',
@@ -55,15 +55,17 @@ describe('app SEO robots tag', () => {
   });
 
   it('makes a private squad noindex,nofollow with no stray index,follow tag', () => {
-    const robots = renderRobotsTags({ noindex: true, nofollow: true });
+    const robots = getRobotsTags({ noindex: true, nofollow: true });
 
     expect(robots).toHaveLength(1);
     expect(contentOf(robots[0])).toMatch(/^noindex,nofollow/);
-    robots.forEach((tag) => expect(contentOf(tag)).not.toContain('index,follow'));
+    robots.forEach((tag) =>
+      expect(contentOf(tag)).not.toContain('index,follow'),
+    );
   });
 
   it('falls back to a single default robots tag when a page renders no page-level seo', () => {
-    const robots = renderRobotsTags();
+    const robots = getRobotsTags();
 
     expect(robots).toHaveLength(1);
     expect(contentOf(robots[0])).toBe(
