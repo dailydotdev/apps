@@ -11,7 +11,10 @@ import type { Post } from '../../../graphql/posts';
 import type { PostHero, PostHeroSignificance } from '../../../graphql/types';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleFeaturedWideGridCard } from './ArticleFeaturedWideGridCard';
-import { featureHeroCards } from '../../../lib/featureManagement';
+import {
+  featureFeedCardGlassActions,
+  featureHeroCards,
+} from '../../../lib/featureManagement';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -106,4 +109,40 @@ it('renders no chip when post has no highlight', () => {
   expect(screen.queryByText('Breaking')).not.toBeInTheDocument();
   expect(screen.queryByText('Major')).not.toBeInTheDocument();
   expect(screen.queryByText('Notable')).not.toBeInTheDocument();
+});
+
+const renderGlassHero = (postOverride: Partial<Post>): RenderResult => {
+  const gb = new GrowthBook();
+  gb.setFeatures({
+    [featureFeedCardGlassActions.id]: { defaultValue: true },
+  });
+  return render(
+    <TestBootProvider client={new QueryClient()} gb={gb}>
+      <ArticleFeaturedWideGridCard
+        {...defaultProps}
+        post={{ ...post, ...postOverride }}
+        wideColSpan={2}
+      />
+    </TestBootProvider>,
+  );
+};
+
+// In glass mode the action pill floats over the bottom of the content column,
+// so a full-size 3-line title + 3-line TLDR overflowed and the TLDR's last line
+// was cut off behind the pill. The title keeps up to 3 lines but drops one type
+// step (typo-title2, still larger than the default card's typo-title3) when a
+// TLDR is present so both fit and all three TLDR lines stay visible.
+it('shrinks the glass hero title to typo-title2 (still 3 lines) when a TLDR is present', () => {
+  renderGlassHero({ summary: 'A concise summary of the article.' });
+  const heading = screen.getByRole('heading', { level: 3 });
+  expect(heading).toHaveClass('typo-title2');
+  expect(heading).toHaveClass('line-clamp-3');
+  expect(heading).not.toHaveClass('typo-title1');
+});
+
+it('keeps the full-size glass hero title (typo-title1) when there is no TLDR', () => {
+  renderGlassHero({ summary: '', sharedPost: undefined });
+  const heading = screen.getByRole('heading', { level: 3 });
+  expect(heading).toHaveClass('typo-title1');
+  expect(heading).toHaveClass('line-clamp-3');
 });
