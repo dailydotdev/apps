@@ -201,3 +201,16 @@ export interface ContributionAction {
   userCompletions: number;
   latestUserSubmission: ContributionSubmission | null;
 }
+
+// A single row of the weekly contribution leaderboard: where a contributor
+// ranks by the money their actions have unlocked this cycle. `isCurrentUser`
+// tints the viewer's own row and drives the "your rank" recap below the list.
+export interface GivebackLeaderboardEntry {
+  id: string;
+  rank: number;
+  name: string;
+  image: string;
+  contributionAmount: number;
+  currency: string;
+  isCurrentUser?: boolean;
+}
