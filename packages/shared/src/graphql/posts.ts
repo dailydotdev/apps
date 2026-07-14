@@ -23,6 +23,7 @@ import { FEED_POST_CONNECTION_FRAGMENT } from './feed';
 import { getPostByIdKey, RequestKey, StaleTime } from '../lib/query';
 import type { LiveRoomPost } from './liveRooms';
 import type { PostHero } from './types';
+import type { CommunitySentimentPost } from '../components/post/focus/CommunitySentiment';
 
 export const ACCEPTED_TYPES = 'image/png,image/jpeg,image/webp,image/avif';
 export const acceptedTypesList = ACCEPTED_TYPES.split(',');
@@ -303,6 +304,10 @@ export interface Post {
   liveRoom?: LiveRoomPost | null;
   analytics?: Partial<Pick<PostAnalytics, 'impressions' | 'bookmarks'>>;
   hero?: PostHero | null;
+  /** LLM-generated digest of what the developer community outside daily.dev
+   * (HN, Lobsters) thinks about this post. `null` when no take exists yet —
+   * gated by the `community_sentiment` experiment (see PostFocusCard). */
+  communitySentiment?: CommunitySentimentPost | null;
 }
 
 export type RelatedPost = Pick<

@@ -9,6 +9,8 @@ import {
 } from '../../typography/Typography';
 import { DiscussIcon, ArrowIcon } from '../../icons';
 import { IconSize } from '../../Icon';
+import { RelativeTime } from '../../utilities/RelativeTime';
+import { largeNumberFormat } from '../../../lib/numberFormat';
 import { CommunitySentimentBreakdown } from './CommunitySentimentBreakdown';
 
 export interface SentimentBreakdown {
@@ -46,6 +48,19 @@ export interface SentimentHighlight {
   metrics: string[];
 }
 
+/** A discussion thread the take is aggregated from — raw per-platform counts,
+ * separate from the `bySource` narrative lean. */
+export interface CommunitySentimentDiscussion {
+  /** Machine-friendly platform id, e.g. "hackernews" | "lobsters". */
+  provider: string;
+  /** Link to the discussion thread. */
+  url: string;
+  /** Upvotes/points on that platform. */
+  points: number;
+  /** Comment count on that platform. */
+  commentsCount: number;
+}
+
 export interface CommunitySentimentData {
   /** How opinion splits across positive / mixed / skeptical — the surface metric. */
   breakdown: SentimentBreakdown;
@@ -67,7 +82,83 @@ export interface CommunitySentimentData {
   openQuestions: string[];
   /** Layer 3 — a few verbatim receipts worth reading. */
   highlights: SentimentHighlight[];
+  /** Raw per-platform discussion links/counts backing the take. */
+  discussions?: CommunitySentimentDiscussion[];
+  /** When the take was last (re)generated — distinct from the post's own
+   * `updatedAt`, which reflects the whole post row. */
+  updatedAt?: string;
 }
+
+/** Structured engagement counts for a highlight, exactly as the API returns
+ * them — apps formats these into the display strings `SentimentHighlight`
+ * expects (e.g. `{ points: 214 }` => "214 points"). */
+export interface SentimentHighlightMetrics {
+  /** Upvotes/points on the source platform (HN, Lobsters). */
+  points?: number;
+  /** Reply/comment count. */
+  replies?: number;
+  /** Likes/favorites — X-only; unused for HN/Lobsters in v1. */
+  likes?: number;
+}
+
+/** Raw highlight shape returned by the API: same as `SentimentHighlight` but
+ * with structured (not yet formatted) metrics. */
+export type CommunitySentimentHighlightPost = Omit<
+  SentimentHighlight,
+  'metrics'
+> & {
+  metrics: SentimentHighlightMetrics;
+};
+
+/**
+ * Wire shape of `Post.communitySentiment`: the same contract as
+ * `CommunitySentimentData`, but highlight metrics arrive structured rather
+ * than as formatted display strings. `mapCommunitySentimentPost` below
+ * converts one into the other — the only real work in wiring up real data.
+ */
+export type CommunitySentimentPost = Omit<
+  CommunitySentimentData,
+  'highlights'
+> & {
+  highlights: CommunitySentimentHighlightPost[];
+};
+
+const HIGHLIGHT_METRIC_LABELS: Array<{
+  key: keyof SentimentHighlightMetrics;
+  label: string;
+}> = [
+  { key: 'points', label: 'points' },
+  { key: 'replies', label: 'comments' },
+  { key: 'likes', label: 'likes' },
+];
+
+/** `largeNumberFormat` formats "2.4K"; the design uses a lowercase "k". */
+const formatMetricCount = (value: number): string =>
+  largeNumberFormat(value)?.toLowerCase() ?? `${value}`;
+
+const formatHighlightMetrics = (metrics: SentimentHighlightMetrics): string[] =>
+  HIGHLIGHT_METRIC_LABELS.reduce<string[]>((acc, { key, label }) => {
+    const value = metrics[key];
+    if (typeof value === 'number') {
+      acc.push(`${formatMetricCount(value)} ${label}`);
+    }
+    return acc;
+  }, []);
+
+/**
+ * Maps the API's wire shape (structured highlight metrics) to the display
+ * shape the components in this file render. This is the "one-line swap"
+ * the mockup was designed for: `<CommunitySentiment data={post.communitySentiment ? mapCommunitySentimentPost(post.communitySentiment) : undefined} />`.
+ */
+export const mapCommunitySentimentPost = (
+  data: CommunitySentimentPost,
+): CommunitySentimentData => ({
+  ...data,
+  highlights: data.highlights.map((highlight) => ({
+    ...highlight,
+    metrics: formatHighlightMetrics(highlight.metrics),
+  })),
+});
 
 /**
  * Layer 1 + 2 mock data. Replaced by a real aggregation query once the design
@@ -157,6 +248,22 @@ export const SAMPLE_COMMUNITY_SENTIMENT: CommunitySentimentData = {
       metrics: ['29 votes', '15 comments'],
     },
   ],
+  discussions: [
+    {
+      provider: 'hackernews',
+      url: 'https://news.ycombinator.com/item?id=39135501',
+      points: 329,
+      commentsCount: 172,
+    },
+    {
+      provider: 'lobsters',
+      url: 'https://lobste.rs/s/vtfkqh',
+      points: 38,
+      commentsCount: 22,
+    },
+  ],
+  // Kept relative to "now" so the local/storybook preview always reads as fresh.
+  updatedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
 };
 
 const BREAKDOWN_SEGMENTS: Array<{
@@ -170,7 +277,10 @@ const BREAKDOWN_SEGMENTS: Array<{
 ];
 
 interface CommunitySentimentProps {
-  data?: CommunitySentimentData;
+  /** `null`/`undefined` render nothing — a post without a take has no widget.
+   * Omitting the prop entirely (e.g. in storybook/local dev) falls back to the
+   * sample data below. */
+  data?: CommunitySentimentData | null;
   onSeeBreakdown?: () => void;
   className?: string;
 }
@@ -184,9 +294,16 @@ export const CommunitySentiment = ({
   data = SAMPLE_COMMUNITY_SENTIMENT,
   onSeeBreakdown,
   className,
-}: CommunitySentimentProps): ReactElement => {
-  const { breakdown, tldr, postCount } = data;
+}: CommunitySentimentProps): ReactElement | null => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // A caller may explicitly pass `null` (a real post without a take) — that
+  // bypasses the default param, so this guard is still needed.
+  if (!data) {
+    return null;
+  }
+
+  const { breakdown, tldr, postCount, updatedAt } = data;
 
   const toggle = () => {
     setIsExpanded((prev) => !prev);
@@ -230,6 +347,14 @@ export const CommunitySentiment = ({
             >
               Community take
             </Typography>
+            {updatedAt && (
+              <>
+                <span aria-hidden>·</span>
+                <Typography type={TypographyType.Caption1}>
+                  Updated <RelativeTime dateTime={updatedAt} />
+                </Typography>
+              </>
+            )}
           </span>
           <span className="ml-auto flex items-baseline gap-1">
             <Typography

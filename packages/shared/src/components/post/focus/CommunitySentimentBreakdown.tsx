@@ -9,12 +9,25 @@ import {
 import { HotIcon, OpenLinkIcon, ArrowIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { largeNumberFormat } from '../../../lib/numberFormat';
 import type {
   CommunitySentimentData,
+  CommunitySentimentDiscussion,
   SentimentHighlight,
   SourceLean,
   SourceSentiment,
 } from './CommunitySentiment';
+
+// Maps the by-source narrative's friendly name to the discussion payload's
+// machine-friendly provider id, so raw counts can be attached to the right row.
+const SOURCE_TO_PROVIDER: Record<string, string> = {
+  'Hacker News': 'hackernews',
+  Lobsters: 'lobsters',
+  X: 'x',
+};
+
+const formatDiscussionCount = (value: number): string =>
+  largeNumberFormat(value)?.toLowerCase() ?? `${value}`;
 
 // Authentic-enough source marks: HN's real logo is an orange "Y" square, X the
 // glyph, Lobsters a red square. `color` omitted => theme-adaptive mono badge.
@@ -151,7 +164,10 @@ const SourceRow = ({
   lean,
   note,
   url,
-}: SourceSentiment): ReactElement => {
+  discussion,
+}: SourceSentiment & {
+  discussion?: CommunitySentimentDiscussion;
+}): ReactElement => {
   const chip = LEAN_CHIP[lean];
 
   const content = (
@@ -174,6 +190,16 @@ const SourceRow = ({
           >
             {chip.label}
           </span>
+          {discussion && (
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Quaternary}
+              className="ml-auto shrink-0"
+            >
+              {formatDiscussionCount(discussion.points)} points ·{' '}
+              {formatDiscussionCount(discussion.commentsCount)} comments
+            </Typography>
+          )}
         </div>
         <Typography
           type={TypographyType.Caption1}
@@ -272,8 +298,15 @@ export const CommunitySentimentBreakdown = ({
 }: {
   data: CommunitySentimentData;
 }): ReactElement => {
-  const { pros, cons, bySource, hottestDebate, openQuestions, highlights } =
-    data;
+  const {
+    pros,
+    cons,
+    bySource,
+    hottestDebate,
+    openQuestions,
+    highlights,
+    discussions,
+  } = data;
   const [showAllHighlights, setShowAllHighlights] = useState(false);
 
   const visibleHighlights = showAllHighlights
@@ -281,6 +314,10 @@ export const CommunitySentimentBreakdown = ({
     : highlights.slice(0, INITIAL_HIGHLIGHTS);
   const hasMoreHighlights =
     !showAllHighlights && highlights.length > INITIAL_HIGHLIGHTS;
+
+  const discussionByProvider = new Map(
+    discussions?.map((discussion) => [discussion.provider, discussion]),
+  );
 
   return (
     <div className="flex animate-composer-in flex-col gap-4 border-t border-border-subtlest-tertiary pt-3">
@@ -329,7 +366,13 @@ export const CommunitySentimentBreakdown = ({
           <BlockTitle>By community</BlockTitle>
           <div className="flex flex-col gap-1">
             {bySource.map((item) => (
-              <SourceRow key={item.source} {...item} />
+              <SourceRow
+                key={item.source}
+                {...item}
+                discussion={discussionByProvider.get(
+                  SOURCE_TO_PROVIDER[item.source],
+                )}
+              />
             ))}
           </div>
         </div>

@@ -460,6 +460,44 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     }
     numPollVotes
     endsAt
+    communitySentiment {
+      breakdown {
+        positive
+        mixed
+        critical
+      }
+      tldr
+      postCount
+      sources
+      pros
+      cons
+      bySource {
+        source
+        lean
+        note
+        url
+      }
+      hottestDebate
+      openQuestions
+      highlights {
+        quote
+        author
+        source
+        url
+        metrics {
+          points
+          replies
+          likes
+        }
+      }
+      discussions {
+        provider
+        url
+        points
+        commentsCount
+      }
+      updatedAt
+    }
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
