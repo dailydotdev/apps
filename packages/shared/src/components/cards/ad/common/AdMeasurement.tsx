@@ -19,7 +19,8 @@ import {
 // Overlay tags must cover the card so viewability is measured against the
 // right element; the rest stay 0-size. Both are non-interactive so the card
 // keeps ownership of clicks. Positioned against the card's `relative` root.
-const overlayClass = 'pointer-events-none absolute inset-0 size-full border-0';
+const overlayClass =
+  'pointer-events-none absolute inset-0 size-full border-0 opacity-0';
 const hiddenClass = 'pointer-events-none absolute size-0 border-0';
 
 interface InlineProps {
