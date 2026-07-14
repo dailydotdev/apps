@@ -1,82 +1,85 @@
-import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import type { Connection } from '../../../graphql/common';
+import { gqlClient } from '../../../graphql/common';
 import { fallbackImages } from '../../../lib/config';
+import { disabledRefetch } from '../../../lib/func';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+import { CONTRIBUTION_LEADERBOARD_QUERY } from '../graphql';
 import type { GivebackLeaderboardEntry } from '../types';
 
 const GIVEBACK_CURRENCY = 'USD';
+const LEADERBOARD_LIMIT = 5;
 
-// Illustrative standings shown until the backend exposes a real leaderboard
-// endpoint. Ranks and amounts are placeholder; the viewer's own row (rank 4) is
-// stitched in from their real profile so the "your rank" recap feels personal.
-const placeholderPeers: Omit<
-  GivebackLeaderboardEntry,
-  'currency' | 'isCurrentUser'
->[] = [
-  {
-    id: 'lb-1',
-    rank: 1,
-    name: 'Ana Pereira',
-    image: fallbackImages.avatar,
-    contributionAmount: 320,
-  },
-  {
-    id: 'lb-2',
-    rank: 2,
-    name: 'Marco Reyes',
-    image: fallbackImages.avatar,
-    contributionAmount: 245,
-  },
-  {
-    id: 'lb-3',
-    rank: 3,
-    name: 'Priya Nair',
-    image: fallbackImages.avatar,
-    contributionAmount: 180,
-  },
-  {
-    id: 'lb-5',
-    rank: 5,
-    name: 'Kenji Watanabe',
-    image: fallbackImages.avatar,
-    contributionAmount: 90,
-  },
-];
+type ContributionLeaderboardUser = {
+  id: string;
+  name: string | null;
+  username: string | null;
+  image: string | null;
+};
 
-const CURRENT_USER_RANK = 4;
-const CURRENT_USER_AMOUNT = 120;
+type ContributionLeaderboardResponse = {
+  contributionLeaderboard: Connection<{
+    user: ContributionLeaderboardUser;
+    points: number;
+    rank: number;
+  }>;
+  contributionUserRank?: {
+    points: number;
+    rank: number;
+  } | null;
+};
 
 interface UseGivebackLeaderboard {
   leaderboard: GivebackLeaderboardEntry[];
+  isPending: boolean;
 }
 
-// TODO(giveback): replace the placeholder standings with a real leaderboard
-// query once the backend endpoint lands. The component is data-source agnostic,
-// so only this hook needs to change.
 export const useGivebackLeaderboard = (): UseGivebackLeaderboard => {
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
+  const withViewerRank = !!user;
 
-  const leaderboard = useMemo<GivebackLeaderboardEntry[]>(() => {
-    const peers: GivebackLeaderboardEntry[] = placeholderPeers.map((entry) => ({
-      ...entry,
+  const { data, isPending } = useQuery({
+    queryKey: generateQueryKey(RequestKey.ContributionLeaderboard, user),
+    queryFn: () =>
+      gqlClient.request<ContributionLeaderboardResponse>(
+        CONTRIBUTION_LEADERBOARD_QUERY,
+        { first: LEADERBOARD_LIMIT, withViewerRank },
+      ),
+    enabled: isAuthReady,
+    staleTime: StaleTime.Default,
+    ...disabledRefetch,
+  });
+
+  const leaderboard =
+    data?.contributionLeaderboard.edges.map(({ node }) => ({
+      id: node.user.id,
+      rank: node.rank,
+      name: node.user.name || node.user.username || 'Anonymous contributor',
+      image: node.user.image || fallbackImages.avatar,
+      contributionAmount: node.points,
       currency: GIVEBACK_CURRENCY,
-    }));
+      isCurrentUser: node.user.id === user?.id,
+    })) ?? [];
 
-    if (!user) {
-      return peers;
-    }
+  const viewerRank = data?.contributionUserRank;
+  if (!user || !viewerRank || leaderboard.some((entry) => entry.isCurrentUser)) {
+    return { leaderboard, isPending };
+  }
 
-    const currentUser: GivebackLeaderboardEntry = {
-      id: user.id,
-      rank: CURRENT_USER_RANK,
-      name: user.name || user.username || 'You',
-      image: user.image || fallbackImages.avatar,
-      contributionAmount: CURRENT_USER_AMOUNT,
-      currency: GIVEBACK_CURRENCY,
-      isCurrentUser: true,
-    };
-
-    return [...peers, currentUser].sort((a, b) => a.rank - b.rank);
-  }, [user]);
-
-  return { leaderboard };
+  return {
+    leaderboard: [
+      ...leaderboard,
+      {
+        id: user.id,
+        rank: viewerRank.rank,
+        name: user.name || user.username || 'You',
+        image: user.image || fallbackImages.avatar,
+        contributionAmount: viewerRank.points,
+        currency: GIVEBACK_CURRENCY,
+        isCurrentUser: true,
+      },
+    ].sort((a, b) => a.rank - b.rank),
+    isPending,
+  };
 };

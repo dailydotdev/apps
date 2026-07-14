@@ -202,8 +202,8 @@ export interface ContributionAction {
   latestUserSubmission: ContributionSubmission | null;
 }
 
-// A single row of the all-time contribution leaderboard: where a contributor
-// ranks by the money their actions have unlocked overall. `isCurrentUser`
+// A single row of the current-cycle contribution leaderboard: where a
+// contributor ranks by approved points. `isCurrentUser`
 // tints the viewer's own row and drives the "your rank" recap below the list.
 export interface GivebackLeaderboardEntry {
   id: string;

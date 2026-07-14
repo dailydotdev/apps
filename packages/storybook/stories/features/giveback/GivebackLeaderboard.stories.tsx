@@ -2,11 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { GivebackLeaderboard } from '@dailydotdev/shared/src/features/giveback/components/GivebackLeaderboard';
 import { mockStatus, withGiveback } from './giveback.mocks';
 
-// The all-time contribution leaderboard shown on its own Leaderboard tab:
+// The current-cycle contribution leaderboard shown on its own Leaderboard tab:
 // ranked rows with medal chips for the podium, the viewer's own tinted row, and
 // a "your rank" recap with the exact gap to the next place. Standings are
-// placeholder until the backend leaderboard endpoint lands; the "You" row uses
-// the real profile.
+// using the live backend query shape.
 const meta: Meta<typeof GivebackLeaderboard> = {
   title: 'Features/Giveback/Leaderboard',
   component: GivebackLeaderboard,
