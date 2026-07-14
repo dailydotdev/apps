@@ -55,13 +55,14 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { UploadEmploymentAgreementButton } from '@dailydotdev/shared/src/features/opportunity/components/UploadEmploymentAgreementButton';
 import { ClearEmploymentAgreementButton } from '@dailydotdev/shared/src/features/opportunity/components/ClearEmploymentAgreementButton';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
-import { defaultSeo } from '../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Job preferences'),
+  ...noindexSeoProps,
 };
 
 const options = [
