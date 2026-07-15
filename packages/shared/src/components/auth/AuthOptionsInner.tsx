@@ -36,8 +36,6 @@ import {
   isIOSNative,
   shouldUseSocialAuthPopup,
 } from '../../lib/func';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureAuthGoogleOneTap } from '../../lib/featureManagement';
 import { useGoogleOneTap } from '../../hooks/auth/useGoogleOneTap';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
@@ -659,12 +657,8 @@ function AuthOptionsInner({
     !isAndroidApp &&
     !isNativeAuthSupported('google') &&
     hasLoggedAuthOpen;
-  const { value: isOneTapEnabled } = useConditionalFeature({
-    feature: featureAuthGoogleOneTap,
-    shouldEvaluate: canUseOneTap,
-  });
   useGoogleOneTap({
-    enabled: canUseOneTap && isOneTapEnabled,
+    enabled: canUseOneTap,
     onCredential: handleOneTapCredential,
   });
 
