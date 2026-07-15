@@ -46,6 +46,7 @@ export interface NotificationItemLegacyProps
     | 'attachments'
     | 'numTotalAvatars'
     | 'referenceId'
+    | 'hasThanks'
   > {
   isUnread?: boolean;
   targetUrl: string;
@@ -165,6 +166,7 @@ function NotificationItemLegacy(
     targetUrl,
     numTotalAvatars,
     referenceId,
+    hasThanks,
     createdAt,
   } = props;
 
@@ -285,7 +287,10 @@ function NotificationItemLegacy(
           <NotificationFollowUserButton {...props} />
         )}
         {type === NotificationType.UserReceivedAward && (
-          <NotificationSayThanksButton referenceId={referenceId} />
+          <NotificationSayThanksButton
+            referenceId={referenceId}
+            hasThanks={hasThanks}
+          />
         )}
         {attachments?.map(({ title: attachment, ...restAttachmentProps }) => (
           <NotificationItemAttachment

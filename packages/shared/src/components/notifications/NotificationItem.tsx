@@ -61,6 +61,7 @@ export interface NotificationItemProps
     | 'attachments'
     | 'numTotalAvatars'
     | 'referenceId'
+    | 'hasThanks'
   > {
   isUnread?: boolean;
   targetUrl: string;
@@ -182,6 +183,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     targetUrl,
     numTotalAvatars,
     referenceId,
+    hasThanks,
     createdAt,
   } = props;
 
@@ -414,7 +416,10 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
         )}
         {type === NotificationType.UserReceivedAward && (
           <span className="relative z-1 mt-1">
-            <NotificationSayThanksButton referenceId={referenceId} />
+            <NotificationSayThanksButton
+              referenceId={referenceId}
+              hasThanks={hasThanks}
+            />
           </span>
         )}
       </div>

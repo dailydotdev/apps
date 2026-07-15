@@ -1,40 +1,74 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { ReactElement, MouseEvent } from 'react';
+import type { InfiniteData } from '@tanstack/react-query';
 import { useMutation } from '@tanstack/react-query';
-import type { Notification } from '../../graphql/notifications';
+import type {
+  Notification,
+  NotificationsData,
+} from '../../graphql/notifications';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { VIcon } from '../icons/V';
 import { sayThanksForAward } from '../../graphql/njord';
-import { useToastNotification } from '../../hooks/useToastNotification';
+import {
+  ToastType,
+  useToastNotification,
+} from '../../hooks/useToastNotification';
 import {
   ApiError,
   DEFAULT_ERROR,
   getApiError,
   type ApiErrorResult,
 } from '../../graphql/common';
+import { useUpdateQuery } from '../../hooks/useUpdateQuery';
 
 export const NotificationSayThanksButton = ({
   referenceId,
-}: Pick<Notification, 'referenceId'>): ReactElement => {
+  hasThanks,
+}: Pick<Notification, 'referenceId' | 'hasThanks'>): ReactElement => {
   const { displayToast } = useToastNotification();
-  const [thanksSent, setThanksSent] = useState(false);
+  const [getNotifications, updateNotifications] = useUpdateQuery<
+    InfiniteData<NotificationsData>
+  >({ queryKey: ['notifications'] });
+
+  const markThanksSent = () => {
+    const notifications = getNotifications();
+    if (!notifications) {
+      return;
+    }
+
+    updateNotifications({
+      ...notifications,
+      pages: notifications.pages.map((page) => ({
+        ...page,
+        notifications: {
+          ...page.notifications,
+          edges: page.notifications.edges.map((edge) =>
+            edge.node.referenceId === referenceId
+              ? { ...edge, node: { ...edge.node, hasThanks: true } }
+              : edge,
+          ),
+        },
+      })),
+    });
+  };
 
   const { mutate, isPending } = useMutation({
     mutationFn: () => sayThanksForAward({ transactionId: referenceId }),
-    onSuccess: () => setThanksSent(true),
+    onSuccess: markThanksSent,
     onError: (error: ApiErrorResult) => {
-      // The Award thanks were already sent (e.g. from another session) — reflect
-      // the final state rather than surfacing an error.
       if (getApiError(error, ApiError.Conflict)) {
-        setThanksSent(true);
+        markThanksSent();
+        displayToast('You already sent thanks', {
+          variant: ToastType.Info,
+        });
         return;
       }
 
-      displayToast(DEFAULT_ERROR);
+      displayToast(DEFAULT_ERROR, { variant: ToastType.Error });
     },
   });
 
-  if (thanksSent) {
+  if (hasThanks) {
     return (
       <Button
         variant={ButtonVariant.Primary}
