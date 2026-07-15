@@ -6,12 +6,15 @@ import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import type { NotificationItemProps } from './NotificationItem';
 import NotificationItem from './NotificationItem';
+import NotificationItemLegacy from './NotificationItemLegacy';
 import {
   NotificationAttachmentType,
   NotificationAvatarType,
 } from '../../graphql/notifications';
 import { NotificationType, NotificationIconType } from './utils';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import * as njord from '../../graphql/njord';
+import { TOAST_NOTIF_KEY, ToastType } from '../../hooks/useToastNotification';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -76,9 +79,25 @@ jest.mock(
       mockReact.cloneElement(children, { ...rest }),
 );
 
-const renderComponent = (component: ReactNode) => {
-  const client = new QueryClient();
+const renderComponent = (component: ReactNode, client = new QueryClient()) => {
   render(<TestBootProvider client={client}>{component}</TestBootProvider>);
+};
+
+const seedNotificationQuery = (
+  client: QueryClient,
+  notification: NotificationItemProps,
+) => {
+  client.setQueryData(['notifications'], {
+    pages: [
+      {
+        notifications: {
+          pageInfo: { endCursor: null, hasNextPage: false },
+          edges: [{ cursor: '', node: notification }],
+        },
+      },
+    ],
+    pageParams: [''],
+  });
 };
 
 describe('notification attachment', () => {
@@ -217,6 +236,113 @@ describe('notification click if onClick prop is NOT provided', () => {
     renderComponent(<NotificationItem {...sampleNotification} />);
 
     expect(screen.queryByTestId('openNotification')).not.toBeInTheDocument();
+  });
+});
+
+describe('UserReceivedAward say thanks action', () => {
+  const receivedAwardNotification: NotificationItemProps = {
+    isUnread: true,
+    icon: NotificationIconType.Core,
+    title: '<p><b>user</b> awarded you +10 Cores for being awesome!</p>',
+    type: NotificationType.UserReceivedAward,
+    referenceId: '5a2c2b3a-4d6e-4f70-8a91-b2c3d4e5f607',
+    targetUrl: '/user',
+    avatars: [sampleNotificationAvatars[1]],
+  };
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('should render the "Say thanks" action on the recipient notification', async () => {
+    renderComponent(<NotificationItem {...receivedAwardNotification} />);
+    await screen.findByText('Say thanks');
+  });
+
+  it('should render the "Say thanks" action in the legacy notification item', async () => {
+    renderComponent(<NotificationItemLegacy {...receivedAwardNotification} />);
+    await screen.findByRole('button', { name: 'Say thanks' });
+  });
+
+  it('should not render the action on other notification types', async () => {
+    renderComponent(<NotificationItem {...sampleNotification} />);
+    await screen.findByText(sampleNotificationTitle);
+    expect(screen.queryByText('Say thanks')).not.toBeInTheDocument();
+  });
+
+  it('should update the notification cache on success', async () => {
+    const spy = jest
+      .spyOn(njord, 'sayThanksForAward')
+      .mockResolvedValue(undefined);
+    const queryClient = new QueryClient();
+    seedNotificationQuery(queryClient, receivedAwardNotification);
+
+    renderComponent(
+      <NotificationItem {...receivedAwardNotification} />,
+      queryClient,
+    );
+
+    const button = await screen.findByText('Say thanks');
+    fireEvent.click(button);
+
+    await waitFor(() =>
+      expect(queryClient.getQueryData(['notifications'])).toMatchObject({
+        pages: [
+          {
+            notifications: {
+              edges: [{ node: { hasThanks: true } }],
+            },
+          },
+        ],
+      }),
+    );
+    expect(spy).toHaveBeenCalledWith({
+      transactionId: receivedAwardNotification.referenceId,
+    });
+  });
+
+  it('should render "Thanks sent" when notification data has thanks', async () => {
+    renderComponent(
+      <NotificationItem {...receivedAwardNotification} hasThanks />,
+    );
+
+    await screen.findByText('Thanks sent');
+    expect(screen.queryByText('Say thanks')).not.toBeInTheDocument();
+  });
+
+  it('should show a toast and update the state when thanks were already sent', async () => {
+    jest.spyOn(njord, 'sayThanksForAward').mockRejectedValue({
+      response: {
+        errors: [{ extensions: { code: 'CONFLICT' } }],
+      },
+    });
+    const queryClient = new QueryClient();
+    seedNotificationQuery(queryClient, receivedAwardNotification);
+    renderComponent(
+      <NotificationItem {...receivedAwardNotification} />,
+      queryClient,
+    );
+
+    fireEvent.click(await screen.findByText('Say thanks'));
+
+    await waitFor(() =>
+      expect(queryClient.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
+        message: 'You already sent thanks',
+        variant: ToastType.Info,
+      }),
+    );
+  });
+
+  it('should render the sender UserAwardThanks notification without a say thanks action', async () => {
+    renderComponent(
+      <NotificationItem
+        {...receivedAwardNotification}
+        type={NotificationType.UserAwardThanks}
+        title="<p><b>user</b> said thanks for your Award</p>"
+      />,
+    );
+    await screen.findByText(/said thanks for your Award/);
+    expect(screen.queryByText('Say thanks')).not.toBeInTheDocument();
   });
 });
 
