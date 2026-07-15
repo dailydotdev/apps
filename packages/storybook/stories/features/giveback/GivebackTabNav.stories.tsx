@@ -4,7 +4,7 @@ import { GivebackTabNav } from '@dailydotdev/shared/src/features/giveback/compon
 import type { GivebackTabId } from '@dailydotdev/shared/src/features/giveback/components/GivebackTabNav';
 import { withGiveback } from './giveback.mocks';
 
-// The sticky tab navigation that switches between Take action / Impact /
+// The sticky tab navigation that switches between Take action / Rewards /
 // Campaign. Prop-driven (activeTab + onSelect); this story keeps the active tab
 // in local state so the tabs are clickable.
 const meta: Meta<typeof GivebackTabNav> = {

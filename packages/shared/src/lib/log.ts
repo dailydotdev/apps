@@ -99,6 +99,8 @@ export enum Origin {
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
   DailyPage = 'daily page',
+  EngagementBanner = 'engagement banner',
+  EngagementFeedStrip = 'engagement feed strip',
 }
 
 export enum LogEvent {
@@ -516,6 +518,11 @@ export enum LogEvent {
   ViewGivebackFunnelStep = 'view giveback funnel step',
   CompleteGivebackFunnel = 'complete giveback funnel',
   ClickGivebackHowItWorks = 'click giveback how it works',
+  ClickGivebackGiftEntry = 'click giveback gift entry',
+  ViewGivebackPrompt = 'view giveback prompt',
+  OpenGivebackCauseSuggestion = 'open giveback cause suggestion',
+  SubmitGivebackCauseSuggestion = 'submit giveback cause suggestion',
+  SubmitGivebackCauseSuggestionError = 'submit giveback cause suggestion error',
   // Daily homepage
   DailyFeedback = 'daily feedback',
 }

@@ -154,6 +154,11 @@ export const BootDataProvider = ({
   const logged = cachedBootData?.user as LoggedUser;
   const shouldRefetch = !!logged?.providers && !!logged?.id;
   const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
+  // `daily` is client-owned for the session: seeded from the server on the
+  // first boot response and mutated only via `setDaily`. It lives in memory
+  // (never written to the persisted boot cache) so background refetches don't
+  // revert the daily-as-default view mid-session; a full refresh re-seeds it.
+  const [dailyOverride, setDailyOverride] = useState<boolean>();
 
   const {
     data: remoteData,
@@ -186,8 +191,8 @@ export const BootDataProvider = ({
     feeds,
     geo,
     isAndroidApp,
-    daily,
   } = cachedBootData || {};
+  const daily = dailyOverride ?? cachedBootData?.daily;
 
   useRefreshToken(remoteData?.accessToken, refetch);
 
@@ -263,10 +268,9 @@ export const BootDataProvider = ({
     [updateBootData],
   );
 
-  const setDaily = useCallback(
-    (value: boolean) => updateBootData({ daily: value }),
-    [updateBootData],
-  );
+  const setDaily = useCallback((value: boolean) => {
+    setDailyOverride(value);
+  }, []);
 
   const updateAlerts = useCallback(
     (updatedAlerts: BootCacheData['alerts']) =>
@@ -300,6 +304,9 @@ export const BootDataProvider = ({
   useEffect(() => {
     if (remoteData) {
       setInitialLoad(typeof initialLoad === 'undefined');
+      if (typeof dailyOverride === 'undefined') {
+        setDailyOverride(remoteData.daily);
+      }
       updateBootData(remoteData);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

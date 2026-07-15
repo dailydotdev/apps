@@ -9,9 +9,10 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { CoinIcon, GiftIcon, VIcon } from '../../../components/icons';
-import { cloudinaryCharmBookmarks } from '../../../lib/image';
+import { cloudinaryGivebackFunnelImpact } from '../../../lib/image';
 import { GivebackMascot } from './GivebackMascot';
 import { GivebackCauseSelection } from './GivebackCauseSelection';
+import { GivebackReveal as Reveal } from './GivebackReveal';
 import type { CauseSelection, StepKey } from './givebackFunnelTypes';
 
 // The finale reassures the choice by spelling out the value the visitor just
@@ -38,28 +39,6 @@ const IMPACT_VALUES: ReadonlyArray<{
     sub: 'Small actions add up to real support.',
   },
 ];
-
-// Choreographed enter: rise + de-blur + fade, staggered per element so each step
-// reveals top-to-bottom rather than popping in as a block (motion-safe only).
-const Reveal = ({
-  delay = 0,
-  className,
-  children,
-}: {
-  delay?: number;
-  className?: string;
-  children: ReactNode;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'motion-safe:animate-funnel-step-in motion-safe:will-change-transform',
-      className,
-    )}
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    {children}
-  </div>
-);
 
 // A soft, on-brand glow behind each step's hero icon/illustration so the visual
 // feels alive and the campaign reads as a real, considered initiative.
@@ -217,8 +196,8 @@ export const GivebackFunnelStep = ({
               <GivebackMascot
                 imageClassName="h-28 tablet:h-36"
                 image={{
-                  src: cloudinaryCharmBookmarks,
-                  alt: 'daily.dev charm celebrating your causes',
+                  src: cloudinaryGivebackFunnelImpact,
+                  alt: 'Patchy holding a Cores coin, celebrating your causes',
                 }}
               />
             </Stage>

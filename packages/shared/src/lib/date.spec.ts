@@ -1,4 +1,8 @@
-import { getDaysUntilWeeklyQuestReset, getWeeklyQuestPeriodEnd } from './date';
+import {
+  formatTotalDuration,
+  getDaysUntilWeeklyQuestReset,
+  getWeeklyQuestPeriodEnd,
+} from './date';
 
 describe('getWeeklyQuestPeriodEnd', () => {
   it('returns the next Monday 00:00 UTC mid-week', () => {
@@ -47,5 +51,40 @@ describe('getDaysUntilWeeklyQuestReset', () => {
     expect(
       getDaysUntilWeeklyQuestReset(new Date('2026-06-24T12:00:00.000Z')),
     ).toBe(5);
+  });
+});
+
+describe('formatTotalDuration', () => {
+  it('sums non-overlapping ranges without counting the gaps', () => {
+    expect(
+      formatTotalDuration([
+        { startedAt: '2015-01-01', endedAt: '2016-01-01' },
+        { startedAt: '2017-01-01', endedAt: '2018-01-01' },
+        { startedAt: '2019-01-01', endedAt: '2020-01-01' },
+        { startedAt: '2021-01-01', endedAt: '2022-01-01' },
+        { startedAt: '2023-01-01', endedAt: '2024-01-01' },
+      ]),
+    ).toBe('5 years');
+  });
+
+  it('merges overlapping ranges instead of double counting', () => {
+    expect(
+      formatTotalDuration([
+        { startedAt: '2020-01-01', endedAt: '2022-06-01' },
+        { startedAt: '2021-06-01', endedAt: '2023-01-01' },
+      ]),
+    ).toBe('3 years');
+  });
+
+  it('treats a missing endedAt as an ongoing position', () => {
+    expect(
+      formatTotalDuration([{ startedAt: '2015-01-01', endedAt: null }]),
+    ).not.toBe('Less than a month');
+  });
+
+  it('falls back to "Less than a month" for sub-month durations', () => {
+    expect(
+      formatTotalDuration([{ startedAt: '2023-01-01', endedAt: '2023-01-10' }]),
+    ).toBe('Less than a month');
   });
 });

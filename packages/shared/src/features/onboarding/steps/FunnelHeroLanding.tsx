@@ -29,6 +29,9 @@ const staticAuthProps = {
   },
   forceDefaultDisplay: true,
   simplified: true,
+  // The signup wall already shows the "homepage developers deserve" copy, so
+  // don't repeat it on the email registration step.
+  hideRegistrationHeadline: true,
   targetId: ExperimentWinner.OnboardingV4,
   trigger: AuthTriggers.Onboarding,
 };

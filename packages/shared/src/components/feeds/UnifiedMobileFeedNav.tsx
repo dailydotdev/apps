@@ -222,8 +222,8 @@ function UnifiedMobileFeedNav(): ReactElement {
       ref={scrollRef}
       className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary bg-background-default px-3 py-4"
     >
-      <NewStripCta className="rounded-10 px-2.5 py-1.5" />
       {showDailySwitcher && <DailySwitcher reverse compact />}
+      <NewStripCta className="rounded-10 px-2.5 py-1.5" />
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
         if (!groupItems.length) {

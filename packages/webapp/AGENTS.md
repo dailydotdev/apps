@@ -26,6 +26,18 @@ webapp/
 └── __mocks__/          # Test mocks
 ```
 
+## Static Assets
+
+Put webapp static assets in `public/app/assets/` (served at `/app/assets/*`).
+Do **not** add files to `public/assets/` — the bare `/assets` prefix is the
+marketing site's build output, and the daily.dev router proxies `/assets/*` to
+the marketing origin, so a webapp file there works in local dev but 404s in
+production.
+
+The old `public/assets/` files were migrated to `public/app/assets/` and all
+references updated. A wildcard redirect (`/assets/:path*` → `/app/assets/:path*`)
+in `next.config.ts` keeps old `/assets` URLs working for backward compatibility.
+
 ## Pages Router
 
 Routes are file-based in `pages/`:

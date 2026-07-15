@@ -17,6 +17,37 @@ export interface ContributionStatus {
   userPoints: number | null;
 }
 
+// Real-time event fired when an approved action lands. Drives the live "+$"
+// pop on the gift entry point. `awardedPoints` maps 1:1 to currency.
+export interface ContributionActionCompleted {
+  submissionId: string;
+  userId: string;
+  actionId: string;
+  awardedPoints: number;
+}
+
+// The founding-contributor award: a one-time, capped gift for the first N
+// contributors, granted via claimContributionFoundingAward once a contributor
+// has an approved action. Campaign fields render for everyone;
+// `isFoundingMember`/`memberNumber` describe the visitor (false/null until
+// they sign in and claim it).
+export interface ContributionFoundingAward {
+  totalSpots: number;
+  claimedCount: number;
+  isFoundingMember: boolean;
+  memberNumber: number | null;
+}
+
+// A global campaign milestone (a lifetime approved-points threshold, which maps
+// 1:1 to currency). `contributionLastReachedMilestone` returns the highest one
+// crossed so far; crossing a new one pops the celebratory popover.
+export interface ContributionMilestone {
+  id: string;
+  value: number;
+  title: string | null;
+  reachedAt: string | null;
+}
+
 // Derived from the sponsored amount on the backend, so a pledge can never
 // disagree with its badge.
 export enum ContributionSponsorTier {
@@ -51,13 +82,38 @@ export interface ContributionActionCategory {
   title: string;
 }
 
-// The kind of perk a reward tier grants, used to pick the roadmap node's icon.
+// The community pool's projected current-cycle points, grouped by cause
+// category, as returned by `contributionCauseBreakdown`. Points map 1:1 to
+// currency, so the causes breakdown donut renders them straight as dollars.
+// `category` is null for the bucket of causes without one.
+export interface ContributionCauseCategoryBreakdown {
+  category: string | null;
+  points: number;
+}
+
+// The kind of perk a reward tier grants. Drives both the roadmap node's icon and
+// the claim reveal (see `resolveRewardReveal`). Mirrors the daily-api enum.
 export enum ContributionRewardType {
   Cores = 'cores',
   PlusDays = 'plus_days',
+  StoreDiscount = 'store_discount',
+  SuggestCauses = 'suggest_causes',
+  Council = 'council',
+  PatchyPicture = 'patchy_picture',
+  Joke = 'joke',
+  Trivia = 'trivia',
   Call = 'call',
   Privilege = 'privilege',
   Custom = 'custom',
+}
+
+// Per-type reward parameters carried on the tier's `metadata` jsonb. Only the
+// grant/reveal-driving fields are typed; each is present only for its reward
+// type (amount → cores, days → plus_days, percent → store_discount).
+export interface ContributionRewardMetadata {
+  amount?: number;
+  days?: number;
+  percent?: number;
 }
 
 // A milestone reward unlocked once a contributor's points cross its threshold.
@@ -69,6 +125,7 @@ export interface ContributionRewardTier {
   description: string | null;
   thresholdPoints: number;
   rewardType: ContributionRewardType;
+  metadata: ContributionRewardMetadata;
 }
 
 // Review outcome for a submitted action. A fresh submission lands `flagged`
@@ -143,4 +200,17 @@ export interface ContributionAction {
   userCooldownEndsAt: string | null;
   userCompletions: number;
   latestUserSubmission: ContributionSubmission | null;
+}
+
+// A single row of the current-cycle contribution leaderboard: where a
+// contributor ranks by approved points. `isCurrentUser`
+// tints the viewer's own row and drives the "your rank" recap below the list.
+export interface GivebackLeaderboardEntry {
+  id: string;
+  rank: number;
+  name: string;
+  image: string;
+  contributionAmount: number;
+  currency: string;
+  isCurrentUser?: boolean;
 }

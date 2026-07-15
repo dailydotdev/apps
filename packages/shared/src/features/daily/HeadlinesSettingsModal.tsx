@@ -12,6 +12,8 @@ import {
 } from '../../components/typography/Typography';
 import { Switch } from '../../components/fields/Switch';
 import { Loader } from '../../components/Loader';
+import { Pill, PillSize } from '../../components/Pill';
+import { capitalize } from '../../lib/strings';
 import type { ChannelConfiguration } from '../../graphql/highlights';
 import {
   channelConfigurationsQueryOptions,
@@ -43,6 +45,7 @@ const ChannelRow = ({
   const queryClient = useQueryClient();
   const { isFollowing, toggleFollow } = useSourceActionsFollow({ source });
   const inputId = `headline-toggle-${channel.channel}`;
+  const frequency = channel.digest?.frequency ?? 'daily';
 
   const onToggle = async () => {
     await toggleFollow();
@@ -55,21 +58,27 @@ const ChannelRow = ({
   return (
     <li className="flex w-full items-center justify-between gap-4 px-4 py-3">
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Primary}
-          bold
-        >
-          {channel.displayName}
-        </Typography>
+        <div className="flex items-center gap-2">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Primary}
+            bold
+          >
+            {channel.displayName}
+          </Typography>
+          <Pill
+            label={capitalize(frequency)}
+            size={PillSize.XSmall}
+            alignment="self-center"
+            className="bg-surface-float text-text-tertiary"
+          />
+        </div>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
           className="!leading-snug"
         >
-          {`A ${channel.digest?.frequency ?? 'daily'} digest of ${
-            channel.displayName
-          } news.`}
+          {`Digest of ${channel.displayName} news.`}
         </Typography>
       </div>
       <Switch

@@ -10,50 +10,22 @@ import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
 import { GivebackTabHeading } from './GivebackTabHeading';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
+import { GivebackLeaderboard } from './GivebackLeaderboard';
 import { GivebackCausesPanel } from './GivebackCausesPanel';
 import { GivebackCausesBreakdown } from './GivebackCausesBreakdown';
-import type { GivebackCauseAllocation } from './GivebackCausesBreakdown';
 import { GivebackFaq } from './GivebackFaq';
+import { GeoGateFallback } from './GeoGateFallback';
 import type { GivebackTabId } from './GivebackTabNav';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useContributionStatus } from '../hooks/useContributionStatus';
+import { useContributionCauseBreakdown } from '../hooks/useContributionCauseBreakdown';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
-import type { ContributionCause } from '../types';
 
 // Single source of truth for the page gutter, shared by the hero, the tab
 // content and the footer so every row lines up at the exact same left/right
 // padding. Scales up on wider screens so content isn't edge-tight.
 const column = 'mx-auto w-full max-w-6xl px-4 tablet:px-8 laptop:px-12';
-
-// Placeholder split for the "Where the money will go" breakdown. The
-// contribution API has no per-cause amounts yet, so we spread the current cycle
-// pool across the campaign causes with a stable descending weight purely to
-// visualize the block in context. Swap this for real per-cause figures once the
-// backend exposes them.
-const BREAKDOWN_WEIGHTS = [42, 26, 18, 11, 7, 4];
-
-const buildCausesBreakdown = (
-  causes: ContributionCause[],
-  pool: number,
-): GivebackCauseAllocation[] => {
-  if (pool <= 0 || causes.length === 0) {
-    return [];
-  }
-
-  const used = causes.slice(0, BREAKDOWN_WEIGHTS.length);
-  const weights = used.map((_, index) => BREAKDOWN_WEIGHTS[index] ?? 3);
-  const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
-
-  // Drop slivers that round to $0 on a tiny pool so the breakdown never renders
-  // an empty "$0 / 0%" row.
-  return used
-    .map((cause, index) => ({
-      cause,
-      amount: Math.round((pool * weights[index]) / weightSum),
-    }))
-    .filter(({ amount }) => amount > 0);
-};
 
 const scrollIntoView = (node: HTMLElement | null): void => {
   if (!node || typeof node.scrollIntoView !== 'function') {
@@ -65,10 +37,17 @@ const scrollIntoView = (node: HTMLElement | null): void => {
 export const GivebackPage = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { status } = useContributionStatus();
+  const { breakdown } = useContributionCauseBreakdown();
   // Eligibility gates the cause picker query (backend-gated), so only eligible
   // visitors load their picks - which also tells us whether to show the tabs.
   const isEligible = status?.eligible === true;
   const selection = useGivebackCauseSelection(isEligible);
+
+  // Geo gate: `enabled` is a campaign-wide field that resolves for everyone
+  // (including anonymous visitors), so it's the signal for "not live in this
+  // region". Only gate once status has resolved, otherwise the fallback would
+  // flash before the campaign body while the overview query is in flight.
+  const geoBlocked = !!status && !status.enabled;
 
   // Causes are confirmed inside the warm-up funnel; once they save (or the
   // visitor arrives already onboarded) the tabbed experience takes over.
@@ -151,11 +130,6 @@ export const GivebackPage = (): ReactElement => {
 
   const activeLabel = givebackTabs.find((tab) => tab.id === activeTab)?.label;
 
-  const causesBreakdown = buildCausesBreakdown(
-    selection.causes,
-    status?.currentCyclePoints ?? 0,
-  );
-
   // No `overflow-x-clip` on the root: it would clip GivebackBackground's
   // `laptop:-inset-1` corner bleed and leave a dark crescent inside the app
   // card's rounded corner. Stray horizontal bleed is still caught by the global
@@ -164,19 +138,21 @@ export const GivebackPage = (): ReactElement => {
     <div className="relative min-h-page w-full">
       <GivebackBackground />
 
+      {geoBlocked && <GeoGateFallback />}
+
       {/* Hold the body until we know whether to force the funnel. The funnel is a
           full-screen overlay on the same background, so revealing the hero/tabs
           first would flash them on screen before it covers them. While resolving,
           only the shared background shows, so there's no flash and no shift. */}
-      {onboardingResolved && !forcedFunnel && (
+      {!geoBlocked && onboardingResolved && !forcedFunnel && (
         <FlexCol className="relative gap-6 py-6 tablet:gap-8 tablet:py-8">
           <div className={column}>
             <GivebackHero onHowItWorks={handleHowItWorks} />
           </div>
 
-          {showTabs && causesBreakdown.length > 0 && (
+          {showTabs && breakdown.length > 0 && (
             <div className={column}>
-              <GivebackCausesBreakdown flat allocations={causesBreakdown} />
+              <GivebackCausesBreakdown flat breakdown={breakdown} />
             </div>
           )}
 
@@ -214,6 +190,9 @@ export const GivebackPage = (): ReactElement => {
                 {activeTab === 'impact' && (
                   <GivebackImpactPanel onTakeAction={goToActions} />
                 )}
+                {activeTab === 'leaderboard' && (
+                  <GivebackLeaderboard onTakeAction={goToActions} />
+                )}
                 {activeTab === 'causes' && (
                   <GivebackCausesPanel onFilter={scrollToTabs} />
                 )}
@@ -228,7 +207,7 @@ export const GivebackPage = (): ReactElement => {
         </FlexCol>
       )}
 
-      {showFunnel && (
+      {!geoBlocked && showFunnel && (
         <GivebackFunnel
           selection={selection}
           canClose={replayFunnel}
