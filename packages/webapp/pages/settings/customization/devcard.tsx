@@ -9,7 +9,7 @@ import { useActions } from '@dailydotdev/shared/src/hooks';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
-import { defaultOpenGraph } from '../../../next-seo';
+import { defaultOpenGraph, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
@@ -37,6 +37,7 @@ const seo: NextSeoProps = {
     type: 'website',
     site_name: 'daily.dev',
   },
+  ...noindexSeoProps,
 };
 
 const Page = (): ReactElement | null => {

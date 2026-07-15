@@ -38,6 +38,7 @@ import { AdActions } from '../lib/ads';
 import PlusGrid from './cards/plus/PlusGrid';
 import { useFeedCardContext } from '../features/posts/FeedCardContext';
 import { AdPixel } from './cards/ad/common/AdPixel';
+import { AdMeasurement } from './cards/ad/common/AdMeasurement';
 import { BriefCard } from './cards/brief/BriefCard/BriefCard';
 import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
@@ -466,7 +467,12 @@ function FeedItemComponent({
           <WideCard {...postCardProps} wideColSpan={wideColSpan} />
         ) : (
           <PostTag {...postCardProps}>
-            {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
+            {item.type === FeedItemType.Ad && (
+              <>
+                <AdPixel pixel={item.ad.pixel} />
+                <AdMeasurement ad={item.ad} />
+              </>
+            )}
           </PostTag>
         )}
       </ActivePostContextProvider>
