@@ -8,6 +8,7 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { DailyIcon } from '../../../components/icons';
+import { cloudinaryGivebackPunchyStaring } from '../../../lib/image';
 
 // Full-page gate. When Giveback isn't enabled for the visitor's region we block
 // the whole experience and only explain, at a high level, what the campaign is.
@@ -22,6 +23,13 @@ export const GeoGateFallback = (): ReactElement => {
       />
 
       <FlexCol className="relative w-full max-w-xl items-center gap-4 text-center tablet:gap-5">
+        <img
+          src={cloudinaryGivebackPunchyStaring}
+          alt="Punchy, the daily.dev mascot, looking on hopefully"
+          loading="lazy"
+          className="aspect-square h-20 w-auto select-none object-contain tablet:h-24"
+        />
+
         <FlexRow className="items-center gap-2 rounded-10 bg-surface-float px-3 py-1.5">
           <DailyIcon />
           <Typography
