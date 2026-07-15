@@ -704,6 +704,134 @@ describe('UserExperiencesList', () => {
     });
   });
 
+  describe('displayLimit (collapsed profile)', () => {
+    // One company ("Tech Company") with five non-overlapping one-year positions.
+    // Ordered newest-first, as the API returns them. Collapsing to the first three
+    // positions is what the collapsed profile renders; the full set spans 5 years.
+    const fiveYearCompany = [
+      createExperience({
+        id: 'r2023',
+        title: 'Role 2023',
+        startedAt: '2023-01-01',
+        endedAt: '2024-01-01',
+      }),
+      createExperience({
+        id: 'r2021',
+        title: 'Role 2021',
+        startedAt: '2021-01-01',
+        endedAt: '2022-01-01',
+      }),
+      createExperience({
+        id: 'r2019',
+        title: 'Role 2019',
+        startedAt: '2019-01-01',
+        endedAt: '2020-01-01',
+      }),
+      createExperience({
+        id: 'r2017',
+        title: 'Role 2017',
+        startedAt: '2017-01-01',
+        endedAt: '2018-01-01',
+      }),
+      createExperience({
+        id: 'r2015',
+        title: 'Role 2015',
+        startedAt: '2015-01-01',
+        endedAt: '2016-01-01',
+      }),
+    ];
+
+    it('shows tenure from all positions even when the list is truncated', () => {
+      const user = createUser();
+      renderComponent({
+        experiences: fiveYearCompany,
+        title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        displayLimit: 3,
+        user,
+      });
+
+      // Full tenure (5 years) despite only the first 3 positions being rendered.
+      expect(screen.getByText('5 years')).toBeInTheDocument();
+
+      // Only the first 3 positions render; the truncated ones stay hidden.
+      expect(screen.getByText('Role 2023')).toBeInTheDocument();
+      expect(screen.getByText('Role 2021')).toBeInTheDocument();
+      expect(screen.getByText('Role 2019')).toBeInTheDocument();
+      expect(screen.queryByText('Role 2017')).not.toBeInTheDocument();
+      expect(screen.queryByText('Role 2015')).not.toBeInTheDocument();
+    });
+
+    it('shows identical tenure whether truncated (collapsed) or full (expanded)', () => {
+      const user = createUser();
+
+      const { unmount } = renderComponent({
+        experiences: fiveYearCompany,
+        title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        displayLimit: 3,
+        user,
+      });
+      expect(screen.getByText('5 years')).toBeInTheDocument();
+      unmount();
+
+      renderComponent({
+        experiences: fiveYearCompany,
+        title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
+      });
+      expect(screen.getByText('5 years')).toBeInTheDocument();
+      expect(screen.getByText('Role 2015')).toBeInTheDocument();
+    });
+
+    it('shows "Show More" when positions are hidden by displayLimit', () => {
+      const user = createUser();
+      renderComponent({
+        experiences: fiveYearCompany,
+        title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        displayLimit: 3,
+        user,
+      });
+
+      expect(
+        screen.getByRole('link', { name: /show more/i }),
+      ).toBeInTheDocument();
+    });
+
+    it('does not show "Show More" when displayLimit covers every position', () => {
+      const user = createUser();
+      renderComponent({
+        experiences: fiveYearCompany,
+        title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        displayLimit: 10,
+        user,
+      });
+
+      expect(
+        screen.queryByRole('link', { name: /show more/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('renders all positions when no displayLimit is provided (detail page)', () => {
+      const user = createUser();
+      renderComponent({
+        experiences: fiveYearCompany,
+        title: 'Work Experience',
+        experienceType: UserExperienceType.Work,
+        user,
+      });
+
+      expect(screen.getByText('Role 2023')).toBeInTheDocument();
+      expect(screen.getByText('Role 2015')).toBeInTheDocument();
+      expect(
+        screen.queryByRole('link', { name: /show more/i }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   describe('AuthContext integration', () => {
     it('should not render Show More button when user is not logged in', () => {
       const mockUseAuthContext = useAuthContext as jest.MockedFunction<

@@ -44,7 +44,7 @@ This is a pnpm monorepo containing the daily.dev application suite:
 
 ## Technology Stack
 
-- **Node.js v24.14** (see `package.json` `volta` and `packageManager` properties, also `.nvmrc`)
+- **Node.js v24.18** (see `package.json` `volta` and `packageManager` properties, also `.nvmrc`)
 - **pnpm 10.33.4** for package management (see `package.json` `packageManager` property)
 - **TypeScript** across all packages
 - **React 18.3.1** with Next.js 15 for webapp (Pages Router, NOT App Router/Server Components)
@@ -207,6 +207,8 @@ pnpm --filter extension build:chrome # Build Chrome extension
 
 **IMPORTANT**: When changing SEO, gating, or noindex logic, preserve existing `undefined`/nullable behavior unless the requirement explicitly changes it, and verify field names against the typed GraphQL model instead of ticket prose.
 
+**IMPORTANT**: The "calling platform" is not just extension vs webapp. Native wrappers (iOS/Android) run the webapp shell, so `BootApp`/`isExtension` alone cannot tell them apart — the native platform is surfaced through the app version (`ios`/`android`, see `useWebappVersion`). When you need the platform (e.g. the `X-Daily-Client` header), use the shared `getDailyClientPlatform(version)` helper in `lib/func.ts`: extension build → `extension`, else `ios`/`android` from the version, else `webapp`. Don't reduce platform to a `isExtension ? 'extension' : 'webapp'` boolean.
+
 ## Where Should I Put This Code?
 
 ```
@@ -263,6 +265,17 @@ GrowthBook is integrated for A/B testing. Define features in `packages/shared/sr
 ```typescript
 export const featureMyFlag = new Feature('my_flag', false);
 ```
+
+**NEVER default an experiment flag to `true`.** The default in `featureManagement.ts` is the control/off value and must stay falsy (`false`, `0`, or the control config) — GrowthBook turns the experiment on per cohort at runtime. Defaulting to `true` to "preview" a design ships the experiment to 100% of users the moment the branch merges, with no way to roll it back without a deploy.
+
+If you need to see the experiment locally, gate the preview on the environment — never the committed default:
+```typescript
+import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
+
+const { value } = useConditionalFeature({ feature: featureMyFlag, shouldEvaluate });
+const showExperiment = value || isDevelopment; // local-only preview, flag stays `false`
+```
+Prefer not doing even this if it can leak into a merge — toggle the flag in your local GrowthBook/devtools instead, and keep the source default `false`.
 
 Use `useConditionalFeature` with `shouldEvaluate` to gate evaluation — only evaluate the flag when the component would otherwise render (e.g., user is authenticated and Plus). This avoids unnecessary GrowthBook evaluations:
 ```typescript
@@ -439,6 +452,7 @@ When reviewing code (or writing code that will be reviewed):
 - **Reuse feed/list card primitives first** - Before adding modal-specific list item components, check existing card building blocks (`FeedItemContainer`, `PostCardHeader`, list card primitives) and compose with them.
 - **Do not hide accessible data using presentation heuristics** - In UI lists, avoid masking content based on flags like `source.public`; rely on backend access controls and render the data returned by the query.
 - **Keep scope tight in design iterations** - When adjusting UI, avoid unrelated behavioral/SEO changes in the same commit unless explicitly requested.
+- **Fix the calculation, not the collapse UX** - When a bug is a wrong value in a truncated/collapsed summary (e.g. per-company tenure on the collapsed profile), correct only the computation: derive the value from the complete dataset while rendering the exact same subset and keeping "Show More" visibility identical. Do NOT change the collapse unit (e.g. capping by positions vs by company groups) or the Show-More gating source as a side effect — those are visible UX shifts. Decouple "data summed/grouped over the full set" from "items rendered": compute over the full list, render the original truncated slice. Assert collapsed↔expanded value parity in a test.
 - **Confirm target surface before implementing UI fixes** - If a bug report names a specific component or screen, update only that target unless expansion is explicitly requested.
 - **Keep action spacing consistent in control headers** - When adding icon/action buttons near search fields or other controls, match existing horizontal gaps on both sides to avoid controls touching each other.
 - **Place feed promos in content flow unless explicitly sticky** - If a promo belongs between feed navigation and the feed list, render it in the feed/content layout so it pushes content down. Do not attach it to sticky nav with absolute positioning unless the requirement explicitly asks for overlay behavior.
@@ -456,6 +470,8 @@ When reviewing code (or writing code that will be reviewed):
 - **Floating actions over positioned siblings need both DOM order and z-index** - When stacking a control (e.g. a lightbox close button) over a sibling that uses `position: relative`/`absolute` (e.g. an `<img>` with `relative` for centering), do BOTH: render the floating control AFTER the content in the JSX, and give it an explicit `z-*` class (`z-1` matches the `ModalClose` default in `packages/shared/src/components/modals/common/ModalClose.tsx`). z-index alone is fragile in flex/stacking-context edge cases — pair it with DOM order so painting is unambiguous.
 - **Pick the overlay tier to match the surface, not the Modal default** - Overlay tokens come in tiers (`primary` ~64%, `secondary` ~40%, `tertiary` ~32%, `quaternary` ~24%). The standard `Modal` uses `bg-overlay-quaternary-onion`, but full-screen photo/media lightboxes need a darker tint so the image stands out — prefer a darker neutral like `bg-overlay-primary-pepper`. Don't default to `quaternary-onion` for every overlay; pick the tier and base color appropriate for the surface.
 - **CloseButton over images/media: use `ButtonVariant.Primary`, not `Float`** - `ButtonVariant.Float` paints with `--theme-surface-float` (~8% opacity surface), which is nearly invisible against a dark blurred backdrop or photo. For close buttons overlaid on image content (lightboxes, image-input previews, photo cards), use `ButtonVariant.Primary` for a solid background — this matches the existing `ImageInput.tsx` pattern (`packages/shared/src/components/fields/ImageInput.tsx`). Reserve `Float` for buttons floating over solid app backgrounds, not over content that bleeds through.
+- **Don't change a shared component's DOM for cases that don't need it** - When adding an optional feature to a shared component (e.g. a new `headerAddon` slot on `QuestSection`), do not unconditionally wrap or restructure existing markup. Tests and consumers across packages query by structure (`nextElementSibling`, `closest`, `.parentElement`) — e.g. `GameCenterStaticProps.spec.ts` asserts `getByText('Milestones').nextElementSibling` is the grid. Gate the new wrapper on the new prop so sections without it keep their original DOM, and after touching a shared component run the dependent package's tests too (`pnpm --filter webapp test`), not just `shared`.
+- **A shared quest/section change has multiple surfaces** - The quest dropdown panel (`QuestButton.tsx`) renders the same sections on both the header popover and the `/daily-quests` page (`panelOnly`), and has separate regular and Plus instances of each section. When adding per-section UI (e.g. the weekly reset countdown), apply it consistently to every relevant instance, not just the first one.
 
 ## Node.js Version Upgrade Checklist
 

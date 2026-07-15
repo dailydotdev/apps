@@ -27,6 +27,9 @@ export enum FunnelTargetId {
   FeedTag = 'feed tag',
   FeedPreview = 'feed preview',
   FeedContentType = 'feed content type',
+  PersonaSelect = 'persona select',
+  PersonaModifier = 'persona modifier',
+  PersonaManualPick = 'persona manual pick',
 }
 
 export type FunnelEvent =

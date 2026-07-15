@@ -146,13 +146,11 @@ jest.mock('../hooks/useSubscription', () => ({
 }));
 
 // Default implementation returns the "hero hidden" state so existing tests
-// are unaffected. Individual tests override via mockReturnValueOnce when
-// they need to exercise an in-feed hero render path.
+// are unaffected. Individual tests override it when they need to exercise
+// the top hero render path.
 jest.mock('../hooks/notifications/useReadingReminderFeedHero', () => ({
   useReadingReminderFeedHero: jest.fn().mockReturnValue({
-    adjustedHeroInsertIndex: 0,
     shouldShowTopHero: false,
-    shouldShowInFeedHero: false,
     title: '',
     subtitle: '',
     onEnableHero: jest.fn(),
@@ -176,6 +174,7 @@ const defaultVariables = {
   first: 7,
   loggedIn: true,
   after: '',
+  columns: 1,
 };
 
 const queryClient = new QueryClient(defaultQueryClientTestingConfig);
@@ -574,7 +573,7 @@ describe('Feed logged in', () => {
       },
       completeActionMock({ action: ActionType.VotePost }),
     ]);
-    const [el] = await screen.findAllByLabelText('More like this');
+    const [el] = await screen.findAllByLabelText('Upvote');
     el.click();
     await waitFor(() => expect(mutationCalled).toBeTruthy());
   });
@@ -689,7 +688,7 @@ describe('Feed logged in', () => {
       }),
     ]);
     await waitFor(async () => {
-      const [el] = await screen.findAllByLabelText('More like this');
+      const [el] = await screen.findAllByLabelText('Upvote');
       const parent = getRequiredValue(
         el.parentElement,
         'Expected upvote button parent element',
@@ -708,7 +707,7 @@ describe('Feed logged in', () => {
       },
     });
     await waitFor(async () => {
-      const [el] = await screen.findAllByLabelText('More like this');
+      const [el] = await screen.findAllByLabelText('Upvote');
       const parent = getRequiredValue(
         el.parentElement,
         'Expected upvote button parent element after subscription',
@@ -1671,6 +1670,7 @@ describe('Feed annonymous', () => {
       first: 7,
       loggedIn: false,
       after: '',
+      columns: 1,
     };
 
     renderComponent(
@@ -1685,12 +1685,13 @@ describe('Feed annonymous', () => {
             first: 7,
             loggedIn: false,
             after: '',
+            columns: 1,
           },
         ),
       ],
       undefined,
     );
-    const [el] = await screen.findAllByLabelText('More like this');
+    const [el] = await screen.findAllByLabelText('Upvote');
     el.click();
     expect(showLogin).toBeCalledWith({ trigger: AuthTriggers.Upvote });
   });
@@ -1700,6 +1701,7 @@ describe('Feed annonymous', () => {
       first: 7,
       loggedIn: false,
       after: '',
+      columns: 1,
     };
 
     renderComponent(
@@ -1714,6 +1716,7 @@ describe('Feed annonymous', () => {
             first: 7,
             loggedIn: false,
             after: '',
+            columns: 1,
           },
         ),
       ],
@@ -1800,7 +1803,7 @@ const renderWithHighlightLayout = ({
   disableAds,
   user = defaultUser,
 }: HighlightLayoutRenderParams): RenderResult => {
-  variables = { ...defaultVariables, first: pageSize };
+  variables = { ...defaultVariables, first: pageSize, columns: numCards };
   mockGraphQL(createFeedMock(buildFeedPage(posts)));
   // First ad page uses active=false, subsequent pages use active=true. Mock
   // both up to a handful of refills so multi-ad scenarios don't run dry.
@@ -1828,6 +1831,13 @@ const renderWithHighlightLayout = ({
         minSpacing,
         startIndex,
         chipLabels: {},
+        allowedPostTypes: {
+          [PostType.Article]: true,
+          [PostType.VideoYouTube]: true,
+          [PostType.Share]: true,
+          [PostType.Freeform]: true,
+          [PostType.Collection]: true,
+        },
       },
     },
     ...(briefBannerPage
@@ -1944,9 +1954,7 @@ describe('Feed ad cadence with highlight cards', () => {
       getPlusEntryData: jest.fn().mockReturnValue(null),
     });
     jest.mocked(useReadingReminderFeedHero).mockReturnValue({
-      adjustedHeroInsertIndex: 0,
       shouldShowTopHero: false,
-      shouldShowInFeedHero: false,
       title: '',
       subtitle: '',
       onEnableHero: jest.fn(),
@@ -2092,38 +2100,6 @@ describe('Feed ad cadence with highlight cards', () => {
     });
     // Ads still render alongside the banner (no regression in cadence).
     expect(await screen.findByTestId('adItem')).toBeInTheDocument();
-  });
-
-  // Verifies the in-feed reading-reminder hero wires through useFeed's
-  // bannerInsertions.hero into Feed's JSX. Mocks the hero hook directly
-  // because its real show-gate depends on scroll + variation + auth state
-  // that aren't worth reproducing here — the hook itself is tested in
-  // useReadingReminderFeedHero.spec.tsx.
-  it('renders the in-feed reading-reminder hero from useFeed', async () => {
-    const heroTitle = 'Hero test title';
-    const heroSubtitle = 'Hero test subtitle';
-    jest.mocked(useReadingReminderFeedHero).mockReturnValue({
-      adjustedHeroInsertIndex: 2,
-      shouldShowTopHero: false,
-      shouldShowInFeedHero: true,
-      title: heroTitle,
-      subtitle: heroSubtitle,
-      onEnableHero: jest.fn(),
-      onDismissHero: jest.fn(),
-    });
-
-    const posts = [
-      buildPost('p0'),
-      buildPost('p1'),
-      buildPost('p2'),
-      buildPost('p3'),
-      buildPost('p4'),
-    ];
-
-    renderWithHighlightLayout({ posts, highlightEnabled: false });
-
-    expect(await screen.findByText(heroSubtitle)).toBeInTheDocument();
-    expect(screen.queryByText(heroTitle)).toBeInTheDocument();
   });
 
   it('inserts staticAd at the requested index via the cadence walk', async () => {

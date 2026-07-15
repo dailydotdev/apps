@@ -45,7 +45,7 @@ export interface TextFormHandle {
   toggleMarkdownMode: () => void;
 }
 
-const BODY_MAX_LENGTH = 10_000;
+const BODY_MAX_LENGTH = 20_000;
 
 export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
   function TextForm(
@@ -71,7 +71,13 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
     }));
 
     useEffect(() => {
-      titleRef.current?.focus();
+      const titleEl = titleRef.current;
+      if (!titleEl) {
+        return;
+      }
+      titleEl.focus();
+      const end = titleEl.value.length;
+      titleEl.setSelectionRange(end, end);
     }, []);
 
     useLayoutEffect(() => {

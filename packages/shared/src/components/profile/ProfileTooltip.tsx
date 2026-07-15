@@ -156,6 +156,23 @@ export function ProfileTooltip({
     interactive: true,
     onHide,
     appendTo: tooltip?.appendTo || globalThis?.document?.body,
+    // Render the card with a fixed strategy so it escapes any
+    // `overflow: clip/hidden` ancestor (e.g. the post modal card, which would
+    // otherwise cut it off), and keep it inside the viewport on every screen
+    // size — shifting/flipping rather than spilling past an edge.
+    popperOptions: {
+      strategy: 'fixed',
+      modifiers: [
+        {
+          name: 'preventOverflow',
+          options: { padding: 8, altAxis: true, rootBoundary: 'viewport' },
+        },
+        {
+          name: 'flip',
+          options: { padding: 8, fallbackPlacements: ['bottom', 'top'] },
+        },
+      ],
+    },
     container: { bgClassName: '' },
     content:
       !isLoading && tooltipUser ? (

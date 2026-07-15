@@ -8,7 +8,6 @@ import type { TopCommentsData } from '@dailydotdev/shared/src/graphql/comments';
 import { TOP_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import type { ClientError } from 'graphql-request';
 import type { NextSeoProps } from 'next-seo';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useUserShortByIdQuery } from '@dailydotdev/shared/src/hooks/user/useUserShortByIdQuery';
@@ -20,6 +19,7 @@ import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { Props } from '../index';
 import { PostPage, seoTitle } from '../index';
 import { getLayout } from '../../../../components/layouts/MainLayout';
+import { getPostCanonicalUrl } from '../../../../lib/seo';
 
 export type SharePostPageProps = Props & {
   shareUserId?: string;
@@ -80,7 +80,7 @@ export const getServerSideProps: GetServerSideProps<
     const post = initialData.post as Post;
     const pageSeoTitles = getPageSeoTitles(seoTitle(post));
     const seo: NextSeoProps = {
-      canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
+      canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       openGraph: {

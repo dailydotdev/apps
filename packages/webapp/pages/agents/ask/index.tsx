@@ -33,7 +33,7 @@ import { getLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 
-const ASK_URL = 'https://app.daily.dev/agents/ask';
+const ASK_URL = 'https://daily.dev/agents/ask';
 const ASK_TITLE = 'daily-dev-ask | WebSearch for developers';
 const ASK_DESCRIPTION =
   'Ask any development question and get real answers backed by trusted developer content. daily-dev-ask searches articles from the daily.dev community so you get answers you can trust.';
@@ -56,7 +56,7 @@ const getAskJsonLd = (): string =>
     isPartOf: {
       '@type': 'WebSite',
       name: 'daily.dev',
-      url: 'https://app.daily.dev',
+      url: 'https://daily.dev',
     },
     about: [
       { '@type': 'Thing', name: 'WebSearch for developers' },
@@ -74,7 +74,7 @@ const getAskBreadcrumbJsonLd = (): string =>
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://app.daily.dev',
+        item: 'https://daily.dev',
       },
       {
         '@type': 'ListItem',

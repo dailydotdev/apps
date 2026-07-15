@@ -5,6 +5,7 @@ import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
 import type { HeroCardsConfig } from '../types';
+import { PostType } from '../types';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -54,11 +55,7 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   short: 'Upgrade',
 });
 
-export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
-
 export const featureLuckyButton = new Feature('lucky_button', false);
-
-export const featureSmartComposer = new Feature('smart_composer', false);
 
 export const featureStandupCreation = new Feature('standup_creation', false);
 
@@ -85,10 +82,6 @@ export const featureValidLanguages = new Feature('valid_languages', {
 
 export const featurePlusEntryMobile = new Feature('plus_entry_mobile', false);
 
-export const featureReadingReminderVariation = new Feature<
-  'control' | 'hero' | 'inline'
->('reading_reminder_variation', 'control');
-
 export const featureReadingReminderHeroCopy = new Feature(
   'reading_reminder_hero_copy',
   {
@@ -98,6 +91,13 @@ export const featureReadingReminderHeroCopy = new Feature(
 );
 
 export const clickbaitTriesMax = new Feature('clickbait_tries_max', 5);
+
+// Experiment: show the clickbait shield to free users even while they have
+// intro quests, to measure the effect on D1 retention.
+export const featureClickbaitShieldIntroQuests = new Feature(
+  'clickbait_shield_intro_quests',
+  false,
+);
 
 export { feature };
 
@@ -172,11 +172,19 @@ export const featureOnboardingPersonas = new Feature(
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
-export const featureReaderModal = new Feature('reader_modal_v2', false);
+// Gates the one-time intermediate "read inside daily.dev" install prompt for
+// users who haven't enabled the reader yet. Unlike the retired reader_modal_v2,
+// this nudge is shown at most once ever (see readerInstallPromptSeen).
+export const featureReaderModalNudge = new Feature('reader_modal_v3', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
 export const featureGiveback = new Feature('giveback', isDevelopment);
+
+export const featureGivebackSuggestCause = new Feature(
+  'giveback_suggest_cause',
+  false,
+);
 
 export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
@@ -210,7 +218,7 @@ export enum HijackingVariant {
   Auth = 'auth',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
-  'hijacking_variants',
+  'hijacking_variants2',
   HijackingVariant.Default,
 );
 
@@ -234,16 +242,53 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
     breakout: 'Breaking out',
     evergreen: 'Evergreen',
   },
+  allowedPostTypes: {
+    [PostType.Article]: true,
+    [PostType.VideoYouTube]: true,
+    [PostType.Share]: false,
+    [PostType.Freeform]: false,
+    [PostType.Collection]: false,
+  },
 });
+
+// Floats the feed card action bar over the cover image with an iOS-style glass
+// (dark translucent + blur) effect and shrinks the card height.
+export const featureFeedCardGlassActions = new Feature(
+  'feed_card_glass_actions',
+  false,
+);
 
 export const featureOnboardingPermissionPrimer = new Feature(
   'onboarding_permission_primer',
   false,
 );
 
-export const featureAuthGoogleOneTap = new Feature('auth_google_onetap', false);
+// Experiment: skip layout/paint for off-screen feed cards via CSS
+// `content-visibility: auto` to keep long feeds responsive.
+export const featureFeedContentVisibility = new Feature(
+  'feed_content_visibility',
+  false,
+);
 
 export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',
+  false,
+);
+
+export enum DailyPageVariant {
+  None = 'none',
+  V1 = 'v1.1',
+  DailyAsDefault = 'daily-as-default',
+}
+export const featureDailyPage = new Feature<DailyPageVariant>(
+  'daily_page',
+  DailyPageVariant.None,
+);
+
+// Experiment: redesigned notifications page (type filters, time grouping,
+// compact rows) backed by server-side type filtering on daily-api. Control is
+// the legacy single-list page. Keep the default `false` — GrowthBook ramps it.
+export const featureNotificationsRedesign = new Feature(
+  'notifications_redesign',
   false,
 );

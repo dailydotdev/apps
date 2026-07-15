@@ -12,8 +12,13 @@ import {
 } from '../common/Card';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../common/ActionButtons';
+import {
+  FeedCardGlassActions,
+  glassCoverImageClassName,
+} from '../common/FeedCardGlassActions';
 import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
+import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import CardOverlay from '../common/CardOverlay';
 import PostTags from '../common/PostTags';
 import { isPostUpdated } from '../../../graphql/posts';
@@ -42,6 +47,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const onPostCardClick = () => onPostClick?.(post);
   const onPostCardAuxClick = () => onPostAuxClick?.(post);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
+  const useGlass = useFeedCardGlassActions();
 
   if (isHidden) {
     return (
@@ -70,7 +76,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         className: getPostClassNames(
           post,
           domProps.className ?? '',
-          'min-h-card',
+          useGlass ? 'min-h-cardGlass' : 'min-h-card',
         ),
       }}
       ref={ref}
@@ -106,22 +112,38 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         numSources={post.numCollectionSources}
         className={classNames('mx-4', post.image ? 'my-0' : 'mb-4 mt-2')}
       />
-      <Container>
+      <Container className={useGlass && image ? 'flex-none' : undefined}>
         <WelcomePostCardFooter
           image={image}
           contentHtml={post.contentHtml}
           post={post}
           onShare={onShare}
+          glassActions={useGlass}
+          imageClassName={
+            useGlass && image ? glassCoverImageClassName : undefined
+          }
         />
-        <ActionButtons
-          post={post}
-          onUpvoteClick={onUpvoteClick}
-          onCommentClick={onCommentClick}
-          onCopyLinkClick={onCopyLinkClick}
-          onBookmarkClick={onBookmarkClick}
-          className="mt-auto"
-          onDownvoteClick={onDownvoteClick}
-        />
+        {useGlass ? (
+          <FeedCardGlassActions
+            post={post}
+            onUpvoteClick={onUpvoteClick}
+            onCommentClick={onCommentClick}
+            onCopyLinkClick={onCopyLinkClick}
+            onBookmarkClick={onBookmarkClick}
+            onDownvoteClick={onDownvoteClick}
+            coverScrim={!!image}
+          />
+        ) : (
+          <ActionButtons
+            post={post}
+            onUpvoteClick={onUpvoteClick}
+            onCommentClick={onCommentClick}
+            onCopyLinkClick={onCopyLinkClick}
+            onBookmarkClick={onBookmarkClick}
+            className="mt-auto"
+            onDownvoteClick={onDownvoteClick}
+          />
+        )}
       </Container>
       {children}
     </FeedItemContainer>

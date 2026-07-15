@@ -2,6 +2,7 @@ import { utcToZonedTime } from 'date-fns-tz';
 import { isNullOrUndefined } from './func';
 import { DEFAULT_TIMEZONE } from './timezones';
 import { getTodayTz } from './dateFormat';
+import { pluralize } from './strings';
 
 export enum DayOfWeek {
   Sunday = 0,
@@ -36,6 +37,23 @@ export const getDefaultStartOfWeek = (weekStart?: number): string => {
   }
 
   return (weekStart as number).toString();
+};
+
+// Weekly quests rotate at the start of each week (Monday 00:00 UTC), matching
+// DEFAULT_WEEK_START and the server's UTC rotation boundary. `|| 7` keeps the
+// reset a full week out on Monday itself rather than collapsing to today.
+export const getDaysUntilWeeklyQuestReset = (from: Date = new Date()): number =>
+  (8 - from.getUTCDay()) % 7 || 7;
+
+// The instant the current weekly period ends (the next Monday at 00:00 UTC).
+export const getWeeklyQuestPeriodEnd = (from: Date = new Date()): Date => {
+  const periodEnd = new Date(from);
+  periodEnd.setUTCDate(
+    periodEnd.getUTCDate() + getDaysUntilWeeklyQuestReset(from),
+  );
+  periodEnd.setUTCHours(0, 0, 0, 0);
+
+  return periodEnd;
 };
 
 export const isOlderThan = (seconds: number, date: Date) => {
@@ -92,4 +110,32 @@ export function calculateTotalDurationInMonths(ranges: DateRange[]): {
   const months = totalMonths % 12;
 
   return { years, months, totalMonths };
+}
+
+export interface DurationRangeInput {
+  startedAt?: string | null;
+  endedAt?: string | null;
+}
+
+export function formatTotalDuration(experiences: DurationRangeInput[]): string {
+  const ranges: DateRange[] = experiences.map((exp) => ({
+    start: exp.startedAt ? new Date(exp.startedAt) : new Date(),
+    end: exp.endedAt ? new Date(exp.endedAt) : new Date(),
+  }));
+
+  const { years, months } = calculateTotalDurationInMonths(ranges);
+
+  if (years > 0) {
+    const yearCopy = `${years} ${pluralize('year', years)}`;
+
+    if (months === 0) {
+      return yearCopy;
+    }
+
+    return `${yearCopy} ${months} ${pluralize('month', months)}`;
+  }
+
+  return months > 0
+    ? `${months} ${pluralize('month', months)}`
+    : 'Less than a month';
 }

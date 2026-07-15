@@ -63,6 +63,7 @@ interface UsePostToSquad {
     e: BaseSyntheticEvent,
     squad: Squad,
     commentary: string,
+    scheduledAt?: string,
   ) => Promise<unknown>;
   onSubmitFreeformPost: (post: CreatePostProps, squad: Squad) => Promise<void>;
   onSubmitPollPost: (post: CreatePollPostForm, squad: Squad) => Promise<void>;
@@ -189,7 +190,6 @@ export const usePostToSquad = ({
             onClick: () => toggleGroup('pollResult', true, 'inApp'),
             copy: 'Enable',
             buttonProps: {
-              className: 'bg-background-default text-text-primary',
               size: ButtonSize.Small,
               icon: <BellIcon />,
             },
@@ -261,8 +261,10 @@ export const usePostToSquad = ({
         const squadId = getSquadIdOrThrow(squad);
         moderationCreationRef.current = null;
 
+        // Scheduling isn't supported for moderated posts.
+        const { scheduledAt, ...moderationPost } = editedPost;
         await onCreatePostModeration({
-          ...editedPost,
+          ...moderationPost,
           type: PostType.Freeform,
           postId: editedPost.id,
           sourceId: squadId,
@@ -280,16 +282,23 @@ export const usePostToSquad = ({
     ],
   );
 
-  const onSharedPostSuccessfully = async (update = false) => {
-    const customToast = getSharedPostSuccessToast?.({ isUpdate: update });
-    if (customToast) {
-      displayToast(customToast.message, customToast.options);
-    } else {
-      displayToast(
-        update
-          ? 'The post has been updated'
-          : 'This post has been shared to your squad',
-      );
+  const onSharedPostSuccessfully = async (
+    update = false,
+    isScheduled = false,
+  ) => {
+    // Scheduled posts aren't live yet — the "scheduled" toast is shown by the
+    // caller, so suppress the misleading "shared to your squad" copy here.
+    if (!isScheduled) {
+      const customToast = getSharedPostSuccessToast?.({ isUpdate: update });
+      if (customToast) {
+        displayToast(customToast.message, customToast.options);
+      } else {
+        displayToast(
+          update
+            ? 'The post has been updated'
+            : 'This post has been shared to your squad',
+        );
+      }
     }
     await client.invalidateQueries({
       queryKey: ['sourceFeed', user?.id],
@@ -303,14 +312,14 @@ export const usePostToSquad = ({
     isSuccess: isPostSuccess,
   } = useMutation({
     mutationFn: addPostToSquad(requestMethod),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       logPostCreated({
         postId: data.id,
         postType: data.type,
         sourceCount: 1,
         targetType: 'post',
       });
-      onSharedPostSuccessfully();
+      onSharedPostSuccessfully(false, !!variables.scheduledAt);
       handlePostSuccess(data);
     },
     onError: (err) => handleMutationError(err),
@@ -336,12 +345,13 @@ export const usePostToSquad = ({
   } = useMutation({
     mutationFn: (params: SubmitExternalLink) =>
       submitExternalLink(params, requestMethod),
-    onSuccess: (_, { url }) => {
+    onSuccess: (_, variables) => {
       logPostCreated({
         postType: PostType.Share,
         sourceCount: 1,
       });
-      onSharedPostSuccessfully();
+      onSharedPostSuccessfully(false, !!variables.scheduledAt);
+      const { url } = variables;
       if (!url) {
         throw new Error('Missing external link url in usePostToSquad');
       }
@@ -376,7 +386,7 @@ export const usePostToSquad = ({
     isEditPostSuccess;
 
   const onSubmitPost = useCallback<UsePostToSquad['onSubmitPost']>(
-    async (e, squad, commentary) => {
+    async (e, squad, commentary, scheduledAt) => {
       e?.preventDefault();
       if (isPosting) {
         return Promise.resolve();
@@ -399,6 +409,7 @@ export const usePostToSquad = ({
           id: preview.id,
           sourceId: squadId,
           commentary,
+          ...(scheduledAt ? { scheduledAt } : {}),
         });
       }
 
@@ -428,6 +439,7 @@ export const usePostToSquad = ({
         image,
         sourceId: squadId,
         commentary,
+        ...(scheduledAt ? { scheduledAt } : {}),
       });
     },
     [
@@ -476,8 +488,10 @@ export const usePostToSquad = ({
 
       if (moderationRequired(squad)) {
         moderationCreationRef.current = PostType.Freeform;
+        // Scheduling isn't supported for moderated posts.
+        const { scheduledAt, ...moderationPost } = post;
         await onCreatePostModeration({
-          ...post,
+          ...moderationPost,
           sourceId: squadId,
           type: PostType.Freeform,
         });
@@ -502,8 +516,10 @@ export const usePostToSquad = ({
 
       if (moderationRequired(squad)) {
         moderationCreationRef.current = PostType.Poll;
+        // Scheduling isn't supported for moderated posts.
+        const { scheduledAt, ...moderationPost } = post;
         await onCreatePostModeration({
-          ...post,
+          ...moderationPost,
           pollOptions: orderedOpts,
           sourceId: squadId,
           type: PostType.Poll,

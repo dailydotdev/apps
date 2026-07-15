@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback } from 'react';
+import React from 'react';
 import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { ArrowIcon, BookmarkIcon, BriefIcon } from '../../icons';
@@ -7,13 +7,9 @@ import { Section } from '../Section';
 import { briefingUrl, webappUrl } from '../../../lib/constants';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import type { SidebarSectionProps } from './common';
-import { useLazyModal } from '../../../hooks/useLazyModal';
-import { LazyModal } from '../../modals/common/types';
 import { BookmarkReminderIcon } from '../../icons/Bookmark/Reminder';
-import {
-  useBookmarkFolderList,
-  useCreateBookmarkFolder,
-} from '../../../hooks/bookmark';
+import { useBookmarkFolderList } from '../../../hooks/bookmark';
+import { useAddBookmarkFolder } from '../../../hooks/bookmark/useAddBookmarkFolder';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { FolderIcon } from '../../icons/Folder';
 import { briefUIFeature } from '../../../lib/featureManagement';
@@ -24,26 +20,13 @@ export const BookmarkSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement => {
   const briefUIFeatureValue = useFeature(briefUIFeature);
-  const { openModal, closeModal } = useLazyModal();
   const { folders } = useBookmarkFolderList();
-  const { createFolder } = useCreateBookmarkFolder();
+  const handleAddFolder = useAddBookmarkFolder();
 
   const isLaptop = useViewSize(ViewSize.Laptop);
   const rightIcon = !isLaptop
     ? () => <ArrowIcon className="rotate-90" />
     : undefined;
-
-  const handleAddFolder = useCallback(() => {
-    openModal({
-      type: LazyModal.BookmarkFolder,
-      props: {
-        onSubmit: async (folder) => {
-          await createFolder(folder);
-          closeModal();
-        },
-      },
-    });
-  }, [openModal, closeModal, createFolder]);
 
   const allMenuItems = [
     {

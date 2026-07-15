@@ -37,7 +37,6 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import classNames from 'classnames';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth/useOnboardingActions';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useFeatureTheme } from '@dailydotdev/shared/src/hooks/utils/useFeatureTheme';
 import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuthBanner';
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
@@ -47,6 +46,7 @@ import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExt
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
+import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
@@ -61,6 +61,7 @@ import {
 } from '../../../components/PostSEOSchema';
 import type { DynamicSeoProps } from '../../../components/common';
 import useSharedByToast from '../../../hooks/useSharedByToast';
+import { getPostCanonicalUrl } from '../../../lib/seo';
 
 const Unauthorized = dynamic(
   () =>
@@ -275,7 +276,7 @@ export const PostPage = ({
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
-            ...(creative && { gen_id: creative.genId }),
+            ...(creative && getEngagementLogExtra(creative)),
           };
         }}
       >
@@ -354,7 +355,7 @@ export async function getStaticProps({
     const topComments = commentsData.topComments || [];
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
     const seo: NextSeoProps = {
-      canonical: post?.slug ? `${webappUrl}posts/${post.slug}` : undefined,
+      canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       noindex: shouldNoindexPost(post),
