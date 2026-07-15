@@ -86,6 +86,16 @@ export const ArticleFeaturedWideGridCard = forwardRef(
       post.summary,
     ]);
 
+    // In glass mode the action pill floats over the bottom of the content
+    // column, so a full-size 3-line title + 3-line TLDR overflow the clipped
+    // area and the TLDR's last line gets cut off behind the pill. Keep the title
+    // at up to 3 lines (the title text matters) and instead drop it one type
+    // step — typo-title2, still larger than the default card's typo-title3 — when
+    // a TLDR is present, so both fit and all three TLDR lines stay visible.
+    const titleClampClass = useGlass ? 'line-clamp-3' : 'line-clamp-4';
+    const titleSizeClass =
+      useGlass && description ? 'typo-title2' : 'typo-title1';
+
     const feedbackContent = (
       <>
         <h3 className="line-clamp-2 break-words px-6 pt-6 font-bold text-text-primary typo-title3">
@@ -116,8 +126,12 @@ export const ArticleFeaturedWideGridCard = forwardRef(
           />
           <h3
             className={classNames(
-              'mt-2 break-words font-bold text-text-primary typo-title1',
-              useGlass ? 'line-clamp-3' : 'line-clamp-4',
+              'break-words font-bold text-text-primary',
+              // Tighten the header→title gap in the compact glass layout to help
+              // a 3-line title + 3-line TLDR clear the floating pill.
+              useGlass ? 'mt-1' : 'mt-2',
+              titleClampClass,
+              titleSizeClass,
             )}
           >
             {title}
@@ -134,7 +148,12 @@ export const ArticleFeaturedWideGridCard = forwardRef(
             className="mt-1"
           />
           {!!description && (
-            <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
+            <p
+              className={classNames(
+                'line-clamp-3 text-text-secondary typo-callout',
+                useGlass ? 'mt-1' : 'mt-2',
+              )}
+            >
               {description}
             </p>
           )}
