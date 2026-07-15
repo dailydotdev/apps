@@ -4,7 +4,6 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
 import { ReadingStreakButton } from '../streak/ReadingStreakButton';
-import { Divider } from '../utilities';
 import { useReadingStreak } from '../../hooks/streaks';
 import { ButtonIconPosition, ButtonVariant } from '../buttons/common';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -38,7 +37,7 @@ export function MobileFeedActions(): ReactElement {
         position={LogoPosition.Relative}
         onLogoClick={() => router.push('/')}
       />
-      <span className="flex flex-row items-center gap-2">
+      <span className="flex flex-row items-center gap-1">
         {isStreaksEnabled && streak && (
           <ReadingStreakButton
             isLoading={isLoading}
@@ -49,7 +48,6 @@ export function MobileFeedActions(): ReactElement {
         )}
         <QuestHeaderButton compact />
         <GivebackGiftEntry compact />
-        <Divider className="bg-border-subtlest-tertiary" vertical />
         {user && (
           <>
             <Button
