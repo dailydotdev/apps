@@ -27,7 +27,7 @@ export const GeoGateFallback = (): ReactElement => {
           src={cloudinaryGivebackPunchyStaring}
           alt="Punchy, the daily.dev mascot, looking on hopefully"
           loading="lazy"
-          className="aspect-square h-40 w-auto select-none object-contain tablet:h-48"
+          className="aspect-square h-32 w-auto select-none object-contain tablet:h-36"
         />
 
         <FlexRow className="items-center gap-2 rounded-10 bg-surface-float px-3 py-1.5">
