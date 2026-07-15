@@ -20,12 +20,13 @@ import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
-import { defaultSeo } from '../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Privacy'),
+  ...noindexSeoProps,
 };
 
 const AccountInvitePage = (): ReactElement | null => {

@@ -25,6 +25,29 @@ export const CONTRIBUTION_OVERVIEW_QUERY = `
   }
 `;
 
+export const CONTRIBUTION_LEADERBOARD_QUERY = `
+  query ContributionLeaderboard($first: Int, $withViewerRank: Boolean!) {
+    contributionLeaderboard(first: $first) {
+      edges {
+        node {
+          user {
+            id
+            name
+            username
+            image
+          }
+          points
+          rank
+        }
+      }
+    }
+    contributionUserRank @include(if: $withViewerRank) {
+      points
+      rank
+    }
+  }
+`;
+
 // export const CONTRIBUTION_OVERVIEW_QUERY = `
 //   query ContributionOverview($first: Int) {
 //     ...
