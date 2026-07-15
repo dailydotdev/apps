@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -104,9 +105,12 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   // unmounted component (production never calls reset()).
   useEffect(() => clearTimers, [clearTimers]);
 
-  // Measure the gift's viewport position each time the compact prompt opens; the
-  // header is sticky, so a single read holds for the prompt's short lifetime.
-  useEffect(() => {
+  // Measure the gift's viewport position each time the compact prompt opens,
+  // before paint so it never repositions on screen; the header is sticky, so a
+  // single read holds for the prompt's short lifetime. Only the client mounts
+  // this dock (the entry returns null until auth resolves), so useLayoutEffect
+  // never runs on the server.
+  useLayoutEffect(() => {
     if (!compact || !prompt) {
       return;
     }
