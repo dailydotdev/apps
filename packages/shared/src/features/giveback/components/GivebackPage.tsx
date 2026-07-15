@@ -47,7 +47,10 @@ export const GivebackPage = (): ReactElement => {
   // (including anonymous visitors), so it's the signal for "not live in this
   // region". Only gate once status has resolved, otherwise the fallback would
   // flash before the campaign body while the overview query is in flight.
-  const geoBlocked = !!status && !status.enabled;
+  // TEMP-REVIEW: forced on for the Vercel preview so the gate can be reviewed in
+  // the real app layout. REMOVE before merge — restore the commented line below.
+  const geoBlocked = true;
+  // const geoBlocked = !!status && !status.enabled;
 
   // Causes are confirmed inside the warm-up funnel; once they save (or the
   // visitor arrives already onboarded) the tabbed experience takes over.
