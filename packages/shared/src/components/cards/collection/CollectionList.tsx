@@ -13,8 +13,7 @@ import {
 import ActionButtons from '../common/ActionButtons';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { PostCardHeader } from '../common/list/PostCardHeader';
-import { CollectionPillSources } from '../../post/collection/CollectionPillSources';
-import { getCollectionPillLabel } from '../../post/collection/common';
+import { CollectionSourceStack } from '../../post/collection/CollectionSourceStack';
 import { useTruncatedSummary, useViewSize, ViewSize } from '../../../hooks';
 import PostTags from '../common/PostTags';
 import { CardCoverList } from '../common/list/CardCover';
@@ -111,15 +110,14 @@ export const CollectionList = forwardRef(function CollectionCard(
             numSources: post.numCollectionSources,
           }}
         >
-          <CollectionPillSources
-            className={{
-              main: classNames(!!post.collectionSources?.length && '-my-0.5'),
-              avatar: 'group-hover:border-background-subtle',
-            }}
+          <CollectionSourceStack
+            className={classNames(
+              !!post.collectionSources?.length && '-my-0.5',
+            )}
             sources={post.collectionSources ?? []}
             totalSources={post.numCollectionSources ?? 0}
-            alwaysShowSources
-            label={getCollectionPillLabel(post)}
+            alwaysExpanded
+            enableHoverCard={false}
           />
         </PostCardHeader>
 

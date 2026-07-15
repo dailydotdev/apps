@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "webapp",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "webapp", "dev"],
+      "port": 5002
+    },
+    {
+      "name": "webapp-notls",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "webapp", "dev:notls"],
+      "port": 5002
+    },
+    {
+      "name": "storybook",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "storybook", "dev"],
+      "port": 6006
+    }
+  ]
+}

@@ -670,8 +670,17 @@ export const FEED_POST_FRAGMENT = gql`
     trending
     feedMeta
     collectionSources {
+      id
       handle
+      name
       image
+      permalink
+      type
+      description
+      membersCount
+      flags {
+        totalUpvotes
+      }
     }
     numCollectionSources
     updatedAt
