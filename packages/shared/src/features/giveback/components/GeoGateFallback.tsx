@@ -15,13 +15,13 @@ import { DailyIcon } from '../../../components/icons';
 // presentational so it can be rendered without the campaign queries.
 export const GeoGateFallback = (): ReactElement => {
   return (
-    <div className="relative flex min-h-page w-full items-center justify-center overflow-hidden px-4 py-16">
+    <div className="relative flex min-h-page w-full items-center justify-center overflow-hidden px-4 py-12 tablet:px-6 tablet:py-16">
       <div
         aria-hidden
-        className="bg-accent-cabbage-default/15 pointer-events-none absolute left-1/2 top-1/4 size-[32rem] -translate-x-1/2 rounded-full blur-3xl"
+        className="bg-accent-cabbage-default/15 pointer-events-none absolute left-1/2 top-1/4 size-[20rem] -translate-x-1/2 rounded-full blur-3xl tablet:size-[32rem]"
       />
 
-      <FlexCol className="relative max-w-xl items-center gap-5 text-center">
+      <FlexCol className="relative w-full max-w-xl items-center gap-4 text-center tablet:gap-5">
         <FlexRow className="items-center gap-2 rounded-10 bg-surface-float px-3 py-1.5">
           <DailyIcon />
           <Typography
@@ -37,15 +37,17 @@ export const GeoGateFallback = (): ReactElement => {
         <Typography
           bold
           tag={TypographyTag.H1}
-          type={TypographyType.LargeTitle}
+          type={TypographyType.Title2}
+          className="[text-wrap:balance] tablet:typo-title1 laptop:typo-large-title"
         >
           Giveback is not available in your country yet
         </Typography>
 
         <Typography
           tag={TypographyTag.P}
-          type={TypographyType.Title3}
+          type={TypographyType.Callout}
           color={TypographyColor.Secondary}
+          className="[text-wrap:pretty] tablet:typo-title3"
         >
           Giveback turns part of our growth budget into donations for causes the
           community picks, funded by daily.dev, at no cost to you.
@@ -53,8 +55,9 @@ export const GeoGateFallback = (): ReactElement => {
 
         <Typography
           tag={TypographyTag.P}
-          type={TypographyType.Callout}
+          type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
+          className="[text-wrap:pretty] tablet:typo-callout"
         >
           It&apos;s in beta and rolling out to more countries soon.
         </Typography>
