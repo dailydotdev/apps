@@ -17,6 +17,8 @@ export interface GivebackGiftButtonProps {
   showLabel?: boolean;
   label?: string;
   tooltip?: string;
+  // Mobile header: flat + sized to match the compact quest button beside it.
+  compact?: boolean;
   onClick?: () => void;
   className?: string;
 }
@@ -32,6 +34,7 @@ export const GivebackGiftButton = forwardRef(function GivebackGiftButton(
     showLabel = false,
     label = 'Giveback',
     tooltip = 'Giveback',
+    compact = false,
     onClick,
     className,
   }: GivebackGiftButtonProps,
@@ -39,21 +42,23 @@ export const GivebackGiftButton = forwardRef(function GivebackGiftButton(
 ): ReactElement {
   const isRail = variant === 'rail';
 
-  // Header: a square icon button that matches the notification bell exactly
-  // (Float, w-10, centered, no side padding) so it's not wider than its
-  // neighbours.
+  // Desktop header: a square icon button that matches the notification bell
+  // exactly (Float, w-10, centered, no side padding). Mobile header (compact):
+  // flat and sized to match the compact quest button that sits beside it.
   if (!isRail) {
     return (
       <Tooltip content={tooltip} side="bottom">
         <Button
           ref={ref}
           type="button"
-          variant={ButtonVariant.Float}
+          variant={compact ? ButtonVariant.Tertiary : ButtonVariant.Float}
+          size={compact ? ButtonSize.Small : undefined}
           aria-label={tooltip}
           onClick={onClick}
-          icon={<GiftIcon />}
+          icon={<GiftIcon size={compact ? IconSize.Small : undefined} />}
           className={classNames(
-            'relative w-10 justify-center',
+            'relative justify-center',
+            compact ? 'size-8 !p-0' : 'w-10',
             pressClass,
             className,
           )}
