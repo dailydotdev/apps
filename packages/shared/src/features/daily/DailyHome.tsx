@@ -1,31 +1,42 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import classNames from 'classnames';
+import { useMutation } from '@tanstack/react-query';
 import { CoverHeader } from './CoverHeader';
 import { CoverGrid } from './CoverGrid';
 import { CoverTopics } from './CoverTopics';
 import { CoverClosing } from './CoverClosing';
 import { useViewSize, ViewSize } from '../../hooks';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { useFeeds } from '../../hooks/feed/useFeeds';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { markDailySeenMutationOptions } from '../../graphql/highlights';
 import { ExploreChipsBar } from '../../components/feeds/ExploreChipsBar';
-import UnifiedMobileFeedNav from '../../components/feeds/UnifiedMobileFeedNav';
-import { MobileFeedActions } from '../../components/feeds/MobileFeedActions';
 import { buildPersonalizedCategories } from '../../components/feeds/exploreCategories';
 import { pageHeaderClassName } from '../../components/layout/PageHeader';
 
 interface DailyHomeProps {
   className?: string;
+  onBackToFeed?: () => void;
 }
 
 export const DailyHome = ({
   className,
+  onBackToFeed,
 }: DailyHomeProps): ReactElement | null => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isV2 } = useLayoutVariant();
   const { feeds } = useFeeds();
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
+  const { daily } = useAuthContext();
+  const { mutate: markDailySeen } = useMutation(markDailySeenMutationOptions());
+
+  useEffect(() => {
+    if (daily) {
+      markDailySeen();
+    }
+  }, [daily, markDailySeen]);
 
   const exploreCategories = useMemo(
     () =>
@@ -38,12 +49,6 @@ export const DailyHome = ({
 
   return (
     <>
-      {!isLaptop && (
-        <>
-          <MobileFeedActions />
-          <UnifiedMobileFeedNav />
-        </>
-      )}
       {isLaptop &&
         (isV2 ? (
           <header className={classNames(pageHeaderClassName, '!py-0')}>
@@ -73,7 +78,7 @@ export const DailyHome = ({
           <CoverHeader />
           <CoverTopics />
           <CoverGrid />
-          <CoverClosing />
+          <CoverClosing onBackToFeed={onBackToFeed} />
         </div>
       </section>
     </>

@@ -3,6 +3,7 @@ import { useAuthContext } from '../contexts/AuthContext';
 import type { AcceptCookiesCallback } from './useCookieConsent';
 import { useConsentCookie } from './useCookieConsent';
 import { isIOSNative } from '../lib/func';
+import { getIubendaConsent } from '../lib/iubenda';
 
 export const cookieAcknowledgedKey = 'cookie_acknowledged';
 
@@ -63,6 +64,15 @@ export function useCookieBanner(): UseCookieBanner {
 
     isInitializedRef.current = true;
 
+    if (!hasAccepted) {
+      const iubenda = getIubendaConsent();
+
+      if (iubenda?.necessary) {
+        onAccept(iubenda.marketing ? otherGdprConsents : []);
+        return;
+      }
+    }
+
     if (!isGdprCovered) {
       if (hasAccepted) {
         return;
@@ -94,7 +104,15 @@ export function useCookieBanner(): UseCookieBanner {
     }
 
     setIsOpen(true);
-  }, [saveCookies, isOpen, isAuthReady, user, hasAccepted, isGdprCovered]);
+  }, [
+    saveCookies,
+    onAccept,
+    isOpen,
+    isAuthReady,
+    user,
+    hasAccepted,
+    isGdprCovered,
+  ]);
 
   return {
     showBanner: isOpen,

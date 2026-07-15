@@ -77,7 +77,7 @@ function BrandLockup(): ReactElement {
 
 function CatHeroImage(): ReactElement {
   return (
-    <div className="relative w-full max-w-[26rem] tablet:max-w-[30rem]">
+    <div className="relative w-full max-w-[20.8rem] tablet:max-w-[24rem]">
       <img
         src={cloudinaryReadingReminderCat}
         alt="Sleeping cat on laptop"
@@ -104,11 +104,11 @@ function HeroActionButtons({
   onLoginClick,
 }: HeroActionButtonsProps): ReactElement {
   return (
-    <div className="mt-8 flex w-full max-w-[23rem] flex-row gap-3 tablet:mx-0">
+    <div className="mt-6 flex w-full max-w-[18.4rem] flex-row gap-2.5 tablet:mx-0">
       <Button
         type="button"
         variant={ButtonVariant.Primary}
-        size={ButtonSize.Large}
+        size={ButtonSize.Medium}
         className={classNames('flex-1', primaryCta)}
         onClick={onSignupClick}
       >
@@ -117,7 +117,7 @@ function HeroActionButtons({
       <Button
         type="button"
         variant={ButtonVariant.Secondary}
-        size={ButtonSize.Large}
+        size={ButtonSize.Medium}
         className={classNames('flex-1', glassCta)}
         onClick={onLoginClick}
       >
@@ -142,14 +142,14 @@ function CatStageHero({
         <div className="via-accent-cabbage-default/80 pointer-events-none absolute bottom-0 left-1/2 h-px w-[86%] -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
         <div className="bg-accent-cabbage-default/12 pointer-events-none absolute -left-28 bottom-0 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
         <div className="bg-accent-onion-default/14 pointer-events-none absolute -right-28 top-4 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
-        <div className="dark relative z-1 mx-auto grid min-h-[22rem] w-full max-w-[64rem] items-center gap-8 px-6 py-14 text-center tablet:min-h-[28rem] tablet:grid-cols-[minmax(0,1fr)_24rem] tablet:px-10 tablet:py-16 tablet:text-left">
+        <div className="dark relative z-1 mx-auto grid min-h-[17.6rem] w-full max-w-[51.2rem] items-center gap-6 px-5 py-10 text-center tablet:min-h-[22.4rem] tablet:grid-cols-[minmax(0,1fr)_19.2rem] tablet:px-8 tablet:py-10 tablet:text-left">
           <div className="flex flex-col items-center tablet:items-start">
             <BrandLockup />
-            <h2 className="mt-7 max-w-[42rem] text-balance font-bold text-white typo-title1 tablet:typo-mega2">
+            <h2 className="mt-5 max-w-[33.6rem] text-balance font-bold text-white typo-title2 tablet:typo-large-title">
               Own your new tab. Make it your dev briefing.
             </h2>
-            <div className="via-accent-cabbage-default/70 mt-5 h-px w-40 bg-gradient-to-r from-transparent to-transparent" />
-            <p className="text-white/70 mt-4 max-w-[31rem] text-balance typo-callout tablet:typo-title3">
+            <div className="via-accent-cabbage-default/70 mt-4 h-px w-32 bg-gradient-to-r from-transparent to-transparent" />
+            <p className="text-white/70 mt-3 max-w-[24.8rem] text-balance typo-subhead tablet:typo-callout">
               Sign in and daily.dev will remember the topics, saves, upvotes,
               and discussions that matter to you.
             </p>

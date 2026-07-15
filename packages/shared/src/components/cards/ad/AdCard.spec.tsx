@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string -- literal macro token in measurement fixture */
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor, within } from '@testing-library/react';
@@ -105,6 +106,68 @@ it('should show pixel images', async () => {
   });
   const el = await screen.findByTestId('pixel');
   expect(el).toHaveAttribute('src', 'https://daily.dev/pixel');
+});
+
+it('should keep the pixel cachebuster stable across re-renders', async () => {
+  const adWithMacroPixel = {
+    ...ad,
+    pixel: ['https://daily.dev/pixel?ord=[timestamp]'],
+  };
+  const { rerender } = renderGridComponent({ ad: adWithMacroPixel });
+
+  const el = await screen.findByTestId('pixel');
+  const firstSrc = el.getAttribute('src');
+  expect(firstSrc).not.toContain('[timestamp]');
+
+  rerender(
+    <TestBootProvider client={new QueryClient()}>
+      <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
+        <AdGrid {...defaultProps} ad={adWithMacroPixel} />
+      </ActiveFeedContext.Provider>
+    </TestBootProvider>,
+  );
+
+  // A changed src would refetch the pixel and double-count the impression.
+  expect(screen.getByTestId('pixel')).toHaveAttribute('src', firstSrc);
+});
+
+it('should inject measurement tags with macros filled (web inline path)', async () => {
+  renderGridComponent({
+    ad: {
+      ...ad,
+      tags: [
+        {
+          markup:
+            '<img alt="tracker" src="https://t.tracker.example/i?ord=[timestamp]&gdpr=${GDPR}" />',
+        },
+      ],
+    },
+  });
+
+  const injected = await screen.findByAltText('tracker');
+  expect(injected.getAttribute('src')).not.toContain('[timestamp]');
+});
+
+it('should substitute macros in the click url', async () => {
+  renderGridComponent({
+    ad: {
+      ...ad,
+      link: 'https://t.tracker.example/click/x;ord=[timestamp];gdpr=${GDPR}?',
+    },
+  });
+  const el = await screen.findByTestId('adItem');
+  const links = await within(el).findAllByRole('link');
+  const clickHref = links
+    .map((l) => l.getAttribute('href'))
+    .find((h) => h?.includes('t.tracker.example/click'));
+  expect(clickHref).toBeDefined();
+  expect(clickHref).not.toContain('[timestamp]');
+});
+
+it('should render nothing for measurement when the ad has no tags', async () => {
+  renderGridComponent();
+  await screen.findByTestId('adItem');
+  expect(screen.queryByAltText('tracker')).not.toBeInTheDocument();
 });
 
 it('should render advertise link on grid ad', () => {

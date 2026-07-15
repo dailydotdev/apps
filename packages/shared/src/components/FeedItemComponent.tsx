@@ -28,8 +28,8 @@ import { FreeformList } from './cards/Freeform/FreeformList';
 import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
-import { ArticleFeaturedWideGridCard } from './cards/article/ArticleFeaturedWideGridCard';
-import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
+import type { FeaturedWideColSpan } from './cards/common/featuredWide';
+import { PostTypeToWideCard } from './cards/common/wideCards';
 import { ShareGrid } from './cards/share/ShareGrid';
 import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
@@ -38,13 +38,17 @@ import { AdActions } from '../lib/ads';
 import PlusGrid from './cards/plus/PlusGrid';
 import { useFeedCardContext } from '../features/posts/FeedCardContext';
 import { AdPixel } from './cards/ad/common/AdPixel';
+import { AdMeasurement } from './cards/ad/common/AdMeasurement';
 import { BriefCard } from './cards/brief/BriefCard/BriefCard';
 import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
 import { SquadAdList } from './cards/ad/squad/SquadAdList';
 import { SquadAdGrid } from './cards/ad/squad/SquadAdGrid';
 import { adLogEvent, feedHighlightsLogEvent, feedLogExtra } from '../lib/feed';
-import { findCreativeForTags } from '../lib/engagementAds';
+import {
+  findCreativeForTags,
+  getEngagementLogExtra,
+} from '../lib/engagementAds';
 import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
 import { MarketingCtaVariant } from './marketing/cta/common';
@@ -237,7 +241,7 @@ export const withFeedLogExtraContext = (
               ) {
                 const creative = findCreativeForTags(creatives, post.tags);
                 if (creative) {
-                  extraData.gen_id = creative.genId;
+                  Object.assign(extraData, getEngagementLogExtra(creative));
                 }
               }
             }
@@ -453,17 +457,22 @@ function FeedItemComponent({
 
     const isWidenedFeaturedPost =
       item.type === FeedItemType.Post && !!wideColSpan && wideColSpan > 1;
+    const WideCard = isWidenedFeaturedPost
+      ? PostTypeToWideCard[itemPost.type]
+      : undefined;
 
     return (
       <ActivePostContextProvider post={itemPost}>
-        {isWidenedFeaturedPost ? (
-          <ArticleFeaturedWideGridCard
-            {...postCardProps}
-            wideColSpan={wideColSpan}
-          />
+        {WideCard ? (
+          <WideCard {...postCardProps} wideColSpan={wideColSpan} />
         ) : (
           <PostTag {...postCardProps}>
-            {item.type === FeedItemType.Ad && <AdPixel pixel={item.ad.pixel} />}
+            {item.type === FeedItemType.Ad && (
+              <>
+                <AdPixel pixel={item.ad.pixel} />
+                <AdMeasurement ad={item.ad} />
+              </>
+            )}
           </PostTag>
         )}
       </ActivePostContextProvider>

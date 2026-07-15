@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import { subHours } from 'date-fns';
 import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import formatInTimeZone from 'date-fns-tz/formatInTimeZone';
 import {
@@ -8,24 +9,32 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../components/typography/Typography';
-import { VIcon } from '../../components/icons';
+import { HomeIcon, VIcon } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
+import { Button, ButtonVariant } from '../../components/buttons/Button';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { useDailyPage } from '../../hooks/feed/useDailyPage';
 import usePersistentContext from '../../hooks/usePersistentContext';
 import type { Vote } from './DailyFeedback';
 import { DailyFeedback } from './DailyFeedback';
 
 type StoredFeedback = { date: string; vote: Vote };
 
+const DAILY_DROP_HOUR = 9;
+
 const todayKey = (timeZone: string): string =>
-  formatInTimeZone(new Date(), timeZone, 'yyyy-MM-dd');
+  formatInTimeZone(
+    subHours(new Date(), DAILY_DROP_HOUR),
+    timeZone,
+    'yyyy-MM-dd',
+  );
 
 const formatNextDrop = (timeZone: string): string => {
   const base = utcToZonedTime(new Date(), timeZone);
   base.setDate(base.getDate() + 1);
-  base.setHours(9, 0, 0, 0);
+  base.setHours(DAILY_DROP_HOUR, 0, 0, 0);
   return zonedTimeToUtc(base, timeZone).toLocaleString(undefined, {
     weekday: 'long',
     hour: 'numeric',
@@ -34,8 +43,15 @@ const formatNextDrop = (timeZone: string): string => {
   });
 };
 
-export const CoverClosing = (): ReactElement => {
+interface CoverClosingProps {
+  onBackToFeed?: () => void;
+}
+
+export const CoverClosing = ({
+  onBackToFeed,
+}: CoverClosingProps): ReactElement => {
   const { user } = useAuthContext();
+  const { isDailyDefault } = useDailyPage();
   const timezone =
     user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
   const tomorrow = useMemo(() => formatNextDrop(timezone), [timezone]);
@@ -84,6 +100,17 @@ export const CoverClosing = (): ReactElement => {
           Next Daily drops {tomorrow}.
         </Typography>
       </div>
+
+      {isDailyDefault && (
+        <Button
+          className="mt-6"
+          variant={ButtonVariant.Float}
+          icon={<HomeIcon />}
+          onClick={onBackToFeed}
+        >
+          Back to your feed
+        </Button>
+      )}
     </section>
   );
 };

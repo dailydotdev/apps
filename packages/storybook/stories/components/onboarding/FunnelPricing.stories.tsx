@@ -210,7 +210,7 @@ const commonParams: FunnelStepPricing['parameters'] = {
       label: 'Monthly',
       badge: {
         text: 'Popular',
-        background: '#CE3DF3',
+        background: '#BA56E1',
       },
     },
     {
@@ -218,7 +218,7 @@ const commonParams: FunnelStepPricing['parameters'] = {
       label: 'Annual',
       badge: {
         text: 'Save 50%',
-        background: '#39E58C',
+        background: '#57E087',
       },
       variation: PricingPlanVariation.BEST_VALUE,
     },

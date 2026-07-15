@@ -17,6 +17,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useEventListener } from '../../hooks';
 import useDebounceFn from '../../hooks/useDebounceFn';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
+import { getEngagementLogExtra } from '../../lib/engagementAds';
 
 interface BasePostModalProps extends ModalProps {
   postType: PostType;
@@ -30,6 +31,12 @@ interface BasePostModalProps extends ModalProps {
   navigationCustomActions?: ReactNode;
   navigationContainerClassName?: string;
   navigationHideSubscribeAction?: boolean;
+  /**
+   * Redesign top-bar behavior: hide the top strip's "…" menu (it lives in the
+   * focus-card header) and, once scrolled, float a fixed bar with the post
+   * stats + "…" menu + close.
+   */
+  navigationRedesign?: boolean;
   loadingChildren?: ReactNode;
   post?: Post;
 }
@@ -48,6 +55,7 @@ function BasePostModal({
   navigationCustomActions,
   navigationContainerClassName,
   navigationHideSubscribeAction,
+  navigationRedesign,
   loadingChildren,
   post,
   onRequestClose,
@@ -91,7 +99,7 @@ function BasePostModal({
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
-            ...(creative && { gen_id: creative.genId }),
+            ...(creative && getEngagementLogExtra(creative)),
           };
         }}
       >
@@ -131,6 +139,7 @@ function BasePostModal({
                 leadingContent={navigationLeadingContent}
                 customActions={navigationCustomActions}
                 hideSubscribeAction={navigationHideSubscribeAction}
+                hideOptions={navigationRedesign}
                 onClose={onRequestClose}
                 post={post}
               />

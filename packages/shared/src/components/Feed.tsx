@@ -24,7 +24,7 @@ import useFeedInfiniteScroll, {
   InfiniteScrollScreenOffset,
 } from '../hooks/feed/useFeedInfiniteScroll';
 import FeedItemComponent, { getFeedItemKey } from './FeedItemComponent';
-import type { FeaturedWideColSpan } from './cards/article/ArticleFeaturedWideGridCard';
+import type { FeaturedWideColSpan } from './cards/common/featuredWide';
 import { useLogContext } from '../contexts/LogContext';
 import { feedLogExtra, postLogEvent } from '../lib/feed';
 import { usePostModalNavigation } from '../hooks/usePostModalNavigation';
@@ -65,6 +65,8 @@ import type { AwardProps } from '../graphql/njord';
 import { getProductsQueryOptions } from '../graphql/njord';
 import { useUpdateQuery } from '../hooks/useUpdateQuery';
 import { BriefBannerFeed } from './cards/brief/BriefBanner/BriefBannerFeed';
+import { EngagementFeedStrip } from './brand/EngagementFeedStrip';
+import { isEngagementAdFeed } from '../hooks/feed/useFeedName';
 import { ActionType } from '../graphql/actions';
 import ReadingReminderFeedHero from './marketing/banners/ReadingReminderFeedHero';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
@@ -289,6 +291,7 @@ export default function Feed<T>({
       variables,
       options,
       isBriefBannerEligible: !user?.isPlus && isMyFeed,
+      engagementStripEligible: !isHorizontal && isEngagementAdFeed(feedName),
       firstSlotOffset: Number(showFirstSlotCard),
       disableTopHero: isV2,
       settings: {
@@ -328,6 +331,13 @@ export default function Feed<T>({
         containIntrinsicSize: shouldUseListFeedLayout
           ? 'auto 12rem'
           : 'auto 24rem',
+        // `content-visibility: auto` applies paint containment, which clips
+        // anything drawn outside the box — including the "Video" type label and
+        // the "Hot"/"Pinned" flag, which straddle the card's top edge with a
+        // negative offset. Extend the paint-clip region so those labels aren't
+        // truncated. Covers the tallest overhang (the grid flag, ~1.25rem)
+        // without any layout shift.
+        overflowClipMargin: '1.5rem',
       }
     : undefined;
   const {
@@ -363,6 +373,9 @@ export default function Feed<T>({
   const {
     showPromoBanner,
     indexWhenShowingPromoBanner,
+    showEngagementStrip,
+    indexWhenShowingEngagementStrip,
+    engagementStripCreative,
     hero: {
       shouldShowTopHero,
       title: readingReminderTitle,
@@ -741,6 +754,8 @@ export default function Feed<T>({
               } else if (useContentVisibility) {
                 // List cards stack at natural height; grid cards must keep
                 // filling their equal-height row, so preserve the h-full pass-through.
+                // The overhanging card labels are handled by `overflowClipMargin`
+                // on `contentVisibilityStyle` (see above), so both branches are safe.
                 renderedItem = (
                   <div
                     className={
@@ -773,6 +788,18 @@ export default function Feed<T>({
                       }}
                     />
                   )}
+                  {showEngagementStrip &&
+                    engagementStripCreative &&
+                    index === indexWhenShowingEngagementStrip && (
+                      <EngagementFeedStrip
+                        creative={engagementStripCreative}
+                        style={{
+                          gridColumn: !shouldUseListFeedLayout
+                            ? `span ${virtualizedNumCards}`
+                            : undefined,
+                        }}
+                      />
+                    )}
                   {renderedItem}
                 </FeedCardContext.Provider>
               );

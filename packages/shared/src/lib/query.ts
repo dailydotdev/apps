@@ -47,6 +47,7 @@ export enum OtherFeedPage {
   BookmarkLater = 'bookmarkslater',
   BookmarkFolder = 'bookmarks[folderId]',
   SearchBookmarks = 'search-bookmarks',
+  SearchSquad = 'search-squad',
   Preview = 'preview',
   Author = 'author',
   UserUpvoted = 'user-upvoted',
@@ -177,6 +178,7 @@ export enum RequestKey {
   SquadStatus = 'squad_status',
   PublicSquadRequests = 'public_squad_requests',
   Feeds = 'feeds',
+  ScheduledPosts = 'scheduled_posts',
   FeedSettings = 'feedSettings',
   Ads = 'ads',
   FeedByIds = 'feedByIds',
@@ -276,8 +278,11 @@ export enum RequestKey {
   BrowserExtensionInstalled = 'browser_extension_installed',
   LiveRooms = 'live_rooms',
   ContributionOverview = 'contribution_overview',
+  ContributionLeaderboard = 'contribution_leaderboard',
   ContributionCausePicker = 'contribution_cause_picker',
   ContributionActions = 'contribution_actions',
+  ContributionActionLinks = 'contribution_action_links',
+  ContributionLastMilestone = 'contribution_last_milestone',
   LeaderboardPosition = 'leaderboard_position',
 }
 

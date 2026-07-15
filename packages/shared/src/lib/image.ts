@@ -474,3 +474,57 @@ export const cloudinaryCharmNoPosts =
 
 export const cloudinaryCharmNotEnoughTags =
   'https://media.daily.dev/image/upload/s--0PIPx07_--/f_auto,q_auto/v1781529338/public/daily.dev%20Charm%20-%20no%20enoght%20tags%20(1)';
+
+// The Giveback charm (genie-themed). Artwork sits on solid black — render with
+// `mix-blend-screen` on a dark surface so the black drops out.
+export const cloudinaryCharmGiveback =
+  'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)';
+
+// Punchy giving a hopeful stare, shown on the Giveback geo gate (not available
+// in your country). Real alpha, so it floats cleanly on the dark surface - no
+// `mix-blend-screen` needed.
+export const cloudinaryGivebackPunchyStaring =
+  'https://media.daily.dev/image/upload/s--CJiuHR4P--/f_auto,q_auto/v1784101387/public/Punchy%20-%20Staring';
+
+// Bespoke Patchy assets for the Giveback "Picture with Patchy" reward reveal.
+// The selfie is a transparent video played once — a VP9-alpha .webm for most
+// browsers and an HEVC-alpha .mov for Safari (the same source-order trick as
+// PersonaMascot); both carry real alpha, so Patchy floats cleanly on any
+// surface. The card frame is the still Patchy holds with the visitor's photo
+// dropped in.
+export const cloudinaryGivebackPatchySelfieWebm =
+  'https://media.daily.dev/video/upload/v1783860990/patchy-wave_n8a6ve.webm';
+
+export const cloudinaryGivebackPatchySelfieMov =
+  'https://media.daily.dev/video/upload/v1783860588/patchy-wave_gniigo.mov';
+
+export const cloudinaryGivebackPatchyCardFrame =
+  'https://media.daily.dev/image/upload/s--mId_6LSG--/f_auto,q_auto/v1783860198/public/daily.dev%20-%20Patchy%20picture%20frame%20(1)';
+
+// The founding-award Patchy (IMPACT AMBASSADOR sash) — the real asset from the
+// award library, used by the giveback journey's founding first step.
+export const cloudinaryGivebackPatchyFounding =
+  'https://media.daily.dev/image/upload/s--BxFWArbd--/f_auto,q_auto/v1783344577/public/Color%3DDefault';
+
+// Dedicated Open Graph / social share image for the giveback pages (1280×800).
+export const cloudinaryGivebackOpenGraph =
+  'https://media.daily.dev/image/upload/s--lQzU56yU--/f_auto,q_auto/v1783863597/public/daily.dev%20Givevback%20-%201280x800%20(1)';
+
+// Poster/thumbnail for the giveback campaign video on the warm-up funnel's
+// first step. A full-bleed composed scene (its own background), so it fills the
+// 16:9 frame with `object-cover` — no charm/blend treatment needed.
+export const cloudinaryGivebackCampaignVideoPoster =
+  'https://media.daily.dev/image/upload/s--XBh2vl9j--/f_auto,q_auto/v1783865279/public/daily.dev%20Givevback%20only%20dog%20-%201280x800%20(1)';
+
+// Patchy holding a Cores coin — the giveback warm-up funnel's impact finale
+// ("You're in. Now every action funds them.").
+export const cloudinaryGivebackFunnelImpact =
+  'https://media.daily.dev/image/upload/s--1mdwPltz--/f_auto,q_auto/v1783863973/public/ChatGPT%20Image%20Jun%2028%2C%202026%2C%2004_55_41%20PM%201%20(1)';
+
+// Real daily.dev teammate avatars (Slack profile photos) shown in the Council
+// seat reveal's member ring, so the seat reads as joining an actual room.
+export const cloudinaryGivebackCouncilMembers = [
+  'https://media.daily.dev/image/upload/s--xaoZnUa4--/f_auto,q_auto/v1783862580/public/T0A1ABR3B6W-U0A1C8X742J-9eed239f3f57-72',
+  'https://media.daily.dev/image/upload/s--AoszePMr--/f_auto,q_auto/v1783862580/public/T0A1ABR3B6W-U0A2A2AATAN-b3dcdb7512bb-72',
+  'https://media.daily.dev/image/upload/s--gVjCf-uB--/f_auto,q_auto/v1783862580/public/T0A1ABR3B6W-U0BC6FM8SFQ-15d342d0d5da-72',
+];

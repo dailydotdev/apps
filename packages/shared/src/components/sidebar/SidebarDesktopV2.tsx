@@ -116,6 +116,9 @@ import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import { useSquadNavigation } from '../../hooks';
 import { useAddBookmarkFolder } from '../../hooks/bookmark/useAddBookmarkFolder';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureGiveback } from '../../lib/featureManagement';
+import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
 import { FeedbackWidget } from '../feedback';
 import { HorizontalSeparator } from '../utilities';
 import { Typography, TypographyType } from '../typography/Typography';
@@ -258,17 +261,38 @@ const RailHoverCard = ({
   );
 };
 
-// Theme toggling now lives in the profile dropdown (ThemeSection, matching
-// production). The rail slot is reused for a quick "Invite friends" shortcut.
-const SidebarInviteButton = (): ReactElement => (
-  <Tooltip side="right" content="Invite friends">
-    <Link href={`${settingsUrl}/invite`} passHref>
-      <a aria-label="Invite friends" className={railButtonClass}>
+const railGiftLink = (label: string, href: string): ReactElement => (
+  <Tooltip side="right" content={label}>
+    <Link href={href} passHref>
+      <a aria-label={label} className={railButtonClass}>
         <GiftIcon size={IconSize.Small} aria-hidden />
       </a>
     </Link>
   </Tooltip>
 );
+
+// Theme toggling now lives in the profile dropdown (ThemeSection, matching
+// production). When the giveback experiment is on, the rail gift becomes the
+// giveback entry point — carrying the live money jumps + invite prompt via
+// GivebackGiftEntry — and otherwise falls back to the "Invite friends"
+// shortcut.
+const SidebarInviteButton = (): ReactElement => {
+  const { isAuthReady, isLoggedIn } = useAuthContext();
+  const { value: givebackEnabled } = useConditionalFeature({
+    feature: featureGiveback,
+    shouldEvaluate: isAuthReady && isLoggedIn,
+  });
+
+  if (givebackEnabled) {
+    return (
+      <GivebackGiftEntry variant="rail" isFeatureEnabled={givebackEnabled}>
+        {railGiftLink('Giveback', `${webappUrl}giveback`)}
+      </GivebackGiftEntry>
+    );
+  }
+
+  return railGiftLink('Invite friends', `${settingsUrl}/invite`);
+};
 
 const supportItems: ProfileSectionItemProps[] = [
   {

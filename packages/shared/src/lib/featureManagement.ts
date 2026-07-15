@@ -5,6 +5,7 @@ import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
 import type { HeroCardsConfig } from '../types';
+import { PostType } from '../types';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -54,11 +55,7 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
   short: 'Upgrade',
 });
 
-export const featurePlusApiLanding = new Feature('plus_api_landing_v2', false);
-
 export const featureLuckyButton = new Feature('lucky_button', false);
-
-export const featureSmartComposer = new Feature('smart_composer', false);
 
 export const featureStandupCreation = new Feature('standup_creation', false);
 
@@ -184,6 +181,11 @@ export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
 export const featureGiveback = new Feature('giveback', isDevelopment);
 
+export const featureGivebackSuggestCause = new Feature(
+  'giveback_suggest_cause',
+  false,
+);
+
 export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
   false,
@@ -216,7 +218,7 @@ export enum HijackingVariant {
   Auth = 'auth',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
-  'hijacking_variants',
+  'hijacking_variants2',
   HijackingVariant.Default,
 );
 
@@ -235,6 +237,13 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
     breakout: 'Breaking out',
     evergreen: 'Evergreen',
   },
+  allowedPostTypes: {
+    [PostType.Article]: true,
+    [PostType.VideoYouTube]: true,
+    [PostType.Share]: false,
+    [PostType.Freeform]: false,
+    [PostType.Collection]: false,
+  },
 });
 
 // Floats the feed card action bar over the cover image with an iOS-style glass
@@ -248,8 +257,6 @@ export const featureOnboardingPermissionPrimer = new Feature(
   'onboarding_permission_primer',
   false,
 );
-
-export const featureAuthGoogleOneTap = new Feature('auth_google_onetap', false);
 
 // Experiment: skip layout/paint for off-screen feed cards via CSS
 // `content-visibility: auto` to keep long feeds responsive.
@@ -265,9 +272,18 @@ export const featurePublicSignupBanner = new Feature(
 
 export enum DailyPageVariant {
   None = 'none',
-  V1 = 'v1',
+  V1 = 'v1.1',
+  DailyAsDefault = 'daily-as-default',
 }
 export const featureDailyPage = new Feature<DailyPageVariant>(
   'daily_page',
   DailyPageVariant.None,
+);
+
+// Experiment: redesigned notifications page (type filters, time grouping,
+// compact rows) backed by server-side type filtering on daily-api. Control is
+// the legacy single-list page. Keep the default `false` — GrowthBook ramps it.
+export const featureNotificationsRedesign = new Feature(
+  'notifications_redesign',
+  false,
 );

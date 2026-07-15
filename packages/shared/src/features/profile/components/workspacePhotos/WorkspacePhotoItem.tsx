@@ -15,7 +15,10 @@ interface WorkspacePhotoItemProps {
   photo: UserWorkspacePhoto;
   isOwner: boolean;
   onDelete?: (photo: UserWorkspacePhoto) => void;
-  onClick?: (photo: UserWorkspacePhoto) => void;
+  onClick?: (
+    photo: UserWorkspacePhoto,
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => void;
 }
 
 export function WorkspacePhotoItem({
@@ -35,7 +38,7 @@ export function WorkspacePhotoItem({
       <button
         type="button"
         className="size-full"
-        onClick={onClick ? () => onClick(photo) : undefined}
+        onClick={onClick ? (event) => onClick(photo, event) : undefined}
         aria-label="View workspace photo"
       >
         <img

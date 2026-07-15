@@ -240,6 +240,10 @@ export default {
         20: '1.25rem',
       },
       keyframes: {
+        'image-zoom-in': {
+          from: { opacity: '0', transform: 'scale(0.85)' },
+          to: { opacity: '1', transform: 'scale(1)' },
+        },
         'scale-down-pulse': {
           '0%, 100%': { transform: 'scale(1)', opacity: '1' },
           '50%': { transform: 'scale(0.7)', opacity: '0.5' },
@@ -316,6 +320,32 @@ export default {
           '55%': { transform: 'scale(1.18)', opacity: '1' },
           '100%': { transform: 'scale(1)', opacity: '1' },
         },
+        // Claim feedback: a ring of light bursts outward from the claim button
+        // and fades, the "level up / reward unlocked" beat, replacing confetti.
+        'claim-ring': {
+          '0%': { transform: 'scale(0.65)', opacity: '0.85' },
+          '100%': { transform: 'scale(1.9)', opacity: '0' },
+        },
+        // Signature "feel better" enter: rise + de-blur + fade in. Stagger
+        // children with animation-delay for a choreographed reveal.
+        'funnel-step-in': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(12px)',
+            filter: 'blur(8px)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)',
+            filter: 'blur(0)',
+          },
+        },
+        // A coin dropping into the community pot.
+        'coin-drop': {
+          '0%': { opacity: '0', transform: 'translateY(-16px) scale(0.5)' },
+          '60%': { opacity: '1' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
+        },
         'mascot-bob': {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-6px)' },
@@ -367,6 +397,7 @@ export default {
         },
       },
       animation: {
+        'image-zoom-in': 'image-zoom-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
         'scale-down-pulse':
           'scale-down-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'fade-slide-up': 'fade-slide-up 0.5s ease-out 1s both',
@@ -385,6 +416,11 @@ export default {
         'meter-shine': 'meter-shine 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite',
         'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
         'reward-pop': 'reward-pop 480ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        'claim-ring':
+          'claim-ring 640ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards',
+        'funnel-step-in':
+          'funnel-step-in 600ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both',
+        'coin-drop': 'coin-drop 500ms cubic-bezier(0.34, 1.2, 0.64, 1) both',
         'streak-fade': 'streak-fade 2.6s ease-in-out infinite',
         'streak-pulse': 'streak-pulse 2.2s ease-in-out infinite',
         'streak-border-pulse': 'streak-border-pulse 2.2s ease-in-out infinite',
