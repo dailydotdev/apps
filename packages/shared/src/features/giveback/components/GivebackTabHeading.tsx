@@ -13,7 +13,7 @@ interface GivebackTabHeadingProps {
   description?: ReactNode;
 }
 
-// One shared header for every onboarded tab (Take action / Your impact / Causes
+// One shared header for every onboarded tab (Take action / Rewards / Causes
 // / FAQ) so the title and subtitle always share the exact same size, color, gap
 // and width. Keeping this in one place stops the per-tab styling from drifting.
 export const GivebackTabHeading = ({

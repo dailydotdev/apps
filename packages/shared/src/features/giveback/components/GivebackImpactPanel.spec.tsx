@@ -145,6 +145,33 @@ beforeEach(() => {
   >);
 });
 
+it('renders every reward level without a show-more toggle', () => {
+  const manyTiers: ContributionRewardTier[] = Array.from(
+    { length: 12 },
+    (_, index) => ({
+      id: `tier-${index + 1}`,
+      title: `Reward ${index + 1}`,
+      description: null,
+      thresholdPoints: (index + 1) * 25,
+      rewardType: ContributionRewardType.Custom,
+      metadata: {},
+    }),
+  );
+  mockRewards.mockReturnValue({ rewardTiers: manyTiers, isPending: false });
+
+  render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
+
+  manyTiers.forEach((tier) => {
+    expect(screen.getByText(tier.title)).toBeInTheDocument();
+  });
+  expect(
+    screen.queryByRole('button', { name: /Show \d+ more levels?/ }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: /Show \d+ completed levels?/ }),
+  ).not.toBeInTheDocument();
+});
+
 it('renders the reward-ladder journey with the current level', () => {
   render(<GivebackImpactPanel onTakeAction={jest.fn()} />);
 

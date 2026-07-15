@@ -10,6 +10,7 @@ import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
 import { GivebackTabHeading } from './GivebackTabHeading';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
+import { GivebackLeaderboard } from './GivebackLeaderboard';
 import { GivebackCausesPanel } from './GivebackCausesPanel';
 import { GivebackCausesBreakdown } from './GivebackCausesBreakdown';
 import { GivebackFaq } from './GivebackFaq';
@@ -179,6 +180,9 @@ export const GivebackPage = (): ReactElement => {
                 )}
                 {activeTab === 'impact' && (
                   <GivebackImpactPanel onTakeAction={goToActions} />
+                )}
+                {activeTab === 'leaderboard' && (
+                  <GivebackLeaderboard onTakeAction={goToActions} />
                 )}
                 {activeTab === 'causes' && (
                   <GivebackCausesPanel onFilter={scrollToTabs} />

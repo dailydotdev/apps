@@ -131,14 +131,9 @@ export function GivebackLiveActivityListener({
       return;
     }
 
-    // Seed on first sight without popping (the milestone may already be old);
-    // only a genuinely new crossing this session celebrates.
-    if (!lastCelebratedRef.current) {
-      lastCelebratedRef.current = milestone.id;
-      window.localStorage.setItem(LAST_MILESTONE_STORAGE_KEY, milestone.id);
-      return;
-    }
-
+    // Celebrate any milestone the visitor hasn't seen yet, including the first
+    // one they encounter. localStorage records the last celebrated id, so a
+    // reload never re-pops the same milestone.
     if (lastCelebratedRef.current === milestone.id) {
       return;
     }

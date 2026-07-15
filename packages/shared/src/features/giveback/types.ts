@@ -201,3 +201,16 @@ export interface ContributionAction {
   userCompletions: number;
   latestUserSubmission: ContributionSubmission | null;
 }
+
+// A single row of the current-cycle contribution leaderboard: where a
+// contributor ranks by approved points. `isCurrentUser`
+// tints the viewer's own row and drives the "your rank" recap below the list.
+export interface GivebackLeaderboardEntry {
+  id: string;
+  rank: number;
+  name: string;
+  image: string;
+  contributionAmount: number;
+  currency: string;
+  isCurrentUser?: boolean;
+}
