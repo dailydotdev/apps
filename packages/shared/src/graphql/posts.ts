@@ -408,8 +408,17 @@ export const POST_BY_ID_QUERY = gql`
       updatedAt
       numCollectionSources
       collectionSources {
+        id
         handle
+        name
         image
+        permalink
+        type
+        description
+        membersCount
+        flags {
+          totalUpvotes
+        }
       }
     }
     relatedCollectionPosts: relatedPosts(
@@ -495,8 +504,17 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       updatedAt
       numCollectionSources
       collectionSources {
+        id
         handle
+        name
         image
+        permalink
+        type
+        description
+        membersCount
+        flags {
+          totalUpvotes
+        }
       }
       sharedPost {
         ...SharedPostInfo
