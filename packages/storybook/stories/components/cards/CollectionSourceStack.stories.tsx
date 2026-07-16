@@ -893,3 +893,84 @@ export const InFeed: Story = {
   name: 'On real cards (feed + mobile)',
   render: () => <FeedPreview />,
 };
+
+// ---------------------------------------------------------------------------
+// Before / after — a single collection card, nothing else
+// ---------------------------------------------------------------------------
+
+const BeforeAfterCard = ({
+  label,
+  sublabel,
+  header,
+}: {
+  label: string;
+  sublabel: string;
+  header: ReactElement;
+}): ReactElement => (
+  <div className="flex w-80 flex-col gap-3">
+    <div className="flex flex-col">
+      <span className="font-bold text-text-primary typo-callout">{label}</span>
+      <span className="text-text-tertiary typo-footnote">{sublabel}</span>
+    </div>
+    <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+      <div className="p-4">
+        <div className="mb-3 flex h-9 items-center">{header}</div>
+        <h4 className="line-clamp-2 font-bold text-text-primary typo-title3">
+          {collectionPost.title}
+        </h4>
+      </div>
+      <img
+        src={collectionPost.image}
+        alt="Post cover"
+        className="h-40 w-full object-cover"
+      />
+    </div>
+  </div>
+);
+
+const BeforeAfter = (): ReactElement => (
+  <ExtensionProviders>
+    <div className="mx-auto max-w-3xl space-y-6 bg-background-default p-8">
+      <header>
+        <h1 className="font-bold text-text-primary typo-title2">
+          Collection card — before &amp; after
+        </h1>
+        <p className="mt-2 max-w-xl text-text-secondary typo-body">
+          The only thing that changes is the little bit at the top of the card.
+          Everything else stays the same.
+        </p>
+      </header>
+      <div className="flex flex-wrap gap-8">
+        <BeforeAfterCard
+          label="Before"
+          sublabel="The grey “Collection” badge"
+          header={
+            // `group` so the old pill reveals its avatars on hover, as it does today.
+            <div className="group flex items-center">
+              <CollectionPillSources
+                sources={mockSources}
+                totalSources={mockSources.length}
+                label="Collection"
+              />
+            </div>
+          }
+        />
+        <BeforeAfterCard
+          label="After"
+          sublabel="The collection’s sources — hover to open them"
+          header={
+            <CollectionSourceStack
+              sources={mockSources}
+              total={mockSources.length}
+            />
+          }
+        />
+      </div>
+    </div>
+  </ExtensionProviders>
+);
+
+export const BeforeAfterStory: Story = {
+  name: 'Before & after (just the collection card)',
+  render: () => <BeforeAfter />,
+};
