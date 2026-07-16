@@ -77,7 +77,7 @@ export const GivebackCauseSelection = ({
   return (
     <FlexCol className="gap-6">
       {categories.length > 0 && (
-        <FlexRow className="flex-wrap gap-2">
+        <FlexRow className="flex-wrap gap-1.5 tablet:gap-2">
           <GivebackFilterChip
             isSelected={activeFilter === ALL_FILTER}
             label="All"

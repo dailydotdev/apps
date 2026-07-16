@@ -419,6 +419,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
       savedTime
       generatedAt
       digestPostIds
+      scheduledAt
       ad {
         type
         index

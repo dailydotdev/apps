@@ -145,6 +145,18 @@ const strictSkipList = new Set([
   // cleanup PR.
   'packages/shared/src/hooks/usePoll.tsx',
   'packages/webapp/hooks/useSharedByToast.tsx',
+  // Grid-columns feed-request branch — touched only to add `columns` to the
+  // feed request mock. Pre-existing strict violations (unknown-typed mock
+  // variables, incomplete Source/AuthContext fixtures, 'dark' theme string,
+  // null user arg) live on unrelated lines and should be addressed in a
+  // dedicated cleanup PR.
+  'packages/webapp/__tests__/SourcePage.tsx',
+  // Schedule-posts branch — edit.tsx was touched only to seed the schedule
+  // control from an existing scheduled post and thread `scheduledAt` through
+  // the edit submit. Pre-existing strict violations (squad/user optionality,
+  // mutable formRef typing on unrelated lines) predate this change and should
+  // be addressed in a dedicated cleanup PR.
+  'packages/webapp/pages/posts/[id]/edit.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

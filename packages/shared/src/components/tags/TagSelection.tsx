@@ -60,6 +60,10 @@ export type TagSelectionProps = {
   searchTags?: TagsData['tags'];
   TagElement?: React.ComponentType<OnboardingTagProps>;
   classNameTags?: string;
+  // Tag names to pin to the front of the (otherwise shuffled) list, e.g. for a
+  // campaign funnel that wants cloud-related tags surfaced first. Missing tags
+  // are prepended so they always appear.
+  featuredTags?: string[];
 } & Omit<FilterOnboardingProps, 'onSelectedTopics'>;
 
 export function TagSelection({
@@ -74,6 +78,7 @@ export function TagSelection({
   searchQuery,
   searchTags,
   TagElement = TagElementDefault,
+  featuredTags,
 }: TagSelectionProps): ReactElement {
   const [isShuffled, setIsShuffled] = useState(false);
   const queryClient = useQueryClient();
@@ -154,6 +159,24 @@ export function TagSelection({
 
     return [...onboardingTags.map((item) => item.name)];
   }, [onboardingTags]);
+
+  // Pin funnel-specified tags to the front (preserving their given order);
+  // prepend any that aren't in the fetched set so they still appear first.
+  const orderedTags = useMemo(() => {
+    if (!onboardingTags || !featuredTags?.length) {
+      return onboardingTags;
+    }
+
+    const featuredSet = new Set(featuredTags);
+    const featuredFirst = featuredTags.map(
+      (name) => onboardingTags.find((item) => item.name === name) ?? { name },
+    );
+    const rest = onboardingTags.filter(
+      (item) => !item.name || !featuredSet.has(item.name),
+    );
+
+    return [...featuredFirst, ...rest];
+  }, [onboardingTags, featuredTags]);
 
   const { mutate: recommendTags, data: recommendedTags } = useMutation({
     mutationFn: async ({ tag }: Pick<OnSelectTagProps, 'tag'>) => {
@@ -282,7 +305,7 @@ export function TagSelection({
     refetchFeed();
   };
 
-  const tags = searchQuery ? searchTags : onboardingTags;
+  const tags = searchQuery ? searchTags : orderedTags;
   const renderedTags: Record<string, boolean> = {};
 
   return (

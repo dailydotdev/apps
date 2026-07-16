@@ -180,6 +180,7 @@ type PostFlags = {
   sources?: number;
   savedTime?: number;
   generatedAt?: Date;
+  scheduledAt?: string | null;
   digestPostIds?: string[];
   ad?: DigestPostAd | null;
 };
@@ -334,6 +335,12 @@ export interface Ad {
   adDomain?: string;
   companyLogo?: string;
   callToAction?: string;
+  tags?: AdMeasurementTag[];
+}
+
+export interface AdMeasurementTag {
+  markup: string;
+  overlay?: boolean;
 }
 
 export type ReadHistoryPost = Pick<
@@ -702,6 +709,7 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
     $title: String
     $image: String
     $commentary: String
+    $scheduledAt: DateTime
   ) {
     submitExternalLink(
       url: $url
@@ -709,6 +717,7 @@ export const SUBMIT_EXTERNAL_LINK_MUTATION = gql`
       image: $image
       sourceId: $sourceId
       commentary: $commentary
+      scheduledAt: $scheduledAt
     ) {
       _
     }
@@ -767,6 +776,7 @@ export interface SubmitExternalLink
   extends Pick<ExternalLinkPreview, 'title' | 'image' | 'url'> {
   sourceId: string;
   commentary: string;
+  scheduledAt?: string | null;
 }
 
 export const submitExternalLink = (
@@ -781,8 +791,15 @@ export const EDIT_POST_MUTATION = gql`
     $title: String
     $content: String
     $image: Upload
+    $scheduledAt: DateTime
   ) {
-    editPost(id: $id, title: $title, content: $content, image: $image) {
+    editPost(
+      id: $id
+      title: $title
+      content: $content
+      image: $image
+      scheduledAt: $scheduledAt
+    ) {
       ...SharedPostInfo
       trending
       content
@@ -792,6 +809,9 @@ export const EDIT_POST_MUTATION = gql`
       }
       description
       summary
+      flags {
+        scheduledAt
+      }
       toc {
         text
         id
@@ -806,11 +826,12 @@ export type EditPostProps = {
   title: string;
   content: string;
   image?: File;
+  scheduledAt?: string | null;
 };
 
 export type CreatePostProps = Pick<
   EditPostProps,
-  'title' | 'content' | 'image'
+  'title' | 'content' | 'image' | 'scheduledAt'
 >;
 
 export interface CreatePostPollProps
@@ -830,6 +851,7 @@ type CreatePollOption = Pick<PollOption, 'text' | 'order'>;
 export interface CreatePollPostForm extends Pick<EditPostProps, 'title'> {
   options: string[];
   duration?: number;
+  scheduledAt?: string | null;
 }
 
 export interface CreatePostModerationProps {
@@ -942,12 +964,14 @@ export const CREATE_POST_MUTATION = gql`
     $title: String!
     $content: String
     $image: Upload
+    $scheduledAt: DateTime
   ) {
     createFreeformPost(
       sourceId: $sourceId
       title: $title
       content: $content
       image: $image
+      scheduledAt: $scheduledAt
     ) {
       ...SharedPostInfo
       content
@@ -957,6 +981,9 @@ export const CREATE_POST_MUTATION = gql`
       }
       description
       summary
+      flags {
+        scheduledAt
+      }
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
@@ -1004,7 +1031,7 @@ export const CREATE_POST_IN_MULTIPLE_SOURCES = gql`
 `;
 
 export interface CreatePostInMultipleSourcesArgs
-  extends Partial<CreatePostProps>,
+  extends Partial<Omit<CreatePostProps, 'scheduledAt'>>,
     Partial<Pick<CreatePollPostProps, 'options' | 'duration'>> {
   commentary?: string;
   externalLink?: string;
@@ -1071,14 +1098,19 @@ export const CREATE_POLL_POST_MUTATION = gql`
     $title: String!
     $options: [PollOptionInput!]!
     $duration: Int
+    $scheduledAt: DateTime
   ) {
     createPollPost(
       sourceId: $sourceId
       title: $title
       options: $options
       duration: $duration
+      scheduledAt: $scheduledAt
     ) {
       ...SharedPostInfo
+      flags {
+        scheduledAt
+      }
     }
   }
   ${SHARED_POST_INFO_FRAGMENT}
@@ -1195,6 +1227,45 @@ export const RELATED_POSTS_QUERY = gql`
     }
   }
   ${RELATED_POST_FRAGMENT}
+`;
+
+export const SCHEDULED_POSTS_PER_PAGE_DEFAULT = 20;
+
+export type ScheduledPost = Pick<
+  Post,
+  'id' | 'title' | 'image' | 'type' | 'createdAt' | 'flags'
+> & {
+  source: Pick<Source, 'id' | 'handle' | 'name' | 'image' | 'type'>;
+};
+
+export const SCHEDULED_POSTS_QUERY = gql`
+  query ScheduledPosts($after: String, $first: Int) {
+    scheduledPosts(after: $after, first: $first) {
+      edges {
+        node {
+          id
+          title
+          image
+          type
+          createdAt
+          flags {
+            scheduledAt
+          }
+          source {
+            id
+            handle
+            name
+            image
+            type
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+    }
+  }
 `;
 
 export const POST_CODE_SNIPPETS_PER_PAGE_DEFAULT = 5;

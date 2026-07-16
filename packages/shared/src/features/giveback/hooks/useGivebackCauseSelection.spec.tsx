@@ -105,7 +105,9 @@ it('saves the current selection and toasts', async () => {
   await waitFor(() =>
     expect(saveCausePreferences).toHaveBeenCalledWith(['c1']),
   );
-  expect(displayToast).toHaveBeenCalledWith('Your causes are saved');
+  expect(displayToast).toHaveBeenCalledWith('Your causes are saved', {
+    timer: 3000,
+  });
   expect(saved).toBe(true);
 });
 

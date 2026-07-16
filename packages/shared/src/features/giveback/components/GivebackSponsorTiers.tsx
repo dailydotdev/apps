@@ -12,6 +12,7 @@ import { MedalBadgeIcon } from '../../../components/icons';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useContributionSponsors } from '../hooks/useContributionSponsors';
+import { anchorDefaultRel } from '../../../lib/strings';
 import { sponsorTierLabel } from '../utils';
 import type { ContributionSponsor } from '../types';
 import { ContributionSponsorTier } from '../types';
@@ -125,7 +126,7 @@ const SponsorLogo = ({
     <a
       href={sponsor.url}
       target="_blank"
-      rel="noopener noreferrer"
+      rel={anchorDefaultRel}
       aria-label={sponsor.name}
       className={tileClass}
       onClick={onClick}
@@ -163,7 +164,6 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
           bold
-          className="uppercase tracking-wider"
         >
           Sponsored by
         </Typography>
@@ -188,7 +188,6 @@ export const GivebackSponsorTiers = (): ReactElement | null => {
                       tag={TypographyTag.Span}
                       type={TypographyType.Caption2}
                       bold
-                      className="uppercase tracking-wider"
                     >
                       {sponsorTierLabel[group.tier]}
                     </Typography>

@@ -10,12 +10,16 @@ import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
 import { GivebackTabHeading } from './GivebackTabHeading';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
+import { GivebackLeaderboard } from './GivebackLeaderboard';
 import { GivebackCausesPanel } from './GivebackCausesPanel';
+import { GivebackCausesBreakdown } from './GivebackCausesBreakdown';
 import { GivebackFaq } from './GivebackFaq';
+import { GeoGateFallback } from './GeoGateFallback';
 import type { GivebackTabId } from './GivebackTabNav';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useContributionStatus } from '../hooks/useContributionStatus';
+import { useContributionCauseBreakdown } from '../hooks/useContributionCauseBreakdown';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 
 // Single source of truth for the page gutter, shared by the hero, the tab
@@ -33,10 +37,17 @@ const scrollIntoView = (node: HTMLElement | null): void => {
 export const GivebackPage = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { status } = useContributionStatus();
+  const { breakdown } = useContributionCauseBreakdown();
   // Eligibility gates the cause picker query (backend-gated), so only eligible
   // visitors load their picks - which also tells us whether to show the tabs.
   const isEligible = status?.eligible === true;
   const selection = useGivebackCauseSelection(isEligible);
+
+  // Geo gate: `enabled` is a campaign-wide field that resolves for everyone
+  // (including anonymous visitors), so it's the signal for "not live in this
+  // region". Only gate once status has resolved, otherwise the fallback would
+  // flash before the campaign body while the overview query is in flight.
+  const geoBlocked = !!status && !status.enabled;
 
   // Causes are confirmed inside the warm-up funnel; once they save (or the
   // visitor arrives already onboarded) the tabbed experience takes over.
@@ -119,19 +130,31 @@ export const GivebackPage = (): ReactElement => {
 
   const activeLabel = givebackTabs.find((tab) => tab.id === activeTab)?.label;
 
+  // No `overflow-x-clip` on the root: it would clip GivebackBackground's
+  // `laptop:-inset-1` corner bleed and leave a dark crescent inside the app
+  // card's rounded corner. Stray horizontal bleed is still caught by the global
+  // `body { overflow-x: hidden }` and the card's own `laptop:overflow-clip`.
   return (
     <div className="relative min-h-page w-full">
       <GivebackBackground />
+
+      {geoBlocked && <GeoGateFallback />}
 
       {/* Hold the body until we know whether to force the funnel. The funnel is a
           full-screen overlay on the same background, so revealing the hero/tabs
           first would flash them on screen before it covers them. While resolving,
           only the shared background shows, so there's no flash and no shift. */}
-      {onboardingResolved && !forcedFunnel && (
+      {!geoBlocked && onboardingResolved && !forcedFunnel && (
         <FlexCol className="relative gap-6 py-6 tablet:gap-8 tablet:py-8">
           <div className={column}>
             <GivebackHero onHowItWorks={handleHowItWorks} />
           </div>
+
+          {showTabs && breakdown.length > 0 && (
+            <div className={column}>
+              <GivebackCausesBreakdown flat breakdown={breakdown} />
+            </div>
+          )}
 
           {showTabs && (
             <div ref={tabsRef} className="scroll-mt-16">
@@ -167,6 +190,9 @@ export const GivebackPage = (): ReactElement => {
                 {activeTab === 'impact' && (
                   <GivebackImpactPanel onTakeAction={goToActions} />
                 )}
+                {activeTab === 'leaderboard' && (
+                  <GivebackLeaderboard onTakeAction={goToActions} />
+                )}
                 {activeTab === 'causes' && (
                   <GivebackCausesPanel onFilter={scrollToTabs} />
                 )}
@@ -181,7 +207,7 @@ export const GivebackPage = (): ReactElement => {
         </FlexCol>
       )}
 
-      {showFunnel && (
+      {!geoBlocked && showFunnel && (
         <GivebackFunnel
           selection={selection}
           canClose={replayFunnel}

@@ -57,7 +57,7 @@ export const GivebackContributionSummary = (): ReactElement => {
             rounded={ProfileImageSize.XXLarge}
             className="ring-1 ring-border-subtlest-tertiary"
           />
-          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-6 border border-border-subtlest-tertiary bg-background-default px-2 py-0.5 font-bold uppercase tracking-wide text-accent-cabbage-default ring-2 ring-background-default typo-caption2">
+          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-6 border border-border-subtlest-tertiary bg-background-default px-2 py-0.5 font-bold text-accent-cabbage-default ring-2 ring-background-default typo-caption2">
             Lvl {currentLevel}
           </span>
         </div>
@@ -89,9 +89,13 @@ export const GivebackContributionSummary = (): ReactElement => {
               >
                 <InfoIcon size={IconSize.Size16} />
               </button>
+              {/* Center on the icon rather than left-anchor: left-0 + w-56 ran
+                  the (always-in-layout, opacity-0) tooltip past the right edge,
+                  widening the document and expanding the mobile layout viewport
+                  - which broke every fixed overlay (e.g. the funnel) on Android. */}
               <span
                 role="tooltip"
-                className="pointer-events-none absolute left-0 top-full z-3 mt-2 w-56 rounded-10 border border-border-subtlest-tertiary bg-background-default p-2.5 text-left opacity-0 shadow-2 transition-opacity duration-150 group-focus-within/info:opacity-100 group-hover/info:opacity-100"
+                className="pointer-events-none absolute left-1/2 top-full z-3 mt-2 w-56 -translate-x-1/2 rounded-10 border border-border-subtlest-tertiary bg-background-default p-2.5 text-left opacity-0 shadow-2 transition-opacity duration-150 group-focus-within/info:opacity-100 group-hover/info:opacity-100"
               >
                 <Typography
                   tag={TypographyTag.Span}

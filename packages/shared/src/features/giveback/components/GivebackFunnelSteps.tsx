@@ -9,9 +9,10 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { CoinIcon, GiftIcon, VIcon } from '../../../components/icons';
-import { cloudinaryCharmBookmarks } from '../../../lib/image';
+import { cloudinaryGivebackFunnelImpact } from '../../../lib/image';
 import { GivebackMascot } from './GivebackMascot';
 import { GivebackCauseSelection } from './GivebackCauseSelection';
+import { GivebackReveal as Reveal } from './GivebackReveal';
 import type { CauseSelection, StepKey } from './givebackFunnelTypes';
 
 // The finale reassures the choice by spelling out the value the visitor just
@@ -38,28 +39,6 @@ const IMPACT_VALUES: ReadonlyArray<{
     sub: 'Small actions add up to real support.',
   },
 ];
-
-// Choreographed enter: rise + de-blur + fade, staggered per element so each step
-// reveals top-to-bottom rather than popping in as a block (motion-safe only).
-const Reveal = ({
-  delay = 0,
-  className,
-  children,
-}: {
-  delay?: number;
-  className?: string;
-  children: ReactNode;
-}): ReactElement => (
-  <div
-    className={classNames(
-      'motion-safe:animate-funnel-step-in motion-safe:will-change-transform',
-      className,
-    )}
-    style={{ animationDelay: `${delay}ms` }}
-  >
-    {children}
-  </div>
-);
 
 // A soft, on-brand glow behind each step's hero icon/illustration so the visual
 // feels alive and the campaign reads as a real, considered initiative.
@@ -151,12 +130,11 @@ export const GivebackFunnelStep = ({
   selection,
   videoSlotRef,
 }: GivebackFunnelStepProps): ReactElement => {
-  // The visitor's own picks, surfaced front-and-center on the finale so the
-  // moment celebrates exactly what they chose to fund.
-  const selectedCauses = selection.causes
-    .map((cause, index) => ({ cause, index }))
-    .filter(({ cause }) => selection.selectedIds.has(cause.id))
-    .slice(0, 3);
+  // Whether the visitor picked any causes, so the finale can celebrate their
+  // choice rather than fall back to the generic copy.
+  const hasSelectedCauses = selection.causes.some((cause) =>
+    selection.selectedIds.has(cause.id),
+  );
 
   switch (stepKey) {
     case 'how':
@@ -218,8 +196,8 @@ export const GivebackFunnelStep = ({
               <GivebackMascot
                 imageClassName="h-28 tablet:h-36"
                 image={{
-                  src: cloudinaryCharmBookmarks,
-                  alt: 'daily.dev charm celebrating your causes',
+                  src: cloudinaryGivebackFunnelImpact,
+                  alt: 'Patchy holding a Cores coin, celebrating your causes',
                 }}
               />
             </Stage>
@@ -232,7 +210,7 @@ export const GivebackFunnelStep = ({
                 bold
                 className="[text-wrap:balance]"
               >
-                {selectedCauses.length > 0
+                {hasSelectedCauses
                   ? "You're in. Now every action funds them."
                   : 'Real causes. Real impact.'}
               </Typography>
@@ -242,7 +220,7 @@ export const GivebackFunnelStep = ({
                 color={TypographyColor.Secondary}
                 className="max-w-xl [text-wrap:pretty]"
               >
-                {selectedCauses.length > 0
+                {hasSelectedCauses
                   ? 'From here on, every action you take becomes real money for the causes you picked. We fund all of it. You never pay a thing.'
                   : "Your actions become real money for open-source maintainers, students, and devs who can't afford access. We fund all of it, no cost to you."}
               </Typography>
@@ -256,9 +234,9 @@ export const GivebackFunnelStep = ({
                 // finale short; stacks/centers in the 3-up grid on tablet+.
                 <FlexRow
                   key={value.title}
-                  className="items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-left tablet:h-full tablet:flex-col tablet:items-center tablet:gap-2 tablet:p-5 tablet:text-center"
+                  className="items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-3 text-left tablet:h-full tablet:flex-col tablet:items-center tablet:gap-2 tablet:p-5 tablet:text-center"
                 >
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-14 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default text-white [&_svg]:size-6">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-gradient-to-br from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default text-white tablet:size-11 tablet:rounded-14 [&_svg]:size-5 tablet:[&_svg]:size-6">
                     {value.icon}
                   </span>
                   <FlexCol className="min-w-0 gap-0.5 tablet:items-center">
@@ -270,9 +248,10 @@ export const GivebackFunnelStep = ({
                       {value.title}
                     </Typography>
                     <Typography
-                      type={TypographyType.Callout}
                       color={TypographyColor.Secondary}
-                      className="[text-wrap:pretty]"
+                      // Smaller on mobile so the longest sub ("...picked by you.")
+                      // clears the card edge; full Callout size at tablet+.
+                      className="typo-footnote [text-wrap:pretty] tablet:typo-callout"
                     >
                       {value.sub}
                     </Typography>
@@ -281,7 +260,7 @@ export const GivebackFunnelStep = ({
               ))}
             </div>
           </Reveal>
-          {selectedCauses.length > 0 && (
+          {hasSelectedCauses && (
             <Reveal delay={320}>
               <Typography
                 type={TypographyType.Callout}

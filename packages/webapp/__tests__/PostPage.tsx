@@ -1057,6 +1057,42 @@ describe('post redesign', () => {
     expect(screen.queryByTestId('postContainer')).not.toBeInTheDocument();
   });
 
+  it('should log a view for tracked posts when the focus card is on', async () => {
+    mockRedesignOn = true;
+    let viewPostMutationCalled = false;
+    renderPost(
+      {},
+      [
+        createPostMock({ type: PostType.Collection }),
+        createCommentsMock(),
+        {
+          request: {
+            query: VIEW_POST_MUTATION,
+            variables: {
+              id: '0e4005b2d3cf191f8c44c2718a457a1e',
+            },
+          },
+          result: () => {
+            viewPostMutationCalled = true;
+
+            return {
+              data: {
+                viewPost: {
+                  _: true,
+                },
+              },
+            };
+          },
+        },
+      ],
+      defaultUser,
+    );
+
+    await waitFor(() => {
+      expect(viewPostMutationCalled).toBe(true);
+    });
+  });
+
   it('should keep the classic layout when the flag is off', async () => {
     mockRedesignOn = false;
     renderPost();

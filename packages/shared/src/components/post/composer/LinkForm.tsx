@@ -1,4 +1,4 @@
-import type { FormEvent, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDebouncedUrl } from '../../../hooks/input';
 import { WriteLinkPreview } from '../write/WriteLinkPreview';
@@ -17,6 +17,7 @@ interface LinkFormProps {
   isLoadingPreview?: boolean;
   fetchPreview: (url?: string) => void;
   onDismissPreview?: () => void;
+  initialUrl?: string;
 }
 
 export const LinkForm = ({
@@ -26,6 +27,7 @@ export const LinkForm = ({
   isLoadingPreview,
   fetchPreview,
   onDismissPreview,
+  initialUrl,
 }: LinkFormProps): ReactElement => {
   const urlRef = useRef<HTMLInputElement>(null);
   const [dismissedUrl, setDismissedUrl] = useState<string | null>(null);
@@ -46,8 +48,7 @@ export const LinkForm = ({
   const isDismissedForCurrentUrl =
     !!dismissedUrl && normalizedUrl === dismissedUrl;
 
-  const onUrlChange = (event: FormEvent<HTMLInputElement>) => {
-    const next = event.currentTarget.value;
+  const onUrlChange = (next: string) => {
     onChange({ ...value, url: next });
     const nextNormalized = normalizeComposerUrl(next);
     if (dismissedUrl && nextNormalized !== dismissedUrl) {
@@ -55,6 +56,8 @@ export const LinkForm = ({
     }
     checkUrl(nextNormalized);
   };
+  const onUrlChangeRef = useRef(onUrlChange);
+  onUrlChangeRef.current = onUrlChange;
 
   const dismissPreview = () => {
     setDismissedUrl(normalizedUrl || value.url || null);
@@ -64,6 +67,14 @@ export const LinkForm = ({
   const showPreview =
     isPreviewForComposerUrl(preview, value.url) && !isDismissedForCurrentUrl;
   const showSkeleton = isLoadingPreview && !isDismissedForCurrentUrl;
+
+  useEffect(() => {
+    if (!initialUrl) {
+      return;
+    }
+
+    onUrlChangeRef.current(initialUrl);
+  }, [initialUrl]);
 
   return (
     <div className="flex flex-1 flex-col gap-3">
@@ -78,7 +89,9 @@ export const LinkForm = ({
         spellCheck={false}
         placeholder="Paste a link…"
         value={value.url}
-        onInput={onUrlChange}
+        onInput={(event) => {
+          onUrlChange(event.currentTarget.value);
+        }}
         aria-label="Link URL"
         className="w-full bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
       />

@@ -12,11 +12,7 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import {
-  DailyPageVariant,
-  featureDailyPage,
-} from '../../lib/featureManagement';
+import { useDailyPage } from '../../hooks/feed/useDailyPage';
 import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import type { ExploreCategory } from './exploreCategories';
 import { findActiveChipId } from './exploreCategories';
@@ -49,15 +45,9 @@ export function ExploreChipsBar({
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { logEvent } = useLogContext();
   const { isLoggedIn } = useAuthContext();
-  const { value: dailyVariant } = useConditionalFeature({
-    feature: featureDailyPage,
-    shouldEvaluate: isLoggedIn,
-  });
-  // When Daily is on, the Daily/Feed switcher replaces the "For you" chip.
-  const showDailySwitcher = isLoggedIn && dailyVariant === DailyPageVariant.V1;
+  const { isEnabled } = useDailyPage();
+  const showDailySwitcher = isLoggedIn && isEnabled;
 
-  // On the extension the feed tab must switch the internal view (like the
-  // sidebar "For You"), not navigate out to the webapp.
   const onFeedClick =
     isExtension && onNavTabClick
       ? () => onNavTabClick(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/')
@@ -108,12 +98,12 @@ export function ExploreChipsBar({
         ref={scrollRef}
         className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
       >
-        <NewStripCta
-          className={compact ? 'h-8 rounded-10 px-2.5' : 'h-10 rounded-12 px-3'}
-        />
         {showDailySwitcher && (
           <DailySwitcher reverse compact={compact} onFeedClick={onFeedClick} />
         )}
+        <NewStripCta
+          className={compact ? 'h-8 rounded-10 px-2.5' : 'h-10 rounded-12 px-3'}
+        />
         {allCategories.map((category) => {
           const isActive = category.id === activeId;
           const onClick = () => {
