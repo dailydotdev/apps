@@ -112,7 +112,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         dateType={wasUpdated ? TimeFormatType.PostUpdated : TimeFormatType.Post}
         readTime={post.readTime}
         numSources={post.numCollectionSources}
-        className={classNames('mx-4', post.image ? 'my-0' : 'mb-4 mt-2')}
+        className={classNames('mx-4', post.image ? 'my-0' : 'mb-4')}
       />
       <Container className={useGlass && image ? 'flex-none' : undefined}>
         <WelcomePostCardFooter
