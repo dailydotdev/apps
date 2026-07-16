@@ -480,6 +480,12 @@ export const cloudinaryCharmNotEnoughTags =
 export const cloudinaryCharmGiveback =
   'https://media.daily.dev/image/upload/s--d1dldAty--/f_auto,q_auto/v1780848838/public/daily.dev%20Charm%20-%20Giveback%20(1)';
 
+// Punchy giving a hopeful stare, shown on the Giveback geo gate (not available
+// in your country). Real alpha, so it floats cleanly on the dark surface - no
+// `mix-blend-screen` needed.
+export const cloudinaryGivebackPunchyStaring =
+  'https://media.daily.dev/image/upload/s--CJiuHR4P--/f_auto,q_auto/v1784101387/public/Punchy%20-%20Staring';
+
 // Bespoke Patchy assets for the Giveback "Picture with Patchy" reward reveal.
 // The selfie is a transparent video played once — a VP9-alpha .webm for most
 // browsers and an HEVC-alpha .mov for Safari (the same source-order trick as

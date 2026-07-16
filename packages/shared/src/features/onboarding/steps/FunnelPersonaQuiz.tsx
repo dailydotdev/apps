@@ -34,10 +34,7 @@ import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useLogContext } from '../../../contexts/LogContext';
 import { FunnelTargetId } from '../types/funnelEvents';
 
-// Fallback until a mascot video is provided via parameters.
-const MASCOT_EMOJI = '🧞';
-
-const MASCOT_GLOW = 'drop-shadow(0 0 40px rgba(192,132,252,.45))';
+const DEFAULT_MASCOT_VIDEO_BASE_URL = '/onboarding/patchy';
 
 type MascotSize = 'sm' | 'md' | 'lg';
 
@@ -47,12 +44,6 @@ const MASCOT_VIDEO_SIZE: Record<MascotSize, string> = {
   // Patchy stays compact on mobile so the bubble and answers keep room, then
   // grows to full size beside the content on laptop.
   lg: 'h-32 w-32 tablet:h-40 tablet:w-40 laptop:h-96 laptop:w-96',
-};
-
-const MASCOT_EMOJI_SIZE: Record<MascotSize, string> = {
-  sm: 'text-6xl',
-  md: 'text-[6rem]',
-  lg: 'text-7xl tablet:text-8xl laptop:text-[12rem]',
 };
 
 // Patchy sits above the bubble on mobile and to its right on laptop.
@@ -201,21 +192,6 @@ const Mascot = ({
       onHalfway();
     }
   };
-
-  if (!baseUrl) {
-    return (
-      <span
-        className={classNames(
-          MASCOT_EMOJI_SIZE[size],
-          'leading-none',
-          className,
-        )}
-        style={{ filter: MASCOT_GLOW }}
-      >
-        {MASCOT_EMOJI}
-      </span>
-    );
-  }
 
   return (
     <div className={classNames('relative', MASCOT_VIDEO_SIZE[size], className)}>
@@ -542,9 +518,16 @@ const PersonaEmblem = ({
 );
 
 function PersonaQuizPhases({
-  parameters: { headline, explainer, cta, mascotVideoBaseUrl },
+  parameters: {
+    headline,
+    explainer,
+    cta,
+    mascotVideoBaseUrl: configuredMascotVideoBaseUrl,
+  },
   onTransition,
 }: FunnelStepPersonaQuiz): ReactElement {
+  const mascotVideoBaseUrl =
+    configuredMascotVideoBaseUrl || DEFAULT_MASCOT_VIDEO_BASE_URL;
   const {
     phase,
     questionNumber,
@@ -590,12 +573,6 @@ function PersonaQuizPhases({
       return undefined;
     }
     setRevealReady(false);
-    // Patchy now plays the reveal on every breakpoint, so wait for his
-    // animation whenever there is a video to wait for.
-    if (!mascotVideoBaseUrl) {
-      setRevealReady(true);
-      return undefined;
-    }
     // Fallback in case the video never reports progress (e.g. blocked autoplay).
     const timeout = setTimeout(() => setRevealReady(true), 2500);
     return () => clearTimeout(timeout);

@@ -44,12 +44,13 @@ import {
 } from '@dailydotdev/shared/src/lib/dateFormat';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
-import { defaultSeo } from '../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('API Access'),
+  ...noindexSeoProps,
 };
 
 const OPENAPI_URL = 'https://api.daily.dev/public/v1/docs/json';

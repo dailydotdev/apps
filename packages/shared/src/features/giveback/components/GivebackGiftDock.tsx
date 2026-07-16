@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -36,6 +37,9 @@ interface ValuePop {
 interface GivebackGiftDockProps {
   variant?: GivebackGiftButtonVariant;
   showLabel?: boolean;
+  // Mobile header: flat button + viewport-pinned prompt (see GivebackGiftButton
+  // and GivebackInvitePrompt).
+  compact?: boolean;
   onOpenGiveback?: () => void;
   // Override where the invite prompt opens (defaults follow the variant).
   promptPlacement?: 'below' | 'above';
@@ -58,6 +62,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   {
     variant = 'header',
     showLabel = false,
+    compact = false,
     onOpenGiveback,
     promptPlacement,
     promptAlign,
@@ -74,6 +79,10 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   // Bumps per show so a replacing prompt remounts (fresh timer + confetti).
   const [promptSeq, setPromptSeq] = useState(0);
   const timers = useRef<number[]>([]);
+  // The compact prompt is viewport-fixed, so anchor it just below the real gift
+  // instead of a hardcoded top offset (which misaligns with banners/safe areas).
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const [promptTop, setPromptTop] = useState<number | null>(null);
 
   const clearTimers = useCallback(() => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -95,6 +104,21 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   // Clear any pending timeouts when the dock unmounts so they never fire on an
   // unmounted component (production never calls reset()).
   useEffect(() => clearTimers, [clearTimers]);
+
+  // Measure the gift's viewport position each time the compact prompt opens,
+  // before paint so it never repositions on screen; the header is sticky, so a
+  // single read holds for the prompt's short lifetime. Only the client mounts
+  // this dock (the entry returns null until auth resolves), so useLayoutEffect
+  // never runs on the server.
+  useLayoutEffect(() => {
+    if (!compact || !prompt) {
+      return;
+    }
+    const rect = anchorRef.current?.getBoundingClientRect();
+    if (rect) {
+      setPromptTop(Math.round(rect.bottom + 12));
+    }
+  }, [compact, prompt]);
 
   const popGift = useCallback(() => {
     setPopping(false);
@@ -154,7 +178,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   }, [onOpenGiveback]);
 
   return (
-    <div className="relative inline-flex">
+    <div ref={anchorRef} className="relative inline-flex">
       <span
         className={classNames(
           'relative inline-flex',
@@ -179,6 +203,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
           <GivebackGiftButton
             variant={variant}
             showLabel={showLabel}
+            compact={compact}
             onClick={handleOpen}
           />
         )}
@@ -209,6 +234,8 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         ctaLabel={prompt?.ctaLabel}
         celebrate={prompt?.celebrate}
         dropdown={isRail}
+        compact={compact}
+        compactTop={promptTop}
         paused={giftHovered}
         placement={promptPlacement ?? (isRail ? 'above' : 'below')}
         align={promptAlign ?? (isRail ? 'start' : 'end')}

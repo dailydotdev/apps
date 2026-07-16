@@ -218,7 +218,7 @@ export enum HijackingVariant {
   Auth = 'auth',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
-  'hijacking_variants2',
+  'hijacking_variants3',
   HijackingVariant.Default,
 );
 
@@ -257,8 +257,6 @@ export const featureOnboardingPermissionPrimer = new Feature(
   'onboarding_permission_primer',
   false,
 );
-
-export const featureAuthGoogleOneTap = new Feature('auth_google_onetap', false);
 
 // Experiment: skip layout/paint for off-screen feed cards via CSS
 // `content-visibility: auto` to keep long feeds responsive.

@@ -122,7 +122,7 @@ const Donut = ({
   return (
     <FlexCol
       ref={ref}
-      className="items-center gap-6 tablet:flex-row tablet:gap-8"
+      className="items-start gap-6 tablet:flex-row tablet:items-center tablet:gap-8"
     >
       <div className="relative shrink-0">
         <svg
