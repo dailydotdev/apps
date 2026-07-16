@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useId } from 'react';
-import { ModalSize } from '../common/types';
+import { ModalSize, LazyModal } from '../common/types';
 import { ModalBody } from '../common/ModalBody';
 import type { ModalProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
@@ -25,6 +25,11 @@ import type { UserStreakRecoverData } from '../../../graphql/users';
 import { CoreIcon } from '../../icons';
 import { coresDocsLink } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureStreakFreeze } from '../../../lib/featureManagement';
+import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
+import { useLazyModal } from '../../../hooks/useLazyModal';
+import { ClickableText } from '../../buttons/ClickableText';
 
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
@@ -165,6 +170,29 @@ export const StreakRecoverOptout = ({
   </div>
 );
 
+const StreakFreezeUpsell = (): ReactElement | null => {
+  const hasAccessToCores = useHasAccessToCores();
+  const { value: isStreakFreezeEnabled } = useConditionalFeature({
+    feature: featureStreakFreeze,
+    shouldEvaluate: hasAccessToCores,
+  });
+  const { openModal } = useLazyModal();
+
+  if (!hasAccessToCores || !isStreakFreezeEnabled) {
+    return null;
+  }
+
+  return (
+    <ClickableText
+      className="text-center"
+      textClassName="typo-footnote"
+      onClick={() => openModal({ type: LazyModal.StreakFreezePurchase })}
+    >
+      Get streak freezes so this doesn&apos;t happen again
+    </ClickableText>
+  );
+};
+
 export const StreakRecoverModal = (
   props: StreakRecoverModalProps,
 ): ReactElement | null => {
@@ -202,6 +230,7 @@ export const StreakRecoverModal = (
             recover={recover}
             loading={recover.isRecoverPending}
           />
+          <StreakFreezeUpsell />
           <StreakRecoverOptout id={id} hideForever={hideForever} />
         </div>
       </ModalBody>
