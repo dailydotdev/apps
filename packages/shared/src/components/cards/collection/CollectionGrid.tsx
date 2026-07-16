@@ -131,6 +131,11 @@ export const CollectionGrid = forwardRef(function CollectionCard(
           imageClassName={
             useGlass && image ? glassCoverImageClassName : undefined
           }
+          // Give the freeform text preview the same footer height as the cover
+          // image slot (h-40 image + its mt-2/mb-1 margins = 10.5rem) so the
+          // tags/date bottom-anchor to the same row as the image cards and the
+          // default article card.
+          contentClassName="min-h-[10.5rem]"
         />
         {useGlass ? (
           <FeedCardGlassActions
