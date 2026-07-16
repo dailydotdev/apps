@@ -32,7 +32,9 @@ export const CollectionCardHeader = ({
       {highlightBookmarkedPost && <BookmakProviderHeader />}
       <div
         className={classNames(
-          'mb-1 mt-3 flex flex-row items-center',
+          // mt-4 matches the article card's CardHeader top margin so the title
+          // (and the tags/date below it) start on the same row.
+          'mb-1 mt-4 flex flex-row items-center',
           highlightBookmarkedPost && headerHiddenClassName,
         )}
       >

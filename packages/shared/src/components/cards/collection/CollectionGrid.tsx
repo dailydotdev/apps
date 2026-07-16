@@ -2,7 +2,7 @@ import type { Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import type { PostCardProps } from '../common/common';
-import { Container, generateTitleClamp } from '../common/common';
+import { Container } from '../common/common';
 import FeedItemContainer from '../common/FeedItemContainer';
 import { CollectionCardHeader } from './CollectionCardHeader';
 import {
@@ -92,10 +92,9 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         <CollectionCardHeader post={post} />
         <FreeformCardTitle
           className={classNames(
-            generateTitleClamp({
-              hasImage: !!image,
-              hasHtmlContent: !!post.contentHtml,
-            }),
+            // Match the default article card's title guideline: clamp to 3 lines
+            // at natural height (no fixed reserve).
+            'line-clamp-3',
             'font-bold text-text-primary typo-title3',
           )}
         >
