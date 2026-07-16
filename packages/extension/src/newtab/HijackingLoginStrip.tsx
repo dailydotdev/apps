@@ -75,18 +75,6 @@ function BrandLockup(): ReactElement {
   );
 }
 
-function CatHeroImage(): ReactElement {
-  return (
-    <div className="relative w-full max-w-[20.8rem] tablet:max-w-[24rem]">
-      <img
-        src={cloudinaryReadingReminderCat}
-        alt="Sleeping cat on laptop"
-        className="relative z-1 w-full rounded-16 object-contain"
-      />
-    </div>
-  );
-}
-
 interface SigninHeroProps {
   onSignupClick: () => void;
   onLoginClick: () => void;
@@ -104,7 +92,7 @@ function HeroActionButtons({
   onLoginClick,
 }: HeroActionButtonsProps): ReactElement {
   return (
-    <div className="mt-6 flex w-full max-w-[18.4rem] flex-row gap-2.5 tablet:mx-0">
+    <div className="mt-4 flex w-full max-w-[18.4rem] flex-row gap-2.5 tablet:mx-0">
       <Button
         type="button"
         variant={ButtonVariant.Primary}
@@ -127,6 +115,12 @@ function HeroActionButtons({
   );
 }
 
+// Height-matched to DefaultHijackingStrip so the header-ad-impression
+// experiment can isolate design from banner height: this arm keeps its own
+// visual language (glowing "stage" backdrop, dual CTAs, its own copy) but
+// mirrors the control's compact layout — same padding (p-5/tablet:p-6), same
+// image sizing, and no forced min-height/py — so both arms occupy the same
+// vertical space.
 function CatStageHero({
   onSignupClick,
   onLoginClick,
@@ -136,30 +130,30 @@ function CatStageHero({
       <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
         <div className="top-hero-stage pointer-events-none absolute inset-0" />
         <div className="top-hero-aurora opacity-70 pointer-events-none absolute inset-0" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.06] to-transparent" />
-        <div className="via-white/25 pointer-events-none absolute left-1/2 top-0 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
         <div className="bg-accent-cabbage-default/20 pointer-events-none absolute -bottom-8 left-1/2 h-32 w-[82%] -translate-x-1/2 rounded-[100%] blur-2xl" />
         <div className="via-accent-cabbage-default/80 pointer-events-none absolute bottom-0 left-1/2 h-px w-[86%] -translate-x-1/2 bg-gradient-to-r from-transparent to-transparent" />
-        <div className="bg-accent-cabbage-default/12 pointer-events-none absolute -left-28 bottom-0 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
-        <div className="bg-accent-onion-default/14 pointer-events-none absolute -right-28 top-4 hidden h-72 w-72 rounded-full blur-3xl tablet:block" />
-        <div className="dark relative z-1 mx-auto grid min-h-[17.6rem] w-full max-w-[51.2rem] items-center gap-6 px-5 py-10 text-center tablet:min-h-[22.4rem] tablet:grid-cols-[minmax(0,1fr)_19.2rem] tablet:px-8 tablet:py-10 tablet:text-left">
-          <div className="flex flex-col items-center tablet:items-start">
-            <BrandLockup />
-            <h2 className="mt-5 max-w-[33.6rem] text-balance font-bold text-white typo-title2 tablet:typo-large-title">
-              Own your new tab. Make it your dev briefing.
-            </h2>
-            <div className="via-accent-cabbage-default/70 mt-4 h-px w-32 bg-gradient-to-r from-transparent to-transparent" />
-            <p className="text-white/70 mt-3 max-w-[24.8rem] text-balance typo-subhead tablet:typo-callout">
-              Sign in and daily.dev will remember the topics, saves, upvotes,
-              and discussions that matter to you.
-            </p>
-            <HeroActionButtons
-              onSignupClick={onSignupClick}
-              onLoginClick={onLoginClick}
-            />
+        <div className="dark relative z-1 flex flex-col tablet:flex-row tablet:items-stretch">
+          <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
+            <div className="flex flex-col items-center gap-1 tablet:items-start">
+              <h3 className="font-bold text-white typo-title2">
+                Own your new tab. Make it your dev briefing.
+              </h3>
+              <p className="text-white/70 text-sm">
+                Sign in and daily.dev remembers the topics, saves, and
+                discussions that matter to you.
+              </p>
+              <HeroActionButtons
+                onSignupClick={onSignupClick}
+                onLoginClick={onLoginClick}
+              />
+            </div>
           </div>
-          <div className="flex justify-center tablet:justify-end">
-            <CatHeroImage />
+          <div className="bg-black/20 flex h-[12.5rem] w-full items-center justify-center p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
+            <img
+              src={cloudinaryReadingReminderCat}
+              alt="Sleeping cat on laptop"
+              className="m-0 h-full w-full max-w-none scale-105 object-contain laptopL:scale-110"
+            />
           </div>
         </div>
       </div>

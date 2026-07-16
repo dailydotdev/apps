@@ -218,7 +218,7 @@ export enum HijackingVariant {
   Auth = 'auth',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
-  'hijacking_variants2',
+  'hijacking_variants3',
   HijackingVariant.Default,
 );
 
