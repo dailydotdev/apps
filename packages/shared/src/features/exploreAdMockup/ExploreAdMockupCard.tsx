@@ -128,7 +128,15 @@ export const ExploreAdMockupCard = forwardRef<
   }
 
   return (
-    <Card data-testid="adItem" ref={forwardedRef as Ref<HTMLElement>}>
+    // `min-h-card` matches the grid-card baseline the feed's
+    // `content-visibility: auto` estimate assumes (`contain-intrinsic-size:
+    // auto 24rem`). Without it the ad cell's height drifts from the estimate
+    // and blanks into a hole as content-visibility skips/repaints on scroll.
+    <Card
+      data-testid="adItem"
+      className="min-h-card"
+      ref={forwardedRef as Ref<HTMLElement>}
+    >
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <AdFavicon ad={ad} className="mx-4" />
       <CardTextContainer className="flex-1">
