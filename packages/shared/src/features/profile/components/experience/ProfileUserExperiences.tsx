@@ -20,7 +20,7 @@ export function ProfileUserExperiences({
   const { isPreviewMode } = useProfilePreview(user);
   const { user: loggedUser } = useAuthContext();
   const { work, education, cert, project, opensource, volunteering, data } =
-    useProfileExperiences(user, profileExperiencesLimit);
+    useProfileExperiences(user);
 
   if (isPreviewMode && loggedUser?.hideExperience) {
     return null;
@@ -34,6 +34,7 @@ export function ProfileUserExperiences({
         experienceType={UserExperienceType.Work}
         hasNextPage={data?.work?.pageInfo?.hasNextPage}
         user={user}
+        displayLimit={profileExperiencesLimit}
       />
       <UserExperienceList
         experiences={education}
@@ -41,6 +42,7 @@ export function ProfileUserExperiences({
         experienceType={UserExperienceType.Education}
         hasNextPage={data?.education?.pageInfo?.hasNextPage}
         user={user}
+        displayLimit={profileExperiencesLimit}
       />
       <UserExperienceList
         experiences={cert}
@@ -48,6 +50,7 @@ export function ProfileUserExperiences({
         experienceType={UserExperienceType.Certification}
         hasNextPage={data?.certification?.pageInfo?.hasNextPage}
         user={user}
+        displayLimit={profileExperiencesLimit}
       />
       <UserExperienceList
         experiences={project}
@@ -55,6 +58,7 @@ export function ProfileUserExperiences({
         experienceType={UserExperienceType.Project}
         hasNextPage={data?.project?.pageInfo?.hasNextPage}
         user={user}
+        displayLimit={profileExperiencesLimit}
       />
       <UserExperienceList
         experiences={opensource}
@@ -62,6 +66,7 @@ export function ProfileUserExperiences({
         experienceType={UserExperienceType.OpenSource}
         hasNextPage={data?.opensource?.pageInfo?.hasNextPage}
         user={user}
+        displayLimit={profileExperiencesLimit}
       />
       <UserExperienceList
         experiences={volunteering}
@@ -69,6 +74,7 @@ export function ProfileUserExperiences({
         experienceType={UserExperienceType.Volunteering}
         hasNextPage={data?.volunteering?.pageInfo?.hasNextPage}
         user={user}
+        displayLimit={profileExperiencesLimit}
       />
     </>
   );

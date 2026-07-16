@@ -16,7 +16,7 @@ import EmailNotificationsTab from '@dailydotdev/shared/src/components/notificati
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 
-import { defaultSeo } from '../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { AccountPageContent } from '../../components/layouts/SettingsLayout/common';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
@@ -24,6 +24,7 @@ import { AccountPageContainer } from '../../components/layouts/SettingsLayout/Ac
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Notifications'),
+  ...noindexSeoProps,
 };
 
 type NotificationsTab = 'in-app' | 'email';

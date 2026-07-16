@@ -15,14 +15,17 @@ import { useCountUp, useInView } from '../useGivebackMotion';
 // One stable food-palette accent per slice, pinned by the slice's sorted
 // position so a category keeps the same colour across the donut arc and its
 // legend dot. `fill` paints the legend dot; `text` drives `currentColor` for
-// the SVG arc stroke.
+// the SVG arc stroke. Ordered so the earliest slices are maximally distinct
+// hues and the two magenta-family tones (cabbage purple, bacon pink) sit at
+// opposite ends - a typical 4-5 slice chart never shows both, so no two slices
+// read as the same colour.
 const SLICE_COLORS = [
   { fill: 'bg-accent-cabbage-default', text: 'text-accent-cabbage-default' },
-  { fill: 'bg-accent-avocado-default', text: 'text-accent-avocado-default' },
   { fill: 'bg-accent-cheese-default', text: 'text-accent-cheese-default' },
-  { fill: 'bg-accent-bacon-default', text: 'text-accent-bacon-default' },
   { fill: 'bg-accent-water-default', text: 'text-accent-water-default' },
+  { fill: 'bg-accent-avocado-default', text: 'text-accent-avocado-default' },
   { fill: 'bg-accent-bun-default', text: 'text-accent-bun-default' },
+  { fill: 'bg-accent-bacon-default', text: 'text-accent-bacon-default' },
 ] as const;
 
 // The label for the bucket of causes without a category (`category: null`).
@@ -119,7 +122,7 @@ const Donut = ({
   return (
     <FlexCol
       ref={ref}
-      className="items-center gap-6 tablet:flex-row tablet:gap-8"
+      className="items-start gap-6 tablet:flex-row tablet:items-center tablet:gap-8"
     >
       <div className="relative shrink-0">
         <svg

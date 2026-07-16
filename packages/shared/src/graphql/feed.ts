@@ -297,7 +297,6 @@ const getFeedPostFragment = (fields = '') => gql`
     pageInfo {
       hasNextPage
       endCursor
-      staleCursor
     }
     edges {
       node {
@@ -404,7 +403,6 @@ export const FEED_V2_QUERY = gql`
       pageInfo {
         hasNextPage
         endCursor
-        staleCursor
       }
       edges {
         node {
@@ -675,6 +673,30 @@ export const SEARCH_BOOKMARKS_QUERY = gql`
       query: $query
       listId: $listId
       supportedTypes: $supportedTypes
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
+export const SEARCH_SOURCE_POSTS_QUERY = gql`
+  query SearchSourcePosts(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $source: ID!
+    $query: String!
+    $supportedTypes: [String!]
+    $version: Int
+  ) {
+    page: searchSourcePosts(
+      first: $first
+      after: $after
+      source: $source
+      query: $query
+      supportedTypes: $supportedTypes
+      version: $version
     ) {
       ...FeedPostConnection
     }

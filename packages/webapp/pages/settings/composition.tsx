@@ -14,7 +14,7 @@ import { WriteFormTab } from '@dailydotdev/shared/src/components/fields/form/com
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
-import { defaultSeo } from '../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const defaultWriteTabs: RadioItemProps[] = Object.keys(WriteFormTab).map(
@@ -61,6 +61,7 @@ const PostingSettingsPage = (): ReactElement => {
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Posting'),
+  ...noindexSeoProps,
 };
 
 PostingSettingsPage.getLayout = getSettingsLayout;

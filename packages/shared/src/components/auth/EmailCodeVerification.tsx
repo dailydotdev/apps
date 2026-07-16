@@ -124,6 +124,13 @@ function EmailCodeVerification({
           A verification code has been sent to:
         </Typography>
         <Typography type={TypographyType.Body}>{email}</Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+          center
+        >
+          Don&apos;t see it? Also check your spam or junk folder.
+        </Typography>
       </div>
       <div className="my-10 flex w-full flex-col items-center gap-4">
         <input

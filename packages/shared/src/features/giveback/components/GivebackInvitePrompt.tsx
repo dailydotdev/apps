@@ -28,6 +28,12 @@ export interface GivebackInvitePromptProps {
   // Open like a rail dropdown: portaled + fixed at the same left margin as the
   // support/settings/profile menus, instead of anchored to the gift with a tail.
   dropdown?: boolean;
+  // Mobile header: pin to the viewport (centered, below the header) instead of
+  // anchoring to the mid-header gift, so the wide card never overflows the edge.
+  compact?: boolean;
+  // Measured viewport `top` (px) for the compact prompt, so it sits just below
+  // the real gift. Falls back to a safe-area-aware offset until it's measured.
+  compactTop?: number | null;
   autoDismissMs?: number;
   // Externally pause the auto-dismiss (e.g. while the cursor is over the gift).
   paused?: boolean;
@@ -51,6 +57,8 @@ export const GivebackInvitePrompt = ({
   placement = 'below',
   align = 'end',
   dropdown = false,
+  compact = false,
+  compactTop = null,
   autoDismissMs = 5000,
   paused = false,
   onClick,
@@ -112,23 +120,28 @@ export const GivebackInvitePrompt = ({
   const content = (
     <div
       className={classNames(
-        'w-[25rem]',
-        dropdown
-          ? 'fixed bottom-3 left-20 z-popup ml-2 max-w-[calc(100vw-6rem)]'
-          : classNames(
-              'absolute z-3 max-w-[calc(100vw-2rem)]',
-              isAbove ? 'bottom-full mb-3' : 'top-full mt-3',
-              align === 'end' ? 'right-0' : 'left-0',
-            ),
+        dropdown &&
+          'fixed bottom-3 left-20 z-popup ml-2 w-[25rem] max-w-[calc(100vw-6rem)]',
+        !dropdown &&
+          compact &&
+          'fixed left-1/2 top-[calc(env(safe-area-inset-top,0px)+3.5rem)] z-popup w-[calc(100vw-2rem)] max-w-[25rem] -translate-x-1/2',
+        !dropdown &&
+          !compact &&
+          classNames(
+            'absolute z-3 w-[25rem] max-w-[calc(100vw-2rem)]',
+            isAbove ? 'bottom-full mb-3' : 'top-full mt-3',
+            align === 'end' ? 'right-0' : 'left-0',
+          ),
         className,
       )}
+      style={compact && compactTop != null ? { top: compactTop } : undefined}
       role="status"
     >
       {celebrate && (
         <div
           className={classNames(
             'pointer-events-none absolute',
-            dropdown
+            dropdown || compact
               ? 'inset-x-0 top-0'
               : [isAbove ? 'bottom-0' : 'top-0', giftSide],
           )}
@@ -138,7 +151,7 @@ export const GivebackInvitePrompt = ({
       )}
 
       {/* Tail pointing to the gift (anchored mode only). */}
-      {!dropdown && (
+      {!dropdown && !compact && (
         <div
           className={classNames(
             'absolute size-3 rotate-45 border border-border-subtlest-tertiary bg-background-popover',
@@ -226,7 +239,7 @@ export const GivebackInvitePrompt = ({
     </div>
   );
 
-  return dropdown ? <RootPortal>{content}</RootPortal> : content;
+  return dropdown || compact ? <RootPortal>{content}</RootPortal> : content;
 };
 
 export default GivebackInvitePrompt;

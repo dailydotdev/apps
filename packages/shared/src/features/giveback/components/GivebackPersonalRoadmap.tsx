@@ -12,7 +12,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { ArrowIcon, GiftIcon } from '../../../components/icons';
+import { GiftIcon } from '../../../components/icons';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
@@ -26,7 +26,6 @@ import { useContributionCausePicker } from '../hooks/useContributionCausePicker'
 import { useContributionActions } from '../hooks/useContributionActions';
 import { formatDonationAmount } from '../utils';
 import { GivebackTabHeading } from './GivebackTabHeading';
-import { RailToggle } from './GivebackRoadmapRail';
 import { NodeRow } from './GivebackRoadmapNode';
 import type {
   ConnectorFill,
@@ -53,10 +52,6 @@ const formatCauseNames = (names: string[]): string | null => {
   const suffix = names.length > 3 ? ', and more' : '';
   return `${head}, and ${tail}${suffix}`;
 };
-
-// How many upcoming levels to reveal after the one you're on. The ladder can be
-// long, so we only ever render a window of it.
-const DEFAULT_UPCOMING = 4;
 
 interface GivebackPersonalRoadmapProps {
   onTakeAction: () => void;
@@ -85,9 +80,6 @@ export const GivebackPersonalRoadmap = ({
   const [claimingId, setClaimingId] = useState<string | null>(null);
   // The tier whose reward reveal is open (set after a successful claim).
   const [revealTierId, setRevealTierId] = useState<string | null>(null);
-  const [showCompleted, setShowCompleted] = useState(true);
-  const [showAllUpcoming, setShowAllUpcoming] = useState(false);
-
   const levels = useMemo<RoadmapLevel[]>(
     () =>
       [...rewardTiers]
@@ -260,29 +252,18 @@ export const GivebackPersonalRoadmap = ({
     await claimFoundingAward();
   };
 
-  // Window: current level + the next few. "Show more" extends it; "Show
-  // completed" reveals everything already cleared above.
-  const upcomingEnd = showAllUpcoming
-    ? total - 1
-    : Math.min(total - 1, focusIndex + DEFAULT_UPCOMING);
-  const visibleStart = showCompleted ? 0 : focusIndex;
-  const hiddenUpcoming = total - 1 - upcomingEnd;
-  const canCollapseUpcoming = total - 1 > focusIndex + DEFAULT_UPCOMING;
-
-  const visibleNodes: RoadmapNode[] = levels
-    .slice(visibleStart, upcomingEnd + 1)
-    .map((level) => {
-      const index = level.levelNumber - 1;
-      return {
-        level,
-        isLast: index === total - 1,
-        isReached: approved >= level.requiredApprovedAmount,
-        isCurrent: level.levelNumber === focusIndex + 1,
-        isNext: level.id === nextLevel?.id,
-        isClaimed: claimedIds.has(level.id),
-        connector: getConnector(index),
-      };
-    });
+  const roadmapNodes: RoadmapNode[] = levels.map((level) => {
+    const index = level.levelNumber - 1;
+    return {
+      level,
+      isLast: index === total - 1,
+      isReached: approved >= level.requiredApprovedAmount,
+      isCurrent: level.levelNumber === focusIndex + 1,
+      isNext: level.id === nextLevel?.id,
+      isClaimed: claimedIds.has(level.id),
+      connector: getConnector(index),
+    };
+  });
 
   const revealTier = revealTierId
     ? rewardTiers.find((tier) => tier.id === revealTierId)
@@ -387,26 +368,7 @@ export const GivebackPersonalRoadmap = ({
             </Typography>
 
             <FlexCol>
-              {focusIndex > 0 && (
-                <RailToggle
-                  icon={
-                    <ArrowIcon
-                      className={showCompleted ? 'rotate-180' : undefined}
-                    />
-                  }
-                  label={
-                    showCompleted
-                      ? 'Hide completed levels'
-                      : `Show ${focusIndex} completed ${
-                          focusIndex === 1 ? 'level' : 'levels'
-                        }`
-                  }
-                  onClick={() => setShowCompleted((value) => !value)}
-                  connectorBelow={{ type: 'full' }}
-                />
-              )}
-
-              {visibleNodes.map((node) => (
+              {roadmapNodes.map((node) => (
                 <NodeRow
                   key={node.level.id}
                   node={node}
@@ -418,31 +380,7 @@ export const GivebackPersonalRoadmap = ({
                   onTakeAction={handleTakeAction}
                 />
               ))}
-
-              {hiddenUpcoming > 0 && (
-                <RailToggle
-                  icon={<ArrowIcon className="rotate-180" />}
-                  label={`Show ${hiddenUpcoming} more ${
-                    hiddenUpcoming === 1 ? 'level' : 'levels'
-                  }`}
-                  onClick={() => setShowAllUpcoming(true)}
-                />
-              )}
             </FlexCol>
-
-            {showAllUpcoming && canCollapseUpcoming && (
-              <FlexRow className="justify-center">
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Float}
-                  icon={<ArrowIcon />}
-                  onClick={() => setShowAllUpcoming(false)}
-                >
-                  Show less
-                </Button>
-              </FlexRow>
-            )}
           </FlexCol>
         </FlexCol>
       </section>

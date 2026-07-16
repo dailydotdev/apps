@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useContext, useMemo, useRef } from 'react';
 import type {
   InfiniteData,
   QueryKey,
@@ -7,7 +7,7 @@ import type {
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { ClientError } from 'graphql-request';
 import { useRouter } from 'next/router';
-import type { Ad, Post, PostsEngaged } from '../graphql/posts';
+import type { Ad, Post, PostsEngaged, PostType } from '../graphql/posts';
 import { POSTS_ENGAGED_SUBSCRIPTION } from '../graphql/posts';
 import type { FeedData, FeedItemData, FeedV2Data } from '../graphql/feed';
 import { getFeedApiItemPost, normalizeFeedPage } from '../graphql/feed';
@@ -44,6 +44,7 @@ import {
 import { useConditionalFeature } from './useConditionalFeature';
 import { useReadingReminderFeedHero } from './notifications/useReadingReminderFeedHero';
 import {
+  SUPPORTED_WIDE_POST_TYPES,
   computeAdClamp,
   computePlacements,
   createPlacementBuilder,
@@ -301,8 +302,6 @@ export default function useFeed<T>(
   const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
     'highlightCardsOptOut',
   );
-  // Track if we're currently resetting due to stale cursor to prevent infinite loops
-  const isResettingRef = useRef(false);
   const { fetchTranslations } = useTranslation({
     queryKey: feedQueryKey,
     queryType: 'feed',
@@ -376,23 +375,6 @@ export default function useFeed<T>(
     getNextPageParam: ({ page }) => getNextPageParam(page?.pageInfo),
   });
 
-  // Reset feed when staleCursor is detected (feed cache regenerated mid-session)
-  useEffect(() => {
-    const pages = feedQuery.data?.pages;
-    if (!pages?.length || isResettingRef.current) {
-      return;
-    }
-
-    // Check if any page has staleCursor set
-    const hasStaleCursor = pages.some((p) => p.page.pageInfo.staleCursor);
-    if (hasStaleCursor) {
-      isResettingRef.current = true;
-      queryClient.resetQueries({ queryKey: feedQueryKey }).finally(() => {
-        isResettingRef.current = false;
-      });
-    }
-  }, [feedQuery.data?.pages, feedQueryKey, queryClient]);
-
   const clientError = feedQuery?.error as ClientError;
   const adPostLength = settings?.adPostLength;
 
@@ -428,6 +410,12 @@ export default function useFeed<T>(
     feature: featureHeroCards,
     shouldEvaluate: shouldEvaluateHighlightCards,
   });
+  const widenableTypes = useMemo(() => {
+    const allowed = heroCardsConfig.allowedPostTypes ?? {};
+    return new Set<PostType>(
+      [...SUPPORTED_WIDE_POST_TYPES].filter((type) => allowed[type] === true),
+    );
+  }, [heroCardsConfig.allowedPostTypes]);
 
   const { value: briefBannerPage } = useConditionalFeature({
     feature: briefFeedEntrypointPage,
@@ -629,6 +617,7 @@ export default function useFeed<T>(
         isEnabled: heroCardsConfig.enabled,
         minSpacing: heroCardsConfig.minSpacing,
         startIndex: heroCardsConfig.startIndex,
+        widenableTypes,
       });
 
       const staticAd = settings?.staticAd;
@@ -775,6 +764,7 @@ export default function useFeed<T>(
     isListContext,
     fullRowInsertionBeforeIndex,
     cadence,
+    widenableTypes,
   ]);
 
   const placements = useMemo(
@@ -786,6 +776,7 @@ export default function useFeed<T>(
         isEnabled: heroCardsConfig.enabled,
         minSpacing: heroCardsConfig.minSpacing,
         startIndex: heroCardsConfig.startIndex,
+        widenableTypes,
         fullRowInsertionBeforeIndex,
         cadence,
       }),
@@ -797,6 +788,7 @@ export default function useFeed<T>(
       heroCardsConfig,
       fullRowInsertionBeforeIndex,
       cadence,
+      widenableTypes,
     ],
   );
 

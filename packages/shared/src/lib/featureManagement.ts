@@ -5,6 +5,7 @@ import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
 import type { HeroCardsConfig } from '../types';
+import { PostType } from '../types';
 
 export class Feature<T extends JSONValue> {
   readonly id: string;
@@ -66,8 +67,6 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 });
 
 export const featureLuckyButton = new Feature('lucky_button', false);
-
-export const featureSmartComposer = new Feature('smart_composer', false);
 
 export const featureStandupCreation = new Feature('standup_creation', false);
 
@@ -230,7 +229,7 @@ export enum HijackingVariant {
   Auth = 'auth',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
-  'hijacking_variants2',
+  'hijacking_variants3',
   HijackingVariant.Default,
 );
 
@@ -249,6 +248,13 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
     breakout: 'Breaking out',
     evergreen: 'Evergreen',
   },
+  allowedPostTypes: {
+    [PostType.Article]: true,
+    [PostType.VideoYouTube]: true,
+    [PostType.Share]: false,
+    [PostType.Freeform]: false,
+    [PostType.Collection]: false,
+  },
 });
 
 // Floats the feed card action bar over the cover image with an iOS-style glass
@@ -262,8 +268,6 @@ export const featureOnboardingPermissionPrimer = new Feature(
   'onboarding_permission_primer',
   false,
 );
-
-export const featureAuthGoogleOneTap = new Feature('auth_google_onetap', false);
 
 // Experiment: skip layout/paint for off-screen feed cards via CSS
 // `content-visibility: auto` to keep long feeds responsive.

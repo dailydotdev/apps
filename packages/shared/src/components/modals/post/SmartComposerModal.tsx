@@ -97,7 +97,11 @@ const resolveDefaultKind = (
 export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialUrl?: string;
   initialSquadHandle?: string;
+  initialSquadId?: string;
   initialKind?: ComposerKind;
+  initialTitle?: string;
+  initialContent?: string;
+  initialCommentary?: string;
   preview?: ExternalLinkPreview;
   editPost?: Post;
 }
@@ -106,7 +110,11 @@ export function SmartComposerModal({
   onRequestClose,
   initialUrl,
   initialSquadHandle,
+  initialSquadId,
   initialKind,
+  initialTitle,
+  initialContent,
+  initialCommentary,
   preview: initialPreview,
   editPost,
   ...props
@@ -130,6 +138,9 @@ export function SmartComposerModal({
       return 'link';
     }
     if (initialKind) {
+      if (initialKind === 'standup' && !isStandupEnabled) {
+        return 'text';
+      }
       return initialKind;
     }
     return resolveDefaultKind(flags?.defaultWriteTab, isStandupEnabled);
@@ -155,14 +166,19 @@ export function SmartComposerModal({
     flags?.defaultWriteTab,
     isStandupEnabled,
   ]);
-  const [text, setText] = useState<TextFormState>(() =>
-    editPost
-      ? { title: editPost.title ?? '', body: editPost.content ?? '' }
-      : DEFAULT_TEXT,
-  );
+  const [text, setText] = useState<TextFormState>(() => {
+    if (editPost) {
+      return { title: editPost.title ?? '', body: editPost.content ?? '' };
+    }
+    return {
+      title: initialTitle ?? DEFAULT_TEXT.title,
+      body: initialContent ?? DEFAULT_TEXT.body,
+    };
+  });
   const [link, setLink] = useState<LinkFormState>({
     ...DEFAULT_LINK,
     url: initialUrl ?? '',
+    commentary: initialCommentary ?? DEFAULT_LINK.commentary,
   });
   const [poll, setPoll] = useState<PollFormState>(DEFAULT_POLL);
   const [standup, setStandup] = useState<StandupFormState>(DEFAULT_STANDUP);
@@ -314,7 +330,10 @@ export function SmartComposerModal({
   );
 
   const { audiences, selectedIds, selected, setSelectedIds, userAudienceId } =
-    useComposerAudience(initialSquadHandle, editPost?.source?.id);
+    useComposerAudience(
+      initialSquadHandle,
+      initialSquadId ?? editPost?.source?.id,
+    );
   const primary = selected[0];
   const isMulti = selected.length > 1;
 
@@ -581,6 +600,7 @@ export function SmartComposerModal({
               onDismissPreview={() =>
                 logEvent({ event_name: LogEvent.DismissComposerPreview })
               }
+              initialUrl={initialUrl ? link.url : undefined}
             />
           )}
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
@@ -609,6 +629,7 @@ export function SmartComposerModal({
         onClose={() => {
           handleClose();
         }}
+        onAfterClose={props.onAfterClose}
         className={{ wrapper: 'flex flex-col p-0' }}
       >
         {formContent}
