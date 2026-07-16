@@ -67,6 +67,11 @@ import { isSourceSquadOrMachine } from '../graphql/sources';
 import { HighlightGrid } from './cards/highlight/HighlightGrid';
 import { HighlightList } from './cards/highlight/HighlightList';
 import { getHighlightIds, getHighlightIdsKey } from '../graphql/highlights';
+import { ExploreAdMockupCard } from '../features/exploreAdMockup/ExploreAdMockupCard';
+import {
+  exploreAdMockupEnabled,
+  isExploreMockupFeed,
+} from '../features/exploreAdMockup/config';
 
 export type FeedItemComponentProps = {
   item: FeedItem;
@@ -481,6 +486,19 @@ function FeedItemComponent({
 
   switch (item.type) {
     case FeedItemType.Ad: {
+      // Campaign mockup: replace every Explore-feed ad slot with a randomized
+      // advertiser card from the active campaigns (see features/exploreAdMockup).
+      if (exploreAdMockupEnabled && isExploreMockupFeed(feedName)) {
+        return (
+          <ExploreAdMockupCard
+            ref={inViewRef}
+            isList={shouldUseListFeedLayout || shouldUseListMode}
+            feedIndex={index}
+            onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
+          />
+        );
+      }
+
       const AdComponent = AdTag as React.ForwardRefExoticComponent<
         AdCardProps & React.RefAttributes<Element>
       >;
