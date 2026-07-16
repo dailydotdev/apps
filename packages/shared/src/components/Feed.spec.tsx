@@ -174,6 +174,7 @@ const defaultVariables = {
   first: 7,
   loggedIn: true,
   after: '',
+  columns: 1,
 };
 
 const queryClient = new QueryClient(defaultQueryClientTestingConfig);
@@ -1669,6 +1670,7 @@ describe('Feed annonymous', () => {
       first: 7,
       loggedIn: false,
       after: '',
+      columns: 1,
     };
 
     renderComponent(
@@ -1683,6 +1685,7 @@ describe('Feed annonymous', () => {
             first: 7,
             loggedIn: false,
             after: '',
+            columns: 1,
           },
         ),
       ],
@@ -1698,6 +1701,7 @@ describe('Feed annonymous', () => {
       first: 7,
       loggedIn: false,
       after: '',
+      columns: 1,
     };
 
     renderComponent(
@@ -1712,6 +1716,7 @@ describe('Feed annonymous', () => {
             first: 7,
             loggedIn: false,
             after: '',
+            columns: 1,
           },
         ),
       ],
@@ -1798,7 +1803,7 @@ const renderWithHighlightLayout = ({
   disableAds,
   user = defaultUser,
 }: HighlightLayoutRenderParams): RenderResult => {
-  variables = { ...defaultVariables, first: pageSize };
+  variables = { ...defaultVariables, first: pageSize, columns: numCards };
   mockGraphQL(createFeedMock(buildFeedPage(posts)));
   // First ad page uses active=false, subsequent pages use active=true. Mock
   // both up to a handful of refills so multi-ad scenarios don't run dry.
@@ -1826,6 +1831,13 @@ const renderWithHighlightLayout = ({
         minSpacing,
         startIndex,
         chipLabels: {},
+        allowedPostTypes: {
+          [PostType.Article]: true,
+          [PostType.VideoYouTube]: true,
+          [PostType.Share]: true,
+          [PostType.Freeform]: true,
+          [PostType.Collection]: true,
+        },
       },
     },
     ...(briefBannerPage

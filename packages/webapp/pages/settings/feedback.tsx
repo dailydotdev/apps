@@ -19,12 +19,13 @@ import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { useUserFeedback } from '@dailydotdev/shared/src/graphql/feedback';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
-import { defaultSeo } from '../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getTemplatedTitle } from '../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
   title: getTemplatedTitle('Your Feedback'),
+  ...noindexSeoProps,
 };
 
 const AccountFeedbackPage = (): ReactElement => {

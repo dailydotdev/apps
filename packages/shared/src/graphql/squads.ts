@@ -59,6 +59,7 @@ interface PostToSquadProps {
   id: string;
   sourceId?: string;
   commentary: string;
+  scheduledAt?: string | null;
 }
 
 export const UPDATE_MEMBER_ROLE_MUTATION = gql`
@@ -236,9 +237,22 @@ export const EDIT_SQUAD_MUTATION = gql`
 `;
 
 export const ADD_POST_TO_SQUAD_MUTATION = gql`
-  mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String) {
-    sharePost(id: $id, sourceId: $sourceId, commentary: $commentary) {
+  mutation AddPostToSquad(
+    $id: ID!
+    $sourceId: ID!
+    $commentary: String
+    $scheduledAt: DateTime
+  ) {
+    sharePost(
+      id: $id
+      sourceId: $sourceId
+      commentary: $commentary
+      scheduledAt: $scheduledAt
+    ) {
       id
+      flags {
+        scheduledAt
+      }
     }
   }
 `;

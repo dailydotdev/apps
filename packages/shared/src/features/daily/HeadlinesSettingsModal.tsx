@@ -12,6 +12,8 @@ import {
 } from '../../components/typography/Typography';
 import { Switch } from '../../components/fields/Switch';
 import { Loader } from '../../components/Loader';
+import { Pill, PillSize } from '../../components/Pill';
+import { capitalize } from '../../lib/strings';
 import type { ChannelConfiguration } from '../../graphql/highlights';
 import {
   channelConfigurationsQueryOptions,
@@ -19,8 +21,14 @@ import {
 } from '../../graphql/highlights';
 import type { Source } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
+import { UserPersonalizedDigestType } from '../../graphql/users';
 import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollow';
-import { useSourceActionsNotify } from '../../hooks/source/useSourceActionsNotify';
+import {
+  SendType,
+  usePersonalizedDigest,
+} from '../../hooks/usePersonalizedDigest';
+import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { BriefPlusUpgradeCTA } from '../briefing/components/BriefPlusUpgradeCTA';
 
 interface HeadlinesSettingsModalProps
   extends Omit<ReactModal.Props, 'children'> {
@@ -36,17 +44,84 @@ const ChannelRow = ({
 }): ReactElement => {
   const queryClient = useQueryClient();
   const { isFollowing, toggleFollow } = useSourceActionsFollow({ source });
-  const { haveNotificationsOn, isReady, onNotify } = useSourceActionsNotify({
-    source,
-    optimistic: true,
-  });
   const inputId = `headline-toggle-${channel.channel}`;
+  const frequency = channel.digest?.frequency ?? 'daily';
 
   const onToggle = async () => {
-    if (!isFollowing) {
-      await toggleFollow();
+    await toggleFollow();
+
+    await queryClient.invalidateQueries({
+      queryKey: DAILY_HEADLINES_QUERY_KEY,
+    });
+  };
+
+  return (
+    <li className="flex w-full items-center justify-between gap-4 px-4 py-3">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <div className="flex items-center gap-2">
+          <Typography
+            type={TypographyType.Callout}
+            color={TypographyColor.Primary}
+            bold
+          >
+            {channel.displayName}
+          </Typography>
+          <Pill
+            label={capitalize(frequency)}
+            size={PillSize.XSmall}
+            alignment="self-center"
+            className="bg-surface-float text-text-tertiary"
+          />
+        </div>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+          className="!leading-snug"
+        >
+          {`Digest of ${channel.displayName} news.`}
+        </Typography>
+      </div>
+      <Switch
+        inputId={inputId}
+        name={inputId}
+        checked={isFollowing}
+        onToggle={onToggle}
+        aria-label={`${isFollowing ? 'Unfollow' : 'Follow'} ${
+          channel.displayName
+        }`}
+      />
+    </li>
+  );
+};
+
+// The Presidential Briefing is a separate Plus feature delivered via the Brief
+// personalized digest. Plus users toggle the subscription; non-Plus users see a
+// Plus upsell instead of the switch.
+const BriefSettingsRow = (): ReactElement => {
+  const queryClient = useQueryClient();
+  const { isPlus } = usePlusSubscription();
+  const {
+    getPersonalizedDigest,
+    subscribePersonalizedDigest,
+    unsubscribePersonalizedDigest,
+  } = usePersonalizedDigest();
+  const isSubscribed = !!getPersonalizedDigest(
+    UserPersonalizedDigestType.Brief,
+  );
+  const inputId = 'headline-toggle-brief';
+
+  const onToggle = async () => {
+    if (isSubscribed) {
+      await unsubscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Brief,
+      });
+    } else {
+      await subscribePersonalizedDigest({
+        type: UserPersonalizedDigestType.Brief,
+        hour: 9,
+        sendType: SendType.Daily,
+      });
     }
-    await onNotify();
 
     await queryClient.invalidateQueries({
       queryKey: DAILY_HEADLINES_QUERY_KEY,
@@ -61,28 +136,30 @@ const ChannelRow = ({
           color={TypographyColor.Primary}
           bold
         >
-          {channel.displayName}
+          Presidential Briefing
         </Typography>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
           className="!leading-snug"
         >
-          {`A ${channel.digest?.frequency ?? 'daily'} digest of ${
-            channel.displayName
-          } news.`}
+          A daily briefing of what matters, generated just for you based on your
+          preferences and interests.
         </Typography>
       </div>
-      <Switch
-        inputId={inputId}
-        name={inputId}
-        checked={haveNotificationsOn}
-        disabled={!isReady}
-        onToggle={onToggle}
-        aria-label={`${
-          haveNotificationsOn ? 'Unsubscribe from' : 'Subscribe to'
-        } ${channel.displayName}`}
-      />
+      {isPlus ? (
+        <Switch
+          inputId={inputId}
+          name={inputId}
+          checked={isSubscribed}
+          onToggle={onToggle}
+          aria-label={`${
+            isSubscribed ? 'Disable' : 'Enable'
+          } your daily briefing`}
+        />
+      ) : (
+        <BriefPlusUpgradeCTA />
+      )}
     </li>
   );
 };
@@ -130,6 +207,7 @@ export const HeadlinesSettingsModal = ({
           </div>
         ) : (
           <ul className="flex min-h-0 w-full flex-1 flex-col divide-y divide-border-subtlest-quaternary overflow-y-auto border-t border-border-subtlest-quaternary">
+            <BriefSettingsRow />
             {rows.map(({ channel, source }) => (
               <ChannelRow
                 key={channel.channel}

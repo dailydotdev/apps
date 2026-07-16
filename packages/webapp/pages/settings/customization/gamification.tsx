@@ -15,7 +15,7 @@ import { getUserInitialTimezone } from '@dailydotdev/shared/src/lib/timezones';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
-import { defaultSeo } from '../../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { SettingsSwitch } from '../../../components/layouts/SettingsLayout/common';
 
@@ -145,6 +145,7 @@ const GamificationSettingsPage = (): ReactElement => {
 const seo: NextSeoProps = {
   ...defaultSeo,
   title: getTemplatedTitle('Streaks & gamification'),
+  ...noindexSeoProps,
 };
 
 GamificationSettingsPage.getLayout = getSettingsLayout;

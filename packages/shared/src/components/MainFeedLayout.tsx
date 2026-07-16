@@ -1,4 +1,9 @@
-import type { ReactElement, ReactNode, SetStateAction } from 'react';
+import type {
+  CSSProperties,
+  ReactElement,
+  ReactNode,
+  SetStateAction,
+} from 'react';
 import React, {
   cloneElement,
   useCallback,
@@ -19,6 +24,9 @@ import { useFeeds } from '../hooks/feed/useFeeds';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
+import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
+import FeedContext from '../contexts/FeedContext';
+import feedStyles from './Feed.module.css';
 import AuthContext from '../contexts/AuthContext';
 import type { LoggedUser } from '../lib/user';
 import { SharedFeedPage } from './utilities';
@@ -230,6 +238,7 @@ export default function MainFeedLayout({
   const { sortingEnabled, loadedSettings } = useContext(SettingsContext);
   const { user, tokenRefreshed } = useContext(AuthContext);
   const { alerts } = useContext(AlertContext);
+  const { numCards: feedSpacinessCards } = useContext(FeedContext);
   const router = useRouter();
   const [tab, setTab] = useState(ExploreTabs.Popular);
   const { getFeatureValue } = useFeaturesReadyContext();
@@ -343,9 +352,10 @@ export default function MainFeedLayout({
           categories={exploreCategories}
           isPending={!feeds}
           compact={isV2}
+          onNavTabClick={onNavTabClick}
         />
       ) : null,
-    [showExploreChips, exploreCategories, feeds, isV2],
+    [showExploreChips, exploreCategories, feeds, isV2, onNavTabClick],
   );
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
@@ -770,6 +780,25 @@ export default function MainFeedLayout({
         {isSearchOn && isFinder && !isSearchPageLaptop && (
           <AskSearchBanner className="mx-4 mb-4" />
         )}
+        {/* Share the feed's own width container so the banner lines up with
+            the feed: full width normally, and clamped + centered to the same
+            card-based max-width as the grid on wide screens (desktopL). The
+            CSS vars feed that `styles.container` max-width calc (grid gap is
+            2rem). */}
+        <div
+          className={classNames(
+            'relative flex w-full flex-col laptopL:mx-auto',
+            feedStyles.container,
+          )}
+          style={
+            {
+              '--num-cards': feedSpacinessCards.eco,
+              '--feed-gap': '2rem',
+            } as CSSProperties
+          }
+        >
+          <FeedEngagementBanner className="mb-3" />
+        </div>
         {isHomePage && (
           <LiveStandupsStrip className="mx-0 mb-3 tablet:mx-2 laptop:mx-0" />
         )}

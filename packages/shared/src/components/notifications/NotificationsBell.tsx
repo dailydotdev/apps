@@ -84,9 +84,14 @@ function NotificationsBell({
                 className="pointer-events-none"
               />
               {hasNotification && (
-                <Bubble className="-right-1 -top-1 cursor-pointer px-1">
+                // Compact corner badge: the rail bell is only `size-6` (24px),
+                // so the full-size shared `Bubble` (min 20px) blankets the
+                // glyph. A smaller pill notched into the top-right corner reads
+                // as a badge instead of covering the icon. `border-background-
+                // default` matches the sidebar surface for the cutout effect.
+                <span className="pointer-events-none absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full border-2 border-background-default bg-accent-cabbage-default px-1 leading-none text-white typo-caption2">
                   {getUnreadText(unreadCount)}
-                </Bubble>
+                </span>
               )}
             </span>
             {!railHideLabel && (

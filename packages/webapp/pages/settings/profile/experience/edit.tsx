@@ -26,12 +26,13 @@ import { useRouter } from 'next/router';
 import { getCookiesAndHeadersFromRequest } from '@dailydotdev/shared/src/features/onboarding/lib/utils';
 import { getSettingsLayout } from '../../../../components/layouts/SettingsLayout';
 import { AccountPageContainer } from '../../../../components/layouts/SettingsLayout/AccountPageContainer';
-import { defaultSeo } from '../../../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../../../next-seo';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Edit experience'),
+  ...noindexSeoProps,
 };
 
 const titleCopy = {

@@ -222,7 +222,6 @@ const SourcePage = ({
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
   const { shouldShowAuthBanner } = useOnboardingActions();
-  const shouldShowTagSourceSocialProof = shouldShowAuthBanner && isLaptop;
   const { user } = useContext(AuthContext);
   const mostUpvotedQueryVariables = useMemo(
     () => ({
@@ -389,7 +388,7 @@ const SourcePage = ({
           variables={queryVariables}
           className={pageFeedClassName}
         />
-        {shouldShowTagSourceSocialProof && <AuthenticationBanner />}
+        {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
       </FeedPageLayoutComponent>
     </>
   );

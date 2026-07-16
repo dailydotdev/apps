@@ -297,7 +297,6 @@ const getFeedPostFragment = (fields = '') => gql`
     pageInfo {
       hasNextPage
       endCursor
-      staleCursor
     }
     edges {
       node {
@@ -320,6 +319,7 @@ export const ANONYMOUS_FEED_QUERY = gql`
     $after: String
     $ranking: Ranking
     $version: Int
+    $columns: Int
     ${SUPPORTED_TYPES}
   ) {
     page: anonymousFeed(
@@ -328,6 +328,7 @@ export const ANONYMOUS_FEED_QUERY = gql`
       ranking: $ranking
       version: $version
       supportedTypes: $supportedTypes
+      columns: $columns
     ) {
       ...FeedPostConnection
     }
@@ -387,6 +388,7 @@ export const FEED_V2_QUERY = gql`
     $ranking: Ranking
     $version: Int
     $highlightsLimit: Int
+    $columns: Int
     ${SUPPORTED_TYPES}
   ) {
     page: feedV2(
@@ -396,11 +398,11 @@ export const FEED_V2_QUERY = gql`
       version: $version
       highlightsLimit: $highlightsLimit
       supportedTypes: $supportedTypes
+      columns: $columns
     ) {
       pageInfo {
         hasNextPage
         endCursor
-        staleCursor
       }
       edges {
         node {
@@ -437,8 +439,9 @@ export const MOST_UPVOTED_FEED_QUERY = gql`
     ${SUPPORTED_TYPES}
     $source: ID
     $tag: String
+    $columns: Int
   ) {
-    page: mostUpvotedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes, source: $source, tag: $tag) {
+    page: mostUpvotedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes, source: $source, tag: $tag, columns: $columns) {
       ...FeedPostConnection
     }
   }
@@ -454,8 +457,9 @@ export const MOST_DISCUSSED_FEED_QUERY = gql`
     ${SUPPORTED_TYPES}
     $source: ID
     $tag: String
+    $columns: Int
   ) {
-    page: mostDiscussedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes, source: $source, tag: $tag) {
+    page: mostDiscussedFeed(first: $first, after: $after, period: $period, supportedTypes: $supportedTypes, source: $source, tag: $tag, columns: $columns) {
       ...FeedPostConnection
     }
   }
@@ -486,6 +490,7 @@ export const FEED_BY_TAGS_QUERY = gql`
     $after: String
     $ranking: Ranking
     $version: Int
+    $columns: Int
     ${SUPPORTED_TYPES}
   ) {
     page: feedByTags(
@@ -495,6 +500,7 @@ export const FEED_BY_TAGS_QUERY = gql`
       ranking: $ranking
       version: $version
       supportedTypes: $supportedTypes
+      columns: $columns
     ) {
       ...FeedPostConnection
     }
@@ -617,12 +623,14 @@ export const FOLLOWING_FEED_QUERY = gql`
     $loggedIn: Boolean! = false
     $first: Int
     $after: String
+    $columns: Int
     ${SUPPORTED_TYPES}
   ) {
     page: followingFeed(
       first: $first
       after: $after
       supportedTypes: $supportedTypes
+      columns: $columns
     ) {
       ...FeedPostConnection
     }
@@ -672,6 +680,30 @@ export const SEARCH_BOOKMARKS_QUERY = gql`
   ${FEED_POST_CONNECTION_FRAGMENT}
 `;
 
+export const SEARCH_SOURCE_POSTS_QUERY = gql`
+  query SearchSourcePosts(
+    $loggedIn: Boolean! = false
+    $first: Int
+    $after: String
+    $source: ID!
+    $query: String!
+    $supportedTypes: [String!]
+    $version: Int
+  ) {
+    page: searchSourcePosts(
+      first: $first
+      after: $after
+      source: $source
+      query: $query
+      supportedTypes: $supportedTypes
+      version: $version
+    ) {
+      ...FeedPostConnection
+    }
+  }
+  ${FEED_POST_CONNECTION_FRAGMENT}
+`;
+
 export const SEARCH_BOOKMARKS_SUGGESTIONS = gql`
   query SearchBookmarksSuggestions($query: String!) {
     searchBookmarksSuggestions(query: $query) {
@@ -692,6 +724,7 @@ export const SEARCH_POSTS_QUERY = gql`
     $contentCuration: [String]
     $time: SearchTime
     $version: Int
+    $columns: Int
   ) {
     page: searchPosts(
       first: $first,
@@ -700,7 +733,8 @@ export const SEARCH_POSTS_QUERY = gql`
       supportedTypes: $supportedTypes,
       contentCuration: $contentCuration,
       time: $time,
-      version: $version
+      version: $version,
+      columns: $columns
     ) {
       ...FeedPostConnection
     }
@@ -816,6 +850,7 @@ export const CUSTOM_FEED_QUERY = gql`
     ${SUPPORTED_TYPES}
     $version: Int
     $ranking: Ranking
+    $columns: Int
   ) {
     page: customFeed(
       feedId: $feedId
@@ -824,6 +859,7 @@ export const CUSTOM_FEED_QUERY = gql`
       supportedTypes: $supportedTypes
       version: $version
       ranking: $ranking
+      columns: $columns
     ) {
       ...FeedPostConnection
     }

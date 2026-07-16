@@ -1,7 +1,13 @@
-// Public campaign data shown on load: the funding status and the sponsor wall
-// come back in a single request so the hero renders from one round trip.
+// Public campaign data shown on load: the funding status and the by-category
+// pool breakdown come back in a single request so the hero and the causes
+// breakdown render from one round trip.
+//
+// The sponsor wall (contributionSponsors) is commented out for now: nothing on
+// the page renders GivebackSponsorTiers yet, so fetching it here just wastes a
+// round trip. Re-enable the block and the $first variable once the sponsor wall
+// is mounted.
 export const CONTRIBUTION_OVERVIEW_QUERY = `
-  query ContributionOverview($first: Int) {
+  query ContributionOverview {
     contributionStatus {
       enabled
       eligible
@@ -12,20 +18,53 @@ export const CONTRIBUTION_OVERVIEW_QUERY = `
       contributorsCount
       userPoints
     }
-    contributionSponsors(first: $first) {
-      edges {
-        node {
-          id
-          name
-          amountCents
-          url
-          logoUrl
-          tier
-        }
-      }
+    contributionCauseBreakdown {
+      category
+      points
     }
   }
 `;
+
+export const CONTRIBUTION_LEADERBOARD_QUERY = `
+  query ContributionLeaderboard($first: Int, $withViewerRank: Boolean!) {
+    contributionLeaderboard(first: $first) {
+      edges {
+        node {
+          user {
+            id
+            name
+            username
+            image
+          }
+          points
+          rank
+        }
+      }
+    }
+    contributionUserRank @include(if: $withViewerRank) {
+      points
+      rank
+    }
+  }
+`;
+
+// export const CONTRIBUTION_OVERVIEW_QUERY = `
+//   query ContributionOverview($first: Int) {
+//     ...
+//     contributionSponsors(first: $first) {
+//       edges {
+//         node {
+//           id
+//           name
+//           amountCents
+//           url
+//           logoUrl
+//           tier
+//         }
+//       }
+//     }
+//   }
+// `;
 
 // The cause picker needs the catalog and the visitor's saved picks together, so
 // they share one request fired when the visitor opts in.
@@ -75,6 +114,7 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
             instructions
             externalUrl
             isLoveAction
+            assistType
           }
           cooldownSeconds
           maxPerUser
@@ -107,6 +147,7 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
           description
           thresholdPoints
           rewardType
+          metadata
         }
       }
     }
@@ -118,6 +159,40 @@ export const CONTRIBUTION_ACTIONS_QUERY = `
           }
         }
       }
+    }
+    # Founding-award state (campaign spot count + the visitor's own membership)
+    # rides along on the journey query so the roadmap loads it in one request.
+    contributionFoundingAward {
+      totalSpots
+      claimedCount
+      isFoundingMember
+      memberNumber
+    }
+  }
+`;
+
+// Grants the founding award to an eligible contributor (idempotent). Returns the
+// founding-award shape carried by the actions query so the caller can update the
+// cached journey data from one response.
+export const CLAIM_CONTRIBUTION_FOUNDING_AWARD_MUTATION = `
+  mutation ClaimContributionFoundingAward {
+    claimContributionFoundingAward {
+      totalSpots
+      claimedCount
+      isFoundingMember
+      memberNumber
+    }
+  }
+`;
+
+// A randomized handful of targets for a link_pool action. Re-fetched to shuffle,
+// so the user always has fresh threads to pick from.
+export const CONTRIBUTION_ACTION_LINKS_QUERY = `
+  query ContributionActionLinks($actionId: ID!, $limit: Int) {
+    contributionActionLinks(actionId: $actionId, limit: $limit) {
+      id
+      url
+      label
     }
   }
 `;
@@ -149,6 +224,44 @@ export const UPDATE_CONTRIBUTION_CAUSE_PREFERENCES_MUTATION = `
   mutation UpdateContributionCausePreferences($causeIds: [ID!]!) {
     updateContributionCausePreferences(causeIds: $causeIds) {
       _
+    }
+  }
+`;
+
+// Nominate a cause for the team to review. The backend doesn't store it — it
+// posts the URL (and optional note) to Slack for a human decision.
+export const SUGGEST_CONTRIBUTION_CAUSE_MUTATION = `
+  mutation SuggestContributionCause($url: String!, $note: String) {
+    suggestContributionCause(url: $url, note: $note) {
+      _
+    }
+  }
+`;
+
+// Real-time community activity: every approved action lands here so the gift
+// entry point can pop a live "+$" jump. `awardedPoints` maps 1:1 to USD, like
+// the campaign totals.
+export const CONTRIBUTION_ACTION_COMPLETED_SUBSCRIPTION = `
+  subscription ContributionActionCompleted {
+    contributionActionCompleted {
+      submissionId
+      userId
+      actionId
+      awardedPoints
+    }
+  }
+`;
+
+// The highest global milestone reached, served from cache for the gift-icon
+// poll. Null until the first milestone is crossed. Drives the celebratory
+// popover on the header/rail gift.
+export const CONTRIBUTION_LAST_MILESTONE_QUERY = `
+  query ContributionLastReachedMilestone {
+    contributionLastReachedMilestone {
+      id
+      value
+      title
+      reachedAt
     }
   }
 `;

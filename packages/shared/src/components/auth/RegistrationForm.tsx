@@ -14,7 +14,15 @@ import { formToJson } from '../../lib/form';
 import { Button, ButtonVariant, ButtonSize } from '../buttons/Button';
 import { PasswordField } from '../fields/PasswordField';
 import { TextField } from '../fields/TextField';
-import { MailIcon, UserIcon, VIcon, AtIcon, ArrowIcon } from '../icons';
+import {
+  MailIcon,
+  UserIcon,
+  VIcon,
+  AtIcon,
+  ArrowIcon,
+  BriefIcon,
+  JobIcon,
+} from '../icons';
 import type { CloseModalFunc } from '../modals/common';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
@@ -27,6 +35,8 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import AuthContainer from './AuthContainer';
 import { onValidateHandles } from '../../hooks/useProfileForm';
 import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
+import CloudProviderDropdown from '../profile/CloudProviderDropdown';
+import type { ProfileExtraField } from '../../lib/user';
 import Alert, { AlertType, AlertParagraph } from '../widgets/Alert';
 import { isDevelopment, isProductionAPI } from '../../lib/constants';
 import { onboardingGradientClasses } from '../onboarding/common';
@@ -51,6 +61,13 @@ export interface RegistrationFormProps extends AuthFormProps {
   // exclusively reached via the signup flow; left overridable so the same
   // component can reflect a login-style title if a flow ever needs it.
   headerTitle?: string;
+  // Optional extra profile fields to collect at signup, driven by the
+  // onboarding funnel (campaign cohorts). Empty/undefined = default fields.
+  extraFields?: ProfileExtraField[];
+  // Whether to render the "The homepage developers deserve" headline above the
+  // form. The onboarding funnel already shows this copy on the signup wall, so
+  // it hides it here to avoid duplicating the message on the email step.
+  showHeadline?: boolean;
 }
 
 export type RegistrationFormValues = Omit<
@@ -73,6 +90,8 @@ const RegistrationForm = ({
   simplified,
   targetId,
   headerTitle = 'Sign up',
+  extraFields = [],
+  showHeadline = true,
 }: RegistrationFormProps): ReactElement => {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -166,10 +185,14 @@ const RegistrationForm = ({
     delete values['cf-turnstile-response'];
 
     const requiresExperienceLevel = !hideExperienceLevel;
+    // Cloud provider is mandatory only when the funnel requests it (the
+    // campaign flow); company/job title stay optional.
+    const requiresCloudProvider = extraFields.includes('cloudProvider');
     if (
       !values['traits.name']?.length ||
       !values['traits.username']?.length ||
-      (requiresExperienceLevel && !values['traits.experienceLevel']?.length)
+      (requiresExperienceLevel && !values['traits.experienceLevel']?.length) ||
+      (requiresCloudProvider && !values['traits.cloudProvider']?.length)
     ) {
       const setHints = { ...hints };
 
@@ -184,6 +207,10 @@ const RegistrationForm = ({
         !values['traits.experienceLevel']?.length
       ) {
         setHints['traits.experienceLevel'] = 'Please provide experience level.';
+      }
+      if (requiresCloudProvider && !values['traits.cloudProvider']?.length) {
+        setHints['traits.cloudProvider'] =
+          'Please provide your cloud provider.';
       }
 
       onUpdateHints(setHints);
@@ -247,6 +274,7 @@ const RegistrationForm = ({
   const isUsernameValid = !hints?.['traits.username'];
   const isExperienceLevelValid =
     !isSubmitted || !hints?.['traits.experienceLevel'];
+  const isCloudProviderValid = !isSubmitted || !hints?.['traits.cloudProvider'];
   const { isAuthenticating = false } = useAtomValue(authAtom);
 
   // Only show the valid-state checkmark once the user has actually typed
@@ -290,7 +318,7 @@ const RegistrationForm = ({
           !simplified && 'px-4 pb-4 tablet:px-6',
         )}
       >
-        {!isAuthenticating && (
+        {!isAuthenticating && (onBackToIntro || showHeadline) && (
           <div className="flex items-start gap-4 pt-2">
             {onBackToIntro && (
               <Button
@@ -303,16 +331,18 @@ const RegistrationForm = ({
                 variant={ButtonVariant.Secondary}
               />
             )}
-            <h1 className="mx-auto mt-4 flex-1 font-bold leading-[1.3] tracking-tight typo-title1 tablet:leading-[1.22] tablet:typo-large-title">
-              <span
-                className={classNames(
-                  onboardingGradientClasses,
-                  'text-text-primary',
-                )}
-              >
-                The homepage developers deserve
-              </span>
-            </h1>
+            {showHeadline && (
+              <h1 className="mx-auto mt-4 flex-1 font-bold leading-[1.3] tracking-tight typo-title1 tablet:leading-[1.22] tablet:typo-large-title">
+                <span
+                  className={classNames(
+                    onboardingGradientClasses,
+                    'text-text-primary',
+                  )}
+                >
+                  Where developers discover what&apos;s next
+                </span>
+              </h1>
+            )}
           </div>
         )}
         <AuthForm
@@ -397,7 +427,7 @@ const RegistrationForm = ({
             saveHintSpace
             className={{ container: 'w-full' }}
             valid={isLoadingUsername || isUsernameValid}
-            leftIcon={<AtIcon aria-hidden role="presentation" secondary />}
+            leftIcon={<AtIcon aria-hidden role="presentation" />}
             name="traits.username"
             inputId="traits.username"
             label="Enter a username"
@@ -427,13 +457,48 @@ const RegistrationForm = ({
               saveHintSpace
             />
           )}
-          <Checkbox name="optOutMarketing">
+          {extraFields.includes('company') && (
+            <TextField
+              autoComplete="organization"
+              saveHintSpace
+              className={{ container: 'w-full' }}
+              leftIcon={<BriefIcon aria-hidden role="presentation" />}
+              name="traits.company"
+              inputId="traits.company"
+              label="Company name"
+            />
+          )}
+          {extraFields.includes('jobTitle') && (
+            <TextField
+              autoComplete="organization-title"
+              saveHintSpace
+              className={{ container: 'w-full' }}
+              leftIcon={<JobIcon aria-hidden role="presentation" />}
+              name="traits.title"
+              inputId="traits.title"
+              label="Job title"
+            />
+          )}
+          {extraFields.includes('cloudProvider') && (
+            <CloudProviderDropdown
+              className={{ container: 'w-full' }}
+              name="traits.cloudProvider"
+              valid={isCloudProviderValid}
+              hint={hints?.['traits.cloudProvider']}
+              onChange={() =>
+                hints?.['traits.cloudProvider'] &&
+                onUpdateHints({ ...hints, 'traits.cloudProvider': '' })
+              }
+              saveHintSpace
+            />
+          )}
+          <Checkbox className="w-full" name="optOutMarketing">
             I don&apos;t want to receive updates and promotions via email
           </Checkbox>
           <ConditionalWrapper
             condition={simplified ?? false}
             wrapper={(component) => (
-              <AuthContainer className="!mt-0 border-t border-border-subtlest-tertiary p-3 !px-3 pb-1">
+              <AuthContainer className="!mt-0 !px-0 pb-1 pt-3">
                 {component}
               </AuthContainer>
             )}
@@ -443,8 +508,12 @@ const RegistrationForm = ({
               siteKey={turnstileSiteKey}
               options={{
                 theme: 'dark',
+                // Run the challenge silently and only surface the widget when a
+                // human interaction is actually required, so the branded box
+                // doesn't clash with the form for the common (passing) case.
+                appearance: 'interaction-only',
               }}
-              className="mx-auto min-h-[4.5rem]"
+              className="mx-auto"
               onWidgetLoad={() => setTurnstileLoaded(true)}
             />
             {turnstileError && (

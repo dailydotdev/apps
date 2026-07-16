@@ -7,6 +7,7 @@ import React, {
   useState,
 } from 'react';
 import classNames from 'classnames';
+import { useRouter } from 'next/router';
 import { useQueryClient } from '@tanstack/react-query';
 import type { LazyModalCommonProps } from '../common/Modal';
 import { Modal } from '../common/Modal';
@@ -26,6 +27,7 @@ import { Tooltip } from '../../tooltip/Tooltip';
 import { Switch } from '../../fields/Switch';
 import { Drawer, DrawerPosition } from '../../drawers/Drawer';
 import { labels } from '../../../lib/labels';
+import { scheduledPostsUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useSettingsContext } from '../../../contexts/SettingsContext';
@@ -34,7 +36,9 @@ import { LogEvent } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePrompt } from '../../../hooks/usePrompt';
 import type { ExternalLinkPreview, Post } from '../../../graphql/posts';
+import type { Squad } from '../../../graphql/sources';
 import { getPostByIdKey } from '../../../lib/query';
+import { moderationRequired } from '../../squads/utils';
 import { AudienceChip } from '../../post/composer/AudienceChip';
 import { KindModePicker } from '../../post/composer/KindModePicker';
 import {
@@ -52,6 +56,9 @@ import {
 } from '../../post/composer/useComposerAudience';
 import { useComposerSubmit } from '../../post/composer/useComposerSubmit';
 import { useStandupCreation } from '../../../hooks/liveRooms/useStandupCreation';
+import { useSchedulePost } from '../../post/schedule/useSchedulePost';
+import { SchedulePostButton } from '../../post/schedule/SchedulePostButton';
+import { ScheduledPostsNavButton } from '../../post/schedule/ScheduledPostsNavButton';
 import {
   DEFAULT_LINK,
   DEFAULT_POLL,
@@ -63,6 +70,7 @@ import {
   type StandupFormState,
   type TextFormState,
 } from '../../post/composer/types';
+import { useDisableSpotlightShortcut } from '../../spotlight/SpotlightContext';
 
 // `defaultWriteTab` is persisted as the WriteFormTab *key* (e.g. "Share"), not
 // the enum value ("Share a link") — see settings/composition.tsx which saves
@@ -89,7 +97,11 @@ const resolveDefaultKind = (
 export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialUrl?: string;
   initialSquadHandle?: string;
+  initialSquadId?: string;
   initialKind?: ComposerKind;
+  initialTitle?: string;
+  initialContent?: string;
+  initialCommentary?: string;
   preview?: ExternalLinkPreview;
   editPost?: Post;
 }
@@ -98,13 +110,18 @@ export function SmartComposerModal({
   onRequestClose,
   initialUrl,
   initialSquadHandle,
+  initialSquadId,
   initialKind,
+  initialTitle,
+  initialContent,
+  initialCommentary,
   preview: initialPreview,
   editPost,
   ...props
 }: SmartComposerModalProps): ReactElement {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
+  const router = useRouter();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const queryClient = useQueryClient();
   const { showPrompt } = usePrompt();
@@ -121,6 +138,9 @@ export function SmartComposerModal({
       return 'link';
     }
     if (initialKind) {
+      if (initialKind === 'standup' && !isStandupEnabled) {
+        return 'text';
+      }
       return initialKind;
     }
     return resolveDefaultKind(flags?.defaultWriteTab, isStandupEnabled);
@@ -146,14 +166,19 @@ export function SmartComposerModal({
     flags?.defaultWriteTab,
     isStandupEnabled,
   ]);
-  const [text, setText] = useState<TextFormState>(() =>
-    editPost
-      ? { title: editPost.title ?? '', body: editPost.content ?? '' }
-      : DEFAULT_TEXT,
-  );
+  const [text, setText] = useState<TextFormState>(() => {
+    if (editPost) {
+      return { title: editPost.title ?? '', body: editPost.content ?? '' };
+    }
+    return {
+      title: initialTitle ?? DEFAULT_TEXT.title,
+      body: initialContent ?? DEFAULT_TEXT.body,
+    };
+  });
   const [link, setLink] = useState<LinkFormState>({
     ...DEFAULT_LINK,
     url: initialUrl ?? '',
+    commentary: initialCommentary ?? DEFAULT_LINK.commentary,
   });
   const [poll, setPoll] = useState<PollFormState>(DEFAULT_POLL);
   const [standup, setStandup] = useState<StandupFormState>(DEFAULT_STANDUP);
@@ -163,6 +188,7 @@ export function SmartComposerModal({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
   const textFormRef = useRef<TextFormHandle>(null);
+  useDisableSpotlightShortcut();
 
   const isDirty = useMemo(() => {
     if (editPost) {
@@ -198,36 +224,47 @@ export function SmartComposerModal({
     return false;
   }, [cover, text, link, poll, standup, editPost]);
 
+  const confirmDiscardIfDirty = useCallback(async () => {
+    if (!isDirty) {
+      return true;
+    }
+
+    return showPrompt({
+      title: isEditing ? 'Discard changes?' : 'Discard draft?',
+      description:
+        'You have unsaved changes. Are you sure you want to discard them?',
+      okButton: {
+        title: 'Discard',
+        variant: ButtonVariant.Primary,
+        color: ButtonColor.Ketchup,
+      },
+      cancelButton: { title: 'Keep editing' },
+    });
+  }, [isDirty, isEditing, showPrompt]);
+
   const handleClose = useCallback(
     async (event?: React.MouseEvent | React.KeyboardEvent) => {
-      const closeAndLog = () => {
-        logEvent({
-          event_name: LogEvent.CloseSmartComposer,
-          extra: JSON.stringify({ kind, isDirty }),
-        });
-        onRequestClose?.(event);
-      };
-      if (!isDirty) {
-        closeAndLog();
+      if (!(await confirmDiscardIfDirty())) {
         return;
       }
-      const confirmed = await showPrompt({
-        title: isEditing ? 'Discard changes?' : 'Discard draft?',
-        description:
-          'You have unsaved changes. Are you sure you want to discard them?',
-        okButton: {
-          title: 'Discard',
-          variant: ButtonVariant.Primary,
-          color: ButtonColor.Ketchup,
-        },
-        cancelButton: { title: 'Keep editing' },
+
+      logEvent({
+        event_name: LogEvent.CloseSmartComposer,
+        extra: JSON.stringify({ kind, isDirty }),
       });
-      if (confirmed) {
-        closeAndLog();
-      }
+      onRequestClose?.(event);
     },
-    [isDirty, kind, logEvent, onRequestClose, showPrompt, isEditing],
+    [confirmDiscardIfDirty, isDirty, kind, logEvent, onRequestClose],
   );
+
+  const handleViewScheduled = useCallback(async () => {
+    if (!(await confirmDiscardIfDirty())) {
+      return;
+    }
+
+    onRequestClose?.();
+    router.push(scheduledPostsUrl);
+  }, [confirmDiscardIfDirty, onRequestClose, router]);
 
   useEffect(() => {
     logEvent({
@@ -293,9 +330,22 @@ export function SmartComposerModal({
   );
 
   const { audiences, selectedIds, selected, setSelectedIds, userAudienceId } =
-    useComposerAudience(initialSquadHandle, editPost?.source?.id);
+    useComposerAudience(
+      initialSquadHandle,
+      initialSquadId ?? editPost?.source?.id,
+    );
   const primary = selected[0];
   const isMulti = selected.length > 1;
+
+  const schedule = useSchedulePost();
+  // Scheduling: single-source, non-moderated create only (any post type
+  // except standups, which schedule themselves).
+  const canSchedule =
+    kind !== 'standup' &&
+    !isEditing &&
+    !isMulti &&
+    !!primary &&
+    !moderationRequired(primary as Squad);
 
   const {
     handleSubmit,
@@ -317,6 +367,7 @@ export function SmartComposerModal({
     isMulti,
     initialPreview,
     editPostId: editPost?.id,
+    resolveScheduledAt: canSchedule ? schedule.resolveScheduledAt : undefined,
     onComplete: () => {
       if (editPost?.id) {
         queryClient.invalidateQueries({
@@ -338,8 +389,8 @@ export function SmartComposerModal({
     submitLabel = 'Save changes';
   } else if (isStandup) {
     submitLabel = isStandupScheduled ? 'Schedule standup' : 'Create standup';
-  } else if (kind === 'poll') {
-    submitLabel = 'Post poll';
+  } else if (canSchedule && schedule.isScheduled) {
+    submitLabel = 'Schedule post';
   } else {
     submitLabel = 'Post';
   }
@@ -365,6 +416,19 @@ export function SmartComposerModal({
   );
 
   const isCoverUploading = !!cover?.isUploading;
+  const scheduleButtonNode = canSchedule ? (
+    <SchedulePostButton
+      isScheduled={schedule.isScheduled}
+      scheduledStart={schedule.scheduledStart}
+      timezone={schedule.timezone}
+      error={schedule.error}
+      disabled={isInFlight}
+      onScheduledStartChange={schedule.setScheduledStart}
+      onSeedDefault={schedule.seedDefault}
+      onConfirm={schedule.confirmSchedule}
+      onClear={schedule.clearSchedule}
+    />
+  ) : null;
   const postButtonNode = (
     <Button
       form="smart_composer"
@@ -373,10 +437,18 @@ export function SmartComposerModal({
       size={ButtonSize.Small}
       disabled={isSubmitDisabled || isCoverUploading || (isEditing && !isDirty)}
       loading={isInFlight || isCoverUploading}
-      className="ml-2 px-5"
+      className="px-5"
     >
       {submitLabel}
     </Button>
+  );
+  // Self-contained flex with its own gap so the button pair keeps identical
+  // spacing regardless of the parent (rich-text toolbar vs. bottom action bar).
+  const primaryActionsNode = (
+    <div className="flex items-center gap-2">
+      {scheduleButtonNode}
+      {postButtonNode}
+    </div>
   );
   const notificationToggleNode = shouldShowCta ? (
     <Switch
@@ -422,6 +494,10 @@ export function SmartComposerModal({
           )}
         </div>
         <div className="flex shrink-0 items-center gap-1">
+          <ScheduledPostsNavButton
+            onClick={handleViewScheduled}
+            disabled={isInFlight}
+          />
           {kind === 'text' && (
             <Tooltip
               content={
@@ -491,7 +567,7 @@ export function SmartComposerModal({
             cover={cover}
             onCoverChange={onCoverChange}
             toolbarLeading={kindPickerNode}
-            toolbarRightActions={postButtonNode}
+            toolbarRightActions={primaryActionsNode}
             onMarkdownModeChange={onMarkdownModeChange}
           />
           {!isMarkdownMode && notificationToggleNode && (
@@ -524,6 +600,7 @@ export function SmartComposerModal({
               onDismissPreview={() =>
                 logEvent({ event_name: LogEvent.DismissComposerPreview })
               }
+              initialUrl={initialUrl ? link.url : undefined}
             />
           )}
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
@@ -533,7 +610,9 @@ export function SmartComposerModal({
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
           <div className="flex items-center justify-between gap-3">
             {kindPickerNode}
-            <span className="ml-auto">{postButtonNode}</span>
+            <span className="ml-auto flex items-center">
+              {primaryActionsNode}
+            </span>
           </div>
           {notificationToggleNode}
         </div>
@@ -550,6 +629,7 @@ export function SmartComposerModal({
         onClose={() => {
           handleClose();
         }}
+        onAfterClose={props.onAfterClose}
         className={{ wrapper: 'flex flex-col p-0' }}
       >
         {formContent}

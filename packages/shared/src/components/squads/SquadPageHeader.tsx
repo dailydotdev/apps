@@ -21,7 +21,6 @@ import {
 } from '../../lib/config';
 import { useViewSize, ViewSize } from '../../hooks';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { useSmartComposer } from '../../hooks/post/useSmartComposer';
 import { LazyModal } from '../modals/common/types';
 import { SquadStat } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
@@ -56,8 +55,6 @@ export function SquadPageHeader({
   hideHeaderBar = false,
 }: SquadPageHeaderProps): ReactElement {
   const { openModal } = useLazyModal();
-  const { evaluateSmartComposer } = useSmartComposer();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const allowedToPost = verifyPermission(squad, SourcePermissions.Post);
   const { category } = squad;
   const squadId = squad.id ?? '';
@@ -75,17 +72,13 @@ export function SquadPageHeader({
     : MAX_VISIBLE_PRIVILEGED_MEMBERS_LAPTOP;
   const onNewPostClick = useCallback(
     (event: React.MouseEvent<HTMLAnchorElement>) => {
-      if (!isLaptop || !evaluateSmartComposer()) {
-        return;
-      }
-
       event.preventDefault();
       openModal({
         type: LazyModal.SmartComposer,
         props: { initialSquadHandle: squad.handle },
       });
     },
-    [evaluateSmartComposer, isLaptop, openModal, squad.handle],
+    [openModal, squad.handle],
   );
 
   return (
