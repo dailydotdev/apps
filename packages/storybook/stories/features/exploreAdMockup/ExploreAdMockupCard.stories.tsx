@@ -9,6 +9,8 @@ import ExtensionProviders from '../../extension/_providers';
 // advertiser logo, per-creative tags, a "Promoted by {advertiser}" attribution,
 // and the standard "Advertise here / Remove" footer. Brand + copy come from the
 // active campaigns (registry.ts); the creative is randomized per mount.
+// Illustrations are the authoritative Google Cloud tracker assets ("Main
+// Marketing Image" column), one per product.
 const meta: Meta<typeof ExploreAdMockupCard> = {
   title: 'Features/ExploreAdMockup/Card',
   component: ExploreAdMockupCard,
