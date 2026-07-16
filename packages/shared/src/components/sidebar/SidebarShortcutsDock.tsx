@@ -359,8 +359,6 @@ const TrayItem = ({
 
 export interface SidebarShortcutsApi {
   items: StoredShortcut[];
-  keys: string[];
-  pinnedPaths: Set<string>;
   resolved: ResolvedShortcut[];
   persist: (next: StoredShortcut[]) => void;
   addCatalog: (id: string, index?: number) => void;
@@ -511,8 +509,6 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
 
   return {
     items,
-    keys,
-    pinnedPaths,
     resolved,
     persist,
     addCatalog,
