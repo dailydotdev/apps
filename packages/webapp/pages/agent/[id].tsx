@@ -13,6 +13,9 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
+import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
+import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import Markdown from '@dailydotdev/shared/src/components/Markdown';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
@@ -24,14 +27,28 @@ import {
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { featureInterestAgent } from '@dailydotdev/shared/src/lib/featureManagement';
+import { UserInterestStatus } from '@dailydotdev/shared/src/graphql/interests';
 import { useInterest } from '@dailydotdev/shared/src/features/interests/hooks/useInterest';
 import { useSendInterestCommand } from '@dailydotdev/shared/src/features/interests/hooks/useSendInterestCommand';
+import { useUpdateInterest } from '@dailydotdev/shared/src/features/interests/hooks/useUpdateInterest';
+import { useDeleteInterest } from '@dailydotdev/shared/src/features/interests/hooks/useDeleteInterest';
+import { useInterestPosts } from '@dailydotdev/shared/src/features/interests/hooks/useInterestPosts';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const quickActions = ['Explore more', 'Write me a post'];
+const sourceLabels: Record<'dailyDev' | 'web' | 'github', string> = {
+  dailyDev: 'daily.dev',
+  web: 'Web',
+  github: 'GitHub',
+};
+const outputLabels: Record<'feed' | 'post' | 'notification', string> = {
+  feed: 'Feed',
+  post: 'Posts',
+  notification: 'Notifications',
+};
 
 const Page = (): ReactElement | null => {
   const router = useRouter();
@@ -44,8 +61,14 @@ const Page = (): ReactElement | null => {
   const showAgent = flagEnabled || isDevelopment;
 
   const [feedback, setFeedback] = useState('');
+  const [fomo, setFomo] = useState<number | null>(null);
   const { interestQuery, findingsQuery } = useInterest(id);
+  const postsQuery = useInterestPosts(id);
   const { isSending, sendCommand } = useSendInterestCommand(id);
+  const { isUpdating, updateInterest } = useUpdateInterest(id);
+  const { isDeleting, deleteInterest } = useDeleteInterest({
+    onDeleted: () => router.push(`${webappUrl}agent`),
+  });
 
   if (isAuthReady && !showAgent) {
     return null;
@@ -53,6 +76,8 @@ const Page = (): ReactElement | null => {
 
   const interest = interestQuery.data;
   const findings = findingsQuery.data ?? [];
+  const posts = postsQuery.data ?? [];
+  const isStopped = interest?.status === UserInterestStatus.Stopped;
 
   const onSendFeedback = () => {
     const trimmed = feedback.trim();
@@ -77,13 +102,121 @@ const Page = (): ReactElement | null => {
       </PageHeader>
       <div className="m-auto flex w-full max-w-[42rem] flex-col gap-6 px-4 py-6">
         {interest && (
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-          >
-            {interest.status}
-            {interest.lastRunSummary ? ` · ${interest.lastRunSummary}` : ''}
-          </Typography>
+          <FlexRow className="flex-wrap items-center gap-2">
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              className="mr-auto"
+            >
+              {interest.status}
+              {interest.lastRunSummary ? ` · ${interest.lastRunSummary}` : ''}
+            </Typography>
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              disabled={isUpdating || isStopped}
+              onClick={() =>
+                updateInterest({
+                  status:
+                    interest.status === UserInterestStatus.Active
+                      ? UserInterestStatus.Paused
+                      : UserInterestStatus.Active,
+                })
+              }
+            >
+              {interest.status === UserInterestStatus.Active
+                ? 'Pause'
+                : 'Resume'}
+            </Button>
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              disabled={isUpdating || isStopped}
+              onClick={() =>
+                updateInterest({ status: UserInterestStatus.Stopped })
+              }
+            >
+              Stop
+            </Button>
+            <Button
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              loading={isDeleting}
+              onClick={() => deleteInterest(id)}
+            >
+              Delete
+            </Button>
+          </FlexRow>
+        )}
+
+        {interest && (
+          <FlexCol className="gap-4 rounded-16 border border-border-subtlest-tertiary p-4">
+            <Typography type={TypographyType.Body} bold>
+              Settings
+            </Typography>
+            <FlexCol className="gap-2">
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                {`FOMO vs quality: ${(fomo ?? interest.fomoThreshold).toFixed(
+                  2,
+                )} (higher = only the best)`}
+              </Typography>
+              <Slider
+                min={0}
+                max={1}
+                step={0.05}
+                value={[fomo ?? interest.fomoThreshold]}
+                onValueChange={([value]) => setFomo(value)}
+                onValueCommit={([value]) =>
+                  updateInterest({ fomoThreshold: value })
+                }
+              />
+            </FlexCol>
+            <FlexCol className="gap-2">
+              <Typography type={TypographyType.Footnote} bold>
+                Sources
+              </Typography>
+              {(['dailyDev', 'web', 'github'] as const).map((key) => (
+                <Switch
+                  key={key}
+                  inputId={`source-${key}`}
+                  name={`source-${key}`}
+                  checked={!!interest.sources?.[key]}
+                  disabled={isUpdating || key !== 'dailyDev'}
+                  onToggle={() =>
+                    updateInterest({
+                      sources: { [key]: !interest.sources?.[key] },
+                    })
+                  }
+                >
+                  {sourceLabels[key]}
+                </Switch>
+              ))}
+            </FlexCol>
+            <FlexCol className="gap-2">
+              <Typography type={TypographyType.Footnote} bold>
+                Outputs
+              </Typography>
+              {(['feed', 'post', 'notification'] as const).map((key) => (
+                <Switch
+                  key={key}
+                  inputId={`output-${key}`}
+                  name={`output-${key}`}
+                  checked={!!interest.outputModes?.[key]}
+                  disabled={isUpdating}
+                  onToggle={() =>
+                    updateInterest({
+                      outputModes: { [key]: !interest.outputModes?.[key] },
+                    })
+                  }
+                >
+                  {outputLabels[key]}
+                </Switch>
+              ))}
+            </FlexCol>
+          </FlexCol>
         )}
 
         <FlexCol className="gap-3">
@@ -181,6 +314,28 @@ const Page = (): ReactElement | null => {
               </div>
             );
           })}
+        </FlexCol>
+
+        <FlexCol className="gap-3">
+          <Typography type={TypographyType.Body} bold>
+            Posts
+          </Typography>
+          {!postsQuery.isPending && !posts.length && (
+            <Typography color={TypographyColor.Tertiary}>
+              No generated posts yet.
+            </Typography>
+          )}
+          {posts.map((post) => (
+            <FlexCol
+              key={post.id}
+              className="gap-2 rounded-16 border border-border-subtlest-tertiary p-4"
+            >
+              <Typography type={TypographyType.Title3} bold>
+                {post.title}
+              </Typography>
+              {post.contentHtml && <Markdown content={post.contentHtml} />}
+            </FlexCol>
+          ))}
         </FlexCol>
       </div>
     </ProtectedPage>

@@ -7,16 +7,39 @@ export enum UserInterestStatus {
   Stopped = 'stopped',
 }
 
+export type InterestSources = {
+  dailyDev: boolean;
+  web: boolean;
+  github: boolean;
+};
+
+export type InterestOutputModes = {
+  feed: boolean;
+  post: boolean;
+  digest: boolean;
+  notification: boolean;
+};
+
 export type UserInterest = {
   id: string;
   query: string;
   status: UserInterestStatus;
+  fomoThreshold: number;
+  sources: InterestSources;
+  outputModes: InterestOutputModes;
   feedId?: string | null;
   sourceId?: string | null;
   lastRunAt?: string | null;
   lastRunSummary?: string | null;
   createdAt: string;
   updatedAt: string;
+};
+
+export type UpdateInterestInput = {
+  status?: UserInterestStatus;
+  fomoThreshold?: number;
+  sources?: Partial<InterestSources>;
+  outputModes?: Partial<InterestOutputModes>;
 };
 
 export type InterestFinding = {
@@ -37,6 +60,9 @@ const USER_INTEREST_FRAGMENT = `
     id
     query
     status
+    fomoThreshold
+    sources
+    outputModes
     feedId
     sourceId
     lastRunAt
@@ -102,6 +128,48 @@ export const SEND_INTEREST_COMMAND_MUTATION = `
   }
 `;
 
+export const UPDATE_INTEREST_MUTATION = `
+  mutation UpdateInterest($id: ID!, $data: UpdateInterestInput!) {
+    updateInterest(id: $id, data: $data) {
+      ...UserInterestFragment
+    }
+  }
+  ${USER_INTEREST_FRAGMENT}
+`;
+
+export const DELETE_INTEREST_MUTATION = `
+  mutation DeleteInterest($id: ID!) {
+    deleteInterest(id: $id) {
+      _
+    }
+  }
+`;
+
+export const INTEREST_POSTS_QUERY = `
+  query InterestPosts($id: ID!) {
+    interestPosts(id: $id) {
+      id
+      title
+      content
+      contentHtml
+      permalink
+      commentsPermalink
+      createdAt
+    }
+  }
+`;
+
+export type InterestPost = Pick<
+  Post,
+  | 'id'
+  | 'title'
+  | 'content'
+  | 'contentHtml'
+  | 'permalink'
+  | 'commentsPermalink'
+  | 'createdAt'
+>;
+
 export const getInterests = async (): Promise<UserInterest[]> => {
   const res = await gqlClient.request<{ interests: UserInterest[] }>(
     INTERESTS_QUERY,
@@ -146,4 +214,30 @@ export const sendInterestCommand = async ({
     sendInterestCommand: Pick<UserInterest, 'id'>;
   }>(SEND_INTEREST_COMMAND_MUTATION, { id, text });
   return res.sendInterestCommand;
+};
+
+export const updateInterest = async ({
+  id,
+  data,
+}: {
+  id: string;
+  data: UpdateInterestInput;
+}): Promise<UserInterest> => {
+  const res = await gqlClient.request<{ updateInterest: UserInterest }>(
+    UPDATE_INTEREST_MUTATION,
+    { id, data },
+  );
+  return res.updateInterest;
+};
+
+export const deleteInterest = async (id: string): Promise<void> => {
+  await gqlClient.request(DELETE_INTEREST_MUTATION, { id });
+};
+
+export const getInterestPosts = async (id: string): Promise<InterestPost[]> => {
+  const res = await gqlClient.request<{ interestPosts: InterestPost[] }>(
+    INTEREST_POSTS_QUERY,
+    { id },
+  );
+  return res.interestPosts;
 };
