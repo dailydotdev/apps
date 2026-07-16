@@ -19,7 +19,6 @@ import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
-import { formatImpressions } from '../../../lib/impressions';
 
 // Full-bleed cover: drop side padding/bottom margin and round only the bottom
 // corners so the image meets the card edges. Height/crop are untouched.
@@ -226,7 +225,6 @@ export function FeedCardGlassActions({
                 <InteractionCounter
                   className={countClasses}
                   value={impressions}
-                  format={formatImpressions}
                 />
               </QuaternaryButton>
             </Tooltip>

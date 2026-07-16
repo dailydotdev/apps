@@ -24,7 +24,6 @@ import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
-import { formatImpressions } from '../../../lib/impressions';
 import { useEngagementBarV2 } from '../../../hooks/useEngagementBarV2';
 import ActionButtonsV2 from './ActionButtons.v2';
 
@@ -309,7 +308,6 @@ const ActionButtonsV1 = ({
               <InteractionCounter
                 className={counterClassName}
                 value={impressions}
-                format={formatImpressions}
               />
             </QuaternaryButton>
           </Tooltip>

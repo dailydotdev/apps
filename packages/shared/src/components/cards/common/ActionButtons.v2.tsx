@@ -23,7 +23,6 @@ import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
-import { formatImpressions } from '../../../lib/impressions';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
 
@@ -248,7 +247,6 @@ const ActionButtons = ({
               icon={<AnalyticsIcon />}
               label="Impressions"
               count={impressions}
-              countFormat={formatImpressions}
               onClick={onImpressionsClick}
               color={ButtonColor.Cheese}
               buttonClassName={classNames(
