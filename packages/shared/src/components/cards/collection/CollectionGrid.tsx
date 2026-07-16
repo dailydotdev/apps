@@ -77,7 +77,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
       dateType={wasUpdated ? TimeFormatType.PostUpdated : TimeFormatType.Post}
       readTime={post.readTime}
       numSources={post.numCollectionSources}
-      className={classNames('mx-4', !image && 'mb-4')}
+      className="mx-4"
     />
   );
 
@@ -112,21 +112,15 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         >
           {post.title}
         </FreeformCardTitle>
-        {/* Freeform (text) cards keep the tags directly under the title. */}
-        {!image && <PostTags post={post} />}
       </CardTextContainer>
-      {image ? (
-        // With a cover image, push the tags + date to the bottom of the text
-        // area so they rest just above the image — the same placement as the
-        // default article card, independent of the title length.
-        <Container>
-          <CardSpace />
-          <PostTags post={post} className="mx-4" />
-          {postMetadata}
-        </Container>
-      ) : (
-        postMetadata
-      )}
+      {/* Push the tags + date to the bottom of the text area, just above the
+          footer (cover image or freeform text preview), matching the default
+          article card so they align regardless of title length. */}
+      <Container>
+        <CardSpace />
+        <PostTags post={post} className="mx-4" />
+        {postMetadata}
+      </Container>
       <Container className={useGlass && image ? 'flex-none' : undefined}>
         <WelcomePostCardFooter
           image={image}
