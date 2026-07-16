@@ -38,6 +38,7 @@ const mockStreak: UserStreak = {
   current: 5,
   weekStart: 1, // Monday
   lastViewAt: new Date('2024-01-04'),
+  freezesAvailable: 0,
 };
 
 const mockMostReadTags: MostReadTag[] = [

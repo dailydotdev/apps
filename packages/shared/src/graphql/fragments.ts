@@ -556,6 +556,7 @@ export const USER_STREAK_FRAGMENT = gql`
     current
     lastViewAt
     weekStart
+    freezesAvailable
   }
 `;
 

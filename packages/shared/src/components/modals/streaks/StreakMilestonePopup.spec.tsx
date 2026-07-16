@@ -34,6 +34,7 @@ const defaultStreak: ReadingStreakReturn = {
     total: 5,
     weekStart: DayOfWeek.Monday,
     lastViewAt: new Date(),
+    freezesAvailable: 0,
   },
   updateStreakConfig: jest.fn(),
   checkReadingStreak: jest.fn(),
@@ -117,6 +118,7 @@ it('should not open when streak is 0', async () => {
         total: 5,
         weekStart: DayOfWeek.Monday,
         lastViewAt: new Date(),
+        freezesAvailable: 0,
       },
     },
   });
