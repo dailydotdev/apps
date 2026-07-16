@@ -9,6 +9,7 @@ import {
   getPostClassNames,
   FreeformCardTitle,
   CardTextContainer,
+  CardSpace,
 } from '../common/Card';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../common/ActionButtons';
@@ -102,7 +103,8 @@ export const CollectionGrid = forwardRef(function CollectionCard(
           {post.title}
         </FreeformCardTitle>
 
-        <PostTags post={post} className="!items-end" />
+        <CardSpace />
+        <PostTags post={post} />
       </CardTextContainer>
       <PostMetadata
         createdAt={wasUpdated ? post.updatedAt : post.createdAt}
