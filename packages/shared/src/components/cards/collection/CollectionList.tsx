@@ -107,7 +107,6 @@ export const CollectionList = forwardRef(function CollectionCard(
             dateType: wasUpdated
               ? TimeFormatType.PostUpdated
               : TimeFormatType.Post,
-            numSources: post.numCollectionSources,
           }}
         >
           <CollectionSourceStack

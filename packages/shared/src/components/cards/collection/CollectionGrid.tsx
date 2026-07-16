@@ -76,7 +76,6 @@ export const CollectionGrid = forwardRef(function CollectionCard(
       dateLabel={wasUpdated ? 'Updated' : undefined}
       dateType={wasUpdated ? TimeFormatType.PostUpdated : TimeFormatType.Post}
       readTime={post.readTime}
-      numSources={post.numCollectionSources}
       className="mx-4"
     />
   );
