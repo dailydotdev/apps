@@ -44,6 +44,7 @@ export enum LazyModal {
   ImageView = 'imageView',
   NewStreak = 'newStreak',
   RecoverStreak = 'recoverStreak',
+  StreakFreezePurchase = 'streakFreezePurchase',
   ReputationPrivileges = 'reputationPrivileges',
   MarketingCta = 'marketingCta',
   Share = 'share',
