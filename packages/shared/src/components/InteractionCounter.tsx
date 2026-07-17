@@ -9,6 +9,10 @@ export type InteractionCounterProps = {
   value: number | null;
 };
 
+// `largeNumberFormat` takes a number; guard the nullable counter value here.
+const formatCount = (count: number | null): string | null =>
+  count == null ? null : largeNumberFormat(count);
+
 export default function InteractionCounter({
   className,
   value,
@@ -17,8 +21,8 @@ export default function InteractionCounter({
   const [shownValue, setShownValue] = useState(value);
   const [animate, setAnimate] = useState(false);
   useEffect(() => {
-    const formattedValue = largeNumberFormat(value);
-    const formattedShownValue = largeNumberFormat(shownValue);
+    const formattedValue = formatCount(value);
+    const formattedShownValue = formatCount(shownValue);
     if (formattedValue !== formattedShownValue) {
       if ((value ?? 0) < (shownValue ?? 0)) {
         setShownValue(value);
@@ -45,7 +49,7 @@ export default function InteractionCounter({
         className={classNames(elementClassName, 'justify-center')}
         {...props}
       >
-        {largeNumberFormat(shownValue)}
+        {formatCount(shownValue)}
       </span>
     );
   }
@@ -68,7 +72,7 @@ export default function InteractionCounter({
           animate ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100',
         )}
       >
-        {largeNumberFormat(shownValue)}
+        {formatCount(shownValue)}
       </span>
       <span
         className={classNames(
@@ -77,7 +81,7 @@ export default function InteractionCounter({
         )}
         onTransitionEnd={updateShownValue}
       >
-        {largeNumberFormat(value)}
+        {formatCount(value)}
       </span>
     </span>
   );

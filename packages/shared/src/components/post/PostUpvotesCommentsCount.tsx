@@ -14,7 +14,6 @@ import Link from '../utilities/Link';
 import { Button, ButtonSize } from '../buttons/Button';
 import { AnalyticsIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
-import { getPostImpressions } from '../../lib/impressions';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureCardImpressions } from '../../lib/featureManagement';
 import { usePostImpressionsModal } from '../../hooks/post/usePostImpressionsModal';
@@ -23,12 +22,7 @@ const DEFAULT_REPOSTS_PER_PAGE = 20;
 
 type PostUpvotesCommentsCountPost = Pick<
   Post,
-  | 'analytics'
-  | 'numAwards'
-  | 'numComments'
-  | 'numReposts'
-  | 'numUpvotes'
-  | 'views'
+  'analytics' | 'numAwards' | 'numComments' | 'numReposts' | 'numUpvotes'
 > &
   Partial<Pick<Post, 'id'>> & {
     author?: Pick<NonNullable<Post['author']>, 'id'>;
@@ -79,13 +73,9 @@ const PostUpvotesCommentsCountContent = ({
   // Flag on: a single impressions stat next to the other counts (links to the
   // analytics page). Flag off: keep main's behaviour — the author/team-only
   // `analytics.impressions` line plus the "Post analytics" button.
-  const impressions = getPostImpressions(post);
+  const impressions = post.analytics?.impressions ?? 0;
   const impressionsLabel =
-    impressionsEnabled &&
-    !compact &&
-    !!post.id &&
-    impressions !== null &&
-    impressions > 0
+    impressionsEnabled && !compact && !!post.id && impressions > 0
       ? getText({ count: impressions, label: 'Impression' })
       : null;
 

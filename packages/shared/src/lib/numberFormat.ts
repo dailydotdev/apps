@@ -1,6 +1,6 @@
 import type { PaddleProductLineItem } from '../graphql/paddle';
 
-export function largeNumberFormat(value: number | null): string | null {
+export function largeNumberFormat(value: number): string | null {
   if (typeof value !== 'number') {
     return null;
   }

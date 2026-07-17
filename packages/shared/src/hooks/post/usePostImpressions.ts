@@ -1,5 +1,4 @@
 import type { Post } from '../../graphql/posts';
-import { getPostImpressions } from '../../lib/impressions';
 import { useConditionalFeature } from '../useConditionalFeature';
 import { featureCardImpressions } from '../../lib/featureManagement';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -9,29 +8,29 @@ interface UsePostImpressionsResult {
   enabled: boolean;
   /** Render the impressions stat only when true. */
   showImpressions: boolean;
-  /** The real impression count (null when none is available). */
-  impressions: number | null;
+  /** The real impression count (0 when none is available). */
+  impressions: number;
 }
 
 /**
  * Gates the impressions stat: it shows only when the `card_impressions` flag is
- * on and the post has a real, non-zero impression count. There is no mock —
- * when the data is missing or zero the stat is hidden, matching how the
- * upvote/comment counters hide at zero.
+ * on and the post has a real, non-zero impression count. `analytics.impressions`
+ * is exposed publicly by the API, so the stat is hidden at zero the same way the
+ * upvote/comment counters are.
  */
 export const usePostImpressions = (
-  post: Pick<Post, 'views' | 'analytics'>,
+  post: Pick<Post, 'analytics'>,
 ): UsePostImpressionsResult => {
   const { isAuthReady } = useAuthContext();
   const { value: enabled } = useConditionalFeature({
     feature: featureCardImpressions,
     shouldEvaluate: isAuthReady,
   });
-  const impressions = getPostImpressions(post);
+  const impressions = post.analytics?.impressions ?? 0;
 
   return {
     enabled,
-    showImpressions: enabled && impressions !== null && impressions > 0,
+    showImpressions: enabled && impressions > 0,
     impressions,
   };
 };

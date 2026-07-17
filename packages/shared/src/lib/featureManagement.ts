@@ -289,7 +289,7 @@ export const featureNotificationsRedesign = new Feature(
 );
 
 // Surfaces a per-post impressions stat on the feed card action bars (glass +
-// standard) and the post page stats strip. Control hides it entirely. Keep the
-// default `false` — GrowthBook ramps it, and the feed has no real public
-// impressions data yet (see getPostImpressions).
+// standard) and the post page stats strip, sourced from the public
+// `analytics.impressions` field. Control hides it entirely. Keep the default
+// `false` — GrowthBook ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);

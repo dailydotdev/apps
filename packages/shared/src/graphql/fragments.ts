@@ -383,7 +383,6 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     analytics {
       impressions
     }
-    views
     numUpvotes
     numComments
     numAwards
