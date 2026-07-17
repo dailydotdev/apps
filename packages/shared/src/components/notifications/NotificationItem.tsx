@@ -369,7 +369,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
           </div>
         )}
         {type === NotificationType.UserFollow && (
-          <span className="relative z-1 mt-1">
+          <span className="relative z-1">
             <NotificationFollowUserButton {...props} />
           </span>
         )}

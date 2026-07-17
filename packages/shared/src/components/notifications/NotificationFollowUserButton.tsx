@@ -38,7 +38,11 @@ export const NotificationFollowUserButton = ({
   }, [avatars, referenceId]);
 
   return (
-    <div ref={ref}>
+    // Reserve the button's height (Small button = h-8) up front so the row
+    // keeps a constant height whether or not the button has mounted/resolved.
+    // Without this the button pops in as each row scrolls into view and jerks
+    // the rows below it.
+    <div ref={ref} className="flex min-h-8 items-center">
       {inView && (
         <FollowButton
           entityId={referenceId}
@@ -47,10 +51,13 @@ export const NotificationFollowUserButton = ({
           status={followPreference?.status}
           entityName={referenceUserName}
           followedVariant={ButtonVariant.Primary}
-          className="mt-3"
           buttonClassName={classNames(
+            // Not-following "Follow back": render as a plain text link — drop
+            // the button's horizontal padding so the label sits on the row's
+            // content edge, and swap the ghost hover fill for an underline so
+            // there's no offset highlight box.
             !followPreference?.status &&
-              '-ml-3.5 flex min-w-min text-text-link',
+              '!px-0 text-text-link hover:!bg-transparent hover:underline',
           )}
           copyType={CopyType.NiceGuy}
           origin={Origin.Notification}
