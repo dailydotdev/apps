@@ -111,7 +111,7 @@ export const LinkForm = ({
         className="w-full resize-none overflow-hidden break-words bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
       />
       {(showSkeleton || (preview && showPreview)) && (
-        <div className="relative">
+        <div className="relative flex flex-col gap-3">
           {showSkeleton && (
             <WritePreviewSkeleton
               link={normalizedUrl || value.url}
