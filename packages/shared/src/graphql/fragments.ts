@@ -658,7 +658,14 @@ export const FEED_POST_FRAGMENT = gql`
       }
       author {
         id
+        name
+        image
         username
+        permalink
+        bio
+        createdAt
+        reputation
+        isPlus
       }
       slug
       clickbaitTitleDetected
@@ -670,8 +677,19 @@ export const FEED_POST_FRAGMENT = gql`
     trending
     feedMeta
     collectionSources {
+      id
       handle
+      name
       image
+      permalink
+      type
+      description
+      # membersCount is intentionally omitted: collection sources are Machine
+      # sources (no members), and its resolver throws "Unexpected error", which
+      # would fail the whole feed query. description + upvotes resolve fine.
+      flags {
+        totalUpvotes
+      }
     }
     numCollectionSources
     updatedAt
