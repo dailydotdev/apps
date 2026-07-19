@@ -107,20 +107,31 @@ it('should hide read time when not available', async () => {
   expect(screen.queryByTestId('readTime')).not.toBeInTheDocument();
 });
 
-it('should display the `collection` pill in the header', async () => {
-  renderComponent();
-  await screen.findByText('Collection');
-});
-
-it('should display the `Trend` pill when the post source is trends', async () => {
+it('should display the collection source stack in the header', async () => {
   renderComponent({
     post: {
       ...post,
-      source: { ...post.source, id: 'trends' } as Post['source'],
-    },
+      collectionSources: [
+        {
+          id: 'src1',
+          handle: 'src1',
+          name: 'Source One',
+          image: 'https://daily.dev/src1.png',
+          permalink: 'https://daily.dev/sources/src1',
+        },
+        {
+          id: 'src2',
+          handle: 'src2',
+          name: 'Source Two',
+          image: 'https://daily.dev/src2.png',
+          permalink: 'https://daily.dev/sources/src2',
+        },
+      ],
+      numCollectionSources: 2,
+    } as Post,
   });
-  await screen.findByText('Trend');
-  expect(screen.queryByText('Collection')).not.toBeInTheDocument();
+  await screen.findByAltText('Avatar of src1');
+  await screen.findByAltText('Avatar of src2');
 });
 
 it('should show options button on hover when in laptop size', async () => {
