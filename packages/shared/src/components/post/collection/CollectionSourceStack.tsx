@@ -15,9 +15,12 @@ const SquadEntityCard = dynamic(
     import('../../cards/entity/SquadEntityCard'),
 );
 
-const SourceEntityCard = dynamic(
-  /* webpackChunkName: "sourceEntityCard" */ () =>
-    import('../../cards/entity/SourceEntityCard'),
+// Lazy: the source's details are fetched on hover, so the feed stays lean.
+const LazySourceEntityCard = dynamic(
+  /* webpackChunkName: "lazySourceEntityCard" */ () =>
+    import('../../cards/entity/LazySourceEntityCard').then(
+      (m) => m.LazySourceEntityCard,
+    ),
 );
 
 // Resting stack shows at most 3 avatars + one "+N" counter = 4 circles.
@@ -87,6 +90,20 @@ export const CollectionSourceStack = ({
       transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
     } as React.CSSProperties);
 
+  // Squads read from their handle; every other source lazily fetches its
+  // details by id when the hover card mounts.
+  const renderEntityCard = (source: SourceTooltip): ReactElement | null => {
+    if (source.type === SourceType.Squad) {
+      return <SquadEntityCard handle={source.handle} origin={Origin.Feed} />;
+    }
+
+    if (!source.id) {
+      return null;
+    }
+
+    return <LazySourceEntityCard id={source.id} />;
+  };
+
   const withHoverCard = (
     source: SourceTooltip,
     avatar: ReactElement,
@@ -104,11 +121,7 @@ export const CollectionSourceStack = ({
         sideOffset={10}
         trigger={avatar}
       >
-        {source.type === SourceType.Squad ? (
-          <SquadEntityCard handle={source.handle} origin={Origin.Feed} />
-        ) : (
-          <SourceEntityCard source={source} />
-        )}
+        {renderEntityCard(source)}
       </HoverCard>
     );
   };

@@ -9,15 +9,15 @@ import { ProfileImageSize, roundClasses } from '../../ProfilePicture';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import SourceButton from './SourceButton';
 import { useViewSize, ViewSize } from '../../../hooks';
-import type { UserShortProfile } from '../../../lib/user';
 
 const HoverCard = dynamic(
   /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
 );
 
-const UserEntityCard = dynamic(
-  /* webpackChunkName: "userEntityCard" */ () =>
-    import('../entity/UserEntityCard'),
+// Lazy: the author's profile is fetched on hover, so the feed stays lean.
+const LazyUserEntityCard = dynamic(
+  /* webpackChunkName: "lazyUserEntityCard" */ () =>
+    import('../entity/LazyUserEntityCard').then((m) => m.LazyUserEntityCard),
 );
 
 // Overlap for the author + source stack — mirrors CollectionSourceStack: it
@@ -77,7 +77,7 @@ export const AuthorSourceStack = ({
       sideOffset={10}
       trigger={<ProfileImageLink picture={{ size }} user={author} />}
     >
-      <UserEntityCard user={author as UserShortProfile} />
+      <LazyUserEntityCard id={author.id} />
     </HoverCard>
   ) : null;
 

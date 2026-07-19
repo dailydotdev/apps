@@ -662,10 +662,6 @@ export const FEED_POST_FRAGMENT = gql`
         image
         username
         permalink
-        bio
-        createdAt
-        reputation
-        isPlus
       }
       slug
       clickbaitTitleDetected
@@ -677,19 +673,15 @@ export const FEED_POST_FRAGMENT = gql`
     trending
     feedMeta
     collectionSources {
+      # Only the fields the stacked avatars render. The hover card's rich data
+      # (description, followers, upvotes) is fetched lazily on hover via
+      # getSourceTooltip, so the feed request stays lean.
       id
       handle
       name
       image
       permalink
       type
-      description
-      # membersCount is intentionally omitted: collection sources are Machine
-      # sources (no members), and its resolver throws "Unexpected error", which
-      # would fail the whole feed query. description + upvotes resolve fine.
-      flags {
-        totalUpvotes
-      }
     }
     numCollectionSources
     updatedAt
