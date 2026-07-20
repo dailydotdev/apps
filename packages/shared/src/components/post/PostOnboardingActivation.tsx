@@ -7,6 +7,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useOnboardingActions } from '../../hooks/auth/useOnboardingActions';
 import { useLogContext } from '../../contexts/LogContext';
 import { TargetType } from '../../lib/log';
+import { isDevelopment } from '../../lib/constants';
 import {
   clearPostSignupActivation,
   hasPostSignupActivation,
@@ -52,6 +53,7 @@ export const PostOnboardingActivation = ({
   const { isOnboardingActionsReady, isOnboardingComplete } =
     useOnboardingActions();
   const [isVisible, setIsVisible] = useState(false);
+  const [isLocalPreviewDismissed, setIsLocalPreviewDismissed] = useState(false);
   const hasLoggedImpression = useRef(false);
   const tags = useMemo(() => post.tags?.slice(0, 3) ?? [], [post.tags]);
 
@@ -69,10 +71,11 @@ export const PostOnboardingActivation = ({
   }, [isOnboardingActionsReady, isOnboardingComplete, user?.id]);
 
   const shouldShow =
-    !!user?.id &&
-    isOnboardingActionsReady &&
-    !isOnboardingComplete &&
-    isVisible;
+    (isDevelopment && !isLocalPreviewDismissed) ||
+    (!!user?.id &&
+      isOnboardingActionsReady &&
+      !isOnboardingComplete &&
+      isVisible);
 
   useEffect(() => {
     if (!shouldShow || hasLoggedImpression.current) {
@@ -92,7 +95,11 @@ export const PostOnboardingActivation = ({
   }
 
   const onDismiss = (): void => {
-    clearPostSignupActivation();
+    if (isDevelopment) {
+      setIsLocalPreviewDismissed(true);
+    } else {
+      clearPostSignupActivation();
+    }
     setIsVisible(false);
     logEvent({
       event_name: 'click',
