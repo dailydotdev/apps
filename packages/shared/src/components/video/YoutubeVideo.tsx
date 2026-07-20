@@ -1,13 +1,16 @@
 import type { HTMLAttributes, ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { GdprConsentKey } from '../../hooks/useCookieBanner';
 import type { YoutubeVideoWithoutConsentProps } from './YoutubeVideoWithoutConsent';
 import { YoutubeVideoWithoutConsent } from './YoutubeVideoWithoutConsent';
 import { YoutubeVideoBackground, YoutubeVideoContainer } from './common';
 import { useConsentCookie } from '../../hooks/useCookieConsent';
-import { isExtension } from '../../lib/func';
+import { isExtension, isIOSNative } from '../../lib/func';
 import { webappUrl } from '../../lib/constants';
+
+const nativeIOSYouTubeSandbox =
+  'allow-same-origin allow-scripts allow-presentation';
 
 interface YoutubeVideoProps extends HTMLAttributes<HTMLIFrameElement> {
   videoId: string;
@@ -29,8 +32,13 @@ const YoutubeVideo = ({
   const { cookieExists, saveCookies } = useConsentCookie(
     GdprConsentKey.Marketing,
   );
+  const [isNativeIOS, setIsNativeIOS] = useState<boolean>();
 
-  if (!isAuthReady) {
+  useEffect(() => {
+    setIsNativeIOS(isIOSNative());
+  }, []);
+
+  if (!isAuthReady || typeof isNativeIOS === 'undefined') {
     return (
       <YoutubeVideoContainer className={className}>
         <YoutubeVideoBackground />
@@ -60,6 +68,7 @@ const YoutubeVideo = ({
         title={title}
         src={embedSrc}
         allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+        sandbox={isNativeIOS ? nativeIOSYouTubeSandbox : undefined}
         referrerPolicy="strict-origin-when-cross-origin"
         allowFullScreen
         className="absolute inset-0 aspect-video w-full border-0"
