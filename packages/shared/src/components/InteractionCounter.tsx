@@ -9,6 +9,10 @@ export type InteractionCounterProps = {
   value: number | null;
 };
 
+// `largeNumberFormat` takes a number; guard the nullable counter value here.
+const formatCount = (count: number | null): string | null =>
+  count == null ? null : largeNumberFormat(count);
+
 export default function InteractionCounter({
   className,
   value,
@@ -17,10 +21,10 @@ export default function InteractionCounter({
   const [shownValue, setShownValue] = useState(value);
   const [animate, setAnimate] = useState(false);
   useEffect(() => {
-    const formattedValue = largeNumberFormat(value);
-    const formattedShownValue = largeNumberFormat(shownValue);
+    const formattedValue = formatCount(value);
+    const formattedShownValue = formatCount(shownValue);
     if (formattedValue !== formattedShownValue) {
-      if (value < shownValue) {
+      if ((value ?? 0) < (shownValue ?? 0)) {
         setShownValue(value);
       } else {
         setAnimate(false);
@@ -37,9 +41,15 @@ export default function InteractionCounter({
   );
 
   if (shownValue === value) {
+    // Center the number within the fixed-height (h-5) box. Without this the text
+    // is top-aligned, so smaller type (e.g. typo-caption1 on mobile/tablet, whose
+    // 1rem line-height is shorter than h-5) sits visibly higher than the icon.
     return (
-      <span className={elementClassName} {...props}>
-        {largeNumberFormat(shownValue)}
+      <span
+        className={classNames(elementClassName, 'justify-center')}
+        {...props}
+      >
+        {formatCount(shownValue)}
       </span>
     );
   }
@@ -49,8 +59,10 @@ export default function InteractionCounter({
     setShownValue(value);
   };
 
+  // leading-5 makes each rolling slice's line box fill its h-5 height so the
+  // digits stay centered during the roll (matches the resting state above).
   const childClassName =
-    'h-5 inline-block transition-[opacity,transform] ease-in-out duration-300 will-change-[opacity,transform]';
+    'h-5 leading-5 inline-block transition-[opacity,transform] ease-in-out duration-300 will-change-[opacity,transform]';
 
   return (
     <span className={elementClassName} {...props}>
@@ -60,7 +72,7 @@ export default function InteractionCounter({
           animate ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100',
         )}
       >
-        {largeNumberFormat(shownValue)}
+        {formatCount(shownValue)}
       </span>
       <span
         className={classNames(
@@ -69,7 +81,7 @@ export default function InteractionCounter({
         )}
         onTransitionEnd={updateShownValue}
       >
-        {largeNumberFormat(value)}
+        {formatCount(value)}
       </span>
     </span>
   );
