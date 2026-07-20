@@ -20,19 +20,20 @@ import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import {
-  webappUrl,
-  isDevelopment,
-} from '@dailydotdev/shared/src/lib/constants';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useQuery } from '@tanstack/react-query';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { featureInterestAgent } from '@dailydotdev/shared/src/lib/featureManagement';
 import { UserInterestStatus } from '@dailydotdev/shared/src/graphql/interests';
-import { useInterest } from '@dailydotdev/shared/src/features/interests/hooks/useInterest';
+import {
+  interestQueryOptions,
+  interestFindingsQueryOptions,
+  interestPostsQueryOptions,
+} from '@dailydotdev/shared/src/features/interests/queries';
 import { useSendInterestCommand } from '@dailydotdev/shared/src/features/interests/hooks/useSendInterestCommand';
 import { useUpdateInterest } from '@dailydotdev/shared/src/features/interests/hooks/useUpdateInterest';
 import { useDeleteInterest } from '@dailydotdev/shared/src/features/interests/hooks/useDeleteInterest';
-import { useInterestPosts } from '@dailydotdev/shared/src/features/interests/hooks/useInterestPosts';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -53,17 +54,17 @@ const outputLabels: Record<'feed' | 'post' | 'notification', string> = {
 const Page = (): ReactElement | null => {
   const router = useRouter();
   const id = router.query.id as string;
-  const { isAuthReady } = useAuthContext();
-  const { value: flagEnabled } = useConditionalFeature({
+  const { user, isAuthReady } = useAuthContext();
+  const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
     shouldEvaluate: isAuthReady,
   });
-  const showAgent = flagEnabled || isDevelopment;
 
   const [feedback, setFeedback] = useState('');
   const [fomo, setFomo] = useState<number | null>(null);
-  const { interestQuery, findingsQuery } = useInterest(id);
-  const postsQuery = useInterestPosts(id);
+  const interestQuery = useQuery(interestQueryOptions(id, user));
+  const findingsQuery = useQuery(interestFindingsQueryOptions(id, user));
+  const postsQuery = useQuery(interestPostsQueryOptions(id, user));
   const { isSending, sendCommand } = useSendInterestCommand(id);
   const { isUpdating, updateInterest } = useUpdateInterest(id);
   const { isDeleting, deleteInterest } = useDeleteInterest({

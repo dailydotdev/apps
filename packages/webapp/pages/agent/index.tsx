@@ -16,14 +16,12 @@ import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import {
-  webappUrl,
-  isDevelopment,
-} from '@dailydotdev/shared/src/lib/constants';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useQuery } from '@tanstack/react-query';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { featureInterestAgent } from '@dailydotdev/shared/src/lib/featureManagement';
-import { useInterests } from '@dailydotdev/shared/src/features/interests/hooks/useInterests';
+import { interestsQueryOptions } from '@dailydotdev/shared/src/features/interests/queries';
 import { useCreateInterest } from '@dailydotdev/shared/src/features/interests/hooks/useCreateInterest';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -32,15 +30,14 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const Page = (): ReactElement | null => {
   const router = useRouter();
-  const { isAuthReady } = useAuthContext();
-  const { value: flagEnabled } = useConditionalFeature({
+  const { user, isAuthReady } = useAuthContext();
+  const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
     shouldEvaluate: isAuthReady,
   });
-  const showAgent = flagEnabled || isDevelopment;
 
   const [query, setQuery] = useState('');
-  const { data: interests, isPending } = useInterests();
+  const { data: interests, isPending } = useQuery(interestsQueryOptions(user));
   const { isCreating, createInterest } = useCreateInterest({
     onCreated: (id) => router.push(`${webappUrl}agent/${id}`),
   });
