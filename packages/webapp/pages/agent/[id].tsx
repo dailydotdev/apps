@@ -254,7 +254,7 @@ const Page = (): ReactElement | null => {
             />
             <Button
               variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
+              size={ButtonSize.Large}
               onClick={onSendFeedback}
               loading={isSending}
               disabled={!feedback.trim()}
