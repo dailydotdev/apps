@@ -114,51 +114,56 @@ export const PostOnboardingActivation = (): ReactElement | null => {
       className="relative mb-4 w-full overflow-hidden border-y border-border-subtlest-secondary bg-surface-float shadow-2 laptop:mx-auto laptop:max-w-[69.25rem] laptop:rounded-16 laptop:border"
     >
       <div className="absolute inset-y-0 left-0 w-1 bg-accent-cabbage-default" />
-      <div className="relative flex w-full flex-col gap-5 px-5 py-5 pr-14 tablet:flex-row tablet:items-center tablet:gap-8 tablet:px-6 tablet:py-6 tablet:pr-14 laptop:px-8">
+      <div className="relative flex w-full flex-col gap-5 px-5 py-5 pr-14 tablet:flex-row tablet:items-center tablet:gap-8 tablet:px-6 tablet:pr-14 laptop:px-8">
         <div className="min-w-0 flex-1">
-          <div className="mb-2 flex items-center gap-2 font-bold uppercase tracking-wide typo-caption1">
+          <div
+            aria-label="Account ready. Final setup step."
+            className="mb-2.5 flex items-center gap-2 font-bold uppercase tracking-wide typo-caption1"
+          >
             <span className="flex size-5 items-center justify-center rounded-full bg-accent-cabbage-default text-white">
               <VIcon secondary size={IconSize.Size16} />
             </span>
-            <span className="text-text-tertiary">Account created</span>
+            <span className="text-text-secondary">Account ready</span>
             <span className="h-px w-6 bg-border-subtlest-secondary" />
-            <span className="text-accent-cabbage-default">One step left</span>
+            <span className="font-mono text-accent-cabbage-default">
+              Final setup
+            </span>
           </div>
           <Typography
             tag={TypographyTag.H2}
-            type={TypographyType.Title2}
+            type={TypographyType.Title3}
             bold
-            className="[text-wrap:balance]"
+            className="[text-wrap:balance] tablet:!typo-title2"
           >
-            Your account is ready. Your feed isn&apos;t.
+            You&apos;re in. Now make daily.dev yours.
           </Typography>
           <Typography
             type={TypographyType.Callout}
             color={TypographyColor.Secondary}
-            className="mt-1 max-w-[42rem] [text-wrap:pretty]"
+            className="mt-1.5 max-w-[42rem] [text-wrap:pretty]"
           >
-            Choose what you care about once. We&apos;ll filter the noise and
-            make daily.dev worth opening every day.
+            Choose a few topics. We&apos;ll cut the noise and build a feed worth
+            coming back to.
           </Typography>
         </div>
 
-        <div className="flex w-full shrink-0 flex-col items-center gap-1.5 tablet:w-auto">
+        <div className="flex w-full shrink-0 flex-col items-center gap-1.5 tablet:w-auto tablet:border-l tablet:border-border-subtlest-secondary tablet:pl-8">
           <Button
             type="button"
             variant={ButtonVariant.Primary}
             color={ButtonColor.Cabbage}
             size={ButtonSize.Large}
-            className="w-full tablet:w-auto"
+            className="w-full transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-2-cabbage active:translate-y-0 motion-reduce:transform-none tablet:min-w-52"
             onClick={onBuildFeed}
           >
-            Choose my topics
+            Personalize my feed
           </Button>
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}
             color={TypographyColor.Secondary}
           >
-            Takes about 1 minute
+            About 1 minute · change it anytime
           </Typography>
         </div>
 
