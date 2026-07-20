@@ -1,8 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
-import { ReadingStreakIcon } from '../../icons';
-import { IconSize } from '../../Icon';
 import {
   Typography,
   TypographyColor,
@@ -42,11 +39,6 @@ export function StreakFreezeRow(): ReactElement | null {
       className="mt-3 flex w-full items-center gap-2 border-t border-border-subtlest-tertiary px-4 py-3 text-left"
       onClick={() => openModal({ type: LazyModal.StreakFreezePurchase })}
     >
-      <ReadingStreakIcon
-        secondary={hasFreezes}
-        size={IconSize.Small}
-        className={classNames(!hasFreezes && 'text-text-tertiary')}
-      />
       <Typography
         className="flex-1"
         type={TypographyType.Callout}
