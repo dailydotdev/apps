@@ -13,7 +13,12 @@ import {
   POST_ONBOARDING_PREVIEW_QUERY,
 } from '../../lib/postSignupActivation';
 import { AFTER_AUTH_PARAM } from '../auth/common';
-import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '../buttons/Button';
 import CloseButton from '../CloseButton';
 import { VIcon } from '../icons/V';
 import { IconSize } from '../Icon';
@@ -106,7 +111,7 @@ export const PostOnboardingActivation = (): ReactElement | null => {
   return (
     <aside
       aria-label="Personalize your feed"
-      className="relative mb-4 w-full overflow-hidden border-y border-border-subtlest-secondary bg-surface-secondary laptop:mx-auto laptop:max-w-[69.25rem] laptop:rounded-16 laptop:border"
+      className="relative mb-4 w-full overflow-hidden border-y border-border-subtlest-secondary bg-surface-float shadow-2 laptop:mx-auto laptop:max-w-[69.25rem] laptop:rounded-16 laptop:border"
     >
       <div className="absolute inset-y-0 left-0 w-1 bg-accent-cabbage-default" />
       <div className="relative flex w-full flex-col gap-5 px-5 py-5 pr-14 tablet:flex-row tablet:items-center tablet:gap-8 tablet:px-6 tablet:py-6 tablet:pr-14 laptop:px-8">
@@ -129,7 +134,7 @@ export const PostOnboardingActivation = (): ReactElement | null => {
           </Typography>
           <Typography
             type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
+            color={TypographyColor.Secondary}
             className="mt-1 max-w-[42rem] [text-wrap:pretty]"
           >
             Choose what you care about once. We&apos;ll filter the noise and
@@ -141,6 +146,7 @@ export const PostOnboardingActivation = (): ReactElement | null => {
           <Button
             type="button"
             variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
             size={ButtonSize.Large}
             className="w-full tablet:w-auto"
             onClick={onBuildFeed}
@@ -150,7 +156,7 @@ export const PostOnboardingActivation = (): ReactElement | null => {
           <Typography
             tag={TypographyTag.Span}
             type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
+            color={TypographyColor.Secondary}
           >
             Takes about 1 minute
           </Typography>
