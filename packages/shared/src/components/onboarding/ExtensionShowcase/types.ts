@@ -1,0 +1,31 @@
+import type { ReactElement } from 'react';
+
+export type ExtensionShowcaseMedia =
+  | {
+      type: 'video';
+      src: string;
+      poster?: string;
+      alt?: string;
+    }
+  | {
+      type: 'image';
+      src: string;
+      retinaSrc?: string;
+      alt?: string;
+    };
+
+export interface ExtensionShowcaseFeature {
+  /** Stable identifier, also used for tracking. */
+  id: string;
+  /** Short label shown in the left dock / mobile tab strip. */
+  label: string;
+  /** Icon rendered in the dock. Should accept `secondary` and `className`. */
+  icon: ReactElement;
+  /** Single-sentence value message shown in the detail panel. */
+  description: string;
+  /** Optional CTA label shown while this feature is active. Falls back to the
+   * component's `ctaLabel` when omitted. */
+  cta?: string;
+  /** Right-side media. Video is autoplayed muted/looped; image supports retina. */
+  media?: ExtensionShowcaseMedia;
+}
