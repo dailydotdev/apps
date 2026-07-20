@@ -261,6 +261,10 @@ export enum LogEvent {
   // Tags - end
   // marketing CTA
   MarketingCtaDismiss = 'dismiss promotion',
+  // sidebar announcements ("what's new")
+  ImpressionAnnouncement = 'impression announcement',
+  ClickAnnouncement = 'click announcement',
+  DismissAnnouncement = 'dismiss announcement',
   // Reading reminder
   ScheduleReadingReminder = 'schedule reading reminder',
   SkipReadingReminder = 'skip reading reminder',
