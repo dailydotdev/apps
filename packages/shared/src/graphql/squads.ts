@@ -677,13 +677,19 @@ export const checkExistingHandle = async (handle: string): Promise<boolean> => {
 
 export const addPostToSquad =
   (requestMethod: typeof gqlClient.request) =>
-  (data: PostToSquadProps): Promise<Post> =>
-    requestMethod(ADD_POST_TO_SQUAD_MUTATION, data);
+  async (data: PostToSquadProps): Promise<Post> => {
+    const res = await requestMethod(ADD_POST_TO_SQUAD_MUTATION, data);
+
+    return res.sharePost;
+  };
 
 export const updateSquadPost =
   (requestMethod: typeof gqlClient.request) =>
-  (data: PostToSquadProps): Promise<Post> =>
-    requestMethod(UPDATE_SQUAD_POST_MUTATION, data);
+  async (data: PostToSquadProps): Promise<Post> => {
+    const res = await requestMethod(UPDATE_SQUAD_POST_MUTATION, data);
+
+    return res.editSharePost;
+  };
 
 const formToInput = (form: SquadForm): SharedSquadInput => ({
   description: form.description,
