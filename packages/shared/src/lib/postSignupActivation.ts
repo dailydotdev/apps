@@ -8,6 +8,15 @@ const activationStorageKey = generateStorageKey(
 
 const activationTtl = 7 * 24 * 60 * 60 * 1000;
 
+export const POST_ONBOARDING_PREVIEW_QUERY = 'postOnboardingPreview';
+
+export const isPostOnboardingPreviewEnabled = (
+  value?: string | string[],
+): boolean =>
+  value === '1' ||
+  value === 'true' ||
+  (Array.isArray(value) && (value.includes('1') || value.includes('true')));
+
 interface PostSignupActivation {
   userId: string;
   postPath: string;

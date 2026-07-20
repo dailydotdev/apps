@@ -53,6 +53,11 @@ import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePo
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { PostOnboardingActivation } from '@dailydotdev/shared/src/components/post/PostOnboardingActivation';
+import {
+  isPostOnboardingPreviewEnabled,
+  POST_ONBOARDING_PREVIEW_QUERY,
+} from '@dailydotdev/shared/src/lib/postSignupActivation';
+import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -192,6 +197,12 @@ export const PostPage = ({
   const router = useRouter();
   const isFallback = false;
   const { shouldShowAuthBanner } = useOnboardingActions();
+  const isActivationPreview =
+    isDevelopment ||
+    isPostOnboardingPreviewEnabled(
+      router.query?.[POST_ONBOARDING_PREVIEW_QUERY],
+    );
+  const showAuthBanner = shouldShowAuthBanner && !isActivationPreview;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isLoading } = usePostById({
     id,
@@ -286,6 +297,7 @@ export const PostPage = ({
             <link rel="preload" as="image" href={post?.image} />
           </Head>
           <PostSEOSchema post={post} topComments={topComments} />
+          <PostOnboardingActivation />
           {showRedesign ? (
             <div className="mx-auto w-full max-w-[63.75rem]">
               <PostFocusCard post={post} origin={Origin.ArticlePage} />
@@ -299,7 +311,7 @@ export const PostPage = ({
               backToSquad={!!router?.query?.squad}
               shouldOnboardAuthor={!!router.query?.author}
               origin={Origin.ArticlePage}
-              isBannerVisible={shouldShowAuthBanner && !isLaptop}
+              isBannerVisible={showAuthBanner && !isLaptop}
               className={{
                 container: containerClass,
                 fixedNavigation: { container: 'flex laptop:hidden' },
@@ -310,10 +322,7 @@ export const PostPage = ({
               }}
             />
           )}
-          {!showRedesign && shouldShowAuthBanner && isLaptop && (
-            <PostAuthBanner />
-          )}
-          <PostOnboardingActivation post={post} inline={!isLaptop} />
+          {!showRedesign && showAuthBanner && isLaptop && <PostAuthBanner />}
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>

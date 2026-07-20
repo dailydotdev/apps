@@ -35,6 +35,8 @@ jest.mock('../../contexts/LogContext', () => ({
 jest.mock('../../lib/postSignupActivation', () => ({
   clearPostSignupActivation: jest.fn(),
   hasPostSignupActivation: jest.fn(() => true),
+  isPostOnboardingPreviewEnabled: jest.fn(() => false),
+  POST_ONBOARDING_PREVIEW_QUERY: 'postOnboardingPreview',
 }));
 
 const mockHasPostSignupActivation = jest.mocked(hasPostSignupActivation);
@@ -46,24 +48,17 @@ describe('PostOnboardingActivation', () => {
     mockHasPostSignupActivation.mockReturnValue(true);
   });
 
-  it('connects the current post topics to the feed value proposition', async () => {
-    render(
-      <PostOnboardingActivation
-        post={{ tags: ['react', 'typescript', 'webdev'] }}
-      />,
-    );
+  it('frames feed setup as the final step with a clear value proposition', async () => {
+    render(<PostOnboardingActivation />);
 
     expect(
-      await screen.findByText(
-        'One good post is luck. Build a feed full of them.',
-      ),
+      await screen.findByText("Your account is ready. Your feed isn't."),
     ).toBeInTheDocument();
-    expect(screen.getByText('#react')).toBeInTheDocument();
-    expect(screen.getByText('#typescript')).toBeInTheDocument();
-    expect(screen.getByText('#webdev')).toBeInTheDocument();
+    expect(screen.getByText('Account created')).toBeInTheDocument();
+    expect(screen.getByText('One step left')).toBeInTheDocument();
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Build my feed' }),
+      screen.getByRole('button', { name: 'Choose my topics' }),
     );
 
     expect(mockPush).toHaveBeenCalledWith({
@@ -73,7 +68,7 @@ describe('PostOnboardingActivation', () => {
   });
 
   it('dismisses the prompt without completing onboarding', async () => {
-    render(<PostOnboardingActivation post={{ tags: [] }} />);
+    render(<PostOnboardingActivation />);
 
     await screen.findByRole('complementary', {
       name: 'Personalize your feed',

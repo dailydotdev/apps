@@ -1,6 +1,7 @@
 import {
   clearPostSignupActivation,
   hasPostSignupActivation,
+  isPostOnboardingPreviewEnabled,
   markPostSignupActivation,
 } from './postSignupActivation';
 
@@ -39,5 +40,12 @@ describe('post signup activation', () => {
     clearPostSignupActivation();
 
     expect(hasPostSignupActivation('new-user')).toBe(false);
+  });
+
+  it('supports explicit local and hosted preview values', () => {
+    expect(isPostOnboardingPreviewEnabled('1')).toBe(true);
+    expect(isPostOnboardingPreviewEnabled('true')).toBe(true);
+    expect(isPostOnboardingPreviewEnabled(['0', '1'])).toBe(true);
+    expect(isPostOnboardingPreviewEnabled('0')).toBe(false);
   });
 });
