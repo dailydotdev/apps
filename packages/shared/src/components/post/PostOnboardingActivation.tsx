@@ -34,6 +34,13 @@ interface PostOnboardingActivationProps {
   inline?: boolean;
 }
 
+const previewQueryKey = 'postOnboardingPreview';
+
+const isPreviewQueryEnabled = (value?: string | string[]): boolean =>
+  value === '1' ||
+  value === 'true' ||
+  (Array.isArray(value) && (value.includes('1') || value.includes('true')));
+
 const getSupportingCopy = (tags: string[]): string => {
   if (!tags.length) {
     return 'Pick what you care about. We’ll bring you the tech worth knowing — minus the noise.';
@@ -56,6 +63,8 @@ export const PostOnboardingActivation = ({
   const [isLocalPreviewDismissed, setIsLocalPreviewDismissed] = useState(false);
   const hasLoggedImpression = useRef(false);
   const tags = useMemo(() => post.tags?.slice(0, 3) ?? [], [post.tags]);
+  const isPreviewMode =
+    isDevelopment || isPreviewQueryEnabled(router.query?.[previewQueryKey]);
 
   useEffect(() => {
     if (!user?.id || !isOnboardingActionsReady) {
@@ -71,7 +80,7 @@ export const PostOnboardingActivation = ({
   }, [isOnboardingActionsReady, isOnboardingComplete, user?.id]);
 
   const shouldShow =
-    (isDevelopment && !isLocalPreviewDismissed) ||
+    (isPreviewMode && !isLocalPreviewDismissed) ||
     (!!user?.id &&
       isOnboardingActionsReady &&
       !isOnboardingComplete &&
@@ -95,7 +104,7 @@ export const PostOnboardingActivation = ({
   }
 
   const onDismiss = (): void => {
-    if (isDevelopment) {
+    if (isPreviewMode) {
       setIsLocalPreviewDismissed(true);
     } else {
       clearPostSignupActivation();
