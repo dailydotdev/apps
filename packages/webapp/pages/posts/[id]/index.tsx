@@ -52,6 +52,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
+import { PostOnboardingActivation } from '@dailydotdev/shared/src/components/post/PostOnboardingActivation';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -312,6 +313,7 @@ export const PostPage = ({
           {!showRedesign && shouldShowAuthBanner && isLaptop && (
             <PostAuthBanner />
           )}
+          <PostOnboardingActivation post={post} inline={!isLaptop} />
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>

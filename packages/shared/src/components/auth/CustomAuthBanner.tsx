@@ -6,6 +6,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { useViewSize, ViewSize } from '../../hooks';
 import LoginButton from '../LoginButton';
 import { authGradientBg } from '../marketing/banners';
+import { markPostSignupActivation } from '../../lib/postSignupActivation';
 
 const CustomAuthBanner = (): ReactElement | null => {
   const { shouldShowAuthBanner } = useOnboardingActions();
@@ -21,6 +22,7 @@ const CustomAuthBanner = (): ReactElement | null => {
 
   return (
     <LoginButton
+      onRegistrationSuccess={markPostSignupActivation}
       className={{
         container: classNames(
           authGradientBg,

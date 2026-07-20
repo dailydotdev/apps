@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { AuthenticationBanner } from './AuthenticationBanner';
 import { getSocialReferrer } from '../../lib/socialMedia';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { markPostSignupActivation } from '../../lib/postSignupActivation';
 
 const UserPersonalizedBanner = dynamic(
   () =>
@@ -36,17 +37,40 @@ export const PostAuthBanner = ({
   const userId = searchParams?.get('userid');
 
   if (userId) {
-    return <UserPersonalizedBanner userId={userId} compact={compact} />;
+    return (
+      <UserPersonalizedBanner
+        userId={userId}
+        compact={compact}
+        onRegistrationSuccess={markPostSignupActivation}
+      />
+    );
   }
 
   const social = getSocialReferrer();
   if (social) {
-    return <SocialPersonalizedBanner site={social} compact={compact} />;
+    return (
+      <SocialPersonalizedBanner
+        site={social}
+        compact={compact}
+        onRegistrationSuccess={markPostSignupActivation}
+      />
+    );
   }
 
   if (geo?.region) {
-    return <GeoPersonalizedBanner geo={geo.region} compact={compact} />;
+    return (
+      <GeoPersonalizedBanner
+        geo={geo.region}
+        compact={compact}
+        onRegistrationSuccess={markPostSignupActivation}
+      />
+    );
   }
 
-  return <AuthenticationBanner compact={compact} />;
+  return (
+    <AuthenticationBanner
+      compact={compact}
+      onRegistrationSuccess={markPostSignupActivation}
+    />
+  );
 };
