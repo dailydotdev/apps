@@ -1,5 +1,7 @@
 import type { EngagementCreative } from './engagementAds';
 import {
+  EngagementPlacement,
+  findCreativeForPlacement,
   findCreativeForTags,
   findCreativeForTool,
   parseCreatives,
@@ -25,6 +27,7 @@ const validRaw: EngagementCreative = {
   tools: ['VSCode'],
   keywords: ['ai'],
   tags: ['ai', 'copilot'],
+  placements: [],
 };
 
 describe('parseCreatives', () => {
@@ -98,5 +101,28 @@ describe('findCreativeForTool', () => {
     expect(findCreativeForTool(creatives, null)).toBeNull();
     expect(findCreativeForTool(creatives, undefined)).toBeNull();
     expect(findCreativeForTool(creatives, 'webstorm')).toBeNull();
+  });
+});
+
+describe('findCreativeForPlacement', () => {
+  it('returns null when no creative opted into the placement', () => {
+    const creatives = [resolveCreative(validRaw, false)];
+    expect(
+      findCreativeForPlacement(creatives, EngagementPlacement.TopBanner),
+    ).toBeNull();
+    expect(findCreativeForPlacement(undefined, EngagementPlacement.FeedStrip));
+  });
+
+  it('matches a creative that declared the placement', () => {
+    const optedIn = parseCreatives([
+      { ...validRaw, gen_id: 'banner', placements: ['top_banner'] },
+    ]).map((c) => resolveCreative(c, false));
+
+    expect(
+      findCreativeForPlacement(optedIn, EngagementPlacement.TopBanner)?.genId,
+    ).toBe('banner');
+    expect(
+      findCreativeForPlacement(optedIn, EngagementPlacement.FeedStrip),
+    ).toBeNull();
   });
 });

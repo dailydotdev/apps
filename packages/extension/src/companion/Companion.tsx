@@ -83,11 +83,19 @@ export default function Companion({
   onUpdateToken,
 }: CompanionProps): ReactElement {
   useBackgroundRequest(refreshTokenKey, {
-    callback: ({ res }) => onUpdateToken(res.accessToken),
+    callback: (params) => {
+      const { res } = params as { res: { accessToken: AccessToken } };
+      onUpdateToken(res.accessToken);
+    },
   });
-  const containerRef = useRef<HTMLDivElement>();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [assetsLoaded, setAssetsLoaded] = useState(isTesting);
-  usePopupSelector({ parentSelector: getCompanionWrapper });
+  // getCompanionWrapper returns the shadow-root wrapper, which is always
+  // present while the companion is mounted; cast away its null return to
+  // match the non-null AppendFn selector signature.
+  usePopupSelector({
+    parentSelector: getCompanionWrapper as () => HTMLElement,
+  });
   const client = useQueryClient();
   const { data: post } = useQuery({
     queryKey: getPostByIdKey(postData.id),
@@ -95,8 +103,13 @@ export default function Companion({
     select: useCallback((data: { post: PostBootData }) => {
       return data.post;
     }, []),
+    initialData: { post: postData },
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
+    // This query mirrors the postData prop rather than fetching; it must
+    // re-run on mount to reflect the current prop, so it opts out of the
+    // global staleTime floor. Mutations update the cache via updatePostCache.
+    staleTime: 0,
   });
   const setPost = useCallback(
     (newPostData: PostBootData) => {

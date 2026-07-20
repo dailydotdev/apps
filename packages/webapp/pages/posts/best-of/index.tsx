@@ -17,6 +17,8 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { ArchiveIndexPage } from '@dailydotdev/shared/src/components/archive/ArchiveIndexPage';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
+import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { buildBreadcrumbListJsonLd } from '@dailydotdev/shared/src/lib/archive';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../../components/layouts/MainLayout';
@@ -57,24 +59,30 @@ function getJsonLd(): string {
 
 const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
   const jsonLd = getJsonLd();
+  const { isV2 } = useLayoutVariant();
 
   return (
-    <PageWrapperLayout>
-      <Head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: jsonLd }}
+    <>
+      {isV2 && <ExploreHubHeader />}
+      <PageWrapperLayout>
+        <Head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: jsonLd }}
+          />
+        </Head>
+        {!isV2 && (
+          <ArchiveBreadcrumbs
+            items={[{ label: 'Explore', href: '/posts' }, { label: 'Best of' }]}
+          />
+        )}
+        <ArchiveIndexPage
+          archives={archives}
+          scopeType={ArchiveScopeType.Global}
+          scopeName={scopeName}
         />
-      </Head>
-      <ArchiveBreadcrumbs
-        items={[{ label: 'Explore', href: '/posts' }, { label: 'Best of' }]}
-      />
-      <ArchiveIndexPage
-        archives={archives}
-        scopeType={ArchiveScopeType.Global}
-        scopeName={scopeName}
-      />
-    </PageWrapperLayout>
+      </PageWrapperLayout>
+    </>
   );
 };
 

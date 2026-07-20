@@ -1,7 +1,7 @@
 import type { RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
-const usePrefersReducedMotion = (): boolean => {
+export const usePrefersReducedMotion = (): boolean => {
   const [reduced, setReduced] = useState(false);
 
   useEffect(() => {

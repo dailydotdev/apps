@@ -1,16 +1,13 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { CardHeader } from './Card';
-import SourceButton from './SourceButton';
 import type { Source } from '../../../graphql/sources';
-import { isSourceUserSource } from '../../../graphql/sources';
+import { AuthorSourceStack } from './AuthorSourceStack';
 import { ReadArticleButton, getReadPostButtonIcon } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
-import { useLegacyPostLayoutOptOut } from '../../post/reader/hooks/useLegacyPostLayoutOptOut';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadPostButtonText,
@@ -26,20 +23,8 @@ import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from './BookmarkProviderHeader';
-import { ProfileImageLink } from '../../profile/ProfileImageLink';
-import { ProfileImageSize } from '../../ProfilePicture';
 import { DeletedPostId } from '../../../lib/constants';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
-import type { UserShortProfile } from '../../../lib/user';
-
-const HoverCard = dynamic(
-  /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
-);
-
-const UserEntityCard = dynamic(
-  /* webpackChunkName: "userEntityCard" */ () =>
-    import('../entity/UserEntityCard'),
-);
 
 interface CardHeaderProps {
   post: Post;
@@ -69,22 +54,15 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
-  const isUserSource = isSourceUserSource(post.source);
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: (post.bookmarked && !showFeedback) ?? false,
   });
-  const { isEligible: isReaderEligible, isReaderModalEnabled } =
-    useReaderModalEligibility();
-  const { isOptedOut: isLegacyLayoutOptedOut } = useLegacyPostLayoutOptOut();
+  const { isReaderEnabled } = useReaderModalEligibility();
   // Variant: clicking Read post on the card opens the reader preview inside
   // daily.dev (globe-icon CTA) instead of navigating to the external article.
-  // Once a user opts out (via the install-prompt overlay) the card reverts
-  // to the classic external Read post button.
-  const isReaderVariant =
-    isReaderEligible &&
-    isReaderModalEnabled &&
-    post.type === PostType.Article &&
-    !isLegacyLayoutOptedOut;
+  // Once a user opts out (via the install-prompt overlay or settings) the card
+  // reverts to the classic external Read post button.
+  const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
 
@@ -123,22 +101,7 @@ export const PostCardHeader = ({
           highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
-        {!isUserSource && <SourceButton source={source} />}
-        {!!post?.author && (
-          <HoverCard
-            align="start"
-            side="bottom"
-            sideOffset={10}
-            trigger={
-              <ProfileImageLink
-                picture={{ size: ProfileImageSize.Medium }}
-                user={post.author}
-              />
-            }
-          >
-            <UserEntityCard user={post.author as UserShortProfile} />
-          </HoverCard>
-        )}
+        <AuthorSourceStack author={post.author} source={source} />
         {children}
         <Container
           className="ml-auto flex flex-row"

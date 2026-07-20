@@ -17,8 +17,13 @@ import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { PostCardFooter } from '../common/PostCardFooter';
 import ActionButtons from '../common/ActionButtons';
+import {
+  FeedCardGlassActions,
+  glassCoverImageClassName,
+} from '../common/FeedCardGlassActions';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
+import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { DeletedPostId } from '../../../lib/constants';
 import { SourceType } from '../../../graphql/sources';
 import classed from '../../../lib/classed';
@@ -67,6 +72,12 @@ export const ShareGrid = forwardRef(function ShareGrid(
   const isSharedPostPreviewEnabled = useFeature(sharedPostPreviewFeature);
   const isSharedTweet = isSocialTwitterPost(sharedPost);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
+  const glassActions = useFeedCardGlassActions();
+  // Only float the bar over a cover image; preview/tweet/empty footers render
+  // text we must not cover, so they keep the inline bar.
+  const footerIsCover =
+    !isDeleted && !isPrivate && !isSharedTweet && !isSharedPostPreviewEnabled;
+  const useGlass = glassActions && footerIsCover;
 
   const footer = useMemo(() => {
     if (isDeleted) {
@@ -129,6 +140,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         post={footerPost}
         className={{
           image: 'px-1',
+          cover: useGlass ? glassCoverImageClassName : undefined,
         }}
       />
     );
@@ -140,6 +152,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
     openNewTab,
     post,
     sharedPost,
+    useGlass,
   ]);
 
   if (isHidden) {
@@ -169,7 +182,7 @@ export const ShareGrid = forwardRef(function ShareGrid(
         className: getPostClassNames(
           post,
           domProps.className,
-          'min-h-card max-h-card',
+          useGlass ? 'min-h-cardGlass max-h-card' : 'min-h-card max-h-card',
         ),
       }}
       ref={ref}
@@ -211,16 +224,31 @@ export const ShareGrid = forwardRef(function ShareGrid(
           />
         </div>
       </>
-      <Container ref={containerRef}>
+      <Container
+        ref={containerRef}
+        className={useGlass ? 'flex-none' : undefined}
+      >
         {footer}
-        <ActionButtons
-          post={post}
-          onUpvoteClick={onUpvoteClick}
-          onCommentClick={onCommentClick}
-          onCopyLinkClick={onCopyLinkClick}
-          onBookmarkClick={onBookmarkClick}
-          onDownvoteClick={onDownvoteClick}
-        />
+        {useGlass ? (
+          <FeedCardGlassActions
+            post={post}
+            onUpvoteClick={onUpvoteClick}
+            onCommentClick={onCommentClick}
+            onCopyLinkClick={onCopyLinkClick}
+            onBookmarkClick={onBookmarkClick}
+            onDownvoteClick={onDownvoteClick}
+            coverScrim
+          />
+        ) : (
+          <ActionButtons
+            post={post}
+            onUpvoteClick={onUpvoteClick}
+            onCommentClick={onCommentClick}
+            onCopyLinkClick={onCopyLinkClick}
+            onBookmarkClick={onBookmarkClick}
+            onDownvoteClick={onDownvoteClick}
+          />
+        )}
       </Container>
       {children}
     </FeedItemContainer>

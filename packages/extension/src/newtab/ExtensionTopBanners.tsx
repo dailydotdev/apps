@@ -88,6 +88,7 @@ const ShortcutsIllustration = (): ReactElement => {
 type UseShortcutsOnboardingResult = {
   shouldShow: boolean;
   onAddClick: () => void;
+  onClose: () => void;
 };
 
 const useShortcutsOnboarding = (): UseShortcutsOnboardingResult => {
@@ -98,7 +99,8 @@ const useShortcutsOnboarding = (): UseShortcutsOnboardingResult => {
   const { shortcutLinks } = useShortcutLinks();
 
   const hasShortcuts = (shortcutLinks?.length ?? 0) > 0;
-  const shouldShow = !hasShortcuts;
+  const hasClosedBanner = checkHasCompleted(ActionType.ClosedShortcutsBanner);
+  const shouldShow = !hasShortcuts && !hasClosedBanner;
 
   const completeFirstSession = () => {
     if (!checkHasCompleted(ActionType.FirstShortcutsSession)) {
@@ -116,7 +118,9 @@ const useShortcutsOnboarding = (): UseShortcutsOnboardingResult => {
     });
   };
 
-  return { shouldShow, onAddClick };
+  const onClose = () => completeAction(ActionType.ClosedShortcutsBanner);
+
+  return { shouldShow, onAddClick, onClose };
 };
 
 export const ExtensionTopBanners = (): ReactElement | null => {
@@ -177,6 +181,7 @@ export const ExtensionTopBanners = (): ReactElement | null => {
         ctaLabel="Add shortcuts"
         illustration={<ShortcutsIllustration />}
         onCtaClick={shortcuts.onAddClick}
+        onClose={shortcuts.onClose}
       />,
     );
   }

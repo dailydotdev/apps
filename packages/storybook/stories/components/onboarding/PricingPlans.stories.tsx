@@ -53,7 +53,7 @@ export const Default: Story = {
         },
         badge: {
           text: 'Popular',
-          background: '#CE3DF3',
+          background: '#BA56E1',
         },
       },
       {

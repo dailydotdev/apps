@@ -12,6 +12,8 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
+import { useDailyPage } from '../../hooks/feed/useDailyPage';
+import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import { NewStripCta } from './NewStripCta';
 import { findActiveChipId } from './exploreCategories';
 
@@ -47,23 +49,27 @@ function UnifiedMobileFeedNav(): ReactElement {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const { logEvent } = useLogContext();
+  const { isEnabled } = useDailyPage();
+  const showDailySwitcher = isLoggedIn && isEnabled;
 
   const items: ChipItem[] = useMemo(() => {
     const list: ChipItem[] = [];
 
     const myFeedHref = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
-    list.push({
-      id: 'foryou',
-      label: isLoggedIn ? 'For you' : 'Home',
-      href: myFeedHref,
-      // When a custom feed is the default, `/` shows that feed (not "For you"
-      // content) — so restrict matching to `/my-feed`. Without a custom default
-      // `/` is MyFeed, so include both.
-      matchPaths: isCustomDefaultFeed
-        ? [`${webappUrl}my-feed`]
-        : [myFeedHref, webappUrl, `${webappUrl}my-feed`],
-      group: 'forYou',
-    });
+    if (!showDailySwitcher) {
+      list.push({
+        id: 'foryou',
+        label: isLoggedIn ? 'For you' : 'Home',
+        href: myFeedHref,
+        // When a custom feed is the default, `/` shows that feed (not "For you"
+        // content) — so restrict matching to `/my-feed`. Without a custom
+        // default `/` is MyFeed, so include both.
+        matchPaths: isCustomDefaultFeed
+          ? [`${webappUrl}my-feed`]
+          : [myFeedHref, webappUrl, `${webappUrl}my-feed`],
+        group: 'forYou',
+      });
+    }
 
     sortedFeeds.forEach(({ node: feed }) => {
       const isDefault = isCustomDefaultFeed && feed.id === defaultFeedId;
@@ -192,6 +198,7 @@ function UnifiedMobileFeedNav(): ReactElement {
     sortedFeeds,
     defaultFeedId,
     shouldHideGameCenter,
+    showDailySwitcher,
   ]);
 
   const activeId = useMemo(
@@ -215,6 +222,7 @@ function UnifiedMobileFeedNav(): ReactElement {
       ref={scrollRef}
       className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary bg-background-default px-3 py-4"
     >
+      {showDailySwitcher && <DailySwitcher reverse compact />}
       <NewStripCta className="rounded-10 px-2.5 py-1.5" />
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);

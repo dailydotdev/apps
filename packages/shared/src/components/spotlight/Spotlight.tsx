@@ -19,7 +19,7 @@ import { Drawer, DrawerPosition } from '../drawers/Drawer';
 import { ViewSize, useViewSize } from '../../hooks';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { isExtension, isSpecialKeyPressed } from '../../lib/func';
+import { isExtension } from '../../lib/func';
 import { fallbackImages } from '../../lib/config';
 import {
   groupLabels,
@@ -41,6 +41,10 @@ import {
   spotlightCommandFilter,
   SPOTLIGHT_PASSTHROUGH_KEYWORD,
 } from './spotlightFilter';
+import {
+  isSpotlightShortcutDisabled,
+  shouldHandleSpotlightShortcut,
+} from './shortcuts';
 
 const groupHeadingClass =
   '[&_[cmdk-group-heading]]:sticky [&_[cmdk-group-heading]]:top-0 [&_[cmdk-group-heading]]:z-1 [&_[cmdk-group-heading]]:bg-background-default [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:pl-4 [&_[cmdk-group-heading]]:pr-3 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:text-[0.6875rem] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:tracking-normal [&_[cmdk-group-heading]]:text-text-quaternary';
@@ -483,7 +487,12 @@ export const Spotlight = ({
       return undefined;
     }
     const handleKeydown = (event: KeyboardEvent) => {
-      if (!isSpecialKeyPressed({ event }) || event.key.toLowerCase() !== 'k') {
+      if (
+        !shouldHandleSpotlightShortcut({
+          event,
+          isShortcutDisabled: isSpotlightShortcutDisabled(),
+        })
+      ) {
         return;
       }
       if (isInExtensionIframe(document.activeElement)) {
@@ -752,12 +761,16 @@ export const Spotlight = ({
         )}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            // First Escape backs out of a pending destructive confirm;
+            // otherwise it closes the palette (the "esc Close" hint).
             if (pendingConfirmId) {
-              event.preventDefault();
-              event.stopPropagation();
               clearConfirm();
               return;
             }
+            onClose();
+            return;
           }
           if (
             event.altKey &&
@@ -858,6 +871,19 @@ export const Spotlight = ({
                 >
                   <ClearIcon size={IconSize.XSmall} />
                 </button>
+              )}
+              {/* Mobile has no physical keyboard, so the "esc Close" footer
+                  hint is useless — give a tappable Close instead. */}
+              {isMobile && (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  className="border border-border-subtlest-tertiary"
+                  onClick={onClose}
+                >
+                  Close
+                </Button>
               )}
             </div>
             {scope === SpotlightScope.All && (
@@ -1130,12 +1156,14 @@ export const Spotlight = ({
           </Command.List>
         )}
 
-        <div className="flex h-8 items-center justify-between border-t border-border-subtlest-tertiary bg-background-subtle px-4 text-text-quaternary typo-caption2">
-          <span className="flex items-center gap-4">
-            <Hint label="Open" combo="↵" />
-            <Hint label="Close" combo="esc" />
-          </span>
-        </div>
+        {!isMobile && (
+          <div className="flex h-8 items-center justify-between border-t border-border-subtlest-tertiary bg-background-subtle px-4 text-text-quaternary typo-caption2">
+            <span className="flex items-center gap-4">
+              <Hint label="Open" combo="↵" />
+              <Hint label="Close" combo="esc" />
+            </span>
+          </div>
+        )}
       </Command>
     </>
   );
@@ -1149,8 +1177,11 @@ export const Spotlight = ({
         appendOnRoot
         className={{
           drawer: 'p-0',
+          // !p-0 overrides BaseDrawer's default `px-4 pt-3` (added when the
+          // drawer has no title); the palette supplies its own insets, so the
+          // extra horizontal padding was clipping the search field.
           wrapper:
-            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default p-0',
+            'flex !h-[90vh] !max-h-[90vh] flex-col overflow-hidden bg-background-default !p-0',
         }}
       >
         {paletteBody}

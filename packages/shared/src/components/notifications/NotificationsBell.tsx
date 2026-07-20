@@ -14,16 +14,20 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
 import { IconSize } from '../Icon';
+import { railTabClass, railTabLabelClass } from '../sidebar/common';
 
 function NotificationsBell({
   compact,
   rail,
   noTooltip,
+  railHideLabel,
   active,
 }: {
   compact?: boolean;
   rail?: boolean;
   noTooltip?: boolean;
+  // v2 rail compact mode: hide the "Alerts" label under the bell.
+  railHideLabel?: boolean;
   // Optional override — the v2 sidebar wants the bell highlighted on
   // any page that owns the Notifications category (incl. its settings
   // sub-page), which extends past the bell's own internal check.
@@ -61,23 +65,31 @@ function NotificationsBell({
             href={`${webappUrl}notifications`}
             aria-label="Notifications"
             className={classNames(
-              'focus-outline relative flex h-10 w-10 items-center justify-center rounded-12 transition-colors hover:bg-surface-hover hover:text-text-primary',
-              atNotificationsPage
-                ? 'bg-background-default text-text-primary'
-                : 'text-text-tertiary',
+              railTabClass,
+              atNotificationsPage && 'bg-background-default !text-text-primary',
             )}
             onClick={onNavigateNotifications}
           >
-            <BellIcon
-              secondary={atNotificationsPage}
-              size={IconSize.Small}
-              aria-hidden
-              className="pointer-events-none"
-            />
-            {hasNotification && (
-              <Bubble className="-right-1 top-0 cursor-pointer px-1">
-                {getUnreadText(unreadCount)}
-              </Bubble>
+            <span className="relative flex items-center justify-center">
+              <BellIcon
+                secondary={atNotificationsPage}
+                size={IconSize.Small}
+                aria-hidden
+                className="pointer-events-none"
+              />
+              {hasNotification && (
+                // Compact corner badge: the rail bell is only `size-6` (24px),
+                // so the full-size shared `Bubble` (min 20px) blankets the
+                // glyph. A smaller pill notched into the top-right corner reads
+                // as a badge instead of covering the icon. `border-background-
+                // default` matches the sidebar surface for the cutout effect.
+                <span className="pointer-events-none absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full border-2 border-background-default bg-accent-cabbage-default px-1 leading-none text-white typo-caption2">
+                  {getUnreadText(unreadCount)}
+                </span>
+              )}
+            </span>
+            {!railHideLabel && (
+              <span className={railTabLabelClass}>Alerts</span>
             )}
           </a>
         </Link>

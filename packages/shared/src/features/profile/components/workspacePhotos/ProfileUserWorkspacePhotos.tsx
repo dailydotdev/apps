@@ -15,7 +15,6 @@ import {
   sortableKeyboardCoordinates,
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
-import { useEventListener } from '../../../../hooks/useEventListener';
 import type { PublicProfile } from '../../../../lib/user';
 import {
   useUserWorkspacePhotos,
@@ -33,7 +32,9 @@ import {
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import { CameraIcon, SettingsIcon } from '../../../../components/icons';
-import CloseButton from '../../../../components/CloseButton';
+import { useLazyModal } from '../../../../hooks/useLazyModal';
+import { LazyModal } from '../../../../components/modals/common/types';
+import { getImageOriginRect } from '../../../../components/modals/ImageModal';
 import { SortableWorkspacePhotoItem } from './WorkspacePhotoItem';
 import { WorkspacePhotoUploadModal } from './WorkspacePhotoUploadModal';
 import { GearModal } from '../gear/GearModal';
@@ -63,10 +64,10 @@ export function ProfileUserWorkspacePhotos({
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
+  const { openModal } = useLazyModal();
 
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const [isGearModalOpen, setIsGearModalOpen] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -197,20 +198,19 @@ export function ProfileUserWorkspacePhotos({
     setIsGearModalOpen(false);
   }, []);
 
-  const handlePhotoClick = useCallback((photo: { image: string }) => {
-    setSelectedPhoto(photo.image);
-  }, []);
-
-  const handleCloseLightbox = useCallback(() => {
-    setSelectedPhoto(null);
-  }, []);
-
-  // Close lightbox on ESC key
-  useEventListener(globalThis as unknown as Window, 'keydown', (event) => {
-    if (event.key === 'Escape' && selectedPhoto) {
-      handleCloseLightbox();
-    }
-  });
+  const handlePhotoClick = useCallback(
+    (photo: { image: string }, event: React.MouseEvent<HTMLButtonElement>) => {
+      openModal({
+        type: LazyModal.ImageView,
+        props: {
+          src: photo.image,
+          alt: 'Workspace',
+          originRect: getImageOriginRect(event.currentTarget),
+        },
+      });
+    },
+    [openModal],
+  );
 
   const hasPhotos = photos.length > 0;
   const hasGear = gearItems.length > 0;
@@ -354,33 +354,6 @@ export function ProfileUserWorkspacePhotos({
           onRequestClose={handleCloseGearModal}
           onSubmit={handleAddGear}
         />
-      )}
-
-      {selectedPhoto && (
-        <div
-          className="fixed inset-0 z-modal flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Workspace photo lightbox"
-        >
-          <button
-            type="button"
-            className="absolute inset-0 bg-overlay-primary-pepper backdrop-blur-md"
-            onClick={handleCloseLightbox}
-            aria-label="Close lightbox"
-          />
-          <img
-            src={selectedPhoto}
-            alt="Workspace"
-            className="relative max-h-full max-w-full rounded-16 object-contain"
-          />
-          <CloseButton
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Primary}
-            className="absolute right-4 top-4 z-1"
-            onClick={handleCloseLightbox}
-          />
-        </div>
       )}
     </div>
   );

@@ -51,6 +51,12 @@ interface NavItemProps {
 
 export const navBtnClass =
   'flex flex-1 items-center pl-2 laptop:pl-0 pr-5 laptop:pr-3 h-10 laptop:h-9 overflow-hidden';
+// Vertical icon+label item used on the v2 desktop rail. Shared so the
+// notifications bell matches the hard-coded category tabs. Callers append
+// the active state (`bg-background-default !text-text-primary`).
+export const railTabClass =
+  'focus-outline group relative flex w-full flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary';
+export const railTabLabelClass = 'typo-caption2 leading-tight text-center';
 export const SidebarAside = classed(
   'aside',
   'flex flex-col z-sidebarOverlay laptop:z-sidebar laptop:-translate-x-0 left-0 bg-background-default border-r border-border-subtlest-tertiary transition-[width,transform] duration-300 ease-in-out group fixed top-0 h-full',

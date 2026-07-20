@@ -4,7 +4,6 @@ import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
 import { GivebackFilterChip } from './GivebackFilterChip';
@@ -52,7 +51,7 @@ export const GivebackCauseSelection = ({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             // eslint-disable-next-line react/no-array-index-key
@@ -77,18 +76,8 @@ export const GivebackCauseSelection = ({
 
   return (
     <FlexCol className="gap-6">
-      <Typography
-        tag={TypographyTag.P}
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-        className="max-w-2xl"
-      >
-        Pick as many as you like. daily.dev funds every donation, and you can
-        change them anytime.
-      </Typography>
-
       {categories.length > 0 && (
-        <FlexRow className="flex-wrap gap-2">
+        <FlexRow className="flex-wrap gap-1.5 tablet:gap-2">
           <GivebackFilterChip
             isSelected={activeFilter === ALL_FILTER}
             label="All"
@@ -105,7 +94,7 @@ export const GivebackCauseSelection = ({
         </FlexRow>
       )}
 
-      <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2">
         {visibleCauses.map(({ cause, index }) => (
           <GivebackCauseCard
             key={cause.id}

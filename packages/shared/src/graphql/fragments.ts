@@ -418,6 +418,7 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
       savedTime
       generatedAt
       digestPostIds
+      scheduledAt
       ad {
         type
         index
@@ -657,7 +658,10 @@ export const FEED_POST_FRAGMENT = gql`
       }
       author {
         id
+        name
+        image
         username
+        permalink
       }
       slug
       clickbaitTitleDetected
@@ -669,8 +673,15 @@ export const FEED_POST_FRAGMENT = gql`
     trending
     feedMeta
     collectionSources {
+      # Only the fields the stacked avatars render. The hover card's rich data
+      # (description, followers, upvotes) is fetched lazily on hover via
+      # getSourceTooltip, so the feed request stays lean.
+      id
       handle
+      name
       image
+      permalink
+      type
     }
     numCollectionSources
     updatedAt

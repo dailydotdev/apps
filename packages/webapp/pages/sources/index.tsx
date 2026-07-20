@@ -21,7 +21,7 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useRouter } from 'next/router';
 import { BreadCrumbs } from '@dailydotdev/shared/src/components/header/BreadCrumbs';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
-import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { SourceTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
@@ -51,15 +51,15 @@ const getSourcesSchemas = (sources: Source[]): string =>
     '@graph': [
       {
         '@type': 'CollectionPage',
-        '@id': 'https://app.daily.dev/sources#collection',
-        url: 'https://app.daily.dev/sources',
+        '@id': 'https://daily.dev/sources#collection',
+        url: 'https://daily.dev/sources',
         name: 'Top sources for developer content',
         description:
           'Explore the top sources for developer content on daily.dev.',
       },
       {
         '@type': 'ItemList',
-        '@id': 'https://app.daily.dev/sources#items',
+        '@id': 'https://daily.dev/sources#items',
         itemListElement: sources.map((source, index) => ({
           '@type': 'ListItem',
           position: index + 1,
@@ -122,9 +122,7 @@ const SourcesPage = ({
 
   return (
     <>
-      {isV2Laptop && (
-        <PageHeader title="Sources">{suggestSourceButton}</PageHeader>
-      )}
+      {isV2Laptop && <ExploreHubHeader>{suggestSourceButton}</ExploreHubHeader>}
       <PageWrapperLayout className="py-6">
         <Head>
           <script

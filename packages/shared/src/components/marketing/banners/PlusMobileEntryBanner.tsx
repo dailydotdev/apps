@@ -14,8 +14,6 @@ import type { TargetType } from '../../../lib/log';
 import { LogEvent } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useBoot } from '../../../hooks';
-import { useFeature } from '../../GrowthBookProvider';
-import { featurePlusApiLanding } from '../../../lib/featureManagement';
 
 type PlusBannerProps = Omit<MarketingCta, 'flags'> & {
   targetType: TargetType;
@@ -33,12 +31,11 @@ const PlusMobileEntryBanner = ({
 }: PlusBannerProps): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { clearMarketingCta } = useBoot();
-  const isApiLanding = useFeature(featurePlusApiLanding);
   if (!flags) {
     return null;
   }
   const { leadIn, description, ctaText, ctaUrl } = flags;
-  const ctaColor = isApiLanding ? ButtonColor.Bacon : ButtonColor.Avocado;
+  const ctaColor = ButtonColor.Bacon;
 
   const handleClose = () => {
     logEvent({

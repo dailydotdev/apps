@@ -41,6 +41,7 @@ export enum LazyModal {
   VerifySession = 'verifySession',
   GenericReferral = 'genericReferral',
   Video = 'video',
+  ImageView = 'imageView',
   NewStreak = 'newStreak',
   RecoverStreak = 'recoverStreak',
   ReputationPrivileges = 'reputationPrivileges',
@@ -104,6 +105,7 @@ export enum LazyModal {
   AchievementShowcase = 'achievementShowcase',
   IntroQuests = 'introQuests',
   ReaderInstallPrompt = 'readerInstallPrompt',
+  ReaderExtensionInstall = 'readerExtensionInstall',
   ReaderPreview = 'readerPreview',
 }
 

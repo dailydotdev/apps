@@ -1,0 +1,308 @@
+import type { ReactElement } from 'react';
+import React, { useMemo } from 'react';
+import classNames from 'classnames';
+import { useRouter } from 'next/router';
+import Link from '../utilities/Link';
+import type { Notification } from '../../graphql/notifications';
+import { useObjectPurify } from '../../hooks/useDomPurify';
+import NotificationItemIcon from './NotificationIcon';
+import NotificationItemAttachment from './NotificationItemAttachment';
+import NotificationItemAvatar from './NotificationItemAvatar';
+import {
+  notificationMutingCopy,
+  NotificationType,
+  notificationTypeNotClickable,
+  notificationTypeTheme,
+} from './utils';
+import { KeyboardCommand } from '../../lib/element';
+import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
+import { ProfilePictureGroup } from '../ProfilePictureGroup';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuOptions,
+  DropdownMenuTrigger,
+} from '../dropdown/DropdownMenu';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { BellDisabledIcon, BellIcon, MenuIcon } from '../icons';
+import { useNotificationPreference } from '../../hooks/notifications';
+import { NotificationPreferenceStatus } from '../../graphql/notifications';
+import { Loader } from '../Loader';
+import { NotificationFollowUserButton } from './NotificationFollowUserButton';
+import { NotificationSayThanksButton } from './NotificationSayThanksButton';
+
+import { DateFormat } from '../utilities';
+import { TimeFormatType } from '../../lib/dateFormat';
+import { NotificationItemDescriptionIcon } from './NotificationDescriptionIcon';
+
+export interface NotificationItemLegacyProps
+  extends Pick<
+    Notification,
+    | 'type'
+    | 'icon'
+    | 'title'
+    | 'description'
+    | 'avatars'
+    | 'attachments'
+    | 'numTotalAvatars'
+    | 'referenceId'
+    | 'hasThanks'
+  > {
+  isUnread?: boolean;
+  targetUrl: string;
+  createdAt?: Date;
+  onClick?: (
+    e:
+      | React.MouseEvent<HTMLAnchorElement>
+      | React.KeyboardEvent<HTMLAnchorElement>,
+  ) => void;
+}
+
+const NotificationOptionsButton = ({
+  notification,
+}: {
+  notification: Pick<Notification, 'type' | 'referenceId'>;
+}): ReactElement => {
+  const {
+    preferences,
+    isFetching,
+    clearNotificationPreference,
+    muteNotification,
+  } = useNotificationPreference({
+    params: notification
+      ? [
+          {
+            notificationType: notification.type,
+            referenceId: notification.referenceId,
+          },
+        ]
+      : [],
+  });
+
+  const onItemClick = () => {
+    const isMuted =
+      preferences?.[0]?.status === NotificationPreferenceStatus.Muted;
+    const preferenceCommand = isMuted
+      ? clearNotificationPreference
+      : muteNotification;
+
+    return preferenceCommand({
+      type: notification.type,
+      referenceId: notification.referenceId,
+    });
+  };
+
+  const Icon = (): ReactElement | null => {
+    if (!notification) {
+      return null;
+    }
+
+    if (isFetching) {
+      return <Loader />;
+    }
+
+    const NotifIcon =
+      preferences[0]?.status === NotificationPreferenceStatus.Muted
+        ? BellIcon
+        : BellDisabledIcon;
+
+    return <NotifIcon />;
+  };
+
+  const label = useMemo((): string => {
+    if (!notification) {
+      return '';
+    }
+
+    if (isFetching) {
+      return 'Fetching your preference';
+    }
+
+    const isMuted =
+      preferences[0]?.status === NotificationPreferenceStatus.Muted;
+    const copy = notificationMutingCopy[notification?.type];
+
+    if (!copy) {
+      return '';
+    }
+
+    return isMuted ? copy.unmute : copy.mute;
+  }, [notification, preferences, isFetching]);
+  const options = [{ icon: <Icon />, label, action: onItemClick }];
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        asChild
+        tooltip={{
+          content: 'Options',
+        }}
+      >
+        <Button
+          variant={ButtonVariant.Tertiary}
+          className="invisible group-hover:visible"
+          icon={<MenuIcon />}
+          size={ButtonSize.Small}
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuOptions options={options} />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
+function NotificationItemLegacy(
+  props: NotificationItemLegacyProps,
+): ReactElement | null {
+  const {
+    icon,
+    type,
+    title,
+    isUnread,
+    description,
+    avatars,
+    attachments,
+    onClick,
+    targetUrl,
+    numTotalAvatars,
+    referenceId,
+    hasThanks,
+    createdAt,
+  } = props;
+
+  const {
+    isReady,
+    title: memoizedTitle,
+    description: memoizedDescription,
+  } = useObjectPurify({ title, description: description ?? '' });
+  const router = useRouter();
+  const isClickable = !notificationTypeNotClickable[type];
+
+  const filteredAvatars = useMemo(() => {
+    return avatars?.filter((avatar) => avatar) || [];
+  }, [avatars]);
+
+  if (!isReady) {
+    return null;
+  }
+
+  const avatarComponents = [
+    NotificationType.CollectionUpdated,
+    NotificationType.ArticleUpvoteMilestone,
+    NotificationType.CommentUpvoteMilestone,
+    NotificationType.WarmIntro,
+  ].includes(type) ? (
+    <ProfilePictureGroup total={numTotalAvatars} size={ProfileImageSize.Medium}>
+      {filteredAvatars.map((avatar) => (
+        <ProfilePicture
+          key={avatar.referenceId}
+          rounded="full"
+          size={ProfileImageSize.Medium}
+          user={{ image: avatar.image }}
+        />
+      ))}
+    </ProfilePictureGroup>
+  ) : (
+    filteredAvatars
+      .map((avatar) => (
+        <NotificationItemAvatar
+          key={avatar.referenceId}
+          className="z-1"
+          {...avatar}
+        />
+      ))
+      .filter((avatar) => avatar) ?? []
+  );
+  const hasAvatar = filteredAvatars.length > 0;
+  const renderLink = onClick && isClickable;
+
+  return (
+    <div
+      className={classNames(
+        'group relative flex flex-row border-y border-background-default py-4 pl-6 pr-4 hover:bg-surface-hover focus:bg-theme-active',
+        isUnread && 'bg-surface-float',
+      )}
+    >
+      {renderLink && targetUrl && (
+        <Link href={targetUrl} passHref>
+          <a
+            role="link"
+            aria-label="Open notification"
+            className="absolute inset-0 z-0"
+            onClick={onClick}
+            title="Open notification"
+            data-testid="openNotification"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.code === KeyboardCommand.Space) {
+                onClick(e);
+                router.push(targetUrl);
+              }
+              return true;
+            }}
+          >
+            <span />
+          </a>
+        </Link>
+      )}
+      <div className="absolute right-4 top-3 my-auto flex items-center">
+        {Object.keys(notificationMutingCopy).includes(type) && (
+          <NotificationOptionsButton notification={{ type, referenceId }} />
+        )}
+        {createdAt && (
+          <DateFormat
+            className="ml-1 text-text-quaternary typo-footnote"
+            date={createdAt}
+            type={TimeFormatType.LastActivity}
+          />
+        )}
+      </div>
+
+      <NotificationItemIcon
+        icon={icon}
+        iconTheme={notificationTypeTheme[type]}
+      />
+      <div className="ml-4 flex w-full flex-1 flex-col text-left typo-callout">
+        {hasAvatar && (
+          <span className="mb-4 flex flex-row gap-2">{avatarComponents}</span>
+        )}
+        <span
+          className="max-w-full break-words"
+          dangerouslySetInnerHTML={{
+            __html: memoizedTitle,
+          }}
+        />
+        {description && (
+          <span className="mt-2 flex w-4/5 flex-1 gap-2 text-text-quaternary">
+            <NotificationItemDescriptionIcon type={type} key="icon" />
+            <p
+              className="flex-1 break-words"
+              dangerouslySetInnerHTML={{
+                __html: memoizedDescription,
+              }}
+            />
+          </span>
+        )}
+        {type === NotificationType.UserFollow && (
+          <NotificationFollowUserButton {...props} />
+        )}
+        {type === NotificationType.UserReceivedAward && (
+          <NotificationSayThanksButton
+            referenceId={referenceId}
+            hasThanks={hasThanks}
+          />
+        )}
+        {attachments?.map(({ title: attachment, ...restAttachmentProps }) => (
+          <NotificationItemAttachment
+            key={attachment}
+            title={attachment}
+            notificationType={type}
+            {...restAttachmentProps}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default NotificationItemLegacy;

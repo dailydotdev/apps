@@ -3,6 +3,7 @@ import type {
   MutableRefObject,
   PropsWithChildren,
   ReactElement,
+  ReactNode,
 } from 'react';
 import React, { useContext } from 'react';
 import { useRouter } from 'next/router';
@@ -17,6 +18,8 @@ import ConditionalWrapper from '../components/ConditionalWrapper';
 import { FormWrapper } from '../components/fields/form';
 import type { SourcePostModeration } from '../graphql/squads';
 import { useViewSize, ViewSize } from '../hooks/useViewSize';
+import type { UseSchedulePost } from '../components/post/schedule/useSchedulePost';
+import { SchedulePostControl } from '../components/post/schedule/SchedulePostControl';
 
 export interface WriteForm {
   title: string;
@@ -55,6 +58,10 @@ export interface WritePostProps {
   updateDraft?: (props: Partial<WriteForm>) => Promise<void>;
   isUpdatingDraft?: boolean;
   formId?: string;
+  // When provided, the schedule control is offered next to the submit button.
+  schedule?: UseSchedulePost;
+  // Extra actions rendered in the mobile header (e.g. the scheduled-posts link).
+  headerExtraActions?: ReactNode;
 }
 
 export const WritePostContext = React.createContext<WritePostProps>({
@@ -95,6 +102,19 @@ export const WritePostContextProvider = ({
             copy={{ right: rightCopy ?? 'Post' }}
             rightButtonProps={{ disabled: props.isPosting }}
             leftButtonProps={{ onClick: () => router.back() }}
+            headerActions={
+              props.headerExtraActions || props.schedule ? (
+                <>
+                  {props.headerExtraActions}
+                  {props.schedule ? (
+                    <SchedulePostControl
+                      schedule={props.schedule}
+                      disabled={props.isPosting}
+                    />
+                  ) : null}
+                </>
+              ) : undefined
+            }
             form={formId}
           >
             {component}

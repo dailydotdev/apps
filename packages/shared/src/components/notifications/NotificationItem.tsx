@@ -5,18 +5,19 @@ import { useRouter } from 'next/router';
 import Link from '../utilities/Link';
 import type { Notification } from '../../graphql/notifications';
 import { useObjectPurify } from '../../hooks/useDomPurify';
-import NotificationItemIcon from './NotificationIcon';
-import NotificationItemAttachment from './NotificationItemAttachment';
 import NotificationItemAvatar from './NotificationItemAvatar';
+import { NotificationItemLead } from './NotificationItemLead';
+import { NotificationCategoryBadge } from './NotificationCategoryBadge';
+import { getNotificationLeadAvatar } from './leadAvatar';
 import {
+  getNotificationCategory,
+  NotificationFilterCategory,
   notificationMutingCopy,
   NotificationType,
   notificationTypeNotClickable,
-  notificationTypeTheme,
 } from './utils';
 import { KeyboardCommand } from '../../lib/element';
-import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
-import { ProfilePictureGroup } from '../ProfilePictureGroup';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,15 +25,30 @@ import {
   DropdownMenuTrigger,
 } from '../dropdown/DropdownMenu';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { BellDisabledIcon, BellIcon, MenuIcon } from '../icons';
+import { BellDisabledIcon, BellIcon, MenuIcon, PlayIcon } from '../icons';
 import { useNotificationPreference } from '../../hooks/notifications';
-import { NotificationPreferenceStatus } from '../../graphql/notifications';
+import {
+  NotificationAttachmentType,
+  NotificationAvatarType,
+  NotificationPreferenceStatus,
+} from '../../graphql/notifications';
+import { Image, ImageType } from '../image/Image';
+import { IconSize } from '../Icon';
 import { Loader } from '../Loader';
 import { NotificationFollowUserButton } from './NotificationFollowUserButton';
+import { NotificationSayThanksButton } from './NotificationSayThanksButton';
+import {
+  getFullNotificationDate,
+  publishTimeRelativeShort,
+} from '../../lib/dateFormat';
+import { stripHtmlTags } from '../../lib/strings';
+import { Tooltip } from '../tooltip/Tooltip';
 
-import { DateFormat } from '../utilities';
-import { TimeFormatType } from '../../lib/dateFormat';
-import { NotificationItemDescriptionIcon } from './NotificationDescriptionIcon';
+// Strip markup + collapse whitespace so two HTML strings can be compared for
+// "is this just the same text again" de-duplication. Pure + module-scoped so
+// it isn't re-allocated on every row render.
+const normalizeText = (html: string): string =>
+  stripHtmlTags(html).replace(/\s+/g, ' ').trim().toLowerCase();
 
 export interface NotificationItemProps
   extends Pick<
@@ -45,6 +61,7 @@ export interface NotificationItemProps
     | 'attachments'
     | 'numTotalAvatars'
     | 'referenceId'
+    | 'hasThanks'
   > {
   isUnread?: boolean;
   targetUrl: string;
@@ -136,10 +153,11 @@ const NotificationOptionsButton = ({
         }}
       >
         <Button
+          // Tertiary is the flat variant — transparent, no background or
+          // border (Float carries a faint surface-float background).
           variant={ButtonVariant.Tertiary}
-          className="invisible group-hover:visible"
-          icon={<MenuIcon />}
-          size={ButtonSize.Small}
+          icon={<MenuIcon className="rotate-90" />}
+          size={ButtonSize.XSmall}
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -162,6 +180,7 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     targetUrl,
     numTotalAvatars,
     referenceId,
+    hasThanks,
     createdAt,
   } = props;
 
@@ -181,40 +200,105 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
     return null;
   }
 
-  const avatarComponents = [
-    NotificationType.CollectionUpdated,
-    NotificationType.ArticleUpvoteMilestone,
-    NotificationType.CommentUpvoteMilestone,
-    NotificationType.WarmIntro,
-  ].includes(type) ? (
-    <ProfilePictureGroup total={numTotalAvatars} size={ProfileImageSize.Medium}>
-      {filteredAvatars.map((avatar) => (
-        <ProfilePicture
-          key={avatar.referenceId}
-          rounded="full"
-          size={ProfileImageSize.Medium}
-          user={{ image: avatar.image }}
-        />
-      ))}
-    </ProfilePictureGroup>
-  ) : (
-    filteredAvatars
-      .map((avatar) => (
-        <NotificationItemAvatar
-          key={avatar.referenceId}
-          className="z-1"
-          {...avatar}
-        />
-      ))
-      .filter((avatar) => avatar) ?? []
-  );
+  // Lead with the human actor, not whatever avatar the backend listed first
+  // (squad comments/posts arrive source-first). Falls back to the source for
+  // source-only notifications.
+  const leadAvatar = getNotificationLeadAvatar(filteredAvatars);
   const hasAvatar = filteredAvatars.length > 0;
+  // `numTotalAvatars` can arrive as 0 from the backend even when avatars are
+  // present, so take the larger of the two rather than `??` (which keeps 0).
+  const totalAvatars = Math.max(numTotalAvatars ?? 0, filteredAvatars.length);
   const renderLink = onClick && isClickable;
+  const hasOptions = Object.keys(notificationMutingCopy).includes(type);
+  const [attachment] = attachments ?? [];
+
+  const category = getNotificationCategory(type);
+  // Badge only for notifications about you (upvotes/comments/mentions/follows/
+  // squad activity). Source posts & system land in `Updates` and stay clean.
+  const showBadge =
+    hasAvatar && category !== NotificationFilterCategory.Updates;
+  // More than three actors render as a tight overlapping stack of up to three
+  // rounded-square faces — sized like one avatar so the lead never grows wider
+  // and every row stays aligned. The exact count still lives in the title.
+  const showStack = filteredAvatars.length > 1 && totalAvatars > 3;
+
+  let avatarContent: ReactElement | null = null;
+  if (showStack) {
+    const faces = filteredAvatars.slice(0, 3);
+    avatarContent = (
+      <div className="flex -space-x-4">
+        {faces.map((avatar, index) => {
+          // Icon-backed types (briefs/digests/badges) never reach a >3 stack,
+          // but fall back to the full avatar renderer rather than a broken
+          // <img> if one ever does.
+          const isImageBacked =
+            avatar.type === NotificationAvatarType.User ||
+            avatar.type === NotificationAvatarType.Source ||
+            avatar.type === NotificationAvatarType.Organization;
+          const isFront = index === faces.length - 1;
+          const face = isImageBacked ? (
+            <Image
+              className="size-6 rounded-8 border-2 border-background-default object-cover"
+              src={avatar.image}
+              alt={`${avatar.name} avatar`}
+            />
+          ) : (
+            <NotificationItemAvatar {...avatar} />
+          );
+          return (
+            <span
+              key={avatar.referenceId ?? index}
+              className={classNames('relative', isFront && 'z-1')}
+            >
+              {avatar.type === NotificationAvatarType.User ? (
+                <ProfileTooltip
+                  userId={avatar.referenceId}
+                  link={{ href: avatar.targetUrl }}
+                >
+                  {face}
+                </ProfileTooltip>
+              ) : (
+                face
+              )}
+              {/* Same category badge as the single-actor lead, straddling the
+                  front face's bottom-right corner (translate centering keeps it
+                  from swamping the smaller stacked face). */}
+              {isFront && showBadge && (
+                <NotificationCategoryBadge
+                  category={category}
+                  className="bottom-0 right-0 translate-x-1/2 translate-y-1/2"
+                />
+              )}
+            </span>
+          );
+        })}
+      </div>
+    );
+  }
+  const timeText = createdAt ? publishTimeRelativeShort(createdAt) : '';
+  const fullDate = createdAt ? getFullNotificationDate(createdAt) : '';
+
+  // Subtitle can carry two things: the comment (what was said) AND the title
+  // of the referenced post (which article/post it's about), so a mention or
+  // comment makes clear where it happened. Each is hidden when it just repeats
+  // the headline or the other, so we never show the same text twice (e.g.
+  // source-post rows whose title already is the post title).
+  const titleNorm = normalizeText(memoizedTitle);
+  const descriptionNorm = description ? normalizeText(memoizedDescription) : '';
+  const showDescription = !!description && descriptionNorm !== titleNorm;
+  const attachmentTitle = attachment?.title;
+  const attachmentTitleNorm = attachmentTitle
+    ? normalizeText(attachmentTitle)
+    : '';
+  const showAttachmentTitle =
+    !!attachmentTitle &&
+    attachmentTitleNorm !== titleNorm &&
+    attachmentTitleNorm !== descriptionNorm;
 
   return (
     <div
       className={classNames(
-        'group relative flex flex-row border-y border-background-default py-4 pl-6 pr-4 hover:bg-surface-hover focus:bg-theme-active',
+        'relative flex min-h-14 flex-row items-start gap-3 px-4 py-3 hover:bg-surface-hover focus:bg-theme-active laptop:min-h-16 laptop:py-4',
         isUnread && 'bg-surface-float',
       )}
     >
@@ -240,56 +324,104 @@ function NotificationItem(props: NotificationItemProps): ReactElement | null {
           </a>
         </Link>
       )}
-      <div className="absolute right-4 top-3 my-auto flex items-center">
-        {Object.keys(notificationMutingCopy).includes(type) && (
-          <NotificationOptionsButton notification={{ type, referenceId }} />
-        )}
-        {createdAt && (
-          <DateFormat
-            className="ml-1 text-text-quaternary typo-footnote"
-            date={createdAt}
-            type={TimeFormatType.LastActivity}
-          />
+
+      {/* Leading avatar + colored type badge — the eye-catching, type-at-a-
+          glance cue (Instagram/Facebook/TikTok). System rows with no person
+          fall back to the plain type icon. More than three actors render as an
+          overlapping stack; everything else uses the shared single-actor lead. */}
+      <div className="flex w-10 shrink-0 items-center justify-start">
+        {showStack ? (
+          avatarContent
+        ) : (
+          <NotificationItemLead type={type} icon={icon} avatar={leadAvatar} />
         )}
       </div>
 
-      <NotificationItemIcon
-        icon={icon}
-        iconTheme={notificationTypeTheme[type]}
-      />
-      <div className="ml-4 flex w-full flex-1 flex-col text-left typo-callout">
-        {hasAvatar && (
-          <span className="mb-4 flex flex-row gap-2">{avatarComponents}</span>
+      {/* Headline (actor name bold, the rest regular for a scannable
+          hierarchy) with the relative time flowing inline right after it — so a
+          row reads "what happened" first and the time is a quiet suffix, not a
+          right-aligned column. Then the comment, then the post's title. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-1 text-left">
+        <div className="break-words font-normal text-text-primary typo-callout [&_b]:font-bold [&_p]:m-0 [&_p]:inline [&_strong]:font-bold">
+          <span dangerouslySetInnerHTML={{ __html: memoizedTitle }} />
+          {timeText && (
+            <Tooltip content={fullDate}>
+              <time className="relative z-1 ml-1.5 whitespace-nowrap text-text-tertiary typo-footnote">
+                · {timeText}
+              </time>
+            </Tooltip>
+          )}
+        </div>
+        {(showDescription || showAttachmentTitle) && (
+          <div className="multi-truncate line-clamp-2 break-words text-text-tertiary typo-subhead [&_p]:m-0 [&_p]:inline">
+            {showDescription ? (
+              <span dangerouslySetInnerHTML={{ __html: memoizedDescription }} />
+            ) : (
+              showAttachmentTitle && <span>{attachmentTitle}</span>
+            )}
+          </div>
         )}
-        <span
-          className="max-w-full break-words"
-          dangerouslySetInnerHTML={{
-            __html: memoizedTitle,
-          }}
-        />
-        {description && (
-          <span className="mt-2 flex w-4/5 flex-1 gap-2 text-text-quaternary">
-            <NotificationItemDescriptionIcon type={type} key="icon" />
-            <p
-              className="flex-1 break-words"
-              dangerouslySetInnerHTML={{
-                __html: memoizedDescription,
-              }}
+        {/* When there's both a comment and a post, name the post on its own
+            line so it's clear which article it's about. */}
+        {showDescription && showAttachmentTitle && (
+          <div className="multi-truncate line-clamp-1 break-words text-text-tertiary typo-footnote">
+            {attachmentTitle}
+          </div>
+        )}
+        {type === NotificationType.UserFollow && (
+          <span className="relative z-1">
+            <NotificationFollowUserButton {...props} />
+          </span>
+        )}
+        {type === NotificationType.UserReceivedAward && (
+          <span className="relative z-1 mt-1">
+            <NotificationSayThanksButton
+              referenceId={referenceId}
+              hasThanks={hasThanks}
             />
           </span>
         )}
-        {type === NotificationType.UserFollow && (
-          <NotificationFollowUserButton {...props} />
-        )}
-        {attachments?.map(({ title: attachment, ...restAttachmentProps }) => (
-          <NotificationItemAttachment
-            key={attachment}
-            title={attachment}
-            notificationType={type}
-            {...restAttachmentProps}
-          />
-        ))}
       </div>
+
+      {/* Trailing: the post cover and/or the options menu, both top-aligned with
+          the title (the menu is the rightmost element, so it pins to the
+          top-right corner). The menu column is only reserved when the row
+          actually has a menu — otherwise the cover sits flush to the right edge
+          instead of leaving an empty gap. */}
+      {(attachment?.image || hasOptions) && (
+        <div className="flex shrink-0 items-start gap-2">
+          {attachment?.image && (
+            <span className="relative flex size-12 shrink-0">
+              <Image
+                data-testid="postImage"
+                loading="lazy"
+                type={ImageType.Post}
+                className="size-12 rounded-12 object-cover"
+                src={attachment.image}
+                alt={
+                  attachment.title
+                    ? `Cover preview of: ${attachment.title}`
+                    : 'Post cover preview'
+                }
+              />
+              {attachment.type === NotificationAttachmentType.Video && (
+                <span className="absolute inset-0 flex items-center justify-center rounded-12 bg-overlay-tertiary-black">
+                  <PlayIcon
+                    secondary
+                    size={IconSize.Small}
+                    className="text-white"
+                  />
+                </span>
+              )}
+            </span>
+          )}
+          {hasOptions && (
+            <div className="relative z-1 flex w-7 shrink-0 justify-center">
+              <NotificationOptionsButton notification={{ type, referenceId }} />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

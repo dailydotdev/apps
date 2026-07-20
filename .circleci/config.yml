@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   install_deps:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     steps:
       - checkout
       - run:
@@ -32,7 +32,7 @@ jobs:
             - ./packages/storybook/node_modules
   test_extension:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     parallelism: 1
     steps:
       - checkout
@@ -53,7 +53,7 @@ jobs:
           path: ./test-results
   test_webapp:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     parallelism: 1
     steps:
       - checkout
@@ -74,7 +74,7 @@ jobs:
           path: ./test-results
   lint_shared:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     resource_class: large
     steps:
       - checkout
@@ -88,7 +88,7 @@ jobs:
           working_directory: packages/shared
   typecheck_strict_changed:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     resource_class: large
     steps:
       - checkout
@@ -104,7 +104,7 @@ jobs:
           command: npm run typecheck:strict:changed
   test_shared:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     parallelism: 1
     steps:
       - checkout
@@ -124,7 +124,7 @@ jobs:
           path: ./test-results
   build_extension:
     docker:
-      - image: cimg/node:24.14
+      - image: cimg/node:24.18
     resource_class: medium
     steps:
       - checkout

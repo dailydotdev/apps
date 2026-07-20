@@ -22,9 +22,9 @@ export const GivebackHeadline = ({
 }: GivebackHeadlineProps): ReactElement => (
   <Typography
     tag={TypographyTag.H2}
-    type={TypographyType.LargeTitle}
+    type={TypographyType.Title1}
     bold
-    className={classNames('max-w-3xl', className)}
+    className={classNames('max-w-3xl [text-wrap:balance]', className)}
   >
     {title}
     <span className="block bg-gradient-to-r from-accent-avocado-default via-accent-cabbage-default to-accent-cheese-default bg-clip-text text-transparent">
