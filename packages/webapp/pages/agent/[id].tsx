@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
@@ -69,6 +69,12 @@ const Page = (): ReactElement | null => {
   const { isDeleting, deleteInterest } = useDeleteInterest({
     onDeleted: () => router.push(`${webappUrl}agent`),
   });
+
+  useEffect(() => {
+    if (isAuthReady && !showAgent) {
+      router.replace(webappUrl);
+    }
+  }, [isAuthReady, showAgent, router]);
 
   if (isAuthReady && !showAgent) {
     return null;
