@@ -267,7 +267,7 @@ const Page = (): ReactElement | null => {
         <FlexCol className="gap-3">
           <FlexRow className="items-center justify-between">
             <Typography type={TypographyType.Body} bold>
-              Findings
+              Feed
             </Typography>
             <Button
               variant={ButtonVariant.Tertiary}
@@ -283,8 +283,8 @@ const Page = (): ReactElement | null => {
           )}
           {!findingsQuery.isPending && !findings.length && (
             <Typography color={TypographyColor.Tertiary}>
-              No findings yet. The agent may still be hunting — try Refresh in a
-              moment.
+              Nothing in your feed yet. The agent may still be hunting — try
+              Refresh in a moment.
             </Typography>
           )}
           {findings.map((finding) => {
