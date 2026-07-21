@@ -45,6 +45,7 @@ const updateAlerts = jest.fn();
 const displayToast = jest.fn();
 
 const queryClient = new QueryClient({});
+const streakRecoverBasePrice = 150;
 
 const mockRecoveryQuery = (
   data: UserStreakRecoverData,
@@ -184,9 +185,9 @@ it('should render and fetch initial data if logged user can recover streak', asy
   mockRecoveryQuery(
     {
       canRecover: true,
-      cost: 100,
+      cost: streakRecoverBasePrice,
       oldStreakLength: 10,
-      regularCost: 100,
+      regularCost: streakRecoverBasePrice,
     },
     () => {
       haveFetched = true;
@@ -210,9 +211,9 @@ it('should update alerts preferences on close', async () => {
 
   mockRecoveryQuery({
     canRecover: true,
-    cost: 100,
+    cost: streakRecoverBasePrice,
     oldStreakLength: 10,
-    regularCost: 100,
+    regularCost: streakRecoverBasePrice,
   });
   renderComponent({});
 
@@ -238,7 +239,7 @@ it('Should have no cost for first time recovery', async () => {
     canRecover: true,
     cost: 0,
     oldStreakLength: 10,
-    regularCost: 100,
+    regularCost: streakRecoverBasePrice,
   });
 
   renderComponent({
@@ -261,12 +262,12 @@ it('Should have no cost for first time recovery', async () => {
   expect(cost).toBeInTheDocument();
 });
 
-it('Should have cost of 100 Cores for 2nd+ time recovery', async () => {
+it('Should have cost of 150 Cores for 2nd+ time recovery', async () => {
   mockRecoveryQuery({
     canRecover: true,
-    cost: 100,
+    cost: streakRecoverBasePrice,
     oldStreakLength: 10,
-    regularCost: 100,
+    regularCost: streakRecoverBasePrice,
   });
 
   renderComponent({
@@ -284,17 +285,17 @@ it('Should have cost of 100 Cores for 2nd+ time recovery', async () => {
   const popupHeader = screen.queryByTestId('streak-recover-modal-heading');
   expect(popupHeader).toBeInTheDocument();
 
-  // expect cost to be 100
-  const cost = screen.getByText('Restore my streak100');
+  // expect cost to be 150
+  const cost = screen.getByText('Restore my streak150');
   expect(cost).toBeInTheDocument();
 });
 
 it('Should show buy Cores message if user does not have enough Cores', async () => {
   mockRecoveryQuery({
     canRecover: true,
-    cost: 100,
+    cost: streakRecoverBasePrice,
     oldStreakLength: 10,
-    regularCost: 100,
+    regularCost: streakRecoverBasePrice,
   });
 
   renderComponent({
@@ -315,7 +316,7 @@ it('Should show buy Cores message if user does not have enough Cores', async () 
   // expect not enough Cores message
   const button = screen.queryByTestId('streak-recover-button');
   expect(button).toBeInTheDocument();
-  expect(button).toHaveTextContent('Buy Cores100');
+  expect(button).toHaveTextContent('Buy Cores150');
 
   const copy = screen.queryByTestId('streak-recovery-copy');
   expect(copy).toHaveTextContent("You don't have enough");
@@ -326,16 +327,16 @@ it('Should show success message on recover', async () => {
 
   mockRecoveryQuery({
     canRecover: true,
-    cost: 100,
+    cost: streakRecoverBasePrice,
     oldStreakLength: 102,
-    regularCost: 100,
+    regularCost: streakRecoverBasePrice,
   });
 
   renderComponent({
     user: {
       ...loggedUser,
       balance: {
-        amount: 100,
+        amount: streakRecoverBasePrice,
       },
     },
   });
@@ -373,16 +374,16 @@ it('Should dismiss popup on close if checked option', async () => {
 
   mockRecoveryQuery({
     canRecover: true,
-    cost: 100,
+    cost: streakRecoverBasePrice,
     oldStreakLength: 102,
-    regularCost: 100,
+    regularCost: streakRecoverBasePrice,
   });
 
   renderComponent({
     user: {
       ...loggedUser,
       balance: {
-        amount: 100,
+        amount: streakRecoverBasePrice,
       },
     },
   });
@@ -417,16 +418,16 @@ it('Should show error message on recover fail', async () => {
 
   mockRecoveryQuery({
     canRecover: true,
-    cost: 100,
+    cost: streakRecoverBasePrice,
     oldStreakLength: 102,
-    regularCost: 100,
+    regularCost: streakRecoverBasePrice,
   });
 
   renderComponent({
     user: {
       ...loggedUser,
       balance: {
-        amount: 100,
+        amount: streakRecoverBasePrice,
       },
     },
   });

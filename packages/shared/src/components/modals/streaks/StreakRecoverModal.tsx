@@ -26,6 +26,8 @@ import { CoreIcon } from '../../icons';
 import { coresDocsLink } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
 
+const streakRecoverBasePrice = 150;
+
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
   onRequestClose: () => void;
@@ -80,8 +82,8 @@ const StreakRecoveryCopy = ({
   const isFreeText = (
     <>
       Lucky you! The first streak restore is on us 🎁. This usually costs{' '}
-      {formatCoresCurrency(recover.regularCost ?? 100)} {coresLink}. Be sure to
-      come prepared next time!
+      {formatCoresCurrency(recover.regularCost ?? streakRecoverBasePrice)}{' '}
+      {coresLink}. Be sure to come prepared next time!
     </>
   );
   const canRecoverText = (
