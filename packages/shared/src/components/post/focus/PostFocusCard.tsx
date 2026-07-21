@@ -215,12 +215,6 @@ export const PostFocusCard = ({
   // treatment — auto-written articles/freeform posts render their own source.
   const isShared = post.type === PostType.Share && !!post.sharedPost;
   const article = (isShared ? post.sharedPost : post) as Post;
-  // Shared into a squad → "Shared via {squad}"; shared to a profile → just
-  // "Shared post" (we don't repeat the author's name).
-  const sharedVia =
-    isShared && post.source?.type === SourceType.Squad
-      ? post.source
-      : undefined;
   const isCollection = article.type === PostType.Collection;
   // Posts authored by a user (shared, freeform, welcome) lead with that
   // user, shown exactly like a comment author. Publication-sourced posts
@@ -230,6 +224,16 @@ export const PostFocusCard = ({
     post.type === PostType.Freeform ||
     post.type === PostType.Welcome
       ? post.author
+      : undefined;
+  // Squad attribution under the header. Author-led posts show the author
+  // there, so the squad must be named separately: shared into a squad →
+  // "Shared via {squad}", written directly in a squad (freeform/welcome) →
+  // "Posted in {squad}". Shared to a profile → just "Shared post" (we don't
+  // repeat the author's name), and publication-sourced posts already show
+  // their source strip in the header.
+  const squadAttribution =
+    post.source?.type === SourceType.Squad && (isShared || author)
+      ? { label: isShared ? 'Shared via' : 'Posted in', source: post.source }
       : undefined;
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
@@ -384,9 +388,9 @@ export const PostFocusCard = ({
           </div>
 
           <div className="flex min-w-0 flex-col gap-3">
-            {sharedVia && (
+            {squadAttribution && (
               <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
-                <span>Shared via</span>
+                <span>{squadAttribution.label}</span>
                 <HoverCard
                   appendTo={globalThis?.document?.body}
                   side="top"
@@ -395,31 +399,33 @@ export const PostFocusCard = ({
                   trigger={
                     <span className="inline-flex items-center">
                       <Link
-                        href={sharedVia.permalink}
+                        href={squadAttribution.source.permalink}
                         passHref
                         prefetch={false}
                       >
                         <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
-                          {sharedVia.image && (
+                          {squadAttribution.source.image && (
                             <img
-                              src={sharedVia.image}
+                              src={squadAttribution.source.image}
                               alt=""
                               aria-hidden
                               className="size-4 rounded-full object-cover"
                               loading="lazy"
                             />
                           )}
-                          {sharedVia.name}
+                          {squadAttribution.source.name}
                         </a>
                       </Link>
                     </span>
                   }
                 >
-                  <SourceEntityCard source={sharedVia as SourceTooltip} />
+                  <SourceEntityCard
+                    source={squadAttribution.source as SourceTooltip}
+                  />
                 </HoverCard>
               </p>
             )}
-            {isShared && !sharedVia && (
+            {isShared && !squadAttribution && (
               <p className="text-text-tertiary typo-footnote">Shared post</p>
             )}
             {!isShared && isCollection && (
