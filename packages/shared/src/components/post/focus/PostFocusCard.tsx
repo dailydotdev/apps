@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import {
   getReadArticleHref,
-  getReadPostButtonText,
   isInternalReadType,
   isVideoPost,
   PostType,
@@ -18,8 +17,8 @@ import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { useTrackPostView } from '../../../hooks/post/useTrackPostView';
 import { useReaderInstallPromptGate } from '../../../hooks/useReaderInstallPromptGate';
-import { useReaderModalEligibility } from '../reader/hooks/useReaderModalEligibility';
-import { EarthIcon } from '../../icons';
+import { OpenLinkIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { getImageOriginRect } from '../../modals/ImageModal';
@@ -29,11 +28,9 @@ import Markdown from '../../Markdown';
 import { ContentEmbeds } from '../../contentEmbeds/ContentEmbeds';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
-import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
+import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
-import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
 import { feature } from '../../../lib/featureManagement';
@@ -48,6 +45,8 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostMenuOptions } from '../PostMenuOptions';
+import { BoostPostButton } from '../../../features/boost/BoostButton';
+import { useShowBoostButton } from '../../../features/boost/useShowBoostButton';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
@@ -224,12 +223,6 @@ export const PostFocusCard = ({
   // treatment — auto-written articles/freeform posts render their own source.
   const isShared = post.type === PostType.Share && !!post.sharedPost;
   const article = (isShared ? post.sharedPost : post) as Post;
-  // Shared into a squad → "Shared via {squad}"; shared to a profile → just
-  // "Shared post" (we don't repeat the author's name).
-  const sharedVia =
-    isShared && post.source?.type === SourceType.Squad
-      ? post.source
-      : undefined;
   const isCollection = article.type === PostType.Collection;
   // Posts authored by a user (shared, freeform, welcome) lead with that
   // user, shown exactly like a comment author. Publication-sourced posts
@@ -240,15 +233,31 @@ export const PostFocusCard = ({
     post.type === PostType.Welcome
       ? post.author
       : undefined;
+  // Squad attribution under the header. Author-led posts show the author
+  // there, so the squad must be named separately: shared into a squad →
+  // "Shared via {squad}", written directly in a squad (freeform/welcome) →
+  // "Posted in {squad}". Shared to a profile → just "Shared post" (we don't
+  // repeat the author's name), and publication-sourced posts already show
+  // their source strip in the header.
+  const squadAttribution =
+    post.source?.type === SourceType.Squad && (isShared || author)
+      ? { label: isShared ? 'Shared via' : 'Posted in', source: post.source }
+      : undefined;
   const isVideoType = isVideoPost(article);
   const { title } = useSmartTitle(article);
+  // A share post carries the user's own commentary in `post.title` (separate
+  // from the shared article's title). Surface it so the text the user actually
+  // wrote isn't dropped; skip it when it just mirrors the article's title.
+  const commentary =
+    isShared && post.title && post.title !== article.title ? post.title : null;
   const { onCopyPostLink, onReadArticle } = usePostContent({ origin, post });
   const { openModal } = useLazyModal();
   const { onShowUpvoted } = useUpvoteQuery();
+  // Boost CTA for eligible authors — lived in PostHeaderActions, which the
+  // redesign card doesn't use, so surface it here in the header row.
+  const showBoostButton = useShowBoostButton({ post });
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
-  const { isReaderEnabled } = useReaderModalEligibility();
-  const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
@@ -260,6 +269,7 @@ export const PostFocusCard = ({
   const videoWrapperRef = useRef<HTMLDivElement>(null);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
+  const canReadArticle = !!readHref && !isInternalReadType(post);
 
   useTrackPostView({
     post,
@@ -304,25 +314,28 @@ export const PostFocusCard = ({
     focusCommentRef.current();
   };
 
-  // Rendered in the title column, directly under the title, so it stays close
-  // to the title regardless of the cover image height. The engagement bar lives
-  // further down by the comment composer where the reader's cursor rests.
-  const renderReadButton = (className: string): ReactElement | null =>
-    readHref && !isInternalReadType(post) ? (
-      <Button
-        tag="a"
-        href={readHref}
-        target="_blank"
-        rel="noopener"
-        icon={isReaderVariant ? <EarthIcon /> : getReadPostButtonIcon(post)}
-        onClick={handleReadClick}
-        variant={ButtonVariant.Primary}
-        size={ButtonSize.Small}
-        className={className}
-      >
-        {getReadPostButtonText(post)}
-      </Button>
-    ) : null;
+  // The read CTA sits above the TL;DR on mobile and after it on desktop, so it
+  // is defined once and placed twice behind breakpoint-gated wrappers.
+  const readCta = canReadArticle ? (
+    <a
+      href={readHref}
+      target="_blank"
+      rel="noopener"
+      onClick={handleReadClick}
+      aria-label={
+        !isVideoType && article.domain
+          ? `Read the full article on ${article.domain}`
+          : 'Read the full article'
+      }
+      className="group flex w-fit items-center gap-2 rounded-12 bg-text-primary py-2 pl-4 pr-3 text-surface-invert transition-[transform,box-shadow] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 hover:shadow-3 active:translate-y-0 active:scale-[0.99] motion-reduce:transition-none"
+    >
+      <span className="font-bold typo-callout">Read the full article</span>
+      <OpenLinkIcon
+        size={IconSize.Medium}
+        className="shrink-0 transition-transform duration-200 ease-[cubic-bezier(0.2,0.7,0.2,1)] group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
+      />
+    </a>
+  ) : null;
 
   return (
     <article
@@ -334,16 +347,21 @@ export const PostFocusCard = ({
           <div className="flex min-h-8 min-w-0 items-center gap-2">
             {author ? (
               <div className="flex min-w-0 items-center gap-3">
-                <UserShortInfo
-                  user={author as unknown as UserShortProfile}
-                  imageSize={ProfileImageSize.Large}
-                  showDescription={false}
-                  transformUsername={() => null}
-                  className={{
-                    container: 'min-w-0 !p-0 hover:bg-transparent',
-                    textWrapper: 'min-w-0',
-                  }}
-                />
+                <Link href={author.permalink} passHref prefetch={false}>
+                  <UserShortInfo
+                    tag="a"
+                    href={author.permalink}
+                    user={author as unknown as UserShortProfile}
+                    imageSize={ProfileImageSize.Large}
+                    showDescription={false}
+                    transformUsername={() => null}
+                    className={{
+                      container:
+                        'min-w-0 cursor-pointer !p-0 hover:bg-transparent',
+                      textWrapper: 'min-w-0',
+                    }}
+                  />
+                </Link>
                 <FollowButton
                   className="shrink-0"
                   entityId={author.id}
@@ -365,19 +383,27 @@ export const PostFocusCard = ({
                 />
               )
             )}
-            <div className="ml-auto shrink-0">
-              <PostMenuOptions
-                post={post}
-                origin={origin}
-                buttonSize={ButtonSize.Medium}
-              />
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              {showBoostButton && (
+                <BoostPostButton
+                  post={post}
+                  buttonProps={{ size: ButtonSize.Small }}
+                />
+              )}
+              <div className="[&_svg]:rotate-90">
+                <PostMenuOptions
+                  post={post}
+                  origin={origin}
+                  buttonSize={ButtonSize.Medium}
+                />
+              </div>
             </div>
           </div>
 
           <div className="flex min-w-0 flex-col gap-3">
-            {sharedVia && (
+            {squadAttribution && (
               <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
-                <span>Shared via</span>
+                <span>{squadAttribution.label}</span>
                 <HoverCard
                   appendTo={globalThis?.document?.body}
                   side="top"
@@ -386,41 +412,49 @@ export const PostFocusCard = ({
                   trigger={
                     <span className="inline-flex items-center">
                       <Link
-                        href={sharedVia.permalink}
+                        href={squadAttribution.source.permalink}
                         passHref
                         prefetch={false}
                       >
                         <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
-                          {sharedVia.image && (
+                          {squadAttribution.source.image && (
                             <img
-                              src={sharedVia.image}
+                              src={squadAttribution.source.image}
                               alt=""
                               aria-hidden
                               className="size-4 rounded-full object-cover"
                               loading="lazy"
                             />
                           )}
-                          {sharedVia.name}
+                          {squadAttribution.source.name}
                         </a>
                       </Link>
                     </span>
                   }
                 >
-                  <SourceEntityCard source={sharedVia as SourceTooltip} />
+                  <SourceEntityCard
+                    source={squadAttribution.source as SourceTooltip}
+                  />
                 </HoverCard>
               </p>
             )}
-            {isShared && !sharedVia && (
+            {isShared && !squadAttribution && (
               <p className="text-text-tertiary typo-footnote">Shared post</p>
             )}
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            {/* Title and image are top-aligned columns. The cover image opens a
-                lightbox rather than navigating away. The read button lives in
-                the title column (right under the title) so it hugs the title
-                regardless of the image height — a short title next to a tall
-                image keeps the button close instead of dragging it down. */}
+            {/* The sharer's own words, above the shared article they reference. */}
+            {commentary && (
+              <p className="whitespace-pre-line break-words font-bold text-text-primary typo-title3">
+                {commentary}
+              </p>
+            )}
+            {/* Title column and cover image sit side by side, top-aligned. The
+                image keeps a fixed ratio (square on mobile/small tablet, the
+                wide open-graph cover ratio from tablet up) so a short title
+                can't squash it. The cover opens a lightbox rather than
+                navigating away. */}
             <div className="flex min-w-0 flex-row items-start gap-4">
               <div className="flex min-w-0 flex-1 flex-col gap-4">
                 <h1
@@ -433,15 +467,55 @@ export const PostFocusCard = ({
                   )}
                   data-testid="post-modal-title"
                 >
-                  {title}
+                  {/* The title links to the post and turns the link colour on
+                        hover; the read button below is the other entry point. */}
+                  {canReadArticle ? (
+                    <a
+                      href={readHref}
+                      target="_blank"
+                      rel="noopener"
+                      onClick={handleReadClick}
+                      className="transition-colors hover:text-text-link"
+                    >
+                      {title}
+                    </a>
+                  ) : (
+                    title
+                  )}
                 </h1>
-                {renderReadButton('w-fit')}
+                {/* Directly under the title so a short title pulls the strip
+                    up (rather than sitting below a taller cover image). */}
+                <PostMetadata
+                  // Wrap to a second line on mobile so a long domain stays fully
+                  // visible (no ellipsis); single line from tablet up.
+                  className="flex-wrap !typo-callout tablet:flex-nowrap"
+                  createdAt={article.createdAt}
+                  domain={
+                    !isVideoType &&
+                    article.domain &&
+                    article.domain.length > 0 && (
+                      <span className="min-w-0 break-words tablet:max-w-full tablet:shrink tablet:truncate">
+                        From{' '}
+                        <ArticleLink
+                          className="hover:text-text-link hover:underline"
+                          href={article.permalink}
+                          onClick={onReadArticle}
+                          title={article.domain}
+                        >
+                          {article.domain}
+                        </ArticleLink>
+                      </span>
+                    )
+                  }
+                  isVideoType={isVideoType}
+                  readTime={article.readTime}
+                />
               </div>
               {!isVideoType && article.image && (
                 <button
                   type="button"
                   aria-label="View cover image"
-                  className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                  className="block w-28 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-48"
                   onClick={(event) => {
                     openModal({
                       type: LazyModal.ImageView,
@@ -455,8 +529,9 @@ export const PostFocusCard = ({
                 >
                   <LazyImage
                     eager
-                    // Small square thumbnail below tablet; from tablet (656px)
-                    // up it uses the original wide cover ratio (52% => 25/13).
+                    // Square below tablet; from tablet up the wide open-graph
+                    // cover ratio (52% => 25/13). Fixed either way so the image
+                    // never distorts; object-cover crops to fit.
                     className="aspect-square w-full tablet:aspect-[25/13]"
                     fallbackSrc={cloudinaryPostImageCoverPlaceholder}
                     fetchPriority="high"
@@ -467,30 +542,6 @@ export const PostFocusCard = ({
               )}
             </div>
           </div>
-
-          <PostMetadata
-            className="!typo-callout"
-            createdAt={article.createdAt}
-            domain={
-              !isVideoType &&
-              article.domain &&
-              article.domain.length > 0 && (
-                <TruncateText>
-                  From{' '}
-                  <ArticleLink
-                    className="hover:underline"
-                    href={article.permalink}
-                    onClick={onReadArticle}
-                    title={article.domain}
-                  >
-                    {article.domain}
-                  </ArticleLink>
-                </TruncateText>
-              )
-            }
-            isVideoType={isVideoType}
-            readTime={article.readTime}
-          />
 
           {isVideoType && (
             <div
@@ -518,6 +569,9 @@ export const PostFocusCard = ({
             </div>
           )}
 
+          {/* Mobile: the read CTA sits above the TL;DR. */}
+          {readCta && <div className="tablet:hidden">{readCta}</div>}
+
           {article.contentHtml ? (
             <>
               <Markdown content={article.contentHtml} className="break-words" />
@@ -536,6 +590,9 @@ export const PostFocusCard = ({
               </p>
             ))
           )}
+
+          {/* Desktop: the read CTA sits after the summary. */}
+          {readCta && <div className="hidden tablet:block">{readCta}</div>}
 
           <PostTagList post={article} />
 
@@ -564,10 +621,9 @@ export const PostFocusCard = ({
             origin={origin}
             onComment={scrollToComment}
             onCopyLinkClick={onCopyPostLink}
-            onClose={onClose}
-            // Tighten the gap to the stats row above (the column's gap-4 alone
-            // read as too large here).
-            className="-mt-2"
+            // Extra breathing room above and below the action row (on top of
+            // the column's gap-4).
+            className="my-2"
           />
 
           <div ref={discussionRef} className="scroll-mt-16">
