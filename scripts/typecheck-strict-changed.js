@@ -28,6 +28,13 @@ const packageConfigs = [
 // Files temporarily excluded from strict type checking.
 // These files have known strict-mode violations that will be addressed separately.
 const strictSkipList = new Set([
+  // The @growthbook packages' package.json "exports" maps have no "types"
+  // condition, so their declaration files are unresolvable under webapp's
+  // moduleResolution: "bundler" (TS7016). The helper is compiled by webapp's
+  // program via the webapp test suites that import it. Pre-existing library
+  // issue, not a violation in this file — remove once growthbook is upgraded
+  // to a version with a proper exports map.
+  'packages/shared/__tests__/helpers/boot.tsx',
   'packages/shared/src/components/auth/AuthOptionsInner.tsx',
   'packages/shared/src/components/auth/SocialRegistrationForm.tsx',
   'packages/shared/src/features/onboarding/steps/FunnelRegistration.tsx',
