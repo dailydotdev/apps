@@ -191,7 +191,7 @@ const Page = (): ReactElement | null => {
                   inputId={`source-${key}`}
                   name={`source-${key}`}
                   checked={!!interest.sources?.[key]}
-                  disabled={isUpdating || key !== 'dailyDev'}
+                  disabled={isUpdating || key === 'github'}
                   onToggle={() =>
                     updateInterest({
                       sources: { [key]: !interest.sources?.[key] },
