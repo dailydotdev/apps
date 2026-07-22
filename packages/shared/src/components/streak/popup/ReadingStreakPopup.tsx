@@ -147,7 +147,9 @@ export function ReadingStreakPopup({
     useSharingVisibility(hasShareableStreak);
   const { value: isShareStreakEnabled } = useConditionalFeature({
     feature: featureShareStreak,
-    shouldEvaluate: hasShareableStreak,
+    // Only evaluated once the master gate passes, so control users are never
+    // bucketed into the share_streak experiment.
+    shouldEvaluate: hasShareableStreak && isSharingVisible,
   });
   const canShareStreak =
     hasShareableStreak && isSharingVisible && isShareStreakEnabled;

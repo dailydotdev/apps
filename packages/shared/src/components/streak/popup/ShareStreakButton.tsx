@@ -6,7 +6,7 @@ import { Tooltip } from '../../tooltip/Tooltip';
 import { useShareStreak } from '../../../hooks/streaks/useShareStreak';
 import type { ShareStreakResult } from '../../../hooks/streaks/useShareStreak';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, Origin } from '../../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { ReferralCampaignKey } from '../../../lib/referral';
 
 // Kept short on purpose: on mobile this label sits next to "Settings" in the
@@ -51,13 +51,16 @@ export function ShareStreakButton({
 
   const onShare = useCallback(
     ({ provider, withImage }: ShareStreakResult) => {
+      // Same target shape as the milestone share events so analytics can
+      // union streak shares regardless of the surface they came from.
       logEvent({
         event_name: LogEvent.ShareLog,
+        target_type: TargetType.StreaksMilestone,
+        target_id: String(currentStreak),
         extra: JSON.stringify({
           origin: Origin.ReadingStreak,
           provider,
           with_image: withImage,
-          streak: currentStreak,
         }),
       });
     },
