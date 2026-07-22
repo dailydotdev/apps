@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { Archive } from '../../graphql/archive';
 import type { ArchiveScopeInfo, ArchivesByYear } from '../../lib/archive';
 import {
+  getArchiveIndexUrl,
   getArchiveUrlFromArchive,
   getMonthName,
   groupArchivesByYear,
@@ -13,6 +14,12 @@ import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { ElementPlaceholder } from '../ElementPlaceholder';
+import { ShareActions } from '../share/ShareActions';
+import { ButtonSize } from '../buttons/Button';
+import { useShareDiscovery } from '../../hooks/useShareDiscovery';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, Origin } from '../../lib/log';
+import { webappUrl } from '../../lib/constants';
 
 interface ArchiveIndexPageProps {
   scopeType: ArchiveScopeInfo['scopeType'];
@@ -159,13 +166,50 @@ export function ArchiveIndexPage({
   className,
 }: ArchiveIndexPageProps): ReactElement {
   const groups = groupArchivesByYear(archives);
+  const { isEnabled: canShare } = useShareDiscovery();
+  const { logEvent } = useLogContext();
+  const indexPath = getArchiveIndexUrl({
+    scopeType,
+    scopeId,
+  } as ArchiveScopeInfo);
+  const heading = (
+    <h1
+      className={classNames(
+        // The share row takes over the horizontal inset when it renders, so
+        // flag-off keeps the original class list byte-for-byte.
+        !canShare && 'mx-4',
+        'font-bold typo-title2 tablet:typo-title1',
+      )}
+    >
+      Best of {scopeName} &mdash; Archive
+    </h1>
+  );
 
   return (
     <div className={classNames('flex flex-col', className)}>
       {/* Header */}
-      <h1 className="mx-4 font-bold typo-title2 tablet:typo-title1">
-        Best of {scopeName} &mdash; Archive
-      </h1>
+      {canShare ? (
+        <div className="mx-4 flex items-center justify-between gap-2">
+          {heading}
+          <ShareActions
+            link={`${webappUrl}${indexPath.slice(1)}`}
+            text={`The most upvoted ${scopeName} posts by month and year, curated by the daily.dev community.`}
+            buttonSize={ButtonSize.Medium}
+            onShare={(provider) =>
+              logEvent({
+                event_name: LogEvent.ShareLog,
+                target_id: indexPath,
+                extra: JSON.stringify({
+                  origin: Origin.BestOfArchive,
+                  provider,
+                }),
+              })
+            }
+          />
+        </div>
+      ) : (
+        heading
+      )}
 
       {/* Archive grid by year */}
       <ArchiveGrid

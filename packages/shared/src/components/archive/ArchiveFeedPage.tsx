@@ -4,13 +4,24 @@ import classNames from 'classnames';
 import type { Archive, ArchiveItem } from '../../graphql/archive';
 import { ArchivePeriodType } from '../../graphql/archive';
 import type { ArchiveScopeInfo } from '../../lib/archive';
-import { getArchiveTitle, getArchiveIndexUrl } from '../../lib/archive';
+import {
+  getArchiveDescription,
+  getArchiveIndexUrl,
+  getArchiveTitle,
+  getArchiveUrl,
+} from '../../lib/archive';
 import { ArchiveNavigation } from './ArchiveNavigation';
 import { ArchivePostItem } from './ArchivePostItem';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import Link from '../utilities/Link';
 import { ArrowIcon } from '../icons';
 import { IconSize } from '../Icon';
+import { ShareActions } from '../share/ShareActions';
+import { ButtonSize } from '../buttons/Button';
+import { useShareDiscovery } from '../../hooks/useShareDiscovery';
+import { useLogContext } from '../../contexts/LogContext';
+import { LogEvent, Origin } from '../../lib/log';
+import { webappUrl } from '../../lib/constants';
 
 interface ArchiveFeedPageProps {
   scopeType: ArchiveScopeInfo['scopeType'];
@@ -95,6 +106,26 @@ export function ArchiveFeedPage({
     scopeId,
   } as ArchiveScopeInfo);
   const items = (archive?.items ?? []).filter((item) => item.post);
+  const { isEnabled: canShare } = useShareDiscovery();
+  const { logEvent } = useLogContext();
+  const archivePath = getArchiveUrl(
+    { scopeType, scopeId } as ArchiveScopeInfo,
+    periodType,
+    year,
+    month,
+  );
+  const heading = (
+    <h1
+      className={classNames(
+        // The share row takes over the horizontal inset when it renders, so
+        // flag-off keeps the original class list byte-for-byte.
+        !canShare && 'mx-4',
+        'font-bold typo-title2 tablet:typo-title1',
+      )}
+    >
+      Best of {scopeName} &mdash; {title.replace('Best of ', '')}
+    </h1>
+  );
 
   return (
     <div
@@ -104,9 +135,28 @@ export function ArchiveFeedPage({
       )}
     >
       {/* Header */}
-      <h1 className="mx-4 font-bold typo-title2 tablet:typo-title1">
-        Best of {scopeName} &mdash; {title.replace('Best of ', '')}
-      </h1>
+      {canShare ? (
+        <div className="mx-4 flex items-center justify-between gap-2">
+          {heading}
+          <ShareActions
+            link={`${webappUrl}${archivePath.slice(1)}`}
+            text={getArchiveDescription(scopeName, periodType, year, month)}
+            buttonSize={ButtonSize.Medium}
+            onShare={(provider) =>
+              logEvent({
+                event_name: LogEvent.ShareLog,
+                target_id: archivePath,
+                extra: JSON.stringify({
+                  origin: Origin.BestOfArchive,
+                  provider,
+                }),
+              })
+            }
+          />
+        </div>
+      ) : (
+        heading
+      )}
 
       {/* Top navigation */}
       <ArchiveNavigation
