@@ -24,6 +24,7 @@ import { ClickableText } from '../../buttons/ClickableText';
 import { IconSize } from '../../Icon';
 import { TimeSortIcon } from '../../icons/Sort/Time';
 import { SortCommentsBy } from '../../../graphql/comments';
+import { EndOfConversationShare } from '../EndOfConversationShare';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
 
@@ -201,6 +202,7 @@ export const PostDiscussionPanel = ({
           onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}
           modalParentSelector={resolveModalParent}
           removeTopSpacing
+          hideEndOfConversationShare
         />
       </div>
       {showMetaBar && (
@@ -208,6 +210,7 @@ export const PostDiscussionPanel = ({
           <DiscussionMetaBar post={post} />
         </div>
       )}
+      <EndOfConversationShare post={post} />
     </section>
   );
 };
