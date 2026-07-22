@@ -12,6 +12,7 @@ import { useViewPost } from '../../../hooks/post/useViewPost';
 import { withPostById } from '../withPostById';
 import PostContentContainer from '../PostContentContainer';
 import { BasePostContent } from '../BasePostContent';
+import type { Post } from '../../../graphql/posts';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
 import { ToastSubject, useToastNotification } from '../../../hooks';
@@ -41,6 +42,10 @@ import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
 import { BriefUpgradeAlert } from '../../../features/briefing/components/BriefUpgradeAlert';
 import { transformDigestAd } from './utils';
 
+type DigestPostContentRawProps = Omit<PostContentProps, 'post'> & {
+  post: Post;
+};
+
 const DigestPostContentRaw = ({
   post,
   className = {},
@@ -57,7 +62,7 @@ const DigestPostContentRaw = ({
   backToSquad,
   isBannerVisible,
   isPostPage,
-}: PostContentProps): ReactElement => {
+}: DigestPostContentRawProps): ReactElement => {
   const { user, isLoggedIn } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { subject } = useToastNotification();
@@ -72,6 +77,7 @@ const DigestPostContentRaw = ({
   );
   const postsCount = post?.flags?.posts || 0;
   const sourcesCount = post?.flags?.sources || 0;
+  const collectionSources = post?.collectionSources ?? [];
   const digestPostIds = post?.flags?.digestPostIds;
 
   const hasNavigation = !!onPreviousPost || !!onNextPost;
@@ -176,7 +182,7 @@ const DigestPostContentRaw = ({
               isBannerVisible,
               className: className?.fixedNavigation,
             }
-          : null
+          : undefined
       }
     >
       <PostContainer
@@ -214,12 +220,12 @@ const DigestPostContentRaw = ({
               />
             </BriefPostHeader>
             <div className="flex flex-wrap items-center gap-3">
-              {post.collectionSources?.length > 0 && (
+              {collectionSources.length > 0 && (
                 <div className="flex w-full items-center gap-1">
                   <CollectionPillSources
                     alwaysShowSources
-                    sources={post.collectionSources}
-                    totalSources={post.collectionSources.length}
+                    sources={collectionSources}
+                    totalSources={collectionSources.length}
                     size={ProfileImageSize.Size16}
                     limit={6}
                   />

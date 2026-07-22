@@ -20,6 +20,16 @@ jest.mock('../../hooks/usePlusSubscription', () => ({
   usePlusSubscription: () => ({ isPlus: true }),
 }));
 
+const mockUseShareBriefingDigest = jest.fn();
+
+jest.mock('../../hooks/useShareBriefingDigest', () => ({
+  useShareBriefingDigest: () => mockUseShareBriefingDigest(),
+}));
+
+jest.mock('./BriefCopyMenu', () => ({
+  BriefCopyMenu: () => <button type="button">Copy</button>,
+}));
+
 const post = {
   id: 'brief-1',
   slug: 'brief-1',
@@ -42,6 +52,41 @@ const renderComponent = (onClick = jest.fn()) =>
 describe('BriefListItem', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseShareBriefingDigest.mockReturnValue(false);
+  });
+
+  it('keeps the row untouched while the share gate is off', () => {
+    renderComponent();
+
+    // The control row is a link and nothing else — no interactive controls.
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.getByRole('link')).toBeInTheDocument();
+  });
+
+  it('renders the copy menu once the share gate is on', () => {
+    mockUseShareBriefingDigest.mockReturnValue(true);
+
+    renderComponent();
+
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
+  });
+
+  it('lets an explicit prop pin the copy menu off even when the gate is on', () => {
+    mockUseShareBriefingDigest.mockReturnValue(true);
+
+    render(
+      <BriefListItem
+        post={post}
+        title={post.title}
+        origin={Origin.BriefPage}
+        targetId={TargetId.List}
+        showCopyActions={false}
+      />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Copy' }),
+    ).not.toBeInTheDocument();
   });
 
   it('delegates regular clicks to the parent handler and tracks the click', () => {

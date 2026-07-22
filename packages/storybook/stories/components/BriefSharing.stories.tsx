@@ -121,6 +121,9 @@ export const ListItemWithCopyActions: StoryObj<typeof BriefListItem> = {
 };
 
 // Flag-off control: the row renders exactly as it does on main today.
+// `showCopyActions` is pinned explicitly because Storybook aliases GrowthBook to
+// a mock that returns the string 'control' — truthy — for every flag, so the
+// gate always reads as ON here. Flag-off behaviour is asserted in Jest instead.
 export const ListItemControl: StoryObj<typeof BriefListItem> = {
   render: () => (
     <BriefListItem
