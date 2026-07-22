@@ -26,7 +26,9 @@ type CustomFeedOptionsMenuProps = {
     button?: string;
   };
   buttonVariant?: ButtonVariant;
-  shareProps: UseShareOrCopyLinkProps;
+  /** Omit to drop the "Share" entry, e.g. when the surface promotes it to its
+   * own visible control. */
+  shareProps?: UseShareOrCopyLinkProps;
   additionalOptions?: MenuItemProps[];
 };
 
@@ -40,7 +42,9 @@ const CustomFeedOptionsMenu = ({
   buttonVariant = ButtonVariant.Float,
 }: CustomFeedOptionsMenuProps): ReactElement => {
   const { openModal } = useLazyModal();
-  const [, onShareOrCopyLink] = useShareOrCopyLink(shareProps);
+  const [, onShareOrCopyLink] = useShareOrCopyLink(
+    shareProps ?? { link: '', text: '' },
+  );
   const { feeds } = useFeeds();
 
   const handleOpenModal = () => {
@@ -59,11 +63,15 @@ const CustomFeedOptionsMenu = ({
   };
 
   const options: MenuItemProps[] = [
-    {
-      icon: <MenuIcon Icon={ShareIcon} />,
-      label: 'Share',
-      action: () => onShareOrCopyLink(),
-    },
+    ...(shareProps
+      ? [
+          {
+            icon: <MenuIcon Icon={ShareIcon} />,
+            label: 'Share',
+            action: () => onShareOrCopyLink(),
+          },
+        ]
+      : []),
     {
       icon: <MenuIcon Icon={HashtagIcon} />,
       label: 'Add to custom feed',
