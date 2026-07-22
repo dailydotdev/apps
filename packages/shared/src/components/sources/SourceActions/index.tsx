@@ -8,9 +8,11 @@ import SourceActionsNotify from './SourceActionsNotify';
 import SourceActionsBlock from './SourceActionsBlock';
 import SourceActionsFollow from './SourceActionsFollow';
 import CustomFeedOptionsMenu from '../../CustomFeedOptionsMenu';
-import { LogEvent } from '../../../lib/log';
+import { LogEvent, Origin } from '../../../lib/log';
 import { useContentPreference } from '../../../hooks/contentPreference/useContentPreference';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
+import { useShareTagsSources } from '../../../hooks/useShareTagsSources';
+import { EntityShareAction } from '../../share/EntityShareAction';
 
 interface SourceActionsButton {
   className?: string;
@@ -25,6 +27,12 @@ export interface SourceActionsProps {
   hideFollow?: boolean;
   notifyProps?: SourceActionsButton;
   hideNotify?: boolean;
+  /**
+   * Opt in to the visible share control (source page header). Off by default so
+   * embedded consumers, e.g. the post page highlights widget, keep their
+   * existing DOM.
+   */
+  showShare?: boolean;
 }
 
 export const SourceActions = ({
@@ -35,6 +43,7 @@ export const SourceActions = ({
   hideNotify = false,
   source,
   notifyProps,
+  showShare = false,
 }: SourceActionsProps): ReactElement => {
   const {
     isBlocked,
@@ -48,6 +57,13 @@ export const SourceActions = ({
   });
   const { follow, unfollow } = useContentPreference();
   const router = useRouter();
+  const isShareVisible = useShareTagsSources(showShare);
+
+  const shareProps = {
+    text: `Check out ${source.handle} on daily.dev`,
+    link: source.permalink,
+    cid: ReferralCampaignKey.ShareSource,
+  };
 
   return (
     <div className="inline-flex flex-row gap-2">
@@ -74,7 +90,16 @@ export const SourceActions = ({
           {...blockProps}
         />
       )}
+      {isShareVisible && (
+        <EntityShareAction
+          {...shareProps}
+          event={LogEvent.ShareSource}
+          targetId={source.id ?? source.handle}
+          origin={Origin.SourcePage}
+        />
+      )}
       <CustomFeedOptionsMenu
+        hideShare={isShareVisible}
         onCreateNewFeed={() =>
           router.push(
             `/feeds/new?entityId=${source.id}&entityType=${ContentPreferenceType.Source}`,
@@ -97,9 +122,7 @@ export const SourceActions = ({
           })
         }
         shareProps={{
-          text: `Check out ${source.handle} on daily.dev`,
-          link: source.permalink,
-          cid: ReferralCampaignKey.ShareSource,
+          ...shareProps,
           logObject: () => ({
             event_name: LogEvent.ShareSource,
             target_id: source.id,
