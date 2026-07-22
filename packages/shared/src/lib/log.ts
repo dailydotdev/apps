@@ -101,6 +101,13 @@ export enum Origin {
   DailyPage = 'daily page',
   EngagementBanner = 'engagement banner',
   EngagementFeedStrip = 'engagement feed strip',
+  // sharing visibility initiative
+  ReadingStreak = 'reading streak',
+  HappeningNow = 'happening now',
+  Achievements = 'achievements',
+  GameCenter = 'game center',
+  DevCard = 'devcard',
+  CopyMyFeed = 'copy my feed',
 }
 
 export enum LogEvent {
