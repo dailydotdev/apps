@@ -108,6 +108,8 @@ export enum Origin {
   GameCenter = 'game center',
   DevCard = 'devcard',
   CopyMyFeed = 'copy my feed',
+  // One origin for every hot-take share surface; `extra.surface` distinguishes
+  HotTake = 'hot take',
 }
 
 export enum LogEvent {

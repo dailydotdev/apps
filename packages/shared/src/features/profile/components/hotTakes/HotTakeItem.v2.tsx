@@ -16,10 +16,14 @@ import {
 import { EditIcon, TrashIcon, UpvoteIcon } from '../../../../components/icons';
 import { CardAction } from '../../../../components/buttons/CardAction';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
+import { HotTakeShareButton } from './HotTakeShareButton';
+import { getHotTakeShareText, getHotTakesProfileUrl } from './common';
 
 interface HotTakeItemProps {
   item: HotTake;
   isOwner: boolean;
+  /** When set, a flag-gated share control is rendered in the action area. */
+  ownerUsername?: string;
   onEdit?: (item: HotTake) => void;
   onDelete?: (item: HotTake) => void;
   onUpvoteClick?: (item: HotTake) => void;
@@ -28,6 +32,7 @@ interface HotTakeItemProps {
 export function HotTakeItem({
   item,
   isOwner,
+  ownerUsername,
   onEdit,
   onDelete,
   onUpvoteClick,
@@ -86,6 +91,16 @@ export function HotTakeItem({
               />
             )}
           </div>
+        )}
+        {ownerUsername && (
+          <HotTakeShareButton
+            link={getHotTakesProfileUrl(ownerUsername)}
+            text={getHotTakeShareText({ title, username: ownerUsername })}
+            label={`Share "${title}"`}
+            targetId={item.id}
+            surface="profile item"
+            buttonSize={ButtonSize.XSmall}
+          />
         )}
         {onUpvoteClick && (
           <Tooltip
