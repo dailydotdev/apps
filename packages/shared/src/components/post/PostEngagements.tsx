@@ -10,6 +10,7 @@ import { AuthTriggers } from '../../lib/auth';
 import type { NewCommentRef } from './NewComment';
 import { NewComment } from './NewComment';
 import { PostActions } from './PostActions';
+import { usePostActions } from '../../hooks/post/usePostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import type { Comment } from '../../graphql/comments';
@@ -80,6 +81,7 @@ function PostEngagements({
   );
   const [linkClicked, setLinkClicked] = useState(false);
   const isSharePostPageEnabled = useSharePostPage();
+  const { interaction } = usePostActions({ post });
 
   const handleLinkClick = () => {
     setLinkClicked(true);
@@ -129,7 +131,10 @@ function PostEngagements({
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
-      {isSharePostPageEnabled && (
+      {/* PostContentShare owns the engagement column right after an upvote, so
+       * the team strip stands down until that module is dismissed — otherwise
+       * two full-width share modules stack back-to-back. */}
+      {isSharePostPageEnabled && interaction !== 'upvote' && (
         <ShareWithTeamStrip className="mt-6" post={post} />
       )}
       {linkClicked && <SocialBar post={post} className="mt-6" />}
