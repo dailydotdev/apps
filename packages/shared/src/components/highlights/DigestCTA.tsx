@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useCallback } from 'react';
+import classNames from 'classnames';
 import type { ChannelDigestConfiguration } from '../../graphql/highlights';
 import type { Source } from '../../graphql/sources';
 import { SourceType } from '../../graphql/sources';
@@ -9,6 +10,9 @@ import { useSourceActionsFollow } from '../../hooks/source/useSourceActionsFollo
 import { useSourceActionsNotify } from '../../hooks/source/useSourceActionsNotify';
 import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
 import Link from '../utilities/Link';
+import { HighlightShareButton } from './HighlightShareButton';
+import { ButtonSize } from '../buttons/Button';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 const CTA_HEIGHT = 'h-10';
 
@@ -22,6 +26,12 @@ const DigestCTASkeleton = (): ReactElement => (
 interface DigestCTAProps {
   digest: ChannelDigestConfiguration;
   displayName: string;
+  /**
+   * Absolute link to this channel's Happening Now tab. Only set when
+   * `share_happening_now` is on, so the control is gated on the prop and the
+   * flag-off DOM is untouched.
+   */
+  shareLink?: string;
 }
 
 interface DigestCTAContentProps extends DigestCTAProps {
@@ -31,6 +41,7 @@ interface DigestCTAContentProps extends DigestCTAProps {
 const DigestCTAContent = ({
   digest,
   displayName,
+  shareLink,
   source,
 }: DigestCTAContentProps): ReactElement => {
   const { isAuthReady, isLoggedIn } = useAuthContext();
@@ -61,7 +72,9 @@ const DigestCTAContent = ({
     <div
       className={`flex items-center gap-2 px-4 py-2 text-text-tertiary typo-callout ${CTA_HEIGHT}`}
     >
-      <span>
+      {/* The share control eats horizontal room, so the copy only gets the
+      shrink + ellipsis treatment when it is actually rendered. */}
+      <span className={classNames(shareLink && 'min-w-0 flex-1 truncate')}>
         Get a {digest.frequency} digest of{' '}
         <Link href={source.permalink}>
           <a className="font-bold text-text-primary hover:underline">
@@ -70,7 +83,19 @@ const DigestCTAContent = ({
         </Link>{' '}
         news
       </span>
-      <span className="ml-auto shrink-0">
+      {shareLink && (
+        <HighlightShareButton
+          link={shareLink}
+          text={`Follow ${displayName} news on daily.dev`}
+          label={`Share ${displayName}`}
+          level="topic"
+          targetId={source.id ?? displayName}
+          cid={ReferralCampaignKey.Generic}
+          buttonSize={ButtonSize.XSmall}
+          className="ml-auto shrink-0"
+        />
+      )}
+      <span className={classNames('shrink-0', !shareLink && 'ml-auto')}>
         <SourceActionsNotify
           haveNotificationsOn={haveNotificationsOn}
           onClick={(event) => {
@@ -87,6 +112,7 @@ const DigestCTAContent = ({
 export const DigestCTA = ({
   digest,
   displayName,
+  shareLink,
 }: DigestCTAProps): ReactElement | null => {
   const source = digest.source
     ? {
@@ -104,6 +130,7 @@ export const DigestCTA = ({
     <DigestCTAContent
       digest={digest}
       displayName={displayName}
+      shareLink={shareLink}
       source={source}
     />
   );
