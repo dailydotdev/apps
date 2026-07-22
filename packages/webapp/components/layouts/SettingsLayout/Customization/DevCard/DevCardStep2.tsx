@@ -154,6 +154,7 @@ export const DevCardStep2 = ({
   const onShareDevCard = (provider: ShareProvider) =>
     logEvent({
       event_name: LogEvent.ShareDevcard,
+      target_id: user?.id,
       extra: JSON.stringify({ provider, origin: Origin.DevCard }),
     });
 
