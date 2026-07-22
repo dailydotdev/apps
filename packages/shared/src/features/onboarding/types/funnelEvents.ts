@@ -27,6 +27,10 @@ export enum FunnelTargetId {
   FeedTag = 'feed tag',
   FeedPreview = 'feed preview',
   FeedContentType = 'feed content type',
+  InviteFriends = 'invite friends',
+  InviteFriendsCopy = 'invite friends copy',
+  InviteFriendsShare = 'invite friends share',
+  InviteFriendsSkip = 'invite friends skip',
 }
 
 export type FunnelEvent =

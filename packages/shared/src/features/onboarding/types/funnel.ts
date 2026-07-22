@@ -36,6 +36,7 @@ export enum FunnelStepType {
   HeroLanding = 'heroLanding',
   BrowserExtension = 'browserExtension',
   UploadCv = 'uploadCv',
+  InviteFriends = 'inviteFriends',
 }
 
 export enum FunnelBackgroundVariant {
@@ -415,6 +416,32 @@ export interface FunnelStepUploadCv
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepInviteFriends
+  extends FunnelStepCommon<{
+    headline?: string;
+    explainer?: string;
+    cta?: string;
+    celebrationHeadline?: string;
+    celebrationExplainer?: string;
+    celebrationCta?: string;
+    /**
+     * Reward framing injected into `{reward}` copy placeholders (e.g.
+     * "1 month" vs "3 months"). Copy-only on the frontend so the reward can be
+     * A/B-tested straight from the funnel JSON; the actual Plus grant is a
+     * backend concern.
+     */
+    reward?: string;
+    /** Successful referrals needed to unlock the reward. */
+    targetCount?: number;
+  }> {
+  type: FunnelStepType.InviteFriends;
+  onTransition: FunnelStepTransitionCallback<{
+    referredUsersCount: number;
+    targetReached: boolean;
+    invited: boolean;
+  }>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -436,7 +463,8 @@ export type FunnelStep =
   | FunnelStepHeroLanding
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
-  | FunnelStepUploadCv;
+  | FunnelStepUploadCv
+  | FunnelStepInviteFriends;
 
 export type FunnelPosition = {
   chapter: number;
