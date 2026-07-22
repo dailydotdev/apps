@@ -32,6 +32,8 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useSharePostPage } from '../../hooks/useSharePostPage';
+import { ShareWithTeamStrip } from './share/ShareWithTeamStrip';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -77,6 +79,7 @@ function PostEngagements({
     false,
   );
   const [linkClicked, setLinkClicked] = useState(false);
+  const isSharePostPageEnabled = useSharePostPage();
 
   const handleLinkClick = () => {
     setLinkClicked(true);
@@ -126,6 +129,9 @@ function PostEngagements({
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
+      {isSharePostPageEnabled && (
+        <ShareWithTeamStrip className="mt-6" post={post} />
+      )}
       {linkClicked && <SocialBar post={post} className="mt-6" />}
       <span className="mt-3 flex flex-row items-center">
         <Typography type={TypographyType.Callout}>Sort:</Typography>

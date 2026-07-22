@@ -308,3 +308,9 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Post page/modal sharing treatments: the TL;DR "Copy summary" action, the
+// "share this with your team" strip and the redesigned recommend module. Gated
+// on top of `sharing_visibility` so it can ramp on its own. Keep the default
+// `false` — control is the current post page.
+export const featureSharePostPage = new Feature('share_post_page', false);
