@@ -170,10 +170,10 @@ export const PostOnboardingActivation = (): ReactElement | null => {
           size={ButtonSize.Medium}
           // Panel is always dark, so pin the subtle button to its dark-theme
           // look instead of letting it flip to dark text in the light theme.
-          className="!border-white/20 !bg-white/5 hover:!bg-white/15 w-full shrink-0 !text-white tablet:w-auto tablet:min-w-48"
+          className="!border-white/20 !bg-white/5 hover:!bg-white/15 w-full shrink-0 !text-white tablet:w-auto tablet:min-w-40"
           onClick={onBuildFeed}
         >
-          Personalize my feed
+          Continue setup
         </Button>
       </div>
 

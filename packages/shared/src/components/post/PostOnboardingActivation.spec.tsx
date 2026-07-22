@@ -61,7 +61,7 @@ describe('PostOnboardingActivation', () => {
     ).toBeInTheDocument();
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Personalize my feed' }),
+      screen.getByRole('button', { name: 'Continue setup' }),
     );
 
     expect(mockPush).toHaveBeenCalledWith({
