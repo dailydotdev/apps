@@ -21,6 +21,7 @@ import { useReadHistoryVotePost } from '../../hooks';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
+import { ReferralCampaignKey } from '../../lib/referral';
 import { Tooltip } from '../tooltip/Tooltip';
 import {
   Button,
@@ -97,6 +98,7 @@ export default function PostItemCard({
   const [copyingLink, onShareOrCopyLink] = useShareOrCopyLink({
     link: post.commentsPermalink ?? '',
     text: title ?? '',
+    cid: ReferralCampaignKey.SharePost,
     logObject: (provider) =>
       postLogEvent(LogEvent.SharePost, post, {
         extra: { provider, origin: logOrigin },

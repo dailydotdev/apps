@@ -42,6 +42,23 @@ jest.mock('../../lib/func', () => {
   };
 });
 
+// The row share passes a referral cid, which routes the link through
+// `useGetShortUrl`. Resolve it to the original URL here so these tests stay
+// about the copy/share flow; short-link resolution is covered by that hook.
+jest.mock('../../hooks/utils/useGetShortUrl', () => {
+  const actual = jest.requireActual('../../hooks/utils/useGetShortUrl');
+  return {
+    __esModule: true,
+    ...actual,
+    useGetShortUrl: () => ({
+      getShortUrl: async (url: string) => url,
+      getTrackedUrl: (url: string) => url,
+      shareLink: '',
+      isLoading: false,
+    }),
+  };
+});
+
 const shouldUseNativeShareMock = shouldUseNativeShare as jest.Mock;
 const writeText = jest.fn().mockResolvedValue(undefined);
 
