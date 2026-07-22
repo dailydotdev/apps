@@ -308,3 +308,12 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Onboarding experiment: "Invite 3 friends, get a month of Plus on us" funnel
+// step. The step can only appear when the backend funnel JSON includes an
+// `inviteFriends` step; this flag is the frontend kill-switch on top and the
+// experiment enrollment point. Keep the default `false` — GrowthBook ramps it.
+export const featureOnboardingInviteReward = new Feature(
+  'onboarding_invite_reward',
+  false,
+);
