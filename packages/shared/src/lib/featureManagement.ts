@@ -308,3 +308,8 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Promotes share out of the buried "…" options menu into a visible control in
+// the tag and source page action rows, next to Follow/Following. Control keeps
+// share inside the menu only. Keep the default `false` — GrowthBook ramps it.
+export const featureShareTagsSources = new Feature('share_tags_sources', false);

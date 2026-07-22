@@ -259,6 +259,13 @@ it('should show follow and block buttons', async () => {
   expect(blockButton).toBeInTheDocument();
 });
 
+it('should keep share out of the header while share_tags_sources is off', async () => {
+  renderComponent();
+  await waitForNock();
+  expect(await screen.findByLabelText('Follow')).toBeInTheDocument();
+  expect(screen.queryByLabelText('Share')).not.toBeInTheDocument();
+});
+
 it('should show only unfollow button', async () => {
   renderComponent([
     createFeedMock(),

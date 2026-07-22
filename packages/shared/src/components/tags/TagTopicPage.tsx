@@ -67,6 +67,8 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import { useShareTagsSources } from '../../hooks/useShareTagsSources';
+import { EntityShareAction } from '../share/EntityShareAction';
 
 const SUPPORTED_TYPES = [
   PostType.Article,
@@ -256,6 +258,7 @@ export const TagTopicPage = ({
   const { follow, unfollow } = useContentPreference({
     showToastOnSuccess: false,
   });
+  const isShareVisible = useShareTagsSources();
 
   const title = initialData?.flags?.title || formatKeyword(tag);
   const followers = initialData?.followers;
@@ -321,6 +324,14 @@ export const TagTopicPage = ({
         await onBlockTags({ tags: [tag] });
       }
     },
+  };
+
+  // Shared by the visible share control and the "…" menu entry so both always
+  // hand out the same link — `location.href` is the tag page itself.
+  const tagShareProps = {
+    text: `Check out the ${tag} tag on daily.dev`,
+    link: globalThis?.location?.href,
+    cid: ReferralCampaignKey.ShareTag,
   };
 
   const statParts: ReactNode[] = [];
@@ -407,7 +418,16 @@ export const TagTopicPage = ({
                   {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
                 </Button>
               )}
+              {isShareVisible && (
+                <EntityShareAction
+                  {...tagShareProps}
+                  event={LogEvent.ShareTag}
+                  targetId={tag}
+                  origin={Origin.TagPage}
+                />
+              )}
               <CustomFeedOptionsMenu
+                hideShare={isShareVisible}
                 onCreateNewFeed={() =>
                   push(
                     `${webappUrl}feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
@@ -430,9 +450,7 @@ export const TagTopicPage = ({
                   })
                 }
                 shareProps={{
-                  text: `Check out the ${tag} tag on daily.dev`,
-                  link: globalThis?.location?.href,
-                  cid: ReferralCampaignKey.ShareTag,
+                  ...tagShareProps,
                   logObject: () => ({
                     event_name: LogEvent.ShareTag,
                     target_id: tag,
