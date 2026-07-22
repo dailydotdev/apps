@@ -79,6 +79,7 @@ export enum Origin {
   // End Credits
   ProfileMenu = 'profile menu',
   StreakRecover = 'streak recover',
+  StreakFreeze = 'streak freeze',
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
@@ -245,6 +246,9 @@ export enum LogEvent {
   StreakRecover = 'restore streak',
   DismissStreakRecover = 'dimiss streaks milestone',
   StreakTimezoneMismatch = 'streak timezone mismatch',
+  ClickStreakFreezePurchase = 'click streak freeze purchase',
+  PurchaseStreakFreeze = 'purchase streak freeze',
+  DismissStreakFreezePurchase = 'dismiss streak freeze purchase',
   // 404 page
   View404Page = '404 page',
   // Follow Actions - start
@@ -492,7 +496,6 @@ export enum LogEvent {
   ReaderEmbedError = 'reader embed error',
   // Onboarding personas
   SelectOnboardingPersona = 'select onboarding persona',
-  CompletePersonaQuiz = 'complete persona quiz',
   // Extension activation primer
   ExtensionPrimerShown = 'impression extension primer',
   ExtensionPrimerCtaClick = 'click extension primer cta',
@@ -551,6 +554,7 @@ export enum TargetType {
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
   StreakRecover = 'streak restore',
+  StreakFreezePurchase = 'streak freeze purchase',
   PromotionCard = 'promotion_card',
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',
