@@ -22,7 +22,13 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
+import { ShareActions } from '@dailydotdev/shared/src/components/share/ShareActions';
+import { useSharingVisibility } from '@dailydotdev/shared/src/hooks/useSharingVisibility';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureShareDevcard } from '@dailydotdev/shared/src/lib/featureManagement';
+import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
+import type { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
 import {
@@ -68,6 +74,15 @@ export const DevCardStep2 = ({
   const isProfileCover = devcard?.isProfileCover ?? false;
   const isMobile = useViewSize(ViewSize.MobileL);
   const randomStr = Math.random().toString(36).substring(2, 5);
+  // Gate flag evaluation on the same condition the action row renders under, so
+  // GrowthBook is only asked when the share control could actually show.
+  const isDevCardReady = !isNullOrUndefined(devcard);
+  const { isEnabled: isSharingVisible } = useSharingVisibility(isDevCardReady);
+  const { value: isShareDevCardEnabled } = useConditionalFeature({
+    feature: featureShareDevcard,
+    shouldEvaluate: isSharingVisible,
+  });
+  const canShareDevCard = isSharingVisible && isShareDevCardEnabled;
 
   const [devCardSrc, setDevCardSrc] = useState<string>(
     initialDevCardSrc ??
@@ -136,6 +151,13 @@ export const DevCardStep2 = ({
     [key, client],
   );
 
+  const onShareDevCard = (provider: ShareProvider) =>
+    logEvent({
+      event_name: LogEvent.ShareDevcard,
+      target_id: user?.id,
+      extra: JSON.stringify({ provider, origin: Origin.DevCard }),
+    });
+
   const onUpdateType = (newType: DevCardType) => {
     if (newType && newType !== type) {
       setType(newType);
@@ -172,6 +194,25 @@ export const DevCardStep2 = ({
   if (!user) {
     throw new Error('DevCard customization requires a logged-in user');
   }
+
+  const downloadDevCardButton = (
+    <Button
+      className={classNames(
+        'grow-0',
+        // Flag off: keep the standalone centering so the step is unchanged.
+        !canShareDevCard && 'mx-auto mt-4 self-start',
+      )}
+      variant={ButtonVariant.Primary}
+      size={ButtonSize.Medium}
+      onClick={() => generateThenDownload({})}
+      disabled={downloading || isLoading}
+      tag={isMobile ? 'a' : 'button'}
+      href={devCardSrc}
+      target={isMobile ? '_blank' : undefined}
+    >
+      Download DevCard
+    </Button>
+  );
 
   return (
     <>
@@ -229,20 +270,24 @@ export const DevCardStep2 = ({
           </Tilt>
         </div>
 
-        {!isNullOrUndefined(devcard) && (
-          <Button
-            className="mx-auto mt-4 grow-0 self-start"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            onClick={() => generateThenDownload({})}
-            disabled={downloading || isLoading}
-            tag={isMobile ? 'a' : 'button'}
-            href={devCardSrc}
-            target={isMobile ? '_blank' : undefined}
-          >
-            Download DevCard
-          </Button>
-        )}
+        {isDevCardReady &&
+          (canShareDevCard ? (
+            <div className="mt-4 flex flex-row items-center justify-center gap-3">
+              {downloadDevCardButton}
+              <ShareActions
+                link={user.permalink}
+                text="Check out my DevCard on daily.dev"
+                emailTitle="My daily.dev DevCard"
+                cid={ReferralCampaignKey.ShareProfile}
+                label="Share DevCard"
+                buttonVariant={ButtonVariant.Secondary}
+                buttonSize={ButtonSize.Medium}
+                onShare={onShareDevCard}
+              />
+            </div>
+          ) : (
+            downloadDevCardButton
+          ))}
       </section>
 
       <section className="flex flex-col">
