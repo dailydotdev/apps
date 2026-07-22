@@ -308,3 +308,10 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Surfaces a copy/share control on the profile header (own profile next to
+// "Edit profile", public profiles in the otherwise-empty edit slot) and
+// promotes the share action out of the "..." options menu. Also gated by the
+// `sharing_visibility` master flag. Keep the default `false` — GrowthBook ramps
+// it.
+export const featureShareProfile = new Feature('share_profile', false);

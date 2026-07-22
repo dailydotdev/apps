@@ -45,6 +45,8 @@ import {
 import Link from '../utilities/Link';
 import type { MenuItemProps } from '../dropdown/common';
 import { ProfileMobileBackButton } from './ProfileBackButton';
+import { ProfileShareButton } from './ProfileShareButton';
+import { useShareProfileEnabled } from '../../hooks/profile/useShareProfileEnabled';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -83,6 +85,7 @@ export function Header({
   });
   const hasCoresAccess = useHasAccessToCores();
   const canPurchaseCores = useCanPurchaseCores();
+  const isShareEnabled = useShareProfileEnabled();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -218,6 +221,17 @@ export function Header({
             variant={ButtonVariant.Float}
           />
         )}
+        {/* Only while pinned: unpinned, the profile card right below owns the
+            share control, and two identical copy buttons on one screen read as
+            a mistake. `ml-1` keeps this utility icon out of the Follow group. */}
+        {isShareEnabled && sticky && (
+          <ProfileShareButton
+            user={user}
+            isSameUser={isSameUser}
+            buttonSize={ButtonSize.Small}
+            className="ml-1"
+          />
+        )}
         {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>
@@ -241,6 +255,9 @@ export function Header({
                 `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
               )
             }
+            // Promoted out of the menu into a dedicated control when the
+            // share-profile experiment is on.
+            hideShare={isShareEnabled}
             shareProps={{
               text: `Check out ${user.name}'s profile on daily.dev`,
               link: user.permalink,

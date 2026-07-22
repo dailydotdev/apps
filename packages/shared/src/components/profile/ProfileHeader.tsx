@@ -23,6 +23,8 @@ import { locationToString } from '../../lib/utils';
 import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
 import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
+import { ProfileShareButton } from './ProfileShareButton';
+import { useShareProfileEnabled } from '../../hooks/profile/useShareProfileEnabled';
 
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
@@ -61,6 +63,7 @@ const ProfileHeader = ({
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
   const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
+  const isShareEnabled = useShareProfileEnabled();
 
   return (
     <div className="relative w-full overflow-hidden laptop:rounded-t-16">
@@ -75,19 +78,28 @@ const ProfileHeader = ({
         className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
       />
       <div className="flex flex-col gap-3 px-6">
-        <Link passHref href={`${webappUrl}settings/profile`}>
-          <Button
-            className={classNames(
-              'mb-4 ml-auto mt-2 text-text-secondary',
-              !isSameUser && 'invisible',
-            )}
-            tag="a"
-            disabled={!isSameUser}
-            variant={ButtonVariant.Float}
-            icon={<EditIcon />}
-            aria-label="Edit profile"
-          />
-        </Link>
+        <div className="mb-4 ml-auto mt-2 flex items-center gap-2">
+          {isShareEnabled && (
+            <ProfileShareButton user={user} isSameUser={isSameUser} />
+          )}
+          {/* On public profiles the edit button only reserves the slot's
+              height; the share button now fills it, so drop the placeholder. */}
+          {(isSameUser || !isShareEnabled) && (
+            <Link passHref href={`${webappUrl}settings/profile`}>
+              <Button
+                className={classNames(
+                  'text-text-secondary',
+                  !isSameUser && 'invisible',
+                )}
+                tag="a"
+                disabled={!isSameUser}
+                variant={ButtonVariant.Float}
+                icon={<EditIcon />}
+                aria-label="Edit profile"
+              />
+            </Link>
+          )}
+        </div>
         <div className="flex items-center gap-1">
           <Typography type={TypographyType.Title2} bold>
             {name}
