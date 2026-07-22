@@ -15,6 +15,8 @@ jest.mock('next/dynamic', () => () => () => null);
 
 jest.mock('@tiptap/core', () => ({
   Extension: { create: jest.fn((config) => config) },
+  Node: { create: jest.fn((config) => config) },
+  mergeAttributes: jest.fn((...attrs) => Object.assign({}, ...attrs)),
   markInputRule: jest.fn(),
   nodeInputRule: jest.fn(),
 }));

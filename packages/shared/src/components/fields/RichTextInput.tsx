@@ -51,6 +51,7 @@ import { MarkdownCommand } from '../../hooks/input/useMarkdownInput';
 import type { RichTextToolbarRef } from './RichTextEditor/RichTextToolbar';
 import { RichTextToolbar } from './RichTextEditor/RichTextToolbar';
 import { MarkdownInputRules } from './RichTextEditor/markdownInputRules';
+import { Video } from './RichTextEditor/videoExtension';
 import { useMentionAutocomplete } from './RichTextEditor/useMentionAutocomplete';
 import { useEmojiAutocomplete } from './RichTextEditor/useEmojiAutocomplete';
 import { useImageUpload } from './RichTextEditor/useImageUpload';
@@ -348,6 +349,7 @@ function RichTextInput(
         placeholder: textareaProps.placeholder || 'Share your thoughts',
       }),
       Image,
+      Video,
       MarkdownInputRules,
       ...(maxLength ? [CharacterCount.configure({ limit: maxLength })] : []),
       LinkShortcut,
