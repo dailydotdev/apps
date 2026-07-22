@@ -184,7 +184,7 @@ describe('squad directory share', () => {
     renderWithSharing(false);
 
     const button = await screen.findByTestId('squad-action');
-    expect(screen.queryByLabelText('Copy Squad link')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Share Squad')).not.toBeInTheDocument();
     // No wrapper is added: the button stays a direct child of the original
     // header row, with the exact original class list.
     expect(button.parentElement!.className).toBe(
@@ -197,7 +197,7 @@ describe('squad directory share', () => {
     renderWithSharing(true);
 
     const button = await screen.findByTestId('squad-action');
-    expect(screen.getByLabelText('Copy Squad link')).toBeInTheDocument();
+    expect(screen.getByLabelText('Share Squad')).toBeInTheDocument();
     const wrapper = button.parentElement!;
     expect(wrapper.className).toBe('z-0 flex flex-row items-center gap-2');
     expect(wrapper.parentElement!.className).toBe(

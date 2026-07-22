@@ -222,7 +222,7 @@ export const FlagOnCopying: Story = {
     });
 
     const canvas = within(canvasElement);
-    const triggers = canvas.getAllByLabelText('Copy Squad link');
+    const triggers = canvas.getAllByLabelText('Share Squad');
     await expect(triggers).toHaveLength(3);
     await userEvent.click(triggers[0]);
 

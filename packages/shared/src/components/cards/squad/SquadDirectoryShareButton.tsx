@@ -28,7 +28,7 @@ export const SquadDirectoryShareButton = ({
       cid={ReferralCampaignKey.ShareSource}
       buttonVariant={ButtonVariant.Float}
       buttonSize={ButtonSize.Medium}
-      label="Copy Squad link"
+      label="Share Squad"
       className={className}
       onShare={(provider) =>
         logEvent({

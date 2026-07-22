@@ -74,7 +74,7 @@ describe('SquadDirectoryShareButton on desktop', () => {
     renderComponent();
 
     await act(async () => {
-      fireEvent.click(screen.getByLabelText('Copy Squad link'));
+      fireEvent.click(screen.getByLabelText('Share Squad'));
     });
 
     await act(async () => {
@@ -109,7 +109,7 @@ describe('SquadDirectoryShareButton on mobile', () => {
     renderComponent();
 
     await act(async () => {
-      fireEvent.click(screen.getByLabelText('Copy Squad link'));
+      fireEvent.click(screen.getByLabelText('Share Squad'));
     });
 
     await waitFor(() =>
@@ -125,7 +125,7 @@ describe('SquadDirectoryShareButton on mobile', () => {
     renderComponent();
 
     await act(async () => {
-      fireEvent.click(screen.getByLabelText('Copy Squad link'));
+      fireEvent.click(screen.getByLabelText('Share Squad'));
     });
 
     await waitFor(() => expect(writeText).toHaveBeenCalledWith(shortLink));

@@ -178,7 +178,7 @@ describe('squad directory share', () => {
   it('flag off: keeps the original text column width and no share control', () => {
     renderWithSharing(false);
 
-    expect(screen.queryByLabelText('Copy Squad link')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Share Squad')).not.toBeInTheDocument();
     // Exact original class list, byte for byte.
     expect(getTextColumn().className).toBe(
       'flex max-w-[calc(100%-10rem)] flex-1 flex-col',
@@ -188,7 +188,7 @@ describe('squad directory share', () => {
   it('flag on: adds the copy-link control and reserves room for it', () => {
     renderWithSharing(true);
 
-    expect(screen.getByLabelText('Copy Squad link')).toBeInTheDocument();
+    expect(screen.getByLabelText('Share Squad')).toBeInTheDocument();
     expect(getTextColumn().className).toBe(
       'flex max-w-[calc(100%-13.5rem)] flex-1 flex-col',
     );
