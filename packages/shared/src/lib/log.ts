@@ -108,6 +108,8 @@ export enum Origin {
   GameCenter = 'game center',
   DevCard = 'devcard',
   CopyMyFeed = 'copy my feed',
+  PostSummary = 'post summary',
+  PostTeamShare = 'post team share',
 }
 
 export enum LogEvent {

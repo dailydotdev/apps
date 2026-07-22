@@ -10,6 +10,7 @@ import { AuthTriggers } from '../../lib/auth';
 import type { NewCommentRef } from './NewComment';
 import { NewComment } from './NewComment';
 import { PostActions } from './PostActions';
+import { usePostActions } from '../../hooks/post/usePostActions';
 import { PostComments } from './PostComments';
 import { PostUpvotesCommentsCount } from './PostUpvotesCommentsCount';
 import type { Comment } from '../../graphql/comments';
@@ -32,6 +33,8 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useSharePostPage } from '../../hooks/useSharePostPage';
+import { ShareWithTeamStrip } from './share/ShareWithTeamStrip';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -77,6 +80,8 @@ function PostEngagements({
     false,
   );
   const [linkClicked, setLinkClicked] = useState(false);
+  const isSharePostPageEnabled = useSharePostPage();
+  const { interaction } = usePostActions({ post });
 
   const handleLinkClick = () => {
     setLinkClicked(true);
@@ -126,6 +131,12 @@ function PostEngagements({
       />
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
+      {/* PostContentShare owns the engagement column right after an upvote, so
+       * the team strip stands down until that module is dismissed — otherwise
+       * two full-width share modules stack back-to-back. */}
+      {isSharePostPageEnabled && interaction !== 'upvote' && (
+        <ShareWithTeamStrip className="mt-6" post={post} />
+      )}
       {linkClicked && <SocialBar post={post} className="mt-6" />}
       <span className="mt-3 flex flex-row items-center">
         <Typography type={TypographyType.Callout}>Sort:</Typography>
