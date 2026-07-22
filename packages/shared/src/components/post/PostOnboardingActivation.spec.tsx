@@ -5,10 +5,13 @@ import { PostOnboardingActivation } from './PostOnboardingActivation';
 
 const mockPush = jest.fn();
 const mockLogEvent = jest.fn();
+const mockUseConditionalFeature = jest.fn();
 
 jest.mock('next/router', () => ({
   useRouter: () => ({
     asPath: '/posts/post-1?ref=share',
+    pathname: '/posts/[id]',
+    query: {},
     push: mockPush,
   }),
 }));
@@ -28,14 +31,17 @@ jest.mock('../../contexts/LogContext', () => ({
   useLogContext: () => ({ logEvent: mockLogEvent }),
 }));
 
-jest.mock('../../lib/postSignupActivation', () => ({
-  isPostOnboardingPreviewEnabled: jest.fn(() => false),
-  POST_ONBOARDING_PREVIEW_QUERY: 'postOnboardingPreview',
+jest.mock('../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: (args: unknown) => mockUseConditionalFeature(args),
 }));
 
 describe('PostOnboardingActivation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseConditionalFeature.mockReturnValue({
+      value: true,
+      isLoading: false,
+    });
   });
 
   it('shows the feed setup prompt and routes to onboarding on click', async () => {
@@ -65,6 +71,19 @@ describe('PostOnboardingActivation', () => {
 
     expect(
       screen.queryByRole('button', { name: 'Dismiss feed personalization' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('stays hidden while the feature flag is off', () => {
+    mockUseConditionalFeature.mockReturnValue({
+      value: false,
+      isLoading: false,
+    });
+
+    render(<PostOnboardingActivation />);
+
+    expect(
+      screen.queryByRole('complementary', { name: 'Personalize your feed' }),
     ).not.toBeInTheDocument();
   });
 });

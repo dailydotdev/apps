@@ -5,7 +5,7 @@ import classed from '../../lib/classed';
 import { OnboardingHeadline } from './OnboardingHeadline';
 import AuthOptions from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
-import { type LoginState, useAuthContext } from '../../contexts/AuthContext';
+import { useAuthContext } from '../../contexts/AuthContext';
 import { authGradientBg, BottomBannerContainer } from '../marketing/banners';
 import { ButtonVariant } from '../buttons/common';
 import { Image } from '../image/Image';
@@ -20,13 +20,11 @@ const Section = classed('div', 'flex flex-col');
 
 interface AuthenticationBannerProps extends PropsWithChildren {
   compact?: boolean;
-  onRegistrationSuccess?: LoginState['onRegistrationSuccess'];
 }
 
 export function AuthenticationBanner({
   children,
   compact,
-  onRegistrationSuccess,
 }: AuthenticationBannerProps): ReactElement {
   const { showLogin } = useAuthContext();
 
@@ -91,7 +89,6 @@ export function AuthenticationBanner({
                   isLogin: !!props.isLoginFlow,
                   defaultDisplay: props.defaultDisplay,
                   formValues: props.email ? { email: props.email } : undefined,
-                  onRegistrationSuccess,
                 },
               });
             }}

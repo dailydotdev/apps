@@ -59,4 +59,4 @@ plans/*.md
 
 # Claude Code runtime state (hooks/skills/settings remain tracked)
 .claude/scheduled_tasks.lock
-.claude/drafts/
+.claude/drafts/.claude/launch.json

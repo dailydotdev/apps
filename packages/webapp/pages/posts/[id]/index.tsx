@@ -52,11 +52,6 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
-import {
-  isPostOnboardingPreviewEnabled,
-  POST_ONBOARDING_PREVIEW_QUERY,
-} from '@dailydotdev/shared/src/lib/postSignupActivation';
-import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -196,12 +191,6 @@ export const PostPage = ({
   const router = useRouter();
   const isFallback = false;
   const { shouldShowAuthBanner } = useOnboardingActions();
-  const isActivationPreview =
-    isDevelopment ||
-    isPostOnboardingPreviewEnabled(
-      router.query?.[POST_ONBOARDING_PREVIEW_QUERY],
-    );
-  const showAuthBanner = shouldShowAuthBanner && !isActivationPreview;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { post, isError, isLoading } = usePostById({
     id,
@@ -309,7 +298,7 @@ export const PostPage = ({
               backToSquad={!!router?.query?.squad}
               shouldOnboardAuthor={!!router.query?.author}
               origin={Origin.ArticlePage}
-              isBannerVisible={showAuthBanner && !isLaptop}
+              isBannerVisible={shouldShowAuthBanner && !isLaptop}
               className={{
                 container: containerClass,
                 fixedNavigation: { container: 'flex laptop:hidden' },
@@ -320,7 +309,9 @@ export const PostPage = ({
               }}
             />
           )}
-          {!showRedesign && showAuthBanner && isLaptop && <PostAuthBanner />}
+          {!showRedesign && shouldShowAuthBanner && isLaptop && (
+            <PostAuthBanner />
+          )}
           <CompanionDemoWidget />
         </FooterNavBarLayout>
       </LogExtraContextProvider>

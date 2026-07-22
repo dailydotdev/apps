@@ -5,13 +5,17 @@ import { PostOnboardingActivationView } from './PostOnboardingActivationView';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useOnboardingActions } from '../../hooks/auth/useOnboardingActions';
 import { useLogContext } from '../../contexts/LogContext';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featurePostSignupActivation } from '../../lib/featureManagement';
 import { TargetType } from '../../lib/log';
-import { isDevelopment } from '../../lib/constants';
-import {
-  isPostOnboardingPreviewEnabled,
-  POST_ONBOARDING_PREVIEW_QUERY,
-} from '../../lib/postSignupActivation';
 import { AFTER_AUTH_PARAM } from '../auth/common';
+
+// Force the bar on for local review without GrowthBook via `?<query>=1`.
+const PREVIEW_QUERY = 'postOnboardingPreview';
+const isPreviewEnabled = (value?: string | string[]): boolean =>
+  value === '1' ||
+  value === 'true' ||
+  (Array.isArray(value) && (value.includes('1') || value.includes('true')));
 
 export const PostOnboardingActivation = (): ReactElement | null => {
   const router = useRouter();
@@ -21,21 +25,26 @@ export const PostOnboardingActivation = (): ReactElement | null => {
     useOnboardingActions();
   const hasLoggedImpression = useRef(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const isPreviewMode =
-    isDevelopment ||
-    isPostOnboardingPreviewEnabled(
-      router.query?.[POST_ONBOARDING_PREVIEW_QUERY],
-    );
 
   // Never show on the onboarding flow itself — that's where the CTA leads.
   const isOnboardingRoute = router.pathname?.startsWith('/onboarding');
+  const isPreviewMode = isPreviewEnabled(router.query?.[PREVIEW_QUERY]);
 
-  // Required step: show on every page for a signed-in user until they finish
-  // setting up their feed. No dismissal.
-  const shouldShow =
+  // Signed-in user who registered but hasn't set up their feed (no tag/content
+  // customization). This is the audience for the required activation step.
+  const isEligible =
     !isOnboardingRoute &&
-    (isPreviewMode ||
-      (!!user?.id && isOnboardingActionsReady && !isOnboardingComplete));
+    !!user?.id &&
+    isOnboardingActionsReady &&
+    !isOnboardingComplete;
+
+  const { value: isFeatureEnabled } = useConditionalFeature({
+    feature: featurePostSignupActivation,
+    shouldEvaluate: isEligible,
+  });
+
+  const shouldShow =
+    !isOnboardingRoute && (isPreviewMode || (isEligible && isFeatureEnabled));
 
   useEffect(() => {
     if (!shouldShow || hasLoggedImpression.current) {

@@ -5,16 +5,13 @@ import { getBasicUserInfo } from '../../../../graphql/users';
 import { AuthenticationBanner, OnboardingHeadline } from '../../../auth';
 import { ProfilePicture } from '../../../ProfilePicture';
 import { generateQueryKey, RequestKey } from '../../../../lib/query';
-import type { LoginState } from '../../../../contexts/AuthContext';
 
 const UserPersonalizedBanner = ({
   userId,
   compact,
-  onRegistrationSuccess,
 }: {
   userId: string;
   compact?: boolean;
-  onRegistrationSuccess?: LoginState['onRegistrationSuccess'];
 }): ReactElement => {
   const key = generateQueryKey(RequestKey.ReferringUser);
   const { data: user, isError } = useQuery({
@@ -23,21 +20,13 @@ const UserPersonalizedBanner = ({
   });
 
   if (isError) {
-    return (
-      <AuthenticationBanner
-        compact={compact}
-        onRegistrationSuccess={onRegistrationSuccess}
-      />
-    );
+    return <AuthenticationBanner compact={compact} />;
   }
 
   const name = user?.name ? user?.name.split(' ')[0] : user?.username;
 
   return (
-    <AuthenticationBanner
-      compact={compact}
-      onRegistrationSuccess={onRegistrationSuccess}
-    >
+    <AuthenticationBanner compact={compact}>
       {user?.image && <ProfilePicture user={user} />}
       <OnboardingHeadline
         className={{
