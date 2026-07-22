@@ -39,7 +39,7 @@ const renderMenu = (props = {}) => {
 };
 
 describe('CustomFeedOptionsMenu', () => {
-  it('should list the share option when share props are provided', async () => {
+  it('should list the share option by default', async () => {
     renderMenu({ shareProps });
 
     // Radix opens the menu on keydown; jsdom lacks the pointer-event support
@@ -51,7 +51,7 @@ describe('CustomFeedOptionsMenu', () => {
   });
 
   it('should drop the share option when the surface promotes it elsewhere', async () => {
-    renderMenu();
+    renderMenu({ shareProps, hideShare: true });
 
     // Radix opens the menu on keydown; jsdom lacks the pointer-event support
     // its click path relies on.

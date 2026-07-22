@@ -199,19 +199,16 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
           }
           // Promoted out of the menu into the header's share control when the
           // share-profile experiment is on.
-          shareProps={
-            isShareEnabled
-              ? undefined
-              : {
-                  text: `Check out ${user.name}'s profile on daily.dev`,
-                  link: user.permalink,
-                  cid: ReferralCampaignKey.ShareProfile,
-                  logObject: () => ({
-                    event_name: LogEvent.ShareProfile,
-                    target_id: user.id,
-                  }),
-                }
-          }
+          hideShare={isShareEnabled}
+          shareProps={{
+            text: `Check out ${user.name}'s profile on daily.dev`,
+            link: user.permalink,
+            cid: ReferralCampaignKey.ShareProfile,
+            logObject: () => ({
+              event_name: LogEvent.ShareProfile,
+              target_id: user.id,
+            }),
+          }}
           additionalOptions={options}
         />
       </div>
