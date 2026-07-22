@@ -5,7 +5,12 @@ import Link from '../utilities/Link';
 import type { HidePostItemCardProps } from '../../graphql/users';
 import type { PostItem } from '../../graphql/posts';
 import { UserVote, isVideoPost } from '../../graphql/posts';
-import { MiniCloseIcon as XIcon, UpvoteIcon, DownvoteIcon } from '../icons';
+import {
+  MiniCloseIcon as XIcon,
+  UpvoteIcon,
+  DownvoteIcon,
+  CopyIcon,
+} from '../icons';
 import classed from '../../lib/classed';
 import PostMetadata from '../cards/common/PostMetadata';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -13,7 +18,10 @@ import { Image } from '../image/Image';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { cloudinaryPostImageCoverPlaceholder } from '../../lib/image';
 import { useReadHistoryVotePost } from '../../hooks';
-import { Origin } from '../../lib/log';
+import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
+import { postLogEvent } from '../../lib/feed';
+import { LogEvent, Origin } from '../../lib/log';
+import { Tooltip } from '../tooltip/Tooltip';
 import {
   Button,
   ButtonColor,
@@ -32,6 +40,12 @@ export interface PostItemCardProps {
   clickable?: boolean;
   onHide?: (params: HidePostItemCardProps) => Promise<unknown>;
   showVoteActions?: boolean;
+  /**
+   * Renders a visible "Copy link" action in the button row. Off by default so
+   * every existing consumer keeps its exact DOM (sharing-visibility surfaces
+   * opt in explicitly).
+   */
+  showCopyLink?: boolean;
   logOrigin?: Origin;
   indexes?: QueryIndexes;
 }
@@ -48,6 +62,7 @@ export default function PostItemCard({
   onHide,
   className,
   showVoteActions = false,
+  showCopyLink = false,
   logOrigin = Origin.Feed,
   indexes,
 }: PostItemCardProps): ReactElement {
@@ -75,6 +90,18 @@ export default function PostItemCard({
   );
 
   const title = post?.title || post?.sharedPost?.title;
+
+  // Single tap: native share sheet on mobile, copy + toast elsewhere. History
+  // rows are real posts, so the normalized SharePost event applies. A missing
+  // permalink falls through to useCopyLink's "link is missing" error toast.
+  const [copyingLink, onShareOrCopyLink] = useShareOrCopyLink({
+    link: post.commentsPermalink ?? '',
+    text: title ?? '',
+    logObject: (provider) =>
+      postLogEvent(LogEvent.SharePost, post, {
+        extra: { provider, origin: logOrigin },
+      }),
+  });
 
   return (
     <article className={classNames(!clickable && classes)}>
@@ -175,6 +202,22 @@ export default function PostItemCard({
                     }
                   />
                 </>
+              )}
+              {showButtons && showCopyLink && (
+                <Tooltip content="Copy link">
+                  <Button
+                    type="button"
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                    aria-label="Copy link"
+                    icon={<CopyIcon secondary={copyingLink} />}
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      onShareOrCopyLink();
+                    }}
+                  />
+                </Tooltip>
               )}
               {showButtons && !showVoteActions && onHide && (
                 <Button
