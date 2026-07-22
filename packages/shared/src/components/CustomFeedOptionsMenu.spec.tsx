@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -15,7 +16,9 @@ const shareProps = {
   link: 'https://app.daily.dev/idoshamun',
 };
 
-const renderMenu = (props = {}) => {
+const renderMenu = (
+  props: Partial<ComponentProps<typeof CustomFeedOptionsMenu>> = {},
+) => {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0 } },
   });
@@ -32,7 +35,11 @@ const renderMenu = (props = {}) => {
           } as unknown as AuthContextData
         }
       >
-        <CustomFeedOptionsMenu onAdd={jest.fn()} {...props} />
+        <CustomFeedOptionsMenu
+          onAdd={jest.fn()}
+          shareProps={shareProps}
+          {...props}
+        />
       </AuthContext.Provider>
     </QueryClientProvider>,
   );
