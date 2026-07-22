@@ -12,6 +12,7 @@ import SourceActionsNotify from '../sources/SourceActions/SourceActionsNotify';
 import Link from '../utilities/Link';
 import { HighlightShareButton } from './HighlightShareButton';
 import { ButtonSize } from '../buttons/Button';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 const CTA_HEIGHT = 'h-10';
 
@@ -86,9 +87,10 @@ const DigestCTAContent = ({
         <HighlightShareButton
           link={shareLink}
           text={`Follow ${displayName} news on daily.dev`}
-          label={`Copy link to ${displayName}`}
+          label={`Share ${displayName}`}
           level="topic"
           targetId={source.id ?? displayName}
+          cid={ReferralCampaignKey.Generic}
           buttonSize={ButtonSize.XSmall}
           className="ml-auto shrink-0"
         />

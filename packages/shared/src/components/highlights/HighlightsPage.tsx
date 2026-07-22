@@ -20,6 +20,7 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureShareHappeningNow } from '../../lib/featureManagement';
 import { webappUrl } from '../../lib/constants';
 import { ButtonSize } from '../buttons/Button';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 const MAJOR_HEADLINES_LABEL = 'Headlines';
 const ALL_HIGHLIGHTS_LABEL = 'All';
@@ -226,6 +227,7 @@ export const HighlightsPage = (): ReactElement => {
             label="Share Happening Now"
             level="page"
             targetId={activeTab}
+            cid={ReferralCampaignKey.Generic}
             buttonSize={ButtonSize.Small}
             className="ml-auto shrink-0"
           />

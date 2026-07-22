@@ -22,7 +22,7 @@ jest.mock('../../hooks/useViewSize', () => {
 const useViewSizeMock = useViewSize as jest.Mock;
 const scrollIntoView = jest.fn();
 const summary = 'A concise summary for the expanded highlight item.';
-const SHARE_LABEL = 'Copy link to this highlight';
+const SHARE_LABEL = 'Share this highlight';
 
 const highlight: PostHighlightFeed = {
   id: 'highlight-1',

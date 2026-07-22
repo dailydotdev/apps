@@ -20,8 +20,8 @@ import {
 } from '../../lib/featureManagement';
 
 const PAGE_SHARE_LABEL = 'Share Happening Now';
-const TOPIC_SHARE_LABEL = 'Copy link to AI agents';
-const ITEM_SHARE_LABEL = 'Copy link to this highlight';
+const TOPIC_SHARE_LABEL = 'Share AI agents';
+const ITEM_SHARE_LABEL = 'Share this highlight';
 
 const summary = 'A concise summary for the expanded highlight item.';
 

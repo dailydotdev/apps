@@ -101,7 +101,7 @@ export const HighlightItem = ({
               <HighlightShareButton
                 link={highlight.post.commentsPermalink}
                 text={highlight.headline}
-                label="Copy link to this highlight"
+                label="Share this highlight"
                 level="highlight"
                 targetId={highlight.id}
                 cid={ReferralCampaignKey.SharePost}
