@@ -1,3 +1,27 @@
+/* The bar sits below the device notch and above every piece of fixed chrome,
+ * so its height has to be reserved at the top of the app. The copy is fixed,
+ * so the height is a constant per breakpoint (mobile stacks the CTA under the
+ * copy) and the whole reservation is plain CSS — no measuring. */
+.pinned {
+  top: env(safe-area-inset-top, 0px);
+  height: var(--post-signup-activation-height);
+}
+
+/* Declared on `body` (not `:root`) so it overrides the `:root` default for the
+ * body, `body::before` and every fixed descendant that reads it. */
+:global(body):has(.pinned) {
+  --post-signup-activation-height: 9.25rem;
+  --safe-area-top: calc(
+    env(safe-area-inset-top, 0px) + var(--post-signup-activation-height)
+  );
+}
+
+@media (min-width: 656px) {
+  :global(body):has(.pinned) {
+    --post-signup-activation-height: 5rem;
+  }
+}
+
 /* The banner is always dark regardless of the app theme, so its light-on-dark
  * colours are declared here with explicit rgba values. Tailwind's opacity
  * modifier on `white` (e.g. text-white/60) does NOT compile in this config —
