@@ -56,12 +56,12 @@ describe('PostOnboardingActivation', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Finish setup to discover what's next.",
+        "You're one step away from discovering what's next.",
       ),
     ).toBeInTheDocument();
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Continue setup' }),
+      screen.getByRole('button', { name: 'Finish setup' }),
     );
 
     expect(mockPush).toHaveBeenCalledWith({

@@ -159,7 +159,7 @@ export const PostOnboardingActivation = (): ReactElement | null => {
               type={TypographyType.Footnote}
               className="text-white/60 mt-0.5 [text-wrap:pretty]"
             >
-              Finish setup to discover what&apos;s next.
+              You&apos;re one step away from discovering what&apos;s next.
             </Typography>
           </div>
         </div>
@@ -170,10 +170,10 @@ export const PostOnboardingActivation = (): ReactElement | null => {
           size={ButtonSize.Medium}
           // Panel is always dark, so pin the subtle button to its dark-theme
           // look instead of letting it flip to dark text in the light theme.
-          className="!border-white/20 !bg-white/5 hover:!bg-white/15 w-full shrink-0 !text-white tablet:w-auto tablet:min-w-40"
+          className="!border-white/20 !bg-white/5 hover:!bg-white/15 w-auto shrink-0 self-start !text-white"
           onClick={onBuildFeed}
         >
-          Continue setup
+          Finish setup
         </Button>
       </div>
 
