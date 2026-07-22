@@ -1,16 +1,65 @@
+/* The banner is always dark regardless of the app theme, so its light-on-dark
+ * colours are declared here with explicit rgba values. Tailwind's opacity
+ * modifier on `white` (e.g. text-white/60) does NOT compile in this config —
+ * it silently falls back to the inherited (dark) theme colour and disappears
+ * on the near-black panel — so we can't rely on it. */
+
 /* Soft brand glow anchored to the right of the strip. Uses radial gradients
  * with color-mix on the theme accent vars (mirrors .top-hero-aurora) so it
  * renders reliably instead of relying on opacity-modified accent utilities. */
 .glow {
   background:
     radial-gradient(
-      60% 150% at 90% 50%,
-      color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 55%) 0%,
+      55% 140% at 92% 50%,
+      color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 62%) 0%,
       transparent 60%
     ),
     radial-gradient(
-      55% 130% at 72% 50%,
-      color-mix(in srgb, var(--theme-accent-onion-default), transparent 70%) 0%,
+      50% 120% at 74% 50%,
+      color-mix(in srgb, var(--theme-accent-onion-default), transparent 74%) 0%,
       transparent 55%
     );
+}
+
+.border {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.sheen {
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.22),
+    transparent
+  );
+}
+
+.description {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.ringTrack {
+  stroke: rgba(255, 255, 255, 0.16);
+}
+
+/* CTA is pinned to the white (dark-theme) primary look on the dark panel. */
+.cta,
+.cta:hover {
+  background-color: #fff !important;
+  color: #0b0d12 !important;
+  border-color: transparent !important;
+}
+
+.cta:hover {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.close,
+.close svg {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.close:hover,
+.close:hover svg {
+  color: #fff !important;
 }
