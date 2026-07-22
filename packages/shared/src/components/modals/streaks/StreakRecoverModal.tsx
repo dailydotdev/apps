@@ -25,6 +25,7 @@ import type { UserStreakRecoverData } from '../../../graphql/users';
 import { CoreIcon } from '../../icons';
 import { coresDocsLink } from '../../../lib/constants';
 import { anchorDefaultRel } from '../../../lib/strings';
+import { StreakFreezeUpsell } from '../../streak/StreakFreezeUpsell';
 
 export interface StreakRecoverModalProps
   extends Pick<ModalProps, 'isOpen' | 'onAfterClose'> {
@@ -202,6 +203,9 @@ export const StreakRecoverModal = (
             recover={recover}
             loading={recover.isRecoverPending}
           />
+          <StreakFreezeUpsell>
+            Get streak freezes for next time
+          </StreakFreezeUpsell>
           <StreakRecoverOptout id={id} hideForever={hideForever} />
         </div>
       </ModalBody>
