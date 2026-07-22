@@ -26,6 +26,8 @@ import {
 } from '../../typography/Typography';
 import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
 import { useScrambler } from '../../../hooks/useScrambler';
+import { useSquadDirectoryShareEnabled } from '../../../hooks/squads/useSquadDirectoryShareEnabled';
+import { SquadDirectoryShareButton } from './SquadDirectoryShareButton';
 
 export enum SourceCardBorderColor {
   Avocado = 'avocado',
@@ -68,7 +70,8 @@ export const SquadGrid = ({
 }: PropsWithChildren<UnFeaturedSquadCardProps>): ReactElement => {
   const { user } = useAuthContext();
   const campaignId = ad?.data?.source?.flags?.campaignId;
-  const { data: campaign } = useCampaignById(campaignId);
+  // The campaign query is disabled on a falsy id, so the fallback never runs.
+  const { data: campaign } = useCampaignById(campaignId ?? '');
   const {
     headerImage,
     image,
@@ -81,14 +84,36 @@ export const SquadGrid = ({
   } = source;
   const { data: members } = useQuery<BasicSourceMember[]>({
     queryKey: generateQueryKey(RequestKey.SquadMembers, user, source.id),
-    queryFn: () => getSquadMembers(source.id),
+    queryFn: () => getSquadMembers(source.id ?? ''),
     staleTime: StaleTime.OneHour,
   });
-  const borderColor = border || color || SourceCardBorderColor.Avocado;
+  const borderColor =
+    border || (color as SourceCardBorderColor) || SourceCardBorderColor.Avocado;
+  const canShare = useSquadDirectoryShareEnabled();
   const { ref, onClickAd } = useSquadsDirectoryLogging(ad);
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
-    campaign ? `Promoted by @${campaign.user.username}` : null,
+    campaign ? `Promoted by @${campaign.user.username}` : undefined,
+  );
+
+  // Flag-off must keep the exact original DOM (full-width Join, no wrapper);
+  // the share row only exists when the sharing flags are on.
+  const joinButton = (
+    <SquadActionButton
+      className={{ button: classNames('z-0', canShare ? 'flex-1' : 'w-full') }}
+      squad={source}
+      origin={Origin.SquadDirectory}
+      data-testid="squad-action"
+      buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
+    />
+  );
+  const actionButton = canShare ? (
+    <div className="z-0 flex w-full flex-row items-center gap-2">
+      {joinButton}
+      <SquadDirectoryShareButton squad={source} />
+    </div>
+  ) : (
+    joinButton
   );
 
   return (
@@ -125,7 +150,7 @@ export const SquadGrid = ({
             type={ImageType.Squad}
           />
           {membersCount > 0 && (
-            <SquadMemberShortList squad={source} members={members} />
+            <SquadMemberShortList squad={source} members={members ?? []} />
           )}
         </div>
         <div className="flex flex-1 flex-col justify-between">
@@ -157,13 +182,7 @@ export const SquadGrid = ({
             )}
           </div>
 
-          <SquadActionButton
-            className={{ button: 'z-0 w-full' }}
-            squad={source}
-            origin={Origin.SquadDirectory}
-            data-testid="squad-action"
-            buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
-          />
+          {actionButton}
         </div>
       </div>
       {children}
