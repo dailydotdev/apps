@@ -152,7 +152,7 @@ export default function NewStreakModal({
               buttonVariant={ButtonVariant.Secondary}
               onShare={(provider) =>
                 logEvent({
-                  event_name: LogEvent.ShareStreakMilestone,
+                  event_name: LogEvent.ShareLog,
                   target_type: TargetType.StreaksMilestone,
                   target_id: currentStreak?.toString(),
                   extra: JSON.stringify({

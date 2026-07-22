@@ -189,7 +189,7 @@ export function ProfileAchievements({
               emailTitle={`Achievements by ${user.name}`}
               onShare={(provider) =>
                 logEvent({
-                  event_name: LogEvent.ShareAchievements,
+                  event_name: LogEvent.ShareAchievement,
                   target_id: user.id,
                   extra: JSON.stringify({
                     origin: Origin.Achievements,
