@@ -1,6 +1,7 @@
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import React from 'react';
 import nock from 'nock';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
@@ -28,6 +29,11 @@ import {
   CONTENT_PREFERENCE_STATUS_QUERY,
   ContentPreferenceType,
 } from '../../../graphql/contentPreference';
+import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import {
+  featureSharingVisibility,
+  featureShareSquadDirectory,
+} from '../../../lib/featureManagement';
 
 const squads = [generateTestSquad()];
 const members = generateMembersList();
@@ -198,6 +204,98 @@ it('should render the component with a join squad button', async () => {
   btn.click();
   await waitForNock();
   await waitFor(async () => {
+    await waitFor(() => expect(queryCalled).toBeTruthy());
+  });
+});
+
+describe('squad directory share', () => {
+  const mockContentPreference = () =>
+    mockGraphQL({
+      request: {
+        query: CONTENT_PREFERENCE_STATUS_QUERY,
+        variables: {
+          id: admin.source.id,
+          entity: ContentPreferenceType.Source,
+        },
+      },
+      result: { data: { contentPreferenceStatus: null } },
+    });
+
+  const renderWithSharing = (enabled: boolean): RenderResult => {
+    const gb = new GrowthBook();
+    gb.setFeatures({
+      [featureSharingVisibility.id]: { defaultValue: enabled },
+      [featureShareSquadDirectory.id]: { defaultValue: enabled },
+    });
+
+    return render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ user: loggedUser, squads }}
+        gb={gb}
+      >
+        <SquadGrid source={admin.source} />
+      </TestBootProvider>,
+    );
+  };
+
+  it('flag off: keeps the original full-width join button and no share control', async () => {
+    mockContentPreference();
+    renderWithSharing(false);
+
+    const button = await screen.findByTestId('squad-action');
+    expect(screen.queryByLabelText('Copy Squad link')).not.toBeInTheDocument();
+    expect(button).toHaveClass('w-full');
+    expect(button).not.toHaveClass('flex-1');
+    // No wrapper row is added: the button stays a direct child of the
+    // original column, with the exact original class list.
+    expect(button.parentElement!.className).toBe(
+      'flex flex-1 flex-col justify-between',
+    );
+  });
+
+  it('flag on: narrows the join button and adds the copy-link control', async () => {
+    mockContentPreference();
+    renderWithSharing(true);
+
+    const button = await screen.findByTestId('squad-action');
+    expect(screen.getByLabelText('Copy Squad link')).toBeInTheDocument();
+    expect(button).toHaveClass('flex-1');
+    expect(button).not.toHaveClass('w-full');
+    expect(button.parentElement!.className).toBe(
+      'z-0 flex w-full flex-row items-center gap-2',
+    );
+  });
+
+  it('flag on: joining the squad still works', async () => {
+    const currentMember = { ...admin.source.currentMember };
+    delete admin.source.currentMember;
+
+    mockContentPreference();
+    renderWithSharing(true);
+
+    let queryCalled = false;
+    mockGraphQL({
+      request: {
+        query: SQUAD_JOIN_MUTATION,
+        variables: { sourceId: admin.source.id },
+      },
+      result: () => {
+        queryCalled = true;
+        return { data: { source: { ...admin.source, currentMember } } };
+      },
+    });
+    mockGraphQL({
+      request: {
+        query: COMPLETE_ACTION_MUTATION,
+        variables: { type: ActionType.JoinSquad },
+      },
+      result: () => ({ data: { _: null } }),
+    });
+
+    const btn = await screen.findByText('Join Squad');
+    btn.click();
+    await waitForNock();
     await waitFor(() => expect(queryCalled).toBeTruthy());
   });
 });

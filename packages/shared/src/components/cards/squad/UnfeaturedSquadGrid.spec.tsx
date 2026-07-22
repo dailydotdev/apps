@@ -1,6 +1,7 @@
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import React from 'react';
 import nock from 'nock';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
@@ -20,6 +21,11 @@ import {
   CONTENT_PREFERENCE_STATUS_QUERY,
   ContentPreferenceType,
 } from '../../../graphql/contentPreference';
+import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import {
+  featureSharingVisibility,
+  featureShareSquadDirectory,
+} from '../../../lib/featureManagement';
 
 const squads = [generateTestSquad()];
 const members = generateMembersList();
@@ -139,5 +145,63 @@ it('should render the component with a join squad button', async () => {
   await waitForNock();
   await waitFor(async () => {
     await waitFor(() => expect(queryCalled).toBeTruthy());
+  });
+});
+
+describe('squad directory share', () => {
+  const mockContentPreference = () =>
+    mockGraphQL({
+      request: {
+        query: CONTENT_PREFERENCE_STATUS_QUERY,
+        variables: {
+          id: admin.source.id,
+          entity: ContentPreferenceType.Source,
+        },
+      },
+      result: { data: { contentPreferenceStatus: null } },
+    });
+
+  const renderWithSharing = (enabled: boolean): RenderResult => {
+    const gb = new GrowthBook();
+    gb.setFeatures({
+      [featureSharingVisibility.id]: { defaultValue: enabled },
+      [featureShareSquadDirectory.id]: { defaultValue: enabled },
+    });
+
+    return render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ user: loggedUser, squads }}
+        gb={gb}
+      >
+        <UnfeaturedSquadGrid source={admin.source} />
+      </TestBootProvider>,
+    );
+  };
+
+  it('flag off: keeps the join button alone in the header row', async () => {
+    mockContentPreference();
+    renderWithSharing(false);
+
+    const button = await screen.findByTestId('squad-action');
+    expect(screen.queryByLabelText('Copy Squad link')).not.toBeInTheDocument();
+    // No wrapper is added: the button stays a direct child of the original
+    // header row, with the exact original class list.
+    expect(button.parentElement!.className).toBe(
+      'mb-3 flex items-center justify-between',
+    );
+  });
+
+  it('flag on: renders the copy-link control next to the join button', async () => {
+    mockContentPreference();
+    renderWithSharing(true);
+
+    const button = await screen.findByTestId('squad-action');
+    expect(screen.getByLabelText('Copy Squad link')).toBeInTheDocument();
+    const wrapper = button.parentElement!;
+    expect(wrapper.className).toBe('z-0 flex flex-row items-center gap-2');
+    expect(wrapper.parentElement!.className).toBe(
+      'mb-3 flex items-center justify-between',
+    );
   });
 });

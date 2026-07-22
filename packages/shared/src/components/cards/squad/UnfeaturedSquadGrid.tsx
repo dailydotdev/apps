@@ -15,12 +15,27 @@ import { Origin } from '../../../lib/log';
 import { SquadActionButton } from '../../squads/SquadActionButton';
 import { ButtonVariant } from '../../buttons/common';
 import { Image, ImageType } from '../../image/Image';
+import { useSquadDirectoryShareEnabled } from '../../../hooks/squads/useSquadDirectoryShareEnabled';
+import { SquadDirectoryShareButton } from './SquadDirectoryShareButton';
 
 export const UnfeaturedSquadGrid = ({
   source,
   className,
 }: UnFeaturedSquadCardProps): ReactElement => {
   const title = source.name;
+  const canShare = useSquadDirectoryShareEnabled();
+
+  // Flag-off must keep the exact original DOM (Join alone in the header row);
+  // the share control and its wrapper only exist when the sharing flags are on.
+  const joinButton = (
+    <SquadActionButton
+      className={{ button: 'z-0' }}
+      squad={source}
+      origin={Origin.SquadDirectory}
+      data-testid="squad-action"
+      buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
+    />
+  );
 
   return (
     <Card className={classNames('overflow-hidden border-0 p-4', className)}>
@@ -36,13 +51,14 @@ export const UnfeaturedSquadGrid = ({
           className="size-16 rounded-full"
           type={ImageType.Squad}
         />
-        <SquadActionButton
-          className={{ button: 'z-0' }}
-          squad={source}
-          origin={Origin.SquadDirectory}
-          data-testid="squad-action"
-          buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
-        />
+        {canShare ? (
+          <div className="z-0 flex flex-row items-center gap-2">
+            {joinButton}
+            <SquadDirectoryShareButton squad={source} />
+          </div>
+        ) : (
+          joinButton
+        )}
       </div>
       <Typography
         tag={TypographyTag.H1}
