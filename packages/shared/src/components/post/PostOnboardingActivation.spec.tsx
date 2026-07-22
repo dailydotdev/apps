@@ -52,10 +52,13 @@ describe('PostOnboardingActivation', () => {
     render(<PostOnboardingActivation />);
 
     expect(
-      await screen.findByText("You're in. Now make daily.dev yours."),
+      await screen.findByText("Your feed isn't set up yet"),
     ).toBeInTheDocument();
-    expect(screen.getByText('Account ready')).toBeInTheDocument();
-    expect(screen.getByText('Final setup')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Finish setup to discover what's next and stay up to date.",
+      ),
+    ).toBeInTheDocument();
 
     await userEvent.click(
       screen.getByRole('button', { name: 'Personalize my feed' }),
