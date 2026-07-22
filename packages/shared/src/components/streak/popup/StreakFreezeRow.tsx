@@ -45,11 +45,17 @@ export function StreakFreezeRow(): ReactElement | null {
         color={hasFreezes ? TypographyColor.Primary : TypographyColor.Tertiary}
         bold={!hasFreezes}
       >
-        {hasFreezes
-          ? `${freezesAvailable} streak freeze${
-              freezesAvailable === 1 ? '' : 's'
-            } left`
-          : 'No freezes left — protect your streak'}
+        {hasFreezes ? (
+          `${freezesAvailable} streak freeze${
+            freezesAvailable === 1 ? '' : 's'
+          } left`
+        ) : (
+          <>
+            No freezes left
+            <br />
+            Protect your streak
+          </>
+        )}
       </Typography>
       <Typography type={TypographyType.Footnote} color={TypographyColor.Link}>
         {hasFreezes ? 'Buy more' : 'Buy freezes'}
