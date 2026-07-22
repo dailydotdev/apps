@@ -1,10 +1,12 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { HotTake } from '../../../graphql/user/userHotTake';
 import { useDiscoverHotTakes } from '../../../hooks/useDiscoverHotTakes';
 import { useVoteHotTake } from '../../../hooks/vote/useVoteHotTake';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useHotTakeShareEnabled } from '../../../hooks/useHotTakeShareEnabled';
 import { LogEvent, Origin } from '../../../lib/log';
 import HotAndColdModal from './HotAndColdModal';
 
@@ -30,10 +32,15 @@ jest.mock('../../../hooks/useRequestProtocol', () => ({
   useRequestProtocol: () => ({ isCompanion: false }),
 }));
 
+jest.mock('../../../hooks/useHotTakeShareEnabled', () => ({
+  useHotTakeShareEnabled: jest.fn(),
+}));
+
 const mockedUseDiscoverHotTakes = useDiscoverHotTakes as jest.Mock;
 const mockedUseVoteHotTake = useVoteHotTake as jest.Mock;
 const mockedUseLogContext = useLogContext as jest.Mock;
 const mockedUseAuthContext = useAuthContext as jest.Mock;
+const mockedUseHotTakeShareEnabled = useHotTakeShareEnabled as jest.Mock;
 
 const createHotTake = (id = 'take-1'): HotTake => ({
   id,
@@ -46,13 +53,33 @@ const createHotTake = (id = 'take-1'): HotTake => ({
   upvoted: false,
 });
 
+const createTakeAuthor = (): HotTake['user'] =>
+  ({
+    id: 'user-2',
+    name: 'Spicy Dev',
+    username: 'spicydev',
+    image: 'https://daily.dev/avatar.png',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    reputation: 42,
+    permalink: '/spicydev',
+    companies: [],
+    isPlus: false,
+  } as HotTake['user']);
+
 const renderComponent = (onRequestClose = jest.fn()) => {
+  // The flag-on share control renders the real ShareActions, which needs a
+  // query client for link shortening.
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   render(
-    <HotAndColdModal
-      isOpen
-      onRequestClose={onRequestClose}
-      ariaHideApp={false}
-    />,
+    <QueryClientProvider client={client}>
+      <HotAndColdModal
+        isOpen
+        onRequestClose={onRequestClose}
+        ariaHideApp={false}
+      />
+    </QueryClientProvider>,
   );
 
   return { onRequestClose };
@@ -78,6 +105,7 @@ describe('HotAndColdModal', () => {
     mockedUseAuthContext.mockReturnValue({
       user: { username: 'tester' },
     });
+    mockedUseHotTakeShareEnabled.mockReturnValue(false);
     mockedUseDiscoverHotTakes.mockReturnValue({
       hotTakes: [createHotTake()],
       currentTake: createHotTake(),
@@ -370,5 +398,56 @@ describe('HotAndColdModal', () => {
       screen.getAllByRole('img', { name: 'daily.dev source icon' })[0],
     ).toBeVisible();
     expect(screen.getAllByText('Starter feed ready')[0]).toBeVisible();
+  });
+
+  describe('card share', () => {
+    const shareLabel = 'Share "Type safety everywhere"';
+
+    it('renders exactly one share control, on the top card only', () => {
+      mockedUseHotTakeShareEnabled.mockReturnValue(true);
+      const currentTake = { ...createHotTake('top'), user: createTakeAuthor() };
+      const nextTake = { ...createHotTake('next'), user: createTakeAuthor() };
+
+      mockedUseDiscoverHotTakes.mockReturnValue({
+        hotTakes: [currentTake, nextTake],
+        currentTake,
+        nextTake,
+        isEmpty: false,
+        isLoading: false,
+        dismissCurrent,
+      });
+
+      renderComponent();
+
+      expect(screen.getAllByLabelText(shareLabel)).toHaveLength(1);
+      // The voting affordances are untouched.
+      expect(
+        screen.getByRole('button', { name: 'Hot take - upvote' }),
+      ).toBeVisible();
+    });
+
+    it('renders no share control for takes without an author', () => {
+      mockedUseHotTakeShareEnabled.mockReturnValue(true);
+
+      renderComponent();
+
+      expect(screen.queryByLabelText(shareLabel)).not.toBeInTheDocument();
+    });
+
+    it('renders no share control when the flag is off', () => {
+      const currentTake = { ...createHotTake('top'), user: createTakeAuthor() };
+      mockedUseDiscoverHotTakes.mockReturnValue({
+        hotTakes: [currentTake],
+        currentTake,
+        nextTake: null,
+        isEmpty: false,
+        isLoading: false,
+        dismissCurrent,
+      });
+
+      renderComponent();
+
+      expect(screen.queryByLabelText(shareLabel)).not.toBeInTheDocument();
+    });
   });
 });

@@ -20,10 +20,15 @@ import { QuaternaryButton } from '../../../../components/buttons/QuaternaryButto
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useEngagementBarV2 } from '../../../../hooks/useEngagementBarV2';
 import { HotTakeItem as HotTakeItemV2 } from './HotTakeItem.v2';
+import { HotTakeShareButton } from './HotTakeShareButton';
+import { Origin } from '../../../../lib/log';
+import { getHotTakeShareText, getHotTakesProfileUrl } from './common';
 
 interface HotTakeItemProps {
   item: HotTake;
   isOwner: boolean;
+  /** When set, a flag-gated share control is rendered in the action area. */
+  ownerUsername?: string;
   onEdit?: (item: HotTake) => void;
   onDelete?: (item: HotTake) => void;
   onUpvoteClick?: (item: HotTake) => void;
@@ -32,6 +37,7 @@ interface HotTakeItemProps {
 function HotTakeItemV1({
   item,
   isOwner,
+  ownerUsername,
   onEdit,
   onDelete,
   onUpvoteClick,
@@ -90,6 +96,16 @@ function HotTakeItemV1({
               />
             )}
           </div>
+        )}
+        {ownerUsername && (
+          <HotTakeShareButton
+            link={getHotTakesProfileUrl(ownerUsername)}
+            text={getHotTakeShareText({ title, username: ownerUsername })}
+            label={`Share "${title}"`}
+            targetId={item.id}
+            origin={Origin.HotTakeList}
+            buttonSize={ButtonSize.XSmall}
+          />
         )}
         {onUpvoteClick && (
           <Tooltip

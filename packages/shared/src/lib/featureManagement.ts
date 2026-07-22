@@ -308,3 +308,9 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Adds share/copy affordances to the hot-take surfaces: profile list items and
+// the section header, the Hot & Cold discovery modal card, and the popular hot
+// takes leaderboard card. Gated together with the sharing-visibility master
+// switch. Keep the default `false` — GrowthBook ramps it.
+export const featureShareHotTakes = new Feature('share_hot_takes', false);
