@@ -56,7 +56,7 @@ describe('PostOnboardingActivation', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        "Finish setup to discover what's next and stay up to date.",
+        "Finish setup to discover what's next.",
       ),
     ).toBeInTheDocument();
 

@@ -159,7 +159,7 @@ export const PostOnboardingActivation = (): ReactElement | null => {
               type={TypographyType.Footnote}
               className="text-white/60 mt-0.5 [text-wrap:pretty]"
             >
-              Finish setup to discover what&apos;s next and stay up to date.
+              Finish setup to discover what&apos;s next.
             </Typography>
           </div>
         </div>
