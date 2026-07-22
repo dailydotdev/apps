@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ComponentProps, ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import dynamic from 'next/dynamic';
 import type { Post } from '../../graphql/posts';
 import { isVideoPost } from '../../graphql/posts';
@@ -27,6 +27,7 @@ import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
+import { SelectionShareBar } from './SelectionShareBar';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -136,8 +137,11 @@ export function PostContentRaw({
 
   useTrackPostView({ post, shouldTrack: isVideoType });
 
+  const bodyRef = useRef<HTMLElement>(null);
+
   const postMainColumn = (
     <PostContainer
+      ref={bodyRef}
       className={classNames('relative', className?.content)}
       data-testid="postContainer"
     >
@@ -259,6 +263,7 @@ export function PostContentRaw({
           />
         )}
       </BasePostContent>
+      <SelectionShareBar containerRef={bodyRef} post={post} />
     </PostContainer>
   );
 
