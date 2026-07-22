@@ -308,3 +308,9 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Adds a share/copy-link action next to "Download DevCard" in the DevCard
+// customization step, so the card can be shared without downloading it first.
+// Control keeps the download-only action row. Keep the default `false` —
+// GrowthBook ramps it.
+export const featureShareDevcard = new Feature('share_devcard', false);
