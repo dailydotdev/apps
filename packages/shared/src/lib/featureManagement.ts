@@ -308,3 +308,9 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// "Copy my feed" button in the feed navigation: copies a text digest (titles +
+// tracked links) of the posts currently loaded in the active feed. Gated
+// together with the sharing-visibility master switch. Keep the default `false`
+// — GrowthBook ramps it.
+export const featureShareCopyMyFeed = new Feature('share_copy_my_feed', false);
