@@ -3,7 +3,6 @@ import React from 'react';
 import classNames from 'classnames';
 import styles from './PostOnboardingActivation.module.css';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import CloseButton from '../CloseButton';
 import {
   Typography,
   TypographyTag,
@@ -19,7 +18,6 @@ export interface PostOnboardingActivationViewProps {
   /** Total steps of the onboarding. */
   steps?: number;
   onCtaClick?: () => void;
-  onDismiss?: () => void;
   className?: string;
 }
 
@@ -33,7 +31,6 @@ export const PostOnboardingActivationView = ({
   progress = 1,
   steps = 2,
   onCtaClick,
-  onDismiss,
   className,
 }: PostOnboardingActivationViewProps): ReactElement => {
   const ratio = steps > 0 ? Math.min(Math.max(progress / steps, 0), 1) : 0;
@@ -42,12 +39,12 @@ export const PostOnboardingActivationView = ({
     <aside
       aria-label="Personalize your feed"
       className={classNames(
-        'relative w-full overflow-hidden border-y bg-raw-pepper-90 shadow-2 laptop:mx-auto laptop:max-w-[69.25rem] laptop:rounded-16 laptop:border',
+        'relative w-full overflow-hidden border-y bg-raw-pepper-90 shadow-2 laptop:rounded-16 laptop:border',
         styles.border,
         className,
       )}
     >
-      {/* Soft brand glow bleeding in from the right, echoing the strip banner. */}
+      {/* Soft brand glow, centered to balance the centered content. */}
       <div
         className={classNames(
           'pointer-events-none absolute inset-0',
@@ -62,8 +59,8 @@ export const PostOnboardingActivationView = ({
         )}
       />
 
-      <div className="relative flex flex-col gap-4 px-5 py-4 pr-12 tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-6 tablet:pr-14 laptop:px-6">
-        <div className="flex min-w-0 flex-1 items-center gap-3.5">
+      <div className="relative mx-auto flex max-w-[40rem] flex-col items-center gap-3 px-5 py-6 text-center tablet:py-7">
+        <div className="flex items-center gap-2.5">
           {/* Progress ring: setup started, not finished. */}
           <span
             className="relative flex size-11 shrink-0 items-center justify-center"
@@ -95,49 +92,40 @@ export const PostOnboardingActivationView = ({
               {progress}/{steps}
             </span>
           </span>
-          <div className="min-w-0 flex-1">
-            <Typography
-              tag={TypographyTag.H2}
-              type={TypographyType.Callout}
-              bold
-              className="text-white [text-wrap:balance]"
-            >
-              {title}
-            </Typography>
-            <Typography
-              tag={TypographyTag.P}
-              type={TypographyType.Footnote}
-              className={classNames(
-                'mt-0.5 [text-wrap:pretty]',
-                styles.description,
-              )}
-            >
-              {description}
-            </Typography>
-          </div>
+          <Typography
+            tag={TypographyTag.H2}
+            type={TypographyType.Title3}
+            bold
+            className="text-white [text-wrap:balance] tablet:!typo-title2"
+          >
+            {title}
+          </Typography>
         </div>
+
+        <Typography
+          tag={TypographyTag.P}
+          type={TypographyType.Callout}
+          className={classNames(
+            'max-w-[34rem] [text-wrap:pretty]',
+            styles.description,
+          )}
+        >
+          {description}
+        </Typography>
 
         <Button
           type="button"
           variant={ButtonVariant.Primary}
-          size={ButtonSize.Medium}
-          className={classNames('w-auto shrink-0 self-start', styles.cta)}
+          size={ButtonSize.Large}
+          className={classNames(
+            'mt-1 w-full max-w-xs tablet:w-auto',
+            styles.cta,
+          )}
           onClick={onCtaClick}
         >
           {ctaLabel}
         </Button>
       </div>
-
-      <CloseButton
-        type="button"
-        aria-label="Dismiss feed personalization"
-        className={classNames(
-          'absolute right-3 top-3 tablet:top-1/2 tablet:-translate-y-1/2',
-          styles.close,
-        )}
-        size={ButtonSize.Small}
-        onClick={onDismiss}
-      />
     </aside>
   );
 };

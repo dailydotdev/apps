@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { PostOnboardingActivationView } from './PostOnboardingActivationView';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -8,8 +8,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import { TargetType } from '../../lib/log';
 import { isDevelopment } from '../../lib/constants';
 import {
-  clearPostSignupActivation,
-  hasPostSignupActivation,
   isPostOnboardingPreviewEnabled,
   POST_ONBOARDING_PREVIEW_QUERY,
 } from '../../lib/postSignupActivation';
@@ -21,8 +19,6 @@ export const PostOnboardingActivation = (): ReactElement | null => {
   const { logEvent } = useLogContext();
   const { isOnboardingActionsReady, isOnboardingComplete } =
     useOnboardingActions();
-  const [isVisible, setIsVisible] = useState(false);
-  const [isLocalPreviewDismissed, setIsLocalPreviewDismissed] = useState(false);
   const hasLoggedImpression = useRef(false);
   const isPreviewMode =
     isDevelopment ||
@@ -30,25 +26,11 @@ export const PostOnboardingActivation = (): ReactElement | null => {
       router.query?.[POST_ONBOARDING_PREVIEW_QUERY],
     );
 
-  useEffect(() => {
-    if (!user?.id || !isOnboardingActionsReady) {
-      return;
-    }
-
-    if (isOnboardingComplete) {
-      clearPostSignupActivation();
-      return;
-    }
-
-    setIsVisible(hasPostSignupActivation(user.id));
-  }, [isOnboardingActionsReady, isOnboardingComplete, user?.id]);
-
+  // Required step: show on every page for a signed-in user until they finish
+  // setting up their feed. No dismissal.
   const shouldShow =
-    (isPreviewMode && !isLocalPreviewDismissed) ||
-    (!!user?.id &&
-      isOnboardingActionsReady &&
-      !isOnboardingComplete &&
-      isVisible);
+    isPreviewMode ||
+    (!!user?.id && isOnboardingActionsReady && !isOnboardingComplete);
 
   useEffect(() => {
     if (!shouldShow || hasLoggedImpression.current) {
@@ -67,20 +49,6 @@ export const PostOnboardingActivation = (): ReactElement | null => {
     return null;
   }
 
-  const onDismiss = (): void => {
-    if (isPreviewMode) {
-      setIsLocalPreviewDismissed(true);
-    } else {
-      clearPostSignupActivation();
-    }
-    setIsVisible(false);
-    logEvent({
-      event_name: 'click',
-      target_type: TargetType.PostSignupActivation,
-      target_id: 'dismiss post signup activation',
-    });
-  };
-
   const onBuildFeed = (): void => {
     logEvent({
       event_name: 'click',
@@ -95,10 +63,6 @@ export const PostOnboardingActivation = (): ReactElement | null => {
   };
 
   return (
-    <PostOnboardingActivationView
-      className="mb-4"
-      onCtaClick={onBuildFeed}
-      onDismiss={onDismiss}
-    />
+    <PostOnboardingActivationView className="mb-4" onCtaClick={onBuildFeed} />
   );
 };

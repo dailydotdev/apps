@@ -10,14 +10,19 @@
 .glow {
   background:
     radial-gradient(
-      55% 140% at 92% 50%,
-      color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 62%) 0%,
-      transparent 60%
+      60% 170% at 50% 50%,
+      color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 64%) 0%,
+      transparent 62%
     ),
     radial-gradient(
-      50% 120% at 74% 50%,
-      color-mix(in srgb, var(--theme-accent-onion-default), transparent 74%) 0%,
-      transparent 55%
+      42% 150% at 15% 50%,
+      color-mix(in srgb, var(--theme-accent-onion-default), transparent 76%) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      42% 150% at 85% 50%,
+      color-mix(in srgb, var(--theme-accent-onion-default), transparent 76%) 0%,
+      transparent 58%
     );
 }
 
@@ -52,14 +57,4 @@
 
 .cta:hover {
   background-color: rgba(255, 255, 255, 0.88) !important;
-}
-
-.close,
-.close svg {
-  color: rgba(255, 255, 255, 0.6) !important;
-}
-
-.close:hover,
-.close:hover svg {
-  color: #fff !important;
 }

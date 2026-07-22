@@ -16,7 +16,6 @@ const meta: Meta<typeof PostOnboardingActivationView> = {
     progress: { control: { type: 'number', min: 0, max: 5, step: 1 } },
     steps: { control: { type: 'number', min: 1, max: 5, step: 1 } },
     onCtaClick: { action: 'cta clicked' },
-    onDismiss: { action: 'dismissed' },
     className: { table: { disable: true } },
   },
   parameters: {

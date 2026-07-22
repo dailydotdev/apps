@@ -1,11 +1,7 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PostOnboardingActivation } from './PostOnboardingActivation';
-import {
-  clearPostSignupActivation,
-  hasPostSignupActivation,
-} from '../../lib/postSignupActivation';
 
 const mockPush = jest.fn();
 const mockLogEvent = jest.fn();
@@ -33,36 +29,26 @@ jest.mock('../../contexts/LogContext', () => ({
 }));
 
 jest.mock('../../lib/postSignupActivation', () => ({
-  clearPostSignupActivation: jest.fn(),
-  hasPostSignupActivation: jest.fn(() => true),
   isPostOnboardingPreviewEnabled: jest.fn(() => false),
   POST_ONBOARDING_PREVIEW_QUERY: 'postOnboardingPreview',
 }));
 
-const mockHasPostSignupActivation = jest.mocked(hasPostSignupActivation);
-const mockClearPostSignupActivation = jest.mocked(clearPostSignupActivation);
-
 describe('PostOnboardingActivation', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockHasPostSignupActivation.mockReturnValue(true);
   });
 
-  it('frames feed setup as the final step with a clear value proposition', async () => {
+  it('shows the feed setup prompt and routes to onboarding on click', async () => {
     render(<PostOnboardingActivation />);
 
     expect(
       await screen.findByText("Your feed isn't set up yet"),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "You're one step away from discovering what's next.",
-      ),
+      screen.getByText("You're one step away from discovering what's next."),
     ).toBeInTheDocument();
 
-    await userEvent.click(
-      screen.getByRole('button', { name: 'Finish setup' }),
-    );
+    await userEvent.click(screen.getByRole('button', { name: 'Finish setup' }));
 
     expect(mockPush).toHaveBeenCalledWith({
       pathname: '/onboarding',
@@ -70,25 +56,15 @@ describe('PostOnboardingActivation', () => {
     });
   });
 
-  it('dismisses the prompt without completing onboarding', async () => {
+  it('is a required step with no dismiss control', async () => {
     render(<PostOnboardingActivation />);
 
     await screen.findByRole('complementary', {
       name: 'Personalize your feed',
     });
-    await userEvent.click(
-      screen.getByRole('button', {
-        name: 'Dismiss feed personalization',
-      }),
-    );
 
-    expect(mockClearPostSignupActivation).toHaveBeenCalledTimes(1);
-    await waitFor(() => {
-      expect(
-        screen.queryByRole('complementary', {
-          name: 'Personalize your feed',
-        }),
-      ).not.toBeInTheDocument();
-    });
+    expect(
+      screen.queryByRole('button', { name: 'Dismiss feed personalization' }),
+    ).not.toBeInTheDocument();
   });
 });
