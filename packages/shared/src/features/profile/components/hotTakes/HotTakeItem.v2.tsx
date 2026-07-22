@@ -17,6 +17,7 @@ import { EditIcon, TrashIcon, UpvoteIcon } from '../../../../components/icons';
 import { CardAction } from '../../../../components/buttons/CardAction';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { HotTakeShareButton } from './HotTakeShareButton';
+import { Origin } from '../../../../lib/log';
 import { getHotTakeShareText, getHotTakesProfileUrl } from './common';
 
 interface HotTakeItemProps {
@@ -98,7 +99,7 @@ export function HotTakeItem({
             text={getHotTakeShareText({ title, username: ownerUsername })}
             label={`Share "${title}"`}
             targetId={item.id}
-            surface="profile item"
+            origin={Origin.HotTakeList}
             buttonSize={ButtonSize.XSmall}
           />
         )}

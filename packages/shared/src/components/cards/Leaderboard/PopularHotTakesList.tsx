@@ -13,6 +13,7 @@ import {
 import { webappUrl } from '../../../lib/constants';
 import { getHotTakesProfileUrl } from '../../../features/profile/components/hotTakes/common';
 import { HotTakeShareControl } from '../../../features/profile/components/hotTakes/HotTakeShareButton';
+import { Origin } from '../../../lib/log';
 import { useHotTakeShareEnabled } from '../../../hooks/useHotTakeShareEnabled';
 
 export type PopularHotTakes = {
@@ -35,7 +36,7 @@ export function PopularHotTakesList({
         link={`${webappUrl}users`}
         text="The most popular hot takes on daily.dev — developers' spiciest opinions, ranked."
         label="Share the hot takes leaderboard"
-        surface="popular hot takes"
+        origin={Origin.PopularHotTakes}
       />
     </div>
   ) : undefined;

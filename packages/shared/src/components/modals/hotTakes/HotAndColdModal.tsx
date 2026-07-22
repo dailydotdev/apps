@@ -1396,7 +1396,7 @@ export const HotTakeCard = ({
             })}
             label={`Share "${hotTake.title}"`}
             targetId={hotTake.id}
-            surface="hot and cold modal"
+            origin={Origin.HotAndCold}
             buttonSize={ButtonSize.Small}
           />
         </div>

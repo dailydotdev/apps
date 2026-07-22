@@ -91,7 +91,7 @@ const renderButton = (): RenderResult =>
         text={text}
         label='Share "Small PRs or bust"'
         targetId="take-1"
-        surface="profile item"
+        origin={Origin.HotTakeList}
       />
     </TestBootProvider>,
   );
@@ -126,8 +126,7 @@ describe('HotTakeShareButton', () => {
     });
     expect(JSON.parse(payload.extra)).toEqual({
       provider: ShareProvider.CopyLink,
-      origin: Origin.HotTake,
-      surface: 'profile item',
+      origin: Origin.HotTakeList,
     });
   });
 
@@ -152,7 +151,7 @@ describe('HotTakeShareButton', () => {
     expect(logEvent).toHaveBeenCalledTimes(1);
     expect(JSON.parse(logEvent.mock.calls[0][0].extra)).toMatchObject({
       provider: ShareProvider.Native,
-      surface: 'profile item',
+      origin: Origin.HotTakeList,
     });
   });
 

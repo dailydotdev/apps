@@ -21,6 +21,7 @@ import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useEngagementBarV2 } from '../../../../hooks/useEngagementBarV2';
 import { HotTakeItem as HotTakeItemV2 } from './HotTakeItem.v2';
 import { HotTakeShareButton } from './HotTakeShareButton';
+import { Origin } from '../../../../lib/log';
 import { getHotTakeShareText, getHotTakesProfileUrl } from './common';
 
 interface HotTakeItemProps {
@@ -102,7 +103,7 @@ function HotTakeItemV1({
             text={getHotTakeShareText({ title, username: ownerUsername })}
             label={`Share "${title}"`}
             targetId={item.id}
-            surface="profile item"
+            origin={Origin.HotTakeList}
             buttonSize={ButtonSize.XSmall}
           />
         )}

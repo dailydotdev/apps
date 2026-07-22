@@ -226,7 +226,7 @@ export function ProfileUserHotTakes({
               }
               label="Share hot takes"
               targetId={user.id}
-              surface="profile header"
+              origin={Origin.HotTakeList}
               buttonSize={ButtonSize.Small}
             />
             {addButton}
