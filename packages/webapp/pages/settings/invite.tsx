@@ -7,10 +7,7 @@ import {
 } from '@dailydotdev/shared/src/hooks';
 import { link } from '@dailydotdev/shared/src/lib/links';
 import { labels } from '@dailydotdev/shared/src/lib';
-import {
-  cloudinaryCharmGiveback,
-  cloudinaryCharmInviteFriends,
-} from '@dailydotdev/shared/src/lib/image';
+import { cloudinaryCharmInviteFriends } from '@dailydotdev/shared/src/lib/image';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import {
   generateQueryKey,
@@ -47,14 +44,13 @@ import {
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   AddUserIcon,
-  CopyIcon,
   DevPlusIcon,
+  GiftIcon,
   VIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -83,18 +79,16 @@ const INVITE_GOAL = 3;
 const HOW_IT_WORKS_STEPS = [
   {
     title: 'Share your link',
-    description:
-      'Send your personal invite link to developers who would appreciate signal over noise.',
+    description: 'Copy it or send it through any of the platforms above.',
   },
   {
     title: 'They join daily.dev',
     description:
-      'Every developer who signs up through your link shows up in your referrals below.',
+      'Each signup through your link appears in your referrals below.',
   },
   {
     title: 'Plus unlocks',
-    description:
-      'Hit three joins and we upgrade you to Plus for a full month, on us.',
+    description: 'After three joins, your free month of Plus kicks in.',
   },
 ] as const;
 
@@ -109,121 +103,59 @@ const InviteProgress = ({
   isCompleted,
   referredUsers,
 }: InviteProgressProps): ReactElement => (
-  <div
-    className="flex items-center"
-    aria-label={`${joinedCount} of ${INVITE_GOAL} friends joined`}
-  >
-    {Array.from({ length: INVITE_GOAL }, (_, index) => {
-      const isFilled = index < joinedCount;
-      const referredUser = referredUsers[index];
-
-      return (
-        <Fragment key={referredUser?.id ?? `invite-slot-${index}`}>
-          {index > 0 && (
-            <span
-              aria-hidden
-              className={classNames(
-                'h-px w-3 tablet:w-5',
-                isFilled
-                  ? 'bg-accent-cabbage-default'
-                  : 'bg-border-subtlest-primary',
-              )}
-            />
-          )}
-          {isFilled && referredUser ? (
-            <ProfilePicture
-              user={referredUser}
-              size={ProfileImageSize.Large}
-              className="border-2 border-accent-cabbage-default"
-            />
-          ) : (
-            <span
-              aria-hidden
-              className={classNames(
-                'flex size-10 items-center justify-center rounded-full',
-                isFilled
-                  ? 'bg-surface-float text-accent-cabbage-default'
-                  : 'border border-dashed border-border-subtlest-primary text-text-quaternary',
-              )}
-            >
-              {isFilled ? <VIcon /> : <AddUserIcon secondary />}
-            </span>
-          )}
-        </Fragment>
-      );
-    })}
-    <span
-      aria-hidden
-      className={classNames(
-        'h-px w-3 tablet:w-5',
-        isCompleted
-          ? 'bg-accent-cabbage-default'
-          : 'bg-border-subtlest-primary',
-      )}
-    />
-    <span
-      className={classNames(
-        'flex items-center gap-1 rounded-full bg-action-plus-float px-3 py-1.5 font-bold text-action-plus-default typo-callout',
-        isCompleted &&
-          'border border-action-plus-default motion-safe:animate-reward-pop',
-      )}
+  <div className="mt-4 flex flex-wrap items-center gap-3">
+    <div
+      className="flex items-center"
+      aria-label={`${joinedCount} of ${INVITE_GOAL} friends joined`}
     >
-      <DevPlusIcon secondary size={IconSize.Small} />1 month
-    </span>
-  </div>
-);
+      {Array.from({ length: INVITE_GOAL }, (_, index) => {
+        const isFilled = index < joinedCount;
+        const referredUser = referredUsers[index];
 
-const GivebackPromoCard = ({
-  onClick,
-}: {
-  onClick: () => void;
-}): ReactElement => (
-  <div className="relative mt-4 flex flex-col items-stretch gap-4 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-gradient-to-br from-accent-cabbage-flat to-background-popover p-5 tablet:flex-row tablet:items-center">
-    <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
-      <span className="font-medium uppercase tracking-wide text-accent-cabbage-default typo-caption2">
-        Raised together
-      </span>
-      <Typography
-        tag={TypographyTag.H3}
-        type={TypographyType.Title3}
-        bold
-        className="[text-wrap:balance]"
-      >
-        Turn community actions into real-world donations
-      </Typography>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Secondary}
-        className="[text-wrap:pretty]"
-      >
-        Developers spread the word about daily.dev, and we redirect our growth
-        budget to causes the community picks. You never pay a cent.
-      </Typography>
-      <Button
-        tag="a"
-        href={`${webappUrl}giveback`}
-        variant={ButtonVariant.Primary}
-        color={ButtonColor.Cabbage}
-        size={ButtonSize.Small}
-        className="mt-1"
-        onClick={onClick}
-      >
-        Explore Giveback →
-      </Button>
-    </div>
-    {/* The charm artwork sits on black; screen-blend drops the black onto the card. */}
-    <div className="relative mx-auto flex h-32 w-32 shrink-0 items-center justify-center">
+        return (
+          <Fragment key={referredUser?.id ?? `invite-slot-${index}`}>
+            {index > 0 && (
+              <span
+                aria-hidden
+                className="h-px w-3 bg-border-subtlest-tertiary"
+              />
+            )}
+            {isFilled && referredUser ? (
+              <ProfilePicture
+                user={referredUser}
+                size={ProfileImageSize.Medium}
+              />
+            ) : (
+              <span
+                aria-hidden
+                className={classNames(
+                  'flex size-8 items-center justify-center rounded-full',
+                  isFilled
+                    ? 'bg-surface-float text-text-secondary'
+                    : 'border border-dashed border-border-subtlest-primary text-text-quaternary',
+                )}
+              >
+                {isFilled ? <VIcon /> : <AddUserIcon secondary />}
+              </span>
+            )}
+          </Fragment>
+        );
+      })}
+      <span aria-hidden className="h-px w-3 bg-border-subtlest-tertiary" />
       <span
-        aria-hidden
-        className="bg-accent-cabbage-default/20 absolute left-1/2 top-1/2 size-24 -translate-x-1/2 -translate-y-1/2 rounded-full blur-2xl"
-      />
-      <img
-        src={cloudinaryCharmGiveback}
-        alt="daily.dev Giveback charm"
-        loading="lazy"
-        className="relative h-full w-full animate-mascot-bob object-contain mix-blend-screen"
-      />
+        className={classNames(
+          'flex items-center gap-0.5 rounded-full bg-action-plus-float px-2 py-0.5 font-bold text-action-plus-default typo-footnote',
+          isCompleted && 'border border-action-plus-default',
+        )}
+      >
+        <DevPlusIcon secondary size={IconSize.Size16} />1 month
+      </span>
     </div>
+    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+      {isCompleted
+        ? `${INVITE_GOAL} of ${INVITE_GOAL} friends joined — free month unlocked`
+        : `${joinedCount} of ${INVITE_GOAL} friends joined`}
+    </Typography>
   </div>
 );
 
@@ -237,7 +169,7 @@ const AccountInvitePage = (): ReactElement => {
   });
   const { logEvent } = useLogContext();
   const inviteLink = url || link.referral.defaultUrl;
-  const [isCopying, onShareOrCopyLink] = useShareOrCopyLink({
+  const [, onShareOrCopyLink] = useShareOrCopyLink({
     text: labels.referral.generic.inviteText,
     link: inviteLink,
     logObject: () => ({
@@ -290,77 +222,30 @@ const AccountInvitePage = (): ReactElement => {
 
   return (
     <AccountPageContainer title="Invite friends">
-      <section className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-5 tablet:p-8">
-        {/* Aurora glows echoing the marketing landing hero. */}
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <span className="bg-accent-cabbage-default/25 absolute -right-10 -top-24 size-64 rounded-full blur-3xl motion-safe:animate-glow-pulse" />
-          <span
-            className="bg-accent-onion-default/20 absolute -bottom-28 -left-16 size-72 rounded-full blur-3xl motion-safe:animate-glow-pulse"
-            style={{ animationDelay: '1.2s' }}
-          />
-        </div>
-        <div className="relative flex flex-col items-start gap-4">
-          <span className="flex items-center gap-1 font-medium uppercase tracking-wide text-action-plus-default typo-caption2">
-            <DevPlusIcon secondary size={IconSize.Size16} />
-            {isCompleted ? 'Reward unlocked' : 'Referral reward'}
-          </span>
+      <AccountContentSection
+        className={{ heading: 'mt-0' }}
+        title="Invite 3 friends, get 1 month of Plus free"
+        description={
+          isCompleted
+            ? 'Three developers joined through your link — your free month of Plus is unlocked. Invites keep counting toward the community.'
+            : 'Share your personal link with developers you rate. Once three of them join daily.dev, your next month of Plus is on us.'
+        }
+      >
+        {isPlus && !isCompleted && (
           <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.LargeTitle}
-            bold
-            className="[text-wrap:balance] tablet:typo-mega3"
-          >
-            Invite 3 friends,
-            <span className="block bg-gradient-to-r from-accent-cabbage-default to-accent-onion-default bg-clip-text text-transparent">
-              get 1 month of Plus free
-            </span>
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Secondary}
-            className="max-w-md [text-wrap:pretty]"
-          >
-            {isCompleted
-              ? 'Three friends in — your free month of Plus is unlocked. Your invites still count, and every developer you bring makes the feed sharper for everyone.'
-              : 'Know developers still digging through noise for good content? Send them your link. When three of them join daily.dev, your next month of Plus is on us.'}
-          </Typography>
-          {isPlus && !isCompleted && (
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-            >
-              Already on Plus? Your free month gets added on top of your current
-              subscription.
-            </Typography>
-          )}
-          <InviteProgress
-            joinedCount={joinedCount}
-            isCompleted={isCompleted}
-            referredUsers={users}
-          />
-          <Typography
+            className="mt-1"
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            {isCompleted
-              ? `${INVITE_GOAL} of ${INVITE_GOAL} friends joined — enjoy your free month`
-              : `${joinedCount} of ${INVITE_GOAL} friends joined`}
+            Already on Plus? Your free month gets added on top of your current
+            subscription.
           </Typography>
-          <Button
-            className="mt-2 w-full tablet:w-auto"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Large}
-            icon={<CopyIcon secondary={isCopying} />}
-            onClick={() => onShareOrCopyLink()}
-          >
-            {isCopying ? 'Link copied!' : 'Copy invite link'}
-          </Button>
-        </div>
-      </section>
-      <AccountContentSection
-        title="Share your invite link"
-        description="Copy your personal link or share it directly on social platforms."
-      >
+        )}
+        <InviteProgress
+          joinedCount={joinedCount}
+          isCompleted={isCompleted}
+          referredUsers={users}
+        />
         <InviteLinkInput
           className={{ container: 'mt-4' }}
           link={inviteLink}
@@ -388,41 +273,62 @@ const AccountInvitePage = (): ReactElement => {
           />
         </div>
       </AccountContentSection>
-      <AccountContentSection
-        title="How it works"
-        description="Three steps between you and a free month of Plus."
-      >
-        <div className="mt-4 grid grid-cols-1 gap-3 tablet:grid-cols-3">
+      <AccountContentSection title="How it works">
+        <ol className="mt-4 flex flex-col gap-3">
           {HOW_IT_WORKS_STEPS.map((step, index) => (
-            <div
-              key={step.title}
-              className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4"
-            >
+            <li key={step.title} className="flex items-start gap-3">
               <span
                 aria-hidden
-                className="bg-gradient-to-r from-accent-cabbage-default to-accent-onion-default bg-clip-text font-bold text-transparent typo-title2"
+                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-float font-bold text-text-secondary typo-footnote"
               >
                 {index + 1}
               </span>
-              <Typography type={TypographyType.Callout} bold>
-                {step.title}
-              </Typography>
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                {step.description}
-              </Typography>
-            </div>
+              <div className="flex min-w-0 flex-col">
+                <Typography type={TypographyType.Callout} bold>
+                  {step.title}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                >
+                  {step.description}
+                </Typography>
+              </div>
+            </li>
           ))}
-        </div>
+        </ol>
       </AccountContentSection>
       {isGivebackEnabled && (
         <AccountContentSection
           title="More ways to give back"
           description="Inviting friends isn't the only way to push the community forward."
         >
-          <GivebackPromoCard onClick={onGivebackClick} />
+          <div className="mt-4 flex flex-col items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 tablet:flex-row tablet:items-center">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-background-subtle text-text-secondary">
+              <GiftIcon secondary size={IconSize.Small} />
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col">
+              <Typography type={TypographyType.Callout} bold>
+                Turn community actions into real donations
+              </Typography>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                We redirect our growth budget to causes the community picks —
+                you never pay a cent.
+              </Typography>
+            </div>
+            <Button
+              tag="a"
+              href={`${webappUrl}giveback`}
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Small}
+              onClick={onGivebackClick}
+            >
+              Explore Giveback
+            </Button>
+          </div>
         </AccountContentSection>
       )}
       <AccountContentSection

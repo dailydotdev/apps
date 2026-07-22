@@ -124,9 +124,9 @@ it('should render the 3-invites promo with the progress at zero', async () => {
   mockReferralCampaign(0);
   renderComponent();
 
-  expect(await screen.findByText('Invite 3 friends,')).toBeInTheDocument();
-  expect(screen.getByText('get 1 month of Plus free')).toBeInTheDocument();
-  expect(screen.getByText('Referral reward')).toBeInTheDocument();
+  expect(
+    await screen.findByText('Invite 3 friends, get 1 month of Plus free'),
+  ).toBeInTheDocument();
   expect(screen.getByText('0 of 3 friends joined')).toBeInTheDocument();
 });
 
@@ -135,16 +135,17 @@ it('should reflect partial progress from the referral campaign', async () => {
   renderComponent();
 
   expect(await screen.findByText('2 of 3 friends joined')).toBeInTheDocument();
-  expect(screen.getByText('Referral reward')).toBeInTheDocument();
 });
 
 it('should show the unlocked state once three friends joined', async () => {
   mockReferralCampaign(3);
   renderComponent();
 
-  expect(await screen.findByText('Reward unlocked')).toBeInTheDocument();
   expect(
-    screen.getByText('3 of 3 friends joined — enjoy your free month'),
+    await screen.findByText('3 of 3 friends joined — free month unlocked'),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(/your free month of Plus is unlocked/),
   ).toBeInTheDocument();
 });
 
@@ -154,7 +155,7 @@ it('should link to the giveback page when the feature is enabled', async () => {
   renderComponent();
 
   expect(await screen.findByText('More ways to give back')).toBeInTheDocument();
-  const cta = screen.getByText('Explore Giveback →').closest('a');
+  const cta = screen.getByText('Explore Giveback').closest('a');
   expect(cta).toHaveAttribute('href', expect.stringContaining('giveback'));
 });
 
