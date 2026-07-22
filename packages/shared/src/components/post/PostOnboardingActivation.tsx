@@ -20,6 +20,7 @@ export const PostOnboardingActivation = (): ReactElement | null => {
   const { isOnboardingActionsReady, isOnboardingComplete } =
     useOnboardingActions();
   const hasLoggedImpression = useRef(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const isPreviewMode =
     isDevelopment ||
     isPostOnboardingPreviewEnabled(
@@ -49,6 +50,34 @@ export const PostOnboardingActivation = (): ReactElement | null => {
     });
   }, [logEvent, shouldShow]);
 
+  // The bar is pinned above all fixed chrome. Reserve its height at the top of
+  // the app by feeding it into `--safe-area-top` (which shifts the rail, header
+  // and body content down) while preserving the real device notch inset.
+  useEffect(() => {
+    const el = wrapperRef.current;
+    if (!shouldShow || !el || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+
+    const root = document.documentElement;
+    const apply = (): void => {
+      const height = Math.round(el.getBoundingClientRect().height);
+      root.style.setProperty(
+        '--safe-area-top',
+        `calc(env(safe-area-inset-top, 0px) + ${height}px)`,
+      );
+    };
+
+    apply();
+    const observer = new ResizeObserver(apply);
+    observer.observe(el);
+
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty('--safe-area-top');
+    };
+  }, [shouldShow]);
+
   if (!shouldShow) {
     return null;
   }
@@ -66,5 +95,16 @@ export const PostOnboardingActivation = (): ReactElement | null => {
     });
   };
 
-  return <PostOnboardingActivationView onCtaClick={onBuildFeed} />;
+  return (
+    // Pinned above everything. `top` is set inline (not the `top-0` class) so
+    // the global safe-area rule doesn't push the bar itself down; z sits above
+    // the notch-fill (`max`) so it stays visible.
+    <div
+      ref={wrapperRef}
+      className="fixed inset-x-0 z-[1001]"
+      style={{ top: 0 }}
+    >
+      <PostOnboardingActivationView onCtaClick={onBuildFeed} />
+    </div>
+  );
 };
