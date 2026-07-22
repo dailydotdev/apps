@@ -47,10 +47,13 @@ export const BriefCopyMenu = ({
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
 
-  const logCopy = () =>
+  // Text copies log CopyText + a content discriminator so the three menu
+  // actions stay distinguishable in analytics (copy link logs CopyLink via the
+  // shared post-share path).
+  const logCopyText = (content: 'summary' | 'title_link') =>
     logEvent(
       postLogEvent(LogEvent.SharePost, post, {
-        extra: { provider: ShareProvider.CopyLink, origin },
+        extra: { provider: ShareProvider.CopyText, origin, content },
       }),
     );
 
@@ -67,7 +70,7 @@ export const BriefCopyMenu = ({
             icon: <MenuIcon Icon={DocsIcon} />,
             label: 'Copy summary',
             action: () => {
-              logCopy();
+              logCopyText('summary');
               copyText({
                 textToCopy: post.summary,
                 message: '✅ Copied summary to clipboard',
@@ -80,7 +83,7 @@ export const BriefCopyMenu = ({
       icon: <MenuIcon Icon={CopyIcon} />,
       label: 'Copy title and link',
       action: () => {
-        logCopy();
+        logCopyText('title_link');
         copyText({
           textToCopy: `${post.title ?? ''}\n${link ?? ''}`.trim(),
           message: '✅ Copied to clipboard',

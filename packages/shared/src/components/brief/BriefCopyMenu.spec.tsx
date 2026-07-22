@@ -109,7 +109,14 @@ describe('BriefCopyMenu', () => {
     expect(mockLogEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.SharePost,
-        extra: expect.stringContaining(ShareProvider.CopyLink),
+        // Text copies are distinguishable from the link copy by provider and
+        // the content discriminator.
+        extra: expect.stringContaining(ShareProvider.CopyText),
+      }),
+    );
+    expect(mockLogEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        extra: expect.stringContaining('"content":"summary"'),
       }),
     );
   });
