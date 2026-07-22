@@ -531,6 +531,8 @@ export enum LogEvent {
   SubmitGivebackCauseSuggestionError = 'submit giveback cause suggestion error',
   // Daily homepage
   DailyFeedback = 'daily feedback',
+  // Sharing visibility — leaderboard (rank shares carry `rank` in extra)
+  ShareLeaderboard = 'share leaderboard',
 }
 
 export enum TargetType {

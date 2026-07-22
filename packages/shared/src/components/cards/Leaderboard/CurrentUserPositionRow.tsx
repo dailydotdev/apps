@@ -1,17 +1,9 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { gqlClient } from '../../../graphql/common';
-import type {
-  LeaderboardPosition,
-  LeaderboardType,
-} from '../../../graphql/leaderboard';
-import {
-  isLeaderboardPositionSupported,
-  LEADERBOARD_POSITION_QUERY,
-} from '../../../graphql/leaderboard';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+import type { LeaderboardType } from '../../../graphql/leaderboard';
+import { isLeaderboardPositionSupported } from '../../../graphql/leaderboard';
+import { useLeaderboardPosition } from '../../../hooks/leaderboard/useLeaderboardPosition';
 import { largeNumberFormat } from '../../../lib';
 import { UserHighlight } from '../../widgets/PostUsersHighlights';
 
@@ -31,27 +23,16 @@ export function CurrentUserPositionRow({
     !visibleUserIds.has(user.id) &&
     isLeaderboardPositionSupported(type);
 
-  const { data } = useQuery({
-    queryKey: generateQueryKey(RequestKey.LeaderboardPosition, user, type),
-    queryFn: async () => {
-      const res = await gqlClient.request<{
-        leaderboardPosition: LeaderboardPosition | null;
-      }>(LEADERBOARD_POSITION_QUERY, { type });
+  const { position } = useLeaderboardPosition({ type, enabled });
 
-      return res.leaderboardPosition;
-    },
-    enabled,
-    staleTime: StaleTime.Default,
-  });
-
-  if (!enabled || !data) {
+  if (!enabled || !position) {
     return null;
   }
 
   const rankLabel =
-    data.rank === null
-      ? `${largeNumberFormat(data.cappedAt)}+`
-      : `#${data.rank.toLocaleString()}`;
+    position.rank === null
+      ? `${largeNumberFormat(position.cappedAt)}+`
+      : `#${position.rank.toLocaleString()}`;
 
   return (
     <li className="mt-1.5 flex w-full flex-row items-center rounded-8 border-t border-border-subtlest-tertiary px-2 pt-3">
