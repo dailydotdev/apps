@@ -657,6 +657,30 @@ export const getReadingStreak = async (): Promise<UserStreak> => {
   return res.userStreak;
 };
 
+export type PublicUserStreak = Pick<UserStreak, 'current' | 'max' | 'total'>;
+
+// Public, by-id counterpart of `USER_STREAK_QUERY`, used to render the
+// shareable streak image outside of an authenticated session.
+export const USER_STREAK_PROFILE_QUERY = gql`
+  query UserStreakProfile($id: ID!) {
+    userStreakProfile(id: $id) {
+      current
+      max
+      total
+    }
+  }
+`;
+
+export const getUserStreakProfile = async (
+  id: string,
+): Promise<PublicUserStreak | null> => {
+  const res = await gqlClient.request<{
+    userStreakProfile: PublicUserStreak | null;
+  }>(USER_STREAK_PROFILE_QUERY, { id });
+
+  return res.userStreakProfile;
+};
+
 export const USER_PROFILE_ANALYTICS_QUERY = gql`
   query UserProfileAnalytics($userId: ID!) {
     userProfileAnalytics(userId: $userId) {
