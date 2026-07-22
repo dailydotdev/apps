@@ -1,9 +1,22 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query';
+import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
 import type { UserAchievement } from '../../../../graphql/user/achievements';
 import { AchievementType } from '../../../../graphql/user/achievements';
 import { AchievementCard } from './AchievementCard';
+import { useShareCelebrations } from '../../../../hooks/useShareCelebrations';
+
+jest.mock('../../../../hooks/useShareCelebrations', () => ({
+  __esModule: true,
+  useShareCelebrations: jest.fn(),
+}));
+
+const useShareCelebrationsMock = useShareCelebrations as jest.Mock;
+
+beforeEach(() => {
+  useShareCelebrationsMock.mockReturnValue(false);
+});
 
 const createLockedAchievement = (
   overrides: Partial<UserAchievement> = {},
@@ -34,7 +47,7 @@ const renderCard = (
   });
 
   return render(
-    <QueryClientProvider client={client}>
+    <TestBootProvider client={client}>
       <AchievementCard
         userAchievement={createLockedAchievement()}
         isOwner
@@ -42,7 +55,7 @@ const renderCard = (
         onUntrack={jest.fn()}
         {...props}
       />
-    </QueryClientProvider>,
+    </TestBootProvider>,
   );
 };
 
@@ -126,5 +139,52 @@ describe('AchievementCard — stop tracking', () => {
     expect(
       screen.queryByRole('button', { name: /^track$/i }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('AchievementCard — share celebrations', () => {
+  const unlocked = createLockedAchievement({
+    unlockedAt: '2026-05-04T10:00:00.000Z',
+    progress: 1,
+  });
+  const shareUser = { username: 'ada', name: 'Ada Lovelace' };
+
+  it('renders no share or download control when the flag is off', () => {
+    renderCard({ userAchievement: unlocked, shareUser });
+
+    expect(
+      screen.queryByLabelText('Share this achievement'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Download badge')).not.toBeInTheDocument();
+    expect(screen.getByText(/^Unlocked/)).toBeInTheDocument();
+  });
+
+  it('renders exactly one share and one download control when the flag is on', () => {
+    useShareCelebrationsMock.mockReturnValue(true);
+    renderCard({ userAchievement: unlocked, shareUser });
+
+    expect(screen.getAllByLabelText('Share this achievement')).toHaveLength(1);
+    expect(screen.getAllByLabelText('Download badge')).toHaveLength(1);
+    expect(screen.getByText(/^Unlocked/)).toBeInTheDocument();
+  });
+
+  it('renders no share control without a shareUser, even with the flag on', () => {
+    useShareCelebrationsMock.mockReturnValue(true);
+    renderCard({ userAchievement: unlocked });
+
+    expect(
+      screen.queryByLabelText('Share this achievement'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Download badge')).not.toBeInTheDocument();
+  });
+
+  it('renders no share control for a locked achievement', () => {
+    useShareCelebrationsMock.mockReturnValue(true);
+    renderCard({ shareUser });
+
+    expect(
+      screen.queryByLabelText('Share this achievement'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Download badge')).not.toBeInTheDocument();
   });
 });

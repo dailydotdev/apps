@@ -17,6 +17,9 @@ import type { PublicProfile } from '../../lib/user';
 import { useShowcaseAchievements } from '../../hooks/profile/useShowcaseAchievements';
 import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import { useShareCelebrations } from '../../hooks/useShareCelebrations';
+import { AchievementShareActions } from '../../features/profile/components/achievements/AchievementShareActions';
+import { Origin } from '../../lib/log';
 
 const MAX_SHOWCASE = 5;
 
@@ -33,6 +36,7 @@ export const AchievementShowcaseModal = ({
     useShowcaseAchievements(user);
   const { achievements } = useProfileAchievements(user);
   const { displayToast } = useToastNotification();
+  const isShareEnabled = useShareCelebrations();
 
   const initialSelectedIds = useMemo(
     () => showcaseAchievements.map((sa) => sa.achievement.id),
@@ -123,12 +127,12 @@ export const AchievementShowcaseModal = ({
               const isDisabled =
                 !isSelected && selectedIds.length >= MAX_SHOWCASE;
 
-              return (
+              const row = (
                 <button
-                  key={userAchievement.achievement.id}
                   type="button"
                   className={classNames(
                     'flex items-center gap-3 rounded-12 border p-3 transition-colors',
+                    isShareEnabled && 'min-w-0 flex-1',
                     isSelected
                       ? 'border-accent-cabbage-default bg-surface-float'
                       : 'border-border-subtlest-tertiary bg-surface-float',
@@ -182,6 +186,32 @@ export const AchievementShowcaseModal = ({
                     </div>
                   </div>
                 </button>
+              );
+
+              if (!isShareEnabled) {
+                return (
+                  <React.Fragment key={userAchievement.achievement.id}>
+                    {row}
+                  </React.Fragment>
+                );
+              }
+
+              // Rendered next to the toggle, never inside it — a button nested
+              // in a button is invalid and would swallow the row selection.
+              return (
+                <div
+                  key={userAchievement.achievement.id}
+                  className="flex items-center gap-2"
+                >
+                  {row}
+                  <AchievementShareActions
+                    achievement={userAchievement.achievement}
+                    username={user.username}
+                    name={user.name}
+                    isOwner
+                    origin={Origin.Achievements}
+                  />
+                </div>
               );
             })}
           </div>

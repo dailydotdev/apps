@@ -23,12 +23,15 @@ import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import HoverCard from '../../../../components/cards/common/HoverCard';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { PinIcon } from '../../../../components/icons';
+import { useShareCelebrations } from '../../../../hooks/useShareCelebrations';
+import { Origin } from '../../../../lib/log';
 import {
   AchievementRarityTier,
   getAchievementRarityTier,
   rarityGlowClasses,
 } from './achievementRarity';
 import { RaritySparkles } from './RaritySparkles';
+import { AchievementShareActions } from './AchievementShareActions';
 
 interface AchievementCardProps {
   userAchievement: UserAchievement;
@@ -38,6 +41,12 @@ interface AchievementCardProps {
   onTrack?: (achievementId: string) => Promise<void>;
   onUntrack?: () => Promise<void>;
   isUntrackPending?: boolean;
+  /**
+   * Profile the card belongs to. Opt-in: only the achievements tab passes it,
+   * so the many other consumers (game center, widgets, tracker hover card) keep
+   * their current DOM.
+   */
+  shareUser?: { username?: string; name?: string };
 }
 
 export function AchievementCard({
@@ -48,6 +57,7 @@ export function AchievementCard({
   onTrack,
   onUntrack,
   isUntrackPending = false,
+  shareUser,
 }: AchievementCardProps): ReactElement {
   const { achievement, progress, unlockedAt } = userAchievement;
   const targetCount = getTargetCount(achievement);
@@ -62,6 +72,28 @@ export function AchievementCard({
     rarityTier === AchievementRarityTier.Emerald
       ? '<1%'
       : `${Math.round(achievement.rarity ?? 0)}%`;
+  const isShareEnabled = useShareCelebrations(!!shareUser && isUnlocked);
+  const showShare = isShareEnabled && !!shareUser && isUnlocked;
+  const unlockedMeta = unlockedAt ? (
+    <>
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Quaternary}
+      >
+        Unlocked {formatDate({ value: unlockedAt, type: TimeFormatType.Post })}
+      </Typography>
+      {achievement.rarity != null && (
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Quaternary}
+          className="mt-1"
+        >
+          Earned by {rarityLabel} of users
+        </Typography>
+      )}
+    </>
+  ) : null;
+
   return (
     <div
       className={classNames(
@@ -189,24 +221,20 @@ export function AchievementCard({
         </div>
       )}
 
-      {isUnlocked && unlockedAt && (
-        <div className="mt-3 flex flex-col">
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Quaternary}
-          >
-            Unlocked{' '}
-            {formatDate({ value: unlockedAt, type: TimeFormatType.Post })}
-          </Typography>
-          {achievement.rarity != null && (
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Quaternary}
-              className="mt-1"
-            >
-              Earned by {rarityLabel} of users
-            </Typography>
-          )}
+      {isUnlocked && unlockedAt && !showShare && (
+        <div className="mt-3 flex flex-col">{unlockedMeta}</div>
+      )}
+
+      {isUnlocked && unlockedAt && showShare && (
+        <div className="mt-3 flex items-end justify-between gap-2">
+          <div className="flex min-w-0 flex-col">{unlockedMeta}</div>
+          <AchievementShareActions
+            achievement={achievement}
+            username={shareUser.username}
+            name={shareUser.name}
+            isOwner={isOwner}
+            origin={Origin.Achievements}
+          />
         </div>
       )}
     </div>
