@@ -61,8 +61,8 @@ export const PostOnboardingActivationView = ({
 
       {/* Content is capped and centered so it sits mid-page instead of
        * stretching across the full-width bar. */}
-      <div className="relative mx-auto flex w-full max-w-[63.75rem] flex-col gap-3 px-4 py-4 tablet:flex-row tablet:items-center tablet:gap-10 tablet:px-6">
-        <div className="flex min-w-0 flex-1 items-center gap-3.5">
+      <div className="relative mx-auto flex w-full max-w-[63.75rem] flex-col gap-3 px-4 py-4 tablet:flex-row tablet:items-center tablet:justify-center tablet:gap-10 tablet:px-6">
+        <div className="flex min-w-0 items-center gap-3.5">
           {/* Progress ring: setup started, not finished. */}
           <span
             className="relative flex size-11 shrink-0 items-center justify-center"
@@ -94,7 +94,7 @@ export const PostOnboardingActivationView = ({
               {progress}/{steps}
             </span>
           </span>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 max-w-md">
             <Typography
               tag={TypographyTag.H2}
               type={TypographyType.Body}
