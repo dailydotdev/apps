@@ -5,7 +5,7 @@ import { Button, ButtonVariant } from './buttons/Button';
 import { useLogContext } from '../contexts/LogContext';
 import type { LogEvent } from '../hooks/log/useLogQueue';
 import { TargetType } from '../lib/log';
-import { useAuthContext } from '../contexts/AuthContext';
+import { type LoginState, useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 
 interface ClassName {
@@ -15,6 +15,7 @@ interface ClassName {
 
 interface LoginButtonProps {
   className?: ClassName;
+  onRegistrationSuccess?: LoginState['onRegistrationSuccess'];
 }
 
 enum ButtonCopy {
@@ -32,6 +33,7 @@ const getLogEvent = (copy: ButtonCopy): LogEvent => ({
 
 export default function LoginButton({
   className = {},
+  onRegistrationSuccess,
 }: LoginButtonProps): ReactElement {
   const { logEvent } = useLogContext();
   const { showLogin } = useAuthContext();
@@ -41,6 +43,7 @@ export default function LoginButton({
       trigger: AuthTriggers.MainButton,
       options: {
         isLogin: copy === ButtonCopy.Login,
+        onRegistrationSuccess,
       },
     });
   };
