@@ -308,3 +308,13 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Redesigns the post-upvote share prompt on the post page (`PostContentShare`)
+// into a prominent, inviting card with the full share row instead of the plain
+// "Should anyone else see this post?" copy-link widget. Fires at a peak-intent
+// moment, so it ramps on its own flag alongside the `sharing_visibility` master
+// gate. Keep the default `false` (control = the existing widget).
+export const featureShareUpvotePrompt = new Feature(
+  'share_upvote_prompt',
+  false,
+);
