@@ -1,6 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
+import styles from './PostOnboardingActivation.module.css';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useOnboardingActions } from '../../hooks/auth/useOnboardingActions';
 import { useLogContext } from '../../contexts/LogContext';
@@ -106,8 +108,12 @@ export const PostOnboardingActivation = (): ReactElement | null => {
       className="relative mb-4 w-full overflow-hidden border-y border-white/[0.08] bg-raw-pepper-90 shadow-2 laptop:mx-auto laptop:max-w-[69.25rem] laptop:rounded-16 laptop:border"
     >
       {/* Soft brand glow bleeding in from the right, echoing the strip banner. */}
-      <div className="bg-accent-cabbage-default/25 pointer-events-none absolute -right-16 top-1/2 h-48 w-72 -translate-y-1/2 rounded-full blur-3xl" />
-      <div className="bg-accent-onion-default/20 pointer-events-none absolute right-24 top-1/2 h-40 w-56 -translate-y-1/2 rounded-full blur-3xl" />
+      <div
+        className={classNames(
+          'pointer-events-none absolute inset-0',
+          styles.glow,
+        )}
+      />
       {/* Hairline sheen along the top edge for the glossy panel feel. */}
       <div className="via-white/20 pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent" />
 

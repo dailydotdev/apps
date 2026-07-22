@@ -1,0 +1,16 @@
+/* Soft brand glow anchored to the right of the strip. Uses radial gradients
+ * with color-mix on the theme accent vars (mirrors .top-hero-aurora) so it
+ * renders reliably instead of relying on opacity-modified accent utilities. */
+.glow {
+  background:
+    radial-gradient(
+      60% 150% at 90% 50%,
+      color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 55%) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      55% 130% at 72% 50%,
+      color-mix(in srgb, var(--theme-accent-onion-default), transparent 70%) 0%,
+      transparent 55%
+    );
+}
