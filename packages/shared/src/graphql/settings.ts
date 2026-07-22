@@ -79,6 +79,7 @@ export type RemoteSettings = {
   companionExpanded: boolean;
   sortingEnabled: boolean;
   optOutReadingStreak: boolean;
+  optOutStreakFreeze: boolean;
   optOutLevelSystem: boolean;
   optOutQuestSystem: boolean;
   optOutAchievements: boolean;

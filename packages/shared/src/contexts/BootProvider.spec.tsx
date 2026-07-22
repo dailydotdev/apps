@@ -85,6 +85,7 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutStreakFreeze: false,
   optOutAchievements: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
