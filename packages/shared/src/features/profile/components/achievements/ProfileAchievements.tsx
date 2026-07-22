@@ -24,7 +24,7 @@ import { useLayoutVariant } from '../../../../hooks/layout/useLayoutVariant';
 import { useShareCelebrations } from '../../../../hooks/useShareCelebrations';
 import { ShareActions } from '../../../../components/share/ShareActions';
 import { useLogContext } from '../../../../contexts/LogContext';
-import { LogEvent, Origin } from '../../../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../../../lib/log';
 import { ReferralCampaignKey } from '../../../../lib/referral';
 import { getAchievementShareLink } from './achievementShare';
 
@@ -190,6 +190,9 @@ export function ProfileAchievements({
               onShare={(provider) =>
                 logEvent({
                   event_name: LogEvent.ShareAchievement,
+                  // Page-level share: target_type keeps target_id resolvable
+                  // against the card-level events, which use AchievementCard.
+                  target_type: TargetType.ProfilePage,
                   target_id: user.id,
                   extra: JSON.stringify({
                     origin: Origin.Achievements,
