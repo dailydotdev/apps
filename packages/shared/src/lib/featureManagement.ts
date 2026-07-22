@@ -308,3 +308,9 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Reading-history rows: a visible per-row "Copy link" action next to the vote
+// buttons on the history page. Per-surface flag of the sharing-visibility
+// initiative; only evaluated when the `sharing_visibility` master switch is
+// on. Keep the default `false` — GrowthBook ramps it.
+export const featureShareHistory = new Feature('share_history', false);
