@@ -51,6 +51,7 @@ import { PostMenuOptions } from '../PostMenuOptions';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
+import { SelectionShareBar } from '../SelectionShareBar';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -252,6 +253,7 @@ export const PostFocusCard = ({
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the
   // full width on first interaction. We keep YouTube's native iframe (so the
   // first click plays with sound), so there's no React click handler to hook —
@@ -326,6 +328,7 @@ export const PostFocusCard = ({
 
   return (
     <article
+      ref={bodyRef}
       className="flex w-full flex-col rounded-24 bg-background-default"
       data-testid="post-focus-card"
     >
@@ -583,6 +586,7 @@ export const PostFocusCard = ({
           </div>
         </div>
       </div>
+      <SelectionShareBar containerRef={bodyRef} post={post} />
     </article>
   );
 };

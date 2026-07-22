@@ -308,3 +308,12 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Shows a floating share bar anchored to text selected inside a post body
+// (copy link, copy the selection, generate a quote image). Part of the
+// sharing-visibility initiative, so it also requires `sharing_visibility`.
+// Keep the default `false` — GrowthBook ramps it.
+export const featureShareTextSelection = new Feature(
+  'share_text_selection',
+  false,
+);

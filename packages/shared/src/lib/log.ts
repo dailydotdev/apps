@@ -108,6 +108,7 @@ export enum Origin {
   GameCenter = 'game center',
   DevCard = 'devcard',
   CopyMyFeed = 'copy my feed',
+  TextSelection = 'text selection',
 }
 
 export enum LogEvent {
