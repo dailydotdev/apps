@@ -531,6 +531,11 @@ export enum LogEvent {
   SubmitGivebackCauseSuggestionError = 'submit giveback cause suggestion error',
   // Daily homepage
   DailyFeedback = 'daily feedback',
+  // Sharing visibility — celebrations
+  ShareAchievement = 'share achievement',
+  DownloadAchievement = 'download achievement',
+  ShareStreakMilestone = 'share streak milestone',
+  ShareAchievements = 'share achievements',
 }
 
 export enum TargetType {

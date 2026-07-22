@@ -21,6 +21,12 @@ import { useConditionalFeature } from '../../../../hooks/useConditionalFeature';
 import { achievementTrackingWidgetFeature } from '../../../../lib/featureManagement';
 import { shouldShowAchievementTracker } from '../../../../lib/achievements';
 import { useLayoutVariant } from '../../../../hooks/layout/useLayoutVariant';
+import { useShareCelebrations } from '../../../../hooks/useShareCelebrations';
+import { ShareActions } from '../../../../components/share/ShareActions';
+import { useLogContext } from '../../../../contexts/LogContext';
+import { LogEvent, Origin } from '../../../../lib/log';
+import { ReferralCampaignKey } from '../../../../lib/referral';
+import { getAchievementShareLink } from './achievementShare';
 
 const AchievementTrackingWidget = dynamic(() =>
   import('../ProfileWidgets/AchievementTrackingWidget').then(
@@ -88,6 +94,13 @@ export function ProfileAchievements({
     !isAchievementTrackingWidgetLoading &&
     shouldRenderTrackingWidget;
   const { openModal } = useLazyModal();
+  const { logEvent } = useLogContext();
+  const hasAchievements =
+    !isPending && !isError && !!achievements?.length && !!user.username;
+  const isShareEnabled = useShareCelebrations(hasAchievements);
+  const shareLink = user.username
+    ? getAchievementShareLink(user.username)
+    : null;
 
   if (isPending) {
     return (
@@ -163,6 +176,29 @@ export function ProfileAchievements({
           >
             ({unlockedCount}/{totalCount})
           </Typography>
+          {isShareEnabled && !!shareLink && (
+            <ShareActions
+              link={shareLink}
+              text={
+                isOwner
+                  ? 'Check out the achievements I unlocked on daily.dev'
+                  : `Check out the achievements ${user.name} unlocked on daily.dev`
+              }
+              cid={ReferralCampaignKey.ShareProfile}
+              label="Share achievements"
+              emailTitle={`Achievements by ${user.name}`}
+              onShare={(provider) =>
+                logEvent({
+                  event_name: LogEvent.ShareAchievements,
+                  target_id: user.id,
+                  extra: JSON.stringify({
+                    origin: Origin.Achievements,
+                    provider,
+                  }),
+                })
+              }
+            />
+          )}
         </div>
         {loggedUser && !isOwner && (
           <Button

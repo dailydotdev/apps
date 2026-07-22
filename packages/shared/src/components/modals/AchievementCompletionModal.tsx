@@ -10,7 +10,7 @@ import { useActions } from '../../hooks/useActions';
 import { useProfileAchievements } from '../../hooks/profile/useProfileAchievements';
 import { useTrackedAchievement } from '../../hooks/profile/useTrackedAchievement';
 import { ActionType } from '../../graphql/actions';
-import { LogEvent, TargetType } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import type { LazyModalCommonProps, ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
 import { ModalClose } from './common/ModalClose';
@@ -23,6 +23,8 @@ import {
 import { Checkbox } from '../fields/Checkbox';
 import { getTargetCount } from '../../graphql/user/achievements';
 import { sortLockedAchievements } from './achievement/sortAchievements';
+import { useShareCelebrations } from '../../hooks/useShareCelebrations';
+import { AchievementShareActions } from '../../features/profile/components/achievements/AchievementShareActions';
 
 const SPARKLE_DURATION_MS = 4500;
 
@@ -66,6 +68,7 @@ export const AchievementCompletionModal = ({
     }
   };
 
+  const isShareEnabled = useShareCelebrations();
   const [phase, setPhase] = useState<'celebrate' | 'pickNext'>('celebrate');
   const [isTracking, setIsTracking] = useState(false);
   const [showSparkles, setShowSparkles] = useState(true);
@@ -211,6 +214,17 @@ export const AchievementCompletionModal = ({
                   <div className="text-text-invert rounded-14 bg-accent-cabbage-default px-3 py-1 font-bold typo-subhead">
                     +{unlockedAchievement.achievement.points} points
                   </div>
+                  {isShareEnabled && (
+                    <AchievementShareActions
+                      achievement={unlockedAchievement.achievement}
+                      username={user?.username}
+                      name={user?.name}
+                      isOwner
+                      withLabels
+                      origin={Origin.Achievements}
+                      className="mt-1"
+                    />
+                  )}
                 </div>
 
                 <Button
