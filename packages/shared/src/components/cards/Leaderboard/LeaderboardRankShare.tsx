@@ -77,7 +77,7 @@ export function LeaderboardRankCard({
         label="Share your rank"
         onShare={(provider) =>
           logEvent({
-            event_name: LogEvent.ShareLeaderboardRank,
+            event_name: LogEvent.ShareLeaderboard,
             target_id: type,
             extra: JSON.stringify({
               provider,
