@@ -22,6 +22,8 @@ import { anchorDefaultRel } from '../../lib/strings';
 import Link from '../utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useShareBriefingDigest } from '../../hooks/useShareBriefingDigest';
+import { BriefCopyMenu } from './BriefCopyMenu';
 
 export type BriefListItemProps = {
   className?: string;
@@ -36,6 +38,12 @@ export type BriefListItemProps = {
   origin: Origin;
   post: Post;
   targetId: TargetId;
+  /**
+   * Renders the per-item copy menu. Left undefined it resolves from the
+   * `share_briefing_digest` gate; pass it explicitly to pin a state in
+   * Storybook or tests, where GrowthBook is mocked.
+   */
+  showCopyActions?: boolean;
 };
 
 export const BriefListItem = ({
@@ -51,7 +59,10 @@ export const BriefListItem = ({
   origin,
   post,
   targetId,
+  showCopyActions,
 }: BriefListItemProps): ReactElement => {
+  const isShareEnabled = useShareBriefingDigest();
+  const showCopy = showCopyActions ?? isShareEnabled;
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const onPostClick = useOnPostClick({ origin });
@@ -86,7 +97,12 @@ export const BriefListItem = ({
       <div className="hidden items-center mobileXL:flex">
         <BriefGradientIcon secondary={!isRead} size={IconSize.Size48} />
       </div>
-      <div className="flex w-full flex-col gap-1">
+      <div
+        className={classNames(
+          'flex w-full flex-col gap-1',
+          showCopy && 'min-w-0',
+        )}
+      >
         <div className="flex items-center gap-2">
           <Typography
             type={TypographyType.Title3}
@@ -150,6 +166,13 @@ export const BriefListItem = ({
           onAuxClick={(event) => event.button === 1 && trackBriefClick()}
         />
       </Link>
+      {/* Rendered after the full-bleed CardLink overlay, with an explicit
+          z-index, so the menu stays clickable instead of being swallowed by it. */}
+      {showCopy && (
+        <div className="relative z-1 flex shrink-0 items-center">
+          <BriefCopyMenu post={post} origin={origin} />
+        </div>
+      )}
     </article>
   );
 };
