@@ -7,6 +7,7 @@ import SettingsContext, {
   useSettingsContext,
 } from '../../../contexts/SettingsContext';
 import { usePlusSubscription } from '../../../hooks/usePlusSubscription';
+import { useShareBriefingDigest } from '../../../hooks/useShareBriefingDigest';
 import { useViewPost } from '../../../hooks/post/useViewPost';
 import { withPostById } from '../withPostById';
 import PostContentContainer from '../PostContentContainer';
@@ -60,6 +61,9 @@ const DigestPostContentRaw = ({
   const { user, isLoggedIn } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const { subject } = useToastNotification();
+  // The digest post ships with no share affordance today while the brief post
+  // (same header component) has one — this closes that parity gap.
+  const isShareEnabled = useShareBriefingDigest();
   const settingsContext = useSettingsContext();
   // ensure digest feed renders list mode
   const digestSettings = useMemo(
@@ -206,6 +210,7 @@ const DigestPostContentRaw = ({
                 onClose={onClose}
                 origin={origin}
                 contextMenuId="post-widgets-context"
+                showShareButton={isShareEnabled}
               />
             </BriefPostHeader>
             <div className="flex flex-wrap items-center gap-3">
