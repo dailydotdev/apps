@@ -97,13 +97,20 @@ describe('SelectionShareBar flag gate', () => {
 });
 
 describe('SelectionShareBar actions', () => {
-  it('renders the three share actions for a selection', () => {
+  it('renders the share actions for a selection', () => {
     renderComponent();
 
     expect(screen.getByTestId('selectionShareBar')).toBeInTheDocument();
     expect(screen.getByLabelText('Copy link to this post')).toBeInTheDocument();
     expect(screen.getByLabelText('Copy selected text')).toBeInTheDocument();
-    expect(screen.getByLabelText('Generate quote image')).toBeInTheDocument();
+  });
+
+  it('does not offer the quote image until the service renders it', () => {
+    renderComponent();
+
+    expect(
+      screen.queryByLabelText('Generate quote image'),
+    ).not.toBeInTheDocument();
   });
 
   it('copies the post link and shows a toast', async () => {
@@ -147,21 +154,6 @@ describe('SelectionShareBar actions', () => {
       text: `${selection}\n${post.commentsPermalink}`,
     });
     expect(writeText).not.toHaveBeenCalled();
-  });
-
-  it('opens the quote image generator with the selection', async () => {
-    const open = jest.fn();
-    Object.assign(window, { open });
-    renderComponent();
-
-    await act(async () => {
-      fireEvent.click(screen.getByLabelText('Generate quote image'));
-    });
-
-    const [url] = open.mock.calls[0];
-    expect(url).toContain(`image-generator/quote/${post.id}`);
-    expect(url).toContain(encodeURIComponent(selection));
-    expect(clear).toHaveBeenCalled();
   });
 
   it('dismisses on a click outside the bar', async () => {

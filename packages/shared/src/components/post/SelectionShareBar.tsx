@@ -2,7 +2,7 @@ import type { ReactElement, RefObject } from 'react';
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import type { Post } from '../../graphql/posts';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { CopyIcon, ImageIcon, LinkIcon } from '../icons';
+import { CopyIcon, LinkIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RootPortal } from '../tooltips/Portal';
 import { useCopyText } from '../../hooks/useCopy';
@@ -38,7 +38,12 @@ const FLIP_THRESHOLD = 64;
 const VIEWPORT_MARGIN = 8;
 const FALLBACK_BAR_WIDTH = 160;
 
-const buildQuoteImageUrl = (postId: string, text: string): string => {
+// The quote-image route renders headlessly for the screenshot service, so
+// there is no user-facing entry point yet: sending someone to the raw
+// generator page lands them on a bare 1200x630 bitmap template. Exported for
+// the image-generator route and for the follow-up that turns this into a
+// previewable, downloadable share once the service serves the PNG.
+export const buildQuoteImageUrl = (postId: string, text: string): string => {
   const quote =
     text.length > MAX_QUOTE_LENGTH
       ? `${text.slice(0, MAX_QUOTE_LENGTH).trimEnd()}…`
@@ -157,16 +162,6 @@ function SelectionShareBarContent({
     copyText({ textToCopy: text, message: '✅ Copied text to clipboard' });
   };
 
-  const onGenerateImage = () => {
-    logShare(ShareProvider.QuoteImage);
-    globalThis?.window?.open(
-      buildQuoteImageUrl(post.id, text),
-      '_blank',
-      'noopener,noreferrer',
-    );
-    dismiss();
-  };
-
   return (
     <RootPortal>
       <div
@@ -197,16 +192,6 @@ function SelectionShareBarContent({
             aria-label="Copy selected text"
             icon={<CopyIcon />}
             onClick={onCopyText}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-          />
-        </Tooltip>
-        <Tooltip content="Generate quote image">
-          <Button
-            type="button"
-            aria-label="Generate quote image"
-            icon={<ImageIcon />}
-            onClick={onGenerateImage}
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
           />
