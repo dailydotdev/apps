@@ -67,7 +67,7 @@ const renderComponent = (gb?: GrowthBook): RenderResult => {
 it('keeps the original heading and renders no share control when flags are off', () => {
   renderComponent();
 
-  expect(screen.queryByLabelText('Copy link')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Share this archive')).not.toBeInTheDocument();
   const heading = screen.getByRole('heading', { level: 1 });
   expect(heading).toHaveClass('mx-4 font-bold typo-title2 tablet:typo-title1', {
     exact: true,
@@ -79,7 +79,7 @@ it('copies the canonical archive index url and logs when flags are on', async ()
     gbWithFeatures({ sharing_visibility: true, share_discovery: true }),
   );
 
-  const controls = screen.getAllByLabelText('Copy link');
+  const controls = screen.getAllByLabelText('Share this archive');
   expect(controls).toHaveLength(1);
 
   await act(async () => {

@@ -6,6 +6,7 @@ import { useShareDiscovery } from '../../hooks/useShareDiscovery';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
 import { webappUrl } from '../../lib/constants';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 interface ExploreFeedShareButtonProps {
   /** Bare app path of the active Explore sort, e.g. `/posts/upvoted`. */
@@ -38,7 +39,8 @@ export function ExploreFeedShareButton({
       text="Explore what millions of developers are reading on daily.dev"
       // Feed cards ship their own per-post "Copy link" buttons, so the header
       // control needs a distinct accessible name.
-      label="Copy link to feed"
+      label="Share this feed"
+      cid={ReferralCampaignKey.Generic}
       buttonVariant={buttonVariant}
       buttonSize={buttonSize}
       className={className}

@@ -22,6 +22,7 @@ import { useShareDiscovery } from '../../hooks/useShareDiscovery';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
 import { webappUrl } from '../../lib/constants';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 interface ArchiveFeedPageProps {
   scopeType: ArchiveScopeInfo['scopeType'];
@@ -141,6 +142,8 @@ export function ArchiveFeedPage({
           <ShareActions
             link={`${webappUrl}${archivePath.slice(1)}`}
             text={getArchiveDescription(scopeName, periodType, year, month)}
+            label="Share this archive"
+            cid={ReferralCampaignKey.Generic}
             buttonSize={ButtonSize.Medium}
             onShare={(provider) =>
               logEvent({

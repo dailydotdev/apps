@@ -20,6 +20,7 @@ import { useShareDiscovery } from '../../hooks/useShareDiscovery';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent, Origin } from '../../lib/log';
 import { webappUrl } from '../../lib/constants';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 interface ArchiveIndexPageProps {
   scopeType: ArchiveScopeInfo['scopeType'];
@@ -194,6 +195,8 @@ export function ArchiveIndexPage({
           <ShareActions
             link={`${webappUrl}${indexPath.slice(1)}`}
             text={`The most upvoted ${scopeName} posts by month and year, curated by the daily.dev community.`}
+            label="Share this archive"
+            cid={ReferralCampaignKey.Generic}
             buttonSize={ButtonSize.Medium}
             onShare={(provider) =>
               logEvent({

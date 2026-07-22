@@ -71,5 +71,5 @@ it('does not render the copy-link control on non-explore feed pages with flags o
 
   const elements = await screen.findAllByTestId('postItem');
   expect(elements.length).toBeTruthy();
-  expect(screen.queryByLabelText('Copy link to feed')).not.toBeInTheDocument();
+  expect(screen.queryByLabelText('Share this feed')).not.toBeInTheDocument();
 });

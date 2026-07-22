@@ -67,9 +67,7 @@ describe('FeedExploreHeader share affordance flag-off', () => {
   it('renders no share control and keeps the original right-side span', () => {
     renderComponent();
 
-    expect(
-      screen.queryByLabelText('Copy link to feed'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Share this feed')).not.toBeInTheDocument();
     // The period dropdown trigger is the only button; its wrapper span must
     // keep the pre-initiative class list so flag-off DOM stays identical.
     const dropdownTrigger = screen.getByRole('button');
@@ -79,17 +77,13 @@ describe('FeedExploreHeader share affordance flag-off', () => {
   it('renders no share control when only the master flag is on', () => {
     renderComponent(gbWithFeatures({ sharing_visibility: true }));
 
-    expect(
-      screen.queryByLabelText('Copy link to feed'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Share this feed')).not.toBeInTheDocument();
   });
 
   it('renders no share control when only share_discovery is on', () => {
     renderComponent(gbWithFeatures({ share_discovery: true }));
 
-    expect(
-      screen.queryByLabelText('Copy link to feed'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Share this feed')).not.toBeInTheDocument();
   });
 });
 
@@ -102,14 +96,14 @@ describe('FeedExploreHeader share affordance flag-on', () => {
   it('renders exactly one copy-link control', () => {
     renderComponent(gb);
 
-    expect(screen.getAllByLabelText('Copy link to feed')).toHaveLength(1);
+    expect(screen.getAllByLabelText('Share this feed')).toHaveLength(1);
   });
 
   it('copies the canonical explore url, toasts and logs on tap', async () => {
     renderComponent(gb);
 
     await act(async () => {
-      fireEvent.click(screen.getByLabelText('Copy link to feed'));
+      fireEvent.click(screen.getByLabelText('Share this feed'));
     });
 
     // webappUrl is '/' under Jest, so the canonical link is the bare path
@@ -141,7 +135,7 @@ describe('FeedExploreHeader share affordance flag-on', () => {
     renderComponent(gb);
 
     await act(async () => {
-      fireEvent.click(screen.getByLabelText('Copy link to feed'));
+      fireEvent.click(screen.getByLabelText('Share this feed'));
     });
 
     await waitFor(() =>
