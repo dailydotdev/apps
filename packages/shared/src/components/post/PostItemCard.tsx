@@ -10,7 +10,9 @@ import {
   UpvoteIcon,
   DownvoteIcon,
   CopyIcon,
+  LinkIcon,
 } from '../icons';
+import { useShareCopyIcon } from '../../hooks/useShareCopyIcon';
 import classed from '../../lib/classed';
 import PostMetadata from '../cards/common/PostMetadata';
 import { ProfileImageSize, ProfilePicture } from '../ProfilePicture';
@@ -91,6 +93,9 @@ export default function PostItemCard({
   );
 
   const title = post?.title || post?.sharedPost?.title;
+  // The row action copies a URL, so it takes the link glyph in control and
+  // follows the same `share_copy_icon` ramp as the other copy-link surfaces.
+  const showCopyIcon = useShareCopyIcon();
 
   // Single tap: native share sheet on mobile, copy + toast elsewhere. History
   // rows are real posts, so the normalized SharePost event applies. A missing
@@ -212,7 +217,13 @@ export default function PostItemCard({
                     size={ButtonSize.Small}
                     variant={ButtonVariant.Tertiary}
                     aria-label="Copy link"
-                    icon={<CopyIcon secondary={copyingLink} />}
+                    icon={
+                      showCopyIcon ? (
+                        <CopyIcon secondary={copyingLink} />
+                      ) : (
+                        <LinkIcon />
+                      )
+                    }
                     onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
                       e.preventDefault();
