@@ -3,12 +3,13 @@ import type { SidebarMenuItem } from '../common';
 import { DefaultSquadIcon } from '../../icons';
 import { SquadImage } from '../../squads/SquadImage';
 import { SquadFavoriteButton } from '../../squads/SquadFavoriteButton';
+import { SquadShortcutPinButton } from '../SquadShortcutPinButton';
 import { webappUrl } from '../../../lib/constants';
 import type { Squad } from '../../../graphql/sources';
 
-// Shared squad row for the sidebar (the full Squads list and the Home
-// "Pinned" section render identical rows). `asPin` switches the favorite
-// button to the v2 pin icon/label.
+// Shared squad row for the sidebar. `asPin` (v2) swaps the backend "favorite"
+// star for a pin that adds the squad to the sidebar shortcuts dock; v1 keeps
+// the favorite star.
 export const createSquadMenuItem = (
   squad: Squad,
   asPin: boolean,
@@ -24,6 +25,11 @@ export const createSquadMenuItem = (
     title: name,
     path: `${webappUrl}squads/${handle}`,
     itemClassName: 'group/squad-row',
-    rightIcon: () => <SquadFavoriteButton squad={squad} asPin={asPin} />,
+    rightIcon: () =>
+      asPin ? (
+        <SquadShortcutPinButton squad={squad} />
+      ) : (
+        <SquadFavoriteButton squad={squad} />
+      ),
   };
 };

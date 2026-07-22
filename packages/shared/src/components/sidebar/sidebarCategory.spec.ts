@@ -27,6 +27,45 @@ describe('getSidebarCategoryForPath', () => {
       SidebarCategory.Notifications,
     );
   });
+
+  it('maps profile-panel pages to the Profile category', () => {
+    // The avatar panel hosts these feeds/activity, so the panel should stay
+    // on Profile while the user browses them.
+    expect(getSidebarCategoryForPath('/following')).toBe(
+      SidebarCategory.Profile,
+    );
+    expect(getSidebarCategoryForPath('/history')).toBe(SidebarCategory.Profile);
+    expect(getSidebarCategoryForPath('/analytics')).toBe(
+      SidebarCategory.Profile,
+    );
+    // Bookmarks now live in the Profile panel rather than a Saved rail tab.
+    expect(getSidebarCategoryForPath('/bookmarks')).toBe(
+      SidebarCategory.Profile,
+    );
+    expect(getSidebarCategoryForPath('/bookmarks/later')).toBe(
+      SidebarCategory.Profile,
+    );
+  });
+
+  it('falls back to the Main (Explore) category for feed pages', () => {
+    expect(getSidebarCategoryForPath('/posts')).toBe(SidebarCategory.Main);
+    expect(getSidebarCategoryForPath('/')).toBe(SidebarCategory.Main);
+    // Happening Now lives under Explore, not Profile.
+    expect(getSidebarCategoryForPath('/highlights')).toBe(SidebarCategory.Main);
+  });
+
+  it('matches the leading segment, not a substring', () => {
+    // A tag/source whose slug contains a profile keyword must stay on Explore,
+    // not jump to the Profile panel.
+    expect(getSidebarCategoryForPath('/tags/jobs')).toBe(SidebarCategory.Main);
+    expect(getSidebarCategoryForPath('/sources/history-channel')).toBe(
+      SidebarCategory.Main,
+    );
+    // A category's own settings shortcut keeps that category (not Settings).
+    expect(getSidebarCategoryForPath('/notifications/settings')).toBe(
+      SidebarCategory.Notifications,
+    );
+  });
 });
 
 describe('isSidebarSettingsPath', () => {

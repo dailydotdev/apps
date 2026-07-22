@@ -1,7 +1,11 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { SidebarMenuItem } from '../common';
-import { ListIcon } from '../common';
+import {
+  createSidebarAddItem,
+  createSidebarSeparatorItem,
+  ListIcon,
+} from '../common';
 import { ArrowIcon, BookmarkIcon, BriefIcon } from '../../icons';
 import { Section } from '../Section';
 import { briefingUrl, webappUrl } from '../../../lib/constants';
@@ -22,6 +26,8 @@ export const BookmarkSection = ({
   const briefUIFeatureValue = useFeature(briefUIFeature);
   const { folders } = useBookmarkFolderList();
   const handleAddFolder = useAddBookmarkFolder();
+  // v2 rail panels (`compact`) also expose the add action as a bottom row.
+  const { compact } = defaultRenderSectionProps;
 
   const isLaptop = useViewSize(ViewSize.Laptop);
   const rightIcon = !isLaptop
@@ -59,6 +65,12 @@ export const BookmarkSection = ({
       requiresLogin: true,
       rightIcon,
     },
+    // New folder sits below the fixed entries; the user's folders list builds
+    // up beneath it, separated by a border (mirrors the Squads panel).
+    compact && createSidebarAddItem('New folder', { onClick: handleAddFolder }),
+    (folders?.length ?? 0) > 0 &&
+      compact &&
+      createSidebarSeparatorItem('folders-divider'),
     ...(folders ?? []).map((folder) => ({
       icon:
         folder.icon ||
@@ -83,7 +95,9 @@ export const BookmarkSection = ({
       isItemsButton={isItemsButton}
       flag={SidebarSettingsFlags.BookmarksExpanded}
       isAlwaysOpenOnMobile
-      onAdd={handleAddFolder}
+      // v2 (`compact`) uses the leading "New folder" row instead of a header
+      // "+"; v1 keeps its header add button.
+      onAdd={compact ? undefined : handleAddFolder}
     />
   );
 };

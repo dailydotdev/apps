@@ -1,19 +1,32 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import { useRouter } from 'next/router';
 import { PageHeader } from '../layout/PageHeader';
-import { ExploreSectionTabs } from './ExploreSectionTabs';
 
-// Shared v2 header for the Explore hub's directory pages (Tags, Sources,
-// Leaderboard, Best of). Keeps the section-tab strip and its height
-// (`!py-0`) consistent in one place. Optional children render as header
-// actions (e.g. the "Suggest source" button).
+// The Explore hub sections live in the sidebar's Explore panel, so the page
+// header is just the standard title strip (same as Analytics / Settings) —
+// no breadcrumb, no icon. The title is derived from the route.
+const hubTitles: { match: (path: string) => boolean; label: string }[] = [
+  { match: (path) => path.startsWith('/sources'), label: 'Sources' },
+  { match: (path) => path.startsWith('/users'), label: 'Leaderboard' },
+];
+
+// Shared v2 header for the Explore hub's directory pages (Sources, Leaderboard).
+// Optional children render as header actions (e.g. "Suggest source").
 export function ExploreHubHeader({
   children,
 }: {
   children?: ReactNode;
 }): ReactElement {
+  const router = useRouter();
+  // asPath-first (the resolved URL) — consistent with FeedExploreTabs and
+  // correct for dynamic routes where pathname is the template.
+  const path = (router.asPath || router.pathname || '').split('?')[0];
+  const title =
+    hubTitles.find((entry) => entry.match(path))?.label ?? 'Explore';
+
   return (
-    <PageHeader title={<ExploreSectionTabs />} className="!py-0">
+    <PageHeader title={title} className="!py-0">
       {children}
     </PageHeader>
   );

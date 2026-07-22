@@ -110,6 +110,85 @@
   animation: slide-down 0.3s ease-out;
 }
 
+/*
+ * Rail dropdown feel (More / Support / Settings / customize tray / hover
+ * panels). Enter: fade + a small slide out of the rail + de-blur, on the
+ * GPU-friendly properties only (transform, opacity, filter) so it never
+ * triggers layout/paint. `will-change` pre-promotes the layer so the first
+ * frame doesn't stutter (most noticeable in Safari). Exit is deliberately more
+ * subtle than the enter (opacity + blur, no slide) — exits should be quieter.
+ */
+@keyframes rail-popup-in {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+    filter: blur(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes rail-popup-out {
+  from {
+    opacity: 1;
+    filter: blur(0);
+  }
+
+  to {
+    opacity: 0;
+    filter: blur(3px);
+  }
+}
+
+.animate-rail-popup-in {
+  transform-origin: left center;
+  will-change: transform, opacity, filter;
+  animation: rail-popup-in 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/*
+ * Radix HoverCard panels expose data-state, so they can animate in AND out.
+ * Radix/Popper positions these with an inline transform, so we must NOT animate
+ * transform here (it would fight the positioning) — fade + de-blur only, which
+ * also keeps fast tab-to-tab previews crisp rather than sliding around.
+ */
+@keyframes rail-popup-panel-in {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+.rail-popup-panel {
+  will-change: opacity, filter;
+}
+
+.rail-popup-panel[data-state='open'] {
+  animation: rail-popup-panel-in 150ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.rail-popup-panel[data-state='closed'] {
+  animation: rail-popup-out 120ms ease-in both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rail-popup-in,
+  .rail-popup-panel[data-state='open'],
+  .rail-popup-panel[data-state='closed'] {
+    animation: none;
+    will-change: auto;
+  }
+}
+
 @keyframes live-room-reaction-fly {
   0% {
     opacity: 0;

@@ -50,9 +50,9 @@ export function TagPageNavbar({
         <SquadDirectoryNavbarItem
           buttonSize={ButtonSize.Small}
           isActive={!activeTag}
-          label="Explore"
+          label="All tags"
           path={tagsUrl}
-          ariaLabel="Explore tags"
+          ariaLabel="All tags"
         />
         {tags.map((tag) => (
           <SquadDirectoryNavbarItem
