@@ -26,11 +26,15 @@ export const PostOnboardingActivation = (): ReactElement | null => {
       router.query?.[POST_ONBOARDING_PREVIEW_QUERY],
     );
 
+  // Never show on the onboarding flow itself — that's where the CTA leads.
+  const isOnboardingRoute = router.pathname?.startsWith('/onboarding');
+
   // Required step: show on every page for a signed-in user until they finish
   // setting up their feed. No dismissal.
   const shouldShow =
-    isPreviewMode ||
-    (!!user?.id && isOnboardingActionsReady && !isOnboardingComplete);
+    !isOnboardingRoute &&
+    (isPreviewMode ||
+      (!!user?.id && isOnboardingActionsReady && !isOnboardingComplete));
 
   useEffect(() => {
     if (!shouldShow || hasLoggedImpression.current) {
@@ -62,7 +66,5 @@ export const PostOnboardingActivation = (): ReactElement | null => {
     });
   };
 
-  return (
-    <PostOnboardingActivationView className="mb-4" onCtaClick={onBuildFeed} />
-  );
+  return <PostOnboardingActivationView onCtaClick={onBuildFeed} />;
 };

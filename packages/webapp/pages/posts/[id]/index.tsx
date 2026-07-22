@@ -52,7 +52,6 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
-import { PostOnboardingActivation } from '@dailydotdev/shared/src/components/post/PostOnboardingActivation';
 import {
   isPostOnboardingPreviewEnabled,
   POST_ONBOARDING_PREVIEW_QUERY,
@@ -297,7 +296,6 @@ export const PostPage = ({
             <link rel="preload" as="image" href={post?.image} />
           </Head>
           <PostSEOSchema post={post} topComments={topComments} />
-          <PostOnboardingActivation />
           {showRedesign ? (
             <div className="mx-auto w-full max-w-[63.75rem]">
               <PostFocusCard post={post} origin={Origin.ArticlePage} />

@@ -61,7 +61,7 @@ export const PostOnboardingActivationView = ({
 
       {/* Content is capped and centered so it sits mid-page instead of
        * stretching across the full-width bar. */}
-      <div className="relative mx-auto flex max-w-[63.75rem] flex-col gap-3 px-4 py-4 tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-6 tablet:px-6">
+      <div className="relative mx-auto flex w-full max-w-[63.75rem] flex-col gap-3 px-4 py-4 tablet:flex-row tablet:items-center tablet:gap-10 tablet:px-6">
         <div className="flex min-w-0 flex-1 items-center gap-3.5">
           {/* Progress ring: setup started, not finished. */}
           <span
