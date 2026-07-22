@@ -23,7 +23,7 @@ const meta: Meta<typeof PostOnboardingActivationView> = {
   },
   decorators: [
     (Story) => (
-      <div className="min-h-64 bg-background-default p-6">
+      <div className="min-h-64 bg-background-default">
         <Story />
       </div>
     ),

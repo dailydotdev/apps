@@ -39,12 +39,12 @@ export const PostOnboardingActivationView = ({
     <aside
       aria-label="Personalize your feed"
       className={classNames(
-        'relative w-full overflow-hidden border-y bg-raw-pepper-90 shadow-2 laptop:rounded-16 laptop:border',
+        'relative w-full overflow-hidden border-b bg-raw-pepper-90 shadow-2',
         styles.border,
         className,
       )}
     >
-      {/* Soft brand glow, centered to balance the centered content. */}
+      {/* Soft brand glow, centered behind the content. */}
       <div
         className={classNames(
           'pointer-events-none absolute inset-0',
@@ -59,8 +59,10 @@ export const PostOnboardingActivationView = ({
         )}
       />
 
-      <div className="relative mx-auto flex max-w-[40rem] flex-col items-center gap-3 px-5 py-6 text-center tablet:py-7">
-        <div className="flex items-center gap-2.5">
+      {/* Content is capped and centered so it sits mid-page instead of
+       * stretching across the full-width bar. */}
+      <div className="relative mx-auto flex max-w-[63.75rem] flex-col gap-3 px-4 py-4 tablet:flex-row tablet:items-center tablet:justify-between tablet:gap-6 tablet:px-6">
+        <div className="flex min-w-0 flex-1 items-center gap-3.5">
           {/* Progress ring: setup started, not finished. */}
           <span
             className="relative flex size-11 shrink-0 items-center justify-center"
@@ -92,35 +94,33 @@ export const PostOnboardingActivationView = ({
               {progress}/{steps}
             </span>
           </span>
-          <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Title3}
-            bold
-            className="text-white [text-wrap:balance] tablet:!typo-title2"
-          >
-            {title}
-          </Typography>
+          <div className="min-w-0 flex-1">
+            <Typography
+              tag={TypographyTag.H2}
+              type={TypographyType.Body}
+              bold
+              className="text-white [text-wrap:balance]"
+            >
+              {title}
+            </Typography>
+            <Typography
+              tag={TypographyTag.P}
+              type={TypographyType.Footnote}
+              className={classNames(
+                'mt-0.5 [text-wrap:pretty]',
+                styles.description,
+              )}
+            >
+              {description}
+            </Typography>
+          </div>
         </div>
-
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Callout}
-          className={classNames(
-            'max-w-[34rem] [text-wrap:pretty]',
-            styles.description,
-          )}
-        >
-          {description}
-        </Typography>
 
         <Button
           type="button"
           variant={ButtonVariant.Primary}
-          size={ButtonSize.Large}
-          className={classNames(
-            'mt-1 w-full max-w-xs tablet:w-auto',
-            styles.cta,
-          )}
+          size={ButtonSize.Medium}
+          className={classNames('w-full shrink-0 tablet:w-auto', styles.cta)}
           onClick={onCtaClick}
         >
           {ctaLabel}
