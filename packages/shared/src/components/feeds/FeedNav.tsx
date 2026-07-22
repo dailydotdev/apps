@@ -19,6 +19,8 @@ import {
   DEFAULT_ALGORITHM_KEY,
 } from '../layout/common';
 import { MobileFeedActions } from './MobileFeedActions';
+import { CopyMyFeedButton } from './CopyMyFeedButton';
+import { useCopyMyFeedEnabled } from '../../hooks/feed/useCopyMyFeedEnabled';
 import { useFeedName } from '../../hooks/feed/useFeedName';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { Dropdown } from '../fields/Dropdown';
@@ -71,6 +73,10 @@ function FeedNav(): ReactElement | null {
   // header/rail; the tablet feed header is the only gap, so it renders its own.
   // JS-gated (not CSS) so it never mounts alongside the other placements.
   const isTablet = isBelowLaptop && !isMobile;
+  // The copy-my-feed button widens the tablet corner overlay, so the last tab
+  // needs a larger clearance margin — but only when the flag is on, keeping
+  // flag-off pixel-identical.
+  const isCopyMyFeedEnabled = useCopyMyFeedEnabled(isTablet);
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
     shouldEvaluate: isBelowLaptop,
@@ -172,7 +178,12 @@ function FeedNav(): ReactElement | null {
             tabListProps={{
               className: {
                 indicator: '!w-6',
-                item: 'px-1 tablet:last-of-type:mr-24',
+                item: classNames(
+                  'px-1',
+                  isCopyMyFeedEnabled
+                    ? 'tablet:last-of-type:mr-36'
+                    : 'tablet:last-of-type:mr-24',
+                ),
               },
               autoScrollActive: true,
             }}
@@ -224,6 +235,9 @@ function FeedNav(): ReactElement | null {
           </StickyNavIconWrapper>
         )}
         <div className="hidden items-center gap-2 bg-background-default tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:flex laptop:hidden">
+          {/* JS-gated like the giveback entry: phones already mount the button
+              via MobileFeedActions, so don't mount a hidden duplicate here. */}
+          {isTablet && <CopyMyFeedButton />}
           {isTablet && <GivebackGiftEntry compact />}
           <NotificationsBell compact />
         </div>

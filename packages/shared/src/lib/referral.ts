@@ -6,4 +6,5 @@ export enum ReferralCampaignKey {
   ShareProfile = 'share_profile',
   ShareSource = 'share_source',
   ShareTag = 'share_tag',
+  CopyMyFeed = 'copy_my_feed',
 }
