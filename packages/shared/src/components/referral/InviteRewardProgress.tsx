@@ -103,7 +103,7 @@ export const InviteRewardProgress = ({
     return (
       <div
         className={classNames(
-          'w-full rounded-16 border border-action-plus-default bg-action-plus-float p-3',
+          'w-full rounded-16 bg-action-plus-float p-3',
           className,
         )}
       >
