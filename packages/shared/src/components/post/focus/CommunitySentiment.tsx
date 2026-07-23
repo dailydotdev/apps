@@ -240,26 +240,32 @@ export const CommunitySentiment = ({
         )}
       >
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 text-text-tertiary">
-            <DiscussIcon size={IconSize.Size16} />
+          {/* Shrinkable so the stat never overflows the card on mobile; the
+              "Updated Xh ago" segment truncates first. */}
+          <span className="flex min-w-0 flex-1 items-center gap-1.5 text-text-tertiary">
+            <DiscussIcon size={IconSize.Size16} className="shrink-0" />
             <Typography
               tag={TypographyTag.H2}
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
               bold
+              className="shrink-0"
             >
               Community take
             </Typography>
             {updatedAt && (
               <>
                 <span aria-hidden>·</span>
-                <Typography type={TypographyType.Caption1}>
+                <Typography
+                  type={TypographyType.Caption1}
+                  className="min-w-0 truncate"
+                >
                   Updated <RelativeTime dateTime={updatedAt} />
                 </Typography>
               </>
             )}
           </span>
-          <span className="ml-auto flex items-baseline gap-1">
+          <span className="ml-auto flex shrink-0 items-baseline gap-1">
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Primary}
