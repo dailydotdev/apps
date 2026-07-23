@@ -146,7 +146,11 @@ export const SplitShareButton = ({
               />
             }
             aria-label={dropdownLabel}
-            pressed={open}
+            // Deliberately no `pressed`: it renders `aria-pressed`, which the
+            // button styles paint as a held-down fill, and the rotating chevron
+            // is the only open-state signal this control wants. Radix already
+            // puts `aria-expanded` on the trigger, which is the correct
+            // semantic for a menu anyway.
             // This half keeps its own DS border as the divider, so it is full
             // height and matches the outer edge in width, colour and hover
             // transition by construction. Borderless variants draw their own —
@@ -161,7 +165,7 @@ export const SplitShareButton = ({
         <DropdownMenuContent align="end" className="w-80 p-4">
           {/* DropdownMenuContent wraps its children in a scroll container, so
               the grid has to live inside that wrapper, not on the content. */}
-          <div className="flex flex-wrap justify-center gap-2">{menu}</div>
+          <div className="flex flex-wrap justify-start gap-2">{menu}</div>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

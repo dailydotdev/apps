@@ -134,22 +134,15 @@ export function ShareActions({
     );
   }
 
-  const shareList = (
-    <>
-      <Typography type={TypographyType.Callout} bold className="w-full">
-        Share
-      </Typography>
-      {list}
-    </>
-  );
-
   if (variant === 'split') {
     return (
       <SplitShareButton
         label={label}
         dropdownLabel={dropdownLabel}
         triggerText={triggerText}
-        menu={shareList}
+        // No "Share" heading here, unlike the popover: the control it drops
+        // from is already labelled, so the heading would just repeat it.
+        menu={list}
         copied={copying}
         onCopy={onCopy}
         variant={buttonVariant}
@@ -204,7 +197,10 @@ export function ShareActions({
         className="flex w-80 flex-wrap justify-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
         {...hoverProps}
       >
-        {shareList}
+        <Typography type={TypographyType.Callout} bold className="w-full">
+          Share
+        </Typography>
+        {list}
       </PopoverContent>
     </Popover>
   );
