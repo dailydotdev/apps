@@ -11,18 +11,19 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { cloudinaryCharmGiveback } from '../../../lib/image';
 import { webappUrl } from '../../../lib/constants';
+import { cloudinaryCharmGiveback } from '../../../lib/image';
 
 interface GivebackInviteCardProps {
   onClick?: () => void;
   className?: string;
 }
 
-// Cross-promo into /giveback, wearing the same treatment as the giveback
-// founding-reward card: a 1px gradient frame over an opaque base washed with
-// the same gradient at a true 8% via color-mix (Tailwind's `/opacity`
-// modifier doesn't take on these token gradient stops).
+// Cross-promo into /giveback for surfaces outside the campaign (today: the
+// invite settings page). It wears the same treatment as the founding-reward
+// card in GivebackFoundingAward: a 1px gradient frame over an opaque base
+// washed with the same gradient at a true 8% via color-mix (Tailwind's
+// `/opacity` modifier doesn't take on these token gradient stops).
 export const GivebackInviteCard = ({
   onClick,
   className,
@@ -34,7 +35,7 @@ export const GivebackInviteCard = ({
     )}
   >
     <div
-      className="flex flex-col items-start gap-3 rounded-[15px] bg-background-default p-4 tablet:flex-row tablet:items-center"
+      className="flex flex-col items-start gap-3 rounded-[0.9375rem] bg-background-default p-4 tablet:flex-row tablet:items-center"
       style={{
         backgroundImage:
           'linear-gradient(to right, color-mix(in srgb, var(--theme-accent-avocado-default) 8%, transparent), color-mix(in srgb, var(--theme-accent-cabbage-default) 8%, transparent), color-mix(in srgb, var(--theme-accent-cheese-default) 8%, transparent))',
@@ -66,16 +67,20 @@ export const GivebackInviteCard = ({
           Explore Giveback
         </Button>
       </div>
-      {/* The charm artwork sits on black; screen-blend drops the black on the
-          dark card. */}
+      {/* Not GivebackMascot: its `h-44 tablet:h-56` is baked into the same
+          class string a caller would override, and class names here are
+          concatenated rather than merged, so the hero size always wins. This
+          card needs a compact charm, so it sizes its own. */}
       <span className="relative mx-auto flex size-24 shrink-0 items-center justify-center tablet:mx-0">
         <span
           aria-hidden
           className="bg-accent-cabbage-default/25 absolute inset-0 m-auto size-3/4 rounded-full blur-2xl motion-safe:animate-glow-pulse"
         />
+        {/* The render sits on solid black; mix-blend-screen drops the black so
+            the charm reads as floating on the card. */}
         <img
           src={cloudinaryCharmGiveback}
-          alt="daily.dev Giveback charm"
+          alt=""
           loading="lazy"
           className="relative size-full select-none object-contain mix-blend-screen"
         />

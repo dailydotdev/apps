@@ -3,7 +3,7 @@ import nock from 'nock';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -13,7 +13,12 @@ import {
   REFERRED_USERS_QUERY,
 } from '@dailydotdev/shared/src/graphql/users';
 import type { Feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  featureGiveback,
+  featureReferralPlusReward,
+} from '@dailydotdev/shared/src/lib/featureManagement';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 
 import AccountInvitePage from '../pages/settings/invite';
@@ -79,22 +84,35 @@ const mockReferralCampaign = (referredUsersCount: number) => {
   });
 };
 
-const mockReferredUsers = () => {
+const referredUser = (id: string, username: string) => ({
+  id,
+  name: username,
+  username,
+  image: `https://daily.dev/${username}.jpg`,
+  permalink: `https://app.daily.dev/${username}`,
+  createdAt: '2026-05-04T10:00:00.000Z',
+  reputation: 10,
+});
+
+const mockReferredUsers = (users: ReturnType<typeof referredUser>[] = []) => {
   mockGraphQL({
     request: { query: REFERRED_USERS_QUERY, variables: { after: '' } },
     result: {
       data: {
         referredUsers: {
           pageInfo: { endCursor: null, hasNextPage: false },
-          edges: [],
+          edges: users.map((node) => ({ node })),
         },
       },
     },
   });
 };
 
-const renderComponent = (user: LoggedUser = loggedUser): RenderResult => {
-  mockReferredUsers();
+const renderComponent = (
+  user: LoggedUser = loggedUser,
+  users: ReturnType<typeof referredUser>[] = [],
+): RenderResult => {
+  mockReferredUsers(users);
 
   return render(
     <QueryClientProvider client={client}>
@@ -120,7 +138,20 @@ const renderComponent = (user: LoggedUser = loggedUser): RenderResult => {
   );
 };
 
+it('should not promise the Plus reward while the flag is off', async () => {
+  mockedFeatures.set(featureReferralPlusReward, false);
+  mockReferralCampaign(2);
+  renderComponent();
+
+  expect(await screen.findByText('Grow the community')).toBeInTheDocument();
+  expect(
+    screen.queryByText('Invite 3 friends, get 1 month of Plus'),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByText('2 of 3 friends joined')).not.toBeInTheDocument();
+});
+
 it('should render the 3-invites promo with the progress at zero', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
   mockReferralCampaign(0);
   renderComponent();
 
@@ -132,6 +163,7 @@ it('should render the 3-invites promo with the progress at zero', async () => {
 });
 
 it('should reflect partial progress from the referral campaign', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
   mockReferralCampaign(2);
   renderComponent();
 
@@ -139,6 +171,7 @@ it('should reflect partial progress from the referral campaign', async () => {
 });
 
 it('should show the unlocked state once three friends joined', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
   mockReferralCampaign(3);
   renderComponent();
 
@@ -146,18 +179,49 @@ it('should show the unlocked state once three friends joined', async () => {
     await screen.findByText('3 of 3 friends joined — Plus unlocked'),
   ).toBeInTheDocument();
   expect(
-    screen.getByText('3 friends joined. Your free month of Plus is unlocked.'),
+    screen.getByText(/Your free month of Plus is unlocked/),
   ).toBeInTheDocument();
 });
 
-it('should link to the giveback page when the feature is enabled', async () => {
+it('should keep the unlocked copy count-agnostic beyond the goal', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
+  mockReferralCampaign(12);
+  renderComponent();
+
+  expect(
+    await screen.findByText('3 of 3 friends joined — Plus unlocked'),
+  ).toBeInTheDocument();
+  expect(screen.queryByText(/12 of 3/)).not.toBeInTheDocument();
+});
+
+it('should fill the progress slots with the referred users avatars', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
+  mockReferralCampaign(2);
+  renderComponent(loggedUser, [
+    referredUser('ref-1', 'idakern'),
+    referredUser('ref-2', 'ravimenon'),
+  ]);
+
+  await screen.findByText('2 of 3 friends joined');
+  await waitFor(() => {
+    expect(screen.getAllByAltText("idakern's profile")).not.toHaveLength(0);
+  });
+  expect(screen.getAllByAltText("ravimenon's profile")).not.toHaveLength(0);
+});
+
+it('should link to the giveback page and log the click when enabled', async () => {
   mockedFeatures.set(featureGiveback, true);
   mockReferralCampaign(0);
   renderComponent();
 
   expect(await screen.findByText('More ways to give back')).toBeInTheDocument();
-  const cta = screen.getByText('Explore Giveback').closest('a');
-  expect(cta).toHaveAttribute('href', expect.stringContaining('giveback'));
+  const cta = screen.getByRole('link', { name: 'Explore Giveback' });
+  expect(cta).toHaveAttribute('href', `${webappUrl}giveback`);
+
+  fireEvent.click(cta);
+  expect(logEvent).toHaveBeenCalledWith(
+    expect.objectContaining({ event_name: LogEvent.ClickGivebackGiftEntry }),
+  );
 });
 
 it('should hide the giveback section when the feature is disabled', async () => {

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import {
   ReferralCampaignKey,
   useReferralCampaign,
@@ -31,7 +31,7 @@ import {
 } from '@dailydotdev/shared/src/lib/log';
 import type { ShareProvider } from '@dailydotdev/shared/src/lib/share';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
-import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
+import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral/InviteLinkInput';
 import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
 import type { NextSeoProps } from 'next-seo';
 import {
@@ -43,12 +43,15 @@ import {
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  featureGiveback,
+  featureReferralPlusReward,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   INVITE_GOAL,
   InviteRewardProgress,
-} from '@dailydotdev/shared/src/features/referral/components/InviteRewardProgress';
-import { GivebackInviteCard } from '@dailydotdev/shared/src/features/referral/components/GivebackInviteCard';
+} from '@dailydotdev/shared/src/components/referral/InviteRewardProgress';
+import { GivebackInviteCard } from '@dailydotdev/shared/src/features/giveback/components/GivebackInviteCard';
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -64,7 +67,6 @@ const seo: NextSeoProps = {
 const AccountInvitePage = (): ReactElement => {
   const { user } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const container = useRef<HTMLDivElement>();
   const referredKey = generateQueryKey(RequestKey.ReferredUsers, user);
   const { url, referredUsersCount } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
@@ -81,6 +83,10 @@ const AccountInvitePage = (): ReactElement => {
   });
   const { value: isGivebackEnabled } = useConditionalFeature({
     feature: featureGiveback,
+    shouldEvaluate: !!user,
+  });
+  const { value: isRewardEnabled } = useConditionalFeature({
+    feature: featureReferralPlusReward,
     shouldEvaluate: !!user,
   });
   const usersResult = useInfiniteQuery<ReferredUsersData>({
@@ -102,10 +108,9 @@ const AccountInvitePage = (): ReactElement => {
     }, []);
 
     return list;
-  }, [usersResult]);
+  }, [usersResult.data]);
 
-  const joinedCount = Math.min(referredUsersCount, INVITE_GOAL);
-  const isCompleted = referredUsersCount >= INVITE_GOAL;
+  const isRewardUnlocked = referredUsersCount >= INVITE_GOAL;
 
   const onLogShare = (provider: ShareProvider) => {
     logEvent({
@@ -114,6 +119,17 @@ const AccountInvitePage = (): ReactElement => {
       target_type: TargetType.InviteFriendsPage,
     });
   };
+
+  const getRewardDescription = () => {
+    if (!isRewardEnabled) {
+      return "Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals below.";
+    }
+
+    return isRewardUnlocked
+      ? 'Your free month of Plus is unlocked. Keep inviting — every developer you bring makes the feed sharper.'
+      : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
+  };
+  const rewardDescription = getRewardDescription();
 
   const onGivebackClick = () => {
     logEvent({
@@ -126,14 +142,14 @@ const AccountInvitePage = (): ReactElement => {
     <AccountPageContainer title="Invite friends">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
-        title="Invite 3 friends, get 1 month of Plus"
-        description={
-          isCompleted
-            ? '3 friends joined. Your free month of Plus is unlocked.'
-            : 'When 3 developers join daily.dev through your link, your free month of Plus starts.'
+        title={
+          isRewardEnabled
+            ? `Invite ${INVITE_GOAL} friends, get 1 month of Plus`
+            : 'Grow the community'
         }
+        description={rewardDescription}
       >
-        {isPlus && !isCompleted && (
+        {isRewardEnabled && isPlus && !isRewardUnlocked && (
           <Typography
             className="mt-1"
             type={TypographyType.Footnote}
@@ -142,11 +158,13 @@ const AccountInvitePage = (): ReactElement => {
             Already on Plus? The free month is added to your subscription.
           </Typography>
         )}
-        <InviteRewardProgress
-          className="mt-4"
-          joinedCount={joinedCount}
-          referredUsers={users}
-        />
+        {isRewardEnabled && (
+          <InviteRewardProgress
+            className="mt-4"
+            joinedCount={referredUsersCount}
+            referredUsers={users}
+          />
+        )}
       </AccountContentSection>
       <AccountContentSection title="Your invitation link">
         <InviteLinkInput
@@ -188,50 +206,51 @@ const AccountInvitePage = (): ReactElement => {
         title="Your referrals"
         description="Developers who joined through your invite link"
       >
-        <UserList
-          users={users}
-          isLoading={usersResult?.isLoading}
-          scrollingProps={{
-            isFetchingNextPage: usersResult.isFetchingNextPage,
-            canFetchMore: checkFetchMore(usersResult),
-            fetchNextPage: usersResult.fetchNextPage,
-            // UserList hard-codes px-6 on every row; cancel the section's own
-            // p-6 so the rows line up with the headings above them and the
-            // hover highlight runs the full width of the card.
-            className: 'mt-4 -mx-6',
-          }}
-          emptyPlaceholder={
-            <div className="mt-4 flex items-center gap-3 text-text-secondary">
-              <Image
-                className="h-16 w-16 shrink-0 object-contain"
-                src={cloudinaryCharmInviteFriends}
-                alt="daily.dev charm inviting your friends"
-                loading="lazy"
-              />
-              <p className="typo-callout">
-                No one has joined yet. Share your link!
-              </p>
-            </div>
-          }
-          userInfoProps={{
-            scrollingContainer: container.current,
-            transformUsername({
-              username,
-              createdAt,
-            }: UserShortProfile): React.ReactNode {
-              return (
-                <span className="flex text-text-secondary typo-callout">
-                  <TruncateText>@{username}</TruncateText>
-                  <Separator />
-                  <time dateTime={createdAt}>
-                    {format(new Date(createdAt), 'dd MMM yyyy')}
-                  </time>
-                </span>
-              );
-            },
-          }}
-          placeholderAmount={referredUsersCount}
-        />
+        {/* UserList hard-codes px-6 on its rows and on the loading placeholder,
+            so cancel the section's own p-6 around the whole list. That keeps
+            every state (rows, skeletons, empty) aligned with the headings and
+            lets the row hover highlight run the full width of the card. */}
+        <div className="-mx-6 mt-4">
+          <UserList
+            users={users}
+            isLoading={usersResult.isLoading}
+            scrollingProps={{
+              isFetchingNextPage: usersResult.isFetchingNextPage,
+              canFetchMore: checkFetchMore(usersResult),
+              fetchNextPage: usersResult.fetchNextPage,
+            }}
+            emptyPlaceholder={
+              <div className="flex items-center gap-3 px-6 text-text-secondary">
+                <Image
+                  className="h-16 w-16 shrink-0 object-contain"
+                  src={cloudinaryCharmInviteFriends}
+                  alt=""
+                  loading="lazy"
+                />
+                <p className="typo-callout">
+                  No one has joined yet. Share your link!
+                </p>
+              </div>
+            }
+            userInfoProps={{
+              transformUsername({
+                username,
+                createdAt,
+              }: UserShortProfile): React.ReactNode {
+                return (
+                  <span className="flex text-text-secondary typo-callout">
+                    <TruncateText>@{username}</TruncateText>
+                    <Separator />
+                    <time dateTime={createdAt}>
+                      {format(new Date(createdAt), 'dd MMM yyyy')}
+                    </time>
+                  </span>
+                );
+              },
+            }}
+            placeholderAmount={referredUsersCount}
+          />
+        </div>
       </AccountContentSection>
     </AccountPageContainer>
   );

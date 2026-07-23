@@ -5,9 +5,9 @@ import { format } from 'date-fns';
 import {
   INVITE_GOAL,
   InviteRewardProgress,
-} from '@dailydotdev/shared/src/features/referral/components/InviteRewardProgress';
-import { GivebackInviteCard } from '@dailydotdev/shared/src/features/referral/components/GivebackInviteCard';
-import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
+} from '@dailydotdev/shared/src/components/referral/InviteRewardProgress';
+import { GivebackInviteCard } from '@dailydotdev/shared/src/features/giveback/components/GivebackInviteCard';
+import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral/InviteLinkInput';
 import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
 import UserList from '@dailydotdev/shared/src/components/profile/UserList';
 import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
@@ -36,8 +36,8 @@ const noop = (): void => undefined;
 // can't be imported here.
 const SettingsCard = ({ children }: { children: ReactNode }): ReactElement => (
   <div className="mx-auto w-full max-w-3xl">
-    <main className="flex h-fit flex-col rounded-16 border border-border-subtlest-tertiary">
-      <h1 className="flex h-14 w-full flex-row items-center border-b border-border-subtlest-tertiary px-6 font-bold typo-title3">
+    <main className="flex h-fit flex-1 flex-col rounded-16 border-border-subtlest-tertiary tablet:border">
+      <h1 className="flex h-14 w-full flex-row items-center border-b border-border-subtlest-tertiary px-4 font-bold typo-body tablet:px-6 tablet:typo-title3">
         Invite friends
       </h1>
       <section className="flex w-full flex-col overflow-x-hidden p-6">
@@ -73,29 +73,45 @@ interface InvitePageProps {
   joinedCount?: number;
   isPlus?: boolean;
   showGiveback?: boolean;
+  // Mirrors the `referral_plus_reward` flag on the real page.
+  showReward?: boolean;
 }
 
 // Mirrors packages/webapp/pages/settings/invite.tsx section for section.
+const rewardDescription = (
+  showReward: boolean,
+  isUnlocked: boolean,
+): string => {
+  if (!showReward) {
+    return "Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals below.";
+  }
+
+  return isUnlocked
+    ? 'Your free month of Plus is unlocked. Keep inviting — every developer you bring makes the feed sharper.'
+    : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
+};
+
 const InvitePage = ({
   joinedCount = 0,
   isPlus = false,
   showGiveback = true,
+  showReward = true,
 }: InvitePageProps): ReactElement => {
   const referredUsers = mockReferredUsers().slice(0, joinedCount);
-  const isCompleted = joinedCount >= INVITE_GOAL;
+  const isUnlocked = joinedCount >= INVITE_GOAL;
 
   return (
     <SettingsCard>
       <Section
         isFirst
-        title="Invite 3 friends, get 1 month of Plus"
-        description={
-          isCompleted
-            ? '3 friends joined. Your free month of Plus is unlocked.'
-            : 'When 3 developers join daily.dev through your link, your free month of Plus starts.'
+        title={
+          showReward
+            ? `Invite ${INVITE_GOAL} friends, get 1 month of Plus`
+            : 'Grow the community'
         }
+        description={rewardDescription(showReward, isUnlocked)}
       >
-        {isPlus && !isCompleted && (
+        {showReward && isPlus && !isUnlocked && (
           <Typography
             className="mt-1"
             type={TypographyType.Footnote}
@@ -104,11 +120,13 @@ const InvitePage = ({
             Already on Plus? The free month is added to your subscription.
           </Typography>
         )}
-        <InviteRewardProgress
-          className="mt-4"
-          joinedCount={joinedCount}
-          referredUsers={referredUsers}
-        />
+        {showReward && (
+          <InviteRewardProgress
+            className="mt-4"
+            joinedCount={joinedCount}
+            referredUsers={referredUsers}
+          />
+        )}
       </Section>
       <Section title="Your invitation link">
         <InviteLinkInput
@@ -150,44 +168,45 @@ const InvitePage = ({
         title="Your referrals"
         description="Developers who joined through your invite link"
       >
-        <UserList
-          users={referredUsers}
-          scrollingProps={{
-            isFetchingNextPage: false,
-            canFetchMore: false,
-            fetchNextPage: () => Promise.resolve(),
-            className: 'mt-4 -mx-6',
-          }}
-          emptyPlaceholder={
-            <div className="mt-4 flex items-center gap-3 text-text-secondary">
-              <Image
-                className="h-16 w-16 shrink-0 object-contain"
-                src={cloudinaryCharmInviteFriends}
-                alt="daily.dev charm inviting your friends"
-                loading="lazy"
-              />
-              <p className="typo-callout">
-                No one has joined yet. Share your link!
-              </p>
-            </div>
-          }
-          userInfoProps={{
-            transformUsername({
-              username,
-              createdAt,
-            }: UserShortProfile): ReactNode {
-              return (
-                <span className="flex text-text-secondary typo-callout">
-                  <TruncateText>@{username}</TruncateText>
-                  <Separator />
-                  <time dateTime={createdAt}>
-                    {format(new Date(createdAt), 'dd MMM yyyy')}
-                  </time>
-                </span>
-              );
-            },
-          }}
-        />
+        <div className="-mx-6 mt-4">
+          <UserList
+            users={referredUsers}
+            scrollingProps={{
+              isFetchingNextPage: false,
+              canFetchMore: false,
+              fetchNextPage: () => Promise.resolve(),
+            }}
+            emptyPlaceholder={
+              <div className="flex items-center gap-3 px-6 text-text-secondary">
+                <Image
+                  className="h-16 w-16 shrink-0 object-contain"
+                  src={cloudinaryCharmInviteFriends}
+                  alt=""
+                  loading="lazy"
+                />
+                <p className="typo-callout">
+                  No one has joined yet. Share your link!
+                </p>
+              </div>
+            }
+            userInfoProps={{
+              transformUsername({
+                username,
+                createdAt,
+              }: UserShortProfile): ReactNode {
+                return (
+                  <span className="flex text-text-secondary typo-callout">
+                    <TruncateText>@{username}</TruncateText>
+                    <Separator />
+                    <time dateTime={createdAt}>
+                      {format(new Date(createdAt), 'dd MMM yyyy')}
+                    </time>
+                  </span>
+                );
+              },
+            }}
+          />
+        </div>
       </Section>
     </SettingsCard>
   );
@@ -259,12 +278,26 @@ export const BeyondTheGoal: Story = {
 export const ExistingPlusMember: Story = {
   name: 'Already a Plus member',
   args: { joinedCount: 1, isPlus: true },
-  decorators: [withInvite({ isPlus: true })],
+  decorators: [withInvite()],
   parameters: {
     docs: {
       description: {
         story:
           'Plus subscribers get a note that the free month stacks on their current subscription. It disappears once the reward unlocks.',
+      },
+    },
+  },
+};
+
+export const RewardFlagOff: Story = {
+  name: 'Reward flag off (default)',
+  args: { joinedCount: 1, showReward: false },
+  decorators: [withInvite()],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'What ships until `referral_plus_reward` is switched on: no reward promise and no tracker, just the referral tooling.',
       },
     },
   },

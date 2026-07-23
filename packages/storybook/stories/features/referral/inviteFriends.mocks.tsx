@@ -70,10 +70,8 @@ export const mockReferredUsers = (): UserShortProfile[] =>
   ] as UserShortProfile[];
 
 const InviteProviders = ({
-  isPlus = false,
   children,
 }: {
-  isPlus?: boolean;
   children: ReactNode;
 }): ReactElement => {
   const queryClient = useMemo(() => new QueryClient(), []);
@@ -82,7 +80,7 @@ const InviteProviders = ({
   return (
     <QueryClientProvider client={queryClient}>
       <AuthContextProvider
-        user={{ ...MOCK_USER, isPlus } as never}
+        user={MOCK_USER as never}
         firstLoad={false}
         isFetched
         loadingUser={false}
@@ -113,11 +111,13 @@ const InviteProviders = ({
   );
 };
 
+// The stories drive Plus/flag state through args, so the providers only need to
+// supply a signed-in user, a query client, and a no-op log context.
 export const withInvite =
-  ({ isPlus }: { isPlus?: boolean } = {}): Decorator =>
+  (): Decorator =>
   (Story) =>
     (
-      <InviteProviders isPlus={isPlus}>
+      <InviteProviders>
         <Story />
       </InviteProviders>
     );

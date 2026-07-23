@@ -28,7 +28,7 @@ import {
   OrganizationIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
+import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral/InviteLinkInput';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import {
   ReferralCampaignKey,
