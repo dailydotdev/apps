@@ -19,6 +19,8 @@ interface GivebackInviteCardProps {
   className?: string;
 }
 
+const charmCutoutId = 'giveback-charm-cutout';
+
 // Cross-promo into /giveback for surfaces outside the campaign (today: the
 // invite settings page). It wears the same treatment as the founding-reward
 // card in GivebackFoundingAward: a 1px gradient frame over an opaque base
@@ -53,8 +55,8 @@ export const GivebackInviteCard = ({
           color={TypographyColor.Secondary}
           className="[text-wrap:pretty]"
         >
-          We redirect our growth budget to causes the community picks — you
-          never pay a cent.
+          We redirect our growth budget to causes the community picks. You never
+          pay a cent.
         </Typography>
         <Button
           tag="a"
@@ -70,13 +72,25 @@ export const GivebackInviteCard = ({
       {/* Not GivebackMascot: its `h-44 tablet:h-56` is baked into the same
           class string a caller would override, and class names here are
           concatenated rather than merged, so the hero size always wins. This
-          card needs a compact charm, so it sizes its own.
-
-          The render sits on solid black and needs mix-blend-screen to drop it,
-          which only works over a dark surface — on the light theme the charm
-          would blend away entirely. So it gets its own tile in the artwork's
-          own black (raw-pepper-90), constant across themes. */}
-      <span className="relative mx-auto flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-16 bg-raw-pepper-90 tablet:mx-0">
+          card needs a compact charm, so it sizes its own. */}
+      <span className="relative mx-auto flex size-24 shrink-0 items-center justify-center tablet:mx-0">
+        {/* The render ships on solid black. `mix-blend-screen` only drops that
+            over a dark surface, so on the light theme the charm blended away
+            entirely. Cut the black out instead: derive the alpha channel from
+            the artwork's own brightness, so it reads on any background. The
+            ramp keeps the mid-dark parts of the art (the podium, the phone
+            bezel) fully opaque rather than fading them out. */}
+        <svg aria-hidden className="absolute size-0">
+          <filter id={charmCutoutId} colorInterpolationFilters="sRGB">
+            <feColorMatrix
+              type="matrix"
+              values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  1 1 1 0 0"
+            />
+            <feComponentTransfer>
+              <feFuncA type="linear" slope="4" intercept="-0.25" />
+            </feComponentTransfer>
+          </filter>
+        </svg>
         <span
           aria-hidden
           className="bg-accent-cabbage-default/25 absolute inset-0 m-auto size-3/4 rounded-full blur-2xl motion-safe:animate-glow-pulse"
@@ -85,7 +99,8 @@ export const GivebackInviteCard = ({
           src={cloudinaryCharmGiveback}
           alt=""
           loading="lazy"
-          className="relative size-full select-none object-contain mix-blend-screen"
+          className="relative size-full select-none object-contain"
+          style={{ filter: `url(#${charmCutoutId})` }}
         />
       </span>
     </div>

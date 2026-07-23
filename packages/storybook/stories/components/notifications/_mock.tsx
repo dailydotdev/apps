@@ -91,7 +91,7 @@ const defs: Array<Partial<NotificationItemProps> & { isUnread?: boolean }> = [
   {
     type: NotificationType.ReferralPlusUnlocked,
     icon: NotificationIconType.DevPlus,
-    title: 'Your free <b>month of Plus</b> is unlocked — 3 friends joined',
+    title: '3 friends joined, so your free <b>month of Plus</b> is unlocked',
     description: `Active ${format(rewardStart, 'd MMM yyyy')} – ${format(
       addMonths(rewardStart, 1),
       'd MMM yyyy',

@@ -151,7 +151,7 @@ const AccountInvitePage = (): ReactElement => {
     // The card below already announces the reward, so the unlocked copy only
     // has to give a reason to keep going.
     return isRewardUnlocked
-      ? 'Keep inviting — every developer you bring makes the feed sharper.'
+      ? 'Keep inviting. Every developer you bring makes the feed sharper.'
       : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
   };
   const rewardDescription = getRewardDescription();

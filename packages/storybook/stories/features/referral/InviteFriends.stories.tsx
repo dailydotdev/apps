@@ -90,7 +90,7 @@ const rewardDescription = (
   }
 
   return isUnlocked
-    ? 'Keep inviting — every developer you bring makes the feed sharper.'
+    ? 'Keep inviting. Every developer you bring makes the feed sharper.'
     : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
 };
 
