@@ -1,11 +1,9 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { CardHeader } from './Card';
-import SourceButton from './SourceButton';
 import type { Source } from '../../../graphql/sources';
-import { isSourceUserSource } from '../../../graphql/sources';
+import { AuthorSourceStack } from './AuthorSourceStack';
 import { ReadArticleButton, getReadPostButtonIcon } from './ReadArticleButton';
 import { getGroupedHoverContainer } from './common';
 import { useBookmarkProvider, useFeedPreviewMode } from '../../../hooks';
@@ -25,20 +23,8 @@ import {
   BookmakProviderHeader,
   headerHiddenClassName,
 } from './BookmarkProviderHeader';
-import { ProfileImageLink } from '../../profile/ProfileImageLink';
-import { ProfileImageSize } from '../../ProfilePicture';
 import { DeletedPostId } from '../../../lib/constants';
 import { PostOptionButton } from '../../../features/posts/PostOptionButton';
-import type { UserShortProfile } from '../../../lib/user';
-
-const HoverCard = dynamic(
-  /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
-);
-
-const UserEntityCard = dynamic(
-  /* webpackChunkName: "userEntityCard" */ () =>
-    import('../entity/UserEntityCard'),
-);
 
 interface CardHeaderProps {
   post: Post;
@@ -68,7 +54,6 @@ export const PostCardHeader = ({
 }: CardHeaderProps): ReactElement => {
   const isFeedPreview = useFeedPreviewMode();
   const isSharedPostDeleted = post.sharedPost?.id === DeletedPostId;
-  const isUserSource = isSourceUserSource(post.source);
   const { highlightBookmarkedPost } = useBookmarkProvider({
     bookmarked: (post.bookmarked && !showFeedback) ?? false,
   });
@@ -116,22 +101,13 @@ export const PostCardHeader = ({
           highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
-        {!isUserSource && <SourceButton source={source} />}
-        {!!post?.author && (
-          <HoverCard
-            align="start"
-            side="bottom"
-            sideOffset={10}
-            trigger={
-              <ProfileImageLink
-                picture={{ size: ProfileImageSize.Medium }}
-                user={post.author}
-              />
-            }
-          >
-            <UserEntityCard user={post.author as UserShortProfile} />
-          </HoverCard>
-        )}
+        {/* mx-1.5 cancels CardHeader's -mx-1.5 so the stack lines up with the
+            title, matching the bare `.header > a` avatar compensation. */}
+        <AuthorSourceStack
+          className="mx-1.5"
+          author={post.author}
+          source={source}
+        />
         {children}
         <Container
           className="ml-auto flex flex-row"

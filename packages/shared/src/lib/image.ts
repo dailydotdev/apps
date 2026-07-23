@@ -488,8 +488,8 @@ export const cloudinaryGivebackPunchyStaring =
 
 // Bespoke Patchy assets for the Giveback "Picture with Patchy" reward reveal.
 // The selfie is a transparent video played once — a VP9-alpha .webm for most
-// browsers and an HEVC-alpha .mov for Safari (the same source-order trick as
-// PersonaMascot); both carry real alpha, so Patchy floats cleanly on any
+// browsers and an HEVC-alpha .mov for Safari (source-ordered so Safari falls
+// back to the .mov); both carry real alpha, so Patchy floats cleanly on any
 // surface. The card frame is the still Patchy holds with the visitor's photo
 // dropped in.
 export const cloudinaryGivebackPatchySelfieWebm =

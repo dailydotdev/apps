@@ -36,7 +36,6 @@ export enum FunnelStepType {
   HeroLanding = 'heroLanding',
   BrowserExtension = 'browserExtension',
   UploadCv = 'uploadCv',
-  PersonaQuiz = 'personaQuiz',
 }
 
 export enum FunnelBackgroundVariant {
@@ -416,28 +415,6 @@ export interface FunnelStepUploadCv
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepPersonaQuiz
-  extends FunnelStepCommon<{
-    headline?: string;
-    explainer?: string;
-    cta?: string;
-    /**
-     * Base path for the mascot clips. The component appends the per-state
-     * suffix, e.g. `${base}-thinking.webm`, `${base}-reveal.webm`. An alpha
-     * WebM is expected, with an HEVC `.mov` sibling for Safari.
-     */
-    mascotVideoBaseUrl?: string;
-  }> {
-  type: FunnelStepType.PersonaQuiz;
-  onTransition: FunnelStepTransitionCallback<{
-    persona?: string;
-    confidence?: number;
-    questions: number;
-    manual: boolean;
-    modifiers: string[];
-  }>;
-}
-
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -459,8 +436,7 @@ export type FunnelStep =
   | FunnelStepHeroLanding
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
-  | FunnelStepUploadCv
-  | FunnelStepPersonaQuiz;
+  | FunnelStepUploadCv;
 
 export type FunnelPosition = {
   chapter: number;
@@ -510,5 +486,4 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.BrowserExtension,
   FunnelStepType.InstallPwa,
   FunnelStepType.UploadCv,
-  FunnelStepType.PersonaQuiz,
 ];

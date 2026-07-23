@@ -24,8 +24,10 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: true,
+  optOutStreakFreeze: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
+  optOutAchievements: false,
   optOutCompanion: true,
   autoDismissNotifications: true,
   customLinks: [

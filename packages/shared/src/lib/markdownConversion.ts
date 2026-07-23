@@ -1,3 +1,5 @@
+import { getVideoMimeType, isVideoUrl } from './video';
+
 const escapeHtml = (value: string): string =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -23,8 +25,17 @@ const inlineMarkdownToHtml = (value: string): string => {
 
   result = result.replace(
     /!\[([^\]]*)\]\(([^)]+)\)/g,
-    (_, alt: string, url: string) =>
-      `<img src="${escapeAttribute(url)}" alt="${alt}" />`,
+    (_, alt: string, url: string) => {
+      const src = escapeAttribute(url);
+      if (isVideoUrl(url)) {
+        const type = getVideoMimeType(url);
+        const source = `<source src="${src}"${
+          type ? ` type="${type}"` : ''
+        } />`;
+        return `<video src="${src}" controls preload="metadata" aria-label="${alt}">${source}</video>`;
+      }
+      return `<img src="${src}" alt="${alt}" />`;
+    },
   );
 
   result = result.replace(
@@ -241,6 +252,12 @@ function serializeInline(node: Node): string {
       const alt = node.getAttribute('alt') || '';
       return `![${alt}](${src})`;
     }
+    case 'video': {
+      const source = node.querySelector('source');
+      const src = node.getAttribute('src') || source?.getAttribute('src') || '';
+      const alt = node.getAttribute('aria-label') || '';
+      return `![${alt}](${src})`;
+    }
     case 'p':
       return serializeChildren(node).trim();
     case 'li':
@@ -323,6 +340,7 @@ export const htmlToMarkdownBasic = (html: string): string => {
         case 'ol':
           return serializeList(node, true);
         case 'img':
+        case 'video':
           return serializeInline(node).trim();
         default:
           return serializeChildren(node).trim();

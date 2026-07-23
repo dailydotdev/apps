@@ -74,6 +74,8 @@ export enum NotificationType {
   PostBookmarkReminder = 'post_bookmark_reminder',
   StreakReminder = 'streak_reminder',
   StreakResetRestore = 'streak_reset_restore',
+  StreakFreezeUsed = 'streak_freeze_used',
+  StreakFreezeDepleted = 'streak_freeze_depleted',
   SourcePostApproved = 'source_post_approved',
   DevCardUnlocked = 'dev_card_unlocked',
   PostMention = 'post_mention',
@@ -300,6 +302,8 @@ export const MENTION_KEYS = [
 export const STREAK_KEYS = [
   NotificationType.StreakReminder,
   NotificationType.StreakResetRestore,
+  NotificationType.StreakFreezeUsed,
+  NotificationType.StreakFreezeDepleted,
 ];
 export const SQUAD_ROLE_KEYS = [
   NotificationType.PromotedToAdmin,
@@ -416,6 +420,8 @@ export const notificationCategoryToTypes: Record<
     NotificationType.DigestReady,
     NotificationType.StreakReminder,
     NotificationType.StreakResetRestore,
+    NotificationType.StreakFreezeUsed,
+    NotificationType.StreakFreezeDepleted,
     NotificationType.Marketing,
     NotificationType.Announcements,
     NotificationType.NewUserWelcome,
@@ -464,34 +470,49 @@ export const getNotificationCategory = (
   notificationTypeToCategory[type] ?? NotificationFilterCategory.Updates;
 
 // Eye-catching colored type badge overlaid on the avatar (Instagram/Facebook/
-// TikTok pattern): a solid accent circle + white glyph that signals the
-// notification type at a glance.
+// TikTok pattern): a solid accent circle + glyph that signals the notification
+// type at a glance.
+//
+// `fg` is chosen for contrast against the badge fill, not for decoration: the
+// food-palette accents split into bright (avocado green, blueCheese cyan, bun
+// orange) where a white glyph washes out, and dark (cabbage/onion purples)
+// where white reads. Bright fills get a dark glyph, dark fills get white — so
+// the icon stays legible in both light and dark themes (the fill hue barely
+// shifts between themes, so a fixed per-badge `fg` is enough).
 export const notificationCategoryBadge: Record<
   NotificationFilterCategory,
-  { bg: string; Icon: ComponentType<IconProps> }
+  { bg: string; fg: string; Icon: ComponentType<IconProps> }
 > = {
   [NotificationFilterCategory.Upvotes]: {
     bg: 'bg-accent-avocado-default',
+    fg: 'text-black',
     Icon: UpvoteIcon,
   },
   [NotificationFilterCategory.Mentions]: {
     bg: 'bg-accent-cabbage-default',
+    fg: 'text-white',
     Icon: AtIcon,
   },
   [NotificationFilterCategory.Comments]: {
     bg: 'bg-accent-blueCheese-default',
+    fg: 'text-black',
     Icon: DiscussIcon,
   },
   [NotificationFilterCategory.Followers]: {
     bg: 'bg-accent-onion-default',
+    fg: 'text-white',
     Icon: AddUserIcon,
   },
+  // Squads shares the Followers purple — the cheese yellow read poorly and a
+  // white glyph on yellow had almost no contrast.
   [NotificationFilterCategory.Squads]: {
-    bg: 'bg-accent-cheese-default',
+    bg: 'bg-accent-onion-default',
+    fg: 'text-white',
     Icon: SquadIcon,
   },
   [NotificationFilterCategory.Updates]: {
     bg: 'bg-accent-bun-default',
+    fg: 'text-black',
     Icon: MegaphoneIcon,
   },
 };
@@ -627,6 +648,16 @@ export const STREAK_NOTIFICATIONS: NotificationItem[] = [
   {
     id: NotificationType.StreakResetRestore,
     label: 'Restore broken streak',
+    group: false,
+  },
+  {
+    id: NotificationType.StreakFreezeUsed,
+    label: 'Streak freeze used',
+    group: false,
+  },
+  {
+    id: NotificationType.StreakFreezeDepleted,
+    label: 'Out of streak freezes',
     group: false,
   },
 ];

@@ -87,7 +87,7 @@ export const NotificationSayThanksButton = ({
       variant={ButtonVariant.Tertiary}
       size={ButtonSize.Small}
       loading={isPending}
-      className="-ml-3.5 mt-3 flex min-w-min text-text-link"
+      className="-ml-3.5 mr-auto flex min-w-min text-text-link hover:!bg-transparent hover:underline"
       onClick={(event: MouseEvent) => {
         event.preventDefault();
         event.stopPropagation();

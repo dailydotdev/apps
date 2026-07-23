@@ -23,8 +23,18 @@ jest.mock('../../lib/func', () => ({
 }));
 
 jest.mock('../post/GoBackHeaderMobile', () => ({
-  GoBackButton: ({ className }: { className?: string }) => (
-    <button type="button" className={className}>
+  GoBackButton: ({
+    className,
+    fallbackPath,
+  }: {
+    className?: string;
+    fallbackPath?: string;
+  }) => (
+    <button
+      type="button"
+      className={className}
+      data-fallback-path={fallbackPath}
+    >
       Go back
     </button>
   ),
@@ -49,6 +59,7 @@ describe('ProfileMobileBackButton', () => {
     const button = screen.getByRole('button', { name: 'Go back' });
     expect(button).toBeInTheDocument();
     expect(button).toHaveClass('mr-3');
+    expect(button).toHaveAttribute('data-fallback-path', '/');
   });
 
   it('does not render at laptop widths', () => {
@@ -88,6 +99,10 @@ describe('ProfileDesktopPwaBackButton', () => {
       'absolute',
       'left-4',
       'top-4',
+    );
+    expect(screen.getByRole('button', { name: 'Go back' })).toHaveAttribute(
+      'data-fallback-path',
+      '/',
     );
   });
 

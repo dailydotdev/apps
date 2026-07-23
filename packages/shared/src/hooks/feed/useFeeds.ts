@@ -17,6 +17,7 @@ import {
   FeedChipsVariant,
   featureFeedChips,
 } from '../../lib/featureManagement';
+import { useOnboardingActions } from '../auth/useOnboardingActions';
 
 export type CreateFeedProps = {
   name: string;
@@ -38,13 +39,18 @@ export const useFeeds = (): UseFeeds => {
   const queryClient = useQueryClient();
   const { displayToast } = useToastNotification();
   const { user, feeds: bootFeeds } = useAuthContext();
-  const queryKey = generateQueryKey(RequestKey.Feeds, user);
+  const { isOnboardingComplete } = useOnboardingActions();
 
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
     shouldEvaluate: !!user,
   });
-  const includeTagChipFeeds = feedChipsVariant === FeedChipsVariant.V2;
+  const includeTagChipFeeds =
+    feedChipsVariant === FeedChipsVariant.V2 && isOnboardingComplete;
+
+  const queryKey = generateQueryKey(RequestKey.Feeds, user, {
+    includeTagChipFeeds,
+  });
 
   const initialData: FeedList['feedList'] | undefined = useMemo(() => {
     if (!bootFeeds) {

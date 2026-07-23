@@ -613,6 +613,7 @@ export interface UserStreak {
   current: number;
   weekStart: DayOfWeek;
   lastViewAt: Date;
+  freezesAvailable: number;
 }
 
 export interface UserProfileAnalytics {
