@@ -38,13 +38,23 @@ const formatRewardDate = (date: Date): string => format(date, 'd MMM yyyy');
 const InviteSlots = ({
   joined,
   referredUsers,
+  // The unlocked card keeps the row as a footnote under the reward, so it runs
+  // one size down from the standalone tracker.
+  isCompact = false,
 }: {
   joined: number;
   referredUsers: UserShortProfile[];
+  isCompact?: boolean;
 }): ReactElement => (
   // The caption states the progress and every referred developer is named in
   // the list further down the page, so the slot row is presentational.
-  <div aria-hidden className="flex flex-wrap items-center gap-2">
+  <div
+    aria-hidden
+    className={classNames(
+      'flex flex-wrap items-center',
+      isCompact ? 'gap-1.5' : 'gap-2',
+    )}
+  >
     {Array.from({ length: INVITE_GOAL }, (_, index) => {
       const isFilled = index < joined;
       const referredUser = referredUsers[index];
@@ -54,7 +64,7 @@ const InviteSlots = ({
           <ProfilePicture
             key={`invite-slot-${index}`}
             user={referredUser}
-            size={ProfileImageSize.Medium}
+            size={isCompact ? ProfileImageSize.Small : ProfileImageSize.Medium}
           />
         );
       }
@@ -63,7 +73,8 @@ const InviteSlots = ({
         <span
           key={`invite-slot-${index}`}
           className={classNames(
-            'flex size-8 items-center justify-center rounded-10',
+            'flex items-center justify-center',
+            isCompact ? 'size-6 rounded-8' : 'size-8 rounded-10',
             isFilled
               ? 'bg-surface-float text-text-secondary'
               : 'border border-dashed border-border-subtlest-primary text-text-quaternary',
@@ -92,23 +103,23 @@ export const InviteRewardProgress = ({
     return (
       <div
         className={classNames(
-          'w-full rounded-16 border border-action-plus-default bg-action-plus-float p-4',
+          'w-full rounded-16 border border-action-plus-default bg-action-plus-float p-3',
           className,
         )}
       >
-        <div className="flex items-start gap-3">
+        <div className="flex items-start gap-2.5">
           <span className="relative shrink-0 motion-safe:animate-reward-pop">
-            <span className="grid size-10 place-items-center rounded-12 bg-action-plus-default text-white">
-              <DevPlusIcon secondary size={IconSize.Medium} />
+            <span className="grid size-8 place-items-center rounded-10 bg-action-plus-default text-white">
+              <DevPlusIcon secondary size={IconSize.XSmall} />
             </span>
             {/* The "earned it" mark, notched into the corner the way a badge
                 sits on an avatar. */}
-            <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full border-2 border-background-default bg-status-success text-white">
+            <span className="absolute -bottom-0.5 -right-0.5 grid size-4 place-items-center rounded-full border-2 border-background-default bg-status-success text-white">
               <VIcon size={IconSize.XXSmall} />
             </span>
           </span>
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <Typography type={TypographyType.Title3} bold>
+          <div className="flex min-w-0 flex-1 flex-col">
+            <Typography type={TypographyType.Body} bold>
               1 month of Plus unlocked
             </Typography>
             {rewardPeriod && (
@@ -127,8 +138,12 @@ export const InviteRewardProgress = ({
             )}
           </div>
         </div>
-        <div className="mt-3 flex items-center gap-2 border-t border-border-subtlest-tertiary pt-3">
-          <InviteSlots joined={joined} referredUsers={referredUsers} />
+        <div className="mt-2.5 flex items-center gap-2 border-t border-border-subtlest-tertiary pt-2.5">
+          <InviteSlots
+            isCompact
+            joined={joined}
+            referredUsers={referredUsers}
+          />
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
