@@ -1,0 +1,84 @@
+/* The bar sits below the device notch and above every piece of fixed chrome,
+ * so its height has to be reserved at the top of the app. The copy is fixed,
+ * so the height is a constant per breakpoint (mobile stacks the CTA under the
+ * copy) and the whole reservation is plain CSS — no measuring. */
+.pinned {
+  top: env(safe-area-inset-top, 0px);
+  height: var(--post-signup-activation-height);
+}
+
+/* Declared on `body` (not `:root`) so it overrides the `:root` default for the
+ * body, `body::before` and every fixed descendant that reads it. */
+:global(body):has(.pinned) {
+  --post-signup-activation-height: 9.25rem;
+  --safe-area-top: calc(
+    env(safe-area-inset-top, 0px) + var(--post-signup-activation-height)
+  );
+}
+
+@media (min-width: 656px) {
+  :global(body):has(.pinned) {
+    --post-signup-activation-height: 5rem;
+  }
+}
+
+/* The banner is always dark regardless of the app theme, so its light-on-dark
+ * colours are declared here with explicit rgba values. Tailwind's opacity
+ * modifier on `white` (e.g. text-white/60) does NOT compile in this config —
+ * it silently falls back to the inherited (dark) theme colour and disappears
+ * on the near-black panel — so we can't rely on it. */
+
+/* Soft brand glow anchored to the right of the strip. Uses radial gradients
+ * with color-mix on the theme accent vars (mirrors .top-hero-aurora) so it
+ * renders reliably instead of relying on opacity-modified accent utilities. */
+.glow {
+  background:
+    radial-gradient(
+      60% 170% at 50% 50%,
+      color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 64%) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      42% 150% at 15% 50%,
+      color-mix(in srgb, var(--theme-accent-onion-default), transparent 76%) 0%,
+      transparent 58%
+    ),
+    radial-gradient(
+      42% 150% at 85% 50%,
+      color-mix(in srgb, var(--theme-accent-onion-default), transparent 76%) 0%,
+      transparent 58%
+    );
+}
+
+.border {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.sheen {
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.22),
+    transparent
+  );
+}
+
+.description {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.ringTrack {
+  stroke: rgba(255, 255, 255, 0.16);
+}
+
+/* CTA is pinned to the white (dark-theme) primary look on the dark panel. */
+.cta,
+.cta:hover {
+  background-color: #fff !important;
+  color: #0b0d12 !important;
+  border-color: transparent !important;
+}
+
+.cta:hover {
+  background-color: rgba(255, 255, 255, 0.88) !important;
+}

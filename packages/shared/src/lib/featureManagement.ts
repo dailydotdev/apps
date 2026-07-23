@@ -296,3 +296,12 @@ export const featureNotificationsRedesign = new Feature(
 // `analytics.impressions` field. Control hides it entirely. Keep the default
 // `false` — GrowthBook ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
+
+// Post-signup feed activation bar: a persistent, non-dismissible strip shown
+// above the header on every page for signed-in users who registered but have
+// not set up their feed yet (no tag/content customization). Control hides it
+// entirely. Keep the default `false` — GrowthBook ramps it.
+export const featurePostSignupActivation = new Feature(
+  'post_signup_activation',
+  false,
+);
