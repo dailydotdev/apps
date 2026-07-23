@@ -161,6 +161,8 @@ const SourceRow = ({
   // The narrative row may not carry its own url; the raw discussion entry for
   // the same provider is the same thread, so use it as the link fallback.
   const linkUrl = url ?? discussion?.url;
+  const hasNoComments = discussion?.commentsCount === 0;
+  const displayNote = hasNoComments ? 'No comments yet' : note;
 
   const content = (
     <>
@@ -174,14 +176,16 @@ const SourceRow = ({
           >
             {label}
           </Typography>
-          <span
-            className={classNames(
-              'inline-flex items-center rounded-6 px-1.5 py-0.5 font-bold typo-caption2',
-              chip.className,
-            )}
-          >
-            {chip.label}
-          </span>
+          {!hasNoComments && (
+            <span
+              className={classNames(
+                'inline-flex items-center rounded-6 px-1.5 py-0.5 font-bold typo-caption2',
+                chip.className,
+              )}
+            >
+              {chip.label}
+            </span>
+          )}
           {discussion && (
             <Typography
               type={TypographyType.Caption2}
@@ -197,7 +201,7 @@ const SourceRow = ({
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
         >
-          {note}
+          {displayNote}
         </Typography>
       </div>
       {/* Always reserve the link slot so rows without a link stay aligned. */}
