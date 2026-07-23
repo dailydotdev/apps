@@ -366,9 +366,17 @@ const Page = (): ReactElement | null => {
 
         <FlexCol className="gap-3">
           <FlexRow className="items-center justify-between">
-            <Typography type={TypographyType.Body} bold>
-              Feed
-            </Typography>
+            <FlexCol>
+              <Typography type={TypographyType.Body} bold>
+                Feed
+              </Typography>
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                Sorted by relevance score
+              </Typography>
+            </FlexCol>
             <Tooltip content="Reload the feed to pull in content found since you opened the page.">
               <Button
                 variant={ButtonVariant.Tertiary}
