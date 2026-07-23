@@ -22,7 +22,7 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
-import { format } from 'date-fns';
+import { addMonths, format } from 'date-fns';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   LogEvent,
@@ -112,6 +112,29 @@ const AccountInvitePage = (): ReactElement => {
 
   const isRewardUnlocked = referredUsersCount >= INVITE_GOAL;
 
+  // The free month runs from the moment the goal was met — i.e. the join date
+  // of the INVITE_GOALth developer. Derived on the client because no backend
+  // field carries the grant yet; when one lands, read it here instead. Sorts a
+  // copy rather than trusting the list order, which the query doesn't specify.
+  const rewardPeriod = useMemo(() => {
+    if (!isRewardUnlocked) {
+      return undefined;
+    }
+
+    const completing = [...users].sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    )[INVITE_GOAL - 1];
+
+    if (!completing) {
+      return undefined;
+    }
+
+    const startsAt = new Date(completing.createdAt);
+
+    return { startsAt, endsAt: addMonths(startsAt, 1) };
+  }, [isRewardUnlocked, users]);
+
   const onLogShare = (provider: ShareProvider) => {
     logEvent({
       event_name: LogEvent.InviteReferral,
@@ -125,8 +148,10 @@ const AccountInvitePage = (): ReactElement => {
       return "Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals below.";
     }
 
+    // The card below already announces the reward, so the unlocked copy only
+    // has to give a reason to keep going.
     return isRewardUnlocked
-      ? 'Your free month of Plus is unlocked. Keep inviting — every developer you bring makes the feed sharper.'
+      ? 'Keep inviting — every developer you bring makes the feed sharper.'
       : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
   };
   const rewardDescription = getRewardDescription();
@@ -163,6 +188,7 @@ const AccountInvitePage = (): ReactElement => {
             className="mt-4"
             joinedCount={referredUsersCount}
             referredUsers={users}
+            rewardPeriod={rewardPeriod}
           />
         )}
       </AccountContentSection>

@@ -84,13 +84,17 @@ const mockReferralCampaign = (referredUsersCount: number) => {
   });
 };
 
-const referredUser = (id: string, username: string) => ({
+const referredUser = (
+  id: string,
+  username: string,
+  createdAt = '2026-05-04T10:00:00.000Z',
+) => ({
   id,
   name: username,
   username,
   image: `https://daily.dev/${username}.jpg`,
   permalink: `https://app.daily.dev/${username}`,
-  createdAt: '2026-05-04T10:00:00.000Z',
+  createdAt,
   reputation: 10,
 });
 
@@ -176,11 +180,9 @@ it('should show the unlocked state once three friends joined', async () => {
   renderComponent();
 
   expect(
-    await screen.findByText('3 of 3 friends joined — Plus unlocked'),
+    await screen.findByText('1 month of Plus unlocked'),
   ).toBeInTheDocument();
-  expect(
-    screen.getByText(/Your free month of Plus is unlocked/),
-  ).toBeInTheDocument();
+  expect(screen.getByText('All 3 friends joined')).toBeInTheDocument();
 });
 
 it('should keep the unlocked copy count-agnostic beyond the goal', async () => {
@@ -189,9 +191,25 @@ it('should keep the unlocked copy count-agnostic beyond the goal', async () => {
   renderComponent();
 
   expect(
-    await screen.findByText('3 of 3 friends joined — Plus unlocked'),
+    await screen.findByText('1 month of Plus unlocked'),
   ).toBeInTheDocument();
+  expect(screen.getByText('All 3 friends joined')).toBeInTheDocument();
   expect(screen.queryByText(/12 of 3/)).not.toBeInTheDocument();
+});
+
+it('should run the free month from the join date of the third referral', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
+  mockReferralCampaign(3);
+  renderComponent(loggedUser, [
+    // Deliberately out of order — the period is derived from the third
+    // developer to join, not the third row the query returns.
+    referredUser('ref-3', 'wrenh', '2026-07-02T10:00:00.000Z'),
+    referredUser('ref-1', 'idakern', '2026-05-04T10:00:00.000Z'),
+    referredUser('ref-2', 'ravimenon', '2026-06-11T10:00:00.000Z'),
+  ]);
+
+  expect(await screen.findByText('2 Jul 2026')).toBeInTheDocument();
+  expect(screen.getByText('2 Aug 2026')).toBeInTheDocument();
 });
 
 it('should fill the progress slots with the referred users avatars', async () => {

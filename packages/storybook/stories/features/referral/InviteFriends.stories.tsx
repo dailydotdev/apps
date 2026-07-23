@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { format } from 'date-fns';
+import { addMonths, format } from 'date-fns';
+import type { InviteRewardPeriod } from '@dailydotdev/shared/src/components/referral/InviteRewardProgress';
 import {
   INVITE_GOAL,
   InviteRewardProgress,
@@ -22,6 +23,8 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
+import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
+import { referralNotifications } from '../../components/notifications/_mock';
 import {
   INVITE_LINK,
   mockReferredUsers,
@@ -87,8 +90,24 @@ const rewardDescription = (
   }
 
   return isUnlocked
-    ? 'Your free month of Plus is unlocked. Keep inviting — every developer you bring makes the feed sharper.'
+    ? 'Keep inviting — every developer you bring makes the feed sharper.'
     : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
+};
+
+// Same derivation as the page: the free month runs from the join date of the
+// INVITE_GOALth developer.
+const rewardPeriodFor = (
+  referredUsers: UserShortProfile[],
+): InviteRewardPeriod | undefined => {
+  const completing = referredUsers[INVITE_GOAL - 1];
+
+  if (!completing) {
+    return undefined;
+  }
+
+  const startsAt = new Date(completing.createdAt);
+
+  return { startsAt, endsAt: addMonths(startsAt, 1) };
 };
 
 const InvitePage = ({
@@ -125,6 +144,7 @@ const InvitePage = ({
             className="mt-4"
             joinedCount={joinedCount}
             referredUsers={referredUsers}
+            rewardPeriod={rewardPeriodFor(referredUsers)}
           />
         )}
       </Section>
@@ -329,6 +349,7 @@ export const ProgressStates: StoryObj = {
           <InviteRewardProgress
             joinedCount={count}
             referredUsers={mockReferredUsers().slice(0, count)}
+            rewardPeriod={rewardPeriodFor(mockReferredUsers().slice(0, count))}
           />
         </div>
       ))}
@@ -336,6 +357,31 @@ export const ProgressStates: StoryObj = {
   ),
   decorators: [withInvite()],
   parameters: { controls: { disable: true } },
+};
+
+// The two notifications this feature emits, in the row layout the
+// /notifications page renders them in. They also sit in the shared
+// notifications mock, so "Components/Notifications/Full page" shows them in
+// context alongside the rest of the feed.
+export const Notifications: StoryObj = {
+  name: 'Notifications',
+  render: () => (
+    <div className="mx-auto w-full max-w-[42.5rem] rounded-16 border border-border-subtlest-tertiary bg-background-default py-2">
+      {referralNotifications.map((notification) => (
+        <NotificationItem key={notification.referenceId} {...notification} />
+      ))}
+    </div>
+  ),
+  decorators: [withInvite()],
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Both rows deep-link to /settings/invite. `referral_friend_joined` fires per join and carries the running count; `referral_plus_unlocked` fires once on the third and states the period the free month covers. Unread rows sit on the raised surface, same as the rest of the feed. Neither type is emitted by the backend yet.',
+      },
+    },
+  },
 };
 
 export const GivebackCard: StoryObj = {
