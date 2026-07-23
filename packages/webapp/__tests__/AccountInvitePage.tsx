@@ -125,9 +125,10 @@ it('should render the 3-invites promo with the progress at zero', async () => {
   renderComponent();
 
   expect(
-    await screen.findByText('Invite 3 friends, get 1 month of Plus free'),
+    await screen.findByText('Invite 3 friends, get 1 month of Plus'),
   ).toBeInTheDocument();
   expect(screen.getByText('0 of 3 friends joined')).toBeInTheDocument();
+  expect(screen.getByText('Your invitation link')).toBeInTheDocument();
 });
 
 it('should reflect partial progress from the referral campaign', async () => {
@@ -142,10 +143,10 @@ it('should show the unlocked state once three friends joined', async () => {
   renderComponent();
 
   expect(
-    await screen.findByText('3 of 3 friends joined — free month unlocked'),
+    await screen.findByText('3 of 3 friends joined — Plus unlocked'),
   ).toBeInTheDocument();
   expect(
-    screen.getByText(/your free month of Plus is unlocked/),
+    screen.getByText('3 friends joined. Your free month of Plus is unlocked.'),
   ).toBeInTheDocument();
 });
 

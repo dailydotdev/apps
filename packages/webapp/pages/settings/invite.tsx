@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { Fragment, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import {
   ReferralCampaignKey,
@@ -78,22 +78,6 @@ const seo: NextSeoProps = {
 
 const INVITE_GOAL = 3;
 
-const HOW_IT_WORKS_STEPS = [
-  {
-    title: 'Share your link',
-    description: 'Copy it or send it through any of the platforms above.',
-  },
-  {
-    title: 'They join daily.dev',
-    description:
-      'Each signup through your link appears in your referrals below.',
-  },
-  {
-    title: 'Plus unlocks',
-    description: 'After three joins, your free month of Plus kicks in.',
-  },
-] as const;
-
 interface InviteProgressProps {
   joinedCount: number;
   isCompleted: boolean;
@@ -105,59 +89,55 @@ const InviteProgress = ({
   isCompleted,
   referredUsers,
 }: InviteProgressProps): ReactElement => (
-  <div className="mt-4 flex flex-wrap items-center gap-3">
+  <div className="mt-4 flex flex-col items-start gap-2">
+    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
+      {isCompleted
+        ? `${INVITE_GOAL} of ${INVITE_GOAL} friends joined — Plus unlocked`
+        : `${joinedCount} of ${INVITE_GOAL} friends joined`}
+    </Typography>
     <div
-      className="flex items-center"
+      className="flex items-center gap-2"
       aria-label={`${joinedCount} of ${INVITE_GOAL} friends joined`}
     >
       {Array.from({ length: INVITE_GOAL }, (_, index) => {
         const isFilled = index < joinedCount;
         const referredUser = referredUsers[index];
 
+        if (isFilled && referredUser) {
+          return (
+            <ProfilePicture
+              key={referredUser.id}
+              user={referredUser}
+              size={ProfileImageSize.Medium}
+            />
+          );
+        }
+
         return (
-          <Fragment key={referredUser?.id ?? `invite-slot-${index}`}>
-            {index > 0 && (
-              <span
-                aria-hidden
-                className="h-px w-3 bg-border-subtlest-tertiary"
-              />
+          <span
+            aria-hidden
+            key={`invite-slot-${index}`}
+            className={classNames(
+              'flex size-8 items-center justify-center rounded-10',
+              isFilled
+                ? 'bg-surface-float text-text-secondary'
+                : 'border border-dashed border-border-subtlest-primary text-text-quaternary',
             )}
-            {isFilled && referredUser ? (
-              <ProfilePicture
-                user={referredUser}
-                size={ProfileImageSize.Medium}
-              />
-            ) : (
-              <span
-                aria-hidden
-                className={classNames(
-                  'flex size-8 items-center justify-center rounded-full',
-                  isFilled
-                    ? 'bg-surface-float text-text-secondary'
-                    : 'border border-dashed border-border-subtlest-primary text-text-quaternary',
-                )}
-              >
-                {isFilled ? <VIcon /> : <AddUserIcon secondary />}
-              </span>
-            )}
-          </Fragment>
+          >
+            {isFilled ? <VIcon /> : <AddUserIcon secondary />}
+          </span>
         );
       })}
       <span aria-hidden className="h-px w-3 bg-border-subtlest-tertiary" />
       <span
         className={classNames(
-          'flex items-center gap-0.5 rounded-full bg-action-plus-float px-2 py-0.5 font-bold text-action-plus-default typo-footnote',
+          'flex h-8 items-center gap-1 rounded-10 bg-action-plus-float px-3 font-bold text-action-plus-default typo-footnote',
           isCompleted && 'border border-action-plus-default',
         )}
       >
-        <DevPlusIcon secondary size={IconSize.Size16} />1 month
+        <DevPlusIcon secondary size={IconSize.Size16} />1 month of Plus
       </span>
     </div>
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Tertiary}>
-      {isCompleted
-        ? `${INVITE_GOAL} of ${INVITE_GOAL} friends joined — free month unlocked`
-        : `${joinedCount} of ${INVITE_GOAL} friends joined`}
-    </Typography>
   </div>
 );
 
@@ -226,11 +206,11 @@ const AccountInvitePage = (): ReactElement => {
     <AccountPageContainer title="Invite friends">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
-        title="Invite 3 friends, get 1 month of Plus free"
+        title="Invite 3 friends, get 1 month of Plus"
         description={
           isCompleted
-            ? 'Three developers joined through your link — your free month of Plus is unlocked. Invites keep counting toward the community.'
-            : 'Share your personal link with developers you rate. Once three of them join daily.dev, your next month of Plus is on us.'
+            ? '3 friends joined. Your free month of Plus is unlocked.'
+            : 'When 3 developers join daily.dev through your link, your free month of Plus starts.'
         }
       >
         {isPlus && !isCompleted && (
@@ -239,8 +219,7 @@ const AccountInvitePage = (): ReactElement => {
             type={TypographyType.Footnote}
             color={TypographyColor.Tertiary}
           >
-            Already on Plus? Your free month gets added on top of your current
-            subscription.
+            Already on Plus? The free month is added to your subscription.
           </Typography>
         )}
         <InviteProgress
@@ -248,6 +227,8 @@ const AccountInvitePage = (): ReactElement => {
           isCompleted={isCompleted}
           referredUsers={users}
         />
+      </AccountContentSection>
+      <AccountContentSection title="Your invitation link">
         <InviteLinkInput
           className={{ container: 'mt-4' }}
           link={inviteLink}
@@ -274,31 +255,6 @@ const AccountInvitePage = (): ReactElement => {
             shortenUrl={false}
           />
         </div>
-      </AccountContentSection>
-      <AccountContentSection title="How it works">
-        <ol className="mt-4 flex flex-col gap-3">
-          {HOW_IT_WORKS_STEPS.map((step, index) => (
-            <li key={step.title} className="flex items-start gap-3">
-              <span
-                aria-hidden
-                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-surface-float font-bold text-text-secondary typo-footnote"
-              >
-                {index + 1}
-              </span>
-              <div className="flex min-w-0 flex-col">
-                <Typography type={TypographyType.Callout} bold>
-                  {step.title}
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  {step.description}
-                </Typography>
-              </div>
-            </li>
-          ))}
-        </ol>
       </AccountContentSection>
       {isGivebackEnabled && (
         <AccountContentSection
