@@ -17,6 +17,9 @@ import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import Markdown from '@dailydotdev/shared/src/components/Markdown';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import { DateFormat } from '@dailydotdev/shared/src/components/utilities/DateFormat';
+import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
 import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
@@ -44,6 +47,12 @@ import ProtectedPage from '../../components/ProtectedPage';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const quickActions = ['Explore more', 'Write me a post'];
+const quickActionHints: Record<string, string> = {
+  'Explore more':
+    'Runs the agent now to hunt for more matching content. Note: the label is also saved to the refine history.',
+  'Write me a post':
+    'Runs the agent now and asks it to write a markdown summary post of what it found.',
+};
 const sourceLabels: Record<'dailyDev' | 'web' | 'github', string> = {
   dailyDev: 'daily.dev',
   web: 'Web',
@@ -127,41 +136,53 @@ const Page = (): ReactElement | null => {
               {interest.status}
               {interest.lastRunSummary ? ` · ${interest.lastRunSummary}` : ''}
             </Typography>
-            <Button
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              disabled={isUpdating || isStopped}
-              onClick={() =>
-                updateInterest({
-                  status:
-                    interest.status === UserInterestStatus.Active
-                      ? UserInterestStatus.Paused
-                      : UserInterestStatus.Active,
-                })
+            <Tooltip
+              content={
+                interest.status === UserInterestStatus.Active
+                  ? 'Pause the agent — stops scheduled and live hunting. Nothing new is added; existing feed and posts stay. Resume anytime.'
+                  : 'Resume the agent — re-enables scheduled and live hunting.'
               }
             >
-              {interest.status === UserInterestStatus.Active
-                ? 'Pause'
-                : 'Resume'}
-            </Button>
-            <Button
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              disabled={isUpdating || isStopped}
-              onClick={() =>
-                updateInterest({ status: UserInterestStatus.Stopped })
-              }
-            >
-              Stop
-            </Button>
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              loading={isDeleting}
-              onClick={() => deleteInterest(id)}
-            >
-              Delete
-            </Button>
+              <Button
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                disabled={isUpdating || isStopped}
+                onClick={() =>
+                  updateInterest({
+                    status:
+                      interest.status === UserInterestStatus.Active
+                        ? UserInterestStatus.Paused
+                        : UserInterestStatus.Active,
+                  })
+                }
+              >
+                {interest.status === UserInterestStatus.Active
+                  ? 'Pause'
+                  : 'Resume'}
+              </Button>
+            </Tooltip>
+            <Tooltip content="Stop the agent for good — permanently halts all hunting. Data is kept but it can't be resumed, only deleted.">
+              <Button
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                disabled={isUpdating || isStopped}
+                onClick={() =>
+                  updateInterest({ status: UserInterestStatus.Stopped })
+                }
+              >
+                Stop
+              </Button>
+            </Tooltip>
+            <Tooltip content="Delete this interest and everything it produced (feed findings, summary posts, its source). This can't be undone.">
+              <Button
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                loading={isDeleting}
+                onClick={() => deleteInterest(id)}
+              >
+                Delete
+              </Button>
+            </Tooltip>
           </FlexRow>
         )}
 
@@ -267,15 +288,16 @@ const Page = (): ReactElement | null => {
           </Typography>
           <FlexRow className="flex-wrap gap-2">
             {quickActions.map((action) => (
-              <Button
-                key={action}
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                disabled={isSending}
-                onClick={() => sendCommand(action)}
-              >
-                {action}
-              </Button>
+              <Tooltip key={action} content={quickActionHints[action]}>
+                <Button
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  disabled={isSending}
+                  onClick={() => sendCommand(action)}
+                >
+                  {action}
+                </Button>
+              </Tooltip>
             ))}
           </FlexRow>
           <div className="flex items-end gap-2">
@@ -287,16 +309,45 @@ const Page = (): ReactElement | null => {
               value={feedback}
               valueChanged={setFeedback}
             />
-            <Button
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Large}
-              onClick={onSendFeedback}
-              loading={isSending}
-              disabled={!feedback.trim()}
-            >
-              Send
-            </Button>
+            <Tooltip content="Save this as guidance for the agent. It's applied to every future run and live match, and triggers a run now.">
+              <Button
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Large}
+                onClick={onSendFeedback}
+                loading={isSending}
+                disabled={!feedback.trim()}
+              >
+                Send
+              </Button>
+            </Tooltip>
           </div>
+        </FlexCol>
+
+        <FlexCol className="gap-3">
+          <Typography type={TypographyType.Body} bold>
+            Posts
+          </Typography>
+          {!postsQuery.isPending && !posts.length && (
+            <Typography color={TypographyColor.Tertiary}>
+              No generated posts yet.
+            </Typography>
+          )}
+          {posts.map((post) => (
+            <FlexCol
+              key={post.id}
+              className="gap-2 rounded-16 border border-border-subtlest-tertiary p-4"
+            >
+              <Typography type={TypographyType.Title3} bold>
+                {post.title}
+              </Typography>
+              <DateFormat
+                date={post.createdAt}
+                type={TimeFormatType.Post}
+                className="text-text-tertiary typo-footnote"
+              />
+              {post.contentHtml && <Markdown content={post.contentHtml} />}
+            </FlexCol>
+          ))}
         </FlexCol>
 
         <FlexCol className="gap-3">
@@ -304,14 +355,16 @@ const Page = (): ReactElement | null => {
             <Typography type={TypographyType.Body} bold>
               Feed
             </Typography>
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              loading={findingsQuery.isFetching}
-              onClick={() => findingsQuery.refetch()}
-            >
-              Refresh
-            </Button>
+            <Tooltip content="Reload the feed to pull in content found since you opened the page.">
+              <Button
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                loading={findingsQuery.isFetching}
+                onClick={() => findingsQuery.refetch()}
+              >
+                Refresh
+              </Button>
+            </Tooltip>
           </FlexRow>
           {findingsQuery.isPending && (
             <Typography color={TypographyColor.Tertiary}>Loading…</Typography>
@@ -338,6 +391,11 @@ const Page = (): ReactElement | null => {
                   {`Score ${finding.score.toFixed(2)}`}
                   {finding.rationale ? ` · ${finding.rationale}` : ''}
                 </Typography>
+                <DateFormat
+                  date={finding.createdAt}
+                  type={TimeFormatType.Post}
+                  className="text-text-tertiary typo-footnote"
+                />
               </FlexCol>
             );
 
@@ -356,28 +414,6 @@ const Page = (): ReactElement | null => {
               </div>
             );
           })}
-        </FlexCol>
-
-        <FlexCol className="gap-3">
-          <Typography type={TypographyType.Body} bold>
-            Posts
-          </Typography>
-          {!postsQuery.isPending && !posts.length && (
-            <Typography color={TypographyColor.Tertiary}>
-              No generated posts yet.
-            </Typography>
-          )}
-          {posts.map((post) => (
-            <FlexCol
-              key={post.id}
-              className="gap-2 rounded-16 border border-border-subtlest-tertiary p-4"
-            >
-              <Typography type={TypographyType.Title3} bold>
-                {post.title}
-              </Typography>
-              {post.contentHtml && <Markdown content={post.contentHtml} />}
-            </FlexCol>
-          ))}
         </FlexCol>
       </div>
     </ProtectedPage>
