@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
+import { format } from 'date-fns';
 import {
   Typography,
   TypographyType,
@@ -68,6 +69,23 @@ const cadenceOptions = [
   { value: UserInterestCadence.Daily, label: 'Every day' },
   { value: UserInterestCadence.Weekly, label: 'Every week' },
 ];
+
+const CardTimestamp = ({
+  date,
+}: {
+  date?: string | null;
+}): ReactElement | null => {
+  if (!date) {
+    return null;
+  }
+
+  return (
+    <FlexRow className="items-center gap-1 text-text-tertiary typo-footnote">
+      <DateFormat date={date} type={TimeFormatType.Post} />
+      <span>{`· ${format(new Date(date), 'HH:mm')}`}</span>
+    </FlexRow>
+  );
+};
 
 const Page = (): ReactElement | null => {
   const router = useRouter();
@@ -340,11 +358,7 @@ const Page = (): ReactElement | null => {
               <Typography type={TypographyType.Title3} bold>
                 {post.title}
               </Typography>
-              <DateFormat
-                date={post.createdAt}
-                type={TimeFormatType.Post}
-                className="text-text-tertiary typo-footnote"
-              />
+              <CardTimestamp date={post.createdAt} />
               {post.contentHtml && <Markdown content={post.contentHtml} />}
             </FlexCol>
           ))}
@@ -391,11 +405,7 @@ const Page = (): ReactElement | null => {
                   {`Score ${finding.score.toFixed(2)}`}
                   {finding.rationale ? ` · ${finding.rationale}` : ''}
                 </Typography>
-                <DateFormat
-                  date={finding.createdAt}
-                  type={TimeFormatType.Post}
-                  className="text-text-tertiary typo-footnote"
-                />
+                <CardTimestamp date={finding.createdAt} />
               </FlexCol>
             );
 
