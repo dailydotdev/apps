@@ -7,6 +7,12 @@ export enum UserInterestStatus {
   Stopped = 'stopped',
 }
 
+export enum UserInterestCadence {
+  Hourly = 'hourly',
+  Daily = 'daily',
+  Weekly = 'weekly',
+}
+
 export type InterestSources = {
   dailyDev: boolean;
   web: boolean;
@@ -24,6 +30,7 @@ export type UserInterest = {
   id: string;
   query: string;
   status: UserInterestStatus;
+  cadence: UserInterestCadence;
   fomoThreshold: number;
   sources: InterestSources;
   outputModes: InterestOutputModes;
@@ -37,6 +44,7 @@ export type UserInterest = {
 
 export type UpdateInterestInput = {
   status?: UserInterestStatus;
+  cadence?: UserInterestCadence;
   fomoThreshold?: number;
   sources?: Partial<InterestSources>;
   outputModes?: Partial<InterestOutputModes>;
@@ -60,6 +68,7 @@ const USER_INTEREST_FRAGMENT = `
     id
     query
     status
+    cadence
     fomoThreshold
     sources
     outputModes

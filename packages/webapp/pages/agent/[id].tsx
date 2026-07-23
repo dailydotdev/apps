@@ -15,6 +15,7 @@ import {
 import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
 import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
+import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
 import Markdown from '@dailydotdev/shared/src/components/Markdown';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
@@ -25,7 +26,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { featureInterestAgent } from '@dailydotdev/shared/src/lib/featureManagement';
-import { UserInterestStatus } from '@dailydotdev/shared/src/graphql/interests';
+import {
+  UserInterestCadence,
+  UserInterestStatus,
+} from '@dailydotdev/shared/src/graphql/interests';
 import {
   interestQueryOptions,
   interestFindingsQueryOptions,
@@ -50,6 +54,11 @@ const outputLabels: Record<'feed' | 'post' | 'notification', string> = {
   post: 'Posts',
   notification: 'Notifications',
 };
+const cadenceOptions = [
+  { value: UserInterestCadence.Hourly, label: 'Every hour' },
+  { value: UserInterestCadence.Daily, label: 'Every day' },
+  { value: UserInterestCadence.Weekly, label: 'Every week' },
+];
 
 const Page = (): ReactElement | null => {
   const router = useRouter();
@@ -179,6 +188,32 @@ const Page = (): ReactElement | null => {
                 onValueCommit={([value]) =>
                   updateInterest({ fomoThreshold: value })
                 }
+              />
+            </FlexCol>
+            <FlexCol className="gap-2">
+              <Typography type={TypographyType.Footnote} bold>
+                Cadence
+              </Typography>
+              <Dropdown
+                className={{
+                  button: '!px-3',
+                  menu: 'menu-primary p-1',
+                  item: '*:min-h-10 *:!typo-callout',
+                }}
+                selectedIndex={Math.max(
+                  0,
+                  cadenceOptions.findIndex(
+                    ({ value }) => value === interest.cadence,
+                  ),
+                )}
+                options={cadenceOptions.map(({ label }) => label)}
+                disabled={isUpdating || isStopped}
+                onChange={(_, index) => {
+                  const cadence = cadenceOptions[index]?.value;
+                  if (cadence && cadence !== interest.cadence) {
+                    updateInterest({ cadence });
+                  }
+                }}
               />
             </FlexCol>
             <FlexCol className="gap-2">
