@@ -18,7 +18,9 @@ interface InviteLinkInputProps {
   text?: Text;
   onCopy?: () => void;
   className?: FieldClassName;
-  logProps: LogEvent;
+  // Logged on copy. Only the built-in button copies, so surfaces that pass
+  // their own `actionButton` log from there instead.
+  logProps?: LogEvent;
   // Replaces the built-in copy button, for surfaces that need a richer control
   // (e.g. the split copy/share button). Optional so every other consumer keeps
   // its original button and copy handling.
@@ -37,7 +39,10 @@ export function InviteLinkInput({
   const { logEvent } = useLogContext();
   const onCopyClick = () => {
     onCopyLink();
-    logEvent(logProps);
+
+    if (logProps) {
+      logEvent(logProps);
+    }
 
     if (onCopy) {
       onCopy();

@@ -25,7 +25,6 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import NotificationItem from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import { referralNotifications } from '../../components/notifications/_mock';
@@ -138,10 +137,6 @@ const InvitePage = ({
         <InviteLinkInput
           className={{ container: 'mt-4' }}
           link={INVITE_LINK}
-          logProps={{
-            event_name: LogEvent.CopyReferralLink,
-            target_id: TargetId.InviteFriendsPage,
-          }}
           actionButton={
             <ShareActions
               variant="split"
@@ -358,10 +353,6 @@ export const ShareMenuOpen: StoryObj = {
     <div className="mx-auto w-full max-w-3xl">
       <InviteLinkInput
         link={INVITE_LINK}
-        logProps={{
-          event_name: LogEvent.CopyReferralLink,
-          target_id: TargetId.InviteFriendsPage,
-        }}
         actionButton={
           <ShareActions
             variant="split"

@@ -181,10 +181,6 @@ const AccountInvitePage = (): ReactElement => {
         <InviteLinkInput
           className={{ container: 'mt-4' }}
           link={inviteLink}
-          logProps={{
-            event_name: LogEvent.CopyReferralLink,
-            target_id: TargetId.InviteFriendsPage,
-          }}
           // The split control copies on the left half and drops the full share
           // list on the right, so the field alone covers every share route.
           actionButton={
