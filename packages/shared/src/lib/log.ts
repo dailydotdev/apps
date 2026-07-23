@@ -535,6 +535,7 @@ export enum TargetType {
   SpotlightCommand = 'spotlight command',
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
+  PostSignupActivation = 'post signup activation',
   EnableNotifications = 'enable notifications',
   OnboardingChecklist = 'onboarding checklist',
   LoginButton = 'login button',

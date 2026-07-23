@@ -39,6 +39,17 @@ export const featurePostPageHighlights = new Feature(
   false,
 );
 export const featurePostRedesign = new Feature('post_redesign', false);
+// Experiment: community takes — an LLM-generated digest of what the developer
+// community on HN/Lobsters thinks about a post. Control hides the surface,
+// treatment shows it. Enrollment is conditional on the post actually having a
+// take (see PostFocusCard's `shouldEvaluate`), so exposure is only logged when
+// there's something to show — take-less posts never dilute the split. Backend
+// generation is unconditional; this flag gates rendering only, so flipping it
+// needs no data backfill. Default MUST stay `false` — see the rule below.
+export const featureCommunitySentiment = new Feature(
+  'community_sentiment',
+  false,
+);
 
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
@@ -304,3 +315,12 @@ export const featureNotificationsRedesign = new Feature(
 // `analytics.impressions` field. Control hides it entirely. Keep the default
 // `false` — GrowthBook ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
+
+// Post-signup feed activation bar: a persistent, non-dismissible strip shown
+// above the header on every page for signed-in users who registered but have
+// not set up their feed yet (no tag/content customization). Control hides it
+// entirely. Keep the default `false` — GrowthBook ramps it.
+export const featurePostSignupActivation = new Feature(
+  'post_signup_activation',
+  false,
+);
