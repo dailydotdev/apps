@@ -8,7 +8,7 @@ import {
 } from '../../typography/Typography';
 import { HotIcon, OpenLinkIcon, ArrowIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import { anchorDefaultRel } from '../../../lib/strings';
+import { anchorDefaultRel, capitalize } from '../../../lib/strings';
 import { largeNumberFormat } from '../../../lib/numberFormat';
 import type {
   CommunitySentimentData,
@@ -18,24 +18,36 @@ import type {
   SourceSentiment,
 } from './CommunitySentiment';
 
-// Maps the by-source narrative's friendly name to the discussion payload's
-// machine-friendly provider id, so raw counts can be attached to the right row.
-const SOURCE_TO_PROVIDER: Record<string, string> = {
-  'Hacker News': 'hackernews',
-  Lobsters: 'lobsters',
-  X: 'x',
+// The take payload references communities loosely — the LLM may emit a
+// provider id ("hackernews") or a friendly name ("Hacker News"). Normalize
+// everything to the discussion payload's provider id so display labels,
+// badges and raw counts all resolve from the same key.
+const PROVIDER_ALIASES: Record<string, string> = {
+  hn: 'hackernews',
+  twitter: 'x',
 };
 
-const formatDiscussionCount = (value: number): string =>
-  largeNumberFormat(value)?.toLowerCase() ?? `${value}`;
+const normalizeProvider = (source: string): string => {
+  const key = source.toLowerCase().replace(/[^a-z0-9]/g, '');
+  return PROVIDER_ALIASES[key] ?? key;
+};
 
 // Authentic-enough source marks: HN's real logo is an orange "Y" square, X the
 // glyph, Lobsters a red square. `color` omitted => theme-adaptive mono badge.
-const SOURCE_BADGE: Record<string, { label: string; color?: string }> = {
-  X: { label: '𝕏' },
-  'Hacker News': { label: 'Y', color: '#FF6600' },
-  Lobsters: { label: 'L', color: '#A6291F' },
+const PROVIDER_META: Record<
+  string,
+  { label: string; badge: { glyph: string; color?: string } }
+> = {
+  hackernews: { label: 'Hacker News', badge: { glyph: 'Y', color: '#FF6600' } },
+  lobsters: { label: 'Lobsters', badge: { glyph: 'L', color: '#A6291F' } },
+  x: { label: 'X', badge: { glyph: '𝕏' } },
 };
+
+const providerLabel = (source: string): string =>
+  PROVIDER_META[normalizeProvider(source)]?.label ?? capitalize(source);
+
+const formatDiscussionCount = (value: number): string =>
+  largeNumberFormat(value)?.toLowerCase() ?? `${value}`;
 
 const SourceBadge = ({
   source,
@@ -44,7 +56,7 @@ const SourceBadge = ({
   source: string;
   className: string;
 }): ReactElement | null => {
-  const badge = SOURCE_BADGE[source];
+  const badge = PROVIDER_META[normalizeProvider(source)]?.badge;
   if (!badge) {
     return null;
   }
@@ -57,7 +69,7 @@ const SourceBadge = ({
       )}
       style={badge.color ? { backgroundColor: badge.color } : undefined}
     >
-      {badge.label}
+      {badge.glyph}
     </span>
   );
 };
@@ -169,6 +181,10 @@ const SourceRow = ({
   discussion?: CommunitySentimentDiscussion;
 }): ReactElement => {
   const chip = LEAN_CHIP[lean];
+  const label = providerLabel(source);
+  // The narrative row may not carry its own url; the raw discussion entry for
+  // the same provider is the same thread, so use it as the link fallback.
+  const linkUrl = url ?? discussion?.url;
 
   const content = (
     <>
@@ -180,7 +196,7 @@ const SourceRow = ({
             color={TypographyColor.Primary}
             bold
           >
-            {source}
+            {label}
           </Typography>
           <span
             className={classNames(
@@ -212,7 +228,7 @@ const SourceRow = ({
       <span
         className={classNames(
           'mt-0.5 shrink-0 text-text-tertiary transition-colors group-hover:text-brand-default',
-          !url && 'invisible',
+          !linkUrl && 'invisible',
         )}
       >
         <OpenLinkIcon size={IconSize.Size16} />
@@ -222,13 +238,13 @@ const SourceRow = ({
 
   const rowClassName = '-mx-2 flex gap-2.5 rounded-10 px-2 py-1.5';
 
-  if (url) {
+  if (linkUrl) {
     return (
       <a
-        href={url}
+        href={linkUrl}
         target="_blank"
         rel={anchorDefaultRel}
-        title={`View the discussion on ${source}`}
+        title={`View the discussion on ${label}`}
         className={classNames(
           rowClassName,
           'group transition-colors hover:bg-surface-hover',
@@ -253,7 +269,7 @@ const HighlightCard = ({
     href={url}
     target="_blank"
     rel={anchorDefaultRel}
-    title={`Read on ${source}`}
+    title={`Read on ${providerLabel(source)}`}
     className="group flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-3 transition-colors hover:border-border-subtlest-secondary"
   >
     <Typography type={TypographyType.Footnote} color={TypographyColor.Primary}>
@@ -316,7 +332,10 @@ export const CommunitySentimentBreakdown = ({
     !showAllHighlights && highlights.length > INITIAL_HIGHLIGHTS;
 
   const discussionByProvider = new Map(
-    discussions?.map((discussion) => [discussion.provider, discussion]),
+    discussions?.map((discussion) => [
+      normalizeProvider(discussion.provider),
+      discussion,
+    ]),
   );
 
   return (
@@ -370,7 +389,7 @@ export const CommunitySentimentBreakdown = ({
                 key={item.source}
                 {...item}
                 discussion={discussionByProvider.get(
-                  SOURCE_TO_PROVIDER[item.source],
+                  normalizeProvider(item.source),
                 )}
               />
             ))}
