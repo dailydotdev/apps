@@ -271,10 +271,13 @@ export const PostFocusCard = ({
     shouldEvaluate: !!communitySentimentData,
   });
   // Only on the full post page, not the preview modal (which passes
-  // `onClose`). `isDevelopment` lets the design be previewed locally with the
-  // sample data without flipping the committed (always-`false`) flag default.
+  // `onClose`), and only when the post actually has a take. `isDevelopment`
+  // lets the surface be previewed locally without flipping the committed
+  // (always-`false`) flag default.
   const showCommunitySentiment =
-    !onClose && (communitySentimentEnabled || isDevelopment);
+    !onClose &&
+    !!communitySentimentData &&
+    (communitySentimentEnabled || isDevelopment);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the

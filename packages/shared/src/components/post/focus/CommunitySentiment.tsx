@@ -77,7 +77,7 @@ export interface CommunitySentimentData {
   /** Layer 2 — how each external community leans. */
   bySource: SourceSentiment[];
   /** Layer 2 — the single biggest flashpoint, if the take is divisive. */
-  hottestDebate: string;
+  hottestDebate?: string;
   /** Layer 2 — what the community is still asking. */
   openQuestions: string[];
   /** Layer 3 — a few verbatim receipts worth reading. */
@@ -107,7 +107,8 @@ export type CommunitySentimentHighlightPost = Omit<
   SentimentHighlight,
   'metrics'
 > & {
-  metrics: SentimentHighlightMetrics;
+  /** Nullable on the wire — the API omits metrics when the source had none. */
+  metrics?: SentimentHighlightMetrics | null;
 };
 
 /**
@@ -147,8 +148,7 @@ const formatHighlightMetrics = (metrics: SentimentHighlightMetrics): string[] =>
 
 /**
  * Maps the API's wire shape (structured highlight metrics) to the display
- * shape the components in this file render. This is the "one-line swap"
- * the mockup was designed for: `<CommunitySentiment data={post.communitySentiment ? mapCommunitySentimentPost(post.communitySentiment) : undefined} />`.
+ * shape the components in this file render.
  */
 export const mapCommunitySentimentPost = (
   data: CommunitySentimentPost,
@@ -156,115 +156,9 @@ export const mapCommunitySentimentPost = (
   ...data,
   highlights: data.highlights.map((highlight) => ({
     ...highlight,
-    metrics: formatHighlightMetrics(highlight.metrics),
+    metrics: highlight.metrics ? formatHighlightMetrics(highlight.metrics) : [],
   })),
 });
-
-/**
- * Layer 1 + 2 mock data. Replaced by a real aggregation query once the design
- * lands; kept as a typed default so wiring live data later is a one-line swap.
- */
-export const SAMPLE_COMMUNITY_SENTIMENT: CommunitySentimentData = {
-  breakdown: { positive: 57, mixed: 27, critical: 16 },
-  tldr: `Developers love the idea of collapsing their stack onto Postgres to cut ops overhead and complexity, but a vocal group warns that Redis, Kafka, and Elasticsearch exist for a reason once you hit real scale.`,
-  postCount: 410,
-  sources: ['X', 'Hacker News', 'Lobsters'],
-  pros: [
-    'One database to run, back up and monitor — a real ops win for small teams',
-    'Extensions like pgvector, pg_search, PGMQ and TimescaleDB are genuinely capable now',
-    'Transactions and joins across data that used to live in separate systems',
-  ],
-  cons: [
-    'Purpose-built tools still win at scale — Kafka throughput, ES relevance, Redis latency',
-    'Overloading one primary turns it into a single point of failure and contention',
-    'Extensions bring their own upgrade and operational pain',
-  ],
-  bySource: [
-    {
-      source: 'Hacker News',
-      lean: 'heated',
-      note: `Classic "just use Postgres" vs "know your scale" flame war`,
-      url: 'https://news.ycombinator.com/item?id=39135501',
-    },
-    {
-      source: 'X',
-      lean: 'positive',
-      note: 'Devs cheering the stack simplification and cost savings',
-    },
-    {
-      source: 'Lobsters',
-      lean: 'skeptical',
-      note: `More measured — "it works until it doesn't; depends on scale"`,
-      url: 'https://lobste.rs/s/vtfkqh',
-    },
-  ],
-  hottestDebate: `Is consolidating onto Postgres a smart simplification, or just deferring the scaling pain you'll pay for later?`,
-  openQuestions: [
-    'At what scale does the single-Postgres approach actually break down?',
-    'Does pgvector / pg_search hold up against dedicated Elasticsearch on large corpora?',
-    'Is the migration cost worth the ops savings for an existing stack?',
-  ],
-  highlights: [
-    {
-      quote: `Every service I've replaced with plain Postgres is one less thing paging me at 3am.`,
-      author: '@maya_builds',
-      source: 'X',
-      url: 'https://x.com/maya_builds/status/1750000000000000000',
-      metrics: ['2.4k likes', '180 replies', '410 reposts'],
-    },
-    {
-      quote: `"Just use Postgres" is great advice, right up until your one primary is on fire and everything is down at once.`,
-      author: 'throwaway_42',
-      source: 'Hacker News',
-      url: 'https://news.ycombinator.com/item?id=39135777',
-      metrics: ['214 points', '96 comments'],
-    },
-    {
-      quote: `pgvector is genuinely good now, but for serious search at scale, Elasticsearch still eats it for lunch.`,
-      author: 'pg_curious',
-      source: 'Lobsters',
-      url: 'https://lobste.rs/s/vtfkqh',
-      metrics: ['38 votes', '22 comments'],
-    },
-    {
-      quote: `We moved our job queue from Redis to PGMQ and honestly haven't thought about it since.`,
-      author: '@kirsten_dev',
-      source: 'X',
-      url: 'https://x.com/kirsten_dev/status/1750000000000000001',
-      metrics: ['1.2k likes', '88 replies'],
-    },
-    {
-      quote: `The "one database" crowd forgets that backups, failover and vacuum tuning get scarier as that single DB grows.`,
-      author: 'dba_ghost',
-      source: 'Hacker News',
-      url: 'https://news.ycombinator.com/item?id=39135888',
-      metrics: ['156 points', '74 comments'],
-    },
-    {
-      quote: `TimescaleDB replacing our metrics stack was the single best infra decision we made last year.`,
-      author: 'metrics_maxi',
-      source: 'Lobsters',
-      url: 'https://lobste.rs/s/wq2m4p',
-      metrics: ['29 votes', '15 comments'],
-    },
-  ],
-  discussions: [
-    {
-      provider: 'hackernews',
-      url: 'https://news.ycombinator.com/item?id=39135501',
-      points: 329,
-      commentsCount: 172,
-    },
-    {
-      provider: 'lobsters',
-      url: 'https://lobste.rs/s/vtfkqh',
-      points: 38,
-      commentsCount: 22,
-    },
-  ],
-  // Kept relative to "now" so the local/storybook preview always reads as fresh.
-  updatedAt: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-};
 
 const BREAKDOWN_SEGMENTS: Array<{
   key: keyof SentimentBreakdown;
@@ -277,9 +171,7 @@ const BREAKDOWN_SEGMENTS: Array<{
 ];
 
 interface CommunitySentimentProps {
-  /** `null`/`undefined` render nothing — a post without a take has no widget.
-   * Omitting the prop entirely (e.g. in storybook/local dev) falls back to the
-   * sample data below. */
+  /** `null`/`undefined` render nothing — a post without a take has no widget. */
   data?: CommunitySentimentData | null;
   onSeeBreakdown?: () => void;
   className?: string;
@@ -291,14 +183,12 @@ interface CommunitySentimentProps {
  * TL;DR + a breakdown bar; "Deep dive" expands the modular Layer 2 blocks in place.
  */
 export const CommunitySentiment = ({
-  data = SAMPLE_COMMUNITY_SENTIMENT,
+  data,
   onSeeBreakdown,
   className,
 }: CommunitySentimentProps): ReactElement | null => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // A caller may explicitly pass `null` (a real post without a take) — that
-  // bypasses the default param, so this guard is still needed.
   if (!data) {
     return null;
   }
