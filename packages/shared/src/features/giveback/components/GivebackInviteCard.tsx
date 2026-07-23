@@ -70,14 +70,17 @@ export const GivebackInviteCard = ({
       {/* Not GivebackMascot: its `h-44 tablet:h-56` is baked into the same
           class string a caller would override, and class names here are
           concatenated rather than merged, so the hero size always wins. This
-          card needs a compact charm, so it sizes its own. */}
-      <span className="relative mx-auto flex size-24 shrink-0 items-center justify-center tablet:mx-0">
+          card needs a compact charm, so it sizes its own.
+
+          The render sits on solid black and needs mix-blend-screen to drop it,
+          which only works over a dark surface — on the light theme the charm
+          would blend away entirely. So it gets its own tile in the artwork's
+          own black (raw-pepper-90), constant across themes. */}
+      <span className="relative mx-auto flex size-24 shrink-0 items-center justify-center overflow-hidden rounded-16 bg-raw-pepper-90 tablet:mx-0">
         <span
           aria-hidden
           className="bg-accent-cabbage-default/25 absolute inset-0 m-auto size-3/4 rounded-full blur-2xl motion-safe:animate-glow-pulse"
         />
-        {/* The render sits on solid black; mix-blend-screen drops the black so
-            the charm reads as floating on the card. */}
         <img
           src={cloudinaryCharmGiveback}
           alt=""
