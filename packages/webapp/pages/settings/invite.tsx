@@ -327,27 +327,26 @@ const AccountInvitePage = (): ReactElement => {
             isFetchingNextPage: usersResult.isFetchingNextPage,
             canFetchMore: checkFetchMore(usersResult),
             fetchNextPage: usersResult.fetchNextPage,
-            className: 'mt-4',
+            // UserList hard-codes px-6 on every row; cancel the section's own
+            // p-6 so the rows line up with the headings above them and the
+            // hover highlight runs the full width of the card.
+            className: 'mt-4 -mx-6',
           }}
           emptyPlaceholder={
-            <div className="mt-16 flex flex-col items-center text-text-secondary">
+            <div className="mt-4 flex items-center gap-3 text-text-secondary">
               <Image
-                className="h-40 w-40 object-contain"
+                className="h-16 w-16 shrink-0 object-contain"
                 src={cloudinaryCharmInviteFriends}
                 alt="daily.dev charm inviting your friends"
                 loading="lazy"
               />
-              <p className="mt-2 typo-body">
+              <p className="typo-callout">
                 No one has joined yet. Share your link!
               </p>
             </div>
           }
           userInfoProps={{
             scrollingContainer: container.current,
-            className: {
-              container: 'px-0 py-3 items-center',
-              textWrapper: 'flex-none',
-            },
             transformUsername({
               username,
               createdAt,
