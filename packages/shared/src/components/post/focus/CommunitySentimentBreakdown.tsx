@@ -23,7 +23,9 @@ import type {
 // badges and raw counts all resolve from the same key.
 const PROVIDER_ALIASES: Record<string, string> = {
   hn: 'hackernews',
+  newsycombinatorcom: 'hackernews',
   twitter: 'x',
+  xcom: 'x',
 };
 
 const normalizeProvider = (source: string): string => {
@@ -47,6 +49,16 @@ const providerLabel = (source: string): string =>
 
 const formatDiscussionCount = (value: number): string =>
   largeNumberFormat(value)?.toLowerCase() ?? `${value}`;
+
+const normalizeDiscussionUrl = (url: string): string => {
+  try {
+    const parsedUrl = new URL(url);
+    parsedUrl.hash = '';
+    return parsedUrl.toString();
+  } catch {
+    return url;
+  }
+};
 
 const SourceBadge = ({
   source,
@@ -247,16 +259,47 @@ export const CommunitySentimentBreakdown = ({
 }): ReactElement => {
   const { pros, cons, bySource, discussions } = data;
 
-  const discussionByProvider = new Map(
-    discussions?.map((discussion) => [
-      normalizeProvider(discussion.provider),
-      discussion,
-    ]),
-  );
-  const sourcesWithComments = bySource.filter((item) => {
-    const discussion = discussionByProvider.get(normalizeProvider(item.source));
-    return discussion?.commentsCount !== 0;
+  const discussionsByProvider = new Map<
+    string,
+    CommunitySentimentDiscussion[]
+  >();
+  const discussionsByUrl = new Map<string, CommunitySentimentDiscussion[]>();
+
+  discussions?.forEach((discussion) => {
+    const provider = normalizeProvider(discussion.provider);
+    const providerDiscussions = discussionsByProvider.get(provider) ?? [];
+    providerDiscussions.push(discussion);
+    discussionsByProvider.set(provider, providerDiscussions);
+
+    const url = normalizeDiscussionUrl(discussion.url);
+    const urlDiscussions = discussionsByUrl.get(url) ?? [];
+    urlDiscussions.push(discussion);
+    discussionsByUrl.set(url, urlDiscussions);
   });
+
+  const getSourceDiscussions = (
+    item: SourceSentiment,
+  ): CommunitySentimentDiscussion[] => {
+    const urlDiscussions = item.url
+      ? discussionsByUrl.get(normalizeDiscussionUrl(item.url))
+      : undefined;
+
+    return (
+      urlDiscussions ??
+      discussionsByProvider.get(normalizeProvider(item.source)) ??
+      []
+    );
+  };
+  const sourceRows = bySource
+    .map((item) => {
+      const sourceDiscussions = getSourceDiscussions(item);
+      const discussion =
+        sourceDiscussions.find(({ commentsCount }) => commentsCount > 0) ??
+        sourceDiscussions[0];
+
+      return { item, discussion };
+    })
+    .filter(({ discussion }) => discussion?.commentsCount !== 0);
 
   return (
     <div className="flex animate-composer-in flex-col gap-4 border-t border-border-subtlest-tertiary pt-3">
@@ -271,17 +314,15 @@ export const CommunitySentimentBreakdown = ({
         </div>
       )}
 
-      {sourcesWithComments.length > 0 && (
+      {sourceRows.length > 0 && (
         <div className="flex flex-col gap-2.5">
           <BlockTitle>By community</BlockTitle>
           <div className="flex flex-col gap-1">
-            {sourcesWithComments.map((item) => (
+            {sourceRows.map(({ item, discussion }) => (
               <SourceRow
-                key={item.source}
+                key={item.url ?? item.source}
                 {...item}
-                discussion={discussionByProvider.get(
-                  normalizeProvider(item.source),
-                )}
+                discussion={discussion}
               />
             ))}
           </div>

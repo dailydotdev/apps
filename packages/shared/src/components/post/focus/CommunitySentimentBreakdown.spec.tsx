@@ -92,6 +92,54 @@ describe('CommunitySentimentBreakdown', () => {
     ).toBeInTheDocument();
   });
 
+  it('keeps a source row when another thread from the same provider has no comments', () => {
+    render(
+      <CommunitySentimentBreakdown
+        data={createData({
+          bySource: [
+            {
+              source: 'hackernews',
+              lean: 'mixed',
+              note: 'No comments were present, so no community signal is available.',
+              url: 'https://news.ycombinator.com/item?id=1',
+            },
+            {
+              source: 'lobsters',
+              lean: 'skeptical',
+              note: 'Developers want stronger benchmarks.',
+              url: 'https://lobste.rs/s/with_comments',
+            },
+          ],
+          discussions: [
+            {
+              provider: 'hackernews',
+              url: 'https://news.ycombinator.com/item?id=1',
+              points: 2,
+              commentsCount: 0,
+            },
+            {
+              provider: 'lobsters',
+              url: 'https://lobste.rs/s/with_comments',
+              points: 12,
+              commentsCount: 5,
+            },
+            {
+              provider: 'lobsters',
+              url: 'https://lobste.rs/s/no_comments',
+              points: 1,
+              commentsCount: 0,
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.queryByText('Hacker News')).not.toBeInTheDocument();
+    expect(screen.getByText('Lobsters')).toBeInTheDocument();
+    expect(screen.getByText('Skeptical')).toBeInTheDocument();
+    expect(screen.getByText('12 points · 5 comments')).toBeInTheDocument();
+  });
+
   it('keeps the source lean when comments are available', () => {
     render(
       <CommunitySentimentBreakdown
