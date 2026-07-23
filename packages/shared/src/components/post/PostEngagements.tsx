@@ -32,6 +32,10 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureArticleChatter } from '../../lib/featureManagement';
+import { isDevelopment } from '../../lib/constants';
+import { ChatterSection } from '../../features/chatter/components/ChatterSection';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -77,6 +81,13 @@ function PostEngagements({
     false,
   );
   const [linkClicked, setLinkClicked] = useState(false);
+  const { value: chatterFlag } = useConditionalFeature({
+    feature: featureArticleChatter,
+    shouldEvaluate: true,
+  });
+  // Local-only preview; the committed flag default stays false so it never
+  // ships to prod until GrowthBook ramps it.
+  const showChatter = chatterFlag || isDevelopment;
 
   const handleLinkClick = () => {
     setLinkClicked(true);
@@ -162,6 +173,7 @@ function PostEngagements({
         CommentInputOrModal={CommentInputOrModal}
       />
       {!isPlus && <AdAsComment postId={post.id} />}
+      {showChatter && <ChatterSection post={post} className="my-6" />}
       <PostComments
         post={post}
         sortBy={sortBy}
