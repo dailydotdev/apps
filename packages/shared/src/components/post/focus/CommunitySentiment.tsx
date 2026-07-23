@@ -239,10 +239,10 @@ export const CommunitySentiment = ({
           isExpanded && 'rounded-b-none',
         )}
       >
-        <div className="flex items-center gap-2">
-          {/* Shrinkable so the stat never overflows the card on mobile; the
-              "Updated Xh ago" segment truncates first. */}
-          <span className="flex min-w-0 flex-1 items-center gap-1.5 text-text-tertiary">
+        {/* Stacked on mobile (the stat gets its own line), inline and
+            right-aligned from tablet up. */}
+        <div className="flex flex-col gap-1 tablet:flex-row tablet:items-center tablet:gap-2">
+          <span className="flex min-w-0 items-center gap-1.5 text-text-tertiary">
             <DiscussIcon size={IconSize.Size16} className="shrink-0" />
             <Typography
               tag={TypographyTag.H2}
@@ -265,7 +265,7 @@ export const CommunitySentiment = ({
               </>
             )}
           </span>
-          <span className="ml-auto flex shrink-0 items-baseline gap-1">
+          <span className="flex shrink-0 items-baseline gap-1 tablet:ml-auto">
             <Typography
               type={TypographyType.Callout}
               color={TypographyColor.Primary}
