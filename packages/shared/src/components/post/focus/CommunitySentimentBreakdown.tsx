@@ -1,19 +1,18 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { HotIcon, OpenLinkIcon, ArrowIcon } from '../../icons';
+import { OpenLinkIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { anchorDefaultRel, capitalize } from '../../../lib/strings';
 import { largeNumberFormat } from '../../../lib/numberFormat';
 import type {
   CommunitySentimentData,
   CommunitySentimentDiscussion,
-  SentimentHighlight,
   SourceLean,
   SourceSentiment,
 } from './CommunitySentiment';
@@ -148,29 +147,6 @@ const ArgumentList = ({
   </div>
 );
 
-const Flashpoint = ({ text }: { text: string }): ReactElement => (
-  <div className="flex gap-2 rounded-10 bg-accent-bun-flat p-3">
-    <span className="mt-0.5 shrink-0 text-accent-bun-default">
-      <HotIcon size={IconSize.Size16} />
-    </span>
-    <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Primary}
-        bold
-      >
-        The big debate
-      </Typography>
-      <Typography
-        type={TypographyType.Footnote}
-        color={TypographyColor.Secondary}
-      >
-        {text}
-      </Typography>
-    </div>
-  </div>
-);
-
 const SourceRow = ({
   source,
   lean,
@@ -258,78 +234,18 @@ const SourceRow = ({
   return <div className={rowClassName}>{content}</div>;
 };
 
-const HighlightCard = ({
-  quote,
-  author,
-  source,
-  url,
-  metrics,
-}: SentimentHighlight): ReactElement => (
-  <a
-    href={url}
-    target="_blank"
-    rel={anchorDefaultRel}
-    title={`Read on ${providerLabel(source)}`}
-    className="group flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary p-3 transition-colors hover:border-border-subtlest-secondary"
-  >
-    <Typography type={TypographyType.Footnote} color={TypographyColor.Primary}>
-      &ldquo;{quote}&rdquo;
-    </Typography>
-    <div className="flex items-center gap-1.5">
-      <SourceBadge source={source} className="size-5 rounded-6 text-[10px]" />
-      <div className="flex min-w-0 flex-1 items-center gap-1.5">
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Secondary}
-          bold
-          className="shrink-0"
-        >
-          {author}
-        </Typography>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          className="min-w-0 flex-1 truncate"
-        >
-          · {metrics.join(' · ')}
-        </Typography>
-      </div>
-      <span className="shrink-0 text-text-tertiary transition-colors group-hover:text-brand-default">
-        <OpenLinkIcon size={IconSize.Size16} />
-      </span>
-    </div>
-  </a>
-);
-
 /**
  * Community Sentiment — Layer 2. A modular set of blocks revealed by "Deep dive".
  * Each block only renders when it has content, so the layer composes itself to
  * the item's sentiment shape (a calm, consensus item shows fewer blocks than a
  * divisive one).
  */
-const INITIAL_HIGHLIGHTS = 3;
-
 export const CommunitySentimentBreakdown = ({
   data,
 }: {
   data: CommunitySentimentData;
 }): ReactElement => {
-  const {
-    pros,
-    cons,
-    bySource,
-    hottestDebate,
-    openQuestions,
-    highlights,
-    discussions,
-  } = data;
-  const [showAllHighlights, setShowAllHighlights] = useState(false);
-
-  const visibleHighlights = showAllHighlights
-    ? highlights
-    : highlights.slice(0, INITIAL_HIGHLIGHTS);
-  const hasMoreHighlights =
-    !showAllHighlights && highlights.length > INITIAL_HIGHLIGHTS;
+  const { pros, cons, bySource, discussions } = data;
 
   const discussionByProvider = new Map(
     discussions?.map((discussion) => [
@@ -351,35 +267,6 @@ export const CommunitySentimentBreakdown = ({
         </div>
       )}
 
-      {hottestDebate && <Flashpoint text={hottestDebate} />}
-
-      {openQuestions.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <BlockTitle>Open questions</BlockTitle>
-          <ul className="flex flex-col gap-1.5">
-            {openQuestions.map((question) => (
-              <li key={question} className="flex gap-2">
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Brand}
-                  bold
-                  className="shrink-0"
-                >
-                  ?
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Secondary}
-                  className="min-w-0 flex-1"
-                >
-                  {question}
-                </Typography>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
       {bySource.length > 0 && (
         <div className="flex flex-col gap-2.5">
           <BlockTitle>By community</BlockTitle>
@@ -394,27 +281,6 @@ export const CommunitySentimentBreakdown = ({
               />
             ))}
           </div>
-        </div>
-      )}
-
-      {highlights.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <BlockTitle>Top picks</BlockTitle>
-          <div className="flex flex-col gap-2">
-            {visibleHighlights.map((item) => (
-              <HighlightCard key={item.url} {...item} />
-            ))}
-          </div>
-          {hasMoreHighlights && (
-            <button
-              type="button"
-              onClick={() => setShowAllHighlights(true)}
-              className="mt-0.5 flex items-center gap-1 self-center font-bold text-text-tertiary transition-colors typo-footnote hover:text-text-primary"
-            >
-              Load more
-              <ArrowIcon size={IconSize.Size16} className="rotate-180" />
-            </button>
-          )}
         </div>
       )}
     </div>
