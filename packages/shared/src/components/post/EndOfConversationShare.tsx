@@ -9,9 +9,6 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { useSharingVisibility } from '../../hooks/useSharingVisibility';
-import { featureShareEndOfConversation } from '../../lib/featureManagement';
 import { useLogContext } from '../../contexts/LogContext';
 import { postLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
@@ -43,11 +40,10 @@ export interface EndOfConversationShareProps {
 }
 
 /**
- * The band itself, including the activity threshold but without the feature
- * gates, so Storybook can render both sides of the threshold without a
- * GrowthBook instance.
+ * Encouraging share band rendered below the comment list of an active
+ * discussion. Ships to everyone — the comment threshold is the only condition.
  */
-export const EndOfConversationShareBand = ({
+export const EndOfConversationShare = ({
   post,
   variant = 'flat',
   className,
@@ -103,35 +99,5 @@ export const EndOfConversationShareBand = ({
         onShare={onShare}
       />
     </aside>
-  );
-};
-
-/**
- * Encouraging share band rendered below the comment list of an active
- * discussion. Gated by the initiative kill-switch plus its own experiment flag,
- * and only evaluated once the post is past the activity threshold.
- */
-export const EndOfConversationShare = ({
-  post,
-  variant,
-  className,
-}: EndOfConversationShareProps): ReactElement | null => {
-  const isActive = hasActiveDiscussion(post);
-  const { isEnabled: isInitiativeEnabled } = useSharingVisibility(isActive);
-  const { value: isBandEnabled } = useConditionalFeature({
-    feature: featureShareEndOfConversation,
-    shouldEvaluate: isActive && isInitiativeEnabled,
-  });
-
-  if (!isInitiativeEnabled || !isBandEnabled) {
-    return null;
-  }
-
-  return (
-    <EndOfConversationShareBand
-      post={post}
-      variant={variant}
-      className={className}
-    />
   );
 };

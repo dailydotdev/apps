@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import React from 'react';
 import {
   activeDiscussionCommentThreshold,
-  EndOfConversationShareBand,
+  EndOfConversationShare,
 } from '@dailydotdev/shared/src/components/post/EndOfConversationShare';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { ShareActions } from '@dailydotdev/shared/src/components/share/ShareActions';
@@ -28,17 +28,17 @@ const basePost = {
 const withPost = (numComments: number): Post =>
   ({ ...basePost, numComments } as Post);
 
-const meta: Meta<typeof EndOfConversationShareBand> = {
+const meta: Meta<typeof EndOfConversationShare> = {
   title: 'Components/Share/EndOfConversationShare',
-  component: EndOfConversationShareBand,
+  component: EndOfConversationShare,
   args: { post: basePost },
   parameters: {
     docs: {
       description: {
         component: `Share band rendered below the comment list. It only appears once a post
 has an active discussion — more than ${activeDiscussionCommentThreshold} comments, read from
-\`Post.numComments\`. In the app it is additionally gated by the \`sharing_visibility\`
-kill-switch and the \`share_end_of_conversation\` experiment flag.`,
+\`Post.numComments\`. It ships to everyone — the
+comment threshold is the only condition.`,
       },
     },
   },
@@ -49,7 +49,7 @@ kill-switch and the \`share_end_of_conversation\` experiment flag.`,
 
 export default meta;
 
-type Story = StoryObj<typeof EndOfConversationShareBand>;
+type Story = StoryObj<typeof EndOfConversationShare>;
 
 // Active discussion in the default flat treatment: no fill, no rounding, just
 // a hairline rule above the strip.
@@ -112,7 +112,7 @@ const Hidden = ({ post }: { post: Post }) => (
     >
       Nothing renders ({post.numComments ?? 0} comments)
     </Typography>
-    <EndOfConversationShareBand post={post} />
+    <EndOfConversationShare post={post} />
   </div>
 );
 
@@ -148,9 +148,9 @@ export const Mobile: Story = {
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4">
         <CommentSkeletons />
-        <EndOfConversationShareBand post={withPost(12)} />
+        <EndOfConversationShare post={withPost(12)} />
       </div>
-      <EndOfConversationShareBand post={withPost(12)} variant="card" />
+      <EndOfConversationShare post={withPost(12)} variant="card" />
     </div>
   ),
 };
@@ -197,7 +197,7 @@ export const AllStates: Story = {
         title="1. Flat — the default"
         note="12 comments. No fill and no rounding: one hairline rule separates the strip from the comments above it."
       >
-        <EndOfConversationShareBand post={withPost(12)} />
+        <EndOfConversationShare post={withPost(12)} />
       </Section>
 
       <Section
@@ -206,7 +206,7 @@ export const AllStates: Story = {
       >
         <div className="flex flex-col gap-4">
           <CommentSkeletons />
-          <EndOfConversationShareBand post={withPost(12)} />
+          <EndOfConversationShare post={withPost(12)} />
         </div>
       </Section>
 
@@ -214,7 +214,7 @@ export const AllStates: Story = {
         title="2. Card — the heavier alternative, opt-in"
         note='Still available via variant="card": a self-contained float surface with a full border.'
       >
-        <EndOfConversationShareBand post={withPost(12)} variant="card" />
+        <EndOfConversationShare post={withPost(12)} variant="card" />
       </Section>
 
       <Section
@@ -258,7 +258,7 @@ export const AllStates: Story = {
           activeDiscussionCommentThreshold + 1
         } comments. Identical rendering; this is simply where the band switches on.`}
       >
-        <EndOfConversationShareBand
+        <EndOfConversationShare
           post={withPost(activeDiscussionCommentThreshold + 1)}
         />
       </Section>
@@ -283,7 +283,7 @@ export const AllStates: Story = {
       >
         <div className="flex flex-col gap-4">
           <CommentSkeletons />
-          <EndOfConversationShareBand post={withPost(12)} variant="card" />
+          <EndOfConversationShare post={withPost(12)} variant="card" />
         </div>
       </Section>
 
@@ -298,7 +298,7 @@ export const AllStates: Story = {
         title="8. Long title — share text only, layout unchanged"
         note="The band's copy is static, so a long post title never reflows it; the title only rides along in the share payload."
       >
-        <EndOfConversationShareBand
+        <EndOfConversationShare
           post={
             {
               ...withPost(31),
@@ -313,7 +313,7 @@ export const AllStates: Story = {
         title="9. Shared post — falls back to the inner post title"
         note="For a squad share with no title of its own, the shared post's title is used as the share text."
       >
-        <EndOfConversationShareBand
+        <EndOfConversationShare
           post={
             {
               ...withPost(7),

@@ -9,7 +9,6 @@ import {
   within,
 } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import {
   activeDiscussionCommentThreshold,
   EndOfConversationShare,
@@ -48,11 +47,6 @@ const createPost = (numComments: number): Post =>
     numComments,
   } as Post);
 
-const enabledFlags = {
-  sharing_visibility: { defaultValue: true },
-  share_end_of_conversation: { defaultValue: true },
-};
-
 beforeEach(() => {
   jest.clearAllMocks();
   useViewSizeMock.mockReturnValue(true); // default: laptop
@@ -64,16 +58,9 @@ beforeEach(() => {
   delete (navigator as unknown as { share?: unknown }).share;
 });
 
-const renderComponent = (
-  numComments: number,
-  features: Record<string, { defaultValue: boolean }> = enabledFlags,
-): RenderResult =>
+const renderComponent = (numComments: number): RenderResult =>
   render(
-    <TestBootProvider
-      client={new QueryClient()}
-      gb={new GrowthBook({ features })}
-      log={{ logEvent }}
-    >
+    <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
       <EndOfConversationShare post={createPost(numComments)} />
     </TestBootProvider>,
   );
@@ -101,32 +88,6 @@ describe('EndOfConversationShare threshold', () => {
 
     expect(band()).toBeInTheDocument();
     expect(screen.getByText('Enjoyed this discussion?')).toBeInTheDocument();
-  });
-});
-
-describe('EndOfConversationShare flags', () => {
-  it('stays hidden when the master kill-switch is off', () => {
-    renderComponent(12, {
-      sharing_visibility: { defaultValue: false },
-      share_end_of_conversation: { defaultValue: true },
-    });
-
-    expect(band()).not.toBeInTheDocument();
-  });
-
-  it('stays hidden when its own experiment flag is off', () => {
-    renderComponent(12, {
-      sharing_visibility: { defaultValue: true },
-      share_end_of_conversation: { defaultValue: false },
-    });
-
-    expect(band()).not.toBeInTheDocument();
-  });
-
-  it('stays hidden with both flags at their defaults', () => {
-    renderComponent(12, {});
-
-    expect(band()).not.toBeInTheDocument();
   });
 });
 

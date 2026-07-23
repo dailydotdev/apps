@@ -2,7 +2,6 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import { PostComments } from './PostComments';
 import type { Post } from '../../graphql/posts';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
@@ -39,28 +38,17 @@ const createPost = (numComments: number): Post =>
     numComments,
   } as Post);
 
-const enabledFlags = {
-  sharing_visibility: { defaultValue: true },
-  share_end_of_conversation: { defaultValue: true },
-};
-
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const renderComponent = (
-  numComments: number,
-  features: Record<string, { defaultValue: boolean }> = {},
-): RenderResult => {
+const renderComponent = (numComments: number): RenderResult => {
   mockRequestMethod.mockReturnValue(() =>
     Promise.resolve(buildComments(numComments)),
   );
 
   return render(
-    <TestBootProvider
-      client={new QueryClient()}
-      gb={new GrowthBook({ features })}
-    >
+    <TestBootProvider client={new QueryClient()}>
       <PostComments
         post={createPost(numComments)}
         origin={Origin.ArticlePage}
@@ -71,7 +59,7 @@ const renderComponent = (
 
 describe('PostComments end-of-conversation share band', () => {
   it('appends the band after the last comment on an active discussion', async () => {
-    renderComponent(6, enabledFlags);
+    renderComponent(6);
 
     const comments = await screen.findAllByTestId('main-comment');
     await waitFor(() => expect(comments).toHaveLength(6));
@@ -82,18 +70,8 @@ describe('PostComments end-of-conversation share band', () => {
     );
   });
 
-  it('leaves the comment list untouched when the flags are off', async () => {
-    renderComponent(6);
-
-    const comments = await screen.findAllByTestId('main-comment');
-    await waitFor(() => expect(comments).toHaveLength(6));
-
-    expect(screen.queryByRole('complementary')).not.toBeInTheDocument();
-    expect(comments[5].nextElementSibling).toBeNull();
-  });
-
-  it('keeps the band hidden on a quiet discussion even with the flags on', async () => {
-    renderComponent(2, enabledFlags);
+  it('keeps the band hidden on a quiet discussion', async () => {
+    renderComponent(2);
 
     const comments = await screen.findAllByTestId('main-comment');
     await waitFor(() => expect(comments).toHaveLength(2));
