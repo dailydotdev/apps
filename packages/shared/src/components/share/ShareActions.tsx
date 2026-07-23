@@ -5,7 +5,6 @@ import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import { PopoverContent } from '../popover/Popover';
 import { SocialShareList } from '../widgets/SocialShareList';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { CopyIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import { Typography, TypographyType } from '../typography/Typography';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
@@ -13,8 +12,10 @@ import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { shouldUseNativeShare } from '../../lib/func';
 import { ShareProvider } from '../../lib/share';
 import type { ReferralCampaignKey } from '../../lib/referral';
+import { CopyStateIcon } from './CopyStateIcon';
+import { SplitShareButton } from './SplitShareButton';
 
-export type ShareActionsVariant = 'icon' | 'inline';
+export type ShareActionsVariant = 'icon' | 'inline' | 'split';
 
 export interface ShareActionsProps {
   link: string;
@@ -28,6 +29,13 @@ export interface ShareActionsProps {
   buttonSize?: ButtonSize;
   /** Tooltip + accessible label for the icon-only trigger. */
   label?: string;
+  /**
+   * Render `triggerText` beside the icon instead of an icon-only trigger. Gated
+   * so existing icon-only consumers keep their exact DOM.
+   */
+  triggerText?: string;
+  /** `split` variant only: label for the chevron half that opens the list. */
+  dropdownLabel?: string;
   emailTitle?: string;
   emailSummary?: string;
   className?: string;
@@ -46,6 +54,8 @@ export function ShareActions({
   buttonVariant = ButtonVariant.Tertiary,
   buttonSize = ButtonSize.Small,
   label = 'Copy link',
+  triggerText,
+  dropdownLabel = 'More share options',
   emailTitle,
   emailSummary,
   className,
@@ -56,6 +66,15 @@ export function ShareActions({
   const [copying, shareOrCopy] = useShareOrCopyLink({ link, text, cid });
   const closeTimeout = useRef<ReturnType<typeof setTimeout>>();
 
+  const onCopy = () => {
+    onShare?.(ShareProvider.CopyLink);
+    shareOrCopy();
+  };
+
+  // `copying` stays true for a second after a copy, which is the whole window
+  // for the confirmation swap.
+  const copyIcon = <CopyStateIcon copied={copying} />;
+
   const list = (
     <SocialShareList
       link={link}
@@ -63,10 +82,7 @@ export function ShareActions({
       emailTitle={emailTitle}
       emailSummary={emailSummary}
       isCopying={copying}
-      onCopy={() => {
-        onShare?.(ShareProvider.CopyLink);
-        shareOrCopy();
-      }}
+      onCopy={onCopy}
       onNativeShare={() => {
         onShare?.(ShareProvider.Native);
         shareOrCopy();
@@ -92,7 +108,7 @@ export function ShareActions({
           type="button"
           variant={buttonVariant}
           size={buttonSize}
-          icon={<CopyIcon secondary={copying} />}
+          icon={copyIcon}
           aria-label={label}
           className={className}
           onClick={() => {
@@ -103,8 +119,35 @@ export function ShareActions({
             );
             shareOrCopy();
           }}
-        />
+        >
+          {triggerText}
+        </Button>
       </Tooltip>
+    );
+  }
+
+  const shareList = (
+    <>
+      <Typography type={TypographyType.Callout} bold className="w-full">
+        Share
+      </Typography>
+      {list}
+    </>
+  );
+
+  if (variant === 'split') {
+    return (
+      <SplitShareButton
+        label={label}
+        dropdownLabel={dropdownLabel}
+        triggerText={triggerText}
+        menu={shareList}
+        copied={copying}
+        onCopy={onCopy}
+        variant={buttonVariant}
+        size={buttonSize}
+        className={className}
+      />
     );
   }
 
@@ -136,12 +179,14 @@ export function ShareActions({
             type="button"
             variant={buttonVariant}
             size={buttonSize}
-            icon={<CopyIcon secondary={copying} />}
+            icon={copyIcon}
             aria-label={label}
             pressed={open}
             className={className}
             {...hoverProps}
-          />
+          >
+            {triggerText}
+          </Button>
         </PopoverTrigger>
       </Tooltip>
       <PopoverContent
@@ -151,10 +196,7 @@ export function ShareActions({
         className="flex w-80 flex-wrap justify-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
         {...hoverProps}
       >
-        <Typography type={TypographyType.Callout} bold className="w-full">
-          Share
-        </Typography>
-        {list}
+        {shareList}
       </PopoverContent>
     </Popover>
   );
