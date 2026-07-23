@@ -240,7 +240,7 @@ const meta: Meta<typeof InvitePage> = {
     docs: {
       description: {
         component:
-          'Every state of the "Invite friends" settings page (/settings/invite): referral progress from zero to unlocked, the Plus-member variant, and the giveback cross-promo on and off. The reward chip is framing only — no backend grants Plus at 3 referrals yet.',
+          'Every state of the "Invite friends" settings page (/settings/invite): referral progress from zero to unlocked, the Plus-member variant, and the giveback cross-promo on and off. The reward chip is framing only: no backend grants Plus at 3 referrals yet.',
       },
     },
   },
@@ -258,31 +258,31 @@ export default meta;
 type Story = StoryObj<typeof InvitePage>;
 
 export const NoInvitesYet: Story = {
-  name: '0 of 3 — nobody joined',
+  name: '0 of 3 (nobody joined)',
   args: { joinedCount: 0 },
   decorators: [withInvite()],
 };
 
 export const OneFriendJoined: Story = {
-  name: '1 of 3 — first join',
+  name: '1 of 3 (first join)',
   args: { joinedCount: 1 },
   decorators: [withInvite()],
 };
 
 export const TwoFriendsJoined: Story = {
-  name: '2 of 3 — one to go',
+  name: '2 of 3 (one to go)',
   args: { joinedCount: 2 },
   decorators: [withInvite()],
 };
 
 export const RewardUnlocked: Story = {
-  name: '3 of 3 — Plus unlocked',
+  name: '3 of 3 (Plus unlocked)',
   args: { joinedCount: 3 },
   decorators: [withInvite()],
 };
 
 export const BeyondTheGoal: Story = {
-  name: '4 joined — past the goal',
+  name: '4 joined (past the goal)',
   args: { joinedCount: 4 },
   decorators: [withInvite()],
   parameters: {
@@ -338,7 +338,7 @@ export const Mobile: Story = {
 
 // Component-level states, side by side, for judging the tracker on its own.
 export const ProgressStates: StoryObj = {
-  name: 'Reward progress — all steps',
+  name: 'Reward progress (all steps)',
   render: () => (
     <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 rounded-16 border border-border-subtlest-tertiary p-6">
       {[0, 1, 2, 3].map((count) => (
