@@ -33,17 +33,63 @@ const createData = (
 });
 
 describe('CommunitySentimentBreakdown', () => {
-  it('hides the source lean and shows concise empty copy when a source has no comments', () => {
+  it('does not render a source row when that source has no comments', () => {
     render(<CommunitySentimentBreakdown data={createData()} />);
 
-    expect(screen.getByText('Hacker News')).toBeInTheDocument();
+    expect(screen.queryByText('Hacker News')).not.toBeInTheDocument();
     expect(screen.queryByText('Mixed')).not.toBeInTheDocument();
-    expect(screen.getByText('No comments yet')).toBeInTheDocument();
+    expect(screen.queryByText('No comments yet')).not.toBeInTheDocument();
     expect(
       screen.queryByText(
         'No comments were present, so no community signal is available.',
       ),
     ).not.toBeInTheDocument();
+  });
+
+  it('keeps the rest of the breakdown when one source has no comments', () => {
+    render(
+      <CommunitySentimentBreakdown
+        data={createData({
+          pros: ['Developers like the practical examples.'],
+          bySource: [
+            {
+              source: 'hackernews',
+              lean: 'mixed',
+              note: 'No comments were present, so no community signal is available.',
+            },
+            {
+              source: 'lobsters',
+              lean: 'skeptical',
+              note: 'Developers want stronger benchmarks.',
+            },
+          ],
+          discussions: [
+            {
+              provider: 'hackernews',
+              url: 'https://news.ycombinator.com/item?id=1',
+              points: 2,
+              commentsCount: 0,
+            },
+            {
+              provider: 'lobsters',
+              url: 'https://lobste.rs/s/example',
+              points: 12,
+              commentsCount: 5,
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(
+      screen.getByText('Developers like the practical examples.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Hacker News')).not.toBeInTheDocument();
+    expect(screen.getByText('Lobsters')).toBeInTheDocument();
+    expect(screen.getByText('Skeptical')).toBeInTheDocument();
+    expect(
+      screen.getByText('Developers want stronger benchmarks.'),
+    ).toBeInTheDocument();
   });
 
   it('keeps the source lean when comments are available', () => {
