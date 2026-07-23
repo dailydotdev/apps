@@ -5,6 +5,7 @@ import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import { PopoverContent } from '../popover/Popover';
 import { SocialShareList } from '../widgets/SocialShareList';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import { CopyIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import { Typography, TypographyType } from '../typography/Typography';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
@@ -72,8 +73,15 @@ export function ShareActions({
   };
 
   // `copying` stays true for a second after a copy, which is the whole window
-  // for the confirmation swap.
-  const copyIcon = <CopyStateIcon copied={copying} />;
+  // for the confirmation. The green-check swap is scoped to the split control —
+  // icon-only triggers keep the existing `secondary` fill so this does not
+  // restyle every share surface in the app.
+  const copyIcon =
+    variant === 'split' ? (
+      <CopyStateIcon copied={copying} />
+    ) : (
+      <CopyIcon secondary={copying} />
+    );
 
   const list = (
     <SocialShareList

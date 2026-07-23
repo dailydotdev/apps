@@ -23,7 +23,7 @@ import type { ShareProvider } from '../../lib/share';
  */
 export const activeDiscussionCommentThreshold = 3;
 
-export const hasActiveDiscussion = (post: Post): boolean =>
+const hasActiveDiscussion = (post: Post): boolean =>
   (post.numComments ?? 0) > activeDiscussionCommentThreshold;
 
 export type EndOfConversationShareVariant = 'card' | 'flat';
@@ -64,13 +64,13 @@ export const EndOfConversationShare = ({
   return (
     <aside
       // Labelled by its own visible copy, so no aria-label here — a second
-      // "Share this discussion" label would shadow the share button's.
+      // label on the landmark would shadow the share button's.
       className={classNames(
         'flex flex-col items-center gap-3 text-center tablet:flex-row tablet:justify-between tablet:text-left',
         variant === 'card' &&
           'rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4',
         variant === 'flat' &&
-          'border-t border-border-subtlest-tertiary py-4 pt-6',
+          'border-t border-border-subtlest-tertiary pb-4 pt-6',
         className,
       )}
     >
