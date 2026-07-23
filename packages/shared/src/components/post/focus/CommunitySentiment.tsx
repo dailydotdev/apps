@@ -193,7 +193,20 @@ export const CommunitySentiment = ({
     return null;
   }
 
-  const { breakdown, tldr, postCount, updatedAt } = data;
+  const { breakdown, tldr, postCount, discussions, updatedAt } = data;
+
+  // `postCount` is the number of source threads (e.g. one HN + one Lobsters
+  // thread = 2), which undersells the analysis — the take is distilled from
+  // every comment in those threads, so lead with the comment total instead.
+  const totalComments =
+    discussions?.reduce(
+      (total, discussion) => total + discussion.commentsCount,
+      0,
+    ) ?? 0;
+  const stat =
+    totalComments > 0
+      ? { value: totalComments, label: 'comments' }
+      : { value: postCount, label: 'discussions' };
 
   const toggle = () => {
     setIsExpanded((prev) => !prev);
@@ -252,13 +265,13 @@ export const CommunitySentiment = ({
               color={TypographyColor.Primary}
               bold
             >
-              {postCount}
+              {formatMetricCount(stat.value)}
             </Typography>
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}
             >
-              discussions
+              {stat.label}
             </Typography>
           </span>
         </div>
