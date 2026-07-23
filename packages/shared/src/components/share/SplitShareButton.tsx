@@ -162,10 +162,18 @@ export const SplitShareButton = ({
             )}
           />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-80 p-4">
+        {/* `!p-4` because the dropdown's CSS module applies `p-1.5` at the same
+            specificity — a plain `p-4` loses on stylesheet order and silently
+            does nothing. */}
+        <DropdownMenuContent align="end" className="w-80 !p-4">
           {/* DropdownMenuContent wraps its children in a scroll container, so
-              the grid has to live inside that wrapper, not on the content. */}
-          <div className="flex flex-wrap justify-start gap-2">{menu}</div>
+              the grid has to live inside that wrapper, not on the content.
+              A 4-column grid rather than `flex-wrap`: the columns divide the
+              content box exactly, so no leftover width collects on one side and
+              the padding reads equal on all four. */}
+          <div className="grid grid-cols-4 justify-items-center gap-2">
+            {menu}
+          </div>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
