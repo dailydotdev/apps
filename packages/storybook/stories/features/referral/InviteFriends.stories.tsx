@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import { screen, userEvent } from 'storybook/test';
 import { addMonths, format } from 'date-fns';
 import type { InviteRewardPeriod } from '@dailydotdev/shared/src/components/referral/InviteRewardProgress';
 import {
@@ -9,7 +10,11 @@ import {
 } from '@dailydotdev/shared/src/components/referral/InviteRewardProgress';
 import { GivebackInviteCard } from '@dailydotdev/shared/src/features/giveback/components/GivebackInviteCard';
 import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral/InviteLinkInput';
-import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
+import { ShareActions } from '@dailydotdev/shared/src/components/share/ShareActions';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import UserList from '@dailydotdev/shared/src/components/profile/UserList';
 import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
@@ -18,7 +23,6 @@ import { cloudinaryCharmInviteFriends } from '@dailydotdev/shared/src/lib/image'
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
@@ -27,11 +31,10 @@ import NotificationItem from '@dailydotdev/shared/src/components/notifications/N
 import { referralNotifications } from '../../components/notifications/_mock';
 import {
   INVITE_LINK,
+  INVITE_TEXT,
   mockReferredUsers,
   withInvite,
 } from './inviteFriends.mocks';
-
-const noop = (): void => undefined;
 
 // Stand-ins for the webapp settings chrome (AccountPageContainer /
 // AccountContentSection), so the real components can be judged in the layout
@@ -76,23 +79,13 @@ interface InvitePageProps {
   joinedCount?: number;
   isPlus?: boolean;
   showGiveback?: boolean;
-  // Mirrors the `referral_plus_reward` flag on the real page.
-  showReward?: boolean;
 }
 
 // Mirrors packages/webapp/pages/settings/invite.tsx section for section.
-const rewardDescription = (
-  showReward: boolean,
-  isUnlocked: boolean,
-): string => {
-  if (!showReward) {
-    return "Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals below.";
-  }
-
-  return isUnlocked
+const rewardDescription = (isUnlocked: boolean): string =>
+  isUnlocked
     ? 'Keep inviting. Every developer you bring makes the feed sharper.'
     : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
-};
 
 // Same derivation as the page: the free month runs from the join date of the
 // INVITE_GOALth developer.
@@ -114,7 +107,6 @@ const InvitePage = ({
   joinedCount = 0,
   isPlus = false,
   showGiveback = true,
-  showReward = true,
 }: InvitePageProps): ReactElement => {
   const referredUsers = mockReferredUsers().slice(0, joinedCount);
   const isUnlocked = joinedCount >= INVITE_GOAL;
@@ -123,14 +115,10 @@ const InvitePage = ({
     <SettingsCard>
       <Section
         isFirst
-        title={
-          showReward
-            ? `Invite ${INVITE_GOAL} friends, get 1 month of Plus`
-            : 'Grow the community'
-        }
-        description={rewardDescription(showReward, isUnlocked)}
+        title={`Invite ${INVITE_GOAL} friends, get 1 month of Plus`}
+        description={rewardDescription(isUnlocked)}
       >
-        {showReward && isPlus && !isUnlocked && (
+        {isPlus && !isUnlocked && (
           <Typography
             className="mt-1"
             type={TypographyType.Footnote}
@@ -139,14 +127,12 @@ const InvitePage = ({
             Already on Plus? The free month is added to your subscription.
           </Typography>
         )}
-        {showReward && (
-          <InviteRewardProgress
-            className="mt-4"
-            joinedCount={joinedCount}
-            referredUsers={referredUsers}
-            rewardPeriod={rewardPeriodFor(referredUsers)}
-          />
-        )}
+        <InviteRewardProgress
+          className="mt-4"
+          joinedCount={joinedCount}
+          referredUsers={referredUsers}
+          rewardPeriod={rewardPeriodFor(referredUsers)}
+        />
       </Section>
       <Section title="Your invitation link">
         <InviteLinkInput
@@ -156,25 +142,19 @@ const InvitePage = ({
             event_name: LogEvent.CopyReferralLink,
             target_id: TargetId.InviteFriendsPage,
           }}
+          actionButton={
+            <ShareActions
+              variant="split"
+              link={INVITE_LINK}
+              text={INVITE_TEXT}
+              buttonVariant={ButtonVariant.Primary}
+              buttonSize={ButtonSize.Small}
+              triggerText="Copy link"
+              dropdownLabel="More ways to share"
+              shortenUrl={false}
+            />
+          }
         />
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          bold
-          className="my-4 p-0.5"
-        >
-          or invite via
-        </Typography>
-        <div className="flex flex-row flex-wrap gap-2 gap-y-4">
-          <SocialShareList
-            link={INVITE_LINK}
-            description="I'm using daily.dev to stay updated on developer news."
-            onNativeShare={noop}
-            onClickSocial={noop}
-            shortenUrl={false}
-          />
-        </div>
       </Section>
       {showGiveback && (
         <Section
@@ -309,20 +289,6 @@ export const ExistingPlusMember: Story = {
   },
 };
 
-export const RewardFlagOff: Story = {
-  name: 'Reward flag off (default)',
-  args: { joinedCount: 1, showReward: false },
-  decorators: [withInvite()],
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'What ships until `referral_plus_reward` is switched on: no reward promise and no tracker, just the referral tooling.',
-      },
-    },
-  },
-};
-
 export const GivebackDisabled: Story = {
   name: 'Giveback flag off',
   args: { joinedCount: 1, showGiveback: false },
@@ -379,6 +345,48 @@ export const Notifications: StoryObj = {
       description: {
         story:
           'Both rows deep-link to /settings/invite. `referral_friend_joined` fires per join and carries the running count; `referral_plus_unlocked` fires once on the third and states the period the free month covers. Unread rows sit on the raised surface, same as the rest of the feed. Neither type is emitted by the backend yet.',
+      },
+    },
+  },
+};
+
+// The share control on its own, with the menu already open, so the dropdown can
+// be judged without hunting for it in the full page.
+export const ShareMenuOpen: StoryObj = {
+  name: 'Invite link (share menu open)',
+  render: () => (
+    <div className="mx-auto w-full max-w-3xl">
+      <InviteLinkInput
+        link={INVITE_LINK}
+        logProps={{
+          event_name: LogEvent.CopyReferralLink,
+          target_id: TargetId.InviteFriendsPage,
+        }}
+        actionButton={
+          <ShareActions
+            variant="split"
+            link={INVITE_LINK}
+            text={INVITE_TEXT}
+            buttonVariant={ButtonVariant.Primary}
+            buttonSize={ButtonSize.Small}
+            triggerText="Copy link"
+            dropdownLabel="More ways to share"
+            shortenUrl={false}
+          />
+        }
+      />
+    </div>
+  ),
+  decorators: [withInvite()],
+  play: async () => {
+    await userEvent.click(await screen.findByLabelText('More ways to share'));
+  },
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Left half copies the link and swaps the glyph to a checkmark for a second. Right half opens the share list. Below laptop width the control collapses to a single button that opens the native share sheet, so there is no menu to open.',
       },
     },
   },

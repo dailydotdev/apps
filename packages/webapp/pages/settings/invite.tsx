@@ -19,7 +19,6 @@ import UserList from '@dailydotdev/shared/src/components/profile/UserList';
 import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import type { ReferredUsersData } from '@dailydotdev/shared/src/graphql/common';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
 import { addMonths, format } from 'date-fns';
@@ -29,24 +28,24 @@ import {
   TargetId,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import type { ShareProvider } from '@dailydotdev/shared/src/lib/share';
-import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
+import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
+import { ShareActions } from '@dailydotdev/shared/src/components/share/ShareActions';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral/InviteLinkInput';
 import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
 import type { NextSeoProps } from 'next-seo';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import {
-  featureGiveback,
-  featureReferralPlusReward,
-} from '@dailydotdev/shared/src/lib/featureManagement';
+import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   INVITE_GOAL,
   InviteRewardProgress,
@@ -73,20 +72,8 @@ const AccountInvitePage = (): ReactElement => {
   });
   const { logEvent } = useLogContext();
   const inviteLink = url || link.referral.defaultUrl;
-  const [, onShareOrCopyLink] = useShareOrCopyLink({
-    text: labels.referral.generic.inviteText,
-    link: inviteLink,
-    logObject: () => ({
-      event_name: LogEvent.CopyReferralLink,
-      target_id: TargetId.InviteFriendsPage,
-    }),
-  });
   const { value: isGivebackEnabled } = useConditionalFeature({
     feature: featureGiveback,
-    shouldEvaluate: !!user,
-  });
-  const { value: isRewardEnabled } = useConditionalFeature({
-    feature: featureReferralPlusReward,
     shouldEvaluate: !!user,
   });
   const usersResult = useInfiniteQuery<ReferredUsersData>({
@@ -135,7 +122,18 @@ const AccountInvitePage = (): ReactElement => {
     return { startsAt, endsAt: addMonths(startsAt, 1) };
   }, [isRewardUnlocked, users]);
 
-  const onLogShare = (provider: ShareProvider) => {
+  // One handler for every route out of the split control: a copy keeps the
+  // page's existing copy event, anything else logs as a share with the provider.
+  const onShare = (provider: ShareProvider) => {
+    if (provider === ShareProvider.CopyLink) {
+      logEvent({
+        event_name: LogEvent.CopyReferralLink,
+        target_id: TargetId.InviteFriendsPage,
+      });
+
+      return;
+    }
+
     logEvent({
       event_name: LogEvent.InviteReferral,
       target_id: provider,
@@ -143,18 +141,11 @@ const AccountInvitePage = (): ReactElement => {
     });
   };
 
-  const getRewardDescription = () => {
-    if (!isRewardEnabled) {
-      return "Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals below.";
-    }
-
-    // The card below already announces the reward, so the unlocked copy only
-    // has to give a reason to keep going.
-    return isRewardUnlocked
-      ? 'Keep inviting. Every developer you bring makes the feed sharper.'
-      : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
-  };
-  const rewardDescription = getRewardDescription();
+  // The card below already announces the reward, so the unlocked copy only has
+  // to give a reason to keep going.
+  const rewardDescription = isRewardUnlocked
+    ? 'Keep inviting. Every developer you bring makes the feed sharper.'
+    : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
 
   const onGivebackClick = () => {
     logEvent({
@@ -167,14 +158,10 @@ const AccountInvitePage = (): ReactElement => {
     <AccountPageContainer title="Invite friends">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
-        title={
-          isRewardEnabled
-            ? `Invite ${INVITE_GOAL} friends, get 1 month of Plus`
-            : 'Grow the community'
-        }
+        title={`Invite ${INVITE_GOAL} friends, get 1 month of Plus`}
         description={rewardDescription}
       >
-        {isRewardEnabled && isPlus && !isRewardUnlocked && (
+        {isPlus && !isRewardUnlocked && (
           <Typography
             className="mt-1"
             type={TypographyType.Footnote}
@@ -183,14 +170,12 @@ const AccountInvitePage = (): ReactElement => {
             Already on Plus? The free month is added to your subscription.
           </Typography>
         )}
-        {isRewardEnabled && (
-          <InviteRewardProgress
-            className="mt-4"
-            joinedCount={referredUsersCount}
-            referredUsers={users}
-            rewardPeriod={rewardPeriod}
-          />
-        )}
+        <InviteRewardProgress
+          className="mt-4"
+          joinedCount={referredUsersCount}
+          referredUsers={users}
+          rewardPeriod={rewardPeriod}
+        />
       </AccountContentSection>
       <AccountContentSection title="Your invitation link">
         <InviteLinkInput
@@ -200,25 +185,23 @@ const AccountInvitePage = (): ReactElement => {
             event_name: LogEvent.CopyReferralLink,
             target_id: TargetId.InviteFriendsPage,
           }}
+          // The split control copies on the left half and drops the full share
+          // list on the right, so the field alone covers every share route.
+          actionButton={
+            <ShareActions
+              variant="split"
+              link={inviteLink}
+              text={labels.referral.generic.inviteText}
+              buttonVariant={ButtonVariant.Primary}
+              buttonSize={ButtonSize.Small}
+              triggerText="Copy link"
+              dropdownLabel="More ways to share"
+              // The referral URL carries the attribution, so it goes out as-is.
+              shortenUrl={false}
+              onShare={onShare}
+            />
+          }
         />
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          bold
-          className="my-4 p-0.5"
-        >
-          or invite via
-        </Typography>
-        <div className="flex flex-row flex-wrap gap-2 gap-y-4">
-          <SocialShareList
-            link={inviteLink}
-            description={labels.referral.generic.inviteText}
-            onNativeShare={onShareOrCopyLink}
-            onClickSocial={onLogShare}
-            shortenUrl={false}
-          />
-        </div>
       </AccountContentSection>
       {isGivebackEnabled && (
         <AccountContentSection

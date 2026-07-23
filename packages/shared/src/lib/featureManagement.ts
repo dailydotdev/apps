@@ -195,14 +195,6 @@ export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
 export const featureGiveback = new Feature('giveback', isDevelopment);
 
-// Promotes "invite 3 friends, get 1 month of Plus" on the invite settings page.
-// Keep this off until the backend actually grants the free month on the third
-// referral — with it off the page only describes referrals, it promises nothing.
-export const featureReferralPlusReward = new Feature(
-  'referral_plus_reward',
-  false,
-);
-
 export const featureGivebackSuggestCause = new Feature(
   'giveback_suggest_cause',
   false,

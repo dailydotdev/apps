@@ -23,6 +23,9 @@ export const MOCK_USER = {
 
 export const INVITE_LINK = 'https://api.daily.dev/get?r=devdana';
 
+// Mirrors labels.referral.generic.inviteText, the text the real page shares.
+export const INVITE_TEXT = `I'm using daily.dev to stay updated on developer news. I think you will find it helpful:`;
+
 // The developers who joined through the link. Stories slice this list to get a
 // given progress state, so slot N is always the same person.
 export const mockReferredUsers = (): UserShortProfile[] =>
