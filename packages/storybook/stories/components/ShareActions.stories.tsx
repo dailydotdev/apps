@@ -1,18 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ShareActions } from '@dailydotdev/shared/src/components/share/ShareActions';
-import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
-import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import { fn } from 'storybook/test';
+import { mockShareLink, mockShareText, shareDecorator } from './share.mocks';
 
 const meta: Meta<typeof ShareActions> = {
   title: 'Components/Share/ShareActions',
   component: ShareActions,
   args: {
-    link: 'https://daily.dev/posts/how-to-ship-fast',
-    text: 'Check out this post on daily.dev',
+    link: mockShareLink,
+    text: mockShareText,
     onShare: fn(),
   },
   argTypes: {
@@ -30,66 +26,7 @@ const meta: Meta<typeof ShareActions> = {
     link: { control: 'text' },
     text: { control: 'text' },
   },
-  decorators: [
-    (Story) => {
-      const queryClient = new QueryClient({
-        defaultOptions: { queries: { retry: false, staleTime: Infinity } },
-      });
-      // Mock the short-URL resolution so copy/social actions don't hit network.
-      queryClient.setQueryData(['shortUrl'], 'https://dly.to/abc123');
-
-      const LogContext = getLogContextStatic();
-
-      const mockUser = {
-        id: '1',
-        name: 'Test User',
-        username: 'testuser',
-        email: 'test@example.com',
-        image:
-          'https://daily-now-res.cloudinary.com/image/upload/placeholder.jpg',
-        providers: ['google'],
-        createdAt: '2024-01-01T00:00:00.000Z',
-        permalink: 'https://daily.dev/testuser',
-      } as unknown as LoggedUser;
-
-      return (
-        <QueryClientProvider client={queryClient}>
-          <AuthContext.Provider
-            value={{
-              user: mockUser,
-              shouldShowLogin: false,
-              isLoggedIn: true,
-              isAuthReady: true,
-              showLogin: fn(),
-              closeLogin: fn(),
-              logout: fn(),
-              updateUser: fn(),
-              tokenRefreshed: true,
-              getRedirectUri: fn(),
-              loadingUser: false,
-              loadedUserFromCache: true,
-              refetchBoot: fn(),
-              squads: [],
-              isAndroidApp: false,
-            }}
-          >
-            <LogContext.Provider
-              value={{
-                logEvent: fn(),
-                logEventStart: fn(),
-                logEventEnd: fn(),
-                sendBeacon: () => false,
-              }}
-            >
-              <div className="flex min-h-40 items-center justify-center">
-                <Story />
-              </div>
-            </LogContext.Provider>
-          </AuthContext.Provider>
-        </QueryClientProvider>
-      );
-    },
-  ],
+  decorators: [shareDecorator('flex min-h-40 items-center justify-center')],
 };
 
 export default meta;

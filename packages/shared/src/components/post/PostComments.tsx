@@ -176,8 +176,9 @@ export function PostComments({
       {!hideEndOfConversationShare && (
         <EndOfConversationShare
           post={post}
-          // Cancels the list's mobile full-bleed negative margin so the band
-          // keeps its rounded edges inside the page gutter.
+          // Cancels the list's mobile full-bleed negative margin so the band's
+          // separator rule lines up with the comment content above it rather
+          // than running edge to edge.
           className={isModalThread ? undefined : 'mx-4 mobileL:mx-0'}
         />
       )}

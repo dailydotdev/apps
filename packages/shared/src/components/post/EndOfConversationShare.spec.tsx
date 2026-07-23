@@ -6,9 +6,9 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import {
   activeDiscussionCommentThreshold,
   EndOfConversationShare,
@@ -47,11 +47,6 @@ const createPost = (numComments: number): Post =>
     numComments,
   } as Post);
 
-const enabledFlags = {
-  sharing_visibility: { defaultValue: true },
-  share_end_of_conversation: { defaultValue: true },
-};
-
 beforeEach(() => {
   jest.clearAllMocks();
   useViewSizeMock.mockReturnValue(true); // default: laptop
@@ -63,16 +58,9 @@ beforeEach(() => {
   delete (navigator as unknown as { share?: unknown }).share;
 });
 
-const renderComponent = (
-  numComments: number,
-  features: Record<string, { defaultValue: boolean }> = enabledFlags,
-): RenderResult =>
+const renderComponent = (numComments: number): RenderResult =>
   render(
-    <TestBootProvider
-      client={new QueryClient()}
-      gb={new GrowthBook({ features })}
-      log={{ logEvent }}
-    >
+    <TestBootProvider client={new QueryClient()} log={{ logEvent }}>
       <EndOfConversationShare post={createPost(numComments)} />
     </TestBootProvider>,
   );
@@ -85,7 +73,7 @@ describe('EndOfConversationShare threshold', () => {
 
     expect(band()).not.toBeInTheDocument();
     expect(
-      screen.queryByLabelText('Share this discussion'),
+      screen.queryByRole('button', { name: 'Copy link' }),
     ).not.toBeInTheDocument();
   });
 
@@ -103,48 +91,62 @@ describe('EndOfConversationShare threshold', () => {
   });
 });
 
-describe('EndOfConversationShare flags', () => {
-  it('stays hidden when the master kill-switch is off', () => {
-    renderComponent(12, {
-      sharing_visibility: { defaultValue: false },
-      share_end_of_conversation: { defaultValue: true },
-    });
-
-    expect(band()).not.toBeInTheDocument();
-  });
-
-  it('stays hidden when its own experiment flag is off', () => {
-    renderComponent(12, {
-      sharing_visibility: { defaultValue: true },
-      share_end_of_conversation: { defaultValue: false },
-    });
-
-    expect(band()).not.toBeInTheDocument();
-  });
-
-  it('stays hidden with both flags at their defaults', () => {
-    renderComponent(12, {});
-
-    expect(band()).not.toBeInTheDocument();
-  });
-});
-
 describe('EndOfConversationShare sharing', () => {
-  it('copies the link and toasts on desktop', async () => {
+  it('copies the link from the main half of the split button on desktop', async () => {
     renderComponent(12);
 
+    const copyButton = screen.getByRole('button', { name: 'Copy link' });
+    // Both glyphs are always mounted so they can cross-fade; only the check's
+    // opacity says which one is showing.
+    const check = () => copyButton.querySelector('.text-status-success');
+    expect(check()).toHaveClass('opacity-0');
+
     await act(async () => {
-      fireEvent.click(screen.getByLabelText('Share this discussion'));
-    });
-    await act(async () => {
-      fireEvent.click(await screen.findByText('Copy link'));
+      fireEvent.click(copyButton);
     });
 
+    // The copy glyph cross-fades to a green check for the confirmation window.
+    await waitFor(() => expect(check()).not.toHaveClass('opacity-0'));
     await waitFor(() => expect(writeText).toHaveBeenCalledWith(permalink));
     expect(displayToast).toHaveBeenCalledWith(
       '✅ Copied link to clipboard',
       expect.anything(),
     );
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.SharePost,
+        extra: JSON.stringify({
+          provider: ShareProvider.CopyLink,
+          origin: Origin.EndOfConversation,
+        }),
+      }),
+    );
+  });
+
+  it('opens the full share list from the chevron half, without copying', async () => {
+    renderComponent(12);
+
+    // Radix dropdowns open on pointerdown (which jsdom cannot synthesise) or on
+    // Enter, so the keyboard path is what a test can drive.
+    await act(async () => {
+      fireEvent.keyDown(screen.getByLabelText('More share options'), {
+        key: 'Enter',
+      });
+    });
+
+    const popover = await screen.findByRole('menu');
+    expect(within(popover).getByTestId('social-share-X')).toBeInTheDocument();
+    expect(
+      within(popover).getByTestId('social-share-WhatsApp'),
+    ).toBeInTheDocument();
+    expect(writeText).not.toHaveBeenCalled();
+
+    // The copy action inside the list still works and logs the same origin.
+    await act(async () => {
+      fireEvent.click(within(popover).getByTestId('social-share-Copy link'));
+    });
+
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(permalink));
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
         event_name: LogEvent.SharePost,
@@ -164,8 +166,12 @@ describe('EndOfConversationShare sharing', () => {
 
     renderComponent(12);
 
+    // Mobile keeps a single button — no chevron half, no popover.
+    expect(
+      screen.queryByLabelText('More share options'),
+    ).not.toBeInTheDocument();
     await act(async () => {
-      fireEvent.click(screen.getByLabelText('Share this discussion'));
+      fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));
     });
 
     await waitFor(() => expect(share).toHaveBeenCalled());
