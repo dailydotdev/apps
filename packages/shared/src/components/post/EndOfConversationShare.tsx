@@ -29,8 +29,16 @@ export const activeDiscussionCommentThreshold = 3;
 export const hasActiveDiscussion = (post: Post): boolean =>
   (post.numComments ?? 0) > activeDiscussionCommentThreshold;
 
+export type EndOfConversationShareVariant = 'card' | 'flat';
+
 export interface EndOfConversationShareProps {
   post: Post;
+  /**
+   * `flat` (default) drops the fill and leans on a single hairline rule to
+   * separate the strip from the comments above it; `card` is the heavier
+   * self-contained surface.
+   */
+  variant?: EndOfConversationShareVariant;
   className?: string;
 }
 
@@ -41,6 +49,7 @@ export interface EndOfConversationShareProps {
  */
 export const EndOfConversationShareBand = ({
   post,
+  variant = 'flat',
   className,
 }: EndOfConversationShareProps): ReactElement | null => {
   const { logEvent } = useLogContext();
@@ -61,7 +70,11 @@ export const EndOfConversationShareBand = ({
       // Labelled by its own visible copy, so no aria-label here — a second
       // "Share this discussion" label would shadow the share button's.
       className={classNames(
-        'flex flex-col items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-center tablet:flex-row tablet:justify-between tablet:text-left',
+        'flex flex-col items-center gap-3 text-center tablet:flex-row tablet:justify-between tablet:text-left',
+        variant === 'card' &&
+          'rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4',
+        variant === 'flat' &&
+          'border-t border-border-subtlest-tertiary py-4 pt-6',
         className,
       )}
     >
@@ -80,9 +93,12 @@ export const EndOfConversationShareBand = ({
         link={post.commentsPermalink}
         text={post.title ?? post.sharedPost?.title ?? ''}
         cid={ReferralCampaignKey.SharePost}
+        variant="split"
         buttonVariant={ButtonVariant.Primary}
-        buttonSize={ButtonSize.Medium}
-        label="Share this discussion"
+        buttonSize={ButtonSize.Small}
+        label="Copy link"
+        triggerText="Copy link"
+        dropdownLabel="More share options"
         className="shrink-0"
         onShare={onShare}
       />
@@ -97,6 +113,7 @@ export const EndOfConversationShareBand = ({
  */
 export const EndOfConversationShare = ({
   post,
+  variant,
   className,
 }: EndOfConversationShareProps): ReactElement | null => {
   const isActive = hasActiveDiscussion(post);
@@ -110,5 +127,11 @@ export const EndOfConversationShare = ({
     return null;
   }
 
-  return <EndOfConversationShareBand post={post} className={className} />;
+  return (
+    <EndOfConversationShareBand
+      post={post}
+      variant={variant}
+      className={className}
+    />
+  );
 };
