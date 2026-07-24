@@ -31,12 +31,14 @@ import {
   getSocialTwitterMetadataLabel,
 } from '../cards/socialTwitter/socialTwitterHelpers';
 import { Separator } from '../cards/common/common';
+import { CommunitySentiment } from './focus/CommunitySentiment';
+import { useCommunitySentiment } from './focus/useCommunitySentiment';
 
 type SocialTwitterPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
 };
 
-function SocialTwitterPostContentRaw({
+export function SocialTwitterPostContentRaw({
   post,
   isFallback,
   shouldOnboardAuthor,
@@ -104,6 +106,9 @@ function SocialTwitterPostContentRaw({
     !post.content?.trim();
   const metadataLabel = getSocialTwitterMetadataLabel();
   const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
+  // Only on the full post page, not the preview modal.
+  const { data: communitySentimentData, show: showCommunitySentiment } =
+    useCommunitySentiment(post, { isFullPage: !!isPostPage });
 
   return (
     <PostContentContainer
@@ -224,6 +229,12 @@ function SocialTwitterPostContentRaw({
               textClampClass=""
               bodyClassName="typo-markdown"
               showImage
+            />
+          )}
+          {showCommunitySentiment && (
+            <CommunitySentiment
+              data={communitySentimentData}
+              className="mb-6"
             />
           )}
         </BasePostContent>
