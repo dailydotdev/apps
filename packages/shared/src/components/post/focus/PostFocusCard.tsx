@@ -36,12 +36,7 @@ import { PostTagList } from '../tags/PostTagList';
 import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import {
-  feature,
-  featureCommunitySentiment,
-} from '../../../lib/featureManagement';
-import { isDevelopment } from '../../../lib/constants';
+import { feature } from '../../../lib/featureManagement';
 import { SourceStrip } from '../reader/SourceStrip';
 import Link from '../../utilities/Link';
 import HoverCard from '../../cards/common/HoverCard';
@@ -56,10 +51,8 @@ import { PostMenuOptions } from '../PostMenuOptions';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
-import {
-  CommunitySentiment,
-  mapCommunitySentimentPost,
-} from './CommunitySentiment';
+import { CommunitySentiment } from './CommunitySentiment';
+import { useCommunitySentiment } from './useCommunitySentiment';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -259,25 +252,10 @@ export const PostFocusCard = ({
   const { isReaderEnabled } = useReaderModalEligibility();
   const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
-  const communitySentimentData = article.communitySentiment
-    ? mapCommunitySentimentPost(article.communitySentiment)
-    : undefined;
-  // Conditional enrollment: only evaluate (and log exposure for) the
-  // community_sentiment experiment on posts that actually have a take, so
-  // take-less posts don't dilute the treatment/control split. Backend keeps
-  // generating the take for every eligible post regardless of this flag.
-  const { value: communitySentimentEnabled } = useConditionalFeature({
-    feature: featureCommunitySentiment,
-    shouldEvaluate: !!communitySentimentData,
-  });
   // Only on the full post page, not the preview modal (which passes
-  // `onClose`), and only when the post actually has a take. `isDevelopment`
-  // lets the surface be previewed locally without flipping the committed
-  // (always-`false`) flag default.
-  const showCommunitySentiment =
-    !onClose &&
-    !!communitySentimentData &&
-    (communitySentimentEnabled || isDevelopment);
+  // `onClose`).
+  const { data: communitySentimentData, show: showCommunitySentiment } =
+    useCommunitySentiment(article, { isFullPage: !onClose });
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the
