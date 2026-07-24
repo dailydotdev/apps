@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo } from 'react';
 import {
   ReferralCampaignKey,
   useReferralCampaign,
@@ -19,28 +19,38 @@ import UserList from '@dailydotdev/shared/src/components/profile/UserList';
 import { checkFetchMore } from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import type { ReferredUsersData } from '@dailydotdev/shared/src/graphql/common';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { SocialShareList } from '@dailydotdev/shared/src/components/widgets/SocialShareList';
 import { Separator } from '@dailydotdev/shared/src/components/cards/common/common';
 import type { UserShortProfile } from '@dailydotdev/shared/src/lib/user';
-import { format } from 'date-fns';
+import { addMonths, format } from 'date-fns';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import {
   LogEvent,
   TargetId,
   TargetType,
 } from '@dailydotdev/shared/src/lib/log';
-import type { ShareProvider } from '@dailydotdev/shared/src/lib/share';
-import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
-import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral';
+import { ShareProvider } from '@dailydotdev/shared/src/lib/share';
+import { ShareActions } from '@dailydotdev/shared/src/components/share/ShareActions';
+import {
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { InviteLinkInput } from '@dailydotdev/shared/src/components/referral/InviteLinkInput';
 import { TruncateText } from '@dailydotdev/shared/src/components/utilities';
 import type { NextSeoProps } from 'next-seo';
 import {
   Typography,
   TypographyColor,
-  TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  INVITE_GOAL,
+  InviteRewardProgress,
+} from '@dailydotdev/shared/src/components/referral/InviteRewardProgress';
+import { GivebackInviteCard } from '@dailydotdev/shared/src/features/giveback/components/GivebackInviteCard';
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -55,20 +65,16 @@ const seo: NextSeoProps = {
 
 const AccountInvitePage = (): ReactElement => {
   const { user } = useAuthContext();
-  const container = useRef<HTMLDivElement>();
+  const { isPlus } = usePlusSubscription();
   const referredKey = generateQueryKey(RequestKey.ReferredUsers, user);
   const { url, referredUsersCount } = useReferralCampaign({
     campaignKey: ReferralCampaignKey.Generic,
   });
   const { logEvent } = useLogContext();
   const inviteLink = url || link.referral.defaultUrl;
-  const [, onShareOrCopyLink] = useShareOrCopyLink({
-    text: labels.referral.generic.inviteText,
-    link: inviteLink,
-    logObject: () => ({
-      event_name: LogEvent.CopyReferralLink,
-      target_id: TargetId.InviteFriendsPage,
-    }),
+  const { value: isGivebackEnabled } = useConditionalFeature({
+    feature: featureGiveback,
+    shouldEvaluate: !!user,
   });
   const usersResult = useInfiniteQuery<ReferredUsersData>({
     queryKey: referredKey,
@@ -89,9 +95,45 @@ const AccountInvitePage = (): ReactElement => {
     }, []);
 
     return list;
-  }, [usersResult]);
+  }, [usersResult.data]);
 
-  const onLogShare = (provider: ShareProvider) => {
+  const isRewardUnlocked = referredUsersCount >= INVITE_GOAL;
+
+  // The free month runs from the moment the goal was met — i.e. the join date
+  // of the INVITE_GOALth developer. Derived on the client because no backend
+  // field carries the grant yet; when one lands, read it here instead. Sorts a
+  // copy rather than trusting the list order, which the query doesn't specify.
+  const rewardPeriod = useMemo(() => {
+    if (!isRewardUnlocked) {
+      return undefined;
+    }
+
+    const completing = [...users].sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    )[INVITE_GOAL - 1];
+
+    if (!completing) {
+      return undefined;
+    }
+
+    const startsAt = new Date(completing.createdAt);
+
+    return { startsAt, endsAt: addMonths(startsAt, 1) };
+  }, [isRewardUnlocked, users]);
+
+  // One handler for every route out of the split control: a copy keeps the
+  // page's existing copy event, anything else logs as a share with the provider.
+  const onShare = (provider: ShareProvider) => {
+    if (provider === ShareProvider.CopyLink) {
+      logEvent({
+        event_name: LogEvent.CopyReferralLink,
+        target_id: TargetId.InviteFriendsPage,
+      });
+
+      return;
+    }
+
     logEvent({
       event_name: LogEvent.InviteReferral,
       target_id: provider,
@@ -99,93 +141,121 @@ const AccountInvitePage = (): ReactElement => {
     });
   };
 
+  // The card below already announces the reward, so the unlocked copy only has
+  // to give a reason to keep going.
+  const rewardDescription = isRewardUnlocked
+    ? 'Keep inviting. Every developer you bring makes the feed sharper.'
+    : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
+
+  const onGivebackClick = () => {
+    logEvent({
+      event_name: LogEvent.ClickGivebackGiftEntry,
+      target_id: TargetId.InviteFriendsPage,
+    });
+  };
+
   return (
     <AccountPageContainer title="Invite friends">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
-        title="Grow the community"
-        description="Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals list below."
-      />
-      <AccountContentSection
-        title="Share your invite link"
-        description="Copy your personal link or share it directly on social platforms."
+        title={`Invite ${INVITE_GOAL} friends, get 1 month of Plus`}
+        description={rewardDescription}
       >
+        {isPlus && !isRewardUnlocked && (
+          <Typography
+            className="mt-1"
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
+            Already on Plus? The free month is added to your subscription.
+          </Typography>
+        )}
+        <InviteRewardProgress
+          className="mt-4"
+          joinedCount={referredUsersCount}
+          referredUsers={users}
+          rewardPeriod={rewardPeriod}
+        />
+      </AccountContentSection>
+      <AccountContentSection title="Your invitation link">
         <InviteLinkInput
           className={{ container: 'mt-4' }}
           link={inviteLink}
-          logProps={{
-            event_name: LogEvent.CopyReferralLink,
-            target_id: TargetId.InviteFriendsPage,
-          }}
+          // The split control copies on the left half and drops the full share
+          // list on the right, so the field alone covers every share route.
+          actionButton={
+            <ShareActions
+              variant="split"
+              link={inviteLink}
+              text={labels.referral.generic.inviteText}
+              buttonVariant={ButtonVariant.Primary}
+              buttonSize={ButtonSize.Small}
+              triggerText="Copy link"
+              dropdownLabel="More ways to share"
+              // The referral URL carries the attribution, so it goes out as-is.
+              shortenUrl={false}
+              onShare={onShare}
+            />
+          }
         />
-        <Typography
-          tag={TypographyTag.Span}
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          bold
-          className="my-4 p-0.5"
-        >
-          or invite via
-        </Typography>
-        <div className="flex flex-row flex-wrap gap-2 gap-y-4">
-          <SocialShareList
-            link={inviteLink}
-            description={labels.referral.generic.inviteText}
-            onNativeShare={onShareOrCopyLink}
-            onClickSocial={onLogShare}
-            shortenUrl={false}
-          />
-        </div>
       </AccountContentSection>
+      {isGivebackEnabled && (
+        <AccountContentSection
+          title="More ways to give back"
+          description="Inviting friends isn't the only way to push the community forward."
+        >
+          <GivebackInviteCard className="mt-4" onClick={onGivebackClick} />
+        </AccountContentSection>
+      )}
       <AccountContentSection
         title="Your referrals"
         description="Developers who joined through your invite link"
       >
-        <UserList
-          users={users}
-          isLoading={usersResult?.isLoading}
-          scrollingProps={{
-            isFetchingNextPage: usersResult.isFetchingNextPage,
-            canFetchMore: checkFetchMore(usersResult),
-            fetchNextPage: usersResult.fetchNextPage,
-            className: 'mt-4',
-          }}
-          emptyPlaceholder={
-            <div className="mt-16 flex flex-col items-center text-text-secondary">
-              <Image
-                className="h-40 w-40 object-contain"
-                src={cloudinaryCharmInviteFriends}
-                alt="daily.dev charm inviting your friends"
-                loading="lazy"
-              />
-              <p className="mt-2 typo-body">
-                No one has joined yet. Share your link!
-              </p>
-            </div>
-          }
-          userInfoProps={{
-            scrollingContainer: container.current,
-            className: {
-              container: 'px-0 py-3 items-center',
-              textWrapper: 'flex-none',
-            },
-            transformUsername({
-              username,
-              createdAt,
-            }: UserShortProfile): React.ReactNode {
-              return (
-                <span className="flex text-text-secondary typo-callout">
-                  <TruncateText>@{username}</TruncateText>
-                  <Separator />
-                  <time dateTime={createdAt}>
-                    {format(new Date(createdAt), 'dd MMM yyyy')}
-                  </time>
-                </span>
-              );
-            },
-          }}
-          placeholderAmount={referredUsersCount}
-        />
+        {/* UserList hard-codes px-6 on its rows and on the loading placeholder,
+            so cancel the section's own p-6 around the whole list. That keeps
+            every state (rows, skeletons, empty) aligned with the headings and
+            lets the row hover highlight run the full width of the card. */}
+        <div className="-mx-6 mt-4">
+          <UserList
+            users={users}
+            isLoading={usersResult.isLoading}
+            scrollingProps={{
+              isFetchingNextPage: usersResult.isFetchingNextPage,
+              canFetchMore: checkFetchMore(usersResult),
+              fetchNextPage: usersResult.fetchNextPage,
+            }}
+            emptyPlaceholder={
+              <div className="flex items-center gap-3 px-6 text-text-secondary">
+                <Image
+                  className="h-16 w-16 shrink-0 object-contain"
+                  src={cloudinaryCharmInviteFriends}
+                  alt=""
+                  loading="lazy"
+                />
+                <p className="typo-callout">
+                  No one has joined yet. Share your link!
+                </p>
+              </div>
+            }
+            userInfoProps={{
+              transformUsername({
+                username,
+                createdAt,
+              }: UserShortProfile): React.ReactNode {
+                return (
+                  <span className="flex text-text-secondary typo-callout">
+                    <TruncateText>@{username}</TruncateText>
+                    <Separator />
+                    <time dateTime={createdAt}>
+                      {format(new Date(createdAt), 'dd MMM yyyy')}
+                    </time>
+                  </span>
+                );
+              },
+            }}
+            placeholderAmount={referredUsersCount}
+          />
+        </div>
       </AccountContentSection>
     </AccountPageContainer>
   );

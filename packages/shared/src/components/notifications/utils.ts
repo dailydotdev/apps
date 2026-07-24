@@ -22,6 +22,7 @@ import {
   AddUserIcon,
   SquadIcon,
   MegaphoneIcon,
+  DevPlusIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
@@ -98,6 +99,8 @@ export enum NotificationType {
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
   LiveRoomStarted = 'live_room_started',
+  ReferralFriendJoined = 'referral_friend_joined',
+  ReferralPlusUnlocked = 'referral_plus_unlocked',
 }
 
 export enum NotificationIconType {
@@ -118,6 +121,7 @@ export enum NotificationIconType {
   Core = 'Core',
   Analytics = 'Analytics',
   Opportunity = 'Opportunity',
+  DevPlus = 'DevPlus',
 }
 
 export const notificationIcon: Record<
@@ -141,6 +145,7 @@ export const notificationIcon: Record<
   [NotificationIconType.Core]: CoreIcon,
   [NotificationIconType.Analytics]: AnalyticsIcon,
   [NotificationIconType.Opportunity]: JobIcon,
+  [NotificationIconType.DevPlus]: DevPlusIcon,
 };
 
 export const notificationIconAsPrimary: NotificationIconType[] = [
@@ -166,6 +171,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.Core]: '',
   [NotificationIconType.Analytics]: 'text-brand-default',
   [NotificationIconType.Opportunity]: 'text-black',
+  [NotificationIconType.DevPlus]: 'text-action-plus-default',
 };
 
 export const notificationIconStyle: Record<
@@ -189,6 +195,7 @@ export const notificationIconStyle: Record<
   [NotificationIconType.Core]: null,
   [NotificationIconType.Analytics]: null,
   [NotificationIconType.Opportunity]: { background: briefButtonBg },
+  [NotificationIconType.DevPlus]: null,
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
@@ -430,6 +437,8 @@ export const notificationCategoryToTypes: Record<
     NotificationType.WarmIntro,
     NotificationType.ExperienceCompanyEnriched,
     NotificationType.LiveRoomStarted,
+    NotificationType.ReferralFriendJoined,
+    NotificationType.ReferralPlusUnlocked,
   ],
 };
 

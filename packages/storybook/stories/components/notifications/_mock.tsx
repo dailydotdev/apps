@@ -1,4 +1,5 @@
 import { fn } from 'storybook/test';
+import { addMonths, format } from 'date-fns';
 import type { NotificationItemProps } from '@dailydotdev/shared/src/components/notifications/NotificationItem';
 import {
   NotificationIconType,
@@ -21,6 +22,9 @@ export const img = (seed: string, size = 96): string =>
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000);
 const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000);
 const daysAgo = (d: number) => new Date(Date.now() - d * 86_400_000);
+
+// The referral reward runs from the moment the third friend joined.
+const rewardStart = hoursAgo(5);
 
 export const userAvatar = (seed: string, name: string) => ({
   type: NotificationAvatarType.User,
@@ -82,6 +86,28 @@ const defs: Array<Partial<NotificationItemProps> & { isUnread?: boolean }> = [
       userAvatar('a3', 'Three'),
     ],
     createdAt: hoursAgo(3),
+    isUnread: true,
+  },
+  {
+    type: NotificationType.ReferralPlusUnlocked,
+    icon: NotificationIconType.DevPlus,
+    title: '3 friends joined, so your free <b>month of Plus</b> is unlocked',
+    description: `Active ${format(rewardStart, 'd MMM yyyy')} – ${format(
+      addMonths(rewardStart, 1),
+      'd MMM yyyy',
+    )}`,
+    targetUrl: '/settings/invite',
+    createdAt: hoursAgo(5),
+    isUnread: true,
+  },
+  {
+    type: NotificationType.ReferralFriendJoined,
+    icon: NotificationIconType.User,
+    title: '<b>Wren Halloway</b> joined daily.dev through your invite',
+    description: '3 of 3 friends joined',
+    avatars: [userAvatar('wren', 'Wren Halloway')],
+    targetUrl: '/settings/invite',
+    createdAt: hoursAgo(5),
     isUnread: true,
   },
   {
@@ -182,6 +208,15 @@ export const sampleNotifications: Array<
   title: 'Notification',
   ...def,
 }));
+
+// The referral-reward rows, pulled out so the Invite friends stories can show
+// them on their own without re-declaring the copy.
+export const referralNotifications = sampleNotifications.filter(({ type }) =>
+  [
+    NotificationType.ReferralPlusUnlocked,
+    NotificationType.ReferralFriendJoined,
+  ].includes(type),
+);
 
 // Same coarse buckets the live page uses (see NotificationsFeed.tsx).
 export const TIME_GROUPS = [

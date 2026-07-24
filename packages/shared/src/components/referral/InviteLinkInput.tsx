@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { TextFieldProps } from '../fields/TextField';
 import { TextField } from '../fields/TextField';
 import { useCopyLink } from '../../hooks/useCopy';
 import { useLogContext } from '../../contexts/LogContext';
@@ -17,7 +18,13 @@ interface InviteLinkInputProps {
   text?: Text;
   onCopy?: () => void;
   className?: FieldClassName;
-  logProps: LogEvent;
+  // Logged on copy. Only the built-in button copies, so surfaces that pass
+  // their own `actionButton` log from there instead.
+  logProps?: LogEvent;
+  // Replaces the built-in copy button, for surfaces that need a richer control
+  // (e.g. the split copy/share button). Optional so every other consumer keeps
+  // its original button and copy handling.
+  actionButton?: TextFieldProps['actionButton'];
 }
 
 export function InviteLinkInput({
@@ -26,12 +33,16 @@ export function InviteLinkInput({
   onCopy,
   className,
   logProps,
+  actionButton,
 }: InviteLinkInputProps): ReactElement {
   const [copied, onCopyLink] = useCopyLink(() => link);
   const { logEvent } = useLogContext();
   const onCopyClick = () => {
     onCopyLink();
-    logEvent(logProps);
+
+    if (logProps) {
+      logEvent(logProps);
+    }
 
     if (onCopy) {
       onCopy();
@@ -56,13 +67,15 @@ export function InviteLinkInput({
       value={link}
       fieldType="tertiary"
       actionButton={
-        <Button
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Primary}
-          onClick={onCopyClick}
-        >
-          {renderText()}
-        </Button>
+        actionButton ?? (
+          <Button
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            onClick={onCopyClick}
+          >
+            {renderText()}
+          </Button>
+        )
       }
       readOnly
     />
