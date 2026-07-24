@@ -1,6 +1,7 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
+import type { Ad } from '../../../../graphql/posts';
 import { useScrambler } from '../../../../hooks/useScrambler';
 
 interface AdClassName {
@@ -9,19 +10,36 @@ interface AdClassName {
 }
 
 interface AdAttributionProps {
+  ad: Ad;
   className?: AdClassName;
 }
 
 export default function AdAttribution({
+  ad,
   className,
 }: AdAttributionProps): ReactElement {
   const elementClass = classNames(
-    'text-text-quaternary',
+    'text-text-quaternary no-underline',
     className?.typo ?? 'typo-footnote',
     className?.main,
   );
 
-  const promotedText = useScrambler('Promoted');
+  const text = ad.referralLink ? `Promoted by ${ad.source}` : 'Promoted';
+  const promotedText = useScrambler(text);
+
+  if (ad.referralLink) {
+    return (
+      <a
+        href={ad.referralLink}
+        target="_blank"
+        rel="noopener"
+        className={elementClass}
+        suppressHydrationWarning
+      >
+        {promotedText}
+      </a>
+    );
+  }
 
   return (
     <div className={elementClass} suppressHydrationWarning>
