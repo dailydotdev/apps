@@ -283,6 +283,12 @@ export const BandDark: Story = {
 };
 
 // At 375px the row stacks and centres: copy above, control below.
+//
+// Note the chevron is gone. `ShareActions` short-circuits below laptop width
+// for every non-inline variant, so the split control collapses to one button
+// that opens the OS share sheet (falling back to copy where there is none).
+// That is 6369's deliberate mobile path, not a layout bug — but it does mean
+// the band offers a single tap on mobile where the card offers eight tiles.
 export const BandMobile: Story = {
   args: { promptVariant: 'band' },
   decorators: [withHarness({ enabled: true })],
