@@ -265,9 +265,14 @@ export const RedesignedLongTitle: Story = {
   decorators: [withHarness({ enabled: true })],
 };
 
-// Copy tapped: the chip flips to "Copied!" for a beat and the card stays
-// mounted, so a second destination is still one tap away. The clipboard is
-// stubbed because the Storybook iframe isn't allowed to write to the real one.
+// Copy tapped: the chip flips to "Copied!" and the card stays mounted, so a
+// second destination is still one tap away. The clipboard is stubbed because
+// the Storybook iframe isn't allowed to write to the real one.
+//
+// `useCopyLink` clears `copying` on a 1s timer, which would leave nothing to
+// look at a beat after the story loads. Swallowing that one 1s callback holds
+// the confirmation on screen for review; the original `setTimeout` is restored
+// straight after, so nothing else in the iframe is affected.
 export const RedesignedCopying: Story = {
   decorators: [withHarness({ enabled: true })],
   play: async ({ canvasElement }) => {
@@ -276,9 +281,25 @@ export const RedesignedCopying: Story = {
       value: { writeText: async () => undefined },
     });
 
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId('social-share-Copy link'));
-    await waitFor(() => expect(canvas.getByText('Copied!')).toBeInTheDocument());
+    const realSetTimeout = globalThis.setTimeout;
+    globalThis.setTimeout = ((
+      handler: TimerHandler,
+      ms?: number,
+      ...rest: unknown[]
+    ) =>
+      ms === 1000
+        ? 0
+        : realSetTimeout(handler, ms, ...rest)) as typeof setTimeout;
+
+    try {
+      const canvas = within(canvasElement);
+      await userEvent.click(canvas.getByTestId('social-share-Copy link'));
+      await waitFor(() =>
+        expect(canvas.getByText('Copied!')).toBeInTheDocument(),
+      );
+    } finally {
+      globalThis.setTimeout = realSetTimeout;
+    }
   },
 };
 
