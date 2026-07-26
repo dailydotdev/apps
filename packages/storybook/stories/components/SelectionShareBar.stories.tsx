@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import React, { useRef } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useCallback, useRef } from 'react';
+import classNames from 'classnames';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SelectionShareBar } from '@dailydotdev/shared/src/components/post/SelectionShareBar';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -33,46 +35,181 @@ const post = {
   author: { id: '1', name: 'Ido Shamun' },
 } as unknown as Post;
 
-const body = [
-  'Shipping fast is not about typing faster. It is about shrinking the distance',
-  'between a decision and the moment a real developer feels its effect. Select',
-  'any part of this paragraph to raise the floating share bar — copy a link to',
-  'the post, copy the selection itself, or turn it into a quote image.',
-].join(' ');
+const paragraph =
+  'Shipping fast is not about typing faster. It is about shrinking the distance between a decision and the moment a real developer feels its effect.';
 
-// The bar only reacts to selections made inside the container it is handed, so
-// every story renders a fake post body to select from.
-const SelectionPlayground = ({ compact = false }: { compact?: boolean }) => {
+const secondParagraph =
+  'Every layer between those two points is either helping or in the way, and most of them are in the way. Removing one is worth more than speeding up all of them.';
+
+// ---------------------------------------------------------------------------
+// Selection harness
+// ---------------------------------------------------------------------------
+
+// The bar only exists while the browser reports a live selection, so every
+// story fakes one instead of asking the reviewer to drag a cursor. The element
+// carrying this attribute is the one whose contents get selected.
+const AUTO_SELECT = 'data-autoselect';
+const autoSelect = { [AUTO_SELECT]: true };
+
+const raiseBar = (root: ParentNode | null): void => {
+  const target = root?.querySelector<HTMLElement>(`[${AUTO_SELECT}]`);
+
+  if (!target) {
+    return;
+  }
+
+  const doc = target.ownerDocument;
+  const win = doc.defaultView;
+
+  if (!win) {
+    return;
+  }
+
+  const range = doc.createRange();
+  range.selectNodeContents(target);
+
+  const selection = win.getSelection();
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+
+  // The hook listens for selection *end*, not `selectionchange`, so replay the
+  // event a real mouse release would have produced.
+  target.dispatchEvent(new win.MouseEvent('mouseup', { bubbles: true }));
+};
+
+// `play` runs immediately after render; give the component a tick to attach its
+// document listeners before faking the selection.
+const autoRaise = async ({
+  canvasElement,
+}: {
+  canvasElement: HTMLElement;
+}): Promise<void> => {
+  await new Promise<void>((resolve) => {
+    setTimeout(resolve, 150);
+  });
+
+  raiseBar(canvasElement);
+};
+
+interface StageProps {
+  /** What to look at in this story. */
+  hint?: ReactNode;
+  /** Post body — the container the bar is bound to. */
+  children: ReactNode;
+  /** Rendered outside the body. Selecting it must never raise the bar. */
+  outside?: ReactNode;
+  className?: string;
+  bodyClassName?: string;
+  showRaiseButton?: boolean;
+}
+
+const Stage = ({
+  hint,
+  children,
+  outside,
+  className,
+  bodyClassName,
+  showRaiseButton = true,
+}: StageProps): ReactElement => {
+  const stageRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const onRaise = useCallback(() => {
+    // The bar's own outside-click handler runs on this very click and clears
+    // the selection, so re-select on the next tick.
+    setTimeout(() => raiseBar(stageRef.current), 0);
+  }, []);
+
   return (
-    <div
-      className={
-        compact
-          ? 'mx-auto flex max-w-2xl flex-col gap-4'
-          : 'mx-auto flex max-w-2xl flex-col gap-4 p-6'
-      }
-    >
-      {!compact && (
-        <p className="text-text-tertiary typo-footnote">
-          Select text inside the card below.
-        </p>
-      )}
+    <div ref={stageRef} className={classNames('flex flex-col gap-3', className)}>
+      {!!hint && <p className="text-text-tertiary typo-footnote">{hint}</p>}
       <div
         ref={containerRef}
-        className="select-text rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6 text-text-primary typo-body"
+        className={classNames(
+          'select-text rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6 text-text-primary typo-body',
+          bodyClassName,
+        )}
       >
-        <h1 className="mb-3 font-bold typo-title2">{post.title}</h1>
-        <p>{body}</p>
+        {children}
       </div>
-      <p className="text-text-tertiary typo-footnote">
-        Selecting text outside the card does nothing.
-      </p>
-      <p className="text-text-secondary typo-body">{body}</p>
+      {outside}
+      {showRaiseButton && (
+        <button
+          type="button"
+          onClick={onRaise}
+          className="self-start rounded-10 border border-border-subtlest-tertiary px-3 py-1 text-text-secondary typo-footnote"
+        >
+          Raise the bar again
+        </button>
+      )}
       <SelectionShareBar containerRef={containerRef} post={post} />
     </div>
   );
 };
+
+// ---------------------------------------------------------------------------
+// Bodies — stand-ins for the three surfaces the bar is wired into. They carry
+// the same typography as the real bodies; the real components (PostContent,
+// SquadPostContent, PostFocusCard) pull in routing, feed queries and lazy
+// modals that do not belong in a story.
+// ---------------------------------------------------------------------------
+
+const ArticleBody = (): ReactElement => (
+  <>
+    <h1 className="mb-3 font-bold typo-title2">{post.title}</h1>
+    <p className="mb-4 text-text-tertiary typo-footnote">
+      Ido Shamun · daily.dev · 6 min read
+    </p>
+    {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+    <p className="mb-4" {...autoSelect}>
+      {paragraph}
+    </p>
+    <p>{secondParagraph}</p>
+  </>
+);
+
+const SquadBody = (): ReactElement => (
+  <>
+    <div className="mb-4 flex items-center gap-2">
+      <span className="flex size-8 items-center justify-center rounded-10 bg-surface-secondary typo-footnote">
+        🥑
+      </span>
+      <div className="flex flex-col">
+        <span className="font-bold typo-callout">Ido Shamun</span>
+        <span className="text-text-tertiary typo-footnote">
+          Frontend Squad · 2h
+        </span>
+      </div>
+    </div>
+    <h2 className="mb-3 font-bold typo-title3">
+      A rule of thumb for shipping under pressure
+    </h2>
+    {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+    <p className="mb-4" {...autoSelect}>
+      {paragraph}
+    </p>
+    <p>{secondParagraph}</p>
+  </>
+);
+
+const FocusCardBody = (): ReactElement => (
+  <>
+    <div className="mb-4 h-32 rounded-12 bg-surface-secondary" />
+    <h2 className="mb-3 font-bold typo-title2">{post.title}</h2>
+    {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+    <p className="mb-4" {...autoSelect}>
+      {paragraph}
+    </p>
+    <div className="flex gap-2 text-text-tertiary typo-footnote">
+      <span>#webdev</span>
+      <span>#productivity</span>
+    </div>
+  </>
+);
+
+// ---------------------------------------------------------------------------
+// Providers
+// ---------------------------------------------------------------------------
 
 // Storybook aliases `@growthbook/growthbook` to a mock whose `getFeatureValue`
 // coerces every falsy default to the truthy string `'control'`, so a flag can't
@@ -147,40 +284,313 @@ const meta: Meta<typeof SelectionShareBar> = {
   title: 'Components/Share/SelectionShareBar',
   component: SelectionShareBar,
   parameters: {
+    layout: 'fullscreen',
     docs: {
       description: {
-        component:
-          'Floating share bar anchored to a text selection inside a post body. Behind the `share_text_selection` flag plus the `sharing_visibility` master gate.',
+        component: [
+          'Floating share bar anchored to a text selection inside a post body.',
+          'Behind the `share_text_selection` flag **and** the `sharing_visibility` master gate.',
+          '',
+          'Every story fakes a selection on load, so the bar is visible without dragging a cursor.',
+          'Clicking anywhere dismisses it — hit **Raise the bar again** to bring it back.',
+          'Use the Storybook theme toggle to check dark and light; both are supported.',
+        ].join('\n'),
       },
     },
   },
   decorators: [withProviders(true)],
+  play: autoRaise,
 };
 
 export default meta;
 
 type Story = StoryObj<typeof SelectionShareBar>;
 
-// Desktop: the bar floats above the selection and follows it while scrolling.
-export const Desktop: Story = {
-  render: () => <SelectionPlayground />,
+// -- Placement --------------------------------------------------------------
+
+/** Default: the bar floats centred above the selection, 8px clear of it. */
+export const AboveSelection: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Two actions: copy link to the post, copy the selected text."
+    >
+      <ArticleBody />
+    </Stage>
+  ),
 };
 
-// Mobile: same bar, but "Copy link" hands off to the native share sheet when
-// the device exposes one, and the bar clamps to the visual viewport.
-export const Mobile: Story = {
-  render: () => <SelectionPlayground />,
-  parameters: { viewport: { defaultViewport: 'mobile1' } },
-};
-
-// A selection near the very top of the viewport has no room above it, so the
-// bar flips underneath the selection instead.
+/**
+ * Under 64px from the top of the viewport there is no room above the
+ * selection, so the bar flips underneath it.
+ */
 export const FlippedBelow: Story = {
-  render: () => <SelectionPlayground compact />,
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl"
+      bodyClassName="rounded-none border-0 border-b p-4"
+      showRaiseButton={false}
+    >
+      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+      <p {...autoSelect}>{paragraph}</p>
+    </Stage>
+  ),
 };
 
-// Control: selecting text raises nothing at all — no bar, no listeners.
+/**
+ * A short selection hard against the left edge would centre the bar partly
+ * off-screen, so the position is clamped to 8px inside the viewport.
+ */
+export const ClampedToLeftEdge: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  render: () => (
+    <Stage
+      className="p-0 pt-12"
+      bodyClassName="rounded-none border-0 p-0"
+      hint={
+        <span className="px-2">
+          The bar sits 8px from the edge, not centred over the word.
+        </span>
+      }
+    >
+      <p className="w-16">
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <span {...autoSelect}>shipping</span>
+      </p>
+    </Stage>
+  ),
+};
+
+/** The same clamp on the other side. */
+export const ClampedToRightEdge: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  render: () => (
+    <Stage className="p-0 pt-12" bodyClassName="rounded-none border-0 p-0">
+      <p className="ml-auto w-16 text-right">
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <span {...autoSelect}>shipping</span>
+      </p>
+    </Stage>
+  ),
+};
+
+/**
+ * The rect is recomputed on scroll (capture phase, so inner scrollers count),
+ * so the bar tracks the selection instead of hanging in place.
+ */
+export const FollowsWhileScrolling: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Scroll the canvas — the bar follows the highlighted paragraph."
+      outside={
+        <div className="flex flex-col gap-4 py-6 text-text-tertiary typo-body">
+          <p>{secondParagraph}</p>
+          <p>{paragraph}</p>
+          <p>{secondParagraph}</p>
+          <p>{paragraph}</p>
+          <p>{secondParagraph}</p>
+          <p>{paragraph}</p>
+        </div>
+      }
+    >
+      <ArticleBody />
+    </Stage>
+  ),
+};
+
+// -- Devices ----------------------------------------------------------------
+
+/**
+ * Mobile: identical bar, but "Copy link" hands off to the native share sheet
+ * when the device exposes `navigator.share`, and the position clamps to the
+ * *visual* viewport so pinch-zoom cannot push it off screen.
+ */
+export const Mobile: Story = {
+  globals: { viewport: { value: 'mobile1', isRotated: false } },
+  render: () => (
+    <Stage className="p-4">
+      <ArticleBody />
+    </Stage>
+  ),
+};
+
+// -- Selection shapes -------------------------------------------------------
+
+/** A couple of words — the shortest selection the hook accepts. */
+export const ShortSelection: Story = {
+  render: () => (
+    <Stage className="mx-auto max-w-2xl p-6">
+      <p>
+        Shipping fast is not about{' '}
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <span {...autoSelect}>typing faster</span>. It is about shrinking the
+        distance between a decision and the moment a real developer feels its
+        effect.
+      </p>
+    </Stage>
+  ),
+};
+
+/** A selection spanning several paragraphs still gets one bar. */
+export const MultiParagraphSelection: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="The bar anchors to the bounding rect of the whole selection."
+    >
+      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+      <div className="flex flex-col gap-4" {...autoSelect}>
+        <p>{paragraph}</p>
+        <p>{secondParagraph}</p>
+        <p>{paragraph}</p>
+      </div>
+    </Stage>
+  ),
+};
+
+/** Selections inside code blocks behave the same — copy text keeps the code. */
+export const CodeBlockSelection: Story = {
+  render: () => (
+    <Stage className="mx-auto max-w-2xl p-6">
+      <p className="mb-4">{paragraph}</p>
+      <pre className="overflow-x-auto rounded-10 bg-surface-secondary p-4 typo-footnote">
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <code {...autoSelect}>
+          {`const [, copyText] = useCopyText();\ncopyText({ textToCopy: selection });`}
+        </code>
+      </pre>
+    </Stage>
+  ),
+};
+
+// -- Nothing should happen --------------------------------------------------
+
+/** Under two characters is treated as an accidental tap: no bar. */
+export const IgnoredTinySelection: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Expected: no bar. One character is a double-click, not a quote."
+    >
+      <p>
+        Shipping fast is not about typing faster
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <span {...autoSelect}>.</span> It is about shrinking the distance
+        between a decision and its effect.
+      </p>
+    </Stage>
+  ),
+};
+
+/** Selections outside the post body are ignored entirely. */
+export const IgnoredOutsideBody: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Expected: no bar. The selection below sits outside the bound container."
+      outside={
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <p className="text-text-secondary typo-body" {...autoSelect}>
+          {secondParagraph}
+        </p>
+      }
+    >
+      <p>{paragraph}</p>
+    </Stage>
+  ),
+};
+
+/**
+ * A drag that starts inside the body and ends outside it is ignored too — both
+ * the anchor and the focus node have to be inside.
+ */
+export const IgnoredCrossingBoundary: Story = {
+  render: () => (
+    <div className="mx-auto flex max-w-2xl flex-col gap-3 p-6">
+      <p className="text-text-tertiary typo-footnote">
+        Expected: no bar. The selection starts in the body and ends in the
+        comment below it.
+      </p>
+      {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+      <div className="flex flex-col gap-3" {...autoSelect}>
+        <Stage showRaiseButton={false}>
+          <p>{paragraph}</p>
+        </Stage>
+        <p className="text-text-secondary typo-body">
+          Great post — bookmarking this one.
+        </p>
+      </div>
+    </div>
+  ),
+};
+
+// -- Surfaces ---------------------------------------------------------------
+
+/** Classic article/video body — `PostContent`. */
+export const SurfaceArticlePost: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Surface 1 of 3 — PostContent (classic article & video posts)."
+    >
+      <ArticleBody />
+    </Stage>
+  ),
+};
+
+/** Freeform / welcome / share / YouTube squad post — `SquadPostContent`. */
+export const SurfaceSquadPost: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Surface 2 of 3 — SquadPostContent (freeform, welcome, share, YouTube)."
+    >
+      <SquadBody />
+    </Stage>
+  ),
+};
+
+/** Redesigned post page and modal — `PostFocusCard`. */
+export const SurfaceFocusCard: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Surface 3 of 3 — PostFocusCard (post redesign, page and modal)."
+    >
+      <FocusCardBody />
+    </Stage>
+  ),
+};
+
+// -- Dismissal --------------------------------------------------------------
+
+/** Click away, press Escape, or collapse the selection — all drop the bar. */
+export const Dismissal: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Try: press Escape · click outside the body · click inside the text."
+    >
+      <ArticleBody />
+    </Stage>
+  ),
+};
+
+// -- Flag off ---------------------------------------------------------------
+
+/**
+ * Control. Nothing renders and none of the inner hooks mount, so no selection
+ * or viewport listeners are attached at all.
+ */
 export const FlagOff: Story = {
-  render: () => <SelectionPlayground />,
   decorators: [withProviders(false)],
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Expected: no bar, and no listeners attached."
+    >
+      <ArticleBody />
+    </Stage>
+  ),
 };

@@ -8,8 +8,13 @@ const meta: Meta<typeof QuoteImageCard> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'The 1200x630 card rendered at `/image-generator/quote/[id]` and screenshotted into a shareable quote image. Fixed pixel sizing on purpose — the output is a bitmap.',
+        component: [
+          'The 1200x630 card rendered at `/image-generator/quote/[id]` and screenshotted into a shareable quote image.',
+          'Fixed pixel sizing on purpose — the output is a bitmap.',
+          '',
+          '**Parked:** the share bar no longer offers a "generate quote image" action;',
+          'the route and this card stay in place until the screenshot service serves the PNG.',
+        ].join('\n'),
       },
     },
   },
