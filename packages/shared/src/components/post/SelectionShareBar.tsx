@@ -10,14 +10,11 @@ import { ShareActions } from '../share/ShareActions';
 import { useCopyText } from '../../hooks/useCopy';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { useTextSelectionShare } from '../../hooks/useTextSelectionShare';
-import { useSharingVisibility } from '../../hooks/useSharingVisibility';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { useLogContext } from '../../contexts/LogContext';
 import { usePostLogEvent } from '../../lib/feed';
-import { featureShareTextSelection } from '../../lib/featureManagement';
 import { LogEvent, Origin } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
 import { ReferralCampaignKey } from '../../lib/referral';
@@ -68,9 +65,11 @@ export const buildQuoteImageUrl = (postId: string, text: string): string => {
   )}`;
 };
 
-// The bar itself. Split from the flag gate below so a disabled experiment
-// mounts none of these hooks — and therefore attaches no listeners at all.
-function SelectionShareBarContent({
+/**
+ * Floating share bar for text selected inside a post body. Ships to everyone —
+ * there is no flag gate.
+ */
+export function SelectionShareBar({
   post,
   containerRef,
   onQuote,
@@ -283,26 +282,4 @@ function SelectionShareBarContent({
       </div>
     </RootPortal>
   );
-}
-
-/**
- * Floating share bar for text selected inside a post body. Flag-off it renders
- * nothing and, because every listener lives in the inner component, attaches no
- * selection/viewport listeners at all.
- */
-export function SelectionShareBar(
-  props: SelectionShareBarProps,
-): ReactElement | null {
-  const { isEnabled: isSharingVisible } = useSharingVisibility();
-  const { value: isSelectionShareOn } = useConditionalFeature({
-    feature: featureShareTextSelection,
-    shouldEvaluate: isSharingVisible,
-  });
-
-  if (!isSharingVisible || !isSelectionShareOn) {
-    return null;
-  }
-
-  // eslint-disable-next-line react/jsx-props-no-spreading
-  return <SelectionShareBarContent {...props} />;
 }

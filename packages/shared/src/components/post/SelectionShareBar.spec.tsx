@@ -40,13 +40,8 @@ const post = {
   permalink: 'https://daily.dev/r/how-to-ship-fast',
 } as unknown as Post;
 
-const enabledGrowthBook = () =>
-  new GrowthBook({
-    features: {
-      sharing_visibility: { defaultValue: true },
-      share_text_selection: { defaultValue: true },
-    },
-  });
+// The bar ships unflagged, so GrowthBook only has to exist for TestBootProvider.
+const enabledGrowthBook = () => new GrowthBook();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -76,23 +71,23 @@ const renderComponent = (
   };
 };
 
-describe('SelectionShareBar flag gate', () => {
-  it('renders nothing and attaches no selection listeners when off', () => {
+describe('SelectionShareBar gating', () => {
+  it('renders for every user, with no feature flag set', () => {
     renderComponent(new GrowthBook());
 
-    expect(screen.queryByTestId('selectionShareBar')).not.toBeInTheDocument();
-    expect(useTextSelectionShareMock).not.toHaveBeenCalled();
+    expect(screen.getByTestId('selectionShareBar')).toBeInTheDocument();
   });
 
-  it('renders nothing when only the per-surface flag is on', () => {
-    renderComponent(
-      new GrowthBook({
-        features: { share_text_selection: { defaultValue: true } },
-      }),
-    );
+  it('renders nothing when there is no selection', () => {
+    useTextSelectionShareMock.mockReturnValue({
+      text: null,
+      rect: null,
+      clear,
+    });
+
+    renderComponent();
 
     expect(screen.queryByTestId('selectionShareBar')).not.toBeInTheDocument();
-    expect(useTextSelectionShareMock).not.toHaveBeenCalled();
   });
 });
 

@@ -307,13 +307,10 @@ const SocialBody = (): ReactElement => (
 // Providers
 // ---------------------------------------------------------------------------
 
-// Storybook aliases `@growthbook/growthbook` to a mock whose `getFeatureValue`
-// coerces every falsy default to the truthy string `'control'`, so a flag can't
-// be evaluated as `false` here. Flag-off is therefore simulated by holding the
-// features context as "not ready", which is the exact path
-// `useConditionalFeature` takes to fall back to the (false) default value.
+// The bar ships unflagged, so these providers only supply the contexts it
+// reads — auth, logging and react-query. There is no experiment to simulate.
 const withProviders =
-  (enabled: boolean) =>
+  () =>
   (Story: React.ComponentType): React.ReactElement => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -354,7 +351,7 @@ const withProviders =
           >
             <FeaturesReadyContext.Provider
               value={{
-                ready: enabled,
+                ready: true,
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 getFeatureValue: (feature) => feature.defaultValue as any,
               }}
@@ -385,7 +382,7 @@ const meta: Meta<typeof SelectionShareBar> = {
       description: {
         component: [
           'Floating share bar anchored to a text selection inside a post body.',
-          'Behind the `share_text_selection` flag **and** the `sharing_visibility` master gate.',
+          'Ships to every user — there is no feature flag or experiment behind it.',
           '',
           'Every story fakes a selection on load, so the bar is visible without dragging a cursor.',
           'Clicking anywhere dismisses it — hit **Raise the bar again** to bring it back.',
@@ -394,7 +391,7 @@ const meta: Meta<typeof SelectionShareBar> = {
       },
     },
   },
-  decorators: [withProviders(true)],
+  decorators: [withProviders()],
 };
 
 export default meta;
@@ -887,24 +884,6 @@ export const Dismissal: Story = {
     <Stage
       className="mx-auto max-w-2xl p-6"
       hint="Try: press Escape · click outside the body · click inside the text."
-    >
-      <ArticleBody />
-    </Stage>
-  ),
-};
-
-// -- Flag off ---------------------------------------------------------------
-
-/**
- * Control. Nothing renders and none of the inner hooks mount, so no selection
- * or viewport listeners are attached at all.
- */
-export const FlagOff: Story = {
-  decorators: [withProviders(false)],
-  render: () => (
-    <Stage
-      className="mx-auto max-w-2xl p-6"
-      hint="Expected: no bar, and no listeners attached."
     >
       <ArticleBody />
     </Stage>
