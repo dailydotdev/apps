@@ -123,6 +123,19 @@ describe('OnboardingSignupHero', () => {
     expect(screen.queryByTestId('hero-halo')).not.toBeInTheDocument();
   });
 
+  it('renders the hero cover and the full element set for the panel background', () => {
+    renderHero({ background: 'panel', headline: 'Hello devs' });
+    expect(screen.getAllByTestId('landing-hero-cover').length).toBeGreaterThan(
+      0,
+    );
+    expect(screen.queryByTestId('bg-layer')).not.toBeInTheDocument();
+    expect(screen.getByTestId('logo')).toBeInTheDocument();
+    expect(screen.getByText('Hello devs')).toBeInTheDocument();
+    expect(screen.getByTestId('auth-form')).toBeInTheDocument();
+    expect(screen.getByTestId('footer')).toBeInTheDocument();
+    expect(screen.getByTestId('disclaimer')).toBeInTheDocument();
+  });
+
   it('renders the form and headline', () => {
     renderHero({ headline: 'Hello devs' });
     expect(screen.getByTestId('auth-form')).toBeInTheDocument();
