@@ -146,8 +146,8 @@ export const cloudinaryOnboardingHeroDesk = {
 // The hero cover for the signup wall — the dev and their dog at their tent,
 // looking out over a glowing valley. Square (1254x1254) with the pair low and
 // left in the frame, so wide crops have to bias downwards to keep them.
-export const landingHeroCover =
-  'https://media.daily.dev/image/upload/s--ozLt7EPJ--/f_auto,q_auto/v1785046213/public/ChatGPT%20Image%20Jul%2026%2C%202026%2C%2009_09_52%20AM';
+export const signupWallCover =
+  'https://media.daily.dev/image/upload/s--a8E1hVet--/f_auto,q_auto/v1785059413/public/daily.dev%20-%20signup%20wall';
 
 export const cloudinaryStreakSplash =
   'https://media.daily.dev/image/upload/v1705386465/Splash_v1lxjk.svg';

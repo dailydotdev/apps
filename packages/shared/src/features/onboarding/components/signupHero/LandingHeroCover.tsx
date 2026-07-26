@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import { landingHeroCover } from '../../../../lib/image';
+import { signupWallCover } from '../../../../lib/image';
 
 type Focus = 'subject' | 'subjectHigh';
 
@@ -77,7 +77,7 @@ export const LandingHeroCover = ({
             alt=""
             className={classNames('block size-full object-cover', cropClass)}
             decoding="async"
-            src={landingHeroCover}
+            src={signupWallCover}
           />
         </div>
       )}
@@ -100,7 +100,7 @@ export const LandingHeroCover = ({
             className={classNames('block size-full object-cover', cropClass)}
             decoding="async"
             fetchPriority="high"
-            src={landingHeroCover}
+            src={signupWallCover}
           />
         </div>
       </div>
