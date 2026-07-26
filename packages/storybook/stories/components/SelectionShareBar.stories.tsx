@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import type { ReactElement, ReactNode } from 'react';
-import React, { useCallback, useRef } from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SelectionShareBar } from '@dailydotdev/shared/src/components/post/SelectionShareBar';
@@ -77,18 +77,23 @@ const raiseBar = (root: ParentNode | null): void => {
   target.dispatchEvent(new win.MouseEvent('mouseup', { bubbles: true }));
 };
 
-// `play` runs immediately after render; give the component a tick to attach its
-// document listeners before faking the selection.
-const autoRaise = async ({
-  canvasElement,
-}: {
-  canvasElement: HTMLElement;
-}): Promise<void> => {
-  await new Promise<void>((resolve) => {
-    setTimeout(resolve, 150);
-  });
+// Raise the bar once the story has mounted. An effect is used rather than a
+// `play` function because it also fires in the docs view and does not depend on
+// Storybook's instrumentation timing.
+const useAutoRaise = (
+  root: RefObject<HTMLElement>,
+  enabled = true,
+): void => {
+  useEffect(() => {
+    if (!enabled) {
+      return undefined;
+    }
 
-  raiseBar(canvasElement);
+    // One tick for the bar to attach its document listeners.
+    const timeout = setTimeout(() => raiseBar(root.current), 120);
+
+    return () => clearTimeout(timeout);
+  }, [enabled, root]);
 };
 
 interface StageProps {
@@ -101,6 +106,8 @@ interface StageProps {
   className?: string;
   bodyClassName?: string;
   showRaiseButton?: boolean;
+  /** Off when an enclosing story owns the selection. */
+  autoRaise?: boolean;
 }
 
 const Stage = ({
@@ -110,9 +117,12 @@ const Stage = ({
   className,
   bodyClassName,
   showRaiseButton = true,
+  autoRaise = true,
 }: StageProps): ReactElement => {
   const stageRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useAutoRaise(stageRef, autoRaise);
 
   const onRaise = useCallback(() => {
     // The bar's own outside-click handler runs on this very click and clears
@@ -299,7 +309,6 @@ const meta: Meta<typeof SelectionShareBar> = {
     },
   },
   decorators: [withProviders(true)],
-  play: autoRaise,
 };
 
 export default meta;
@@ -505,16 +514,20 @@ export const IgnoredOutsideBody: Story = {
  * A drag that starts inside the body and ends outside it is ignored too — both
  * the anchor and the focus node have to be inside.
  */
-export const IgnoredCrossingBoundary: Story = {
-  render: () => (
-    <div className="mx-auto flex max-w-2xl flex-col gap-3 p-6">
+const CrossingBoundary = (): ReactElement => {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useAutoRaise(rootRef);
+
+  return (
+    <div ref={rootRef} className="mx-auto flex max-w-2xl flex-col gap-3 p-6">
       <p className="text-text-tertiary typo-footnote">
         Expected: no bar. The selection starts in the body and ends in the
         comment below it.
       </p>
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
       <div className="flex flex-col gap-3" {...autoSelect}>
-        <Stage showRaiseButton={false}>
+        <Stage showRaiseButton={false} autoRaise={false}>
           <p>{paragraph}</p>
         </Stage>
         <p className="text-text-secondary typo-body">
@@ -522,7 +535,11 @@ export const IgnoredCrossingBoundary: Story = {
         </p>
       </div>
     </div>
-  ),
+  );
+};
+
+export const IgnoredCrossingBoundary: Story = {
+  render: () => <CrossingBoundary />,
 };
 
 // -- Surfaces ---------------------------------------------------------------
