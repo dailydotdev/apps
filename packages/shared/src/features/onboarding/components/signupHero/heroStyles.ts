@@ -151,10 +151,12 @@ export const HERO_STYLES = `.onb-bg {
 
 /* Compact phones. A 50dvh artwork band leaves too little room for the form on a
    short viewport, so it gives height back and the type tightens with it. Keyed
-   on height rather than width because that is the axis under pressure — a
-   375x812 phone gets the roomy treatment, a 375x667 one does not. */
+   on height because that is the axis under pressure — a 375x812 phone gets the
+   roomy treatment, a 375x667 one does not — but bounded by width as well, or a
+   short desktop window (1440x700 is a common laptop size) would inherit
+   phone-sized type in the two-column layout. */
 .onb-art-half { height: 50dvh; }
-@media (max-height: 759px) {
+@media (max-height: 759px) and (max-width: 1019px) {
   .onb-art-half { height: 32dvh; }
   .onb-hero-logo svg { height: 1.375rem; }
   .onb-hero-headline { font-size: 1.5rem; line-height: 1.875rem; }
