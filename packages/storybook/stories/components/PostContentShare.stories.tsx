@@ -135,6 +135,16 @@ function Harness({
         mockUser,
       );
       client.setQueryData(queryKey, SHORT_LINK);
+
+      // `SocialShareList` runs the link through `getShortUrl` again on click.
+      // Seed that lookup too, otherwise every social button waits on a real
+      // API call that Storybook can't make.
+      const { queryKey: reshortenKey } = getShortLinkProps(
+        SHORT_LINK,
+        undefined,
+        mockUser,
+      );
+      client.setQueryData(reshortenKey, SHORT_LINK);
     }
 
     return client;
@@ -258,11 +268,32 @@ export const RedesignedDark: Story = {
   globals: { theme: 'dark' },
 };
 
-// Long headline: the title is the pre-filled share text, and it has to wrap
-// without pushing the close button or the share row around.
-export const RedesignedLongTitle: Story = {
+// Not a visual state: the card's copy is fixed, so the post title never
+// reaches the screen — it only feeds the share payload. This story asserts the
+// outgoing network URL carries the full headline and the tracked short link,
+// rather than pretending there is something to look at. Check the Interactions
+// panel, not the pixels.
+export const LongTitleSharePayload: Story = {
   args: { post: longTitlePost },
   decorators: [withHarness({ enabled: true })],
+  play: async ({ canvasElement }) => {
+    const opened: string[] = [];
+    const realOpen = globalThis.open;
+    globalThis.open = ((url?: string | URL) => {
+      opened.push(String(url));
+      return null;
+    }) as typeof globalThis.open;
+
+    try {
+      const canvas = within(canvasElement);
+      await userEvent.click(canvas.getByTestId('social-share-X'));
+      await waitFor(() => expect(opened).toHaveLength(1));
+      expect(decodeURIComponent(opened[0])).toContain(longTitlePost.title);
+      expect(opened[0]).toContain('dly.to/abc123');
+    } finally {
+      globalThis.open = realOpen;
+    }
+  },
 };
 
 // Copy tapped: the chip flips to "Copied!" and the card stays mounted, so a
