@@ -80,10 +80,7 @@ const raiseBar = (root: ParentNode | null): void => {
 // Raise the bar once the story has mounted. An effect is used rather than a
 // `play` function because it also fires in the docs view and does not depend on
 // Storybook's instrumentation timing.
-const useAutoRaise = (
-  root: RefObject<HTMLElement>,
-  enabled = true,
-): void => {
+const useAutoRaise = (root: RefObject<HTMLElement>, enabled = true): void => {
   useEffect(() => {
     if (!enabled) {
       return undefined;
@@ -134,7 +131,10 @@ const Stage = ({
   }, []);
 
   return (
-    <div ref={stageRef} className={classNames('flex flex-col gap-3', className)}>
+    <div
+      ref={stageRef}
+      className={classNames('flex flex-col gap-3', className)}
+    >
       {!!hint && <p className="text-text-tertiary typo-footnote">{hint}</p>}
       <div
         ref={containerRef}
@@ -221,6 +221,76 @@ const FocusCardBody = (): ReactElement => (
       <span>#webdev</span>
       <span>#productivity</span>
     </div>
+  </>
+);
+
+const CollectionBody = (): ReactElement => (
+  <>
+    <h2 className="mb-2 font-bold typo-title2">
+      What changed in frontend tooling this month
+    </h2>
+    <p className="mb-4 text-text-tertiary typo-footnote">
+      Last updated today · 6 sources
+    </p>
+    {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+    <p className="mb-4" {...autoSelect}>
+      {paragraph}
+    </p>
+    <p>{secondParagraph}</p>
+  </>
+);
+
+const PollBody = (): ReactElement => (
+  <>
+    {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+    <h2 className="mb-4 font-bold typo-large-title" {...autoSelect}>
+      Do you write tests before or after the implementation?
+    </h2>
+    <div className="flex flex-col gap-2">
+      {['Before, always', 'After, usually', 'Depends on the change'].map(
+        (option) => (
+          <div
+            className="rounded-12 border border-border-subtlest-tertiary px-4 py-3 typo-callout"
+            key={option}
+          >
+            {option}
+          </div>
+        ),
+      )}
+    </div>
+  </>
+);
+
+const BriefBody = (): ReactElement => (
+  <>
+    <p className="text-text-tertiary typo-footnote">Today</p>
+    <h2 className="mb-2 font-bold typo-title2">Your presidential briefing</h2>
+    <p className="mb-4 text-text-tertiary typo-footnote">
+      3m read · 12 Sources
+    </p>
+    {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+    <div {...autoSelect}>
+      <h3 className="mb-2 font-bold typo-title3">What matters today</h3>
+      <p className="mb-4">{paragraph}</p>
+      <p>{secondParagraph}</p>
+    </div>
+  </>
+);
+
+const SocialBody = (): ReactElement => (
+  <>
+    <div className="mb-4 flex items-center gap-2">
+      <span className="size-8 rounded-full bg-surface-secondary" />
+      <span className="font-bold typo-callout">@idoshamun</span>
+    </div>
+    {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+    <h1
+      className="mb-4 whitespace-pre-line break-words typo-markdown"
+      {...autoSelect}
+    >
+      {paragraph}
+    </h1>
+    <p className="text-text-secondary typo-markdown">{secondParagraph}</p>
   </>
 );
 
@@ -634,26 +704,106 @@ export const IgnoredCrossingBoundary: Story = {
   render: () => <CrossingBoundary />,
 };
 
-// -- Surfaces ---------------------------------------------------------------
-
-/** Classic article/video body — `PostContent`. */
-export const SurfaceArticlePost: Story = {
+/**
+ * The comment section sits inside the same column as the body on every surface
+ * (`BasePostContent` renders it), so binding the bar to that column armed it
+ * over replies — quoting one would have credited a commenter's words to the
+ * post. `PostSelectionArea` scopes the bar to title, TL;DR and body only.
+ */
+export const IgnoredComments: Story = {
   render: () => (
     <Stage
       className="mx-auto max-w-2xl p-6"
-      hint="Surface 1 of 3 — PostContent (classic article & video posts)."
+      hint="Expected: no bar. This is the scoping fix — comments are out of bounds."
+      outside={
+        <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+          <p className="text-text-tertiary typo-footnote">3 comments</p>
+          <div className="flex gap-2">
+            <span className="size-8 shrink-0 rounded-10 bg-surface-secondary" />
+            {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+            <p className="text-text-primary typo-callout" {...autoSelect}>
+              Completely agree — the second point is the one people miss.
+            </p>
+          </div>
+        </div>
+      }
     >
       <ArticleBody />
     </Stage>
   ),
 };
 
-/** Freeform / welcome / share / YouTube squad post — `SquadPostContent`. */
+/**
+ * Post chrome — navigation, source strip, tags, metadata, action bars — is
+ * outside the selection area too. Only readable content raises the bar.
+ */
+export const IgnoredPostChrome: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Expected: no bar. Tags and metadata are chrome, not content."
+      outside={
+        <div className="flex items-center gap-3 text-text-tertiary typo-footnote">
+          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+          <span {...autoSelect}>#webdev · 6 min read · From daily.dev</span>
+        </div>
+      }
+    >
+      <ArticleBody />
+    </Stage>
+  ),
+};
+
+/**
+ * Digest posts are deliberately excluded. A digest has no prose of its own —
+ * it is a header plus an embedded feed of *other* posts, so a selection there
+ * would quote a different post's headline and attribute it to the digest.
+ */
+export const IgnoredDigestPost: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Expected: no bar. DigestPostContent is intentionally not wired."
+      bodyClassName="rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6"
+      outside={
+        <div className="flex flex-col gap-2">
+          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+          <p className="font-bold typo-callout" {...autoSelect}>
+            Another post’s headline, listed inside the digest feed
+          </p>
+          <p className="text-text-tertiary typo-footnote">
+            daily.dev · 4 min read
+          </p>
+        </div>
+      }
+    >
+      <p className="text-text-tertiary typo-footnote">Today</p>
+      <h2 className="font-bold typo-title2">Your personalized digest</h2>
+      <p className="text-text-tertiary typo-footnote">12 posts · 6 sources</p>
+    </Stage>
+  ),
+};
+
+// -- Surfaces ---------------------------------------------------------------
+
+/** Article & video posts — `PostContent`. Page and modal. */
+export const SurfaceArticlePost: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Surface 1 of 7 — PostContent (article, video, live room). Title + TL;DR."
+    >
+      <ArticleBody />
+    </Stage>
+  ),
+};
+
+/** Freeform / welcome / share squad posts — `SquadPostContent`. */
 export const SurfaceSquadPost: Story = {
   render: () => (
     <Stage
       className="mx-auto max-w-2xl p-6"
-      hint="Surface 2 of 3 — SquadPostContent (freeform, welcome, share, YouTube)."
+      hint="Surface 2 of 7 — SquadPostContent (freeform, welcome, share, YouTube)."
     >
       <SquadBody />
     </Stage>
@@ -665,9 +815,57 @@ export const SurfaceFocusCard: Story = {
   render: () => (
     <Stage
       className="mx-auto max-w-2xl p-6"
-      hint="Surface 3 of 3 — PostFocusCard (post redesign, page and modal)."
+      hint="Surface 3 of 7 — PostFocusCard (post redesign, page and modal)."
     >
       <FocusCardBody />
+    </Stage>
+  ),
+};
+
+/** Collections — `CollectionPostContent`. Newly covered. */
+export const SurfaceCollectionPost: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Surface 4 of 7 — CollectionPostContent. Had no bar before this change."
+    >
+      <CollectionBody />
+    </Stage>
+  ),
+};
+
+/** Polls — `PollPostContent`. The question and options are quotable. */
+export const SurfacePollPost: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Surface 5 of 7 — PollPostContent. Had no bar before this change."
+    >
+      <PollBody />
+    </Stage>
+  ),
+};
+
+/** Briefs — `BriefPostContent`. Long generated prose, the best quote source. */
+export const SurfaceBriefPost: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Surface 6 of 7 — BriefPostContent. Had no bar before this change."
+    >
+      <BriefBody />
+    </Stage>
+  ),
+};
+
+/** Social / Twitter posts — `SocialTwitterPostContent`. */
+export const SurfaceSocialPost: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Surface 7 of 7 — SocialTwitterPostContent. Had no bar before this change."
+    >
+      <SocialBody />
     </Stage>
   ),
 };
