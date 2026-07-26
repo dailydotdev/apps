@@ -171,14 +171,23 @@ const Stage = ({
 // modals that do not belong in a story.
 // ---------------------------------------------------------------------------
 
-const ArticleBody = (): ReactElement => (
+/**
+ * `selectable={false}` moves the auto-selection target out of the body, so a
+ * story can prove that selecting something *outside* raises nothing. Leaving it
+ * on would select the body instead and the story would silently pass.
+ */
+const ArticleBody = ({
+  selectable = true,
+}: {
+  selectable?: boolean;
+}): ReactElement => (
   <>
     <h1 className="mb-3 font-bold typo-title2">{post.title}</h1>
     <p className="mb-4 text-text-tertiary typo-footnote">
       Ido Shamun · daily.dev · 6 min read
     </p>
     {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-    <p className="mb-4" {...autoSelect}>
+    <p className="mb-4" {...(selectable ? autoSelect : {})}>
       {paragraph}
     </p>
     <p>{secondParagraph}</p>
@@ -728,7 +737,7 @@ export const IgnoredComments: Story = {
         </div>
       }
     >
-      <ArticleBody />
+      <ArticleBody selectable={false} />
     </Stage>
   ),
 };
@@ -749,7 +758,7 @@ export const IgnoredPostChrome: Story = {
         </div>
       }
     >
-      <ArticleBody />
+      <ArticleBody selectable={false} />
     </Stage>
   ),
 };
