@@ -1,10 +1,12 @@
 import type { ReactElement, RefObject } from 'react';
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/router';
 import type { Post } from '../../graphql/posts';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { CopyIcon, LinkIcon } from '../icons';
+import { CopyIcon, DiscussIcon, LinkIcon, ShareIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RootPortal } from '../tooltips/Portal';
+import { ShareActions } from '../share/ShareActions';
 import { useCopyText } from '../../hooks/useCopy';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { useTextSelectionShare } from '../../hooks/useTextSelectionShare';
@@ -25,7 +27,19 @@ export interface SelectionShareBarProps {
   post: Post;
   /** The post body. Only selections made inside it raise the bar. */
   containerRef: RefObject<HTMLElement>;
+  /**
+   * Overrides where a quote is sent. By default the selection is written into
+   * the URL as `?comment=`, which the post's comment composer picks up.
+   */
+  onQuote?: (markdownQuote: string) => void;
 }
+
+/** Renders the selection as a markdown blockquote for the comment composer. */
+export const buildCommentQuote = (selection: string): string =>
+  `${selection
+    .split('\n')
+    .map((line) => `> ${line}`.trimEnd())
+    .join('\n')}\n\n`;
 
 // Quote images read badly past a couple of sentences, and the text rides in the
 // generator URL, so cap it well below any browser URL limit.
@@ -59,12 +73,17 @@ export const buildQuoteImageUrl = (postId: string, text: string): string => {
 function SelectionShareBarContent({
   post,
   containerRef,
+  onQuote,
 }: SelectionShareBarProps): ReactElement | null {
   const { text, rect, clear } = useTextSelectionShare({ containerRef });
   const barRef = useRef<HTMLDivElement>(null);
   const [barWidth, setBarWidth] = useState(FALLBACK_BAR_WIDTH);
   const { width: viewportWidth } = useVisualViewport();
   const [viewportOffset, setViewportOffset] = useState({ left: 0, top: 0 });
+  // The share popover portals out of the bar, so an open popover has to hold
+  // the bar open — otherwise clicking a network inside it reads as a click away.
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const router = useRouter();
 
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
@@ -108,14 +127,15 @@ function SelectionShareBarContent({
 
       clear();
     },
-    !!text,
+    !!text && !isShareOpen,
   );
 
   useEventListener(
     text ? globalThis?.document : null,
     'keydown',
     (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      // The popover closes itself on Escape; only the second press drops the bar.
+      if (event.key === 'Escape' && !isShareOpen) {
         dismiss();
       }
     },
@@ -162,6 +182,35 @@ function SelectionShareBarContent({
     copyText({ textToCopy: text, message: '✅ Copied text to clipboard' });
   };
 
+  // The composer is the one action that consumes the selection rather than
+  // copying it, so hand off the markdown and get out of the way. `NewComment`
+  // is already mounted on every surface the bar appears on and already watches
+  // `?comment=`, so the URL is the hand-off — no ref plumbing across the page.
+  // It logs `OpenComment` when it opens, so the bar deliberately does not.
+  const onQuoteInComment = () => {
+    const quote = buildCommentQuote(text);
+
+    dismiss();
+
+    if (onQuote) {
+      onQuote(quote);
+      return;
+    }
+
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: {
+          ...router.query,
+          comment: quote,
+          commentOrigin: Origin.TextSelection,
+        },
+      },
+      undefined,
+      { shallow: true },
+    );
+  };
+
   return (
     <RootPortal>
       {/*
@@ -205,6 +254,25 @@ function SelectionShareBarContent({
               variant={ButtonVariant.Tertiary}
             />
           </Tooltip>
+          <Tooltip content="Quote in a comment">
+            <Button
+              type="button"
+              aria-label="Quote in a comment"
+              icon={<DiscussIcon />}
+              onClick={onQuoteInComment}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+            />
+          </Tooltip>
+          <ShareActions
+            cid={ReferralCampaignKey.SharePost}
+            icon={<ShareIcon />}
+            label="Share"
+            link={post.commentsPermalink}
+            onOpenChange={setIsShareOpen}
+            onShare={logShare}
+            text={text}
+          />
         </div>
       </div>
     </RootPortal>

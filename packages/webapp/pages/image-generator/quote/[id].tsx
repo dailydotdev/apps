@@ -21,6 +21,8 @@ interface QuotePageProps {
   title: string;
   sourceName: string | null;
   authorName: string | null;
+  sourceImage: string | null;
+  authorImage: string | null;
   seo: NextSeoProps;
 }
 
@@ -45,6 +47,8 @@ export async function getStaticProps({
         title: post.title ?? '',
         sourceName: post.source?.name ?? null,
         authorName: post.author?.name ?? null,
+        sourceImage: post.source?.image ?? null,
+        authorImage: post.author?.image ?? null,
         seo: {
           title: post.title ?? 'Quote from daily.dev',
           description:
@@ -75,6 +79,8 @@ const QuoteImagePage = ({
   title,
   sourceName,
   authorName,
+  sourceImage,
+  authorImage,
 }: QuotePageProps): ReactElement => {
   const { query } = useRouter();
   // The quote itself is never part of the cached page — it comes from the
@@ -89,8 +95,10 @@ const QuoteImagePage = ({
       className="w-fit"
     >
       <QuoteImageCard
+        authorImage={authorImage}
         authorName={authorName}
         quote={quote}
+        sourceImage={sourceImage}
         sourceName={sourceName}
         title={title}
       />

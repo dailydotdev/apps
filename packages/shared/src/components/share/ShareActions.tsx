@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import { PopoverContent } from '../popover/Popover';
@@ -33,6 +33,13 @@ export interface ShareActionsProps {
   className?: string;
   /** Called for any share/copy so the caller can log with its own origin. */
   onShare?: (provider: ShareProvider) => void;
+  /** Overrides the trigger icon. Defaults to the copy icon. */
+  icon?: ReactElement;
+  /**
+   * Notifies the caller when the popover opens or closes, so a host that
+   * dismisses itself on outside clicks can stay put while it is open.
+   */
+  onOpenChange?: (open: boolean) => void;
 }
 
 const HOVER_CLOSE_DELAY = 120;
@@ -50,11 +57,23 @@ export function ShareActions({
   emailSummary,
   className,
   onShare,
+  icon,
+  onOpenChange,
 }: ShareActionsProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(false);
   const [copying, shareOrCopy] = useShareOrCopyLink({ link, text, cid });
   const closeTimeout = useRef<ReturnType<typeof setTimeout>>();
+
+  const setOpen = useCallback(
+    (next: boolean) => {
+      setOpenState(next);
+      onOpenChange?.(next);
+    },
+    [onOpenChange],
+  );
+
+  const triggerIcon = icon ?? <CopyIcon secondary={copying} />;
 
   const list = (
     <SocialShareList
@@ -92,7 +111,7 @@ export function ShareActions({
           type="button"
           variant={buttonVariant}
           size={buttonSize}
-          icon={<CopyIcon secondary={copying} />}
+          icon={triggerIcon}
           aria-label={label}
           className={className}
           onClick={() => {
@@ -136,7 +155,7 @@ export function ShareActions({
             type="button"
             variant={buttonVariant}
             size={buttonSize}
-            icon={<CopyIcon secondary={copying} />}
+            icon={triggerIcon}
             aria-label={label}
             pressed={open}
             className={className}

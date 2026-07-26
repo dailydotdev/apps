@@ -117,19 +117,18 @@ function NewCommentComponent(
   }, [isComposerOpen, onComposerOpenChange]);
 
   useEffect(() => {
-    if (
-      !shouldHandleCommentQuery ||
-      !hasCommentQuery ||
-      (post.type !== PostType.Welcome && post.type !== PostType.Poll)
-    ) {
+    if (!shouldHandleCommentQuery || !hasCommentQuery) {
       return;
     }
 
-    const { comment, ...query } = router.query;
-    const origin =
+    const { comment, commentOrigin, ...query } = router.query;
+    // Callers that know where the draft came from say so (the text-selection
+    // share bar does); otherwise fall back to the post type, as before.
+    const originByPostType =
       post.type === PostType.Poll
         ? Origin.PollCommentButton
         : Origin.SquadChecklist;
+    const origin = (commentOrigin as Origin) ?? originByPostType;
 
     onShowComment(origin, comment as string);
 

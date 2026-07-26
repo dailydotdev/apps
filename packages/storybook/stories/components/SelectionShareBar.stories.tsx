@@ -108,6 +108,8 @@ interface StageProps {
   showRaiseButton?: boolean;
   /** Off when an enclosing story owns the selection. */
   autoRaise?: boolean;
+  /** Intercepts the quote action instead of writing it to the URL. */
+  onQuote?: (markdownQuote: string) => void;
 }
 
 const Stage = ({
@@ -118,6 +120,7 @@ const Stage = ({
   bodyClassName,
   showRaiseButton = true,
   autoRaise = true,
+  onQuote,
 }: StageProps): ReactElement => {
   const stageRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -152,7 +155,11 @@ const Stage = ({
           Raise the bar again
         </button>
       )}
-      <SelectionShareBar containerRef={containerRef} post={post} />
+      <SelectionShareBar
+        containerRef={containerRef}
+        onQuote={onQuote}
+        post={post}
+      />
     </div>
   );
 };
@@ -322,7 +329,7 @@ export const AboveSelection: Story = {
   render: () => (
     <Stage
       className="mx-auto max-w-2xl p-6"
-      hint="Two actions: copy link to the post, copy the selected text."
+      hint="Four actions: copy link · copy text · quote in a comment · share."
     >
       <ArticleBody />
     </Stage>
@@ -406,6 +413,62 @@ export const FollowsWhileScrolling: Story = {
       <ArticleBody />
     </Stage>
   ),
+};
+
+// -- Actions ----------------------------------------------------------------
+
+/**
+ * The share button opens the full social row — the same `ShareActions` popover
+ * used elsewhere in the app, with the selection riding along as the share text.
+ * An open popover holds the bar open: it portals out of the bar, so without
+ * that guard clicking a network would read as a click away and dismiss it.
+ */
+export const ShareNetworks: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6 pt-40"
+      hint="The popover opens on load. Click a network — the bar must stay put."
+    >
+      <ArticleBody />
+    </Stage>
+  ),
+  play: async () => {
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 400);
+    });
+
+    const trigger = globalThis.document.querySelector<HTMLButtonElement>(
+      '[data-testid="selectionShareBar"] [aria-label="Share"]',
+    );
+
+    trigger?.click();
+  },
+};
+
+/**
+ * Quote sends the selection to the comment composer as a markdown blockquote,
+ * via `?comment=`. Storybook stubs the router, so nothing navigates here — the
+ * payload below is what the composer receives.
+ */
+export const QuoteInComment: Story = {
+  render: () => {
+    const [quote, setQuote] = React.useState<string | null>(null);
+
+    return (
+      <Stage
+        className="mx-auto max-w-2xl p-6"
+        hint="Click the speech-bubble button to see what the composer is handed."
+        outside={
+          <pre className="min-h-16 whitespace-pre-wrap rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 text-text-secondary typo-footnote">
+            {quote ?? 'Nothing quoted yet.'}
+          </pre>
+        }
+        onQuote={setQuote}
+      >
+        <ArticleBody />
+      </Stage>
+    );
+  },
 };
 
 // -- Devices ----------------------------------------------------------------
