@@ -51,7 +51,7 @@ import { PostMenuOptions } from '../PostMenuOptions';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
-import { SelectionShareBar } from '../SelectionShareBar';
+import { PostSelectionArea } from '../PostSelectionArea';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -253,7 +253,6 @@ export const PostFocusCard = ({
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
-  const bodyRef = useRef<HTMLElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the
   // full width on first interaction. We keep YouTube's native iframe (so the
   // first click plays with sound), so there's no React click handler to hook —
@@ -328,7 +327,6 @@ export const PostFocusCard = ({
 
   return (
     <article
-      ref={bodyRef}
       className="flex w-full flex-col rounded-24 bg-background-default"
       data-testid="post-focus-card"
     >
@@ -377,168 +375,173 @@ export const PostFocusCard = ({
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-col gap-3">
-            {sharedVia && (
-              <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
-                <span>Shared via</span>
-                <HoverCard
-                  appendTo={globalThis?.document?.body}
-                  side="top"
-                  align="start"
-                  sideOffset={8}
-                  trigger={
-                    <span className="inline-flex items-center">
-                      <Link
-                        href={sharedVia.permalink}
-                        passHref
-                        prefetch={false}
-                      >
-                        <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
-                          {sharedVia.image && (
-                            <img
-                              src={sharedVia.image}
-                              alt=""
-                              aria-hidden
-                              className="size-4 rounded-full object-cover"
-                              loading="lazy"
-                            />
-                          )}
-                          {sharedVia.name}
-                        </a>
-                      </Link>
-                    </span>
-                  }
-                >
-                  <SourceEntityCard source={sharedVia as SourceTooltip} />
-                </HoverCard>
-              </p>
-            )}
-            {isShared && !sharedVia && (
-              <p className="text-text-tertiary typo-footnote">Shared post</p>
-            )}
-            {!isShared && isCollection && (
-              <p className="text-text-tertiary typo-footnote">Collection</p>
-            )}
-            {/* Title and image are top-aligned columns. The cover image opens a
+          <PostSelectionArea post={post}>
+            <div className="flex min-w-0 flex-col gap-3">
+              {sharedVia && (
+                <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
+                  <span>Shared via</span>
+                  <HoverCard
+                    appendTo={globalThis?.document?.body}
+                    side="top"
+                    align="start"
+                    sideOffset={8}
+                    trigger={
+                      <span className="inline-flex items-center">
+                        <Link
+                          href={sharedVia.permalink}
+                          passHref
+                          prefetch={false}
+                        >
+                          <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
+                            {sharedVia.image && (
+                              <img
+                                src={sharedVia.image}
+                                alt=""
+                                aria-hidden
+                                className="size-4 rounded-full object-cover"
+                                loading="lazy"
+                              />
+                            )}
+                            {sharedVia.name}
+                          </a>
+                        </Link>
+                      </span>
+                    }
+                  >
+                    <SourceEntityCard source={sharedVia as SourceTooltip} />
+                  </HoverCard>
+                </p>
+              )}
+              {isShared && !sharedVia && (
+                <p className="text-text-tertiary typo-footnote">Shared post</p>
+              )}
+              {!isShared && isCollection && (
+                <p className="text-text-tertiary typo-footnote">Collection</p>
+              )}
+              {/* Title and image are top-aligned columns. The cover image opens a
                 lightbox rather than navigating away. The read button lives in
                 the title column (right under the title) so it hugs the title
                 regardless of the image height — a short title next to a tall
                 image keeps the button close instead of dragging it down. */}
-            <div className="flex min-w-0 flex-row items-start gap-4">
-              <div className="flex min-w-0 flex-1 flex-col gap-4">
-                <h1
-                  className={classNames(
-                    'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
-                    // On the post page the reader came to read, so the title is
-                    // always shown in full and the button flows below it; only
-                    // the modal (a feed preview) clamps it.
-                    onClose && 'line-clamp-3',
-                  )}
-                  data-testid="post-modal-title"
-                >
-                  {title}
-                </h1>
-                {renderReadButton('w-fit')}
-              </div>
-              {!isVideoType && article.image && (
-                <button
-                  type="button"
-                  aria-label="View cover image"
-                  className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
-                  onClick={(event) => {
-                    openModal({
-                      type: LazyModal.ImageView,
-                      props: {
-                        src: article.image as string,
-                        alt: 'Post cover image',
-                        originRect: getImageOriginRect(event.currentTarget),
-                      },
-                    });
-                  }}
-                >
-                  <LazyImage
-                    eager
-                    // Small square thumbnail below tablet; from tablet (656px)
-                    // up it uses the original wide cover ratio (52% => 25/13).
-                    className="aspect-square w-full tablet:aspect-[25/13]"
-                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                    fetchPriority="high"
-                    imgAlt="Post cover image"
-                    imgSrc={article.image}
-                  />
-                </button>
-              )}
-            </div>
-          </div>
-
-          <PostMetadata
-            className="!typo-callout"
-            createdAt={article.createdAt}
-            domain={
-              !isVideoType &&
-              article.domain &&
-              article.domain.length > 0 && (
-                <TruncateText>
-                  From{' '}
-                  <ArticleLink
-                    className="hover:underline"
-                    href={article.permalink}
-                    onClick={onReadArticle}
-                    title={article.domain}
+              <div className="flex min-w-0 flex-row items-start gap-4">
+                <div className="flex min-w-0 flex-1 flex-col gap-4">
+                  <h1
+                    className={classNames(
+                      'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
+                      // On the post page the reader came to read, so the title is
+                      // always shown in full and the button flows below it; only
+                      // the modal (a feed preview) clamps it.
+                      onClose && 'line-clamp-3',
+                    )}
+                    data-testid="post-modal-title"
                   >
-                    {article.domain}
-                  </ArticleLink>
-                </TruncateText>
-              )
-            }
-            isVideoType={isVideoType}
-            readTime={article.readTime}
-          />
+                    {title}
+                  </h1>
+                  {renderReadButton('w-fit')}
+                </div>
+                {!isVideoType && article.image && (
+                  <button
+                    type="button"
+                    aria-label="View cover image"
+                    className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                    onClick={(event) => {
+                      openModal({
+                        type: LazyModal.ImageView,
+                        props: {
+                          src: article.image as string,
+                          alt: 'Post cover image',
+                          originRect: getImageOriginRect(event.currentTarget),
+                        },
+                      });
+                    }}
+                  >
+                    <LazyImage
+                      eager
+                      // Small square thumbnail below tablet; from tablet (656px)
+                      // up it uses the original wide cover ratio (52% => 25/13).
+                      className="aspect-square w-full tablet:aspect-[25/13]"
+                      fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                      fetchPriority="high"
+                      imgAlt="Post cover image"
+                      imgSrc={article.image}
+                    />
+                  </button>
+                )}
+              </div>
+            </div>
 
-          {isVideoType && (
-            <div
-              ref={videoWrapperRef}
-              className={classNames(
-                'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
-                // Phones (below mobileXL, the mobileL bucket and smaller) and
-                // the expanded state use the full width; tablet/desktop start
-                // as a smaller floating preview until the user plays the video.
-                isVideoExpanded
-                  ? 'max-w-full'
-                  : 'max-w-full mobileXL:max-w-[70%]',
-              )}
-            >
-              {/* Embed YouTube's native player directly so the first click
+            <PostMetadata
+              className="!typo-callout"
+              createdAt={article.createdAt}
+              domain={
+                !isVideoType &&
+                article.domain &&
+                article.domain.length > 0 && (
+                  <TruncateText>
+                    From{' '}
+                    <ArticleLink
+                      className="hover:underline"
+                      href={article.permalink}
+                      onClick={onReadArticle}
+                      title={article.domain}
+                    >
+                      {article.domain}
+                    </ArticleLink>
+                  </TruncateText>
+                )
+              }
+              isVideoType={isVideoType}
+              readTime={article.readTime}
+            />
+
+            {isVideoType && (
+              <div
+                ref={videoWrapperRef}
+                className={classNames(
+                  'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
+                  // Phones (below mobileXL, the mobileL bucket and smaller) and
+                  // the expanded state use the full width; tablet/desktop start
+                  // as a smaller floating preview until the user plays the video.
+                  isVideoExpanded
+                    ? 'max-w-full'
+                    : 'max-w-full mobileXL:max-w-[70%]',
+                )}
+              >
+                {/* Embed YouTube's native player directly so the first click
                   plays inside the iframe with sound — no custom overlay or
                   muted autoplay. */}
-              <YoutubeVideo
-                placeholderProps={{
-                  post: article,
-                  onWatchVideo: onReadArticle,
-                }}
-                videoId={article.videoId ?? ''}
-              />
-            </div>
-          )}
+                <YoutubeVideo
+                  placeholderProps={{
+                    post: article,
+                    onWatchVideo: onReadArticle,
+                  }}
+                  videoId={article.videoId ?? ''}
+                />
+              </div>
+            )}
 
-          {article.contentHtml ? (
-            <>
-              <Markdown content={article.contentHtml} className="break-words" />
-              <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
-            </>
-          ) : (
-            article.summary &&
-            (isVideoType ? (
-              <VideoSummary summary={article.summary} />
+            {article.contentHtml ? (
+              <>
+                <Markdown
+                  content={article.contentHtml}
+                  className="break-words"
+                />
+                <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
+              </>
             ) : (
-              <p
-                className="select-text break-words text-text-secondary typo-markdown"
-                data-testid="tldr-container"
-              >
-                {article.summary}
-              </p>
-            ))
-          )}
+              article.summary &&
+              (isVideoType ? (
+                <VideoSummary summary={article.summary} />
+              ) : (
+                <p
+                  className="select-text break-words text-text-secondary typo-markdown"
+                  data-testid="tldr-container"
+                >
+                  {article.summary}
+                </p>
+              ))
+            )}
+          </PostSelectionArea>
 
           <PostTagList post={article} />
 
@@ -586,7 +589,6 @@ export const PostFocusCard = ({
           </div>
         </div>
       </div>
-      <SelectionShareBar containerRef={bodyRef} post={post} />
     </article>
   );
 };

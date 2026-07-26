@@ -71,6 +71,7 @@ import type { NotificationChannel } from '../../../hooks/notifications/useNotifi
 import useNotificationSettings from '../../../hooks/notifications/useNotificationSettings';
 import { NotificationPreferenceStatus } from '../../../graphql/notifications';
 import { isMutingDigestCompletely } from '../../notifications/utils';
+import { PostSelectionArea } from '../PostSelectionArea';
 
 type BriefPostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -348,49 +349,51 @@ const BriefPostContentRaw = ({
         >
           <div className="my-6 flex flex-col gap-6">
             {!!user && !user?.isPlus && <BriefUpgradeAlert className="!mb-0" />}
-            <BriefPostHeader {...headerProps}>
-              <BriefPostHeaderActions
-                post={post}
-                onClose={onClose}
-                origin={origin}
-                contextMenuId="post-widgets-context"
-                showShareButton
-              />
-            </BriefPostHeader>
-            <div className="-mt-3 flex flex-wrap items-center gap-3 mobileXL:flex-nowrap">
-              {!isNullOrUndefined(post.readTime) && (
-                <Pill
-                  className="rounded-20 border border-border-subtlest-tertiary px-2.5 py-2 font-normal"
-                  label={
-                    <div className="flex items-center gap-1">
-                      <TimerIcon aria-hidden className="text-text-tertiary" />
-                      <Typography type={TypographyType.Footnote}>
-                        {post.readTime}m read
-                      </Typography>
-                    </div>
-                  }
+            <PostSelectionArea post={post}>
+              <BriefPostHeader {...headerProps}>
+                <BriefPostHeaderActions
+                  post={post}
+                  onClose={onClose}
+                  origin={origin}
+                  contextMenuId="post-widgets-context"
+                  showShareButton
                 />
-              )}
-              <div className="flex w-full items-center gap-1">
-                {collectionSources.length > 0 && (
-                  <CollectionPillSources
-                    alwaysShowSources
-                    sources={collectionSources}
-                    totalSources={collectionSources.length}
-                    size={ProfileImageSize.Size16}
-                    limit={briefSourcesLimit}
+              </BriefPostHeader>
+              <div className="-mt-3 flex flex-wrap items-center gap-3 mobileXL:flex-nowrap">
+                {!isNullOrUndefined(post.readTime) && (
+                  <Pill
+                    className="rounded-20 border border-border-subtlest-tertiary px-2.5 py-2 font-normal"
+                    label={
+                      <div className="flex items-center gap-1">
+                        <TimerIcon aria-hidden className="text-text-tertiary" />
+                        <Typography type={TypographyType.Footnote}>
+                          {post.readTime}m read
+                        </Typography>
+                      </div>
+                    }
                   />
                 )}
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                  truncate
-                >
-                  {sourcesCount ?? 0} Sources
-                </Typography>
+                <div className="flex w-full items-center gap-1">
+                  {collectionSources.length > 0 && (
+                    <CollectionPillSources
+                      alwaysShowSources
+                      sources={collectionSources}
+                      totalSources={collectionSources.length}
+                      size={ProfileImageSize.Size16}
+                      limit={briefSourcesLimit}
+                    />
+                  )}
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                    truncate
+                  >
+                    {sourcesCount ?? 0} Sources
+                  </Typography>
+                </div>
               </div>
-            </div>
-            <Markdown content={contentHtml} />
+              <Markdown content={contentHtml} />
+            </PostSelectionArea>
             {isNotPlus && (
               <div className="flex w-full rounded-12 border border-white bg-transparent">
                 <div

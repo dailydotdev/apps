@@ -27,6 +27,7 @@ import { Typography, TypographyType } from '../../typography/Typography';
 import { DiscussIcon } from '../../icons';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import type { Post } from '../../../graphql/posts';
+import { PostSelectionArea } from '../PostSelectionArea';
 
 type PollPostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -201,55 +202,57 @@ function PollPostContentRaw({
           {shouldShowBanner && isUserSource && isLaptop && (
             <BoostNewPostStrip className="mt-2" />
           )}
-          <div className={pollTitleClassName}>
-            <Typography
-              type={TypographyType.LargeTitle}
-              bold
-              data-testid="post-modal-title"
-            >
-              {post?.title}
-            </Typography>
-            <div className={pollMetaWrapperClassName}>
-              <PostMetadata
-                pollMetadata={{
-                  endsAt: post?.endsAt,
-                  isAuthor: user?.id === post.author?.id,
-                  numPollVotes: post?.numPollVotes,
-                }}
-                createdAt={post.createdAt}
-                className="mb-6"
-              />
-              <PostTagList post={post} />
-              <PollOptions
-                options={post.pollOptions ?? []}
-                onClick={handleVote}
-                userVote={post?.userState?.pollOption?.id}
-                numPollVotes={post.numPollVotes || 0}
-                endsAt={post?.endsAt}
-                shouldAnimateResults={shouldAnimateResults}
-              />
-              {justVoted && (
-                <div className="mt-2 flex items-center justify-between rounded-16 bg-action-comment-float p-3">
-                  <div className="flex items-center gap-1">
-                    <DiscussIcon
-                      secondary
-                      className="text-action-comment-default"
-                    />
-                    <Typography bold>Why did you vote this way?</Typography>
+          <PostSelectionArea post={post}>
+            <div className={pollTitleClassName}>
+              <Typography
+                type={TypographyType.LargeTitle}
+                bold
+                data-testid="post-modal-title"
+              >
+                {post?.title}
+              </Typography>
+              <div className={pollMetaWrapperClassName}>
+                <PostMetadata
+                  pollMetadata={{
+                    endsAt: post?.endsAt,
+                    isAuthor: user?.id === post.author?.id,
+                    numPollVotes: post?.numPollVotes,
+                  }}
+                  createdAt={post.createdAt}
+                  className="mb-6"
+                />
+                <PostTagList post={post} />
+                <PollOptions
+                  options={post.pollOptions ?? []}
+                  onClick={handleVote}
+                  userVote={post?.userState?.pollOption?.id}
+                  numPollVotes={post.numPollVotes || 0}
+                  endsAt={post?.endsAt}
+                  shouldAnimateResults={shouldAnimateResults}
+                />
+                {justVoted && (
+                  <div className="mt-2 flex items-center justify-between rounded-16 bg-action-comment-float p-3">
+                    <div className="flex items-center gap-1">
+                      <DiscussIcon
+                        secondary
+                        className="text-action-comment-default"
+                      />
+                      <Typography bold>Why did you vote this way?</Typography>
+                    </div>
+                    <Button
+                      className="text-text-primary"
+                      variant={ButtonVariant.Subtle}
+                      size={ButtonSize.XSmall}
+                      type="button"
+                      onClick={handleCommentClick}
+                    >
+                      Comment
+                    </Button>
                   </div>
-                  <Button
-                    className="text-text-primary"
-                    variant={ButtonVariant.Subtle}
-                    size={ButtonSize.XSmall}
-                    type="button"
-                    onClick={handleCommentClick}
-                  >
-                    Comment
-                  </Button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          </PostSelectionArea>
         </BasePostContent>
       </div>
       <SquadPostWidgets

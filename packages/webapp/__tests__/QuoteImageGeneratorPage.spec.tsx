@@ -69,9 +69,11 @@ describe('quote image generator page', () => {
   it('renders the screenshot wrapper around the quote', () => {
     render(
       <QuoteImagePage
+        authorImage="https://media.daily.dev/avatar"
         authorName="Ido Shamun"
         id="post-1"
         seo={{}}
+        sourceImage="https://media.daily.dev/source"
         sourceName="daily.dev"
         title="How to ship fast"
       />,

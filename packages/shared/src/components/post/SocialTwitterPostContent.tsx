@@ -31,6 +31,7 @@ import {
   getSocialTwitterMetadataLabel,
 } from '../cards/socialTwitter/socialTwitterHelpers';
 import { Separator } from '../cards/common/common';
+import { PostSelectionArea } from './PostSelectionArea';
 
 type SocialTwitterPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -168,64 +169,69 @@ function SocialTwitterPostContentRaw({
             {!!post.createdAt && <Separator className="mx-0" />}
             {metadataLabel}
           </PostMetadata>
-          {!shouldHideRepostHeadlineAndTags &&
-            !shouldRenderPrimaryTweetPreview && (
-              <div className="mb-6 mt-0">
-                {post.titleHtml ? (
-                  <h1
-                    {...socialTextDirectionProps}
-                    className="whitespace-pre-line break-words text-text-primary typo-markdown"
-                    data-testid="post-modal-title"
-                    dangerouslySetInnerHTML={{ __html: post.titleHtml }}
+          <PostSelectionArea post={post}>
+            {!shouldHideRepostHeadlineAndTags &&
+              !shouldRenderPrimaryTweetPreview && (
+                <div className="mb-6 mt-0">
+                  {post.titleHtml ? (
+                    <h1
+                      {...socialTextDirectionProps}
+                      className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                      data-testid="post-modal-title"
+                      dangerouslySetInnerHTML={{ __html: post.titleHtml }}
+                    />
+                  ) : (
+                    <h1
+                      {...socialTextDirectionProps}
+                      className="whitespace-pre-line break-words text-text-primary typo-markdown"
+                      data-testid="post-modal-title"
+                    >
+                      {title}
+                    </h1>
+                  )}
+                  {post.clickbaitTitleDetected && (
+                    <PostClickbaitShield post={post} />
+                  )}
+                </div>
+              )}
+            {!shouldHideRepostHeadlineAndTags &&
+              !shouldRenderPrimaryTweetPreview &&
+              !!post.image &&
+              !isPlaceholderImage(post.image) &&
+              !!post.permalink && (
+                <a
+                  href={post.permalink}
+                  target="_blank"
+                  rel="noopener"
+                  className="mb-10 block cursor-pointer overflow-hidden rounded-16"
+                  style={{ maxWidth: '25.625rem' }}
+                >
+                  <LazyImage
+                    imgSrc={post.image}
+                    imgAlt="Post cover image"
+                    ratio="49%"
+                    eager
+                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                    fetchPriority="high"
                   />
-                ) : (
-                  <h1
-                    {...socialTextDirectionProps}
-                    className="whitespace-pre-line break-words text-text-primary typo-markdown"
-                    data-testid="post-modal-title"
-                  >
-                    {title}
-                  </h1>
-                )}
-                {post.clickbaitTitleDetected && (
-                  <PostClickbaitShield post={post} />
-                )}
-              </div>
+                </a>
+              )}
+            {isThread && !!post.contentHtml && (
+              <Markdown
+                content={post.contentHtml}
+                className="mb-5 break-words"
+              />
             )}
-          {!shouldHideRepostHeadlineAndTags &&
-            !shouldRenderPrimaryTweetPreview &&
-            !!post.image &&
-            !isPlaceholderImage(post.image) &&
-            !!post.permalink && (
-              <a
-                href={post.permalink}
-                target="_blank"
-                rel="noopener"
-                className="mb-10 block cursor-pointer overflow-hidden rounded-16"
-                style={{ maxWidth: '25.625rem' }}
-              >
-                <LazyImage
-                  imgSrc={post.image}
-                  imgAlt="Post cover image"
-                  ratio="49%"
-                  eager
-                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                  fetchPriority="high"
-                />
-              </a>
+            {shouldRenderPrimaryTweetPreview && (
+              <EmbeddedTweetPreview
+                post={post}
+                className="mb-5 w-full"
+                textClampClass=""
+                bodyClassName="typo-markdown"
+                showImage
+              />
             )}
-          {isThread && !!post.contentHtml && (
-            <Markdown content={post.contentHtml} className="mb-5 break-words" />
-          )}
-          {shouldRenderPrimaryTweetPreview && (
-            <EmbeddedTweetPreview
-              post={post}
-              className="mb-5 w-full"
-              textClampClass=""
-              bodyClassName="typo-markdown"
-              showImage
-            />
-          )}
+          </PostSelectionArea>
         </BasePostContent>
       </div>
       <SquadPostWidgets

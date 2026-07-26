@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import PostContentContainer from './PostContentContainer';
 import usePostContent from '../../hooks/usePostContent';
@@ -26,7 +26,7 @@ import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import type { Post } from '../../graphql/posts';
-import { SelectionShareBar } from './SelectionShareBar';
+import { PostSelectionArea } from './PostSelectionArea';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -106,8 +106,6 @@ function SquadPostContentRaw({
 
   useTrackPostView({ post });
 
-  const bodyRef = useRef<HTMLDivElement>(null);
-
   const socialTwitterType = getSocialTwitterPostType(post);
   const finalType = isVideoPost(post)
     ? PostType.VideoYouTube
@@ -134,7 +132,6 @@ function SquadPostContentRaw({
       }
     >
       <div
-        ref={bodyRef}
         className={classNames(
           'relative flex min-w-0 flex-1 flex-col px-4 tablet:px-6 laptop:px-8 laptop:pt-6',
           className?.content,
@@ -196,13 +193,14 @@ function SquadPostContentRaw({
           {shouldShowBanner && isUserSource && isLaptop && (
             <BoostNewPostStrip className="mt-2" />
           )}
-          <Content
-            post={post}
-            onReadArticle={onReadArticle}
-            isCompactSpacing={isCompactModalSpacing}
-          />
+          <PostSelectionArea post={post}>
+            <Content
+              post={post}
+              onReadArticle={onReadArticle}
+              isCompactSpacing={isCompactModalSpacing}
+            />
+          </PostSelectionArea>
         </BasePostContent>
-        <SelectionShareBar containerRef={bodyRef} post={post} />
       </div>
       <SquadPostWidgets
         onCopyPostLink={onCopyPostLink}

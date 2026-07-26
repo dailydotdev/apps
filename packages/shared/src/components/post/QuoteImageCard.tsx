@@ -50,7 +50,7 @@ const Attribution = ({
       <img
         alt={sourceName ?? ''}
         className="size-14 shrink-0 rounded-full bg-surface-float object-cover"
-        src={sourceImage}
+        src={sourceImage ?? undefined}
       />
     );
   }

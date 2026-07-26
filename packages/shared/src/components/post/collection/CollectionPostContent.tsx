@@ -26,6 +26,7 @@ import { isPostUpdated, type Post } from '../../../graphql/posts';
 import { pluralize } from '../../../lib/strings';
 import { TRENDS_SOURCE_ID } from '../../../lib/utils';
 import { getCollectionPillLabel, isTrendsPost } from './common';
+import { PostSelectionArea } from '../PostSelectionArea';
 
 type CollectionPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
@@ -144,48 +145,50 @@ const CollectionPostContentRaw = ({
                 contextMenuId="post-widgets-context"
               />
             </div>
-            <h1
-              className="break-words font-bold typo-large-title"
-              data-testid="post-modal-title"
-            >
-              {post.title}
-            </h1>
-            <PostTagList post={post} />
-            {!!dateToShow && (
-              <div className="flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote">
-                <DateFormat
-                  date={dateToShow}
-                  type={
-                    wasUpdated
-                      ? TimeFormatType.PostUpdated
-                      : TimeFormatType.Post
-                  }
-                  prefix={wasUpdated ? 'Last updated ' : undefined}
-                />
-                {hasSources && (
-                  <>
-                    <Separator />
-                    <span>
-                      {numCollectionSources}{' '}
-                      {pluralize('source', numCollectionSources)}
-                    </span>
-                  </>
-                )}
-              </div>
-            )}
-            {image && (
-              <div className="block h-auto w-full overflow-hidden rounded-12">
-                <LazyImage
-                  imgSrc={image}
-                  imgAlt="Post cover image"
-                  ratio="52%"
-                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                  eager
-                  fetchPriority="high"
-                />
-              </div>
-            )}
-            <Markdown content={contentHtml ?? ''} />
+            <PostSelectionArea post={post}>
+              <h1
+                className="break-words font-bold typo-large-title"
+                data-testid="post-modal-title"
+              >
+                {post.title}
+              </h1>
+              <PostTagList post={post} />
+              {!!dateToShow && (
+                <div className="flex min-w-0 items-center overflow-hidden text-text-tertiary typo-footnote">
+                  <DateFormat
+                    date={dateToShow}
+                    type={
+                      wasUpdated
+                        ? TimeFormatType.PostUpdated
+                        : TimeFormatType.Post
+                    }
+                    prefix={wasUpdated ? 'Last updated ' : undefined}
+                  />
+                  {hasSources && (
+                    <>
+                      <Separator />
+                      <span>
+                        {numCollectionSources}{' '}
+                        {pluralize('source', numCollectionSources)}
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+              {image && (
+                <div className="block h-auto w-full overflow-hidden rounded-12">
+                  <LazyImage
+                    imgSrc={image}
+                    imgAlt="Post cover image"
+                    ratio="52%"
+                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                    eager
+                    fetchPriority="high"
+                  />
+                </div>
+              )}
+              <Markdown content={contentHtml ?? ''} />
+            </PostSelectionArea>
           </div>
         </BasePostContent>
       </PostContainer>
