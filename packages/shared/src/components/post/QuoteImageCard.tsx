@@ -23,8 +23,12 @@ export interface QuoteImageCardProps {
 
 /**
  * Author avatar with the source badged on its corner, falling back to whichever
- * one exists. Plain `<img>` on purpose: the screenshot service renders this page
- * once and captures it, so there is nothing for lazy loading to defer to.
+ * one exists. Shapes follow the app: users are rounded squares (`ProfilePicture`
+ * radii) and sources are circles (`SourceAvatar`). Sized against the attribution
+ * text beside it rather than the card, so it reads as part of that strip.
+ *
+ * Plain `<img>` on purpose: the screenshot service renders this page once and
+ * captures it, so there is nothing for lazy loading to defer to.
  */
 const Attribution = ({
   authorImage,
@@ -45,23 +49,23 @@ const Attribution = ({
     return (
       <img
         alt={sourceName ?? ''}
-        className="size-20 shrink-0 rounded-16 bg-surface-float object-cover"
+        className="size-14 shrink-0 rounded-full bg-surface-float object-cover"
         src={sourceImage}
       />
     );
   }
 
   return (
-    <div className="relative size-20 shrink-0">
+    <div className="relative size-14 shrink-0">
       <img
         alt={authorName ?? ''}
-        className="size-20 rounded-full bg-surface-float object-cover"
+        className="size-14 rounded-16 bg-surface-float object-cover"
         src={avatar}
       />
       {!!sourceImage && (
         <img
           alt={sourceName ?? ''}
-          className="absolute -bottom-1 -right-1 size-10 rounded-10 border-4 border-background-default bg-surface-float object-cover"
+          className="absolute -bottom-1.5 -right-1.5 size-7 rounded-full border-4 border-background-default bg-surface-float object-cover"
           src={sourceImage}
         />
       )}
@@ -89,10 +93,11 @@ export const QuoteImageCard = ({
       className="flex h-[630px] w-[1200px] flex-col justify-between bg-background-default p-16"
       data-testid="quoteImageCard"
     >
+      {/* Brand resolves to the cabbage accent — the lavender purple. */}
       <Typography
         aria-hidden
         bold
-        color={TypographyColor.Quaternary}
+        color={TypographyColor.Brand}
         tag={TypographyTag.Span}
         type={TypographyType.Tera}
         className="h-16 leading-none"
