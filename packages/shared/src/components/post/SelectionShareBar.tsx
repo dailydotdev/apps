@@ -164,38 +164,48 @@ function SelectionShareBarContent({
 
   return (
     <RootPortal>
+      {/*
+        Anchoring and the reveal have to live on separate elements:
+        `animate-composer-in` animates `transform` with `animation-fill-mode:
+        both`, so sharing an element would leave the animation's final
+        `translateY(0)` overriding the anchoring translate for good.
+      */}
       <div
-        ref={barRef}
-        role="toolbar"
-        aria-label="Share selected text"
-        data-testid="selectionShareBar"
-        className="fixed z-modal flex animate-composer-in items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2 motion-reduce:animate-none"
+        className="fixed z-modal"
         style={{
           left,
           top,
           transform: `translate(-50%, ${flipsBelow ? '0' : '-100%'})`,
         }}
       >
-        <Tooltip content="Copy link to this post">
-          <Button
-            type="button"
-            aria-label="Copy link to this post"
-            icon={<LinkIcon />}
-            onClick={onCopyLink}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-          />
-        </Tooltip>
-        <Tooltip content="Copy selected text">
-          <Button
-            type="button"
-            aria-label="Copy selected text"
-            icon={<CopyIcon />}
-            onClick={onCopyText}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-          />
-        </Tooltip>
+        <div
+          ref={barRef}
+          role="toolbar"
+          aria-label="Share selected text"
+          data-testid="selectionShareBar"
+          className="flex animate-composer-in items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2 motion-reduce:animate-none"
+        >
+          <Tooltip content="Copy link to this post">
+            <Button
+              type="button"
+              aria-label="Copy link to this post"
+              icon={<LinkIcon />}
+              onClick={onCopyLink}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+            />
+          </Tooltip>
+          <Tooltip content="Copy selected text">
+            <Button
+              type="button"
+              aria-label="Copy selected text"
+              icon={<CopyIcon />}
+              onClick={onCopyText}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+            />
+          </Tooltip>
+        </div>
       </div>
     </RootPortal>
   );
