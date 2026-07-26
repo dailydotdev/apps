@@ -446,6 +446,35 @@ export const ShareNetworks: Story = {
 };
 
 /**
+ * Tooltip copy. One or two words each — the bar sits directly over the text the
+ * reader just selected, so a full sentence in a tooltip hides what they are
+ * looking at. Screen readers still get the long form from `aria-label`.
+ */
+export const Tooltips: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6 pt-32"
+      hint="Hover each button: Copy link · Copy text · Quote · Share."
+    >
+      <ArticleBody />
+    </Stage>
+  ),
+  play: async () => {
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 400);
+    });
+
+    const quote = globalThis.document.querySelector(
+      '[data-testid="selectionShareBar"] [aria-label="Quote in a comment"]',
+    );
+
+    quote?.dispatchEvent(
+      new MouseEvent('mouseover', { bubbles: true, cancelable: true }),
+    );
+  },
+};
+
+/**
  * Quote sends the selection to the comment composer as a markdown blockquote,
  * via `?comment=`. Storybook stubs the router, so nothing navigates here — the
  * payload below is what the composer receives.

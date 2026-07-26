@@ -234,7 +234,13 @@ function SelectionShareBarContent({
           data-testid="selectionShareBar"
           className="flex animate-composer-in items-center gap-1 rounded-12 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-2 motion-reduce:animate-none"
         >
-          <Tooltip content="Copy link to this post">
+          {/*
+            Tooltips stay to one or two words — the bar sits right on top of
+            what the reader just selected, so a sentence in a tooltip covers the
+            thing they are trying to look at. The aria-labels keep the long
+            form, where the extra context costs nothing.
+          */}
+          <Tooltip content="Copy link">
             <Button
               type="button"
               aria-label="Copy link to this post"
@@ -244,7 +250,7 @@ function SelectionShareBarContent({
               variant={ButtonVariant.Tertiary}
             />
           </Tooltip>
-          <Tooltip content="Copy selected text">
+          <Tooltip content="Copy text">
             <Button
               type="button"
               aria-label="Copy selected text"
@@ -254,7 +260,7 @@ function SelectionShareBarContent({
               variant={ButtonVariant.Tertiary}
             />
           </Tooltip>
-          <Tooltip content="Quote in a comment">
+          <Tooltip content="Quote">
             <Button
               type="button"
               aria-label="Quote in a comment"
