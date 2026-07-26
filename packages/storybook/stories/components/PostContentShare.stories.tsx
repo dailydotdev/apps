@@ -288,8 +288,11 @@ export const LongTitleSharePayload: Story = {
       const canvas = within(canvasElement);
       await userEvent.click(canvas.getByTestId('social-share-X'));
       await waitFor(() => expect(opened).toHaveLength(1));
-      expect(decodeURIComponent(opened[0])).toContain(longTitlePost.title);
-      expect(opened[0]).toContain('dly.to/abc123');
+
+      // The share URL carries both as percent-encoded query params.
+      const decoded = decodeURIComponent(opened[0]);
+      expect(decoded).toContain(longTitlePost.title);
+      expect(decoded).toContain(SHORT_LINK);
     } finally {
       globalThis.open = realOpen;
     }
