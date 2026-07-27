@@ -172,11 +172,12 @@ export function ShareActions({
         // recomputes on scroll/resize of ancestors and leaves the popover
         // parked at a stale position until the next event.
         updatePositionStrategy="always"
-        // A fixed four-column grid sized to its content, so the padding is the
-        // same on every side. Wrapping a flex row inside a fixed width left
-        // slack that `justify-center` split between the sides, making them read
-        // wider than the top and bottom.
-        className="grid w-fit grid-cols-4 gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2 data-[side=bottom]:mt-1 data-[side=top]:mb-1 [&>*:last-child:nth-child(4n+1)]:col-span-4 [&>*:last-child:nth-child(4n+1)]:justify-self-center"
+        // Four fixed columns sized to their content: every side gets the same
+        // padding, and a short last row stays left-aligned with the grid above
+        // it. Wrapping a flex row inside a fixed width left slack that
+        // `justify-center` split between the sides, so they read wider than the
+        // top and bottom, and it re-centred a short last row against the rest.
+        className="grid w-fit grid-cols-4 gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
         {...hoverProps}
       >
         {list}
