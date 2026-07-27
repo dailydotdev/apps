@@ -167,6 +167,12 @@ export function ShareActions({
         side="top"
         align="center"
         avoidCollisions
+        collisionPadding={8}
+        // The selection bar is `fixed` and re-anchors as the reader scrolls, so
+        // the popover has to track it every frame. The default strategy only
+        // recomputes on scroll/resize of ancestors and leaves the popover
+        // parked at a stale position until the next event.
+        updatePositionStrategy="always"
         className="flex w-80 flex-wrap justify-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
         {...hoverProps}
       >

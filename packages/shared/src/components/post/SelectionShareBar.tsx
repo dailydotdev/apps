@@ -1,9 +1,10 @@
 import type { ReactElement, RefObject } from 'react';
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { Post } from '../../graphql/posts';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { CopyIcon, DiscussIcon, LinkIcon, ShareIcon } from '../icons';
+import { CopyIcon, DiscussIcon, LinkIcon, ShareIcon, VIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RootPortal } from '../tooltips/Portal';
 import { ShareActions } from '../share/ShareActions';
@@ -65,6 +66,38 @@ export const buildQuoteImageUrl = (postId: string, text: string): string => {
   )}`;
 };
 
+// Copy actions confirm twice: the toast says what happened, and the button
+// itself swaps to a check. `useCopyLink`/`useCopyText` hold `copying` for a
+// second, which is the whole life of this transition. Both icons are stacked in
+// one grid cell so the button never changes width mid-swap.
+const CopyFeedbackIcon = ({
+  copied,
+  icon,
+}: {
+  copied: boolean;
+  icon: ReactElement;
+}): ReactElement => (
+  <span className="grid place-items-center">
+    <span
+      className={classNames(
+        'col-start-1 row-start-1 transition-all duration-200 motion-reduce:transition-none',
+        copied ? 'scale-50 opacity-0' : 'scale-100 opacity-100',
+      )}
+    >
+      {icon}
+    </span>
+    <span
+      aria-hidden
+      className={classNames(
+        'col-start-1 row-start-1 text-status-success transition-all duration-200 motion-reduce:transition-none',
+        copied ? 'scale-100 opacity-100' : 'scale-50 opacity-0',
+      )}
+    >
+      <VIcon />
+    </span>
+  </span>
+);
+
 /**
  * Floating share bar for text selected inside a post body. Ships to everyone —
  * there is no flag gate.
@@ -86,12 +119,12 @@ export function SelectionShareBar({
 
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
-  const [, shareOrCopyLink] = useShareOrCopyLink({
+  const [isLinkCopied, shareOrCopyLink] = useShareOrCopyLink({
     link: post.commentsPermalink,
     text: text ?? post.title ?? '',
     cid: ReferralCampaignKey.SharePost,
   });
-  const [, copyText] = useCopyText();
+  const [isTextCopied, copyText] = useCopyText();
 
   const dismiss = useCallback(() => {
     globalThis?.window?.getSelection?.()?.removeAllRanges();
@@ -239,21 +272,25 @@ export function SelectionShareBar({
             thing they are trying to look at. The aria-labels keep the long
             form, where the extra context costs nothing.
           */}
-          <Tooltip content="Copy link">
+          <Tooltip content={isLinkCopied ? 'Copied!' : 'Copy link'}>
             <Button
               type="button"
               aria-label="Copy link to this post"
-              icon={<LinkIcon />}
+              icon={
+                <CopyFeedbackIcon copied={isLinkCopied} icon={<LinkIcon />} />
+              }
               onClick={onCopyLink}
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
             />
           </Tooltip>
-          <Tooltip content="Copy text">
+          <Tooltip content={isTextCopied ? 'Copied!' : 'Copy text'}>
             <Button
               type="button"
               aria-label="Copy selected text"
-              icon={<CopyIcon />}
+              icon={
+                <CopyFeedbackIcon copied={isTextCopied} icon={<CopyIcon />} />
+              }
               onClick={onCopyText}
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
