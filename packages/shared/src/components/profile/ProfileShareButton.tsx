@@ -24,7 +24,7 @@ export interface ProfileShareButtonProps {
 export function ProfileShareButton({
   user,
   isSameUser,
-  buttonSize = ButtonSize.Medium,
+  buttonSize = ButtonSize.Small,
   buttonVariant = ButtonVariant.Subtle,
   className,
 }: ProfileShareButtonProps): ReactElement {

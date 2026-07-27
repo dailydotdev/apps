@@ -13,7 +13,7 @@ import type { UserStatsProps } from './UserStats';
 import { UserStats } from './UserStats';
 import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common/common';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -94,10 +94,12 @@ const ProfileHeader = ({
                 tag="a"
                 disabled={!isSameUser}
                 // Matches the share control beside it. Control users, who get
-                // no share button, keep the Float button that ships today.
+                // no share button, keep the Float Medium button that ships
+                // today.
                 variant={
                   isShareEnabled ? ButtonVariant.Subtle : ButtonVariant.Float
                 }
+                size={isShareEnabled ? ButtonSize.Small : ButtonSize.Medium}
                 icon={<EditIcon />}
                 aria-label="Edit profile"
               />

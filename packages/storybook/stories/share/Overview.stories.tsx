@@ -222,14 +222,14 @@ const Review = (): ReactElement => (
       </Muted>
       <Grid cols={4}>
         <Specimen
-          label="Subtle · Medium"
-          note="Profile header (default) — same variant as the Edit button it sits next to"
+          label="Subtle · Small"
+          note="Profile header (default) — same variant and size as the Edit button it sits next to, and as the ⋯ menu below it"
         >
           <ShareActions
             link={profile.permalink}
             text="Share"
             buttonVariant={ButtonVariant.Subtle}
-            buttonSize={ButtonSize.Medium}
+            buttonSize={ButtonSize.Small}
             onShare={fn()}
           />
         </Specimen>
