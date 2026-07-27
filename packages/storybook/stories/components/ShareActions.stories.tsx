@@ -114,8 +114,9 @@ export const Inline: Story = {
 
 /**
  * The popover, opened on load so its layout can be reviewed directly. Four
- * fixed columns sized to their content, so the padding is identical on every
- * side, and no heading — the popover only ever opens from a share control.
+ * fixed columns sized to their content: identical padding on every side, a
+ * short last row left-aligned with the grid above it, and no heading — the
+ * popover only ever opens from a share control.
  */
 export const OpenPopover: Story = {
   args: { variant: 'icon' },
