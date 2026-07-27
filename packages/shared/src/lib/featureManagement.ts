@@ -293,25 +293,3 @@ export const featureNotificationsRedesign = new Feature(
 // `analytics.impressions` field. Control hides it entirely. Keep the default
 // `false` — GrowthBook ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
-
-// Master kill-switch for the sharing-visibility initiative (copy-link/share
-// affordances added across many surfaces). Each surface also ships behind its
-// own per-topic flag; this one can disable the whole initiative at once. Keep
-// the default `false` — GrowthBook ramps it.
-export const featureSharingVisibility = new Feature(
-  'sharing_visibility',
-  false,
-);
-
-// Swaps the core copy-link glyph from `LinkIcon` to `CopyIcon` across share
-// surfaces (feed card, brief header, mobile share widget). This touches a core,
-// high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
-// Keep the default `false` (control = existing `LinkIcon`).
-export const featureShareCopyIcon = new Feature('share_copy_icon', false);
-
-// Surfaces a copy/share control on the profile header (own profile next to
-// "Edit profile", public profiles in the otherwise-empty edit slot) and
-// promotes the share action out of the "..." options menu. Also gated by the
-// `sharing_visibility` master flag. Keep the default `false` — GrowthBook ramps
-// it.
-export const featureShareProfile = new Feature('share_profile', false);

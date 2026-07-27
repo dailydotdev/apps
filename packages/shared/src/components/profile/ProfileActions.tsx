@@ -37,7 +37,6 @@ import { AwardButton } from '../award/AwardButton';
 import { Tooltip } from '../tooltip/Tooltip';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
-import { useShareProfileEnabled } from '../../hooks/profile/useShareProfileEnabled';
 import type { MenuItemProps } from '../dropdown/common';
 
 export interface HeaderProps {
@@ -60,7 +59,6 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
     sendingUser: loggedUser,
     receivingUser: user as LoggedUser,
   });
-  const isShareEnabled = useShareProfileEnabled();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -69,7 +67,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
         props: {
           offendingUser: {
             id: user.id,
-            username: user.username,
+            username: user.username || '',
           },
           defaultBlockUser: defaultBlocked,
         },
@@ -89,12 +87,12 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
           ? unblock({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: user.username || '',
             })
           : block({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: user.username || '',
             }),
     },
     {
@@ -180,7 +178,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
             follow({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: user.username || '',
               feedId,
             })
           }
@@ -188,7 +186,7 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
             unfollow({
               id: user.id,
               entity: ContentPreferenceType.User,
-              entityName: user.username,
+              entityName: user.username || '',
               feedId,
             })
           }
@@ -197,9 +195,8 @@ const ProfileActions = ({ user, isPreviewMode }: HeaderProps): ReactElement => {
               `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
             )
           }
-          // Promoted out of the menu into the header's share control when the
-          // share-profile experiment is on.
-          hideShare={isShareEnabled}
+          // Promoted out of the menu into the header's share control.
+          hideShare
           shareProps={{
             text: `Check out ${user.name}'s profile on daily.dev`,
             link: user.permalink,

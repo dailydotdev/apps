@@ -12,9 +12,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { CopyIcon, LinkIcon } from '@dailydotdev/shared/src/components/icons';
+import { LinkIcon } from '@dailydotdev/shared/src/components/icons';
 import {
-  FlagScope,
   ShareStoryProviders,
   profile,
   userStats,
@@ -33,11 +32,10 @@ import {
 } from './reviewLayout';
 
 /**
- * Review page for the sharing-visibility initiative: every surface the two
- * share PRs touch, in both flag states, on one scrollable page.
- *
- * PR 1 — #6343 `ShareActions` primitive + `sharing_visibility` / `share_copy_icon`
- * PR 2 — #6354 profile share control + `share_profile`
+ * Review page for the profile sharing work in PR #6354: every surface it
+ * touches, every state, on one scrollable page. The behaviour ships
+ * unconditionally — there is no flag to toggle, so what renders below is what
+ * every user gets.
  */
 
 const shareProps = {
@@ -53,15 +51,6 @@ const menuProps = {
   shareProps,
 };
 
-/** Live specimen wrapper: one flag state, laid out inside a Specimen card. */
-const Live = ({
-  enabled,
-  children,
-}: {
-  enabled: boolean;
-  children: ReactNode;
-}): ReactElement => <FlagScope enabled={enabled}>{children}</FlagScope>;
-
 const HeaderCard = ({ children }: { children: ReactNode }): ReactElement => (
   <div className="w-full overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle">
     {children}
@@ -71,106 +60,57 @@ const HeaderCard = ({ children }: { children: ReactNode }): ReactElement => (
 const Review = (): ReactElement => (
   <Page>
     <PageHeader
-      eyebrow="Sharing visibility · States & variants"
+      eyebrow="Profile sharing · States & variants"
       title="Every share control, every state, on one page"
     >
-      Two PRs make sharing visible instead of buried in a <Code>⋯</Code> menu:
-      PR 1 adds the shared <Code>ShareActions</Code> primitive and the icon
-      swap, PR 2 puts a real copy-link control on profile headers. Everything
-      below is the live component — the left column of each pair is what a
-      control user sees today, the right column is the experiment.
+      Sharing a profile used to mean finding “Share” inside a <Code>⋯</Code>{' '}
+      menu — and on your own profile, on desktop, there was no way to do it at
+      all. This puts a real copy-link control on the profile header instead.
+      Everything below is the live component, shipping to everyone: no flag, no
+      variant arm.
     </PageHeader>
 
     <Section n="01" title="What ships, where">
-      <Muted>
-        Every surface below resolves its own flag, but they all sit under the{' '}
-        <Code>sharing_visibility</Code> master kill-switch, so the whole
-        initiative can be turned off in one toggle.
-      </Muted>
       <Table
-        columns={['Surface', 'Control (today)', 'Experiment', 'Flag']}
+        columns={['Surface', 'Before', 'Now']}
         rows={[
           [
             'Profile header — own profile',
-            'Edit profile button only',
+            'Edit profile button only; no way to share your own profile on desktop',
             'Copy-link button next to Edit profile',
-            <Code key="a">share_profile</Code>,
           ],
           [
             'Profile header — public profile',
             'An invisible Edit placeholder holding the row height',
             'Copy-link button fills that slot',
-            <Code key="b">share_profile</Code>,
           ],
           [
             'Pinned mobile profile bar',
-            'Share lives inside the ⋯ menu',
-            'Copy-link icon in the bar, only while pinned',
-            <Code key="c">share_profile</Code>,
+            'Share buried in the ⋯ menu',
+            'Copy-link icon in the bar, while pinned',
           ],
           [
             'Profile ⋯ menus (bar + actions card)',
             '“Share” menu entry',
             'Entry removed — promoted to the visible control',
-            <Code key="d">share_profile</Code>,
           ],
           [
-            'Feed card action bar · brief header · mobile share widget',
+            'Feed card · brief header · mobile share widget',
             <>
-              <LinkIcon key="link" /> LinkIcon
+              <LinkIcon key="a" /> LinkIcon
             </>,
-            <>
-              <CopyIcon key="copy" /> CopyIcon
-            </>,
-            <Code key="e">share_copy_icon</Code>,
+            'Unchanged — the same link glyph, now used by the profile control too',
           ],
         ]}
       />
-    </Section>
-
-    <Section n="02" title="Gating matrix" badge="useShareProfileEnabled()">
       <Muted>
-        The per-topic flag is only evaluated once the master passes, so control
-        users are never bucketed into the experiment.
+        The copy-link glyph is deliberately the one already used across the
+        product, so the new control reads as the same action developers know
+        from feed cards rather than a new one.
       </Muted>
-      <Table
-        columns={[
-          'sharing_visibility',
-          'share_profile',
-          'share_copy_icon',
-          'What renders',
-        ]}
-        rows={[
-          [
-            'off',
-            'any',
-            'any',
-            'Nothing from the initiative. Pixel-identical to main.',
-          ],
-          [
-            'on',
-            'off',
-            'off',
-            'Nothing visible yet — the primitive exists but no surface mounts it.',
-          ],
-          [
-            'on',
-            'on',
-            'off',
-            'Profile share controls; copy actions keep the legacy LinkIcon.',
-          ],
-          [
-            'on',
-            'off',
-            'on',
-            'Icon swap only, on feed cards / brief header / mobile share widget.',
-          ],
-          ['on', 'on', 'on', 'Everything below.'],
-        ]}
-      />
     </Section>
 
-    <Section n="03" title="The primitive — ShareActions" badge="variant">
+    <Section n="02" title="The primitive — ShareActions" badge="variant">
       <Muted>
         One component behind every surface. <Code>icon</Code> renders a trigger
         that opens the network popover on desktop and goes straight to the
@@ -217,13 +157,13 @@ const Review = (): ReactElement => (
       </Grid>
 
       <Muted style={{ marginTop: 24 }}>
-        Button variants and sizes are props, so each surface can match its own
+        Button variant and size are props, so each surface matches its own
         control group. These are the combinations actually used.
       </Muted>
       <Grid cols={4}>
         <Specimen
           label="Subtle · Small"
-          note="Profile header (default) — same variant and size as the Edit button it sits next to, and as the ⋯ menu below it"
+          note="Profile header (default) — same variant and size as the Edit button beside it and the ⋯ menu below it"
         >
           <ShareActions
             link={profile.permalink}
@@ -266,11 +206,11 @@ const Review = (): ReactElement => (
       </Grid>
     </Section>
 
-    <Section n="04" title="Responsive behaviour" badge="useViewSize(Laptop)">
+    <Section n="03" title="Responsive behaviour" badge="useViewSize(Laptop)">
       <Muted>
         Below laptop there is no popover at all: one tap calls{' '}
         <Code>navigator.share</Code>, or copies when native share is
-        unavailable. The frames below are the real story rendered at 390px, so
+        unavailable. The frame below is the real story rendered at 390px, so
         this is the actual mobile branch and not a mock-up.
       </Muted>
       <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
@@ -298,158 +238,103 @@ const Review = (): ReactElement => (
             note="Same component, popover branch."
             align="start"
           >
-            <Live enabled>
-              <HeaderCard>
-                <ProfileHeader
-                  user={profile}
-                  userStats={userStats}
-                  isSameUser={false}
-                />
-              </HeaderCard>
-            </Live>
+            <HeaderCard>
+              <ProfileHeader
+                user={profile}
+                userStats={userStats}
+                isSameUser={false}
+              />
+            </HeaderCard>
           </Specimen>
         </div>
       </div>
     </Section>
 
-    <Section
-      n="05"
-      title="Profile header — public profile"
-      badge="ProfileHeader"
-    >
+    <Section n="04" title="Profile header" badge="ProfileHeader">
       <Muted>
-        The control reserves the slot with an <Code>invisible</Code> Edit button
-        purely to hold the row height. The experiment fills that slot instead of
-        leaving a dead placeholder, so the header height is unchanged.
+        On a public profile the control takes the slot an <Code>invisible</Code>{' '}
+        Edit button used to reserve purely to hold the row height, so the header
+        is no taller than before. On your own profile it sits beside Edit, both
+        Subtle and Small, bottom-aligned to the avatar.
       </Muted>
       <Grid cols={2}>
-        <Specimen label="Flag off — control" tone="off" align="start">
-          <Live enabled={false}>
-            <HeaderCard>
-              <ProfileHeader
-                user={profile}
-                userStats={userStats}
-                isSameUser={false}
-              />
-            </HeaderCard>
-          </Live>
+        <Specimen label="Public profile" align="start">
+          <HeaderCard>
+            <ProfileHeader
+              user={profile}
+              userStats={userStats}
+              isSameUser={false}
+            />
+          </HeaderCard>
         </Specimen>
-        <Specimen label="Flag on" tone="on" align="start">
-          <Live enabled>
-            <HeaderCard>
-              <ProfileHeader
-                user={profile}
-                userStats={userStats}
-                isSameUser={false}
-              />
-            </HeaderCard>
-          </Live>
+        <Specimen label="Own profile" align="start">
+          <HeaderCard>
+            <ProfileHeader user={profile} userStats={userStats} isSameUser />
+          </HeaderCard>
         </Specimen>
       </Grid>
     </Section>
 
-    <Section n="06" title="Profile header — own profile" badge="isSameUser">
-      <Muted>
-        The owner keeps Edit profile; share sits beside it. Today a signed-in
-        user on desktop has no way to share their own profile at all — the
-        “Public profile &amp; URL” widget is <Code>laptop:hidden</Code>.
-      </Muted>
-      <Grid cols={2}>
-        <Specimen label="Flag off — control" tone="off" align="start">
-          <Live enabled={false}>
-            <HeaderCard>
-              <ProfileHeader user={profile} userStats={userStats} isSameUser />
-            </HeaderCard>
-          </Live>
-        </Specimen>
-        <Specimen label="Flag on" tone="on" align="start">
-          <Live enabled>
-            <HeaderCard>
-              <ProfileHeader user={profile} userStats={userStats} isSameUser />
-            </HeaderCard>
-          </Live>
-        </Specimen>
-      </Grid>
-    </Section>
-
-    <Section n="07" title="Pinned mobile bar" badge="profile/Header · sticky">
+    <Section n="05" title="Pinned mobile bar" badge="profile/Header · sticky">
       <Muted>
         The bar only shows the control while it is pinned. Unpinned, the profile
         card right below owns it, and two identical copy buttons on one screen
-        read as a mistake. Share is also promoted out of this bar&apos;s ⋯ menu.
+        read as a mistake. This is a mobile surface, so each frame below is the
+        real story at 390px — at desktop width it would show controls (Edit
+        profile) that a phone never gets.
       </Muted>
-      <Muted>
-        This bar is a mobile surface, so each frame below is the real story at
-        390px — at desktop width it would show controls (Edit profile) that a
-        phone never gets.
-      </Muted>
-      <Grid cols={2}>
+      <Grid cols={3}>
         <Specimen
-          label="Pinned — flag on"
-          tone="on"
+          label="Pinned"
           note="Utility icon sits after the Follow group with ml-1, so the two intents never read as one control group."
           padded={false}
         >
           <DeviceFrame
             storyId="components-share-overview--mobile-pinned-bar"
             height={72}
+            width={340}
           />
         </Specimen>
         <Specimen
-          label="Unpinned — flag on"
-          tone="neutral"
+          label="Unpinned"
           note="No share control: the profile card right below is showing its own."
           padded={false}
         >
           <DeviceFrame
             storyId="components-share-overview--mobile-unpinned-bar"
             height={72}
-          />
-        </Specimen>
-      </Grid>
-      <Grid cols={2}>
-        <Specimen
-          label="Pinned — flag off (control)"
-          tone="off"
-          note="Share is reachable only from inside the ⋯ menu."
-          padded={false}
-        >
-          <DeviceFrame
-            storyId="components-share-overview--mobile-pinned-bar-control"
-            height={72}
+            width={340}
           />
         </Specimen>
         <Specimen
-          label="Pinned — own profile, flag on"
-          tone="on"
+          label="Pinned — own profile"
           note="Same control, first-person label."
           padded={false}
         >
           <DeviceFrame
             storyId="components-share-overview--mobile-pinned-bar-own"
             height={72}
+            width={340}
           />
         </Specimen>
       </Grid>
     </Section>
 
-    <Section n="08" title="The ⋯ menu, before and after" badge="hideShare">
+    <Section n="06" title="The ⋯ menu" badge="hideShare">
       <Muted>
-        Click each trigger. <Code>shareProps</Code> stays required; the new{' '}
-        <Code>hideShare</Code> prop drops just the entry, so no other call site
-        changes.
+        Click each trigger. Profile menus pass the new <Code>hideShare</Code>{' '}
+        prop because the header now carries a visible control; every other
+        caller keeps the entry, so no other surface changes.
       </Muted>
       <Grid cols={2}>
         <Specimen
-          label="hideShare: false — control"
-          tone="off"
+          label="hideShare: false — every other caller"
           note="Share · Add to custom feed · Block · Report"
         >
           <CustomFeedOptionsMenu {...menuProps} />
         </Specimen>
         <Specimen
-          label="hideShare: true — experiment"
-          tone="on"
+          label="hideShare: true — the two profile menus"
           note="Add to custom feed · Block · Report. Share moved up to the header."
         >
           <CustomFeedOptionsMenu {...menuProps} hideShare />
@@ -457,59 +342,34 @@ const Review = (): ReactElement => (
       </Grid>
     </Section>
 
-    <Section n="09" title="Icon swap" badge="share_copy_icon">
+    <Section n="07" title="The copy-link glyph">
       <Muted>
-        A separate flag, because it touches a core high-traffic glyph on three
-        surfaces at once: the feed card action bar, the brief post header and
-        the mobile share widget. Control keeps <Code>LinkIcon</Code>. Note this
-        now points the other way from the profile share trigger, which uses{' '}
-        <Code>LinkIcon</Code> — worth settling before either ships.
+        The same <Code>LinkIcon</Code> the feed card action bar, the brief
+        header and the mobile share widget already use — those surfaces are
+        untouched. Its filled (<Code>secondary</Code>) state is the post-copy
+        confirmation.
       </Muted>
       <Grid cols={2}>
-        <Specimen
-          label="LinkIcon — control"
-          tone="off"
-          note="Reads as “link”, easily confused with the post's outbound link."
-        >
-          <div className="flex items-center gap-4">
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<LinkIcon />}
-              aria-label="Copy link"
-            />
-            <Button
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Medium}
-              icon={<LinkIcon />}
-              aria-label="Copy link"
-            />
-          </div>
+        <Specimen label="Idle" note="Subtle Small, as it renders in the header">
+          <Button
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.Small}
+            icon={<LinkIcon />}
+            aria-label="Copy link"
+          />
         </Specimen>
-        <Specimen
-          label="CopyIcon — experiment"
-          tone="on"
-          note="Reads as “copy”. Filled state (secondary) is the post-copy confirmation."
-        >
-          <div className="flex items-center gap-4">
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.Small}
-              icon={<CopyIcon />}
-              aria-label="Copy link"
-            />
-            <Button
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Medium}
-              icon={<CopyIcon secondary />}
-              aria-label="Copied"
-            />
-          </div>
+        <Specimen label="Copied" note="Filled glyph while the copy lands">
+          <Button
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.Small}
+            icon={<LinkIcon secondary />}
+            aria-label="Copied"
+          />
         </Specimen>
       </Grid>
     </Section>
 
-    <Section n="10" title="Copy and accessible labels">
+    <Section n="08" title="Copy and accessible labels">
       <Muted>
         Both label variants are asserted in <Code>ProfileShareButton.spec</Code>
         . The share text is what lands in the tweet / WhatsApp message / email
@@ -537,39 +397,40 @@ const Review = (): ReactElement => (
       />
       <Grid cols={2}>
         <Specimen label="Public label" note="Hover the button to see it.">
-          <Live enabled>
-            <ProfileShareButton user={profile} />
-          </Live>
+          <ProfileShareButton user={profile} />
         </Specimen>
         <Specimen label="Own label" note="Hover the button to see it.">
-          <Live enabled>
-            <ProfileShareButton user={profile} isSameUser />
-          </Live>
+          <ProfileShareButton user={profile} isSameUser />
         </Specimen>
       </Grid>
     </Section>
 
-    <Section n="11" title="Open questions for this review">
+    <Section n="09" title="Open questions for this review">
       <Table
         columns={['#', 'Question', 'Where to look']}
         rows={[
           [
             '1',
             'Is “pinned only” right for the mobile bar, or should the icon always be there and accept two copy buttons on one screen?',
-            'Section 07',
+            'Section 05',
           ],
           [
             '2',
-            'Removing “Share” from the ⋯ menus moves cheese for anyone who learned it. Keep both?',
-            'Section 08',
+            'Removing “Share” from the profile ⋯ menus moves cheese for anyone who learned it there. Keep both?',
+            'Section 06',
           ],
           [
             '3',
             'Share text wording — “Check out …’s profile on daily.dev” is inherited from the old menu item. Worth a copy pass?',
-            'Section 10',
+            'Section 08',
           ],
           [
             '4',
+            'Ships to everyone with no flag, so there is no ramp and no kill-switch short of a revert.',
+            'PR description',
+          ],
+          [
+            '5',
             'The per-profile OG unfurl image is deliberately deferred — it needs a screenshot-service route on the backend.',
             'PR description',
           ],
@@ -586,7 +447,7 @@ const meta: Meta = {
     docs: {
       description: {
         component:
-          'Sharing-visibility review page: every surface and state the share PRs touch, flag-off next to flag-on.',
+          'Profile sharing review page: every surface and state the share control touches.',
       },
     },
   },
@@ -605,37 +466,30 @@ export const StatesAndVariants: Story = {
 };
 
 /**
- * Rendered at 390px inside section 04. Also useful on its own with the
+ * Rendered at 390px inside section 03. Also useful on its own with the
  * Storybook viewport toolbar.
  */
 export const MobileProfileHeader: Story = {
   render: () => (
     <ProfileHeader user={profile} userStats={userStats} isSameUser={false} />
   ),
-  decorators: [withShareProviders(true, 'w-full')],
+  decorators: [withShareProviders('w-full')],
 };
 
-/** The four pinned-bar states, each embedded at 390px in section 07. */
+/** The three pinned-bar states, each embedded at 390px in section 05. */
 export const MobilePinnedBar: Story = {
   render: () => (
     <ProfileMobileHeader user={profile} sticky isSameUser={false} />
   ),
-  decorators: [withShareProviders(true, 'w-full')],
+  decorators: [withShareProviders('w-full')],
 };
 
 export const MobileUnpinnedBar: Story = {
   render: () => <ProfileMobileHeader user={profile} isSameUser={false} />,
-  decorators: [withShareProviders(true, 'w-full')],
-};
-
-export const MobilePinnedBarControl: Story = {
-  render: () => (
-    <ProfileMobileHeader user={profile} sticky isSameUser={false} />
-  ),
-  decorators: [withShareProviders(false, 'w-full')],
+  decorators: [withShareProviders('w-full')],
 };
 
 export const MobilePinnedBarOwn: Story = {
   render: () => <ProfileMobileHeader user={profile} sticky isSameUser />,
-  decorators: [withShareProviders(true, 'w-full')],
+  decorators: [withShareProviders('w-full')],
 };

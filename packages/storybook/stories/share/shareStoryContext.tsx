@@ -5,10 +5,7 @@ import { fn } from 'storybook/test';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import {
-  FeaturesReadyContext,
-  GrowthBookProvider,
-} from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { getShortLinkProps } from '@dailydotdev/shared/src/hooks/utils/useGetShortUrl';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
@@ -110,34 +107,6 @@ const logValue = {
   sendBeacon: () => false,
 };
 
-/**
- * Storybook aliases `@growthbook/growthbook` to a mock whose `getFeatureValue`
- * coerces every falsy default to the truthy string `'control'`, so a flag can't
- * be evaluated as `false` here. Flag-off is therefore simulated by holding the
- * features context as "not ready", which is the exact path
- * `useConditionalFeature` takes to fall back to the (false) default value —
- * i.e. what a control user sees.
- */
-export function FlagScope({
-  enabled,
-  children,
-}: {
-  enabled: boolean;
-  children: ReactNode;
-}): ReactElement {
-  return (
-    <FeaturesReadyContext.Provider
-      value={{
-        ready: enabled,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        getFeatureValue: (feature) => feature.defaultValue as any,
-      }}
-    >
-      {children}
-    </FeaturesReadyContext.Provider>
-  );
-}
-
 export function ShareStoryProviders({
   children,
 }: {
@@ -165,16 +134,14 @@ export function ShareStoryProviders({
   );
 }
 
-/** Decorator for single-component stories: all providers + one flag state. */
+/** Decorator for single-component stories: all providers plus a width cap. */
 export const withShareProviders =
-  (enabled: boolean, className = 'mx-auto w-full max-w-[40rem]') =>
+  (className = 'mx-auto w-full max-w-[40rem]') =>
   (Story: React.ComponentType): ReactElement =>
     (
       <ShareStoryProviders>
-        <FlagScope enabled={enabled}>
-          <div className={className}>
-            <Story />
-          </div>
-        </FlagScope>
+        <div className={className}>
+          <Story />
+        </div>
       </ShareStoryProviders>
     );

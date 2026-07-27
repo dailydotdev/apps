@@ -27,10 +27,7 @@ const meta: Meta<typeof ShareActions> = {
     text: { control: 'text' },
   },
   decorators: [
-    withShareProviders(
-      true,
-      'flex min-h-40 w-full items-center justify-center',
-    ),
+    withShareProviders('flex min-h-40 w-full items-center justify-center'),
   ],
 };
 

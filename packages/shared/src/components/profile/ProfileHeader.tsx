@@ -1,6 +1,5 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
-import classNames from 'classnames';
 import { Image } from '../image/Image';
 import {
   Typography,
@@ -24,7 +23,6 @@ import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
 import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
 import { ProfileShareButton } from './ProfileShareButton';
-import { useShareProfileEnabled } from '../../hooks/profile/useShareProfileEnabled';
 
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
@@ -63,7 +61,6 @@ const ProfileHeader = ({
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
   const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
-  const isShareEnabled = useShareProfileEnabled();
 
   return (
     <div className="relative w-full overflow-hidden laptop:rounded-t-16">
@@ -81,34 +78,18 @@ const ProfileHeader = ({
         {/* Bottom-anchored to the avatar rather than spaced off the cover:
             the cover is h-36 (9rem) and the avatar hangs down to 11.5rem, so
             a 2.5rem row ending flush puts the controls on the avatar's bottom
-            edge at any button height. Control keeps today's centred row. */}
-        <div
-          className={classNames(
-            'mb-4 ml-auto flex gap-2',
-            isShareEnabled ? 'h-10 items-end' : 'mt-2 items-center',
-          )}
-        >
-          {isShareEnabled && (
-            <ProfileShareButton user={user} isSameUser={isSameUser} />
-          )}
-          {/* On public profiles the edit button only reserves the slot's
-              height; the share button now fills it, so drop the placeholder. */}
-          {(isSameUser || !isShareEnabled) && (
+            edge at any button height. */}
+        <div className="mb-4 ml-auto flex h-10 items-end gap-2">
+          <ProfileShareButton user={user} isSameUser={isSameUser} />
+          {/* Public profiles used to render an invisible edit button purely to
+              hold this row's height; the share control fills it now. */}
+          {isSameUser && (
             <Link passHref href={`${webappUrl}settings/profile`}>
               <Button
-                className={classNames(
-                  !isShareEnabled && 'text-text-secondary',
-                  !isSameUser && 'invisible',
-                )}
                 tag="a"
-                disabled={!isSameUser}
-                // Matches the share control beside it. Control users, who get
-                // no share button, keep the Float Medium button that ships
-                // today.
-                variant={
-                  isShareEnabled ? ButtonVariant.Subtle : ButtonVariant.Float
-                }
-                size={isShareEnabled ? ButtonSize.Small : ButtonSize.Medium}
+                // Matches the share control beside it.
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.Small}
                 icon={<EditIcon />}
                 aria-label="Edit profile"
               />

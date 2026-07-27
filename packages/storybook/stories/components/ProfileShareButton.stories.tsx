@@ -17,11 +17,11 @@ const meta: Meta<typeof ProfileShareButton> = {
     docs: {
       description: {
         component:
-          'Profile copy/share control built on the shared `ShareActions` primitive. Gated by the `share_profile` flag plus the `sharing_visibility` master flag. On the owner profile it sits next to "Edit profile"; on public profiles it fills the slot the edit button leaves empty, well away from Follow so the two intents never read as one control group.',
+          'Profile copy/share control built on the shared `ShareActions` primitive. Ships unconditionally — no flag. On the owner profile it sits next to "Edit profile"; on public profiles it fills the slot the edit button leaves empty, well away from Follow so the two intents never read as one control group.',
       },
     },
   },
-  decorators: [withShareProviders(true)],
+  decorators: [withShareProviders()],
 };
 
 export default meta;
@@ -86,12 +86,4 @@ export const InPublicHeader: HeaderStory = {
 export const InOwnHeader: HeaderStory = {
   ...headerMeta,
   args: { user: profile, userStats, isSameUser: true },
-};
-
-// Flag off — the header must render exactly what ships today: an invisible
-// edit-button placeholder on public profiles, no share control anywhere.
-export const HeaderControl: HeaderStory = {
-  ...headerMeta,
-  args: { user: profile, userStats, isSameUser: false },
-  decorators: [withShareProviders(false)],
 };

@@ -7,7 +7,6 @@ import { CardActionBar } from '../../buttons/CardActionBar';
 import {
   AnalyticsIcon,
   DiscussIcon as CommentIcon,
-  CopyIcon,
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
@@ -22,7 +21,6 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
-import { useShareCopyIcon } from '../../../hooks/useShareCopyIcon';
 import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 
@@ -75,7 +73,6 @@ const ActionButtons = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
-  const showCopyIcon = useShareCopyIcon();
   // When impressions are enabled, awards are hidden below laptop (tablet +
   // mobile) to make room for the extra action.
   const isLaptop = useViewSize(ViewSize.Laptop);
@@ -230,7 +227,7 @@ const ActionButtons = ({
           <CardAction
             id="copy-post-btn"
             density={FEED_CARD_DENSITY}
-            icon={showCopyIcon ? <CopyIcon /> : <LinkIcon />}
+            icon={<LinkIcon />}
             label="Copy link"
             onClick={onCopyLink}
             color={ButtonColor.Cabbage}

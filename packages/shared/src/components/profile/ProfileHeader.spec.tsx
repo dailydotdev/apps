@@ -6,15 +6,11 @@ import AuthContext from '../../contexts/AuthContext';
 import type { AuthContextData } from '../../contexts/AuthContext';
 import { getLogContextStatic } from '../../contexts/LogContext';
 import type { PublicProfile } from '../../lib/user';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 
-jest.mock('../../hooks/useConditionalFeature');
 jest.mock('./ProfileActions', () => ({
   __esModule: true,
   default: () => <div data-testid="profile-actions" />,
 }));
-
-const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
 
 const user = {
   id: 'u1',
@@ -70,58 +66,32 @@ const renderHeader = (isSameUser: boolean) => {
 describe('ProfileHeader share control', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  describe('when the flag is off', () => {
-    beforeEach(() => {
-      mockUseConditionalFeature.mockReturnValue({
-        value: false,
-        isLoading: false,
-      });
-    });
+  it('should fill the edit slot with the share control on a public profile', () => {
+    renderHeader(false);
 
-    it('should not render a share control on a public profile', () => {
-      renderHeader(false);
-
-      expect(screen.queryByLabelText(/Share/)).not.toBeInTheDocument();
-    });
-
-    it('should keep the invisible edit placeholder on a public profile', () => {
-      renderHeader(false);
-
-      expect(screen.getByLabelText('Edit profile')).toHaveClass('invisible');
-    });
-
-    it('should keep the edit button on the owner profile', () => {
-      renderHeader(true);
-
-      expect(screen.getByLabelText('Edit profile')).not.toHaveClass(
-        'invisible',
-      );
-      expect(screen.queryByLabelText(/Share/)).not.toBeInTheDocument();
-    });
+    expect(
+      screen.getByLabelText("Share @idoshamun's profile"),
+    ).toBeInTheDocument();
+    // The invisible edit placeholder that used to hold the row height is gone.
+    expect(screen.queryByLabelText('Edit profile')).not.toBeInTheDocument();
   });
 
-  describe('when the flag is on', () => {
-    beforeEach(() => {
-      mockUseConditionalFeature.mockReturnValue({
-        value: true,
-        isLoading: false,
-      });
-    });
+  it('should sit next to the edit button on the owner profile', () => {
+    renderHeader(true);
 
-    it('should fill the edit slot with the share control on a public profile', () => {
-      renderHeader(false);
+    expect(screen.getByLabelText('Share your profile')).toBeInTheDocument();
+    expect(screen.getByLabelText('Edit profile')).toBeInTheDocument();
+  });
 
-      expect(
-        screen.getByLabelText("Share @idoshamun's profile"),
-      ).toBeInTheDocument();
-      expect(screen.queryByLabelText('Edit profile')).not.toBeInTheDocument();
-    });
+  it('should render both controls at the same size and variant', () => {
+    renderHeader(true);
 
-    it('should sit next to the edit button on the owner profile', () => {
-      renderHeader(true);
-
-      expect(screen.getByLabelText('Share your profile')).toBeInTheDocument();
-      expect(screen.getByLabelText('Edit profile')).toBeInTheDocument();
+    [
+      screen.getByLabelText('Share your profile'),
+      screen.getByLabelText('Edit profile'),
+    ].forEach((control) => {
+      expect(control).toHaveClass('btn-subtle');
+      expect(control).toHaveClass('h-8');
     });
   });
 });
