@@ -1,3 +1,4 @@
+import type { ComponentProps } from 'react';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import {
@@ -15,10 +16,22 @@ import { useTextSelectionShare } from '../../hooks/useTextSelectionShare';
 import { shouldUseNativeShare } from '../../lib/func';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import type { Post } from '../../graphql/posts';
+import type { Comment } from '../../graphql/comments';
 
 jest.mock('../../hooks/useTextSelectionShare', () => ({
   __esModule: true,
   useTextSelectionShare: jest.fn(),
+}));
+
+const mockReplace = jest.fn();
+
+jest.mock('next/router', () => ({
+  __esModule: true,
+  useRouter: () => ({
+    replace: mockReplace,
+    pathname: '/posts/[id]',
+    query: {},
+  }),
 }));
 
 jest.mock('../../lib/func', () => {
@@ -54,8 +67,15 @@ beforeEach(() => {
   });
 });
 
+const comment = {
+  id: 'comment-1',
+  permalink: 'https://daily.dev/posts/how-to-ship-fast#c-comment-1',
+  author: { id: '2', username: 'ido' },
+} as unknown as Comment;
+
 const renderComponent = (
   gb = enabledGrowthBook(),
+  props: Partial<ComponentProps<typeof SelectionShareBar>> = {},
 ): RenderResult & { client: QueryClient } => {
   const client = new QueryClient();
   const containerRef = { current: document.createElement('div') };
@@ -65,7 +85,12 @@ const renderComponent = (
     client,
     ...render(
       <TestBootProvider client={client} gb={gb}>
-        <SelectionShareBar containerRef={containerRef} post={post} />
+        <SelectionShareBar
+          containerRef={containerRef}
+          post={post}
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          {...props}
+        />
       </TestBootProvider>,
     ),
   };
@@ -159,5 +184,36 @@ describe('SelectionShareBar actions', () => {
     });
 
     expect(clear).toHaveBeenCalled();
+  });
+});
+
+describe('SelectionShareBar on a comment', () => {
+  it('copies the comment permalink, not the post link', async () => {
+    renderComponent(undefined, { comment });
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('Copy link to this post'));
+    });
+
+    await waitFor(() =>
+      expect(writeText).toHaveBeenCalledWith(comment.permalink),
+    );
+  });
+
+  it('hands the quote to the reply composer', () => {
+    const onQuote = jest.fn();
+    renderComponent(undefined, { comment, onQuote });
+
+    fireEvent.click(screen.getByLabelText('Quote in a comment'));
+
+    expect(onQuote).toHaveBeenCalledWith(`> ${selection}\n\n`);
+  });
+
+  it('never quotes a comment into the post composer', () => {
+    renderComponent(undefined, { comment });
+
+    fireEvent.click(screen.getByLabelText('Quote in a comment'));
+
+    expect(mockReplace).not.toHaveBeenCalled();
   });
 });

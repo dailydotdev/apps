@@ -11,6 +11,11 @@ import type { CommentWrite, CommentWriteProps } from './common';
 
 interface ReplyTo extends CommentWriteProps {
   username: string | null;
+  /**
+   * Markdown to seed the composer with — a blockquote of text the reader
+   * selected in the comment they are replying to.
+   */
+  quote?: string;
 }
 
 interface UseComments extends CommentWrite {
@@ -33,12 +38,15 @@ export const useComments = (post: Post): UseComments => {
       return null;
     }
 
-    const { username, parentCommentId } = replyTo ?? {};
+    const { username, parentCommentId, quote } = replyTo ?? {};
+    const mention = getReplyToInitialContent(username ?? undefined);
 
     return {
       ...(parentCommentId ? { parentCommentId } : {}),
       ...(username ? { replyTo: username } : {}),
-      initialContent: getReplyToInitialContent(username ?? undefined),
+      // The quote leads, the mention follows it, so the cursor lands after the
+      // handle with the quoted text already above.
+      initialContent: [quote, mention].filter(Boolean).join('') || undefined,
     };
   }, [replyTo]);
 

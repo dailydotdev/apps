@@ -170,6 +170,14 @@ export default function MainComment({
                 commentId: selected.id,
               })
             }
+            onQuote={(quote) =>
+              onReplyTo({
+                username: comment.author?.username ?? null,
+                parentCommentId: comment.id,
+                commentId: comment.id,
+                quote,
+              })
+            }
             onEdit={({ id, lastUpdatedAt }) =>
               onEdit({ commentId: id, lastUpdatedAt })
             }

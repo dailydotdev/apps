@@ -13,6 +13,7 @@ import {
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
+import type { Comment } from '@dailydotdev/shared/src/graphql/comments';
 import { fn } from 'storybook/test';
 
 const mockUser = {
@@ -886,6 +887,87 @@ export const Dismissal: Story = {
       hint="Try: press Escape · click outside the body · click inside the text."
     >
       <ArticleBody />
+    </Stage>
+  ),
+};
+
+// -- Comments and replies ----------------------------------------------------
+
+const comment = {
+  id: 'comment-1',
+  permalink: 'https://daily.dev/posts/how-to-ship-fast#c-comment-1',
+  author: { id: '2', username: 'ido', name: 'Ido Shamun' },
+} as unknown as Comment;
+
+const CommentSurface = (): ReactElement => {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [reply, setReply] = React.useState<string | null>(null);
+
+  useAutoRaise(rootRef);
+
+  return (
+    <div ref={rootRef} className="mx-auto flex max-w-2xl flex-col gap-3 p-6">
+      <p className="text-text-tertiary typo-footnote">
+        Selecting inside a comment raises the bar for that comment — copy link
+        gives the comment permalink, quote opens a reply to it.
+      </p>
+      <article className="flex flex-col rounded-16 border border-border-subtlest-tertiary p-4">
+        <header className="mb-3 flex items-center gap-2">
+          <span className="size-8 rounded-10 bg-surface-secondary" />
+          <div className="flex flex-col">
+            <span className="font-bold typo-callout">Ido Shamun</span>
+            <span className="text-text-tertiary typo-footnote">@ido · 1h</span>
+          </div>
+        </header>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <div className="contents" ref={contentRef} {...autoSelect}>
+          <p className="typo-body">{secondParagraph}</p>
+        </div>
+        <div className="mt-3 flex gap-3 text-text-tertiary typo-footnote">
+          <span>Upvote</span>
+          <span>Reply</span>
+        </div>
+        <SelectionShareBar
+          comment={comment}
+          containerRef={contentRef}
+          onQuote={setReply}
+          post={post}
+        />
+      </article>
+      <pre className="min-h-16 whitespace-pre-wrap rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 text-text-secondary typo-footnote">
+        {reply ?? 'Reply composer is empty.'}
+      </pre>
+    </div>
+  );
+};
+
+/**
+ * A comment or reply. The bar targets the comment, not the post: copy link
+ * yields the comment permalink, sharing logs `ShareComment`, and quote opens a
+ * reply to that comment seeded with the blockquote.
+ */
+export const SurfaceComment: Story = {
+  render: () => <CommentSurface />,
+};
+
+/**
+ * The action row under a comment is chrome, so selecting it raises nothing —
+ * only the comment's own prose is quotable.
+ */
+export const IgnoredCommentActions: Story = {
+  render: () => (
+    <Stage
+      className="mx-auto max-w-2xl p-6"
+      hint="Expected: no bar. Upvote/Reply are chrome, not comment content."
+      outside={
+        <div className="flex gap-3 text-text-tertiary typo-footnote">
+          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+          <span {...autoSelect}>Upvote · Reply · Share</span>
+        </div>
+      }
+    >
+      <p className="typo-body">{secondParagraph}</p>
     </Stage>
   ),
 };

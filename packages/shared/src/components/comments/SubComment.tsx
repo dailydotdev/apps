@@ -75,6 +75,14 @@ function SubComment({
               commentId: selected.id,
             })
           }
+          onQuote={(quote) =>
+            onReplyTo({
+              username: comment.author?.username ?? null,
+              parentCommentId: parentComment.id,
+              commentId: comment.id,
+              quote,
+            })
+          }
           isModalThread={isModalThread}
         >
           {!isModalThread && (

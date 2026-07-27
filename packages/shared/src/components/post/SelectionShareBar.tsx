@@ -3,6 +3,7 @@ import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { Post } from '../../graphql/posts';
+import type { Comment } from '../../graphql/comments';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { CopyIcon, DiscussIcon, LinkIcon, ShareIcon, VIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -23,8 +24,14 @@ import { webappUrl } from '../../lib/constants';
 
 export interface SelectionShareBarProps {
   post: Post;
-  /** The post body. Only selections made inside it raise the bar. */
+  /** The content the bar is bound to. Only selections inside it raise it. */
   containerRef: RefObject<HTMLElement>;
+  /**
+   * Set when the bound content is a comment or reply rather than the post
+   * body. The share link, the logged event and the quote then belong to the
+   * comment, so a reader never quotes a commenter as if they were the author.
+   */
+  comment?: Comment;
   /**
    * Overrides where a quote is sent. By default the selection is written into
    * the URL as `?comment=`, which the post's comment composer picks up.
@@ -105,6 +112,7 @@ const CopyFeedbackIcon = ({
 export function SelectionShareBar({
   post,
   containerRef,
+  comment,
   onQuote,
 }: SelectionShareBarProps): ReactElement | null {
   const { text, rect, clear } = useTextSelectionShare({ containerRef });
@@ -119,8 +127,9 @@ export function SelectionShareBar({
 
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
+  const shareLink = comment?.permalink ?? post.commentsPermalink;
   const [isLinkCopied, shareOrCopyLink] = useShareOrCopyLink({
-    link: post.commentsPermalink,
+    link: shareLink,
     text: text ?? post.title ?? '',
     cid: ReferralCampaignKey.SharePost,
   });
@@ -134,12 +143,20 @@ export function SelectionShareBar({
   const logShare = useCallback(
     (provider: ShareProvider) => {
       logEvent(
-        postLogEvent(LogEvent.SharePost, post, {
-          extra: { provider, origin: Origin.TextSelection },
-        }),
+        postLogEvent(
+          comment ? LogEvent.ShareComment : LogEvent.SharePost,
+          post,
+          {
+            extra: {
+              provider,
+              origin: Origin.TextSelection,
+              ...(comment && { commentId: comment.id }),
+            },
+          },
+        ),
       );
     },
-    [logEvent, post, postLogEvent],
+    [comment, logEvent, post, postLogEvent],
   );
 
   useLayoutEffect(() => {
@@ -229,6 +246,12 @@ export function SelectionShareBar({
       return;
     }
 
+    if (comment) {
+      // A comment with no reply handler can still copy and share; silently
+      // quoting it into the post composer would misattribute it.
+      return;
+    }
+
     router.replace(
       {
         pathname: router.pathname,
@@ -310,7 +333,7 @@ export function SelectionShareBar({
             cid={ReferralCampaignKey.SharePost}
             icon={<ShareIcon />}
             label="Share"
-            link={post.commentsPermalink}
+            link={shareLink}
             onOpenChange={setIsShareOpen}
             onShare={logShare}
             text={text}
