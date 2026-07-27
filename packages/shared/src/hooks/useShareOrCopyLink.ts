@@ -13,12 +13,15 @@ export interface UseShareOrCopyLinkProps {
   logObject?: (provider: ShareProvider) => LogEvent;
   shortenUrl?: boolean;
   cid?: ReferralCampaignKey;
+  /** Toast copy for the copy path; defaults to the generic "Copied link". */
+  copyMessage?: string;
 }
 export function useShareOrCopyLink({
   link,
   text,
   logObject,
   cid,
+  copyMessage,
 }: UseShareOrCopyLinkProps): ReturnType<typeof useCopyLink> {
   const { logEvent } = useLogContext();
   const [copying, copyLink] = useCopyLink();
@@ -45,7 +48,7 @@ export function useShareOrCopyLink({
       }
     } else {
       logShareEvent(ShareProvider.CopyLink);
-      copyLink({ link: shortLink });
+      copyLink({ link: shortLink, message: copyMessage });
     }
   };
 

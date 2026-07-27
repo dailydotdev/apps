@@ -10,7 +10,6 @@ import type { PublicProfile } from '../../lib/user';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import type { ToastNotification } from '../../hooks/useToastNotification';
 import { shouldUseNativeShare } from '../../lib/func';
-import { useViewSize } from '../../hooks/useViewSize';
 import { LogEvent } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
 
@@ -19,13 +18,7 @@ jest.mock('../../lib/func', () => ({
   shouldUseNativeShare: jest.fn(),
 }));
 
-jest.mock('../../hooks/useViewSize', () => ({
-  ...jest.requireActual('../../hooks/useViewSize'),
-  useViewSize: jest.fn(),
-}));
-
 const mockShouldUseNativeShare = jest.mocked(shouldUseNativeShare);
-const mockUseViewSize = jest.mocked(useViewSize);
 
 const user = {
   id: 'u1',
@@ -77,7 +70,6 @@ const setupButton = (
 describe('ProfileShareButton', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseViewSize.mockReturnValue(false);
     mockShouldUseNativeShare.mockReturnValue(false);
     Object.defineProperty(globalThis.navigator, 'clipboard', {
       configurable: true,
@@ -85,31 +77,35 @@ describe('ProfileShareButton', () => {
     });
   });
 
-  it('should label the control for the profile being shared', () => {
+  it('should label the control for the profile being copied', () => {
     setupButton();
 
     expect(
-      screen.getByLabelText("Share @idoshamun's profile"),
+      screen.getByLabelText("Copy link to @idoshamun's profile"),
     ).toBeInTheDocument();
   });
 
   it('should label the control for the logged-in owner', () => {
     setupButton({ isSameUser: true });
 
-    expect(screen.getByLabelText('Share your profile')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Copy link to your profile'),
+    ).toBeInTheDocument();
   });
 
-  it('should copy the profile link and toast on mobile without native share', async () => {
+  it('should copy the profile link and name it in the toast', async () => {
     const client = setupButton();
 
-    await userEvent.click(screen.getByLabelText("Share @idoshamun's profile"));
+    await userEvent.click(
+      screen.getByLabelText("Copy link to @idoshamun's profile"),
+    );
 
     await waitFor(() =>
       expect(writeText).toHaveBeenCalledWith('https://app.daily.dev/idoshamun'),
     );
     await waitFor(() => {
       const toast = client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY);
-      expect(toast?.message).toEqual('✅ Copied link to clipboard');
+      expect(toast?.message).toEqual("✅ Copied link to @idoshamun's profile");
     });
     expect(logEvent).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -117,6 +113,30 @@ describe('ProfileShareButton', () => {
         target_id: 'u1',
         extra: expect.stringContaining(ShareProvider.CopyLink),
       }),
+    );
+  });
+
+  it('should say "your profile" in the owner toast', async () => {
+    const client = setupButton({ isSameUser: true });
+
+    await userEvent.click(screen.getByLabelText('Copy link to your profile'));
+
+    await waitFor(() => {
+      const toast = client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY);
+      expect(toast?.message).toEqual('✅ Copied link to your profile');
+    });
+  });
+
+  it('should flip the glyph to a green check while copying', async () => {
+    setupButton();
+
+    const button = screen.getByLabelText("Copy link to @idoshamun's profile");
+    expect(button.querySelector('.text-status-success')).toBeNull();
+
+    await userEvent.click(button);
+
+    await waitFor(() =>
+      expect(button.querySelector('.text-status-success')).toBeInTheDocument(),
     );
   });
 
@@ -130,7 +150,9 @@ describe('ProfileShareButton', () => {
 
     setupButton();
 
-    await userEvent.click(screen.getByLabelText("Share @idoshamun's profile"));
+    await userEvent.click(
+      screen.getByLabelText("Copy link to @idoshamun's profile"),
+    );
 
     await waitFor(() =>
       expect(share).toHaveBeenCalledWith({
@@ -146,13 +168,14 @@ describe('ProfileShareButton', () => {
     );
   });
 
-  it('should reveal the share network list on desktop', async () => {
-    mockUseViewSize.mockReturnValue(true);
+  it('should not open a share popover on desktop', async () => {
     setupButton();
 
-    await userEvent.click(screen.getByLabelText("Share @idoshamun's profile"));
+    await userEvent.click(
+      screen.getByLabelText("Copy link to @idoshamun's profile"),
+    );
 
-    expect(await screen.findByText('Copy link')).toBeInTheDocument();
-    expect(screen.getByText('LinkedIn')).toBeInTheDocument();
+    await waitFor(() => expect(writeText).toHaveBeenCalled());
+    expect(screen.queryByText('LinkedIn')).not.toBeInTheDocument();
   });
 });

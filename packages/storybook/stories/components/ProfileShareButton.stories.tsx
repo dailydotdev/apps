@@ -17,7 +17,7 @@ const meta: Meta<typeof ProfileShareButton> = {
     docs: {
       description: {
         component:
-          'Profile copy/share control built on the shared `ShareActions` primitive. Ships unconditionally — no flag. On the owner profile it sits next to "Edit profile"; on public profiles it fills the slot the edit button leaves empty, well away from Follow so the two intents never read as one control group.',
+          'Profile copy-link control. One click copies the shortened, referral-tagged profile URL, flips the glyph to a green check for a second and toasts what was copied — no network picker. Mobile still gets the native share sheet where the platform offers one. Ships unconditionally — no flag.',
       },
     },
   },
@@ -28,7 +28,7 @@ export default meta;
 
 type Story = StoryObj<typeof ProfileShareButton>;
 
-// Public profile: the label names whose profile is being shared.
+// Public profile: the label names whose profile is being copied.
 export const OnPublicProfile: Story = {};
 
 // Owner profile: first-person label, same control.
@@ -36,33 +36,21 @@ export const OwnProfile: Story = {
   args: { isSameUser: true },
 };
 
-// Desktop: clicking the trigger reveals the full share network list.
-export const NetworkList: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement.ownerDocument.body);
-    await userEvent.click(
-      within(canvasElement).getByLabelText("Share @idoshamun's profile"),
-    );
-    await waitFor(() => expect(canvas.getByText('LinkedIn')).toBeVisible());
-  },
-};
-
-// Copying state: the copy chip flips to "Copied!" for a beat. The clipboard is
+// Copied state: the glyph flips to a green check for a second. The clipboard is
 // stubbed because the Storybook iframe isn't allowed to write to the real one.
-export const Copying: Story = {
+export const Copied: Story = {
   play: async ({ canvasElement }) => {
     Object.defineProperty(globalThis.navigator, 'clipboard', {
       configurable: true,
       value: { writeText: async () => undefined },
     });
 
-    const canvas = within(canvasElement.ownerDocument.body);
-    await userEvent.click(
-      within(canvasElement).getByLabelText("Share @idoshamun's profile"),
+    const button = within(canvasElement).getByLabelText(
+      "Copy link to @idoshamun's profile",
     );
-    await userEvent.click(await canvas.findByTestId('social-share-Copy link'));
+    await userEvent.click(button);
     await waitFor(() =>
-      expect(canvas.getByText('Copied!')).toBeInTheDocument(),
+      expect(button.querySelector('.text-status-success')).toBeInTheDocument(),
     );
   },
 };

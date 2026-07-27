@@ -12,7 +12,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { LinkIcon } from '@dailydotdev/shared/src/components/icons';
+import { LinkIcon, VIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   ShareStoryProviders,
   profile,
@@ -77,7 +77,7 @@ const Review = (): ReactElement => (
           [
             'Profile header — own profile',
             'Edit profile button only; no way to share your own profile on desktop',
-            'Copy-link button next to Edit profile',
+            'Copy-link button next to Edit profile — one click copies',
           ],
           [
             'Profile header — public profile',
@@ -110,12 +110,44 @@ const Review = (): ReactElement => (
       </Muted>
     </Section>
 
-    <Section n="02" title="The primitive — ShareActions" badge="variant">
+    <Section n="02" title="What one click does" badge="ProfileShareButton">
       <Muted>
-        One component behind every surface. <Code>icon</Code> renders a trigger
-        that opens the network popover on desktop and goes straight to the
-        native share sheet on mobile; <Code>inline</Code> drops the network row
-        into the page.
+        One click copies the profile link — shortened through{' '}
+        <Code>dly.to</Code> with the <Code>ShareProfile</Code> campaign — and
+        confirms twice: the glyph flips to a green check for a beat, and a toast
+        names exactly what landed on the clipboard. No network picker: choosing
+        a destination is a second decision, and the link covers all of them. On
+        mobile, where the platform offers a native share sheet, a tap still
+        opens that instead.
+      </Muted>
+      <Grid cols={2}>
+        <Specimen
+          label="Click it"
+          note="Copies, flips to the green check for a second, and fires the toast."
+        >
+          <ProfileShareButton user={profile} />
+        </Specimen>
+        <Specimen
+          label="Copied — the confirmed state"
+          note="VIcon in text-status-success, the same green check used across the product."
+        >
+          <Button
+            variant={ButtonVariant.Subtle}
+            size={ButtonSize.Small}
+            icon={<VIcon className="text-status-success" />}
+            aria-label="Copied"
+          />
+        </Specimen>
+      </Grid>
+    </Section>
+
+    <Section n="03" title="The primitive — ShareActions" badge="variant">
+      <Muted>
+        The shared primitive from PR 1 (#6343), still used by the other surfaces
+        in the initiative. <Code>icon</Code> renders a trigger that opens the
+        network popover on desktop and goes straight to the native share sheet
+        on mobile; <Code>inline</Code> drops the network row into the page. The
+        profile control above deliberately does <em>not</em> use it.
       </Muted>
       <Grid cols={2}>
         <Specimen
@@ -206,7 +238,7 @@ const Review = (): ReactElement => (
       </Grid>
     </Section>
 
-    <Section n="03" title="Responsive behaviour" badge="useViewSize(Laptop)">
+    <Section n="04" title="Responsive behaviour" badge="useViewSize(Laptop)">
       <Muted>
         Below laptop there is no popover at all: one tap calls{' '}
         <Code>navigator.share</Code>, or copies when native share is
@@ -250,7 +282,7 @@ const Review = (): ReactElement => (
       </div>
     </Section>
 
-    <Section n="04" title="Profile header" badge="ProfileHeader">
+    <Section n="05" title="Profile header" badge="ProfileHeader">
       <Muted>
         On a public profile the control takes the slot an <Code>invisible</Code>{' '}
         Edit button used to reserve purely to hold the row height, so the header
@@ -275,7 +307,7 @@ const Review = (): ReactElement => (
       </Grid>
     </Section>
 
-    <Section n="05" title="Pinned mobile bar" badge="profile/Header · sticky">
+    <Section n="06" title="Pinned mobile bar" badge="profile/Header · sticky">
       <Muted>
         The bar only shows the control while it is pinned. Unpinned, the profile
         card right below owns it, and two identical copy buttons on one screen
@@ -320,7 +352,7 @@ const Review = (): ReactElement => (
       </Grid>
     </Section>
 
-    <Section n="06" title="The ⋯ menu" badge="hideShare">
+    <Section n="07" title="The ⋯ menu" badge="hideShare">
       <Muted>
         Click each trigger. Profile menus pass the new <Code>hideShare</Code>{' '}
         prop because the header now carries a visible control; every other
@@ -342,7 +374,7 @@ const Review = (): ReactElement => (
       </Grid>
     </Section>
 
-    <Section n="07" title="The copy-link glyph">
+    <Section n="08" title="The copy-link glyph">
       <Muted>
         The same <Code>LinkIcon</Code> the feed card action bar, the brief
         header and the mobile share widget already use — those surfaces are
@@ -358,40 +390,43 @@ const Review = (): ReactElement => (
             aria-label="Copy link"
           />
         </Specimen>
-        <Specimen label="Copied" note="Filled glyph while the copy lands">
+        <Specimen
+          label="Copied — for one second"
+          note="Green check, then back to the link glyph."
+        >
           <Button
             variant={ButtonVariant.Subtle}
             size={ButtonSize.Small}
-            icon={<LinkIcon secondary />}
+            icon={<VIcon className="text-status-success" />}
             aria-label="Copied"
           />
         </Specimen>
       </Grid>
     </Section>
 
-    <Section n="08" title="Copy and accessible labels">
+    <Section n="09" title="Copy and accessible labels">
       <Muted>
         Both label variants are asserted in <Code>ProfileShareButton.spec</Code>
         . The share text is what lands in the tweet / WhatsApp message / email
         subject.
       </Muted>
       <Table
-        columns={['Context', 'aria-label + tooltip', 'Share text']}
+        columns={['Context', 'aria-label + tooltip', 'Toast / share text']}
         rows={[
           [
             'Public profile',
-            <Code key="l1">Share @idoshamun&apos;s profile</Code>,
-            'Check out Ido Shamun’s profile on daily.dev',
+            <Code key="l1">Copy link to @idoshamun&apos;s profile</Code>,
+            '✅ Copied link to @idoshamun’s profile',
           ],
           [
             'Own profile',
-            <Code key="l2">Share your profile</Code>,
-            'Check out my profile on daily.dev',
+            <Code key="l2">Copy link to your profile</Code>,
+            '✅ Copied link to your profile',
           ],
           [
-            'Copy chip, idle → copied',
-            <Code key="l3">Copy link → Copied!</Code>,
-            'Link is shortened through dly.to with the ShareProfile campaign',
+            'Native share sheet (mobile)',
+            '—',
+            'Check out …’s profile on daily.dev + the shortened link',
           ],
         ]}
       />
@@ -405,24 +440,29 @@ const Review = (): ReactElement => (
       </Grid>
     </Section>
 
-    <Section n="09" title="Open questions for this review">
+    <Section n="10" title="Open questions for this review">
       <Table
         columns={['#', 'Question', 'Where to look']}
         rows={[
           [
             '1',
             'Is “pinned only” right for the mobile bar, or should the icon always be there and accept two copy buttons on one screen?',
-            'Section 05',
+            'Section 06',
           ],
           [
             '2',
             'Removing “Share” from the profile ⋯ menus moves cheese for anyone who learned it there. Keep both?',
-            'Section 06',
+            'Section 07',
+          ],
+          [
+            '2b',
+            'Copy-only on desktop means no one-click path to X / LinkedIn from a profile. Acceptable, or should the network list come back as a secondary affordance?',
+            'Section 02',
           ],
           [
             '3',
-            'Share text wording — “Check out …’s profile on daily.dev” is inherited from the old menu item. Worth a copy pass?',
-            'Section 08',
+            'Toast + share-sheet wording — “Check out …’s profile on daily.dev” is inherited from the old menu item. Worth a copy pass?',
+            'Section 09',
           ],
           [
             '4',

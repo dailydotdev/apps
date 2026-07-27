@@ -6,6 +6,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import { GrowthBookProvider } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { getShortLinkProps } from '@dailydotdev/shared/src/hooks/utils/useGetShortUrl';
 import { ReferralCampaignKey } from '@dailydotdev/shared/src/lib/referral';
@@ -15,9 +16,9 @@ import type {
 } from '@dailydotdev/shared/src/lib/user';
 
 /**
- * Shared scaffolding for every sharing-visibility story (ShareActions,
- * ProfileShareButton and the Overview review page) so the mock user, the
- * seeded short link and the flag-on/flag-off trick are defined once.
+ * Shared scaffolding for every sharing story (ShareActions, ProfileShareButton
+ * and the Overview review page) so the mock user, the seeded short link and the
+ * toast surface are defined once.
  */
 
 export const mockUser = {
@@ -126,6 +127,9 @@ export function ShareStoryProviders({
           >
             <LogContext.Provider value={logValue}>
               {children}
+              {/* Real toast surface, so copy actions in the stories confirm
+                  exactly the way they do in the product. */}
+              <Toast autoDismissNotifications />
             </LogContext.Provider>
           </GrowthBookProvider>
         </SettingsContext.Provider>

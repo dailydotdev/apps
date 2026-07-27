@@ -70,7 +70,7 @@ describe('ProfileHeader share control', () => {
     renderHeader(false);
 
     expect(
-      screen.getByLabelText("Share @idoshamun's profile"),
+      screen.getByLabelText("Copy link to @idoshamun's profile"),
     ).toBeInTheDocument();
     // The invisible edit placeholder that used to hold the row height is gone.
     expect(screen.queryByLabelText('Edit profile')).not.toBeInTheDocument();
@@ -79,7 +79,9 @@ describe('ProfileHeader share control', () => {
   it('should sit next to the edit button on the owner profile', () => {
     renderHeader(true);
 
-    expect(screen.getByLabelText('Share your profile')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Copy link to your profile'),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText('Edit profile')).toBeInTheDocument();
   });
 
@@ -87,7 +89,7 @@ describe('ProfileHeader share control', () => {
     renderHeader(true);
 
     [
-      screen.getByLabelText('Share your profile'),
+      screen.getByLabelText('Copy link to your profile'),
       screen.getByLabelText('Edit profile'),
     ].forEach((control) => {
       expect(control).toHaveClass('btn-subtle');
