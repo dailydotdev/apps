@@ -9,16 +9,24 @@ interface SourceActionsNotifyProps {
   haveNotificationsOn: boolean;
   onClick: (e: React.MouseEvent) => void;
   disabled?: boolean;
+  /** Overrides the state-derived variant when the host row wants one treatment
+   * across every secondary control. */
+  variant?: ButtonVariant;
 }
 
 const SourceActionsNotify = (props: SourceActionsNotifyProps): ReactElement => {
-  const { haveNotificationsOn, onClick, disabled } = props;
+  const {
+    haveNotificationsOn,
+    onClick,
+    disabled,
+    variant: variantProp,
+  } = props;
 
   const icon = haveNotificationsOn ? <BellSubscribedIcon /> : <BellAddIcon />;
   const label = `${haveNotificationsOn ? 'Disable' : 'Enable'} notifications`;
-  const variant = haveNotificationsOn
-    ? ButtonVariant.Subtle
-    : ButtonVariant.Secondary;
+  const variant =
+    variantProp ??
+    (haveNotificationsOn ? ButtonVariant.Subtle : ButtonVariant.Secondary);
 
   return (
     <Tooltip content={label}>

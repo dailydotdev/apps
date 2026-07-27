@@ -8,7 +8,13 @@ import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import type { NextRouter } from 'next/router';
@@ -213,14 +219,40 @@ it('should show notify button if following', async () => {
   expect(notifyButton).toBeInTheDocument();
 });
 
-it('should show block button', async () => {
+// The feed cards carry their own options menus, so the header's is found via
+// the action row. Radix's trigger opens on pointerdown/keydown, not click.
+const findActionRow = async (): Promise<HTMLElement> => {
+  const anchor = await screen.findByLabelText(
+    /^(Toggle follow status|Unblock)/,
+  );
+  const row = anchor.parentElement;
+  if (!row) {
+    throw new Error('the action row button is not mounted in a row');
+  }
+  return row;
+};
+
+const openOptionsMenu = async () => {
+  const row = await findActionRow();
+  fireEvent.keyDown(within(row).getByLabelText('Options'), { key: 'Enter' });
+};
+
+/** Block left the row for the header's "…" menu. */
+const clickBlockOption = async () => {
+  await openOptionsMenu();
+  fireEvent.click(await screen.findByText('Block'));
+};
+
+it('should keep block in the options menu', async () => {
   renderComponent([
     createFeedMock(),
     createSourcesSettingsMock({ excludeSources: [] }),
   ]);
   await waitForNock();
-  const button = await screen.findByTestId('blockButton');
-  expect(button).toBeInTheDocument();
+  expect(screen.queryByTestId('blockButton')).not.toBeInTheDocument();
+
+  await openOptionsMenu();
+  expect(await screen.findByText('Block')).toBeInTheDocument();
 });
 
 it('should show login popup when logged-out on add to feed click', async () => {
@@ -239,8 +271,7 @@ it('should show login popup when logged-out on add to feed click', async () => {
     null,
   );
   await waitForNock();
-  const button = await screen.findByTestId('blockButton');
-  button.click();
+  await clickBlockOption();
   expect(showLogin).toBeCalledTimes(1);
 });
 
@@ -264,10 +295,15 @@ it('should activate notify from source', async () => {
     },
   });
   const button = await screen.findByTestId('blockButton');
-  const initialText = button.textContent;
+  expect(button).toHaveTextContent('Unblock');
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  expect(initialText).not.toBe(button.textContent);
+  // Unblocking sends Block back into the "…" menu and clears the row.
+  await waitFor(() =>
+    expect(screen.queryByTestId('blockButton')).not.toBeInTheDocument(),
+  );
+  await openOptionsMenu();
+  expect(await screen.findByText('Block')).toBeInTheDocument();
 });
 
 it('should block source', async () => {
@@ -292,9 +328,8 @@ it('should block source', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const button = await screen.findByTestId('blockButton');
-  const initialText = button.textContent;
-  button.click();
+  await clickBlockOption();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
-  expect(initialText).not.toBe(button.textContent);
+  // Blocking brings Unblock out into the row.
+  expect(await screen.findByTestId('blockButton')).toHaveTextContent('Unblock');
 });

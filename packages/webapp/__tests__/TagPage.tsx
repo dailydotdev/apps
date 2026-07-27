@@ -5,7 +5,13 @@ import nock from 'nock';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type {
   LoggedUser,
@@ -250,13 +256,48 @@ it('should request tag feed', async () => {
   });
 });
 
-it('should show follow and block buttons', async () => {
+// The feed cards carry their own options menus and copy-link buttons, so the
+// header's controls are found via the action row they share with Follow.
+const findActionRow = async (): Promise<HTMLElement> => {
+  const button = await screen.findByLabelText(/^(Follow|Unfollow|Unblock)$/);
+  const row = button.parentElement;
+  if (!row) {
+    throw new Error('the action row button is not mounted in a row');
+  }
+  return row;
+};
+
+// Radix's trigger opens on pointerdown/keydown, not click.
+const openOptionsMenu = async () => {
+  const row = await findActionRow();
+  fireEvent.keyDown(within(row).getByLabelText('Options'), { key: 'Enter' });
+};
+
+/** Block left the row for the header's "…" menu. */
+const clickBlockOption = async () => {
+  await openOptionsMenu();
+  fireEvent.click(await screen.findByText('Block'));
+};
+
+it('should show the follow button, with block in the options menu', async () => {
   renderComponent();
   await waitForNock();
   const followButton = await screen.findByLabelText('Follow');
   expect(followButton).toBeInTheDocument();
-  const blockButton = await screen.findByLabelText('Block');
-  expect(blockButton).toBeInTheDocument();
+  expect(screen.queryByLabelText('Block')).not.toBeInTheDocument();
+
+  await openOptionsMenu();
+  expect(await screen.findByText('Block')).toBeInTheDocument();
+});
+
+it('should show the copy-link control in the header', async () => {
+  renderComponent();
+  await waitForNock();
+  // Scoped to the action row — the feed cards carry copy-link buttons too.
+  // jsdom reports no laptop match, so this is the mobile path: the labelled
+  // trigger without the chevron, tapping straight through to native share.
+  const row = await findActionRow();
+  expect(within(row).getByLabelText('Copy link')).toBeInTheDocument();
 });
 
 it('should show only unfollow button', async () => {
@@ -289,8 +330,9 @@ it('should show follow and block buttons when logged-out', async () => {
   await waitForNock();
   const followButton = await screen.findByLabelText('Follow');
   expect(followButton).toBeInTheDocument();
-  const blockButton = await screen.findByLabelText('Block');
-  expect(blockButton).toBeInTheDocument();
+
+  await openOptionsMenu();
+  expect(await screen.findByText('Block')).toBeInTheDocument();
 });
 
 it('should show login popup when logged-out on follow click', async () => {
@@ -340,8 +382,7 @@ it('should show login popup when logged-out on block click', async () => {
     null,
   );
   await waitForNock();
-  const blockButton = await screen.findByLabelText('Block');
-  blockButton.click();
+  await clickBlockOption();
   expect(showLogin).toBeCalledTimes(1);
 });
 
@@ -392,8 +433,7 @@ it('should block tag', async () => {
       return { data: { feedSettings: { id: defaultUser.id } } };
     },
   });
-  const button = await screen.findByLabelText('Block');
-  button.click();
+  await clickBlockOption();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 
   await waitFor(async () => {
@@ -458,10 +498,12 @@ it('should unblock tag', async () => {
   const button = await screen.findByLabelText('Unblock');
   button.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
+  // Unblocking puts Follow back in the row and Block back in the "…" menu.
   await waitFor(async () => {
-    const followButton = await screen.findByLabelText('Block');
-    expect(followButton).toBeInTheDocument();
+    expect(await screen.findByLabelText('Follow')).toBeInTheDocument();
   });
+  await openOptionsMenu();
+  expect(await screen.findByText('Block')).toBeInTheDocument();
 });
 
 it('should load title and description for tag', async () => {
