@@ -134,7 +134,7 @@ export function PostContentRaw({
     hideSubscribeAction,
   };
 
-  useTrackPostView({ post, shouldTrack: isVideoType });
+  useTrackPostView({ post });
 
   const postMainColumn = (
     <PostContainer
