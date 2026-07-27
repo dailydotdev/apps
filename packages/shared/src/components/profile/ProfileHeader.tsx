@@ -88,12 +88,16 @@ const ProfileHeader = ({
             <Link passHref href={`${webappUrl}settings/profile`}>
               <Button
                 className={classNames(
-                  'text-text-secondary',
+                  !isShareEnabled && 'text-text-secondary',
                   !isSameUser && 'invisible',
                 )}
                 tag="a"
                 disabled={!isSameUser}
-                variant={ButtonVariant.Float}
+                // Matches the share control beside it. Control users, who get
+                // no share button, keep the Float button that ships today.
+                variant={
+                  isShareEnabled ? ButtonVariant.Subtle : ButtonVariant.Float
+                }
                 icon={<EditIcon />}
                 aria-label="Edit profile"
               />

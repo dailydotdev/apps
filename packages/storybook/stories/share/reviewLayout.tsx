@@ -312,22 +312,39 @@ export const DeviceFrame = ({
   storyId: string;
   width?: number;
   height?: number;
-}): ReactElement => (
-  <div
-    style={{
-      width,
-      height,
-      flexShrink: 0,
-      borderRadius: 16,
-      border: '1px solid var(--theme-divider-secondary)',
-      overflow: 'hidden',
-      background: 'var(--theme-background-default)',
-    }}
-  >
-    <iframe
-      title={storyId}
-      src={`/iframe.html?viewMode=story&id=${storyId}`}
-      style={{ width: '100%', height: '100%', border: 0 }}
-    />
-  </div>
-);
+}): ReactElement => {
+  // The embedded story is a separate document, so Storybook's theme toggle
+  // doesn't reach it — mirror the root theme class into its globals instead.
+  const [theme, setTheme] = React.useState('light');
+
+  React.useEffect(() => {
+    const root = document.documentElement;
+    const sync = () =>
+      setTheme(root.classList.contains('dark') ? 'dark' : 'light');
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      style={{
+        width,
+        height,
+        flexShrink: 0,
+        borderRadius: 16,
+        border: '1px solid var(--theme-divider-secondary)',
+        overflow: 'hidden',
+        background: 'var(--theme-background-default)',
+      }}
+    >
+      <iframe
+        title={storyId}
+        src={`/iframe.html?viewMode=story&id=${storyId}&globals=theme:${theme}`}
+        style={{ width: '100%', height: '100%', border: 0 }}
+      />
+    </div>
+  );
+};

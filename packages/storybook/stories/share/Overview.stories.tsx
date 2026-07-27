@@ -221,16 +221,22 @@ const Review = (): ReactElement => (
         control group. These are the combinations actually used.
       </Muted>
       <Grid cols={4}>
-        <Specimen label="Float · Medium" note="Profile header (default)">
+        <Specimen
+          label="Subtle · Medium"
+          note="Profile header (default) — same variant as the Edit button it sits next to"
+        >
           <ShareActions
             link={profile.permalink}
             text="Share"
-            buttonVariant={ButtonVariant.Float}
+            buttonVariant={ButtonVariant.Subtle}
             buttonSize={ButtonSize.Medium}
             onShare={fn()}
           />
         </Specimen>
-        <Specimen label="Float · Small" note="Pinned mobile bar">
+        <Specimen
+          label="Float · Small"
+          note="Pinned mobile bar — Float there, to match the award / options icons around it"
+        >
           <ShareActions
             link={profile.permalink}
             text="Share"

@@ -25,7 +25,7 @@ export function ProfileShareButton({
   user,
   isSameUser,
   buttonSize = ButtonSize.Medium,
-  buttonVariant = ButtonVariant.Float,
+  buttonVariant = ButtonVariant.Subtle,
   className,
 }: ProfileShareButtonProps): ReactElement {
   const { logEvent } = useLogContext();

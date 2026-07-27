@@ -229,6 +229,10 @@ export function Header({
             user={user}
             isSameUser={isSameUser}
             buttonSize={ButtonSize.Small}
+            // Float, not the header card's Subtle: in this bar the control
+            // sits among Float icons (award, options) and a bordered button
+            // would read as a different kind of action.
+            buttonVariant={ButtonVariant.Float}
             className="ml-1"
           />
         )}
