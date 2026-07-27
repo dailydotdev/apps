@@ -455,7 +455,9 @@ const Review = (): ReactElement => (
       <Muted>
         A separate flag, because it touches a core high-traffic glyph on three
         surfaces at once: the feed card action bar, the brief post header and
-        the mobile share widget. Control keeps <Code>LinkIcon</Code>.
+        the mobile share widget. Control keeps <Code>LinkIcon</Code>. Note this
+        now points the other way from the profile share trigger, which uses{' '}
+        <Code>LinkIcon</Code> — worth settling before either ships.
       </Muted>
       <Grid cols={2}>
         <Specimen

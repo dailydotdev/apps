@@ -5,7 +5,7 @@ import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import { PopoverContent } from '../popover/Popover';
 import { SocialShareList } from '../widgets/SocialShareList';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { CopyIcon } from '../icons';
+import { LinkIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import { Typography, TypographyType } from '../typography/Typography';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
@@ -92,7 +92,7 @@ export function ShareActions({
           type="button"
           variant={buttonVariant}
           size={buttonSize}
-          icon={<CopyIcon secondary={copying} />}
+          icon={<LinkIcon secondary={copying} />}
           aria-label={label}
           className={className}
           onClick={() => {
@@ -136,7 +136,7 @@ export function ShareActions({
             type="button"
             variant={buttonVariant}
             size={buttonSize}
-            icon={<CopyIcon secondary={copying} />}
+            icon={<LinkIcon secondary={copying} />}
             aria-label={label}
             pressed={open}
             className={className}
