@@ -11,6 +11,7 @@ import { ShareActions } from '../share/ShareActions';
 import { CopyStateIcon } from '../share/CopyStateIcon';
 import { useCopyText } from '../../hooks/useCopy';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
+import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
 import { useTextSelectionShare } from '../../hooks/useTextSelectionShare';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { useEventListener } from '../../hooks/useEventListener';
@@ -102,6 +103,7 @@ export function SelectionShareBar({
     cid: ReferralCampaignKey.SharePost,
   });
   const [isTextCopied, copyText] = useCopyText();
+  const { getShortUrl } = useGetShortUrl();
 
   const dismiss = useCallback(() => {
     globalThis?.window?.getSelection?.()?.removeAllRanges();
@@ -194,9 +196,23 @@ export function SelectionShareBar({
     shareOrCopyLink();
   };
 
-  const onCopyText = () => {
+  // Copied prose travels — into a doc, a DM, a slide — and arrives with no idea
+  // where it came from. Appending the link keeps the quote attributable, and
+  // routing it through `getShortUrl` gives it the same referral credit a plain
+  // copy-link would earn. On a comment the reference is that comment, not the
+  // post, so the quote points at who actually said it.
+  const onCopyText = async () => {
     logShare(ShareProvider.CopyText);
-    copyText({ textToCopy: text, message: '✅ Copied text to clipboard' });
+
+    const reference = await getShortUrl(
+      shareLink,
+      ReferralCampaignKey.SharePost,
+    );
+
+    copyText({
+      textToCopy: `${text}\n\n${reference}`,
+      message: '✅ Copied text to clipboard',
+    });
   };
 
   // The composer is the one action that consumes the selection rather than

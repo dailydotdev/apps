@@ -155,7 +155,11 @@ describe('SelectionShareBar actions', () => {
       fireEvent.click(screen.getByLabelText('Copy selected text'));
     });
 
-    await waitFor(() => expect(writeText).toHaveBeenCalledWith(selection));
+    await waitFor(() =>
+      expect(writeText).toHaveBeenCalledWith(
+        `${selection}\n\n${post.commentsPermalink}`,
+      ),
+    );
     expect(client.getQueryData(TOAST_NOTIF_KEY)).toMatchObject({
       message: '✅ Copied text to clipboard',
     });
@@ -197,6 +201,20 @@ describe('SelectionShareBar on a comment', () => {
 
     await waitFor(() =>
       expect(writeText).toHaveBeenCalledWith(comment.permalink),
+    );
+  });
+
+  it('appends the comment link to copied text, not the post link', async () => {
+    renderComponent(undefined, { comment });
+
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('Copy selected text'));
+    });
+
+    await waitFor(() =>
+      expect(writeText).toHaveBeenCalledWith(
+        `${selection}\n\n${comment.permalink}`,
+      ),
     );
   });
 
