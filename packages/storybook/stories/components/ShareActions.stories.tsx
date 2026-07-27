@@ -111,3 +111,27 @@ export const IconOpenOnHover: Story = {
 export const Inline: Story = {
   args: { variant: 'inline' },
 };
+
+/**
+ * The popover, opened on load so its layout can be reviewed directly. Four
+ * fixed columns sized to their content, so the padding is identical on every
+ * side, and no heading — the popover only ever opens from a share control.
+ */
+export const OpenPopover: Story = {
+  args: { variant: 'icon' },
+  parameters: { layout: 'fullscreen' },
+  decorators: [
+    (Story) => (
+      <div className="flex min-h-[28rem] items-end justify-center pb-8">
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 150);
+    });
+
+    canvasElement.querySelector<HTMLButtonElement>('button')?.click();
+  },
+};
