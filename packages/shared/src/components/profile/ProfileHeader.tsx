@@ -78,7 +78,16 @@ const ProfileHeader = ({
         className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
       />
       <div className="flex flex-col gap-3 px-6">
-        <div className="mb-4 ml-auto mt-2 flex items-center gap-2">
+        {/* Bottom-anchored to the avatar rather than spaced off the cover:
+            the cover is h-36 (9rem) and the avatar hangs down to 11.5rem, so
+            a 2.5rem row ending flush puts the controls on the avatar's bottom
+            edge at any button height. Control keeps today's centred row. */}
+        <div
+          className={classNames(
+            'mb-4 ml-auto flex gap-2',
+            isShareEnabled ? 'h-10 items-end' : 'mt-2 items-center',
+          )}
+        >
           {isShareEnabled && (
             <ProfileShareButton user={user} isSameUser={isSameUser} />
           )}
