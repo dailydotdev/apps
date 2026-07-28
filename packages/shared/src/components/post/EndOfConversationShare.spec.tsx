@@ -158,6 +158,50 @@ describe('EndOfConversationShare sharing', () => {
     );
   });
 
+  it.each([
+    ['X', ShareProvider.Twitter],
+    ['WhatsApp', ShareProvider.WhatsApp],
+    ['LinkedIn', ShareProvider.LinkedIn],
+  ])(
+    'logs a %s share from the dropdown, opening a window without copying',
+    async (label, provider) => {
+      // A social tile opens the network's share URL in a new tab; stub it so the
+      // click is inert and assertable.
+      const open = jest.spyOn(window, 'open').mockReturnValue(null);
+      renderComponent(12);
+
+      await act(async () => {
+        fireEvent.keyDown(screen.getByLabelText('More share options'), {
+          key: 'Enter',
+        });
+      });
+      const popover = await screen.findByRole('menu');
+
+      await act(async () => {
+        fireEvent.click(within(popover).getByTestId(`social-share-${label}`));
+      });
+
+      // Same event and origin as every other share on this surface, tagged with
+      // the tile's own provider — this is the row that feeds the per-network
+      // breakdown in analytics.
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.SharePost,
+          extra: JSON.stringify({
+            provider,
+            origin: Origin.EndOfConversation,
+          }),
+        }),
+      );
+      await waitFor(() => expect(open).toHaveBeenCalled());
+      // A social share is not a copy — the clipboard must stay untouched so the
+      // two never conflate in the funnel.
+      expect(writeText).not.toHaveBeenCalled();
+
+      open.mockRestore();
+    },
+  );
+
   it('opens the native share sheet on a single tap on mobile', async () => {
     useViewSizeMock.mockReturnValue(false);
     const share = jest.fn().mockResolvedValue(undefined);
