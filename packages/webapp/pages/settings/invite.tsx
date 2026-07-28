@@ -122,10 +122,16 @@ const AccountInvitePage = (): ReactElement => {
     return { startsAt, endsAt: addMonths(startsAt, 1) };
   }, [isRewardUnlocked, users]);
 
-  // One handler for every route out of the split control: a copy keeps the
-  // page's existing copy event, anything else logs as a share with the provider.
+  // One handler for every route out of the split control. Copy and native
+  // share both report the referral copy event, matching the production invite
+  // page: its `useShareOrCopyLink` logged both paths through the same
+  // `logObject`, i.e. as `copy referral link`. Social networks report the
+  // provider, as they did there too.
   const onShare = (provider: ShareProvider) => {
-    if (provider === ShareProvider.CopyLink) {
+    if (
+      provider === ShareProvider.CopyLink ||
+      provider === ShareProvider.Native
+    ) {
       logEvent({
         event_name: LogEvent.CopyReferralLink,
         target_id: TargetId.InviteFriendsPage,

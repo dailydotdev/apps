@@ -258,3 +258,28 @@ it('should log the copy referral link event when the link is copied', async () =
     target_id: TargetId.InviteFriendsPage,
   });
 });
+
+it('should log the copy referral link event for a native share', async () => {
+  // A native-capable mobile client: the trigger goes through the native share
+  // sheet, which the production page logged as `copy referral link` too — not
+  // as a per-provider `invite referral`.
+  const share = jest.fn().mockResolvedValue(undefined);
+  Object.assign(navigator, { share });
+  window.localStorage.setItem('mobile', 'true');
+  mockReferralCampaign(0);
+  renderComponent();
+
+  const shareButton = await screen.findByRole('button', { name: 'Copy link' });
+  await act(async () => {
+    fireEvent.click(shareButton);
+  });
+
+  // Proves the native sheet actually ran (not the copy fallback), so the
+  // assertion below is about the native path specifically.
+  expect(share).toHaveBeenCalled();
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.CopyReferralLink,
+    target_id: TargetId.InviteFriendsPage,
+  });
+  window.localStorage.removeItem('mobile');
+});
