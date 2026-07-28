@@ -69,3 +69,31 @@ export const usePostActions = ({ post }: { post?: Post }): UsePostActions => {
     onInteract,
   };
 };
+
+/**
+ * Record an upvote the way the feed cards do, for the post page's own action
+ * bars.
+ *
+ * Surfaces that fire off the back of an upvote — `PostContentShare` — read this
+ * interaction, not `post.userState.vote`. Only `useCardActions` used to set it,
+ * so upvoting anywhere on the post page left it empty and those surfaces never
+ * appeared. Every post-page bar that owns an upvote button has to call this:
+ * `PostActions`, `FocusCardActionBar`, and both `MobilePostFloatingBar`s.
+ *
+ * Deliberately not folded into `useVotePost`. That would fire for feed-card
+ * upvotes too, and `useCardCover` turns `interaction === 'upvote'` into a share
+ * overlay on the card — so an upvote from the post page would leave an overlay
+ * waiting back in the feed.
+ */
+export const useRecordUpvoteInteraction = ({
+  post,
+}: {
+  post?: Post;
+}): ((isUpvoteActive: boolean) => void) => {
+  const { onInteract } = usePostActions({ post });
+
+  return useCallback(
+    (isUpvoteActive: boolean) => onInteract(isUpvoteActive ? 'none' : 'upvote'),
+    [onInteract],
+  );
+};

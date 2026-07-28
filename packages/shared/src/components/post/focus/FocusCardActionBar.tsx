@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { UserVote } from '../../../graphql/posts';
 import { useViewSize, useVotePost, ViewSize } from '../../../hooks';
+import { useRecordUpvoteInteraction } from '../../../hooks/post/usePostActions';
 import { useBookmarkPost } from '../../../hooks/useBookmarkPost';
 import { useBlockPostPanel } from '../../../hooks/post/useBlockPostPanel';
 import { useCanAwardUser } from '../../../hooks/useCoresFeature';
@@ -95,6 +96,7 @@ export const FocusCardActionBar = ({
     return () => observer.disconnect();
   }, []);
 
+  const recordUpvoteInteraction = useRecordUpvoteInteraction({ post });
   const isUpvoteActive = post?.userState?.vote === UserVote.Up;
   const isDownvoteActive = post?.userState?.vote === UserVote.Down;
   const isAwarded = !!post?.userState?.awarded;
@@ -172,6 +174,9 @@ export const FocusCardActionBar = ({
     if (post?.userState?.vote === UserVote.None) {
       onCloseBlockPanel(true);
     }
+
+    recordUpvoteInteraction(isUpvoteActive);
+
     await toggleUpvote({ payload: post, origin });
   };
 

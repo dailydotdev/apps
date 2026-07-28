@@ -14,6 +14,7 @@ import { CardActionBar } from '../buttons/CardActionBar';
 import { BookmarkButton } from '../buttons/BookmarkButton.v2';
 import { ButtonColor } from '../buttons/ButtonV2';
 import { useVotePost } from '../../hooks/vote/useVotePost';
+import { useRecordUpvoteInteraction } from '../../hooks/post/usePostActions';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
@@ -45,6 +46,7 @@ export function MobilePostFloatingBar({
   const origin = LogOrigin.ArticlePage;
   const { onClose, onShowPanel } = useBlockPostPanel(post);
   const { toggleUpvote, toggleDownvote } = useVotePost();
+  const recordUpvoteInteraction = useRecordUpvoteInteraction({ post });
   const { toggleBookmark } = useBookmarkPost();
 
   const { getShortUrl } = useGetShortUrl();
@@ -60,6 +62,8 @@ export function MobilePostFloatingBar({
     if (post?.userState?.vote === UserVote.None) {
       onClose(true);
     }
+
+    recordUpvoteInteraction(isUpvoteActive);
 
     await toggleUpvote({ payload: post, origin });
   };

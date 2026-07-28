@@ -15,6 +15,7 @@ import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { IconSize } from '../Icon';
 import InteractionCounter from '../InteractionCounter';
 import { useVotePost } from '../../hooks/vote/useVotePost';
+import { useRecordUpvoteInteraction } from '../../hooks/post/usePostActions';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
 import { useCopyPostLink } from '../../hooks/useCopyPostLink';
@@ -62,6 +63,7 @@ function MobilePostFloatingBarV1({
   const origin = LogOrigin.ArticlePage;
   const { onClose, onShowPanel } = useBlockPostPanel(post);
   const { toggleUpvote, toggleDownvote } = useVotePost();
+  const recordUpvoteInteraction = useRecordUpvoteInteraction({ post });
   const { toggleBookmark } = useBookmarkPost();
 
   // Match the desktop `PostActions` copy flow: fetch the short URL imperatively
@@ -79,6 +81,8 @@ function MobilePostFloatingBarV1({
     if (post?.userState?.vote === UserVote.None) {
       onClose(true);
     }
+
+    recordUpvoteInteraction(isUpvoteActive);
 
     await toggleUpvote({ payload: post, origin });
   };
