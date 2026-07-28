@@ -62,6 +62,36 @@ describe('ShareActions inline variant', () => {
     await waitFor(() => expect(writeText).toHaveBeenCalledWith(link));
     expect(onShare).toHaveBeenCalledWith(ShareProvider.CopyLink);
   });
+
+  it('reports the network provider when a social button is clicked', async () => {
+    renderComponent({ variant: 'inline' });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('WhatsApp'));
+    });
+
+    expect(onShare).toHaveBeenCalledWith(ShareProvider.WhatsApp);
+  });
+});
+
+describe('ShareActions split variant', () => {
+  it('renders both halves of the control', () => {
+    renderComponent({ variant: 'split', triggerText: 'Copy link' });
+
+    expect(screen.getByText('Copy link')).toBeInTheDocument();
+    expect(screen.getByLabelText('More share options')).toBeInTheDocument();
+  });
+
+  it('copies the link and reports the CopyLink provider from the copy half', async () => {
+    renderComponent({ variant: 'split', triggerText: 'Copy link' });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Copy link'));
+    });
+
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(link));
+    expect(onShare).toHaveBeenCalledWith(ShareProvider.CopyLink);
+  });
 });
 
 describe('ShareActions icon variant on mobile', () => {

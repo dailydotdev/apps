@@ -3,7 +3,13 @@ import nock from 'nock';
 import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
@@ -15,7 +21,7 @@ import {
 import type { Feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { LogEvent } from '@dailydotdev/shared/src/lib/log';
+import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 
 import AccountInvitePage from '../pages/settings/invite';
@@ -230,5 +236,25 @@ it('should hide the giveback section when the feature is disabled', async () => 
     expect(
       screen.queryByText('More ways to give back'),
     ).not.toBeInTheDocument();
+  });
+});
+
+it('should log the copy referral link event when the link is copied', async () => {
+  Object.assign(navigator, {
+    clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
+  });
+  mockReferralCampaign(0);
+  renderComponent();
+
+  const copyButton = await screen.findByRole('button', { name: 'Copy link' });
+  await act(async () => {
+    fireEvent.click(copyButton);
+  });
+
+  // Same event and target the old field-button copy fired, so the referral
+  // copy metric is unaffected by the switch to the split control.
+  expect(logEvent).toHaveBeenCalledWith({
+    event_name: LogEvent.CopyReferralLink,
+    target_id: TargetId.InviteFriendsPage,
   });
 });
