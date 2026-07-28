@@ -73,6 +73,16 @@ describe('getIubendaConsent', () => {
   it('should parse the url-encoded fixture from the ticket', () => {
     setCookieValue(ticketFixture);
 
-    expect(getIubendaConsent()).toEqual({ necessary: true, marketing: true });
+    expect(getIubendaConsent()).toEqual({
+      necessary: true,
+      marketing: true,
+      consentId: '831c24',
+    });
+  });
+
+  it('should leave consentId unset when the cookie has no cons record', () => {
+    setCookieValue(encode({ '1': true, '5': true }));
+
+    expect(getIubendaConsent()?.consentId).toBeUndefined();
   });
 });

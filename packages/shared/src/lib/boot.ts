@@ -13,6 +13,7 @@ import type {
 import type { Feed } from '../graphql/feed';
 import type { Continent } from './geo';
 import type { EngagementCreative } from './engagementAds';
+import { getStoredTcString } from './tcf';
 
 interface NotificationsBootData {
   unreadNotificationsCount: number;
@@ -162,12 +163,16 @@ export async function getBootData({
   pathname,
 }: GetBootDataParams): Promise<Boot> {
   const bootURL = getBootURL(app, url, pathname);
+  // Stored by the CMP's TCF listener on a previous page view — the CMP script
+  // loads after boot fires, so the live __tcfapi is never available here.
+  const tcString = getStoredTcString();
   const res = await fetch(bootURL, {
     method: 'GET',
     credentials: 'include',
     headers: {
       app,
       'Content-Type': 'application/json',
+      ...(tcString && { 'x-gdpr-consent': tcString }),
       ...(cookies && { Cookie: cookies }),
     },
   });

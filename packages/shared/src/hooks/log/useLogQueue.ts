@@ -14,6 +14,8 @@ export interface LogEvent extends Record<string, unknown> {
   extra?: string;
   device_id?: string;
   cookies?: string;
+  // iubenda consent-record correlator (see getIubendaConsent)
+  consent_id?: string;
 }
 
 export type PushToQueueFunc = (events: LogEvent[]) => void;

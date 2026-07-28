@@ -17,6 +17,11 @@ import {
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { CookieConsentItem } from '@dailydotdev/shared/src/components/modals/user/CookieConsentItem';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
+import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import { featureIubendaCmp } from '@dailydotdev/shared/src/lib/featureManagement';
+import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
+import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
+import { openIubendaPreferences } from '../../components/Iubenda';
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
@@ -33,6 +38,7 @@ const AccountInvitePage = (): ReactElement | null => {
   const router = useRouter();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Marketing);
   const { user, isAuthReady, isGdprCovered } = useAuthContext();
+  const iubendaCmp = useFeature(featureIubendaCmp);
 
   useEffect(() => {
     if (!isAuthReady) {
@@ -90,13 +96,25 @@ const AccountInvitePage = (): ReactElement | null => {
           >
             Cookie Policy →
           </Typography>
-          <div className="mt-4 flex flex-col gap-4">
-            <CookieConsentItem consent={GdprConsentKey.Necessary} />
-            <CookieConsentItem
-              consent={GdprConsentKey.Marketing}
-              onToggle={onToggleMarketing}
-            />
-          </div>
+          {iubendaCmp ? (
+            // the custom toggles can't regenerate a TCF consent string, so
+            // consent edits must go through the CMP's own preferences UI
+            <Button
+              className="mt-4 self-start"
+              variant={ButtonVariant.Secondary}
+              onClick={() => openIubendaPreferences()}
+            >
+              Manage cookie preferences
+            </Button>
+          ) : (
+            <div className="mt-4 flex flex-col gap-4">
+              <CookieConsentItem consent={GdprConsentKey.Necessary} />
+              <CookieConsentItem
+                consent={GdprConsentKey.Marketing}
+                onToggle={onToggleMarketing}
+              />
+            </div>
+          )}
         </AccountContentSection>
       )}
       <AccountContentSection

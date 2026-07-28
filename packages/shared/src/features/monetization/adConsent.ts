@@ -1,29 +1,17 @@
-import { getIubendaConsent } from '../../lib/iubenda';
-import { getCookies } from '../../lib/cookie';
-import { isExtension } from '../../lib/func';
-import { GdprConsentKey } from '../../hooks/useCookieBanner';
+import type { TcfConsent } from '../../lib/tcf';
 import type { AdMacroContext } from './adMacros';
 
 /**
- * Resolves ad-measurement consent from the user's first-party cookie choice.
- * Accepted marketing cookies or outside GDPR scope → `gdpr=0` and measurement
- * proceeds; in scope without consent → `gdpr=1`, which tags treat as
- * not-consented. The extension is treated as consented (accepted on install),
- * mirroring `useConsentCookie`.
+ * Consent context for ad tracker macros. `gdprApplies` states whether GDPR
+ * applies to this user (regardless of their choice); the TC string carries
+ * the actual consent. In scope without a TC string, vendors must treat the
+ * request as not-consented.
  */
-export const hasMarketingConsent = (): boolean => {
-  if (isExtension) {
-    return true;
-  }
-
-  if (getIubendaConsent()?.marketing) {
-    return true;
-  }
-
-  const key = GdprConsentKey.Marketing;
-  return !!getCookies([key])?.[key];
-};
-
-export const resolveAdConsent = (isGdprCovered?: boolean): AdMacroContext => ({
-  gdprApplies: !!isGdprCovered && !hasMarketingConsent(),
+export const resolveAdConsent = (
+  isGdprCovered?: boolean,
+  tcf?: TcfConsent,
+): AdMacroContext => ({
+  gdprApplies: tcf?.gdprApplies ?? !!isGdprCovered,
+  consentString: tcf?.tcString,
+  addtlConsent: tcf?.addtlConsent,
 });

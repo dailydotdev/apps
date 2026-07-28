@@ -5,6 +5,7 @@ import type { LogEvent } from './useLogQueue';
 import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getCookies } from '../../lib/cookie';
+import { getIubendaConsent } from '../../lib/iubenda';
 
 const COOKIES = ['_ga', '_fbp', '_fbc', 'gbuuid'];
 
@@ -76,6 +77,7 @@ export default function useLogSharedProps(
         visit_id: visitId,
         device_id: _deviceId,
         cookies: cookies === '{}' ? undefined : cookies,
+        consent_id: getIubendaConsent()?.consentId,
       };
       setSharedPropsSet(true);
     });

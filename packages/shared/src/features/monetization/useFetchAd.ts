@@ -7,6 +7,7 @@ import {
   resolveAdFetchOptions,
 } from '../../lib/ads';
 import { featurePostBoostAds } from '../../lib/featureManagement';
+import { useAdMacroContext } from './useAdMacroContext';
 
 interface UseFetchAds {
   fetchAd: (params: {
@@ -17,6 +18,7 @@ interface UseFetchAds {
 
 export const useFetchAd = (): UseFetchAds => {
   const boostsEnabled = useFeature(featurePostBoostAds);
+  const consent = useAdMacroContext(true);
 
   const fetchAdQuery: UseFetchAds['fetchAd'] = useCallback(
     ({ active, placement = AdPlacement.Feed }) => {
@@ -25,10 +27,11 @@ export const useFetchAd = (): UseFetchAds => {
           placement,
           active,
           boostsEnabled,
+          consent: consent ?? undefined,
         }),
       );
     },
-    [boostsEnabled],
+    [boostsEnabled, consent],
   );
 
   return {

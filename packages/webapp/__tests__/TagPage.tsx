@@ -155,7 +155,9 @@ const renderComponent = (
 
   (mocks ?? [createFeedMock(), createTagsSettingsMock()]).forEach(mockGraphQL);
   mockGraphQL(createArchiveIndexMock());
-  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
+  nock('http://localhost:3000')
+    .get('/v1/a?active=false&gdpr=0')
+    .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     spaciness: 'eco',
     openNewTab: true,
