@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import { FunnelStepper } from './FunnelStepper';
 import { useFunnelNavigation } from '../hooks/useFunnelNavigation';
 import { useFunnelTracking } from '../hooks/useFunnelTracking';
@@ -15,6 +16,8 @@ import {
 import type { FunnelJSON, FunnelStep, FunnelStepQuiz } from '../types/funnel';
 import { waitForNock } from '../../../../__tests__/helpers/utilities';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import loggedUser from '../../../../__tests__/fixture/loggedUser';
+import type { AuthContextData } from '../../../contexts/AuthContext';
 import { StepHeadlineAlign } from './StepHeadline';
 import type { FunnelSession } from '../types/funnelBoot';
 
@@ -28,6 +31,26 @@ jest.mock('../hooks/useFunnelNavigation', () => {
 });
 jest.mock('../hooks/useFunnelTracking');
 jest.mock('../hooks/useStepTransition');
+// The invite friends step reads the referral campaign; keep it static so the
+// stepper tests exercise wiring, not data fetching.
+jest.mock('../../../hooks/referral/useReferralCampaign', () => {
+  const actual = jest.requireActual(
+    '../../../hooks/referral/useReferralCampaign',
+  );
+  return {
+    ...actual,
+    useReferralCampaign: jest.fn(() => ({
+      url: 'https://dly.to/invite123',
+      referredUsersCount: 0,
+      referralCountLimit: 5,
+      referralToken: 'token123',
+      isReady: true,
+      isCompleted: false,
+      availableCount: 5,
+      noKeysAvailable: false,
+    })),
+  };
+});
 
 let client: QueryClient;
 
@@ -120,9 +143,12 @@ describe('FunnelStepper component', () => {
     });
   });
 
-  const renderComponent = (funnel = mockFunnel) => {
+  const renderComponent = (
+    funnel = mockFunnel,
+    options: { auth?: Partial<AuthContextData>; gb?: GrowthBook } = {},
+  ) => {
     return render(
-      <TestBootProvider client={client}>
+      <TestBootProvider client={client} auth={options.auth} gb={options.gb}>
         <FunnelStepper
           funnel={funnel}
           session={{ id: 'session-id' } as FunnelSession}
@@ -929,6 +955,64 @@ describe('FunnelStepper component', () => {
       toStep: 'non-existent-step',
       transitionEvent: FunnelStepTransitionType.Complete,
       inputs: { step1: 'Option 1' },
+    });
+  });
+
+  describe('invite friends step', () => {
+    const inviteStep = {
+      id: 'invite-friends',
+      type: FunnelStepType.InviteFriends,
+      parameters: {},
+      transitions: [
+        {
+          on: FunnelStepTransitionType.Complete,
+          destination: COMPLETED_STEP_ID,
+        },
+        { on: FunnelStepTransitionType.Skip, destination: COMPLETED_STEP_ID },
+      ],
+    } as unknown as FunnelStep;
+
+    const inviteFunnel: FunnelJSON = {
+      id: 'test-funnel',
+      version: 1,
+      parameters: {},
+      entryPoint: 'invite-friends',
+      chapters: [{ id: 'chapter1', steps: [inviteStep] }],
+    };
+
+    beforeEach(() => {
+      (useFunnelNavigation as jest.Mock).mockReturnValue({
+        back: mockBack,
+        skip: mockSkip,
+        navigate: mockNavigate,
+        position: { chapter: 0, step: 0 },
+        chapters: [{ steps: 1 }],
+        step: inviteStep,
+        stepMap: { 'invite-friends': { position: { chapter: 0, step: 0 } } },
+        isReady: true,
+      });
+    });
+
+    it('should render the registered step when the flag is on', () => {
+      renderComponent(inviteFunnel, {
+        auth: { user: loggedUser },
+        gb: new GrowthBook({
+          features: { onboarding_invite_reward: { defaultValue: true } },
+        }),
+      });
+
+      expect(
+        screen.getByText('Invite 3 friends, get 1 month of Plus on us'),
+      ).toBeInTheDocument();
+    });
+
+    it('should render nothing for the step when the flag is off', () => {
+      renderComponent(inviteFunnel, { auth: { user: loggedUser } });
+
+      expect(screen.getByTestId('funnel-stepper')).toBeInTheDocument();
+      expect(
+        screen.queryByText('Invite 3 friends, get 1 month of Plus on us'),
+      ).not.toBeInTheDocument();
     });
   });
 });
