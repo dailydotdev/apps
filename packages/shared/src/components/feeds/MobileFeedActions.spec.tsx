@@ -100,4 +100,12 @@ describe('MobileFeedActions', () => {
 
     expect(screen.queryByTestId('quest-button')).not.toBeInTheDocument();
   });
+
+  // Real (unmocked) flag path: `share_copy_my_feed` defaults to false, so the
+  // nav must render exactly what shipped before the button existed.
+  it('should not render the copy-my-feed button while its flag is off', () => {
+    renderComponent();
+
+    expect(screen.queryByLabelText('Copy my feed')).not.toBeInTheDocument();
+  });
 });

@@ -16,6 +16,7 @@ import { SettingsIcon } from '../icons';
 import { RootPortal } from '../tooltips/Portal';
 import { QuestHeaderButton } from '../header/QuestHeaderButton';
 import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
+import { CopyMyFeedButton } from './CopyMyFeedButton';
 
 const ProfileSettingsMenuMobile = dynamic(
   () =>
@@ -48,6 +49,7 @@ export function MobileFeedActions(): ReactElement {
         )}
         <QuestHeaderButton compact />
         <GivebackGiftEntry compact />
+        <CopyMyFeedButton />
         {user && (
           <>
             <Button
