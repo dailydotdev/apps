@@ -11,7 +11,6 @@ export enum ShareProvider {
   Telegram = 'telegram',
   Email = 'email',
   CopyText = 'copy text',
-  QuoteImage = 'quote image',
 }
 
 export const getWhatsappShareLink = (link: string): string =>

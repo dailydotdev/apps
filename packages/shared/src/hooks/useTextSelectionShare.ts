@@ -12,11 +12,6 @@ export interface TextSelectionRect {
 export interface UseTextSelectionShareProps {
   /** Only selections that both start and end inside this element count. */
   containerRef: RefObject<HTMLElement>;
-  /**
-   * When false no listeners are attached at all, so a disabled experiment costs
-   * nothing and leaves the page byte-for-byte identical to the control.
-   */
-  enabled?: boolean;
 }
 
 export interface UseTextSelectionShare {
@@ -62,7 +57,6 @@ const toRect = (range: Range): TextSelectionRect | null => {
  */
 export const useTextSelectionShare = ({
   containerRef,
-  enabled = true,
 }: UseTextSelectionShareProps): UseTextSelectionShare => {
   const [text, setText] = useState<string | null>(null);
   const [rect, setRect] = useState<TextSelectionRect | null>(null);
@@ -117,7 +111,7 @@ export const useTextSelectionShare = ({
     setRect(nextRect);
   }, [clear, containerRef]);
 
-  const target = enabled ? globalThis?.document : null;
+  const target = globalThis?.document;
 
   // Selection *end* — mouse release, touch release, or a shift+arrow keyup.
   useEventListener(target, 'mouseup', readSelection);
@@ -134,7 +128,7 @@ export const useTextSelectionShare = ({
     }
   });
 
-  const followTarget = enabled && rect ? globalThis?.window : null;
+  const followTarget = rect ? globalThis?.window : null;
 
   const follow = useCallback(() => {
     if (!rangeRef.current) {

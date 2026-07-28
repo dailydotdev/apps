@@ -21,7 +21,6 @@ import { usePostLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
 import { ReferralCampaignKey } from '../../lib/referral';
-import { webappUrl } from '../../lib/constants';
 
 export interface SelectionShareBarProps {
   post: Post;
@@ -54,9 +53,6 @@ export const buildCommentQuote = (selection: string): string =>
     .map((line) => `> ${line}`.trimEnd())
     .join('\n')}\n\n`;
 
-// Quote images read badly past a couple of sentences, and the text rides in the
-// generator URL, so cap it well below any browser URL limit.
-const MAX_QUOTE_LENGTH = 280;
 // Breathing room between the selection and the bar.
 const ANCHOR_GAP = 8;
 // Below this distance from the top of the viewport there is no room above the
@@ -64,22 +60,6 @@ const ANCHOR_GAP = 8;
 const FLIP_THRESHOLD = 64;
 const VIEWPORT_MARGIN = 8;
 const FALLBACK_BAR_WIDTH = 160;
-
-// The quote-image route renders headlessly for the screenshot service, so
-// there is no user-facing entry point yet: sending someone to the raw
-// generator page lands them on a bare 1200x630 bitmap template. Exported for
-// the image-generator route and for the follow-up that turns this into a
-// previewable, downloadable share once the service serves the PNG.
-export const buildQuoteImageUrl = (postId: string, text: string): string => {
-  const quote =
-    text.length > MAX_QUOTE_LENGTH
-      ? `${text.slice(0, MAX_QUOTE_LENGTH).trimEnd()}…`
-      : text;
-
-  return `${webappUrl}image-generator/quote/${postId}?text=${encodeURIComponent(
-    quote,
-  )}`;
-};
 
 /**
  * Floating share bar for text selected inside a post body. Ships to everyone —

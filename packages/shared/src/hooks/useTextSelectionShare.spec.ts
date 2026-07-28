@@ -31,16 +31,14 @@ const mockSelection = ({
   });
 };
 
-const setup = (enabled = true) => {
+const setup = () => {
   const container = document.createElement('div');
   const child = document.createTextNode('some post body text');
   container.appendChild(child);
   document.body.appendChild(container);
 
   const containerRef = { current: container };
-  const { result } = renderHook(() =>
-    useTextSelectionShare({ containerRef, enabled }),
-  );
+  const { result } = renderHook(() => useTextSelectionShare({ containerRef }));
 
   return { result, container, child };
 };
@@ -97,16 +95,5 @@ describe('useTextSelectionShare', () => {
 
     expect(result.current.text).toBeNull();
     expect(result.current.rect).toBeNull();
-  });
-
-  it('stays inert when disabled', () => {
-    const { result, child } = setup(false);
-
-    mockSelection({ text: 'post body', node: child });
-    act(() => {
-      document.dispatchEvent(new MouseEvent('mouseup'));
-    });
-
-    expect(result.current.text).toBeNull();
   });
 });
