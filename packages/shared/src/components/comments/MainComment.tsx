@@ -13,6 +13,7 @@ import {
   LogEvent,
   NotificationCtaPlacement,
   NotificationPromptSource,
+  Origin,
   TargetType,
 } from '../../lib/log';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
@@ -176,6 +177,7 @@ export default function MainComment({
                 parentCommentId: comment.id,
                 commentId: comment.id,
                 quote,
+                origin: Origin.TextSelection,
               })
             }
             onEdit={({ id, lastUpdatedAt }) =>

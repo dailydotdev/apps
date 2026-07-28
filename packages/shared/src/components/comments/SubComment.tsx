@@ -6,6 +6,7 @@ import type { Comment } from '../../graphql/comments';
 import type { CommentBoxProps } from './CommentBox';
 import CommentBox from './CommentBox';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
+import { Origin } from '../../lib/log';
 import { useComments } from '../../hooks/post';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 
@@ -81,6 +82,7 @@ function SubComment({
               parentCommentId: parentComment.id,
               commentId: comment.id,
               quote,
+              origin: Origin.TextSelection,
             })
           }
           isModalThread={isModalThread}

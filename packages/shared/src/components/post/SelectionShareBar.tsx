@@ -20,6 +20,7 @@ import { useLogContext } from '../../contexts/LogContext';
 import { usePostLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
+import { shouldUseNativeShare } from '../../lib/func';
 import { ReferralCampaignKey } from '../../lib/referral';
 
 export interface SelectionShareBarProps {
@@ -85,10 +86,14 @@ export function SelectionShareBar({
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
   const shareLink = comment?.permalink ?? post.commentsPermalink;
+  // Referral credit follows what is being shared, matching `useShareComment`.
+  const campaign = comment
+    ? ReferralCampaignKey.ShareComment
+    : ReferralCampaignKey.SharePost;
   const [isLinkCopied, shareOrCopyLink] = useShareOrCopyLink({
     link: shareLink,
     text: text ?? post.title ?? '',
-    cid: ReferralCampaignKey.SharePost,
+    cid: campaign,
   });
   const [isTextCopied, copyText] = useCopyText();
   const { getShortUrl } = useGetShortUrl();
@@ -183,7 +188,12 @@ export function SelectionShareBar({
   const top = flipsBelow ? rect.bottom + ANCHOR_GAP : rect.top - ANCHOR_GAP;
 
   const onCopyLink = () => {
-    logShare(ShareProvider.CopyLink);
+    // `shareOrCopyLink` hands off to the native sheet where one exists, so the
+    // provider has to be resolved the same way `ShareActions` resolves it —
+    // otherwise every mobile share is logged as a copy.
+    logShare(
+      shouldUseNativeShare() ? ShareProvider.Native : ShareProvider.CopyLink,
+    );
     shareOrCopyLink();
   };
 
@@ -195,10 +205,7 @@ export function SelectionShareBar({
   const onCopyText = async () => {
     logShare(ShareProvider.CopyText);
 
-    const reference = await getShortUrl(
-      shareLink,
-      ReferralCampaignKey.SharePost,
-    );
+    const reference = await getShortUrl(shareLink, campaign);
 
     copyText({
       textToCopy: `${text}\n\n${reference}`,
@@ -303,7 +310,7 @@ export function SelectionShareBar({
             </Tooltip>
           )}
           <ShareActions
-            cid={ReferralCampaignKey.SharePost}
+            cid={campaign}
             icon={<ShareIcon />}
             label="Share"
             link={shareLink}

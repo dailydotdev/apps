@@ -14,6 +14,9 @@ import { SelectionShareBar } from './SelectionShareBar';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import { useTextSelectionShare } from '../../hooks/useTextSelectionShare';
 import { shouldUseNativeShare } from '../../lib/func';
+import { useLogContext } from '../../contexts/LogContext';
+import { Origin } from '../../lib/log';
+import { ShareProvider } from '../../lib/share';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import type { Post } from '../../graphql/posts';
 import type { Comment } from '../../graphql/comments';
@@ -39,7 +42,17 @@ jest.mock('../../lib/func', () => {
   return { __esModule: true, ...actual, shouldUseNativeShare: jest.fn() };
 });
 
+// Only the hook: TestBootProvider still needs the real LogContextProvider.
+jest.mock('../../contexts/LogContext', () => {
+  const actual = jest.requireActual('../../contexts/LogContext');
+  return { __esModule: true, ...actual, useLogContext: jest.fn() };
+});
+
 const useTextSelectionShareMock = useTextSelectionShare as jest.Mock;
+const mockUseLogContext = useLogContext as jest.MockedFunction<
+  typeof useLogContext
+>;
+const logEvent = jest.fn();
 const shouldUseNativeShareMock = shouldUseNativeShare as jest.Mock;
 const writeText = jest.fn().mockResolvedValue(undefined);
 const share = jest.fn().mockResolvedValue(undefined);
@@ -58,6 +71,9 @@ const enabledGrowthBook = () => new GrowthBook();
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUseLogContext.mockReturnValue({ logEvent } as unknown as ReturnType<
+    typeof useLogContext
+  >);
   shouldUseNativeShareMock.mockReturnValue(false);
   Object.assign(navigator, { clipboard: { writeText }, share });
   useTextSelectionShareMock.mockReturnValue({
@@ -257,5 +273,49 @@ describe('SelectionShareBar where nothing can be quoted', () => {
     expect(
       screen.queryByLabelText('Quote in a comment'),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('SelectionShareBar analytics', () => {
+  const lastEvent = () =>
+    JSON.parse(logEvent.mock.calls.at(-1)?.[0]?.extra ?? '{}');
+
+  it('logs a post share the way the rest of the app does', () => {
+    renderComponent();
+
+    fireEvent.click(screen.getByLabelText('Copy link to this post'));
+
+    expect(logEvent.mock.calls.at(-1)?.[0]).toMatchObject({
+      event_name: 'share post',
+      target_id: post.id,
+    });
+    expect(lastEvent()).toEqual({
+      provider: ShareProvider.CopyLink,
+      origin: Origin.TextSelection,
+    });
+  });
+
+  it('logs a comment share as share comment, carrying the comment id', () => {
+    renderComponent(undefined, { comment });
+
+    fireEvent.click(screen.getByLabelText('Copy link to this post'));
+
+    expect(logEvent.mock.calls.at(-1)?.[0]).toMatchObject({
+      event_name: 'share comment',
+    });
+    expect(lastEvent()).toEqual({
+      provider: ShareProvider.CopyLink,
+      origin: Origin.TextSelection,
+      commentId: comment.id,
+    });
+  });
+
+  it('reports the native provider when the sheet takes over', () => {
+    shouldUseNativeShareMock.mockReturnValue(true);
+    renderComponent();
+
+    fireEvent.click(screen.getByLabelText('Copy link to this post'));
+
+    expect(lastEvent()).toMatchObject({ provider: ShareProvider.Native });
   });
 });

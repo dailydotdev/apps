@@ -16,6 +16,8 @@ interface ReplyTo extends CommentWriteProps {
    * selected in the comment they are replying to.
    */
   quote?: string;
+  /** What opened the composer. Defaults to the reply button. */
+  origin?: Origin;
 }
 
 interface UseComments extends CommentWrite {
@@ -59,7 +61,7 @@ export const useComments = (post: Post): UseComments => {
       if (!isNullOrUndefined(params)) {
         logEvent(
           postLogEvent(LogEvent.OpenComment, post, {
-            extra: { origin: Origin.PostCommentButton },
+            extra: { origin: params?.origin ?? Origin.PostCommentButton },
             ...(logOpts && logOpts),
           }),
         );
