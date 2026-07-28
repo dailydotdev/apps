@@ -9,6 +9,7 @@ import { useCopyFeedback } from '../../hooks/useCopyFeedback';
 import { useSharePost } from '../../hooks/useSharePost';
 import { useShareCopyIcon } from '../../hooks/useShareCopyIcon';
 import { useLogContext } from '../../contexts/LogContext';
+import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
 import { usePostLogEvent } from '../../lib/feed';
 import { LogEvent } from '../../lib/log';
 import type { Origin } from '../../lib/log';
@@ -73,6 +74,10 @@ export const BriefShareControls = ({
 }: BriefShareControlsProps): ReactElement => {
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
+  // Feed grid position, matching every other share surface — see
+  // `usePostContent` and `SocialShare`. Empty unless the post was opened from
+  // a feed, so this is a no-op on `/briefing`.
+  const { logOpts } = useActiveFeedContext();
 
   return (
     <div className={className}>
@@ -90,6 +95,7 @@ export const BriefShareControls = ({
           logEvent(
             postLogEvent(LogEvent.SharePost, post, {
               extra: { provider, origin },
+              ...(logOpts && logOpts),
             }),
           )
         }

@@ -13,6 +13,17 @@ import { LogEvent, Origin } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
 import { ToastType } from '../../hooks/useToastNotification';
 
+// The copied link must be the tracked/shortened one, not `post.commentsPermalink`
+// — asserting against this value is what proves referral attribution survives.
+const shortLink = 'https://dly.to/abc123';
+
+jest.mock('../../hooks/utils/useGetShortUrl', () => ({
+  useGetShortUrl: () => ({
+    shareLink: shortLink,
+    getTrackedUrl: (url: string) => `${url}?cid=share_post`,
+  }),
+}));
+
 const mockDisplayToast = jest.fn();
 const mockLogEvent = jest.fn();
 const writeText = jest.fn().mockResolvedValue(undefined);
@@ -107,7 +118,7 @@ it('copies a single bullet with the briefing link appended', async () => {
 
   await waitFor(() =>
     expect(writeText).toHaveBeenCalledWith(
-      `What happened: a maintainer account was taken over.\n\n${post.commentsPermalink}`,
+      `What happened: a maintainer account was taken over.\n\n${shortLink}`,
     ),
   );
   expect(mockDisplayToast).toHaveBeenCalledWith(
@@ -126,7 +137,7 @@ it('copies a standalone paragraph', async () => {
 
   await waitFor(() =>
     expect(writeText).toHaveBeenCalledWith(
-      `Three packages shipped a malicious post-install script.\n\n${post.commentsPermalink}`,
+      `Three packages shipped a malicious post-install script.\n\n${shortLink}`,
     ),
   );
 });
@@ -149,7 +160,7 @@ it('copies a section as its heading, prose and bullets, one bullet per line', as
         '- What happened: a maintainer account was taken over.',
         '- What to do: rotate your CI credentials.',
         '',
-        post.commentsPermalink,
+        shortLink,
       ].join('\n'),
     ),
   );

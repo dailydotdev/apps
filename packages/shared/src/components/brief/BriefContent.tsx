@@ -9,6 +9,9 @@ import { Tooltip } from '../tooltip/Tooltip';
 import type { Post } from '../../graphql/posts';
 import { useCopyText } from '../../hooks/useCopy';
 import { useCopyFeedback } from '../../hooks/useCopyFeedback';
+import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
+import { useActiveFeedContext } from '../../contexts/ActiveFeedContext';
+import { ReferralCampaignKey } from '../../lib/referral';
 import { ToastType } from '../../hooks/useToastNotification';
 import { useShareBriefingDigest } from '../../hooks/useShareBriefingDigest';
 import { useLogContext } from '../../contexts/LogContext';
@@ -109,6 +112,23 @@ export const BriefContent = ({
   const showItems = showItemActions ?? isShareEnabled;
   const [, copyText] = useCopyText();
   const [copiedKey, markCopied] = useCopyFeedback();
+  const { logOpts } = useActiveFeedContext();
+
+  // The link that rides along with every copy has to carry referral
+  // attribution, exactly like `useSharePost().copyLink` does — a bare
+  // permalink would make these the only shares in the app that go
+  // uncredited. Resolved up front so the click handler stays synchronous:
+  // awaiting inside it would put the clipboard write outside the user
+  // gesture.
+  const permalink = post.commentsPermalink;
+  const { shareLink, getTrackedUrl } = useGetShortUrl({
+    query: permalink
+      ? { url: permalink, cid: ReferralCampaignKey.SharePost }
+      : undefined,
+  });
+  const shareUrl = permalink
+    ? shareLink ?? getTrackedUrl(permalink, ReferralCampaignKey.SharePost)
+    : '';
   const { logEvent } = useLogContext();
   const postLogEvent = usePostLogEvent();
 
@@ -197,6 +217,7 @@ export const BriefContent = ({
           origin,
           content: `brief_${item.kind}`,
         },
+        ...(logOpts && logOpts),
       }),
     );
 
@@ -204,7 +225,7 @@ export const BriefContent = ({
     // toast and the button's own confirmation say the same thing — no need for
     // the ✅ the older copy strings prefix by hand.
     copyText({
-      textToCopy: `${text}\n\n${post.commentsPermalink ?? ''}`.trim(),
+      textToCopy: `${text}\n\n${shareUrl}`.trim(),
       message:
         item.kind === 'section'
           ? 'Copied section to clipboard'
