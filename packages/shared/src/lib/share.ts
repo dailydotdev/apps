@@ -12,8 +12,8 @@ export enum ShareProvider {
   Email = 'email',
 }
 
-export const getWhatsappShareLink = (link: string): string =>
-  `https://wa.me/?text=${encodeURIComponent(link)}`;
+export const getWhatsappShareLink = (link: string, text?: string): string =>
+  `https://wa.me/?text=${encodeURIComponent(text ? `${text}\n${link}` : link)}`;
 export const getTwitterShareLink = (link: string, text: string): string =>
   `http://twitter.com/share?url=${encodeURIComponent(
     link,
@@ -23,13 +23,17 @@ export const getFacebookShareLink = (link: string): string =>
     link,
   )}`;
 export const getRedditShareLink = (link: string, text: string): string =>
-  `https://reddit.com/submit?url=${encodeURIComponent(link)}&title=${text}`;
+  `https://reddit.com/submit?url=${encodeURIComponent(
+    link,
+  )}&title=${encodeURIComponent(text)}`;
 export const getLinkedInShareLink = (link: string): string =>
   `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
     link,
   )}`;
 export const getTelegramShareLink = (link: string, text: string): string =>
-  `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`;
+  `https://t.me/share/url?url=${encodeURIComponent(
+    link,
+  )}&text=${encodeURIComponent(text)}`;
 export const getEmailShareLink = (
   link: string,
   subject: string,
@@ -57,7 +61,7 @@ export const getShareLink = ({
 }: GetShareLinkParams): string => {
   switch (provider) {
     case ShareProvider.WhatsApp:
-      return getWhatsappShareLink(link);
+      return getWhatsappShareLink(link, text);
     case ShareProvider.Twitter:
       return getTwitterShareLink(link, text);
     case ShareProvider.Facebook:

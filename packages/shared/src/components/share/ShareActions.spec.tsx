@@ -10,7 +10,10 @@ import {
 import { QueryClient } from '@tanstack/react-query';
 import { ShareActions } from './ShareActions';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
+import defaultUser from '../../../__tests__/fixture/loggedUser';
+import { getShortLinkProps } from '../../hooks/utils/useGetShortUrl';
 import { ShareProvider } from '../../lib/share';
+import { ReferralCampaignKey } from '../../lib/referral';
 import { useViewSize } from '../../hooks/useViewSize';
 
 jest.mock('../../hooks/useViewSize', () => {
@@ -31,6 +34,8 @@ beforeEach(() => {
     clipboard: { writeText },
   });
 });
+
+const SHORT_LINK = 'https://dly.to/tagged';
 
 const renderComponent = (
   props: Partial<Parameters<typeof ShareActions>[0]> = {},
@@ -61,6 +66,46 @@ describe('ShareActions inline variant', () => {
 
     await waitFor(() => expect(writeText).toHaveBeenCalledWith(link));
     expect(onShare).toHaveBeenCalledWith(ShareProvider.CopyLink);
+  });
+});
+
+describe('ShareActions social targets', () => {
+  it('tags the shared link with the campaign, like the copy path', async () => {
+    const open = jest.fn();
+    Object.assign(window, { open });
+
+    // `getShortUrl` keys its cache off the *tagged* url, so seeding that key
+    // and seeing the value come back proves the cid reached the social path.
+    // Without it the lookup misses and nothing resolves.
+    const client = new QueryClient();
+    const { queryKey } = getShortLinkProps(
+      link,
+      ReferralCampaignKey.ShareTag,
+      defaultUser,
+    );
+    client.setQueryData(queryKey, SHORT_LINK);
+
+    render(
+      <TestBootProvider
+        client={client}
+        auth={{ user: defaultUser, isAuthReady: true }}
+      >
+        <ShareActions
+          link={link}
+          text={text}
+          onShare={onShare}
+          variant="inline"
+          cid={ReferralCampaignKey.ShareTag}
+        />
+      </TestBootProvider>,
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('social-share-X'));
+    });
+
+    await waitFor(() => expect(open).toHaveBeenCalled());
+    expect(open.mock.calls[0][0]).toContain(encodeURIComponent(SHORT_LINK));
   });
 });
 

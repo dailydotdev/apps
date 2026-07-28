@@ -11,7 +11,9 @@ describe('getShareLink tests', () => {
       link,
       text,
     });
-    expect(result).toEqual(`https://wa.me/?text=${encodeURIComponent(link)}`);
+    expect(result).toEqual(
+      `https://wa.me/?text=${encodeURIComponent(`${text}\n${link}`)}`,
+    );
   });
 
   it('should return Twitter share link', () => {
@@ -46,7 +48,9 @@ describe('getShareLink tests', () => {
       text,
     });
     expect(result).toEqual(
-      `https://reddit.com/submit?url=${encodeURIComponent(link)}&title=${text}`,
+      `https://reddit.com/submit?url=${encodeURIComponent(
+        link,
+      )}&title=${encodeURIComponent(text)}`,
     );
   });
 
@@ -69,7 +73,9 @@ describe('getShareLink tests', () => {
       text,
     });
     expect(result).toEqual(
-      `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${text}`,
+      `https://t.me/share/url?url=${encodeURIComponent(
+        link,
+      )}&text=${encodeURIComponent(text)}`,
     );
   });
 
@@ -98,6 +104,44 @@ describe('getShareLink tests', () => {
       `mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(
         `${summary}\n\n${link}`,
       )}`,
+    );
+  });
+
+  // Post titles routinely carry `&`, `#` and `?`, which silently truncate or
+  // corrupt the shared text when interpolated raw.
+  const unsafeText = 'Rust & Go: what #1 teams ask? 100% real';
+
+  it('should encode Reddit titles containing URL characters', () => {
+    const result = getShareLink({
+      provider: ShareProvider.Reddit,
+      link,
+      text: unsafeText,
+    });
+    expect(result).toEqual(
+      `https://reddit.com/submit?url=${encodeURIComponent(
+        link,
+      )}&title=${encodeURIComponent(unsafeText)}`,
+    );
+    expect(new URL(result).searchParams.get('title')).toEqual(unsafeText);
+  });
+
+  it('should encode Telegram text containing URL characters', () => {
+    const result = getShareLink({
+      provider: ShareProvider.Telegram,
+      link,
+      text: unsafeText,
+    });
+    expect(new URL(result).searchParams.get('text')).toEqual(unsafeText);
+  });
+
+  it('should carry the text into the WhatsApp message', () => {
+    const result = getShareLink({
+      provider: ShareProvider.WhatsApp,
+      link,
+      text: unsafeText,
+    });
+    expect(new URL(result).searchParams.get('text')).toEqual(
+      `${unsafeText}\n${link}`,
     );
   });
 });
