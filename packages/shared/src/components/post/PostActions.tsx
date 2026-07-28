@@ -16,6 +16,7 @@ import { useMutationSubscription, useVotePost } from '../../hooks';
 import { Origin } from '../../lib/log';
 import { PostTagsPanel } from './block/PostTagsPanel';
 import { useBlockPostPanel } from '../../hooks/post/useBlockPostPanel';
+import { useRecordUpvoteInteraction } from '../../hooks/post/usePostActions';
 import { useBookmarkPost } from '../../hooks/useBookmarkPost';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { BookmarkButton } from '../buttons';
@@ -53,6 +54,7 @@ function PostActionsV1({
   const { showLogin, user } = useAuthContext();
   const { openModal } = useLazyModal();
   const { data, onShowPanel, onClose } = useBlockPostPanel(post);
+  const recordUpvoteInteraction = useRecordUpvoteInteraction({ post });
   const { showTagsPanel } = data;
   const actionsRef = useRef<HTMLDivElement>(null);
   const canAward = useCanAwardUser({
@@ -92,6 +94,8 @@ function PostActionsV1({
     if (post?.userState?.vote === UserVote.None) {
       onClose(true);
     }
+
+    recordUpvoteInteraction(isUpvoteActive);
 
     await toggleUpvote({ payload: post, origin });
   };
