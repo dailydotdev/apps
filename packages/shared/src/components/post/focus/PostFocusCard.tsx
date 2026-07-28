@@ -51,6 +51,9 @@ import { PostMenuOptions } from '../PostMenuOptions';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
+import { useSharePostPage } from '../../../hooks/useSharePostPage';
+import { CopySummaryButton } from '../share/CopySummaryButton';
+import { ShareWithTeamStrip } from '../share/ShareWithTeamStrip';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -250,6 +253,7 @@ export const PostFocusCard = ({
   const { isReaderEnabled } = useReaderModalEligibility();
   const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
+  const isSharePostPageEnabled = useSharePostPage();
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the
@@ -323,6 +327,36 @@ export const PostFocusCard = ({
         {getReadPostButtonText(post)}
       </Button>
     ) : null;
+
+  // Freeform/welcome posts render `contentHtml` instead and never carry a
+  // summary, so the copy action is absent there by construction.
+  const renderSummary = (): ReactElement | null => {
+    if (!article.summary) {
+      return null;
+    }
+
+    const summary = isVideoType ? (
+      <VideoSummary summary={article.summary} />
+    ) : (
+      <p
+        className="select-text break-words text-text-secondary typo-markdown"
+        data-testid="tldr-container"
+      >
+        {article.summary}
+      </p>
+    );
+
+    if (!isSharePostPageEnabled) {
+      return summary;
+    }
+
+    return (
+      <div className="flex flex-col items-start gap-3">
+        {summary}
+        <CopySummaryButton post={post} summary={article.summary} />
+      </div>
+    );
+  };
 
   return (
     <article
@@ -524,17 +558,7 @@ export const PostFocusCard = ({
               <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
             </>
           ) : (
-            article.summary &&
-            (isVideoType ? (
-              <VideoSummary summary={article.summary} />
-            ) : (
-              <p
-                className="select-text break-words text-text-secondary typo-markdown"
-                data-testid="tldr-container"
-              >
-                {article.summary}
-              </p>
-            ))
+            renderSummary()
           )}
 
           <PostTagList post={article} />
@@ -569,6 +593,8 @@ export const PostFocusCard = ({
             // read as too large here).
             className="-mt-2"
           />
+
+          {isSharePostPageEnabled && <ShareWithTeamStrip post={post} />}
 
           <div ref={discussionRef} className="scroll-mt-16">
             <PostDiscussionPanel

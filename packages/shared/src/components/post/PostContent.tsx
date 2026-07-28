@@ -27,6 +27,8 @@ import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
+import { useSharePostPage } from '../../hooks/useSharePostPage';
+import { CopySummaryButton } from './share/CopySummaryButton';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -103,6 +105,7 @@ export function PostContentRaw({
     onReadArticle();
   };
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
+  const isSharePostPageEnabled = useSharePostPage(!!post.summary);
   const { title } = useSmartTitle(post);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
@@ -199,6 +202,13 @@ export function PostContentRaw({
             >
               {post.summary}
             </p>
+            {isSharePostPageEnabled && (
+              <CopySummaryButton
+                className="mt-3"
+                post={post}
+                summary={post.summary}
+              />
+            )}
           </div>
         )}
         <PostTagList post={post} />

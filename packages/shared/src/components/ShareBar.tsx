@@ -20,6 +20,8 @@ import { useGetShortUrl } from '../hooks';
 import { ReferralCampaignKey } from '../lib';
 import { ProfileImageSize } from './ProfilePicture';
 import { useAuthContext } from '../contexts/AuthContext';
+import { useSharePostPage } from '../hooks/useSharePostPage';
+import { ShareModuleHeader } from './post/share/ShareModuleHeader';
 
 interface ShareBarProps {
   post: Post;
@@ -41,6 +43,7 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
   const { openModal } = useLazyModal();
   const { logOpts } = useContext(ActiveFeedContext);
   const { squads } = useAuthContext();
+  const isSharePostPageEnabled = useSharePostPage();
 
   const shareableSquadsCount = useMemo(
     () => getShareableSquads(squads).length,
@@ -91,13 +94,23 @@ export default function ShareBar({ post }: ShareBarProps): ReactElement {
 
   return (
     <WidgetContainer className="hidden flex-col !border-0 p-3 laptop:flex">
-      <h4 className="mb-4 font-bold text-text-primary typo-callout">
-        Would you recommend this post?
-      </h4>
+      {isSharePostPageEnabled ? (
+        <ShareModuleHeader className="mb-4" />
+      ) : (
+        <h4 className="mb-4 font-bold text-text-primary typo-callout">
+          Would you recommend this post?
+        </h4>
+      )}
       <div className="grid grid-cols-4 gap-2 gap-y-4">
         <SocialShareButton
           size={ButtonSize.Medium}
-          variant={ButtonVariant.Tertiary}
+          // Copy link is the action that actually travels, so promote it above
+          // the network tiles once the redesigned module is on.
+          variant={
+            isSharePostPageEnabled
+              ? ButtonVariant.Primary
+              : ButtonVariant.Tertiary
+          }
           onClick={logAndCopyLink}
           pressed={copying}
           icon={
