@@ -87,6 +87,9 @@ export function ShareActions({
     <SocialShareList
       link={link}
       description={text}
+      // The copy path tags the link through `useShareOrCopyLink`; the social
+      // targets need the same campaign or their traffic lands unattributed.
+      cid={cid}
       emailTitle={emailTitle}
       emailSummary={emailSummary}
       isCopying={copying}

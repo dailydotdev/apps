@@ -16,6 +16,7 @@ import {
 import { IconSize } from '../Icon';
 import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { useGetShortUrl } from '../../hooks';
+import type { ReferralCampaignKey } from '../../lib/referral';
 
 interface SocialShareListProps {
   link: string;
@@ -27,6 +28,11 @@ interface SocialShareListProps {
   onNativeShare(): void;
   onClickSocial(provider: ShareProvider): void;
   shortenUrl?: boolean;
+  /**
+   * Attribution campaign for the shared link. Callers that hand in an already
+   * tagged `link` (e.g. the post share modal) can leave this out.
+   */
+  cid?: ReferralCampaignKey;
 }
 
 export function SocialShareList({
@@ -39,6 +45,7 @@ export function SocialShareList({
   onNativeShare,
   onClickSocial,
   shortenUrl = true,
+  cid,
 }: SocialShareListProps): ReactElement {
   const { getShortUrl } = useGetShortUrl();
 
@@ -46,7 +53,7 @@ export function SocialShareList({
     onClickSocial(provider);
 
     const isEmailShare = provider === ShareProvider.Email;
-    const shortLink = shortenUrl ? await getShortUrl(link) : link;
+    const shortLink = shortenUrl ? await getShortUrl(link, cid) : link;
     const shareLink = getShareLink({
       provider,
       link: shortLink,

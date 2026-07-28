@@ -67,6 +67,8 @@ import {
   TypographyTag,
   TypographyType,
 } from '../typography/Typography';
+import { EntityShareAction } from '../share/EntityShareAction';
+import { MenuIcon } from '../MenuIcon';
 
 const SUPPORTED_TYPES = [
   PostType.Article,
@@ -307,21 +309,40 @@ export const TagTopicPage = ({
     },
   };
 
-  const blockButtonProps: ButtonProps<'button'> = {
-    size: ButtonSize.Small,
-    icon: tagStatus === 'blocked' ? <XIcon /> : <BlockIcon />,
-    onClick: async (): Promise<void> => {
-      if (!user) {
-        showLogin({ trigger: AuthTriggers.Filter });
-        return;
-      }
-      if (tagStatus === 'blocked') {
-        await onUnblockTags({ tags: [tag] });
-      } else {
-        await onBlockTags({ tags: [tag] });
-      }
-    },
+  // Shared by the row's Unblock button and the "…" menu's Block entry.
+  const onToggleBlock = async (): Promise<void> => {
+    if (!user) {
+      showLogin({ trigger: AuthTriggers.Filter });
+      return;
+    }
+    if (tagStatus === 'blocked') {
+      await onUnblockTags({ tags: [tag] });
+    } else {
+      await onBlockTags({ tags: [tag] });
+    }
   };
+
+  // Shared by the visible share control and the "…" menu entry so both always
+  // hand out the same link — `location.href` is the tag page itself.
+  const tagShareProps = {
+    text: `Check out the ${tag} tag on daily.dev`,
+    link: globalThis?.location?.href,
+    cid: ReferralCampaignKey.ShareTag,
+  };
+
+  // Block moves into the "…" menu so the row is one Follow button plus
+  // identical secondary controls. Blocked is the exception: Unblock is the only
+  // way back, so it stays visible — in the Follow slot, which is empty then.
+  const blockOptions =
+    tagStatus === 'unfollowed'
+      ? [
+          {
+            icon: <MenuIcon Icon={BlockIcon} />,
+            label: 'Block',
+            action: onToggleBlock,
+          },
+        ]
+      : [];
 
   const statParts: ReactNode[] = [];
   if (typeof followers === 'number') {
@@ -398,16 +419,26 @@ export const TagTopicPage = ({
                   {tagStatus === 'followed' ? 'Following' : 'Follow'}
                 </Button>
               )}
-              {tagStatus !== 'followed' && (
+              {tagStatus === 'blocked' && (
                 <Button
                   variant={ButtonVariant.Float}
-                  {...blockButtonProps}
-                  aria-label={tagStatus === 'blocked' ? 'Unblock' : 'Block'}
+                  size={ButtonSize.Small}
+                  icon={<XIcon />}
+                  onClick={onToggleBlock}
+                  aria-label="Unblock"
                 >
-                  {tagStatus === 'blocked' ? 'Unblock' : 'Block'}
+                  Unblock
                 </Button>
               )}
+              <EntityShareAction
+                {...tagShareProps}
+                event={LogEvent.ShareTag}
+                targetId={tag}
+                origin={Origin.TagPage}
+              />
               <CustomFeedOptionsMenu
+                hideShare
+                additionalOptions={blockOptions}
                 onCreateNewFeed={() =>
                   push(
                     `${webappUrl}feeds/new?entityId=${tag}&entityType=${ContentPreferenceType.Keyword}`,
@@ -430,9 +461,7 @@ export const TagTopicPage = ({
                   })
                 }
                 shareProps={{
-                  text: `Check out the ${tag} tag on daily.dev`,
-                  link: globalThis?.location?.href,
-                  cid: ReferralCampaignKey.ShareTag,
+                  ...tagShareProps,
                   logObject: () => ({
                     event_name: LogEvent.ShareTag,
                     target_id: tag,
