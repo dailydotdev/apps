@@ -32,6 +32,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
+import { PostContentShare } from '../common/PostContentShare';
 import { PostTagList } from '../tags/PostTagList';
 import { TruncateText } from '../../utilities';
 import { combinedClicks } from '../../../lib/click';
@@ -569,6 +570,16 @@ export const PostFocusCard = ({
             // read as too large here).
             className="-mt-2"
           />
+
+          {/* This layout does not go through `PostEngagements`, so the
+              post-upvote share prompt has to be mounted here too — otherwise
+              it exists only on the classic post page. Same placement in both:
+              directly under the action bar, above the discussion.
+
+              Default spacing is right here: this column has its own `gap-4`
+              and the discussion below adds no top margin, so the prompt lands
+              with equal air on both sides. */}
+          <PostContentShare post={post} />
 
           <div ref={discussionRef} className="scroll-mt-16">
             <PostDiscussionPanel

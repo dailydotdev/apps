@@ -63,7 +63,7 @@ function PostEngagements({
     useSettingsContext();
   const { user, showLogin } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const commentRef = useRef<NewCommentRef>();
+  const commentRef = useRef<NewCommentRef>(null);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
     useState<string>();
@@ -91,6 +91,7 @@ function PostEngagements({
     setPermissionNotificationCommentId(comment.id);
 
     if (
+      !!post.source &&
       isSourcePublicSquad(post.source) &&
       !post.source?.currentMember &&
       !isJoinSquadBannerDismissed
@@ -125,7 +126,10 @@ function PostEngagements({
         origin={logOrigin}
       />
       <PostContentReminder post={post} />
-      <PostContentShare post={post} />
+      {/* `PostContainer` is a flex column with no gap, so margins do not
+          collapse: the sort row below already carries `mt-3`. Spending only
+          `mb-1` here lands 16px of air on both sides of the prompt. */}
+      <PostContentShare post={post} className="mb-1 mt-4" />
       {linkClicked && <SocialBar post={post} className="mt-6" />}
       <span className="mt-3 flex flex-row items-center">
         <Typography type={TypographyType.Callout}>Sort:</Typography>
@@ -136,7 +140,9 @@ function PostEngagements({
           icon={
             <TimeSortIcon
               secondary
-              className={sortBy === SortCommentsBy.OldestFirst && 'rotate-180'}
+              className={
+                sortBy === SortCommentsBy.OldestFirst ? 'rotate-180' : undefined
+              }
             />
           }
           onClick={() =>
@@ -176,7 +182,7 @@ function PostEngagements({
       {authorOnboarding && (
         <AuthorOnboarding
           onSignUp={
-            !user && (() => showLogin({ trigger: AuthTriggers.Author }))
+            user ? undefined : () => showLogin({ trigger: AuthTriggers.Author })
           }
         />
       )}
