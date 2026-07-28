@@ -246,14 +246,15 @@ export const BriefContent = ({
               // scales with font size, so it has to be in `em` — a px nudge
               // that suits a bullet is visibly wrong on a section heading.
               //
-              // Dimmed but always present, never hover-only: a control that
-              // appears only once the pointer is already on the right line is
-              // undiscoverable — you cannot hover for something you don't know
-              // is there — and it is unreachable on touch entirely. Hover and
-              // focus bring it to full strength.
+              // Revealed on hover of its own item, so a briefing reads as prose
+              // until you reach for a control. Touch has no hover, so coarse
+              // pointers get them outright — otherwise they would be
+              // unreachable there. Keyboard focus reveals them too, and the
+              // control stays pinned while it is confirming so the checkmark
+              // survives the pointer leaving as the click lands.
               className={classNames(
-                'ml-2 inline-flex -translate-y-[0.15em] align-middle transition-opacity focus-visible:opacity-100 group-hover/brief-item:opacity-100',
-                isCopied ? 'opacity-100' : 'opacity-40',
+                'ml-2 inline-flex -translate-y-[0.15em] align-middle transition-opacity focus-visible:opacity-100 group-hover/brief-item:opacity-100 [@media(pointer:coarse)]:opacity-100',
+                isCopied ? 'opacity-100' : 'opacity-0',
               )}
               onClick={() => onCopyItem(item, key)}
             />

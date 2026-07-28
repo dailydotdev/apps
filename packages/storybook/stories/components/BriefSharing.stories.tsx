@@ -658,9 +658,9 @@ const BriefingPage = ({
  * The whole briefing as a reader sees it, flag on: copy-link + share arrow in
  * the header, and a copy-text control on every section heading and every bullet
  * (the item's text with the briefing link appended, so a paste is quotable and
- * still attributed). The per-item controls sit dimmed at rest and come to full
- * strength on hover or focus — never hover-only, which would make them
- * undiscoverable on a mouse and unreachable on touch.
+ * still attributed). The per-item controls are revealed on hover of their own
+ * item, so the briefing reads as prose until you reach for one. Touch has no
+ * hover, so coarse pointers get them outright.
  */
 export const InsideBriefing: ListStory = {
   render: () => (
@@ -1030,7 +1030,7 @@ export const Overview: ListStory = {
 
       <Section
         title="6 · Inside the briefing body"
-        note="Every section heading and every bullet gets a copy-text control (link appended, so the paste stays attributed). Dimmed at rest, full strength on hover or focus. Pinned at full strength here; see the Inside Briefing stories for the real resting state."
+        note="Every section heading and every bullet gets a copy-text control (link appended, so the paste stays attributed). Revealed on hover of its own item; always visible on touch. Forced visible here; see the Inside Briefing stories for the real resting state."
       >
         <FeatureGate flags={FLAGS_ON}>
           <div className="rounded-16 border border-border-subtlest-tertiary px-4 [&_.brief-item-copy-mount_button]:!opacity-100">
