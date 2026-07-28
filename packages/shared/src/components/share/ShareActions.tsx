@@ -13,8 +13,10 @@ import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { shouldUseNativeShare } from '../../lib/func';
 import { ShareProvider } from '../../lib/share';
 import type { ReferralCampaignKey } from '../../lib/referral';
+import { CopyStateIcon } from './CopyStateIcon';
+import { SplitShareButton } from './SplitShareButton';
 
-export type ShareActionsVariant = 'icon' | 'inline';
+export type ShareActionsVariant = 'icon' | 'inline' | 'split';
 
 export interface ShareActionsProps {
   link: string;
@@ -28,6 +30,13 @@ export interface ShareActionsProps {
   buttonSize?: ButtonSize;
   /** Tooltip + accessible label for the icon-only trigger. */
   label?: string;
+  /**
+   * Render `triggerText` beside the icon instead of an icon-only trigger. Gated
+   * so existing icon-only consumers keep their exact DOM.
+   */
+  triggerText?: string;
+  /** `split` variant only: label for the chevron half that opens the list. */
+  dropdownLabel?: string;
   emailTitle?: string;
   emailSummary?: string;
   className?: string;
@@ -46,6 +55,8 @@ export function ShareActions({
   buttonVariant = ButtonVariant.Tertiary,
   buttonSize = ButtonSize.Small,
   label = 'Copy link',
+  triggerText,
+  dropdownLabel = 'More share options',
   emailTitle,
   emailSummary,
   className,
@@ -56,6 +67,22 @@ export function ShareActions({
   const [copying, shareOrCopy] = useShareOrCopyLink({ link, text, cid });
   const closeTimeout = useRef<ReturnType<typeof setTimeout>>();
 
+  const onCopy = () => {
+    onShare?.(ShareProvider.CopyLink);
+    shareOrCopy();
+  };
+
+  // `copying` stays true for a second after a copy, which is the whole window
+  // for the confirmation. The green-check swap is scoped to the split control —
+  // icon-only triggers keep the existing `secondary` fill so this does not
+  // restyle every share surface in the app.
+  const copyIcon =
+    variant === 'split' ? (
+      <CopyStateIcon copied={copying} />
+    ) : (
+      <CopyIcon secondary={copying} />
+    );
+
   const list = (
     <SocialShareList
       link={link}
@@ -63,10 +90,7 @@ export function ShareActions({
       emailTitle={emailTitle}
       emailSummary={emailSummary}
       isCopying={copying}
-      onCopy={() => {
-        onShare?.(ShareProvider.CopyLink);
-        shareOrCopy();
-      }}
+      onCopy={onCopy}
       onNativeShare={() => {
         onShare?.(ShareProvider.Native);
         shareOrCopy();
@@ -92,7 +116,7 @@ export function ShareActions({
           type="button"
           variant={buttonVariant}
           size={buttonSize}
-          icon={<CopyIcon secondary={copying} />}
+          icon={copyIcon}
           aria-label={label}
           className={className}
           onClick={() => {
@@ -103,8 +127,28 @@ export function ShareActions({
             );
             shareOrCopy();
           }}
-        />
+        >
+          {triggerText}
+        </Button>
       </Tooltip>
+    );
+  }
+
+  if (variant === 'split') {
+    return (
+      <SplitShareButton
+        label={label}
+        dropdownLabel={dropdownLabel}
+        triggerText={triggerText}
+        // No "Share" heading here, unlike the popover: the control it drops
+        // from is already labelled, so the heading would just repeat it.
+        menu={list}
+        copied={copying}
+        onCopy={onCopy}
+        variant={buttonVariant}
+        size={buttonSize}
+        className={className}
+      />
     );
   }
 
@@ -136,12 +180,14 @@ export function ShareActions({
             type="button"
             variant={buttonVariant}
             size={buttonSize}
-            icon={<CopyIcon secondary={copying} />}
+            icon={copyIcon}
             aria-label={label}
             pressed={open}
             className={className}
             {...hoverProps}
-          />
+          >
+            {triggerText}
+          </Button>
         </PopoverTrigger>
       </Tooltip>
       <PopoverContent
