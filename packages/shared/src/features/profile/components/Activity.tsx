@@ -71,8 +71,9 @@ export const Activity = ({ user }: ActivityProps): ReactElement | null => {
   }
 
   return (
-    <div className="mb-4 flex flex-col gap-3 overflow-hidden pt-6">
-      {renderContent()}
-    </div>
+    // No overflow guard here: the feed grid scrolls itself and bleeds past this
+    // box to the card edge (see HORIZONTAL_FEED_CLASSES), so clipping at the
+    // section's padding would cut the strip short of the page edge again.
+    <div className="mb-4 flex flex-col gap-3 pt-6">{renderContent()}</div>
   );
 };

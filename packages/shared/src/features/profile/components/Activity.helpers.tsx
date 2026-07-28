@@ -67,8 +67,11 @@ export const COMMENT_CLASS_NAME = {
 } as const;
 
 export const MIN_ITEMS_FOR_SHOW_MORE = 3;
+// The bleed classes are the `profileStripBleed` pair scoped to the feed's own
+// scroll container, so the strip clips at the card edge rather than 24px short
+// of it. `scroll-px-6` keeps snapped cards aligned with the section heading.
 export const HORIZONTAL_FEED_CLASSES =
-  '[&_.grid]:!auto-cols-[17rem] tablet:[&_.grid]:!auto-cols-[20rem] [&_.grid]:gap-4';
+  '[&_.grid]:!auto-cols-[17rem] tablet:[&_.grid]:!auto-cols-[20rem] [&_.grid]:gap-4 [&_.grid]:-mx-6 [&_.grid]:px-6 [&_.grid]:scroll-px-6';
 export const TAB_ITEMS = activityTabs.map((tab) => ({ label: tab.title }));
 
 export const ACTIVITY_QUERY_KEYS = {

@@ -27,6 +27,7 @@ import { AchievementCard } from './AchievementCard';
 import { RaritySparkles } from './RaritySparkles';
 import { useLazyModal } from '../../../../hooks/useLazyModal';
 import { LazyModal } from '../../../../components/modals/common/types';
+import { profileStripBleed } from '../../common';
 
 interface ProfileAchievementShowcaseProps {
   user: PublicProfile;
@@ -88,9 +89,14 @@ export function ProfileAchievementShowcase({
       </div>
 
       {hasShowcase ? (
-        // negative margins cancel the padding that keeps the rarity glow and
-        // sparkles from being clipped by the scroll container
-        <div className="no-scrollbar -mx-2 -my-2 flex gap-3 overflow-x-auto px-2 py-2">
+        // -my-2/py-2 keeps the rarity glow and sparkles, which deliberately
+        // escape each tile, from being clipped by the scroll container
+        <div
+          className={classNames(
+            'no-scrollbar -my-2 flex gap-3 overflow-x-auto py-2',
+            profileStripBleed,
+          )}
+        >
           {showcaseAchievements.map((userAchievement) => {
             const { achievement } = userAchievement;
             const rarityTier = getAchievementRarityTier(achievement.rarity);
