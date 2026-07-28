@@ -1,4 +1,4 @@
-import type { AnchorHTMLAttributes, ReactElement, Ref } from 'react';
+import type { HTMLAttributes, ReactElement, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import Link from '../../utilities/Link';
@@ -9,12 +9,10 @@ import { ProfileImageSize } from '../../ProfilePicture';
 export type LinkableSource = Pick<Source, 'image' | 'handle'> &
   Partial<Pick<Source, 'name' | 'permalink'>>;
 
-export interface SourceAvatarLinkProps
-  extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
+export interface SourceAvatarLinkProps extends HTMLAttributes<HTMLElement> {
   source: LinkableSource;
   size?: ProfileImageSize;
   avatarClassName?: string;
-  ref?: Ref<HTMLAnchorElement>;
 }
 
 /**
@@ -36,9 +34,17 @@ function SourceAvatarLinkComponent(
     <SourceAvatar className={avatarClassName} source={source} size={size} />
   );
 
+  // No permalink means nothing to link to, but the ref still has to reach a DOM
+  // node: Radix's hover card trigger composes one onto this component and never
+  // opens without it. A span (not an href-less anchor) also keeps the click
+  // falling through to the card link, since `.card a` gets pointer-events: all.
   if (!source?.permalink) {
     return (
-      <span {...props} className={classNames('flex', className)}>
+      <span
+        {...props}
+        ref={ref as Ref<HTMLSpanElement>}
+        className={classNames('flex', className)}
+      >
         {avatar}
       </span>
     );

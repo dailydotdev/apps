@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useContext, useState, useMemo, useCallback } from 'react';
+import classNames from 'classnames';
 import type { PublicProfile } from '../../../lib/user';
 import AuthContext from '../../../contexts/AuthContext';
 import { ActivityTabIndex, activityTabs } from './Activity.helpers';
@@ -71,9 +72,18 @@ export const Activity = ({ user }: ActivityProps): ReactElement | null => {
   }
 
   return (
-    // No overflow guard here: the feed grid scrolls itself and bleeds past this
-    // box to the card edge (see HORIZONTAL_FEED_CLASSES), so clipping at the
-    // section's padding would cut the strip short of the page edge again.
-    <div className="mb-4 flex flex-col gap-3 pt-6">{renderContent()}</div>
+    <div
+      className={classNames(
+        'mb-4 flex flex-col gap-3 pt-6',
+        // The posts/upvoted feeds scroll themselves and bleed past this box to
+        // the card edge (see HORIZONTAL_FEED_CLASSES), so clipping here would
+        // cut them short of the page edge again. Replies are plain content with
+        // no scroller of their own, so they keep a guard against wide markdown
+        // widening the page. `clip` over `hidden` so popovers still escape on y.
+        selectedTabIndex === ActivityTabIndex.Replies && 'overflow-x-clip',
+      )}
+    >
+      {renderContent()}
+    </div>
   );
 };
