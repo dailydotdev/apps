@@ -1,3 +1,4 @@
+import type { NextSeoProps } from 'next-seo';
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import type {
@@ -15,6 +16,9 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import Custom404 from '../../404';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import KeywordManagement from '../../../components/KeywordManagement';
+import { noindexSeoProps } from '../../../next-seo';
+
+const seo: NextSeoProps = { ...noindexSeoProps };
 
 export type KeywordPageProps = { keyword: string };
 
@@ -48,6 +52,8 @@ const KeywordPage = ({
 };
 
 KeywordPage.getLayout = getMainLayout;
+
+KeywordPage.layoutProps = { seo };
 
 export default KeywordPage;
 
