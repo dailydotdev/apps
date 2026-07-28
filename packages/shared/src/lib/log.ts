@@ -108,6 +108,9 @@ export enum Origin {
   GameCenter = 'game center',
   DevCard = 'devcard',
   CopyMyFeed = 'copy my feed',
+  // Popular hot-takes leaderboard card; the other hot-take share surfaces
+  // reuse the existing HotTakeList / HotAndCold origins.
+  PopularHotTakes = 'popular hot takes',
 }
 
 export enum LogEvent {

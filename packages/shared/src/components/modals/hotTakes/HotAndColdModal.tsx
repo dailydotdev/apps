@@ -32,7 +32,12 @@ import { PlusUserBadge } from '../../PlusUserBadge';
 import { Loader } from '../../Loader';
 import LogoIcon from '../../../svg/LogoIcon';
 import type { HotTake } from '../../../graphql/user/userHotTake';
-import { getAddHotTakeProfileUrl } from '../../../features/profile/components/hotTakes/common';
+import {
+  getAddHotTakeProfileUrl,
+  getHotTakeShareText,
+  getHotTakesProfileUrl,
+} from '../../../features/profile/components/hotTakes/common';
+import { HotTakeShareButton } from '../../../features/profile/components/hotTakes/HotTakeShareButton';
 
 const SWIPE_THRESHOLD = 80;
 const ONBOARDING_INTRO_INTERESTING_OFFSET = 56;
@@ -843,7 +848,9 @@ const SLEEP_BUBBLES: ReadonlyArray<{
   { left: '88%', bottom: '8%', size: 8, delay: 0.45, duration: 2.5 },
 ];
 
-const HotTakeCard = ({
+// Exported for Storybook: the swipeable card is only reachable behind live
+// discover data inside the modal.
+export const HotTakeCard = ({
   hotTake,
   isTop,
   offset,
@@ -1375,6 +1382,24 @@ const HotTakeCard = ({
             </div>
           </div>
         </a>
+      )}
+
+      {/* Rendered last + explicit z so it stays clickable above the swipe
+          effect overlays; only the top card gets a live control. */}
+      {isTop && hotTake.user?.username && (
+        <div className="z-20 absolute right-2 top-2">
+          <HotTakeShareButton
+            link={getHotTakesProfileUrl(hotTake.user.username)}
+            text={getHotTakeShareText({
+              title: hotTake.title,
+              username: hotTake.user.username,
+            })}
+            label={`Share "${hotTake.title}"`}
+            targetId={hotTake.id}
+            origin={Origin.HotAndCold}
+            buttonSize={ButtonSize.Small}
+          />
+        </div>
       )}
     </div>
   );

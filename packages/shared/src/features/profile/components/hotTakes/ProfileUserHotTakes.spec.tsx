@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
+import { QueryClient } from '@tanstack/react-query';
 import type { PublicProfile } from '../../../../lib/user';
 import type { HotTake } from '../../../../graphql/user/userHotTake';
 import { useHotTakes } from '../../hooks/useHotTakes';
@@ -9,8 +10,11 @@ import { useToastNotification } from '../../../../hooks/useToastNotification';
 import { usePrompt } from '../../../../hooks/usePrompt';
 import { useVoteHotTake } from '../../../../hooks/vote/useVoteHotTake';
 import { useLogContext } from '../../../../contexts/LogContext';
+import { useHotTakeShareEnabled } from '../../../../hooks/useHotTakeShareEnabled';
 import { LogEvent } from '../../../../lib/log';
 import { ProfileUserHotTakes } from './ProfileUserHotTakes';
+import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
+import loggedUser from '../../../../../__tests__/fixture/loggedUser';
 
 jest.mock('../../hooks/useHotTakes', () => ({
   HOT_TAKE_LIMIT_REACHED_MESSAGE:
@@ -19,6 +23,7 @@ jest.mock('../../hooks/useHotTakes', () => ({
 }));
 
 jest.mock('../../../../hooks/useToastNotification', () => ({
+  ...jest.requireActual('../../../../hooks/useToastNotification'),
   useToastNotification: jest.fn(),
 }));
 
@@ -45,12 +50,17 @@ jest.mock('./HotTakeItem', () => ({
   ),
 }));
 
+jest.mock('../../../../hooks/useHotTakeShareEnabled', () => ({
+  useHotTakeShareEnabled: jest.fn(),
+}));
+
 const mockedUseRouter = useRouter as jest.Mock;
 const mockedUseHotTakes = useHotTakes as jest.Mock;
 const mockedUseToastNotification = useToastNotification as jest.Mock;
 const mockedUsePrompt = usePrompt as jest.Mock;
 const mockedUseVoteHotTake = useVoteHotTake as jest.Mock;
 const mockedUseLogContext = useLogContext as jest.Mock;
+const mockedUseHotTakeShareEnabled = useHotTakeShareEnabled as jest.Mock;
 
 const user: PublicProfile = {
   id: 'user-1',
@@ -107,6 +117,7 @@ describe('ProfileUserHotTakes', () => {
     mockedUseLogContext.mockReturnValue({
       logEvent,
     });
+    mockedUseHotTakeShareEnabled.mockReturnValue(false);
     mockedUseHotTakes.mockReturnValue({
       hotTakes: [],
       isOwner: true,
@@ -166,6 +177,87 @@ describe('ProfileUserHotTakes', () => {
     expect(screen.queryByTestId('hot-take-modal')).not.toBeInTheDocument();
     expect(replace).toHaveBeenCalledWith('/tester#hot-takes', undefined, {
       shallow: true,
+    });
+  });
+
+  describe('header share', () => {
+    const mockTakes = (overrides: Record<string, unknown> = {}) =>
+      mockedUseHotTakes.mockReturnValue({
+        hotTakes: [createHotTake(1)],
+        isOwner: true,
+        canAddMore: true,
+        isLoading: false,
+        add: jest.fn(),
+        update: jest.fn(),
+        remove: jest.fn(),
+        ...overrides,
+      });
+
+    // The flag-on path renders the real ShareActions, which needs the query
+    // client and auth contexts the rest of this spec gets away without.
+    const renderWithProviders = () => {
+      const client = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      });
+      return render(
+        <TestBootProvider client={client} auth={{ user: loggedUser }}>
+          <ProfileUserHotTakes user={user} />
+        </TestBootProvider>,
+      );
+    };
+
+    it('shows exactly one share control next to the Add button when enabled', () => {
+      mockedUseHotTakeShareEnabled.mockReturnValue(true);
+      mockTakes();
+
+      renderWithProviders();
+
+      const share = screen.getAllByLabelText('Share hot takes');
+      expect(share).toHaveLength(1);
+      const addButton = screen.getByRole('button', { name: 'Add' });
+      // Share and Add sit in one grouping row on the header's right side.
+      expect(share[0].closest('div')).toBe(addButton.closest('div'));
+    });
+
+    it('shows the share control to visitors without owner actions', () => {
+      mockedUseHotTakeShareEnabled.mockReturnValue(true);
+      mockTakes({ isOwner: false, canAddMore: false });
+
+      renderWithProviders();
+
+      expect(screen.getByLabelText('Share hot takes')).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Add' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('hides the share control while the section is empty', () => {
+      mockedUseHotTakeShareEnabled.mockReturnValue(true);
+      mockTakes({ hotTakes: [] });
+
+      renderWithProviders();
+
+      expect(
+        screen.queryByLabelText('Share hot takes'),
+      ).not.toBeInTheDocument();
+      // Only evaluated once there is something to share.
+      expect(mockedUseHotTakeShareEnabled).toHaveBeenCalledWith(false);
+    });
+
+    it('keeps the pre-share header markup when the flag is off', () => {
+      mockedUseHotTakeShareEnabled.mockReturnValue(false);
+      mockTakes();
+
+      renderWithProviders();
+
+      expect(
+        screen.queryByLabelText('Share hot takes'),
+      ).not.toBeInTheDocument();
+      // The Add button stays the heading's direct sibling — no wrapper row.
+      const heading = screen.getByText('Hot Takes');
+      expect(heading.nextElementSibling).toBe(
+        screen.getByRole('button', { name: 'Add' }),
+      );
     });
   });
 });

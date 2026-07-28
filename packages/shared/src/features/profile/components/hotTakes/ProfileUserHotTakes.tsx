@@ -29,10 +29,13 @@ import { useVoteHotTake } from '../../../../hooks/vote/useVoteHotTake';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { LogEvent, Origin } from '../../../../lib/log';
 import {
+  getHotTakesProfileUrl,
   HOT_TAKES_ANCHOR,
   isOpenAddHotTakeQuery,
   OPEN_ADD_HOT_TAKE_QUERY_PARAM,
 } from './common';
+import { HotTakeShareControl } from './HotTakeShareButton';
+import { useHotTakeShareEnabled } from '../../../../hooks/useHotTakeShareEnabled';
 
 interface ProfileUserHotTakesProps {
   user: PublicProfile;
@@ -180,10 +183,25 @@ export function ProfileUserHotTakes({
   );
 
   const hasItems = hotTakes.length > 0;
+  const ownerUsername = user.username;
+  // Sharing an empty section is pointless, so the flag is only evaluated (and
+  // the control only rendered) once there is at least one take.
+  const isShareEnabled = useHotTakeShareEnabled(hasItems) && hasItems;
 
   if (!hasItems && !isOwner) {
     return null;
   }
+
+  const addButton = isOwner && canAddMore && (
+    <Button
+      variant={ButtonVariant.Tertiary}
+      size={ButtonSize.Small}
+      icon={<PlusIcon />}
+      onClick={handleOpenModal}
+    >
+      Add
+    </Button>
+  );
 
   return (
     <div className="flex flex-col gap-4 py-4">
@@ -197,15 +215,24 @@ export function ProfileUserHotTakes({
         >
           Hot Takes
         </Typography>
-        {isOwner && canAddMore && (
-          <Button
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<PlusIcon />}
-            onClick={handleOpenModal}
-          >
-            Add
-          </Button>
+        {isShareEnabled && ownerUsername ? (
+          <div className="flex items-center gap-1">
+            <HotTakeShareControl
+              link={getHotTakesProfileUrl(ownerUsername)}
+              text={
+                isOwner
+                  ? "My hot takes on daily.dev — come tell me why I'm wrong."
+                  : `@${ownerUsername}'s hot takes on daily.dev — come tell them why they're wrong.`
+              }
+              label="Share hot takes"
+              targetId={user.id}
+              origin={Origin.HotTakeList}
+              buttonSize={ButtonSize.Small}
+            />
+            {addButton}
+          </div>
+        ) : (
+          addButton
         )}
       </div>
       {hasItems ? (
@@ -215,6 +242,7 @@ export function ProfileUserHotTakes({
               key={item.id}
               item={item}
               isOwner={isOwner}
+              ownerUsername={user.username}
               onEdit={handleEdit}
               onDelete={handleDelete}
               onUpvoteClick={handleUpvote}
