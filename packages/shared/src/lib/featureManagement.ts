@@ -308,3 +308,9 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Adds share affordances to the leaderboard surfaces: a per-leaderboard share
+// on the directory cards, a page-level share on a leaderboard page, and the
+// personal "share my rank" card. Gated together with the sharing-visibility
+// master switch. Keep the default `false` — GrowthBook ramps it.
+export const featureShareLeaderboard = new Feature('share_leaderboard', false);

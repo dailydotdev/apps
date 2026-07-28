@@ -24,6 +24,8 @@ import { CompanyTopList } from '@dailydotdev/shared/src/components/cards/Leaderb
 import type { PopularHotTakes } from '@dailydotdev/shared/src/components/cards/Leaderboard/PopularHotTakesList';
 import { PopularHotTakesList } from '@dailydotdev/shared/src/components/cards/Leaderboard/PopularHotTakesList';
 import { PublicPageSignupBanner } from '@dailydotdev/shared/src/components/auth/PublicPageSignupBanner';
+import { LeaderboardShareButton } from '@dailydotdev/shared/src/components/cards/Leaderboard/LeaderboardShareButton';
+import { useLeaderboardShareEnabled } from '@dailydotdev/shared/src/hooks/leaderboard/useLeaderboardShareEnabled';
 import { getLayout as getFooterNavBarLayout } from '../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../next-seo';
@@ -85,6 +87,11 @@ const LeaderboardPage = ({
   const { isFallback: isLoading } = useRouter();
   const { isV2 } = useLayoutVariant();
   const isV2Laptop = isV2;
+  const isShareEnabled = useLeaderboardShareEnabled();
+  // Only hand the card a title action when sharing is on, so the control
+  // variant keeps the plain `<h3>` heading instead of an empty flex wrapper.
+  const shareAction = (type: LeaderboardType) =>
+    isShareEnabled ? <LeaderboardShareButton type={type} /> : undefined;
 
   if (isLoading) {
     return <></>;
@@ -107,6 +114,7 @@ const LeaderboardPage = ({
               containerProps={{
                 title: 'Highest level',
                 titleHref: `/users/${LeaderboardType.HighestLevel}`,
+                titleAction: shareAction(LeaderboardType.HighestLevel),
               }}
               items={highestLevel}
               isLoading={isLoading}
@@ -117,6 +125,7 @@ const LeaderboardPage = ({
             containerProps={{
               title: 'Highest reputation',
               titleHref: `/users/${LeaderboardType.HighestReputation}`,
+              titleAction: shareAction(LeaderboardType.HighestReputation),
             }}
             items={highestReputation}
             isLoading={isLoading}
@@ -126,6 +135,7 @@ const LeaderboardPage = ({
             containerProps={{
               title: 'Longest streak',
               titleHref: `/users/${LeaderboardType.LongestStreak}`,
+              titleAction: shareAction(LeaderboardType.LongestStreak),
             }}
             items={longestStreak}
             isLoading={isLoading}
@@ -136,6 +146,7 @@ const LeaderboardPage = ({
             containerProps={{
               title: 'Highest post views',
               titleHref: `/users/${LeaderboardType.HighestPostViews}`,
+              titleAction: shareAction(LeaderboardType.HighestPostViews),
             }}
             items={highestPostViews}
             isLoading={isLoading}
@@ -144,6 +155,7 @@ const LeaderboardPage = ({
             containerProps={{
               title: 'Most upvoted',
               titleHref: `/users/${LeaderboardType.MostUpvoted}`,
+              titleAction: shareAction(LeaderboardType.MostUpvoted),
             }}
             items={mostUpvoted}
             isLoading={isLoading}
@@ -152,6 +164,7 @@ const LeaderboardPage = ({
             containerProps={{
               title: 'Most referrals',
               titleHref: `/users/${LeaderboardType.MostReferrals}`,
+              titleAction: shareAction(LeaderboardType.MostReferrals),
             }}
             items={mostReferrals}
             isLoading={isLoading}
@@ -160,6 +173,7 @@ const LeaderboardPage = ({
             containerProps={{
               title: 'Most reading days',
               titleHref: `/users/${LeaderboardType.MostReadingDays}`,
+              titleAction: shareAction(LeaderboardType.MostReadingDays),
             }}
             items={mostReadingDays}
             isLoading={isLoading}
@@ -169,6 +183,7 @@ const LeaderboardPage = ({
             containerProps={{
               title: 'Most achievement points',
               titleHref: `/users/${LeaderboardType.MostAchievementPoints}`,
+              titleAction: shareAction(LeaderboardType.MostAchievementPoints),
             }}
             items={mostAchievementPoints}
             isLoading={isLoading}
@@ -177,6 +192,7 @@ const LeaderboardPage = ({
             containerProps={{
               title: 'Most verified employees',
               titleHref: `/users/${LeaderboardType.MostVerifiedUsers}`,
+              titleAction: shareAction(LeaderboardType.MostVerifiedUsers),
             }}
             items={mostVerifiedUsers}
             isLoading={isLoading}

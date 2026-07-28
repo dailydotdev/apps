@@ -31,6 +31,9 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { LeaderboardShareButton } from '@dailydotdev/shared/src/components/cards/Leaderboard/LeaderboardShareButton';
+import { LeaderboardRankShare } from '@dailydotdev/shared/src/components/cards/Leaderboard/LeaderboardRankShare';
+import { useLeaderboardShareEnabled } from '@dailydotdev/shared/src/hooks/leaderboard/useLeaderboardShareEnabled';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { defaultOpenGraph } from '../../next-seo';
@@ -72,6 +75,12 @@ const LeaderboardDetailPage = ({
   const isCompany = isCompanyLeaderboard(leaderboardType);
   const isLevelLeaderboard = leaderboardType === LeaderboardType.HighestLevel;
   const concatScore = leaderboardType !== LeaderboardType.LongestStreak;
+  const isShareEnabled = useLeaderboardShareEnabled();
+  // Rendered as `undefined` when sharing is off so the header/breadcrumb row
+  // keeps its control-variant DOM instead of an empty actions wrapper.
+  const shareButton = isShareEnabled ? (
+    <LeaderboardShareButton type={leaderboardType} />
+  ) : undefined;
 
   if (isLoading || !title) {
     return <></>;
@@ -97,7 +106,9 @@ const LeaderboardDetailPage = ({
               </strong>
             </span>
           }
-        />
+        >
+          {shareButton}
+        </PageHeader>
       )}
       <PageWrapperLayout>
         {!isV2Laptop && (
@@ -110,9 +121,11 @@ const LeaderboardDetailPage = ({
               <span className="px-1">/</span>
               {title}
             </BreadCrumbs>
+            {shareButton}
           </div>
         )}
         <div className="mx-auto w-full max-w-screen-laptop">
+          {!isCompany && <LeaderboardRankShare type={leaderboardType} />}
           {isCompany ? (
             <CompanyTopList
               containerProps={{ title }}

@@ -8,6 +8,8 @@ export interface LeaderboardListContainerProps {
   className?: string;
   footer?: ReactNode;
   header?: ReactNode;
+  /** Trailing control rendered next to the card title (e.g. a share button). */
+  titleAction?: ReactNode;
 }
 
 export const LeaderboardCard = classed(
