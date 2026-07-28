@@ -24,6 +24,7 @@ import { useCommentContentPreferenceMutationSubscription } from './useCommentCon
 import { generateCommentsQueryKey } from '../../lib/query';
 import { CharmEmptyState } from '../charm/CharmEmptyState';
 import { cloudinaryCharmNoComments } from '../../lib/image';
+import { EndOfConversationShare } from './EndOfConversationShare';
 
 const threadCommentOrigins = new Set<Origin>([
   Origin.ArticleModal,
@@ -52,6 +53,12 @@ interface PostCommentsProps {
    * extra gap above the first item.
    */
   removeTopSpacing?: boolean;
+  /**
+   * Skips the end-of-conversation share band. Set by parents that place the
+   * band themselves so it lands at the true end of their surface (the redesign
+   * discussion panel renders it after its meta bar).
+   */
+  hideEndOfConversationShare?: boolean;
 }
 
 const noopShare = (): void => {};
@@ -70,6 +77,7 @@ export function PostComments({
   className = {},
   onCommented,
   removeTopSpacing = false,
+  hideEndOfConversationShare = false,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const container = useRef<HTMLDivElement | null>(null);
@@ -165,6 +173,14 @@ export function PostComments({
           lazy={!commentHash && index >= lazyCommentThreshold}
         />
       ))}
+      {!hideEndOfConversationShare && (
+        <EndOfConversationShare
+          post={post}
+          // Cancels the list's mobile full-bleed negative margin so the band
+          // keeps its rounded edges inside the page gutter.
+          className={isModalThread ? undefined : 'mx-4 mobileL:mx-0'}
+        />
+      )}
     </div>
   );
 }

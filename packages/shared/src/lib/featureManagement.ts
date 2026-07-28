@@ -308,3 +308,12 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Renders an encouraging share band below the comment list once a post has an
+// active discussion (more than 3 comments). Part of the sharing-visibility
+// initiative, so it also sits behind the `sharing_visibility` kill-switch.
+// Keep the default `false` — GrowthBook ramps it.
+export const featureShareEndOfConversation = new Feature(
+  'share_end_of_conversation',
+  false,
+);
