@@ -1,11 +1,14 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import ProfileHeader from './ProfileHeader';
 import AuthContext from '../../contexts/AuthContext';
 import type { AuthContextData } from '../../contexts/AuthContext';
 import { getLogContextStatic } from '../../contexts/LogContext';
 import type { PublicProfile } from '../../lib/user';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
+import { ShareProvider } from '../../lib/share';
 
 jest.mock('./ProfileActions', () => ({
   __esModule: true,
@@ -25,6 +28,8 @@ const user = {
 } as PublicProfile;
 
 const userStats = { upvotes: 1, numFollowers: 2, numFollowing: 3 };
+
+const logEvent = jest.fn();
 
 const renderHeader = (isSameUser: boolean) => {
   const client = new QueryClient({
@@ -46,7 +51,7 @@ const renderHeader = (isSameUser: boolean) => {
       >
         <LogContext.Provider
           value={{
-            logEvent: jest.fn(),
+            logEvent,
             logEventStart: jest.fn(),
             logEventEnd: jest.fn(),
             sendBeacon: () => false,
@@ -83,6 +88,31 @@ describe('ProfileHeader share control', () => {
       screen.getByLabelText('Copy link to your profile'),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('Edit profile')).toBeInTheDocument();
+  });
+
+  it('should log share profile from the header control', async () => {
+    Object.defineProperty(globalThis.navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText: jest.fn().mockResolvedValue(undefined) },
+    });
+
+    renderHeader(false);
+
+    await userEvent.click(
+      screen.getByLabelText("Copy link to @idoshamun's profile"),
+    );
+
+    await waitFor(() =>
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.ShareProfile,
+        target_id: 'u1',
+        target_type: TargetType.ProfilePage,
+        extra: JSON.stringify({
+          provider: ShareProvider.CopyLink,
+          origin: Origin.Profile,
+        }),
+      }),
+    );
   });
 
   it('should render both controls at the same size and variant', () => {

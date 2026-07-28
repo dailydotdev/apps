@@ -10,7 +10,7 @@ import type { PublicProfile } from '../../lib/user';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import type { ToastNotification } from '../../hooks/useToastNotification';
 import { shouldUseNativeShare } from '../../lib/func';
-import { LogEvent } from '../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
 
 jest.mock('../../lib/func', () => ({
@@ -107,13 +107,20 @@ describe('ProfileShareButton', () => {
       const toast = client.getQueryData<ToastNotification>(TOAST_NOTIF_KEY);
       expect(toast?.message).toEqual("✅ Copied link to @idoshamun's profile");
     });
-    expect(logEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        event_name: LogEvent.ShareProfile,
-        target_id: 'u1',
-        extra: expect.stringContaining(ShareProvider.CopyLink),
+    // Exact payload: `share profile` already ships from the profile menus and
+    // the owner share widget, and the post copy-link path uses the same
+    // target_id / target_type / stringified {provider, origin} shape. Pin it so
+    // the dashboards keep matching.
+    expect(logEvent).toHaveBeenCalledTimes(1);
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.ShareProfile,
+      target_id: 'u1',
+      target_type: TargetType.ProfilePage,
+      extra: JSON.stringify({
+        provider: ShareProvider.CopyLink,
+        origin: Origin.Profile,
       }),
-    );
+    });
   });
 
   it('should say "your profile" in the owner toast', async () => {
@@ -160,12 +167,32 @@ describe('ProfileShareButton', () => {
       }),
     );
     expect(writeText).not.toHaveBeenCalled();
-    expect(logEvent).toHaveBeenCalledWith(
-      expect.objectContaining({
-        event_name: LogEvent.ShareProfile,
-        extra: expect.stringContaining(ShareProvider.Native),
+    expect(logEvent).toHaveBeenCalledTimes(1);
+    expect(logEvent).toHaveBeenCalledWith({
+      event_name: LogEvent.ShareProfile,
+      target_id: 'u1',
+      target_type: TargetType.ProfilePage,
+      extra: JSON.stringify({
+        provider: ShareProvider.Native,
+        origin: Origin.Profile,
       }),
+    });
+  });
+
+  it('should not log when the native share sheet is dismissed', async () => {
+    mockShouldUseNativeShare.mockReturnValue(true);
+    Object.defineProperty(globalThis.navigator, 'share', {
+      configurable: true,
+      value: jest.fn().mockRejectedValue(new Error('AbortError')),
+    });
+
+    setupButton();
+
+    await userEvent.click(
+      screen.getByLabelText("Copy link to @idoshamun's profile"),
     );
+
+    await waitFor(() => expect(logEvent).not.toHaveBeenCalled());
   });
 
   it('should not open a share popover on desktop', async () => {
