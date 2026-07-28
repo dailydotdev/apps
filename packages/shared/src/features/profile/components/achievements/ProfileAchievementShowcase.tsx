@@ -66,7 +66,7 @@ export function ProfileAchievementShowcase({
   }
 
   return (
-    <div className="flex flex-col gap-4 py-4">
+    <div className="flex min-w-0 flex-col gap-4 py-4">
       <div className="flex items-center justify-between">
         <Typography
           type={TypographyType.Body}
@@ -88,7 +88,9 @@ export function ProfileAchievementShowcase({
       </div>
 
       {hasShowcase ? (
-        <div className="flex gap-3">
+        // negative margins cancel the padding that keeps the rarity glow and
+        // sparkles from being clipped by the scroll container
+        <div className="no-scrollbar -mx-2 -my-2 flex gap-3 overflow-x-auto px-2 py-2">
           {showcaseAchievements.map((userAchievement) => {
             const { achievement } = userAchievement;
             const rarityTier = getAchievementRarityTier(achievement.rarity);
