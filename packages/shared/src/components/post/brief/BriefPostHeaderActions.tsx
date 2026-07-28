@@ -6,9 +6,12 @@ import type { PostHeaderActionsProps } from '../common';
 import Link from '../../utilities/Link';
 import { Button, ButtonSize } from '../../buttons/Button';
 import { settingsUrl } from '../../../lib/constants';
-import { CopyIcon, LinkIcon, SettingsIcon } from '../../icons';
-import { useSharePost } from '../../../hooks/useSharePost';
-import { useShareCopyIcon } from '../../../hooks/useShareCopyIcon';
+import { SettingsIcon } from '../../icons';
+import { useShareBriefingDigest } from '../../../hooks/useShareBriefingDigest';
+import {
+  BriefCopyLinkButton,
+  BriefShareControls,
+} from '../../brief/BriefShareControls';
 import type { Origin } from '../../../lib/log';
 
 const Container = classed('div', 'flex flex-row items-center');
@@ -27,18 +30,27 @@ export const BriefPostHeaderActions = ({
   origin: Origin;
   showShareButton?: boolean;
 }): ReactElement => {
-  const { copyLink } = useSharePost(origin);
-  const showCopyIcon = useShareCopyIcon();
+  const isShareEnabled = useShareBriefingDigest();
 
   return (
     <Container {...props} className={classNames('gap-2', className)}>
+      {/* Rendered outside the laptop-only wrapper: sharing a briefing is at
+          least as valuable on mobile, where the share arrow taps straight
+          through to the native sheet. */}
+      {showShareButton && isShareEnabled && (
+        <BriefShareControls
+          post={post}
+          origin={origin}
+          size={ButtonSize.Medium}
+          className="flex flex-row items-center gap-2"
+        />
+      )}
       <div className="hidden laptop:block">
-        {showShareButton && (
-          <Button
-            icon={showCopyIcon ? <CopyIcon /> : <LinkIcon />}
+        {showShareButton && !isShareEnabled && (
+          <BriefCopyLinkButton
+            post={post}
+            origin={origin}
             size={ButtonSize.Medium}
-            onClick={() => copyLink({ post })}
-            aria-label="Copy link"
           />
         )}
         <Link passHref href={`${settingsUrl}/notifications`}>

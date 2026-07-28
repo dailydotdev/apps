@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BriefListItem } from './BriefListItem';
 import type { Post } from '../../graphql/posts';
 import { LogEvent, Origin, TargetId } from '../../lib/log';
@@ -20,6 +21,30 @@ jest.mock('../../hooks/usePlusSubscription', () => ({
   usePlusSubscription: () => ({ isPlus: true }),
 }));
 
+const mockUseShareBriefingDigest = jest.fn();
+
+jest.mock('../../hooks/useShareBriefingDigest', () => ({
+  useShareBriefingDigest: () => mockUseShareBriefingDigest(),
+}));
+
+const mockCopyLink = jest.fn();
+
+jest.mock('../../hooks/useSharePost', () => ({
+  useSharePost: () => ({ copyLink: mockCopyLink }),
+}));
+
+jest.mock('../../hooks/useShareCopyIcon', () => ({
+  useShareCopyIcon: () => false,
+}));
+
+// ShareActions owns its own popover/native-share behaviour and is covered by
+// its own spec; here we only care that the row exposes its trigger.
+jest.mock('../share/ShareActions', () => ({
+  ShareActions: ({ label }: { label: string }) => (
+    <button type="button" aria-label={label} />
+  ),
+}));
+
 const post = {
   id: 'brief-1',
   slug: 'brief-1',
@@ -28,8 +53,14 @@ const post = {
   read: false,
 } as Post;
 
-const renderComponent = (onClick = jest.fn()) =>
+// The copy control's Tooltip reaches for a QueryClient.
+const renderWithClient = (ui: React.ReactElement) =>
   render(
+    <QueryClientProvider client={new QueryClient()}>{ui}</QueryClientProvider>,
+  );
+
+const renderComponent = (onClick = jest.fn()) =>
+  renderWithClient(
     <BriefListItem
       post={post}
       title={post.title}
@@ -42,6 +73,43 @@ const renderComponent = (onClick = jest.fn()) =>
 describe('BriefListItem', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseShareBriefingDigest.mockReturnValue(false);
+  });
+
+  it('keeps the row untouched while the share gate is off', () => {
+    renderComponent();
+
+    // The control row is a link and nothing else — no interactive controls.
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(screen.getByRole('link')).toBeInTheDocument();
+  });
+
+  it('renders copy-link and share once the share gate is on', () => {
+    mockUseShareBriefingDigest.mockReturnValue(true);
+
+    renderComponent();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Copy link' }));
+    expect(mockCopyLink).toHaveBeenCalledWith({ post });
+    expect(
+      screen.getByRole('button', { name: 'Share briefing' }),
+    ).toBeInTheDocument();
+  });
+
+  it('lets an explicit prop pin the controls off even when the gate is on', () => {
+    mockUseShareBriefingDigest.mockReturnValue(true);
+
+    renderWithClient(
+      <BriefListItem
+        post={post}
+        title={post.title}
+        origin={Origin.BriefPage}
+        targetId={TargetId.List}
+        showCopyActions={false}
+      />,
+    );
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
   it('delegates regular clicks to the parent handler and tracks the click', () => {

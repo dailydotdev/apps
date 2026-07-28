@@ -15,7 +15,7 @@ import {
 import PostContentContainer from '../PostContentContainer';
 import { BasePostContent } from '../BasePostContent';
 import { formatDate, TimeFormatType } from '../../../lib/dateFormat';
-import Markdown from '../../Markdown';
+import { BriefContent } from '../../brief/BriefContent';
 import type { Post } from '../../../graphql/posts';
 import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
@@ -390,7 +390,11 @@ const BriefPostContentRaw = ({
                 </Typography>
               </div>
             </div>
-            <Markdown content={contentHtml} />
+            <BriefContent
+              post={post}
+              origin={origin}
+              contentHtml={contentHtml}
+            />
             {isNotPlus && (
               <div className="flex w-full rounded-12 border border-white bg-transparent">
                 <div
