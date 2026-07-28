@@ -88,7 +88,10 @@ export const HighlightItem = ({
             selecting, so binding the bar to it would raise nothing.
             The query fetches enough of the post for the bar and its logging.
           */}
-          <PostSelectionArea post={highlight.post as unknown as Post}>
+          <PostSelectionArea
+            canQuote={false}
+            post={highlight.post as unknown as Post}
+          >
             <p className="text-text-secondary typo-markdown">{tldr}</p>
           </PostSelectionArea>
           <Link href={highlight.post.commentsPermalink}>

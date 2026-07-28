@@ -7,6 +7,8 @@ export interface PostSelectionAreaProps {
   post: Post;
   /** Title, TL;DR and body — the parts of a post worth quoting. */
   children: ReactNode;
+  /** False where the surface renders no comment composer. */
+  canQuote?: boolean;
 }
 
 /**
@@ -25,6 +27,7 @@ export interface PostSelectionAreaProps {
 export function PostSelectionArea({
   post,
   children,
+  canQuote = true,
 }: PostSelectionAreaProps): ReactElement {
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -33,7 +36,11 @@ export function PostSelectionArea({
       <div className="contents" data-selection-area ref={contentRef}>
         {children}
       </div>
-      <SelectionShareBar containerRef={contentRef} post={post} />
+      <SelectionShareBar
+        canQuote={canQuote}
+        containerRef={contentRef}
+        post={post}
+      />
     </>
   );
 }

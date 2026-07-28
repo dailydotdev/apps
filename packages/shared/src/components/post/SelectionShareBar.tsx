@@ -38,6 +38,13 @@ export interface SelectionShareBarProps {
    * the URL as `?comment=`, which the post's comment composer picks up.
    */
   onQuote?: (markdownQuote: string) => void;
+  /**
+   * Set false on surfaces with no comment composer — briefings, digests and
+   * the highlights list. Quote hands off to a composer, so without one the
+   * button would be dead. Ignored when `onQuote` is given, since that is a
+   * composer by definition.
+   */
+  canQuote?: boolean;
 }
 
 /** Renders the selection as a markdown blockquote for the comment composer. */
@@ -83,6 +90,7 @@ export function SelectionShareBar({
   containerRef,
   comment,
   onQuote,
+  canQuote = true,
 }: SelectionShareBarProps): ReactElement | null {
   const { text, rect, clear } = useTextSelectionShare({ containerRef });
   const barRef = useRef<HTMLDivElement>(null);
@@ -104,6 +112,9 @@ export function SelectionShareBar({
   });
   const [isTextCopied, copyText] = useCopyText();
   const { getShortUrl } = useGetShortUrl();
+  // A comment can only be quoted by whoever wired its reply composer; a post
+  // only where its surface renders one.
+  const showQuote = onQuote ? true : !comment && canQuote;
 
   const dismiss = useCallback(() => {
     globalThis?.window?.getSelection?.()?.removeAllRanges();
@@ -299,16 +310,18 @@ export function SelectionShareBar({
               variant={ButtonVariant.Tertiary}
             />
           </Tooltip>
-          <Tooltip content="Quote">
-            <Button
-              type="button"
-              aria-label="Quote in a comment"
-              icon={<DiscussIcon />}
-              onClick={onQuoteInComment}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-            />
-          </Tooltip>
+          {showQuote && (
+            <Tooltip content="Quote">
+              <Button
+                type="button"
+                aria-label="Quote in a comment"
+                icon={<DiscussIcon />}
+                onClick={onQuoteInComment}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+              />
+            </Tooltip>
+          )}
           <ShareActions
             cid={ReferralCampaignKey.SharePost}
             icon={<ShareIcon />}

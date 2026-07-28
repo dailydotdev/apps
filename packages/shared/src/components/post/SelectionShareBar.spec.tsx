@@ -227,11 +227,35 @@ describe('SelectionShareBar on a comment', () => {
     expect(onQuote).toHaveBeenCalledWith(`> ${selection}\n\n`);
   });
 
-  it('never quotes a comment into the post composer', () => {
+  it('hides quote on a comment with no reply composer wired', () => {
     renderComponent(undefined, { comment });
+
+    expect(screen.getByTestId('selectionShareBar')).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Quote in a comment'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('never routes a comment quote through the post composer', () => {
+    const onQuote = jest.fn();
+    renderComponent(undefined, { comment, onQuote });
 
     fireEvent.click(screen.getByLabelText('Quote in a comment'));
 
+    expect(onQuote).toHaveBeenCalled();
     expect(mockReplace).not.toHaveBeenCalled();
+  });
+});
+
+describe('SelectionShareBar where nothing can be quoted', () => {
+  it('hides quote when the surface has no comment composer', () => {
+    renderComponent(undefined, { canQuote: false });
+
+    expect(screen.getByTestId('selectionShareBar')).toBeInTheDocument();
+    expect(screen.getByLabelText('Copy selected text')).toBeInTheDocument();
+    expect(screen.getByLabelText('Share')).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Quote in a comment'),
+    ).not.toBeInTheDocument();
   });
 });

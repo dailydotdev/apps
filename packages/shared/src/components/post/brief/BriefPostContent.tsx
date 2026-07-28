@@ -349,7 +349,7 @@ const BriefPostContentRaw = ({
         >
           <div className="my-6 flex flex-col gap-6">
             {!!user && !user?.isPlus && <BriefUpgradeAlert className="!mb-0" />}
-            <PostSelectionArea post={post}>
+            <PostSelectionArea canQuote={false} post={post}>
               <BriefPostHeader {...headerProps}>
                 <BriefPostHeaderActions
                   post={post}
