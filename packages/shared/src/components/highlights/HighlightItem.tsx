@@ -6,17 +6,23 @@ import { stripHtmlTags } from '../../lib/strings';
 import { PostType } from '../../graphql/posts';
 import { ArrowIcon } from '../icons/Arrow';
 import { IconSize } from '../Icon';
+import { ButtonSize } from '../buttons/Button';
 import Link from '../utilities/Link';
 import { RelativeTime } from '../utilities/RelativeTime';
+import { HighlightShareButton } from './HighlightShareButton';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 interface HighlightItemProps {
   highlight: PostHighlightFeed;
   defaultExpanded?: boolean;
+  /** Gated by `share_happening_now`; resolved once by `HighlightsPage`. */
+  showShare?: boolean;
 }
 
 export const HighlightItem = ({
   highlight,
   defaultExpanded = false,
+  showShare = false,
 }: HighlightItemProps): ReactElement => {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const ref = useRef<HTMLElement>(null);
@@ -52,6 +58,14 @@ export const HighlightItem = ({
     return '';
   }, [highlight.post]);
 
+  const readMore = (
+    <Link href={highlight.post.commentsPermalink}>
+      <a className="flex items-center gap-1 font-bold text-text-link typo-footnote hover:underline">
+        Read more
+      </a>
+    </Link>
+  );
+
   return (
     <article ref={ref}>
       <button
@@ -81,11 +95,22 @@ export const HighlightItem = ({
       {expanded && tldr && (
         <div className="flex flex-col gap-3 px-4 pb-3">
           <p className="text-text-secondary typo-markdown">{tldr}</p>
-          <Link href={highlight.post.commentsPermalink}>
-            <a className="flex items-center gap-1 font-bold text-text-link typo-footnote hover:underline">
-              Read more
-            </a>
-          </Link>
+          {showShare ? (
+            <div className="flex items-center gap-2">
+              {readMore}
+              <HighlightShareButton
+                link={highlight.post.commentsPermalink}
+                text={highlight.headline}
+                label="Share this highlight"
+                level="highlight"
+                targetId={highlight.id}
+                cid={ReferralCampaignKey.SharePost}
+                buttonSize={ButtonSize.XSmall}
+              />
+            </div>
+          ) : (
+            readMore
+          )}
         </div>
       )}
     </article>

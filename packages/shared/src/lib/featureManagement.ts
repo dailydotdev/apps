@@ -308,3 +308,12 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Adds share/copy affordances to the Happening Now surface at three levels: the
+// whole page (header), a channel's digest CTA, and an individual expanded
+// highlight. Also gated by the `sharing_visibility` master switch. Keep the
+// default `false` — GrowthBook ramps it.
+export const featureShareHappeningNow = new Feature(
+  'share_happening_now',
+  false,
+);

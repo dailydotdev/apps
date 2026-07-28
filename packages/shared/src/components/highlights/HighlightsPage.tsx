@@ -14,6 +14,13 @@ import {
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
+import { HighlightShareButton } from './HighlightShareButton';
+import { useSharingVisibility } from '../../hooks/useSharingVisibility';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureShareHappeningNow } from '../../lib/featureManagement';
+import { webappUrl } from '../../lib/constants';
+import { ButtonSize } from '../buttons/Button';
+import { ReferralCampaignKey } from '../../lib/referral';
 
 const MAJOR_HEADLINES_LABEL = 'Headlines';
 const ALL_HIGHLIGHTS_LABEL = 'All';
@@ -48,12 +55,14 @@ interface HighlightFeedListProps {
   highlights: PostHighlightFeed[];
   loading: boolean;
   expandedId?: string;
+  showShare?: boolean;
 }
 
 const HighlightFeedList = ({
   highlights,
   loading,
   expandedId,
+  showShare,
 }: HighlightFeedListProps): ReactElement => {
   if (loading) {
     return (
@@ -80,6 +89,7 @@ const HighlightFeedList = ({
           key={highlight.id}
           highlight={highlight}
           defaultExpanded={highlight.id === expandedId}
+          showShare={showShare}
         />
       ))}
     </div>
@@ -90,24 +100,29 @@ const MajorHeadlinesTab = ({
   highlights,
   loading,
   expandedId,
+  showShare,
 }: {
   highlights: PostHighlightFeed[];
   loading: boolean;
   expandedId?: string;
+  showShare?: boolean;
 }): ReactElement => (
   <HighlightFeedList
     highlights={highlights}
     loading={loading}
     expandedId={expandedId}
+    showShare={showShare}
   />
 );
 
 const ChannelTab = ({
   channel,
   expandedId,
+  showShare,
 }: {
   channel: ChannelConfiguration;
   expandedId?: string;
+  showShare?: boolean;
 }): ReactElement => {
   const { data, isFetching } = useChannelHighlights(channel.channel);
   const highlights = data?.postHighlights ?? [];
@@ -116,12 +131,19 @@ const ChannelTab = ({
   return (
     <>
       {channel.digest && (
-        <DigestCTA digest={channel.digest} displayName={channel.displayName} />
+        <DigestCTA
+          digest={channel.digest}
+          displayName={channel.displayName}
+          shareLink={
+            showShare ? `${webappUrl}highlights/${channel.channel}` : undefined
+          }
+        />
       )}
       <HighlightFeedList
         highlights={highlights}
         loading={loading}
         expandedId={expandedId}
+        showShare={showShare}
       />
     </>
   );
@@ -130,9 +152,11 @@ const ChannelTab = ({
 const AllHighlightsTab = ({
   active,
   expandedId,
+  showShare,
 }: {
   active: boolean;
   expandedId?: string;
+  showShare?: boolean;
 }): ReactElement => {
   const { data, isFetching } = useQuery({
     ...postHighlightsFeedQueryOptions(),
@@ -148,6 +172,7 @@ const AllHighlightsTab = ({
       highlights={highlights}
       loading={isFetching && !data}
       expandedId={expandedId}
+      showShare={showShare}
     />
   );
 };
@@ -171,12 +196,42 @@ export const HighlightsPage = (): ReactElement => {
     ? ALL_HIGHLIGHTS_LABEL
     : channelLabel ?? MAJOR_HEADLINES_LABEL;
 
+  // One flag evaluation for the whole surface: the per-topic and per-item
+  // controls receive the resolved boolean as a prop so nothing re-evaluates
+  // GrowthBook once per highlight row.
+  const { isEnabled: isSharingVisible } = useSharingVisibility();
+  const { value: isShareHappeningNowEnabled } = useConditionalFeature({
+    feature: featureShareHappeningNow,
+    shouldEvaluate: isSharingVisible,
+  });
+  const showShare = isSharingVisible && isShareHappeningNowEnabled;
+
+  const activePath = (() => {
+    if (isAllTab) {
+      return ALL_HIGHLIGHTS_URL;
+    }
+
+    return channel ? `${HIGHLIGHTS_BASE_URL}/${channel}` : HIGHLIGHTS_BASE_URL;
+  })();
+
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col pb-8 laptop:min-h-page laptop:border-x laptop:border-border-subtlest-tertiary">
       <header className="flex items-center px-3 py-4 laptop:px-4">
         <h1 className="feed-highlights-title-gradient font-bold typo-large-title">
           Happening Now
         </h1>
+        {showShare && (
+          <HighlightShareButton
+            link={`${webappUrl}${activePath.slice(1)}`}
+            text="See what's happening now in tech on daily.dev"
+            label="Share Happening Now"
+            level="page"
+            targetId={activeTab}
+            cid={ReferralCampaignKey.Generic}
+            buttonSize={ButtonSize.Small}
+            className="ml-auto shrink-0"
+          />
+        )}
       </header>
       <TabContainer
         controlledActive={activeTab}
@@ -200,10 +255,15 @@ export const HighlightsPage = (): ReactElement => {
               highlights={majorHeadlines}
               loading={majorLoading}
               expandedId={expandedId}
+              showShare={showShare}
             />
           </Tab>,
           <Tab key="all" label={ALL_HIGHLIGHTS_LABEL} url={ALL_HIGHLIGHTS_URL}>
-            <AllHighlightsTab active={isAllTab} expandedId={expandedId} />
+            <AllHighlightsTab
+              active={isAllTab}
+              expandedId={expandedId}
+              showShare={showShare}
+            />
           </Tab>,
           ...channels.map((ch) => (
             <Tab
@@ -211,7 +271,11 @@ export const HighlightsPage = (): ReactElement => {
               label={ch.displayName}
               url={`${HIGHLIGHTS_BASE_URL}/${ch.channel}`}
             >
-              <ChannelTab channel={ch} expandedId={expandedId} />
+              <ChannelTab
+                channel={ch}
+                expandedId={expandedId}
+                showShare={showShare}
+              />
             </Tab>
           )),
         ]}
