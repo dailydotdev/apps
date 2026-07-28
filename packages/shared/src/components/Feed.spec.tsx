@@ -1312,6 +1312,14 @@ describe('Feed logged in', () => {
       },
     }));
 
+    // Opening the post modal now logs a view for every post type (previously
+    // only some types tracked here); the `pmid` query param above opens the
+    // modal on mount, so this must be registered before render.
+    nock('http://localhost:3000')
+      .post('/graphql', (body: { query?: string }) =>
+        Boolean(body.query?.includes('mutation ViewPost(')),
+      )
+      .reply(200, { data: { viewPost: { _: true } } });
     renderComponent();
     await waitForNock();
     const [first] = await screen.findAllByLabelText('Comments');
@@ -1416,6 +1424,23 @@ describe('Feed logged in', () => {
     });
 
     const [firstPost, secondPost] = defaultFeedPage.edges;
+    // Opening the post modal now logs a view for every post type; the
+    // `pmid` query param above opens the modal on mount, and this test then
+    // navigates through three different post/id combinations, so mock
+    // persistently (registered before render) rather than one-off per post.
+    // Counts calls so the test can wait for the final navigation's view to
+    // actually fire before finishing — otherwise the request can resolve
+    // after this test ends and spuriously fail an unrelated later test.
+    let viewPostCallCount = 0;
+    nock('http://localhost:3000')
+      .persist()
+      .post('/graphql', (body: { query?: string }) =>
+        Boolean(body.query?.includes('mutation ViewPost(')),
+      )
+      .reply(200, () => {
+        viewPostCallCount += 1;
+        return { data: { viewPost: { _: true } } };
+      });
     renderComponent();
     await waitForNock();
 
@@ -1443,9 +1468,24 @@ describe('Feed logged in', () => {
     fireEvent.click(previous);
     const firstTitle = await screen.findByTestId('post-modal-title');
     expect(firstTitle).toHaveTextContent(getPostTitle(firstPost.node, 'first'));
+
+    await waitFor(() => expect(viewPostCallCount).toBe(3));
   });
 
   it('should report irrelevant tags', async () => {
+    // The two preceding tests set a `pmid` router query to drive their own
+    // post-modal navigation, and `jest.clearAllMocks()` in `beforeEach` does
+    // not reset a `mockImplementation`. Reset it here so this test doesn't
+    // inherit that `pmid` and inadvertently auto-open the post modal (which,
+    // now that opening a post logs a view for every type, would otherwise
+    // fire an unmocked `viewPost` mutation).
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          query: {},
+        } as unknown as NextRouter),
+    );
     let mutationCalled = false;
     renderComponent([
       createFeedMock({
@@ -1503,6 +1543,15 @@ describe('Feed logged in', () => {
   });
 
   it('should keep selected irrelevant tags when reason changes', async () => {
+    // See comment in the preceding test: reset the router mock so this test
+    // doesn't inherit a leftover `pmid` query and auto-open the post modal.
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          query: {},
+        } as unknown as NextRouter),
+    );
     renderComponent([
       createFeedMock({
         pageInfo: defaultFeedPage.pageInfo,

@@ -69,13 +69,6 @@ const PostCodeSnippets = dynamic(() =>
 
 export type FocusCardLeftVariant = 'lean' | 'rich';
 
-const viewTrackedPostTypes = [
-  PostType.Share,
-  PostType.Collection,
-  PostType.Freeform,
-  PostType.Welcome,
-];
-
 interface PostFocusCardProps {
   post: Post;
   origin: PostOrigin;
@@ -289,10 +282,7 @@ export const PostFocusCard = ({
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
 
-  useTrackPostView({
-    post,
-    shouldTrack: isVideoPost(post) || viewTrackedPostTypes.includes(post.type),
-  });
+  useTrackPostView({ post });
 
   useEffect(() => {
     if (!isVideoType || isVideoExpanded) {
