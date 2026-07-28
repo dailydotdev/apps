@@ -21,6 +21,8 @@ import { ReferralCampaignKey } from '../../../lib/referral';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { TOAST_NOTIF_KEY } from '../../../hooks/useToastNotification';
 import { shouldUseNativeShare } from '../../../lib/func';
+import { LogEvent, Origin } from '../../../lib/log';
+import { ShareProvider } from '../../../lib/share';
 
 jest.mock('../../../lib/func', () => {
   const actual = jest.requireActual('../../../lib/func');
@@ -32,6 +34,7 @@ jest.mock('../../../lib/func', () => {
 });
 
 const shouldUseNativeShareMock = shouldUseNativeShare as jest.Mock;
+const logEvent = jest.fn();
 const writeText = jest.fn().mockResolvedValue(undefined);
 const nativeShare = jest.fn().mockResolvedValue(undefined);
 const SHORT_LINK = 'https://dly.to/abc123';
@@ -75,7 +78,12 @@ const renderComponent = (
   });
 
   render(
-    <TestBootProvider client={client} auth={{ user: loggedUser }} gb={gb}>
+    <TestBootProvider
+      client={client}
+      auth={{ user: loggedUser }}
+      gb={gb}
+      log={{ logEvent }}
+    >
       <PostContentShare post={post} {...props} />
     </TestBootProvider>,
   );
@@ -161,6 +169,64 @@ describe('PostContentShare', () => {
   // feed cards used to record that interaction, so upvoting from the post page
   // itself left this empty and the prompt never appeared. Guard the empty case
   // so a regression shows up here rather than as "the strip doesn't work".
+  it('logs a share event with the same payload shape as every other surface', async () => {
+    renderComponent();
+
+    await screen.findByText('Enjoyed this post?');
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Copy link'));
+    });
+
+    await waitFor(() =>
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.SharePost,
+          extra: JSON.stringify({
+            provider: ShareProvider.CopyLink,
+            origin: Origin.PostContent,
+          }),
+        }),
+      ),
+    );
+
+    // Once, not twice: `useShareOrCopyLink` logs its own event when handed a
+    // `logObject`, and `ShareActions` deliberately does not pass one.
+    const shareEvents = logEvent.mock.calls.filter(
+      ([event]) => event.event_name === LogEvent.SharePost,
+    );
+    expect(shareEvents).toHaveLength(1);
+  });
+
+  it('logs the network the reader actually picked', async () => {
+    renderComponent(createClient(), { promptVariant: 'card' });
+
+    // `SocialShareList` runs the link through `getShortUrl` again on click,
+    // even though it is already the tracked short URL.
+    mockGraphQL({
+      request: { query: GET_SHORT_URL_QUERY, variables: { url: SHORT_LINK } },
+      result: { data: { getShortUrl: SHORT_LINK } },
+    });
+
+    await screen.findByText('Good call. Now pass it on.');
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('WhatsApp'));
+    });
+
+    await waitFor(() =>
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.SharePost,
+          extra: JSON.stringify({
+            provider: ShareProvider.WhatsApp,
+            origin: Origin.PostContent,
+          }),
+        }),
+      ),
+    );
+  });
+
   it('renders nothing until an upvote interaction is recorded', async () => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false } },
