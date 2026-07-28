@@ -279,6 +279,7 @@ export function AchievementsList({
               onTrack={canTrackAchievements ? handleTrack : undefined}
               onUntrack={canTrackAchievements ? handleUntrack : undefined}
               isUntrackPending={isUntrackPending}
+              shareUser={user}
             />
           ))}
         </div>

@@ -12,12 +12,22 @@ import {
 } from '../../../lib/image';
 import type { StreakModalProps } from './common';
 import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent, TargetType } from '../../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../../lib/log';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import StreakReminderSwitch from '../../streak/StreakReminderSwitch';
+import { ShareActions } from '../../share/ShareActions';
+import { ButtonVariant } from '../../buttons/Button';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
+import { useShareCelebrations } from '../../../hooks/useShareCelebrations';
+import { webappUrl } from '../../../lib/constants';
+import { ReferralCampaignKey } from '../../../lib/referral';
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
 
@@ -37,6 +47,7 @@ export default function NewStreakModal({
   const shouldShowSplash = currentStreak >= maxStreak;
   const daysPlural = currentStreak === 1 ? 'day' : 'days';
   const loggedImpression = useRef(false);
+  const isShareEnabled = useShareCelebrations();
 
   useEffect(() => {
     if (loggedImpression.current) {
@@ -120,9 +131,42 @@ export default function NewStreakModal({
             ? 'Epic win! You are in a league of your own'
             : `New milestone reached! You are unstoppable.`}
         </Paragraph>
+        {isShareEnabled && (
+          <div className="mt-6 flex items-center gap-2">
+            <Typography
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+            >
+              Share your streak
+            </Typography>
+            <ShareActions
+              link={webappUrl}
+              text={
+                shouldShowSplash
+                  ? `New personal record: ${currentStreak} ${daysPlural} of reading on daily.dev`
+                  : `${currentStreak} ${daysPlural} of reading on daily.dev and counting`
+              }
+              cid={ReferralCampaignKey.Generic}
+              label="Share streak"
+              emailTitle={`${currentStreak} ${daysPlural} reading streak`}
+              buttonVariant={ButtonVariant.Secondary}
+              onShare={(provider) =>
+                logEvent({
+                  event_name: LogEvent.ShareLog,
+                  target_type: TargetType.StreaksMilestone,
+                  target_id: currentStreak?.toString(),
+                  extra: JSON.stringify({
+                    origin: Origin.ReadingStreak,
+                    provider,
+                  }),
+                })
+              }
+            />
+          </div>
+        )}
         <Checkbox
           name="show_streaks"
-          className="mt-10"
+          className={isShareEnabled ? 'mt-6' : 'mt-10'}
           checked={isStreakModalDisabled}
           onToggleCallback={handleOptOut}
         >

@@ -308,3 +308,13 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Adds share/download affordances to celebration surfaces: per-achievement
+// share + badge download (achievement card, showcase picker, unlock modal), a
+// share row on the streak milestone modal, and a page-level share on the
+// profile achievements tab. Keep the default `false` — GrowthBook ramps it, and
+// control must render the surfaces exactly as they are today.
+export const featureShareCelebrations = new Feature(
+  'share_celebrations',
+  false,
+);
