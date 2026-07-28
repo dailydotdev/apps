@@ -308,3 +308,9 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Adds a "Share my streak" action to the reading-streak popup action row. A
+// streak is a status moment, so this ramps separately from the generic
+// copy-link surfaces to watch whether identity shares convert differently.
+// Keep the default `false` (control = the popup without a share action).
+export const featureShareStreak = new Feature('share_streak', false);

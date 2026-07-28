@@ -47,6 +47,11 @@ import { NotificationSvg } from '../../notifications/NotificationSvg';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
+import ConditionalWrapper from '../../ConditionalWrapper';
+import { ShareStreakButton } from './ShareStreakButton';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useSharingVisibility } from '../../../hooks/useSharingVisibility';
+import { featureShareStreak } from '../../../lib/featureManagement';
 
 const getStreak = ({
   value,
@@ -135,6 +140,19 @@ export function ReadingStreakPopup({
     true,
   );
   const { onTogglePermission, acceptedJustNow } = usePushNotificationMutation();
+
+  // Nothing to be proud of at zero, and a share needs a profile to point at.
+  const hasShareableStreak = streak?.current > 0 && !!user?.permalink;
+  const { isEnabled: isSharingVisible } =
+    useSharingVisibility(hasShareableStreak);
+  const { value: isShareStreakEnabled } = useConditionalFeature({
+    feature: featureShareStreak,
+    // Only evaluated once the master gate passes, so control users are never
+    // bucketed into the share_streak experiment.
+    shouldEvaluate: hasShareableStreak && isSharingVisible,
+  });
+  const canShareStreak =
+    hasShareableStreak && isSharingVisible && isShareStreakEnabled;
 
   const showAlert =
     isPushSupported &&
@@ -303,16 +321,36 @@ export function ReadingStreakPopup({
               </div>
             </Tooltip>
           </div>
-          <Link href={`${webappUrl}account/customization/streaks`} passHref>
-            <Button
-              tag="a"
-              variant={ButtonVariant.Float}
-              icon={<SettingsIcon />}
-              className={isMobile ? 'w-full' : 'ml-auto'}
-            >
-              {isMobile ? 'Settings' : null}
-            </Button>
-          </Link>
+          <ConditionalWrapper
+            condition={canShareStreak}
+            wrapper={(children) => (
+              // Share sits inside the existing action row so the popup keeps
+              // its height; on mobile both buttons split the row evenly.
+              <div className="flex w-full gap-2 tablet:ml-auto tablet:w-auto">
+                <ShareStreakButton
+                  currentStreak={streak.current}
+                  link={user!.permalink}
+                  showLabel={isMobile}
+                  className={isMobile ? 'w-full' : undefined}
+                />
+                {children}
+              </div>
+            )}
+          >
+            <Link href={`${webappUrl}account/customization/streaks`} passHref>
+              <Button
+                tag="a"
+                variant={ButtonVariant.Float}
+                icon={<SettingsIcon />}
+                className={classNames(
+                  isMobile && 'w-full',
+                  !isMobile && !canShareStreak && 'ml-auto',
+                )}
+              >
+                {isMobile ? 'Settings' : null}
+              </Button>
+            </Link>
+          </ConditionalWrapper>
         </div>
       </div>
       {showAlert && (
