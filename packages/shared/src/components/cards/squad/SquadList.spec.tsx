@@ -1,6 +1,7 @@
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import React from 'react';
 import nock from 'nock';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
@@ -21,6 +22,11 @@ import {
   CONTENT_PREFERENCE_STATUS_QUERY,
   ContentPreferenceType,
 } from '../../../graphql/contentPreference';
+import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import {
+  featureSharingVisibility,
+  featureShareSquadDirectory,
+} from '../../../lib/featureManagement';
 
 const squadsList = [generateTestSquad()];
 const members = generateMembersList();
@@ -144,5 +150,47 @@ it('should render the component with a join squad button', async () => {
   await waitForNock();
   await waitFor(async () => {
     await waitFor(() => expect(queryCalled).toBeTruthy());
+  });
+});
+
+describe('squad directory share', () => {
+  const renderWithSharing = (enabled: boolean): RenderResult => {
+    const gb = new GrowthBook();
+    gb.setFeatures({
+      [featureSharingVisibility.id]: { defaultValue: enabled },
+      [featureShareSquadDirectory.id]: { defaultValue: enabled },
+    });
+
+    return render(
+      <TestBootProvider
+        client={new QueryClient()}
+        auth={{ user: loggedUser, squads: squadsList }}
+        gb={gb}
+      >
+        <SquadList squad={admin.source} />
+      </TestBootProvider>,
+    );
+  };
+
+  const getTextColumn = (): HTMLElement =>
+    screen.getByText('Test').parentElement!;
+
+  it('flag off: keeps the original text column width and no share control', () => {
+    renderWithSharing(false);
+
+    expect(screen.queryByLabelText('Share Squad')).not.toBeInTheDocument();
+    // Exact original class list, byte for byte.
+    expect(getTextColumn().className).toBe(
+      'flex max-w-[calc(100%-10rem)] flex-1 flex-col',
+    );
+  });
+
+  it('flag on: adds the copy-link control and reserves room for it', () => {
+    renderWithSharing(true);
+
+    expect(screen.getByLabelText('Share Squad')).toBeInTheDocument();
+    expect(getTextColumn().className).toBe(
+      'flex max-w-[calc(100%-13.5rem)] flex-1 flex-col',
+    );
   });
 });

@@ -308,3 +308,12 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Copy-link/share control on the squad directory cards (featured grid,
+// unfeatured grid and the mobile list), rendered next to the Join Squad
+// button. Also gated by the `sharing_visibility` master flag. Keep the default
+// `false` — control is the directory as it ships today; GrowthBook ramps it.
+export const featureShareSquadDirectory = new Feature(
+  'share_squad_directory',
+  false,
+);

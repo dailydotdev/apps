@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import Link from '../../utilities/Link';
 import type { Squad } from '../../../graphql/sources';
 import {
@@ -17,6 +18,8 @@ import { ButtonVariant } from '../../buttons/common';
 import type { Ad } from '../../../graphql/posts';
 import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
 import { useScrambler } from '../../../hooks/useScrambler';
+import { useSquadDirectoryShareEnabled } from '../../../hooks/squads/useSquadDirectoryShareEnabled';
+import { SquadDirectoryShareButton } from './SquadDirectoryShareButton';
 
 interface SquadListProps extends ComponentProps<'div'> {
   squad: Squad;
@@ -34,6 +37,7 @@ export const SquadList = ({
 }: SquadListProps): ReactElement => {
   const { image, name, permalink } = squad;
   const campaignId = ad?.data?.source?.flags?.campaignId;
+  const canShare = useSquadDirectoryShareEnabled();
   const { ref, onClickAd } = useSquadsDirectoryLogging(ad);
   const promotedText = useScrambler('Promoted');
 
@@ -56,7 +60,15 @@ export const SquadList = ({
         alt={`${name} source`}
         type={ImageType.Squad}
       />
-      <div className="flex max-w-[calc(100%-10rem)] flex-1 flex-col">
+      <div
+        className={classNames(
+          'flex',
+          // The share icon (2.5rem + 1rem row gap) eats into the space the
+          // truncating text column may occupy.
+          canShare ? 'max-w-[calc(100%-13.5rem)]' : 'max-w-[calc(100%-10rem)]',
+          'flex-1 flex-col',
+        )}
+      >
         <Typography type={TypographyType.Callout} bold truncate>
           {name}
         </Typography>
@@ -87,6 +99,7 @@ export const SquadList = ({
         data-testid="squad-action"
         buttonVariants={[ButtonVariant.Secondary, ButtonVariant.Float]}
       />
+      {canShare && <SquadDirectoryShareButton className="z-0" squad={squad} />}
       {children}
     </div>
   );
