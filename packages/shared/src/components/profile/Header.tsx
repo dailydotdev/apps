@@ -45,6 +45,7 @@ import {
 import Link from '../utilities/Link';
 import type { MenuItemProps } from '../dropdown/common';
 import { ProfileMobileBackButton } from './ProfileBackButton';
+import { ProfileShareButton } from './ProfileShareButton';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -218,6 +219,20 @@ export function Header({
             variant={ButtonVariant.Float}
           />
         )}
+        {/* Only while pinned: unpinned, the profile card right below owns the
+            share control, and two identical copy buttons on one screen read as
+            a mistake. `ml-1` keeps this utility icon out of the Follow group. */}
+        {sticky && (
+          <ProfileShareButton
+            user={user}
+            isSameUser={isSameUser}
+            // Float, not the header card's Subtle: in this bar the control
+            // sits among Float icons (award, options) and a bordered button
+            // would read as a different kind of action.
+            buttonVariant={ButtonVariant.Float}
+            className="ml-1"
+          />
+        )}
         {!isSameUser && (
           <CustomFeedOptionsMenu
             onAdd={(feedId) =>
@@ -241,6 +256,8 @@ export function Header({
                 `/feeds/new?entityId=${user.id}&entityType=${ContentPreferenceType.User}`,
               )
             }
+            // Promoted out of the menu into the dedicated control above.
+            hideShare
             shareProps={{
               text: `Check out ${user.name}'s profile on daily.dev`,
               link: user.permalink,

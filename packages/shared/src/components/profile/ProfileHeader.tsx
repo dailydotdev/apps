@@ -1,6 +1,5 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
-import classNames from 'classnames';
 import { Image } from '../image/Image';
 import {
   Typography,
@@ -13,7 +12,7 @@ import type { UserStatsProps } from './UserStats';
 import { UserStats } from './UserStats';
 import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common/common';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -23,6 +22,7 @@ import { locationToString } from '../../lib/utils';
 import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
 import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
+import { ProfileShareButton } from './ProfileShareButton';
 
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
@@ -75,19 +75,27 @@ const ProfileHeader = ({
         className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
       />
       <div className="flex flex-col gap-3 px-6">
-        <Link passHref href={`${webappUrl}settings/profile`}>
-          <Button
-            className={classNames(
-              'mb-4 ml-auto mt-2 text-text-secondary',
-              !isSameUser && 'invisible',
-            )}
-            tag="a"
-            disabled={!isSameUser}
-            variant={ButtonVariant.Float}
-            icon={<EditIcon />}
-            aria-label="Edit profile"
-          />
-        </Link>
+        {/* Bottom-anchored to the avatar rather than spaced off the cover:
+            the cover is h-36 (9rem) and the avatar hangs down to 11.5rem, so
+            a 2.5rem row ending flush puts the controls on the avatar's bottom
+            edge at any button height. */}
+        <div className="mb-4 ml-auto flex h-10 items-end gap-2">
+          <ProfileShareButton user={user} isSameUser={isSameUser} />
+          {/* Public profiles used to render an invisible edit button purely to
+              hold this row's height; the share control fills it now. */}
+          {isSameUser && (
+            <Link passHref href={`${webappUrl}settings/profile`}>
+              <Button
+                tag="a"
+                // Matches the share control beside it.
+                variant={ButtonVariant.Subtle}
+                size={ButtonSize.Small}
+                icon={<EditIcon />}
+                aria-label="Edit profile"
+              />
+            </Link>
+          )}
+        </div>
         <div className="flex items-center gap-1">
           <Typography type={TypographyType.Title2} bold>
             {name}
