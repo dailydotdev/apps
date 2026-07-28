@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
-import { LinkIcon, ShareIcon } from './icons';
+import { CopyIcon, LinkIcon, ShareIcon } from './icons';
 import { useCopyPostLink } from '../hooks/useCopyPostLink';
+import { useShareCopyIcon } from '../hooks/useShareCopyIcon';
 import {
   Button,
   ButtonColor,
@@ -35,6 +36,7 @@ export function ShareMobile({
   const { openSharePost } = useSharePost(origin);
   const { logEvent } = useLogContext();
   const { logOpts } = useContext(ActiveFeedContext);
+  const showCopyIcon = useShareCopyIcon();
 
   const onShare = () => {
     logEvent(
@@ -51,7 +53,7 @@ export function ShareMobile({
         size={ButtonSize.Small}
         onClick={onCopyPostLink}
         pressed={copying}
-        icon={<LinkIcon />}
+        icon={showCopyIcon ? <CopyIcon secondary={copying} /> : <LinkIcon />}
         variant={ButtonVariant.Tertiary}
         color={ButtonColor.Avocado}
       >

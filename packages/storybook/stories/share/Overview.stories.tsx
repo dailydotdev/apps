@@ -2,7 +2,6 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
-import { ShareActions } from '@dailydotdev/shared/src/components/share/ShareActions';
 import { ProfileShareButton } from '@dailydotdev/shared/src/components/profile/ProfileShareButton';
 import ProfileHeader from '@dailydotdev/shared/src/components/profile/ProfileHeader';
 import { Header as ProfileMobileHeader } from '@dailydotdev/shared/src/components/profile/Header';
@@ -35,7 +34,8 @@ import {
  * Review page for the profile sharing work in PR #6354: every surface it
  * touches, every state, on one scrollable page. The behaviour ships
  * unconditionally — there is no flag to toggle, so what renders below is what
- * every user gets.
+ * every user gets. Scoped to this PR: the surfaces PR 1 (#6343) owns are not
+ * documented here.
  */
 
 const shareProps = {
@@ -99,7 +99,7 @@ const Review = (): ReactElement => (
             <>
               <LinkIcon key="a" /> LinkIcon
             </>,
-            'Unchanged — the same link glyph, now used by the profile control too',
+            'Untouched by this PR — they belong to PR 1 (#6343)',
           ],
         ]}
       />
@@ -118,7 +118,8 @@ const Review = (): ReactElement => (
         names exactly what landed on the clipboard. No network picker: choosing
         a destination is a second decision, and the link covers all of them. On
         mobile, where the platform offers a native share sheet, a tap still
-        opens that instead.
+        opens that instead. The control does not use PR 1's ShareActions popover
+        — see the open questions.
       </Muted>
       <Grid cols={2}>
         <Specimen
@@ -141,98 +142,26 @@ const Review = (): ReactElement => (
       </Grid>
     </Section>
 
-    <Section n="03" title="The primitive — ShareActions" badge="variant">
+    <Section n="03" title="Variant and size" badge="props">
       <Muted>
-        The shared primitive from PR 1 (#6343), still used by the other surfaces
-        in the initiative. <Code>icon</Code> renders a trigger that opens the
-        network popover on desktop and goes straight to the native share sheet
-        on mobile; <Code>inline</Code> drops the network row into the page. The
-        profile control above deliberately does <em>not</em> use it.
+        The control takes <Code>buttonVariant</Code> and <Code>buttonSize</Code>
+        so each surface matches the control group around it. These are the two
+        combinations in use.
       </Muted>
       <Grid cols={2}>
         <Specimen
-          label="variant: icon"
-          note="Click to open the popover. Tooltip is suppressed while it's open."
+          label="Subtle · Small — default"
+          note="Profile header: same variant and size as the Edit button beside it and the ⋯ menu below it."
         >
-          <ShareActions
-            link={profile.permalink}
-            text="Check out this post on daily.dev"
-            label="Copy link"
-            onShare={fn()}
-          />
-        </Specimen>
-        <Specimen
-          label="variant: icon · openOnHover"
-          note="Feed-card pattern — hover reveals the popover, 120ms close delay so the pointer can travel into it."
-        >
-          <ShareActions
-            link={profile.permalink}
-            text="Check out this post on daily.dev"
-            label="Copy link"
-            openOnHover
-            onShare={fn()}
-          />
-        </Specimen>
-      </Grid>
-      <Grid cols={1}>
-        <Specimen
-          label="variant: inline"
-          note="The same network list, rendered directly — for share strips and drawers. Copy flips to “Copied!” for a beat after a click."
-        >
-          <ShareActions
-            link={profile.permalink}
-            text="Check out this post on daily.dev"
-            variant="inline"
-            onShare={fn()}
-          />
-        </Specimen>
-      </Grid>
-
-      <Muted style={{ marginTop: 24 }}>
-        Button variant and size are props, so each surface matches its own
-        control group. These are the combinations actually used.
-      </Muted>
-      <Grid cols={4}>
-        <Specimen
-          label="Subtle · Small"
-          note="Profile header (default) — same variant and size as the Edit button beside it and the ⋯ menu below it"
-        >
-          <ShareActions
-            link={profile.permalink}
-            text="Share"
-            buttonVariant={ButtonVariant.Subtle}
-            buttonSize={ButtonSize.Small}
-            onShare={fn()}
-          />
+          <ProfileShareButton user={profile} />
         </Specimen>
         <Specimen
           label="Float · Small"
-          note="Pinned mobile bar — Float there, to match the award / options icons around it"
+          note="Pinned mobile bar: Float, to match the award / options icons around it."
         >
-          <ShareActions
-            link={profile.permalink}
-            text="Share"
+          <ProfileShareButton
+            user={profile}
             buttonVariant={ButtonVariant.Float}
-            buttonSize={ButtonSize.Small}
-            onShare={fn()}
-          />
-        </Specimen>
-        <Specimen label="Tertiary · Small" note="Primitive default">
-          <ShareActions
-            link={profile.permalink}
-            text="Share"
-            buttonVariant={ButtonVariant.Tertiary}
-            buttonSize={ButtonSize.Small}
-            onShare={fn()}
-          />
-        </Specimen>
-        <Specimen label="Primary · Small" note="Over media / imagery">
-          <ShareActions
-            link={profile.permalink}
-            text="Share"
-            buttonVariant={ButtonVariant.Primary}
-            buttonSize={ButtonSize.Small}
-            onShare={fn()}
           />
         </Specimen>
       </Grid>
@@ -456,7 +385,7 @@ const Review = (): ReactElement => (
           ],
           [
             '2b',
-            'Copy-only on desktop means no one-click path to X / LinkedIn from a profile. Acceptable, or should the network list come back as a secondary affordance?',
+            "Copy-only on desktop means no one-click path to X / LinkedIn from a profile. Acceptable, or should PR 1's ShareActions popover come back as a secondary affordance?",
             'Section 02',
           ],
           [
