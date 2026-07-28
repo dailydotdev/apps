@@ -95,6 +95,8 @@ import { useTrackQuestClientEvent } from '../hooks/useTrackQuestClientEvent';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { ExploreSectionTabs } from './header/ExploreSectionTabs';
 import { ExploreSortDropdown } from './header/ExploreSortDropdown';
+import { ExploreFeedShareButton } from './header/ExploreFeedShareButton';
+import { ButtonSize, ButtonVariant } from './buttons/Button';
 
 const FeedExploreHeader = dynamic(
   () =>
@@ -764,6 +766,16 @@ export default function MainFeedLayout({
       {showExploreV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
           <ExploreSectionTabs />
+          {/* The share affordance joins the sort controls' right-side cluster;
+              the header's own gap-2 spaces it, and it self-gates on the
+              share_discovery flag so flag-off DOM is unchanged. */}
+          {isAnyExplore && (
+            <ExploreFeedShareButton
+              sharePath={tabToUrl[urlToTab[router.pathname] ?? tab]}
+              buttonVariant={ButtonVariant.Float}
+              buttonSize={ButtonSize.Small}
+            />
+          )}
           {isAnyExplore && <ExploreSortDropdown />}
         </header>
       )}

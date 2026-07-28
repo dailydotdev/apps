@@ -10,10 +10,13 @@ import { Tab, TabContainer } from '../tabs/TabContainer';
 import { checkIsExtension } from '../../lib/func';
 import { getFeedName } from '../../lib/feed';
 import { Dropdown } from '../fields/Dropdown';
+import { ButtonSize, ButtonVariant } from '../buttons/Button';
+import { ExploreFeedShareButton } from './ExploreFeedShareButton';
 import { QueryStateKeys, useQueryState } from '../../hooks/utils/useQueryState';
 import { periodTexts } from '../layout/common';
 import { OtherFeedPage } from '../../lib/query';
 import { useFeedLayout } from '../../hooks';
+import { useShareDiscovery } from '../../hooks/useShareDiscovery';
 
 export enum ExploreTabs {
   Popular = 'Popular',
@@ -78,9 +81,13 @@ export function FeedExploreHeader({
     defaultValue: 0,
   });
   const { isListMode } = useFeedLayout();
+  const { isEnabled: canShareFeed } = useShareDiscovery();
   const shouldShowDropdown =
     withDateRange.includes(path as OtherFeedPage) ||
     withDateRange.includes(tab);
+  // Webapp derives the active sort from the URL; the extension drives it via
+  // the `tab` state instead, so fall back to that there.
+  const sharePath = tabToUrl[urlToTab[router.pathname] ?? tab];
 
   return (
     <div className={classNames('flex w-full flex-col', className.container)}>
@@ -125,7 +132,21 @@ export function FeedExploreHeader({
           </TabContainer>
         )}
         {showDropdown && (
-          <span className="ml-auto">
+          <span
+            className={classNames(
+              'ml-auto',
+              // Only becomes a flex cluster when the share affordance renders,
+              // so the flag-off DOM stays identical.
+              canShareFeed && 'flex flex-row items-center gap-2',
+            )}
+          >
+            {canShareFeed && (
+              <ExploreFeedShareButton
+                sharePath={sharePath}
+                buttonVariant={ButtonVariant.Float}
+                buttonSize={ButtonSize.Large}
+              />
+            )}
             {shouldShowDropdown && (
               <Dropdown
                 iconOnly

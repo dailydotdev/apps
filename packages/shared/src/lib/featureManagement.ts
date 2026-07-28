@@ -308,3 +308,9 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Sharing-visibility per-topic flag: copy-link/share on discovery surfaces —
+// the Explore feed headers and the best-of archive pages. Also gated by the
+// `sharing_visibility` master kill-switch. Keep the default `false` —
+// GrowthBook ramps it.
+export const featureShareDiscovery = new Feature('share_discovery', false);

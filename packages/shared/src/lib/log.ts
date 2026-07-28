@@ -108,6 +108,8 @@ export enum Origin {
   GameCenter = 'game center',
   DevCard = 'devcard',
   CopyMyFeed = 'copy my feed',
+  ExploreFeed = 'explore feed',
+  BestOfArchive = 'best of archive',
 }
 
 export enum LogEvent {
