@@ -30,7 +30,7 @@ export function PostSelectionArea({
 
   return (
     <>
-      <div className="contents" ref={contentRef}>
+      <div className="contents" data-selection-area ref={contentRef}>
         {children}
       </div>
       <SelectionShareBar containerRef={contentRef} post={post} />

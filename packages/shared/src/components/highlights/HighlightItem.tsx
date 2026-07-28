@@ -3,7 +3,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { PostHighlightFeed } from '../../graphql/highlights';
 import { stripHtmlTags } from '../../lib/strings';
+import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
+import { PostSelectionArea } from '../post/PostSelectionArea';
 import { ArrowIcon } from '../icons/Arrow';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
@@ -80,7 +82,15 @@ export const HighlightItem = ({
       </button>
       {expanded && tldr && (
         <div className="flex flex-col gap-3 px-4 pb-3">
-          <p className="text-text-secondary typo-markdown">{tldr}</p>
+          {/*
+            Only the expanded summary is quotable. The headline sits inside the
+            expand/collapse button, where a drag toggles the row instead of
+            selecting, so binding the bar to it would raise nothing.
+            The query fetches enough of the post for the bar and its logging.
+          */}
+          <PostSelectionArea post={highlight.post as unknown as Post}>
+            <p className="text-text-secondary typo-markdown">{tldr}</p>
+          </PostSelectionArea>
           <Link href={highlight.post.commentsPermalink}>
             <a className="flex items-center gap-1 font-bold text-text-link typo-footnote hover:underline">
               Read more
