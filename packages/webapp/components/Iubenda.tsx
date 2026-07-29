@@ -82,6 +82,10 @@ export const Iubenda = (): ReactElement | null => {
     injectedRef.current = true;
 
     win._iub = win._iub || {};
+    // Aligned with the marketing homepage's embed (same siteId/cookiePolicyId,
+    // countryDetection, LGPD/USPR) so both surfaces treat consent the same.
+    // Deliberate differences: enableTcf + ACM (the point of this integration)
+    // and no floating button (settings/privacy is the re-entry point).
     win._iub.csConfiguration = {
       siteId: Number(process.env.NEXT_PUBLIC_IUBENDA_SITE_ID),
       cookiePolicyId: Number(process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID),
@@ -91,8 +95,13 @@ export const Iubenda = (): ReactElement | null => {
       perPurposeConsent: true,
       askConsentAtCookiePolicyUpdate: true,
       invalidateConsentWithoutLog: true,
-      // consent cookie shared across *.daily.dev, matching the existing
-      // `_iub_cs-*` bridge from the marketing homepage
+      countryDetection: true,
+      enableLgpd: true,
+      enableUspr: true,
+      cookiePolicyInOtherWindow: true,
+      // consent cookie shared across *.daily.dev so the homepage recognizes
+      // webapp consent; the homepage embed should add this too for the
+      // reverse direction (its cookie is host-only today)
       localConsentDomain: process.env.NEXT_PUBLIC_DOMAIN,
       floatingPreferencesButtonDisplay: false,
       banner: {
