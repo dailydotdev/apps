@@ -28,6 +28,7 @@ import { useFeature } from '../../GrowthBookProvider';
 import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
+import { useAdLabel } from '../../../features/monetization/useAdLabel';
 
 const getLinkProps = ({
   ad,
@@ -53,6 +54,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
+  const { showAdvertiseLink } = useAdLabel();
   const { ref } = useAutoRotatingAds(
     ad,
     index,
@@ -104,11 +106,13 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
             {ad.callToAction}
           </Button>
         )}
-        <AdvertiseLink
-          targetId={TargetId.AdCard}
-          buttonStyle
-          size={ButtonSize.Small}
-        />
+        {showAdvertiseLink && (
+          <AdvertiseLink
+            targetId={TargetId.AdCard}
+            buttonStyle
+            size={ButtonSize.Small}
+          />
+        )}
         <div className="ml-auto">
           {!isPlus && (
             <RemoveAd
