@@ -416,6 +416,41 @@
   );
 }
 
+/* Intro social buttons (Share / Weekly reminder) — equal-size horizontal
+ * pressable chips (icon beside label) with a solid slab underneath so they read
+ * as physical buttons; press down on :active. Fixed width so both match
+ * regardless of label length. */
+.socialButton {
+  display: flex;
+  height: 3rem;
+  width: 11rem;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  color: #fff;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.12s ease, background 0.15s ease, box-shadow 0.12s ease,
+    border-color 0.15s ease;
+}
+.socialButton:hover {
+  background: rgba(255, 255, 255, 0.26);
+  border-color: rgba(255, 255, 255, 0.65);
+}
+.socialButton:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
 /* "Back to main" — a full-width, quiet outlined button under the results. */
 .backButton {
   width: 100%;

@@ -34,9 +34,6 @@ interface WeeklyQuizIntroProps {
   alreadyPlayed?: boolean;
 }
 
-const socialButtonClass =
-  'flex h-20 min-w-[5rem] flex-col items-center justify-center gap-1 whitespace-nowrap rounded-16 bg-white/15 px-4 typo-caption1 font-bold text-white transition-colors hover:bg-white/25';
-
 // "Jul 20–26, 2026" from the quiz's inclusive ISO date range. Parsed from parts
 // (not new Date(iso)) so the label doesn't shift a day across timezones.
 const formatWeekRange = (start: string, end: string): string => {
@@ -213,21 +210,21 @@ export const WeeklyQuizIntro = ({
         <div className="flex items-center justify-center gap-3">
           <button
             type="button"
-            className={socialButtonClass}
+            className={classNames(styles.socialButton, 'typo-caption1')}
             onClick={() => setIsShareOpen(true)}
             title="Share"
           >
-            <ShareIcon size={IconSize.Medium} />
+            <ShareIcon size={IconSize.Small} />
             Share
           </button>
           <button
             type="button"
             aria-pressed={reminderSet}
-            className={socialButtonClass}
+            className={classNames(styles.socialButton, 'typo-caption1')}
             onClick={() => setReminderSet(true)}
             title="Weekly reminder"
           >
-            <BellIcon size={IconSize.Medium} />
+            <BellIcon size={IconSize.Small} />
             {reminderSet ? "You're all set" : 'Weekly reminder'}
           </button>
         </div>

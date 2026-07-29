@@ -290,7 +290,7 @@ export const WeeklyQuizScoreboard = ({
                     'flex flex-col gap-1 overflow-y-auto',
                     styles.scrollArea,
                     fillHeight
-                      ? 'max-h-72 tablet:max-h-none tablet:min-h-0 tablet:flex-1'
+                      ? 'max-h-72 tablet:max-h-[60vh] tablet:min-h-0 tablet:flex-1'
                       : 'max-h-72',
                   )}
                 >
