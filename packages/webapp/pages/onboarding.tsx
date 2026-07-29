@@ -19,10 +19,7 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import {
-  FooterLinks,
-  withFeaturesBoundary,
-} from '@dailydotdev/shared/src/components';
+import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -243,6 +240,9 @@ const useOnboardingAuth = () => {
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
       simplified: true,
+      // The account-details and verify-email screens stay clean: no footer nav
+      // strip, no terms strip. The cookie box is the only thing left docked.
+      hideSignupDisclaimer: true,
       className: {
         container: classNames(
           'w-full rounded-none tablet:max-w-[30rem]',
@@ -402,7 +402,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
         <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>
-        <FooterLinks className="mx-auto pb-6" />
       </div>
     );
   }
@@ -420,6 +419,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
         }
         onComplete={onComplete}
         stepComponentOverrides={stepComponentOverrides}
+        isOnboarding
       />
       {/* <HotJarTracking hotjarId="3871311" /> */}
     </div>

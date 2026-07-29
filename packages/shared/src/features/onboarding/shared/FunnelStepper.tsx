@@ -35,11 +35,13 @@ import {
   FunnelHeroLanding,
   FunnelBrowserExtension,
   FunnelUploadCv,
+  FunnelVerifyEmail,
 } from '../steps';
 import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
 import FunnelLoading from '../steps/FunnelLoading';
 import { FunnelStepBackground } from './FunnelStepBackground';
+import { FunnelProgressContext } from './FunnelStepDots';
 import { useStepTransition } from '../hooks/useStepTransition';
 import { FunnelRegistration } from '../steps/FunnelRegistration';
 import type { FunnelSession } from '../types/funnelBoot';
@@ -59,6 +61,9 @@ export interface FunnelStepperProps {
   showCookieBanner?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- step types have heterogeneous props and are selected by step.type at runtime
   stepComponentOverrides?: Partial<Record<FunnelStepType, ComponentType<any>>>;
+  // Set by `/onboarding`. Steps shared with the paid funnel use it to opt into
+  // the onboarding treatment; `/helloworld` leaves it off and is unchanged.
+  isOnboarding?: boolean;
 }
 
 const stepComponentMap = {
@@ -81,6 +86,7 @@ const stepComponentMap = {
   [FunnelStepType.PlusCards]: FunnelPlusCards,
   [FunnelStepType.BrowserExtension]: FunnelBrowserExtension,
   [FunnelStepType.UploadCv]: FunnelUploadCv,
+  [FunnelStepType.VerifyEmail]: FunnelVerifyEmail,
 } as const;
 
 function FunnelStepComponent(props: {
@@ -110,6 +116,7 @@ export const FunnelStepper = ({
   showCookieBanner,
   onComplete,
   stepComponentOverrides,
+  isOnboarding,
 }: FunnelStepperProps): ReactElement | null => {
   const steps = useMemo(
     () => funnel?.chapters?.flatMap((chapter) => chapter?.steps),
@@ -142,6 +149,13 @@ export const FunnelStepper = ({
   });
 
   const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
+  // Feeds the dots above the docked CTA; the stepper is the only place that
+  // knows how far through the funnel the user is.
+  const funnelProgress = useMemo(
+    () => ({ chapters, position, isOnboarding }),
+    [chapters, position, isOnboarding],
+  );
+
   const currentNavigationRef = useRef({ step, position });
   currentNavigationRef.current = { step, position };
 
@@ -218,9 +232,13 @@ export const FunnelStepper = ({
     const hasBanner = !!funnel?.parameters?.banner?.stepsToDisplay?.includes(
       step.id,
     );
+    // Onboarding carries its own chrome in the step's CTA wrapper — logo left,
+    // skip right, on every step. Rendering this header too would put a second
+    // logo and a second skip on the three steps that ask for it.
     const hasHeader =
-      step.parameters.shouldShowHeader ||
-      stepsWithHeader.some((type) => type === step.type);
+      !isOnboarding &&
+      (step.parameters.shouldShowHeader ||
+        stepsWithHeader.some((type) => type === step.type));
     const hasCookieConsent = isCookieBannerActive && showBanner;
     const isFullWidth = stepsFullWidth.includes(step.type);
 
@@ -232,6 +250,7 @@ export const FunnelStepper = ({
     };
   }, [
     isCookieBannerActive,
+    isOnboarding,
     showBanner,
     step.id,
     step.type,
@@ -264,62 +283,64 @@ export const FunnelStepper = ({
       {layout.hasCookieConsent && (
         <CookieConsent key="cookie-consent" {...cookieConsentProps} />
       )}
-      <FunnelStepBackground step={step}>
-        <div
-          className={classNames(
-            'mx-auto flex w-full flex-1 flex-col',
-            !layout.isFullWidth && 'tablet:max-w-md laptopXL:max-w-lg',
-          )}
-        >
-          {layout.hasBanner && funnel.parameters.banner && (
-            <FunnelBannerMessage {...funnel.parameters.banner} />
-          )}
-          <Header
-            chapters={chapters}
-            className={classNames({
-              hidden: !layout.hasHeader,
-            })}
-            currentChapter={position.chapter}
-            currentStep={position.step}
-            onBack={back.navigate}
-            onSkip={() => {
-              onTransition({ type: FunnelStepTransitionType.Skip });
-            }}
-            isSkipDisabled={isTransitioning}
-            showBackButton={back.hasTarget && !hasOnlySkipButton}
-            showSkipButton={shouldShowHeaderSkip}
-            showProgressBar={!hasOnlySkipButton}
-          />
-          <FunnelPaymentPricingContext.Provider value={{ pricing }}>
-            <PaymentContextProvider
-              disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
-              successCallback={successCallback}
-            >
-              {steps?.map((funnelStep: FunnelStep) => {
-                const isActive = funnelStep?.id === step?.id;
-                return (
-                  <div
-                    key={funnelStep.id}
-                    {...(!isActive && {
-                      'data-testid': `funnel-step`,
-                    })}
-                    className={classNames('flex flex-1 flex-col', {
-                      hidden: !isActive,
-                    })}
-                  >
-                    <FunnelStepComponent
-                      {...funnelStep}
-                      isActive={isActive}
-                      onTransition={onTransition}
-                      onRegisterStepToSkip={onRegisterStepToSkip}
-                      stepComponentOverrides={stepComponentOverrides}
-                    />
-                  </div>
-                );
+      <FunnelStepBackground step={step} isOnboarding={isOnboarding}>
+        <FunnelProgressContext.Provider value={funnelProgress}>
+          <div
+            className={classNames(
+              'mx-auto flex w-full flex-1 flex-col',
+              !layout.isFullWidth && 'tablet:max-w-md laptopXL:max-w-lg',
+            )}
+          >
+            {layout.hasBanner && funnel.parameters.banner && (
+              <FunnelBannerMessage {...funnel.parameters.banner} />
+            )}
+            <Header
+              chapters={chapters}
+              className={classNames({
+                hidden: !layout.hasHeader,
               })}
-            </PaymentContextProvider>
-          </FunnelPaymentPricingContext.Provider>
-        </div>
+              currentChapter={position.chapter}
+              currentStep={position.step}
+              onBack={back.navigate}
+              onSkip={() => {
+                onTransition({ type: FunnelStepTransitionType.Skip });
+              }}
+              isSkipDisabled={isTransitioning}
+              showBackButton={back.hasTarget && !hasOnlySkipButton}
+              showSkipButton={shouldShowHeaderSkip}
+              showProgressBar={!hasOnlySkipButton}
+            />
+            <FunnelPaymentPricingContext.Provider value={{ pricing }}>
+              <PaymentContextProvider
+                disabledEvents={[CheckoutEventNames.CHECKOUT_LOADED]}
+                successCallback={successCallback}
+              >
+                {steps?.map((funnelStep: FunnelStep) => {
+                  const isActive = funnelStep?.id === step?.id;
+                  return (
+                    <div
+                      key={funnelStep.id}
+                      {...(!isActive && {
+                        'data-testid': `funnel-step`,
+                      })}
+                      className={classNames('flex flex-1 flex-col', {
+                        hidden: !isActive,
+                      })}
+                    >
+                      <FunnelStepComponent
+                        {...funnelStep}
+                        isActive={isActive}
+                        onTransition={onTransition}
+                        onRegisterStepToSkip={onRegisterStepToSkip}
+                        stepComponentOverrides={stepComponentOverrides}
+                      />
+                    </div>
+                  );
+                })}
+              </PaymentContextProvider>
+            </FunnelPaymentPricingContext.Provider>
+          </div>
+        </FunnelProgressContext.Provider>
       </FunnelStepBackground>
     </section>
   );

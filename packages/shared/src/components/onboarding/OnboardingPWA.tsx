@@ -1,13 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { OnboardingTitle } from './common';
+import { OnboardingHeadline, OnboardingSubheadline } from './common';
 import {
   cloudinaryPWA,
   cloudinaryMobilePWAChrome,
   cloudinaryPWAVideo,
   cloudinaryPWAVideoChrome,
 } from '../../lib/image';
-import { Typography } from '../typography/Typography';
 import { checkIsChromeOnly } from '../../lib/func';
 
 interface OnboardingPWAProps {
@@ -32,14 +31,14 @@ export const OnboardingPWA = ({
         disablePictureInPicture
         controls={false}
       />
-      <div className="z-1 flex flex-col gap-4">
-        <OnboardingTitle className="!px-0">
+      <div className="z-1 flex flex-col gap-6">
+        <OnboardingHeadline>
           {headline || 'Add daily.dev to Home Screen'}
-        </OnboardingTitle>
-        <Typography className="text-center text-text-tertiary typo-body">
+        </OnboardingHeadline>
+        <OnboardingSubheadline>
           Tap “Add to Home Screen” below to get daily.dev at your fingertips,
           anytime you need it.
-        </Typography>
+        </OnboardingSubheadline>
       </div>
     </>
   );

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect } from 'react';
+import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FunnelStepBrowserExtension } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
@@ -17,23 +18,27 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { Button } from '../../../components/buttons/Button';
 import { downloadBrowserExtension } from '../../../lib/constants';
 import { ChromeIcon, EdgeIcon } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { anchorDefaultRel } from '../../../lib/strings';
-import { ButtonVariant } from '../../../components/buttons/common';
 import { FunnelTargetId } from '../types/funnelEvents';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { sanitizeMessage } from '../lib/utils';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { PlusTrustReviews } from '../../../components/plus/PlusTrustReviews';
+import {
+  OnboardingHeadline,
+  OnboardingSubheadline,
+} from '../../../components/onboarding/common';
+import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 
 const BROWSER_EXTENSION_DEFAULTS = {
   headline: 'Transform every new tab into a learning powerhouse',
   explainer:
     'Unlock the power of every new tab with daily.dev extension. Personalized feed, developer communities, AI search and more!',
-  cta: 'Get it for {browser}',
+  cta: 'Add to {browser}',
   skip: 'Dare to skip? <strong>You might miss out</strong>.',
   showReviews: false,
 };
@@ -69,48 +74,55 @@ const BrowserExtension = ({
   }, [applyThemeMode]);
 
   return (
-    <div className="mt-10 flex flex-1 flex-col laptop:justify-center">
-      <div className="mb-10 flex flex-col items-center gap-6 justify-self-start text-center">
-        <Typography
-          tag={TypographyTag.H1}
-          type={TypographyType.LargeTitle}
-          color={TypographyColor.Primary}
-          bold
-          className="!px-0"
+    <FunnelStepCtaWrapper
+      isGlass
+      cta={{ label: ctaText }}
+      data-funnel-track={FunnelTargetId.DownloadExtension}
+      href={downloadBrowserExtension}
+      icon={
+        // The browser mark is a credential next to the label, not a feature of
+        // it — one step down from the button's default icon size.
+        isEdge ? (
+          <EdgeIcon aria-hidden size={IconSize.Small} />
+        ) : (
+          <ChromeIcon aria-hidden size={IconSize.Small} />
+        )
+      }
+      onClick={() => {
+        logEvent({
+          event_name: LogEvent.DownloadExtension,
+          target_id: isEdge ? TargetType.Edge : TargetType.Chrome,
+        });
+        onTransition?.({
+          type: FunnelStepTransitionType.Complete,
+          details: { browserName },
+        });
+      }}
+      rel={anchorDefaultRel}
+      skip={{
+        cta: 'Skip',
+        onClick: () => onTransition?.({ type: FunnelStepTransitionType.Skip }),
+      }}
+      tag="a"
+      target="_blank"
+      containerClassName="flex flex-col"
+    >
+      <div
+        className={classNames(
+          funnelStepRail,
+          'mb-6 flex flex-col items-center gap-6 py-6 pt-3 text-center',
+        )}
+      >
+        <OnboardingHeadline
           dangerouslySetInnerHTML={{
             __html: sanitizeMessage(headline),
           }}
         />
-        <Typography
-          className="w-2/3 text-balance text-text-tertiary typo-body"
-          color={TypographyColor.Secondary}
-          tag={TypographyTag.H2}
-          type={TypographyType.Title3}
+        <OnboardingSubheadline
           dangerouslySetInnerHTML={{
             __html: sanitizeMessage(explainer),
           }}
         />
-        <Button
-          href={downloadBrowserExtension}
-          icon={isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />}
-          data-funnel-track={FunnelTargetId.DownloadExtension}
-          onClick={() => {
-            logEvent({
-              event_name: LogEvent.DownloadExtension,
-              target_id: isEdge ? TargetType.Edge : TargetType.Chrome,
-            });
-            onTransition?.({
-              type: FunnelStepTransitionType.Complete,
-              details: { browserName },
-            });
-          }}
-          rel={anchorDefaultRel}
-          tag="a"
-          target="_blank"
-          variant={ButtonVariant.Primary}
-        >
-          <span>{ctaText}</span>
-        </Button>
         {showReviews && (
           <div className="flex flex-col items-center gap-1">
             <PlusTrustReviews center />
@@ -123,16 +135,19 @@ const BrowserExtension = ({
             </Typography>
           </div>
         )}
+        {/* An aside under the subtitle, so a step quieter than it. */}
         <Typography
-          color={TypographyColor.Secondary}
+          color={TypographyColor.Tertiary}
           tag={TypographyTag.P}
-          type={TypographyType.Body}
+          type={TypographyType.Callout}
           dangerouslySetInnerHTML={{
             __html: sanitizeMessage(skip),
           }}
         />
       </div>
-      <figure className="pointer-events-none mx-auto mb-10 w-full max-w-[48rem] px-4 laptop:px-6">
+      {/* Capped at 640px: at 48rem the footage dominated the step and pushed
+          the copy off the fold. */}
+      <figure className="pointer-events-none mx-auto mb-10 w-full max-w-[40rem] px-4 laptop:px-6">
         <video
           aria-label="daily.dev feed running in a new tab on a laptop"
           autoPlay
@@ -145,7 +160,7 @@ const BrowserExtension = ({
           src={video}
         />
       </figure>
-    </div>
+    </FunnelStepCtaWrapper>
   );
 };
 

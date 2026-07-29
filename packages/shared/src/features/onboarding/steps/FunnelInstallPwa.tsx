@@ -1,9 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { FunnelStepInstallPwa } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { OnboardingPWA } from '../../../components/onboarding';
-import { FunnelStepCtaWrapper } from '../shared';
+import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { isIOS, isPWA } from '../../../lib/func';
@@ -15,10 +16,16 @@ function FunnelInstallPwaComponent({
 }: FunnelStepInstallPwa): ReactElement | null {
   return (
     <FunnelStepCtaWrapper
-      cta={{ label: cta || 'Next' }}
+      isGlass
+      cta={{ label: cta || 'Continue' }}
       onClick={() => onTransition({ type: FunnelStepTransitionType.Complete })}
     >
-      <div className="flex flex-col items-center gap-6 p-6 pt-4 mobileL:pt-10 tablet:max-w-96">
+      <div
+        className={classNames(
+          funnelStepRail,
+          'flex flex-col items-center gap-6 py-6 pt-3',
+        )}
+      >
         <OnboardingPWA headline={headline} />
       </div>
     </FunnelStepCtaWrapper>

@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { FeedPreviewControls } from '../feeds';
-import { REQUIRED_TAGS_THRESHOLD } from './common';
+import { OnboardingHeadline, REQUIRED_TAGS_THRESHOLD } from './common';
 import { Origin } from '../../lib/log';
 import Feed from '../Feed';
 import { OtherFeedPage, RequestKey } from '../../lib/query';
@@ -27,6 +27,9 @@ interface EditTagProps {
   requiredTags?: number;
   hidePreview?: boolean;
   featuredTags?: string[];
+  // The post-signup funnel's treatment: floating search field, tighter tag
+  // grid and a tag-shaped preview toggle. `/helloworld` keeps the original.
+  isOnboarding?: boolean;
 }
 export const EditTag = ({
   feedSettings,
@@ -35,6 +38,7 @@ export const EditTag = ({
   requiredTags = REQUIRED_TAGS_THRESHOLD,
   hidePreview,
   featuredTags,
+  isOnboarding,
 }: EditTagProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
@@ -83,9 +87,7 @@ export const EditTag = ({
 
   return (
     <>
-      <h2 className="text-center font-bold typo-large-title">
-        {resolvedHeadline}
-      </h2>
+      <OnboardingHeadline>{resolvedHeadline}</OnboardingHeadline>
       {showPersonas && (
         <>
           <p className="mt-3 max-w-2xl text-center text-text-tertiary typo-callout">
@@ -96,13 +98,26 @@ export const EditTag = ({
       )}
       <div ref={tagsRef} className="flex w-full flex-col items-center">
         <TagSelection
-          className={classNames('max-w-4xl', showPersonas ? 'mt-6' : 'mt-10')}
+          // Spacing under the headline comes from the step's own gap, so the
+          // tag grid only adds its own offset in the persona layout.
+          className={classNames('max-w-4xl', showPersonas && 'mt-6')}
+          // `!` because TagSelection's own gap-4 sits later in the stylesheet.
+          // Scoped here so the post panels and feed settings keep theirs.
+          classNameTags={isOnboarding ? '!gap-2' : undefined}
           featuredTags={featuredTags}
           searchElement={
             <SearchField
               aria-label="Pick tags that are relevant to you"
               autoFocus={!isMobile}
-              className="mb-10 w-full tablet:max-w-xs"
+              // The tag grid below is deliberately wider than the rail, but the
+              // search field is a single control and belongs on it — capped at
+              // the same 440px measure as the headline and the CTA rather than
+              // the 20rem it used to shrink to from tablet up.
+              className="mb-10 w-full max-w-[27.5rem]"
+              // On the funnel's gradient canvas the field's opaque fill read as
+              // a dark box cut into the background; the float surface makes it
+              // sit on the gradient like the tag pills below it do.
+              isFloating={isOnboarding}
               inputId="search-filters"
               placeholder="Search javascript, php, git, etc…"
               valueChanged={onSearch}
@@ -114,6 +129,7 @@ export const EditTag = ({
       </div>
       {!hidePreview && (
         <FeedPreviewControls
+          isTagStyle={isOnboarding}
           isOpen={isPreviewVisible}
           isDisabled={!isPreviewEnabled}
           textDisabled={`${tagsCount}/${requiredTags} to show feed preview`}

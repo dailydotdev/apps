@@ -36,6 +36,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   className?: ClassName;
   onboardingSignupButton?: ButtonProps<'button'>;
   hideLoginLink?: boolean;
+  hideSignupDisclaimer?: boolean;
   compact?: boolean;
   splitSignupStyle?: boolean;
   preferGithub?: boolean;
@@ -114,6 +115,7 @@ export const OnboardingRegistrationForm = ({
   trigger,
   onboardingSignupButton,
   hideLoginLink,
+  hideSignupDisclaimer,
   compact,
   splitSignupStyle = false,
   preferGithub,
@@ -222,7 +224,7 @@ export const OnboardingRegistrationForm = ({
       </Button>
     </div>
   );
-  const disclaimer = (
+  const disclaimer = hideSignupDisclaimer ? null : (
     <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
   );
 

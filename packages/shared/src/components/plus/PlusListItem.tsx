@@ -57,9 +57,14 @@ export const PlusListItem = ({
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
+      // No width override: these read as sentences, so they use the design
+      // system's own tooltip measure. The override here was dead anyway —
+      // Tailwind's important prefix goes after the variant (`tablet:!max-w`,
+      // not `!tablet:max-w`), and `!max-w-full` un-capped the tooltip entirely,
+      // which is why it stretched across the viewport.
       wrapper={(component: ReactNode) => (
         <Tooltip
-          className="!tablet:max-w-72 !max-w-full text-center"
+          className="items-start text-left"
           content={item.tooltip}
           delayDuration={0}
           enableMobileClick

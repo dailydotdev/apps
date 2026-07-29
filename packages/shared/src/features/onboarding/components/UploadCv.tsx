@@ -17,6 +17,10 @@ import {
   TypographyType,
   TypographyColor,
 } from '../../../components/typography/Typography';
+import {
+  OnboardingHeadline,
+  OnboardingSubheadline,
+} from '../../../components/onboarding/common';
 import { Image } from '../../../components/image/Image';
 import { anchorDefaultRel } from '../../../lib/strings';
 
@@ -48,24 +52,12 @@ export const UploadCv = ({
   status,
 }: UploadCvProps): ReactElement => {
   return (
-    <div className="flex w-full max-w-[48.75rem] flex-col items-center gap-6 p-6">
-      <Typography
-        tag={TypographyTag.H2}
-        type={TypographyType.LargeTitle}
-        bold
-        center
-      >
-        {headline}
-      </Typography>
+    <div className="flex w-full flex-col items-center gap-6">
+      {/* Only the title pair follows the funnel's shared type scale — the rest
+          of the step is production's markup unchanged. */}
+      <OnboardingHeadline>{headline}</OnboardingHeadline>
+      <OnboardingSubheadline>{description}</OnboardingSubheadline>
 
-      <Typography
-        type={TypographyType.Title3}
-        color={TypographyColor.Secondary}
-        center
-        className="laptop:px-14"
-      >
-        {description}
-      </Typography>
       <DragDrop
         state={status}
         isCompactList
@@ -78,7 +70,7 @@ export const UploadCv = ({
         ctaLabelMobile={ctaMobile}
       />
 
-      <div className="hidden w-full items-start gap-6 p-6 laptop:flex">
+      <div className="hidden w-full items-start gap-6 laptop:flex">
         <div className="flex flex-1 flex-col gap-2">
           <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
             {linkedin.headline}
@@ -118,7 +110,7 @@ export const UploadCv = ({
         <Image
           src={linkedin.image}
           alt={linkedin.headline}
-          className="shadow-sm aspect-[343/182] w-full max-w-[21.4375rem] flex-shrink-0 self-start rounded-10 object-cover"
+          className="aspect-[343/182] w-full max-w-[21.4375rem] flex-shrink-0 self-start rounded-10 object-cover"
         />
       </div>
     </div>

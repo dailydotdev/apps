@@ -5,15 +5,17 @@ import type { FunnelStepEditTags } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { EditTag } from '../../../components/onboarding';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { FunnelStepCtaWrapper } from '../shared';
+import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 
 function FunnelEditTagsComponent({
   parameters: { headline, cta, minimumRequirement, featuredTags },
   onTransition,
 }: FunnelStepEditTags): ReactElement | null {
   const { feedSettings } = useFeedSettings();
+  const isOnboarding = useIsOnboardingFunnel();
   const { user, trackingId } = useAuthContext();
   const handleComplete = () => {
     onTransition({
@@ -32,18 +34,25 @@ function FunnelEditTagsComponent({
 
   return (
     <FunnelStepCtaWrapper
-      cta={{ label: cta || `Next` }}
-      aria-hidden={isDisabled}
+      isGlass
+      cta={{ label: cta || `Continue` }}
+      // Disabled, not hidden: the bar stays put below the tag minimum, the same
+      // as the verify-email step's CTA before a full code is entered. Fading it
+      // out left the step with no visible target and no hint that one was
+      // coming.
+      disabled={isDisabled}
       onClick={handleComplete}
-      className={classNames({
-        'opacity-0': isDisabled,
-        'pointer-events-none': isDisabled,
-      })}
-      containerClassName="flex w-full flex-1 flex-col items-center laptop:justify-center overflow-hidden"
+      containerClassName="flex w-full flex-1 flex-col items-center overflow-hidden"
     >
-      <div className="flex w-full flex-col items-center gap-6 p-6 pt-10 tablet:max-w-md laptop:max-w-screen-laptop">
+      <div
+        className={classNames(
+          funnelStepRail,
+          'flex flex-col items-center gap-6 py-6 pt-3 laptop:max-w-screen-laptop',
+        )}
+      >
         <EditTag
           headline={headline}
+          isOnboarding={isOnboarding}
           userId={user?.id ?? trackingId}
           feedSettings={feedSettings}
           featuredTags={featuredTags}

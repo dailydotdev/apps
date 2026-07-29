@@ -18,6 +18,9 @@ export enum FunnelStepType {
   Fact = 'fact',
   Quiz = 'quiz',
   Signup = 'registration',
+  // The funnel's own copy of the auth verification screen — see
+  // FunnelVerifyEmail. The auth flow keeps its original.
+  VerifyEmail = 'verifyEmail',
   Pricing = 'pricing',
   Checkout = 'checkout',
   PaymentSuccessful = 'paymentSuccessful',
@@ -410,6 +413,16 @@ export interface FunnelStepUploadCv
   onTransition: FunnelStepTransitionCallback;
 }
 
+export interface FunnelStepVerifyEmail
+  extends FunnelStepCommon<{
+    headline?: string;
+    explainer?: string;
+    email?: string;
+  }> {
+  type: FunnelStepType.VerifyEmail;
+  onTransition: FunnelStepTransitionCallback<{ code: string }>;
+}
+
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -431,7 +444,8 @@ export type FunnelStep =
   | FunnelStepHeroLanding
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
-  | FunnelStepUploadCv;
+  | FunnelStepUploadCv
+  | FunnelStepVerifyEmail;
 
 export type FunnelPosition = {
   chapter: number;
@@ -474,6 +488,9 @@ export const stepsWithOnlySkipHeader: Array<(typeof stepsWithHeader)[number]> =
 export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.OrganicSignup,
   FunnelStepType.HeroLanding,
+  // The onboarding steps size themselves from `funnelStepRail`; the stepper's
+  // own narrower column would clamp the rail below the width it caps at.
+  FunnelStepType.ProfileForm,
   FunnelStepType.EditTags,
   FunnelStepType.ContentTypes,
   FunnelStepType.PlusCards,

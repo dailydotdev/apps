@@ -143,4 +143,6 @@ export interface AuthOptionsProps {
    * registration form (e.g. when the onboarding funnel already shows that copy
    * on the signup wall). */
   hideRegistrationHeadline?: boolean;
+  /** Hide the "By continuing, you agree to…" strip under the signup options. */
+  hideSignupDisclaimer?: boolean;
 }

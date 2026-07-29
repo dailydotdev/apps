@@ -142,6 +142,7 @@ function AuthOptionsInner({
   ignoreMessages = false,
   onboardingSignupButton,
   hideLoginLink,
+  hideSignupDisclaimer,
   compact,
   splitSignupStyle,
   preferGithub,
@@ -856,6 +857,7 @@ function AuthOptionsInner({
             className={className}
             onboardingSignupButton={onboardingSignupButton}
             hideLoginLink={hideLoginLink}
+            hideSignupDisclaimer={hideSignupDisclaimer}
             compact={compact}
             splitSignupStyle={splitSignupStyle}
             preferGithub={preferGithub}
