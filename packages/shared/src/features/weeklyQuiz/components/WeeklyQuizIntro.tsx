@@ -189,7 +189,6 @@ export const WeeklyQuizIntro = ({
           period={period}
           onPeriodChange={setPeriod}
           audio={audio}
-          showViewerRank={alreadyPlayed}
           fillHeight
         />
       </div>

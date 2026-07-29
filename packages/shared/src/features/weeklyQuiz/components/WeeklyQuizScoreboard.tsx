@@ -32,9 +32,6 @@ interface WeeklyQuizScoreboardProps {
   period: WeeklyQuizPeriod;
   onPeriodChange: (period: WeeklyQuizPeriod) => void;
   audio?: UseWeeklyQuizAudio;
-  // Whether to pin the viewer's own out-of-list rank. Off before the player has
-  // participated (no standing yet — e.g. the intro with Start still active).
-  showViewerRank?: boolean;
   // Fill the parent's height and scroll internally (intro's stretched panel).
   fillHeight?: boolean;
 }
@@ -152,7 +149,6 @@ export const WeeklyQuizScoreboard = ({
   period,
   onPeriodChange,
   audio,
-  showViewerRank = true,
   fillHeight = false,
 }: WeeklyQuizScoreboardProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
@@ -302,8 +298,9 @@ export const WeeklyQuizScoreboard = ({
                 </ul>
               )}
               {/* Pinned "your rank" row, shown only when the player sits outside
-                  the visible top list. White border sets it apart. */}
-              {!isPending && showViewerRank && viewerEntry && (
+                  the visible top list. White border sets it apart. Null for
+                  anon and for anyone without a standing in this period. */}
+              {!isPending && viewerEntry && (
                 <div className="border-white/60 bg-white/10 flex items-center gap-3 rounded-12 border px-2 py-1.5">
                   <RowContent entry={viewerEntry} isFastest={false} />
                 </div>
