@@ -28,19 +28,21 @@
   font-family: 'Play', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   border: 5px solid #fff;
   border-radius: 28px;
+  /* daily.dev purple: the surface leads with onion→cabbage (the brand's
+   * indigo→magenta) so the quiz reads as part of the app, not a standalone
+   * arcade. A faint bacon toe at the very bottom keeps it from going flat. */
   background:
     radial-gradient(
       130% 80% at 50% -12%,
-      color-mix(in srgb, var(--theme-accent-onion-default) 78%, #000 8%),
-      transparent 58%
+      color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, var(--theme-accent-onion-default) 45%),
+      transparent 60%
     ),
     linear-gradient(
       165deg,
-      color-mix(in srgb, var(--theme-accent-onion-default) 90%, #000 8%) 0%,
-      var(--theme-accent-cabbage-default) 26%,
-      var(--theme-accent-bacon-default) 50%,
-      var(--theme-accent-bun-default) 80%,
-      color-mix(in srgb, var(--theme-accent-bun-default) 72%, var(--theme-accent-ketchup-default) 28%) 100%
+      color-mix(in srgb, var(--theme-accent-onion-default) 92%, #000 8%) 0%,
+      var(--theme-accent-onion-default) 32%,
+      var(--theme-accent-cabbage-default) 66%,
+      color-mix(in srgb, var(--theme-accent-cabbage-default) 68%, var(--theme-accent-bacon-default) 32%) 100%
     );
 }
 
@@ -117,8 +119,7 @@
   background: linear-gradient(
     160deg,
     color-mix(in srgb, var(--theme-accent-onion-default) 92%, #000 8%) 0%,
-    var(--theme-accent-cabbage-default) 55%,
-    var(--theme-accent-bacon-default) 100%
+    var(--theme-accent-cabbage-default) 100%
   );
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
   transition: filter 0.15s ease, transform 0.15s ease;
@@ -520,9 +521,8 @@
   background: linear-gradient(
     120deg,
     var(--theme-accent-onion-default) 0%,
-    var(--theme-accent-cabbage-default) 45%,
-    var(--theme-accent-bacon-default) 78%,
-    var(--theme-accent-bun-default) 100%
+    var(--theme-accent-cabbage-default) 60%,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 70%, var(--theme-accent-bacon-default) 30%) 100%
   );
   box-shadow: 0 8px 28px color-mix(in srgb, var(--theme-accent-cabbage-default) 40%, transparent);
 }
