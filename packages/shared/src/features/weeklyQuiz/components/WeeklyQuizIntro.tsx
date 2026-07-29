@@ -21,8 +21,8 @@ import styles from '../WeeklyQuiz.module.css';
 
 const LOGO_URL = '/logos/weekly-quiz-logo.png';
 
-// How many source chips the intro shows before collapsing the rest into "+N".
-const SHOWN_SOURCES = 4;
+// How many source logos the intro shows before collapsing the rest into "+N".
+const SHOWN_SOURCES = 6;
 
 interface WeeklyQuizIntroProps {
   quiz: WeeklyQuiz | undefined;
@@ -116,10 +116,10 @@ export const WeeklyQuizIntro = ({
                 alt="The Weekly Tech News Quiz"
                 className="pointer-events-none w-56 max-w-none select-none"
               />
-              {/* Glow sits over the logo's lightbulb (upper-right). */}
+              {/* Glow sits over the logo's lightbulb (right side, mid-height). */}
               <span
                 className={classNames(
-                  'absolute right-[7%] top-[8%] h-14 w-14',
+                  'absolute right-[13%] top-[31%] h-12 w-12',
                   styles.bulbGlow,
                 )}
                 aria-hidden
@@ -145,24 +145,19 @@ export const WeeklyQuizIntro = ({
               distilled into {questionCount} questions.
             </Typography>
             {quiz.topSources.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center gap-1.5">
+              <div className="flex flex-wrap items-center justify-center gap-2">
                 {quiz.topSources.slice(0, SHOWN_SOURCES).map((source) => (
-                  <span
+                  <img
                     key={source.id}
-                    className="bg-white/15 flex items-center gap-1 rounded-full py-0.5 pl-0.5 pr-2 font-bold text-white typo-caption1"
-                  >
-                    <img
-                      src={source.image}
-                      alt=""
-                      aria-hidden
-                      className="h-5 w-5 rounded-full object-cover"
-                    />
-                    {source.name}
-                  </span>
+                    src={source.image}
+                    alt={source.name}
+                    title={source.name}
+                    className="h-8 w-8 rounded-full object-cover ring-2 ring-white/40"
+                  />
                 ))}
                 {quiz.sourceCount > SHOWN_SOURCES && (
-                  <span className="bg-white/10 text-white/90 rounded-full px-2 py-1 font-bold typo-caption1">
-                    +{quiz.sourceCount - SHOWN_SOURCES} more
+                  <span className="bg-white/15 flex h-8 items-center rounded-full px-2.5 font-bold text-white typo-caption1">
+                    +{quiz.sourceCount - SHOWN_SOURCES}
                   </span>
                 )}
               </div>

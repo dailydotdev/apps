@@ -151,26 +151,28 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-/* Chunky arcade "candy" button — glossy green top, a solid darker base slab
- * underneath (3D press), thick rim, and a white bubbly label. Presses down on
- * :active. Green derives from the avocado accent so it stays theme-aware. */
+/* Chunky arcade "candy" button — a diagonal purple->orange face (cabbage into
+ * bun), a solid dark-purple base slab underneath (3D press), thick rim, and a
+ * white bubbly label. Presses down on :active. Colors derive from the accent
+ * tokens so it stays theme-aware and matches the purple surface. */
 .arcadeBtn {
   position: relative;
   isolation: isolate;
   color: #fff;
   border-radius: 9999px;
-  border: 3px solid color-mix(in srgb, var(--theme-accent-avocado-default) 52%, #000 48%);
+  border: 3px solid color-mix(in srgb, var(--theme-accent-onion-default) 55%, #000 45%);
   background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--theme-accent-avocado-default) 65%, #fff 35%) 0%,
-    var(--theme-accent-avocado-default) 52%,
-    color-mix(in srgb, var(--theme-accent-avocado-default) 78%, #000 22%) 100%
+    145deg,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 82%, #fff 18%) 0%,
+    var(--theme-accent-cabbage-default) 32%,
+    var(--theme-accent-bacon-default) 62%,
+    var(--theme-accent-bun-default) 100%
   );
   box-shadow:
-    0 9px 0 color-mix(in srgb, var(--theme-accent-avocado-default) 45%, #000 55%),
+    0 9px 0 color-mix(in srgb, var(--theme-accent-onion-default) 55%, #000 45%),
     0 16px 24px rgba(0, 0, 0, 0.32),
-    inset 0 3px 6px rgba(255, 255, 255, 0.6),
-    inset 0 -7px 10px rgba(0, 0, 0, 0.18);
+    inset 0 3px 6px rgba(255, 255, 255, 0.55),
+    inset 0 -7px 10px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.15s ease;
 }
 /* Glossy sheen across the top half. */
@@ -193,7 +195,7 @@
 .arcadeBtn:active:not(:disabled) {
   transform: translateY(7px);
   box-shadow:
-    0 2px 0 color-mix(in srgb, var(--theme-accent-avocado-default) 45%, #000 55%),
+    0 2px 0 color-mix(in srgb, var(--theme-accent-onion-default) 55%, #000 45%),
     0 6px 12px rgba(0, 0, 0, 0.28),
     inset 0 3px 6px rgba(255, 255, 255, 0.5);
 }
