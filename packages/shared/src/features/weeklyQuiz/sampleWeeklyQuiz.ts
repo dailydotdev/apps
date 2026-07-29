@@ -1,8 +1,4 @@
-import { fallbackImages } from '../../lib/config';
 import type { WeeklyQuiz } from './types';
-
-// Placeholder source logo for the sample. Real logos come from the backend.
-const SOURCE_IMG = fallbackImages.avatar;
 
 // Sample seed content: a full week's quiz used as the local mock while the
 // backend is built (stub the WEEKLY_QUIZ_QUERY resolver with this) and as
@@ -18,15 +14,51 @@ export const sampleWeeklyQuiz: WeeklyQuiz = {
     "This week was packed with rogue models, record API bills, and a few very expensive bugs. Let's test your attention to detail.",
   storyCount: 50,
   sourceCount: 12,
+  // Real daily.dev source logos (from the production media CDN) so the intro
+  // preview looks like the live app; the backend supplies these per week.
   topSources: [
-    { id: 'hn', name: 'Hacker News', image: SOURCE_IMG },
-    { id: 'techcrunch', name: 'TechCrunch', image: SOURCE_IMG },
-    { id: 'theverge', name: 'The Verge', image: SOURCE_IMG },
-    { id: 'arstechnica', name: 'Ars Technica', image: SOURCE_IMG },
-    { id: 'github', name: 'GitHub Blog', image: SOURCE_IMG },
-    { id: 'theregister', name: 'The Register', image: SOURCE_IMG },
-    { id: 'simonwillison', name: 'Simon Willison', image: SOURCE_IMG },
-    { id: 'anthropic', name: 'Anthropic', image: SOURCE_IMG },
+    {
+      id: 'theverge',
+      name: 'The Verge',
+      image:
+        'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/eacb57b3570d4f04b1f0dc8f834d8135',
+    },
+    {
+      id: 'arstechnica',
+      name: 'Ars Technica',
+      image:
+        'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/80883e0e48a34b5ebcf93777016cb3fe',
+    },
+    {
+      id: 'theregister',
+      name: 'The Register',
+      image:
+        'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/66aa2113fdad463992ffcbf0e8963fda',
+    },
+    {
+      id: 'venturebeat',
+      name: 'Venture Beat',
+      image:
+        'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/a55b09fe104a44d6b5f4c88ed0fd1315',
+    },
+    {
+      id: 'infoq',
+      name: 'InfoQ',
+      image:
+        'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/afc3bced3e1e4b188dd9127017a60e0c',
+    },
+    {
+      id: 'hackernoon',
+      name: 'Hacker Noon',
+      image:
+        'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/hackernoon',
+    },
+    {
+      id: 'simonwillison',
+      name: 'Simon Willison',
+      image:
+        'https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/cf12b897300740218b35f49a6309ec5b',
+    },
   ],
   questions: [
     {

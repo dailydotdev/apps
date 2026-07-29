@@ -22,7 +22,8 @@ import styles from '../WeeklyQuiz.module.css';
 const LOGO_URL = '/logos/weekly-quiz-logo.png';
 
 // How many source logos the intro shows before collapsing the rest into "+N".
-const SHOWN_SOURCES = 6;
+// Kept low so the "+N" pill sits inline on the same row as the logos.
+const SHOWN_SOURCES = 5;
 
 interface WeeklyQuizIntroProps {
   quiz: WeeklyQuiz | undefined;
