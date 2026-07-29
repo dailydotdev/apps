@@ -135,7 +135,7 @@ const ScoreboardRow = ({
   return (
     <li
       className={classNames(
-        'flex items-center gap-3 rounded-12 px-2 py-1.5',
+        'flex items-center gap-3 rounded-12 px-2 py-2.5',
         entry.isCurrentUser ? 'bg-white/25' : 'bg-white/5',
       )}
     >

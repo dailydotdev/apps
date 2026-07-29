@@ -10,7 +10,7 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { sampleWeeklyQuiz } from '@dailydotdev/shared/src/features/weeklyQuiz/sampleWeeklyQuiz';
-import { demoLeaderboard } from '@dailydotdev/shared/src/features/weeklyQuiz/demoMode';
+import { getDemoLeaderboard } from '@dailydotdev/shared/src/features/weeklyQuiz/demoMode';
 import type { WeeklyQuizStatus } from '@dailydotdev/shared/src/features/weeklyQuiz/types';
 import { WeeklyQuizPeriod } from '@dailydotdev/shared/src/features/weeklyQuiz/types';
 
@@ -64,12 +64,17 @@ export const mockStatus = (
 // so the tabs visibly switch the whole board. The signed-in mock user is NOT in
 // this list — their standing comes through weeklyQuizViewerEntry so the pinned
 // "your rank" row is exercised. Superstar chip on rank 1.
-const mockLeaderboard = (seed: number, withSuperstar: boolean): LeaderboardNode[] => {
-  const rotated = [
-    ...demoLeaderboard.slice(seed),
-    ...demoLeaderboard.slice(0, seed),
-  ];
-  return rotated.map((entry, index): LeaderboardNode => {
+const mockLeaderboard = (
+  period: WeeklyQuizPeriod,
+  seed: number,
+  withSuperstar: boolean,
+): LeaderboardNode[] => {
+  // Aggregated per period (Monthly/All-time sum totals, keep fastest time).
+  const base = getDemoLeaderboard(period);
+  const rotatedUsers = [...base.slice(seed), ...base.slice(0, seed)];
+  return rotatedUsers.map((entry, index): LeaderboardNode => {
+    // Scores/time descend by position; only the user identity rotates per tab.
+    const ranked = base[index];
     const rank = index + 1;
     return {
       user: {
@@ -79,9 +84,9 @@ const mockLeaderboard = (seed: number, withSuperstar: boolean): LeaderboardNode[
         image: entry.image,
         reputation: entry.reputation ?? 0,
       },
-      correctCount: Math.max(1, 10 - Math.floor(index / 2)),
-      totalQuestions: 10,
-      timeMs: 34000 + index * 2500 - seed * 400,
+      correctCount: ranked.correctCount,
+      totalQuestions: ranked.totalQuestions,
+      timeMs: ranked.timeMs,
       rank,
       isAllTimeSuperstar: withSuperstar && rank === 1,
     };
@@ -129,14 +134,23 @@ const WeeklyQuizProviders = ({
       { period: WeeklyQuizPeriod.Monthly, seed: 7, superstar: true, rank: 18 },
       { period: WeeklyQuizPeriod.AllTime, seed: 13, superstar: true, rank: 63 },
     ].forEach(({ period, seed, superstar, rank }) => {
+      const board = mockLeaderboard(period, seed, superstar);
+      // Scale the viewer's own totals to the period (matches the aggregated
+      // board); time is a single fastest run.
+      const quizzes = board[0].totalQuestions / 10;
       client.setQueryData(
         generateQueryKey(RequestKey.WeeklyQuizLeaderboard, user, period),
         {
           weeklyQuizLeaderboard: {
-            edges: mockLeaderboard(seed, superstar).map((node) => ({ node })),
+            edges: board.map((node) => ({ node })),
           },
           weeklyQuizViewerEntry: loggedIn
-            ? { correctCount: 6, totalQuestions: 10, timeMs: 62000, rank }
+            ? {
+                correctCount: 6 * quizzes,
+                totalQuestions: 10 * quizzes,
+                timeMs: 62000,
+                rank,
+              }
             : null,
         },
       );

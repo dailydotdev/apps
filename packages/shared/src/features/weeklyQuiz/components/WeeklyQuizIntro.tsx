@@ -222,10 +222,10 @@ export const WeeklyQuizIntro = ({
             aria-pressed={reminderSet}
             className={classNames(styles.socialButton, 'typo-caption1')}
             onClick={() => setReminderSet(true)}
-            title="Weekly reminder"
+            title="Set weekly reminder"
           >
             <BellIcon size={IconSize.Small} />
-            {reminderSet ? "You're all set" : 'Weekly reminder'}
+            {reminderSet ? "You're all set" : 'Set weekly reminder'}
           </button>
         </div>
       </div>
