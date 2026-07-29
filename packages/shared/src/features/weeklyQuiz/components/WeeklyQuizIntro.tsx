@@ -129,43 +129,6 @@ export const WeeklyQuizIntro = ({
           </span>
         </h1>
 
-        {/* Which week + how much news it distils — makes it clear the quiz
-            recaps the week that just ended, not an older one. */}
-        {quiz && (
-          <div className="flex flex-col items-center gap-2 text-center">
-            <span className="bg-white/20 inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-white typo-footnote">
-              <CalendarIcon size={IconSize.XSmall} />
-              {formatWeekRange(quiz.startDate, quiz.endDate)}
-            </span>
-            <Typography
-              type={TypographyType.Callout}
-              bold
-              className="!text-white"
-            >
-              {quiz.storyCount} stories from {quiz.sourceCount} sources,
-              distilled into {questionCount} questions.
-            </Typography>
-            {quiz.topSources.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {quiz.topSources.slice(0, SHOWN_SOURCES).map((source) => (
-                  <img
-                    key={source.id}
-                    src={source.image}
-                    alt={source.name}
-                    title={source.name}
-                    className="h-8 w-8 rounded-full object-cover ring-2 ring-white/40"
-                  />
-                ))}
-                {quiz.sourceCount > SHOWN_SOURCES && (
-                  <span className="bg-white/15 flex h-8 items-center rounded-full px-2.5 font-bold text-white typo-caption1">
-                    +{quiz.sourceCount - SHOWN_SOURCES}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
         {alreadyPlayed ? (
           <div className="flex w-full flex-col items-center gap-2">
             <button
@@ -206,6 +169,43 @@ export const WeeklyQuizIntro = ({
             )}
             <span className={styles.arcadeBtnLabel}>Start</span>
           </button>
+        )}
+
+        {/* Which week + how much news it distils — makes it clear the quiz
+            recaps the week that just ended, not an older one. */}
+        {quiz && (
+          <div className="flex flex-col items-center gap-2 text-center">
+            <span className="bg-white/20 inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-white typo-footnote">
+              <CalendarIcon size={IconSize.XSmall} />
+              {formatWeekRange(quiz.startDate, quiz.endDate)}
+            </span>
+            <Typography
+              type={TypographyType.Callout}
+              bold
+              className="!text-white"
+            >
+              {quiz.storyCount} stories from {quiz.sourceCount} sources,
+              distilled into {questionCount} questions.
+            </Typography>
+            {quiz.topSources.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {quiz.topSources.slice(0, SHOWN_SOURCES).map((source) => (
+                  <img
+                    key={source.id}
+                    src={source.image}
+                    alt={source.name}
+                    title={source.name}
+                    className="h-8 w-8 rounded-full object-cover ring-2 ring-white/40"
+                  />
+                ))}
+                {quiz.sourceCount > SHOWN_SOURCES && (
+                  <span className="bg-white/15 flex h-8 items-center rounded-full px-2.5 font-bold text-white typo-caption1">
+                    +{quiz.sourceCount - SHOWN_SOURCES}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         )}
 
         {/* Share + weekly reminder, always available. (Challenge-a-friend is
