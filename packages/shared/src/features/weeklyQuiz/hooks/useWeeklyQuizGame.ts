@@ -37,6 +37,9 @@ export interface UseWeeklyQuizGame {
   start: () => void;
   answer: (optionId: string) => void;
   next: () => void;
+  // Return from the results screen to the intro ("main"), keeping the finished
+  // result in memory. The intro's Start stays locked (the run is spent).
+  backToIntro: () => void;
 }
 
 // The quiz state machine + a standalone stopwatch. The timer is a continuous
@@ -144,6 +147,10 @@ export const useWeeklyQuizGame = (
     setSelectedOptionId(null);
   }, [answers, correctCount, currentIndex, readElapsed, totalQuestions]);
 
+  const backToIntro = useCallback(() => {
+    setPhase(WeeklyQuizPhase.Intro);
+  }, []);
+
   return {
     phase,
     question,
@@ -159,5 +166,6 @@ export const useWeeklyQuizGame = (
     start,
     answer,
     next,
+    backToIntro,
   };
 };

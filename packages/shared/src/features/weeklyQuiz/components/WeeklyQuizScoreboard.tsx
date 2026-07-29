@@ -34,6 +34,9 @@ interface WeeklyQuizScoreboardProps {
   audio?: UseWeeklyQuizAudio;
   // Fill the parent's height and scroll internally (intro's stretched panel).
   fillHeight?: boolean;
+  // Cap how many ranked rows render (e.g. a short top-5 on the results screen).
+  // The pinned viewer row still shows below when they sit outside the cap.
+  limit?: number;
 }
 
 const periodTabs = [
@@ -150,12 +153,15 @@ export const WeeklyQuizScoreboard = ({
   onPeriodChange,
   audio,
   fillHeight = false,
+  limit,
 }: WeeklyQuizScoreboardProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { leaderboard, viewerEntry, isPending } =
     useWeeklyQuizLeaderboard(period);
   // Demo mode shows the mock board even to anonymous preview testers.
   const showBoard = !!user || isWeeklyQuizDemo();
+  // Optionally cap the rendered rows (short board on the results screen).
+  const visibleLeaderboard = limit ? leaderboard.slice(0, limit) : leaderboard;
 
   // Whoever finished in the least total time earns the "Fastest" badge —
   // independent of rank, since rank leads with correct answers.
@@ -288,7 +294,7 @@ export const WeeklyQuizScoreboard = ({
                       : 'max-h-72',
                   )}
                 >
-                  {leaderboard.map((entry) => (
+                  {visibleLeaderboard.map((entry) => (
                     <ScoreboardRow
                       key={entry.id}
                       entry={entry}

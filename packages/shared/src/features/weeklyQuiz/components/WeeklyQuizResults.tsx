@@ -15,6 +15,10 @@ import {
 } from '../../../components/buttons/Button';
 import { BellIcon, ShareIcon, UserShareIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import {
+  ProfilePicture,
+  ProfileImageSize,
+} from '../../../components/ProfilePicture';
 import { WeeklyQuizScoreboard } from './WeeklyQuizScoreboard';
 import { WeeklyQuizSharePopover } from './WeeklyQuizSharePopover';
 import { formatElapsed } from './WeeklyQuizTimer';
@@ -31,6 +35,8 @@ interface WeeklyQuizResultsProps {
   quizId: string;
   result: WeeklyQuizGameResult;
   audio?: UseWeeklyQuizAudio;
+  // Return to the intro ("main"), which shows the full leaderboard.
+  onBackToMain: () => void;
 }
 
 const buildMessage = (correct: number, total: number): string => {
@@ -54,6 +60,7 @@ export const WeeklyQuizResults = ({
   quizId,
   result,
   audio,
+  onBackToMain,
 }: WeeklyQuizResultsProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { submit } = useSubmitWeeklyQuiz();
@@ -109,6 +116,36 @@ export const WeeklyQuizResults = ({
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex flex-col items-center gap-4 text-center">
+        {/* Achievement first: the player's own placement is the hero, with their
+            avatar and a medal-style rank badge. Only when we know their rank. */}
+        {rank && user && (
+          <div className="flex flex-col items-center gap-3">
+            <div className="relative animate-reward-pop motion-reduce:animate-none">
+              <ProfilePicture
+                user={user}
+                size={ProfileImageSize.XXXLarge}
+                rounded="full"
+                className="ring-white/70 ring-4"
+              />
+              <span
+                className={classNames(
+                  'absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-0.5 font-bold typo-callout',
+                  styles.fastestBadge,
+                )}
+              >
+                #{rank}
+              </span>
+            </div>
+            <Typography
+              type={TypographyType.LargeTitle}
+              bold
+              tag={TypographyTag.H1}
+              className="!text-white"
+            >
+              You placed #{rank}!
+            </Typography>
+          </div>
+        )}
         {/* Score and time carry equal weight — two matching stat circles. */}
         <div className="flex items-center justify-center gap-4">
           <div
@@ -155,10 +192,10 @@ export const WeeklyQuizResults = ({
           </div>
         </div>
         <Typography
-          type={TypographyType.Title2}
+          type={rank && user ? TypographyType.Title3 : TypographyType.Title2}
           bold
-          tag={TypographyTag.H1}
-          className="!text-white"
+          tag={rank && user ? TypographyTag.P : TypographyTag.H1}
+          className={rank && user ? '!text-white/90' : '!text-white'}
         >
           {buildMessage(result.correctCount, result.totalQuestions)}
         </Typography>
@@ -228,11 +265,22 @@ export const WeeklyQuizResults = ({
         </div>
       )}
 
+      {/* A short board here — the player's own placement is the focus above;
+          the full leaderboard lives on the main screen. */}
       <WeeklyQuizScoreboard
         period={period}
         onPeriodChange={setPeriod}
         audio={audio}
+        limit={5}
       />
+
+      <button
+        type="button"
+        className={styles.backButton}
+        onClick={onBackToMain}
+      >
+        Back to main
+      </button>
     </div>
   );
 };

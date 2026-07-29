@@ -95,6 +95,7 @@ const PreviewGame = ({
             quizId={quizId}
             result={game.result}
             audio={audio}
+            onBackToMain={game.backToIntro}
           />
         )}
       </div>
