@@ -207,7 +207,7 @@ export const WeeklyQuizIntro = ({
 
         {/* Share + weekly reminder, always available. (Challenge-a-friend is
             stashed for now.) */}
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex w-full flex-col gap-3">
           <button
             type="button"
             className={classNames(styles.socialButton, 'typo-caption1')}
