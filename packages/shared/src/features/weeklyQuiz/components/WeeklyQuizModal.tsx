@@ -109,7 +109,7 @@ function WeeklyQuizModal({
       size={Modal.Size.XLarge}
       // Wider than the stock XLarge so the two-panel layout has room — the big
       // logo fits the left panel at 40% without squeezing the leaderboard.
-      className="tablet:!w-[74rem]"
+      className="tablet:!w-[52rem]"
       onRequestClose={handleRequestClose}
       isDrawerOnMobile
     >
