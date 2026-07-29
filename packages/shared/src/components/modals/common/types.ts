@@ -109,6 +109,7 @@ export enum LazyModal {
   ReaderExtensionInstall = 'readerExtensionInstall',
   ReaderPreview = 'readerPreview',
   PostImpressions = 'postImpressions',
+  WeeklyQuiz = 'weeklyQuiz',
 }
 
 export type ModalTabItem = {

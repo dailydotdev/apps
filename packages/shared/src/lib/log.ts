@@ -558,6 +558,7 @@ export enum TargetType {
   StreakFreezePurchase = 'streak freeze purchase',
   PromotionCard = 'promotion_card',
   PromotionalBanner = 'promotion_banner',
+  WeeklyQuiz = 'weekly quiz',
   MarketingCtaPopover = 'promotion_popover',
   MarketingCtaPopoverSmall = 'promotion_popover_small',
   MarketingCtaPlus = 'promotion_plus',
