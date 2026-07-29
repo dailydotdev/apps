@@ -10,6 +10,7 @@ import {
   RequestKey,
 } from '@dailydotdev/shared/src/lib/query';
 import { sampleWeeklyQuiz } from '@dailydotdev/shared/src/features/weeklyQuiz/sampleWeeklyQuiz';
+import { demoLeaderboard } from '@dailydotdev/shared/src/features/weeklyQuiz/demoMode';
 import type { WeeklyQuizStatus } from '@dailydotdev/shared/src/features/weeklyQuiz/types';
 import { WeeklyQuizPeriod } from '@dailydotdev/shared/src/features/weeklyQuiz/types';
 
@@ -57,47 +58,26 @@ export const mockStatus = (
   ...overrides,
 });
 
-// A believable scoreboard, ranked correct-first with time as the tiebreak. The
-// mock user sits mid-pack so the "your row" highlight is visible.
-const NAMES = [
-  'Ana Pereira',
-  'Marco Reyes',
-  'Priya Nair',
-  'Kenji Watanabe',
-  'Lena Fischer',
-  'Diego Silva',
-  'Mei Lin',
-  'Omar Haddad',
-  'Sofia Rossi',
-  'Noah Becker',
-  'Yuki Tanaka',
-  'Amara Okafor',
-  'Liam Murphy',
-  'Elena Petrova',
-  'Rahul Verma',
-  'Clara Nguyen',
-  'Tomas Novak',
-  'Hana Kim',
-  'Bruno Costa',
-  'Ivy Zhang',
-];
-
-// A full 20-row board (descending score, ascending time as tiebreak) so the
-// scrollable list is exercised. `seed` rotates/varies the data per period so the
-// tabs visibly switch the whole board. The mock user is intentionally NOT in the
-// top 20 — their standing comes through weeklyQuizViewerEntry so the pinned
-// "your rank" row is exercised. Superstar chip only on the all-time board.
+// Real daily.dev members (shared with the deployed preview's demoLeaderboard)
+// so the Storybook board matches production faces during testing. Ranked
+// correct-first with time as the tiebreak; `seed` rotates the order per period
+// so the tabs visibly switch the whole board. The signed-in mock user is NOT in
+// this list — their standing comes through weeklyQuizViewerEntry so the pinned
+// "your rank" row is exercised. Superstar chip on rank 1.
 const mockLeaderboard = (seed: number, withSuperstar: boolean): LeaderboardNode[] => {
-  const rotated = [...NAMES.slice(seed), ...NAMES.slice(0, seed)];
-  return rotated.map((name, index): LeaderboardNode => {
+  const rotated = [
+    ...demoLeaderboard.slice(seed),
+    ...demoLeaderboard.slice(0, seed),
+  ];
+  return rotated.map((entry, index): LeaderboardNode => {
     const rank = index + 1;
     return {
       user: {
-        id: `lb-${seed}-${rank}`,
-        name,
-        username: name.toLowerCase().replace(/\s+/g, ''),
-        image: null,
-        reputation: 92000 - index * 4200 + seed * 1700,
+        id: entry.id,
+        name: entry.name,
+        username: entry.username ?? entry.id,
+        image: entry.image,
+        reputation: entry.reputation ?? 0,
       },
       correctCount: Math.max(1, 10 - Math.floor(index / 2)),
       totalQuestions: 10,
