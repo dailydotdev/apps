@@ -7,18 +7,24 @@ import LogoIcon from '../../../../svg/LogoIcon';
 // App install prompt — a scannable card floated over the hero
 // artwork on the split layouts.
 //
-// The QR encodes https://r.daily.dev/get — daily.dev's own smart
-// link, which redirects on User-Agent, so the one code sends
-// iPhones to the App Store and Android to Google Play.
+// The card is a link, not just a picture of one: scanning the code
+// is only available to someone holding a phone, so the same
+// destination has to be reachable by pointer and by keyboard. The
+// QR itself is decorative (aria-hidden) and the link carries the
+// accessible name.
+//
+// APP_URL is daily.dev's own smart link, which redirects on
+// User-Agent, so the one destination sends iPhones to the App
+// Store, Android to Google Play, and desktop to the extension.
 //
 // Because that URL is fixed, the code is a static asset rather than
 // a runtime dependency: the module matrix was generated once at
 // error-correction level H (30% recovery, which is what lets the
 // logo sit on top without breaking the scan) and flattened into a
-// single path of horizontal runs. The viewBox carries the 4-module
-// quiet zone the spec requires. Regenerate if the URL changes.
+// single path of horizontal runs. Regenerate if APP_URL changes.
 // =============================================================
 
+export const APP_URL = 'https://r.daily.dev/get';
 const QR_MODULES = 29;
 // The spec asks for 4 modules of quiet zone. We bake in 2 and let the white
 // box's own padding make up the rest, which buys the code ~12% more area
@@ -33,12 +39,20 @@ export const LandingAppInstall = ({
 }: {
   className?: string;
 }): ReactElement => (
-  <div
+  <a
+    // aria-label rather than the visible copy: "Scan to get the app" describes
+    // the QR, which is useless to anyone who cannot scan it, so the link states
+    // its destination instead.
+    aria-label="Get the daily.dev app for iOS or Android"
     className={classNames(
-      'onb-glass-card flex w-fit flex-col items-center gap-2.5 rounded-24 p-3',
+      'onb-glass-card flex w-fit flex-col items-center gap-2.5 rounded-24 p-3 no-underline',
+      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2',
       className,
     )}
     data-testid="landing-app-install"
+    href={APP_URL}
+    rel="noopener noreferrer"
+    target="_blank"
   >
     {/* The card always sits on the dark artwork, so its label is fixed light
         rather than theme-driven — text-primary would go dark in light mode and
@@ -62,5 +76,5 @@ export const LandingAppInstall = ({
         <LogoIcon className={{ container: 'h-3.5', group: 'fill-white' }} />
       </span>
     </div>
-  </div>
+  </a>
 );
