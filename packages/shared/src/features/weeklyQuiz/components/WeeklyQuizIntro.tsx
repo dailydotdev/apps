@@ -210,7 +210,7 @@ export const WeeklyQuizIntro = ({
         <div className="flex w-full flex-col gap-3">
           <button
             type="button"
-            className={classNames(styles.socialButton, 'typo-caption1')}
+            className={classNames(styles.socialButton, 'typo-subhead')}
             onClick={() => setIsShareOpen(true)}
             title="Share"
           >
@@ -220,7 +220,7 @@ export const WeeklyQuizIntro = ({
           <button
             type="button"
             aria-pressed={reminderSet}
-            className={classNames(styles.socialButton, 'typo-caption1')}
+            className={classNames(styles.socialButton, 'typo-subhead')}
             onClick={() => setReminderSet(true)}
             title="Set weekly reminder"
           >
