@@ -346,7 +346,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
             rel="sitemap"
             type="application/xml"
             title="Sitemap"
-            href="/sitemap.xml"
+            href="/api/sitemaps/index.xml"
           />
           <link
             rel="alternate"
