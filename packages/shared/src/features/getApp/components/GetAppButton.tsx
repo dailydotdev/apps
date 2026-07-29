@@ -10,8 +10,7 @@ import {
 import { PopoverContent } from '../../../components/popover/Popover';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { AppleIcon, PhoneIcon } from '../../../components/icons';
-// AndroidIcon is not re-exported by the icons barrel, so import it directly.
-import { AndroidIcon } from '../../../components/icons/Android';
+import { GooglePlayIcon } from '../../../components/icons/GooglePlay';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -29,15 +28,26 @@ interface AppStore {
   label: string;
   href: string;
   Icon: ComponentType<IconProps>;
+  // Optically balanced, not equal: the Apple glyph sits inside its viewBox at
+  // roughly 67% width, while the Play mark runs nearly edge to edge. Rendering
+  // both at one size makes Apple look shrunken, so Apple gets the larger box.
+  iconSize: IconSize;
 }
 
 const stores: AppStore[] = [
-  { id: 'ios', label: 'App Store', href: appStoreUrl, Icon: AppleIcon },
+  {
+    id: 'ios',
+    label: 'App Store',
+    href: appStoreUrl,
+    Icon: AppleIcon,
+    iconSize: IconSize.XSmall,
+  },
   {
     id: 'android',
     label: 'Google Play',
     href: playStoreUrl,
-    Icon: AndroidIcon,
+    Icon: GooglePlayIcon,
+    iconSize: IconSize.Size16,
   },
 ];
 
@@ -181,7 +191,7 @@ export function GetAppButton({
               variant={ButtonVariant.Primary}
               size={ButtonSize.Medium}
               className="flex-1"
-              icon={<store.Icon size={IconSize.Size16} />}
+              icon={<store.Icon size={store.iconSize} />}
               onClick={() => onStoreClick(store)}
             >
               {store.label}
