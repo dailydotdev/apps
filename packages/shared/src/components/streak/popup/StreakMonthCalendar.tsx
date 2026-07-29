@@ -59,8 +59,7 @@ export const StreakMonthCalendar = ({
         const isRead = state === Streak.Completed;
         // A consumed streak freeze shares the weekend-freeze dashed pattern —
         // same mapping as DayStreak, which draws both states identically.
-        const isFreeze =
-          state === Streak.Freeze || state === Streak.UsedFreeze;
+        const isFreeze = state === Streak.Freeze || state === Streak.UsedFreeze;
         // Every cell is the same size-4 circle. A read day is the solid pink
         // disc (the secondary flame glyph fills its whole box), so its border is
         // dropped and the glyph is sized to the cell — otherwise the icon's

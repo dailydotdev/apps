@@ -21,6 +21,7 @@ const streak: UserStreak = {
   total: 120,
   weekStart: DayOfWeek.Monday,
   lastViewAt: new Date(),
+  freezesAvailable: 0,
 };
 
 // A realistic spread of recently-read days. Weekends left unread show the
