@@ -451,25 +451,6 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-/* "Back to main" — a full-width, quiet outlined button under the results. */
-.backButton {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  color: #fff;
-  font-weight: 700;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.08);
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-}
-.backButton:hover {
-  border-color: rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.16);
-}
-.backButton:active {
-  transform: scale(0.99);
-}
-
 /* Leaderboard scroll area — a slim white/50% scrollbar over the gradient. */
 .scrollArea {
   scrollbar-width: thin;

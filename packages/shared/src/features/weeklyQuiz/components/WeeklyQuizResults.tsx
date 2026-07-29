@@ -13,13 +13,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { BellIcon, ShareIcon, UserShareIcon } from '../../../components/icons';
+import { ArrowIcon, BellIcon, UserShareIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import {
   ProfilePicture,
   ProfileImageSize,
 } from '../../../components/ProfilePicture';
-import { WeeklyQuizScoreboard } from './WeeklyQuizScoreboard';
 import { WeeklyQuizSharePopover } from './WeeklyQuizSharePopover';
 import { formatElapsed } from './WeeklyQuizTimer';
 import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
@@ -53,25 +52,26 @@ const buildMessage = (correct: number, total: number): string => {
   return 'Tough week? There is always next week.';
 };
 
-// Final screen: the celebratory score + time, then the scoreboard. Logged-in
-// players' results are submitted once on arrival (and again if an anonymous
-// player signs in from here), so their rank shows in the scoreboard below.
+// Final screen: a back arrow to the main screen, then the player's own result
+// as the hero (placement + score + time) and the share/reminder actions. The
+// full leaderboard lives on the main screen, not here. Logged-in players'
+// results are submitted once on arrival (and again if an anonymous player signs
+// in from here).
 export const WeeklyQuizResults = ({
   quizId,
   result,
-  audio,
   onBackToMain,
 }: WeeklyQuizResultsProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { submit } = useSubmitWeeklyQuiz();
-  const [period, setPeriod] = useState<WeeklyQuizPeriod>(
-    WeeklyQuizPeriod.Weekly,
-  );
   // Local-only until the reminder subscription is wired to the backend.
   const [reminderSet, setReminderSet] = useState(false);
   const [isChallengeOpen, setIsChallengeOpen] = useState(false);
   const submittedRef = useRef(false);
-  const { leaderboard, viewerEntry } = useWeeklyQuizLeaderboard(period);
+  // Rank comes from this week's board (the quiz just finished).
+  const { leaderboard, viewerEntry } = useWeeklyQuizLeaderboard(
+    WeeklyQuizPeriod.Weekly,
+  );
 
   // The player's rank — pinned viewer row when out of the top list, otherwise
   // their in-list row.
@@ -114,7 +114,17 @@ export const WeeklyQuizResults = ({
   }, [user, submit, quizId, result]);
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="relative flex flex-col gap-6 p-6">
+      {/* Big icon-only back arrow to the main screen, top-left. */}
+      <button
+        type="button"
+        aria-label="Back to main"
+        className="hover:bg-white/25 z-10 bg-white/15 absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors"
+        onClick={onBackToMain}
+      >
+        <ArrowIcon size={IconSize.Large} className="-rotate-90" />
+      </button>
+
       <div className="flex flex-col items-center gap-4 text-center">
         {/* Achievement first: the player's own placement is the hero, with their
             avatar and a medal-style rank badge. Only when we know their rank. */}
@@ -201,15 +211,21 @@ export const WeeklyQuizResults = ({
         </Typography>
       </div>
 
+      {/* Primary action: share, styled and animated like the Start button. */}
+      <button
+        type="button"
+        className={classNames(
+          styles.arcadeBtn,
+          styles.arcadeBtnIdle,
+          'flex h-16 w-full items-center justify-center gap-3 px-6 uppercase typo-title2',
+        )}
+        onClick={handleShareResult}
+      >
+        <span className={styles.arcadeBtnLabel}>Share your result</span>
+      </button>
+
+      {/* Secondary actions. */}
       <div className="flex flex-col gap-3 tablet:flex-row">
-        <button
-          type="button"
-          className={styles.resultAction}
-          onClick={handleShareResult}
-        >
-          <ShareIcon size={IconSize.XSmall} />
-          Share your result
-        </button>
         <button
           type="button"
           className={styles.resultAction}
@@ -264,23 +280,6 @@ export const WeeklyQuizResults = ({
           </Button>
         </div>
       )}
-
-      {/* A short board here — the player's own placement is the focus above;
-          the full leaderboard lives on the main screen. */}
-      <WeeklyQuizScoreboard
-        period={period}
-        onPeriodChange={setPeriod}
-        audio={audio}
-        limit={5}
-      />
-
-      <button
-        type="button"
-        className={styles.backButton}
-        onClick={onBackToMain}
-      >
-        Back to main
-      </button>
     </div>
   );
 };
