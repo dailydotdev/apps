@@ -216,6 +216,7 @@ export const WeeklyQuizResults = ({
         type="button"
         className={classNames(
           styles.arcadeBtn,
+          styles.arcadeBtnGreen,
           styles.arcadeBtnIdle,
           'flex h-16 w-full items-center justify-center gap-3 px-6 uppercase typo-title2',
         )}

@@ -258,6 +258,30 @@
   }
 }
 
+/* Green variant of the arcade button (results "Share your result"). Declared
+ * after .arcadeBtn so it overrides the purple->orange face on the shared class.
+ * Avocado candy — matches the game's "go" accent. */
+.arcadeBtnGreen {
+  border-color: color-mix(in srgb, var(--theme-accent-avocado-default) 52%, #000 48%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--theme-accent-avocado-default) 65%, #fff 35%) 0%,
+    var(--theme-accent-avocado-default) 52%,
+    color-mix(in srgb, var(--theme-accent-avocado-default) 78%, #000 22%) 100%
+  );
+  box-shadow:
+    0 9px 0 color-mix(in srgb, var(--theme-accent-avocado-default) 45%, #000 55%),
+    0 16px 24px rgba(0, 0, 0, 0.32),
+    inset 0 3px 6px rgba(255, 255, 255, 0.6),
+    inset 0 -7px 10px rgba(0, 0, 0, 0.18);
+}
+.arcadeBtnGreen:active:not(:disabled) {
+  box-shadow:
+    0 2px 0 color-mix(in srgb, var(--theme-accent-avocado-default) 45%, #000 55%),
+    0 6px 12px rgba(0, 0, 0, 0.28),
+    inset 0 3px 6px rgba(255, 255, 255, 0.5);
+}
+
 /* "Fastest" badge — glossy gold→orange pill with a warm glow and a soft pulse
  * so the speed award stands out on the row. */
 .fastestBadge {
