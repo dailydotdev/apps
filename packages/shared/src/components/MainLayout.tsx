@@ -20,6 +20,7 @@ import { useNotificationParams } from '../hooks/useNotificationParams';
 import { useAuthContext } from '../contexts/AuthContext';
 import { SharedFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
+import { isOnboardingFeedPathname } from '../lib/onboarding';
 import { useBanner } from '../hooks/useBanner';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import {
@@ -217,16 +218,21 @@ function MainLayoutComponent({
 
   const isPageReady =
     (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
-  const isPageApplicableForOnboarding =
+  // Feed-shaped pages hold their paint until boot so the resolved chrome
+  // renders once. Broader than the onboarding gate below on purpose: this is
+  // about layout stability, not about forcing onboarding.
+  const isFeedShapedPage =
     !page || feeds.includes(page) || isCustomFeed || isExploreTag;
   const shouldRedirectOnboarding =
     !isExtension &&
     !user &&
     isPageReady &&
-    isPageApplicableForOnboarding &&
-    // Install referrals (`?ref=install`) are routed by the permission-primer
-    // flow in `_app` (to `/activate` or `/onboarding`). Redirecting here too
-    // would race that and bounce the user off `/activate`.
+    // Same set the webapp's `getOnboardingRedirect` uses for signed-in users,
+    // so a given URL doesn't force onboarding for one audience and not the
+    // other.
+    isOnboardingFeedPathname(router?.pathname) &&
+    // Install referrals (`?ref=install`) are routed by `_app` (to `/activate`).
+    // Redirecting here too would race that and bounce the user off `/activate`.
     router?.query?.ref !== 'install' &&
     !isTesting;
 
@@ -279,7 +285,7 @@ function MainLayoutComponent({
   // breakpoint-independent (false on both server and first client render until
   // ready), so it stays free of hydration mismatches.
   if (
-    (!isPageReady && (isPageApplicableForOnboarding || showSidebar)) ||
+    (!isPageReady && (isFeedShapedPage || showSidebar)) ||
     shouldRedirectOnboarding
   ) {
     return null;
