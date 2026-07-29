@@ -178,8 +178,8 @@ export function GetAppButton({
               href={store.href}
               target="_blank"
               rel="noopener"
-              variant={ButtonVariant.Secondary}
-              size={ButtonSize.Small}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
               className="flex-1"
               icon={<store.Icon size={IconSize.Size16} />}
               onClick={() => onStoreClick(store)}
