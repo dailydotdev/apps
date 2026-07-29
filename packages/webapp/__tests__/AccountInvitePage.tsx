@@ -19,7 +19,10 @@ import {
   REFERRED_USERS_QUERY,
 } from '@dailydotdev/shared/src/graphql/users';
 import type { Feature } from '@dailydotdev/shared/src/lib/featureManagement';
-import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  featureGiveback,
+  featureReferralPlusReward,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
@@ -145,7 +148,20 @@ const renderComponent = (
   );
 };
 
+it('should not promise the Plus reward while the flag is off', async () => {
+  mockedFeatures.set(featureReferralPlusReward, false);
+  mockReferralCampaign(2);
+  renderComponent();
+
+  expect(await screen.findByText('Grow the community')).toBeInTheDocument();
+  expect(
+    screen.queryByText('Invite 3 friends, get 1 month of Plus'),
+  ).not.toBeInTheDocument();
+  expect(screen.queryByText('2 of 3 friends joined')).not.toBeInTheDocument();
+});
+
 it('should render the 3-invites promo with the progress at zero', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
   mockReferralCampaign(0);
   renderComponent();
 
@@ -157,6 +173,7 @@ it('should render the 3-invites promo with the progress at zero', async () => {
 });
 
 it('should reflect partial progress from the referral campaign', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
   mockReferralCampaign(2);
   renderComponent();
 
@@ -164,6 +181,7 @@ it('should reflect partial progress from the referral campaign', async () => {
 });
 
 it('should show the unlocked state once three friends joined', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
   mockReferralCampaign(3);
   renderComponent();
 
@@ -174,6 +192,7 @@ it('should show the unlocked state once three friends joined', async () => {
 });
 
 it('should keep the unlocked copy count-agnostic beyond the goal', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
   mockReferralCampaign(12);
   renderComponent();
 
@@ -185,6 +204,7 @@ it('should keep the unlocked copy count-agnostic beyond the goal', async () => {
 });
 
 it('should run the free month from the join date of the third referral', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
   mockReferralCampaign(3);
   renderComponent(loggedUser, [
     // Deliberately out of order — the period is derived from the third
@@ -199,6 +219,7 @@ it('should run the free month from the join date of the third referral', async (
 });
 
 it('should fill the progress slots with the referred users avatars', async () => {
+  mockedFeatures.set(featureReferralPlusReward, true);
   mockReferralCampaign(2);
   renderComponent(loggedUser, [
     referredUser('ref-1', 'idakern'),

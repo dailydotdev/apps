@@ -195,6 +195,17 @@ export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
 export const featureGiveback = new Feature('giveback', isDevelopment);
 
+// Gates the "invite 3 friends, get 1 month of Plus" promo on the invite
+// settings page. MUST stay `false`: no backend grants the free month on the
+// third referral yet and the displayed reward period is inferred from referral
+// timestamps rather than entitlement data, so the promise cannot ship on. Flip
+// it on only once fulfillment / authoritative entitlement data lands. With it
+// off the page reads "Grow the community" and promises nothing.
+export const featureReferralPlusReward = new Feature(
+  'referral_plus_reward',
+  false,
+);
+
 export const featureGivebackSuggestCause = new Feature(
   'giveback_suggest_cause',
   false,

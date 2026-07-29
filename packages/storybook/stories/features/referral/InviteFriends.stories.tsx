@@ -78,13 +78,20 @@ interface InvitePageProps {
   joinedCount?: number;
   isPlus?: boolean;
   showGiveback?: boolean;
+  // Mirrors the `referral_plus_reward` flag on the real page.
+  showReward?: boolean;
 }
 
 // Mirrors packages/webapp/pages/settings/invite.tsx section for section.
-const rewardDescription = (isUnlocked: boolean): string =>
-  isUnlocked
+const rewardDescription = (showReward: boolean, isUnlocked: boolean): string => {
+  if (!showReward) {
+    return "Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals below.";
+  }
+
+  return isUnlocked
     ? 'Keep inviting. Every developer you bring makes the feed sharper.'
     : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
+};
 
 // Same derivation as the page: the free month runs from the join date of the
 // INVITE_GOALth developer.
@@ -106,6 +113,7 @@ const InvitePage = ({
   joinedCount = 0,
   isPlus = false,
   showGiveback = true,
+  showReward = true,
 }: InvitePageProps): ReactElement => {
   const referredUsers = mockReferredUsers().slice(0, joinedCount);
   const isUnlocked = joinedCount >= INVITE_GOAL;
@@ -114,10 +122,14 @@ const InvitePage = ({
     <SettingsCard>
       <Section
         isFirst
-        title={`Invite ${INVITE_GOAL} friends, get 1 month of Plus`}
-        description={rewardDescription(isUnlocked)}
+        title={
+          showReward
+            ? `Invite ${INVITE_GOAL} friends, get 1 month of Plus`
+            : 'Grow the community'
+        }
+        description={rewardDescription(showReward, isUnlocked)}
       >
-        {isPlus && !isUnlocked && (
+        {showReward && isPlus && !isUnlocked && (
           <Typography
             className="mt-1"
             type={TypographyType.Footnote}
@@ -126,12 +138,14 @@ const InvitePage = ({
             Already on Plus? The free month is added to your subscription.
           </Typography>
         )}
-        <InviteRewardProgress
-          className="mt-4"
-          joinedCount={joinedCount}
-          referredUsers={referredUsers}
-          rewardPeriod={rewardPeriodFor(referredUsers)}
-        />
+        {showReward && (
+          <InviteRewardProgress
+            className="mt-4"
+            joinedCount={joinedCount}
+            referredUsers={referredUsers}
+            rewardPeriod={rewardPeriodFor(referredUsers)}
+          />
+        )}
       </Section>
       <Section title="Your invitation link">
         <InviteLinkInput
@@ -279,6 +293,20 @@ export const ExistingPlusMember: Story = {
       description: {
         story:
           'Plus subscribers get a note that the free month stacks on their current subscription. It disappears once the reward unlocks.',
+      },
+    },
+  },
+};
+
+export const RewardFlagOff: Story = {
+  name: 'Reward flag off (default)',
+  args: { joinedCount: 1, showReward: false },
+  decorators: [withInvite()],
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'What ships until `referral_plus_reward` is switched on: no reward promise and no tracker, just the referral tooling. The flag defaults off because no backend grants the free month yet.',
       },
     },
   },

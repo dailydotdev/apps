@@ -99,6 +99,10 @@ export enum NotificationType {
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
   LiveRoomStarted = 'live_room_started',
+  // Placeholder types for the invite-friends reward. No backend emits either
+  // one yet, so nothing produces these notifications in production — they exist
+  // for the client to render and for Storybook to demo. Not complete until the
+  // backend can emit them (and the Plus reward is actually fulfilled).
   ReferralFriendJoined = 'referral_friend_joined',
   ReferralPlusUnlocked = 'referral_plus_unlocked',
 }

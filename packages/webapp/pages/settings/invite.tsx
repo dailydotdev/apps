@@ -45,7 +45,10 @@ import {
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks/usePlusSubscription';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
+import {
+  featureGiveback,
+  featureReferralPlusReward,
+} from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   INVITE_GOAL,
   InviteRewardProgress,
@@ -74,6 +77,10 @@ const AccountInvitePage = (): ReactElement => {
   const inviteLink = url || link.referral.defaultUrl;
   const { value: isGivebackEnabled } = useConditionalFeature({
     feature: featureGiveback,
+    shouldEvaluate: !!user,
+  });
+  const { value: isRewardEnabled } = useConditionalFeature({
+    feature: featureReferralPlusReward,
     shouldEvaluate: !!user,
   });
   const usersResult = useInfiniteQuery<ReferredUsersData>({
@@ -147,11 +154,18 @@ const AccountInvitePage = (): ReactElement => {
     });
   };
 
-  // The card below already announces the reward, so the unlocked copy only has
-  // to give a reason to keep going.
-  const rewardDescription = isRewardUnlocked
-    ? 'Keep inviting. Every developer you bring makes the feed sharper.'
-    : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
+  const getRewardDescription = () => {
+    if (!isRewardEnabled) {
+      return "Share daily.dev with developers you know. When they join through your link, they'll show up in your referrals below.";
+    }
+
+    // The card below already announces the reward, so the unlocked copy only
+    // has to give a reason to keep going.
+    return isRewardUnlocked
+      ? 'Keep inviting. Every developer you bring makes the feed sharper.'
+      : `When ${INVITE_GOAL} developers join daily.dev through your link, your free month of Plus starts.`;
+  };
+  const rewardDescription = getRewardDescription();
 
   const onGivebackClick = () => {
     logEvent({
@@ -164,10 +178,14 @@ const AccountInvitePage = (): ReactElement => {
     <AccountPageContainer title="Invite friends">
       <AccountContentSection
         className={{ heading: 'mt-0' }}
-        title={`Invite ${INVITE_GOAL} friends, get 1 month of Plus`}
+        title={
+          isRewardEnabled
+            ? `Invite ${INVITE_GOAL} friends, get 1 month of Plus`
+            : 'Grow the community'
+        }
         description={rewardDescription}
       >
-        {isPlus && !isRewardUnlocked && (
+        {isRewardEnabled && isPlus && !isRewardUnlocked && (
           <Typography
             className="mt-1"
             type={TypographyType.Footnote}
@@ -176,12 +194,14 @@ const AccountInvitePage = (): ReactElement => {
             Already on Plus? The free month is added to your subscription.
           </Typography>
         )}
-        <InviteRewardProgress
-          className="mt-4"
-          joinedCount={referredUsersCount}
-          referredUsers={users}
-          rewardPeriod={rewardPeriod}
-        />
+        {isRewardEnabled && (
+          <InviteRewardProgress
+            className="mt-4"
+            joinedCount={referredUsersCount}
+            referredUsers={users}
+            rewardPeriod={rewardPeriod}
+          />
+        )}
       </AccountContentSection>
       <AccountContentSection title="Your invitation link">
         <InviteLinkInput
