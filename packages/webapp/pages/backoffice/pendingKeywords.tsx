@@ -1,3 +1,4 @@
+import type { NextSeoProps } from 'next-seo';
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
@@ -9,6 +10,9 @@ import useRequirePermissions from '@dailydotdev/shared/src/hooks/useRequirePermi
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import KeywordManagement from '../../components/KeywordManagement';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import { noindexSeoProps } from '../../next-seo';
+
+const seo: NextSeoProps = { ...noindexSeoProps };
 
 const PendingKeywords = (): ReactElement => {
   useRequirePermissions(Roles.Moderator);
@@ -57,5 +61,7 @@ const PendingKeywords = (): ReactElement => {
 };
 
 PendingKeywords.getLayout = getMainLayout;
+
+PendingKeywords.layoutProps = { seo };
 
 export default PendingKeywords;

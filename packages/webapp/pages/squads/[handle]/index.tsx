@@ -92,7 +92,7 @@ import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import type { ProtectedPageProps } from '../../../components/ProtectedPage';
 import ProtectedPage from '../../../components/ProtectedPage';
-import { getSquadOpenGraph } from '../../../next-seo';
+import { getSquadOpenGraph, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import type { DynamicSeoProps } from '../../../components/common';
 import { getAppOrigin } from '../../../lib/seo';
@@ -696,7 +696,11 @@ export async function getServerSideProps({
       referringUserPromise,
     ]);
 
-    const seoUsers = squad.public
+    // Fail closed: anything we can't positively confirm as a public squad stays
+    // out of the index.
+    const isPublicSquad = squad?.public === true;
+
+    const seoUsers = isPublicSquad
       ? await getSquad(handle)
           .then((fullSquad) => getSeoSquadUsers(fullSquad))
           .catch(() => undefined)
@@ -716,8 +720,8 @@ export async function getServerSideProps({
         ...squadSeoTitles.openGraph,
         ...getSquadOpenGraph({ squad }),
       },
-      nofollow: !squad.public,
-      noindex: !squad.public,
+      nofollow: !isPublicSquad,
+      noindex: !isPublicSquad,
     };
 
     return {
@@ -727,7 +731,7 @@ export async function getServerSideProps({
         initialData: squad as Squad,
         ...(seoUsers && { seoUsers }),
         ...(referringUser && { referringUser }),
-        ...(squad.public && {
+        ...(isPublicSquad && {
           jsonLd: getSquadPageJsonLd(squad as SquadStaticData),
         }),
       },
@@ -740,8 +744,11 @@ export async function getServerSideProps({
     if (errors.includes(errorCode)) {
       setCacheHeader();
 
+      // SSR always runs unauthenticated, so every private squad resolves as
+      // FORBIDDEN here. This branch also serves the soft-404/rate-limited
+      // cases, none of which should ever be advertised as indexable.
       return {
-        props: { handle },
+        props: { handle, seo: { ...noindexSeoProps } },
       };
     }
 

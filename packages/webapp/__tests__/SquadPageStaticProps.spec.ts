@@ -1,4 +1,4 @@
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   getSquad,
   getSquadStaticFields,
@@ -89,4 +89,47 @@ describe('squad page getServerSideProps seo', () => {
       },
     });
   });
+
+  it('marks a squad with an unknown visibility as noindex and nofollow', async () => {
+    mockStaticFields.mockResolvedValue({
+      ...createSquad(true),
+      public: undefined,
+    });
+
+    const result = await runGssp();
+
+    expect(result).toMatchObject({
+      props: {
+        seo: {
+          noindex: true,
+          nofollow: true,
+        },
+      },
+    });
+    expect(result).not.toMatchObject({ props: { jsonLd: expect.anything() } });
+  });
+
+  // SSR is always unauthenticated, so the API rejects every private squad with
+  // FORBIDDEN before we ever see `public`. This fallback used to ship no seo at
+  // all, which left private squads advertised as index,follow.
+  it.each([ApiError.Forbidden, ApiError.NotFound, ApiError.RateLimited])(
+    'marks the %s fallback as noindex and nofollow',
+    async (code) => {
+      mockRequest.mockRejectedValue({
+        response: { errors: [{ extensions: { code } }] },
+      });
+
+      const result = await runGssp();
+
+      expect(result).toMatchObject({
+        props: {
+          handle: 'my-squad',
+          seo: {
+            noindex: true,
+            nofollow: true,
+          },
+        },
+      });
+    },
+  );
 });
