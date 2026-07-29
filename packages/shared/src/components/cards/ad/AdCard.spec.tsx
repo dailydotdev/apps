@@ -11,6 +11,23 @@ import type { AdCardProps } from './common/common';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ActiveFeedContext } from '../../../contexts';
 import { businessWebsiteUrl } from '../../../lib/constants';
+import { useFeature } from '../../GrowthBookProvider';
+import { AdLabelVariant, featureAdLabel } from '../../../lib/featureManagement';
+
+jest.mock('../../GrowthBookProvider', () => ({
+  ...(jest.requireActual('../../GrowthBookProvider') as Record<
+    string,
+    unknown
+  >),
+  useFeature: jest.fn(),
+}));
+
+const mockUseFeature = jest.mocked(useFeature);
+
+const mockAdLabelVariant = (variant: AdLabelVariant): void => {
+  mockUseFeature.mockImplementation(((feature: { id: string }) =>
+    feature?.id === featureAdLabel.id ? variant : undefined) as never);
+};
 
 const defaultProps: AdCardProps = {
   ad,
@@ -21,6 +38,8 @@ const defaultProps: AdCardProps = {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  // clearAllMocks keeps implementations, so reset the arm for every test.
+  mockAdLabelVariant(AdLabelVariant.Control);
 });
 
 const renderListComponent = (
@@ -230,6 +249,58 @@ it('should render Promoted attribution in grid variant', async () => {
 it('should render Promoted attribution in signal variant', async () => {
   renderSignalListComponent();
   expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
+});
+
+const adLabelMatcher = (_: string, element?: Element | null): boolean =>
+  getNormalizedText(element) === 'Ad';
+
+describe('ad_label experiment', () => {
+  const referralAd = { ...ad, referralLink: 'https://example.com/referral' };
+
+  it('should replace the advertiser attribution with "Ad" on the grid card', async () => {
+    mockAdLabelVariant(AdLabelVariant.Ad);
+    renderGridComponent({ ad: referralAd });
+
+    expect(await screen.findByText(adLabelMatcher)).toBeInTheDocument();
+    expect(screen.queryByText(promotedMatcher)).not.toBeInTheDocument();
+  });
+
+  it('should drop the advertiser referral link with the "Ad" label', async () => {
+    mockAdLabelVariant(AdLabelVariant.Ad);
+    renderListComponent({ ad: referralAd });
+
+    const attribution = await screen.findByText(adLabelMatcher);
+    expect(attribution.closest('a')).toBeNull();
+  });
+
+  it('should keep the advertise link on the ad arm', async () => {
+    mockAdLabelVariant(AdLabelVariant.Ad);
+    renderGridComponent({ ad: referralAd });
+
+    expect(
+      await screen.findByRole('link', { name: 'Advertise here' }),
+    ).toBeInTheDocument();
+  });
+
+  it('should remove the advertise link on the ad_only arm', async () => {
+    mockAdLabelVariant(AdLabelVariant.AdOnly);
+    renderListComponent({ ad: referralAd });
+
+    await screen.findByText(adLabelMatcher);
+    expect(
+      screen.queryByRole('link', { name: 'Advertise here' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should keep the control wording when the flag is off', async () => {
+    mockAdLabelVariant(AdLabelVariant.Control);
+    renderGridComponent({ ad: referralAd });
+
+    expect(await screen.findByText(promotedMatcher)).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Advertise here' }),
+    ).toBeInTheDocument();
+  });
 });
 
 it('should render advertise link on list ad', () => {
