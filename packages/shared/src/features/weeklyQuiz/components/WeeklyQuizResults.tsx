@@ -13,9 +13,10 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { BellIcon, ShareIcon } from '../../../components/icons';
+import { BellIcon, ShareIcon, UserShareIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { WeeklyQuizScoreboard } from './WeeklyQuizScoreboard';
+import { WeeklyQuizSharePopover } from './WeeklyQuizSharePopover';
 import { formatElapsed } from './WeeklyQuizTimer';
 import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
 import { useWeeklyQuizLeaderboard } from '../hooks/useWeeklyQuizLeaderboard';
@@ -61,6 +62,7 @@ export const WeeklyQuizResults = ({
   );
   // Local-only until the reminder subscription is wired to the backend.
   const [reminderSet, setReminderSet] = useState(false);
+  const [isChallengeOpen, setIsChallengeOpen] = useState(false);
   const submittedRef = useRef(false);
   const { leaderboard, viewerEntry } = useWeeklyQuizLeaderboard(period);
 
@@ -173,6 +175,14 @@ export const WeeklyQuizResults = ({
         </button>
         <button
           type="button"
+          className={styles.resultAction}
+          onClick={() => setIsChallengeOpen(true)}
+        >
+          <UserShareIcon size={IconSize.XSmall} />
+          Challenge your team
+        </button>
+        <button
+          type="button"
           aria-pressed={reminderSet}
           className={classNames(
             styles.resultAction,
@@ -184,6 +194,14 @@ export const WeeklyQuizResults = ({
           {reminderSet ? "You're all set" : 'Set weekly reminder'}
         </button>
       </div>
+
+      {isChallengeOpen && (
+        <WeeklyQuizSharePopover
+          title="Challenge your team"
+          description="Send this link so they can take this week's quiz and try to beat your score."
+          onClose={() => setIsChallengeOpen(false)}
+        />
+      )}
 
       {!user && (
         <div

@@ -17,6 +17,10 @@ import styles from '../WeeklyQuiz.module.css';
 
 interface WeeklyQuizSharePopoverProps {
   onClose: () => void;
+  // Copy override so the same link popover can read as "share the quiz" from the
+  // intro and "challenge your team" from the results screen.
+  title?: string;
+  description?: string;
 }
 
 // An in-card popover for sharing the quiz link: a big close button, a heading,
@@ -24,6 +28,8 @@ interface WeeklyQuizSharePopoverProps {
 // overlay inside the quiz surface (not a separate modal).
 export const WeeklyQuizSharePopover = ({
   onClose,
+  title = 'Share the quiz',
+  description,
 }: WeeklyQuizSharePopoverProps): ReactElement => {
   const [copied, setCopied] = useState(false);
   // Placeholder link until the real shareable quiz URL is wired up.
@@ -58,14 +64,24 @@ export const WeeklyQuizSharePopover = ({
         >
           <MiniCloseIcon size={IconSize.Large} />
         </button>
-        <Typography
-          type={TypographyType.Title3}
-          bold
-          tag={TypographyTag.H2}
-          className="!text-white"
-        >
-          Share the quiz
-        </Typography>
+        <div className="flex flex-col gap-1 pr-8">
+          <Typography
+            type={TypographyType.Title3}
+            bold
+            tag={TypographyTag.H2}
+            className="!text-white"
+          >
+            {title}
+          </Typography>
+          {description && (
+            <Typography
+              type={TypographyType.Callout}
+              className="!text-white/90"
+            >
+              {description}
+            </Typography>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           <input
             readOnly

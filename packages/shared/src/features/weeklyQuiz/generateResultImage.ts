@@ -53,15 +53,27 @@ export const generateWeeklyQuizResultImage = async (
     return;
   }
 
-  // Arcade gradient background.
-  const gradient = ctx.createLinearGradient(0, 0, size, size);
-  gradient.addColorStop(0, accent('--theme-accent-onion-default', '#6B56DD'));
-  gradient.addColorStop(
-    0.5,
-    accent('--theme-accent-cabbage-default', '#BA56E1'),
+  // Deep daily.dev purple background (matches the in-app surface) with a soft
+  // top glow — reads as part of the app, not a generic arcade card.
+  const onion = accent('--theme-accent-onion-default', '#6B56DD');
+  const cabbage = accent('--theme-accent-cabbage-default', '#BA56E1');
+  const bg = ctx.createLinearGradient(0, 0, size * 0.4, size);
+  bg.addColorStop(0, onion);
+  bg.addColorStop(0.55, cabbage);
+  bg.addColorStop(1, onion);
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, size, size);
+  const glow = ctx.createRadialGradient(
+    size / 2,
+    120,
+    40,
+    size / 2,
+    120,
+    size * 0.7,
   );
-  gradient.addColorStop(1, accent('--theme-accent-bun-default', '#FF9157'));
-  ctx.fillStyle = gradient;
+  glow.addColorStop(0, 'rgba(255, 255, 255, 0.18)');
+  glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = glow;
   ctx.fillRect(0, 0, size, size);
 
   // Logo (same-origin, no CORS concern).
@@ -69,7 +81,7 @@ export const generateWeeklyQuizResultImage = async (
     const logo = await loadImage(params.logoUrl);
     const logoWidth = 460;
     const logoHeight = (logo.height / logo.width) * logoWidth;
-    ctx.drawImage(logo, (size - logoWidth) / 2, 70, logoWidth, logoHeight);
+    ctx.drawImage(logo, (size - logoWidth) / 2, 56, logoWidth, logoHeight);
   } catch {
     // Logo is best-effort; keep going without it.
   }
@@ -79,9 +91,9 @@ export const generateWeeklyQuizResultImage = async (
   if (params.imageUrl) {
     try {
       const avatar = await loadImage(params.imageUrl, 'anonymous');
-      const diameter = 210;
+      const diameter = 180;
       const ax = (size - diameter) / 2;
-      const ay = 470;
+      const ay = 250;
       ctx.save();
       ctx.beginPath();
       ctx.arc(
@@ -115,26 +127,65 @@ export const generateWeeklyQuizResultImage = async (
 
   // Name.
   ctx.fillStyle = '#fff';
-  ctx.font = 'bold 58px system-ui, sans-serif';
-  ctx.fillText(params.name, size / 2, 760);
+  ctx.font = 'bold 56px system-ui, sans-serif';
+  ctx.fillText(params.name, size / 2, 500);
 
-  // Score + time, equal weight, side by side.
-  const leftX = size * 0.31;
-  const rightX = size * 0.69;
-  ctx.font = 'bold 104px system-ui, sans-serif';
-  ctx.fillText(`${params.correctCount}/${params.totalQuestions}`, leftX, 900);
-  ctx.fillText(params.timeLabel, rightX, 900);
-  ctx.font = '600 32px system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-  ctx.fillText('CORRECT', leftX, 950);
-  ctx.fillText('TIME', rightX, 950);
-
-  // Leaderboard rank.
-  if (params.rank) {
+  // Score + time as two equal-weight stat cards — the shareable focal point.
+  const roundRect = (x: number, y: number, w: number, h: number, r: number) => {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+  };
+  const cardW = 380;
+  const cardH = 250;
+  const gap = 40;
+  const startX = (size - (cardW * 2 + gap)) / 2;
+  const cardY = 560;
+  const cards = [
+    {
+      x: startX,
+      big: `${params.correctCount}/${params.totalQuestions}`,
+      label: 'CORRECT',
+    },
+    { x: startX + cardW + gap, big: params.timeLabel, label: 'TIME' },
+  ];
+  cards.forEach((card) => {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
+    roundRect(card.x, cardY, cardW, cardH, 36);
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    roundRect(card.x, cardY, cardW, cardH, 36);
+    ctx.stroke();
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 46px system-ui, sans-serif';
-    ctx.fillText(`Leaderboard rank #${params.rank}`, size / 2, 1024);
+    ctx.font = 'bold 116px system-ui, sans-serif';
+    ctx.fillText(card.big, card.x + cardW / 2, cardY + 150);
+    ctx.font = '700 34px system-ui, sans-serif';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.fillText(card.label, card.x + cardW / 2, cardY + 205);
+  });
+
+  // Leaderboard rank — a bright gold pill so it pops off the purple.
+  if (params.rank) {
+    const pillText = `LEADERBOARD RANK #${params.rank}`;
+    ctx.font = 'bold 40px system-ui, sans-serif';
+    const pillW = ctx.measureText(pillText).width + 80;
+    const pillH = 84;
+    const pillX = (size - pillW) / 2;
+    const pillY = 850;
+    const pill = ctx.createLinearGradient(pillX, pillY, pillX, pillY + pillH);
+    pill.addColorStop(0, accent('--theme-accent-cheese-default', '#FFE24C'));
+    pill.addColorStop(1, accent('--theme-accent-bun-default', '#FF9157'));
+    ctx.fillStyle = pill;
+    roundRect(pillX, pillY, pillW, pillH, pillH / 2);
+    ctx.fill();
+    ctx.fillStyle = '#1a1523';
+    ctx.fillText(pillText, size / 2, pillY + 56);
   }
+
+  // Footer tagline so the post explains itself when shared.
+  ctx.font = '600 34px system-ui, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.fillText('Play the Weekly Tech News Quiz on daily.dev', size / 2, 1012);
 
   const link = document.createElement('a');
   link.href = canvas.toDataURL('image/png');
