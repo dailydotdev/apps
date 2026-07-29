@@ -29,7 +29,14 @@ function WeeklyQuizPreviewPage(): ReactElement {
     <>
       <NextSeo title="Weekly Quiz preview" nofollow noindex />
       {mounted && (
-        <WeeklyQuizModal key={runKey} isOpen onRequestClose={handleClose} />
+        <WeeklyQuizModal
+          key={runKey}
+          isOpen
+          onRequestClose={handleClose}
+          // No feed behind it here, so top-align instead of vertically centering
+          // to avoid a big empty gap above the quiz on this standalone page.
+          overlayClassName="!justify-start pt-6 tablet:pt-10"
+        />
       )}
     </>
   );
