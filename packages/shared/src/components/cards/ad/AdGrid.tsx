@@ -29,6 +29,7 @@ import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
+import { useAdLabel } from '../../../features/monetization/useAdLabel';
 
 export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
   { ad, onLinkClick, domProps, index, feedIndex },
@@ -37,6 +38,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
   const useGlass = useFeedCardGlassActions();
+  const { showAdvertiseLink } = useAdLabel();
   const { ref } = useAutoRotatingAds(
     ad,
     index,
@@ -80,11 +82,13 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
               {ad.callToAction}
             </Button>
           )}
-          <AdvertiseLink
-            targetId={TargetId.AdCard}
-            buttonStyle
-            size={ButtonSize.Small}
-          />
+          {showAdvertiseLink && (
+            <AdvertiseLink
+              targetId={TargetId.AdCard}
+              buttonStyle
+              size={ButtonSize.Small}
+            />
+          )}
           <div className="ml-auto flex items-center gap-2">
             {!isPlus && (
               <RemoveAd
