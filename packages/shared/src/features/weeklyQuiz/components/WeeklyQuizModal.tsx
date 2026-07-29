@@ -113,7 +113,7 @@ function WeeklyQuizModal({
       onRequestClose={handleRequestClose}
       isDrawerOnMobile
     >
-      <div className="flex items-start justify-center gap-3">
+      <div className="flex w-full items-start justify-center gap-3">
         <div className={`relative flex-1 ${styles.surface}`}>
           <span className={styles.rays} aria-hidden />
           {phase === WeeklyQuizPhase.Intro && (
