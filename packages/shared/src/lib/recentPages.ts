@@ -1,6 +1,12 @@
+// What kind of entity the recent page points at, so the sidebar can pick a
+// recognizable icon instead of a generic one. Captured at record time from the
+// route template (a bare `/<handle>` path can't be classified after the fact).
+export type RecentPageType = 'user' | 'source' | 'squad' | 'tag' | 'page';
+
 export type RecentPage = {
   path: string;
   title: string;
+  type?: RecentPageType;
 };
 
 const STORAGE_KEY = 'dailydev:recentPages';

@@ -64,9 +64,15 @@ function NotificationsBell({
           <a
             href={`${webappUrl}notifications`}
             aria-label="Notifications"
+            // It's a tab in the rail tablist; the role makes `aria-selected`
+            // valid and lets the v2 rail's shared sliding pill track this tab
+            // like the others (the pill renders the selected background, so here
+            // we only own the active text color).
+            role="tab"
+            aria-selected={atNotificationsPage}
             className={classNames(
               railTabClass,
-              atNotificationsPage && 'bg-background-default !text-text-primary',
+              atNotificationsPage && '!text-text-primary',
             )}
             onClick={onNavigateNotifications}
           >
@@ -89,7 +95,7 @@ function NotificationsBell({
               )}
             </span>
             {!railHideLabel && (
-              <span className={railTabLabelClass}>Alerts</span>
+              <span className={railTabLabelClass}>Activity</span>
             )}
           </a>
         </Link>
