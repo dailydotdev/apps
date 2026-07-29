@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import type { GetServerSideProps } from 'next';
+import type { NextSeoProps } from 'next-seo';
 import React, { useEffect } from 'react';
 import { ManageSquadPageContainer } from '@dailydotdev/shared/src/components/squads/utils';
 import {
@@ -22,6 +23,12 @@ import { verifyPermission } from '@dailydotdev/shared/src/graphql/squads';
 import { SourcePermissions } from '@dailydotdev/shared/src/graphql/sources';
 import { TypographyType } from '@dailydotdev/shared/src/components/typography/Typography';
 import { getLayout as getMainLayout } from '../../components/layouts/MainLayout';
+import { noindexSeoProps } from '../../next-seo';
+
+const seo: NextSeoProps = {
+  title: 'Squad settings',
+  ...noindexSeoProps,
+};
 
 interface ModerateSquadPageProps {
   handle: string | null;
@@ -82,3 +89,4 @@ export default function ModerateSquadPage({
 }
 
 ModerateSquadPage.getLayout = getMainLayout;
+ModerateSquadPage.layoutProps = { seo };

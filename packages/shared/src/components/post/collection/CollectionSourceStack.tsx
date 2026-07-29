@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import dynamic from 'next/dynamic';
-import { SourceAvatar } from '../../profile/source/SourceAvatar';
+import { SourceAvatarLink } from '../../profile/source/SourceAvatarLink';
 import { ProfileImageSize, sizeClasses } from '../../ProfilePicture';
 import HoverCard from '../../cards/common/HoverCard';
 import type { SourceTooltip } from '../../../graphql/sources';
@@ -139,16 +139,13 @@ export const CollectionSourceStack = ({
       {shown.map((source, index) =>
         withHoverCard(
           source,
-          <div
+          <SourceAvatarLink
             style={{ ...circleStyle(index), zIndex: shown.length - index }}
             className={classNames('relative rounded-full', marginClass)}
-          >
-            <SourceAvatar
-              className="!mr-0 box-content ring-2 ring-background-default"
-              source={source}
-              size={size}
-            />
-          </div>,
+            avatarClassName="!mr-0 box-content ring-2 ring-background-default"
+            source={source}
+            size={size}
+          />,
         ),
       )}
       {remaining > 0 && (

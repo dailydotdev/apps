@@ -134,6 +134,27 @@ it('should display the collection source stack in the header', async () => {
   await screen.findByAltText('Avatar of src2');
 });
 
+it('should link each source in the stack to its source page', async () => {
+  renderComponent({
+    post: {
+      ...post,
+      collectionSources: [
+        {
+          id: 'src1',
+          handle: 'src1',
+          name: 'Source One',
+          image: 'https://daily.dev/src1.png',
+          permalink: 'https://daily.dev/sources/src1',
+        },
+      ],
+      numCollectionSources: 1,
+    } as Post,
+  });
+  const link = await screen.findByLabelText('Go to Source One');
+  expect(link).toHaveAttribute('href', 'https://daily.dev/sources/src1');
+  expect(link).toContainElement(screen.getByAltText('Avatar of src1'));
+});
+
 it('should show options button on hover when in laptop size', async () => {
   renderComponent();
   const header = await screen.findByLabelText('Options');

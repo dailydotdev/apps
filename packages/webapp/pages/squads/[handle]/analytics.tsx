@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
+import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { addDays, subDays } from 'date-fns';
@@ -49,6 +50,12 @@ import {
 } from '@dailydotdev/shared/src/lib/timezones';
 import { getFirstQueryParam } from '@dailydotdev/shared/src/lib/func';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
+import { noindexSeoProps } from '../../../next-seo';
+
+const seo: NextSeoProps = {
+  title: 'Squad analytics',
+  ...noindexSeoProps,
+};
 
 const SectionContainer = classed('div', 'flex flex-col gap-4');
 const dividerClassName = 'bg-border-subtlest-tertiary';
@@ -257,5 +264,6 @@ const SquadAnalyticsPage = (): ReactElement => {
 };
 
 SquadAnalyticsPage.getLayout = getMainLayout;
+SquadAnalyticsPage.layoutProps = { seo };
 
 export default SquadAnalyticsPage;

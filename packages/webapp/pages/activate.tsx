@@ -16,9 +16,9 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
-// Whether install referrals reach this page is decided upstream in `_app`
-// via the permission primer flag. Once here, the primer stays put until the
-// user acts on it — no per-user re-evaluation, so it never bounces out.
+// Install referrals (`/?ref=install`) are routed here by `getOnboardingRedirect`
+// in `_app`. Once here, the primer stays put until the user acts on it, then
+// hands off to `/onboarding`.
 function ActivatePage(): ReactElement {
   const router = useRouter();
 

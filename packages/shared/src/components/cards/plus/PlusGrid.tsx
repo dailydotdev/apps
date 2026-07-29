@@ -26,11 +26,6 @@ const bulletPointsControl = [
     status: PlusItemStatus.Ready,
   },
   {
-    label: 'Run prompts on any post',
-    tooltip: `Turn any post into an interactive learning experience. Ask AI to simplify concepts, challenge ideas, compare alternatives, or create your own custom prompt.`,
-    status: PlusItemStatus.Ready,
-  },
-  {
     label: 'Bookmark folders',
     tooltip: `Easily categorize and organize your bookmarked posts into folders so you can find what you need quickly.`,
     status: PlusItemStatus.Ready,

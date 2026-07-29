@@ -159,6 +159,21 @@ export const boostSettingsFeature = new Feature('boost_settings', {
 
 export const adImprovementsV3Feature = new Feature('ad_improvements_v3', false);
 
+// Experiment: ad disclosure wording. Control names the advertiser ("Promoted by
+// Vercel"); the treatments drop the advertiser and disclose with a plain "Ad",
+// with the strictest arm also removing the "Advertise here" self-promo so the
+// card carries a single disclosure. Measured on ad CTR (see `adLogEvent`).
+// Default MUST stay Control — GrowthBook ramps the arms.
+export enum AdLabelVariant {
+  Control = 'control',
+  Ad = 'ad',
+  AdOnly = 'ad_only',
+}
+export const featureAdLabel = new Feature<AdLabelVariant>(
+  'ad_label',
+  AdLabelVariant.Control,
+);
+
 export const featureYearInReview = new Feature('year_in_review_2025', false);
 
 export const featureProfileCompletionIndicator = new Feature(
@@ -263,11 +278,6 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
 // (dark translucent + blur) effect and shrinks the card height.
 export const featureFeedCardGlassActions = new Feature(
   'feed_card_glass_actions',
-  false,
-);
-
-export const featureOnboardingPermissionPrimer = new Feature(
-  'onboarding_permission_primer',
   false,
 );
 
