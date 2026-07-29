@@ -12,6 +12,7 @@ import { IconSize } from '../../../components/Icon';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { GivebackSection } from './GivebackSection';
+import { GivebackTabHeading } from './GivebackTabHeading';
 
 interface FaqItem {
   id: string;
@@ -24,13 +25,13 @@ const faqs: FaqItem[] = [
     id: 'cost',
     question: 'Does this cost me anything?',
     answer:
-      'No. daily.dev funds every donation. You never pay a cent. You just take small actions and we turn them into money for good causes.',
+      'Nothing. Not a cent. daily.dev funds every donation. You bring the actions, we bring the money.',
   },
   {
     id: 'how',
     question: 'How do my actions turn into donations?',
     answer:
-      'Each approved action unlocks a fixed amount that daily.dev donates to the causes you picked. The community meter is the sum of everyone’s actions.',
+      'Each action you complete unlocks a fixed amount that daily.dev donates to the causes you picked. The community meter is every dev’s actions added up.',
   },
   {
     id: 'causes',
@@ -54,7 +55,7 @@ const faqs: FaqItem[] = [
     id: 'why',
     question: 'Why is daily.dev doing this?',
     answer:
-      'We’d rather put our growth budget into causes the community cares about than burn it in ad auctions.',
+      'Most companies buy growth with ads. We’d rather earn it with you, by helping more developers discover daily.dev, and send that budget to causes the community actually cares about. You bring the growth, the world gets the money.',
   },
   {
     id: 'geo',
@@ -76,7 +77,8 @@ export const GivebackFaq = (): ReactElement => {
   };
 
   return (
-    <GivebackSection id="giveback-faq" title="Frequently asked questions">
+    <GivebackSection id="giveback-faq">
+      <GivebackTabHeading title="Frequently asked questions" />
       <div className="divide-y divide-border-subtlest-tertiary">
         {faqs.map((faq) => {
           const isOpen = openId === faq.id;
@@ -121,7 +123,7 @@ export const GivebackFaq = (): ReactElement => {
                     tag={TypographyTag.P}
                     type={TypographyType.Callout}
                     color={TypographyColor.Secondary}
-                    className="max-w-2xl pb-4"
+                    className="max-w-2xl pb-4 [text-wrap:pretty]"
                   >
                     {faq.answer}
                   </Typography>

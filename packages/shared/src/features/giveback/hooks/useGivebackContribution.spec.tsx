@@ -21,6 +21,7 @@ const tier = (id: string, thresholdPoints: number) => ({
   description: null,
   thresholdPoints,
   rewardType: ContributionRewardType.Custom,
+  metadata: {},
 });
 
 const setStatus = (userPoints: number | null, isPending = false) =>

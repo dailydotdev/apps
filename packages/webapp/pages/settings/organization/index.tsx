@@ -45,7 +45,7 @@ import UserBadge from '@dailydotdev/shared/src/components/UserBadge';
 import { getOrganizationSettingsUrl } from '@dailydotdev/shared/src/features/organizations/utils';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
-import { defaultSeo } from '../../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 
 const NoOrganizations = () => {
@@ -177,6 +177,7 @@ const Page = (): ReactElement => {
 const seo: NextSeoProps = {
   ...defaultSeo,
   ...getPageSeoTitles('Organizations'),
+  ...noindexSeoProps,
 };
 
 Page.getLayout = getSettingsLayout;

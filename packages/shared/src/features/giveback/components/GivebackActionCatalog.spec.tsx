@@ -31,6 +31,7 @@ const makeAction = (
     instructions: null,
     externalUrl: null,
     isLoveAction: false,
+    assistType: null,
   },
   cooldownSeconds: null,
   maxPerUser: null,
@@ -123,6 +124,7 @@ it('renders love actions in their own group', () => {
         instructions: null,
         externalUrl: null,
         isLoveAction: true,
+        assistType: null,
       },
     }),
   ]);

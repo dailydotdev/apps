@@ -5,6 +5,21 @@ import { GSI_SCRIPT_ID, GSI_SRC } from '../../types';
 
 type CredentialResponse = { credential?: string };
 
+type MomentType = 'display' | 'skipped' | 'dismissed';
+
+// Introspection beyond getMomentType() is deprecated/no-op once FedCM is active
+// (the browser owns the UI), so every accessor is optional and read defensively.
+type PromptMomentNotification = {
+  getMomentType?: () => MomentType;
+  isDisplayed?: () => boolean;
+  isNotDisplayed?: () => boolean;
+  getNotDisplayedReason?: () => string;
+  isSkippedMoment?: () => boolean;
+  getSkippedReason?: () => string;
+  isDismissedMoment?: () => boolean;
+  getDismissedReason?: () => string;
+};
+
 type GoogleId = {
   initialize: (config: {
     client_id: string;
@@ -15,8 +30,25 @@ type GoogleId = {
     ux_mode?: 'popup' | 'redirect';
     itp_support?: boolean;
   }) => void;
-  prompt: () => void;
+  prompt: (
+    listener?: (notification?: PromptMomentNotification) => void,
+  ) => void;
   cancel: () => void;
+};
+
+const getMomentReason = (
+  notification: PromptMomentNotification,
+): string | undefined => {
+  if (notification.isNotDisplayed?.()) {
+    return notification.getNotDisplayedReason?.();
+  }
+  if (notification.isSkippedMoment?.()) {
+    return notification.getSkippedReason?.();
+  }
+  if (notification.isDismissedMoment?.()) {
+    return notification.getDismissedReason?.();
+  }
+  return 'unknown';
 };
 
 const getGoogleId = (): GoogleId | undefined =>
@@ -112,7 +144,18 @@ export const useGoogleOneTap = ({
           }
         },
       });
-      googleId.prompt();
+      googleId.prompt((notification) => {
+        if (!notification) {
+          return;
+        }
+        logEventRef.current({
+          event_name: LogEvent.GoogleOneTapPrompt,
+          extra: JSON.stringify({
+            momentType: notification.getMomentType?.(),
+            reason: getMomentReason(notification),
+          }),
+        });
+      });
     };
 
     init();

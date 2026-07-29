@@ -28,6 +28,7 @@ import { useScrollTopClassName } from '../../hooks/useScrollTopClassName';
 import { useFeatureTheme } from '../../hooks/utils/useFeatureTheme';
 import { webappUrl } from '../../lib/constants';
 import NotificationsBell from '../notifications/NotificationsBell';
+import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
 import classed from '../../lib/classed';
 import type { AllFeedPages } from '../../lib/query';
 import { OtherFeedPage } from '../../lib/query';
@@ -66,6 +67,10 @@ function FeedNav(): ReactElement | null {
   const { home, bookmarks } = useActiveNav(feedName);
   const isMobile = useViewSize(ViewSize.MobileL);
   const isBelowLaptop = !useViewSize(ViewSize.Laptop);
+  // Phones get the giveback entry via MobileFeedActions and laptop+ via the
+  // header/rail; the tablet feed header is the only gap, so it renders its own.
+  // JS-gated (not CSS) so it never mounts alongside the other placements.
+  const isTablet = isBelowLaptop && !isMobile;
   const { value: feedChipsVariant } = useConditionalFeature({
     feature: featureFeedChips,
     shouldEvaluate: isBelowLaptop,
@@ -137,7 +142,8 @@ function FeedNav(): ReactElement | null {
     isCustomDefaultFeed,
   ]);
 
-  const shouldRenderNav = home || (isMobile && bookmarks);
+  const isDailyPage = router.pathname === '/daily';
+  const shouldRenderNav = home || isDailyPage || (isMobile && bookmarks);
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }
@@ -151,7 +157,7 @@ function FeedNav(): ReactElement | null {
     >
       {isMobile && <MobileFeedActions />}
       <div className="mb-4 h-[3.25rem] tablet:relative tablet:mb-0 tablet:h-auto tablet:min-h-[3.25rem]">
-        {isBelowLaptop && isFeedChipsEnabled ? (
+        {(isBelowLaptop && isFeedChipsEnabled) || isDailyPage ? (
           <UnifiedMobileFeedNav />
         ) : (
           <TabContainer
@@ -166,7 +172,7 @@ function FeedNav(): ReactElement | null {
             tabListProps={{
               className: {
                 indicator: '!w-6',
-                item: 'px-1 tablet:last-of-type:mr-12',
+                item: 'px-1 tablet:last-of-type:mr-24',
               },
               autoScrollActive: true,
             }}
@@ -217,7 +223,8 @@ function FeedNav(): ReactElement | null {
             <MyFeedHeading />
           </StickyNavIconWrapper>
         )}
-        <div className="hidden items-center bg-background-default tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:flex laptop:hidden">
+        <div className="hidden items-center gap-2 bg-background-default tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:flex laptop:hidden">
+          {isTablet && <GivebackGiftEntry compact />}
           <NotificationsBell compact />
         </div>
       </div>

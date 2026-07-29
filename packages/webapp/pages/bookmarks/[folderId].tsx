@@ -5,7 +5,7 @@ import { useBookmarkFolder } from '@dailydotdev/shared/src/hooks/bookmark/useBoo
 import { useRouter } from 'next/router';
 import { usePlusSubscription } from '@dailydotdev/shared/src/hooks';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { defaultOpenGraph, defaultSeo, noindexSeoProps } from '../../next-seo';
 import {
   getBookmarkFeedLayout,
   bookmarkFeedLayoutProps,
@@ -15,6 +15,7 @@ const seo: NextSeoProps = {
   title: `Your daily.dev bookmarks`,
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
+  ...noindexSeoProps,
 };
 
 const BookmarksPage = (): ReactElement | null => {

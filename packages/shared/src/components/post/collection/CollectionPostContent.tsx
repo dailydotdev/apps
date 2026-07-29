@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Link from '../../utilities/Link';
 import { LazyImage } from '../../LazyImage';
 import { ToastSubject, useToastNotification } from '../../../hooks';
@@ -16,9 +16,8 @@ import type { PostContentProps, PostNavigationProps } from '../common';
 import { PostContainer } from '../common';
 import { Pill } from '../../Pill';
 import { CollectionsIntro } from '../widgets';
-import { useAuthContext } from '../../../contexts/AuthContext';
 import { webappUrl } from '../../../lib/constants';
-import { useViewPost } from '../../../hooks/post/useViewPost';
+import { useTrackPostView } from '../../../hooks/post/useTrackPostView';
 import { DateFormat } from '../../utilities';
 import { withPostById } from '../withPostById';
 import { PostTagList } from '../tags/PostTagList';
@@ -50,7 +49,6 @@ const CollectionPostContentRaw = ({
   isBannerVisible,
   isPostPage,
 }: CollectionPostContentRawProps): ReactElement => {
-  const { user } = useAuthContext();
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
     origin,
@@ -80,15 +78,7 @@ const CollectionPostContentRaw = ({
     inlineActions,
   };
 
-  const onSendViewPost = useViewPost();
-
-  useEffect(() => {
-    if (!post?.id || !user?.id) {
-      return;
-    }
-
-    onSendViewPost(post.id);
-  }, [post?.id, onSendViewPost, user?.id]);
+  useTrackPostView({ post });
 
   return (
     <PostContentContainer

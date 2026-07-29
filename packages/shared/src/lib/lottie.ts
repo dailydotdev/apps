@@ -2,7 +2,7 @@ import { disabledRefetch } from './func';
 import { fromCDN } from './links';
 import { generateQueryKey, RequestKey } from './query';
 
-export const lottieAssetsBasePath = '/assets/lottie';
+export const lottieAssetsBasePath = '/app/assets/lottie';
 
 export const lottieAnimationQueryOptions = ({
   src,

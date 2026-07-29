@@ -3,6 +3,7 @@ import React from 'react';
 import type { Ad } from '../../../../graphql/posts';
 import { CardLink } from '../../common/Card';
 import { combinedClicks } from '../../../../lib/click';
+import { useAdClickUrl } from '../../../../features/monetization/useAdClickUrl';
 
 export type AdLinkProps = {
   ad: Ad;
@@ -10,9 +11,11 @@ export type AdLinkProps = {
 };
 
 export default function AdLink({ ad, onLinkClick }: AdLinkProps): ReactElement {
+  const href = useAdClickUrl(ad);
+
   return (
     <CardLink
-      href={ad.link}
+      href={href}
       target="_blank"
       rel="noopener"
       title={ad.description}

@@ -6,8 +6,10 @@ import ProfileButton from '../profile/ProfileButton';
 import { useAuthContext } from '../../contexts/AuthContext';
 import classed from '../../lib/classed';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { useViewSize, ViewSize } from '../../hooks';
 import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 import { QuestHeaderButton } from '../header/QuestHeaderButton';
+import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
 
 interface HeaderButtonsProps {
   additionalButtons?: ReactNode;
@@ -20,6 +22,7 @@ export function HeaderButtons({
 }: HeaderButtonsProps): ReactElement {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { loadedSettings } = useSettingsContext();
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   if (!isAuthReady || !loadedSettings) {
     return <Container />;
@@ -42,6 +45,7 @@ export function HeaderButtons({
     <Container>
       <OpportunityEntryButton />
       <QuestHeaderButton />
+      <GivebackGiftEntry compact={!isLaptop} />
       {additionalButtons}
       <NotificationsBell />
       <ProfileButton className="hidden laptop:flex" />

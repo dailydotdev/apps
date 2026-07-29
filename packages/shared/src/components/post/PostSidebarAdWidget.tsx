@@ -147,7 +147,7 @@ export function PostSidebarAdWidget({
               </Typography>
             )}
             <div className="flex items-center gap-1.5">
-              <AdAttribution className={{ main: 'relative z-1' }} />
+              <AdAttribution ad={ad} className={{ main: 'relative z-1' }} />
               <span aria-hidden className="text-text-quaternary typo-footnote">
                 ·
               </span>
@@ -232,7 +232,7 @@ export function PostSidebarAdWidget({
             {company}
           </Typography>
         )}
-        <AdAttribution className={{ main: 'relative z-1' }} />
+        <AdAttribution ad={ad} className={{ main: 'relative z-1' }} />
         {hasDescription && (
           <Typography
             tag={TypographyTag.P}

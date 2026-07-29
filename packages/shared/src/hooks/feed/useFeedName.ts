@@ -38,6 +38,21 @@ const explorePages: AllFeedPages[] = [
   OtherFeedPage.ExploreDiscussed,
 ];
 
+// Feeds where the in-feed engagement strip may render: the two core home
+// feeds plus the explore-tag feed. Excludes search, squads, bookmarks,
+// profile, and notifications. The standalone tag page (OtherFeedPage.Tag,
+// rendered by TagTopicPage) is intentionally excluded — it composes its own
+// sections and renders a standalone FeedEngagementStrip lower on the page, so
+// an in-feed strip there would duplicate it.
+const engagementAdFeeds: AllFeedPages[] = [
+  SharedFeedPage.MyFeed,
+  SharedFeedPage.Popular,
+  OtherFeedPage.ExploreTag,
+];
+
+export const isEngagementAdFeed = (feedName?: AllFeedPages | null): boolean =>
+  !!feedName && engagementAdFeeds.includes(feedName);
+
 export const useFeedName = ({ feedName }: UseFeedNameProps): UseFeedName => {
   return {
     isUpvoted: feedName === SharedFeedPage.Upvoted,

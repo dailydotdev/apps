@@ -20,7 +20,11 @@ import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../../../components/layouts/MainFeedPage';
-import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
+import {
+  defaultOpenGraph,
+  defaultSeo,
+  noindexSeoProps,
+} from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 
 const seoTitles = getPageSeoTitles('Edit feed');
@@ -28,6 +32,7 @@ const seo: NextSeoProps = {
   title: seoTitles.title,
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   ...defaultSeo,
+  ...noindexSeoProps,
 };
 
 const EditFeedPage = (): ReactElement | null => {

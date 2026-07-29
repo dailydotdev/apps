@@ -16,7 +16,6 @@ export interface PageInfo {
   hasPreviousPage?: boolean | null;
   hasNextPage?: boolean | null;
   totalCount?: number | null;
-  staleCursor?: boolean;
 }
 
 export interface Connection<T> {
@@ -228,6 +227,10 @@ GraphQLClient.prototype.unsetHeader = function unsetHeader(name: string) {
 
   return this;
 };
+
+// Identifies the calling platform (webapp, extension, ios, android) so the
+// API can attribute requests such as feeds to their originating client.
+export const dailyClientHeader = 'X-Daily-Client';
 
 export const gqlClient = new GraphQLClient(graphqlUrl, {
   credentials: 'include',

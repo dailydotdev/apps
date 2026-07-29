@@ -50,7 +50,8 @@ export default function FooterWrapper({
 
   const showPlusButton =
     !router?.pathname?.startsWith('/settings') &&
-    !router?.pathname?.startsWith('/posts/');
+    !router?.pathname?.startsWith('/posts/') &&
+    !router?.pathname?.startsWith('/giveback');
 
   return (
     <div

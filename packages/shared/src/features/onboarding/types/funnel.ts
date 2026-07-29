@@ -2,7 +2,11 @@ import type { ComponentProps } from 'react';
 import type { Review, StepHeadlineAlign } from '../shared';
 import type { FormInputCheckboxGroupProps } from '../../common/components/FormInputCheckboxGroup';
 import type { ThemeMode } from '../../../contexts/SettingsContext';
-import type { AnonymousUser, LoggedUser } from '../../../lib/user';
+import type {
+  AnonymousUser,
+  LoggedUser,
+  ProfileExtraField,
+} from '../../../lib/user';
 import type { BrowserName } from '../../../lib/func';
 import type {
   FunnelStepPricingParameters,
@@ -32,7 +36,6 @@ export enum FunnelStepType {
   HeroLanding = 'heroLanding',
   BrowserExtension = 'browserExtension',
   UploadCv = 'uploadCv',
-  PersonaQuiz = 'personaQuiz',
 }
 
 export enum FunnelBackgroundVariant {
@@ -275,6 +278,9 @@ export interface FunnelStepProfileForm
     headline: string;
     image: string;
     imageMobile: string;
+    // Extra profile fields to collect, set per funnel in Freyja (e.g. for an
+    // Instagram/Facebook campaign). Omitted = default fields only.
+    extraFields?: ProfileExtraField[];
   }> {
   type: FunnelStepType.ProfileForm;
   onTransition: FunnelStepTransitionCallback;
@@ -283,7 +289,11 @@ export interface FunnelStepProfileForm
 export interface FunnelStepEditTags
   extends FunnelStepCommon<{
     headline: string;
+    cta?: string;
     minimumRequirement: number;
+    // Tag names to surface first on the selection grid, set per funnel in
+    // Freyja (e.g. cloud-related tags for the campaign cohort).
+    featuredTags?: string[];
   }> {
   type: FunnelStepType.EditTags;
   onTransition: FunnelStepTransitionCallback<{
@@ -309,6 +319,9 @@ export interface FunnelStepOrganicSignup
     explainer: string;
     image: string;
     imageMobile: string;
+    // Extra profile fields to collect on the email registration form, set per
+    // funnel in Freyja (e.g. Instagram/Facebook campaign). Omitted = none.
+    extraFields?: ProfileExtraField[];
   }> {
   type: FunnelStepType.OrganicSignup;
   onTransition: FunnelStepTransitionCallback<{
@@ -363,8 +376,6 @@ export interface FunnelStepPlusCards
   }>;
 }
 
-export type FunnelExtensionImage = { default: string; retina: string };
-
 export interface FunnelStepBrowserExtension
   extends FunnelStepCommon<{
     headline?: string;
@@ -372,10 +383,7 @@ export interface FunnelStepBrowserExtension
     cta?: string;
     skip?: string;
     showReviews?: boolean;
-    image?: {
-      chrome?: FunnelExtensionImage;
-      edge?: FunnelExtensionImage;
-    };
+    video?: string;
   }> {
   type: FunnelStepType.BrowserExtension;
   onTransition: FunnelStepTransitionCallback<{
@@ -402,28 +410,6 @@ export interface FunnelStepUploadCv
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepPersonaQuiz
-  extends FunnelStepCommon<{
-    headline?: string;
-    explainer?: string;
-    cta?: string;
-    /**
-     * Base path for the mascot clips. The component appends the per-state
-     * suffix, e.g. `${base}-thinking.webm`, `${base}-reveal.webm`. An alpha
-     * WebM is expected, with an HEVC `.mov` sibling for Safari.
-     */
-    mascotVideoBaseUrl?: string;
-  }> {
-  type: FunnelStepType.PersonaQuiz;
-  onTransition: FunnelStepTransitionCallback<{
-    persona?: string;
-    confidence?: number;
-    questions: number;
-    manual: boolean;
-    modifiers: string[];
-  }>;
-}
-
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -445,8 +431,7 @@ export type FunnelStep =
   | FunnelStepHeroLanding
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
-  | FunnelStepUploadCv
-  | FunnelStepPersonaQuiz;
+  | FunnelStepUploadCv;
 
 export type FunnelPosition = {
   chapter: number;
@@ -496,5 +481,4 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.BrowserExtension,
   FunnelStepType.InstallPwa,
   FunnelStepType.UploadCv,
-  FunnelStepType.PersonaQuiz,
 ];

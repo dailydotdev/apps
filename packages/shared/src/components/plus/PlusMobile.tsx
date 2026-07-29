@@ -11,8 +11,6 @@ import { plusUrl } from '../../lib/constants';
 import { objectToQueryParams } from '../../lib';
 import { PlusProductToggle } from './PlusProductToggle';
 import { PurchaseType } from '../../graphql/paddle';
-import { useFeature } from '../GrowthBookProvider';
-import { featurePlusApiLanding } from '../../lib/featureManagement';
 
 const PlusTrustRefund = dynamic(() =>
   import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
@@ -29,7 +27,6 @@ export const PlusMobile = ({
   const router = useRouter();
   const { giftToUser } = useGiftUserContext();
   const { productOptions, isOrganization } = usePaymentContext();
-  const isApiLanding = useFeature(featurePlusApiLanding);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   const selectionChange: OpenCheckoutFn = useCallback(({ priceId }) => {
@@ -83,7 +80,7 @@ export const PlusMobile = ({
         shouldShowPlusHeader={shouldShowPlusHeader}
       />
       <PlusTrustRefund className="mt-6" />
-      {isApiLanding && !isOrganization && !giftToUser && <PlusApiShowcase />}
+      {!isOrganization && !giftToUser && <PlusApiShowcase />}
       <PlusFAQs />
     </div>
   );

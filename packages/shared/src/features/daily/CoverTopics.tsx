@@ -37,6 +37,7 @@ import {
   channelConfigurationsQueryOptions,
   dailyHeadlinesQueryOptions,
 } from '../../graphql/highlights';
+import { useOnboardingActions } from '../../hooks/auth/useOnboardingActions';
 import { HeadlinesSettingsModal } from './HeadlinesSettingsModal';
 import { DailyPostVotes } from './DailyPostVotes';
 import type { UpdateDailyPost } from './optimisticMutations';
@@ -311,7 +312,11 @@ const HeadlineRowSkeleton = (): ReactElement => (
 export const CoverTopics = (): ReactElement => {
   const { logEvent } = useLogContext();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { data, isPending } = useQuery(dailyHeadlinesQueryOptions());
+  const { isOnboardingComplete } = useOnboardingActions();
+  const { data, isPending } = useQuery({
+    ...dailyHeadlinesQueryOptions(),
+    enabled: isOnboardingComplete,
+  });
   const { data: channelData } = useQuery(channelConfigurationsQueryOptions());
   const [getHeadlines, setHeadlines] = useUpdateQuery(
     dailyHeadlinesQueryOptions(),

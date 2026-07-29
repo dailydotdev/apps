@@ -1,33 +1,31 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { FlexCol } from '../../../components/utilities';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-  TypographyType,
-} from '../../../components/typography/Typography';
 import { GivebackBackground } from './GivebackBackground';
+import { GivebackFunnel } from './GivebackFunnel';
 import { GivebackHero } from './GivebackHero';
-import { GivebackSponsorTiers } from './GivebackSponsorTiers';
-import { GivebackCauseSelection } from './GivebackCauseSelection';
-import { GivebackOnboardingBar } from './GivebackOnboardingBar';
 import { GivebackLegalFooter } from './GivebackLegalFooter';
 import { GivebackTabNav, givebackTabs } from './GivebackTabNav';
 import { GivebackActionCatalog } from './GivebackActionCatalog';
 import { GivebackContributionSummary } from './GivebackContributionSummary';
+import { GivebackTabHeading } from './GivebackTabHeading';
 import { GivebackImpactPanel } from './GivebackImpactPanel';
-import { GivebackCampaignPanel } from './GivebackCampaignPanel';
-import { GivebackFundingBar } from './GivebackFundingBar';
+import { GivebackLeaderboard } from './GivebackLeaderboard';
+import { GivebackCausesPanel } from './GivebackCausesPanel';
+import { GivebackCausesBreakdown } from './GivebackCausesBreakdown';
+import { GivebackFaq } from './GivebackFaq';
+import { GeoGateFallback } from './GeoGateFallback';
 import type { GivebackTabId } from './GivebackTabNav';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { useContributionStatus } from '../hooks/useContributionStatus';
+import { useContributionCauseBreakdown } from '../hooks/useContributionCauseBreakdown';
 import { useGivebackCauseSelection } from '../hooks/useGivebackCauseSelection';
 
-// Centers a section to the page column. The tab nav lives outside this so its
-// glass background can span the full content width.
-const column = 'mx-auto w-full max-w-6xl px-4';
+// Single source of truth for the page gutter, shared by the hero, the tab
+// content and the footer so every row lines up at the exact same left/right
+// padding. Scales up on wider screens so content isn't edge-tight.
+const column = 'mx-auto w-full max-w-6xl px-4 tablet:px-8 laptop:px-12';
 
 const scrollIntoView = (node: HTMLElement | null): void => {
   if (!node || typeof node.scrollIntoView !== 'function') {
@@ -39,27 +37,39 @@ const scrollIntoView = (node: HTMLElement | null): void => {
 export const GivebackPage = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { status } = useContributionStatus();
+  const { breakdown } = useContributionCauseBreakdown();
   // Eligibility gates the cause picker query (backend-gated), so only eligible
-  // visitors load their picks — which also tells us whether to show the tabs.
+  // visitors load their picks - which also tells us whether to show the tabs.
   const isEligible = status?.eligible === true;
   const selection = useGivebackCauseSelection(isEligible);
 
-  // First-timers open the picker from the hero; once they confirm (or arrive
-  // already onboarded) the tabbed experience takes over.
-  const [startedPicker, setStartedPicker] = useState(false);
+  // Geo gate: `enabled` is a campaign-wide field that resolves for everyone
+  // (including anonymous visitors), so it's the signal for "not live in this
+  // region". Only gate once status has resolved, otherwise the fallback would
+  // flash before the campaign body while the overview query is in flight.
+  const geoBlocked = !!status && !status.enabled;
+
+  // Causes are confirmed inside the warm-up funnel; once they save (or the
+  // visitor arrives already onboarded) the tabbed experience takes over.
   const [completedOnboarding, setCompletedOnboarding] = useState(false);
   const [activeTab, setActiveTab] = useState<GivebackTabId>('actions');
+  const [replayFunnel, setReplayFunnel] = useState(false);
 
+  // Resolved once we know the campaign status and, for eligible visitors,
+  // whether they've already saved causes. The whole body waits on this so the
+  // hero and tabs never flash on screen before a forced funnel covers them, and
+  // the tabs never pop in once the saved picks land.
+  const onboardingResolved = !!status && (!isEligible || !selection.isLoading);
+
+  // First-timers (eligible, no saved causes) get the warm-up funnel
+  // automatically and it stays up until they save a pick; it's also replayable
+  // from the hero's "How it works".
+  const needsOnboarding =
+    isEligible && !selection.hasSavedCauses && !completedOnboarding;
+  const forcedFunnel = onboardingResolved && needsOnboarding;
+  const showFunnel = replayFunnel || forcedFunnel;
   const showTabs = selection.hasSavedCauses || completedOnboarding;
-  const showPicker = startedPicker && !showTabs;
 
-  // Hold the hero CTA until we know the onboarding state, so its copy doesn't
-  // flip from "Join the campaign" to "Take action" after the data lands. Settled
-  // once the campaign status loads and (for eligible visitors) the picks do too.
-  const isCtaResolving =
-    !status || (isEligible && selection.isLoading && !completedOnboarding);
-
-  const causesRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
 
   // The tab section can mount in the same tick we ask to scroll (right after
@@ -82,12 +92,23 @@ export const GivebackPage = (): ReactElement => {
         event_name: LogEvent.ClickGivebackTab,
         extra: JSON.stringify({ tab }),
       });
+      // Just swap the content below - don't scroll the page to the tab strip.
+      // The reserved min-height on the content area keeps the scroll position
+      // stable even when the newly-selected tab is shorter.
       setActiveTab(tab);
     },
     [logEvent],
   );
 
-  const handleContinue = useCallback(async () => {
+  const handleHowItWorks = useCallback(() => {
+    logEvent({ event_name: LogEvent.ClickGivebackHowItWorks });
+    setReplayFunnel(true);
+  }, [logEvent]);
+
+  // Finishing the funnel saves the visitor's causes. A forced first run then
+  // drops them into the campaign; a replay just closes.
+  const handleFunnelComplete = useCallback(async () => {
+    const wasReplay = replayFunnel;
     const saved = await selection.save();
     if (saved) {
       logEvent({
@@ -95,108 +116,105 @@ export const GivebackPage = (): ReactElement => {
         extra: JSON.stringify({
           cause_count: selection.selectedIds.size,
           cause_ids: [...selection.selectedIds],
+          origin: 'funnel',
         }),
       });
-      setCompletedOnboarding(true);
-      goToActions();
     }
-  }, [selection, goToActions, logEvent]);
-
-  // Reveal the picker, then bring it into view as it mounts.
-  useEffect(() => {
-    if (showPicker) {
-      scrollIntoView(causesRef.current);
+    if (wasReplay) {
+      setReplayFunnel(false);
+      return;
     }
-  }, [showPicker]);
+    setCompletedOnboarding(true);
+    goToActions();
+  }, [replayFunnel, selection, logEvent, goToActions]);
 
   const activeLabel = givebackTabs.find((tab) => tab.id === activeTab)?.label;
 
+  // No `overflow-x-clip` on the root: it would clip GivebackBackground's
+  // `laptop:-inset-1` corner bleed and leave a dark crescent inside the app
+  // card's rounded corner. Stray horizontal bleed is still caught by the global
+  // `body { overflow-x: hidden }` and the card's own `laptop:overflow-clip`.
   return (
     <div className="relative min-h-page w-full">
       <GivebackBackground />
 
-      <FlexCol className="relative gap-14 py-8 tablet:py-14">
-        <div className={column}>
-          <GivebackHero
-            isResolving={isCtaResolving}
-            hasSelectedCauses={showTabs}
-            onJoin={() => setStartedPicker(true)}
-            onTakeAction={goToActions}
-          />
-        </div>
+      {geoBlocked && <GeoGateFallback />}
 
-        <div className={column}>
-          <GivebackSponsorTiers />
-        </div>
-
-        {showPicker && (
-          <div ref={causesRef} className={`${column} scroll-mt-16`}>
-            <FlexCol className="gap-6">
-              <FlexCol className="gap-2">
-                <Typography
-                  tag={TypographyTag.H2}
-                  type={TypographyType.Title2}
-                  bold
-                >
-                  Pick the causes you care about
-                </Typography>
-                <Typography
-                  tag={TypographyTag.P}
-                  type={TypographyType.Callout}
-                  color={TypographyColor.Secondary}
-                >
-                  Your actions fund the causes you choose. We fund developers,
-                  not ads.
-                </Typography>
-              </FlexCol>
-              <GivebackCauseSelection
-                causes={selection.causes}
-                isLoading={selection.isLoading}
-                selectedIds={selection.selectedIds}
-                onToggle={selection.toggleCause}
-              />
-            </FlexCol>
+      {/* Hold the body until we know whether to force the funnel. The funnel is a
+          full-screen overlay on the same background, so revealing the hero/tabs
+          first would flash them on screen before it covers them. While resolving,
+          only the shared background shows, so there's no flash and no shift. */}
+      {!geoBlocked && onboardingResolved && !forcedFunnel && (
+        <FlexCol className="relative gap-6 py-6 tablet:gap-8 tablet:py-8">
+          <div className={column}>
+            <GivebackHero onHowItWorks={handleHowItWorks} />
           </div>
-        )}
 
-        {showTabs && (
-          <div ref={tabsRef} className="scroll-mt-16">
-            <GivebackTabNav activeTab={activeTab} onSelect={handleSelectTab} />
-
-            <div
-              key={activeTab}
-              role="region"
-              aria-label={activeLabel}
-              className={`${column} pt-8`}
-            >
-              {activeTab === 'actions' && (
-                <FlexCol className="gap-6">
-                  <GivebackContributionSummary />
-                  <GivebackActionCatalog />
-                </FlexCol>
-              )}
-              {activeTab === 'impact' && (
-                <GivebackImpactPanel onTakeAction={goToActions} />
-              )}
-              {activeTab === 'why' && <GivebackCampaignPanel />}
+          {showTabs && breakdown.length > 0 && (
+            <div className={column}>
+              <GivebackCausesBreakdown flat breakdown={breakdown} />
             </div>
+          )}
+
+          {showTabs && (
+            <div ref={tabsRef} className="scroll-mt-16">
+              <GivebackTabNav
+                activeTab={activeTab}
+                onSelect={handleSelectTab}
+              />
+
+              <div
+                key={activeTab}
+                role="region"
+                aria-label={activeLabel}
+                // Only the filterable tabs reserve a viewport-tall area: when their
+                // list shrinks on filter, the extra height keeps the sticky tabs
+                // from springing back (the page "jump"). Impact/FAQ have no filters,
+                // so they fit content naturally - no dead gap before the footer.
+                className={`${column} pt-8 ${
+                  activeTab === 'actions' || activeTab === 'causes'
+                    ? 'min-h-[calc(100dvh-3.5rem)]'
+                    : ''
+                }`}
+              >
+                {activeTab === 'actions' && (
+                  <FlexCol className="gap-6">
+                    <GivebackTabHeading
+                      title="Your contribution"
+                      description="Each action unlocks real money for the causes you back, funded by us, chosen by you. Take one and watch your number climb."
+                    />
+                    <GivebackContributionSummary />
+                    <GivebackActionCatalog onFilter={scrollToTabs} />
+                  </FlexCol>
+                )}
+                {activeTab === 'impact' && (
+                  <GivebackImpactPanel onTakeAction={goToActions} />
+                )}
+                {activeTab === 'leaderboard' && (
+                  <GivebackLeaderboard onTakeAction={goToActions} />
+                )}
+                {activeTab === 'causes' && (
+                  <GivebackCausesPanel onFilter={scrollToTabs} />
+                )}
+                {activeTab === 'faq' && <GivebackFaq />}
+              </div>
+            </div>
+          )}
+
+          <div className={column}>
+            <GivebackLegalFooter />
           </div>
-        )}
-
-        <div className={column}>
-          <GivebackLegalFooter />
-        </div>
-      </FlexCol>
-
-      {showPicker && (
-        <GivebackOnboardingBar
-          selectedCount={selection.selectedCount}
-          isSaving={selection.isSaving}
-          onContinue={handleContinue}
-        />
+        </FlexCol>
       )}
 
-      {showTabs && <GivebackFundingBar onTakeAction={goToActions} />}
+      {!geoBlocked && showFunnel && (
+        <GivebackFunnel
+          selection={selection}
+          canClose={replayFunnel}
+          onClose={() => setReplayFunnel(false)}
+          onComplete={handleFunnelComplete}
+        />
+      )}
     </div>
   );
 };

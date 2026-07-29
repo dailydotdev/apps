@@ -59,6 +59,7 @@ interface PostToSquadProps {
   id: string;
   sourceId?: string;
   commentary: string;
+  scheduledAt?: string | null;
 }
 
 export const UPDATE_MEMBER_ROLE_MUTATION = gql`
@@ -236,9 +237,22 @@ export const EDIT_SQUAD_MUTATION = gql`
 `;
 
 export const ADD_POST_TO_SQUAD_MUTATION = gql`
-  mutation AddPostToSquad($id: ID!, $sourceId: ID!, $commentary: String) {
-    sharePost(id: $id, sourceId: $sourceId, commentary: $commentary) {
+  mutation AddPostToSquad(
+    $id: ID!
+    $sourceId: ID!
+    $commentary: String
+    $scheduledAt: DateTime
+  ) {
+    sharePost(
+      id: $id
+      sourceId: $sourceId
+      commentary: $commentary
+      scheduledAt: $scheduledAt
+    ) {
       id
+      flags {
+        scheduledAt
+      }
     }
   }
 `;
@@ -663,13 +677,19 @@ export const checkExistingHandle = async (handle: string): Promise<boolean> => {
 
 export const addPostToSquad =
   (requestMethod: typeof gqlClient.request) =>
-  (data: PostToSquadProps): Promise<Post> =>
-    requestMethod(ADD_POST_TO_SQUAD_MUTATION, data);
+  async (data: PostToSquadProps): Promise<Post> => {
+    const res = await requestMethod(ADD_POST_TO_SQUAD_MUTATION, data);
+
+    return res.sharePost;
+  };
 
 export const updateSquadPost =
   (requestMethod: typeof gqlClient.request) =>
-  (data: PostToSquadProps): Promise<Post> =>
-    requestMethod(UPDATE_SQUAD_POST_MUTATION, data);
+  async (data: PostToSquadProps): Promise<Post> => {
+    const res = await requestMethod(UPDATE_SQUAD_POST_MUTATION, data);
+
+    return res.editSharePost;
+  };
 
 const formToInput = (form: SquadForm): SharedSquadInput => ({
   description: form.description,

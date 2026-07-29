@@ -12,7 +12,7 @@ export const useContributionSponsors = (): UseContributionSponsors => {
   const { data, isPending } = useContributionOverview();
 
   return {
-    sponsors: data?.contributionSponsors.edges.map((edge) => edge.node) ?? [],
+    sponsors: data?.contributionSponsors?.edges.map((edge) => edge.node) ?? [],
     isPending,
   };
 };

@@ -339,6 +339,8 @@ export const UPDATE_USER_PROFILE_MUTATION = gql`
       infoConfirmed
       timezone
       experienceLevel
+      company
+      title
       language
       socialLinks {
         platform
@@ -611,6 +613,7 @@ export interface UserStreak {
   current: number;
   weekStart: DayOfWeek;
   lastViewAt: Date;
+  freezesAvailable: number;
 }
 
 export interface UserProfileAnalytics {

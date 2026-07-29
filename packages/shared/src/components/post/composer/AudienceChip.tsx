@@ -189,6 +189,7 @@ export const AudienceChip = ({
         <DropdownMenuContent
           align="start"
           variant="field"
+          onClick={(event) => event.stopPropagation()}
           className={classNames(
             '!min-w-64 !max-w-72',
             isAtSquadLimit && '!pb-0',

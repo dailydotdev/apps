@@ -100,6 +100,7 @@ const UserEducationForm = ({ company }: UserEducationFormProps) => {
             name="description"
             label="Relevant projects, hackathons, technical clubs"
             maxLength={5000}
+            rows={6}
           />
         </div>
       </div>

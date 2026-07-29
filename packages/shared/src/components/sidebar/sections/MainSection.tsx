@@ -30,7 +30,6 @@ import { useConditionalFeature } from '../../../hooks';
 import {
   DailyPageVariant,
   featureDailyPage,
-  featurePlusApiLanding,
   featureYearInReview,
 } from '../../../lib/featureManagement';
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
@@ -46,13 +45,7 @@ export const MainSection = ({
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
-  const { value: isApiLanding } = useConditionalFeature({
-    feature: featurePlusApiLanding,
-    shouldEvaluate: !isPlus,
-  });
-  const ctaCopy = isApiLanding
-    ? { full: 'Get API Access', short: 'API access' }
-    : { full: 'Level Up with Plus', short: 'Upgrade' };
+  const ctaCopy = { full: 'Get API Access', short: 'API access' };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
     shouldEvaluate: isLoggedIn,
@@ -110,12 +103,8 @@ export const MainSection = ({
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,
-          color: isApiLanding
-            ? 'text-action-plus-default'
-            : 'text-accent-avocado-default',
-          itemClassName: isApiLanding
-            ? 'bg-action-plus-float/50 hover:bg-action-plus-float'
-            : 'bg-action-upvote-float/50 hover:bg-action-upvote-float',
+          color: 'text-action-plus-default',
+          itemClassName: 'bg-action-plus-float/50 hover:bg-action-plus-float',
           disableDefaultBackground: true,
         }
       : undefined;
@@ -229,7 +218,6 @@ export const MainSection = ({
   }, [
     claimableMilestoneCount,
     ctaCopy.full,
-    isApiLanding,
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,

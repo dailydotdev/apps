@@ -224,7 +224,7 @@ export const NotificationsFeed = (): ReactElement => {
         <EnableNotification />
         {!showPushBanner && <DigestUpsellBanner />}
         {!isV2Laptop && (
-          <div className="flex items-center justify-between p-6">
+          <div className="flex items-center justify-between px-4 pb-2 pt-4">
             <h2
               className="font-bold typo-body"
               data-testid="notification_page-title"
@@ -245,7 +245,7 @@ export const NotificationsFeed = (): ReactElement => {
         {/* On v2 the type filters live in the sidebar rail panel; on the
             legacy/mobile layout (no rail) keep them as in-page tabs. */}
         {!isV2Laptop && (hasNotifications || !!activeCategory) && (
-          <div className="border-b border-border-subtlest-tertiary px-4">
+          <div className="flex min-h-14 items-center border-b border-border-subtlest-quaternary px-4">
             <NotificationFilterBar
               categories={notificationFilterCategoryList}
               active={activeCategory}

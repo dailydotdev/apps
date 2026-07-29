@@ -20,9 +20,18 @@ import { NotificationsContextProvider } from './NotificationsContext';
 import { BOOT_LOCAL_KEY, BOOT_QUERY_KEY } from './common';
 import { GrowthBookProvider } from '../components/GrowthBookProvider';
 import { useHostStatus } from '../hooks/useHostPermissionStatus';
-import { checkIsExtension, isIOSNative } from '../lib/func';
+import {
+  checkIsExtension,
+  getDailyClientPlatform,
+  isIOSNative,
+} from '../lib/func';
 import type { ApiErrorResult } from '../graphql/common';
-import { ApiError, getApiError, gqlClient } from '../graphql/common';
+import {
+  ApiError,
+  dailyClientHeader,
+  getApiError,
+  gqlClient,
+} from '../graphql/common';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { LogContextProvider } from './LogContext';
 import { REQUEST_APP_ACCOUNT_TOKEN_MUTATION } from '../graphql/users';
@@ -87,6 +96,7 @@ const updateLocalBootData = (
     'feeds',
     'geo',
     'isAndroidApp',
+    'daily',
   ]);
 
   storage.setItem(BOOT_LOCAL_KEY, JSON.stringify(result));
@@ -144,6 +154,11 @@ export const BootDataProvider = ({
   const logged = cachedBootData?.user as LoggedUser;
   const shouldRefetch = !!logged?.providers && !!logged?.id;
   const lastAppliedChangeRef = useRef<Partial<BootCacheData>>();
+  // `daily` is client-owned for the session: seeded from the server on the
+  // first boot response and mutated only via `setDaily`. It lives in memory
+  // (never written to the persisted boot cache) so background refetches don't
+  // revert the daily-as-default view mid-session; a full refresh re-seeds it.
+  const [dailyOverride, setDailyOverride] = useState<boolean>();
 
   const {
     data: remoteData,
@@ -177,6 +192,7 @@ export const BootDataProvider = ({
     geo,
     isAndroidApp,
   } = cachedBootData || {};
+  const daily = dailyOverride ?? cachedBootData?.daily;
 
   useRefreshToken(remoteData?.accessToken, refetch);
 
@@ -252,6 +268,10 @@ export const BootDataProvider = ({
     [updateBootData],
   );
 
+  const setDaily = useCallback((value: boolean) => {
+    setDailyOverride(value);
+  }, []);
+
   const updateAlerts = useCallback(
     (updatedAlerts: BootCacheData['alerts']) =>
       updateBootData({ alerts: updatedAlerts }),
@@ -273,6 +293,8 @@ export const BootDataProvider = ({
     [cachedBootData],
   );
 
+  gqlClient.setHeader(dailyClientHeader, getDailyClientPlatform(version));
+
   if (logged?.language && logged?.isPlus) {
     gqlClient.setHeader('content-language', logged.language as string);
   } else {
@@ -282,6 +304,9 @@ export const BootDataProvider = ({
   useEffect(() => {
     if (remoteData) {
       setInitialLoad(typeof initialLoad === 'undefined');
+      if (typeof dailyOverride === 'undefined') {
+        setDailyOverride(remoteData.daily);
+      }
       updateBootData(remoteData);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -368,6 +393,8 @@ export const BootDataProvider = ({
         geo={geo}
         isAndroidApp={isAndroidApp}
         feeds={feeds}
+        daily={daily}
+        setDaily={setDaily}
       >
         <SettingsContextProvider
           settings={settings}

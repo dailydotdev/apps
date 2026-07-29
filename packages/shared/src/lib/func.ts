@@ -48,6 +48,22 @@ export const isExtension = !!process.env.TARGET_BROWSER;
 export const isFirefoxExtension = process.env.TARGET_BROWSER === 'firefox';
 export const isChromeExtension = process.env.TARGET_BROWSER === 'chrome';
 
+// Derives the calling platform for the `X-Daily-Client` header. The extension
+// build (new tab and companion) always reports `extension`; otherwise the
+// native wrappers surface themselves through the app version (`ios`/`android`),
+// and everything else is the webapp.
+export const getDailyClientPlatform = (version?: string): string => {
+  if (isExtension) {
+    return 'extension';
+  }
+
+  if (version === 'android' || version === 'ios') {
+    return version;
+  }
+
+  return 'webapp';
+};
+
 export const isPWA = (): boolean =>
   // @ts-expect-error - Safari only, not web standard.
   globalThis?.navigator?.standalone ||

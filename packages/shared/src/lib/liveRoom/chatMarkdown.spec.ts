@@ -3,11 +3,11 @@ import { chatMarkdownToHtml } from './chatMarkdown';
 describe('chatMarkdownToHtml', () => {
   it('supports the allowed inline markdown subset', () => {
     const html = chatMarkdownToHtml(
-      '**bold** *italic* `code` [daily](https://daily.dev) ![gif](https://cdn.daily.dev/a.gif)',
+      '**bold** *italic* `code` [daily](https://daily.dev) ![gif](https://daily.dev/a.gif)',
     );
 
     expect(html).toBe(
-      '<p><strong>bold</strong> <em>italic</em> <code>code</code> <a href="https://daily.dev">daily</a> <img src="https://cdn.daily.dev/a.gif" alt="gif" /></p>',
+      '<p><strong>bold</strong> <em>italic</em> <code>code</code> <a href="https://daily.dev">daily</a> <img src="https://daily.dev/a.gif" alt="gif" /></p>',
     );
   });
 

@@ -39,6 +39,7 @@ export const GivebackSection = ({
               tag={TypographyTag.H3}
               type={TypographyType.Title3}
               bold
+              className="[text-wrap:balance]"
             >
               {title}
             </Typography>
@@ -48,6 +49,7 @@ export const GivebackSection = ({
               tag={TypographyTag.P}
               type={TypographyType.Callout}
               color={TypographyColor.Secondary}
+              className="[text-wrap:pretty]"
             >
               {description}
             </Typography>

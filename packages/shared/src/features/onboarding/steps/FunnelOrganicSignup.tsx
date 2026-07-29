@@ -65,6 +65,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
       image: srcDesktop = cloudinaryOnboardingFullBackgroundDesktop,
       imageMobile: src = cloudinaryOnboardingFullBackgroundMobile,
       version = 'v1',
+      extraFields,
     },
     onTransition,
   }: FunnelOrganicSignupProps): ReactElement => {
@@ -249,6 +250,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               )}
               <AuthOptions
                 {...staticAuthProps}
+                registrationExtraFields={extraFields}
                 defaultDisplay={
                   isSocialSignupActive
                     ? AuthDisplay.SocialRegistration

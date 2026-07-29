@@ -89,8 +89,10 @@ jest.mock('next/router', () => ({
     () =>
       ({
         pathname: '/',
+        asPath: '/',
         isFallback: false,
         query: {},
+        replace: jest.fn(),
       } as unknown as NextRouter),
   ),
 }));
@@ -114,6 +116,7 @@ const createFeedMock = (
     source: defaultSquad.id,
     ranking: 'TIME',
     supportedTypes: supportedTypesForPrivateSources,
+    columns: 1,
   },
 ): MockedGraphQLResponse<FeedData> => ({
   request: {

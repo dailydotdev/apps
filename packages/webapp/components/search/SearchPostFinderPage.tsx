@@ -12,7 +12,7 @@ import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../layouts/MainFeedPage';
-import { defaultOpenGraph, defaultSeo } from '../../next-seo';
+import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
 
 const baseSeo: NextSeoProps = {
   openGraph: { ...defaultOpenGraph },
@@ -32,7 +32,7 @@ const Search = (): ReactElement => {
       };
     }
     return {
-      title: 'daily.dev | Where developers grow together',
+      title: defaultSeoTitle,
     };
   }, [query]);
 

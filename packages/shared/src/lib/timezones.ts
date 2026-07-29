@@ -641,3 +641,10 @@ export const getTimezoneOffsetLabel = (timezone: string): string => {
 
   return `(UTC ${formatTimezoneOffset(timezoneOffset)}) ${resolvedTimezone}`;
 };
+
+export const getTimezoneNameWithOffset = (timezone: string): string => {
+  const resolvedTimezone = timezone || DEFAULT_TIMEZONE;
+  const timezoneOffset = getTimezoneOffsetInMinutes(resolvedTimezone);
+
+  return `${resolvedTimezone} (UTC ${formatTimezoneOffset(timezoneOffset)})`;
+};

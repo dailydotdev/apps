@@ -13,8 +13,6 @@ import { useBoot } from '../../../hooks';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { PlusItemStatus, PlusListItem } from '../../plus/PlusListItem';
-import { useFeature } from '../../GrowthBookProvider';
-import { featurePlusApiLanding } from '../../../lib/featureManagement';
 
 const bulletPointsControl = [
   {
@@ -28,11 +26,6 @@ const bulletPointsControl = [
     status: PlusItemStatus.Ready,
   },
   {
-    label: 'Run prompts on any post',
-    tooltip: `Turn any post into an interactive learning experience. Ask AI to simplify concepts, challenge ideas, compare alternatives, or create your own custom prompt.`,
-    status: PlusItemStatus.Ready,
-  },
-  {
     label: 'Bookmark folders',
     tooltip: `Easily categorize and organize your bookmarked posts into folders so you can find what you need quickly.`,
     status: PlusItemStatus.Ready,
@@ -42,13 +35,12 @@ const bulletPointsControl = [
 const PlusGrid = ({ flags, campaignId }: MarketingCta) => {
   const { logEvent } = useLogContext();
   const { clearMarketingCta } = useBoot();
-  const isApiLanding = useFeature(featurePlusApiLanding);
 
   if (!flags) {
     return null;
   }
   const { title, description, ctaText, ctaUrl } = flags;
-  const ctaColor = isApiLanding ? ButtonColor.Bacon : ButtonColor.Avocado;
+  const ctaColor = ButtonColor.Bacon;
 
   const handleClose = () => {
     logEvent({

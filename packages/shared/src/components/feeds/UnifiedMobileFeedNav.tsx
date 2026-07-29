@@ -12,11 +12,7 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import {
-  DailyPageVariant,
-  featureDailyPage,
-} from '../../lib/featureManagement';
+import { useDailyPage } from '../../hooks/feed/useDailyPage';
 import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import { NewStripCta } from './NewStripCta';
 import { findActiveChipId } from './exploreCategories';
@@ -53,13 +49,8 @@ function UnifiedMobileFeedNav(): ReactElement {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const { logEvent } = useLogContext();
-  const { value: dailyVariant } = useConditionalFeature({
-    feature: featureDailyPage,
-    shouldEvaluate: isLoggedIn,
-  });
-  // When Daily is on, the Daily/Feed switcher replaces the "For you" chip for
-  // logged-in users (logged-out users still get a "Home" chip).
-  const showDailySwitcher = isLoggedIn && dailyVariant === DailyPageVariant.V1;
+  const { isEnabled } = useDailyPage();
+  const showDailySwitcher = isLoggedIn && isEnabled;
 
   const items: ChipItem[] = useMemo(() => {
     const list: ChipItem[] = [];
@@ -231,8 +222,8 @@ function UnifiedMobileFeedNav(): ReactElement {
       ref={scrollRef}
       className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary bg-background-default px-3 py-4"
     >
-      <NewStripCta className="rounded-10 px-2.5 py-1.5" />
       {showDailySwitcher && <DailySwitcher reverse compact />}
+      <NewStripCta className="rounded-10 px-2.5 py-1.5" />
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
         if (!groupItems.length) {

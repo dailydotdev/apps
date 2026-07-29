@@ -5,12 +5,13 @@ import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
-import { defaultOpenGraph, defaultSeo } from '../next-seo';
+import { defaultOpenGraph, defaultSeo, noindexSeoProps } from '../next-seo';
 
 const seo: NextSeoProps = {
   title: 'For You',
   openGraph: { ...defaultOpenGraph },
   ...defaultSeo,
+  ...noindexSeoProps,
 };
 
 const MyFeed = (): ReactElement => <></>;

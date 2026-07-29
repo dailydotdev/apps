@@ -11,6 +11,7 @@ import { useVotePost } from './useVotePost';
 import { mutateVoteFeedPost } from './utils';
 import { updatePostCache } from '../../lib/query';
 import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
+import { getEngagementLogExtra } from '../../lib/engagementAds';
 
 export type UseFeedVotePostProps = {
   feedName: string;
@@ -72,7 +73,7 @@ export const useFeedVotePost = ({
         const creative = getCreativeForTags(payload?.tags || []);
         const logExtra = feedLogExtra(feedName, ranking, {
           ...opts?.extra,
-          ...(creative && { gen_id: creative.genId }),
+          ...(creative && getEngagementLogExtra(creative)),
         });
 
         return toggleUpvote({
@@ -91,7 +92,7 @@ export const useFeedVotePost = ({
         const creative = getCreativeForTags(payload?.tags || []);
         const logExtra = feedLogExtra(feedName, ranking, {
           ...opts?.extra,
-          ...(creative && { gen_id: creative.genId }),
+          ...(creative && getEngagementLogExtra(creative)),
         });
 
         return toggleDownvote({

@@ -5,7 +5,7 @@ import {
   getMainFeedLayout,
   mainFeedLayoutProps,
 } from '../components/layouts/MainFeedPage';
-import { defaultOpenGraph } from '../next-seo';
+import { defaultOpenGraph, noindexSeoProps } from '../next-seo';
 import ProtectedPage from '../components/ProtectedPage';
 import { getPageSeoTitles } from '../components/layouts/utils';
 
@@ -15,6 +15,7 @@ const seo: NextSeoProps = {
   openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
   description:
     'Explore a personalized feed featuring posts from the sources, Squads, and users you follow. Stay updated with content that matches your interests on daily.dev.',
+  ...noindexSeoProps,
 };
 
 const FollowingFeed = (): ReactElement => (

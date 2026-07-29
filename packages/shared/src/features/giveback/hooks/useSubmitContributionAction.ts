@@ -45,6 +45,9 @@ export const useSubmitContributionAction = (): UseSubmitContributionAction => {
       queryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.ContributionOverview, user),
       });
+      queryClient.invalidateQueries({
+        queryKey: generateQueryKey(RequestKey.ContributionLeaderboard, user),
+      });
     },
   });
 

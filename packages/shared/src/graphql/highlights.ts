@@ -295,6 +295,18 @@ export const dailyHeadlinesQueryOptions = () => ({
   staleTime: ONE_MINUTE,
 });
 
+export const MARK_DAILY_SEEN_MUTATION = gql`
+  mutation MarkDailySeen {
+    markDailySeen {
+      _
+    }
+  }
+`;
+
+export const markDailySeenMutationOptions = () => ({
+  mutationFn: () => gqlClient.request(MARK_DAILY_SEEN_MUTATION),
+});
+
 export interface ChannelConfigurationsData {
   channelConfigurations: ChannelConfiguration[];
 }

@@ -31,7 +31,7 @@ import {
 import { getLayout } from '../../../components/layouts/FeedLayout';
 import { mainFeedLayoutProps } from '../../../components/layouts/MainFeedPage';
 import { SquadDirectoryLayout } from '../../../../shared/src/components/squads/layout/SquadDirectoryLayout';
-import { defaultSeo } from '../../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../../next-seo';
 
 interface SquadSectionProps {
   squads: Squad[];
@@ -135,7 +135,11 @@ function MySquadsPage(): ReactElement | null {
   );
 }
 
-const seo: NextSeoProps = { ...defaultSeo, title: 'My Squads' };
+const seo: NextSeoProps = {
+  ...defaultSeo,
+  title: 'My Squads',
+  ...noindexSeoProps,
+};
 
 MySquadsPage.getLayout = getLayout;
 MySquadsPage.layoutProps = { ...mainFeedLayoutProps, seo };

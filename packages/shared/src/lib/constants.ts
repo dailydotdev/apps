@@ -67,6 +67,7 @@ export const plusSuccessUrl = `${plusUrl}/success`;
 export const walletUrl = `${webappUrl}wallet`;
 export const settingsUrl = `${webappUrl}settings`;
 export const briefingUrl = `${webappUrl}briefing`;
+export const scheduledPostsUrl = `${webappUrl}scheduled`;
 export const opportunityUrl = `${webappUrl}jobs`;
 export const recruiterUrl = `${webappUrl}recruiter`;
 export const boostOpportunityLink = 'https://r.daily.dev/boost-opportunity';

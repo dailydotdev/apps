@@ -62,6 +62,7 @@ const createFeedMock = (
     first: 7,
     after: '',
     loggedIn: true,
+    columns: 1,
   },
 ): MockedGraphQLResponse<FeedData | FeedV2Data> => ({
   request: {
@@ -166,6 +167,7 @@ it('should request anonymous my feed', async () => {
         loggedIn: false,
         version: 15,
         ranking: RankingAlgorithm.Popularity,
+        columns: 1,
       }),
     ],
     undefined,

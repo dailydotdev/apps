@@ -34,6 +34,7 @@ import { webappUrl } from '../../../../lib/constants';
 import type { PublicProfile } from '../../../../lib/user';
 import { useProfilePreview } from '../../../../hooks/profile/useProfilePreview';
 import type { IconProps } from '../../../../components/Icon';
+import { formatTotalDuration } from '../../../../lib/date';
 
 const experienceTypeConfig: Record<
   UserExperienceType,
@@ -83,16 +84,20 @@ const experienceTypeConfig: Record<
 };
 
 interface UserExperienceListProps<T extends UserExperience> {
-  experiences: T[];
+  experiences: T[] | undefined;
   title?: string;
   experienceType: UserExperienceType;
-  hasNextPage?: boolean;
+  hasNextPage?: boolean | null;
   user?: PublicProfile;
   showEditOnItems?: boolean;
+  // Caps how many positions the collapsed profile renders. Per-company tenure is
+  // still computed from the full list, so a truncated company shows the same total
+  // tenure as the expanded detail page.
+  displayLimit?: number;
 }
 
 const groupListByCompany = <T extends UserExperience>(
-  experiences: T[],
+  experiences: T[] | undefined,
 ): [string, T[]][] => {
   if (!experiences?.length) {
     return [];
@@ -123,16 +128,36 @@ export function UserExperienceList<T extends UserExperience>({
   hasNextPage,
   showEditOnItems = false,
   user,
-}: UserExperienceListProps<T>): ReactElement {
+  displayLimit,
+}: UserExperienceListProps<T>): ReactElement | null {
   const { user: loggedUser } = useAuthContext();
   const { isOwner } = useProfilePreview(user);
 
+  // Tenure is computed from the full position set per company so it stays correct
+  // even when the collapsed view renders only the first `displayLimit` positions.
+  const durationByCompany = useMemo(() => {
+    const map = new Map<string, string>();
+    groupListByCompany(experiences).forEach(([company, list]) => {
+      map.set(company, formatTotalDuration(list));
+    });
+    return map;
+  }, [experiences]);
+
   const groupedByCompany: [string, T[]][] = useMemo(
-    () => groupListByCompany(experiences),
-    [experiences],
+    () =>
+      groupListByCompany(
+        displayLimit != null
+          ? experiences?.slice(0, displayLimit)
+          : experiences,
+      ),
+    [experiences, displayLimit],
   );
 
-  const hasExperiences = experiences?.length > 0;
+  const totalCount = experiences?.length ?? 0;
+  const hasMore =
+    (displayLimit != null && totalCount > displayLimit) || !!hasNextPage;
+
+  const hasExperiences = totalCount > 0;
 
   if (!user) {
     return null;
@@ -233,6 +258,9 @@ export function UserExperienceList<T extends UserExperience>({
               key={company}
               company={company}
               experiences={list}
+              duration={
+                durationByCompany.get(company) ?? formatTotalDuration(list)
+              }
               isExperienceVerified={experienceVerified}
               showEditOnItems={showEditOnItems}
               isSameUser={isOwner}
@@ -242,7 +270,7 @@ export function UserExperienceList<T extends UserExperience>({
           );
         })}
       </ul>
-      {hasNextPage && showMoreUrl && loggedUser && (
+      {hasMore && showMoreUrl && loggedUser && (
         <Link href={showMoreUrl} passHref>
           <Button
             tag="a"

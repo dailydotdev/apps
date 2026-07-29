@@ -24,6 +24,7 @@ import {
 } from './types';
 import type { TextFormCover } from './TextForm';
 import { isPreviewForComposerUrl } from './utils';
+import type { ResolvedScheduledAt } from '../schedule/useSchedulePost';
 
 export interface StandupFieldErrors {
   topic?: string;
@@ -72,6 +73,7 @@ interface UseComposerSubmitProps {
   initialPreview?: ExternalLinkPreview;
   onComplete: () => void;
   editPostId?: string;
+  resolveScheduledAt?: () => ResolvedScheduledAt;
 }
 
 interface UseComposerSubmit {
@@ -97,6 +99,7 @@ export const useComposerSubmit = ({
   initialPreview,
   onComplete,
   editPostId,
+  resolveScheduledAt,
 }: UseComposerSubmitProps): UseComposerSubmit => {
   const { displayToast } = useToastNotification();
   const router = useRouter();
@@ -119,6 +122,12 @@ export const useComposerSubmit = ({
     displayMutationErrors: true,
     onPostSuccess: (post) => {
       if (editPostId) {
+        return;
+      }
+      // Scheduled posts aren't visible yet, so don't navigate to the post
+      // page — just confirm and let onComplete close the composer.
+      if (post.flags?.scheduledAt) {
+        displayToast('✅ Your post has been scheduled!');
         return;
       }
       router.push(
@@ -174,7 +183,10 @@ export const useComposerSubmit = ({
     return !isPollValid(poll);
   };
 
-  const submitText = async () => {
+  // Scheduling is single-source and non-moderated only. The `scheduledAt` here
+  // is already gated by the caller (undefined unless the post is schedulable),
+  // and it routes through the dedicated single-source mutation for each type.
+  const submitText = async (scheduledAt?: string) => {
     const payload = {
       title: text.title.trim(),
       content: text.body,
@@ -192,6 +204,12 @@ export const useComposerSubmit = ({
       );
       return;
     }
+
+    if (scheduledAt) {
+      await onSubmitFreeformPost({ ...payload, scheduledAt }, primary as Squad);
+      return;
+    }
+
     if (isMulti) {
       await createMulti({
         sourceIds: selectedIds,
@@ -207,10 +225,10 @@ export const useComposerSubmit = ({
     );
   };
 
-  const submitPoll = async () => {
+  const submitPoll = async (scheduledAt?: string) => {
     const options = trimmedOptions(poll);
     const duration = poll.durationDays;
-    if (isMulti) {
+    if (!scheduledAt && isMulti) {
       await createMulti({
         sourceIds: selectedIds,
         title: poll.question.trim(),
@@ -224,19 +242,27 @@ export const useComposerSubmit = ({
         title: poll.question.trim(),
         options,
         ...(duration != null ? { duration } : {}),
+        ...(scheduledAt ? { scheduledAt } : {}),
       },
       primary as Squad,
     );
   };
 
-  const submitLink = async (event: FormEvent<HTMLFormElement>) => {
+  const submitLink = async (
+    event: FormEvent<HTMLFormElement>,
+    scheduledAt?: string,
+  ) => {
     if (!isPreviewForComposerUrl(preview, link.url)) {
       displayToast('Invalid link');
       return;
     }
     const commentary = link.commentary.trim();
     if (!isMulti) {
-      await onSubmitPost(event, primary as Squad, commentary);
+      await onSubmitPost(event, primary as Squad, commentary, scheduledAt);
+      // submitExternalLink returns no post, so onPostSuccess can't confirm it.
+      if (scheduledAt && !preview?.id) {
+        displayToast('✅ Your post has been scheduled!');
+      }
       return;
     }
     const url = preview?.finalUrl ?? preview?.url;
@@ -273,19 +299,30 @@ export const useComposerSubmit = ({
       if (getIsSubmitDisabled()) {
         return;
       }
-      if (kind === 'text') {
-        await submitText();
-        return;
-      }
-      if (kind === 'poll') {
-        await submitPoll();
-        return;
-      }
       if (kind === 'standup') {
         await submitStandup();
         return;
       }
-      await submitLink(event);
+
+      let scheduledAt: string | undefined;
+      if (!editPostId) {
+        const schedule = resolveScheduledAt?.() ?? {};
+        if (schedule.error) {
+          displayToast(schedule.error);
+          return;
+        }
+        scheduledAt = schedule.iso;
+      }
+
+      if (kind === 'text') {
+        await submitText(scheduledAt);
+        return;
+      }
+      if (kind === 'poll') {
+        await submitPoll(scheduledAt);
+        return;
+      }
+      await submitLink(event, scheduledAt);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -301,6 +338,7 @@ export const useComposerSubmit = ({
       selectedIds,
       isInFlight,
       editPostId,
+      resolveScheduledAt,
     ],
   );
 

@@ -69,11 +69,6 @@ export const useEnableNotification = ({
     DISMISS_PERMISSION_BANNER,
     false,
   );
-  const shouldIgnoreDismissStateForSource =
-    source === NotificationPromptSource.SquadPage;
-  const effectiveIsDismissed = shouldIgnoreDismissStateForSource
-    ? false
-    : isDismissed;
   useEffect(() => {
     setHasCompletedEnableAction(!onEnableAction);
   }, [onEnableAction]);
@@ -121,7 +116,7 @@ export const useEnableNotification = ({
       (conditions.every(Boolean) ||
         (enabledJustNow &&
           source !== NotificationPromptSource.SquadPostModal)) &&
-      !effectiveIsDismissed
+      !isDismissed
     );
   };
 

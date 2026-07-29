@@ -6,6 +6,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
 import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { cloudinaryGivebackOpenGraph } from '@dailydotdev/shared/src/lib/image';
 import { GivebackPage } from '@dailydotdev/shared/src/features/giveback/components/GivebackPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -18,10 +19,19 @@ const seo: NextSeoProps = {
   openGraph: {
     ...defaultOpenGraph,
     ...seoTitles.openGraph,
+    // Dedicated giveback share card, overriding the site-wide default OG image.
+    images: [
+      {
+        url: cloudinaryGivebackOpenGraph,
+        width: 1280,
+        height: 800,
+        alt: 'daily.dev Giveback — ad budgets buy clicks, ours funds real causes',
+      },
+    ],
   },
   ...defaultSeo,
   description:
-    'Help daily.dev grow and we will fund good causes. Complete community actions to help unlock donations toward a shared goal.',
+    'daily.dev would rather fund real-world causes than pay for ads. Take small actions to help us grow, and we turn that budget into donations to the causes you choose, at no cost to you.',
   nofollow: true,
   noindex: true,
 };

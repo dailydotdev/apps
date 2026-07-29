@@ -10,7 +10,7 @@ import useFeedSettings from '../../../hooks/useFeedSettings';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 
 function FunnelEditTagsComponent({
-  parameters: { headline, cta, minimumRequirement },
+  parameters: { headline, cta, minimumRequirement, featuredTags },
   onTransition,
 }: FunnelStepEditTags): ReactElement | null {
   const { feedSettings } = useFeedSettings();
@@ -46,6 +46,7 @@ function FunnelEditTagsComponent({
           headline={headline}
           userId={user?.id ?? trackingId}
           feedSettings={feedSettings}
+          featuredTags={featuredTags}
         />
       </div>
     </FunnelStepCtaWrapper>

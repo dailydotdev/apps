@@ -2,44 +2,45 @@ import type { FeedItem } from '../hooks/useFeed';
 import { FeedItemType } from '../components/cards/common/common';
 import { PostType } from '../graphql/posts';
 
-const WIDENABLE_POST_TYPES = new Set<PostType>([
+export const SUPPORTED_WIDE_POST_TYPES_TUPLE = [
   PostType.Article,
   PostType.VideoYouTube,
-]);
+  PostType.Share,
+  PostType.Freeform,
+  PostType.Collection,
+] as const;
 
-/**
- * Structural eligibility check — does this post qualify for a wide hero
- * card layout? Used by gating logic to decide whether to evaluate the
- * post-highlight-cards feature flag.
- */
+export const SUPPORTED_WIDE_POST_TYPES: ReadonlySet<PostType> = new Set(
+  SUPPORTED_WIDE_POST_TYPES_TUPLE,
+);
+
 export const isHeroEligiblePost = (post: {
-  type: PostType;
   hero?: { size?: number | null } | null;
-}): boolean =>
-  WIDENABLE_POST_TYPES.has(post.type) && (post.hero?.size ?? 1) > 1;
+}): boolean => (post.hero?.size ?? 1) > 1;
 
-/**
- * Returns the column span a feed item is asking for, before any clamping
- * for column count or fit-to-row.
- *
- * Only Post items with an article-like type and an active `hero`
- * request a wide colSpan. Ads, highlight strip items, placeholders,
- * marketing items and non-article post types always stay at 1.
- */
+export const postHasHeroImage = (post: {
+  image?: string | null;
+  sharedPost?: { image?: string | null } | null;
+}): boolean => !!(post.sharedPost?.image || post.image);
+
 const MAX_HERO_COL_SPAN = 4;
 
-export const requestedColSpan = (item: FeedItem): number => {
+export const requestedColSpan = (
+  item: FeedItem,
+  widenableTypes: ReadonlySet<PostType>,
+): number => {
   if (!item || item.type !== FeedItemType.Post) {
     return 1;
   }
 
-  if (!WIDENABLE_POST_TYPES.has(item.post.type)) {
+  if (!widenableTypes.has(item.post.type)) {
     return 1;
   }
 
-  // Cap to MAX_HERO_COL_SPAN: `ArticleFeaturedWideGridCard` only has
-  // designs for colSpan 2/3/4. If larger designes are needed support needs to
-  // be added frontend first
+  if (!postHasHeroImage(item.post)) {
+    return 1;
+  }
+
   return Math.min(item.post.hero?.size ?? 1, MAX_HERO_COL_SPAN);
 };
 
@@ -54,18 +55,9 @@ export interface PlacementBuilderOptions {
   isMobile: boolean;
   isList: boolean;
   isEnabled: boolean;
-  /**
-   * Minimum number of items between two wide cards. Anchored to the index
-   * of the last placed wide card; a wide card requested within this
-   * distance shrinks to a regular 1-column card.
-   */
   minSpacing: number;
-  /**
-   * Items at indices `[0, startIndex)` are forced to colSpan 1. Used to
-   * preserve the position of early ad slots that wide cards would
-   * otherwise displace.
-   */
   startIndex: number;
+  widenableTypes: ReadonlySet<PostType>;
 }
 
 /**
@@ -172,6 +164,7 @@ export const createPlacementBuilder = ({
   isEnabled,
   minSpacing,
   startIndex,
+  widenableTypes,
 }: PlacementBuilderOptions): PlacementBuilder => {
   const layoutEnabled = isEnabled && !isMobile && !isList && numCards > 1;
   const safeNumCards = Math.max(numCards, 1);
@@ -204,7 +197,7 @@ export const createPlacementBuilder = ({
         col = 0;
       }
 
-      const requested = requestedColSpan(item);
+      const requested = requestedColSpan(item, widenableTypes);
       const actual = ((): number => {
         if (requested === 1) {
           return 1;

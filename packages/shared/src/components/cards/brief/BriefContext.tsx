@@ -1,9 +1,10 @@
 import type { Dispatch, FC, SetStateAction } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { createContextProvider } from '@kickass-coderz/react';
 import type { Post } from '../../../graphql/posts';
 import { usePersistentState } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { oneHour } from '../../../lib/dateFormat';
 
 type BriefContext = {
   brief?: Pick<Post, 'id'> & {
@@ -12,14 +13,30 @@ type BriefContext = {
   setBrief: Dispatch<SetStateAction<BriefContext['brief']>>;
 };
 
+const briefStaleMs = 4 * oneHour * 1000;
+
 const [BriefContextProvider, useBriefContext] = createContextProvider(
   (): BriefContext => {
     const { user } = useAuthContext();
 
-    const [brief, setBrief] = usePersistentState<BriefContext['brief']>(
-      `brief_card_${user.id}_v5`,
+    const [storedBrief, setBrief] = usePersistentState<BriefContext['brief']>(
+      `brief_card_${user.id}_v6`,
       undefined,
     );
+
+    const brief = useMemo(() => {
+      if (!storedBrief) {
+        return undefined;
+      }
+
+      const createdAt = new Date(storedBrief.createdAt);
+
+      if (Date.now() - createdAt.getTime() > briefStaleMs) {
+        return undefined;
+      }
+
+      return storedBrief;
+    }, [storedBrief]);
 
     return {
       brief,

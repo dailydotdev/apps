@@ -79,6 +79,7 @@ export enum Origin {
   // End Credits
   ProfileMenu = 'profile menu',
   StreakRecover = 'streak recover',
+  StreakFreeze = 'streak freeze',
   BriefModal = 'brief modal',
   BriefPage = 'brief page',
   SquadBoost = 'squad boost',
@@ -99,6 +100,8 @@ export enum Origin {
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
   DailyPage = 'daily page',
+  EngagementBanner = 'engagement banner',
+  EngagementFeedStrip = 'engagement feed strip',
 }
 
 export enum LogEvent {
@@ -130,6 +133,7 @@ export enum LogEvent {
   ClickOnboardingNext = 'click onboarding next',
   OnboardingSkip = 'my feed onboarding skip',
   GlobalError = 'global error',
+  GoogleOneTapPrompt = 'google one tap prompt',
   ClickArticleAnonymousCTA = 'click article anonymous cta',
   ClickScrollBlock = 'click scroll block',
   KeyboardShortcutTriggered = 'keyboard shortcut triggered',
@@ -242,6 +246,9 @@ export enum LogEvent {
   StreakRecover = 'restore streak',
   DismissStreakRecover = 'dimiss streaks milestone',
   StreakTimezoneMismatch = 'streak timezone mismatch',
+  ClickStreakFreezePurchase = 'click streak freeze purchase',
+  PurchaseStreakFreeze = 'purchase streak freeze',
+  DismissStreakFreezePurchase = 'dismiss streak freeze purchase',
   // 404 page
   View404Page = '404 page',
   // Follow Actions - start
@@ -489,13 +496,11 @@ export enum LogEvent {
   ReaderEmbedError = 'reader embed error',
   // Onboarding personas
   SelectOnboardingPersona = 'select onboarding persona',
-  CompletePersonaQuiz = 'complete persona quiz',
   // Extension activation primer
   ExtensionPrimerShown = 'impression extension primer',
   ExtensionPrimerCtaClick = 'click extension primer cta',
   ExtensionPrimerSkipped = 'skip extension primer',
   // Giveback
-  ClickJoinGiveback = 'click join giveback',
   ClickGivebackSponsor = 'click giveback sponsor',
   SaveGivebackCauses = 'save giveback causes',
   ClickGivebackTab = 'click giveback tab',
@@ -506,10 +511,21 @@ export enum LogEvent {
   SubmitGivebackAction = 'submit giveback action',
   SubmitGivebackActionError = 'submit giveback action error',
   ClickGivebackLoveAction = 'click giveback love action',
+  CopyGivebackReferralLink = 'copy giveback referral link',
+  ClickGivebackPoolLink = 'click giveback pool link',
+  ShuffleGivebackPoolLinks = 'shuffle giveback pool links',
   ClaimGivebackReward = 'claim giveback reward',
-  ClickGivebackEditCauses = 'click giveback edit causes',
   ClickGivebackCause = 'click giveback cause',
   ClickGivebackFaq = 'click giveback faq',
+  StartGivebackFunnel = 'start giveback funnel',
+  ViewGivebackFunnelStep = 'view giveback funnel step',
+  CompleteGivebackFunnel = 'complete giveback funnel',
+  ClickGivebackHowItWorks = 'click giveback how it works',
+  ClickGivebackGiftEntry = 'click giveback gift entry',
+  ViewGivebackPrompt = 'view giveback prompt',
+  OpenGivebackCauseSuggestion = 'open giveback cause suggestion',
+  SubmitGivebackCauseSuggestion = 'submit giveback cause suggestion',
+  SubmitGivebackCauseSuggestionError = 'submit giveback cause suggestion error',
   // Daily homepage
   DailyFeedback = 'daily feedback',
 }
@@ -519,6 +535,7 @@ export enum TargetType {
   SpotlightCommand = 'spotlight command',
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
+  PostSignupActivation = 'post signup activation',
   EnableNotifications = 'enable notifications',
   OnboardingChecklist = 'onboarding checklist',
   LoginButton = 'login button',
@@ -538,6 +555,7 @@ export enum TargetType {
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
   StreakRecover = 'streak restore',
+  StreakFreezePurchase = 'streak freeze purchase',
   PromotionCard = 'promotion_card',
   PromotionalBanner = 'promotion_banner',
   MarketingCtaPopover = 'promotion_popover',

@@ -36,8 +36,6 @@ import {
   isIOSNative,
   shouldUseSocialAuthPopup,
 } from '../../lib/func';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureAuthGoogleOneTap } from '../../lib/featureManagement';
 import { useGoogleOneTap } from '../../hooks/auth/useGoogleOneTap';
 import { generateNameFromEmail } from '../../lib/strings';
 import { generateUsername, claimClaimableItem } from '../../graphql/users';
@@ -149,6 +147,8 @@ function AuthOptionsInner({
   preferGithub,
   autoTriggerProvider,
   socialProviderScopes,
+  registrationExtraFields,
+  hideRegistrationHeadline,
 }: AuthOptionsProps): ReactElement {
   const { displayToast } = useToastNotification();
   const { syncSettings } = useSettingsContext();
@@ -647,19 +647,18 @@ function AuthOptionsInner({
     await handleLoginMessage();
   };
 
+  const [hasLoggedAuthOpen, setHasLoggedAuthOpen] = useState(false);
+
   const canUseOneTap =
     isAuthReady &&
     !user &&
     !checkIsExtension() &&
     !isIOSNative() &&
     !isAndroidApp &&
-    !isNativeAuthSupported('google');
-  const { value: isOneTapEnabled } = useConditionalFeature({
-    feature: featureAuthGoogleOneTap,
-    shouldEvaluate: canUseOneTap,
-  });
+    !isNativeAuthSupported('google') &&
+    hasLoggedAuthOpen;
   useGoogleOneTap({
-    enabled: canUseOneTap && isOneTapEnabled,
+    enabled: canUseOneTap,
     onCredential: handleOneTapCredential,
   });
 
@@ -762,6 +761,7 @@ function AuthOptionsInner({
             providers={providers}
             simplified={simplified}
             trigger={trigger}
+            onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
           />
         </Tab>
         <Tab label={AuthDisplay.SocialRegistration}>
@@ -782,6 +782,8 @@ function AuthOptionsInner({
           <RegistrationForm
             formRef={formRef}
             simplified={simplified}
+            showHeadline={!hideRegistrationHeadline}
+            extraFields={registrationExtraFields}
             hints={registrationHints}
             onBack={
               defaultDisplay !== AuthDisplay.Registration
@@ -857,6 +859,7 @@ function AuthOptionsInner({
             compact={compact}
             splitSignupStyle={splitSignupStyle}
             preferGithub={preferGithub}
+            onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
           />
         </Tab>
         <Tab label={AuthDisplay.SignBack}>

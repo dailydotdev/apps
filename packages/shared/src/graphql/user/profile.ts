@@ -244,11 +244,10 @@ export interface UserProfileExperienceData {
 
 export const getUserProfileExperiences = async (
   userId: string,
-  first?: number,
 ): Promise<UserProfileExperienceData> => {
   const result = await gqlClient.request<UserProfileExperienceData>(
     USER_PROFILE_EXPERIENCES_QUERY,
-    { userId, first },
+    { userId },
   );
 
   return result;

@@ -8,7 +8,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { AccountPageContainer } from '../../../components/layouts/SettingsLayout/AccountPageContainer';
 import { getSettingsLayout } from '../../../components/layouts/SettingsLayout';
-import { defaultSeo } from '../../../next-seo';
+import { defaultSeo, noindexSeoProps } from '../../../next-seo';
 import { getTemplatedTitle } from '../../../components/layouts/utils';
 import { SettingsSwitch } from '../../../components/layouts/SettingsLayout/common';
 
@@ -112,6 +112,7 @@ const GamificationSettingsPage = (): ReactElement => {
 const seo: NextSeoProps = {
   ...defaultSeo,
   title: getTemplatedTitle('Feature visibility'),
+  ...noindexSeoProps,
 };
 
 GamificationSettingsPage.getLayout = getSettingsLayout;

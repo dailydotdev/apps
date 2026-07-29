@@ -15,7 +15,14 @@ export enum Streak {
   Pending = 'pending',
   Upcoming = 'upcoming',
   Freeze = 'freeze',
+  UsedFreeze = 'used_freeze',
 }
+
+const freezeTooltipCopy: Partial<Record<Streak, string>> = {
+  [Streak.Freeze]:
+    'We auto-freeze streaks during the weekend, but you can still keep going if you want to',
+  [Streak.UsedFreeze]: 'A streak freeze was used this day',
+};
 
 interface DayStreakProps {
   streak: Streak;
@@ -51,7 +58,8 @@ export function DayStreak({
       );
     }
 
-    const isStreakFreeze = streak === Streak.Freeze;
+    const isStreakFreeze =
+      streak === Streak.Freeze || streak === Streak.UsedFreeze;
 
     return (
       <Circle
@@ -72,10 +80,12 @@ export function DayStreak({
     );
   };
 
+  const tooltipContent = freezeTooltipCopy[streak];
+
   return (
     <Tooltip
-      visible={streak === Streak.Freeze}
-      content="We auto-freeze streaks during the weekend, but you can still keep going if you want to"
+      visible={!!tooltipContent}
+      content={tooltipContent}
       side="bottom"
       className="max-w-44 !p-2 text-center"
     >

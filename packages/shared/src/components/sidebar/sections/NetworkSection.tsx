@@ -41,10 +41,11 @@ export const NetworkSection = ({
           <ListIcon Icon={() => <SourceIcon secondary={active} />} />
         ),
         title: 'Find Squads',
-        // Point at the actual landing page (`/squads` redirects here)
-        // so the active-state highlight matches the URL the user
-        // actually navigates to.
-        path: squadCategoriesPaths.discover,
+        // Absolute webapp URL so the extension's new tab links out to
+        // daily.dev instead of resolving against the chrome-extension://
+        // origin. Active-state matching strips the origin, so the webapp
+        // highlight still works.
+        path: `${webappUrl}${squadCategoriesPaths.discover.substring(1)}`,
         isForcedLink: true,
       },
       isModeratorInAnySquad && {

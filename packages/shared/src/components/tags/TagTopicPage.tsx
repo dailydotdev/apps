@@ -51,6 +51,9 @@ import { ContentPreferenceType } from '../../graphql/contentPreference';
 import { TOP_CREATORS_BY_TAG_QUERY } from '../../graphql/users';
 import type { UserShortProfile } from '../../lib/user';
 import { SponsoredTagHero } from '../brand/SponsoredTagHero';
+import { EngagementFeedStrip } from '../brand/EngagementFeedStrip';
+import { useEngagementAdsContext } from '../../contexts/EngagementAdsContext';
+import { EngagementPlacement } from '../../lib/engagementAds';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
@@ -241,6 +244,13 @@ export const TagTopicPage = ({
   const { user, showLogin } = useContext(AuthContext);
   const { feedSettings } = useFeedSettings();
   const { FeedPageLayoutComponent } = useFeedLayout();
+  const { getCreativeForPlacement } = useEngagementAdsContext();
+  // A campaign that opted into the feed-strip placement takes over the tag
+  // page's engagement slot: render the strip (below the header) instead of the
+  // SponsoredTagHero, so there's a single ad.
+  const engagementStripCreative = getCreativeForPlacement(
+    EngagementPlacement.FeedStrip,
+  );
   const { onFollowTags, onUnfollowTags, onBlockTags, onUnblockTags } =
     useTagAndSource({ origin: Origin.TagPage });
   const { follow, unfollow } = useContentPreference({
@@ -345,7 +355,7 @@ export const TagTopicPage = ({
         <div className="flex w-full flex-col px-4 py-6 tablet:px-6">
           {/* Hero cover — centered on the page; content below spans full width. */}
           <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
-            <SponsoredTagHero tag={tag} />
+            {!engagementStripCreative && <SponsoredTagHero tag={tag} />}
             <Typography
               tag={TypographyTag.H1}
               type={TypographyType.LargeTitle}
@@ -460,6 +470,13 @@ export const TagTopicPage = ({
           </header>
 
           <div className="mb-2 h-px w-full bg-border-subtlest-tertiary" />
+
+          {engagementStripCreative && (
+            <EngagementFeedStrip
+              creative={engagementStripCreative}
+              className="mb-10 w-full"
+            />
+          )}
 
           {showRoadmap && initialData?.flags?.roadmap && (
             <section className="mb-10">

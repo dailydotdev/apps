@@ -986,6 +986,18 @@ describe('QuestButton', () => {
     }
   });
 
+  it('should show the weekly quest reset countdown in the weekly section', async () => {
+    renderComponent();
+
+    await userEvent.click(
+      screen.getByRole('button', {
+        name: /Quests, level 7, 63% progress/i,
+      }),
+    );
+
+    expect(await screen.findByText(/^\d+d left$/)).toBeInTheDocument();
+  });
+
   it('should explain plus quests are additional slots', async () => {
     mockUseQuestDashboard.mockReturnValue({
       data: {

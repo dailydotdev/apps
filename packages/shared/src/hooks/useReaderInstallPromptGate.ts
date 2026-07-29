@@ -39,21 +39,14 @@ export function useReaderInstallPromptGate(
   { onCloseParent }: UseReaderInstallPromptGateOptions = {},
 ): UseReaderInstallPromptGateResult {
   const { openModal } = useLazyModal();
-  const { isEligible, isReaderEnabled, isReaderModalNudgeEnabled } =
+  const { isReaderEnabled, canShowReaderInstallPrompt } =
     useReaderModalEligibility();
-  const { flags, updateFlag } = useSettingsContext();
-  const isInstallPromptSeen = flags?.readerInstallPromptSeen ?? false;
-
-  // The reader_modal_v3 nudge surfaces the intermediate install prompt at most
-  // once ever. After it has been seen we stop intercepting reads for users who
-  // never enabled the reader and fall back to the default new-tab navigation.
-  const canShowNudge = isReaderModalNudgeEnabled && !isInstallPromptSeen;
+  const { updateFlag } = useSettingsContext();
 
   const isGated =
     !!post &&
-    isEligible &&
     READER_GATE_ELIGIBLE_TYPES.has(post.type) &&
-    (isReaderEnabled || canShowNudge);
+    (isReaderEnabled || canShowReaderInstallPrompt);
 
   const onReadClick = useCallback(
     (event: MouseEvent): boolean => {
@@ -73,8 +66,7 @@ export function useReaderInstallPromptGate(
       event.preventDefault();
       event.stopPropagation();
       // Users who already enabled the reader go straight to it. Everyone else
-      // is here via the v3 nudge: show the intermediate prompt exactly once and
-      // persist that it was seen so it never auto-opens again.
+      // is here for the one-time install prompt, so persist that it was seen.
       if (isReaderEnabled) {
         openModal({
           type: LazyModal.ReaderPreview,

@@ -8,6 +8,7 @@ import { CONTRIBUTION_ACTIONS_QUERY } from '../graphql';
 import type {
   ContributionAction,
   ContributionActionCategory,
+  ContributionFoundingAward,
   ContributionRewardTier,
 } from '../types';
 
@@ -17,6 +18,8 @@ interface UseContributionActions {
   rewardTiers: ContributionRewardTier[];
   // Tier ids the visitor has already claimed, for the roadmap's claimed state.
   claimedRewardIds: string[];
+  // The founding-award state, carried on the same request (see the query).
+  foundingAward?: ContributionFoundingAward;
   isPending: boolean;
 }
 
@@ -41,6 +44,7 @@ export const useContributionActions = (
         contributionActionCategories: Connection<ContributionActionCategory>;
         contributionRewardTiers: Connection<ContributionRewardTier>;
         userContributionRewards: Connection<{ tier: { id: string } }>;
+        contributionFoundingAward: ContributionFoundingAward;
       }>(CONTRIBUTION_ACTIONS_QUERY, { first: MAX_ACTIONS });
 
       return {
@@ -52,6 +56,7 @@ export const useContributionActions = (
         claimedRewardIds: res.userContributionRewards.edges.map(
           (edge) => edge.node.tier.id,
         ),
+        foundingAward: res.contributionFoundingAward,
       };
     },
     enabled: shouldFetch,
@@ -64,6 +69,7 @@ export const useContributionActions = (
     categories: data?.categories ?? [],
     rewardTiers: data?.rewardTiers ?? [],
     claimedRewardIds: data?.claimedRewardIds ?? [],
+    foundingAward: data?.foundingAward,
     isPending: shouldFetch && isPending,
   };
 };

@@ -36,7 +36,11 @@ import {
 import { useSourcePostModerationById } from '@dailydotdev/shared/src/hooks/source/useSourcePostModerationById';
 import useSourcePostModeration from '@dailydotdev/shared/src/hooks/source/useSourcePostModeration';
 import { generateUserSourceAsSquad } from '@dailydotdev/shared/src/components/post/write';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useSchedulePost } from '@dailydotdev/shared/src/components/post/schedule/useSchedulePost';
+import {
+  scheduledPostsUrl,
+  webappUrl,
+} from '@dailydotdev/shared/src/lib/constants';
 import { getLayout as getMainLayout } from '../../../components/layouts/MainLayout';
 import { defaultOpenGraph, defaultSeo } from '../../../next-seo';
 
@@ -74,6 +78,16 @@ function EditPost(): ReactElement {
   const isVerified =
     !isUserSource && verifyPermission(squad, SourcePermissions.Post);
   const { displayToast } = useToastNotification();
+
+  // Scheduling can only be changed on a still-scheduled freeform post: the API
+  // rejects schedule changes once a post is published and only allows freeform.
+  const initialScheduledAt = post?.flags?.scheduledAt;
+  const canReschedule =
+    !!initialScheduledAt && post?.type === PostType.Freeform;
+  const schedule = useSchedulePost({
+    initialScheduledAt,
+    clearLabel: 'Cancel scheduling',
+  });
   const {
     onAskConfirmation,
     draft,
@@ -94,7 +108,11 @@ function EditPost(): ReactElement {
         completeAction(ActionType.EditWelcomePost);
       }
 
-      onSuccess(data.commentsPermalink);
+      // A still-scheduled post is invisible, so its permalink 404s — send the
+      // author back to their scheduled list instead of the (hidden) post.
+      onSuccess(
+        data.flags?.scheduledAt ? scheduledPostsUrl : data.commentsPermalink,
+      );
     },
     onSourcePostModerationSuccess: (data) => onSuccess(data.source.permalink),
     onError: (data: ApiErrorResult) => {
@@ -126,6 +144,28 @@ function EditPost(): ReactElement {
         id: moderated.id,
         sourceId: squad.id,
       });
+    }
+
+    if (canReschedule) {
+      if (schedule.isScheduled) {
+        const resolved = schedule.resolveScheduledAt();
+
+        if (resolved.error) {
+          displayToast(resolved.error);
+          return null;
+        }
+
+        return onEditFreeformPost(
+          { ...params, id: post.id, scheduledAt: resolved.iso },
+          squad,
+        );
+      }
+
+      // Scheduling was cancelled: publish immediately together with the edits.
+      return onEditFreeformPost(
+        { ...params, id: post.id, scheduledAt: null },
+        squad,
+      );
     }
 
     return onEditFreeformPost({ ...params, id: post.id }, squad);
@@ -176,6 +216,7 @@ function EditPost(): ReactElement {
       updateDraft={updateDraft}
       onSubmitForm={onClickSubmit}
       formId={formId}
+      schedule={canReschedule ? schedule : undefined}
       enableUpload
     >
       <NextSeo {...seo} noindex nofollow />

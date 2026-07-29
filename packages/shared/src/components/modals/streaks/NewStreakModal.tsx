@@ -18,6 +18,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import StreakReminderSwitch from '../../streak/StreakReminderSwitch';
+import { StreakFreezeUpsell } from '../../streak/StreakFreezeUpsell';
 
 const Paragraph = classed('p', 'text-center text-text-tertiary');
 
@@ -120,6 +121,9 @@ export default function NewStreakModal({
             ? 'Epic win! You are in a league of your own'
             : `New milestone reached! You are unstoppable.`}
         </Paragraph>
+        <StreakFreezeUpsell className="mt-6">
+          Protect your streak with streak freezes
+        </StreakFreezeUpsell>
         <Checkbox
           name="show_streaks"
           className="mt-10"

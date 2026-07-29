@@ -46,6 +46,7 @@ import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExt
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { useEngagementAdsContext } from '@dailydotdev/shared/src/contexts/EngagementAdsContext';
+import { getEngagementLogExtra } from '@dailydotdev/shared/src/lib/engagementAds';
 import { CompanionDemoWidget } from '@dailydotdev/shared/src/components/post/CompanionDemoWidget';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
@@ -59,6 +60,7 @@ import {
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
 import type { DynamicSeoProps } from '../../../components/common';
+import { noindexSeoProps } from '../../../next-seo';
 import useSharedByToast from '../../../hooks/useSharedByToast';
 import { getPostCanonicalUrl } from '../../../lib/seo';
 
@@ -165,6 +167,12 @@ export const seoTitle = (post: Post): string | undefined => {
 };
 
 export const shouldNoindexPost = (post: Post): boolean => {
+  // Posts in private squads normally fail the unauthenticated ISR fetch, but a
+  // cached page can outlive a squad turning private, so fail closed here too.
+  if (post?.private || post?.source?.public === false) {
+    return true;
+  }
+
   const hasLowReputationAuthor =
     typeof post?.author?.reputation === 'number' &&
     post.author.reputation <= 10;
@@ -275,7 +283,7 @@ export const PostPage = ({
           return {
             referrer_target_id: post?.id,
             referrer_target_type: post?.id ? TargetType.Post : undefined,
-            ...(creative && { gen_id: creative.genId }),
+            ...(creative && getEngagementLogExtra(creative)),
           };
         }}
       >
@@ -376,12 +384,6 @@ export async function getStaticProps({
         },
         locale: post?.language || 'en',
       },
-      additionalMetaTags: [
-        {
-          name: 'robots',
-          content: 'max-image-preview:large',
-        },
-      ],
     };
 
     return {
@@ -408,8 +410,14 @@ export async function getStaticProps({
 
       const { postId } = responseErrors?.[0]?.extensions ?? {};
 
+      // FORBIDDEN lands here for every post in a private squad, since the ISR
+      // fetch is unauthenticated. Without seo these fell back to index,follow.
       return {
-        props: { id: postId || id, error: errorCode },
+        props: {
+          id: postId || id,
+          error: errorCode,
+          seo: { ...noindexSeoProps },
+        },
         revalidate: 60,
       };
     }

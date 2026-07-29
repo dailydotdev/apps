@@ -150,6 +150,7 @@ const defaultReadingHistory: ProfileReadingData = {
     current: 5,
     weekStart: DayOfWeek.Sunday,
     lastViewAt: new Date('2024-01-15'),
+    freezesAvailable: 0,
   },
   userMostReadTags: [
     { value: 'javascript', count: 20 },
