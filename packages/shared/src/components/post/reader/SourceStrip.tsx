@@ -62,7 +62,7 @@ export function SourceStrip({
         trigger={
           <div
             className={classNames(
-              'group flex min-w-0 flex-1 items-center rounded-10',
+              'flex min-w-0 flex-1 items-center rounded-10',
               compact ? 'gap-3 px-0 py-0' : 'gap-3 px-1 py-0.5',
             )}
           >
@@ -92,7 +92,7 @@ export function SourceStrip({
                     compact ? TypographyType.Callout : TypographyType.Subhead
                   }
                   color={TypographyColor.Primary}
-                  className="truncate group-hover:underline group-focus-visible:underline"
+                  className="truncate hover:underline focus-visible:underline"
                   title={source.name}
                   bold
                 >
