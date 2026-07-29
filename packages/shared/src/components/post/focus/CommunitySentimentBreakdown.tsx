@@ -253,6 +253,10 @@ export const CommunitySentimentBreakdown = ({
       discussion,
     ]),
   );
+  const sourcesWithComments = bySource.filter((item) => {
+    const discussion = discussionByProvider.get(normalizeProvider(item.source));
+    return discussion?.commentsCount !== 0;
+  });
 
   return (
     <div className="flex animate-composer-in flex-col gap-4 border-t border-border-subtlest-tertiary pt-3">
@@ -267,11 +271,11 @@ export const CommunitySentimentBreakdown = ({
         </div>
       )}
 
-      {bySource.length > 0 && (
+      {sourcesWithComments.length > 0 && (
         <div className="flex flex-col gap-2.5">
           <BlockTitle>By community</BlockTitle>
           <div className="flex flex-col gap-1">
-            {bySource.map((item) => (
+            {sourcesWithComments.map((item) => (
               <SourceRow
                 key={item.source}
                 {...item}

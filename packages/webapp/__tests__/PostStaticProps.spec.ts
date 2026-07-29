@@ -1,4 +1,4 @@
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import { getStaticProps, shouldNoindexPost } from '../pages/posts/[id]/index';
@@ -105,6 +105,39 @@ describe('post static props seo', () => {
         seo: {
           noindex: false,
         },
+      },
+    });
+  });
+
+  it.each([
+    ['the post is private', { private: true }],
+    ['the source is not public', { source: { public: false } }],
+  ])('should noindex when %s', (_, overrides) => {
+    expect(
+      shouldNoindexPost({
+        ...createPost({ type: PostType.Article, upvotes: 10 }),
+        ...overrides,
+      } as Post),
+    ).toBe(true);
+  });
+
+  // The ISR fetch is unauthenticated, so posts in private squads always fail
+  // with FORBIDDEN. This fallback used to ship no seo, leaving them indexable.
+  it('should noindex the error fallback', async () => {
+    mockRequest.mockRejectedValue({
+      response: {
+        errors: [{ extensions: { code: ApiError.Forbidden, postId: 'p-1' } }],
+      },
+    });
+
+    const result = await getStaticProps({
+      params: { id: 'post-id' },
+    } as never);
+
+    expect(result).toMatchObject({
+      props: {
+        id: 'p-1',
+        seo: { noindex: true, nofollow: true },
       },
     });
   });

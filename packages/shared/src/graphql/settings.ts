@@ -34,14 +34,13 @@ export type SettingsFlags = {
   defaultWriteTab?: WriteFormTab;
   legacyPostLayoutOptOut?: boolean;
   highlightCardsOptOut?: boolean;
-  // Persists that the user already chose to engage with the reader install
-  // prompt (clicked "Enable permissions & read inside"). Future read clicks
-  // skip the prompt and open the reader modal directly. Dismissing the prompt
-  // without choosing an option leaves this unset so the prompt reappears.
+  // Persists that the user chose to enable reader permissions from an install
+  // prompt. Future read clicks skip the prompt and open the reader modal
+  // directly unless the user later opts out.
   readerInstallPromptAcknowledged?: boolean;
-  // Persists that the reader_modal_v3 nudge (the intermediate install prompt)
-  // has been surfaced to this user. Once set, the prompt never auto-opens
-  // again regardless of whether the user accepted or dismissed it.
+  // Persists that the intermediate install prompt has been surfaced to this
+  // user. Once set, the prompt never auto-opens again regardless of whether the
+  // user accepted or dismissed it.
   readerInstallPromptSeen?: boolean;
   shortcutMeta?: Record<string, ShortcutMeta>;
   shortcutsMode?: ShortcutsMode;

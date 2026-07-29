@@ -25,6 +25,10 @@ const config: StorybookConfig = {
       __dirname,
       '../mock/GrowthBookProvider.tsx',
     );
+    const ConditionalFeatureMockPath = path.resolve(
+      __dirname,
+      '../mock/hooks/useConditionalFeature.ts',
+    );
 
     return mergeConfig(config, {
       core: {
@@ -45,7 +49,18 @@ const config: StorybookConfig = {
           ),
           'next/router': path.resolve(__dirname, '../mock/next-router.ts'),
           './GrowthBookProvider': GrowthBookMockPath,
+          '../GrowthBookProvider': GrowthBookMockPath,
           '../../GrowthBookProvider': GrowthBookMockPath,
+          '../../../GrowthBookProvider': GrowthBookMockPath,
+          '../components/GrowthBookProvider': GrowthBookMockPath,
+          '../../components/GrowthBookProvider': GrowthBookMockPath,
+          '../../../components/GrowthBookProvider': GrowthBookMockPath,
+          './useConditionalFeature': ConditionalFeatureMockPath,
+          '../useConditionalFeature': ConditionalFeatureMockPath,
+          '../hooks/useConditionalFeature': ConditionalFeatureMockPath,
+          '../../hooks/useConditionalFeature': ConditionalFeatureMockPath,
+          '../../../hooks/useConditionalFeature': ConditionalFeatureMockPath,
+          '../../../../hooks/useConditionalFeature': ConditionalFeatureMockPath,
           '@dailydotdev/shared/src/lib/boot': path.resolve(
             __dirname,
             '../mock/boot.ts',

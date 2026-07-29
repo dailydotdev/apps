@@ -155,6 +155,21 @@ export const boostSettingsFeature = new Feature('boost_settings', {
 
 export const adImprovementsV3Feature = new Feature('ad_improvements_v3', false);
 
+// Experiment: ad disclosure wording. Control names the advertiser ("Promoted by
+// Vercel"); the treatments drop the advertiser and disclose with a plain "Ad",
+// with the strictest arm also removing the "Advertise here" self-promo so the
+// card carries a single disclosure. Measured on ad CTR (see `adLogEvent`).
+// Default MUST stay Control — GrowthBook ramps the arms.
+export enum AdLabelVariant {
+  Control = 'control',
+  Ad = 'ad',
+  AdOnly = 'ad_only',
+}
+export const featureAdLabel = new Feature<AdLabelVariant>(
+  'ad_label',
+  AdLabelVariant.Control,
+);
+
 export const featureYearInReview = new Feature('year_in_review_2025', false);
 
 export const featureProfileCompletionIndicator = new Feature(
@@ -185,11 +200,6 @@ export const featureOnboardingPersonas = new Feature(
 );
 
 export const featurePostSignupWidget = new Feature('post_signup_widget', false);
-
-// Gates the one-time intermediate "read inside daily.dev" install prompt for
-// users who haven't enabled the reader yet. Unlike the retired reader_modal_v2,
-// this nudge is shown at most once ever (see readerInstallPromptSeen).
-export const featureReaderModalNudge = new Feature('reader_modal_v3', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
@@ -278,11 +288,6 @@ export const featureFeedCardGlassActions = new Feature(
   false,
 );
 
-export const featureOnboardingPermissionPrimer = new Feature(
-  'onboarding_permission_primer',
-  false,
-);
-
 // Experiment: skip layout/paint for off-screen feed cards via CSS
 // `content-visibility: auto` to keep long feeds responsive.
 export const featureFeedContentVisibility = new Feature(
@@ -318,6 +323,8 @@ export const featureNotificationsRedesign = new Feature(
 // `analytics.impressions` field. Control hides it entirely. Keep the default
 // `false` — GrowthBook ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
+
+export const featureInterestAgent = new Feature('interest_agent', false);
 
 // Post-signup feed activation bar: a persistent, non-dismissible strip shown
 // above the header on every page for signed-in users who registered but have

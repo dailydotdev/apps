@@ -36,6 +36,7 @@ export const NewOpportunityPopover = (): ReactElement => {
         </Typography>
         <Link href={`${webappUrl}jobs/${alerts.opportunityId}`} passHref>
           <Button
+            tag="a"
             size={ButtonSize.XSmall}
             onClick={logOpportunityNudgeClick}
             icon={

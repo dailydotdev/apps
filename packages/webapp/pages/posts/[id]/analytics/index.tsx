@@ -98,6 +98,7 @@ import { seoTitle } from '../index';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { getPostCanonicalUrl } from '../../../../lib/seo';
+import { noindexSeoProps } from '../../../../next-seo';
 import type { SharePostPageProps } from '../share';
 import type { AnalyticsNumberList } from '../../../../../shared/src/components/analytics/common';
 
@@ -131,10 +132,13 @@ export const getServerSideProps: GetServerSideProps<
     const pageSeoTitles = getPageSeoTitles(
       [seoTitle(post), 'Analytics'].filter(Boolean).join(' | '),
     );
+    // Only the post author can open this page, so it must never be indexed
+    // even though the post it belongs to is public.
     const seo: NextSeoProps = {
       canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
+      ...noindexSeoProps,
       openGraph: {
         ...pageSeoTitles.openGraph,
         images: [
@@ -168,7 +172,7 @@ export const getServerSideProps: GetServerSideProps<
       const { postId } = clientError.response.errors[0].extensions;
 
       return {
-        props: { id: postId || id },
+        props: { id: postId || id, seo: { ...noindexSeoProps } },
       };
     }
     throw err;

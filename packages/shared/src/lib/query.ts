@@ -181,6 +181,8 @@ export enum RequestKey {
   SquadStatus = 'squad_status',
   PublicSquadRequests = 'public_squad_requests',
   Feeds = 'feeds',
+  Interests = 'interests',
+  InterestFindings = 'interest_findings',
   ScheduledPosts = 'scheduled_posts',
   FeedSettings = 'feedSettings',
   Ads = 'ads',
