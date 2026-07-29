@@ -76,24 +76,26 @@ export const generateWeeklyQuizResultImage = async (
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, size, size);
 
-  // Logo (same-origin, no CORS concern).
+  // Logo (same-origin, no CORS concern). The mascot logo is ~square, so it's
+  // kept compact at the top and everything else sits clearly below it.
   try {
     const logo = await loadImage(params.logoUrl);
-    const logoWidth = 460;
+    const logoWidth = 340;
     const logoHeight = (logo.height / logo.width) * logoWidth;
-    ctx.drawImage(logo, (size - logoWidth) / 2, 56, logoWidth, logoHeight);
+    ctx.drawImage(logo, (size - logoWidth) / 2, 44, logoWidth, logoHeight);
   } catch {
     // Logo is best-effort; keep going without it.
   }
 
-  // Avatar circle. crossOrigin so the canvas isn't tainted; if the host doesn't
-  // allow CORS the load errors and we simply skip it (canvas stays exportable).
+  // Avatar circle, below the logo. crossOrigin so the canvas isn't tainted; if
+  // the host doesn't allow CORS the load errors and we simply skip it (canvas
+  // stays exportable).
   if (params.imageUrl) {
     try {
       const avatar = await loadImage(params.imageUrl, 'anonymous');
-      const diameter = 180;
+      const diameter = 150;
       const ax = (size - diameter) / 2;
-      const ay = 250;
+      const ay = 410;
       ctx.save();
       ctx.beginPath();
       ctx.arc(
@@ -128,7 +130,7 @@ export const generateWeeklyQuizResultImage = async (
   // Name.
   ctx.fillStyle = '#fff';
   ctx.font = 'bold 56px system-ui, sans-serif';
-  ctx.fillText(params.name, size / 2, 500);
+  ctx.fillText(params.name, size / 2, 618);
 
   // Score + time as two equal-weight stat cards — the shareable focal point.
   const roundRect = (x: number, y: number, w: number, h: number, r: number) => {
@@ -136,10 +138,10 @@ export const generateWeeklyQuizResultImage = async (
     ctx.roundRect(x, y, w, h, r);
   };
   const cardW = 380;
-  const cardH = 250;
+  const cardH = 210;
   const gap = 40;
   const startX = (size - (cardW * 2 + gap)) / 2;
-  const cardY = 560;
+  const cardY = 668;
   const cards = [
     {
       x: startX,
@@ -157,11 +159,11 @@ export const generateWeeklyQuizResultImage = async (
     roundRect(card.x, cardY, cardW, cardH, 36);
     ctx.stroke();
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 116px system-ui, sans-serif';
-    ctx.fillText(card.big, card.x + cardW / 2, cardY + 150);
+    ctx.font = 'bold 104px system-ui, sans-serif';
+    ctx.fillText(card.big, card.x + cardW / 2, cardY + 128);
     ctx.font = '700 34px system-ui, sans-serif';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-    ctx.fillText(card.label, card.x + cardW / 2, cardY + 205);
+    ctx.fillText(card.label, card.x + cardW / 2, cardY + 172);
   });
 
   // Leaderboard rank — a bright gold pill so it pops off the purple.
@@ -171,7 +173,7 @@ export const generateWeeklyQuizResultImage = async (
     const pillW = ctx.measureText(pillText).width + 80;
     const pillH = 84;
     const pillX = (size - pillW) / 2;
-    const pillY = 850;
+    const pillY = 912;
     const pill = ctx.createLinearGradient(pillX, pillY, pillX, pillY + pillH);
     pill.addColorStop(0, accent('--theme-accent-cheese-default', '#FFE24C'));
     pill.addColorStop(1, accent('--theme-accent-bun-default', '#FF9157'));
@@ -185,7 +187,7 @@ export const generateWeeklyQuizResultImage = async (
   // Footer tagline so the post explains itself when shared.
   ctx.font = '600 34px system-ui, sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.fillText('Play the Weekly Tech News Quiz on daily.dev', size / 2, 1012);
+  ctx.fillText('Play the Weekly Tech News Quiz on daily.dev', size / 2, 1044);
 
   const link = document.createElement('a');
   link.href = canvas.toDataURL('image/png');
