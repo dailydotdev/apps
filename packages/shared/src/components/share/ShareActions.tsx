@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import { PopoverContent } from '../popover/Popover';
@@ -7,7 +7,6 @@ import { SocialShareList } from '../widgets/SocialShareList';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { CopyIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
-import { Typography, TypographyType } from '../typography/Typography';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { shouldUseNativeShare } from '../../lib/func';
@@ -33,6 +32,13 @@ export interface ShareActionsProps {
   className?: string;
   /** Called for any share/copy so the caller can log with its own origin. */
   onShare?: (provider: ShareProvider) => void;
+  /** Overrides the trigger icon. Defaults to the copy icon. */
+  icon?: ReactElement;
+  /**
+   * Notifies the caller when the popover opens or closes, so a host that
+   * dismisses itself on outside clicks can stay put while it is open.
+   */
+  onOpenChange?: (open: boolean) => void;
 }
 
 const HOVER_CLOSE_DELAY = 120;
@@ -50,11 +56,23 @@ export function ShareActions({
   emailSummary,
   className,
   onShare,
+  icon,
+  onOpenChange,
 }: ShareActionsProps): ReactElement {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const [open, setOpen] = useState(false);
+  const [open, setOpenState] = useState(false);
   const [copying, shareOrCopy] = useShareOrCopyLink({ link, text, cid });
   const closeTimeout = useRef<ReturnType<typeof setTimeout>>();
+
+  const setOpen = useCallback(
+    (next: boolean) => {
+      setOpenState(next);
+      onOpenChange?.(next);
+    },
+    [onOpenChange],
+  );
+
+  const triggerIcon = icon ?? <CopyIcon secondary={copying} />;
 
   const list = (
     <SocialShareList
@@ -92,7 +110,7 @@ export function ShareActions({
           type="button"
           variant={buttonVariant}
           size={buttonSize}
-          icon={<CopyIcon secondary={copying} />}
+          icon={triggerIcon}
           aria-label={label}
           className={className}
           onClick={() => {
@@ -136,7 +154,7 @@ export function ShareActions({
             type="button"
             variant={buttonVariant}
             size={buttonSize}
-            icon={<CopyIcon secondary={copying} />}
+            icon={triggerIcon}
             aria-label={label}
             pressed={open}
             className={className}
@@ -148,12 +166,20 @@ export function ShareActions({
         side="top"
         align="center"
         avoidCollisions
-        className="flex w-80 flex-wrap justify-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
+        collisionPadding={8}
+        // The selection bar is `fixed` and re-anchors as the reader scrolls, so
+        // the popover has to track it every frame. The default strategy only
+        // recomputes on scroll/resize of ancestors and leaves the popover
+        // parked at a stale position until the next event.
+        updatePositionStrategy="always"
+        // Four fixed columns sized to their content: every side gets the same
+        // padding, and a short last row stays left-aligned with the grid above
+        // it. Wrapping a flex row inside a fixed width left slack that
+        // `justify-center` split between the sides, so they read wider than the
+        // top and bottom, and it re-centred a short last row against the rest.
+        className="grid w-fit grid-cols-4 gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
         {...hoverProps}
       >
-        <Typography type={TypographyType.Callout} bold className="w-full">
-          Share
-        </Typography>
         {list}
       </PopoverContent>
     </Popover>

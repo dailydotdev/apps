@@ -52,7 +52,13 @@ const focusInputById = (inputId: string, remainingFrames = 30): void => {
 
   const input = document.getElementById(inputId);
   if (input) {
-    input.focus();
+    // Bring the composer into view before focusing. A draft can arrive from far
+    // up the page — quoting a selection from the post body, say — and a bare
+    // `focus()` jumps the scroll position instead of moving to it. Scrolling
+    // first, with focus not stealing the scroll, keeps that motion smooth.
+    // Optional-chained: jsdom does not implement `scrollIntoView`.
+    input.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+    input.focus({ preventScroll: true });
     return;
   }
 
@@ -117,26 +123,45 @@ function NewCommentComponent(
   }, [isComposerOpen, onComposerOpenChange]);
 
   useEffect(() => {
-    if (
-      !shouldHandleCommentQuery ||
-      !hasCommentQuery ||
-      (post.type !== PostType.Welcome && post.type !== PostType.Poll)
-    ) {
+    if (!shouldHandleCommentQuery || !hasCommentQuery) {
       return;
     }
 
-    const { comment, ...query } = router.query;
-    const origin =
+    if (!user) {
+      // Opening a composer nobody can post from is worse than not opening one.
+      // The query param stays put, so the draft survives the login round-trip
+      // and this effect picks it up again once the user comes back.
+      showLogin({ trigger: AuthTriggers.NewComment });
+      return;
+    }
+
+    const { comment, commentOrigin, ...query } = router.query;
+    // Callers that know where the draft came from say so (the text-selection
+    // share bar does); otherwise fall back to the post type, as before.
+    const originByPostType =
       post.type === PostType.Poll
         ? Origin.PollCommentButton
         : Origin.SquadChecklist;
+    const origin = (commentOrigin as Origin) ?? originByPostType;
 
     onShowComment(origin, comment as string);
+    // A draft handed over through the URL has no click behind it to scroll the
+    // page, so the composer would open unseen below the fold.
+    focusInputById(inputId);
 
     router.replace({ pathname: router.pathname, query }, undefined, {
       shallow: true,
     });
-  }, [post, hasCommentQuery, onShowComment, router, shouldHandleCommentQuery]);
+  }, [
+    post,
+    hasCommentQuery,
+    inputId,
+    onShowComment,
+    router,
+    shouldHandleCommentQuery,
+    showLogin,
+    user,
+  ]);
 
   const onCommentClick = (origin: Origin) => {
     if (!user) {

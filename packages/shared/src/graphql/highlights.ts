@@ -29,6 +29,19 @@ export interface PostHighlightFeed {
     commentsPermalink: string;
     summary?: string;
     contentHtml?: string;
+    // Enough of a post for the selection share bar: the link it copies, and
+    // the fields `postLogEvent` reads so a share from here is not a hollow
+    // event. Deliberately short of a full Post — this is a list query.
+    title?: string;
+    permalink?: string;
+    image?: string;
+    createdAt?: string;
+    readTime?: number;
+    numComments?: number;
+    numUpvotes?: number;
+    tags?: string[];
+    source?: { id: string; type: string };
+    author?: { id: string };
     sharedPost?: {
       summary?: string;
       contentHtml?: string;
@@ -120,6 +133,21 @@ export const POST_HIGHLIGHT_FEED_FRAGMENT = gql`
       commentsPermalink
       summary
       contentHtml
+      title
+      permalink
+      image
+      createdAt
+      readTime
+      numComments
+      numUpvotes
+      tags
+      source {
+        id
+        type
+      }
+      author {
+        id
+      }
       sharedPost {
         summary
         contentHtml

@@ -51,6 +51,8 @@ import { PostMenuOptions } from '../PostMenuOptions';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
+import { PostSelectionArea } from '../PostSelectionArea';
+import { SelectionShareProvider } from '../SelectionShareProvider';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -325,264 +327,276 @@ export const PostFocusCard = ({
     ) : null;
 
   return (
-    <article
-      className="flex w-full flex-col rounded-24 bg-background-default"
-      data-testid="post-focus-card"
-    >
-      <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
-        <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
-          <div className="flex min-h-8 min-w-0 items-center gap-2">
-            {author ? (
-              <div className="flex min-w-0 items-center gap-3">
-                <UserShortInfo
-                  user={author as unknown as UserShortProfile}
-                  imageSize={ProfileImageSize.Large}
-                  showDescription={false}
-                  transformUsername={() => null}
-                  className={{
-                    container: 'min-w-0 !p-0 hover:bg-transparent',
-                    textWrapper: 'min-w-0',
-                  }}
-                />
-                <FollowButton
-                  className="shrink-0"
-                  entityId={author.id}
-                  entityName={`@${author.username}`}
-                  type={ContentPreferenceType.User}
-                  status={author.contentPreference?.status}
-                  variant={ButtonVariant.Subtle}
-                  showSubscribe={false}
-                  buttonClassName="!h-7 !px-2"
+    <SelectionShareProvider>
+      <article
+        className="flex w-full flex-col rounded-24 bg-background-default"
+        data-testid="post-focus-card"
+      >
+        <div className="flex flex-col px-4 tablet:px-6 laptop:px-8">
+          <div className="relative mx-auto flex w-full min-w-0 flex-col gap-4 py-6 laptop:max-w-[768px]">
+            <div className="flex min-h-8 min-w-0 items-center gap-2">
+              {author ? (
+                <div className="flex min-w-0 items-center gap-3">
+                  <UserShortInfo
+                    user={author as unknown as UserShortProfile}
+                    imageSize={ProfileImageSize.Large}
+                    showDescription={false}
+                    transformUsername={() => null}
+                    className={{
+                      container: 'min-w-0 !p-0 hover:bg-transparent',
+                      textWrapper: 'min-w-0',
+                    }}
+                  />
+                  <FollowButton
+                    className="shrink-0"
+                    entityId={author.id}
+                    entityName={`@${author.username}`}
+                    type={ContentPreferenceType.User}
+                    status={author.contentPreference?.status}
+                    variant={ButtonVariant.Subtle}
+                    showSubscribe={false}
+                    buttonClassName="!h-7 !px-2"
+                  />
+                </div>
+              ) : (
+                article.source && (
+                  <SourceStrip
+                    compact
+                    className="min-w-0 shrink"
+                    followButtonVariant={ButtonVariant.Subtle}
+                    source={article.source as SourceTooltip}
+                  />
+                )
+              )}
+              <div className="ml-auto shrink-0">
+                <PostMenuOptions
+                  post={post}
+                  origin={origin}
+                  buttonSize={ButtonSize.Medium}
                 />
               </div>
-            ) : (
-              article.source && (
-                <SourceStrip
-                  compact
-                  className="min-w-0 shrink"
-                  followButtonVariant={ButtonVariant.Subtle}
-                  source={article.source as SourceTooltip}
-                />
-              )
-            )}
-            <div className="ml-auto shrink-0">
-              <PostMenuOptions
-                post={post}
-                origin={origin}
-                buttonSize={ButtonSize.Medium}
-              />
             </div>
-          </div>
 
-          <div className="flex min-w-0 flex-col gap-3">
-            {sharedVia && (
-              <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
-                <span>Shared via</span>
-                <HoverCard
-                  appendTo={globalThis?.document?.body}
-                  side="top"
-                  align="start"
-                  sideOffset={8}
-                  trigger={
-                    <span className="inline-flex items-center">
-                      <Link
-                        href={sharedVia.permalink}
-                        passHref
-                        prefetch={false}
-                      >
-                        <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
-                          {sharedVia.image && (
-                            <img
-                              src={sharedVia.image}
-                              alt=""
-                              aria-hidden
-                              className="size-4 rounded-full object-cover"
-                              loading="lazy"
-                            />
-                          )}
-                          {sharedVia.name}
-                        </a>
-                      </Link>
-                    </span>
-                  }
-                >
-                  <SourceEntityCard source={sharedVia as SourceTooltip} />
-                </HoverCard>
-              </p>
-            )}
-            {isShared && !sharedVia && (
-              <p className="text-text-tertiary typo-footnote">Shared post</p>
-            )}
-            {!isShared && isCollection && (
-              <p className="text-text-tertiary typo-footnote">Collection</p>
-            )}
-            {/* Title and image are top-aligned columns. The cover image opens a
+            <PostSelectionArea post={post}>
+              <div className="flex min-w-0 flex-col gap-3">
+                {sharedVia && (
+                  <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
+                    <span>Shared via</span>
+                    <HoverCard
+                      appendTo={globalThis?.document?.body}
+                      side="top"
+                      align="start"
+                      sideOffset={8}
+                      trigger={
+                        <span className="inline-flex items-center">
+                          <Link
+                            href={sharedVia.permalink}
+                            passHref
+                            prefetch={false}
+                          >
+                            <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
+                              {sharedVia.image && (
+                                <img
+                                  src={sharedVia.image}
+                                  alt=""
+                                  aria-hidden
+                                  className="size-4 rounded-full object-cover"
+                                  loading="lazy"
+                                />
+                              )}
+                              {sharedVia.name}
+                            </a>
+                          </Link>
+                        </span>
+                      }
+                    >
+                      <SourceEntityCard source={sharedVia as SourceTooltip} />
+                    </HoverCard>
+                  </p>
+                )}
+                {isShared && !sharedVia && (
+                  <p className="text-text-tertiary typo-footnote">
+                    Shared post
+                  </p>
+                )}
+                {!isShared && isCollection && (
+                  <p className="text-text-tertiary typo-footnote">Collection</p>
+                )}
+                {/* Title and image are top-aligned columns. The cover image opens a
                 lightbox rather than navigating away. The read button lives in
                 the title column (right under the title) so it hugs the title
                 regardless of the image height — a short title next to a tall
                 image keeps the button close instead of dragging it down. */}
-            <div className="flex min-w-0 flex-row items-start gap-4">
-              <div className="flex min-w-0 flex-1 flex-col gap-4">
-                <h1
-                  className={classNames(
-                    'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
-                    // On the post page the reader came to read, so the title is
-                    // always shown in full and the button flows below it; only
-                    // the modal (a feed preview) clamps it.
-                    onClose && 'line-clamp-3',
+                <div className="flex min-w-0 flex-row items-start gap-4">
+                  <div className="flex min-w-0 flex-1 flex-col gap-4">
+                    <h1
+                      className={classNames(
+                        'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
+                        // On the post page the reader came to read, so the title is
+                        // always shown in full and the button flows below it; only
+                        // the modal (a feed preview) clamps it.
+                        onClose && 'line-clamp-3',
+                      )}
+                      data-testid="post-modal-title"
+                    >
+                      {title}
+                    </h1>
+                    {renderReadButton('w-fit')}
+                  </div>
+                  {!isVideoType && article.image && (
+                    <button
+                      type="button"
+                      aria-label="View cover image"
+                      className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
+                      onClick={(event) => {
+                        openModal({
+                          type: LazyModal.ImageView,
+                          props: {
+                            src: article.image as string,
+                            alt: 'Post cover image',
+                            originRect: getImageOriginRect(event.currentTarget),
+                          },
+                        });
+                      }}
+                    >
+                      <LazyImage
+                        eager
+                        // Small square thumbnail below tablet; from tablet (656px)
+                        // up it uses the original wide cover ratio (52% => 25/13).
+                        className="aspect-square w-full tablet:aspect-[25/13]"
+                        fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                        fetchPriority="high"
+                        imgAlt="Post cover image"
+                        imgSrc={article.image}
+                      />
+                    </button>
                   )}
-                  data-testid="post-modal-title"
-                >
-                  {title}
-                </h1>
-                {renderReadButton('w-fit')}
+                </div>
               </div>
-              {!isVideoType && article.image && (
-                <button
-                  type="button"
-                  aria-label="View cover image"
-                  className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
-                  onClick={(event) => {
-                    openModal({
-                      type: LazyModal.ImageView,
-                      props: {
-                        src: article.image as string,
-                        alt: 'Post cover image',
-                        originRect: getImageOriginRect(event.currentTarget),
-                      },
-                    });
-                  }}
+
+              <PostMetadata
+                className="!typo-callout"
+                createdAt={article.createdAt}
+                domain={
+                  !isVideoType &&
+                  article.domain &&
+                  article.domain.length > 0 && (
+                    <TruncateText>
+                      From{' '}
+                      <ArticleLink
+                        className="hover:underline"
+                        href={article.permalink}
+                        onClick={onReadArticle}
+                        title={article.domain}
+                      >
+                        {article.domain}
+                      </ArticleLink>
+                    </TruncateText>
+                  )
+                }
+                isVideoType={isVideoType}
+                readTime={article.readTime}
+              />
+
+              {isVideoType && (
+                <div
+                  ref={videoWrapperRef}
+                  className={classNames(
+                    'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
+                    // Phones (below mobileXL, the mobileL bucket and smaller) and
+                    // the expanded state use the full width; tablet/desktop start
+                    // as a smaller floating preview until the user plays the video.
+                    isVideoExpanded
+                      ? 'max-w-full'
+                      : 'max-w-full mobileXL:max-w-[70%]',
+                  )}
                 >
-                  <LazyImage
-                    eager
-                    // Small square thumbnail below tablet; from tablet (656px)
-                    // up it uses the original wide cover ratio (52% => 25/13).
-                    className="aspect-square w-full tablet:aspect-[25/13]"
-                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                    fetchPriority="high"
-                    imgAlt="Post cover image"
-                    imgSrc={article.image}
-                  />
-                </button>
-              )}
-            </div>
-          </div>
-
-          <PostMetadata
-            className="!typo-callout"
-            createdAt={article.createdAt}
-            domain={
-              !isVideoType &&
-              article.domain &&
-              article.domain.length > 0 && (
-                <TruncateText>
-                  From{' '}
-                  <ArticleLink
-                    className="hover:underline"
-                    href={article.permalink}
-                    onClick={onReadArticle}
-                    title={article.domain}
-                  >
-                    {article.domain}
-                  </ArticleLink>
-                </TruncateText>
-              )
-            }
-            isVideoType={isVideoType}
-            readTime={article.readTime}
-          />
-
-          {isVideoType && (
-            <div
-              ref={videoWrapperRef}
-              className={classNames(
-                'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
-                // Phones (below mobileXL, the mobileL bucket and smaller) and
-                // the expanded state use the full width; tablet/desktop start
-                // as a smaller floating preview until the user plays the video.
-                isVideoExpanded
-                  ? 'max-w-full'
-                  : 'max-w-full mobileXL:max-w-[70%]',
-              )}
-            >
-              {/* Embed YouTube's native player directly so the first click
+                  {/* Embed YouTube's native player directly so the first click
                   plays inside the iframe with sound — no custom overlay or
                   muted autoplay. */}
-              <YoutubeVideo
-                placeholderProps={{
-                  post: article,
-                  onWatchVideo: onReadArticle,
-                }}
-                videoId={article.videoId ?? ''}
-              />
-            </div>
-          )}
+                  <YoutubeVideo
+                    placeholderProps={{
+                      post: article,
+                      onWatchVideo: onReadArticle,
+                    }}
+                    videoId={article.videoId ?? ''}
+                  />
+                </div>
+              )}
 
-          {article.contentHtml ? (
-            <>
-              <Markdown content={article.contentHtml} className="break-words" />
-              <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
-            </>
-          ) : (
-            article.summary &&
-            (isVideoType ? (
-              <VideoSummary summary={article.summary} />
-            ) : (
-              <p
-                className="select-text break-words text-text-secondary typo-markdown"
-                data-testid="tldr-container"
-              >
-                {article.summary}
-              </p>
-            ))
-          )}
+              {article.contentHtml ? (
+                <>
+                  <Markdown
+                    content={article.contentHtml}
+                    className="break-words"
+                  />
+                  <ContentEmbeds
+                    embeds={article.contentEmbeds}
+                    variant="post"
+                  />
+                </>
+              ) : (
+                article.summary &&
+                (isVideoType ? (
+                  <VideoSummary summary={article.summary} />
+                ) : (
+                  <p
+                    className="select-text break-words text-text-secondary typo-markdown"
+                    data-testid="tldr-container"
+                  >
+                    {article.summary}
+                  </p>
+                ))
+              )}
+            </PostSelectionArea>
 
-          <PostTagList post={article} />
+            <PostTagList post={article} />
 
-          <PostUpvotesCommentsCount
-            post={post}
-            onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
-            onCommentsClick={scrollToComment}
-            // Spacing in this column is governed by its `gap-4`; drop the stats
-            // row's own bottom margin so the gap above the action bar matches
-            // the gap below it.
-            className="!mb-0"
-          />
+            <PostUpvotesCommentsCount
+              post={post}
+              onUpvotesClick={(upvotes) => onShowUpvoted(post.id, upvotes)}
+              onCommentsClick={scrollToComment}
+              // Spacing in this column is governed by its `gap-4`; drop the stats
+              // row's own bottom margin so the gap above the action bar matches
+              // the gap below it.
+              className="!mb-0"
+            />
 
-          {isCollection && <CollectionSources post={article} />}
+            {isCollection && <CollectionSources post={article} />}
 
-          {showCodeSnippets && (
-            <div className={leftVariant === 'lean' ? 'mb-4' : 'mb-6'}>
-              <PostCodeSnippets post={article} />
-            </div>
-          )}
+            {showCodeSnippets && (
+              <div className={leftVariant === 'lean' ? 'mb-4' : 'mb-6'}>
+                <PostCodeSnippets post={article} />
+              </div>
+            )}
 
-          <PostSidebarAdWidget postId={post.id} variant="inline" />
+            <PostSidebarAdWidget postId={post.id} variant="inline" />
 
-          <FocusCardActionBar
-            post={post}
-            origin={origin}
-            onComment={scrollToComment}
-            onCopyLinkClick={onCopyPostLink}
-            onClose={onClose}
-            // Tighten the gap to the stats row above (the column's gap-4 alone
-            // read as too large here).
-            className="-mt-2"
-          />
-
-          <div ref={discussionRef} className="scroll-mt-16">
-            <PostDiscussionPanel
-              showMetaBar={false}
-              showSortHeader
-              onRegisterFocusComment={(fn) => {
-                focusCommentRef.current = fn;
-              }}
+            <FocusCardActionBar
               post={post}
               origin={origin}
+              onComment={scrollToComment}
+              onCopyLinkClick={onCopyPostLink}
+              onClose={onClose}
+              // Tighten the gap to the stats row above (the column's gap-4 alone
+              // read as too large here).
+              className="-mt-2"
             />
+
+            <div ref={discussionRef} className="scroll-mt-16">
+              <PostDiscussionPanel
+                showMetaBar={false}
+                showSortHeader
+                onRegisterFocusComment={(fn) => {
+                  focusCommentRef.current = fn;
+                }}
+                post={post}
+                origin={origin}
+              />
+            </div>
           </div>
         </div>
-      </div>
-    </article>
+      </article>
+    </SelectionShareProvider>
   );
 };

@@ -6,6 +6,7 @@ import PostEngagements from './PostEngagements';
 import type { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
 import { ButtonSize } from '../buttons/common';
+import { SelectionShareProvider } from './SelectionShareProvider';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "custom404" */ '../Custom404'),
@@ -47,7 +48,9 @@ export function BasePostContent({
   }
 
   return (
-    <>
+    // One selection watcher for the whole post: its content and its comments
+    // both register with this, and it renders the single bar between them.
+    <SelectionShareProvider>
       {isPostPage && (
         <GoBackHeaderMobile
           className={classNames(className.header, '-mx-4 bg-background-subtle')}
@@ -70,6 +73,6 @@ export function BasePostContent({
           shouldOnboardAuthor={shouldOnboardAuthor}
         />
       )}
-    </>
+    </SelectionShareProvider>
   );
 }

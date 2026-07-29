@@ -27,6 +27,7 @@ import { useSmartTitle } from '../../hooks/post/useSmartTitle';
 import { PostTagList } from './tags/PostTagList';
 import PostSourceInfo from './PostSourceInfo';
 import { useReaderInstallPromptGate } from '../../hooks/useReaderInstallPromptGate';
+import { PostSelectionArea } from './PostSelectionArea';
 
 type PostContentRawProps = Omit<PostContentProps, 'post'> & { post: Post };
 
@@ -159,48 +160,50 @@ export function PostContentRaw({
         origin={origin}
         post={post}
       >
-        <div className={isCompactModalSpacing ? 'my-4' : 'my-6'}>
-          <div className="mb-3 flex items-center">
-            <PostSourceInfo
-              className="min-w-0 flex-1"
-              post={post}
-              onClose={onClose}
-              onReadArticle={onReadArticle}
-              hideSubscribeAction={hideSubscribeAction}
-            />
-          </div>
-          <h1
-            className="break-words font-bold typo-large-title"
-            data-testid="post-modal-title"
-          >
-            <ArticleLink href={post.permalink} onClick={onReadArticle}>
-              {title}
-            </ArticleLink>
-          </h1>
-          {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
-        </div>
-        {isVideoType && (
-          <YoutubeVideo
-            placeholderProps={{ post, onWatchVideo: onReadArticle }}
-            videoId={post.videoId ?? ''}
-            className="mb-7"
-          />
-        )}
-        {post.summary && (
-          <div
-            className={classNames(
-              'mb-6 overflow-hidden text-text-secondary',
-              isCompactModalSpacing && 'mb-4',
-            )}
-          >
-            <p
-              className="select-text break-words typo-markdown"
-              data-testid="tldr-container"
+        <PostSelectionArea post={post}>
+          <div className={isCompactModalSpacing ? 'my-4' : 'my-6'}>
+            <div className="mb-3 flex items-center">
+              <PostSourceInfo
+                className="min-w-0 flex-1"
+                post={post}
+                onClose={onClose}
+                onReadArticle={onReadArticle}
+                hideSubscribeAction={hideSubscribeAction}
+              />
+            </div>
+            <h1
+              className="break-words font-bold typo-large-title"
+              data-testid="post-modal-title"
             >
-              {post.summary}
-            </p>
+              <ArticleLink href={post.permalink} onClick={onReadArticle}>
+                {title}
+              </ArticleLink>
+            </h1>
+            {post.clickbaitTitleDetected && <PostClickbaitShield post={post} />}
           </div>
-        )}
+          {isVideoType && (
+            <YoutubeVideo
+              placeholderProps={{ post, onWatchVideo: onReadArticle }}
+              videoId={post.videoId ?? ''}
+              className="mb-7"
+            />
+          )}
+          {post.summary && (
+            <div
+              className={classNames(
+                'mb-6 overflow-hidden text-text-secondary',
+                isCompactModalSpacing && 'mb-4',
+              )}
+            >
+              <p
+                className="select-text break-words typo-markdown"
+                data-testid="tldr-container"
+              >
+                {post.summary}
+              </p>
+            </div>
+          )}
+        </PostSelectionArea>
         <PostTagList post={post} />
         <PostMetadata
           createdAt={post.createdAt}

@@ -26,6 +26,7 @@ import { useActions, useViewSize, ViewSize } from '../../hooks';
 import { ActionType } from '../../graphql/actions';
 import { useShowBoostButton } from '../../features/boost/useShowBoostButton';
 import type { Post } from '../../graphql/posts';
+import { PostSelectionArea } from './PostSelectionArea';
 
 const ContentMap = {
   [PostType.Freeform]: MarkdownPostContent,
@@ -192,11 +193,13 @@ function SquadPostContentRaw({
           {shouldShowBanner && isUserSource && isLaptop && (
             <BoostNewPostStrip className="mt-2" />
           )}
-          <Content
-            post={post}
-            onReadArticle={onReadArticle}
-            isCompactSpacing={isCompactModalSpacing}
-          />
+          <PostSelectionArea post={post}>
+            <Content
+              post={post}
+              onReadArticle={onReadArticle}
+              isCompactSpacing={isCompactModalSpacing}
+            />
+          </PostSelectionArea>
         </BasePostContent>
       </div>
       <SquadPostWidgets

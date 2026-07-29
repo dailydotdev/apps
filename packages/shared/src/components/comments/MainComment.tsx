@@ -13,6 +13,7 @@ import {
   LogEvent,
   NotificationCtaPlacement,
   NotificationPromptSource,
+  Origin,
   TargetType,
 } from '../../lib/log';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
@@ -168,6 +169,15 @@ export default function MainComment({
                 username: selected.author?.username ?? null,
                 parentCommentId: parentId,
                 commentId: selected.id,
+              })
+            }
+            onQuote={(quote) =>
+              onReplyTo({
+                username: comment.author?.username ?? null,
+                parentCommentId: comment.id,
+                commentId: comment.id,
+                quote,
+                origin: Origin.TextSelection,
               })
             }
             onEdit={({ id, lastUpdatedAt }) =>

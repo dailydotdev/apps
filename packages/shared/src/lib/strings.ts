@@ -176,3 +176,22 @@ export const truncateAtWordBoundary = (
  * Used for validating user input like emoji shortcuts or mentions.
  */
 export const specialCharsRegex = /[^A-Za-z0-9_.]/;
+
+/**
+ * Renders a text selection as a markdown blockquote for a comment composer.
+ */
+export const buildCommentQuote = (selection: string): string =>
+  `${selection
+    .split('\n')
+    .map((line) => `> ${line}`.trimEnd())
+    .join('\n')}\n\n`;
+
+// Long enough for any quote worth reading, short enough that the resulting URL
+// and history entry stay sane once encoded.
+const MAX_URL_TEXT_LENGTH = 1000;
+
+/** Caps text that has to survive a round-trip through a query string. */
+export const truncateForUrl = (value: string): string =>
+  value.length > MAX_URL_TEXT_LENGTH
+    ? `${value.slice(0, MAX_URL_TEXT_LENGTH).trimEnd()}…`
+    : value;

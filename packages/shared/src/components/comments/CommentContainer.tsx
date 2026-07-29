@@ -6,6 +6,7 @@ import type { Comment } from '../../graphql/comments';
 import { getCommentHash } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
 import Markdown from '../Markdown';
+import { useSelectionShareArea } from '../post/SelectionShareProvider';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
@@ -45,6 +46,11 @@ export interface CommentContainerProps {
   showContextHeader?: boolean;
   actions?: ReactNode;
   onClick?: () => void;
+  /**
+   * Opens a reply to this comment seeded with the given markdown quote. Without
+   * it the selection bar still copies and shares, it just cannot quote.
+   */
+  onQuote?: (markdownQuote: string) => void;
 }
 
 export default function CommentContainer({
@@ -61,7 +67,10 @@ export default function CommentContainer({
   showContextHeader,
   actions,
   onClick,
+  onQuote,
 }: CommentContainerProps): ReactElement {
+  // Scoped to the comment's own prose: not its header, badges or action row.
+  const contentRef = useSelectionShareArea({ post, comment, onQuote });
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
   const { author } = comment;
   const companies = author?.companies;
@@ -174,12 +183,15 @@ export default function CommentContainer({
           linkToComment && 'pointer-events-none',
         )}
       >
-        <Markdown
-          className={className.markdown}
-          content={comment.contentHtml}
-          appendTooltipTo={appendTooltipTo}
-        />
-        <ContentEmbeds embeds={comment.contentEmbeds} variant="comment" />
+        {/* `display: contents` — a node for `Node.contains`, no layout box. */}
+        <div className="contents" data-selection-area ref={contentRef}>
+          <Markdown
+            className={className.markdown}
+            content={comment.contentHtml}
+            appendTooltipTo={appendTooltipTo}
+          />
+          <ContentEmbeds embeds={comment.contentEmbeds} variant="comment" />
+        </div>
         {actions}
       </div>
     </article>
