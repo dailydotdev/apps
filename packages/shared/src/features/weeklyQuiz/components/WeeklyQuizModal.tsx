@@ -108,8 +108,11 @@ function WeeklyQuizModal({
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XLarge}
       // Wider than the stock XLarge so the two-panel layout has room — the big
-      // logo fits the left panel at 40% without squeezing the leaderboard.
-      className="tablet:!w-[52rem]"
+      // logo fits the left panel at 40% without squeezing the leaderboard. The
+      // surface brings its own gradient/rounding, so strip the Modal's default
+      // dark background/border/shadow — otherwise it frames the surface in a
+      // black box.
+      className="!border-0 !bg-transparent !shadow-none tablet:!w-[52rem]"
       onRequestClose={handleRequestClose}
       isDrawerOnMobile
     >
