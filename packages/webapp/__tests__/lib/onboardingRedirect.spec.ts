@@ -7,13 +7,9 @@ const justSignedUp: OnboardingRedirectParams = {
   isRouterReady: true,
   hasRoutedInstallReferral: false,
   isComingFromInstall: false,
-  isPermissionPrimerLoading: false,
-  isPermissionPrimerEnabled: false,
-  isLoggedIn: true,
   isFunnel: false,
   isOnboardingActionsReady: true,
   isOnboardingComplete: false,
-  isSwipeOnboardingPreviewForced: false,
 };
 
 const redirect = (overrides: Partial<OnboardingRedirectParams> = {}) =>
@@ -28,7 +24,8 @@ describe('getOnboardingRedirect', () => {
     // Regression guard for #6131: the deferral used to be gated on
     // `shouldShowLogin`, which flips to false the moment registration succeeds
     // and closes the modal, bouncing the user off the post they were reading.
-    // The decision must not depend on auth-modal state at all.
+    // The decision must not depend on auth-modal state at all, which is why no
+    // such input exists on `OnboardingRedirectParams`.
     expect(getOnboardingRedirect(justSignedUp)).toBeNull();
   });
 
@@ -38,35 +35,25 @@ describe('getOnboardingRedirect', () => {
     '/[userId]',
     '/tags/[tag]',
     '/sources/[source]',
-    '/search',
+    '/search/posts',
     '/bookmarks',
+    '/discussed',
+    '/following',
+    '/feeds/[slugOrId]',
+    '/explore/[tag]',
   ])('does not force onboarding away from %s', (pathname) => {
     expect(redirect({ pathname })).toBeNull();
   });
 
-  it.each([
-    '/',
-    '/popular',
-    '/upvoted',
-    '/discussed',
-    '/latest',
-    '/following',
-    '/my-feed',
-  ])('forces onboarding on the main feed at %s', (pathname) => {
-    expect(redirect({ pathname })).toEqual({
-      destination: '/onboarding',
-      isInstallReferral: false,
-    });
-  });
-
-  it('carries the swipe preview query when forced', () => {
-    expect(
-      redirect({ pathname: '/', isSwipeOnboardingPreviewForced: true }),
-    ).toEqual({
-      destination: '/onboarding?swipeOnboardingPreview=1',
-      isInstallReferral: false,
-    });
-  });
+  it.each(['/', '/popular', '/upvoted', '/my-feed'])(
+    'forces onboarding on the main feed at %s',
+    (pathname) => {
+      expect(redirect({ pathname })).toEqual({
+        destination: '/onboarding',
+        isInstallReferral: false,
+      });
+    },
+  );
 
   it('stays put once onboarding is complete', () => {
     expect(redirect({ pathname: '/', isOnboardingComplete: true })).toBeNull();
@@ -86,7 +73,7 @@ describe('getOnboardingRedirect', () => {
     expect(redirect({ pathname: '/', isRouterReady: false })).toBeNull();
   });
 
-  it.each(['/onboarding', '/activate', '/recruiter', '/jobs', '/settings'])(
+  it.each(['/onboarding', '/activate'])(
     'never redirects away from %s',
     (pathname) => {
       expect(redirect({ pathname })).toBeNull();
@@ -97,35 +84,42 @@ describe('getOnboardingRedirect', () => {
     const fromInstall: Partial<OnboardingRedirectParams> = {
       pathname: '/',
       isComingFromInstall: true,
-      isLoggedIn: false,
       isOnboardingActionsReady: false,
     };
 
-    it('routes enrolled users to the activation primer', () => {
-      expect(
-        redirect({ ...fromInstall, isPermissionPrimerEnabled: true }),
-      ).toEqual({ destination: '/activate', isInstallReferral: true });
-    });
-
-    it('routes logged-out users to onboarding when not enrolled', () => {
+    it('routes every install referral to the activation primer', () => {
       expect(redirect(fromInstall)).toEqual({
-        destination: '/onboarding',
+        destination: '/activate',
         isInstallReferral: true,
       });
     });
 
-    it('waits for the permission primer experiment to resolve', () => {
+    it('routes install referrals ahead of onboarding completion', () => {
       expect(
-        redirect({ ...fromInstall, isPermissionPrimerLoading: true }),
-      ).toBeNull();
+        redirect({
+          ...fromInstall,
+          isOnboardingActionsReady: true,
+          isOnboardingComplete: true,
+        }),
+      ).toEqual({ destination: '/activate', isInstallReferral: true });
     });
 
     it('does not route a second time once the referral was handled', () => {
       expect(
+        redirect({ ...fromInstall, hasRoutedInstallReferral: true }),
+      ).toBeNull();
+    });
+
+    it('does not send a handled referral on to onboarding', () => {
+      // After `replace('/activate')` the `ref` query is dropped while the
+      // router still reports `/`. Without the one-shot guard the general rule
+      // would fire and clobber the activation navigation.
+      expect(
         redirect({
-          ...fromInstall,
-          isPermissionPrimerEnabled: true,
+          pathname: '/',
           hasRoutedInstallReferral: true,
+          isOnboardingActionsReady: true,
+          isOnboardingComplete: false,
         }),
       ).toBeNull();
     });

@@ -277,11 +277,6 @@ export const featureFeedCardGlassActions = new Feature(
   false,
 );
 
-export const featureOnboardingPermissionPrimer = new Feature(
-  'onboarding_permission_primer',
-  false,
-);
-
 // Experiment: skip layout/paint for off-screen feed cards via CSS
 // `content-visibility: auto` to keep long feeds responsive.
 export const featureFeedContentVisibility = new Feature(
