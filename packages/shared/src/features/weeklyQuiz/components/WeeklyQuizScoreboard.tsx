@@ -21,6 +21,7 @@ import { IconSize } from '../../../components/Icon';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { useWeeklyQuizLeaderboard } from '../hooks/useWeeklyQuizLeaderboard';
+import { isWeeklyQuizDemo } from '../demoMode';
 import type { UseWeeklyQuizAudio } from '../hooks/useWeeklyQuizAudio';
 import { WeeklyQuizPeriod } from '../types';
 import type { WeeklyQuizLeaderboardEntry } from '../types';
@@ -157,6 +158,8 @@ export const WeeklyQuizScoreboard = ({
   const { user, showLogin } = useAuthContext();
   const { leaderboard, viewerEntry, isPending } =
     useWeeklyQuizLeaderboard(period);
+  // Demo mode shows the mock board even to anonymous preview testers.
+  const showBoard = !!user || isWeeklyQuizDemo();
 
   // Whoever finished in the least total time earns the "Fastest" badge —
   // independent of rank, since rank leads with correct answers.
@@ -230,7 +233,7 @@ export const WeeklyQuizScoreboard = ({
             fillHeight && 'tablet:min-h-0 tablet:flex-1',
           )}
         >
-          {!user ? (
+          {!showBoard ? (
             <div className="relative overflow-hidden rounded-12">
               <ul aria-hidden className="flex flex-col gap-1 blur-sm">
                 {[1, 2, 3, 4].map((rank) => (

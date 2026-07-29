@@ -20,6 +20,7 @@ import { formatElapsed } from './WeeklyQuizTimer';
 import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
 import { useWeeklyQuizLeaderboard } from '../hooks/useWeeklyQuizLeaderboard';
 import { generateWeeklyQuizResultImage } from '../generateResultImage';
+import { isWeeklyQuizDemo } from '../demoMode';
 import type { WeeklyQuizGameResult } from '../hooks/useWeeklyQuizGame';
 import type { UseWeeklyQuizAudio } from '../hooks/useWeeklyQuizAudio';
 import { WeeklyQuizPeriod } from '../types';
@@ -85,9 +86,10 @@ export const WeeklyQuizResults = ({
   };
 
   // Submit once we have an authenticated player — either immediately (already
-  // logged in) or right after they sign in from the prompt below.
+  // logged in) or right after they sign in from the prompt below. Skipped in
+  // demo mode (no backend to submit to).
   useEffect(() => {
-    if (!user || submittedRef.current) {
+    if (!user || submittedRef.current || isWeeklyQuizDemo()) {
       return;
     }
 

@@ -8,6 +8,7 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { WEEKLY_QUIZ_LEADERBOARD_QUERY } from '../graphql';
 import type { WeeklyQuizLeaderboardEntry } from '../types';
 import { WeeklyQuizPeriod } from '../types';
+import { demoLeaderboard, isWeeklyQuizDemo } from '../demoMode';
 
 const LEADERBOARD_LIMIT = 20;
 
@@ -72,6 +73,7 @@ export const useWeeklyQuizLeaderboard = (
   period: WeeklyQuizPeriod = WeeklyQuizPeriod.Weekly,
 ): UseWeeklyQuizLeaderboard => {
   const { user, isAuthReady } = useAuthContext();
+  const demo = isWeeklyQuizDemo();
 
   const { data, isPending } = useQuery({
     queryKey: generateQueryKey(RequestKey.WeeklyQuizLeaderboard, user, period),
@@ -80,10 +82,18 @@ export const useWeeklyQuizLeaderboard = (
         WEEKLY_QUIZ_LEADERBOARD_QUERY,
         { period, first: LEADERBOARD_LIMIT, withViewerRank: true },
       ),
-    enabled: isAuthReady && !!user,
+    enabled: isAuthReady && !!user && !demo,
     staleTime: StaleTime.Default,
     ...disabledRefetch,
   });
+
+  if (demo) {
+    return {
+      leaderboard: demoLeaderboard,
+      viewerEntry: null,
+      isPending: false,
+    };
+  }
 
   const leaderboard =
     data?.weeklyQuizLeaderboard.edges.map(({ node }) =>

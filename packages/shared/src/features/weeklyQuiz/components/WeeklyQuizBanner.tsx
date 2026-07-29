@@ -20,6 +20,7 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import usePersistentContext from '../../../hooks/usePersistentContext';
 import { useWeeklyQuizStatus } from '../hooks/useWeeklyQuizStatus';
+import { isWeeklyQuizDemo } from '../demoMode';
 import styles from '../WeeklyQuiz.module.css';
 
 interface WeeklyQuizBannerProps {
@@ -38,10 +39,12 @@ export const WeeklyQuizBanner = ({
   const { status } = useWeeklyQuizStatus();
   const isActive = !!status?.isActive;
 
-  const { value: isEnabled } = useConditionalFeature({
+  const { value: flagEnabled } = useConditionalFeature({
     feature: featureWeeklyQuiz,
     shouldEvaluate: isActive,
   });
+  // Demo mode (?weekly-quiz-demo=1) force-enables the banner for preview testing.
+  const isEnabled = flagEnabled || isWeeklyQuizDemo();
 
   // Dismissal is keyed by the active quiz so it resets each week.
   const dismissKey = status?.activeQuizId

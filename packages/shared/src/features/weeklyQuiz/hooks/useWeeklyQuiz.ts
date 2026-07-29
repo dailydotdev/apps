@@ -5,6 +5,8 @@ import { disabledRefetch } from '../../../lib/func';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { WEEKLY_QUIZ_QUERY } from '../graphql';
 import type { WeeklyQuiz } from '../types';
+import { isWeeklyQuizDemo } from '../demoMode';
+import { sampleWeeklyQuiz } from '../sampleWeeklyQuiz';
 
 interface UseWeeklyQuiz {
   quiz: WeeklyQuiz | undefined;
@@ -18,6 +20,7 @@ export const useWeeklyQuiz = (
   quizId: string | null | undefined,
 ): UseWeeklyQuiz => {
   const { user } = useAuthContext();
+  const demo = isWeeklyQuizDemo();
 
   const { data, isPending } = useQuery({
     queryKey: generateQueryKey(RequestKey.WeeklyQuiz, user, quizId),
@@ -25,10 +28,14 @@ export const useWeeklyQuiz = (
       gqlClient.request<{ weeklyQuiz: WeeklyQuiz }>(WEEKLY_QUIZ_QUERY, {
         id: quizId,
       }),
-    enabled: !!quizId,
+    enabled: !!quizId && !demo,
     staleTime: StaleTime.OneHour,
     ...disabledRefetch,
   });
+
+  if (demo) {
+    return { quiz: sampleWeeklyQuiz, isPending: false };
+  }
 
   return { quiz: data?.weeklyQuiz, isPending };
 };
