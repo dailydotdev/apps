@@ -115,12 +115,12 @@ export const WeeklyQuizIntro = ({
               <img
                 src={LOGO_URL}
                 alt="The Weekly Tech News Quiz"
-                className="pointer-events-none w-56 max-w-none select-none"
+                className="pointer-events-none w-72 max-w-none select-none"
               />
               {/* Glow sits over the logo's lightbulb (right side, mid-height). */}
               <span
                 className={classNames(
-                  'absolute right-[13%] top-[31%] h-12 w-12',
+                  'absolute right-[13%] top-[31%] h-16 w-16',
                   styles.bulbGlow,
                 )}
                 aria-hidden
