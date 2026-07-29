@@ -70,7 +70,7 @@ describe('ShareActions icon variant on mobile', () => {
   it('copies on a single tap when native share is unavailable', async () => {
     renderComponent();
 
-    const trigger = screen.getByLabelText('Copy link');
+    const trigger = screen.getByLabelText('Share');
     await act(async () => {
       fireEvent.click(trigger);
     });

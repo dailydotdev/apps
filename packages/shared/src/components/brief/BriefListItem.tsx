@@ -22,6 +22,8 @@ import { anchorDefaultRel } from '../../lib/strings';
 import Link from '../utilities/Link';
 import { useLogContext } from '../../contexts/LogContext';
 import { usePlusSubscription } from '../../hooks/usePlusSubscription';
+import { useShareBriefingDigest } from '../../hooks/useShareBriefingDigest';
+import { BriefShareControls } from './BriefShareControls';
 
 export type BriefListItemProps = {
   className?: string;
@@ -36,6 +38,12 @@ export type BriefListItemProps = {
   origin: Origin;
   post: Post;
   targetId: TargetId;
+  /**
+   * Renders the copy-link and share controls. Left undefined it resolves from
+   * the `share_briefing_digest` gate; pass it explicitly to pin a state in
+   * Storybook or tests, where GrowthBook is mocked.
+   */
+  showCopyActions?: boolean;
 };
 
 export const BriefListItem = ({
@@ -51,7 +59,10 @@ export const BriefListItem = ({
   origin,
   post,
   targetId,
+  showCopyActions,
 }: BriefListItemProps): ReactElement => {
+  const isShareEnabled = useShareBriefingDigest();
+  const showCopy = showCopyActions ?? isShareEnabled;
   const { isPlus } = usePlusSubscription();
   const { logEvent } = useLogContext();
   const onPostClick = useOnPostClick({ origin });
@@ -86,11 +97,16 @@ export const BriefListItem = ({
       <div className="hidden items-center mobileXL:flex">
         <BriefGradientIcon secondary={!isRead} size={IconSize.Size48} />
       </div>
-      <div className="flex w-full flex-col gap-1">
-        <div className="flex items-center gap-2">
+      {/* `base.css` sets a global `* { flex-shrink: 0 }`, so `w-full` here made
+          this column refuse to shrink and pushed the trailing controls outside
+          the card border. `flex-1` restores a shrinkable basis. */}
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex min-w-0 items-center gap-2">
           <Typography
+            className="min-w-0 shrink"
             type={TypographyType.Title3}
             bold
+            truncate
             color={
               isRead ? TypographyColor.Quaternary : TypographyColor.Primary
             }
@@ -150,6 +166,15 @@ export const BriefListItem = ({
           onAuxClick={(event) => event.button === 1 && trackBriefClick()}
         />
       </Link>
+      {/* Rendered after the full-bleed CardLink overlay, with an explicit
+          z-index, so these stay clickable instead of being swallowed by it. */}
+      {showCopy && (
+        <BriefShareControls
+          post={post}
+          origin={origin}
+          className="relative z-1 flex shrink-0 items-center gap-1"
+        />
+      )}
     </article>
   );
 };

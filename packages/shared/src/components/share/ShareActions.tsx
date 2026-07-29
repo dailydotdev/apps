@@ -5,9 +5,8 @@ import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import { PopoverContent } from '../popover/Popover';
 import { SocialShareList } from '../widgets/SocialShareList';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
-import { CopyIcon } from '../icons';
+import { ShareIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
-import { Typography, TypographyType } from '../typography/Typography';
 import { useViewSize, ViewSize } from '../../hooks/useViewSize';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { shouldUseNativeShare } from '../../lib/func';
@@ -26,7 +25,13 @@ export interface ShareActionsProps {
   openOnHover?: boolean;
   buttonVariant?: ButtonVariant;
   buttonSize?: ButtonSize;
-  /** Tooltip + accessible label for the icon-only trigger. */
+  /**
+   * Tooltip + accessible label for the icon-only trigger, which always renders
+   * the share arrow: the arrow means "opens a share surface" (social popover on
+   * desktop, native sheet on mobile), while a link/copy glyph is reserved for
+   * controls that copy straight to the clipboard. Keep the two distinct — a
+   * copy glyph here reads as a one-tap copy and misleads.
+   */
   label?: string;
   emailTitle?: string;
   emailSummary?: string;
@@ -45,7 +50,7 @@ export function ShareActions({
   openOnHover = false,
   buttonVariant = ButtonVariant.Tertiary,
   buttonSize = ButtonSize.Small,
-  label = 'Copy link',
+  label = 'Share',
   emailTitle,
   emailSummary,
   className,
@@ -92,7 +97,7 @@ export function ShareActions({
           type="button"
           variant={buttonVariant}
           size={buttonSize}
-          icon={<CopyIcon secondary={copying} />}
+          icon={<ShareIcon secondary={copying} />}
           aria-label={label}
           className={className}
           onClick={() => {
@@ -136,7 +141,7 @@ export function ShareActions({
             type="button"
             variant={buttonVariant}
             size={buttonSize}
-            icon={<CopyIcon secondary={copying} />}
+            icon={<ShareIcon secondary={copying} />}
             aria-label={label}
             pressed={open}
             className={className}
@@ -144,16 +149,19 @@ export function ShareActions({
           />
         </PopoverTrigger>
       </Tooltip>
+      {/* A 4-column grid at `w-fit` rather than a fixed-width wrapping flex
+          row: the tiles are a fixed `w-16`, so a fixed width left slack that
+          `justify-center` split into uneven side gutters, and a short final
+          row floated to the middle. This hugs the tiles exactly, so the
+          padding is equal on all four sides and every row starts at the left
+          edge. No heading — the trigger and the tiles already say "share". */}
       <PopoverContent
         side="top"
         align="center"
         avoidCollisions
-        className="flex w-80 flex-wrap justify-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
+        className="grid w-fit grid-cols-4 gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-4 shadow-2 data-[side=bottom]:mt-1 data-[side=top]:mb-1"
         {...hoverProps}
       >
-        <Typography type={TypographyType.Callout} bold className="w-full">
-          Share
-        </Typography>
         {list}
       </PopoverContent>
     </Popover>

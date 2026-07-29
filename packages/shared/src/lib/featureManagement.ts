@@ -308,3 +308,13 @@ export const featureSharingVisibility = new Feature(
 // high-traffic icon, so it ramps on its own flag to watch share/copy metrics.
 // Keep the default `false` (control = existing `LinkIcon`).
 export const featureShareCopyIcon = new Feature('share_copy_icon', false);
+
+// Sharing affordances on the presidential briefing and the personalized digest
+// post: per-item copy actions on the briefing list, a full share popover on the
+// briefing header, and share parity for the digest post (which ships with no
+// share affordance today). Also gated by `sharing_visibility`. Keep the default
+// `false` — GrowthBook ramps it.
+export const featureShareBriefingDigest = new Feature(
+  'share_briefing_digest',
+  false,
+);
