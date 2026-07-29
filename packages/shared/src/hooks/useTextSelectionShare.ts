@@ -1,4 +1,3 @@
-import type { RefObject } from 'react';
 import { useCallback, useRef, useState } from 'react';
 import { useEventListener } from './useEventListener';
 
@@ -10,8 +9,13 @@ export interface TextSelectionRect {
 }
 
 export interface UseTextSelectionShareProps {
-  /** Only selections that both start and end inside this element count. */
-  containerRef: RefObject<HTMLElement>;
+  /**
+   * Maps a selection boundary to the registered region that owns it, or null
+   * when the boundary falls outside every watched region. A selection counts
+   * only when both ends resolve to the *same* region, so a drag that starts in
+   * a post and ends in a comment belongs to neither.
+   */
+  resolveArea: (node: Node | null) => HTMLElement | null;
 }
 
 export interface UseTextSelectionShare {
@@ -19,23 +23,30 @@ export interface UseTextSelectionShare {
   text: string | null;
   /** Viewport-space rect of the selection, for anchoring a fixed element. */
   rect: TextSelectionRect | null;
+  /** The region the selection sits in, for the caller to attribute it. */
+  area: HTMLElement | null;
   clear: () => void;
 }
 
-// Single-word accidental selections (double-clicking a link, tapping a word)
-// are noise — require enough text for a quote to be worth sharing.
+// Two characters, not two words: enough to drop a stray click-drag without
+// second-guessing someone who genuinely wants to quote one short word.
 const MIN_SELECTION_LENGTH = 2;
 
-const isInsideContainer = (
-  node: Node | null,
-  container: HTMLElement,
-): boolean => {
-  if (!node) {
-    return false;
-  }
-
-  return container.contains(node);
-};
+// Keys that can move a selection boundary. Every other keystroke — typing in
+// the composer the bar just opened, for instance — leaves the selection alone,
+// so there is nothing to re-read.
+const SELECTION_KEYS = new Set([
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowDown',
+  'Home',
+  'End',
+  'PageUp',
+  'PageDown',
+  'a',
+  'A',
+]);
 
 const toRect = (range: Range): TextSelectionRect | null => {
   const { top, bottom, left, right, width, height } =
@@ -51,31 +62,30 @@ const toRect = (range: Range): TextSelectionRect | null => {
 };
 
 /**
- * Watches for a completed text selection inside `containerRef` and exposes the
- * selected text plus a viewport rect to anchor a floating bar to. The rect is
- * recomputed on scroll/resize so the bar follows the selection.
+ * Watches for a completed text selection inside any registered region and
+ * exposes the selected text, a viewport rect to anchor a floating bar to, and
+ * the region that owns it. The rect is recomputed on scroll/resize so the bar
+ * follows the selection.
+ *
+ * One instance is meant to serve a whole page: mounting it per item would put
+ * four document listeners on every comment in a thread.
  */
 export const useTextSelectionShare = ({
-  containerRef,
+  resolveArea,
 }: UseTextSelectionShareProps): UseTextSelectionShare => {
   const [text, setText] = useState<string | null>(null);
   const [rect, setRect] = useState<TextSelectionRect | null>(null);
+  const [area, setArea] = useState<HTMLElement | null>(null);
   const rangeRef = useRef<Range | null>(null);
 
   const clear = useCallback(() => {
     rangeRef.current = null;
     setText(null);
     setRect(null);
+    setArea(null);
   }, []);
 
   const readSelection = useCallback(() => {
-    const container = containerRef.current;
-
-    if (!container) {
-      clear();
-      return;
-    }
-
     const selection = globalThis?.window?.getSelection?.();
 
     if (!selection || selection.isCollapsed || selection.rangeCount === 0) {
@@ -83,17 +93,18 @@ export const useTextSelectionShare = ({
       return;
     }
 
-    const selected = selection.toString().trim();
+    const owner = resolveArea(selection.anchorNode);
 
-    if (selected.length < MIN_SELECTION_LENGTH) {
+    // Resolve before reading the string: `toString()` is O(selection length)
+    // and most selections on a page are outside any watched region.
+    if (!owner || resolveArea(selection.focusNode) !== owner) {
       clear();
       return;
     }
 
-    if (
-      !isInsideContainer(selection.anchorNode, container) ||
-      !isInsideContainer(selection.focusNode, container)
-    ) {
+    const selected = selection.toString().trim();
+
+    if (selected.length < MIN_SELECTION_LENGTH) {
       clear();
       return;
     }
@@ -109,14 +120,19 @@ export const useTextSelectionShare = ({
     rangeRef.current = range;
     setText(selected);
     setRect(nextRect);
-  }, [clear, containerRef]);
+    setArea(owner);
+  }, [clear, resolveArea]);
 
   const target = globalThis?.document;
 
-  // Selection *end* — mouse release, touch release, or a shift+arrow keyup.
+  // Selection *end* — mouse release, touch release, or a keyboard selection.
   useEventListener(target, 'mouseup', readSelection);
   useEventListener(target, 'touchend', readSelection);
-  useEventListener(target, 'keyup', readSelection);
+  useEventListener(target, 'keyup', (event: KeyboardEvent) => {
+    if (SELECTION_KEYS.has(event.key)) {
+      readSelection();
+    }
+  });
 
   // A click elsewhere collapses the selection without firing another mouseup on
   // the container, so drop the bar as soon as the browser reports it collapsed.
@@ -148,5 +164,5 @@ export const useTextSelectionShare = ({
   useEventListener(followTarget, 'scroll', follow, true);
   useEventListener(followTarget, 'resize', follow);
 
-  return { text, rect, clear };
+  return { text, rect, area, clear };
 };

@@ -127,6 +127,14 @@ function NewCommentComponent(
       return;
     }
 
+    if (!user) {
+      // Opening a composer nobody can post from is worse than not opening one.
+      // The query param stays put, so the draft survives the login round-trip
+      // and this effect picks it up again once the user comes back.
+      showLogin({ trigger: AuthTriggers.NewComment });
+      return;
+    }
+
     const { comment, commentOrigin, ...query } = router.query;
     // Callers that know where the draft came from say so (the text-selection
     // share bar does); otherwise fall back to the post type, as before.
@@ -151,6 +159,8 @@ function NewCommentComponent(
     onShowComment,
     router,
     shouldHandleCommentQuery,
+    showLogin,
+    user,
   ]);
 
   const onCommentClick = (origin: Origin) => {

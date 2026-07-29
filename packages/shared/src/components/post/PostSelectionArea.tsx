@@ -1,10 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useRef } from 'react';
-import type { Post } from '../../graphql/posts';
-import { SelectionShareBar } from './SelectionShareBar';
+import React from 'react';
+import type { SelectionSharePost } from './SelectionShareProvider';
+import { useSelectionShareArea } from './SelectionShareProvider';
 
 export interface PostSelectionAreaProps {
-  post: Post;
+  post: SelectionSharePost;
   /** Title, TL;DR and body — the parts of a post worth quoting. */
   children: ReactNode;
   /** False where the surface renders no comment composer. */
@@ -12,12 +12,12 @@ export interface PostSelectionAreaProps {
 }
 
 /**
- * Scopes the selection share bar to a post's readable content.
+ * Marks a post's readable content as quotable.
  *
  * Every post surface wraps the same shell around its body — navigation, source
  * strip, tags, metadata, and (via `BasePostContent`) the whole comment section.
  * Binding the bar to the surface's outer container therefore also armed it over
- * comments, so quoting a reply would attribute it to the post. This wraps only
+ * comments, so quoting a reply would attribute it to the post. This marks only
  * the content itself.
  *
  * The wrapper is `display: contents`, so it adds a node to the DOM tree — which
@@ -29,18 +29,11 @@ export function PostSelectionArea({
   children,
   canQuote = true,
 }: PostSelectionAreaProps): ReactElement {
-  const contentRef = useRef<HTMLDivElement>(null);
+  const ref = useSelectionShareArea({ post, canQuote });
 
   return (
-    <>
-      <div className="contents" data-selection-area ref={contentRef}>
-        {children}
-      </div>
-      <SelectionShareBar
-        canQuote={canQuote}
-        containerRef={contentRef}
-        post={post}
-      />
-    </>
+    <div className="contents" data-selection-area ref={ref}>
+      {children}
+    </div>
   );
 }

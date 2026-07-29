@@ -4,6 +4,10 @@ import React, { useCallback, useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SelectionShareBar } from '@dailydotdev/shared/src/components/post/SelectionShareBar';
+import {
+  SelectionShareProvider,
+  useSelectionShareArea,
+} from '@dailydotdev/shared/src/components/post/SelectionShareProvider';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -94,6 +98,28 @@ const useAutoRaise = (root: RefObject<HTMLElement>, enabled = true): void => {
   }, [enabled, root]);
 };
 
+// Marks a region quotable exactly the way the app does, so the stories exercise
+// the real provider/registration path rather than the bar in isolation.
+const Area = ({
+  children,
+  className,
+  comment,
+  onQuote,
+}: {
+  children: ReactNode;
+  className?: string;
+  comment?: Comment;
+  onQuote?: (markdownQuote: string) => void;
+}): ReactElement => {
+  const ref = useSelectionShareArea({ post, comment, onQuote });
+
+  return (
+    <div className={className} ref={ref}>
+      {children}
+    </div>
+  );
+};
+
 interface StageProps {
   /** What to look at in this story. */
   hint?: ReactNode;
@@ -121,7 +147,6 @@ const Stage = ({
   onQuote,
 }: StageProps): ReactElement => {
   const stageRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useAutoRaise(stageRef, autoRaise);
 
@@ -132,36 +157,33 @@ const Stage = ({
   }, []);
 
   return (
-    <div
-      ref={stageRef}
-      className={classNames('flex flex-col gap-3', className)}
-    >
-      {!!hint && <p className="text-text-tertiary typo-footnote">{hint}</p>}
+    <SelectionShareProvider>
       <div
-        ref={containerRef}
-        className={classNames(
-          'select-text rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6 text-text-primary typo-body',
-          bodyClassName,
-        )}
+        ref={stageRef}
+        className={classNames('flex flex-col gap-3', className)}
       >
-        {children}
-      </div>
-      {outside}
-      {showRaiseButton && (
-        <button
-          type="button"
-          onClick={onRaise}
-          className="self-start rounded-10 border border-border-subtlest-tertiary px-3 py-1 text-text-secondary typo-footnote"
+        {!!hint && <p className="text-text-tertiary typo-footnote">{hint}</p>}
+        <Area
+          className={classNames(
+            'select-text rounded-16 border border-border-subtlest-tertiary bg-surface-float p-6 text-text-primary typo-body',
+            bodyClassName,
+          )}
+          onQuote={onQuote}
         >
-          Raise the bar again
-        </button>
-      )}
-      <SelectionShareBar
-        containerRef={containerRef}
-        onQuote={onQuote}
-        post={post}
-      />
-    </div>
+          {children}
+        </Area>
+        {outside}
+        {showRaiseButton && (
+          <button
+            type="button"
+            onClick={onRaise}
+            className="self-start rounded-10 border border-border-subtlest-tertiary px-3 py-1 text-text-secondary typo-footnote"
+          >
+            Raise the bar again
+          </button>
+        )}
+      </div>
+    </SelectionShareProvider>
   );
 };
 
@@ -901,7 +923,6 @@ const comment = {
 
 const CommentSurface = (): ReactElement => {
   const rootRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
   const [reply, setReply] = React.useState<string | null>(null);
 
   useAutoRaise(rootRef);
@@ -920,20 +941,16 @@ const CommentSurface = (): ReactElement => {
             <span className="text-text-tertiary typo-footnote">@ido · 1h</span>
           </div>
         </header>
-        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-        <div className="contents" ref={contentRef} {...autoSelect}>
-          <p className="typo-body">{secondParagraph}</p>
-        </div>
+        <Area className="contents" comment={comment} onQuote={setReply}>
+          {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+          <p className="typo-body" {...autoSelect}>
+            {secondParagraph}
+          </p>
+        </Area>
         <div className="mt-3 flex gap-3 text-text-tertiary typo-footnote">
           <span>Upvote</span>
           <span>Reply</span>
         </div>
-        <SelectionShareBar
-          comment={comment}
-          containerRef={contentRef}
-          onQuote={setReply}
-          post={post}
-        />
       </article>
       <pre className="min-h-16 whitespace-pre-wrap rounded-12 border border-border-subtlest-tertiary bg-surface-float p-4 text-text-secondary typo-footnote">
         {reply ?? 'Reply composer is empty.'}
@@ -948,7 +965,11 @@ const CommentSurface = (): ReactElement => {
  * reply to that comment seeded with the blockquote.
  */
 export const SurfaceComment: Story = {
-  render: () => <CommentSurface />,
+  render: () => (
+    <SelectionShareProvider>
+      <CommentSurface />
+    </SelectionShareProvider>
+  ),
 };
 
 /**

@@ -37,8 +37,9 @@ const setup = () => {
   container.appendChild(child);
   document.body.appendChild(container);
 
-  const containerRef = { current: container };
-  const { result } = renderHook(() => useTextSelectionShare({ containerRef }));
+  const resolveArea = (node: Node | null) =>
+    node && container.contains(node) ? container : null;
+  const { result } = renderHook(() => useTextSelectionShare({ resolveArea }));
 
   return { result, container, child };
 };

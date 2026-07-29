@@ -12,7 +12,6 @@ import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
 import { SelectionShareBar } from './SelectionShareBar';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
-import { useTextSelectionShare } from '../../hooks/useTextSelectionShare';
 import { shouldUseNativeShare } from '../../lib/func';
 import { useLogContext } from '../../contexts/LogContext';
 import { Origin } from '../../lib/log';
@@ -20,11 +19,6 @@ import { ShareProvider } from '../../lib/share';
 import { TOAST_NOTIF_KEY } from '../../hooks/useToastNotification';
 import type { Post } from '../../graphql/posts';
 import type { Comment } from '../../graphql/comments';
-
-jest.mock('../../hooks/useTextSelectionShare', () => ({
-  __esModule: true,
-  useTextSelectionShare: jest.fn(),
-}));
 
 const mockReplace = jest.fn();
 
@@ -48,7 +42,6 @@ jest.mock('../../contexts/LogContext', () => {
   return { __esModule: true, ...actual, useLogContext: jest.fn() };
 });
 
-const useTextSelectionShareMock = useTextSelectionShare as jest.Mock;
 const mockUseLogContext = useLogContext as jest.MockedFunction<
   typeof useLogContext
 >;
@@ -76,11 +69,6 @@ beforeEach(() => {
   >);
   shouldUseNativeShareMock.mockReturnValue(false);
   Object.assign(navigator, { clipboard: { writeText }, share });
-  useTextSelectionShareMock.mockReturnValue({
-    text: selection,
-    rect: { top: 400, bottom: 420, left: 100, right: 300 },
-    clear,
-  });
 });
 
 const comment = {
@@ -89,21 +77,23 @@ const comment = {
   author: { id: '2', username: 'ido' },
 } as unknown as Comment;
 
+const rect = { top: 400, bottom: 420, left: 100, right: 300 };
+
 const renderComponent = (
   gb = enabledGrowthBook(),
   props: Partial<ComponentProps<typeof SelectionShareBar>> = {},
 ): RenderResult & { client: QueryClient } => {
   const client = new QueryClient();
-  const containerRef = { current: document.createElement('div') };
-  document.body.appendChild(containerRef.current);
 
   return {
     client,
     ...render(
       <TestBootProvider client={client} gb={gb}>
         <SelectionShareBar
-          containerRef={containerRef}
+          clear={clear}
           post={post}
+          rect={rect}
+          text={selection}
           // eslint-disable-next-line react/jsx-props-no-spreading
           {...props}
         />
@@ -117,18 +107,6 @@ describe('SelectionShareBar gating', () => {
     renderComponent(new GrowthBook());
 
     expect(screen.getByTestId('selectionShareBar')).toBeInTheDocument();
-  });
-
-  it('renders nothing when there is no selection', () => {
-    useTextSelectionShareMock.mockReturnValue({
-      text: null,
-      rect: null,
-      clear,
-    });
-
-    renderComponent();
-
-    expect(screen.queryByTestId('selectionShareBar')).not.toBeInTheDocument();
   });
 });
 

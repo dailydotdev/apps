@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { PostHighlightFeed } from '../../graphql/highlights';
 import { stripHtmlTags } from '../../lib/strings';
-import type { Post } from '../../graphql/posts';
 import { PostType } from '../../graphql/posts';
 import { PostSelectionArea } from '../post/PostSelectionArea';
 import { ArrowIcon } from '../icons/Arrow';
@@ -88,10 +87,7 @@ export const HighlightItem = ({
             selecting, so binding the bar to it would raise nothing.
             The query fetches enough of the post for the bar and its logging.
           */}
-          <PostSelectionArea
-            canQuote={false}
-            post={highlight.post as unknown as Post}
-          >
+          <PostSelectionArea canQuote={false} post={highlight.post}>
             <p className="text-text-secondary typo-markdown">{tldr}</p>
           </PostSelectionArea>
           <Link href={highlight.post.commentsPermalink}>

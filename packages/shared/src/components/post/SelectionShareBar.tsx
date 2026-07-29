@@ -1,5 +1,5 @@
-import type { ReactElement, RefObject } from 'react';
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import type { Post } from '../../graphql/posts';
 import type { Comment } from '../../graphql/comments';
@@ -8,76 +8,66 @@ import { DiscussIcon, LinkIcon, ShareIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RootPortal } from '../tooltips/Portal';
 import { ShareActions } from '../share/ShareActions';
+import type { SelectionSharePost } from './SelectionShareProvider';
 import { CopyStateIcon } from '../share/CopyStateIcon';
 import { useCopyText } from '../../hooks/useCopy';
 import { useShareOrCopyLink } from '../../hooks/useShareOrCopyLink';
 import { useGetShortUrl } from '../../hooks/utils/useGetShortUrl';
-import { useTextSelectionShare } from '../../hooks/useTextSelectionShare';
+import { useSelectionAnchor } from '../../hooks/useSelectionAnchor';
+import type { TextSelectionRect } from '../../hooks/useTextSelectionShare';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { useEventListener } from '../../hooks/useEventListener';
-import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 import { useLogContext } from '../../contexts/LogContext';
 import { usePostLogEvent } from '../../lib/feed';
 import { LogEvent, Origin } from '../../lib/log';
 import { ShareProvider } from '../../lib/share';
 import { shouldUseNativeShare } from '../../lib/func';
 import { ReferralCampaignKey } from '../../lib/referral';
+import { buildCommentQuote, truncateForUrl } from '../../lib/strings';
 
 export interface SelectionShareBarProps {
-  post: Post;
-  /** The content the bar is bound to. Only selections inside it raise it. */
-  containerRef: RefObject<HTMLElement>;
+  post: SelectionSharePost;
+  /** The live selection, supplied by `SelectionShareProvider`. */
+  text: string;
+  rect: TextSelectionRect;
+  clear: () => void;
   /**
-   * Set when the bound content is a comment or reply rather than the post
-   * body. The share link, the logged event and the quote then belong to the
-   * comment, so a reader never quotes a commenter as if they were the author.
+   * Set when the selection sits in a comment or reply rather than post content.
+   * The share link, the logged event and the quote then belong to the comment,
+   * so a reader never quotes a commenter as if they were the author.
    */
   comment?: Comment;
+  /**
+   * False on surfaces with no comment composer — briefings, digests and the
+   * highlights list. Quote hands off to a composer, so without one the button
+   * would be dead. Ignored when `onQuote` is given, since that is a composer by
+   * definition.
+   */
+  canQuote?: boolean;
   /**
    * Overrides where a quote is sent. By default the selection is written into
    * the URL as `?comment=`, which the post's comment composer picks up.
    */
   onQuote?: (markdownQuote: string) => void;
-  /**
-   * Set false on surfaces with no comment composer — briefings, digests and
-   * the highlights list. Quote hands off to a composer, so without one the
-   * button would be dead. Ignored when `onQuote` is given, since that is a
-   * composer by definition.
-   */
-  canQuote?: boolean;
 }
 
-/** Renders the selection as a markdown blockquote for the comment composer. */
-export const buildCommentQuote = (selection: string): string =>
-  `${selection
-    .split('\n')
-    .map((line) => `> ${line}`.trimEnd())
-    .join('\n')}\n\n`;
-
-// Breathing room between the selection and the bar.
-const ANCHOR_GAP = 8;
-// Below this distance from the top of the viewport there is no room above the
-// selection, so the bar flips underneath it.
-const FLIP_THRESHOLD = 64;
-const VIEWPORT_MARGIN = 8;
-const FALLBACK_BAR_WIDTH = 160;
-
 /**
- * Floating share bar for text selected inside a post body. Ships to everyone —
- * there is no flag gate.
+ * Floating share bar for text selected inside a post or comment. Ships to
+ * everyone — there is no flag gate.
+ *
+ * Rendered once per page by `SelectionShareProvider`, which owns the selection
+ * watcher and decides which region the selection belongs to.
  */
 export function SelectionShareBar({
   post,
-  containerRef,
+  text,
+  rect,
+  clear,
   comment,
-  onQuote,
   canQuote = true,
-}: SelectionShareBarProps): ReactElement | null {
-  const { text, rect, clear } = useTextSelectionShare({ containerRef });
+  onQuote,
+}: SelectionShareBarProps): ReactElement {
   const barRef = useRef<HTMLDivElement>(null);
-  const [barWidth, setBarWidth] = useState(FALLBACK_BAR_WIDTH);
-  const { width: viewportWidth } = useVisualViewport();
-  const [viewportOffset, setViewportOffset] = useState({ left: 0, top: 0 });
   // The share popover portals out of the bar, so an open popover has to hold
   // the bar open — otherwise clicking a network inside it reads as a click away.
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -92,14 +82,21 @@ export function SelectionShareBar({
     : ReferralCampaignKey.SharePost;
   const [isLinkCopied, shareOrCopyLink] = useShareOrCopyLink({
     link: shareLink,
-    text: text ?? post.title ?? '',
+    text,
     cid: campaign,
   });
   const [isTextCopied, copyText] = useCopyText();
-  const { getShortUrl } = useGetShortUrl();
-  // A comment can only be quoted by whoever wired its reply composer; a post
-  // only where its surface renders one.
-  const showQuote = onQuote ? true : !comment && canQuote;
+  const { left, top, flipsBelow, isMeasured } = useSelectionAnchor(
+    rect,
+    barRef,
+  );
+
+  // Resolved while the bar is open, so the copy handler can stay synchronous.
+  // WebKit only honours a clipboard write inside the task that handled the
+  // gesture; awaiting a round-trip on click loses the write entirely.
+  const { shareLink: reference } = useGetShortUrl({
+    query: { url: shareLink, cid: campaign },
+  });
 
   const dismiss = useCallback(() => {
     globalThis?.window?.getSelection?.()?.removeAllRanges();
@@ -111,7 +108,9 @@ export function SelectionShareBar({
       logEvent(
         postLogEvent(
           comment ? LogEvent.ShareComment : LogEvent.SharePost,
-          post,
+          // `postLogEvent` optional-chains every field it reads, but its
+          // signature demands a whole Post.
+          post as Post,
           {
             extra: {
               provider,
@@ -125,67 +124,20 @@ export function SelectionShareBar({
     [comment, logEvent, post, postLogEvent],
   );
 
-  useLayoutEffect(() => {
-    if (barRef.current) {
-      setBarWidth(barRef.current.offsetWidth);
-    }
-  }, [text]);
-
   useOutsideClick(
     barRef,
-    (event) => {
-      // Clicks back inside the body collapse the selection on their own; acting
-      // here too would race the browser and drop the bar mid-drag.
-      if (containerRef.current?.contains(event.target as Node)) {
-        return;
-      }
-
-      clear();
-    },
-    !!text && !isShareOpen,
+    () => clear(),
+    // The provider drops the selection on its own when the reader clicks back
+    // into the text, so this only has to catch clicks elsewhere on the page.
+    !isShareOpen,
   );
 
-  useEventListener(
-    text ? globalThis?.document : null,
-    'keydown',
-    (event: KeyboardEvent) => {
-      // The popover closes itself on Escape; only the second press drops the bar.
-      if (event.key === 'Escape' && !isShareOpen) {
-        dismiss();
-      }
-    },
-  );
-
-  // Pinch-zoom pans the visual viewport without moving the layout viewport that
-  // a `fixed` element is positioned in, so track the offset and clamp to it.
-  useEventListener(
-    text ? globalThis?.window?.visualViewport : null,
-    'scroll',
-    () => {
-      const viewport = globalThis?.window?.visualViewport;
-      setViewportOffset({
-        left: viewport?.offsetLeft ?? 0,
-        top: viewport?.offsetTop ?? 0,
-      });
-    },
-  );
-
-  if (!text || !rect) {
-    return null;
-  }
-
-  const availableWidth = viewportWidth || globalThis?.window?.innerWidth || 0;
-  const half = barWidth / 2;
-  const minCenter = viewportOffset.left + VIEWPORT_MARGIN + half;
-  const maxCenter =
-    viewportOffset.left + availableWidth - VIEWPORT_MARGIN - half;
-  const center = rect.left + (rect.right - rect.left) / 2;
-  const left = Math.min(
-    Math.max(center, minCenter),
-    Math.max(minCenter, maxCenter),
-  );
-  const flipsBelow = rect.top - viewportOffset.top < FLIP_THRESHOLD;
-  const top = flipsBelow ? rect.bottom + ANCHOR_GAP : rect.top - ANCHOR_GAP;
+  useEventListener(globalThis?.document, 'keydown', (event: KeyboardEvent) => {
+    // The popover closes itself on Escape; only the second press drops the bar.
+    if (event.key === 'Escape' && !isShareOpen) {
+      dismiss();
+    }
+  });
 
   const onCopyLink = () => {
     // `shareOrCopyLink` hands off to the native sheet where one exists, so the
@@ -197,18 +149,10 @@ export function SelectionShareBar({
     shareOrCopyLink();
   };
 
-  // Copied prose travels — into a doc, a DM, a slide — and arrives with no idea
-  // where it came from. Appending the link keeps the quote attributable, and
-  // routing it through `getShortUrl` gives it the same referral credit a plain
-  // copy-link would earn. On a comment the reference is that comment, not the
-  // post, so the quote points at who actually said it.
-  const onCopyText = async () => {
+  const onCopyText = () => {
     logShare(ShareProvider.CopyText);
-
-    const reference = await getShortUrl(shareLink, campaign);
-
     copyText({
-      textToCopy: `${text}\n\n${reference}`,
+      textToCopy: `${text}\n\n${reference ?? shareLink}`,
       message: '✅ Copied text to clipboard',
     });
   };
@@ -228,18 +172,14 @@ export function SelectionShareBar({
       return;
     }
 
-    if (comment) {
-      // A comment with no reply handler can still copy and share; silently
-      // quoting it into the post composer would misattribute it.
-      return;
-    }
-
     router.replace(
       {
         pathname: router.pathname,
         query: {
           ...router.query,
-          comment: quote,
+          // A whole-article selection would otherwise become a multi-kilobyte
+          // URL and history entry.
+          comment: truncateForUrl(quote),
           commentOrigin: Origin.TextSelection,
         },
       },
@@ -247,6 +187,10 @@ export function SelectionShareBar({
       { shallow: true },
     );
   };
+
+  // A comment can only be quoted by whoever wired its reply composer; a post
+  // only where its surface renders one.
+  const showQuote = onQuote ? true : !comment && canQuote;
 
   return (
     <RootPortal>
@@ -262,6 +206,9 @@ export function SelectionShareBar({
           left,
           top,
           transform: `translate(-50%, ${flipsBelow ? '0' : '-100%'})`,
+          // Width is only known after the first layout pass, and a bar that
+          // needs clamping would visibly jump on that frame.
+          visibility: isMeasured ? undefined : 'hidden',
         }}
       >
         <div

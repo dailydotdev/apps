@@ -1,12 +1,12 @@
 import classNames from 'classnames';
 import type { ReactElement, ReactNode } from 'react';
-import React, { useRef } from 'react';
+import React from 'react';
 import Link from '../utilities/Link';
 import type { Comment } from '../../graphql/comments';
 import { getCommentHash } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
 import Markdown from '../Markdown';
-import { SelectionShareBar } from '../post/SelectionShareBar';
+import { useSelectionShareArea } from '../post/SelectionShareProvider';
 import { ProfileImageLink } from '../profile/ProfileImageLink';
 import { ProfileLink } from '../profile/ProfileLink';
 import { ProfileTooltip } from '../profile/ProfileTooltip';
@@ -70,7 +70,7 @@ export default function CommentContainer({
   onQuote,
 }: CommentContainerProps): ReactElement {
   // Scoped to the comment's own prose: not its header, badges or action row.
-  const contentRef = useRef<HTMLDivElement>(null);
+  const contentRef = useSelectionShareArea({ post, comment, onQuote });
   const isCommentReferenced = commentHash === getCommentHash(comment.id);
   const { author } = comment;
   const companies = author?.companies;
@@ -184,7 +184,7 @@ export default function CommentContainer({
         )}
       >
         {/* `display: contents` — a node for `Node.contains`, no layout box. */}
-        <div className="contents" ref={contentRef}>
+        <div className="contents" data-selection-area ref={contentRef}>
           <Markdown
             className={className.markdown}
             content={comment.contentHtml}
@@ -192,12 +192,6 @@ export default function CommentContainer({
           />
           <ContentEmbeds embeds={comment.contentEmbeds} variant="comment" />
         </div>
-        <SelectionShareBar
-          comment={comment}
-          containerRef={contentRef}
-          onQuote={onQuote}
-          post={post}
-        />
         {actions}
       </div>
     </article>

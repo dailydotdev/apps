@@ -14,6 +14,7 @@ import {
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import { DigestCTA } from './DigestCTA';
 import { HighlightItem } from './HighlightItem';
+import { SelectionShareProvider } from '../post/SelectionShareProvider';
 
 const MAJOR_HEADLINES_LABEL = 'Headlines';
 const ALL_HIGHLIGHTS_LABEL = 'All';
@@ -74,15 +75,18 @@ const HighlightFeedList = ({
   }
 
   return (
-    <div className="flex flex-col">
-      {highlights.map((highlight) => (
-        <HighlightItem
-          key={highlight.id}
-          highlight={highlight}
-          defaultExpanded={highlight.id === expandedId}
-        />
-      ))}
-    </div>
+    // One watcher for the whole list, not one per row.
+    <SelectionShareProvider>
+      <div className="flex flex-col">
+        {highlights.map((highlight) => (
+          <HighlightItem
+            key={highlight.id}
+            highlight={highlight}
+            defaultExpanded={highlight.id === expandedId}
+          />
+        ))}
+      </div>
+    </SelectionShareProvider>
   );
 };
 
