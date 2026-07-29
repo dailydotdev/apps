@@ -52,7 +52,7 @@ const RowContent = ({
   isFastest: boolean;
 }): ReactElement => (
   <>
-    <span className="text-white/80 w-5 shrink-0 text-center font-bold typo-callout">
+    <span className="text-white/90 w-5 shrink-0 text-center font-bold typo-callout">
       {entry.rank}
     </span>
     <ProfileTooltip userId={entry.id}>
@@ -66,7 +66,7 @@ const RowContent = ({
     <div className="flex min-w-0 flex-1 items-center gap-1.5">
       <Typography
         type={TypographyType.Subhead}
-        bold={entry.isCurrentUser}
+        bold
         className="min-w-0 truncate !text-white"
       >
         {entry.name}
@@ -80,7 +80,7 @@ const RowContent = ({
     {isFastest && (
       <span
         className={classNames(
-          'flex shrink-0 items-center gap-0.5 rounded-6 px-1.5 py-0.5 font-bold uppercase tracking-wide typo-caption2',
+          'flex shrink-0 items-center gap-0.5 rounded-6 px-1.5 py-0.5 font-bold uppercase tracking-wide typo-caption1',
           styles.fastestBadge,
         )}
       >
@@ -91,7 +91,7 @@ const RowContent = ({
     <span className="shrink-0 font-bold tabular-nums text-white typo-subhead">
       {entry.correctCount}/{entry.totalQuestions}
     </span>
-    <span className="text-white/70 w-10 shrink-0 text-right tabular-nums typo-caption1">
+    <span className="text-white/90 w-11 shrink-0 text-right font-bold tabular-nums typo-footnote">
       {formatElapsed(entry.timeMs)}
     </span>
   </>
@@ -117,7 +117,7 @@ const ScoreboardRow = ({
         {/* The chip straddles the row's top border, like a ribbon/label. */}
         <span
           className={classNames(
-            'absolute -top-2.5 left-1/2 flex -translate-x-1/2 items-center gap-0.5 whitespace-nowrap rounded-6 px-1.5 py-0.5 font-bold uppercase tracking-wide typo-caption2',
+            'absolute -top-2.5 left-1/2 flex -translate-x-1/2 items-center gap-0.5 whitespace-nowrap rounded-6 px-1.5 py-0.5 font-bold uppercase tracking-wide typo-caption1',
             styles.superstarBadge,
           )}
         >
@@ -213,8 +213,8 @@ export const WeeklyQuizScoreboard = ({
                 className={classNames(
                   'flex-1 rounded-10 border py-2 font-bold transition-colors typo-footnote',
                   isActive
-                    ? 'bg-white/15 border-white/50 text-white'
-                    : 'bg-white/5 text-white/60 hover:bg-white/10 border-transparent hover:text-white',
+                    ? 'bg-white/20 border-white/60 text-white'
+                    : 'bg-white/5 text-white/80 hover:bg-white/10 border-transparent hover:text-white',
                 )}
               >
                 {tab.label}
