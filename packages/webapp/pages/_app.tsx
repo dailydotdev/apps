@@ -59,6 +59,7 @@ import { useCheckLocation } from '@dailydotdev/shared/src/hooks/useCheckLocation
 import Seo, { defaultSeo, defaultSeoTitle, robotsProps } from '../next-seo';
 import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
+import { getOnboardingRedirect } from '../lib/onboardingRedirect';
 import { PixelsProvider } from '../context/PixelsContext';
 
 structuredCloneJsonPolyfill();
@@ -100,30 +101,10 @@ const getRedirectUri = () =>
 
 const getPage = () => window.location.pathname;
 
-const onboardingExcludedPaths = [
-  '/onboarding',
-  '/activate',
-  '/recruiter',
-  '/jobs',
-  '/settings',
-];
-// While an auth intent is active, only force the rest of onboarding when the
-// user lands on the main feed.
-const mainFeedPathnames = new Set([
-  '/',
-  '/popular',
-  '/upvoted',
-  '/discussed',
-  '/latest',
-  '/following',
-  '/my-feed',
-]);
 const hotAndColdModalQueryKey = 'openModal';
 const hotAndColdModalQueryValue = 'hottakes';
 const hotAndColdModalLegacyQueryValue = 'hotAndCold';
 const swipeOnboardingPreviewQueryKey = 'swipeOnboardingPreview';
-const isOnboardingExcludedPath = (pathname: string): boolean =>
-  onboardingExcludedPaths.some((path) => pathname.startsWith(path));
 
 const APP_ORIGIN = getAppOrigin();
 const SITE_ORIGIN = getSiteOrigin();
@@ -255,61 +236,29 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   }, [activeModalType, openModal, router, shouldOpenHotAndColdFromQuery]);
 
   useEffect(() => {
-    // Don't act on the query until it's parsed; `ref=install` is read below and
-    // is undefined on the first render of a hard load.
-    if (!router.isReady) {
+    const redirect = getOnboardingRedirect({
+      pathname: router.pathname,
+      isRouterReady: router.isReady,
+      hasRoutedInstallReferral: installReferralRoutedRef.current,
+      isComingFromInstall,
+      isPermissionPrimerLoading,
+      isPermissionPrimerEnabled,
+      isLoggedIn: !!user,
+      isFunnel,
+      isOnboardingActionsReady,
+      isOnboardingComplete,
+      isSwipeOnboardingPreviewForced,
+    });
+
+    if (!redirect) {
       return;
     }
 
-    // Never redirect away from onboarding-related surfaces (prevents loops).
-    if (isOnboardingExcludedPath(router.pathname)) {
-      return;
-    }
-
-    // Once an install referral has been routed, stop here. The redirect drops
-    // the `ref` query, so a later run on the still-pending `/` flips
-    // `isComingFromInstall` to false and would race a second redirect on top.
-    if (installReferralRoutedRef.current) {
-      return;
-    }
-
-    // Wait for the permission primer experiment to resolve before routing
-    // install referrals.
-    if (isComingFromInstall && isPermissionPrimerLoading) {
-      return;
-    }
-
-    // `MainLayout` defers `?ref=install` referrals to this effect, so route
-    // them here exclusively. Enrolled users get the activation primer (which
-    // takes priority over onboarding completion). Logged-out users who aren't
-    // enrolled still need onboarding — the gate below never fires for them
-    // since their onboarding actions never load while logged out.
-    if (isComingFromInstall && isPermissionPrimerEnabled) {
+    if (redirect.isInstallReferral) {
       installReferralRoutedRef.current = true;
-      router.replace('/activate');
-      return;
     }
 
-    if (isComingFromInstall && !user) {
-      installReferralRoutedRef.current = true;
-      router.replace('/onboarding');
-      return;
-    }
-
-    if (isFunnel || !isOnboardingActionsReady || isOnboardingComplete) {
-      return;
-    }
-
-    // While the auth intent is active, defer the rest of onboarding until they
-    // navigate to the main feed.
-    if (shouldShowLogin && !mainFeedPathnames.has(router.pathname)) {
-      return;
-    }
-
-    const destination = isSwipeOnboardingPreviewForced
-      ? '/onboarding?swipeOnboardingPreview=1'
-      : '/onboarding';
-    router.replace(destination);
+    router.replace(redirect.destination);
     // `router.pathname` is depended on explicitly because the `router` ref is
     // stable across in-app navigations.
   }, [
@@ -319,7 +268,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
     router.pathname,
     router.isReady,
     isOnboardingComplete,
-    shouldShowLogin,
     isSwipeOnboardingPreviewForced,
     isComingFromInstall,
     isPermissionPrimerEnabled,
