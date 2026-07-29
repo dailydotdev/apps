@@ -69,8 +69,12 @@ export const TAGLINE = "Where developers discover what's next";
 
 export const defaultSeoTitle = `daily.dev | ${TAGLINE}`;
 
+// Shared by every logged-in Recruiter surface (dashboard, opportunities,
+// candidate review, org settings, payment). None of them render for a crawler,
+// and they hold customer data, so the whole product stays out of the index.
 export const recruiterSeo: NextSeoProps = {
   title: 'daily.dev Recruiter | Dashboard',
   description:
     'Your dashboard for the developer-first hiring platform. Manage roles, review matches, and track warm introductions.',
+  ...noindexSeoProps,
 };

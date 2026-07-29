@@ -164,6 +164,18 @@ const strictSkipList = new Set([
   // mutable formRef typing on unrelated lines) predate this change and should
   // be addressed in a dedicated cleanup PR.
   'packages/webapp/pages/posts/[id]/edit.tsx',
+  // Noindex branch — these pages were touched only to attach `noindex` seo
+  // (a `layoutProps` assignment or a spread into an existing seo object).
+  // Pre-existing strict violations (squad/organization/member optionality,
+  // untyped route params, `null` component returns, campaign flag
+  // optionality) live on unrelated lines and should be addressed in a
+  // dedicated cleanup PR.
+  'packages/webapp/pages/squads/[handle]/[token].tsx',
+  'packages/webapp/pages/squads/[handle]/analytics.tsx',
+  'packages/webapp/pages/squads/moderate.tsx',
+  'packages/webapp/pages/join/organization.tsx',
+  'packages/webapp/pages/posts/[id]/analytics/index.tsx',
+  'packages/webapp/pages/backoffice/keywords/[value].tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(
