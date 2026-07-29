@@ -21,6 +21,9 @@ import styles from '../WeeklyQuiz.module.css';
 
 const LOGO_URL = '/logos/weekly-quiz-logo.png';
 
+// How many source chips the intro shows before collapsing the rest into "+N".
+const SHOWN_SOURCES = 4;
+
 interface WeeklyQuizIntroProps {
   quiz: WeeklyQuiz | undefined;
   isLoading: boolean;
@@ -141,6 +144,29 @@ export const WeeklyQuizIntro = ({
               {quiz.storyCount} stories from {quiz.sourceCount} sources,
               distilled into {questionCount} questions.
             </Typography>
+            {quiz.topSources.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center gap-1.5">
+                {quiz.topSources.slice(0, SHOWN_SOURCES).map((source) => (
+                  <span
+                    key={source.id}
+                    className="bg-white/15 flex items-center gap-1 rounded-full py-0.5 pl-0.5 pr-2 font-bold text-white typo-caption1"
+                  >
+                    <img
+                      src={source.image}
+                      alt=""
+                      aria-hidden
+                      className="h-5 w-5 rounded-full object-cover"
+                    />
+                    {source.name}
+                  </span>
+                ))}
+                {quiz.sourceCount > SHOWN_SOURCES && (
+                  <span className="bg-white/10 text-white/90 rounded-full px-2 py-1 font-bold typo-caption1">
+                    +{quiz.sourceCount - SHOWN_SOURCES} more
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         )}
 

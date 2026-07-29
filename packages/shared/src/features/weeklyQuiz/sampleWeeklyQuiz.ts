@@ -1,4 +1,8 @@
+import { fallbackImages } from '../../lib/config';
 import type { WeeklyQuiz } from './types';
+
+// Placeholder source logo for the sample. Real logos come from the backend.
+const SOURCE_IMG = fallbackImages.avatar;
 
 // Sample seed content: a full week's quiz used as the local mock while the
 // backend is built (stub the WEEKLY_QUIZ_QUERY resolver with this) and as
@@ -14,6 +18,16 @@ export const sampleWeeklyQuiz: WeeklyQuiz = {
     "This week was packed with rogue models, record API bills, and a few very expensive bugs. Let's test your attention to detail.",
   storyCount: 50,
   sourceCount: 12,
+  topSources: [
+    { id: 'hn', name: 'Hacker News', image: SOURCE_IMG },
+    { id: 'techcrunch', name: 'TechCrunch', image: SOURCE_IMG },
+    { id: 'theverge', name: 'The Verge', image: SOURCE_IMG },
+    { id: 'arstechnica', name: 'Ars Technica', image: SOURCE_IMG },
+    { id: 'github', name: 'GitHub Blog', image: SOURCE_IMG },
+    { id: 'theregister', name: 'The Register', image: SOURCE_IMG },
+    { id: 'simonwillison', name: 'Simon Willison', image: SOURCE_IMG },
+    { id: 'anthropic', name: 'Anthropic', image: SOURCE_IMG },
+  ],
   questions: [
     {
       id: 'q1',

@@ -11,6 +11,7 @@ const quiz: WeeklyQuiz = {
   welcomeText: 'hi',
   storyCount: 50,
   sourceCount: 12,
+  topSources: [],
   questions: [
     {
       id: 'q1',

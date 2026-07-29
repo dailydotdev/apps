@@ -19,6 +19,15 @@ export interface WeeklyQuizQuestion {
   options: WeeklyQuizOption[];
 }
 
+// A news source the week's questions were drawn from — shown on the intro (logo
+// + name) so players see what the quiz is based on. Mirrors the daily-api
+// Source shape (id / name / image).
+export interface WeeklyQuizSource {
+  id: string;
+  name: string;
+  image: string;
+}
+
 // The active quiz for a given week. `welcomeText` is the editorial intro shown
 // on the intro screen that teases the week's topics. Question count is
 // configurable — it's whatever the week's data provides.
@@ -37,6 +46,10 @@ export interface WeeklyQuiz {
   // the "N stories from M sources -> K questions" context line on the intro.
   storyCount: number;
   sourceCount: number;
+  // The most-featured sources this week, shown on the intro. A preview subset of
+  // the full `sourceCount` — the intro caps how many it renders and shows the
+  // rest as a "+N more" count.
+  topSources: WeeklyQuizSource[];
   questions: WeeklyQuizQuestion[];
 }
 

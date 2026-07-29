@@ -42,6 +42,11 @@ export const WEEKLY_QUIZ_QUERY = `
       welcomeText
       storyCount
       sourceCount
+      topSources {
+        id
+        name
+        image
+      }
       questions {
         id
         prompt
