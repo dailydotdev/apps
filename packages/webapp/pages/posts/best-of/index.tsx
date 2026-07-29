@@ -17,7 +17,9 @@ import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { PageWrapperLayout } from '@dailydotdev/shared/src/components/layout/PageWrapperLayout';
 import { ArchiveIndexPage } from '@dailydotdev/shared/src/components/archive/ArchiveIndexPage';
 import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/ArchiveBreadcrumbs';
-import { ExploreHubHeader } from '@dailydotdev/shared/src/components/header/ExploreHubHeader';
+import classNames from 'classnames';
+import { FeedExploreTabs } from '@dailydotdev/shared/src/components/header/FeedExploreTabs';
+import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { buildBreadcrumbListJsonLd } from '@dailydotdev/shared/src/lib/archive';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
@@ -63,7 +65,13 @@ const GlobalArchiveIndexPage = ({ archives }: PageProps): ReactElement => {
 
   return (
     <>
-      {isV2 && <ExploreHubHeader />}
+      {/* Render the Explore tab bar (with "Best of" active) rather than a
+          standalone title, so the explore tabs persist when you land here. */}
+      {isV2 && (
+        <header className={classNames(pageHeaderClassName, '!py-0')}>
+          <FeedExploreTabs />
+        </header>
+      )}
       <PageWrapperLayout>
         <Head>
           <script

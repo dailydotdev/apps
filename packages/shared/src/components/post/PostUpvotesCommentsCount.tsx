@@ -161,7 +161,11 @@ const PostUpvotesCommentsCountContent = ({
             </span>
           ),
         })}
-      {!impressionsEnabled && showPostAnalytics && (
+      {/* With the flag on, the impressions stat doubles as the analytics link,
+          but it only renders when the post has impression data — keep the
+          button as the fallback entry point so authors/team never lose the
+          direct link to analytics. */}
+      {showPostAnalytics && (!impressionsEnabled || !impressionsLabel) && (
         <Link href={`${webappUrl}posts/${post.id}/analytics`} passHref>
           <Button
             tag="a"
