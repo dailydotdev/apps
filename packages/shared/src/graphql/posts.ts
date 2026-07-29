@@ -415,6 +415,8 @@ export const POST_BY_ID_QUERY = gql`
       collectionSources {
         handle
         image
+        name
+        permalink
       }
     }
     relatedCollectionPosts: relatedPosts(
@@ -502,6 +504,8 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       collectionSources {
         handle
         image
+        name
+        permalink
       }
       sharedPost {
         ...SharedPostInfo
