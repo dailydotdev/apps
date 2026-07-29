@@ -25,6 +25,18 @@ export const isWeeklyQuizDemo = (): boolean => {
   }
 };
 
+// Turn demo mode on programmatically (used by the standalone preview page).
+export const enableWeeklyQuizDemo = (): void => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+  try {
+    window.sessionStorage.setItem(STORAGE_KEY, '1');
+  } catch {
+    // Ignore storage failures (private mode, etc.).
+  }
+};
+
 export const demoStatus: WeeklyQuizStatus = {
   isActive: true,
   activeQuizId: sampleWeeklyQuiz.id,
