@@ -109,18 +109,19 @@ export const Iubenda = (): ReactElement | null => {
       },
     };
 
-    IUBENDA_SCRIPTS.forEach((src) => {
+    IUBENDA_SCRIPTS.forEach((src, index) => {
       const script = document.createElement('script');
       script.src = src;
       // dynamically injected scripts default to async; force in-order
       // execution — iubenda requires the TCF stub before the core script
       script.async = false;
+      if (index === 0) {
+        // __tcfapi only exists once the stub executes; the stub then queues
+        // the subscription until the core script loads
+        script.onload = () => startTcfSubscription();
+      }
       document.head.appendChild(script);
     });
-
-    // The stub queues __tcfapi calls until the core script loads, so the
-    // subscription can start immediately.
-    startTcfSubscription();
   }, [enabled]);
 
   return null;
