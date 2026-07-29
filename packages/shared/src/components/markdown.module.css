@@ -90,6 +90,9 @@
       @apply outline-none ring-2 ring-accent-cabbage-default ring-offset-2 ring-offset-background-default;
     }
   }
+  & :where(video) {
+    @apply rounded-16 max-h-img-mobile tablet:max-h-img-desktop w-full;
+  }
   & > :where(:first-child) {
     @apply mt-0;
   }

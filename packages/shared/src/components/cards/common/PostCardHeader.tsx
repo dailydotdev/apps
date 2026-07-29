@@ -101,7 +101,13 @@ export const PostCardHeader = ({
           highlightBookmarkedPost && headerHiddenClassName,
         )}
       >
-        <AuthorSourceStack author={post.author} source={source} />
+        {/* mx-1.5 cancels CardHeader's -mx-1.5 so the stack lines up with the
+            title, matching the bare `.header > a` avatar compensation. */}
+        <AuthorSourceStack
+          className="mx-1.5"
+          author={post.author}
+          source={source}
+        />
         {children}
         <Container
           className="ml-auto flex flex-row"

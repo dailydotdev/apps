@@ -278,6 +278,17 @@ function renderPost(
       },
       result: () => ({ data: { _: true } }),
     },
+    // Opening any post (including articles) now logs a view on mount; tests
+    // that don't assert on this explicitly still need it mocked so the
+    // mutation doesn't fire an unmatched request against nock. Registered
+    // last so a test-supplied `mocks` entry for the same request wins.
+    {
+      request: {
+        query: VIEW_POST_MUTATION,
+        variables: { id: defaultProps.id },
+      },
+      result: () => ({ data: { viewPost: { _: true } } }),
+    },
   ];
 
   defaultMocks.forEach(mockGraphQL);
@@ -1034,6 +1045,39 @@ describe('article', () => {
         event_name: 'article page view',
       }),
     );
+  });
+
+  // Unified view logging: opening an article now logs a view on mount too,
+  // matching every other post type, rather than only on "Read article" click.
+  it('should log post view on mount', async () => {
+    let viewPostMutationCalled = false;
+    renderPost({}, [
+      createPostMock(),
+      createCommentsMock(),
+      {
+        request: {
+          query: VIEW_POST_MUTATION,
+          variables: {
+            id: '0e4005b2d3cf191f8c44c2718a457a1e',
+          },
+        },
+        result: () => {
+          viewPostMutationCalled = true;
+
+          return {
+            data: {
+              viewPost: {
+                _: true,
+              },
+            },
+          };
+        },
+      },
+    ]);
+
+    await waitFor(() => {
+      expect(viewPostMutationCalled).toBe(true);
+    });
   });
 });
 

@@ -44,6 +44,7 @@ export enum LazyModal {
   ImageView = 'imageView',
   NewStreak = 'newStreak',
   RecoverStreak = 'recoverStreak',
+  StreakFreezePurchase = 'streakFreezePurchase',
   ReputationPrivileges = 'reputationPrivileges',
   MarketingCta = 'marketingCta',
   Share = 'share',
@@ -107,6 +108,7 @@ export enum LazyModal {
   ReaderInstallPrompt = 'readerInstallPrompt',
   ReaderExtensionInstall = 'readerExtensionInstall',
   ReaderPreview = 'readerPreview',
+  PostImpressions = 'postImpressions',
 }
 
 export type ModalTabItem = {

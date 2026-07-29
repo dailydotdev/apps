@@ -14,6 +14,9 @@ import Link from '../utilities/Link';
 import { Button, ButtonSize } from '../buttons/Button';
 import { AnalyticsIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureCardImpressions } from '../../lib/featureManagement';
+import { usePostImpressionsModal } from '../../hooks/post/usePostImpressionsModal';
 
 const DEFAULT_REPOSTS_PER_PAGE = 20;
 
@@ -43,7 +46,9 @@ interface PostUpvotesCommentsCountProps {
 type PostUpvotesCommentsCountContentProps = PostUpvotesCommentsCountProps & {
   onRepostsClick?: () => unknown;
   onAwardsClick?: () => unknown;
+  onImpressionsClick?: () => void;
   showPostAnalytics?: boolean;
+  impressionsEnabled?: boolean;
 };
 
 const PostUpvotesCommentsCountContent = ({
@@ -52,7 +57,9 @@ const PostUpvotesCommentsCountContent = ({
   onCommentsClick,
   onRepostsClick,
   onAwardsClick,
+  onImpressionsClick,
   showPostAnalytics = false,
+  impressionsEnabled = false,
   className,
   compact = false,
   passive = false,
@@ -63,6 +70,14 @@ const PostUpvotesCommentsCountContent = ({
   const reposts = post.numReposts || 0;
   const getText = ({ count, label }: { count: number; label: string }) =>
     `${largeNumberFormat(count)} ${label}${count > 1 ? 's' : ''}`;
+  // Flag on: a single impressions stat next to the other counts (links to the
+  // analytics page). Flag off: keep main's behaviour — the author/team-only
+  // `analytics.impressions` line plus the "Post analytics" button.
+  const impressions = post.analytics?.impressions ?? 0;
+  const impressionsLabel =
+    impressionsEnabled && !compact && !!post.id && impressions > 0
+      ? getText({ count: impressions, label: 'Impression' })
+      : null;
 
   const renderText = ({
     key,
@@ -95,7 +110,7 @@ const PostUpvotesCommentsCountContent = ({
       )}
       data-testid="statsBar"
     >
-      {!!post.analytics?.impressions && (
+      {!impressionsEnabled && !!post.analytics?.impressions && (
         <span>
           {getText({ count: post.analytics.impressions, label: 'Impression' })}
         </span>
@@ -111,6 +126,16 @@ const PostUpvotesCommentsCountContent = ({
           key: 'comments',
           onClick: onCommentsClick,
           children: getText({ count: comments, label: 'Comment' }),
+        })}
+      {/* Flag on: impressions sit right after comments and look like the other
+          stats. Tapping routes the owner/team to the analytics page and
+          everyone else to the explainer popup (same handler as the feed cards).
+          Shown on the post page/modal strip only (not the compact embed). */}
+      {impressionsLabel &&
+        renderText({
+          key: 'impressions',
+          onClick: onImpressionsClick,
+          children: impressionsLabel,
         })}
       {reposts > 0 &&
         renderText({
@@ -136,7 +161,7 @@ const PostUpvotesCommentsCountContent = ({
             </span>
           ),
         })}
-      {showPostAnalytics && (
+      {!impressionsEnabled && showPostAnalytics && (
         <Link href={`${webappUrl}posts/${post.id}/analytics`} passHref>
           <Button
             tag="a"
@@ -160,7 +185,12 @@ const InteractivePostUpvotesCommentsCount = ({
   compact,
 }: PostUpvotesCommentsCountProps): ReactElement => {
   const { openModal } = useLazyModal();
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
+  const { value: impressionsEnabled } = useConditionalFeature({
+    feature: featureCardImpressions,
+    shouldEvaluate: isAuthReady,
+  });
+  const onImpressionsClick = usePostImpressionsModal(post);
   const awards = post.numAwards || 0;
   const hasAccessToCores = useHasAccessToCores();
   if (!post.id) {
@@ -214,6 +244,8 @@ const InteractivePostUpvotesCommentsCount = ({
           : undefined
       }
       showPostAnalytics={canViewPostAnalytics({ user, post })}
+      impressionsEnabled={impressionsEnabled}
+      onImpressionsClick={onImpressionsClick}
       className={className}
       compact={compact}
     />

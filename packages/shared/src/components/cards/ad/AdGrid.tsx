@@ -59,7 +59,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
             className="!items-end"
           />
         ) : null}
-        <AdAttribution className={{ main: 'font-normal' }} />
+        <AdAttribution ad={ad} className={{ main: 'font-normal' }} />
       </CardTextContainer>
       {!useGlass && (
         <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />

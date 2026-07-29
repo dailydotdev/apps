@@ -19,16 +19,24 @@ const checkSameSite = () => {
     return true; // empty referrer means you are from the same site or from blank tab or no-referrer header was used :/
   }
 
-  return (
-    referrer === origin || origin === referrer.substring(0, referrer.length - 1) // remove trailing slash
-  );
+  if (!origin) {
+    return false;
+  }
+
+  try {
+    return new URL(referrer).origin === origin;
+  } catch {
+    return false;
+  }
 };
 
 export const GoBackButton = ({
   className,
   showLogo = true,
+  fallbackPath,
 }: WithClassNameProps & {
   showLogo?: boolean;
+  fallbackPath?: string;
 }): JSX.Element | null => {
   const router = useRouter();
   const goHome = useCallback(() => router.push('/'), [router]);
@@ -36,6 +44,17 @@ export const GoBackButton = ({
 
   const canGoBack =
     globalThis?.history?.length > 1 && (checkSameSite() || isDevelopment);
+
+  const goBack = useCallback(() => {
+    if (canGoBack) {
+      router.back();
+      return;
+    }
+
+    if (fallbackPath) {
+      router.push(fallbackPath);
+    }
+  }, [canGoBack, fallbackPath, router]);
 
   const logoButton = showLogo ? (
     <Logo
@@ -46,12 +65,12 @@ export const GoBackButton = ({
     />
   ) : null;
 
-  return canGoBack ? (
+  return canGoBack || fallbackPath ? (
     <Button
       icon={<ArrowIcon className="-rotate-90" />}
       size={ButtonSize.Small}
       variant={ButtonVariant.Tertiary}
-      onClick={router.back}
+      onClick={goBack}
       className={className}
       type="button"
       aria-label="Go back"
