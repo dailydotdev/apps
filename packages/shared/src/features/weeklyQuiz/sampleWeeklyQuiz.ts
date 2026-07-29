@@ -7,9 +7,13 @@ import type { WeeklyQuiz } from './types';
 export const sampleWeeklyQuiz: WeeklyQuiz = {
   id: 'sample-2026-w30',
   week: '2026-W30',
+  startDate: '2026-07-20',
+  endDate: '2026-07-26',
   title: 'Weekly tech news quiz',
   welcomeText:
     "This week was packed with rogue models, record API bills, and a few very expensive bugs. Let's test your attention to detail.",
+  storyCount: 50,
+  sourceCount: 12,
   questions: [
     {
       id: 'q1',

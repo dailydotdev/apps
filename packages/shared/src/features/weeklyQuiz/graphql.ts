@@ -36,8 +36,12 @@ export const WEEKLY_QUIZ_QUERY = `
     weeklyQuiz(id: $id) {
       id
       week
+      startDate
+      endDate
       title
       welcomeText
+      storyCount
+      sourceCount
       questions {
         id
         prompt

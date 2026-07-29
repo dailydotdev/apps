@@ -5,8 +5,12 @@ import type { WeeklyQuiz } from '../types';
 const quiz: WeeklyQuiz = {
   id: 'q',
   week: '2026-W30',
+  startDate: '2026-07-20',
+  endDate: '2026-07-26',
   title: 'Test quiz',
   welcomeText: 'hi',
+  storyCount: 50,
+  sourceCount: 12,
   questions: [
     {
       id: 'q1',

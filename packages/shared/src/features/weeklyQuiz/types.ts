@@ -26,8 +26,17 @@ export interface WeeklyQuiz {
   id: string;
   // ISO week identifier (e.g. "2026-W30"), used to key results per week.
   week: string;
+  // Inclusive date range the quiz recaps (ISO dates). Shown on the intro so
+  // players know it covers *last* week's news, not an older one.
+  startDate: string;
+  endDate: string;
   title: string;
   welcomeText: string;
+  // How much the week's news was distilled: `storyCount` stories drawn from
+  // `sourceCount` sources, boiled down to `questions.length` questions. Shown as
+  // the "N stories from M sources -> K questions" context line on the intro.
+  storyCount: number;
+  sourceCount: number;
   questions: WeeklyQuizQuestion[];
 }
 

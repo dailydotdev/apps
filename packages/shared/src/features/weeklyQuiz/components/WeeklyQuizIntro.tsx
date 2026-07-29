@@ -5,7 +5,7 @@ import {
   Typography,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { BellIcon, ShareIcon } from '../../../components/icons';
+import { BellIcon, CalendarIcon, ShareIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import {
   ProfilePicture,
@@ -32,6 +32,23 @@ interface WeeklyQuizIntroProps {
 
 const socialButtonClass =
   'flex h-20 min-w-[5rem] flex-col items-center justify-center gap-1 whitespace-nowrap rounded-16 bg-white/15 px-4 typo-caption1 font-bold text-white transition-colors hover:bg-white/25';
+
+// "Jul 20–26, 2026" from the quiz's inclusive ISO date range. Parsed from parts
+// (not new Date(iso)) so the label doesn't shift a day across timezones.
+const formatWeekRange = (start: string, end: string): string => {
+  const parse = (iso: string): Date => {
+    const [y, m, d] = iso.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  };
+  const s = parse(start);
+  const e = parse(end);
+  const month = (date: Date): string =>
+    date.toLocaleDateString('en-US', { month: 'short' });
+  const year = e.getFullYear();
+  return s.getMonth() === e.getMonth()
+    ? `${month(s)} ${s.getDate()}–${e.getDate()}, ${year}`
+    : `${month(s)} ${s.getDate()} – ${month(e)} ${e.getDate()}, ${year}`;
+};
 
 // Landing screen: two separated floating panels — left holds the logo, the
 // arcade Start button and social actions; right holds the leaderboard. Stacks
@@ -107,6 +124,25 @@ export const WeeklyQuizIntro = ({
             </span>
           </span>
         </h1>
+
+        {/* Which week + how much news it distils — makes it clear the quiz
+            recaps the week that just ended, not an older one. */}
+        {quiz && (
+          <div className="flex flex-col items-center gap-2 text-center">
+            <span className="bg-white/20 inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-white typo-footnote">
+              <CalendarIcon size={IconSize.XSmall} />
+              {formatWeekRange(quiz.startDate, quiz.endDate)}
+            </span>
+            <Typography
+              type={TypographyType.Callout}
+              bold
+              className="!text-white"
+            >
+              {quiz.storyCount} stories from {quiz.sourceCount} sources,
+              distilled into {questionCount} questions.
+            </Typography>
+          </div>
+        )}
 
         {alreadyPlayed ? (
           <div className="flex w-full flex-col items-center gap-2">
