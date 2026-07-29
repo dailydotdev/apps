@@ -318,4 +318,11 @@ export const featurePostSignupActivation = new Feature(
 // extension visitors: a phone button in the header that opens a QR-code
 // popover. Control hides it entirely. Keep the default `false` - GrowthBook
 // ramps it.
-export const featureHeaderGetApp = new Feature('header_get_app', false);
+//
+// !!! TEMP - REVERT BEFORE MERGE !!!
+// Forced to `true` so the entry point renders on the preview deploy, where
+// GrowthBook has no `header_get_app` feature yet and DevTools cannot attach
+// (preview builds run as production). Merging this line as-is ships the
+// experiment to 100% of users with no rollback short of a deploy.
+// Restore: new Feature('header_get_app', false)
+export const featureHeaderGetApp = new Feature('header_get_app', true);
