@@ -1,5 +1,7 @@
 import { gqlClient } from './common';
 import type { Post } from './posts';
+import { FEED_POST_FRAGMENT } from './fragments';
+import { USER_POST_FRAGMENT } from './feed';
 
 export enum UserInterestStatus {
   Active = 'active',
@@ -57,10 +59,7 @@ export type InterestFinding = {
   rationale?: string | null;
   status: string;
   createdAt: string;
-  post?: Pick<
-    Post,
-    'id' | 'title' | 'image' | 'permalink' | 'commentsPermalink' | 'readTime'
-  > | null;
+  post?: Post | null;
 };
 
 const USER_INTEREST_FRAGMENT = `
@@ -100,7 +99,7 @@ export const INTEREST_QUERY = `
 `;
 
 export const INTEREST_FINDINGS_QUERY = `
-  query InterestFindings($id: ID!) {
+  query InterestFindings($id: ID!, $loggedIn: Boolean! = true) {
     interestFindings(id: $id) {
       id
       postId
@@ -109,15 +108,14 @@ export const INTEREST_FINDINGS_QUERY = `
       status
       createdAt
       post {
-        id
-        title
-        image
-        permalink
-        commentsPermalink
-        readTime
+        ...FeedPost
+        contentHtml
+        ...UserPost @include(if: $loggedIn)
       }
     }
   }
+  ${FEED_POST_FRAGMENT}
+  ${USER_POST_FRAGMENT}
 `;
 
 export const CREATE_INTEREST_MUTATION = `
