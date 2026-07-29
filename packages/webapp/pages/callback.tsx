@@ -1,3 +1,4 @@
+import type { NextSeoProps } from 'next-seo';
 import {
   broadcastMessage,
   postWindowMessage,
@@ -11,6 +12,9 @@ import {
   AUTH_REDIRECT_KEY,
   shouldRedirectAuth,
 } from '@dailydotdev/shared/src/features/onboarding/shared';
+import { noindexSeoProps } from '../next-seo';
+
+const seo: NextSeoProps = { ...noindexSeoProps };
 
 const checkShouldSendBroadcast = () => {
   const ua = navigator.userAgent;
@@ -93,5 +97,7 @@ function CallbackPage(): ReactElement | null {
 
   return null;
 }
+
+CallbackPage.layoutProps = { seo };
 
 export default CallbackPage;
