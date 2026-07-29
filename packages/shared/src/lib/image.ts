@@ -1,5 +1,3 @@
-import { BrowserName } from './func';
-
 const DAILY_MEDIA_HOST = 'media.daily.dev';
 const PLACEHOLDER_IMAGE_PATTERN = /placeholder/i;
 
@@ -249,20 +247,12 @@ export const cloudinaryAppIconV10 = cloudinaryAppIcons[9].url;
 export const cloudinaryAppIconV11 = cloudinaryAppIcons[10].url;
 export const cloudinaryAppIconV12 = cloudinaryAppIcons[11].url;
 
-export const cloudinaryOnboardingExtension = {
-  [BrowserName.Chrome]: {
-    default:
-      'https://media.daily.dev/image/upload/s--HjgXzokn--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown_ggmkfg',
-    retina:
-      'https://media.daily.dev/image/upload/s--HjgXzokn--/f_auto/dailydev-extenstion-mindblown_ggmkfg',
-  },
-  [BrowserName.Edge]: {
-    default:
-      'https://media.daily.dev/image/upload/s--kvj5ZB_s--/c_scale,h_360,w_820/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
-    retina:
-      'https://media.daily.dev/image/upload/s--kvj5ZB_s--/f_auto/dailydev-extenstion-mindblown-edge_svb0kv',
-  },
-};
+// 1920×1080 VP9/WebM. Only the original derivative is available on the CDN
+// (strict transformations), so there is no mp4 fallback or generated poster.
+// The extension step only renders on desktop Chrome/Brave/Edge, which all
+// play VP9.
+export const cloudinaryOnboardingExtensionVideo =
+  'https://media.daily.dev/video/upload/v1783942037/1_3_nljcyu.webm';
 
 export const cloudinaryOnboardingActivationDemo =
   'https://media.daily.dev/video/upload/v1780303637/daily.dev_-_Keep_it_acphx8.mp4';
@@ -488,8 +478,8 @@ export const cloudinaryGivebackPunchyStaring =
 
 // Bespoke Patchy assets for the Giveback "Picture with Patchy" reward reveal.
 // The selfie is a transparent video played once — a VP9-alpha .webm for most
-// browsers and an HEVC-alpha .mov for Safari (the same source-order trick as
-// PersonaMascot); both carry real alpha, so Patchy floats cleanly on any
+// browsers and an HEVC-alpha .mov for Safari (source-ordered so Safari falls
+// back to the .mov); both carry real alpha, so Patchy floats cleanly on any
 // surface. The card frame is the still Patchy holds with the visitor's photo
 // dropped in.
 export const cloudinaryGivebackPatchySelfieWebm =

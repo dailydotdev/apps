@@ -4,10 +4,12 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { StreakSection } from './StreakSection';
 import { DayStreak } from './DayStreak';
+import { StreakFreezeRow } from './StreakFreezeRow';
 import {
   getStreak,
   getStreakDays,
   useReadingStreak30Days,
+  useStreakFreezeDates,
 } from '../../../hooks/streaks/useStreakDays';
 import type { UserStreak } from '../../../graphql/users';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -64,6 +66,7 @@ export function ReadingStreakPopup({
   const { completeAction } = useActions();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   const history = useReadingStreak30Days();
+  const freezeDates = useStreakFreezeDates();
   const isTimezoneOk = useStreakTimezoneOk();
   const { showPrompt } = usePrompt();
   const { logEvent } = useLogContext();
@@ -95,6 +98,7 @@ export function ReadingStreakPopup({
         history,
         startOfWeek: streak.weekStart,
         timezone,
+        freezeDates,
       });
 
       return (
@@ -106,7 +110,7 @@ export function ReadingStreakPopup({
         />
       );
     });
-  }, [history, streak.weekStart, timezone]);
+  }, [history, streak.weekStart, timezone, freezeDates]);
 
   const onTogglePush = async () => {
     logEvent({
@@ -255,6 +259,7 @@ export function ReadingStreakPopup({
           </Link>
         </div>
       </div>
+      <StreakFreezeRow />
       {showAlert && (
         <div className="mt-3 flex flex-wrap gap-4 border-t border-border-subtlest-tertiary px-4 py-3">
           {!isSubscribed && (

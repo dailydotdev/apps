@@ -1,486 +1,126 @@
 # AGENTS.md
 
-This file provides guidance to AI coding agents when working with code in this repository.
+Guidance for AI coding agents in this repo. Kept intentionally lean: only reusable lessons and facts that are hard to discover from the code.
 
-## Development Philosophy
+## Project Overview
 
-We're a startup. We move fast, iterate quickly, and embrace change. When implementing features:
-- Favor pragmatic solutions over perfect architecture
-- Code will likely change - don't over-engineer
-- A/B experiments are common (GrowthBook integration)
-- Test coverage isn't a goal - write tests that validate functionality, not hit metrics
+pnpm monorepo for the daily.dev app suite:
+
+- `packages/webapp`: Next.js 15 with **Pages Router (NOT App Router / Server Components)**, deployed on Vercel
+- `packages/extension`: browser extension (Chrome/Edge/Opera), built with Rspack
+- `packages/shared`: shared components, hooks, GraphQL, design system (the heart of the codebase)
+- `packages/storybook`, `packages/playwright`, plus eslint/prettier config packages
+
+Stack: Node v24.18, pnpm 10.33.4, React 18, TypeScript, TanStack Query v5 (mutations use `isPending`, not `isLoading`), graphql-request, Tailwind with a custom design system, Jest, GrowthBook for flags/experiments.
+
+We're a startup: favor pragmatic solutions, code will change, don't over-engineer. Write tests that validate functionality, not coverage metrics.
+
+## Commands and Verification
+
+```bash
+pnpm --filter webapp dev          # webapp HTTPS (dev:notls for HTTP)
+pnpm --filter extension dev:chrome
+pnpm --filter <package> test|lint|lint:fix
+```
+
+- When running Jest manually (`pnpm exec jest` or a direct file path), set `NODE_ENV=test`, otherwise React/RTL run under a production build.
+- Do NOT run `build` while a dev server is running (it breaks hot reload). Build only at the end to verify compilation.
+- For changed `.ts`/`.tsx` files, run `node ./scripts/typecheck-strict-changed.js` before finishing. Package-wide strict tsc has unrelated backlog; the changed-file guard is the signal.
+- After touching a shared component, run the dependent packages' tests too (`pnpm --filter webapp test`), not just `shared`. Cross-package tests query DOM structure (`nextElementSibling`, `closest`) and break silently otherwise.
+
+## Where Code Goes
+
+- Used by both webapp AND extension → `packages/shared` (`src/components|hooks|graphql|contexts|features|lib`)
+- Webapp only → `packages/webapp` (`pages/`, `components/layouts/`)
+- Extension only → `packages/extension/src` (`newtab/`, `companion/`, `background/`)
+- Shared utilities live in `packages/shared/src/lib/` (`func.ts`, `strings.ts`, `links.ts`, domain files). Search for an existing helper before writing one; never copy-paste a helper into multiple files.
 
 ## Code Style
 
-**Control flow:**
-- Use early returns instead of if-else blocks for cleaner, flatter code
-- Handle the errors or checks first and return early then proceed with happy path at the end of code block
-
-**Comments:**
-- Do not add comments that restate what the code already says. If a variable name, condition, or function call makes the intent clear, no comment is needed.
-- Only comment to explain *why* something non-obvious is done (a constraint, a gotcha, a deliberate trade-off) — never to narrate *what* the code does line by line.
-
-**Invariant handling:**
-- Do not silently ignore impossible states (for example, no-op rollback fallbacks in mutation/cache flows)
-- Fail fast with a clear thrown error message when an internal invariant is violated
-
-**Drag-and-drop UI:**
-- Do not render owner-visible empty drag containers or empty categories unless the product requirement explicitly asks for visible empty drop targets
-- Any drag overlay or tooltip that reads async query data must defensively handle `undefined`/empty arrays without crashing
-
-## Project Architecture
-
-This is a pnpm monorepo containing the daily.dev application suite:
-
-| Package | Purpose |
-|---------|---------|
-| `packages/webapp` | Next.js web application (main daily.dev site) |
-| `packages/extension` | Browser extension (Chrome/Opera) built with Webpack |
-| `packages/shared` | Shared React components, hooks, utilities, and design system |
-| `packages/storybook` | Component documentation and development environment |
-| `packages/eslint-config` | Shared ESLint configuration |
-| `packages/eslint-rules` | Custom ESLint rules including color consistency enforcement |
-| `packages/prettier-config` | Shared Prettier configuration |
-
-## Technology Stack
-
-- **Node.js v24.18** (see `package.json` `volta` and `packageManager` properties, also `.nvmrc`)
-- **pnpm 10.33.4** for package management (see `package.json` `packageManager` property)
-- **TypeScript** across all packages
-- **React 18.3.1** with Next.js 15 for webapp (Pages Router, NOT App Router/Server Components)
-- **TanStack Query v5** for server state and data fetching
-- **GraphQL** with graphql-request for API communication
-- **Tailwind CSS** with custom design system
-- **Jest** for testing
-- **GrowthBook** for feature flags and A/B experiments
-
-## Commonly Used Imports
-
-### Components
-```typescript
-// Buttons (variants: Primary, Secondary, Tertiary, Float, Subtle, Option, Quiz)
-import { Button, ButtonVariant, ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
-import { ClickableText } from '@dailydotdev/shared/src/components/buttons/ClickableText';
-
-// Typography
-import { Typography, TypographyType, TypographyColor } from '@dailydotdev/shared/src/components/typography/Typography';
-
-// Form Fields
-import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import { Checkbox } from '@dailydotdev/shared/src/components/fields/Checkbox';
-import { Radio } from '@dailydotdev/shared/src/components/fields/Radio';
-
-// Layout & Utilities
-import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
-
-// Icons (500+ available)
-import { PlusIcon, ShareIcon, UpvoteIcon } from '@dailydotdev/shared/src/components/icons';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-
-// Modals
-import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
-
-// Feedback
-import { Loader } from '@dailydotdev/shared/src/components/Loader';
-import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
-import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
-```
-
-### Hooks
-```typescript
-// Most commonly used
-import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
-import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
-import { useFeedLayout } from '@dailydotdev/shared/src/hooks/useFeedLayout';
-import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-
-// Actions & State
-import { useActions, usePlusSubscription } from '@dailydotdev/shared/src/hooks';
-import useFeedSettings from '@dailydotdev/shared/src/hooks/useFeedSettings';
-```
-
-### Contexts
-```typescript
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
-import { useNotificationContext } from '@dailydotdev/shared/src/contexts/NotificationsContext';
-```
-
-### GraphQL Types
-```typescript
-import type { Post, PostType } from '@dailydotdev/shared/src/graphql/posts';
-import type { Source, SourceType } from '@dailydotdev/shared/src/graphql/sources';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
-```
-
-### Utilities
-```typescript
-import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
-import { LogEvent, Origin } from '@dailydotdev/shared/src/lib/log';
-import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import classed from '@dailydotdev/shared/src/lib/classed';
-
-// String utilities
-import { stripHtmlTags, capitalize, formatKeyword } from '@dailydotdev/shared/src/lib/strings';
-```
-
-### Forms (react-hook-form + Zod)
-```typescript
-import { useForm, FormProvider } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-
-// Controlled components (use within FormProvider)
-import ControlledTextField from '@dailydotdev/shared/src/components/fields/ControlledTextField';
-import ControlledTextarea from '@dailydotdev/shared/src/components/fields/ControlledTextarea';
-import ControlledSwitch from '@dailydotdev/shared/src/components/fields/ControlledSwitch';
-```
-
-**IMPORTANT - Zod Type Inference:**
-- **ALWAYS use `z.infer` to derive TypeScript types from Zod schemas**
-- **NEVER manually define types that duplicate Zod schema structure**
-
-```typescript
-// ❌ WRONG: Manual type definition that duplicates schema
-const userSchema = z.object({
-  name: z.string(),
-  age: z.number(),
-});
-
-interface User {
-  name: string;
-  age: number;
-}
-
-// ✅ RIGHT: Infer type from schema
-const userSchema = z.object({
-  name: z.string(),
-  age: z.number(),
-});
-
-export type User = z.infer<typeof userSchema>;
-```
-
-This ensures type safety, reduces duplication, and keeps types automatically in sync with schemas.
-
-## Quick Commands
-
-```bash
-# Setup
-nvm use                   # Use correct Node version from .nvmrc
-corepack enable
-corepack prepare pnpm@10.33.4 --activate
-pnpm install
-
-# Development
-pnpm --filter webapp dev          # Run webapp (HTTPS)
-pnpm --filter webapp dev:notls    # Run webapp (HTTP)
-pnpm --filter extension dev:chrome # Run Chrome extension
-pnpm --filter storybook dev       # Run Storybook
-
-# Testing & Linting
-pnpm --filter <package> test      # Run tests
-pnpm --filter <package> lint      # Run linter
-pnpm --filter <package> lint:fix  # Fix lint issues
-
-# Building for production
-pnpm --filter webapp build        # Build webapp
-pnpm --filter extension build:chrome # Build Chrome extension
-```
-
-**IMPORTANT**: When running Jest manually with `pnpm exec jest` or a direct file path, set `NODE_ENV=test` so React and Testing Library do not run under a production build.
-
-**IMPORTANT**: Do NOT run `build` commands while the dev server is running - it will break hot reload. Only run builds at the end to verify your work compiles successfully. During development, rely on the dev server's hot reload and TypeScript/ESLint checks instead.
-
-**IMPORTANT**: For changed `.ts`/`.tsx` files, run `node ./scripts/typecheck-strict-changed.js` or the package's strict `tsc` command before finishing. Do not add context-specific props to shared primitives when the behavior can be scoped in the parent list/container.
-
-**IMPORTANT**: For text truncation inside flex layouts, scope the ellipsis to the text element and make the nearest flex item shrinkable with `min-w-0` (and `flex-1` when it should consume remaining space). Do not rely on `truncate` on the whole row.
-
-**IMPORTANT**: In `flex-col items-center` layouts, sections and constrained content blocks need an explicit `w-full` alongside any `max-w-*` cap. `max-w-*` alone can leave the element shrink-to-content and cause width changes when child content expands.
-
-**IMPORTANT**: When changing SEO, gating, or noindex logic, preserve existing `undefined`/nullable behavior unless the requirement explicitly changes it, and verify field names against the typed GraphQL model instead of ticket prose.
-
-**IMPORTANT**: The "calling platform" is not just extension vs webapp. Native wrappers (iOS/Android) run the webapp shell, so `BootApp`/`isExtension` alone cannot tell them apart — the native platform is surfaced through the app version (`ios`/`android`, see `useWebappVersion`). When you need the platform (e.g. the `X-Daily-Client` header), use the shared `getDailyClientPlatform(version)` helper in `lib/func.ts`: extension build → `extension`, else `ios`/`android` from the version, else `webapp`. Don't reduce platform to a `isExtension ? 'extension' : 'webapp'` boolean.
-
-## Where Should I Put This Code?
-
-```
-Is it used by both webapp AND extension?
-├── Yes → packages/shared/
-│   ├── Is it a React component? → src/components/
-│   ├── Is it a custom hook? → src/hooks/
-│   ├── Is it a GraphQL query/mutation? → src/graphql/
-│   ├── Is it a complex feature with multiple files? → src/features/
-│   ├── Is it a React context? → src/contexts/
-│   └── Is it a utility function? → src/lib/
-├── No, webapp only → packages/webapp/
-│   ├── Is it a page? → pages/
-│   ├── Is it a layout? → components/layouts/
-│   └── Is it webapp-specific logic? → components/ or hooks/
-└── No, extension only → packages/extension/src/
-    ├── Is it for new tab? → newtab/
-    ├── Is it for companion widget? → companion/
-    └── Is it background logic? → background/
-```
-
-## State Management Guide
-
-| Use Case | Solution |
-|----------|----------|
-| Server data (API responses) | TanStack Query |
-| Global app state (user, settings) | React Context |
-| Local/UI state | useState |
-| Form state | react-hook-form + Zod validation |
-
-**Note**: TanStack Query v5 uses `isPending` for mutations (not `isLoading`).
-
-## Design System Quick Reference
-
-- **Colors**: Food-themed palette (burger, cheese, avocado, bacon, etc.)
-- **Use semantic tokens**: `text-primary`, `bg-surface-primary`, not raw colors
-- **Typography**: Use `typo-*` classes (typo-title1, typo-body, typo-callout)
-- **Responsive**: mobileL, mobileXL, tablet, laptop, laptopL, desktop
-- **ESLint enforces** `no-custom-color` rule - use design system tokens
-- For dismissible banners/cards, default to the shared `CloseButton` icon pattern used elsewhere; do not introduce a separate full-width `Dismiss` button unless the request explicitly calls for text dismiss UI.
-
-## Testing Approach
-
-We write tests to validate functionality, not to achieve coverage metrics:
-- Focus on user interactions with React Testing Library
-- Mock API responses with `nock`
-- Test files live next to source: `Component.spec.tsx`
-- Run tests: `pnpm --filter <package> test`
-- For hover/tooltip changes on navigation, verify the real interactive hover target is wrapped by the tooltip component. Do not treat a native `title` fallback as a substitute for the requested tooltip behavior unless the user explicitly asks for that fallback.
-
-## Feature Flags & Experiments
-
-GrowthBook is integrated for A/B testing. Define features in `packages/shared/src/lib/featureManagement.ts`:
-```typescript
-export const featureMyFlag = new Feature('my_flag', false);
-```
-
-**NEVER default an experiment flag to `true`.** The default in `featureManagement.ts` is the control/off value and must stay falsy (`false`, `0`, or the control config) — GrowthBook turns the experiment on per cohort at runtime. Defaulting to `true` to "preview" a design ships the experiment to 100% of users the moment the branch merges, with no way to roll it back without a deploy.
-
-If you need to see the experiment locally, gate the preview on the environment — never the committed default:
-```typescript
-import { isDevelopment } from '@dailydotdev/shared/src/lib/constants';
-
-const { value } = useConditionalFeature({ feature: featureMyFlag, shouldEvaluate });
-const showExperiment = value || isDevelopment; // local-only preview, flag stays `false`
-```
-Prefer not doing even this if it can leak into a merge — toggle the flag in your local GrowthBook/devtools instead, and keep the source default `false`.
-
-Use `useConditionalFeature` with `shouldEvaluate` to gate evaluation — only evaluate the flag when the component would otherwise render (e.g., user is authenticated and Plus). This avoids unnecessary GrowthBook evaluations:
-```typescript
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
-import { featureMyFlag } from '../../lib/featureManagement';
-
-const shouldEvaluate = isAuthReady && isPlus;
-const { value: isEnabled } = useConditionalFeature({
-  feature: featureMyFlag,
-  shouldEvaluate,
-});
-const showComponent = shouldEvaluate && isEnabled;
-```
-
-When removing a feature flag, do not assume the gated UI should become always-on. Match the product request explicitly: either delete the gated behavior entirely or keep it permanently, and remove dead code/tests for the discarded path.
-
-## Key Configuration Files
-
-- `pnpm-workspace.yaml` - Monorepo workspace packages
-- `packages/webapp/next.config.ts` - Next.js configuration
-- `packages/shared/tailwind.config.ts` - Base Tailwind configuration
-- `packages/extension/webpack.config.js` - Extension build configuration
-
-## Package-Specific Guides
-
-Each package has its own AGENTS.md with detailed guidance:
-- `packages/shared/AGENTS.md` - Shared components, hooks, design system
-- `packages/webapp/AGENTS.md` - Next.js webapp specifics
-- `packages/extension/AGENTS.md` - Browser extension development
-- `packages/storybook/AGENTS.md` - Component documentation
-- `packages/playwright/AGENTS.md` - E2E testing with Playwright
-
-## Adding Content to Existing Pages
-
-When adding new content (videos, images, text blocks) to existing pages:
-- **Study the page structure first** - Identify existing sections and their purpose
-- **Integrate into existing components** rather than creating new wrapper components
-- **Avoid duplicating section headers** - If a page has "How it works", don't add "See how it works"
-- **Extend existing components** - Add content to the relevant existing component instead of creating parallel components
-
-Example: Adding a video to the jobs page
-- ❌ Wrong: Create new `OpportunityVideo` component with its own "See how it works" title
-- ✅ Right: Add the video embed inside the existing `OpportunityHowItWorks` component
-
-## Development Notes
-
-- Extension uses `webextension-polyfill` for cross-browser compatibility
-- SVG imports are converted to React components via `@svgr/webpack`
-- Tailwind utilities preferred over CSS-in-JS
-- GraphQL schema changes require manual TypeScript type updates
-## No Barrel/Index Exports
-
-**NEVER create `index.ts` files that re-export from other files.** Barrel exports cause dependency cycles and hurt build performance.
-
-```typescript
-// ❌ NEVER do this - no index.ts barrel files
-// hooks/index.ts
-export * from './useAuth';
-export * from './useUser';
-
-// ❌ NEVER import from barrel
-import { useAuth } from './hooks';
-
-// ✅ ALWAYS import directly from the file
-import { useAuth } from './hooks/useAuth';
-import { useUser } from './hooks/useUser';
-```
-
-When you see an existing barrel file, delete it and update all imports to use direct paths.
-
-## Avoiding Code Duplication
-
-**NEVER copy-paste utility functions into multiple files.** If a helper is needed in more than one place, add it to a shared utility file and import it. Do not define the same function locally in each file that needs it.
-
-Before implementing new functionality, always check if similar code already exists:
-
-1. **Search for existing utilities** - Use Grep/Glob to find similar patterns:
-   ```bash
-   # Search for similar function names
-   grep -r "functionName" packages/shared/src/lib
-
-   # Search for similar logic patterns
-   grep -r "specific_pattern" packages/
-   ```
-
-2. **Check shared libraries first**:
-   - `packages/shared/src/lib/func.ts` - General utility functions
-   - `packages/shared/src/lib/strings.ts` - String manipulation, text utilities
-   - `packages/shared/src/lib/links.ts` - URL and link utilities
-   - `packages/shared/src/lib/[domain].ts` - Domain-specific utilities
-
-3. **Extract reusable functions**:
-   - If you write similar logic in multiple places, extract it to a helper
-   - If the logic is used only in one package → package-specific file
-   - If the logic could be used across packages → `packages/shared/src/lib/`
-   - Don't extract single-use code into separate functions - keep logic inline where it's used
-   - Only extract functions when the same logic is needed in multiple places
-
-4. **Real-world example** (from PostSEOSchema refactor):
-   - ❌ **Wrong**: Duplicate author schema logic in 3 places
-   - ✅ **Right**: Create `getPersonSchema()` helper, reuse everywhere
-   - ❌ **Wrong**: Local `stripHtml()` in webapp-only file
-   - ✅ **Right**: Move to `shared/src/lib/strings.ts` as `stripHtmlTags()`
-
-5. **Before submitting a PR**:
-   - Search for similar patterns in the codebase
-   - Refactor duplications into reusable functions
-   - Place utilities in appropriate shared locations
-   - Run lint to ensure code quality: `pnpm --filter <package> lint`
-
-## Writing Readable Hooks
-
-When a hook's callback becomes hard to follow, break it into small helper functions:
-
-1. **Extract repeated selectors** to constants
-2. **Create single-purpose helpers** - each function does one thing
-3. **Name helpers by what they do** - `expandSectionIfCollapsed`, `focusFirstInput`
-4. **Keep the main callback simple** - it should read like a high-level description
-
-Example (from `useMissingFieldNavigation` refactor):
-```typescript
-// ❌ Wrong: 90-line callback with nested logic
-const handleClick = useCallback((key: string) => {
-  const el = document.querySelector(`[data-key="${key}"]`);
-  if (el) {
-    const section = el.closest('[id^="section-"]');
-    if (section) {
-      const btn = document.querySelector(`button[aria-controls="${section.id}"]`);
-      if (btn?.getAttribute('aria-expanded') === 'false') {
-        btn.click();
-      }
-    }
-    setTimeout(() => {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      // ... 50 more lines of highlighting/focusing logic
-    }, 100);
-  }
-  // ... another 30 lines for fallback
-}, []);
-
-// ✅ Right: Small helpers + simple callback
-const expandSectionIfCollapsed = (element: HTMLElement): void => { /* ... */ };
-const scrollHighlightAndFocus = (element: HTMLElement): void => { /* ... */ };
-const navigateToField = (fieldElement: HTMLElement): void => { /* ... */ };
-const navigateToSection = (checkKey: string): void => { /* ... */ };
-
-const handleClick = useCallback((key: string) => {
-  const fieldElement = document.querySelector(`[data-key="${key}"]`);
-  if (fieldElement) {
-    navigateToField(fieldElement);
-    return;
-  }
-  navigateToSection(key);
-}, []);
-```
+- Early returns over if-else; handle errors/guards first, happy path last.
+- Comments only explain *why* (constraints, gotchas, trade-offs), never *what*.
+- Fail fast on violated invariants with a thrown error; no silent no-op fallbacks.
+- **Always derive types from Zod schemas with `z.infer`**; never hand-write a type that duplicates a schema.
+- **No barrel `index.ts` files.** Import directly from the source file. When you see an existing barrel, delete it and fix imports.
+- Don't extract single-use code into helpers; extract only when logic is reused.
+- When a hook callback grows unreadable, split it into small single-purpose named helpers and keep the main callback high-level.
+- Delete dead code, unused exports, and duplicate type definitions. Don't create two components with the same name in different places.
+- Don't add context-specific props to shared primitives when the behavior can be scoped in the parent list/container.
+
+## Design System
+
+- Use semantic tokens (`text-primary`, `bg-surface-float`, `border-border-subtlest-tertiary`) and `typo-*` classes. The custom `no-custom-color` ESLint rule blocks raw palette colors and hex values, which also break theme switching.
+- Custom breakpoints: mobileL/mobileXL/tablet/laptop/laptopL/laptopXL/desktop (see `packages/shared/tailwind/AGENTS.md`).
+- Dismissible banners/cards use the shared `CloseButton` icon pattern, not a full-width text "Dismiss" button, unless explicitly requested.
+
+## Feature Flags (GrowthBook)
+
+- Flags live in `packages/shared/src/lib/featureManagement.ts`. **NEVER default an experiment flag to `true`**: the default is the control/off value, and a truthy default ships the experiment to 100% of users on merge with no rollback short of a deploy. Preview locally by toggling the flag in GrowthBook/devtools, not by changing the committed default.
+- Use `useConditionalFeature` with `shouldEvaluate` so the flag is only evaluated when the component would actually render.
+- When removing a flag, match the product request explicitly: either delete the gated behavior or keep it permanently, and remove dead code/tests for the discarded path. Don't assume gated UI becomes always-on.
+
+## Platform Detection
+
+The "calling platform" is not just extension vs webapp. Native iOS/Android wrappers run the webapp shell, so `isExtension`/`BootApp` can't distinguish them; the native platform is surfaced via the app version (`useWebappVersion`). Use the shared `getDailyClientPlatform(version)` helper in `packages/shared/src/lib/func.ts`. Never reduce platform to an `isExtension ? 'extension' : 'webapp'` boolean.
+
+## Layout and CSS Lessons
+
+- Text truncation in flex layouts: put the ellipsis on the text element itself and make the nearest flex item shrinkable with `min-w-0` (plus `flex-1` when it should fill). `truncate` on the whole row does not work.
+- In `flex-col items-center` layouts, a `max-w-*` cap needs an explicit `w-full` too, otherwise the element shrinks to content and jumps in width when children change.
+- When fixing missing padding/margins, don't re-disable them at larger breakpoints (`laptop:mx-0`) unless desktop edge-to-edge is explicitly requested, and keep spacing consistent across sibling sections. Verify mobile and desktop before shipping.
+- Floating controls over positioned siblings (e.g. a close button over an `<img>` with `relative`): render the control AFTER the content in JSX AND give it an explicit `z-*`. z-index alone is fragile in stacking-context edge cases.
+- Overlay tint tiers exist (`primary` ~64% down to `quaternary` ~24%). Match the tier to the surface: full-screen media lightboxes need a dark neutral like `bg-overlay-primary-pepper`, not the Modal default `bg-overlay-quaternary-onion`.
+- Close buttons overlaid on images/media: `ButtonVariant.Primary` (solid), not `Float` (~8% opacity surface that disappears over photos).
+- In the CSS Grid feed, an item's intrinsic content height stretches the whole row even when `max-h-*` caps visual height. For content-heavy grid cards, wrap the content in an `absolute inset-0 flex flex-col` child and give the Card `min-h-card` (see `ArticleGrid.tsx`).
+- Shared card components with `grid`/`list` variants: apply height/scroll constraints (`min-h-0 overflow-y-auto`, `flex-1`) only to the grid variant; list cards fit content naturally.
+- Drag overlays/tooltips that read async query data must handle `undefined`/empty without crashing. Don't render owner-visible empty drag containers/categories unless explicitly required.
+
+## UI and Product Lessons
+
+- If a bug report names a specific component or screen, change only that target. Confirm the surface before implementing.
+- Keep scope tight: no unrelated behavioral/SEO changes in a design-iteration commit.
+- Add new content inside existing page sections/components. Don't create parallel wrapper components or duplicate section headers.
+- Reuse existing feed/list card primitives (`FeedItemContainer`, `PostCardHeader`, etc.) before inventing modal-specific list items. Activity list modals (reposts/upvotes/history) are metadata-first: compact rows, no dominating content images.
+- Don't hide accessible data with presentation heuristics (e.g. masking on `source.public`); rely on backend access control and render what the query returns.
+- Wrong value in truncated/collapsed UI: fix only the computation (derive from the full dataset) while rendering the exact same subset and keeping "Show More" gating identical. Don't change the collapse unit as a side effect. Assert collapsed↔expanded parity in a test.
+- When adding an optional feature to a shared component, gate any new wrapper/DOM on the new prop so existing consumers keep their original DOM.
+- Shared sections often render on multiple surfaces (e.g. a header popover AND a standalone page, regular AND Plus instances). Apply per-section UI changes to every instance.
+- On search pages, `MainFeedLayout` renders page `children` AFTER the `<Feed>`. Content above feed results goes through the `searchChildren` prop (via `layoutProps`).
+- Feed promos between nav and feed belong in the content flow (pushing content down), not absolutely positioned on sticky nav, unless overlay behavior is explicitly requested.
+- Match existing horizontal gaps on both sides when adding buttons near search fields or other controls.
+
+## Forms and Interaction Lessons
+
+- Always set explicit `type` on `<button>` in forms (`type="button"` for close/back/cancel). Browser default is `submit`.
+- Infinite scroll: pass `fetchNextPage`, `canFetchMore` (from `hasNextPage`), and `isFetchingNextPage` as separate props. Never derive `canFetchMore` from callback existence (`!!onScrollEnd`). Gate with `canFetchMore && !isFetchingNextPage` (see `InfiniteScrolling.tsx`).
+- Paginated dropdowns with a pre-selected value not in page one: insert a placeholder entry up front and dedupe by `id` when the real item loads. Never `findIndex(...) || 0` (silently selects the first item); use `?? -1`.
+- Portaled drawers/overlays must `stopPropagation` on the overlay click, otherwise `useOutsideClick` closes the parent modal (see `BaseDrawer`).
+- Tooltip requests: wrap the real interactive hover target with the tooltip component. A native `title` attribute is not a substitute.
+- When renaming visible copy, update text-asserting tests (`findByText`) in the same PR.
+- In markdown conversion utilities, never run formatting regexes across already-generated HTML (e.g. image `src` URLs containing `_`). Add regression tests for URL edge cases.
+- For one-off contrast/readability fixes, swap tokens at the component level; don't change global tokens in `base.css` unless asked.
+
+## SEO and Data
+
+- When changing SEO/gating/noindex logic, preserve existing `undefined`/nullable behavior unless explicitly changed, and verify field names against the typed GraphQL model, not ticket prose.
+
+## State Management
+
+Server data → TanStack Query. Global app state → React Context. Local UI state → `useState`. Forms → react-hook-form + Zod.
 
 ## Pull Requests
 
-Keep PR descriptions concise and to the point. Reviewers should not be exhausted by lengthy explanations.
-
-Use conventional commit messages for all commits, for example `fix: ...`, `feat: ...`, or `chore: ...`.
-
-Before opening a PR, run `git diff --name-only origin/main...HEAD` and confirm every changed file belongs to the current task. If unrelated files appear (for example from reverted or merged commits), clean the branch history first.
-
-## Code Review Guidelines
-
-When reviewing code (or writing code that will be reviewed):
-- **Always set explicit `type` on `<button>` elements in forms** - Use `type="button"` for non-submit actions (close/back/cancel). Never rely on the browser default inside forms.
-- **Delete dead code** - Remove unused components, functions, exports, and files. Don't leave code "for later"
-- **Avoid confusing naming** - Don't create multiple components with the same name in different locations (e.g., two `AboutMe` components)
-- **Remove unused exports** - If a function/constant is only used internally, don't export it
-- **Clean up duplicates** - If the same interface/type is defined in multiple places, consolidate to one location and import
-- **Activity list modals should be metadata-first** - For lists like reposts/upvotes/history in modals, prefer compact rows that emphasize source/author and engagement. Avoid large content images that dominate the layout unless image content is the primary purpose.
-- **Reuse feed/list card primitives first** - Before adding modal-specific list item components, check existing card building blocks (`FeedItemContainer`, `PostCardHeader`, list card primitives) and compose with them.
-- **Do not hide accessible data using presentation heuristics** - In UI lists, avoid masking content based on flags like `source.public`; rely on backend access controls and render the data returned by the query.
-- **Keep scope tight in design iterations** - When adjusting UI, avoid unrelated behavioral/SEO changes in the same commit unless explicitly requested.
-- **Fix the calculation, not the collapse UX** - When a bug is a wrong value in a truncated/collapsed summary (e.g. per-company tenure on the collapsed profile), correct only the computation: derive the value from the complete dataset while rendering the exact same subset and keeping "Show More" visibility identical. Do NOT change the collapse unit (e.g. capping by positions vs by company groups) or the Show-More gating source as a side effect — those are visible UX shifts. Decouple "data summed/grouped over the full set" from "items rendered": compute over the full list, render the original truncated slice. Assert collapsed↔expanded value parity in a test.
-- **Confirm target surface before implementing UI fixes** - If a bug report names a specific component or screen, update only that target unless expansion is explicitly requested.
-- **Keep action spacing consistent in control headers** - When adding icon/action buttons near search fields or other controls, match existing horizontal gaps on both sides to avoid controls touching each other.
-- **Place feed promos in content flow unless explicitly sticky** - If a promo belongs between feed navigation and the feed list, render it in the feed/content layout so it pushes content down. Do not attach it to sticky nav with absolute positioning unless the requirement explicitly asks for overlay behavior.
-- **Use `searchChildren` prop for content above feed results on search pages** - In `MainFeedLayout`, page `children` render AFTER the `<Feed>` component. To place banners/promos above feed results, pass them via the `searchChildren` prop (through `layoutProps` on the page component). Do NOT render them as page children — they will appear below all posts. Prefer reusing existing props over introducing new ones.
-- **Preserve spacing intent across breakpoints** - When fixing missing padding/margins, do not re-disable them at larger breakpoints with classes like `laptop:mx-0` unless the requirement explicitly asks for desktop edge-to-edge layout. Verify mobile and desktop behavior before shipping.
-- **Fix spacing consistently across sibling sections** - On page layout bugs, audit all adjacent sections (headers, modules, horizontal feeds, list feeds) and keep spacing rules consistent unless explicitly specified otherwise.
-- **Protect generated HTML from markdown regex passes** - In markdown conversion utilities, never run formatting regexes across already-generated HTML tags/attributes (for example, image `src` URLs with `_`); add regression tests for URL edge cases.
-- **Prefer component-level token swaps for one-off contrast fixes** - For isolated UI readability issues, use existing semantic color utilities in the impacted components first; avoid changing global tokens in `base.css` unless explicitly requested.
-- **Gate infinite scroll with separate `canFetchMore` and `fetchNextPage` props** - When adding infinite scroll to dropdowns or lists, never derive `canFetchMore` from the existence of a callback (e.g. `!!onScrollEnd`). Instead, pass three separate props: `fetchNextPage` (the function), `canFetchMore` (boolean from `hasNextPage`), and `isFetchingNextPage` (boolean). The scroll hook should use `canFetchMore && !isFetchingNextPage` to gate fetches. Follow the `InfiniteScrolling` component pattern in `packages/shared/src/components/containers/InfiniteScrolling.tsx`.
-- **Handle pre-selected values in paginated dropdowns** - When a dropdown uses infinite scroll and a value was previously selected (e.g. from a saved integration), that value may not be in the first page of results. Insert an artificial placeholder entry (e.g. `{ id, name: "Channel ${id}" }`) at the front of the list so the selection is visible immediately, and deduplicate by `id` once the real item is fetched during scrolling. Do not auto-fetch pages in a loop to find the selected item. Never use `findIndex(...) || 0` — it silently falls back to the first item when the value isn't found; use `?? -1` so the dropdown shows the placeholder instead.
-- **Portaled drawers must stop click propagation** - The `BaseDrawer` overlay stops click propagation so that portaled child drawers (e.g. `ListDrawer` inside a `Dropdown` inside a modal-as-drawer) don't accidentally close the parent modal via `useOutsideClick`. When adding new portaled overlays, always `stopPropagation` on the overlay and handle outside-click dismissal locally.
-- **Update text-asserting tests when copy changes** - If you rename visible labels in menus/buttons/toasts, update the impacted RTL/Jest selectors in the same PR (e.g. `findByText('...')`) to keep behavior tests aligned with intentional UX copy updates.
-- **Scope card layout constraints per variant** - When a shared card content component has `grid`/`list` variants, only apply height/scroll constraints (e.g. `min-h-0 overflow-y-auto`, `flex-1`) to the variant that lives in a height-constrained container. Grid cards sit in equal-height feed rows and must scroll inside a fixed area; list cards stack vertically with no row constraint and should fit content naturally. Don't carry grid scroll wrappers into the list variant.
-- **Keep CSS Grid feed cards from stretching their row** - In the feed grid (`grid-auto-rows: auto`), an item's intrinsic content height contributes to the row's track size even when `max-h-*` caps the visual height. To prevent a content-heavy card (e.g. the Happening Now grid card) from pushing the row taller and stretching its neighbors, wrap the card's content in an `absolute inset-0 flex flex-col` child so the content is out-of-flow, and add `min-h-card` on the Card to match the baseline used by `ArticleGrid` (`packages/shared/src/components/cards/article/ArticleGrid.tsx`).
-- **Floating actions over positioned siblings need both DOM order and z-index** - When stacking a control (e.g. a lightbox close button) over a sibling that uses `position: relative`/`absolute` (e.g. an `<img>` with `relative` for centering), do BOTH: render the floating control AFTER the content in the JSX, and give it an explicit `z-*` class (`z-1` matches the `ModalClose` default in `packages/shared/src/components/modals/common/ModalClose.tsx`). z-index alone is fragile in flex/stacking-context edge cases — pair it with DOM order so painting is unambiguous.
-- **Pick the overlay tier to match the surface, not the Modal default** - Overlay tokens come in tiers (`primary` ~64%, `secondary` ~40%, `tertiary` ~32%, `quaternary` ~24%). The standard `Modal` uses `bg-overlay-quaternary-onion`, but full-screen photo/media lightboxes need a darker tint so the image stands out — prefer a darker neutral like `bg-overlay-primary-pepper`. Don't default to `quaternary-onion` for every overlay; pick the tier and base color appropriate for the surface.
-- **CloseButton over images/media: use `ButtonVariant.Primary`, not `Float`** - `ButtonVariant.Float` paints with `--theme-surface-float` (~8% opacity surface), which is nearly invisible against a dark blurred backdrop or photo. For close buttons overlaid on image content (lightboxes, image-input previews, photo cards), use `ButtonVariant.Primary` for a solid background — this matches the existing `ImageInput.tsx` pattern (`packages/shared/src/components/fields/ImageInput.tsx`). Reserve `Float` for buttons floating over solid app backgrounds, not over content that bleeds through.
-- **Don't change a shared component's DOM for cases that don't need it** - When adding an optional feature to a shared component (e.g. a new `headerAddon` slot on `QuestSection`), do not unconditionally wrap or restructure existing markup. Tests and consumers across packages query by structure (`nextElementSibling`, `closest`, `.parentElement`) — e.g. `GameCenterStaticProps.spec.ts` asserts `getByText('Milestones').nextElementSibling` is the grid. Gate the new wrapper on the new prop so sections without it keep their original DOM, and after touching a shared component run the dependent package's tests too (`pnpm --filter webapp test`), not just `shared`.
-- **A shared quest/section change has multiple surfaces** - The quest dropdown panel (`QuestButton.tsx`) renders the same sections on both the header popover and the `/daily-quests` page (`panelOnly`), and has separate regular and Plus instances of each section. When adding per-section UI (e.g. the weekly reset countdown), apply it consistently to every relevant instance, not just the first one.
+- Conventional commit messages (`fix:`, `feat:`, `chore:`). Concise PR descriptions.
+- Before opening a PR, run `git diff --name-only origin/main...HEAD` and confirm every changed file belongs to the task.
 
 ## Node.js Version Upgrade Checklist
 
-When upgrading Node.js version, update these files:
-- `.nvmrc`
-- `Dockerfile`
-- `.github/workflows/e2e-tests.yml`
-- `.circleci/config.yml` (multiple occurrences)
-- `packages/playwright/package.json` (engines field)
-- This file (`CLAUDE.md` - Technology Stack section)
+Update: `.nvmrc`, `Dockerfile`, `.github/workflows/e2e-tests.yml`, `.circleci/config.yml` (multiple spots), `packages/playwright/package.json` engines, and this file. Then `pnpm install` and commit lockfile changes.
 
-After updating, run `pnpm install` to check if lock file needs updating and commit any changes.
+## Package-Specific Guides
+
+- `packages/shared/AGENTS.md` (+ `src/components|hooks|contexts|graphql|features/AGENTS.md`, `tailwind/AGENTS.md`)
+- `packages/webapp/AGENTS.md`
+- `packages/extension/AGENTS.md`
+- `packages/storybook/AGENTS.md`
+- `packages/playwright/AGENTS.md`

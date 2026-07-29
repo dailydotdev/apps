@@ -15,7 +15,9 @@ export const ProfileMobileBackButton = ({
     return null;
   }
 
-  return <GoBackButton showLogo={false} className={className} />;
+  return (
+    <GoBackButton showLogo={false} fallbackPath="/" className={className} />
+  );
 };
 
 export const ProfileDesktopPwaBackButton = ({
@@ -35,6 +37,7 @@ export const ProfileDesktopPwaBackButton = ({
   return (
     <GoBackButton
       showLogo={false}
+      fallbackPath="/"
       className={classNames('hidden laptop:flex', className)}
     />
   );

@@ -460,6 +460,44 @@ export const SHARED_POST_INFO_FRAGMENT = gql`
     }
     numPollVotes
     endsAt
+    communitySentiment {
+      breakdown {
+        positive
+        mixed
+        critical
+      }
+      tldr
+      postCount
+      sources
+      pros
+      cons
+      bySource {
+        source
+        lean
+        note
+        url
+      }
+      hottestDebate
+      openQuestions
+      highlights {
+        quote
+        author
+        source
+        url
+        metrics {
+          points
+          replies
+          likes
+        }
+      }
+      discussions {
+        provider
+        url
+        points
+        commentsCount
+      }
+      updatedAt
+    }
   }
   ${PRIVILEGED_MEMBERS_FRAGMENT}
   ${SOURCE_BASE_FRAGMENT}
@@ -556,6 +594,7 @@ export const USER_STREAK_FRAGMENT = gql`
     current
     lastViewAt
     weekStart
+    freezesAvailable
   }
 `;
 
@@ -658,7 +697,10 @@ export const FEED_POST_FRAGMENT = gql`
       }
       author {
         id
+        name
+        image
         username
+        permalink
       }
       slug
       clickbaitTitleDetected
@@ -670,8 +712,15 @@ export const FEED_POST_FRAGMENT = gql`
     trending
     feedMeta
     collectionSources {
+      # Only the fields the stacked avatars render. The hover card's rich data
+      # (description, followers, upvotes) is fetched lazily on hover via
+      # getSourceTooltip, so the feed request stays lean.
+      id
       handle
+      name
       image
+      permalink
+      type
     }
     numCollectionSources
     updatedAt

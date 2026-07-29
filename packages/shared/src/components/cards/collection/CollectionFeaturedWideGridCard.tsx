@@ -94,7 +94,6 @@ export const CollectionFeaturedWideGridCard = forwardRef(
                   wasUpdated ? TimeFormatType.PostUpdated : TimeFormatType.Post
                 }
                 readTime={post.readTime}
-                numSources={post.numCollectionSources}
                 className="mt-1"
               />
               {!!post.summary && (

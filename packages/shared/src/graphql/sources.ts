@@ -139,6 +139,31 @@ export const SOURCE_QUERY = gql`
   ${SOURCE_DIRECTORY_INFO_FRAGMENT}
 `;
 
+// Fetched lazily when a source hover card opens, so the feed stays lean.
+// membersCount/flags resolve here (unlike in the feed's collectionSources,
+// where the membersCount resolver throws for Machine sources).
+export const SOURCE_TOOLTIP_QUERY = gql`
+  query SourceTooltip($id: ID!) {
+    source(id: $id) {
+      ...SourceDirectoryInfo
+      type
+      membersCount
+      flags {
+        totalUpvotes
+      }
+    }
+  }
+  ${SOURCE_DIRECTORY_INFO_FRAGMENT}
+`;
+
+export const getSourceTooltip = async (
+  id: string,
+): Promise<SourceTooltip | null> => {
+  const res = await gqlClient.request<SourceData>(SOURCE_TOOLTIP_QUERY, { id });
+
+  return (res.source as SourceTooltip) ?? null;
+};
+
 export const SOURCE_DIRECTORY_QUERY = gql`
   query SourceDirectory {
     trendingSources {

@@ -172,4 +172,31 @@ describe('markdownConversion', () => {
 
     expect(markdown).toBe('__EMPTY_PARAGRAPH__\n\nnext');
   });
+
+  it('should render video markdown as a video element', () => {
+    const html = markdownToHtmlBasic(
+      '![Bar chart race](https://daily-now-res.cloudinary.com/video/upload/v1/race.webm)',
+    );
+
+    expect(html).toBe(
+      '<video src="https://daily-now-res.cloudinary.com/video/upload/v1/race.webm" controls preload="metadata" aria-label="Bar chart race"><source src="https://daily-now-res.cloudinary.com/video/upload/v1/race.webm" type="video/webm" /></video>',
+    );
+  });
+
+  it('should keep video in markdown round-trip', () => {
+    const initialMarkdown =
+      '![Bar chart race](https://daily-now-res.cloudinary.com/video/upload/v1/race.webm)';
+    const html = markdownToHtmlBasic(initialMarkdown);
+    const markdown = htmlToMarkdownBasic(html);
+
+    expect(markdown).toBe(initialMarkdown);
+  });
+
+  it('should keep serializing videos rendered without a source child', () => {
+    const markdown = htmlToMarkdownBasic(
+      '<video src="https://daily.dev/clip.mp4" controls aria-label="Clip"></video>',
+    );
+
+    expect(markdown).toBe('![Clip](https://daily.dev/clip.mp4)');
+  });
 });

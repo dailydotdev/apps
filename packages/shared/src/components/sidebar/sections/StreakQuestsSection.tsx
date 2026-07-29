@@ -7,6 +7,7 @@ import { webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useStreakRingState } from '../../../hooks/streaks/useStreakRingState';
 import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
+import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../quest/CompactQuestList';
 import { HorizontalSeparator } from '../../utilities';
 import Link from '../../utilities/Link';
@@ -104,6 +105,10 @@ export const StreakQuestsSection = (): ReactElement => {
             </div>
             <StreakMonthCalendar streak={streak} />
           </div>
+          {/* Streak-freeze balance + purchase entry (same self-gated row the
+              streak popup shows) so v2 users keep the freeze feature in their
+              streak surface. Renders null when the feature is off. */}
+          <StreakFreezeRow />
           <HorizontalSeparator className="mx-3 w-auto shrink-0" />
         </>
       )}

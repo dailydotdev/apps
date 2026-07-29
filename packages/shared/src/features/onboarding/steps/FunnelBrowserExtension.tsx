@@ -1,12 +1,16 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import type { FunnelStepBrowserExtension } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useOnboardingExtension } from '../../../components/onboarding/Extension/useOnboardingExtension';
 import { BrowserName } from '../../../lib/func';
-import { cloudinaryOnboardingExtension } from '../../../lib/image';
+import { cloudinaryOnboardingExtensionVideo } from '../../../lib/image';
+import {
+  ThemeMode,
+  useSettingsContext,
+} from '../../../contexts/SettingsContext';
 import {
   Typography,
   TypographyColor,
@@ -41,29 +45,36 @@ const BrowserExtension = ({
     cta = BROWSER_EXTENSION_DEFAULTS.cta,
     skip = BROWSER_EXTENSION_DEFAULTS.skip,
     showReviews: showReviewsParam = BROWSER_EXTENSION_DEFAULTS.showReviews,
-    image,
+    video = cloudinaryOnboardingExtensionVideo,
   },
   onTransition,
 }: FunnelStepBrowserExtension): ReactElement => {
   const { logEvent } = useLogContext();
   const { browserName } = useOnboardingExtension();
+  const { applyThemeMode } = useSettingsContext();
   const isEdge = browserName === BrowserName.Edge;
   const browserLabel = isEdge ? 'Edge' : 'Chrome';
   const ctaText = cta.replace('{browser}', browserLabel);
-  const imageOverride = isEdge ? image?.edge : image?.chrome;
-  const imageUrls =
-    imageOverride ??
-    cloudinaryOnboardingExtension[
-      browserName as keyof typeof cloudinaryOnboardingExtension
-    ];
   const showReviews = showReviewsParam && !isEdge;
 
+  // The step is designed for a dark surface (dark funnel gradient, dark
+  // footage). FunnelStepBackground tries to force that with an `invert` class,
+  // but Tailwind's invert core plugin is disabled repo-wide, so in light mode
+  // the copy kept its light-theme colors and turned unreadable. Apply the dark
+  // theme for as long as the step is mounted, like the hero step does.
+  useEffect(() => {
+    applyThemeMode(ThemeMode.Dark);
+
+    return () => applyThemeMode();
+  }, [applyThemeMode]);
+
   return (
-    <div className="mt-10 flex flex-1 flex-col laptop:justify-between">
-      <div className="mb-14 flex flex-col items-center gap-6 justify-self-start text-center">
+    <div className="mt-10 flex flex-1 flex-col laptop:justify-center">
+      <div className="mb-10 flex flex-col items-center gap-6 justify-self-start text-center">
         <Typography
           tag={TypographyTag.H1}
           type={TypographyType.LargeTitle}
+          color={TypographyColor.Primary}
           bold
           className="!px-0"
           dangerouslySetInnerHTML={{
@@ -121,14 +132,17 @@ const BrowserExtension = ({
           }}
         />
       </div>
-      <figure className="pointer-events-none mx-auto w-full laptopL:w-2/3">
-        <img
-          alt="Amazing daily.dev extension screenshot"
-          className="w-full"
-          loading="lazy"
-          role="presentation"
-          src={imageUrls.default}
-          srcSet={`${imageUrls.default} 820w, ${imageUrls.retina} 1640w`}
+      <figure className="pointer-events-none mx-auto mb-10 w-full max-w-[48rem] px-4 laptop:px-6">
+        <video
+          aria-label="daily.dev feed running in a new tab on a laptop"
+          autoPlay
+          className="aspect-video w-full rounded-16 border border-border-subtlest-quaternary bg-background-subtle object-cover shadow-2"
+          controls={false}
+          disablePictureInPicture
+          loop
+          muted
+          playsInline
+          src={video}
         />
       </figure>
     </div>

@@ -74,6 +74,8 @@ export enum NotificationType {
   PostBookmarkReminder = 'post_bookmark_reminder',
   StreakReminder = 'streak_reminder',
   StreakResetRestore = 'streak_reset_restore',
+  StreakFreezeUsed = 'streak_freeze_used',
+  StreakFreezeDepleted = 'streak_freeze_depleted',
   SourcePostApproved = 'source_post_approved',
   DevCardUnlocked = 'dev_card_unlocked',
   PostMention = 'post_mention',
@@ -300,6 +302,8 @@ export const MENTION_KEYS = [
 export const STREAK_KEYS = [
   NotificationType.StreakReminder,
   NotificationType.StreakResetRestore,
+  NotificationType.StreakFreezeUsed,
+  NotificationType.StreakFreezeDepleted,
 ];
 export const SQUAD_ROLE_KEYS = [
   NotificationType.PromotedToAdmin,
@@ -416,6 +420,8 @@ export const notificationCategoryToTypes: Record<
     NotificationType.DigestReady,
     NotificationType.StreakReminder,
     NotificationType.StreakResetRestore,
+    NotificationType.StreakFreezeUsed,
+    NotificationType.StreakFreezeDepleted,
     NotificationType.Marketing,
     NotificationType.Announcements,
     NotificationType.NewUserWelcome,
@@ -642,6 +648,16 @@ export const STREAK_NOTIFICATIONS: NotificationItem[] = [
   {
     id: NotificationType.StreakResetRestore,
     label: 'Restore broken streak',
+    group: false,
+  },
+  {
+    id: NotificationType.StreakFreezeUsed,
+    label: 'Streak freeze used',
+    group: false,
+  },
+  {
+    id: NotificationType.StreakFreezeDepleted,
+    label: 'Out of streak freezes',
     group: false,
   },
 ];

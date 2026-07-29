@@ -13,4 +13,3 @@ export { FunnelPlusCards } from './FunnelPlusCards';
 export { FunnelOrganicCheckout } from './FunnelOrganicCheckout';
 export { FunnelBrowserExtension } from './FunnelBrowserExtension';
 export { FunnelUploadCv } from './FunnelUploadCv';
-export { FunnelPersonaQuiz } from './FunnelPersonaQuiz';

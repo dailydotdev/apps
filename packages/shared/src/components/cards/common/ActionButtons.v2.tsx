@@ -5,12 +5,13 @@ import type { Post } from '../../../graphql/posts';
 import { CardAction } from '../../buttons/CardAction';
 import { CardActionBar } from '../../buttons/CardActionBar';
 import {
+  AnalyticsIcon,
   DiscussIcon as CommentIcon,
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor } from '../../buttons/ButtonV2';
-import { useFeedPreviewMode } from '../../../hooks';
+import { useFeedPreviewMode, useViewSize, ViewSize } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons/BookmarkButton.v2';
 import { Tooltip } from '../../tooltip/Tooltip';
@@ -20,6 +21,8 @@ import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
+import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
+import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
 
 export type ActionButtonsVariant = 'grid' | 'list' | 'signal';
 
@@ -70,6 +73,9 @@ const ActionButtons = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
+  // When impressions are enabled, awards are hidden below laptop (tablet +
+  // mobile) to make room for the extra action.
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
@@ -104,6 +110,13 @@ const ActionButtons = ({
       brandLogo: animationResult.brandLogo,
     };
   }, [getUpvoteAnimation, post.tags]);
+
+  const onImpressionsClick = usePostImpressionsModal(post);
+  const {
+    enabled: impressionsEnabled,
+    showImpressions,
+    impressions,
+  } = usePostImpressions(post);
 
   if (isFeedPreview) {
     return null;
@@ -175,6 +188,7 @@ const ActionButtons = ({
             buttonClassName="pointer-events-auto"
           />
         </Tooltip>
+        {commentButton}
         {showDownvoteAction && (
           <Tooltip
             content={isDownvoteActive ? 'Remove downvote' : 'Downvote'}
@@ -193,8 +207,7 @@ const ActionButtons = ({
             />
           </Tooltip>
         )}
-        {commentButton}
-        {showAwardAction && (
+        {showAwardAction && (!impressionsEnabled || isLaptop) && (
           <PostAwardAction post={post} density={FEED_CARD_DENSITY} />
         )}
         <BookmarkButton
@@ -223,6 +236,25 @@ const ActionButtons = ({
             )}
           />
         </Tooltip>
+        {showImpressions && (
+          <Tooltip
+            content="Impressions"
+            side={variant === 'grid' ? 'bottom' : undefined}
+          >
+            <CardAction
+              id={`post-${post.id}-impressions-btn`}
+              density={FEED_CARD_DENSITY}
+              icon={<AnalyticsIcon />}
+              label="Impressions"
+              count={impressions}
+              onClick={onImpressionsClick}
+              color={ButtonColor.Cheese}
+              buttonClassName={classNames(
+                variant === 'list' && 'pointer-events-auto',
+              )}
+            />
+          </Tooltip>
+        )}
       </CardActionBar>
     </div>
   );

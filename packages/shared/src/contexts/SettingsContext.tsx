@@ -52,6 +52,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleSidebarExpanded: () => Promise<void>;
   toggleSortingEnabled: () => Promise<void>;
   toggleOptOutReadingStreak: () => Promise<void>;
+  toggleOptOutStreakFreeze: () => Promise<void>;
   toggleOptOutLevelSystem: () => Promise<void>;
   toggleOptOutQuestSystem: () => Promise<void>;
   toggleOptOutAchievements: () => Promise<void>;
@@ -136,6 +137,7 @@ const defaultSettings: RemoteSettings = {
   companionExpanded: false,
   sortingEnabled: false,
   optOutReadingStreak: false,
+  optOutStreakFreeze: false,
   optOutLevelSystem: false,
   optOutQuestSystem: false,
   optOutAchievements: false,
@@ -270,6 +272,11 @@ export const SettingsContextProvider = ({
           optOutReadingStreak: !settings.optOutReadingStreak,
         });
       },
+      toggleOptOutStreakFreeze: () =>
+        setSettings({
+          ...settings,
+          optOutStreakFreeze: !settings.optOutStreakFreeze,
+        }),
       toggleOptOutLevelSystem: () =>
         setSettings({
           ...settings,

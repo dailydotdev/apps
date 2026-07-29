@@ -94,6 +94,7 @@ export const sayThanksForAward = async ({
 
 export enum ProductType {
   Award = 'award',
+  StreakFreeze = 'streak_freeze',
 }
 
 export type Product = {

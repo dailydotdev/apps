@@ -14,6 +14,13 @@ import {
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { BootApp } from '../../lib/boot';
 import { GrowthBookProvider } from '../../components/GrowthBookProvider';
+import { useOnboardingActions } from '../auth/useOnboardingActions';
+
+jest.mock('../auth/useOnboardingActions', () => ({
+  useOnboardingActions: jest.fn(),
+}));
+
+const mockUseOnboardingActions = useOnboardingActions as jest.Mock;
 
 const client = new QueryClient();
 const noop = jest.fn();
@@ -82,6 +89,7 @@ const feeds = [
 describe('useFeeds hook', () => {
   beforeEach(() => {
     client.clear();
+    mockUseOnboardingActions.mockReturnValue({ isOnboardingComplete: true });
 
     mockGraphQL({
       request: {
@@ -250,5 +258,35 @@ describe('useFeeds hook', () => {
     expect(
       result.current.feeds!.edges.find((f) => f.node.id === 'cf1'),
     ).toBeFalsy();
+  });
+
+  it('should not request tag chip feeds until onboarding is complete', async () => {
+    mockUseOnboardingActions.mockReturnValue({ isOnboardingComplete: false });
+
+    let withoutChipsCalled = false;
+    mockGraphQL({
+      request: {
+        query: FEED_LIST_QUERY,
+        variables: {
+          includeTagChipFeeds: false,
+        },
+      },
+      result: () => {
+        withoutChipsCalled = true;
+
+        return {
+          data: {
+            feedList: {
+              pageInfo: { endCursor: expect.any(String), hasNextPage: false },
+              edges: feeds,
+            },
+          },
+        };
+      },
+    });
+
+    renderHook(() => useFeeds(), { wrapper: Wrapper });
+
+    await waitFor(() => expect(withoutChipsCalled).toBe(true));
   });
 });

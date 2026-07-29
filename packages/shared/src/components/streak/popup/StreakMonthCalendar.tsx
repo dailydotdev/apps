@@ -9,6 +9,7 @@ import type { UserStreak } from '../../../graphql/users';
 import {
   getStreak,
   useReadingStreak30Days,
+  useStreakFreezeDates,
 } from '../../../hooks/streaks/useStreakDays';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { DEFAULT_TIMEZONE, isSameDayInTimezone } from '../../../lib/timezones';
@@ -30,6 +31,7 @@ export const StreakMonthCalendar = ({
   const { user } = useAuthContext();
   const timezone = user?.timezone ?? DEFAULT_TIMEZONE;
   const history = useReadingStreak30Days();
+  const freezeDates = useStreakFreezeDates();
 
   const days = useMemo(() => {
     const today = new Date();
@@ -44,17 +46,21 @@ export const StreakMonthCalendar = ({
           history,
           startOfWeek: streak?.weekStart,
           timezone,
+          freezeDates,
         }),
         isToday: isSameDayInTimezone(date, today, timezone),
       };
     });
-  }, [history, streak?.weekStart, timezone]);
+  }, [history, streak?.weekStart, timezone, freezeDates]);
 
   return (
     <div className="grid grid-cols-10 gap-x-2 gap-y-2.5">
       {days.map(({ date, state, isToday }) => {
         const isRead = state === Streak.Completed;
-        const isFreeze = state === Streak.Freeze;
+        // A consumed streak freeze shares the weekend-freeze dashed pattern —
+        // same mapping as DayStreak, which draws both states identically.
+        const isFreeze =
+          state === Streak.Freeze || state === Streak.UsedFreeze;
         // Every cell is the same size-4 circle. A read day is the solid pink
         // disc (the secondary flame glyph fills its whole box), so its border is
         // dropped and the glyph is sized to the cell — otherwise the icon's

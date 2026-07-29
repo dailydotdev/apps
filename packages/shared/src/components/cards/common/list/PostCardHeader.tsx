@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import dynamic from 'next/dynamic';
 import { CardHeader } from './ListCard';
 import { ReadArticleButton } from '../ReadArticleButton';
 import { getGroupedHoverContainer } from '../common';
@@ -14,20 +13,8 @@ import PostMetadata from './PostMetadata';
 import { OpenLinkIcon } from '../../../icons';
 import { useReadPostButtonText } from './hooks';
 import { BookmakProviderHeader } from './BookmarkProviderHeader';
-import { ProfileImageSize } from '../../../ProfilePicture';
-import { ProfileImageLink } from '../../../profile/ProfileImageLink';
-import type { UserShortProfile } from '../../../../lib/user';
 import { PostOptionButton } from '../../../../features/posts/PostOptionButton';
-import { isSourceUserSource } from '../../../../graphql/sources';
-
-const HoverCard = dynamic(
-  /* webpackChunkName: "hoverCard" */ () => import('../HoverCard'),
-);
-
-const UserEntityCard = dynamic(
-  /* webpackChunkName: "userEntityCard" */ () =>
-    import('../../entity/UserEntityCard'),
-);
+import { AuthorSourceStack } from '../AuthorSourceStack';
 
 interface CardHeaderProps {
   post: Post;
@@ -71,7 +58,6 @@ export const PostCardHeader = ({
   });
 
   const isCollectionType = post.type === 'collection';
-  const isUserSource = isSourceUserSource(post.source);
   const showCTA =
     !isFeedPreview &&
     ([PostType.Article, PostType.VideoYouTube].includes(post.type) ||
@@ -82,26 +68,16 @@ export const PostCardHeader = ({
     <>
       {highlightBookmarkedPost && <BookmakProviderHeader className="mb-4" />}
       <CardHeader className={className}>
-        {children}
-        {!!post?.author && (
-          <HoverCard
-            align="start"
-            side="bottom"
-            sideOffset={10}
-            trigger={
-              <ProfileImageLink
-                className={classNames('z-1', !!children && 'ml-2')}
-                picture={{
-                  size: isUserSource
-                    ? ProfileImageSize.Large
-                    : ProfileImageSize.Medium,
-                }}
-                user={post.author}
-              />
-            }
-          >
-            <UserEntityCard user={post.author as UserShortProfile} />
-          </HoverCard>
+        {post?.author && !isCollectionType ? (
+          // Author present (freeform/share/squad): show the author + source as
+          // an overlapping stack — author in front on the left, source behind
+          // on the right — expanded on mobile, matching the collection source
+          // stack. Collection cards keep their own source-stack children (even
+          // if a collection ever has an author), and article cards keep their
+          // single source.
+          <AuthorSourceStack author={post.author} source={post.source} />
+        ) : (
+          children
         )}
         <PostMetadata
           className={classNames(

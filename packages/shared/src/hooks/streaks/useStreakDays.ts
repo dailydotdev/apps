@@ -5,6 +5,10 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import type { ReadingDay } from '../../graphql/users';
 import { getReadingStreak30Days } from '../../graphql/users';
+import { userStreakFreezeDatesQueryOptions } from '../../graphql/streakFreeze';
+import { useHasAccessToCores } from '../useCoresFeature';
+import { useConditionalFeature } from '../useConditionalFeature';
+import { featureStreakFreeze } from '../../lib/featureManagement';
 import { DayOfWeek, isWeekend } from '../../lib/date';
 import { isSameDayInTimezone } from '../../lib/timezones';
 
@@ -17,14 +21,19 @@ export const getStreak = ({
   history,
   startOfWeek = DayOfWeek.Monday,
   timezone,
+  freezeDates,
 }: {
   value: Date;
   today: Date;
   history?: ReadingDay[];
   startOfWeek?: number;
   timezone?: string;
+  freezeDates?: string[];
 }): Streak => {
   const isFreezeDay = isWeekend(value, startOfWeek, timezone);
+  const isUsedFreezeDay = freezeDates?.some((freezeDate) =>
+    isSameDayInTimezone(new Date(freezeDate), value, timezone),
+  );
   const isToday = isSameDayInTimezone(value, today, timezone);
   const isFuture = value > today;
   const isCompleted =
@@ -38,6 +47,12 @@ export const getStreak = ({
 
   if (isCompleted) {
     return Streak.Completed;
+  }
+
+  // Consumed freezes are their own auto-applied purchase, distinct from the
+  // always-on weekend rest day below (different tooltip copy).
+  if (isUsedFreezeDay) {
+    return Streak.UsedFreeze;
   }
 
   if (isFreezeDay) {
@@ -74,5 +89,22 @@ export const useReadingStreak30Days = (): ReadingDay[] | undefined => {
     queryFn: () => getReadingStreak30Days(userId ?? ''),
     staleTime: StaleTime.Default,
     enabled: !!userId,
+  }).data;
+};
+
+// The days a purchased streak freeze was auto-applied, gated on Cores access +
+// the streak_freeze feature (undefined while gated/loading). Shared by the
+// streak popup and the v2 sidebar calendar so both mark used-freeze days the
+// same way without duplicating the gating.
+export const useStreakFreezeDates = (): string[] | undefined => {
+  const { user } = useAuthContext();
+  const hasAccessToCores = useHasAccessToCores();
+  const { value: isStreakFreezeEnabled } = useConditionalFeature({
+    feature: featureStreakFreeze,
+    shouldEvaluate: hasAccessToCores,
+  });
+  return useQuery({
+    ...userStreakFreezeDatesQueryOptions({ user }),
+    enabled: !!user?.id && hasAccessToCores && isStreakFreezeEnabled,
   }).data;
 };

@@ -1,3 +1,4 @@
+import type { NextSeoProps } from 'next-seo';
 import type { ReactElement } from 'react';
 import React from 'react';
 import EmailCodeVerification from '@dailydotdev/shared/src/components/auth/EmailCodeVerification';
@@ -14,6 +15,9 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { noindexSeoProps } from '../next-seo';
+
+const seo: NextSeoProps = { ...noindexSeoProps };
 
 const Verification = (): ReactElement | null => {
   const router = useRouter();
@@ -77,5 +81,7 @@ const Verification = (): ReactElement | null => {
     </AuthDataProvider>
   );
 };
+
+Verification.layoutProps = { seo };
 
 export default Verification;

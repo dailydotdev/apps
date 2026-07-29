@@ -172,6 +172,8 @@ const renderComponent = (
     companionExpanded: false,
     sortingEnabled: false,
     optOutReadingStreak: false,
+    optOutStreakFreeze: false,
+    toggleOptOutStreakFreeze: jest.fn().mockResolvedValue(undefined),
     optOutLevelSystem: false,
     optOutQuestSystem: false,
     optOutAchievements: false,
