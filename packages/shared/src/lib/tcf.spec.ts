@@ -16,8 +16,8 @@ describe('tcf store', () => {
   };
 
   beforeEach(() => {
-    localStorage.clear();
     tcfListener = undefined;
+    document.cookie = 'euconsent-v2=;expires=Thu, 01 Jan 1970 00:00:00 GMT';
     (globalThis.window as { __tcfapi?: unknown }).__tcfapi = (
       command: string,
       version: number,
@@ -31,7 +31,7 @@ describe('tcf store', () => {
     delete (globalThis.window as { __tcfapi?: unknown }).__tcfapi;
   });
 
-  it('updates the snapshot and mirrors the tc string on user action', async () => {
+  it('updates the snapshot and notifies listeners on user action', async () => {
     const store = await loadStore();
     const listener = jest.fn();
     store.subscribeTcf(listener);
@@ -51,7 +51,6 @@ describe('tcf store', () => {
       tcString: 'tc-string',
       addtlConsent: '1~1.2',
     });
-    expect(store.getStoredTcString()).toBe('tc-string');
     expect(listener).toHaveBeenCalled();
   });
 
@@ -62,23 +61,6 @@ describe('tcf store', () => {
     tcfListener?.({ eventStatus: 'cmpuishown', tcString: 'y' }, true);
 
     expect(store.getTcfSnapshot()).toBeUndefined();
-    expect(store.getStoredTcString()).toBeUndefined();
-  });
-
-  it('clears the stored tc string when consent is withdrawn to empty', async () => {
-    const store = await loadStore();
-
-    tcfListener?.(
-      { eventStatus: 'useractioncomplete', tcString: 'tc-string' },
-      true,
-    );
-    tcfListener?.(
-      { eventStatus: 'useractioncomplete', gdprApplies: true },
-      true,
-    );
-
-    expect(store.getStoredTcString()).toBeUndefined();
-    expect(store.getTcfSnapshot()?.tcString).toBeUndefined();
   });
 
   it('does not subscribe when __tcfapi is absent', async () => {
@@ -87,5 +69,14 @@ describe('tcf store', () => {
 
     expect(tcfListener).toBeUndefined();
     expect(store.getTcfSnapshot()).toBeUndefined();
+  });
+
+  it('reads the stored tc string from the CMP euconsent-v2 cookie', async () => {
+    const store = await loadStore();
+
+    expect(store.getStoredTcString()).toBeUndefined();
+
+    document.cookie = 'euconsent-v2=CQoHJkAQoHJkAAfG';
+    expect(store.getStoredTcString()).toBe('CQoHJkAQoHJkAAfG');
   });
 });

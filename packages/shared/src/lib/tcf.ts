@@ -1,11 +1,14 @@
 /* eslint-disable no-underscore-dangle -- __tcfapi is the IAB-mandated global */
 /**
  * Minimal store over the IAB TCF v2 API (`__tcfapi`) exposed by the CMP
- * (iubenda). Keeps the latest consent snapshot for synchronous consumers (ad
- * macros, ad requests) and mirrors the TC string into localStorage so the
- * next boot request can send it — the CMP script loads after boot fires.
- * No-op wherever `__tcfapi` is absent (extension, SSR, CMP disabled).
+ * (iubenda). Keeps the latest consent snapshot in memory for synchronous
+ * consumers (ad macros, ad requests). Persistence stays with the CMP: it
+ * stores the TC string in the IAB-conventional `euconsent-v2` cookie, which
+ * `getStoredTcString` reads for the boot request (boot fires before the CMP
+ * script loads, so the live API is never available then). No-op wherever
+ * `__tcfapi` is absent (extension, SSR, CMP disabled).
  */
+import { getCookies } from './cookie';
 
 export type TcfConsent = {
   gdprApplies?: boolean;
@@ -30,7 +33,7 @@ declare global {
   }
 }
 
-export const TCF_STORAGE_KEY = 'dd:tcf';
+const TCF_COOKIE = 'euconsent-v2';
 
 let snapshot: TcfConsent | undefined;
 let subscribed = false;
@@ -49,16 +52,6 @@ const onTcData = (tcData: TcData, success: boolean): void => {
     tcString: tcData.tcString,
     addtlConsent: tcData.addtlConsent,
   };
-
-  try {
-    if (snapshot.tcString) {
-      globalThis?.localStorage?.setItem(TCF_STORAGE_KEY, snapshot.tcString);
-    } else {
-      globalThis?.localStorage?.removeItem(TCF_STORAGE_KEY);
-    }
-  } catch {
-    // storage unavailable (quota/private mode): the boot header is skipped
-  }
 
   listeners.forEach((listener) => listener());
 };
@@ -79,10 +72,5 @@ export const subscribeTcf = (callback: () => void): (() => void) => {
 
 export const getTcfSnapshot = (): TcfConsent | undefined => snapshot;
 
-export const getStoredTcString = (): string | undefined => {
-  try {
-    return globalThis?.localStorage?.getItem(TCF_STORAGE_KEY) || undefined;
-  } catch {
-    return undefined;
-  }
-};
+export const getStoredTcString = (): string | undefined =>
+  getCookies([TCF_COOKIE])?.[TCF_COOKIE] || undefined;

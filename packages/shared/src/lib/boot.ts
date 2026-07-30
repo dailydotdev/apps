@@ -163,8 +163,9 @@ export async function getBootData({
   pathname,
 }: GetBootDataParams): Promise<Boot> {
   const bootURL = getBootURL(app, url, pathname);
-  // Stored by the CMP's TCF listener on a previous page view — the CMP script
-  // loads after boot fires, so the live __tcfapi is never available here.
+  // Persisted by the CMP in the euconsent-v2 cookie on a previous page view —
+  // the CMP script loads after boot fires, so the live __tcfapi is never
+  // available here.
   const tcString = getStoredTcString();
   const res = await fetch(bootURL, {
     method: 'GET',
