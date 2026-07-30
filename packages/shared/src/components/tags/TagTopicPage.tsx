@@ -57,6 +57,8 @@ import { EngagementPlacement } from '../../lib/engagementAds';
 import UserEntityCard from '../cards/entity/UserEntityCard';
 import SourceEntityCard from '../cards/entity/SourceEntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
+import { EntitySectionHeading } from '../entity/EntitySectionHeading';
+import { EntityRailWithFade } from '../entity/EntityRailWithFade';
 import { TagPageNavbar } from './TagPageNavbar';
 import { PublicPageSignupBanner } from '../auth/PublicPageSignupBanner';
 import { largeNumberFormat } from '../../lib/numberFormat';
@@ -85,34 +87,6 @@ export interface TagTopicPageProps {
   topContributors: UserShortProfile[];
   jsonLd?: string | null;
 }
-
-const SectionHeading = ({
-  children,
-}: {
-  children: ReactNode;
-}): ReactElement => (
-  <Typography
-    tag={TypographyTag.H2}
-    type={TypographyType.Title3}
-    color={TypographyColor.Primary}
-    bold
-    className="mb-4 mt-2"
-  >
-    {children}
-  </Typography>
-);
-
-// Wraps a horizontal post rail with a right-edge gradient so the last card
-// blends into the background instead of being hard-cut by the scroll overflow.
-const RailWithFade = ({ children }: { children: ReactNode }): ReactElement => (
-  <div className="relative mb-10">
-    {children}
-    <div
-      aria-hidden
-      className="pointer-events-none absolute bottom-0 right-0 top-11 w-12 bg-gradient-to-r from-transparent to-background-default"
-    />
-  </div>
-);
 
 // Render the user/source cards in the same grid the post feed uses (same
 // column count + card width) so every card on the page lines up identically.
@@ -148,7 +122,13 @@ const EntityGridSkeleton = (): ReactElement => (
   </EntityFeedGrid>
 );
 
-const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
+const TagTopSources = ({
+  tag,
+  title,
+}: {
+  tag: string;
+  title: string;
+}): ReactElement | null => {
   const { data: topSources, isPending } = useQuery({
     queryKey: [RequestKey.SourceByTag, null, tag],
     queryFn: async () =>
@@ -168,7 +148,7 @@ const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
 
   return (
     <section className="mb-10">
-      <SectionHeading>Top sources covering it</SectionHeading>
+      <EntitySectionHeading>Top sources covering {title}</EntitySectionHeading>
       {isPending ? (
         <EntityGridSkeleton />
       ) : (
@@ -188,9 +168,11 @@ const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
 
 const WhoToFollow = ({
   tag,
+  title,
   initialUsers = [],
 }: {
   tag: string;
+  title: string;
   initialUsers?: UserShortProfile[];
 }): ReactElement | null => {
   const { data: topContributors, isPending } = useQuery({
@@ -213,7 +195,7 @@ const WhoToFollow = ({
 
   return (
     <section className="mb-10">
-      <SectionHeading>Who to follow</SectionHeading>
+      <EntitySectionHeading>Who to follow for {title}</EntitySectionHeading>
       {isLoading ? (
         <EntityGridSkeleton />
       ) : (
@@ -480,7 +462,7 @@ export const TagTopicPage = ({
 
           {showRoadmap && initialData?.flags?.roadmap && (
             <section className="mb-10">
-              <SectionHeading>Roadmaps</SectionHeading>
+              <EntitySectionHeading>Roadmaps</EntitySectionHeading>
               <Link href={initialData.flags.roadmap} passHref prefetch={false}>
                 <a
                   target="_blank"
@@ -510,11 +492,13 @@ export const TagTopicPage = ({
             </section>
           )}
 
-          {/* Recommended stories */}
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsTopPosts }}
           >
-            <RailWithFade>
+            <EntitySectionHeading>
+              Recommended {title} stories
+            </EntitySectionHeading>
+            <EntityRailWithFade>
               <HorizontalFeed
                 feedName={OtherFeedPage.TagsTopPosts}
                 feedQueryKey={[
@@ -524,20 +508,24 @@ export const TagTopicPage = ({
                 ]}
                 query={TAG_FEED_QUERY}
                 variables={topPostsQueryVariables}
-                title={{ copy: 'Recommended stories' }}
                 className="!mx-0 !mb-0"
                 emptyScreen={<></>}
               />
-            </RailWithFade>
+            </EntityRailWithFade>
           </ActiveFeedNameContext.Provider>
 
-          <WhoToFollow tag={tag} initialUsers={topContributors} />
-          <TagTopSources tag={tag} />
+          <WhoToFollow tag={tag} title={title} initialUsers={topContributors} />
+          <TagTopSources tag={tag} title={title} />
 
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
           >
-            <RailWithFade>
+            <EntitySectionHeading
+              icon={<UpvoteIcon size={IconSize.Medium} className="shrink-0" />}
+            >
+              Most upvoted {title} posts
+            </EntitySectionHeading>
+            <EntityRailWithFade>
               <HorizontalFeed
                 feedName={OtherFeedPage.TagsMostUpvoted}
                 feedQueryKey={[
@@ -547,21 +535,20 @@ export const TagTopicPage = ({
                 ]}
                 query={MOST_UPVOTED_FEED_QUERY}
                 variables={mostUpvotedQueryVariables}
-                title={{
-                  copy: 'Most upvoted posts',
-                  icon: (
-                    <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />
-                  ),
-                }}
                 className="!mx-0 !mb-0"
                 emptyScreen={<></>}
               />
-            </RailWithFade>
+            </EntityRailWithFade>
           </ActiveFeedNameContext.Provider>
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsBestDiscussed }}
           >
-            <RailWithFade>
+            <EntitySectionHeading
+              icon={<DiscussIcon size={IconSize.Medium} className="shrink-0" />}
+            >
+              Best discussed {title} posts
+            </EntitySectionHeading>
+            <EntityRailWithFade>
               <HorizontalFeed
                 feedName={OtherFeedPage.TagsBestDiscussed}
                 feedQueryKey={[
@@ -571,16 +558,10 @@ export const TagTopicPage = ({
                 ]}
                 query={MOST_DISCUSSED_FEED_QUERY}
                 variables={bestDiscussedQueryVariables}
-                title={{
-                  copy: 'Best discussed posts',
-                  icon: (
-                    <DiscussIcon size={IconSize.Medium} className="mr-1.5" />
-                  ),
-                }}
                 className="!mx-0 !mb-0"
                 emptyScreen={<></>}
               />
-            </RailWithFade>
+            </EntityRailWithFade>
           </ActiveFeedNameContext.Provider>
           <ArchiveEntryCard
             scopeType={ArchiveScopeType.Tag}
@@ -591,7 +572,7 @@ export const TagTopicPage = ({
 
           <div className="my-2 h-px w-full bg-border-subtlest-tertiary" />
 
-          <SectionHeading>All posts about {title}</SectionHeading>
+          <EntitySectionHeading>All posts about {title}</EntitySectionHeading>
           <Feed
             feedName={OtherFeedPage.Tag}
             feedQueryKey={['tagFeed', user?.id ?? 'anonymous', tag]}
