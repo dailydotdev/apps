@@ -1,27 +1,35 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { APP_URL, LandingAppInstall } from './LandingAppInstall';
+import { APP_URL, LandingAppInstall, VISIBLE_LABEL } from './LandingAppInstall';
 
 describe('LandingAppInstall', () => {
   it('exposes the app-store destination as a link, not only as a QR code', () => {
     render(<LandingAppInstall />);
 
-    const link = screen.getByRole('link', {
-      name: 'Get the daily.dev app for iOS or Android',
-    });
+    const link = screen.getByRole('link');
 
     expect(link).toHaveAttribute('href', APP_URL);
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   });
 
-  it('names the link by its destination, not by the scan instruction', () => {
+  it('keeps the visible label inside the accessible name (WCAG 2.5.3)', () => {
     render(<LandingAppInstall />);
 
-    // The caption explains how to use the code, which is no help to anyone who
-    // cannot scan it, so it must not end up as the link's accessible name.
-    expect(screen.getByText('Scan to get the app')).toBeInTheDocument();
+    expect(screen.getByText(VISIBLE_LABEL)).toBeInTheDocument();
+    // A voice-control user activates this by speaking the words they can see,
+    // so the accessible name has to contain the caption verbatim.
     expect(
-      screen.queryByRole('link', { name: /scan/i }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('link', {
+        name: new RegExp(VISIBLE_LABEL, 'i'),
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('names the destination as well as the gesture', () => {
+    render(<LandingAppInstall />);
+
+    expect(
+      screen.getByRole('link', { name: /iOS or Android/i }),
+    ).toBeInTheDocument();
   });
 });

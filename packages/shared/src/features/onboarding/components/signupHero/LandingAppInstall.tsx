@@ -25,6 +25,9 @@ import LogoIcon from '../../../../svg/LogoIcon';
 // =============================================================
 
 export const APP_URL = 'https://r.daily.dev/get';
+// Rendered as the card's caption AND embedded in its accessible name; exported
+// so the spec asserts on the same string rather than a copy of it.
+export const VISIBLE_LABEL = 'Scan to get the app';
 const QR_MODULES = 29;
 // The spec asks for 4 modules of quiet zone. We bake in 2 and let the white
 // box's own padding make up the rest, which buys the code ~12% more area
@@ -40,10 +43,11 @@ export const LandingAppInstall = ({
   className?: string;
 }): ReactElement => (
   <a
-    // aria-label rather than the visible copy: "Scan to get the app" describes
-    // the QR, which is useless to anyone who cannot scan it, so the link states
-    // its destination instead.
-    aria-label="Get the daily.dev app for iOS or Android"
+    // Starts with the visible label verbatim (WCAG 2.5.3 Label in Name): a
+    // voice-control user activates this by speaking the words they can see, so
+    // the accessible name has to contain them. The destination is appended
+    // because "Scan to get the app" alone says nothing about where it goes.
+    aria-label={`${VISIBLE_LABEL} — daily.dev for iOS or Android`}
     className={classNames(
       'onb-glass-card flex w-fit flex-col items-center gap-2.5 rounded-24 p-3 no-underline',
       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-cabbage-default focus-visible:ring-offset-2',
@@ -58,7 +62,7 @@ export const LandingAppInstall = ({
         rather than theme-driven — text-primary would go dark in light mode and
         disappear into the illustration. */}
     <p className="text-center font-bold text-raw-salt-10 typo-footnote">
-      Scan to get the app
+      {VISIBLE_LABEL}
     </p>
     <div className="relative rounded-12 bg-white p-1.5">
       <svg
