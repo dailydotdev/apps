@@ -5,6 +5,7 @@ import type { FunnelStepContentTypes } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { ContentTypes } from '../../../components/onboarding';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { getContentTypeNotEmpty } from '../../../components/onboarding/ContentTypes/helpers';
@@ -15,6 +16,7 @@ function FunnelContentTypesComponent({
   parameters: { headline, cta },
   onTransition,
 }: FunnelStepContentTypes): ReactElement | null {
+  const isOnboarding = useIsOnboardingFunnel();
   const { isLoggedIn } = useAuthContext();
   const { advancedSettings } = useFeedSettings();
   const { selectedSettings, checkSourceBlocked } = useAdvancedSettings();
@@ -36,18 +38,26 @@ function FunnelContentTypesComponent({
   return (
     <FunnelStepCtaWrapper
       isGlass
-      cta={{ label: cta || 'Continue' }}
+      cta={{ label: cta || (isOnboarding ? 'Continue' : 'Next') }}
       onClick={handleComplete}
-      containerClassName="flex w-full flex-1 flex-col items-center overflow-hidden"
+      containerClassName={
+        isOnboarding
+          ? 'flex w-full flex-1 flex-col items-center overflow-hidden'
+          : 'flex w-full flex-1 flex-col items-center justify-center overflow-hidden'
+      }
       disabled={isDisabled}
     >
       {/* single-column on mobile, so the cards sit on the CTA rail; from tablet
           up the grid needs more room than the rail and stays centered instead */}
       <div
-        className={classNames(
-          funnelStepRail,
-          'flex flex-col items-center gap-6 py-6 pt-3 tablet:max-w-none laptop:max-w-screen-laptop',
-        )}
+        className={
+          isOnboarding
+            ? classNames(
+                funnelStepRail,
+                'flex flex-col items-center gap-6 py-6 pt-3 tablet:max-w-none laptop:max-w-screen-laptop',
+              )
+            : 'flex w-full flex-col items-center gap-6 p-6 pt-10 laptop:max-w-screen-laptop'
+        }
       >
         <ContentTypes headline={headline} />
       </div>

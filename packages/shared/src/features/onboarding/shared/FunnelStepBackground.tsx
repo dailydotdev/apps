@@ -105,6 +105,9 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
 };
 
 const hiddenBgSteps = [FunnelStepType.Checkout];
+// The paid funnel's own treatment for the tag step. The onboarding funnel
+// replaces it with OnboardingBackground, but /helloworld still expects it.
+const tallTopGradientSteps = [FunnelStepType.EditTags];
 const alwaysDarkSteps = [
   FunnelStepType.Signup,
   FunnelStepType.Checkout,
@@ -267,7 +270,9 @@ export const FunnelStepBackground = ({
         <div
           aria-hidden
           className={classNames(
-            bgClassName,
+            tallTopGradientSteps.includes(step.type)
+              ? 'bg-gradient-funnel-onboarding-tall'
+              : bgClassName,
             className,
             'absolute left-0 top-0 z-1 h-full w-full transition-colors duration-150',
           )}

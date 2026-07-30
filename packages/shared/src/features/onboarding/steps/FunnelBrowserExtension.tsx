@@ -33,12 +33,14 @@ import {
   OnboardingSubheadline,
 } from '../../../components/onboarding/common';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 
 const BROWSER_EXTENSION_DEFAULTS = {
   headline: 'Transform every new tab into a learning powerhouse',
   explainer:
     'Unlock the power of every new tab with daily.dev extension. Personalized feed, developer communities, AI search and more!',
-  cta: 'Add to {browser}',
+  // The paid funnel's original copy; the onboarding funnel shortens it below.
+  cta: 'Get it for {browser}',
   skip: 'Dare to skip? <strong>You might miss out</strong>.',
   showReviews: false,
 };
@@ -59,7 +61,13 @@ const BrowserExtension = ({
   const { applyThemeMode } = useSettingsContext();
   const isEdge = browserName === BrowserName.Edge;
   const browserLabel = isEdge ? 'Edge' : 'Chrome';
-  const ctaText = cta.replace('{browser}', browserLabel);
+  const isOnboarding = useIsOnboardingFunnel();
+  // Only swap the default; a Freyja-provided cta always wins.
+  const ctaTemplate =
+    isOnboarding && cta === BROWSER_EXTENSION_DEFAULTS.cta
+      ? 'Add to {browser}'
+      : cta;
+  const ctaText = ctaTemplate.replace('{browser}', browserLabel);
   const showReviews = showReviewsParam && !isEdge;
 
   // The step is designed for a dark surface (dark funnel gradient, dark

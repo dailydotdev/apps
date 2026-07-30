@@ -57,11 +57,13 @@ export const PlusListItem = ({
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
-      // No width override: these read as sentences, so they use the design
-      // system's own tooltip measure. The override here was dead anyway —
-      // Tailwind's important prefix goes after the variant (`tablet:!max-w`,
-      // not `!tablet:max-w`), and `!max-w-full` un-capped the tooltip entirely,
-      // which is why it stretched across the viewport.
+      // Dropping the width override so these fall back to the design system's
+      // own tooltip measure. The previous value fought itself: `!tablet:max-w-72`
+      // was dead (Tailwind's important prefix goes after the variant, so it
+      // emitted nothing), which left `!max-w-full` un-capping the tooltip to the
+      // full viewport — the reason these stretched. This applies to every Plus
+      // surface, not just the funnel, because the un-capping was wrong on all of
+      // them; see the PR description.
       wrapper={(component: ReactNode) => (
         <Tooltip
           className="items-start text-left"

@@ -11,6 +11,7 @@ import type {
 import {
   stepsWithOnlySkipHeader,
   stepsFullWidth,
+  stepsFullWidthOnboarding,
   FunnelStepType,
   COMPLETED_STEP_ID,
   FunnelStepTransitionType,
@@ -238,7 +239,9 @@ export const FunnelStepper = ({
       (step.parameters.shouldShowHeader ||
         stepsWithHeader.some((type) => type === step.type));
     const hasCookieConsent = isCookieBannerActive && showBanner;
-    const isFullWidth = stepsFullWidth.includes(step.type);
+    const isFullWidth =
+      stepsFullWidth.includes(step.type) ||
+      (!!isOnboarding && stepsFullWidthOnboarding.includes(step.type));
 
     return {
       hasHeader,

@@ -7,7 +7,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import Logo, { LogoPosition } from '../../../components/Logo';
+import LogoIcon from '../../../svg/LogoIcon';
+import LogoText from '../../../svg/LogoText';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { FunnelTargetId } from '../types/funnelEvents';
 
@@ -58,15 +59,26 @@ export function FunnelStepTopBar({
           desktopLogoHeight,
         )}
       >
-        {/* Icon only below laptop: the wordmark costs width the skip button
+        {/* Decoration, not navigation: the mark is drawn directly rather than
+            through `Logo`, because `Logo`'s `linkDisabled` only adds
+            `pointer-events-none` — it keeps the real href and stays in the tab
+            order, so one Tab + Enter (or a click, since the strip re-enables
+            pointer events on its controls) walked the user out of the funnel.
+            Icon only below laptop: the wordmark costs width the skip button
             needs on a 390px screen. */}
-        <Logo
-          className="pointer-events-auto h-fit w-fit"
-          hideTextMobile
-          linkDisabled
-          logoClassName={{ container: classNames('h-logo', desktopLogoHeight) }}
-          position={LogoPosition.Empty}
-        />
+        <span aria-hidden className="flex items-center">
+          <LogoIcon
+            className={{ container: classNames('h-logo', desktopLogoHeight) }}
+          />
+          <LogoText
+            className={{
+              container: classNames(
+                'ml-1 hidden h-logo laptop:block',
+                desktopLogoHeight,
+              ),
+            }}
+          />
+        </span>
         {skip && (
           <Button
             className="pointer-events-auto font-normal"

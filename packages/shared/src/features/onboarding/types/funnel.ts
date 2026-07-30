@@ -474,9 +474,6 @@ export const stepsWithOnlySkipHeader: Array<(typeof stepsWithHeader)[number]> =
 export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.OrganicSignup,
   FunnelStepType.HeroLanding,
-  // The onboarding steps size themselves from `funnelStepRail`; the stepper's
-  // own narrower column would clamp the rail below the width it caps at.
-  FunnelStepType.ProfileForm,
   FunnelStepType.EditTags,
   FunnelStepType.ContentTypes,
   FunnelStepType.PlusCards,
@@ -484,4 +481,11 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.BrowserExtension,
   FunnelStepType.InstallPwa,
   FunnelStepType.UploadCv,
+];
+// Onboarding-only additions to the list above: these steps size themselves from
+// `funnelStepRail`, which the stepper's narrower column would clamp — but only
+// the onboarding funnel wraps them in that rail, so /helloworld keeps its
+// `tablet:max-w-md` column.
+export const stepsFullWidthOnboarding: Array<FunnelStepType> = [
+  FunnelStepType.ProfileForm,
 ];
