@@ -541,11 +541,7 @@ export const TagTopicPage = ({
             </RailWithFade>
           </ActiveFeedNameContext.Provider>
 
-          <WhoToFollow
-            tag={tag}
-            title={title}
-            initialUsers={topContributors}
-          />
+          <WhoToFollow tag={tag} title={title} initialUsers={topContributors} />
           <TagTopSources tag={tag} title={title} />
 
           <ActiveFeedNameContext.Provider
