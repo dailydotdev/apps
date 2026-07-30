@@ -1,0 +1,191 @@
+/*
+ * Feed card floating action bar (`FeedCardGlassActions`).
+ *
+ * The bar floats over a post's cover image, so its contrast depends on pixels we
+ * don't control. Two things follow from that, both measured — see the
+ * "Components/Cards/Glass Actions Theme Compare" Storybook page, which computes
+ * the WCAG ratios in-page rather than asking anyone to eyeball a translucent
+ * overlay.
+ *
+ *   1. FILL OPACITY is the dominant lever. At the old 64% the cover composited
+ *      through and set the contrast, so one icon measured anywhere from 1.0:1 to
+ *      11:1 depending on the image. At 90% the spread collapses to well under a
+ *      point, which is what makes the ratios below dependable at all.
+ *      `--theme-background-default` already resolves per theme (pepper.90 dark /
+ *      salt.0 light) in every theme mode including `auto`, so one `color-mix`
+ *      covers the fill everywhere with no theme selectors.
+ *
+ *   2. The PRESSED accents need re-toning per theme, and they are NOT reachable
+ *      through a `--theme-*` token: `tailwind/buttons.ts` emits
+ *      `--button-pressed-color` as a raw palette hex per `.btn-tertiary-<color>`
+ *      class, taken from the ghost ladder (light .80 / dark .40). Those values are
+ *      tuned for a solid page background, not for a near-white bar over arbitrary
+ *      imagery. Unpatched, every light-mode pressed icon lands between 1.0:1 and
+ *      2.9:1, and dark mode fails too — a pressed downvote (ketchup.40) is 1.62:1
+ *      over a white cover.
+ *
+ * Light takes the darkest step of each ramp. avocado, blueCheese and cheese are
+ * high-luminance ramps that miss 3:1 even at .90, so they take the smallest mix
+ * with pepper.90 that clears it. Dark moves downvote and bookmark up the ramp for
+ * headroom. Worst cell after this: 3.01:1 light, 3.67:1 dark.
+ *
+ * STRUCTURE — why it is split into "values" and "mapping":
+ *
+ * The theme blocks only assign `--glass-actions-*` variables on the pill itself,
+ * as FLAT rules, and a single theme-agnostic mapping block feeds those variables
+ * into each button's `--button-pressed-color`. That split is deliberate:
+ *
+ *   - Flat, so specificity stays legible. Nesting `& .btn-tertiary-*` inside these
+ *     selector lists is what an earlier version did, and it silently broke `auto`
+ *     mode: per spec a nested `&` is `:is(<parent list>)`, and `:is()` takes the
+ *     specificity of its most specific argument — so the `#daily-companion-wrapper`
+ *     entries in the list gave every nested rule ID-level specificity, which
+ *     outranked the `html.auto` media blocks. Flat comma lists don't share
+ *     specificity between their selectors, so this can't happen.
+ *   - The mapping block qualifies with `html` plus a doubled class purely to
+ *     outrank the design system's own `.light .invert .btn-tertiary-*` (0,3,0),
+ *     without depending on import order.
+ *
+ * Selector groups (and the `prefers-color-scheme` blocks for `html.auto`) mirror
+ * `base.css`, so light, dark, auto, nested `.invert` subtrees and the companion
+ * wrapper all resolve the way the theme mixins do.
+ */
+
+/*
+ * WHICH ACCENTS ACTUALLY MOVE. The `tertiary` ghost ladder resolves pressed/hover
+ * to palette .40 in dark, and .80 in light for the luminous families
+ * (avocado/blueCheese/cheese/bun/lettuce/bacon) or .60 for the rest. Against that
+ * baseline only these deviate:
+ *
+ *   dark   bookmark bun.40  -> bun.20      downvote ketchup.40 -> ketchup.10
+ *   light  upvote   avo.80  -> 83% mix     comment  blueCh.80  -> 90% mix
+ *          bookmark bun.80  -> bun.90      impress  cheese.80  -> 62% mix
+ *
+ * `copy` (cabbage) already clears 3:1 from the ladder in both themes, so it is
+ * not listed here at all and inherits.
+ *
+ * The four remaining theme/colour pairs that match the ladder are written as
+ * `var(--theme-accent-<colour>-default)` rather than a repeated palette step:
+ * that token IS the ladder's value in that theme (accent-default is .40 in dark
+ * and .60 in light), so there is no second constant to keep in sync. A change to
+ * the ladder's *mapping* would still need the Storybook audit re-run — the
+ * numbers in the header are only true for the steps named above.
+ */
+@define-mixin glass-actions-dark {
+  --glass-actions-upvote: var(--theme-accent-avocado-default);
+  --glass-actions-comment: var(--theme-accent-blueCheese-default);
+  --glass-actions-bookmark: theme('colors.raw.bun.20');
+  --glass-actions-downvote: theme('colors.raw.ketchup.10');
+  --glass-actions-impressions: var(--theme-accent-cheese-default);
+}
+
+@define-mixin glass-actions-light {
+  --glass-actions-upvote: color-mix(
+    in srgb,
+    theme('colors.raw.avocado.90') 83%,
+    theme('colors.raw.pepper.90')
+  );
+  --glass-actions-comment: color-mix(
+    in srgb,
+    theme('colors.raw.blueCheese.90') 90%,
+    theme('colors.raw.pepper.90')
+  );
+  --glass-actions-bookmark: theme('colors.raw.bun.90');
+  --glass-actions-downvote: var(--theme-accent-ketchup-default);
+  --glass-actions-impressions: color-mix(
+    in srgb,
+    theme('colors.raw.cheese.90') 62%,
+    theme('colors.raw.pepper.90')
+  );
+}
+
+.feed-card-glass-actions {
+  background: color-mix(
+    in srgb,
+    var(--theme-background-default),
+    transparent 10%
+  );
+}
+
+/* Values — dark */
+html .feed-card-glass-actions,
+html.light .invert .feed-card-glass-actions,
+html .invert .invert .feed-card-glass-actions,
+#daily-companion-wrapper .feed-card-glass-actions,
+#daily-companion-wrapper.light .invert .feed-card-glass-actions,
+#daily-companion-wrapper .invert .invert .feed-card-glass-actions {
+  @mixin glass-actions-dark;
+}
+
+/* Values — light */
+html.light .feed-card-glass-actions,
+html .invert .feed-card-glass-actions,
+html.light .invert .invert .feed-card-glass-actions,
+#daily-companion-wrapper.light .feed-card-glass-actions,
+#daily-companion-wrapper .invert .feed-card-glass-actions,
+#daily-companion-wrapper.light .invert .invert .feed-card-glass-actions {
+  @mixin glass-actions-light;
+}
+
+@media (prefers-color-scheme: light) {
+  html.auto .feed-card-glass-actions,
+  html.auto .invert .invert .feed-card-glass-actions {
+    @mixin glass-actions-light;
+  }
+
+  html.auto .invert .feed-card-glass-actions {
+    @mixin glass-actions-dark;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  html.auto .feed-card-glass-actions,
+  html.auto .invert .invert .feed-card-glass-actions {
+    @mixin glass-actions-dark;
+  }
+
+  html.auto .invert .feed-card-glass-actions {
+    @mixin glass-actions-light;
+  }
+}
+
+/*
+ * Mapping — theme-agnostic.
+ *
+ * `--button-active-color` is pinned alongside pressed/hover on purpose:
+ * `buttons.css` routes `:active` through its own var, and the ladder's active
+ * step is one shade further along (light avocado active is avocado.90, which
+ * measures 2.79:1 — under threshold, which is why pressed needs the 83% mix). So
+ * without this the icon would dip below 3:1 for as long as the pointer is held.
+ * All three states share one value; there is no contrast headroom to spend on a
+ * separate active shade here.
+ */
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-avocado {
+  --button-pressed-color: var(--glass-actions-upvote);
+  --button-hover-color: var(--glass-actions-upvote);
+  --button-active-color: var(--glass-actions-upvote);
+}
+
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-blueCheese {
+  --button-pressed-color: var(--glass-actions-comment);
+  --button-hover-color: var(--glass-actions-comment);
+  --button-active-color: var(--glass-actions-comment);
+}
+
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-bun {
+  --button-pressed-color: var(--glass-actions-bookmark);
+  --button-hover-color: var(--glass-actions-bookmark);
+  --button-active-color: var(--glass-actions-bookmark);
+}
+
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-ketchup {
+  --button-pressed-color: var(--glass-actions-downvote);
+  --button-hover-color: var(--glass-actions-downvote);
+  --button-active-color: var(--glass-actions-downvote);
+}
+
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-cheese {
+  --button-pressed-color: var(--glass-actions-impressions);
+  --button-hover-color: var(--glass-actions-impressions);
+  --button-active-color: var(--glass-actions-impressions);
+}
