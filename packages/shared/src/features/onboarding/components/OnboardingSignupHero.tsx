@@ -191,7 +191,11 @@ export const OnboardingSignupHero = ({
           <main
             // relative: the artwork layer is absolutely positioned in the same
             // stacking context, so static content would paint under it.
-            className="onb-hero-main relative z-1 flex w-full flex-1 flex-col items-center px-5 laptop:px-10"
+            // pb-10: below `tablet` the legal row is hidden, so nothing sits
+            // under the form and the column has to carry its own bottom
+            // breathing room (and clear the iOS home indicator). From `tablet`
+            // up the legal row provides it instead.
+            className="onb-hero-main relative z-1 flex w-full flex-1 flex-col items-center px-5 pb-10 tablet:pb-0 laptop:px-10"
           >
             {signupColumn}
           </main>
