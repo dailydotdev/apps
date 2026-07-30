@@ -2,8 +2,14 @@
   <!-- QR code for https://r.daily.dev/get?utm_source=header_qr at error
     correction H. Same smart link as the onboarding panel: it redirects by OS
     to the App Store, Google Play, or the extension store. The utm_source
-    param survives the whole redirect chain onto the store URL (verified on
-    both hops), so header scans stay distinguishable from onboarding scans.
+    param reaches our own redirector (api.daily.dev/get), which is what lets
+    header scans be distinguished from onboarding scans server-side. It also
+    survives onto the Play and Chrome Web Store URLs, but nothing store-side
+    consumes it there: Play install referrer reads a referrer param and Apple
+    strips query params and only honours its own pt/ct campaign tokens, so
+    store-side attribution belongs on the redirector, not in this code.
+    A spec (getAppQr.spec.ts) re-encodes the URL above and asserts this
+    matrix still matches, so changing either one alone fails CI.
     Regenerate with: npx qrcode -t svg -e H <url>
     and keep ONLY the stroke path plus this viewBox. The white background rect
     the generator adds must be dropped: the SVGR configs rewrite #ffffff to
