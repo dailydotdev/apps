@@ -197,12 +197,19 @@ export const OnboardingSignupHero = ({
           </main>
 
           {/* The legal row is constrained to the same column width as the form
-              so its left edge lines up with the buttons above it. The signup
-              disclosure renders at every breakpoint — a user can submit the form
-              from the stacked layout too, so it has to be reachable there. Only
-              the general footer links are desktop-only: seven links do not fit
-              a phone without wrapping into a block the size of the form. */}
-          <div className="onb-split-legal pointer-events-auto relative z-1 flex w-full flex-col items-center gap-3 px-5 pb-6 pt-5 laptop:px-10 laptop:pb-8 laptop:pt-0">
+              so its left edge lines up with the buttons above it.
+
+              It appears from `tablet` up, which is exactly where the cards and
+              desk walls put theirs: their `isMobile` branch (below `tablet`)
+              renders neither FooterLinks nor SignupDisclaimer. Matching that
+              keeps this variant consistent with what ships today rather than
+              making it the only wall with a phone-width disclosure. The gap on
+              phones is real but pre-existing and product-wide — see the PR
+              description.
+
+              Footer links stay `laptop`-only on top of that: seven links wrap
+              into a block the size of the form on anything narrower. */}
+          <div className="onb-split-legal pointer-events-auto relative z-1 hidden w-full flex-col items-center gap-3 px-5 pb-6 pt-5 tablet:flex laptop:px-10 laptop:pb-8 laptop:pt-0">
             <div
               className={classNames(
                 'flex w-full flex-col items-center gap-3 laptop:items-start',

@@ -136,34 +136,36 @@ describe('OnboardingSignupHero', () => {
     expect(screen.getByTestId('disclaimer')).toBeInTheDocument();
   });
 
-  describe('signup disclosure on the panel background', () => {
-    // jsdom does not evaluate the media queries, so "is it visible when
-    // stacked" has to be asserted structurally: a `hidden` class anywhere
-    // between the element and the root hides it below its `laptop:` reset.
-    const hiddenAncestors = (element: HTMLElement): string[] => {
-      const found: string[] = [];
+  describe('legal row on the panel background', () => {
+    // jsdom does not evaluate media queries, so an element hidden by a `hidden`
+    // class is still in the DOM and a presence assertion proves nothing. The
+    // breakpoint it reappears at has to be read off the class list instead.
+    const revealBreakpoint = (element: HTMLElement): string | undefined => {
       let node = element.parentElement;
 
       while (node) {
         if (/(^|\s)hidden(\s|$)/.test(node.className)) {
-          found.push(node.className);
+          return node.className.match(/(\w+):(?:flex|block)/)?.[1];
         }
         node = node.parentElement;
       }
 
-      return found;
+      return undefined;
     };
 
-    it('stays reachable in the stacked layout', () => {
+    // The cards/desk walls render neither below `tablet` (their `isMobile`
+    // branch omits both), so the panel matches rather than becoming the only
+    // wall with a phone-width disclosure.
+    it('reveals the signup disclosure at the same breakpoint as the other walls', () => {
       renderHero({ background: 'panel' });
 
-      expect(hiddenAncestors(screen.getByTestId('disclaimer'))).toEqual([]);
+      expect(revealBreakpoint(screen.getByTestId('disclaimer'))).toBe('tablet');
     });
 
-    it('leaves the footer links desktop-only', () => {
+    it('holds the footer links back to the two-column layout', () => {
       renderHero({ background: 'panel' });
 
-      expect(hiddenAncestors(screen.getByTestId('footer'))).not.toEqual([]);
+      expect(revealBreakpoint(screen.getByTestId('footer'))).toBe('laptop');
     });
   });
 
