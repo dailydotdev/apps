@@ -168,10 +168,13 @@ export const sidebarDragGhostClass =
   'bg-surface-float rounded-12 border border-border-subtlest-secondary shadow-2 backdrop-blur-xl';
 // The parked slot a dragged item will land in — the "it will go here" marker.
 // Its content is faded out, so the slot keeps the item's exact height.
-// `surface-active` (16%) rather than `surface-float` (8%): at 8% the landing
-// position was barely readable against the rail.
+//
+// `surface-hover` (12%), between float (8%) and active (16%). At 16% this was
+// the most solid thing on screen during a drag and read as "the dragged item's
+// background is opaque" — it is the pale block, not the ghost. At 8% it was too
+// faint to show where the drop lands.
 export const sidebarDragSlotClass =
-  'rounded-12 bg-surface-active backdrop-blur-md';
+  'rounded-12 bg-surface-hover backdrop-blur-md';
 export const SidebarAside = classed(
   'aside',
   'flex flex-col z-sidebarOverlay laptop:z-sidebar laptop:-translate-x-0 left-0 bg-background-default border-r border-border-subtlest-tertiary transition-[width,transform] duration-300 ease-in-out group fixed top-0 h-full',
