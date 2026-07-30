@@ -13,7 +13,7 @@ interface HorizontalFeedProps<T> {
   feedQueryKey: unknown[];
   query: string;
   variables: T;
-  title: HorizontalScrollTitleProps;
+  title?: HorizontalScrollTitleProps;
   emptyScreen: ReactElement;
   className?: string;
 }
@@ -24,7 +24,7 @@ export default function HorizontalFeed<T>({
   ...props
 }: HorizontalFeedProps<T>): ReactElement {
   const { ref, header } = useHorizontalScrollHeader({
-    title: { ...title, type: TypographyType.Body },
+    title: title ? { type: TypographyType.Body, ...title } : undefined,
   });
   const { isListMode } = useFeedLayout();
 
