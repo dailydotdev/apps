@@ -7,8 +7,13 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { MiniCloseIcon } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { ExternalLinkPreview } from '../../../graphql/posts';
+import { useAutoResizeTextarea } from '../../../hooks/utils/useAutoResizeTextarea';
 import { TITLE_MAX_LENGTH, type LinkFormState } from './types';
-import { isPreviewForComposerUrl, normalizeComposerUrl } from './utils';
+import {
+  isPreviewForComposerUrl,
+  normalizeComposerUrl,
+  normalizeSingleLineComposerText,
+} from './utils';
 
 interface LinkFormProps {
   value: LinkFormState;
@@ -20,6 +25,8 @@ interface LinkFormProps {
   initialUrl?: string;
 }
 
+const COMMENTARY_MAX_HEIGHT = 144;
+
 export const LinkForm = ({
   value,
   onChange,
@@ -30,6 +37,7 @@ export const LinkForm = ({
   initialUrl,
 }: LinkFormProps): ReactElement => {
   const urlRef = useRef<HTMLInputElement>(null);
+  const commentaryRef = useRef<HTMLTextAreaElement>(null);
   const [dismissedUrl, setDismissedUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -68,6 +76,43 @@ export const LinkForm = ({
     isPreviewForComposerUrl(preview, value.url) && !isDismissedForCurrentUrl;
   const showSkeleton = isLoadingPreview && !isDismissedForCurrentUrl;
 
+  useAutoResizeTextarea(commentaryRef, value.commentary, {
+    maxHeight: COMMENTARY_MAX_HEIGHT,
+  });
+
+  const onUrlKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.nativeEvent.isComposing || event.key !== 'Enter') {
+        return;
+      }
+
+      event.preventDefault();
+      if (event.ctrlKey || event.metaKey) {
+        event.currentTarget.form?.requestSubmit();
+        return;
+      }
+
+      commentaryRef.current?.focus();
+    },
+    [],
+  );
+
+  const onCommentaryKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (
+        event.nativeEvent.isComposing ||
+        event.key !== 'Enter' ||
+        (!event.ctrlKey && !event.metaKey)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      event.currentTarget.form?.requestSubmit();
+    },
+    [],
+  );
+
   useEffect(() => {
     if (!initialUrl) {
       return;
@@ -92,10 +137,12 @@ export const LinkForm = ({
         onInput={(event) => {
           onUrlChange(event.currentTarget.value);
         }}
+        onKeyDown={onUrlKeyDown}
         aria-label="Link URL"
         className="w-full bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
       />
       <textarea
+        ref={commentaryRef}
         name="commentary"
         placeholder="Add a comment (optional)"
         maxLength={TITLE_MAX_LENGTH}
@@ -104,9 +151,12 @@ export const LinkForm = ({
         onChange={(event) =>
           onChange({
             ...value,
-            commentary: event.currentTarget.value.replace(/\n/g, ''),
+            commentary: normalizeSingleLineComposerText(
+              event.currentTarget.value,
+            ),
           })
         }
+        onKeyDown={onCommentaryKeyDown}
         aria-label="Post commentary"
         className="w-full resize-none overflow-hidden break-words bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
       />

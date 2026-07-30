@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -57,10 +57,6 @@ jest.mock('../../post/composer/KindModePicker', () => ({
   KindModePicker: () => null,
 }));
 
-jest.mock('../../post/composer/LinkForm', () => ({
-  LinkForm: () => null,
-}));
-
 jest.mock('../../post/composer/PollForm', () => ({
   PollForm: () => null,
 }));
@@ -71,6 +67,14 @@ jest.mock('../../post/composer/TextForm', () => ({
 
 jest.mock('../../tooltip/Tooltip', () => ({
   Tooltip: ({ children }: React.PropsWithChildren) => children,
+}));
+
+jest.mock('../../post/write/WriteLinkPreview', () => ({
+  WriteLinkPreview: () => null,
+}));
+
+jest.mock('../../post/write/WritePreviewSkeleton', () => ({
+  WritePreviewSkeleton: () => null,
 }));
 
 jest.mock('../common/Modal', () => ({
@@ -91,9 +95,13 @@ describe('SmartComposerModal', () => {
   const showPrompt = jest.fn();
   const onSubmitted = jest.fn();
   const onRequestClose = jest.fn();
+  let handleSubmit: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    handleSubmit = jest.fn((event?: React.FormEvent<HTMLFormElement>) => {
+      event?.preventDefault();
+    });
 
     jest.mocked(useAuthContext).mockReturnValue({
       user: null,
@@ -131,7 +139,7 @@ describe('SmartComposerModal', () => {
       userAudienceId: 'user-1',
     } as unknown as ReturnType<typeof useComposerAudience>);
     jest.mocked(useComposerSubmit).mockReturnValue({
-      handleSubmit: jest.fn(),
+      handleSubmit,
       isSubmitDisabled: false,
       isInFlight: false,
       preview: { url: 'https://daily.dev', title: 'daily.dev' },
@@ -174,5 +182,24 @@ describe('SmartComposerModal', () => {
 
     expect(onSubmitted).toHaveBeenCalledTimes(1);
     expect(onRequestClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps Enter in the link URL field from submitting the composer', () => {
+    renderWithClient(
+      <SmartComposerModal
+        isOpen
+        initialKind="link"
+        onRequestClose={onRequestClose}
+      />,
+    );
+
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Link URL' }), {
+      key: 'Enter',
+    });
+
+    expect(handleSubmit).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole('textbox', { name: 'Post commentary' }),
+    ).toHaveFocus();
   });
 });
