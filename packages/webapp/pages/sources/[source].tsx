@@ -68,11 +68,8 @@ import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/A
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
+import { EntitySectionHeading } from '@dailydotdev/shared/src/components/entity/EntitySectionHeading';
+import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -86,7 +83,7 @@ const appOrigin = getAppOrigin();
 const pageSectionClassName = 'mx-4';
 const pageSectionAutoWidthClassName = `${pageSectionClassName} !w-auto`;
 const pageFeedClassName = '!mx-4 !w-auto';
-const horizontalFeedClassName = 'laptop:!mx-4';
+const horizontalRailClassName = '!mx-0 !mb-0';
 
 interface SourcePageProps extends DynamicSeoProps {
   source?: Source;
@@ -335,44 +332,56 @@ const SourcePage = ({
         <ActiveFeedNameContext.Provider
           value={{ feedName: OtherFeedPage.SourceMostUpvoted }}
         >
-          <HorizontalFeed
-            feedName={OtherFeedPage.SourceMostUpvoted}
-            feedQueryKey={[
-              'sourceMostUpvoted',
-              user?.id ?? 'anonymous',
-              Object.values(mostUpvotedQueryVariables),
-            ]}
-            query={MOST_UPVOTED_FEED_QUERY}
-            variables={mostUpvotedQueryVariables}
-            title={{
-              copy: `Most upvoted posts from ${source.name}`,
-              tag: TypographyTag.H2,
-              icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
-            }}
-            className={horizontalFeedClassName}
-            emptyScreen={<></>}
-          />
+          <div className={pageSectionClassName}>
+            <EntitySectionHeading
+              icon={
+                <UpvoteIcon size={IconSize.Medium} className="shrink-0" />
+              }
+            >
+              Most upvoted posts from {source.name}
+            </EntitySectionHeading>
+            <EntityRailWithFade>
+              <HorizontalFeed
+                feedName={OtherFeedPage.SourceMostUpvoted}
+                feedQueryKey={[
+                  'sourceMostUpvoted',
+                  user?.id ?? 'anonymous',
+                  Object.values(mostUpvotedQueryVariables),
+                ]}
+                query={MOST_UPVOTED_FEED_QUERY}
+                variables={mostUpvotedQueryVariables}
+                className={horizontalRailClassName}
+                emptyScreen={<></>}
+              />
+            </EntityRailWithFade>
+          </div>
         </ActiveFeedNameContext.Provider>
         <ActiveFeedNameContext.Provider
           value={{ feedName: OtherFeedPage.SourceBestDiscussed }}
         >
-          <HorizontalFeed
-            feedName={OtherFeedPage.SourceBestDiscussed}
-            feedQueryKey={[
-              'sourceBestDiscussed',
-              user?.id ?? 'anonymous',
-              Object.values(bestDiscussedQueryVariables),
-            ]}
-            query={MOST_DISCUSSED_FEED_QUERY}
-            variables={bestDiscussedQueryVariables}
-            title={{
-              copy: `Best discussed posts from ${source.name}`,
-              tag: TypographyTag.H2,
-              icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
-            }}
-            className={horizontalFeedClassName}
-            emptyScreen={<></>}
-          />
+          <div className={pageSectionClassName}>
+            <EntitySectionHeading
+              icon={
+                <DiscussIcon size={IconSize.Medium} className="shrink-0" />
+              }
+            >
+              Best discussed posts from {source.name}
+            </EntitySectionHeading>
+            <EntityRailWithFade>
+              <HorizontalFeed
+                feedName={OtherFeedPage.SourceBestDiscussed}
+                feedQueryKey={[
+                  'sourceBestDiscussed',
+                  user?.id ?? 'anonymous',
+                  Object.values(bestDiscussedQueryVariables),
+                ]}
+                query={MOST_DISCUSSED_FEED_QUERY}
+                variables={bestDiscussedQueryVariables}
+                className={horizontalRailClassName}
+                emptyScreen={<></>}
+              />
+            </EntityRailWithFade>
+          </div>
         </ActiveFeedNameContext.Provider>
         <ArchiveEntryCard
           scopeType={ArchiveScopeType.Source}
@@ -380,29 +389,22 @@ const SourcePage = ({
           scopeName={source.name}
           className={`${pageSectionClassName} mb-6`}
         />
-        <div
-          className={`${pageSectionClassName} mb-5 flex w-auto items-center`}
-        >
-          <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Body}
-            bold
-            className="flex items-center"
-          >
+        <div className={pageSectionClassName}>
+          <EntitySectionHeading>
             All posts from {source.name}
-          </Typography>
+          </EntitySectionHeading>
+          <Feed
+            feedName={OtherFeedPage.Squad}
+            feedQueryKey={[
+              'sourceFeed',
+              user?.id ?? 'anonymous',
+              Object.values(queryVariables),
+            ]}
+            query={SOURCE_FEED_QUERY}
+            variables={queryVariables}
+            className={pageFeedClassName}
+          />
         </div>
-        <Feed
-          feedName={OtherFeedPage.Squad}
-          feedQueryKey={[
-            'sourceFeed',
-            user?.id ?? 'anonymous',
-            Object.values(queryVariables),
-          ]}
-          query={SOURCE_FEED_QUERY}
-          variables={queryVariables}
-          className={pageFeedClassName}
-        />
         {shouldShowAuthBanner && isLaptop && <AuthenticationBanner />}
       </FeedPageLayoutComponent>
     </>
