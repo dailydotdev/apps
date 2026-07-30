@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { cloneElement, useEffect } from 'react';
 import classNames from 'classnames';
 import type { AuthFormProps } from './common';
 import { providerMap } from './common';
@@ -10,6 +10,7 @@ import { AuthEventNames, AuthTriggers } from '../../lib/auth';
 import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { isIOSNative } from '../../lib/func';
+import { IconSize } from '../Icon';
 
 import { MemberAlready } from '../onboarding/MemberAlready';
 import SignupDisclaimer from './SignupDisclaimer';
@@ -148,14 +149,22 @@ export const OnboardingRegistrationForm = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // text-primary, not white: this button sits on the page background, which is
+  // light in light mode — white label on it is invisible
   const tertiarySignupButtonClass =
-    '!w-full !border !border-border-subtlest-tertiary !text-white';
+    '!w-full !border !border-border-subtlest-tertiary !text-text-primary';
 
   const getEmailButtonClass = (): string => {
     if (compact) {
       return 'mb-4';
     }
-    if (isOnboardingTrigger && !splitSignupStyle) {
+    // This margin, not the login link's own, is most of the gap between the CTA
+    // and "Already have an account". onb-split-cta lets the signup hero close
+    // it further on compact phones.
+    if (splitSignupStyle) {
+      return 'onb-split-cta mb-4';
+    }
+    if (isOnboardingTrigger) {
       return 'mb-3';
     }
     return 'mb-8';
@@ -191,13 +200,22 @@ export const OnboardingRegistrationForm = ({
   );
 
   const getMemberAlreadyContainerClass = (): string => {
+    // Stacked, the split layouts have no footer/disclaimer strip under them, so
+    // this centres like the cards/desk walls. The form is bottom-anchored
+    // there, so the tight gap is what pushes the buttons down the screen.
+    // Once the columns appear it follows the left-aligned column edge again.
+    // onb-split-login is a styling hook for the signup hero: it tightens this
+    // row on compact phones. Inert anywhere the hero's CSS is not present.
+    if (splitSignupStyle) {
+      return 'onb-split-login mx-auto mt-4 text-center text-text-secondary typo-callout laptop:mx-0 laptop:mt-5 laptop:text-left';
+    }
     if (isOnboardingTrigger) {
       return 'mx-auto mt-5 text-center text-text-secondary typo-callout';
     }
     return 'mx-auto mt-6 text-center text-text-secondary typo-callout';
   };
 
-  const memberAlready = !hideLoginLink && !splitSignupStyle && (
+  const memberAlready = !hideLoginLink && (
     <MemberAlready
       onLogin={() => onExistingEmail?.('')}
       className={{
@@ -207,23 +225,6 @@ export const OnboardingRegistrationForm = ({
     />
   );
 
-  const splitSignInSection = splitSignupStyle && !hideLoginLink && (
-    <div className="mt-2 flex w-full flex-col items-start gap-3">
-      <p className="text-left text-text-secondary typo-callout">
-        Already have an account?
-      </p>
-      <Button
-        aria-label="Sign in"
-        className={tertiarySignupButtonClass}
-        onClick={() => onExistingEmail?.('')}
-        size={onboardingSignupButton?.size ?? ButtonSize.Large}
-        type="button"
-        variant={ButtonVariant.Tertiary}
-      >
-        Sign in
-      </Button>
-    </div>
-  );
   const disclaimer = hideSignupDisclaimer ? null : (
     <SignupDisclaimer className="!text-text-tertiary tablet:!typo-footnote" />
   );
@@ -242,7 +243,15 @@ export const OnboardingRegistrationForm = ({
               className="w-full"
               data-funnel-track={FunnelTargetId.SignupProvider}
               disabled={!isReady || isSocialAuthLoading}
-              icon={provider.icon}
+              icon={
+                // A Large button gives its icon IconSize.Large (32px); the
+                // split layouts want the brand marks a notch smaller so they
+                // sit closer to the label's weight. Next step down the scale
+                // rather than an arbitrary size.
+                splitSignupStyle
+                  ? cloneElement(provider.icon, { size: IconSize.Medium })
+                  : provider.icon
+              }
               loading={!isReady || isSocialAuthLoading}
               onClick={() => onProviderClick?.(provider.value, false)}
               size={onboardingSignupButton?.size ?? ButtonSize.Large}
@@ -270,7 +279,6 @@ export const OnboardingRegistrationForm = ({
           )}
         >
           {emailButton}
-          {splitSignInSection}
           {memberAlready}
         </div>
       ) : (

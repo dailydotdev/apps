@@ -123,6 +123,52 @@ describe('OnboardingSignupHero', () => {
     expect(screen.queryByTestId('hero-halo')).not.toBeInTheDocument();
   });
 
+  it('renders the hero cover and the full element set for the panel background', () => {
+    renderHero({ background: 'panel', headline: 'Hello devs' });
+    expect(screen.getAllByTestId('landing-hero-cover').length).toBeGreaterThan(
+      0,
+    );
+    expect(screen.queryByTestId('bg-layer')).not.toBeInTheDocument();
+    expect(screen.getByTestId('logo')).toBeInTheDocument();
+    expect(screen.getByText('Hello devs')).toBeInTheDocument();
+    expect(screen.getByTestId('auth-form')).toBeInTheDocument();
+    expect(screen.getByTestId('footer')).toBeInTheDocument();
+    expect(screen.getByTestId('disclaimer')).toBeInTheDocument();
+  });
+
+  describe('legal row on the panel background', () => {
+    // jsdom does not evaluate media queries, so an element hidden by a `hidden`
+    // class is still in the DOM and a presence assertion proves nothing. The
+    // breakpoint it reappears at has to be read off the class list instead.
+    const revealBreakpoint = (element: HTMLElement): string | undefined => {
+      let node = element.parentElement;
+
+      while (node) {
+        if (/(^|\s)hidden(\s|$)/.test(node.className)) {
+          return node.className.match(/(\w+):(?:flex|block)/)?.[1];
+        }
+        node = node.parentElement;
+      }
+
+      return undefined;
+    };
+
+    // The cards/desk walls render neither below `tablet` (their `isMobile`
+    // branch omits both), so the panel matches rather than becoming the only
+    // wall with a phone-width disclosure.
+    it('reveals the signup disclosure at the same breakpoint as the other walls', () => {
+      renderHero({ background: 'panel' });
+
+      expect(revealBreakpoint(screen.getByTestId('disclaimer'))).toBe('tablet');
+    });
+
+    it('holds the footer links back to the two-column layout', () => {
+      renderHero({ background: 'panel' });
+
+      expect(revealBreakpoint(screen.getByTestId('footer'))).toBe('laptop');
+    });
+  });
+
   it('renders the form and headline', () => {
     renderHero({ headline: 'Hello devs' });
     expect(screen.getByTestId('auth-form')).toBeInTheDocument();

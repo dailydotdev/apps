@@ -20,11 +20,17 @@ import { OnboardingSignupHero } from '../components/OnboardingSignupHero';
 
 type FunnelHeroLandingProps = FunnelStepHeroLanding;
 
+const authContainerClass =
+  'w-full max-w-full rounded-none tablet:max-w-[30rem]';
+// AuthOptions reserves a 21.25rem minimum so its display swaps don't jolt the
+// page. The split layouts bottom-anchor their form, where that reservation
+// becomes dead space *under* the buttons that holds them off the bottom edge —
+// so they opt out and let the container hug its content instead.
+const splitAuthContainerClass = classNames(authContainerClass, '!min-h-0');
+
 const staticAuthProps = {
   className: {
-    container: classNames(
-      'w-full max-w-full rounded-none tablet:max-w-[30rem]',
-    ),
+    container: authContainerClass,
     onboardingSignup: '!gap-5 !pb-5 tablet:gap-8 tablet:pb-8',
   },
   forceDefaultDisplay: true,
@@ -78,6 +84,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
       !isEmailSignupActive &&
       isSocialSignupUser(user);
     const preferGithub = oauthOrder !== 'googleFirst';
+    const isSplitColumnBackground = background === 'panel';
 
     const onAuthStateUpdate = useCallback(
       (data: Partial<AuthProps>) => {
@@ -184,6 +191,17 @@ export const FunnelHeroLanding = withIsActiveGuard(
       >
         <AuthOptions
           {...staticAuthProps}
+          className={
+            isSplitColumnBackground
+              ? {
+                  ...staticAuthProps.className,
+                  container: splitAuthContainerClass,
+                }
+              : staticAuthProps.className
+          }
+          // "Sign up with…" / "Create account", plus the left-aligned login
+          // link — the copy the split-column layouts are designed around.
+          splitSignupStyle={isSplitColumnBackground}
           preferGithub={preferGithub}
           defaultDisplay={
             isSocialSignupActive ? AuthDisplay.SocialRegistration : authDisplay

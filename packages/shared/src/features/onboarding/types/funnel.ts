@@ -336,7 +336,13 @@ export interface FunnelStepOrganicCheckout extends FunnelStepCommon {
 // Redesigned signup landing — the "hero". Its own step type so its
 // individually toggleable building blocks don't collide with the original
 // organic signup. Each parameter is optional; the renderer applies defaults.
-export type FunnelSignupHeroBackground = 'cards' | 'split' | 'desk';
+export type FunnelSignupHeroBackground =
+  | 'cards'
+  | 'split'
+  | 'desk'
+  // Marketing-site parity: the form in a left column with the long landing
+  // page's hero cover artwork framed in the right one.
+  | 'panel';
 export type FunnelSignupHeroImageMode = 'image' | 'colors';
 export type FunnelSignupOauthOrder = 'githubFirst' | 'googleFirst';
 
