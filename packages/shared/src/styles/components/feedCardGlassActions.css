@@ -1,0 +1,139 @@
+/*
+ * Feed card floating action bar (`FeedCardGlassActions`).
+ *
+ * The bar floats over a post's cover image, so its contrast depends on pixels
+ * we don't control. Two things follow from that, both measured (see the
+ * "Glass Actions Theme Compare" Storybook page, which computes the WCAG ratios):
+ *
+ *   1. FILL OPACITY is the dominant lever. At the old 64% the cover composited
+ *      through and set the contrast, so one icon measured anywhere from 1.0:1 to
+ *      11:1 depending on the image. At 90% the spread collapses to well under a
+ *      point, which is what makes the ratios below dependable at all.
+ *      `--theme-background-default` already flips per theme (pepper.90 dark /
+ *      salt.0 light), so a single `color-mix` gives a dark bar in dark mode and
+ *      a white one in light mode.
+ *
+ *   2. The PRESSED accents need re-toning per theme. A pressed action swaps its
+ *      icon from the neutral `text-primary` to its own brand hue, and
+ *      `tailwind/buttons.ts` picks that hue from the ghost ladder (light .80 /
+ *      dark .40) — values tuned for a solid page background, not for a
+ *      near-white bar over arbitrary imagery. Unpatched, every light-mode
+ *      pressed icon lands between 1.0:1 and 2.9:1, and even dark mode fails on
+ *      downvote (ketchup.40 = 1.62:1 over a white cover).
+ *
+ * Light mode takes the darkest step of each ramp. avocado, blueCheese and cheese
+ * are high-luminance ramps that don't reach 3:1 even at .90, so they take the
+ * smallest mix with pepper.90 that does. Dark mode moves downvote and bookmark
+ * up the ramp for headroom. Worst cell after this: 3.01:1 light, 3.67:1 dark.
+ *
+ * Selector groups mirror `base.css` so `.invert` subtrees (and the companion
+ * wrapper) resolve the same way the theme mixins do.
+ */
+
+.feed-card-glass-actions {
+  background: color-mix(
+    in srgb,
+    var(--theme-background-default),
+    transparent 10%
+  );
+}
+
+/* Dark theme */
+html .feed-card-glass-actions,
+html.light .invert .feed-card-glass-actions,
+html .invert .invert .feed-card-glass-actions,
+#daily-companion-wrapper .feed-card-glass-actions,
+#daily-companion-wrapper.light .invert .feed-card-glass-actions,
+#daily-companion-wrapper .invert .invert .feed-card-glass-actions {
+  & .btn-tertiary-avocado {
+    --button-pressed-color: theme('colors.raw.avocado.40');
+    --button-hover-color: theme('colors.raw.avocado.40');
+  }
+
+  & .btn-tertiary-blueCheese {
+    --button-pressed-color: theme('colors.raw.blueCheese.40');
+    --button-hover-color: theme('colors.raw.blueCheese.40');
+  }
+
+  & .btn-tertiary-bun {
+    --button-pressed-color: theme('colors.raw.bun.20');
+    --button-hover-color: theme('colors.raw.bun.20');
+  }
+
+  & .btn-tertiary-ketchup {
+    --button-pressed-color: theme('colors.raw.ketchup.10');
+    --button-hover-color: theme('colors.raw.ketchup.10');
+  }
+
+  & .btn-tertiary-cabbage {
+    --button-pressed-color: theme('colors.raw.cabbage.40');
+    --button-hover-color: theme('colors.raw.cabbage.40');
+  }
+
+  & .btn-tertiary-cheese {
+    --button-pressed-color: theme('colors.raw.cheese.40');
+    --button-hover-color: theme('colors.raw.cheese.40');
+  }
+}
+
+/* Light theme */
+html.light .feed-card-glass-actions,
+html .invert .feed-card-glass-actions,
+html.light .invert .invert .feed-card-glass-actions,
+#daily-companion-wrapper.light .feed-card-glass-actions,
+#daily-companion-wrapper .invert .feed-card-glass-actions,
+#daily-companion-wrapper.light .invert .invert .feed-card-glass-actions {
+  & .btn-tertiary-avocado {
+    --button-pressed-color: color-mix(
+      in srgb,
+      theme('colors.raw.avocado.90') 83%,
+      theme('colors.raw.pepper.90')
+    );
+    --button-hover-color: color-mix(
+      in srgb,
+      theme('colors.raw.avocado.90') 83%,
+      theme('colors.raw.pepper.90')
+    );
+  }
+
+  & .btn-tertiary-blueCheese {
+    --button-pressed-color: color-mix(
+      in srgb,
+      theme('colors.raw.blueCheese.90') 90%,
+      theme('colors.raw.pepper.90')
+    );
+    --button-hover-color: color-mix(
+      in srgb,
+      theme('colors.raw.blueCheese.90') 90%,
+      theme('colors.raw.pepper.90')
+    );
+  }
+
+  & .btn-tertiary-bun {
+    --button-pressed-color: theme('colors.raw.bun.90');
+    --button-hover-color: theme('colors.raw.bun.90');
+  }
+
+  & .btn-tertiary-ketchup {
+    --button-pressed-color: theme('colors.raw.ketchup.60');
+    --button-hover-color: theme('colors.raw.ketchup.60');
+  }
+
+  & .btn-tertiary-cabbage {
+    --button-pressed-color: theme('colors.raw.cabbage.60');
+    --button-hover-color: theme('colors.raw.cabbage.60');
+  }
+
+  & .btn-tertiary-cheese {
+    --button-pressed-color: color-mix(
+      in srgb,
+      theme('colors.raw.cheese.90') 62%,
+      theme('colors.raw.pepper.90')
+    );
+    --button-hover-color: color-mix(
+      in srgb,
+      theme('colors.raw.cheese.90') 62%,
+      theme('colors.raw.pepper.90')
+    );
+  }
+}
