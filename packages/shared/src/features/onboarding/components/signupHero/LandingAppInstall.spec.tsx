@@ -44,7 +44,13 @@ describe('LandingAppInstall', () => {
   // The matrix is a hand-flattened constant while the destination lives in
   // APP_URL; nothing else notices if one moves without the other. Decoding the
   // committed modules the way a scanner would makes CI catch that drift.
-  it('keeps the QR matrix in sync with APP_URL', () => {
-    expect(decodeMatrix(parseRectPath(QR_PATH))).toBe(APP_URL);
+  it('keeps the QR matrix in sync with APP_URL at error correction H', () => {
+    const matrix = parseRectPath(QR_PATH);
+
+    expect(decodeMatrix(matrix)).toBe(APP_URL);
+    // Decoding alone would still pass at a weaker level, and the logo badge
+    // overlaps modules that only H's recovery budget can spare. 29 modules is
+    // version 3 at H for this URL; a weaker level shrinks the matrix.
+    expect(matrix.length).toBe(29);
   });
 });

@@ -10,6 +10,10 @@ import {
 // constant in the same commit - this spec exists to make CI fail when only
 // one of the two moves.
 const EXPECTED_URL = 'https://r.daily.dev/get?utm_source=header_qr';
+// Version 5 at error correction H for a URL this length. Decoding alone would
+// still pass at a weaker level, and the centred logo knockout is only safe
+// against H's recovery budget, so pin the size too: dropping to M shrinks it.
+const EXPECTED_SIZE = 37;
 
 describe('getAppQr.svg', () => {
   const svg = readFileSync(join(__dirname, 'getAppQr.svg'), 'utf8');
@@ -19,6 +23,10 @@ describe('getAppQr.svg', () => {
     expect(d).toBeTruthy();
 
     expect(decodeMatrix(parseStrokePath(d))).toBe(EXPECTED_URL);
+  });
+
+  it('should keep the module count error correction H produces', () => {
+    expect(parseStrokePath(d).length).toBe(EXPECTED_SIZE);
   });
 
   it('should declare a viewBox matching the matrix plus the quiet zone', () => {
