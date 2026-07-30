@@ -23,6 +23,8 @@ import type {
 import { HERO_STYLES } from './signupHero/heroStyles';
 import { HeroBackgroundLayer } from './signupHero/HeroBackgroundLayer';
 import { AuroraOrbs } from './signupHero/HeroDecorations';
+import { LandingHeroCover } from './signupHero/LandingHeroCover';
+import { LandingAppInstall } from './signupHero/LandingAppInstall';
 import { cloudinaryOnboardingLoginBackground } from '../../../lib/image';
 import { sanitizeMessage } from '../lib/utils';
 
@@ -54,6 +56,9 @@ const SIGNUP_CONTENT_MAX_W = 'max-w-[360px]';
 // fields have more room; kept as a named constant to document the deliberate
 // difference from SIGNUP_CONTENT_MAX_W.
 const SIGNUP_FORM_MAX_W = 'max-w-[440px]';
+// The panel's column is as wide as the expanded form, not the marketing wall:
+// the footer links and the disclaimer each need that width to stay on one line.
+const SIGNUP_SPLIT_COLUMN_MAX_W = SIGNUP_FORM_MAX_W;
 
 export const OnboardingSignupHero = ({
   children,
@@ -80,6 +85,7 @@ export const OnboardingSignupHero = ({
 
   const isSplitLayout = background === 'split';
   const isDeskVariant = background === 'desk';
+  const isPanelLayout = background === 'panel';
   const showOrbsLayer = showOrbs;
 
   // Once the user moves to the email registration / verification step, drop the
@@ -120,6 +126,115 @@ export const OnboardingSignupHero = ({
           <div className="max-w-sm text-right">
             <SignupDisclaimer className="!text-right !text-text-tertiary typo-caption1" />
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Marketing-landing parity: the signup wall reuses the exact same elements as
+  // the other backgrounds (logo, headline, auth options, disclaimer, footer
+  // links); only the shell around them changes. Above `laptop` the form sits in
+  // a left column with the hero artwork framed in the right one. Below it the
+  // layout stacks: the artwork takes the top of the screen and dissolves into
+  // the page background, with the form bottom-anchored underneath.
+  if (isPanelLayout) {
+    const signupColumn = (
+      <div
+        className={classNames(
+          'onb-hero-column flex w-full flex-col gap-6 tablet:gap-7 laptop:items-start laptop:gap-8',
+          SIGNUP_SPLIT_COLUMN_MAX_W,
+        )}
+      >
+        <Logo
+          position={LogoPosition.Relative}
+          className="onb-hero-logo !left-0 !top-0 !mt-0 !translate-x-0 self-center laptop:!self-start"
+          logoClassName={{ container: 'h-7' }}
+        />
+
+        {headline && (
+          <h1
+            // no leading-* here: the typo-* utilities set their own line-height
+            // and win the cascade, so it would be a dead class. The
+            // onb-hero-headline hook drives the compact-phone step-down.
+            className="onb-hero-headline text-balance text-center font-bold tracking-tight text-text-primary typo-large-title tablet:typo-mega3 laptop:text-left"
+          >
+            {headline}
+          </h1>
+        )}
+
+        {children}
+      </div>
+    );
+
+    return (
+      <div className="onb-split relative isolate z-3 flex min-h-dvh w-full flex-col overflow-hidden bg-background-default text-text-primary laptop:grid laptop:grid-cols-2 laptop:items-stretch">
+        <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
+
+        <div className="relative z-1 flex min-w-0 flex-1 flex-col laptop:col-start-1 laptop:row-start-1 laptop:min-h-dvh">
+          {/* Stacked, the artwork owns the top of the screen and dissolves into
+              the page background over the lower part of it. It is absolute
+              rather than in flow — at half the viewport there is no room left
+              for the form otherwise — so the form bottom-anchors underneath and
+              the two meet inside the gradient. */}
+          <div
+            aria-hidden
+            className="onb-art-half pointer-events-none absolute inset-x-0 top-0 select-none overflow-hidden laptop:hidden"
+          >
+            <LandingHeroCover
+              focus="subjectHigh"
+              zoom
+              className="absolute inset-0"
+            />
+            <div className="onb-art-fade absolute inset-x-0 bottom-0 h-3/5" />
+          </div>
+
+          <main
+            // relative: the artwork layer is absolutely positioned in the same
+            // stacking context, so static content would paint under it.
+            // pb-10: below `tablet` the legal row is hidden, so nothing sits
+            // under the form and the column has to carry its own bottom
+            // breathing room (and clear the iOS home indicator). From `tablet`
+            // up the legal row provides it instead.
+            className="onb-hero-main relative z-1 flex w-full flex-1 flex-col items-center px-5 pb-10 tablet:pb-0 laptop:px-10"
+          >
+            {signupColumn}
+          </main>
+
+          {/* The legal row is constrained to the same column width as the form
+              so its left edge lines up with the buttons above it.
+
+              It appears from `tablet` up, which is exactly where the cards and
+              desk walls put theirs: their `isMobile` branch (below `tablet`)
+              renders neither FooterLinks nor SignupDisclaimer. Matching that
+              keeps this variant consistent with what ships today rather than
+              making it the only wall with a phone-width disclosure. The gap on
+              phones is real but pre-existing and product-wide — see the PR
+              description.
+
+              Footer links stay `laptop`-only on top of that: seven links wrap
+              into a block the size of the form on anything narrower. */}
+          <div className="onb-split-legal pointer-events-auto relative z-1 hidden w-full flex-col items-center gap-3 px-5 pb-6 pt-5 tablet:flex laptop:px-10 laptop:pb-8 laptop:pt-0">
+            <div
+              className={classNames(
+                'flex w-full flex-col items-center gap-3 laptop:items-start',
+                SIGNUP_SPLIT_COLUMN_MAX_W,
+              )}
+            >
+              {/* the seven links need ~465px at the default gap; nowrap plus a
+                  slightly tighter gap keeps them on one line inside the column */}
+              <div className="hidden laptop:block [&_footer]:!pb-0 [&_ul]:!mb-0 laptop:[&_ul]:!flex-nowrap laptop:[&_ul]:!justify-start laptop:[&_ul]:!gap-x-2.5">
+                <FooterLinks />
+              </div>
+              <SignupDisclaimer className="!text-text-tertiary typo-caption1 laptop:!text-left" />
+            </div>
+          </div>
+        </div>
+
+        {/* The panel deliberately does NOT clip: its ambilight needs to spill
+            past the column edge rather than being cut off at it. */}
+        <div className="relative hidden p-10 laptop:col-start-2 laptop:row-start-1 laptop:block laptop:min-h-dvh">
+          <LandingHeroCover variant="panel" ambilight className="h-full" />
+          <LandingAppInstall className="absolute bottom-14 right-14" />
         </div>
       </div>
     );
