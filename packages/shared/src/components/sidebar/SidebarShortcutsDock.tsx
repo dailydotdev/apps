@@ -1076,7 +1076,11 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
 
       <DragOverlay dropAnimation={dropAnimation}>
         {activeResolved ? (
-          <div className="relative flex cursor-grabbing items-center">
+          // pointer-events-none: the overlay follows the cursor and dnd-kit does
+          // not disable pointer events on it, so without this the button inside
+          // matches `:hover` and paints `hover:bg-surface-hover` over the whole
+          // glass chip.
+          <div className="pointer-events-none relative flex cursor-grabbing items-center">
             <div
               className={classNames(
                 dockButtonClass,

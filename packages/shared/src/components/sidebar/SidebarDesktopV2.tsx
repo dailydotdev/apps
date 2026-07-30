@@ -286,7 +286,8 @@ const SortableRailTab = ({
       // and the one it displaces. The rail mixes tall tabs with the shorter
       // New post button, so that ratio squashed/stretched them mid-drag.
       // While dragging, the REAL element stays parked in the list as a slot
-      // skeleton and a pointer-events-none DragOverlay ghost follows the
+      // skeleton and a DragOverlay ghost (which we mark pointer-events-none;
+      // dnd-kit does not) follows the
       // cursor (same architecture as the shortcuts dock). This is what makes
       // the notifications tab safe to drag: its live anchor is never under
       // the pointer at release, so the browser's post-drag click can't hit
@@ -2188,7 +2189,16 @@ export const SidebarDesktopV2 = ({
                         aria-hidden
                         ref={stripRailGhostIds}
                         className={classNames(
-                          'w-full scale-110 cursor-grabbing transition-all duration-150',
+                          // `pointer-events-none` is not decoration. dnd-kit's
+                          // DragOverlay only sets `position:fixed;touch-action:
+                          // none` — it does NOT disable pointer events — and the
+                          // overlay tracks the cursor, so the pointer sits on the
+                          // ghost and the tab inside it matches `:hover`. That
+                          // painted `hover:bg-surface-hover` (12%) across the
+                          // whole chip on top of the ghost's own 8%, which is
+                          // what made it read as a solid block no matter how far
+                          // the ghost's own fill was lowered.
+                          'pointer-events-none w-full scale-110 cursor-grabbing transition-all duration-150',
                           activeRailId !== RAIL_CREATE_ID &&
                             sidebarDragGhostClass,
                         )}
