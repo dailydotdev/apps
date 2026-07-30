@@ -540,6 +540,7 @@ export enum TargetType {
   OnboardingChecklist = 'onboarding checklist',
   LoginButton = 'login button',
   SignupButton = 'signup button',
+  GetAppButton = 'get app button',
   SquadJoinButton = 'squad join button',
   SearchRecommendation = 'search rec',
   SearchHistory = 'search history',
