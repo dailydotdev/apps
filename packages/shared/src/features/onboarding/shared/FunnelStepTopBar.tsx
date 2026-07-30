@@ -21,7 +21,7 @@ export interface FunnelStepTopBarProps {
  * to the strip's row as well as the mark itself, so the two stay locked together
  * (see the row comment below).
  */
-const desktopLogoHeight = 'laptop:h-7';
+const desktopLogoHeight = 'laptop:h-6';
 
 /**
  * The onboarding funnel's chrome: brand on the left, the way out on the right.
