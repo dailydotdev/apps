@@ -141,10 +141,6 @@ export const ContentTypes = ({
               title={title}
               description={description}
               icon={contentTypeIcon[title]}
-              inputProps={{
-                checked: !checkSourceBlocked(source),
-                name: `advancedSettings-${id}`,
-              }}
             />
           );
         })}
@@ -158,10 +154,6 @@ export const ContentTypes = ({
               title={title}
               description={description}
               icon={contentTypeIcon[title]}
-              inputProps={{
-                checked: selectedSettings[id] ?? defaultEnabledState,
-                name: `advancedSettings-${id}`,
-              }}
             />
           ),
         )}

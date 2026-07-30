@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactElement, ComponentProps } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import { EdgeAura } from 'edge-aura/react';
+import dynamic from 'next/dynamic';
 import type { EdgeAuraOptions } from 'edge-aura';
 import type { FunnelStep } from '../types/funnel';
 import { FunnelStepType, FunnelBackgroundVariant } from '../types/funnel';
@@ -10,6 +10,15 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { isFunnelPricingV2 } from '../steps/FunnelPricing/common';
 import { OnboardingBackground } from './OnboardingBackground';
 import { useOnboardingChrome } from './useOnboardingChrome';
+
+// Loaded only by the arm that draws it. `edge-aura/react` pulls in the canvas
+// engine, and this module renders on every funnel step — a static import would
+// ship it to the whole control cohort and into the extension bundle for a
+// background they never see. The `edge-aura` type import above is erased.
+const EdgeAura = dynamic(
+  () => import('edge-aura/react').then((mod) => mod.EdgeAura),
+  { ssr: false },
+);
 
 interface StepBackgroundProps extends ComponentProps<'div'> {
   step: FunnelStep;

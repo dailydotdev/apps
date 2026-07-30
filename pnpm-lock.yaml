@@ -455,7 +455,7 @@ importers:
         specifier: ^1.0.0
         version: 1.1.1(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       edge-aura:
-        specifier: ^0.6.0
+        specifier: 0.6.0
         version: 0.6.0(react@18.3.1)
       emojibase-data:
         specifier: ^17.0.0

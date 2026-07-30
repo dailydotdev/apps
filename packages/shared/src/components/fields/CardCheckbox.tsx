@@ -1,4 +1,4 @@
-import type { ComponentType, InputHTMLAttributes, ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import {
@@ -15,7 +15,6 @@ interface CustomCheckboxProps {
   title: string;
   description: string;
   onCheckboxToggle: () => void;
-  inputProps?: InputHTMLAttributes<HTMLInputElement>;
   className?: string;
   // Optional: cards whose option has no icon mapped still lay out correctly.
   icon?: ComponentType<{ size?: IconSize; secondary?: boolean }>;
@@ -33,14 +32,17 @@ export const CardCheckbox = ({
   title,
   description,
   onCheckboxToggle,
-  inputProps = {},
   className,
   icon: Icon,
 }: CustomCheckboxProps): ReactElement => {
   return (
+    // A multi-select set, so `checkbox` + `aria-checked`: a screen reader
+    // announces these as checked options rather than as pressed toggle buttons.
+    // This ARIA is all assistive tech gets — there is no real input behind it.
     <button
       type="button"
-      aria-pressed={checked}
+      role="checkbox"
+      aria-checked={checked}
       onClick={onCheckboxToggle}
       data-funnel-track={FunnelTargetId.FeedContentType}
       className={classNames(
@@ -52,13 +54,6 @@ export const CardCheckbox = ({
         className,
       )}
     >
-      <input
-        {...inputProps}
-        type="checkbox"
-        hidden
-        readOnly
-        checked={checked}
-      />
       {Icon && (
         <span
           aria-hidden
@@ -90,7 +85,10 @@ export const CardCheckbox = ({
           'mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full transition-colors',
           checked
             ? 'bg-accent-cabbage-default text-white'
-            : 'border border-border-subtlest-secondary group-hover:border-accent-cabbage-default',
+            : // The empty ring is the only thing marking an unselected card as
+              // selectable, so it takes the strongest of the subtlest borders —
+              // `secondary` is the same hue at 40% and washes out on light.
+              'border border-border-subtlest-primary group-hover:border-accent-cabbage-default',
         )}
       >
         {checked && <VIcon secondary size={IconSize.XXSmall} />}

@@ -12,6 +12,14 @@ import { TOGGLEABLE_TYPES } from '../../feeds/FeedSettings/sections/FeedSettings
  * paid funnel keeps them, so this is applied per-funnel — and it has to be
  * applied to the enable gate as well as the rendered cards, or the "pick at
  * least one" guard counts a card nobody can see.
+ *
+ * Keyed on the API's display copy, which is how every other join into this data
+ * already works: `TOGGLEABLE_TYPES` and `getAdvancedContentTypes` select by
+ * title, and `contentTypeIcon` maps icons by title. A backend rename therefore
+ * un-retires these cards — the same blast radius a rename already has on the
+ * icon and toggle lists, and the reason these three lists live next to the
+ * cards they describe. `AdvancedSettings.id` is an autoincrement row id, so it
+ * would be a magic number here rather than a stabler key.
  */
 export const RETIRED_CONTENT_TITLES = ['Community picks', 'Standups'];
 

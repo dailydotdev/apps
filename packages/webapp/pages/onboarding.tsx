@@ -64,6 +64,7 @@ import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
 import { isLocalhost } from '@dailydotdev/shared/src/lib/config';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
+import SignupDisclaimer from '@dailydotdev/shared/src/components/auth/SignupDisclaimer';
 import { getPageSeoTitles } from '../components/layouts/utils';
 import { FunnelSwipeOnboardingStep } from '../components/onboarding/FunnelSwipeOnboardingStep';
 import { defaultOpenGraph, defaultSeo } from '../next-seo';
@@ -412,6 +413,13 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
         <FunnelStepTopBar />
         <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
+        </div>
+        {/* The inline disclaimer is suppressed above so it doesn't sit in the
+            middle of the form, which leaves this the only Terms/Privacy notice
+            on the wall, account-details and verify-email screens. Docked here it
+            shows on every width; the funnel steps that follow create nothing. */}
+        <div className="relative z-2 w-full px-4 pb-6 tablet:px-6">
+          <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
         </div>
       </div>
     );

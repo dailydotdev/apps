@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { OnboardingSignupHero } from './OnboardingSignupHero';
+import { FunnelProgressContext } from '../shared/FunnelStepDots';
 import { cloudinaryOnboardingLoginBackground } from '../../../lib/image';
 import { useViewSize } from '../../../hooks';
 
@@ -53,6 +54,25 @@ const renderHero = (
     <OnboardingSignupHero background="desk" {...props}>
       <div data-testid="auth-form" />
     </OnboardingSignupHero>,
+  );
+
+// Same hero, wrapped in the post-signup funnel's progress context — which is
+// how the component knows it is on `/onboarding` rather than the paid funnel.
+const renderHeroInFunnel = (
+  props: Partial<React.ComponentProps<typeof OnboardingSignupHero>> = {},
+) =>
+  render(
+    <FunnelProgressContext.Provider
+      value={{
+        chapters: [{ steps: 1 }],
+        position: { chapter: 0, step: 0 },
+        isOnboarding: true,
+      }}
+    >
+      <OnboardingSignupHero background="desk" {...props}>
+        <div data-testid="auth-form" />
+      </OnboardingSignupHero>
+    </FunnelProgressContext.Provider>,
   );
 
 describe('OnboardingSignupHero', () => {
@@ -191,6 +211,15 @@ describe('OnboardingSignupHero', () => {
         screen.queryByAltText('Onboarding background'),
       ).not.toBeInTheDocument();
       expect(screen.getByTestId('logo')).toBeInTheDocument();
+    });
+
+    // This is the screen that creates the account, and it is the last one in
+    // the onboarding flow to carry a Terms/Privacy notice — the wall behind it
+    // only shows its own from `tablet` up. The footer nav still goes.
+    it('keeps the disclaimer but not the footer links in the funnel', () => {
+      renderHeroInFunnel({ isFormExpanded: true });
+      expect(screen.getByTestId('disclaimer')).toBeInTheDocument();
+      expect(screen.queryByTestId('footer')).not.toBeInTheDocument();
     });
   });
 });

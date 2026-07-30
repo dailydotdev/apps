@@ -41,7 +41,7 @@ function FunnelContentTypesComponent({
   return (
     <FunnelStepCtaWrapper
       isGlass
-      cta={{ label: cta || (isOnboarding ? 'Continue' : 'Next') }}
+      cta={{ label: cta }}
       onClick={handleComplete}
       containerClassName={
         isOnboarding

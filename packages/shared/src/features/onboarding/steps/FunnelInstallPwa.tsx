@@ -19,7 +19,7 @@ function FunnelInstallPwaComponent({
   return (
     <FunnelStepCtaWrapper
       isGlass
-      cta={{ label: cta || (isOnboarding ? 'Continue' : 'Next') }}
+      cta={{ label: cta }}
       onClick={() => onTransition({ type: FunnelStepTransitionType.Complete })}
     >
       <div

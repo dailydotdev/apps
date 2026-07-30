@@ -13,24 +13,20 @@ import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 
-function FunnelReadingReminderComponent({
-  parameters: { headline },
-  onTransition,
-}: FunnelStepReadingReminder): ReactElement | null {
-  const isOnboarding = useIsOnboardingFunnel();
-  const onClickNext = () =>
-    onTransition({ type: FunnelStepTransitionType.Complete });
-  const state = useReadingReminder({ onClickNext });
+interface OnboardingReadingReminderStepProps {
+  headline?: string;
+  onClickNext: () => void;
+}
 
-  // The paid funnel's screen owns its own Submit / "I'll do it later" buttons,
-  // so it needs no CTA wrapper — this is main's markup unchanged.
-  if (!isOnboarding) {
-    return (
-      <div className="flex w-full flex-1 flex-col items-center justify-center overflow-hidden p-6 pt-10 tablet:max-w-96">
-        <ReadingReminder headline={headline} onClickNext={onClickNext} />
-      </div>
-    );
-  }
+// `useReadingReminder` logs an impression and mounts the push/digest mutations
+// on mount, and the paid funnel's `ReadingReminder` runs the same effects
+// internally — so the hook has to live on the branch that renders it, not above
+// the fork, or `/helloworld` logs the step twice per view.
+function OnboardingReadingReminderStep({
+  headline,
+  onClickNext,
+}: OnboardingReadingReminderStepProps): ReactElement {
+  const state = useReadingReminder({ onClickNext });
 
   return (
     <FunnelStepCtaWrapper
@@ -50,6 +46,32 @@ function FunnelReadingReminderComponent({
         <OnboardingReadingReminder headline={headline} state={state} />
       </div>
     </FunnelStepCtaWrapper>
+  );
+}
+
+function FunnelReadingReminderComponent({
+  parameters: { headline },
+  onTransition,
+}: FunnelStepReadingReminder): ReactElement | null {
+  const isOnboarding = useIsOnboardingFunnel();
+  const onClickNext = () =>
+    onTransition({ type: FunnelStepTransitionType.Complete });
+
+  // The paid funnel's screen owns its own Submit / "I'll do it later" buttons,
+  // so it needs no CTA wrapper — this is main's markup unchanged.
+  if (!isOnboarding) {
+    return (
+      <div className="flex w-full flex-1 flex-col items-center justify-center overflow-hidden p-6 pt-10 tablet:max-w-96">
+        <ReadingReminder headline={headline} onClickNext={onClickNext} />
+      </div>
+    );
+  }
+
+  return (
+    <OnboardingReadingReminderStep
+      headline={headline}
+      onClickNext={onClickNext}
+    />
   );
 }
 

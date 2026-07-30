@@ -35,7 +35,7 @@ function FunnelEditTagsComponent({
   return (
     <FunnelStepCtaWrapper
       isGlass
-      cta={{ label: cta || (isOnboarding ? 'Continue' : 'Next') }}
+      cta={{ label: cta }}
       // Disabled, not hidden: the bar stays put below the tag minimum, the same
       // as the verify-email step's CTA before a full code is entered. Fading it
       // out left the step with no visible target and no hint that one was

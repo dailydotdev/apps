@@ -63,10 +63,11 @@ export const PlusListItem = ({
       // emitted nothing), which left `!max-w-full` un-capping the tooltip to the
       // full viewport — the reason these stretched. This applies to every Plus
       // surface, not just the funnel, because the un-capping was wrong on all of
-      // them; see the PR description.
+      // them; see the PR description. The centering is left as it was: it is
+      // not what was broken, and it ships to the same surfaces.
       wrapper={(component: ReactNode) => (
         <Tooltip
-          className="items-start text-left"
+          className="text-center"
           content={item.tooltip}
           delayDuration={0}
           enableMobileClick

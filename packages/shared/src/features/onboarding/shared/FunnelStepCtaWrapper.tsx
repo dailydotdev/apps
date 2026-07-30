@@ -53,6 +53,15 @@ export type FunnelStepCtaWrapperProps = ButtonProps<'button'> &
  */
 export const funnelStepRail = 'mx-auto w-full max-w-[32rem] px-6';
 
+/**
+ * The two funnels advance with different words, and each branch below owns its
+ * own default so a step only passes a label when it wants something other than
+ * its funnel's. The glass branch is onboarding-only by construction, which is
+ * what makes one component carrying two defaults safe.
+ */
+const DEFAULT_CTA_LABEL = 'Next';
+const DEFAULT_ONBOARDING_CTA_LABEL = 'Continue';
+
 export function FunnelStepCtaWrapper({
   children,
   className,
@@ -104,7 +113,7 @@ export function FunnelStepCtaWrapper({
             variant={ButtonVariant.Primary}
             {...props}
           >
-            {cta?.label ?? 'Next'}
+            {cta?.label || DEFAULT_CTA_LABEL}
           </Button>
           {skip && (
             <Button
@@ -175,7 +184,7 @@ export function FunnelStepCtaWrapper({
               variant={ButtonVariant.Primary}
               {...props}
             >
-              {cta?.label ?? 'Continue'}
+              {cta?.label || DEFAULT_ONBOARDING_CTA_LABEL}
             </Button>
           </div>
           {/* Under the bar, not above it: the CTA is what the eye should land
