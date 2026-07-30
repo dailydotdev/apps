@@ -356,16 +356,6 @@ const nextConfig: NextConfig = {
           ],
         },
         {
-          source: '/llms.txt',
-          headers: [
-            { key: 'Content-Type', value: 'text/plain; charset=utf-8' },
-            {
-              key: 'Cache-Control',
-              value: 'public, max-age=86400, stale-while-revalidate=604800',
-            },
-          ],
-        },
-        {
           // Static page (headers can't come from the page itself); framing is
           // limited to our own origin and our extensions. This CSP takes
           // precedence over the global X-Frame-Options in modern browsers.

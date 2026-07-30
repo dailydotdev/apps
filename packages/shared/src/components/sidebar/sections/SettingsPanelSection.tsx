@@ -11,7 +11,6 @@ import {
   EyeIcon,
   FeatherIcon,
   HashtagIcon,
-  HotIcon,
   InviteIcon,
   JobIcon,
   MagicIcon,
@@ -213,17 +212,12 @@ export const SettingsPanelSection = ({
         title: 'Gamification',
         items: [
           {
+            // The streak settings live on this same combined page, so there's
+            // no separate "Streaks" entry.
             title: 'Feature visibility',
             path: `${settingsUrl}/customization/gamification`,
             icon: (active: boolean) => (
               <ListIcon Icon={() => <EyeIcon secondary={active} />} />
-            ),
-          },
-          {
-            title: 'Streaks',
-            path: `${settingsUrl}/customization/streaks`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <HotIcon secondary={active} />} />
             ),
           },
         ],
