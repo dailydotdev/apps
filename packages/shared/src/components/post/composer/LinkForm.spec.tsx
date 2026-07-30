@@ -56,7 +56,7 @@ const renderLinkForm = ({
 
   render(<FormHarness />);
 
-  return { fetchPreview, onSubmit };
+  return { onSubmit };
 };
 
 describe('LinkForm', () => {

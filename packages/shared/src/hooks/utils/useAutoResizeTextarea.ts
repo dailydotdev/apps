@@ -1,14 +1,10 @@
 import type { RefObject } from 'react';
 import { useLayoutEffect } from 'react';
 
-interface UseAutoResizeTextareaOptions {
-  maxHeight?: number;
-}
-
 export const useAutoResizeTextarea = (
   textareaRef: RefObject<HTMLTextAreaElement>,
   value: string,
-  { maxHeight }: UseAutoResizeTextareaOptions = {},
+  maxHeight?: number,
 ): void => {
   useLayoutEffect(() => {
     const textarea = textareaRef.current;

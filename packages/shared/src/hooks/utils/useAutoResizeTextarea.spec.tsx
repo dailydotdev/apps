@@ -13,7 +13,7 @@ const TestTextarea = ({
 }: TestTextareaProps): React.ReactElement => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useAutoResizeTextarea(textareaRef, value, { maxHeight });
+  useAutoResizeTextarea(textareaRef, value, maxHeight);
 
   return (
     <textarea

@@ -76,9 +76,7 @@ export const LinkForm = ({
     isPreviewForComposerUrl(preview, value.url) && !isDismissedForCurrentUrl;
   const showSkeleton = isLoadingPreview && !isDismissedForCurrentUrl;
 
-  useAutoResizeTextarea(commentaryRef, value.commentary, {
-    maxHeight: COMMENTARY_MAX_HEIGHT,
-  });
+  useAutoResizeTextarea(commentaryRef, value.commentary, COMMENTARY_MAX_HEIGHT);
 
   const onUrlKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {
