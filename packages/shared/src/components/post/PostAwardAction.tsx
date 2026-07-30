@@ -15,12 +15,13 @@ import { AuthTriggers } from '../../lib/auth';
 import { LazyModal } from '../modals/common/types';
 import type { LoggedUser } from '../../lib/user';
 import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
+import type { CardActionDensity } from '../buttons/CardAction';
 import PostAwardActionV2 from './PostAwardAction.v2';
 
 export interface PostAwardActionProps {
   post: Post;
   iconSize?: IconSize;
-  density?: 'comfortable' | 'compact';
+  density?: CardActionDensity;
 }
 
 const PostAwardActionV1 = ({ post, iconSize }: PostAwardActionProps) => {

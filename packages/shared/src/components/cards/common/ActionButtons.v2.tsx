@@ -39,11 +39,14 @@ export interface ActionButtonsProps {
   showAwardAction?: boolean;
 }
 
-const FEED_CARD_DENSITY = 'compact';
+const FEED_CARD_DENSITY = 'tight';
 
 const variantConfig = {
   grid: {
-    containerClassName: 'px-1 pb-1',
+    // Same padding as the v1 bar and the glass pill: `py-1.5` keeps the row at
+    // 36px around the h-6 buttons, and the wider right edge gives the trailing
+    // impressions number room so it doesn't read as touching the card.
+    containerClassName: 'py-1.5 pl-1 pr-2.5',
     showTagsPanel: false,
     useCommentLink: false,
   },

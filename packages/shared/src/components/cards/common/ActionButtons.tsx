@@ -52,7 +52,10 @@ const variantConfig = {
     iconSize: IconSize.Size16,
     // Asymmetric like the glass pill: the left edge holds an icon, the right
     // edge holds the impressions number, which needs more room to sit right.
-    containerClassName: 'pb-1 pl-1 pr-2.5',
+    // `py-1.5` around the h-6 buttons gives the row the same 36px height the
+    // bar had at the previous (wider) button size, so shrinking the actions to
+    // fit the 272px card doesn't make the bar read as cramped vertically.
+    containerClassName: 'py-1.5 pl-1 pr-2.5',
     showTagsPanel: false,
     useCommentLink: false,
   },
