@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
+import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { GetAppButton } from '@dailydotdev/shared/src/features/getApp/components/GetAppButton';
 import { GetAppQrCode } from '@dailydotdev/shared/src/features/getApp/components/GetAppQrCode';
 import {
@@ -20,9 +22,16 @@ const meta: Meta<typeof GetAppButton> = {
   decorators: [
     (Story) => (
       <QueryClientProvider client={queryClient}>
-        <div className="min-h-96 bg-background-default p-6">
-          <Story />
-        </div>
+        {/* The render gate reads isAndroidApp from AuthContext (the Android
+            wrapper has no runtime bridge), so the story must provide the
+            context the real app always has. */}
+        <AuthContext.Provider
+          value={{ isAndroidApp: false } as unknown as AuthContextData}
+        >
+          <div className="min-h-96 bg-background-default p-6">
+            <Story />
+          </div>
+        </AuthContext.Provider>
       </QueryClientProvider>
     ),
   ],
