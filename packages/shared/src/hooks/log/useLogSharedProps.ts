@@ -6,6 +6,8 @@ import SettingsContext from '../../contexts/SettingsContext';
 import AuthContext from '../../contexts/AuthContext';
 import { getCookies } from '../../lib/cookie';
 import { getIubendaConsent } from '../../lib/iubenda';
+import { useFeature } from '../../components/GrowthBookProvider';
+import { featureIubendaCmp } from '../../lib/featureManagement';
 
 const COOKIES = ['_ga', '_fbp', '_fbc', 'gbuuid'];
 
@@ -19,6 +21,7 @@ export default function useLogSharedProps(
   const { query } = useRouter();
   const { themeMode, spaciness, insaneMode } = useContext(SettingsContext);
   const { visit, anonymous, tokenRefreshed, user } = useContext(AuthContext);
+  const iubendaCmp = useFeature(featureIubendaCmp);
   const [sharedPropsSet, setSharedPropsSet] = useState(false);
 
   const [visitId, setVisitId] = useState<string>();
@@ -77,7 +80,7 @@ export default function useLogSharedProps(
         visit_id: visitId,
         device_id: _deviceId,
         cookies: cookies === '{}' ? undefined : cookies,
-        consent_id: getIubendaConsent()?.consentId,
+        consent_id: iubendaCmp ? getIubendaConsent()?.consentId : undefined,
       };
       setSharedPropsSet(true);
     });
