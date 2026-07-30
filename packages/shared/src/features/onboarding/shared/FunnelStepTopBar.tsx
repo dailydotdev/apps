@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { ButtonProps } from '../../../components/buttons/Button';
 import {
   Button,
@@ -13,6 +14,14 @@ import { FunnelTargetId } from '../types/funnelEvents';
 export interface FunnelStepTopBarProps {
   skip?: ButtonProps<'button'> & { cta?: string };
 }
+
+/**
+ * Logo height on desktop. `h-logo` (18px) is the app header's size, which reads
+ * as an afterthought on a full-screen funnel step; this is the step up. Applied
+ * to the strip's row as well as the mark itself, so the two stay locked together
+ * (see the row comment below).
+ */
+const desktopLogoHeight = 'laptop:h-7';
 
 /**
  * The onboarding funnel's chrome: brand on the left, the way out on the right.
@@ -43,14 +52,19 @@ export function FunnelStepTopBar({
           transparent text button, so it simply overflows the row symmetrically
           and stays optically centred on the logo. Sizing the row off the logo
           also keeps its y identical on steps with and without a skip. */}
-      <div className="flex h-logo w-full items-center justify-between gap-3 px-6 laptop:h-logo-big">
+      <div
+        className={classNames(
+          'flex h-logo w-full items-center justify-between gap-3 px-6',
+          desktopLogoHeight,
+        )}
+      >
         {/* Icon only below laptop: the wordmark costs width the skip button
             needs on a 390px screen. */}
         <Logo
           className="pointer-events-auto h-fit w-fit"
           hideTextMobile
           linkDisabled
-          logoClassName={{ container: 'h-logo laptop:h-logo-big' }}
+          logoClassName={{ container: classNames('h-logo', desktopLogoHeight) }}
           position={LogoPosition.Empty}
         />
         {skip && (
