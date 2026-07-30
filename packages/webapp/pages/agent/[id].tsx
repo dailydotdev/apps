@@ -32,8 +32,7 @@ import {
 } from '@dailydotdev/shared/src/features/interests/AgentContext';
 import { AgentHero } from '@dailydotdev/shared/src/features/interests/components/AgentHero';
 import { AgentToolbar } from '@dailydotdev/shared/src/features/interests/components/AgentToolbar';
-import { AgentFeedSection } from '@dailydotdev/shared/src/features/interests/components/AgentFeedSection';
-import { AgentPostSection } from '@dailydotdev/shared/src/features/interests/components/AgentPostSection';
+import { AgentChatSection } from '@dailydotdev/shared/src/features/interests/components/AgentChatSection';
 import { AgentActivitySection } from '@dailydotdev/shared/src/features/interests/components/AgentActivitySection';
 import { AgentDebugPanel } from '@dailydotdev/shared/src/features/interests/components/AgentDebugPanel';
 import { AgentSettingsModal } from '@dailydotdev/shared/src/features/interests/components/AgentSettingsModal';
@@ -41,57 +40,40 @@ import {
   mockAgentPosts,
   mockInterest,
 } from '@dailydotdev/shared/src/features/interests/mock';
+import { mockConversation } from '@dailydotdev/shared/src/features/interests/chat';
 import type { AgentFeedItem } from '@dailydotdev/shared/src/features/interests/hooks/useAgentFeed';
-import type { InterestPost } from '@dailydotdev/shared/src/graphql/interests';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
-type AgentTab = 'Feed' | 'Posts' | 'Activity' | 'Debug';
+type AgentTab = 'Chat' | 'Activity' | 'Debug';
 
 const AgentPageBody = ({
   items,
-  isPending,
-  isFetching,
-  onRefresh,
-  posts,
-  isPostsPending,
+  postsCount,
   onDelete,
   isDeleting,
 }: {
   items: AgentFeedItem[];
-  isPending: boolean;
-  isFetching: boolean;
-  onRefresh: () => void;
-  posts: InterestPost[];
-  isPostsPending: boolean;
+  postsCount: number;
   onDelete: () => void;
   isDeleting: boolean;
 }): ReactElement => {
   const { isSettingsOpen, setSettingsOpen } = useAgent();
-  const [tab, setTab] = useState<AgentTab>('Feed');
+  const [tab, setTab] = useState<AgentTab>('Chat');
 
   return (
     <>
-      <FlexCol className="mx-auto w-full max-w-[68rem] gap-6 px-4 pb-72 pt-4">
-        <AgentHero findingsCount={items.length} postsCount={posts.length} />
+      <FlexCol className="mx-auto w-full max-w-[48rem] gap-6 px-4 pb-72 pt-4">
+        <AgentHero findingsCount={items.length} postsCount={postsCount} />
         <TabContainer<AgentTab>
           controlledActive={tab}
           onActiveChange={setTab}
           showBorder
         >
-          <Tab label="Feed" className="pt-4">
-            <AgentFeedSection
-              items={items}
-              isPending={isPending}
-              isFetching={isFetching}
-              onRefresh={onRefresh}
-              heroPost={posts[0]}
-            />
-          </Tab>
-          <Tab label="Posts" className="pt-4">
-            <AgentPostSection posts={posts} isPending={isPostsPending} />
+          <Tab label="Chat" className="pt-4">
+            <AgentChatSection />
           </Tab>
           <Tab label="Activity" className="pt-4">
             <AgentActivitySection />
@@ -151,7 +133,13 @@ const Page = (): ReactElement | null => {
 
   return (
     <ProtectedPage>
-      <AgentProvider id={id} interest={interest} isDemo={feed.isDemo} key={id}>
+      <AgentProvider
+        id={id}
+        interest={interest}
+        isDemo={feed.isDemo}
+        initialMessages={feed.isDemo ? mockConversation : []}
+        key={id}
+      >
         <PageHeader title={interest?.query ?? 'Your agent'}>
           <Link href={`${webappUrl}agent`}>
             <Button
@@ -164,11 +152,7 @@ const Page = (): ReactElement | null => {
         </PageHeader>
         <AgentPageBody
           items={feed.items}
-          isPending={feed.isPending}
-          isFetching={feed.isFetching}
-          onRefresh={feed.refetch}
-          posts={posts as InterestPost[]}
-          isPostsPending={postsQuery.isPending && !useMockPosts}
+          postsCount={posts.length}
           onDelete={() => deleteInterest(id)}
           isDeleting={isDeleting}
         />

@@ -86,6 +86,3 @@ export const mockActivity: AgentActivityItem[] = [
     text: 'Picked up Ghostty going open source 4 minutes after it went live',
   },
 ];
-
-export const mockRevisionNote = (feedback: string): string =>
-  `<p class="agent-revision"><em>Rewritten after your note: “${feedback}”. I dropped the sections you called noise and led with the source-level material instead.</em></p>`;

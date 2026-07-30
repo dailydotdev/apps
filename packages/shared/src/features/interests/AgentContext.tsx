@@ -15,6 +15,8 @@ import type {
 import { useSendInterestCommand } from './hooks/useSendInterestCommand';
 import { useUpdateInterest } from './hooks/useUpdateInterest';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import type { AgentMessage } from './chat';
+import { cannedReply } from './chat';
 
 export type AgentActivityKind =
   | 'run'
@@ -48,6 +50,7 @@ type AgentContextValue = {
   update: (data: UpdateInterestInput) => void;
   isUpdating: boolean;
   activity: AgentActivityItem[];
+  messages: AgentMessage[];
   isSettingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
 };
@@ -62,11 +65,13 @@ export const AgentProvider = ({
   id,
   interest,
   isDemo,
+  initialMessages,
   children,
 }: {
   id: string;
   interest?: UserInterest;
   isDemo: boolean;
+  initialMessages: AgentMessage[];
   children: ReactNode;
 }): ReactElement => {
   const { displayToast } = useToastNotification();
@@ -77,6 +82,7 @@ export const AgentProvider = ({
     targetId?: string;
   } | null>(null);
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
+  const [messages, setMessages] = useState<AgentMessage[]>(initialMessages);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -92,6 +98,23 @@ export const AgentProvider = ({
         displayToast('Sent to the agent — it will update in the background');
       }
 
+      const stamp = `${Date.now()}`;
+      setMessages((current) => [
+        ...current,
+        {
+          id: `${stamp}-user`,
+          role: 'user',
+          at: new Date().toISOString(),
+          text,
+        },
+        {
+          id: `${stamp}-agent`,
+          role: 'agent',
+          at: new Date().toISOString(),
+          isPending: true,
+        },
+      ]);
+
       setWorking({ label: label ?? text, targetId });
       setActivity((current) => [
         {
@@ -106,6 +129,18 @@ export const AgentProvider = ({
       clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
         setWorking(null);
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === `${stamp}-agent`
+              ? {
+                  ...message,
+                  isPending: false,
+                  at: new Date().toISOString(),
+                  blocks: cannedReply(text),
+                }
+              : message,
+          ),
+        );
         setActivity((current) => [
           {
             id: `${Date.now()}-done`,
@@ -144,11 +179,13 @@ export const AgentProvider = ({
       update,
       isUpdating,
       activity,
+      messages,
       isSettingsOpen,
       setSettingsOpen,
     }),
     [
       activity,
+      messages,
       id,
       interest,
       isDemo,
