@@ -51,6 +51,8 @@ export const featureCommunitySentiment = new Feature(
   false,
 );
 
+export const featureArticleChatter = new Feature('article_chatter', false);
+
 // @ts-expect-error stale feature without default
 export const plusTakeoverContent = new Feature<{
   title: string;
