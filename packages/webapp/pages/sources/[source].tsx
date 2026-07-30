@@ -334,9 +334,7 @@ const SourcePage = ({
         >
           <div className={pageSectionClassName}>
             <EntitySectionHeading
-              icon={
-                <UpvoteIcon size={IconSize.Medium} className="shrink-0" />
-              }
+              icon={<UpvoteIcon size={IconSize.Medium} className="shrink-0" />}
             >
               Most upvoted posts from {source.name}
             </EntitySectionHeading>
@@ -361,9 +359,7 @@ const SourcePage = ({
         >
           <div className={pageSectionClassName}>
             <EntitySectionHeading
-              icon={
-                <DiscussIcon size={IconSize.Medium} className="shrink-0" />
-              }
+              icon={<DiscussIcon size={IconSize.Medium} className="shrink-0" />}
             >
               Best discussed posts from {source.name}
             </EntitySectionHeading>
