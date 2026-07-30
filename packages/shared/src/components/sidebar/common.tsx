@@ -128,14 +128,20 @@ export const railCountBubbleClass =
   'pointer-events-none -top-1 left-5 px-1 !min-h-[1.125rem] !min-w-[1.125rem] !font-bold !typo-caption1 tabular-nums';
 // Shared drag visuals for the v2 sidebar's two drag systems — the rail tabs and
 // the shortcuts dock — so a lifted item looks and feels identical in both.
-// A translucent glass chip: blurred surface, subtle border, elevated. Callers
-// add the lift (`scale-110`) and their own transition.
+//
+// A real glass chip: the fill is deliberately light (30%) so the blur behind it
+// does the work and you can see the rail through the chip, while the border
+// steps up to `-secondary` (2x the tertiary token) and the shadow deepens, so
+// the chip's edge round the dragged glyph is MORE defined even as its fill gets
+// more transparent. Callers add the lift (`scale-110`) and their own transition.
 export const sidebarDragGhostClass =
-  'bg-background-default/60 rounded-12 border border-border-subtlest-tertiary shadow-3 backdrop-blur-xl';
-// The parked slot a dragged item will land in (its content is faded out, so the
-// slot keeps the item's exact height).
+  'bg-background-default/30 rounded-12 border border-border-subtlest-secondary shadow-4 backdrop-blur-2xl';
+// The parked slot a dragged item will land in — the "it will go here" marker.
+// Its content is faded out, so the slot keeps the item's exact height.
+// `surface-active` (16%) rather than `surface-float` (8%): at 8% the landing
+// position was barely readable against the rail.
 export const sidebarDragSlotClass =
-  'rounded-12 bg-surface-float backdrop-blur-md';
+  'rounded-12 bg-surface-active backdrop-blur-md';
 export const SidebarAside = classed(
   'aside',
   'flex flex-col z-sidebarOverlay laptop:z-sidebar laptop:-translate-x-0 left-0 bg-background-default border-r border-border-subtlest-tertiary transition-[width,transform] duration-300 ease-in-out group fixed top-0 h-full',

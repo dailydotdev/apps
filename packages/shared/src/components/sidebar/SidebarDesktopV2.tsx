@@ -255,16 +255,12 @@ const SortableRailTab = ({
   id,
   children,
   consumeClickGuard,
-  bareDrag = false,
 }: {
   id: string;
   children: ReactNode;
   // Armed while a rail drag is live — see `releaseRailDragClickGuard`. Returns
   // whether the guard was armed and disarms it.
   consumeClickGuard: () => boolean;
-  // New post is a filled chip, not a tab with a hover surface, so it drags as
-  // just its icon: no landing skeleton behind it and no chip around the ghost.
-  bareDrag?: boolean;
 }): ReactElement => {
   const { setNodeRef, listeners, transform, transition, isDragging } =
     useSortable({ id });
@@ -303,9 +299,11 @@ const SortableRailTab = ({
         // pill (an absolute z-0 indicator behind them in the tablist).
         'relative z-1 w-full touch-none rounded-12 transition-colors',
         // Landing skeleton: the dock's shared slot treatment, with the item's
-        // own content faded out rather than removed so the slot keeps its
-        // exact height.
-        isDragging && !bareDrag && sidebarDragSlotClass,
+        // own content faded out rather than removed so the slot keeps its exact
+        // height. EVERY item gets one, New post included — it is the only thing
+        // telling you where the drop will land. (New post still lifts bare, but
+        // that is about the ghost, not the slot it leaves behind.)
+        isDragging && sidebarDragSlotClass,
         isDragging ? '[&>*]:opacity-0' : 'cursor-grab',
       )}
     >
@@ -2155,7 +2153,6 @@ export const SidebarDesktopV2 = ({
                         key={id}
                         id={id}
                         consumeClickGuard={consumeRailDragClickGuard}
-                        bareDrag={id === RAIL_CREATE_ID}
                       >
                         {renderRailTab(id)}
                       </SortableRailTab>

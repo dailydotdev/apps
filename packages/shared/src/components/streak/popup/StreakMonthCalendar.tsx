@@ -67,14 +67,19 @@ export const StreakMonthCalendar = ({
         // default XSmall (20px) overflows the 16px cell and the read dot reads
         // visibly bigger than the others. Today gets a ring, weekends the
         // dashed pattern.
-        let stateClass = 'border-border-subtlest-tertiary';
+        // `text-quaternary` (64% of salt, defined per theme) rather than
+        // `border-subtlest-tertiary` (20% of an already-subtle border): the
+        // untouched and weekend days are DATA, not chrome, and at the old value
+        // they were nearly invisible in both themes. Same colour family the
+        // quest list uses for its secondary text.
+        let stateClass = 'border-text-quaternary';
         if (isToday || isRead) {
           // Today's ring is a separate overlay (below), so today drops its own
           // border too.
           stateClass = 'border-transparent';
         } else if (isFreeze) {
           stateClass =
-            'bg-[repeating-linear-gradient(135deg,currentColor_0_1.5px,transparent_1.5px_4px)] text-border-subtlest-tertiary';
+            'bg-[repeating-linear-gradient(135deg,currentColor_0_1.5px,transparent_1.5px_4px)] text-text-quaternary';
         }
         const cell = (
           <div
