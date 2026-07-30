@@ -125,17 +125,23 @@ export const railGlyphBoxClass =
 // same-specificity utilities resolve by stylesheet order, not by the order
 // written here.
 export const railCountBubbleClass =
-  'pointer-events-none -top-1 left-5 px-1 !min-h-[1.125rem] !min-w-[1.125rem] !font-bold !typo-caption1 tabular-nums';
+  'pointer-events-none -top-1 left-4 px-1 !min-h-[1.125rem] !min-w-[1.125rem] !font-bold !typo-caption1 tabular-nums';
 // Shared drag visuals for the v2 sidebar's two drag systems — the rail tabs and
 // the shortcuts dock — so a lifted item looks and feels identical in both.
 //
-// A real glass chip: the fill is deliberately light (30%) so the blur behind it
-// does the work and you can see the rail through the chip, while the border
-// steps up to `-secondary` (2x the tertiary token) and the shadow deepens, so
-// the chip's edge round the dragged glyph is MORE defined even as its fill gets
-// more transparent. Callers add the lift (`scale-110`) and their own transition.
+// A real glass chip: a light 20% fill so the backdrop blur does the work and you
+// can see the rail through the chip, with the border stepped up to `-secondary`
+// (2x the tertiary token) so the chip's edge around the dragged glyph stays
+// defined as the fill gets more transparent. Callers add the lift (`scale-110`)
+// and their own transition.
+//
+// The fill is a color-mix, NOT `bg-background-default/20`: this token is a bare
+// `var(--theme-background-default)`, and Tailwind cannot inject an alpha into a
+// var() reference — every `/<n>` modifier on it computes to rgba(0,0,0,0), so
+// the chip silently had no fill at all. `shadow-3` is likewise the deepest step
+// that exists (the scale is 2 / 3 / bubble); `shadow-4` is not a class.
 export const sidebarDragGhostClass =
-  'bg-background-default/30 rounded-12 border border-border-subtlest-secondary shadow-4 backdrop-blur-2xl';
+  'bg-[color-mix(in_srgb,var(--theme-background-default)_20%,transparent)] rounded-12 border border-border-subtlest-secondary shadow-3 backdrop-blur-2xl';
 // The parked slot a dragged item will land in — the "it will go here" marker.
 // Its content is faded out, so the slot keeps the item's exact height.
 // `surface-active` (16%) rather than `surface-float` (8%): at 8% the landing

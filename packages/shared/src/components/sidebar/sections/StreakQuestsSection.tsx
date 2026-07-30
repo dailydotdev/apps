@@ -108,7 +108,12 @@ export const StreakQuestsSection = (): ReactElement => {
           {/* Streak-freeze balance + purchase entry (same self-gated row the
               streak popup shows) so v2 users keep the freeze feature in their
               streak surface. Renders null when the feature is off. */}
-          <StreakFreezeRow />
+          {/* Both separators use the same inset so the freeze row is framed
+              consistently. The row's own full-bleed top border ran edge to edge
+              while this one is inset by 12px, which read as two different
+              rules. */}
+          <HorizontalSeparator className="mx-3 mt-3 w-auto shrink-0" />
+          <StreakFreezeRow hideTopBorder />
           <HorizontalSeparator className="mx-3 w-auto shrink-0" />
         </>
       )}

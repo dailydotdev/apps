@@ -1966,7 +1966,12 @@ export const SidebarDesktopV2 = ({
           <span
             aria-hidden
             className={classNames(
-              'pointer-events-none absolute inset-y-0 hidden border-r border-border-subtlest-quaternary laptop:block',
+              // `-tertiary`, same as every other border in this layout (the
+              // aside's own edge, the rail's separators, the panel's
+              // HorizontalSeparators). It was `-quaternary` — 8% against their
+              // 20% — so the rail/panel divide was 2.5x fainter than the lines
+              // around it and all but vanished in light mode.
+              'pointer-events-none absolute inset-y-0 hidden border-r border-border-subtlest-tertiary laptop:block',
               railSeparatorLeft,
             )}
           />
