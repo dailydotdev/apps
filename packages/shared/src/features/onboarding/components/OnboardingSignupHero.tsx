@@ -191,18 +191,18 @@ export const OnboardingSignupHero = ({
           <main
             // relative: the artwork layer is absolutely positioned in the same
             // stacking context, so static content would paint under it.
-            // pb-10: stacked, nothing sits below the form, so the column carries
-            // its own bottom breathing room (and clears the iOS home indicator).
-            className="onb-hero-main relative z-1 flex w-full flex-1 flex-col items-center px-5 pb-10 laptop:px-10 laptop:pb-0"
+            className="onb-hero-main relative z-1 flex w-full flex-1 flex-col items-center px-5 laptop:px-10"
           >
             {signupColumn}
           </main>
 
           {/* The legal row is constrained to the same column width as the form
-              so its left edge lines up with the buttons above it. It only exists
-              in the two-column layout: once the layout stacks it is dropped
-              entirely, leaving the column ending on the login link. */}
-          <div className="pointer-events-auto relative z-1 hidden w-full flex-col items-center gap-3 px-5 pb-4 laptop:flex laptop:px-10 laptop:pb-8">
+              so its left edge lines up with the buttons above it. The signup
+              disclosure renders at every breakpoint — a user can submit the form
+              from the stacked layout too, so it has to be reachable there. Only
+              the general footer links are desktop-only: seven links do not fit
+              a phone without wrapping into a block the size of the form. */}
+          <div className="onb-split-legal pointer-events-auto relative z-1 flex w-full flex-col items-center gap-3 px-5 pb-6 pt-5 laptop:px-10 laptop:pb-8 laptop:pt-0">
             <div
               className={classNames(
                 'flex w-full flex-col items-center gap-3 laptop:items-start',
@@ -211,7 +211,7 @@ export const OnboardingSignupHero = ({
             >
               {/* the seven links need ~465px at the default gap; nowrap plus a
                   slightly tighter gap keeps them on one line inside the column */}
-              <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 laptop:[&_ul]:!flex-nowrap laptop:[&_ul]:!justify-start laptop:[&_ul]:!gap-x-2.5">
+              <div className="hidden laptop:block [&_footer]:!pb-0 [&_ul]:!mb-0 laptop:[&_ul]:!flex-nowrap laptop:[&_ul]:!justify-start laptop:[&_ul]:!gap-x-2.5">
                 <FooterLinks />
               </div>
               <SignupDisclaimer className="!text-text-tertiary typo-caption1 laptop:!text-left" />

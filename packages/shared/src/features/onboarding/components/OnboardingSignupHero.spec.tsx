@@ -136,6 +136,37 @@ describe('OnboardingSignupHero', () => {
     expect(screen.getByTestId('disclaimer')).toBeInTheDocument();
   });
 
+  describe('signup disclosure on the panel background', () => {
+    // jsdom does not evaluate the media queries, so "is it visible when
+    // stacked" has to be asserted structurally: a `hidden` class anywhere
+    // between the element and the root hides it below its `laptop:` reset.
+    const hiddenAncestors = (element: HTMLElement): string[] => {
+      const found: string[] = [];
+      let node = element.parentElement;
+
+      while (node) {
+        if (/(^|\s)hidden(\s|$)/.test(node.className)) {
+          found.push(node.className);
+        }
+        node = node.parentElement;
+      }
+
+      return found;
+    };
+
+    it('stays reachable in the stacked layout', () => {
+      renderHero({ background: 'panel' });
+
+      expect(hiddenAncestors(screen.getByTestId('disclaimer'))).toEqual([]);
+    });
+
+    it('leaves the footer links desktop-only', () => {
+      renderHero({ background: 'panel' });
+
+      expect(hiddenAncestors(screen.getByTestId('footer'))).not.toEqual([]);
+    });
+  });
+
   it('renders the form and headline', () => {
     renderHero({ headline: 'Hello devs' });
     expect(screen.getByTestId('auth-form')).toBeInTheDocument();
