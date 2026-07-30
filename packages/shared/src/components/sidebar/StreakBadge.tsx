@@ -144,14 +144,13 @@ export const StreakBadge = ({
         secondary={hasReadToday || state === 'freeze'}
         size={IconSize.XSmall}
         className={classNames(
-          // Optically centred, which is NOT the same as centring its box: the
-          // flame's bounding box sat dead centre on the disc while its centre of
-          // MASS measured +0.35/+1.30 off it — a teardrop carries its weight low
-          // and right — so it read as sitting low and to the right. These
-          // offsets put the mass on the disc's centre instead. (An earlier
-          // attempt at this crowded the tip against the ring, but that was with
-          // a larger flame; at this size there is room.)
-          'relative -translate-y-[0.8px] translate-x-[0.15px] transition-colors',
+          // No nudge offsets here on purpose. Both flame SVGs are already
+          // symmetric in their 24x24 viewBox (ink margins 4.8/4.8 and 3.0/3.0),
+          // so flex centring lands the ink exactly on the disc's centre. A
+          // previous attempt to "optically" centre the flame's centre of mass
+          // shifted it 0.8px up, which showed as a cramped tip (clearance 2.2
+          // top vs 3.8 bottom) and read as misaligned.
+          'relative transition-colors',
           flameByState[state],
           // Unread states brighten with the ring on hover, matching the other
           // rail tabs' icons. Read/danger states own their colour.
