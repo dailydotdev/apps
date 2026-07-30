@@ -4,7 +4,6 @@ import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
-  useLayoutEffect,
   useRef,
 } from 'react';
 import classNames from 'classnames';
@@ -21,7 +20,9 @@ import {
   ACCEPTED_TYPES,
   imageSizeLimitMB,
 } from '../../../graphql/posts';
+import { useAutoResizeTextarea } from '../../../hooks/utils/useAutoResizeTextarea';
 import { TITLE_MAX_LENGTH, type TextFormState } from './types';
+import { normalizeSingleLineComposerText } from './utils';
 
 export interface TextFormCover {
   preview: string;
@@ -80,14 +81,7 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
       titleEl.setSelectionRange(end, end);
     }, []);
 
-    useLayoutEffect(() => {
-      const titleEl = titleRef.current;
-      if (!titleEl) {
-        return;
-      }
-      titleEl.style.height = 'auto';
-      titleEl.style.height = `${titleEl.scrollHeight}px`;
-    }, [value.title]);
+    useAutoResizeTextarea(titleRef, value.title);
 
     const onTitleKeyDown = useCallback(
       (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -152,7 +146,7 @@ export const TextForm = forwardRef<TextFormHandle, TextFormProps>(
             onChange={(e) =>
               onChange({
                 ...value,
-                title: e.currentTarget.value.replace(/\n/g, ''),
+                title: normalizeSingleLineComposerText(e.currentTarget.value),
               })
             }
             onKeyDown={onTitleKeyDown}

@@ -7,8 +7,13 @@ import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { MiniCloseIcon } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import type { ExternalLinkPreview } from '../../../graphql/posts';
+import { useAutoResizeTextarea } from '../../../hooks/utils/useAutoResizeTextarea';
 import { TITLE_MAX_LENGTH, type LinkFormState } from './types';
-import { isPreviewForComposerUrl, normalizeComposerUrl } from './utils';
+import {
+  isPreviewForComposerUrl,
+  normalizeComposerUrl,
+  normalizeSingleLineComposerText,
+} from './utils';
 
 interface LinkFormProps {
   value: LinkFormState;
@@ -30,6 +35,7 @@ export const LinkForm = ({
   initialUrl,
 }: LinkFormProps): ReactElement => {
   const urlRef = useRef<HTMLInputElement>(null);
+  const commentaryRef = useRef<HTMLTextAreaElement>(null);
   const [dismissedUrl, setDismissedUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -68,6 +74,25 @@ export const LinkForm = ({
     isPreviewForComposerUrl(preview, value.url) && !isDismissedForCurrentUrl;
   const showSkeleton = isLoadingPreview && !isDismissedForCurrentUrl;
 
+  useAutoResizeTextarea(commentaryRef, value.commentary);
+
+  const onEnterKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      if (event.nativeEvent.isComposing || event.key !== 'Enter') {
+        return;
+      }
+
+      event.preventDefault();
+      if (event.ctrlKey || event.metaKey) {
+        event.currentTarget.form?.requestSubmit();
+        return;
+      }
+
+      commentaryRef.current?.focus();
+    },
+    [],
+  );
+
   useEffect(() => {
     if (!initialUrl) {
       return;
@@ -92,10 +117,12 @@ export const LinkForm = ({
         onInput={(event) => {
           onUrlChange(event.currentTarget.value);
         }}
+        onKeyDown={onEnterKeyDown}
         aria-label="Link URL"
         className="w-full bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
       />
       <textarea
+        ref={commentaryRef}
         name="commentary"
         placeholder="Add a comment (optional)"
         maxLength={TITLE_MAX_LENGTH}
@@ -104,11 +131,14 @@ export const LinkForm = ({
         onChange={(event) =>
           onChange({
             ...value,
-            commentary: event.currentTarget.value.replace(/\n/g, ''),
+            commentary: normalizeSingleLineComposerText(
+              event.currentTarget.value,
+            ),
           })
         }
+        onKeyDown={onEnterKeyDown}
         aria-label="Post commentary"
-        className="w-full resize-none overflow-hidden break-words bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
+        className="max-h-36 w-full resize-none overflow-y-auto break-words bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
       />
       {(showSkeleton || (preview && showPreview)) && (
         <div className="relative flex flex-col gap-3">
