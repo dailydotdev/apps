@@ -11,7 +11,7 @@ import {
   DownvoteIcon,
 } from '../../icons';
 import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { useFeedPreviewMode, useViewSize, ViewSize } from '../../../hooks';
+import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
 import { IconSize } from '../../Icon';
@@ -43,29 +43,39 @@ export interface ActionButtonsProps {
   showAwardAction?: boolean;
 }
 
+// Sizing follows the floating glass bar (FeedCardGlassActions): XSmall buttons
+// with 16px icons, so six actions incl. the impressions counter fit a 272px
+// card without the trailing number reaching the edge.
 const variantConfig = {
   grid: {
-    buttonSize: ButtonSize.Small,
-    iconSize: IconSize.XSmall,
-    containerClassName: 'px-1 pb-1',
+    buttonSize: ButtonSize.XSmall,
+    iconSize: IconSize.Size16,
+    // Asymmetric like the glass pill: the left edge holds an icon, the right
+    // edge holds the impressions number, which needs more room to sit right.
+    containerClassName: 'pb-1 pl-1 pr-2.5',
     showTagsPanel: false,
     useCommentLink: false,
   },
   list: {
-    buttonSize: ButtonSize.Small,
-    iconSize: IconSize.XSmall,
+    buttonSize: ButtonSize.XSmall,
+    iconSize: IconSize.Size16,
     containerClassName: '',
     showTagsPanel: true,
     useCommentLink: true,
   },
   signal: {
-    buttonSize: ButtonSize.Small,
-    iconSize: IconSize.XSmall,
+    buttonSize: ButtonSize.XSmall,
+    iconSize: IconSize.Size16,
     containerClassName: '',
     showTagsPanel: false,
     useCommentLink: true,
   },
 } as const;
+
+// Monospaced digits so counters never jitter, and a hair of padding on each
+// side of the number — both taken from the glass bar.
+const counterClassName = 'tabular-nums typo-footnote';
+const counterLabelClassName = '!pl-0.5 pr-0.5';
 
 const ActionButtonsV1 = ({
   post,
@@ -81,14 +91,7 @@ const ActionButtonsV1 = ({
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   const { buttonSize, iconSize } = config;
-  // On mobile/tablet keep full-size icons but shrink the count so the icon
-  // reads as the primary affordance and the number as a subtle stat.
-  const counterClassName = classNames(
-    'tabular-nums',
-    isLaptop ? variant === 'grid' && 'typo-footnote' : 'typo-caption1',
-  );
   const { getUpvoteAnimation } = useBrandSponsorship();
 
   const {
@@ -145,7 +148,7 @@ const ActionButtonsV1 = ({
       href={post.commentsPermalink}
     >
       <QuaternaryButton
-        labelClassName="!pl-0"
+        labelClassName={counterLabelClassName}
         id={`post-${post.id}-comment-btn`}
         className="btn-tertiary-blueCheese pointer-events-auto"
         color={ButtonColor.BlueCheese}
@@ -171,7 +174,7 @@ const ActionButtonsV1 = ({
   ) : (
     <Tooltip content="Comments" side="bottom">
       <QuaternaryButton
-        labelClassName="!pl-[1px]"
+        labelClassName={counterLabelClassName}
         id={`post-${post.id}-comment-btn`}
         icon={<CommentIcon secondary={post.commented} size={iconSize} />}
         pressed={post.commented}
@@ -206,7 +209,7 @@ const ActionButtonsV1 = ({
           side={variant === 'grid' ? 'bottom' : undefined}
         >
           <QuaternaryButton
-            labelClassName={variant === 'grid' ? '!pl-[1px]' : '!pl-0'}
+            labelClassName={counterLabelClassName}
             className="btn-tertiary-avocado pointer-events-auto"
             id={`post-${post.id}-upvote-btn`}
             color={ButtonColor.Avocado}
@@ -292,7 +295,7 @@ const ActionButtonsV1 = ({
             side={variant === 'grid' ? 'bottom' : undefined}
           >
             <QuaternaryButton
-              labelClassName={variant === 'grid' ? '!pl-[1px]' : '!pl-0'}
+              labelClassName={counterLabelClassName}
               id={`post-${post.id}-impressions-btn`}
               size={buttonSize}
               icon={<AnalyticsIcon size={iconSize} />}
