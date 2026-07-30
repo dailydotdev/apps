@@ -1,157 +1,152 @@
-import type { ReactElement } from 'react';
-import React from 'react';
-import classNames from 'classnames';
+import type { FormEventHandler, ReactElement } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ClickableText } from '../buttons/ClickableText';
-import { VIcon } from '../icons';
-import { IconSize } from '../Icon';
+import { Radio } from '../fields/Radio';
+import Alert, { AlertParagraph, AlertType } from '../widgets/Alert';
+import { Button, ButtonVariant } from '../buttons/Button';
+import { usePushNotificationMutation } from '../../hooks/notifications';
+import { LogEvent, NotificationPromptSource, TargetType } from '../../lib/log';
+import { usePersonalizedDigest } from '../../hooks';
+import { UserPersonalizedDigestType } from '../../graphql/users';
 import { TimezoneDropdown } from '../widgets/TimezoneDropdown';
+import { useLogContext } from '../../contexts/LogContext';
+import AuthContext from '../../contexts/AuthContext';
+import { getUserInitialTimezone } from '../../lib/timezones';
 import { HourDropdown } from '../fields/HourDropdown';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../typography/Typography';
-import type { ReadingReminderState } from './useReadingReminder';
-import { OnboardingHeadline, OnboardingSubheadline } from './common';
 
 const ReadingReminderOptions = [
-  { label: '09:00', hint: 'With coffee', emoji: '☕️', value: '9' },
-  { label: '12:00', hint: 'Over lunch', emoji: '🥪', value: '12' },
-  { label: '17:00', hint: 'Winding down', emoji: '🛋️', value: '17' },
-  { label: 'Custom', hint: 'Pick a time', emoji: '⏰', value: 'custom' },
+  { label: '09:00 ☕️', value: '9' },
+  { label: '12:00 🥪', value: '12' },
+  { label: '17:00 🛋️', value: '17' },
+  { label: 'Custom️', value: 'custom' },
 ];
 
 interface ReadingReminderProps {
+  onClickNext: (options?: { skipped?: boolean }) => void;
   headline?: string;
-  // The actions live in the funnel's docked CTA rail, so the state is owned by
-  // the step through `useReadingReminder` and passed back in here.
-  state: ReadingReminderState;
 }
 
 export const ReadingReminder = ({
+  onClickNext,
   headline,
-  state,
 }: ReadingReminderProps): ReactElement => {
-  const {
-    customTimeIndex,
-    isEditingTimezone,
-    setCustomTimeIndex,
-    setIsEditingTimezone,
-    setTimeOption,
-    setUserTimeZone,
-    timeOption,
-    userTimeZone,
-  } = state;
+  const { user } = useContext(AuthContext);
+  const { logEvent } = useLogContext();
+  const [loading, setLoading] = useState(false);
+  const [userTimeZone, setUserTimeZone] = useState<string>(
+    getUserInitialTimezone({
+      userTimezone: user?.timezone,
+      update: true,
+    }),
+  );
+  const [timeOption, setTimeOption] = useState('9');
+  const [customTimeIndex, setCustomTimeIndex] = useState(8);
+  const [isEditingTimezone, setIsEditingTimezone] = useState(false);
+  const isLogged = useRef(false);
+  const { onEnablePush } = usePushNotificationMutation();
+  const { subscribePersonalizedDigest } = usePersonalizedDigest();
+
+  useEffect(() => {
+    if (!isLogged.current) {
+      isLogged.current = true;
+      logEvent({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.ReadingReminder,
+      });
+    }
+  }, [logEvent]);
+
+  const onSkip = () => {
+    logEvent({
+      event_name: LogEvent.SkipReadingReminder,
+    });
+    onClickNext({ skipped: true });
+  };
+
+  const onSubmit: FormEventHandler = async () => {
+    if (loading) {
+      return;
+    }
+    setLoading(true);
+    const selectedHour =
+      timeOption === 'custom' ? customTimeIndex : parseInt(timeOption, 10);
+    logEvent({
+      event_name: LogEvent.ScheduleReadingReminder,
+      extra: JSON.stringify({
+        hour: selectedHour,
+        timezone: userTimeZone,
+      }),
+    });
+    subscribePersonalizedDigest({
+      hour: selectedHour,
+      type: UserPersonalizedDigestType.ReadingReminder,
+    });
+    onEnablePush(NotificationPromptSource.ReadingReminder).then(() => {
+      onClickNext();
+      setLoading(false);
+    });
+  };
 
   return (
     <>
-      {/* gap-6, the funnel's standard headline-to-subheadline step. */}
-      <div className="flex w-full flex-col items-center gap-6">
-        <OnboardingHeadline>
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-center typo-mega1">⏰</p>
+        <h2 className="typo-bold text-center typo-large-title">
           {headline || 'When do you need that reading nudge?'}
-        </OnboardingHeadline>
-        {/* The reassurance used to be a green success Alert below the options —
-            the wrong semantic (nothing succeeded) and, sat in a coloured box
-            with a tick, it read as a generated callout. As supporting copy under
-            the headline it does the same job in the place people already look
-            for context, before they choose rather than after. */}
-        <OnboardingSubheadline>
-          Devs who turn this on build a reading habit that sticks.
-        </OnboardingSubheadline>
-      </div>
-
-      {/* One per row, full width, with the selection control on the right —
-          the same anatomy as the content-type cards, so the funnel has a single
-          way of saying "pick this". A two-up grid halved the target and left
-          the times reading as chips rather than options. */}
-      <div
-        role="radiogroup"
-        aria-label="Reading reminder time"
-        className="flex w-full flex-col gap-2"
-      >
-        {ReadingReminderOptions.map(({ label, hint, emoji, value }) => {
-          const isSelected = timeOption === value;
-
-          return (
-            <button
-              key={value}
-              type="button"
-              role="radio"
-              aria-checked={isSelected}
-              onClick={() => setTimeOption(value)}
-              className={classNames(
-                'group flex w-full items-center gap-3 rounded-14 border p-3 text-left transition-all duration-200',
-                'hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transform-none',
-                isSelected
-                  ? 'border-accent-cabbage-default bg-accent-cabbage-flat'
-                  : 'border-border-subtlest-tertiary hover:bg-surface-hover',
-              )}
+        </h2>
+        <p className="text-center text-text-quaternary typo-callout">
+          Your timezone: {userTimeZone}{' '}
+          {isEditingTimezone ? (
+            <TimezoneDropdown
+              userTimeZone={userTimeZone}
+              setUserTimeZone={setUserTimeZone}
+            />
+          ) : (
+            <ClickableText
+              className="ml-3 inline-flex"
+              onClick={() => setIsEditingTimezone(true)}
             >
-              <span
-                aria-hidden
-                className="flex size-8 shrink-0 items-center justify-center rounded-10 bg-surface-float typo-callout"
-              >
-                {emoji}
-              </span>
-              <span className="flex min-w-0 flex-1 flex-col">
-                <Typography bold type={TypographyType.Callout}>
-                  {label}
-                </Typography>
-                <Typography
-                  color={TypographyColor.Tertiary}
-                  type={TypographyType.Caption1}
-                >
-                  {hint}
-                </Typography>
-              </span>
-              {/* The affordance the plain tiles were missing: an always-present
-                  ring that fills on selection, matching the content-type cards. */}
-              <span
-                aria-hidden
-                className={classNames(
-                  'flex size-5 shrink-0 items-center justify-center rounded-full transition-colors',
-                  isSelected
-                    ? 'bg-accent-cabbage-default text-white'
-                    : 'border border-border-subtlest-secondary group-hover:border-accent-cabbage-default',
-                )}
-              >
-                {isSelected && <VIcon secondary size={IconSize.XXSmall} />}
-              </span>
-            </button>
-          );
-        })}
+              edit timezone
+            </ClickableText>
+          )}
+        </p>
       </div>
-
+      <Radio
+        className={{ container: 'mt-4 tablet:mt-10' }}
+        name="reading_reminder"
+        value={timeOption}
+        options={ReadingReminderOptions}
+        onChange={(value) => setTimeOption(value)}
+      />
       {timeOption === 'custom' && (
         <HourDropdown
           hourIndex={customTimeIndex}
           setHourIndex={setCustomTimeIndex}
-          className={{ container: 'w-full' }}
+          className={{ container: 'mt-3' }}
         />
       )}
-
-      {/* Below the choice, where it answers "which clock is this?" rather than
-          competing with the headline. */}
-      <Typography
-        className="text-center"
-        color={TypographyColor.Tertiary}
-        type={TypographyType.Footnote}
+      <Alert
+        className="mt-4 tablet:mt-10"
+        title="Consistency pays off."
+        type={AlertType.Success}
       >
-        Times are in {userTimeZone}{' '}
-        {isEditingTimezone ? (
-          <TimezoneDropdown
-            userTimeZone={userTimeZone}
-            setUserTimeZone={setUserTimeZone}
-          />
-        ) : (
-          <ClickableText
-            className="ml-1 inline-flex"
-            onClick={() => setIsEditingTimezone(true)}
-          >
-            change
-          </ClickableText>
-        )}
-      </Typography>
+        <AlertParagraph className="text-text-secondary">
+          Devs who enable notifications build a habit and become more
+          knowledgeable
+        </AlertParagraph>
+      </Alert>
+      <div className="mt-4 flex w-full flex-col-reverse gap-3 tablet:mt-10 tablet:w-auto tablet:flex-row tablet:gap-5">
+        <Button onClick={onSkip} variant={ButtonVariant.Secondary}>
+          I&apos;ll do it later
+        </Button>
+        <Button
+          onClick={onSubmit}
+          variant={ButtonVariant.Primary}
+          loading={loading}
+        >
+          Submit
+        </Button>
+      </div>
     </>
   );
 };

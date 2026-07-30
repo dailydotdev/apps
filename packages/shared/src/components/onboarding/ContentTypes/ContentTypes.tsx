@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
+import classNames from 'classnames';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 
 import { useAdvancedSettings } from '../../../hooks';
@@ -11,6 +12,7 @@ import {
 import { CardCheckbox } from '../../fields/CardCheckbox';
 import { TOGGLEABLE_TYPES } from '../../feeds/FeedSettings/sections/FeedSettingsContentPreferencesSection';
 import { OnboardingHeadline } from '../common';
+import { withoutRetiredTitles } from './helpers';
 import {
   DiscussIcon,
   DocsIcon,
@@ -48,18 +50,18 @@ const contentTypeIcon: Record<string, typeof PollIcon> = {
   Social: TwitterIcon,
 };
 
-/**
- * Retired types. The `advancedSettings` query still returns them, so they are
- * filtered here rather than assumed gone — onboarding stops offering them while
- * feed settings keeps rendering whatever the API sends.
- */
-const RETIRED_TITLES = ['Community picks', 'Standups'];
-
 interface ContentTypesProps {
   headline?: string;
+  // The post-signup funnel's treatment: retired types dropped, two-column card
+  // grid, shared headline. The paid funnel keeps main's three-column layout and
+  // the full type list.
+  isOnboarding?: boolean;
 }
 
-export const ContentTypes = ({ headline }: ContentTypesProps): ReactElement => {
+export const ContentTypes = ({
+  headline,
+  isOnboarding,
+}: ContentTypesProps): ReactElement => {
   const { advancedSettings } = useFeedSettings();
   const {
     selectedSettings,
@@ -70,10 +72,11 @@ export const ContentTypes = ({ headline }: ContentTypesProps): ReactElement => {
 
   const contentSourceList = useMemo(
     () =>
-      getContentSourceList(advancedSettings).filter(
-        ({ title }) => !RETIRED_TITLES.includes(title),
+      withoutRetiredTitles(
+        getContentSourceList(advancedSettings),
+        isOnboarding,
       ),
-    [advancedSettings],
+    [advancedSettings, isOnboarding],
   );
 
   const contentCurationList = useMemo(
@@ -87,24 +90,41 @@ export const ContentTypes = ({ headline }: ContentTypesProps): ReactElement => {
       advancedSettings,
     );
 
-    return contentCurationList
-      .concat(listedTypes)
-      .filter(({ title }) => !RETIRED_TITLES.includes(title));
-  }, [contentCurationList, advancedSettings]);
+    return withoutRetiredTitles(
+      contentCurationList.concat(listedTypes),
+      isOnboarding,
+    );
+  }, [contentCurationList, advancedSettings, isOnboarding]);
 
-  // Cards fill their grid column. The old `tablet:max-w-80` was a dead class —
-  // `80` is not in this config's max-width scale — so it never capped anything.
-  const classes = 'h-full w-full';
+  // Onboarding cards fill their grid column so every row is one height; the
+  // paid funnel keeps main's fixed-height card. (`max-w-80` there was already a
+  // dead class — 80 is not in this config's max-width scale.)
+  const classes = isOnboarding ? 'h-full w-full' : '!h-[8.25rem] max-w-80';
+  const defaultHeadline =
+    headline || 'What kind of posts would you like to see on your feed?';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <OnboardingHeadline>
-        {headline || 'What kind of posts would you like to see on your feed?'}
-      </OnboardingHeadline>
-      {/* Two per row from tablet up, never three: with `h-full` on the cards
-          every row is one height, so a two-line description no longer leaves
-          its neighbour looking clipped. */}
-      <div className="m-auto grid w-full max-w-[46rem] grid-cols-1 gap-2 tablet:grid-cols-2 tablet:gap-3">
+    <div
+      className={classNames('flex flex-col', isOnboarding && 'w-full gap-6')}
+    >
+      {isOnboarding ? (
+        <OnboardingHeadline>{defaultHeadline}</OnboardingHeadline>
+      ) : (
+        <h2 className="mb-10 text-center typo-large-title">
+          {defaultHeadline}
+        </h2>
+      )}
+      {/* Onboarding shows two per row from tablet up, never three: with `h-full`
+          on the cards every row is one height, so a two-line description no
+          longer leaves its neighbour looking clipped. */}
+      <div
+        className={classNames(
+          'm-auto grid grid-cols-1 gap-2 tablet:grid-cols-2',
+          isOnboarding
+            ? 'w-full max-w-[46rem] tablet:gap-3'
+            : 'tablet:gap-5 laptop:grid-cols-3',
+        )}
+      >
         {contentSourceList?.map(({ id, title, description, options }) => {
           if (!options?.source) {
             return null;

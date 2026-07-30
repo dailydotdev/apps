@@ -29,7 +29,10 @@ function FunnelContentTypesComponent({
     return null;
   }
 
+  // Same `isOnboarding` the cards use, so the gate can only ever count types
+  // the step actually rendered.
   const isDisabled = !getContentTypeNotEmpty({
+    isOnboarding,
     advancedSettings,
     selectedSettings,
     checkSourceBlocked,
@@ -59,7 +62,7 @@ function FunnelContentTypesComponent({
             : 'flex w-full flex-col items-center gap-6 p-6 pt-10 laptop:max-w-screen-laptop'
         }
       >
-        <ContentTypes headline={headline} />
+        <ContentTypes headline={headline} isOnboarding={isOnboarding} />
       </div>
     </FunnelStepCtaWrapper>
   );

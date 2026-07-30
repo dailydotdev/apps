@@ -7,19 +7,43 @@ import {
 import type { Source } from '../../../graphql/sources';
 import { TOGGLEABLE_TYPES } from '../../feeds/FeedSettings/sections/FeedSettingsContentPreferencesSection';
 
+/**
+ * Types the API still returns but the post-signup funnel no longer offers. The
+ * paid funnel keeps them, so this is applied per-funnel — and it has to be
+ * applied to the enable gate as well as the rendered cards, or the "pick at
+ * least one" guard counts a card nobody can see.
+ */
+export const RETIRED_CONTENT_TITLES = ['Community picks', 'Standups'];
+
+export const withoutRetiredTitles = <T extends { title: string }>(
+  items: T[],
+  isOnboarding?: boolean,
+): T[] =>
+  isOnboarding
+    ? items.filter(({ title }) => !RETIRED_CONTENT_TITLES.includes(title))
+    : items;
+
 interface GetContentTypeNotEmptyProps {
   advancedSettings: AdvancedSettings[];
   selectedSettings: Record<string, boolean>;
   checkSourceBlocked: (source: Source) => boolean;
+  isOnboarding?: boolean;
 }
 
 export const getContentTypeNotEmpty = ({
   advancedSettings,
   selectedSettings,
   checkSourceBlocked,
+  isOnboarding,
 }: GetContentTypeNotEmptyProps): boolean => {
-  const contentSourceList = getContentSourceList(advancedSettings);
-  const contentCurationList = getContentCurationList(advancedSettings);
+  const contentSourceList = withoutRetiredTitles(
+    getContentSourceList(advancedSettings),
+    isOnboarding,
+  );
+  const contentCurationList = withoutRetiredTitles(
+    getContentCurationList(advancedSettings),
+    isOnboarding,
+  );
 
   const advancedSettingsSelected = (settings: AdvancedSettings[]) =>
     settings
@@ -31,14 +55,17 @@ export const getContentTypeNotEmpty = ({
   const advancedSettingsCurationListSelected =
     advancedSettingsSelected(contentCurationList);
 
-  const listedTypes = getAdvancedContentTypes(
-    TOGGLEABLE_TYPES,
-    advancedSettings,
+  const listedTypes = withoutRetiredTitles(
+    getAdvancedContentTypes(TOGGLEABLE_TYPES, advancedSettings),
+    isOnboarding,
   );
   const selectedSomeListedTypes = advancedSettingsSelected(listedTypes);
 
   const sourceListSelected = contentSourceList
-    .map(({ options }) => options.source)
+    // `options` is optional on AdvancedSettings, and the rendered cards already
+    // skip entries without a source — so the gate has to skip them too.
+    .map(({ options }) => options?.source)
+    .filter((source): source is Source => !!source)
     .some((source) => !checkSourceBlocked(source));
 
   return (

@@ -69,6 +69,7 @@ function FunnelUploadCvComponent({
       >
         <UploadCv
           {...parameters}
+          isOnboarding={isOnboarding}
           onFilesDrop={([file]) => onUpload(file)}
           status={status}
         />

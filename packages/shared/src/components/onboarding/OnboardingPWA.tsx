@@ -1,6 +1,12 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { OnboardingHeadline, OnboardingSubheadline } from './common';
+import classNames from 'classnames';
+import {
+  OnboardingHeadline,
+  OnboardingSubheadline,
+  OnboardingTitle,
+} from './common';
+import { Typography } from '../typography/Typography';
 import {
   cloudinaryPWA,
   cloudinaryMobilePWAChrome,
@@ -9,12 +15,19 @@ import {
 } from '../../lib/image';
 import { checkIsChromeOnly } from '../../lib/func';
 
+const DEFAULT_PWA_HEADLINE = 'Add daily.dev to Home Screen';
+const PWA_EXPLAINER =
+  'Tap “Add to Home Screen” below to get daily.dev at your fingertips, anytime you need it.';
+
 interface OnboardingPWAProps {
   headline?: string;
+  // The paid funnel keeps main's smaller title pair.
+  isOnboarding?: boolean;
 }
 
 export const OnboardingPWA = ({
   headline,
+  isOnboarding,
 }: OnboardingPWAProps): ReactElement => {
   const isChrome = checkIsChromeOnly();
   return (
@@ -31,14 +44,29 @@ export const OnboardingPWA = ({
         disablePictureInPicture
         controls={false}
       />
-      <div className="z-1 flex flex-col gap-6">
-        <OnboardingHeadline>
-          {headline || 'Add daily.dev to Home Screen'}
-        </OnboardingHeadline>
-        <OnboardingSubheadline>
-          Tap “Add to Home Screen” below to get daily.dev at your fingertips,
-          anytime you need it.
-        </OnboardingSubheadline>
+      <div
+        className={classNames(
+          'z-1 flex flex-col',
+          isOnboarding ? 'gap-6' : 'gap-4',
+        )}
+      >
+        {isOnboarding ? (
+          <>
+            <OnboardingHeadline>
+              {headline || DEFAULT_PWA_HEADLINE}
+            </OnboardingHeadline>
+            <OnboardingSubheadline>{PWA_EXPLAINER}</OnboardingSubheadline>
+          </>
+        ) : (
+          <>
+            <OnboardingTitle className="!px-0">
+              {headline || DEFAULT_PWA_HEADLINE}
+            </OnboardingTitle>
+            <Typography className="text-center text-text-tertiary typo-body">
+              {PWA_EXPLAINER}
+            </Typography>
+          </>
+        )}
       </div>
     </>
   );

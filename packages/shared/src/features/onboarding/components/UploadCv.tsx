@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { MutationStatus } from '@tanstack/react-query';
 import { DragDrop } from '../../../components/fields/DragDrop';
 import { fileValidation } from '../../profile/hooks/useUploadCv';
@@ -39,6 +40,9 @@ interface UploadCvProps {
   };
   onFilesDrop: (files: File[]) => void;
   status: MutationStatus;
+  // The post-signup funnel wraps this step in its own rail, which supplies the
+  // width cap and gutter; the paid funnel has neither, so it keeps them here.
+  isOnboarding?: boolean;
 }
 
 export const UploadCv = ({
@@ -50,13 +54,42 @@ export const UploadCv = ({
   linkedin,
   onFilesDrop,
   status,
+  isOnboarding,
 }: UploadCvProps): ReactElement => {
   return (
-    <div className="flex w-full flex-col items-center gap-6">
+    <div
+      className={classNames(
+        'flex w-full flex-col items-center gap-6',
+        !isOnboarding && 'max-w-[48.75rem] p-6',
+      )}
+    >
       {/* Only the title pair follows the funnel's shared type scale — the rest
           of the step is production's markup unchanged. */}
-      <OnboardingHeadline>{headline}</OnboardingHeadline>
-      <OnboardingSubheadline>{description}</OnboardingSubheadline>
+      {isOnboarding ? (
+        <>
+          <OnboardingHeadline>{headline}</OnboardingHeadline>
+          <OnboardingSubheadline>{description}</OnboardingSubheadline>
+        </>
+      ) : (
+        <>
+          <Typography
+            tag={TypographyTag.H2}
+            type={TypographyType.LargeTitle}
+            bold
+            center
+          >
+            {headline}
+          </Typography>
+          <Typography
+            type={TypographyType.Title3}
+            color={TypographyColor.Secondary}
+            center
+            className="laptop:px-14"
+          >
+            {description}
+          </Typography>
+        </>
+      )}
 
       <DragDrop
         state={status}
@@ -70,9 +103,18 @@ export const UploadCv = ({
         ctaLabelMobile={ctaMobile}
       />
 
-      <div className="hidden w-full items-start gap-6 laptop:flex">
+      <div
+        className={classNames(
+          'hidden w-full items-start gap-6 laptop:flex',
+          !isOnboarding && 'p-6',
+        )}
+      >
         <div className="flex flex-1 flex-col gap-2">
-          <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
+          <Typography
+            tag={isOnboarding ? TypographyTag.H2 : TypographyTag.H3}
+            type={TypographyType.Title3}
+            bold
+          >
             {linkedin.headline}
           </Typography>
 

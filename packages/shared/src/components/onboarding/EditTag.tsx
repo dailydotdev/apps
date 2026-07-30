@@ -101,7 +101,13 @@ export const EditTag = ({
 
   return (
     <>
-      <OnboardingHeadline>{resolvedHeadline}</OnboardingHeadline>
+      {isOnboarding ? (
+        <OnboardingHeadline>{resolvedHeadline}</OnboardingHeadline>
+      ) : (
+        <h2 className="text-center font-bold typo-large-title">
+          {resolvedHeadline}
+        </h2>
+      )}
       {showPersonas && (
         <>
           <p className="mt-3 max-w-2xl text-center text-text-tertiary typo-callout">
@@ -112,9 +118,12 @@ export const EditTag = ({
       )}
       <div ref={tagsRef} className="flex w-full flex-col items-center">
         <TagSelection
-          // Spacing under the headline comes from the step's own gap, so the
-          // tag grid only adds its own offset in the persona layout.
-          className={classNames('max-w-4xl', showPersonas && 'mt-6')}
+          // Onboarding takes the gap from the step's own flex gap; the paid
+          // funnel still needs the grid's own offset under the headline.
+          className={classNames(
+            'max-w-4xl',
+            showPersonas ? 'mt-6' : !isOnboarding && 'mt-10',
+          )}
           // `!` because TagSelection's own gap-4 sits later in the stylesheet.
           // Scoped here so the post panels and feed settings keep theirs.
           classNameTags={isOnboarding ? '!gap-2' : undefined}
@@ -124,10 +133,13 @@ export const EditTag = ({
               aria-label="Pick tags that are relevant to you"
               autoFocus={!isMobile}
               // The tag grid below is deliberately wider than the rail, but the
-              // search field is a single control and belongs on it — capped at
-              // the same 440px measure as the headline and the CTA rather than
-              // the 20rem it used to shrink to from tablet up.
-              className="mb-10 w-full max-w-[27.5rem]"
+              // search field is a single control and belongs on it — so in the
+              // funnel it takes the same 440px measure as the headline and CTA.
+              // The paid funnel keeps main's 20rem cap from tablet up.
+              className={classNames(
+                'mb-10 w-full',
+                isOnboarding ? 'max-w-[27.5rem]' : 'tablet:max-w-xs',
+              )}
               // On the funnel's gradient canvas the field's opaque fill read as
               // a dark box cut into the background; the float surface makes it
               // sit on the gradient like the tag pills below it do.

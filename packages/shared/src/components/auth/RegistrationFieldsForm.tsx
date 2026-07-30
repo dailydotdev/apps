@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import { TextField } from '../fields/TextField';
 import { PasswordField } from '../fields/PasswordField';
 import { Checkbox } from '../fields/Checkbox';
@@ -148,7 +149,13 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
     <form
       id={formId}
       onSubmit={handleSubmit}
-      className="flex w-full flex-col items-center gap-4"
+      className={classNames(
+        'flex flex-col items-center',
+        // `formId` is set only by the onboarding step, which docks the submit
+        // button in the funnel's CTA rail — so it doubles as the marker for the
+        // funnel's roomier field stack. The paid funnel keeps main's spacing.
+        formId ? 'w-full gap-4' : 'gap-2',
+      )}
     >
       {initialValues.image && (
         <ImageInput
@@ -162,7 +169,9 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         name="email"
         inputId="email"
         label="Email"
-        leftIcon={<MailIcon aria-hidden role="presentation" />}
+        leftIcon={
+          formId ? <MailIcon aria-hidden role="presentation" /> : undefined
+        }
         type="email"
         value={values.email}
         onChange={handleChange('email')}
@@ -178,7 +187,9 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
       />
       <TextField
         name="name"
-        leftIcon={<UserIcon aria-hidden role="presentation" />}
+        leftIcon={
+          formId ? <UserIcon aria-hidden role="presentation" /> : undefined
+        }
         inputId="name"
         label="Name"
         value={values.name}
@@ -215,7 +226,9 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
       )}
       <TextField
         name="username"
-        leftIcon={<AtIcon aria-hidden role="presentation" />}
+        leftIcon={
+          formId ? <AtIcon aria-hidden role="presentation" /> : undefined
+        }
         inputId="username"
         label="Enter a username"
         value={inputUsername}
@@ -297,7 +310,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         // It also sits a step further from the last field than the fields sit
         // from each other: it is a different kind of control, not another one
         // of them.
-        className="mt-2 w-full"
+        className={formId ? 'mt-2 w-full' : undefined}
         name="optOutMarketing"
         checked={values.optOutMarketing}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {

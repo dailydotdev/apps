@@ -4,21 +4,33 @@ import classNames from 'classnames';
 import type { FunnelStepReadingReminder } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { ReadingReminder } from '../../../components/onboarding';
+import { OnboardingReadingReminder } from '../../../components/onboarding/OnboardingReadingReminder';
 import { useReadingReminder } from '../../../components/onboarding/useReadingReminder';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePushNotificationContext } from '../../../contexts/PushNotificationContext';
 import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 
 function FunnelReadingReminderComponent({
   parameters: { headline },
   onTransition,
 }: FunnelStepReadingReminder): ReactElement | null {
-  const state = useReadingReminder({
-    onClickNext: () =>
-      onTransition({ type: FunnelStepTransitionType.Complete }),
-  });
+  const isOnboarding = useIsOnboardingFunnel();
+  const onClickNext = () =>
+    onTransition({ type: FunnelStepTransitionType.Complete });
+  const state = useReadingReminder({ onClickNext });
+
+  // The paid funnel's screen owns its own Submit / "I'll do it later" buttons,
+  // so it needs no CTA wrapper — this is main's markup unchanged.
+  if (!isOnboarding) {
+    return (
+      <div className="flex w-full flex-1 flex-col items-center justify-center overflow-hidden p-6 pt-10 tablet:max-w-96">
+        <ReadingReminder headline={headline} onClickNext={onClickNext} />
+      </div>
+    );
+  }
 
   return (
     <FunnelStepCtaWrapper
@@ -35,7 +47,7 @@ function FunnelReadingReminderComponent({
           'flex flex-col items-center gap-6 py-6 pt-3',
         )}
       >
-        <ReadingReminder headline={headline} state={state} />
+        <OnboardingReadingReminder headline={headline} state={state} />
       </div>
     </FunnelStepCtaWrapper>
   );
