@@ -145,7 +145,6 @@ export const CollectionGrid = forwardRef(function CollectionCard(
             onCopyLinkClick={onCopyLinkClick}
             onBookmarkClick={onBookmarkClick}
             onDownvoteClick={onDownvoteClick}
-            coverScrim={!!image}
           />
         ) : (
           <ActionButtons
