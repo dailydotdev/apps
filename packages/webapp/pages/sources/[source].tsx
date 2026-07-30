@@ -68,6 +68,11 @@ import { ArchiveBreadcrumbs } from '@dailydotdev/shared/src/components/archive/A
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { ArchiveScopeType } from '@dailydotdev/shared/src/graphql/archive';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
 import Custom404 from '../404';
 import { defaultOpenGraph, defaultSeo } from '../../next-seo';
 import { mainFeedLayoutProps } from '../../components/layouts/MainFeedPage';
@@ -117,7 +122,10 @@ const SourceRelatedTags = ({
   );
 };
 
-const SimilarSources = ({ sourceId }: SourceIdProps) => {
+const SimilarSources = ({
+  sourceId,
+  sourceName,
+}: SourceIdProps & { sourceName: string }) => {
   const { data: similarSources, isPending } = useQuery({
     queryKey: [RequestKey.SimilarSources, null, sourceId],
 
@@ -148,7 +156,7 @@ const SimilarSources = ({ sourceId }: SourceIdProps) => {
         name: source.name,
         permalink: source.permalink,
       }))}
-      title="Similar sources"
+      title={`Sources similar to ${sourceName}`}
       className={pageSectionClassName}
     />
   );
@@ -298,7 +306,7 @@ const SourcePage = ({
           )}
           <SourceRelatedTags sourceId={source.id} initialTags={relatedTags} />
         </PageInfoHeader>
-        <SimilarSources sourceId={source.id} />
+        <SimilarSources sourceId={source.id} sourceName={source.name} />
         {relatedTags.length > 0 && (
           <div className="sr-only">
             {relatedTags
@@ -337,7 +345,8 @@ const SourcePage = ({
             query={MOST_UPVOTED_FEED_QUERY}
             variables={mostUpvotedQueryVariables}
             title={{
-              copy: 'Most upvoted posts',
+              copy: `Most upvoted posts from ${source.name}`,
+              tag: TypographyTag.H2,
               icon: <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />,
             }}
             className={horizontalFeedClassName}
@@ -357,7 +366,8 @@ const SourcePage = ({
             query={MOST_DISCUSSED_FEED_QUERY}
             variables={bestDiscussedQueryVariables}
             title={{
-              copy: 'Best discussed posts',
+              copy: `Best discussed posts from ${source.name}`,
+              tag: TypographyTag.H2,
               icon: <DiscussIcon size={IconSize.Medium} className="mr-1.5" />,
             }}
             className={horizontalFeedClassName}
@@ -373,9 +383,14 @@ const SourcePage = ({
         <div
           className={`${pageSectionClassName} mb-5 flex w-auto items-center`}
         >
-          <p className="flex items-center font-bold typo-body">
+          <Typography
+            tag={TypographyTag.H2}
+            type={TypographyType.Body}
+            bold
+            className="flex items-center"
+          >
             All posts from {source.name}
-          </p>
+          </Typography>
         </div>
         <Feed
           feedName={OtherFeedPage.Squad}

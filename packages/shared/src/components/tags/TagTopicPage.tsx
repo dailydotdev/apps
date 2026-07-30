@@ -148,7 +148,13 @@ const EntityGridSkeleton = (): ReactElement => (
   </EntityFeedGrid>
 );
 
-const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
+const TagTopSources = ({
+  tag,
+  title,
+}: {
+  tag: string;
+  title: string;
+}): ReactElement | null => {
   const { data: topSources, isPending } = useQuery({
     queryKey: [RequestKey.SourceByTag, null, tag],
     queryFn: async () =>
@@ -168,7 +174,7 @@ const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
 
   return (
     <section className="mb-10">
-      <SectionHeading>Top sources covering it</SectionHeading>
+      <SectionHeading>Top sources covering {title}</SectionHeading>
       {isPending ? (
         <EntityGridSkeleton />
       ) : (
@@ -188,9 +194,11 @@ const TagTopSources = ({ tag }: { tag: string }): ReactElement | null => {
 
 const WhoToFollow = ({
   tag,
+  title,
   initialUsers = [],
 }: {
   tag: string;
+  title: string;
   initialUsers?: UserShortProfile[];
 }): ReactElement | null => {
   const { data: topContributors, isPending } = useQuery({
@@ -213,7 +221,7 @@ const WhoToFollow = ({
 
   return (
     <section className="mb-10">
-      <SectionHeading>Who to follow</SectionHeading>
+      <SectionHeading>Who to follow for {title}</SectionHeading>
       {isLoading ? (
         <EntityGridSkeleton />
       ) : (
@@ -510,7 +518,6 @@ export const TagTopicPage = ({
             </section>
           )}
 
-          {/* Recommended stories */}
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsTopPosts }}
           >
@@ -524,15 +531,22 @@ export const TagTopicPage = ({
                 ]}
                 query={TAG_FEED_QUERY}
                 variables={topPostsQueryVariables}
-                title={{ copy: 'Recommended stories' }}
+                title={{
+                  copy: `Recommended ${title} stories`,
+                  tag: TypographyTag.H2,
+                }}
                 className="!mx-0 !mb-0"
                 emptyScreen={<></>}
               />
             </RailWithFade>
           </ActiveFeedNameContext.Provider>
 
-          <WhoToFollow tag={tag} initialUsers={topContributors} />
-          <TagTopSources tag={tag} />
+          <WhoToFollow
+            tag={tag}
+            title={title}
+            initialUsers={topContributors}
+          />
+          <TagTopSources tag={tag} title={title} />
 
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
@@ -548,7 +562,8 @@ export const TagTopicPage = ({
                 query={MOST_UPVOTED_FEED_QUERY}
                 variables={mostUpvotedQueryVariables}
                 title={{
-                  copy: 'Most upvoted posts',
+                  copy: `Most upvoted ${title} posts`,
+                  tag: TypographyTag.H2,
                   icon: (
                     <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />
                   ),
@@ -572,7 +587,8 @@ export const TagTopicPage = ({
                 query={MOST_DISCUSSED_FEED_QUERY}
                 variables={bestDiscussedQueryVariables}
                 title={{
-                  copy: 'Best discussed posts',
+                  copy: `Best discussed ${title} posts`,
+                  tag: TypographyTag.H2,
                   icon: (
                     <DiscussIcon size={IconSize.Medium} className="mr-1.5" />
                   ),

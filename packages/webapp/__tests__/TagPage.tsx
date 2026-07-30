@@ -178,6 +178,8 @@ const renderComponent = (
     optOutQuestSystem: false,
     optOutAchievements: false,
     isGamificationEnabled: true,
+    isQuestExperienceEnabled: true,
+    toggleQuestExperience: jest.fn().mockResolvedValue(undefined),
     toggleOptOutAchievements: jest.fn().mockResolvedValue(undefined),
     toggleAllGamification: jest.fn().mockResolvedValue(undefined),
     optOutCompanion: false,
@@ -319,7 +321,15 @@ it('should show login popup when logged-out on follow click', async () => {
 it('should render who to follow section from static props', async () => {
   renderComponent(undefined, defaultUser, initialDataObj, [topContributor]);
 
-  expect(await screen.findByText('Who to follow')).toBeInTheDocument();
+  expect(
+    await screen.findByRole('heading', {
+      level: 2,
+      name: 'Who to follow for React',
+    }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole('heading', { level: 2, name: 'All posts about React' }),
+  ).toBeInTheDocument();
   expect(screen.getByText('Ido').closest('a')).toHaveAttribute(
     'href',
     '/idoshamun',
@@ -467,20 +477,37 @@ it('should unblock tag', async () => {
 });
 
 it('should load title and description for tag', async () => {
-  renderComponent([createFeedMock(), createTagsSettingsMock()], defaultUser, {
-    ...initialDataObj,
-    flags: {
-      title: 'React custom title',
-      description: 'React is an amazing framework',
+  renderComponent(
+    [createFeedMock(), createTagsSettingsMock()],
+    defaultUser,
+    {
+      ...initialDataObj,
+      flags: {
+        title: 'React custom title',
+        description: 'React is an amazing framework',
+      },
     },
-  });
+    [topContributor],
+  );
 
   await waitFor(() => {
     expect(
-      screen.getByRole('heading', { name: 'React custom title' }),
+      screen.getByRole('heading', { level: 1, name: 'React custom title' }),
     ).toBeInTheDocument();
     expect(
       screen.getByText('React is an amazing framework'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Who to follow for React custom title',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'All posts about React custom title',
+      }),
     ).toBeInTheDocument();
   });
 });
