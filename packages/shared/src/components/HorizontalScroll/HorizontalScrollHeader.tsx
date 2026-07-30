@@ -62,24 +62,37 @@ export function HorizontalScrollHeader({
   className,
   buttonSize = ButtonSize.Medium,
 }: HorizontalScrollHeaderProps): ReactElement {
-  // Check if title is props object or custom ReactNode
-  const isCustomTitle =
-    title && typeof title === 'object' && !('copy' in title);
+  const isCopyTitle = !!title && typeof title === 'object' && 'copy' in title;
+  const isCustomTitle = !!title && typeof title === 'object' && !isCopyTitle;
+  const hasTitle =
+    isCustomTitle ||
+    (isCopyTitle && !!(title as HorizontalScrollTitleProps).copy);
+
+  if (!hasTitle && !canScroll) {
+    return <></>;
+  }
 
   return (
     <div
       className={classNames(
-        'mx-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full',
+        'mx-4 flex w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full',
+        hasTitle || canScroll ? 'min-h-10' : '',
+        !hasTitle && canScroll && 'hidden tablet:flex',
         className,
       )}
     >
       {isCustomTitle
         ? title
-        : title && (
+        : hasTitle && (
             <HorizontalScrollTitle {...(title as HorizontalScrollTitleProps)} />
           )}
       {canScroll && (
-        <div className="hidden flex-row items-center gap-3 tablet:flex">
+        <div
+          className={classNames(
+            'flex-row items-center gap-3',
+            hasTitle ? 'hidden tablet:flex' : 'flex',
+          )}
+        >
           <Button
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="-rotate-90" />}

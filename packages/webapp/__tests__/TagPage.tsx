@@ -328,6 +328,12 @@ it('should render who to follow section from static props', async () => {
     }),
   ).toBeInTheDocument();
   expect(
+    screen.getByRole('heading', {
+      level: 2,
+      name: 'Recommended React stories',
+    }),
+  ).toBeInTheDocument();
+  expect(
     screen.getByRole('heading', { level: 2, name: 'All posts about React' }),
   ).toBeInTheDocument();
   expect(screen.getByText('Ido').closest('a')).toHaveAttribute(

@@ -88,8 +88,10 @@ export interface TagTopicPageProps {
 
 const SectionHeading = ({
   children,
+  icon,
 }: {
   children: ReactNode;
+  icon?: ReactNode;
 }): ReactElement => (
   <Typography
     tag={TypographyTag.H2}
@@ -98,7 +100,14 @@ const SectionHeading = ({
     bold
     className="mb-4 mt-2"
   >
-    {children}
+    {icon ? (
+      <span className="inline-flex flex-wrap items-center gap-x-1.5">
+        {icon}
+        <span>{children}</span>
+      </span>
+    ) : (
+      children
+    )}
   </Typography>
 );
 
@@ -109,7 +118,7 @@ const RailWithFade = ({ children }: { children: ReactNode }): ReactElement => (
     {children}
     <div
       aria-hidden
-      className="pointer-events-none absolute bottom-0 right-0 top-11 w-12 bg-gradient-to-r from-transparent to-background-default"
+      className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-r from-transparent to-background-default"
     />
   </div>
 );
@@ -521,6 +530,7 @@ export const TagTopicPage = ({
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsTopPosts }}
           >
+            <SectionHeading>Recommended {title} stories</SectionHeading>
             <RailWithFade>
               <HorizontalFeed
                 feedName={OtherFeedPage.TagsTopPosts}
@@ -531,10 +541,6 @@ export const TagTopicPage = ({
                 ]}
                 query={TAG_FEED_QUERY}
                 variables={topPostsQueryVariables}
-                title={{
-                  copy: `Recommended ${title} stories`,
-                  tag: TypographyTag.H2,
-                }}
                 className="!mx-0 !mb-0"
                 emptyScreen={<></>}
               />
@@ -547,6 +553,11 @@ export const TagTopicPage = ({
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsMostUpvoted }}
           >
+            <SectionHeading
+              icon={<UpvoteIcon size={IconSize.Medium} className="shrink-0" />}
+            >
+              Most upvoted {title} posts
+            </SectionHeading>
             <RailWithFade>
               <HorizontalFeed
                 feedName={OtherFeedPage.TagsMostUpvoted}
@@ -557,13 +568,6 @@ export const TagTopicPage = ({
                 ]}
                 query={MOST_UPVOTED_FEED_QUERY}
                 variables={mostUpvotedQueryVariables}
-                title={{
-                  copy: `Most upvoted ${title} posts`,
-                  tag: TypographyTag.H2,
-                  icon: (
-                    <UpvoteIcon size={IconSize.Medium} className="mr-1.5" />
-                  ),
-                }}
                 className="!mx-0 !mb-0"
                 emptyScreen={<></>}
               />
@@ -572,6 +576,11 @@ export const TagTopicPage = ({
           <ActiveFeedNameContext.Provider
             value={{ feedName: OtherFeedPage.TagsBestDiscussed }}
           >
+            <SectionHeading
+              icon={<DiscussIcon size={IconSize.Medium} className="shrink-0" />}
+            >
+              Best discussed {title} posts
+            </SectionHeading>
             <RailWithFade>
               <HorizontalFeed
                 feedName={OtherFeedPage.TagsBestDiscussed}
@@ -582,13 +591,6 @@ export const TagTopicPage = ({
                 ]}
                 query={MOST_DISCUSSED_FEED_QUERY}
                 variables={bestDiscussedQueryVariables}
-                title={{
-                  copy: `Best discussed ${title} posts`,
-                  tag: TypographyTag.H2,
-                  icon: (
-                    <DiscussIcon size={IconSize.Medium} className="mr-1.5" />
-                  ),
-                }}
                 className="!mx-0 !mb-0"
                 emptyScreen={<></>}
               />
