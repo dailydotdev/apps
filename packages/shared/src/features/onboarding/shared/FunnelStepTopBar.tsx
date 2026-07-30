@@ -42,7 +42,10 @@ export function FunnelStepTopBar({
   return (
     // In flow, not absolute, so the strip reserves its own height and can never
     // land on a step's headline; sticky so it stays reachable on long steps.
-    <div className="pointer-events-none sticky top-0 z-3 pt-6">
+    // `w-full` is load-bearing: the sign-back screen's shell centres its
+    // children, and without a width here the strip shrink-wrapped to the logo
+    // and drifted to the middle of the screen, on top of the headline.
+    <div className="pointer-events-none sticky top-0 z-3 w-full pt-6">
       {/* Full-bleed, not on the rail: the rail is a 512px centred box, so a logo
           inside it reads as centred on a wide screen instead of sitting in the
           corner. `px-6` matches the rail's gutter, so on a phone the logo still

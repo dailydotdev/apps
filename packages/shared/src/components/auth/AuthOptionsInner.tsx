@@ -143,7 +143,7 @@ function AuthOptionsInner({
   onboardingSignupButton,
   hideLoginLink,
   hideSignupDisclaimer,
-  onboardingHeadline,
+  isOnboardingFunnel,
   compact,
   splitSignupStyle,
   preferGithub,
@@ -785,7 +785,7 @@ function AuthOptionsInner({
             formRef={formRef}
             simplified={simplified}
             showHeadline={!hideRegistrationHeadline}
-            onboardingHeadline={onboardingHeadline}
+            isOnboardingFunnel={isOnboardingFunnel}
             extraFields={registrationExtraFields}
             hints={registrationHints}
             onBack={
@@ -880,6 +880,7 @@ function AuthOptionsInner({
             onProviderClick={onProviderClick}
             isProviderLoading={isSocialAuthLoading}
             simplified={simplified}
+            isOnboardingFunnel={isOnboardingFunnel}
             onShowLoginOptions={() => {
               if (!isLoginFlow && onAuthStateUpdate) {
                 onAuthStateUpdate({ isLoginFlow: true });
@@ -921,10 +922,11 @@ function AuthOptionsInner({
           <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
           <AuthHeader
             simplified={simplified}
-            onboardingHeadline={onboardingHeadline}
+            onboardingHeadline={isOnboardingFunnel}
             title="Verify your email"
           />
           <EmailCodeVerification
+            isOnboardingFunnel={isOnboardingFunnel}
             onSubmit={onProfileSuccess}
             onVerifyCode={async (code) => {
               const res = await betterAuthVerifyEmailOTP(email, code);

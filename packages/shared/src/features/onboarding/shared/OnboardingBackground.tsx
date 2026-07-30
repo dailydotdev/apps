@@ -43,8 +43,10 @@ export const OnboardingBackground = (): ReactElement => (
   <div aria-hidden className="pointer-events-none absolute inset-0 z-1">
     {/* A fixed-height hero band anchored to the top rather than `inset-0`: the
         mask would otherwise scale with page height and the glow would spread
-        down the long steps. */}
-    <div className="absolute inset-x-0 top-0 h-[42rem]" style={brandSweep} />
+        down the long steps. 21rem holds full strength for the first ~110px and
+        is gone by ~310px, so on a laptop the colour occupies roughly the top
+        fifth of the screen instead of half of it. */}
+    <div className="absolute inset-x-0 top-0 h-[21rem]" style={brandSweep} />
     <div className="absolute inset-0" style={horizonGlow} />
     <div className="absolute inset-0 opacity-[0.04]" style={grain} />
     <div className="absolute inset-0" style={vignette} />

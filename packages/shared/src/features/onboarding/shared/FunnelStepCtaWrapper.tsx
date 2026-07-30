@@ -18,6 +18,7 @@ import {
 import { sanitizeMessage } from '../lib/utils';
 import { FunnelStepDots, useIsOnboardingFunnel } from './FunnelStepDots';
 import { FunnelStepTopBar } from './FunnelStepTopBar';
+import { FunnelGlassBar, funnelGlassBarCta } from './FunnelGlassBar';
 
 export type FunnelStepCtaWrapperProps = ButtonProps<'button'> &
   // Some steps link out instead of transitioning (e.g. the extension download),
@@ -160,23 +161,13 @@ export function FunnelStepCtaWrapper({
             // docked control has to opt back in.
             <div className="pointer-events-auto">{docked}</div>
           )}
-          {/* Nested-radius rule: the inner button radius (Medium = rounded-12)
-            plus the bar's p-1.5 (6px) = rounded-18, so the curves stay
-            concentric. */}
-          {/* `bg-surface-float` + a heavy blur is the design system's glass (see
-            MobilePostFloatingBar). A `bg-background-default/95` reads as
-            translucent but resolves to transparent — the slash modifier can't
-            apply an alpha to these CSS-variable colours.
-            The shadow is a soft ambient wash rather than the `shadow-2` drop:
-            no offset, a wide blur and the lightest shadow tint, so the bar
-            reads as lifted without a hard edge under it. */}
-          <div className="pointer-events-auto flex items-center gap-2 rounded-18 border border-border-subtlest-secondary bg-surface-float p-1.5 shadow-[0_0.125rem_1rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem]">
+          <FunnelGlassBar className="pointer-events-auto">
             {/* Skip lives in the top bar, so the CTA owns the whole bar. */}
             <Button
               className={classNames(
                 className,
                 cta?.animation,
-                'flex-1 whitespace-nowrap !px-3 tablet:!px-6',
+                funnelGlassBarCta,
               )}
               data-funnel-track={FunnelTargetId.StepCta}
               size={ButtonSize.Medium}
@@ -186,7 +177,7 @@ export function FunnelStepCtaWrapper({
             >
               {cta?.label || DEFAULT_ONBOARDING_CTA_LABEL}
             </Button>
-          </div>
+          </FunnelGlassBar>
           {/* Under the bar, not above it: the CTA is what the eye should land
               on, and the progress reads as a footnote to it. */}
           <FunnelStepDots />

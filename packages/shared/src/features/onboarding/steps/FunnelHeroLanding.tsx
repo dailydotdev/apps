@@ -199,7 +199,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
           // the same flow as the steps after it. The paid funnel's landing keeps
           // its own treatment.
           hideSignupDisclaimer={isOnboarding}
-          onboardingHeadline={isOnboarding}
+          isOnboardingFunnel={isOnboarding}
           className={
             isSplitColumnBackground
               ? {

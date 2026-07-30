@@ -1,7 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
+import ConditionalWrapper from '../ConditionalWrapper';
+import {
+  FunnelGlassBar,
+  funnelGlassBarCta,
+} from '../../features/onboarding/shared/FunnelGlassBar';
 import type { AuthFormProps } from './common';
 import AuthForm from './AuthForm';
 import { AuthEventNames } from '../../lib/auth';
@@ -22,6 +27,7 @@ interface EmailCodeVerificationProps extends AuthFormProps {
   className?: string;
   onVerifyCode?: (code: string) => Promise<void>;
   onResendCode?: () => Promise<void>;
+  isOnboardingFunnel?: boolean;
 }
 
 const noop = (): void => undefined;
@@ -32,6 +38,7 @@ function EmailCodeVerification({
   className,
   onVerifyCode,
   onResendCode,
+  isOnboardingFunnel,
 }: EmailCodeVerificationProps): ReactElement {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -170,14 +177,24 @@ function EmailCodeVerification({
           </button>
         </span>
       </div>
-      <Button
-        className="w-full"
-        type="submit"
-        variant={ButtonVariant.Primary}
-        loading={isVerifying}
+      {/* Same glass bar as the funnel steps and account details, so the last
+          screen before the funnel opens is not the one bare button in the flow. */}
+      <ConditionalWrapper
+        condition={!!isOnboardingFunnel}
+        wrapper={(component) => (
+          <FunnelGlassBar className="w-full">{component}</FunnelGlassBar>
+        )}
       >
-        Verify
-      </Button>
+        <Button
+          className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
+          type="submit"
+          size={isOnboardingFunnel ? ButtonSize.Medium : undefined}
+          variant={ButtonVariant.Primary}
+          loading={isVerifying}
+        >
+          Verify
+        </Button>
+      </ConditionalWrapper>
     </AuthForm>
   );
 }

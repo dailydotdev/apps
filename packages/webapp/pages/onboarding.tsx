@@ -247,7 +247,7 @@ const useOnboardingAuth = () => {
       hideSignupDisclaimer: true,
       // Account details and verify-email sit in front of the funnel, so they
       // take the funnel's headline scale to read as the same flow.
-      onboardingHeadline: true,
+      isOnboardingFunnel: true,
       className: {
         container: classNames(
           'w-full rounded-none tablet:max-w-[30rem]',
@@ -411,7 +411,9 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
       >
         <OnboardingBackground />
         <FunnelStepTopBar />
-        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
+        {/* pt-3 is the same clearance the funnel steps put between the top bar
+            and their headline, so "Welcome back!" doesn't start against it. */}
+        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-center px-4 pt-3 tablet:flex-row tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>
         {/* The inline disclaimer is suppressed above so it doesn't sit in the

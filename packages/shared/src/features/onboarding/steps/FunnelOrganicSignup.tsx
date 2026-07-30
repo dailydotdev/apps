@@ -256,7 +256,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
                 // Post-signup funnel only: the funnel's headline scale, and no
                 // terms strip (the funnel shows it once, on the wall).
                 hideSignupDisclaimer={isOnboarding}
-                onboardingHeadline={isOnboarding}
+                isOnboardingFunnel={isOnboarding}
                 registrationExtraFields={extraFields}
                 defaultDisplay={
                   isSocialSignupActive
