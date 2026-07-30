@@ -20,9 +20,9 @@ jest.mock('../../../hooks', () => ({
 const mockUseConditionalFeature = useConditionalFeature as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
 
-const renderComponent = (props = {}) =>
+const renderComponent = (props = {}, auth = {}) =>
   render(
-    <TestBootProvider client={new QueryClient()}>
+    <TestBootProvider client={new QueryClient()} auth={auth}>
       <GetAppButton {...props} />
     </TestBootProvider>,
   );
@@ -59,6 +59,18 @@ describe('GetAppButton', () => {
   it('should render nothing below laptop, where the app is already at hand', () => {
     mockUseViewSize.mockReturnValue(false);
     renderComponent();
+
+    expect(
+      screen.queryByRole('button', { name: triggerName }),
+    ).not.toBeInTheDocument();
+  });
+
+  // The Android wrapper has no isIOSNative()-style runtime bridge and is
+  // flagged through boot data instead. A tablet/desktop-mode viewport can
+  // satisfy the laptop breakpoint from inside the app, so the boot signal must
+  // veto the viewport gate.
+  it('should render nothing inside the Android app even at laptop width', () => {
+    renderComponent({}, { isAndroidApp: true });
 
     expect(
       screen.queryByRole('button', { name: triggerName }),

@@ -17,6 +17,7 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import usePersistentContext from '../../../hooks/usePersistentContext';
 import { featureHeaderGetApp } from '../../../lib/featureManagement';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 import { isIOSNative } from '../../../lib/func';
@@ -75,12 +76,17 @@ export function GetAppButton({
 }: GetAppButtonProps): ReactElement | null {
   const [isOpen, setIsOpen] = useState(false);
   const { logEvent } = useLogContext();
+  const { isAndroidApp } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
   // The point of this entry point is telling *desktop* visitors that a mobile
   // app exists. Below laptop we're either on mobile web or inside the native
   // wrapper - which renders this same webapp shell - and neither should be
-  // told to go get an app they're already holding.
-  const shouldRender = isLaptop && !isIOSNative();
+  // told to go get an app they're already holding. The wrappers need their own
+  // signals on top of the viewport gate because a tablet/desktop-mode viewport
+  // can satisfy the laptop breakpoint from inside the app: iOS exposes a
+  // WebKit bridge at runtime (isIOSNative), Android has no such bridge and is
+  // flagged through boot data instead.
+  const shouldRender = isLaptop && !isIOSNative() && !isAndroidApp;
   const { value: isFlagEnabled } = useConditionalFeature({
     feature: featureHeaderGetApp,
     shouldEvaluate: shouldRender && isFeatureEnabledProp === undefined,
