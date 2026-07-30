@@ -237,7 +237,6 @@ export const ShareGrid = forwardRef(function ShareGrid(
             onCopyLinkClick={onCopyLinkClick}
             onBookmarkClick={onBookmarkClick}
             onDownvoteClick={onDownvoteClick}
-            coverScrim
           />
         ) : (
           <ActionButtons
