@@ -9,7 +9,6 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { BellIcon } from '@dailydotdev/shared/src/components/icons';
 
 const queryClient = new QueryClient();
 
@@ -56,24 +55,6 @@ const HeaderShell = ({
   </div>
 );
 
-// NOT shipped: the logged-in action rail dropped this button (product call,
-// 2026-07). Kept here as the reference for the icon-only variant should it
-// ever come back.
-export const InHeaderLoggedIn: Story = {
-  render: (args) => (
-    <HeaderShell>
-      <GetAppButton {...args} />
-      <Button
-        variant={ButtonVariant.Float}
-        className="w-10 justify-center"
-        icon={<BellIcon />}
-        aria-label="Notifications"
-      />
-      <div className="size-8 rounded-10 bg-surface-float" />
-    </HeaderShell>
-  ),
-};
-
 // Stands in for the real LoginButton, which renders a Secondary "Log in" and a
 // Primary "Sign up" side by side inside a `gap-4` span.
 const AuthButtons = (): React.ReactElement => (
@@ -93,9 +74,10 @@ export const InHeaderLoggedOut: Story = {
   ),
 };
 
-// Same slot, icon-only. Worth comparing: with Log in AND Sign up already in the
-// row, a third labelled button competes with Sign up, which is the CTA that
-// actually matters to a logged-out visitor.
+// Same slot, icon-only. NOT shipped - kept as the reference for the compact
+// variant, worth comparing: with Log in AND Sign up already in the row, a
+// third labelled button competes with Sign up, which is the CTA that actually
+// matters to a logged-out visitor.
 export const InHeaderLoggedOutCompact: Story = {
   args: { showLabel: false },
   render: (args) => (

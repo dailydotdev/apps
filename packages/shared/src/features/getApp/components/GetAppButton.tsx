@@ -14,7 +14,6 @@ import { GooglePlayIcon } from '../../../components/icons/GooglePlay';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
 import { useViewSize, ViewSize } from '../../../hooks';
-import usePersistentContext from '../../../hooks/usePersistentContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
@@ -50,11 +49,6 @@ const stores: AppStore[] = [
   },
 ];
 
-// One-time attention dot. The button is a permanent affordance, not a campaign,
-// so it nudges once and then goes quiet - a banner that keeps reappearing is
-// what we're deliberately not building here.
-const GET_APP_SEEN_KEY = 'getAppHeaderSeen';
-
 export interface GetAppButtonProps {
   // The logged-out header has room for the full label next to Log in /
   // Sign up; icon-only (label in a tooltip) exists as the compact alternative.
@@ -82,10 +76,6 @@ export function GetAppButton({
   // boot data instead.
   const shouldRender =
     isLaptop && !isLoggedIn && !isIOSNative() && !isAndroidApp;
-  const [hasSeen, setHasSeen, isSeenFetched] = usePersistentContext<boolean>(
-    GET_APP_SEEN_KEY,
-    false,
-  );
 
   const onOpenChange = useCallback(
     (open: boolean) => {
@@ -95,13 +85,12 @@ export function GetAppButton({
         return;
       }
 
-      setHasSeen(true);
       logEvent({
         event_name: LogEvent.Click,
         target_type: TargetType.GetAppButton,
       });
     },
-    [logEvent, setHasSeen],
+    [logEvent],
   );
 
   const onStoreClick = useCallback(
@@ -119,41 +108,27 @@ export function GetAppButton({
     return null;
   }
 
-  const showDot = !showLabel && isSeenFetched && !hasSeen;
-
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      {/* The dot is a sibling of the Button, not a child: Button derives its
-          icon-only geometry from `!children`, so nesting the dot inside would
-          switch it to the labelled layout (`pl-2 pr-4 gap-1`) and push the
-          glyph 4px off centre. */}
-      <span className={classNames('relative inline-flex', className)}>
-        <Tooltip
-          content="Get the mobile app"
-          side="bottom"
-          visible={!showLabel}
-        >
-          <PopoverTrigger asChild>
-            <Button
-              variant={ButtonVariant.Float}
-              size={showLabel ? ButtonSize.Medium : undefined}
-              className={classNames('justify-center', !showLabel && 'w-10')}
-              icon={<PhoneIcon secondary={isOpen} />}
-              aria-haspopup="dialog"
-              aria-expanded={isOpen}
-              aria-label="Get the daily.dev mobile app"
-            >
-              {showLabel ? 'Get the app' : null}
-            </Button>
-          </PopoverTrigger>
-        </Tooltip>
-        {showDot && (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -right-0.5 -top-0.5 size-2.5 rounded-full border-2 border-background-default bg-accent-cabbage-default"
-          />
-        )}
-      </span>
+      <Tooltip content="Get the mobile app" side="bottom" visible={!showLabel}>
+        <PopoverTrigger asChild>
+          <Button
+            variant={ButtonVariant.Float}
+            size={showLabel ? ButtonSize.Medium : undefined}
+            className={classNames(
+              'justify-center',
+              !showLabel && 'w-10',
+              className,
+            )}
+            icon={<PhoneIcon secondary={isOpen} />}
+            aria-haspopup="dialog"
+            aria-expanded={isOpen}
+            aria-label="Get the daily.dev mobile app"
+          >
+            {showLabel ? 'Get the app' : null}
+          </Button>
+        </PopoverTrigger>
+      </Tooltip>
       <PopoverContent
         align="end"
         sideOffset={8}
