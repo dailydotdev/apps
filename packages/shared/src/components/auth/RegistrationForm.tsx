@@ -27,6 +27,7 @@ import type { CloseModalFunc } from '../modals/common';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import AuthHeader from './AuthHeader';
+import SignupDisclaimer from './SignupDisclaimer';
 import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
 import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
@@ -562,6 +563,15 @@ const RegistrationForm = ({
                 Sign up
               </Button>
             </ConditionalWrapper>
+            {/* Consent belongs to the button that creates the account, so it
+                travels with this form instead of being docked on the funnel
+                shell — that shell also serves sign-back, login and
+                verify-email, where the account already exists. The funnel's
+                signup wall suppresses its own inline copy, which makes this the
+                notice shown before the account is created, at every width. */}
+            {isOnboardingFunnel && (
+              <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+            )}
           </ConditionalWrapper>
         </AuthForm>
       </div>

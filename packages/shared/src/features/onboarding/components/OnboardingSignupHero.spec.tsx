@@ -213,13 +213,14 @@ describe('OnboardingSignupHero', () => {
       expect(screen.getByTestId('logo')).toBeInTheDocument();
     });
 
-    // This is the screen that creates the account, and it is the last one in
-    // the onboarding flow to carry a Terms/Privacy notice — the wall behind it
-    // only shows its own from `tablet` up. The footer nav still goes.
-    it('keeps the disclaimer but not the footer links in the funnel', () => {
+    // The shell carries no footer chrome and no consent line of its own: it
+    // also serves sign-back and verify-email, where the account already exists.
+    // The Terms/Privacy notice belongs to RegistrationForm, which renders it
+    // under the button that creates the account.
+    it('renders neither footer links nor a disclaimer in the funnel', () => {
       renderHeroInFunnel({ isFormExpanded: true });
-      expect(screen.getByTestId('disclaimer')).toBeInTheDocument();
       expect(screen.queryByTestId('footer')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('disclaimer')).not.toBeInTheDocument();
     });
   });
 });

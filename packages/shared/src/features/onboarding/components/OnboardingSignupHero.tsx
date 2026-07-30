@@ -136,15 +136,11 @@ export const OnboardingSignupHero = ({
             {children}
           </div>
         </main>
-        {isOnboarding ? (
-          // The funnel drops the footer nav, but not the consent line: this is
-          // the screen that creates the account, and the wall behind it only
-          // shows its own disclaimer from `tablet` up — so without this a phone
-          // reaches "Sign up" having never been shown the terms.
-          <div className="pointer-events-auto w-full px-5 pb-6">
-            <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
-          </div>
-        ) : (
+        {/* No footer chrome in the funnel. The Terms/Privacy line is not here
+            either — it belongs to the form that creates the account, so
+            RegistrationForm renders it under its own CTA and it can't leak onto
+            the login and verify-email screens this shell also serves. */}
+        {!isOnboarding && (
           <>
             <div className="pointer-events-auto flex w-full flex-col items-center gap-3 px-5 pb-4 tablet:hidden">
               <div className="[&_footer]:!pb-0 [&_ul]:!mb-0">
