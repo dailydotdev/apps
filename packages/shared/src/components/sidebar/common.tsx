@@ -140,46 +140,34 @@ export const railCountBubbleClass =
 export const railDividerBorderClass = '!border-border-subtlest-quaternary';
 export const railDividerBgClass = 'bg-border-subtlest-quaternary';
 // Shared drag visuals for the v2 sidebar's two drag systems — the rail tabs and
-// the shortcuts dock — so a lifted item looks and feels identical in both.
+// the shortcuts dock — so a lifted item looks identical in both. Callers add
+// the lift (`scale-110`) and their own transition.
 //
-// A glass chip, lifted above the rail.
-//
-// The fill MUST be a `surface-*` token, not a tint of `background-default`. The
-// sidebar is `bg-background-default` and opaque, so a dark tint over it is
-// invisible as a tint and the chip just reads as a flat, solid dark block — no
-// matter how low the alpha goes. `surface-float` is the design system's
-// theme-aware overlay (light salt on dark, dark on light), which is what makes
-// a lifted surface read as lifted. It is the same family as the landing slot,
-// one step lighter so the parked slot reads as the target and this reads as the
+// The fill must be a `surface-*` token, never a tint of `background-default`:
+// that token is a bare `var()`, so Tailwind's `/<n>` opacity modifier computes
+// to rgba(0,0,0,0) and the chip silently gets no fill at all. `surface-float`
+// is the theme-aware overlay (light salt on dark, dark on light), one step
+// below the landing slot so the slot reads as the target and this reads as the
 // thing in your hand.
 //
-// The blur radius is the whole ballgame, not the alpha. At `backdrop-blur-xl`
-// (24px) the radius is a third of the 68px chip, so the filter averages the
-// entire backdrop into one flat colour: measured over a rail tab it erased the
-// icon AND the label, leaving a grey block that reads as fully opaque even
-// though the fill is only 8%. Every alpha tweak below that blur was invisible.
-// 8px keeps enough structure that the tab underneath stays recognisable, which
-// is what actually reads as glass. Raising it again will undo this.
+// Blur RADIUS is what makes this read as glass — the alpha is not. At
+// `backdrop-blur-xl` (24px on a 68px chip) the filter averages the whole
+// backdrop into one flat colour: measured over a rail tab it erased the icon
+// and the label, leaving a block that looks opaque at any fill. 8px keeps the
+// tab underneath recognisable. Raising it undoes this.
 //
-// `shadow-2` over `shadow-3`: the latter is a 14px black shadow at 64% alpha
-// that blooms into a dark halo in dark mode.
-// Callers add the lift (`scale-110`) and their own transition.
-//
-// The fill is a color-mix, NOT `bg-background-default/20`: this token is a bare
-// `var(--theme-background-default)`, and Tailwind cannot inject an alpha into a
-// var() reference — every `/<n>` modifier on it computes to rgba(0,0,0,0), so
-// the chip silently had no fill at all. `shadow-3` is likewise the deepest step
-// that exists (the scale is 2 / 3 / bubble); `shadow-4` is not a class.
+// `shadow-2`, not `shadow-3`: the latter is a 14px black shadow at 64% alpha
+// that blooms into a dark halo in dark mode. The scale is 2 / 3 / bubble —
+// there is no `shadow-4`.
 export const sidebarDragGhostClass =
   'bg-surface-float rounded-12 border border-border-subtlest-secondary shadow-2 backdrop-blur';
-// The parked slot a dragged item will land in — the "it will go here" marker.
-// Its content is faded out, so the slot keeps the item's exact height.
+// The parked slot a dragged item lands in — the "it will go here" marker. Its
+// content is faded out, so the slot keeps the item's exact height.
 //
-// `surface-hover` (12%), between float (8%) and active (16%). At 16% this was
-// the most solid thing on screen during a drag and read as "the dragged item's
-// background is opaque" — it is the pale block, not the ghost. At 8% it was too
-// faint to show where the drop lands. Same 8px blur as the ghost, for the same
-// reason: a wider radius flattens the backdrop into a solid-looking block.
+// `surface-hover` (12%): at `surface-active` (16%) it was the most solid thing
+// on screen during a drag and read as the dragged item having an opaque
+// backing, and at `surface-float` (8%) it was too faint to show the target.
+// Same 8px blur as the ghost, for the same reason.
 export const sidebarDragSlotClass = 'rounded-12 bg-surface-hover backdrop-blur';
 export const SidebarAside = classed(
   'aside',

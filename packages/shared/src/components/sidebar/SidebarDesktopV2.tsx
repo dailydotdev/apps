@@ -285,14 +285,14 @@ const SortableRailTab = ({
       // scale, which dnd-kit sets to the size ratio between the dragged item
       // and the one it displaces. The rail mixes tall tabs with the shorter
       // New post button, so that ratio squashed/stretched them mid-drag.
-      // While dragging, the REAL element stays parked in the list as a slot
-      // skeleton and a DragOverlay ghost (which we mark pointer-events-none;
-      // dnd-kit does not) follows the
-      // cursor (same architecture as the shortcuts dock). This is what makes
-      // the notifications tab safe to drag: its live anchor is never under
-      // the pointer at release, so the browser's post-drag click can't hit
-      // the link and natively navigate — no guard timing can promise that
-      // when the real anchor rides along with the cursor.
+      //
+      // While dragging, the REAL element stays parked here as a slot skeleton
+      // and a DragOverlay ghost follows the cursor (same architecture as the
+      // shortcuts dock). That is what makes the notifications tab safe to
+      // drag: its live anchor is never under the pointer at release, so the
+      // browser's post-drag click can't hit the link and natively navigate —
+      // no guard timing can promise that while the real anchor rides along
+      // with the cursor.
       style={{
         transform: isDragging ? undefined : CSS.Translate.toString(transform),
         transition,
