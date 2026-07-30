@@ -74,7 +74,6 @@ const onboardingSteps = [
   FunnelStepType.Pricing,
   FunnelStepType.UploadCv,
   FunnelStepType.PlusCards,
-  FunnelStepType.VerifyEmail,
 ];
 
 const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {

@@ -143,6 +143,7 @@ function AuthOptionsInner({
   onboardingSignupButton,
   hideLoginLink,
   hideSignupDisclaimer,
+  onboardingHeadline,
   compact,
   splitSignupStyle,
   preferGithub,
@@ -784,6 +785,7 @@ function AuthOptionsInner({
             formRef={formRef}
             simplified={simplified}
             showHeadline={!hideRegistrationHeadline}
+            onboardingHeadline={onboardingHeadline}
             extraFields={registrationExtraFields}
             hints={registrationHints}
             onBack={
@@ -917,7 +919,11 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
           <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
-          <AuthHeader simplified={simplified} title="Verify your email" />
+          <AuthHeader
+            simplified={simplified}
+            onboardingHeadline={onboardingHeadline}
+            title="Verify your email"
+          />
           <EmailCodeVerification
             onSubmit={onProfileSuccess}
             onVerifyCode={async (code) => {

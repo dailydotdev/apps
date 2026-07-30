@@ -145,4 +145,11 @@ export interface AuthOptionsProps {
   hideRegistrationHeadline?: boolean;
   /** Hide the "By continuing, you agree to…" strip under the signup options. */
   hideSignupDisclaimer?: boolean;
+  /**
+   * Post-signup onboarding only: render the screen headings at the funnel's
+   * headline scale, so the signup and verify-email screens match the steps that
+   * follow. Not folded into `simplified` — eleven surfaces set that, including
+   * the paid funnel.
+   */
+  onboardingHeadline?: boolean;
 }

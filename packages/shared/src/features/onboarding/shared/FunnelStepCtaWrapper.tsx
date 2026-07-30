@@ -16,7 +16,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { sanitizeMessage } from '../lib/utils';
-import { FunnelStepDots } from './FunnelStepDots';
+import { FunnelStepDots, useIsOnboardingFunnel } from './FunnelStepDots';
 import { FunnelStepTopBar } from './FunnelStepTopBar';
 
 export type FunnelStepCtaWrapperProps = ButtonProps<'button'> &
@@ -64,6 +64,13 @@ export function FunnelStepCtaWrapper({
   ...props
 }: FunnelStepCtaWrapperProps): ReactElement {
   const { cta: skipLabel, ...skipProps } = skip ?? {};
+  // The glass bar carries the funnel's own chrome — the top bar's logo and skip
+  // — so it can only ever render inside the post-signup funnel. Gating here
+  // rather than trusting each caller: the paid funnel keeps its stepper Header,
+  // and a step that asked for glass unconditionally would otherwise paint a
+  // second logo and a second Skip over it.
+  const isOnboarding = useIsOnboardingFunnel();
+  const hasGlass = isGlass && isOnboarding;
   const note = useMemo(() => {
     if (!cta?.note) {
       return null;
@@ -81,7 +88,7 @@ export function FunnelStepCtaWrapper({
     );
   }, [cta?.note]);
 
-  if (!isGlass) {
+  if (!hasGlass) {
     return (
       <div className="relative flex flex-1 flex-col gap-4">
         <div className={classNames('flex-1', containerClassName)}>

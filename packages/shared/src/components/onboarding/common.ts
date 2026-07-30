@@ -41,16 +41,20 @@ export const OnboardingSubheadline = classed(
   'mx-auto w-full max-w-[27.5rem] text-center text-text-secondary typo-body [text-wrap:pretty]',
 );
 
-export const OnboardingHeadline = classed(
-  'h1',
-  // 27.5rem is the 440px the CTA rail caps at. Capping the headline to the same
-  // measure means the title wraps identically on every step, even the ones
-  // whose content below spreads much wider.
-  // The color must be the explicit token, not inherited: this repo's `.invert`
-  // flips a subtree's theme by swapping CSS variables, so on the forced-dark
-  // steps an inherited color sails through the flip and stays light-theme dark.
-  'mx-auto w-full max-w-[27.5rem] text-center font-bold text-text-primary typo-title1',
-);
+// 27.5rem is the 440px the CTA rail caps at. Capping the headline to the same
+// measure means the title wraps identically on every step, even the ones whose
+// content below spreads much wider.
+// The color must be the explicit token, not inherited: this repo's `.invert`
+// flips a subtree's theme by swapping CSS variables, so on the forced-dark steps
+// an inherited color sails through the flip and stays light-theme dark.
+//
+// Exported as a string as well as a component because the signup and
+// verify-email screens render before the funnel mounts, from an `h2` inside
+// `AuthHeader` — they need the same scale without changing heading level.
+export const onboardingHeadlineClasses =
+  'mx-auto w-full max-w-[27.5rem] text-center font-bold text-text-primary typo-title1';
+
+export const OnboardingHeadline = classed('h1', onboardingHeadlineClasses);
 
 export const onboardingGradientClasses =
   'font-bold text-transparent bg-clip-text bg-gradient-to-r from-accent-bacon-default to-accent-cabbage-default';

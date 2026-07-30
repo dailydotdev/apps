@@ -35,7 +35,6 @@ import {
   FunnelHeroLanding,
   FunnelBrowserExtension,
   FunnelUploadCv,
-  FunnelVerifyEmail,
 } from '../steps';
 import { FunnelFact } from '../steps/FunnelFact';
 import { FunnelCheckout } from '../steps/FunnelCheckout';
@@ -86,7 +85,6 @@ const stepComponentMap = {
   [FunnelStepType.PlusCards]: FunnelPlusCards,
   [FunnelStepType.BrowserExtension]: FunnelBrowserExtension,
   [FunnelStepType.UploadCv]: FunnelUploadCv,
-  [FunnelStepType.VerifyEmail]: FunnelVerifyEmail,
 } as const;
 
 function FunnelStepComponent(props: {

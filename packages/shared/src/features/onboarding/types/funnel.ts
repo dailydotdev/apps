@@ -18,9 +18,6 @@ export enum FunnelStepType {
   Fact = 'fact',
   Quiz = 'quiz',
   Signup = 'registration',
-  // The funnel's own copy of the auth verification screen — see
-  // FunnelVerifyEmail. The auth flow keeps its original.
-  VerifyEmail = 'verifyEmail',
   Pricing = 'pricing',
   Checkout = 'checkout',
   PaymentSuccessful = 'paymentSuccessful',
@@ -413,16 +410,6 @@ export interface FunnelStepUploadCv
   onTransition: FunnelStepTransitionCallback;
 }
 
-export interface FunnelStepVerifyEmail
-  extends FunnelStepCommon<{
-    headline?: string;
-    explainer?: string;
-    email?: string;
-  }> {
-  type: FunnelStepType.VerifyEmail;
-  onTransition: FunnelStepTransitionCallback<{ code: string }>;
-}
-
 export type FunnelStep =
   | FunnelStepLandingPage
   | FunnelStepFact
@@ -444,8 +431,7 @@ export type FunnelStep =
   | FunnelStepHeroLanding
   | FunnelStepBrowserExtension
   | FunnelStepPlusCards
-  | FunnelStepUploadCv
-  | FunnelStepVerifyEmail;
+  | FunnelStepUploadCv;
 
 export type FunnelPosition = {
   chapter: number;

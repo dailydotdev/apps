@@ -68,6 +68,9 @@ export interface RegistrationFormProps extends AuthFormProps {
   // form. The onboarding funnel already shows this copy on the signup wall, so
   // it hides it here to avoid duplicating the message on the email step.
   showHeadline?: boolean;
+  // Post-signup onboarding only: render the header at the funnel's headline
+  // scale so this screen matches the steps after it.
+  onboardingHeadline?: boolean;
 }
 
 export type RegistrationFormValues = Omit<
@@ -92,6 +95,7 @@ const RegistrationForm = ({
   headerTitle = 'Sign up',
   extraFields = [],
   showHeadline = true,
+  onboardingHeadline,
 }: RegistrationFormProps): ReactElement => {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -308,7 +312,11 @@ const RegistrationForm = ({
   return (
     <div className="flex flex-col">
       {!isAuthenticating && (
-        <AuthHeader simplified={simplified} title={headerTitle} />
+        <AuthHeader
+          simplified={simplified}
+          onboardingHeadline={onboardingHeadline}
+          title={headerTitle}
+        />
       )}
       <div
         className={classNames(

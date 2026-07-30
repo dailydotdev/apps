@@ -18,7 +18,6 @@ import { FunnelInstallPwa } from '@dailydotdev/shared/src/features/onboarding/st
 import { FunnelBrowserExtension } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelBrowserExtension';
 import { FunnelUploadCv } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelUploadCv';
 import { FunnelPlusCards } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelPlusCards';
-import { FunnelVerifyEmail } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelVerifyEmail';
 import { exportLinkedIn } from '@dailydotdev/shared/src/lib/image';
 import { FunnelPaymentPricingContext } from '@dailydotdev/shared/src/contexts/payment/context';
 import { mockPricing } from './FunnelPricing.stories';
@@ -88,29 +87,6 @@ const baseStep: any = {
   transitions: [],
   onTransition: fn(),
   onRegisterStepToSkip: fn(),
-};
-
-export const VerifyEmail: Story = {
-  name: '2. Verify email',
-  render: ({ chrome }: StepArgs) => {
-    const step = {
-      ...baseStep,
-      id: 'verify-email',
-      type: FunnelStepType.VerifyEmail,
-      parameters: {
-        headline: 'Verify your email',
-        explainer: 'A verification code has been sent to:',
-        email: 'tsmatliah+22@gmail.com',
-        cta: 'Verify',
-      },
-    };
-
-    return (
-      <FunnelStepShell chrome={chrome} step={step} stepIndex={1} fullWidth>
-        <FunnelVerifyEmail {...step} />
-      </FunnelStepShell>
-    );
-  },
 };
 
 export const AccountDetails: Story = {

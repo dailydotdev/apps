@@ -57,7 +57,8 @@ import {
 import { Provider as JotaiProvider, useAtom } from 'jotai/react';
 
 import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
-import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
+import { FunnelStepTopBar } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepTopBar';
+import { OnboardingBackground } from '@dailydotdev/shared/src/features/onboarding/shared/OnboardingBackground';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
@@ -243,6 +244,9 @@ const useOnboardingAuth = () => {
       // The account-details and verify-email screens stay clean: no footer nav
       // strip, no terms strip. The cookie box is the only thing left docked.
       hideSignupDisclaimer: true,
+      // Account details and verify-email sit in front of the funnel, so they
+      // take the funnel's headline scale to read as the same flow.
+      onboardingHeadline: true,
       className: {
         container: classNames(
           'w-full rounded-none tablet:max-w-[30rem]',
@@ -393,13 +397,20 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
 
   if (isAuthenticating) {
     return (
+      // The signup wall, account details and verify-email screens render here,
+      // BEFORE FunnelStepper mounts — so they get the funnel's chrome directly:
+      // the same gradient canvas and the same top bar (no skip; there is nothing
+      // to skip yet), which puts the logo at the identical 24px offset the steps
+      // use. Without this the first two screens of the flow looked like a
+      // different product from the seven that follow.
       <div
         className={classNames(
-          'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
+          'relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
         )}
       >
-        <OnboardingHeader />
-        <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
+        <OnboardingBackground />
+        <FunnelStepTopBar />
+        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>
       </div>
