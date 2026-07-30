@@ -13,8 +13,18 @@ import { webappUrl } from '../../lib/constants';
 import { useViewSize, ViewSize } from '../../hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
-import { IconSize } from '../Icon';
-import { railTabClass, railTabLabelClass } from '../sidebar/common';
+import {
+  RAIL_ICON_SIZE,
+  railTabClass,
+  railTabLabelClass,
+} from '../sidebar/common';
+
+// The count itself: one step down from `Bubble`'s own size and bolder, so the
+// number stays legible without overpowering the bell glyph it notches, and
+// `tabular-nums` stops the badge reflowing as the count ticks. Shared by both
+// bell variants so the header and the v2 rail stay identical. `Bubble` already
+// supplies the 20px box and the 8px radius.
+const notificationBubbleClass = '!font-bold !typo-footnote tabular-nums';
 
 function NotificationsBell({
   compact,
@@ -70,6 +80,11 @@ function NotificationsBell({
             // we only own the active text color).
             role="tab"
             aria-selected={atNotificationsPage}
+            // Every other rail tab is a <button>; this one is an anchor, which
+            // browsers drag natively. That native link-drag ran alongside the
+            // rail's dnd-kit reorder and navigated on drop — reloading
+            // /notifications. Only dnd-kit should drive this drag.
+            draggable={false}
             className={classNames(
               railTabClass,
               atNotificationsPage && '!text-text-primary',
@@ -79,19 +94,27 @@ function NotificationsBell({
             <span className="relative flex items-center justify-center">
               <BellIcon
                 secondary={atNotificationsPage}
-                size={IconSize.Small}
+                size={RAIL_ICON_SIZE}
                 aria-hidden
                 className="pointer-events-none"
               />
               {hasNotification && (
-                // Compact corner badge: the rail bell is only `size-6` (24px),
-                // so the full-size shared `Bubble` (min 20px) blankets the
-                // glyph. A smaller pill notched into the top-right corner reads
-                // as a badge instead of covering the icon. `border-background-
-                // default` matches the sidebar surface for the cutout effect.
-                <span className="pointer-events-none absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full border-2 border-background-default bg-accent-cabbage-default px-1 leading-none text-white typo-caption2">
+                // The shared square Bubble is the design-system badge (see the
+                // Bell Storybook "Count bubble" reference), offset so it notches
+                // the bell's corner without blanketing the glyph.
+                <Bubble
+                  className={classNames(
+                    // Anchored by its LEFT edge (the bell box is 24px, so 10px
+                    // sits just left of centre): multi-digit counts grow
+                    // rightward instead of creeping left across the bell glyph,
+                    // and starting left of centre keeps even "20+" inside the
+                    // rail's width.
+                    'pointer-events-none -top-2 left-2.5 px-1',
+                    notificationBubbleClass,
+                  )}
+                >
                   {getUnreadText(unreadCount)}
-                </span>
+                </Bubble>
               )}
             </span>
             {!railHideLabel && (
@@ -130,6 +153,7 @@ function NotificationsBell({
               <Bubble
                 className={classNames(
                   '-right-1.5 -top-1.5 cursor-pointer px-1',
+                  notificationBubbleClass,
                   compact && 'right-0 top-0',
                 )}
               >

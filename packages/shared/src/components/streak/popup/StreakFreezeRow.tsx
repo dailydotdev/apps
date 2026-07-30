@@ -13,6 +13,7 @@ import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
 import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 
 export function StreakFreezeRow(): ReactElement | null {
   const { isAuthReady, isLoggedIn } = useAuthContext();
@@ -34,32 +35,35 @@ export function StreakFreezeRow(): ReactElement | null {
   const hasFreezes = freezesAvailable > 0;
 
   return (
-    <button
-      type="button"
-      className="mt-3 flex w-full items-center gap-2 border-t border-border-subtlest-tertiary px-4 py-3 text-left"
-      onClick={() => openModal({ type: LazyModal.StreakFreezePurchase })}
-    >
-      <Typography
-        className="flex-1"
-        type={TypographyType.Callout}
-        color={hasFreezes ? TypographyColor.Primary : TypographyColor.Tertiary}
-        bold={!hasFreezes}
-      >
-        {hasFreezes ? (
-          `${freezesAvailable} streak freeze${
-            freezesAvailable === 1 ? '' : 's'
-          } left`
-        ) : (
-          <>
-            No freezes left
-            <br />
+    <div className="mt-3 flex w-full items-center gap-2 border-t border-border-subtlest-tertiary px-4 py-3">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Primary}
+        >
+          {hasFreezes
+            ? `${freezesAvailable} streak freeze${
+                freezesAvailable === 1 ? '' : 's'
+              } left`
+            : 'No freezes left'}
+        </Typography>
+        {!hasFreezes && (
+          <Typography
+            type={TypographyType.Footnote}
+            color={TypographyColor.Tertiary}
+          >
             Protect your streak
-          </>
+          </Typography>
         )}
-      </Typography>
-      <Typography type={TypographyType.Footnote} color={TypographyColor.Link}>
+      </div>
+      <Button
+        type="button"
+        variant={ButtonVariant.Subtle}
+        size={ButtonSize.XSmall}
+        onClick={() => openModal({ type: LazyModal.StreakFreezePurchase })}
+      >
         {hasFreezes ? 'Buy more' : 'Buy freezes'}
-      </Typography>
-    </button>
+      </Button>
+    </div>
   );
 }

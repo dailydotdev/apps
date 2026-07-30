@@ -103,6 +103,10 @@ export const DiscoverSection = ({
         title: 'Hot Takes',
         requiresLogin: true,
         path: `${webappUrl}?openModal=hottakes`,
+        // Modal launcher, not a page: its path is "/" + query, and the active
+        // check strips queries, so on the home feed it would light up as the
+        // current page.
+        disableActiveState: true,
         isForcedLink: true,
         action: () => {
           logEvent({ event_name: LogEvent.OpenHotAndCold });

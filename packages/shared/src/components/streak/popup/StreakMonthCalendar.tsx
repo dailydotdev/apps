@@ -4,7 +4,8 @@ import classNames from 'classnames';
 import { addDays, subDays } from 'date-fns';
 import { ReadingStreakIcon } from '../../icons';
 import { IconSize } from '../../Icon';
-import { Streak } from './DayStreak';
+import { Tooltip } from '../../tooltip/Tooltip';
+import { freezeTooltipCopy, Streak } from './DayStreak';
 import type { UserStreak } from '../../../graphql/users';
 import {
   getStreak,
@@ -75,7 +76,7 @@ export const StreakMonthCalendar = ({
           stateClass =
             'bg-[repeating-linear-gradient(135deg,currentColor_0_1.5px,transparent_1.5px_4px)] text-border-subtlest-tertiary';
         }
-        return (
+        const cell = (
           <div
             key={date.getTime()}
             className={classNames(
@@ -100,6 +101,22 @@ export const StreakMonthCalendar = ({
               />
             )}
           </div>
+        );
+        // Freeze days keep the explanatory tooltip the old streak popup had
+        // (weekend auto-freeze / consumed freeze).
+        const tooltipContent = freezeTooltipCopy[state];
+        if (!tooltipContent) {
+          return cell;
+        }
+        return (
+          <Tooltip
+            key={date.getTime()}
+            content={tooltipContent}
+            side="bottom"
+            className="max-w-44 !p-2 text-center"
+          >
+            {cell}
+          </Tooltip>
         );
       })}
     </div>

@@ -92,6 +92,26 @@ export const navBtnClass =
 export const railTabClass =
   'focus-outline group relative flex w-full flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-95 motion-reduce:transition-none';
 export const railTabLabelClass = 'typo-caption2 leading-tight text-center';
+// One source of truth for the glyph size inside every v2 rail control — tabs,
+// Home, Search, the bottom utilities and the shortcuts dock. The buttons keep
+// their own fixed hit areas (size-10 / the tab row), so changing this resizes
+// only the icon within them. New post is deliberately excluded: its filled chip
+// is the rail's primary action and is sized on its own.
+export const RAIL_ICON_SIZE = IconSize.Size26;
+// Glyph box that rail icons sit in, so every tab's height stays identical even
+// when a glyph (avatar, streak ring) is a different shape.
+export const railGlyphBoxClass =
+  'relative flex size-[1.625rem] items-center justify-center';
+// Shared drag visuals for the v2 sidebar's two drag systems — the rail tabs and
+// the shortcuts dock — so a lifted item looks and feels identical in both.
+// A translucent glass chip: blurred surface, subtle border, elevated. Callers
+// add the lift (`scale-110`) and their own transition.
+export const sidebarDragGhostClass =
+  'bg-background-default/60 rounded-12 border border-border-subtlest-tertiary shadow-3 backdrop-blur-xl';
+// The parked slot a dragged item will land in (its content is faded out, so the
+// slot keeps the item's exact height).
+export const sidebarDragSlotClass =
+  'rounded-12 bg-surface-float backdrop-blur-md';
 export const SidebarAside = classed(
   'aside',
   'flex flex-col z-sidebarOverlay laptop:z-sidebar laptop:-translate-x-0 left-0 bg-background-default border-r border-border-subtlest-tertiary transition-[width,transform] duration-300 ease-in-out group fixed top-0 h-full',

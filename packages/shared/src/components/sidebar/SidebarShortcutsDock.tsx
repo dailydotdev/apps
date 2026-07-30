@@ -63,7 +63,13 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import type { ShortcutDragData } from './common';
-import { SHORTCUT_DRAG_MIME, isSidebarItemActive } from './common';
+import {
+  RAIL_ICON_SIZE,
+  SHORTCUT_DRAG_MIME,
+  isSidebarItemActive,
+  sidebarDragGhostClass,
+  sidebarDragSlotClass,
+} from './common';
 import { useSidebarDragState } from './useSidebarDragState';
 import { SidebarEntityIcon } from './SidebarEntityIcon';
 import { useAnchoredRailPopup } from './useAnchoredRailPopup';
@@ -90,7 +96,7 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
     label: 'Explore',
     path: `${webappUrl}posts`,
     icon: (a) => (
-      <CompassIcon secondary={a} size={IconSize.Small} aria-hidden />
+      <CompassIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
@@ -98,27 +104,27 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
     label: 'Tags',
     path: `${webappUrl}tags`,
     icon: (a) => (
-      <HashtagIcon secondary={a} size={IconSize.Small} aria-hidden />
+      <HashtagIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
     id: 'sources',
     label: 'Sources',
     path: `${webappUrl}sources`,
-    icon: (a) => <EarthIcon secondary={a} size={IconSize.Small} aria-hidden />,
+    icon: (a) => <EarthIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
   {
     id: 'leaderboard',
     label: 'Leaderboard',
     path: `${webappUrl}users`,
-    icon: (a) => <SquadIcon secondary={a} size={IconSize.Small} aria-hidden />,
+    icon: (a) => <SquadIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
   {
     id: 'discussed',
     label: 'Discussions',
     path: `${webappUrl}discussed`,
     icon: (a) => (
-      <DiscussIcon secondary={a} size={IconSize.Small} aria-hidden />
+      <DiscussIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
@@ -126,54 +132,54 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
     label: 'Happening Now',
     path: `${webappUrl}highlights`,
     icon: (a) => (
-      <MegaphoneIcon secondary={a} size={IconSize.Small} aria-hidden />
+      <MegaphoneIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
     id: 'following',
     label: 'Following',
     path: '/following',
-    icon: (a) => <UserIcon secondary={a} size={IconSize.Small} aria-hidden />,
+    icon: (a) => <UserIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
   {
     id: 'bookmarks',
     label: 'Bookmarks',
     path: `${webappUrl}bookmarks`,
     icon: (a) => (
-      <BookmarkIcon secondary={a} size={IconSize.Small} aria-hidden />
+      <BookmarkIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
     id: 'history',
     label: 'History',
     path: `${webappUrl}history`,
-    icon: (a) => <EyeIcon secondary={a} size={IconSize.Small} aria-hidden />,
+    icon: (a) => <EyeIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
   {
     id: 'analytics',
     label: 'Analytics',
     path: `${webappUrl}analytics`,
     icon: (a) => (
-      <AnalyticsIcon secondary={a} size={IconSize.Small} aria-hidden />
+      <AnalyticsIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
     id: 'jobs',
     label: 'Jobs',
     path: `${webappUrl}jobs`,
-    icon: (a) => <JobIcon secondary={a} size={IconSize.Small} aria-hidden />,
+    icon: (a) => <JobIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
   {
     id: 'briefing',
     label: 'Briefing',
     path: briefingUrl,
-    icon: (a) => <BriefIcon secondary={a} size={IconSize.Small} aria-hidden />,
+    icon: (a) => <BriefIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
   {
     id: 'cores',
     label: 'Cores',
     path: walletUrl,
-    icon: (a) => <CoreIcon secondary={a} size={IconSize.Small} aria-hidden />,
+    icon: (a) => <CoreIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
 ];
 
@@ -281,7 +287,7 @@ const SortableShortcut = ({
           // The dragged icon reorders live, so this item's own slot IS the
           // landing place — show it as a solid skeleton (icon hidden) so it's
           // clear where the icon drops.
-          isDragging && 'bg-background-subtle',
+          isDragging && sidebarDragSlotClass,
         )}
       >
         <Link href={shortcut.path} passHref prefetch={false}>
@@ -570,7 +576,6 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // jittery shift the live scroll-tracking caused.
   const trayPos = useAnchoredRailPopup(customizeBtnRef, trayOpen);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [overId, setOverId] = useState<string | null>(null);
   const [willRemove, setWillRemove] = useState(false);
   const [isPageDropActive, setIsPageDropActive] = useState(false);
   // The slot a panel row being dragged in (native drag) would drop into, so it
@@ -582,10 +587,6 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
   );
   const { setNodeRef: setDockRef } = useDroppable({ id: DOCK_DROPPABLE_ID });
-
-  const isOverDock = (target?: string | number | null): boolean =>
-    target === DOCK_DROPPABLE_ID ||
-    (typeof target === 'string' && keys.includes(target));
 
   // Drop-time flag (not state) so the DragOverlay's dropAnimation keyframes —
   // which run *after* onDragEnd resets willRemove — can tell whether this drop
@@ -658,7 +659,6 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     const fromDock = keys.includes(id);
     fromDockRef.current = fromDock;
     setActiveId(id);
-    setOverId(null);
     setWillRemove(false);
     setPageDropIndex(null);
     removeOnDropRef.current = false;
@@ -688,7 +688,6 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   const onDragOver = (event: DragOverEvent) => {
     const id = event.active.id as string;
     const over = (event.over?.id as string) ?? null;
-    setOverId(over);
     if (!keys.includes(id) || !over || over === id || !keys.includes(over)) {
       return;
     }
@@ -713,12 +712,15 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
     const liveOrder = liveOrderRef.current;
     liveOrderRef.current = null;
     setActiveId(null);
-    setOverId(null);
     setWillRemove(false);
     setDragging(false);
 
     if (!fromDock) {
-      if (isOverDock(event.over?.id)) {
+      // Land on geometry (icon centre over the dock column), not dnd-kit's
+      // `over`: the droppable's measured rect stops at the last icon, so the
+      // end-of-list slot below it never registered as a collision even while
+      // the insertion skeleton was showing there.
+      if (isCenterOverDock(event)) {
         // Insert at the slot the icon is over (fresh from the rect to avoid a
         // stale state read), not appended.
         const y = draggedCenterY(event);
@@ -750,7 +752,6 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   const onDragCancel = () => {
     liveOrderRef.current = null;
     setActiveId(null);
-    setOverId(null);
     setWillRemove(false);
     setPageDropIndex(null);
     setOrderOverride(null);
@@ -854,23 +855,32 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // A catalog item dragged from the tray (not yet in the dock) lands by hovering
   // over the dock — highlight the whole dock as an "add here" target. Native
   // page drags reuse the same highlight via isPageDropActive.
+  // `pageDropIndex` is the geometric "icon centre over the dock" signal from
+  // onDragMove — the same one the insertion skeleton and the drop use — so the
+  // brand frame can't disagree with them at the end-of-list slot (dnd-kit's
+  // `over` misses it; see onDragEnd).
   const showAddZone =
-    isPageDropActive || (!!activeId && !isReordering && isOverDock(overId));
+    isPageDropActive || (!!activeId && !isReordering && pageDropIndex !== null);
   // The whole dock reads as an active drop area whenever an icon is being
   // dragged inside it — both adding a new one and reordering an existing one
   // (but not while dragging one out to remove).
   const showDragArea = showAddZone || (isReordering && !willRemove);
 
-  // Drag-overlay chip look: solid red while removing; solid bordered chip while
-  // reordering an existing icon; solid chip with a dashed brand border while
-  // *adding* a new icon (dragged from the tray) so it reads as "being placed".
-  let ghostStateClass =
-    'scale-110 border border-border-subtlest-tertiary bg-background-default !text-text-primary';
+  // Drag-overlay chip look: solid red while removing; the shared glass chip
+  // while reordering an existing icon (identical to the rail's drag ghost); the
+  // same glass chip with a dashed brand border while *adding* a new icon
+  // (dragged from the tray) so it reads as "being placed".
+  let ghostStateClass = classNames(
+    'scale-110 !text-text-primary',
+    sidebarDragGhostClass,
+  );
   if (willRemove) {
     ghostStateClass = 'scale-90 !bg-status-error text-white';
   } else if (!isReordering) {
-    ghostStateClass =
-      'scale-110 border border-dashed border-accent-cabbage-default bg-background-default !text-text-primary';
+    ghostStateClass = classNames(
+      'scale-110 !border-dashed !border-accent-cabbage-default !text-text-primary',
+      sidebarDragGhostClass,
+    );
   }
 
   return (
@@ -928,7 +938,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
               )}
             >
               <MenuIcon
-                size={IconSize.Small}
+                size={RAIL_ICON_SIZE}
                 aria-hidden
                 className="rotate-90"
               />
@@ -947,7 +957,10 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                   {pageDropIndex === index && (
                     <div
                       aria-hidden
-                      className="size-10 shrink-0 rounded-12 bg-background-subtle"
+                      className={classNames(
+                        'size-10 shrink-0',
+                        sidebarDragSlotClass,
+                      )}
                     />
                   )}
                   <SortableShortcut
@@ -961,7 +974,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
             {pageDropIndex !== null && pageDropIndex >= orderedItems.length && (
               <div
                 aria-hidden
-                className="size-10 shrink-0 rounded-12 bg-background-subtle"
+                className={classNames('size-10 shrink-0', sidebarDragSlotClass)}
               />
             )}
           </SortableContext>
@@ -1067,9 +1080,9 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
             <div
               className={classNames(
                 dockButtonClass,
-                // Solid (opaque) chip so the dragged icon reads clearly over any
-                // feed content it passes over — never see-through.
-                'shadow-3 transition-all duration-150',
+                // The glass surface is blurred (not merely translucent), so the
+                // icon still reads clearly over whatever it passes over.
+                'transition-all duration-150',
                 ghostStateClass,
               )}
             >

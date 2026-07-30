@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import { Image, ImageType } from '../image/Image';
 import { EarthIcon, HashtagIcon, LinkIcon, SquadIcon } from '../icons';
-import { IconSize } from '../Icon';
+import { RAIL_ICON_SIZE } from './common';
 import { useSquad } from '../../hooks/squads/useSquad';
 
 const handleFromPath = (path: string): string =>
@@ -55,14 +55,14 @@ export const SidebarEntityIcon = ({
         className="size-6 rounded-8 object-cover"
       />
     ) : (
-      <SquadIcon size={IconSize.Small} aria-hidden />
+      <SquadIcon size={RAIL_ICON_SIZE} aria-hidden />
     );
   }
   if (isSource) {
-    return <EarthIcon size={IconSize.Small} aria-hidden />;
+    return <EarthIcon size={RAIL_ICON_SIZE} aria-hidden />;
   }
   if (isTag) {
-    return <HashtagIcon size={IconSize.Small} aria-hidden />;
+    return <HashtagIcon size={RAIL_ICON_SIZE} aria-hidden />;
   }
-  return <LinkIcon size={IconSize.Small} aria-hidden />;
+  return <LinkIcon size={RAIL_ICON_SIZE} aria-hidden />;
 };
