@@ -44,6 +44,11 @@ export const HorizontalScrollTitle = ({
   );
 };
 
+const isScrollTitleProps = (
+  value: HorizontalScrollHeaderProps['title'],
+): value is HorizontalScrollTitleProps =>
+  !!value && typeof value === 'object' && 'copy' in value;
+
 export function HorizontalScrollHeader({
   title,
   isAtEnd,
@@ -56,24 +61,30 @@ export function HorizontalScrollHeader({
   className,
   buttonSize = ButtonSize.Medium,
 }: HorizontalScrollHeaderProps): ReactElement {
-  // Check if title is props object or custom ReactNode
-  const isCustomTitle =
-    title && typeof title === 'object' && !('copy' in title);
+  const hasTitle = isScrollTitleProps(title) ? !!title.copy : !!title;
+
+  // Rails that render their own heading above the scroll container pass no
+  // title, so without scroll controls there is nothing left to show.
+  if (!hasTitle && !canScroll) {
+    return <></>;
+  }
 
   return (
     <div
       className={classNames(
         'mx-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full',
+        !hasTitle && 'hidden tablet:flex',
         className,
       )}
     >
-      {isCustomTitle
-        ? title
-        : title && (
-            <HorizontalScrollTitle {...(title as HorizontalScrollTitleProps)} />
-          )}
+      {isScrollTitleProps(title) ? <HorizontalScrollTitle {...title} /> : title}
       {canScroll && (
-        <div className="hidden flex-row items-center gap-3 tablet:flex">
+        <div
+          className={classNames(
+            'flex-row items-center gap-3',
+            hasTitle ? 'hidden tablet:flex' : 'flex',
+          )}
+        >
           <Button
             variant={ButtonVariant.Tertiary}
             icon={<ArrowIcon className="-rotate-90" />}

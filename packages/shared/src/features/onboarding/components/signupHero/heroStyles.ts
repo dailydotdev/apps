@@ -139,4 +139,80 @@ export const HERO_STYLES = `.onb-bg {
 .onb-split-right-panel {
   background: var(--theme-background-default);
 }
+
+/* --- signup wall: panel background --- */
+
+/* Stacked, the form is bottom-anchored like the cards/desk walls; the split
+   layout centres it in its column instead. */
+.onb-hero-main { justify-content: flex-end; }
+@media (min-width: 1020px) {
+  .onb-hero-main { justify-content: center; }
+}
+
+/* Compact phones. A 50dvh artwork band leaves too little room for the form on a
+   short viewport, so it gives height back and the type tightens with it. Keyed
+   on height because that is the axis under pressure — a 375x812 phone gets the
+   roomy treatment, a 375x667 one does not — but bounded by width as well, or a
+   short desktop window (1440x700 is a common laptop size) would inherit
+   phone-sized type in the two-column layout. */
+.onb-art-half { height: 50dvh; }
+@media (max-height: 759px) and (max-width: 1019px) {
+  .onb-art-half { height: 32dvh; }
+  .onb-hero-logo svg { height: 1.375rem; }
+  .onb-hero-headline { font-size: 1.5rem; line-height: 1.875rem; }
+  .onb-hero-column { gap: 1rem; }
+  .onb-split-cta { margin-bottom: 0.5rem; }
+  .onb-split-login { margin-top: 0.25rem; font-size: 0.8125rem; }
+}
+
+/* Reaches full background by 88% rather than 100%: on short screens the form
+   starts high enough that the last stretch of the ramp sits behind the logo,
+   and a still-visible image there reads as clutter. */
+.onb-art-fade {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    color-mix(in srgb, var(--theme-background-default) 45%, transparent) 38%,
+    color-mix(in srgb, var(--theme-background-default) 90%, transparent) 68%,
+    var(--theme-background-default) 88%
+  );
+}
+/* Smoked glass: a dark tint rather than the usual white one, so the card reads
+   as a panel resting on the artwork instead of a bright patch cut out of it.
+   The white hairline and inset highlight stay — they are what keep it glassy. */
+.onb-glass-card {
+  background: rgba(10, 12, 18, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.onb-panel-frame {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: color-mix(in srgb, var(--theme-accent-cabbage-default) 6%, transparent);
+  /* small and soft, and on the theme-aware shadow tokens so light mode gets the
+     salt-based shadow instead of a heavy black one. The colour around the panel
+     comes from .onb-ambilight, not from here. */
+  box-shadow:
+    0 8px 24px -10px var(--theme-shadow-shadow1),
+    0 2px 6px -2px var(--theme-shadow-shadow1);
+}
+
+/* Ambilight — the artwork itself, blurred and over-saturated behind the panel,
+   so the halo is literally the image's own colours bleeding out of the frame
+   (the TV backlight / YouTube ambient-mode trick). */
+.onb-ambilight {
+  filter: blur(28px) saturate(1.5);
+  opacity: 0.3;
+  animation: onb-ambilight-breathe 14s ease-in-out infinite;
+}
+@keyframes onb-ambilight-breathe {
+  0%, 100% { opacity: 0.24; transform: scale(1); }
+  50% { opacity: 0.36; transform: scale(1.02); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .onb-ambilight { animation: none; opacity: 0.3; }
+}
 `;
