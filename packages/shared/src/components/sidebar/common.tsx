@@ -129,11 +129,13 @@ export const railCountBubbleClass =
 // Shared drag visuals for the v2 sidebar's two drag systems — the rail tabs and
 // the shortcuts dock — so a lifted item looks and feels identical in both.
 //
-// A real glass chip: a light 20% fill so the backdrop blur does the work and you
-// can see the rail through the chip, with the border stepped up to `-secondary`
-// (2x the tertiary token) so the chip's edge around the dragged glyph stays
-// defined as the fill gets more transparent. Callers add the lift (`scale-110`)
-// and their own transition.
+// A real glass chip. Three things control how see-through it reads, and all
+// three are dialled down: a 10% fill, a 24px blur (`-xl`; a heavier blur frosts
+// the backdrop until it looks solid even with almost no fill), and `shadow-2`
+// rather than `shadow-3` — the latter is a 14px black shadow at 64% alpha,
+// which in dark mode blooms into a dark halo around the chip. The border stays
+// at `-secondary` so the chip's edge stays defined as the fill drops. Callers
+// add the lift (`scale-110`) and their own transition.
 //
 // The fill is a color-mix, NOT `bg-background-default/20`: this token is a bare
 // `var(--theme-background-default)`, and Tailwind cannot inject an alpha into a
@@ -141,7 +143,7 @@ export const railCountBubbleClass =
 // the chip silently had no fill at all. `shadow-3` is likewise the deepest step
 // that exists (the scale is 2 / 3 / bubble); `shadow-4` is not a class.
 export const sidebarDragGhostClass =
-  'bg-[color-mix(in_srgb,var(--theme-background-default)_20%,transparent)] rounded-12 border border-border-subtlest-secondary shadow-3 backdrop-blur-2xl';
+  'bg-[color-mix(in_srgb,var(--theme-background-default)_10%,transparent)] rounded-12 border border-border-subtlest-secondary shadow-2 backdrop-blur-xl';
 // The parked slot a dragged item will land in — the "it will go here" marker.
 // Its content is faded out, so the slot keeps the item's exact height.
 // `surface-active` (16%) rather than `surface-float` (8%): at 8% the landing
