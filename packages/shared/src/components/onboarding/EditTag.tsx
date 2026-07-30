@@ -140,9 +140,9 @@ export const EditTag = ({
                 'mb-10 w-full',
                 isOnboarding ? 'max-w-[27.5rem]' : 'tablet:max-w-xs',
               )}
-              // On the funnel's gradient canvas the field's opaque fill read as
-              // a dark box cut into the background; the float surface makes it
-              // sit on the gradient like the tag pills below it do.
+              // The funnel step is a bare surface, so a field filled with the
+              // page colour would read as a gap. The float surface gives it the
+              // same presence as the tag pills below it.
               isFloating={isOnboarding}
               inputId="search-filters"
               placeholder="Search javascript, php, git, etc…"

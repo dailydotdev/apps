@@ -70,8 +70,8 @@ const BrowserExtension = ({
   const ctaText = ctaTemplate.replace('{browser}', browserLabel);
   const showReviews = showReviewsParam && !isEdge;
 
-  // The step is designed for a dark surface (dark funnel gradient, dark
-  // footage). FunnelStepBackground tries to force that with an `invert` class,
+  // The step is designed for a dark surface (dark background, dark footage).
+  // FunnelStepBackground tries to force that with an `invert` class,
   // but Tailwind's invert core plugin is disabled repo-wide, so in light mode
   // the copy kept its light-theme colors and turned unreadable. Apply the dark
   // theme for as long as the step is mounted, like the hero step does.

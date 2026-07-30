@@ -16,9 +16,10 @@ interface OnboardingChrome {
  * progress dots — ship together as one experiment arm, so they are read from a
  * single flag rather than each component deciding for itself.
  *
- * The control arm is the brand gradient canvas with no dots. Everything else in
- * the redesign (the rail, the type scale, the glass CTA, the top strip) is
- * baseline and is not gated here.
+ * The control arm is the flat page surface with no dots — the funnel has no
+ * background treatment of its own. Everything else in the redesign (the rail,
+ * the type scale, the glass CTA, the top strip) is baseline and is not gated
+ * here.
  */
 export const useOnboardingChrome = (
   isOnboarding?: boolean,

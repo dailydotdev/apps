@@ -58,7 +58,6 @@ import { Provider as JotaiProvider, useAtom } from 'jotai/react';
 
 import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
 import { FunnelStepTopBar } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepTopBar';
-import { OnboardingBackground } from '@dailydotdev/shared/src/features/onboarding/shared/OnboardingBackground';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
@@ -399,7 +398,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
     return (
       // The signup wall, account details and verify-email screens render here,
       // BEFORE FunnelStepper mounts — so they get the funnel's chrome directly:
-      // the same gradient canvas and the same top bar (no skip; there is nothing
+      // the same top bar (no skip; there is nothing
       // to skip yet), which puts the logo at the identical 24px offset the steps
       // use. Without this the first two screens of the flow looked like a
       // different product from the seven that follow.
@@ -408,7 +407,6 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
           'relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
         )}
       >
-        <OnboardingBackground />
         <FunnelStepTopBar />
         {/* pt-3 is the same clearance the funnel steps put between the top bar
             and their headline, so "Welcome back!" doesn't start against it. */}

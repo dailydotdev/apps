@@ -44,8 +44,9 @@ export interface SearchFieldProps
   fieldType?: 'primary' | 'secondary';
   rightButtonProps?: ButtonProps<'button'> | false;
   /**
-   * Float surface instead of the opaque page background, for fields sitting on
-   * a gradient or image where a solid fill reads as a dark box cut into it.
+   * Float surface instead of the page background, for a field on a bare page:
+   * filling it with the page colour leaves only the hairline border to say it
+   * is an input, so it reads as a gap rather than a control.
    */
   isFloating?: boolean;
 }

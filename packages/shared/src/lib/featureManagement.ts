@@ -247,14 +247,14 @@ export const featureHijackingVariants = new Feature<HijackingVariant>(
 );
 
 export enum OnboardingChromeVariant {
-  /** Control: the brand gradient canvas, no progress dots. */
-  Gradient = 'gradient',
+  /** Control: the flat page surface, no progress dots. */
+  Control = 'control',
   /** Variant: the animated edge-aura frame plus dots under the CTA. */
   Aura = 'aura',
 }
 export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
   'onboarding_chrome',
-  OnboardingChromeVariant.Gradient,
+  OnboardingChromeVariant.Control,
 );
 
 export const featureLayoutV2 = new Feature('layout_v2', false);

@@ -53,7 +53,7 @@ const chromeArgTypes: Meta['argTypes'] = {
 const meta: Meta = {
   title: 'Components/Onboarding/Signup funnel steps',
   argTypes: chromeArgTypes,
-  args: { chrome: OnboardingChromeVariant.Gradient },
+  args: { chrome: OnboardingChromeVariant.Control },
   // No `themes` parameter on purpose: it fights the global decorator, and the
   // funnel's own always-dark steps then invert into the wrong direction. Use
   // the toolbar's theme switcher instead.
@@ -340,7 +340,7 @@ interface StepFramesProps {
 }
 
 const StepFrames = ({
-  arm = OnboardingChromeVariant.Gradient,
+  arm = OnboardingChromeVariant.Control,
   width,
   height,
   scale = 1,
@@ -458,17 +458,17 @@ const StepFrames = ({
 const overviewArgTypes = { showGuides: { control: 'boolean' } };
 
 export const MobileOverview: Story = {
-  name: '★ Mobile overview — control (gradient)',
+  name: '★ Mobile overview — control (flat)',
   argTypes: overviewArgTypes,
   args: { showGuides: true },
   render: ({ showGuides }: { showGuides?: boolean }) => (
     <StepFrames
-      arm={OnboardingChromeVariant.Gradient}
+      arm={OnboardingChromeVariant.Control}
       width={390}
       height={844}
       showGuides={showGuides}
       title="Signup funnel — mobile · control"
-      description="The onboarding_chrome control arm: the giveback funnel's brand gradient, no progress dots. Everything else — the 440px rail, the type scale, the glass CTA, the logo strip — is baseline and ships either way."
+      description="The onboarding_chrome control arm: the flat page surface, no progress dots. Everything else — the 440px rail, the type scale, the glass CTA, the logo strip — is baseline and ships either way."
     />
   ),
 };
@@ -490,12 +490,12 @@ export const MobileOverviewAura: Story = {
 };
 
 export const DesktopOverview: Story = {
-  name: '★ Desktop overview — control (gradient)',
+  name: '★ Desktop overview — control (flat)',
   argTypes: overviewArgTypes,
   args: { showGuides: true },
   render: ({ showGuides }: { showGuides?: boolean }) => (
     <StepFrames
-      arm={OnboardingChromeVariant.Gradient}
+      arm={OnboardingChromeVariant.Control}
       width={1440}
       height={900}
       scale={0.45}

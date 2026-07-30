@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import { FooterLinks } from '../../../components/footer/FooterLinks';
 import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
-import { OnboardingBackground } from '../shared/OnboardingBackground';
 import { FunnelStepTopBar } from '../shared/FunnelStepTopBar';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { OnboardingHeader } from '../../../components/onboarding/OnboardingHeader';
@@ -104,10 +103,9 @@ export const OnboardingSignupHero = ({
       <div className="relative z-3 flex min-h-dvh w-full flex-col overflow-x-hidden bg-background-default text-text-primary">
         {/* This is the post-signup funnel's account-details screen, so it takes
             the funnel's own canvas and top bar rather than the marketing shell:
-            same gradient and same 24px logo offset as the seven steps that
+            same flat surface and same 24px logo offset as the seven steps that
             follow it, and none of the footer chrome. The paid funnel's landing
             keeps the shell below. */}
-        {isOnboarding && <OnboardingBackground />}
         {isOnboarding ? (
           <FunnelStepTopBar />
         ) : (

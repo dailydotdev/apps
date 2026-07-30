@@ -8,7 +8,6 @@ import { FunnelStepType, FunnelBackgroundVariant } from '../types/funnel';
 import { useIsLightTheme } from '../../../hooks/utils';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { isFunnelPricingV2 } from '../steps/FunnelPricing/common';
-import { OnboardingBackground } from './OnboardingBackground';
 import { useOnboardingChrome } from './useOnboardingChrome';
 
 // Loaded only by the arm that draws it. `edge-aura/react` pulls in the canvas
@@ -69,8 +68,8 @@ const PULSE_PALETTE: Array<[number, [number, number, number]]> = [
 ];
 
 // The post-signup onboarding steps. They drop the funnel's per-step purple wash
-// for one canvas across the whole flow, so it reads as a single surface: the
-// brand gradient by default, the edge aura on the experiment arm.
+// so the whole flow reads as one surface: a flat background by default, the
+// edge aura on the experiment arm.
 const onboardingSteps = [
   FunnelStepType.ProfileForm,
   FunnelStepType.EditTags,
@@ -114,8 +113,8 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
 };
 
 const hiddenBgSteps = [FunnelStepType.Checkout];
-// The paid funnel's own treatment for the tag step. The onboarding funnel
-// replaces it with OnboardingBackground, but /helloworld still expects it.
+// The paid funnel's own treatment for the tag step. The onboarding funnel drops
+// it for a flat surface, but /helloworld still expects it.
 const tallTopGradientSteps = [FunnelStepType.EditTags];
 const alwaysDarkSteps = [
   FunnelStepType.Signup,
@@ -157,7 +156,7 @@ export const FunnelStepBackground = ({
 
   const isOnboardingStep =
     !!isOnboarding && onboardingSteps.includes(step.type);
-  // Aura and dots are one experiment arm; the gradient canvas is the control.
+  // Aura and dots are one experiment arm; the flat surface is the control.
   const { hasAura: isAuraArm } = useOnboardingChrome(isOnboarding);
   const hasAura = isOnboardingStep && isAuraArm;
   const isMobile = useViewSize(ViewSize.MobileXL);
@@ -274,7 +273,6 @@ export const FunnelStepBackground = ({
           style={AURA_STYLE}
         />
       )}
-      {isOnboardingStep && !hasAura && <OnboardingBackground />}
       {shouldShowBg && (
         <div
           aria-hidden

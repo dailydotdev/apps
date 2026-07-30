@@ -414,8 +414,8 @@ export const FUNNEL_STEP_COUNT = 9;
  * Pins the onboarding-chrome experiment to one arm.
  *
  * There is no GrowthBook instance in Storybook, so `useConditionalFeature`
- * would otherwise always return the flag's default (the gradient control) and
- * the aura arm would be unreachable.
+ * would otherwise always return the flag's default (the control arm) and the
+ * aura arm would be unreachable.
  */
 const ChromeArm = ({
   variant,
@@ -462,7 +462,7 @@ export interface FunnelStepShellProps extends PropsWithChildren {
 
 export const FunnelStepShell = ({
   children,
-  chrome = OnboardingChromeVariant.Gradient,
+  chrome = OnboardingChromeVariant.Control,
   fullWidth,
   step,
   stepIndex = 0,
