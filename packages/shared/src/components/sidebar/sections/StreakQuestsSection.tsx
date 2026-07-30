@@ -10,6 +10,7 @@ import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
 import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../quest/CompactQuestList';
 import { HorizontalSeparator } from '../../utilities';
+import { railDividerBorderClass } from '../common';
 import Link from '../../utilities/Link';
 import {
   Typography,
@@ -112,9 +113,19 @@ export const StreakQuestsSection = (): ReactElement => {
               consistently. The row's own full-bleed top border ran edge to edge
               while this one is inset by 12px, which read as two different
               rules. */}
-          <HorizontalSeparator className="mx-3 mt-3 w-auto shrink-0" />
+          <HorizontalSeparator
+            className={classNames(
+              'mx-3 mt-3 w-auto shrink-0',
+              railDividerBorderClass,
+            )}
+          />
           <StreakFreezeRow hideTopBorder />
-          <HorizontalSeparator className="mx-3 w-auto shrink-0" />
+          <HorizontalSeparator
+            className={classNames(
+              'mx-3 w-auto shrink-0',
+              railDividerBorderClass,
+            )}
+          />
         </>
       )}
 

@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { addDays, subDays } from 'date-fns';
-import { ReadingStreakIcon } from '../../icons';
+import { HotIcon } from '../../icons';
 import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { freezeTooltipCopy, Streak } from './DayStreak';
@@ -61,19 +61,23 @@ export const StreakMonthCalendar = ({
         // A consumed streak freeze shares the weekend-freeze dashed pattern —
         // same mapping as DayStreak, which draws both states identically.
         const isFreeze = state === Streak.Freeze || state === Streak.UsedFreeze;
-        // Every cell is the same size-4 circle. A read day is the solid pink
-        // disc (the secondary flame glyph fills its whole box), so its border is
-        // dropped and the glyph is sized to the cell — otherwise the icon's
-        // default XSmall (20px) overflows the 16px cell and the read dot reads
-        // visibly bigger than the others. Today gets a ring, weekends the
-        // dashed pattern.
-        // `text-quaternary` (64% of salt, defined per theme) rather than
+        // Every cell is the same size-4 circle: read days fill pink, today gets
+        // a ring, weekends take the dashed pattern, the rest stay outlines.
+        //
+        // Outlines use `text-quaternary` (64% of salt, defined per theme) rather
+        // than
         // `border-subtlest-tertiary` (20% of an already-subtle border): the
         // untouched and weekend days are DATA, not chrome, and at the old value
         // they were nearly invisible in both themes. Same colour family the
         // quest list uses for its secondary text.
         let stateClass = 'border-text-quaternary';
-        if (isToday || isRead) {
+        if (isRead) {
+          // The disc is ours, so the flame on top can be white — matching the
+          // rail's StreakBadge. The icon's own filled art can't: it is a single
+          // evenodd path with a hardcoded pink fill whose flame is a CUTOUT, so
+          // the page shows through it and no text colour can reach it.
+          stateClass = 'border-transparent bg-accent-bacon-default';
+        } else if (isToday) {
           // Today's ring is a separate overlay (below), so today drops its own
           // border too.
           stateClass = 'border-transparent';
@@ -90,10 +94,13 @@ export const StreakMonthCalendar = ({
             )}
           >
             {isRead && (
-              // `size` (not a w/h className) controls the real glyph size — a
-              // className loses to the Icon's size class. Size16 matches the
-              // size-4 cell so the disc is the same diameter as every other dot.
-              <ReadingStreakIcon secondary size={IconSize.Size16} />
+              // 12px flame in the 16px cell — the same glyph-to-disc ratio the
+              // rail badge uses (20px in 26px).
+              <HotIcon
+                secondary
+                size={IconSize.XXSmall}
+                className="text-white"
+              />
             )}
             {isToday && (
               // "Today" ring as a TOP overlay (z-1) so it stays visible over the

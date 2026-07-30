@@ -63,6 +63,7 @@ import {
 import type { ShortcutDragData } from './common';
 import {
   RAIL_ICON_SIZE,
+  railDividerBorderClass,
   SHORTCUT_DRAG_MIME,
   isSidebarItemActive,
   sidebarDragGhostClass,
@@ -1046,7 +1047,9 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                   })}
                 </ul>
               )}
-              {orderedItems.length > 0 && <HorizontalSeparator />}
+              {orderedItems.length > 0 && (
+                <HorizontalSeparator className={railDividerBorderClass} />
+              )}
               <Typography
                 type={TypographyType.Caption1}
                 color={TypographyColor.Tertiary}

@@ -32,6 +32,8 @@ import {
   Nav,
   RAIL_ICON_SIZE,
   railCountBubbleClass,
+  railDividerBgClass,
+  railDividerBorderClass,
   railGlyphBoxClass,
   railTabClass,
   railTabLabelClass,
@@ -1971,7 +1973,8 @@ export const SidebarDesktopV2 = ({
               // HorizontalSeparators). It was `-quaternary` — 8% against their
               // 20% — so the rail/panel divide was 2.5x fainter than the lines
               // around it and all but vanished in light mode.
-              'pointer-events-none absolute inset-y-0 hidden border-r border-border-subtlest-tertiary laptop:block',
+              'pointer-events-none absolute inset-y-0 hidden border-r laptop:block',
+              railDividerBorderClass,
               railSeparatorLeft,
             )}
           />
@@ -2092,7 +2095,7 @@ export const SidebarDesktopV2 = ({
 
             <div
               aria-hidden
-              className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+              className={classNames('my-1 h-px w-6', railDividerBgClass)}
             />
 
             {/* The tabs + shortcuts dock live in this flex-1 region; its height
@@ -2208,7 +2211,8 @@ export const SidebarDesktopV2 = ({
                   className={classNames(
                     // Symmetric margins so the line sits exactly midway between
                     // New post above it and the shortcuts "•••" below it.
-                    'my-3 h-px w-6 bg-border-subtlest-tertiary',
+                    'my-3 h-px w-6',
+                    railDividerBgClass,
                     shortcutCount === 0 &&
                       'opacity-0 transition-opacity group-hover:opacity-100',
                   )}
@@ -2251,7 +2255,7 @@ export const SidebarDesktopV2 = ({
               {isLoggedIn && (
                 <div
                   aria-hidden
-                  className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+                  className={classNames('my-1 h-px w-6', railDividerBgClass)}
                 />
               )}
               <SidebarInviteButton />

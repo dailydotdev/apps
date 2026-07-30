@@ -126,16 +126,38 @@ export const railGlyphBoxClass =
 // written here.
 export const railCountBubbleClass =
   'pointer-events-none -top-1 left-4 px-1 !min-h-[1.125rem] !min-w-[1.125rem] !font-bold !typo-caption1 tabular-nums';
+// One colour for every DIVIDER in the v2 sidebar — the rail/panel split, the
+// rail's own rules, the panel separators. `-quaternary` (8%) is the design
+// system's softest border step; `-tertiary` (20%) read as too dominant for a
+// line whose only job is to group things.
+//
+// Deliberately NOT applied to container borders (popup outlines, kbd chips,
+// buttons): those need their edge to define a surface, not to whisper.
+//
+// The `!` on the border variant is load-bearing — HorizontalSeparator ships its
+// own `border-subtlest-tertiary`, and same-specificity utilities resolve by
+// stylesheet order rather than by the order written on the element.
+export const railDividerBorderClass = '!border-border-subtlest-quaternary';
+export const railDividerBgClass = 'bg-border-subtlest-quaternary';
 // Shared drag visuals for the v2 sidebar's two drag systems — the rail tabs and
 // the shortcuts dock — so a lifted item looks and feels identical in both.
 //
-// A real glass chip. Three things control how see-through it reads, and all
-// three are dialled down: a 10% fill, a 24px blur (`-xl`; a heavier blur frosts
-// the backdrop until it looks solid even with almost no fill), and `shadow-2`
-// rather than `shadow-3` — the latter is a 14px black shadow at 64% alpha,
-// which in dark mode blooms into a dark halo around the chip. The border stays
-// at `-secondary` so the chip's edge stays defined as the fill drops. Callers
-// add the lift (`scale-110`) and their own transition.
+// A glass chip, lifted above the rail.
+//
+// The fill MUST be a `surface-*` token, not a tint of `background-default`. The
+// sidebar is `bg-background-default` and opaque, so a dark tint over it is
+// invisible as a tint and the chip just reads as a flat, solid dark block — no
+// matter how low the alpha goes. `surface-float` is the design system's
+// theme-aware overlay (light salt on dark, dark on light), which is what makes
+// a lifted surface read as lifted. It is the same family as the landing slot,
+// one step lighter so the parked slot reads as the target and this reads as the
+// thing in your hand.
+//
+// The blur only pays off while the chip is over VARIED content (the panel, the
+// feed). Over the flat rail there is nothing to blur, so the fill and the
+// border do all the work there. `shadow-2` over `shadow-3`: the latter is a
+// 14px black shadow at 64% alpha that blooms into a dark halo in dark mode.
+// Callers add the lift (`scale-110`) and their own transition.
 //
 // The fill is a color-mix, NOT `bg-background-default/20`: this token is a bare
 // `var(--theme-background-default)`, and Tailwind cannot inject an alpha into a
@@ -143,7 +165,7 @@ export const railCountBubbleClass =
 // the chip silently had no fill at all. `shadow-3` is likewise the deepest step
 // that exists (the scale is 2 / 3 / bubble); `shadow-4` is not a class.
 export const sidebarDragGhostClass =
-  'bg-[color-mix(in_srgb,var(--theme-background-default)_10%,transparent)] rounded-12 border border-border-subtlest-secondary shadow-2 backdrop-blur-xl';
+  'bg-surface-float rounded-12 border border-border-subtlest-secondary shadow-2 backdrop-blur-xl';
 // The parked slot a dragged item will land in — the "it will go here" marker.
 // Its content is faded out, so the slot keeps the item's exact height.
 // `surface-active` (16%) rather than `surface-float` (8%): at 8% the landing
