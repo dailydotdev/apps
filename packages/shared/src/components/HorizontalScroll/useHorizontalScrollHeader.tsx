@@ -70,21 +70,20 @@ export const useHorizontalScrollHeader = <
     }
   }, [element, numCards, scrollableElementWidth, onScroll]);
 
-  const header =
-    title || isOverflowing ? (
-      <HorizontalScrollHeader
-        title={title}
-        isAtEnd={isAtEnd}
-        isAtStart={isAtStart}
-        canScroll={isOverflowing}
-        onClickNext={onClickNext}
-        onClickPrevious={onClickPrevious}
-        onClickSeeAll={onClickSeeAll}
-        linkToSeeAll={linkToSeeAll}
-        className={className}
-        buttonSize={buttonSize}
-      />
-    ) : null;
+  const header = (
+    <HorizontalScrollHeader
+      title={title}
+      isAtEnd={isAtEnd}
+      isAtStart={isAtStart}
+      canScroll={isOverflowing}
+      onClickNext={onClickNext}
+      onClickPrevious={onClickPrevious}
+      onClickSeeAll={onClickSeeAll}
+      linkToSeeAll={linkToSeeAll}
+      className={className}
+      buttonSize={buttonSize}
+    />
+  );
 
   return {
     header,

@@ -6,18 +6,13 @@ import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ArrowIcon } from '../icons';
-import {
-  Typography,
-  TypographyTag,
-  TypographyType,
-} from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 
 export interface HorizontalScrollTitleProps {
   copy: string;
   id?: string;
   icon?: ReactNode;
   type?: TypographyType;
-  tag?: TypographyTag;
 }
 
 export interface HorizontalScrollHeaderProps {
@@ -38,17 +33,21 @@ export const HorizontalScrollTitle = ({
   copy,
   icon,
   type = TypographyType.Title2,
-  tag = TypographyTag.P,
 }: HorizontalScrollTitleProps): ReactElement => {
   return (
     <span className="flex flex-row items-center">
       {icon}
-      <Typography tag={tag} type={type} id={id} bold>
+      <Typography type={type} id={id} bold>
         {copy}
       </Typography>
     </span>
   );
 };
+
+const isScrollTitleProps = (
+  value: HorizontalScrollHeaderProps['title'],
+): value is HorizontalScrollTitleProps =>
+  !!value && typeof value === 'object' && 'copy' in value;
 
 export function HorizontalScrollHeader({
   title,
@@ -62,12 +61,10 @@ export function HorizontalScrollHeader({
   className,
   buttonSize = ButtonSize.Medium,
 }: HorizontalScrollHeaderProps): ReactElement {
-  const isCopyTitle = !!title && typeof title === 'object' && 'copy' in title;
-  const isCustomTitle = !!title && typeof title === 'object' && !isCopyTitle;
-  const hasTitle =
-    isCustomTitle ||
-    (isCopyTitle && !!(title as HorizontalScrollTitleProps).copy);
+  const hasTitle = isScrollTitleProps(title) ? !!title.copy : !!title;
 
+  // Rails that render their own heading above the scroll container pass no
+  // title, so without scroll controls there is nothing left to show.
   if (!hasTitle && !canScroll) {
     return <></>;
   }
@@ -75,17 +72,12 @@ export function HorizontalScrollHeader({
   return (
     <div
       className={classNames(
-        'mx-4 flex w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full',
-        hasTitle || canScroll ? 'min-h-10' : '',
-        !hasTitle && canScroll && 'hidden tablet:flex',
+        'mx-4 flex min-h-10 w-auto flex-row items-center justify-between laptop:mx-0 laptop:w-full',
+        !hasTitle && 'hidden tablet:flex',
         className,
       )}
     >
-      {isCustomTitle
-        ? title
-        : hasTitle && (
-            <HorizontalScrollTitle {...(title as HorizontalScrollTitleProps)} />
-          )}
+      {isScrollTitleProps(title) ? <HorizontalScrollTitle {...title} /> : title}
       {canScroll && (
         <div
           className={classNames(
