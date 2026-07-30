@@ -2,10 +2,15 @@
 // stored in local state for click-driven overrides — intentionally NOT
 // persisted to SettingsContext / localStorage / IndexedDB.
 export const SidebarCategory = {
+  // The primary feed/discovery category. Surfaced on the rail as "Explore"
+  // (its panel lists the /posts sub-tabs); the id stays `main` so it remains
+  // the default/fallback category.
   Main: 'main',
+  // The avatar tab. Opens the profile panel (your feeds, activity, bookmarks,
+  // pins, custom feeds, account shortcuts) instead of a dropdown menu.
+  Profile: 'profile',
   Squads: 'squads',
   Notifications: 'notifications',
-  Saved: 'saved',
   GameCenter: 'gameCenter',
   Settings: 'settings',
 } as const;
@@ -13,37 +18,54 @@ export const SidebarCategory = {
 export type SidebarCategoryId =
   (typeof SidebarCategory)[keyof typeof SidebarCategory];
 
+// Profile-panel destinations keyed by their top-level route segment: your feed
+// (Following), activity (History, Analytics, Jobs) and saved content (Bookmarks,
+// briefings). (Happening Now lives under Explore, so /highlights is not here.)
+const PROFILE_SEGMENTS = new Set([
+  'analytics',
+  'jobs',
+  'history',
+  'following',
+  'bookmarks',
+  'briefing',
+]);
+
+// The leading path segment (origin/query/hash stripped). Matching on the first
+// segment — not a loose substring — so e.g. a tag named "jobs" (/tags/jobs) or a
+// source slug containing "history" doesn't get misrouted to the Profile panel.
+const firstPathSegment = (activePage: string): string =>
+  activePage
+    .replace(/^https?:\/\/[^/]+/, '')
+    .split('?')[0]
+    .split('#')[0]
+    .split('/')
+    .filter(Boolean)[0] ?? '';
+
 export const getSidebarCategoryForPath = (
   activePage: string,
 ): SidebarCategoryId => {
-  // Notification/gamification *settings* live under /settings and keep the
-  // Settings panel. Each category exposes its own settings shortcut under its
-  // own path instead (e.g. /notifications/settings, /game-center/settings),
-  // which keeps that category's panel. The general /settings fallback below
-  // catches the settings pages.
-  if (
-    activePage.includes('/notifications') &&
-    !activePage.includes('/settings/notifications')
-  ) {
-    return SidebarCategory.Notifications;
-  }
-  if (
-    activePage.includes('/game-center') ||
-    activePage.includes('/daily-quests')
-  ) {
-    return SidebarCategory.GameCenter;
-  }
-  if (activePage.includes('/bookmarks') || activePage.includes('/briefing')) {
-    return SidebarCategory.Saved;
-  }
-  if (activePage.includes('/squads')) {
-    return SidebarCategory.Squads;
-  }
-  if (activePage.includes('/settings')) {
+  const segment = firstPathSegment(activePage);
+  // Settings owns its sub-pages, checked first so notification/gamification
+  // *settings* (/settings/notifications, etc.) keep the Settings panel. A
+  // category's own settings shortcut lives under that category's segment
+  // instead (e.g. /notifications/settings), so it keeps that category's panel.
+  if (segment === 'settings') {
     return SidebarCategory.Settings;
   }
+  if (segment === 'notifications') {
+    return SidebarCategory.Notifications;
+  }
+  if (segment === 'game-center' || segment === 'daily-quests') {
+    return SidebarCategory.GameCenter;
+  }
+  if (segment === 'squads') {
+    return SidebarCategory.Squads;
+  }
+  if (PROFILE_SEGMENTS.has(segment)) {
+    return SidebarCategory.Profile;
+  }
   // Explore and its sub-pages (/posts, /tags, /sources, /users, /discussed)
-  // now live under Home, so they fall through to the Main category.
+  // fall through to the Main ("Explore") category.
   return SidebarCategory.Main;
 };
 

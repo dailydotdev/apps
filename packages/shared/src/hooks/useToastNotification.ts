@@ -37,6 +37,9 @@ export interface ToastNotification {
   variant?: ToastType;
   subject?: ToastSubject;
   persistent?: boolean;
+  // Force the auto-dismiss countdown on for this toast even when the global
+  // `autoDismissNotifications` setting is off. Ignored when `persistent`.
+  forceAutoDismiss?: boolean;
   onClose?: AnyFunction;
   action?: {
     onClick: AnyFunction;
@@ -50,7 +53,13 @@ export const TOAST_NOTIF_KEY = ['toast_notif'];
 export type NotifyOptionalProps = Partial<
   Pick<
     ToastNotification,
-    'timer' | 'variant' | 'subject' | 'persistent' | 'onClose' | 'action'
+    | 'timer'
+    | 'variant'
+    | 'subject'
+    | 'persistent'
+    | 'forceAutoDismiss'
+    | 'onClose'
+    | 'action'
   >
 >;
 
