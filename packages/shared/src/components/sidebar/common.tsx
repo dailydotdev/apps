@@ -153,10 +153,16 @@ export const railDividerBgClass = 'bg-border-subtlest-quaternary';
 // one step lighter so the parked slot reads as the target and this reads as the
 // thing in your hand.
 //
-// The blur only pays off while the chip is over VARIED content (the panel, the
-// feed). Over the flat rail there is nothing to blur, so the fill and the
-// border do all the work there. `shadow-2` over `shadow-3`: the latter is a
-// 14px black shadow at 64% alpha that blooms into a dark halo in dark mode.
+// The blur radius is the whole ballgame, not the alpha. At `backdrop-blur-xl`
+// (24px) the radius is a third of the 68px chip, so the filter averages the
+// entire backdrop into one flat colour: measured over a rail tab it erased the
+// icon AND the label, leaving a grey block that reads as fully opaque even
+// though the fill is only 8%. Every alpha tweak below that blur was invisible.
+// 8px keeps enough structure that the tab underneath stays recognisable, which
+// is what actually reads as glass. Raising it again will undo this.
+//
+// `shadow-2` over `shadow-3`: the latter is a 14px black shadow at 64% alpha
+// that blooms into a dark halo in dark mode.
 // Callers add the lift (`scale-110`) and their own transition.
 //
 // The fill is a color-mix, NOT `bg-background-default/20`: this token is a bare
@@ -165,16 +171,16 @@ export const railDividerBgClass = 'bg-border-subtlest-quaternary';
 // the chip silently had no fill at all. `shadow-3` is likewise the deepest step
 // that exists (the scale is 2 / 3 / bubble); `shadow-4` is not a class.
 export const sidebarDragGhostClass =
-  'bg-surface-float rounded-12 border border-border-subtlest-secondary shadow-2 backdrop-blur-xl';
+  'bg-surface-float rounded-12 border border-border-subtlest-secondary shadow-2 backdrop-blur';
 // The parked slot a dragged item will land in — the "it will go here" marker.
 // Its content is faded out, so the slot keeps the item's exact height.
 //
 // `surface-hover` (12%), between float (8%) and active (16%). At 16% this was
 // the most solid thing on screen during a drag and read as "the dragged item's
 // background is opaque" — it is the pale block, not the ghost. At 8% it was too
-// faint to show where the drop lands.
-export const sidebarDragSlotClass =
-  'rounded-12 bg-surface-hover backdrop-blur-md';
+// faint to show where the drop lands. Same 8px blur as the ghost, for the same
+// reason: a wider radius flattens the backdrop into a solid-looking block.
+export const sidebarDragSlotClass = 'rounded-12 bg-surface-hover backdrop-blur';
 export const SidebarAside = classed(
   'aside',
   'flex flex-col z-sidebarOverlay laptop:z-sidebar laptop:-translate-x-0 left-0 bg-background-default border-r border-border-subtlest-tertiary transition-[width,transform] duration-300 ease-in-out group fixed top-0 h-full',
