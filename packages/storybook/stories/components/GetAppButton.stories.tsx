@@ -22,11 +22,14 @@ const meta: Meta<typeof GetAppButton> = {
   decorators: [
     (Story) => (
       <QueryClientProvider client={queryClient}>
-        {/* The render gate reads isAndroidApp from AuthContext (the Android
-            wrapper has no runtime bridge), so the story must provide the
-            context the real app always has. */}
+        {/* The render gate reads isLoggedIn and isAndroidApp from AuthContext
+            (the Android wrapper has no runtime bridge), so the story must
+            provide the anonymous context the button ships to. */}
         <AuthContext.Provider
-          value={{ isAndroidApp: false } as unknown as AuthContextData}
+          value={
+            { isLoggedIn: false, isAndroidApp: false } as unknown as
+              AuthContextData
+          }
         >
           <div className="min-h-96 bg-background-default p-6">
             <Story />
@@ -35,8 +38,6 @@ const meta: Meta<typeof GetAppButton> = {
       </QueryClientProvider>
     ),
   ],
-  // Storybook has no GrowthBook instance, so the flag is forced on here.
-  args: { isFeatureEnabled: true },
 };
 
 export default meta;
@@ -55,6 +56,9 @@ const HeaderShell = ({
   </div>
 );
 
+// NOT shipped: the logged-in action rail dropped this button (product call,
+// 2026-07). Kept here as the reference for the icon-only variant should it
+// ever come back.
 export const InHeaderLoggedIn: Story = {
   render: (args) => (
     <HeaderShell>

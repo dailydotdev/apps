@@ -14,9 +14,7 @@ import { GooglePlayIcon } from '../../../components/icons/GooglePlay';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import usePersistentContext from '../../../hooks/usePersistentContext';
-import { featureHeaderGetApp } from '../../../lib/featureManagement';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
@@ -58,40 +56,32 @@ const stores: AppStore[] = [
 const GET_APP_SEEN_KEY = 'getAppHeaderSeen';
 
 export interface GetAppButtonProps {
-  // The logged-out header has room for the full label; the logged-in action
-  // rail (opportunity, quests, giveback, bell, avatar) does not, so it gets the
-  // icon-only trigger with the label in a tooltip.
+  // The logged-out header has room for the full label next to Log in /
+  // Sign up; icon-only (label in a tooltip) exists as the compact alternative.
   showLabel?: boolean;
   className?: string;
-  // Escape hatch for surfaces that already resolved `featureHeaderGetApp` (and
-  // for Storybook, which has no GrowthBook instance). Left undefined, the
-  // button evaluates the flag itself.
-  isFeatureEnabled?: boolean;
 }
 
 export function GetAppButton({
   showLabel = false,
   className,
-  isFeatureEnabled: isFeatureEnabledProp,
 }: GetAppButtonProps): ReactElement | null {
   const [isOpen, setIsOpen] = useState(false);
   const { logEvent } = useLogContext();
-  const { isAndroidApp } = useAuthContext();
+  const { isLoggedIn, isAndroidApp } = useAuthContext();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  // The point of this entry point is telling *desktop* visitors that a mobile
-  // app exists. Below laptop we're either on mobile web or inside the native
-  // wrapper - which renders this same webapp shell - and neither should be
-  // told to go get an app they're already holding. The wrappers need their own
-  // signals on top of the viewport gate because a tablet/desktop-mode viewport
-  // can satisfy the laptop breakpoint from inside the app: iOS exposes a
-  // WebKit bridge at runtime (isIOSNative), Android has no such bridge and is
-  // flagged through boot data instead.
-  const shouldRender = isLaptop && !isIOSNative() && !isAndroidApp;
-  const { value: isFlagEnabled } = useConditionalFeature({
-    feature: featureHeaderGetApp,
-    shouldEvaluate: shouldRender && isFeatureEnabledProp === undefined,
-  });
-  const isFeatureEnabled = isFeatureEnabledProp ?? isFlagEnabled;
+  // This entry point is for *anonymous desktop* visitors only - logged-in
+  // users made a product call to keep their action rail clean, so the gate
+  // lives here rather than trusting every call site. Below laptop we're
+  // either on mobile web or inside the native wrapper - which renders this
+  // same webapp shell - and neither should be told to go get an app they're
+  // already holding. The wrappers need their own signals on top of the
+  // viewport gate because a tablet/desktop-mode viewport can satisfy the
+  // laptop breakpoint from inside the app: iOS exposes a WebKit bridge at
+  // runtime (isIOSNative), Android has no such bridge and is flagged through
+  // boot data instead.
+  const shouldRender =
+    isLaptop && !isLoggedIn && !isIOSNative() && !isAndroidApp;
   const [hasSeen, setHasSeen, isSeenFetched] = usePersistentContext<boolean>(
     GET_APP_SEEN_KEY,
     false,
@@ -125,7 +115,7 @@ export function GetAppButton({
     [logEvent],
   );
 
-  if (!shouldRender || !isFeatureEnabled) {
+  if (!shouldRender) {
     return null;
   }
 

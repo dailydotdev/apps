@@ -4,25 +4,24 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { GetAppButton } from './GetAppButton';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useViewSize } from '../../../hooks';
 import { appStoreUrl, playStoreUrl } from '../../../lib/constants';
-
-jest.mock('../../../hooks/useConditionalFeature', () => ({
-  useConditionalFeature: jest.fn(),
-}));
 
 jest.mock('../../../hooks', () => ({
   ...jest.requireActual('../../../hooks'),
   useViewSize: jest.fn(),
 }));
 
-const mockUseConditionalFeature = useConditionalFeature as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
 
+// TestBootProvider defaults to a logged-in session; this surface is for
+// anonymous visitors, so the tests start logged out and opt in explicitly.
 const renderComponent = (props = {}, auth = {}) =>
   render(
-    <TestBootProvider client={new QueryClient()} auth={auth}>
+    <TestBootProvider
+      client={new QueryClient()}
+      auth={{ isLoggedIn: false, ...auth }}
+    >
       <GetAppButton {...props} />
     </TestBootProvider>,
   );
@@ -32,11 +31,10 @@ const triggerName = /get the daily\.dev mobile app/i;
 beforeEach(() => {
   jest.clearAllMocks();
   mockUseViewSize.mockReturnValue(true);
-  mockUseConditionalFeature.mockReturnValue({ value: true, isLoading: false });
 });
 
 describe('GetAppButton', () => {
-  it('should render the trigger when the feature is enabled on desktop', () => {
+  it('should render the trigger for anonymous desktop visitors', () => {
     renderComponent();
 
     expect(
@@ -44,12 +42,8 @@ describe('GetAppButton', () => {
     ).toBeInTheDocument();
   });
 
-  it('should render nothing when the feature is off', () => {
-    mockUseConditionalFeature.mockReturnValue({
-      value: false,
-      isLoading: false,
-    });
-    renderComponent();
+  it('should render nothing for logged-in users', () => {
+    renderComponent({}, { isLoggedIn: true });
 
     expect(
       screen.queryByRole('button', { name: triggerName }),
@@ -72,17 +66,6 @@ describe('GetAppButton', () => {
   it('should render nothing inside the Android app even at laptop width', () => {
     renderComponent({}, { isAndroidApp: true });
 
-    expect(
-      screen.queryByRole('button', { name: triggerName }),
-    ).not.toBeInTheDocument();
-  });
-
-  it('should not evaluate the flag when the caller already resolved it', () => {
-    renderComponent({ isFeatureEnabled: false });
-
-    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
-      expect.objectContaining({ shouldEvaluate: false }),
-    );
     expect(
       screen.queryByRole('button', { name: triggerName }),
     ).not.toBeInTheDocument();

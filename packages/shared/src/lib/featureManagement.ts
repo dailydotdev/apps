@@ -328,4 +328,3 @@ export const featurePostSignupActivation = new Feature(
 // extension visitors: a phone button in the header that opens a QR-code
 // popover. Control hides it entirely. Keep the default `false` - GrowthBook
 // ramps it.
-export const featureHeaderGetApp = new Feature('header_get_app', false);
