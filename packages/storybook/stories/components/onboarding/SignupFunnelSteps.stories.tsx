@@ -1,7 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { fn } from 'storybook/test';
+import Feed from '@dailydotdev/shared/src/components/Feed';
+import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
+import { PREVIEW_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import {
+  OtherFeedPage,
+  RequestKey,
+} from '@dailydotdev/shared/src/lib/query';
 import { FunnelProfileForm } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelProfileForm';
 import { FunnelEditTags } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelEditTags';
 import { FunnelContentTypes } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelContentTypes';
@@ -19,6 +27,7 @@ import { OnboardingChromeVariant } from '@dailydotdev/shared/src/lib/featureMana
 import {
   FunnelStepShell,
   fakeIOSUserAgent,
+  FEED_PREVIEW_HANDLER,
   FEED_SETTINGS_HANDLERS,
   MockPlusPaymentProvider,
 } from './signupFunnel.mocks';
@@ -700,6 +709,71 @@ export const PulsePlayground: Story = {
             focused while you watch.
           </p>
         </div>
+      </FunnelStepShell>
+    );
+  },
+};
+
+/**
+ * How many cards the tag step's feed preview should show per row.
+ *
+ * The preview inherits its column count from the viewport, so on a wide screen
+ * it asked for six columns and then divided its own narrower box by six — the
+ * cards landed far under the 21.25rem (340px) they are designed at, which is
+ * what crushed the titles and thumbnails. Capping the columns alone is not
+ * enough either: three columns stretched across a 1999px screen makes 629px
+ * cards. So each arm caps the columns AND the width that many cards need.
+ *
+ * View this at 1600px or wider, where the two arms actually differ: both render
+ * cards at their natural 340px, and the question is only how much of the screen
+ * the preview fills.
+ */
+const previewWidthClass: Record<number, string> = {
+  // N x 340px card + (N-1) x 32px gutter + the feed's own 48px padding.
+  3: 'max-w-[70.75rem]',
+  4: 'max-w-[94rem]',
+};
+
+export const FeedPreviewColumns: StoryObj<{ columns: number }> = {
+  name: '★ Feed preview — 3 vs 4 per row',
+  parameters: {
+    msw: { handlers: [...FEED_SETTINGS_HANDLERS, FEED_PREVIEW_HANDLER] },
+  },
+  argTypes: {
+    columns: { control: { type: 'inline-radio' }, options: [3, 4] },
+  },
+  args: { columns: 3 },
+  render: ({ columns }: { columns: number }) => {
+    const step = {
+      ...baseStep,
+      id: 'edit-tags',
+      type: FunnelStepType.EditTags,
+      parameters: { headline: 'Pick tags that are relevant to you' },
+    };
+
+    return (
+      <FunnelStepShell step={step} stepIndex={2} fullWidth>
+        <FeedLayoutProvider maxNumCards={columns}>
+          {/* Production reaches this geometry by breaking the feed out of the
+              512px rail and capping it, which nets out to a centred box of the
+              capped width — that is what this reproduces, without the breakout
+              maths. */}
+          <div
+            className={classNames(
+              'mx-auto w-full pt-6',
+              previewWidthClass[columns],
+            )}
+          >
+            <Feed
+              className="px-6"
+              feedName={OtherFeedPage.Preview}
+              feedQueryKey={[RequestKey.FeedPreview, `columns-${columns}`]}
+              query={PREVIEW_FEED_QUERY}
+              showSearch={false}
+              allowPin
+            />
+          </div>
+        </FeedLayoutProvider>
       </FunnelStepShell>
     );
   },

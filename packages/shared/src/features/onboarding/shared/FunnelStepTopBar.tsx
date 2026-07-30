@@ -7,6 +7,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import Logo, { LogoPosition } from '../../../components/Logo';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { FunnelTargetId } from '../types/funnelEvents';
 
 export interface FunnelStepTopBarProps {
@@ -24,6 +25,9 @@ export function FunnelStepTopBar({
   skip,
 }: FunnelStepTopBarProps): ReactElement {
   const { cta: skipLabel, ...skipProps } = skip ?? {};
+  // Button size is a prop, not a class, so the step up on desktop can't be a
+  // breakpoint variant.
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   return (
     // In flow, not absolute, so the strip reserves its own height and can never
@@ -34,22 +38,26 @@ export function FunnelStepTopBar({
           corner. `px-6` matches the rail's gutter, so on a phone the logo still
           lines up with the content below it, and the strip's padding is an even
           24px from the top and both edges. */}
-      {/* `h-8` = the skip button's height, applied whether or not a step has a
-          skip, so the logo sits at the same y on every step. */}
-      <div className="flex h-8 w-full items-center justify-between gap-3 px-6">
+      {/* The row is the LOGO's height, not the taller skip button's, so the
+          space above the wordmark equals the gutter beside it — the button is a
+          transparent text button, so it simply overflows the row symmetrically
+          and stays optically centred on the logo. Sizing the row off the logo
+          also keeps its y identical on steps with and without a skip. */}
+      <div className="flex h-logo w-full items-center justify-between gap-3 px-6 laptop:h-logo-big">
         {/* Icon only below laptop: the wordmark costs width the skip button
             needs on a 390px screen. */}
         <Logo
           className="pointer-events-auto h-fit w-fit"
           hideTextMobile
           linkDisabled
+          logoClassName={{ container: 'h-logo laptop:h-logo-big' }}
           position={LogoPosition.Empty}
         />
         {skip && (
           <Button
             className="pointer-events-auto font-normal"
             data-funnel-track={FunnelTargetId.StepSkip}
-            size={ButtonSize.Small}
+            size={isLaptop ? ButtonSize.Medium : ButtonSize.Small}
             type="button"
             variant={ButtonVariant.Tertiary}
             {...skipProps}

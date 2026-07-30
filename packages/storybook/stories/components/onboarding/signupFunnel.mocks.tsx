@@ -29,6 +29,7 @@ import {
   FeaturesReadyContext,
   GrowthBookContext,
 } from '@dailydotdev/shared/src/components/GrowthBookProvider';
+import feedFixture from '@dailydotdev/shared/__tests__/fixture/feed';
 import ExtensionProviders from '../../extension/_providers';
 
 /**
@@ -315,6 +316,29 @@ export const FEED_SETTINGS_HANDLERS = [
     HttpResponse.json({ data: { updateUserAlerts: { filter: false } } }),
   ),
 ];
+
+/**
+ * The tag step's feed preview (`PREVIEW_FEED_QUERY`, operation `FeedPreview`).
+ * The response is a plain `Connection<Post>` under a `page` alias, which is
+ * exactly the shape of the repo's feed fixture — so the preview renders real
+ * cards, with real images, and the grid can be judged at its true proportions.
+ *
+ * The fixture carries 7 posts; the grid needs enough to fill more than one row
+ * at four columns, so the edges are repeated with fresh ids.
+ */
+const PREVIEW_POST_COUNT = 12;
+const previewFeed = {
+  pageInfo: { hasNextPage: false, endCursor: null },
+  edges: Array.from({ length: PREVIEW_POST_COUNT }, (_, index) => {
+    const { node } = feedFixture.edges[index % feedFixture.edges.length];
+
+    return { node: { ...node, id: `${node.id}-${index}` } };
+  }),
+};
+
+export const FEED_PREVIEW_HANDLER = graphql.query('FeedPreview', () =>
+  HttpResponse.json({ data: { page: previewFeed } }),
+);
 
 /**
  * The Plus step reads the ANNUAL product option (`useFunnelAnnualPricing`);

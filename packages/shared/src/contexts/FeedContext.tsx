@@ -113,9 +113,23 @@ const FeedContext = React.createContext<FeedContextData>(
   baseFeedSettings.default,
 );
 
+interface FeedLayoutProviderProps {
+  /**
+   * Upper bound on the column count, for feeds that live in a narrower box than
+   * the page they sit on. The breakpoint ramp still applies below the cap, so a
+   * capped feed keeps going 1 → 2 → N as the screen grows; it just stops there.
+   *
+   * Without it, the column count is chosen purely from the viewport, so a feed
+   * embedded in a narrow column gets a full page's worth of columns and divides
+   * its own width by that — the cards end up far under their intended size.
+   */
+  maxNumCards?: number;
+}
+
 export function FeedLayoutProvider({
   children,
-}: PropsWithChildren): ReactElement {
+  maxNumCards,
+}: PropsWithChildren<FeedLayoutProviderProps>): ReactElement {
   const { sidebarExpanded } = useSettingsContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isPlus } = usePlusSubscription();
@@ -193,8 +207,27 @@ export function FeedLayoutProvider({
     defaultFeedSettings,
   );
 
+  const cappedSettings = useMemo(() => {
+    if (!maxNumCards) {
+      return currentSettings;
+    }
+
+    const { numCards } = currentSettings;
+
+    return {
+      ...currentSettings,
+      numCards: Object.entries(numCards).reduce(
+        (acc, [spaciness, count]) => ({
+          ...acc,
+          [spaciness]: Math.min(count, maxNumCards),
+        }),
+        {} as FeedContextData['numCards'],
+      ),
+    };
+  }, [currentSettings, maxNumCards]);
+
   return (
-    <FeedContext.Provider value={currentSettings}>
+    <FeedContext.Provider value={cappedSettings}>
       {children}
     </FeedContext.Provider>
   );

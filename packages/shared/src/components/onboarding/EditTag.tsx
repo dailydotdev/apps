@@ -20,6 +20,20 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureOnboardingPersonas } from '../../lib/featureManagement';
 import { subscribePersonaSelection } from './onboardingPopBus';
 
+/**
+ * Columns the onboarding feed preview is allowed to grow to, and the width that
+ * many cards need. A grid card is designed at 21.25rem (340px) with a 2rem (32px)
+ * gutter, and the feed only caps its own width above 2156px — so without both a
+ * column cap AND a matching width cap the preview either divides the viewport
+ * into a page's worth of columns (cards far too narrow) or stretches a few
+ * columns across the whole screen (cards far too wide).
+ */
+const PREVIEW_MAX_COLUMNS = 3;
+const previewWidthClass = {
+  3: 'tablet:max-w-[70.75rem]',
+  4: 'tablet:max-w-[94rem]',
+}[PREVIEW_MAX_COLUMNS];
+
 interface EditTagProps {
   feedSettings: FeedSettings;
   userId: string;
@@ -139,13 +153,21 @@ export const EditTag = ({
         />
       )}
       {!hidePreview && isPreviewEnabled && isPreviewVisible && (
-        <FeedLayoutProvider>
+        <FeedLayoutProvider
+          maxNumCards={isOnboarding ? PREVIEW_MAX_COLUMNS : undefined}
+        >
           <p className="-mb-4 mt-6 text-center text-text-secondary typo-body">
             Change your tag selection until you&apos;re happy with your feed
             preview.
           </p>
           <Feed
-            className="relative mx-auto px-6 pt-14 tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2 laptop:pt-10"
+            className={classNames(
+              'relative mx-auto px-6 pt-14 tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2 laptop:pt-10',
+              // The breakout stays centred at any width: `left-1/2` resolves
+              // against the centred rail, so its 50% mark is the viewport's
+              // centre, and `-translate-x-1/2` then centres the feed on it.
+              isOnboarding && previewWidthClass,
+            )}
             feedName={OtherFeedPage.Preview}
             feedQueryKey={[RequestKey.FeedPreview, userId]}
             query={PREVIEW_FEED_QUERY}
