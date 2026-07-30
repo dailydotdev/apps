@@ -86,32 +86,52 @@ const RingGem = ({
   );
 };
 
-// Carves circular holes out of whatever it is applied to, so a mark nests INTO
-// the badge instead of sitting on top of it. This is the one mechanic shared by
-// the gem and the chip.
+// Carves holes out of whatever it is applied to, so a mark nests INTO the badge
+// instead of sitting on top of it. This is the one mechanic every variation
+// below shares — only the hole's SHAPE changes.
 //
 // It replaced an earlier attempt that opened a gap in the ring's stroke: on the
 // `safe` state the disc is filled pink and the ring is the same pink, so a gap
 // in the stroke was completely invisible — and `safe` is the state most users
 // see. Masking the whole badge cuts through fill and ring together, so it reads
 // on every state.
-const biteMask = (
-  holes: { x: number; y: number; r: number }[],
-): CSSProperties => {
-  const gradients = holes
-    .map(
-      ({ x, y, r }) =>
-        `radial-gradient(circle ${r}px at ${x}px ${y}px, transparent 98%, #000 100%)`,
-    )
-    .join(',');
+//
+// CSS `mask-image` on an HTML element masks by ALPHA, so the kept area must be
+// opaque and the hole fully transparent — hence one opaque path whose holes are
+// extra subpaths under `evenodd`.
+const holeMask = (...holes: string[]): CSSProperties => {
+  const svg =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='${GLYPH}' height='${GLYPH}'>` +
+    `<path fill='#000' fill-rule='evenodd' d='M0,0 H${GLYPH} V${GLYPH} H0 Z ${holes.join(' ')}'/>` +
+    `</svg>`;
+  const url = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
 
-  return {
-    WebkitMaskImage: gradients,
-    maskImage: gradients,
-    WebkitMaskComposite: 'source-in',
-    maskComposite: 'intersect',
-  };
+  return { WebkitMaskImage: url, maskImage: url };
 };
+
+const circleHole = (cx: number, cy: number, r: number): string =>
+  `M${cx - r},${cy} a${r},${r} 0 1 0 ${r * 2},0 a${r},${r} 0 1 0 ${-r * 2},0 z`;
+
+const roundedRectHole = (
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  radius: number,
+): string => {
+  const r = Math.min(radius, w / 2, h / 2);
+
+  return (
+    `M${x + r},${y} h${w - 2 * r} a${r},${r} 0 0 1 ${r},${r}` +
+    ` v${h - 2 * r} a${r},${r} 0 0 1 ${-r},${r}` +
+    ` h${-(w - 2 * r)} a${r},${r} 0 0 1 ${-r},${-r}` +
+    ` v${-(h - 2 * r)} a${r},${r} 0 0 1 ${r},${-r} z`
+  );
+};
+
+// The diagonal corner cut used by the folded-corner variation.
+const cornerHole = (side: number): string =>
+  `M${GLYPH - side},${GLYPH} L${GLYPH},${GLYPH - side} L${GLYPH},${GLYPH} z`;
 
 // Where a gem's centre lands for a given angle on the ring.
 const gemCentre = (angle: number) => {
@@ -136,13 +156,14 @@ const GemInNotch = (
   signal: RailSignal,
   { angle = 45, gemSize = 7, clearance = 1.5 } = {},
 ): ReactElement => {
-  const holes = [{ ...gemCentre(angle), r: gemSize / 2 + clearance }];
+  const { x, y } = gemCentre(angle);
+  const hole = circleHole(x, y, gemSize / 2 + clearance);
 
   return (
     <GlyphBox>
       <span
         className="absolute inset-0 flex items-center justify-center"
-        style={signal.claimable > 0 ? biteMask(holes) : undefined}
+        style={signal.claimable > 0 ? holeMask(hole) : undefined}
       >
         <StreakBadge
           state={signal.streakState}
@@ -167,16 +188,17 @@ const GemCluster = (signal: RailSignal): ReactElement => {
   const spacing = ((gemSize + 2.5) / circumference) * 360;
   const start = 45 - ((count - 1) * spacing) / 2;
   const angles = Array.from({ length: count }, (_, i) => start + i * spacing);
-  const holes = angles.map((angle) => ({
-    ...gemCentre(angle),
-    r: gemSize / 2 + 1.25,
-  }));
+  const holes = angles.map((angle) => {
+    const { x, y } = gemCentre(angle);
+
+    return circleHole(x, y, gemSize / 2 + 1.25);
+  });
 
   return (
     <GlyphBox>
       <span
         className="absolute inset-0 flex items-center justify-center"
-        style={count > 0 ? biteMask(holes) : undefined}
+        style={count > 0 ? holeMask(...holes) : undefined}
       >
         <StreakBadge
           state={signal.streakState}
@@ -193,46 +215,17 @@ const GemCluster = (signal: RailSignal): ReactElement => {
 // ─── B · the chip ────────────────────────────────────────────────────────────
 
 const CHIP = 13;
-// Where the chip's centre lands when it is pinned to the box's bottom-right.
-const CHIP_CENTRE = GLYPH - CHIP / 2;
-
-// A rounded-rect hole, for the squircle chip. A radial-gradient bite cannot
-// match a square: on the axes it clears 2px past the chip's edge while the
-// chip's own corners poke out along the diagonal, which is exactly the mismatch
-// the first squircle attempt showed. This punches the real shape instead.
-//
-// CSS `mask-image` on an HTML element masks by ALPHA, so the kept area is opaque
-// and the hole must be fully transparent — hence one path, filled opaque, with
-// the hole as a second subpath under `evenodd`.
-const squircleBiteMask = (
-  x: number,
-  y: number,
-  size: number,
-  radius: number,
-): CSSProperties => {
-  const r = Math.min(radius, size / 2);
-  const hole =
-    `M${x + r},${y} h${size - 2 * r} a${r},${r} 0 0 1 ${r},${r}` +
-    ` v${size - 2 * r} a${r},${r} 0 0 1 ${-r},${r}` +
-    ` h${-(size - 2 * r)} a${r},${r} 0 0 1 ${-r},${-r}` +
-    ` v${-(size - 2 * r)} a${r},${r} 0 0 1 ${r},${-r} z`;
-  const svg =
-    `<svg xmlns='http://www.w3.org/2000/svg' width='${GLYPH}' height='${GLYPH}'>` +
-    `<path fill='#000' fill-rule='evenodd' d='M0,0 H${GLYPH} V${GLYPH} H0 Z ${hole}'/>` +
-    `</svg>`;
-  const url = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
-
-  return { WebkitMaskImage: url, maskImage: url };
-};
 
 const Chip = ({
-  count,
+  children,
   square = false,
   separator = true,
+  size = CHIP,
 }: {
-  count: number;
+  children: ReactNode;
   square?: boolean;
   separator?: boolean;
+  size?: number;
 }): ReactElement => (
   <span
     className={classNames(
@@ -244,11 +237,29 @@ const Chip = ({
       separator && 'border-2 border-background-default',
       microNumeral,
     )}
-    style={{ height: CHIP, minWidth: CHIP }}
+    style={{ height: size, minWidth: size }}
   >
-    {count > 9 ? '9+' : count}
+    {children}
   </span>
 );
+
+// Counts above 9 would widen the chip past the glyph box.
+const chipCount = (count: number): string => (count > 9 ? '9+' : `${count}`);
+
+// The hole a chip nests into, shape-matched to it.
+const chipHole = (square: boolean, size = CHIP, clearance = 1.5): string => {
+  const centre = GLYPH - size / 2;
+
+  return square
+    ? roundedRectHole(
+        centre - size / 2 - clearance,
+        centre - size / 2 - clearance,
+        size + clearance * 2,
+        size + clearance * 2,
+        4 + clearance,
+      )
+    : circleHole(centre, centre, size / 2 + clearance);
+};
 
 // B1 — round 1 as shipped: badge shrunk to 82% to make room.
 const ChipWithShrunkBadge = (signal: RailSignal): ReactElement => (
@@ -259,7 +270,7 @@ const ChipWithShrunkBadge = (signal: RailSignal): ReactElement => (
         hasReadToday={signal.hasReadToday}
       />
     </span>
-    {signal.claimable > 0 && <Chip count={signal.claimable} />}
+    {signal.claimable > 0 && <Chip>{chipCount(signal.claimable)}</Chip>}
   </GlyphBox>
 );
 
@@ -267,7 +278,9 @@ const ChipWithShrunkBadge = (signal: RailSignal): ReactElement => (
 const ChipOverBadge = (signal: RailSignal, square = false): ReactElement => (
   <GlyphBox>
     <StreakBadge state={signal.streakState} hasReadToday={signal.hasReadToday} />
-    {signal.claimable > 0 && <Chip count={signal.claimable} square={square} />}
+    {signal.claimable > 0 && (
+      <Chip square={square}>{chipCount(signal.claimable)}</Chip>
+    )}
   </GlyphBox>
 );
 
@@ -275,15 +288,7 @@ const ChipOverBadge = (signal: RailSignal, square = false): ReactElement => (
 // No border on the chip, so there is no colour to mismatch when the tab is
 // hovered. The hole is shape-matched to the chip.
 const ChipInBite = (signal: RailSignal, square = false): ReactElement => {
-  const clearance = 1.5;
-  const mask = square
-    ? squircleBiteMask(
-        CHIP_CENTRE - CHIP / 2 - clearance,
-        CHIP_CENTRE - CHIP / 2 - clearance,
-        CHIP + clearance * 2,
-        4 + clearance,
-      )
-    : biteMask([{ x: CHIP_CENTRE, y: CHIP_CENTRE, r: CHIP / 2 + clearance }]);
+  const mask = holeMask(chipHole(square));
 
   return (
     <GlyphBox>
@@ -297,11 +302,97 @@ const ChipInBite = (signal: RailSignal, square = false): ReactElement => {
         />
       </span>
       {signal.claimable > 0 && (
-        <Chip count={signal.claimable} square={square} separator={false} />
+        <Chip square={square} separator={false}>
+          {chipCount(signal.claimable)}
+        </Chip>
       )}
     </GlyphBox>
   );
 };
+
+// V6 — a token that says "claim", not "how many". Drops the numeral entirely,
+// which is the only way to stay legible when the count is irrelevant.
+const IconChip = (signal: RailSignal): ReactElement => {
+  const size = 14;
+
+  return (
+    <GlyphBox>
+      <span
+        className="absolute inset-0 flex items-center justify-center"
+        style={
+          signal.claimable > 0
+            ? holeMask(chipHole(false, size))
+            : undefined
+        }
+      >
+        <StreakBadge
+          state={signal.streakState}
+          hasReadToday={signal.hasReadToday}
+        />
+      </span>
+      {signal.claimable > 0 && (
+        <Chip separator={false} size={size}>
+          <GiftIcon secondary size={IconSize.XXSmall} className="scale-90" />
+        </Chip>
+      )}
+    </GlyphBox>
+  );
+};
+
+// V7 — adaptive: one reward is a clean gem, several earn the counted chip. The
+// common case stays quiet and only the rarer case pays for the numeral.
+const AdaptiveMark = (signal: RailSignal): ReactElement =>
+  signal.claimable > 1 ? ChipInBite(signal, true) : GemInNotch(signal);
+
+// V8 — no added object at all: the badge's corner is folded away and the reward
+// colour shows underneath, like a turned page.
+const FOLD = 12;
+
+const FoldedCorner = (signal: RailSignal): ReactElement => (
+  <GlyphBox>
+    <span
+      className="absolute inset-0 flex items-center justify-center"
+      style={signal.claimable > 0 ? holeMask(cornerHole(FOLD + 2)) : undefined}
+    >
+      <StreakBadge
+        state={signal.streakState}
+        hasReadToday={signal.hasReadToday}
+      />
+    </span>
+    {signal.claimable > 0 && (
+      <span
+        aria-hidden
+        className={classNames('absolute bottom-0 right-0', CABBAGE)}
+        style={{
+          width: FOLD,
+          height: FOLD,
+          clipPath: `polygon(100% 0, 100% 100%, 0 100%)`,
+          borderBottomRightRadius: 3,
+        }}
+      />
+    )}
+  </GlyphBox>
+);
+
+// V9 — leave the glyph completely alone and mark the LABEL instead. The streak
+// keeps every pixel it has; the reward becomes a word-level cue.
+const LabelToken = (signal: RailSignal): ReactElement => (
+  <GlyphBox>
+    <StreakBadge state={signal.streakState} hasReadToday={signal.hasReadToday} />
+  </GlyphBox>
+);
+
+const LabelWithToken = ({ signal }: { signal: RailSignal }): ReactElement => (
+  <span className="flex items-center justify-center gap-1">
+    {signal.days}
+    {signal.claimable > 0 && (
+      <span
+        aria-hidden
+        className={classNames('size-[5px] rounded-full', CABBAGE)}
+      />
+    )}
+  </span>
+);
 
 // ─── C · the moment ──────────────────────────────────────────────────────────
 
@@ -418,6 +509,214 @@ const meta: Meta = {
 export default meta;
 
 type Story = StoryObj;
+
+// ─── the ten variations ──────────────────────────────────────────────────────
+
+interface Variation {
+  code: string;
+  title: string;
+  note: string;
+  glyph: (signal: RailSignal) => ReactElement;
+  label?: (signal: RailSignal) => ReactNode;
+}
+
+const VARIATIONS: Variation[] = [
+  {
+    code: 'V1',
+    title: 'Gem · top-right',
+    note: 'A bead nested into a hole cut through the badge at 45°. The quietest mark that still reads.',
+    glyph: (signal) => GemInNotch(signal),
+  },
+  {
+    code: 'V2',
+    title: 'Gem · bottom-right',
+    note: 'Same bead, moved to 135° — the furthest point from the Activity bubble sitting above it.',
+    glyph: (signal) => GemInNotch(signal, { angle: 135 }),
+  },
+  {
+    code: 'V3',
+    title: 'Gem cluster',
+    note: 'One bead per reward, capped at 3. Countable without a numeral — but at 3 it starts drifting toward an arc.',
+    glyph: GemCluster,
+  },
+  {
+    code: 'V4',
+    title: 'Chip · squircle',
+    note: 'Exact count in a rounded square, matching the Activity bell’s badge language.',
+    glyph: (signal) => ChipInBite(signal, true),
+  },
+  {
+    code: 'V5',
+    title: 'Chip · circle',
+    note: 'Same count, round — matching the streak badge it sits in rather than the bell.',
+    glyph: (signal) => ChipInBite(signal),
+  },
+  {
+    code: 'V6',
+    title: 'Chip · gift icon',
+    note: 'Says “claim”, not “how many”. Drops the numeral, so it never has to cope with 9+.',
+    glyph: IconChip,
+  },
+  {
+    code: 'V7',
+    title: 'Adaptive',
+    note: 'A gem for one reward, the counted chip for several. The common case stays quiet.',
+    glyph: AdaptiveMark,
+  },
+  {
+    code: 'V8',
+    title: 'Folded corner',
+    note: 'No added object — the badge’s corner folds away and the reward colour shows underneath.',
+    glyph: FoldedCorner,
+  },
+  {
+    code: 'V9',
+    title: 'Label dot',
+    note: 'Glyph untouched. The mark moves to the label, so the streak keeps every pixel it owns.',
+    glyph: LabelToken,
+    label: (signal) => <LabelWithToken signal={signal} />,
+  },
+  {
+    code: 'V10',
+    title: 'Arrival pop',
+    note: 'The moment, not a resting state: fires once when a reward lands, then settles to V4.',
+    glyph: (signal) => ChipInBite(signal, true),
+  },
+];
+
+const VariationCell = ({
+  variation,
+  signal,
+}: {
+  variation: Variation;
+  signal: RailSignal;
+}): ReactElement => (
+  <Variant code={variation.code} title={variation.title} note={variation.note}>
+    {variation.code === 'V10' ? (
+      <ArrivalMoment signal={signal} arrival="pop" rest={RestChip} />
+    ) : (
+      <OnRail>
+        <RailTab
+          label={variation.label?.(signal) ?? signal.days}
+          glyph={variation.glyph(signal)}
+        />
+      </OnRail>
+    )}
+  </Variant>
+);
+
+// THE PAGE TO REVIEW. Ten variations, all obeying the round-2 rule: the streak
+// keeps its ring, and quests get a discrete token or a moment — never an arc.
+export const TenVariations: Story = {
+  render: () => (
+    <div className="flex flex-col gap-6">
+      <SectionHeading
+        eyebrow="round 2 · pick one"
+        title="Ten variations on the gem, the chip and the moment"
+      >
+        Every option here leaves the streak&apos;s ring completely alone. None of
+        them adds a second progress track, an arc or a fill — that was the thing
+        that made round 1 read as a broken control. What differs is the SHAPE of
+        the token, where it sits, and whether it carries a number at all.
+        <br />
+        <br />
+        All ten are cut INTO the badge rather than laid on top of it, so none of
+        them needs a separator colour — which matters because a separator only
+        matches the tab background at rest and breaks the moment you hover.
+      </SectionHeading>
+      <Legend />
+      <div className="flex flex-wrap gap-4">
+        {VARIATIONS.map((variation) => (
+          <VariationCell
+            key={variation.code}
+            variation={variation}
+            signal={DEFAULT_SIGNAL}
+          />
+        ))}
+      </div>
+
+      <SectionHeading title="With several rewards waiting">
+        Where the counted options earn their keep — and where the countless ones
+        stop distinguishing 2 from 7.
+      </SectionHeading>
+      <div className="flex flex-wrap gap-4">
+        {VARIATIONS.map((variation) => (
+          <VariationCell
+            key={variation.code}
+            variation={variation}
+            signal={withClaimable(DEFAULT_SIGNAL, 4)}
+          />
+        ))}
+      </div>
+
+      <SectionHeading title="Nothing waiting">
+        Every variation must be indistinguishable from today&apos;s tab when
+        there is nothing to claim.
+      </SectionHeading>
+      <div className="flex flex-wrap gap-4">
+        {VARIATIONS.filter((v) => v.code !== 'V10').map((variation) => (
+          <VariationCell
+            key={variation.code}
+            variation={variation}
+            signal={withClaimable(DEFAULT_SIGNAL, 0)}
+          />
+        ))}
+      </div>
+    </div>
+  ),
+};
+
+// The ten at 3x, where the nesting detail actually becomes judgeable.
+export const TenVariationsZoomed: Story = {
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <SectionHeading title="The ten at 3x" />
+      <div className="grid grid-cols-2 gap-x-8 gap-y-14 laptop:grid-cols-5">
+        {VARIATIONS.map((variation) => (
+          <div key={variation.code} className="flex flex-col items-center gap-8">
+            <span className="flex h-24 items-center justify-center">
+              <span className="inline-block scale-[3]">
+                {variation.glyph(DEFAULT_SIGNAL)}
+              </span>
+            </span>
+            <span className="text-center text-text-tertiary typo-caption1">
+              {variation.code} {variation.title}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+};
+
+// The ten in the actual rail column, under the Activity bell that owns the other
+// purple mark. This is where a badly-placed token gives itself away.
+export const TenVariationsInRail: Story = {
+  render: () => (
+    <div className="flex flex-col gap-6">
+      <SectionHeading title="The ten in the rail">
+        Two purple marks stacked in an 80px column is the real risk. V2 and V8
+        put the most distance between them; V9 removes the second mark from the
+        glyph entirely.
+      </SectionHeading>
+      <div className="flex flex-wrap gap-4">
+        {VARIATIONS.map((variation) => (
+          <div key={variation.code} className="flex flex-col items-center gap-2">
+            <MiniRail>
+              <RailTab
+                label={variation.label?.(DEFAULT_SIGNAL) ?? DEFAULT_SIGNAL.days}
+                glyph={variation.glyph(DEFAULT_SIGNAL)}
+              />
+            </MiniRail>
+            <span className="max-w-[110px] text-center text-text-tertiary typo-caption2">
+              {variation.code} {variation.title}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  ),
+};
 
 // ─── stories ─────────────────────────────────────────────────────────────────
 
