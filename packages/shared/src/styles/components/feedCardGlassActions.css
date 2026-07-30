@@ -51,13 +51,32 @@
  * wrapper all resolve the way the theme mixins do.
  */
 
+/*
+ * WHICH ACCENTS ACTUALLY MOVE. The `tertiary` ghost ladder resolves pressed/hover
+ * to palette .40 in dark, and .80 in light for the luminous families
+ * (avocado/blueCheese/cheese/bun/lettuce/bacon) or .60 for the rest. Against that
+ * baseline only these deviate:
+ *
+ *   dark   bookmark bun.40  -> bun.20      downvote ketchup.40 -> ketchup.10
+ *   light  upvote   avo.80  -> 83% mix     comment  blueCh.80  -> 90% mix
+ *          bookmark bun.80  -> bun.90      impress  cheese.80  -> 62% mix
+ *
+ * `copy` (cabbage) already clears 3:1 from the ladder in both themes, so it is
+ * not listed here at all and inherits.
+ *
+ * The four remaining theme/colour pairs that match the ladder are written as
+ * `var(--theme-accent-<colour>-default)` rather than a repeated palette step:
+ * that token IS the ladder's value in that theme (accent-default is .40 in dark
+ * and .60 in light), so there is no second constant to keep in sync. A change to
+ * the ladder's *mapping* would still need the Storybook audit re-run — the
+ * numbers in the header are only true for the steps named above.
+ */
 @define-mixin glass-actions-dark {
-  --glass-actions-upvote: theme('colors.raw.avocado.40');
-  --glass-actions-comment: theme('colors.raw.blueCheese.40');
+  --glass-actions-upvote: var(--theme-accent-avocado-default);
+  --glass-actions-comment: var(--theme-accent-blueCheese-default);
   --glass-actions-bookmark: theme('colors.raw.bun.20');
   --glass-actions-downvote: theme('colors.raw.ketchup.10');
-  --glass-actions-copy: theme('colors.raw.cabbage.40');
-  --glass-actions-impressions: theme('colors.raw.cheese.40');
+  --glass-actions-impressions: var(--theme-accent-cheese-default);
 }
 
 @define-mixin glass-actions-light {
@@ -72,8 +91,7 @@
     theme('colors.raw.pepper.90')
   );
   --glass-actions-bookmark: theme('colors.raw.bun.90');
-  --glass-actions-downvote: theme('colors.raw.ketchup.60');
-  --glass-actions-copy: theme('colors.raw.cabbage.60');
+  --glass-actions-downvote: var(--theme-accent-ketchup-default);
   --glass-actions-impressions: color-mix(
     in srgb,
     theme('colors.raw.cheese.90') 62%,
@@ -131,33 +149,43 @@ html.light .invert .invert .feed-card-glass-actions,
   }
 }
 
-/* Mapping — theme-agnostic */
+/*
+ * Mapping — theme-agnostic.
+ *
+ * `--button-active-color` is pinned alongside pressed/hover on purpose:
+ * `buttons.css` routes `:active` through its own var, and the ladder's active
+ * step is one shade further along (light avocado active is avocado.90, which
+ * measures 2.79:1 — under threshold, which is why pressed needs the 83% mix). So
+ * without this the icon would dip below 3:1 for as long as the pointer is held.
+ * All three states share one value; there is no contrast headroom to spend on a
+ * separate active shade here.
+ */
 html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-avocado {
   --button-pressed-color: var(--glass-actions-upvote);
   --button-hover-color: var(--glass-actions-upvote);
+  --button-active-color: var(--glass-actions-upvote);
 }
 
 html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-blueCheese {
   --button-pressed-color: var(--glass-actions-comment);
   --button-hover-color: var(--glass-actions-comment);
+  --button-active-color: var(--glass-actions-comment);
 }
 
 html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-bun {
   --button-pressed-color: var(--glass-actions-bookmark);
   --button-hover-color: var(--glass-actions-bookmark);
+  --button-active-color: var(--glass-actions-bookmark);
 }
 
 html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-ketchup {
   --button-pressed-color: var(--glass-actions-downvote);
   --button-hover-color: var(--glass-actions-downvote);
-}
-
-html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-cabbage {
-  --button-pressed-color: var(--glass-actions-copy);
-  --button-hover-color: var(--glass-actions-copy);
+  --button-active-color: var(--glass-actions-downvote);
 }
 
 html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-cheese {
   --button-pressed-color: var(--glass-actions-impressions);
   --button-hover-color: var(--glass-actions-impressions);
+  --button-active-color: var(--glass-actions-impressions);
 }
