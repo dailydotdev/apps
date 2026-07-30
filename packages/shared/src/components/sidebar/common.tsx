@@ -111,14 +111,21 @@ export const railGlyphBoxClass =
 // below resolve against the tab's full height (label included) and the badge
 // lands somewhere else entirely.
 //
-// Anchored by its LEFT edge rather than its right: multi-digit counts then grow
+// Anchored by its LEFT edge rather than its right, so multi-digit counts grow
 // rightward into the tab's own padding instead of creeping left across the
-// glyph, and even "20+" stays inside the rail's width. `!typo-footnote` is one
-// step down from Bubble's own size, so the number stays legible without
-// overpowering the 26px glyph it notches, and `tabular-nums` stops it reflowing
-// as the count ticks.
+// glyph — "20+" still clears the rail's width at this offset.
+//
+// Sized DOWN from Bubble's defaults: an 18px box (from 20px) and typo-caption1
+// (from subhead, via footnote), so the count notches the 26px glyph rather than
+// competing with it. `tabular-nums` stops it reflowing as the number ticks.
+// Radius stays Bubble's own `rounded-8`, which on the smaller box reads slightly
+// rounder.
+//
+// The `!` overrides are load-bearing: Bubble sets its own min box and type, and
+// same-specificity utilities resolve by stylesheet order, not by the order
+// written here.
 export const railCountBubbleClass =
-  'pointer-events-none -top-2 left-3 px-1 !font-bold !typo-footnote tabular-nums';
+  'pointer-events-none -top-2 left-4 px-1 !min-h-[1.125rem] !min-w-[1.125rem] !font-bold !typo-caption1 tabular-nums';
 // Shared drag visuals for the v2 sidebar's two drag systems — the rail tabs and
 // the shortcuts dock — so a lifted item looks and feels identical in both.
 // A translucent glass chip: blurred surface, subtle border, elevated. Callers
