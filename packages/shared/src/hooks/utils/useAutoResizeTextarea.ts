@@ -1,34 +1,39 @@
 import type { RefObject } from 'react';
-import { useLayoutEffect } from 'react';
+import { useCallback, useLayoutEffect } from 'react';
 
 export const useAutoResizeTextarea = (
   textareaRef: RefObject<HTMLTextAreaElement>,
   value: string,
-  maxHeight?: number,
 ): void => {
-  useLayoutEffect(() => {
+  const resize = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea) {
       return;
     }
-
     textarea.style.height = 'auto';
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }, [textareaRef]);
 
-    const { scrollHeight } = textarea;
-    const nextHeight =
-      typeof maxHeight === 'number'
-        ? Math.min(scrollHeight, maxHeight)
-        : scrollHeight;
+  useLayoutEffect(() => {
+    resize();
+  }, [resize, value]);
 
-    textarea.style.height = `${nextHeight}px`;
-
-    if (typeof maxHeight !== 'number') {
-      textarea.style.removeProperty('max-height');
-      textarea.style.removeProperty('overflow-y');
-      return;
+  useLayoutEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) {
+      return undefined;
     }
 
-    textarea.style.maxHeight = `${maxHeight}px`;
-    textarea.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
-  }, [maxHeight, textareaRef, value]);
+    let width = textarea.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (textarea.clientWidth === width) {
+        return;
+      }
+      width = textarea.clientWidth;
+      resize();
+    });
+    observer.observe(textarea);
+
+    return () => observer.disconnect();
+  }, [resize, textareaRef]);
 };

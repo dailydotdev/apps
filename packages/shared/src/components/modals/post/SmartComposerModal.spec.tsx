@@ -9,6 +9,7 @@ import { usePrompt } from '../../../hooks/usePrompt';
 import { useNotificationToggle } from '../../../hooks/notifications';
 import { useComposerAudience } from '../../post/composer/useComposerAudience';
 import { useComposerSubmit } from '../../post/composer/useComposerSubmit';
+import { LogEvent } from '../../../lib/log';
 import { SmartComposerModal } from './SmartComposerModal';
 
 jest.mock('../../../contexts/AuthContext', () => ({
@@ -201,5 +202,35 @@ describe('SmartComposerModal', () => {
     expect(
       screen.getByRole('textbox', { name: 'Post commentary' }),
     ).toHaveFocus();
+  });
+
+  it('ignores the submit shortcut when submitting is blocked', () => {
+    jest.mocked(useComposerSubmit).mockReturnValue({
+      handleSubmit,
+      isSubmitDisabled: true,
+      isInFlight: false,
+      preview: undefined,
+      isLoadingPreview: true,
+      fetchPreview: jest.fn(),
+      standupErrors: {},
+    });
+
+    renderWithClient(
+      <SmartComposerModal
+        isOpen
+        initialKind="link"
+        onRequestClose={onRequestClose}
+      />,
+    );
+
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Link URL' }), {
+      key: 'Enter',
+      ctrlKey: true,
+    });
+
+    expect(handleSubmit).not.toHaveBeenCalled();
+    expect(logEvent).not.toHaveBeenCalledWith(
+      expect.objectContaining({ event_name: LogEvent.SubmitSmartComposer }),
+    );
   });
 });

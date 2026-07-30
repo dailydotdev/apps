@@ -1,19 +1,11 @@
 import React, { useRef } from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { useAutoResizeTextarea } from './useAutoResizeTextarea';
 
-interface TestTextareaProps {
-  value: string;
-  maxHeight?: number;
-}
-
-const TestTextarea = ({
-  value,
-  maxHeight,
-}: TestTextareaProps): React.ReactElement => {
+const TestTextarea = ({ value }: { value: string }): React.ReactElement => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useAutoResizeTextarea(textareaRef, value, maxHeight);
+  useAutoResizeTextarea(textareaRef, value);
 
   return (
     <textarea
@@ -26,14 +18,36 @@ const TestTextarea = ({
 };
 
 describe('useAutoResizeTextarea', () => {
+  const nativeResizeObserver = global.ResizeObserver;
   let scrollHeight = 64;
+  let clientWidth = 400;
+  let triggerResize: () => void = () => undefined;
 
   beforeEach(() => {
     scrollHeight = 64;
+    clientWidth = 400;
     Object.defineProperty(HTMLTextAreaElement.prototype, 'scrollHeight', {
       configurable: true,
       get: () => scrollHeight,
     });
+    Object.defineProperty(HTMLTextAreaElement.prototype, 'clientWidth', {
+      configurable: true,
+      get: () => clientWidth,
+    });
+    global.ResizeObserver = jest.fn((callback: ResizeObserverCallback) => {
+      const observer = {
+        observe: jest.fn(),
+        unobserve: jest.fn(),
+        disconnect: jest.fn(),
+      } as unknown as ResizeObserver;
+      triggerResize = () => callback([], observer);
+
+      return observer;
+    }) as unknown as typeof ResizeObserver;
+  });
+
+  afterEach(() => {
+    global.ResizeObserver = nativeResizeObserver;
   });
 
   it('resizes the textarea to its scroll height', () => {
@@ -48,15 +62,14 @@ describe('useAutoResizeTextarea', () => {
     expect(textarea).toHaveStyle({ height: '96px' });
   });
 
-  it('caps the textarea height and enables vertical scrolling', () => {
-    scrollHeight = 200;
+  it('resizes when the textarea width changes', () => {
+    render(<TestTextarea value="Long commentary" />);
+    const textarea = screen.getByRole('textbox', { name: 'Composer text' });
 
-    render(<TestTextarea value="Long commentary" maxHeight={144} />);
+    scrollHeight = 144;
+    clientWidth = 200;
+    act(() => triggerResize());
 
-    expect(screen.getByRole('textbox', { name: 'Composer text' })).toHaveStyle({
-      height: '144px',
-      maxHeight: '144px',
-      overflowY: 'auto',
-    });
+    expect(textarea).toHaveStyle({ height: '144px' });
   });
 });

@@ -25,8 +25,6 @@ interface LinkFormProps {
   initialUrl?: string;
 }
 
-const COMMENTARY_MAX_HEIGHT = 144;
-
 export const LinkForm = ({
   value,
   onChange,
@@ -76,10 +74,10 @@ export const LinkForm = ({
     isPreviewForComposerUrl(preview, value.url) && !isDismissedForCurrentUrl;
   const showSkeleton = isLoadingPreview && !isDismissedForCurrentUrl;
 
-  useAutoResizeTextarea(commentaryRef, value.commentary, COMMENTARY_MAX_HEIGHT);
+  useAutoResizeTextarea(commentaryRef, value.commentary);
 
-  const onUrlKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const onEnterKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (event.nativeEvent.isComposing || event.key !== 'Enter') {
         return;
       }
@@ -91,22 +89,6 @@ export const LinkForm = ({
       }
 
       commentaryRef.current?.focus();
-    },
-    [],
-  );
-
-  const onCommentaryKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (
-        event.nativeEvent.isComposing ||
-        event.key !== 'Enter' ||
-        (!event.ctrlKey && !event.metaKey)
-      ) {
-        return;
-      }
-
-      event.preventDefault();
-      event.currentTarget.form?.requestSubmit();
     },
     [],
   );
@@ -135,7 +117,7 @@ export const LinkForm = ({
         onInput={(event) => {
           onUrlChange(event.currentTarget.value);
         }}
-        onKeyDown={onUrlKeyDown}
+        onKeyDown={onEnterKeyDown}
         aria-label="Link URL"
         className="w-full bg-transparent font-bold leading-tight text-text-primary outline-none typo-title2 placeholder:text-text-quaternary"
       />
@@ -154,9 +136,9 @@ export const LinkForm = ({
             ),
           })
         }
-        onKeyDown={onCommentaryKeyDown}
+        onKeyDown={onEnterKeyDown}
         aria-label="Post commentary"
-        className="w-full resize-none overflow-hidden break-words bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
+        className="max-h-36 w-full resize-none overflow-y-auto break-words bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
       />
       {(showSkeleton || (preview && showPreview)) && (
         <div className="relative flex flex-col gap-3">

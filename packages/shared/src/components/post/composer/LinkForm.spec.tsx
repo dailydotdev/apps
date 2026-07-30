@@ -124,4 +124,16 @@ describe('LinkForm', () => {
       }),
     ).toHaveAttribute('maxlength', `${TITLE_MAX_LENGTH}`);
   });
+
+  it('keeps plain Enter in the commentary from adding a line', () => {
+    const { onSubmit } = renderLinkForm();
+
+    const commentary = screen.getByRole('textbox', {
+      name: 'Post commentary',
+    });
+    const notPrevented = fireEvent.keyDown(commentary, { key: 'Enter' });
+
+    expect(notPrevented).toBe(false);
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
 });
