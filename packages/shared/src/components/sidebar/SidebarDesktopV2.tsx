@@ -31,6 +31,7 @@ import {
   ListIcon,
   Nav,
   RAIL_ICON_SIZE,
+  railCountBubbleClass,
   railGlyphBoxClass,
   railTabClass,
   railTabLabelClass,
@@ -1643,15 +1644,18 @@ export const SidebarDesktopV2 = ({
         >
           <span className="relative flex items-center justify-center">
             {iconNode}
+            {category.id === SidebarCategory.GameCenter && showQuestBadge && (
+              // Inside the glyph box, not the button, and on the shared recipe —
+              // so this lands in exactly the same spot as the Activity bell's
+              // count. Anchored to the button it resolved against the tab's full
+              // height (label included) and sat visibly higher and further right
+              // than the bell's, at a different numeral size.
+              <Bubble className={railCountBubbleClass}>
+                {claimableQuestCount}
+              </Bubble>
+            )}
           </span>
           {!isCompact && <span className={railTabLabelClass}>{labelText}</span>}
-          {category.id === SidebarCategory.GameCenter && showQuestBadge && (
-            // Pin the badge to the button's top-right corner (not the icon's)
-            // so the quest level ring + number stay fully visible.
-            <Bubble className="right-1 top-1 px-1">
-              {claimableQuestCount}
-            </Bubble>
-          )}
         </button>
       </RailHoverCard>
     );

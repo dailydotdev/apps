@@ -6,6 +6,7 @@ import { StreakBadge } from '@dailydotdev/shared/src/components/sidebar/StreakBa
 import { GiftIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
+import { railCountBubbleClass } from '@dailydotdev/shared/src/components/sidebar/common';
 import {
   DEFAULT_SIGNAL,
   GLYPH,
@@ -513,29 +514,22 @@ type Story = StoryObj;
 
 // V11 — the Activity bell's badge, reused verbatim on the streak tab.
 //
-// This is the shared `Bubble` (20px box, 8px radius, cabbage fill, white text)
-// with the bell's two additions: `!font-bold !typo-footnote tabular-nums` for a
-// legible-but-not-shouting numeral that doesn't reflow as the count ticks, and
-// the LEFT-edge anchor at `-top-2 left-2.5` so multi-digit counts grow rightward
-// and stay inside the rail instead of creeping across the glyph. Counts cap at
-// "20+", matching `getUnreadText`.
+// This is `railCountBubbleClass` — the exact class the Activity bell and the
+// gamification tab both use in the rail, imported from shared rather than
+// restated here. Counts cap at "20+", matching `getUnreadText`.
 //
 // Note what it costs: unlike every other variation here it sits OUTSIDE the
 // 26px glyph box, so it is the one option that can collide with the bell's own
 // bubble in the column above it. See "Ten Variations In Rail".
-const NOTIFICATION_BUBBLE_CLASS = '!font-bold !typo-footnote tabular-nums';
 const MAX_QUEST_BUBBLE = 20;
 
 const NotificationStyleBubble = (signal: RailSignal): ReactElement => (
   <GlyphBox>
     <StreakBadge state={signal.streakState} hasReadToday={signal.hasReadToday} />
     {signal.claimable > 0 && (
-      <Bubble
-        className={classNames(
-          'pointer-events-none -top-2 left-2.5 px-1',
-          NOTIFICATION_BUBBLE_CLASS,
-        )}
-      >
+      // The real shared recipe, imported rather than copied, so this preview
+      // cannot drift from what the rail actually renders.
+      <Bubble className={railCountBubbleClass}>
         {signal.claimable > MAX_QUEST_BUBBLE
           ? `${MAX_QUEST_BUBBLE}+`
           : signal.claimable}

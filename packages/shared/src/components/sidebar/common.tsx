@@ -102,6 +102,23 @@ export const RAIL_ICON_SIZE = IconSize.Size26;
 // when a glyph (avatar, streak ring) is a different shape.
 export const railGlyphBoxClass =
   'relative flex size-[1.625rem] items-center justify-center';
+// One recipe for every count badge on a rail tab, so the Activity bell and the
+// gamification tab cannot drift apart — they previously disagreed on all three
+// of: containing block (glyph box vs the whole 68px button), anchor edge, and
+// numeral size.
+//
+// It must be placed inside the tab's GLYPH BOX, not the button, or the offsets
+// below resolve against the tab's full height (label included) and the badge
+// lands somewhere else entirely.
+//
+// Anchored by its LEFT edge rather than its right: multi-digit counts then grow
+// rightward into the tab's own padding instead of creeping left across the
+// glyph, and even "20+" stays inside the rail's width. `!typo-footnote` is one
+// step down from Bubble's own size, so the number stays legible without
+// overpowering the 26px glyph it notches, and `tabular-nums` stops it reflowing
+// as the count ticks.
+export const railCountBubbleClass =
+  'pointer-events-none -top-2 left-3 px-1 !font-bold !typo-footnote tabular-nums';
 // Shared drag visuals for the v2 sidebar's two drag systems — the rail tabs and
 // the shortcuts dock — so a lifted item looks and feels identical in both.
 // A translucent glass chip: blurred surface, subtle border, elevated. Callers

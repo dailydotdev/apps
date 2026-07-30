@@ -15,15 +15,14 @@ import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
 import {
   RAIL_ICON_SIZE,
+  railCountBubbleClass,
   railTabClass,
   railTabLabelClass,
 } from '../sidebar/common';
 
-// The count itself: one step down from `Bubble`'s own size and bolder, so the
-// number stays legible without overpowering the bell glyph it notches, and
-// `tabular-nums` stops the badge reflowing as the count ticks. Shared by both
-// bell variants so the header and the v2 rail stay identical. `Bubble` already
-// supplies the 20px box and the 8px radius.
+// The header bell's numeral. The rail variant uses the shared
+// `railCountBubbleClass` instead, so it stays identical to the gamification
+// tab's badge. `Bubble` already supplies the 20px box and the 8px radius.
 const notificationBubbleClass = '!font-bold !typo-footnote tabular-nums';
 
 function NotificationsBell({
@@ -99,20 +98,9 @@ function NotificationsBell({
                 className="pointer-events-none"
               />
               {hasNotification && (
-                // The shared square Bubble is the design-system badge (see the
-                // Bell Storybook "Count bubble" reference), offset so it notches
-                // the bell's corner without blanketing the glyph.
-                <Bubble
-                  className={classNames(
-                    // Anchored by its LEFT edge (the bell box is 24px, so 10px
-                    // sits just left of centre): multi-digit counts grow
-                    // rightward instead of creeping left across the bell glyph,
-                    // and starting left of centre keeps even "20+" inside the
-                    // rail's width.
-                    'pointer-events-none -top-2 left-2.5 px-1',
-                    notificationBubbleClass,
-                  )}
-                >
+                // Shared with the gamification tab's count so every rail badge
+                // sits in exactly the same place (see railCountBubbleClass).
+                <Bubble className={railCountBubbleClass}>
                   {getUnreadText(unreadCount)}
                 </Bubble>
               )}

@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import {
+  railCountBubbleClass,
   railTabClass,
   railTabLabelClass,
   RAIL_ICON_SIZE,
@@ -256,7 +257,7 @@ export const MiniRail = ({
       glyph={
         <>
           <BellIcon size={RAIL_ICON_SIZE} aria-hidden />
-          <Bubble className="pointer-events-none -top-2 left-2.5 px-1">3</Bubble>
+          <Bubble className={railCountBubbleClass}>3</Bubble>
         </>
       }
     />

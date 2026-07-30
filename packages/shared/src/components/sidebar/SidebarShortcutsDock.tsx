@@ -39,13 +39,11 @@ import {
   AnalyticsIcon,
   BookmarkIcon,
   BriefIcon,
-  CompassIcon,
   CoreIcon,
   DiscussIcon,
   EarthIcon,
   EyeIcon,
   HashtagIcon,
-  JobIcon,
   MegaphoneIcon,
   MenuIcon,
   SquadIcon,
@@ -91,14 +89,6 @@ interface ShortcutDef {
 // The catalog of pages a user can pin from the tray. Dragging an arbitrary
 // panel row in also resolves to one of these (by path) when it matches.
 export const SHORTCUT_CATALOG: ShortcutDef[] = [
-  {
-    id: 'explore',
-    label: 'Explore',
-    path: `${webappUrl}posts`,
-    icon: (a) => (
-      <CompassIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />
-    ),
-  },
   {
     id: 'tags',
     label: 'Tags',
@@ -164,12 +154,6 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
     ),
   },
   {
-    id: 'jobs',
-    label: 'Jobs',
-    path: `${webappUrl}jobs`,
-    icon: (a) => <JobIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
-  },
-  {
     id: 'briefing',
     label: 'Briefing',
     path: briefingUrl,
@@ -178,8 +162,14 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
   {
     id: 'cores',
     label: 'Cores',
+    // The core wallet.
     path: walletUrl,
-    icon: (a) => <CoreIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
+    // `secondary` is INVERTED here on purpose. CoreIcon's secondary art is the
+    // greyed-out core and its primary art is the full-colour one, which is the
+    // right default everywhere else it appears (a balance, a price) — but as a
+    // rail shortcut it has to behave like every neighbouring glyph: muted at
+    // rest, lit when it is the page you are on.
+    icon: (a) => <CoreIcon secondary={!a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
 ];
 
@@ -349,7 +339,7 @@ const TrayItem = ({
         isDragging && 'opacity-40',
       )}
     >
-      <span className="flex size-6 items-center justify-center">
+      <span className="flex size-[1.625rem] items-center justify-center">
         {def.icon(added)}
       </span>
       <Typography
@@ -1023,7 +1013,14 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                             onClick={() => setTrayOpen(false)}
                             className="flex min-w-0 flex-1 items-center gap-2 rounded-8 px-1 py-1.5 text-text-secondary"
                           >
-                            <span className="flex size-6 shrink-0 items-center justify-center">
+                            {/* 26px, matching RAIL_ICON_SIZE. At size-6 the
+                                box was 2px smaller than the glyph, and
+                                preflight's `img { max-width: 100% }` then
+                                capped the Cores <img> to 24px wide while its
+                                height stayed 26px — a visibly stretched icon.
+                                SVG glyphs just overflowed, so only Cores
+                                showed it. */}
+                            <span className="flex size-[1.625rem] shrink-0 items-center justify-center">
                               {shortcut.icon(false)}
                             </span>
                             <Typography
