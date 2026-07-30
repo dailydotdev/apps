@@ -125,7 +125,7 @@ export const railGlyphBoxClass =
 // same-specificity utilities resolve by stylesheet order, not by the order
 // written here.
 export const railCountBubbleClass =
-  'pointer-events-none -top-2 left-4 px-1 !min-h-[1.125rem] !min-w-[1.125rem] !font-bold !typo-caption1 tabular-nums';
+  'pointer-events-none -top-1 left-5 px-1 !min-h-[1.125rem] !min-w-[1.125rem] !font-bold !typo-caption1 tabular-nums';
 // Shared drag visuals for the v2 sidebar's two drag systems — the rail tabs and
 // the shortcuts dock — so a lifted item looks and feels identical in both.
 // A translucent glass chip: blurred surface, subtle border, elevated. Callers
