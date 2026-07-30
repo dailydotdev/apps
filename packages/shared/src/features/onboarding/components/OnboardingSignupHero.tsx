@@ -4,6 +4,9 @@ import classNames from 'classnames';
 import Logo, { LogoPosition } from '../../../components/Logo';
 import { FooterLinks } from '../../../components/footer/FooterLinks';
 import SignupDisclaimer from '../../../components/auth/SignupDisclaimer';
+import { OnboardingBackground } from '../shared/OnboardingBackground';
+import { FunnelStepTopBar } from '../shared/FunnelStepTopBar';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { OnboardingHeader } from '../../../components/onboarding/OnboardingHeader';
 import { wrapperMaxWidth } from '../../../components/onboarding/common';
 import {
@@ -71,6 +74,9 @@ export const OnboardingSignupHero = ({
   forceDarkTheme = true,
 }: Props): ReactElement => {
   const { applyThemeMode } = useSettingsContext();
+  // Only the post-signup funnel swaps the marketing shell for the funnel's
+  // chrome; /helloworld's landing keeps this component as it was.
+  const isOnboarding = useIsOnboardingFunnel();
   const isMobile = useViewSize(ViewSize.MobileL);
 
   useEffect(() => {
@@ -96,14 +102,31 @@ export const OnboardingSignupHero = ({
   if (isFormExpanded) {
     return (
       <div className="relative z-3 flex min-h-dvh w-full flex-col overflow-x-hidden bg-background-default text-text-primary">
-        <header className="flex w-full px-6 pt-6 tablet:px-10 tablet:pt-8">
-          <Logo
-            position={LogoPosition.Relative}
-            className="!left-0 !top-0 !mt-0 !translate-x-0"
-            logoClassName={{ container: 'h-5' }}
-          />
-        </header>
-        <main className="flex w-full flex-1 flex-col items-center px-5 pb-6 pt-8 tablet:pt-12">
+        {/* This is the post-signup funnel's account-details screen, so it takes
+            the funnel's own canvas and top bar rather than the marketing shell:
+            same gradient and same 24px logo offset as the seven steps that
+            follow it, and none of the footer chrome. The paid funnel's landing
+            keeps the shell below. */}
+        {isOnboarding && <OnboardingBackground />}
+        {isOnboarding ? (
+          <FunnelStepTopBar />
+        ) : (
+          <header className="flex w-full px-6 pt-6 tablet:px-10 tablet:pt-8">
+            <Logo
+              position={LogoPosition.Relative}
+              className="!left-0 !top-0 !mt-0 !translate-x-0"
+              logoClassName={{ container: 'h-5' }}
+            />
+          </header>
+        )}
+        <main
+          className={classNames(
+            'relative z-2 flex w-full flex-1 flex-col items-center px-5 pb-6',
+            // The top bar already reserves its own height, so the funnel arm
+            // uses the same pt-3 every other onboarding step does.
+            isOnboarding ? 'pt-3' : 'pt-8 tablet:pt-12',
+          )}
+        >
           <div
             className={classNames(
               'flex w-full flex-col gap-6 tablet:gap-7',
@@ -113,20 +136,24 @@ export const OnboardingSignupHero = ({
             {children}
           </div>
         </main>
-        <div className="pointer-events-auto flex w-full flex-col items-center gap-3 px-5 pb-4 tablet:hidden">
-          <div className="[&_footer]:!pb-0 [&_ul]:!mb-0">
-            <FooterLinks />
-          </div>
-          <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
-        </div>
-        <div className="pointer-events-auto hidden w-full items-end justify-between gap-6 px-6 pb-4 tablet:flex">
-          <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
-            <FooterLinks />
-          </div>
-          <div className="max-w-sm text-right">
-            <SignupDisclaimer className="!text-right !text-text-tertiary typo-caption1" />
-          </div>
-        </div>
+        {!isOnboarding && (
+          <>
+            <div className="pointer-events-auto flex w-full flex-col items-center gap-3 px-5 pb-4 tablet:hidden">
+              <div className="[&_footer]:!pb-0 [&_ul]:!mb-0">
+                <FooterLinks />
+              </div>
+              <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+            </div>
+            <div className="pointer-events-auto hidden w-full items-end justify-between gap-6 px-6 pb-4 tablet:flex">
+              <div className="[&_footer]:!pb-0 [&_ul]:!mb-0 [&_ul]:!justify-start">
+                <FooterLinks />
+              </div>
+              <div className="max-w-sm text-right">
+                <SignupDisclaimer className="!text-right !text-text-tertiary typo-caption1" />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     );
   }
