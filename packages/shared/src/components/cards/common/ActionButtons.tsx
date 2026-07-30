@@ -250,10 +250,9 @@ const ActionButtonsV1 = ({
             />
           </Tooltip>
         )}
-        {/* When impressions are enabled, drop awards below laptop to make room
-            for the extra action; with the flag off, awards stay on every
-            viewport (unchanged from control). */}
-        {showAwardAction && (!impressionsEnabled || isLaptop) && (
+        {/* Impressions take the award slot on feed cards; with the flag off,
+            awards stay (unchanged from control). */}
+        {showAwardAction && !impressionsEnabled && (
           <PostAwardAction post={post} iconSize={iconSize} />
         )}
         <BookmarkButton

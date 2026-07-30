@@ -26,7 +26,7 @@ export interface PostAwardActionProps {
 const PostAwardActionV1 = ({ post, iconSize }: PostAwardActionProps) => {
   const { openModal } = useLazyModal();
   const { user, showLogin } = useAuthContext();
-  const isSameUser = user?.id === post?.author?.id;
+  const isSameUser = !!user?.id && user.id === post?.author?.id;
   const canAward = useCanAwardUser({
     sendingUser: user,
     receivingUser: post?.author as LoggedUser,
