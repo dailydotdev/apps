@@ -210,6 +210,16 @@ const sidebarCategories: SidebarCategoryConfig[] = [
 
 // Fallback release for the post-drag click guard — see releaseRailDragClickGuard.
 const RAIL_DRAG_CLICK_GUARD_FALLBACK_MS = 500;
+// The overflow budget below has to know how tall each rail row is, which means
+// restating class strings as numbers. Keep every one of them here, each naming
+// the exact class it mirrors, so editing a class has one obvious place to
+// follow — a silent desync only shows up as one tab too many or too few folding
+// into "More" at a particular viewport height, which nothing in CI can catch.
+const RAIL_ROW_GAP_PX = 4; // `gap-1` on the rail column
+const SHORTCUT_ROW_PX = 40; // shortcut dot row height
+const CREATE_BUTTON_PX = 36; // New post `!size-9`
+const CREATE_MARGIN_Y_PX = 16; // New post `my-2`
+const SEP_PX = 1 + 24; // framing separator `h-px` + its `my-3`
 
 // New post is reorderable alongside the tabs, so it needs an id in the rail
 // order. It matches the key the panel preview already uses for the create panel.
@@ -843,14 +853,15 @@ export const SidebarDesktopV2 = ({
 
   const { resolved: shortcutItems } = useSidebarShortcutItems();
   const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
-  const iconRowPx = 40 + 4; // shortcut dot row (height + gap)
-  const tabRowPx = (isCompact ? 44 : 56) + 4; // tab / "More" row (height + gap)
-  const SEP_PX = 25; // framing separator (1px) + its my-3 margins
+  const iconRowPx = SHORTCUT_ROW_PX + RAIL_ROW_GAP_PX;
+  const tabRowPx = (isCompact ? 44 : 56) + RAIL_ROW_GAP_PX;
   const tabCount = foldableTabIds.length;
   // New post sits inside the measured region but never folds into "More" —
   // reserve its row up front so the tabs/dock budget is only what's left, and
   // folding still peels off one tab at a time.
-  const createRowPx = isLoggedIn ? 36 + 16 + 4 : 0; // button + my-2 + gap
+  const createRowPx = isLoggedIn
+    ? CREATE_BUTTON_PX + CREATE_MARGIN_Y_PX + RAIL_ROW_GAP_PX
+    : 0;
   const availableHeight = regionHeight - createRowPx;
   const minDockPx =
     shortcutCount > 0 ? SEP_PX + SHORTCUTS_MIN_INLINE * iconRowPx : 0;
@@ -929,11 +940,36 @@ export const SidebarDesktopV2 = ({
     railDragClickGuardRef.current = false;
     return true;
   }, []);
+  const railDragClickGuardCleanupRef = useRef<() => void>();
   const releaseRailDragClickGuard = useCallback(() => {
-    setTimeout(() => {
+    railDragClickGuardCleanupRef.current?.();
+    const disarm = () => {
       railDragClickGuardRef.current = false;
-    }, RAIL_DRAG_CLICK_GUARD_FALLBACK_MS);
+    };
+    // The stray post-drop click always arrives before the user can press again,
+    // so the next pointerdown means the guard has either done its job or was
+    // never going to — drops that end over the shortcuts dock, outside the rail
+    // or on Escape produce no click at all, and without this the guard stayed
+    // armed for the full fallback window and ate the user's next real click.
+    let timer: ReturnType<typeof setTimeout>;
+    const controller = new AbortController();
+    const cleanup = () => {
+      clearTimeout(timer);
+      controller.abort();
+      railDragClickGuardCleanupRef.current = undefined;
+    };
+    const finish = () => {
+      cleanup();
+      disarm();
+    };
+    globalThis.window?.addEventListener('pointerdown', finish, {
+      signal: controller.signal,
+      once: true,
+    });
+    timer = setTimeout(finish, RAIL_DRAG_CLICK_GUARD_FALLBACK_MS);
+    railDragClickGuardCleanupRef.current = cleanup;
   }, []);
+  useEffect(() => () => railDragClickGuardCleanupRef.current?.(), []);
   // Which rail item is being dragged — drives the DragOverlay ghost while the
   // in-list original shows as a slot skeleton.
   const [activeRailId, setActiveRailId] = useState<RailItemId | null>(null);
@@ -987,7 +1023,16 @@ export const SidebarDesktopV2 = ({
       setRailOrderOverride(null);
       return;
     }
-    setStoredRailOrder(liveOrder).catch(() => undefined);
+    // If the write fails, drop the override so the rail falls back to what is
+    // actually stored. Keeping it would strand the user on an order that only
+    // exists in memory: the clearing effect fires when the stored order matches
+    // the override, which after a rejection it never will, so they would see a
+    // saved-looking order that is gone on reload with no signal anywhere.
+    setStoredRailOrder(liveOrder).catch((error) => {
+      setRailOrderOverride(null);
+      // eslint-disable-next-line no-console
+      console.error('Failed to persist sidebar rail order', error);
+    });
   }, [
     releaseRailDragClickGuard,
     setStoredRailOrder,
@@ -1724,6 +1769,12 @@ export const SidebarDesktopV2 = ({
   // Resolve a rail item by id. New post and Notifications are the two that
   // aren't plain categories (an action button and the bell with its unread
   // badge); everything else goes through renderCategoryTab.
+  // Runs once per ghost mount (the overlay only re-mounts when the dragged item
+  // changes; dnd-kit moves it by transforming the wrapper, not by re-rendering).
+  const stripRailGhostIds = useCallback((node: HTMLDivElement | null) => {
+    node?.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+  }, []);
+
   const renderRailTab = (id: RailItemId): ReactElement => {
     if (id === RAIL_CREATE_ID) {
       return renderCreateButton();
@@ -1945,15 +1996,26 @@ export const SidebarDesktopV2 = ({
                     // The brand mark doubles as the Home button: the daily.dev
                     // logo at rest, crossfading into the home glyph on
                     // hover/focus so the destination is obvious pre-click.
-                    // `group` (unnamed) drives the logo→home crossfade, which
-                    // the sidebar-wide group on SidebarAside also triggers, so
-                    // the glyph reveals on rail hover. `group/home` is scoped to
-                    // this button alone, for the hover colour below.
-                    className="focus-outline group/home group flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
+                    // Everything below is scoped to `group/home` — this button
+                    // alone. An unnamed `group` here would also match the
+                    // sidebar-wide group on SidebarAside, so the logo would
+                    // vanish whenever the pointer was anywhere in the rail
+                    // (reordering tabs, using the dock, opening settings).
+                    className="focus-outline group/home flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
                     onClick={(event) => {
                       // Keep the removed logo link's click contract — the
                       // extension resets its feed/search state there.
                       onLogoClick?.(event);
+                      // ONE owner for the destination. The extension's
+                      // `onLogoClick` defaults the event and switches the feed
+                      // in place (to My Feed on the new tab); running Home's
+                      // handler afterwards would immediately overwrite that
+                      // with the default feed, so the brand mark would stop
+                      // landing on My Feed. On the webapp `onLogoClick` is
+                      // undefined, so Home still owns the click.
+                      if (event.defaultPrevented) {
+                        return;
+                      }
                       onHomeClick();
                     }}
                   >
@@ -1961,13 +2023,13 @@ export const SidebarDesktopV2 = ({
                       <LogoIcon
                         className={{
                           container:
-                            'h-[1.125rem] w-auto transition-[opacity,transform] duration-150 ease-out group-hover:scale-75 group-hover:opacity-0 group-focus-visible:scale-75 group-focus-visible:opacity-0 motion-reduce:transition-none',
+                            'h-[1.125rem] w-auto transition-[opacity,transform] duration-150 ease-out group-hover/home:scale-75 group-hover/home:opacity-0 group-focus-visible/home:scale-75 group-focus-visible/home:opacity-0 motion-reduce:transition-none',
                         }}
                       />
                       <span
                         aria-hidden
                         className={classNames(
-                          'absolute inset-0 flex scale-75 items-center justify-center opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100 motion-reduce:transition-none',
+                          'absolute inset-0 flex scale-75 items-center justify-center opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover/home:scale-100 group-hover/home:opacity-100 group-focus-visible/home:scale-100 group-focus-visible/home:opacity-100 motion-reduce:transition-none',
                           // Filled white when the feed IS the current page;
                           // elsewhere it's an inactive grey outline that goes
                           // white on direct hover — exactly how the Search icon
@@ -2107,6 +2169,15 @@ export const SidebarDesktopV2 = ({
                       // hover surface, so it lifts bare — a chip around a chip
                       // reads as a double background.
                       <div
+                        // The ghost is a visual clone of a tab that is still
+                        // mounted in the list, so without this the document
+                        // carries two `#sidebar-*` nodes and a second
+                        // `role="tab"`/`aria-selected` outside the tablist for
+                        // the length of the drag. `aria-hidden` takes the clone
+                        // out of the a11y tree; the ref drops the duplicated
+                        // ids so nothing can resolve to the wrong node.
+                        aria-hidden
+                        ref={stripRailGhostIds}
                         className={classNames(
                           'w-full scale-110 cursor-grabbing transition-all duration-150',
                           activeRailId !== RAIL_CREATE_ID &&

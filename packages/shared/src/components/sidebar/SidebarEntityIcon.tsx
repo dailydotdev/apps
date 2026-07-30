@@ -40,7 +40,11 @@ export const SidebarEntityIcon = ({
         type={ImageType.Squad}
         alt=""
         aria-hidden
-        className="size-6 rounded-8 object-cover"
+        // Matches RAIL_ICON_SIZE so a dock row mixing real avatars with fallback
+        // glyphs keeps one glyph size (the profile tab's avatar is deliberately
+        // smaller — a solid photo carries more optical mass than an outline —
+        // but that correction is for a lone avatar, not a mixed row).
+        className="size-[1.625rem] rounded-8 object-cover"
       />
     );
   }
@@ -52,7 +56,8 @@ export const SidebarEntityIcon = ({
         type={ImageType.Squad}
         alt=""
         aria-hidden
-        className="size-6 rounded-8 object-cover"
+        // Same rail glyph size as the fallbacks below.
+        className="size-[1.625rem] rounded-8 object-cover"
       />
     ) : (
       <SquadIcon size={RAIL_ICON_SIZE} aria-hidden />

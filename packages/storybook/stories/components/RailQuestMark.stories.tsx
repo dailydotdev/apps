@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { StreakBadge } from '@dailydotdev/shared/src/components/sidebar/StreakBadge';
 import { GiftIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { Bubble } from '@dailydotdev/shared/src/components/tooltips/utils';
 import {
   DEFAULT_SIGNAL,
   GLYPH,
@@ -510,6 +511,39 @@ export default meta;
 
 type Story = StoryObj;
 
+// V11 — the Activity bell's badge, reused verbatim on the streak tab.
+//
+// This is the shared `Bubble` (20px box, 8px radius, cabbage fill, white text)
+// with the bell's two additions: `!font-bold !typo-footnote tabular-nums` for a
+// legible-but-not-shouting numeral that doesn't reflow as the count ticks, and
+// the LEFT-edge anchor at `-top-2 left-2.5` so multi-digit counts grow rightward
+// and stay inside the rail instead of creeping across the glyph. Counts cap at
+// "20+", matching `getUnreadText`.
+//
+// Note what it costs: unlike every other variation here it sits OUTSIDE the
+// 26px glyph box, so it is the one option that can collide with the bell's own
+// bubble in the column above it. See "Ten Variations In Rail".
+const NOTIFICATION_BUBBLE_CLASS = '!font-bold !typo-footnote tabular-nums';
+const MAX_QUEST_BUBBLE = 20;
+
+const NotificationStyleBubble = (signal: RailSignal): ReactElement => (
+  <GlyphBox>
+    <StreakBadge state={signal.streakState} hasReadToday={signal.hasReadToday} />
+    {signal.claimable > 0 && (
+      <Bubble
+        className={classNames(
+          'pointer-events-none -top-2 left-2.5 px-1',
+          NOTIFICATION_BUBBLE_CLASS,
+        )}
+      >
+        {signal.claimable > MAX_QUEST_BUBBLE
+          ? `${MAX_QUEST_BUBBLE}+`
+          : signal.claimable}
+      </Bubble>
+    )}
+  </GlyphBox>
+);
+
 // ─── the ten variations ──────────────────────────────────────────────────────
 
 interface Variation {
@@ -582,6 +616,12 @@ const VARIATIONS: Variation[] = [
     note: 'The moment, not a resting state: fires once when a reward lands, then settles to V4.',
     glyph: (signal) => ChipInBite(signal, true),
   },
+  {
+    code: 'V11',
+    title: 'Notification bubble',
+    note: 'The Activity bell’s badge verbatim — same Bubble, same bold footnote numeral, same left-edge anchor, same 20+ cap. The only option that sits outside the glyph box.',
+    glyph: NotificationStyleBubble,
+  },
 ];
 
 const VariationCell = ({
@@ -612,7 +652,7 @@ export const TenVariations: Story = {
     <div className="flex flex-col gap-6">
       <SectionHeading
         eyebrow="round 2 · pick one"
-        title="Ten variations on the gem, the chip and the moment"
+        title={`${VARIATIONS.length} variations on the gem, the chip and the moment`}
       >
         Every option here leaves the streak&apos;s ring completely alone. None of
         them adds a second progress track, an arc or a fill — that was the thing
@@ -670,7 +710,7 @@ export const TenVariations: Story = {
 export const TenVariationsZoomed: Story = {
   render: () => (
     <div className="flex flex-col gap-8">
-      <SectionHeading title="The ten at 3x" />
+      <SectionHeading title={`All ${VARIATIONS.length} at 3x`} />
       <div className="grid grid-cols-2 gap-x-8 gap-y-14 laptop:grid-cols-5">
         {VARIATIONS.map((variation) => (
           <div key={variation.code} className="flex flex-col items-center gap-8">
@@ -694,7 +734,7 @@ export const TenVariationsZoomed: Story = {
 export const TenVariationsInRail: Story = {
   render: () => (
     <div className="flex flex-col gap-6">
-      <SectionHeading title="The ten in the rail">
+      <SectionHeading title={`All ${VARIATIONS.length} in the rail`}>
         Two purple marks stacked in an 80px column is the real risk. V2 and V8
         put the most distance between them; V9 removes the second mark from the
         glyph entirely.
