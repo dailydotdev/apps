@@ -13,7 +13,6 @@ import { AppleIcon, PhoneIcon } from '../../../components/icons';
 import { GooglePlayIcon } from '../../../components/icons/GooglePlay';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
-import { useViewSize, ViewSize } from '../../../hooks';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
@@ -63,19 +62,19 @@ export function GetAppButton({
   const [isOpen, setIsOpen] = useState(false);
   const { logEvent } = useLogContext();
   const { isLoggedIn, isAndroidApp } = useAuthContext();
-  const isLaptop = useViewSize(ViewSize.Laptop);
   // This entry point is for *anonymous desktop* visitors only - logged-in
   // users made a product call to keep their action rail clean, so the gate
-  // lives here rather than trusting every call site. Below laptop we're
-  // either on mobile web or inside the native wrapper - which renders this
-  // same webapp shell - and neither should be told to go get an app they're
-  // already holding. The wrappers need their own signals on top of the
-  // viewport gate because a tablet/desktop-mode viewport can satisfy the
-  // laptop breakpoint from inside the app: iOS exposes a WebKit bridge at
-  // runtime (isIOSNative), Android has no such bridge and is flagged through
-  // boot data instead.
-  const shouldRender =
-    isLaptop && !isLoggedIn && !isIOSNative() && !isAndroidApp;
+  // lives here rather than trusting every call site. The desktop half is
+  // gated in CSS (`hidden laptop:flex` on the trigger, matching LoginButton
+  // and ProfileButton in the same row) so the server HTML already contains
+  // the pill and hydration doesn't reflow Log in / Sign up on first paint.
+  // The native wrappers still need JS vetoes on top: they render this same
+  // webapp shell, a tablet/desktop-mode viewport can satisfy the laptop
+  // breakpoint from inside the app, and nobody should be told to go get an
+  // app they're already holding. iOS exposes a WebKit bridge at runtime
+  // (isIOSNative); Android has no such bridge and is flagged through boot
+  // data instead.
+  const shouldRender = !isLoggedIn && !isIOSNative() && !isAndroidApp;
 
   const onOpenChange = useCallback(
     (open: boolean) => {
@@ -116,7 +115,7 @@ export function GetAppButton({
             variant={ButtonVariant.Float}
             size={showLabel ? ButtonSize.Medium : undefined}
             className={classNames(
-              'justify-center',
+              'hidden justify-center laptop:flex',
               !showLabel && 'w-10',
               className,
             )}
