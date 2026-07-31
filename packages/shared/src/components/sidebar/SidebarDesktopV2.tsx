@@ -141,6 +141,7 @@ import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureGiveback } from '../../lib/featureManagement';
 import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
+import { RAIL_ANCHOR_ATTRIBUTE } from '../../features/giveback/components/GivebackGiftDock';
 import { FeedbackWidget } from '../feedback';
 import {
   Typography,
@@ -1987,6 +1988,9 @@ export const SidebarDesktopV2 = ({
         {!isSettingsSelected && (
           <nav
             aria-label="Primary navigation"
+            // Lets the giveback gift's milestone card measure the rail it has
+            // to clear (see RAIL_ANCHOR_ATTRIBUTE).
+            {...{ [RAIL_ANCHOR_ATTRIBUTE]: '' }}
             className={classNames(
               // pt matches the streak tile's side gap (54px tile centred in the
               // 68px content = 7px + px-1.5 6px = 13px) so its top/left/right
