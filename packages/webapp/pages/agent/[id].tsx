@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import {
@@ -33,9 +34,11 @@ import {
 import { AgentHero } from '@dailydotdev/shared/src/features/interests/components/AgentHero';
 import { AgentToolbar } from '@dailydotdev/shared/src/features/interests/components/AgentToolbar';
 import { AgentChatSection } from '@dailydotdev/shared/src/features/interests/components/AgentChatSection';
+import { AgentContentPane } from '@dailydotdev/shared/src/features/interests/components/AgentContentPane';
 import { AgentActivitySection } from '@dailydotdev/shared/src/features/interests/components/AgentActivitySection';
 import { AgentDebugPanel } from '@dailydotdev/shared/src/features/interests/components/AgentDebugPanel';
 import { AgentSettingsModal } from '@dailydotdev/shared/src/features/interests/components/AgentSettingsModal';
+import { AgentViewToggle } from '@dailydotdev/shared/src/features/interests/components/AgentViewToggle';
 import {
   mockAgentPosts,
   mockInterest,
@@ -47,6 +50,18 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
+const ArticlePostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "articlePostModal" */ '@dailydotdev/shared/src/components/modals/ArticlePostModal'
+    ),
+);
+const AgentFeedModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "agentFeedModal" */ '@dailydotdev/shared/src/features/interests/components/AgentFeedModal'
+  ).then((mod) => mod.AgentFeedModal),
+);
+
 type AgentTab = 'Chat' | 'Activity' | 'Debug';
 
 const AgentPageBody = ({
@@ -54,39 +69,64 @@ const AgentPageBody = ({
   postsCount,
   onDelete,
   isDeleting,
+  isModalView,
 }: {
   items: AgentFeedItem[];
   postsCount: number;
   onDelete: () => void;
   isDeleting: boolean;
+  isModalView: boolean;
 }): ReactElement => {
-  const { isSettingsOpen, setSettingsOpen } = useAgent();
+  const { isSettingsOpen, setSettingsOpen, activeContent, setActiveContent } =
+    useAgent();
   const [tab, setTab] = useState<AgentTab>('Chat');
+  const closeContent = () => setActiveContent(undefined);
 
   return (
     <>
-      <FlexCol className="mx-auto w-full max-w-[48rem] gap-6 px-4 pb-72 pt-4">
-        <AgentHero findingsCount={items.length} postsCount={postsCount} />
-        <TabContainer<AgentTab>
-          controlledActive={tab}
-          onActiveChange={setTab}
-          showBorder
-        >
-          <Tab label="Chat" className="pt-4">
-            <AgentChatSection />
-          </Tab>
-          <Tab label="Activity" className="pt-4">
-            <AgentActivitySection />
-          </Tab>
-          <Tab label="Debug" className="pt-4">
-            <AgentDebugPanel
-              items={items}
-              onDelete={onDelete}
-              isDeleting={isDeleting}
-            />
-          </Tab>
-        </TabContainer>
-      </FlexCol>
+      <div className="flex w-full flex-row items-start gap-6 px-4 pt-4 laptop:px-6">
+        <FlexCol className="mx-auto w-full min-w-0 max-w-[48rem] gap-6 pb-72">
+          <AgentHero findingsCount={items.length} postsCount={postsCount} />
+          <TabContainer<AgentTab>
+            controlledActive={tab}
+            onActiveChange={setTab}
+            showBorder
+          >
+            <Tab label="Chat" className="pt-4">
+              <AgentChatSection />
+            </Tab>
+            <Tab label="Activity" className="pt-4">
+              <AgentActivitySection />
+            </Tab>
+            <Tab label="Debug" className="pt-4">
+              <AgentDebugPanel
+                items={items}
+                onDelete={onDelete}
+                isDeleting={isDeleting}
+              />
+            </Tab>
+          </TabContainer>
+        </FlexCol>
+        {activeContent && !isModalView && (
+          <AgentContentPane content={activeContent} onClose={closeContent} />
+        )}
+      </div>
+      {activeContent?.type === 'post' && isModalView && (
+        <ArticlePostModal
+          isOpen
+          id={activeContent.post.id}
+          post={activeContent.post}
+          onRequestClose={closeContent}
+        />
+      )}
+      {activeContent?.type === 'feed' && isModalView && (
+        <AgentFeedModal
+          isOpen
+          label={activeContent.label}
+          posts={activeContent.posts}
+          onRequestClose={closeContent}
+        />
+      )}
       <AgentToolbar />
       {isSettingsOpen && (
         <AgentSettingsModal
@@ -102,6 +142,7 @@ const Page = (): ReactElement | null => {
   const router = useRouter();
   const id = router.query.id as string;
   const forceDemo = router.query.demo === '1';
+  const isModalView = router.query.view === 'modal';
   const { user, isAuthReady } = useAuthContext();
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
@@ -140,21 +181,32 @@ const Page = (): ReactElement | null => {
         initialMessages={feed.isDemo ? mockConversation : []}
         key={id}
       >
-        <PageHeader title={interest?.query ?? 'Your agent'}>
-          <Link href={`${webappUrl}agent`}>
-            <Button
-              tag="a"
-              icon={<ArrowIcon className="-rotate-90" />}
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-            />
-          </Link>
+        <PageHeader
+          className="sticky top-14 z-header bg-background-default laptop:top-16"
+          title={
+            <div className="flex min-w-0 flex-1 items-center gap-2">
+              <Link href={`${webappUrl}agent`}>
+                <Button
+                  tag="a"
+                  icon={<ArrowIcon className="-rotate-90" />}
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                />
+              </Link>
+              <strong className="min-w-0 flex-1 truncate typo-callout">
+                {interest?.query ?? 'Your agent'}
+              </strong>
+            </div>
+          }
+        >
+          <AgentViewToggle view={isModalView ? 'modal' : 'pane'} />
         </PageHeader>
         <AgentPageBody
           items={feed.items}
           postsCount={posts.length}
           onDelete={() => deleteInterest(id)}
           isDeleting={isDeleting}
+          isModalView={isModalView}
         />
       </AgentProvider>
     </ProtectedPage>

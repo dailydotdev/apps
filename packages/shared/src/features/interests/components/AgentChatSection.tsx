@@ -1,8 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
-import dynamic from 'next/dynamic';
+import React from 'react';
 import { ArticleList } from '../../../components/cards/article/ArticleList';
-import { CollectionList } from '../../../components/cards/collection/CollectionList';
 import Markdown from '../../../components/Markdown';
 import {
   Typography,
@@ -20,23 +18,9 @@ import { IconSize } from '../../../components/Icon';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
-import { PostType } from '../../../graphql/posts';
 import type { AgentBlock, AgentMessage } from '../chat';
 import { useAgent } from '../AgentContext';
 import { AgentPickList } from './AgentPickList';
-
-const ArticlePostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "articlePostModal" */ '../../../components/modals/ArticlePostModal'
-    ),
-);
-const CollectionPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "collectionPostModal" */ '../../../components/modals/CollectionPostModal'
-    ),
-);
 
 const noop = () => undefined;
 
@@ -55,9 +39,11 @@ const PendingBubble = (): ReactElement => (
 const BlockRenderer = ({
   block,
   onPostClick,
+  onFeedClick,
 }: {
   block: AgentBlock;
   onPostClick: (post: Post) => void;
+  onFeedClick: (label: string, posts: Post[]) => void;
 }): ReactElement => {
   if (block.type === 'text') {
     return <Markdown content={block.html} />;
@@ -70,7 +56,7 @@ const BlockRenderer = ({
         variant={ButtonVariant.Float}
         icon={<ArrowIcon className="rotate-90" />}
         className="w-fit"
-        onClick={noop}
+        onClick={() => onFeedClick(block.label, block.posts)}
       >
         {block.label}
       </Button>
@@ -90,24 +76,6 @@ const BlockRenderer = ({
         )}
         <AgentPickList posts={block.posts} onOpen={onPostClick} />
       </FlexCol>
-    );
-  }
-
-  if (block.type === 'collection') {
-    return (
-      <CollectionList
-        post={block.post}
-        onPostClick={(post, event) => {
-          event?.preventDefault();
-          onPostClick(post);
-        }}
-        onUpvoteClick={noop}
-        onDownvoteClick={noop}
-        onCommentClick={noop}
-        onBookmarkClick={noop}
-        onCopyLinkClick={noop}
-        onShare={noop}
-      />
     );
   }
 
@@ -144,9 +112,11 @@ const BlockRenderer = ({
 const MessageRow = ({
   message,
   onPostClick,
+  onFeedClick,
 }: {
   message: AgentMessage;
   onPostClick: (post: Post) => void;
+  onFeedClick: (label: string, posts: Post[]) => void;
 }): ReactElement => {
   if (message.role === 'user') {
     return (
@@ -201,6 +171,7 @@ const MessageRow = ({
               key={`${message.id}-${index}`}
               block={block}
               onPostClick={onPostClick}
+              onFeedClick={onFeedClick}
             />
           ))
         )}
@@ -210,30 +181,20 @@ const MessageRow = ({
 };
 
 export const AgentChatSection = (): ReactElement => {
-  const { messages } = useAgent();
-  const [activePost, setActivePost] = useState<Post>();
-  const isCollection = activePost?.type === PostType.Collection;
-  const PostModal = isCollection ? CollectionPostModal : ArticlePostModal;
+  const { messages, setActiveContent } = useAgent();
 
   return (
-    <>
-      <FlexCol className="gap-8 py-2">
-        {messages.map((message) => (
-          <MessageRow
-            key={message.id}
-            message={message}
-            onPostClick={setActivePost}
-          />
-        ))}
-      </FlexCol>
-      {activePost && (
-        <PostModal
-          isOpen
-          id={activePost.id}
-          post={activePost}
-          onRequestClose={() => setActivePost(undefined)}
+    <FlexCol className="gap-8 py-2">
+      {messages.map((message) => (
+        <MessageRow
+          key={message.id}
+          message={message}
+          onPostClick={(post) => setActiveContent({ type: 'post', post })}
+          onFeedClick={(label, posts) =>
+            setActiveContent({ type: 'feed', label, posts })
+          }
         />
-      )}
-    </>
+      ))}
+    </FlexCol>
   );
 };

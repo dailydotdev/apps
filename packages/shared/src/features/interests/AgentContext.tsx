@@ -15,8 +15,13 @@ import type {
 import { useSendInterestCommand } from './hooks/useSendInterestCommand';
 import { useUpdateInterest } from './hooks/useUpdateInterest';
 import { useToastNotification } from '../../hooks/useToastNotification';
+import type { Post } from '../../graphql/posts';
 import type { AgentMessage } from './chat';
 import { cannedReply } from './chat';
+
+export type AgentContentTarget =
+  | { type: 'post'; post: Post }
+  | { type: 'feed'; label: string; posts: Post[] };
 
 export type AgentActivityKind =
   | 'run'
@@ -53,6 +58,8 @@ type AgentContextValue = {
   messages: AgentMessage[];
   isSettingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
+  activeContent?: AgentContentTarget;
+  setActiveContent: (target?: AgentContentTarget) => void;
 };
 
 const AgentContext = createContext<AgentContextValue>({} as AgentContextValue);
@@ -84,6 +91,7 @@ export const AgentProvider = ({
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
   const [messages, setMessages] = useState<AgentMessage[]>(initialMessages);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
+  const [activeContent, setActiveContent] = useState<AgentContentTarget>();
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
@@ -182,8 +190,11 @@ export const AgentProvider = ({
       messages,
       isSettingsOpen,
       setSettingsOpen,
+      activeContent,
+      setActiveContent,
     }),
     [
+      activeContent,
       activity,
       messages,
       id,

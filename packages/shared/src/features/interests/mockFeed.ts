@@ -282,36 +282,3 @@ export const mockFeedItems = seeds.map((seed) => ({
   rationale: seed.rationale,
   createdAt: hoursAgo(seed.hours),
 }));
-
-export const mockCollectionPost: Post = {
-  id: 'mock-collection-1',
-  title:
-    'Zig 0.15 lands the self-hosted backend — what five write-ups agree on',
-  summary:
-    'Merged from five sources covering the same release. All agree LLVM is optional for debug builds and compile times drop sharply; they disagree on whether incremental compilation is usable yet.',
-  permalink: 'https://api.daily.dev/r/mock-collection-1',
-  commentsPermalink: 'https://app.daily.dev/posts/mock-collection-1',
-  slug: 'mock-collection-1',
-  createdAt: hoursAgo(20),
-  image: cover(4),
-  readTime: 6,
-  numUpvotes: 486,
-  numComments: 77,
-  type: PostType.Collection,
-  tags: ['zig', 'compilers', 'release'],
-  source: sources.github,
-  collectionSources: [
-    sources.github,
-    sources.hn,
-    sources.medium,
-    sources.infoq,
-    sources.ph,
-  ],
-  numCollectionSources: 5,
-  bookmarked: false,
-  upvoted: false,
-  commented: false,
-  read: false,
-  private: false,
-  userState: { vote: UserVote.None },
-} as unknown as Post;

@@ -1,12 +1,11 @@
 import type { Post } from '../../graphql/posts';
-import { mockCollectionPost, mockFeedPosts } from './mockFeed';
+import { mockFeedPosts } from './mockFeed';
 
 export type AgentBlock =
   | { type: 'text'; html: string }
   | { type: 'posts'; caption?: string; posts: Post[] }
   | { type: 'picks'; caption?: string; posts: Post[] }
-  | { type: 'collection'; post: Post }
-  | { type: 'feedLink'; label: string; count: number };
+  | { type: 'feedLink'; label: string; posts: Post[] };
 
 export type AgentMessage = {
   id: string;
@@ -42,7 +41,11 @@ export const mockConversation: AgentMessage[] = [
         type: 'text',
         html: `<p>Eight more cleared the bar but are lower confidence.</p>`,
       },
-      { type: 'feedLink', label: 'Open all 9 findings as a feed', count: 9 },
+      {
+        type: 'feedLink',
+        label: 'Open all 9 findings as a feed',
+        posts: mockFeedPosts,
+      },
     ],
   },
   {
@@ -58,7 +61,7 @@ export const mockConversation: AgentMessage[] = [
     blocks: [
       {
         type: 'text',
-        html: `<p>Noted. I dropped announcement-only posts and reweighted toward material written by the people who did the work. Volume went from ~14 a day to 6.</p><p>Re-scored what I already had — tap any of these to see why I kept it:</p>`,
+        html: `<p>Noted. I dropped announcement-only posts and reweighted toward material written by the people who did the work. Volume went from ~14 a day to 6.</p><p>Re-scored what I already had — the three that survived:</p>`,
       },
       {
         type: 'picks',
@@ -74,9 +77,9 @@ export const mockConversation: AgentMessage[] = [
     blocks: [
       {
         type: 'text',
-        html: `<p>Daily run — scanned <strong>128</strong> posts, kept 6.</p><p>Five sources covered the same release, so I merged them into one card instead of sending you five:</p>`,
+        html: `<p>Daily run — scanned <strong>128</strong> posts, kept 6.</p><p>Five sources covered the same release. Rather than send you five near-identical posts, here are the two that add something the others don't:</p>`,
       },
-      { type: 'collection', post: mockCollectionPost },
+      { type: 'picks', posts: [mockFeedPosts[3], mockFeedPosts[6]] },
       {
         type: 'text',
         html: `<p>Here's the write-up you asked me to keep doing:</p>
@@ -105,5 +108,9 @@ export const cannedReply = (command: string): AgentBlock[] => [
     caption: 'Runners-up under the new weighting:',
     posts: [mockFeedPosts[3], mockFeedPosts[8]],
   },
-  { type: 'feedLink', label: 'Open the refreshed feed', count: 6 },
+  {
+    type: 'feedLink',
+    label: 'Open the refreshed feed',
+    posts: mockFeedPosts.slice(0, 6),
+  },
 ];
