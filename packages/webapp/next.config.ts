@@ -356,6 +356,16 @@ const nextConfig: NextConfig = {
           ],
         },
         {
+          // The service worker script must revalidate on every update check,
+          // otherwise logged-in clients stay pinned to the previous build's
+          // precache until the TTL lapses (see app/serwist/[path]/route.ts,
+          // which sets the same header at the handler level).
+          source: '/serwist/:path*',
+          headers: [
+            { key: 'Cache-Control', value: 'no-cache, must-revalidate' },
+          ],
+        },
+        {
           // Static page (headers can't come from the page itself); framing is
           // limited to our own origin and our extensions. This CSP takes
           // precedence over the global X-Frame-Options in modern browsers.
