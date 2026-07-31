@@ -26,6 +26,12 @@ export interface GivebackGiftDockHandle {
   reset: () => void;
 }
 
+// Measured viewport position for the rail prompt: pinned beside the gift.
+interface RailAnchor {
+  left: number;
+  bottom: number;
+}
+
 interface ValuePop {
   id: string;
   label: string;
@@ -49,6 +55,9 @@ interface GivebackGiftDockProps {
   children?: ReactNode;
 }
 
+// Gap (px) between the gift and a viewport-fixed prompt, so the card reads as
+// attached to the icon without touching it.
+const PROMPT_GAP_PX = 12;
 const GIFT_POP_MS = 380;
 const VALUE_POP_LIFETIME_MS = 2000;
 const MILESTONE_TOAST_DELAY_MS = 180;
@@ -79,10 +88,12 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   // Bumps per show so a replacing prompt remounts (fresh timer + confetti).
   const [promptSeq, setPromptSeq] = useState(0);
   const timers = useRef<number[]>([]);
-  // The compact prompt is viewport-fixed, so anchor it just below the real gift
-  // instead of a hardcoded top offset (which misaligns with banners/safe areas).
+  // Both viewport-fixed prompts are positioned from the gift's measured rect
+  // rather than hardcoded offsets, which misalign with banners/safe areas and
+  // (on the rail) with the sidebar's expanded width.
   const anchorRef = useRef<HTMLDivElement>(null);
   const [promptTop, setPromptTop] = useState<number | null>(null);
+  const [railAnchor, setRailAnchor] = useState<RailAnchor | null>(null);
 
   const clearTimers = useCallback(() => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -105,20 +116,39 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   // unmounted component (production never calls reset()).
   useEffect(() => clearTimers, [clearTimers]);
 
-  // Measure the gift's viewport position each time the compact prompt opens,
-  // before paint so it never repositions on screen; the header is sticky, so a
-  // single read holds for the prompt's short lifetime. Only the client mounts
-  // this dock (the entry returns null until auth resolves), so useLayoutEffect
-  // never runs on the server.
+  // Measure the gift's viewport position each time a viewport-fixed prompt
+  // opens, before paint so it never repositions on screen; both the header and
+  // the rail hold still, so a single read lasts the prompt's short lifetime.
+  // Only the client mounts this dock (the entry returns null until auth
+  // resolves), so useLayoutEffect never runs on the server.
   useLayoutEffect(() => {
-    if (!compact || !prompt) {
+    if (!prompt) {
       return;
     }
     const rect = anchorRef.current?.getBoundingClientRect();
-    if (rect) {
-      setPromptTop(Math.round(rect.bottom + 12));
+    if (!rect) {
+      return;
     }
-  }, [compact, prompt]);
+    if (compact) {
+      setPromptTop(Math.round(rect.bottom + PROMPT_GAP_PX));
+      return;
+    }
+    if (isRail) {
+      // Beside the gift rather than in the viewport's corner: the bottom lines
+      // up with the gift's own, so the card reads as belonging to the icon it
+      // came from. Horizontally it clears the whole sidebar, not just the gift
+      // — the gift is a 40px button inside a wider rail, so its own right edge
+      // would leave the card tucked under the rail, and the rail's width moves
+      // with the expanded/compact states anyway.
+      const sidebarRight =
+        anchorRef.current?.closest('nav, aside')?.getBoundingClientRect()
+          .right ?? rect.right;
+      setRailAnchor({
+        left: Math.round(Math.max(rect.right, sidebarRight) + PROMPT_GAP_PX),
+        bottom: Math.round(window.innerHeight - rect.bottom),
+      });
+    }
+  }, [compact, isRail, prompt]);
 
   const popGift = useCallback(() => {
     setPopping(false);
@@ -234,6 +264,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         ctaLabel={prompt?.ctaLabel}
         celebrate={prompt?.celebrate}
         dropdown={isRail}
+        dropdownAnchor={railAnchor}
         compact={compact}
         compactTop={promptTop}
         paused={giftHovered}
