@@ -36,11 +36,7 @@ function FunnelEditTagsComponent({
     <FunnelStepCtaWrapper
       isGlass
       cta={{ label: cta }}
-      // Onboarding disables the CTA below the tag minimum rather than hiding
-      // it: the bar stays put, the same as the verify-email step's CTA before a
-      // full code is entered. Fading it out left the step with no visible
-      // target and no hint that one was coming. The paid funnel keeps main's
-      // hidden-until-valid button.
+      // Onboarding disables the CTA below the minimum; the paid funnel hides it.
       {...(isOnboarding
         ? { disabled: isDisabled }
         : {

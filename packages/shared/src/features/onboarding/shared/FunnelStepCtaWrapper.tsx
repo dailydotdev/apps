@@ -21,8 +21,7 @@ import { FunnelStepTopBar } from './FunnelStepTopBar';
 import { FunnelGlassBar, funnelGlassBarCta } from './FunnelGlassBar';
 
 export type FunnelStepCtaWrapperProps = ButtonProps<'button'> &
-  // Some steps link out instead of transitioning (e.g. the extension download),
-  // so the docked CTA has to be able to render as an anchor.
+  // Some steps link out instead of transitioning, so the CTA can be an anchor.
   Pick<ButtonProps<'a'>, 'href' | 'target' | 'rel'> & {
     cta?: {
       label?: string;
@@ -33,33 +32,15 @@ export type FunnelStepCtaWrapperProps = ButtonProps<'button'> &
     skip?: ButtonProps<'button'> & {
       cta?: string;
     };
-    // Opt-in: renders the docked CTA as the floating glass bar. Only the
-    // post-signup onboarding steps use it — the paid funnel keeps the original
-    // full-width button below.
     isGlass?: boolean;
-    // Rendered in the sticky rail directly above the bar, so a control the CTA
-    // acts on (the Plus/Free choice) travels with it instead of scrolling away.
+    /** Rendered in the sticky rail above the bar, so it travels with the CTA. */
     docked?: ReactNode;
   };
 
-/**
- * The rail the docked CTA bar sits in. Steps put their content column in the
- * same rail so the bar shares the content's edges and keeps an identical width
- * and position from step to step.
- *
- * 32rem = the 440px the rail is allowed to grow to, plus the px-6 on each side,
- * so the content inside the rail measures exactly 440px once the cap binds and
- * stays 24px clear of the screen edges below that — enough to keep the content
- * out of the edge aura's glow.
- */
+/** 32rem = 440px of content plus the px-6 gutter on each side. */
 export const funnelStepRail = 'mx-auto w-full max-w-[32rem] px-6';
 
-/**
- * The two funnels advance with different words, and each branch below owns its
- * own default so a step only passes a label when it wants something other than
- * its funnel's. The glass branch is onboarding-only by construction, which is
- * what makes one component carrying two defaults safe.
- */
+// One default per branch; the glass branch is onboarding-only by construction.
 const DEFAULT_CTA_LABEL = 'Next';
 const DEFAULT_ONBOARDING_CTA_LABEL = 'Continue';
 
@@ -74,11 +55,8 @@ export function FunnelStepCtaWrapper({
   ...props
 }: FunnelStepCtaWrapperProps): ReactElement {
   const { cta: skipLabel, ...skipProps } = skip ?? {};
-  // The glass bar carries the funnel's own chrome — the top bar's logo and skip
-  // — so it can only ever render inside the post-signup funnel. Gating here
-  // rather than trusting each caller: the paid funnel keeps its stepper Header,
-  // and a step that asked for glass unconditionally would otherwise paint a
-  // second logo and a second Skip over it.
+  // Gated here rather than per caller: the glass bar brings its own logo and
+  // skip, which would double the stepper Header's on the paid funnel.
   const isOnboarding = useIsOnboardingFunnel();
   const hasGlass = isGlass && isOnboarding;
   const note = useMemo(() => {
@@ -137,14 +115,8 @@ export function FunnelStepCtaWrapper({
     <div className="relative flex flex-1 flex-col gap-4">
       <FunnelStepTopBar skip={skip} />
       <div className={classNames('flex-1', containerClassName)}>{children}</div>
-      {/* A floating glass control bar rather than a button sitting on the page:
-          it hovers above the content, blurred and shadowed, and the CTA flexes
-          to fill it, so the bar is one width on every step. */}
       <div className="pointer-events-none sticky z-3 bottom-safe-or-2">
-        {/* A scrim under the docked controls: content scrolling past the bar
-            dissolves into the page instead of colliding with it. Full-bleed, so
-            it sits outside the rail, and it runs from below the screen edge (to
-            cover the safe-area offset) up to just above the dots. */}
+        {/* Scrim so content scrolling past the bar dissolves into the page. */}
         <div
           aria-hidden
           className="absolute inset-x-0 -bottom-6 -top-2 bg-gradient-to-t from-background-default via-background-default via-65% to-transparent"
@@ -156,13 +128,9 @@ export function FunnelStepCtaWrapper({
           )}
         >
           {note}
-          {!!docked && (
-            // The rail is click-through so the glow can sit over content; a
-            // docked control has to opt back in.
-            <div className="pointer-events-auto">{docked}</div>
-          )}
+          {/* The rail is click-through, so a docked control opts back in. */}
+          {!!docked && <div className="pointer-events-auto">{docked}</div>}
           <FunnelGlassBar className="pointer-events-auto">
-            {/* Skip lives in the top bar, so the CTA owns the whole bar. */}
             <Button
               className={classNames(
                 className,
@@ -178,8 +146,6 @@ export function FunnelStepCtaWrapper({
               {cta?.label || DEFAULT_ONBOARDING_CTA_LABEL}
             </Button>
           </FunnelGlassBar>
-          {/* Under the bar, not above it: the CTA is what the eye should land
-              on, and the progress reads as a footnote to it. */}
           <FunnelStepDots />
         </div>
       </div>

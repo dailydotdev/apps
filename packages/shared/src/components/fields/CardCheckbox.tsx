@@ -16,17 +16,9 @@ interface CustomCheckboxProps {
   description: string;
   onCheckboxToggle: () => void;
   className?: string;
-  // Optional: cards whose option has no icon mapped still lay out correctly.
   icon?: ComponentType<{ size?: IconSize; secondary?: boolean }>;
 }
 
-/**
- * A card-sized toggle, following the giveback cause cards: the whole card is
- * the target, selection is carried by a tinted fill AND a control that is
- * always visible — an empty ring when off, a filled check when on. The previous
- * version showed a check only when selected and nothing at all when not, so a
- * card that came pre-selected was indistinguishable from a decorative panel.
- */
 export const CardCheckbox = ({
   checked,
   title,
@@ -36,9 +28,8 @@ export const CardCheckbox = ({
   icon: Icon,
 }: CustomCheckboxProps): ReactElement => {
   return (
-    // A multi-select set, so `checkbox` + `aria-checked`: a screen reader
-    // announces these as checked options rather than as pressed toggle buttons.
-    // This ARIA is all assistive tech gets — there is no real input behind it.
+    // A multi-select set, so `checkbox`, not a pressed toggle button. This ARIA
+    // is all assistive tech gets — there is no real input behind it.
     <button
       type="button"
       role="checkbox"

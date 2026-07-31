@@ -115,13 +115,9 @@ const FeedContext = React.createContext<FeedContextData>(
 
 interface FeedLayoutProviderProps {
   /**
-   * Upper bound on the column count, for feeds that live in a narrower box than
-   * the page they sit on. The breakpoint ramp still applies below the cap, so a
-   * capped feed keeps going 1 → 2 → N as the screen grows; it just stops there.
-   *
-   * Without it, the column count is chosen purely from the viewport, so a feed
-   * embedded in a narrow column gets a full page's worth of columns and divides
-   * its own width by that — the cards end up far under their intended size.
+   * Upper bound on the column count, for a feed in a narrower box than its
+   * page. Without it the count comes purely from the viewport, so an embedded
+   * feed divides its own width by a full page's worth of columns.
    */
   maxNumCards?: number;
 }

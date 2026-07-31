@@ -7,21 +7,11 @@ import { useOnboardingChrome } from './useOnboardingChrome';
 export interface FunnelProgressValue {
   chapters: { steps: number }[];
   position: FunnelPosition;
-  /**
-   * True only inside the post-signup onboarding funnel (`/onboarding`). Steps
-   * shared with the paid funnel (`/helloworld`) read this to opt into the
-   * onboarding treatment — docked glass CTA, shared headline, 440px rail —
-   * without changing how they look in the paid flow.
-   */
+  /** True only inside `/onboarding`; shared steps read it to opt in. */
   isOnboarding?: boolean;
 }
 
-/**
- * The stepper owns the funnel's position, but the dots live at the bottom of
- * the docked CTA — several layers down, inside components that receive only
- * their own step. The default `null` means "no funnel around me", so a step
- * rendered on its own (tests, Storybook) simply shows no dots.
- */
+/** `null` means no funnel around me — a step rendered alone shows no dots. */
 export const FunnelProgressContext = createContext<FunnelProgressValue | null>(
   null,
 );
@@ -29,13 +19,6 @@ export const FunnelProgressContext = createContext<FunnelProgressValue | null>(
 export const useIsOnboardingFunnel = (): boolean =>
   !!useContext(FunnelProgressContext)?.isOnboarding;
 
-/**
- * One dot per step of the current chapter, filled up to the step the user is
- * on — how far through the flow they are, and how much is left.
- *
- * Part of the same experiment arm as the edge aura (see `useOnboardingChrome`),
- * so the control funnel shows the CTA with nothing under it.
- */
 export function FunnelStepDots({
   className,
 }: {
@@ -70,12 +53,9 @@ export function FunnelStepDots({
             key={index}
             className={classNames(
               'h-1.5 rounded-50 transition-all duration-200 ease-in-out',
-              // The current step reads as a pill so the position is legible at
-              // a glance without colour alone carrying it.
+              // A pill, so position is not carried by colour alone.
               isCurrent ? 'w-4' : 'w-1.5',
-              // `text-primary` rather than a literal white: it is white on the
-              // dark theme and flips with the page, so the dots stay legible
-              // against the scrim in both.
+              // `text-primary` flips with the page; a literal white would not.
               isCurrent || isVisited
                 ? 'bg-text-primary'
                 : 'bg-border-subtlest-tertiary',

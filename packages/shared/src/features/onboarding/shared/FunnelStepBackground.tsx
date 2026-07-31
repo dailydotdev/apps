@@ -10,10 +10,8 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { isFunnelPricingV2 } from '../steps/FunnelPricing/common';
 import { useOnboardingChrome } from './useOnboardingChrome';
 
-// Loaded only by the arm that draws it. `edge-aura/react` pulls in the canvas
-// engine, and this module renders on every funnel step — a static import would
-// ship it to the whole control cohort and into the extension bundle for a
-// background they never see. The `edge-aura` type import above is erased.
+// Dynamic so the canvas engine stays out of the control cohort's bundle and the
+// extension's — this module renders on every funnel step.
 const EdgeAura = dynamic(
   () => import('edge-aura/react').then((mod) => mod.EdgeAura),
   { ssr: false },
@@ -21,8 +19,6 @@ const EdgeAura = dynamic(
 
 interface StepBackgroundProps extends ComponentProps<'div'> {
   step: FunnelStep;
-  // Only the post-signup onboarding funnel gets the aura; `/helloworld` renders
-  // the same step types with their original gradients.
   isOnboarding?: boolean;
 }
 
@@ -43,21 +39,14 @@ const variantToClassName: Record<FunnelBackgroundVariant, string> = {
   [FunnelBackgroundVariant.Burger]: 'bg-accent-burger-flat',
 };
 
-// Above the funnel's own layers (content is z-2, the docked CTA z-3) so the
-// glow spills over the UI at the edges the way a screen-edge light does.
+// Above the funnel's own layers (content z-2, docked CTA z-3).
 const AURA_STYLE: CSSProperties = { zIndex: 4 };
 
-// How long the ring holds the violet palette before crossfading back. Short
-// enough that the flush reads as a reaction to the tap rather than a mood the
-// step settles into — the engine's own 350ms crossfade runs at each end of it.
+// The engine's own 350ms crossfade runs at each end of this hold.
 const PULSE_HOLD_MS = 620;
 
-/**
- * The pulse colour. Not the engine's stock `ultraviolet` — that swaps the whole
- * ring for a different mood and reads as a jump cut. These stops keep opal's
- * shape and lean it into lavender, so the 350ms crossfade lands as the same
- * ring flushing purple and settling back.
- */
+// Opal's shape leaned into lavender, so the crossfade reads as the same ring
+// flushing rather than a swap to the stock `ultraviolet`.
 const PULSE_PALETTE: Array<[number, [number, number, number]]> = [
   [0, [124, 100, 232]],
   [0.2, [156, 118, 250]],
@@ -67,9 +56,7 @@ const PULSE_PALETTE: Array<[number, [number, number, number]]> = [
   [1, [124, 100, 232]],
 ];
 
-// The post-signup onboarding steps. They drop the funnel's per-step purple wash
-// so the whole flow reads as one surface: a flat background by default, the
-// edge aura on the experiment arm.
+// Steps that drop the funnel's per-step wash for one surface across the flow.
 const onboardingSteps = [
   FunnelStepType.ProfileForm,
   FunnelStepType.EditTags,
@@ -77,8 +64,7 @@ const onboardingSteps = [
   FunnelStepType.ReadingReminder,
   FunnelStepType.InstallPwa,
   FunnelStepType.BrowserExtension,
-  // Also rendered by the paid funnel — the `isOnboarding` gate below keeps
-  // this treatment out of `/helloworld`.
+  // Also rendered by the paid funnel; the `isOnboarding` gate covers these.
   FunnelStepType.Pricing,
   FunnelStepType.UploadCv,
   FunnelStepType.PlusCards,
@@ -113,8 +99,6 @@ const getVariantFromStep = (step: FunnelStep): FunnelBackgroundVariant => {
 };
 
 const hiddenBgSteps = [FunnelStepType.Checkout];
-// The paid funnel's own treatment for the tag step. The onboarding funnel drops
-// it for a flat surface, but /helloworld still expects it.
 const tallTopGradientSteps = [FunnelStepType.EditTags];
 const alwaysDarkSteps = [
   FunnelStepType.Signup,
@@ -135,9 +119,7 @@ export const FunnelStepBackground = ({
 
   const isStepForcedTo = useMemo(
     () => ({
-      // Install PWA's footage (the iOS share sheet) only exists dark, so in the
-      // onboarding funnel the step forces a dark surface the way the extension
-      // step always has. Onboarding-only: the paid funnel keeps its behavior.
+      // The iOS share-sheet footage only exists dark.
       dark:
         alwaysDarkSteps.includes(step.type) ||
         (!!isOnboarding && step.type === FunnelStepType.InstallPwa),
@@ -160,14 +142,8 @@ export const FunnelStepBackground = ({
   const { hasAura: isAuraArm } = useOnboardingChrome(isOnboarding);
   const hasAura = isOnboardingStep && isAuraArm;
   const isMobile = useViewSize(ViewSize.MobileXL);
-  // Every step change bumps this, and each change fires one ambient swell in
-  // the ring — the funnel reacting to the user moving forward rather than
-  // sitting there. The engine only needs the value to change; the first bump
-  // off 0 pulses as the funnel opens.
+  // The engine only needs the value to change to fire a swell.
   const [stepPulse, setStepPulse] = useState(0);
-  // The pulse recolours the RING: the engine crossfades palettes over 350ms, so
-  // swapping to the violet set and back reads as the gradient itself flushing
-  // purple. A tinted overlay on top looked like the page background changing.
   const [isPulsing, setIsPulsing] = useState(false);
   useEffect(() => {
     setStepPulse((count) => count + 1);
@@ -179,64 +155,29 @@ export const FunnelStepBackground = ({
   const auraOptions = useMemo<EdgeAuraOptions>(
     () => ({
       geometry: {
-        // `band` is the depth of the inward dissolve, not the width of the
-        // bright edge — the core line is a separate, absolute thickness. A deep
-        // band with a thin core is what reads as light bleeding into the page
-        // (Apple Intelligence) rather than a frame drawn around it; a shallow
-        // band puts the whole falloff in a few pixels and looks like a border.
         band: isMobile ? 44 : 76,
-        // The waves are the ring's undulation, not its size: `band` and the
-        // `innerSoftBase` average stay put, and only the VARIANCE grows. Deeper
-        // troughs and fatter crests make the dark scallops read as a shape
-        // travelling around the ring rather than a even band. Core base stays
-        // above ~1.0σ at the thin end, below which the engine warns of
-        // 1px-grid shimmer.
         coreSigmaBase: 1.8,
         coreSigmaVar: 0.8,
         innerSoftBase: 1.25,
         innerSoftVar: 0.95,
-        // Without this the ring's rounded corner leaves the square screen
-        // corner as a dark pocket outside the arc. `cornerFill` renders that
-        // pocket as the union of the two adjacent bands — square on the outside
-        // against the screen, still rounded on the inside.
+        // Else the square screen corner is left dark outside the ring's arc.
         cornerFill: true,
-        // Softer inner bend than the stock 11px. With `cornerFill` on, a larger
-        // radius also shrinks the outward pocket it has to fill.
         cornerRadius: 28,
       },
       motion: {
-        // Three cycles on deliberately non-divisible periods — rotation 13s,
-        // hue sway 17s, highlight lap 19s. Nothing shares a factor, so the
-        // crests drift in and out of phase and the ring never repeats a shape.
-        // (Aurora gradients read as organic for the same reason: layers on
-        // co-prime durations that occasionally overlap into a hot spot.)
+        // Co-prime periods, so the crests never settle into a repeating shape.
         rotateIdleS: 13,
-        // Faster energy decay (default 1.1/s) so the swell snaps back instead
-        // of lingering — a quick breath, not a slow fade.
+        hueDriftPeriodS: 17,
+        highlight: { arcDeg: 100, periodS: 19, min: 0.22 },
         decay: 2.1,
         hueDriftDeg: 26,
-        hueDriftPeriodS: 17,
-        // `min` is the bloom left OUTSIDE the crest. Dropping it far below the
-        // default is what turns a uniform band into one dominant travelling
-        // wave with quiet stretches either side.
-        highlight: { arcDeg: 100, periodS: 19, min: 0.22 },
       },
       input: {
-        // The step-change swell is the engine's own amplitude reaction — real
-        // physics rather than a CSS filter, so it blooms outward instead of
-        // washing the ring white. Pushed near the 1.5 saturation cap so the
-        // bloom is unmistakable on tap.
         savedPulseEnergy: 1.25,
       },
       palette: {
-        // Palette weight is measured as distance from the page. On a dark
-        // background the engine also lifts the faint tail and pre-lifts chroma,
-        // which is what gives the ring its body on black — and it defaults to
-        // "light", so it has to follow the funnel's theme.
+        // The engine defaults to 'light', so it has to follow the funnel.
         background: isLightMode ? 'light' : 'dark',
-        // Quieter than the stock 0.90/0.35: this is a background for a form,
-        // not the centrepiece, so the hues stay milky and the core stops short
-        // of full strength.
         ringAlpha: 0.7,
         pastel: 0.5,
       },
@@ -260,11 +201,8 @@ export const FunnelStepBackground = ({
       )}
     >
       <div className="relative z-2 flex flex-1 flex-col">{children}</div>
-      {/* The aura is a light source, not a backdrop: it sits above the content
-          like the reference does, so the ring reads as the screen's own edge
-          glowing rather than a gradient the page is printed on. The engine
-          renders a fixed, click-through canvas and handles reduced-motion,
-          hidden tabs and its own idle frame-rate throttle. */}
+      {/* Above the content, so the ring reads as the screen's own edge glowing.
+          The engine's canvas is fixed and click-through. */}
       {hasAura && (
         <EdgeAura
           options={auraOptions}

@@ -44,10 +44,7 @@ export interface RegistrationFieldsFormProps {
   // Optional extra profile fields to render, driven by the onboarding funnel
   // (campaign cohorts). Empty/undefined renders the default fields only.
   extraFields?: ProfileExtraField[];
-  // When set, the form renders no submit button of its own and exposes this id
-  // instead, so the consumer can submit it from a button rendered outside the
-  // form (`<button form={id} type="submit">`) — used by the onboarding funnel
-  // to dock the CTA in the same rail as every other step.
+  /** Suppresses the form's own submit button, for a docked `<button form={id}>`. */
   formId?: string;
 }
 
@@ -151,9 +148,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
       onSubmit={handleSubmit}
       className={classNames(
         'flex flex-col items-center',
-        // `formId` is set only by the onboarding step, which docks the submit
-        // button in the funnel's CTA rail — so it doubles as the marker for the
-        // funnel's roomier field stack. The paid funnel keeps main's spacing.
+        // `formId` doubles as the marker for the funnel's roomier field stack.
         formId ? 'w-full gap-4' : 'gap-2',
       )}
     >
@@ -304,12 +299,8 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         />
       )}
       <Checkbox
-        // The form centres its children, but this row is an inline-flex label
-        // so it shrank to its text and floated to the middle while every field
-        // above it stretched. Full width puts it back on the fields' left edge.
-        // It also sits a step further from the last field than the fields sit
-        // from each other: it is a different kind of control, not another one
-        // of them.
+        // An inline-flex label would otherwise shrink to its text and float to
+        // the middle of the centred form, off the fields' left edge.
         className={formId ? 'mt-2 w-full' : undefined}
         name="optOutMarketing"
         checked={values.optOutMarketing}

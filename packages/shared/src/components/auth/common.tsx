@@ -146,12 +146,9 @@ export interface AuthOptionsProps {
   /** Hide the "By continuing, you agree to…" strip under the signup options. */
   hideSignupDisclaimer?: boolean;
   /**
-   * These auth screens are the post-signup onboarding funnel's, so they take
-   * its chrome: the headline scale, and the glass bar around the primary
-   * action. Set explicitly rather than read from `FunnelProgressContext`,
-   * because they render BEFORE `FunnelStepper` mounts and so have no context to
-   * read. Not folded into `simplified` — eleven surfaces set that, including
-   * the paid funnel.
+   * The funnel's headline scale and glass CTA. Explicit rather than read from
+   * `FunnelProgressContext`, because these screens render before the stepper
+   * mounts. Not folded into `simplified`, which eleven other surfaces set.
    */
   isOnboardingFunnel?: boolean;
 }

@@ -41,7 +41,6 @@ const BROWSER_EXTENSION_DEFAULTS = {
   headline: 'Transform every new tab into a learning powerhouse',
   explainer:
     'Unlock the power of every new tab with daily.dev extension. Personalized feed, developer communities, AI search and more!',
-  // The paid funnel's original copy; the onboarding funnel shortens it below.
   cta: 'Get it for {browser}',
   skip: 'Dare to skip? <strong>You might miss out</strong>.',
   showReviews: false,
@@ -64,7 +63,7 @@ const BrowserExtension = ({
   const isEdge = browserName === BrowserName.Edge;
   const browserLabel = isEdge ? 'Edge' : 'Chrome';
   const isOnboarding = useIsOnboardingFunnel();
-  // Only swap the default; a Freyja-provided cta always wins.
+  // Only swap the default; a Freyja-provided cta wins.
   const ctaTemplate =
     isOnboarding && cta === BROWSER_EXTENSION_DEFAULTS.cta
       ? 'Add to {browser}'
@@ -72,11 +71,8 @@ const BrowserExtension = ({
   const ctaText = ctaTemplate.replace('{browser}', browserLabel);
   const showReviews = showReviewsParam && !isEdge;
 
-  // The step is designed for a dark surface (dark background, dark footage).
-  // FunnelStepBackground tries to force that with an `invert` class,
-  // but Tailwind's invert core plugin is disabled repo-wide, so in light mode
-  // the copy kept its light-theme colors and turned unreadable. Apply the dark
-  // theme for as long as the step is mounted, like the hero step does.
+  // `FunnelStepBackground` forces dark with `invert`, but Tailwind's invert
+  // plugin is disabled repo-wide, so light mode left the copy unreadable.
   useEffect(() => {
     applyThemeMode(ThemeMode.Dark);
 
@@ -107,8 +103,6 @@ const BrowserExtension = ({
     </div>
   );
 
-  // 40rem in the funnel, where the footage otherwise dominates the step and
-  // pushes the copy off the fold; the paid funnel keeps main's 48rem.
   const footage = (
     <figure
       className={classNames(
@@ -187,8 +181,6 @@ const BrowserExtension = ({
       data-funnel-track={FunnelTargetId.DownloadExtension}
       href={downloadBrowserExtension}
       icon={
-        // The browser mark is a credential next to the label, not a feature of
-        // it — one step down from the button's default icon size.
         isEdge ? (
           <EdgeIcon aria-hidden size={IconSize.Small} />
         ) : (
@@ -222,7 +214,6 @@ const BrowserExtension = ({
           }}
         />
         {reviews}
-        {/* An aside under the subtitle, so a step quieter than it. */}
         <Typography
           color={TypographyColor.Tertiary}
           tag={TypographyTag.P}

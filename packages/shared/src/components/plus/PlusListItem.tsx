@@ -57,14 +57,9 @@ export const PlusListItem = ({
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
-      // Dropping the width override so these fall back to the design system's
-      // own tooltip measure. The previous value fought itself: `!tablet:max-w-72`
-      // was dead (Tailwind's important prefix goes after the variant, so it
-      // emitted nothing), which left `!max-w-full` un-capping the tooltip to the
-      // full viewport — the reason these stretched. This applies to every Plus
-      // surface, not just the funnel, because the un-capping was wrong on all of
-      // them; see the PR description. The centering is left as it was: it is
-      // not what was broken, and it ships to the same surfaces.
+      // Global on purpose: the old `!tablet:max-w-72` was dead (Tailwind's
+      // important prefix goes after the variant), leaving `!max-w-full` to
+      // un-cap the tooltip to the viewport on every Plus surface.
       wrapper={(component: ReactNode) => (
         <Tooltip
           className="text-center"

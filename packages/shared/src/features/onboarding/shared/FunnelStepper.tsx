@@ -61,8 +61,6 @@ export interface FunnelStepperProps {
   showCookieBanner?: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- step types have heterogeneous props and are selected by step.type at runtime
   stepComponentOverrides?: Partial<Record<FunnelStepType, ComponentType<any>>>;
-  // Set by `/onboarding`. Steps shared with the paid funnel use it to opt into
-  // the onboarding treatment; `/helloworld` leaves it off and is unchanged.
   isOnboarding?: boolean;
 }
 
@@ -148,8 +146,6 @@ export const FunnelStepper = ({
   });
 
   const shouldSkipRef = useRef<Partial<Record<FunnelStepType, boolean>>>({});
-  // Feeds the dots above the docked CTA; the stepper is the only place that
-  // knows how far through the funnel the user is.
   const funnelProgress = useMemo(
     () => ({ chapters, position, isOnboarding }),
     [chapters, position, isOnboarding],
@@ -231,9 +227,7 @@ export const FunnelStepper = ({
     const hasBanner = !!funnel?.parameters?.banner?.stepsToDisplay?.includes(
       step.id,
     );
-    // Onboarding carries its own chrome in the step's CTA wrapper — logo left,
-    // skip right, on every step. Rendering this header too would put a second
-    // logo and a second skip on the three steps that ask for it.
+    // Onboarding carries this chrome in the step's CTA wrapper instead.
     const hasHeader =
       !isOnboarding &&
       (step.parameters.shouldShowHeader ||

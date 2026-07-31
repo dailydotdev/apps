@@ -20,14 +20,8 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureOnboardingPersonas } from '../../lib/featureManagement';
 import { subscribePersonaSelection } from './onboardingPopBus';
 
-/**
- * Columns the onboarding feed preview is allowed to grow to, and the width that
- * many cards need. A grid card is designed at 21.25rem (340px) with a 2rem (32px)
- * gutter, and the feed only caps its own width above 2156px — so without both a
- * column cap AND a matching width cap the preview either divides the viewport
- * into a page's worth of columns (cards far too narrow) or stretches a few
- * columns across the whole screen (cards far too wide).
- */
+// The column cap needs a matching width cap: the feed only caps its own width
+// above 2156px, so a capped preview would otherwise stretch its cards.
 const PREVIEW_MAX_COLUMNS = 3;
 // 3 × 21.25rem + 2 × 2rem of gutter.
 const PREVIEW_MAX_WIDTH = 'tablet:max-w-[70.75rem]';
@@ -39,8 +33,6 @@ interface EditTagProps {
   requiredTags?: number;
   hidePreview?: boolean;
   featuredTags?: string[];
-  // The post-signup funnel's treatment: floating search field, tighter tag
-  // grid and a tag-shaped preview toggle. `/helloworld` keeps the original.
   isOnboarding?: boolean;
 }
 export const EditTag = ({
@@ -116,31 +108,21 @@ export const EditTag = ({
       )}
       <div ref={tagsRef} className="flex w-full flex-col items-center">
         <TagSelection
-          // Onboarding takes the gap from the step's own flex gap; the paid
-          // funnel still needs the grid's own offset under the headline.
           className={classNames(
             'max-w-4xl',
             showPersonas ? 'mt-6' : !isOnboarding && 'mt-10',
           )}
           // `!` because TagSelection's own gap-4 sits later in the stylesheet.
-          // Scoped here so the post panels and feed settings keep theirs.
           classNameTags={isOnboarding ? '!gap-2' : undefined}
           featuredTags={featuredTags}
           searchElement={
             <SearchField
               aria-label="Pick tags that are relevant to you"
               autoFocus={!isMobile}
-              // The tag grid below is deliberately wider than the rail, but the
-              // search field is a single control and belongs on it — so in the
-              // funnel it takes the same 440px measure as the headline and CTA.
-              // The paid funnel keeps main's 20rem cap from tablet up.
               className={classNames(
                 'mb-10 w-full',
                 isOnboarding ? 'max-w-[27.5rem]' : 'tablet:max-w-xs',
               )}
-              // The funnel step is a bare surface, so a field filled with the
-              // page colour would read as a gap. The float surface gives it the
-              // same presence as the tag pills below it.
               isFloating={isOnboarding}
               inputId="search-filters"
               placeholder="Search javascript, php, git, etc…"
@@ -173,9 +155,6 @@ export const EditTag = ({
           <Feed
             className={classNames(
               'relative mx-auto px-6 pt-14 tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2 laptop:pt-10',
-              // The breakout stays centred at any width: `left-1/2` resolves
-              // against the centred rail, so its 50% mark is the viewport's
-              // centre, and `-translate-x-1/2` then centres the feed on it.
               isOnboarding && PREVIEW_MAX_WIDTH,
             )}
             feedName={OtherFeedPage.Preview}

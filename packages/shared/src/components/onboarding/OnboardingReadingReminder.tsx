@@ -26,13 +26,6 @@ interface OnboardingReadingReminderProps {
   state: ReadingReminderState;
 }
 
-/**
- * The post-signup funnel's reading-reminder screen. The paid funnel keeps
- * `ReadingReminder` — a separate component rather than a flag, because the two
- * differ in more than styling: this one's Submit and skip live in the funnel's
- * docked CTA rail, so the step owns the state (`useReadingReminder`) and passes
- * it in, while the paid funnel's screen renders its own buttons.
- */
 export const OnboardingReadingReminder = ({
   headline,
   state,
@@ -49,10 +42,7 @@ export const OnboardingReadingReminder = ({
   } = state;
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
-  // The APG radio pattern, which native inputs would have given for free: the
-  // group is ONE tab stop (only the checked option is tabbable) and the arrows
-  // move selection. Without this the four options were four tab stops and the
-  // arrow keys did nothing.
+  // APG radio pattern: one tab stop for the group, arrows move selection.
   const onOptionKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
     const offset = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[
       event.key
@@ -74,22 +64,15 @@ export const OnboardingReadingReminder = ({
 
   return (
     <>
-      {/* gap-6, the funnel's standard headline-to-subheadline step. */}
       <div className="flex w-full flex-col items-center gap-6">
         <OnboardingHeadline>
           {headline || 'When do you need that reading nudge?'}
         </OnboardingHeadline>
-        {/* Supporting copy under the headline, where people already look for
-            context — before they choose rather than after. The paid funnel says
-            the same thing in a green success Alert below the options. */}
         <OnboardingSubheadline>
           Devs who turn this on build a reading habit that sticks.
         </OnboardingSubheadline>
       </div>
 
-      {/* One per row, full width, with the selection control on the right — the
-          same anatomy as the content-type cards, so the funnel has a single way
-          of saying "pick this". */}
       <div
         role="radiogroup"
         aria-label="Reading reminder time"
@@ -135,8 +118,6 @@ export const OnboardingReadingReminder = ({
                   {hint}
                 </Typography>
               </span>
-              {/* An always-present ring that fills on selection, matching the
-                  content-type cards. */}
               <span
                 aria-hidden
                 className={classNames(
@@ -161,8 +142,6 @@ export const OnboardingReadingReminder = ({
         />
       )}
 
-      {/* Below the choice, where it answers "which clock is this?" rather than
-          competing with the headline. */}
       <Typography
         className="text-center"
         color={TypographyColor.Tertiary}

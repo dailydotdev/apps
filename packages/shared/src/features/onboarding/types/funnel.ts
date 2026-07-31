@@ -488,10 +488,8 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.InstallPwa,
   FunnelStepType.UploadCv,
 ];
-// Onboarding-only additions to the list above: these steps size themselves from
-// `funnelStepRail`, which the stepper's narrower column would clamp — but only
-// the onboarding funnel wraps them in that rail, so /helloworld keeps its
-// `tablet:max-w-md` column.
+// These size themselves from `funnelStepRail`, which the stepper's narrower
+// column would clamp.
 export const stepsFullWidthOnboarding: Array<FunnelStepType> = [
   FunnelStepType.ProfileForm,
 ];

@@ -60,11 +60,8 @@ function InnerFunnelProfileForm({
   const fields = (
     <RegistrationFieldsForm
       formId={isOnboarding ? PROFILE_FORM_ID : undefined}
-      // Everything from the user except the avatar: the form renders a
-      // read-only image preview whenever `image` is set, and this step is a
-      // field form like the signup wall, which shows no avatar. The picture
-      // isn't editable here, so it was decoration taking the space above the
-      // fields.
+      // The form renders a read-only image preview whenever `image` is set, and
+      // the picture is not editable here.
       initialValues={isOnboarding ? { ...user, image: undefined } : user}
       onSubmit={handleSubmit}
       errors={hint}
@@ -73,10 +70,8 @@ function InnerFunnelProfileForm({
     />
   );
 
-  // The paid funnel's screen has no docked CTA — `RegistrationFieldsForm`
-  // renders its own submit inside the form. Wrapping it in the CTA wrapper
-  // regardless would give `/helloworld` a second, inert "Sign up" button, so
-  // this is main's markup unchanged.
+  // `RegistrationFieldsForm` renders its own submit here, so the CTA wrapper
+  // would add a second, inert "Sign up".
   if (!isOnboarding) {
     return (
       <div className="flex w-full flex-1 flex-col items-center justify-center overflow-hidden">

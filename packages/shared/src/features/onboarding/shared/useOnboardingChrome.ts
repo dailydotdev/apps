@@ -11,16 +11,7 @@ interface OnboardingChrome {
   hasDots: boolean;
 }
 
-/**
- * The two decorative pieces of the onboarding funnel — the aura frame and the
- * progress dots — ship together as one experiment arm, so they are read from a
- * single flag rather than each component deciding for itself.
- *
- * The control arm is the flat page surface with no dots — the funnel has no
- * background treatment of its own. Everything else in the redesign (the rail,
- * the type scale, the glass CTA, the top strip) is baseline and is not gated
- * here.
- */
+/** Aura and dots ship as one arm, so both read from one flag. */
 export const useOnboardingChrome = (
   isOnboarding?: boolean,
 ): OnboardingChrome => {

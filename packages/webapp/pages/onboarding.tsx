@@ -240,15 +240,10 @@ const useOnboardingAuth = () => {
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
       simplified: true,
-      // Belt and braces. `OnboardingRegistrationForm` only renders its inline
-      // terms strip on the non-Onboarding-trigger branch, and the trigger below
-      // falls back to `AuthTriggers.Onboarding` — but it takes `loginState`
-      // first, which any caller of `showLogin` can set. This keeps the strip off
-      // the wall in that case; the consent line the flow relies on lives on
-      // `RegistrationForm`, next to the button that creates the account.
+      // The trigger below takes `loginState` before its Onboarding fallback, so
+      // the inline strip's branch is reachable. The consent line the flow relies
+      // on lives on `RegistrationForm`, by the button that creates the account.
       hideSignupDisclaimer: true,
-      // Account details and verify-email sit in front of the funnel, so they
-      // take the funnel's headline scale to read as the same flow.
       isOnboardingFunnel: true,
       className: {
         container: classNames(
@@ -400,20 +395,14 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
 
   if (isAuthenticating) {
     return (
-      // The signup wall, account details and verify-email screens render here,
-      // BEFORE FunnelStepper mounts — so they get the funnel's chrome directly:
-      // the same top bar (no skip; there is nothing
-      // to skip yet), which puts the logo at the identical 24px offset the steps
-      // use. Without this the first two screens of the flow looked like a
-      // different product from the seven that follow.
+      // These screens render before FunnelStepper mounts, so they take the
+      // funnel's chrome directly.
       <div
         className={classNames(
           'relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
         )}
       >
         <FunnelStepTopBar />
-        {/* pt-3 is the same clearance the funnel steps put between the top bar
-            and their headline, so "Welcome back!" doesn't start against it. */}
         <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-center px-4 pt-3 tablet:flex-row tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>
