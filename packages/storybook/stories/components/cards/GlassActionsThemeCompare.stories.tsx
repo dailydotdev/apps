@@ -9,6 +9,8 @@ import { ArticleGrid } from '@dailydotdev/shared/src/components/cards/article/Ar
 import { FeedCardGlassActions } from '@dailydotdev/shared/src/components/cards/common/FeedCardGlassActions';
 import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
 import ExtensionProviders from '../../extension/_providers';
+import type { Rgb } from './glassContrast';
+import { composite, contrastRatio, parseHex } from './glassContrast';
 
 /**
  * Accessibility record for the feed card floating action bar
@@ -475,34 +477,6 @@ const ActiveStatesMatrix = (): ReactElement => (
 // composite the glass fill over the cover, composite the pill's own 8% black
 // tint on top, then run WCAG relative luminance against the icon color. 3:1 is
 // the SC 1.4.11 threshold for icons / non-text UI components.
-type Rgb = { r: number; g: number; b: number };
-
-const parseHex = (value: string): Rgb => ({
-  r: parseInt(value.slice(1, 3), 16),
-  g: parseInt(value.slice(3, 5), 16),
-  b: parseInt(value.slice(5, 7), 16),
-});
-
-const composite = (fg: Rgb, alpha: number, bg: Rgb): Rgb => ({
-  r: fg.r * alpha + bg.r * (1 - alpha),
-  g: fg.g * alpha + bg.g * (1 - alpha),
-  b: fg.b * alpha + bg.b * (1 - alpha),
-});
-
-const relativeLuminance = ({ r, g, b }: Rgb): number => {
-  const channel = (raw: number) => {
-    const v = raw / 255;
-    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
-  };
-  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
-};
-
-const contrastRatio = (a: Rgb, b: Rgb): number => {
-  const la = relativeLuminance(a);
-  const lb = relativeLuminance(b);
-  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
-};
-
 const PILL_TINT = parseHex('#000000');
 const PILL_TINT_ALPHA = 0.08;
 
