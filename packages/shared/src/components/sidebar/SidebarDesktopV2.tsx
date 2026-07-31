@@ -62,6 +62,7 @@ import { HelpWidget } from '../help/HelpWidget';
 import {
   BellIcon,
   BrowserGroupIcon,
+  CompassIcon,
   CreditCardIcon,
   DocsIcon,
   EditIcon,
@@ -84,7 +85,7 @@ import {
   SearchIcon,
   SettingsIcon,
   SidebarArrowLeft,
-  SourceIcon,
+  SquadIcon,
   TerminalIcon,
   TrendingIcon,
   UserIcon,
@@ -109,7 +110,7 @@ import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Link from '../utilities/Link';
-import { HorizontalSeparator } from '../utilities';
+import { SharedFeedPage, HorizontalSeparator } from '../utilities';
 import {
   appsUrl,
   businessWebsiteUrl,
@@ -135,7 +136,7 @@ import { LogoutReason } from '../../lib/user';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
-import { useMyFeedNav } from '../../hooks/feed/useMyFeedNav';
+import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureGiveback } from '../../lib/featureManagement';
@@ -156,14 +157,23 @@ type SidebarCategoryConfig = {
 
 const sidebarCategories: SidebarCategoryConfig[] = [
   {
-    // The home tab. Its panel leads with "Your feed" (the personal feed the
-    // brand mark also lands on), then the discovery hub and Recent. Its
-    // `defaultPath` is resolved per-user instead of being fixed here — see
-    // getCategoryDefaultPath.
+    // The discovery tab. Home is deliberately NOT a tab: naming this one
+    // "Home" made the discovery destinations inside its panel read as
+    // already-arrived-at, so people stopped looking for them. Home lives on
+    // the brand mark above instead.
     id: SidebarCategory.Main,
-    label: 'Home',
+    label: 'Explore',
+    defaultPath: `${webappUrl}posts`,
     icon: (active) => (
-      <HomeIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
+      <CompassIcon
+        secondary={active}
+        size={RAIL_ICON_SIZE}
+        aria-hidden
+        // Optical correction: the compass is a thin hollow circle, which reads
+        // smaller than the denser glyphs beside it at the same box size. A
+        // circle needs a few percent of overshoot to look equal.
+        className="scale-105"
+      />
     ),
   },
   {
@@ -182,15 +192,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     label: 'Squads',
     defaultPath: `${webappUrl}squads/discover`,
     icon: (active) => (
-      <SourceIcon
-        secondary={active}
-        size={RAIL_ICON_SIZE}
-        aria-hidden
-        // Optical correction: the atom's four crossing ellipses put far more ink
-        // in the box than the single-outline glyphs beside it, so at an equal
-        // size it reads heavier. A few percent down evens it out.
-        className="scale-95"
-      />
+      <SquadIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
@@ -738,7 +740,13 @@ export const SidebarDesktopV2 = ({
   const { open: openSpotlight } = useSpotlight();
   const { openModal, modal } = useLazyModal();
   const { isLoggedIn, user } = useAuthContext();
-  const { path: myFeedPath, navTab: myFeedNavTab } = useMyFeedNav();
+  const { isCustomDefaultFeed } = useCustomDefaultFeed();
+  // The brand mark targets the "For You" feed. On extension there's no
+  // router, so it always uses the explicit /my-feed path.
+  let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
+  if (isExtension) {
+    myFeedPath = '/my-feed';
+  }
   const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
   // Compact mode reverts to the original icon-only widths (pre-label rail).
   // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
@@ -1041,7 +1049,8 @@ export const SidebarDesktopV2 = ({
   ]);
   const activePage = activePageProp || router.asPath || router.pathname || '';
   const isFeedPage = activePage.includes('/feeds/');
-  // Marks the brand mark as the current page when your feed is what's open.
+  // When the For You feed is the current page, the brand mark reads as
+  // selected — fill its home glyph (secondary) instead of the outline.
   const isHomeActive = isSidebarItemActive(activePage, myFeedPath);
 
   const resolvedBaseCategory = useMemo((): SidebarCategoryId => {
@@ -1233,17 +1242,12 @@ export const SidebarDesktopV2 = ({
       if (category === SidebarCategory.Settings) {
         return settingsDefaultPath;
       }
-      // Home lands on your feed, which is a per-user destination rather than a
-      // fixed route, so it can't live in the static category config.
-      if (category === SidebarCategory.Main) {
-        return myFeedPath;
-      }
       return (
         sidebarCategories.find((entry) => entry.id === category)?.defaultPath ??
         null
       );
     },
-    [myFeedPath],
+    [],
   );
 
   const onSelectCategory = useCallback(
@@ -1258,15 +1262,6 @@ export const SidebarDesktopV2 = ({
       if (!targetPath) {
         return;
       }
-      if (category === SidebarCategory.Main) {
-        // Your feed is a feed switch, not a page: the extension new tab swaps
-        // it in place, and its router would resolve "/my-feed" against the
-        // chrome-extension:// origin.
-        onNavTabClick?.(myFeedNavTab);
-        if (isExtension) {
-          return;
-        }
-      }
       const targetPathname = new URL(targetPath, 'http://_').pathname;
       const currentPathname = activePage.split('?')[0];
       if (targetPathname !== currentPathname) {
@@ -1275,7 +1270,7 @@ export const SidebarDesktopV2 = ({
         Promise.resolve(router.push(targetPath)).catch(() => undefined);
       }
     },
-    [activePage, getCategoryDefaultPath, myFeedNavTab, onNavTabClick, router],
+    [activePage, getCategoryDefaultPath, router],
   );
 
   const onPrefetchCategory = useCallback(
@@ -1300,12 +1295,13 @@ export const SidebarDesktopV2 = ({
     Promise.resolve(router.push(targetPath)).catch(() => undefined);
   }, [router, user]);
 
-  // The brand mark switches to your feed. It mirrors the rail tabs' optimistic
-  // panel switch (your feed lives under Home) while the route resolves.
+  // The brand mark switches to the "For You" feed. It mirrors the rail tabs'
+  // optimistic panel switch (home resolves to the Explore panel) while the
+  // route resolves.
   const onHomeClick = useCallback(() => {
     setPendingCategory(SidebarCategory.Main);
-    onNavTabClick?.(myFeedNavTab);
-  }, [myFeedNavTab, onNavTabClick]);
+    onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/');
+  }, [isCustomDefaultFeed, onNavTabClick]);
 
   // Remember the last non-settings location so "Back to app" returns the user
   // where they were rather than always dumping them on the home feed.
@@ -1892,7 +1888,7 @@ export const SidebarDesktopV2 = ({
       const href =
         id === SidebarCategory.Profile && user?.username
           ? `${webappUrl}${user.username}`
-          : getCategoryDefaultPath(id) ?? webappUrl;
+          : category?.defaultPath ?? webappUrl;
       return {
         key: id as string,
         label: category?.label ?? '',
@@ -1992,13 +1988,17 @@ export const SidebarDesktopV2 = ({
               // pt matches the streak tile's side gap (54px tile centred in the
               // 68px content = 7px + px-1.5 6px = 13px) so its top/left/right
               // spacing is equal.
-              'flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-[13px]',
+              // `group/rail` is what reveals the brand mark's home glyph: the
+              // swap is triggered by the pointer being anywhere on the rail,
+              // not just on the logo, so the way home is visible while you're
+              // reading the tabs rather than only after you already found it.
+              'group/rail flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-[13px]',
               railNavWidth,
             )}
           >
             <Tooltip
               side="right"
-              content="Your feed"
+              content="Home"
               collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
               {/* mt nudges the logo down so it lines up vertically with the
@@ -2008,12 +2008,18 @@ export const SidebarDesktopV2 = ({
                 <Link href={myFeedPath} passHref>
                   <a
                     href={myFeedPath}
-                    aria-label="Your feed"
+                    aria-label="Home"
                     aria-current={isHomeActive ? 'page' : undefined}
-                    // The brand mark stays the brand mark — it never swaps for
-                    // a glyph. It is the shortcut to your feed; the Home tab
-                    // below carries the icon and label for the same place.
-                    className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
+                    // The brand mark doubles as the Home button: the daily.dev
+                    // logo at rest, crossfading into the home glyph while the
+                    // pointer is anywhere on the rail (`group/rail`, set on the
+                    // nav) so the destination is obvious without having to
+                    // hover the mark itself. `group/home` scopes the
+                    // keyboard-focus swap and the direct-hover tint to this
+                    // button alone — an unnamed `group` here would also match
+                    // the sidebar-wide group on SidebarAside, which covers the
+                    // panel too.
+                    className="focus-outline group/home flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
                     onClick={(event) => {
                       // Keep the removed logo link's click contract — the
                       // extension resets its feed/search state there.
@@ -2033,8 +2039,31 @@ export const SidebarDesktopV2 = ({
                   >
                     <span className={railGlyphBoxClass}>
                       <LogoIcon
-                        className={{ container: 'h-[1.125rem] w-auto' }}
+                        className={{
+                          container:
+                            'h-[1.125rem] w-auto transition-[opacity,transform] duration-150 ease-out group-hover/rail:scale-75 group-hover/rail:opacity-0 group-focus-visible/home:scale-75 group-focus-visible/home:opacity-0 motion-reduce:transition-none',
+                        }}
                       />
+                      <span
+                        aria-hidden
+                        className={classNames(
+                          'absolute inset-0 flex scale-75 items-center justify-center opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover/rail:scale-100 group-hover/rail:opacity-100 group-focus-visible/home:scale-100 group-focus-visible/home:opacity-100 motion-reduce:transition-none',
+                          // Filled white when the feed IS the current page;
+                          // elsewhere it's an inactive grey outline that goes
+                          // white on direct hover — exactly how the Search icon
+                          // behaves. (The logo keeps its own fill, so this only
+                          // colours the home glyph.)
+                          isHomeActive
+                            ? 'text-text-primary'
+                            : 'text-text-tertiary group-hover/home:text-text-primary',
+                        )}
+                      >
+                        <HomeIcon
+                          secondary={isHomeActive}
+                          size={RAIL_ICON_SIZE}
+                          aria-hidden
+                        />
+                      </span>
                     </span>
                   </a>
                 </Link>

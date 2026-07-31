@@ -2,9 +2,9 @@
 // stored in local state for click-driven overrides — intentionally NOT
 // persisted to SettingsContext / localStorage / IndexedDB.
 export const SidebarCategory = {
-  // The primary feed/discovery category. Surfaced on the rail as "Home" — its
-  // panel leads with your feed, then the discovery destinations (/posts and
-  // its siblings). The id stays `main` so it remains the default/fallback.
+  // The primary feed/discovery category. Surfaced on the rail as "Explore"
+  // (its panel lists the /posts sub-tabs, then Recent); the id stays `main` so
+  // it remains the default/fallback category — the home feed resolves here too.
   Main: 'main',
   // The avatar tab. Opens the profile panel (your feeds, activity, bookmarks,
   // pins, custom feeds, account shortcuts) instead of a dropdown menu.
@@ -64,8 +64,8 @@ export const getSidebarCategoryForPath = (
   if (PROFILE_SEGMENTS.has(segment)) {
     return SidebarCategory.Profile;
   }
-  // Your feed and the discovery sub-pages (/posts, /tags, /sources, /users,
-  // /discussed) fall through to the Main ("Home") category.
+  // The home feed and the Explore sub-pages (/posts, /tags, /sources, /users,
+  // /discussed) fall through to the Main ("Explore") category.
   return SidebarCategory.Main;
 };
 
