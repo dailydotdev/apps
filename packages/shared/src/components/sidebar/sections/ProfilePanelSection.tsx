@@ -18,7 +18,6 @@ import type { SidebarSectionProps } from './common';
 import { OtherFeedPage } from '../../../lib/query';
 import { plusUrl, settingsUrl, webappUrl } from '../../../lib/constants';
 import { LogEvent, TargetId } from '../../../lib/log';
-import { AuthTriggers } from '../../../lib/auth';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks';
 import Link from '../../utilities/Link';
@@ -39,7 +38,7 @@ export const ProfilePanelSection = ({
   onNavTabClick,
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement | null => {
-  const { user, isLoggedIn, showLogin } = useAuthContext();
+  const { user } = useAuthContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const router = useRouter();
 
@@ -97,14 +96,12 @@ export const ProfilePanelSection = ({
           isForcedLink: true,
           requiresLogin: true,
           // This row is the only upgrade entry point left on this panel, so it
-          // has to carry what the UpgradeToPlus button used to: the
-          // `profile_dropdown` attribution, and the anon auth prompt instead of
-          // dropping a logged-out user on the pricing page.
+          // carries the attribution the removed UpgradeToPlus button used to.
+          // No anon branch here on purpose: `requiresLogin` makes SidebarItem
+          // hand ClickableNavItem a `showLogin`, which preventDefaults and
+          // prompts INSTEAD of running this action, so a logged-out click never
+          // reaches it.
           action: () => {
-            if (!isLoggedIn) {
-              showLogin({ trigger: AuthTriggers.Plus });
-              return;
-            }
             logSubscriptionEvent({
               event_name: LogEvent.UpgradeSubscription,
               target_id: TargetId.ProfileDropdown,
@@ -118,7 +115,7 @@ export const ProfilePanelSection = ({
           ),
         },
       ].filter(Boolean) as SidebarMenuItem[],
-    [onNavTabClick, isPlus, isLoggedIn, showLogin, logSubscriptionEvent],
+    [onNavTabClick, isPlus, logSubscriptionEvent],
   );
 
   if (!user) {

@@ -119,7 +119,7 @@ export const StreakQuestsSection = (): ReactElement => {
               railDividerBorderClass,
             )}
           />
-          <StreakFreezeRow hideTopBorder />
+          <StreakFreezeRow variant="panel" />
           <HorizontalSeparator
             className={classNames(
               'mx-3 w-auto shrink-0',

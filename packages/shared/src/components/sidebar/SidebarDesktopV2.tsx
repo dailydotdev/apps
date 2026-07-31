@@ -1969,11 +1969,10 @@ export const SidebarDesktopV2 = ({
           <span
             aria-hidden
             className={classNames(
-              // `-tertiary`, same as every other border in this layout (the
-              // aside's own edge, the rail's separators, the panel's
-              // HorizontalSeparators). It was `-quaternary` — 8% against their
-              // 20% — so the rail/panel divide was 2.5x fainter than the lines
-              // around it and all but vanished in light mode.
+              // The shared divider token (`-quaternary`), same as the rail's
+              // separators and the panel's HorizontalSeparators — see
+              // railDividerBorderClass for why dividers sit one step below the
+              // container borders around them.
               'pointer-events-none absolute inset-y-0 hidden border-r laptop:block',
               railDividerBorderClass,
               railSeparatorLeft,

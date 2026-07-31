@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -16,14 +15,18 @@ import { LazyModal } from '../../modals/common/types';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 
+// `popup` is the production ReadingStreakPopup row and must stay as it is: the
+// whole row is the button, so the only affordance is the row itself. `panel` is
+// the v2 sidebar's, which is framed by its own inset separators (hence no top
+// border) and follows the panel guidelines — title, subtitle, neutral button.
+type StreakFreezeRowVariant = 'popup' | 'panel';
+
 interface StreakFreezeRowProps {
-  // The v2 sidebar panel draws its own inset separators around this row, so it
-  // opts out of the full-bleed top border the streak popup still relies on.
-  hideTopBorder?: boolean;
+  variant?: StreakFreezeRowVariant;
 }
 
 export function StreakFreezeRow({
-  hideTopBorder = false,
+  variant = 'popup',
 }: StreakFreezeRowProps = {}): ReactElement | null {
   const { isAuthReady, isLoggedIn } = useAuthContext();
   const { isStreaksEnabled } = useReadingStreak();
@@ -42,26 +45,53 @@ export function StreakFreezeRow({
   }
 
   const hasFreezes = freezesAvailable > 0;
+  const openPurchase = () =>
+    openModal({ type: LazyModal.StreakFreezePurchase });
+  const balanceLabel = `${freezesAvailable} streak freeze${
+    freezesAvailable === 1 ? '' : 's'
+  } left`;
+  const ctaLabel = hasFreezes ? 'Buy more' : 'Buy freezes';
+
+  if (variant === 'popup') {
+    return (
+      <button
+        type="button"
+        className="mt-3 flex w-full items-center gap-2 border-t border-border-subtlest-tertiary px-4 py-3 text-left"
+        onClick={openPurchase}
+      >
+        <Typography
+          className="flex-1"
+          type={TypographyType.Callout}
+          color={
+            hasFreezes ? TypographyColor.Primary : TypographyColor.Tertiary
+          }
+          bold={!hasFreezes}
+        >
+          {hasFreezes ? (
+            balanceLabel
+          ) : (
+            <>
+              No freezes left
+              <br />
+              Protect your streak
+            </>
+          )}
+        </Typography>
+        <Typography type={TypographyType.Footnote} color={TypographyColor.Link}>
+          {ctaLabel}
+        </Typography>
+      </button>
+    );
+  }
 
   return (
-    <div
-      className={classNames(
-        'flex w-full items-center gap-2 px-4 py-3',
-        hideTopBorder
-          ? 'mt-0'
-          : 'mt-3 border-t border-border-subtlest-tertiary',
-      )}
-    >
+    <div className="flex w-full items-center gap-2 px-4 py-3">
       <div className="flex min-w-0 flex-1 flex-col">
         <Typography
           type={TypographyType.Callout}
           color={TypographyColor.Primary}
         >
-          {hasFreezes
-            ? `${freezesAvailable} streak freeze${
-                freezesAvailable === 1 ? '' : 's'
-              } left`
-            : 'No freezes left'}
+          {hasFreezes ? balanceLabel : 'No freezes left'}
         </Typography>
         {!hasFreezes && (
           <Typography
@@ -76,9 +106,9 @@ export function StreakFreezeRow({
         type="button"
         variant={ButtonVariant.Subtle}
         size={ButtonSize.XSmall}
-        onClick={() => openModal({ type: LazyModal.StreakFreezePurchase })}
+        onClick={openPurchase}
       >
-        {hasFreezes ? 'Buy more' : 'Buy freezes'}
+        {ctaLabel}
       </Button>
     </div>
   );

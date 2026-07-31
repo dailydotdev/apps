@@ -20,11 +20,6 @@ import {
   railTabLabelClass,
 } from '../sidebar/common';
 
-// The header bell's numeral. The rail variant uses the shared
-// `railCountBubbleClass` instead, so it stays identical to the gamification
-// tab's badge. `Bubble` already supplies the 20px box and the 8px radius.
-const notificationBubbleClass = '!font-bold !typo-footnote tabular-nums';
-
 function NotificationsBell({
   compact,
   rail,
@@ -141,7 +136,6 @@ function NotificationsBell({
               <Bubble
                 className={classNames(
                   '-right-1.5 -top-1.5 cursor-pointer px-1',
-                  notificationBubbleClass,
                   compact && 'right-0 top-0',
                 )}
               >

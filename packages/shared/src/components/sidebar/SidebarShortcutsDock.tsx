@@ -192,6 +192,17 @@ const CATALOG_BY_PATH = new Map(
 // ({title, path}) dragged in from a panel.
 type StoredShortcut = string | ShortcutDragData;
 
+// Catalog entries this layout retired (Explore is a rail tab now, Jobs lives in
+// settings), kept only so an existing pin survives their removal. The validity
+// filter in useSidebarShortcutItems drops ids that aren't in the catalog, and
+// the next mutation persists that cleaned array — so without this migration the
+// pin would vanish permanently, with no signal to the user. Migrating the id to
+// its {title, path} form keeps it working as a plain pinned page.
+const RETIRED_SHORTCUTS: Record<string, ShortcutDragData> = {
+  explore: { title: 'Explore', path: `${webappUrl}posts` },
+  jobs: { title: 'Jobs', path: `${webappUrl}jobs` },
+};
+
 const SHORTCUTS_KEY = 'sidebar_shortcuts';
 const DOCK_DROPPABLE_ID = 'sidebar-shortcuts-dock';
 
@@ -381,19 +392,25 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
     // isDragging), so a single corrupt write must never cascade into a runaway
     // list. The next mutation persists this cleaned array, healing storage.
     const seen = new Set<string>();
-    return (stored ?? []).filter((entry) => {
-      const valid =
-        typeof entry === 'string' ? CATALOG_BY_ID.has(entry) : !!entry?.path;
-      if (!valid) {
-        return false;
-      }
-      const key = keyOf(entry);
-      if (seen.has(key)) {
-        return false;
-      }
-      seen.add(key);
-      return true;
-    });
+    return (stored ?? [])
+      .map((entry) =>
+        typeof entry === 'string' && RETIRED_SHORTCUTS[entry]
+          ? RETIRED_SHORTCUTS[entry]
+          : entry,
+      )
+      .filter((entry) => {
+        const valid =
+          typeof entry === 'string' ? CATALOG_BY_ID.has(entry) : !!entry?.path;
+        if (!valid) {
+          return false;
+        }
+        const key = keyOf(entry);
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      });
   }, [stored]);
   const keys = useMemo(() => items.map(keyOf), [items]);
   const pinnedPaths = useMemo(
