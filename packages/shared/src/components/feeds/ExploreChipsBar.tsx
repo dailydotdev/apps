@@ -82,7 +82,16 @@ export function ExploreChipsBar({
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lastCenteredIdRef = useRef<string | null>(null);
   useEffect(() => {
+    if (!activeId) {
+      lastCenteredIdRef.current = null;
+      return;
+    }
+    if (lastCenteredIdRef.current === activeId) {
+      return;
+    }
+
     const active = scrollRef.current?.querySelector<HTMLElement>(
       '[data-active="true"]',
     );
@@ -90,7 +99,8 @@ export function ExploreChipsBar({
       return;
     }
     active.scrollIntoView({ block: 'nearest', inline: 'center' });
-  }, [activeId, allCategories]);
+    lastCenteredIdRef.current = activeId;
+  }, [activeId]);
 
   return (
     <div className={classNames('relative', className)}>

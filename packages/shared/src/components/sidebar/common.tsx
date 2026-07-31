@@ -92,6 +92,83 @@ export const navBtnClass =
 export const railTabClass =
   'focus-outline group relative flex w-full flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-95 motion-reduce:transition-none';
 export const railTabLabelClass = 'typo-caption2 leading-tight text-center';
+// One source of truth for the glyph size inside every v2 rail control — tabs,
+// Home, Search, the bottom utilities and the shortcuts dock. The buttons keep
+// their own fixed hit areas (size-10 / the tab row), so changing this resizes
+// only the icon within them. New post is deliberately excluded: its filled chip
+// is the rail's primary action and is sized on its own.
+export const RAIL_ICON_SIZE = IconSize.Size26;
+// Glyph box that rail icons sit in, so every tab's height stays identical even
+// when a glyph (avatar, streak ring) is a different shape.
+export const railGlyphBoxClass =
+  'relative flex size-[1.625rem] items-center justify-center';
+// One recipe for every count badge on a rail tab, so the Activity bell and the
+// gamification tab cannot drift apart — they previously disagreed on all three
+// of: containing block (glyph box vs the whole 68px button), anchor edge, and
+// numeral size.
+//
+// It must be placed inside the tab's GLYPH BOX, not the button, or the offsets
+// below resolve against the tab's full height (label included) and the badge
+// lands somewhere else entirely.
+//
+// Anchored by its LEFT edge rather than its right, so multi-digit counts grow
+// rightward into the tab's own padding instead of creeping left across the
+// glyph — "20+" still clears the rail's width at this offset.
+//
+// Sized DOWN from Bubble's defaults: an 18px box (from 20px) and typo-caption1
+// (from subhead, via footnote), so the count notches the 26px glyph rather than
+// competing with it. `tabular-nums` stops it reflowing as the number ticks.
+// Radius stays Bubble's own `rounded-8`, which on the smaller box reads slightly
+// rounder.
+//
+// The `!` overrides are load-bearing: Bubble sets its own min box and type, and
+// same-specificity utilities resolve by stylesheet order, not by the order
+// written here.
+export const railCountBubbleClass =
+  'pointer-events-none -top-1 left-4 px-1 !min-h-[1.125rem] !min-w-[1.125rem] !font-bold !typo-caption1 tabular-nums';
+// One colour for every DIVIDER in the v2 sidebar — the rail/panel split, the
+// rail's own rules, the panel separators. `-quaternary` (8%) is the design
+// system's softest border step; `-tertiary` (20%) read as too dominant for a
+// line whose only job is to group things.
+//
+// Deliberately NOT applied to container borders (popup outlines, kbd chips,
+// buttons): those need their edge to define a surface, not to whisper.
+//
+// The `!` on the border variant is load-bearing — HorizontalSeparator ships its
+// own `border-subtlest-tertiary`, and same-specificity utilities resolve by
+// stylesheet order rather than by the order written on the element.
+export const railDividerBorderClass = '!border-border-subtlest-quaternary';
+export const railDividerBgClass = 'bg-border-subtlest-quaternary';
+// Shared drag visuals for the v2 sidebar's two drag systems — the rail tabs and
+// the shortcuts dock — so a lifted item looks identical in both. Callers add
+// the lift (`scale-110`) and their own transition.
+//
+// The fill must be a `surface-*` token, never a tint of `background-default`:
+// that token is a bare `var()`, so Tailwind's `/<n>` opacity modifier computes
+// to rgba(0,0,0,0) and the chip silently gets no fill at all. `surface-float`
+// is the theme-aware overlay (light salt on dark, dark on light), one step
+// below the landing slot so the slot reads as the target and this reads as the
+// thing in your hand.
+//
+// Blur RADIUS is what makes this read as glass — the alpha is not. At
+// `backdrop-blur-xl` (24px on a 68px chip) the filter averages the whole
+// backdrop into one flat colour: measured over a rail tab it erased the icon
+// and the label, leaving a block that looks opaque at any fill. 8px keeps the
+// tab underneath recognisable. Raising it undoes this.
+//
+// `shadow-2`, not `shadow-3`: the latter is a 14px black shadow at 64% alpha
+// that blooms into a dark halo in dark mode. The scale is 2 / 3 / bubble —
+// there is no `shadow-4`.
+export const sidebarDragGhostClass =
+  'bg-surface-float rounded-12 border border-border-subtlest-secondary shadow-2 backdrop-blur';
+// The parked slot a dragged item lands in — the "it will go here" marker. Its
+// content is faded out, so the slot keeps the item's exact height.
+//
+// `surface-hover` (12%): at `surface-active` (16%) it was the most solid thing
+// on screen during a drag and read as the dragged item having an opaque
+// backing, and at `surface-float` (8%) it was too faint to show the target.
+// Same 8px blur as the ghost, for the same reason.
+export const sidebarDragSlotClass = 'rounded-12 bg-surface-hover backdrop-blur';
 export const SidebarAside = classed(
   'aside',
   'flex flex-col z-sidebarOverlay laptop:z-sidebar laptop:-translate-x-0 left-0 bg-background-default border-r border-border-subtlest-tertiary transition-[width,transform] duration-300 ease-in-out group fixed top-0 h-full',
