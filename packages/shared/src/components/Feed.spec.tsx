@@ -1836,6 +1836,7 @@ interface HighlightLayoutRenderParams {
   staticAd?: { ad: Ad; index: number };
   disableAds?: boolean;
   user?: LoggedUser;
+  isHorizontal?: boolean;
 }
 
 const renderWithHighlightLayout = ({
@@ -1851,6 +1852,7 @@ const renderWithHighlightLayout = ({
   staticAd,
   disableAds,
   user = defaultUser,
+  isHorizontal,
 }: HighlightLayoutRenderParams): RenderResult => {
   variables = { ...defaultVariables, first: pageSize, columns: numCards };
   mockGraphQL(createFeedMock(buildFeedPage(posts)));
@@ -1952,6 +1954,7 @@ const renderWithHighlightLayout = ({
                   variables={variables}
                   staticAd={staticAd}
                   disableAds={disableAds}
+                  isHorizontal={isHorizontal}
                 />
               </FeedContext.Provider>
             </SettingsContext.Provider>
@@ -2287,5 +2290,29 @@ describe('Feed ad cadence with highlight cards', () => {
     const styles = wrappers.map((el) => el.getAttribute('style') ?? '');
     expect(styles.some((s) => s.includes('span 4'))).toBe(true);
     expect(screen.queryAllByTestId('adItem').length).toBe(0);
+  });
+
+  // In a horizontal carousel `gridColumn: span N` stretches the card to N
+  // slots wide instead of highlighting a row, so hero placement must stay
+  // off even when the flag is on and posts carry hero data.
+  it('never widens hero cards in horizontal feeds', async () => {
+    const posts = [
+      buildWidePost('w0', 2),
+      buildWidePost('w1', 3),
+      buildPost('p2'),
+      buildWidePost('w3', 2),
+    ];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: true,
+      isHorizontal: true,
+      disableAds: true,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
+    });
+    expect(screen.queryAllByTestId('feedItemColSpanWrapper').length).toBe(0);
   });
 });
