@@ -399,8 +399,6 @@ const measureTheme = (pill: Element, name: string): ThemeMeasurement => {
   };
 };
 
-// The audit reads its colours off two live pills instead of restating them, so
-// it cannot drift from the stylesheet the way an inline table would.
 const useMeasuredThemes = (): {
   themes: ThemeMeasurement[];
   probes: ReactElement;
@@ -616,8 +614,6 @@ const meta: Meta = {
   component: GlassActionsHoverStates,
   parameters: {
     layout: 'fullscreen',
-    // Dark page + `.invert` for the light columns. The other way round hits the
-    // `.light .invert .btn-tertiary-*` specificity clash described at the top.
     themes: { themeOverride: 'dark' },
   },
 };
