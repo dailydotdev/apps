@@ -1,87 +1,30 @@
 /*
  * Feed card floating action bar (`FeedCardGlassActions`).
  *
- * The bar floats over a post's cover image, so its contrast depends on pixels we
- * don't control. Two things follow from that, both measured — see the
- * "Components/Cards/Glass Actions Theme Compare" Storybook page, which computes
- * the WCAG ratios in-page rather than asking anyone to eyeball a translucent
- * overlay.
+ * The bar floats over a cover image, so its contrast depends on pixels we don't
+ * control. Every ratio quoted below is computed live on the
+ * "Components/Cards/Glass Actions Theme Compare" and "…Hover States" Storybook
+ * pages — re-run them after changing any value here.
  *
- *   1. FILL OPACITY is the dominant lever. At the old 64% the cover composited
- *      through and set the contrast, so one icon measured anywhere from 1.0:1 to
- *      11:1 depending on the image. At 90% the spread collapses to well under a
- *      point, which is what makes the ratios below dependable at all.
- *      `--theme-background-default` already resolves per theme (pepper.90 dark /
- *      salt.0 light) in every theme mode including `auto`, so one `color-mix`
- *      covers the fill everywhere with no theme selectors.
+ * Three constraints shape the file:
  *
- *   2. The PRESSED accents need re-toning per theme, and they are NOT reachable
- *      through a `--theme-*` token: `tailwind/buttons.ts` emits
- *      `--button-pressed-color` as a raw palette hex per `.btn-tertiary-<color>`
- *      class, taken from the ghost ladder (light .80 / dark .40). Those values are
- *      tuned for a solid page background, not for a near-white bar over arbitrary
- *      imagery. Unpatched, every light-mode pressed icon lands between 1.0:1 and
- *      2.9:1, and dark mode fails too — a pressed downvote (ketchup.40) is 1.62:1
- *      over a white cover.
+ *   1. The 90% fill is what makes any ratio dependable; below it the cover sets
+ *      the contrast. `--theme-background-default` flips per theme on its own, so
+ *      one `color-mix` covers every theme mode including `auto`.
+ *   2. The accents are not reachable through a `--theme-*` token —
+ *      `tailwind/buttons.ts` emits `--button-{pressed,hover,active}-color` as raw
+ *      palette hex per `.btn-tertiary-<colour>`, tuned for a solid page
+ *      background rather than a translucent bar over arbitrary imagery.
+ *   3. Once hover paints a filled chip, the CHIP is the colour adjacent to the
+ *      glyph, not the bar. In dark the icon and chip share a hue, so every point
+ *      of tint costs the icon contrast.
  *
- * Light takes the darkest step of each ramp. avocado, blueCheese and cheese are
- * high-luminance ramps that miss 3:1 even at .90, so they take the smallest mix
- * with pepper.90 that clears it. Dark moves downvote and bookmark up the ramp for
- * headroom. Worst cell after this: 3.01:1 light, 3.67:1 dark.
- *
- *   3. HOVER IS TONED PER THEME, and it is NOT the pressed colour. Hover once
- *      reused the pressed value, which made the action under the pointer the
- *      dimmest thing in the bar — the accent is always below `text-primary`, and
- *      the icon's `InteractionCounter` is text, so it owes SC 1.4.3's 4.5:1
- *      rather than 3:1. In light that landed all three counters on 3.01–3.08.
- *      Dark keeps the accent on hover (bright enough that it still reads as a
- *      lift: 5.34–11.16), light drops to `text-primary` (15.03) and lets the
- *      accent live in the 22% surface behind the button instead. Icon and
- *      counter always share one colour — see `--glass-actions-hover-tone`.
- *
- * STRUCTURE — why it is split into "values" and "mapping":
- *
- * The theme blocks only assign `--glass-actions-*` variables on the pill itself,
- * as FLAT rules, and a single theme-agnostic mapping block feeds those variables
- * into each button's `--button-{pressed,hover,active}-*`. That split is
- * deliberate:
- *
- *   - Flat, so specificity stays legible. Nesting `& .btn-tertiary-*` inside these
- *     selector lists is what an earlier version did, and it silently broke `auto`
- *     mode: per spec a nested `&` is `:is(<parent list>)`, and `:is()` takes the
- *     specificity of its most specific argument — so the `#daily-companion-wrapper`
- *     entries in the list gave every nested rule ID-level specificity, which
- *     outranked the `html.auto` media blocks. Flat comma lists don't share
- *     specificity between their selectors, so this can't happen.
- *   - The mapping block qualifies with `html` plus a doubled class purely to
- *     outrank the design system's own `.light .invert .btn-tertiary-*` (0,3,0),
- *     without depending on import order.
- *
- * Selector groups (and the `prefers-color-scheme` blocks for `html.auto`) mirror
- * `base.css`, so light, dark, auto, nested `.invert` subtrees and the companion
- * wrapper all resolve the way the theme mixins do.
- */
-
-/*
- * WHICH ACCENTS ACTUALLY MOVE. The `tertiary` ghost ladder resolves pressed/hover
- * to palette .40 in dark, and .80 in light for the luminous families
- * (avocado/blueCheese/cheese/bun/lettuce/bacon) or .60 for the rest. Against that
- * baseline only these deviate:
- *
- *   dark   bookmark bun.40  -> bun.20      downvote ketchup.40 -> ketchup.10
- *   light  upvote   avo.80  -> 83% mix     comment  blueCh.80  -> 90% mix
- *          bookmark bun.80  -> bun.90      impress  cheese.80  -> 62% mix
- *
- * `copy` (cabbage) already clears 3:1 from the ladder in both themes, so its REST
- * and hover colours are inherited, never restated; it appears in the mapping only
- * for the hover/active surface.
- *
- * The four remaining theme/colour pairs that match the ladder are written as
- * `var(--theme-accent-<colour>-default)` rather than a repeated palette step:
- * that token IS the ladder's value in that theme (accent-default is .40 in dark
- * and .60 in light), so there is no second constant to keep in sync. A change to
- * the ladder's *mapping* would still need the Storybook audit re-run — the
- * numbers in the header are only true for the steps named above.
+ * Never nest inside the theme selector lists below. A nested `&` is
+ * `:is(<list>)`, `:is()` takes the specificity of its most specific argument, and
+ * the `#daily-companion-wrapper` entries would hand every nested rule ID-level
+ * specificity — which silently disabled the `html.auto` blocks once already. The
+ * mapping's doubled class outranks the design system's own
+ * `.light .invert .btn-tertiary-*` (0,3,0) without depending on import order.
  */
 @define-mixin glass-actions-dark {
   --glass-actions-upvote: var(--theme-accent-avocado-default);
@@ -89,12 +32,9 @@
   --glass-actions-bookmark: theme('colors.raw.bun.20');
   --glass-actions-downvote: theme('colors.raw.ketchup.10');
   --glass-actions-impressions: var(--theme-accent-cheese-default);
-  /*
-   * Guaranteed-invalid on purpose: the mapping block reads this as
-   * `var(--glass-actions-hover-tone, <accent>)`, so leaving it invalid is how
-   * dark opts into the per-action accent. Written out rather than omitted so a
-   * future nested pill can't inherit a light tone from an ancestor.
-   */
+  /* .10 rather than the ladder's .40: it has to clear its own hover chip. */
+  --glass-actions-copy: theme('colors.raw.cabbage.10');
+  /* Guaranteed-invalid, so the mapping's `var()` falls back to the accent. */
   --glass-actions-hover-tone: initial;
 }
 
@@ -116,11 +56,11 @@
     theme('colors.raw.cheese.90') 62%,
     theme('colors.raw.pepper.90')
   );
+  --glass-actions-copy: var(--theme-accent-cabbage-default);
   /*
-   * A brand hue can't be both itself and legible on a near-white bar — that is
-   * why the pressed accents above are mixed down to 3.01–3.08. Good enough for a
-   * deliberate "this is on"; too dim for the thing the pointer is on. So light
-   * hover keeps the content at text-primary and shows the accent as a wash.
+   * No brand hue clears 3:1 on a near-white bar, which is why the accents above
+   * are mixed so far down. Light hover therefore keeps the content neutral and
+   * shows the accent as a chip instead.
    */
   --glass-actions-hover-tone: var(--theme-text-primary);
 }
@@ -131,14 +71,6 @@
     var(--theme-background-default),
     transparent 10%
   );
-
-  /*
-   * Copy link has no pressed state and its accent matches the ghost ladder in
-   * both themes, so it needs no per-theme block — but it does need a tint for
-   * the hover surface, and `--theme-accent-cabbage-default` already flips
-   * itself (cabbage.40 dark / .60 light).
-   */
-  --glass-actions-copy: var(--theme-accent-cabbage-default);
 }
 
 /* Values — dark */
@@ -183,171 +115,92 @@ html.light .invert .invert .feed-card-glass-actions,
   }
 }
 
-/*
- * Mapping — theme-agnostic.
- *
- * `--button-active-color` tracks hover rather than the ladder on purpose:
- * `buttons.css` routes `:active` through its own var and the ladder's active
- * step is one shade further along (light avocado active is avocado.90, which
- * measures 2.79:1), so the icon would dip below 3:1 for as long as the pointer
- * is held. Hover and active therefore share `--glass-actions-hover-tone`; only
- * pressed keeps the accent unconditionally, because pressed is the one state
- * that has to carry meaning on its own.
- *
- * The 22% hover surface replaces the design system's 12%, which is close to
- * invisible against a 90%-opaque bar. It also has to do more work now: in light
- * mode it is the only thing marking the hovered action, since the content stays
- * neutral. Active deepens to 32% so pressing still reads as a step further in
- * (the ladder's own active background is 20%, which would have gone backwards).
- */
 html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-avocado {
-  --button-pressed-color: var(--glass-actions-upvote);
-  --button-hover-color: var(
-    --glass-actions-hover-tone,
-    var(--glass-actions-upvote)
-  );
-  --button-active-color: var(
-    --glass-actions-hover-tone,
-    var(--glass-actions-upvote)
-  );
-  --button-hover-background: color-mix(
-    in srgb,
-    var(--glass-actions-upvote) 22%,
-    transparent
-  );
-  --button-active-background: color-mix(
-    in srgb,
-    var(--glass-actions-upvote) 32%,
-    transparent
-  );
+  --glass-actions-accent: var(--glass-actions-upvote);
 }
 
 html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-blueCheese {
-  --button-pressed-color: var(--glass-actions-comment);
-  --button-hover-color: var(
-    --glass-actions-hover-tone,
-    var(--glass-actions-comment)
-  );
-  --button-active-color: var(
-    --glass-actions-hover-tone,
-    var(--glass-actions-comment)
-  );
-  --button-hover-background: color-mix(
-    in srgb,
-    var(--glass-actions-comment) 22%,
-    transparent
-  );
-  --button-active-background: color-mix(
-    in srgb,
-    var(--glass-actions-comment) 32%,
-    transparent
-  );
+  --glass-actions-accent: var(--glass-actions-comment);
 }
 
 html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-bun {
-  --button-pressed-color: var(--glass-actions-bookmark);
-  --button-hover-color: var(
-    --glass-actions-hover-tone,
-    var(--glass-actions-bookmark)
-  );
-  --button-active-color: var(
-    --glass-actions-hover-tone,
-    var(--glass-actions-bookmark)
-  );
-  --button-hover-background: color-mix(
-    in srgb,
-    var(--glass-actions-bookmark) 22%,
-    transparent
-  );
-  --button-active-background: color-mix(
-    in srgb,
-    var(--glass-actions-bookmark) 32%,
-    transparent
-  );
+  --glass-actions-accent: var(--glass-actions-bookmark);
 }
 
 html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-ketchup {
-  --button-pressed-color: var(--glass-actions-downvote);
-  --button-hover-color: var(
-    --glass-actions-hover-tone,
-    var(--glass-actions-downvote)
-  );
-  --button-active-color: var(
-    --glass-actions-hover-tone,
-    var(--glass-actions-downvote)
-  );
-  --button-hover-background: color-mix(
-    in srgb,
-    var(--glass-actions-downvote) 22%,
-    transparent
-  );
-  --button-active-background: color-mix(
-    in srgb,
-    var(--glass-actions-downvote) 32%,
-    transparent
-  );
+  --glass-actions-accent: var(--glass-actions-downvote);
 }
 
 html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-cheese {
-  --button-pressed-color: var(--glass-actions-impressions);
-  --button-hover-color: var(
-    --glass-actions-hover-tone,
-    var(--glass-actions-impressions)
-  );
-  --button-active-color: var(
-    --glass-actions-hover-tone,
-    var(--glass-actions-impressions)
-  );
-  --button-hover-background: color-mix(
-    in srgb,
-    var(--glass-actions-impressions) 22%,
-    transparent
-  );
-  --button-active-background: color-mix(
-    in srgb,
-    var(--glass-actions-impressions) 32%,
-    transparent
-  );
+  --glass-actions-accent: var(--glass-actions-impressions);
+}
+
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-cabbage {
+  --glass-actions-accent: var(--glass-actions-copy);
 }
 
 /*
- * Copy link sets no `--button-pressed-color`: it has no pressed state, and its
- * accent already equals the ghost ladder in both themes, so the rest colour is
- * inherited rather than restated. It still needs the hover treatment.
+ * `--button-active-color` tracks hover rather than the ladder because the
+ * ladder's active step is one shade further along and drops the icon under 3:1
+ * while the pointer is held.
  */
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-avocado,
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-blueCheese,
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-bun,
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-ketchup,
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-cheese,
 html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-cabbage {
   --button-hover-color: var(
     --glass-actions-hover-tone,
-    var(--glass-actions-copy)
+    var(--glass-actions-accent)
   );
   --button-active-color: var(
     --glass-actions-hover-tone,
-    var(--glass-actions-copy)
+    var(--glass-actions-accent)
   );
   --button-hover-background: color-mix(
     in srgb,
-    var(--glass-actions-copy) 22%,
+    var(--glass-actions-accent) 22%,
     transparent
   );
   --button-active-background: color-mix(
     in srgb,
-    var(--glass-actions-copy) 32%,
+    var(--glass-actions-accent) 32%,
     transparent
   );
 }
 
+/* Copy link is absent: it has no pressed state. */
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-avocado,
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-blueCheese,
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-bun,
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-ketchup,
+html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-cheese {
+  --button-pressed-color: var(--glass-actions-accent);
+}
+
 /*
- * Hover must never erase "this is on". `buttons.css` resolves its hover block
- * AFTER `&[aria-pressed="true"]` at equal specificity, so in light mode — where
- * hover is neutral — pointing at an upvoted action would drop the accent for as
- * long as the pointer sat there. Both rules tie with the mapping above on
- * specificity and win on source order. The label needs its own line because it
- * is a SIBLING of the button: it reads `--button-pressed-color` off the
- * `.btn-quaternary` wrapper, not off the button the guard sits on.
+ * `buttons.css` resolves hover AFTER `[aria-pressed]` at equal specificity, so
+ * without this a neutral light hover would blank the "this is on" accent while
+ * the pointer sat on an upvoted action. These tie with the mapping above and win
+ * on source order. The label needs its own rule: it is a SIBLING of the button
+ * and reads the variable off the `.btn-quaternary` wrapper. A pressed button also
+ * keeps the shallower chip, since its glyph is back on the accent the chip is
+ * tinted with.
  */
 html .feed-card-glass-actions .btn[aria-pressed='true'] {
   --button-hover-color: var(--button-pressed-color);
   --button-active-color: var(--button-pressed-color);
+  --button-hover-background: color-mix(
+    in srgb,
+    var(--glass-actions-accent) 12%,
+    transparent
+  );
+  --button-active-background: color-mix(
+    in srgb,
+    var(--glass-actions-accent) 20%,
+    transparent
+  );
 }
 
 html .feed-card-glass-actions .btn-quaternary [aria-pressed='true'] ~ label {

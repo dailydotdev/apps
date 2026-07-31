@@ -19,58 +19,18 @@ import {
 } from './glassContrast';
 
 /**
- * Follow-up to "Glass Actions Theme Compare": that page fixed the REST and
- * PRESSED states of the feed card floating action bar. This one is about the
- * state in between — HOVER — which the same change quietly redefined.
+ * Hover states for the feed card floating action bar, before and after the
+ * per-theme toning in `styles/components/feedCardGlassActions.css`. Companion to
+ * "Glass Actions Theme Compare", which covers rest and pressed.
  *
- * WHAT SHIPPED: `styles/components/feedCardGlassActions.css` pins
- * `--button-hover-color` to the very same value as `--button-pressed-color`,
- * for every action. That was done so a held pointer couldn't dip below 3:1, and
- * on that count it works. Two side effects came with it:
+ * "After" columns render the live component with no overrides, so the page stays
+ * honest as the component changes; "before" is restored by the scoped CSS below.
  *
- *   1. HOVER DIMS INSTEAD OF LIFTING. The whole button — icon AND the
- *      `InteractionCounter` next to it — leaves `text-primary` for the accent.
- *      The accent is always lower-contrast than `text-primary`, so the one
- *      action the pointer is on becomes the LEAST legible thing in the bar:
- *      14.44 -> 8.54 in dark, 18.75 -> 3.03 in light (worst cover). The
- *      counters are text, so they answer to SC 1.4.3's 4.5:1, not 3:1 — in
- *      light mode every hovered counter is now under it.
- *   2. HOVER AND PRESSED ARE THE SAME PIXEL. Hovering an already-upvoted
- *      button produces no change at all, and hover no longer previews anything
- *      the press hasn't already shown.
- *
- * The only thing that separated hover from rest was `--button-hover-background`,
- * which the design system sets to the accent at 12% — barely a shade on a
- * 90%-opaque bar, and it doesn't cover the counter.
- *
- * WHAT SHIPPED IN RESPONSE (`--glass-actions-hover-tone`): hover is toned per
- * theme, and the accent moved into the surface.
- *
- *   Dark  — content keeps the accent, exactly as before (5.34–11.16, bright
- *           enough on a near-black bar that it still reads as a lift).
- *   Light — content goes to `text-primary` (15.03). The light accents are mixed
- *           down to 3.01–3.08 because a bright brand hue cannot clear 3:1 on a
- *           near-white bar — avocado lands on #039750, cheese on an olive
- *           #94821F. Fine as a deliberate "this is on"; poor as a hover.
- *   Both  — the accent sits at 22% behind the button instead of 12%, and active
- *           deepens to 32%. Icon and counter always share one colour.
- *
- * The pressed state is untouched. One guard was needed: `buttons.css` resolves
- * hover AFTER `aria-pressed` at equal specificity, so light's neutral hover
- * would otherwise blank the "this is on" accent while the pointer sat on an
- * upvoted action.
- *
- * "Before" is SIMULATED here, restored by the scoped CSS below; "after (live)"
- * is the real component with no overrides, so this page keeps telling the truth
- * as the component changes.
- *
- * The page renders in DARK and inverts for the light columns, rather than the
- * other way round. That is deliberate: inside `html.light`, `.invert` gives
- * `tailwind/buttons.ts`'s `.light .invert .btn-tertiary-*` (0,3,0) which
- * outranks the pill's own `[&_.btn]:[--button-default-color:…]` utility
- * (0,2,0), so simulated-dark panels show rest icons at `text-secondary`
- * instead of `text-primary`. Inverting the other way ties on specificity and
- * the utility wins, which is what production actually does.
+ * The page renders DARK and inverts for the light columns, never the reverse:
+ * inside `html.light`, `.invert` matches `tailwind/buttons.ts`'s
+ * `.light .invert .btn-tertiary-*` (0,3,0), which outranks the pill's own
+ * `[&_.btn]:[--button-default-color:…]` utility (0,2,0) and would show rest icons
+ * at `text-secondary` — something production never does.
  */
 
 const mockSource = {
@@ -145,17 +105,16 @@ const actionHandlers = {
   onReadArticleClick: fn(),
 };
 
-// One entry per action in the bar. `selector` targets the rendered button —
-// the ids come from `FeedCardGlassActions` and are stable except for copy link,
-// which is the one button with a fixed id. `tint` is the action's accent, read
-// off the per-theme variables the shipped CSS already puts on the pill — so the
-// before-columns restore the old hover colour without a hex table of their own.
+// `tint` reads the per-theme variables the shipped CSS puts on the pill, so the
+// before-columns need no hex table of their own.
 const actions: {
   key: string;
   name: string;
   selector: string;
   btnClass: string;
   tint: string;
+  /** Only where the accent itself moved, so "before" keeps quoting main. */
+  beforeTint?: string;
   /** Has an InteractionCounter next to the icon — i.e. text, not just an icon. */
   counter: boolean;
 }[] = [
@@ -194,9 +153,10 @@ const actions: {
   {
     key: 'copy',
     name: 'Copy link',
-    selector: '#copy-post-btn',
+    selector: "[id$='-copy-btn']",
     btnClass: 'btn-tertiary-cabbage',
     tint: 'var(--glass-actions-copy)',
+    beforeTint: 'var(--theme-accent-cabbage-default)',
     counter: false,
   },
   {
@@ -209,10 +169,9 @@ const actions: {
   },
 ];
 
-// A screenshot can't hold a pointer, so hover is forced with the same four
-// variable assignments `buttons.css` makes for `:hover` / `.hover`, scoped by a
-// `data-fh` attribute. Nothing is faked: the VALUES still come from whichever
-// treatment the column is in.
+// A screenshot can't hold a pointer, so hover is forced with the same variable
+// assignments `buttons.css` makes for `:hover`. The values still come from
+// whichever treatment the column is in.
 const forcedHoverCss = actions
   .map(
     ({ key, selector }) => `
@@ -227,27 +186,19 @@ const forcedHoverCss = actions
   )
   .join('\n');
 
-// The "before" columns are SIMULATED, because the fix has landed: the shipped
-// CSS now tones hover per theme and puts the accent at 22% behind the button.
-// These blocks put hover back where it was — pinned to the pressed colour, over
-// the design system's own 12% tint. `--glass-actions-*` IS the pressed value, so
-// the restore needs no per-theme hex table of its own.
-//
-// The shipped mapping is `html .feed-card-glass-actions.feed-card-glass-actions
-// .btn-tertiary-*` — (0,3,1). Four classes beat three classes + an element, so
-// the scope class alone is enough to win, with no reliance on source order.
-// The shipped pressed guard needs no undoing here: when hover and pressed are
-// the same value, deferring to pressed changes nothing.
+// Restores hover to the pressed colour over the design system's 12% tint. Four
+// classes outrank the shipped mapping's three-classes-plus-element (0,3,1), so
+// the scope class alone wins without relying on source order.
 const beforeCss = actions
-  .map(
-    ({ btnClass, tint }) => `
+  .map(({ btnClass, tint, beforeTint = tint }) => {
+    return `
   .glass-hover-before .feed-card-glass-actions.feed-card-glass-actions .${btnClass} {
-    --button-hover-color: ${tint};
-    --button-active-color: ${tint};
-    --button-hover-background: color-mix(in srgb, ${tint} 12%, transparent);
-    --button-active-background: color-mix(in srgb, ${tint} 20%, transparent);
-  }`,
-  )
+    --button-hover-color: ${beforeTint};
+    --button-active-color: ${beforeTint};
+    --button-hover-background: color-mix(in srgb, ${beforeTint} 12%, transparent);
+    --button-active-background: color-mix(in srgb, ${beforeTint} 20%, transparent);
+  }`;
+  })
   .join('\n');
 
 const columns: { title: string; note: string; className?: string }[] = [
@@ -272,9 +223,8 @@ const columns: { title: string; note: string; className?: string }[] = [
   },
 ];
 
-// Fixed 19rem columns rather than fractions: a real grid card is ~320px, and
-// squeezing the bar narrower than that clips the impressions counter, which is
-// exactly the element under review. The section scrolls sideways instead.
+// Fixed columns, not fractions: a real grid card is ~320px, and anything
+// narrower clips the impressions counter — the element under review.
 const gridStyle = (labelWidth: string): React.CSSProperties => ({
   gridTemplateColumns: `${labelWidth} repeat(${columns.length}, 19rem)`,
 });
@@ -393,10 +343,9 @@ const StatesStrip = (): ReactElement => (
   </Section>
 );
 
-// --- Measured -----------------------------------------------------------------
-// Same method as the theme-compare page: composite the 90% fill over the cover,
-// then measure. The pill's inline 8% black tint is gone in both themes now, so
-// the fill is the whole backdrop.
+// Hovered rows measure against the button's own chip rather than the bar: a
+// filled hover surface is what sits adjacent to the glyph. It changes the answer
+// in dark, where icon and chip share a hue.
 const auditCovers: { name: string; color: Rgb }[] = [
   { name: 'White', color: parseHex('#ffffff') },
   { name: 'Black', color: parseHex('#04060a') },
@@ -404,24 +353,24 @@ const auditCovers: { name: string; color: Rgb }[] = [
   { name: 'Yellow', color: parseHex('#ffe24c') },
 ];
 
+const BEFORE_TINT = 0.12;
+const AFTER_TINT = 0.22;
+
 const themes: {
   name: string;
   fill: string;
   rest: string;
-  /** Hover colour per action BEFORE — pinned to the pressed accent. */
-  before: Record<string, string>;
-  /**
-   * Hover colour AFTER. Dark keeps the accent, so its numbers are unchanged and
-   * this is null; light drops to text-primary, which is the `rest` colour.
-   */
+  /** Per-action accent: the before hover colour, and the chip tint in both. */
+  accents: Record<string, string>;
   afterIsRest: boolean;
+  afterAccents?: Record<string, string>;
 }[] = [
   {
     name: 'Dark',
     fill: '#0f1218',
     rest: '#ffffff',
     afterIsRest: false,
-    before: {
+    accents: {
       Upvote: '#57e087',
       Comment: '#29d8e5',
       Downvote: '#f57869',
@@ -429,13 +378,14 @@ const themes: {
       'Copy link': '#ba56e1',
       Impressions: '#ffe24c',
     },
+    afterAccents: { 'Copy link': '#d97efe' },
   },
   {
     name: 'Light',
     fill: '#ffffff',
     rest: '#0f1218',
     afterIsRest: true,
-    before: {
+    accents: {
       Upvote: '#039750',
       Comment: '#01929c',
       Downvote: '#c83a2f',
@@ -472,7 +422,7 @@ const Ratio = ({
 const ContrastAudit = (): ReactElement => (
   <Section
     title="Measured — what hover costs"
-    description="Worst ratio across the four covers, hovered content vs. the composited bar. Icons answer to SC 1.4.11 (3:1); the counters next to Upvote, Comment and Impressions are TEXT, so they answer to SC 1.4.3 (4.5:1) — that is the threshold light mode was missing. Dark rows are unchanged by design: the accent there is bright enough to read as a lift, so only the surface behind it moved. Light rows collapse onto the Rest number, because hover now leaves the content on text-primary."
+    description="Worst ratio across the four covers. Rest is measured against the bar; the hovered columns are measured against the button's own tinted CHIP, which is what sits adjacent to the glyph once hover paints a surface — 12% before, 22% after. Icons answer to SC 1.4.11 (3:1); the counters next to Upvote, Comment and Impressions are TEXT, so they answer to SC 1.4.3 (4.5:1), the threshold light mode was missing. Dark keeps its accent, so its icons pay for the deeper chip — copy link moved cabbage.40 → .10 to stay above 3. Light puts text-primary on an accent chip, which gains contrast rather than losing it."
   >
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-left typo-footnote">
@@ -497,21 +447,39 @@ const ContrastAudit = (): ReactElement => (
         </thead>
         <tbody>
           {themes.map(
-            ({ name: themeName, fill, rest, before, afterIsRest }) => {
-              const worst = (color: string) =>
+            ({
+              name: themeName,
+              fill,
+              rest,
+              accents,
+              afterIsRest,
+              afterAccents,
+            }) => {
+              // `tint` of 0 measures against the bar itself (the rest row).
+              const worst = (color: string, chip?: string, tint = 0) =>
                 Math.min(
-                  ...auditCovers.map(({ color: coverColor }) =>
-                    contrastRatio(
+                  ...auditCovers.map(({ color: coverColor }) => {
+                    const bar = composite(
+                      parseHex(fill),
+                      FILL_ALPHA,
+                      coverColor,
+                    );
+                    return contrastRatio(
                       parseHex(color),
-                      composite(parseHex(fill), FILL_ALPHA, coverColor),
-                    ),
-                  ),
+                      chip ? composite(parseHex(chip), tint, bar) : bar,
+                    );
+                  }),
                 );
               const restRatio = worst(rest);
 
-              return Object.entries(before).map(([action, color], index) => {
-                const beforeRatio = worst(color);
-                const afterRatio = afterIsRest ? restRatio : beforeRatio;
+              return Object.entries(accents).map(([action, color], index) => {
+                const afterAccent = afterAccents?.[action] ?? color;
+                const beforeRatio = worst(color, color, BEFORE_TINT);
+                const afterRatio = worst(
+                  afterIsRest ? rest : afterAccent,
+                  afterAccent,
+                  AFTER_TINT,
+                );
 
                 return (
                   <tr
@@ -598,10 +566,12 @@ const GlassActionsHoverStates = (): ReactElement => (
           <strong>dark keeps its accent</strong> (bright enough that it still
           reads as a lift) and <strong>light goes to text-primary</strong>, with
           the accent moved into a 22% wash behind the button in both. Icon and
-          counter always share one colour. The pressed state is untouched. The{' '}
-          <strong>after</strong> columns render the live component with no
-          overrides; the <strong>before</strong> columns restore the old values
-          via scoped CSS.
+          counter always share one colour. Because that wash is a visible fill,
+          the hovered ratios below are measured against <em>it</em> rather than
+          the bar — which is why dark&apos;s copy link had to move up its ramp.
+          The pressed state is untouched. The <strong>after</strong> columns
+          render the live component with no overrides; the{' '}
+          <strong>before</strong> columns restore the old values via scoped CSS.
         </p>
         <HoverMatrix />
         <StatesStrip />

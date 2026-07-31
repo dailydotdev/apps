@@ -1,10 +1,7 @@
 /**
- * WCAG math for the feed card floating action bar stories.
- *
- * The bar is a translucent overlay, so every ratio depends on the cover pixels
- * under it: composite the fill over the cover first, then measure the icon /
- * counter against that. Shared by the theme-compare and hover-state pages so
- * both quote the same numbers.
+ * WCAG math shared by the glass action bar stories. The bar is a translucent
+ * overlay, so every ratio depends on the cover under it: composite first, then
+ * measure.
  */
 export type Rgb = { r: number; g: number; b: number };
 
