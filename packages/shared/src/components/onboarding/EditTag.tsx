@@ -29,10 +29,8 @@ import { subscribePersonaSelection } from './onboardingPopBus';
  * columns across the whole screen (cards far too wide).
  */
 const PREVIEW_MAX_COLUMNS = 3;
-const previewWidthClass = {
-  3: 'tablet:max-w-[70.75rem]',
-  4: 'tablet:max-w-[94rem]',
-}[PREVIEW_MAX_COLUMNS];
+// 3 × 21.25rem + 2 × 2rem of gutter.
+const PREVIEW_MAX_WIDTH = 'tablet:max-w-[70.75rem]';
 
 interface EditTagProps {
   feedSettings: FeedSettings;
@@ -178,7 +176,7 @@ export const EditTag = ({
               // The breakout stays centred at any width: `left-1/2` resolves
               // against the centred rail, so its 50% mark is the viewport's
               // centre, and `-translate-x-1/2` then centres the feed on it.
-              isOnboarding && previewWidthClass,
+              isOnboarding && PREVIEW_MAX_WIDTH,
             )}
             feedName={OtherFeedPage.Preview}
             feedQueryKey={[RequestKey.FeedPreview, userId]}

@@ -21,7 +21,7 @@ import { TOGGLEABLE_TYPES } from '../../feeds/FeedSettings/sections/FeedSettings
  * cards they describe. `AdvancedSettings.id` is an autoincrement row id, so it
  * would be a magic number here rather than a stabler key.
  */
-export const RETIRED_CONTENT_TITLES = ['Community picks', 'Standups'];
+const RETIRED_CONTENT_TITLES = ['Community picks', 'Standups'];
 
 export const withoutRetiredTitles = <T extends { title: string }>(
   items: T[],

@@ -34,7 +34,10 @@ export function FunnelGlassBar({
   return (
     <div
       className={classNames(
-        'flex items-center gap-2 rounded-18 border border-border-subtlest-secondary bg-surface-float p-1.5 shadow-[0_0.125rem_1rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem]',
+        // `w-full` rather than relying on the parent to stretch it: one caller
+        // docks it in an `items-end` form, where a shrink-wrapped bar would sit
+        // against the right edge.
+        'flex w-full items-center gap-2 rounded-18 border border-border-subtlest-secondary bg-surface-float p-1.5 shadow-[0_0.125rem_1rem_0_var(--theme-shadow-shadow1)] backdrop-blur-[2.5rem]',
         className,
       )}
     >

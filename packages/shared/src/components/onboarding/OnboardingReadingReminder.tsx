@@ -14,13 +14,6 @@ import {
 import type { ReadingReminderState } from './useReadingReminder';
 import { OnboardingHeadline, OnboardingSubheadline } from './common';
 
-/**
- * The post-signup funnel's reading-reminder screen. The paid funnel keeps
- * `ReadingReminder` — a separate component rather than a flag, because the two
- * differ in more than styling: this one's Submit and skip live in the funnel's
- * docked CTA rail, so the step owns the state (`useReadingReminder`) and passes
- * it in, while the paid funnel's screen renders its own buttons.
- */
 const readingReminderOptions = [
   { label: '09:00', hint: 'With coffee', emoji: '☕️', value: '9' },
   { label: '12:00', hint: 'Over lunch', emoji: '🥪', value: '12' },
@@ -33,6 +26,13 @@ interface OnboardingReadingReminderProps {
   state: ReadingReminderState;
 }
 
+/**
+ * The post-signup funnel's reading-reminder screen. The paid funnel keeps
+ * `ReadingReminder` — a separate component rather than a flag, because the two
+ * differ in more than styling: this one's Submit and skip live in the funnel's
+ * docked CTA rail, so the step owns the state (`useReadingReminder`) and passes
+ * it in, while the paid funnel's screen renders its own buttons.
+ */
 export const OnboardingReadingReminder = ({
   headline,
   state,
@@ -143,7 +143,7 @@ export const OnboardingReadingReminder = ({
                   'flex size-5 shrink-0 items-center justify-center rounded-full transition-colors',
                   isSelected
                     ? 'bg-accent-cabbage-default text-white'
-                    : 'border border-border-subtlest-secondary group-hover:border-accent-cabbage-default',
+                    : 'border border-border-subtlest-primary group-hover:border-accent-cabbage-default',
                 )}
               >
                 {isSelected && <VIcon secondary size={IconSize.XXSmall} />}

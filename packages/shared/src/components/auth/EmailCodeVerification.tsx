@@ -181,9 +181,7 @@ function EmailCodeVerification({
           screen before the funnel opens is not the one bare button in the flow. */}
       <ConditionalWrapper
         condition={!!isOnboardingFunnel}
-        wrapper={(component) => (
-          <FunnelGlassBar className="w-full">{component}</FunnelGlassBar>
-        )}
+        wrapper={(component) => <FunnelGlassBar>{component}</FunnelGlassBar>}
       >
         <Button
           className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
