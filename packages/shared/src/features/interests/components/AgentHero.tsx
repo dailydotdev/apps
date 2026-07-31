@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -18,15 +17,7 @@ import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { UserInterestStatus } from '../../../graphql/interests';
 import { useAgent } from '../AgentContext';
-
-const statusCopy: Record<UserInterestStatus, { label: string; dot: string }> = {
-  [UserInterestStatus.Active]: {
-    label: 'Hunting',
-    dot: 'bg-action-upvote-default',
-  },
-  [UserInterestStatus.Paused]: { label: 'Paused', dot: 'bg-text-quaternary' },
-  [UserInterestStatus.Stopped]: { label: 'Stopped', dot: 'bg-text-quaternary' },
-};
+import { AgentStatusChip } from './AgentStatusChip';
 
 const cadenceCopy: Record<string, string> = {
   hourly: 'every hour',
@@ -64,7 +55,6 @@ export const AgentHero = ({
 }): ReactElement => {
   const { interest, isWorking, workingLabel, setSettingsOpen } = useAgent();
   const status = interest?.status ?? UserInterestStatus.Active;
-  const { label, dot } = statusCopy[status];
 
   return (
     <FlexCol className="gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 tablet:p-6">
@@ -77,22 +67,7 @@ export const AgentHero = ({
             {interest?.query ?? 'Your interest agent'}
           </Typography>
           <FlexRow className="flex-wrap items-center gap-x-2 gap-y-1">
-            <span
-              className={classNames(
-                'flex items-center gap-1.5 rounded-8 bg-surface-secondary px-2 py-0.5',
-                isWorking && 'bg-action-bookmark-float',
-              )}
-            >
-              <span
-                className={classNames(
-                  'size-1.5 rounded-6',
-                  isWorking ? 'animate-pulse bg-brand-default' : dot,
-                )}
-              />
-              <Typography type={TypographyType.Caption1} bold>
-                {isWorking ? 'Working' : label}
-              </Typography>
-            </span>
+            <AgentStatusChip />
             <Typography
               type={TypographyType.Footnote}
               color={TypographyColor.Tertiary}

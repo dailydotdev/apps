@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
+import { useInView } from 'react-intersection-observer';
 import {
   Button,
   ButtonSize,
@@ -39,6 +40,7 @@ import { AgentActivitySection } from '@dailydotdev/shared/src/features/interests
 import { AgentDebugPanel } from '@dailydotdev/shared/src/features/interests/components/AgentDebugPanel';
 import { AgentSettingsModal } from '@dailydotdev/shared/src/features/interests/components/AgentSettingsModal';
 import { AgentViewToggle } from '@dailydotdev/shared/src/features/interests/components/AgentViewToggle';
+import { AgentHeaderTitle } from '@dailydotdev/shared/src/features/interests/components/AgentHeaderTitle';
 import {
   mockAgentPosts,
   mockInterest,
@@ -81,12 +83,36 @@ const AgentPageBody = ({
     useAgent();
   const [tab, setTab] = useState<AgentTab>('Chat');
   const closeContent = () => setActiveContent(undefined);
+  const { ref: heroRef, inView: isHeroInView } = useInView({
+    initialInView: true,
+    rootMargin: '-56px 0px 0px 0px',
+  });
 
   return (
     <>
+      <PageHeader
+        className="sticky top-14 z-header bg-background-default laptop:top-16"
+        title={
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <Link href={`${webappUrl}agent`}>
+              <Button
+                tag="a"
+                icon={<ArrowIcon className="-rotate-90" />}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+              />
+            </Link>
+            <AgentHeaderTitle isCondensed={!isHeroInView} />
+          </div>
+        }
+      >
+        <AgentViewToggle view={isModalView ? 'modal' : 'pane'} />
+      </PageHeader>
       <div className="flex w-full flex-row items-start gap-6 px-4 pt-4 laptop:px-6">
         <FlexCol className="mx-auto w-full min-w-0 max-w-[48rem] gap-6 pb-72">
-          <AgentHero findingsCount={items.length} postsCount={postsCount} />
+          <div ref={heroRef}>
+            <AgentHero findingsCount={items.length} postsCount={postsCount} />
+          </div>
           <TabContainer<AgentTab>
             controlledActive={tab}
             onActiveChange={setTab}
@@ -181,26 +207,6 @@ const Page = (): ReactElement | null => {
         initialMessages={feed.isDemo ? mockConversation : []}
         key={id}
       >
-        <PageHeader
-          className="sticky top-14 z-header bg-background-default laptop:top-16"
-          title={
-            <div className="flex min-w-0 flex-1 items-center gap-2">
-              <Link href={`${webappUrl}agent`}>
-                <Button
-                  tag="a"
-                  icon={<ArrowIcon className="-rotate-90" />}
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                />
-              </Link>
-              <strong className="min-w-0 flex-1 truncate typo-callout">
-                {interest?.query ?? 'Your agent'}
-              </strong>
-            </div>
-          }
-        >
-          <AgentViewToggle view={isModalView ? 'modal' : 'pane'} />
-        </PageHeader>
         <AgentPageBody
           items={feed.items}
           postsCount={posts.length}
