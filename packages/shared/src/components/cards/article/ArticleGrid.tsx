@@ -180,7 +180,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
                 onCopyLinkClick={onCopyLinkClick}
                 onBookmarkClick={onBookmarkClick}
                 onDownvoteClick={onDownvoteClick}
-                coverScrim
               />
             ) : (
               <ActionButtons

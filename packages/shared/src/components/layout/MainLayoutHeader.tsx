@@ -72,6 +72,12 @@ function MainLayoutHeader({
         <div
           className={classNames(
             'left-0 top-0 z-header mx-2 items-center py-3 tablet:left-16 laptop:left-0',
+            // Every header child is flex-shrink:0 via the global reset, so a
+            // crowded action rail overflows the header instead of compressing
+            // it. The search is the one element that can afford to give up
+            // width, so it absorbs the squeeze at desktop widths. Laptop-scoped
+            // so the mobile search page keeps its original layout.
+            'laptop:min-w-0 laptop:flex-1',
             isSearchPage
               ? 'relative right-0 tablet:!left-0 laptop:top-0'
               : 'hidden laptop:flex',

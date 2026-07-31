@@ -29,5 +29,11 @@ export const HeroBackgroundLayer = ({
     return imageMode === 'colors' ? null : <DeskBackground />;
   }
 
+  // The panel owns its artwork inside the layout (the split's second column),
+  // so there is nothing to render here.
+  if (background === 'panel') {
+    return null;
+  }
+
   return <CardsBackground splitMode={background === 'split'} />;
 };
