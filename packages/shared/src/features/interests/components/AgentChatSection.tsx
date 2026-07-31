@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import { ArticleList } from '../../../components/cards/article/ArticleList';
+import { ArticleGrid } from '../../../components/cards/article/ArticleGrid';
 import Markdown from '../../../components/Markdown';
 import {
   Typography,
@@ -20,7 +21,9 @@ import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
 import type { AgentBlock, AgentMessage } from '../chat';
 import { useAgent } from '../AgentContext';
+import { useNarrowContainer } from '../hooks/useNarrowContainer';
 import { AgentPickList } from './AgentPickList';
+import { AgentViewingChip } from './AgentViewingChip';
 
 const noop = () => undefined;
 
@@ -40,10 +43,14 @@ const BlockRenderer = ({
   block,
   onPostClick,
   onFeedClick,
+  isNarrow,
+  activePostId,
 }: {
   block: AgentBlock;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
+  isNarrow: boolean;
+  activePostId?: string;
 }): ReactElement => {
   if (block.type === 'text') {
     return <Markdown content={block.html} />;
@@ -74,7 +81,11 @@ const BlockRenderer = ({
             {block.caption}
           </Typography>
         )}
-        <AgentPickList posts={block.posts} onOpen={onPostClick} />
+        <AgentPickList
+          posts={block.posts}
+          onOpen={onPostClick}
+          activePostId={activePostId}
+        />
       </FlexCol>
     );
   }
@@ -89,22 +100,39 @@ const BlockRenderer = ({
           {block.caption}
         </Typography>
       )}
-      {block.posts.map((post) => (
-        <ArticleList
-          key={post.id}
-          post={post}
-          onPostClick={(clicked, event) => {
-            event?.preventDefault();
-            onPostClick(clicked);
-          }}
-          onUpvoteClick={noop}
-          onDownvoteClick={noop}
-          onCommentClick={noop}
-          onBookmarkClick={noop}
-          onCopyLinkClick={noop}
-          onShare={noop}
-        />
-      ))}
+      {block.posts.map((post) => {
+        const CardComponent = isNarrow ? ArticleGrid : ArticleList;
+        const isViewing = post.id === activePostId;
+
+        return (
+          <CardComponent
+            key={post.id}
+            post={post}
+            domProps={{
+              className: isViewing
+                ? '!border-border-subtlest-primary !bg-surface-float'
+                : undefined,
+            }}
+            onPostClick={(clicked, event) => {
+              event?.preventDefault();
+              onPostClick(clicked);
+            }}
+            onPostAuxClick={noop}
+            onUpvoteClick={noop}
+            onDownvoteClick={noop}
+            onCommentClick={noop}
+            onBookmarkClick={noop}
+            onCopyLinkClick={noop}
+            onShare={noop}
+          >
+            {isViewing && (
+              <div className="bg-background-default/85 absolute inset-0 z-2 flex items-center justify-center rounded-16 backdrop-blur-sm">
+                <AgentViewingChip />
+              </div>
+            )}
+          </CardComponent>
+        );
+      })}
     </FlexCol>
   );
 };
@@ -113,10 +141,14 @@ const MessageRow = ({
   message,
   onPostClick,
   onFeedClick,
+  isNarrow,
+  activePostId,
 }: {
   message: AgentMessage;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
+  isNarrow: boolean;
+  activePostId?: string;
 }): ReactElement => {
   if (message.role === 'user') {
     return (
@@ -172,6 +204,8 @@ const MessageRow = ({
               block={block}
               onPostClick={onPostClick}
               onFeedClick={onFeedClick}
+              isNarrow={isNarrow}
+              activePostId={activePostId}
             />
           ))
         )}
@@ -181,10 +215,13 @@ const MessageRow = ({
 };
 
 export const AgentChatSection = (): ReactElement => {
-  const { messages, setActiveContent } = useAgent();
+  const { messages, setActiveContent, activeContent } = useAgent();
+  const { ref, isNarrow } = useNarrowContainer<HTMLDivElement>();
+  const activePostId =
+    activeContent?.type === 'post' ? activeContent.post.id : undefined;
 
   return (
-    <FlexCol className="gap-8 py-2">
+    <FlexCol ref={ref} className="gap-8 py-2">
       {messages.map((message) => (
         <MessageRow
           key={message.id}
@@ -193,6 +230,8 @@ export const AgentChatSection = (): ReactElement => {
           onFeedClick={(label, posts) =>
             setActiveContent({ type: 'feed', label, posts })
           }
+          isNarrow={isNarrow}
+          activePostId={activePostId}
         />
       ))}
     </FlexCol>

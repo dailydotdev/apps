@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -9,6 +10,7 @@ import {
 import { ArrowIcon, DiscussIcon, UpvoteIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type { Post } from '../../../graphql/posts';
+import { AgentViewingChip } from './AgentViewingChip';
 
 const InlineStat = ({
   icon,
@@ -38,15 +40,20 @@ const InlineStat = ({
 const PickRow = ({
   post,
   onOpen,
+  isViewing,
 }: {
   post: Post;
   onOpen: (post: Post) => void;
+  isViewing: boolean;
 }): ReactElement => (
   <li>
     <button
       type="button"
       onClick={() => onOpen(post)}
-      className="group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors hover:bg-surface-float tablet:px-5"
+      className={classNames(
+        'group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors tablet:px-5',
+        isViewing ? 'bg-surface-float' : 'hover:bg-surface-float',
+      )}
     >
       <Typography
         tag={TypographyTag.H3}
@@ -58,6 +65,7 @@ const PickRow = ({
         {post.title}
       </Typography>
       <div className="ml-auto flex shrink-0 items-center gap-2">
+        {isViewing && <AgentViewingChip />}
         <InlineStat
           ariaLabel={`${post.numUpvotes ?? 0} upvotes`}
           icon={
@@ -105,13 +113,20 @@ const PickRow = ({
 export const AgentPickList = ({
   posts,
   onOpen,
+  activePostId,
 }: {
   posts: Post[];
   onOpen: (post: Post) => void;
+  activePostId?: string;
 }): ReactElement => (
   <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
     {posts.map((post) => (
-      <PickRow key={post.id} post={post} onOpen={onOpen} />
+      <PickRow
+        key={post.id}
+        post={post}
+        onOpen={onOpen}
+        isViewing={post.id === activePostId}
+      />
     ))}
   </ol>
 );

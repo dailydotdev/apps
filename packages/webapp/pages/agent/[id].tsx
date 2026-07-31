@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
@@ -20,6 +20,7 @@ import {
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from '@tanstack/react-query';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { featureInterestAgent } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
@@ -66,6 +67,12 @@ const AgentFeedModal = dynamic(() =>
 
 type AgentTab = 'Chat' | 'Activity' | 'Debug';
 
+// Both columns floor at a mobile-width panel, which is also the pane default.
+const minPanelWidth = 384;
+const defaultPaneWidth = minPanelWidth;
+// Matches the `gap-6` between the chat column and the pane.
+const columnGap = 24;
+
 const AgentPageBody = ({
   items,
   postsCount,
@@ -83,6 +90,43 @@ const AgentPageBody = ({
     useAgent();
   const [tab, setTab] = useState<AgentTab>('Chat');
   const closeContent = () => setActiveContent(undefined);
+  const [storedWidth, setStoredWidth] = usePersistentContext<number>(
+    'agentPaneWidth',
+    defaultPaneWidth,
+  );
+  // Live width during a drag; committed to storage on pointer release so a
+  // drag doesn't write to IndexedDB on every pointermove.
+  const [draggingWidth, setDraggingWidth] = useState<number>();
+  const paneWidth = draggingWidth ?? storedWidth ?? defaultPaneWidth;
+  const columnsRef = useRef<HTMLDivElement>(null);
+
+  const onPaneWidthChange = (next: number) => {
+    const columns = columnsRef.current;
+
+    if (!columns) {
+      return;
+    }
+
+    // clientWidth includes the row's own horizontal padding, so subtract it to
+    // get the space the two columns actually share.
+    const styles = getComputedStyle(columns);
+    const available =
+      columns.clientWidth -
+      parseFloat(styles.paddingLeft) -
+      parseFloat(styles.paddingRight);
+    const max = Math.max(minPanelWidth, available - columnGap - minPanelWidth);
+
+    setDraggingWidth(Math.min(Math.max(next, minPanelWidth), max));
+  };
+
+  const onPaneWidthCommit = () => {
+    if (typeof draggingWidth === 'undefined') {
+      return;
+    }
+
+    setStoredWidth(draggingWidth);
+    setDraggingWidth(undefined);
+  };
   const { ref: heroRef, inView: isHeroInView } = useInView({
     initialInView: true,
     rootMargin: '-56px 0px 0px 0px',
@@ -91,7 +135,7 @@ const AgentPageBody = ({
   return (
     <>
       <PageHeader
-        className="sticky top-14 z-header bg-background-default laptop:top-16"
+        className="sticky top-0 z-header bg-background-default laptop:top-16"
         title={
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <Link href={`${webappUrl}agent`}>
@@ -108,8 +152,11 @@ const AgentPageBody = ({
       >
         <AgentViewToggle view={isModalView ? 'modal' : 'pane'} />
       </PageHeader>
-      <div className="flex w-full flex-row items-start gap-6 px-4 pt-4 laptop:px-6">
-        <FlexCol className="mx-auto w-full min-w-0 max-w-[48rem] gap-6 pb-72">
+      <div
+        ref={columnsRef}
+        className="flex w-full flex-row items-start gap-6 px-4 pt-4 laptop:px-6"
+      >
+        <FlexCol className="mx-auto w-full min-w-0 max-w-[48rem] flex-1 shrink gap-6 pb-72 laptop:min-w-[384px]">
           <div ref={heroRef}>
             <AgentHero findingsCount={items.length} postsCount={postsCount} />
           </div>
@@ -134,7 +181,13 @@ const AgentPageBody = ({
           </TabContainer>
         </FlexCol>
         {activeContent && !isModalView && (
-          <AgentContentPane content={activeContent} onClose={closeContent} />
+          <AgentContentPane
+            content={activeContent}
+            onClose={closeContent}
+            width={paneWidth}
+            onWidthChange={onPaneWidthChange}
+            onWidthCommit={onPaneWidthCommit}
+          />
         )}
       </div>
       {activeContent?.type === 'post' && isModalView && (
