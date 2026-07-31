@@ -207,7 +207,16 @@ function UnifiedMobileFeedNav(): ReactElement {
   );
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lastCenteredIdRef = useRef<string | null>(null);
   useEffect(() => {
+    if (!activeId) {
+      lastCenteredIdRef.current = null;
+      return;
+    }
+    if (lastCenteredIdRef.current === activeId) {
+      return;
+    }
+
     const active = scrollRef.current?.querySelector<HTMLElement>(
       '[data-active="true"]',
     );
@@ -215,12 +224,13 @@ function UnifiedMobileFeedNav(): ReactElement {
       return;
     }
     active.scrollIntoView({ block: 'nearest', inline: 'center' });
-  }, [activeId, items]);
+    lastCenteredIdRef.current = activeId;
+  }, [activeId]);
 
   return (
     <div
       ref={scrollRef}
-      className="no-scrollbar flex w-full items-center gap-2 overflow-x-auto border-b border-border-subtlest-tertiary bg-background-default px-3 py-4"
+      className="no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto bg-background-default px-3 py-4"
     >
       {showDailySwitcher && <DailySwitcher reverse compact />}
       <NewStripCta className="rounded-10 px-2.5 py-1.5" />

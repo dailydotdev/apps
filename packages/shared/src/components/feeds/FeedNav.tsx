@@ -58,6 +58,11 @@ const StickyNavIconWrapper = classed(
   'sticky flex h-14 pt-1 -translate-y-16 items-center justify-end bg-gradient-to-r from-transparent via-background-default via-40% to-background-default pr-4',
 );
 
+const FeedNavActionsWrapper = classed(
+  'div',
+  'flex shrink-0 items-center justify-end gap-1 bg-background-default py-4 pl-1 pr-3',
+);
+
 function FeedNav(): ReactElement | null {
   const router = useRouter();
   const { feedName: rawFeedName } = useActiveFeedNameContext();
@@ -90,9 +95,37 @@ function FeedNav(): ReactElement | null {
   const isForYouTab =
     router.pathname === webappUrl || router.pathname === `${webappUrl}my-feed`;
   const { plusEntryForYou } = usePlusEntry();
-  const showStickyButton =
+  const isDailyPage = router.pathname === '/daily';
+  const showFeedActions =
     isMobile &&
     ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
+  const shouldRenderFeedChips =
+    (isBelowLaptop && isFeedChipsEnabled) || isDailyPage;
+
+  const renderFeedActions = (iconOnly?: boolean) => (
+    <>
+      {sortingEnabled && isSortableFeed && (
+        <Dropdown
+          className={{
+            label: 'hidden',
+            chevron: 'hidden',
+            button: '!px-1',
+          }}
+          shouldIndicateSelected
+          buttonSize={ButtonSize.Small}
+          buttonVariant={ButtonVariant.Tertiary}
+          icon={<SortIcon />}
+          iconOnly
+          selectedIndex={selectedAlgo}
+          options={algorithmsList}
+          onChange={(_, index) => setSelectedAlgo(index)}
+          drawerProps={{ displayCloseButton: true }}
+        />
+      )}
+
+      <MyFeedHeading iconOnly={iconOnly} />
+    </>
+  );
 
   const urlToTab: Record<string, string> = useMemo(() => {
     const customFeeds = sortedFeeds.reduce<Record<string, string>>(
@@ -142,7 +175,6 @@ function FeedNav(): ReactElement | null {
     isCustomDefaultFeed,
   ]);
 
-  const isDailyPage = router.pathname === '/daily';
   const shouldRenderNav = home || isDailyPage || (isMobile && bookmarks);
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
@@ -156,9 +188,28 @@ function FeedNav(): ReactElement | null {
       )}
     >
       {isMobile && <MobileFeedActions />}
-      <div className="mb-4 h-[3.25rem] tablet:relative tablet:mb-0 tablet:h-auto tablet:min-h-[3.25rem]">
-        {(isBelowLaptop && isFeedChipsEnabled) || isDailyPage ? (
-          <UnifiedMobileFeedNav />
+      <div
+        className={classNames(
+          'mb-4 tablet:relative tablet:mb-0',
+          !shouldRenderFeedChips &&
+            'h-[3.25rem] tablet:h-auto tablet:min-h-[3.25rem]',
+        )}
+      >
+        {shouldRenderFeedChips ? (
+          <div className="flex w-full items-stretch border-b border-border-subtlest-tertiary bg-background-default">
+            <UnifiedMobileFeedNav />
+            {showFeedActions && (
+              <FeedNavActionsWrapper>
+                {renderFeedActions(true)}
+              </FeedNavActionsWrapper>
+            )}
+            {isTablet && (
+              <div className="hidden shrink-0 items-center gap-2 bg-background-default py-2 pl-2 pr-4 tablet:flex laptop:hidden">
+                <GivebackGiftEntry compact />
+                <NotificationsBell compact />
+              </div>
+            )}
+          </div>
         ) : (
           <TabContainer
             controlledActive={urlToTab[router.asPath] ?? ''}
@@ -194,39 +245,22 @@ function FeedNav(): ReactElement | null {
           </TabContainer>
         )}
 
-        {showStickyButton && (
+        {!shouldRenderFeedChips && showFeedActions && (
           <StickyNavIconWrapper
             className={classNames(
               'translate-x-[calc(100vw-100%)]',
               sortingEnabled && isSortableFeed ? 'w-32' : 'w-20',
             )}
           >
-            {sortingEnabled && isSortableFeed && (
-              <Dropdown
-                className={{
-                  label: 'hidden',
-                  chevron: 'hidden',
-                  button: '!px-1',
-                }}
-                shouldIndicateSelected
-                buttonSize={ButtonSize.Small}
-                buttonVariant={ButtonVariant.Tertiary}
-                icon={<SortIcon />}
-                iconOnly
-                selectedIndex={selectedAlgo}
-                options={algorithmsList}
-                onChange={(_, index) => setSelectedAlgo(index)}
-                drawerProps={{ displayCloseButton: true }}
-              />
-            )}
-
-            <MyFeedHeading />
+            {renderFeedActions()}
           </StickyNavIconWrapper>
         )}
-        <div className="hidden items-center gap-2 bg-background-default tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:flex laptop:hidden">
-          {isTablet && <GivebackGiftEntry compact />}
-          <NotificationsBell compact />
-        </div>
+        {!shouldRenderFeedChips && (
+          <div className="hidden items-center gap-2 bg-background-default tablet:absolute tablet:inset-y-0 tablet:right-0 tablet:flex laptop:hidden">
+            {isTablet && <GivebackGiftEntry compact />}
+            <NotificationsBell compact />
+          </div>
+        )}
       </div>
       {isForYouTab && plusEntryForYou && (
         <PlusMobileEntryBanner
