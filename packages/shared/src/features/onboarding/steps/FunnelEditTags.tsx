@@ -36,18 +36,32 @@ function FunnelEditTagsComponent({
     <FunnelStepCtaWrapper
       isGlass
       cta={{ label: cta }}
-      // Disabled, not hidden: the bar stays put below the tag minimum, the same
-      // as the verify-email step's CTA before a full code is entered. Fading it
-      // out left the step with no visible target and no hint that one was
-      // coming.
-      disabled={isDisabled}
+      // Onboarding disables the CTA below the tag minimum rather than hiding
+      // it: the bar stays put, the same as the verify-email step's CTA before a
+      // full code is entered. Fading it out left the step with no visible
+      // target and no hint that one was coming. The paid funnel keeps main's
+      // hidden-until-valid button.
+      {...(isOnboarding
+        ? { disabled: isDisabled }
+        : {
+            'aria-hidden': isDisabled,
+            className: classNames({
+              'opacity-0': isDisabled,
+              'pointer-events-none': isDisabled,
+            }),
+          })}
       onClick={handleComplete}
-      containerClassName="flex w-full flex-1 flex-col items-center overflow-hidden"
+      containerClassName={classNames(
+        'flex w-full flex-1 flex-col items-center overflow-hidden',
+        !isOnboarding && 'laptop:justify-center',
+      )}
     >
       <div
         className={classNames(
-          funnelStepRail,
-          'flex flex-col items-center gap-6 py-6 pt-3 laptop:max-w-screen-laptop',
+          'flex flex-col items-center gap-6 laptop:max-w-screen-laptop',
+          isOnboarding
+            ? classNames(funnelStepRail, 'py-6 pt-3')
+            : 'w-full p-6 pt-10 tablet:max-w-md',
         )}
       >
         <EditTag

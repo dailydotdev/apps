@@ -240,8 +240,12 @@ const useOnboardingAuth = () => {
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
       simplified: true,
-      // The account-details and verify-email screens stay clean: no footer nav
-      // strip, no terms strip. The cookie box is the only thing left docked.
+      // Belt and braces. `OnboardingRegistrationForm` only renders its inline
+      // terms strip on the non-Onboarding-trigger branch, and the trigger below
+      // falls back to `AuthTriggers.Onboarding` — but it takes `loginState`
+      // first, which any caller of `showLogin` can set. This keeps the strip off
+      // the wall in that case; the consent line the flow relies on lives on
+      // `RegistrationForm`, next to the button that creates the account.
       hideSignupDisclaimer: true,
       // Account details and verify-email sit in front of the funnel, so they
       // take the funnel's headline scale to read as the same flow.

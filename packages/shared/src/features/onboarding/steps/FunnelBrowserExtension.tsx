@@ -18,6 +18,8 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
+import { Button } from '../../../components/buttons/Button';
+import { ButtonVariant } from '../../../components/buttons/common';
 import { downloadBrowserExtension } from '../../../lib/constants';
 import { ChromeIcon, EdgeIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
@@ -81,6 +83,103 @@ const BrowserExtension = ({
     return () => applyThemeMode();
   }, [applyThemeMode]);
 
+  const onDownload = () => {
+    logEvent({
+      event_name: LogEvent.DownloadExtension,
+      target_id: isEdge ? TargetType.Edge : TargetType.Chrome,
+    });
+    onTransition?.({
+      type: FunnelStepTransitionType.Complete,
+      details: { browserName },
+    });
+  };
+
+  const reviews = showReviews && (
+    <div className="flex flex-col items-center gap-1">
+      <PlusTrustReviews center />
+      <Typography
+        color={TypographyColor.Tertiary}
+        tag={TypographyTag.P}
+        type={TypographyType.Caption1}
+      >
+        Loved by millions of developers
+      </Typography>
+    </div>
+  );
+
+  // 40rem in the funnel, where the footage otherwise dominates the step and
+  // pushes the copy off the fold; the paid funnel keeps main's 48rem.
+  const footage = (
+    <figure
+      className={classNames(
+        'pointer-events-none mx-auto mb-10 w-full px-4 laptop:px-6',
+        isOnboarding ? 'max-w-[40rem]' : 'max-w-[48rem]',
+      )}
+    >
+      <video
+        aria-label="daily.dev feed running in a new tab on a laptop"
+        autoPlay
+        className="aspect-video w-full rounded-16 border border-border-subtlest-quaternary bg-background-subtle object-cover shadow-2"
+        controls={false}
+        disablePictureInPicture
+        loop
+        muted
+        playsInline
+        src={video}
+      />
+    </figure>
+  );
+
+  // The paid funnel keeps its own inline CTA and takes its skip from the
+  // stepper header — this step is in `stepsWithOnlySkipHeader`. Docking the CTA
+  // here regardless would give `/helloworld` a second Skip button under a moved
+  // download button, so this branch is main's markup unchanged.
+  if (!isOnboarding) {
+    return (
+      <div className="mt-10 flex flex-1 flex-col laptop:justify-center">
+        <div className="mb-10 flex flex-col items-center gap-6 justify-self-start text-center">
+          <Typography
+            tag={TypographyTag.H1}
+            type={TypographyType.LargeTitle}
+            color={TypographyColor.Primary}
+            bold
+            className="!px-0"
+            dangerouslySetInnerHTML={{ __html: sanitizeMessage(headline) }}
+          />
+          <Typography
+            className="w-2/3 text-balance text-text-tertiary typo-body"
+            color={TypographyColor.Secondary}
+            tag={TypographyTag.H2}
+            type={TypographyType.Title3}
+            dangerouslySetInnerHTML={{ __html: sanitizeMessage(explainer) }}
+          />
+          <Button
+            href={downloadBrowserExtension}
+            icon={
+              isEdge ? <EdgeIcon aria-hidden /> : <ChromeIcon aria-hidden />
+            }
+            data-funnel-track={FunnelTargetId.DownloadExtension}
+            onClick={onDownload}
+            rel={anchorDefaultRel}
+            tag="a"
+            target="_blank"
+            variant={ButtonVariant.Primary}
+          >
+            <span>{ctaText}</span>
+          </Button>
+          {reviews}
+          <Typography
+            color={TypographyColor.Secondary}
+            tag={TypographyTag.P}
+            type={TypographyType.Body}
+            dangerouslySetInnerHTML={{ __html: sanitizeMessage(skip) }}
+          />
+        </div>
+        {footage}
+      </div>
+    );
+  }
+
   return (
     <FunnelStepCtaWrapper
       isGlass
@@ -96,16 +195,7 @@ const BrowserExtension = ({
           <ChromeIcon aria-hidden size={IconSize.Small} />
         )
       }
-      onClick={() => {
-        logEvent({
-          event_name: LogEvent.DownloadExtension,
-          target_id: isEdge ? TargetType.Edge : TargetType.Chrome,
-        });
-        onTransition?.({
-          type: FunnelStepTransitionType.Complete,
-          details: { browserName },
-        });
-      }}
+      onClick={onDownload}
       rel={anchorDefaultRel}
       skip={{
         cta: 'Skip',
@@ -131,18 +221,7 @@ const BrowserExtension = ({
             __html: sanitizeMessage(explainer),
           }}
         />
-        {showReviews && (
-          <div className="flex flex-col items-center gap-1">
-            <PlusTrustReviews center />
-            <Typography
-              color={TypographyColor.Tertiary}
-              tag={TypographyTag.P}
-              type={TypographyType.Caption1}
-            >
-              Loved by millions of developers
-            </Typography>
-          </div>
-        )}
+        {reviews}
         {/* An aside under the subtitle, so a step quieter than it. */}
         <Typography
           color={TypographyColor.Tertiary}
@@ -153,21 +232,7 @@ const BrowserExtension = ({
           }}
         />
       </div>
-      {/* Capped at 640px: at 48rem the footage dominated the step and pushed
-          the copy off the fold. */}
-      <figure className="pointer-events-none mx-auto mb-10 w-full max-w-[40rem] px-4 laptop:px-6">
-        <video
-          aria-label="daily.dev feed running in a new tab on a laptop"
-          autoPlay
-          className="aspect-video w-full rounded-16 border border-border-subtlest-quaternary bg-background-subtle object-cover shadow-2"
-          controls={false}
-          disablePictureInPicture
-          loop
-          muted
-          playsInline
-          src={video}
-        />
-      </figure>
+      {footage}
     </FunnelStepCtaWrapper>
   );
 };
