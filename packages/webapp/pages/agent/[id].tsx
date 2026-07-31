@@ -142,8 +142,13 @@ const AgentPageBody = ({
           'sticky top-0 z-header bg-background-default',
           // v2 hands the header to the sidebar rail, so the strip sticks to
           // the floating card's inner top (laptop:my-3 + p-0.5) rather than
-          // below a header that isn't there.
-          isV2 ? 'laptop:top-3.5' : 'laptop:top-16',
+          // below a header that isn't there. The pseudo-element paints over
+          // the card's border/padding sliver above the strip, which scrolled
+          // content would otherwise peek through; the card's overflow-clip
+          // keeps it from spilling outside the rounded frame.
+          isV2
+            ? 'laptop:top-3.5 laptop:before:absolute laptop:before:inset-x-0 laptop:before:bottom-full laptop:before:h-4 laptop:before:bg-background-default'
+            : 'laptop:top-16',
         )}
         title={
           <div className="flex min-w-0 flex-1 items-center gap-2">
