@@ -62,7 +62,6 @@ import { HelpWidget } from '../help/HelpWidget';
 import {
   BellIcon,
   BrowserGroupIcon,
-  CompassIcon,
   CreditCardIcon,
   DocsIcon,
   EditIcon,
@@ -88,6 +87,7 @@ import {
   SourceIcon,
   TerminalIcon,
   TrendingIcon,
+  UserIcon,
 } from '../icons';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { IconSize } from '../Icon';
@@ -109,7 +109,7 @@ import NotificationsBell from '../notifications/NotificationsBell';
 import { NotificationsRailPanel } from '../notifications/NotificationsRailPanel';
 import { ProfilePicture, ProfileImageSize } from '../ProfilePicture';
 import Link from '../utilities/Link';
-import { SharedFeedPage, HorizontalSeparator } from '../utilities';
+import { HorizontalSeparator } from '../utilities';
 import {
   appsUrl,
   businessWebsiteUrl,
@@ -135,7 +135,7 @@ import { LogoutReason } from '../../lib/user';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
-import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
+import { useMyFeedNav } from '../../hooks/feed/useMyFeedNav';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureGiveback } from '../../lib/featureManagement';
@@ -156,30 +156,25 @@ type SidebarCategoryConfig = {
 
 const sidebarCategories: SidebarCategoryConfig[] = [
   {
+    // The home tab. Its panel leads with "Your feed" (the personal feed the
+    // brand mark also lands on), then the discovery hub and Recent. Its
+    // `defaultPath` is resolved per-user instead of being fixed here — see
+    // getCategoryDefaultPath.
     id: SidebarCategory.Main,
-    label: 'Explore',
-    defaultPath: `${webappUrl}posts`,
+    label: 'Home',
     icon: (active) => (
-      <CompassIcon
-        secondary={active}
-        size={RAIL_ICON_SIZE}
-        aria-hidden
-        // Optical correction: the compass is a thin hollow circle, which reads
-        // smaller than the denser glyphs beside it at the same box size. A
-        // circle needs a few percent of overshoot to look equal.
-        className="scale-105"
-      />
+      <HomeIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
     // Rendered via the avatar (not the tablist loop); listed here so panel
-    // title / label lookups resolve. The icon is unused — the avatar renders
-    // the user's profile picture.
+    // title / label lookups resolve. The icon shows only in the "More" menu —
+    // on the rail the avatar renders the user's profile picture instead.
     id: SidebarCategory.Profile,
     // Surfaced as the panel title and the avatar tooltip/label.
     label: 'You',
     icon: (active) => (
-      <HomeIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
+      <UserIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
@@ -743,13 +738,7 @@ export const SidebarDesktopV2 = ({
   const { open: openSpotlight } = useSpotlight();
   const { openModal, modal } = useLazyModal();
   const { isLoggedIn, user } = useAuthContext();
-  const { isCustomDefaultFeed } = useCustomDefaultFeed();
-  // The flat Home button targets the "For You" feed. On extension there's no
-  // router, so it always uses the explicit /my-feed path.
-  let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
-  if (isExtension) {
-    myFeedPath = '/my-feed';
-  }
+  const { path: myFeedPath, navTab: myFeedNavTab } = useMyFeedNav();
   const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
   // Compact mode reverts to the original icon-only widths (pre-label rail).
   // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
@@ -780,12 +769,14 @@ export const SidebarDesktopV2 = ({
   const reorderableRailItems = useMemo(
     () =>
       [
-        isLoggedIn ? SidebarCategory.Profile : null,
         SidebarCategory.Main,
         SidebarCategory.Squads,
         isLoggedIn ? SidebarCategory.Notifications : null,
         // Drops out of the rail entirely when all gamification is opted out.
         showGameCenterTab ? SidebarCategory.GameCenter : null,
+        // The avatar sits at the end of the tabs, directly above New post —
+        // "you" is the account context, not a browsing destination.
+        isLoggedIn ? SidebarCategory.Profile : null,
         isLoggedIn ? RAIL_CREATE_ID : null,
       ].filter(Boolean) as RailItemId[],
     [isLoggedIn, showGameCenterTab],
@@ -1050,23 +1041,12 @@ export const SidebarDesktopV2 = ({
   ]);
   const activePage = activePageProp || router.asPath || router.pathname || '';
   const isFeedPage = activePage.includes('/feeds/');
-  // When the For You feed is the current page, the Home button reads as
-  // selected — fill its icon (secondary) instead of the outline.
+  // Marks the brand mark as the current page when your feed is what's open.
   const isHomeActive = isSidebarItemActive(activePage, myFeedPath);
 
   const resolvedBaseCategory = useMemo((): SidebarCategoryId => {
-    // The home / For You feed is a logged-in user's personal hub, so it
-    // defaults to the Profile panel rather than Explore. Anonymous users (no
-    // profile panel) fall back to Explore. `/daily` is a home-equivalent
-    // surface (it renders the same DailyHome the feed shows with
-    // daily-as-default), so switching feed ⇄ daily keeps the same sidebar
-    // instead of flipping the panel to Explore.
-    const isDailyPage = activePage.split('?')[0] === '/daily';
-    if (isLoggedIn && (isHomeActive || isDailyPage)) {
-      return SidebarCategory.Profile;
-    }
-    // The user's own profile page (`/<username>` and its sub-pages) also keeps
-    // the Profile panel — the avatar navigates here, so it must resolve back to
+    // The user's own profile page (`/<username>` and its sub-pages) keeps the
+    // Profile panel — the avatar navigates here, so it must resolve back to
     // Profile (otherwise the optimistic pending category never clears).
     const path = activePage.split('?')[0];
     const ownProfileBase = user?.username ? `/${user.username}` : null;
@@ -1081,7 +1061,7 @@ export const SidebarDesktopV2 = ({
       return SidebarCategory.Main;
     }
     return getSidebarCategoryForPath(activePage);
-  }, [activePage, isFeedPage, isHomeActive, isLoggedIn, user?.username]);
+  }, [activePage, isFeedPage, isLoggedIn, user?.username]);
 
   // Opening a single post (`/posts/[id]`) shouldn't change the sidebar context
   // — the panel behind the post page keeps whatever you came from (History,
@@ -1253,12 +1233,17 @@ export const SidebarDesktopV2 = ({
       if (category === SidebarCategory.Settings) {
         return settingsDefaultPath;
       }
+      // Home lands on your feed, which is a per-user destination rather than a
+      // fixed route, so it can't live in the static category config.
+      if (category === SidebarCategory.Main) {
+        return myFeedPath;
+      }
       return (
         sidebarCategories.find((entry) => entry.id === category)?.defaultPath ??
         null
       );
     },
-    [],
+    [myFeedPath],
   );
 
   const onSelectCategory = useCallback(
@@ -1273,6 +1258,15 @@ export const SidebarDesktopV2 = ({
       if (!targetPath) {
         return;
       }
+      if (category === SidebarCategory.Main) {
+        // Your feed is a feed switch, not a page: the extension new tab swaps
+        // it in place, and its router would resolve "/my-feed" against the
+        // chrome-extension:// origin.
+        onNavTabClick?.(myFeedNavTab);
+        if (isExtension) {
+          return;
+        }
+      }
       const targetPathname = new URL(targetPath, 'http://_').pathname;
       const currentPathname = activePage.split('?')[0];
       if (targetPathname !== currentPathname) {
@@ -1281,7 +1275,7 @@ export const SidebarDesktopV2 = ({
         Promise.resolve(router.push(targetPath)).catch(() => undefined);
       }
     },
-    [activePage, getCategoryDefaultPath, router],
+    [activePage, getCategoryDefaultPath, myFeedNavTab, onNavTabClick, router],
   );
 
   const onPrefetchCategory = useCallback(
@@ -1306,15 +1300,12 @@ export const SidebarDesktopV2 = ({
     Promise.resolve(router.push(targetPath)).catch(() => undefined);
   }, [router, user]);
 
-  // The flat Home button switches to the "For You" feed. It mirrors the rail
-  // tabs' optimistic panel switch (Main = Explore) while the route resolves.
+  // The brand mark switches to your feed. It mirrors the rail tabs' optimistic
+  // panel switch (your feed lives under Home) while the route resolves.
   const onHomeClick = useCallback(() => {
-    // Home opens the Profile panel by default (logged in); Explore for anon.
-    setPendingCategory(
-      isLoggedIn ? SidebarCategory.Profile : SidebarCategory.Main,
-    );
-    onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/');
-  }, [isCustomDefaultFeed, isLoggedIn, onNavTabClick]);
+    setPendingCategory(SidebarCategory.Main);
+    onNavTabClick?.(myFeedNavTab);
+  }, [myFeedNavTab, onNavTabClick]);
 
   // Remember the last non-settings location so "Back to app" returns the user
   // where they were rather than always dumping them on the home feed.
@@ -1901,7 +1892,7 @@ export const SidebarDesktopV2 = ({
       const href =
         id === SidebarCategory.Profile && user?.username
           ? `${webappUrl}${user.username}`
-          : category?.defaultPath ?? webappUrl;
+          : getCategoryDefaultPath(id) ?? webappUrl;
       return {
         key: id as string,
         label: category?.label ?? '',
@@ -2007,7 +1998,7 @@ export const SidebarDesktopV2 = ({
           >
             <Tooltip
               side="right"
-              content="Home"
+              content="Your feed"
               collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
               {/* mt nudges the logo down so it lines up vertically with the
@@ -2017,16 +2008,12 @@ export const SidebarDesktopV2 = ({
                 <Link href={myFeedPath} passHref>
                   <a
                     href={myFeedPath}
-                    aria-label="Home"
-                    // The brand mark doubles as the Home button: the daily.dev
-                    // logo at rest, crossfading into the home glyph on
-                    // hover/focus so the destination is obvious pre-click.
-                    // Everything below is scoped to `group/home` — this button
-                    // alone. An unnamed `group` here would also match the
-                    // sidebar-wide group on SidebarAside, so the logo would
-                    // vanish whenever the pointer was anywhere in the rail
-                    // (reordering tabs, using the dock, opening settings).
-                    className="focus-outline group/home flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
+                    aria-label="Your feed"
+                    aria-current={isHomeActive ? 'page' : undefined}
+                    // The brand mark stays the brand mark — it never swaps for
+                    // a glyph. It is the shortcut to your feed; the Home tab
+                    // below carries the icon and label for the same place.
+                    className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
                     onClick={(event) => {
                       // Keep the removed logo link's click contract — the
                       // extension resets its feed/search state there.
@@ -2046,31 +2033,8 @@ export const SidebarDesktopV2 = ({
                   >
                     <span className={railGlyphBoxClass}>
                       <LogoIcon
-                        className={{
-                          container:
-                            'h-[1.125rem] w-auto transition-[opacity,transform] duration-150 ease-out group-hover/home:scale-75 group-hover/home:opacity-0 group-focus-visible/home:scale-75 group-focus-visible/home:opacity-0 motion-reduce:transition-none',
-                        }}
+                        className={{ container: 'h-[1.125rem] w-auto' }}
                       />
-                      <span
-                        aria-hidden
-                        className={classNames(
-                          'absolute inset-0 flex scale-75 items-center justify-center opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover/home:scale-100 group-hover/home:opacity-100 group-focus-visible/home:scale-100 group-focus-visible/home:opacity-100 motion-reduce:transition-none',
-                          // Filled white when the feed IS the current page;
-                          // elsewhere it's an inactive grey outline that goes
-                          // white on direct hover — exactly how the Search icon
-                          // behaves. (The logo keeps its own fill, so this only
-                          // colours the home glyph.)
-                          isHomeActive
-                            ? 'text-text-primary'
-                            : 'text-text-tertiary group-hover/home:text-text-primary',
-                        )}
-                      >
-                        <HomeIcon
-                          secondary={isHomeActive}
-                          size={RAIL_ICON_SIZE}
-                          aria-hidden
-                        />
-                      </span>
                     </span>
                   </a>
                 </Link>

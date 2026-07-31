@@ -31,6 +31,9 @@ interface DiscoverSectionProps extends SidebarSectionProps {
   // Extra rows injected right after "Explore" (e.g. the v2 Explore panel slots
   // Happening Now between Explore and Tags).
   itemsAfterExplore?: SidebarMenuItem[];
+  // Extra rows injected above "Explore" (the v2 Home panel leads with Your
+  // feed). Defaults to none so the v1 sidebar is unchanged.
+  itemsBeforeExplore?: SidebarMenuItem[];
 }
 
 export const DiscoverSection = ({
@@ -38,6 +41,7 @@ export const DiscoverSection = ({
   onNavTabClick,
   showHotTakes = true,
   itemsAfterExplore,
+  itemsBeforeExplore,
   ...defaultRenderSectionProps
 }: DiscoverSectionProps): ReactElement => {
   const { completeAction } = useActions();
@@ -47,6 +51,7 @@ export const DiscoverSection = ({
   const HotTakesIcon = isV2 ? TourIcon : HotIcon;
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     return [
+      ...(itemsBeforeExplore ?? []),
       {
         icon: (active: boolean) => (
           <ListIcon Icon={() => <CompassIcon secondary={active} />} />
@@ -121,6 +126,7 @@ export const DiscoverSection = ({
     HotTakesIcon,
     showHotTakes,
     itemsAfterExplore,
+    itemsBeforeExplore,
   ]);
 
   return (
