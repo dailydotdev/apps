@@ -46,10 +46,10 @@ import {
   HashtagIcon,
   MegaphoneIcon,
   MenuIcon,
-  SquadIcon,
   TrashIcon,
   UserIcon,
 } from '../icons';
+import { MedalIcon } from '../icons/Medal';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RootPortal } from '../tooltips/Portal';
@@ -108,7 +108,7 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
     id: 'leaderboard',
     label: 'Leaderboard',
     path: `${webappUrl}users`,
-    icon: (a) => <SquadIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
+    icon: (a) => <MedalIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
   {
     id: 'discussed',

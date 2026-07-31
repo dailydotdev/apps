@@ -44,6 +44,7 @@ import {
 } from './common';
 import type { SidebarMenuItem } from './common';
 import { Section } from './Section';
+import { mergeRailOrder } from './railOrder';
 import { getSidebarCategoryForPath, SidebarCategory } from './sidebarCategory';
 import type { SidebarCategoryId } from './sidebarCategory';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -812,22 +813,14 @@ export const SidebarDesktopV2 = ({
       setRailOrderOverride(null);
     }
   }, [storedRailOrder, railOrderOverride]);
-  // Reconcile the saved order against the valid set: drop unknown/stale ids and
-  // surface any newly-added category that isn't in the stored order yet at the
-  // front (e.g. the avatar tab for users who saved an order before it existed).
-  // New post is the exception — for users with a saved layout it joins at the
-  // end (its default slot, below the tabs) rather than jumping to the top.
-  const railOrder = useMemo(() => {
-    const known = (railOrderOverride ?? storedRailOrder ?? []).filter((id) =>
-      reorderableRailItems.includes(id),
-    );
-    const missing = reorderableRailItems.filter((id) => !known.includes(id));
-    return [
-      ...missing.filter((id) => id !== RAIL_CREATE_ID),
-      ...known,
-      ...missing.filter((id) => id === RAIL_CREATE_ID),
-    ];
-  }, [reorderableRailItems, storedRailOrder, railOrderOverride]);
+  const railOrder = useMemo(
+    () =>
+      mergeRailOrder(
+        railOrderOverride ?? storedRailOrder ?? [],
+        reorderableRailItems,
+      ),
+    [reorderableRailItems, storedRailOrder, railOrderOverride],
+  );
   // Only the tabs fold into "More" — New post always stays on the rail.
   const foldableTabIds = useMemo(
     () =>
