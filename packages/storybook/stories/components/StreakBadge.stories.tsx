@@ -5,8 +5,12 @@ import { railTabLabelClass } from '@dailydotdev/shared/src/components/sidebar/co
 import type { StreakRingState } from '@dailydotdev/shared/src/hooks/streaks/useStreakRingState';
 
 // The v2 rail's reading-streak indicator (replaces the old avatar StreakRing).
-// A small square badge: state-driven border + fill, with the flame filled once
+// A small circular badge: state-driven ring + fill, with the flame filled once
 // you've read today. Presentational — driven entirely by `state` + `hasReadToday`.
+//
+// HOVER: every badge below sits in a wrapper carrying `group/streaktab` — the
+// same hook the real rail tab provides — so you can hover any of them to see
+// the live hover state (unread ring AND flame go white together).
 
 const STATES: StreakRingState[] = [
   'none',
@@ -30,6 +34,28 @@ const STATE_LABEL: Record<StreakRingState, string> = {
 
 // Which states represent "already read today" (flame filled) in real usage.
 const READ_STATES = new Set<StreakRingState>(['safe', 'celebration', 'freeze']);
+
+// One rail tab as the sidebar renders it: badge + day-count label, inside the
+// `group/streaktab` wrapper the badge's hover styles hook into. Hovering it here
+// behaves exactly like hovering the tab in the app.
+const RailTabPreview = ({
+  state,
+  selected = false,
+}: {
+  state: StreakRingState;
+  selected?: boolean;
+}) => (
+  <span className="group/streaktab flex w-16 cursor-pointer flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary">
+    <StreakBadge
+      state={state}
+      hasReadToday={READ_STATES.has(state)}
+      selected={selected}
+    />
+    <span className={railTabLabelClass}>
+      {state === 'none' ? 'Streak' : '73'}
+    </span>
+  </span>
+);
 
 const meta: Meta<typeof StreakBadge> = {
   title: 'Components/Sidebar/StreakBadge',
@@ -77,13 +103,7 @@ export const AllStates: Story = {
     <div className="grid grid-cols-4 gap-x-8 gap-y-10">
       {STATES.map((state) => (
         <div key={state} className="flex flex-col items-center gap-3">
-          {/* Mirror the rail tab: badge glyph + count label underneath. */}
-          <span className="flex w-16 flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary">
-            <StreakBadge state={state} hasReadToday={READ_STATES.has(state)} />
-            <span className={railTabLabelClass}>
-              {state === 'none' ? 'Streak' : '73'}
-            </span>
-          </span>
+          <RailTabPreview state={state} />
           <span className="text-center text-text-secondary typo-caption1">
             {STATE_LABEL[state]}
           </span>
@@ -93,10 +113,8 @@ export const AllStates: Story = {
   ),
 };
 
-// The same matrix with `selected` on — the calm-state borders turn pink (the
-// reading-streak brand colour). Note: the hover-white border can't show here
-// because it depends on the tab's `group/streaktab`, which only exists in the
-// real rail.
+// The same matrix with `selected` on — the calm-state rings turn pink (the
+// reading-streak brand colour).
 export const Selected: Story = {
   argTypes: {
     state: { table: { disable: true } },
@@ -107,16 +125,7 @@ export const Selected: Story = {
     <div className="grid grid-cols-4 gap-x-8 gap-y-10">
       {STATES.map((state) => (
         <div key={state} className="flex flex-col items-center gap-3">
-          <span className="flex w-16 flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary">
-            <StreakBadge
-              state={state}
-              hasReadToday={READ_STATES.has(state)}
-              selected
-            />
-            <span className={railTabLabelClass}>
-              {state === 'none' ? 'Streak' : '73'}
-            </span>
-          </span>
+          <RailTabPreview state={state} selected />
           <span className="text-center text-text-secondary typo-caption1">
             {STATE_LABEL[state]}
           </span>

@@ -18,7 +18,7 @@ export enum Streak {
   UsedFreeze = 'used_freeze',
 }
 
-const freezeTooltipCopy: Partial<Record<Streak, string>> = {
+export const freezeTooltipCopy: Partial<Record<Streak, string>> = {
   [Streak.Freeze]:
     'We auto-freeze streaks during the weekend, but you can still keep going if you want to',
   [Streak.UsedFreeze]: 'A streak freeze was used this day',

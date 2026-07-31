@@ -11,12 +11,13 @@ import { useRouter } from 'next/router';
 import * as HoverCardPrimitive from '@radix-ui/react-hover-card';
 import {
   DndContext,
+  DragOverlay,
   closestCenter,
   PointerSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import type { DragEndEvent } from '@dnd-kit/core';
+import type { DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import {
   SortableContext,
   arrayMove,
@@ -29,9 +30,16 @@ import {
   isSidebarItemActive,
   ListIcon,
   Nav,
+  RAIL_ICON_SIZE,
+  railCountBubbleClass,
+  railDividerBgClass,
+  railDividerBorderClass,
+  railGlyphBoxClass,
   railTabClass,
   railTabLabelClass,
   SidebarAside,
+  sidebarDragGhostClass,
+  sidebarDragSlotClass,
   SidebarScrollWrapper,
 } from './common';
 import type { SidebarMenuItem } from './common';
@@ -152,7 +160,15 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     label: 'Explore',
     defaultPath: `${webappUrl}posts`,
     icon: (active) => (
-      <CompassIcon secondary={active} size={IconSize.Small} aria-hidden />
+      <CompassIcon
+        secondary={active}
+        size={RAIL_ICON_SIZE}
+        aria-hidden
+        // Optical correction: the compass is a thin hollow circle, which reads
+        // smaller than the denser glyphs beside it at the same box size. A
+        // circle needs a few percent of overshoot to look equal.
+        className="scale-105"
+      />
     ),
   },
   {
@@ -163,7 +179,7 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     // Surfaced as the panel title and the avatar tooltip/label.
     label: 'You',
     icon: (active) => (
-      <HomeIcon secondary={active} size={IconSize.Small} aria-hidden />
+      <HomeIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
@@ -171,7 +187,15 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     label: 'Squads',
     defaultPath: `${webappUrl}squads/discover`,
     icon: (active) => (
-      <SourceIcon secondary={active} size={IconSize.Small} aria-hidden />
+      <SourceIcon
+        secondary={active}
+        size={RAIL_ICON_SIZE}
+        aria-hidden
+        // Optical correction: the atom's four crossing ellipses put far more ink
+        // in the box than the single-outline glyphs beside it, so at an equal
+        // size it reads heavier. A few percent down evens it out.
+        className="scale-95"
+      />
     ),
   },
   {
@@ -182,10 +206,28 @@ const sidebarCategories: SidebarCategoryConfig[] = [
     label: 'Streak',
     defaultPath: `${webappUrl}game-center`,
     icon: (active) => (
-      <HotIcon secondary={active} size={IconSize.Small} aria-hidden />
+      <HotIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
 ];
+
+// Fallback release for the post-drag click guard — see releaseRailDragClickGuard.
+const RAIL_DRAG_CLICK_GUARD_FALLBACK_MS = 500;
+// The overflow budget below has to know how tall each rail row is, which means
+// restating class strings as numbers. Keep every one of them here, each naming
+// the exact class it mirrors, so editing a class has one obvious place to
+// follow — a silent desync only shows up as one tab too many or too few folding
+// into "More" at a particular viewport height, which nothing in CI can catch.
+const RAIL_ROW_GAP_PX = 4; // `gap-1` on the rail column
+const SHORTCUT_ROW_PX = 40; // shortcut dot row height
+const CREATE_BUTTON_PX = 36; // New post `!size-9`
+const CREATE_MARGIN_Y_PX = 16; // New post `my-2`
+const SEP_PX = 1 + 24; // framing separator `h-px` + its `my-3`
+
+// New post is reorderable alongside the tabs, so it needs an id in the rail
+// order. It matches the key the panel preview already uses for the create panel.
+const RAIL_CREATE_ID = 'create';
+type RailItemId = SidebarCategoryId | typeof RAIL_CREATE_ID;
 
 const railButtonClass =
   'flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none focus-outline';
@@ -214,9 +256,13 @@ const SAFE_ZONE_BUFFER = 26;
 const SortableRailTab = ({
   id,
   children,
+  consumeClickGuard,
 }: {
   id: string;
   children: ReactNode;
+  // Armed while a rail drag is live — see `releaseRailDragClickGuard`. Returns
+  // whether the guard was armed and disarms it.
+  consumeClickGuard: () => boolean;
 }): ReactElement => {
   const { setNodeRef, listeners, transform, transition, isDragging } =
     useSortable({ id });
@@ -224,12 +270,51 @@ const SortableRailTab = ({
     <div
       ref={setNodeRef}
       {...listeners}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
+      // This sortable wrapper sits between the `role="tablist"` and each
+      // `role="tab"`. Without a presentational role the tabs are nested inside
+      // anonymous generics rather than owned by the tablist, which is what
+      // makes a screen reader's "tab N of M" counting unreliable. The div is
+      // not focusable and carries no ARIA of its own, so the role is honoured
+      // and the tab inside it is unaffected.
+      role="presentation"
+      // Capture phase so the drop's stray click dies before it reaches the tab
+      // button or the notifications bell's anchor (which would navigate). The
+      // click CONSUMES the guard — a timer release can't be trusted here (see
+      // releaseRailDragClickGuard).
+      onClickCapture={(event) => {
+        if (!consumeClickGuard()) {
+          return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+      }}
+      // Translate only, never CSS.Transform — that also emits the sortable's
+      // scale, which dnd-kit sets to the size ratio between the dragged item
+      // and the one it displaces. The rail mixes tall tabs with the shorter
+      // New post button, so that ratio squashed/stretched them mid-drag.
+      //
+      // While dragging, the REAL element stays parked here as a slot skeleton
+      // and a DragOverlay ghost follows the cursor (same architecture as the
+      // shortcuts dock). That is what makes the notifications tab safe to
+      // drag: its live anchor is never under the pointer at release, so the
+      // browser's post-drag click can't hit the link and natively navigate —
+      // no guard timing can promise that while the real anchor rides along
+      // with the cursor.
+      style={{
+        transform: isDragging ? undefined : CSS.Translate.toString(transform),
+        transition,
+      }}
       className={classNames(
         // `relative z-1` keeps every tab painted above the sliding selected
         // pill (an absolute z-0 indicator behind them in the tablist).
-        'relative z-1 w-full touch-none',
-        isDragging ? 'opacity-60 cursor-grabbing' : 'cursor-grab',
+        'relative z-1 w-full touch-none rounded-12 transition-colors',
+        // Landing skeleton: the dock's shared slot treatment, with the item's
+        // own content faded out rather than removed so the slot keeps its exact
+        // height. EVERY item gets one, New post included — it is the only thing
+        // telling you where the drop will land. (New post still lifts bare, but
+        // that is about the ghost, not the slot it leaves behind.)
+        isDragging && sidebarDragSlotClass,
+        isDragging ? '[&>*]:opacity-0' : 'cursor-grab',
       )}
     >
       {children}
@@ -319,7 +404,7 @@ const railGiftLink = (label: string, href: string): ReactElement => (
   <Tooltip side="right" content={label}>
     <Link href={href} passHref>
       <a aria-label={label} className={railButtonClass}>
-        <GiftIcon size={IconSize.Small} aria-hidden />
+        <GiftIcon size={RAIL_ICON_SIZE} aria-hidden />
       </a>
     </Link>
   </Tooltip>
@@ -402,7 +487,7 @@ const SidebarSupportButton = (): ReactElement => {
             isOpen && 'bg-background-default !text-text-primary',
           )}
         >
-          <HelpIcon secondary={isOpen} size={IconSize.Small} aria-hidden />
+          <HelpIcon secondary={isOpen} size={RAIL_ICON_SIZE} aria-hidden />
         </button>
       </Tooltip>
       {isOpen && (
@@ -513,7 +598,7 @@ const SidebarSettingsButton = (): ReactElement => {
             isOpen && 'bg-background-default !text-text-primary',
           )}
         >
-          <SettingsIcon secondary={isOpen} size={IconSize.Small} aria-hidden />
+          <SettingsIcon secondary={isOpen} size={RAIL_ICON_SIZE} aria-hidden />
         </button>
       </Tooltip>
       {isOpen && (
@@ -585,7 +670,11 @@ const SidebarProfileButton = ({
           isPreviewing && 'bg-surface-hover text-text-primary',
         )}
       >
-        <span className="relative flex items-center justify-center">
+        {/* Fixed 24px slot (the shared rail glyph box) with a 20px avatar
+          inside: a solid photo reads far heavier than the outline glyphs beside
+          it, so it needs to be optically smaller to look the same size. The
+          slot keeps this tab's height identical to the others. */}
+        <span className={railGlyphBoxClass}>
           <ProfilePicture
             user={user}
             size={ProfileImageSize.Small}
@@ -685,10 +774,10 @@ export const SidebarDesktopV2 = ({
     copy: streakCopy,
   } = useStreakRingState();
 
-  // The reorderable rail tabs (each opens a panel), including the avatar/"You"
-  // tab so it can be moved too. Order is user-customizable via drag-and-drop and
-  // persisted; logo / New post / settings are fixed and live outside this list.
-  const reorderableCategories = useMemo(
+  // The reorderable rail items: the tabs (each opens a panel), including the
+  // avatar/"You" tab, plus New post — all draggable into any order and
+  // persisted. Logo / Search / settings stay fixed outside this list.
+  const reorderableRailItems = useMemo(
     () =>
       [
         isLoggedIn ? SidebarCategory.Profile : null,
@@ -697,22 +786,55 @@ export const SidebarDesktopV2 = ({
         isLoggedIn ? SidebarCategory.Notifications : null,
         // Drops out of the rail entirely when all gamification is opted out.
         showGameCenterTab ? SidebarCategory.GameCenter : null,
-      ].filter(Boolean) as SidebarCategoryId[],
+        isLoggedIn ? RAIL_CREATE_ID : null,
+      ].filter(Boolean) as RailItemId[],
     [isLoggedIn, showGameCenterTab],
   );
   const [storedRailOrder, setStoredRailOrder] = usePersistentContext<
-    SidebarCategoryId[]
-  >('sidebar_rail_order', reorderableCategories);
+    RailItemId[]
+  >('sidebar_rail_order', reorderableRailItems);
+  // Local override applied synchronously in onDragEnd (same pattern as the
+  // shortcuts dock). The persisted value round-trips through a react-query
+  // mutation, so its re-render lands a beat AFTER dnd-kit clears the sortable
+  // transforms — one visible frame of the OLD order at the drop, i.e. the tab
+  // flashed back to its original slot before jumping to the new one. A plain
+  // setState here commits in the same React update as dnd-kit's drag-end
+  // state, so the drop renders the new order immediately.
+  const [railOrderOverride, setRailOrderOverride] = useState<
+    RailItemId[] | null
+  >(null);
+  useEffect(() => {
+    // Drop the override once the persisted value catches up, so later external
+    // changes to the stored order aren't shadowed.
+    if (!railOrderOverride) {
+      return;
+    }
+    if ((storedRailOrder ?? []).join('|') === railOrderOverride.join('|')) {
+      setRailOrderOverride(null);
+    }
+  }, [storedRailOrder, railOrderOverride]);
   // Reconcile the saved order against the valid set: drop unknown/stale ids and
   // surface any newly-added category that isn't in the stored order yet at the
   // front (e.g. the avatar tab for users who saved an order before it existed).
+  // New post is the exception — for users with a saved layout it joins at the
+  // end (its default slot, below the tabs) rather than jumping to the top.
   const railOrder = useMemo(() => {
-    const known = (storedRailOrder ?? []).filter((id) =>
-      reorderableCategories.includes(id),
+    const known = (railOrderOverride ?? storedRailOrder ?? []).filter((id) =>
+      reorderableRailItems.includes(id),
     );
-    const missing = reorderableCategories.filter((id) => !known.includes(id));
-    return [...missing, ...known];
-  }, [reorderableCategories, storedRailOrder]);
+    const missing = reorderableRailItems.filter((id) => !known.includes(id));
+    return [
+      ...missing.filter((id) => id !== RAIL_CREATE_ID),
+      ...known,
+      ...missing.filter((id) => id === RAIL_CREATE_ID),
+    ];
+  }, [reorderableRailItems, storedRailOrder, railOrderOverride]);
+  // Only the tabs fold into "More" — New post always stays on the rail.
+  const foldableTabIds = useMemo(
+    () =>
+      railOrder.filter((id) => id !== RAIL_CREATE_ID) as SidebarCategoryId[],
+    [railOrder],
+  );
 
   // Overflow, measured against the content-independent (flex-1) height of the
   // lower region that holds the tabs + dock — so folding never changes the
@@ -740,15 +862,21 @@ export const SidebarDesktopV2 = ({
 
   const { resolved: shortcutItems } = useSidebarShortcutItems();
   const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
-  const iconRowPx = 40 + 4; // shortcut dot row (height + gap)
-  const tabRowPx = (isCompact ? 44 : 56) + 4; // tab / "More" row (height + gap)
-  const SEP_PX = 12; // framing separator + its vertical margins
-  const tabCount = railOrder.length;
+  const iconRowPx = SHORTCUT_ROW_PX + RAIL_ROW_GAP_PX;
+  const tabRowPx = (isCompact ? 44 : 56) + RAIL_ROW_GAP_PX;
+  const tabCount = foldableTabIds.length;
+  // New post sits inside the measured region but never folds into "More" —
+  // reserve its row up front so the tabs/dock budget is only what's left, and
+  // folding still peels off one tab at a time.
+  const createRowPx = isLoggedIn
+    ? CREATE_BUTTON_PX + CREATE_MARGIN_Y_PX + RAIL_ROW_GAP_PX
+    : 0;
+  const availableHeight = regionHeight - createRowPx;
   const minDockPx =
     shortcutCount > 0 ? SEP_PX + SHORTCUTS_MIN_INLINE * iconRowPx : 0;
   // Progressive overflow (a "priority+" rail). Stage 1: everything fits — all
   // tabs inline plus a usefully-sized, scrollable shortcuts dock; no "More".
-  const fitsAllInline = regionHeight >= tabCount * tabRowPx + minDockPx;
+  const fitsAllInline = availableHeight >= tabCount * tabRowPx + minDockPx;
   // Otherwise a "More" tab (same row height) collects the overflow. Keep as
   // many tabs inline as fit ABOVE that row and drop the lowest-priority tabs
   // (end of railOrder) into More ONE AT A TIME as the viewport shrinks — never
@@ -756,13 +884,20 @@ export const SidebarDesktopV2 = ({
   // here; its shortcuts move into the same More menu (one combined dropdown).
   const tabsThatFitWithMore = Math.max(
     0,
-    Math.floor((regionHeight - tabRowPx) / tabRowPx),
+    Math.floor((availableHeight - tabRowPx) / tabRowPx),
   );
   const visibleTabCount = fitsAllInline
     ? tabCount
     : Math.min(tabCount, tabsThatFitWithMore);
-  const visibleCategoryIds = railOrder.slice(0, visibleTabCount);
-  const overflowTabIds = fitsAllInline ? [] : railOrder.slice(visibleTabCount);
+  const visibleTabIds = foldableTabIds.slice(0, visibleTabCount);
+  const overflowTabIds = fitsAllInline
+    ? []
+    : foldableTabIds.slice(visibleTabCount);
+  // What the rail actually renders, in the user's order: every tab that fits,
+  // plus New post — which is never dropped.
+  const visibleCategoryIds = railOrder.filter(
+    (id) => id === RAIL_CREATE_ID || visibleTabIds.includes(id),
+  );
   // More is needed when any tab overflows, or when all tabs still fit inline
   // but the shortcuts can't get a usable inline dock (so they collapse in).
   const moreNeeded =
@@ -793,25 +928,126 @@ export const SidebarDesktopV2 = ({
     () => ({ isDragging: isAnyDragging, setDragging: setSidebarDragging }),
     [isAnyDragging, setSidebarDragging],
   );
-  const handleRailDragStart = useCallback(() => {
-    setSidebarDragging(true);
-  }, [setSidebarDragging]);
-  const handleRailDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      setSidebarDragging(false);
-      const { active, over } = event;
-      if (!over || active.id === over.id) {
-        return;
-      }
-      const oldIndex = railOrder.indexOf(active.id as SidebarCategoryId);
-      const newIndex = railOrder.indexOf(over.id as SidebarCategoryId);
-      if (oldIndex === -1 || newIndex === -1) {
-        return;
-      }
-      setStoredRailOrder(arrayMove(railOrder, oldIndex, newIndex));
+  // Ending a drag makes the browser dispatch a `click` on whatever sits under
+  // the cursor, and dnd-kit doesn't swallow it. Armed at drag start; CONSUMED
+  // by that stray click in SortableRailTab's capture handler. It cannot be
+  // released on a short timer: dnd-kit runs onDragEnd synchronously inside the
+  // pointerup listener, while the browser's click arrives tasks later
+  // (pointerup → mouseup → click) — a 0ms timer disarmed the guard in between
+  // and the click sailed through. Every other rail tab survives that click
+  // because `onSelectCategory` skips `router.push` for the current page —
+  // Notifications is the one item rendered as a plain link, so its click
+  // always navigated and reloaded /notifications. The timer below is only a
+  // fallback for drags that end with no click at all (Escape, pointer
+  // released outside the window), sized so a real post-drop click always
+  // consumes the guard first.
+  const railDragClickGuardRef = useRef(false);
+  const consumeRailDragClickGuard = useCallback(() => {
+    if (!railDragClickGuardRef.current) {
+      return false;
+    }
+    railDragClickGuardRef.current = false;
+    return true;
+  }, []);
+  const railDragClickGuardCleanupRef = useRef<() => void>();
+  const releaseRailDragClickGuard = useCallback(() => {
+    railDragClickGuardCleanupRef.current?.();
+    const disarm = () => {
+      railDragClickGuardRef.current = false;
+    };
+    // The stray post-drop click always arrives before the user can press again,
+    // so the next pointerdown means the guard has either done its job or was
+    // never going to — drops that end over the shortcuts dock, outside the rail
+    // or on Escape produce no click at all, and without this the guard stayed
+    // armed for the full fallback window and ate the user's next real click.
+    let timer: ReturnType<typeof setTimeout>;
+    const controller = new AbortController();
+    const cleanup = () => {
+      clearTimeout(timer);
+      controller.abort();
+      railDragClickGuardCleanupRef.current = undefined;
+    };
+    const finish = () => {
+      cleanup();
+      disarm();
+    };
+    globalThis.window?.addEventListener('pointerdown', finish, {
+      signal: controller.signal,
+      once: true,
+    });
+    timer = setTimeout(finish, RAIL_DRAG_CLICK_GUARD_FALLBACK_MS);
+    railDragClickGuardCleanupRef.current = cleanup;
+  }, []);
+  useEffect(() => () => railDragClickGuardCleanupRef.current?.(), []);
+  // Which rail item is being dragged — drives the DragOverlay ghost while the
+  // in-list original shows as a slot skeleton.
+  const [activeRailId, setActiveRailId] = useState<RailItemId | null>(null);
+  // The live (in-progress) reorder, mirrored in a ref so onDragOver/onDragEnd
+  // read the latest order without a stale-closure risk (same as the dock).
+  const liveRailOrderRef = useRef<RailItemId[] | null>(null);
+  const handleRailDragStart = useCallback(
+    (event: DragStartEvent) => {
+      railDragClickGuardRef.current = true;
+      setActiveRailId(event.active.id as RailItemId);
+      liveRailOrderRef.current = railOrder;
+      setSidebarDragging(true);
     },
-    [railOrder, setStoredRailOrder, setSidebarDragging],
+    [railOrder, setSidebarDragging],
   );
+  // Live reorder: as the dragged item passes over a slot, reorder the rendered
+  // list so its parked slot skeleton moves into that slot — the same live
+  // landing indicator the shortcuts dock shows. Persisted only on drop.
+  const handleRailDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const id = event.active.id as RailItemId;
+      const over = (event.over?.id as RailItemId) ?? null;
+      if (!over || over === id) {
+        return;
+      }
+      const base = liveRailOrderRef.current ?? railOrder;
+      const from = base.indexOf(id);
+      const to = base.indexOf(over);
+      if (from === -1 || to === -1 || from === to) {
+        return;
+      }
+      const next = arrayMove(base, from, to);
+      liveRailOrderRef.current = next;
+      setRailOrderOverride(next);
+    },
+    [railOrder],
+  );
+  const handleRailDragEnd = useCallback(() => {
+    setSidebarDragging(false);
+    setActiveRailId(null);
+    releaseRailDragClickGuard();
+    // The rendered order was already updated live in onDragOver (so there's
+    // nothing to move here — at drop the item is over its own slot); just
+    // commit it. If nothing actually moved, drop the override.
+    const liveOrder = liveRailOrderRef.current;
+    liveRailOrderRef.current = null;
+    if (!liveOrder) {
+      return;
+    }
+    if (liveOrder.join('|') === (storedRailOrder ?? []).join('|')) {
+      setRailOrderOverride(null);
+      return;
+    }
+    // If the write fails, drop the override so the rail falls back to what is
+    // actually stored. Keeping it would strand the user on an order that only
+    // exists in memory: the clearing effect fires when the stored order matches
+    // the override, which after a rejection it never will, so they would see a
+    // saved-looking order that is gone on reload with no signal anywhere.
+    setStoredRailOrder(liveOrder).catch((error) => {
+      setRailOrderOverride(null);
+      // eslint-disable-next-line no-console
+      console.error('Failed to persist sidebar rail order', error);
+    });
+  }, [
+    releaseRailDragClickGuard,
+    setStoredRailOrder,
+    setSidebarDragging,
+    storedRailOrder,
+  ]);
   const activePage = activePageProp || router.asPath || router.pathname || '';
   const isFeedPage = activePage.includes('/feeds/');
   // When the For You feed is the current page, the Home button reads as
@@ -821,8 +1057,12 @@ export const SidebarDesktopV2 = ({
   const resolvedBaseCategory = useMemo((): SidebarCategoryId => {
     // The home / For You feed is a logged-in user's personal hub, so it
     // defaults to the Profile panel rather than Explore. Anonymous users (no
-    // profile panel) fall back to Explore.
-    if (isLoggedIn && isHomeActive) {
+    // profile panel) fall back to Explore. `/daily` is a home-equivalent
+    // surface (it renders the same DailyHome the feed shows with
+    // daily-as-default), so switching feed ⇄ daily keeps the same sidebar
+    // instead of flipping the panel to Explore.
+    const isDailyPage = activePage.split('?')[0] === '/daily';
+    if (isLoggedIn && (isHomeActive || isDailyPage)) {
       return SidebarCategory.Profile;
     }
     // The user's own profile page (`/<username>` and its sub-pages) also keeps
@@ -1359,7 +1599,7 @@ export const SidebarDesktopV2 = ({
       iconNode = (
         <JoystickIcon
           secondary={isSelected}
-          size={IconSize.Small}
+          size={RAIL_ICON_SIZE}
           aria-hidden
         />
       );
@@ -1412,15 +1652,18 @@ export const SidebarDesktopV2 = ({
         >
           <span className="relative flex items-center justify-center">
             {iconNode}
+            {category.id === SidebarCategory.GameCenter && showQuestBadge && (
+              // Inside the glyph box, not the button, and on the shared recipe —
+              // so this lands in exactly the same spot as the Activity bell's
+              // count. Anchored to the button it resolved against the tab's full
+              // height (label included) and sat visibly higher and further right
+              // than the bell's, at a different numeral size.
+              <Bubble className={railCountBubbleClass}>
+                {claimableQuestCount}
+              </Bubble>
+            )}
           </span>
           {!isCompact && <span className={railTabLabelClass}>{labelText}</span>}
-          {category.id === SidebarCategory.GameCenter && showQuestBadge && (
-            // Pin the badge to the button's top-right corner (not the icon's)
-            // so the quest level ring + number stay fully visible.
-            <Bubble className="right-1 top-1 px-1">
-              {claimableQuestCount}
-            </Bubble>
-          )}
         </button>
       </RailHoverCard>
     );
@@ -1490,10 +1733,72 @@ export const SidebarDesktopV2 = ({
   const isNotificationsSelected =
     selectedCategory === SidebarCategory.Notifications;
 
-  // Resolve a rail tab by id. Notifications is the one tab that isn't a plain
-  // category (it renders the bell with its unread badge); everything else goes
-  // through renderCategoryTab.
-  const renderRailTab = (id: SidebarCategoryId): ReactElement => {
+  // New post is reorderable with the tabs but is an action, not a panel tab, so
+  // it carries no `aria-selected` and the sliding pill (which tracks
+  // `aria-selected`) ignores it and stays on the committed category.
+  //
+  // KNOWN TRADE-OFF: a `role="tablist"` is only supposed to own `role="tab"`
+  // children, and this button sits among them, so a screen reader's "tab N of
+  // M" counting is off by this item. Both ways out cost something and neither
+  // is ours to pick unilaterally: making it a real `role="tab"` is valid markup
+  // but tells a screen reader it switches panels when pressing it opens the
+  // composer dialog, and lifting it out of the tablist means it can no longer
+  // be reordered in among the tabs — which is the product requirement it exists
+  // for. Raised on the PR for a product/a11y call.
+  const renderCreateButton = (): ReactElement => (
+    // The sortable wrapper is a full-width block and the tabs centre their own
+    // content; this button is a fixed 36px, so it needs the centring itself.
+    <div className="flex justify-center">
+      <Tooltip
+        side="right"
+        content="New post"
+        collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
+      >
+        <Button
+          id="sidebar-create-post"
+          type="button"
+          variant={ButtonVariant.Primary}
+          size={ButtonSize.Small}
+          icon={<NewPostIcon />}
+          aria-label="New post"
+          aria-controls="sidebar-context-panel"
+          data-sidebar-preview={RAIL_CREATE_ID}
+          onMouseEnter={() => commitPreview(RAIL_CREATE_ID)}
+          onMouseLeave={(event: React.MouseEvent) =>
+            handlePreviewLeave(RAIL_CREATE_ID, event)
+          }
+          onFocus={() => setIsCreateHovered(true)}
+          onBlur={() => setIsCreateHovered(false)}
+          onClick={() => {
+            // Pin the create panel from the click until the composer modal
+            // closes, so the panel can't flash back to the resolved category
+            // (e.g. Profile) in the open transition.
+            setCreatePinned(true);
+            openModal({ type: LazyModal.SmartComposer });
+          }}
+          // my-2 mirrors the tabs' own py-2, so dropping this button between
+          // two tabs keeps the rail's vertical rhythm instead of bunching up.
+          // Same tactile press as the other rail buttons (Button has no
+          // transition of its own, so adding one here is additive).
+          className="my-2 !size-9 !rounded-12 transition-transform duration-150 ease-out active:scale-90 motion-reduce:transition-none [&_svg]:!size-6"
+        />
+      </Tooltip>
+    </div>
+  );
+
+  // Resolve a rail item by id. New post and Notifications are the two that
+  // aren't plain categories (an action button and the bell with its unread
+  // badge); everything else goes through renderCategoryTab.
+  // Runs once per ghost mount (the overlay only re-mounts when the dragged item
+  // changes; dnd-kit moves it by transforming the wrapper, not by re-rendering).
+  const stripRailGhostIds = useCallback((node: HTMLDivElement | null) => {
+    node?.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+  }, []);
+
+  const renderRailTab = (id: RailItemId): ReactElement => {
+    if (id === RAIL_CREATE_ID) {
+      return renderCreateButton();
+    }
     if (id === SidebarCategory.Profile) {
       return (
         <SidebarProfileButton
@@ -1679,7 +1984,12 @@ export const SidebarDesktopV2 = ({
           <span
             aria-hidden
             className={classNames(
-              'pointer-events-none absolute inset-y-0 hidden border-r border-border-subtlest-quaternary laptop:block',
+              // The shared divider token (`-quaternary`), same as the rail's
+              // separators and the panel's HorizontalSeparators — see
+              // railDividerBorderClass for why dividers sit one step below the
+              // container borders around them.
+              'pointer-events-none absolute inset-y-0 hidden border-r laptop:block',
+              railDividerBorderClass,
               railSeparatorLeft,
             )}
           />
@@ -1697,51 +2007,74 @@ export const SidebarDesktopV2 = ({
           >
             <Tooltip
               side="right"
-              content="daily.dev"
-              collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-            >
-              {/* mt nudges the logo down so it lines up vertically with the
-                panel title row (which sits at pt-6); no mb so the gap to Home
-                matches the uniform gap-1 rhythm of the rest of the rail. */}
-              <div className="mt-2.5">
-                <Link href={webappUrl} passHref prefetch={false}>
-                  <a
-                    href={webappUrl}
-                    aria-label="daily.dev"
-                    className="focus-outline hover:opacity-80 flex size-10 items-center justify-center rounded-12 text-text-primary transition-opacity"
-                    onClick={onLogoClick}
-                  >
-                    <LogoIcon className={{ container: 'h-4 w-auto' }} />
-                  </a>
-                </Link>
-              </div>
-            </Tooltip>
-
-            <Tooltip
-              side="right"
               content="Home"
               collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
             >
-              <Link href={myFeedPath} passHref>
-                <a
-                  href={myFeedPath}
-                  aria-label="Home"
-                  // Matches the Search icon: same size, hover background and
-                  // tertiary color; the icon fills (and goes primary) when the
-                  // For You feed is the current page.
-                  className={classNames(
-                    'focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none',
-                    isHomeActive && '!text-text-primary',
-                  )}
-                  onClick={onHomeClick}
-                >
-                  <HomeIcon
-                    secondary={isHomeActive}
-                    size={IconSize.Small}
-                    aria-hidden
-                  />
-                </a>
-              </Link>
+              {/* mt nudges the logo down so it lines up vertically with the
+                panel title row (which sits at pt-6); no mb so the gap below
+                matches the uniform gap-1 rhythm of the rest of the rail. */}
+              <div className="mt-2.5">
+                <Link href={myFeedPath} passHref>
+                  <a
+                    href={myFeedPath}
+                    aria-label="Home"
+                    // The brand mark doubles as the Home button: the daily.dev
+                    // logo at rest, crossfading into the home glyph on
+                    // hover/focus so the destination is obvious pre-click.
+                    // Everything below is scoped to `group/home` — this button
+                    // alone. An unnamed `group` here would also match the
+                    // sidebar-wide group on SidebarAside, so the logo would
+                    // vanish whenever the pointer was anywhere in the rail
+                    // (reordering tabs, using the dock, opening settings).
+                    className="focus-outline group/home flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
+                    onClick={(event) => {
+                      // Keep the removed logo link's click contract — the
+                      // extension resets its feed/search state there.
+                      onLogoClick?.(event);
+                      // ONE owner for the destination. The extension's
+                      // `onLogoClick` defaults the event and switches the feed
+                      // in place (to My Feed on the new tab); running Home's
+                      // handler afterwards would immediately overwrite that
+                      // with the default feed, so the brand mark would stop
+                      // landing on My Feed. On the webapp `onLogoClick` is
+                      // undefined, so Home still owns the click.
+                      if (event.defaultPrevented) {
+                        return;
+                      }
+                      onHomeClick();
+                    }}
+                  >
+                    <span className={railGlyphBoxClass}>
+                      <LogoIcon
+                        className={{
+                          container:
+                            'h-[1.125rem] w-auto transition-[opacity,transform] duration-150 ease-out group-hover/home:scale-75 group-hover/home:opacity-0 group-focus-visible/home:scale-75 group-focus-visible/home:opacity-0 motion-reduce:transition-none',
+                        }}
+                      />
+                      <span
+                        aria-hidden
+                        className={classNames(
+                          'absolute inset-0 flex scale-75 items-center justify-center opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover/home:scale-100 group-hover/home:opacity-100 group-focus-visible/home:scale-100 group-focus-visible/home:opacity-100 motion-reduce:transition-none',
+                          // Filled white when the feed IS the current page;
+                          // elsewhere it's an inactive grey outline that goes
+                          // white on direct hover — exactly how the Search icon
+                          // behaves. (The logo keeps its own fill, so this only
+                          // colours the home glyph.)
+                          isHomeActive
+                            ? 'text-text-primary'
+                            : 'text-text-tertiary group-hover/home:text-text-primary',
+                        )}
+                      >
+                        <HomeIcon
+                          secondary={isHomeActive}
+                          size={RAIL_ICON_SIZE}
+                          aria-hidden
+                        />
+                      </span>
+                    </span>
+                  </a>
+                </Link>
+              </div>
             </Tooltip>
 
             <Tooltip
@@ -1771,48 +2104,13 @@ export const SidebarDesktopV2 = ({
                 onClick={openSpotlight}
                 className="focus-outline flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none"
               >
-                <SearchIcon size={IconSize.Small} aria-hidden />
+                <SearchIcon size={RAIL_ICON_SIZE} aria-hidden />
               </button>
             </Tooltip>
 
-            {isLoggedIn && (
-              <Tooltip
-                side="right"
-                content="New post"
-                collisionPadding={RAIL_TOOLTIP_COLLISION_PADDING}
-              >
-                <Button
-                  id="sidebar-create-post"
-                  type="button"
-                  variant={ButtonVariant.Primary}
-                  size={ButtonSize.Small}
-                  icon={<NewPostIcon />}
-                  aria-label="New post"
-                  aria-controls="sidebar-context-panel"
-                  data-sidebar-preview="create"
-                  onMouseEnter={() => commitPreview('create')}
-                  onMouseLeave={(event: React.MouseEvent) =>
-                    handlePreviewLeave('create', event)
-                  }
-                  onFocus={() => setIsCreateHovered(true)}
-                  onBlur={() => setIsCreateHovered(false)}
-                  onClick={() => {
-                    // Pin the create panel from the click until the composer
-                    // modal closes, so the panel can't flash back to the
-                    // resolved category (e.g. Profile) in the open transition.
-                    setCreatePinned(true);
-                    openModal({ type: LazyModal.SmartComposer });
-                  }}
-                  // Same tactile press as the other rail buttons (Button has no
-                  // transition of its own, so adding one here is additive).
-                  className="!size-9 !rounded-12 transition-transform duration-150 ease-out active:scale-90 motion-reduce:transition-none [&_svg]:!size-6"
-                />
-              </Tooltip>
-            )}
-
             <div
               aria-hidden
-              className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+              className={classNames('my-1 h-px w-6', railDividerBgClass)}
             />
 
             {/* The tabs + shortcuts dock live in this flex-1 region; its height
@@ -1859,19 +2157,70 @@ export const SidebarDesktopV2 = ({
                   sensors={railSensors}
                   collisionDetection={closestCenter}
                   onDragStart={handleRailDragStart}
+                  onDragOver={handleRailDragOver}
                   onDragEnd={handleRailDragEnd}
-                  onDragCancel={() => setSidebarDragging(false)}
+                  onDragCancel={() => {
+                    setSidebarDragging(false);
+                    setActiveRailId(null);
+                    liveRailOrderRef.current = null;
+                    setRailOrderOverride(null);
+                    releaseRailDragClickGuard();
+                  }}
                 >
                   <SortableContext
                     items={visibleCategoryIds}
                     strategy={verticalListSortingStrategy}
                   >
                     {visibleCategoryIds.map((id) => (
-                      <SortableRailTab key={id} id={id}>
+                      <SortableRailTab
+                        key={id}
+                        id={id}
+                        consumeClickGuard={consumeRailDragClickGuard}
+                      >
                         {renderRailTab(id)}
                       </SortableRailTab>
                     ))}
                   </SortableContext>
+                  {/* Pointer-events-none ghost that follows the cursor; the
+                    real element (with the bell's live anchor) stays parked in
+                    the list. No drop animation: the synchronous order override
+                    already renders the item in its final slot at release. */}
+                  <DragOverlay dropAnimation={null}>
+                    {activeRailId ? (
+                      // Tabs lift as the glass chip the shortcuts dock uses
+                      // (shared recipe in common.tsx) so both drag systems look
+                      // identical. New post is already a filled chip with no
+                      // hover surface, so it lifts bare — a chip around a chip
+                      // reads as a double background.
+                      <div
+                        // The ghost is a visual clone of a tab that is still
+                        // mounted in the list, so without this the document
+                        // carries two `#sidebar-*` nodes and a second
+                        // `role="tab"`/`aria-selected` outside the tablist for
+                        // the length of the drag. `aria-hidden` takes the clone
+                        // out of the a11y tree; the ref drops the duplicated
+                        // ids so nothing can resolve to the wrong node.
+                        aria-hidden
+                        ref={stripRailGhostIds}
+                        className={classNames(
+                          // `pointer-events-none` is not decoration. dnd-kit's
+                          // DragOverlay only sets `position:fixed;touch-action:
+                          // none` — it does NOT disable pointer events — and the
+                          // overlay tracks the cursor, so the pointer sits on the
+                          // ghost and the tab inside it matches `:hover`. That
+                          // painted `hover:bg-surface-hover` (12%) across the
+                          // whole chip on top of the ghost's own 8%, which is
+                          // what made it read as a solid block no matter how far
+                          // the ghost's own fill was lowered.
+                          'pointer-events-none w-full scale-110 cursor-grabbing transition-all duration-150',
+                          activeRailId !== RAIL_CREATE_ID &&
+                            sidebarDragGhostClass,
+                        )}
+                      >
+                        {renderRailTab(activeRailId)}
+                      </div>
+                    ) : null}
+                  </DragOverlay>
                 </DndContext>
               </div>
 
@@ -1884,7 +2233,10 @@ export const SidebarDesktopV2 = ({
                 <div
                   aria-hidden
                   className={classNames(
-                    'my-1 h-px w-6 bg-border-subtlest-tertiary',
+                    // Symmetric margins so the line sits exactly midway between
+                    // New post above it and the shortcuts "•••" below it.
+                    'my-3 h-px w-6',
+                    railDividerBgClass,
                     shortcutCount === 0 &&
                       'opacity-0 transition-opacity group-hover:opacity-100',
                   )}
@@ -1927,7 +2279,7 @@ export const SidebarDesktopV2 = ({
               {isLoggedIn && (
                 <div
                   aria-hidden
-                  className="my-1 h-px w-6 bg-border-subtlest-tertiary"
+                  className={classNames('my-1 h-px w-6', railDividerBgClass)}
                 />
               )}
               <SidebarInviteButton />
