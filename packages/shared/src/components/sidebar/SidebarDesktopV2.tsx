@@ -89,7 +89,6 @@ import {
   SquadIcon,
   TerminalIcon,
   TrendingIcon,
-  UserIcon,
 } from '../icons';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
 import { IconSize } from '../Icon';
@@ -152,7 +151,10 @@ import {
 type SidebarCategoryConfig = {
   id: SidebarCategoryId;
   label: string;
-  icon: (active: boolean) => ReactElement;
+  // Optional because Profile has no glyph: the rail draws the user's avatar,
+  // and being pinned it never folds into the "More" menu, which is the only
+  // other place a category's icon is used.
+  icon?: (active: boolean) => ReactElement;
   defaultPath?: string;
 };
 
@@ -179,14 +181,10 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   },
   {
     // Rendered via the avatar (not the tablist loop); listed here so panel
-    // title / label lookups resolve. The icon shows only in the "More" menu —
-    // on the rail the avatar renders the user's profile picture instead.
+    // title / label lookups resolve. No icon — see SidebarCategoryConfig.
     id: SidebarCategory.Profile,
     // Surfaced as the panel title and the avatar tooltip/label.
     label: 'You',
-    icon: (active) => (
-      <UserIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
-    ),
   },
   {
     id: SidebarCategory.Squads,
@@ -226,6 +224,12 @@ const SEP_PX = 1 + 24; // framing separator `h-px` + its `my-3`
 // order. It matches the key the panel preview already uses for the create panel.
 const RAIL_CREATE_ID = 'create';
 type RailItemId = SidebarCategoryId | typeof RAIL_CREATE_ID;
+// Rail items that never fold into "More" — they keep their slot at every
+// viewport height. Both are "you" controls rather than browsing destinations:
+// New post is the rail's primary action, and the avatar is the account entry
+// point, which sits last in the default order and would otherwise be the FIRST
+// thing to disappear on a short viewport (overflow peels from the end).
+const PINNED_RAIL_IDS: RailItemId[] = [RAIL_CREATE_ID, SidebarCategory.Profile];
 
 const railButtonClass =
   'flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none focus-outline';
@@ -821,10 +825,12 @@ export const SidebarDesktopV2 = ({
       ),
     [reorderableRailItems, storedRailOrder, railOrderOverride],
   );
-  // Only the tabs fold into "More" — New post always stays on the rail.
+  // Only the browsing tabs fold into "More" — see PINNED_RAIL_IDS.
   const foldableTabIds = useMemo(
     () =>
-      railOrder.filter((id) => id !== RAIL_CREATE_ID) as SidebarCategoryId[],
+      railOrder.filter(
+        (id) => !PINNED_RAIL_IDS.includes(id),
+      ) as SidebarCategoryId[],
     [railOrder],
   );
 
@@ -857,13 +863,16 @@ export const SidebarDesktopV2 = ({
   const iconRowPx = SHORTCUT_ROW_PX + RAIL_ROW_GAP_PX;
   const tabRowPx = (isCompact ? 44 : 56) + RAIL_ROW_GAP_PX;
   const tabCount = foldableTabIds.length;
-  // New post sits inside the measured region but never folds into "More" —
-  // reserve its row up front so the tabs/dock budget is only what's left, and
-  // folding still peels off one tab at a time.
+  // The pinned items sit inside the measured region but never fold into
+  // "More" — reserve their rows up front so the tabs/dock budget is only what's
+  // left, and folding still peels off one tab at a time. Both are logged-in
+  // only, so at logged-out they cost nothing. The avatar is a normal tab row;
+  // New post is its own smaller chip.
   const createRowPx = isLoggedIn
     ? CREATE_BUTTON_PX + CREATE_MARGIN_Y_PX + RAIL_ROW_GAP_PX
     : 0;
-  const availableHeight = regionHeight - createRowPx;
+  const profileRowPx = isLoggedIn ? tabRowPx : 0;
+  const availableHeight = regionHeight - createRowPx - profileRowPx;
   const minDockPx =
     shortcutCount > 0 ? SEP_PX + SHORTCUTS_MIN_INLINE * iconRowPx : 0;
   // Progressive overflow (a "priority+" rail). Stage 1: everything fits — all
@@ -886,10 +895,12 @@ export const SidebarDesktopV2 = ({
     ? []
     : foldableTabIds.slice(visibleTabCount);
   // What the rail actually renders, in the user's order: every tab that fits,
-  // plus New post — which is never dropped.
-  const visibleCategoryIds = railOrder.filter(
-    (id) => id === RAIL_CREATE_ID || visibleTabIds.includes(id),
-  );
+  // plus the pinned items — which are never dropped.
+  const visibleRailIds = new Set<RailItemId>([
+    ...PINNED_RAIL_IDS,
+    ...visibleTabIds,
+  ]);
+  const visibleCategoryIds = railOrder.filter((id) => visibleRailIds.has(id));
   // More is needed when any tab overflows, or when all tabs still fit inline
   // but the shortcuts can't get a usable inline dock (so they collapse in).
   const moreNeeded =
@@ -1546,7 +1557,8 @@ export const SidebarDesktopV2 = ({
     categoryId: SidebarCategoryId,
   ): ReactElement | null => {
     const category = sidebarCategories.find((entry) => entry.id === categoryId);
-    if (!category) {
+    // Icon-less categories (Profile) draw their own tab and never reach here.
+    if (!category?.icon) {
       return null;
     }
     // The "selected" (white) indicator tracks the committed category so it
@@ -1877,16 +1889,14 @@ export const SidebarDesktopV2 = ({
           ),
         };
       }
+      // Only the foldable browsing tabs reach here — the avatar is pinned to
+      // the rail, so there is no Profile row (and no avatar href) to build.
       const category = sidebarCategories.find((entry) => entry.id === id);
-      const href =
-        id === SidebarCategory.Profile && user?.username
-          ? `${webappUrl}${user.username}`
-          : category?.defaultPath ?? webappUrl;
       return {
         key: id as string,
         label: category?.label ?? '',
-        href,
-        icon: category?.icon(false) ?? null,
+        href: category?.defaultPath ?? webappUrl,
+        icon: category?.icon?.(false) ?? null,
       };
     });
     return (

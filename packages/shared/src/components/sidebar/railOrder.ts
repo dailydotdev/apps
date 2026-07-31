@@ -12,7 +12,9 @@ export const mergeRailOrder = <T>(saved: T[], defaults: T[]): T[] => {
   const known = saved.filter((id) => defaults.includes(id));
 
   if (!known.length) {
-    return defaults;
+    // Copied, not handed back by reference — the caller owns the result and
+    // must not be able to reach into the default order through it.
+    return [...defaults];
   }
 
   const merged = [...known];
