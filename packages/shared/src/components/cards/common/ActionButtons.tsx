@@ -278,7 +278,7 @@ const ActionButtonsV1 = ({
           side={variant === 'grid' ? 'bottom' : undefined}
         >
           <QuaternaryButton
-            id="copy-post-btn"
+            id={`post-${post.id}-copy-btn`}
             size={buttonSize}
             icon={<LinkIcon size={iconSize} />}
             onClick={onCopyLink}

@@ -11,6 +11,44 @@ export const parseHex = (value: string): Rgb => ({
   b: parseInt(value.slice(5, 7), 16),
 });
 
+/**
+ * Resolves any CSS colour — including the `color-mix()` and `oklab()` forms the
+ * theme variables compute to — by painting one pixel. Lets the audit read the
+ * accents off the live pill instead of restating them as hexes.
+ */
+export const resolveColor = (value: string): Rgb => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1;
+  canvas.height = 1;
+  const context = canvas.getContext('2d', { willReadFrequently: true });
+  if (!context) {
+    throw new Error('Canvas 2D context unavailable — cannot resolve colours');
+  }
+  context.fillStyle = value;
+  context.fillRect(0, 0, 1, 1);
+  const [r, g, b] = context.getImageData(0, 0, 1, 1).data;
+  return { r, g, b };
+};
+
+/**
+ * Reads a custom property off `element` and resolves it. Goes through `color` so
+ * the browser does the `color-mix()` maths rather than this file.
+ */
+export const readColorVar = (
+  element: Element,
+  property: string,
+  fallback?: string,
+): Rgb => {
+  const probe = document.createElement('span');
+  probe.style.color = fallback
+    ? `var(${property}, ${fallback})`
+    : `var(${property})`;
+  element.appendChild(probe);
+  const resolved = resolveColor(getComputedStyle(probe).color);
+  probe.remove();
+  return resolved;
+};
+
 export const composite = (fg: Rgb, alpha: number, bg: Rgb): Rgb => ({
   r: fg.r * alpha + bg.r * (1 - alpha),
   g: fg.g * alpha + bg.g * (1 - alpha),

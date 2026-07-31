@@ -182,13 +182,16 @@ html .feed-card-glass-actions.feed-card-glass-actions .btn-tertiary-cheese {
 /*
  * `buttons.css` resolves hover AFTER `[aria-pressed]` at equal specificity, so
  * without this a neutral light hover would blank the "this is on" accent while
- * the pointer sat on an upvoted action. These tie with the mapping above and win
- * on source order. The label needs its own rule: it is a SIBLING of the button
- * and reads the variable off the `.btn-quaternary` wrapper. A pressed button also
- * keeps the shallower chip, since its glyph is back on the accent the chip is
- * tinted with.
+ * the pointer sat on an upvoted action. The class is doubled to outrank the
+ * mapping above rather than tie with it, since a tie would make the behaviour
+ * depend on the order of the blocks in this file. The label needs its own rule:
+ * it is a SIBLING of the button and reads the variable off the `.btn-quaternary`
+ * wrapper. A pressed button also keeps the shallower chip, since its glyph is
+ * back on the accent the chip is tinted with.
  */
-html .feed-card-glass-actions .btn[aria-pressed='true'] {
+html
+  .feed-card-glass-actions.feed-card-glass-actions
+  .btn[aria-pressed='true'] {
   --button-hover-color: var(--button-pressed-color);
   --button-active-color: var(--button-pressed-color);
   --button-hover-background: color-mix(
@@ -203,6 +206,25 @@ html .feed-card-glass-actions .btn[aria-pressed='true'] {
   );
 }
 
-html .feed-card-glass-actions .btn-quaternary [aria-pressed='true'] ~ label {
+/*
+ * Scoped to the states it exists to correct: unqualified it would also outrank
+ * `.btn-quaternary [disabled] ~ label` and own the counter's colour outright.
+ * `.hover` mirrors the class hook `buttons.css` offers alongside `:hover`.
+ */
+html
+  .feed-card-glass-actions.feed-card-glass-actions
+  .btn-quaternary
+  [aria-pressed='true']:hover
+  ~ label,
+html
+  .feed-card-glass-actions.feed-card-glass-actions
+  .btn-quaternary
+  [aria-pressed='true'].hover
+  ~ label,
+html
+  .feed-card-glass-actions.feed-card-glass-actions
+  .btn-quaternary
+  [aria-pressed='true']:active
+  ~ label {
   color: var(--button-pressed-color);
 }

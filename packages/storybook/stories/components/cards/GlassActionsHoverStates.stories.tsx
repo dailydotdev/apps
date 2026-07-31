@@ -16,6 +16,7 @@ import {
   composite,
   contrastRatio,
   parseHex,
+  readColorVar,
 } from './glassContrast';
 
 /**
@@ -105,16 +106,16 @@ const actionHandlers = {
   onReadArticleClick: fn(),
 };
 
-// `tint` reads the per-theme variables the shipped CSS puts on the pill, so the
-// before-columns need no hex table of their own.
+// `accentVar` names the per-theme variable the shipped CSS puts on the pill, so
+// both the before-columns and the audit read live values rather than hexes.
 const actions: {
   key: string;
   name: string;
   selector: string;
   btnClass: string;
-  tint: string;
+  accentVar: string;
   /** Only where the accent itself moved, so "before" keeps quoting main. */
-  beforeTint?: string;
+  beforeAccentVar?: string;
   /** Has an InteractionCounter next to the icon — i.e. text, not just an icon. */
   counter: boolean;
 }[] = [
@@ -123,7 +124,7 @@ const actions: {
     name: 'Upvote',
     selector: "[id$='-upvote-btn']",
     btnClass: 'btn-tertiary-avocado',
-    tint: 'var(--glass-actions-upvote)',
+    accentVar: '--glass-actions-upvote',
     counter: true,
   },
   {
@@ -131,7 +132,7 @@ const actions: {
     name: 'Comment',
     selector: "[id$='-comment-btn']",
     btnClass: 'btn-tertiary-blueCheese',
-    tint: 'var(--glass-actions-comment)',
+    accentVar: '--glass-actions-comment',
     counter: true,
   },
   {
@@ -139,7 +140,7 @@ const actions: {
     name: 'Downvote',
     selector: "[id$='-downvote-btn']",
     btnClass: 'btn-tertiary-ketchup',
-    tint: 'var(--glass-actions-downvote)',
+    accentVar: '--glass-actions-downvote',
     counter: false,
   },
   {
@@ -147,7 +148,7 @@ const actions: {
     name: 'Bookmark',
     selector: "[id$='-bookmark-btn']",
     btnClass: 'btn-tertiary-bun',
-    tint: 'var(--glass-actions-bookmark)',
+    accentVar: '--glass-actions-bookmark',
     counter: false,
   },
   {
@@ -155,8 +156,8 @@ const actions: {
     name: 'Copy link',
     selector: "[id$='-copy-btn']",
     btnClass: 'btn-tertiary-cabbage',
-    tint: 'var(--glass-actions-copy)',
-    beforeTint: 'var(--theme-accent-cabbage-default)',
+    accentVar: '--glass-actions-copy',
+    beforeAccentVar: '--theme-accent-cabbage-default',
     counter: false,
   },
   {
@@ -164,7 +165,7 @@ const actions: {
     name: 'Impressions',
     selector: "[id$='-impressions-btn']",
     btnClass: 'btn-tertiary-cheese',
-    tint: 'var(--glass-actions-impressions)',
+    accentVar: '--glass-actions-impressions',
     counter: true,
   },
 ];
@@ -190,13 +191,14 @@ const forcedHoverCss = actions
 // classes outrank the shipped mapping's three-classes-plus-element (0,3,1), so
 // the scope class alone wins without relying on source order.
 const beforeCss = actions
-  .map(({ btnClass, tint, beforeTint = tint }) => {
+  .map(({ btnClass, accentVar, beforeAccentVar = accentVar }) => {
+    const tint = `var(${beforeAccentVar})`;
     return `
   .glass-hover-before .feed-card-glass-actions.feed-card-glass-actions .${btnClass} {
-    --button-hover-color: ${beforeTint};
-    --button-active-color: ${beforeTint};
-    --button-hover-background: color-mix(in srgb, ${beforeTint} 12%, transparent);
-    --button-active-background: color-mix(in srgb, ${beforeTint} 20%, transparent);
+    --button-hover-color: ${tint};
+    --button-active-color: ${tint};
+    --button-hover-background: color-mix(in srgb, ${tint} 12%, transparent);
+    --button-active-background: color-mix(in srgb, ${tint} 20%, transparent);
   }`;
   })
   .join('\n');
@@ -355,50 +357,79 @@ const auditCovers: { name: string; color: Rgb }[] = [
 
 const BEFORE_TINT = 0.12;
 const AFTER_TINT = 0.22;
-
-const themes: {
-  name: string;
-  fill: string;
-  rest: string;
-  /** Per-action accent: the before hover colour, and the chip tint in both. */
-  accents: Record<string, string>;
-  afterIsRest: boolean;
-  afterAccents?: Record<string, string>;
-}[] = [
-  {
-    name: 'Dark',
-    fill: '#0f1218',
-    rest: '#ffffff',
-    afterIsRest: false,
-    accents: {
-      Upvote: '#57e087',
-      Comment: '#29d8e5',
-      Downvote: '#f57869',
-      Bookmark: '#ffab81',
-      'Copy link': '#ba56e1',
-      Impressions: '#ffe24c',
-    },
-    afterAccents: { 'Copy link': '#d97efe' },
-  },
-  {
-    name: 'Light',
-    fill: '#ffffff',
-    rest: '#0f1218',
-    afterIsRest: true,
-    accents: {
-      Upvote: '#039750',
-      Comment: '#01929c',
-      Downvote: '#c83a2f',
-      Bookmark: '#d55e00',
-      'Copy link': '#a641cc',
-      Impressions: '#94821f',
-    },
-  },
-];
-
 const FILL_ALPHA = 0.9;
-const hasCounter = (name: string) =>
-  actions.find((action) => action.name === name)?.counter ?? false;
+
+// Same fallback the shipped mapping uses, so an unset tone reads as "this theme
+// keeps the per-action accent" rather than having to be asserted here.
+const TONE_UNSET = parseHex('#ff00ff');
+
+type ThemeMeasurement = {
+  name: string;
+  fill: Rgb;
+  rest: Rgb;
+  before: Record<string, Rgb>;
+  after: Record<string, Rgb>;
+  hoverIsRest: boolean;
+};
+
+const isSame = (a: Rgb, b: Rgb) => a.r === b.r && a.g === b.g && a.b === b.b;
+
+const measureTheme = (pill: Element, name: string): ThemeMeasurement => {
+  const tone = readColorVar(pill, '--glass-actions-hover-tone', '#ff00ff');
+  const accents = (which: 'before' | 'after') =>
+    Object.fromEntries(
+      actions.map((action) => [
+        action.name,
+        readColorVar(
+          pill,
+          which === 'before'
+            ? action.beforeAccentVar ?? action.accentVar
+            : action.accentVar,
+        ),
+      ]),
+    );
+
+  return {
+    name,
+    fill: readColorVar(pill, '--theme-background-default'),
+    rest: readColorVar(pill, '--theme-text-primary'),
+    before: accents('before'),
+    after: accents('after'),
+    hoverIsRest: !isSame(tone, TONE_UNSET),
+  };
+};
+
+// The audit reads its colours off two live pills instead of restating them, so
+// it cannot drift from the stylesheet the way an inline table would.
+const useMeasuredThemes = (): {
+  themes: ThemeMeasurement[];
+  probes: ReactElement;
+} => {
+  const darkPill = React.useRef<HTMLDivElement>(null);
+  const lightPill = React.useRef<HTMLDivElement>(null);
+  const [themes, setThemes] = React.useState<ThemeMeasurement[]>([]);
+
+  React.useEffect(() => {
+    if (!darkPill.current || !lightPill.current) {
+      return;
+    }
+    setThemes([
+      measureTheme(darkPill.current, 'Dark'),
+      measureTheme(lightPill.current, 'Light'),
+    ]);
+  }, []);
+
+  const probes = (
+    <div aria-hidden className="pointer-events-none absolute h-0 w-0 opacity-0">
+      <div ref={darkPill} className="feed-card-glass-actions" />
+      <div className="invert">
+        <div ref={lightPill} className="feed-card-glass-actions" />
+      </div>
+    </div>
+  );
+
+  return { themes, probes };
+};
 
 const Ratio = ({
   value,
@@ -419,81 +450,79 @@ const Ratio = ({
   </td>
 );
 
-const ContrastAudit = (): ReactElement => (
-  <Section
-    title="Measured — what hover costs"
-    description="Worst ratio across the four covers. Rest is measured against the bar; the hovered columns are measured against the button's own tinted CHIP, which is what sits adjacent to the glyph once hover paints a surface — 12% before, 22% after. Icons answer to SC 1.4.11 (3:1); the counters next to Upvote, Comment and Impressions are TEXT, so they answer to SC 1.4.3 (4.5:1), the threshold light mode was missing. Dark keeps its accent, so its icons pay for the deeper chip — copy link moved cabbage.40 → .10 to stay above 3. Light puts text-primary on an accent chip, which gains contrast rather than losing it."
-  >
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-left typo-footnote">
-        <thead>
-          <tr className="text-text-secondary">
-            <th className="p-2 font-bold">Theme</th>
-            <th className="p-2 font-bold">Action</th>
-            <th className="p-2 text-center font-bold">Rest (needs 3 / 4.5)</th>
-            <th className="p-2 text-center font-bold">
-              Hover icon — before (needs 3)
-            </th>
-            <th className="p-2 text-center font-bold">
-              Hover icon — after (needs 3)
-            </th>
-            <th className="p-2 text-center font-bold">
-              Hover counter — before (needs 4.5)
-            </th>
-            <th className="p-2 text-center font-bold">
-              Hover counter — after (needs 4.5)
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {themes.map(
-            ({
-              name: themeName,
-              fill,
-              rest,
-              accents,
-              afterIsRest,
-              afterAccents,
-            }) => {
-              // `tint` of 0 measures against the bar itself (the rest row).
-              const worst = (color: string, chip?: string, tint = 0) =>
+const ContrastAudit = (): ReactElement => {
+  const { themes, probes } = useMeasuredThemes();
+
+  return (
+    <Section
+      title="Measured — what hover costs"
+      description="Worst ratio across the four covers, with every colour read off a live pill rather than restated here. Rest is measured against the bar; the hovered columns are measured against the button's own tinted CHIP, which is what sits adjacent to the glyph once hover paints a surface — 12% before, 22% after. Icons answer to SC 1.4.11 (3:1); the counters next to Upvote, Comment and Impressions are TEXT, so they answer to SC 1.4.3 (4.5:1), the threshold light mode was missing. Dark keeps its accent, so its icons pay for the deeper chip — copy link moved cabbage.40 → .10 to stay above 3. Light puts text-primary on an accent chip, which gains contrast rather than losing it."
+    >
+      {probes}
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-left typo-footnote">
+          <thead>
+            <tr className="text-text-secondary">
+              <th className="p-2 font-bold">Theme</th>
+              <th className="p-2 font-bold">Action</th>
+              <th className="p-2 text-center font-bold">
+                Rest (needs 3 / 4.5)
+              </th>
+              <th className="p-2 text-center font-bold">
+                Hover icon — before (needs 3)
+              </th>
+              <th className="p-2 text-center font-bold">
+                Hover icon — after (needs 3)
+              </th>
+              <th className="p-2 text-center font-bold">
+                Hover counter — before (needs 4.5)
+              </th>
+              <th className="p-2 text-center font-bold">
+                Hover counter — after (needs 4.5)
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {themes.map(({ name, fill, rest, before, after, hoverIsRest }) => {
+              const worst = (color: Rgb, chip?: Rgb, tint = 0) =>
                 Math.min(
                   ...auditCovers.map(({ color: coverColor }) => {
-                    const bar = composite(
-                      parseHex(fill),
-                      FILL_ALPHA,
-                      coverColor,
-                    );
+                    const bar = composite(fill, FILL_ALPHA, coverColor);
                     return contrastRatio(
-                      parseHex(color),
-                      chip ? composite(parseHex(chip), tint, bar) : bar,
+                      color,
+                      chip ? composite(chip, tint, bar) : bar,
                     );
                   }),
                 );
               const restRatio = worst(rest);
 
-              return Object.entries(accents).map(([action, color], index) => {
-                const afterAccent = afterAccents?.[action] ?? color;
-                const beforeRatio = worst(color, color, BEFORE_TINT);
+              return actions.map(({ name: action, counter }, index) => {
+                const beforeAccent = before[action];
+                const afterAccent = after[action];
+                const beforeRatio = worst(
+                  beforeAccent,
+                  beforeAccent,
+                  BEFORE_TINT,
+                );
                 const afterRatio = worst(
-                  afterIsRest ? rest : afterAccent,
+                  hoverIsRest ? rest : afterAccent,
                   afterAccent,
                   AFTER_TINT,
                 );
 
                 return (
                   <tr
-                    key={`${themeName}-${action}`}
+                    key={`${name}-${action}`}
                     className="border-t border-border-subtlest-quaternary"
                   >
                     <td className="p-2 text-text-tertiary">
-                      {index === 0 ? themeName : ''}
+                      {index === 0 ? name : ''}
                     </td>
                     <td className="p-2 text-text-primary">{action}</td>
                     <Ratio value={restRatio} threshold={TEXT_THRESHOLD} />
                     <Ratio value={beforeRatio} threshold={ICON_THRESHOLD} />
                     <Ratio value={afterRatio} threshold={ICON_THRESHOLD} />
-                    {hasCounter(action) ? (
+                    {counter ? (
                       <>
                         <Ratio value={beforeRatio} threshold={TEXT_THRESHOLD} />
                         <Ratio value={afterRatio} threshold={TEXT_THRESHOLD} />
@@ -511,13 +540,13 @@ const ContrastAudit = (): ReactElement => (
                   </tr>
                 );
               });
-            },
-          )}
-        </tbody>
-      </table>
-    </div>
-  </Section>
-);
+            })}
+          </tbody>
+        </table>
+      </div>
+    </Section>
+  );
+};
 
 const LiveCards = (): ReactElement => (
   <Section
