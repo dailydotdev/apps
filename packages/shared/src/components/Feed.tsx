@@ -294,6 +294,7 @@ export default function Feed<T>({
       engagementStripEligible: !isHorizontal && isEngagementAdFeed(feedName),
       firstSlotOffset: Number(showFirstSlotCard),
       disableTopHero: isV2,
+      isHorizontal,
       settings: {
         disableAds,
         staticAd,
