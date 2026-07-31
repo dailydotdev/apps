@@ -25,9 +25,13 @@ export interface GivebackInvitePromptProps {
   placement?: 'below' | 'above';
   // Horizontal edge the tail points to, matching where the gift sits.
   align?: 'start' | 'end';
-  // Open like a rail dropdown: portaled + fixed at the same left margin as the
-  // support/settings/profile menus, instead of anchored to the gift with a tail.
+  // Open like a rail dropdown: portaled + viewport-fixed, instead of anchored
+  // to the gift with a tail.
   dropdown?: boolean;
+  // Measured viewport position for the dropdown, so it opens beside the rail's
+  // gift rather than in the viewport's bottom-left corner. Falls back to a
+  // corner offset until it's measured.
+  dropdownAnchor?: { left: number; bottom: number } | null;
   // Mobile header: pin to the viewport (centered, below the header) instead of
   // anchoring to the mid-header gift, so the wide card never overflows the edge.
   compact?: boolean;
@@ -57,6 +61,7 @@ export const GivebackInvitePrompt = ({
   placement = 'below',
   align = 'end',
   dropdown = false,
+  dropdownAnchor = null,
   compact = false,
   compactTop = null,
   autoDismissMs = 5000,
@@ -117,11 +122,22 @@ export const GivebackInvitePrompt = ({
   const dashoffset = Math.min(100, Math.max(0, 100 - remaining));
   const giftSide = align === 'end' ? 'right-6' : 'left-6';
 
+  let positionStyle: React.CSSProperties | undefined;
+  if (compact && compactTop != null) {
+    positionStyle = { top: compactTop };
+  } else if (dropdown && dropdownAnchor) {
+    positionStyle = {
+      left: dropdownAnchor.left,
+      bottom: dropdownAnchor.bottom,
+    };
+  }
+
   const content = (
     <div
       className={classNames(
-        dropdown &&
-          'fixed bottom-3 left-20 z-popup ml-2 w-[25rem] max-w-[calc(100vw-6rem)]',
+        dropdown && 'fixed z-popup w-[25rem] max-w-[calc(100vw-6rem)]',
+        // Corner fallback for the frame before the gift is measured.
+        dropdown && !dropdownAnchor && 'bottom-3 left-20 ml-2',
         !dropdown &&
           compact &&
           'fixed left-1/2 top-[calc(env(safe-area-inset-top,0px)+3.5rem)] z-popup w-[calc(100vw-2rem)] max-w-[25rem] -translate-x-1/2',
@@ -134,7 +150,7 @@ export const GivebackInvitePrompt = ({
           ),
         className,
       )}
-      style={compact && compactTop != null ? { top: compactTop } : undefined}
+      style={positionStyle}
       role="status"
     >
       {celebrate && (

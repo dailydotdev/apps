@@ -136,7 +136,7 @@ const RecentItemIcon = ({ page }: { page: RecentPage }): ReactElement => {
   return <ListIcon Icon={() => iconForType(page, type)} />;
 };
 
-// v2 Home panel: the last few non-post pages the user visited (profiles,
+// v2 Explore panel: the last few non-post pages the user visited (profiles,
 // feeds, tags, sources, etc.). Hidden until there's something to show.
 export const RecentSection = ({
   isItemsButton,

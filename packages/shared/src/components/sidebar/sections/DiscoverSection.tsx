@@ -8,9 +8,9 @@ import {
   EarthIcon,
   HashtagIcon,
   HotIcon,
-  SquadIcon,
   TourIcon,
 } from '../../icons';
+import { MedalIcon } from '../../icons/Medal';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
@@ -77,7 +77,7 @@ export const DiscoverSection = ({
       },
       {
         icon: (active: boolean) => (
-          <ListIcon Icon={() => <SquadIcon secondary={active} />} />
+          <ListIcon Icon={() => <MedalIcon secondary={active} />} />
         ),
         title: 'Leaderboard',
         path: `${webappUrl}users`,

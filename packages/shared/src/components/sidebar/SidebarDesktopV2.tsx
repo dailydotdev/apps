@@ -44,6 +44,7 @@ import {
 } from './common';
 import type { SidebarMenuItem } from './common';
 import { Section } from './Section';
+import { mergeRailOrder } from './railOrder';
 import { getSidebarCategoryForPath, SidebarCategory } from './sidebarCategory';
 import type { SidebarCategoryId } from './sidebarCategory';
 import { useSettingsContext } from '../../contexts/SettingsContext';
@@ -85,7 +86,7 @@ import {
   SearchIcon,
   SettingsIcon,
   SidebarArrowLeft,
-  SourceIcon,
+  SquadIcon,
   TerminalIcon,
   TrendingIcon,
 } from '../icons';
@@ -140,6 +141,7 @@ import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureGiveback } from '../../lib/featureManagement';
 import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
+import { RAIL_ANCHOR_ATTRIBUTE } from '../../features/giveback/components/GivebackGiftDock';
 import { FeedbackWidget } from '../feedback';
 import {
   Typography,
@@ -150,12 +152,19 @@ import {
 type SidebarCategoryConfig = {
   id: SidebarCategoryId;
   label: string;
-  icon: (active: boolean) => ReactElement;
+  // Optional because Profile has no glyph: the rail draws the user's avatar,
+  // and being pinned it never folds into the "More" menu, which is the only
+  // other place a category's icon is used.
+  icon?: (active: boolean) => ReactElement;
   defaultPath?: string;
 };
 
 const sidebarCategories: SidebarCategoryConfig[] = [
   {
+    // The discovery tab. Home is deliberately NOT a tab: naming this one
+    // "Home" made the discovery destinations inside its panel read as
+    // already-arrived-at, so people stopped looking for them. Home lives on
+    // the brand mark above instead.
     id: SidebarCategory.Main,
     label: 'Explore',
     defaultPath: `${webappUrl}posts`,
@@ -173,29 +182,17 @@ const sidebarCategories: SidebarCategoryConfig[] = [
   },
   {
     // Rendered via the avatar (not the tablist loop); listed here so panel
-    // title / label lookups resolve. The icon is unused — the avatar renders
-    // the user's profile picture.
+    // title / label lookups resolve. No icon — see SidebarCategoryConfig.
     id: SidebarCategory.Profile,
     // Surfaced as the panel title and the avatar tooltip/label.
     label: 'You',
-    icon: (active) => (
-      <HomeIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
-    ),
   },
   {
     id: SidebarCategory.Squads,
     label: 'Squads',
     defaultPath: `${webappUrl}squads/discover`,
     icon: (active) => (
-      <SourceIcon
-        secondary={active}
-        size={RAIL_ICON_SIZE}
-        aria-hidden
-        // Optical correction: the atom's four crossing ellipses put far more ink
-        // in the box than the single-outline glyphs beside it, so at an equal
-        // size it reads heavier. A few percent down evens it out.
-        className="scale-95"
-      />
+      <SquadIcon secondary={active} size={RAIL_ICON_SIZE} aria-hidden />
     ),
   },
   {
@@ -228,6 +225,12 @@ const SEP_PX = 1 + 24; // framing separator `h-px` + its `my-3`
 // order. It matches the key the panel preview already uses for the create panel.
 const RAIL_CREATE_ID = 'create';
 type RailItemId = SidebarCategoryId | typeof RAIL_CREATE_ID;
+// Rail items that never fold into "More" — they keep their slot at every
+// viewport height. Both are "you" controls rather than browsing destinations:
+// New post is the rail's primary action, and the avatar is the account entry
+// point, which sits last in the default order and would otherwise be the FIRST
+// thing to disappear on a short viewport (overflow peels from the end).
+const PINNED_RAIL_IDS: RailItemId[] = [RAIL_CREATE_ID, SidebarCategory.Profile];
 
 const railButtonClass =
   'flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none focus-outline';
@@ -744,7 +747,7 @@ export const SidebarDesktopV2 = ({
   const { openModal, modal } = useLazyModal();
   const { isLoggedIn, user } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
-  // The flat Home button targets the "For You" feed. On extension there's no
+  // The brand mark targets the "For You" feed. On extension there's no
   // router, so it always uses the explicit /my-feed path.
   let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
   if (isExtension) {
@@ -780,12 +783,14 @@ export const SidebarDesktopV2 = ({
   const reorderableRailItems = useMemo(
     () =>
       [
-        isLoggedIn ? SidebarCategory.Profile : null,
         SidebarCategory.Main,
         SidebarCategory.Squads,
         isLoggedIn ? SidebarCategory.Notifications : null,
         // Drops out of the rail entirely when all gamification is opted out.
         showGameCenterTab ? SidebarCategory.GameCenter : null,
+        // The avatar sits at the end of the tabs, directly above New post —
+        // "you" is the account context, not a browsing destination.
+        isLoggedIn ? SidebarCategory.Profile : null,
         isLoggedIn ? RAIL_CREATE_ID : null,
       ].filter(Boolean) as RailItemId[],
     [isLoggedIn, showGameCenterTab],
@@ -813,26 +818,20 @@ export const SidebarDesktopV2 = ({
       setRailOrderOverride(null);
     }
   }, [storedRailOrder, railOrderOverride]);
-  // Reconcile the saved order against the valid set: drop unknown/stale ids and
-  // surface any newly-added category that isn't in the stored order yet at the
-  // front (e.g. the avatar tab for users who saved an order before it existed).
-  // New post is the exception — for users with a saved layout it joins at the
-  // end (its default slot, below the tabs) rather than jumping to the top.
-  const railOrder = useMemo(() => {
-    const known = (railOrderOverride ?? storedRailOrder ?? []).filter((id) =>
-      reorderableRailItems.includes(id),
-    );
-    const missing = reorderableRailItems.filter((id) => !known.includes(id));
-    return [
-      ...missing.filter((id) => id !== RAIL_CREATE_ID),
-      ...known,
-      ...missing.filter((id) => id === RAIL_CREATE_ID),
-    ];
-  }, [reorderableRailItems, storedRailOrder, railOrderOverride]);
-  // Only the tabs fold into "More" — New post always stays on the rail.
+  const railOrder = useMemo(
+    () =>
+      mergeRailOrder(
+        railOrderOverride ?? storedRailOrder ?? [],
+        reorderableRailItems,
+      ),
+    [reorderableRailItems, storedRailOrder, railOrderOverride],
+  );
+  // Only the browsing tabs fold into "More" — see PINNED_RAIL_IDS.
   const foldableTabIds = useMemo(
     () =>
-      railOrder.filter((id) => id !== RAIL_CREATE_ID) as SidebarCategoryId[],
+      railOrder.filter(
+        (id) => !PINNED_RAIL_IDS.includes(id),
+      ) as SidebarCategoryId[],
     [railOrder],
   );
 
@@ -865,13 +864,16 @@ export const SidebarDesktopV2 = ({
   const iconRowPx = SHORTCUT_ROW_PX + RAIL_ROW_GAP_PX;
   const tabRowPx = (isCompact ? 44 : 56) + RAIL_ROW_GAP_PX;
   const tabCount = foldableTabIds.length;
-  // New post sits inside the measured region but never folds into "More" —
-  // reserve its row up front so the tabs/dock budget is only what's left, and
-  // folding still peels off one tab at a time.
+  // The pinned items sit inside the measured region but never fold into
+  // "More" — reserve their rows up front so the tabs/dock budget is only what's
+  // left, and folding still peels off one tab at a time. Both are logged-in
+  // only, so at logged-out they cost nothing. The avatar is a normal tab row;
+  // New post is its own smaller chip.
   const createRowPx = isLoggedIn
     ? CREATE_BUTTON_PX + CREATE_MARGIN_Y_PX + RAIL_ROW_GAP_PX
     : 0;
-  const availableHeight = regionHeight - createRowPx;
+  const profileRowPx = isLoggedIn ? tabRowPx : 0;
+  const availableHeight = regionHeight - createRowPx - profileRowPx;
   const minDockPx =
     shortcutCount > 0 ? SEP_PX + SHORTCUTS_MIN_INLINE * iconRowPx : 0;
   // Progressive overflow (a "priority+" rail). Stage 1: everything fits — all
@@ -894,10 +896,12 @@ export const SidebarDesktopV2 = ({
     ? []
     : foldableTabIds.slice(visibleTabCount);
   // What the rail actually renders, in the user's order: every tab that fits,
-  // plus New post — which is never dropped.
-  const visibleCategoryIds = railOrder.filter(
-    (id) => id === RAIL_CREATE_ID || visibleTabIds.includes(id),
-  );
+  // plus the pinned items — which are never dropped.
+  const visibleRailIds = new Set<RailItemId>([
+    ...PINNED_RAIL_IDS,
+    ...visibleTabIds,
+  ]);
+  const visibleCategoryIds = railOrder.filter((id) => visibleRailIds.has(id));
   // More is needed when any tab overflows, or when all tabs still fit inline
   // but the shortcuts can't get a usable inline dock (so they collapse in).
   const moreNeeded =
@@ -1050,23 +1054,13 @@ export const SidebarDesktopV2 = ({
   ]);
   const activePage = activePageProp || router.asPath || router.pathname || '';
   const isFeedPage = activePage.includes('/feeds/');
-  // When the For You feed is the current page, the Home button reads as
-  // selected — fill its icon (secondary) instead of the outline.
+  // When the For You feed is the current page, the brand mark reads as
+  // selected — fill its home glyph (secondary) instead of the outline.
   const isHomeActive = isSidebarItemActive(activePage, myFeedPath);
 
   const resolvedBaseCategory = useMemo((): SidebarCategoryId => {
-    // The home / For You feed is a logged-in user's personal hub, so it
-    // defaults to the Profile panel rather than Explore. Anonymous users (no
-    // profile panel) fall back to Explore. `/daily` is a home-equivalent
-    // surface (it renders the same DailyHome the feed shows with
-    // daily-as-default), so switching feed ⇄ daily keeps the same sidebar
-    // instead of flipping the panel to Explore.
-    const isDailyPage = activePage.split('?')[0] === '/daily';
-    if (isLoggedIn && (isHomeActive || isDailyPage)) {
-      return SidebarCategory.Profile;
-    }
-    // The user's own profile page (`/<username>` and its sub-pages) also keeps
-    // the Profile panel — the avatar navigates here, so it must resolve back to
+    // The user's own profile page (`/<username>` and its sub-pages) keeps the
+    // Profile panel — the avatar navigates here, so it must resolve back to
     // Profile (otherwise the optimistic pending category never clears).
     const path = activePage.split('?')[0];
     const ownProfileBase = user?.username ? `/${user.username}` : null;
@@ -1081,7 +1075,7 @@ export const SidebarDesktopV2 = ({
       return SidebarCategory.Main;
     }
     return getSidebarCategoryForPath(activePage);
-  }, [activePage, isFeedPage, isHomeActive, isLoggedIn, user?.username]);
+  }, [activePage, isFeedPage, isLoggedIn, user?.username]);
 
   // Opening a single post (`/posts/[id]`) shouldn't change the sidebar context
   // — the panel behind the post page keeps whatever you came from (History,
@@ -1306,15 +1300,13 @@ export const SidebarDesktopV2 = ({
     Promise.resolve(router.push(targetPath)).catch(() => undefined);
   }, [router, user]);
 
-  // The flat Home button switches to the "For You" feed. It mirrors the rail
-  // tabs' optimistic panel switch (Main = Explore) while the route resolves.
+  // The brand mark switches to the "For You" feed. It mirrors the rail tabs'
+  // optimistic panel switch (home resolves to the Explore panel) while the
+  // route resolves.
   const onHomeClick = useCallback(() => {
-    // Home opens the Profile panel by default (logged in); Explore for anon.
-    setPendingCategory(
-      isLoggedIn ? SidebarCategory.Profile : SidebarCategory.Main,
-    );
+    setPendingCategory(SidebarCategory.Main);
     onNavTabClick?.(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/');
-  }, [isCustomDefaultFeed, isLoggedIn, onNavTabClick]);
+  }, [isCustomDefaultFeed, onNavTabClick]);
 
   // Remember the last non-settings location so "Back to app" returns the user
   // where they were rather than always dumping them on the home feed.
@@ -1566,7 +1558,8 @@ export const SidebarDesktopV2 = ({
     categoryId: SidebarCategoryId,
   ): ReactElement | null => {
     const category = sidebarCategories.find((entry) => entry.id === categoryId);
-    if (!category) {
+    // Icon-less categories (Profile) draw their own tab and never reach here.
+    if (!category?.icon) {
       return null;
     }
     // The "selected" (white) indicator tracks the committed category so it
@@ -1897,16 +1890,14 @@ export const SidebarDesktopV2 = ({
           ),
         };
       }
+      // Only the foldable browsing tabs reach here — the avatar is pinned to
+      // the rail, so there is no Profile row (and no avatar href) to build.
       const category = sidebarCategories.find((entry) => entry.id === id);
-      const href =
-        id === SidebarCategory.Profile && user?.username
-          ? `${webappUrl}${user.username}`
-          : category?.defaultPath ?? webappUrl;
       return {
         key: id as string,
         label: category?.label ?? '',
-        href,
-        icon: category?.icon(false) ?? null,
+        href: category?.defaultPath ?? webappUrl,
+        icon: category?.icon?.(false) ?? null,
       };
     });
     return (
@@ -1997,11 +1988,18 @@ export const SidebarDesktopV2 = ({
         {!isSettingsSelected && (
           <nav
             aria-label="Primary navigation"
+            // Lets the giveback gift's milestone card measure the rail it has
+            // to clear (see RAIL_ANCHOR_ATTRIBUTE).
+            {...{ [RAIL_ANCHOR_ATTRIBUTE]: '' }}
             className={classNames(
               // pt matches the streak tile's side gap (54px tile centred in the
               // 68px content = 7px + px-1.5 6px = 13px) so its top/left/right
               // spacing is equal.
-              'flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-[13px]',
+              // `group/rail` is what reveals the brand mark's home glyph: the
+              // swap is triggered by the pointer being anywhere on the rail,
+              // not just on the logo, so the way home is visible while you're
+              // reading the tabs rather than only after you already found it.
+              'group/rail flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-[13px]',
               railNavWidth,
             )}
           >
@@ -2018,14 +2016,16 @@ export const SidebarDesktopV2 = ({
                   <a
                     href={myFeedPath}
                     aria-label="Home"
+                    aria-current={isHomeActive ? 'page' : undefined}
                     // The brand mark doubles as the Home button: the daily.dev
-                    // logo at rest, crossfading into the home glyph on
-                    // hover/focus so the destination is obvious pre-click.
-                    // Everything below is scoped to `group/home` — this button
-                    // alone. An unnamed `group` here would also match the
-                    // sidebar-wide group on SidebarAside, so the logo would
-                    // vanish whenever the pointer was anywhere in the rail
-                    // (reordering tabs, using the dock, opening settings).
+                    // logo at rest, crossfading into the home glyph while the
+                    // pointer is anywhere on the rail (`group/rail`, set on the
+                    // nav) so the destination is obvious without having to
+                    // hover the mark itself. `group/home` scopes the
+                    // keyboard-focus swap and the direct-hover tint to this
+                    // button alone — an unnamed `group` here would also match
+                    // the sidebar-wide group on SidebarAside, which covers the
+                    // panel too.
                     className="focus-outline group/home flex size-10 items-center justify-center rounded-12 text-text-primary transition-[background-color,transform] duration-150 ease-out hover:bg-surface-hover active:scale-90 motion-reduce:transition-none"
                     onClick={(event) => {
                       // Keep the removed logo link's click contract — the
@@ -2048,13 +2048,13 @@ export const SidebarDesktopV2 = ({
                       <LogoIcon
                         className={{
                           container:
-                            'h-[1.125rem] w-auto transition-[opacity,transform] duration-150 ease-out group-hover/home:scale-75 group-hover/home:opacity-0 group-focus-visible/home:scale-75 group-focus-visible/home:opacity-0 motion-reduce:transition-none',
+                            'h-[1.125rem] w-auto transition-[opacity,transform] duration-150 ease-out group-hover/rail:scale-75 group-hover/rail:opacity-0 group-focus-visible/home:scale-75 group-focus-visible/home:opacity-0 motion-reduce:transition-none',
                         }}
                       />
                       <span
                         aria-hidden
                         className={classNames(
-                          'absolute inset-0 flex scale-75 items-center justify-center opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover/home:scale-100 group-hover/home:opacity-100 group-focus-visible/home:scale-100 group-focus-visible/home:opacity-100 motion-reduce:transition-none',
+                          'absolute inset-0 flex scale-75 items-center justify-center opacity-0 transition-[opacity,transform] duration-150 ease-out group-hover/rail:scale-100 group-hover/rail:opacity-100 group-focus-visible/home:scale-100 group-focus-visible/home:opacity-100 motion-reduce:transition-none',
                           // Filled white when the feed IS the current page;
                           // elsewhere it's an inactive grey outline that goes
                           // white on direct hover — exactly how the Search icon
