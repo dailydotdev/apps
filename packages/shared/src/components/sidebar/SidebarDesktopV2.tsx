@@ -270,6 +270,13 @@ const SortableRailTab = ({
     <div
       ref={setNodeRef}
       {...listeners}
+      // This sortable wrapper sits between the `role="tablist"` and each
+      // `role="tab"`. Without a presentational role the tabs are nested inside
+      // anonymous generics rather than owned by the tablist, which is what
+      // makes a screen reader's "tab N of M" counting unreliable. The div is
+      // not focusable and carries no ARIA of its own, so the role is honoured
+      // and the tab inside it is unaffected.
+      role="presentation"
       // Capture phase so the drop's stray click dies before it reaches the tab
       // button or the notifications bell's anchor (which would navigate). The
       // click CONSUMES the guard — a timer release can't be trusted here (see
@@ -1726,10 +1733,18 @@ export const SidebarDesktopV2 = ({
   const isNotificationsSelected =
     selectedCategory === SidebarCategory.Notifications;
 
-  // New post is reorderable with the tabs but is an action, not a panel tab —
-  // it keeps `role="button"` inside the tablist and carries no `aria-selected`,
-  // so the sliding selected pill (which tracks `aria-selected`) ignores it and
-  // stays on the committed category.
+  // New post is reorderable with the tabs but is an action, not a panel tab, so
+  // it carries no `aria-selected` and the sliding pill (which tracks
+  // `aria-selected`) ignores it and stays on the committed category.
+  //
+  // KNOWN TRADE-OFF: a `role="tablist"` is only supposed to own `role="tab"`
+  // children, and this button sits among them, so a screen reader's "tab N of
+  // M" counting is off by this item. Both ways out cost something and neither
+  // is ours to pick unilaterally: making it a real `role="tab"` is valid markup
+  // but tells a screen reader it switches panels when pressing it opens the
+  // composer dialog, and lifting it out of the tablist means it can no longer
+  // be reordered in among the tabs — which is the product requirement it exists
+  // for. Raised on the PR for a product/a11y call.
   const renderCreateButton = (): ReactElement => (
     // The sortable wrapper is a full-width block and the tabs centre their own
     // content; this button is a fixed 36px, so it needs the centring itself.
