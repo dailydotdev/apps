@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import {
   Typography,
   TypographyColor,
@@ -21,6 +22,7 @@ import { Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
 import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import type { AgentContentTarget } from '../AgentContext';
 import { useAgent } from '../AgentContext';
 
@@ -78,6 +80,7 @@ export const AgentContentPane = ({
   const { setActiveContent } = useAgent();
   useKeyboardNavigation(globalThis?.window, [['Escape', onClose]]);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { isV2 } = useLayoutVariant();
   const isPost = content.type === 'post';
 
   const onResizeStart = (event: React.PointerEvent) => {
@@ -104,7 +107,14 @@ export const AgentContentPane = ({
 
   return (
     <aside
-      className="fixed inset-x-0 bottom-0 z-modal flex h-2/3 flex-col overflow-hidden rounded-t-16 border-t border-border-subtlest-tertiary bg-background-default shadow-3 laptop:sticky laptop:inset-x-auto laptop:bottom-auto laptop:top-[8.5rem] laptop:z-0 laptop:h-[calc(100vh-9.5rem)] laptop:w-[24rem] laptop:shrink-0 laptop:rounded-16 laptop:border laptop:shadow-none"
+      className={classNames(
+        'fixed inset-x-0 bottom-0 z-modal flex h-2/3 flex-col overflow-hidden rounded-t-16 border-t border-border-subtlest-tertiary bg-background-default shadow-3 laptop:sticky laptop:inset-x-auto laptop:bottom-auto laptop:z-0 laptop:w-[24rem] laptop:shrink-0 laptop:rounded-16 laptop:border laptop:shadow-none',
+        // Sit a 1rem gap below the sticky page-header strip, which itself sits
+        // at a different offset per layout variant.
+        isV2
+          ? 'laptop:top-[5.375rem] laptop:h-[calc(100vh-6.375rem)]'
+          : 'laptop:top-[8.5rem] laptop:h-[calc(100vh-9.5rem)]',
+      )}
       style={isLaptop ? { width } : undefined}
       aria-label="Agent content preview"
     >

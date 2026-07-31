@@ -4,6 +4,8 @@ import dynamic from 'next/dynamic';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { useInView } from 'react-intersection-observer';
+import classNames from 'classnames';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import {
   Button,
   ButtonSize,
@@ -88,6 +90,7 @@ const AgentPageBody = ({
 }): ReactElement => {
   const { isSettingsOpen, setSettingsOpen, activeContent, setActiveContent } =
     useAgent();
+  const { isV2 } = useLayoutVariant();
   const [tab, setTab] = useState<AgentTab>('Chat');
   const closeContent = () => setActiveContent(undefined);
   const [storedWidth, setStoredWidth] = usePersistentContext<number>(
@@ -135,7 +138,13 @@ const AgentPageBody = ({
   return (
     <>
       <PageHeader
-        className="sticky top-0 z-header bg-background-default laptop:top-16"
+        className={classNames(
+          'sticky top-0 z-header bg-background-default',
+          // v2 hands the header to the sidebar rail, so the strip sticks to
+          // the floating card's inner top (laptop:my-3 + p-0.5) rather than
+          // below a header that isn't there.
+          isV2 ? 'laptop:top-3.5' : 'laptop:top-16',
+        )}
         title={
           <div className="flex min-w-0 flex-1 items-center gap-2">
             <Link href={`${webappUrl}agent`}>
