@@ -36,16 +36,6 @@ describe('SquadModerationSettingsSection', () => {
     ).toBeVisible();
   });
 
-  it('says posts skip review under the reputation gate', () => {
-    renderComponent({ initialPostingMinReputation: 100 });
-
-    expect(
-      screen.getByText(
-        'Members below this reputation cannot post at all. Everyone else posts without review.',
-      ),
-    ).toBeVisible();
-  });
-
   it('selects the open gate when nothing is configured', () => {
     renderComponent();
 

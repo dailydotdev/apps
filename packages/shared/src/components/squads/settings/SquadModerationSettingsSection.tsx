@@ -165,7 +165,6 @@ export function SquadModerationSettingsSection({
               defaultValue={`${
                 initialPostingMinReputation ?? DEFAULT_POSTING_MIN_REPUTATION
               }`}
-              hint="Members below this reputation cannot post at all. Everyone else posts without review."
             />
           )}
         </SquadSettingsSection>
