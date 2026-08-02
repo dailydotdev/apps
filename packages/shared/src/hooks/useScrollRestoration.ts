@@ -6,7 +6,7 @@ const scrollPositions: Record<string, number> = {};
 // A feed restored from cache needs several seconds to reconcile on a mid-range
 // phone. A shorter budget expires mid-render, which is exactly when the page is
 // still too short to hold the saved position.
-const RESTORE_TIMEOUT_MS = 10000;
+const RESTORE_TIMEOUT_MS = 2000;
 
 const getScrollKey = (asPath: string): string => {
   if (typeof window === 'undefined') {
