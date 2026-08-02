@@ -35,7 +35,7 @@ export const useDeleteScheduledPost = (): UseDeleteScheduledPost => {
   const { displayToast } = useToastNotification();
 
   const { mutate, isPending } = useMutation({
-    mutationFn: (id: string) => deletePost(id),
+    mutationFn: deletePost,
     onSuccess: (_, id) => {
       client.setQueryData<InfiniteData<Connection<ScheduledPost>>>(
         generateQueryKey(RequestKey.ScheduledPosts, user),

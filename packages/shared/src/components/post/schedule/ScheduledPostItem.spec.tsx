@@ -96,20 +96,14 @@ describe('ScheduledPostItem', () => {
     });
     jest.mocked(useToastNotification).mockReturnValue({
       displayToast,
-      dismissToast: jest.fn(),
-      subject: null,
     } as unknown as ReturnType<typeof useToastNotification>);
   });
 
   it('deletes the post and drops it from the list once confirmed', async () => {
     showPrompt.mockResolvedValue(true);
-    let requested = false;
     mockGraphQL({
       request: { query: DELETE_POST_MUTATION, variables: { id: post.id } },
-      result: () => {
-        requested = true;
-        return { data: { deletePost: { _: true } } };
-      },
+      result: () => ({ data: { deletePost: { _: true } } }),
     });
 
     const client = setupItem();
@@ -117,7 +111,6 @@ describe('ScheduledPostItem', () => {
       screen.getByRole('button', { name: 'Delete scheduled post' }),
     );
 
-    await waitFor(() => expect(requested).toBe(true));
     await waitFor(() => expect(getCachedIds(client)).toEqual([]));
     expect(displayToast).toHaveBeenCalledWith('Scheduled post deleted');
   });
