@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useJoinSquad } from '../../../hooks/useJoinSquad';
@@ -32,9 +32,15 @@ interface UseWatercoolerPosting {
   blockedReason?: string;
   isJoining: boolean;
   /**
-   * Clears the way to post: opens auth when logged out, re-checks the gate, and
-   * joins the squad silently when needed. Resolves false when posting can't go
-   * ahead, so callers can bail before submitting.
+   * Auth + permission only, no membership side effects. For opening a draft,
+   * where creating a membership for someone who may never post would be a
+   * phantom member and an admin notification for nothing.
+   */
+  checkGate: () => boolean;
+  /**
+   * Clears the way to post: re-checks the gate and joins the squad silently
+   * when needed. Resolves false when posting can't go ahead, so callers can
+   * bail before submitting.
    */
   ensureCanPost: () => Promise<boolean>;
   /** Hand off to the full composer, joining first if needed. */
@@ -101,8 +107,13 @@ export const useWatercoolerPosting = ({
   const { openModal } = useLazyModal();
   const { displayToast } = useToastNotification();
   const queryClient = useQueryClient();
-  const joinSquad = useJoinSquad({ squad });
-  const isMember = !!squad.currentMember;
+  const joinSquad = useJoinSquad({ squad, implicit: true });
+  // The squad query may be keyed by id (see the page) while `useJoinSquad`
+  // primes the handle-keyed entry, so a fresh membership can be invisible here
+  // for a moment. Remembering the join locally keeps `ensureCanPost` from
+  // running the whole sequence a second time against a stale cache.
+  const [hasJoined, setHasJoined] = useState(false);
+  const isMember = !!squad.currentMember || hasJoined;
 
   const { mutateAsync: joinSilently, isPending: isJoining } = useMutation({
     mutationFn: async () => {
@@ -112,22 +123,33 @@ export const useWatercoolerPosting = ({
         throw new Error('joinSource returned a squad without an id');
       }
 
-      await gqlClient.request(CONTENT_PREFERENCE_FOLLOW_MUTATION, {
-        id: joined.id,
-        entity: ContentPreferenceType.Source,
-        status: ContentPreferenceStatus.Follow,
-      });
-      await hideSourceFeedPosts(joined.id);
+      // Best-effort, and independent of each other: the membership is already
+      // committed at this point, so a failing cleanup call must not fail the
+      // join. Failing it would block the post *and* strand the user as a
+      // subscribed member — the exact state this sequence exists to avoid.
+      await Promise.allSettled([
+        gqlClient.request(CONTENT_PREFERENCE_FOLLOW_MUTATION, {
+          id: joined.id,
+          entity: ContentPreferenceType.Source,
+          status: ContentPreferenceStatus.Follow,
+        }),
+        hideSourceFeedPosts(joined.id),
+      ]);
 
       return joined;
     },
     onSuccess: (joined) => {
+      setHasJoined(true);
       // useJoinSquad primes the caches from the join response, which predates
       // both follow-up mutations. Refetch so membership flags and the follow
-      // status reflect what actually landed.
-      queryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.Squad, user, joined.handle),
-      });
+      // status reflect what actually landed. Both keys are invalidated because
+      // `getSquad` accepts either an id or a handle, so callers may have
+      // mounted the query under either one.
+      [joined.handle, joined.id].forEach((key) =>
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.Squad, user, key),
+        }),
+      );
       queryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.ContentPreference, user, {
           id: joined.id,
@@ -146,13 +168,17 @@ export const useWatercoolerPosting = ({
     ? getBlockedReason(squad, user.reputation ?? 0)
     : undefined;
 
-  const ensureCanPost = useCallback(async () => {
+  const checkGate = useCallback(() => {
     if (!user) {
       showLogin({ trigger: AuthTriggers.JoinSquad });
       return false;
     }
 
-    if (getBlockedReason(squad, user.reputation ?? 0)) {
+    return !getBlockedReason(squad, user.reputation ?? 0);
+  }, [showLogin, squad, user]);
+
+  const ensureCanPost = useCallback(async () => {
+    if (!checkGate()) {
       return false;
     }
 
@@ -166,7 +192,7 @@ export const useWatercoolerPosting = ({
     } catch {
       return false;
     }
-  }, [isMember, joinSilently, showLogin, squad, user]);
+  }, [checkGate, isMember, joinSilently]);
 
   const openComposer = useCallback(
     async (draft?: ComposerDraft) => {
@@ -191,6 +217,7 @@ export const useWatercoolerPosting = ({
     canPost: !blockedReason,
     blockedReason,
     isJoining,
+    checkGate,
     ensureCanPost,
     openComposer,
   };

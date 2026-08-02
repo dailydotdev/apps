@@ -9,9 +9,12 @@ import {
 } from '@dailydotdev/shared/src/graphql/feed';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
+import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
+import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { watercoolerSquadId } from '@dailydotdev/shared/src/lib/constants';
 import { FeedPageLayoutList } from '@dailydotdev/shared/src/components/utilities';
+import { ElementPlaceholder } from '@dailydotdev/shared/src/components/ElementPlaceholder';
 import { WatercoolerComposer } from '@dailydotdev/shared/src/features/watercooler/components/WatercoolerComposer';
 import {
   Typography,
@@ -48,6 +51,13 @@ const WatercoolerPage = (): ReactElement => {
   const { squad, isFetched } = useSquad({ handle: watercoolerSquadId });
   const squadId = squad?.id;
 
+  // "Off the clock" daily quest. Fires on arrival rather than once the squad
+  // resolves — the visit is what the quest rewards, and the hook is a no-op
+  // when logged out.
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.VisitWatercoolerFeed,
+  });
+
   // Must be memoized to prevent refreshing the feed
   const queryVariables = useMemo(
     () => ({
@@ -58,8 +68,18 @@ const WatercoolerPage = (): ReactElement => {
     [squadId],
   );
 
+  // The heading and composer both need the squad, and the feed needs its id, so
+  // there is nothing real to paint yet. A skeleton holds the layout instead of
+  // flashing an empty page and then dropping everything in at once.
   if (!isFetched) {
-    return <></>;
+    return (
+      <FeedPageLayoutList>
+        <div className="mb-4 flex w-full flex-col gap-4 px-4 laptop:px-0">
+          <ElementPlaceholder className="h-8 w-48 rounded-12" />
+          <ElementPlaceholder className="h-14 w-full rounded-16" />
+        </div>
+      </FeedPageLayoutList>
+    );
   }
 
   if (!squad) {

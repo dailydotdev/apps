@@ -95,10 +95,15 @@ beforeEach(() => {
   joinSquad.mockResolvedValue(createSquad());
   (useJoinSquad as jest.Mock).mockReturnValue(joinSquad);
   (useLazyModal as jest.Mock).mockReturnValue({ openModal });
-  (usePostToSquad as jest.Mock).mockReturnValue({
-    onSubmitFreeformPost,
+  // Mirrors the real hook: `onComplete` fires on both the direct and the
+  // moderated path, and is what collapses the composer.
+  (usePostToSquad as jest.Mock).mockImplementation(({ onComplete }) => ({
+    onSubmitFreeformPost: async (...args: unknown[]) => {
+      onSubmitFreeformPost(...args);
+      onComplete?.();
+    },
     isPosting: false,
-  });
+  }));
   (useAuthContext as jest.Mock).mockReturnValue({
     user: { id: 'u1', reputation: 300, image: 'https://daily.dev/a.jpg' },
     showLogin,
@@ -106,12 +111,23 @@ beforeEach(() => {
 });
 
 describe('WatercoolerComposer', () => {
-  it('joins the squad silently when a non-member starts a post', async () => {
+  it('does not join just because the composer was opened', async () => {
     renderComposer(createSquad());
 
     await openInlineComposer();
 
-    expect(joinSquad).toHaveBeenCalled();
+    expect(joinSquad).not.toHaveBeenCalled();
+    expect(hideSourceFeedPosts).not.toHaveBeenCalled();
+  });
+
+  it('joins the squad silently when a non-member actually posts', async () => {
+    renderComposer(createSquad());
+
+    await openInlineComposer();
+    await userEvent.type(screen.getByLabelText('Post title'), 'Coffee?');
+    await userEvent.click(screen.getByRole('button', { name: 'Post' }));
+
+    await waitFor(() => expect(joinSquad).toHaveBeenCalled());
     expect(gqlClient.request).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({
@@ -120,6 +136,23 @@ describe('WatercoolerComposer', () => {
       }),
     );
     expect(hideSourceFeedPosts).toHaveBeenCalledWith(squadId);
+    expect(onSubmitFreeformPost).toHaveBeenCalled();
+  });
+
+  it('joins once across repeated posts', async () => {
+    renderComposer(createSquad());
+
+    await openInlineComposer();
+    await userEvent.type(screen.getByLabelText('Post title'), 'One');
+    await userEvent.click(screen.getByRole('button', { name: 'Post' }));
+    await waitFor(() => expect(joinSquad).toHaveBeenCalledTimes(1));
+
+    await openInlineComposer();
+    await userEvent.type(screen.getByLabelText('Post title'), 'Two');
+    await userEvent.click(screen.getByRole('button', { name: 'Post' }));
+
+    await waitFor(() => expect(onSubmitFreeformPost).toHaveBeenCalledTimes(2));
+    expect(joinSquad).toHaveBeenCalledTimes(1);
   });
 
   it('posts the title straight to the squad', async () => {

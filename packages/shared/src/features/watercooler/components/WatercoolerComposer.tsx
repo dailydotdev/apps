@@ -1,5 +1,5 @@
 import type { FormEvent, ReactElement } from 'react';
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Button,
@@ -12,10 +12,7 @@ import {
   ProfileImageSize,
   ProfilePicture,
 } from '../../../components/ProfilePicture';
-import type {
-  TextFormCover,
-  TextFormHandle,
-} from '../../../components/post/composer/TextForm';
+import type { TextFormCover } from '../../../components/post/composer/TextForm';
 import { TextForm } from '../../../components/post/composer/TextForm';
 import type { TextFormState } from '../../../components/post/composer/types';
 import { DEFAULT_TEXT } from '../../../components/post/composer/types';
@@ -37,11 +34,16 @@ export const WatercoolerComposer = ({
   squad,
 }: WatercoolerComposerProps): ReactElement => {
   const { user } = useAuthContext();
-  const { canPost, blockedReason, isJoining, ensureCanPost, openComposer } =
-    useWatercoolerPosting({ squad });
+  const {
+    canPost,
+    blockedReason,
+    isJoining,
+    checkGate,
+    ensureCanPost,
+    openComposer,
+  } = useWatercoolerPosting({ squad });
   const { displayToast } = useToastNotification();
   const queryClient = useQueryClient();
-  const formRef = useRef<TextFormHandle>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [text, setText] = useState<TextFormState>(DEFAULT_TEXT);
   const [cover, setCover] = useState<TextFormCover | null>(null);
@@ -54,26 +56,36 @@ export const WatercoolerComposer = ({
 
   const { onSubmitFreeformPost, isPosting } = usePostToSquad({
     displayMutationErrors: true,
-    onPostSuccess: () => {
+    // `onComplete`, not `onPostSuccess`: the latter is only called by the
+    // direct-post mutations. A moderated squad routes through
+    // `onCreatePostModeration`, which fires `onComplete` alone — so hanging
+    // this off `onPostSuccess` would leave the composer expanded, holding a
+    // draft that was in fact submitted, and invite a duplicate.
+    onComplete: () => {
       collapse();
       displayToast(
         moderationRequired(squad)
           ? '✅ Your post has been submitted for moderation'
           : '✅ Your post has been created!',
       );
-      // Prefix match: the page keys its feed on the squad + variables, and the
-      // new post belongs at the top of it.
-      queryClient.invalidateQueries({ queryKey: ['sourceFeed'] });
+      // Scoped to this user's source feeds, matching the page's own key. A bare
+      // ['sourceFeed'] would refetch every squad and source feed cached this
+      // session to refresh one.
+      queryClient.invalidateQueries({
+        queryKey: ['sourceFeed', user?.id ?? 'anonymous'],
+      });
     },
   });
 
-  const onExpand = useCallback(async () => {
-    if (!(await ensureCanPost())) {
+  const onExpand = useCallback(() => {
+    // Gate only — no join. Opening a draft shouldn't make someone a member of
+    // a squad they may never post to.
+    if (!checkGate()) {
       return;
     }
 
     setIsExpanded(true);
-  }, [ensureCanPost]);
+  }, [checkGate]);
 
   const onSubmit = useCallback(
     async (event: FormEvent<HTMLFormElement>) => {
@@ -84,8 +96,8 @@ export const WatercoolerComposer = ({
         return;
       }
 
-      // Membership can lapse between expanding and posting (another tab, a
-      // slow join), so this is re-checked rather than assumed.
+      // Where the join actually happens: only someone who goes through with a
+      // post becomes a member.
       if (!(await ensureCanPost())) {
         return;
       }
@@ -103,11 +115,14 @@ export const WatercoolerComposer = ({
   );
 
   const onOpenFullComposer = useCallback(async () => {
-    // The typed text carries over. An attached cover does not — the modal takes
-    // no cover prop — so the inline draft is only cleared once the modal is up.
+    // `inactive` only marks the button aria-disabled, it still fires onClick.
+    if (cover) {
+      return;
+    }
+
     await openComposer({ title: text.title, content: text.body });
     collapse();
-  }, [collapse, openComposer, text]);
+  }, [collapse, cover, openComposer, text]);
 
   if (!isExpanded) {
     return (
@@ -134,7 +149,6 @@ export const WatercoolerComposer = ({
   return (
     <form className={shellClasses} onSubmit={onSubmit}>
       <TextForm
-        ref={formRef}
         value={text}
         onChange={setText}
         sourceId={squad.id}
@@ -142,13 +156,23 @@ export const WatercoolerComposer = ({
         onCoverChange={setCover}
         toolbarRightActions={
           <span className="flex flex-row items-center gap-2">
-            <Tooltip content="Open full composer">
+            {/* Only offered without a cover: the modal takes no cover prop, so
+                handing the draft over would drop an attached image silently.
+                Blocking the action beats losing the file. */}
+            <Tooltip
+              content={
+                cover
+                  ? 'Remove the cover to open the full composer'
+                  : 'Open full composer'
+              }
+            >
               <Button
                 type="button"
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Tertiary}
                 icon={<MaximizeIcon />}
                 onClick={onOpenFullComposer}
+                inactive={!!cover}
                 aria-label="Open full composer"
               />
             </Tooltip>

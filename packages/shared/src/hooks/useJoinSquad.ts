@@ -19,6 +19,12 @@ import { useActivePostContext } from '../contexts/ActivePostContext';
 type UseJoinSquadProps = {
   squad: Pick<Squad, 'id' | 'handle' | 'privilegedMembers'>;
   referralToken?: string;
+  /**
+   * The user did not ask to join — the membership is a side effect of another
+   * action (e.g. posting to a squad they aren't in). Marked on the join event
+   * so these don't read as deliberate joins in squad-growth reporting.
+   */
+  implicit?: boolean;
 };
 
 type UseJoinSquad = () => Promise<Squad>;
@@ -26,14 +32,19 @@ type UseJoinSquad = () => Promise<Squad>;
 export const useJoinSquad = ({
   squad,
   referralToken,
+  implicit,
 }: UseJoinSquadProps): UseJoinSquad => {
   const queryClient = useQueryClient();
   const { user } = useAuthContext();
   const { addSquad } = useBoot();
   const { logEvent } = useLogContext();
   const { completeAction } = useActions();
-  const { activePost: referrerPost } = useActivePostContext();
+  const referrerPost = useActivePostContext()?.activePost;
   const joinSquad = useCallback(async () => {
+    if (!squad.id) {
+      throw new Error('useJoinSquad: cannot join a squad without an id');
+    }
+
     const payload: SquadInvitationProps = {
       sourceId: squad.id,
     };
@@ -47,8 +58,9 @@ export const useJoinSquad = ({
     logEvent({
       event_name: LogEvent.CompleteJoiningSquad,
       extra: JSON.stringify({
-        inviter: user.id,
+        inviter: user?.id,
         squad: squad.id,
+        ...(implicit && { implicit: true }),
         ...(!!referrerPost && {
           author: squad.privilegedMembers?.some(
             (squadMember) =>
@@ -65,7 +77,7 @@ export const useJoinSquad = ({
 
     const queryKey = generateQueryKey(
       RequestKey.Squad,
-      result.currentMember.user,
+      result.currentMember?.user,
       result.handle,
     );
     queryClient.setQueryData(queryKey, result);
@@ -98,6 +110,7 @@ export const useJoinSquad = ({
     user,
     squad?.privilegedMembers,
     referrerPost,
+    implicit,
   ]);
 
   return joinSquad;

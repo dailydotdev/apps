@@ -60,6 +60,8 @@ export const getQuestDestination = (
       return { label: 'Discuss', path: '/discussed' };
     case 'visit_read_it_later_page':
       return { label: 'Later', path: '/bookmarks/later' };
+    case 'visit_watercooler_feed':
+      return { label: 'Watercooler', path: '/watercooler' };
     case 'feedback_submit':
       return { label: 'Feedback', path: '/settings/feedback' };
     case 'squad_join':
