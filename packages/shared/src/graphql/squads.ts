@@ -35,6 +35,7 @@ type BaseSquadForm = Pick<
   | 'memberInviteRole'
   | 'memberPostingRole'
   | 'moderationRequired'
+  | 'postingMinReputation'
 > & {
   categoryId?: string;
 };
@@ -176,6 +177,7 @@ export const CREATE_SQUAD_MUTATION = gql`
     $memberPostingRole: String
     $memberInviteRole: String
     $moderationRequired: Boolean
+    $postingMinReputation: Int
     $isPrivate: Boolean
     $categoryId: ID
   ) {
@@ -187,6 +189,7 @@ export const CREATE_SQUAD_MUTATION = gql`
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
       moderationRequired: $moderationRequired
+      postingMinReputation: $postingMinReputation
       isPrivate: $isPrivate
       categoryId: $categoryId
     ) {
@@ -214,6 +217,7 @@ export const EDIT_SQUAD_MUTATION = gql`
     $memberPostingRole: String
     $memberInviteRole: String
     $moderationRequired: Boolean
+    $postingMinReputation: Int
     $isPrivate: Boolean
     $categoryId: ID
   ) {
@@ -227,6 +231,7 @@ export const EDIT_SQUAD_MUTATION = gql`
       memberPostingRole: $memberPostingRole
       memberInviteRole: $memberInviteRole
       moderationRequired: $moderationRequired
+      postingMinReputation: $postingMinReputation
       isPrivate: $isPrivate
       categoryId: $categoryId
     ) {
@@ -355,6 +360,7 @@ export const SQUAD_STATIC_FIELDS_QUERY = gql`
       type
       permalink
       moderationRequired
+      postingMinReputation
       membersCount
       createdAt
     }
@@ -371,6 +377,7 @@ export type SquadStaticData = Pick<
   | 'image'
   | 'type'
   | 'moderationRequired'
+  | 'postingMinReputation'
   | 'permalink'
   | 'membersCount'
   | 'createdAt'
@@ -701,6 +708,7 @@ const formToInput = (form: SquadForm): SharedSquadInput => ({
   memberInviteRole: form.memberInviteRole,
   categoryId: form.categoryId,
   moderationRequired: form.moderationRequired,
+  postingMinReputation: form.postingMinReputation ?? null,
   isPrivate: form.status === PrivacyOption.Private,
 });
 

@@ -48,6 +48,24 @@ interface SquadPageHeaderProps {
 const MAX_WIDTH = 'laptopL:max-w-[38.5rem]';
 const Divider = classed('span', 'flex flex-1 h-px bg-border-subtlest-tertiary');
 
+const getPostingDisabledText = (
+  squad: Squad,
+  isSquadMember: boolean,
+): string => {
+  if (!isSquadMember) {
+    return 'Join the Squad to create new posts';
+  }
+
+  if (
+    typeof squad.postingMinReputation === 'number' &&
+    squad.currentMember?.role === SourceMemberRole.Member
+  ) {
+    return `You need ${squad.postingMinReputation} reputation points to post`;
+  }
+
+  return 'Only admins and moderators can post';
+};
+
 export function SquadPageHeader({
   squad,
   members,
@@ -284,11 +302,7 @@ export function SquadPageHeader({
               allowedToPost && 'max-w-[30.25rem]',
             )}
             disabled={!allowedToPost}
-            disabledText={
-              isSquadMember
-                ? 'Only admins and moderators can post'
-                : 'Join the Squad to create new posts'
-            }
+            disabledText={getPostingDisabledText(squad, isSquadMember)}
             squad={squad}
           />
         </ConditionalWrapper>

@@ -3,15 +3,23 @@ import React, { useState } from 'react';
 import { SquadSettingsSection } from './SquadSettingsSection';
 import { Radio } from '../../fields/Radio';
 import { SourceMemberRole } from '../../../graphql/sources';
-import { Switch } from '../../fields/Switch';
+import { TextField } from '../../fields/TextField';
 import { WidgetCard } from '../../widgets/WidgetCard';
-import { useToggle } from '../../../hooks/useToggle';
 import { Tooltip } from '../../tooltip/Tooltip';
+
+export enum SquadPostingGate {
+  None = 'none',
+  Moderation = 'moderation',
+  Reputation = 'reputation',
+}
+
+export const DEFAULT_POSTING_MIN_REPUTATION = 250;
 
 interface SquadModerationSettingsSectionProps {
   initialMemberPostingRole?: SourceMemberRole;
   initialMemberInviteRole?: SourceMemberRole;
   initialModerationRequired?: boolean;
+  initialPostingMinReputation?: number | null;
 }
 
 const memberRoleOptions = [
@@ -25,10 +33,39 @@ const memberRoleOptions = [
   },
 ];
 
+const postingGateOptions = [
+  {
+    label: 'Anyone can post',
+    value: SquadPostingGate.None,
+  },
+  {
+    label: 'Require post approval',
+    value: SquadPostingGate.Moderation,
+  },
+  {
+    label: 'Require a minimum reputation',
+    value: SquadPostingGate.Reputation,
+  },
+];
+
+const getInitialGate = (
+  moderationRequired?: boolean,
+  postingMinReputation?: number | null,
+): SquadPostingGate => {
+  if (typeof postingMinReputation === 'number') {
+    return SquadPostingGate.Reputation;
+  }
+
+  return moderationRequired
+    ? SquadPostingGate.Moderation
+    : SquadPostingGate.None;
+};
+
 export function SquadModerationSettingsSection({
   initialMemberInviteRole,
   initialMemberPostingRole,
   initialModerationRequired,
+  initialPostingMinReputation,
 }: SquadModerationSettingsSectionProps): ReactElement {
   const [memberPostingRole, setMemberPostingRole] = useState(
     initialMemberPostingRole || SourceMemberRole.Moderator,
@@ -36,14 +73,19 @@ export function SquadModerationSettingsSection({
   const [memberInviteRole, setMemberInviteRole] = useState(
     initialMemberInviteRole || SourceMemberRole.Member,
   );
-  const [moderationRequired, setModerationRequired] = useToggle(
-    initialModerationRequired ?? false,
+  const [postingGate, setPostingGate] = useState(() =>
+    getInitialGate(initialModerationRequired, initialPostingMinReputation),
   );
+
+  // Both gates only ever apply to plain members, so they are meaningless when
+  // members cannot post in the first place.
+  const isMembersOnlyGateDisabled =
+    memberPostingRole === SourceMemberRole.Moderator;
 
   const handleMemberPostingRole = (value: SourceMemberRole) => {
     setMemberPostingRole(value);
     if (value === SourceMemberRole.Moderator) {
-      setModerationRequired(false);
+      setPostingGate(SquadPostingGate.None);
     }
   };
 
@@ -63,28 +105,40 @@ export function SquadModerationSettingsSection({
           />
         </SquadSettingsSection>
         <SquadSettingsSection
-          title="Require post approval"
-          description="Turn this on to have admins or moderators approve every new post before it's published."
+          title="Posting requirements"
+          description="Choose what members need to clear before their posts go live."
         >
           <Tooltip
             side="top"
             content="Only admins and moderators can post; their posts are auto-published."
             className="max-w-64 !p-2 text-center"
-            visible={memberPostingRole === SourceMemberRole.Moderator}
+            visible={isMembersOnlyGateDisabled}
           >
-            <span className="max-w-fit cursor-pointer">
-              <Switch
-                className="max-w-min cursor-pointer"
-                name="moderationRequired"
-                inputId="moderationRequired"
-                disabled={memberPostingRole === SourceMemberRole.Moderator}
-                checked={moderationRequired}
-                onToggle={() => setModerationRequired(!moderationRequired)}
-              >
-                <span>{moderationRequired ? 'On' : 'Off'}</span>
-              </Switch>
+            <span className="max-w-fit">
+              <Radio
+                name="postingGate"
+                options={postingGateOptions}
+                value={postingGate}
+                disabled={isMembersOnlyGateDisabled}
+                onChange={(value) => setPostingGate(value as SquadPostingGate)}
+              />
             </span>
           </Tooltip>
+          {postingGate === SquadPostingGate.Reputation && (
+            <TextField
+              className={{ container: 'mt-4 max-w-60' }}
+              inputId="postingMinReputation"
+              name="postingMinReputation"
+              label="Minimum reputation"
+              type="number"
+              min={0}
+              required
+              defaultValue={`${
+                initialPostingMinReputation ?? DEFAULT_POSTING_MIN_REPUTATION
+              }`}
+              hint="Members below this reputation will not be able to post."
+            />
+          )}
         </SquadSettingsSection>
         <SquadSettingsSection
           title="Invitation permissions"
