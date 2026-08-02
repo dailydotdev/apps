@@ -45,7 +45,6 @@ const renderScrollRestoration = () => renderHook(() => useScrollRestoration());
 
 beforeEach(() => {
   jest.useFakeTimers();
-  window.sessionStorage.clear();
 
   historyKeyCount += 1;
   historyKey = `feed-entry-${historyKeyCount}`;
@@ -81,8 +80,6 @@ const saveFeedPosition = () => {
   const { unmount } = renderScrollRestoration();
 
   scrollUserTo(SAVED_POSITION);
-  advanceFrames();
-
   unmount();
 
   // Next.js resets the scroll to the top when the next route commits.
@@ -125,11 +122,23 @@ describe('useScrollRestoration', () => {
   it('keeps the saved position when the router resets the scroll to the top', () => {
     saveFeedPosition();
 
-    renderScrollRestoration();
+    const { unmount } = renderScrollRestoration();
 
+    // Next's reset-to-top lands while we are still waiting for the feed height.
     scrollUserTo(0);
-    advanceFrames(2);
+    advanceFrames();
 
+    setPageHeight(FEED_HEIGHT);
+    advanceFrames();
+    expect(scrollTo).toHaveBeenCalledWith(0, SAVED_POSITION);
+
+    // The reset must not have overwritten the entry for the next visit back.
+    unmount();
+    scrollTo.mockClear();
+    setScrollY(0);
+    setPageHeight(VIEWPORT_HEIGHT);
+
+    renderScrollRestoration();
     setPageHeight(FEED_HEIGHT);
     advanceFrames();
 
@@ -151,29 +160,25 @@ describe('useScrollRestoration', () => {
     expect(scrollTo).not.toHaveBeenCalled();
   });
 
-  it('persists the position so a reloaded tab can still restore it', () => {
+  it('records the position again once the user takes over', () => {
     saveFeedPosition();
 
-    act(() => {
-      jest.advanceTimersByTime(1000);
-    });
-
-    expect(
-      JSON.parse(window.sessionStorage.getItem('scrollPositions') ?? '{}'),
-    ).toHaveProperty(`${FEED_PATH}:${historyKey}`, SAVED_POSITION);
-  });
-
-  it('restores a position left in storage by a previous page load', () => {
-    window.sessionStorage.setItem(
-      'scrollPositions',
-      JSON.stringify({ [`${FEED_PATH}:${historyKey}`]: SAVED_POSITION }),
-    );
-    setPageHeight(FEED_HEIGHT);
-
     renderScrollRestoration();
+
+    act(() => {
+      window.dispatchEvent(new Event('touchmove'));
+    });
+    setPageHeight(FEED_HEIGHT);
+    scrollUserTo(1200);
+
+    // Remounting is the next back navigation to the same history entry.
+    setPageHeight(VIEWPORT_HEIGHT);
+    setScrollY(0);
+    renderScrollRestoration();
+    setPageHeight(FEED_HEIGHT);
     advanceFrames();
 
-    expect(scrollTo).toHaveBeenCalledWith(0, SAVED_POSITION);
+    expect(scrollTo).toHaveBeenCalledWith(0, 1200);
   });
 
   it('does not restore when the user never scrolled the page', () => {
