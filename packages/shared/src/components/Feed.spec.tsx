@@ -236,6 +236,7 @@ function renderComponent(
   user?: LoggedUser,
   feedName: AllFeedPages = SharedFeedPage.MyFeed,
   query = ANONYMOUS_FEED_QUERY,
+  feedProps: Partial<React.ComponentProps<typeof Feed>> = {},
 ): RenderResult {
   const resolvedUser = arguments.length < 2 ? defaultUser : user;
 
@@ -280,6 +281,7 @@ function renderComponent(
             feedName={feedName}
             query={query}
             variables={variables}
+            {...feedProps}
           />
         </SettingsContext.Provider>
       </AuthContext.Provider>
@@ -2314,5 +2316,40 @@ describe('Feed ad cadence with highlight cards', () => {
       expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
     });
     expect(screen.queryAllByTestId('feedItemColSpanWrapper').length).toBe(0);
+  });
+});
+
+describe('Feed excludePinnedPosts', () => {
+  const [firstEdge, secondEdge, ...restEdges] = defaultFeedPage.edges;
+  const pinnedTitle = getPostTitle(firstEdge.node, 'pinned');
+  const unpinnedTitle = getPostTitle(secondEdge.node, 'unpinned');
+  const pageWithPinned: Connection<Post> = {
+    ...defaultFeedPage,
+    edges: [
+      { ...firstEdge, node: { ...firstEdge.node, pinnedAt: new Date() } },
+      secondEdge,
+      ...restEdges,
+    ],
+  };
+
+  it('drops pinned posts when asked', async () => {
+    renderComponent(
+      [createFeedMock(pageWithPinned)],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      ANONYMOUS_FEED_QUERY,
+      { excludePinnedPosts: true },
+    );
+    await waitForNock();
+
+    expect(await screen.findByText(unpinnedTitle)).toBeInTheDocument();
+    expect(screen.queryByText(pinnedTitle)).not.toBeInTheDocument();
+  });
+
+  it('keeps pinned posts by default', async () => {
+    renderComponent([createFeedMock(pageWithPinned)]);
+    await waitForNock();
+
+    expect(await screen.findByText(pinnedTitle)).toBeInTheDocument();
   });
 });

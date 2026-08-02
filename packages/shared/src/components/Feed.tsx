@@ -78,7 +78,7 @@ const FeedErrorScreen = dynamic(
 );
 
 export interface FeedProps<T>
-  extends Pick<UseFeedOptionalParams<T>, 'options'>,
+  extends Pick<UseFeedOptionalParams<T>, 'options' | 'excludePinnedPosts'>,
     Pick<FeedContainerProps, 'shortcuts'> {
   feedName: AllFeedPages;
   feedQueryKey: QueryKey;
@@ -100,6 +100,12 @@ export interface FeedProps<T>
   isHorizontal?: boolean;
   feedContainerRef?: React.Ref<HTMLDivElement>;
   disableListFrame?: boolean;
+  /**
+   * Single-source feeds (e.g. one squad) where repeating the source on every
+   * card is noise. Cards drop the source avatar and fall back to the author
+   * for their labels.
+   */
+  hideSource?: boolean;
   topContent?: ReactNode;
 }
 
@@ -192,6 +198,8 @@ export default function Feed<T>({
   isHorizontal = false,
   feedContainerRef,
   disableListFrame = false,
+  excludePinnedPosts = false,
+  hideSource = false,
   topContent: topContentProp,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
@@ -295,6 +303,7 @@ export default function Feed<T>({
       firstSlotOffset: Number(showFirstSlotCard),
       disableTopHero: isV2,
       isHorizontal,
+      excludePinnedPosts,
       settings: {
         disableAds,
         staticAd,
@@ -778,6 +787,7 @@ export default function Feed<T>({
                     boostedBy: isBoostedPostAd(item)
                       ? item.ad.data?.post?.author || item.ad.data?.post?.scout
                       : undefined,
+                    hideSource,
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (

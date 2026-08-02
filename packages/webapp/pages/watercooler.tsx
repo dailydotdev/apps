@@ -99,7 +99,8 @@ const WatercoolerPage = (): ReactElement => {
         emptyScreen={<SquadEmptyScreen />}
         options={{ refetchOnMount: true }}
         showSearch={false}
-        allowPin
+        excludePinnedPosts
+        hideSource
       />
     </FeedPageLayoutList>
   );
