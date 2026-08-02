@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import type { SocialRegistrationParameters } from '../../lib/auth';
 import { AuthEventNames } from '../../lib/auth';
 import { formToJson } from '../../lib/form';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { TextField } from '../fields/TextField';
 import { MailIcon, UserIcon, LockIcon, AtIcon } from '../icons';
@@ -27,6 +27,11 @@ import ExperienceLevelDropdown from '../profile/ExperienceLevelDropdown';
 import { Loader } from '../Loader';
 import { labels } from '../../lib';
 import { generateNameFromEmail } from '../../lib/strings';
+import SignupDisclaimer from './SignupDisclaimer';
+import {
+  FunnelGlassBar,
+  funnelGlassBarCta,
+} from '../../features/onboarding/shared/FunnelGlassBar';
 
 export interface SocialRegistrationFormProps extends AuthFormProps {
   className?: string;
@@ -37,6 +42,12 @@ export interface SocialRegistrationFormProps extends AuthFormProps {
   onUpdateHints?: (errors: ProfileFormHint) => void;
   onSignup?: (params: SocialRegistrationParameters) => void;
   isLoading?: boolean;
+  /**
+   * Post-signup onboarding only: the same chrome the email signup takes, so the
+   * two account-details screens are one screen with one extra field. Everywhere
+   * else — the auth modal, the recruiter flows — keeps the modal footer.
+   */
+  isOnboardingFunnel?: boolean;
 }
 
 export type SocialRegistrationFormValues = Omit<
@@ -54,6 +65,7 @@ export const SocialRegistrationForm = ({
   onSignup,
   isLoading,
   simplified,
+  isOnboardingFunnel,
 }: SocialRegistrationFormProps): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useContext(AuthContext);
@@ -179,6 +191,146 @@ export const SocialRegistrationForm = ({
     return <></>;
   }
 
+  const submitButton = (
+    <Button
+      form="auth-form"
+      type="submit"
+      className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
+      size={isOnboardingFunnel ? ButtonSize.Medium : undefined}
+      variant={ButtonVariant.Primary}
+      disabled={isLoading}
+    >
+      {user?.isPlus ? 'Continue' : 'Sign up'}
+    </Button>
+  );
+
+  const fields = (
+    <>
+      {isAppleRegistration && currentName && (
+        <input name="name" type="hidden" value={currentName} readOnly />
+      )}
+      {isAppleRegistration && !shouldShowAppleEmail && (
+        <input name="email" type="hidden" value={currentEmail} readOnly />
+      )}
+      {!isAppleRegistration && (
+        <ImageInput
+          className={{ container: 'mb-4' }}
+          initialValue={user?.image}
+          size="medium"
+          viewOnly
+        />
+      )}
+      {(!isAppleRegistration || shouldShowAppleEmail) && (
+        <TextField
+          saveHintSpace
+          className={{ container: 'w-full' }}
+          leftIcon={emailFieldIcon(provider)}
+          name="email"
+          inputId="email"
+          label="Email"
+          type="email"
+          value={currentEmail}
+          readOnly={!isAppleRegistration}
+          rightIcon={!isAppleRegistration ? <LockIcon /> : undefined}
+          onBlur={(e) => setEmail(e.target.value)}
+        />
+      )}
+      {!isAppleRegistration && (
+        <TextField
+          saveHintSpace
+          className={{ container: 'w-full' }}
+          leftIcon={<UserIcon size={IconSize.Small} />}
+          name="name"
+          inputId="name"
+          label="Name"
+          value={currentName}
+          valid={!nameHint && !hints?.name}
+          hint={hints?.name || nameHint}
+          onBlur={(e) => setName(e.target.value)}
+          valueChanged={() => {
+            if (hints?.name) {
+              onUpdateHints?.({ ...hints, name: '' });
+            }
+            if (nameHint) {
+              setNameHint('');
+            }
+          }}
+        />
+      )}
+      <TextField
+        saveHintSpace
+        className={{ container: 'w-full' }}
+        leftIcon={<AtIcon size={IconSize.Small} secondary />}
+        name="username"
+        inputId="username"
+        label="Enter a username"
+        value={username}
+        minLength={1}
+        valid={isLoadingUsername || (!usernameHint && !hints?.username)}
+        hint={
+          isLoadingUsername
+            ? labels.generatingUsername
+            : hints?.username || usernameHint
+        }
+        onBlur={(e) => setUsername(e.target.value)}
+        valueChanged={() =>
+          hints?.[username] && onUpdateHints({ ...hints, username: '' })
+        }
+        rightIcon={isLoadingUsername ? <Loader /> : null}
+      />
+      <ExperienceLevelDropdown
+        className={{ container: 'w-full' }}
+        name="experienceLevel"
+        onChange={() => {
+          if (experienceLevelHint) {
+            setExperienceLevelHint(null);
+          }
+        }}
+        valid={experienceLevelHint === null}
+        hint={experienceLevelHint}
+        saveHintSpace
+      />
+      <Checkbox name="optOutMarketing" className="font-normal">
+        I don’t want to receive updates and promotions via email
+      </Checkbox>
+    </>
+  );
+
+  // Same shell, spacing and docked CTA as the email signup, so the two
+  // account-details screens differ only by the avatar above the fields.
+  if (isOnboardingFunnel) {
+    return (
+      <div className="flex flex-col">
+        <AuthHeader simplified={simplified} onboardingHeadline title={title} />
+        <div className={classNames(!simplified && 'px-4 pb-4 tablet:px-6')}>
+          <AuthForm
+            className={classNames(
+              'mt-10 w-full flex-1 place-items-center gap-2 self-center overflow-y-auto pb-2',
+              className,
+            )}
+            ref={formRef}
+            onSubmit={onSubmit}
+            id="auth-form"
+            data-testid="registration_form"
+          >
+            {fields}
+            <ConditionalWrapper
+              condition={simplified ?? false}
+              wrapper={(component) => (
+                <AuthContainer className="!mt-0 !px-0 pb-1 pt-3">
+                  {component}
+                </AuthContainer>
+              )}
+            >
+              <FunnelGlassBar>{submitButton}</FunnelGlassBar>
+              <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+            </ConditionalWrapper>
+          </AuthForm>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <AuthHeader simplified={simplified} title={title} />
@@ -192,93 +344,7 @@ export const SocialRegistrationForm = ({
         id="auth-form"
         data-testid="registration_form"
       >
-        {isAppleRegistration && currentName && (
-          <input name="name" type="hidden" value={currentName} readOnly />
-        )}
-        {isAppleRegistration && !shouldShowAppleEmail && (
-          <input name="email" type="hidden" value={currentEmail} readOnly />
-        )}
-        {!isAppleRegistration && (
-          <ImageInput
-            className={{ container: 'mb-4' }}
-            initialValue={user?.image}
-            size="medium"
-            viewOnly
-          />
-        )}
-        {(!isAppleRegistration || shouldShowAppleEmail) && (
-          <TextField
-            saveHintSpace
-            className={{ container: 'w-full' }}
-            leftIcon={emailFieldIcon(provider)}
-            name="email"
-            inputId="email"
-            label="Email"
-            type="email"
-            value={currentEmail}
-            readOnly={!isAppleRegistration}
-            rightIcon={!isAppleRegistration ? <LockIcon /> : undefined}
-            onBlur={(e) => setEmail(e.target.value)}
-          />
-        )}
-        {!isAppleRegistration && (
-          <TextField
-            saveHintSpace
-            className={{ container: 'w-full' }}
-            leftIcon={<UserIcon size={IconSize.Small} />}
-            name="name"
-            inputId="name"
-            label="Name"
-            value={currentName}
-            valid={!nameHint && !hints?.name}
-            hint={hints?.name || nameHint}
-            onBlur={(e) => setName(e.target.value)}
-            valueChanged={() => {
-              if (hints?.name) {
-                onUpdateHints?.({ ...hints, name: '' });
-              }
-              if (nameHint) {
-                setNameHint('');
-              }
-            }}
-          />
-        )}
-        <TextField
-          saveHintSpace
-          className={{ container: 'w-full' }}
-          leftIcon={<AtIcon size={IconSize.Small} secondary />}
-          name="username"
-          inputId="username"
-          label="Enter a username"
-          value={username}
-          minLength={1}
-          valid={isLoadingUsername || (!usernameHint && !hints?.username)}
-          hint={
-            isLoadingUsername
-              ? labels.generatingUsername
-              : hints?.username || usernameHint
-          }
-          onBlur={(e) => setUsername(e.target.value)}
-          valueChanged={() =>
-            hints?.[username] && onUpdateHints({ ...hints, username: '' })
-          }
-          rightIcon={isLoadingUsername ? <Loader /> : null}
-        />
-        <ExperienceLevelDropdown
-          className={{ container: 'w-full' }}
-          name="experienceLevel"
-          onChange={() => {
-            if (experienceLevelHint) {
-              setExperienceLevelHint(null);
-            }
-          }}
-          valid={experienceLevelHint === null}
-          hint={experienceLevelHint}
-          saveHintSpace
-        />
-        <Checkbox name="optOutMarketing" className="font-normal">
-          I don’t want to receive updates and promotions via email
-        </Checkbox>
+        {fields}
       </AuthForm>
       <ConditionalWrapper
         condition={simplified ?? false}
@@ -286,17 +352,7 @@ export const SocialRegistrationForm = ({
           <AuthContainer className="!mt-0">{component}</AuthContainer>
         )}
       >
-        <Modal.Footer>
-          <Button
-            form="auth-form"
-            type="submit"
-            className="w-full"
-            variant={ButtonVariant.Primary}
-            disabled={isLoading}
-          >
-            {user?.isPlus ? 'Continue' : 'Sign up'}
-          </Button>
-        </Modal.Footer>
+        <Modal.Footer>{submitButton}</Modal.Footer>
       </ConditionalWrapper>
     </>
   );
