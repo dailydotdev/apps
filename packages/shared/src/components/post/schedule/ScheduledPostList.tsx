@@ -54,7 +54,8 @@ export function ScheduledPostList(): ReactElement {
           type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          Posts waiting to go live. Select one to edit or reschedule it.
+          Posts waiting to go live. Select one to edit or reschedule it, or
+          delete it before it goes live.
         </Typography>
       </div>
       <InfiniteScrolling
