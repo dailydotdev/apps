@@ -312,9 +312,11 @@ export const FeedContainer = ({
                     !isV2Laptop &&
                     'rounded-16 border border-border-subtlest-tertiary tablet:mt-6',
                   // v2-only: swap the list-card top separator token to
-                  // match the floating-card / card hierarchy.
-                  !disableListFrame &&
-                    isV2Laptop &&
+                  // match the floating-card / card hierarchy. Not part of the
+                  // frame, so `disableListFrame` leaves it alone — otherwise a
+                  // frameless feed would separate its cards differently from
+                  // every other v2 feed.
+                  isV2Laptop &&
                     '[&_article]:!border-border-subtlest-quaternary',
                   !disableListFrame && isSearch && !isV2Laptop && 'mt-6',
                   !disableListFrame && !isLaptop && '!mt-2 border-0',
@@ -354,7 +356,13 @@ export const FeedContainer = ({
                   // bottom border, so cards sit p-6 inside the floating
                   // card on all four sides.
                   'tablet:p-2 laptop:p-6 [&_article:hover]:!border-border-subtlest-tertiary [&_article]:!border-border-subtlest-quaternary',
-                shouldUseListFeedLayout && isLaptop && 'px-6 pt-4',
+                // Inner inset for the bordered list frame. With the frame gone
+                // there is nothing to inset from, so the cards run the full
+                // width of the column like the page header above them.
+                shouldUseListFeedLayout &&
+                  isLaptop &&
+                  !disableListFrame &&
+                  'px-6 pt-4',
                 !isLaptop && (isExplorePopular || isExploreLatest) && 'mt-4',
                 // mt-8 is a legacy spacer below the search/action header;
                 // v2 already enforces the gap via the grid's own `p-6`

@@ -101,6 +101,8 @@ const WatercoolerPage = (): ReactElement => {
         showSearch={false}
         excludePinnedPosts
         hideSource
+        hideTags
+        disableListFrame
       />
     </FeedPageLayoutList>
   );

@@ -106,6 +106,10 @@ export interface FeedProps<T>
    * for their labels.
    */
   hideSource?: boolean;
+  /**
+   * Drop the tag chips (and the row they sit on) from every card.
+   */
+  hideTags?: boolean;
   topContent?: ReactNode;
 }
 
@@ -200,6 +204,7 @@ export default function Feed<T>({
   disableListFrame = false,
   excludePinnedPosts = false,
   hideSource = false,
+  hideTags = false,
   topContent: topContentProp,
 }: FeedProps<T>): ReactElement {
   const origin = Origin.Feed;
@@ -788,6 +793,7 @@ export default function Feed<T>({
                       ? item.ad.data?.post?.author || item.ad.data?.post?.scout
                       : undefined,
                     hideSource,
+                    hideTags,
                   }}
                 >
                   {showPromoBanner && index === indexWhenShowingPromoBanner && (
