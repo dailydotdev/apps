@@ -10,6 +10,7 @@ import {
   HotIcon,
   TourIcon,
 } from '../../icons';
+import { RaiseHandIcon } from '../../icons/RaiseHand';
 import { MedalIcon } from '../../icons/Medal';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
@@ -17,7 +18,7 @@ import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
-import { webappUrl } from '../../../lib/constants';
+import { watercoolerUrl, webappUrl } from '../../../lib/constants';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 import { OtherFeedPage } from '../../../lib/query';
@@ -81,6 +82,14 @@ export const DiscoverSection = ({
         ),
         title: 'Leaderboard',
         path: `${webappUrl}users`,
+        isForcedLink: true,
+      },
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <RaiseHandIcon secondary={active} />} />
+        ),
+        title: 'Watercooler',
+        path: watercoolerUrl,
         isForcedLink: true,
       },
       {
