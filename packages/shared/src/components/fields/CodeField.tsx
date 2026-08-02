@@ -142,7 +142,10 @@ export function CodeField({
           <TextField
             // eslint-disable-next-line react/no-array-index-key
             key={`code-${index}`}
-            type="tel"
+            // `text` + `inputmode`, not `tel`: the numeric keypad comes from
+            // `inputMode` either way, and this is the pair Safari's one-time-code
+            // AutoFill is documented against. `tel` predates `inputmode`.
+            type="text"
             inputId={`code-${index}`}
             tabIndex={index + 1}
             label=""
