@@ -6,6 +6,11 @@ import { SourceMemberRole } from '../../../graphql/sources';
 import { TextField } from '../../fields/TextField';
 import { WidgetCard } from '../../widgets/WidgetCard';
 import { Tooltip } from '../../tooltip/Tooltip';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '../../typography/Typography';
 
 export enum SquadPostingGate {
   None = 'none',
@@ -33,19 +38,43 @@ const memberRoleOptions = [
   },
 ];
 
+// Each option spells out both halves of the outcome, since "who can post" and
+// "does anyone review it" are easy to conflate once a threshold is involved.
+const gateOption = (
+  value: SquadPostingGate,
+  label: string,
+  description: string,
+) => ({
+  value,
+  label,
+  className: { wrapper: 'mb-1' },
+  afterElement: (
+    <Typography
+      className="ml-8"
+      type={TypographyType.Footnote}
+      color={TypographyColor.Tertiary}
+    >
+      {description}
+    </Typography>
+  ),
+});
+
 const postingGateOptions = [
-  {
-    label: 'Anyone can post',
-    value: SquadPostingGate.None,
-  },
-  {
-    label: 'Require post approval',
-    value: SquadPostingGate.Moderation,
-  },
-  {
-    label: 'Require a minimum reputation',
-    value: SquadPostingGate.Reputation,
-  },
+  gateOption(
+    SquadPostingGate.None,
+    'Anyone can post',
+    'All members can post. No review.',
+  ),
+  gateOption(
+    SquadPostingGate.Moderation,
+    'Require post approval',
+    'All members can post. Every post is reviewed.',
+  ),
+  gateOption(
+    SquadPostingGate.Reputation,
+    'Require a minimum reputation',
+    'Only members with enough reputation can post. No review.',
+  ),
 ];
 
 const getInitialGate = (
@@ -106,7 +135,7 @@ export function SquadModerationSettingsSection({
         </SquadSettingsSection>
         <SquadSettingsSection
           title="Posting requirements"
-          description="Choose what members need to clear before their posts go live."
+          description="Choose who can post and whether their posts are reviewed first."
         >
           <Tooltip
             side="top"
@@ -136,7 +165,7 @@ export function SquadModerationSettingsSection({
               defaultValue={`${
                 initialPostingMinReputation ?? DEFAULT_POSTING_MIN_REPUTATION
               }`}
-              hint="Members below this reputation will not be able to post."
+              hint="Members below this reputation cannot post at all. Everyone else posts without review."
             />
           )}
         </SquadSettingsSection>

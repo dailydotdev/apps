@@ -22,6 +22,30 @@ const getGate = (label: string) =>
   screen.getByLabelText(label) as HTMLInputElement;
 
 describe('SquadModerationSettingsSection', () => {
+  it('spells out whether each gate reviews posts', () => {
+    renderComponent();
+
+    expect(screen.getByText('All members can post. No review.')).toBeVisible();
+    expect(
+      screen.getByText('All members can post. Every post is reviewed.'),
+    ).toBeVisible();
+    expect(
+      screen.getByText(
+        'Only members with enough reputation can post. No review.',
+      ),
+    ).toBeVisible();
+  });
+
+  it('says posts skip review under the reputation gate', () => {
+    renderComponent({ initialPostingMinReputation: 100 });
+
+    expect(
+      screen.getByText(
+        'Members below this reputation cannot post at all. Everyone else posts without review.',
+      ),
+    ).toBeVisible();
+  });
+
   it('selects the open gate when nothing is configured', () => {
     renderComponent();
 
