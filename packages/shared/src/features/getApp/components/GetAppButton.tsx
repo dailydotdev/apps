@@ -13,10 +13,6 @@ import { AppleIcon, PhoneIcon } from '../../../components/icons';
 import { GooglePlayIcon } from '../../../components/icons/GooglePlay';
 import type { IconProps } from '../../../components/Icon';
 import { IconSize } from '../../../components/Icon';
-import { useViewSize, ViewSize } from '../../../hooks';
-import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
-import usePersistentContext from '../../../hooks/usePersistentContext';
-import { featureHeaderGetApp } from '../../../lib/featureManagement';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
@@ -52,50 +48,33 @@ const stores: AppStore[] = [
   },
 ];
 
-// One-time attention dot. The button is a permanent affordance, not a campaign,
-// so it nudges once and then goes quiet - a banner that keeps reappearing is
-// what we're deliberately not building here.
-const GET_APP_SEEN_KEY = 'getAppHeaderSeen';
-
 export interface GetAppButtonProps {
-  // The logged-out header has room for the full label; the logged-in action
-  // rail (opportunity, quests, giveback, bell, avatar) does not, so it gets the
-  // icon-only trigger with the label in a tooltip.
+  // The logged-out header has room for the full label next to Log in /
+  // Sign up; icon-only (label in a tooltip) exists as the compact alternative.
   showLabel?: boolean;
   className?: string;
-  // Escape hatch for surfaces that already resolved `featureHeaderGetApp` (and
-  // for Storybook, which has no GrowthBook instance). Left undefined, the
-  // button evaluates the flag itself.
-  isFeatureEnabled?: boolean;
 }
 
 export function GetAppButton({
   showLabel = false,
   className,
-  isFeatureEnabled: isFeatureEnabledProp,
 }: GetAppButtonProps): ReactElement | null {
   const [isOpen, setIsOpen] = useState(false);
   const { logEvent } = useLogContext();
-  const { isAndroidApp } = useAuthContext();
-  const isLaptop = useViewSize(ViewSize.Laptop);
-  // The point of this entry point is telling *desktop* visitors that a mobile
-  // app exists. Below laptop we're either on mobile web or inside the native
-  // wrapper - which renders this same webapp shell - and neither should be
-  // told to go get an app they're already holding. The wrappers need their own
-  // signals on top of the viewport gate because a tablet/desktop-mode viewport
-  // can satisfy the laptop breakpoint from inside the app: iOS exposes a
-  // WebKit bridge at runtime (isIOSNative), Android has no such bridge and is
-  // flagged through boot data instead.
-  const shouldRender = isLaptop && !isIOSNative() && !isAndroidApp;
-  const { value: isFlagEnabled } = useConditionalFeature({
-    feature: featureHeaderGetApp,
-    shouldEvaluate: shouldRender && isFeatureEnabledProp === undefined,
-  });
-  const isFeatureEnabled = isFeatureEnabledProp ?? isFlagEnabled;
-  const [hasSeen, setHasSeen, isSeenFetched] = usePersistentContext<boolean>(
-    GET_APP_SEEN_KEY,
-    false,
-  );
+  const { isLoggedIn, isAndroidApp } = useAuthContext();
+  // This entry point is for *anonymous desktop* visitors only - logged-in
+  // users made a product call to keep their action rail clean, so the gate
+  // lives here rather than trusting every call site. The desktop half is
+  // gated in CSS (`hidden laptop:flex` on the trigger, matching LoginButton
+  // and ProfileButton in the same row) so the server HTML already contains
+  // the pill and hydration doesn't reflow Log in / Sign up on first paint.
+  // The native wrappers still need JS vetoes on top: they render this same
+  // webapp shell, a tablet/desktop-mode viewport can satisfy the laptop
+  // breakpoint from inside the app, and nobody should be told to go get an
+  // app they're already holding. iOS exposes a WebKit bridge at runtime
+  // (isIOSNative); Android has no such bridge and is flagged through boot
+  // data instead.
+  const shouldRender = !isLoggedIn && !isIOSNative() && !isAndroidApp;
 
   const onOpenChange = useCallback(
     (open: boolean) => {
@@ -105,13 +84,12 @@ export function GetAppButton({
         return;
       }
 
-      setHasSeen(true);
       logEvent({
         event_name: LogEvent.Click,
         target_type: TargetType.GetAppButton,
       });
     },
-    [logEvent, setHasSeen],
+    [logEvent],
   );
 
   const onStoreClick = useCallback(
@@ -125,45 +103,31 @@ export function GetAppButton({
     [logEvent],
   );
 
-  if (!shouldRender || !isFeatureEnabled) {
+  if (!shouldRender) {
     return null;
   }
 
-  const showDot = !showLabel && isSeenFetched && !hasSeen;
-
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
-      {/* The dot is a sibling of the Button, not a child: Button derives its
-          icon-only geometry from `!children`, so nesting the dot inside would
-          switch it to the labelled layout (`pl-2 pr-4 gap-1`) and push the
-          glyph 4px off centre. */}
-      <span className={classNames('relative inline-flex', className)}>
-        <Tooltip
-          content="Get the mobile app"
-          side="bottom"
-          visible={!showLabel}
-        >
-          <PopoverTrigger asChild>
-            <Button
-              variant={ButtonVariant.Float}
-              size={showLabel ? ButtonSize.Medium : undefined}
-              className={classNames('justify-center', !showLabel && 'w-10')}
-              icon={<PhoneIcon secondary={isOpen} />}
-              aria-haspopup="dialog"
-              aria-expanded={isOpen}
-              aria-label="Get the daily.dev mobile app"
-            >
-              {showLabel ? 'Get the app' : null}
-            </Button>
-          </PopoverTrigger>
-        </Tooltip>
-        {showDot && (
-          <span
-            aria-hidden
-            className="pointer-events-none absolute -right-0.5 -top-0.5 size-2.5 rounded-full border-2 border-background-default bg-accent-cabbage-default"
-          />
-        )}
-      </span>
+      <Tooltip content="Get the mobile app" side="bottom" visible={!showLabel}>
+        <PopoverTrigger asChild>
+          <Button
+            variant={ButtonVariant.Float}
+            size={showLabel ? ButtonSize.Medium : undefined}
+            className={classNames(
+              'hidden justify-center laptop:flex',
+              !showLabel && 'w-10',
+              className,
+            )}
+            icon={<PhoneIcon secondary={isOpen} />}
+            aria-haspopup="dialog"
+            aria-expanded={isOpen}
+            aria-label="Get the daily.dev mobile app"
+          >
+            {showLabel ? 'Get the app' : null}
+          </Button>
+        </PopoverTrigger>
+      </Tooltip>
       <PopoverContent
         align="end"
         sideOffset={8}

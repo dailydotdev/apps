@@ -9,7 +9,6 @@ import {
   Button,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { BellIcon } from '@dailydotdev/shared/src/components/icons';
 
 const queryClient = new QueryClient();
 
@@ -22,11 +21,14 @@ const meta: Meta<typeof GetAppButton> = {
   decorators: [
     (Story) => (
       <QueryClientProvider client={queryClient}>
-        {/* The render gate reads isAndroidApp from AuthContext (the Android
-            wrapper has no runtime bridge), so the story must provide the
-            context the real app always has. */}
+        {/* The render gate reads isLoggedIn and isAndroidApp from AuthContext
+            (the Android wrapper has no runtime bridge), so the story must
+            provide the anonymous context the button ships to. */}
         <AuthContext.Provider
-          value={{ isAndroidApp: false } as unknown as AuthContextData}
+          value={
+            { isLoggedIn: false, isAndroidApp: false } as unknown as
+              AuthContextData
+          }
         >
           <div className="min-h-96 bg-background-default p-6">
             <Story />
@@ -35,8 +37,6 @@ const meta: Meta<typeof GetAppButton> = {
       </QueryClientProvider>
     ),
   ],
-  // Storybook has no GrowthBook instance, so the flag is forced on here.
-  args: { isFeatureEnabled: true },
 };
 
 export default meta;
@@ -54,21 +54,6 @@ const HeaderShell = ({
     <div className="ml-auto flex items-center justify-end gap-3">{children}</div>
   </div>
 );
-
-export const InHeaderLoggedIn: Story = {
-  render: (args) => (
-    <HeaderShell>
-      <GetAppButton {...args} />
-      <Button
-        variant={ButtonVariant.Float}
-        className="w-10 justify-center"
-        icon={<BellIcon />}
-        aria-label="Notifications"
-      />
-      <div className="size-8 rounded-10 bg-surface-float" />
-    </HeaderShell>
-  ),
-};
 
 // Stands in for the real LoginButton, which renders a Secondary "Log in" and a
 // Primary "Sign up" side by side inside a `gap-4` span.
@@ -89,9 +74,10 @@ export const InHeaderLoggedOut: Story = {
   ),
 };
 
-// Same slot, icon-only. Worth comparing: with Log in AND Sign up already in the
-// row, a third labelled button competes with Sign up, which is the CTA that
-// actually matters to a logged-out visitor.
+// Same slot, icon-only. NOT shipped - kept as the reference for the compact
+// variant, worth comparing: with Log in AND Sign up already in the row, a
+// third labelled button competes with Sign up, which is the CTA that actually
+// matters to a logged-out visitor.
 export const InHeaderLoggedOutCompact: Story = {
   args: { showLabel: false },
   render: (args) => (

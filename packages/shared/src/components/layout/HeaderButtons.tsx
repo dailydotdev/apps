@@ -52,7 +52,6 @@ export function HeaderButtons({
       <QuestHeaderButton />
       <GivebackGiftEntry compact={!isLaptop} />
       {additionalButtons}
-      <GetAppButton />
       <NotificationsBell />
       <ProfileButton className="hidden laptop:flex" />
     </Container>
