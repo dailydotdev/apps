@@ -42,8 +42,16 @@ export function CodeField({
     }
   };
 
+  // A code lifted out of an email arrives with whatever the selection handles
+  // caught around it — a trailing newline, a "Your code:" prefix. Take the
+  // digits and ignore the rest rather than rejecting the whole paste.
   const onSlice = (text: string) => {
-    const sliced = text.slice(0, length);
+    const sliced = text.replace(/\D/g, '').slice(0, length);
+
+    if (!sliced) {
+      return;
+    }
+
     setCode(sliced.split(''));
     onChange?.(sliced);
 
@@ -52,8 +60,9 @@ export function CodeField({
     }
   };
 
-  // Typed digits never reach here — `onKeyDown` handles and cancels those — so
-  // this only sees values the platform writes in, which arrive whole.
+  // Typed digits never reach here — `onKeyDown` handles and cancels those. This
+  // is the platform writing a value in: iOS AutoFill, or Gboard's clipboard
+  // chip, which inserts as text and so never fires a paste event.
   const onFill = (value: string, index: number) => {
     const digits = value.replace(/\D/g, '');
 
@@ -66,15 +75,8 @@ export function CodeField({
   };
 
   const onPaste: ClipboardEventHandler<HTMLInputElement> = (e) => {
-    const text = e.clipboardData.getData('text');
-    const isNumbersOnly = checkIsNumbersOnly(text);
-
-    if (!isNumbersOnly) {
-      e.preventDefault();
-      return;
-    }
-
-    onSlice(text);
+    e.preventDefault();
+    onSlice(e.clipboardData.getData('text'));
   };
 
   const onKeyDown = async (
@@ -133,9 +135,11 @@ export function CodeField({
     <span className="flex flex-row gap-2">
       {[...Array(length)].map((_, index) => {
         // The platform only offers a code to a field it can see and focus, so
-        // this rides on the first box rather than a hidden mirror of it. It
-        // arrives as the whole code in one write, hence no `maxLength` here —
-        // typed input is still one digit per box, capped in `onKeyDown`.
+        // this rides on the first box rather than a hidden mirror of it.
+        //
+        // No box carries `maxLength`: a whole code written into any of them has
+        // to survive, and typing is already capped to one digit per box in
+        // `onKeyDown`.
         const isAutofillTarget = index === 0;
 
         return (
@@ -151,8 +155,7 @@ export function CodeField({
             label=""
             {...(isAutofillTarget
               ? { autoComplete: 'one-time-code', name: 'code' }
-              : { autoComplete: 'off', maxLength: 1 })}
-            showMaxLength={false}
+              : { autoComplete: 'off' })}
             className={{ baseField: '!h-11 w-11 mobileL:!h-12 mobileL:w-12' }}
             onPaste={onPaste}
             value={code[index] || ''}
