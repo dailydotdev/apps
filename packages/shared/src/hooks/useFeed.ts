@@ -261,6 +261,13 @@ export interface UseFeedOptionalParams<T> {
    * event). Used when a parent layout owns the top hero.
    */
   disableTopHero?: boolean;
+  /**
+   * True for horizontal carousel feeds (e.g. the source/tag page strips).
+   * Wide hero cards use `gridColumn: span N`, which in a `grid-flow-col`
+   * carousel stretches the card to N slots wide instead of highlighting a
+   * row, so hero placement is disabled entirely.
+   */
+  isHorizontal?: boolean;
 }
 
 export default function useFeed<T>(
@@ -282,6 +289,7 @@ export default function useFeed<T>(
     engagementStripEligible = false,
     firstSlotOffset = 0,
     disableTopHero = false,
+    isHorizontal = false,
   } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
   const numCards = numCardsBySpaciness.eco;
@@ -297,6 +305,7 @@ export default function useFeed<T>(
   const canRenderHighlightCards =
     !isMobileViewport &&
     !isListContext &&
+    !isHorizontal &&
     virtualizedNumCards > 1 &&
     HERO_ELIGIBLE_FEEDS.has(settings?.feedName as AllFeedPages);
   const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(

@@ -26,6 +26,12 @@ export interface GivebackGiftDockHandle {
   reset: () => void;
 }
 
+// Measured viewport position for the rail prompt: pinned beside the gift.
+interface RailAnchor {
+  left: number;
+  bottom: number;
+}
+
 interface ValuePop {
   id: string;
   label: string;
@@ -49,6 +55,15 @@ interface GivebackGiftDockProps {
   children?: ReactNode;
 }
 
+// Gap (px) between the gift and a viewport-fixed prompt, so the card reads as
+// attached to the icon without touching it.
+const PROMPT_GAP_PX = 12;
+// Marks the sidebar rail the rail prompt must clear. An explicit hook rather
+// than `closest('nav, aside')`: a selector list resolves to whichever ancestor
+// is nearest, so the element measured would depend on where the dock happens to
+// sit in the tree — and picking the aside instead of the rail would shift the
+// card by the whole panel width. Set by the rail that hosts the gift.
+export const RAIL_ANCHOR_ATTRIBUTE = 'data-giveback-rail-anchor';
 const GIFT_POP_MS = 380;
 const VALUE_POP_LIFETIME_MS = 2000;
 const MILESTONE_TOAST_DELAY_MS = 180;
@@ -79,10 +94,12 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   // Bumps per show so a replacing prompt remounts (fresh timer + confetti).
   const [promptSeq, setPromptSeq] = useState(0);
   const timers = useRef<number[]>([]);
-  // The compact prompt is viewport-fixed, so anchor it just below the real gift
-  // instead of a hardcoded top offset (which misaligns with banners/safe areas).
+  // Both viewport-fixed prompts are positioned from the gift's measured rect
+  // rather than hardcoded offsets, which misalign with banners/safe areas and
+  // (on the rail) with the sidebar's expanded width.
   const anchorRef = useRef<HTMLDivElement>(null);
   const [promptTop, setPromptTop] = useState<number | null>(null);
+  const [railAnchor, setRailAnchor] = useState<RailAnchor | null>(null);
 
   const clearTimers = useCallback(() => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -105,20 +122,55 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
   // unmounted component (production never calls reset()).
   useEffect(() => clearTimers, [clearTimers]);
 
-  // Measure the gift's viewport position each time the compact prompt opens,
-  // before paint so it never repositions on screen; the header is sticky, so a
-  // single read holds for the prompt's short lifetime. Only the client mounts
-  // this dock (the entry returns null until auth resolves), so useLayoutEffect
-  // never runs on the server.
+  // Measure the gift's viewport position each time a viewport-fixed prompt
+  // opens, before paint so it never repositions on screen. Only the client
+  // mounts this dock (the entry returns null until auth resolves), so
+  // useLayoutEffect never runs on the server. The anchored (header) variant
+  // positions itself in CSS and needs no measurement at all.
   useLayoutEffect(() => {
-    if (!compact || !prompt) {
+    if (!prompt || (!compact && !isRail)) {
+      return undefined;
+    }
+
+    const measure = () => {
+      const rect = anchorRef.current?.getBoundingClientRect();
+      if (!rect) {
+        return;
+      }
+      if (compact) {
+        setPromptTop(Math.round(rect.bottom + PROMPT_GAP_PX));
+        return;
+      }
+      // Beside the gift rather than in the viewport's corner: the bottom lines
+      // up with the gift's own, so the card reads as belonging to the icon it
+      // came from. Horizontally it clears the whole rail, not just the gift —
+      // the gift is a 40px button inside a wider rail, so its own right edge
+      // would leave the card tucked under the rail.
+      const rail = anchorRef.current?.closest(`[${RAIL_ANCHOR_ATTRIBUTE}]`);
+      const railRight = rail?.getBoundingClientRect().right ?? rect.right;
+      setRailAnchor({
+        left: Math.round(Math.max(rect.right, railRight) + PROMPT_GAP_PX),
+        bottom: Math.round(window.innerHeight - rect.bottom),
+      });
+    };
+
+    measure();
+    // The prompt outlives a resize (it sits for seconds) and the rail's width
+    // changes with the expanded/compact states, so a single read would strand
+    // the card mid-screen. Scroll is not a factor: both hosts are fixed.
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [compact, isRail, prompt]);
+
+  // Drop the stale position when the prompt closes, so the next one re-measures
+  // from scratch instead of flashing at the previous prompt's coordinates.
+  useEffect(() => {
+    if (prompt) {
       return;
     }
-    const rect = anchorRef.current?.getBoundingClientRect();
-    if (rect) {
-      setPromptTop(Math.round(rect.bottom + 12));
-    }
-  }, [compact, prompt]);
+    setRailAnchor(null);
+    setPromptTop(null);
+  }, [prompt]);
 
   const popGift = useCallback(() => {
     setPopping(false);
@@ -234,6 +286,7 @@ export const GivebackGiftDock = forwardRef(function GivebackGiftDock(
         ctaLabel={prompt?.ctaLabel}
         celebrate={prompt?.celebrate}
         dropdown={isRail}
+        dropdownAnchor={railAnchor}
         compact={compact}
         compactTop={promptTop}
         paused={giftHovered}

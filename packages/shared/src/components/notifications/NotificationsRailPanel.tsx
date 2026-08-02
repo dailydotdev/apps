@@ -64,7 +64,9 @@ export const NotificationsRailPanel = (): ReactElement => {
         <Typography
           type={TypographyType.Caption1}
           bold
-          className="rounded-6 bg-accent-ketchup-default px-1.5 text-white"
+          // Cabbage, matching the bell's unread badge — red reads as an
+          // error, not an unread count.
+          className="rounded-6 bg-accent-cabbage-default px-1.5 text-white"
         >
           {unreadCount}
         </Typography>

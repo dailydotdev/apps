@@ -16,6 +16,10 @@ import type { QuestReward, UserQuest } from '../../graphql/quests';
 import { QuestRewardType, QuestStatus } from '../../graphql/quests';
 import { useQuestDashboard } from '../../hooks/useQuestDashboard';
 import { useClaimQuestReward } from '../../hooks/useClaimQuestReward';
+import {
+  getQuestDestination,
+  getQuestDestinationUrl,
+} from './questDestinations';
 
 const rewardColorByType: Record<QuestRewardType, string> = {
   // XP reads as plain white, normal weight (de-emphasized); Cores/Reputation
@@ -55,7 +59,9 @@ interface CompactQuestRowProps {
   onClaim: (quest: UserQuest) => void;
 }
 
-const CompactQuestRow = ({
+// Exported for the Storybook state matrix: the row is presentational (the data
+// hooks live in CompactQuestList), so stories can render the real thing.
+export const CompactQuestRow = ({
   quest,
   isClaiming,
   onClaim,
@@ -66,6 +72,16 @@ const CompactQuestRow = ({
   const isClaimed =
     quest.status === QuestStatus.Claimed || Boolean(quest.claimedAt);
   const canClaim = quest.claimable && !!quest.userQuestId && !isClaimed;
+  // Route each quest to the surface where it can actually be completed (same
+  // mapping the quest dashboard uses); quests with no mapped surface — and
+  // claimable/claimed rows, where navigating away is not the point — fall back
+  // to Game Center.
+  const destination =
+    canClaim || isClaimed ? null : getQuestDestination(quest.quest);
+  const href = destination
+    ? getQuestDestinationUrl(destination)
+    : `${webappUrl}game-center`;
+  const destinationLabel = destination?.label ?? 'Game Center';
 
   return (
     // Rounded hover pill + `hover:bg-surface-hover`, matching every other v2
@@ -74,13 +90,13 @@ const CompactQuestRow = ({
       {/* Title row: title takes the full width with the open-details chevron in
           the top-right corner. */}
       <div className="flex items-start justify-between gap-1">
-        <Link href={`${webappUrl}game-center`} passHref>
+        <Link href={href} passHref>
           {/* Stretched link — its `before` covers the whole row (the row is
-              `relative`), so clicking anywhere on the quest opens the Game
-              Center. The Claim button opts out via `relative z-1`; the
+              `relative`), so clicking anywhere on the quest goes to the quest's
+              own surface. The Claim button opts out via `relative z-1`; the
               chevron/progress sit under the link so they navigate too. */}
           <a
-            aria-label={`${quest.quest.name} — open Game Center`}
+            aria-label={`${quest.quest.name} — go to ${destinationLabel}`}
             className="focus-outline min-w-0 flex-1 rounded-6 before:absolute before:inset-0 before:content-['']"
           >
             <Typography

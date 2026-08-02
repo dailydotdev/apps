@@ -6,19 +6,17 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import { Section } from '../Section';
 import { BookmarkSection } from './BookmarkSection';
-import { RecentSection } from './RecentSection';
 import {
   AnalyticsIcon,
-  AppIcon,
-  DevCardIcon,
   DevPlusIcon,
   EyeIcon,
-  JobIcon,
+  FilterIcon,
   SquadIcon,
 } from '../../icons';
 import type { SidebarSectionProps } from './common';
 import { OtherFeedPage } from '../../../lib/query';
 import { plusUrl, settingsUrl, webappUrl } from '../../../lib/constants';
+import { LogEvent, TargetId } from '../../../lib/log';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { usePlusSubscription } from '../../../hooks';
 import Link from '../../utilities/Link';
@@ -30,9 +28,6 @@ import {
 } from '../../typography/Typography';
 import { PlusUser } from '../../PlusUser';
 import { SidebarProfileStats } from '../SidebarProfileStats';
-import { UpgradeToPlus } from '../../UpgradeToPlus';
-import { ButtonSize } from '../../buttons/Button';
-import { TargetId } from '../../../lib/log';
 
 // The avatar tab panel. Everything "you": identity + your feeds/activity, your
 // pinned squads and custom feeds. Account/app controls live in the bottom
@@ -43,7 +38,7 @@ export const ProfilePanelSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement | null => {
   const { user } = useAuthContext();
-  const { isPlus } = usePlusSubscription();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
   const router = useRouter();
 
   // The header links to your profile, so highlight it as the active row (same
@@ -83,30 +78,13 @@ export const ProfilePanelSection = ({
           ),
         },
         {
-          title: 'Jobs',
-          path: `${webappUrl}jobs`,
-          isForcedLink: true,
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <JobIcon secondary={active} />} />
-          ),
-        },
-        {
           title: 'Feed settings',
           path: `${settingsUrl}/feed/general`,
           isForcedLink: true,
           // Leaves the sidebar for the Settings page → show the open-link hint.
           showOpenLinkIcon: true,
           icon: (active: boolean) => (
-            <ListIcon Icon={() => <AppIcon secondary={active} />} />
-          ),
-        },
-        {
-          title: 'DevCard',
-          path: `${settingsUrl}/customization/devcard`,
-          isForcedLink: true,
-          showOpenLinkIcon: true,
-          icon: (active: boolean) => (
-            <ListIcon Icon={() => <DevCardIcon secondary={active} />} />
+            <ListIcon Icon={() => <FilterIcon secondary={active} />} />
           ),
         },
         // Non-Plus only: a purple "Get API Access" upgrade CTA (API access is a
@@ -116,6 +94,18 @@ export const ProfilePanelSection = ({
           path: plusUrl,
           isForcedLink: true,
           requiresLogin: true,
+          // This row is the only upgrade entry point left on this panel, so it
+          // carries the attribution the removed UpgradeToPlus button used to.
+          // No anon branch here on purpose: `requiresLogin` makes SidebarItem
+          // hand ClickableNavItem a `showLogin`, which preventDefaults and
+          // prompts INSTEAD of running this action, so a logged-out click never
+          // reaches it.
+          action: () => {
+            logSubscriptionEvent({
+              event_name: LogEvent.UpgradeSubscription,
+              target_id: TargetId.ProfileDropdown,
+            });
+          },
           color: 'text-action-plus-default',
           itemClassName: 'bg-action-plus-float/50 hover:bg-action-plus-float',
           disableDefaultBackground: true,
@@ -124,7 +114,7 @@ export const ProfilePanelSection = ({
           ),
         },
       ].filter(Boolean) as SidebarMenuItem[],
-    [onNavTabClick, isPlus],
+    [onNavTabClick, isPlus, logSubscriptionEvent],
   );
 
   if (!user) {
@@ -144,7 +134,9 @@ export const ProfilePanelSection = ({
           <a
             aria-current={isProfileActive ? 'page' : undefined}
             className={classNames(
-              '-mx-2 flex rounded-12 px-2 py-2',
+              // Concentric corners: the avatar is rounded-10 and the pill pads
+              // it by 8px, so the pill radius is 10 + 8 = 18.
+              '-mx-2 flex rounded-18 px-2 py-2',
               isProfileActive ? 'bg-surface-hover' : 'hover:bg-surface-hover',
             )}
           >
@@ -174,11 +166,6 @@ export const ProfilePanelSection = ({
           </a>
         </Link>
         <SidebarProfileStats />
-        <UpgradeToPlus
-          target={TargetId.ProfileDropdown}
-          size={ButtonSize.Small}
-          className="flex-initial"
-        />
       </div>
       <Section
         {...defaultRenderSectionProps}
@@ -191,9 +178,6 @@ export const ProfilePanelSection = ({
         title="Bookmarks"
         isItemsButton={false}
       />
-      {/* Recently visited pages — moved here from the Explore panel so all of
-          "your" stuff lives under the avatar tab. */}
-      <RecentSection {...defaultRenderSectionProps} isItemsButton={false} />
     </>
   );
 };
