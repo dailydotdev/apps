@@ -82,6 +82,12 @@ import { getAppOrigin } from '../../lib/seo';
 const appOrigin = getAppOrigin();
 const pageSectionClassName = 'mx-4';
 const pageSectionAutoWidthClassName = `${pageSectionClassName} !w-auto`;
+// Feed sections must stretch: the page main (BaseFeedPage) is a
+// `flex-col items-start`, so a width-less margined wrapper shrinks to its
+// content and the horizontal rails size their percentage-based grid columns
+// against their own intrinsic width, blowing the cards up to ~2x.
+// `self-stretch` (not `w-full`) accounts for the mx-4 margins.
+const pageFeedSectionClassName = `${pageSectionClassName} self-stretch`;
 const pageFeedClassName = '!mx-4 !w-auto';
 const horizontalRailClassName = '!mx-0 !mb-0';
 
@@ -332,7 +338,7 @@ const SourcePage = ({
         <ActiveFeedNameContext.Provider
           value={{ feedName: OtherFeedPage.SourceMostUpvoted }}
         >
-          <div className={pageSectionClassName}>
+          <div className={pageFeedSectionClassName}>
             <EntitySectionHeading
               icon={<UpvoteIcon size={IconSize.Medium} className="shrink-0" />}
             >
@@ -357,7 +363,7 @@ const SourcePage = ({
         <ActiveFeedNameContext.Provider
           value={{ feedName: OtherFeedPage.SourceBestDiscussed }}
         >
-          <div className={pageSectionClassName}>
+          <div className={pageFeedSectionClassName}>
             <EntitySectionHeading
               icon={<DiscussIcon size={IconSize.Medium} className="shrink-0" />}
             >
@@ -385,7 +391,7 @@ const SourcePage = ({
           scopeName={source.name}
           className={`${pageSectionClassName} mb-6`}
         />
-        <div className={pageSectionClassName}>
+        <div className={pageFeedSectionClassName}>
           <EntitySectionHeading>
             All posts from {source.name}
           </EntitySectionHeading>

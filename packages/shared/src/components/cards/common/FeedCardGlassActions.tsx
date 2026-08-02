@@ -180,7 +180,7 @@ export function FeedCardGlassActions({
         />
         <Tooltip content="Copy link" side="bottom">
           <QuaternaryButton
-            id="copy-post-btn"
+            id={`post-${post.id}-copy-btn`}
             size={ButtonSize.XSmall}
             icon={<LinkIcon size={IconSize.Size16} />}
             onClick={onCopyLink}

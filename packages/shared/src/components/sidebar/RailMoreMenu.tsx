@@ -2,8 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React, { useRef } from 'react';
 import classNames from 'classnames';
 import { MenuIcon } from '../icons';
-import { IconSize } from '../Icon';
-import { railTabClass, railTabLabelClass } from './common';
+import { RAIL_ICON_SIZE, railTabClass, railTabLabelClass } from './common';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { RootPortal } from '../tooltips/Portal';
@@ -45,7 +44,7 @@ export const RailMoreMenu = ({
         )}
       >
         <span className="relative flex items-center justify-center">
-          <MenuIcon size={IconSize.Small} aria-hidden className="rotate-90" />
+          <MenuIcon size={RAIL_ICON_SIZE} aria-hidden className="rotate-90" />
         </span>
         {!compact && <span className={railTabLabelClass}>{label}</span>}
       </button>

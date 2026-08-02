@@ -29,8 +29,11 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import { plusUrl, webappUrl } from '../../lib/constants';
-import { agentsHighlightsPath } from '../../lib/links';
+import { plusUrl } from '../../lib/constants';
+import {
+  getQuestDestination,
+  getQuestDestinationUrl,
+} from './questDestinations';
 import Link from '../utilities/Link';
 import { AuthTriggers } from '../../lib/auth';
 import { LogEvent, TargetId, TargetType } from '../../lib/log';
@@ -94,54 +97,6 @@ type QuestLevelFireworkParticle = {
   delayMs: number;
   durationMs: number;
   hue: number;
-};
-
-const HOT_TAKES_MODAL_PATH = '/?openModal=hottakes';
-
-const getQuestDestination = (
-  quest: UserQuest['quest'],
-): QuestDestination | null => {
-  if (quest.eventType === 'post_share') {
-    if (quest.description === 'Create a shared link post') {
-      return { label: 'Create post', path: '/squads/create' };
-    }
-
-    return { label: 'Feed', path: '/' };
-  }
-
-  switch (quest.eventType) {
-    case 'read_post':
-    case 'post_upvote':
-    case 'award_given':
-    case 'share_post_click':
-    case 'comment_upvote':
-    case 'comment_create':
-    case 'bookmark_post':
-      return { label: 'Feed', path: '/' };
-    case 'brief_read':
-      return { label: 'Briefs', path: '/briefing' };
-    case 'hot_take_vote':
-    case 'hot_take_create':
-      return { label: 'Hot takes', path: HOT_TAKES_MODAL_PATH };
-    case 'user_follow':
-      return { label: 'Leaderboards', path: '/users' };
-    case 'view_user_profile':
-      return { label: 'Profiles', path: '/users' };
-    case 'visit_arena':
-      return { label: 'Happening Now', path: agentsHighlightsPath };
-    case 'visit_explore_page':
-      return { label: 'Explore', path: '/posts' };
-    case 'visit_discussions_page':
-      return { label: 'Discuss', path: '/discussed' };
-    case 'visit_read_it_later_page':
-      return { label: 'Later', path: '/bookmarks/later' };
-    case 'feedback_submit':
-      return { label: 'Feedback', path: '/settings/feedback' };
-    case 'squad_join':
-      return { label: 'Squads', path: '/squads/discover' };
-    default:
-      return null;
-  }
 };
 
 export const QuestSection = ({
@@ -1061,7 +1016,7 @@ export const QuestButton = ({
         return;
       }
 
-      await router.push(`${webappUrl}${destination.path.replace(/^\//, '')}`);
+      await router.push(getQuestDestinationUrl(destination));
     },
     [router],
   );
