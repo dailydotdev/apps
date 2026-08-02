@@ -52,6 +52,19 @@ export function CodeField({
     }
   };
 
+  // Typed digits never reach here — `onKeyDown` handles and cancels those — so
+  // this only sees values the platform writes in, which arrive whole.
+  const onFill = (value: string, index: number) => {
+    const digits = value.replace(/\D/g, '');
+
+    if (digits.length > 1) {
+      onSlice(digits);
+      return;
+    }
+
+    updateCode(digits, index);
+  };
+
   const onPaste: ClipboardEventHandler<HTMLInputElement> = (e) => {
     const text = e.clipboardData.getData('text');
     const isNumbersOnly = checkIsNumbersOnly(text);
@@ -118,48 +131,42 @@ export function CodeField({
 
   return (
     <span className="flex flex-row gap-2">
-      <input
-        type="text"
-        id="code"
-        name="code"
-        value={code.join('')}
-        onChange={() => {}} // Controlled by the individual inputs
-        autoComplete="one-time-code"
-        hidden
-        onInput={(e) => {
-          // Handle iOS Safari autofill
-          const { value } = e.target as HTMLInputElement;
-          if (value && value.length === length) {
-            onSlice(value);
-          }
-        }}
-      />
-      {[...Array(length)].map((_, index) => (
-        <TextField
-          // eslint-disable-next-line react/no-array-index-key
-          key={`code-${index}`}
-          type="tel"
-          inputId={`code-${index}`}
-          tabIndex={index + 1}
-          label=""
-          maxLength={1}
-          showMaxLength={false}
-          className={{ baseField: '!h-11 w-11 mobileL:!h-12 mobileL:w-12' }}
-          onPaste={onPaste}
-          value={code[index] || ''}
-          onKeyDown={(e) => onKeyDown(e, index)}
-          disabled={disabled}
-          autoComplete="off"
-          inputMode="numeric"
-          pattern="[0-9]*"
-          autoFocus={index === 0}
-          inputRef={(el) => {
-            if (el) {
-              elementsRef.current[index] = el;
-            }
-          }}
-        />
-      ))}
+      {[...Array(length)].map((_, index) => {
+        // The platform only offers a code to a field it can see and focus, so
+        // this rides on the first box rather than a hidden mirror of it. It
+        // arrives as the whole code in one write, hence no `maxLength` here —
+        // typed input is still one digit per box, capped in `onKeyDown`.
+        const isAutofillTarget = index === 0;
+
+        return (
+          <TextField
+            // eslint-disable-next-line react/no-array-index-key
+            key={`code-${index}`}
+            type="tel"
+            inputId={`code-${index}`}
+            tabIndex={index + 1}
+            label=""
+            {...(isAutofillTarget
+              ? { autoComplete: 'one-time-code', name: 'code' }
+              : { autoComplete: 'off', maxLength: 1 })}
+            showMaxLength={false}
+            className={{ baseField: '!h-11 w-11 mobileL:!h-12 mobileL:w-12' }}
+            onPaste={onPaste}
+            value={code[index] || ''}
+            onChange={(e) => onFill(e.target.value, index)}
+            onKeyDown={(e) => onKeyDown(e, index)}
+            disabled={disabled}
+            inputMode="numeric"
+            pattern="[0-9]*"
+            autoFocus={index === 0}
+            inputRef={(el) => {
+              if (el) {
+                elementsRef.current[index] = el;
+              }
+            }}
+          />
+        );
+      })}
     </span>
   );
 }
