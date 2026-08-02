@@ -22,10 +22,10 @@ jest.mock('../../../components/onboarding/useReadingReminder', () => ({
   })),
 }));
 
-// The paid funnel's screen calls the same hook internally; rendering the real
-// one here would make "how many times did the step call it" unanswerable.
 jest.mock('../../../components/onboarding', () => ({
-  ReadingReminder: () => <div data-testid="legacy-reading-reminder" />,
+  ReadingReminder: ({ isOnboarding }: { isOnboarding?: boolean }) => (
+    <div data-testid={isOnboarding ? 'funnel-reminder' : 'paid-reminder'} />
+  ),
 }));
 
 jest.mock('../../../contexts/PushNotificationContext', () => ({
@@ -67,22 +67,19 @@ describe('FunnelReadingReminder', () => {
     jest.clearAllMocks();
   });
 
-  // `useReadingReminder` logs an impression and mounts the push/digest
-  // mutations, and the paid funnel's own ReadingReminder runs the same effects.
-  // Calling the hook above the branch doubled both on /helloworld.
-  it('does not call useReadingReminder outside the onboarding funnel', () => {
+  // The hook logs an impression and mounts the push/digest mutations, so a
+  // second copy of that state anywhere doubles the funnel's own metrics.
+  it('owns the state once for the paid funnel', () => {
     renderStep(false);
 
-    expect(screen.getByTestId('legacy-reading-reminder')).toBeInTheDocument();
-    expect(useReadingReminder).not.toHaveBeenCalled();
+    expect(screen.getByTestId('paid-reminder')).toBeInTheDocument();
+    expect(useReadingReminder).toHaveBeenCalledTimes(1);
   });
 
-  it('calls useReadingReminder once inside the onboarding funnel', () => {
+  it('owns the state once for the onboarding funnel', () => {
     renderStep(true);
 
-    expect(
-      screen.queryByTestId('legacy-reading-reminder'),
-    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('funnel-reminder')).toBeInTheDocument();
     expect(useReadingReminder).toHaveBeenCalledTimes(1);
   });
 });

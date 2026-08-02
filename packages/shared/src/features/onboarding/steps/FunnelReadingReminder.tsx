@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import type { FunnelStepReadingReminder } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { ReadingReminder } from '../../../components/onboarding';
-import { OnboardingReadingReminder } from '../../../components/onboarding/OnboardingReadingReminder';
 import { useReadingReminder } from '../../../components/onboarding/useReadingReminder';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -13,20 +12,23 @@ import { withShouldSkipStepGuard } from '../shared/withShouldSkipStepGuard';
 import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 
-interface OnboardingReadingReminderStepProps {
-  headline?: string;
-  onClickNext: () => void;
-}
+function FunnelReadingReminderComponent({
+  parameters: { headline },
+  onTransition,
+}: FunnelStepReadingReminder): ReactElement | null {
+  const isOnboarding = useIsOnboardingFunnel();
+  const state = useReadingReminder({
+    onClickNext: () =>
+      onTransition({ type: FunnelStepTransitionType.Complete }),
+  });
 
-// `useReadingReminder` logs an impression and mounts the push/digest mutations
-// on mount, and the paid funnel's `ReadingReminder` runs the same effects
-// internally — so the hook has to live on the branch that renders it, not above
-// the fork, or `/helloworld` logs the step twice per view.
-function OnboardingReadingReminderStep({
-  headline,
-  onClickNext,
-}: OnboardingReadingReminderStepProps): ReactElement {
-  const state = useReadingReminder({ onClickNext });
+  if (!isOnboarding) {
+    return (
+      <div className="flex w-full flex-1 flex-col items-center justify-center overflow-hidden p-6 pt-10 tablet:max-w-96">
+        <ReadingReminder headline={headline} state={state} />
+      </div>
+    );
+  }
 
   return (
     <FunnelStepCtaWrapper
@@ -43,35 +45,9 @@ function OnboardingReadingReminderStep({
           'flex flex-col items-center gap-6 py-6 pt-3',
         )}
       >
-        <OnboardingReadingReminder headline={headline} state={state} />
+        <ReadingReminder headline={headline} state={state} isOnboarding />
       </div>
     </FunnelStepCtaWrapper>
-  );
-}
-
-function FunnelReadingReminderComponent({
-  parameters: { headline },
-  onTransition,
-}: FunnelStepReadingReminder): ReactElement | null {
-  const isOnboarding = useIsOnboardingFunnel();
-  const onClickNext = () =>
-    onTransition({ type: FunnelStepTransitionType.Complete });
-
-  // The paid funnel's screen owns its own Submit / "I'll do it later" buttons,
-  // so it needs no CTA wrapper — this is main's markup unchanged.
-  if (!isOnboarding) {
-    return (
-      <div className="flex w-full flex-1 flex-col items-center justify-center overflow-hidden p-6 pt-10 tablet:max-w-96">
-        <ReadingReminder headline={headline} onClickNext={onClickNext} />
-      </div>
-    );
-  }
-
-  return (
-    <OnboardingReadingReminderStep
-      headline={headline}
-      onClickNext={onClickNext}
-    />
   );
 }
 
