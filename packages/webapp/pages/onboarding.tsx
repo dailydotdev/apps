@@ -19,10 +19,7 @@ import { useRouter } from 'next/router';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import type { NextSeoProps } from 'next-seo';
 import { SIGNIN_METHOD_KEY } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
-import {
-  FooterLinks,
-  withFeaturesBoundary,
-} from '@dailydotdev/shared/src/components';
+import { withFeaturesBoundary } from '@dailydotdev/shared/src/components';
 import { ErrorBoundary } from '@dailydotdev/shared/src/components/ErrorBoundary';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
@@ -60,7 +57,7 @@ import {
 import { Provider as JotaiProvider, useAtom } from 'jotai/react';
 
 import { authAtom } from '@dailydotdev/shared/src/features/onboarding/store/onboarding.store';
-import { OnboardingHeader } from '@dailydotdev/shared/src/components/onboarding';
+import { FunnelStepTopBar } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepTopBar';
 import { FunnelStepper } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepper';
 import { useOnboardingActions } from '@dailydotdev/shared/src/hooks/auth';
 import { ActionType } from '@dailydotdev/shared/src/graphql/actions';
@@ -243,6 +240,11 @@ const useOnboardingAuth = () => {
   const authOptionProps: AuthOptionsProps = useMemo(
     () => ({
       simplified: true,
+      // The trigger below takes `loginState` before its Onboarding fallback, so
+      // the inline strip's branch is reachable. The consent line the flow relies
+      // on lives on `RegistrationForm`, by the button that creates the account.
+      hideSignupDisclaimer: true,
+      isOnboardingFunnel: true,
       className: {
         container: classNames(
           'w-full rounded-none tablet:max-w-[30rem]',
@@ -393,16 +395,17 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
 
   if (isAuthenticating) {
     return (
+      // These screens render before FunnelStepper mounts, so they take the
+      // funnel's chrome directly.
       <div
         className={classNames(
-          'z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
+          'relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden',
         )}
       >
-        <OnboardingHeader />
-        <div className="flex w-full flex-grow flex-col flex-wrap justify-center px-4 tablet:flex-row tablet:gap-10 tablet:px-6">
+        <FunnelStepTopBar />
+        <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-center px-4 pt-3 tablet:flex-row tablet:gap-10 tablet:px-6">
           <AuthOptions {...authOptionProps} />
         </div>
-        <FooterLinks className="mx-auto pb-6" />
       </div>
     );
   }
@@ -420,6 +423,7 @@ function Onboarding({ initialStepId }: PageProps): ReactElement | null {
         }
         onComplete={onComplete}
         stepComponentOverrides={stepComponentOverrides}
+        isOnboarding
       />
       {/* <HotJarTracking hotjarId="3871311" /> */}
     </div>

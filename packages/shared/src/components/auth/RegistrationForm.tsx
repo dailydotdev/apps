@@ -27,6 +27,7 @@ import type { CloseModalFunc } from '../modals/common';
 import TokenInput from './TokenField';
 import AuthForm from './AuthForm';
 import AuthHeader from './AuthHeader';
+import SignupDisclaimer from './SignupDisclaimer';
 import { Checkbox } from '../fields/Checkbox';
 import { useLogContext } from '../../contexts/LogContext';
 import { useGenerateUsername, useCheckExistingEmail } from '../../hooks';
@@ -43,6 +44,10 @@ import { onboardingGradientClasses } from '../onboarding/common';
 import { useAuthData } from '../../contexts/AuthDataContext';
 import { authAtom } from '../../features/onboarding/store/onboarding.store';
 import { FunnelTargetId } from '../../features/onboarding/types/funnelEvents';
+import {
+  FunnelGlassBar,
+  funnelGlassBarCta,
+} from '../../features/onboarding/shared/FunnelGlassBar';
 import { Loader } from '../Loader';
 import { labels } from '../../lib';
 
@@ -68,6 +73,9 @@ export interface RegistrationFormProps extends AuthFormProps {
   // form. The onboarding funnel already shows this copy on the signup wall, so
   // it hides it here to avoid duplicating the message on the email step.
   showHeadline?: boolean;
+  // Post-signup onboarding only: the funnel's headline scale, and the glass bar
+  // around Sign up, so this screen matches the steps after it.
+  isOnboardingFunnel?: boolean;
 }
 
 export type RegistrationFormValues = Omit<
@@ -92,6 +100,7 @@ const RegistrationForm = ({
   headerTitle = 'Sign up',
   extraFields = [],
   showHeadline = true,
+  isOnboardingFunnel,
 }: RegistrationFormProps): ReactElement => {
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
@@ -308,7 +317,11 @@ const RegistrationForm = ({
   return (
     <div className="flex flex-col">
       {!isAuthenticating && (
-        <AuthHeader simplified={simplified} title={headerTitle} />
+        <AuthHeader
+          simplified={simplified}
+          onboardingHeadline={isOnboardingFunnel}
+          title={headerTitle}
+        />
       )}
       <div
         className={classNames(
@@ -528,17 +541,37 @@ const RegistrationForm = ({
                 title="Turnstile is taking too long to load. Please try again."
               />
             )}
-            <Button
-              className="w-full"
-              data-funnel-track={FunnelTargetId.StepCta}
-              disabled={isCheckPending || !turnstileLoaded}
-              form="auth-form"
-              size={ButtonSize.Large}
-              type="submit"
-              variant={ButtonVariant.Primary}
+            {/* The funnel's primary action always sits inside the glass bar, so
+                account details matches the seven steps behind it rather than
+                ending on a bare button. Medium + flex-1 keeps the nested radii
+                concentric; every other surface keeps the full-width Large. */}
+            <ConditionalWrapper
+              condition={!!isOnboardingFunnel}
+              wrapper={(component) => (
+                <FunnelGlassBar>{component}</FunnelGlassBar>
+              )}
             >
-              Sign up
-            </Button>
+              <Button
+                className={isOnboardingFunnel ? funnelGlassBarCta : 'w-full'}
+                data-funnel-track={FunnelTargetId.StepCta}
+                disabled={isCheckPending || !turnstileLoaded}
+                form="auth-form"
+                size={isOnboardingFunnel ? ButtonSize.Medium : ButtonSize.Large}
+                type="submit"
+                variant={ButtonVariant.Primary}
+              >
+                Sign up
+              </Button>
+            </ConditionalWrapper>
+            {/* Consent belongs to the button that creates the account, so it
+                travels with this form instead of being docked on the funnel
+                shell — that shell also serves sign-back, login and
+                verify-email, where the account already exists. The funnel's
+                signup wall suppresses its own inline copy, which makes this the
+                notice shown before the account is created, at every width. */}
+            {isOnboardingFunnel && (
+              <SignupDisclaimer className="!text-text-tertiary typo-caption1" />
+            )}
           </ConditionalWrapper>
         </AuthForm>
       </div>

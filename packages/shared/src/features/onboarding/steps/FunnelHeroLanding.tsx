@@ -5,6 +5,7 @@ import { useSetAtom } from 'jotai/react';
 import type { FunnelStepHeroLanding } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import AuthOptions from '../../../components/auth/AuthOptions';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { AuthTriggers } from '../../../lib/auth';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -70,6 +71,8 @@ export const FunnelHeroLanding = withIsActiveGuard(
     const isMobile = useViewSize(ViewSize.MobileL);
     const setAuth = useSetAtom(authAtom);
     const { isLoggedIn, isAuthReady, user } = useAuthContext();
+    // Shared with the paid funnel, which keeps its own landing treatment.
+    const isOnboarding = useIsOnboardingFunnel();
     const { isOnboardingActionsReady, isOnboardingComplete } =
       useOnboardingActions();
     const [authDisplay, setAuthDisplay] = useState(
@@ -191,6 +194,12 @@ export const FunnelHeroLanding = withIsActiveGuard(
       >
         <AuthOptions
           {...staticAuthProps}
+          // Post-signup funnel only: the account-details screen takes the
+          // funnel's headline scale and drops the terms strip, so it reads as
+          // the same flow as the steps after it. The paid funnel's landing keeps
+          // its own treatment.
+          hideSignupDisclaimer={isOnboarding}
+          isOnboardingFunnel={isOnboarding}
           className={
             isSplitColumnBackground
               ? {

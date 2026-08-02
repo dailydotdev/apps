@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { FeedPreviewControls } from '../feeds';
-import { REQUIRED_TAGS_THRESHOLD } from './common';
+import { OnboardingHeadline, REQUIRED_TAGS_THRESHOLD } from './common';
 import { Origin } from '../../lib/log';
 import Feed from '../Feed';
 import { OtherFeedPage, RequestKey } from '../../lib/query';
@@ -20,6 +20,12 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureOnboardingPersonas } from '../../lib/featureManagement';
 import { subscribePersonaSelection } from './onboardingPopBus';
 
+// The column cap needs a matching width cap: the feed only caps its own width
+// above 2156px, so a capped preview would otherwise stretch its cards.
+const PREVIEW_MAX_COLUMNS = 3;
+// 3 × 21.25rem + 2 × 2rem of gutter.
+const PREVIEW_MAX_WIDTH = 'tablet:max-w-[70.75rem]';
+
 interface EditTagProps {
   feedSettings: FeedSettings;
   userId: string;
@@ -27,6 +33,7 @@ interface EditTagProps {
   requiredTags?: number;
   hidePreview?: boolean;
   featuredTags?: string[];
+  isOnboarding?: boolean;
 }
 export const EditTag = ({
   feedSettings,
@@ -35,6 +42,7 @@ export const EditTag = ({
   requiredTags = REQUIRED_TAGS_THRESHOLD,
   hidePreview,
   featuredTags,
+  isOnboarding,
 }: EditTagProps): ReactElement => {
   const isMobile = useViewSize(ViewSize.MobileL);
   const [isPreviewVisible, setPreviewVisible] = useState(false);
@@ -83,9 +91,13 @@ export const EditTag = ({
 
   return (
     <>
-      <h2 className="text-center font-bold typo-large-title">
-        {resolvedHeadline}
-      </h2>
+      {isOnboarding ? (
+        <OnboardingHeadline>{resolvedHeadline}</OnboardingHeadline>
+      ) : (
+        <h2 className="text-center font-bold typo-large-title">
+          {resolvedHeadline}
+        </h2>
+      )}
       {showPersonas && (
         <>
           <p className="mt-3 max-w-2xl text-center text-text-tertiary typo-callout">
@@ -96,13 +108,22 @@ export const EditTag = ({
       )}
       <div ref={tagsRef} className="flex w-full flex-col items-center">
         <TagSelection
-          className={classNames('max-w-4xl', showPersonas ? 'mt-6' : 'mt-10')}
+          className={classNames(
+            'max-w-4xl',
+            showPersonas ? 'mt-6' : !isOnboarding && 'mt-10',
+          )}
+          // `!` because TagSelection's own gap-4 sits later in the stylesheet.
+          classNameTags={isOnboarding ? '!gap-2' : undefined}
           featuredTags={featuredTags}
           searchElement={
             <SearchField
               aria-label="Pick tags that are relevant to you"
               autoFocus={!isMobile}
-              className="mb-10 w-full tablet:max-w-xs"
+              className={classNames(
+                'mb-10 w-full',
+                isOnboarding ? 'max-w-[27.5rem]' : 'tablet:max-w-xs',
+              )}
+              isFloating={isOnboarding}
               inputId="search-filters"
               placeholder="Search javascript, php, git, etc…"
               valueChanged={onSearch}
@@ -114,6 +135,7 @@ export const EditTag = ({
       </div>
       {!hidePreview && (
         <FeedPreviewControls
+          isTagStyle={isOnboarding}
           isOpen={isPreviewVisible}
           isDisabled={!isPreviewEnabled}
           textDisabled={`${tagsCount}/${requiredTags} to show feed preview`}
@@ -123,13 +145,18 @@ export const EditTag = ({
         />
       )}
       {!hidePreview && isPreviewEnabled && isPreviewVisible && (
-        <FeedLayoutProvider>
+        <FeedLayoutProvider
+          maxNumCards={isOnboarding ? PREVIEW_MAX_COLUMNS : undefined}
+        >
           <p className="-mb-4 mt-6 text-center text-text-secondary typo-body">
             Change your tag selection until you&apos;re happy with your feed
             preview.
           </p>
           <Feed
-            className="relative mx-auto px-6 pt-14 tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2 laptop:pt-10"
+            className={classNames(
+              'relative mx-auto px-6 pt-14 tablet:left-1/2 tablet:w-screen tablet:-translate-x-1/2 laptop:pt-10',
+              isOnboarding && PREVIEW_MAX_WIDTH,
+            )}
             feedName={OtherFeedPage.Preview}
             feedQueryKey={[RequestKey.FeedPreview, userId]}
             query={PREVIEW_FEED_QUERY}

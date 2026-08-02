@@ -142,6 +142,8 @@ function AuthOptionsInner({
   ignoreMessages = false,
   onboardingSignupButton,
   hideLoginLink,
+  hideSignupDisclaimer,
+  isOnboardingFunnel,
   compact,
   splitSignupStyle,
   preferGithub,
@@ -783,6 +785,7 @@ function AuthOptionsInner({
             formRef={formRef}
             simplified={simplified}
             showHeadline={!hideRegistrationHeadline}
+            isOnboardingFunnel={isOnboardingFunnel}
             extraFields={registrationExtraFields}
             hints={registrationHints}
             onBack={
@@ -856,6 +859,7 @@ function AuthOptionsInner({
             className={className}
             onboardingSignupButton={onboardingSignupButton}
             hideLoginLink={hideLoginLink}
+            hideSignupDisclaimer={hideSignupDisclaimer}
             compact={compact}
             splitSignupStyle={splitSignupStyle}
             preferGithub={preferGithub}
@@ -876,6 +880,7 @@ function AuthOptionsInner({
             onProviderClick={onProviderClick}
             isProviderLoading={isSocialAuthLoading}
             simplified={simplified}
+            isOnboardingFunnel={isOnboardingFunnel}
             onShowLoginOptions={() => {
               if (!isLoginFlow && onAuthStateUpdate) {
                 onAuthStateUpdate({ isLoginFlow: true });
@@ -915,8 +920,13 @@ function AuthOptionsInner({
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
           <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
-          <AuthHeader simplified={simplified} title="Verify your email" />
+          <AuthHeader
+            simplified={simplified}
+            onboardingHeadline={isOnboardingFunnel}
+            title="Verify your email"
+          />
           <EmailCodeVerification
+            isOnboardingFunnel={isOnboardingFunnel}
             onSubmit={onProfileSuccess}
             onVerifyCode={async (code) => {
               const res = await betterAuthVerifyEmailOTP(email, code);

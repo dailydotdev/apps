@@ -13,6 +13,10 @@ import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { ListItemPlaceholder } from '../../../components/widgets/ListItemPlaceholder';
 import type { FunnelStepPlusCards } from '../types/funnel';
 import { useFunnelAnnualPricing } from '../hooks/useFunnelAnnualPricing';
+import {
+  OnboardingHeadline,
+  OnboardingSubheadline,
+} from '../../../components/onboarding/common';
 
 const switchSkeletonItems = Array.from({ length: 2 }, (_, i) => i);
 const PlusSkeleton = (): ReactElement => (
@@ -45,40 +49,73 @@ const PlusSkeleton = (): ReactElement => (
 type Parameters = Pick<FunnelStepPlusCards, 'parameters'>;
 
 interface OnboardingPlusControlProps extends Parameters {
-  onSkip?: () => void;
-  onComplete?: () => void;
+  onSkip: () => void;
+  onComplete: () => void;
+  /** Onboarding-only: the shared funnel header. The paid funnel keeps its own. */
+  isOnboarding?: boolean;
 }
 
 export const OnboardingPlusControl = ({
   parameters: { headline, explainer, free, plus },
   onSkip,
   onComplete,
+  isOnboarding,
 }: OnboardingPlusControlProps): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { item } = useFunnelAnnualPricing();
 
   return (
-    <section className="mx-auto flex w-full max-w-screen-laptop flex-1 flex-col justify-center gap-10 py-10 tablet:px-10">
+    <section
+      className={classNames(
+        'mx-auto flex w-full max-w-screen-laptop flex-1 flex-col gap-10 tablet:px-10',
+        // `px-6` is the rail's gutter (production only padded from tablet up,
+        // so the header ran edge to edge on phones) and `pt-3` is the exact top
+        // offset every other onboarding step uses, so the headline starts at
+        // the same y across the funnel. `justify-center` would swallow it.
+        isOnboarding ? 'px-6 pb-10 pt-3' : 'justify-center py-10',
+      )}
+    >
       <header className="text-center">
-        <Typography
-          bold
-          tag={TypographyTag.H1}
-          type={isLaptop ? TypographyType.LargeTitle : TypographyType.Title2}
-          className="mb-4 tablet:mb-6"
-        >
-          {headline || 'Fast-track your growth'}
-        </Typography>
-        <Typography
-          className="mx-auto text-balance tablet:w-2/3"
-          color={TypographyColor.Secondary}
-          tag={TypographyTag.H2}
-          type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
-        >
-          {explainer ||
-            `Work smarter, learn faster, and stay ahead with AI tools, custom
-          feeds, and pro features. Because copy-pasting code isn't a
-          long-term strategy.`}
-        </Typography>
+        {isOnboarding ? (
+          <>
+            {/* The shared onboarding type: one size on every step and every
+                breakpoint, on the same 440px measure. The paid funnel's own
+                header below scales itself by viewport instead. */}
+            <OnboardingHeadline className="mb-6">
+              {headline || 'Fast-track your growth'}
+            </OnboardingHeadline>
+            <OnboardingSubheadline>
+              {explainer ||
+                `Work smarter, learn faster, and stay ahead with AI tools, custom
+              feeds, and pro features. Because copy-pasting code isn't a
+              long-term strategy.`}
+            </OnboardingSubheadline>
+          </>
+        ) : (
+          <>
+            <Typography
+              bold
+              tag={TypographyTag.H1}
+              type={
+                isLaptop ? TypographyType.LargeTitle : TypographyType.Title2
+              }
+              className="mb-4 tablet:mb-6"
+            >
+              {headline || 'Fast-track your growth'}
+            </Typography>
+            <Typography
+              className="mx-auto text-balance tablet:w-2/3"
+              color={TypographyColor.Secondary}
+              tag={TypographyTag.H2}
+              type={isLaptop ? TypographyType.Title3 : TypographyType.Callout}
+            >
+              {explainer ||
+                `Work smarter, learn faster, and stay ahead with AI tools, custom
+              feeds, and pro features. Because copy-pasting code isn't a
+              long-term strategy.`}
+            </Typography>
+          </>
+        )}
       </header>
       {item ? (
         <PlusComparingCards

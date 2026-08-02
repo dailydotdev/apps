@@ -43,6 +43,12 @@ export interface SearchFieldProps
   showIcon?: boolean;
   fieldType?: 'primary' | 'secondary';
   rightButtonProps?: ButtonProps<'button'> | false;
+  /**
+   * Float surface instead of the page background, for a field on a bare page:
+   * filling it with the page colour leaves only the hairline border to say it
+   * is an input, so it reads as a gap rather than a control.
+   */
+  isFloating?: boolean;
 }
 
 const ButtonIcon = ({
@@ -67,6 +73,7 @@ export const SearchField = forwardRef(function SearchField(
     fieldSize = 'large',
     readOnly,
     fieldType = 'primary',
+    isFloating,
     className,
     autoFocus,
     type,
@@ -118,8 +125,9 @@ export const SearchField = forwardRef(function SearchField(
       className={classNames(
         // Border width + background only — the resting border *color* is the Float
         // hairline from `.field` so the search field matches every other field.
-        'items-center !border !bg-background-default',
-        // The base `.field:hover` background is blocked by `!bg-background-default`,
+        'items-center !border',
+        isFloating ? '!bg-surface-float' : '!bg-background-default',
+        // The base `.field:hover` background is blocked by the background above,
         // so the search field needs its own hover feedback. Brighten the border and
         // tint the surface, scoped to `:not(.focused)` so it never overrides the
         // focus ring while the field is active.

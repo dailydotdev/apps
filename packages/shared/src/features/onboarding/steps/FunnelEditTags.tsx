@@ -5,15 +5,17 @@ import type { FunnelStepEditTags } from '../types/funnel';
 import { FunnelStepTransitionType } from '../types/funnel';
 import { EditTag } from '../../../components/onboarding';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { FunnelStepCtaWrapper } from '../shared';
+import { FunnelStepCtaWrapper, funnelStepRail } from '../shared';
 import useFeedSettings from '../../../hooks/useFeedSettings';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 
 function FunnelEditTagsComponent({
   parameters: { headline, cta, minimumRequirement, featuredTags },
   onTransition,
 }: FunnelStepEditTags): ReactElement | null {
   const { feedSettings } = useFeedSettings();
+  const isOnboarding = useIsOnboardingFunnel();
   const { user, trackingId } = useAuthContext();
   const handleComplete = () => {
     onTransition({
@@ -32,18 +34,35 @@ function FunnelEditTagsComponent({
 
   return (
     <FunnelStepCtaWrapper
-      cta={{ label: cta || `Next` }}
-      aria-hidden={isDisabled}
+      isGlass
+      cta={{ label: cta }}
+      // Onboarding disables the CTA below the minimum; the paid funnel hides it.
+      {...(isOnboarding
+        ? { disabled: isDisabled }
+        : {
+            'aria-hidden': isDisabled,
+            className: classNames({
+              'opacity-0': isDisabled,
+              'pointer-events-none': isDisabled,
+            }),
+          })}
       onClick={handleComplete}
-      className={classNames({
-        'opacity-0': isDisabled,
-        'pointer-events-none': isDisabled,
-      })}
-      containerClassName="flex w-full flex-1 flex-col items-center laptop:justify-center overflow-hidden"
+      containerClassName={classNames(
+        'flex w-full flex-1 flex-col items-center overflow-hidden',
+        !isOnboarding && 'laptop:justify-center',
+      )}
     >
-      <div className="flex w-full flex-col items-center gap-6 p-6 pt-10 tablet:max-w-md laptop:max-w-screen-laptop">
+      <div
+        className={classNames(
+          'flex flex-col items-center gap-6 laptop:max-w-screen-laptop',
+          isOnboarding
+            ? classNames(funnelStepRail, 'py-6 pt-3')
+            : 'w-full p-6 pt-10 tablet:max-w-md',
+        )}
+      >
         <EditTag
           headline={headline}
+          isOnboarding={isOnboarding}
           userId={user?.id ?? trackingId}
           feedSettings={feedSettings}
           featuredTags={featuredTags}
