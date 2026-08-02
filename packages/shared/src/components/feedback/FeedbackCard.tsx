@@ -54,9 +54,12 @@ export const FeedbackCard = ({
         </Typography>
       </div>
 
+      {/* Feedback bodies routinely contain long URLs. Without `break-words` an
+          unbreakable run widens the card's min-content, growing whichever column
+          renders it and scrolling the page sideways on narrow screens. */}
       <Typography
         type={TypographyType.Body}
-        className="mt-3 whitespace-pre-wrap"
+        className="mt-3 whitespace-pre-wrap break-words"
       >
         {description}
         {isLongDescription && !isExpanded ? '...' : ''}
@@ -122,7 +125,7 @@ export const FeedbackCard = ({
                 </Typography>
                 <Typography
                   type={TypographyType.Callout}
-                  className="mt-1 whitespace-pre-wrap"
+                  className="mt-1 whitespace-pre-wrap break-words"
                 >
                   {reply.body}
                 </Typography>
