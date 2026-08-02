@@ -22,7 +22,10 @@ import { capitalize } from '../../lib/strings';
 import { IconSize } from '../Icon';
 import { FormWrapper } from '../fields/form';
 import { SquadPrivacySection } from './settings/SquadPrivacySection';
-import { SquadModerationSettingsSection } from './settings/SquadModerationSettingsSection';
+import {
+  SquadModerationSettingsSection,
+  SquadPostingGate,
+} from './settings/SquadModerationSettingsSection';
 import { SquadSettingsSection } from './settings';
 import { SquadStats } from './common/SquadStat';
 import { SquadPrivacyState } from './common/SquadPrivacyState';
@@ -37,6 +40,35 @@ import { useFileInput } from '../../hooks/utils/useFileInput';
 
 const squadImageId = 'squad_image_file';
 const squadHeaderId = 'squad_header_file';
+
+// The three posting gates are exclusive in the UI but two independent fields on
+// the API, so the radio value is expanded back into both here.
+type SquadFormFields = Omit<
+  SquadForm,
+  'moderationRequired' | 'postingMinReputation'
+> & {
+  postingGate?: SquadPostingGate;
+  postingMinReputation?: string;
+};
+
+const postingGateToInput = (
+  gate: SquadPostingGate | undefined,
+  minReputation: string | undefined,
+): Pick<SquadForm, 'moderationRequired' | 'postingMinReputation'> => {
+  if (gate === SquadPostingGate.Reputation) {
+    const parsed = parseInt(minReputation, 10);
+
+    return {
+      moderationRequired: false,
+      postingMinReputation: Number.isNaN(parsed) ? null : parsed,
+    };
+  }
+
+  return {
+    moderationRequired: gate === SquadPostingGate.Moderation,
+    postingMinReputation: null,
+  };
+};
 
 interface SquadDetailsProps {
   onSubmit: (
@@ -72,6 +104,7 @@ export function SquadDetails({
     memberPostingRole: initialMemberPostingRole,
     memberInviteRole: initialMemberInviteRole,
     moderationRequired: initialModerationRequired,
+    postingMinReputation: initialPostingMinReputation,
   } = squad ?? { ...initialData };
   const [activeHandle, setActiveHandle] = useState(handle);
   const [imageChanged, setImageChanged] = useState(false);
@@ -125,7 +158,7 @@ export function SquadDetails({
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formJson = formToJson<SquadForm>(e.currentTarget);
+    const formJson = formToJson<SquadFormFields>(e.currentTarget);
 
     if (!formJson.name || !formJson.handle) {
       return null;
@@ -136,7 +169,11 @@ export function SquadDetails({
       return null;
     }
 
-    const data = { ...formJson };
+    const { postingGate, postingMinReputation, ...rest } = formJson;
+    const data: SquadForm = {
+      ...rest,
+      ...postingGateToInput(postingGate, postingMinReputation),
+    };
 
     if (imageChanged) {
       data.file = imageFileRef.current ?? undefined;
@@ -161,7 +198,7 @@ export function SquadDetails({
   };
 
   const handleChange = (e: FormEvent<HTMLFormElement>) => {
-    const formJson = formToJson<SquadForm>(e.currentTarget);
+    const formJson = formToJson<SquadFormFields>(e.currentTarget);
 
     // Auto-populate the handle if name is provided and handle empty
     if (formJson.name && !activeHandle && !formJson.handle) {
@@ -366,6 +403,7 @@ export function SquadDetails({
           initialMemberInviteRole={initialMemberInviteRole}
           initialMemberPostingRole={initialMemberPostingRole}
           initialModerationRequired={initialModerationRequired}
+          initialPostingMinReputation={initialPostingMinReputation}
         />
         {!createMode && <SquadDangerZone squad={squad} />}
       </form>

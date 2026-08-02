@@ -85,6 +85,7 @@ export interface Squad extends Source {
   memberPostingRole: SourceMemberRole;
   memberInviteRole: SourceMemberRole;
   moderationRequired: boolean;
+  postingMinReputation?: number | null;
   referralUrl?: string;
   category?: SourceCategory;
   moderationPostCount: number;
