@@ -12,7 +12,7 @@ import { useSquad } from '@dailydotdev/shared/src/hooks/squads/useSquad';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import { watercoolerSquadId } from '@dailydotdev/shared/src/lib/constants';
 import { FeedPageLayoutList } from '@dailydotdev/shared/src/components/utilities';
-import { WatercoolerPostButton } from '@dailydotdev/shared/src/features/watercooler/components/WatercoolerPostButton';
+import { WatercoolerComposer } from '@dailydotdev/shared/src/features/watercooler/components/WatercoolerComposer';
 import {
   Typography,
   TypographyColor,
@@ -68,8 +68,8 @@ const WatercoolerPage = (): ReactElement => {
 
   return (
     <FeedPageLayoutList>
-      <div className="mb-4 flex w-full flex-row items-start justify-between gap-4 px-4 laptop:px-0">
-        <div className="flex min-w-0 flex-1 flex-col">
+      <div className="mb-4 flex w-full flex-col gap-4 px-4 laptop:px-0">
+        <div className="flex min-w-0 flex-col">
           <Typography bold tag={TypographyTag.H1} type={TypographyType.Title2}>
             {squad.name}
           </Typography>
@@ -84,7 +84,7 @@ const WatercoolerPage = (): ReactElement => {
             </Typography>
           )}
         </div>
-        <WatercoolerPostButton className="shrink-0" squad={squad} />
+        <WatercoolerComposer squad={squad} />
       </div>
       <Feed
         className="px-0"

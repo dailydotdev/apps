@@ -31,7 +31,19 @@ interface UseWatercoolerPosting {
    */
   blockedReason?: string;
   isJoining: boolean;
-  onNewPost: () => Promise<void>;
+  /**
+   * Clears the way to post: opens auth when logged out, re-checks the gate, and
+   * joins the squad silently when needed. Resolves false when posting can't go
+   * ahead, so callers can bail before submitting.
+   */
+  ensureCanPost: () => Promise<boolean>;
+  /** Hand off to the full composer, joining first if needed. */
+  openComposer: (draft?: ComposerDraft) => Promise<void>;
+}
+
+interface ComposerDraft {
+  title?: string;
+  content?: string;
 }
 
 const reputationCopy = (minReputation: number): string =>
@@ -134,29 +146,52 @@ export const useWatercoolerPosting = ({
     ? getBlockedReason(squad, user.reputation ?? 0)
     : undefined;
 
-  const onNewPost = useCallback(async () => {
+  const ensureCanPost = useCallback(async () => {
     if (!user) {
       showLogin({ trigger: AuthTriggers.JoinSquad });
-      return;
+      return false;
     }
 
     if (getBlockedReason(squad, user.reputation ?? 0)) {
-      return;
+      return false;
     }
 
-    if (!isMember) {
-      try {
-        await joinSilently();
-      } catch {
+    if (isMember) {
+      return true;
+    }
+
+    try {
+      await joinSilently();
+      return true;
+    } catch {
+      return false;
+    }
+  }, [isMember, joinSilently, showLogin, squad, user]);
+
+  const openComposer = useCallback(
+    async (draft?: ComposerDraft) => {
+      if (!(await ensureCanPost())) {
         return;
       }
-    }
 
-    openModal({
-      type: LazyModal.SmartComposer,
-      props: { initialSquadId: squad.id },
-    });
-  }, [isMember, joinSilently, openModal, showLogin, squad, user]);
+      openModal({
+        type: LazyModal.SmartComposer,
+        props: {
+          initialSquadId: squad.id,
+          initialKind: 'text',
+          initialTitle: draft?.title,
+          initialContent: draft?.content,
+        },
+      });
+    },
+    [ensureCanPost, openModal, squad.id],
+  );
 
-  return { canPost: !blockedReason, blockedReason, isJoining, onNewPost };
+  return {
+    canPost: !blockedReason,
+    blockedReason,
+    isJoining,
+    ensureCanPost,
+    openComposer,
+  };
 };

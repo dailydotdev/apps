@@ -4,13 +4,13 @@ import type { SidebarMenuItem } from '../common';
 import { ListIcon } from '../common';
 import {
   CompassIcon,
+  CookieIcon,
   DiscussIcon,
   EarthIcon,
   HashtagIcon,
   HotIcon,
   TourIcon,
 } from '../../icons';
-import { RaiseHandIcon } from '../../icons/RaiseHand';
 import { MedalIcon } from '../../icons/Medal';
 import { Section } from '../Section';
 import type { SidebarSectionProps } from './common';
@@ -86,7 +86,7 @@ export const DiscoverSection = ({
       },
       {
         icon: (active: boolean) => (
-          <ListIcon Icon={() => <RaiseHandIcon secondary={active} />} />
+          <ListIcon Icon={() => <CookieIcon secondary={active} />} />
         ),
         title: 'Watercooler',
         path: watercoolerUrl,
