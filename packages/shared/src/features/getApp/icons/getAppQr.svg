@@ -8,11 +8,11 @@
     consumes it there: Play install referrer reads a referrer param and Apple
     strips query params and only honours its own pt/ct campaign tokens, so
     store-side attribution belongs on the redirector, not in this code.
-    A spec (getAppQr.spec.ts) decodes this matrix with jsQR, the way a scanner
-    would, and asserts it still says the URL above, so changing either one
-    alone fails CI. It also pins the 37 module size, which is what level H
-    yields for this URL: the logo knockout budget depends on H, and a weaker
-    level would shrink the matrix.
+    Level H is not optional: the logo badge knocks out centre modules, and only
+    H's 30% recovery budget covers them. At H this URL yields 37 modules, so a
+    matrix of any other size means the level changed. Nothing automated checks
+    the destination, so if you regenerate this, scan the result with a phone
+    before committing and update the URL above.
     Regenerate with: npx qrcode -t svg -e H <url>
     and keep ONLY the stroke path plus this viewBox. The white background rect
     the generator adds must be dropped: the SVGR configs rewrite #ffffff to

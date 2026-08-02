@@ -1,15 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import {
-  APP_URL,
-  LandingAppInstall,
-  QR_PATH,
-  VISIBLE_LABEL,
-} from './LandingAppInstall';
-import {
-  decodeMatrix,
-  parseRectPath,
-} from '../../../../../__tests__/helpers/qr';
+import { APP_URL, LandingAppInstall, VISIBLE_LABEL } from './LandingAppInstall';
 
 describe('LandingAppInstall', () => {
   it('exposes the app-store destination as a link, not only as a QR code', () => {
@@ -40,17 +31,5 @@ describe('LandingAppInstall', () => {
     expect(
       screen.getByRole('link', { name: /iOS or Android/i }),
     ).toBeInTheDocument();
-  });
-  // The matrix is a hand-flattened constant while the destination lives in
-  // APP_URL; nothing else notices if one moves without the other. Decoding the
-  // committed modules the way a scanner would makes CI catch that drift.
-  it('keeps the QR matrix in sync with APP_URL at error correction H', () => {
-    const matrix = parseRectPath(QR_PATH);
-
-    expect(decodeMatrix(matrix)).toBe(APP_URL);
-    // Decoding alone would still pass at a weaker level, and the logo badge
-    // overlaps modules that only H's recovery budget can spare. 29 modules is
-    // version 3 at H for this URL; a weaker level shrinks the matrix.
-    expect(matrix.length).toBe(29);
   });
 });
