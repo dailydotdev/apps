@@ -89,35 +89,37 @@ export const WeeklyQuizIntro = ({
   };
 
   return (
-    <div className="relative flex animate-composer-in flex-col items-center gap-5 p-6 text-center tablet:p-8">
-      <div className="flex w-full max-w-lg flex-col items-center gap-5">
-        <h1 className="flex justify-center">
-          {/* Padding enlarges the mouse-tracked hover box beyond the logo art
-              so the 3D tilt reacts over a more generous area. */}
-          <span
-            ref={logoRef}
-            className={classNames('inline-block px-2 py-2', styles.logoTilt)}
-            onMouseMove={tiltLogo}
-            onMouseLeave={resetLogoTilt}
-          >
-            <span className="relative inline-block">
-              <img
-                src={LOGO_URL}
-                alt="The Weekly Tech News Quiz"
-                className="pointer-events-none w-64 max-w-none select-none"
-              />
-              {/* Glow sits over the logo's lightbulb (right side, mid-height). */}
-              <span
-                className={classNames(
-                  'absolute right-[13%] top-[31%] h-16 w-16',
-                  styles.bulbGlow,
-                )}
-                aria-hidden
-              />
-            </span>
+    <div className="relative flex animate-composer-in flex-col items-center gap-6 p-6 text-center tablet:flex-row tablet:items-center tablet:gap-8 tablet:p-8">
+      {/* Left column: the logo. */}
+      <h1 className="flex shrink-0 justify-center">
+        {/* Padding enlarges the mouse-tracked hover box beyond the logo art
+            so the 3D tilt reacts over a more generous area. */}
+        <span
+          ref={logoRef}
+          className={classNames('inline-block px-2 py-2', styles.logoTilt)}
+          onMouseMove={tiltLogo}
+          onMouseLeave={resetLogoTilt}
+        >
+          <span className="relative inline-block">
+            <img
+              src={LOGO_URL}
+              alt="The Weekly Tech News Quiz"
+              className="pointer-events-none w-72 max-w-none select-none"
+            />
+            {/* Glow sits over the logo's lightbulb (right side, mid-height). */}
+            <span
+              className={classNames(
+                'absolute right-[13%] top-[31%] h-16 w-16',
+                styles.bulbGlow,
+              )}
+              aria-hidden
+            />
           </span>
-        </h1>
+        </span>
+      </h1>
 
+      {/* Right column: all the content. */}
+      <div className="flex w-full max-w-lg flex-col items-center gap-5 tablet:flex-1">
         {/* The challenge pitch — the focus of this screen. */}
         <div className="flex flex-col gap-2">
           <Typography
