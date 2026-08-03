@@ -89,8 +89,8 @@ export const WeeklyQuizIntro = ({
   };
 
   return (
-    <div className="relative flex animate-composer-in flex-col items-center gap-6 p-6 text-center tablet:flex-row tablet:items-center tablet:gap-8 tablet:p-8">
-      {/* Left column: the logo. */}
+    <div className="relative flex animate-composer-in flex-col items-center gap-6 p-6 text-center tablet:flex-row-reverse tablet:items-center tablet:gap-8 tablet:p-8">
+      {/* Right column (on tablet): the logo. */}
       <h1 className="flex shrink-0 justify-center">
         {/* Padding enlarges the mouse-tracked hover box beyond the logo art
             so the 3D tilt reacts over a more generous area. */}
@@ -118,7 +118,7 @@ export const WeeklyQuizIntro = ({
         </span>
       </h1>
 
-      {/* Right column: all the content. */}
+      {/* Left column (on tablet): all the content. */}
       <div className="flex w-full max-w-lg flex-col items-center gap-5 tablet:flex-1">
         {/* The challenge pitch — the focus of this screen. */}
         <div className="flex flex-col gap-2">
