@@ -35,7 +35,7 @@ export interface NewCommentTriggerRenderProps {
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
   shouldHandleCommentQuery?: boolean;
-  CommentInputOrModal: React.ElementType;
+  CommentInput: React.ElementType;
   onComposerOpenChange?: (isOpen: boolean) => void;
   renderTrigger?: (props: NewCommentTriggerRenderProps) => ReactElement;
 }
@@ -53,6 +53,9 @@ const focusInputById = (inputId: string, remainingFrames = 30): void => {
   const input = document.getElementById(inputId);
   if (input) {
     input.focus();
+    // The composer now lives in the page flow, so a trigger far from it (the
+    // mobile floating bar, the post actions row) can open it off-screen.
+    input.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
     return;
   }
 
@@ -74,7 +77,7 @@ function NewCommentComponent(
     onCommented,
     post,
     shouldHandleCommentQuery = false,
-    CommentInputOrModal,
+    CommentInput,
     onComposerOpenChange,
     renderTrigger,
     ...props
@@ -154,12 +157,12 @@ function NewCommentComponent(
 
   if (isComposerOpen) {
     return (
-      <CommentInputOrModal
+      <CommentInput
         {...props}
         post={post}
         inputId={inputId}
         autoFocus={false}
-        className={{ input: { container: 'my-4', tab: className?.tab } }}
+        className={{ input: { container: 'my-4' } }}
         onCommented={onSuccess}
         initialContent={inputContent}
         onClose={() => setInputContent(undefined)}

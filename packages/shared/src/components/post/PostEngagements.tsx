@@ -32,16 +32,16 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import type { OpenPostCommentEventDetail } from '../../lib/postComment';
+import { OPEN_POST_COMMENT_EVENT } from '../../lib/postComment';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
 );
 
-const CommentInputOrModal = dynamic(
+const CommentInput = dynamic(
   () =>
-    import(
-      /* webpackChunkName: "commentInputOrModal" */ '../comments/CommentInputOrModal'
-    ),
+    import(/* webpackChunkName: "commentInput" */ '../comments/CommentInput'),
 );
 
 interface PostEngagementsProps {
@@ -109,6 +109,30 @@ function PostEngagements({
     }
   }, [shouldOnboardAuthor]);
 
+  useEffect(() => {
+    const onOpenRequest = (
+      event: CustomEvent<OpenPostCommentEventDetail>,
+    ): void => {
+      if (event.detail.postId !== post.id) {
+        return;
+      }
+
+      commentRef.current?.onShowInput(event.detail.origin);
+    };
+
+    globalThis.window?.addEventListener(
+      OPEN_POST_COMMENT_EVENT,
+      onOpenRequest as EventListener,
+    );
+
+    return () => {
+      globalThis.window?.removeEventListener(
+        OPEN_POST_COMMENT_EVENT,
+        onOpenRequest as EventListener,
+      );
+    };
+  }, [post.id]);
+
   return (
     <>
       <PostUpvotesCommentsCount
@@ -153,13 +177,13 @@ function PostEngagements({
         </Button>
       </span>
       <NewComment
-        className={{ container: 'mt-3 hidden tablet:flex' }}
+        className={{ container: 'mt-3 flex' }}
         post={post}
         ref={commentRef}
         onCommented={onCommented}
         onComposerOpenChange={setIsComposerOpen}
         shouldHandleCommentQuery
-        CommentInputOrModal={CommentInputOrModal}
+        CommentInput={CommentInput}
       />
       {!isPlus && <AdAsComment postId={post.id} />}
       <PostComments

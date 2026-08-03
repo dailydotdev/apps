@@ -102,12 +102,12 @@ function BaseDrawer({
   const handleOverlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (
-      closeOnOutsideClick &&
-      hasAnimated &&
-      container.current &&
-      !container.current.contains(e.target as Node)
-    ) {
+    // Only a hit on the backdrop itself closes the drawer. A `contains` check
+    // fails for portaled children (dropdowns, popovers): they live under
+    // `document.body`, but React bubbles their synthetic clicks up the React
+    // tree to this handler, so picking an item read as an outside click and
+    // tore the drawer down instead of running the item's own action.
+    if (closeOnOutsideClick && hasAnimated && e.target === e.currentTarget) {
       onClose(e.nativeEvent);
     }
   };

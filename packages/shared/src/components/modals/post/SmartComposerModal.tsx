@@ -578,8 +578,8 @@ export function SmartComposerModal({
             toolbarRightActions={primaryActionsNode}
             onMarkdownModeChange={onMarkdownModeChange}
           />
-          {!isMarkdownMode && notificationToggleNode && (
-            <div className="-mt-2 flex shrink-0 px-5 pb-5">
+          {notificationToggleNode && (
+            <div className="-mt-2 flex min-w-0 shrink-0 px-5 pb-5">
               {notificationToggleNode}
             </div>
           )}
@@ -614,7 +614,10 @@ export function SmartComposerModal({
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
         </div>
       )}
-      {((kind !== 'text' && kind !== 'standup') || isMarkdownMode) && (
+      {/* Text keeps its actions inside the editor's own bottom bar, in both
+          rich and markdown mode — adding them here too gave markdown a second
+          bar and made the buttons jump on every toggle. */}
+      {kind !== 'text' && kind !== 'standup' && (
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
           <div className="flex items-center justify-between gap-3">
             {kindPickerNode}

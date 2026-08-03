@@ -15,10 +15,10 @@ import type { Editor } from '@tiptap/react';
 import { getMarkRange } from '@tiptap/core';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
-  ArrowIcon,
   BoldIcon,
   BulletListIcon,
   ItalicIcon,
+  MenuIcon,
   NumberedListIcon,
   RedoIcon,
   UndoIcon,
@@ -43,6 +43,7 @@ export interface RichTextToolbarProps {
   position?: 'top' | 'bottom';
   className?: string;
   hideInlineLink?: boolean;
+  hideFormatting?: boolean;
 }
 
 export interface RichTextToolbarRef {
@@ -129,7 +130,7 @@ const OverflowMenu = ({ items }: OverflowMenuProps): ReactElement | null => {
             type="button"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
-            icon={<ArrowIcon className="rotate-180" secondary />}
+            icon={<MenuIcon className="rotate-90" />}
             aria-label="More formatting"
             onMouseDown={(event: React.MouseEvent) => event.preventDefault()}
             className="shrink-0"
@@ -158,6 +159,10 @@ const OverflowMenu = ({ items }: OverflowMenuProps): ReactElement | null => {
 };
 
 const TOOLBAR_BUTTON_WIDTH = 32;
+// `ToolbarDivider` is a 1px rule with `mx-1.5` either side.
+const TOOLBAR_DIVIDER_WIDTH = 13;
+// `gap-1` between the scrolling group, the overflow menu and the right actions.
+const TOOLBAR_ROW_GAP = 4;
 
 function RichTextToolbarComponent(
   {
@@ -170,6 +175,7 @@ function RichTextToolbarComponent(
     position = 'top',
     className,
     hideInlineLink = false,
+    hideFormatting = false,
   }: RichTextToolbarProps,
   ref: Ref<RichTextToolbarRef>,
 ): ReactElement {
@@ -234,6 +240,12 @@ function RichTextToolbarComponent(
   });
 
   const formattingItems = useMemo<ToolbarItem[]>(() => {
+    // Markdown mode edits raw text, so the rich-text commands have nothing to
+    // act on; the bar itself stays mounted so the actions beside it hold still.
+    if (hideFormatting) {
+      return [];
+    }
+
     const items: ToolbarItem[] = [];
 
     if (!hideInlineLink) {
@@ -328,6 +340,7 @@ function RichTextToolbarComponent(
     editor,
     editorState,
     hideInlineLink,
+    hideFormatting,
     openLinkModal,
   ]);
 
@@ -370,8 +383,20 @@ function RichTextToolbarComponent(
       inlineActionsRef.current?.getBoundingClientRect().width ?? 0;
     const rightWidth =
       rightActionsRef.current?.getBoundingClientRect().width ?? 0;
+    // Dividers and the row's own gaps are laid out but belong to no ref, so
+    // leaving them out of the budget is what let the last button — and the
+    // overflow chevron itself — get sliced by the group's `overflow-hidden`.
+    const dividerCount =
+      (leadingActions ? 1 : 0) +
+      (inlineActions ? 1 : 0) +
+      Math.max(0, new Set(formattingItems.map((item) => item.group)).size - 1);
     setReservedWidth(
-      leadingWidth + inlineWidth + rightWidth + TOOLBAR_BUTTON_WIDTH,
+      leadingWidth +
+        inlineWidth +
+        rightWidth +
+        TOOLBAR_BUTTON_WIDTH +
+        dividerCount * TOOLBAR_DIVIDER_WIDTH +
+        TOOLBAR_ROW_GAP * 2,
     );
   }, [
     isOverflowable,
@@ -379,6 +404,7 @@ function RichTextToolbarComponent(
     inlineActions,
     leadingActions,
     containerWidth,
+    formattingItems,
   ]);
 
   const visibleCount = useMemo(() => {
@@ -450,34 +476,48 @@ function RichTextToolbarComponent(
       >
         <div
           className={classNames(
-            'flex flex-1 items-center gap-0',
+            'flex min-w-0 flex-1 items-center gap-0',
             position === 'top' && 'flex-wrap',
-            position === 'bottom' && 'flex-nowrap overflow-hidden',
+            // `shrink` (not `flex-1`) on the clipped group: the global
+            // `flex-shrink: 0` reset means it needs the opt-in, and growing it
+            // would shove the overflow button across to the submit button.
+            position === 'bottom' && 'flex-nowrap',
           )}
         >
-          {leadingActions && (
-            <>
-              <div
-                ref={leadingActionsRef}
-                className="flex shrink-0 items-center gap-1"
-              >
-                {leadingActions}
-              </div>
-              <ToolbarDivider />
-            </>
-          )}
-          {inlineActions && (
-            <>
-              <div
-                ref={inlineActionsRef}
-                className="flex shrink-0 items-center gap-1"
-              >
-                {inlineActions}
-              </div>
-              {visibleItems.length > 0 && <ToolbarDivider />}
-            </>
-          )}
-          {renderedFormattingItems}
+          <div
+            className={classNames(
+              'flex items-center gap-0',
+              position === 'top' && 'flex-wrap',
+              position === 'bottom' &&
+                'min-w-0 shrink flex-nowrap overflow-hidden',
+            )}
+          >
+            {leadingActions && (
+              <>
+                <div
+                  ref={leadingActionsRef}
+                  className="flex shrink-0 items-center gap-1"
+                >
+                  {leadingActions}
+                </div>
+                <ToolbarDivider />
+              </>
+            )}
+            {inlineActions && (
+              <>
+                <div
+                  ref={inlineActionsRef}
+                  className="flex shrink-0 items-center gap-1"
+                >
+                  {inlineActions}
+                </div>
+                {visibleItems.length > 0 && <ToolbarDivider />}
+              </>
+            )}
+            {renderedFormattingItems}
+          </div>
+          {/* Outside the clipped group on purpose: it is the escape hatch for
+              everything that did not fit, so it must never be cut itself. */}
           {isOverflowable && <OverflowMenu items={overflowItems} />}
         </div>
         {rightActions && (

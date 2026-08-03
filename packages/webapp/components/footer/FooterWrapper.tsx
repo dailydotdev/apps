@@ -6,12 +6,7 @@ import { PostType } from '@dailydotdev/shared/src/graphql/posts';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import ScrollToTopButton from '@dailydotdev/shared/src/components/ScrollToTopButton';
-
-const NewComment = dynamic(() =>
-  import(
-    /* webpackChunkName: "newComment" */ '@dailydotdev/shared/src/components/post/NewComment'
-  ).then((mod) => mod.NewComment),
-);
+import { requestOpenPostComment } from '@dailydotdev/shared/src/lib/postComment';
 
 const MobilePostFloatingBar = dynamic(() =>
   import(
@@ -28,13 +23,6 @@ const FooterPlusButton = dynamic(() =>
 const MobileFooterNavbar = dynamic(
   () =>
     import(/* webpackChunkName: "mobileFooterNavbar" */ './MobileFooterNavbar'),
-);
-
-const CommentInputOrModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "commentInputOrModal" */ '@dailydotdev/shared/src/components/comments/CommentInputOrModal'
-    ),
 );
 
 interface FooterNavBarProps {
@@ -66,16 +54,11 @@ export default function FooterWrapper({
       </div>
       {post && post.type !== PostType.Brief && (
         <div className="my-2 w-full px-2 tablet:hidden">
-          <NewComment
+          <MobilePostFloatingBar
             post={post}
-            shouldHandleCommentQuery
-            CommentInputOrModal={CommentInputOrModal}
-            renderTrigger={({ onCommentClick }) => (
-              <MobilePostFloatingBar
-                post={post}
-                onCommentClick={onCommentClick}
-              />
-            )}
+            onCommentClick={(origin) =>
+              requestOpenPostComment({ postId: post.id, origin })
+            }
           />
         </div>
       )}

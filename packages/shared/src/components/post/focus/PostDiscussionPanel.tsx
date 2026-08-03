@@ -27,10 +27,10 @@ import { SortCommentsBy } from '../../../graphql/comments';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
 
-const CommentInputOrModal = dynamic(
+const CommentInput = dynamic(
   () =>
     import(
-      /* webpackChunkName: "commentInputOrModal" */ '../../comments/CommentInputOrModal'
+      /* webpackChunkName: "commentInput" */ '../../comments/CommentInput'
     ),
 );
 
@@ -163,7 +163,7 @@ export const PostDiscussionPanel = ({
           shouldHandleCommentQuery
           onComposerOpenChange={setIsComposerOpen}
           size={ProfileImageSize.Medium}
-          CommentInputOrModal={CommentInputOrModal}
+          CommentInput={CommentInput}
           renderTrigger={renderComposerTrigger}
         />
       </div>

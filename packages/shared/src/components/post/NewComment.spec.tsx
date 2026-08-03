@@ -44,11 +44,7 @@ jest.mock('../image/Image', () => ({
   Image: () => null,
 }));
 
-const CommentInputOrModal = ({
-  inputId,
-}: {
-  inputId: string;
-}): React.ReactElement => (
+const CommentInput = ({ inputId }: { inputId: string }): React.ReactElement => (
   <div data-testid="comment-input" id={inputId} tabIndex={-1} />
 );
 
@@ -76,7 +72,7 @@ describe('NewComment', () => {
     render(
       <NewComment
         post={{ id: 'post-1' } as never}
-        CommentInputOrModal={CommentInputOrModal}
+        CommentInput={CommentInput}
       />,
     );
 

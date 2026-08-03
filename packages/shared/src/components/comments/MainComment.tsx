@@ -27,11 +27,8 @@ import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 import { useLogContext } from '../../contexts/LogContext';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 
-const CommentInputOrModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "commentInputOrModal" */ './CommentInputOrModal'
-    ),
+const CommentInput = dynamic(
+  () => import(/* webpackChunkName: "commentInput" */ './CommentInput'),
 );
 
 type ClassName = {
@@ -196,7 +193,7 @@ export default function MainComment({
         </div>
       )}
       {editProps && (
-        <CommentInputOrModal
+        <CommentInput
           {...editProps}
           post={props.post}
           onCommented={(...params) => {
@@ -209,7 +206,7 @@ export default function MainComment({
       )}
       {commentId === comment.id && (
         <div className={classNames(isModalThread && 'mt-2')}>
-          <CommentInputOrModal
+          <CommentInput
             {...replyProps}
             post={props.post}
             onCommented={(...params) => {
@@ -218,7 +215,6 @@ export default function MainComment({
             }}
             onClose={() => onReplyTo(null)}
             className={{ input: className?.commentBox }}
-            replyToCommentId={commentId}
           />
         </div>
       )}

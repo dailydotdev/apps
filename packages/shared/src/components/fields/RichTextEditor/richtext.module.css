@@ -86,7 +86,11 @@
 
   /* Tiptap ProseMirror specific */
   & :global(.ProseMirror) {
-    @apply outline-none min-h-[6rem];
+    /* Fills the editor rather than adding a second floor inside its padding.
+       A floor here stacked on top of the container's `minHeightClassName`, so
+       the rich editor always sat `p-4` taller than the markdown textarea and
+       the box jumped whenever the two swapped. */
+    @apply outline-none h-full;
   }
 
   & :global(.ProseMirror-focused) {

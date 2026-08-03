@@ -542,7 +542,7 @@ it('should send cancel upvote mutation', async () => {
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
-it('should open new comment modal and set the correct props', async () => {
+it('should open the comment composer inline on the page', async () => {
   renderPost();
   // Wait for GraphQL to return
   await screen.findByText('Learn SQL');
