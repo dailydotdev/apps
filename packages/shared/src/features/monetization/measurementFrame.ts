@@ -30,8 +30,11 @@ export interface MeasurementInitMessage {
   type: 'init';
   tags: AdMeasurementTag[];
   // Resolved by the parent from the user's consent state; when true the frame
-  // emits gdpr=1 and the tags skip measurement.
+  // emits gdpr=1 and the tags skip measurement unless a consent string grants
+  // it. The extension parent never sets the strings (no CMP there).
   gdprApplies?: boolean;
+  consentString?: string;
+  addtlConsent?: string;
 }
 
 export const isMeasurementReadyMessage = (

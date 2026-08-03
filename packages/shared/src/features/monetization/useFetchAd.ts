@@ -6,7 +6,11 @@ import {
   fetchAdByPlacement,
   resolveAdFetchOptions,
 } from '../../lib/ads';
-import { featurePostBoostAds } from '../../lib/featureManagement';
+import {
+  featureIubendaCmp,
+  featurePostBoostAds,
+} from '../../lib/featureManagement';
+import { useAdMacroContext } from './useAdMacroContext';
 
 interface UseFetchAds {
   fetchAd: (params: {
@@ -17,6 +21,11 @@ interface UseFetchAds {
 
 export const useFetchAd = (): UseFetchAds => {
   const boostsEnabled = useFeature(featurePostBoostAds);
+  const cmpEnabled = useFeature(featureIubendaCmp);
+  const macroContext = useAdMacroContext(true);
+  // consent params ride on ad requests only for CMP users; with the flag off
+  // the request is byte-identical to the pre-CMP one
+  const consent = cmpEnabled ? macroContext ?? undefined : undefined;
 
   const fetchAdQuery: UseFetchAds['fetchAd'] = useCallback(
     ({ active, placement = AdPlacement.Feed }) => {
@@ -25,10 +34,11 @@ export const useFetchAd = (): UseFetchAds => {
           placement,
           active,
           boostsEnabled,
+          consent,
         }),
       );
     },
-    [boostsEnabled],
+    [boostsEnabled, consent],
   );
 
   return {

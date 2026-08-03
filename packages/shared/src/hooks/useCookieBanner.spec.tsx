@@ -8,6 +8,7 @@ import { useConsentCookie } from './useCookieConsent';
 import { useAuthContext } from '../contexts/AuthContext';
 import { getIubendaConsent } from '../lib/iubenda';
 import { isIOSNative } from '../lib/func';
+import { useFeature } from '../components/GrowthBookProvider';
 
 jest.mock('./useCookieConsent', () => ({
   useConsentCookie: jest.fn(),
@@ -26,6 +27,10 @@ jest.mock('../lib/func', () => ({
   isIOSNative: jest.fn(),
 }));
 
+jest.mock('../components/GrowthBookProvider', () => ({
+  useFeature: jest.fn(),
+}));
+
 const mockUseConsentCookie = useConsentCookie as jest.MockedFunction<
   typeof useConsentCookie
 >;
@@ -36,6 +41,7 @@ const mockGetIubendaConsent = getIubendaConsent as jest.MockedFunction<
   typeof getIubendaConsent
 >;
 const mockIsIOSNative = isIOSNative as jest.MockedFunction<typeof isIOSNative>;
+const mockUseFeature = useFeature as jest.MockedFunction<typeof useFeature>;
 
 const saveCookies = jest.fn();
 
@@ -65,6 +71,7 @@ describe('useCookieBanner', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockIsIOSNative.mockReturnValue(false);
+    mockUseFeature.mockReturnValue(false);
     localStorage.clear();
   });
 
@@ -132,6 +139,27 @@ describe('useCookieBanner', () => {
     renderHook(() => useCookieBanner());
 
     expect(localStorage.getItem('cookie_acknowledged')).toBe('true');
+  });
+
+  it('suppresses the homegrown banner for GDPR users when the iubenda CMP is on', () => {
+    setup({ isGdprCovered: true, user: null });
+    mockUseFeature.mockReturnValue(true);
+    mockGetIubendaConsent.mockReturnValue(undefined);
+
+    const { result } = renderHook(() => useCookieBanner());
+
+    expect(saveCookies).not.toHaveBeenCalled();
+    expect(result.current.showBanner).toBe(false);
+  });
+
+  it('keeps the homegrown banner for non-GDPR users when the iubenda CMP is on', () => {
+    setup({ isGdprCovered: false, user: null });
+    mockUseFeature.mockReturnValue(true);
+    mockGetIubendaConsent.mockReturnValue(undefined);
+
+    const { result } = renderHook(() => useCookieBanner());
+
+    expect(result.current.showBanner).toBe(true);
   });
 
   it('uses the marketing consent key for the additional cookie', () => {
