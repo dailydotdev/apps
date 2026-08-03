@@ -680,6 +680,13 @@ html.light .invert .invert,
   @mixin light-mode;
 }
 
+/* Force the dark theme on a subtree regardless of the app's theme. Redeclares
+ * the theme variables to their dark values on the element, so descendants
+ * inherit dark. Used by the Weekly Quiz, which is always dark. */
+.force-dark {
+  @mixin dark-mode;
+}
+
 .logo {
   width: 4.313rem;
 }

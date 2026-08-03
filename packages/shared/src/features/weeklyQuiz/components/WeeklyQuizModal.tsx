@@ -112,7 +112,7 @@ function WeeklyQuizModal({
       // surface brings its own gradient/rounding, so strip the Modal's default
       // dark background/border/shadow — otherwise it frames the surface in a
       // black box.
-      className="!border-0 !bg-transparent !shadow-none tablet:!w-[52rem]"
+      className="force-dark !border-0 !bg-transparent !shadow-none tablet:!w-[52rem]"
       onRequestClose={handleRequestClose}
       isDrawerOnMobile
     >

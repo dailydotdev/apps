@@ -69,7 +69,7 @@ const PreviewGame = ({
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[52rem] items-start justify-center gap-3">
+    <div className="force-dark mx-auto flex w-full max-w-[52rem] items-start justify-center gap-3">
       <div className={`relative flex-1 ${styles.surface}`}>
         <span className={styles.rays} aria-hidden />
         {phase === WeeklyQuizPhase.Intro && (
