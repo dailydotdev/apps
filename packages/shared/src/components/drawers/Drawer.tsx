@@ -11,6 +11,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { RootPortal } from '../tooltips/Portal';
+import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 
 export type PopupEventType =
   | MouseEvent
@@ -87,6 +88,11 @@ function BaseDrawer({
   ...props
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement | null>(null);
+  const { height: viewportHeight, offsetTop } = useVisualViewport();
+  const keyboardSafeStyle =
+    isFullScreen && viewportHeight
+      ? { height: viewportHeight, top: offsetTop }
+      : undefined;
   const [hasAnimated, setHasAnimated] = useState(instantOpen);
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
@@ -116,11 +122,16 @@ function BaseDrawer({
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
     <div
       className={classNames(
-        'fixed inset-0 z-modal transition-opacity duration-300 ease-in-out',
+        'fixed z-modal transition-opacity duration-300 ease-in-out',
+        // A full-screen drawer is sized to the *visual* viewport so its bottom
+        // actions sit above the virtual keyboard. iOS never shrinks the layout
+        // viewport for the keyboard, so `inset-0` alone leaves them underneath.
+        isFullScreen ? 'inset-x-0 top-0 h-full' : 'inset-0',
         !isFullScreen && 'bg-overlay-quaternary-onion',
         className?.overlay,
         isAnimating && 'opacity-0',
       )}
+      style={keyboardSafeStyle}
       onClick={handleOverlayClick}
     >
       <div

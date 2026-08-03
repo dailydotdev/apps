@@ -154,6 +154,7 @@ interface RichTextInputProps {
   toolbarPosition?: 'top' | 'bottom';
   toolbarLeading?: ReactNode;
   toolbarRightActions?: ReactNode;
+  stackToolbarLeading?: boolean;
   hideMarkdownToggle?: boolean;
   hideMarkdownHeader?: boolean;
   hideFooter?: boolean;
@@ -199,6 +200,7 @@ function RichTextInput(
     toolbarPosition = 'top',
     toolbarLeading,
     toolbarRightActions,
+    stackToolbarLeading = false,
     hideMarkdownToggle = false,
     hideMarkdownHeader = false,
     hideFooter = false,
@@ -940,6 +942,7 @@ function RichTextInput(
       position={toolbarPosition}
       className={isBottomToolbar ? '!gap-3 !px-5 !pb-5 !pt-4' : undefined}
       leadingActions={toolbarLeading}
+      stackLeading={stackToolbarLeading}
       inlineActions={
         hasToolbarActions && !isMarkdownMode ? toolbarActions : null
       }

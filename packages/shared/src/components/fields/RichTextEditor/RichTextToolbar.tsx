@@ -44,6 +44,7 @@ export interface RichTextToolbarProps {
   className?: string;
   hideInlineLink?: boolean;
   hideFormatting?: boolean;
+  stackLeading?: boolean;
 }
 
 export interface RichTextToolbarRef {
@@ -176,6 +177,7 @@ function RichTextToolbarComponent(
     className,
     hideInlineLink = false,
     hideFormatting = false,
+    stackLeading = false,
   }: RichTextToolbarProps,
   ref: Ref<RichTextToolbarRef>,
 ): ReactElement {
@@ -387,7 +389,7 @@ function RichTextToolbarComponent(
     // leaving them out of the budget is what let the last button — and the
     // overflow chevron itself — get sliced by the group's `overflow-hidden`.
     const dividerCount =
-      (leadingActions ? 1 : 0) +
+      (leadingActions && !stackLeading ? 1 : 0) +
       (inlineActions ? 1 : 0) +
       Math.max(0, new Set(formattingItems.map((item) => item.group)).size - 1);
     setReservedWidth(
@@ -403,6 +405,7 @@ function RichTextToolbarComponent(
     rightActions,
     inlineActions,
     leadingActions,
+    stackLeading,
     containerWidth,
     formattingItems,
   ]);
@@ -464,6 +467,14 @@ function RichTextToolbarComponent(
 
   return (
     <>
+      {/* On a narrow screen the kind picker plus the icon actions cannot fit
+          beside the submit button, and the overflow menu only relocates
+          formatting items — so the leading slot gets its own row instead. */}
+      {stackLeading && leadingActions && (
+        <div className="flex flex-row items-center px-5 pt-4">
+          {leadingActions}
+        </div>
+      )}
       <div
         ref={containerRef}
         className={classNames(

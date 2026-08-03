@@ -47,6 +47,9 @@ export interface CommentMarkdownInputProps {
   onChange?: (value: string) => void;
   formProps?: FormHTMLAttributes<HTMLFormElement>;
   onClose?: () => void;
+  /** Fills its container instead of capping against the viewport. For the
+   * mobile full-screen drawer, which is already sized to the visual viewport. */
+  fills?: boolean;
 }
 
 // The composer grows with its content up to this cap, then scrolls internally
@@ -68,6 +71,7 @@ export function CommentMarkdownInputComponent(
     autoFocus = true,
     formProps = {},
     onClose,
+    fills = false,
   }: CommentMarkdownInputProps,
   ref: ForwardedRef<HTMLFormElement>,
 ): ReactElement {
@@ -84,15 +88,16 @@ export function CommentMarkdownInputComponent(
   // the virtual keyboard opens. Capping against it is what keeps a long comment
   // from pushing its own submit button behind the keyboard on mobile.
   const { height: viewportHeight } = useVisualViewport();
-  const maxHeight = viewportHeight
-    ? Math.min(
-        MAX_COMPOSER_HEIGHT,
-        Math.max(
-          MIN_COMPOSER_HEIGHT,
-          Math.round(viewportHeight * VIEWPORT_HEIGHT_RATIO),
-        ),
-      )
-    : undefined;
+  const maxHeight =
+    viewportHeight && !fills
+      ? Math.min(
+          MAX_COMPOSER_HEIGHT,
+          Math.max(
+            MIN_COMPOSER_HEIGHT,
+            Math.round(viewportHeight * VIEWPORT_HEIGHT_RATIO),
+          ),
+        )
+      : undefined;
 
   let submitCopy = 'Comment';
   if (editCommentId) {
@@ -162,7 +167,11 @@ export function CommentMarkdownInputComponent(
       onSubmit={onSubmitForm}
       // Names the form for assistive tech, and gives it a role to query by.
       aria-label={submitCopy}
-      className={classNames('flex min-h-0 flex-col', className?.container)}
+      className={classNames(
+        'flex min-h-0 flex-col',
+        fills && 'flex-1',
+        className?.container,
+      )}
       style={{ maxHeight }}
       ref={ref}
     >
@@ -178,8 +187,14 @@ export function CommentMarkdownInputComponent(
           }
         }}
         className={{
-          container:
-            '!min-h-0 flex-1 overflow-hidden border border-border-subtlest-tertiary',
+          container: classNames(
+            '!min-h-0 flex-1 overflow-hidden',
+            // In the drawer the composer *is* the screen, so it drops the card
+            // treatment that separates it from the page when inline.
+            fills
+              ? '!rounded-none !bg-transparent'
+              : 'border border-border-subtlest-tertiary',
+          ),
         }}
         postId={postId}
         sourceId={sourceId}

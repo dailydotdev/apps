@@ -526,25 +526,29 @@ export function SmartComposerModal({
               />
             </Tooltip>
           )}
-          <Tooltip
-            content={isExpanded ? 'Collapse composer' : 'Expand composer'}
-          >
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              icon={
-                isExpanded ? (
-                  <MinimizeIcon size={IconSize.Size16} />
-                ) : (
-                  <MaximizeIcon size={IconSize.Size16} />
-                )
-              }
-              onClick={onToggleExpand}
-              aria-label={isExpanded ? 'Collapse composer' : 'Expand composer'}
-              aria-pressed={isExpanded}
-            />
-          </Tooltip>
+          {isLaptop && (
+            <Tooltip
+              content={isExpanded ? 'Collapse composer' : 'Expand composer'}
+            >
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                icon={
+                  isExpanded ? (
+                    <MinimizeIcon size={IconSize.Size16} />
+                  ) : (
+                    <MaximizeIcon size={IconSize.Size16} />
+                  )
+                }
+                onClick={onToggleExpand}
+                aria-label={
+                  isExpanded ? 'Collapse composer' : 'Expand composer'
+                }
+                aria-pressed={isExpanded}
+              />
+            </Tooltip>
+          )}
           <CloseButton
             type="button"
             size={ButtonSize.Small}
@@ -575,6 +579,7 @@ export function SmartComposerModal({
             cover={cover}
             onCoverChange={onCoverChange}
             toolbarLeading={kindPickerNode}
+            stackToolbarLeading={!isLaptop}
             toolbarRightActions={primaryActionsNode}
             onMarkdownModeChange={onMarkdownModeChange}
           />
@@ -641,7 +646,7 @@ export function SmartComposerModal({
           handleClose();
         }}
         onAfterClose={props.onAfterClose}
-        className={{ wrapper: 'flex flex-col p-0' }}
+        className={{ wrapper: 'flex flex-col !px-0 !pt-0' }}
       >
         {formContent}
       </Drawer>
