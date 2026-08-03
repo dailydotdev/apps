@@ -233,4 +233,56 @@ describe('SmartComposerModal', () => {
       expect.objectContaining({ event_name: LogEvent.SubmitSmartComposer }),
     );
   });
+
+  it('hides the expand control on mobile, where it is already full-screen', () => {
+    jest.mocked(useViewSize).mockReturnValue(false);
+
+    renderWithClient(
+      <SmartComposerModal isOpen onRequestClose={onRequestClose} />,
+    );
+
+    expect(
+      screen.queryByRole('button', { name: 'Expand composer' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps the expand control on desktop', () => {
+    renderWithClient(
+      <SmartComposerModal isOpen onRequestClose={onRequestClose} />,
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Expand composer' }),
+    ).toBeInTheDocument();
+  });
+
+  it('moves the schedule action next to the header scheduling control on mobile', () => {
+    jest.mocked(useViewSize).mockReturnValue(false);
+
+    renderWithClient(
+      <SmartComposerModal isOpen onRequestClose={onRequestClose} />,
+    );
+
+    const schedule = screen.getByRole('button', { name: 'Schedule post' });
+    const scheduledNav = screen.getByRole('button', {
+      name: 'Scheduled posts',
+    });
+    expect(schedule.parentElement).toBe(scheduledNav.parentElement);
+  });
+
+  it('keeps the schedule action beside the Post button on desktop', () => {
+    renderWithClient(
+      <SmartComposerModal
+        isOpen
+        initialKind="link"
+        onRequestClose={onRequestClose}
+      />,
+    );
+
+    const schedule = screen.getByRole('button', { name: 'Schedule post' });
+    const scheduledNav = screen.getByRole('button', {
+      name: 'Scheduled posts',
+    });
+    expect(schedule.parentElement).not.toBe(scheduledNav.parentElement);
+  });
 });

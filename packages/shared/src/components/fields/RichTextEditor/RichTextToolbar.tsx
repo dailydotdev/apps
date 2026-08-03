@@ -503,7 +503,7 @@ function RichTextToolbarComponent(
                 'min-w-0 shrink flex-nowrap overflow-hidden',
             )}
           >
-            {leadingActions && (
+            {!stackLeading && leadingActions && (
               <>
                 <div
                   ref={leadingActionsRef}

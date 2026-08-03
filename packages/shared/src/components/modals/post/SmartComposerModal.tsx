@@ -450,11 +450,15 @@ export function SmartComposerModal({
       {submitLabel}
     </Button>
   );
+  // On mobile the calendar belongs with the header's scheduling control (the
+  // clock), leaving the bottom bar to the Post button; on desktop both stay
+  // beside Post.
+  const scheduleInHeader = !isLaptop;
   // Self-contained flex with its own gap so the button pair keeps identical
   // spacing regardless of the parent (rich-text toolbar vs. bottom action bar).
   const primaryActionsNode = (
     <div className="flex items-center gap-2">
-      {scheduleButtonNode}
+      {!scheduleInHeader && scheduleButtonNode}
       {postButtonNode}
     </div>
   );
@@ -506,6 +510,7 @@ export function SmartComposerModal({
             onClick={handleViewScheduled}
             disabled={isInFlight}
           />
+          {scheduleInHeader && scheduleButtonNode}
           {kind === 'text' && (
             <Tooltip
               content={

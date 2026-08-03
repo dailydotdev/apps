@@ -172,4 +172,15 @@ describe('CommentMarkdownInput', () => {
       expect.objectContaining({ submitCopy: expected }),
     );
   });
+
+  it('fills its container in the drawer instead of capping against the viewport', () => {
+    setViewportHeight(360);
+    renderComposer({ fills: true });
+
+    const form = screen.getByRole('form');
+    expect(form).not.toHaveStyle({ maxHeight: '288px' });
+    expect(form).toHaveClass('flex-1');
+    const [{ className }] = mockRichTextProps.mock.calls.at(-1);
+    expect(className.container).not.toContain('border');
+  });
 });
