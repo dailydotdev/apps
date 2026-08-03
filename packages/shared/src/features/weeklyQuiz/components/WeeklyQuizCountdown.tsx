@@ -59,6 +59,12 @@ export const WeeklyQuizCountdown = ({
       >
         {SEQUENCE[index]}
       </span>
+      <Typography
+        type={TypographyType.Callout}
+        className="max-w-sm text-center !text-text-tertiary"
+      >
+        Think fast and answer quickly — speed and knowledge both count.
+      </Typography>
     </div>
   );
 };

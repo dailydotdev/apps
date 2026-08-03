@@ -125,7 +125,7 @@ export const WeeklyQuizIntro = ({
         {/* The challenge pitch — the focus of this screen. */}
         <div className="flex flex-col gap-2">
           <Typography
-            type={TypographyType.Title2}
+            type={TypographyType.Title1}
             bold
             tag={TypographyTag.H2}
             className="!text-text-primary"
@@ -140,48 +140,7 @@ export const WeeklyQuizIntro = ({
               {quiz.welcomeText}
             </Typography>
           )}
-          <Typography
-            type={TypographyType.Callout}
-            className="!text-text-tertiary"
-          >
-            Think fast and answer quickly — speed and knowledge both count.
-          </Typography>
         </div>
-
-        {/* Which week + how much news it distils. */}
-        {quiz && (
-          <div className="flex flex-col items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-float px-3 py-1 font-bold text-text-primary typo-footnote">
-              <CalendarIcon size={IconSize.XSmall} />
-              {formatWeekRange(quiz.startDate, quiz.endDate)}
-            </span>
-            <Typography
-              type={TypographyType.Footnote}
-              className="!text-text-tertiary"
-            >
-              {quiz.storyCount} stories from {quiz.sourceCount} sources,
-              distilled into {questionCount} questions.
-            </Typography>
-            {quiz.topSources.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {quiz.topSources.slice(0, SHOWN_SOURCES).map((source) => (
-                  <img
-                    key={source.id}
-                    src={source.image}
-                    alt={source.name}
-                    title={source.name}
-                    className="h-7 w-7 rounded-full object-cover ring-2 ring-border-subtlest-tertiary"
-                  />
-                ))}
-                {quiz.sourceCount > SHOWN_SOURCES && (
-                  <span className="flex h-7 items-center rounded-full bg-surface-float px-2.5 font-bold text-text-primary typo-caption1">
-                    +{quiz.sourceCount - SHOWN_SOURCES}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        )}
 
         {alreadyPlayed ? (
           <div className="flex w-full flex-col items-center gap-2">
@@ -221,6 +180,41 @@ export const WeeklyQuizIntro = ({
           >
             Start playing
           </Button>
+        )}
+
+        {/* Which week + how much news it distils. */}
+        {quiz && (
+          <div className="flex flex-col items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-float px-3 py-1 font-bold text-text-primary typo-footnote">
+              <CalendarIcon size={IconSize.XSmall} />
+              {formatWeekRange(quiz.startDate, quiz.endDate)}
+            </span>
+            <Typography
+              type={TypographyType.Footnote}
+              className="!text-text-tertiary"
+            >
+              {quiz.storyCount} stories from {quiz.sourceCount} sources,
+              distilled into {questionCount} questions.
+            </Typography>
+            {quiz.topSources.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {quiz.topSources.slice(0, SHOWN_SOURCES).map((source) => (
+                  <img
+                    key={source.id}
+                    src={source.image}
+                    alt={source.name}
+                    title={source.name}
+                    className="h-7 w-7 rounded-full object-cover ring-2 ring-border-subtlest-tertiary"
+                  />
+                ))}
+                {quiz.sourceCount > SHOWN_SOURCES && (
+                  <span className="flex h-7 items-center rounded-full bg-surface-float px-2.5 font-bold text-text-primary typo-caption1">
+                    +{quiz.sourceCount - SHOWN_SOURCES}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         )}
 
         {/* Share + weekly reminder, always available. */}
