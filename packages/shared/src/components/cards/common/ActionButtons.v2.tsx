@@ -225,7 +225,7 @@ const ActionButtons = ({
           side={variant === 'grid' ? 'bottom' : undefined}
         >
           <CardAction
-            id="copy-post-btn"
+            id={`post-${post.id}-copy-btn`}
             density={FEED_CARD_DENSITY}
             icon={<LinkIcon />}
             label="Copy link"

@@ -10,6 +10,7 @@ import { StreakMonthCalendar } from '../../streak/popup/StreakMonthCalendar';
 import { StreakFreezeRow } from '../../streak/popup/StreakFreezeRow';
 import { CompactQuestList } from '../../quest/CompactQuestList';
 import { HorizontalSeparator } from '../../utilities';
+import { railDividerBorderClass } from '../common';
 import Link from '../../utilities/Link';
 import {
   Typography,
@@ -108,8 +109,23 @@ export const StreakQuestsSection = (): ReactElement => {
           {/* Streak-freeze balance + purchase entry (same self-gated row the
               streak popup shows) so v2 users keep the freeze feature in their
               streak surface. Renders null when the feature is off. */}
-          <StreakFreezeRow />
-          <HorizontalSeparator className="mx-3 w-auto shrink-0" />
+          {/* Both separators use the same inset so the freeze row is framed
+              consistently. The row's own full-bleed top border ran edge to edge
+              while this one is inset by 12px, which read as two different
+              rules. */}
+          <HorizontalSeparator
+            className={classNames(
+              'mx-3 mt-3 w-auto shrink-0',
+              railDividerBorderClass,
+            )}
+          />
+          <StreakFreezeRow variant="panel" />
+          <HorizontalSeparator
+            className={classNames(
+              'mx-3 w-auto shrink-0',
+              railDividerBorderClass,
+            )}
+          />
         </>
       )}
 

@@ -130,7 +130,6 @@ export const FreeformGrid = forwardRef(function SharePostCard(
             onCopyLinkClick={onCopyLinkClick}
             onBookmarkClick={onBookmarkClick}
             onDownvoteClick={onDownvoteClick}
-            coverScrim={!!image}
           />
         ) : (
           <ActionButtons

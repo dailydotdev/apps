@@ -488,3 +488,8 @@ export const stepsFullWidth: Array<FunnelStepType> = [
   FunnelStepType.InstallPwa,
   FunnelStepType.UploadCv,
 ];
+// These size themselves from `funnelStepRail`, which the stepper's narrower
+// column would clamp.
+export const stepsFullWidthOnboarding: Array<FunnelStepType> = [
+  FunnelStepType.ProfileForm,
+];

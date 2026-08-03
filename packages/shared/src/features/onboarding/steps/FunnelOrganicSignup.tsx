@@ -7,6 +7,7 @@ import { FunnelStepTransitionType } from '../types/funnel';
 import { OnboardingHeadline } from '../../../components/auth';
 import { FooterLinks } from '../../../components/footer';
 import AuthOptions from '../../../components/auth/AuthOptions';
+import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 import { AuthTriggers } from '../../../lib/auth';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -74,6 +75,8 @@ export const FunnelOrganicSignup = withIsActiveGuard(
     const isMobile = useViewSize(ViewSize.MobileL);
     const setAuth = useSetAtom(authAtom);
     const { isLoggedIn, isAuthReady, user } = useAuthContext();
+    // This step is shared with the paid funnel, which keeps its own chrome.
+    const isOnboarding = useIsOnboardingFunnel();
     const { isOnboardingActionsReady, isOnboardingComplete } =
       useOnboardingActions();
     const [authDisplay, setAuthDisplay] = useState(
@@ -250,6 +253,10 @@ export const FunnelOrganicSignup = withIsActiveGuard(
               )}
               <AuthOptions
                 {...staticAuthProps}
+                // Post-signup funnel only: the funnel's headline scale, and no
+                // terms strip (the funnel shows it once, on the wall).
+                hideSignupDisclaimer={isOnboarding}
+                isOnboardingFunnel={isOnboarding}
                 registrationExtraFields={extraFields}
                 defaultDisplay={
                   isSocialSignupActive
@@ -294,7 +301,7 @@ export const FunnelOrganicSignup = withIsActiveGuard(
             />
           </picture>
         )}
-        {!isMobileRevamp && (
+        {!isMobileRevamp && !isOnboarding && (
           <FooterLinks
             className={classNames(
               'mx-auto px-2 pb-6 laptop:px-0',

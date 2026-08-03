@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import classNames from 'classnames';
 import { TextField } from '../fields/TextField';
 import { PasswordField } from '../fields/PasswordField';
 import { Checkbox } from '../fields/Checkbox';
@@ -13,6 +14,7 @@ import { Button, ButtonVariant } from '../buttons/Button';
 import ImageInput from '../fields/ImageInput';
 import { useGenerateUsername } from '../../hooks';
 import { labels } from '../../lib';
+import { AtIcon, MailIcon, UserIcon } from '../icons';
 
 export type UserExperienceLevelKey = keyof typeof UserExperienceLevel;
 
@@ -42,6 +44,8 @@ export interface RegistrationFieldsFormProps {
   // Optional extra profile fields to render, driven by the onboarding funnel
   // (campaign cohorts). Empty/undefined renders the default fields only.
   extraFields?: ProfileExtraField[];
+  /** Suppresses the form's own submit button, for a docked `<button form={id}>`. */
+  formId?: string;
 }
 
 const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
@@ -53,6 +57,7 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
   onResetErrors,
   withPassword,
   extraFields = [],
+  formId,
 }) => {
   const [values, setValues] = useState<FormValues>({
     email: initialValues.email || '',
@@ -138,7 +143,15 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col items-center gap-2">
+    <form
+      id={formId}
+      onSubmit={handleSubmit}
+      className={classNames(
+        'flex flex-col items-center',
+        // `formId` doubles as the marker for the funnel's roomier field stack.
+        formId ? 'w-full gap-4' : 'gap-2',
+      )}
+    >
       {initialValues.image && (
         <ImageInput
           className={{ container: 'mb-4' }}
@@ -151,6 +164,9 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         name="email"
         inputId="email"
         label="Email"
+        leftIcon={
+          formId ? <MailIcon aria-hidden role="presentation" /> : undefined
+        }
         type="email"
         value={values.email}
         onChange={handleChange('email')}
@@ -166,6 +182,9 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
       />
       <TextField
         name="name"
+        leftIcon={
+          formId ? <UserIcon aria-hidden role="presentation" /> : undefined
+        }
         inputId="name"
         label="Name"
         value={values.name}
@@ -202,6 +221,9 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
       )}
       <TextField
         name="username"
+        leftIcon={
+          formId ? <AtIcon aria-hidden role="presentation" /> : undefined
+        }
         inputId="username"
         label="Enter a username"
         value={inputUsername}
@@ -277,6 +299,9 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
         />
       )}
       <Checkbox
+        // An inline-flex label would otherwise shrink to its text and float to
+        // the middle of the centred form, off the fields' left edge.
+        className={formId ? 'mt-2 w-full' : undefined}
         name="optOutMarketing"
         checked={values.optOutMarketing}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -286,14 +311,16 @@ const RegistrationFieldsForm: React.FC<RegistrationFieldsFormProps> = ({
       >
         I don&apos;t want to receive updates and promotions via email
       </Checkbox>
-      <Button
-        className="w-full"
-        type="submit"
-        variant={ButtonVariant.Primary}
-        disabled={disabled}
-      >
-        {submitLabel}
-      </Button>
+      {!formId && (
+        <Button
+          className="w-full"
+          type="submit"
+          variant={ButtonVariant.Primary}
+          disabled={disabled}
+        >
+          {submitLabel}
+        </Button>
+      )}
     </form>
   );
 };

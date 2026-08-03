@@ -13,8 +13,12 @@ import { webappUrl } from '../../lib/constants';
 import { useViewSize, ViewSize } from '../../hooks';
 import { Tooltip } from '../tooltip/Tooltip';
 import Link from '../utilities/Link';
-import { IconSize } from '../Icon';
-import { railTabClass, railTabLabelClass } from '../sidebar/common';
+import {
+  RAIL_ICON_SIZE,
+  railCountBubbleClass,
+  railTabClass,
+  railTabLabelClass,
+} from '../sidebar/common';
 
 function NotificationsBell({
   compact,
@@ -70,6 +74,11 @@ function NotificationsBell({
             // we only own the active text color).
             role="tab"
             aria-selected={atNotificationsPage}
+            // Every other rail tab is a <button>; this one is an anchor, which
+            // browsers drag natively. That native link-drag ran alongside the
+            // rail's dnd-kit reorder and navigated on drop — reloading
+            // /notifications. Only dnd-kit should drive this drag.
+            draggable={false}
             className={classNames(
               railTabClass,
               atNotificationsPage && '!text-text-primary',
@@ -79,19 +88,16 @@ function NotificationsBell({
             <span className="relative flex items-center justify-center">
               <BellIcon
                 secondary={atNotificationsPage}
-                size={IconSize.Small}
+                size={RAIL_ICON_SIZE}
                 aria-hidden
                 className="pointer-events-none"
               />
               {hasNotification && (
-                // Compact corner badge: the rail bell is only `size-6` (24px),
-                // so the full-size shared `Bubble` (min 20px) blankets the
-                // glyph. A smaller pill notched into the top-right corner reads
-                // as a badge instead of covering the icon. `border-background-
-                // default` matches the sidebar surface for the cutout effect.
-                <span className="pointer-events-none absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full border-2 border-background-default bg-accent-cabbage-default px-1 leading-none text-white typo-caption2">
+                // Shared with the gamification tab's count so every rail badge
+                // sits in exactly the same place (see railCountBubbleClass).
+                <Bubble className={railCountBubbleClass}>
                   {getUnreadText(unreadCount)}
-                </span>
+                </Bubble>
               )}
             </span>
             {!railHideLabel && (

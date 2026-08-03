@@ -57,9 +57,12 @@ export const PlusListItem = ({
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
+      // Global on purpose: the old `!tablet:max-w-72` was dead (Tailwind's
+      // important prefix goes after the variant), leaving `!max-w-full` to
+      // un-cap the tooltip to the viewport on every Plus surface.
       wrapper={(component: ReactNode) => (
         <Tooltip
-          className="!tablet:max-w-72 !max-w-full text-center"
+          className="text-center"
           content={item.tooltip}
           delayDuration={0}
           enableMobileClick

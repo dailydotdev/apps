@@ -10,6 +10,7 @@ import { useViewSize, ViewSize } from '../../hooks';
 import { OpportunityEntryButton } from '../opportunity/OpportunityEntryButton';
 import { QuestHeaderButton } from '../header/QuestHeaderButton';
 import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
+import { GetAppButton } from '../../features/getApp/components/GetAppButton';
 
 interface HeaderButtonsProps {
   additionalButtons?: ReactNode;
@@ -31,6 +32,10 @@ export function HeaderButtons({
   if (!isLoggedIn) {
     return (
       <Container>
+        {/* Sits ahead of the Log in / Sign up pair. It keeps its label here
+            because there is room, but it stays Float (not Primary) so it never
+            competes with Sign up, which is the CTA that matters logged out. */}
+        <GetAppButton showLabel />
         <LoginButton
           className={{
             container: 'gap-4',

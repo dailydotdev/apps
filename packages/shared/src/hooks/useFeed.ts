@@ -261,6 +261,19 @@ export interface UseFeedOptionalParams<T> {
    * event). Used when a parent layout owns the top hero.
    */
   disableTopHero?: boolean;
+  /**
+   * True for horizontal carousel feeds (e.g. the source/tag page strips).
+   * Wide hero cards use `gridColumn: span N`, which in a `grid-flow-col`
+   * carousel stretches the card to N slots wide instead of highlighting a
+   * row, so hero placement is disabled entirely.
+   */
+  isHorizontal?: boolean;
+  /**
+   * Drop pinned posts from the feed. `sourceFeed` always orders pinned posts
+   * (welcome post, squad pins) first and offers no way to opt out server-side,
+   * so single-squad feeds that don't want them filter here.
+   */
+  excludePinnedPosts?: boolean;
 }
 
 export default function useFeed<T>(
@@ -282,6 +295,8 @@ export default function useFeed<T>(
     engagementStripEligible = false,
     firstSlotOffset = 0,
     disableTopHero = false,
+    isHorizontal = false,
+    excludePinnedPosts = false,
   } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
   const numCards = numCardsBySpaciness.eco;
@@ -297,6 +312,7 @@ export default function useFeed<T>(
   const canRenderHighlightCards =
     !isMobileViewport &&
     !isListContext &&
+    !isHorizontal &&
     virtualizedNumCards > 1 &&
     HERO_ELIGIBLE_FEEDS.has(settings?.feedName as AllFeedPages);
   const { value: isHighlightCardsOptedOut } = useSettingsBooleanFlag(
@@ -664,6 +680,12 @@ export default function useFeed<T>(
 
       feedQuery.data.pages.forEach(({ page }, pageIndex) => {
         page.edges.forEach(({ node }, index: number) => {
+          // Bail before the ad slot is claimed, otherwise dropping the post
+          // would leave an ad stranded in a slot with nothing after it.
+          if (excludePinnedPosts && getFeedApiItemPost(node)?.pinnedAt) {
+            return;
+          }
+
           const adItem = getAd({ index: visualCellsSoFar });
 
           if (adItem) {
@@ -765,6 +787,7 @@ export default function useFeed<T>(
     fullRowInsertionBeforeIndex,
     cadence,
     widenableTypes,
+    excludePinnedPosts,
   ]);
 
   const placements = useMemo(

@@ -454,6 +454,9 @@ importers:
       cmdk:
         specifier: ^1.0.0
         version: 1.1.1(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      edge-aura:
+        specifier: 0.6.0
+        version: 0.6.0(react@18.3.1)
       emojibase-data:
         specifier: ^17.0.0
         version: 17.0.0(emojibase@17.0.0)
@@ -5982,6 +5985,15 @@ packages:
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
+
+  edge-aura@0.6.0:
+    resolution: {integrity: sha512-im66+zvOLTRx3dnplbpBeASkJymo9Z4QwIRQP/uCdSLrjNe4mZtsfWA8dEstti731uztnhnpv8zjsy43D7FxPA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      react: '>=18'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
@@ -15487,6 +15499,10 @@ snapshots:
   duplexer@0.1.2: {}
 
   eastasianwidth@0.2.0: {}
+
+  edge-aura@0.6.0(react@18.3.1):
+    optionalDependencies:
+      react: 18.3.1
 
   ee-first@1.1.1: {}
 

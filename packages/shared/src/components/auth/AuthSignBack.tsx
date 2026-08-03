@@ -21,6 +21,7 @@ interface AuthSignBackProps extends AuthFormProps {
   isProviderLoading?: boolean;
   loginFormProps?: LoginFormProps;
   onShowLoginOptions?: () => void;
+  isOnboardingFunnel?: boolean;
 }
 
 export const AuthSignBack = ({
@@ -32,6 +33,7 @@ export const AuthSignBack = ({
   simplified,
   onShowLoginOptions,
   isConnectedAccount,
+  isOnboardingFunnel,
 }: AuthSignBackProps): ReactElement | null => {
   const { signBack, provider, isLoaded } = useSignBack();
   const socialProvider =
@@ -107,7 +109,11 @@ export const AuthSignBack = ({
 
   return (
     <span className="flex flex-1 flex-col">
-      <AuthHeader simplified={simplified} title="Welcome back!" />
+      <AuthHeader
+        simplified={simplified}
+        onboardingHeadline={isOnboardingFunnel}
+        title="Welcome back!"
+      />
       <AuthContainer className="items-center">
         <p className="mb-2 text-center text-text-secondary typo-callout">
           Log in to access your account

@@ -404,18 +404,26 @@ export function SmartComposerModal({
     />
   );
 
+  const isCoverUploading = !!cover?.isUploading;
+  const isSubmitBlocked =
+    isSubmitDisabled || isCoverUploading || (isEditing && !isDirty);
+
   const onFormSubmit = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
+      if (isSubmitBlocked) {
+        event.preventDefault();
+        return undefined;
+      }
+
       logEvent({
         event_name: LogEvent.SubmitSmartComposer,
         extra: JSON.stringify({ kind, audiences: selectedIds.length }),
       });
       return handleSubmit(event);
     },
-    [handleSubmit, kind, logEvent, selectedIds.length],
+    [handleSubmit, isSubmitBlocked, kind, logEvent, selectedIds.length],
   );
 
-  const isCoverUploading = !!cover?.isUploading;
   const scheduleButtonNode = canSchedule ? (
     <SchedulePostButton
       isScheduled={schedule.isScheduled}
@@ -435,7 +443,7 @@ export function SmartComposerModal({
       type="submit"
       variant={ButtonVariant.Primary}
       size={ButtonSize.Small}
-      disabled={isSubmitDisabled || isCoverUploading || (isEditing && !isDirty)}
+      disabled={isSubmitBlocked}
       loading={isInFlight || isCoverUploading}
       className="px-5"
     >
