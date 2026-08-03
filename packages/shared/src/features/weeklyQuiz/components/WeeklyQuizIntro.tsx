@@ -10,6 +10,7 @@ import { BellIcon, CalendarIcon, ShareIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
@@ -147,6 +148,7 @@ export const WeeklyQuizIntro = ({
             <Button
               type="button"
               variant={ButtonVariant.Primary}
+              color={ButtonColor.Cabbage}
               size={ButtonSize.XLarge}
               className="w-full"
               disabled
@@ -164,6 +166,7 @@ export const WeeklyQuizIntro = ({
           <Button
             type="button"
             variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
             size={ButtonSize.XLarge}
             className={classNames('w-full', styles.arcadeBtnIdle)}
             disabled={isLoading || questionCount === 0}

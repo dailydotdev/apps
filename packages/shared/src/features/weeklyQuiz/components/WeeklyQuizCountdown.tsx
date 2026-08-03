@@ -12,10 +12,10 @@ interface WeeklyQuizCountdownProps {
   onTick: () => void;
 }
 
-const SEQUENCE = [3, 2, 1];
-const STEP_MS = 850;
+const SEQUENCE = [5, 4, 3, 2, 1];
+const STEP_MS = 1000;
 
-// A 3-2-1 countdown before the first question. Each number pops in and fires a
+// A 5-4-3-2-1 countdown before the first question. Each number pops in and fires a
 // beep via onTick; after the last one it calls onComplete, which starts the
 // quiz (and the total timer). Keeps the timer honest by running before the
 // clock, not during it.

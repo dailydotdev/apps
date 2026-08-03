@@ -227,21 +227,27 @@
 }
 .arcadeBtnIdle {
   animation: arcade-idle 1.5s ease-in-out infinite;
+  transition: transform 0.15s ease;
 }
 /* On hover the button stops pulsing and holds big; the label pops instead. */
 .arcadeBtnIdle:hover:not(:disabled) {
   animation: none;
   transform: scale(1.06);
 }
+.arcadeBtnIdle:hover:not(:disabled) :global(.btn-label) {
+  display: inline-block;
+  animation: arcade-label-pop 0.7s ease-in-out infinite;
+}
 .arcadeBtnIdle:active:not(:disabled) {
   animation: none;
-  transform: translateY(7px);
+  transform: scale(0.98);
 }
 .arcadeBtnIdle:disabled {
   animation: none;
 }
 @media (prefers-reduced-motion: reduce) {
-  .arcadeBtnIdle {
+  .arcadeBtnIdle,
+  .arcadeBtnIdle:hover:not(:disabled) :global(.btn-label) {
     animation: none;
   }
 }
