@@ -185,7 +185,7 @@ export const WeeklyQuizIntro = ({
         {/* Which week + how much news it distils. */}
         {quiz && (
           <div className="flex flex-col items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-float px-3 py-1 font-bold text-text-primary typo-footnote">
+            <span className="inline-flex items-center gap-1.5 rounded-10 bg-surface-float px-3 py-1 font-bold text-text-primary typo-footnote">
               <CalendarIcon size={IconSize.XSmall} />
               {formatWeekRange(quiz.startDate, quiz.endDate)}
             </span>
