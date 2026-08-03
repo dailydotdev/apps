@@ -5,10 +5,7 @@ import { useFeature } from '../../components/GrowthBookProvider';
 import type { Ad } from '../../graphql/posts';
 import { fetchAdByPlacement, resolveAdFetchOptions } from '../../lib/ads';
 import type { FetchAdByPlacementOptions } from '../../lib/ads';
-import {
-  featureIubendaCmp,
-  featurePostBoostAds,
-} from '../../lib/featureManagement';
+import { featurePostBoostAds } from '../../lib/featureManagement';
 import { useAdMacroContext } from './useAdMacroContext';
 
 interface UseAdQueryOptions {
@@ -27,11 +24,7 @@ export const useAdQuery = ({
   active,
 }: UseAdQueryOptions) => {
   const boostsEnabled = useFeature(featurePostBoostAds);
-  const cmpEnabled = useFeature(featureIubendaCmp);
-  const macroContext = useAdMacroContext(enabled);
-  // consent params ride on ad requests only for CMP users; with the flag off
-  // the request is byte-identical to the pre-CMP one
-  const consent = cmpEnabled ? macroContext ?? undefined : undefined;
+  const consent = useAdMacroContext(enabled) ?? undefined;
   const fetchOptions = useMemo(
     () =>
       resolveAdFetchOptions({

@@ -2,8 +2,6 @@
 import type { ReactElement } from 'react';
 import { useEffect, useRef } from 'react';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { featureIubendaCmp } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   cookieAcknowledgedKey,
   GdprConsentKey,
@@ -49,8 +47,7 @@ export const openIubendaPreferences = (): boolean => {
 };
 
 export const Iubenda = (): ReactElement | null => {
-  const { isAuthReady, isGdprCovered, isFunnel } = useAuthContext();
-  const cmpEnabled = useFeature(featureIubendaCmp);
+  const { isAuthReady, isTcfCovered, isFunnel } = useAuthContext();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Necessary);
   const injectedRef = useRef(false);
 
@@ -65,8 +62,7 @@ export const Iubenda = (): ReactElement | null => {
     globalThis?.localStorage?.setItem(cookieAcknowledgedKey, 'true');
   };
 
-  const enabled =
-    isAuthReady && isGdprCovered && cmpEnabled && !isFunnel && !isIOSNative();
+  const enabled = isAuthReady && isTcfCovered && !isFunnel && !isIOSNative();
 
   useEffect(() => {
     if (!enabled || injectedRef.current) {

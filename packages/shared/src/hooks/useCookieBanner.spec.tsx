@@ -8,7 +8,6 @@ import { useConsentCookie } from './useCookieConsent';
 import { useAuthContext } from '../contexts/AuthContext';
 import { getIubendaConsent } from '../lib/iubenda';
 import { isIOSNative } from '../lib/func';
-import { useFeature } from '../components/GrowthBookProvider';
 
 jest.mock('./useCookieConsent', () => ({
   useConsentCookie: jest.fn(),
@@ -27,10 +26,6 @@ jest.mock('../lib/func', () => ({
   isIOSNative: jest.fn(),
 }));
 
-jest.mock('../components/GrowthBookProvider', () => ({
-  useFeature: jest.fn(),
-}));
-
 const mockUseConsentCookie = useConsentCookie as jest.MockedFunction<
   typeof useConsentCookie
 >;
@@ -41,18 +36,19 @@ const mockGetIubendaConsent = getIubendaConsent as jest.MockedFunction<
   typeof getIubendaConsent
 >;
 const mockIsIOSNative = isIOSNative as jest.MockedFunction<typeof isIOSNative>;
-const mockUseFeature = useFeature as jest.MockedFunction<typeof useFeature>;
 
 const saveCookies = jest.fn();
 
 const setup = ({
   hasAccepted = false,
   isGdprCovered = true,
+  isTcfCovered = false,
   user = null,
   isAuthReady = true,
 }: {
   hasAccepted?: boolean;
   isGdprCovered?: boolean;
+  isTcfCovered?: boolean;
   user?: unknown;
   isAuthReady?: boolean;
 } = {}) => {
@@ -64,6 +60,7 @@ const setup = ({
     isAuthReady,
     user,
     isGdprCovered,
+    isTcfCovered,
   } as never);
 };
 
@@ -71,7 +68,6 @@ describe('useCookieBanner', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockIsIOSNative.mockReturnValue(false);
-    mockUseFeature.mockReturnValue(false);
     localStorage.clear();
   });
 
@@ -141,9 +137,8 @@ describe('useCookieBanner', () => {
     expect(localStorage.getItem('cookie_acknowledged')).toBe('true');
   });
 
-  it('suppresses the homegrown banner for GDPR users when the iubenda CMP is on', () => {
-    setup({ isGdprCovered: true, user: null });
-    mockUseFeature.mockReturnValue(true);
+  it('suppresses the homegrown banner in TCF regions', () => {
+    setup({ isGdprCovered: true, isTcfCovered: true, user: null });
     mockGetIubendaConsent.mockReturnValue(undefined);
 
     const { result } = renderHook(() => useCookieBanner());
@@ -152,9 +147,8 @@ describe('useCookieBanner', () => {
     expect(result.current.showBanner).toBe(false);
   });
 
-  it('keeps the homegrown banner for non-GDPR users when the iubenda CMP is on', () => {
-    setup({ isGdprCovered: false, user: null });
-    mockUseFeature.mockReturnValue(true);
+  it('keeps the homegrown banner outside TCF regions', () => {
+    setup({ isGdprCovered: false, isTcfCovered: false, user: null });
     mockGetIubendaConsent.mockReturnValue(undefined);
 
     const { result } = renderHook(() => useCookieBanner());

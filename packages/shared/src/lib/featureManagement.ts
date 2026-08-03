@@ -121,10 +121,6 @@ export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 // does not necessarily mean they can't boost a post if they have access to cores
 export const featurePostBoostAds = new Feature('post_boost_ads', isDevelopment);
 
-// iubenda CMP (TCF banner) for GDPR-covered users; when on, iubenda owns the
-// cookie banner and the homegrown one is suppressed for those users
-export const featureIubendaCmp = new Feature('iubenda_cmp', false);
-
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
