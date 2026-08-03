@@ -41,7 +41,7 @@ interface PostCommentsProps {
   isComposerOpen?: boolean;
   permissionNotificationCommentId?: string;
   joinNotificationCommentId?: string;
-  modalParentSelector?: () => HTMLElement;
+  modalParentSelector?: () => HTMLElement | null;
   onShare?: (comment: Comment) => void;
   onClickUpvote?: (commentId: string, upvotes: number) => unknown;
   className?: CommentClassName;

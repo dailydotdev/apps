@@ -63,7 +63,7 @@ function PostEngagements({
     useSettingsContext();
   const { user, showLogin } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const commentRef = useRef<NewCommentRef>();
+  const commentRef = useRef<NewCommentRef>(null);
   const [authorOnboarding, setAuthorOnboarding] = useState(false);
   const [permissionNotificationCommentId, setPermissionNotificationCommentId] =
     useState<string>();
@@ -160,7 +160,9 @@ function PostEngagements({
           icon={
             <TimeSortIcon
               secondary
-              className={sortBy === SortCommentsBy.OldestFirst && 'rotate-180'}
+              className={
+                sortBy === SortCommentsBy.OldestFirst ? 'rotate-180' : undefined
+              }
             />
           }
           onClick={() =>
@@ -200,7 +202,7 @@ function PostEngagements({
       {authorOnboarding && (
         <AuthorOnboarding
           onSignUp={
-            !user && (() => showLogin({ trigger: AuthTriggers.Author }))
+            user ? undefined : () => showLogin({ trigger: AuthTriggers.Author })
           }
         />
       )}

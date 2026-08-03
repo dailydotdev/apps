@@ -24,7 +24,7 @@ export function CompanionDiscussion({
   style,
   className,
   onShowUpvoted,
-}: CompanionDiscussionProps): ReactElement {
+}: CompanionDiscussionProps): ReactElement | null {
   const { openShareComment } = useShareComment(Origin.Companion);
   useBackgroundRequest(
     generateCommentsQueryKey({ postId: post?.id, sortBy: undefined }),

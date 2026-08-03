@@ -1,6 +1,6 @@
 import type {
+  ForwardedRef,
   HTMLAttributes,
-  MutableRefObject,
   ReactElement,
   ReactNode,
 } from 'react';
@@ -86,7 +86,7 @@ function BaseDrawer({
   instantOpen = false,
   ...props
 }: DrawerProps): ReactElement {
-  const container = useRef<HTMLDivElement>();
+  const container = useRef<HTMLDivElement | null>(null);
   const [hasAnimated, setHasAnimated] = useState(instantOpen);
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
@@ -196,17 +196,19 @@ export interface DrawerRef {
 
 function AnimatedDrawer(
   { isOpen, onClose, appendOnRoot, ...props }: DrawerWrapperProps,
-  ref: MutableRefObject<DrawerRef>,
+  ref: ForwardedRef<DrawerRef>,
 ): ReactElement | null {
   const [isClosing, setIsClosing] = useState(false);
-  const [debounceClosing] = useDebounceFn((e: PopupEventType) => {
+  const [debounceClosing] = useDebounceFn<PopupEventType>((e) => {
     setIsClosing(false);
-    onClose?.(e);
+    // `StartFn` types its argument as optional, but `onClosing` below is the
+    // only caller and always forwards the event that triggered the close.
+    onClose?.(e as PopupEventType);
   }, ANIMATION_MS);
 
-  const onClosing = () => {
+  const onClosing = (e?: PopupEventType) => {
     setIsClosing(true);
-    debounceClosing();
+    debounceClosing(e);
   };
 
   useImperativeHandle(ref, () => ({ onClose: onClosing }));
