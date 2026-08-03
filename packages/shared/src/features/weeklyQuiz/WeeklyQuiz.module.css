@@ -694,7 +694,7 @@
 .confettiPiece {
   position: absolute;
   left: 50%;
-  top: 16%;
+  top: 0;
   width: 9px;
   height: 14px;
   border-radius: 2px;
