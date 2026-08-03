@@ -10,10 +10,16 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { ArrowIcon, BellIcon, UserShareIcon } from '../../../components/icons';
+import {
+  ArrowIcon,
+  BellIcon,
+  ShareIcon,
+  UserShareIcon,
+} from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import {
   ProfilePicture,
@@ -219,19 +225,18 @@ export const WeeklyQuizResults = ({
         </Typography>
       </div>
 
-      {/* Primary action: share, styled and animated like the Start button. */}
-      <button
+      {/* Primary action: share, styled and animated like the intro Start button. */}
+      <Button
         type="button"
-        className={classNames(
-          styles.arcadeBtn,
-          styles.arcadeBtnGreen,
-          styles.arcadeBtnIdle,
-          'flex h-16 w-full items-center justify-center gap-3 px-6 uppercase typo-title2',
-        )}
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Cabbage}
+        size={ButtonSize.XLarge}
+        className={classNames('w-full', styles.arcadeBtnIdle)}
+        icon={<ShareIcon />}
         onClick={handleShareResult}
       >
-        <span className={styles.arcadeBtnLabel}>Share your result</span>
-      </button>
+        Share your result
+      </Button>
 
       {/* Secondary actions. */}
       <div className="flex flex-col gap-3 tablet:flex-row">
