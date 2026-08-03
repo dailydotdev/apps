@@ -90,48 +90,47 @@ export const WeeklyQuizIntro = ({
   };
 
   return (
-    <div className="relative flex animate-composer-in flex-col items-center gap-6 p-6 text-center tablet:flex-row-reverse tablet:items-center tablet:gap-8 tablet:p-8">
-      {/* Logo column (on tablet, the right side), with a few A4 papers
-          drifting down behind the mascot. */}
-      <div className="relative flex shrink-0 items-center justify-center">
-        <span className={styles.papers} aria-hidden>
-          <span className={styles.paper} />
-          <span className={styles.paper} />
-          <span className={styles.paper} />
-          <span className={styles.paper} />
-        </span>
-        <h1 className="z-10 relative flex justify-center">
-          {/* Padding enlarges the mouse-tracked hover box beyond the logo art
+    <div className="relative flex animate-composer-in flex-col items-center gap-6 overflow-hidden p-6 text-center tablet:flex-row-reverse tablet:items-center tablet:gap-8 tablet:p-8">
+      {/* A few A4 papers drifting down the whole surface, behind the content. */}
+      <span className={styles.papers} aria-hidden>
+        <span className={styles.paper} />
+        <span className={styles.paper} />
+        <span className={styles.paper} />
+        <span className={styles.paper} />
+      </span>
+
+      {/* Logo (on tablet, the right column). */}
+      <h1 className="z-10 relative flex shrink-0 justify-center">
+        {/* Padding enlarges the mouse-tracked hover box beyond the logo art
             so the 3D tilt reacts over a more generous area. */}
-          <span
-            ref={logoRef}
-            className={classNames('inline-block px-2 py-2', styles.logoTilt)}
-            onMouseMove={tiltLogo}
-            onMouseLeave={resetLogoTilt}
-          >
-            <span className="relative inline-block">
-              {/* Animated brand glow behind the logo. */}
-              <span className={styles.logoAura} aria-hidden />
-              <img
-                src={LOGO_URL}
-                alt="The Weekly Tech News Quiz"
-                className="pointer-events-none relative w-72 max-w-none select-none"
-              />
-              {/* Glow sits over the logo's lightbulb (right side, mid-height). */}
-              <span
-                className={classNames(
-                  'absolute right-[13%] top-[31%] h-16 w-16',
-                  styles.bulbGlow,
-                )}
-                aria-hidden
-              />
-            </span>
+        <span
+          ref={logoRef}
+          className={classNames('inline-block px-2 py-2', styles.logoTilt)}
+          onMouseMove={tiltLogo}
+          onMouseLeave={resetLogoTilt}
+        >
+          <span className="relative inline-block">
+            {/* Animated brand glow behind the logo. */}
+            <span className={styles.logoAura} aria-hidden />
+            <img
+              src={LOGO_URL}
+              alt="The Weekly Tech News Quiz"
+              className="pointer-events-none relative w-72 max-w-none select-none"
+            />
+            {/* Glow sits over the logo's lightbulb (right side, mid-height). */}
+            <span
+              className={classNames(
+                'absolute right-[13%] top-[31%] h-16 w-16',
+                styles.bulbGlow,
+              )}
+              aria-hidden
+            />
           </span>
-        </h1>
-      </div>
+        </span>
+      </h1>
 
       {/* Content column (on tablet, the left side). */}
-      <div className="flex w-full max-w-lg flex-col items-center gap-5 tablet:flex-1">
+      <div className="z-10 relative flex w-full max-w-lg flex-col items-center gap-5 tablet:flex-1">
         {/* The challenge pitch — the focus of this screen. */}
         <div className="flex flex-col gap-2">
           <Typography
@@ -140,7 +139,7 @@ export const WeeklyQuizIntro = ({
             tag={TypographyTag.H2}
             className="!text-text-primary"
           >
-            Tech News Quiz
+            The Tech News Quiz
           </Typography>
           {quiz?.welcomeText && (
             <Typography

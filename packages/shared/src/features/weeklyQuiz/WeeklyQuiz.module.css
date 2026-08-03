@@ -92,13 +92,13 @@
   }
 }
 
-/* A few A4 sheets drifting down behind the logo — a calm, sparse loop clipped to
- * a soft circular region around the mascot. */
+/* A few A4 sheets drifting down the surface behind the mascot — a calm, sparse
+ * loop. Fills the whole surface so sheets fall from the top edge; clipped by the
+ * surface's own overflow. */
 .papers {
   position: absolute;
-  inset: -6% -14%;
+  inset: 0;
   overflow: hidden;
-  border-radius: 9999px;
   pointer-events: none;
   z-index: 0;
 }
@@ -110,7 +110,9 @@
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
-  animation: paper-fall linear infinite;
+  /* `both` fill-mode holds the 0% (hidden, above the edge) state during the
+   * per-sheet delay, so nothing sits frozen mid-air before its turn. */
+  animation: paper-fall linear infinite both;
   will-change: transform, opacity;
 }
 /* Faint ruled lines so each sheet reads as a page. */
@@ -136,28 +138,29 @@
     opacity: 0.9;
   }
   100% {
-    transform: translateY(340px) rotate(22deg);
+    transform: translateY(720px) rotate(22deg);
     opacity: 0;
   }
 }
+/* Biased to the right half so the sheets fall behind the mascot. */
 .paper:nth-child(1) {
-  left: 16%;
-  animation-duration: 6.5s;
+  left: 60%;
+  animation-duration: 7.5s;
   animation-delay: 0s;
 }
 .paper:nth-child(2) {
-  left: 46%;
-  animation-duration: 8s;
+  left: 72%;
+  animation-duration: 9s;
   animation-delay: 2.4s;
 }
 .paper:nth-child(3) {
-  left: 70%;
-  animation-duration: 7.2s;
+  left: 84%;
+  animation-duration: 8.2s;
   animation-delay: 4.3s;
 }
 .paper:nth-child(4) {
-  left: 84%;
-  animation-duration: 8.6s;
+  left: 92%;
+  animation-duration: 9.6s;
   animation-delay: 1.2s;
 }
 @media (prefers-reduced-motion: reduce) {
