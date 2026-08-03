@@ -23,8 +23,6 @@ const SidebarPreview = ({
     aria-hidden
     className="flex h-28 gap-2 overflow-hidden rounded-10 border border-border-subtlest-tertiary bg-background-default p-2"
   >
-    {/* Both rails show the same three rows — only the labels and the width
-      change, which is the whole difference the setting makes. */}
     <div
       className={classNames(
         'flex flex-col items-center gap-1 rounded-8 bg-surface-float py-1',
@@ -109,8 +107,6 @@ export const SidebarDensitySection = (): ReactElement => {
       target_type: TargetType.Layout,
       target_id: compact ? 'compact sidebar' : 'comfortable sidebar',
     });
-    // A failed write rolls the setting back through the settings mutation's own
-    // error handler, so there's nothing to do here beyond not going unhandled.
     setCompact(compact).catch(() => undefined);
   };
 

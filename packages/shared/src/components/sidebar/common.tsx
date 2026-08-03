@@ -11,7 +11,6 @@ import type { TooltipProps } from '../tooltips/BaseTooltip';
 import { OpenLinkIcon, PlusIcon } from '../icons';
 import { IconSize } from '../Icon';
 
-// MIME type the pin-a-row drag payload (ShortcutDragData) travels under.
 export const SHORTCUT_DRAG_MIME = 'application/x-dailydev-shortcut';
 
 export interface SidebarMenuItem {
@@ -83,10 +82,8 @@ export const navBtnClass =
 export const railTabClass =
   'focus-outline group relative flex w-full flex-col items-center gap-0.5 rounded-12 px-1 py-2 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-95 motion-reduce:transition-none';
 export const railTabLabelClass = 'typo-caption2 leading-tight text-center';
-// Vertical rhythm of every stacked group on the rail — the nav column, the
-// tablist, the shortcuts dock and the bottom utilities all share it, so the
-// spacing can't drift between them. Keep RAIL_ROW_GAP_PX (the measurement math
-// behind the overflow stages) in sync with it.
+// Shared by every stacked group on the rail so their spacing can't drift.
+// RAIL_ROW_GAP_PX is the same value for the overflow math — keep them in sync.
 export const railColumnGapClass = 'gap-0.5';
 export const RAIL_ROW_GAP_PX = 2;
 // One source of truth for the glyph size inside every v2 rail control — tabs,

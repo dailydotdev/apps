@@ -114,10 +114,8 @@ export const getPathnameWithQuery = (
   return `${basePath}${queryString ? `?${queryString}` : ''}`;
 };
 
-// A root-relative href resolves against whatever origin is rendering it, which
-// on the extension is `chrome-extension://<id>` — every such link 404s there.
-// Use this for any href that must reach the webapp no matter who renders it.
-// It is a no-op on paths that are already absolute.
+// For hrefs that must reach the webapp whoever renders them: on the extension
+// a root-relative path resolves against `chrome-extension://<id>` and 404s.
 export const toWebappHref = (path: string): string =>
   path.startsWith('/') ? `${webappUrl}${path.slice(1)}` : path;
 

@@ -10,21 +10,17 @@ import { VIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
 
-// R, taken further. The pair of rails IS the control, right-aligned like every
-// other settings control, each with its label underneath. What varies below is
-// only the selected/unselected treatment:
-//   - selected has to be unmistakably the chosen one,
-//   - unselected has to show that it is a target you can click.
-// Both states occupy identical space in every variant, so choosing never moves
-// the row.
+// R, taken further: the pair of rails IS the control. Only the
+// selected/unselected treatment varies below. Both states occupy identical
+// space in every variant, so choosing never moves the row.
 
 interface OptionProps {
   compact: boolean;
   onChange: (compact: boolean) => void;
 }
 
-// The thumbnail is a fixed rectangle; the rail is drawn inside it with no fill
-// of its own, so the rectangle's own colour is free to carry the selection.
+// The rail carries no fill of its own, leaving the rectangle's colour free to
+// carry the selection.
 const RailArt = ({ withLabels }: { withLabels: boolean }) => (
   <span
     aria-hidden
@@ -119,75 +115,89 @@ const Picker = ({
   </div>
 );
 
-// Unselected is the same everywhere — a hairline border marking the hit area —
-// so the comparison below is purely about how the selected one reads.
-const IDLE = 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary';
+// Unselected is the same everywhere, so the comparison is purely about how the
+// selected one reads.
+const IDLE =
+  'border-border-subtlest-tertiary hover:border-border-subtlest-secondary';
 
-const TREATMENTS: { key: string; title: string; note: string; treatment: Treatment }[] =
-  [
-    {
-      key: 'R1',
-      title: 'Grey fill, white label',
-      note: 'The quietest. Selection reads as "filled in".',
-      treatment: {
-        thumb: (s) => (s ? 'border-transparent bg-surface-float' : IDLE),
-        label: (s) => (s ? 'text-text-primary' : 'text-text-tertiary'),
-      },
+const TREATMENTS: {
+  key: string;
+  title: string;
+  note: string;
+  treatment: Treatment;
+}[] = [
+  {
+    key: 'R1',
+    title: 'Grey fill, white label',
+    note: 'The quietest. Selection reads as "filled in".',
+    treatment: {
+      thumb: (s) => (s ? 'border-transparent bg-surface-float' : IDLE),
+      label: (s) => (s ? 'text-text-primary' : 'text-text-tertiary'),
     },
-    {
-      key: 'R2',
-      title: 'Grey fill, purple label',
-      note: 'Same fill, but the label picks up the accent the toggles use.',
-      treatment: {
-        thumb: (s) => (s ? 'border-transparent bg-surface-float' : IDLE),
-        label: (s) =>
-          s ? 'text-accent-cabbage-default' : 'text-text-tertiary',
-      },
+  },
+  {
+    key: 'R2',
+    title: 'Grey fill, purple label',
+    note: 'Same fill, but the label picks up the accent the toggles use.',
+    treatment: {
+      thumb: (s) => (s ? 'border-transparent bg-surface-float' : IDLE),
+      label: (s) => (s ? 'text-accent-cabbage-default' : 'text-text-tertiary'),
     },
-    {
-      key: 'R3',
-      title: 'Grey fill, purple outline',
-      note: 'Fill plus a 1px accent edge — the strongest without colour-flooding.',
-      treatment: {
-        thumb: (s) =>
-          s ? 'border-accent-cabbage-default bg-surface-float' : IDLE,
-        label: (s) => (s ? 'text-text-primary' : 'text-text-tertiary'),
-      },
+  },
+  {
+    key: 'R3',
+    title: 'Grey fill, purple outline',
+    note: 'Fill plus a 1px accent edge — the strongest without colour-flooding.',
+    treatment: {
+      thumb: (s) =>
+        s ? 'border-accent-cabbage-default bg-surface-float' : IDLE,
+      label: (s) => (s ? 'text-text-primary' : 'text-text-tertiary'),
     },
-    {
-      key: 'R4',
-      title: 'Purple tint',
-      note: 'The accent-flat fill this repo uses for selected cards elsewhere.',
-      treatment: {
-        thumb: (s) =>
-          s ? 'border-accent-cabbage-default bg-accent-cabbage-flat' : IDLE,
-        label: (s) =>
-          s ? 'text-accent-cabbage-default' : 'text-text-tertiary',
-      },
+  },
+  {
+    key: 'R4',
+    title: 'Purple tint',
+    note: 'The accent-flat fill this repo uses for selected cards elsewhere.',
+    treatment: {
+      thumb: (s) =>
+        s ? 'border-accent-cabbage-default bg-accent-cabbage-flat' : IDLE,
+      label: (s) => (s ? 'text-accent-cabbage-default' : 'text-text-tertiary'),
     },
-    {
-      key: 'R5',
-      title: 'Grey fill + check badge',
-      note: 'Adds an explicit "this one" mark, like a chosen avatar.',
-      treatment: {
-        thumb: (s) => (s ? 'border-transparent bg-surface-float' : IDLE),
-        label: (s) => (s ? 'text-text-primary' : 'text-text-tertiary'),
-        check: true,
-      },
+  },
+  {
+    key: 'R7',
+    title: 'Purple tint + check badge',
+    note: 'R4 and R5 together: accent fill, accent label, explicit mark.',
+    treatment: {
+      thumb: (s) =>
+        s ? 'border-accent-cabbage-default bg-accent-cabbage-flat' : IDLE,
+      label: (s) => (s ? 'text-accent-cabbage-default' : 'text-text-tertiary'),
+      check: true,
     },
-    {
-      key: 'R6',
-      title: 'Inset dark fill',
-      note: 'Matches the active segment of a segmented control.',
-      treatment: {
-        thumb: (s) =>
-          s
-            ? 'border-border-subtlest-primary bg-background-default'
-            : 'border-transparent bg-surface-float',
-        label: (s) => (s ? 'text-text-primary' : 'text-text-tertiary'),
-      },
+  },
+  {
+    key: 'R5',
+    title: 'Grey fill + check badge',
+    note: 'Adds an explicit "this one" mark, like a chosen avatar.',
+    treatment: {
+      thumb: (s) => (s ? 'border-transparent bg-surface-float' : IDLE),
+      label: (s) => (s ? 'text-text-primary' : 'text-text-tertiary'),
+      check: true,
     },
-  ];
+  },
+  {
+    key: 'R6',
+    title: 'Inset dark fill',
+    note: 'Matches the active segment of a segmented control.',
+    treatment: {
+      thumb: (s) =>
+        s
+          ? 'border-border-subtlest-primary bg-background-default'
+          : 'border-transparent bg-surface-float',
+      label: (s) => (s ? 'text-text-primary' : 'text-text-tertiary'),
+    },
+  },
+];
 
 const Variant = ({ entry }: { entry: (typeof TREATMENTS)[number] }) => {
   const [compact, setCompact] = useState(false);
@@ -228,7 +238,10 @@ type Story = StoryObj;
 export const Treatments: Story = {
   render: () => (
     <div className="flex max-w-xl flex-col gap-7 bg-background-default p-6">
-      <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
         R with the labels, control on the right. Unselected always carries a
         hairline border so it reads as a target; what changes is how loudly the
         selected one announces itself.
@@ -280,11 +293,10 @@ const InPage = ({ entry }: { entry: (typeof TREATMENTS)[number] }) => {
   );
 };
 
-// Selection weight only means something next to the page's other controls.
 export const InPageContext: Story = {
   render: () => (
     <div className="flex flex-col gap-8 bg-background-default p-6">
-      {TREATMENTS.filter((entry) => ['R2', 'R3', 'R5'].includes(entry.key)).map(
+      {TREATMENTS.filter((entry) => ['R3', 'R4', 'R7'].includes(entry.key)).map(
         (entry) => (
           <div key={entry.key} className="flex flex-col gap-2">
             <Typography bold type={TypographyType.Footnote}>

@@ -1,12 +1,10 @@
-// The extension renders the same sidebar from `chrome-extension://<id>`, where
-// a root-relative href resolves against the extension origin and 404s. A path
-// may only stay relative when its row renders as a BUTTON — the extension
-// passes `isNavItemsButton`, and `Section` turns those rows into buttons that
-// switch the feed in place. Anything rendered as a plain link must be absolute.
+// On the extension a root-relative href resolves against
+// `chrome-extension://<id>` and 404s; only rows rendered as buttons may keep
+// one. See docs/sidebar-links-extension-audit.md.
 //
-// `__tests__/setup.ts` sets NEXT_PUBLIC_WEBAPP_URL to '/', which makes the two
-// forms textually identical and the assertions below vacuous, so these re-load
-// the modules against a realistic origin.
+// `__tests__/setup.ts` sets NEXT_PUBLIC_WEBAPP_URL to '/', which makes both
+// forms textually identical and these assertions vacuous — hence the re-load
+// against a realistic origin.
 const WEBAPP_ORIGIN = 'https://app.daily.dev/';
 
 describe('sidebar links on the extension', () => {
@@ -20,7 +18,7 @@ describe('sidebar links on the extension', () => {
   });
 
   it('gives every shortcut catalog entry an absolute path', async () => {
-    // Dock rows are plain links — there is no button mode to fall back on.
+    // Dock rows are plain links — no button mode to fall back on.
     const { SHORTCUT_CATALOG } = await import('./SidebarShortcutsDock');
     const relative = SHORTCUT_CATALOG.filter(
       (item) => !item.path.startsWith(WEBAPP_ORIGIN),

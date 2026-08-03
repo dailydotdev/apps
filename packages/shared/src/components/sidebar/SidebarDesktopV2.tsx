@@ -862,13 +862,10 @@ export const SidebarDesktopV2 = ({
   }, []);
 
   const { resolved: shortcutItems } = useSidebarShortcutItems();
-  // The rail is the one place that mounts exactly once, so it owns the
-  // move of a device-local dock into the user's settings.
   useLegacyShortcutsMigration();
   const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
   const iconRowPx = SHORTCUT_ROW_PX + RAIL_ROW_GAP_PX;
-  // Measured from a rendered tab (py-2 + the 24px glyph box, plus the label
-  // row when it shows), not derived — see Storybook's "Rail icon set → Density".
+  // Measured from a rendered tab, not derived from the classes.
   const tabRowPx = (isCompact ? 40 : 58) + RAIL_ROW_GAP_PX;
   const tabCount = foldableTabIds.length;
   // The pinned items sit inside the measured region but never fold into
@@ -1533,11 +1530,8 @@ export const SidebarDesktopV2 = ({
         <ProfilePanelSection
           {...defaultRenderSectionProps}
           onNavTabClick={onNavTabClick}
-          // Same contract as v1's MainSection: on the extension new tab the
-          // feed rows must be BUTTONS that switch the feed in place. Their
-          // paths are root-relative (for active matching), so rendering them
-          // as links there points at chrome-extension://<id>/… — a 404.
-          // `isForcedLink` rows in this panel stay links regardless.
+          // Its feed rows carry root-relative paths, which only survive the
+          // extension as buttons — see docs/sidebar-links-extension-audit.md.
           isItemsButton={isNavButtons ?? false}
         />
       );
@@ -2252,11 +2246,8 @@ export const SidebarDesktopV2 = ({
                 <div
                   aria-hidden
                   className={classNames(
-                    // Asymmetric BECAUSE the result has to be symmetric: New
-                    // post (pinned directly above) carries its own `my-2`, so
-                    // the gap above the line is already 8px + the column gap.
-                    // No top margin and `mb-2` lands 10px on both sides —
-                    // `my-3` read as 22px above and 14px below.
+                    // No top margin on purpose: New post sits directly above
+                    // with its own `my-2`, so this lands 10px on both sides.
                     'mb-2 h-px w-6',
                     railDividerBgClass,
                     shortcutCount === 0 &&

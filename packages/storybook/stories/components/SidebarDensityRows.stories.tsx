@@ -163,15 +163,12 @@ const Segmented = ({ compact, onChange }: OptionProps) => (
   </span>
 );
 
-// K — A, in the settings row. Control on the right, no preview at all.
 const SegmentedRow = ({ compact, onChange }: OptionProps) => (
   <Row title="Sidebar" description="Labels under the navigation icons">
     <Segmented compact={compact} onChange={onChange} />
   </Row>
 );
 
-// L — A + E: segmented on the right, with the fixed-slot preview beside it.
-// The preview cross-fades in place, so flipping it moves nothing.
 const SegmentedWithPreview = ({ compact, onChange }: OptionProps) => (
   <Row title="Sidebar" description="Labels under the navigation icons">
     <span className="flex shrink-0 items-center gap-3">
@@ -181,8 +178,6 @@ const SegmentedWithPreview = ({ compact, onChange }: OptionProps) => (
   </Row>
 );
 
-// M — E, fixed. Same switch row as every other preference, and the preview no
-// longer resizes the row.
 const SwitchWithPreview = ({ compact, onChange }: OptionProps) => (
   <Row
     title="Compact sidebar"
@@ -202,7 +197,6 @@ const SwitchWithPreview = ({ compact, onChange }: OptionProps) => (
   </Row>
 );
 
-// N — the same, with real glyphs and real label type instead of an abstraction.
 const SwitchWithRealPreview = ({ compact, onChange }: OptionProps) => (
   <Row
     title="Compact sidebar"
@@ -222,8 +216,6 @@ const SwitchWithRealPreview = ({ compact, onChange }: OptionProps) => (
   </Row>
 );
 
-// O — the rail never changes width in the preview; only the labels fade. It
-// shows the one thing the setting actually does, and can't reflow by design.
 const SwitchLabelsFade = ({ compact, onChange }: OptionProps) => (
   <Row
     title="Compact sidebar"
@@ -261,8 +253,6 @@ const SwitchLabelsFade = ({ compact, onChange }: OptionProps) => (
   </Row>
 );
 
-// P — C as settings rows: each option is a row with its own preview on the
-// left of the copy and a radio on the right.
 const RadioRowsWithPreview = ({ compact, onChange }: OptionProps) => (
   <div className="flex flex-col gap-4">
     {[false, true].map((value) => (
@@ -301,8 +291,6 @@ const RadioRowsWithPreview = ({ compact, onChange }: OptionProps) => (
   </div>
 );
 
-// Q — the same two rows, but the selection reads as a checkmark rather than a
-// radio dial. Lighter; no empty circle sitting on the unselected row.
 const CheckRows = ({ compact, onChange }: OptionProps) => (
   <div className="flex flex-col gap-4">
     {[false, true].map((value) => (
@@ -336,9 +324,6 @@ const CheckRows = ({ compact, onChange }: OptionProps) => (
   </div>
 );
 
-// R — one row, and the preview IS the control: click either rail to choose.
-// The pair is right-aligned like any other control, and both are always drawn,
-// so there is nothing to shift.
 const RailPairControl = ({ compact, onChange }: OptionProps) => (
   <Row title="Sidebar" description="Labels under the navigation icons">
     <span className="flex shrink-0 items-center gap-2">

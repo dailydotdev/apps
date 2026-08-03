@@ -177,8 +177,8 @@ const readStoredFlags = (): Partial<SettingsFlags> => {
     const parsed = JSON.parse(
       storageWrapper.getItem(clientOnlyFlagsStorageKey),
     );
-    // Anything but an object (a truncated write, a key another build used for
-    // something else) would blow up the `in` checks below.
+    // A non-object (truncated write, key reused by another build) would blow
+    // up the `in` checks below.
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed
       : {};
@@ -204,8 +204,8 @@ const pickClientOnlyFlags = (
     return picked;
   }, {});
 
-// Flags stored locally that the API has since learned to store — i.e. entries
-// removed from `clientOnlySettingsFlags`. They're the migration backlog.
+// Graduated = dropped from `clientOnlySettingsFlags` because the API stores it
+// now, but still sitting in this user's local storage.
 const pickGraduatedFlags = (
   flags: Partial<SettingsFlags>,
 ): Partial<SettingsFlags> =>
@@ -231,9 +231,8 @@ export const SettingsContextProvider = ({
   loadedSettings,
 }: SettingsContextProviderProps): ReactElement => {
   const setTheme = useRef<ThemeMode | null>(null);
-  // Local storage, not the boot cache: a page load overwrites the cached
-  // settings with whatever the API returns, which by definition never includes
-  // the flags it doesn't store.
+  // Local storage, not the boot cache: a page load overwrites the cache with
+  // what the API returns, which never includes the flags it doesn't store.
   const [clientFlags, setClientFlags] = useState<ClientOnlySettingsFlags>({});
 
   useEffect(() => {
@@ -326,12 +325,9 @@ export const SettingsContextProvider = ({
     await updateRemoteSettingsFn(settings, bootUserId);
   };
 
-  // The moment a flag leaves `clientOnlySettingsFlags` (the API grew a field
-  // for it), every user still has their value only in local storage. Push it up
-  // once on the next load — server value wins if there already is one — so the
-  // backend switch costs one deleted line and nobody loses a preference. The
-  // write itself drops the migrated keys from storage (setSettings only keeps
-  // the still-client-only ones), which is what stops this from running again.
+  // A graduated flag still lives in local storage for every existing user, so
+  // push it up once — server value wins if there already is one. The write
+  // drops the migrated keys from storage, which is what stops this repeating.
   const hasMigratedFlagsRef = useRef(false);
   useEffect(() => {
     if (hasMigratedFlagsRef.current || !loadedSettings || !userId) {
@@ -359,8 +355,8 @@ export const SettingsContextProvider = ({
       ...settings,
       flags: { ...settings.flags, ...pending },
     });
-    // `settings`/`setSettings` are re-created every render; the ref is what
-    // keeps this to one run, so re-running on their identity would be noise.
+    // `settings`/`setSettings` are re-created every render; the ref bounds this
+    // to one run, so their identity is noise here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadedSettings, userId]);
 

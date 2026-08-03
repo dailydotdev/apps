@@ -96,8 +96,6 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   </Typography>
 );
 
-// A — Segmented control. Same shape as the Cards/List control that already sits
-// directly above it on the appearance page.
 const Segmented = ({ compact, onChange }: OptionProps) => (
   <div className="flex items-center justify-between gap-4">
     <div>
@@ -130,8 +128,6 @@ const Segmented = ({ compact, onChange }: OptionProps) => (
   </div>
 );
 
-// B — One preview, not two. The control is a segmented pair and the single
-// sample morphs, so there is one object on the page instead of a grid.
 const SinglePreview = ({ compact, onChange }: OptionProps) => (
   <div className="flex items-center gap-4 rounded-12 border border-border-subtlest-tertiary p-3">
     <RealRail withLabels={!compact} />
@@ -162,8 +158,6 @@ const SinglePreview = ({ compact, onChange }: OptionProps) => (
   </div>
 );
 
-// C — The current cards, halved: preview beside the copy instead of above it,
-// and no mocked page pane.
 const CompactCards = ({ compact, onChange }: OptionProps) => (
   <div className="grid grid-cols-2 gap-2">
     {[false, true].map((value) => (
@@ -196,8 +190,6 @@ const CompactCards = ({ compact, onChange }: OptionProps) => (
   </div>
 );
 
-// D — Settings-native radio rows. Reads like the rest of the page; the preview
-// is a small trailing glyph rather than the main event.
 const RadioRows = ({ compact, onChange }: OptionProps) => (
   <div className="flex flex-col overflow-hidden rounded-12 border border-border-subtlest-tertiary">
     {[false, true].map((value, index) => (
@@ -241,8 +233,6 @@ const RadioRows = ({ compact, onChange }: OptionProps) => (
   </div>
 );
 
-// E — One row, the way every other preference on the page behaves. The preview
-// is a single sample that swaps as you flip it.
 const SwitchRow = ({ compact, onChange }: OptionProps) => (
   <div className="flex items-center justify-between gap-4">
     <div className="flex items-center gap-3">
@@ -267,8 +257,6 @@ const SwitchRow = ({ compact, onChange }: OptionProps) => (
   </div>
 );
 
-// F — Both samples inside ONE frame. A single bordered object can't be mistaken
-// for a container the rest of the page sits in.
 const SharedFrame = ({ compact, onChange }: OptionProps) => (
   <div className="flex items-stretch gap-2 rounded-12 border border-border-subtlest-tertiary p-2">
     {[false, true].map((value) => (
@@ -298,8 +286,6 @@ const SharedFrame = ({ compact, onChange }: OptionProps) => (
   </div>
 );
 
-// G — Width, drawn to scale. The setting is really about how much room the rail
-// takes, so say that literally and skip the sidebar mock entirely.
 const WidthBars = ({ compact, onChange }: OptionProps) => (
   <div className="flex flex-col gap-1.5">
     {[
@@ -342,8 +328,6 @@ const WidthBars = ({ compact, onChange }: OptionProps) => (
   </div>
 );
 
-// H — Tabs over one live sample. The sample is the real rail at real size, so
-// what you see is exactly what the sidebar becomes.
 const TabbedSample = ({ compact, onChange }: OptionProps) => (
   <div className="flex flex-col gap-2">
     <div
@@ -374,8 +358,6 @@ const TabbedSample = ({ compact, onChange }: OptionProps) => (
   </div>
 );
 
-// I — Just the two rails, no cards at all. The selected one is outlined; the
-// caption sits under each. Nothing frames the section.
 const BareRails = ({ compact, onChange }: OptionProps) => (
   <div className="flex gap-3">
     {[false, true].map((value) => (
@@ -411,8 +393,6 @@ const BareRails = ({ compact, onChange }: OptionProps) => (
   </div>
 );
 
-// J — Text-first with a peek. The row is pure settings copy; the sample only
-// appears beside it, small, as confirmation.
 const TextFirst = ({ compact, onChange }: OptionProps) => (
   <div className="flex items-center justify-between gap-4 rounded-12 bg-surface-float px-3 py-2.5">
     <div className="flex flex-col">

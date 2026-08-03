@@ -10,9 +10,8 @@ import { briefingUrl, webappUrl } from '../../../lib/constants';
 import { briefUIFeature } from '../../../lib/featureManagement';
 import { useFeature } from '../../GrowthBookProvider';
 
-// Explore tab panel: the discovery hub sections (reused from DiscoverSection)
-// with Happening Now and Presidential briefings slotted between Explore and
-// Tags, then the pages you visited recently at the bottom.
+// Explore tab panel: the discovery hub sections (reused from DiscoverSection),
+// then the pages you visited recently at the bottom.
 export const ExploreSection = ({
   isItemsButton,
   onNavTabClick,

@@ -300,9 +300,7 @@ it('should toggle the sidebar callback', async () => {
 });
 
 it('should keep client-only flags out of the remote payload and in local storage', async () => {
-  // The API rejects flags its `SettingsFlagsPublicInput` doesn't declare, which
-  // fails the whole mutation — this nock only matches if `sidebarCompact` was
-  // stripped from it.
+  // The nock only matches if `sidebarCompact` was stripped from the payload.
   mockSettingsMutation({ flags: {} as SettingsFlags });
   const ClientOnlyFlagMock = () => {
     const { value, toggle } = useSettingsBooleanFlag('sidebarCompact');
@@ -333,9 +331,8 @@ it('should keep client-only flags out of the remote payload and in local storage
 });
 
 it('should push a flag the API has learned to store up to the server', async () => {
-  // Simulates a flag graduating: `clickbaitShieldEnabled` is a server flag, so
-  // a value sitting in the client-only store is a leftover from before the API
-  // grew the field, and must be migrated rather than stranded on this device.
+  // `clickbaitShieldEnabled` is a server flag, so a value in the client-only
+  // store is a leftover from before the API grew the field.
   localStorage.setItem(
     'dailydev:settings:clientOnlyFlags:global',
     JSON.stringify({ clickbaitShieldEnabled: false }),
@@ -345,8 +342,7 @@ it('should push a flag the API has learned to store up to the server', async () 
   });
   renderComponent(<SettingsMock />);
   await waitForRemoteBoot();
-  // nock only matches the exact payload above, so a consumed mock IS the
-  // assertion that the local value reached the API.
+  // A consumed mock IS the assertion that the local value reached the API.
   await waitFor(() => expect(nock.isDone()).toBe(true));
   await waitFor(() =>
     expect(

@@ -151,9 +151,8 @@ export const RecentSection = ({
       recentPages.map((page) => ({
         icon: () => <RecentItemIcon page={page} />,
         title: page.title,
-        // Recorded as `router.asPath`, i.e. root-relative. That's the right
-        // href on the webapp (it keeps client-side routing), but on the
-        // extension it would resolve against chrome-extension://<id> and 404.
+        // Recorded as `router.asPath`: right on the webapp (it keeps
+        // client-side routing), a 404 on the extension.
         path: isExtension ? toWebappHref(page.path) : page.path,
         // Recent mirrors pages you've already visited (often the current one),
         // so it should never render as the active nav item.

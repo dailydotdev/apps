@@ -134,8 +134,6 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
   {
     id: 'following',
     label: 'Following',
-    // Absolute like every other catalog entry: dock rows are plain links, so a
-    // root-relative path 404s on the extension.
     path: `${webappUrl}following`,
     icon: (a) => <UserIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
@@ -379,15 +377,12 @@ export interface SidebarShortcutsApi {
   togglePin: (payload: ShortcutDragData) => void;
 }
 
-// The dock used to live in IndexedDB, which is per-device. Lift a pre-existing
-// local list into settings once (and clear it), so nobody's pins disappear the
-// day the dock became an account preference. Runs only while settings hold no
-// dock at all — an empty dock the user deliberately emptied is `[]`, not
-// undefined, so it isn't overwritten by a stale local list.
+// The dock used to live in IndexedDB, which is per-device. A dock the user
+// deliberately emptied is `[]`, not undefined, so only an absent one migrates.
 //
-// Call it ONCE per app, from the rail. It can't live in useSidebarShortcutItems
-// because that hook also runs in every squad row's pin button, which would fan
-// one migration out into a burst of identical settings mutations.
+// Call it ONCE per app, from the rail: useSidebarShortcutItems also runs in
+// every squad row's pin button, which would fan this out into a burst of
+// identical settings mutations.
 export const useLegacyShortcutsMigration = (): void => {
   const { flags, updateFlag } = useSettingsContext();
   const stored = flags?.sidebarShortcuts;
@@ -401,8 +396,8 @@ export const useLegacyShortcutsMigration = (): void => {
       return;
     }
     migratedRef.current = true;
-    // Only drop the local copy once the settings write lands, so a failed
-    // request leaves the pins where they are for the next attempt.
+    // Drop the local copy only once the write lands, so a failed request
+    // leaves the pins for the next attempt.
     updateFlag('sidebarShortcuts', legacy)
       .then(() => setLegacy([]))
       .catch(() => {
@@ -413,8 +408,6 @@ export const useLegacyShortcutsMigration = (): void => {
 
 // Shortcuts state + mutations, shared by the dock and the rail's "More" menu
 // (which lists shortcuts when the rail is too short to show the dock inline).
-// The dock lives in user settings (not IndexedDB) so the same pins follow the
-// account across devices; both call sites read the one settings context.
 export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   const { displayToast } = useToastNotification();
   const { flags, updateFlag } = useSettingsContext();
@@ -424,8 +417,6 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
     // React/dnd-kit treat several rows as the same node (all reporting
     // isDragging), so a single corrupt write must never cascade into a runaway
     // list. The next mutation persists this cleaned array, healing storage.
-    // The list arrives from a JSON settings field, so it isn't necessarily an
-    // array at all.
     const seen = new Set<string>();
     return (Array.isArray(stored) ? stored : [])
       .map((entry) =>
@@ -518,10 +509,8 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
         ? catalogDef.id
         : {
             title: payload.title,
-            // Panel rows carry root-relative paths (they're matched against the
-            // router), but a pin is stored on the account and rendered as a
-            // plain link — including on the extension, where a relative href
-            // resolves to chrome-extension://<id>/… and 404s.
+            // Panel rows carry root-relative paths; a pin is stored on the
+            // account and rendered as a plain link, including on the extension.
             path: toWebappHref(payload.path),
             image: payload.image,
           };
