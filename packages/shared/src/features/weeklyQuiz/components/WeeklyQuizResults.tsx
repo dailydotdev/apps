@@ -25,6 +25,7 @@ import {
   ProfilePicture,
   ProfileImageSize,
 } from '../../../components/ProfilePicture';
+import { WeeklyQuizConfetti } from './WeeklyQuizConfetti';
 import { WeeklyQuizScoreboard } from './WeeklyQuizScoreboard';
 import { formatElapsed } from './WeeklyQuizTimer';
 import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
@@ -137,6 +138,9 @@ export const WeeklyQuizResults = ({
 
   return (
     <div className="relative flex flex-col gap-6 p-6">
+      {/* One-shot celebratory confetti when the results appear. */}
+      <WeeklyQuizConfetti />
+
       {/* Big icon-only back arrow to the main screen, top-left. */}
       <button
         type="button"

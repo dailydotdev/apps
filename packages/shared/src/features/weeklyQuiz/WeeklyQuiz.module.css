@@ -681,3 +681,46 @@
   );
   box-shadow: 0 8px 28px color-mix(in srgb, var(--theme-accent-cabbage-default) 40%, transparent);
 }
+
+/* One-shot celebratory confetti on the results screen — pieces fan out from the
+ * top, fall once, and fade. No loop. Hidden under reduced motion. */
+.confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  overflow: visible;
+  pointer-events: none;
+}
+.confettiPiece {
+  position: absolute;
+  left: 50%;
+  top: 16%;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0;
+  animation-name: weekly-quiz-confetti;
+  animation-timing-function: cubic-bezier(0.2, 0.6, 0.3, 1);
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+@keyframes weekly-quiz-confetti {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(
+        calc(-50% + var(--confetti-dx)),
+        calc(-50% + var(--confetti-dy))
+      )
+      rotate(var(--confetti-r));
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .confetti {
+    display: none;
+  }
+}
