@@ -67,6 +67,14 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
     [client],
   );
 
+  const onCookieRemoved = useCallback(
+    (cacheKey: string) => {
+      expireBrowserCookie(cacheKey);
+      client.setQueryData(['cookie', cacheKey], false);
+    },
+    [client],
+  );
+
   const saveCookies: AcceptCookiesCallback = useCallback(
     (additional, toRemove) => {
       if (isExtension) {
@@ -82,10 +90,10 @@ export const useConsentCookie = (key: string): UseConsentCookie => {
       }
 
       if (toRemove) {
-        toRemove.forEach(expireBrowserCookie);
+        toRemove.forEach(onCookieRemoved);
       }
     },
-    [key, onCookieAccepted, isExtension],
+    [key, onCookieAccepted, onCookieRemoved, isExtension],
   );
 
   return { saveCookies, cookieExists: exists };

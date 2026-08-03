@@ -56,8 +56,12 @@ export default function MeasurementFrame(): ReactElement {
         return;
       }
 
-      const { tags, gdprApplies } = event.data;
-      injectMeasurementTags(document.body, tags, { gdprApplies });
+      const { tags, gdprApplies, consentString, addtlConsent } = event.data;
+      injectMeasurementTags(document.body, tags, {
+        gdprApplies,
+        consentString,
+        addtlConsent,
+      });
     };
 
     globalThis.addEventListener('message', onMessage);

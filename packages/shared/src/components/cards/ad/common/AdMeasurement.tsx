@@ -57,6 +57,8 @@ interface FramedProps {
   tags: AdMeasurementTag[];
   overlay: boolean;
   gdprApplies?: boolean;
+  consentString?: string;
+  addtlConsent?: string;
 }
 
 /**
@@ -68,6 +70,8 @@ const FramedMeasurement = ({
   tags,
   overlay,
   gdprApplies,
+  consentString,
+  addtlConsent,
 }: FramedProps): ReactElement => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [frameReady, setFrameReady] = useState(false);
@@ -106,10 +110,12 @@ const FramedMeasurement = ({
         type: 'init',
         tags,
         gdprApplies,
+        consentString,
+        addtlConsent,
       },
       frameOrigin,
     );
-  }, [frameReady, tags, gdprApplies, frameOrigin]);
+  }, [frameReady, tags, gdprApplies, consentString, addtlConsent, frameOrigin]);
 
   return (
     <iframe
@@ -159,6 +165,8 @@ export const AdMeasurement = ({ ad }: { ad: Ad }): ReactElement | null => {
             tags={tags}
             overlay={overlay}
             gdprApplies={ctx?.gdprApplies}
+            consentString={ctx?.consentString}
+            addtlConsent={ctx?.addtlConsent}
           />
         ) : (
           <InlineMeasurement tags={tags} ctx={ctx} overlay={overlay} />
