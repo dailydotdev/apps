@@ -150,11 +150,6 @@ it('keeps the full-size glass hero title (typo-title1) when there is no TLDR', (
   expect(heading).toHaveClass('line-clamp-3');
 });
 
-// The chip's glow is a sibling layer that paints a few pixels outside the chip's
-// own box. The glass text column clips its content (so the title + TLDR can't
-// spill behind the floating pill), so its horizontal inset has to be padding
-// inside the clip box: with margin, the clip edge sat exactly where the chip
-// starts and the glow's left bleed was cut off.
 it('insets the clipped glass text column with padding so the chip glow is not clipped', () => {
   renderGlassHero({ hero: makeHero('major') });
 
