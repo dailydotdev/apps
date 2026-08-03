@@ -126,6 +126,31 @@ const WeeklyQuizGamePreview = (): React.ReactElement => {
   );
 };
 
+// Jumps straight to the results screen with a mock finished result, so the end
+// screen can be reviewed without playing through the whole quiz.
+const ResultsPreview = (): React.ReactElement => {
+  const { status } = useWeeklyQuizStatus();
+  const audio = useWeeklyQuizAudio();
+  return (
+    <div className="force-dark mx-auto flex w-full max-w-[52rem] items-start justify-center gap-3">
+      <div className={`relative flex-1 ${styles.surface}`}>
+        <span className={styles.rays} aria-hidden />
+        <WeeklyQuizResults
+          quizId={status?.activeQuizId ?? ''}
+          result={{
+            answers: [],
+            correctCount: 4,
+            totalQuestions: 10,
+            timeMs: 104000,
+          }}
+          audio={audio}
+          onBackToMain={() => undefined}
+        />
+      </div>
+    </div>
+  );
+};
+
 const meta: Meta<typeof WeeklyQuizGamePreview> = {
   title: 'Features/WeeklyQuiz/Game',
   component: WeeklyQuizGamePreview,
@@ -164,4 +189,11 @@ export const AlreadyPlayed: Story = {
       status: mockStatus({ hasCompletedThisWeek: true }),
     }),
   ],
+};
+
+// The results (end) screen on its own, with a mock finished result — so it can
+// be reviewed without playing through the quiz.
+export const Results: Story = {
+  render: () => <ResultsPreview />,
+  decorators: [withWeeklyQuiz({ loggedIn: true })],
 };
