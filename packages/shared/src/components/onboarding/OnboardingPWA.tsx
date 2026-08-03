@@ -43,10 +43,9 @@ export const OnboardingPWA = ({
           </OnboardingHeadline>
           <OnboardingSubheadline>{PWA_EXPLAINER}</OnboardingSubheadline>
         </div>
-        {/* In flow rather than an absolute full-screen layer: at `w-full` the
-            footage's own aspect ratio made it tall enough on a wide phone to
-            reach up into the subheadline. Anchored to the bottom because the
-            frame's top third is empty space above the hand. */}
+        {/* In flow, not an absolute full-screen layer: at `w-full` the
+            footage's aspect ratio made it tall enough on a wide phone to reach
+            into the subheadline. Bottom-anchored — its top third is empty. */}
         <video
           {...footage}
           className="max-h-[45dvh] w-full max-w-64 object-cover object-bottom"

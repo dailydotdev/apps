@@ -43,9 +43,8 @@ export interface SocialRegistrationFormProps extends AuthFormProps {
   onSignup?: (params: SocialRegistrationParameters) => void;
   isLoading?: boolean;
   /**
-   * Post-signup onboarding only: the same chrome the email signup takes, so the
-   * two account-details screens are one screen with one extra field. Everywhere
-   * else — the auth modal, the recruiter flows — keeps the modal footer.
+   * Post-signup onboarding only: the chrome the email signup takes, so the two
+   * account-details screens read as one. Everywhere else keeps the modal footer.
    */
   isOnboardingFunnel?: boolean;
 }
@@ -296,8 +295,6 @@ export const SocialRegistrationForm = ({
     </>
   );
 
-  // Same shell, spacing and docked CTA as the email signup, so the two
-  // account-details screens differ only by the avatar above the fields.
   if (isOnboardingFunnel) {
     return (
       <div className="flex flex-col">

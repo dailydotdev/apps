@@ -42,9 +42,8 @@ export function CodeField({
     }
   };
 
-  // A code lifted out of an email arrives with whatever the selection handles
-  // caught around it — a trailing newline, a "Your code:" prefix. Take the
-  // digits and ignore the rest rather than rejecting the whole paste.
+  // A code copied out of an email drags the selection's whitespace and prose
+  // along with it, so take the digits rather than rejecting the whole paste.
   const onSlice = (text: string) => {
     const sliced = text.replace(/\D/g, '').slice(0, length);
 
@@ -60,9 +59,9 @@ export function CodeField({
     }
   };
 
-  // Typed digits never reach here — `onKeyDown` handles and cancels those. This
-  // is the platform writing a value in: iOS AutoFill, or Gboard's clipboard
-  // chip, which inserts as text and so never fires a paste event.
+  // Only ever sees platform-written values — iOS AutoFill, or Gboard's
+  // clipboard chip, which inserts as text and fires no paste event. Typed
+  // digits are handled and cancelled in `onKeyDown`.
   const onFill = (value: string, index: number) => {
     const digits = value.replace(/\D/g, '');
 
@@ -133,22 +132,18 @@ export function CodeField({
 
   return (
     <span className="flex flex-row gap-2">
+      {/* The platform only offers a code to the field it has focused, so the
+          hint rides on the box that takes focus rather than a hidden mirror of
+          it, `text` + `inputMode` is the pair Safari documents AutoFill
+          against, and no box takes `maxLength` — a whole code written into one
+          would be cut to a digit. */}
       {[...Array(length)].map((_, index) => {
-        // The platform only offers a code to a field it can see and focus, so
-        // this rides on the first box rather than a hidden mirror of it.
-        //
-        // No box carries `maxLength`: a whole code written into any of them has
-        // to survive, and typing is already capped to one digit per box in
-        // `onKeyDown`.
         const isAutofillTarget = index === 0;
 
         return (
           <TextField
             // eslint-disable-next-line react/no-array-index-key
             key={`code-${index}`}
-            // `text` + `inputmode`, not `tel`: the numeric keypad comes from
-            // `inputMode` either way, and this is the pair Safari's one-time-code
-            // AutoFill is documented against. `tel` predates `inputmode`.
             type="text"
             inputId={`code-${index}`}
             tabIndex={index + 1}
@@ -164,7 +159,7 @@ export function CodeField({
             disabled={disabled}
             inputMode="numeric"
             pattern="[0-9]*"
-            autoFocus={index === 0}
+            autoFocus={isAutofillTarget}
             inputRef={(el) => {
               if (el) {
                 elementsRef.current[index] = el;

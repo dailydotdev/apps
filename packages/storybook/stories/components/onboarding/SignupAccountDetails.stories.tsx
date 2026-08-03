@@ -11,13 +11,9 @@ import { FunnelStepTopBar } from '@dailydotdev/shared/src/features/onboarding/sh
 import ExtensionProviders from '../../extension/_providers';
 
 /**
- * The two account-details screens on `/onboarding`. Both render from the page's
- * `isAuthenticating` branch, before `FunnelStepper` mounts, so they take the
- * funnel's chrome through an explicit prop rather than context.
- *
- * They are meant to be the same screen: the social one differs only by the
- * avatar above the fields. Compare them side by side after any change to
- * either.
+ * The two account-details screens on `/onboarding`, which are meant to be the
+ * same screen — the social one differs only by the avatar above the fields.
+ * Compare them side by side after touching either.
  */
 const meta: Meta = {
   title: 'Components/Onboarding/Signup account details',
@@ -28,7 +24,7 @@ export default meta;
 
 type Story = StoryObj;
 
-// The page's own `isAuthenticating` markup, copied so the story shows the
+// Copied from the page's `isAuthenticating` branch, so the story shows the
 // screen at the width and offsets production gives it.
 const AuthShell = ({ children }: PropsWithChildren): ReactElement => (
   <ExtensionProviders>

@@ -96,8 +96,8 @@ const PlusCard = ({
     <li
       aria-labelledby={`${id}-heading`}
       className={classNames(
-        // Capped rather than fixed: at a flat 21rem the card outgrew the
-        // step's gutters on a 360px phone and spilled off the right edge.
+        // Capped, not fixed: a flat 21rem outgrew the step's gutters on a
+        // 360px phone and spilled off the right edge.
         'mx-auto w-full max-w-[21rem] rounded-16 border border-border-subtlest-tertiary p-4',
         isPaidPlan && 'bg-surface-float',
       )}
