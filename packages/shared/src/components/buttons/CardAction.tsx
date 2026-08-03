@@ -24,10 +24,9 @@ const densityToSize: Record<CardActionDensity, ButtonSize> = {
 
 // Larger than buttonSizeToIconSizeV2: engagement-bar icons sit closer
 // to a 60% ratio (Material 3, Instagram, Reddit) so they read at a glance.
-// `tight` is the feed-card tier: buttons never shrink (global flex-shrink: 0),
-// so six actions plus counters have to fit the 272px min card width on their
-// intrinsic widths alone. It matches the floating glass bar.
-const densityToIconSize: Record<CardActionDensity, IconSize> = {
+// `tight` is the feed-card tier, sized so six actions with counters fit the
+// 272px min card width without shrinking.
+export const densityToIconSize: Record<CardActionDensity, IconSize> = {
   comfortable: IconSize.Small,
   compact: IconSize.XSmall,
   tight: IconSize.Size16,

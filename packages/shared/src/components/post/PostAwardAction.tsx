@@ -1,11 +1,12 @@
 import React from 'react';
-import classNames from 'classnames';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
-import { ButtonColor, ButtonSize, ButtonVariant } from '../buttons/Button';
+import type { ButtonSize } from '../buttons/Button';
+import { ButtonColor, ButtonVariant } from '../buttons/Button';
 import { QuaternaryButton } from '../buttons/QuaternaryButton';
-import { IconSize, iconSizeToClassName } from '../Icon';
+import type { IconSize } from '../Icon';
+import { iconSizeToClassName } from '../Icon';
 import { MedalBadgeIcon } from '../icons';
 import InteractionCounter from '../InteractionCounter';
 import { Tooltip } from '../tooltip/Tooltip';
@@ -16,15 +17,26 @@ import { LazyModal } from '../modals/common/types';
 import type { LoggedUser } from '../../lib/user';
 import { useEngagementBarV2 } from '../../hooks/useEngagementBarV2';
 import type { CardActionDensity } from '../buttons/CardAction';
+import {
+  actionCounterClassName,
+  actionCounterLabelClassName,
+  FEED_ACTION_BUTTON_SIZE,
+  FEED_ACTION_ICON_SIZE,
+} from '../cards/common/actionCounter';
 import PostAwardActionV2 from './PostAwardAction.v2';
 
 export interface PostAwardActionProps {
   post: Post;
   iconSize?: IconSize;
+  buttonSize?: ButtonSize;
   density?: CardActionDensity;
 }
 
-const PostAwardActionV1 = ({ post, iconSize }: PostAwardActionProps) => {
+const PostAwardActionV1 = ({
+  post,
+  iconSize = FEED_ACTION_ICON_SIZE,
+  buttonSize = FEED_ACTION_BUTTON_SIZE,
+}: PostAwardActionProps) => {
   const { openModal } = useLazyModal();
   const { user, showLogin } = useAuthContext();
   const isSameUser = !!user?.id && user.id === post?.author?.id;
@@ -78,17 +90,17 @@ const PostAwardActionV1 = ({ post, iconSize }: PostAwardActionProps) => {
         id={`post-${post.id}-award-btn`}
         pressed={!!post.userState?.awarded}
         onClick={openAwardModal}
-        size={ButtonSize.Small}
+        size={buttonSize}
         className="btn-tertiary-cabbage pointer-events-auto"
         variant={ButtonVariant.Tertiary}
-        labelClassName="!pl-[1px]"
+        labelClassName={actionCounterLabelClassName}
         color={ButtonColor.Cabbage}
         icon={
           post.userState?.awarded && post.featuredAward?.award?.image ? (
             <Image
               src={post?.featuredAward?.award?.image}
               alt={post?.featuredAward?.award?.name}
-              className={iconSizeToClassName[IconSize.XSmall]}
+              className={iconSizeToClassName[iconSize]}
             />
           ) : (
             <MedalBadgeIcon secondary size={iconSize} />
@@ -97,10 +109,7 @@ const PostAwardActionV1 = ({ post, iconSize }: PostAwardActionProps) => {
       >
         {post?.numAwards > 0 && (
           <InteractionCounter
-            className={classNames(
-              'tabular-nums !typo-footnote',
-              !post.numAwards && 'invisible',
-            )}
+            className={actionCounterClassName}
             value={post.numAwards}
           />
         )}

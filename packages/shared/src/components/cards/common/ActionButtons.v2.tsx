@@ -43,9 +43,8 @@ const FEED_CARD_DENSITY = 'tight';
 
 const variantConfig = {
   grid: {
-    // Same padding as the v1 bar and the glass pill: `py-1.5` keeps the row at
-    // 36px around the h-6 buttons, and the wider right edge gives the trailing
-    // impressions number room so it doesn't read as touching the card.
+    // Matches the v1 bar: `py-1.5` holds the row at 36px around the h-6
+    // buttons, and the wider right edge gives the trailing number room.
     containerClassName: 'py-1.5 pl-1 pr-2.5',
     showTagsPanel: false,
     useCommentLink: false,

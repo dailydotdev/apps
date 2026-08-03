@@ -10,17 +10,22 @@ import {
   LinkIcon,
   DownvoteIcon,
 } from '../../icons';
-import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
+import { ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { useFeedPreviewMode } from '../../../hooks';
 import { UpvoteButtonIcon } from './UpvoteButtonIcon';
 import { BookmarkButton } from '../../buttons';
-import { IconSize } from '../../Icon';
 import { Tooltip } from '../../tooltip/Tooltip';
 import PostAwardAction from '../../post/PostAwardAction';
 import ConditionalWrapper from '../../ConditionalWrapper';
 import { PostTagsPanel } from '../../post/block/PostTagsPanel';
 import { LinkWithTooltip } from '../../tooltips/LinkWithTooltip';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
+import {
+  actionCounterClassName as counterClassName,
+  actionCounterLabelClassName as counterLabelClassName,
+  FEED_ACTION_BUTTON_SIZE,
+  FEED_ACTION_ICON_SIZE,
+} from './actionCounter';
 import { useBrandSponsorship } from '../../../hooks/useBrandSponsorship';
 import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
@@ -43,42 +48,31 @@ export interface ActionButtonsProps {
   showAwardAction?: boolean;
 }
 
-// Sizing follows the floating glass bar (FeedCardGlassActions): XSmall buttons
-// with 16px icons, so six actions incl. the impressions counter fit a 272px
-// card without the trailing number reaching the edge.
 const variantConfig = {
   grid: {
-    buttonSize: ButtonSize.XSmall,
-    iconSize: IconSize.Size16,
-    // Asymmetric like the glass pill: the left edge holds an icon, the right
-    // edge holds the impressions number, which needs more room to sit right.
-    // `py-1.5` around the h-6 buttons gives the row the same 36px height the
-    // bar had at the previous (wider) button size, so shrinking the actions to
-    // fit the 272px card doesn't make the bar read as cramped vertically.
+    buttonSize: FEED_ACTION_BUTTON_SIZE,
+    iconSize: FEED_ACTION_ICON_SIZE,
+    // Asymmetric like the glass pill: an icon sits on the left edge and the
+    // impressions number on the right, which needs more room to look centred.
     containerClassName: 'py-1.5 pl-1 pr-2.5',
     showTagsPanel: false,
     useCommentLink: false,
   },
   list: {
-    buttonSize: ButtonSize.XSmall,
-    iconSize: IconSize.Size16,
+    buttonSize: FEED_ACTION_BUTTON_SIZE,
+    iconSize: FEED_ACTION_ICON_SIZE,
     containerClassName: '',
     showTagsPanel: true,
     useCommentLink: true,
   },
   signal: {
-    buttonSize: ButtonSize.XSmall,
-    iconSize: IconSize.Size16,
+    buttonSize: FEED_ACTION_BUTTON_SIZE,
+    iconSize: FEED_ACTION_ICON_SIZE,
     containerClassName: '',
     showTagsPanel: false,
     useCommentLink: true,
   },
 } as const;
-
-// Monospaced digits so counters never jitter, and a hair of padding on each
-// side of the number — both taken from the glass bar.
-const counterClassName = 'tabular-nums typo-footnote';
-const counterLabelClassName = '!pl-0.5 pr-0.5';
 
 const ActionButtonsV1 = ({
   post,
@@ -256,10 +250,12 @@ const ActionButtonsV1 = ({
             />
           </Tooltip>
         )}
-        {/* Impressions take the award slot on feed cards; with the flag off,
-            awards stay (unchanged from control). */}
         {showAwardAction && !impressionsEnabled && (
-          <PostAwardAction post={post} iconSize={iconSize} />
+          <PostAwardAction
+            post={post}
+            iconSize={iconSize}
+            buttonSize={buttonSize}
+          />
         )}
         <BookmarkButton
           tooltipSide={variant === 'grid' ? 'bottom' : undefined}

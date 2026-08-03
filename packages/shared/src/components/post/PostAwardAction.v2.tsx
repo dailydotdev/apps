@@ -4,8 +4,9 @@ import { useCanAwardUser } from '../../hooks/useCoresFeature';
 import { useLazyModal } from '../../hooks/useLazyModal';
 import { ButtonColor } from '../buttons/ButtonV2';
 import type { CardActionDensity } from '../buttons/CardAction';
-import { CardAction } from '../buttons/CardAction';
-import { IconSize, iconSizeToClassName } from '../Icon';
+import { CardAction, densityToIconSize } from '../buttons/CardAction';
+import type { IconSize } from '../Icon';
+import { iconSizeToClassName } from '../Icon';
 import { MedalBadgeIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import type { Post } from '../../graphql/posts';
@@ -22,7 +23,7 @@ export interface PostAwardActionProps {
 
 const PostAwardAction = ({
   post,
-  density = 'compact',
+  density = 'tight',
   iconSize,
 }: PostAwardActionProps) => {
   const { openModal } = useLazyModal();
@@ -72,7 +73,7 @@ const PostAwardAction = ({
       <Image
         src={post?.featuredAward?.award?.image}
         alt={post?.featuredAward?.award?.name}
-        className={iconSizeToClassName[iconSize ?? IconSize.XSmall]}
+        className={iconSizeToClassName[iconSize ?? densityToIconSize[density]]}
       />
     ) : (
       <MedalBadgeIcon size={iconSize} />

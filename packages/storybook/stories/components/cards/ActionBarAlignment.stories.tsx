@@ -20,6 +20,9 @@ const basePost = {
   image:
     'https://media.daily.dev/image/upload/f_auto,q_auto/v1/posts/article-placeholder',
   userState: { vote: UserVote.None, flags: { feedbackDismiss: false } },
+  // Matches the mocked boot user, so the award action renders on the
+  // card_impressions-off rows the way it does for a post's own author.
+  author: { id: 'u1', name: 'Dev Dana', username: 'devdana' },
   source: {
     id: 'tds',
     handle: 'tds',
@@ -36,20 +39,25 @@ const makePost = (
   numUpvotes: number,
   numComments: number,
   impressions: number,
+  numAwards: number,
 ): Post =>
   ({
     ...basePost,
     id,
     numUpvotes,
     numComments,
+    numAwards,
     analytics: { impressions },
   } as Post);
 
 const cases = [
-  { label: '36 · 3 · 52.4K', post: makePost('a', 36, 3, 52400) },
-  { label: '100 · 80 · 100K', post: makePost('b', 100, 80, 100000) },
-  { label: '200 · 80 · 200K', post: makePost('c', 200, 80, 234500) },
-  { label: '9999 · 999 · 1.2M', post: makePost('d', 9999, 999, 1200000) },
+  { label: '36 · 3 · 52.4K · 4', post: makePost('a', 36, 3, 52400, 4) },
+  { label: '100 · 80 · 100K · 12', post: makePost('b', 100, 80, 100000, 12) },
+  { label: '200 · 80 · 200K · 99', post: makePost('c', 200, 80, 234500, 99) },
+  {
+    label: '9999 · 999 · 1.2M · 999',
+    post: makePost('d', 9999, 999, 1200000, 999),
+  },
 ];
 
 const handlers = {
@@ -71,6 +79,8 @@ const v1 = {
 };
 const v2 = { ...v1, engagement_bar_v2: true };
 const glass = { ...v1, feed_card_glass_actions: true };
+const v1Control = { ...v1, card_impressions: false };
+const v2Control = { ...v2, card_impressions: false };
 
 const Row = ({
   title,
@@ -109,6 +119,16 @@ const ActionBarAlignment = () => (
       <Row
         title="Default bar (v2) — 272px min card width"
         values={v2}
+        width="17rem"
+      />
+      <Row
+        title="Control, card_impressions off — v1 — 272px min card width"
+        values={v1Control}
+        width="17rem"
+      />
+      <Row
+        title="Control, card_impressions off — v2 — 272px min card width"
+        values={v2Control}
         width="17rem"
       />
       <Row title="Floating glass bar — 320px" values={glass} width="20rem" />

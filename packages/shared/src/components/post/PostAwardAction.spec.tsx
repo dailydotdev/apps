@@ -56,6 +56,15 @@ describe.each([false, true])('PostAwardAction (v2: %s)', (isV2) => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
+  // Owned by useCanAwardUser, which returns false without a sending user.
+  it('stays hidden for a logged out user on an authored post', () => {
+    mockAuth(null);
+
+    renderComponent({ author: { id: 'u2' } as Post['author'] });
+
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('stays hidden for a logged in user on a post without an author', () => {
     mockAuth({ id: 'u1' });
 
@@ -79,5 +88,27 @@ describe.each([false, true])('PostAwardAction (v2: %s)', (isV2) => {
     renderComponent({ author: { id: 'u2' } as Post['author'] });
 
     expect(screen.getByRole('button')).toBeInTheDocument();
+  });
+
+  it('sizes the button like the other feed actions', () => {
+    mockAuth({ id: 'u1' });
+
+    renderComponent({ author: { id: 'u1' } as Post['author'] });
+
+    expect(screen.getByRole('button')).toHaveClass('h-6');
+  });
+
+  it('keeps the awarded image at the action icon size', () => {
+    mockAuth({ id: 'u1' });
+
+    renderComponent({
+      author: { id: 'u1' } as Post['author'],
+      userState: { awarded: true } as Post['userState'],
+      featuredAward: {
+        award: { image: 'https://media.daily.dev/award.png', name: 'Award' },
+      } as Post['featuredAward'],
+    });
+
+    expect(screen.getByAltText('Award')).toHaveClass('size-4');
   });
 });
