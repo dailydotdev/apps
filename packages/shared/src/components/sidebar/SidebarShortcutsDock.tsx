@@ -381,8 +381,13 @@ export interface SidebarShortcutsApi {
 // day the dock became an account preference. Runs only while settings hold no
 // dock at all — an empty dock the user deliberately emptied is `[]`, not
 // undefined, so it isn't overwritten by a stale local list.
-const useLegacyShortcutsMigration = (stored?: SidebarShortcut[]): void => {
-  const { updateFlag } = useSettingsContext();
+//
+// Call it ONCE per app, from the rail. It can't live in useSidebarShortcutItems
+// because that hook also runs in every squad row's pin button, which would fan
+// one migration out into a burst of identical settings mutations.
+export const useLegacyShortcutsMigration = (): void => {
+  const { flags, updateFlag } = useSettingsContext();
+  const stored = flags?.sidebarShortcuts;
   const [legacy, setLegacy, isLegacyLoaded] = usePersistentContext<
     SidebarShortcut[]
   >(SHORTCUTS_KEY, []);
@@ -393,8 +398,13 @@ const useLegacyShortcutsMigration = (stored?: SidebarShortcut[]): void => {
       return;
     }
     migratedRef.current = true;
-    updateFlag('sidebarShortcuts', legacy);
-    setLegacy([]);
+    // Only drop the local copy once the settings write lands, so a failed
+    // request leaves the pins where they are for the next attempt.
+    updateFlag('sidebarShortcuts', legacy)
+      .then(() => setLegacy([]))
+      .catch(() => {
+        migratedRef.current = false;
+      });
   }, [isLegacyLoaded, legacy, setLegacy, stored, updateFlag]);
 };
 
@@ -406,14 +416,15 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   const { displayToast } = useToastNotification();
   const { flags, updateFlag } = useSettingsContext();
   const stored = flags?.sidebarShortcuts;
-  useLegacyShortcutsMigration(stored);
   const items = useMemo(() => {
     // Drop invalid entries AND de-duplicate by key. Duplicate keys would make
     // React/dnd-kit treat several rows as the same node (all reporting
     // isDragging), so a single corrupt write must never cascade into a runaway
     // list. The next mutation persists this cleaned array, healing storage.
+    // The list arrives from a JSON settings field, so it isn't necessarily an
+    // array at all.
     const seen = new Set<string>();
-    return (stored ?? [])
+    return (Array.isArray(stored) ? stored : [])
       .map((entry) =>
         typeof entry === 'string' && RETIRED_SHORTCUTS[entry]
           ? RETIRED_SHORTCUTS[entry]

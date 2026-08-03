@@ -1,5 +1,8 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { useSidebarShortcutItems } from './SidebarShortcutsDock';
+import {
+  useLegacyShortcutsMigration,
+  useSidebarShortcutItems,
+} from './SidebarShortcutsDock';
 import { webappUrl } from '../../lib/constants';
 import type { SidebarShortcut } from '../../features/shortcuts/types';
 
@@ -70,6 +73,14 @@ describe('useSidebarShortcutItems stored entry handling', () => {
     expect(result.current.resolved).toHaveLength(1);
   });
 
+  it('does not migrate from the items hook, which mounts once per squad row', async () => {
+    mockStored = undefined;
+    mockLegacy = ['tags'];
+    renderHook(() => useSidebarShortcutItems());
+
+    await waitFor(() => expect(mockUpdateFlag).not.toHaveBeenCalled());
+  });
+
   it('persists a mutation to settings, not to device storage', () => {
     mockStored = [];
     const { result } = renderHook(() => useSidebarShortcutItems());
@@ -90,7 +101,7 @@ describe('useSidebarShortcutItems device-storage migration', () => {
 
   it('lifts a pre-existing IndexedDB dock into settings once', async () => {
     mockLegacy = ['tags', { title: 'Squad', path: `${webappUrl}squads/dev` }];
-    renderHook(() => useSidebarShortcutItems());
+    renderHook(() => useLegacyShortcutsMigration());
 
     await waitFor(() =>
       expect(mockUpdateFlag).toHaveBeenCalledWith(
@@ -104,7 +115,7 @@ describe('useSidebarShortcutItems device-storage migration', () => {
   it('leaves a deliberately emptied dock alone', async () => {
     mockStored = [];
     mockLegacy = ['tags'];
-    renderHook(() => useSidebarShortcutItems());
+    renderHook(() => useLegacyShortcutsMigration());
 
     await waitFor(() => expect(mockUpdateFlag).not.toHaveBeenCalled());
   });

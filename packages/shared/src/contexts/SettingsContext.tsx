@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import type {
+  ClientOnlyFlagKey,
   ClientOnlySettingsFlags,
   RemoteSettings,
   RemoteTheme,
@@ -173,7 +174,14 @@ const clientOnlyFlagsStorageKey = generateStorageKey(
 
 const readStoredFlags = (): Partial<SettingsFlags> => {
   try {
-    return JSON.parse(storageWrapper.getItem(clientOnlyFlagsStorageKey)) ?? {};
+    const parsed = JSON.parse(
+      storageWrapper.getItem(clientOnlyFlagsStorageKey),
+    );
+    // Anything but an object (a truncated write, a key another build used for
+    // something else) would blow up the `in` checks below.
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed
+      : {};
   } catch (err) {
     return {};
   }

@@ -99,6 +99,7 @@ import { RailHoverPanel } from './RailHoverPanel';
 import { StreakBadge } from './StreakBadge';
 import {
   SidebarShortcutsDock,
+  useLegacyShortcutsMigration,
   useSidebarShortcutItems,
 } from './SidebarShortcutsDock';
 import { RailMoreMenu } from './RailMoreMenu';
@@ -861,9 +862,14 @@ export const SidebarDesktopV2 = ({
   }, []);
 
   const { resolved: shortcutItems } = useSidebarShortcutItems();
+  // The rail is the one place that mounts exactly once, so it owns the
+  // move of a device-local dock into the user's settings.
+  useLegacyShortcutsMigration();
   const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
   const iconRowPx = SHORTCUT_ROW_PX + RAIL_ROW_GAP_PX;
-  const tabRowPx = (isCompact ? 40 : 52) + RAIL_ROW_GAP_PX;
+  // Measured from a rendered tab (py-2 + the 24px glyph box, plus the label
+  // row when it shows), not derived — see Storybook's "Rail icon set → Density".
+  const tabRowPx = (isCompact ? 40 : 58) + RAIL_ROW_GAP_PX;
   const tabCount = foldableTabIds.length;
   // The pinned items sit inside the measured region but never fold into
   // "More" — reserve their rows up front so the tabs/dock budget is only what's
