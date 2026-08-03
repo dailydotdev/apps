@@ -216,6 +216,7 @@ function RichTextInput(
   const markdownTextareaRef = useRef<HTMLTextAreaElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const scrollOffsetRef = useRef(0);
+  const shouldRestoreScrollRef = useRef(false);
   const dirtyRef = useRef(false);
   const isSyncingRef = useRef(false);
   const inputRef = useRef('');
@@ -530,6 +531,7 @@ function RichTextInput(
   // scrolled the avatar out of sight and read as the composer redrawing.
   const rememberScroll = useCallback(() => {
     scrollOffsetRef.current = scrollContainerRef.current?.scrollTop ?? 0;
+    shouldRestoreScrollRef.current = true;
   }, []);
 
   const switchToMarkdownMode = useCallback(() => {
@@ -564,9 +566,11 @@ function RichTextInput(
 
   const didInitMarkdownRef = useRef(false);
   const restoreScroll = useCallback(() => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = scrollOffsetRef.current;
+    if (!shouldRestoreScrollRef.current || !scrollContainerRef.current) {
+      return;
     }
+    scrollContainerRef.current.scrollTop = scrollOffsetRef.current;
+    shouldRestoreScrollRef.current = false;
   }, []);
 
   useEffect(() => {
@@ -612,7 +616,11 @@ function RichTextInput(
     // modes, which is what keeps them the same size.
     ta.style.height = '0px';
     ta.style.height = `${ta.scrollHeight}px`;
-  }, [input, isMarkdownMode]);
+    // Swapping the editor out momentarily shrinks the scroll container, which
+    // clamps its offset to 0. Put it back here, once the textarea has its real
+    // height and before paint — restoring from a later frame was too late.
+    restoreScroll();
+  }, [input, isMarkdownMode, restoreScroll]);
 
   const onMarkdownInput = useCallback(
     (event: React.FormEvent<HTMLTextAreaElement>) => {
