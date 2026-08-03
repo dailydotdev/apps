@@ -25,6 +25,8 @@ import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { sourceQueryOptions } from '../../../graphql/sources';
 import type { SidebarSectionProps } from './common';
 import type { RecentPage, RecentPageType } from '../../../lib/recentPages';
+import { isExtension } from '../../../lib/func';
+import { toWebappHref } from '../../../lib/links';
 import { useRecentPages } from '../../../hooks/useRecentPages';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSquad } from '../../../hooks/squads/useSquad';
@@ -149,7 +151,10 @@ export const RecentSection = ({
       recentPages.map((page) => ({
         icon: () => <RecentItemIcon page={page} />,
         title: page.title,
-        path: page.path,
+        // Recorded as `router.asPath`, i.e. root-relative. That's the right
+        // href on the webapp (it keeps client-side routing), but on the
+        // extension it would resolve against chrome-extension://<id> and 404.
+        path: isExtension ? toWebappHref(page.path) : page.path,
         // Recent mirrors pages you've already visited (often the current one),
         // so it should never render as the active nav item.
         disableActiveState: true,

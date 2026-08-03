@@ -81,6 +81,7 @@ import type {
 import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { briefingUrl, walletUrl, webappUrl } from '../../lib/constants';
+import { toWebappHref } from '../../lib/links';
 
 type ShortcutIcon = (active: boolean) => ReactElement;
 
@@ -133,7 +134,9 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
   {
     id: 'following',
     label: 'Following',
-    path: '/following',
+    // Absolute like every other catalog entry: dock rows are plain links, so a
+    // root-relative path 404s on the extension.
+    path: `${webappUrl}following`,
     icon: (a) => <UserIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
   {
@@ -513,7 +516,15 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
       const catalogDef = CATALOG_BY_PATH.get(normalized);
       const entry: SidebarShortcut = catalogDef
         ? catalogDef.id
-        : { title: payload.title, path: payload.path, image: payload.image };
+        : {
+            title: payload.title,
+            // Panel rows carry root-relative paths (they're matched against the
+            // router), but a pin is stored on the account and rendered as a
+            // plain link — including on the extension, where a relative href
+            // resolves to chrome-extension://<id>/… and 404s.
+            path: toWebappHref(payload.path),
+            image: payload.image,
+          };
       const next = [...items];
       next.splice(
         typeof index === 'number'

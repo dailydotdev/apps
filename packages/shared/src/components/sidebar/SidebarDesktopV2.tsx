@@ -1533,7 +1533,12 @@ export const SidebarDesktopV2 = ({
         <ProfilePanelSection
           {...defaultRenderSectionProps}
           onNavTabClick={onNavTabClick}
-          isItemsButton={false}
+          // Same contract as v1's MainSection: on the extension new tab the
+          // feed rows must be BUTTONS that switch the feed in place. Their
+          // paths are root-relative (for active matching), so rendering them
+          // as links there points at chrome-extension://<id>/… — a 404.
+          // `isForcedLink` rows in this panel stay links regardless.
+          isItemsButton={isNavButtons ?? false}
         />
       );
     }
