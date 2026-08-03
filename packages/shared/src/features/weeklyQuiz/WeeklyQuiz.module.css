@@ -632,16 +632,18 @@
 }
 
 /* Score circle on the results screen. */
+/* Deep purple gradient (matches the brand) — dark enough that the white
+ * score/time text reads clearly. */
 .scoreCircle {
   background: radial-gradient(
     circle at 50% 30%,
-    color-mix(in srgb, var(--theme-accent-cheese-default) 90%, #fff),
-    var(--theme-accent-bun-default) 60%,
-    var(--theme-accent-bacon-default)
+    var(--theme-accent-cabbage-default),
+    var(--theme-accent-onion-default) 62%,
+    color-mix(in srgb, var(--theme-accent-onion-default) 62%, #000 38%)
   );
   box-shadow:
-    0 0 40px color-mix(in srgb, var(--theme-accent-bacon-default) 55%, transparent),
-    inset 0 2px 6px rgba(255, 255, 255, 0.4);
+    0 0 40px color-mix(in srgb, var(--theme-accent-cabbage-default) 45%, transparent),
+    inset 0 2px 6px rgba(255, 255, 255, 0.25);
   color: #fff;
 }
 
