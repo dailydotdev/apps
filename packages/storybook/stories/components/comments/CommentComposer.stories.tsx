@@ -12,8 +12,9 @@ import {
 } from './composer.mocks';
 
 const meta: Meta<typeof CommentMarkdownInput> = {
-  title: 'Comments/Composer',
+  title: 'Components/Comments/Composer',
   component: CommentMarkdownInput,
+  tags: ['autodocs'],
   parameters: {
     docs: {
       description: {
@@ -105,10 +106,6 @@ export const WithoutClose: Story = {
   args: { initialContent: shortComment, onClose: undefined },
 };
 
-export const WithoutAvatar: Story = {
-  name: 'No avatar — full-width editor',
-  args: { initialContent: shortComment, showUserAvatar: false },
-};
 
 export const Submitting: Story = {
   name: 'Submitting — button in flight',

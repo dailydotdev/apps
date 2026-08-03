@@ -3,7 +3,7 @@ import type { FC, PropsWithChildren } from 'react';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { WriteCommentContext } from '@dailydotdev/shared/src/contexts/WriteCommentContext';
-import ExtensionProviders from '../extension/_providers';
+import ExtensionProviders from '../../extension/_providers';
 
 export const post = {
   id: 'post-1',

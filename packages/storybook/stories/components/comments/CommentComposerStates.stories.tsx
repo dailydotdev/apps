@@ -33,7 +33,8 @@ const Gallery = ({ children }: { children: ReactNode }) => (
 );
 
 const meta: Meta = {
-  title: 'Comments/Composer states',
+  title: 'Components/Comments/Composer states',
+  tags: ['autodocs'],
   parameters: {
     docs: {
       description: {

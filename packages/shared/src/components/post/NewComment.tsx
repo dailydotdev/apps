@@ -162,7 +162,7 @@ function NewCommentComponent(
         post={post}
         inputId={inputId}
         autoFocus={false}
-        className={{ input: { container: 'my-4' } }}
+        className={{ container: 'my-4' }}
         onCommented={onSuccess}
         initialContent={inputContent}
         onClose={() => setInputContent(undefined)}

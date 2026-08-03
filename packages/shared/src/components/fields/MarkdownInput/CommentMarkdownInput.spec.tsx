@@ -38,15 +38,7 @@ const renderComposer = (
         } as never,
       }}
     >
-      <CommentMarkdownInput
-        post={post}
-        formProps={
-          {
-            'data-testid': 'composer',
-          } as React.FormHTMLAttributes<HTMLFormElement>
-        }
-        {...props}
-      />
+      <CommentMarkdownInput post={post} {...props} />
     </WriteCommentContext.Provider>,
   );
 
@@ -71,21 +63,21 @@ describe('CommentMarkdownInput', () => {
     setViewportHeight(360);
     renderComposer();
 
-    expect(screen.getByTestId('composer')).toHaveStyle({ maxHeight: '288px' });
+    expect(screen.getByRole('form')).toHaveStyle({ maxHeight: '288px' });
   });
 
   it('keeps a workable floor when the visible viewport is tiny', () => {
     setViewportHeight(120);
     renderComposer();
 
-    expect(screen.getByTestId('composer')).toHaveStyle({ maxHeight: '224px' });
+    expect(screen.getByRole('form')).toHaveStyle({ maxHeight: '224px' });
   });
 
   it('does not grow past its cap on a tall desktop viewport', () => {
     setViewportHeight(1200);
     renderComposer();
 
-    expect(screen.getByTestId('composer')).toHaveStyle({ maxHeight: '512px' });
+    expect(screen.getByRole('form')).toHaveStyle({ maxHeight: '512px' });
   });
 
   it('moves the actions into a pinned bottom bar instead of the footer', () => {

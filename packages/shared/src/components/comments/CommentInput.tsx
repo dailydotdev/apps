@@ -5,12 +5,8 @@ import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInp
 import { WriteCommentContext } from '../../contexts/WriteCommentContext';
 import { useMutateComment } from '../../hooks/post/useMutateComment';
 
-interface CommentInputProps
-  extends Omit<CommentMarkdownInputProps, 'className'> {
+interface CommentInputProps extends CommentMarkdownInputProps {
   onClose?: () => void;
-  className?: {
-    input?: CommentMarkdownInputProps['className'];
-  };
 }
 
 export default function CommentInput({
@@ -31,7 +27,7 @@ export default function CommentInput({
     >
       <CommentMarkdownInput
         {...props}
-        className={className?.input}
+        className={className}
         onClose={onClose}
       />
     </WriteCommentContext.Provider>

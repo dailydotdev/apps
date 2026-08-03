@@ -1,5 +1,4 @@
 import type {
-  CSSProperties,
   ForwardedRef,
   FormEventHandler,
   FormHTMLAttributes,
@@ -20,11 +19,15 @@ import CloseButton from '../../CloseButton';
 import { MarkdownIcon } from '../../icons';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useVisualViewport } from '../../../hooks/utils/useVisualViewport';
+import {
+  Typography,
+  TypographyColor,
+  TypographyTag,
+  TypographyType,
+} from '../../typography/Typography';
 
 export interface CommentClassName {
   container?: string;
-  markdownContainer?: string;
-  input?: string;
 }
 
 export interface CommentMarkdownInputProps {
@@ -35,13 +38,11 @@ export interface CommentMarkdownInputProps {
   initialContent?: string;
   replyTo?: string;
   className?: CommentClassName;
-  style?: CSSProperties;
   onCommented?: (
     comment: Comment,
     isNew: boolean,
     parentCommentId?: string,
   ) => void;
-  showUserAvatar?: boolean;
   autoFocus?: boolean;
   onChange?: (value: string) => void;
   formProps?: FormHTMLAttributes<HTMLFormElement>;
@@ -63,9 +64,7 @@ export function CommentMarkdownInputComponent(
     editCommentId,
     parentCommentId,
     className = {},
-    style,
     onChange,
-    showUserAvatar = true,
     autoFocus = true,
     formProps = {},
     onClose,
@@ -161,8 +160,10 @@ export function CommentMarkdownInputComponent(
       {...formProps}
       action="#"
       onSubmit={onSubmitForm}
+      // Names the form for assistive tech, and gives it a role to query by.
+      aria-label={submitCopy}
       className={classNames('flex min-h-0 flex-col', className?.container)}
-      style={{ maxHeight, ...style }}
+      style={{ maxHeight }}
       ref={ref}
     >
       <RichTextInput
@@ -177,15 +178,12 @@ export function CommentMarkdownInputComponent(
           }
         }}
         className={{
-          container: classNames(
+          container:
             '!min-h-0 flex-1 overflow-hidden border border-border-subtlest-tertiary',
-            className?.markdownContainer,
-          ),
-          input: className?.input,
         }}
         postId={postId}
         sourceId={sourceId}
-        showUserAvatar={showUserAvatar}
+        showUserAvatar
         isLoading={isLoading}
         disabledSubmit={isSuccess}
         submitButtonVariant={ButtonVariant.Primary}
@@ -209,9 +207,15 @@ export function CommentMarkdownInputComponent(
         header={
           <div className="flex shrink-0 flex-row items-center gap-2 px-4 pt-2">
             {headerLabel && (
-              <span className="min-w-0 flex-1 truncate text-text-tertiary typo-footnote">
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+                truncate
+                className="min-w-0 flex-1"
+              >
                 {headerLabel}
-              </span>
+              </Typography>
             )}
             <span className="ml-auto flex shrink-0 flex-row items-center gap-1">
               <Tooltip content={markdownToggleLabel}>

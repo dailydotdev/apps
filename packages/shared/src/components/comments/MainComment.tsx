@@ -201,7 +201,7 @@ export default function MainComment({
             onCommented?.(...params);
           }}
           onClose={() => onEdit(null)}
-          className={{ input: className?.commentBox }}
+          className={className?.commentBox}
         />
       )}
       {commentId === comment.id && (
@@ -214,7 +214,7 @@ export default function MainComment({
               onCommented?.(...params);
             }}
             onClose={() => onReplyTo(null)}
-            className={{ input: className?.commentBox }}
+            className={className?.commentBox}
           />
         </div>
       )}
