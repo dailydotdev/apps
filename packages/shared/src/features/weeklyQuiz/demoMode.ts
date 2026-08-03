@@ -1,3 +1,4 @@
+import { fallbackImages } from '../../lib/config';
 import { sampleWeeklyQuiz } from './sampleWeeklyQuiz';
 import { WeeklyQuizPeriod } from './types';
 import type { WeeklyQuizLeaderboardEntry, WeeklyQuizStatus } from './types';
@@ -473,3 +474,23 @@ export const getDemoLeaderboard = buildDemoLeaderboard;
 
 // Weekly board — the default used by the Storybook mock harness.
 export const demoLeaderboard = buildDemoLeaderboard(WeeklyQuizPeriod.Weekly);
+
+// A synthetic "your rank" row for the demo, so the preview's results screen
+// shows a placement even though there's no real signed-in player.
+export const getDemoViewerEntry = (
+  period: WeeklyQuizPeriod,
+): WeeklyQuizLeaderboardEntry => {
+  const quizzes = QUIZZES_PER_PERIOD[period];
+  return {
+    id: 'demo-you',
+    rank: 42,
+    name: 'You',
+    username: 'you',
+    image: fallbackImages.avatar,
+    correctCount: 6 * quizzes,
+    totalQuestions: 10 * quizzes,
+    timeMs: 62000,
+    isCurrentUser: true,
+    reputation: 1240,
+  };
+};

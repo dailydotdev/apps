@@ -8,7 +8,11 @@ import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import { WEEKLY_QUIZ_LEADERBOARD_QUERY } from '../graphql';
 import type { WeeklyQuizLeaderboardEntry } from '../types';
 import { WeeklyQuizPeriod } from '../types';
-import { getDemoLeaderboard, isWeeklyQuizDemo } from '../demoMode';
+import {
+  getDemoLeaderboard,
+  getDemoViewerEntry,
+  isWeeklyQuizDemo,
+} from '../demoMode';
 
 const LEADERBOARD_LIMIT = 20;
 
@@ -90,7 +94,7 @@ export const useWeeklyQuizLeaderboard = (
   if (demo) {
     return {
       leaderboard: getDemoLeaderboard(period),
-      viewerEntry: null,
+      viewerEntry: getDemoViewerEntry(period),
       isPending: false,
     };
   }
