@@ -30,6 +30,7 @@ import { WeeklyQuizSharePopover } from './WeeklyQuizSharePopover';
 import { formatElapsed } from './WeeklyQuizTimer';
 import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
 import { useWeeklyQuizLeaderboard } from '../hooks/useWeeklyQuizLeaderboard';
+import { fallbackImages } from '../../../lib/config';
 import { generateWeeklyQuizResultImage } from '../generateResultImage';
 import { isWeeklyQuizDemo } from '../demoMode';
 import type { WeeklyQuizGameResult } from '../hooks/useWeeklyQuizGame';
@@ -97,12 +98,14 @@ export const WeeklyQuizResults = ({
   const handleShareResult = (): void => {
     generateWeeklyQuizResultImage({
       name: user?.name || user?.username || 'You',
-      imageUrl: user?.image,
+      // Fall back to daily.dev's placeholder avatar when the player has none.
+      imageUrl: user?.image || fallbackImages.avatar,
       correctCount: result.correctCount,
       totalQuestions: result.totalQuestions,
       timeLabel: formatElapsed(result.timeMs),
       rank,
       logoUrl: '/logos/weekly-quiz-logo.png',
+      brandLogoUrl: '/android-chrome-512x512.png',
     }).catch(() => undefined);
   };
 

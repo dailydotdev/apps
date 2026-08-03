@@ -6,6 +6,8 @@ export interface WeeklyQuizResultImageParams {
   timeLabel: string;
   rank?: number | null;
   logoUrl: string;
+  // daily.dev brand logo, shown in the footer (best-effort; same-origin).
+  brandLogoUrl?: string;
 }
 
 const loadImage = (
@@ -53,28 +55,22 @@ export const generateWeeklyQuizResultImage = async (
     return;
   }
 
-  // Deep daily.dev purple background (matches the in-app surface) with a soft
-  // top glow — reads as part of the app, not a generic arcade card.
-  const onion = accent('--theme-accent-onion-default', '#6B56DD');
-  const cabbage = accent('--theme-accent-cabbage-default', '#BA56E1');
-  const bg = ctx.createLinearGradient(0, 0, size * 0.4, size);
-  bg.addColorStop(0, onion);
-  bg.addColorStop(0.55, cabbage);
-  bg.addColorStop(1, onion);
+  // Dark daily.dev surface (the quiz is always dark) with a soft brand-purple
+  // aura near the top — matches the in-app look, not a bright arcade card.
+  const bg = ctx.createLinearGradient(0, 0, size, size);
+  bg.addColorStop(0, '#1b1a24');
+  bg.addColorStop(1, '#0d0d12');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, size, size);
-  const glow = ctx.createRadialGradient(
-    size / 2,
-    120,
-    40,
-    size / 2,
-    120,
-    size * 0.7,
-  );
-  glow.addColorStop(0, 'rgba(255, 255, 255, 0.18)');
-  glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, size, size);
+  const aura = (x: number, y: number, r: number, color: string) => {
+    const g = ctx.createRadialGradient(x, y, 20, x, y, r);
+    g.addColorStop(0, color);
+    g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, size, size);
+  };
+  aura(size * 0.5, size * 0.22, size * 0.55, 'rgba(107, 86, 221, 0.4)'); // onion
+  aura(size * 0.66, size * 0.3, size * 0.45, 'rgba(186, 86, 225, 0.28)'); // cabbage
 
   // Logo (same-origin, no CORS concern). The mascot logo is ~square, so it's
   // kept compact at the top and everything else sits clearly below it.
@@ -184,10 +180,32 @@ export const generateWeeklyQuizResultImage = async (
     ctx.fillText(pillText, size / 2, pillY + 56);
   }
 
-  // Footer tagline so the post explains itself when shared.
-  ctx.font = '600 34px system-ui, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.fillText('Play the Weekly Tech News Quiz on daily.dev', size / 2, 1044);
+  // Footer: the daily.dev logo + a short CTA, centered as one group.
+  const footText = 'Play at daily.dev';
+  const footY = 1032;
+  ctx.font = 'bold 38px system-ui, sans-serif';
+  ctx.textAlign = 'left';
+  const textW = ctx.measureText(footText).width;
+  const markSize = 46;
+  const groupGap = 14;
+  const groupX = (size - (markSize + groupGap + textW)) / 2;
+  if (params.brandLogoUrl) {
+    try {
+      const brand = await loadImage(params.brandLogoUrl);
+      ctx.drawImage(
+        brand,
+        groupX,
+        footY - markSize / 2 - 6,
+        markSize,
+        markSize,
+      );
+    } catch {
+      // Brand logo is best-effort.
+    }
+  }
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+  ctx.fillText(footText, groupX + markSize + groupGap, footY + 8);
+  ctx.textAlign = 'center';
 
   const link = document.createElement('a');
   link.href = canvas.toDataURL('image/png');
