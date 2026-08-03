@@ -17,8 +17,6 @@ import {
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { CookieConsentItem } from '@dailydotdev/shared/src/components/modals/user/CookieConsentItem';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { featureIubendaCmp } from '@dailydotdev/shared/src/lib/featureManagement';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
 import { openIubendaPreferences } from '../../components/Iubenda';
@@ -37,8 +35,7 @@ const seo: NextSeoProps = {
 const AccountInvitePage = (): ReactElement | null => {
   const router = useRouter();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Marketing);
-  const { user, isAuthReady, isGdprCovered } = useAuthContext();
-  const iubendaCmp = useFeature(featureIubendaCmp);
+  const { user, isAuthReady, isGdprCovered, isTcfCovered } = useAuthContext();
 
   useEffect(() => {
     if (!isAuthReady) {
@@ -96,7 +93,7 @@ const AccountInvitePage = (): ReactElement | null => {
           >
             Cookie Policy →
           </Typography>
-          {iubendaCmp ? (
+          {isTcfCovered ? (
             // the custom toggles can't regenerate a TCF consent string, so
             // consent edits must go through the CMP's own preferences UI
             <Button
