@@ -354,7 +354,7 @@ export const SettingsContextProvider = ({
     setSettings({
       ...settings,
       flags: { ...settings.flags, ...pending },
-    });
+    }).catch(() => undefined);
     // `settings`/`setSettings` are re-created every render; the ref bounds this
     // to one run, so their identity is noise here.
     // eslint-disable-next-line react-hooks/exhaustive-deps

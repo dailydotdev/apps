@@ -384,7 +384,7 @@ export interface SidebarShortcutsApi {
 // every squad row's pin button, which would fan this out into a burst of
 // identical settings mutations.
 export const useLegacyShortcutsMigration = (): void => {
-  const { flags, updateFlag } = useSettingsContext();
+  const { flags, updateFlag, loadedSettings } = useSettingsContext();
   const stored = flags?.sidebarShortcuts;
   const [legacy, setLegacy, isLegacyLoaded] = usePersistentContext<
     SidebarShortcut[]
@@ -392,7 +392,16 @@ export const useLegacyShortcutsMigration = (): void => {
   const migratedRef = useRef(false);
 
   useEffect(() => {
-    if (migratedRef.current || !isLegacyLoaded || stored || !legacy?.length) {
+    // `loadedSettings` matters once the API stores this flag: without it a
+    // dock synced from another device would still be in flight, read as
+    // absent, and be overwritten by this device's leftovers.
+    if (
+      migratedRef.current ||
+      !loadedSettings ||
+      !isLegacyLoaded ||
+      stored ||
+      !legacy?.length
+    ) {
       return;
     }
     migratedRef.current = true;
@@ -403,7 +412,7 @@ export const useLegacyShortcutsMigration = (): void => {
       .catch(() => {
         migratedRef.current = false;
       });
-  }, [isLegacyLoaded, legacy, setLegacy, stored, updateFlag]);
+  }, [isLegacyLoaded, legacy, loadedSettings, setLegacy, stored, updateFlag]);
 };
 
 // Shortcuts state + mutations, shared by the dock and the rail's "More" menu
