@@ -24,26 +24,13 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  color: #fff;
-  font-family: 'Play', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  border: 5px solid #fff;
-  border-radius: 28px;
-  /* daily.dev purple: the surface leads with onion→cabbage (the brand's
-   * indigo→magenta) so the quiz reads as part of the app, not a standalone
-   * arcade. A faint bacon toe at the very bottom keeps it from going flat. */
-  background:
-    radial-gradient(
-      130% 80% at 50% -12%,
-      color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, var(--theme-accent-onion-default) 45%),
-      transparent 60%
-    ),
-    linear-gradient(
-      165deg,
-      color-mix(in srgb, var(--theme-accent-onion-default) 92%, #000 8%) 0%,
-      var(--theme-accent-onion-default) 32%,
-      var(--theme-accent-cabbage-default) 66%,
-      color-mix(in srgb, var(--theme-accent-cabbage-default) 68%, var(--theme-accent-bacon-default) 32%) 100%
-    );
+  /* Match daily.dev modals/cards: neutral surface, 1px subtle border, 16px
+   * radius. Font inherits the app's default sans stack (no more arcade "Play").
+   * Text tokens are applied per element (see components). */
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-subtlest-secondary);
+  border-radius: 16px;
+  background: var(--theme-background-default);
 }
 
 /* Faint sunburst rays fanning down from the top, like the references. */
@@ -113,15 +100,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  border: 4px solid #fff;
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-subtlest-secondary);
   border-radius: 16px;
-  background: linear-gradient(
-    160deg,
-    color-mix(in srgb, var(--theme-accent-onion-default) 92%, #000 8%) 0%,
-    var(--theme-accent-cabbage-default) 100%
-  );
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+  background: var(--theme-background-default);
+  box-shadow: var(--theme-shadow2);
   transition: filter 0.15s ease, transform 0.15s ease;
 }
 .sideControl:hover {
@@ -132,23 +115,18 @@
   transform: translateY(0) scale(0.96);
 }
 
-/* Share popover — a solid, legible panel (not the translucent .panel) so text
- * and the URL field read clearly over the busy leaderboard behind it. */
+/* Share popover — a solid, legible popover surface over the leaderboard. */
 .sharePanel {
-  background: color-mix(in srgb, var(--theme-accent-onion-default) 92%, #000 8%);
-  border: 2px solid rgba(255, 255, 255, 0.28);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+  background: var(--theme-background-popover);
+  border: 1px solid var(--theme-border-subtlest-secondary);
+  box-shadow: var(--theme-shadow2);
 }
 
-/* Floating glassy panel — used to split the intro into two separated cards
- * (left: logo + start + social, right: leaderboard) over the gradient. */
+/* The intro's two cards (left: logo + start + social, right: leaderboard) —
+ * standard daily.dev subtle card surface. */
 .panel {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(4px);
-  box-shadow:
-    0 10px 26px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  background: var(--theme-background-subtle);
+  border: 1px solid var(--theme-border-subtlest-tertiary);
 }
 
 /* Chunky arcade "candy" button — a diagonal purple->orange face (cabbage into
@@ -493,9 +471,8 @@
 
 /* Translucent glassy chip used for the timer pill and the results login panel. */
 .glass {
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  backdrop-filter: blur(6px);
+  background: var(--theme-background-subtle);
+  border: 1px solid var(--theme-border-subtlest-tertiary);
 }
 
 /* Answer tile: glassy by default, then glows green/red on reveal. */

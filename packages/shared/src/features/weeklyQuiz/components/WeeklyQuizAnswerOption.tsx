@@ -45,7 +45,7 @@ export const WeeklyQuizAnswerOption = ({
       onClick={() => onSelect(option.id)}
       aria-pressed={isSelected}
       className={classNames(
-        'group flex w-full items-center gap-3 rounded-16 p-4 text-left text-white',
+        'group flex w-full items-center gap-3 rounded-16 p-4 text-left text-text-primary',
         styles.tile,
         showCorrect && classNames('animate-reward-pop', styles.tileCorrect),
         showIncorrect && classNames('animate-nudge-shake', styles.tileWrong),
@@ -55,9 +55,11 @@ export const WeeklyQuizAnswerOption = ({
       <span
         className={classNames(
           'flex h-8 w-8 shrink-0 items-center justify-center rounded-10 font-bold typo-callout',
-          showCorrect && 'bg-accent-avocado-default text-white',
-          showIncorrect && 'bg-accent-ketchup-default text-white',
-          !showCorrect && !showIncorrect && 'bg-white/20 text-white',
+          showCorrect && 'bg-accent-avocado-default text-text-primary',
+          showIncorrect && 'bg-accent-ketchup-default text-text-primary',
+          !showCorrect &&
+            !showIncorrect &&
+            'bg-surface-hover text-text-primary',
         )}
         aria-hidden
       >

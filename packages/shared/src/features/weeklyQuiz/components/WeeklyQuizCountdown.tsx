@@ -45,7 +45,7 @@ export const WeeklyQuizCountdown = ({
       <Typography
         type={TypographyType.Title3}
         bold
-        className="!text-white/80 uppercase tracking-widest"
+        className="uppercase tracking-widest !text-text-tertiary"
       >
         Get ready…
       </Typography>

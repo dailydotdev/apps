@@ -82,7 +82,7 @@ export const WeeklyQuizQuestion = ({
         <Typography
           type={TypographyType.Footnote}
           bold
-          className="!text-white/80"
+          className="!text-text-tertiary"
         >
           Question {questionNumber} of {totalQuestions}
         </Typography>
@@ -90,7 +90,7 @@ export const WeeklyQuizQuestion = ({
       </div>
 
       <div
-        className="bg-white/15 h-2 w-full overflow-hidden rounded-8"
+        className="h-2 w-full overflow-hidden rounded-8 bg-surface-hover"
         role="progressbar"
         aria-label="Quiz progress"
         aria-valuenow={questionNumber}
@@ -114,7 +114,7 @@ export const WeeklyQuizQuestion = ({
           type={TypographyType.Title3}
           bold
           tag={TypographyTag.H2}
-          className="!text-white"
+          className="!text-text-primary"
         >
           {question.prompt}
         </Typography>

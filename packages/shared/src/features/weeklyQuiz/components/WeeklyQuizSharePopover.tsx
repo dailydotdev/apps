@@ -59,7 +59,7 @@ export const WeeklyQuizSharePopover = ({
         <button
           type="button"
           aria-label="Close share"
-          className="hover:bg-white/15 absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-12 text-white transition-colors"
+          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-12 text-text-primary transition-colors hover:bg-surface-hover"
           onClick={onClose}
         >
           <MiniCloseIcon size={IconSize.Large} />
@@ -69,14 +69,14 @@ export const WeeklyQuizSharePopover = ({
             type={TypographyType.Title3}
             bold
             tag={TypographyTag.H2}
-            className="!text-white"
+            className="!text-text-primary"
           >
             {title}
           </Typography>
           {description && (
             <Typography
               type={TypographyType.Callout}
-              className="!text-white/90"
+              className="!text-text-secondary"
             >
               {description}
             </Typography>
@@ -88,7 +88,7 @@ export const WeeklyQuizSharePopover = ({
             value={url}
             aria-label="Quiz link"
             onFocus={(event) => event.target.select()}
-            className="min-w-0 flex-1 rounded-10 bg-white px-3 py-2 text-black typo-footnote"
+            className="min-w-0 flex-1 rounded-10 bg-background-default px-3 py-2 text-text-primary typo-footnote"
           />
           <Button
             type="button"

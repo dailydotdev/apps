@@ -8,6 +8,11 @@ import {
 import { BellIcon, CalendarIcon, ShareIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import {
   ProfilePicture,
   ProfileImageSize,
 } from '../../../components/ProfilePicture';
@@ -128,58 +133,56 @@ export const WeeklyQuizIntro = ({
 
         {alreadyPlayed ? (
           <div className="flex w-full flex-col items-center gap-2">
-            <button
+            <Button
               type="button"
-              className={classNames(
-                styles.arcadeBtn,
-                'h-16 w-full px-6 uppercase typo-title1',
-              )}
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.XLarge}
+              className="w-full"
               disabled
             >
-              <span className={styles.arcadeBtnLabel}>Start</span>
-            </button>
+              Start
+            </Button>
             <Typography
               type={TypographyType.Callout}
-              bold
-              className="!text-white/80"
+              className="text-text-tertiary"
             >
               Try again next week!
             </Typography>
           </div>
         ) : (
-          <button
+          <Button
             type="button"
-            className={classNames(
-              styles.arcadeBtn,
-              styles.arcadeBtnIdle,
-              'flex h-16 w-full items-center justify-center gap-3 px-6 uppercase typo-title1',
-            )}
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.XLarge}
+            className="w-full"
             disabled={isLoading || questionCount === 0}
             onClick={onStart}
+            icon={
+              user ? (
+                <ProfilePicture
+                  user={user}
+                  size={ProfileImageSize.Small}
+                  rounded="full"
+                />
+              ) : undefined
+            }
           >
-            {user && (
-              <ProfilePicture
-                user={user}
-                size={ProfileImageSize.Large}
-                rounded="full"
-              />
-            )}
-            <span className={styles.arcadeBtnLabel}>Start</span>
-          </button>
+            Start
+          </Button>
         )}
 
         {/* Which week + how much news it distils — makes it clear the quiz
             recaps the week that just ended, not an older one. */}
         {quiz && (
           <div className="flex flex-col items-center gap-2 text-center">
-            <span className="bg-white/20 inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-bold text-white typo-footnote">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-hover px-3 py-1 font-bold text-text-primary typo-footnote">
               <CalendarIcon size={IconSize.XSmall} />
               {formatWeekRange(quiz.startDate, quiz.endDate)}
             </span>
             <Typography
               type={TypographyType.Callout}
               bold
-              className="!text-white"
+              className="!text-text-primary"
             >
               {quiz.storyCount} stories from {quiz.sourceCount} sources,
               distilled into {questionCount} questions.
@@ -192,11 +195,11 @@ export const WeeklyQuizIntro = ({
                     src={source.image}
                     alt={source.name}
                     title={source.name}
-                    className="h-8 w-8 rounded-full object-cover ring-2 ring-white/40"
+                    className="h-8 w-8 rounded-full object-cover ring-2 ring-border-subtlest-tertiary"
                   />
                 ))}
                 {quiz.sourceCount > SHOWN_SOURCES && (
-                  <span className="bg-white/15 flex h-8 items-center rounded-full px-2.5 font-bold text-white typo-caption1">
+                  <span className="flex h-8 items-center rounded-full bg-surface-hover px-2.5 font-bold text-text-primary typo-caption1">
                     +{quiz.sourceCount - SHOWN_SOURCES}
                   </span>
                 )}
@@ -208,25 +211,27 @@ export const WeeklyQuizIntro = ({
         {/* Share + weekly reminder, always available. (Challenge-a-friend is
             stashed for now.) */}
         <div className="flex w-full flex-col gap-3">
-          <button
+          <Button
             type="button"
-            className={classNames(styles.socialButton, 'typo-subhead')}
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Large}
+            className="w-full"
+            icon={<ShareIcon />}
             onClick={() => setIsShareOpen(true)}
-            title="Share"
           >
-            <ShareIcon size={IconSize.Small} />
             Share
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Large}
+            className="w-full"
             aria-pressed={reminderSet}
-            className={classNames(styles.socialButton, 'typo-subhead')}
+            icon={<BellIcon />}
             onClick={() => setReminderSet(true)}
-            title="Set weekly reminder"
           >
-            <BellIcon size={IconSize.Small} />
             {reminderSet ? "You're all set" : 'Set weekly reminder'}
-          </button>
+          </Button>
         </div>
       </div>
 

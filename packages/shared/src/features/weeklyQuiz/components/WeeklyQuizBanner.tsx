@@ -91,7 +91,7 @@ export const WeeklyQuizBanner = ({
       )}
     >
       <span className={styles.rays} aria-hidden />
-      <span className="bg-white/15 flex h-14 w-14 shrink-0 items-center justify-center rounded-16 text-3xl">
+      <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-16 bg-surface-hover text-3xl">
         🎮
       </span>
       <div className="flex min-w-0 flex-1 flex-col gap-2">
@@ -99,11 +99,15 @@ export const WeeklyQuizBanner = ({
           <Typography
             type={TypographyType.Footnote}
             bold
-            className="!text-white/80 uppercase tracking-wide"
+            className="uppercase tracking-wide !text-text-tertiary"
           >
             Weekly quiz
           </Typography>
-          <Typography type={TypographyType.Body} bold className="!text-white">
+          <Typography
+            type={TypographyType.Body}
+            bold
+            className="!text-text-primary"
+          >
             {hasPlayed
               ? 'You already played — see how you rank!'
               : 'This week in tech news — were you paying attention?'}
@@ -123,7 +127,7 @@ export const WeeklyQuizBanner = ({
       <CloseButton
         type="button"
         size={ButtonSize.XSmall}
-        className="absolute right-2 top-2 text-white"
+        className="absolute right-2 top-2 text-text-primary"
         aria-label="Close banner"
         onClick={() => setIsDismissed(true)}
       />

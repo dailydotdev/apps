@@ -55,7 +55,7 @@ const RowContent = ({
   isFastest: boolean;
 }): ReactElement => (
   <>
-    <span className="text-white/90 w-5 shrink-0 text-center font-bold typo-callout">
+    <span className="w-5 shrink-0 text-center font-bold text-text-secondary typo-callout">
       {entry.rank}
     </span>
     <ProfileTooltip userId={entry.id}>
@@ -70,13 +70,13 @@ const RowContent = ({
       <Typography
         type={TypographyType.Subhead}
         bold
-        className="min-w-0 truncate !text-white"
+        className="min-w-0 truncate !text-text-primary"
       >
         {entry.name}
       </Typography>
       <ReputationUserBadge
         user={{ reputation: entry.reputation }}
-        className="shrink-0 !text-white"
+        className="shrink-0 !text-text-primary"
         disableTooltip
       />
     </div>
@@ -91,10 +91,10 @@ const RowContent = ({
         Fastest
       </span>
     )}
-    <span className="shrink-0 font-bold tabular-nums text-white typo-subhead">
+    <span className="shrink-0 font-bold tabular-nums text-text-primary typo-subhead">
       {entry.correctCount}/{entry.totalQuestions}
     </span>
-    <span className="text-white/90 w-11 shrink-0 text-right font-bold tabular-nums typo-footnote">
+    <span className="w-11 shrink-0 text-right font-bold tabular-nums text-text-secondary typo-footnote">
       {formatElapsed(entry.timeMs)}
     </span>
   </>
@@ -136,7 +136,7 @@ const ScoreboardRow = ({
     <li
       className={classNames(
         'flex items-center gap-3 rounded-12 px-2 py-2.5',
-        entry.isCurrentUser ? 'bg-white/25' : 'bg-white/5',
+        entry.isCurrentUser ? 'bg-surface-active' : 'bg-surface-float',
       )}
     >
       <RowContent entry={entry} isFastest={isFastest} />
@@ -187,7 +187,11 @@ export const WeeklyQuizScoreboard = ({
           aria-hidden
           className="h-7 w-7 object-contain"
         />
-        <Typography type={TypographyType.Body} bold className="!text-white">
+        <Typography
+          type={TypographyType.Body}
+          bold
+          className="!text-text-primary"
+        >
           Leaderboard
         </Typography>
       </div>
@@ -219,8 +223,8 @@ export const WeeklyQuizScoreboard = ({
                 className={classNames(
                   'flex-1 rounded-10 py-2 font-bold transition-colors typo-footnote',
                   isActive
-                    ? 'bg-white/15 text-white'
-                    : 'text-white/70 hover:bg-white/10 hover:text-white',
+                    ? 'bg-surface-hover text-text-primary'
+                    : 'text-text-tertiary hover:bg-surface-float hover:text-text-primary',
                 )}
               >
                 {tab.label}
@@ -241,11 +245,11 @@ export const WeeklyQuizScoreboard = ({
                 {[1, 2, 3, 4].map((rank) => (
                   <li
                     key={rank}
-                    className="bg-white/10 flex items-center gap-3 rounded-12 px-2 py-1.5"
+                    className="flex items-center gap-3 rounded-12 bg-surface-float px-2 py-1.5"
                   >
-                    <span className="bg-white/30 h-6 w-6 rounded-8" />
-                    <span className="bg-white/30 h-7 w-7 rounded-full" />
-                    <span className="bg-white/20 h-3 flex-1 rounded-8" />
+                    <span className="h-6 w-6 rounded-8 bg-surface-hover" />
+                    <span className="h-7 w-7 rounded-full bg-surface-hover" />
+                    <span className="h-3 flex-1 rounded-8 bg-surface-hover" />
                   </li>
                 ))}
               </ul>
@@ -253,7 +257,7 @@ export const WeeklyQuizScoreboard = ({
                 <Typography
                   type={TypographyType.Callout}
                   bold
-                  className="!text-white"
+                  className="!text-text-primary"
                 >
                   Log in to see the scoreboard
                 </Typography>
@@ -273,13 +277,13 @@ export const WeeklyQuizScoreboard = ({
             <>
               {isPending && (
                 <div className="flex h-32 items-center justify-center">
-                  <span className="border-white/30 h-8 w-8 animate-spin rounded-full border-2 border-t-white" />
+                  <span className="h-8 w-8 animate-spin rounded-full border-2 border-border-subtlest-tertiary border-t-white" />
                 </div>
               )}
               {!isPending && leaderboard.length === 0 && (
                 <Typography
                   type={TypographyType.Callout}
-                  className="!text-white/80 py-6 text-center"
+                  className="py-6 text-center !text-text-tertiary"
                 >
                   No scores yet — be the first to play!
                 </Typography>
@@ -307,7 +311,7 @@ export const WeeklyQuizScoreboard = ({
                   the visible top list. White border sets it apart. Null for
                   anon and for anyone without a standing in this period. */}
               {!isPending && viewerEntry && (
-                <div className="border-white/60 bg-white/10 flex items-center gap-3 rounded-12 border px-2 py-1.5">
+                <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-secondary bg-surface-float px-2 py-1.5">
                   <RowContent entry={viewerEntry} isFastest={false} />
                 </div>
               )}

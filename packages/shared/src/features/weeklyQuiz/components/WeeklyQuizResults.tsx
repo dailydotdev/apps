@@ -119,7 +119,7 @@ export const WeeklyQuizResults = ({
       <button
         type="button"
         aria-label="Back to main"
-        className="hover:bg-white/25 z-10 bg-white/15 absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors"
+        className="z-10 absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-surface-hover text-text-primary transition-colors hover:bg-surface-active"
         onClick={onBackToMain}
       >
         <ArrowIcon size={IconSize.Large} className="-rotate-90" />
@@ -135,7 +135,7 @@ export const WeeklyQuizResults = ({
                 user={user}
                 size={ProfileImageSize.XXXLarge}
                 rounded="full"
-                className="ring-white/70 ring-4"
+                className="ring-4 ring-border-subtlest-secondary"
               />
               <span
                 className={classNames(
@@ -150,7 +150,7 @@ export const WeeklyQuizResults = ({
               type={TypographyType.LargeTitle}
               bold
               tag={TypographyTag.H1}
-              className="!text-white"
+              className="!text-text-primary"
             >
               You placed #{rank}!
             </Typography>
@@ -168,13 +168,13 @@ export const WeeklyQuizResults = ({
             <Typography
               type={TypographyType.LargeTitle}
               bold
-              className="!text-white"
+              className="!text-text-primary"
             >
               {result.correctCount}/{result.totalQuestions}
             </Typography>
             <Typography
               type={TypographyType.Footnote}
-              className="!text-white/90"
+              className="!text-text-secondary"
             >
               Correct
             </Typography>
@@ -189,13 +189,13 @@ export const WeeklyQuizResults = ({
             <Typography
               type={TypographyType.LargeTitle}
               bold
-              className="tabular-nums !text-white"
+              className="tabular-nums !text-text-primary"
             >
               {formatElapsed(result.timeMs)}
             </Typography>
             <Typography
               type={TypographyType.Footnote}
-              className="!text-white/90"
+              className="!text-text-secondary"
             >
               Time
             </Typography>
@@ -205,7 +205,9 @@ export const WeeklyQuizResults = ({
           type={rank && user ? TypographyType.Title3 : TypographyType.Title2}
           bold
           tag={rank && user ? TypographyTag.P : TypographyTag.H1}
-          className={rank && user ? '!text-white/90' : '!text-white'}
+          className={
+            rank && user ? '!text-text-secondary' : '!text-text-primary'
+          }
         >
           {buildMessage(result.correctCount, result.totalQuestions)}
         </Typography>
@@ -267,7 +269,7 @@ export const WeeklyQuizResults = ({
           <Typography
             type={TypographyType.Callout}
             bold
-            className="!text-white"
+            className="!text-text-primary"
           >
             Log in to save your score and claim your spot
           </Typography>

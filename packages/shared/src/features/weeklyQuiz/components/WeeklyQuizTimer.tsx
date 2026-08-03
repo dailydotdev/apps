@@ -29,7 +29,7 @@ export const WeeklyQuizTimer = ({
   return (
     <div
       className={classNames(
-        'flex items-center gap-1.5 text-white transition-opacity',
+        'flex items-center gap-1.5 text-text-primary transition-opacity',
         isPaused && 'opacity-60',
       )}
       role="timer"
@@ -39,7 +39,7 @@ export const WeeklyQuizTimer = ({
       <Typography
         type={TypographyType.Callout}
         bold
-        className="tabular-nums !text-white"
+        className="tabular-nums !text-text-primary"
       >
         {formatElapsed(elapsedMs)}
       </Typography>
