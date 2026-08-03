@@ -268,6 +268,12 @@ export interface UseFeedOptionalParams<T> {
    * row, so hero placement is disabled entirely.
    */
   isHorizontal?: boolean;
+  /**
+   * Drop pinned posts from the feed. `sourceFeed` always orders pinned posts
+   * (welcome post, squad pins) first and offers no way to opt out server-side,
+   * so single-squad feeds that don't want them filter here.
+   */
+  excludePinnedPosts?: boolean;
 }
 
 export default function useFeed<T>(
@@ -290,6 +296,7 @@ export default function useFeed<T>(
     firstSlotOffset = 0,
     disableTopHero = false,
     isHorizontal = false,
+    excludePinnedPosts = false,
   } = params;
   const { numCards: numCardsBySpaciness } = useContext(FeedContext);
   const numCards = numCardsBySpaciness.eco;
@@ -673,6 +680,12 @@ export default function useFeed<T>(
 
       feedQuery.data.pages.forEach(({ page }, pageIndex) => {
         page.edges.forEach(({ node }, index: number) => {
+          // Bail before the ad slot is claimed, otherwise dropping the post
+          // would leave an ad stranded in a slot with nothing after it.
+          if (excludePinnedPosts && getFeedApiItemPost(node)?.pinnedAt) {
+            return;
+          }
+
           const adItem = getAd({ index: visualCellsSoFar });
 
           if (adItem) {
@@ -774,6 +787,7 @@ export default function useFeed<T>(
     fullRowInsertionBeforeIndex,
     cadence,
     widenableTypes,
+    excludePinnedPosts,
   ]);
 
   const placements = useMemo(

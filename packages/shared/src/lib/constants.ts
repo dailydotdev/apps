@@ -70,6 +70,12 @@ export const briefingUrl = `${webappUrl}briefing`;
 export const scheduledPostsUrl = `${webappUrl}scheduled`;
 export const opportunityUrl = `${webappUrl}jobs`;
 export const recruiterUrl = `${webappUrl}recruiter`;
+export const watercoolerUrl = `${webappUrl}watercooler`;
+// The squad backing the /watercooler feed. This is the single point of
+// configuration for the feature: swapping it repoints the feed, the posting
+// gate and the join-on-post flow at a different squad, no other change needed.
+// The source query resolves either an id or a handle, so both work here.
+export const watercoolerSquadId = 'fd062672-63b7-4a10-87bd-96dcd10e9613';
 export const boostOpportunityLink = 'https://r.daily.dev/boost-opportunity';
 
 export const migrateUserToStreaks = 'https://r.daily.dev/streaks';

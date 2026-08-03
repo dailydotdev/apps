@@ -9,6 +9,7 @@ import { ProfileImageSize, roundClasses } from '../../ProfilePicture';
 import { ProfileImageLink } from '../../profile/ProfileImageLink';
 import SourceButton from './SourceButton';
 import { useViewSize, ViewSize } from '../../../hooks';
+import { useFeedCardContext } from '../../../features/posts/FeedCardContext';
 
 const HoverCard = dynamic(
   /* webpackChunkName: "hoverCard" */ () => import('./HoverCard'),
@@ -63,7 +64,11 @@ export const AuthorSourceStack = ({
   className,
 }: AuthorSourceStackProps): ReactElement | null => {
   const alwaysExpanded = !useViewSize(ViewSize.Laptop);
-  const showSource = !!source && !isSourceUserSource(source);
+  const { hideSource } = useFeedCardContext();
+  // Only drop the source when the author can take its place — a card with no
+  // avatar at all is worse than a repeated one.
+  const showSource =
+    !!source && !isSourceUserSource(source) && !(hideSource && !!author);
 
   if (!author && !showSource) {
     return null;
