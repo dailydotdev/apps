@@ -101,10 +101,12 @@ export const WeeklyQuizIntro = ({
           onMouseLeave={resetLogoTilt}
         >
           <span className="relative inline-block">
+            {/* Animated brand glow behind the logo. */}
+            <span className={styles.logoAura} aria-hidden />
             <img
               src={LOGO_URL}
               alt="The Weekly Tech News Quiz"
-              className="pointer-events-none w-72 max-w-none select-none"
+              className="pointer-events-none relative w-72 max-w-none select-none"
             />
             {/* Glow sits over the logo's lightbulb (right side, mid-height). */}
             <span
@@ -128,7 +130,7 @@ export const WeeklyQuizIntro = ({
             tag={TypographyTag.H2}
             className="!text-text-primary"
           >
-            Think you&apos;re up to date with this week&apos;s tech news?
+            Tech News Quiz
           </Typography>
           {quiz?.welcomeText && (
             <Typography
@@ -190,7 +192,7 @@ export const WeeklyQuizIntro = ({
               className="w-full"
               disabled
             >
-              Start
+              Start playing
             </Button>
             <Typography
               type={TypographyType.Callout}
@@ -204,7 +206,7 @@ export const WeeklyQuizIntro = ({
             type="button"
             variant={ButtonVariant.Primary}
             size={ButtonSize.XLarge}
-            className="w-full"
+            className={classNames('w-full', styles.arcadeBtnIdle)}
             disabled={isLoading || questionCount === 0}
             onClick={onStart}
             icon={
@@ -217,7 +219,7 @@ export const WeeklyQuizIntro = ({
               ) : undefined
             }
           >
-            Start
+            Start playing
           </Button>
         )}
 

@@ -60,6 +60,38 @@
   will-change: transform;
 }
 
+/* Animated brand aura behind the logo: a soft, slowly-rotating multicolor glow
+ * (onion → cabbage → bacon → bun) blurred into an aurora. Sits behind the logo
+ * art, adding life to the otherwise-neutral surface without arcade noise. */
+.logoAura {
+  position: absolute;
+  inset: -22%;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 0deg,
+    var(--theme-accent-onion-default),
+    var(--theme-accent-cabbage-default),
+    var(--theme-accent-bacon-default),
+    var(--theme-accent-bun-default),
+    var(--theme-accent-cabbage-default),
+    var(--theme-accent-onion-default)
+  );
+  filter: blur(30px);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: logo-aura-spin 14s linear infinite;
+}
+@keyframes logo-aura-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logoAura {
+    animation: none;
+  }
+}
+
 /* Warm pulsing glow overlaid on the logo's lightbulb so it reads as "lit".
  * Screen-blended so it brightens the bulb and spills light around it. */
 .bulbGlow {
