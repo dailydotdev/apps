@@ -2247,9 +2247,12 @@ export const SidebarDesktopV2 = ({
                 <div
                   aria-hidden
                   className={classNames(
-                    // Symmetric margins so the line sits exactly midway between
-                    // New post above it and the shortcuts "•••" below it.
-                    'my-3 h-px w-6',
+                    // Asymmetric BECAUSE the result has to be symmetric: New
+                    // post (pinned directly above) carries its own `my-2`, so
+                    // the gap above the line is already 8px + the column gap.
+                    // No top margin and `mb-2` lands 10px on both sides —
+                    // `my-3` read as 22px above and 14px below.
+                    'mb-2 h-px w-6',
                     railDividerBgClass,
                     shortcutCount === 0 &&
                       'opacity-0 transition-opacity group-hover:opacity-100',
