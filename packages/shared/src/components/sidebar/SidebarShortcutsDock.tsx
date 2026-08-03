@@ -60,7 +60,6 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import type { ShortcutDragData } from './common';
 import {
   RAIL_ICON_SIZE,
   railDividerBorderClass,
@@ -75,6 +74,11 @@ import { useAnchoredRailPopup } from './useAnchoredRailPopup';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import usePersistentContext from '../../hooks/usePersistentContext';
+import type {
+  ShortcutDragData,
+  SidebarShortcut,
+} from '../../features/shortcuts/types';
+import { useSettingsContext } from '../../contexts/SettingsContext';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { briefingUrl, walletUrl, webappUrl } from '../../lib/constants';
 
@@ -188,10 +192,6 @@ const CATALOG_BY_PATH = new Map(
   SHORTCUT_CATALOG.map((item) => [normalizePath(item.path), item]),
 );
 
-// A stored shortcut is either a catalog id (string) or an arbitrary pinned page
-// ({title, path}) dragged in from a panel.
-type StoredShortcut = string | ShortcutDragData;
-
 // Catalog entries this layout retired (Explore is a rail tab now, Jobs lives in
 // settings), kept only so an existing pin survives their removal. The validity
 // filter in useSidebarShortcutItems drops ids that aren't in the catalog, and
@@ -206,7 +206,7 @@ const RETIRED_SHORTCUTS: Record<string, ShortcutDragData> = {
 const SHORTCUTS_KEY = 'sidebar_shortcuts';
 const DOCK_DROPPABLE_ID = 'sidebar-shortcuts-dock';
 
-const keyOf = (entry: StoredShortcut): string =>
+const keyOf = (entry: SidebarShortcut): string =>
   typeof entry === 'string' ? entry : entry.path;
 
 export interface ResolvedShortcut {
@@ -216,7 +216,7 @@ export interface ResolvedShortcut {
   icon: ShortcutIcon;
 }
 
-const resolveShortcut = (entry: StoredShortcut): ResolvedShortcut | null => {
+const resolveShortcut = (entry: SidebarShortcut): ResolvedShortcut | null => {
   if (typeof entry === 'string') {
     const def = CATALOG_BY_ID.get(entry);
     if (!def) {
@@ -351,7 +351,7 @@ const TrayItem = ({
         isDragging && 'opacity-40',
       )}
     >
-      <span className="flex size-[1.625rem] items-center justify-center">
+      <span className="flex size-6 items-center justify-center">
         {def.icon(added)}
       </span>
       <Typography
@@ -366,9 +366,9 @@ const TrayItem = ({
 };
 
 export interface SidebarShortcutsApi {
-  items: StoredShortcut[];
+  items: SidebarShortcut[];
   resolved: ResolvedShortcut[];
-  persist: (next: StoredShortcut[]) => void;
+  persist: (next: SidebarShortcut[]) => void;
   addCatalog: (id: string, index?: number) => void;
   removeShortcut: (key: string) => void;
   pinPage: (payload: ShortcutDragData, index?: number) => void;
@@ -376,16 +376,37 @@ export interface SidebarShortcutsApi {
   togglePin: (payload: ShortcutDragData) => void;
 }
 
+// The dock used to live in IndexedDB, which is per-device. Lift a pre-existing
+// local list into settings once (and clear it), so nobody's pins disappear the
+// day the dock became an account preference. Runs only while settings hold no
+// dock at all — an empty dock the user deliberately emptied is `[]`, not
+// undefined, so it isn't overwritten by a stale local list.
+const useLegacyShortcutsMigration = (stored?: SidebarShortcut[]): void => {
+  const { updateFlag } = useSettingsContext();
+  const [legacy, setLegacy, isLegacyLoaded] = usePersistentContext<
+    SidebarShortcut[]
+  >(SHORTCUTS_KEY, []);
+  const migratedRef = useRef(false);
+
+  useEffect(() => {
+    if (migratedRef.current || !isLegacyLoaded || stored || !legacy?.length) {
+      return;
+    }
+    migratedRef.current = true;
+    updateFlag('sidebarShortcuts', legacy);
+    setLegacy([]);
+  }, [isLegacyLoaded, legacy, setLegacy, stored, updateFlag]);
+};
+
 // Shortcuts state + mutations, shared by the dock and the rail's "More" menu
 // (which lists shortcuts when the rail is too short to show the dock inline).
-// usePersistentContext is react-query backed, so calling this in both places
-// reads the same cached source of truth.
+// The dock lives in user settings (not IndexedDB) so the same pins follow the
+// account across devices; both call sites read the one settings context.
 export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   const { displayToast } = useToastNotification();
-  const [stored, setStored] = usePersistentContext<StoredShortcut[]>(
-    SHORTCUTS_KEY,
-    [],
-  );
+  const { flags, updateFlag } = useSettingsContext();
+  const stored = flags?.sidebarShortcuts;
+  useLegacyShortcutsMigration(stored);
   const items = useMemo(() => {
     // Drop invalid entries AND de-duplicate by key. Duplicate keys would make
     // React/dnd-kit treat several rows as the same node (all reporting
@@ -426,10 +447,10 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   );
 
   const persist = useCallback(
-    (next: StoredShortcut[]) => {
-      setStored(next).catch(() => undefined);
+    (next: SidebarShortcut[]) => {
+      updateFlag('sidebarShortcuts', next).catch(() => undefined);
     },
-    [setStored],
+    [updateFlag],
   );
 
   const addCatalog = useCallback(
@@ -479,7 +500,7 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
         return;
       }
       const catalogDef = CATALOG_BY_PATH.get(normalized);
-      const entry: StoredShortcut = catalogDef
+      const entry: SidebarShortcut = catalogDef
         ? catalogDef.id
         : { title: payload.title, path: payload.path, image: payload.image };
       const next = [...items];
@@ -546,7 +567,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // The persisted store updates asynchronously and would otherwise lag a frame,
   // springing the ghost back to the old slot before the list re-renders. The
   // override is dropped once the store catches up (or the set changes).
-  const [orderOverride, setOrderOverride] = useState<StoredShortcut[] | null>(
+  const [orderOverride, setOrderOverride] = useState<SidebarShortcut[] | null>(
     null,
   );
   const orderedItems = orderOverride ?? items;
@@ -605,7 +626,7 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   const dockAreaRef = useRef<HTMLDivElement>(null);
   // The live (in-progress) reorder, mirrored in a ref so onDragEnd reads the
   // final order without a stale-closure risk.
-  const liveOrderRef = useRef<StoredShortcut[] | null>(null);
+  const liveOrderRef = useRef<SidebarShortcut[] | null>(null);
   // Whether the drag began on an existing dock icon (reorder) vs the tray
   // (add). Captured at drag START where the order is stable — recomputing it at
   // drop from the live `keys` could misclassify a reorder as an add (which adds
@@ -1031,14 +1052,13 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                             onClick={() => setTrayOpen(false)}
                             className="flex min-w-0 flex-1 items-center gap-2 rounded-8 px-1 py-1.5 text-text-secondary"
                           >
-                            {/* 26px, matching RAIL_ICON_SIZE. At size-6 the
-                                box was 2px smaller than the glyph, and
-                                preflight's `img { max-width: 100% }` then
-                                capped the Cores <img> to 24px wide while its
-                                height stayed 26px — a visibly stretched icon.
-                                SVG glyphs just overflowed, so only Cores
-                                showed it. */}
-                            <span className="flex size-[1.625rem] shrink-0 items-center justify-center">
+                            {/* Must match RAIL_ICON_SIZE exactly. A box even
+                                1px smaller lets preflight's
+                                `img { max-width: 100% }` cap the Cores <img>
+                                width while its height stays — a visibly
+                                stretched icon. SVG glyphs just overflow, so
+                                only Cores shows it. */}
+                            <span className="flex size-6 shrink-0 items-center justify-center">
                               {shortcut.icon(false)}
                             </span>
                             <Typography

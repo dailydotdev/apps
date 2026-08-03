@@ -4,6 +4,7 @@ import type { NextSeoProps } from 'next-seo';
 import dynamic from 'next/dynamic';
 
 import { ThemeSection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/ThemeSection';
+import { SidebarDensitySection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/SidebarDensitySection';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { useSettingsBooleanFlag } from '@dailydotdev/shared/src/hooks/useSettingsBooleanFlag';
@@ -70,8 +71,6 @@ const AccountManageSubscriptionPage = (): ReactElement => {
   const isReaderPermissionGranted =
     flags?.readerInstallPromptAcknowledged ?? false;
   const { isV2: isLayoutV2 } = useLayoutVariant();
-  const { value: isSidebarCompact, toggle: toggleSidebarCompact } =
-    useSettingsBooleanFlag('sidebarCompact');
   const onToggleReadInside = () => {
     if (isReadInsideEnabled) {
       optOut();
@@ -122,18 +121,10 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               offLabel="Cards"
               onLabel="List"
             />
-
-            {isLayoutV2 && (
-              <SettingsSwitch
-                name="compact-sidebar"
-                checked={isSidebarCompact}
-                onToggle={toggleSidebarCompact}
-              >
-                Compact sidebar (hide labels)
-              </SettingsSwitch>
-            )}
           </FlexCol>
         )}
+
+        {isLaptop && isLayoutV2 && <SidebarDensitySection />}
 
         {supportsAppIconChange && <IOSIconPicker />}
 

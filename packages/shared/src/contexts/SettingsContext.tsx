@@ -5,9 +5,11 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import type {
+  ClientOnlySettingsFlags,
   RemoteSettings,
   RemoteTheme,
   SettingsFlags,
@@ -15,12 +17,14 @@ import type {
 } from '../graphql/settings';
 import {
   CampaignCtaPlacement,
+  clientOnlySettingsFlags,
   UPDATE_USER_SETTINGS_MUTATION,
 } from '../graphql/settings';
 import { WriteFormTab } from '../components/fields/form/common';
 import AuthContext from './AuthContext';
 import { capitalize } from '../lib/strings';
 import { storageWrapper } from '../lib/storageWrapper';
+import { generateStorageKey, StorageTopic } from '../lib/storage';
 import { usePersonalizedDigest } from '../hooks/usePersonalizedDigest';
 import { UserPersonalizedDigestType } from '../graphql/users';
 import { gqlClient } from '../graphql/common';
@@ -162,13 +166,82 @@ const defaultSettings: RemoteSettings = {
   },
 };
 
+const clientOnlyFlagsStorageKey = generateStorageKey(
+  StorageTopic.Settings,
+  'clientOnlyFlags',
+);
+
+const readStoredFlags = (): Partial<SettingsFlags> => {
+  try {
+    return JSON.parse(storageWrapper.getItem(clientOnlyFlagsStorageKey)) ?? {};
+  } catch (err) {
+    return {};
+  }
+};
+
+const writeStoredFlags = (flags: ClientOnlySettingsFlags): void =>
+  storageWrapper.setItem(clientOnlyFlagsStorageKey, JSON.stringify(flags));
+
+const isClientOnlyFlag = (flag: string): boolean =>
+  clientOnlySettingsFlags.includes(flag as ClientOnlyFlagKey);
+
+const pickClientOnlyFlags = (
+  flags: Partial<SettingsFlags>,
+): ClientOnlySettingsFlags =>
+  clientOnlySettingsFlags.reduce((picked, flag) => {
+    if (flag in flags) {
+      return { ...picked, [flag]: flags[flag] };
+    }
+
+    return picked;
+  }, {});
+
+// Flags stored locally that the API has since learned to store — i.e. entries
+// removed from `clientOnlySettingsFlags`. They're the migration backlog.
+const pickGraduatedFlags = (
+  flags: Partial<SettingsFlags>,
+): Partial<SettingsFlags> =>
+  Object.fromEntries(
+    Object.entries(flags).filter(([flag]) => !isClientOnlyFlag(flag)),
+  );
+
+const withoutClientOnlyFlags = (settings: RemoteSettings): RemoteSettings => {
+  if (!settings.flags) {
+    return settings;
+  }
+
+  const flags = { ...settings.flags };
+  clientOnlySettingsFlags.forEach((flag) => delete flags[flag]);
+
+  return { ...settings, flags };
+};
+
 export const SettingsContextProvider = ({
   children,
-  settings = defaultSettings,
+  settings: remoteSettings = defaultSettings,
   updateSettings,
   loadedSettings,
 }: SettingsContextProviderProps): ReactElement => {
   const setTheme = useRef<ThemeMode | null>(null);
+  // Local storage, not the boot cache: a page load overwrites the cached
+  // settings with whatever the API returns, which by definition never includes
+  // the flags it doesn't store.
+  const [clientFlags, setClientFlags] = useState<ClientOnlySettingsFlags>({});
+
+  useEffect(() => {
+    setClientFlags(pickClientOnlyFlags(readStoredFlags()));
+  }, []);
+
+  const settings = useMemo(() => {
+    if (!Object.keys(clientFlags).length) {
+      return remoteSettings;
+    }
+
+    return {
+      ...remoteSettings,
+      flags: { ...remoteSettings.flags, ...clientFlags },
+    };
+  }, [remoteSettings, clientFlags]);
   const { user } = useContext(AuthContext);
   const userId = user?.id;
   const { unsubscribePersonalizedDigest } = usePersonalizedDigest();
@@ -226,13 +299,17 @@ export const SettingsContextProvider = ({
     bootUserId?: string,
   ): Promise<void> => {
     if (userId || bootUserId) {
-      await updateRemoteSettings({
-        ...newSettings,
-      });
+      await updateRemoteSettings(withoutClientOnlyFlags(newSettings));
     }
   };
 
   const setSettings = async (newSettings: RemoteSettings): Promise<void> => {
+    if (newSettings.flags) {
+      const nextClientFlags = pickClientOnlyFlags(newSettings.flags);
+      writeStoredFlags(nextClientFlags);
+      setClientFlags(nextClientFlags);
+    }
+
     updateSettings({ ...settings, ...newSettings });
     await updateRemoteSettingsFn(newSettings);
   };
@@ -240,6 +317,44 @@ export const SettingsContextProvider = ({
   const syncSettings = async (bootUserId?: string) => {
     await updateRemoteSettingsFn(settings, bootUserId);
   };
+
+  // The moment a flag leaves `clientOnlySettingsFlags` (the API grew a field
+  // for it), every user still has their value only in local storage. Push it up
+  // once on the next load — server value wins if there already is one — so the
+  // backend switch costs one deleted line and nobody loses a preference. The
+  // write itself drops the migrated keys from storage (setSettings only keeps
+  // the still-client-only ones), which is what stops this from running again.
+  const hasMigratedFlagsRef = useRef(false);
+  useEffect(() => {
+    if (hasMigratedFlagsRef.current || !loadedSettings || !userId) {
+      return;
+    }
+
+    const graduated = pickGraduatedFlags(readStoredFlags());
+    if (!Object.keys(graduated).length) {
+      return;
+    }
+
+    hasMigratedFlagsRef.current = true;
+    const pending = Object.fromEntries(
+      Object.entries(graduated).filter(
+        ([flag]) => remoteSettings.flags?.[flag] === undefined,
+      ),
+    );
+
+    if (!Object.keys(pending).length) {
+      writeStoredFlags(pickClientOnlyFlags(readStoredFlags()));
+      return;
+    }
+
+    setSettings({
+      ...settings,
+      flags: { ...settings.flags, ...pending },
+    });
+    // `settings`/`setSettings` are re-created every render; the ref is what
+    // keeps this to one run, so re-running on their identity would be noise.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadedSettings, userId]);
 
   const contextData = useMemo<SettingsContextData>(
     () => ({

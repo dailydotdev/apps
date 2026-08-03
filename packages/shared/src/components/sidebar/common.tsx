@@ -11,17 +11,8 @@ import type { TooltipProps } from '../tooltips/BaseTooltip';
 import { OpenLinkIcon, PlusIcon } from '../icons';
 import { IconSize } from '../Icon';
 
-// Drag payload used when a v2 sidebar panel row is dragged into the shortcuts
-// dock to pin it. Carried on the native dataTransfer under this MIME type.
+// MIME type the pin-a-row drag payload (ShortcutDragData) travels under.
 export const SHORTCUT_DRAG_MIME = 'application/x-dailydev-shortcut';
-export interface ShortcutDragData {
-  title: string;
-  path: string;
-  // The icon image URL of the dragged row (e.g. a squad/source logo), captured
-  // at drag time so the pinned shortcut renders it immediately instead of
-  // re-fetching it (which flashed a placeholder for a beat).
-  image?: string;
-}
 
 export interface SidebarMenuItem {
   icon: ((active: boolean) => ReactElement) | ReactNode;
@@ -90,18 +81,24 @@ export const navBtnClass =
 // button (a child of the dnd sortable wrapper), so it never distorts the
 // drag-start rect measurement.
 export const railTabClass =
-  'focus-outline group relative flex w-full flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-95 motion-reduce:transition-none';
+  'focus-outline group relative flex w-full flex-col items-center gap-0.5 rounded-12 px-1 py-2 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-95 motion-reduce:transition-none';
 export const railTabLabelClass = 'typo-caption2 leading-tight text-center';
+// Vertical rhythm of every stacked group on the rail — the nav column, the
+// tablist, the shortcuts dock and the bottom utilities all share it, so the
+// spacing can't drift between them. Keep RAIL_ROW_GAP_PX (the measurement math
+// behind the overflow stages) in sync with it.
+export const railColumnGapClass = 'gap-0.5';
+export const RAIL_ROW_GAP_PX = 2;
 // One source of truth for the glyph size inside every v2 rail control — tabs,
 // Home, Search, the bottom utilities and the shortcuts dock. The buttons keep
 // their own fixed hit areas (size-10 / the tab row), so changing this resizes
 // only the icon within them. New post is deliberately excluded: its filled chip
 // is the rail's primary action and is sized on its own.
-export const RAIL_ICON_SIZE = IconSize.Size26;
+export const RAIL_ICON_SIZE = IconSize.Small;
 // Glyph box that rail icons sit in, so every tab's height stays identical even
 // when a glyph (avatar, streak ring) is a different shape.
 export const railGlyphBoxClass =
-  'relative flex size-[1.625rem] items-center justify-center';
+  'relative flex size-6 items-center justify-center';
 // One recipe for every count badge on a rail tab, so the Activity bell and the
 // gamification tab cannot drift apart — they previously disagreed on all three
 // of: containing block (glyph box vs the whole 68px button), anchor edge, and

@@ -31,6 +31,8 @@ import {
   ListIcon,
   Nav,
   RAIL_ICON_SIZE,
+  RAIL_ROW_GAP_PX,
+  railColumnGapClass,
   railCountBubbleClass,
   railDividerBgClass,
   railDividerBorderClass,
@@ -215,7 +217,6 @@ const RAIL_DRAG_CLICK_GUARD_FALLBACK_MS = 500;
 // the exact class it mirrors, so editing a class has one obvious place to
 // follow — a silent desync only shows up as one tab too many or too few folding
 // into "More" at a particular viewport height, which nothing in CI can catch.
-const RAIL_ROW_GAP_PX = 4; // `gap-1` on the rail column
 const SHORTCUT_ROW_PX = 40; // shortcut dot row height
 const CREATE_BUTTON_PX = 36; // New post `!size-9`
 const CREATE_MARGIN_Y_PX = 16; // New post `my-2`
@@ -680,7 +681,7 @@ const SidebarProfileButton = ({
         <span className={railGlyphBoxClass}>
           <ProfilePicture
             user={user}
-            size={ProfileImageSize.Small}
+            size={ProfileImageSize.XSmall}
             nativeLazyLoading
             // 1px frame around the avatar when this is the selected tab. A ring
             // (not a border) so the image doesn't shrink/shift on select.
@@ -862,7 +863,7 @@ export const SidebarDesktopV2 = ({
   const { resolved: shortcutItems } = useSidebarShortcutItems();
   const shortcutCount = isLoggedIn ? shortcutItems.length : 0;
   const iconRowPx = SHORTCUT_ROW_PX + RAIL_ROW_GAP_PX;
-  const tabRowPx = (isCompact ? 44 : 56) + RAIL_ROW_GAP_PX;
+  const tabRowPx = (isCompact ? 40 : 52) + RAIL_ROW_GAP_PX;
   const tabCount = foldableTabIds.length;
   // The pinned items sit inside the measured region but never fold into
   // "More" — reserve their rows up front so the tabs/dock budget is only what's
@@ -1999,7 +2000,8 @@ export const SidebarDesktopV2 = ({
               // swap is triggered by the pointer being anywhere on the rail,
               // not just on the logo, so the way home is visible while you're
               // reading the tabs rather than only after you already found it.
-              'group/rail flex h-dvh min-h-dvh shrink-0 flex-col items-center gap-1 px-1.5 pb-3 pt-[13px]',
+              'group/rail flex h-dvh min-h-dvh shrink-0 flex-col items-center px-1.5 pb-3 pt-[13px]',
+              railColumnGapClass,
               railNavWidth,
             )}
           >
@@ -2121,7 +2123,10 @@ export const SidebarDesktopV2 = ({
               between the framing separators. */}
             <div
               ref={lowerRegionRef}
-              className="flex min-h-0 w-full flex-1 flex-col items-center gap-1"
+              className={classNames(
+                'flex min-h-0 w-full flex-1 flex-col items-center',
+                railColumnGapClass,
+              )}
             >
               {/* Rail tabs that fit — fixed above the scrollable dock / More.
                 As the viewport shrinks, the lowest-priority tabs peel off into
@@ -2131,7 +2136,10 @@ export const SidebarDesktopV2 = ({
                 ref={tablistRef}
                 role="tablist"
                 aria-label="Sidebar categories"
-                className="relative flex w-full flex-col items-center gap-1"
+                className={classNames(
+                  'relative flex w-full flex-col items-center',
+                  railColumnGapClass,
+                )}
               >
                 {/* The selected pill — a single background that slides between
                   tabs. Sits behind them (z-0; tabs are relative z-1). The
@@ -2247,7 +2255,12 @@ export const SidebarDesktopV2 = ({
                 separators. The tiny -mx/px keeps focus rings from being
                 clipped. */}
               {showInlineDock && (
-                <div className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5">
+                <div
+                  className={classNames(
+                    'no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center overflow-y-auto px-0.5',
+                    railColumnGapClass,
+                  )}
+                >
                   <SidebarShortcutsDock />
                 </div>
               )}
@@ -2269,7 +2282,10 @@ export const SidebarDesktopV2 = ({
             <div
               aria-label="Sidebar utilities"
               onMouseEnter={handleRailMouseLeave}
-              className="flex w-full flex-col items-center gap-1"
+              className={classNames(
+                'flex w-full flex-col items-center',
+                railColumnGapClass,
+              )}
             >
               {/* Keyed on isLoggedIn (a constant, not shortcutCount or the
                 height-derived overflow state): it sits OUTSIDE the measured

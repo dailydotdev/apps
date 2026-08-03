@@ -26,3 +26,20 @@ export const DEFAULT_SHORTCUTS_APPEARANCE: ShortcutsAppearance = 'tile';
 
 export const MAX_SHORTCUTS = 12;
 export const UNDO_TIMEOUT_MS = 6000;
+
+// Drag payload used when a v2 sidebar panel row is dragged into the shortcuts
+// dock to pin it. Carried on the native dataTransfer under SHORTCUT_DRAG_MIME,
+// and stored as-is for pins that aren't catalog entries — hence it lives here
+// rather than next to the sidebar components, so `SettingsFlags` can reference
+// it without importing a component module.
+export interface ShortcutDragData {
+  title: string;
+  path: string;
+  // The icon image URL of the dragged row (e.g. a squad/source logo), captured
+  // at drag time so the pinned shortcut renders it immediately instead of
+  // re-fetching it (which flashed a placeholder for a beat).
+  image?: string;
+}
+
+// A pinned rail shortcut: either a catalog id (string) or an arbitrary page.
+export type SidebarShortcut = string | ShortcutDragData;

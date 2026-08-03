@@ -26,7 +26,11 @@ import AlertContext from './AlertContext';
 import NotificationsContext from './NotificationsContext';
 import type { Alerts } from '../graphql/alerts';
 import { UPDATE_ALERTS } from '../graphql/alerts';
-import type { RemoteSettings, Spaciness } from '../graphql/settings';
+import type {
+  RemoteSettings,
+  SettingsFlags,
+  Spaciness,
+} from '../graphql/settings';
 import { UPDATE_USER_SETTINGS_MUTATION } from '../graphql/settings';
 import { BootDataProvider } from './BootProvider';
 import { BOOT_LOCAL_KEY } from './common';
@@ -35,6 +39,7 @@ import { BootApp, getBootData } from '../lib/boot';
 import type { AuthTriggersType } from '../lib/auth';
 import { AuthTriggers } from '../lib/auth';
 import { expectToHaveTestValue } from '../../__tests__/helpers/utilities';
+import { useSettingsBooleanFlag } from '../hooks/useSettingsBooleanFlag';
 import { SortCommentsBy } from '../graphql/comments';
 
 jest.mock('../lib/boot', () => {
@@ -292,6 +297,62 @@ it('should toggle the sidebar callback', async () => {
   );
   fireEvent.click(sidebar);
   await expectToHaveTestValue(sidebar, expected.toString());
+});
+
+it('should keep client-only flags out of the remote payload and in local storage', async () => {
+  // The API rejects flags its `SettingsFlagsPublicInput` doesn't declare, which
+  // fails the whole mutation — this nock only matches if `sidebarCompact` was
+  // stripped from it.
+  mockSettingsMutation({ flags: {} as SettingsFlags });
+  const ClientOnlyFlagMock = () => {
+    const { value, toggle } = useSettingsBooleanFlag('sidebarCompact');
+
+    return (
+      <button onClick={toggle} type="button" data-test-value={value}>
+        Compact sidebar
+      </button>
+    );
+  };
+  renderComponent(
+    <>
+      <SettingsMock />
+      <ClientOnlyFlagMock />
+    </>,
+  );
+  await waitForRemoteBoot();
+  const compact = await screen.findByText('Compact sidebar');
+  await expectToHaveTestValue(compact, 'false');
+  fireEvent.click(compact);
+  await expectToHaveTestValue(compact, 'true');
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  await waitFor(() =>
+    expect(
+      localStorage.getItem('dailydev:settings:clientOnlyFlags:global'),
+    ).toEqual(JSON.stringify({ sidebarCompact: true })),
+  );
+});
+
+it('should push a flag the API has learned to store up to the server', async () => {
+  // Simulates a flag graduating: `clickbaitShieldEnabled` is a server flag, so
+  // a value sitting in the client-only store is a leftover from before the API
+  // grew the field, and must be migrated rather than stranded on this device.
+  localStorage.setItem(
+    'dailydev:settings:clientOnlyFlags:global',
+    JSON.stringify({ clickbaitShieldEnabled: false }),
+  );
+  mockSettingsMutation({
+    flags: { clickbaitShieldEnabled: false } as SettingsFlags,
+  });
+  renderComponent(<SettingsMock />);
+  await waitForRemoteBoot();
+  // nock only matches the exact payload above, so a consumed mock IS the
+  // assertion that the local value reached the API.
+  await waitFor(() => expect(nock.isDone()).toBe(true));
+  await waitFor(() =>
+    expect(
+      localStorage.getItem('dailydev:settings:clientOnlyFlags:global'),
+    ).toEqual('{}'),
+  );
 });
 
 it('should trigger set theme callback', async () => {

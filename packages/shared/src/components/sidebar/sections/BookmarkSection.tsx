@@ -45,16 +45,19 @@ export const BookmarkSection = ({
       requiresLogin: true,
       rightIcon,
     },
-    briefUIFeatureValue && {
-      icon: (active: boolean) => (
-        <ListIcon Icon={() => <BriefIcon secondary={active} />} />
-      ),
-      title: 'Presidential briefings',
-      path: briefingUrl,
-      isForcedLink: true,
-      requiresLogin: true,
-      rightIcon,
-    },
+    // v2 lists Presidential briefings in the Explore panel instead, so it isn't
+    // duplicated here. v1 keeps it alongside the bookmark entries.
+    !compact &&
+      briefUIFeatureValue && {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <BriefIcon secondary={active} />} />
+        ),
+        title: 'Presidential briefings',
+        path: briefingUrl,
+        isForcedLink: true,
+        requiresLogin: true,
+        rightIcon,
+      },
     {
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BookmarkReminderIcon secondary={active} />} />
