@@ -109,7 +109,9 @@ export const SidebarDensitySection = (): ReactElement => {
       target_type: TargetType.Layout,
       target_id: compact ? 'compact sidebar' : 'comfortable sidebar',
     });
-    setCompact(compact);
+    // A failed write rolls the setting back through the settings mutation's own
+    // error handler, so there's nothing to do here beyond not going unhandled.
+    setCompact(compact).catch(() => undefined);
   };
 
   return (

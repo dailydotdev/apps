@@ -67,9 +67,9 @@ export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 //
 // This list is the ONLY thing standing between these preferences and
 // cross-device sync. When the API adds a field, delete its entry here and
-// nothing else changes — the provider then sends it like any other flag, and
-// migrates each user's local value up on their next load (see
-// `useClientOnlyFlagsMigration`). See docs/settings-flags-backend.md.
+// nothing else changes — `SettingsContextProvider` then sends it like any other
+// flag, and migrates each user's local value up on their next load. The full
+// handoff, including the field shapes, is in docs/settings-flags-backend.md.
 export const clientOnlySettingsFlags = [
   'sidebarCompact',
   'sidebarShortcuts',
