@@ -107,21 +107,16 @@ function WeeklyQuizModal({
       {...props}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XLarge}
-      // Wider than the stock XLarge so the two-panel layout has room — the big
-      // logo fits the left panel at 40% without squeezing the leaderboard. The
-      // surface brings its own gradient/rounding, so strip the Modal's default
-      // dark background/border/shadow — otherwise it frames the surface in a
-      // black box.
-      className="force-dark !border-0 !bg-transparent !shadow-none tablet:!w-[52rem]"
+      // Fixed 640px so every screen (intro, quiz, results) shares one width.
+      // The surface brings its own gradient/rounding, so strip the Modal's
+      // default dark background/border/shadow — otherwise it frames the surface
+      // in a black box.
+      className="force-dark !border-0 !bg-transparent !shadow-none tablet:!w-[640px]"
       onRequestClose={handleRequestClose}
       isDrawerOnMobile
     >
       <div className="flex w-full items-start justify-center gap-3">
-        <div
-          className={`relative flex-1 ${styles.surface}${
-            phase === WeeklyQuizPhase.Results ? ' max-w-[640px]' : ''
-          }`}
-        >
+        <div className={`relative flex-1 ${styles.surface}`}>
           <span className={styles.rays} aria-hidden />
           {phase === WeeklyQuizPhase.Intro && (
             <WeeklyQuizIntro

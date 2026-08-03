@@ -115,7 +115,7 @@ export const WeeklyQuizIntro = ({
             <img
               src={LOGO_URL}
               alt="The Weekly Tech News Quiz"
-              className="pointer-events-none relative w-72 max-w-none select-none"
+              className="pointer-events-none relative w-64 max-w-none select-none tablet:w-52"
             />
             {/* Glow sits over the logo's lightbulb (right side, mid-height). */}
             <span
@@ -130,7 +130,7 @@ export const WeeklyQuizIntro = ({
       </h1>
 
       {/* Content column (on tablet, the left side). */}
-      <div className="z-10 relative flex w-full max-w-lg flex-col items-center gap-5 tablet:flex-1">
+      <div className="z-10 relative flex w-full max-w-lg flex-col items-center gap-5 tablet:min-w-0 tablet:flex-1">
         {/* The challenge pitch — the focus of this screen. */}
         <div className="flex flex-col gap-2">
           <Typography
