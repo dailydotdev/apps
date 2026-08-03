@@ -92,6 +92,80 @@
   }
 }
 
+/* A few A4 sheets drifting down behind the logo — a calm, sparse loop clipped to
+ * a soft circular region around the mascot. */
+.papers {
+  position: absolute;
+  inset: -6% -14%;
+  overflow: hidden;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 0;
+}
+.paper {
+  position: absolute;
+  top: 0;
+  width: 30px;
+  height: 42px; /* ~A4 ratio */
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  animation: paper-fall linear infinite;
+  will-change: transform, opacity;
+}
+/* Faint ruled lines so each sheet reads as a page. */
+.paper::before {
+  content: '';
+  position: absolute;
+  inset: 8px 6px auto 6px;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 6px 0 rgba(0, 0, 0, 0.1),
+    0 12px 0 rgba(0, 0, 0, 0.08);
+}
+@keyframes paper-fall {
+  0% {
+    transform: translateY(-40px) rotate(-8deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  88% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(340px) rotate(22deg);
+    opacity: 0;
+  }
+}
+.paper:nth-child(1) {
+  left: 16%;
+  animation-duration: 6.5s;
+  animation-delay: 0s;
+}
+.paper:nth-child(2) {
+  left: 46%;
+  animation-duration: 8s;
+  animation-delay: 2.4s;
+}
+.paper:nth-child(3) {
+  left: 70%;
+  animation-duration: 7.2s;
+  animation-delay: 4.3s;
+}
+.paper:nth-child(4) {
+  left: 84%;
+  animation-duration: 8.6s;
+  animation-delay: 1.2s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .papers {
+    display: none;
+  }
+}
+
 /* Warm pulsing glow overlaid on the logo's lightbulb so it reads as "lit".
  * Screen-blended so it brightens the bulb and spills light around it. */
 .bulbGlow {

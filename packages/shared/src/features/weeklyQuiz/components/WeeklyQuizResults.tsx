@@ -17,8 +17,8 @@ import {
 import {
   ArrowIcon,
   BellIcon,
+  CopyIcon,
   ShareIcon,
-  UserShareIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import {
@@ -26,7 +26,6 @@ import {
   ProfileImageSize,
 } from '../../../components/ProfilePicture';
 import { WeeklyQuizScoreboard } from './WeeklyQuizScoreboard';
-import { WeeklyQuizSharePopover } from './WeeklyQuizSharePopover';
 import { formatElapsed } from './WeeklyQuizTimer';
 import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
 import { useWeeklyQuizLeaderboard } from '../hooks/useWeeklyQuizLeaderboard';
@@ -75,12 +74,20 @@ export const WeeklyQuizResults = ({
   const { submit } = useSubmitWeeklyQuiz();
   // Local-only until the reminder subscription is wired to the backend.
   const [reminderSet, setReminderSet] = useState(false);
-  const [isChallengeOpen, setIsChallengeOpen] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   // Leaderboard period for the board shown at the bottom of this screen.
   const [period, setPeriod] = useState<WeeklyQuizPeriod>(
     WeeklyQuizPeriod.Weekly,
   );
   const submittedRef = useRef(false);
+  // Shareable quiz link (placeholder until the real URL is wired up).
+  const quizUrl = 'https://daily.dev/quiz/weekly-tech-news';
+  const copyLink = (): void => {
+    navigator.clipboard
+      ?.writeText(quizUrl)
+      .then(() => setLinkCopied(true))
+      .catch(() => undefined);
+  };
   // Rank comes from this week's board (the quiz just finished).
   const { leaderboard, viewerEntry } = useWeeklyQuizLeaderboard(
     WeeklyQuizPeriod.Weekly,
@@ -241,37 +248,60 @@ export const WeeklyQuizResults = ({
         Share your result
       </Button>
 
-      {/* Secondary actions. */}
-      <div className="flex flex-col gap-3 tablet:flex-row">
-        <button
-          type="button"
-          className={styles.resultAction}
-          onClick={() => setIsChallengeOpen(true)}
+      {/* Challenge your team — share the quiz link, inline under the CTA. */}
+      <div
+        className={classNames(
+          'flex flex-col gap-2 rounded-16 p-4 text-left',
+          styles.glass,
+        )}
+      >
+        <Typography
+          type={TypographyType.Callout}
+          bold
+          className="!text-text-primary"
         >
-          <UserShareIcon size={IconSize.XSmall} />
           Challenge your team
-        </button>
-        <button
-          type="button"
-          aria-pressed={reminderSet}
-          className={classNames(
-            styles.resultAction,
-            reminderSet && styles.resultActionSet,
-          )}
-          onClick={() => setReminderSet(true)}
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          className="!text-text-tertiary"
         >
-          <BellIcon size={IconSize.XSmall} />
-          {reminderSet ? "You're all set" : 'Set weekly reminder'}
-        </button>
+          Send this link so they can take this week&apos;s quiz and try to beat
+          your score.
+        </Typography>
+        <div className="flex items-center gap-2">
+          <input
+            readOnly
+            value={quizUrl}
+            aria-label="Quiz link"
+            onFocus={(event) => event.target.select()}
+            className="min-w-0 flex-1 rounded-10 bg-background-default px-3 py-2 text-text-primary typo-footnote"
+          />
+          <Button
+            type="button"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Medium}
+            icon={<CopyIcon />}
+            onClick={copyLink}
+          >
+            {linkCopied ? 'Copied' : 'Copy'}
+          </Button>
+        </div>
       </div>
 
-      {isChallengeOpen && (
-        <WeeklyQuizSharePopover
-          title="Challenge your team"
-          description="Send this link so they can take this week's quiz and try to beat your score."
-          onClose={() => setIsChallengeOpen(false)}
-        />
-      )}
+      {/* Weekly reminder. */}
+      <button
+        type="button"
+        aria-pressed={reminderSet}
+        className={classNames(
+          styles.resultAction,
+          reminderSet && styles.resultActionSet,
+        )}
+        onClick={() => setReminderSet(true)}
+      >
+        <BellIcon size={IconSize.XSmall} />
+        {reminderSet ? "You're all set" : 'Set weekly reminder'}
+      </button>
 
       {!user && (
         <div
