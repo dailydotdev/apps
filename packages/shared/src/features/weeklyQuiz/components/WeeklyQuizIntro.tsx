@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
+  TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
 import { BellIcon, CalendarIcon, ShareIcon } from '../../../components/icons';
@@ -17,24 +18,19 @@ import {
   ProfileImageSize,
 } from '../../../components/ProfilePicture';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { WeeklyQuizScoreboard } from './WeeklyQuizScoreboard';
 import { WeeklyQuizSharePopover } from './WeeklyQuizSharePopover';
-import { WeeklyQuizPeriod } from '../types';
 import type { WeeklyQuiz } from '../types';
-import type { UseWeeklyQuizAudio } from '../hooks/useWeeklyQuizAudio';
 import styles from '../WeeklyQuiz.module.css';
 
 const LOGO_URL = '/logos/weekly-quiz-logo.png';
 
 // How many source logos the intro shows before collapsing the rest into "+N".
-// Kept low so the "+N" pill sits inline on the same row as the logos.
 const SHOWN_SOURCES = 5;
 
 interface WeeklyQuizIntroProps {
   quiz: WeeklyQuiz | undefined;
   isLoading: boolean;
   onStart: () => void;
-  audio?: UseWeeklyQuizAudio;
   // Locked out for the week — already played (server flag or a spent local run).
   alreadyPlayed?: boolean;
 }
@@ -56,20 +52,16 @@ const formatWeekRange = (start: string, end: string): string => {
     : `${month(s)} ${s.getDate()} – ${month(e)} ${e.getDate()}, ${year}`;
 };
 
-// Landing screen: two separated floating panels — left holds the logo, the
-// arcade Start button and social actions; right holds the leaderboard. Stacks
-// on mobile, side-by-side from tablet up.
+// Landing screen: a single focused column that pitches the challenge — logo, a
+// hook line, the week's context, and the Start button. The leaderboard is not
+// shown here; it lives on the results screen once you've played.
 export const WeeklyQuizIntro = ({
   quiz,
   isLoading,
   onStart,
-  audio,
   alreadyPlayed = false,
 }: WeeklyQuizIntroProps): ReactElement => {
   const { user } = useAuthContext();
-  const [period, setPeriod] = useState<WeeklyQuizPeriod>(
-    WeeklyQuizPeriod.Weekly,
-  );
   // Local-only until the reminder subscription is wired to the backend.
   const [reminderSet, setReminderSet] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
@@ -97,13 +89,8 @@ export const WeeklyQuizIntro = ({
   };
 
   return (
-    <div className="flex animate-composer-in flex-col gap-4 p-4 tablet:flex-row tablet:items-stretch">
-      <div
-        className={classNames(
-          'flex flex-col items-center gap-5 rounded-24 p-4 tablet:w-[calc(40%-0.5rem)]',
-          styles.panel,
-        )}
-      >
+    <div className="relative flex animate-composer-in flex-col items-center gap-5 p-6 text-center tablet:p-8">
+      <div className="flex w-full max-w-lg flex-col items-center gap-5">
         <h1 className="flex justify-center">
           {/* Padding enlarges the mouse-tracked hover box beyond the logo art
               so the 3D tilt reacts over a more generous area. */}
@@ -117,7 +104,7 @@ export const WeeklyQuizIntro = ({
               <img
                 src={LOGO_URL}
                 alt="The Weekly Tech News Quiz"
-                className="pointer-events-none w-72 max-w-none select-none"
+                className="pointer-events-none w-64 max-w-none select-none"
               />
               {/* Glow sits over the logo's lightbulb (right side, mid-height). */}
               <span
@@ -130,6 +117,67 @@ export const WeeklyQuizIntro = ({
             </span>
           </span>
         </h1>
+
+        {/* The challenge pitch — the focus of this screen. */}
+        <div className="flex flex-col gap-2">
+          <Typography
+            type={TypographyType.Title2}
+            bold
+            tag={TypographyTag.H2}
+            className="!text-text-primary"
+          >
+            Think you&apos;re up to date with this week&apos;s tech news?
+          </Typography>
+          {quiz?.welcomeText && (
+            <Typography
+              type={TypographyType.Body}
+              className="!text-text-secondary"
+            >
+              {quiz.welcomeText}
+            </Typography>
+          )}
+          <Typography
+            type={TypographyType.Callout}
+            className="!text-text-tertiary"
+          >
+            Think fast and answer quickly — speed and knowledge both count.
+          </Typography>
+        </div>
+
+        {/* Which week + how much news it distils. */}
+        {quiz && (
+          <div className="flex flex-col items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-float px-3 py-1 font-bold text-text-primary typo-footnote">
+              <CalendarIcon size={IconSize.XSmall} />
+              {formatWeekRange(quiz.startDate, quiz.endDate)}
+            </span>
+            <Typography
+              type={TypographyType.Footnote}
+              className="!text-text-tertiary"
+            >
+              {quiz.storyCount} stories from {quiz.sourceCount} sources,
+              distilled into {questionCount} questions.
+            </Typography>
+            {quiz.topSources.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {quiz.topSources.slice(0, SHOWN_SOURCES).map((source) => (
+                  <img
+                    key={source.id}
+                    src={source.image}
+                    alt={source.name}
+                    title={source.name}
+                    className="h-7 w-7 rounded-full object-cover ring-2 ring-border-subtlest-tertiary"
+                  />
+                ))}
+                {quiz.sourceCount > SHOWN_SOURCES && (
+                  <span className="flex h-7 items-center rounded-full bg-surface-float px-2.5 font-bold text-text-primary typo-caption1">
+                    +{quiz.sourceCount - SHOWN_SOURCES}
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {alreadyPlayed ? (
           <div className="flex w-full flex-col items-center gap-2">
@@ -171,45 +219,7 @@ export const WeeklyQuizIntro = ({
           </Button>
         )}
 
-        {/* Which week + how much news it distils — makes it clear the quiz
-            recaps the week that just ended, not an older one. */}
-        {quiz && (
-          <div className="flex flex-col items-center gap-2 text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-hover px-3 py-1 font-bold text-text-primary typo-footnote">
-              <CalendarIcon size={IconSize.XSmall} />
-              {formatWeekRange(quiz.startDate, quiz.endDate)}
-            </span>
-            <Typography
-              type={TypographyType.Callout}
-              bold
-              className="!text-text-primary"
-            >
-              {quiz.storyCount} stories from {quiz.sourceCount} sources,
-              distilled into {questionCount} questions.
-            </Typography>
-            {quiz.topSources.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {quiz.topSources.slice(0, SHOWN_SOURCES).map((source) => (
-                  <img
-                    key={source.id}
-                    src={source.image}
-                    alt={source.name}
-                    title={source.name}
-                    className="h-8 w-8 rounded-full object-cover ring-2 ring-border-subtlest-tertiary"
-                  />
-                ))}
-                {quiz.sourceCount > SHOWN_SOURCES && (
-                  <span className="flex h-8 items-center rounded-full bg-surface-hover px-2.5 font-bold text-text-primary typo-caption1">
-                    +{quiz.sourceCount - SHOWN_SOURCES}
-                  </span>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Share + weekly reminder, always available. (Challenge-a-friend is
-            stashed for now.) */}
+        {/* Share + weekly reminder, always available. */}
         <div className="flex w-full flex-col gap-3">
           <Button
             type="button"
@@ -238,20 +248,6 @@ export const WeeklyQuizIntro = ({
       {isShareOpen && (
         <WeeklyQuizSharePopover onClose={() => setIsShareOpen(false)} />
       )}
-
-      <div
-        className={classNames(
-          'relative rounded-24 tablet:w-[calc(60%-0.5rem)]',
-          styles.panel,
-        )}
-      >
-        <WeeklyQuizScoreboard
-          period={period}
-          onPeriodChange={setPeriod}
-          audio={audio}
-          fillHeight
-        />
-      </div>
     </div>
   );
 };

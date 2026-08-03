@@ -124,7 +124,6 @@ function WeeklyQuizModal({
               quiz={quiz}
               isLoading={isPending}
               onStart={game.beginCountdown}
-              audio={audio}
               alreadyPlayed={alreadyPlayed}
             />
           )}

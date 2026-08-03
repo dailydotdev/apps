@@ -19,6 +19,7 @@ import {
   ProfilePicture,
   ProfileImageSize,
 } from '../../../components/ProfilePicture';
+import { WeeklyQuizScoreboard } from './WeeklyQuizScoreboard';
 import { WeeklyQuizSharePopover } from './WeeklyQuizSharePopover';
 import { formatElapsed } from './WeeklyQuizTimer';
 import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
@@ -60,6 +61,7 @@ const buildMessage = (correct: number, total: number): string => {
 export const WeeklyQuizResults = ({
   quizId,
   result,
+  audio,
   onBackToMain,
 }: WeeklyQuizResultsProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
@@ -67,6 +69,10 @@ export const WeeklyQuizResults = ({
   // Local-only until the reminder subscription is wired to the backend.
   const [reminderSet, setReminderSet] = useState(false);
   const [isChallengeOpen, setIsChallengeOpen] = useState(false);
+  // Leaderboard period for the board shown at the bottom of this screen.
+  const [period, setPeriod] = useState<WeeklyQuizPeriod>(
+    WeeklyQuizPeriod.Weekly,
+  );
   const submittedRef = useRef(false);
   // Rank comes from this week's board (the quiz just finished).
   const { leaderboard, viewerEntry } = useWeeklyQuizLeaderboard(
@@ -283,6 +289,13 @@ export const WeeklyQuizResults = ({
           </Button>
         </div>
       )}
+
+      {/* The leaderboard now lives here, at the end. */}
+      <WeeklyQuizScoreboard
+        period={period}
+        onPeriodChange={setPeriod}
+        audio={audio}
+      />
     </div>
   );
 };

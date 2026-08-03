@@ -77,7 +77,6 @@ const PreviewGame = ({
             quiz={quiz}
             isLoading={isPending}
             onStart={game.beginCountdown}
-            audio={audio}
             alreadyPlayed={alreadyPlayed}
           />
         )}
