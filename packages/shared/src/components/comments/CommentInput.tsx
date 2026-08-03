@@ -47,6 +47,10 @@ export default function CommentInput({
         <Drawer
           isOpen
           isFullScreen
+          // The composer can sit under animated/transformed ancestors (e.g. the
+          // `animate-composer-in` wrapper), which trap `position: fixed` and
+          // pin the drawer mid-page. Portal to the root so it fills the screen.
+          appendOnRoot
           position={DrawerPosition.Bottom}
           onClose={() => onClose?.()}
           className={{ wrapper: 'flex flex-col !px-0 !pt-0' }}
