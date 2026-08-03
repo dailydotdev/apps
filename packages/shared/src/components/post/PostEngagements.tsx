@@ -32,8 +32,7 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
-import type { OpenPostCommentEventDetail } from '../../lib/postComment';
-import { OPEN_POST_COMMENT_EVENT } from '../../lib/postComment';
+import { useOpenPostCommentRequest } from '../../hooks/post/useOpenPostCommentRequest';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -109,29 +108,7 @@ function PostEngagements({
     }
   }, [shouldOnboardAuthor]);
 
-  useEffect(() => {
-    const onOpenRequest = (
-      event: CustomEvent<OpenPostCommentEventDetail>,
-    ): void => {
-      if (event.detail.postId !== post.id) {
-        return;
-      }
-
-      commentRef.current?.onShowInput(event.detail.origin);
-    };
-
-    globalThis.window?.addEventListener(
-      OPEN_POST_COMMENT_EVENT,
-      onOpenRequest as EventListener,
-    );
-
-    return () => {
-      globalThis.window?.removeEventListener(
-        OPEN_POST_COMMENT_EVENT,
-        onOpenRequest as EventListener,
-      );
-    };
-  }, [post.id]);
+  useOpenPostCommentRequest(post.id, commentRef);
 
   return (
     <>

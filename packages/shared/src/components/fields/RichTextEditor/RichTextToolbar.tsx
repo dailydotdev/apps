@@ -125,19 +125,20 @@ const OverflowMenu = ({ items }: OverflowMenuProps): ReactElement | null => {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <Tooltip content="More formatting">
-        <DropdownMenuTrigger asChild>
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            icon={<MenuIcon className="rotate-90" />}
-            aria-label="More formatting"
-            onMouseDown={(event: React.MouseEvent) => event.preventDefault()}
-            className="shrink-0"
-          />
-        </DropdownMenuTrigger>
-      </Tooltip>
+      {/* The trigger's own `tooltip` prop, not a `Tooltip` wrapper: the wrapper
+          blurs its trigger on mouseup, which insta-dismisses non-modal Radix
+          menus before they ever paint. */}
+      <DropdownMenuTrigger asChild tooltip={{ content: 'More formatting' }}>
+        <Button
+          type="button"
+          variant={ButtonVariant.Tertiary}
+          size={ButtonSize.Small}
+          icon={<MenuIcon className="rotate-90" />}
+          aria-label="More formatting"
+          onMouseDown={(event: React.MouseEvent) => event.preventDefault()}
+          className="shrink-0"
+        />
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="end" variant="field" className="min-w-56">
         {items.map((item) => (
           <DropdownMenuItem

@@ -219,6 +219,7 @@ function RichTextInput(
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const scrollOffsetRef = useRef(0);
   const shouldRestoreScrollRef = useRef(false);
+  const pendingFocusRef = useRef(false);
   const dirtyRef = useRef(false);
   const isSyncingRef = useRef(false);
   const inputRef = useRef('');
@@ -721,7 +722,14 @@ function RichTextInput(
         return;
       }
 
-      editor?.commands.focus('end');
+      if (!editor) {
+        // The editor is created async (`immediatelyRender: false`), so a focus
+        // requested at mount — the composer's autofocus — would silently miss.
+        pendingFocusRef.current = true;
+        return;
+      }
+
+      editor.commands.focus('end');
     },
     toggleMarkdownMode,
   }));
@@ -740,6 +748,16 @@ function RichTextInput(
       }
     }
   }, [editor, initialContent, input, markdownToHtml, updateInput]);
+
+  // Ordered after the initial-content sync above so a queued autofocus lands
+  // with the caret at the end of the prefilled mention, not an empty doc.
+  useEffect(() => {
+    if (!editor || !pendingFocusRef.current) {
+      return;
+    }
+    pendingFocusRef.current = false;
+    editor.commands.focus('end');
+  }, [editor]);
 
   const actionIcon =
     upload.queueCount === 0 ? (

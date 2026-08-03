@@ -3,6 +3,7 @@ import type { LegacyRef, ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
+import { useOpenPostCommentRequest } from '../../../hooks/post/useOpenPostCommentRequest';
 import { useShareComment } from '../../../hooks/useShareComment';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { Origin } from '../../../lib/log';
@@ -83,6 +84,8 @@ export const PostDiscussionPanel = ({
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { onShowUpvoted } = useUpvoteQuery();
   const { openShareComment } = useShareComment(origin);
+
+  useOpenPostCommentRequest(post.id, commentRef);
 
   useEffect(() => {
     if (!onRegisterFocusComment) {
