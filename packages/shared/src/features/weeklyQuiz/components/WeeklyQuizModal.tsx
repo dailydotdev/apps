@@ -117,7 +117,11 @@ function WeeklyQuizModal({
       isDrawerOnMobile
     >
       <div className="flex w-full items-start justify-center gap-3">
-        <div className={`relative flex-1 ${styles.surface}`}>
+        <div
+          className={`relative flex-1 ${styles.surface}${
+            phase === WeeklyQuizPhase.Results ? ' max-w-[640px]' : ''
+          }`}
+        >
           <span className={styles.rays} aria-hidden />
           {phase === WeeklyQuizPhase.Intro && (
             <WeeklyQuizIntro

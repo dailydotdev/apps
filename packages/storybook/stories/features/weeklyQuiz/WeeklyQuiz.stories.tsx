@@ -132,7 +132,7 @@ const ResultsPreview = (): React.ReactElement => {
   const { status } = useWeeklyQuizStatus();
   const audio = useWeeklyQuizAudio();
   return (
-    <div className="force-dark mx-auto flex w-full max-w-[52rem] items-start justify-center gap-3">
+    <div className="force-dark mx-auto flex w-full max-w-[640px] items-start justify-center gap-3">
       <div className={`relative flex-1 ${styles.surface}`}>
         <span className={styles.rays} aria-hidden />
         <WeeklyQuizResults

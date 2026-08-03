@@ -16,7 +16,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { ReputationLightningIcon, StarIcon } from '../../../components/icons';
+import { ReputationLightningIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
@@ -124,8 +124,8 @@ const ScoreboardRow = ({
             styles.superstarBadge,
           )}
         >
-          <StarIcon size={IconSize.XXSmall} secondary />
-          Superstar
+          <ReputationLightningIcon size={IconSize.XXSmall} secondary />
+          Fastest
         </span>
         <RowContent entry={entry} isFastest={false} />
       </li>

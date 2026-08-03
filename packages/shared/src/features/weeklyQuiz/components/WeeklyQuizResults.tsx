@@ -18,6 +18,7 @@ import {
   BellIcon,
   CopyIcon,
   DownloadIcon,
+  TimerIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { SocialShareButton } from '../../../components/widgets/SocialShareButton';
@@ -244,9 +245,11 @@ export const WeeklyQuizResults = ({
     generateWeeklyQuizResultImage({
       name: user?.name || user?.username || 'You',
       imageUrl: user?.image || fallbackImages.avatar,
+      title: tier.title,
       correctCount,
       totalQuestions,
       timeLabel: formatElapsed(timeMs),
+      percentile,
       rank,
       logoUrl: '/logos/weekly-quiz-logo.png',
       brandLogoUrl: '/android-chrome-512x512.png',
@@ -290,20 +293,12 @@ export const WeeklyQuizResults = ({
       {/* Verdict: score and time rings on the left, level and copy on the
           right. */}
       <div className="mt-6 flex flex-wrap items-center gap-4 text-left">
-        <div className="flex shrink-0 gap-3">
-          <StatRing
-            value={`${correctCount}/${totalQuestions}`}
-            label="Correct"
-            ratio={ratio}
-            colorVar="--theme-accent-cabbage-default"
-          />
-          <StatRing
-            value={formatElapsed(timeMs)}
-            label="Time"
-            ratio={1}
-            colorVar="--theme-accent-onion-default"
-          />
-        </div>
+        <StatRing
+          value={`${correctCount}/${totalQuestions}`}
+          label="Correct"
+          ratio={ratio}
+          colorVar="--theme-accent-cabbage-default"
+        />
         <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
           <Typography
             type={TypographyType.Title1}
@@ -315,7 +310,7 @@ export const WeeklyQuizResults = ({
           </Typography>
           <Typography
             type={TypographyType.Callout}
-            className="!text-text-tertiary"
+            className="!text-text-secondary"
           >
             You scored better than {percentile}% of players.
           </Typography>
@@ -326,8 +321,15 @@ export const WeeklyQuizResults = ({
             {tier.message}
           </Typography>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="whitespace-nowrap rounded-8 bg-surface-float px-3 py-1 text-text-tertiary typo-footnote">
-              {paceLabel}
+            <span className="flex items-center gap-1.5 whitespace-nowrap rounded-8 bg-surface-float px-3 py-1 typo-footnote">
+              <TimerIcon
+                size={IconSize.XSmall}
+                className="text-text-tertiary"
+              />
+              <span className="font-bold tabular-nums text-text-primary">
+                {formatElapsed(timeMs)}
+              </span>
+              <span className="text-text-tertiary">· {paceLabel}</span>
             </span>
             {rank && (
               <span
@@ -350,7 +352,7 @@ export const WeeklyQuizResults = ({
           alt=""
           aria-hidden
           onError={() => setGifFailed(true)}
-          className="mx-auto aspect-[4/3] w-full max-w-xs rounded-16 object-cover"
+          className="aspect-[4/3] w-full max-w-[640px] rounded-16 object-cover"
         />
       )}
 
@@ -365,7 +367,7 @@ export const WeeklyQuizResults = ({
         >
           Share your result
         </Typography>
-        <div className="no-scrollbar mt-4 flex flex-row justify-center gap-2 overflow-x-auto">
+        <div className="no-scrollbar mt-4 flex flex-row justify-start gap-2 overflow-x-auto">
           <SocialShareButton
             label="Download"
             icon={<DownloadIcon />}
