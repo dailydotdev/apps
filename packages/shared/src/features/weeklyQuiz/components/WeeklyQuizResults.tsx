@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
@@ -10,28 +10,18 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
 import {
   Button,
-  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import {
-  ArrowIcon,
-  BellIcon,
-  CopyIcon,
-  ShareIcon,
-} from '../../../components/icons';
+import { ArrowIcon, BellIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
-import {
-  ProfilePicture,
-  ProfileImageSize,
-} from '../../../components/ProfilePicture';
+import { SocialShareContainer } from '../../../components/widgets/SocialShareContainer';
+import { SocialShareList } from '../../../components/widgets/SocialShareList';
 import { WeeklyQuizConfetti } from './WeeklyQuizConfetti';
 import { WeeklyQuizScoreboard } from './WeeklyQuizScoreboard';
 import { formatElapsed } from './WeeklyQuizTimer';
 import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
 import { useWeeklyQuizLeaderboard } from '../hooks/useWeeklyQuizLeaderboard';
-import { fallbackImages } from '../../../lib/config';
-import { generateWeeklyQuizResultImage } from '../generateResultImage';
 import { isWeeklyQuizDemo } from '../demoMode';
 import type { WeeklyQuizGameResult } from '../hooks/useWeeklyQuizGame';
 import type { UseWeeklyQuizAudio } from '../hooks/useWeeklyQuizAudio';
@@ -46,23 +36,132 @@ interface WeeklyQuizResultsProps {
   onBackToMain: () => void;
 }
 
-const buildMessage = (correct: number, total: number): string => {
+// A tech-reader persona keyed to how many answers the player got right. This is
+// the BuzzFeed-style "who are you" headline for the result. Each tier also
+// carries a matching one-liner and a celebratory GIF. GIF URLs are best-effort
+// (open Giphy media); the GIF hides itself if the URL fails to load.
+interface ResultTier {
+  title: string;
+  message: string;
+  gif: string;
+}
+
+const getTier = (correct: number, total: number): ResultTier => {
   const ratio = total === 0 ? 0 : correct / total;
   if (ratio === 1) {
-    return 'Flawless — you were paying attention this week!';
+    return {
+      title: 'Tech News Oracle',
+      message: 'Flawless. Nothing slipped past you this week.',
+      gif: 'https://media.giphy.com/media/3ohzdIuqJoo8QdKlnW/giphy.gif',
+    };
   }
-  if (ratio >= 0.6) {
-    return 'Nicely done. You know your tech news.';
+  if (ratio >= 0.7) {
+    return {
+      title: 'Well Informed',
+      message: 'You clearly did your reading. Sharp week.',
+      gif: 'https://media.giphy.com/media/111ebonMs90YLu/giphy.gif',
+    };
   }
-  if (ratio >= 0.3) {
-    return 'Not bad — a few slipped past you.';
+  if (ratio >= 0.4) {
+    return {
+      title: 'In the Loop',
+      message: 'Solidly caught up, with a few that got away.',
+      gif: 'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif',
+    };
   }
-  return 'Tough week? There is always next week.';
+  if (ratio >= 0.2) {
+    return {
+      title: 'Casually Scrolling',
+      message: 'You skimmed the headlines. Room to level up.',
+      gif: 'https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif',
+    };
+  }
+  return {
+    title: 'Out of the Loop',
+    message: 'Tough week? There is always next week.',
+    gif: 'https://media.giphy.com/media/3oEjHV0z8S7WM4MwnK/giphy.gif',
+  };
 };
 
-// Final screen: a back arrow to the main screen, then the player's own result
-// as the hero (placement + score + time) and the share/reminder actions. The
-// full leaderboard lives on the main screen, not here. Logged-in players'
+// A fabricated-but-fun "better than X%" percentile, derived from the score. A
+// perfect run never claims to beat everyone.
+const getPercentile = (correct: number, total: number): number => {
+  const ratio = total === 0 ? 0 : correct / total;
+  return Math.min(99, Math.max(1, Math.round(ratio * 100)));
+};
+
+// Classify the run's pace from average time per question, so the time reads as
+// fast / steady / slow rather than a bare number.
+const getPaceLabel = (timeMs: number, total: number): string => {
+  const perQuestion = total === 0 ? timeMs : timeMs / total;
+  if (perQuestion < 6000) {
+    return 'Lightning fast';
+  }
+  if (perQuestion <= 11000) {
+    return 'Steady pace';
+  }
+  return 'Took your time';
+};
+
+// A circular progress ring showing correct/total, BuzzFeed-style. Uses inline
+// CSS-var strokes (theme tokens) so it tracks light/dark without raw colors.
+const ScoreRing = ({
+  correct,
+  total,
+}: {
+  correct: number;
+  total: number;
+}): ReactElement => {
+  const ratio = total === 0 ? 0 : correct / total;
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference * (1 - ratio);
+  return (
+    <div className="relative flex h-28 w-28 shrink-0 items-center justify-center">
+      <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+        <circle
+          cx="50"
+          cy="50"
+          r={radius}
+          fill="none"
+          strokeWidth="8"
+          style={{ stroke: 'var(--theme-border-subtlest-secondary)' }}
+        />
+        <circle
+          cx="50"
+          cy="50"
+          r={radius}
+          fill="none"
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={dashOffset}
+          className="animate-reward-pop motion-reduce:animate-none"
+          style={{ stroke: 'var(--theme-accent-cabbage-default)' }}
+        />
+      </svg>
+      <div className="absolute flex flex-col items-center">
+        <Typography
+          type={TypographyType.Title1}
+          bold
+          className="!text-text-primary"
+        >
+          {correct}/{total}
+        </Typography>
+        <Typography
+          type={TypographyType.Caption1}
+          className="!text-text-tertiary"
+        >
+          Correct
+        </Typography>
+      </div>
+    </div>
+  );
+};
+
+// Final screen: a back arrow to the main screen, then a BuzzFeed-style verdict —
+// a persona title for the player, a score ring, pace, and a matching GIF —
+// followed by the external share row and the leaderboard. Logged-in players'
 // results are submitted once on arrival (and again if an anonymous player signs
 // in from here).
 export const WeeklyQuizResults = ({
@@ -76,6 +175,8 @@ export const WeeklyQuizResults = ({
   // Local-only until the reminder subscription is wired to the backend.
   const [reminderSet, setReminderSet] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  // Best-effort GIF: hide the slot entirely if the open Giphy URL fails to load.
+  const [gifFailed, setGifFailed] = useState(false);
   // Leaderboard period for the board shown at the bottom of this screen.
   const [period, setPeriod] = useState<WeeklyQuizPeriod>(
     WeeklyQuizPeriod.Weekly,
@@ -83,12 +184,29 @@ export const WeeklyQuizResults = ({
   const submittedRef = useRef(false);
   // Shareable quiz link (placeholder until the real URL is wired up).
   const quizUrl = 'https://daily.dev/quiz/weekly-tech-news';
+
+  const { correctCount, totalQuestions, timeMs } = result;
+  const tier = getTier(correctCount, totalQuestions);
+  const percentile = getPercentile(correctCount, totalQuestions);
+  const paceLabel = getPaceLabel(timeMs, totalQuestions);
+  const shareText = `I'm a "${tier.title}" on the daily.dev weekly tech news quiz (${correctCount}/${totalQuestions} correct). Think you can beat me?`;
+
   const copyLink = (): void => {
     navigator.clipboard
       ?.writeText(quizUrl)
       .then(() => setLinkCopied(true))
       .catch(() => undefined);
   };
+  const nativeShare = (): void => {
+    navigator
+      .share?.({
+        title: 'daily.dev weekly quiz',
+        text: shareText,
+        url: quizUrl,
+      })
+      .catch(() => undefined);
+  };
+
   // Rank comes from this week's board (the quiz just finished).
   const { leaderboard, viewerEntry } = useWeeklyQuizLeaderboard(
     WeeklyQuizPeriod.Weekly,
@@ -100,22 +218,6 @@ export const WeeklyQuizResults = ({
     viewerEntry?.rank ??
     leaderboard.find((entry) => entry.isCurrentUser)?.rank ??
     null;
-
-  // Renders the result as a shareable PNG and downloads it. Target may change
-  // later (native share sheet / upload); for now it saves locally.
-  const handleShareResult = (): void => {
-    generateWeeklyQuizResultImage({
-      name: user?.name || user?.username || 'You',
-      // Fall back to daily.dev's placeholder avatar when the player has none.
-      imageUrl: user?.image || fallbackImages.avatar,
-      correctCount: result.correctCount,
-      totalQuestions: result.totalQuestions,
-      timeLabel: formatElapsed(result.timeMs),
-      rank,
-      logoUrl: '/logos/weekly-quiz-logo.png',
-      brandLogoUrl: '/android-chrome-512x512.png',
-    }).catch(() => undefined);
-  };
 
   // Submit once we have an authenticated player — either immediately (already
   // logged in) or right after they sign in from the prompt below. Skipped in
@@ -151,147 +253,90 @@ export const WeeklyQuizResults = ({
         <ArrowIcon size={IconSize.Large} className="-rotate-90" />
       </button>
 
-      <div className="flex flex-col items-center gap-4 text-center">
-        {/* Achievement first: the player's own placement is the hero, with their
-            avatar and a medal-style rank badge. Only when we know their rank. */}
-        {rank && user && (
-          <div className="flex flex-col items-center gap-3">
-            <div className="relative animate-reward-pop motion-reduce:animate-none">
-              <ProfilePicture
-                user={user}
-                size={ProfileImageSize.XXXLarge}
-                rounded="full"
-                className="ring-4 ring-border-subtlest-secondary"
-              />
-              <span
-                className={classNames(
-                  'absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-0.5 font-bold typo-callout',
-                  styles.fastestBadge,
-                )}
-              >
-                #{rank}
-              </span>
-            </div>
-            <Typography
-              type={TypographyType.LargeTitle}
-              bold
-              tag={TypographyTag.H1}
-              className="!text-text-primary"
-            >
-              You placed #{rank}!
-            </Typography>
-          </div>
-        )}
-        {/* Score and time carry equal weight — two matching stat circles. */}
-        <div className="flex items-center justify-center gap-4">
-          <div
-            className={classNames(
-              'flex h-28 w-28 animate-reward-pop flex-col items-center justify-center rounded-full motion-reduce:animate-none',
-              styles.scoreCircle,
-            )}
-            aria-hidden
+      {/* Verdict: the persona title is the hero, with the score ring beside it. */}
+      <div className="mt-6 flex flex-col items-center gap-4 text-center">
+        <ScoreRing correct={correctCount} total={totalQuestions} />
+        <div className="flex flex-col items-center gap-1">
+          <Typography
+            type={TypographyType.LargeTitle}
+            bold
+            tag={TypographyTag.H1}
+            className="!text-text-primary"
           >
-            <Typography
-              type={TypographyType.LargeTitle}
-              bold
-              className="!text-text-primary"
-            >
-              {result.correctCount}/{result.totalQuestions}
-            </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              className="!text-text-secondary"
-            >
-              Correct
-            </Typography>
-          </div>
-          <div
-            className={classNames(
-              'flex h-28 w-28 animate-reward-pop flex-col items-center justify-center rounded-full motion-reduce:animate-none',
-              styles.scoreCircle,
-            )}
-            aria-hidden
+            {tier.title}
+          </Typography>
+          <Typography
+            type={TypographyType.Callout}
+            className="!text-text-tertiary"
           >
-            <Typography
-              type={TypographyType.LargeTitle}
-              bold
-              className="tabular-nums !text-text-primary"
+            You scored better than {percentile}% of players.
+          </Typography>
+          {rank && (
+            <span
+              className={classNames(
+                'mt-1 whitespace-nowrap rounded-full px-3 py-0.5 font-bold typo-footnote',
+                styles.fastestBadge,
+              )}
             >
-              {formatElapsed(result.timeMs)}
-            </Typography>
-            <Typography
-              type={TypographyType.Footnote}
-              className="!text-text-secondary"
-            >
-              Time
-            </Typography>
-          </div>
+              #{rank} this week
+            </span>
+          )}
         </div>
         <Typography
-          type={rank && user ? TypographyType.Title3 : TypographyType.Title2}
-          bold
-          tag={rank && user ? TypographyTag.P : TypographyTag.H1}
-          className={
-            rank && user ? '!text-text-secondary' : '!text-text-primary'
-          }
+          type={TypographyType.Body}
+          className="max-w-sm !text-text-secondary"
         >
-          {buildMessage(result.correctCount, result.totalQuestions)}
+          {tier.message}
         </Typography>
-      </div>
-
-      {/* Primary action: share, styled and animated like the intro Start button. */}
-      <Button
-        type="button"
-        variant={ButtonVariant.Primary}
-        color={ButtonColor.Cabbage}
-        size={ButtonSize.XLarge}
-        className={classNames('w-full', styles.arcadeBtnIdle)}
-        icon={<ShareIcon />}
-        onClick={handleShareResult}
-      >
-        Share your result
-      </Button>
-
-      {/* Challenge your team — share the quiz link, inline under the CTA. */}
-      <div
-        className={classNames(
-          'flex flex-col gap-2 rounded-16 p-4 text-left',
-          styles.glass,
-        )}
-      >
-        <Typography
-          type={TypographyType.Callout}
-          bold
-          className="!text-text-primary"
-        >
-          Challenge your team
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          className="!text-text-tertiary"
-        >
-          Send this link so they can take this week&apos;s quiz and try to beat
-          your score.
-        </Typography>
-        <div className="flex items-center gap-2">
-          <input
-            readOnly
-            value={quizUrl}
-            aria-label="Quiz link"
-            onFocus={(event) => event.target.select()}
-            className="min-w-0 flex-1 rounded-10 bg-background-default px-3 py-2 text-text-primary typo-footnote"
+        {/* Time, framed as a pace verdict rather than a bare number. */}
+        <div className="flex items-center gap-2 rounded-full bg-surface-float px-4 py-1.5">
+          <Typography
+            type={TypographyType.Footnote}
+            bold
+            className="tabular-nums !text-text-primary"
+          >
+            {formatElapsed(timeMs)}
+          </Typography>
+          <span
+            className="h-1 w-1 rounded-full bg-text-quaternary"
+            aria-hidden
           />
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            icon={<CopyIcon />}
-            onClick={copyLink}
+          <Typography
+            type={TypographyType.Footnote}
+            className="!text-text-tertiary"
           >
-            {linkCopied ? 'Copied' : 'Copy'}
-          </Button>
+            {paceLabel}
+          </Typography>
         </div>
       </div>
+
+      {/* A GIF that matches the verdict. Hidden if the open source URL fails. */}
+      {!gifFailed && (
+        <img
+          src={tier.gif}
+          alt=""
+          aria-hidden
+          onError={() => setGifFailed(true)}
+          className="h-52 w-full rounded-16 object-cover"
+          style={{ objectPosition: 'center' } as CSSProperties}
+        />
+      )}
+
+      {/* External share row — reuses the app's standard share grid. */}
+      <SocialShareContainer title="Share your result">
+        <SocialShareList
+          link={quizUrl}
+          description={shareText}
+          emailTitle="Take the daily.dev weekly tech news quiz"
+          emailSummary={shareText}
+          isCopying={linkCopied}
+          onCopy={copyLink}
+          onNativeShare={nativeShare}
+          onClickSocial={() => undefined}
+          // No backend link-shortener in this context; share the link as-is.
+          shortenUrl={false}
+        />
+      </SocialShareContainer>
 
       {/* Weekly reminder. */}
       <button
