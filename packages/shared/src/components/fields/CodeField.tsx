@@ -42,35 +42,55 @@ export function CodeField({
     }
   };
 
-  // A code copied out of an email drags the selection's whitespace and prose
-  // along with it, so take the digits rather than rejecting the whole paste.
-  const onSlice = (text: string) => {
-    const sliced = text.replace(/\D/g, '').slice(0, length);
+  const focusBox = async (index: number) => {
+    const target = elementsRef.current[index];
 
-    if (!sliced) {
+    if (!target) {
       return;
     }
 
-    setCode(sliced.split(''));
-    onChange?.(sliced);
-
-    if (sliced.length === length) {
-      onSubmit(sliced);
-    }
+    await nextTick();
+    target.focus();
   };
 
-  // Only ever sees platform-written values — iOS AutoFill, or Gboard's
-  // clipboard chip, which inserts as text and fires no paste event. Typed
-  // digits are handled and cancelled in `onKeyDown`.
+  // A code copied out of an email drags the selection's whitespace and prose
+  // along with it, so take the digits rather than rejecting the whole paste.
+  const onSlice = (text: string) => {
+    const digits = text.replace(/\D/g, '').slice(0, length);
+
+    if (!digits) {
+      return;
+    }
+
+    setCode(Array.from({ length }, (_, index) => digits[index] ?? ''));
+    onChange?.(digits);
+
+    if (digits.length === length) {
+      onSubmit(digits);
+      return;
+    }
+
+    focusBox(digits.length);
+  };
+
+  // Platform writes land here — iOS AutoFill and Gboard's clipboard chip insert
+  // as text and fire no paste event — but so do keystrokes from IMEs and soft
+  // keyboards whose keydown `onKeyDown` cannot cancel. Only a whole code is a
+  // fill.
   const onFill = (value: string, index: number) => {
     const digits = value.replace(/\D/g, '');
 
-    if (digits.length > 1) {
+    if (digits.length >= length) {
       onSlice(digits);
       return;
     }
 
-    updateCode(digits, index);
+    const typed = digits.slice(-1);
+    updateCode(typed, index);
+
+    if (typed) {
+      focusBox(index + 1);
+    }
   };
 
   const onPaste: ClipboardEventHandler<HTMLInputElement> = (e) => {
@@ -105,12 +125,7 @@ export function CodeField({
         return;
       }
 
-      const previous = index - 1;
-
-      if (elementsRef.current[previous]) {
-        await nextTick();
-        elementsRef.current[previous].focus();
-      }
+      await focusBox(index - 1);
     }
 
     if (!isNumbersOnly) {
@@ -119,14 +134,7 @@ export function CodeField({
       e.preventDefault();
       updateCode(key, index);
 
-      if (index < length - 1) {
-        const nextIndex = index + 1;
-
-        if (elementsRef.current[nextIndex]) {
-          await nextTick();
-          elementsRef.current[nextIndex].focus();
-        }
-      }
+      await focusBox(index + 1);
     }
   };
 
@@ -136,7 +144,8 @@ export function CodeField({
           hint rides on the box that takes focus rather than a hidden mirror of
           it, `text` + `inputMode` is the pair Safari documents AutoFill
           against, and no box takes `maxLength` — a whole code written into one
-          would be cut to a digit. */}
+          would be cut to a digit. `name` is part of that hint and nothing
+          reads it: serialising this form would yield a single digit. */}
       {[...Array(length)].map((_, index) => {
         const isAutofillTarget = index === 0;
 

@@ -28,7 +28,7 @@ type Story = StoryObj;
 // screen at the width and offsets production gives it.
 const AuthShell = ({ children }: PropsWithChildren): ReactElement => (
   <ExtensionProviders>
-    <AuthDataProvider initialEmail="ido@daily.dev">
+    <AuthDataProvider initialEmail="new.user@example.com">
       <div className="relative z-3 flex h-full max-h-dvh min-h-dvh w-full flex-1 flex-col items-center overflow-x-hidden">
         <FunnelStepTopBar />
         <div className="relative z-2 flex w-full flex-grow flex-col flex-wrap justify-center px-4 pt-3 tablet:flex-row tablet:gap-10 tablet:px-6">

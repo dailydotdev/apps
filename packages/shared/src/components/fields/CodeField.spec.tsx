@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { CodeField } from './CodeField';
 
 const onSubmit = jest.fn();
@@ -57,6 +57,27 @@ describe('CodeField', () => {
     expect(onSubmit).toHaveBeenCalledWith('725432');
   });
 
+  // A soft keyboard or IME whose keydown cannot be cancelled delivers its
+  // character through `input`, so a write shorter than the code is a keystroke.
+  it('should treat a write shorter than the code as a typed digit', async () => {
+    setup();
+
+    fireEvent.change(boxes()[0], { target: { value: '7' } });
+
+    expect(boxes().map((box) => box.value)).toEqual(['7', '', '', '', '', '']);
+    await waitFor(() => expect(boxes()[1]).toHaveFocus());
+  });
+
+  it('should not spread a second digit written into the same box', () => {
+    setup();
+
+    fireEvent.change(boxes()[0], { target: { value: '7' } });
+    fireEvent.change(boxes()[0], { target: { value: '77' } });
+
+    expect(boxes()[1]).toHaveValue('');
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   it('should take the digits out of a code pasted with surrounding text', () => {
     setup();
 
@@ -65,6 +86,18 @@ describe('CodeField', () => {
     });
 
     expect(onSubmit).toHaveBeenCalledWith('725432');
+  });
+
+  it('should keep a partial paste in place and focus the next box', async () => {
+    setup();
+
+    fireEvent.paste(boxes()[0], {
+      clipboardData: { getData: () => 'code: 72' },
+    });
+
+    expect(boxes().map((box) => box.value)).toEqual(['7', '2', '', '', '', '']);
+    expect(onSubmit).not.toHaveBeenCalled();
+    await waitFor(() => expect(boxes()[2]).toHaveFocus());
   });
 
   it('should ignore a paste that carries no digits', () => {
