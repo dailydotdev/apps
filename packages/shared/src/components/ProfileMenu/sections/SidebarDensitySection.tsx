@@ -6,89 +6,74 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../typography/Typography';
-import { FlexCol } from '../../utilities';
 import { VIcon } from '../../icons';
+import { IconSize } from '../../Icon';
 import { useSettingsBooleanFlag } from '../../../hooks/useSettingsBooleanFlag';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetType } from '../../../lib/log';
 
-const previewItems = ['Home', 'Explore', 'Saved'];
-
-const SidebarPreview = ({
-  withLabels,
-}: {
-  withLabels: boolean;
-}): ReactElement => (
-  <div
+const RailArt = ({ withLabels }: { withLabels: boolean }): ReactElement => (
+  <span
     aria-hidden
-    className="flex h-28 gap-2 overflow-hidden rounded-10 border border-border-subtlest-tertiary bg-background-default p-2"
+    className={classNames(
+      'flex flex-col items-center gap-1',
+      withLabels ? 'w-7' : 'w-3',
+    )}
   >
-    <div
-      className={classNames(
-        'flex flex-col items-center gap-1 rounded-8 bg-surface-float py-1',
-        withLabels ? 'w-14' : 'w-8',
-      )}
-    >
-      {previewItems.map((item) => (
-        <div key={item} className="flex flex-col items-center gap-0.5">
-          <span className="size-3 rounded-4 bg-text-quaternary" />
-          {withLabels && (
-            <span className="leading-none text-text-quaternary typo-caption2">
-              {item}
-            </span>
-          )}
-        </div>
-      ))}
-    </div>
-    <div className="flex flex-1 flex-col gap-1.5">
-      <span className="h-3 w-2/3 rounded-4 bg-surface-float" />
-      <span className="h-6 w-full rounded-6 bg-surface-float" />
-      <span className="h-6 w-full rounded-6 bg-surface-float" />
-    </div>
-  </div>
+    {[0, 1, 2].map((row) => (
+      <span key={row} className="flex flex-col items-center gap-0.5">
+        <span className="size-2 rounded-2 bg-text-quaternary" />
+        {withLabels && (
+          <span className="h-0.5 w-4 rounded-2 bg-text-quaternary" />
+        )}
+      </span>
+    ))}
+  </span>
 );
 
 interface SidebarDensityOptionProps {
-  title: string;
-  description: string;
+  label: string;
+  isCompact: boolean;
   isSelected: boolean;
-  withLabels: boolean;
   onClick: () => void;
 }
 
 const SidebarDensityOption = ({
-  title,
-  description,
+  label,
+  isCompact,
   isSelected,
-  withLabels,
   onClick,
 }: SidebarDensityOptionProps): ReactElement => (
   <button
     type="button"
     aria-pressed={isSelected}
     onClick={onClick}
-    className={classNames(
-      'flex flex-col gap-3 rounded-14 border p-3 text-left transition-colors',
-      isSelected
-        ? 'border-accent-cabbage-default bg-accent-cabbage-flat'
-        : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
-    )}
+    className="flex flex-col items-center gap-1"
   >
-    <SidebarPreview withLabels={withLabels} />
-    <FlexCol className="gap-0.5">
-      <span className="flex items-center gap-1">
-        <Typography bold type={TypographyType.Footnote}>
-          {title}
-        </Typography>
-        {isSelected && <VIcon className="text-accent-cabbage-default" />}
-      </span>
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Tertiary}
-      >
-        {description}
-      </Typography>
-    </FlexCol>
+    <span
+      className={classNames(
+        'relative flex h-14 w-16 items-center justify-center rounded-10 border transition-colors',
+        isSelected
+          ? 'border-accent-cabbage-default bg-accent-cabbage-flat'
+          : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
+      )}
+    >
+      <RailArt withLabels={!isCompact} />
+      {isSelected && (
+        <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-accent-cabbage-default">
+          <VIcon size={IconSize.XXSmall} className="text-white" />
+        </span>
+      )}
+    </span>
+    <Typography
+      type={TypographyType.Caption1}
+      className={classNames(
+        'transition-colors',
+        isSelected ? 'text-accent-cabbage-default' : 'text-text-tertiary',
+      )}
+    >
+      {label}
+    </Typography>
   </button>
 );
 
@@ -111,33 +96,30 @@ export const SidebarDensitySection = (): ReactElement => {
   };
 
   return (
-    <FlexCol className="gap-2">
-      <Typography bold type={TypographyType.Subhead}>
-        Sidebar
-      </Typography>
-      <Typography
-        type={TypographyType.Callout}
-        color={TypographyColor.Tertiary}
-      >
-        Choose how the navigation sidebar looks on desktop.
-      </Typography>
-
-      <div className="mt-1 grid grid-cols-2 gap-3">
+    <div className="flex flex-row items-start justify-between gap-4">
+      <div className="flex flex-1 flex-col gap-0.5 pt-1">
+        <Typography type={TypographyType.Callout}>Sidebar</Typography>
+        <Typography
+          color={TypographyColor.Tertiary}
+          type={TypographyType.Footnote}
+        >
+          Labels under the navigation icons
+        </Typography>
+      </div>
+      <div className="flex shrink-0 gap-2">
         <SidebarDensityOption
-          title="Comfortable"
-          description="Icons with labels underneath"
+          label="Comfortable"
+          isCompact={false}
           isSelected={!isCompact}
-          withLabels
           onClick={() => onSelect(false)}
         />
         <SidebarDensityOption
-          title="Compact"
-          description="Icons only, narrower sidebar"
+          label="Compact"
+          isCompact
           isSelected={isCompact}
-          withLabels={false}
           onClick={() => onSelect(true)}
         />
       </div>
-    </FlexCol>
+    </div>
   );
 };

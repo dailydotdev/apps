@@ -7,8 +7,7 @@ import type { LogContextData } from '@dailydotdev/shared/src/hooks/log/useLogCon
 import { SidebarDensitySection } from '@dailydotdev/shared/src/components/ProfileMenu/sections/SidebarDensitySection';
 import type { SettingsFlags } from '@dailydotdev/shared/src/graphql/settings';
 
-// The section is the appearance page's answer to "what does compact actually
-// do?" — the two previews are the whole point, so the story keeps the flag in
+// The two rail thumbnails are the whole point, so the story keeps the flag in
 // local state and lets you click between them.
 const SettingsHarness = () => {
   const [flags, setFlags] = useState<SettingsFlags>({} as SettingsFlags);

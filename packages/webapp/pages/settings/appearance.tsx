@@ -121,10 +121,10 @@ const AccountManageSubscriptionPage = (): ReactElement => {
               offLabel="Cards"
               onLabel="List"
             />
+
+            {isLayoutV2 && <SidebarDensitySection />}
           </FlexCol>
         )}
-
-        {isLaptop && isLayoutV2 && <SidebarDensitySection />}
 
         {supportsAppIconChange && <IOSIconPicker />}
 
