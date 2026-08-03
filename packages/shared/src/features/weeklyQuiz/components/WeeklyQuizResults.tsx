@@ -350,7 +350,7 @@ export const WeeklyQuizResults = ({
           alt=""
           aria-hidden
           onError={() => setGifFailed(true)}
-          className="aspect-[4/3] w-full rounded-16 object-cover"
+          className="mx-auto aspect-[4/3] w-full max-w-xs rounded-16 object-cover"
         />
       )}
 
