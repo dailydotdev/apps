@@ -115,6 +115,9 @@ const renderGlassHero = (postOverride: Partial<Post>): RenderResult => {
   const gb = new GrowthBook();
   gb.setFeatures({
     [featureFeedCardGlassActions.id]: { defaultValue: true },
+    [featureHeroCards.id]: {
+      defaultValue: { ...featureHeroCards.defaultValue, enabled: true },
+    },
   });
   return render(
     <TestBootProvider client={new QueryClient()} gb={gb}>
@@ -145,4 +148,20 @@ it('keeps the full-size glass hero title (typo-title1) when there is no TLDR', (
   const heading = screen.getByRole('heading', { level: 3 });
   expect(heading).toHaveClass('typo-title1');
   expect(heading).toHaveClass('line-clamp-3');
+});
+
+// The chip's glow is a sibling layer that paints a few pixels outside the chip's
+// own box. The glass text column clips its content (so the title + TLDR can't
+// spill behind the floating pill), so its horizontal inset has to be padding
+// inside the clip box: with margin, the clip edge sat exactly where the chip
+// starts and the glow's left bleed was cut off.
+it('insets the clipped glass text column with padding so the chip glow is not clipped', () => {
+  renderGlassHero({ hero: makeHero('major') });
+
+  const chip = screen.getByText('Major').parentElement!;
+  expect(chip.firstElementChild).toHaveClass('breaking-news-chip-glow');
+
+  const textColumn = chip.closest('.overflow-hidden.flex-1');
+  expect(textColumn).toHaveClass('px-4');
+  expect(textColumn).not.toHaveClass('mx-4');
 });
