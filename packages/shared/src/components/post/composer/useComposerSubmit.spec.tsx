@@ -104,4 +104,25 @@ describe('useComposerSubmit editing a share', () => {
 
     expect(result.current.isSubmitDisabled).toBe(true);
   });
+
+  it('lets a title-only freeform edit save without a body', () => {
+    // Freeform posts can exist with just a title and cover; gating the edit
+    // on a body made their titles uneditable.
+    const { result } = renderSubmit({
+      kind: 'text',
+      text: { title: 'Just a title', body: '' },
+    });
+
+    expect(result.current.isSubmitDisabled).toBe(false);
+  });
+
+  it('still requires a body when creating a freeform post', () => {
+    const { result } = renderSubmit({
+      kind: 'text',
+      text: { title: 'Just a title', body: '' },
+      editPostId: undefined,
+    });
+
+    expect(result.current.isSubmitDisabled).toBe(true);
+  });
 });

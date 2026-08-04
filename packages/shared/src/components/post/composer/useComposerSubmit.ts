@@ -175,7 +175,9 @@ export const useComposerSubmit = ({
       return true;
     }
     if (kind === 'text') {
-      return !isTextValid(text);
+      // Freeform posts can legitimately have no body (title + cover only),
+      // so an edit only requires the title.
+      return editPostId ? !text.title.trim() : !isTextValid(text);
     }
     if (kind === 'link') {
       // Editing keeps the original link — there is no URL/preview to validate.

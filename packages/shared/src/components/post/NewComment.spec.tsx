@@ -44,9 +44,12 @@ jest.mock('../image/Image', () => ({
   Image: () => null,
 }));
 
-const CommentInput = ({ inputId }: { inputId: string }): React.ReactElement => (
-  <div data-testid="comment-input" id={inputId} tabIndex={-1} />
-);
+const mockCommentInputProps = jest.fn();
+
+const CommentInput = (props: { inputId: string }): React.ReactElement => {
+  mockCommentInputProps(props);
+  return <div data-testid="comment-input" id={props.inputId} tabIndex={-1} />;
+};
 
 describe('NewComment', () => {
   const originalRequestAnimationFrame = window.requestAnimationFrame;
@@ -83,5 +86,24 @@ describe('NewComment', () => {
     await waitFor(() => {
       expect(screen.getByTestId('comment-input')).toHaveFocus();
     });
+  });
+
+  it('lets the composer own its focus, since its editor mounts async', () => {
+    // The by-id focus helper can fire before the lazy editor exists; the
+    // composer's queued autofocus is what reliably lands.
+    render(
+      <NewComment
+        post={{ id: 'post-1' } as never}
+        CommentInput={CommentInput}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /share your thoughts/i }),
+    );
+
+    expect(mockCommentInputProps).toHaveBeenCalledWith(
+      expect.objectContaining({ autoFocus: true }),
+    );
   });
 });

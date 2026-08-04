@@ -159,7 +159,10 @@ function NewCommentComponent(
         {...props}
         post={post}
         inputId={inputId}
-        autoFocus={false}
+        // The editor mounts async (lazy chunk + deferred TipTap creation), so
+        // focus must ride the composer's queued focus; the by-id helper below
+        // only scrolls and can fire before the editor exists.
+        autoFocus
         className={{ container: 'my-4' }}
         onCommented={onSuccess}
         initialContent={inputContent}
