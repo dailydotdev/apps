@@ -95,11 +95,16 @@ describe('ShareModal Test Suite:', () => {
     });
   });
 
-  it('should render the component with logged user and squads and open the share to squad modal', async () => {
+  it('should render the component with logged user and squads and open the share to squad composer', async () => {
     renderComponent(true, true);
     const btn = await screen.findByTestId(`social-share-@${squads[0].handle}`);
     fireEvent.click(btn);
-    await screen.findByText('New post');
+    expect(
+      await screen.findByRole('textbox', { name: 'Post commentary' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Link URL' })).toHaveValue(
+      defaultPost.permalink,
+    );
   });
 
   it('should render the Facebook button and navigate to the correct link', async () => {
