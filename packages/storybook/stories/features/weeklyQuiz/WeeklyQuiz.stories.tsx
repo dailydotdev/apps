@@ -20,7 +20,10 @@ import {
   WEEKLY_QUIZ_TIERS,
 } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizResults';
 import { WeeklyQuizSideControls } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizSideControls';
-import { WeeklyQuizSurface } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizSurface';
+import {
+  WeeklyQuizSurface,
+  WeeklyQuizLogo,
+} from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizSurface';
 import {
   Button,
   ButtonColor,
@@ -591,6 +594,183 @@ const OgScoreCards = (): React.ReactElement => {
   );
 };
 
+// --- Mobile welcome-screen layout concepts -------------------------------
+
+const SourceDots = (): React.ReactElement => (
+  <div className="flex items-center gap-1">
+    {['V', 'a', 'A', 'VB', 'IQ'].map((source) => (
+      <span
+        key={source}
+        className="flex h-6 w-6 items-center justify-center rounded-full bg-surface-float text-text-tertiary typo-caption2"
+      >
+        {source}
+      </span>
+    ))}
+    <span className="ml-0.5 text-text-tertiary typo-caption2">+7</span>
+  </div>
+);
+
+const DatePill = (): React.ReactElement => (
+  <span className="rounded-8 bg-surface-float px-2 py-0.5 font-bold text-text-secondary typo-caption1">
+    Jul 20–26
+  </span>
+);
+
+const Phone = ({
+  label,
+  note,
+  children,
+}: {
+  label: string;
+  note: string;
+  children: React.ReactNode;
+}): React.ReactElement => (
+  <div className="flex flex-col gap-2">
+    <span className="font-bold text-text-primary typo-callout">{label}</span>
+    <span className="text-text-tertiary typo-footnote">{note}</span>
+    <div className="relative h-[720px] w-[360px] overflow-hidden rounded-[40px] border-4 border-border-subtlest-tertiary bg-background-default">
+      {children}
+    </div>
+  </div>
+);
+
+// A — Stacked: everything centered in a single scroll, mascot leading.
+const MobileLayoutA = (): React.ReactElement => (
+  <div className="flex h-full flex-col gap-4 overflow-y-auto p-5">
+    <div className="flex items-center justify-between">
+      <WeeklyQuizLogo />
+      <DatePill />
+    </div>
+    <img src={MASCOT} alt="" className="mx-auto h-44 w-44 object-contain" />
+    <div className="flex flex-col items-center gap-2 text-center">
+      <span className="font-bold text-text-primary typo-title2">
+        The Tech News Quiz
+      </span>
+      <span className="text-text-secondary typo-footnote">
+        This week: rogue models, record API bills, and a few very expensive
+        bugs.
+      </span>
+    </div>
+    <span className="text-center text-text-tertiary typo-caption1">
+      50 stories · 12 sources · 10 questions
+    </span>
+    <div className="flex justify-center">
+      <SourceDots />
+    </div>
+    <Button
+      variant={ButtonVariant.Primary}
+      color={ButtonColor.Cabbage}
+      size={ButtonSize.XLarge}
+      className="mt-1 w-full"
+    >
+      Start playing
+    </Button>
+    <div className="flex justify-center gap-6">
+      <span className="text-text-tertiary typo-footnote">Share</span>
+      <span className="text-text-tertiary typo-footnote">Weekly reminder</span>
+    </div>
+  </div>
+);
+
+// B — CTA-first: pitch up top, the Start button lands above the fold.
+const MobileLayoutB = (): React.ReactElement => (
+  <div className="flex h-full flex-col gap-5 p-5">
+    <div className="flex items-center justify-between">
+      <WeeklyQuizLogo />
+      <DatePill />
+    </div>
+    <div className="flex items-center gap-3">
+      <img src={MASCOT} alt="" className="h-16 w-16 shrink-0 object-contain" />
+      <span className="font-bold text-text-primary typo-title2">
+        The Tech News Quiz
+      </span>
+    </div>
+    <span className="text-text-secondary typo-callout">
+      10 quick questions on this week&apos;s biggest tech news. Speed and
+      knowledge both count.
+    </span>
+    <Button
+      variant={ButtonVariant.Primary}
+      color={ButtonColor.Cabbage}
+      size={ButtonSize.XLarge}
+      className="w-full"
+    >
+      Start playing
+    </Button>
+    <div className="mt-auto flex flex-col gap-3">
+      <span className="text-text-tertiary typo-caption1">
+        50 stories · 12 sources
+      </span>
+      <SourceDots />
+    </div>
+  </div>
+);
+
+// C — Immersive: full-bleed mascot hero, content, a sticky Start at the bottom.
+const MobileLayoutC = (): React.ReactElement => (
+  <div className="relative h-full">
+    <div className="relative flex h-56 items-center justify-center overflow-hidden">
+      <span
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(60% 80% at 50% 40%, var(--theme-accent-cabbage-default), transparent 70%)',
+          opacity: 0.5,
+        }}
+      />
+      <img src={MASCOT} alt="" className="relative h-44 w-44 object-contain" />
+      <div className="absolute left-4 right-4 top-4 flex items-center justify-between">
+        <WeeklyQuizLogo />
+        <DatePill />
+      </div>
+    </div>
+    <div className="flex flex-col gap-3 p-5">
+      <span className="font-bold text-text-primary typo-title2">
+        The Tech News Quiz
+      </span>
+      <span className="text-text-secondary typo-footnote">
+        This week: rogue models, record API bills, and a few very expensive
+        bugs. Let&apos;s test your attention to detail.
+      </span>
+      <span className="text-text-tertiary typo-caption1">
+        50 stories · 12 sources · 10 questions
+      </span>
+      <SourceDots />
+    </div>
+    <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 border-t border-border-subtlest-tertiary bg-background-default p-4">
+      <Button
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Cabbage}
+        size={ButtonSize.XLarge}
+        className="w-full"
+      >
+        Start playing
+      </Button>
+      <div className="flex justify-center gap-6">
+        <span className="text-text-tertiary typo-footnote">Share</span>
+        <span className="text-text-tertiary typo-footnote">Reminder</span>
+      </div>
+    </div>
+  </div>
+);
+
+const MobileIntroLayouts = (): React.ReactElement => (
+  <div className="force-dark min-h-screen w-full bg-background-default p-6">
+    <div className="no-scrollbar flex gap-8 overflow-x-auto">
+      <Phone label="A · Stacked" note="mascot-led, single scroll">
+        <MobileLayoutA />
+      </Phone>
+      <Phone label="B · CTA-first" note="Start lands above the fold">
+        <MobileLayoutB />
+      </Phone>
+      <Phone label="C · Immersive" note="hero + sticky Start bar">
+        <MobileLayoutC />
+      </Phone>
+    </div>
+  </div>
+);
+
 const meta: Meta<typeof WeeklyQuizGamePreview> = {
   title: 'Features/WeeklyQuiz/Game',
   component: WeeklyQuizGamePreview,
@@ -660,4 +840,10 @@ export const ShareImages: Story = {
 export const OgCards: Story = {
   name: 'Social cards (per score)',
   render: () => <OgScoreCards />,
+};
+
+// Three welcome-screen layout concepts for mobile.
+export const MobileIntro: Story = {
+  name: 'Mobile welcome (3 layouts)',
+  render: () => <MobileIntroLayouts />,
 };
