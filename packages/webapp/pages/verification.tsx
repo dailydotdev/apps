@@ -55,7 +55,14 @@ const Verification = (): ReactElement | null => {
       <div className="flex min-h-screen w-full flex-col items-center px-4 py-10">
         <HeaderLogo onLogoClick={() => router.push('/')} />
         <div className="mt-10 w-full max-w-[30rem]">
-          <AuthHeader title="Verify your email" simplified />
+          {/* Pinned: opening the keyboard makes WebKit scroll the focused code
+              row toward the centre of the shrunken viewport, which would drag
+              the heading off the top. The offset rides above the native
+              shell's status-bar inset plus the sliver WebKit still pans
+              visually. */}
+          <div className="sticky top-[calc(var(--safe-area-top,0px)+1.25rem)] z-1 bg-background-default pb-2">
+            <AuthHeader title="Verify your email" simplified />
+          </div>
           <EmailCodeVerification
             code={code}
             className="mx-auto max-w-[30rem]"
