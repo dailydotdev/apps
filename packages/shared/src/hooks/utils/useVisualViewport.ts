@@ -15,11 +15,17 @@ const getVisualViewport = (): VisualViewportResult => ({
   offsetTop: globalThis?.window?.visualViewport?.offsetTop ?? 0,
 });
 
-export const useVisualViewport = (): VisualViewportResult => {
+/**
+ * @param enabled subscribe to viewport changes. Pass `false` from consumers
+ * that only read the value in some states: `scroll` fires continuously on iOS
+ * while the keyboard is open, and each event re-renders the whole subtree.
+ */
+export const useVisualViewport = (enabled = true): VisualViewportResult => {
   const [viewPort, setViewPort] = useState(getVisualViewport); // <- only calls the function 1 time this way - performance improvement
   const update = () => setViewPort(getVisualViewport);
-  useEventListener(globalThis?.window?.visualViewport, 'resize', update);
-  useEventListener(globalThis?.window?.visualViewport, 'scroll', update);
+  const target = enabled ? globalThis?.window?.visualViewport : undefined;
+  useEventListener(target, 'resize', update);
+  useEventListener(target, 'scroll', update);
 
   return viewPort;
 };

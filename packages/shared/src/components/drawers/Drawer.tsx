@@ -59,8 +59,10 @@ export interface DrawerOnMobileProps {
 }
 
 // Drawers can stack (a picker drawer above the composer drawer); the page
-// unlocks only when the last one leaves.
+// unlocks only when the last one leaves, and hands back the inline overflow it
+// found rather than deleting whatever another lock may have set.
 let scrollLockCount = 0;
+let previousHtmlOverflow = '';
 
 const drawerPositionToClassName: Record<DrawerPosition, string> = {
   [DrawerPosition.Bottom]: 'bottom-0 rounded-t-16',
@@ -92,7 +94,10 @@ function BaseDrawer({
   ...props
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement | null>(null);
-  const { height: viewportHeight, offsetTop } = useVisualViewport();
+  // Only full-screen drawers size themselves from the visual viewport, so only
+  // they subscribe: `scroll` fires continuously on iOS while the keyboard is
+  // open, and every event would re-render each mounted drawer's subtree.
+  const { height: viewportHeight, offsetTop } = useVisualViewport(isFullScreen);
   const keyboardSafeStyle =
     isFullScreen && viewportHeight
       ? { height: viewportHeight, top: offsetTop }
@@ -110,21 +115,37 @@ function BaseDrawer({
   }, [onAfterClose, onAfterOpen]);
 
   useEffect(() => {
+    // Scoped to full-screen drawers: they cover the page, so a scroll that
+    // chains through to it visibly jumps the content behind. Partial drawers
+    // (context menus, pickers) keep the page scrollable, as they always have.
+    if (!isFullScreen) {
+      return undefined;
+    }
+
     // Same body lock react-modal applies (`ReactModal__Body--open`), plus the
     // html element: <html> is the page's actual scroller, so body-level
     // `overflow: hidden` never reaches the viewport and touch scrolls chain
-    // through the drawer, visibly jumping the page behind it.
+    // through the drawer anyway.
+    if (scrollLockCount === 0) {
+      previousHtmlOverflow = document.documentElement.style.overflow;
+    }
     scrollLockCount += 1;
     document.body.classList.add('hidden-scrollbar');
     document.documentElement.style.overflow = 'hidden';
+
     return () => {
       scrollLockCount -= 1;
-      if (scrollLockCount === 0) {
-        document.body.classList.remove('hidden-scrollbar');
+      if (scrollLockCount > 0) {
+        return;
+      }
+      document.body.classList.remove('hidden-scrollbar');
+      if (previousHtmlOverflow) {
+        document.documentElement.style.overflow = previousHtmlOverflow;
+      } else {
         document.documentElement.style.removeProperty('overflow');
       }
     };
-  }, []);
+  }, [isFullScreen]);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();

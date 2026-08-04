@@ -210,9 +210,10 @@ export function CommentMarkdownInputComponent(
         editCommentId={editCommentId}
         parentCommentId={parentCommentId}
         minHeightClassName="min-h-[6rem]"
+        // No `rows`: the textarea auto-grows from a measured 0px, so it would
+        // never act as a floor. `minHeightClassName` sets the empty height.
         textareaProps={{
           name: 'content',
-          rows: 7,
           placeholder: 'Share your thoughts',
         }}
         onSubmit={onKeyboardSubmit}

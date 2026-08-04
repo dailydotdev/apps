@@ -1004,7 +1004,12 @@ function RichTextInput(
           className={classNames(
             styles.editor,
             minHeightClassName,
-            'min-w-0 flex-1 p-4',
+            // A column flex box so the editable child can fill it by flexing.
+            // Sizing it with `height: 100%` instead only worked where this box
+            // had a definite height; where the height comes from
+            // `minHeightClassName`, the child collapsed to its text and clicks
+            // below the first line missed the editor.
+            'flex min-w-0 flex-1 flex-col p-4',
             avatar && '!pl-3',
             className?.input,
           )}

@@ -2,8 +2,8 @@ import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { useVisualViewport } from './useVisualViewport';
 
-const Viewport = (): React.ReactElement => {
-  const { width, height, offsetTop } = useVisualViewport();
+const Viewport = ({ enabled }: { enabled?: boolean }): React.ReactElement => {
+  const { width, height, offsetTop } = useVisualViewport(enabled);
 
   return <div>{`${width}x${height}@${offsetTop}`}</div>;
 };
@@ -48,6 +48,19 @@ describe('useVisualViewport', () => {
     });
 
     expect(screen.getByText('375x500@0')).toBeInTheDocument();
+  });
+
+  it('does not subscribe when disabled', () => {
+    // `scroll` fires continuously on iOS while the keyboard is open, so
+    // consumers that only read the value in some states opt out of the churn.
+    render(<Viewport enabled={false} />);
+
+    viewport.height = 500;
+    act(() => {
+      viewport.dispatchEvent(new Event('resize'));
+    });
+
+    expect(screen.getByText('375x812@0')).toBeInTheDocument();
   });
 
   it('tracks iOS panning the layout viewport under the keyboard', () => {

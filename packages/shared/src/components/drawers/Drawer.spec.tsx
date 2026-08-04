@@ -63,12 +63,12 @@ describe('Drawer', () => {
 
   it('keeps the page locked until the last stacked drawer closes', () => {
     const { unmount: unmountInner } = render(
-      <Drawer isOpen onClose={jest.fn()}>
+      <Drawer isOpen isFullScreen onClose={jest.fn()}>
         inner
       </Drawer>,
     );
     const { unmount: unmountOuter } = render(
-      <Drawer isOpen onClose={jest.fn()}>
+      <Drawer isOpen isFullScreen onClose={jest.fn()}>
         outer
       </Drawer>,
     );
@@ -78,6 +78,37 @@ describe('Drawer', () => {
 
     unmountOuter();
     expect(document.body).not.toHaveClass('hidden-scrollbar');
+  });
+
+  it('leaves the page scrollable behind a partial drawer', () => {
+    // Only full-screen drawers cover the page. Context menus and pickers keep
+    // the page scrollable, exactly as they did before the composer fix.
+    const { unmount } = render(
+      <Drawer isOpen onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+
+    expect(document.body).not.toHaveClass('hidden-scrollbar');
+    expect(document.documentElement).not.toHaveStyle({ overflow: 'hidden' });
+    unmount();
+  });
+
+  it('hands back the inline overflow it found instead of deleting it', () => {
+    // Another lock (react-modal today, something else later) may already own
+    // an inline overflow; the last drawer out must not wipe it.
+    document.documentElement.style.overflow = 'clip';
+
+    const { unmount } = render(
+      <Drawer isOpen isFullScreen onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+    expect(document.documentElement).toHaveStyle({ overflow: 'hidden' });
+
+    unmount();
+    expect(document.documentElement).toHaveStyle({ overflow: 'clip' });
+    document.documentElement.style.removeProperty('overflow');
   });
 
   it('contains its own scrolling instead of chaining it to the page', () => {
