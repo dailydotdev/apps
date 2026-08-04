@@ -51,8 +51,9 @@ option, never advertised.
 ## Coach card anatomy (all coaches in this folder)
 
 One sentence, nothing else: no title, no subtitle, no disclaimer. The card is
-224px wide with 12px padding, the sentence at `Footnote`, and both buttons at
-`ButtonSize.Small` (32px tall, the comfortable floor).
+224px wide with a hairline border and 14px of padding (16px on the top and left
+edges), the sentence at `Footnote`, and the primary button at `ButtonSize.Small`
+(32px tall, the comfortable floor).
 
 - **Leaving** is an explicit `Skip tour` text button, present on every step. It
   replaced a corner X, which could only say "close" and read as dismissing the

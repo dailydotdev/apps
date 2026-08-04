@@ -286,9 +286,11 @@ export const CoachMotionStyles = (): JSX.Element => (
   <style>{COACH_MOTION_CSS}</style>
 );
 
+// The 1px ring the layered shadow used to carry now lives on the card as a real
+// border, so the pointer can continue the same edge.
 export const COACH_SHADOW: CSSProperties = {
   boxShadow:
-    '0 0 0 1px rgb(255 255 255 / 0.08), 0 8px 16px -8px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4)',
+    '0 8px 16px -8px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4)',
 };
 
 export type CoachPointerTop = number | 'center';
@@ -383,12 +385,12 @@ export const CoachCard = ({
   pointer,
 }: CoachCardProps): JSX.Element => (
   <div
-    className="coach-card-in relative w-56 rounded-14 bg-background-subtle p-3"
+    className="coach-card-in relative w-56 rounded-14 border border-border-subtlest-tertiary bg-background-subtle p-3.5 pl-4 pt-4"
     style={COACH_SHADOW}
   >
     <CoachMotionStyles />
 
-    {pointer !== undefined && <CoachPointer top={pointer} />}
+    {pointer !== undefined && <CoachPointer bordered top={pointer} />}
 
     <div key={stepKey} className="coach-card-in flex flex-col gap-5">
       <Typography
