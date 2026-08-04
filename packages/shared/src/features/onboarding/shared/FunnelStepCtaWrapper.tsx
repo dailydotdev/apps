@@ -115,16 +115,19 @@ export function FunnelStepCtaWrapper({
     <div className="relative flex flex-1 flex-col gap-4">
       <FunnelStepTopBar skip={skip} />
       <div className={classNames('flex-1', containerClassName)}>{children}</div>
-      <div className="pointer-events-none sticky z-3 bottom-safe-or-2">
+      {/* Flush to the edge with the safe area as padding: offsetting the rail
+          left a strip the scrim could not reach, and content scrolled visibly
+          through it wherever that inset is large — Chrome on iOS. */}
+      <div className="pointer-events-none sticky bottom-0 z-3">
         {/* Scrim so content scrolling past the bar dissolves into the page. */}
         <div
           aria-hidden
-          className="absolute inset-x-0 -bottom-6 -top-2 bg-gradient-to-t from-background-default via-background-default via-65% to-transparent"
+          className="absolute inset-x-0 -top-2 bottom-0 bg-gradient-to-t from-background-default via-background-default via-65% to-transparent"
         />
         <div
           className={classNames(
             funnelStepRail,
-            'relative flex flex-col gap-3 pb-6 pt-6',
+            'relative flex flex-col gap-3 pt-6 pb-safe-or-6',
           )}
         >
           {note}

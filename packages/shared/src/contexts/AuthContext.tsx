@@ -18,7 +18,7 @@ import type { Squad } from '../graphql/sources';
 import type { Feed } from '../graphql/feed';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
-import { Continent, outsideGdpr } from '../lib/geo';
+import { Continent, outsideGdpr, tcfRegions } from '../lib/geo';
 import {
   invalidPlusRegions,
   onboardingUrl,
@@ -77,6 +77,7 @@ export interface AuthContextData {
   geo?: Boot['geo'];
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;
+  isTcfCovered?: boolean;
   isValidRegion?: boolean;
   isFunnel?: boolean;
   feeds?: Feed[];
@@ -122,6 +123,11 @@ export function checkIfGdprCovered(geo?: Boot['geo']): boolean {
     !outsideGdpr.includes(geo?.region) ||
     isIOSNative()
   );
+}
+
+// Strictly geographic (no iOS special-case): gates the iubenda CMP only.
+export function checkIfTcfCovered(geo?: Boot['geo']): boolean {
+  return tcfRegions.includes(geo?.region ?? '');
 }
 
 export type AuthContextProviderProps = {
@@ -237,6 +243,7 @@ export const AuthContextProvider = ({
       setDaily,
       isValidRegion,
       isGdprCovered: checkIfGdprCovered(geo),
+      isTcfCovered: checkIfTcfCovered(geo),
     }),
     [
       firstLoad,
