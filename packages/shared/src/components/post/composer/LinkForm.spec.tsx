@@ -28,9 +28,13 @@ jest.mock('../write/WritePreviewSkeleton', () => ({
 const renderLinkForm = ({
   initialValue = DEFAULT_LINK,
   onSubmit = jest.fn(),
+  isUrlLocked = false,
+  preview,
 }: {
   initialValue?: LinkFormState;
   onSubmit?: jest.Mock;
+  isUrlLocked?: boolean;
+  preview?: { url: string; title: string };
 } = {}) => {
   const fetchPreview = jest.fn();
 
@@ -48,6 +52,8 @@ const renderLinkForm = ({
           value={value}
           onChange={setValue}
           fetchPreview={fetchPreview}
+          isUrlLocked={isUrlLocked}
+          preview={preview}
         />
         <button type="submit">Post</button>
       </form>
@@ -56,7 +62,7 @@ const renderLinkForm = ({
 
   render(<FormHarness />);
 
-  return { onSubmit };
+  return { onSubmit, fetchPreview };
 };
 
 describe('LinkForm', () => {
@@ -135,5 +141,38 @@ describe('LinkForm', () => {
 
     expect(notPrevented).toBe(false);
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  describe('with a locked URL', () => {
+    const lockedProps = {
+      isUrlLocked: true,
+      initialValue: { url: 'https://daily.dev/posts/shared', commentary: 'hi' },
+      preview: { url: 'https://daily.dev/posts/shared', title: 'Shared' },
+    };
+
+    it('drops the URL field and the preview remove button', () => {
+      renderLinkForm(lockedProps);
+
+      expect(
+        screen.queryByRole('textbox', { name: 'Link URL' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Remove link preview' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('starts in the commentary, the only field left to edit', () => {
+      renderLinkForm(lockedProps);
+
+      expect(
+        screen.getByRole('textbox', { name: 'Post commentary' }),
+      ).toHaveFocus();
+    });
+
+    it('never refetches a preview for a link that cannot change', () => {
+      const { fetchPreview } = renderLinkForm(lockedProps);
+
+      expect(fetchPreview).not.toHaveBeenCalled();
+    });
   });
 });

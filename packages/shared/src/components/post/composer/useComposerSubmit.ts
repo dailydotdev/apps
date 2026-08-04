@@ -116,6 +116,7 @@ export const useComposerSubmit = ({
     onSubmitFreeformPost,
     onEditFreeformPost,
     onSubmitPollPost,
+    onUpdateSharePost,
   } = usePostToSquad({
     initialPreview,
     onComplete,
@@ -178,7 +179,9 @@ export const useComposerSubmit = ({
       return !isTextValid(text);
     }
     if (kind === 'link') {
-      return !isLinkValid(link, preview);
+      // Editing keeps the original link, so the URL/preview pair it would
+      // normally validate is not in play.
+      return editPostId ? false : !isLinkValid(link, preview);
     }
     return !isPollValid(poll);
   };
@@ -252,6 +255,22 @@ export const useComposerSubmit = ({
     event: FormEvent<HTMLFormElement>,
     scheduledAt?: string,
   ) => {
+    if (editPostId) {
+      // Only the commentary is editable on a share — the link it points at is
+      // fixed, so there is no preview to re-resolve first.
+      await onUpdateSharePost(
+        event,
+        editPostId,
+        link.commentary.trim(),
+        primary as Squad,
+      );
+      // The plain update path toasts from usePostToSquad; the moderation one
+      // completes silently, so it is the only case that needs confirming here.
+      if (moderationRequired(primary as Squad)) {
+        displayToast('✅ Your edit has been submitted for moderation');
+      }
+      return;
+    }
     if (!isPreviewForComposerUrl(preview, link.url)) {
       displayToast('Invalid link');
       return;

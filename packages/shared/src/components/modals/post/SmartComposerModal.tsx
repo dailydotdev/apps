@@ -36,6 +36,7 @@ import { LogEvent } from '../../../lib/log';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { usePrompt } from '../../../hooks/usePrompt';
 import type { ExternalLinkPreview, Post } from '../../../graphql/posts';
+import { PostType } from '../../../graphql/posts';
 import type { Squad } from '../../../graphql/sources';
 import { getPostByIdKey } from '../../../lib/query';
 import { moderationRequired } from '../../squads/utils';
@@ -132,7 +133,7 @@ export function SmartComposerModal({
   const isEditing = !!editPost;
   const [kind, setKind] = useState<ComposerKind>(() => {
     if (isEditing) {
-      return 'text';
+      return editPost.type === PostType.Share ? 'link' : 'text';
     }
     if (initialUrl) {
       return 'link';
@@ -175,10 +176,34 @@ export function SmartComposerModal({
       body: initialContent ?? DEFAULT_TEXT.body,
     };
   });
-  const [link, setLink] = useState<LinkFormState>({
-    ...DEFAULT_LINK,
-    url: initialUrl ?? '',
-    commentary: initialCommentary ?? DEFAULT_LINK.commentary,
+  const editShare = editPost?.type === PostType.Share ? editPost : undefined;
+  // A share posted without commentary carries the shared post's own title,
+  // which is not the author's text and must not be offered back to them as if
+  // it were.
+  const editShareCommentary = ((): string => {
+    if (!editShare) {
+      return '';
+    }
+    if (!editShare.sharedPost) {
+      return editShare.content ?? '';
+    }
+    return editShare.title === editShare.sharedPost.title
+      ? ''
+      : editShare.title ?? '';
+  })();
+  const [link, setLink] = useState<LinkFormState>(() => {
+    if (editShare) {
+      return {
+        ...DEFAULT_LINK,
+        url: editShare.sharedPost?.permalink ?? '',
+        commentary: editShareCommentary,
+      };
+    }
+    return {
+      ...DEFAULT_LINK,
+      url: initialUrl ?? '',
+      commentary: initialCommentary ?? DEFAULT_LINK.commentary,
+    };
   });
   const [poll, setPoll] = useState<PollFormState>(DEFAULT_POLL);
   const [standup, setStandup] = useState<StandupFormState>(DEFAULT_STANDUP);
@@ -191,6 +216,9 @@ export function SmartComposerModal({
   useDisableSpotlightShortcut();
 
   const isDirty = useMemo(() => {
+    if (editShare) {
+      return link.commentary !== editShareCommentary;
+    }
     if (editPost) {
       if (text.title !== (editPost.title ?? '')) {
         return true;
@@ -222,7 +250,16 @@ export function SmartComposerModal({
       return true;
     }
     return false;
-  }, [cover, text, link, poll, standup, editPost]);
+  }, [
+    cover,
+    text,
+    link,
+    poll,
+    standup,
+    editPost,
+    editShare,
+    editShareCommentary,
+  ]);
 
   const confirmDiscardIfDirty = useCallback(async () => {
     if (!isDirty) {
@@ -365,7 +402,9 @@ export function SmartComposerModal({
     primary,
     selectedIds,
     isMulti,
-    initialPreview,
+    // Editing a share has no URL to resolve, so seed the preview with the
+    // post's own shared content instead of fetching one.
+    initialPreview: editShare?.sharedPost ?? initialPreview,
     editPostId: editPost?.id,
     resolveScheduledAt: canSchedule ? schedule.resolveScheduledAt : undefined,
     onComplete: () => {
@@ -619,6 +658,7 @@ export function SmartComposerModal({
                 logEvent({ event_name: LogEvent.DismissComposerPreview })
               }
               initialUrl={initialUrl ? link.url : undefined}
+              isUrlLocked={!!editShare}
             />
           )}
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}

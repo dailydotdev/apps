@@ -10,6 +10,8 @@ import { useNotificationToggle } from '../../../hooks/notifications';
 import { useComposerAudience } from '../../post/composer/useComposerAudience';
 import { useComposerSubmit } from '../../post/composer/useComposerSubmit';
 import { LogEvent } from '../../../lib/log';
+import type { Post } from '../../../graphql/posts';
+import { PostType } from '../../../graphql/posts';
 import { SmartComposerModal } from './SmartComposerModal';
 
 jest.mock('../../../contexts/AuthContext', () => ({
@@ -284,5 +286,82 @@ describe('SmartComposerModal', () => {
       name: 'Scheduled posts',
     });
     expect(schedule.parentElement).not.toBe(scheduledNav.parentElement);
+  });
+
+  describe('editing a share post', () => {
+    const sharedPost = {
+      title: 'The shared article',
+      permalink: 'https://daily.dev/posts/shared',
+    };
+    const editShare = {
+      id: 'post-1',
+      type: PostType.Share,
+      title: 'My take on this',
+      sharedPost,
+      source: { id: 'squad-1' },
+    } as unknown as Post;
+
+    it('opens on the link kind rather than defaulting to text', () => {
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          editPost={editShare}
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      expect(
+        screen.getByRole('textbox', { name: 'Post commentary' }),
+      ).toHaveValue('My take on this');
+    });
+
+    it('locks the link, since only the commentary is editable', () => {
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          editPost={editShare}
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      expect(
+        screen.queryByRole('textbox', { name: 'Link URL' }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Remove link preview' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('seeds the preview from the post instead of refetching it', () => {
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          editPost={editShare}
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      const hookProps = jest.mocked(useComposerSubmit).mock.calls[0]?.[0];
+      expect(hookProps?.initialPreview).toBe(sharedPost);
+      expect(hookProps?.editPostId).toBe('post-1');
+    });
+
+    it('offers an empty commentary when the share never had one', () => {
+      // A share posted without commentary carries the shared post's title,
+      // which is not the author's words and must not be presented as theirs.
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          editPost={
+            { ...editShare, title: sharedPost.title } as unknown as Post
+          }
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      expect(
+        screen.getByRole('textbox', { name: 'Post commentary' }),
+      ).toHaveValue('');
+    });
   });
 });
