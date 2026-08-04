@@ -14,10 +14,7 @@ import {
   WeeklyQuizDateChip,
 } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizIntro';
 import { WeeklyQuizCountdown } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizCountdown';
-import {
-  WeeklyQuizQuestion,
-  WeeklyQuizQuestionHeader,
-} from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizQuestion';
+import { WeeklyQuizQuestion } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizQuestion';
 import {
   WeeklyQuizResults,
   WEEKLY_QUIZ_TIERS,
@@ -100,11 +97,6 @@ const PreviewGame = ({
               startDate={quiz.startDate}
               endDate={quiz.endDate}
             />
-          ) : undefined
-        }
-        headerLeft={
-          phase === WeeklyQuizPhase.Question ? (
-            <WeeklyQuizQuestionHeader game={game} />
           ) : undefined
         }
       >

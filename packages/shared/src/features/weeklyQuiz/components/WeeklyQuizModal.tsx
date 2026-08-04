@@ -10,10 +10,7 @@ import { useWeeklyQuizAudio } from '../hooks/useWeeklyQuizAudio';
 import { useWeeklyQuizPlayed } from '../hooks/useWeeklyQuizPlayed';
 import { WeeklyQuizIntro, WeeklyQuizDateChip } from './WeeklyQuizIntro';
 import { WeeklyQuizCountdown } from './WeeklyQuizCountdown';
-import {
-  WeeklyQuizQuestion,
-  WeeklyQuizQuestionHeader,
-} from './WeeklyQuizQuestion';
+import { WeeklyQuizQuestion } from './WeeklyQuizQuestion';
 import { WeeklyQuizResults } from './WeeklyQuizResults';
 import { WeeklyQuizSideControls } from './WeeklyQuizSideControls';
 import { WeeklyQuizSurface } from './WeeklyQuizSurface';
@@ -133,11 +130,6 @@ function WeeklyQuizModal({
                 startDate={quiz.startDate}
                 endDate={quiz.endDate}
               />
-            ) : undefined
-          }
-          headerLeft={
-            phase === WeeklyQuizPhase.Question ? (
-              <WeeklyQuizQuestionHeader game={game} />
             ) : undefined
           }
         >

@@ -10,9 +10,6 @@ interface WeeklyQuizSurfaceProps {
   showRays?: boolean;
   // Element pinned to the far right of the top bar (the intro's week pill).
   headerRight?: ReactNode;
-  // Element that fills the top bar beside the logo (the question's progress +
-  // timer).
-  headerLeft?: ReactNode;
 }
 
 // The quiz card shared by every screen: the neutral gradient surface, the
@@ -22,7 +19,6 @@ export const WeeklyQuizSurface = ({
   children,
   showRays = true,
   headerRight,
-  headerLeft,
 }: WeeklyQuizSurfaceProps): ReactElement => (
   <div className={`relative flex-1 ${styles.surface}`}>
     {showRays && <span className={styles.rays} aria-hidden />}
@@ -31,7 +27,6 @@ export const WeeklyQuizSurface = ({
         <LogoIcon className={{ container: 'h-5 w-auto' }} />
         <LogoText className={{ container: 'h-5 w-auto' }} />
       </span>
-      {headerLeft && <div className="min-w-0 flex-1">{headerLeft}</div>}
       {headerRight}
     </div>
     {children}
