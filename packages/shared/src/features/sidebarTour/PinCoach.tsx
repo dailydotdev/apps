@@ -39,14 +39,18 @@ export const PinCoach = ({
   useEffect(() => {
     const grew = shortcutCount > shortcutCountRef.current;
     shortcutCountRef.current = shortcutCount;
+    // The dock's own store starts empty and fills in from storage, so growth
+    // alone is not a pin. It only counts when it can be attributed to the
+    // lesson: a drag that just happened, or a pin button in the open panel.
+    const isAttributable = isPanelOpen || didDragRef.current;
 
-    if (!grew || !isCoachActive) {
+    if (!grew || !isCoachActive || !isAttributable) {
       return;
     }
 
     onSuccess(didDragRef.current ? 'drag' : 'button');
     didDragRef.current = false;
-  }, [isCoachActive, onSuccess, shortcutCount]);
+  }, [isCoachActive, isPanelOpen, onSuccess, shortcutCount]);
 
   const isEligible = coach.isActive && isPanelOpen && !isDragging;
   const anchor = useCoachAnchor(PINNABLE_ROW_SELECTOR, isEligible);
