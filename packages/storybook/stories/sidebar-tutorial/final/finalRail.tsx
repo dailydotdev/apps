@@ -390,7 +390,7 @@ export const CoachCard = ({
 
     {pointer !== undefined && <CoachPointer top={pointer} />}
 
-    <div key={stepKey} className="coach-card-in flex flex-col gap-2.5">
+    <div key={stepKey} className="coach-card-in flex flex-col gap-5">
       <Typography
         className="text-balance"
         type={TypographyType.Footnote}
@@ -402,7 +402,7 @@ export const CoachCard = ({
       {control}
 
       {actions && (
-        <div className="flex items-center justify-between gap-2 pt-1.5">
+        <div className="flex items-center justify-between gap-2">
           {progress ? <CoachProgressRing {...progress} /> : <span />}
           <span className="flex items-center gap-2">{actions}</span>
         </div>
