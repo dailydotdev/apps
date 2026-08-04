@@ -28,6 +28,8 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { TimerIcon } from '@dailydotdev/shared/src/components/icons';
+import { createWeeklyQuizResultImage } from '@dailydotdev/shared/src/features/weeklyQuiz/generateResultImage';
+import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
 import { withWeeklyQuiz, mockStatus } from './weeklyQuiz.mocks';
 
 // A plain-card stand-in for the modal shell so the full game flow — intro →
@@ -460,6 +462,72 @@ const FeedPromptsGallery = (): React.ReactElement => (
   </div>
 );
 
+// Sample result used to render the downloadable share-image variants.
+const SHARE_SAMPLE = {
+  name: 'Dev Dana',
+  imageUrl: fallbackImages.avatar,
+  title: 'Autocomplete Hero',
+  correctCount: 6,
+  totalQuestions: 10,
+  percentile: 60,
+  rank: 42,
+  gifUrl: WEEKLY_QUIZ_TIERS.find((tier) => tier.minRatio === 0.6)?.gif,
+  logoUrl: '/logos/weekly-quiz-logo.png',
+  brandLogoUrl: '/android-chrome-512x512.png',
+};
+const SHARE_VARIANT_LABELS = [
+  '1 · GIF poster',
+  '2 · Centered card',
+  '3 · Split',
+  '4 · Ticket stub',
+];
+
+// Renders all four downloadable share-image layouts (canvas → PNG) side by side
+// so the best one can be picked.
+const ShareImageVariants = (): React.ReactElement => {
+  const [urls, setUrls] = useState<Array<string | null>>([]);
+  useEffect(() => {
+    let active = true;
+    Promise.all(
+      ([1, 2, 3, 4] as const).map((variant) =>
+        createWeeklyQuizResultImage(SHARE_SAMPLE, variant),
+      ),
+    ).then((result) => {
+      if (active) {
+        setUrls(result);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return (
+    <div className="force-dark min-h-screen w-full bg-background-default p-6">
+      <div className="mx-auto grid max-w-[980px] grid-cols-1 gap-6 tablet:grid-cols-2">
+        {SHARE_VARIANT_LABELS.map((label, index) => (
+          <div key={label} className="flex flex-col gap-2">
+            <span className="font-bold text-text-primary typo-callout">
+              {label}
+            </span>
+            {urls[index] ? (
+              <img
+                src={urls[index] as string}
+                alt={label}
+                className="w-full rounded-16 border border-border-subtlest-tertiary"
+              />
+            ) : (
+              <div className="flex h-96 items-center justify-center rounded-16 border border-border-subtlest-tertiary text-text-tertiary typo-footnote">
+                Rendering…
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const meta: Meta<typeof WeeklyQuizGamePreview> = {
   title: 'Features/WeeklyQuiz/Game',
   component: WeeklyQuizGamePreview,
@@ -517,4 +585,10 @@ export const ScoreTiers: Story = {
 export const FeedPrompts: Story = {
   name: 'Entry-point concepts',
   render: () => <FeedPromptsGallery />,
+};
+
+// The four downloadable share-image layouts, rendered as PNGs to compare.
+export const ShareImages: Story = {
+  name: 'Share image (4 variants)',
+  render: () => <ShareImageVariants />,
 };

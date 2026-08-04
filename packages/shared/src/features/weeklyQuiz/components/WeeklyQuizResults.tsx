@@ -13,18 +13,12 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import {
-  BellIcon,
-  CopyIcon,
-  DownloadIcon,
-  TimerIcon,
-} from '../../../components/icons';
+import { BellIcon, CopyIcon, DownloadIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { SocialShareButton } from '../../../components/widgets/SocialShareButton';
 import { SocialShareList } from '../../../components/widgets/SocialShareList';
 import { WeeklyQuizConfetti } from './WeeklyQuizConfetti';
 import { WeeklyQuizScoreboard } from './WeeklyQuizScoreboard';
-import { formatElapsed } from './WeeklyQuizTimer';
 import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
 import { useWeeklyQuizLeaderboard } from '../hooks/useWeeklyQuizLeaderboard';
 import { useCountUp } from '../hooks/useCountUp';
@@ -106,19 +100,6 @@ const getTier = (correct: number, total: number): ResultTier => {
 const getPercentile = (correct: number, total: number): number => {
   const ratio = total === 0 ? 0 : correct / total;
   return Math.min(99, Math.max(1, Math.round(ratio * 100)));
-};
-
-// Classify the run's pace from average time per question, so the time reads as
-// fast / steady / slow rather than a bare number.
-const getPaceLabel = (timeMs: number, total: number): string => {
-  const perQuestion = total === 0 ? timeMs : timeMs / total;
-  if (perQuestion < 6000) {
-    return 'Lightning fast';
-  }
-  if (perQuestion <= 11000) {
-    return 'Steady pace';
-  }
-  return 'Took your time';
 };
 
 // A circular ring showing a single stat, BuzzFeed-style. `ratio` fills the arc
@@ -207,17 +188,15 @@ export const WeeklyQuizResults = ({
   // Shareable quiz link (placeholder until the real URL is wired up).
   const quizUrl = 'https://daily.dev/quiz/weekly-tech-news';
 
-  const { correctCount, totalQuestions, timeMs } = result;
+  const { correctCount, totalQuestions } = result;
   // Odometer-style reveal: the score, its ring arc and the time count up on
   // mount (snaps instantly under prefers-reduced-motion).
   const animatedCorrect = Math.round(
     useCountUp(correctCount, { durationMs: 900 }),
   );
-  const animatedTimeMs = Math.round(useCountUp(timeMs, { durationMs: 900 }));
   const ratio = totalQuestions === 0 ? 0 : animatedCorrect / totalQuestions;
   const tier = getTier(correctCount, totalQuestions);
   const percentile = getPercentile(correctCount, totalQuestions);
-  const paceLabel = getPaceLabel(timeMs, totalQuestions);
   const shareText = `I'm a "${tier.title}" on the daily.dev weekly tech news quiz (${correctCount}/${totalQuestions} correct). Think you can beat me?`;
 
   const copyLink = (): void => {
@@ -257,9 +236,9 @@ export const WeeklyQuizResults = ({
       title: tier.title,
       correctCount,
       totalQuestions,
-      timeLabel: formatElapsed(timeMs),
       percentile,
       rank,
+      gifUrl: tier.gif,
       logoUrl: '/logos/weekly-quiz-logo.png',
       brandLogoUrl: '/android-chrome-512x512.png',
     }).catch(() => undefined);
@@ -321,18 +300,6 @@ export const WeeklyQuizResults = ({
             >
               {tier.message}
             </Typography>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <span className="flex items-center gap-1.5 whitespace-nowrap rounded-8 bg-surface-float px-3 py-1 typo-footnote">
-                <TimerIcon
-                  size={IconSize.XSmall}
-                  className="text-text-tertiary"
-                />
-                <span className="font-bold tabular-nums text-text-primary">
-                  {formatElapsed(animatedTimeMs)}
-                </span>
-                <span className="text-text-tertiary">· {paceLabel}</span>
-              </span>
-            </div>
           </div>
         </div>
 
