@@ -139,8 +139,7 @@ export const Default: Story = {
         spotlights the rail, the pointer ties the card to the region it is
         talking about, step 1 carries the compact setting as a live switch and
         step 3 opens the Game Center panel. Use the step buttons under the stage
-        to review each step on its own. Story 04 holds the card treatments still
-        under discussion.
+        to review each step on its own.
       </Typography>
       <TourDemo />
     </div>

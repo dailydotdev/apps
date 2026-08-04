@@ -306,7 +306,7 @@ const FullExperienceDemo = (): JSX.Element => {
                   top={PANEL_ROW_ONE_OFFSET - PANEL_TOP_OFFSET - 12}
                 >
                   <CoachCard
-                    message="Drag any page to the dock, or click its pin button."
+                    message="Drag anything from this panel to the dock, or use its pin button."
                     pointer={PANEL_ROW_HEIGHT / 2 + 12}
                   />
                 </CoachAnchor>

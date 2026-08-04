@@ -5,7 +5,7 @@ this is the decision that came out of it, built to be handed to engineering.
 
 Stories: `Sidebar Tutorial/Final/00 Full experience` (the whole system, both
 personas), `01 Tour (existing users)`, `02 Intent teaching (new users)`,
-`03 Replay from help`, `04 Card variations`.
+`03 Replay from help`.
 
 ## The decision
 
@@ -50,20 +50,21 @@ option, never advertised.
 
 ## Coach card anatomy (all coaches in this folder)
 
-One sentence, nothing else: no title, no subtitle, no disclaimer. The default
-card is variation **A (Quiet)**, 256px wide with 12px padding, the sentence at
-`Footnote`, and every button at `ButtonSize.Small` (32px tall, the comfortable
-floor).
+One sentence, nothing else: no title, no subtitle, no disclaimer. The card is
+224px wide with 12px padding, the sentence at `Footnote`, and both buttons at
+`ButtonSize.Small` (32px tall, the comfortable floor).
 
-- **Leaving** is an explicit `Skip tour` text button on the left of the actions
-  row, present on every step. It replaced a corner X, which could only say
-  "close" and read as dismissing the current step rather than abandoning the
-  tour.
+- **Leaving** is an explicit `Skip tour` text button, present on every step. It
+  replaced a corner X, which could only say "close" and read as dismissing the
+  current step rather than abandoning the tour.
 - **Progress** is a 2px rail pinned to the card's bottom edge, filled with
   `transform: scaleX()` so it animates on the compositor. There is no oval pill
   and no "1 of 3" prose.
-- **Actions** are `Skip tour` on the left, then `Back` (from step 2 on) and
-  `Next` / `Got it` on the right, so `Next` never moves between steps.
+- **Actions** are a single right-aligned pair: `Skip tour` as a padding-trimmed
+  tertiary button sitting directly beside `Next` / `Got it`, which carries an
+  88px minimum width so the primary action stays the heavier of the two. There
+  is no `Back`: three steps do not need one, and the support menu can replay the
+  whole tour.
 - **Motion** is a 180ms blur-and-lift enter on `cubic-bezier(0.16, 1, 0.3, 1)`,
   keyed on the step id so the copy re-animates while the shell and the progress
   fill stay put. No overshoot anywhere, and the whole thing is off under
@@ -73,11 +74,10 @@ floor).
   rail lifted above it. Clicking the scrim does nothing. Only `Skip tour` and
   the buttons end the tour.
 
-**Variations.** Story `04 Card variations` holds five treatments of this card
-(A Quiet, B Counter, C Segments, D Dialog footer, E Wayfinding), each with a
-different way of showing progress, driving the same tour on the same stage. The
-`Gallery` story lines all five up at step 2 with their dimensions. The choice is
-still open; A is what the other stories ship until it is made.
+**How this card was chosen.** Five treatments (Quiet, Counter, Segments, Dialog
+footer, Wayfinding) were built and reviewed side by side; Quiet won and the
+other four were removed. They are recoverable from commit `f32e71128` if the
+comparison is ever needed again.
 
 ## Productionization map
 

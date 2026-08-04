@@ -297,11 +297,6 @@ export const COACH_SHADOW: CSSProperties = {
     '0 0 0 1px rgb(255 255 255 / 0.08), 0 8px 16px -8px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4)',
 };
 
-export const COACH_SHADOW_STRONG: CSSProperties = {
-  boxShadow:
-    '0 0 0 1px rgb(255 255 255 / 0.08), 0 16px 32px -12px rgb(0 0 0 / 0.6), 0 4px 8px -4px rgb(0 0 0 / 0.5)',
-};
-
 export type CoachPointerTop = number | 'center';
 
 export interface CoachPointerProps {
@@ -378,7 +373,7 @@ export interface CoachCardProps {
 }
 
 // Variation A (Quiet): no border, layered shadow, progress as a hairline rail
-// on the bottom edge. See story 04 for the alternatives.
+// on the bottom edge.
 export const CoachCard = ({
   message,
   stepKey,
@@ -388,7 +383,7 @@ export const CoachCard = ({
   pointer,
 }: CoachCardProps): JSX.Element => (
   <div
-    className="coach-card-in relative w-64 rounded-14 bg-background-subtle p-3"
+    className="coach-card-in relative w-56 rounded-14 bg-background-subtle p-3"
     style={COACH_SHADOW}
   >
     <CoachMotionStyles />
@@ -407,7 +402,7 @@ export const CoachCard = ({
       {control}
 
       {actions && (
-        <div className="flex items-center justify-between gap-2">{actions}</div>
+        <div className="flex items-center justify-end gap-1">{actions}</div>
       )}
     </div>
 

@@ -39,7 +39,8 @@ export const SIDEBAR_TOUR_STEPS: SidebarTourStep[] = [
   },
   {
     id: 'dock',
-    message: 'Drag any page into the dock below, or add it from the ••• menu.',
+    message:
+      'Drag anything from the sidebar into the dock, or add it from the ••• menu.',
     glow: 'dock',
     anchor: 'dock',
   },
@@ -182,17 +183,15 @@ export const CompactSwitch = ({
 
 export const SkipTourButton = ({
   onSkip,
-  tight = false,
 }: {
   onSkip: () => void;
-  // The narrowest variation pairs this with a primary button that spells out a
-  // destination, so it trims its side padding rather than push the row out of
-  // the card. A tertiary button has no fill, so the trim is invisible.
-  tight?: boolean;
 }): JSX.Element => (
   <Button
     className="active:scale-95"
-    style={tight ? { paddingLeft: 4, paddingRight: 4 } : undefined}
+    // Sits directly beside the primary action, so it trims its side padding to
+    // stay a quiet text control rather than reading as a second button. A
+    // tertiary button has no fill, which makes the trim invisible.
+    style={{ paddingLeft: 6, paddingRight: 6 }}
     size={ButtonSize.Small}
     variant={ButtonVariant.Tertiary}
     onClick={onSkip}
@@ -208,26 +207,6 @@ export interface StepButtonProps {
   label?: string;
 }
 
-export const BackButton = ({
-  step,
-  onStepChange,
-}: StepButtonProps): JSX.Element | null => {
-  if (step === 0) {
-    return null;
-  }
-
-  return (
-    <Button
-      className="active:scale-95"
-      size={ButtonSize.Small}
-      variant={ButtonVariant.Tertiary}
-      onClick={() => onStepChange(step - 1)}
-    >
-      Back
-    </Button>
-  );
-};
-
 export const NextButton = ({
   step,
   onStepChange,
@@ -239,6 +218,7 @@ export const NextButton = ({
   return (
     <Button
       className="active:scale-95"
+      style={{ minWidth: 88 }}
       size={ButtonSize.Small}
       variant={ButtonVariant.Primary}
       onClick={() => (isLastStep ? onFinish?.() : onStepChange(step + 1))}
@@ -248,8 +228,6 @@ export const NextButton = ({
   );
 };
 
-// Variation A (Quiet). Story 04 holds the four alternatives that drive this
-// same tour.
 export const TourCoachCard = ({
   step,
   onStepChange,
@@ -284,14 +262,11 @@ export const TourCoachCard = ({
       actions={
         <>
           <SkipTourButton onSkip={onSkip} />
-          <span className="flex items-center gap-2">
-            <BackButton step={step} onStepChange={onStepChange} />
-            <NextButton
-              step={step}
-              onStepChange={onStepChange}
-              onFinish={onFinish}
-            />
-          </span>
+          <NextButton
+            step={step}
+            onStepChange={onStepChange}
+            onFinish={onFinish}
+          />
         </>
       }
     />
