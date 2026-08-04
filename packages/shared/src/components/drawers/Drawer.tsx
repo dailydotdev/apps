@@ -58,9 +58,7 @@ export interface DrawerOnMobileProps {
   drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
 }
 
-// Drawers can stack (a picker drawer above the composer drawer); the page
-// unlocks only when the last one leaves, and hands back the inline overflow it
-// found rather than deleting whatever another lock may have set.
+// Drawers can stack; the page unlocks only when the last one leaves.
 let scrollLockCount = 0;
 let previousHtmlOverflow = '';
 
@@ -94,9 +92,6 @@ function BaseDrawer({
   ...props
 }: DrawerProps): ReactElement {
   const container = useRef<HTMLDivElement | null>(null);
-  // Only full-screen drawers size themselves from the visual viewport, so only
-  // they subscribe: `scroll` fires continuously on iOS while the keyboard is
-  // open, and every event would re-render each mounted drawer's subtree.
   const { height: viewportHeight, offsetTop } = useVisualViewport(isFullScreen);
   const keyboardSafeStyle =
     isFullScreen && viewportHeight
@@ -115,17 +110,12 @@ function BaseDrawer({
   }, [onAfterClose, onAfterOpen]);
 
   useEffect(() => {
-    // Scoped to full-screen drawers: they cover the page, so a scroll that
-    // chains through to it visibly jumps the content behind. Partial drawers
-    // (context menus, pickers) keep the page scrollable, as they always have.
     if (!isFullScreen) {
       return undefined;
     }
 
-    // Same body lock react-modal applies (`ReactModal__Body--open`), plus the
-    // html element: <html> is the page's actual scroller, so body-level
-    // `overflow: hidden` never reaches the viewport and touch scrolls chain
-    // through the drawer anyway.
+    // <html> is the page's actual scroller — body-level `overflow: hidden`
+    // alone never reaches the viewport.
     if (scrollLockCount === 0) {
       previousHtmlOverflow = document.documentElement.style.overflow;
     }
@@ -150,11 +140,8 @@ function BaseDrawer({
   const handleOverlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // Only a hit on the backdrop itself closes the drawer. A `contains` check
-    // fails for portaled children (dropdowns, popovers): they live under
-    // `document.body`, but React bubbles their synthetic clicks up the React
-    // tree to this handler, so picking an item read as an outside click and
-    // tore the drawer down instead of running the item's own action.
+    // Not a `contains` check: portaled children (dropdowns, popovers) live
+    // under document.body, yet React bubbles their clicks to this handler.
     if (closeOnOutsideClick && hasAnimated && e.target === e.currentTarget) {
       onClose(e.nativeEvent);
     }
@@ -165,9 +152,9 @@ function BaseDrawer({
     <div
       className={classNames(
         'fixed z-modal transition-opacity duration-300 ease-in-out',
-        // A full-screen drawer is sized to the *visual* viewport so its bottom
-        // actions sit above the virtual keyboard. iOS never shrinks the layout
-        // viewport for the keyboard, so `inset-0` alone leaves them underneath.
+        // Sized to the *visual* viewport: iOS never shrinks the layout
+        // viewport for the keyboard, so `inset-0` alone leaves the bottom
+        // actions underneath it.
         isFullScreen ? 'inset-x-0 top-0 h-full' : 'inset-0',
         !isFullScreen && 'bg-overlay-quaternary-onion',
         className?.overlay,
@@ -179,8 +166,6 @@ function BaseDrawer({
       <div
         {...props}
         className={classNames(
-          // `overscroll-contain` stops a scroll that reaches this scroller's
-          // edge from chaining to the page behind the drawer.
           'drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default transition-transform duration-300 ease-in-out',
           isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
@@ -256,8 +241,7 @@ function AnimatedDrawer(
   const [isClosing, setIsClosing] = useState(false);
   const [debounceClosing] = useDebounceFn<PopupEventType>((e) => {
     setIsClosing(false);
-    // `StartFn` types its argument as optional, but `onClosing` below is the
-    // only caller and always forwards the event that triggered the close.
+    // `onClosing`, the only caller, always forwards the event.
     onClose?.(e as PopupEventType);
   }, ANIMATION_MS);
 

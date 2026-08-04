@@ -68,8 +68,7 @@ describe('CommentInput', () => {
   });
 
   it('drops the drawer default padding so content is not padded twice', () => {
-    // Including the bottom: the composer's action bar carries the safe-area
-    // inset itself, so drawer padding under it read as double spacing.
+    // Including the bottom: the composer's action bar carries the safe area.
     jest.mocked(useViewSize).mockReturnValue(false);
     render(<CommentInput post={post} onClose={jest.fn()} />);
 

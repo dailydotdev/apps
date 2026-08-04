@@ -243,8 +243,6 @@ function RichTextToolbarComponent(
   });
 
   const formattingItems = useMemo<ToolbarItem[]>(() => {
-    // Markdown mode edits raw text, so the rich-text commands have nothing to
-    // act on; the bar itself stays mounted so the actions beside it hold still.
     if (hideFormatting) {
       return [];
     }
@@ -387,8 +385,7 @@ function RichTextToolbarComponent(
     const rightWidth =
       rightActionsRef.current?.getBoundingClientRect().width ?? 0;
     // Dividers and the row's own gaps are laid out but belong to no ref, so
-    // leaving them out of the budget is what let the last button — and the
-    // overflow chevron itself — get sliced by the group's `overflow-hidden`.
+    // the budget must account for them separately.
     const dividerCount =
       (leadingActions && !stackLeading ? 1 : 0) +
       (inlineActions ? 1 : 0) +
@@ -468,9 +465,6 @@ function RichTextToolbarComponent(
 
   return (
     <>
-      {/* On a narrow screen the kind picker plus the icon actions cannot fit
-          beside the submit button, and the overflow menu only relocates
-          formatting items — so the leading slot gets its own row instead. */}
       {stackLeading && leadingActions && (
         <div className="flex flex-row items-center px-5 pt-4">
           {leadingActions}
@@ -490,9 +484,6 @@ function RichTextToolbarComponent(
           className={classNames(
             'flex min-w-0 flex-1 items-center gap-0',
             position === 'top' && 'flex-wrap',
-            // `shrink` (not `flex-1`) on the clipped group: the global
-            // `flex-shrink: 0` reset means it needs the opt-in, and growing it
-            // would shove the overflow button across to the submit button.
             position === 'bottom' && 'flex-nowrap',
           )}
         >
@@ -528,8 +519,7 @@ function RichTextToolbarComponent(
             )}
             {renderedFormattingItems}
           </div>
-          {/* Outside the clipped group on purpose: it is the escape hatch for
-              everything that did not fit, so it must never be cut itself. */}
+          {/* Outside the clipped group so the overflow menu is never cut itself. */}
           {isOverflowable && <OverflowMenu items={overflowItems} />}
         </div>
         {rightActions && (

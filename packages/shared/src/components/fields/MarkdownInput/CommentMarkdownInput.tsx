@@ -47,13 +47,10 @@ export interface CommentMarkdownInputProps {
   onChange?: (value: string) => void;
   formProps?: FormHTMLAttributes<HTMLFormElement>;
   onClose?: () => void;
-  /** Fills its container instead of capping against the viewport. For the
-   * mobile full-screen drawer, which is already sized to the visual viewport. */
+  /** Fills its container instead of capping against the viewport. */
   fills?: boolean;
 }
 
-// The composer grows with its content up to this cap, then scrolls internally
-// so the action bar — and the caret — stay put instead of running off-screen.
 const MIN_COMPOSER_HEIGHT = 224;
 const MAX_COMPOSER_HEIGHT = 512;
 const VIEWPORT_HEIGHT_RATIO = 0.8;
@@ -84,9 +81,6 @@ export function CommentMarkdownInputComponent(
   const richTextRef = useRef<RichTextInputRef | null>(null);
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
 
-  // The visual viewport — not the layout viewport — is what stays visible once
-  // the virtual keyboard opens. Capping against it is what keeps a long comment
-  // from pushing its own submit button behind the keyboard on mobile.
   const { height: viewportHeight } = useVisualViewport();
   const maxHeight =
     viewportHeight && !fills
@@ -106,8 +100,6 @@ export function CommentMarkdownInputComponent(
     submitCopy = 'Reply';
   }
 
-  // A top-level comment is still a reply to whoever put the post up, so the
-  // strip falls back to the post author and then to the source that owns it.
   const replyingTo = replyTo ?? post?.author?.username ?? post?.source?.handle;
   let headerLabel: ReactNode = null;
   if (editCommentId) {
@@ -165,7 +157,6 @@ export function CommentMarkdownInputComponent(
       {...formProps}
       action="#"
       onSubmit={onSubmitForm}
-      // Names the form for assistive tech, and gives it a role to query by.
       aria-label={submitCopy}
       className={classNames(
         'flex min-h-0 flex-col',
@@ -189,15 +180,10 @@ export function CommentMarkdownInputComponent(
         className={{
           container: classNames(
             '!min-h-0 flex-1 overflow-hidden',
-            // In the drawer the composer *is* the screen, so it drops the card
-            // treatment that separates it from the page when inline.
             fills
               ? '!rounded-none !bg-transparent'
               : 'border border-border-subtlest-tertiary',
           ),
-          // Inline, the avatar sits on the comment list's guideline. In the
-          // drawer there is no list to line up with, so it joins the 20px
-          // frame the action bar and create-post composer already use.
           profile: fills ? '!ml-5' : undefined,
         }}
         postId={postId}

@@ -239,8 +239,6 @@ export function SmartComposerModal({
     if (cover) {
       return true;
     }
-    // Dirty means diverged from what the composer was seeded with, not merely
-    // non-empty — share-to-squad and deep links pre-fill the URL and text.
     const isChanged = (value: string, initial: string | undefined) =>
       value.trim() !== (initial ?? '').trim();
     if (
@@ -391,8 +389,6 @@ export function SmartComposerModal({
   const isMulti = selected.length > 1;
 
   const schedule = useSchedulePost();
-  // Scheduling: single-source, non-moderated create only (any post type
-  // except standups, which schedule themselves).
   const canSchedule =
     kind !== 'standup' &&
     !isEditing &&
@@ -418,8 +414,6 @@ export function SmartComposerModal({
     primary,
     selectedIds,
     isMulti,
-    // Editing a share has no URL to resolve, so seed the preview with the
-    // post's own shared content instead of fetching one.
     initialPreview: editShare?.sharedPost ?? initialPreview,
     editPostId: editPost?.id,
     resolveScheduledAt: canSchedule ? schedule.resolveScheduledAt : undefined,
@@ -506,12 +500,7 @@ export function SmartComposerModal({
       {submitLabel}
     </Button>
   );
-  // On mobile the calendar belongs with the header's scheduling control (the
-  // clock), leaving the bottom bar to the Post button; on desktop both stay
-  // beside Post.
   const scheduleInHeader = !isLaptop;
-  // Self-contained flex with its own gap so the button pair keeps identical
-  // spacing regardless of the parent (rich-text toolbar vs. bottom action bar).
   const primaryActionsNode = (
     <div className="flex items-center gap-2">
       {!scheduleInHeader && scheduleButtonNode}
@@ -681,9 +670,7 @@ export function SmartComposerModal({
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
         </div>
       )}
-      {/* Text keeps its actions inside the editor's own bottom bar, in both
-          rich and markdown mode — adding them here too gave markdown a second
-          bar and made the buttons jump on every toggle. */}
+      {/* Text keeps its actions inside the editor's own bottom bar. */}
       {kind !== 'text' && kind !== 'standup' && (
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
           <div className="flex items-center justify-between gap-3">

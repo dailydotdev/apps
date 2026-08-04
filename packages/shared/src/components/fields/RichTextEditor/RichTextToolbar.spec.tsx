@@ -68,8 +68,6 @@ describe('RichTextToolbar leading actions', () => {
   });
 
   it('renders the leading slot exactly once on its own row when stacked', () => {
-    // Regression: the stacked row rendered *in addition to* the inline slot,
-    // so mobile showed two kind pickers.
     renderToolbar(true);
 
     expect(
@@ -87,9 +85,8 @@ describe('RichTextToolbar leading actions', () => {
   });
 
   it('moves overflowed formatting into the menu with a working trigger', () => {
-    // Regression: wrapping the trigger in `Tooltip` blurred it on mouseup,
-    // which dismissed the non-modal Radix menu before it could paint. The
-    // tooltip must ride on the trigger's own `tooltip` prop instead.
+    // The tooltip must ride on the trigger's own `tooltip` prop — a `Tooltip`
+    // wrapper blurs on mouseup and dismisses the non-modal menu.
     const nativeResizeObserver = global.ResizeObserver;
     let triggerResize: (() => void) | undefined;
     const observerStub = (

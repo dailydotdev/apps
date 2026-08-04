@@ -93,8 +93,7 @@ describe('useComposerSubmit editing a share', () => {
   });
 
   it('stays submittable without a resolved preview', () => {
-    // The link is fixed while editing, so there is no URL/preview pair to
-    // validate — requiring one left the Post button permanently disabled.
+    // The link is fixed while editing — there is no URL/preview to validate.
     const { result } = renderSubmit();
 
     expect(result.current.isSubmitDisabled).toBe(false);

@@ -23,10 +23,7 @@ interface LinkFormProps {
   fetchPreview: (url?: string) => void;
   onDismissPreview?: () => void;
   initialUrl?: string;
-  /**
-   * Editing an existing share: the link itself is fixed, so the URL field and
-   * the preview's remove button are dropped and only the commentary is open.
-   */
+  /** Drops the URL field and preview removal; only the commentary is open. */
   isUrlLocked?: boolean;
 }
 
@@ -80,8 +77,6 @@ export const LinkForm = ({
     onDismissPreview?.();
   };
 
-  // A locked link is the post's own shared content, so it is always the right
-  // preview to show — there is no URL being typed for it to race against.
   const showPreview =
     isUrlLocked ||
     (isPreviewForComposerUrl(preview, value.url) && !isDismissedForCurrentUrl);

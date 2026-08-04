@@ -31,8 +31,6 @@ const post = { id: 'p1', type: PostType.Article } as Post;
 
 describe('FooterWrapper', () => {
   it('asks the in-page composer to open instead of mounting its own', async () => {
-    // The footer is a sibling tree to the post content that owns the composer,
-    // so the comment tap travels over a window event rather than a provider.
     const received: OpenPostCommentEventDetail[] = [];
     const listener = (event: Event): void => {
       received.push((event as CustomEvent<OpenPostCommentEventDetail>).detail);

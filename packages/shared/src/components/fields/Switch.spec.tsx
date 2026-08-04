@@ -36,8 +36,6 @@ describe('Switch', () => {
   });
 
   it('lets a long label wrap instead of running off screen', () => {
-    // Regression: the "Receive updates..." label overlapped the track and bled
-    // past the right edge on mobile because the label span could not shrink.
     renderSwitch();
 
     expect(screen.getByText(LONG_LABEL)).toHaveClass('min-w-0');

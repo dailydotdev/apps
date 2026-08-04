@@ -53,8 +53,6 @@ const focusInputById = (inputId: string, remainingFrames = 30): void => {
   const input = document.getElementById(inputId);
   if (input) {
     input.focus();
-    // The composer now lives in the page flow, so a trigger far from it (the
-    // mobile floating bar, the post actions row) can open it off-screen.
     input.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
     return;
   }

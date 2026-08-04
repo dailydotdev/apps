@@ -7,10 +7,8 @@ export interface OpenPostCommentEventDetail {
   origin: Origin;
 }
 
-// The mobile floating bar lives in the layout's footer, a sibling tree to the
-// post content that owns the composer. A window event is the cheapest way for
-// the bar to reach the in-page composer without threading a provider through
-// every layout that renders the footer.
+// The floating bar lives in the layout footer, a sibling tree to the post
+// content that owns the composer — hence a window event, not a provider.
 export const requestOpenPostComment = (
   detail: OpenPostCommentEventDetail,
 ): void => {

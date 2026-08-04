@@ -125,8 +125,7 @@ export const useComposerSubmit = ({
       if (editPostId) {
         return;
       }
-      // Scheduled posts aren't visible yet, so don't navigate to the post
-      // page — just confirm and let onComplete close the composer.
+      // A scheduled post's page isn't visible yet — confirm instead.
       if (post.flags?.scheduledAt) {
         displayToast('✅ Your post has been scheduled!');
         return;
@@ -179,16 +178,14 @@ export const useComposerSubmit = ({
       return !isTextValid(text);
     }
     if (kind === 'link') {
-      // Editing keeps the original link, so the URL/preview pair it would
-      // normally validate is not in play.
+      // Editing keeps the original link — there is no URL/preview to validate.
       return editPostId ? false : !isLinkValid(link, preview);
     }
     return !isPollValid(poll);
   };
 
-  // Scheduling is single-source and non-moderated only. The `scheduledAt` here
-  // is already gated by the caller (undefined unless the post is schedulable),
-  // and it routes through the dedicated single-source mutation for each type.
+  // `scheduledAt` is gated by the caller: undefined unless the post is
+  // schedulable (single-source, non-moderated).
   const submitText = async (scheduledAt?: string) => {
     const payload = {
       title: text.title.trim(),
@@ -256,8 +253,6 @@ export const useComposerSubmit = ({
     scheduledAt?: string,
   ) => {
     if (editPostId) {
-      // Only the commentary is editable on a share — the link it points at is
-      // fixed, so there is no preview to re-resolve first.
       await onUpdateSharePost(
         event,
         editPostId,

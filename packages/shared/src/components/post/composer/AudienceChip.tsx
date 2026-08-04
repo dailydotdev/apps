@@ -158,9 +158,7 @@ export const AudienceChip = ({
           aria-expanded={canPickAudience ? open : undefined}
           aria-label={buildAriaLabel()}
           className={classNames(
-            // `shrink`, not `shrink-0`: the global `flex-shrink: 0` reset means
-            // this has to be opted into, and without it a long audience name
-            // pushes the header's own actions off a narrow screen.
+            // `shrink` opts back in past the global `flex-shrink: 0` reset.
             'flex min-w-0 max-w-full shrink items-center gap-1.5 rounded-12 px-2.5 py-1 text-text-primary transition-colors typo-callout',
             showChevron && 'hover:bg-surface-float',
             !showChevron && 'cursor-default',

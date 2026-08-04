@@ -16,8 +16,6 @@ export default function CommentInput({
   className,
   ...props
 }: CommentInputProps): ReactElement {
-  // Writing a comment on a phone gets the whole screen, the same way creating a
-  // post does — a box wedged into the page leaves too little room to write in.
   const isFullScreen = !useViewSize(ViewSize.Laptop);
 
   const mutateCommentResult = useMutateComment({
@@ -30,8 +28,6 @@ export default function CommentInput({
   const composer = (
     <CommentMarkdownInput
       {...props}
-      // The drawer is the reason to open the keyboard immediately: there is
-      // nothing else on screen to interact with.
       autoFocus={isFullScreen || props.autoFocus}
       fills={isFullScreen}
       className={isFullScreen ? undefined : className}
@@ -47,9 +43,7 @@ export default function CommentInput({
         <Drawer
           isOpen
           isFullScreen
-          // The composer can sit under animated/transformed ancestors (e.g. the
-          // `animate-composer-in` wrapper), which trap `position: fixed` and
-          // pin the drawer mid-page. Portal to the root so it fills the screen.
+          // Transformed ancestors (`animate-composer-in`) trap position: fixed
           appendOnRoot
           position={DrawerPosition.Bottom}
           onClose={() => onClose?.()}
