@@ -10,6 +10,13 @@ import type { SidebarTourState } from './useSidebarTourState';
 const PIN_COACH_MESSAGE =
   'Drag anything from this panel to the dock, or use its pin button.';
 
+// A panel that flashed past under the pointer taught nobody anything, so the
+// exposure budget is only charged once the card has actually been sitting there.
+const EXPOSURE_DWELL_MS = 700;
+// A drop lands the new shortcut a tick after the drag ends. Beyond this the
+// growth belongs to something else the user did later, not to that drag.
+const DRAG_ATTRIBUTION_MS = 1000;
+
 // Taught at the moment it can be acted on: the first times a panel is open, the
 // card sits on its first pinnable row and the dock lights up as the
 // destination. Retires on the first pin or after three panel opens.
@@ -28,13 +35,20 @@ export const PinCoach = ({
   const shortcutCount = shortcuts.length;
   const shortcutCountRef = useRef(shortcutCount);
   const hasCountBaselineRef = useRef(false);
-  // A drop lands the new shortcut a tick after the drag ends, so the method is
-  // read from whether a drag ran at all rather than from the live flag.
-  const didDragRef = useRef(false);
+  // When the last drag ended, so the method can be read after the drag flag has
+  // already gone back down. A remove-then-Undo minutes later must not inherit it.
+  const dragEndedAtRef = useRef(0);
+  const wasDraggingRef = useRef(false);
 
   useEffect(() => {
     if (isDragging) {
-      didDragRef.current = true;
+      wasDraggingRef.current = true;
+      return;
+    }
+
+    if (wasDraggingRef.current) {
+      wasDraggingRef.current = false;
+      dragEndedAtRef.current = Date.now();
     }
   }, [isDragging]);
 
@@ -55,16 +69,18 @@ export const PinCoach = ({
 
     const grew = shortcutCount > shortcutCountRef.current;
     shortcutCountRef.current = shortcutCount;
+    const isFromDrag =
+      Date.now() - dragEndedAtRef.current < DRAG_ATTRIBUTION_MS;
     // Growth still has to be attributable to the lesson: a drag that just
     // happened, or a pin button in the open panel.
-    const isAttributable = isPanelOpen || didDragRef.current;
+    const isAttributable = isPanelOpen || isFromDrag;
 
     if (!grew || !isCoachActive || !isAttributable) {
       return;
     }
 
-    onSuccess(didDragRef.current ? 'drag' : 'button');
-    didDragRef.current = false;
+    onSuccess(isFromDrag ? 'drag' : 'button');
+    dragEndedAtRef.current = 0;
   }, [
     areShortcutsLoaded,
     isCoachActive,
@@ -77,22 +93,18 @@ export const PinCoach = ({
   const anchor = useCoachAnchor(PINNABLE_ROW_SELECTOR, isEligible);
   const dockAnchor = useCoachAnchor(DOCK_CUSTOMIZE_SELECTOR, isEligible);
   const isVisible = isEligible && !!anchor.rect;
-  const wasVisibleRef = useRef(false);
   const { onShown } = coach;
+  const onShownRef = useRef(onShown);
+  onShownRef.current = onShown;
 
   useEffect(() => {
     if (!isVisible) {
-      wasVisibleRef.current = false;
-      return;
+      return undefined;
     }
 
-    if (wasVisibleRef.current) {
-      return;
-    }
-
-    wasVisibleRef.current = true;
-    onShown();
-  }, [isVisible, onShown]);
+    const timer = setTimeout(() => onShownRef.current(), EXPOSURE_DWELL_MS);
+    return () => clearTimeout(timer);
+  }, [isVisible]);
 
   return (
     <CoachPopover

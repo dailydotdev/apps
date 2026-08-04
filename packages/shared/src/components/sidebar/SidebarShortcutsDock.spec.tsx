@@ -95,17 +95,18 @@ describe('SidebarShortcutsDock customize button', () => {
     expect(getCustomizeButton()).not.toHaveClass(REVEAL_ON_HOVER_CLASS);
   });
 
-  it('reports a hover from the pointer and from keyboard focus', () => {
+  it('reports a hover from the pointer, and not from focus', () => {
     renderDock(
       <SidebarShortcutsDock onCustomizeInteraction={onCustomizeInteraction} />,
     );
 
     fireEvent.mouseEnter(getCustomizeButton());
+    // Browsers focus a button on mousedown, so a focus hover would make every
+    // click flash the card and log a phantom view before the tray opens.
     fireEvent.focus(getCustomizeButton());
 
-    expect(onCustomizeInteraction).toHaveBeenCalledTimes(2);
-    expect(onCustomizeInteraction).toHaveBeenNthCalledWith(1, 'hover');
-    expect(onCustomizeInteraction).toHaveBeenNthCalledWith(2, 'hover');
+    expect(onCustomizeInteraction).toHaveBeenCalledTimes(1);
+    expect(onCustomizeInteraction).toHaveBeenCalledWith('hover');
   });
 
   it('reports the tray opening once, and not again when the same click closes it', () => {

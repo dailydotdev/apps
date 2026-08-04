@@ -1,10 +1,11 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../components/buttons/Button';
+import { useOutsideClick } from '../../hooks/utils/useOutsideClick';
 import { CoachPopover } from './CoachPopover';
 import { DOCK_CUSTOMIZE_SELECTOR } from './steps';
 import { useCoachAnchor } from './useCoachAnchor';
@@ -22,6 +23,7 @@ export interface DotsCoachState {
   isCustomizeForcedVisible: boolean;
   onCustomizeInteraction: (interaction: DockCustomizeInteraction) => void;
   onDismiss: () => void;
+  onClose: () => void;
 }
 
 export const useDotsCoach = (
@@ -38,6 +40,10 @@ export const useDotsCoach = (
 
   const onCustomizeInteraction = useCallback(
     (interaction: DockCustomizeInteraction) => {
+      if (!isActive) {
+        return;
+      }
+
       // Opening the tray IS the lesson, so it retires the card for good.
       if (interaction === 'open') {
         setIsOpen(false);
@@ -45,7 +51,7 @@ export const useDotsCoach = (
         return;
       }
 
-      if (!isActive || isOpen) {
+      if (isOpen) {
         return;
       }
 
@@ -55,11 +61,22 @@ export const useDotsCoach = (
     [isActive, isOpen, onRetire, onShown],
   );
 
+  // "Got it" is the strongest comprehension signal there is, so it retires the
+  // lesson. An outside click only means the pointer moved on, and the exposure
+  // it already counted is the whole cost of that.
+  const onDismiss = useCallback(() => {
+    setIsOpen(false);
+    onRetire();
+  }, [onRetire]);
+
+  const onClose = useCallback(() => setIsOpen(false), []);
+
   return {
     isOpen: isOpen && isActive,
     isCustomizeForcedVisible: isOpen && isActive,
     onCustomizeInteraction,
-    onDismiss: () => setIsOpen(false),
+    onDismiss,
+    onClose,
   };
 };
 
@@ -69,10 +86,14 @@ export const DotsCoach = ({
   state: DotsCoachState;
 }): ReactElement | null => {
   const anchor = useCoachAnchor(DOCK_CUSTOMIZE_SELECTOR, state.isOpen);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useOutsideClick(cardRef, state.onClose, state.isOpen);
 
   return (
     <CoachPopover
       anchor={anchor}
+      containerRef={cardRef}
       isOpen={state.isOpen}
       message={DOTS_COACH_MESSAGE}
       actions={

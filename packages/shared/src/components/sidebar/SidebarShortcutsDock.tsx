@@ -63,6 +63,7 @@ import {
 import type { ShortcutDragData } from './common';
 import {
   RAIL_ICON_SIZE,
+  RAIL_POPUP_GROUP,
   railDividerBorderClass,
   SHORTCUT_DRAG_MIME,
   isSidebarItemActive,
@@ -581,13 +582,12 @@ export const SidebarShortcutsDock = ({
 
   const { isDragging: isAnyDragging, setDragging } = useSidebarDragState();
   // Share the rail popup group so the customize menu is mutually exclusive with
-  // the Support/Settings popups and behaves like them. ('sidebar-rail' must
-  // match RAIL_POPUP_GROUP in SidebarDesktopV2.)
+  // the Support/Settings popups and behaves like them.
   const {
     isOpen: trayOpen,
     onUpdate: setTrayOpen,
     wrapHandler,
-  } = useInteractivePopup('sidebar-rail');
+  } = useInteractivePopup(RAIL_POPUP_GROUP);
   const trayRef = useRef<HTMLDivElement>(null);
   const customizeBtnRef = useRef<HTMLButtonElement>(null);
   useOutsideClick(trayRef, () => setTrayOpen(false), trayOpen);
@@ -954,7 +954,6 @@ export const SidebarShortcutsDock = ({
               aria-label="Customize shortcuts"
               aria-expanded={trayOpen}
               onMouseEnter={() => onCustomizeInteraction?.('hover')}
-              onFocus={() => onCustomizeInteraction?.('hover')}
               onClick={wrapHandler(() => {
                 if (!trayOpen) {
                   onCustomizeInteraction?.('open');
