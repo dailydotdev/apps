@@ -9,7 +9,10 @@ import {
 } from '@dailydotdev/shared/src/features/weeklyQuiz/hooks/useWeeklyQuizGame';
 import { useWeeklyQuizAudio } from '@dailydotdev/shared/src/features/weeklyQuiz/hooks/useWeeklyQuizAudio';
 import { useWeeklyQuizPlayed } from '@dailydotdev/shared/src/features/weeklyQuiz/hooks/useWeeklyQuizPlayed';
-import { WeeklyQuizIntro } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizIntro';
+import {
+  WeeklyQuizIntro,
+  WeeklyQuizDateChip,
+} from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizIntro';
 import { WeeklyQuizCountdown } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizCountdown';
 import { WeeklyQuizQuestion } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizQuestion';
 import {
@@ -87,6 +90,14 @@ const PreviewGame = ({
       <WeeklyQuizSurface
         showRays={
           phase !== WeeklyQuizPhase.Intro && phase !== WeeklyQuizPhase.Results
+        }
+        headerRight={
+          phase === WeeklyQuizPhase.Intro && quiz ? (
+            <WeeklyQuizDateChip
+              startDate={quiz.startDate}
+              endDate={quiz.endDate}
+            />
+          ) : undefined
         }
       >
         {phase === WeeklyQuizPhase.Intro && (

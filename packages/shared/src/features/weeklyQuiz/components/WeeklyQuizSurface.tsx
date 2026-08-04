@@ -8,6 +8,9 @@ interface WeeklyQuizSurfaceProps {
   children: ReactNode;
   // The intro drops the light beams; every other screen keeps them.
   showRays?: boolean;
+  // Optional element pinned to the right of the top bar, on the logo's line
+  // (the intro uses it for the week pill).
+  headerRight?: ReactNode;
 }
 
 // The quiz card shared by every screen: the neutral gradient surface, the
@@ -16,12 +19,16 @@ interface WeeklyQuizSurfaceProps {
 export const WeeklyQuizSurface = ({
   children,
   showRays = true,
+  headerRight,
 }: WeeklyQuizSurfaceProps): ReactElement => (
   <div className={`relative flex-1 ${styles.surface}`}>
     {showRays && <span className={styles.rays} aria-hidden />}
-    <div className="z-20 opacity-70 pointer-events-none relative flex items-center justify-center gap-1 pt-4">
-      <LogoIcon className={{ container: 'h-5 w-auto' }} />
-      <LogoText className={{ container: 'h-5 w-auto' }} />
+    <div className="z-20 relative flex items-center justify-between gap-2 px-4 pt-4">
+      <span className="opacity-70 pointer-events-none flex items-center gap-1">
+        <LogoIcon className={{ container: 'h-5 w-auto' }} />
+        <LogoText className={{ container: 'h-5 w-auto' }} />
+      </span>
+      {headerRight}
     </div>
     {children}
   </div>

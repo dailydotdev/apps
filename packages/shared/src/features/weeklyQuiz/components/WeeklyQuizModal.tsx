@@ -8,7 +8,7 @@ import { useWeeklyQuiz } from '../hooks/useWeeklyQuiz';
 import { useWeeklyQuizGame, WeeklyQuizPhase } from '../hooks/useWeeklyQuizGame';
 import { useWeeklyQuizAudio } from '../hooks/useWeeklyQuizAudio';
 import { useWeeklyQuizPlayed } from '../hooks/useWeeklyQuizPlayed';
-import { WeeklyQuizIntro } from './WeeklyQuizIntro';
+import { WeeklyQuizIntro, WeeklyQuizDateChip } from './WeeklyQuizIntro';
 import { WeeklyQuizCountdown } from './WeeklyQuizCountdown';
 import { WeeklyQuizQuestion } from './WeeklyQuizQuestion';
 import { WeeklyQuizResults } from './WeeklyQuizResults';
@@ -123,6 +123,14 @@ function WeeklyQuizModal({
         <WeeklyQuizSurface
           showRays={
             phase !== WeeklyQuizPhase.Intro && phase !== WeeklyQuizPhase.Results
+          }
+          headerRight={
+            phase === WeeklyQuizPhase.Intro && quiz ? (
+              <WeeklyQuizDateChip
+                startDate={quiz.startDate}
+                endDate={quiz.endDate}
+              />
+            ) : undefined
           }
         >
           {phase === WeeklyQuizPhase.Intro && (

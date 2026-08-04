@@ -53,6 +53,21 @@ const formatWeekRange = (start: string, end: string): string => {
     : `${month(s)} ${s.getDate()} – ${month(e)} ${e.getDate()}, ${year}`;
 };
 
+// The week pill ("Jul 20–26, 2026"). Exported so it can ride on the surface's
+// top line next to the daily.dev logo instead of in the intro body.
+export const WeeklyQuizDateChip = ({
+  startDate,
+  endDate,
+}: {
+  startDate: string;
+  endDate: string;
+}): ReactElement => (
+  <span className="inline-flex items-center gap-1.5 font-bold text-text-primary typo-footnote">
+    <CalendarIcon size={IconSize.XSmall} />
+    {formatWeekRange(startDate, endDate)}
+  </span>
+);
+
 // Landing screen: a single focused column that pitches the challenge — logo, a
 // hook line, the week's context, and the Start button. The leaderboard is not
 // shown here; it lives on the results screen once you've played.
@@ -90,7 +105,7 @@ export const WeeklyQuizIntro = ({
   };
 
   return (
-    <div className="relative flex animate-composer-in flex-col items-center gap-6 overflow-hidden p-6 text-center tablet:flex-row-reverse tablet:items-center tablet:gap-8 tablet:p-8">
+    <div className="relative flex animate-composer-in flex-col items-center gap-6 p-6 text-center tablet:flex-row-reverse tablet:items-center tablet:gap-8 tablet:p-8">
       {/* A few A4 papers drifting down the whole surface, behind the content. */}
       <span className={styles.papers} aria-hidden>
         <span className={styles.paper} />
@@ -193,13 +208,9 @@ export const WeeklyQuizIntro = ({
           </Button>
         )}
 
-        {/* Which week + how much news it distils. */}
+        {/* How much news it distils (the week pill rides on the top bar). */}
         {quiz && (
           <div className="flex flex-col items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-10 bg-surface-float px-3 py-1 font-bold text-text-primary typo-footnote">
-              <CalendarIcon size={IconSize.XSmall} />
-              {formatWeekRange(quiz.startDate, quiz.endDate)}
-            </span>
             <Typography
               type={TypographyType.Footnote}
               className="!text-text-tertiary"
@@ -228,13 +239,13 @@ export const WeeklyQuizIntro = ({
           </div>
         )}
 
-        {/* Share + weekly reminder, always available. */}
-        <div className="flex w-full flex-col gap-2">
+        {/* Share + weekly reminder, always available — one row. */}
+        <div className="flex w-full flex-row items-center justify-center gap-2">
           <Button
             type="button"
-            variant={ButtonVariant.Tertiary}
+            variant={ButtonVariant.Secondary}
             size={ButtonSize.Medium}
-            className="w-full"
+            className="flex-1"
             icon={<ShareIcon />}
             onClick={() => setIsShareOpen(true)}
           >
@@ -242,14 +253,14 @@ export const WeeklyQuizIntro = ({
           </Button>
           <Button
             type="button"
-            variant={ButtonVariant.Tertiary}
+            variant={ButtonVariant.Secondary}
             size={ButtonSize.Medium}
-            className="w-full"
+            className="flex-1"
             aria-pressed={reminderSet}
             icon={<BellIcon />}
             onClick={() => setReminderSet(true)}
           >
-            {reminderSet ? "You're all set" : 'Set weekly reminder'}
+            {reminderSet ? "You're all set" : 'Weekly reminder'}
           </Button>
         </div>
       </div>
