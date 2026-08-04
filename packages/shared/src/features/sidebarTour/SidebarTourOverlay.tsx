@@ -4,15 +4,11 @@ import { Switch } from '../../components/fields/Switch';
 import { RootPortal } from '../../components/tooltips/Portal';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
 import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
+import { RAIL_POPUP_GROUP } from '../../components/sidebar/common';
 import { CoachPrimaryButton, SkipTourButton } from './CoachCard';
 import { CoachPopover } from './CoachPopover';
 import { useCoachAnchor } from './useCoachAnchor';
 import type { SidebarTourState } from './useSidebarTourState';
-
-// The rail's shared popup group. Joining it makes the tour mutually exclusive
-// with Support, Settings, the customize tray and the More menu, so a coach card
-// can never sit under one of those dropdowns.
-export const RAIL_POPUP_GROUP = 'sidebar-rail';
 
 const COMPACT_SWITCH_ID = 'sidebar-tour-compact';
 

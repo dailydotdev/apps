@@ -92,6 +92,10 @@ export const navBtnClass =
 export const railTabClass =
   'focus-outline group relative flex w-full flex-col items-center gap-1 rounded-12 px-1 py-2 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-95 motion-reduce:transition-none';
 export const railTabLabelClass = 'typo-caption2 leading-tight text-center';
+// Shared `useInteractivePopup` group so the rail's click popups (support,
+// settings, the shortcuts tray, the More menu and the sidebar tour) are
+// mutually exclusive: opening one closes the others.
+export const RAIL_POPUP_GROUP = 'sidebar-rail';
 // One source of truth for the glyph size inside every v2 rail control — tabs,
 // Home, Search, the bottom utilities and the shortcuts dock. The buttons keep
 // their own fixed hit areas (size-10 / the tab row), so changing this resizes

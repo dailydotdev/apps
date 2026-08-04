@@ -31,6 +31,7 @@ import {
   ListIcon,
   Nav,
   RAIL_ICON_SIZE,
+  RAIL_POPUP_GROUP,
   railCountBubbleClass,
   railDividerBgClass,
   railDividerBorderClass,
@@ -239,9 +240,6 @@ const PINNED_RAIL_IDS: RailItemId[] = [RAIL_CREATE_ID, SidebarCategory.Profile];
 
 const railButtonClass =
   'flex size-10 items-center justify-center rounded-12 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-90 motion-reduce:transition-none focus-outline';
-// Shared group so the rail's click popups (support, profile menu, streak) are
-// mutually exclusive — opening one closes the others.
-const RAIL_POPUP_GROUP = 'sidebar-rail';
 const shortcutKeys = [isAppleDevice() ? '⌘' : 'Ctrl', 'K'];
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
