@@ -229,11 +229,11 @@ export const WeeklyQuizIntro = ({
         )}
 
         {/* Share + weekly reminder, always available. */}
-        <div className="flex w-full flex-col gap-3">
+        <div className="flex w-full flex-col gap-2">
           <Button
             type="button"
             variant={ButtonVariant.Float}
-            size={ButtonSize.Large}
+            size={ButtonSize.Medium}
             className="w-full"
             icon={<ShareIcon />}
             onClick={() => setIsShareOpen(true)}
@@ -243,7 +243,7 @@ export const WeeklyQuizIntro = ({
           <Button
             type="button"
             variant={ButtonVariant.Float}
-            size={ButtonSize.Large}
+            size={ButtonSize.Medium}
             className="w-full"
             aria-pressed={reminderSet}
             icon={<BellIcon />}

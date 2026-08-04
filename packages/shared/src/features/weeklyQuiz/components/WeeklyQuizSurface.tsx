@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import LogoIcon from '../../../svg/LogoIcon';
 import LogoText from '../../../svg/LogoText';
 import styles from '../WeeklyQuiz.module.css';
 
@@ -18,8 +19,9 @@ export const WeeklyQuizSurface = ({
 }: WeeklyQuizSurfaceProps): ReactElement => (
   <div className={`relative flex-1 ${styles.surface}`}>
     {showRays && <span className={styles.rays} aria-hidden />}
-    <div className="z-20 pointer-events-none relative flex justify-center pt-4">
-      <LogoText className={{ container: 'opacity-60 h-5 w-auto' }} />
+    <div className="z-20 opacity-70 pointer-events-none relative flex items-center justify-center gap-1 pt-4">
+      <LogoIcon className={{ container: 'h-5 w-auto' }} />
+      <LogoText className={{ container: 'h-5 w-auto' }} />
     </div>
     {children}
   </div>
