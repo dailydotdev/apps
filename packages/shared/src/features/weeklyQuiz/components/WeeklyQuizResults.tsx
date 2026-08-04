@@ -19,6 +19,7 @@ import { SocialShareButton } from '../../../components/widgets/SocialShareButton
 import { SocialShareList } from '../../../components/widgets/SocialShareList';
 import { WeeklyQuizConfetti } from './WeeklyQuizConfetti';
 import { WeeklyQuizScoreboard } from './WeeklyQuizScoreboard';
+import { WeeklyQuizLogo } from './WeeklyQuizSurface';
 import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
 import { useWeeklyQuizLeaderboard } from '../hooks/useWeeklyQuizLeaderboard';
 import { useCountUp } from '../hooks/useCountUp';
@@ -197,7 +198,7 @@ export const WeeklyQuizResults = ({
   const ratio = totalQuestions === 0 ? 0 : animatedCorrect / totalQuestions;
   const tier = getTier(correctCount, totalQuestions);
   const percentile = getPercentile(correctCount, totalQuestions);
-  const shareText = `I'm a "${tier.title}" on the daily.dev weekly tech news quiz (${correctCount}/${totalQuestions} correct). Think you can beat me?`;
+  const shareText = `I got ${correctCount}/${totalQuestions} on the daily.dev weekly tech news quiz. What would you get?`;
 
   const copyLink = (): void => {
     navigator.clipboard
@@ -271,9 +272,13 @@ export const WeeklyQuizResults = ({
       {/* One-shot celebratory confetti when the results appear. */}
       <WeeklyQuizConfetti />
 
-      {/* Chunk 1 — your result: the verdict headline, GIF and share row.
-          A floating panel, distinct from the "keep playing" panel below. */}
+      {/* Chunk 1 — your result: brand header, the verdict headline, GIF and
+          share row. A floating panel, distinct from the panel below. */}
       <div className="flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 shadow-2">
+        {/* daily.dev brand header, inside the result panel. */}
+        <div className="-mx-4 -mt-4 border-b border-border-subtlest-tertiary px-4 py-3">
+          <WeeklyQuizLogo />
+        </div>
         {/* Verdict: the score ring on the left, level and copy on the right. */}
         <div className="flex flex-wrap items-center gap-4 text-left">
           <StatRing

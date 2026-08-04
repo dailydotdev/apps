@@ -121,6 +121,7 @@ function WeeklyQuizModal({
     >
       <div className="flex w-full items-start justify-center gap-3">
         <WeeklyQuizSurface
+          bare={phase === WeeklyQuizPhase.Results}
           showRays={
             phase !== WeeklyQuizPhase.Intro && phase !== WeeklyQuizPhase.Results
           }

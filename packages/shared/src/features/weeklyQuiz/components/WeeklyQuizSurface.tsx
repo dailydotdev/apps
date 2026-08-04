@@ -10,25 +10,38 @@ interface WeeklyQuizSurfaceProps {
   showRays?: boolean;
   // Element pinned to the far right of the top bar (the intro's week pill).
   headerRight?: ReactNode;
+  // Render as a plain, frameless container — no card surface, top bar or beams.
+  // The results screen uses this and supplies its own panels + brand header.
+  bare?: boolean;
 }
 
+// The daily.dev icon + wordmark lockup, as it appears through the game.
+export const WeeklyQuizLogo = (): ReactElement => (
+  <span className="opacity-70 pointer-events-none flex shrink-0 items-center gap-1">
+    <LogoIcon className={{ container: 'h-5 w-auto' }} />
+    <LogoText className={{ container: 'h-5 w-auto' }} />
+  </span>
+);
+
 // The quiz card shared by every screen: the neutral gradient surface, the
-// optional light beams, and a persistent daily.dev wordmark on the top bar
-// (always left) so the brand stays present through the whole game.
+// optional light beams, and a persistent daily.dev wordmark on the top bar.
 export const WeeklyQuizSurface = ({
   children,
   showRays = true,
   headerRight,
-}: WeeklyQuizSurfaceProps): ReactElement => (
-  <div className={`relative flex-1 ${styles.surface}`}>
-    {showRays && <span className={styles.rays} aria-hidden />}
-    <div className="z-20 relative flex items-center justify-between gap-3 border-b border-border-subtlest-tertiary px-4 pb-3 pt-4">
-      <span className="opacity-70 pointer-events-none flex shrink-0 items-center gap-1">
-        <LogoIcon className={{ container: 'h-5 w-auto' }} />
-        <LogoText className={{ container: 'h-5 w-auto' }} />
-      </span>
-      {headerRight}
+  bare = false,
+}: WeeklyQuizSurfaceProps): ReactElement => {
+  if (bare) {
+    return <div className="relative flex-1">{children}</div>;
+  }
+  return (
+    <div className={`relative flex-1 ${styles.surface}`}>
+      {showRays && <span className={styles.rays} aria-hidden />}
+      <div className="z-20 relative flex items-center justify-between gap-3 border-b border-border-subtlest-tertiary px-4 pb-3 pt-4">
+        <WeeklyQuizLogo />
+        {headerRight}
+      </div>
+      {children}
     </div>
-    {children}
-  </div>
-);
+  );
+};
