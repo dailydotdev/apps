@@ -351,7 +351,10 @@ export const CoachProgressRing = ({
   total,
   active,
 }: CoachProgress): JSX.Element => (
-  <span aria-hidden className="shrink-0">
+  // Flex rather than inline, so the wrapper is exactly as tall as the ring and
+  // the row centres the circle itself instead of a line box with descender
+  // space under it.
+  <span aria-hidden className="flex shrink-0 items-center">
     <ProgressCircle
       progress={Math.min(99, ((active + 1) / total) * 100)}
       size={18}
