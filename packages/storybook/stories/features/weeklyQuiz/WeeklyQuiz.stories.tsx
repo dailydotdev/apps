@@ -18,6 +18,13 @@ import {
 } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizResults';
 import { WeeklyQuizSideControls } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizSideControls';
 import { WeeklyQuizSurface } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizSurface';
+import {
+  Button,
+  ButtonColor,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import { TimerIcon } from '@dailydotdev/shared/src/components/icons';
 import { withWeeklyQuiz, mockStatus } from './weeklyQuiz.mocks';
 
 // A plain-card stand-in for the modal shell so the full game flow — intro →
@@ -196,6 +203,252 @@ const ScoreTiersGallery = (): React.ReactElement => (
   </div>
 );
 
+const MASCOT = '/logos/weekly-quiz-logo.png';
+const CABBAGE_GRADIENT = {
+  background:
+    'linear-gradient(140deg, var(--theme-accent-cabbage-default), var(--theme-accent-onion-default))',
+};
+
+// A faint stand-in for surrounding feed cards, to show placement in context.
+const SkeletonCard = (): React.ReactElement => (
+  <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 opacity-40">
+    <div className="h-24 w-full rounded-12 bg-surface-hover" />
+    <div className="h-3 w-3/4 rounded-full bg-surface-hover" />
+    <div className="h-3 w-1/2 rounded-full bg-surface-hover" />
+  </div>
+);
+
+// Wraps each concept with a numbered label + a short note on the approach.
+const PromptFrame = ({
+  n,
+  title,
+  note,
+  children,
+}: {
+  n: number;
+  title: string;
+  note: string;
+  children: React.ReactNode;
+}): React.ReactElement => (
+  <div className="flex flex-col gap-3">
+    <div className="flex items-baseline gap-2">
+      <span className="flex h-6 w-6 items-center justify-center rounded-8 bg-surface-float font-bold text-text-primary typo-footnote">
+        {n}
+      </span>
+      <span className="font-bold text-text-primary typo-callout">{title}</span>
+      <span className="text-text-tertiary typo-footnote">{note}</span>
+    </div>
+    {children}
+  </div>
+);
+
+// Six distinct ways to surface the quiz in the feed — each with a clear press
+// target. Exploration mockups (not wired to the modal); pick one to productize.
+const FeedPromptsGallery = (): React.ReactElement => (
+  <div className="force-dark min-h-screen w-full bg-background-default">
+    <div className="mx-auto flex w-full max-w-[680px] flex-col gap-10 p-6">
+    {/* 1 — Inline hero banner */}
+    <PromptFrame
+      n={1}
+      title="Inline hero banner"
+      note="full-width, sits between feed cards"
+    >
+      <div className="flex items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+        <img src={MASCOT} alt="" className="h-16 w-16 shrink-0 object-contain" />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="font-bold text-text-primary typo-body">
+            The Weekly Tech News Quiz
+          </span>
+          <span className="text-text-tertiary typo-footnote">
+            10 questions on this week&apos;s biggest tech news.
+          </span>
+        </div>
+        <Button
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          size={ButtonSize.Medium}
+        >
+          Play now
+        </Button>
+      </div>
+    </PromptFrame>
+
+    {/* 2 — Slim pill strip */}
+    <PromptFrame
+      n={2}
+      title="Slim pill strip"
+      note="low-intrusion, one line between posts"
+    >
+      <div className="flex items-center gap-3 rounded-14 border border-border-subtlest-tertiary bg-surface-float px-3 py-2">
+        <img src={MASCOT} alt="" className="h-8 w-8 shrink-0 object-contain" />
+        <span className="min-w-0 flex-1 truncate text-text-primary typo-footnote">
+          <b>Weekly Tech News Quiz</b>
+          <span className="text-text-tertiary"> · 10 questions · ends Sun</span>
+        </span>
+        <Button
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          size={ButtonSize.Small}
+        >
+          Play
+        </Button>
+      </div>
+    </PromptFrame>
+
+    {/* 3 — Post-card tile */}
+    <PromptFrame
+      n={3}
+      title="Post-card tile"
+      note="blends into the grid like a feed card"
+    >
+      <div className="w-full max-w-[260px] overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+        <div
+          className="flex h-32 items-center justify-center"
+          style={CABBAGE_GRADIENT}
+        >
+          <img src={MASCOT} alt="" className="h-24 w-24 object-contain" />
+        </div>
+        <div className="flex flex-col gap-2 p-3">
+          <span className="font-bold text-text-primary typo-callout">
+            Weekly Tech News Quiz
+          </span>
+          <span className="text-text-tertiary typo-footnote">
+            Test your attention to detail.
+          </span>
+          <Button
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            size={ButtonSize.Small}
+            className="w-full"
+          >
+            Start quiz
+          </Button>
+        </div>
+      </div>
+    </PromptFrame>
+
+    {/* 4 — Floating action button over the feed */}
+    <PromptFrame
+      n={4}
+      title="Floating button"
+      note="pulses over the feed, always reachable"
+    >
+      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+        <div className="flex flex-col gap-4">
+          <SkeletonCard />
+        </div>
+        <div className="absolute bottom-4 right-4">
+          <span className="absolute inset-0 rounded-16 bg-accent-cabbage-default opacity-40 motion-safe:animate-ping" />
+          <Button
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            size={ButtonSize.Large}
+            className="relative"
+            icon={<img src={MASCOT} alt="" className="h-6 w-6 object-contain" />}
+          >
+            Play the quiz
+          </Button>
+        </div>
+      </div>
+    </PromptFrame>
+
+    {/* 5 — Competitive ring teaser */}
+    <PromptFrame
+      n={5}
+      title="Competitive teaser"
+      note="leans on rank / leaderboard FOMO"
+    >
+      <div className="flex items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+        <div
+          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-4 font-bold text-text-primary typo-callout"
+          style={{ borderColor: 'var(--theme-accent-cabbage-default)' }}
+        >
+          ?/10
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <span className="font-bold text-text-primary typo-body">
+            You haven&apos;t played this week
+          </span>
+          <span className="text-text-tertiary typo-footnote">
+            See how you stack up against the leaderboard.
+          </span>
+        </div>
+        <Button
+          variant={ButtonVariant.Primary}
+          color={ButtonColor.Cabbage}
+          size={ButtonSize.Medium}
+        >
+          Take the quiz
+        </Button>
+      </div>
+    </PromptFrame>
+
+    {/* 6 — Countdown urgency strip */}
+    <PromptFrame
+      n={6}
+      title="Countdown strip"
+      note="time-boxed urgency with a progress bar"
+    >
+      <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+        <div className="flex items-center gap-2">
+          <TimerIcon className="text-accent-bacon-default" />
+          <span className="font-bold text-text-primary typo-footnote">
+            This week&apos;s quiz ends in 1d 6h
+          </span>
+          <Button
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            size={ButtonSize.Small}
+            className="ml-auto"
+          >
+            Play now
+          </Button>
+        </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-hover">
+          <div className="h-full w-2/3 rounded-full" style={CABBAGE_GRADIENT} />
+        </div>
+      </div>
+    </PromptFrame>
+
+    {/* 7 — Notification-page item */}
+    <PromptFrame
+      n={7}
+      title="Notification item"
+      note="lands in the notifications page / inbox"
+    >
+      <div className="flex items-start gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
+        <div className="relative shrink-0">
+          <img
+            src={MASCOT}
+            alt=""
+            className="h-10 w-10 rounded-full object-cover"
+          />
+          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-background-default bg-accent-cabbage-default" />
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="text-text-primary typo-footnote">
+            <b>The Weekly Tech News Quiz is live.</b>
+            <span className="text-text-secondary">
+              {' '}
+              10 questions on this week&apos;s biggest stories — can you ace it?
+            </span>
+          </span>
+          <span className="text-text-tertiary typo-caption1">2h ago</span>
+          <Button
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Cabbage}
+            size={ButtonSize.Small}
+            className="mt-1 self-start"
+          >
+            Play now
+          </Button>
+        </div>
+      </div>
+    </PromptFrame>
+    </div>
+  </div>
+);
+
 const meta: Meta<typeof WeeklyQuizGamePreview> = {
   title: 'Features/WeeklyQuiz/Game',
   component: WeeklyQuizGamePreview,
@@ -247,4 +500,10 @@ export const Results: Story = {
 export const ScoreTiers: Story = {
   name: 'Score levels & GIFs',
   render: () => <ScoreTiersGallery />,
+};
+
+// Ways to surface the quiz (feed + notifications), each with a press target.
+export const FeedPrompts: Story = {
+  name: 'Entry-point concepts',
+  render: () => <FeedPromptsGallery />,
 };
