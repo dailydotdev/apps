@@ -537,7 +537,17 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
 // Add from the tray (drag-from or tap), drag a panel row in to pin it, reorder
 // by dragging, and remove by dragging an icon off the rail — all with an Undo
 // toast. Persisted per-user.
-export const SidebarShortcutsDock = (): ReactElement | null => {
+export interface SidebarShortcutsDockProps {
+  // Sidebar-tour hooks. Both are inert unless the tour feature passes them, so
+  // the dock's own markup is unchanged for everyone else.
+  onCustomizeInteraction?: (interaction: 'hover' | 'open') => void;
+  forceCustomizeVisible?: boolean;
+}
+
+export const SidebarShortcutsDock = ({
+  onCustomizeInteraction,
+  forceCustomizeVisible = false,
+}: SidebarShortcutsDockProps = {}): ReactElement | null => {
   const router = useRouter();
   const { items, persist, addCatalog, removeShortcut, pinPage } =
     useSidebarShortcutItems();
@@ -809,7 +819,10 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
   // pinned the button stays visible by default. The tray being open or a page
   // being dragged in always reveals it regardless of hover.
   const revealOnHover =
-    orderedItems.length === 0 && !trayOpen && !isPageDropActive;
+    orderedItems.length === 0 &&
+    !trayOpen &&
+    !isPageDropActive &&
+    !forceCustomizeVisible;
 
   const activeEntry = activeId
     ? orderedItems.find((entry) => keyOf(entry) === activeId)
@@ -936,7 +949,14 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
               type="button"
               aria-label="Customize shortcuts"
               aria-expanded={trayOpen}
-              onClick={wrapHandler(() => setTrayOpen(!trayOpen))}
+              onMouseEnter={() => onCustomizeInteraction?.('hover')}
+              onFocus={() => onCustomizeInteraction?.('hover')}
+              onClick={wrapHandler(() => {
+                if (!trayOpen) {
+                  onCustomizeInteraction?.('open');
+                }
+                setTrayOpen(!trayOpen);
+              })}
               className={classNames(
                 dockButtonClass,
                 'active:scale-90',
