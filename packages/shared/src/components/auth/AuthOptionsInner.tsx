@@ -775,6 +775,7 @@ function AuthOptionsInner({
             isLoading={isProfileUpdateLoading}
             onUpdateHints={onUpdateHint}
             simplified={simplified}
+            isOnboardingFunnel={isOnboardingFunnel}
             {...(user?.isPlus && {
               title: 'Complete your profile',
             })}

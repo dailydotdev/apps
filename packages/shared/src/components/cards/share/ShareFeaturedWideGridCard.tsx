@@ -2,7 +2,6 @@ import type { ReactElement, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import { isSocialTwitterPost, isVideoPost } from '../../../graphql/posts';
-import { CardTextContainer } from '../common/Card';
 import { PostCardHeader } from '../common/PostCardHeader';
 import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
@@ -22,6 +21,7 @@ import { INNER_GRID_COLS } from '../common/featuredWide';
 import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
 import { FeaturedWideImageColumn } from '../common/FeaturedWideImageColumn';
 import { FeaturedWideActions } from '../common/FeaturedWideActions';
+import { FeaturedWideTextContainer } from '../common/FeaturedWideTextContainer';
 
 export const ShareFeaturedWideGridCard = forwardRef(
   function ShareFeaturedWideGridCard(
@@ -81,11 +81,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
           )}
         >
           <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
-            <CardTextContainer
-              className={
-                useGlass ? 'min-h-0 flex-1 overflow-hidden' : undefined
-              }
-            >
+            <FeaturedWideTextContainer useGlass={useGlass}>
               <PostCardHeader
                 post={post}
                 className="flex"
@@ -145,7 +141,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
                   )}
                 </>
               )}
-            </CardTextContainer>
+            </FeaturedWideTextContainer>
             <FeaturedWideActions
               post={post}
               useGlass={useGlass}

@@ -3,7 +3,6 @@ import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
 import { usePostFeedback } from '../../../hooks/usePostFeedback';
 import { isVideoPost, PostType } from '../../../graphql/posts';
-import { CardTextContainer } from '../common/Card';
 import { Origin } from '../../../lib/log';
 import { PostCardHeader } from '../common/PostCardHeader';
 import PostTags from '../common/PostTags';
@@ -21,6 +20,7 @@ import { INNER_GRID_COLS } from '../common/featuredWide';
 import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
 import { FeaturedWideImageColumn } from '../common/FeaturedWideImageColumn';
 import { FeaturedWideActions } from '../common/FeaturedWideActions';
+import { FeaturedWideTextContainer } from '../common/FeaturedWideTextContainer';
 
 export const ArticleFeaturedWideGridCard = forwardRef(
   function ArticleFeaturedWideGridCard(
@@ -112,9 +112,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
 
     const standardContent = (
       <>
-        <CardTextContainer
-          className={useGlass ? 'min-h-0 flex-1 overflow-hidden' : undefined}
-        >
+        <FeaturedWideTextContainer useGlass={useGlass}>
           <PostCardHeader
             post={post}
             className="flex"
@@ -157,7 +155,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
               {description}
             </p>
           )}
-        </CardTextContainer>
+        </FeaturedWideTextContainer>
         <FeaturedWideActions
           post={post}
           useGlass={useGlass}
