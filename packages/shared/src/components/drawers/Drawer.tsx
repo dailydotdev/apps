@@ -58,6 +58,10 @@ export interface DrawerOnMobileProps {
   drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
 }
 
+// Drawers can stack (a picker drawer above the composer drawer); the page
+// unlocks only when the last one leaves.
+let scrollLockCount = 0;
+
 const drawerPositionToClassName: Record<DrawerPosition, string> = {
   [DrawerPosition.Bottom]: 'bottom-0 rounded-t-16',
   [DrawerPosition.Top]: 'top-0 rounded-b-16',
@@ -105,6 +109,19 @@ function BaseDrawer({
     };
   }, [onAfterClose, onAfterOpen]);
 
+  useEffect(() => {
+    // Same body lock react-modal applies (`ReactModal__Body--open`): without
+    // it, touch scrolls chain through the drawer and the page behind jumps.
+    scrollLockCount += 1;
+    document.body.classList.add('hidden-scrollbar');
+    return () => {
+      scrollLockCount -= 1;
+      if (scrollLockCount === 0) {
+        document.body.classList.remove('hidden-scrollbar');
+      }
+    };
+  }, []);
+
   const handleOverlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -137,7 +154,9 @@ function BaseDrawer({
       <div
         {...props}
         className={classNames(
-          'drawer-padding absolute flex w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
+          // `overscroll-contain` stops a scroll that reaches this scroller's
+          // edge from chaining to the page behind the drawer.
+          'drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default transition-transform duration-300 ease-in-out',
           isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],

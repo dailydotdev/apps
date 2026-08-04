@@ -43,6 +43,51 @@ describe('Drawer', () => {
     expect(overlay).not.toHaveStyle({ height: '812px' });
   });
 
+  it('locks the page scroll behind it while open', () => {
+    // Regression: scrolling inside the mobile composer drawer chained to the
+    // post page behind it, which visibly jumped and shifted.
+    const { unmount } = render(
+      <Drawer isOpen isFullScreen onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+
+    expect(document.body).toHaveClass('hidden-scrollbar');
+
+    unmount();
+    expect(document.body).not.toHaveClass('hidden-scrollbar');
+  });
+
+  it('keeps the page locked until the last stacked drawer closes', () => {
+    const { unmount: unmountInner } = render(
+      <Drawer isOpen onClose={jest.fn()}>
+        inner
+      </Drawer>,
+    );
+    const { unmount: unmountOuter } = render(
+      <Drawer isOpen onClose={jest.fn()}>
+        outer
+      </Drawer>,
+    );
+
+    unmountInner();
+    expect(document.body).toHaveClass('hidden-scrollbar');
+
+    unmountOuter();
+    expect(document.body).not.toHaveClass('hidden-scrollbar');
+  });
+
+  it('contains its own scrolling instead of chaining it to the page', () => {
+    render(
+      <Drawer isOpen isFullScreen onClose={jest.fn()}>
+        content
+      </Drawer>,
+    );
+
+    const wrapper = screen.getByText('content').closest('.overflow-y-auto');
+    expect(wrapper).toHaveClass('overscroll-contain');
+  });
+
   it('closes only on a direct backdrop hit, not on bubbled child clicks', () => {
     // Portaled dropdowns bubble synthetic clicks up the React tree; treating
     // any outside-the-panel target as a backdrop hit closed the drawer when
