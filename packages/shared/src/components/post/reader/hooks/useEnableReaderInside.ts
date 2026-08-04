@@ -7,6 +7,7 @@ import { LazyModal } from '../../../modals/common/types';
 import { LogEvent, TargetId } from '../../../../lib/log';
 import { isBrowserExtensionInstalled } from '../../../../features/extensionEmbed/useIsBrowserExtensionInstalled';
 import { requestFrameEmbeddingPermissionFromPage } from '../../../../features/extensionEmbed/pagePermissionBridge';
+import { useToastNotification } from '../../../../hooks/useToastNotification';
 
 /**
  * Drives the "turn the reader on" flow from a user gesture (e.g. the settings
@@ -22,6 +23,7 @@ export function useEnableReaderInside(): { enable: () => void } {
   const { flags, setSettings } = useSettingsContext();
   const { logEvent } = useLogContext();
   const { openModal } = useLazyModal();
+  const { displayToast } = useToastNotification();
 
   const enable = useCallback(() => {
     if (!isBrowserExtensionInstalled()) {
@@ -32,8 +34,18 @@ export function useEnableReaderInside(): { enable: () => void } {
     // Must run synchronously within the click so the content-script bridge
     // still has the click's transient user activation when it forwards the
     // permission request to the background.
-    requestFrameEmbeddingPermissionFromPage().then(({ granted }) => {
+    requestFrameEmbeddingPermissionFromPage().then(({ granted, error }) => {
       if (!granted) {
+        // A bridge failure (orphaned content script after an extension
+        // reload, older builds without the bridge listener) would otherwise
+        // read as "the toggle does nothing" — tell the user how to recover.
+        // A clean denial needs no messaging; the browser prompt was the
+        // interaction.
+        if (error) {
+          displayToast(
+            'Could not enable the reader. Refresh the page and try again.',
+          );
+        }
         return;
       }
       // Write both flags in one update — setSettings merges atomically, so
@@ -52,7 +64,7 @@ export function useEnableReaderInside(): { enable: () => void } {
         target_id: TargetId.On,
       });
     });
-  }, [flags, logEvent, openModal, setSettings]);
+  }, [displayToast, flags, logEvent, openModal, setSettings]);
 
   return { enable };
 }
