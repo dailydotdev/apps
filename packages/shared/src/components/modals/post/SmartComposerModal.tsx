@@ -105,6 +105,7 @@ export interface SmartComposerModalProps extends LazyModalCommonProps {
   initialCommentary?: string;
   preview?: ExternalLinkPreview;
   editPost?: Post;
+  onPosted?: () => void;
 }
 
 export function SmartComposerModal({
@@ -118,6 +119,7 @@ export function SmartComposerModal({
   initialCommentary,
   preview: initialPreview,
   editPost,
+  onPosted,
   ...props
 }: SmartComposerModalProps): ReactElement {
   const { user } = useAuthContext();
@@ -413,6 +415,7 @@ export function SmartComposerModal({
           queryKey: getPostByIdKey(editPost.id),
         });
       }
+      onPosted?.();
       onSubmitted();
       onRequestClose?.();
     },

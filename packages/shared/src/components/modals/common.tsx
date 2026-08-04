@@ -41,13 +41,6 @@ const ReadingHistoryModal = dynamic(
     ),
 );
 
-const CreateSharedPostModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "createSharedPostModal" */ './post/CreateSharedPostModal'
-    ),
-);
-
 const SmartComposerModal = dynamic(
   () =>
     import(
@@ -533,7 +526,6 @@ export const modals = {
   [LazyModal.SquadTour]: SquadTourModal,
   [LazyModal.ReadingHistory]: ReadingHistoryModal,
   [LazyModal.SquadPromotion]: SquadPromotionModal,
-  [LazyModal.CreateSharedPost]: CreateSharedPostModal,
   [LazyModal.SmartComposer]: SmartComposerModal,
   [LazyModal.ReportPost]: ReportPostModal,
   [LazyModal.ReportComment]: ReportCommentModal,

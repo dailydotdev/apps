@@ -288,6 +288,57 @@ describe('SmartComposerModal', () => {
     expect(schedule.parentElement).not.toBe(scheduledNav.parentElement);
   });
 
+  describe('sharing a post to a squad', () => {
+    const postPreview = {
+      id: 'post-1',
+      title: 'The shared article',
+      permalink: 'https://api.daily.dev/r/post-1',
+    };
+
+    it('notifies the caller once the post goes through', async () => {
+      const onPosted = jest.fn();
+
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          initialUrl={postPreview.permalink}
+          preview={postPreview}
+          onPosted={onPosted}
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      const hookProps = jest.mocked(useComposerSubmit).mock.calls[0]?.[0];
+      await hookProps?.onComplete();
+
+      expect(onPosted).toHaveBeenCalledTimes(1);
+      expect(onRequestClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('opens on the link kind with the post seeded, ready to submit', () => {
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          initialUrl={postPreview.permalink}
+          preview={postPreview}
+          initialSquadId="squad-1"
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      expect(screen.getByRole('textbox', { name: 'Link URL' })).toHaveValue(
+        postPreview.permalink,
+      );
+      expect(
+        screen.getByRole('textbox', { name: 'Post commentary' }),
+      ).toHaveValue('');
+
+      const hookProps = jest.mocked(useComposerSubmit).mock.calls[0]?.[0];
+      expect(hookProps?.initialPreview).toBe(postPreview);
+      expect(hookProps?.editPostId).toBeUndefined();
+    });
+  });
+
   describe('editing a share post', () => {
     const sharedPost = {
       title: 'The shared article',
