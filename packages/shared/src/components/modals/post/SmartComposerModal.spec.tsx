@@ -239,12 +239,15 @@ describe('SmartComposerModal', () => {
   it('portals the mobile drawer to the root, away from transformed ancestors', () => {
     jest.mocked(useViewSize).mockReturnValue(false);
 
-    const { container } = renderWithClient(
-      <SmartComposerModal isOpen onRequestClose={onRequestClose} />,
+    renderWithClient(
+      <div data-testid="host">
+        <SmartComposerModal isOpen onRequestClose={onRequestClose} />
+      </div>,
     );
 
-    expect(container.querySelector('#smart_composer')).toBeNull();
-    expect(document.getElementById('smart_composer')).toBeInTheDocument();
+    const form = document.getElementById('smart_composer');
+    expect(form).toBeInTheDocument();
+    expect(screen.getByTestId('host')).not.toContainElement(form);
   });
 
   it('hides the expand control on mobile, where it is already full-screen', () => {
