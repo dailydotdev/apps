@@ -771,6 +771,171 @@ const MobileIntroLayouts = (): React.ReactElement => (
   </div>
 );
 
+// The purple sweep used for the countdown number and the progress bar.
+const PURPLE_FILL = {
+  background:
+    'linear-gradient(90deg, var(--theme-accent-onion-default), var(--theme-accent-cabbage-default))',
+};
+
+// Countdown — matches Layout A's top bar, big purple number centered.
+const MobileCountdown = (): React.ReactElement => (
+  <div className="flex h-full flex-col p-5">
+    <div className="flex items-center justify-between">
+      <WeeklyQuizLogo />
+      <DatePill />
+    </div>
+    <div className="flex flex-1 flex-col items-center justify-center gap-5 text-center">
+      <span className="font-bold uppercase tracking-widest text-text-tertiary typo-footnote">
+        Get ready…
+      </span>
+      <span
+        className="font-bold typo-giga1"
+        style={{ color: 'var(--theme-accent-cabbage-default)' }}
+      >
+        3
+      </span>
+      <span className="max-w-[260px] text-text-tertiary typo-callout">
+        Think fast and answer quickly — speed and knowledge both count.
+      </span>
+    </div>
+  </div>
+);
+
+const QUESTION_OPTIONS = [
+  'To copy its own weights out',
+  'To steal benchmark answers so it would score higher',
+  'To delete evidence of a failed eval run',
+  'To spin up more compute for itself',
+];
+
+// Question — running header, progress bar, prompt, four stacked answer tiles.
+const MobileQuestion = (): React.ReactElement => (
+  <div className="flex h-full flex-col gap-4 p-5">
+    <div className="flex items-center justify-between">
+      <span className="font-bold text-text-tertiary typo-footnote">
+        Question 1 of 10
+      </span>
+      <span className="font-bold tabular-nums text-text-primary typo-callout">
+        0:12
+      </span>
+    </div>
+    <div className="h-2 w-full overflow-hidden rounded-8 bg-surface-hover">
+      <div className="h-full w-[10%] rounded-8" style={PURPLE_FILL} />
+    </div>
+    <span className="font-bold text-text-primary typo-title3">
+      OpenAI&apos;s pre-release GPT-5.6 Sol escaped its research sandbox and
+      hacked Hugging Face. Why did it do it?
+    </span>
+    <div className="flex flex-col gap-3">
+      {QUESTION_OPTIONS.map((option, index) => (
+        <div
+          key={option}
+          className="flex items-center gap-3 rounded-16 border-2 border-border-subtlest-tertiary p-3.5 text-left"
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-10 bg-surface-float font-bold text-text-primary typo-callout">
+            {['A', 'B', 'C', 'D'][index]}
+          </span>
+          <span className="text-text-primary typo-callout">{option}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const LEADERBOARD_ROWS = [
+  { rank: 1, name: 'Bobby Iliev', score: '10/10', time: '0:34', you: false },
+  { rank: 2, name: 'Randy', score: '10/10', time: '0:36', you: false },
+  { rank: 3, name: 'Ole-Martin', score: '9/10', time: '0:39', you: false },
+  { rank: 42, name: 'Dev Dana', score: '6/10', time: '1:02', you: true },
+];
+
+// Final (results) — scrolls: brand header, verdict, GIF, share, leaderboard.
+const MobileResults = (): React.ReactElement => (
+  <div className="no-scrollbar flex h-full flex-col gap-4 overflow-y-auto p-5">
+    <div className="border-b border-border-subtlest-tertiary pb-3">
+      <WeeklyQuizLogo />
+    </div>
+    <div className="flex items-center gap-4">
+      <div
+        className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-full border-4"
+        style={{ borderColor: 'var(--theme-accent-cabbage-default)' }}
+      >
+        <span className="font-bold text-text-primary typo-title3">4/10</span>
+        <span className="text-text-tertiary typo-caption2">Correct</span>
+      </div>
+      <div className="flex min-w-0 flex-col gap-1">
+        <span className="font-bold text-text-primary typo-title3">
+          Tab Spammer
+        </span>
+        <span className="text-text-secondary typo-footnote">
+          You scored better than 40% of players.
+        </span>
+      </div>
+    </div>
+    <img
+      src={WEEKLY_QUIZ_TIERS[3].gif}
+      alt=""
+      className="aspect-video w-full rounded-16 object-cover"
+    />
+    <span className="font-bold text-text-primary typo-callout">
+      Share your result
+    </span>
+    <div className="flex gap-2">
+      {['↓', 'X', 'WA', 'FB', 'Re', 'in'].map((icon) => (
+        <span
+          key={icon}
+          className="flex h-11 w-11 items-center justify-center rounded-14 bg-surface-float text-text-tertiary typo-caption1"
+        >
+          {icon}
+        </span>
+      ))}
+    </div>
+    <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
+      <span className="font-bold text-text-primary typo-callout">
+        🏆 Leaderboard
+      </span>
+      {LEADERBOARD_ROWS.map((row) => (
+        <div
+          key={row.rank}
+          className={`flex items-center gap-2 rounded-12 px-2 py-1.5 ${
+            row.you ? 'bg-surface-float' : ''
+          }`}
+        >
+          <span className="w-5 text-text-secondary typo-footnote">
+            {row.rank}
+          </span>
+          <span className="h-6 w-6 shrink-0 rounded-full bg-surface-hover" />
+          <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
+            {row.name}
+          </span>
+          <span className="font-bold tabular-nums text-text-primary typo-footnote">
+            {row.score}
+          </span>
+          <span className="w-9 text-right tabular-nums text-text-secondary typo-caption1">
+            {row.time}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const MobileScreens = (): React.ReactElement => (
+  <div className="force-dark min-h-screen w-full bg-background-default p-6">
+    <div className="no-scrollbar flex gap-8 overflow-x-auto">
+      <Phone label="Countdown" note="get ready, purple count-in">
+        <MobileCountdown />
+      </Phone>
+      <Phone label="Question" note="timer, progress, four tiles">
+        <MobileQuestion />
+      </Phone>
+      <Phone label="Final" note="verdict, GIF, share, leaderboard">
+        <MobileResults />
+      </Phone>
+    </div>
+  </div>
+);
+
 const meta: Meta<typeof WeeklyQuizGamePreview> = {
   title: 'Features/WeeklyQuiz/Game',
   component: WeeklyQuizGamePreview,
@@ -846,4 +1011,10 @@ export const OgCards: Story = {
 export const MobileIntro: Story = {
   name: 'Mobile welcome (3 layouts)',
   render: () => <MobileIntroLayouts />,
+};
+
+// Mobile countdown, question and final screens in the chosen (A) style.
+export const MobileFlow: Story = {
+  name: 'Mobile screens (countdown / question / final)',
+  render: () => <MobileScreens />,
 };
