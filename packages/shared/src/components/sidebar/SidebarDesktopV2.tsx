@@ -965,6 +965,9 @@ export const SidebarDesktopV2 = ({
   const dotsCoach = useDotsCoach(tour.dotsCoach);
   const { canAutoStart: canAutoStartTour, start: startTour } = tour;
   const isTourRunning = tour.isRunning;
+  // An empty dock paints its ••• on hover only, and during the tour the pointer
+  // is on the card, so the step would point at an invisible button.
+  const isTourOnDockStep = tour.step?.id === 'dock';
   const isTourRunningRef = useRef(false);
   useEffect(() => {
     isTourRunningRef.current = isTourRunning;
@@ -2314,7 +2317,9 @@ export const SidebarDesktopV2 = ({
                 <div className="no-scrollbar -mx-0.5 flex min-h-0 w-full flex-1 flex-col items-center gap-1 overflow-y-auto px-0.5">
                   <SidebarShortcutsDock
                     onCustomizeInteraction={dotsCoach.onCustomizeInteraction}
-                    forceCustomizeVisible={dotsCoach.isCustomizeForcedVisible}
+                    forceCustomizeVisible={
+                      dotsCoach.isCustomizeForcedVisible || isTourOnDockStep
+                    }
                   />
                 </div>
               )}

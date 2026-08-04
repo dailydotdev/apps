@@ -121,9 +121,15 @@ export const useSidebarTourState = (): SidebarTourState => {
   const step = steps?.[stepIndex] ?? null;
   const isRunning = isEnabled && !!step;
 
+  // Belt and braces alongside the stored flag: if the write fails, react-query
+  // rolls the flag back, and without this the auto-start timer would bring the
+  // tour straight back after the user dismissed it.
+  const [hasEndedThisSession, setHasEndedThisSession] = useState(false);
+
   const end = useCallback(() => {
     setSteps(null);
     setStepIndex(0);
+    setHasEndedThisSession(true);
     setTourSeen(true).catch(() => undefined);
   }, [setTourSeen]);
 
@@ -141,6 +147,7 @@ export const useSidebarTourState = (): SidebarTourState => {
 
       setSteps(resolved);
       setStepIndex(0);
+      setHasEndedThisSession(false);
       logEvent({
         event_name: LogEvent.StartSidebarTour,
         extra: JSON.stringify({ trigger }),
@@ -231,7 +238,12 @@ export const useSidebarTourState = (): SidebarTourState => {
     step: isRunning ? step : null,
     stepIndex,
     stepCount: steps?.length ?? 0,
-    canAutoStart: isEnabled && isExistingUser && !isTourSeen && !steps,
+    canAutoStart:
+      isEnabled &&
+      isExistingUser &&
+      !isTourSeen &&
+      !hasEndedThisSession &&
+      !steps,
     start,
     next,
     skip,

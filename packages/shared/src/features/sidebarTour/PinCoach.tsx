@@ -21,11 +21,13 @@ export const PinCoach = ({
   isPanelOpen: boolean;
 }): ReactElement | null => {
   const { isDragging } = useSidebarDragState();
-  const { resolved: shortcuts } = useSidebarShortcutItems();
+  const { resolved: shortcuts, isFetched: areShortcutsLoaded } =
+    useSidebarShortcutItems();
   const { onSuccess } = coach;
   const isCoachActive = coach.isActive;
   const shortcutCount = shortcuts.length;
   const shortcutCountRef = useRef(shortcutCount);
+  const hasCountBaselineRef = useRef(false);
   // A drop lands the new shortcut a tick after the drag ends, so the method is
   // read from whether a drag ran at all rather than from the live flag.
   const didDragRef = useRef(false);
@@ -37,11 +39,24 @@ export const PinCoach = ({
   }, [isDragging]);
 
   useEffect(() => {
+    // The dock's store starts empty and fills in from storage, so the count
+    // climbing is only a pin once storage has answered. The first reading after
+    // that is the baseline, never a success, otherwise hydrating an existing
+    // dock while a panel happens to be open would retire the lesson unearned.
+    if (!areShortcutsLoaded) {
+      return;
+    }
+
+    if (!hasCountBaselineRef.current) {
+      hasCountBaselineRef.current = true;
+      shortcutCountRef.current = shortcutCount;
+      return;
+    }
+
     const grew = shortcutCount > shortcutCountRef.current;
     shortcutCountRef.current = shortcutCount;
-    // The dock's own store starts empty and fills in from storage, so growth
-    // alone is not a pin. It only counts when it can be attributed to the
-    // lesson: a drag that just happened, or a pin button in the open panel.
+    // Growth still has to be attributable to the lesson: a drag that just
+    // happened, or a pin button in the open panel.
     const isAttributable = isPanelOpen || didDragRef.current;
 
     if (!grew || !isCoachActive || !isAttributable) {
@@ -50,7 +65,13 @@ export const PinCoach = ({
 
     onSuccess(didDragRef.current ? 'drag' : 'button');
     didDragRef.current = false;
-  }, [isCoachActive, isPanelOpen, onSuccess, shortcutCount]);
+  }, [
+    areShortcutsLoaded,
+    isCoachActive,
+    isPanelOpen,
+    onSuccess,
+    shortcutCount,
+  ]);
 
   const isEligible = coach.isActive && isPanelOpen && !isDragging;
   const anchor = useCoachAnchor(PINNABLE_ROW_SELECTOR, isEligible);

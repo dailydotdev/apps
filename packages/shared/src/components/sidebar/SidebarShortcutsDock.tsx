@@ -368,6 +368,9 @@ const TrayItem = ({
 export interface SidebarShortcutsApi {
   items: StoredShortcut[];
   resolved: ResolvedShortcut[];
+  // False until storage has answered. Consumers that react to the list growing
+  // need this to tell hydration apart from a pin.
+  isFetched: boolean;
   persist: (next: StoredShortcut[]) => void;
   addCatalog: (id: string, index?: number) => void;
   removeShortcut: (key: string) => void;
@@ -382,7 +385,7 @@ export interface SidebarShortcutsApi {
 // reads the same cached source of truth.
 export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   const { displayToast } = useToastNotification();
-  const [stored, setStored] = usePersistentContext<StoredShortcut[]>(
+  const [stored, setStored, isFetched] = usePersistentContext<StoredShortcut[]>(
     SHORTCUTS_KEY,
     [],
   );
@@ -524,6 +527,7 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
   return {
     items,
     resolved,
+    isFetched,
     persist,
     addCatalog,
     removeShortcut,
