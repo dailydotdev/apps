@@ -1,7 +1,5 @@
 import type { CSSProperties, DragEvent, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
-import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
-import CloseButton from '@dailydotdev/shared/src/components/CloseButton';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   HelpIcon,
@@ -262,75 +260,158 @@ export const FinalStage = ({
   </div>
 );
 
-export interface CoachCardProps {
-  message: string;
-  dots?: { total: number; active: number };
-  control?: ReactNode;
-  actions?: ReactNode;
-  onClose?: () => void;
-  closeLabel?: string;
-  pointerTop?: number;
-  style?: CSSProperties;
+// The two motions the coach cards need are not in the design system: a
+// blur + lift enter (the shared .animate-rail-popup-in slides on X, which reads
+// wrong for a card that stays put between steps) and a scaleX progress fill.
+// Storybook gives this folder no stylesheet of its own, so the rules ride along
+// with the component. They are identical wherever they mount, so repeating the
+// tag costs nothing.
+const COACH_MOTION_CSS = `
+@keyframes coach-card-in {
+  from { opacity: 0; filter: blur(6px); transform: translateY(4px); }
+  to { opacity: 1; filter: blur(0); transform: translateY(0); }
 }
 
+.coach-card-in {
+  animation: coach-card-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity, filter;
+}
+
+.coach-progress-fill {
+  transform-origin: left center;
+  transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coach-card-in { animation: none; }
+  .coach-progress-fill { transition: none; }
+}
+`;
+
+export const CoachMotionStyles = (): JSX.Element => (
+  <style>{COACH_MOTION_CSS}</style>
+);
+
+export const COACH_SHADOW: CSSProperties = {
+  boxShadow:
+    '0 0 0 1px rgb(255 255 255 / 0.08), 0 8px 16px -8px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4)',
+};
+
+export const COACH_SHADOW_STRONG: CSSProperties = {
+  boxShadow:
+    '0 0 0 1px rgb(255 255 255 / 0.08), 0 16px 32px -12px rgb(0 0 0 / 0.6), 0 4px 8px -4px rgb(0 0 0 / 0.5)',
+};
+
+export type CoachPointerTop = number | 'center';
+
+export interface CoachPointerProps {
+  top: CoachPointerTop;
+  bordered?: boolean;
+}
+
+export const CoachPointer = ({
+  top,
+  bordered = false,
+}: CoachPointerProps): JSX.Element => (
+  <span
+    aria-hidden
+    className={`absolute size-2 bg-background-subtle ${
+      bordered ? 'border-b border-l border-border-subtlest-tertiary' : ''
+    }`}
+    style={
+      top === 'center'
+        ? { left: -4, top: '50%', transform: 'translateY(-50%) rotate(45deg)' }
+        : { left: -4, top: top - 4, transform: 'rotate(45deg)' }
+    }
+  />
+);
+
+export interface CoachAnchorProps {
+  left: number;
+  top: number;
+  // Centres the card on `top` instead of hanging it from there, so a card whose
+  // height we never measure still lines its pointer up with the anchor.
+  centered?: boolean;
+  children: ReactNode;
+}
+
+export const CoachAnchor = ({
+  left,
+  top,
+  centered = false,
+  children,
+}: CoachAnchorProps): JSX.Element => (
+  <div
+    className="absolute z-3"
+    style={{ left, top, transform: centered ? 'translateY(-50%)' : undefined }}
+  >
+    {children}
+  </div>
+);
+
+export interface CoachProgress {
+  total: number;
+  active: number;
+}
+
+const CoachProgressRail = ({ total, active }: CoachProgress): JSX.Element => (
+  <span
+    aria-hidden
+    className="absolute inset-x-3.5 bottom-0 h-0.5 overflow-hidden rounded-2 bg-surface-float"
+  >
+    <span
+      className="coach-progress-fill block h-full w-full rounded-2 bg-accent-cabbage-default"
+      style={{ transform: `scaleX(${(active + 1) / total})` }}
+    />
+  </span>
+);
+
+export interface CoachCardProps {
+  message: string;
+  // Re-runs the enter animation on the copy block when the step changes, while
+  // the shell and the progress fill stay mounted and animate continuously.
+  stepKey?: string;
+  progress?: CoachProgress;
+  control?: ReactNode;
+  actions?: ReactNode;
+  pointer?: CoachPointerTop;
+}
+
+// Variation A (Quiet): no border, layered shadow, progress as a hairline rail
+// on the bottom edge. See story 04 for the alternatives.
 export const CoachCard = ({
   message,
-  dots,
+  stepKey,
+  progress,
   control,
   actions,
-  onClose,
-  closeLabel = 'Dismiss',
-  pointerTop,
-  style,
+  pointer,
 }: CoachCardProps): JSX.Element => (
   <div
-    className="animate-rail-popup-in absolute z-3 flex w-80 flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 shadow-3-black"
-    style={style}
+    className="coach-card-in relative w-64 rounded-14 bg-background-subtle p-3"
+    style={COACH_SHADOW}
   >
-    {pointerTop !== undefined && (
-      <span
-        aria-hidden
-        className="absolute size-2 rotate-45 border-b border-l border-border-subtlest-tertiary bg-background-subtle"
-        style={{ left: -5, top: pointerTop - 4 }}
-      />
-    )}
+    <CoachMotionStyles />
 
-    {(dots || onClose) && (
-      <div className="flex items-center justify-between">
-        <span className="flex items-center gap-1">
-          {dots &&
-            Array.from({ length: dots.total }, (_, index) => index).map(
-              (dot) => (
-                <span
-                  key={dot}
-                  className={
-                    dot === dots.active
-                      ? 'h-1.5 w-4 rounded-full bg-accent-cabbage-default'
-                      : 'size-1.5 rounded-full bg-text-quaternary'
-                  }
-                />
-              ),
-            )}
-        </span>
-        {onClose && (
-          <CloseButton
-            size={ButtonSize.Small}
-            aria-label={closeLabel}
-            onClick={onClose}
-          />
-        )}
-      </div>
-    )}
+    {pointer !== undefined && <CoachPointer top={pointer} />}
 
-    <Typography type={TypographyType.Body} color={TypographyColor.Primary}>
-      {message}
-    </Typography>
+    <div key={stepKey} className="coach-card-in flex flex-col gap-2.5">
+      <Typography
+        className="text-balance"
+        type={TypographyType.Footnote}
+        color={TypographyColor.Primary}
+      >
+        {message}
+      </Typography>
 
-    {control}
+      {control}
 
-    {actions && (
-      <div className="flex items-center justify-between gap-3">{actions}</div>
-    )}
+      {actions && (
+        <div className="flex items-center justify-between gap-2">{actions}</div>
+      )}
+    </div>
+
+    {progress && <CoachProgressRail {...progress} />}
   </div>
 );
 

@@ -12,6 +12,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { FinalRailRegion, PanelRow, RailTab } from './finalRail';
 import {
+  CoachAnchor,
   CoachCard,
   DOCK_TOP,
   DockChip,
@@ -24,6 +25,7 @@ import {
   RAIL_WIDTH,
   RailPanel,
   SQUAD_ROWS,
+  STAGE_HEIGHT,
   SupportMenu,
   TAB_HEIGHT,
   YOU_ROWS,
@@ -35,8 +37,11 @@ import { GameCenterPanel, SIDEBAR_TOUR_STEPS, SidebarTour } from './tourSteps';
 type Persona = 'existing' | 'new';
 
 const MAX_EXPOSURES = 3;
-const DOTS_CARD_LOWEST_TOP = 404;
-const DOTS_POINTER_LOWEST = 96;
+// The ••• coach sits low in the rail and grows a row for every pin, so it is
+// clamped against the stage floor rather than centred on its anchor.
+const DOTS_CARD_HEIGHT = 102;
+const DOTS_CARD_LOWEST_TOP = STAGE_HEIGHT - DOTS_CARD_HEIGHT - 16;
+const DOTS_POINTER_LOWEST = DOTS_CARD_HEIGHT - 16;
 const TEACHABLE_TABS: RailTab[] = ['You', 'Squads'];
 
 const ROWS_BY_TAB: Record<string, PanelRow[]> = {
@@ -172,7 +177,10 @@ const FullExperienceDemo = (): JSX.Element => {
     taughtTab && tabTop(taughtTab) - PANEL_TOP_OFFSET + PANEL_ROW_ONE_OFFSET;
 
   const dotsCenter = dockDotsTop(pinned.length) + 12;
-  const dotsCardTop = Math.min(dotsCenter - 56, DOTS_CARD_LOWEST_TOP);
+  const dotsCardTop = Math.min(
+    dotsCenter - DOTS_CARD_HEIGHT / 2,
+    DOTS_CARD_LOWEST_TOP,
+  );
   const dotsPointerTop = Math.min(
     dotsCenter - dotsCardTop,
     DOTS_POINTER_LOWEST,
@@ -230,10 +238,9 @@ const FullExperienceDemo = (): JSX.Element => {
         }}
       >
         {!persona && (
-          <CoachCard
-            message="Pick a persona above to start."
-            style={{ left: 270, top: 240 }}
-          />
+          <CoachAnchor left={270} top={240}>
+            <CoachCard message="Pick a persona above to start." />
+          </CoachAnchor>
         )}
 
         {isTeaching && teachingRowTop && (
@@ -294,25 +301,39 @@ const FullExperienceDemo = (): JSX.Element => {
               )}
 
               {isTeaching && openTab === tab && (
-                <CoachCard
-                  message="Drag any page here to pin it — or use the pin button."
-                  pointerTop={PANEL_ROW_HEIGHT / 2 + 12}
-                  style={{
-                    left: RAIL_WIDTH + PANEL_WIDTH + 12,
-                    top: PANEL_ROW_ONE_OFFSET - PANEL_TOP_OFFSET - 12,
-                  }}
-                />
+                <CoachAnchor
+                  left={RAIL_WIDTH + PANEL_WIDTH + 12}
+                  top={PANEL_ROW_ONE_OFFSET - PANEL_TOP_OFFSET - 12}
+                >
+                  <CoachCard
+                    message="Drag any page to the dock, or click its pin button."
+                    pointer={PANEL_ROW_HEIGHT / 2 + 12}
+                  />
+                </CoachAnchor>
               )}
             </div>
           ))}
 
         {isDotsCoachOpen && (
-          <CoachCard
-            message="Add, reorder or remove your shortcuts from here."
-            pointerTop={dotsPointerTop}
-            onClose={() => setIsDotsCoachOpen(false)}
-            style={{ left: 76, top: dotsCardTop }}
-          />
+          <CoachAnchor left={76} top={dotsCardTop}>
+            <CoachCard
+              message="Add, reorder and remove your shortcuts from here."
+              pointer={dotsPointerTop}
+              actions={
+                <>
+                  <span />
+                  <Button
+                    className="active:scale-95"
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                    onClick={() => setIsDotsCoachOpen(false)}
+                  >
+                    Got it
+                  </Button>
+                </>
+              }
+            />
+          </CoachAnchor>
         )}
 
         {isMenuOpen && (
@@ -374,7 +395,7 @@ const FullExperienceDemo = (): JSX.Element => {
           color={TypographyColor.Quaternary}
         >
           {`dotsCoachSeen: ${dotsExposures} of ${MAX_EXPOSURES}${
-            isDotsCoachRetired ? ' — retired' : ''
+            isDotsCoachRetired ? ' (retired)' : ''
           }`}
         </Typography>
         <Typography
@@ -405,15 +426,15 @@ export const Default: Story = {
         color={TypographyColor.Tertiary}
         className="max-w-3xl"
       >
-        The whole system in one stage. Existing users — the only ones whose
-        muscle memory broke — get the three-step tour once, skippable
-        throughout. New users get nothing up front: they are taught inside the
-        panel they open first (drag a row to the dock or hit its pin button) and
-        by a one-liner on the ••• tray, both of which retire on success or after
-        three exposures. Either persona can reopen the tour from the support
-        &quot;?&quot; at the foot of the rail — an option, never an
-        advertisement. Pick a persona to start; the flags under the stage are
-        the ones we would persist per user.
+        The whole system in one stage. Existing users are the only ones whose
+        muscle memory broke, so they get the three-step tour once, with
+        &quot;Skip tour&quot; on every step. New users get nothing up front:
+        they are taught inside the panel they open first (drag a row to the dock
+        or hit its pin button) and by a one-liner on the ••• tray, both of which
+        retire on success or after three exposures. Either persona can reopen
+        the tour from the support &quot;?&quot; at the foot of the rail, which
+        is an option rather than an advertisement. Pick a persona to start; the
+        flags under the stage are the ones we would persist per user.
       </Typography>
       <FullExperienceDemo />
     </div>

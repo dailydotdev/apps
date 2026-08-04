@@ -13,6 +13,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { FinalRailRegion, PanelRow, RailTab } from './finalRail';
 import {
+  CoachAnchor,
   CoachCard,
   DOCK_TOP,
   DockChip,
@@ -25,6 +26,7 @@ import {
   RAIL_WIDTH,
   RailPanel,
   SQUAD_ROWS,
+  STAGE_HEIGHT,
   TAB_HEIGHT,
   YOU_ROWS,
   dockDotsTop,
@@ -32,8 +34,11 @@ import {
 } from './finalRail';
 
 const MAX_EXPOSURES = 3;
-const DOTS_CARD_LOWEST_TOP = 404;
-const DOTS_POINTER_LOWEST = 96;
+// The ••• coach sits low in the rail and grows a row for every pin, so it is
+// clamped against the stage floor rather than centred on its anchor.
+const DOTS_CARD_HEIGHT = 102;
+const DOTS_CARD_LOWEST_TOP = STAGE_HEIGHT - DOTS_CARD_HEIGHT - 16;
+const DOTS_POINTER_LOWEST = DOTS_CARD_HEIGHT - 16;
 
 const TeachingDemo = (): JSX.Element => {
   const [hasSquads, setHasSquads] = useState(true);
@@ -110,7 +115,10 @@ const TeachingDemo = (): JSX.Element => {
     isDockTargeted || isTeaching ? 'dock' : null;
 
   const dotsCenter = dockDotsTop(pinned.length) + 12;
-  const dotsCardTop = Math.min(dotsCenter - 56, DOTS_CARD_LOWEST_TOP);
+  const dotsCardTop = Math.min(
+    dotsCenter - DOTS_CARD_HEIGHT / 2,
+    DOTS_CARD_LOWEST_TOP,
+  );
   const dotsPointerTop = Math.min(
     dotsCenter - dotsCardTop,
     DOTS_POINTER_LOWEST,
@@ -136,7 +144,7 @@ const TeachingDemo = (): JSX.Element => {
         >
           {hasSquads
             ? 'Teaching runs on the Squads panel'
-            : 'No squads yet — the same teaching runs on the first panel they open'}
+            : 'No squads yet, so the same teaching runs on the first panel they open'}
         </Typography>
       </div>
 
@@ -204,24 +212,38 @@ const TeachingDemo = (): JSX.Element => {
           )}
 
           {isTeaching && (
-            <CoachCard
-              message="Drag any page here to pin it — or use the pin button."
-              pointerTop={PANEL_ROW_HEIGHT / 2 + 12}
-              style={{
-                left: RAIL_WIDTH + PANEL_WIDTH + 12,
-                top: PANEL_ROW_ONE_OFFSET - PANEL_TOP_OFFSET - 12,
-              }}
-            />
+            <CoachAnchor
+              left={RAIL_WIDTH + PANEL_WIDTH + 12}
+              top={PANEL_ROW_ONE_OFFSET - PANEL_TOP_OFFSET - 12}
+            >
+              <CoachCard
+                message="Drag any page to the dock, or click its pin button."
+                pointer={PANEL_ROW_HEIGHT / 2 + 12}
+              />
+            </CoachAnchor>
           )}
         </div>
 
         {isDotsCoachOpen && (
-          <CoachCard
-            message="Add, reorder or remove your shortcuts from here."
-            pointerTop={dotsPointerTop}
-            onClose={() => setIsDotsCoachOpen(false)}
-            style={{ left: 76, top: dotsCardTop }}
-          />
+          <CoachAnchor left={76} top={dotsCardTop}>
+            <CoachCard
+              message="Add, reorder and remove your shortcuts from here."
+              pointer={dotsPointerTop}
+              actions={
+                <>
+                  <span />
+                  <Button
+                    className="active:scale-95"
+                    size={ButtonSize.Small}
+                    variant={ButtonVariant.Tertiary}
+                    onClick={() => setIsDotsCoachOpen(false)}
+                  >
+                    Got it
+                  </Button>
+                </>
+              }
+            />
+          </CoachAnchor>
         )}
       </FinalStage>
 
@@ -238,7 +260,7 @@ const TeachingDemo = (): JSX.Element => {
           color={TypographyColor.Quaternary}
         >
           {`Panel opens: ${panelOpens} of ${MAX_EXPOSURES} · ${
-            isPinLearned ? 'pinned — teaching retired' : 'still teaching'
+            isPinLearned ? 'pinned, teaching retired' : 'still teaching'
           }`}
         </Typography>
         <Typography
@@ -256,8 +278,8 @@ const TeachingDemo = (): JSX.Element => {
         color={TypographyColor.Quaternary}
         className="max-w-3xl"
       >
-        Both lessons decay the same way: they retire on success — a pin by drag
-        or by button, a visit to the ••• tray — or after {MAX_EXPOSURES}{' '}
+        Both lessons decay the same way. They retire on success (a pin by drag
+        or by button, a visit to the ••• tray) or after {MAX_EXPOSURES}{' '}
         exposures, whichever comes first. A user who already knows the gesture
         never sees the same card twice.
       </Typography>
@@ -282,14 +304,14 @@ export const Default: Story = {
         color={TypographyColor.Tertiary}
         className="max-w-3xl"
       >
-        New users never see the tour — nothing moved for them. They get the
-        lesson at the moment they can act on it instead: hover the highlighted
-        tab to open its panel and the first opens carry a coach card on the
-        row&apos;s pin button, a dashed guide toward the dock and a dock glow.
-        Drag a row onto the rail or hit its pin icon and the lesson retires for
-        good. Hover the ••• at the foot of the dock for the click-only path.
-        Flip the toggle to see the same teaching on the You panel for a user
-        with no squads.
+        New users never see the tour, because nothing moved for them. They get
+        the lesson at the moment they can act on it instead: hover the
+        highlighted tab to open its panel and the first opens carry a coach card
+        on the row&apos;s pin button, a dashed guide toward the dock and a dock
+        glow. Drag a row onto the rail or hit its pin icon and the lesson
+        retires for good. Hover the ••• at the foot of the dock for the
+        click-only path. Flip the toggle to see the same teaching on the You
+        panel for a user with no squads.
       </Typography>
       <TeachingDemo />
     </div>

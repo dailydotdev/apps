@@ -109,7 +109,7 @@ const TourDemo = (): JSX.Element => {
         >
           {isRunning
             ? `Step ${step + 1} of ${TOUR_STEP_COUNT}`
-            : 'Finished — seen-flag set'}
+            : 'Finished, seen-flag set'}
         </Typography>
       </div>
     </div>
@@ -134,11 +134,13 @@ export const Default: Story = {
         className="max-w-3xl"
       >
         The one sanctioned push, shown once to users who already had the old
-        sidebar: three steps, one sentence each, an X to leave on every one of
-        them. The scrim spotlights the rail, the pointer ties the card to the
-        region it is talking about, step 1 carries the compact setting as a live
-        switch and step 3 opens the Game Center panel. Use the step buttons
-        under the stage to review each step on its own.
+        sidebar: three steps, one sentence each, and a &quot;Skip tour&quot;
+        control on every one of them so leaving is never ambiguous. The scrim
+        spotlights the rail, the pointer ties the card to the region it is
+        talking about, step 1 carries the compact setting as a live switch and
+        step 3 opens the Game Center panel. Use the step buttons under the stage
+        to review each step on its own. Story 04 holds the card treatments still
+        under discussion.
       </Typography>
       <TourDemo />
     </div>

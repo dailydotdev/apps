@@ -10,14 +10,14 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import type { FinalRailRegion } from './finalRail';
+import type { CoachPointerTop, FinalRailRegion } from './finalRail';
 import {
+  CoachAnchor,
   CoachCard,
   FINAL_ANCHORS,
   PANEL_TOP_OFFSET,
   PANEL_WIDTH,
   RAIL_WIDTH,
-  STAGE_HEIGHT,
   tabTop,
 } from './finalRail';
 
@@ -32,16 +32,14 @@ export interface SidebarTourStep {
 export const SIDEBAR_TOUR_STEPS: SidebarTourStep[] = [
   {
     id: 'rail',
-    message:
-      'Your navigation now lives in this rail — hover any tab to open it.',
+    message: 'Your navigation moved into this rail, and panels open on hover.',
     glow: 'tabs',
     anchor: 'tabs',
     extra: 'compactSwitch',
   },
   {
     id: 'dock',
-    message:
-      'Pin the pages you use most — drag them here or add them from •••.',
+    message: 'Drag any page into the dock below, or add it from the ••• menu.',
     glow: 'dock',
     anchor: 'dock',
   },
@@ -58,26 +56,12 @@ export const TOUR_STEP_COUNT = SIDEBAR_TOUR_STEPS.length;
 
 const CARD_LEFT = 76;
 const CARD_LEFT_BESIDE_PANEL = RAIL_WIDTH + PANEL_WIDTH + 12;
-const CARD_MARGIN = 16;
-
-// Heights are stable because the copy is fixed: two rows plus the switch row on
-// step 1. Knowing them up front keeps the card and its pointer from jumping on
-// the first paint.
-const cardHeight = (step: SidebarTourStep): number =>
-  step.extra === 'compactSwitch' ? 216 : 172;
-
-export const tourCardTop = (step: SidebarTourStep): number => {
-  const height = cardHeight(step);
-  const centered = FINAL_ANCHORS[step.anchor] - height / 2;
-
-  return Math.min(
-    Math.max(centered, CARD_MARGIN),
-    STAGE_HEIGHT - height - CARD_MARGIN,
-  );
-};
 
 export const tourCardLeft = (step: SidebarTourStep): number =>
   step.extra === 'gameCenterPanel' ? CARD_LEFT_BESIDE_PANEL : CARD_LEFT;
+
+export const tourCardTop = (step: SidebarTourStep): number =>
+  FINAL_ANCHORS[step.anchor];
 
 const STREAK_DAYS = 12;
 
@@ -164,7 +148,7 @@ export const GameCenterPanel = (): JSX.Element => (
   </div>
 );
 
-export interface SidebarTourProps {
+export interface TourCardProps {
   step: number;
   onStepChange: (step: number) => void;
   onFinish: () => void;
@@ -172,9 +156,101 @@ export interface SidebarTourProps {
   compact: boolean;
   onCompactChange: (compact: boolean) => void;
   switchId?: string;
+  pointer?: CoachPointerTop;
 }
 
-export const SidebarTour = ({
+export interface CompactSwitchProps {
+  switchId: string;
+  compact: boolean;
+  onCompactChange: (compact: boolean) => void;
+}
+
+export const CompactSwitch = ({
+  switchId,
+  compact,
+  onCompactChange,
+}: CompactSwitchProps): JSX.Element => (
+  <Switch
+    inputId={switchId}
+    name={switchId}
+    checked={compact}
+    onToggle={() => onCompactChange(!compact)}
+  >
+    Compact mode
+  </Switch>
+);
+
+export const SkipTourButton = ({
+  onSkip,
+  tight = false,
+}: {
+  onSkip: () => void;
+  // The narrowest variation pairs this with a primary button that spells out a
+  // destination, so it trims its side padding rather than push the row out of
+  // the card. A tertiary button has no fill, so the trim is invisible.
+  tight?: boolean;
+}): JSX.Element => (
+  <Button
+    className="active:scale-95"
+    style={tight ? { paddingLeft: 4, paddingRight: 4 } : undefined}
+    size={ButtonSize.Small}
+    variant={ButtonVariant.Tertiary}
+    onClick={onSkip}
+  >
+    Skip tour
+  </Button>
+);
+
+export interface StepButtonProps {
+  step: number;
+  onStepChange: (step: number) => void;
+  onFinish?: () => void;
+  label?: string;
+}
+
+export const BackButton = ({
+  step,
+  onStepChange,
+}: StepButtonProps): JSX.Element | null => {
+  if (step === 0) {
+    return null;
+  }
+
+  return (
+    <Button
+      className="active:scale-95"
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Tertiary}
+      onClick={() => onStepChange(step - 1)}
+    >
+      Back
+    </Button>
+  );
+};
+
+export const NextButton = ({
+  step,
+  onStepChange,
+  onFinish,
+  label,
+}: StepButtonProps): JSX.Element => {
+  const isLastStep = step === TOUR_STEP_COUNT - 1;
+
+  return (
+    <Button
+      className="active:scale-95"
+      size={ButtonSize.Small}
+      variant={ButtonVariant.Primary}
+      onClick={() => (isLastStep ? onFinish?.() : onStepChange(step + 1))}
+    >
+      {label ?? (isLastStep ? 'Got it' : 'Next')}
+    </Button>
+  );
+};
+
+// Variation A (Quiet). Story 04 holds the four alternatives that drive this
+// same tour.
+export const TourCoachCard = ({
   step,
   onStepChange,
   onFinish,
@@ -182,60 +258,61 @@ export const SidebarTour = ({
   compact,
   onCompactChange,
   switchId = 'final-tour-compact',
-}: SidebarTourProps): JSX.Element | null => {
+  pointer,
+}: TourCardProps): JSX.Element | null => {
   const currentStep = SIDEBAR_TOUR_STEPS[step];
 
   if (!currentStep) {
     return null;
   }
 
-  const isLastStep = step === TOUR_STEP_COUNT - 1;
-  const top = tourCardTop(currentStep);
-
   return (
     <CoachCard
-      key={currentStep.id}
+      stepKey={currentStep.id}
       message={currentStep.message}
-      dots={{ total: TOUR_STEP_COUNT, active: step }}
-      onClose={onSkip}
-      closeLabel="Skip tour"
-      pointerTop={FINAL_ANCHORS[currentStep.anchor] - top}
-      style={{ left: tourCardLeft(currentStep), top }}
+      progress={{ total: TOUR_STEP_COUNT, active: step }}
+      pointer={pointer}
       control={
         currentStep.extra === 'compactSwitch' && (
-          <Switch
-            inputId={switchId}
-            name={switchId}
-            checked={compact}
-            onToggle={() => onCompactChange(!compact)}
-          >
-            Compact mode
-          </Switch>
+          <CompactSwitch
+            switchId={switchId}
+            compact={compact}
+            onCompactChange={onCompactChange}
+          />
         )
       }
       actions={
         <>
-          {step === 0 ? (
-            <span />
-          ) : (
-            <Button
-              size={ButtonSize.Medium}
-              variant={ButtonVariant.Tertiary}
-              onClick={() => onStepChange(step - 1)}
-            >
-              Back
-            </Button>
-          )}
-          <Button
-            size={ButtonSize.Medium}
-            variant={ButtonVariant.Primary}
-            style={{ minWidth: 96 }}
-            onClick={() => (isLastStep ? onFinish() : onStepChange(step + 1))}
-          >
-            {isLastStep ? 'Got it' : 'Next'}
-          </Button>
+          <SkipTourButton onSkip={onSkip} />
+          <span className="flex items-center gap-2">
+            <BackButton step={step} onStepChange={onStepChange} />
+            <NextButton
+              step={step}
+              onStepChange={onStepChange}
+              onFinish={onFinish}
+            />
+          </span>
         </>
       }
     />
+  );
+};
+
+export const SidebarTour = (props: TourCardProps): JSX.Element | null => {
+  const { step } = props;
+  const currentStep = SIDEBAR_TOUR_STEPS[step];
+
+  if (!currentStep) {
+    return null;
+  }
+
+  return (
+    <CoachAnchor
+      centered
+      left={tourCardLeft(currentStep)}
+      top={tourCardTop(currentStep)}
+    >
+      <TourCoachCard {...props} pointer="center" />
+    </CoachAnchor>
   );
 };

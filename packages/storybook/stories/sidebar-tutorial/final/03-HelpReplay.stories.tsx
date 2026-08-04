@@ -127,7 +127,7 @@ export const Default: Story = {
       >
         The way back in. The tour never advertises itself, but it stays
         available: the support menu at the foot of the rail carries a
-        &quot;Learn the sidebar&quot; item that restarts it from step one — for
+        &quot;Learn the sidebar&quot; item that restarts it from step one, for
         the people who skipped it, closed it, or never got it because they
         signed up after the switch. Click it to launch the tour; skip or finish
         and you land exactly where you were, menu closed, nothing else changed.
