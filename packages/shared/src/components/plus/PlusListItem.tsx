@@ -40,7 +40,8 @@ export interface PlusItem {
 export interface PlusListItemProps {
   item: PlusItem;
   typographyProps?: TypographyProps<TypographyTag.P>;
-  icon?: FC<IconProps>;
+  /** `null` renders no icon at all; omitting it falls back to the check mark. */
+  icon?: FC<IconProps> | null;
   iconProps?: IconProps;
   badgeProps?: TypographyProps<TypographyTag.Span>;
   onHover?: () => void;
