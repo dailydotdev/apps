@@ -5819,8 +5819,8 @@ function buildLabels(){
   for(const g of W.quarters){
     const e=document.createElement('div');
     e.className='lb rl t2'; e.style.color=hexs(g.realm.accent);
-    e.innerHTML=`<div class="box"><div class="nm">${g.realm.name.replace(/^THE /,'')}</div>`
-               +`<div class="sb">${g.realm.theme.toUpperCase()}</div>`
+    e.innerHTML=`<div class="box"><div class="nm">${g.realm.name}</div>`
+               +`<div class="sb">${g.realm.theme}</div>`
                +`<div class="mt"></div></div>`
                +`<div class="stem"></div><div class="pin"></div>`;
     e.onclick=()=>enterRealm(g);
@@ -6069,7 +6069,10 @@ function step(t){
         toast('FOUNDED',nameOf(d),d.niche.accent);
       }else if(L>(d.queued||d.level)){
         d.queued=L; if(!queue.includes(d)) queue.push(d);
-        toast('LEVEL '+L,nameOf(d)+' → '+LEVELS[L-1].n,d.niche.accent);
+        /* The number, not the rung's name. A ladder of twelve invented names is
+           a second vocabulary to learn before the toast means anything, and
+           "LEVEL 7" says the one thing the reader is actually being told. */
+        toast('LEVEL '+L,nameOf(d),d.niche.accent);
       }
       if(dn>0&&d.built) pulse(d,dn);
     }
@@ -6081,10 +6084,10 @@ function step(t){
       const pending=q.queued||0;
       if(!q.island&&!pending){
         q.queued=L; queue.push(q);
-        toast('DISCOVERED',q.realm.name.replace(/^THE /,''),q.realm.accent);
+        toast('DISCOVERED',q.realm.name,q.realm.accent);
       }else if(q.island&&L>Math.max(pending,q.level)){
         q.queued=L; if(!queue.includes(q)) queue.push(q);
-        toast('GREW',q.realm.name.replace(/^THE /,'')+' · '+arts(q.shown),q.realm.accent);
+        toast('GREW',q.realm.name+' · '+arts(q.shown),q.realm.accent);
       }else{
         /* A district levelling up raises the monument it contributes, but
            rebuilding a whole realm island for it mid-playback is ~100 ms of
@@ -6144,11 +6147,11 @@ function updateHud(){
     districts:W.unbuilt?0:founded,
     realms:W.unbuilt?0:realms,
     open: OPEN?{ id:OPEN.realm.id,
-                 name:OPEN.realm.name.replace(/^THE /,''),
+                 name:OPEN.realm.name,
                  theme:OPEN.realm.theme,
                  districts:OPEN.list.filter(d=>d.shown>0).length,
                  articles:OPEN.shown }:null,
-    next: nx&&!W.unbuilt?{ need:nx.need, name:nameOf(nx.d), level:LEVELS[nx.L].n,
+    next: nx&&!W.unbuilt?{ need:nx.need, name:nameOf(nx.d), level:nx.L+1,
                color:hexs(nx.d.niche.accent) }:null,
   });
   renderRank(false);
@@ -6162,7 +6165,7 @@ function renderRank(force){
      the rail reads to leave a row as a name with nothing after it. */
   if(W.unbuilt){
     emit({rank:W.quarters.map(q=>({
-      key:q.realm.id, name:q.realm.name.replace(/^THE /,''),
+      key:q.realm.id, name:q.realm.name,
       level:0, reads:0, color:hexs(q.realm.accent), share:0, selected:false,
     }))});
     return;
@@ -6172,7 +6175,7 @@ function renderRank(force){
   const max=list.length?list[0].shown:1;
   emit({rank:list.map(x=>({
     key: OPEN?x.niche.id:x.realm.id,
-    name: OPEN?nameOf(x):x.realm.name.replace(/^THE /,''),
+    name: OPEN?nameOf(x):x.realm.name,
     level: OPEN?(x.level||levelOf(x.shown)):Math.max(1,realmLevelOf(x.shown)),
     reads: x.shown,
     color: hexs(OPEN?x.niche.accent:x.realm.accent),
@@ -6967,7 +6970,7 @@ function say(host,text,col){
    Both halves are here: every slap throws a read pulse, and the town gets
    progressively less polite about it until it stops working and throws its
    backlog at you. */
-const YELP=['ow','hey','we are working','stop that','this is our reading time',
+const YELP=['ow','hey','we’re working','stop that','this is our reading time',
             'the guild will hear of this','…','FINE. TAKE THE BACKLOG.'];
 let taughtSlap=false, taughtHand=false;
 const SLAP_WINDOW=4;                 // seconds of memory before it forgives you
@@ -7437,7 +7440,7 @@ function possess(b,host){
   setView(camFP);
   rootEl.classList.add('pov');
   emit({riding:{name:(host&&(host.niche?nameOf(host)
-    :host.realm.name.replace(/^THE /,'')))||'—',manual:false}});
+    :host.realm.name))||'—',manual:false}});
   panning=rotating=false;
   flash();
 }

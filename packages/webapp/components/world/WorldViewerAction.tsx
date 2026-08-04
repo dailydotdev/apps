@@ -26,7 +26,7 @@ interface WorldViewerActionProps {
  * award them. Both are the profile's own buttons, so doing either from here and
  * doing it from the profile are the same act.
  *
- * Nothing on your own world, and nothing signed out — a reader with no account
+ * Nothing on your own world, and nothing signed out: a reader with no account
  * is offered one instead, further down the rail.
  */
 export function WorldViewerAction({
@@ -66,7 +66,7 @@ export function WorldViewerAction({
         className={block ? 'flex-1' : undefined}
         buttonClassName={block ? 'flex-1' : undefined}
         // The bell is a preferences control, and nobody came to this page to
-        // set preferences — it also has no room for a second button.
+        // set preferences. It also has no room for a second button.
         showSubscribe={false}
         alwaysShow
       />

@@ -50,9 +50,10 @@ describe('WorldInvite', () => {
   it('sends the owner of unbuilt ground off to read something', () => {
     renderInvite({ ...loggedUser, id: owner.id } as LoggedUser);
 
-    expect(
-      screen.getByRole('link', { name: 'Read to build your world' }),
-    ).toHaveAttribute('href', '/');
+    expect(screen.getByRole('link', { name: 'Start reading' })).toHaveAttribute(
+      'href',
+      '/',
+    );
     expect(screen.getByText('Your journey has just begun')).toBeInTheDocument();
     expect(screen.queryByTestId('signup')).not.toBeInTheDocument();
   });

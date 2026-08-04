@@ -17,7 +17,7 @@ interface WorldImmersiveToggleProps {
   isImmersive: boolean;
   onToggleImmersive: () => void;
   /**
-   * Standing on the world on its own, once there is no chrome left to hold it —
+   * Standing on the world on its own, once there is no chrome left to hold it:
    * top left, opposite the mark, because it is then the only way back.
    */
   floating?: boolean;
@@ -53,7 +53,7 @@ export function WorldImmersiveToggle({
       data-world-overlay
       className={classNames(
         'pointer-events-auto absolute left-3 top-3 z-2 flex items-center',
-        // p-1 around a 32px button is 40px tall — the same plate the mark makes
+        // p-1 around a 32px button is 40px tall: the same plate the mark makes
         // out of a 20px logo and py-2.5, so the two line up across the top.
         'rounded-16 border border-border-subtlest-tertiary bg-background-default p-1',
         className,
@@ -66,7 +66,7 @@ export function WorldImmersiveToggle({
 
 /**
  * The signature on the frame. A page built to be screenshotted from should not
- * leave one unsigned, so the mark outlives every panel — floating top right
+ * leave one unsigned, so the mark outlives every panel, floating top right
  * wherever there is no bar to ride in.
  */
 export function WorldMark({ floating }: { floating?: boolean }): ReactElement {

@@ -17,8 +17,6 @@ import { WorldStage, WorldStageIdentity } from './WorldBoot';
 
 interface WorldStatusProps {
   user: PublicProfile;
-  /** A world that could not be built, or a query that did not come back. */
-  message: string;
 }
 
 /**
@@ -26,11 +24,15 @@ interface WorldStatusProps {
  * the renderer refused. Same frame as the boot screen, so arriving here is a
  * sentence changing rather than a screen being replaced.
  *
- * A reader with nothing read does NOT come here — an empty world is a world
+ * The reason is deliberately not on screen. The two that get here are a network
+ * error and an engine refusal, neither of which is written for a reader, and
+ * both of which are the same news to the person looking at them.
+ *
+ * A reader with nothing read does NOT come here: an empty world is a world
  * that has not been built yet, and that is a thing to show rather than a thing
  * to report (`WorldInvite`).
  */
-export function WorldStatus({ user, message }: WorldStatusProps): ReactElement {
+export function WorldStatus({ user }: WorldStatusProps): ReactElement {
   return (
     <WorldStage>
       <WorldStageIdentity user={user} />
@@ -40,11 +42,11 @@ export function WorldStatus({ user, message }: WorldStatusProps): ReactElement {
         color={TypographyColor.Tertiary}
         className="max-w-sm"
       >
-        {message}
+        This world could not be loaded right now. Try again in a moment.
       </Typography>
 
       {/* The panel is what normally carries the way out, and it is not rendered
-          over a world that never stood up — so without this a reader who lands
+          over a world that never stood up, so without this a reader who lands
           on an empty one has nowhere to go. */}
       <Link href={`/${user.username || user.id}`} passHref>
         <Button

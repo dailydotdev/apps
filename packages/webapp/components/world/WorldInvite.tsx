@@ -42,7 +42,7 @@ interface WorldInviteProps {
  *
  * Both halves of that are deliberate. ONCE, because an invitation repeated on
  * six island labels and six rail rows stops reading as an invitation and starts
- * reading as an empty state apologising for itself — so the islands carry their
+ * reading as an empty state apologising for itself, so the islands carry their
  * names, the rail lists the realms, and the ask is made here and nowhere else.
  * And ON THE WORLD, because the rail is where a reader goes to look something
  * up, and this is the one thing on the page nobody should have to look for.
@@ -72,8 +72,8 @@ export function WorldInvite({ user }: WorldInviteProps): ReactElement | null {
           color={TypographyColor.Tertiary}
         >
           {isOwn
-            ? 'Six realms of open ground. Every article you read raises a district on one of them.'
-            : 'Six realms of open ground. Every article they read raises a district on one of them.'}
+            ? 'Six realms of open ground. Every article you read grows a district on one of them.'
+            : 'Six realms of open ground. Every article they read grows a district on one of them.'}
         </Typography>
         {/* A reader with no account is offered one where they stand. The compact
             card is a single button, which is what fits on a label. */}
@@ -90,7 +90,7 @@ export function WorldInvite({ user }: WorldInviteProps): ReactElement | null {
               size={ButtonSize.Small}
               className="w-full"
             >
-              {isOwn ? 'Read to build your world' : 'See your own world'}
+              {isOwn ? 'Start reading' : 'See your own world'}
             </Button>
           </Link>
         )}

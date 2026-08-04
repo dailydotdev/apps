@@ -50,7 +50,7 @@ export function WorldSignupCta({
   return (
     <SignupWidget
       dense
-      title="Build your own world"
+      title="Build your world"
       description="Every article you read grows the world. Start building yours now."
       trigger={AuthTriggers.World}
       className="border-t border-border-subtlest-tertiary pt-4"

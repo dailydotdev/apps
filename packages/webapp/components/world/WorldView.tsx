@@ -34,7 +34,7 @@ const INITIAL: WorldState = {
 const PAD_DESKTOP = { l: 344, r: 18, t: 96, b: 112 };
 const PAD_MOBILE = { l: 16, r: 16, t: 136, b: 128 };
 const PAD_IMMERSIVE = { l: 16, r: 16, t: 96, b: 16 };
-/* Same rail, no scrubber under an unbuilt world — nothing to replay — and a
+/* Same rail, no scrubber under an unbuilt world (nothing to replay), and a
    deep band kept clear at the top for the one thing that asks anything of the
    reader, which stands on the world rather than in the rail. */
 const PAD_UNBUILT_DESKTOP = { l: 344, r: 18, t: 176, b: 40 };
@@ -51,7 +51,7 @@ interface WorldViewProps {
 /**
  * The page's whole client half: one WebGL world, one overlay reading its state.
  *
- * The engine is created once on mount and torn down on unmount — it holds a
+ * The engine is created once on mount and torn down on unmount: it holds a
  * WebGL context, and browsers cap those low enough that leaking one is a page
  * that silently stops rendering the third time you visit it.
  */
@@ -69,7 +69,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
 
   /* The app keeps a permanent scrollbar gutter on the body so feeds don't jump
      when they grow. Nothing on this page scrolls, and a fixed layer is laid out
-     inside that gutter — so the gutter reads as a dead strip down the right of
+     inside that gutter, so the gutter reads as a dead strip down the right of
      the world. The shared `hidden-scrollbar` class is no help: it pads the body
      and the fixed layers back out by the same width on purpose. */
   useEffect(() => {
@@ -95,12 +95,12 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     };
   }, []);
 
-  // Districts alone put a finished world on screen — the layout packs islands by
+  // Districts alone put a finished world on screen: the layout packs islands by
   // lifetime totals, and those are on the small query. So nothing waits for the
   // growth log.
   //
   // Once per reader, and no more. These queries refetch on window focus, and a
-  // reload tears the world down and builds it again — camera reframed, the day
+  // reload tears the world down and builds it again: camera reframed, the day
   // back at the end, the realm you had walked into closed. Coming back to the
   // tab is not a reason to take somebody's place away from them.
   //
@@ -117,8 +117,8 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     }
     /* Nothing read is still a place: a reader with no districts gets their six
        realms as bare ground rather than a sentence on a black screen. It is
-       raised through the same path a real world is, so everything below here —
-       the camera, the chrome, the failure case — is unaware of the difference. */
+       raised through the same path a real world is, so everything below here
+       (the camera, the chrome, the failure case) is unaware of the difference. */
     const hasDistricts = !!districts?.length;
     if (!hasDistricts && !isEmpty) {
       return;
@@ -126,12 +126,16 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     setRaisedFor(user.id);
     setHasNoReplay(false);
 
+    /* Building the model throws; raising the world rejects. Both have to land
+       in `failed`, or the boot bar sweeps forever over a world that died. */
     try {
-      engine.load(
-        hasDistricts
-          ? buildWorld(user.id, districts, [])
-          : buildUnbuiltWorld(user.id),
-      );
+      engine
+        .load(
+          hasDistricts
+            ? buildWorld(user.id, districts, [])
+            : buildUnbuiltWorld(user.id),
+        )
+        .catch((bootError: Error) => setFailed(bootError.message));
     } catch (buildError) {
       setFailed((buildError as Error).message);
     }
@@ -141,7 +145,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   // day it is folded in on carries the same lifetime totals the world was
   // raised on, so there is nothing to rebuild and nothing to watch happen.
   //
-  // `hasNoReplay` is only ever set when the log turns out to hold no replay —
+  // `hasNoReplay` is only ever set when the log turns out to hold no replay,
   // never on the way to one. The timeline bar reads it, and the two facts that
   // keep it on screen (a log still on the wire, and a world that says it is
   // replayable) are separated by the render this effect runs after. Flipping a
@@ -216,18 +220,21 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     [],
   );
 
-  const message = failed ?? error?.message;
+  /* Kept as the reason rather than as a boolean so it still reads in a stack
+     trace and in the devtools, and never as copy: what a reader is told is
+     `WorldStatus`'s own line. */
+  const failure = failed ?? error?.message;
   // `raisedFor` is the third term for the same reason it is state: until the
   // engine has been handed THIS reader, `state` is somebody else's world.
   const isBooting =
     state.status === 'loading' || isPending || raisedFor !== user.id;
-  // Riding hides everything that reads the world from outside it — a panel
+  // Riding hides everything that reads the world from outside it: a panel
   // anchored to a plot means nothing from the shoulder of a bird.
   const isRiding = !!state.riding;
-  const isStanding = !isBooting && !message;
+  const isStanding = !isBooting && !failure;
   /* Bare ground is a world, and it keeps the whole shell: same rail, same
-     header, same identity block. What the shell says changes — every counter is
-     a zero and the realms are listed as ground to raise — and the scrubber is
+     header, same identity block. What the shell says changes (every counter is
+     a zero and the realms are listed as ground to raise), and the scrubber is
      gone, because a world with no reading in it has no history to walk. */
   const isUnbuilt = isStanding && isEmpty;
   const isChromeVisible = isStanding && !isRiding && !isImmersive;
@@ -285,12 +292,12 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       {isUnbuilt && !isRiding && <WorldInvite user={user} />}
 
       {/* The mark rides in the mobile bar, which is where the space already is.
-          Everywhere else — laptop, riding, panels hidden — that bar is gone, so
+          Everywhere else (laptop, riding, panels hidden) that bar is gone, so
           it stands on the world instead. */}
       {isStanding && (isLaptop || !isChromeVisible) && <WorldMark floating />}
 
       {/* The toggle lives in whatever chrome is on screen. Once none is, it
-          stands on the world too — opposite the mark, because it is then the
+          stands on the world too, opposite the mark, because it is then the
           only way back to the panels. */}
       {isStanding && !isChromeVisible && !isRiding && (
         <WorldImmersiveToggle
@@ -301,12 +308,12 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       )}
 
       {!isStanding &&
-        (message ? (
-          <WorldStatus user={user} message={message} />
+        (failure ? (
+          <WorldStatus user={user} />
         ) : (
           /* Determinate only once the engine is raising something. Before that
              the wait is a chunk download and a query, neither of which can be
-             measured — so the same bar sweeps instead of lying about a number. */
+             measured, so the same bar sweeps instead of lying about a number. */
           <WorldBoot
             user={user}
             progress={state.progress > 0 ? state.progress : undefined}

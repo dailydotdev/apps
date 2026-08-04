@@ -43,7 +43,7 @@ export const USER_WORLD_QUERY = gql`
 /**
  * Separate from the districts query on purpose: a long-tenured world runs to
  * tens of thousands of rows here and to at most forty there, so the world can
- * be standing while its history is still on the wire. Only `slug` is selected —
+ * be standing while its history is still on the wire. Only `slug` is selected:
  * the renderer keys districts by slug, and every other field would be the same
  * forty values repeated across every row of the log.
  */

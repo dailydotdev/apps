@@ -21,7 +21,7 @@ const gradientStyle: React.CSSProperties = {
 /*
  * Reaching into the auth form, because the prop that would do this politely
  * (`className.onboardingSignup`) is declared on OnboardingRegistrationForm and
- * never read — and wiring it up would move three other surfaces that pass it
+ * never read, and wiring it up would move three other surfaces that pass it
  * today expecting nothing to happen.
  *
  * `overflow-visible` is the one that matters: the form's own `overflow-y-auto`
@@ -38,7 +38,7 @@ interface SignupWidgetProps {
   trigger: AuthTriggersType;
   /**
    * For a column that is already full. Drops the card chrome and takes the
-   * heading and the provider buttons down a size — enough to fit under a
+   * heading and the provider buttons down a size, enough to fit under a
    * ranking without putting the rail into a scroll. The legal strip stays.
    */
   dense?: boolean;
@@ -47,7 +47,7 @@ interface SignupWidgetProps {
 
 /**
  * A signup card that does the signing up: the real social buttons, in place,
- * rather than a button that opens the modal. Fluid — it has been asked to hold
+ * rather than a button that opens the modal. Fluid: it has been asked to hold
  * a 340px post sidebar and a 320px one, and the provider buttons shrink to fit.
  *
  * Copy is the caller's, because the argument for making an account is only ever

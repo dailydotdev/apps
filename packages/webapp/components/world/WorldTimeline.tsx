@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { format, parseISO } from 'date-fns';
 import {
   Button,
   ButtonGroup,
@@ -17,8 +18,15 @@ import { worldCounts } from './worldState';
 
 const SPEEDS = [1, 4, 16];
 
+/* The engine speaks in calendar days ("2024-03-17"), which is the right key for
+   a growth log and the wrong thing to put on a screen. Parsed rather than fed to
+   `new Date`, which reads a bare date as UTC midnight and shows the day before
+   it west of Greenwich. */
+const asDate = (day?: string): string =>
+  day ? format(parseISO(day), 'd MMM yyyy') : '-';
+
 /* The transport glyphs are text rather than icons, so the button has to be
-   squared off by hand — the icon-only sizing never kicks in for a label. */
+   squared off by hand: the icon-only sizing never kicks in for a label. */
 const Transport = ({
   label,
   active,
@@ -64,7 +72,7 @@ interface WorldTimelineProps {
 
 /**
  * The growth log, replayed. Districts are founded, land rises and levels tick
- * over as it runs — and because the log is append-only and the layout is
+ * over as it runs, and because the log is append-only and the layout is
  * absolute, it can only ever ADD. Nothing moves and nothing shrinks.
  *
  * The sparkline is a canvas the engine paints: one bar per day, coloured by the
@@ -82,7 +90,7 @@ export function WorldTimeline({
 }: WorldTimelineProps): ReactElement {
   const max = Math.max(1, (state.totalDays ?? 1) - 1);
   /* Pinned to today while the log is on the wire, which is where the world it
-     is sitting over is standing — a marker parked at the left edge would read
+     is sitting over is standing: a marker parked at the left edge would read
      as a replay rewound to the beginning. */
   const at = pending ? 1 : Math.min(state.day ?? 0, max) / max;
 
@@ -100,7 +108,7 @@ export function WorldTimeline({
           ⏮
         </Transport>
         <Transport
-          label="Replay"
+          label={state.playing ? 'Pause' : 'Replay'}
           active={state.playing}
           disabled={pending}
           onClick={onToggle}
@@ -116,7 +124,7 @@ export function WorldTimeline({
             bold
             className="tabular-nums"
           >
-            {state.date ?? '—'}
+            {asDate(state.date)}
           </Typography>
           {/* Below laptop this line is already the whole of the header bar, and
               repeating it here is what pushed the speed buttons off the edge. */}
@@ -160,6 +168,9 @@ export function WorldTimeline({
         <input
           type="range"
           aria-label="Day"
+          // Without this the slider announces its index ("247 of 903"), which
+          // is the one thing about the day nobody wants to know.
+          aria-valuetext={asDate(state.date)}
           min={0}
           max={max}
           step={1}
@@ -178,13 +189,13 @@ export function WorldTimeline({
           type={TypographyType.Caption1}
           color={TypographyColor.Quaternary}
         >
-          {state.from ?? '—'}
+          {asDate(state.from)}
         </Typography>
         <Typography
           type={TypographyType.Caption1}
           color={TypographyColor.Quaternary}
         >
-          {state.to ?? '—'}
+          {asDate(state.to)}
         </Typography>
       </div>
     </div>

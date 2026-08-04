@@ -13,7 +13,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 
 /**
- * The frame every screen that stands in for the world shares — booting, empty,
+ * The frame every screen that stands in for the world shares: booting, empty,
  * failed. It is deliberately one layout: a cold load moves through two of these
  * (the renderer is still on the wire, then the land is being raised) and a
  * reader should see the same screen filling in rather than two screens.
@@ -41,7 +41,7 @@ export function WorldStage({
 }
 
 /**
- * Whose world this is. Both slots keep their size before the profile is known —
+ * Whose world this is. Both slots keep their size before the profile is known:
  * the first frame of a statically generated page has no user on it, and an
  * avatar that appears out of nothing would move everything under it.
  */
@@ -90,7 +90,7 @@ export function WorldBoot({
       <div className="flex w-56 max-w-full flex-col items-center gap-3">
         <div className="h-1 w-full overflow-hidden rounded-max bg-surface-float">
           {/* Nothing can measure a chunk download, so that phase sweeps rather
-              than fills — same bar, same place, no second loading screen. */}
+              than fills: same bar, same place, no second loading screen. */}
           {progress === undefined ? (
             <i className="block h-full w-1/3 animate-meter-shine rounded-max bg-text-primary" />
           ) : (
@@ -114,7 +114,7 @@ export function WorldBoot({
 /**
  * Whose world the renderer is being downloaded for. `next/dynamic` renders its
  * `loading` element in place of the component, so a provider around the view
- * reaches it — which is the only way that screen gets to say a name, and the
+ * reaches it, which is the only way that screen gets to say a name, and the
  * difference between a skeleton and the right face from the first frame.
  */
 export const WorldUserContext = createContext<PublicProfile | undefined>(

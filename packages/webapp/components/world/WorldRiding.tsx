@@ -18,7 +18,7 @@ const Key = ({ children }: { children: React.ReactNode }) => (
  * You are on a bird.
  *
  * Everything that reads the world from outside it is hidden while you are
- * inside it, so this is the only chrome left — and it has to carry the one key
+ * inside it, so this is the only chrome left, and it has to carry the one key
  * that gets you off, because nothing else on screen says how to leave.
  */
 export function WorldRiding({ state }: { state: WorldState }): ReactElement {
@@ -45,14 +45,15 @@ export function WorldRiding({ state }: { state: WorldState }): ReactElement {
               <Key>W</Key>
               <Key>S</Key> forward/back · <Key>A</Key>
               <Key>D</Key> turn · <Key>space</Key>
-              <Key>shift</Key> up/down · mouse looks · <Key>esc</Key> let go
+              <Key>shift</Key> up/down · move the mouse to look · <Key>esc</Key>{' '}
+              to get off
             </>
           ) : (
             <>
               move the mouse to look · <Key>W</Key>
               <Key>A</Key>
               <Key>S</Key>
-              <Key>D</Key> take the controls · <Key>esc</Key> let go
+              <Key>D</Key> take the controls · <Key>esc</Key> to get off
             </>
           )}
         </Typography>

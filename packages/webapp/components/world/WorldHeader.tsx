@@ -50,8 +50,8 @@ interface WorldHeaderProps {
 }
 
 /**
- * Below laptop the rail is gone — a world this size needs the screen more than
- * it needs a sidebar — so identity, the counters and the way out collapse into
+ * Below laptop the rail is gone (a world this size needs the screen more than
+ * it needs a sidebar), so identity, the counters and the way out collapse into
  * one bar. The ranking does not come with them: it is a thing you read, and
  * there is nowhere to read it that is not on top of the map.
  */

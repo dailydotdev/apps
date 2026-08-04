@@ -22,6 +22,7 @@ import {
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
+import { pluralize } from '@dailydotdev/shared/src/lib/strings';
 import {
   Typography,
   TypographyColor,
@@ -36,18 +37,21 @@ import type { WorldState } from './worldState';
 
 const STAT_INFO: [string, string][] = [
   ['Articles', 'every article read on daily.dev'],
-  ['Districts', 'one per niche read at least once'],
+  ['Districts', 'one per topic read at least once'],
   ['Realms', 'districts that share a subject'],
-  ['Span', 'first article read to last'],
+  ['Active', 'first article read to last'],
+  ['L1-L12', 'how built up a district is'],
 ];
 
-/* One icon for the four of them. A rail this narrow cannot carry an info button
-   per number — and read together the four definitions explain the world, which
-   one at a time they do not. */
+/* One icon for all of them. A rail this narrow cannot carry an info button per
+   number, and read together the definitions explain the world, which one at a
+   time they do not. The level badge is in here rather than beside the rows for
+   the same reason: it is a number in a list of numbers, and the one place a
+   reader looks for what a number means is the one info icon on the panel. */
 const StatsLegend = () => (
   <Tooltip
-    // Four definitions do not fit the default 18rem, and the content row is a
-    // centred flex: without these the list is squeezed and mid-aligned.
+    // The list does not fit the default 18rem, and the content row is a
+    // centred flex: without these it is squeezed and mid-aligned.
     className="!max-w-[21rem] items-start whitespace-normal"
     content={
       <ul className="flex min-w-0 flex-col gap-1">
@@ -93,7 +97,7 @@ const Stat = ({ label, value }: { label: string; value: string }) => (
 
 /**
  * Memoised on purpose. The engine pushes a new state object every frame while
- * the replay runs, and none of this reads it — without the boundary the whole
+ * the replay runs, and none of this reads it. Without the boundary the whole
  * identity block, the follow query and the signup card reconcile sixty times a
  * second behind numbers that are the only thing actually changing.
  */
@@ -107,7 +111,7 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
   onToggleImmersive: () => void;
 }): ReactElement {
   /* A profile carries everything a comment author does, but types its handle as
-     optional — and the comment components do not. One that has no handle has no
+     optional, and the comment components do not. One that has no handle has no
      profile page to link to either, so an empty one is the honest fallback. */
   const author: Author = {
     id: user.id,
@@ -138,8 +142,8 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
           onToggleImmersive={onToggleImmersive}
         />
       </div>
-      {/* The same block a comment puts its author in — avatar, name, handle,
-          and the user card on hover — so a reader meets a person the same way
+      {/* The same block a comment puts its author in (avatar, name, handle,
+          and the user card on hover), so a reader meets a person the same way
           wherever they meet them. */}
       <div className="flex w-full flex-row">
         <ProfileTooltip userId={author.id}>
@@ -186,7 +190,7 @@ interface WorldPanelProps {
 
 /**
  * The lab's left rail: who this world belongs to and what is in it. Every
- * number here is a fact the engine pushed — the panel does no counting of its
+ * number here is a fact the engine pushed: the panel does no counting of its
  * own, because the engine is counting the day the scrubber is standing on and
  * the panel is not.
  */
@@ -216,22 +220,22 @@ export function WorldPanel({
       />
 
       {/* Four across, on one line. DataTile is the right component for a stats
-          page and the wrong one for a rail this narrow — its card and its own
+          page and the wrong one for a rail this narrow: its card and its own
           info icon are together taller than these four numbers need to be. */}
       <div className="flex items-center gap-2 border-y border-border-subtlest-tertiary py-3">
         <Stat
-          label={state.articles === 1 ? 'Article' : 'Articles'}
+          label={pluralize('Article', state.articles ?? 0)}
           value={formatDataTileValue(state.articles ?? 0)}
         />
         <Stat
-          label={state.districts === 1 ? 'District' : 'Districts'}
+          label={pluralize('District', state.districts ?? 0)}
           value={formatDataTileValue(state.districts ?? 0)}
         />
         <Stat
-          label={state.realms === 1 ? 'Realm' : 'Realms'}
+          label={pluralize('Realm', state.realms ?? 0)}
           value={formatDataTileValue(state.realms ?? 0)}
         />
-        <Stat label="Span" value={state.span ?? '—'} />
+        <Stat label="Active" value={state.span ?? '-'} />
         <StatsLegend />
       </div>
 
@@ -335,7 +339,7 @@ export function WorldPanel({
 
       {/* Last, and only for a reader with no account: the ranking is what they
           came for, and the pitch reads better under a world they have already
-          spent a minute in than over the top of it. Not on unbuilt ground —
+          spent a minute in than over the top of it. Not on unbuilt ground:
           there the one ask stands on the world itself (`WorldInvite`), and this
           would be the same pitch made twice on one screen. */}
       {!unbuilt && <WorldPanelSignup />}

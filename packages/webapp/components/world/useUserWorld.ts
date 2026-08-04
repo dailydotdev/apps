@@ -31,7 +31,7 @@ export interface UserWorldResult {
  * Two queries, not one, and only the small one is waited for.
  *
  * The districts are at most forty rows and they are everything the world needs
- * to stand up — the layout packs islands by lifetime totals, and those are on
+ * to stand up: the layout packs islands by lifetime totals, and those are on
  * this query. The growth log is the same world's whole history, tens of
  * thousands of rows on a four-year reader, and it is only ever needed to REPLAY
  * the place. So the world is raised off the districts and the log is folded in

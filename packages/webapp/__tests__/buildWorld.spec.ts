@@ -139,7 +139,7 @@ describe('buildWorld', () => {
 
   it('reports the lifetime span off the districts, with or without a log', () => {
     // The span is on screen before the growth log lands, so it cannot be read
-    // off the day axis — the first build has one synthetic day on it.
+    // off the day axis: the first build has one synthetic day on it.
     const districts = [
       district('js_ts', 5, '2024-01-01', '2024-03-01'),
       district('rust', 2, '2024-02-01', '2024-05-05'),

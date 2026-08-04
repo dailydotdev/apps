@@ -75,7 +75,7 @@ const ProfileWorldPage = ({
     user,
     {
       ...getPageSeoTitles(`${user.name}'s world (@${user.username})`),
-      description: `The world ${user.name}'s reading built on daily.dev — every content niche they read is a district that grows the more they read it.`,
+      description: `See the world ${user.name}'s reading built on daily.dev. Every topic they read grows a district in it.`,
     },
     noindex,
   );

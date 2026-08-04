@@ -35,11 +35,18 @@ export const WORLD_CSS = `
 .world-root .lb .box{display:inline-block;padding:5px 11px 6px;border-radius:9px;
   background:rgba(10,13,19,.8);border:1px solid rgba(168,179,206,.22);
   box-shadow:0 8px 26px rgba(0,0,0,.5)}
-.world-root .lb .nm{font-size:11.5px;font-weight:800;letter-spacing:.15em;color:#fff;
+/* Names are written the way a person writes them ("AI infra", "iOS") and the
+   plates say them that way too: the rail and the map are looking at the same
+   forty districts, and a district that is "iOS" in the list and "IOS" on the
+   ground is two names for one place.
+   The tracking comes down with the caps. Wide letter-spacing is a device for
+   setting all-caps signage, and on mixed case at this size it reads as gaps
+   between letters rather than as weight. */
+.world-root .lb .nm{font-size:12px;font-weight:800;letter-spacing:.04em;color:#fff;
   white-space:nowrap;line-height:1.25}
-.world-root .lb .mt{font-size:9.5px;letter-spacing:.1em;font-weight:600;color:#D7DDE9;
+.world-root .lb .mt{font-size:9.5px;letter-spacing:.04em;font-weight:600;color:#D7DDE9;
   white-space:nowrap;margin-top:2px}
-.world-root .lb .sb{font-size:8.5px;letter-spacing:.18em;font-weight:700;margin-top:3px;
+.world-root .lb .sb{font-size:8.5px;letter-spacing:.06em;font-weight:700;margin-top:3px;
   white-space:nowrap;opacity:.9}
 .world-root .lb .stem,.world-root .lb .pin{display:none}
 /* Tier 1 is a bare name over the world — no plate, nothing hidden behind it. */
@@ -50,7 +57,7 @@ export const WORLD_CSS = `
 /* A realm label is the same thing, one size up, and always says what it is
    about — "SHIPYARDS" alone does not tell a first-time visitor that this is
    where their cloud and ops reading lives. */
-.world-root .rl .nm{font-size:14px;letter-spacing:.22em}
+.world-root .rl .nm{font-size:15px;letter-spacing:.02em}
 .world-root .rl .sb{margin-top:3px}
 .world-root .rl .mt{font-size:10.5px;margin-top:4px;color:#F5F6FA}
 .world-root .rl.t2 .sb,.world-root .rl.t1 .sb{display:block;color:currentColor}
@@ -60,10 +67,10 @@ export const WORLD_CSS = `
    is worse than no label. */
 @media (max-width: 700px){
   .world-root .lb .box{padding:4px 8px 5px;border-radius:8px}
-  .world-root .lb .nm{font-size:10px;letter-spacing:.12em}
+  .world-root .lb .nm{font-size:10.5px;letter-spacing:.03em}
   .world-root .lb .mt{font-size:8.5px}
-  .world-root .lb .sb{font-size:7.5px;letter-spacing:.14em}
-  .world-root .rl .nm{font-size:11px;letter-spacing:.16em}
+  .world-root .lb .sb{font-size:7.5px;letter-spacing:.05em}
+  .world-root .rl .nm{font-size:12px;letter-spacing:.02em}
   .world-root .rl .mt{font-size:9px}
 }
 

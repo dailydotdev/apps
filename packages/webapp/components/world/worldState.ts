@@ -1,10 +1,11 @@
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
+import { pluralize } from '@dailydotdev/shared/src/lib/strings';
 
 /**
  * What the engine pushes at the overlay.
  *
  * The renderer owns the world and the day it is standing on, so every number
- * here is derived inside it and none of it is recomputed in React — a panel
+ * here is derived inside it and none of it is recomputed in React: a panel
  * that counted its own districts would disagree with the map the moment the
  * scrubber moved.
  */
@@ -37,7 +38,7 @@ export interface WorldState {
   speed: number;
   day: number;
   totalDays: number;
-  /** False when there is no growth log to walk — one frame is not a replay. */
+  /** False when there is no growth log to walk: one frame is not a replay. */
   replayable?: boolean;
   date?: string;
   from?: string;
@@ -63,19 +64,24 @@ export interface WorldModel {
 
 /**
  * The counter line, shared by the mobile header and the timeline so the two
- * never drift — and formatted the same way the stat tiles are, because 22,479
+ * never drift, and formatted the same way the stat tiles are, because 22,479
  * next to a tile reading 22.5K looks like two different numbers.
  */
 export const worldCounts = (state: WorldState): string => {
+  const count = (value: number, word: string) =>
+    `${formatDataTileValue(value)} ${pluralize(word, value)}`;
+
   if (state.open) {
-    return `${state.open.districts} districts · ${formatDataTileValue(
+    return `${count(state.open.districts, 'district')} · ${count(
       state.open.articles,
-    )} articles`;
+      'article',
+    )}`;
   }
 
-  return `${state.realms ?? 0} realms · ${
-    state.districts ?? 0
-  } districts · ${formatDataTileValue(state.articles ?? 0)} articles`;
+  return `${count(state.realms ?? 0, 'realm')} · ${count(
+    state.districts ?? 0,
+    'district',
+  )} · ${count(state.articles ?? 0, 'article')}`;
 };
 
 export interface WorldEngine {
