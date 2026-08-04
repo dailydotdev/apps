@@ -239,10 +239,20 @@ export function SmartComposerModal({
     if (cover) {
       return true;
     }
-    if (text.title.trim() || text.body.trim()) {
+    // Dirty means diverged from what the composer was seeded with, not merely
+    // non-empty — share-to-squad and deep links pre-fill the URL and text.
+    const isChanged = (value: string, initial: string | undefined) =>
+      value.trim() !== (initial ?? '').trim();
+    if (
+      isChanged(text.title, initialTitle) ||
+      isChanged(text.body, initialContent)
+    ) {
       return true;
     }
-    if (link.url.trim() || link.commentary.trim()) {
+    if (
+      isChanged(link.url, initialUrl) ||
+      isChanged(link.commentary, initialCommentary)
+    ) {
       return true;
     }
     if (poll.question.trim() || poll.options.some((option) => option.trim())) {
@@ -261,6 +271,10 @@ export function SmartComposerModal({
     editPost,
     editShare,
     editShareCommentary,
+    initialTitle,
+    initialContent,
+    initialUrl,
+    initialCommentary,
   ]);
 
   const confirmDiscardIfDirty = useCallback(async () => {

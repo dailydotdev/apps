@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -313,6 +313,45 @@ describe('SmartComposerModal', () => {
 
       expect(onPosted).toHaveBeenCalledTimes(1);
       expect(onRequestClose).toHaveBeenCalledTimes(1);
+    });
+
+    it('closes an untouched seeded composer without the discard prompt', async () => {
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          initialUrl={postPreview.permalink}
+          preview={postPreview}
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'Close composer' }));
+
+      await waitFor(() => expect(onRequestClose).toHaveBeenCalledTimes(1));
+      expect(showPrompt).not.toHaveBeenCalled();
+    });
+
+    it('still prompts once the commentary diverges from the seed', async () => {
+      showPrompt.mockResolvedValue(false);
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          initialUrl={postPreview.permalink}
+          preview={postPreview}
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      fireEvent.change(
+        screen.getByRole('textbox', { name: 'Post commentary' }),
+        {
+          target: { value: 'my take' },
+        },
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Close composer' }));
+
+      await waitFor(() => expect(showPrompt).toHaveBeenCalledTimes(1));
+      expect(onRequestClose).not.toHaveBeenCalled();
     });
 
     it('opens on the link kind with the post seeded, ready to submit', () => {
