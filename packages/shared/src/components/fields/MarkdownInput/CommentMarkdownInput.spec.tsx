@@ -183,4 +183,25 @@ describe('CommentMarkdownInput', () => {
     const [{ className }] = mockRichTextProps.mock.calls.at(-1);
     expect(className.container).not.toContain('border');
   });
+
+  it('sits on one 20px frame on every side in the drawer', () => {
+    // The action bar already carries 20px. Inline, the header and avatar hug
+    // the comment list's 16px guideline; in the drawer there is no list to
+    // line up with, and the mismatch read as unequal padding.
+    setViewportHeight(800);
+    renderComposer({ fills: true });
+
+    const [{ header, className }] = mockRichTextProps.mock.calls.at(-1);
+    expect(header.props.className).toContain('px-5 pt-5');
+    expect(className.profile).toContain('!ml-5');
+  });
+
+  it('keeps the comment list guideline when rendered inline', () => {
+    setViewportHeight(800);
+    renderComposer();
+
+    const [{ header, className }] = mockRichTextProps.mock.calls.at(-1);
+    expect(header.props.className).toContain('px-4 pt-2');
+    expect(className.profile).toBeUndefined();
+  });
 });

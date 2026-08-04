@@ -195,6 +195,10 @@ export function CommentMarkdownInputComponent(
               ? '!rounded-none !bg-transparent'
               : 'border border-border-subtlest-tertiary',
           ),
+          // Inline, the avatar sits on the comment list's guideline. In the
+          // drawer there is no list to line up with, so it joins the 20px
+          // frame the action bar and create-post composer already use.
+          profile: fills ? '!ml-5' : undefined,
         }}
         postId={postId}
         sourceId={sourceId}
@@ -220,7 +224,12 @@ export function CommentMarkdownInputComponent(
         hideMarkdownToggle
         onMarkdownModeChange={setIsMarkdownMode}
         header={
-          <div className="flex shrink-0 flex-row items-center gap-2 px-4 pt-2">
+          <div
+            className={classNames(
+              'flex shrink-0 flex-row items-center gap-2',
+              fills ? 'px-5 pt-5' : 'px-4 pt-2',
+            )}
+          >
             {headerLabel && (
               <Typography
                 tag={TypographyTag.Span}
