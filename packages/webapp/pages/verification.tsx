@@ -5,6 +5,7 @@ import EmailCodeVerification from '@dailydotdev/shared/src/components/auth/Email
 import { useRouter } from 'next/router';
 import AuthHeader from '@dailydotdev/shared/src/components/auth/AuthHeader';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
+import { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
 import { AuthDataProvider } from '@dailydotdev/shared/src/contexts/AuthDataContext';
 import { AuthModalText } from '@dailydotdev/shared/src/components/auth/common';
 import {
@@ -13,6 +14,7 @@ import {
 } from '@dailydotdev/shared/src/lib/betterAuth';
 import {
   Button,
+  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { noindexSeoProps } from '../next-seo';
@@ -52,19 +54,35 @@ const Verification = (): ReactElement | null => {
 
   return (
     <AuthDataProvider initialEmail={email}>
-      <div className="flex min-h-screen w-full flex-col items-center px-4 py-10">
-        <HeaderLogo onLogoClick={() => router.push('/')} />
-        <div className="mt-10 w-full max-w-[30rem]">
-          {/* Pinned: opening the keyboard makes WebKit scroll the focused code
-              row toward the centre of the shrunken viewport, which would drag
-              the heading off the top. The offset rides above the native
-              shell's status-bar inset plus the sliver WebKit still pans
-              visually. */}
-          <div className="sticky top-[calc(var(--safe-area-top,0px)+1.25rem)] z-1 bg-background-default pb-2">
-            <AuthHeader title="Verify your email" simplified />
+      <div className="flex min-h-screen w-full flex-col items-center pb-10">
+        <div className="w-full max-w-[30rem] px-4">
+          {/* The padding keeps the header clear of the status bar (native
+              shell) and the collapsed browser chrome; EmailCodeVerification
+              undoes the keyboard reveal scroll so it stays in view. */}
+          <div className="flex flex-col gap-6 pb-2 pt-[max(var(--safe-area-top,0px),3rem)]">
+            <div className="flex w-full items-center justify-between">
+              <HeaderLogo
+                position={LogoPosition.Relative}
+                onLogoClick={() => router.push('/')}
+              />
+              <Button
+                type="button"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                onClick={() => router.push('/')}
+              >
+                Start over
+              </Button>
+            </div>
+            <AuthHeader
+              title="Verify your email"
+              simplified
+              onboardingHeadline
+            />
           </div>
           <EmailCodeVerification
             code={code}
+            isOnboardingFunnel
             className="mx-auto max-w-[30rem]"
             onSubmit={() => router.push('/')}
             onVerifyCode={async (verificationCode) => {

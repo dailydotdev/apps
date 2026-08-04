@@ -3,7 +3,6 @@ import React, { useRef, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
-import ConditionalWrapper from '../ConditionalWrapper';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { Tab, TabContainer } from '../tabs/TabContainer';
 import type { RegistrationFormValues } from './RegistrationForm';
@@ -929,25 +928,13 @@ function AuthOptionsInner({
           />
         </Tab>
         <Tab label={AuthDisplay.EmailVerification}>
-          {/* Pinned on the funnel: opening the keyboard makes WebKit scroll
-              the focused code row toward the centre of the shrunken viewport,
-              which would drag the heading off the top. */}
-          <ConditionalWrapper
-            condition={isOnboardingFunnel}
-            wrapper={(component) => (
-              <div className="sticky top-[calc(var(--safe-area-top,0px)+1.25rem)] z-1 bg-background-default pb-2">
-                {component}
-              </div>
-            )}
-          >
-            <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
-            <AuthHeader
-              simplified={simplified}
-              onboardingHeadline={isOnboardingFunnel}
-              title="Verify your email"
-              onBack={() => onSetActiveDisplay(emailVerificationReturn)}
-            />
-          </ConditionalWrapper>
+          <MailIcon size={IconSize.XXLarge} className="mx-auto mb-2" />
+          <AuthHeader
+            simplified={simplified}
+            onboardingHeadline={isOnboardingFunnel}
+            title="Verify your email"
+            onBack={() => onSetActiveDisplay(emailVerificationReturn)}
+          />
           <EmailCodeVerification
             isOnboardingFunnel={isOnboardingFunnel}
             onSubmit={onProfileSuccess}
