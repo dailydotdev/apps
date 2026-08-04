@@ -445,6 +445,9 @@ importers:
       '@tiptap/starter-kit':
         specifier: ^3.22.5
         version: 3.22.5
+      '@zumer/snapdom':
+        specifier: ^2.23.1
+        version: 2.23.1
       check-password-strength:
         specifier: ^2.0.10
         version: 2.0.10
@@ -4829,6 +4832,9 @@ packages:
 
   '@xtuc/long@4.2.2':
     resolution: {integrity: sha512-NuHqBY1PB/D8xU6s/thBgOAiAP7HOYDQ32+BFZILJ8ivkUkAHQnWfn6WhL79Owj1qmUnoN/YPhktdIoucipkAQ==}
+
+  '@zumer/snapdom@2.23.1':
+    resolution: {integrity: sha512-r+6LRFXIpzTxlvGBjTr7mhvVW05TozgyE1QFmvO1hbchdbl4Km5/7DIkeyl2+nEVbz8Sp6/K2g4b86pXhCrFIQ==}
 
   abab@2.0.6:
     resolution: {integrity: sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==}
@@ -14250,6 +14256,8 @@ snapshots:
   '@xtuc/ieee754@1.2.0': {}
 
   '@xtuc/long@4.2.2': {}
+
+  '@zumer/snapdom@2.23.1': {}
 
   abab@2.0.6: {}
 
