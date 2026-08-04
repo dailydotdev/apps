@@ -1,15 +1,8 @@
-/* ================================================================== the look
-   The film a world is photographed through: six graded presets and the seven
-   knobs that fork one into a look of your own.
-
-   Its own module for the same reason the crest is: the renderer pushes these
-   numbers into the grade, outline and bloom passes, and the bench in the panel
-   has to list the presets, their swatches and their ranges. Verbatim from
-   devcraft `world-lab.html`, with `fx` carried as booleans rather than 1/0 —
-   that is the shape the API stores and the shape that travels.
-
-   A look is a property of the WORLD rather than of whoever is looking at it:
-   the grade its owner picks is the grade every visitor sees it through. */
+/* Six graded presets and the seven knobs that fork one, verbatim from devcraft
+   `world-lab.html` (`fx` as booleans, the shape the API stores). Its own module
+   so both the renderer's passes and the panel's bench list the same table.
+   A look is a property of the world, not the viewer: the owner's grade is what
+   every visitor sees it through. */
 
 export const LOOK_DEFS=[
   {id:'diorama', n:'DIORAMA', sw:[0x272A32,0xF5F6FA],
@@ -44,9 +37,7 @@ export const LOOK_DEFS=[
    duoA:0x1E2229, duoB:0xBAC4DA, ink:0x0F1218, ol:0.30, bl:1.25},
 ];
 
-/* Seven knobs, and the list is short on purpose: every one of them changes the
-   whole frame at a glance. A slider whose effect has to be hunted for is a
-   slider that teaches somebody their taste does not matter. */
+/* Kept to seven on purpose: each one should change the whole frame at a glance. */
 export const LOOK_KNOBS=[
   {k:'ol',    n:'Outline', min:0,    max:1,    step:0.02},
   {k:'bl',    n:'Glow',    min:0,    max:2.6,  step:0.05},
@@ -72,13 +63,9 @@ export const fmtKnob=(k,v)=>k==='grain'?v.toFixed(3).slice(1)
  * A look as it is stored: every knob, both duotone inks, the ink colour and the
  * three passes, plus which preset it was forked from.
  *
- * `name` is stored empty and stays that way. A look of your own is what the
- * knobs are set to, not a thing you have to christen before you may keep it —
- * the field exists because the API's schema has one, and clicking a preset is
- * how you leave a fork rather than a second, named object to manage.
- *
- * `base` records which preset a fork started from. Nothing reads it yet; it is
- * stored because it is the fact you cannot recover afterwards.
+ * `name` stays empty — a look of your own is just the knobs, never a thing to
+ * christen. `base` records which preset a fork started from; nothing reads it
+ * yet, but it can't be recovered afterwards.
  */
 export const lookFromPreset=id=>{
   const src=lookPreset(id);
@@ -93,8 +80,7 @@ export const lookFromPreset=id=>{
 
 export const DEFAULT_LOOK_ID=LOOK_DEFS[0].id;
 
-/* The fork. Any knob turns the preset into a look of your own — it is not a
-   mode you enter, it is what happens the moment you disagree with one. */
+/* Any knob turns the preset into a look of your own; not a mode you enter. */
 export const forkLook=(look,patch)=>({
   ...look, ...patch,
   ...(look.mine?null:{id:LOOK_FORKED_ID, base:look.id, mine:true}),

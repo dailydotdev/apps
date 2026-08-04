@@ -116,10 +116,6 @@ export function WorldHeader({
           nativeLazyLoading
         />
         <div className="flex min-w-0 flex-1 flex-col">
-          {/* The world's name when it has one, and the reader's when it does
-              not: the avatar beside this and the profile link under it already
-              say whose place it is, so the line is free to say what the place
-              is called. */}
           <Typography type={TypographyType.Footnote} bold truncate>
             {state.open ? state.open.name : worldName || user.name}
           </Typography>

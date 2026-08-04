@@ -197,9 +197,7 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
           )}
         </div>
       </div>
-      {/* Only once it has one. An unnamed world shows nothing here rather than
-          the suggestion it would be given — the suggestion belongs in the
-          bench's placeholder, where disagreeing with it is the point. */}
+      {/* An unnamed world shows nothing here — the suggestion belongs in the bench's placeholder, not this heading. */}
       {!!worldName && (
         <Typography
           tag={TypographyTag.H1}
@@ -259,9 +257,7 @@ export function WorldPanel({
 }: WorldPanelProps): ReactElement {
   const { open, rank = [] } = state;
 
-  /* The bench takes the rail rather than opening beside it. There is one column
-     on this page and the world needs the rest of the screen, so what is in the
-     column changes and nothing moves. */
+  /* Bench replaces the rail's contents rather than opening beside it — the single column changes, nothing else moves. */
   if (draft?.isOpen && draft.settings) {
     return (
       <WorldCustomizeRail

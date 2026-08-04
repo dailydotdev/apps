@@ -1,43 +1,18 @@
-/* ============================================================== the standard
-   devcraft `world-lab.html`'s crest bench, lifted out whole.
+/* Lifted from devcraft `world-lab.html`'s crest bench. Its own module, touching
+   nothing but a 2D canvas context, so the engine's banner and React's panel/chip
+   row draw off one emitter instead of two SVG copies drifting apart.
+   Charge and tincture only come from monuments unlocked / districts founded
+   (per `userWorldEntitlements`); division is free geometry. */
 
-   Its own module rather than part of the renderer, because both halves of the
-   page draw the same mark: the engine hangs it on a banner over the world, and
-   React paints it into the panel and into the chip row of the bench. One
-   emitter, two canvases — a second SVG copy for the DOM would be the same
-   shield drawn twice and drifting apart by the second change.
-
-   Nothing here touches three.js or the DOM beyond a 2D context, which is what
-   lets the React side import it.
-
-   The composition rule is the whole design:
-
-     CHARGE     — only from signature monuments you have actually unlocked
-     TINCTURES  — only from the accents of districts you actually founded
-     DIVISION   — free, because a division is pure geometry and carries no fact
-
-   So the crest is assembled ENTIRELY out of your reading and arranged entirely
-   by you. You cannot build one that lies: a crest with the anvil on it belongs
-   to somebody who reads systems, and a reader with one district gets exactly
-   one charge to choose from — which is not a poor version of the feature, it IS
-   their identity, stated more sharply than a wide reader's ever gets stated.
-   The API is the authority on what has been earned (`userWorldEntitlements`);
-   this file only knows how to draw what it is handed. */
-
-/* Paths are written in a 100-unit box centred on the origin and filled with the
-   EVEN-ODD rule, which is what lets a ring be two circles and a dot inside a
-   ring be three, with no winding to keep track of. */
+/* Paths are written in a 100-unit box centred on the origin, filled EVEN-ODD so
+   a ring can be two circles and a dot-in-ring three, with no winding to track. */
 const _c=(x,y,r)=>`M${x-r},${y}a${r},${r} 0 1 0 ${r*2},0a${r},${r} 0 1 0 ${-r*2},0Z`;
 const _r=(x,y,w,h)=>`M${x-w/2},${y-h/2}h${w}v${h}h${-w}Z`;
-/* A groove across the wound cop, used as a HOLE: two of them are what stop a
-   tapered cone from reading as a plain cone. Half-widths have to stay inside
-   the cop at the groove's LOWEST point, or the ends fall outside the shape and
-   even-odd fills them into wings. */
+/* A groove cut as a HOLE. Half-widths must stay inside the cop at the groove's
+   LOWEST point, or the ends fall outside the shape and even-odd fills them into wings. */
 const _gv=(y,w,h)=>`M-${w},${y} L${w},${y} L${w+1},${y+h} L-${w+1},${y+h} Z`;
-/* One glyph per signature in REALMS — twenty-six, because the charge has to be
-   able to name any district in the taxonomy. They are deliberately blunt: a
-   crest is read at 22px in a chip and at share-card size in a corner, and
-   anything with interior detail is a smudge at both. */
+/* One glyph per signature in REALMS, deliberately blunt: a crest is read at
+   22px in a chip and at share-card size, and interior detail is a smudge at both. */
 export const CHARGES={
   obelisk:   {n:'OBELISK',   d:`M0,-46 L11,-33 L8,42 L-8,42 L-11,-33 Z`},
   roost:     {n:'ROOST',     d:`${_r(0,2,8,88)}${_r(0,-28,52,8)}${_r(0,-6,40,8)}${_r(0,16,28,8)}`},
@@ -46,15 +21,8 @@ export const CHARGES={
   aqueduct:  {n:'AQUEDUCT',  d:`${_r(0,-30,88,14)}M-40,44 L-40,-16 L-14,-16 L-14,44 L-24,44 L-24,-4 L-30,-4 L-30,44 Z M14,44 L14,-16 L40,-16 L40,44 L30,44 L30,-4 L24,-4 L24,44 Z`},
   wardring:  {n:'WARD RING', d:`${_c(0,0,44)}${_c(0,0,34)}M0,-22 L20,-12 L20,10 L0,26 L-20,10 L-20,-12 Z`},
   coil:      {n:'SERPENT STEPS', d:`M-44,44 L-44,18 L-17,18 L-17,-8 L10,-8 L10,-34 L44,-34 L44,44 Z`},
-  /* Follows the monument, which is the rule for every charge in here — a crest
-     is a picture of something you built, so when the thing changes the picture
-     is wrong rather than merely dated. This was a barred rectangle drawn from
-     the old weaving frame, and a grid is the one shape a crest cannot afford
-     anyway: at chip size it is indistinguishable from a missing image, which is
-     the exact complaint the frame itself collected.
-     The whorl is drawn as two wings clear of the shaft rather than as a disc
-     across it — a disc would overlap the shaft, and two overlapping solids
-     under even-odd is a slot cut through the middle of both. */
+  /* Whorl drawn as two wings clear of the shaft rather than a disc across it:
+     two overlapping solids under even-odd cut a slot through the middle of both. */
   loom:      {n:'GREAT SPINDLE',
               d:`M0,-48 L5,-37 L-5,-37 Z${_r(0,-27,7,22)}`
                +`M-19,-34 L-4,-34 L-4,-26 L-12,-26 Z`
@@ -81,9 +49,8 @@ export const CHARGES={
   clocktower:{n:'CLOCK',     d:`M0,-48 L30,-25 L-30,-25 Z${_r(0,10,46,70)}${_c(0,-4,16)}${_c(0,-4,8)}`},
 };
 
-/* Six ways to cut a field. Free choice on purpose — a division encodes nothing,
-   so it is the axis where taste is allowed to be taste. Each returns the region
-   painted in the SECOND tincture, over a field already filled with the first. */
+/* Six ways to cut a field. Each returns the region painted in the SECOND
+   tincture, over a field already filled with the first. */
 export const DIVISIONS=[
   {id:'plain',   n:'PLAIN',     f:null},
   {id:'pale',    n:'PER PALE',  f:(x,w,h)=>`M0,-${h} h${w} v${h*2} h-${w} Z`},
@@ -95,35 +62,25 @@ export const DIVISIONS=[
 
 export const hexs=v=>'#'+v.toString(16).padStart(6,'0');
 
-/* The rule of tincture, automated. Classic heraldry forbids colour on colour
-   for exactly the reason it matters here — a charge has to survive at chip
-   size — so the charge takes whichever of salt or pepper stands furthest from
-   the field it is sitting on. Nobody has to be told this rule; they just never
-   manage to build an illegible crest.
-   Computed off the integer rather than through a THREE.Color, because this
-   module is imported by React and pulling three.js in behind a chip preview
-   would be most of a megabyte for a luminance. */
+/* The charge takes whichever of salt or pepper stands furthest from the field,
+   computed off the integer rather than a THREE.Color since this module is
+   imported by React and three.js would be a lot to pull in for a luminance. */
 const _lum=hex=>((hex>>16&255)*0.2126+(hex>>8&255)*0.7152+(hex&255)*0.0722)/255;
 
 /* ONE renderer, to a canvas, and the panel uses its data URL as a background
    image. */
 export const SHIELD=(w,h)=>{
-  /* A heater shield: square shoulders, straight flanks for the top third, then
-     a curve into a point. Drawn as a path so it can be used to clip the field
-     and stroked afterwards for the bordure. */
+  /* A heater shield, drawn as a path so it can clip the field and be stroked
+     afterwards for the bordure. */
   const p=new Path2D();
   p.moveTo(-w/2,-h/2); p.lineTo(w/2,-h/2); p.lineTo(w/2,-h*0.06);
   p.bezierCurveTo(w/2,h*0.30, w*0.26,h*0.44, 0,h/2);
   p.bezierCurveTo(-w*0.26,h*0.44, -w/2,h*0.30, -w/2,-h*0.06);
   p.closePath(); return p;
 };
-/* Two shapes off one drawing. A shield is the mark; a BANNER is that same
-   field pulled out to a rectangle, which is what a real banner of arms is and
-   what a piece of cloth in a 3D scene has to be — a shield-shaped mesh would
-   need alpha, and an alpha-tested plane comes back from the outline pass ringed
-   as a full rectangle anyway, because the normal-buffer override material is
-   opaque by definition. Rectangular and opaque, the outline traces the cloth,
-   which is the correct answer rather than a workaround. */
+/* BANNER pulls the same field to a rectangle rather than a shield shape: a
+   shield-shaped mesh needs alpha, and an alpha-tested plane comes back from the
+   outline pass ringed as a full rectangle anyway. */
 export function drawCrest(g,W_,H_,c,banner){
   g.clearRect(0,0,W_,H_);
   g.save(); g.translate(W_/2,H_/2);
@@ -138,9 +95,8 @@ export function drawCrest(g,W_,H_,c,banner){
      clear of the bordure and clear of the point. */
   const ch=CHARGES[c.charge]||CHARGES.obelisk;
   const s=w*(banner?0.66:0.62)/100;
-  /* Averaged over both tinctures rather than over the one behind the charge:
-     under QUARTERLY the charge crosses all four quarters, so "the colour it is
-     sitting on" is not a single colour and picking either one loses half of it. */
+  /* Averaged over both tinctures: under QUARTERLY the charge crosses all four
+     quarters, so there is no single colour it is sitting on. */
   const L=div.f?(_lum(c.a)+_lum(c.b))/2:_lum(c.a);
   g.fillStyle=L>0.34?'#0F1218':'#FFFFFF';
   g.save(); g.translate(0,banner?0:-h*0.02); g.scale(s,s);
@@ -156,10 +112,8 @@ export function drawCrest(g,W_,H_,c,banner){
   g.restore();
 }
 
-/* Cached by the crest's own contents, because the panel, the chips and the
-   world all ask for it and the answer only changes when a chip is clicked.
-   `null` on the server and anywhere else without a canvas: the mark is chrome,
-   and a page that cannot draw it renders without it rather than throwing. */
+/* Cached by the crest's own contents. `null` on the server and anywhere without
+   a canvas: the mark is chrome, so a page that cannot draw it renders without it. */
 let _crestC=null, _crestKey='', _crestURL='';
 export function crestDataUrl(c){
   if(!c||typeof document==='undefined') return '';

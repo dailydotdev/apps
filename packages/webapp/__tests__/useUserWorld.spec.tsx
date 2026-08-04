@@ -71,13 +71,33 @@ describe('useUserWorld', () => {
     expect(result.current.districts).toBeUndefined();
   });
 
-  it('still reports a real failure as one', async () => {
+  it('still reports a real failure as one, after retrying it', async () => {
+    jest.useFakeTimers();
     request.mockRejectedValue(new Error('network down'));
 
     const { result } = renderHook(() => useUserWorld('u1'), { wrapper });
 
-    await waitFor(() => expect(result.current.error).toBeDefined());
+    try {
+      await waitFor(() => expect(result.current.error).toBeDefined(), {
+        // Three retries on the default backoff before the failure is believed.
+        timeout: 10000,
+      });
+    } finally {
+      jest.useRealTimers();
+    }
+    expect(request).toHaveBeenCalledTimes(4);
     expect(result.current.isPrivate).toBe(false);
+  });
+
+  it('does not retry a refused world', async () => {
+    request.mockRejectedValue({
+      response: { errors: [{ extensions: { code: 'FORBIDDEN' } }] },
+    });
+
+    const { result } = renderHook(() => useUserWorld('u1'), { wrapper });
+
+    await waitFor(() => expect(result.current.isPrivate).toBe(true));
+    expect(request).toHaveBeenCalledTimes(1);
   });
 
   it('asks for nothing without a reader', () => {

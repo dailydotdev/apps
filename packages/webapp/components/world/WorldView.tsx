@@ -205,10 +205,9 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     user?.id,
   ]);
 
-  /* The owner's look and the owner's mark, not the viewer's: both are properties
-     of the world, so everybody who visits sees the place the way it was dressed.
-     While the bench is open these read the draft instead, which is what makes
-     every chip land on the frame behind the panel rather than on a preview. */
+  /* Look and crest are the world's, not the viewer's, so every visitor sees them
+     as dressed. While the bench is open these read the draft instead, so chips
+     land live on the frame behind the panel. */
   useEffect(() => {
     engineRef.current?.setLook(resolveLook(applied));
   }, [applied]);
@@ -279,23 +278,21 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     [],
   );
 
-  /* The bench is the owner's, and only the owner's. Everything else on this page
-     is the same for everybody who visits. */
+  /* The bench is the owner's only; everything else here is the same for every visitor. */
   const ownerDraft = isOwn ? draft : undefined;
   const worldName = applied?.name ?? undefined;
-  const showNudge = isOwn && !isWorldCustomised(applied);
+  /* Never on an unbuilt world: WorldInvite already makes the one ask there,
+     and it makes it nowhere else. */
+  const showNudge = isOwn && !isUnbuilt && !isWorldCustomised(applied);
 
-  /* Nothing of a hidden world is drawn — not the map, not the timeline, not the
-     crest — so this stands in front of every other state, including the boot
-     screen it would otherwise sit behind for a round trip. */
+  /* A hidden world draws nothing — no map, timeline or crest — so this returns
+     before the boot screen too. */
   if (isPrivate) {
     return (
       <div className="fixed inset-0 overflow-hidden bg-background-default">
-        {/* Kept mounted and empty. The engine took this node on mount and holds
-            a WebGL context on it; unmounting it here would leak the context
-            rather than release it, and browsers cap those low enough that the
-            third private world somebody visits would stop rendering. Nothing is
-            ever drawn into it: `load` is only reached with districts in hand. */}
+        {/* Kept mounted and empty: the engine holds a WebGL context on this node,
+            and unmounting would leak it rather than release it. `load` is never
+            reached here since there are no districts. */}
         <div ref={mountRef} className="absolute inset-0" />
         <WorldPrivate user={user} />
       </div>
@@ -335,8 +332,8 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
                 onLeaveRealm={onLeaveRealm}
                 onCustomize={ownerDraft?.open}
               />
-              {/* No rail down here for the bench to take, so it takes the
-                  screen. The world stays live underneath it. */}
+              {/* No rail here for the bench, so it takes the whole screen; the
+                  world stays live underneath. */}
               {!!ownerDraft?.isOpen && !!ownerDraft.settings && (
                 <WorldCustomizeSheet
                   userId={user.id}

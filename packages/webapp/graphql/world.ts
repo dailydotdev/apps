@@ -22,12 +22,7 @@ export interface UserWorldTimelineData {
   userWorldTimeline: WorldGrowth[];
 }
 
-/**
- * Two axes rather than a list, because two axes is what makes a sky feel found
- * instead of picked. Neither carries a fact: the sky used to be a readout of
- * what you had been reading lately, and that is exactly the thing it was freed
- * from so it could be given away.
- */
+/** Two free-form axes rather than a list of presets — neither carries a fact. */
 export interface WorldSky {
   /** brand, clear, blossom, ember, seaglass, orchid, harvest or slate. */
   pal: string;
@@ -81,10 +76,8 @@ export interface WorldLook {
 }
 
 /**
- * What a user has made of their own world. Every field is null until they
- * change it, and the client owns every display default — it has to render a
- * world with no settings at all, so a second set of defaults on the API side
- * would only be a copy that could disagree with this one.
+ * What a user has made of their own world. Null fields mean unset; the client
+ * owns every display default.
  */
 export interface WorldSettings {
   name: string | null;
@@ -155,20 +148,11 @@ const WORLD_SETTINGS_FRAGMENT = gql`
 `;
 
 /**
- * Everything the world needs to stand up, in one round trip.
- *
- * The two halves are asked for together because neither can draw without the
- * other: the districts decide what is standing, and the settings decide what it
- * is photographed through and what flies over it — so fetching them separately
- * means either a frame of the wrong look or a second wait before the first one.
- * The growth log is NOT in here: it is the same world's whole history, tens of
- * thousands of rows, and the world stands without it.
- *
- * The settings are asked for on every world, not just your own — a look belongs
- * to the place rather than to whoever is looking at it. They are also the only
- * thing that can tell a private world from an empty one: privacy is applied to
- * the districts in SQL, so both come back as an empty list, and this errors with
- * FORBIDDEN instead.
+ * Districts and settings in one round trip — neither can draw without the
+ * other. The growth log is NOT in here (tens of thousands of rows on a
+ * long-tenured world; fetched separately). A private world comes back as
+ * FORBIDDEN rather than an empty list, which is what distinguishes it from one
+ * that is simply empty.
  */
 export const USER_WORLD_QUERY = gql`
   query UserWorld($id: ID!) {
@@ -188,10 +172,7 @@ export const USER_WORLD_QUERY = gql`
   ${WORLD_SETTINGS_FRAGMENT}
 `;
 
-/**
- * What the bench needs rather than what displaying a world needs, which is why
- * it is separate and only ever asked for once the owner opens the bench.
- */
+/** What the bench needs, not what displaying a world needs — asked for only once the owner opens it. */
 export const USER_WORLD_ENTITLEMENTS_QUERY = gql`
   query UserWorldEntitlements($id: ID!) {
     userWorldEntitlements(id: $id) {

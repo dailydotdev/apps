@@ -44,22 +44,8 @@ export const userWorldQueryKey = (userId?: string): unknown[] =>
   ) as unknown[];
 
 /**
- * Two queries, not one, and only the small one is waited for.
- *
- * The first is everything the world needs to stand up: at most forty districts
- * and the owner's customisations, batched into a single round trip because
- * neither half can draw without the other — the districts decide what is
- * standing and the settings decide what it is photographed through, so asking
- * separately buys either a frame of the wrong look or a second wait for it.
- *
- * The growth log is the same world's whole history, tens of thousands of rows on
- * a four-year reader, and it is only ever needed to REPLAY the place. So the
- * world is raised off the first query and the log is folded in underneath it
- * when it lands (`attachHistory`), which costs nothing to look at because the
- * day it is folded in on is the world already on screen.
- *
- * The timeline is allowed to fail. The world still stands without it; it simply
- * has no history to walk, which is what `replayable` on the model reports.
+ * Districts+settings in one blocking round trip; the heavy growth log loads
+ * behind the standing world and may fail without taking it down.
  */
 export const useUserWorld = (userId?: string): UserWorldResult => {
   const world = useQuery({
@@ -75,14 +61,15 @@ export const useUserWorld = (userId?: string): UserWorldResult => {
     },
     enabled: !!userId,
     staleTime: StaleTime.Default,
-    // A refused world is refused for as long as its owner keeps it that way,
-    // and three more round trips do not change the answer.
-    retry: false,
+    // A refused world stays refused, so FORBIDDEN skips the usual retries.
+    retry: (failureCount, retryError) =>
+      getApiError(retryError as unknown as ApiErrorResult, ApiError.Forbidden)
+        ? false
+        : failureCount < 3,
   });
   const districts = world.data?.districts;
   const hasDistricts = !!districts?.length;
-  /* Not an error to report: a hidden world is a world the viewer is not allowed
-     to see rather than one that failed, so it gets its own screen and never
+  /* Not an error to report: a hidden world gets its own screen, never
      "this world could not be loaded". */
   const isPrivate = !!getApiError(
     world.error as unknown as ApiErrorResult,

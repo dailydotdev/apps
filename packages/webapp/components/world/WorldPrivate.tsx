@@ -20,18 +20,7 @@ interface WorldPrivateProps {
   user: PublicProfile;
 }
 
-/**
- * A world its owner has hidden.
- *
- * Nothing of it is drawn — not the map, not the timeline, not the crest. That is
- * the whole meaning of the switch: the crest is the piece built to travel, so
- * hiding a world is a real cost rather than a cosmetic toggle, and half-honouring
- * it here would be the same as not honouring it. The renderer is never handed a
- * model, so there is nothing standing behind this screen to be caught.
- *
- * It is stated rather than dressed up as an error. "Could not be loaded" would
- * be a lie about a decision somebody made deliberately.
- */
+/** Renderer is never handed a model for a hidden world — nothing (map, timeline, crest) is drawn, so there's nothing behind this screen to leak. */
 export function WorldPrivate({ user }: WorldPrivateProps): ReactElement {
   const { user: viewer } = useAuthContext();
 

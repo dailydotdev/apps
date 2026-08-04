@@ -20,11 +20,7 @@ export interface WorldDraft {
   save: () => Promise<void>;
   isSaving: boolean;
   error?: string;
-  /**
-   * What the world is drawn with right now: the draft while the bench is open,
-   * and what is stored otherwise. The bench edits a LIVE frame — every chip
-   * lands on the world behind it — so this is what the engine is told about.
-   */
+  /** What the engine is told: the draft while the bench is open, stored settings otherwise. */
   applied: WorldSettings | null;
 }
 
@@ -48,13 +44,8 @@ const toDraft = (settings?: WorldSettings | null): WorldDraftSettings =>
     : EMPTY;
 
 /**
- * Only what actually changed.
- *
- * The mutation is a patch: an absent key leaves the stored value alone and an
- * explicit null clears it back to the derived suggestion. Sending all four every
- * time would turn "I renamed my world" into a write that also pins the crest and
- * the look at whatever the suggestion happened to be that day, which is exactly
- * what the API refuses to do on its own side.
+ * Only what actually changed: an absent key leaves the stored value alone, an
+ * explicit null clears it back to the derived suggestion.
  */
 export const worldSettingsPatch = (
   draft: WorldDraftSettings,
@@ -81,8 +72,8 @@ export const worldSettingsPatch = (
   return patch;
 };
 
-/* What the API refused, in its own words — a rejected crest says which charge or
-   tincture was not earned, and that is more useful than anything written here. */
+/* What the API refused, in its own words — a rejected crest names the charge or
+   tincture that was not earned. */
 const reasonFor = (error?: Error): string | undefined => {
   if (!error) {
     return undefined;
@@ -106,17 +97,21 @@ export const useWorldDraft = (
       return;
     }
     const patch = worldSettingsPatch(settings, saved);
-    /* A bench somebody opened and closed again is not a write. The API upserts
-       nothing for an empty patch either, but this also spares the round trip. */
+    // An untouched bench is not a write; an empty patch spares the round trip.
     if (Object.keys(patch).length) {
-      await persist(patch);
+      try {
+        await persist(patch);
+      } catch {
+        // The mutation's own error state carries the message; the bench stays
+        // open so nothing typed is lost.
+        return;
+      }
     }
     setSettings(null);
   }, [persist, saved, settings]);
 
-  /* The draft while the bench is open, so a chip is on the world before it is
-     saved, and the stored settings the moment it closes — which is what makes
-     Cancel put the place back the way it was found. */
+  /* The draft while the bench is open, stored settings the moment it closes —
+     what makes Cancel put the place back the way it was found. */
   const applied = useMemo<WorldSettings | null>(
     () => (settings ? { ...toDraft(saved), ...settings } : saved ?? null),
     [saved, settings],

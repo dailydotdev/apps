@@ -25,18 +25,18 @@ export type WorldSettingsPatch = Partial<
 >;
 
 /**
- * Everything this world may be dressed with, and what granted each one.
- *
- * Lazy on purpose, in both directions: it is only asked for once the owner opens
- * the bench, and only ever for their own world. It is what an EDITOR needs
- * rather than what displaying a world needs — the API folds the districts
- * through the grant tables to answer it, and a visitor never touches that path.
+ * Everything this world may be dressed with, and what granted each one. Lazy:
+ * only asked for once the owner opens the bench, and only for their own world.
  */
 export const useWorldEntitlements = (
   userId: string | undefined,
   enabled: boolean,
-): { entitlements?: WorldEntitlement[]; isPending: boolean } => {
-  const { data, isPending } = useQuery({
+): {
+  entitlements?: WorldEntitlement[];
+  isPending: boolean;
+  isError: boolean;
+} => {
+  const { data, isPending, isError } = useQuery({
     queryKey: generateQueryKey(
       RequestKey.UserWorldEntitlements,
       userId ? { id: userId } : undefined,
@@ -52,7 +52,7 @@ export const useWorldEntitlements = (
     staleTime: StaleTime.Default,
   });
 
-  return { entitlements: data, isPending: enabled && isPending };
+  return { entitlements: data, isPending: enabled && isPending, isError };
 };
 
 export interface UpdateWorldSettings {
@@ -71,11 +71,9 @@ export const useUpdateWorldSettings = (userId: string): UpdateWorldSettings => {
       );
       return res.updateUserWorldSettings;
     },
-    /* Written straight into the cache the world was raised from rather than
-       invalidated: the mutation answers in the same shape the query does, and a
-       refetch would take the world back to its stored look for as long as the
-       round trip lasted — while the owner is looking at the change they just
-       made. The districts on that entry are untouched, so nothing rebuilds. */
+    /* Written straight into the cache rather than invalidated: a refetch would
+       take the world back to its stored look for the round trip. Districts on
+       that entry are untouched, so nothing rebuilds. */
     onSuccess: (settings) =>
       client.setQueryData<{
         districts: WorldDistrict[];

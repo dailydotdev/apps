@@ -9,22 +9,14 @@ import type {
   WorldSky,
 } from '../../graphql/world';
 
-/**
- * Where a world starts before anybody touches it.
- *
- * The API stores what was chosen and answers null for what was not, deliberately:
- * this side has to render a world with no settings row at all, so a second set
- * of defaults over there would only be a copy that could disagree with these.
- */
+/* API stores null for anything unchosen rather than a default, so defaults live only here — a second copy server-side could disagree with these. */
 
 export const WORLD_NAME_MAX_LENGTH = 30;
 
 /** Reads at which a district raises the monument a crest can be built out of. */
 const CREST_CHARGE_MIN_READS = 3;
 
-/* The taxonomy is the renderer's, and it is JavaScript on purpose — it is
-   ported near-verbatim from devcraft so every future diff against the source
-   stays readable. These are the two shapes this file reads out of it. */
+/* Ported near-verbatim from devcraft's JS renderer so future diffs against the source stay readable. */
 const NICHES = NICHE_OF as Record<
   string,
   { sig: string; accent: number; accent2: number }
@@ -41,12 +33,7 @@ interface RankedDistrict {
   realmName: string;
 }
 
-/**
- * The districts the taxonomy can place, largest first. Anything it does not
- * know is dropped for the same reason the renderer drops it: the art is the
- * authority on what exists, and a niche with no district built for it cannot
- * appear on a shield either.
- */
+/** Districts the taxonomy can place, largest first; anything unknown to it is dropped, matching what the renderer can draw. */
 const rank = (districts?: WorldDistrict[]): RankedDistrict[] =>
   (districts ?? [])
     .map(({ niche, reads }) => ({
@@ -66,10 +53,7 @@ const rank = (districts?: WorldDistrict[]): RankedDistrict[] =>
     }))
     .sort((a, b) => b.reads - a.reads);
 
-/* Roles come from BREADTH and epithets from VOLUME, so the two halves of the
-   title are two different facts rather than the same one twice — a title has to
-   be true before it is flattering, and "the relentless devotee" is a real
-   description of someone who read one subject nine hundred times. */
+/* Role comes from breadth (realm count), epithet from volume (read count) — two independent facts, not the same one twice. */
 const ROLES = [
   'devotee',
   'scholar',
@@ -94,20 +78,8 @@ const sentence = (value: string) =>
   value.charAt(0).toUpperCase() + value.slice(1);
 
 /**
- * Names for one world, built off the same facts, longest shapes first.
- *
- * The suggestion is the placeholder rather than the stored value: an untouched
- * world shows the name it would have been given anyway, and the user's job is
- * to disagree with it rather than to invent one. ✦ walks this list rather than
- * rerolling noise, so pressing it round comes back to where it started.
- *
- * Everything returned FITS. `The relentless cartographer of Artisan's Quarter`
- * is a better name than any of the short ones and it is 47 characters, so the
- * richest shapes are offered and then filtered rather than never written — and
- * the last two carry no realm or no epithet, which is what bounds them below the
- * limit whatever the taxonomy grows into. Offering a name the field cannot hold
- * is worse than offering a plainer one: ✦ COMMITS what it shows, so an
- * over-length suggestion is a save the API rejects.
+ * Longest shapes first, then filtered to WORLD_NAME_MAX_LENGTH — an over-length suggestion would be a save the API rejects, since accepting one commits it.
+ * Used as the placeholder rather than a stored default, so an untouched world shows the name it would've had anyway.
  */
 export const worldSuggestions = (districts?: WorldDistrict[]): string[] => {
   const ranked = rank(districts);
@@ -148,8 +120,7 @@ export const worldSuggestions = (districts?: WorldDistrict[]): string[] => {
   );
 };
 
-/* Kept as ids rather than importing the division table, which carries the path
-   emitters and belongs to whatever is drawing a shield. */
+/* Kept as ids rather than importing the division table, which carries path emitters that belong to the shield renderer. */
 const DIVISION_IDS = [
   'plain',
   'pale',
@@ -159,15 +130,7 @@ const DIVISION_IDS = [
   'quarter',
 ] as const;
 
-/**
- * Every world has a crest suggested from day one, derived the same way its name
- * is: the largest district gives the charge, the top two give the tinctures, and
- * the division comes off the user id — so the suggestion is already personal.
- *
- * Null when the reading behind it has raised nothing. Eligibility is having
- * built something: a world with nothing behind it has no mark rather than a
- * starter one, and an empty shield is the honest answer rather than a poor one.
- */
+/** Returns null when the top district hasn't raised CREST_CHARGE_MIN_READS — an unbuilt world gets no mark rather than a starter one. */
 export const suggestedCrest = (
   userId: string,
   districts?: WorldDistrict[],
@@ -179,9 +142,7 @@ export const suggestedCrest = (
   }
 
   const second = ranked[1] ?? top;
-  /* Off the user id rather than off the reading, because a division encodes
-     nothing — this only has to be stable and personal, so that two people who
-     read the same subject are not handed the same shield. */
+  /* Off the user id rather than the reading — a division encodes nothing, it just needs to be stable and personal. */
   const hash = [...userId].reduce(
     (total, char) => (total * 31 + char.charCodeAt(0)) % 1e9,
     0,
@@ -212,13 +173,7 @@ export const resolveSky = (
   settings: Pick<WorldSettings, 'sky'> | null | undefined,
 ): WorldSky => settings?.sky ?? DEFAULT_SKY;
 
-/**
- * Whether the owner has ever made this world theirs.
- *
- * `private` is not part of the test on purpose: hiding a world is a decision
- * about who may see it rather than something you made of it, and a reader who
- * only ever flipped that switch has still not named the place.
- */
+/** `private` is deliberately excluded — hiding a world is a visibility decision, not something made of it. */
 export const isWorldCustomised = (
   settings: WorldSettings | null | undefined,
 ): boolean =>
