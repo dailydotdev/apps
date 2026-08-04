@@ -17,8 +17,13 @@ jest.mock('../../../hooks/input', () => ({
   ],
 }));
 
+const mockWriteLinkPreview = jest.fn();
+
 jest.mock('../write/WriteLinkPreview', () => ({
-  WriteLinkPreview: () => null,
+  WriteLinkPreview: (props: unknown) => {
+    mockWriteLinkPreview(props);
+    return null;
+  },
 }));
 
 jest.mock('../write/WritePreviewSkeleton', () => ({
@@ -29,12 +34,14 @@ const renderLinkForm = ({
   initialValue = DEFAULT_LINK,
   onSubmit = jest.fn(),
   isUrlLocked = false,
+  initialUrl,
   preview,
 }: {
   initialValue?: LinkFormState;
   onSubmit?: jest.Mock;
   isUrlLocked?: boolean;
-  preview?: { url: string; title: string };
+  initialUrl?: string;
+  preview?: { url?: string; title?: string };
 } = {}) => {
   const fetchPreview = jest.fn();
 
@@ -53,6 +60,7 @@ const renderLinkForm = ({
           onChange={setValue}
           fetchPreview={fetchPreview}
           isUrlLocked={isUrlLocked}
+          initialUrl={initialUrl}
           preview={preview}
         />
         <button type="submit">Post</button>
@@ -66,6 +74,10 @@ const renderLinkForm = ({
 };
 
 describe('LinkForm', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('collapses pasted commentary newlines into spaces', () => {
     renderLinkForm();
 
@@ -147,6 +159,7 @@ describe('LinkForm', () => {
     const lockedProps = {
       isUrlLocked: true,
       initialValue: { url: 'https://daily.dev/posts/shared', commentary: 'hi' },
+      initialUrl: 'https://daily.dev/posts/shared',
       preview: { url: 'https://daily.dev/posts/shared', title: 'Shared' },
     };
 
@@ -173,6 +186,12 @@ describe('LinkForm', () => {
       const { fetchPreview } = renderLinkForm(lockedProps);
 
       expect(fetchPreview).not.toHaveBeenCalled();
+    });
+
+    it('shows no preview card when the shared post is gone', () => {
+      renderLinkForm({ ...lockedProps, preview: {} });
+
+      expect(mockWriteLinkPreview).not.toHaveBeenCalled();
     });
   });
 });

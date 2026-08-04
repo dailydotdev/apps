@@ -77,8 +77,13 @@ export const LinkForm = ({
     onDismissPreview?.();
   };
 
+  const hasPreviewContent = !!(
+    preview?.title ||
+    preview?.url ||
+    preview?.permalink
+  );
   const showPreview =
-    isUrlLocked ||
+    (isUrlLocked && hasPreviewContent) ||
     (isPreviewForComposerUrl(preview, value.url) && !isDismissedForCurrentUrl);
   const showSkeleton =
     !isUrlLocked && isLoadingPreview && !isDismissedForCurrentUrl;

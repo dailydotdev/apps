@@ -81,7 +81,7 @@ export function CommentMarkdownInputComponent(
   const richTextRef = useRef<RichTextInputRef | null>(null);
   const [isMarkdownMode, setIsMarkdownMode] = useState(false);
 
-  const { height: viewportHeight } = useVisualViewport();
+  const { height: viewportHeight } = useVisualViewport(!fills);
   const maxHeight =
     viewportHeight && !fills
       ? Math.min(

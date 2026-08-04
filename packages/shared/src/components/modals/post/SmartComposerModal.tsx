@@ -219,7 +219,7 @@ export function SmartComposerModal({
 
   const isDirty = useMemo(() => {
     if (editShare) {
-      return link.commentary !== editShareCommentary;
+      return link.commentary.trim() !== editShareCommentary.trim();
     }
     if (editPost) {
       if (text.title !== (editPost.title ?? '')) {
@@ -385,8 +385,15 @@ export function SmartComposerModal({
       initialSquadHandle,
       initialSquadId ?? editPost?.source?.id,
     );
-  const primary = selected[0];
-  const isMulti = selected.length > 1;
+  // An edit always targets the post's own source. The audience list only
+  // holds squads the user can currently post to, and falling back to the
+  // personal source would silently retarget the edit.
+  const editSource = editPost
+    ? audiences.find((audience) => audience.id === editPost.source?.id) ??
+      (editPost.source as Squad)
+    : undefined;
+  const primary = editSource ?? selected[0];
+  const isMulti = !editPost && selected.length > 1;
 
   const schedule = useSchedulePost();
   const canSchedule =
@@ -690,6 +697,8 @@ export function SmartComposerModal({
       <Drawer
         isOpen
         isFullScreen
+        // Transformed ancestors (the Share modal's drawer) trap position: fixed
+        appendOnRoot
         position={DrawerPosition.Bottom}
         onClose={() => {
           handleClose();

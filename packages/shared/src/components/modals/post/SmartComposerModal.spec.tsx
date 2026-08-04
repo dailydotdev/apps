@@ -236,6 +236,17 @@ describe('SmartComposerModal', () => {
     );
   });
 
+  it('portals the mobile drawer to the root, away from transformed ancestors', () => {
+    jest.mocked(useViewSize).mockReturnValue(false);
+
+    const { container } = renderWithClient(
+      <SmartComposerModal isOpen onRequestClose={onRequestClose} />,
+    );
+
+    expect(container.querySelector('#smart_composer')).toBeNull();
+    expect(document.getElementById('smart_composer')).toBeInTheDocument();
+  });
+
   it('hides the expand control on mobile, where it is already full-screen', () => {
     jest.mocked(useViewSize).mockReturnValue(false);
 
@@ -434,6 +445,42 @@ describe('SmartComposerModal', () => {
       const hookProps = jest.mocked(useComposerSubmit).mock.calls[0]?.[0];
       expect(hookProps?.initialPreview).toBe(sharedPost);
       expect(hookProps?.editPostId).toBe('post-1');
+    });
+
+    it('targets the post source even when it is not a postable audience', () => {
+      // The audience list only holds squads the user can currently post to;
+      // an edit must never retarget to the personal-source fallback.
+      const foreignSource = { id: 'left-squad', handle: 'left' };
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          editPost={{ ...editShare, source: foreignSource } as unknown as Post}
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      const hookProps = jest.mocked(useComposerSubmit).mock.calls[0]?.[0];
+      expect(hookProps?.primary).toBe(foreignSource);
+      expect(hookProps?.isMulti).toBe(false);
+    });
+
+    it('treats a trailing space as no change to the commentary', async () => {
+      renderWithClient(
+        <SmartComposerModal
+          isOpen
+          editPost={editShare}
+          onRequestClose={onRequestClose}
+        />,
+      );
+
+      fireEvent.change(
+        screen.getByRole('textbox', { name: 'Post commentary' }),
+        { target: { value: 'My take on this ' } },
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Close composer' }));
+
+      await waitFor(() => expect(onRequestClose).toHaveBeenCalledTimes(1));
+      expect(showPrompt).not.toHaveBeenCalled();
     });
 
     it('offers an empty commentary when the share never had one', () => {

@@ -43,15 +43,17 @@ const renderComposer = (
   );
 
 const setViewportHeight = (height: number) => {
+  const viewport = {
+    height,
+    width: 375,
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+  };
   Object.defineProperty(window, 'visualViewport', {
     configurable: true,
-    value: {
-      height,
-      width: 375,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-    },
+    value: viewport,
   });
+  return viewport;
 };
 
 describe('CommentMarkdownInput', () => {
@@ -78,6 +80,20 @@ describe('CommentMarkdownInput', () => {
     renderComposer();
 
     expect(screen.getByRole('form')).toHaveStyle({ maxHeight: '512px' });
+  });
+
+  it('does not subscribe to viewport churn when it fills its container', () => {
+    const viewport = setViewportHeight(800);
+    renderComposer({ fills: true });
+
+    expect(viewport.addEventListener).not.toHaveBeenCalled();
+  });
+
+  it('subscribes to the viewport when capped against it', () => {
+    const viewport = setViewportHeight(800);
+    renderComposer();
+
+    expect(viewport.addEventListener).toHaveBeenCalled();
   });
 
   it('moves the actions into a pinned bottom bar instead of the footer', () => {
