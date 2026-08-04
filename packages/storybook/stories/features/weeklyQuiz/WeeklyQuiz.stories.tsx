@@ -38,8 +38,12 @@ import {
   FacebookIcon,
   RedditIcon,
   LinkedInIcon,
+  CopyIcon,
+  BellIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { SocialShareButton } from '@dailydotdev/shared/src/components/widgets/SocialShareButton';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import quizStyles from '@dailydotdev/shared/src/features/weeklyQuiz/WeeklyQuiz.module.css';
 import {
   createWeeklyQuizResultImage,
   createWeeklyQuizOgImage,
@@ -866,97 +870,151 @@ const LEADERBOARD_ROWS = [
 // Final (results) — scrolls: brand header, verdict, GIF, share, leaderboard.
 const MobileResults = (): React.ReactElement => (
   <div className="no-scrollbar flex h-full flex-col gap-4 overflow-y-auto p-5">
-    <div className="border-b border-border-subtlest-tertiary pb-3">
-      <WeeklyQuizLogo />
-    </div>
-    <div className="flex items-center gap-4">
-      <div
-        className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-full border-4"
-        style={{ borderColor: 'var(--theme-accent-cabbage-default)' }}
-      >
-        <span className="font-bold text-text-primary typo-title3">4/10</span>
-        <span className="text-text-tertiary typo-caption2">Correct</span>
+    {/* Chunk 1 — your result: brand header, verdict, GIF and share row. */}
+    <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 shadow-2">
+      <div className="-mx-4 -mt-4 border-b border-border-subtlest-tertiary px-4 py-3">
+        <WeeklyQuizLogo />
       </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="font-bold text-text-primary typo-title3">
-          Tab Spammer
-        </span>
-        <span className="text-text-secondary typo-footnote">
-          You scored better than 40% of players.
-        </span>
-      </div>
-    </div>
-    <img
-      src={WEEKLY_QUIZ_TIERS[3].gif}
-      alt=""
-      className="aspect-video w-full rounded-16 object-cover"
-    />
-    <span className="font-bold text-text-primary typo-callout">
-      Share your result
-    </span>
-    <div className="no-scrollbar flex gap-1 overflow-x-auto">
-      <SocialShareButton
-        icon={<DownloadIcon />}
-        label="Download"
-        variant={ButtonVariant.Primary}
-      />
-      <SocialShareButton
-        icon={<TwitterIcon />}
-        label="X"
-        variant={ButtonVariant.Primary}
-        color={ButtonColor.Twitter}
-      />
-      <SocialShareButton
-        icon={<WhatsappIcon />}
-        label="WhatsApp"
-        variant={ButtonVariant.Primary}
-        color={ButtonColor.WhatsApp}
-      />
-      <SocialShareButton
-        icon={<FacebookIcon />}
-        label="Facebook"
-        variant={ButtonVariant.Primary}
-        color={ButtonColor.Facebook}
-      />
-      <SocialShareButton
-        icon={<RedditIcon />}
-        label="Reddit"
-        variant={ButtonVariant.Primary}
-        color={ButtonColor.Reddit}
-      />
-      <SocialShareButton
-        icon={<LinkedInIcon />}
-        label="LinkedIn"
-        variant={ButtonVariant.Primary}
-        color={ButtonColor.LinkedIn}
-      />
-    </div>
-    <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
-      <span className="font-bold text-text-primary typo-callout">
-        🏆 Leaderboard
-      </span>
-      {LEADERBOARD_ROWS.map((row) => (
+      <div className="flex items-center gap-4">
         <div
-          key={row.rank}
-          className={`flex items-center gap-2 rounded-12 px-2 py-1.5 ${
-            row.you ? 'bg-surface-float' : ''
-          }`}
+          className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-full border-4"
+          style={{ borderColor: 'var(--theme-accent-cabbage-default)' }}
         >
-          <span className="w-5 text-text-secondary typo-footnote">
-            {row.rank}
+          <span className="font-bold text-text-primary typo-title3">4/10</span>
+          <span className="text-text-tertiary typo-caption2">Correct</span>
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="font-bold text-text-primary typo-title3">
+            Tab Spammer
           </span>
-          <span className="h-6 w-6 shrink-0 rounded-full bg-surface-hover" />
-          <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
-            {row.name}
+          <span className="text-text-secondary typo-footnote">
+            You scored better than 40% of players.
           </span>
-          <span className="font-bold tabular-nums text-text-primary typo-footnote">
-            {row.score}
-          </span>
-          <span className="w-9 text-right tabular-nums text-text-secondary typo-caption1">
-            {row.time}
+          <span className="mt-0.5 text-text-secondary typo-footnote">
+            {WEEKLY_QUIZ_TIERS[3].message}
           </span>
         </div>
-      ))}
+      </div>
+      <img
+        src={WEEKLY_QUIZ_TIERS[3].gif}
+        alt=""
+        className="aspect-video w-full rounded-16 object-cover"
+      />
+      {/* Share row, with the same "Had fun?" sticker as the web screen. */}
+      <section className="relative flex flex-col">
+        <span
+          aria-hidden
+          className={`z-10 absolute -top-9 right-1 flex h-20 w-20 flex-col items-center justify-center rounded-full text-center font-bold uppercase leading-tight tracking-wide typo-caption2 ${quizStyles.shareSticker}`}
+        >
+          Had fun? Share it!
+        </span>
+        <span className="font-bold text-text-primary typo-callout">
+          Share your result
+        </span>
+        <div className="no-scrollbar mt-4 flex gap-1 overflow-x-auto">
+          <SocialShareButton
+            icon={<DownloadIcon />}
+            label="Download"
+            variant={ButtonVariant.Primary}
+          />
+          <SocialShareButton
+            icon={<TwitterIcon />}
+            label="X"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Twitter}
+          />
+          <SocialShareButton
+            icon={<WhatsappIcon />}
+            label="WhatsApp"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.WhatsApp}
+          />
+          <SocialShareButton
+            icon={<FacebookIcon />}
+            label="Facebook"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Facebook}
+          />
+          <SocialShareButton
+            icon={<RedditIcon />}
+            label="Reddit"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.Reddit}
+          />
+          <SocialShareButton
+            icon={<LinkedInIcon />}
+            label="LinkedIn"
+            variant={ButtonVariant.Primary}
+            color={ButtonColor.LinkedIn}
+          />
+        </div>
+      </section>
+    </div>
+
+    {/* Chunk 2 — keep playing: challenge, reminder and the leaderboard. */}
+    <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 shadow-2">
+      {/* Challenge a friend — share the quiz link. */}
+      <div
+        className={`flex flex-col gap-2 rounded-16 p-4 text-left ${quizStyles.glass}`}
+      >
+        <span className="font-bold text-text-primary typo-callout">
+          Challenge a friend ⚔️
+        </span>
+        <span className="text-text-tertiary typo-footnote">
+          Send this link so they can take this week&apos;s quiz and try to beat
+          your score.
+        </span>
+        <div className="flex items-center gap-2">
+          <input
+            readOnly
+            value="https://daily.dev/quiz/weekly-tech-news"
+            aria-label="Quiz link"
+            className="min-w-0 flex-1 rounded-10 bg-background-default px-3 py-2 text-text-primary typo-footnote"
+          />
+          <Button
+            type="button"
+            variant={ButtonVariant.Primary}
+            size={ButtonSize.Medium}
+            icon={<CopyIcon />}
+          >
+            Copy
+          </Button>
+        </div>
+      </div>
+
+      {/* Weekly reminder. */}
+      <button type="button" className={quizStyles.resultAction}>
+        <BellIcon size={IconSize.XSmall} />
+        Set weekly reminder
+      </button>
+
+      <div className="flex flex-col gap-2">
+        <span className="font-bold text-text-primary typo-callout">
+          🏆 Leaderboard
+        </span>
+        {LEADERBOARD_ROWS.map((row) => (
+          <div
+            key={row.rank}
+            className={`flex items-center gap-2 rounded-12 px-2 py-1.5 ${
+              row.you ? quizStyles.viewerHighlight : ''
+            }`}
+          >
+            <span className="w-5 text-text-secondary typo-footnote">
+              {row.rank}
+            </span>
+            <span className="h-6 w-6 shrink-0 rounded-full bg-surface-hover" />
+            <span className="min-w-0 flex-1 truncate font-bold text-text-primary typo-footnote">
+              {row.name}
+            </span>
+            <span className="font-bold tabular-nums text-text-primary typo-footnote">
+              {row.score}
+            </span>
+            <span className="w-9 text-right tabular-nums text-text-secondary typo-caption1">
+              {row.time}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 );
