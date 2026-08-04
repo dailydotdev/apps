@@ -55,6 +55,7 @@
     "react-parallax-tilt": "^1.7.326",
     "react-swipeable": "^7.0.1",
     "serwist": "9.5.10",
+    "three": "0.160.1",
     "zod": "4.1.8"
   },
   "devDependencies": {
