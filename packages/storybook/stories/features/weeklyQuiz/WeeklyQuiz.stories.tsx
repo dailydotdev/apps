@@ -30,7 +30,16 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { TimerIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  TimerIcon,
+  DownloadIcon,
+  TwitterIcon,
+  WhatsappIcon,
+  FacebookIcon,
+  RedditIcon,
+  LinkedInIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { SocialShareButton } from '@dailydotdev/shared/src/components/widgets/SocialShareButton';
 import {
   createWeeklyQuizResultImage,
   createWeeklyQuizOgImage,
@@ -885,15 +894,42 @@ const MobileResults = (): React.ReactElement => (
     <span className="font-bold text-text-primary typo-callout">
       Share your result
     </span>
-    <div className="flex gap-2">
-      {['↓', 'X', 'WA', 'FB', 'Re', 'in'].map((icon) => (
-        <span
-          key={icon}
-          className="flex h-11 w-11 items-center justify-center rounded-14 bg-surface-float text-text-tertiary typo-caption1"
-        >
-          {icon}
-        </span>
-      ))}
+    <div className="no-scrollbar flex gap-1 overflow-x-auto">
+      <SocialShareButton
+        icon={<DownloadIcon />}
+        label="Download"
+        variant={ButtonVariant.Primary}
+      />
+      <SocialShareButton
+        icon={<TwitterIcon />}
+        label="X"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Twitter}
+      />
+      <SocialShareButton
+        icon={<WhatsappIcon />}
+        label="WhatsApp"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.WhatsApp}
+      />
+      <SocialShareButton
+        icon={<FacebookIcon />}
+        label="Facebook"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Facebook}
+      />
+      <SocialShareButton
+        icon={<RedditIcon />}
+        label="Reddit"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.Reddit}
+      />
+      <SocialShareButton
+        icon={<LinkedInIcon />}
+        label="LinkedIn"
+        variant={ButtonVariant.Primary}
+        color={ButtonColor.LinkedIn}
+      />
     </div>
     <div className="flex flex-col gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
       <span className="font-bold text-text-primary typo-callout">
