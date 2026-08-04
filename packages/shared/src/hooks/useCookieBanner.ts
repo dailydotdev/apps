@@ -4,8 +4,6 @@ import type { AcceptCookiesCallback } from './useCookieConsent';
 import { useConsentCookie } from './useCookieConsent';
 import { isIOSNative } from '../lib/func';
 import { getIubendaConsent } from '../lib/iubenda';
-import { useFeature } from '../components/GrowthBookProvider';
-import { featureIubendaCmp } from '../lib/featureManagement';
 
 export const cookieAcknowledgedKey = 'cookie_acknowledged';
 
@@ -43,8 +41,7 @@ interface UseCookieBanner {
 }
 
 export function useCookieBanner(): UseCookieBanner {
-  const { isAuthReady, user, isGdprCovered } = useAuthContext();
-  const iubendaCmp = useFeature(featureIubendaCmp);
+  const { isAuthReady, user, isGdprCovered, isTcfCovered } = useAuthContext();
   const isInitializedRef = useRef(false);
   const [isOpen, setIsOpen] = useState(false);
   const { saveCookies, cookieExists: hasAccepted } = useConsentCookie(
@@ -76,9 +73,9 @@ export function useCookieBanner(): UseCookieBanner {
       }
     }
 
-    // iubenda owns the banner for GDPR-covered users when the CMP is on; its
-    // consent is mirrored into our cookies by the Iubenda component.
-    if (iubendaCmp && isGdprCovered) {
+    // iubenda owns the banner in TCF regions; its consent is mirrored into
+    // our cookies by the Iubenda component.
+    if (isTcfCovered) {
       return;
     }
 
@@ -121,7 +118,7 @@ export function useCookieBanner(): UseCookieBanner {
     user,
     hasAccepted,
     isGdprCovered,
-    iubendaCmp,
+    isTcfCovered,
   ]);
 
   return {

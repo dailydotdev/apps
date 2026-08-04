@@ -3,7 +3,6 @@ import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import { isPostUpdated } from '../../../graphql/posts';
 import { TimeFormatType } from '../../../lib/dateFormat';
-import { CardTextContainer } from '../common/Card';
 import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { ClickbaitShield } from '../common/ClickbaitShield';
@@ -18,6 +17,7 @@ import { INNER_GRID_COLS } from '../common/featuredWide';
 import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
 import { FeaturedWideImageColumn } from '../common/FeaturedWideImageColumn';
 import { FeaturedWideActions } from '../common/FeaturedWideActions';
+import { FeaturedWideTextContainer } from '../common/FeaturedWideTextContainer';
 
 export const CollectionFeaturedWideGridCard = forwardRef(
   function CollectionFeaturedWideGridCard(
@@ -65,11 +65,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
           )}
         >
           <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
-            <CardTextContainer
-              className={
-                useGlass ? 'min-h-0 flex-1 overflow-hidden' : undefined
-              }
-            >
+            <FeaturedWideTextContainer useGlass={useGlass}>
               <CollectionCardHeader post={post} />
               <h3
                 className={classNames(
@@ -101,7 +97,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
                   {post.summary}
                 </p>
               )}
-            </CardTextContainer>
+            </FeaturedWideTextContainer>
             <FeaturedWideActions
               post={post}
               useGlass={useGlass}
