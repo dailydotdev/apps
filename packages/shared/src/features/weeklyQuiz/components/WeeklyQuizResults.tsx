@@ -14,7 +14,6 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import {
-  ArrowIcon,
   BellIcon,
   CopyIcon,
   DownloadIcon,
@@ -41,8 +40,6 @@ interface WeeklyQuizResultsProps {
   quizId: string;
   result: WeeklyQuizGameResult;
   audio?: UseWeeklyQuizAudio;
-  // Return to the intro ("main"), which shows the full leaderboard.
-  onBackToMain: () => void;
 }
 
 // A developer "level" keyed to how many answers the player got right — the
@@ -179,17 +176,16 @@ const StatRing = ({
   );
 };
 
-// Final screen: a back arrow to the main screen, then a BuzzFeed-style verdict —
-// a developer level for the player (score ring on the left, level and copy on
-// the right, with the numbers counting up on reveal), a matching GIF, then the
-// share row, the "challenge a friend" link and the leaderboard. Logged-in
-// players' results are submitted once on arrival (and again if an anonymous
-// player signs in from here).
+// Final screen: a BuzzFeed-style verdict — a developer level for the player
+// (score ring on the left, level and copy on the right, with the numbers
+// counting up on reveal), a matching GIF, then the share row, the "challenge a
+// friend" link and the leaderboard (the player's own row gets the gold bar).
+// Logged-in players' results are submitted once on arrival (and again if an
+// anonymous player signs in from here).
 export const WeeklyQuizResults = ({
   quizId,
   result,
   audio,
-  onBackToMain,
 }: WeeklyQuizResultsProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { submit } = useSubmitWeeklyQuiz();
@@ -288,18 +284,8 @@ export const WeeklyQuizResults = ({
       {/* One-shot celebratory confetti when the results appear. */}
       <WeeklyQuizConfetti />
 
-      {/* Big icon-only back arrow to the main screen, top-left. */}
-      <button
-        type="button"
-        aria-label="Back to main"
-        className="z-10 absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-full bg-surface-hover text-text-primary transition-colors hover:bg-surface-active"
-        onClick={onBackToMain}
-      >
-        <ArrowIcon size={IconSize.Large} className="-rotate-90" />
-      </button>
-
       {/* Chunk 1 — your result: the verdict headline, GIF and share row. */}
-      <div className="mt-6 flex flex-col gap-6">
+      <div className="flex flex-col gap-6">
         {/* Verdict: the score ring on the left, level and copy on the right. */}
         <div className="flex flex-wrap items-center gap-4 text-left">
           <StatRing
@@ -340,16 +326,6 @@ export const WeeklyQuizResults = ({
                 </span>
                 <span className="text-text-tertiary">· {paceLabel}</span>
               </span>
-              {rank && (
-                <span
-                  className={classNames(
-                    'whitespace-nowrap rounded-8 px-3 py-1 font-bold typo-footnote',
-                    styles.fastestBadge,
-                  )}
-                >
-                  #{rank} this week
-                </span>
-              )}
             </div>
           </div>
         </div>
@@ -367,7 +343,17 @@ export const WeeklyQuizResults = ({
 
         {/* Share row — download the result image, then the standard socials, all
           on a single line. */}
-        <section className="flex flex-col">
+        <section className="relative flex flex-col">
+          {/* Playful sticker nudging the player to share. */}
+          <span
+            aria-hidden
+            className={classNames(
+              'z-10 absolute -top-9 right-1 flex h-20 w-20 flex-col items-center justify-center rounded-full text-center font-bold uppercase leading-tight tracking-wide typo-caption2',
+              styles.shareSticker,
+            )}
+          >
+            Had fun? Share it!
+          </span>
           <Typography
             type={TypographyType.Callout}
             bold

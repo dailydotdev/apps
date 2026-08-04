@@ -723,3 +723,48 @@
     display: none;
   }
 }
+
+/* The player's own leaderboard row — the gold "bar" treatment lifted from the
+ * results badge, so their line pops off the board. Forces dark text/icons on
+ * the descendants (the row content uses light theme tokens by default). */
+.viewerHighlight {
+  border: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--theme-accent-cheese-default) 88%, #fff 12%),
+    var(--theme-accent-bun-default)
+  );
+  box-shadow: 0 6px 22px
+    color-mix(in srgb, var(--theme-accent-bun-default) 45%, transparent);
+}
+.viewerHighlight.viewerHighlight :global(*) {
+  color: #1a1523 !important;
+}
+
+/* Playful circular "share it" sticker floating over the share row. */
+.shareSticker {
+  background: linear-gradient(
+    145deg,
+    var(--theme-accent-cabbage-default),
+    var(--theme-accent-onion-default)
+  );
+  color: #fff;
+  box-shadow: 0 8px 24px
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 45%, transparent);
+  transform: rotate(-8deg);
+  animation: weekly-quiz-sticker-wiggle 3.6s ease-in-out infinite;
+}
+@keyframes weekly-quiz-sticker-wiggle {
+  0%,
+  100% {
+    transform: rotate(-8deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-4deg) translateY(-4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shareSticker {
+    animation: none;
+  }
+}

@@ -74,7 +74,11 @@ const PreviewGame = ({
         phase === WeeklyQuizPhase.Intro ? 'max-w-[768px]' : 'max-w-[640px]'
       }`}
     >
-      <WeeklyQuizSurface showRays={phase !== WeeklyQuizPhase.Intro}>
+      <WeeklyQuizSurface
+        showRays={
+          phase !== WeeklyQuizPhase.Intro && phase !== WeeklyQuizPhase.Results
+        }
+      >
         {phase === WeeklyQuizPhase.Intro && (
           <WeeklyQuizIntro
             quiz={quiz}
@@ -97,7 +101,6 @@ const PreviewGame = ({
             quizId={quizId}
             result={game.result}
             audio={audio}
-            onBackToMain={game.backToIntro}
           />
         )}
       </WeeklyQuizSurface>
@@ -136,7 +139,7 @@ const ResultsPreview = (): React.ReactElement => {
   const audio = useWeeklyQuizAudio();
   return (
     <div className="force-dark mx-auto flex w-full max-w-[640px] items-start justify-center gap-3">
-      <WeeklyQuizSurface>
+      <WeeklyQuizSurface showRays={false}>
         <WeeklyQuizResults
           quizId={status?.activeQuizId ?? ''}
           result={{
@@ -146,7 +149,6 @@ const ResultsPreview = (): React.ReactElement => {
             timeMs: 104000,
           }}
           audio={audio}
-          onBackToMain={() => undefined}
         />
       </WeeklyQuizSurface>
     </div>

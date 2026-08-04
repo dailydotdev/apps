@@ -120,7 +120,11 @@ function WeeklyQuizModal({
       isDrawerOnMobile
     >
       <div className="flex w-full items-start justify-center gap-3">
-        <WeeklyQuizSurface showRays={phase !== WeeklyQuizPhase.Intro}>
+        <WeeklyQuizSurface
+          showRays={
+            phase !== WeeklyQuizPhase.Intro && phase !== WeeklyQuizPhase.Results
+          }
+        >
           {phase === WeeklyQuizPhase.Intro && (
             <WeeklyQuizIntro
               quiz={quiz}
@@ -143,7 +147,6 @@ function WeeklyQuizModal({
               quizId={quizId}
               result={game.result}
               audio={audio}
-              onBackToMain={game.backToIntro}
             />
           )}
         </WeeklyQuizSurface>

@@ -145,7 +145,7 @@ const ScoreboardRow = ({
     <li
       className={classNames(
         'flex items-center gap-3 rounded-12 px-2 py-2.5',
-        entry.isCurrentUser ? 'bg-surface-active' : 'bg-surface-float',
+        entry.isCurrentUser ? styles.viewerHighlight : 'bg-surface-float',
       )}
     >
       <RowContent entry={entry} isFastest={isFastest} animate={animate} />
@@ -345,7 +345,12 @@ export const WeeklyQuizScoreboard = ({
                   the visible top list. White border sets it apart. Null for
                   anon and for anyone without a standing in this period. */}
               {!isPending && viewerEntry && (
-                <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-secondary bg-surface-float px-2 py-1.5">
+                <div
+                  className={classNames(
+                    'flex items-center gap-3 rounded-12 px-2 py-1.5',
+                    styles.viewerHighlight,
+                  )}
+                >
                   <RowContent
                     entry={viewerEntry}
                     isFastest={false}
