@@ -110,14 +110,18 @@ function BaseDrawer({
   }, [onAfterClose, onAfterOpen]);
 
   useEffect(() => {
-    // Same body lock react-modal applies (`ReactModal__Body--open`): without
-    // it, touch scrolls chain through the drawer and the page behind jumps.
+    // Same body lock react-modal applies (`ReactModal__Body--open`), plus the
+    // html element: <html> is the page's actual scroller, so body-level
+    // `overflow: hidden` never reaches the viewport and touch scrolls chain
+    // through the drawer, visibly jumping the page behind it.
     scrollLockCount += 1;
     document.body.classList.add('hidden-scrollbar');
+    document.documentElement.style.overflow = 'hidden';
     return () => {
       scrollLockCount -= 1;
       if (scrollLockCount === 0) {
         document.body.classList.remove('hidden-scrollbar');
+        document.documentElement.style.removeProperty('overflow');
       }
     };
   }, []);

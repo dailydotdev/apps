@@ -45,7 +45,8 @@ describe('Drawer', () => {
 
   it('locks the page scroll behind it while open', () => {
     // Regression: scrolling inside the mobile composer drawer chained to the
-    // post page behind it, which visibly jumped and shifted.
+    // post page behind it, which visibly jumped and shifted. <html> is the
+    // page's actual scroller, so the body class alone does not block it.
     const { unmount } = render(
       <Drawer isOpen isFullScreen onClose={jest.fn()}>
         content
@@ -53,9 +54,11 @@ describe('Drawer', () => {
     );
 
     expect(document.body).toHaveClass('hidden-scrollbar');
+    expect(document.documentElement).toHaveStyle({ overflow: 'hidden' });
 
     unmount();
     expect(document.body).not.toHaveClass('hidden-scrollbar');
+    expect(document.documentElement).not.toHaveStyle({ overflow: 'hidden' });
   });
 
   it('keeps the page locked until the last stacked drawer closes', () => {
