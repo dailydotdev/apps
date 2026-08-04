@@ -12,7 +12,10 @@ import { useWeeklyQuizPlayed } from '@dailydotdev/shared/src/features/weeklyQuiz
 import { WeeklyQuizIntro } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizIntro';
 import { WeeklyQuizCountdown } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizCountdown';
 import { WeeklyQuizQuestion } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizQuestion';
-import { WeeklyQuizResults } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizResults';
+import {
+  WeeklyQuizResults,
+  WEEKLY_QUIZ_TIERS,
+} from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizResults';
 import { WeeklyQuizSideControls } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizSideControls';
 import { WeeklyQuizSurface } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizSurface';
 import { withWeeklyQuiz, mockStatus } from './weeklyQuiz.mocks';
@@ -155,6 +158,44 @@ const ResultsPreview = (): React.ReactElement => {
   );
 };
 
+// A gallery of every score level with its headline, one-liner and GIF, so the
+// full set of results personas can be reviewed at a glance.
+const ScoreTiersGallery = (): React.ReactElement => (
+  <div className="force-dark mx-auto grid w-full max-w-[900px] grid-cols-1 gap-4 p-6 tablet:grid-cols-2">
+    {WEEKLY_QUIZ_TIERS.map((tier, index) => {
+      const low = Math.round(tier.minRatio * 10);
+      const high =
+        index === 0
+          ? 10
+          : Math.round(WEEKLY_QUIZ_TIERS[index - 1].minRatio * 10) - 1;
+      const range = low === high ? `${low}/10` : `${low}–${high}/10`;
+      return (
+        <div
+          key={tier.title}
+          className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4"
+        >
+          <img
+            src={tier.gif}
+            alt=""
+            className="aspect-[4/3] w-full rounded-12 object-cover"
+          />
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-bold text-text-primary typo-title3">
+              {tier.title}
+            </span>
+            <span className="shrink-0 rounded-8 bg-surface-float px-2 py-1 font-bold tabular-nums text-text-secondary typo-footnote">
+              {range}
+            </span>
+          </div>
+          <span className="text-text-secondary typo-callout">
+            {tier.message}
+          </span>
+        </div>
+      );
+    })}
+  </div>
+);
+
 const meta: Meta<typeof WeeklyQuizGamePreview> = {
   title: 'Features/WeeklyQuiz/Game',
   component: WeeklyQuizGamePreview,
@@ -200,4 +241,10 @@ export const AlreadyPlayed: Story = {
 export const Results: Story = {
   render: () => <ResultsPreview />,
   decorators: [withWeeklyQuiz({ loggedIn: true })],
+};
+
+// Every score level side by side — headline, one-liner and GIF per tier.
+export const ScoreTiers: Story = {
+  name: 'Score levels & GIFs',
+  render: () => <ScoreTiersGallery />,
 };

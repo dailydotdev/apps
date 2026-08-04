@@ -44,56 +44,61 @@ interface WeeklyQuizResultsProps {
 
 // A developer "level" keyed to how many answers the player got right — the
 // BuzzFeed-style "who are you" headline for the result, best to worst. Each
-// level carries a matching one-liner and a celebratory GIF. GIF URLs are
-// best-effort (open Giphy media); the GIF hides itself if it fails to load.
-interface ResultTier {
+// level carries the min score ratio that earns it, a matching one-liner and a
+// celebratory GIF. GIF URLs are best-effort (open Giphy media); the GIF hides
+// itself if it fails to load. Exported so a Storybook gallery can show them all.
+export interface ResultTier {
+  minRatio: number;
   title: string;
   message: string;
   gif: string;
 }
 
-const getTier = (correct: number, total: number): ResultTier => {
-  const ratio = total === 0 ? 0 : correct / total;
-  if (ratio === 1) {
-    return {
-      title: '10x AI Engineer',
-      message: 'Flawless. You ship faster than the models can hallucinate.',
-      gif: 'https://media.giphy.com/media/3ohzdIuqJoo8QdKlnW/giphy.gif',
-    };
-  }
-  if (ratio >= 0.8) {
-    return {
-      title: 'Prompt Wizard',
-      message: 'Sharp. You clearly speak fluent context window.',
-      gif: 'https://media.giphy.com/media/3o7btPCcdNniyf0ArS/giphy.gif',
-    };
-  }
-  if (ratio >= 0.6) {
-    return {
-      title: 'Autocomplete Hero',
-      message: 'Strong run. You finished more than you missed.',
-      gif: 'https://media.giphy.com/media/13GIgrGdslD9oQ/giphy.gif',
-    };
-  }
-  if (ratio >= 0.4) {
-    return {
-      title: 'Tab Spammer',
-      message: 'Not bad. A few tabs too many, a few answers too few.',
-      gif: 'https://media.giphy.com/media/YQitE4YNQNahy/giphy.gif',
-    };
-  }
-  if (ratio >= 0.2) {
-    return {
-      title: 'Copy-Paste Coder',
-      message: 'Rough patch. Time to read the docs, not just paste them.',
-      gif: 'https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif',
-    };
-  }
-  return {
+export const WEEKLY_QUIZ_TIERS: ResultTier[] = [
+  {
+    minRatio: 1,
+    title: '10x AI Engineer',
+    message: 'Flawless. You ship faster than the models can hallucinate.',
+    gif: 'https://media.giphy.com/media/3ohzdIuqJoo8QdKlnW/giphy.gif',
+  },
+  {
+    minRatio: 0.8,
+    title: 'Prompt Wizard',
+    message: 'Sharp. You clearly speak fluent context window.',
+    gif: 'https://media.giphy.com/media/3o7btPCcdNniyf0ArS/giphy.gif',
+  },
+  {
+    minRatio: 0.6,
+    title: 'Autocomplete Hero',
+    message: 'Strong run. You finished more than you missed.',
+    gif: 'https://media.giphy.com/media/13GIgrGdslD9oQ/giphy.gif',
+  },
+  {
+    minRatio: 0.4,
+    title: 'Tab Spammer',
+    message: 'Not bad. A few tabs too many, a few answers too few.',
+    gif: 'https://media.giphy.com/media/YQitE4YNQNahy/giphy.gif',
+  },
+  {
+    minRatio: 0.2,
+    title: 'Copy-Paste Coder',
+    message: 'Rough patch. Time to read the docs, not just paste them.',
+    gif: 'https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif',
+  },
+  {
+    minRatio: 0,
     title: 'Asked AI, Still Wrong',
     message: 'Tough week. Even the AI could not save this one.',
     gif: 'https://media.giphy.com/media/3oEjHV0z8S7WM4MwnK/giphy.gif',
-  };
+  },
+];
+
+const getTier = (correct: number, total: number): ResultTier => {
+  const ratio = total === 0 ? 0 : correct / total;
+  return (
+    WEEKLY_QUIZ_TIERS.find((tier) => ratio >= tier.minRatio) ??
+    WEEKLY_QUIZ_TIERS[WEEKLY_QUIZ_TIERS.length - 1]
+  );
 };
 
 // A fabricated-but-fun "better than X%" percentile, derived from the score. A
