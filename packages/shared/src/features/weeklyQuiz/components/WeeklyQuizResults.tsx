@@ -289,8 +289,9 @@ export const WeeklyQuizResults = ({
       {/* One-shot celebratory confetti when the results appear. */}
       <WeeklyQuizConfetti />
 
-      {/* Chunk 1 — your result: the verdict headline, GIF and share row. */}
-      <div className="flex flex-col gap-6">
+      {/* Chunk 1 — your result: the verdict headline, GIF and share row.
+          A floating panel, distinct from the "keep playing" panel below. */}
+      <div className="flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 shadow-2">
         {/* Verdict: the score ring on the left, level and copy on the right. */}
         <div className="flex flex-wrap items-center gap-4 text-left">
           <StatRing
@@ -389,10 +390,9 @@ export const WeeklyQuizResults = ({
       </div>
 
       {/* Divider splitting the shareable result from the follow-on actions. */}
-      <hr className="border-0 border-t border-border-subtlest-tertiary" />
-
-      {/* Chunk 2 — keep playing: challenge, reminder and the leaderboard. */}
-      <div className="flex flex-col gap-6">
+      {/* Chunk 2 — keep playing: challenge, reminder and the leaderboard.
+          Its own floating panel below the result. */}
+      <div className="flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 shadow-2">
         {/* Challenge a friend — share the quiz link so they can try to beat you. */}
         <div
           className={classNames(

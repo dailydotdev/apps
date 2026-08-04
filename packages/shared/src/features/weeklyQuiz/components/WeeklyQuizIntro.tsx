@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -81,6 +81,8 @@ export const WeeklyQuizIntro = ({
   // Local-only until the reminder subscription is wired to the backend.
   const [reminderSet, setReminderSet] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  // Hovering (or focusing) Start rains more paper, faster.
+  const [startHovered, setStartHovered] = useState(false);
   const questionCount = quiz?.questions.length ?? 0;
 
   // Mouse-driven 3D tilt on the logo: rotate toward the cursor, reset on leave.
@@ -104,14 +106,60 @@ export const WeeklyQuizIntro = ({
     }
   };
 
+  // Smoothly ramp the falling papers' playback rate on Start hover (eases
+  // slow→fast instead of jumping). Setting playbackRate keeps each sheet's
+  // position continuous; only the speed changes.
+  const papersRef = useRef<HTMLSpanElement>(null);
+  const rateRef = useRef(1);
+  useEffect(() => {
+    const el = papersRef.current;
+    const target = startHovered ? 3.4 : 1;
+    const from = rateRef.current;
+    if (!el || from === target) {
+      return undefined;
+    }
+    const durationMs = 650;
+    let raf = 0;
+    let startTs: number | null = null;
+    const tick = (now: number): void => {
+      if (startTs === null) {
+        startTs = now;
+      }
+      const progress = Math.min(1, (now - startTs) / durationMs);
+      const eased = 1 - (1 - progress) ** 2; // easeOutQuad
+      rateRef.current = from + (target - from) * eased;
+      el.getAnimations({ subtree: true }).forEach((animation) => {
+        // eslint-disable-next-line no-param-reassign
+        animation.playbackRate = rateRef.current;
+      });
+      if (progress < 1) {
+        raf = window.requestAnimationFrame(tick);
+      }
+    };
+    raf = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(raf);
+  }, [startHovered]);
+
   return (
     <div className="relative flex animate-composer-in flex-col items-center gap-6 p-6 text-center tablet:flex-row-reverse tablet:items-center tablet:gap-8 tablet:p-8">
-      {/* A few A4 papers drifting down the whole surface, behind the content. */}
-      <span className={styles.papers} aria-hidden>
+      {/* A few A4 papers drifting down the whole surface, behind the content.
+          Hovering Start reveals the extra sheets and speeds them all up. */}
+      <span
+        ref={papersRef}
+        className={classNames(
+          styles.papers,
+          startHovered && styles.papersBoost,
+        )}
+        aria-hidden
+      >
         <span className={styles.paper} />
         <span className={styles.paper} />
         <span className={styles.paper} />
         <span className={styles.paper} />
+        <span className={classNames(styles.paper, styles.paperExtra)} />
+        <span className={classNames(styles.paper, styles.paperExtra)} />
+        <span className={classNames(styles.paper, styles.paperExtra)} />
+        <span className={classNames(styles.paper, styles.paperExtra)} />
       </span>
 
       {/* Logo (on tablet, the right column). */}
@@ -194,6 +242,10 @@ export const WeeklyQuizIntro = ({
             className={classNames('w-full', styles.arcadeBtnIdle)}
             disabled={isLoading || questionCount === 0}
             onClick={onStart}
+            onMouseEnter={() => setStartHovered(true)}
+            onMouseLeave={() => setStartHovered(false)}
+            onFocus={() => setStartHovered(true)}
+            onBlur={() => setStartHovered(false)}
             icon={
               user ? (
                 <ProfilePicture

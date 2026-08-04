@@ -163,6 +163,35 @@
   animation-duration: 9.6s;
   animation-delay: 1.2s;
 }
+/* Extra sheets that only join in when the Start button is hovered. */
+.paper:nth-child(5) {
+  left: 54%;
+  animation-duration: 8.8s;
+  animation-delay: 3.1s;
+}
+.paper:nth-child(6) {
+  left: 66%;
+  animation-duration: 7.8s;
+  animation-delay: 0.6s;
+}
+.paper:nth-child(7) {
+  left: 78%;
+  animation-duration: 9.2s;
+  animation-delay: 5s;
+}
+.paper:nth-child(8) {
+  left: 88%;
+  animation-duration: 8s;
+  animation-delay: 2s;
+}
+.paperExtra {
+  display: none;
+}
+/* Hovering Start makes it rain: reveal the extra sheets (the speed-up is a
+ * smooth playback-rate ramp driven in JS, so it eases rather than jumps). */
+.papers.papersBoost .paperExtra {
+  display: block;
+}
 @media (prefers-reduced-motion: reduce) {
   .papers {
     display: none;
