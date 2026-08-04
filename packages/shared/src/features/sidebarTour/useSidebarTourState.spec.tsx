@@ -10,6 +10,7 @@ import { featureSidebarTour } from '../../lib/featureManagement';
 import { LogEvent } from '../../lib/log';
 import {
   COACH_MAX_EXPOSURES,
+  SIDEBAR_PIN_COACH_KEY,
   SIDEBAR_V2_ROLLOUT_DATE,
   useSidebarTourState,
 } from './useSidebarTourState';
@@ -17,6 +18,31 @@ import {
 jest.mock('../../hooks/layout/useLayoutVariant', () => ({
   useLayoutVariant: () => ({ isV2: true, isLoading: false }),
 }));
+
+const mockStorageWrites: Array<[string, unknown]> = [];
+let mockShouldFailWrites = false;
+
+jest.mock('idb-keyval', () => {
+  const actual = jest.requireActual('idb-keyval');
+
+  return {
+    ...actual,
+    set: (key: string, value: unknown) => {
+      mockStorageWrites.push([key, value]);
+
+      if (mockShouldFailWrites) {
+        return Promise.reject(new Error('storage unavailable'));
+      }
+
+      return actual.set(key, value);
+    },
+  };
+});
+
+const writesTo = (key: string): unknown[] =>
+  mockStorageWrites
+    .filter(([written]) => written === key)
+    .map(([, value]) => value);
 
 const existingUser: LoggedUser = {
   ...defaultUser,
@@ -33,6 +59,9 @@ const newUser: LoggedUser = {
 };
 
 const logEvent = jest.fn();
+
+const eventsNamed = (name: LogEvent): unknown[] =>
+  logEvent.mock.calls.filter(([event]) => event.event_name === name);
 
 // The tour resolves its targets from the live rail, so the specs stand up the
 // three nodes it looks for rather than faking coordinates.
@@ -86,6 +115,8 @@ describe('useSidebarTourState', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockStorageWrites.length = 0;
+    mockShouldFailWrites = false;
     unmountRail = mountRail();
   });
 
@@ -245,6 +276,43 @@ describe('useSidebarTourState', () => {
     });
 
     await waitFor(() => expect(result.current.dotsCoach.isActive).toBe(false));
+  });
+
+  it('restarts from the first step when start is called while the tour runs', async () => {
+    const { result } = await renderEnabledTour();
+
+    act(() => result.current.start('auto'));
+    act(() => result.current.next());
+    expect(result.current.step?.id).toBe('dock');
+
+    act(() => result.current.start('support_menu'));
+
+    expect(result.current.step?.id).toBe('rail');
+    expect(eventsNamed(LogEvent.StartSidebarTour)).toHaveLength(2);
+  });
+
+  it('stays gone for the session when the seen flag fails to persist', async () => {
+    const { result } = await renderEnabledTour();
+    mockShouldFailWrites = true;
+
+    act(() => result.current.start('auto'));
+    act(() => result.current.skip());
+
+    await act(async () => undefined);
+
+    expect(result.current.isRunning).toBe(false);
+    expect(result.current.canAutoStart).toBe(false);
+  });
+
+  it('counts both exposures when they land before storage answers', async () => {
+    const { result } = await renderEnabledTour({ user: newUser });
+
+    await act(async () => {
+      result.current.pinCoach.onShown();
+      result.current.pinCoach.onShown();
+    });
+
+    expect(writesTo(SIDEBAR_PIN_COACH_KEY)).toEqual([1, 2]);
   });
 
   it('keeps the ambient coaches away from users who get the tour', async () => {

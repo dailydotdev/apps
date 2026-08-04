@@ -1,5 +1,11 @@
-import { renderHook } from '@testing-library/react';
-import { useSidebarShortcutItems } from './SidebarShortcutsDock';
+import type { ReactElement } from 'react';
+import React from 'react';
+import { fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  SidebarShortcutsDock,
+  useSidebarShortcutItems,
+} from './SidebarShortcutsDock';
 import { webappUrl } from '../../lib/constants';
 
 const mockSetStored = jest.fn().mockResolvedValue(undefined);
@@ -54,5 +60,64 @@ describe('useSidebarShortcutItems stored entry handling', () => {
     const { result } = renderHook(() => useSidebarShortcutItems());
 
     expect(result.current.resolved).toHaveLength(1);
+  });
+});
+
+const onCustomizeInteraction = jest.fn();
+
+const REVEAL_ON_HOVER_CLASS = 'opacity-0';
+
+const renderDock = (element: ReactElement) =>
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      {element}
+    </QueryClientProvider>,
+  );
+
+const getCustomizeButton = () => screen.getByLabelText('Customize shortcuts');
+
+describe('SidebarShortcutsDock customize button', () => {
+  beforeEach(() => {
+    mockStored = [];
+    mockSetStored.mockClear();
+    onCustomizeInteraction.mockClear();
+  });
+
+  it('keeps an empty dock hover-only for callers that pass no tour props', () => {
+    renderDock(<SidebarShortcutsDock />);
+
+    expect(getCustomizeButton()).toHaveClass(REVEAL_ON_HOVER_CLASS);
+  });
+
+  it('holds the button painted while the coach card points at it', () => {
+    renderDock(<SidebarShortcutsDock forceCustomizeVisible />);
+
+    expect(getCustomizeButton()).not.toHaveClass(REVEAL_ON_HOVER_CLASS);
+  });
+
+  it('reports a hover from the pointer and from keyboard focus', () => {
+    renderDock(
+      <SidebarShortcutsDock onCustomizeInteraction={onCustomizeInteraction} />,
+    );
+
+    fireEvent.mouseEnter(getCustomizeButton());
+    fireEvent.focus(getCustomizeButton());
+
+    expect(onCustomizeInteraction).toHaveBeenCalledTimes(2);
+    expect(onCustomizeInteraction).toHaveBeenNthCalledWith(1, 'hover');
+    expect(onCustomizeInteraction).toHaveBeenNthCalledWith(2, 'hover');
+  });
+
+  it('reports the tray opening once, and not again when the same click closes it', () => {
+    renderDock(
+      <SidebarShortcutsDock onCustomizeInteraction={onCustomizeInteraction} />,
+    );
+
+    fireEvent.click(getCustomizeButton());
+    fireEvent.click(getCustomizeButton());
+
+    expect(
+      onCustomizeInteraction.mock.calls.filter(([kind]) => kind === 'open'),
+    ).toHaveLength(1);
   });
 });

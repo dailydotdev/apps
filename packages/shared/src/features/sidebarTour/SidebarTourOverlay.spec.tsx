@@ -7,6 +7,7 @@ import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
 import { featureSidebarTour } from '../../lib/featureManagement';
+import { LogEvent } from '../../lib/log';
 import { SpotlightProvider } from '../../components/spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from '../../components/sidebar/SidebarDesktopV2';
 import { SIDEBAR_V2_ROLLOUT_DATE } from './useSidebarTourState';
@@ -23,6 +24,7 @@ const existingUser: LoggedUser = {
 };
 
 const updateFlag = jest.fn();
+const logEvent = jest.fn();
 // The one class the tour adds to the rail itself, lifting it over the scrim.
 const RAIL_TOUR_LIFT_CLASS = 'laptop:!z-tooltip';
 // The tour auto-starts on a grace timer, so every assertion about it needs more
@@ -41,6 +43,7 @@ const renderRail = (isFeatureEnabled: boolean): RenderResult => {
       gb={gb}
       auth={{ user: existingUser, isLoggedIn: true }}
       settings={{ updateFlag }}
+      log={{ logEvent }}
     >
       <SpotlightProvider>
         <SidebarDesktopV2 activePage="/" />
@@ -121,6 +124,86 @@ describe('sidebar tour wiring', () => {
       expect(
         screen.queryByTestId('sidebar-tour-scrim'),
       ).not.toBeInTheDocument();
+    });
+
+    it('ends the tour on Escape and logs the step it left from', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      fireEvent.keyDown(window, { key: 'Escape' });
+
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId('sidebar-tour-scrim'),
+        ).not.toBeInTheDocument(),
+      );
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.SkipSidebarTour,
+          extra: JSON.stringify({ step: 'rail' }),
+        }),
+      );
+    });
+
+    it('drops the compact switch once the tour leaves the rail step', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+      expect(screen.getByText('Compact mode')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByText('Next'));
+
+      await waitFor(() =>
+        expect(screen.queryByText('Compact mode')).not.toBeInTheDocument(),
+      );
+      expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument();
+    });
+
+    it('finishes on the last step behind a "Got it" button', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      fireEvent.click(screen.getByText('Next'));
+      await screen.findByText('Next');
+      fireEvent.click(screen.getByText('Next'));
+
+      fireEvent.click(await screen.findByText('Got it'));
+
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId('sidebar-tour-scrim'),
+        ).not.toBeInTheDocument(),
+      );
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: LogEvent.CompleteSidebarTour }),
+      );
+    });
+
+    it('gets out of the way when another rail popup takes the group', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      fireEvent.click(screen.getByLabelText('Support'));
+
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId('sidebar-tour-scrim'),
+        ).not.toBeInTheDocument(),
+      );
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: LogEvent.SkipSidebarTour }),
+      );
     });
 
     it('offers the tour again from the support menu', async () => {
