@@ -48,7 +48,8 @@ const mockCommentInputProps = jest.fn();
 
 const CommentInput = (props: { inputId: string }): React.ReactElement => {
   mockCommentInputProps(props);
-  return <div data-testid="comment-input" id={props.inputId} tabIndex={-1} />;
+  const { inputId } = props;
+  return <div data-testid="comment-input" id={inputId} tabIndex={-1} />;
 };
 
 describe('NewComment', () => {
