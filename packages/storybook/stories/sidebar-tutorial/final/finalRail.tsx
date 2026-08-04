@@ -1,6 +1,7 @@
 import type { CSSProperties, DragEvent, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import ProgressCircle from '@dailydotdev/shared/src/components/ProgressCircle';
 import {
   HelpIcon,
   MenuIcon,
@@ -260,12 +261,11 @@ export const FinalStage = ({
   </div>
 );
 
-// The two motions the coach cards need are not in the design system: a
-// blur + lift enter (the shared .animate-rail-popup-in slides on X, which reads
-// wrong for a card that stays put between steps) and a scaleX progress fill.
-// Storybook gives this folder no stylesheet of its own, so the rules ride along
-// with the component. They are identical wherever they mount, so repeating the
-// tag costs nothing.
+// The enter motion the coach cards need is not in the design system: a
+// blur + lift (the shared .animate-rail-popup-in slides on X, which reads wrong
+// for a card that stays put between steps). Storybook gives this folder no
+// stylesheet of its own, so the rule rides along with the component. It is
+// identical wherever it mounts, so repeating the tag costs nothing.
 const COACH_MOTION_CSS = `
 @keyframes coach-card-in {
   from { opacity: 0; filter: blur(6px); transform: translateY(4px); }
@@ -277,13 +277,8 @@ const COACH_MOTION_CSS = `
   will-change: transform, opacity, filter;
 }
 
-.coach-progress-pie {
-  transition: stroke-dasharray 240ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .coach-card-in { animation: none; }
-  .coach-progress-pie { transition: none; }
 }
 `;
 
@@ -348,48 +343,22 @@ export interface CoachProgress {
   active: number;
 }
 
-// A filled pie rather than a ring: the stroke width equals the diameter, so the
-// dash arc sweeps all the way to the centre. Colours come from currentColor so
-// the design tokens apply as ordinary text classes.
-export const CoachProgressPie = ({
+// The shared ring the rest of the app uses for completion. It swaps to a check
+// icon at exactly 100, which would both jump in size at this scale and claim
+// the tour is over while the last step is still open, so the sweep stops a hair
+// short of full.
+export const CoachProgressRing = ({
   total,
   active,
-}: CoachProgress): JSX.Element => {
-  const radius = 4;
-  const circumference = 2 * Math.PI * radius;
-  const swept = ((active + 1) / total) * circumference;
-
-  return (
-    <svg
-      aria-hidden
-      className="shrink-0"
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-    >
-      <circle
-        className="text-accent-cabbage-default"
-        cx="8"
-        cy="8"
-        r="7.5"
-        fill="none"
-        stroke="currentColor"
-        strokeOpacity="0.3"
-      />
-      <circle
-        className="coach-progress-pie text-accent-cabbage-default"
-        cx="8"
-        cy="8"
-        r={radius}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="8"
-        strokeDasharray={`${swept} ${circumference}`}
-        transform="rotate(-90 8 8)"
-      />
-    </svg>
-  );
-};
+}: CoachProgress): JSX.Element => (
+  <span aria-hidden className="shrink-0">
+    <ProgressCircle
+      progress={Math.min(99, ((active + 1) / total) * 100)}
+      size={18}
+      stroke={2}
+    />
+  </span>
+);
 
 export interface CoachCardProps {
   message: string;
@@ -431,7 +400,7 @@ export const CoachCard = ({
 
       {actions && (
         <div className="flex items-center justify-between gap-2 pt-1.5">
-          {progress ? <CoachProgressPie {...progress} /> : <span />}
+          {progress ? <CoachProgressRing {...progress} /> : <span />}
           <span className="flex items-center gap-2">{actions}</span>
         </div>
       )}

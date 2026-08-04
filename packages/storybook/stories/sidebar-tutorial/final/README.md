@@ -57,9 +57,11 @@ One sentence, nothing else: no title, no subtitle, no disclaimer. The card is
 - **Leaving** is an explicit `Skip tour` text button, present on every step. It
   replaced a corner X, which could only say "close" and read as dismissing the
   current step rather than abandoning the tour.
-- **Progress** is a 16px pie on the left of the actions row, aligned with the
-  sentence above it, sweeping a third at a time. There is no oval pill and no
-  "1 of 3" prose.
+- **Progress** is the shared `ProgressCircle` ring at 18px on the left of the
+  actions row, aligned with the sentence above it, sweeping a third at a time.
+  It stops at 99 rather than 100 because the component swaps to a check icon at
+  full, which would claim the tour is over while the last step is still open.
+  There is no oval pill and no "1 of 3" prose.
 - **Actions** are a right-aligned pair: `Skip tour` as a smaller, padding-trimmed
   tertiary button beside `Next` / `Got it`, which carries an 88px minimum width
   so the primary action stays the heavier of the two. There is no `Back`: three
