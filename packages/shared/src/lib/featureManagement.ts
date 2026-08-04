@@ -334,3 +334,9 @@ export const featurePostSignupActivation = new Feature(
   'post_signup_activation',
   false,
 );
+
+// Weekly Quiz: the recurring tech-news challenge banner + modal. Gates the whole
+// feature; the banner is additionally gated by the server-controlled
+// `weeklyQuizStatus.isActive` window. Keep the default `false` — GrowthBook
+// ramps it, and a truthy default would ship it to everyone on merge.
+export const featureWeeklyQuiz = new Feature('weekly_quiz', false);

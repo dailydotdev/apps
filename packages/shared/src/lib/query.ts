@@ -290,6 +290,9 @@ export enum RequestKey {
   ContributionActionLinks = 'contribution_action_links',
   ContributionLastMilestone = 'contribution_last_milestone',
   LeaderboardPosition = 'leaderboard_position',
+  WeeklyQuizStatus = 'weekly_quiz_status',
+  WeeklyQuiz = 'weekly_quiz',
+  WeeklyQuizLeaderboard = 'weekly_quiz_leaderboard',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

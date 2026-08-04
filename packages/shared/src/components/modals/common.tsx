@@ -526,6 +526,13 @@ const PostImpressionsModal = dynamic(
     ),
 );
 
+const WeeklyQuizModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "weeklyQuizModal" */ '../../features/weeklyQuiz/components/WeeklyQuizModal'
+    ),
+);
+
 export const modals = {
   [LazyModal.SquadMember]: SquadMemberModal,
   [LazyModal.UpvotedPopup]: UpvotedPopupModal,
@@ -611,6 +618,7 @@ export const modals = {
   [LazyModal.ReaderExtensionInstall]: ReaderExtensionInstallModal,
   [LazyModal.ReaderPreview]: ReaderPreviewLazyModal,
   [LazyModal.PostImpressions]: PostImpressionsModal,
+  [LazyModal.WeeklyQuiz]: WeeklyQuizModal,
 };
 
 type GetComponentProps<T> = T extends

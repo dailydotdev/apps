@@ -24,6 +24,7 @@ import { useFeeds } from '../hooks/feed/useFeeds';
 import { WebappShortcutsRow } from '../features/shortcuts/components/WebappShortcutsRow';
 import { LiveStandupsStrip } from './liveRooms/LiveStandupsStrip';
 import { AskSearchBanner } from './marketing/banners/AskSearchBanner';
+import { WeeklyQuizBanner } from '../features/weeklyQuiz/components/WeeklyQuizBanner';
 import { FeedEngagementBanner } from './brand/FeedEngagementBanner';
 import FeedContext from '../contexts/FeedContext';
 import feedStyles from './Feed.module.css';
@@ -799,6 +800,7 @@ export default function MainFeedLayout({
         >
           <FeedEngagementBanner className="mb-3" />
         </div>
+        {isHomePage && <WeeklyQuizBanner className="mx-4 mb-4 laptop:mx-0" />}
         {isHomePage && (
           <LiveStandupsStrip className="mx-0 mb-3 tablet:mx-2 laptop:mx-0" />
         )}

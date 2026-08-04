@@ -1,0 +1,770 @@
+/* Arcade skin for the Weekly Quiz. All colors are theme tokens
+ * (var(--theme-accent-*)) composed via color-mix, so the vivid look still
+ * tracks the design system and stays theme-aware — no raw palette values. The
+ * sweep is a deliberate, always-vivid game surface, so text on it is white. */
+
+/* Self-hosted "Play" — the quiz's display font. Files live in each app's
+ * public/fonts dir; scoped to the quiz via .surface (children inherit). */
+@font-face {
+  font-family: 'Play';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/play-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Play';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/play-700.woff2') format('woff2');
+}
+
+.surface {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  /* Match daily.dev modals/cards: neutral surface, 1px subtle border, 16px
+   * radius. Font inherits the app's default sans stack (no more arcade "Play").
+   * Text tokens are applied per element (see components). */
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-subtlest-secondary);
+  border-radius: 16px;
+  background: var(--theme-background-default);
+}
+
+/* Faint sunburst rays fanning down from the top, like the references. */
+.rays {
+  position: absolute;
+  inset: -20% -20% auto -20%;
+  height: 80%;
+  z-index: -1;
+  pointer-events: none;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 0%,
+    rgba(255, 255, 255, 0.07) 0deg 5deg,
+    transparent 5deg 12deg
+  );
+  mask-image: radial-gradient(70% 100% at 50% 0%, #000 0%, transparent 72%);
+  -webkit-mask-image: radial-gradient(
+    70% 100% at 50% 0%,
+    #000 0%,
+    transparent 72%
+  );
+}
+
+/* Logo wrapper — eases back to rest after a mouse-driven 3D tilt. */
+.logoTilt {
+  transition: transform 0.18s ease-out;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Animated brand aura behind the logo: a soft, slowly-rotating multicolor glow
+ * (onion → cabbage → bacon → bun) blurred into an aurora. Sits behind the logo
+ * art, adding life to the otherwise-neutral surface without arcade noise. */
+.logoAura {
+  position: absolute;
+  inset: -22%;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 0deg,
+    var(--theme-accent-onion-default),
+    var(--theme-accent-cabbage-default),
+    var(--theme-accent-bacon-default),
+    var(--theme-accent-bun-default),
+    var(--theme-accent-cabbage-default),
+    var(--theme-accent-onion-default)
+  );
+  filter: blur(30px);
+  opacity: 0.5;
+  pointer-events: none;
+  animation: logo-aura-spin 14s linear infinite;
+}
+@keyframes logo-aura-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logoAura {
+    animation: none;
+  }
+}
+
+/* A few A4 sheets drifting down the surface behind the mascot — a calm, sparse
+ * loop. Fills the whole surface so sheets fall from the top edge; clipped by the
+ * surface's own overflow. */
+.papers {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.paper {
+  position: absolute;
+  top: 0;
+  width: 30px;
+  height: 42px; /* ~A4 ratio */
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  /* `both` fill-mode holds the 0% (hidden, above the edge) state during the
+   * per-sheet delay, so nothing sits frozen mid-air before its turn. */
+  animation: paper-fall linear infinite both;
+  will-change: transform, opacity;
+}
+/* Faint ruled lines so each sheet reads as a page. */
+.paper::before {
+  content: '';
+  position: absolute;
+  inset: 8px 6px auto 6px;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 6px 0 rgba(0, 0, 0, 0.1),
+    0 12px 0 rgba(0, 0, 0, 0.08);
+}
+@keyframes paper-fall {
+  0% {
+    transform: translateY(-40px) rotate(-8deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.9;
+  }
+  88% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(720px) rotate(22deg);
+    opacity: 0;
+  }
+}
+/* Biased to the right half so the sheets fall behind the mascot. */
+.paper:nth-child(1) {
+  left: 60%;
+  animation-duration: 7.5s;
+  animation-delay: 0s;
+}
+.paper:nth-child(2) {
+  left: 72%;
+  animation-duration: 9s;
+  animation-delay: 2.4s;
+}
+.paper:nth-child(3) {
+  left: 84%;
+  animation-duration: 8.2s;
+  animation-delay: 4.3s;
+}
+.paper:nth-child(4) {
+  left: 92%;
+  animation-duration: 9.6s;
+  animation-delay: 1.2s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .papers {
+    display: none;
+  }
+}
+
+/* Warm pulsing glow overlaid on the logo's lightbulb so it reads as "lit".
+ * Screen-blended so it brightens the bulb and spills light around it. */
+.bulbGlow {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 236, 170, 0.95) 0%,
+    rgba(255, 186, 70, 0.55) 38%,
+    rgba(255, 186, 70, 0) 70%
+  );
+  mix-blend-mode: screen;
+  filter: blur(3px);
+  animation: bulb-pulse 1.8s ease-in-out infinite;
+}
+@keyframes bulb-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bulbGlow {
+    animation: none;
+    opacity: 0.75;
+  }
+}
+
+/* Side control chip (mute / close) — sits outside the card on the right with
+ * the same white border + gradient sweep as the main surface. */
+.sideControl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border-subtlest-secondary);
+  border-radius: 16px;
+  background: var(--theme-background-default);
+  box-shadow: var(--theme-shadow2);
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+.sideControl:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+.sideControl:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* Share popover — a solid, legible popover surface over the leaderboard. */
+.sharePanel {
+  background: var(--theme-background-popover);
+  border: 1px solid var(--theme-border-subtlest-secondary);
+  box-shadow: var(--theme-shadow2);
+}
+
+/* The intro's two cards (left: logo + start + social, right: leaderboard) —
+ * standard daily.dev subtle card surface. */
+.panel {
+  background: var(--theme-background-subtle);
+  border: 1px solid var(--theme-border-subtlest-tertiary);
+}
+
+/* Chunky arcade "candy" button — a diagonal purple->orange face (cabbage into
+ * bun), a solid dark-purple base slab underneath (3D press), thick rim, and a
+ * white bubbly label. Presses down on :active. Colors derive from the accent
+ * tokens so it stays theme-aware and matches the purple surface. */
+.arcadeBtn {
+  position: relative;
+  isolation: isolate;
+  color: #fff;
+  border-radius: 1.25rem;
+  border: 3px solid color-mix(in srgb, var(--theme-accent-onion-default) 55%, #000 45%);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 82%, #fff 18%) 0%,
+    var(--theme-accent-cabbage-default) 32%,
+    var(--theme-accent-bacon-default) 62%,
+    var(--theme-accent-bun-default) 100%
+  );
+  box-shadow:
+    0 9px 0 color-mix(in srgb, var(--theme-accent-onion-default) 55%, #000 45%),
+    0 16px 24px rgba(0, 0, 0, 0.32),
+    inset 0 3px 6px rgba(255, 255, 255, 0.55),
+    inset 0 -7px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.15s ease;
+}
+/* Glossy sheen across the top half. */
+.arcadeBtn::before {
+  content: '';
+  position: absolute;
+  inset: 5px 10px auto 10px;
+  height: 42%;
+  border-radius: 0.9rem;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.6),
+    rgba(255, 255, 255, 0)
+  );
+  pointer-events: none;
+}
+.arcadeBtn:hover:not(:disabled) {
+  filter: brightness(1.05) saturate(1.05);
+}
+.arcadeBtn:active:not(:disabled) {
+  transform: translateY(7px);
+  box-shadow:
+    0 2px 0 color-mix(in srgb, var(--theme-accent-onion-default) 55%, #000 45%),
+    0 6px 12px rgba(0, 0, 0, 0.28),
+    inset 0 3px 6px rgba(255, 255, 255, 0.5);
+}
+.arcadeBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Continuous idle "pop" so the button keeps inviting a tap. Pauses on press so
+ * the depress transform still reads, and off entirely for reduced motion. */
+@keyframes arcade-idle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+.arcadeBtnIdle {
+  animation: arcade-idle 1.5s ease-in-out infinite;
+  transition: transform 0.15s ease;
+}
+/* On hover the button stops pulsing and holds big; the label pops instead. */
+.arcadeBtnIdle:hover:not(:disabled) {
+  animation: none;
+  transform: scale(1.06);
+}
+.arcadeBtnIdle:hover:not(:disabled) :global(.btn-label) {
+  display: inline-block;
+  animation: arcade-label-pop 0.7s ease-in-out infinite;
+}
+.arcadeBtnIdle:active:not(:disabled) {
+  animation: none;
+  transform: scale(0.98);
+}
+.arcadeBtnIdle:disabled {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .arcadeBtnIdle,
+  .arcadeBtnIdle:hover:not(:disabled) :global(.btn-label) {
+    animation: none;
+  }
+}
+
+/* Label sits still normally; pops on hover (paired with the button holding big). */
+.arcadeBtnLabel {
+  display: inline-block;
+}
+.arcadeBtn:hover:not(:disabled) .arcadeBtnLabel {
+  animation: arcade-label-pop 0.7s ease-in-out infinite;
+}
+@keyframes arcade-label-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arcadeBtn:hover:not(:disabled) .arcadeBtnLabel {
+    animation: none;
+  }
+}
+
+/* Green variant of the arcade button (results "Share your result"). Declared
+ * after .arcadeBtn so it overrides the purple->orange face on the shared class.
+ * Avocado candy — matches the game's "go" accent. */
+.arcadeBtnGreen {
+  border-color: color-mix(in srgb, var(--theme-accent-avocado-default) 52%, #000 48%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--theme-accent-avocado-default) 65%, #fff 35%) 0%,
+    var(--theme-accent-avocado-default) 52%,
+    color-mix(in srgb, var(--theme-accent-avocado-default) 78%, #000 22%) 100%
+  );
+  box-shadow:
+    0 9px 0 color-mix(in srgb, var(--theme-accent-avocado-default) 45%, #000 55%),
+    0 16px 24px rgba(0, 0, 0, 0.32),
+    inset 0 3px 6px rgba(255, 255, 255, 0.6),
+    inset 0 -7px 10px rgba(0, 0, 0, 0.18);
+}
+.arcadeBtnGreen:active:not(:disabled) {
+  box-shadow:
+    0 2px 0 color-mix(in srgb, var(--theme-accent-avocado-default) 45%, #000 55%),
+    0 6px 12px rgba(0, 0, 0, 0.28),
+    inset 0 3px 6px rgba(255, 255, 255, 0.5);
+}
+
+/* "Fastest" badge — glossy gold→orange pill with a warm glow and a soft pulse
+ * so the speed award stands out on the row. */
+.fastestBadge {
+  color: #000;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--theme-accent-cheese-default) 85%, #fff 15%),
+    var(--theme-accent-bun-default)
+  );
+  box-shadow:
+    0 3px 10px color-mix(in srgb, var(--theme-accent-bun-default) 55%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  animation: fastest-glow 2s ease-in-out infinite;
+}
+@keyframes fastest-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 3px 10px color-mix(in srgb, var(--theme-accent-bun-default) 45%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  }
+  50% {
+    box-shadow:
+      0 3px 16px color-mix(in srgb, var(--theme-accent-bun-default) 75%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.65);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fastestBadge {
+    animation: none;
+  }
+}
+
+/* "All-time superstar" chip — the reigning weekly champion. A richer
+ * magenta→indigo pill with white text and a glossy shimmer so it clearly
+ * outranks the gold "Fastest" award. */
+.superstarBadge {
+  color: #fff;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 85%, #fff 15%),
+    var(--theme-accent-onion-default)
+  );
+  box-shadow:
+    0 3px 12px color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  animation: superstar-glow 2s ease-in-out infinite;
+}
+@keyframes superstar-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 3px 12px color-mix(in srgb, var(--theme-accent-cabbage-default) 45%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+  50% {
+    box-shadow:
+      0 3px 18px color-mix(in srgb, var(--theme-accent-cabbage-default) 80%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .superstarBadge {
+    animation: none;
+  }
+}
+
+/* Stroke + soft tint around the all-time champion's row (the "superstar" row),
+ * so it stands out without an inline chip crowding the name. */
+.superstarRow {
+  border-color: color-mix(
+    in srgb,
+    var(--theme-accent-cabbage-default) 70%,
+    #fff 30%
+  );
+  background: color-mix(
+    in srgb,
+    var(--theme-accent-cabbage-default) 16%,
+    transparent
+  );
+  box-shadow: 0 0 16px
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 35%, transparent);
+}
+
+/* Results-screen action buttons (share / challenge / remind) — white-bordered
+ * arcade pills that lift on hover, matching the game's surface. */
+.resultAction {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.75rem 0.5rem;
+  color: #fff;
+  font-weight: 700;
+  /* Keep each label on a single line — shrink text before wrapping. */
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.resultAction:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.2);
+}
+.resultAction:active {
+  transform: translateY(0) scale(0.98);
+}
+/* Confirmed "reminder set" state — avocado tint so it reads as done. */
+.resultActionSet,
+.resultActionSet:hover {
+  border-color: var(--theme-accent-avocado-default);
+  background: color-mix(
+    in srgb,
+    var(--theme-accent-avocado-default) 28%,
+    transparent
+  );
+}
+
+/* Reminder button under the "try again next week" note — a small pill with a
+ * bell icon and a short label. */
+.reminderButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.14);
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.reminderButton:hover {
+  border-color: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.22);
+}
+.reminderButton:active {
+  transform: scale(0.97);
+}
+.reminderButtonSet,
+.reminderButtonSet:hover {
+  border-color: var(--theme-accent-avocado-default);
+  background: color-mix(
+    in srgb,
+    var(--theme-accent-avocado-default) 28%,
+    transparent
+  );
+}
+
+/* Intro social buttons (Share / Weekly reminder) — equal-size horizontal
+ * pressable chips (icon beside label) with a solid slab underneath so they read
+ * as physical buttons; press down on :active. Fixed width so both match
+ * regardless of label length. */
+.socialButton {
+  display: flex;
+  height: 3rem;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  color: #fff;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow:
+    0 4px 0 rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.12s ease, background 0.15s ease, box-shadow 0.12s ease,
+    border-color 0.15s ease;
+}
+.socialButton:hover {
+  background: rgba(255, 255, 255, 0.26);
+  border-color: rgba(255, 255, 255, 0.65);
+}
+.socialButton:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Leaderboard scroll area — a slim white/50% scrollbar over the gradient. */
+.scrollArea {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
+}
+.scrollArea::-webkit-scrollbar {
+  width: 6px;
+}
+.scrollArea::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 9999px;
+}
+.scrollArea::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Translucent glassy chip used for the timer pill and the results login panel. */
+.glass {
+  background: var(--theme-background-subtle);
+  border: 1px solid var(--theme-border-subtlest-tertiary);
+}
+
+/* Answer tile: glassy by default, then glows green/red on reveal. */
+.tile {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+/* No positional movement on hover/press — the "raised" feel comes from the
+ * shadow only. A translateY here animated the tile out from under the cursor as
+ * it arrived, so the first click landed outside the moving element and got
+ * swallowed (needing several taps). Shadow + scale never move the hit area. */
+.tile:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+}
+.tile:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.tileCorrect {
+  background: color-mix(in srgb, var(--theme-accent-avocado-default) 32%, transparent);
+  border-color: var(--theme-accent-avocado-default);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-avocado-default) 55%, transparent);
+}
+.tileWrong {
+  background: color-mix(in srgb, var(--theme-accent-ketchup-default) 30%, transparent);
+  border-color: var(--theme-accent-ketchup-default);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--theme-accent-ketchup-default) 45%, transparent);
+}
+.tileDimmed {
+  opacity: 0.45;
+}
+
+/* Progress bar fill — the arcade sweep. */
+.progressFill {
+  background: linear-gradient(
+    90deg,
+    var(--theme-accent-onion-default),
+    var(--theme-accent-cabbage-default)
+  );
+  box-shadow: 0 0 12px color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent);
+}
+
+/* Score circle on the results screen. */
+/* Deep purple gradient (matches the brand) — dark enough that the white
+ * score/time text reads clearly. */
+.scoreCircle {
+  background: radial-gradient(
+    circle at 50% 30%,
+    var(--theme-accent-cabbage-default),
+    var(--theme-accent-onion-default) 62%,
+    color-mix(in srgb, var(--theme-accent-onion-default) 62%, #000 38%)
+  );
+  box-shadow:
+    0 0 40px color-mix(in srgb, var(--theme-accent-cabbage-default) 45%, transparent),
+    inset 0 2px 6px rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+/* Big countdown number. drop-shadow (not box-shadow) so the glow follows the
+ * glyph, not the element's rectangular box (background-clip: text makes the
+ * fill text-shaped, but box-shadow would still draw a rectangle behind it). */
+.countNumber {
+  background: radial-gradient(
+    circle at 50% 35%,
+    #fff,
+    var(--theme-accent-cabbage-default) 55%,
+    var(--theme-accent-onion-default)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(
+    0 0 22px color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent)
+  );
+}
+
+/* Arcade banner surface for the feed entry point. */
+.banner {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(
+    120deg,
+    var(--theme-accent-onion-default) 0%,
+    var(--theme-accent-cabbage-default) 60%,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 70%, var(--theme-accent-bacon-default) 30%) 100%
+  );
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--theme-accent-cabbage-default) 40%, transparent);
+}
+
+/* One-shot celebratory confetti on the results screen — pieces fan out from the
+ * top, fall once, and fade. No loop. Hidden under reduced motion. */
+.confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  overflow: visible;
+  pointer-events: none;
+}
+.confettiPiece {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 9px;
+  height: 14px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0;
+  animation-name: weekly-quiz-confetti;
+  animation-timing-function: cubic-bezier(0.2, 0.6, 0.3, 1);
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+@keyframes weekly-quiz-confetti {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(
+        calc(-50% + var(--confetti-dx)),
+        calc(-50% + var(--confetti-dy))
+      )
+      rotate(var(--confetti-r));
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .confetti {
+    display: none;
+  }
+}
+
+/* The player's own leaderboard row — the gold "bar" treatment lifted from the
+ * results badge, so their line pops off the board. Forces dark text/icons on
+ * the descendants (the row content uses light theme tokens by default). */
+.viewerHighlight {
+  border: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--theme-accent-cheese-default) 88%, #fff 12%),
+    var(--theme-accent-bun-default)
+  );
+  box-shadow: 0 6px 22px
+    color-mix(in srgb, var(--theme-accent-bun-default) 45%, transparent);
+}
+.viewerHighlight.viewerHighlight :global(*) {
+  color: #1a1523 !important;
+}
+
+/* Playful circular "share it" sticker floating over the share row. */
+.shareSticker {
+  background: linear-gradient(
+    145deg,
+    var(--theme-accent-cabbage-default),
+    var(--theme-accent-onion-default)
+  );
+  color: #fff;
+  box-shadow: 0 8px 24px
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 45%, transparent);
+  transform: rotate(-8deg);
+  animation: weekly-quiz-sticker-wiggle 3.6s ease-in-out infinite;
+}
+@keyframes weekly-quiz-sticker-wiggle {
+  0%,
+  100% {
+    transform: rotate(-8deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-4deg) translateY(-4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shareSticker {
+    animation: none;
+  }
+}
