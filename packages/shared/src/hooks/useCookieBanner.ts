@@ -41,7 +41,7 @@ interface UseCookieBanner {
 }
 
 export function useCookieBanner(): UseCookieBanner {
-  const { isAuthReady, user, isGdprCovered } = useAuthContext();
+  const { isAuthReady, user, isGdprCovered, isTcfCovered } = useAuthContext();
   const isInitializedRef = useRef(false);
   const [isOpen, setIsOpen] = useState(false);
   const { saveCookies, cookieExists: hasAccepted } = useConsentCookie(
@@ -71,6 +71,12 @@ export function useCookieBanner(): UseCookieBanner {
         onAccept(iubenda.marketing ? otherGdprConsents : []);
         return;
       }
+    }
+
+    // iubenda owns the banner in TCF regions; its consent is mirrored into
+    // our cookies by the Iubenda component.
+    if (isTcfCovered) {
+      return;
     }
 
     if (!isGdprCovered) {
@@ -112,6 +118,7 @@ export function useCookieBanner(): UseCookieBanner {
     user,
     hasAccepted,
     isGdprCovered,
+    isTcfCovered,
   ]);
 
   return {

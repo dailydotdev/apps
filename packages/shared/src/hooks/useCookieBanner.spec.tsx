@@ -42,11 +42,13 @@ const saveCookies = jest.fn();
 const setup = ({
   hasAccepted = false,
   isGdprCovered = true,
+  isTcfCovered = false,
   user = null,
   isAuthReady = true,
 }: {
   hasAccepted?: boolean;
   isGdprCovered?: boolean;
+  isTcfCovered?: boolean;
   user?: unknown;
   isAuthReady?: boolean;
 } = {}) => {
@@ -58,6 +60,7 @@ const setup = ({
     isAuthReady,
     user,
     isGdprCovered,
+    isTcfCovered,
   } as never);
 };
 
@@ -132,6 +135,25 @@ describe('useCookieBanner', () => {
     renderHook(() => useCookieBanner());
 
     expect(localStorage.getItem('cookie_acknowledged')).toBe('true');
+  });
+
+  it('suppresses the homegrown banner in TCF regions', () => {
+    setup({ isGdprCovered: true, isTcfCovered: true, user: null });
+    mockGetIubendaConsent.mockReturnValue(undefined);
+
+    const { result } = renderHook(() => useCookieBanner());
+
+    expect(saveCookies).not.toHaveBeenCalled();
+    expect(result.current.showBanner).toBe(false);
+  });
+
+  it('keeps the homegrown banner outside TCF regions', () => {
+    setup({ isGdprCovered: false, isTcfCovered: false, user: null });
+    mockGetIubendaConsent.mockReturnValue(undefined);
+
+    const { result } = renderHook(() => useCookieBanner());
+
+    expect(result.current.showBanner).toBe(true);
   });
 
   it('uses the marketing consent key for the additional cookie', () => {

@@ -39,6 +39,7 @@ pnpm --filter <package> test|lint|lint:fix
 
 - Early returns over if-else; handle errors/guards first, happy path last.
 - Comments only explain *why* (constraints, gotchas, trade-offs), never *what*.
+- Don't narrate a change in a comment. Even *why* comments are rare here: no multi-line preamble above a new component, test, or class-name ternary explaining the bug it fixes. That reasoning goes in the commit message and PR description, where it stays accurate as the code moves on.
 - Fail fast on violated invariants with a thrown error; no silent no-op fallbacks.
 - **Always derive types from Zod schemas with `z.infer`**; never hand-write a type that duplicates a schema.
 - **No barrel `index.ts` files.** Import directly from the source file. When you see an existing barrel, delete it and fix imports.

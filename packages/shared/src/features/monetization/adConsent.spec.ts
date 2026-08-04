@@ -11,17 +11,42 @@ describe('resolveAdConsent', () => {
   beforeEach(clearCookies);
   afterEach(clearCookies);
 
-  it('does not apply GDPR when the user is outside scope', () => {
-    expect(resolveAdConsent(false).gdprApplies).toBe(false);
-    expect(resolveAdConsent(undefined).gdprApplies).toBe(false);
+  describe('without CMP (legacy compatibility)', () => {
+    it('does not apply GDPR when the user is outside scope', () => {
+      expect(resolveAdConsent(false).gdprApplies).toBe(false);
+      expect(resolveAdConsent(undefined).gdprApplies).toBe(false);
+    });
+
+    it('applies GDPR for an in-scope user who has not consented', () => {
+      expect(resolveAdConsent(true)).toEqual({ gdprApplies: true });
+    });
+
+    it('treats an in-scope user who accepted marketing cookies as consented', () => {
+      document.cookie = 'ilikecookies_marketing=true';
+      expect(resolveAdConsent(true).gdprApplies).toBe(false);
+    });
   });
 
-  it('applies GDPR for an in-scope user who has not consented', () => {
-    expect(resolveAdConsent(true).gdprApplies).toBe(true);
-  });
+  describe('with CMP (TCF) data', () => {
+    it('uses the TCF snapshot, ignoring the legacy cookie', () => {
+      document.cookie = 'ilikecookies_marketing=true';
+      expect(
+        resolveAdConsent(true, {
+          gdprApplies: true,
+          tcString: 'tc-string',
+          addtlConsent: '1~1.2',
+        }),
+      ).toEqual({
+        gdprApplies: true,
+        consentString: 'tc-string',
+        addtlConsent: '1~1.2',
+      });
+    });
 
-  it('treats an in-scope user who accepted marketing cookies as consented', () => {
-    document.cookie = 'ilikecookies_marketing=true';
-    expect(resolveAdConsent(true).gdprApplies).toBe(false);
+    it('prefers the TCF gdprApplies over the geo fallback', () => {
+      expect(resolveAdConsent(true, { gdprApplies: false }).gdprApplies).toBe(
+        false,
+      );
+    });
   });
 });

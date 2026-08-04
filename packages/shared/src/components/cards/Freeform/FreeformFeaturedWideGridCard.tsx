@@ -1,7 +1,6 @@
 import type { ReactElement, Ref } from 'react';
 import React, { forwardRef, useMemo } from 'react';
 import classNames from 'classnames';
-import { CardTextContainer } from '../common/Card';
 import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
@@ -17,6 +16,7 @@ import { INNER_GRID_COLS } from '../common/featuredWide';
 import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
 import { FeaturedWideImageColumn } from '../common/FeaturedWideImageColumn';
 import { FeaturedWideActions } from '../common/FeaturedWideActions';
+import { FeaturedWideTextContainer } from '../common/FeaturedWideTextContainer';
 
 export const FreeformFeaturedWideGridCard = forwardRef(
   function FreeformFeaturedWideGridCard(
@@ -68,11 +68,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
           )}
         >
           <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
-            <CardTextContainer
-              className={
-                useGlass ? 'min-h-0 flex-1 overflow-hidden' : undefined
-              }
-            >
+            <FeaturedWideTextContainer useGlass={useGlass}>
               <SquadPostCardHeader
                 post={post}
                 enableSourceHeader={enableSourceHeader}
@@ -103,7 +99,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
                   {description}
                 </p>
               )}
-            </CardTextContainer>
+            </FeaturedWideTextContainer>
             <FeaturedWideActions
               post={post}
               useGlass={useGlass}

@@ -57,6 +57,7 @@ import useWebappVersion from '../hooks/useWebappVersion';
 import { getAppOrigin, getSiteOrigin } from '../lib/seo';
 import { getOnboardingRedirect } from '../lib/onboardingRedirect';
 import { PixelsProvider } from '../context/PixelsContext';
+import { Iubenda } from '../components/Iubenda';
 
 structuredCloneJsonPolyfill();
 
@@ -401,6 +402,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
             trigger={loginState?.trigger}
           />
         )}
+        {!isImageGenerator && <Iubenda />}
         {showBanner && !isFunnel && !isImageGenerator && (
           <CookieBanner
             onAccepted={onAcceptCookies}

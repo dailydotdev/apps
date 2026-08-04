@@ -1,5 +1,6 @@
 import { apiUrl } from './config';
 import type { Ad } from '../graphql/posts';
+import type { AdMacroContext } from '../features/monetization/adMacros';
 
 export enum AdActions {
   Click = 'click',
@@ -19,7 +20,30 @@ export interface FetchAdByPlacementOptions {
   active?: boolean;
   allowPostBoost?: boolean;
   allowSquadBoost?: boolean;
+  consent?: AdMacroContext;
 }
+
+// IAB-standard consent params; the ad server promotes them to typed request
+// metadata, so names must match its extraction (gdpr, gdpr_consent,
+// addtl_consent).
+const appendConsentParams = (
+  params: URLSearchParams,
+  consent?: AdMacroContext,
+): URLSearchParams => {
+  if (typeof consent?.gdprApplies !== 'undefined') {
+    params.set('gdpr', consent.gdprApplies ? '1' : '0');
+  }
+
+  if (consent?.consentString) {
+    params.set('gdpr_consent', consent.consentString);
+  }
+
+  if (consent?.addtlConsent) {
+    params.set('addtl_consent', consent.addtlConsent);
+  }
+
+  return params;
+};
 
 const skadiGenerationIdHeader = 'x-generation-id';
 
@@ -66,18 +90,21 @@ export const resolveAdFetchOptions = ({
   placement = AdPlacement.Feed,
   active,
   boostsEnabled = false,
+  consent,
 }: {
   placement?: AdPlacement;
   active?: boolean;
   boostsEnabled?: boolean;
+  consent?: AdMacroContext;
 }): FetchAdByPlacementOptions => {
   switch (placement) {
     case AdPlacement.PostComment:
-      return { placement };
+      return { placement, consent };
     case AdPlacement.SquadDirectory:
       return {
         placement,
         allowSquadBoost: true,
+        consent,
       };
     case AdPlacement.PostSidebar:
     case AdPlacement.Feed:
@@ -87,6 +114,7 @@ export const resolveAdFetchOptions = ({
         active,
         allowPostBoost: boostsEnabled,
         allowSquadBoost: boostsEnabled,
+        consent,
       };
   }
 };
@@ -96,17 +124,24 @@ export const fetchAdByPlacement = async ({
   active = false,
   allowPostBoost = false,
   allowSquadBoost = false,
+  consent,
 }: FetchAdByPlacementOptions): Promise<Ad | null> => {
   switch (placement) {
     case AdPlacement.PostComment:
-      return fetchAdRequest({ path: '/v1/a/post' });
+      return fetchAdRequest({
+        path: '/v1/a/post',
+        params: appendConsentParams(new URLSearchParams(), consent),
+      });
     case AdPlacement.SquadDirectory: {
       const params = new URLSearchParams();
       if (allowSquadBoost) {
         params.set('allow_squad_boost', 'true');
       }
 
-      return fetchAdRequest({ path: '/v1/a/squads_directory', params });
+      return fetchAdRequest({
+        path: '/v1/a/squads_directory',
+        params: appendConsentParams(params, consent),
+      });
     }
     case AdPlacement.PostSidebar:
     case AdPlacement.Feed:
@@ -123,7 +158,10 @@ export const fetchAdByPlacement = async ({
         params.append('allow_squad_boost', 'true');
       }
 
-      return fetchAdRequest({ path: '/v1/a', params });
+      return fetchAdRequest({
+        path: '/v1/a',
+        params: appendConsentParams(params, consent),
+      });
     }
   }
 };
