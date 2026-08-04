@@ -392,7 +392,7 @@ export const CoachCard = ({
 
     {pointer !== undefined && <CoachPointer bordered top={pointer} />}
 
-    <div key={stepKey} className="coach-card-in flex flex-col gap-5">
+    <div key={stepKey} className="coach-card-in flex flex-col gap-3.5">
       <Typography
         className="text-balance"
         type={TypographyType.Footnote}
