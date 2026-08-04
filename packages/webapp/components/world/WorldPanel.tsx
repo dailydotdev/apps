@@ -176,6 +176,8 @@ const WorldPanelSignup = memo(WorldSignupCta);
 interface WorldPanelProps {
   user: PublicProfile;
   state: WorldState;
+  /** Six realms of bare ground: every number is a zero and nothing is standing. */
+  unbuilt?: boolean;
   isImmersive: boolean;
   onToggleImmersive: () => void;
   onFocus: (key: string) => void;
@@ -191,6 +193,7 @@ interface WorldPanelProps {
 export function WorldPanel({
   user,
   state,
+  unbuilt,
   isImmersive,
   onToggleImmersive,
   onFocus,
@@ -270,44 +273,61 @@ export function WorldPanel({
               type="button"
               key={row.key}
               onClick={() => onFocus(row.key)}
+              // There is nothing to fly to on ground nobody has read into, and
+              // the engine will not open an unbuilt realm either.
+              disabled={unbuilt}
               className={classNames(
-                'flex flex-col gap-1 rounded-10 px-2 py-1.5 text-left hover:bg-surface-hover',
+                'flex flex-col gap-1 rounded-10 px-2 py-1.5 text-left',
+                !unbuilt && 'hover:bg-surface-hover',
                 row.selected && 'bg-surface-float',
               )}
             >
               <span className="flex w-full items-center gap-2">
                 <i
-                  className="h-2 w-2 flex-none rounded-2"
+                  className={classNames(
+                    'h-2 w-2 flex-none rounded-2',
+                    unbuilt && 'opacity-32',
+                  )}
                   style={{ background: row.color }}
                 />
                 <Typography
                   tag={TypographyTag.Span}
                   type={TypographyType.Footnote}
+                  color={unbuilt ? TypographyColor.Tertiary : undefined}
                   className="min-w-0 flex-1"
                   truncate
                 >
                   {row.name}
                 </Typography>
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Quaternary}
-                >
-                  L{row.level}
-                </Typography>
-                <Typography
-                  tag={TypographyTag.Span}
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                  className="w-10 text-right tabular-nums"
-                >
-                  {formatDataTileValue(row.reads)}
-                </Typography>
+                {/* A realm nobody has read is not level zero with zero
+                    articles in it. It is ground, and the row says so by being
+                    a name with nothing after it. */}
+                {!unbuilt && (
+                  <>
+                    <Typography
+                      tag={TypographyTag.Span}
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Quaternary}
+                    >
+                      L{row.level}
+                    </Typography>
+                    <Typography
+                      tag={TypographyTag.Span}
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Tertiary}
+                      className="w-10 text-right tabular-nums"
+                    >
+                      {formatDataTileValue(row.reads)}
+                    </Typography>
+                  </>
+                )}
               </span>
-              <span
-                className="h-0.5 rounded-2 opacity-64"
-                style={{ background: row.color, width: `${row.share}%` }}
-              />
+              {!unbuilt && (
+                <span
+                  className="h-0.5 rounded-2 opacity-64"
+                  style={{ background: row.color, width: `${row.share}%` }}
+                />
+              )}
             </button>
           ))}
         </div>
@@ -315,8 +335,10 @@ export function WorldPanel({
 
       {/* Last, and only for a reader with no account: the ranking is what they
           came for, and the pitch reads better under a world they have already
-          spent a minute in than over the top of it. */}
-      <WorldPanelSignup />
+          spent a minute in than over the top of it. Not on unbuilt ground —
+          there the one ask stands on the world itself (`WorldInvite`), and this
+          would be the same pitch made twice on one screen. */}
+      {!unbuilt && <WorldPanelSignup />}
     </aside>
   );
 }

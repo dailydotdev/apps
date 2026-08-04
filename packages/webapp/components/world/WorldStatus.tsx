@@ -18,13 +18,17 @@ import { WorldStage, WorldStageIdentity } from './WorldBoot';
 interface WorldStatusProps {
   user: PublicProfile;
   /** A world that could not be built, or a query that did not come back. */
-  message?: string;
+  message: string;
 }
 
 /**
- * Where a world does not stand: too little read for one, or a query that never
- * came back. Same frame as the boot screen, so arriving here is a sentence
- * changing rather than a screen being replaced.
+ * Where a world does not stand at all: a query that never came back, or a model
+ * the renderer refused. Same frame as the boot screen, so arriving here is a
+ * sentence changing rather than a screen being replaced.
+ *
+ * A reader with nothing read does NOT come here — an empty world is a world
+ * that has not been built yet, and that is a thing to show rather than a thing
+ * to report (`WorldInvite`).
  */
 export function WorldStatus({ user, message }: WorldStatusProps): ReactElement {
   return (
@@ -36,8 +40,7 @@ export function WorldStatus({ user, message }: WorldStatusProps): ReactElement {
         color={TypographyColor.Tertiary}
         className="max-w-sm"
       >
-        {message ??
-          `${user.name} has not read enough yet for a world to stand on. Come back once there is some ground under it.`}
+        {message}
       </Typography>
 
       {/* The panel is what normally carries the way out, and it is not rendered

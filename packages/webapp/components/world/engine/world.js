@@ -4740,7 +4740,10 @@ function buildIsland(P,level,opt){
     const lv=forgeVeins(P,prof,R,sp); lv.userData.key='veins'; out.add(lv);
     node(lv,{mode:carry&&prevKeys.has('veins')?'keep':'build',delay:0.3});
   }
-  if(P.kit==='bastion'){
+  /* BARE means nothing was built here, and a rampart is a wall somebody put up.
+     The crag, its snow and its black rock are the landform and they stay: what
+     goes is everything that reads as construction. */
+  if(P.kit==='bastion'&&!opt.bare){
     for(let k=0;k<TIER_R.length;k++){
       const b=TIER_R[k]; if(b>=R)continue; const key='ramp'+k;
       const w=buildRampart(P,prof,b,tierY(b-1e-6),hash2(P.seed,15000+k));
@@ -4823,7 +4826,8 @@ function buildIsland(P,level,opt){
      eight articles is not a founding marker. Placed before the buildings so it
      claims its ground first, and claimed generously — the stone wants air
      around it, not a cottage against its shoulder. */
-  {
+  /* A founding marker marks a founding. Unbuilt ground has had none. */
+  if(!opt.bare){
     const la=(P.seed%13)*0.4833+1.05, lp={r:1.34,a:la,f:0,i:-1};
     accept(lp,0.95);
     put(buildLodestone(P,rngOf(hash2(P.seed,3))),lp,'lode',0);
@@ -4853,7 +4857,10 @@ function buildIsland(P,level,opt){
     (p,i)=>put(K.lamp(P,rngOf(hash2(P.seed,7000+p.i))),p,'lp'+p.i,i*0.008));
   if(sp.trees) placeF(lattice(POP.tree,5.1,RMAX*0.98,hash2(P.seed,80)),0.44,
     (p,i)=>put(K.plant(P,rngOf(hash2(P.seed,8000+p.i))),p,'tr'+p.i,i*0.01));
-  placeF(lattice(POP.cry,4.2,RMAX*0.98,hash2(P.seed,90)),0.38,
+  /* The realm feature is a crate on the quay and a market stall in the old
+     town — somebody's, not the land's. Bare ground keeps its rocks, its tufts
+     and its flowers, and nothing that anybody had to put there. */
+  if(!opt.bare) placeF(lattice(POP.cry,4.2,RMAX*0.98,hash2(P.seed,90)),0.38,
     (p,i)=>put(K.feature(P,rngOf(hash2(P.seed,9000+p.i))),p,'cr'+p.i,i*0.01));
   if(sp.banners) placeN(lattice(40,2.9,RMAX*0.7,hash2(P.seed,100)),
     Math.min(4,1+Math.floor(level/3)),0.4,
@@ -5196,7 +5203,12 @@ const shownList=()=>OPEN?OPEN.list.filter(d=>d.shown>0):W.quarters.filter(q=>q.s
 /* The ten districts an island carries a signature for, and that list as one
    comparable string. Both read the same districts in the same order, so a key
    that has not moved means an island that would be rebuilt identically. */
-const realmSigDistricts=q=>[...q.list].filter(d=>d.shown>0)
+/* An UNBUILT world is the six realms as bare ground: the landform, the sky and
+   the rock of each one, and nothing standing on any of it. The seed model gives
+   every realm a single district so the layout has something to pack, and this
+   is where that district stops being visible — no signature monuments, so what
+   is on screen is the land itself waiting to be built on. */
+const realmSigDistricts=q=>W&&W.unbuilt?[]:[...q.list].filter(d=>d.shown>0)
   .sort((a,b)=>b.shown-a.shown)
   .slice(0,10);
 const realmSigKey=q=>realmSigDistricts(q)
@@ -5210,7 +5222,7 @@ function raiseRealm(q,level,animate){
   q.sigKey=realmSigKey(q);
   const a0=animated.length;
   const r=buildIsland(q.P,level,{carry,prevR:q.builtR,prevKeys:q.keys,
-    alive:true, keel:true, signatures:sigs});
+    alive:true, keel:true, signatures:sigs, bare:!!(W&&W.unbuilt)});
   q.animated=animated.splice(a0);
   q.island=r.group; q.nodes=r.nodes; q.keys=r.keys; q.builtR=r.radius;
   birdsDirty();
@@ -5251,6 +5263,9 @@ function hideRealm(q){
 let worldDay=0;
 function enterRealm(q){
   if(!q||OPEN===q)return;
+  /* There is nothing inside an unbuilt realm. Walking into one would open a
+     ground plan of the seed district nobody has read. */
+  if(W.unbuilt)return;
   handAbort(); unpossess(); birdsDirty();
   worldDay=DAY;
   OPEN=q; selected=null; hovered=null;
@@ -5893,7 +5908,10 @@ function layoutLabels(){
       g.el.style.opacity=String(fade);
       drawLead(g.lead,px,py,at.x,at.y);
       g.lead.g.style.opacity=String(fade);
-      const txt=arts(g.shown);
+      /* Name and subject, and no third line: an unbuilt realm has no count to
+         show, and six labels all repeating the same instruction is the
+         instruction shouted six times. The page asks once, on the world. */
+      const txt=W.unbuilt?'':arts(g.shown);
       if(g.elS.textContent!==txt) g.elS.textContent=txt;
     }
     return;
@@ -6119,13 +6137,18 @@ function updateHud(){
        percent of a world — the same indictment the fixed 40-plot map was killed
        for, restated as a number. A world of four districts is a complete world
        of four districts. */
-    articles:total, districts:founded, realms,
+    /* Nothing has been read, so every one of these is zero — the seed district
+       under each unbuilt realm is scaffolding for the layout, not a fact about
+       anybody, and it must never reach a counter. */
+    articles:W.unbuilt?0:total,
+    districts:W.unbuilt?0:founded,
+    realms:W.unbuilt?0:realms,
     open: OPEN?{ id:OPEN.realm.id,
                  name:OPEN.realm.name.replace(/^THE /,''),
                  theme:OPEN.realm.theme,
                  districts:OPEN.list.filter(d=>d.shown>0).length,
                  articles:OPEN.shown }:null,
-    next: nx?{ need:nx.need, name:nameOf(nx.d), level:LEVELS[nx.L].n,
+    next: nx&&!W.unbuilt?{ need:nx.need, name:nameOf(nx.d), level:LEVELS[nx.L].n,
                color:hexs(nx.d.niche.accent) }:null,
   });
   renderRank(false);
@@ -6133,6 +6156,17 @@ function updateHud(){
 let rankT=0;
 function renderRank(force){
   const now=performance.now(); if(!force&&now-rankT<220)return; rankT=now;
+  /* The rail lists what is standing, and on an unbuilt world that is six pieces
+     of ground. They come in taxonomy order rather than by size, because nothing
+     here is bigger than anything else, and they carry a zero — which is what
+     the rail reads to leave a row as a name with nothing after it. */
+  if(W.unbuilt){
+    emit({rank:W.quarters.map(q=>({
+      key:q.realm.id, name:q.realm.name.replace(/^THE /,''),
+      level:0, reads:0, color:hexs(q.realm.accent), share:0, selected:false,
+    }))});
+    return;
+  }
   const list=(OPEN?OPEN.list:W.quarters).filter(x=>x.shown>0)
     .sort((a,b)=>b.shown-a.shown).slice(0,OPEN?14:6);
   const max=list.length?list[0].shown:1;
@@ -6210,8 +6244,9 @@ async function boot(model){
      it did would be wrong for the whole of the load and then jump. */
   const dayspan=(new Date(W.last)-new Date(W.first))/86400000+1;
   emit({ totalDays:W.nT, replayable:W.replayable,
-         from:W.first, to:W.last,
-         span: !(dayspan>=1)?undefined
+         from:W.unbuilt?undefined:W.first, to:W.unbuilt?undefined:W.last,
+         /* Nothing was read, so there is no first day and no span to report. */
+         span: W.unbuilt||!(dayspan>=1)?undefined
              : dayspan<60?Math.round(dayspan)+'d'
              : dayspan<400?Math.round(dayspan/30.4)+'mo'
              : (dayspan/365.25).toFixed(1)+'y' });

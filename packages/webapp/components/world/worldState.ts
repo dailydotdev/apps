@@ -57,6 +57,8 @@ export interface WorldModel {
   user: string;
   replayable: boolean;
   nT: number;
+  /** The six realms as bare ground: no reader, no reads, nothing standing. */
+  unbuilt?: boolean;
 }
 
 /**

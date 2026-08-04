@@ -4,6 +4,7 @@ import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { WorldBoot } from './WorldBoot';
 import { WorldHeader } from './WorldHeader';
+import { WorldInvite } from './WorldInvite';
 import { WorldImmersiveToggle, WorldMark } from './WorldMark';
 import { WorldPanel } from './WorldPanel';
 import { WorldRiding } from './WorldRiding';
@@ -13,6 +14,7 @@ import type { WorldEngine, WorldState } from './worldState';
 import type { UserWorldResult } from './useUserWorld';
 import { buildWorld } from './engine/buildWorld';
 import { createWorldEngine } from './engine/world';
+import { buildUnbuiltWorld } from './unbuiltWorld';
 
 const INITIAL: WorldState = {
   status: 'loading',
@@ -32,6 +34,11 @@ const INITIAL: WorldState = {
 const PAD_DESKTOP = { l: 344, r: 18, t: 96, b: 112 };
 const PAD_MOBILE = { l: 16, r: 16, t: 136, b: 128 };
 const PAD_IMMERSIVE = { l: 16, r: 16, t: 96, b: 16 };
+/* Same rail, no scrubber under an unbuilt world — nothing to replay — and a
+   deep band kept clear at the top for the one thing that asks anything of the
+   reader, which stands on the world rather than in the rail. */
+const PAD_UNBUILT_DESKTOP = { l: 344, r: 18, t: 176, b: 40 };
+const PAD_UNBUILT_MOBILE = { l: 16, r: 16, t: 272, b: 32 };
 
 interface WorldViewProps {
   user: PublicProfile;
@@ -105,18 +112,30 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   const [hasNoReplay, setHasNoReplay] = useState(false);
   useEffect(() => {
     const engine = engineRef.current;
-    if (!engine || !districts?.length || raisedFor === user.id) {
+    if (!engine || raisedFor === user.id) {
+      return;
+    }
+    /* Nothing read is still a place: a reader with no districts gets their six
+       realms as bare ground rather than a sentence on a black screen. It is
+       raised through the same path a real world is, so everything below here —
+       the camera, the chrome, the failure case — is unaware of the difference. */
+    const hasDistricts = !!districts?.length;
+    if (!hasDistricts && !isEmpty) {
       return;
     }
     setRaisedFor(user.id);
     setHasNoReplay(false);
 
     try {
-      engine.load(buildWorld(user.id, districts, []));
+      engine.load(
+        hasDistricts
+          ? buildWorld(user.id, districts, [])
+          : buildUnbuiltWorld(user.id),
+      );
     } catch (buildError) {
       setFailed((buildError as Error).message);
     }
-  }, [districts, raisedFor, user?.id]);
+  }, [districts, isEmpty, raisedFor, user?.id]);
 
   // And the log, once it lands, folded in under a world that is already up. The
   // day it is folded in on carries the same lifetime totals the world was
@@ -134,6 +153,12 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     if (!engine || failed || raisedFor !== user.id) {
       return;
     }
+    // Bare ground has no history and no query on the wire for one. Said here
+    // rather than skipped, because this is what takes the scrubber down.
+    if (isEmpty) {
+      setHasNoReplay(true);
+      return;
+    }
     if (isHistoryPending || historyForRef.current === user.id) {
       return;
     }
@@ -146,7 +171,15 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       return;
     }
     setHasNoReplay(true);
-  }, [districts, timeline, isHistoryPending, failed, raisedFor, user?.id]);
+  }, [
+    districts,
+    timeline,
+    isHistoryPending,
+    isEmpty,
+    failed,
+    raisedFor,
+    user?.id,
+  ]);
 
   useEffect(() => {
     if (isImmersive) {
@@ -154,8 +187,15 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       return;
     }
 
+    if (isEmpty) {
+      engineRef.current?.setPadding(
+        isLaptop ? PAD_UNBUILT_DESKTOP : PAD_UNBUILT_MOBILE,
+      );
+      return;
+    }
+
     engineRef.current?.setPadding(isLaptop ? PAD_DESKTOP : PAD_MOBILE);
-  }, [isLaptop, isImmersive]);
+  }, [isLaptop, isImmersive, isEmpty]);
 
   const onSeek = useCallback((day: number) => engineRef.current?.seek(day), []);
   const onToggle = useCallback(() => engineRef.current?.toggle(), []);
@@ -184,7 +224,12 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   // Riding hides everything that reads the world from outside it — a panel
   // anchored to a plot means nothing from the shoulder of a bird.
   const isRiding = !!state.riding;
-  const isStanding = !isBooting && !isEmpty && !message;
+  const isStanding = !isBooting && !message;
+  /* Bare ground is a world, and it keeps the whole shell: same rail, same
+     header, same identity block. What the shell says changes — every counter is
+     a zero and the realms are listed as ground to raise — and the scrubber is
+     gone, because a world with no reading in it has no history to walk. */
+  const isUnbuilt = isStanding && isEmpty;
   const isChromeVisible = isStanding && !isRiding && !isImmersive;
   const onToggleImmersive = useCallback(
     () => setIsImmersive((previous) => !previous),
@@ -201,6 +246,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
             <WorldPanel
               user={user}
               state={state}
+              unbuilt={isUnbuilt}
               isImmersive={isImmersive}
               onToggleImmersive={onToggleImmersive}
               onFocus={onFocus}
@@ -210,6 +256,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
             <WorldHeader
               user={user}
               state={state}
+              unbuilt={isUnbuilt}
               isImmersive={isImmersive}
               onToggleImmersive={onToggleImmersive}
               onLeaveRealm={onLeaveRealm}
@@ -218,7 +265,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
           {/* On screen while the growth log is still on the wire, inert, in the
               place it will be live in. It is the last thing to arrive and the
               only one that changes the layout, so it reserves its own room. */}
-          {(state.replayable || !hasNoReplay) && (
+          {!isUnbuilt && (state.replayable || !hasNoReplay) && (
             <WorldTimeline
               state={state}
               pending={!state.replayable}
@@ -234,6 +281,8 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       )}
 
       {isRiding && <WorldRiding state={state} />}
+
+      {isUnbuilt && !isRiding && <WorldInvite user={user} />}
 
       {/* The mark rides in the mobile bar, which is where the space already is.
           Everywhere else — laptop, riding, panels hidden — that bar is gone, so
@@ -252,7 +301,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       )}
 
       {!isStanding &&
-        (isEmpty || message ? (
+        (message ? (
           <WorldStatus user={user} message={message} />
         ) : (
           /* Determinate only once the engine is raising something. Before that

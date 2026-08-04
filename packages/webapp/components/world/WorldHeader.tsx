@@ -25,13 +25,16 @@ import { worldCounts } from './worldState';
 
 const WorldHeaderActions = memo(function WorldHeaderActions({
   user,
+  unbuilt,
 }: {
   user: PublicProfile;
+  unbuilt?: boolean;
 }): ReactElement {
   return (
     <>
       <WorldViewerAction user={user} block />
-      <WorldSignupCta compact />
+      {/* Nothing here on unbuilt ground: the one ask stands on the world. */}
+      {!unbuilt && <WorldSignupCta compact />}
     </>
   );
 });
@@ -39,6 +42,8 @@ const WorldHeaderActions = memo(function WorldHeaderActions({
 interface WorldHeaderProps {
   user: PublicProfile;
   state: WorldState;
+  /** Six realms of bare ground: every number is a zero and nothing is standing. */
+  unbuilt?: boolean;
   isImmersive: boolean;
   onToggleImmersive: () => void;
   onLeaveRealm: () => void;
@@ -53,6 +58,7 @@ interface WorldHeaderProps {
 export function WorldHeader({
   user,
   state,
+  unbuilt,
   isImmersive,
   onToggleImmersive,
   onLeaveRealm,
@@ -100,7 +106,9 @@ export function WorldHeader({
             color={TypographyColor.Tertiary}
             truncate
           >
-            {worldCounts(state)}
+            {/* Not the invitation: that stands on the world, once. This is the
+                counters line saying what there is to count. */}
+            {unbuilt ? 'Open ground' : worldCounts(state)}
           </Typography>
         </div>
         <WorldImmersiveToggle
@@ -111,7 +119,7 @@ export function WorldHeader({
       </div>
       {/* Behind a memo boundary, like the rail's header block: neither reads the
           day, and the engine pushes a new state object every frame of a replay. */}
-      <WorldHeaderActions user={user} />
+      <WorldHeaderActions user={user} unbuilt={unbuilt} />
     </header>
   );
 }
