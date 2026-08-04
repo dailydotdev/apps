@@ -510,6 +510,82 @@ export const createWeeklyQuizResultImage = async (
   }
 };
 
+export interface WeeklyQuizOgImageParams {
+  title: string;
+  correctCount: number;
+  totalQuestions: number;
+  percentile: number;
+  gifUrl?: string | null;
+}
+
+// A generic, per-score social card (1200x630 Open Graph size) — no personal
+// data, so it can be pre-rendered per score and served as the shared link's
+// og:image. Returns a PNG data URL (null if it can't render).
+export const createWeeklyQuizOgImage = async (
+  params: WeeklyQuizOgImageParams,
+): Promise<string | null> => {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+  const w = 1200;
+  const h = 630;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return null;
+  }
+
+  const [daily, gif] = await Promise.all([
+    loadSafe(dailyLogoDataUrl),
+    loadSafe(params.gifUrl, 'anonymous'),
+  ]);
+
+  drawBackground(ctx, w, h);
+
+  // GIF fills the right third, faded into the surface on its left edge.
+  const gifW = 470;
+  if (gif) {
+    drawCover(ctx, gif, w - gifW, 0, gifW, h, 0);
+    const scrim = ctx.createLinearGradient(w - gifW, 0, w - gifW + 220, 0);
+    scrim.addColorStop(0, 'rgba(13, 13, 18, 1)');
+    scrim.addColorStop(1, 'rgba(13, 13, 18, 0)');
+    ctx.fillStyle = scrim;
+    ctx.fillRect(w - gifW, 0, 220, h);
+  }
+
+  const pad = 70;
+  const textW = w - gifW - pad;
+  drawBrandHeader(ctx, { daily, avatar: null, gif: null }, pad, 60);
+
+  ctx.textAlign = 'left';
+  fitFont(ctx, params.title, 'bold', 78, textW);
+  ctx.fillStyle = '#fff';
+  ctx.fillText(params.title, pad, 250);
+
+  ctx.font = `500 30px ${FONT}`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.fillText(`Better than ${params.percentile}% of players`, pad, 300);
+
+  ctx.font = `bold 128px ${FONT}`;
+  ctx.fillStyle = '#fff';
+  ctx.fillText(`${params.correctCount}/${params.totalQuestions}`, pad, 440);
+  ctx.font = `700 30px ${FONT}`;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+  ctx.fillText('CORRECT', pad, 486);
+
+  ctx.font = `bold 34px ${FONT}`;
+  ctx.fillStyle = '#fff';
+  ctx.fillText('What would you get?', pad, 556);
+
+  try {
+    return canvas.toDataURL('image/png');
+  } catch {
+    return null;
+  }
+};
+
 // Renders and downloads the result image as a PNG.
 export const generateWeeklyQuizResultImage = async (
   params: WeeklyQuizResultImageParams,

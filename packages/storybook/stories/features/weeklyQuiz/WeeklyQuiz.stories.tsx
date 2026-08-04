@@ -28,7 +28,10 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { TimerIcon } from '@dailydotdev/shared/src/components/icons';
-import { createWeeklyQuizResultImage } from '@dailydotdev/shared/src/features/weeklyQuiz/generateResultImage';
+import {
+  createWeeklyQuizResultImage,
+  createWeeklyQuizOgImage,
+} from '@dailydotdev/shared/src/features/weeklyQuiz/generateResultImage';
 import { fallbackImages } from '@dailydotdev/shared/src/lib/config';
 import { withWeeklyQuiz, mockStatus } from './weeklyQuiz.mocks';
 
@@ -529,6 +532,67 @@ const ShareImageVariants = (): React.ReactElement => {
   );
 };
 
+// Every possible score (0..10) as a generic Open Graph card — what a shared
+// link would show as its preview image (backend hosts these per score).
+const OgScoreCards = (): React.ReactElement => {
+  const [urls, setUrls] = useState<Array<string | null>>([]);
+  useEffect(() => {
+    let active = true;
+    const total = 10;
+    Promise.all(
+      Array.from({ length: total + 1 }, (unused, correct) => {
+        const ratio = correct / total;
+        const tier =
+          WEEKLY_QUIZ_TIERS.find((entry) => ratio >= entry.minRatio) ??
+          WEEKLY_QUIZ_TIERS[WEEKLY_QUIZ_TIERS.length - 1];
+        return createWeeklyQuizOgImage({
+          title: tier.title,
+          correctCount: correct,
+          totalQuestions: total,
+          percentile: Math.min(99, Math.max(1, Math.round(ratio * 100))),
+          gifUrl: tier.gif,
+        });
+      }),
+    ).then((result) => {
+      if (active) {
+        setUrls(result);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return (
+    <div className="force-dark min-h-screen w-full bg-background-default p-6">
+      <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6">
+        {urls.map((url, correct) => (
+          <div
+            // eslint-disable-next-line react/no-array-index-key
+            key={correct}
+            className="flex flex-col gap-2"
+          >
+            <span className="font-bold text-text-primary typo-callout">
+              {correct}/10
+            </span>
+            {url ? (
+              <img
+                src={url}
+                alt={`${correct} out of 10`}
+                className="w-full rounded-16 border border-border-subtlest-tertiary"
+              />
+            ) : (
+              <div className="flex h-52 items-center justify-center rounded-16 border border-border-subtlest-tertiary text-text-tertiary typo-footnote">
+                Rendering…
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const meta: Meta<typeof WeeklyQuizGamePreview> = {
   title: 'Features/WeeklyQuiz/Game',
   component: WeeklyQuizGamePreview,
@@ -592,4 +656,10 @@ export const FeedPrompts: Story = {
 export const ShareImages: Story = {
   name: 'Share image (4 variants)',
   render: () => <ShareImageVariants />,
+};
+
+// Per-score Open Graph cards (0..10) — the social link-preview images.
+export const OgCards: Story = {
+  name: 'Social cards (per score)',
+  render: () => <OgScoreCards />,
 };
