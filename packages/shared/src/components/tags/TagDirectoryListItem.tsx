@@ -6,7 +6,6 @@ import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlusIcon, VIcon } from '../icons';
 import { Tooltip } from '../tooltip/Tooltip';
 import { getTagPageLink } from '../../lib/links';
-import { formatKeyword } from '../../lib/strings';
 import {
   Typography,
   TypographyColor,
@@ -39,7 +38,7 @@ export function TagDirectoryListItem({
           color={TypographyColor.Secondary}
           className="block min-w-0 flex-1 cursor-pointer truncate px-2 py-1 no-underline transition-colors hover:text-text-primary"
         >
-          {title || formatKeyword(tag)}
+          {title || tag}
         </Typography>
       </Link>
       <Tooltip content={isFollowed ? `Following #${tag}` : `Follow #${tag}`}>

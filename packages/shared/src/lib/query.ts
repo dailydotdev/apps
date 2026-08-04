@@ -148,6 +148,7 @@ export enum RequestKey {
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
   Tags = 'tags',
+  TagTitles = 'tag_titles',
   FeedPreview = 'feedPreview',
   FeedPreviewCustom = 'feedPreviewCustom',
   DailyFeed = 'dailyFeed',

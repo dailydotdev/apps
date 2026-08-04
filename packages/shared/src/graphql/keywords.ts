@@ -1,4 +1,6 @@
 import { gql } from 'graphql-request';
+import { gqlClient } from './common';
+import { generateQueryKey, RequestKey, StaleTime } from '../lib/query';
 
 export type KeywordStatus = 'pending' | 'allow' | 'deny' | 'synonym';
 
@@ -86,6 +88,36 @@ export const KEYWORD_QUERY = gql`
     }
   }
 `;
+
+export const TAG_TITLES_QUERY = gql`
+  query TagTitles {
+    tags {
+      value
+      flags {
+        title
+      }
+    }
+  }
+`;
+
+// Keyword titles ("Machine Learning", "DevOps") are only exposed on `Keyword`,
+// so surfaces holding nothing but raw tag values share one lookup of the whole
+// directory. Callers fall back to the raw value, never to an invented casing.
+export const tagTitlesQueryOptions = () => ({
+  queryKey: generateQueryKey(RequestKey.TagTitles),
+  queryFn: async (): Promise<Record<string, string>> => {
+    const { tags } = await gqlClient.request<{ tags: Keyword[] }>(
+      TAG_TITLES_QUERY,
+    );
+
+    return Object.fromEntries(
+      tags.flatMap(({ value, flags }) =>
+        flags?.title ? [[value, flags.title]] : [],
+      ),
+    );
+  },
+  staleTime: StaleTime.OneDay,
+});
 
 export const TAG_DIRECTORY_QUERY = gql`
   query TagDirectory {
