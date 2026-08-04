@@ -93,7 +93,7 @@ function EmailCodeVerification({
       target_type: TargetType.VerifyEmail,
     });
     setHint('');
-    if (!code) {
+    if (code.length !== CODE_LENGTH) {
       setHint('Enter the 6-digit code');
       return;
     }

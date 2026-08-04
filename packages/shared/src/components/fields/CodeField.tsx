@@ -47,12 +47,17 @@ export function CodeField({
     onSubmit(digits);
   };
 
-  // A caret left mid-string would scramble the order of the digits after it.
+  // A collapsed caret parked mid-string would scramble the order of the digits
+  // after it; a deliberate range selection (select-all, drag) stays native.
   const keepCaretAtEnd = (e: SyntheticEvent<HTMLInputElement>) => {
     const input = e.currentTarget;
     const end = input.value.length;
 
-    if (input.selectionStart === end && input.selectionEnd === end) {
+    if (input.selectionStart !== input.selectionEnd) {
+      return;
+    }
+
+    if (input.selectionStart === end) {
       return;
     }
 
@@ -84,7 +89,7 @@ export function CodeField({
         autoFocus
         aria-label="Verification code"
         autoComplete="one-time-code"
-        className="absolute inset-0 z-1 h-full w-full bg-transparent text-transparent caret-transparent typo-body focus:outline-none"
+        className="absolute inset-0 z-1 h-full w-full bg-transparent text-transparent caret-transparent typo-body [forced-color-adjust:none] focus:outline-none"
         disabled={disabled}
         id="code"
         inputMode="numeric"

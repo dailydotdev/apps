@@ -96,6 +96,18 @@ describe('EmailCodeVerification', () => {
     expect(screen.queryByText('Invalid code')).not.toBeInTheDocument();
   });
 
+  it('should ask for the full code instead of verifying a partial one', async () => {
+    await renderComponent();
+
+    await act(async () => {
+      await userEvent.type(getInput(), '725');
+      await userEvent.click(screen.getByRole('button', { name: 'Verify' }));
+    });
+
+    expect(screen.getByText('Enter the 6-digit code')).toBeInTheDocument();
+    expect(onVerifyCode).not.toHaveBeenCalled();
+  });
+
   it('should render the funnel glass bar CTA in the onboarding funnel', async () => {
     await renderComponent({ isOnboardingFunnel: true });
 

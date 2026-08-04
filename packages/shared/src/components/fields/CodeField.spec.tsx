@@ -129,6 +129,30 @@ describe('CodeField', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  it('should snap a collapsed mid-string caret back to the end', async () => {
+    setup();
+
+    const input = getInput();
+    await userEvent.type(input, '123');
+    input.setSelectionRange(1, 1);
+    fireEvent.select(input);
+
+    expect(input.selectionStart).toBe(3);
+    expect(input.selectionEnd).toBe(3);
+  });
+
+  it('should leave a range selection alone', async () => {
+    setup();
+
+    const input = getInput();
+    await userEvent.type(input, '123');
+    input.setSelectionRange(0, 3);
+    fireEvent.select(input);
+
+    expect(input.selectionStart).toBe(0);
+    expect(input.selectionEnd).toBe(3);
+  });
+
   it('should take no input while disabled', async () => {
     setup({ disabled: true });
 
