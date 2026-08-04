@@ -245,7 +245,7 @@ export const WeeklyQuizIntro = ({
             type="button"
             variant={ButtonVariant.Secondary}
             size={ButtonSize.Medium}
-            className="flex-1"
+            className="flex-1 !border-border-subtlest-tertiary"
             icon={<ShareIcon />}
             onClick={() => setIsShareOpen(true)}
           >
@@ -255,7 +255,7 @@ export const WeeklyQuizIntro = ({
             type="button"
             variant={ButtonVariant.Secondary}
             size={ButtonSize.Medium}
-            className="flex-1"
+            className="flex-1 !border-border-subtlest-tertiary"
             aria-pressed={reminderSet}
             icon={<BellIcon />}
             onClick={() => setReminderSet(true)}
