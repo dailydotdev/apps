@@ -16,8 +16,6 @@ describe('Drawer', () => {
   });
 
   it('sizes a full-screen drawer to the visual viewport', () => {
-    // The virtual keyboard shrinks the visual viewport, not the layout one, so
-    // this is what keeps bottom action bars above the keyboard.
     jest
       .mocked(useVisualViewport)
       .mockReturnValue({ width: 375, height: 500, offsetTop: 40 });
@@ -44,9 +42,7 @@ describe('Drawer', () => {
   });
 
   it('locks the page scroll behind it while open', () => {
-    // Regression: scrolling inside the mobile composer drawer chained to the
-    // post page behind it, which visibly jumped and shifted. <html> is the
-    // page's actual scroller, so the body class alone does not block it.
+    // <html> is the page's actual scroller — the body class alone is not enough.
     const { unmount } = render(
       <Drawer isOpen isFullScreen onClose={jest.fn()}>
         content
@@ -81,8 +77,6 @@ describe('Drawer', () => {
   });
 
   it('leaves the page scrollable behind a partial drawer', () => {
-    // Only full-screen drawers cover the page. Context menus and pickers keep
-    // the page scrollable, exactly as they did before the composer fix.
     const { unmount } = render(
       <Drawer isOpen onClose={jest.fn()}>
         content
@@ -123,9 +117,7 @@ describe('Drawer', () => {
   });
 
   it('closes only on a direct backdrop hit, not on bubbled child clicks', () => {
-    // Portaled dropdowns bubble synthetic clicks up the React tree; treating
-    // any outside-the-panel target as a backdrop hit closed the drawer when
-    // picking a dropdown item.
+    // Portaled dropdowns bubble synthetic clicks up the React tree.
     jest.useFakeTimers();
     const onClose = jest.fn();
     render(

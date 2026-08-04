@@ -124,8 +124,7 @@ export const useComposerSubmit = ({
       if (editPostId) {
         return;
       }
-      // Scheduled posts aren't visible yet, so don't navigate to the post
-      // page — just confirm and let onComplete close the composer.
+      // A scheduled post's page isn't visible yet — confirm instead.
       if (post.flags?.scheduledAt) {
         displayToast('✅ Your post has been scheduled!');
         return;
@@ -183,9 +182,8 @@ export const useComposerSubmit = ({
     return !isPollValid(poll);
   };
 
-  // Scheduling is single-source and non-moderated only. The `scheduledAt` here
-  // is already gated by the caller (undefined unless the post is schedulable),
-  // and it routes through the dedicated single-source mutation for each type.
+  // `scheduledAt` is gated by the caller: undefined unless the post is
+  // schedulable (single-source, non-moderated).
   const submitText = async (scheduledAt?: string) => {
     const payload = {
       title: text.title.trim(),

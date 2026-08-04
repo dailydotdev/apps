@@ -213,8 +213,6 @@ function SwitchComponent(
       {children ? (
         <span
           className={classNames(
-            // `min-w-0` so a long label wraps instead of running past the
-            // track and off the edge of a narrow screen.
             'ml-3 min-w-0 font-medium antialiased',
             defaultTypo && (compact ? 'typo-footnote' : 'typo-callout'),
             styles.children,

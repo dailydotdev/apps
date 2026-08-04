@@ -555,8 +555,6 @@ it('should open the comment composer inline on the page', async () => {
 });
 
 it('should open the comment composer when the mobile floating bar requests it', async () => {
-  // The mobile floating bar lives in the layout footer and reaches this
-  // composer over a window event; the listener must ignore other posts.
   renderPost();
   await screen.findByText('Learn SQL');
 

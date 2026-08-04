@@ -185,9 +185,6 @@ describe('CommentMarkdownInput', () => {
   });
 
   it('sits on one 20px frame on every side in the drawer', () => {
-    // The action bar already carries 20px. Inline, the header and avatar hug
-    // the comment list's 16px guideline; in the drawer there is no list to
-    // line up with, and the mismatch read as unequal padding.
     setViewportHeight(800);
     renderComposer({ fills: true });
 

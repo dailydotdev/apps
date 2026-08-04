@@ -195,8 +195,6 @@ describe('RichTextInput', () => {
   });
 
   it('keeps one avatar mounted across the markdown toggle', () => {
-    // Regression: each mode used to build its own subtree, so toggling
-    // remounted the avatar (refetching the image, hence the visible blink).
     mockUser = {
       id: 'u1',
       username: 'ido',
@@ -227,8 +225,7 @@ describe('RichTextInput', () => {
 
   it('queues an early focus until the editor is created', () => {
     // The editor is created async (`immediatelyRender: false`), while the
-    // composer requests autofocus from a mount-time ref callback. Regression:
-    // that focus silently no-oped, leaving reply composers unfocused.
+    // composer requests autofocus from a mount-time ref callback.
     mockEditorReady = false;
     const ref = React.createRef<RichTextInputRef>();
     const { rerender } = render(
@@ -245,8 +242,6 @@ describe('RichTextInput', () => {
   });
 
   it('gives the bottom bar the safe-area floor instead of the drawer', () => {
-    // `max(1.25rem, safe-area)` on the bar itself keeps the bottom spacing
-    // equal to the sides; drawer padding stacked under it read as double.
     render(<RichTextInput toolbarPosition="bottom" hideFooter />);
 
     expect(

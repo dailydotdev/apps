@@ -529,9 +529,6 @@ function RichTextInput(
     upload.insertImage(gifUrl, altText);
   };
 
-  // Captured before the swap so the view can be put back exactly where it was;
-  // otherwise one direction snapped to the top and the other to the end, which
-  // scrolled the avatar out of sight and read as the composer redrawing.
   const rememberScroll = useCallback(() => {
     scrollOffsetRef.current = scrollContainerRef.current?.scrollTop ?? 0;
     shouldRestoreScrollRef.current = true;
@@ -587,17 +584,14 @@ function RichTextInput(
         if (!textarea) {
           return;
         }
-        // Land where the rich editor lands. Leaving the textarea caret at 0
-        // snapped the box to the top going one way and to the end coming back,
-        // which read as the avatar vanishing when it had only scrolled off.
+        // Caret at the end, matching where the rich editor lands.
         textarea.focus({ preventScroll: true });
         const end = textarea.value.length;
         textarea.setSelectionRange(end, end);
         restoreScroll();
         return;
       }
-      // `scrollIntoView: false` or ProseMirror yanks the box to the caret
-      // straight after the restore below, undoing it.
+      // `scrollIntoView: false` or ProseMirror undoes the restore below.
       editorRef.current?.commands.focus('end', { scrollIntoView: false });
       restoreScroll();
     });
@@ -612,16 +606,12 @@ function RichTextInput(
     if (!ta) {
       return;
     }
-    // Grow to fit like the rich editor does, so the surrounding box keeps its
-    // height when the two swap; the scroll container above absorbs the excess.
-    // Measured from 0 rather than `auto` so the `rows` attribute doesn't act as
-    // a floor — `minHeightClassName` is what sets the empty height, in both
-    // modes, which is what keeps them the same size.
+    // Measured from 0, not `auto`, so `rows` never acts as a floor —
+    // `minHeightClassName` sets the empty height in both modes.
     ta.style.height = '0px';
     ta.style.height = `${ta.scrollHeight}px`;
-    // Swapping the editor out momentarily shrinks the scroll container, which
-    // clamps its offset to 0. Put it back here, once the textarea has its real
-    // height and before paint — restoring from a later frame was too late.
+    // Swapping editors momentarily shrinks the scroll container, clamping its
+    // offset to 0; restore before paint — a later frame is too late.
     restoreScroll();
   }, [input, isMarkdownMode, restoreScroll]);
 
@@ -779,9 +769,7 @@ function RichTextInput(
 
   const isBottomToolbar = toolbarPosition === 'bottom';
   // Rendered outside the rich/markdown branches so switching editors never
-  // drops it. `ml-4 mt-4` puts it on the same guideline as the avatar in
-  // `CommentContainer` (a `p-4` box), so the composer lines up with the
-  // comments underneath it.
+  // drops it.
   const avatar = showUserAvatar && user && (
     <ProfilePicture
       size={ProfileImageSize.Large}
@@ -899,9 +887,8 @@ function RichTextInput(
       />
     ) : null;
 
-  // Both editors hang off one tree so that toggling markdown swaps only the
-  // editor element. Building a separate subtree per mode remounted the avatar
-  // (refetching the image, hence the blink) and the action bar with it.
+  // Both editors hang off one tree so toggling markdown swaps only the editor
+  // element instead of remounting the avatar and action bar.
   const rightActionsNode = (
     <div
       className={classNames(
@@ -959,10 +946,8 @@ function RichTextInput(
       }}
       position={toolbarPosition}
       className={
-        // The bar absorbs the device safe area itself so a drawer around it
-        // adds no bottom padding of its own — stacking the two read as double
-        // spacing under the actions. Everywhere else the max() resolves to
-        // the same 1.25rem as the sides.
+        // The bar absorbs the device safe area itself; the drawer around it
+        // adds no bottom padding of its own (`!p-0`).
         isBottomToolbar
           ? '!gap-3 !px-5 !pb-[max(1.25rem,env(safe-area-inset-bottom))] !pt-4'
           : undefined
@@ -1004,11 +989,8 @@ function RichTextInput(
           className={classNames(
             styles.editor,
             minHeightClassName,
-            // A column flex box so the editable child can fill it by flexing.
-            // Sizing it with `height: 100%` instead only worked where this box
-            // had a definite height; where the height comes from
-            // `minHeightClassName`, the child collapsed to its text and clicks
-            // below the first line missed the editor.
+            // Flex, not `height: 100%`, on the editable child: a percentage
+            // resolves to nothing under a `min-height`-only ancestor.
             'flex min-w-0 flex-1 flex-col p-4',
             avatar && '!pl-3',
             className?.input,
