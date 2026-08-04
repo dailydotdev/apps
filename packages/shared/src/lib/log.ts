@@ -528,6 +528,14 @@ export enum LogEvent {
   SubmitGivebackCauseSuggestionError = 'submit giveback cause suggestion error',
   // Daily homepage
   DailyFeedback = 'daily feedback',
+  // Sidebar v2 onboarding
+  StartSidebarTour = 'start sidebar tour',
+  ViewSidebarTourStep = 'view sidebar tour step',
+  SkipSidebarTour = 'skip sidebar tour',
+  CompleteSidebarTour = 'complete sidebar tour',
+  ViewSidebarPinCoach = 'view sidebar pin coach',
+  SidebarPinCoachSuccess = 'sidebar pin coach success',
+  ViewSidebarDotsCoach = 'view sidebar dots coach',
 }
 
 export enum TargetType {
