@@ -39,6 +39,13 @@ const WorldView = dynamic(
  * A user's reading history as a place their curiosity built. Deliberately NOT
  * under the profile layout: the world is the page, and a sidebar beside it
  * would leave the map a quarter of the screen it needs all of.
+ *
+ * It lives at `/world/:userId` rather than as a `/:userId/world` profile tab
+ * for the same reason. A world is a place, not a view of a person, so the
+ * zoom levels above and below it (a universe of many worlds, a realm inside
+ * one) are path depth in this namespace instead of homeless siblings of the
+ * profile. It still takes the profile's static props: the segment is a
+ * username, and `params.userId` is what the shared loader reads.
  */
 const ProfileWorldPage = ({
   user,
