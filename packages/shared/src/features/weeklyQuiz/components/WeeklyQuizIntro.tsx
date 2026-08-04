@@ -232,7 +232,7 @@ export const WeeklyQuizIntro = ({
         <div className="flex w-full flex-col gap-2">
           <Button
             type="button"
-            variant={ButtonVariant.Float}
+            variant={ButtonVariant.Tertiary}
             size={ButtonSize.Medium}
             className="w-full"
             icon={<ShareIcon />}
@@ -242,7 +242,7 @@ export const WeeklyQuizIntro = ({
           </Button>
           <Button
             type="button"
-            variant={ButtonVariant.Float}
+            variant={ButtonVariant.Tertiary}
             size={ButtonSize.Medium}
             className="w-full"
             aria-pressed={reminderSet}
