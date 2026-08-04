@@ -394,16 +394,17 @@ const CrestBench = ({
         </div>
       </Row>
 
-      <Typography
-        type={TypographyType.Caption1}
-        color={TypographyColor.Quaternary}
-      >
-        {isPending ? (
-          <ElementPlaceholder className="inline-block h-3 w-32 rounded-4 align-middle" />
-        ) : (
-          `${charges.length} of ${total} charges earned`
-        )}
-      </Typography>
+      {/* The placeholder div may not nest in Typography's p. */}
+      {isPending ? (
+        <ElementPlaceholder className="h-4 w-32 rounded-4" />
+      ) : (
+        <Typography
+          type={TypographyType.Caption1}
+          color={TypographyColor.Quaternary}
+        >
+          {`${charges.length} of ${total} charges earned`}
+        </Typography>
+      )}
     </>
   );
 };
