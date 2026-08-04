@@ -110,20 +110,28 @@ function WeeklyQuizModal({
       // The welcome screen is roomier (768px) for its two-panel layout; every
       // other screen is 640px. The surface brings its own gradient/rounding, so
       // strip the Modal's default dark background/border/shadow — otherwise it
-      // frames the surface in a black box.
-      className={`force-dark !border-0 !bg-transparent !shadow-none ${
+      // frames the surface in a black box. On mobile the quiz takes the whole
+      // screen (full-bleed, no rounding); tablet+ is the centered card.
+      className={`force-dark !h-[100dvh] !max-h-[100dvh] !w-full !max-w-full !rounded-none !border-0 !bg-transparent !shadow-none tablet:!h-auto tablet:!rounded-16 ${
         phase === WeeklyQuizPhase.Intro
           ? 'tablet:!w-[768px]'
           : 'tablet:!w-[640px]'
       }`}
       onRequestClose={handleRequestClose}
-      isDrawerOnMobile
     >
-      <div className="flex w-full items-start justify-center gap-3">
+      <div className="flex min-h-[100dvh] w-full items-stretch justify-center gap-3 tablet:min-h-0 tablet:items-start">
         <WeeklyQuizSurface
           bare={phase === WeeklyQuizPhase.Results}
           showRays={
             phase !== WeeklyQuizPhase.Intro && phase !== WeeklyQuizPhase.Results
+          }
+          controls={
+            <WeeklyQuizSideControls
+              layout="inline"
+              level={audio.level}
+              onCycleSound={audio.cycleLevel}
+              onClose={handleRequestClose}
+            />
           }
           headerRight={
             phase === WeeklyQuizPhase.Intro && quiz ? (
@@ -159,11 +167,15 @@ function WeeklyQuizModal({
             />
           )}
         </WeeklyQuizSurface>
-        <WeeklyQuizSideControls
-          level={audio.level}
-          onCycleSound={audio.cycleLevel}
-          onClose={handleRequestClose}
-        />
+        {/* Desktop only: the external side column. On mobile the controls move
+            inside the surface header (above the mascot). */}
+        <div className="hidden tablet:flex">
+          <WeeklyQuizSideControls
+            level={audio.level}
+            onCycleSound={audio.cycleLevel}
+            onClose={handleRequestClose}
+          />
+        </div>
       </div>
     </Modal>
   );

@@ -24,12 +24,12 @@
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  /* Match daily.dev modals/cards: neutral surface, 1px subtle border, 16px
-   * radius. Font inherits the app's default sans stack (no more arcade "Play").
-   * Text tokens are applied per element (see components). */
+  /* Match daily.dev modals/cards: neutral surface. Font inherits the app's
+   * default sans stack (no more arcade "Play"). Text tokens are applied per
+   * element (see components). The border + 16px radius are set on the JSX so
+   * mobile can go full-bleed (edge-to-edge, no frame) while tablet+ keeps the
+   * card look. */
   color: var(--theme-text-primary);
-  border: 1px solid var(--theme-border-subtlest-secondary);
-  border-radius: 16px;
   background: var(--theme-background-default);
 }
 

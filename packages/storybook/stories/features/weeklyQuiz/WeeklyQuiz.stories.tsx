@@ -102,10 +102,23 @@ const PreviewGame = ({
     onRestart();
   };
 
+  const controls = (
+    <WeeklyQuizSideControls
+      layout="inline"
+      level={audio.level}
+      onCycleSound={audio.cycleLevel}
+      onClose={handleRestart}
+    />
+  );
+
   return (
+    // Mobile: break out of the decorator's padding so the surface is edge-to-
+    // edge and fills the screen. Tablet+: the centered card returns.
     <div
-      className={`force-dark mx-auto flex w-full items-start justify-center gap-3 ${
-        phase === WeeklyQuizPhase.Intro ? 'max-w-[768px]' : 'max-w-[640px]'
+      className={`force-dark -m-8 flex min-h-[100dvh] w-auto items-stretch justify-center gap-3 tablet:m-0 tablet:mx-auto tablet:min-h-0 tablet:w-full tablet:items-start ${
+        phase === WeeklyQuizPhase.Intro
+          ? 'tablet:max-w-[768px]'
+          : 'tablet:max-w-[640px]'
       }`}
     >
       <WeeklyQuizSurface
@@ -113,6 +126,7 @@ const PreviewGame = ({
         showRays={
           phase !== WeeklyQuizPhase.Intro && phase !== WeeklyQuizPhase.Results
         }
+        controls={controls}
         headerRight={
           phase === WeeklyQuizPhase.Intro && quiz ? (
             <WeeklyQuizDateChip
@@ -147,11 +161,15 @@ const PreviewGame = ({
           />
         )}
       </WeeklyQuizSurface>
-      <WeeklyQuizSideControls
-        level={audio.level}
-        onCycleSound={audio.cycleLevel}
-        onClose={handleRestart}
-      />
+      {/* Desktop only: the external side column. On mobile the controls move
+          inside the surface header (above the mascot). */}
+      <div className="hidden tablet:flex">
+        <WeeklyQuizSideControls
+          level={audio.level}
+          onCycleSound={audio.cycleLevel}
+          onClose={handleRestart}
+        />
+      </div>
     </div>
   );
 };
