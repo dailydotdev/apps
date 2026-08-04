@@ -9,17 +9,24 @@ import {
   CREATE_FEED_MUTATION,
   DELETE_FEED_MUTATION,
   FEED_LIST_QUERY,
+  TagChipSeedStrategy,
   UPDATE_FEED_MUTATION,
 } from '../../graphql/feed';
 import { mockGraphQL } from '../../../__tests__/helpers/graphql';
 import { BootApp } from '../../lib/boot';
 import { GrowthBookProvider } from '../../components/GrowthBookProvider';
+import { useFeedChipsVariant } from './useFeedChipsVariant';
+import { FeedChipsVariant } from '../../lib/featureManagement';
 import { useOnboardingActions } from '../auth/useOnboardingActions';
 
+jest.mock('./useFeedChipsVariant', () => ({
+  useFeedChipsVariant: jest.fn(),
+}));
 jest.mock('../auth/useOnboardingActions', () => ({
   useOnboardingActions: jest.fn(),
 }));
 
+const mockUseFeedChipsVariant = useFeedChipsVariant as jest.Mock;
 const mockUseOnboardingActions = useOnboardingActions as jest.Mock;
 
 const client = new QueryClient();
@@ -90,12 +97,18 @@ describe('useFeeds hook', () => {
   beforeEach(() => {
     client.clear();
     mockUseOnboardingActions.mockReturnValue({ isOnboardingComplete: true });
+    mockUseFeedChipsVariant.mockReturnValue({
+      variant: FeedChipsVariant.V2,
+      hasTagChipFeeds: true,
+      tagChipSeedStrategy: TagChipSeedStrategy.V1,
+    });
 
     mockGraphQL({
       request: {
         query: FEED_LIST_QUERY,
         variables: {
           includeTagChipFeeds: true,
+          tagChipSeedStrategy: TagChipSeedStrategy.V1,
         },
       },
       result: () => {
@@ -269,6 +282,7 @@ describe('useFeeds hook', () => {
         query: FEED_LIST_QUERY,
         variables: {
           includeTagChipFeeds: false,
+          tagChipSeedStrategy: TagChipSeedStrategy.V1,
         },
       },
       result: () => {
@@ -288,5 +302,40 @@ describe('useFeeds hook', () => {
     renderHook(() => useFeeds(), { wrapper: Wrapper });
 
     await waitFor(() => expect(withoutChipsCalled).toBe(true));
+  });
+
+  it('should request the clustered seed strategy on the V3 variant', async () => {
+    mockUseFeedChipsVariant.mockReturnValue({
+      variant: FeedChipsVariant.V3,
+      hasTagChipFeeds: true,
+      tagChipSeedStrategy: TagChipSeedStrategy.V2,
+    });
+
+    let clusteredCalled = false;
+    mockGraphQL({
+      request: {
+        query: FEED_LIST_QUERY,
+        variables: {
+          includeTagChipFeeds: true,
+          tagChipSeedStrategy: TagChipSeedStrategy.V2,
+        },
+      },
+      result: () => {
+        clusteredCalled = true;
+
+        return {
+          data: {
+            feedList: {
+              pageInfo: { endCursor: expect.any(String), hasNextPage: false },
+              edges: feeds,
+            },
+          },
+        };
+      },
+    });
+
+    renderHook(() => useFeeds(), { wrapper: Wrapper });
+
+    await waitFor(() => expect(clusteredCalled).toBe(true));
   });
 });

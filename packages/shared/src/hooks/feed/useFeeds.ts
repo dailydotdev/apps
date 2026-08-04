@@ -12,11 +12,7 @@ import { useAuthContext } from '../../contexts/AuthContext';
 import { labels } from '../../lib';
 import { useToastNotification } from '../useToastNotification';
 import { gqlClient } from '../../graphql/common';
-import { useConditionalFeature } from '../useConditionalFeature';
-import {
-  FeedChipsVariant,
-  featureFeedChips,
-} from '../../lib/featureManagement';
+import { useFeedChipsVariant } from './useFeedChipsVariant';
 import { useOnboardingActions } from '../auth/useOnboardingActions';
 
 export type CreateFeedProps = {
@@ -40,16 +36,12 @@ export const useFeeds = (): UseFeeds => {
   const { displayToast } = useToastNotification();
   const { user, feeds: bootFeeds } = useAuthContext();
   const { isOnboardingComplete } = useOnboardingActions();
-
-  const { value: feedChipsVariant } = useConditionalFeature({
-    feature: featureFeedChips,
-    shouldEvaluate: !!user,
-  });
-  const includeTagChipFeeds =
-    feedChipsVariant === FeedChipsVariant.V2 && isOnboardingComplete;
+  const { hasTagChipFeeds, tagChipSeedStrategy } = useFeedChipsVariant();
+  const includeTagChipFeeds = hasTagChipFeeds && isOnboardingComplete;
 
   const queryKey = generateQueryKey(RequestKey.Feeds, user, {
     includeTagChipFeeds,
+    tagChipSeedStrategy,
   });
 
   const initialData: FeedList['feedList'] | undefined = useMemo(() => {
@@ -69,6 +61,7 @@ export const useFeeds = (): UseFeeds => {
     queryFn: async () => {
       const result = await gqlClient.request<FeedList>(FEED_LIST_QUERY, {
         includeTagChipFeeds,
+        tagChipSeedStrategy,
       });
 
       return result.feedList;

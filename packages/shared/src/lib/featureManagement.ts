@@ -230,6 +230,7 @@ export const featureUpvoteCountThreshold = new Feature<{
 export enum FeedChipsVariant {
   None = 'none',
   V2 = 'v2',
+  V3 = 'v3',
 }
 export const featureFeedChips = new Feature<FeedChipsVariant>(
   'feed_chips',

@@ -16,6 +16,8 @@ import { useDailyPage } from '../../hooks/feed/useDailyPage';
 import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import { NewStripCta } from './NewStripCta';
 import { findActiveChipId } from './exploreCategories';
+import type { FeedOrigin } from '../../graphql/feed';
+import { useFeedChipsVariant } from '../../hooks/feed/useFeedChipsVariant';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -27,6 +29,7 @@ interface ChipItem {
   group: ChipGroup;
   isIconOnly?: boolean;
   tag?: string;
+  origin?: FeedOrigin;
 }
 
 const GROUP_ORDER: ChipGroup[] = ['forYou', 'categories', 'rest'];
@@ -49,6 +52,7 @@ function UnifiedMobileFeedNav(): ReactElement {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const { logEvent } = useLogContext();
+  const { variant } = useFeedChipsVariant();
   const { isEnabled } = useDailyPage();
   const showDailySwitcher = isLoggedIn && isEnabled;
 
@@ -88,6 +92,8 @@ function UnifiedMobileFeedNav(): ReactElement {
         href: isDefault ? webappUrl : idPath,
         matchPaths,
         group: 'categories',
+        tag: feed.id,
+        origin: feed.flags?.origin,
       });
     });
     if (isLoggedIn) {
@@ -264,6 +270,10 @@ function UnifiedMobileFeedNav(): ReactElement {
                       logEvent({
                         event_name: LogEvent.ClickFeedTagChip,
                         target_id: item.tag,
+                        extra: JSON.stringify({
+                          variant,
+                          origin: item.origin,
+                        }),
                       });
                     }}
                     aria-current={isActive ? 'page' : undefined}
