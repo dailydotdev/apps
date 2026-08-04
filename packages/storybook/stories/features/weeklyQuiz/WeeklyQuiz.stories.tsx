@@ -811,6 +811,9 @@ const QUESTION_OPTIONS = [
 // Question — running header, progress bar, prompt, four stacked answer tiles.
 const MobileQuestion = (): React.ReactElement => (
   <div className="flex h-full flex-col gap-4 p-5">
+    <div className="flex items-center justify-between border-b border-border-subtlest-tertiary pb-3">
+      <WeeklyQuizLogo />
+    </div>
     <div className="flex items-center justify-between">
       <span className="font-bold text-text-tertiary typo-footnote">
         Question 1 of 10
@@ -835,7 +838,9 @@ const MobileQuestion = (): React.ReactElement => (
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-10 bg-surface-float font-bold text-text-primary typo-callout">
             {['A', 'B', 'C', 'D'][index]}
           </span>
-          <span className="text-text-primary typo-callout">{option}</span>
+          <span className="min-w-0 flex-1 text-text-primary typo-callout">
+            {option}
+          </span>
         </div>
       ))}
     </div>
@@ -863,7 +868,7 @@ const MobileResults = (): React.ReactElement => (
         <span className="font-bold text-text-primary typo-title3">4/10</span>
         <span className="text-text-tertiary typo-caption2">Correct</span>
       </div>
-      <div className="flex min-w-0 flex-col gap-1">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="font-bold text-text-primary typo-title3">
           Tab Spammer
         </span>
