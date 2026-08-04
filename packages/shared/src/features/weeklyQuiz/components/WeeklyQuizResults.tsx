@@ -274,7 +274,7 @@ export const WeeklyQuizResults = ({
 
       {/* Chunk 1 — your result: brand header, the verdict headline, GIF and
           share row. A floating panel, distinct from the panel below. */}
-      <div className="flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 shadow-2">
+      <div className="flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 shadow-2">
         {/* daily.dev brand header, inside the result panel. */}
         <div className="-mx-4 -mt-4 border-b border-border-subtlest-tertiary px-4 py-3">
           <WeeklyQuizLogo />
@@ -367,7 +367,7 @@ export const WeeklyQuizResults = ({
       {/* Divider splitting the shareable result from the follow-on actions. */}
       {/* Chunk 2 — keep playing: challenge, reminder and the leaderboard.
           Its own floating panel below the result. */}
-      <div className="flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 shadow-2">
+      <div className="flex flex-col gap-6 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 shadow-2">
         {/* Challenge a friend — share the quiz link so they can try to beat you. */}
         <div
           className={classNames(

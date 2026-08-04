@@ -85,7 +85,7 @@ const PreviewGame = ({
 
   return (
     <div
-      className={`force-dark mx-auto flex w-full items-start justify-center gap-3 bg-background-default ${
+      className={`force-dark mx-auto flex w-full items-start justify-center gap-3 ${
         phase === WeeklyQuizPhase.Intro ? 'max-w-[768px]' : 'max-w-[640px]'
       }`}
     >
@@ -162,7 +162,7 @@ const ResultsPreview = (): React.ReactElement => {
   const { status } = useWeeklyQuizStatus();
   const audio = useWeeklyQuizAudio();
   return (
-    <div className="force-dark mx-auto flex w-full max-w-[640px] items-start justify-center gap-3 bg-background-default">
+    <div className="force-dark mx-auto flex w-full max-w-[640px] items-start justify-center gap-3">
       <WeeklyQuizSurface bare>
         <WeeklyQuizResults
           quizId={status?.activeQuizId ?? ''}
