@@ -592,8 +592,8 @@
 
 /* Answer tile: glassy by default, then glows green/red on reveal. */
 .tile {
-  background: rgba(255, 255, 255, 0.12);
-  border: 2px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease,
     box-shadow 0.18s ease;
 }
@@ -602,8 +602,8 @@
  * it arrived, so the first click landed outside the moving element and got
  * swallowed (needing several taps). Shadow + scale never move the hit area. */
 .tile:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
 }
 .tile:active:not(:disabled) {
@@ -627,11 +627,10 @@
 .progressFill {
   background: linear-gradient(
     90deg,
-    var(--theme-accent-cheese-default),
-    var(--theme-accent-bun-default),
-    var(--theme-accent-bacon-default)
+    var(--theme-accent-onion-default),
+    var(--theme-accent-cabbage-default)
   );
-  box-shadow: 0 0 12px color-mix(in srgb, var(--theme-accent-bacon-default) 60%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent);
 }
 
 /* Score circle on the results screen. */
@@ -657,14 +656,14 @@
   background: radial-gradient(
     circle at 50% 35%,
     #fff,
-    var(--theme-accent-cheese-default) 55%,
-    var(--theme-accent-bun-default)
+    var(--theme-accent-cabbage-default) 55%,
+    var(--theme-accent-onion-default)
   );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   filter: drop-shadow(
-    0 0 22px color-mix(in srgb, var(--theme-accent-cheese-default) 60%, transparent)
+    0 0 22px color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent)
   );
 }
 

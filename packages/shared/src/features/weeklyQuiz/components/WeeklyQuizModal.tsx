@@ -13,7 +13,7 @@ import { WeeklyQuizCountdown } from './WeeklyQuizCountdown';
 import { WeeklyQuizQuestion } from './WeeklyQuizQuestion';
 import { WeeklyQuizResults } from './WeeklyQuizResults';
 import { WeeklyQuizSideControls } from './WeeklyQuizSideControls';
-import styles from '../WeeklyQuiz.module.css';
+import { WeeklyQuizSurface } from './WeeklyQuizSurface';
 
 // The Weekly Quiz overlay: an intro (welcome text + scoreboard + start), a
 // 3-2-1 countdown, the stepped question flow, and the results. State lives in
@@ -107,17 +107,20 @@ function WeeklyQuizModal({
       {...props}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.XLarge}
-      // Fixed 640px so every screen (intro, quiz, results) shares one width.
-      // The surface brings its own gradient/rounding, so strip the Modal's
-      // default dark background/border/shadow — otherwise it frames the surface
-      // in a black box.
-      className="force-dark !border-0 !bg-transparent !shadow-none tablet:!w-[640px]"
+      // The welcome screen is roomier (768px) for its two-panel layout; every
+      // other screen is 640px. The surface brings its own gradient/rounding, so
+      // strip the Modal's default dark background/border/shadow — otherwise it
+      // frames the surface in a black box.
+      className={`force-dark !border-0 !bg-transparent !shadow-none ${
+        phase === WeeklyQuizPhase.Intro
+          ? 'tablet:!w-[768px]'
+          : 'tablet:!w-[640px]'
+      }`}
       onRequestClose={handleRequestClose}
       isDrawerOnMobile
     >
       <div className="flex w-full items-start justify-center gap-3">
-        <div className={`relative flex-1 ${styles.surface}`}>
-          <span className={styles.rays} aria-hidden />
+        <WeeklyQuizSurface showRays={phase !== WeeklyQuizPhase.Intro}>
           {phase === WeeklyQuizPhase.Intro && (
             <WeeklyQuizIntro
               quiz={quiz}
@@ -143,7 +146,7 @@ function WeeklyQuizModal({
               onBackToMain={game.backToIntro}
             />
           )}
-        </div>
+        </WeeklyQuizSurface>
         <WeeklyQuizSideControls
           level={audio.level}
           onCycleSound={audio.cycleLevel}

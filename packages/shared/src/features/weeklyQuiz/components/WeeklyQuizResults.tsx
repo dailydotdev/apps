@@ -290,162 +290,115 @@ export const WeeklyQuizResults = ({
         <ArrowIcon size={IconSize.Large} className="-rotate-90" />
       </button>
 
-      {/* Verdict: score and time rings on the left, level and copy on the
-          right. */}
-      <div className="mt-6 flex flex-wrap items-center gap-4 text-left">
-        <StatRing
-          value={`${correctCount}/${totalQuestions}`}
-          label="Correct"
-          ratio={ratio}
-          colorVar="--theme-accent-cabbage-default"
-        />
-        <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
-          <Typography
-            type={TypographyType.Title1}
-            bold
-            tag={TypographyTag.H1}
-            className="!text-text-primary"
-          >
-            {tier.title}
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            className="!text-text-secondary"
-          >
-            You scored better than {percentile}% of players.
-          </Typography>
-          <Typography
-            type={TypographyType.Callout}
-            className="mt-0.5 !text-text-secondary"
-          >
-            {tier.message}
-          </Typography>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="flex items-center gap-1.5 whitespace-nowrap rounded-8 bg-surface-float px-3 py-1 typo-footnote">
-              <TimerIcon
-                size={IconSize.XSmall}
-                className="text-text-tertiary"
-              />
-              <span className="font-bold tabular-nums text-text-primary">
-                {formatElapsed(timeMs)}
+      {/* Chunk 1 — your result: the verdict headline, GIF and share row. */}
+      <div className="mt-6 flex flex-col gap-6">
+        {/* Verdict: score and time rings on the left, level and copy on the
+            right. */}
+        <div className="flex flex-wrap items-center gap-4 text-left">
+          <StatRing
+            value={`${correctCount}/${totalQuestions}`}
+            label="Correct"
+            ratio={ratio}
+            colorVar="--theme-accent-cabbage-default"
+          />
+          <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
+            <Typography
+              type={TypographyType.Title1}
+              bold
+              tag={TypographyTag.H1}
+              className="!text-text-primary"
+            >
+              {tier.title}
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              className="!text-text-secondary"
+            >
+              You scored better than {percentile}% of players.
+            </Typography>
+            <Typography
+              type={TypographyType.Callout}
+              className="mt-0.5 !text-text-secondary"
+            >
+              {tier.message}
+            </Typography>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="flex items-center gap-1.5 whitespace-nowrap rounded-8 bg-surface-float px-3 py-1 typo-footnote">
+                <TimerIcon
+                  size={IconSize.XSmall}
+                  className="text-text-tertiary"
+                />
+                <span className="font-bold tabular-nums text-text-primary">
+                  {formatElapsed(timeMs)}
+                </span>
+                <span className="text-text-tertiary">· {paceLabel}</span>
               </span>
-              <span className="text-text-tertiary">· {paceLabel}</span>
-            </span>
-            {rank && (
-              <span
-                className={classNames(
-                  'whitespace-nowrap rounded-8 px-3 py-1 font-bold typo-footnote',
-                  styles.fastestBadge,
-                )}
-              >
-                #{rank} this week
-              </span>
-            )}
+              {rank && (
+                <span
+                  className={classNames(
+                    'whitespace-nowrap rounded-8 px-3 py-1 font-bold typo-footnote',
+                    styles.fastestBadge,
+                  )}
+                >
+                  #{rank} this week
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* A 4:3 GIF that matches the verdict. Hidden if the open URL fails. */}
-      {!gifFailed && (
-        <img
-          src={tier.gif}
-          alt=""
-          aria-hidden
-          onError={() => setGifFailed(true)}
-          className="aspect-[4/3] w-full max-w-[640px] rounded-16 object-cover"
-        />
-      )}
+        {/* A 4:3 GIF that matches the verdict. Hidden if the open URL fails. */}
+        {!gifFailed && (
+          <img
+            src={tier.gif}
+            alt=""
+            aria-hidden
+            onError={() => setGifFailed(true)}
+            className="aspect-[4/3] w-full max-w-[640px] rounded-16 object-cover"
+          />
+        )}
 
-      {/* Share row — download the result image, then the standard socials, all
+        {/* Share row — download the result image, then the standard socials, all
           on a single line. */}
-      <section className="flex flex-col">
-        <Typography
-          type={TypographyType.Callout}
-          bold
-          tag={TypographyTag.H4}
-          className="!text-text-primary"
-        >
-          Share your result
-        </Typography>
-        <div className="no-scrollbar mt-4 flex flex-row justify-start gap-2 overflow-x-auto">
-          <SocialShareButton
-            label="Download"
-            icon={<DownloadIcon />}
-            variant={ButtonVariant.Primary}
-            onClick={handleDownload}
-          />
-          <SocialShareList
-            link={quizUrl}
-            description={shareText}
-            emailTitle="Take the daily.dev weekly tech news quiz"
-            emailSummary={shareText}
-            onNativeShare={nativeShare}
-            onClickSocial={() => undefined}
-            // No backend link-shortener in this context; share the link as-is.
-            shortenUrl={false}
-          />
-        </div>
-      </section>
-
-      {/* Challenge a friend — share the quiz link so they can try to beat you. */}
-      <div
-        className={classNames(
-          'flex flex-col gap-2 rounded-16 p-4 text-left',
-          styles.glass,
-        )}
-      >
-        <Typography
-          type={TypographyType.Callout}
-          bold
-          className="!text-text-primary"
-        >
-          Challenge a friend ⚔️
-        </Typography>
-        <Typography
-          type={TypographyType.Footnote}
-          className="!text-text-tertiary"
-        >
-          Send this link so they can take this week&apos;s quiz and try to beat
-          your score.
-        </Typography>
-        <div className="flex items-center gap-2">
-          <input
-            readOnly
-            value={quizUrl}
-            aria-label="Quiz link"
-            onFocus={(event) => event.target.select()}
-            className="min-w-0 flex-1 rounded-10 bg-background-default px-3 py-2 text-text-primary typo-footnote"
-          />
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            icon={<CopyIcon />}
-            onClick={copyLink}
+        <section className="flex flex-col">
+          <Typography
+            type={TypographyType.Callout}
+            bold
+            tag={TypographyTag.H4}
+            className="!text-text-primary"
           >
-            {linkCopied ? 'Copied' : 'Copy'}
-          </Button>
-        </div>
+            Share your result
+          </Typography>
+          <div className="no-scrollbar mt-4 flex flex-row justify-start gap-2 overflow-x-auto">
+            <SocialShareButton
+              label="Download"
+              icon={<DownloadIcon />}
+              variant={ButtonVariant.Primary}
+              onClick={handleDownload}
+            />
+            <SocialShareList
+              link={quizUrl}
+              description={shareText}
+              emailTitle="Take the daily.dev weekly tech news quiz"
+              emailSummary={shareText}
+              onNativeShare={nativeShare}
+              onClickSocial={() => undefined}
+              // No backend link-shortener in this context; share the link as-is.
+              shortenUrl={false}
+            />
+          </div>
+        </section>
       </div>
 
-      {/* Weekly reminder. */}
-      <button
-        type="button"
-        aria-pressed={reminderSet}
-        className={classNames(
-          styles.resultAction,
-          reminderSet && styles.resultActionSet,
-        )}
-        onClick={() => setReminderSet(true)}
-      >
-        <BellIcon size={IconSize.XSmall} />
-        {reminderSet ? "You're all set" : 'Set weekly reminder'}
-      </button>
+      {/* Divider splitting the shareable result from the follow-on actions. */}
+      <hr className="border-0 border-t border-border-subtlest-tertiary" />
 
-      {!user && (
+      {/* Chunk 2 — keep playing: challenge, reminder and the leaderboard. */}
+      <div className="flex flex-col gap-6">
+        {/* Challenge a friend — share the quiz link so they can try to beat you. */}
         <div
           className={classNames(
-            'flex flex-col items-center gap-2 rounded-16 p-4 text-center',
+            'flex flex-col gap-2 rounded-16 p-4 text-left',
             styles.glass,
           )}
         >
@@ -454,25 +407,81 @@ export const WeeklyQuizResults = ({
             bold
             className="!text-text-primary"
           >
-            Log in to save your score and claim your spot
+            Challenge a friend ⚔️
           </Typography>
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Medium}
-            onClick={() => showLogin({ trigger: AuthTriggers.WeeklyQuiz })}
+          <Typography
+            type={TypographyType.Footnote}
+            className="!text-text-tertiary"
           >
-            Log in to see your rank
-          </Button>
+            Send this link so they can take this week&apos;s quiz and try to
+            beat your score.
+          </Typography>
+          <div className="flex items-center gap-2">
+            <input
+              readOnly
+              value={quizUrl}
+              aria-label="Quiz link"
+              onFocus={(event) => event.target.select()}
+              className="min-w-0 flex-1 rounded-10 bg-background-default px-3 py-2 text-text-primary typo-footnote"
+            />
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              icon={<CopyIcon />}
+              onClick={copyLink}
+            >
+              {linkCopied ? 'Copied' : 'Copy'}
+            </Button>
+          </div>
         </div>
-      )}
 
-      {/* The leaderboard now lives here, at the end. */}
-      <WeeklyQuizScoreboard
-        period={period}
-        onPeriodChange={setPeriod}
-        audio={audio}
-      />
+        {/* Weekly reminder. */}
+        <button
+          type="button"
+          aria-pressed={reminderSet}
+          className={classNames(
+            styles.resultAction,
+            reminderSet && styles.resultActionSet,
+          )}
+          onClick={() => setReminderSet(true)}
+        >
+          <BellIcon size={IconSize.XSmall} />
+          {reminderSet ? "You're all set" : 'Set weekly reminder'}
+        </button>
+
+        {!user && (
+          <div
+            className={classNames(
+              'flex flex-col items-center gap-2 rounded-16 p-4 text-center',
+              styles.glass,
+            )}
+          >
+            <Typography
+              type={TypographyType.Callout}
+              bold
+              className="!text-text-primary"
+            >
+              Log in to save your score and claim your spot
+            </Typography>
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              onClick={() => showLogin({ trigger: AuthTriggers.WeeklyQuiz })}
+            >
+              Log in to see your rank
+            </Button>
+          </div>
+        )}
+
+        {/* The leaderboard now lives here, at the end. */}
+        <WeeklyQuizScoreboard
+          period={period}
+          onPeriodChange={setPeriod}
+          audio={audio}
+        />
+      </div>
     </div>
   );
 };

@@ -14,7 +14,7 @@ import { WeeklyQuizCountdown } from '@dailydotdev/shared/src/features/weeklyQuiz
 import { WeeklyQuizQuestion } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizQuestion';
 import { WeeklyQuizResults } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizResults';
 import { WeeklyQuizSideControls } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizSideControls';
-import styles from '@dailydotdev/shared/src/features/weeklyQuiz/WeeklyQuiz.module.css';
+import { WeeklyQuizSurface } from '@dailydotdev/shared/src/features/weeklyQuiz/components/WeeklyQuizSurface';
 import { withWeeklyQuiz, mockStatus } from './weeklyQuiz.mocks';
 
 // A plain-card stand-in for the modal shell so the full game flow — intro →
@@ -69,9 +69,12 @@ const PreviewGame = ({
   };
 
   return (
-    <div className="force-dark mx-auto flex w-full max-w-[640px] items-start justify-center gap-3">
-      <div className={`relative flex-1 ${styles.surface}`}>
-        <span className={styles.rays} aria-hidden />
+    <div
+      className={`force-dark mx-auto flex w-full items-start justify-center gap-3 ${
+        phase === WeeklyQuizPhase.Intro ? 'max-w-[768px]' : 'max-w-[640px]'
+      }`}
+    >
+      <WeeklyQuizSurface showRays={phase !== WeeklyQuizPhase.Intro}>
         {phase === WeeklyQuizPhase.Intro && (
           <WeeklyQuizIntro
             quiz={quiz}
@@ -97,7 +100,7 @@ const PreviewGame = ({
             onBackToMain={game.backToIntro}
           />
         )}
-      </div>
+      </WeeklyQuizSurface>
       <WeeklyQuizSideControls
         level={audio.level}
         onCycleSound={audio.cycleLevel}
@@ -133,8 +136,7 @@ const ResultsPreview = (): React.ReactElement => {
   const audio = useWeeklyQuizAudio();
   return (
     <div className="force-dark mx-auto flex w-full max-w-[640px] items-start justify-center gap-3">
-      <div className={`relative flex-1 ${styles.surface}`}>
-        <span className={styles.rays} aria-hidden />
+      <WeeklyQuizSurface>
         <WeeklyQuizResults
           quizId={status?.activeQuizId ?? ''}
           result={{
@@ -146,7 +148,7 @@ const ResultsPreview = (): React.ReactElement => {
           audio={audio}
           onBackToMain={() => undefined}
         />
-      </div>
+      </WeeklyQuizSurface>
     </div>
   );
 };

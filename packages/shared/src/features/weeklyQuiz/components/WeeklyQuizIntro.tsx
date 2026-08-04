@@ -115,7 +115,7 @@ export const WeeklyQuizIntro = ({
             <img
               src={LOGO_URL}
               alt="The Weekly Tech News Quiz"
-              className="pointer-events-none relative w-64 max-w-none select-none tablet:w-52"
+              className="pointer-events-none relative w-64 max-w-none select-none"
             />
             {/* Glow sits over the logo's lightbulb (right side, mid-height). */}
             <span
