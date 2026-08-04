@@ -512,23 +512,31 @@ export const createWeeklyQuizResultImage = async (
 
 export interface WeeklyQuizOgImageParams {
   title: string;
-  correctCount: number;
-  totalQuestions: number;
-  percentile: number;
+  message: string;
+  // Score range that earns the level, e.g. "6–7/10" or "10/10".
+  rangeLabel: string;
   gifUrl?: string | null;
 }
 
-// A generic, per-score social card (1200x630 Open Graph size) — no personal
-// data, so it can be pre-rendered per score and served as the shared link's
-// og:image. Returns a PNG data URL (null if it can't render).
+// A simple, generic social card: GIF on top, then the level and its score-range
+// pill, then the one-liner. No personal data, so it can be pre-rendered per
+// level and served as a shared link's og:image. Returns a PNG data URL.
 export const createWeeklyQuizOgImage = async (
   params: WeeklyQuizOgImageParams,
 ): Promise<string | null> => {
   if (typeof document === 'undefined') {
     return null;
   }
-  const w = 1200;
-  const h = 630;
+  const w = 1080;
+  const pad = 48;
+  const headerH = 28;
+  const gifY = pad + headerH + 26;
+  const gifW = w - pad * 2;
+  const gifH = Math.round((gifW * 9) / 16);
+  const titleBaseline = gifY + gifH + 82;
+  const messageBaseline = titleBaseline + 52;
+  const h = messageBaseline + pad;
+
   const canvas = document.createElement('canvas');
   canvas.width = w;
   canvas.height = h;
@@ -542,42 +550,41 @@ export const createWeeklyQuizOgImage = async (
     loadSafe(params.gifUrl, 'anonymous'),
   ]);
 
-  drawBackground(ctx, w, h);
+  // Solid dark card (the quiz is always dark).
+  ctx.fillStyle = '#1a1d25';
+  ctx.fillRect(0, 0, w, h);
 
-  // GIF fills the right third, faded into the surface on its left edge.
-  const gifW = 470;
+  // daily.dev + quiz title, top-left.
+  drawBrandHeader(ctx, { daily, avatar: null, gif: null }, pad, pad);
+
   if (gif) {
-    drawCover(ctx, gif, w - gifW, 0, gifW, h, 0);
-    const scrim = ctx.createLinearGradient(w - gifW, 0, w - gifW + 220, 0);
-    scrim.addColorStop(0, 'rgba(13, 13, 18, 1)');
-    scrim.addColorStop(1, 'rgba(13, 13, 18, 0)');
-    ctx.fillStyle = scrim;
-    ctx.fillRect(w - gifW, 0, 220, h);
+    drawCover(ctx, gif, pad, gifY, gifW, gifH, 24);
   }
 
-  const pad = 70;
-  const textW = w - gifW - pad;
-  drawBrandHeader(ctx, { daily, avatar: null, gif: null }, pad, 60);
+  // Score-range pill, right-aligned on the title row.
+  ctx.font = `bold 30px ${FONT}`;
+  const pillPadX = 22;
+  const pillW = ctx.measureText(params.rangeLabel).width + pillPadX * 2;
+  const pillH = 54;
+  const pillX = w - pad - pillW;
+  const pillY = titleBaseline - 42;
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+  roundRectPath(ctx, pillX, pillY, pillW, pillH, 14);
+  ctx.fill();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.fillText(params.rangeLabel, pillX + pillW / 2, pillY + 37);
 
+  // Level title (fills the space left of the pill).
   ctx.textAlign = 'left';
-  fitFont(ctx, params.title, 'bold', 78, textW);
+  fitFont(ctx, params.title, 'bold', 54, gifW - pillW - 32);
   ctx.fillStyle = '#fff';
-  ctx.fillText(params.title, pad, 250);
+  ctx.fillText(params.title, pad, titleBaseline);
 
-  ctx.font = `500 30px ${FONT}`;
+  // One-liner.
+  ctx.font = `400 30px ${FONT}`;
   ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-  ctx.fillText(`Better than ${params.percentile}% of players`, pad, 300);
-
-  ctx.font = `bold 128px ${FONT}`;
-  ctx.fillStyle = '#fff';
-  ctx.fillText(`${params.correctCount}/${params.totalQuestions}`, pad, 440);
-  ctx.font = `700 30px ${FONT}`;
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-  ctx.fillText('CORRECT', pad, 486);
-
-  ctx.font = `bold 34px ${FONT}`;
-  ctx.fillStyle = '#fff';
-  ctx.fillText('What would you get?', pad, 556);
+  ctx.fillText(params.message, pad, messageBaseline);
 
   try {
     return canvas.toDataURL('image/png');

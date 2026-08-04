@@ -532,27 +532,29 @@ const ShareImageVariants = (): React.ReactElement => {
   );
 };
 
-// Every possible score (0..10) as a generic Open Graph card — what a shared
-// link would show as its preview image (backend hosts these per score).
+// One generic social card per level — the simple image a shared link previews.
+const rangeLabelFor = (index: number): string => {
+  const low = Math.round(WEEKLY_QUIZ_TIERS[index].minRatio * 10);
+  const high =
+    index === 0
+      ? 10
+      : Math.round(WEEKLY_QUIZ_TIERS[index - 1].minRatio * 10) - 1;
+  return low === high ? `${low}/10` : `${low}–${high}/10`;
+};
+
 const OgScoreCards = (): React.ReactElement => {
   const [urls, setUrls] = useState<Array<string | null>>([]);
   useEffect(() => {
     let active = true;
-    const total = 10;
     Promise.all(
-      Array.from({ length: total + 1 }, (unused, correct) => {
-        const ratio = correct / total;
-        const tier =
-          WEEKLY_QUIZ_TIERS.find((entry) => ratio >= entry.minRatio) ??
-          WEEKLY_QUIZ_TIERS[WEEKLY_QUIZ_TIERS.length - 1];
-        return createWeeklyQuizOgImage({
+      WEEKLY_QUIZ_TIERS.map((tier, index) =>
+        createWeeklyQuizOgImage({
           title: tier.title,
-          correctCount: correct,
-          totalQuestions: total,
-          percentile: Math.min(99, Math.max(1, Math.round(ratio * 100))),
+          message: tier.message,
+          rangeLabel: rangeLabelFor(index),
           gifUrl: tier.gif,
-        });
-      }),
+        }),
+      ),
     ).then((result) => {
       if (active) {
         setUrls(result);
@@ -565,20 +567,16 @@ const OgScoreCards = (): React.ReactElement => {
 
   return (
     <div className="force-dark min-h-screen w-full bg-background-default p-6">
-      <div className="mx-auto flex w-full max-w-[760px] flex-col gap-6">
-        {urls.map((url, correct) => (
-          <div
-            // eslint-disable-next-line react/no-array-index-key
-            key={correct}
-            className="flex flex-col gap-2"
-          >
+      <div className="mx-auto grid w-full max-w-[900px] grid-cols-1 gap-6 tablet:grid-cols-2">
+        {WEEKLY_QUIZ_TIERS.map((tier, index) => (
+          <div key={tier.title} className="flex flex-col gap-2">
             <span className="font-bold text-text-primary typo-callout">
-              {correct}/10
+              {rangeLabelFor(index)} · {tier.title}
             </span>
-            {url ? (
+            {urls[index] ? (
               <img
-                src={url}
-                alt={`${correct} out of 10`}
+                src={urls[index] as string}
+                alt={tier.title}
                 className="w-full rounded-16 border border-border-subtlest-tertiary"
               />
             ) : (
