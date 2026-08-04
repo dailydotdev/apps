@@ -192,7 +192,7 @@ export const SkipTourButton = ({
     // stay a quiet text control rather than reading as a second button. A
     // tertiary button has no fill, which makes the trim invisible.
     style={{ paddingLeft: 6, paddingRight: 6 }}
-    size={ButtonSize.Small}
+    size={ButtonSize.XSmall}
     variant={ButtonVariant.Tertiary}
     onClick={onSkip}
   >

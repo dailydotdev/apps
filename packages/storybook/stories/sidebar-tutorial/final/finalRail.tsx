@@ -277,14 +277,13 @@ const COACH_MOTION_CSS = `
   will-change: transform, opacity, filter;
 }
 
-.coach-progress-fill {
-  transform-origin: left center;
-  transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+.coach-progress-pie {
+  transition: stroke-dasharray 240ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .coach-card-in { animation: none; }
-  .coach-progress-fill { transition: none; }
+  .coach-progress-pie { transition: none; }
 }
 `;
 
@@ -349,22 +348,53 @@ export interface CoachProgress {
   active: number;
 }
 
-const CoachProgressRail = ({ total, active }: CoachProgress): JSX.Element => (
-  <span
-    aria-hidden
-    className="absolute inset-x-3.5 bottom-0 h-0.5 overflow-hidden rounded-2 bg-surface-float"
-  >
-    <span
-      className="coach-progress-fill block h-full w-full rounded-2 bg-accent-cabbage-default"
-      style={{ transform: `scaleX(${(active + 1) / total})` }}
-    />
-  </span>
-);
+// A filled pie rather than a ring: the stroke width equals the diameter, so the
+// dash arc sweeps all the way to the centre. Colours come from currentColor so
+// the design tokens apply as ordinary text classes.
+export const CoachProgressPie = ({
+  total,
+  active,
+}: CoachProgress): JSX.Element => {
+  const radius = 4;
+  const circumference = 2 * Math.PI * radius;
+  const swept = ((active + 1) / total) * circumference;
+
+  return (
+    <svg
+      aria-hidden
+      className="shrink-0"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+    >
+      <circle
+        className="text-accent-cabbage-default"
+        cx="8"
+        cy="8"
+        r="7.5"
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.3"
+      />
+      <circle
+        className="coach-progress-pie text-accent-cabbage-default"
+        cx="8"
+        cy="8"
+        r={radius}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="8"
+        strokeDasharray={`${swept} ${circumference}`}
+        transform="rotate(-90 8 8)"
+      />
+    </svg>
+  );
+};
 
 export interface CoachCardProps {
   message: string;
   // Re-runs the enter animation on the copy block when the step changes, while
-  // the shell and the progress fill stay mounted and animate continuously.
+  // the shell stays mounted and the pie sweeps continuously.
   stepKey?: string;
   progress?: CoachProgress;
   control?: ReactNode;
@@ -372,8 +402,6 @@ export interface CoachCardProps {
   pointer?: CoachPointerTop;
 }
 
-// Variation A (Quiet): no border, layered shadow, progress as a hairline rail
-// on the bottom edge.
 export const CoachCard = ({
   message,
   stepKey,
@@ -402,11 +430,12 @@ export const CoachCard = ({
       {control}
 
       {actions && (
-        <div className="flex items-center justify-end gap-1">{actions}</div>
+        <div className="flex items-center justify-between gap-2 pt-1.5">
+          {progress ? <CoachProgressPie {...progress} /> : <span />}
+          <span className="flex items-center gap-2">{actions}</span>
+        </div>
       )}
     </div>
-
-    {progress && <CoachProgressRail {...progress} />}
   </div>
 );
 

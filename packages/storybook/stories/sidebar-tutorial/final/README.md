@@ -57,14 +57,13 @@ One sentence, nothing else: no title, no subtitle, no disclaimer. The card is
 - **Leaving** is an explicit `Skip tour` text button, present on every step. It
   replaced a corner X, which could only say "close" and read as dismissing the
   current step rather than abandoning the tour.
-- **Progress** is a 2px rail pinned to the card's bottom edge, filled with
-  `transform: scaleX()` so it animates on the compositor. There is no oval pill
-  and no "1 of 3" prose.
-- **Actions** are a single right-aligned pair: `Skip tour` as a padding-trimmed
-  tertiary button sitting directly beside `Next` / `Got it`, which carries an
-  88px minimum width so the primary action stays the heavier of the two. There
-  is no `Back`: three steps do not need one, and the support menu can replay the
-  whole tour.
+- **Progress** is a 16px pie on the left of the actions row, aligned with the
+  sentence above it, sweeping a third at a time. There is no oval pill and no
+  "1 of 3" prose.
+- **Actions** are a right-aligned pair: `Skip tour` as a smaller, padding-trimmed
+  tertiary button beside `Next` / `Got it`, which carries an 88px minimum width
+  so the primary action stays the heavier of the two. There is no `Back`: three
+  steps do not need one, and the support menu can replay the whole tour.
 - **Motion** is a 180ms blur-and-lift enter on `cubic-bezier(0.16, 1, 0.3, 1)`,
   keyed on the step id so the copy re-animates while the shell and the progress
   fill stay put. No overshoot anywhere, and the whole thing is off under
