@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode, Ref } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import {
@@ -70,11 +70,14 @@ export const SkipTourButton = ({
 export const CoachPrimaryButton = ({
   children,
   onClick,
+  buttonRef,
 }: {
   children: ReactNode;
   onClick: () => void;
+  buttonRef?: Ref<HTMLButtonElement>;
 }): ReactElement => (
   <Button
+    ref={buttonRef}
     type="button"
     className="active:scale-95"
     // Keeps the primary action visibly the heavier of the pair even when its
@@ -97,18 +100,36 @@ export interface CoachCardProps {
   control?: ReactNode;
   actions?: ReactNode;
   pointer?: CoachPointerTop;
+  // Turns the card into a labelled dialog. Only the tour passes it: the ambient
+  // coaches are unannounced popovers like every other one in the house.
+  dialogLabel?: string;
   className?: string;
   style?: React.CSSProperties;
 }
 
 export const CoachCard = forwardRef<HTMLDivElement, CoachCardProps>(
   (
-    { message, stepKey, progress, control, actions, pointer, className, style },
+    {
+      message,
+      stepKey,
+      progress,
+      control,
+      actions,
+      pointer,
+      dialogLabel,
+      className,
+      style,
+    },
     ref,
   ): ReactElement => (
     <div
       ref={ref}
       style={style}
+      role={dialogLabel ? 'dialog' : undefined}
+      aria-label={dialogLabel}
+      // The step block below remounts on every step, and a live region that
+      // remounts announces nothing; the card itself is what survives.
+      aria-live="polite"
       className={classNames(
         'animate-coach-card-in relative w-56 rounded-14 border border-border-subtlest-tertiary bg-background-subtle p-3.5 pl-4 pt-4 shadow-2',
         className,

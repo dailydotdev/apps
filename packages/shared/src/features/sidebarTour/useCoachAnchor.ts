@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import { useEffect, useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { RAIL_ANCHOR_ATTRIBUTE } from '../giveback/components/GivebackGiftDock';
 
 // Gap between the sidebar's visible right edge and the card, matching the
@@ -47,7 +47,9 @@ export const useCoachAnchor = (
     left: 0,
   });
 
-  useEffect(() => {
+  // Layout, not passive: a step change measures before the browser paints, so
+  // the card never shows one frame at the previous step's position.
+  useLayoutEffect(() => {
     if (!isOpen || !selector) {
       setAnchor({ targetRef: { current: null }, rect: null, left: 0 });
       return undefined;
@@ -73,10 +75,26 @@ export const useCoachAnchor = (
     const frame = requestAnimationFrame(update);
     window.addEventListener('resize', update);
 
+    // Compact mode, the panel opening or closing and the rail hover-expanding
+    // all move the target without resizing the window, and the two timed
+    // measures above have long since run by then.
+    const observer =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    [
+      document.querySelector(`[${RAIL_ANCHOR_ATTRIBUTE}]`),
+      document.getElementById('sidebar-context-panel'),
+      document.querySelector(selector),
+    ].forEach((element) => {
+      if (element) {
+        observer?.observe(element);
+      }
+    });
+
     return () => {
       clearTimeout(settle);
       cancelAnimationFrame(frame);
       window.removeEventListener('resize', update);
+      observer?.disconnect();
     };
   }, [isOpen, selector]);
 

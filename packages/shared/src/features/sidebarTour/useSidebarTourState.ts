@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
@@ -114,6 +114,18 @@ export const useSidebarTourState = (): SidebarTourState => {
 
   const [steps, setSteps] = useState<SidebarTourStep[] | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
+
+  // Logging out or losing the flag mid-tour must not leave a run parked and
+  // ready to resume the moment eligibility comes back. The seen flag stays
+  // untouched: the user never acted on it.
+  useEffect(() => {
+    if (isEnabled || !steps) {
+      return;
+    }
+
+    setSteps(null);
+    setStepIndex(0);
+  }, [isEnabled, steps]);
 
   const isExistingUser =
     !!user?.createdAt && new Date(user.createdAt) < SIDEBAR_V2_ROLLOUT_DATE;

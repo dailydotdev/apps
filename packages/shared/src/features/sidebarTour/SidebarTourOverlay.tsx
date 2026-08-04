@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
+import { useRouter } from 'next/router';
 import { Switch } from '../../components/fields/Switch';
 import { RootPortal } from '../../components/tooltips/Portal';
 import { useInteractivePopup } from '../../hooks/utils/useInteractivePopup';
@@ -11,6 +12,9 @@ import { useCoachAnchor } from './useCoachAnchor';
 import type { SidebarTourState } from './useSidebarTourState';
 
 const COMPACT_SWITCH_ID = 'sidebar-tour-compact';
+// One settle window of the target being unresolvable — a window shrink refolded
+// the rail, the dock stopped fitting — before the step is given up on.
+const LOST_TARGET_MS = 600;
 
 export const SidebarTourOverlay = ({
   tour,
@@ -22,7 +26,10 @@ export const SidebarTourOverlay = ({
     useSettingsBooleanFlag('sidebarCompact');
   const anchor = useCoachAnchor(step?.target, isRunning);
   const { isOpen, onUpdate } = useInteractivePopup(RAIL_POPUP_GROUP);
+  const { events } = useRouter();
   const wasGroupOpenRef = useRef(false);
+  const primaryRef = useRef<HTMLButtonElement>(null);
+  const hasFocusedRef = useRef(false);
 
   useEffect(() => {
     onUpdate(isRunning);
@@ -44,15 +51,55 @@ export const SidebarTourOverlay = ({
     wasGroupOpenRef.current = false;
   }, [isOpen, isRunning, skip]);
 
+  // The rail stays clickable above the scrim, so a tab or shortcut click
+  // navigates out from under the tour. Without this the scrim and card ride
+  // along to the new page pointing at a ring that no longer means anything.
+  useEffect(() => {
+    if (!isRunning) {
+      return undefined;
+    }
+
+    events.on('routeChangeStart', skip);
+    return () => events.off('routeChangeStart', skip);
+  }, [events, isRunning, skip]);
+
+  // A step whose target went away leaves a full-screen scrim with no card and
+  // no visible way out, so the step is dropped; past the last one that finishes
+  // the tour.
+  useEffect(() => {
+    if (!isRunning || anchor.rect) {
+      return undefined;
+    }
+
+    const timer = setTimeout(next, LOST_TARGET_MS);
+    return () => clearTimeout(timer);
+  }, [anchor.rect, isRunning, next]);
+
+  useEffect(() => {
+    if (!isRunning) {
+      hasFocusedRef.current = false;
+      return;
+    }
+
+    if (hasFocusedRef.current || !primaryRef.current) {
+      return;
+    }
+
+    hasFocusedRef.current = true;
+    primaryRef.current.focus();
+  }, [anchor.rect, isRunning]);
+
   useEffect(() => {
     if (!isRunning) {
       return undefined;
     }
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        skip();
+      if (event.defaultPrevented || event.key !== 'Escape') {
+        return;
       }
+
+      skip();
     };
 
     window.addEventListener('keydown', onKeyDown);
@@ -81,6 +128,7 @@ export const SidebarTourOverlay = ({
         anchor={anchor}
         isOpen
         stepKey={step.id}
+        dialogLabel="Sidebar tour"
         message={step.message}
         progress={{ total: stepCount, active: stepIndex }}
         control={
@@ -89,7 +137,7 @@ export const SidebarTourOverlay = ({
               inputId={COMPACT_SWITCH_ID}
               name={COMPACT_SWITCH_ID}
               checked={isCompact}
-              onToggle={() => setCompact(!isCompact)}
+              onToggle={() => setCompact(!isCompact).catch(() => undefined)}
             >
               Compact mode
             </Switch>
@@ -98,7 +146,10 @@ export const SidebarTourOverlay = ({
         actions={
           <>
             <SkipTourButton onClick={skip} />
-            <CoachPrimaryButton onClick={isLastStep ? finish : next}>
+            <CoachPrimaryButton
+              buttonRef={primaryRef}
+              onClick={isLastStep ? finish : next}
+            >
               {isLastStep ? 'Got it' : 'Next'}
             </CoachPrimaryButton>
           </>

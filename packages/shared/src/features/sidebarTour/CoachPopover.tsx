@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import type { ReactElement, RefObject } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { RootPortal } from '../../components/tooltips/Portal';
 import { useAnchoredRailPopup } from '../../components/sidebar/useAnchoredRailPopup';
 import type { CoachCardProps } from './CoachCard';
@@ -28,7 +28,7 @@ export const CoachHighlight = ({
   return (
     <span
       aria-hidden
-      className="pointer-events-none fixed z-popup rounded-12 ring-2 ring-accent-cabbage-default"
+      className="pointer-events-none fixed z-[1001] rounded-12 ring-2 ring-accent-cabbage-default"
       style={{
         left: rect.left - 2,
         top: rect.top - 2,
@@ -43,16 +43,26 @@ export interface CoachPopoverProps extends Omit<CoachCardProps, 'pointer'> {
   anchor: CoachAnchor;
   isOpen: boolean;
   highlightRect?: DOMRect | null;
+  containerRef?: RefObject<HTMLDivElement>;
 }
 
 export const CoachPopover = ({
   anchor,
   isOpen,
   highlightRect,
+  containerRef,
   ...card
 }: CoachPopoverProps): ReactElement | null => {
-  const cardRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
   const [cardHeight, setCardHeight] = useState(0);
+  // A callback ref, because the card mounts on the render AFTER the anchor
+  // resolves: a layout effect keyed on the card's content never fires again for
+  // that mount, so the height would stay 0 and the pointer would sit mid-card
+  // aiming at nothing.
+  const measure = useCallback((node: HTMLDivElement | null) => {
+    cardRef.current = node;
+    setCardHeight(node?.offsetHeight ?? 0);
+  }, []);
   // Same vertical anchoring every other rail dropdown uses: it caps the height
   // against the available space and flips to opening upward on a short
   // viewport. Only the cap is consumed here, because the card centres on its
@@ -81,10 +91,14 @@ export const CoachPopover = ({
   return (
     <RootPortal>
       <CoachHighlight rect={highlightRect ?? anchor.rect} />
-      <div className="fixed z-popup" style={{ left: anchor.left, top }}>
+      <div
+        ref={containerRef}
+        className="fixed z-[1001]"
+        style={{ left: anchor.left, top }}
+      >
         <CoachCard
           {...card}
-          ref={cardRef}
+          ref={measure}
           pointer={pointer}
           style={{ maxHeight: position.maxHeight }}
         />

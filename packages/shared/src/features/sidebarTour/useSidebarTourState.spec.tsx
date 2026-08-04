@@ -11,6 +11,7 @@ import { LogEvent } from '../../lib/log';
 import {
   COACH_MAX_EXPOSURES,
   SIDEBAR_PIN_COACH_KEY,
+  SIDEBAR_TOUR_SEEN_KEY,
   SIDEBAR_V2_ROLLOUT_DATE,
   useSidebarTourState,
 } from './useSidebarTourState';
@@ -289,6 +290,39 @@ describe('useSidebarTourState', () => {
 
     expect(result.current.step?.id).toBe('rail');
     expect(eventsNamed(LogEvent.StartSidebarTour)).toHaveLength(2);
+  });
+
+  it('drops a parked run when the user stops being eligible mid-tour', async () => {
+    let user: LoggedUser | null = existingUser;
+    const gb = new GrowthBook();
+    gb.setFeatures({ [featureSidebarTour.id]: { defaultValue: true } });
+    const client = new QueryClient();
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <TestBootProvider
+        client={client}
+        gb={gb}
+        log={{ logEvent }}
+        auth={{ user: user ?? undefined, isLoggedIn: !!user }}
+      >
+        {children}
+      </TestBootProvider>
+    );
+
+    const { result, rerender } = renderHook(() => useSidebarTourState(), {
+      wrapper,
+    });
+    await waitFor(() => expect(result.current.isEnabled).toBe(true));
+
+    act(() => result.current.start('auto'));
+    expect(result.current.isRunning).toBe(true);
+
+    user = null;
+    rerender();
+
+    await waitFor(() => expect(result.current.stepCount).toBe(0));
+    expect(result.current.isRunning).toBe(false);
+    // The user never acted on the tour, so nothing about it was learned.
+    expect(writesTo(SIDEBAR_TOUR_SEEN_KEY)).toEqual([]);
   });
 
   it('stays gone for the session when the seen flag fails to persist', async () => {

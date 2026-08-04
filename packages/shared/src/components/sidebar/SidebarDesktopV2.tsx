@@ -1758,7 +1758,11 @@ export const SidebarDesktopV2 = ({
   // composer modal it opens is still open — otherwise clicking "+" would shift
   // the background panel back to the feed as focus leaves the rail (a glitch).
   const isComposerOpen = modal?.type === LazyModal.SmartComposer;
-  const showCreatePanel = isCreateHovered || isComposerOpen || createPinned;
+  // A tour step that forces a panel open wins: otherwise a pinned composer or a
+  // pointer resting on "+" paints the create panel over the Game Center the
+  // card is pointing at.
+  const showCreatePanel =
+    !tourForcedCategory && (isCreateHovered || isComposerOpen || createPinned);
   // Release the pin once any modal opened from "New post" has fully closed.
   useEffect(() => {
     if (!modal) {

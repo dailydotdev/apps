@@ -49,9 +49,31 @@ const mountRail = (rect: RectInput): HTMLElement => {
 const RAIL_RECT: RectInput = { left: 0, top: 0, width: 64, height: 900 };
 const TARGET_RECT: RectInput = { left: 8, top: 100, width: 48, height: 48 };
 
+let observedElements: Element[] = [];
+let observerCallbacks: ResizeObserverCallback[] = [];
+let disconnect: jest.Mock;
+
+const resizeObserved = () =>
+  act(() => {
+    observerCallbacks.forEach((callback) => callback([], {} as ResizeObserver));
+  });
+
 describe('useCoachAnchor', () => {
   beforeEach(() => {
     jest.useFakeTimers();
+    observedElements = [];
+    observerCallbacks = [];
+    disconnect = jest.fn();
+    global.ResizeObserver = jest
+      .fn()
+      .mockImplementation((callback: ResizeObserverCallback) => {
+        observerCallbacks.push(callback);
+        return {
+          observe: (element: Element) => observedElements.push(element),
+          unobserve: jest.fn(),
+          disconnect,
+        };
+      }) as unknown as typeof ResizeObserver;
   });
 
   afterEach(() => {
@@ -144,6 +166,40 @@ describe('useCoachAnchor', () => {
     unmount();
 
     expect(removeListener).toHaveBeenCalledWith('resize', expect.any(Function));
+    expect(disconnect).toHaveBeenCalled();
     removeListener.mockRestore();
+  });
+
+  it('watches the rail, the panel and the target for size changes', () => {
+    const rail = mountRail(RAIL_RECT);
+    const panel = mount('sidebar-context-panel', {
+      left: 64,
+      top: 0,
+      width: 240,
+      height: 900,
+    });
+    const target = mount('coach-target', TARGET_RECT);
+
+    renderHook(() => useCoachAnchor(TARGET_SELECTOR, true));
+
+    expect(observedElements).toEqual([rail, panel, target]);
+  });
+
+  it('re-measures when the rail resizes without the window doing so', () => {
+    const rail = mountRail(RAIL_RECT);
+    const target = mount('coach-target', TARGET_RECT);
+
+    const { result } = renderHook(() => useCoachAnchor(TARGET_SELECTOR, true));
+
+    expect(result.current.left).toBe(64 + COACH_GAP_PX);
+
+    // Compact mode narrows the rail: no window resize, no step change, and the
+    // two timed measures ran long ago.
+    stubRect(rail, { ...RAIL_RECT, width: 48 });
+    stubRect(target, { ...TARGET_RECT, top: 220 });
+    resizeObserved();
+
+    expect(result.current.left).toBe(48 + COACH_GAP_PX);
+    expect(result.current.rect?.top).toBe(220);
   });
 });

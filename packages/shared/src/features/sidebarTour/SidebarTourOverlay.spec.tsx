@@ -1,8 +1,16 @@
 import type { RenderResult } from '@testing-library/react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
+import type { NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import type { LoggedUser } from '../../lib/user';
@@ -23,8 +31,11 @@ const existingUser: LoggedUser = {
   ).toISOString(),
 };
 
-const updateFlag = jest.fn();
+const updateFlag = jest.fn().mockResolvedValue(undefined);
 const logEvent = jest.fn();
+// The rail navigates from above the scrim, so the tour has to hear the route
+// change; the global router mock carries no event emitter.
+const routeHandlers = new Map<string, () => void>();
 // The one class the tour adds to the rail itself, lifting it over the scrim.
 const RAIL_TOUR_LIFT_CLASS = 'laptop:!z-tooltip';
 // The tour auto-starts on a grace timer, so every assertion about it needs more
@@ -55,6 +66,19 @@ const renderRail = (isFeatureEnabled: boolean): RenderResult => {
 describe('sidebar tour wiring', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    routeHandlers.clear();
+    jest.mocked(useRouter).mockReturnValue({
+      query: {},
+      pathname: '/',
+      asPath: '/',
+      push: jest.fn(),
+      events: {
+        on: (event: string, handler: () => void) =>
+          routeHandlers.set(event, handler),
+        off: (event: string) => routeHandlers.delete(event),
+        emit: jest.fn(),
+      },
+    } as unknown as NextRouter);
   });
 
   describe('with the feature flag off', () => {
@@ -145,6 +169,92 @@ describe('sidebar tour wiring', () => {
           event_name: LogEvent.SkipSidebarTour,
           extra: JSON.stringify({ step: 'rail' }),
         }),
+      );
+    });
+
+    it('swallows a compact write that the settings mutation rejects', async () => {
+      updateFlag.mockRejectedValueOnce(new Error('settings unavailable'));
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      fireEvent.click(screen.getByText('Compact mode'));
+      await act(async () => undefined);
+
+      expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument();
+    });
+
+    it('drops a step whose target stops existing rather than stranding the scrim', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      // A narrower window refolds the rail and the tablist the step points at
+      // is no longer resolvable, so the card has nothing to hang off.
+      act(() => {
+        document
+          .querySelector('[role="tablist"][aria-label="Sidebar categories"]')
+          ?.setAttribute('aria-label', 'folded away');
+        window.dispatchEvent(new Event('resize'));
+      });
+
+      await screen.findByText(
+        'Drag anything from the sidebar into the dock, or add it from the ••• menu.',
+        undefined,
+        { timeout: TOUR_TIMEOUT },
+      );
+    });
+
+    it('leaves the tour alone when a modal already consumed Escape', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      const consumed = new KeyboardEvent('keydown', {
+        key: 'Escape',
+        cancelable: true,
+      });
+      consumed.preventDefault();
+      act(() => {
+        window.dispatchEvent(consumed);
+      });
+
+      expect(screen.getByTestId('sidebar-tour-scrim')).toBeInTheDocument();
+    });
+
+    it('ends the tour when the rail navigates out from under it', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      act(() => routeHandlers.get('routeChangeStart')?.());
+
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId('sidebar-tour-scrim'),
+        ).not.toBeInTheDocument(),
+      );
+    });
+
+    it('announces the card as a labelled dialog and lands focus on the primary action', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      const card = screen.getByRole('dialog', { name: 'Sidebar tour' });
+      expect(card).toHaveAttribute('aria-live', 'polite');
+      await waitFor(() =>
+        expect(screen.getByText('Next').closest('button')).toHaveFocus(),
       );
     });
 
