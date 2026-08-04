@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -21,6 +21,7 @@ import { IconSize } from '../../../components/Icon';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { AuthTriggers } from '../../../lib/auth';
 import { useWeeklyQuizLeaderboard } from '../hooks/useWeeklyQuizLeaderboard';
+import { useCountUp } from '../hooks/useCountUp';
 import { isWeeklyQuizDemo } from '../demoMode';
 import type { UseWeeklyQuizAudio } from '../hooks/useWeeklyQuizAudio';
 import { WeeklyQuizPeriod } from '../types';
@@ -50,62 +51,70 @@ const periodTabs = [
 const RowContent = ({
   entry,
   isFastest,
+  animate,
 }: {
   entry: WeeklyQuizLeaderboardEntry;
   isFastest: boolean;
-}): ReactElement => (
-  <>
-    <span className="w-5 shrink-0 text-center font-bold text-text-secondary typo-callout">
-      {entry.rank}
-    </span>
-    <ProfileTooltip userId={entry.id}>
-      <ProfilePicture
-        user={{ image: entry.image, id: entry.id, name: entry.name }}
-        size={ProfileImageSize.Small}
-        rounded="full"
-        nativeLazyLoading
-      />
-    </ProfileTooltip>
-    <div className="flex min-w-0 flex-1 items-center gap-1.5">
-      <Typography
-        type={TypographyType.Subhead}
-        bold
-        className="min-w-0 truncate !text-text-primary"
-      >
-        {entry.name}
-      </Typography>
-      <ReputationUserBadge
-        user={{ reputation: entry.reputation }}
-        className="shrink-0 !text-text-primary"
-        disableTooltip
-      />
-    </div>
-    {isFastest && (
-      <span
-        className={classNames(
-          'flex shrink-0 items-center gap-0.5 rounded-6 px-1.5 py-0.5 font-bold uppercase tracking-wide typo-caption1',
-          styles.fastestBadge,
-        )}
-      >
-        <ReputationLightningIcon size={IconSize.XXSmall} secondary />
-        Fastest
+  // Count the score up once the board scrolls into view.
+  animate: boolean;
+}): ReactElement => {
+  const score = Math.round(useCountUp(entry.correctCount, { start: animate }));
+  return (
+    <>
+      <span className="w-5 shrink-0 text-center font-bold text-text-secondary typo-callout">
+        {entry.rank}
       </span>
-    )}
-    <span className="shrink-0 font-bold tabular-nums text-text-primary typo-subhead">
-      {entry.correctCount}/{entry.totalQuestions}
-    </span>
-    <span className="w-11 shrink-0 text-right font-bold tabular-nums text-text-secondary typo-footnote">
-      {formatElapsed(entry.timeMs)}
-    </span>
-  </>
-);
+      <ProfileTooltip userId={entry.id}>
+        <ProfilePicture
+          user={{ image: entry.image, id: entry.id, name: entry.name }}
+          size={ProfileImageSize.Small}
+          rounded="full"
+          nativeLazyLoading
+        />
+      </ProfileTooltip>
+      <div className="flex min-w-0 flex-1 items-center gap-1.5">
+        <Typography
+          type={TypographyType.Subhead}
+          bold
+          className="min-w-0 truncate !text-text-primary"
+        >
+          {entry.name}
+        </Typography>
+        <ReputationUserBadge
+          user={{ reputation: entry.reputation }}
+          className="shrink-0 !text-text-primary"
+          disableTooltip
+        />
+      </div>
+      {isFastest && (
+        <span
+          className={classNames(
+            'flex shrink-0 items-center gap-0.5 rounded-6 px-1.5 py-0.5 font-bold uppercase tracking-wide typo-caption1',
+            styles.fastestBadge,
+          )}
+        >
+          <ReputationLightningIcon size={IconSize.XXSmall} secondary />
+          Fastest
+        </span>
+      )}
+      <span className="shrink-0 font-bold tabular-nums text-text-primary typo-subhead">
+        {score}/{entry.totalQuestions}
+      </span>
+      <span className="w-11 shrink-0 text-right font-bold tabular-nums text-text-secondary typo-footnote">
+        {formatElapsed(entry.timeMs)}
+      </span>
+    </>
+  );
+};
 
 const ScoreboardRow = ({
   entry,
   isFastest,
+  animate,
 }: {
   entry: WeeklyQuizLeaderboardEntry;
   isFastest: boolean;
+  animate: boolean;
 }): ReactElement => {
   // The all-time champion gets a "superstar" banner above the row and a stroke
   // around it, so the label never crowds out their name.
@@ -127,7 +136,7 @@ const ScoreboardRow = ({
           <ReputationLightningIcon size={IconSize.XXSmall} secondary />
           Fastest
         </span>
-        <RowContent entry={entry} isFastest={false} />
+        <RowContent entry={entry} isFastest={false} animate={animate} />
       </li>
     );
   }
@@ -139,7 +148,7 @@ const ScoreboardRow = ({
         entry.isCurrentUser ? 'bg-surface-active' : 'bg-surface-float',
       )}
     >
-      <RowContent entry={entry} isFastest={isFastest} />
+      <RowContent entry={entry} isFastest={isFastest} animate={animate} />
     </li>
   );
 };
@@ -162,6 +171,29 @@ export const WeeklyQuizScoreboard = ({
   const showBoard = !!user || isWeeklyQuizDemo();
   // Optionally cap the rendered rows (short board on the results screen).
   const visibleLeaderboard = limit ? leaderboard.slice(0, limit) : leaderboard;
+
+  // Count the row scores up once the board scrolls into view (it usually sits
+  // below the fold on the results screen).
+  const listRef = useRef<HTMLUListElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setInView(true);
+      return undefined;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [showBoard]);
 
   // Whoever finished in the least total time earns the "Fastest" badge —
   // independent of rank, since rank leads with correct answers.
@@ -290,6 +322,7 @@ export const WeeklyQuizScoreboard = ({
               )}
               {!isPending && leaderboard.length > 0 && (
                 <ul
+                  ref={listRef}
                   className={classNames(
                     'flex flex-col gap-1 overflow-y-auto',
                     styles.scrollArea,
@@ -303,6 +336,7 @@ export const WeeklyQuizScoreboard = ({
                       key={entry.id}
                       entry={entry}
                       isFastest={entry.id === fastestId}
+                      animate={inView}
                     />
                   ))}
                 </ul>
@@ -312,7 +346,11 @@ export const WeeklyQuizScoreboard = ({
                   anon and for anyone without a standing in this period. */}
               {!isPending && viewerEntry && (
                 <div className="flex items-center gap-3 rounded-12 border border-border-subtlest-secondary bg-surface-float px-2 py-1.5">
-                  <RowContent entry={viewerEntry} isFastest={false} />
+                  <RowContent
+                    entry={viewerEntry}
+                    isFastest={false}
+                    animate={inView}
+                  />
                 </div>
               )}
             </>

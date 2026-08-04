@@ -28,6 +28,7 @@ import { WeeklyQuizScoreboard } from './WeeklyQuizScoreboard';
 import { formatElapsed } from './WeeklyQuizTimer';
 import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
 import { useWeeklyQuizLeaderboard } from '../hooks/useWeeklyQuizLeaderboard';
+import { useCountUp } from '../hooks/useCountUp';
 import { fallbackImages } from '../../../lib/config';
 import { generateWeeklyQuizResultImage } from '../generateResultImage';
 import { isWeeklyQuizDemo } from '../demoMode';
@@ -179,10 +180,11 @@ const StatRing = ({
 };
 
 // Final screen: a back arrow to the main screen, then a BuzzFeed-style verdict —
-// a developer level for the player (score and time rings on the left, level and
-// copy on the right), a matching GIF, then the share row, the "challenge a
-// friend" link and the leaderboard. Logged-in players' results are submitted
-// once on arrival (and again if an anonymous player signs in from here).
+// a developer level for the player (score ring on the left, level and copy on
+// the right, with the numbers counting up on reveal), a matching GIF, then the
+// share row, the "challenge a friend" link and the leaderboard. Logged-in
+// players' results are submitted once on arrival (and again if an anonymous
+// player signs in from here).
 export const WeeklyQuizResults = ({
   quizId,
   result,
@@ -205,7 +207,13 @@ export const WeeklyQuizResults = ({
   const quizUrl = 'https://daily.dev/quiz/weekly-tech-news';
 
   const { correctCount, totalQuestions, timeMs } = result;
-  const ratio = totalQuestions === 0 ? 0 : correctCount / totalQuestions;
+  // Odometer-style reveal: the score, its ring arc and the time count up on
+  // mount (snaps instantly under prefers-reduced-motion).
+  const animatedCorrect = Math.round(
+    useCountUp(correctCount, { durationMs: 900 }),
+  );
+  const animatedTimeMs = Math.round(useCountUp(timeMs, { durationMs: 900 }));
+  const ratio = totalQuestions === 0 ? 0 : animatedCorrect / totalQuestions;
   const tier = getTier(correctCount, totalQuestions);
   const percentile = getPercentile(correctCount, totalQuestions);
   const paceLabel = getPaceLabel(timeMs, totalQuestions);
@@ -292,11 +300,10 @@ export const WeeklyQuizResults = ({
 
       {/* Chunk 1 — your result: the verdict headline, GIF and share row. */}
       <div className="mt-6 flex flex-col gap-6">
-        {/* Verdict: score and time rings on the left, level and copy on the
-            right. */}
+        {/* Verdict: the score ring on the left, level and copy on the right. */}
         <div className="flex flex-wrap items-center gap-4 text-left">
           <StatRing
-            value={`${correctCount}/${totalQuestions}`}
+            value={`${animatedCorrect}/${totalQuestions}`}
             label="Correct"
             ratio={ratio}
             colorVar="--theme-accent-cabbage-default"
@@ -329,7 +336,7 @@ export const WeeklyQuizResults = ({
                   className="text-text-tertiary"
                 />
                 <span className="font-bold tabular-nums text-text-primary">
-                  {formatElapsed(timeMs)}
+                  {formatElapsed(animatedTimeMs)}
                 </span>
                 <span className="text-text-tertiary">· {paceLabel}</span>
               </span>
