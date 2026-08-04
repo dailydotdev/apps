@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -32,6 +32,8 @@ interface EmailCodeVerificationProps extends AuthFormProps {
 
 const noop = (): void => undefined;
 
+const CODE_LENGTH = 6;
+
 function EmailCodeVerification({
   code: codeProp,
   onSubmit,
@@ -43,7 +45,8 @@ function EmailCodeVerification({
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
   const [hint, setHint] = useState('');
-  const [code, setCode] = useState(codeProp ?? '');
+  const linkedCode = (codeProp ?? '').replace(/\D/g, '').slice(0, CODE_LENGTH);
+  const [code, setCode] = useState(linkedCode);
   const [isVerifying, setIsVerifying] = useState(false);
   const verifyingRef = useRef(false);
   const { timer, setTimer, runTimer } = useTimer(noop, 60);
@@ -74,6 +77,15 @@ function EmailCodeVerification({
     }
   };
 
+  useEffect(() => {
+    if (linkedCode.length !== CODE_LENGTH) {
+      return;
+    }
+
+    handleVerify(linkedCode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linkedCode]);
+
   const onCodeVerification = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     logEvent({
@@ -81,7 +93,7 @@ function EmailCodeVerification({
       target_type: TargetType.VerifyEmail,
     });
     setHint('');
-    if (!code) {
+    if (code.length !== CODE_LENGTH) {
       setHint('Enter the 6-digit code');
       return;
     }
@@ -101,13 +113,15 @@ function EmailCodeVerification({
   };
 
   const onCodeSubmit = async (newCode: string) => {
-    if (newCode.length === 6) {
+    if (newCode.length === CODE_LENGTH) {
       setCode(newCode);
       await handleVerify(newCode);
     }
   };
 
-  const onCodeChange = async () => {
+  const onCodeChange = (newCode: string) => {
+    setCode(newCode);
+
     if (hint?.length > 0) {
       setHint('');
     }
@@ -149,6 +163,7 @@ function EmailCodeVerification({
           readOnly
         />
         <CodeField
+          defaultValue={linkedCode}
           onSubmit={onCodeSubmit}
           onChange={onCodeChange}
           disabled={isVerifying}
