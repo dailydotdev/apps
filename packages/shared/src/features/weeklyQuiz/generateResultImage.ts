@@ -71,7 +71,6 @@ const accent = (token: string, fallback: string): string => {
 interface Assets {
   // The daily.dev icon + wordmark lockup.
   daily: HTMLImageElement | null;
-  brand: HTMLImageElement | null;
   avatar: HTMLImageElement | null;
   gif: HTMLImageElement | null;
 }
@@ -213,20 +212,11 @@ const drawBrandHeader = (
   ctx.fillText('WEEKLY TECH NEWS QUIZ', cursor, y + 20);
 };
 
-const drawFooter = (ctx: Ctx, assets: Assets, w: number, y: number): void => {
-  const text = 'Play at daily.dev';
+const drawFooter = (ctx: Ctx, w: number, y: number): void => {
   ctx.font = `bold 34px ${FONT}`;
-  const textW = ctx.measureText(text).width;
-  const mark = 40;
-  const gap = 14;
-  const groupX = (w - (mark + gap + textW)) / 2;
-  if (assets.brand) {
-    ctx.drawImage(assets.brand, groupX, y - mark / 2 - 6, mark, mark);
-  }
-  ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.fillText(text, groupX + mark + gap, y + 6);
   ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.fillText('Play at daily.dev', w / 2, y + 6);
 };
 
 // Two matching stat cards: score and rank (or the challenge when no rank).
@@ -313,7 +303,7 @@ const renderPoster = (
   ctx.fillStyle = 'rgba(255,255,255,0.9)';
   ctx.fillText(params.name, w / 2 - 96, rowY + 14);
 
-  drawFooter(ctx, assets, w, h - 70);
+  drawFooter(ctx, w, h - 70);
 };
 
 // Variant 2 — centered card: brand, avatar, name, level, score, GIF thumb.
@@ -355,7 +345,7 @@ const renderCentered = (
     const gh = 420;
     drawCover(ctx, assets.gif, (w - gw) / 2, 850, gw, gh, 28);
   }
-  drawFooter(ctx, assets, w, h - 70);
+  drawFooter(ctx, w, h - 70);
 };
 
 // Variant 3 — split: verdict/stats on the left, GIF filling the right.
@@ -497,13 +487,12 @@ export const createWeeklyQuizResultImage = async (
     return null;
   }
 
-  const [daily, brand, avatar, gif] = await Promise.all([
+  const [daily, avatar, gif] = await Promise.all([
     loadSafe(dailyLogoDataUrl),
-    loadSafe(params.brandLogoUrl),
     loadSafe(params.imageUrl, 'anonymous'),
     loadSafe(params.gifUrl, 'anonymous'),
   ]);
-  const assets: Assets = { daily, brand, avatar, gif };
+  const assets: Assets = { daily, avatar, gif };
 
   drawBackground(ctx, w, h);
   const renderers = {

@@ -230,18 +230,21 @@ export const WeeklyQuizResults = ({
   // Renders the result as a shareable PNG and downloads it. Falls back to the
   // daily.dev placeholder avatar when the player has no picture.
   const handleDownload = (): void => {
-    generateWeeklyQuizResultImage({
-      name: user?.name || user?.username || 'You',
-      imageUrl: user?.image || fallbackImages.avatar,
-      title: tier.title,
-      correctCount,
-      totalQuestions,
-      percentile,
-      rank,
-      gifUrl: tier.gif,
-      logoUrl: '/logos/weekly-quiz-logo.png',
-      brandLogoUrl: '/android-chrome-512x512.png',
-    }).catch(() => undefined);
+    generateWeeklyQuizResultImage(
+      {
+        name: user?.name || user?.username || 'You',
+        imageUrl: user?.image || fallbackImages.avatar,
+        title: tier.title,
+        correctCount,
+        totalQuestions,
+        percentile,
+        rank,
+        gifUrl: tier.gif,
+        logoUrl: '/logos/weekly-quiz-logo.png',
+        brandLogoUrl: '/android-chrome-512x512.png',
+      },
+      2,
+    ).catch(() => undefined);
   };
 
   // Submit once we have an authenticated player — either immediately (already
