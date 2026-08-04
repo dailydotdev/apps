@@ -342,10 +342,10 @@ const renderCentered = (
   drawScoreCards(ctx, params, w, 620);
   if (assets.gif) {
     const gw = 720;
-    const gh = 420;
+    const gh = 360;
     drawCover(ctx, assets.gif, (w - gw) / 2, 850, gw, gh, 28);
   }
-  drawFooter(ctx, w, h - 70);
+  drawFooter(ctx, w, h - 60);
 };
 
 // Variant 3 — split: verdict/stats on the left, GIF filling the right.
