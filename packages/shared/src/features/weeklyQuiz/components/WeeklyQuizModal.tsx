@@ -140,7 +140,6 @@ function WeeklyQuizModal({
               <WeeklyQuizQuestionHeader game={game} />
             ) : undefined
           }
-          logoRight={phase === WeeklyQuizPhase.Question}
         >
           {phase === WeeklyQuizPhase.Intro && (
             <WeeklyQuizIntro
