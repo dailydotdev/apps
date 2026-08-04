@@ -3,18 +3,27 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { WorldBoot } from './WorldBoot';
+import { WorldCustomizeSheet } from './WorldCustomize';
 import { WorldHeader } from './WorldHeader';
-import { WorldInvite } from './WorldInvite';
+import { useIsOwnWorld, WorldInvite } from './WorldInvite';
 import { WorldImmersiveToggle, WorldMark } from './WorldMark';
 import { WorldPanel } from './WorldPanel';
+import { WorldPrivate } from './WorldPrivate';
 import { WorldRiding } from './WorldRiding';
 import { WorldStatus } from './WorldStatus';
 import { WorldTimeline } from './WorldTimeline';
 import type { WorldEngine, WorldState } from './worldState';
 import type { UserWorldResult } from './useUserWorld';
+import { useWorldDraft } from './useWorldDraft';
 import { buildWorld } from './engine/buildWorld';
 import { createWorldEngine } from './engine/world';
 import { buildUnbuiltWorld } from './unbuiltWorld';
+import {
+  isWorldCustomised,
+  resolveCrest,
+  resolveLook,
+  resolveSky,
+} from './worldCustomization';
 
 const INITIAL: WorldState = {
   status: 'loading',
@@ -64,8 +73,19 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   const [isImmersive, setIsImmersive] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
 
-  const { districts, timeline, isPending, isHistoryPending, isEmpty, error } =
-    world;
+  const {
+    districts,
+    timeline,
+    settings,
+    isPending,
+    isHistoryPending,
+    isEmpty,
+    isPrivate,
+    error,
+  } = world;
+  const isOwn = useIsOwnWorld(user);
+  const draft = useWorldDraft(user.id, settings);
+  const { applied } = draft;
 
   /* The app keeps a permanent scrollbar gutter on the body so feeds don't jump
      when they grow. Nothing on this page scrolls, and a fixed layer is laid out
@@ -185,6 +205,22 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     user?.id,
   ]);
 
+  /* The owner's look and the owner's mark, not the viewer's: both are properties
+     of the world, so everybody who visits sees the place the way it was dressed.
+     While the bench is open these read the draft instead, which is what makes
+     every chip land on the frame behind the panel rather than on a preview. */
+  useEffect(() => {
+    engineRef.current?.setLook(resolveLook(applied));
+  }, [applied]);
+
+  useEffect(() => {
+    engineRef.current?.setCrest(resolveCrest(applied, user.id, districts));
+  }, [applied, districts, user.id]);
+
+  useEffect(() => {
+    engineRef.current?.setSky(resolveSky(applied));
+  }, [applied]);
+
   useEffect(() => {
     if (isImmersive) {
       engineRef.current?.setPadding(PAD_IMMERSIVE);
@@ -243,6 +279,29 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     [],
   );
 
+  /* The bench is the owner's, and only the owner's. Everything else on this page
+     is the same for everybody who visits. */
+  const ownerDraft = isOwn ? draft : undefined;
+  const worldName = applied?.name ?? undefined;
+  const showNudge = isOwn && !isWorldCustomised(applied);
+
+  /* Nothing of a hidden world is drawn — not the map, not the timeline, not the
+     crest — so this stands in front of every other state, including the boot
+     screen it would otherwise sit behind for a round trip. */
+  if (isPrivate) {
+    return (
+      <div className="fixed inset-0 overflow-hidden bg-background-default">
+        {/* Kept mounted and empty. The engine took this node on mount and holds
+            a WebGL context on it; unmounting it here would leak the context
+            rather than release it, and browsers cap those low enough that the
+            third private world somebody visits would stop rendering. Nothing is
+            ever drawn into it: `load` is only reached with districts in hand. */}
+        <div ref={mountRef} className="absolute inset-0" />
+        <WorldPrivate user={user} />
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 overflow-hidden bg-background-default">
       <div ref={mountRef} className="absolute inset-0" />
@@ -255,19 +314,38 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
               state={state}
               unbuilt={isUnbuilt}
               isImmersive={isImmersive}
+              worldName={worldName}
+              draft={ownerDraft}
+              districts={districts}
+              showNudge={showNudge}
               onToggleImmersive={onToggleImmersive}
               onFocus={onFocus}
               onLeaveRealm={onLeaveRealm}
             />
           ) : (
-            <WorldHeader
-              user={user}
-              state={state}
-              unbuilt={isUnbuilt}
-              isImmersive={isImmersive}
-              onToggleImmersive={onToggleImmersive}
-              onLeaveRealm={onLeaveRealm}
-            />
+            <>
+              <WorldHeader
+                user={user}
+                state={state}
+                unbuilt={isUnbuilt}
+                isImmersive={isImmersive}
+                worldName={worldName}
+                showNudge={showNudge && !draft.isOpen}
+                onToggleImmersive={onToggleImmersive}
+                onLeaveRealm={onLeaveRealm}
+                onCustomize={ownerDraft?.open}
+              />
+              {/* No rail down here for the bench to take, so it takes the
+                  screen. The world stays live underneath it. */}
+              {!!ownerDraft?.isOpen && !!ownerDraft.settings && (
+                <WorldCustomizeSheet
+                  userId={user.id}
+                  draft={ownerDraft}
+                  districts={districts}
+                  settings={ownerDraft.settings}
+                />
+              )}
+            </>
           )}
           {/* On screen while the growth log is still on the wire, inert, in the
               place it will be live in. It is the last thing to arrive and the

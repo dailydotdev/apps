@@ -292,6 +292,8 @@ export enum RequestKey {
   LeaderboardPosition = 'leaderboard_position',
   UserWorld = 'user_world',
   UserWorldTimeline = 'user_world_timeline',
+  UserWorldSettings = 'user_world_settings',
+  UserWorldEntitlements = 'user_world_entitlements',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

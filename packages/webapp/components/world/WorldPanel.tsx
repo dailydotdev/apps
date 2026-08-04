@@ -13,7 +13,11 @@ import {
   TruncateText,
 } from '@dailydotdev/shared/src/components/utilities';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { ArrowIcon, InfoIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  ArrowIcon,
+  InfoIcon,
+  SettingsIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   Button,
   ButtonSize,
@@ -30,9 +34,13 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { Author } from '@dailydotdev/shared/src/graphql/comments';
+import type { WorldDistrict } from '../../graphql/world';
+import { WorldCustomizeRail } from './WorldCustomize';
 import { WorldImmersiveToggle } from './WorldMark';
+import { WorldNudge } from './WorldNudge';
 import { WorldSignupCta } from './WorldSignupCta';
 import { WorldViewerAction } from './WorldViewerAction';
+import type { WorldDraft } from './useWorldDraft';
 import type { WorldState } from './worldState';
 
 const STAT_INFO: [string, string][] = [
@@ -103,12 +111,18 @@ const Stat = ({ label, value }: { label: string; value: string }) => (
  */
 const WorldPanelHeader = memo(function WorldPanelHeader({
   user,
+  worldName,
   isImmersive,
   onToggleImmersive,
+  onCustomize,
 }: {
   user: PublicProfile;
+  /** What the owner calls the place, or nothing if they never named it. */
+  worldName?: string;
   isImmersive: boolean;
   onToggleImmersive: () => void;
+  /** Only on your own world: nobody else's place is yours to dress. */
+  onCustomize?: () => void;
 }): ReactElement {
   /* A profile carries everything a comment author does, but types its handle as
      optional, and the comment components do not. One that has no handle has no
@@ -137,10 +151,24 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
             Back to profile
           </Button>
         </Link>
-        <WorldImmersiveToggle
-          isImmersive={isImmersive}
-          onToggleImmersive={onToggleImmersive}
-        />
+        <div className="flex flex-none items-center">
+          {!!onCustomize && (
+            <Tooltip content="Make it yours">
+              <Button
+                type="button"
+                aria-label="Customise this world"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<SettingsIcon />}
+                onClick={onCustomize}
+              />
+            </Tooltip>
+          )}
+          <WorldImmersiveToggle
+            isImmersive={isImmersive}
+            onToggleImmersive={onToggleImmersive}
+          />
+        </div>
       </div>
       {/* The same block a comment puts its author in (avatar, name, handle,
           and the user card on hover), so a reader meets a person the same way
@@ -169,6 +197,19 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
           )}
         </div>
       </div>
+      {/* Only once it has one. An unnamed world shows nothing here rather than
+          the suggestion it would be given — the suggestion belongs in the
+          bench's placeholder, where disagreeing with it is the point. */}
+      {!!worldName && (
+        <Typography
+          tag={TypographyTag.H1}
+          type={TypographyType.Body}
+          bold
+          className="break-words"
+        >
+          {worldName}
+        </Typography>
+      )}
       <WorldViewerAction user={user} />
     </header>
   );
@@ -183,10 +224,19 @@ interface WorldPanelProps {
   /** Six realms of bare ground: every number is a zero and nothing is standing. */
   unbuilt?: boolean;
   isImmersive: boolean;
+  worldName?: string;
+  /** Open on your own world, and only there. */
+  draft?: WorldDraft;
+  districts?: WorldDistrict[];
+  /** The owner has never made this place theirs. */
+  showNudge?: boolean;
   onToggleImmersive: () => void;
   onFocus: (key: string) => void;
   onLeaveRealm: () => void;
 }
+
+const RAIL =
+  'pointer-events-auto absolute inset-y-0 left-0 z-1 flex w-80 flex-col gap-3 overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default p-4';
 
 /**
  * The lab's left rail: who this world belongs to and what is in it. Every
@@ -199,25 +249,41 @@ export function WorldPanel({
   state,
   unbuilt,
   isImmersive,
+  worldName,
+  draft,
+  districts,
+  showNudge,
   onToggleImmersive,
   onFocus,
   onLeaveRealm,
 }: WorldPanelProps): ReactElement {
   const { open, rank = [] } = state;
 
+  /* The bench takes the rail rather than opening beside it. There is one column
+     on this page and the world needs the rest of the screen, so what is in the
+     column changes and nothing moves. */
+  if (draft?.isOpen && draft.settings) {
+    return (
+      <WorldCustomizeRail
+        userId={user.id}
+        draft={draft}
+        districts={districts}
+        settings={draft.settings}
+      />
+    );
+  }
+
   return (
-    <aside
-      data-world-overlay
-      className={classNames(
-        'pointer-events-auto absolute inset-y-0 left-0 z-1 flex w-80 flex-col gap-3',
-        'overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default p-4',
-      )}
-    >
+    <aside data-world-overlay className={RAIL}>
       <WorldPanelHeader
         user={user}
+        worldName={worldName}
         isImmersive={isImmersive}
         onToggleImmersive={onToggleImmersive}
+        onCustomize={draft?.open}
       />
+
+      {!!showNudge && !!draft && <WorldNudge onCustomize={draft.open} />}
 
       {/* Four across, on one line. DataTile is the right component for a stats
           page and the wrong one for a rail this narrow: its card and its own

@@ -5,6 +5,9 @@ import { ShaderPass }     from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { WORLD_CSS } from './styles';
+import { drawCrest } from './crest';
+import { DEFAULT_LOOK_ID, lookFromPreset } from './look';
+import { DEFAULT_SKY, skyHourOf, skyPalOf } from './sky';
 import {
   LEVELS,
   levelOf,
@@ -30,8 +33,10 @@ import {
        engine keeps only the DOM that has to be positioned by projecting a world
        point to a pixel — labels, leader lines, the ride reticle, the toast feed
        — and pushes everything else out through `onState`;
-     - the customisation benches are gone for this pass: no sky palette, no
-       names, no crest, no look presets, no FX switches. Defaults only.
+     - the district nameplates are gone: a district's name is the taxonomy's.
+       The sky, the crest and the look come in through `setSky`, `setCrest` and
+       `setLook`, driven by what the owner saved rather than by a panel the
+       engine owns its own DOM for.
 
    One engine per page. Every accumulator the art builders share lives inside
    this closure, so two of them would not collide — but two WebGL contexts over
@@ -5309,72 +5314,15 @@ function leaveRealm(){
   updateHud(); renderRank(true); buildAir(); placeClouds();
 }
 
-/* ================================================================== the sky */
-/* The sky USED to be a readout: whichever realm you had been reading lately
-   owned it, ranked never blended. It was the file's answer to "where does
-   recency live", and as a piece of information design it worked.
-
-   It is not that any more, and the reason is worth writing down. The sky is the
-   single biggest thing on screen and the only channel that survives at
-   share-card size — which makes it simultaneously the best readout in the world
-   and the thing that decides what this page LOOKS like. Those two claims cannot
-   both be honoured, and the readout is the one that loses: the same fact is
-   already carried, permanently and unfakeably, by which quarters of the map are
-   large. Recency was the weakest thing the sky could have been spending itself
-   on, and paying for it in a world whose colour changed per reader — and
-   changed again under them the moment the growth log landed — was paying twice.
-
-   So the sky is fixed. One palette, one hour, the same for everybody. Note what
-   is NOT on offer: land, level, density, monuments. Those are the portrait.
-
-   Two axes rather than a list, because two axes is what makes a sky feel FOUND
-   instead of picked: eight palettes and five hours is forty skies. That is a
-   customisation feature and it is out of this pass — the list stays because it
-   costs nothing and it is what the feature comes back as. */
-const SKY_PAL=[
-  {id:'brand',   n:'BRAND DUSK', a:mixTok(T.onion20,T.salt10,0.24), b:T.cheese10},
-  {id:'clear',   n:'CLEAR DAY',  a:mixTok(T.water10,T.salt10,0.16), b:T.salt0},
-  {id:'blossom', n:'BLOSSOM',    a:mixTok(T.bacon10,T.salt10,0.28), b:T.cheese10},
-  {id:'ember',   n:'EMBER',      a:mixTok(T.onion90,T.bun40,0.22),  b:T.bun20},
-  {id:'seaglass',n:'SEAGLASS',   a:mixTok(T.blue40,T.salt10,0.32),  b:T.lettuce10},
-  {id:'orchid',  n:'ORCHID',     a:mixTok(T.cabbage40,T.salt10,0.18),b:T.bacon10},
-  {id:'harvest', n:'HARVEST',    a:mixTok(T.cheese40,T.salt10,0.12), b:T.bun10},
-  {id:'slate',   n:'SLATE',      a:mixTok(T.pepper10,T.salt50,0.44), b:T.salt40},
-];
-/* The hour moves the sun and nothing else moves with it, which is the whole
-   reason it can be given away for free: the sun is placed once and never
-   animated, so re-aiming it costs one environment repaint and zero per-frame
-   work. `tint`/`ka`/`kb`/`mul` are how an hour reaches the SKY as well as the
-   light — a palette dragged toward one colour and scaled down. Without it,
-   night is a bright noon sky with the lamps turned up, which reads as an
-   eclipse rather than an evening.
-   DAY is the file's original lighting rig to the decimal, so it is the default
-   and nothing about the locked art direction moves unless somebody asks. */
-const SKY_HOUR=[
-  {id:'dawn', n:'DAWN',  sun:[0.9,0.42,0.55],  sunC:0xFFD9C8, sunI:1.5,
-   hemiI:0.30, fillI:0.72, rimI:0.52, exp:0.90, tint:0xFF879F, ka:0.24, kb:0.34, mul:0.94},
-  {id:'day',  n:'DAY',   sun:[0.62,1.5,0.4],   sunC:0xFFF3B7, sunI:2.0,
-   hemiI:0.30, fillI:0.80, rimI:0.40, exp:0.93, tint:0xFFFFFF, ka:0.00, kb:0.00, mul:1.00},
-  {id:'gold', n:'GOLDEN',sun:[-0.35,0.55,0.86],sunC:0xFFE24C, sunI:2.1,
-   hemiI:0.26, fillI:0.70, rimI:0.58, exp:0.96, tint:0xFFAB81, ka:0.30, kb:0.26, mul:0.97},
-  {id:'dusk', n:'DUSK',  sun:[-0.85,0.26,-0.3],sunC:0xFFAB81, sunI:1.15,
-   hemiI:0.24, fillI:0.66, rimI:0.66, exp:0.86, tint:0x6B56DD, ka:0.42, kb:0.22, mul:0.84},
-  /* The one that repays the whole feature. Everything emissive in this world —
-     lamps, beacons, the orrery, lit windows, the ley lines — is already on the
-     bloom layer and already sized for daylight, so dropping the key by 4x hands
-     the frame to them without a single new light being added. It is also the
-     best share card the file can produce, which is not a coincidence: a world
-     at night is a world whose ONLY bright parts are the parts you built. */
-  {id:'night',n:'NIGHT', sun:[-0.5,0.34,-0.62],sunC:0x9FB6FF, sunI:0.50,
-   hemiI:0.15, fillI:0.40, rimI:0.60, exp:0.80, tint:0x141A2E, ka:0.72, kb:0.46, mul:0.58},
-];
-const SKY={pal:'brand',hour:'day'};
-const skyPalOf=id=>SKY_PAL.find(p=>p.id===id)||SKY_PAL[0];
-const skyHourOf=id=>SKY_HOUR.find(h=>h.id===id)||SKY_HOUR[1];
+/* The sky, its eight palettes and its five hours, all in `sky.js` — the bench
+   in the panel lists the same tables this paints from. What is NOT there is the
+   reading sky: whichever realm you had read lately used to own the colour, and
+   that readout is the thing the sky was freed from rather than a preset. */
+const SKY={...DEFAULT_SKY};
 
 /* Repainting a sky regenerates the PMREM environment, so it is guarded by a key
-   rather than by a flag. Nothing moves the key while a world is up any more, so
-   this now runs exactly once per load. */
+   rather than by a flag: the bench can set the same palette twice, and picking
+   an hour you are already on must not cost an environment rebuild. */
 let skyKey='';
 function applySky(){
   const p=skyPalOf(SKY.pal), h=skyHourOf(SKY.hour);
@@ -5403,6 +5351,21 @@ function applySky(){
   hemi.color.setHex(A).lerp(new THREE.Color(0xFFFFFF),0.55);
   hemi.intensity=h.hemiI;
   paintSky(A,B,HZ);
+  /* The banner is lit by the map in daylight and by its own emissive after
+     dark. A piece of cloth lit by a key at a quarter strength is a piece of
+     cloth you cannot read, and NIGHT is the hour where the crest matters most —
+     it is the best share card this file can produce. */
+  if(stdCloth) stdCloth.material.emissiveIntensity=clamp(1-h.sunI/2,0,0.8);
+}
+/* Palette and hour, both of them free: neither carries a fact. The sky used to
+   be a readout — whichever realm you had been reading lately owned it — and
+   that is the one thing NOT on offer here, because the same fact is already
+   carried permanently by which quarters of the map are large. What is left is
+   the only channel big enough to make a place feel like yours. */
+function skySet(next){
+  if(!next)return;
+  SKY.pal=next.pal||SKY.pal; SKY.hour=next.hour||SKY.hour;
+  applySky();
 }
 
 /* ================================================================ the names
@@ -6710,44 +6673,11 @@ function sizePost(){
 sizePost();
 
 /* ================================================================= the look
-   The lab offered six graded looks and seven knobs, forked into "mine" the
-   moment you moved one. That is customisation and it is out of this pass, so
-   what is left is DIORAMA — the file's own art direction — pushed once into the
-   passes. The rest of the presets stay listed because they cost nothing and
-   they are what the feature comes back as. */
-const LOOK_DEFS=[
-  {id:'diorama', n:'DIORAMA',
-   d:'The file\'s own art direction: soft ink on every silhouette, a warm key, and nothing pushed.',
-   fx:{post:1,bloom:1,outline:1},
-   sat:1.00, lift:0.05, vig:0.17, grain:0.026, warm:0.00, duo:0.00,
-   duoA:0x272A32, duoB:0xF5F6FA, ink:0x2A2438, ol:0.24, bl:1.00},
-  {id:'ink', n:'INK',
-   d:'Illustrated rather than lit. Lines carry the shapes and the colour steps back behind them.',
-   fx:{post:1,bloom:1,outline:1},
-   sat:0.74, lift:0.04, vig:0.26, grain:0.050, warm:-0.08, duo:0.00,
-   duoA:0x1E2229, duoB:0xEBEEF5, ink:0x1E2229, ol:0.78, bl:0.55},
-  {id:'sun', n:'SUNPRINT',
-   d:'No lines at all, and the glow let off its leash — an overexposed afternoon.',
-   fx:{post:1,bloom:1,outline:0},
-   sat:1.12, lift:0.03, vig:0.10, grain:0.018, warm:0.50, duo:0.00,
-   duoA:0x713015, duoB:0xFFF3B7, ink:0x2A2438, ol:0.24, bl:1.90},
-  {id:'blue', n:'BLUEPRINT',
-   d:'A cyanotype of your own world. The ramp does the colour, the outlines do the drawing.',
-   fx:{post:1,bloom:1,outline:1},
-   sat:0.30, lift:0.02, vig:0.20, grain:0.030, warm:-0.20, duo:0.82,
-   duoA:0x0B42C1, duoB:0xEBEEF5, ink:0x00A0AB, ol:0.82, bl:0.50},
-  {id:'riso', n:'RISO',
-   d:'Two inks and visible tooth. The one look that reads as printed rather than rendered.',
-   fx:{post:1,bloom:1,outline:1},
-   sat:0.92, lift:0.03, vig:0.14, grain:0.085, warm:0.18, duo:0.58,
-   duoA:0xCB3160, duoB:0xFFE877, ink:0xA51A14, ol:0.34, bl:1.10},
-  {id:'storm', n:'STORM',
-   d:'Cold, closed in, and heavily cornered. Pairs with NIGHT and with nothing else.',
-   fx:{post:1,bloom:1,outline:1},
-   sat:0.82, lift:0.07, vig:0.44, grain:0.055, warm:-0.45, duo:0.30,
-   duoA:0x1E2229, duoB:0xBAC4DA, ink:0x0F1218, ol:0.30, bl:1.25},
-];
-const LOOK={...LOOK_DEFS[0]};
+   Six graded presets and the seven knobs that fork one, in `look.js` because
+   the bench in the panel lists the same table this pushes into the passes.
+   The world starts on DIORAMA — the file's own art direction — and is told
+   about its owner's look once the settings land. */
+const LOOK={...lookFromPreset(DEFAULT_LOOK_ID)};
 
 function lookPush(){
   const u=gradePass.material.uniforms;
@@ -6760,15 +6690,161 @@ function lookPush(){
   /* An outline strength of zero still pays for a full normal-and-depth pass, so
      the switch follows the slider to the floor rather than leaving a pass
      rendering nothing. Same for the glow. */
-  FX.outline=LOOK.ol>0.005 && LOOK.fx.outline!==0;
-  FX.bloom  =LOOK.bl>0.005 && LOOK.fx.bloom!==0;
-  FX.post   =LOOK.fx.post!==0;
+  FX.outline=LOOK.ol>0.005 && LOOK.fx.outline!==false;
+  FX.bloom  =LOOK.bl>0.005 && LOOK.fx.bloom!==false;
+  FX.post   =LOOK.fx.post!==false;
 }
-function lookSet(id){
-  const src=LOOK_DEFS.find(l=>l.id===id); if(!src)return;
-  Object.assign(LOOK,src); lookPush();
+/* A WHOLE look, not a preset id: the panel forks a preset the moment a knob
+   moves, so what the page has in its hand is already an object rather than a
+   name, and anything it does not carry stays at the preset it was forked from
+   rather than at whatever the previous look happened to leave behind. */
+function lookSet(next){
+  const base=lookFromPreset(next&&next.base?next.base:(next&&next.id)||DEFAULT_LOOK_ID);
+  Object.assign(LOOK,base,next,{fx:{...base.fx,...(next&&next.fx)}});
+  lookPush();
 }
 lookPush();
+
+/* ============================================================= the standard
+   The crest is the piece of all this that TRAVELS, and that is the argument for
+   flying it here. A name and a look are yours privately — they change what your
+   world is like to sit in. Neither survives being seen by somebody else for two
+   seconds in a feed, which is the only test that matters for the loop this
+   product is built on. A mark does.
+
+   What is on the shield is decided elsewhere (`crest.js` draws it, the API says
+   what has been earned). This end owns one question only: where it stands. */
+let CREST=null;
+/* The cloth's own canvas, repainted only when the crest changes. Separate from
+   the panel's copy in `crest.js`, because the two are different shapes — and
+   because toDataURL() on the panel's would otherwise have to run every time the
+   flag wanted a texture. */
+let _flagC=null, _flagT=null, _flagKey='';
+function crestTex(){
+  if(!CREST) return null;
+  const key=CREST.charge+CREST.div+CREST.a+CREST.b;
+  if(!_flagC){ _flagC=document.createElement('canvas');
+               _flagC.width=192; _flagC.height=232;
+               _flagT=new THREE.CanvasTexture(_flagC);
+               _flagT.colorSpace=THREE.SRGBColorSpace;
+               _flagT.anisotropy=4; }
+  if(key!==_flagKey){ _flagKey=key;
+    drawCrest(_flagC.getContext('2d'),192,232,CREST,true);
+    _flagT.needsUpdate=true; }
+  return _flagT;
+}
+
+/* One flag, on the highest ground of the biggest thing on screen — the largest
+   realm out at world zoom, the largest district once you have walked into one.
+
+   ONE, and that is the decision worth defending. A standard on every island
+   would be six copies of the same mark competing with the realm names, and a
+   mark you see six times at once stops being a mark and becomes wallpaper. A
+   capital has one flag. Where it stands is also information: it moves to
+   whatever you have read most, so over a replay it migrates across the map, and
+   watching it move is watching your own attention move.
+
+   It lives at scene level rather than under a district, because a district is
+   disposed and rebuilt on every level-up and the flag has nothing to do with
+   any one of them. It is the world's, not the town's. */
+const stdRoot=new THREE.Group(); scene.add(stdRoot);
+/* The banner hangs off a pivot rather than off the root, and the pivot is what
+   turns to face the camera. Two things were wrong with rotating the cloth on
+   its own: the cloth's plane ran through the pole's axis, so a billboarded
+   banner sliced the pole down the middle at every angle — and the crossbar,
+   left behind in the root, went on pointing wherever it was first built while
+   the cloth swung away from it. The bar, its finials and the cloth are one
+   assembly; they turn together, and they hang in FRONT. */
+const stdPivot=new THREE.Group();
+const STD_POLE=13.2, STD_W=3.6, STD_H=4.35;
+/* Far enough forward to clear the pole at its widest plus everything the wave
+   can do, which is what the one-sided ripple below exists to bound. */
+const STD_FWD=0.30;
+let stdCloth=null, stdBase=null;
+{
+  const metal=mixTok(T.salt40,T.pepper10,0.42);
+  const pole=meshOf(new THREE.CylinderGeometry(0.10,0.15,STD_POLE,7),
+    mat(metal,{rough:0.45,metal:0.15}));
+  pole.position.y=STD_POLE/2; stdRoot.add(pole);
+  const fin=meshOf(new THREE.OctahedronGeometry(0.30),mat(T.cheese40,{rough:0.3}));
+  fin.position.y=STD_POLE+0.18; stdRoot.add(fin);
+
+  stdPivot.position.y=STD_POLE-0.35; stdRoot.add(stdPivot);
+  const bar=meshOf(boxG(STD_W+0.55,0.15,0.15),mat(metal,{rough:0.45}));
+  bar.position.z=STD_FWD*0.6; stdPivot.add(bar);
+  for(const sx of [-1,1]){
+    const k=meshOf(new THREE.OctahedronGeometry(0.17),mat(T.cheese40,{rough:0.3}));
+    k.position.set(sx*(STD_W/2+0.32),0,STD_FWD*0.6); stdPivot.add(k);
+  }
+  /* Its own material, never the shared cache: a cached material is keyed by
+     colour, and hanging a texture on one would put this crest on every surface
+     in the world that happened to share its hex. */
+  const cm=new THREE.MeshStandardMaterial({roughness:0.88,
+    side:THREE.DoubleSide,flatShading:false,
+    emissive:0xFFFFFF,emissiveIntensity:0});
+  stdCloth=new THREE.Mesh(new THREE.PlaneGeometry(STD_W,STD_H,10,7),cm);
+  stdCloth.position.set(0,-0.12-STD_H/2,STD_FWD);
+  stdPivot.add(stdCloth);
+  stdBase=stdCloth.geometry.attributes.position.array.slice();
+  stdRoot.visible=false;
+}
+/* Throttled rather than dirty-flagged. The target is the argmax of ~40 numbers
+   and changes on level-ups, on entering a realm, on leaving one and on every
+   scrubbed day — four call sites and a fifth to forget, against one reduce
+   twice a second. */
+let stdT=0;
+function placeStandard(t){
+  if(t-stdT<0.45)return; stdT=t;
+  /* No crest is not an empty shield: a world that has raised nothing has no
+     mark, so it flies no pole either. */
+  if(!W||!CREST||W.unbuilt){ stdRoot.visible=false; return; }
+  const list=(OPEN?OPEN.list.filter(d=>d.shown>0&&d.built)
+                 :W.quarters.filter(q=>q.shown>0&&q.island));
+  if(!list.length){ stdRoot.visible=false; return; }
+  let x=list[0]; for(const o of list) if(o.shown>x.shown) x=o;
+  const R=OPEN?spec(Math.max(1,x.level||levelOf(x.shown))).radius:(x.builtR||6);
+  /* A fixed world bearing, not a camera-relative one: the flag is planted in
+     the ground and the ground does not turn when you do. 0.55 of the radius
+     keeps it off the plateau's centre, which is where the signature monument
+     already stands and where a pole through the middle of somebody's obelisk
+     would be the first thing anyone noticed. */
+  const a=2.15;
+  stdRoot.position.set(x.x+Math.cos(a)*R*0.55,(x.baseY||0)+0.2,
+                       x.z+Math.sin(a)*R*0.55);
+  stdRoot.scale.setScalar(clamp(R/9,0.8,1.6));
+  stdRoot.visible=true;
+}
+/* The cloth turns to face the camera, and only the cloth. A flag edge-on is a
+   line, and a mark nobody can read is not a mark — this is the same argument
+   the label layer makes about a plate nobody can fit. The pole stays put, so
+   what you see is a banner swinging on its bar rather than the world rotating. */
+function stdWave(t){
+  if(!stdRoot.visible)return;
+  stdPivot.rotation.y=Math.PI/2-yaw;
+  const p=stdCloth.geometry.attributes.position;
+  for(let i=0;i<p.count;i++){
+    const x=stdBase[i*3], y=stdBase[i*3+1];
+    /* Anchored along the top edge and loosest at the bottom corners, which is
+       how cloth on a crossbar actually moves. A uniform ripple reads as a
+       flag painted on a rippling sheet of tin.
+       BIASED FORWARD, never behind: the two waves sum to 0.18 either way and
+       the 0.19 bias puts the trough a hair in front of the rest plane, so the
+       cloth billows out and back to flat instead of swinging through the pole
+       it is hanging on. Cheaper than any amount of clearance, because clearance
+       enough to survive a symmetric wave is clearance you can see. */
+    const hang=(STD_H/2-y)/STD_H;
+    p.setZ(i,(Math.sin(t*1.7+x*1.1+y*0.5)*0.13
+             +Math.sin(t*2.9+x*2.3)*0.05+0.19)*hang);
+  }
+  p.needsUpdate=true;
+}
+function crestSet(c){
+  CREST=c||null;
+  const tex=crestTex();
+  stdCloth.material.map=tex; stdCloth.material.emissiveMap=tex;
+  stdCloth.material.needsUpdate=true;
+  if(!CREST) stdRoot.visible=false;
+}
 
 /* Anything that glows joins the bloom layer. Driven off the material rather
    than a list, so a monument added later is included without being registered
@@ -7686,6 +7762,7 @@ function tick(){
        rather than leave them where they were left. */
     if(!POV.bird&&!curtained){ layoutLabels(); layoutFx(t); }
     else labelKey='';
+    placeStandard(t); stdWave(t);
     /* After the labels, because it has the last word on the label of whatever
        it is holding. */
     handUpdate(t,dt);
@@ -7749,7 +7826,12 @@ return {
   attachSpark: c=>drawSpark(c),
   /* The overlay stands on the world, so the camera fit has to know where. */
   setPadding: p=>{ Object.assign(PAD,p); if(W) frameWorld(); },
+  /* A whole look and a whole crest, both of them the owner's rather than the
+     viewer's: what a world is photographed through and what flies over it are
+     properties of the place, so a visitor is shown them too. */
   setLook: lookSet,
+  setCrest: crestSet,
+  setSky: skySet,
   setViewFlags: v=>{ Object.assign(VIEW,v);
     if(W){ paintBorders();
            clouds.visible=VIEW.sky;
