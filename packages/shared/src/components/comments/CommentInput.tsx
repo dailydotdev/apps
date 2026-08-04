@@ -53,7 +53,7 @@ export default function CommentInput({
           appendOnRoot
           position={DrawerPosition.Bottom}
           onClose={() => onClose?.()}
-          className={{ wrapper: 'flex flex-col !px-0 !pt-0' }}
+          className={{ wrapper: 'flex flex-col !p-0' }}
         >
           {composer}
         </Drawer>

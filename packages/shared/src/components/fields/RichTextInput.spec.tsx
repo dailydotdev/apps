@@ -244,6 +244,16 @@ describe('RichTextInput', () => {
     expect(mockFocus).toHaveBeenCalledWith('end');
   });
 
+  it('gives the bottom bar the safe-area floor instead of the drawer', () => {
+    // `max(1.25rem, safe-area)` on the bar itself keeps the bottom spacing
+    // equal to the sides; drawer padding stacked under it read as double.
+    render(<RichTextInput toolbarPosition="bottom" hideFooter />);
+
+    expect(
+      document.querySelector('[class*="safe-area-inset-bottom"]'),
+    ).toBeInTheDocument();
+  });
+
   it('swaps only the editor element between modes', () => {
     render(<RichTextInput toolbarPosition="bottom" hideFooter />);
 

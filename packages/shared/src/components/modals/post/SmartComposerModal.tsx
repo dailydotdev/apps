@@ -651,7 +651,7 @@ export function SmartComposerModal({
           handleClose();
         }}
         onAfterClose={props.onAfterClose}
-        className={{ wrapper: 'flex flex-col !px-0 !pt-0' }}
+        className={{ wrapper: 'flex flex-col !p-0' }}
       >
         {formContent}
       </Drawer>

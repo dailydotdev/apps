@@ -958,7 +958,15 @@ function RichTextInput(
           .run();
       }}
       position={toolbarPosition}
-      className={isBottomToolbar ? '!gap-3 !px-5 !pb-5 !pt-4' : undefined}
+      className={
+        // The bar absorbs the device safe area itself so a drawer around it
+        // adds no bottom padding of its own — stacking the two read as double
+        // spacing under the actions. Everywhere else the max() resolves to
+        // the same 1.25rem as the sides.
+        isBottomToolbar
+          ? '!gap-3 !px-5 !pb-[max(1.25rem,env(safe-area-inset-bottom))] !pt-4'
+          : undefined
+      }
       leadingActions={toolbarLeading}
       stackLeading={stackToolbarLeading}
       inlineActions={
