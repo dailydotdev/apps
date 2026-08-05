@@ -15,6 +15,7 @@ import { WorldTimeline } from './WorldTimeline';
 import type { WorldEngine, WorldState } from './worldState';
 import type { UserWorldResult } from './useUserWorld';
 import { useWorldDraft } from './useWorldDraft';
+import { useWorldPlate } from './useWorldPlate';
 import { buildWorld } from './engine/buildWorld';
 import { createWorldEngine } from './engine/world';
 import { buildUnbuiltWorld } from './unbuiltWorld';
@@ -219,6 +220,19 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   useEffect(() => {
     engineRef.current?.setSky(resolveSky(applied));
   }, [applied]);
+
+  /* The share card is composed server-side around a render only this machine
+     can cheaply make. Reads the STORED settings, not the draft: a plate is what
+     the world looks like to everyone, not what the owner is trying on. */
+  useWorldPlate({
+    userId: user.id,
+    isOwn,
+    isPrivate,
+    isReady: state.status === 'ready' && raisedFor === user.id,
+    engineRef,
+    districts,
+    settings,
+  });
 
   useEffect(() => {
     if (isImmersive) {
