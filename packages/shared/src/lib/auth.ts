@@ -136,7 +136,7 @@ export interface SocialRegistrationParameters {
   acceptedMarketing?: boolean;
   optOutMarketing?: boolean;
   experienceLevel?: string;
-  language?: string;
+  language?: string | null;
 }
 
 export const isNativeAuthSupported = (provider: string): boolean =>

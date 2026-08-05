@@ -127,7 +127,7 @@ export interface UserProfile {
   cover?: string;
   experienceLevel?: keyof typeof UserExperienceLevel;
   hideExperience?: boolean;
-  language?: string;
+  language?: string | null;
   defaultFeedId?: string;
   readme?: string;
   image?: string;
