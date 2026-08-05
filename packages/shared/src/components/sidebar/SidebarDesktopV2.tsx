@@ -142,7 +142,7 @@ import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureGiveback } from '../../lib/featureManagement';
 import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
 import { RAIL_ANCHOR_ATTRIBUTE } from '../../features/giveback/components/GivebackGiftDock';
-import { FeedbackWidget } from '../feedback';
+import { FeedbackWidget } from '../feedback/FeedbackWidget';
 import {
   Typography,
   TypographyColor,
