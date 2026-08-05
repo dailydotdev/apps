@@ -4153,6 +4153,7 @@ function forgeVeins(P,prof,R,sp){
      starting at the centre is a sunburst — a pattern nothing geological makes. */
   const va=P.seed*0.77+1.3, vr=0.95, vrr=radiusAt(prof,va);
   const vx=Math.cos(va)*vr*vrr, vz=Math.sin(va)*vr*vrr, vy=tierY(vr)+0.175;
+  g.userData.claims=[{x:vx,z:vz,d:(sp&&sp.pond?1.35:0.5)+0.6}];
 
   /* Segments OVERLAP rather than abut: laid end to end with a hair of gap they
      read as a dotted line of planks. */
@@ -4534,35 +4535,14 @@ function shipGarden(P,rnd){
 /* The shipyards' landform, and the biggest of the six: open water outside the
    coast, a painted quay wall where the land meets it, and BASINS cut into the
    deck itself at fixed radii. */
+/* NO SEA OF ITS OWN. The bench drew a moat round every harbour island, which is
+   right for one island on a bench and wrong twice over here: a district stands
+   on the realm's ground and that ground is ALREADY flooded (buildLand), and the
+   realm island gets its own annulus in buildIsland. Drawing a third one put a
+   ring of water inside the water, once per district. What the harbour builds is
+   what the water meets — the quay wall — and the basins cut into the deck. */
 function shipHarbour(P,prof,R){
   const g=new THREE.Group();
-  SEA_Y=tierY(R-1e-6)-0.35;
-  const geo=new THREE.RingGeometry(1,1.62,64,3);
-  geo.rotateX(-Math.PI/2);
-  const pos=geo.attributes.position;
-  for(let i=0;i<pos.count;i++){          // pull the ring onto the island outline
-    const x=pos.getX(i), z=pos.getZ(i), a=Math.atan2(z,x), d=Math.hypot(x,z);
-    const shore=radiusAt(prof,a)*R;
-    /* Water reaches a fifth of a radius past the coast and stops. Further out
-       and the disc stops reading as sea around an island and starts reading as
-       a lens the island is sitting on. */
-    const rr=lerp(shore*0.99,R*1.20,(d-1)/0.62);
-    pos.setX(i,Math.cos(a)*rr); pos.setZ(i,Math.sin(a)*rr);
-  }
-  if(FX.vc) bakeVC(geo);
-  const sea=new THREE.Mesh(geo,mat(P.water,{opacity:0.84,rough:0.1,metal:0.15,
-    flat:false,emissive:P.water,ei:0.12}));
-  sea.receiveShadow=true; sea.position.y=SEA_Y;
-  const base=geo.attributes.position.array.slice();
-  sea.userData.tick=t=>{
-    const p=sea.geometry.attributes.position;
-    for(let i=0;i<p.count;i++){
-      const x=base[i*3], z=base[i*3+2];
-      p.setY(i,Math.sin(t*1.1+x*0.35)*0.14+Math.sin(t*0.8+z*0.44)*0.1);
-    }
-    p.needsUpdate=true;
-  };
-  g.add(sea); animated.push(sea);
   /* Quay wall, painted at the top in the realm's cyan. Land has to meet water in
      SOMETHING, or the island looks like it was dropped in a puddle. */
   const top=tierY(R-1e-6), hgt=top-(SEA_Y-0.6);
@@ -4583,6 +4563,7 @@ function shipHarbour(P,prof,R){
   /* Basins cut into the deck. Fixed bearings and fixed radii, so a basin opened
      at L5 is the same basin at L12 — the deck grows around it. */
   const rnd=rngOf(hash2(P.seed,6600));
+  g.userData.claims=[];
   for(let i=0;i<3;i++){
     const a=i*2.399963229728653+P.seed*0.23, br=2.6+i*2.4;
     if(br>R-1.4)break;
@@ -4602,6 +4583,7 @@ function shipHarbour(P,prof,R){
       k.position.set(ox,-0.06,oz); basin.add(k);
     }
     basin.position.set(x,y,z); basin.rotation.y=-a;
+    g.userData.claims.push({x,z,d:Math.max(bw,bd)/2+0.5});
     g.add(basin);
   }
   return g;
@@ -5169,6 +5151,9 @@ function quarterSquare(P,prof,R){
   const pave=meshOf(new THREE.CylinderGeometry(sr,sr,0.07,26),
     mat(P.stone,{rough:0.95}),false,true);
   pave.position.set(x,y,z); g.add(pave);
+  /* A square is somewhere people stand, so nothing else may be placed on it —
+     see the note by `claims` in buildIsland. */
+  g.userData.claims=[{x,z,d:sr+0.3}];
   const ring=meshOf(new THREE.TorusGeometry(sr*0.98,0.07,5,30),
     mat(P.stone2,{rough:0.94}),false,true);
   ring.rotation.x=Math.PI/2; ring.position.set(x,y+0.03,z); g.add(ring);
@@ -7369,20 +7354,29 @@ function buildIsland(P,level,opt){
      ground waiting on somebody's reading. Rock, shards, roots, a lava vent and
      a harbour basin are the land; a ring-wall and a paved square are things
      somebody put up, so those two wait. */
+  /* THE LANDFORM OWNS ITS GROUND, and has to say so. A form is built before
+     anything is placed, so a basin, a lava vent, a paved square or a ring-wall
+     is invisible to the placement below unless it hands its footprint over —
+     which is how houses ended up standing in the harbour and inside the
+     fortress walls. Two shapes: a disc, in `claims` on the group, and a RADIUS
+     BAND for a wall, which is the honest shape for a thing that runs all the
+     way round the island at a fixed radius. */
+  const claims=[], bands=[];
+  const form=g2=>{ if(g2.userData.claims) claims.push(...g2.userData.claims); return g2; };
   if(P.form==='shards'){
     const w=swarmShards(P,prof,R,sp); w.userData.key='form'; out.add(w);
     node(w,{mode:carry&&prevKeys.has('form')?'keep':'build',delay:0.3});
   }
   if(P.form==='lavavent'){
-    const v=forgeVeins(P,prof,R,sp); v.userData.key='form'; out.add(v);
+    const v=form(forgeVeins(P,prof,R,sp)); v.userData.key='form'; out.add(v);
     node(v,{mode:carry&&prevKeys.has('form')?'keep':'build',delay:0.3});
   }
   if(P.form==='basins'){
-    const s=shipHarbour(P,prof,R); s.userData.key='form'; out.add(s);
+    const s=form(shipHarbour(P,prof,R)); s.userData.key='form'; out.add(s);
     node(s,{mode:carry&&prevKeys.has('form')?'keep':'build',delay:0.1});
   }
   if(P.form==='square'&&!opt.bare){
-    const q=quarterSquare(P,prof,R); q.userData.key='form'; out.add(q);
+    const q=form(quarterSquare(P,prof,R)); q.userData.key='form'; out.add(q);
     node(q,{mode:carry&&prevKeys.has('form')?'keep':'build',delay:0.2});
   }
   if(P.form==='ramparts'&&!opt.bare){
@@ -7390,21 +7384,25 @@ function buildIsland(P,level,opt){
       const b=TIER_R[k]; if(b>=R)continue;
       const key='ramp'+k;
       const w=buildRampart(P,prof,b,tierY(b-1e-6),hash2(P.seed,15000+k));
-      w.userData.key=key; out.add(w);
+      w.userData.key=key; out.add(w); bands.push(b);
       node(w,{mode:carry&&prevKeys.has(key)?'keep':'build',delay:isNew(b)?RISE:0.05});
     }
     /* And the coast gets the outermost wall — the district is walled to the
        water's edge, which is the whole point of a bastion. */
     const w=buildRampart(P,prof,R-0.15,tierY(R-1e-6),hash2(P.seed,15900));
-    w.userData.key='rampC'; out.add(w);
+    w.userData.key='rampC'; out.add(w); bands.push(R-0.15);
     node(w,{mode:'build',delay:RISE});
   }
 
   /* ---- placement ------------------------------------------------------- */
-  const claimed=[];
+  const claimed=claims;
   const slotXZ=p=>{ const rr=radiusAt(prof,p.a)*p.r; return [Math.cos(p.a)*rr,Math.sin(p.a)*rr]; };
   const accept=(p,minD)=>{
     if(p.r>R-minD*0.6)return false;                    // must be on the island
+    /* A wall is tested in the radial direction alone. Both the wall and the
+       slot are placed at a radius scaled by the same profile, so "how far is
+       this slot from that ring" is a subtraction rather than a search along it. */
+    for(const b of bands) if(Math.abs(p.r-b)<0.45+minD*0.5)return false;
     const [x,z]=slotXZ(p);
     for(const c of claimed){ const dx=c.x-x,dz=c.z-z;
       if(dx*dx+dz*dz<(c.d+minD)*(c.d+minD))return false; }
@@ -7537,8 +7535,9 @@ function buildIsland(P,level,opt){
     const h=lerp(5.0,7.8,rs())*(great?1.45:1);
     const s=put(K.tower(P,rs,h,great),p,'tw'+p.i,i*0.08);
     /* The great tower carries the realm's crown, and a crown that stops turning
-       stops being magic and starts being a prop. */
-    if(great) s.userData.keep=true;
+       stops being magic and starts being a prop. It is also half again the size
+       of its neighbours, so it takes a wider claim than the slot gave it. */
+    if(great){ s.userData.keep=true; claimed.push({x:s.position.x,z:s.position.z,d:3.0}); }
     towerTops.push(new THREE.Vector3(s.position.x,s.position.y+h*0.8,s.position.z));
   });
 
@@ -7779,8 +7778,10 @@ function buildIsland(P,level,opt){
     }
     if(sp.life&&K.fly){
       const b=buildFlyers(P,sp.life,R,K.fly);
-      b.userData.key='fly'; b.userData.keep=true; out.add(b);
-      node(b,{mode:carry&&prevKeys.has('fly')?'keep':'build',delay:0.6});
+      /* 'birds' and not 'fly': the ride picks its target by this key, and
+         renaming it is how you quietly delete a feature. */
+      b.userData.key='birds'; b.userData.keep=true; out.add(b);
+      node(b,{mode:carry&&prevKeys.has('birds')?'keep':'build',delay:0.6});
     }
   }
 

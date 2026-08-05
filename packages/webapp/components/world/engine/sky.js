@@ -1,19 +1,41 @@
 import { mixTok, T } from './taxonomy';
 
 /* The sky is customisable, not a recency readout (which quarters of the map are
-   large already carries that fact). Two axes rather than one list — eight
+   large already carries that fact). Two axes rather than one list — nine
    palettes by five hours makes a sky feel FOUND instead of picked. Its own
-   module so the bench in the panel lists the same tables the renderer paints from. */
+   module so the bench in the panel lists the same tables the renderer paints from.
+
+   These paint the WORLD view and the share card. Inside a realm the realm's own
+   rig takes over (see REALM_LIGHT), because a realm's materials were painted
+   under one specific light — so what these have to do is hold six very different
+   islands in one frame at once.
+
+   EVERY ONE OF THEM NEEDS A RAMP. `a` is the zenith and `b` the horizon, and the
+   two have to sit apart in VALUE: a palette whose ends are the same brightness
+   paints a flat card, the islands stop reading as lit from above, and the whole
+   world comes out as cut-outs pasted on coloured paper. Two of these were
+   exactly that and are fixed here — harvest was yellow over yellow, slate was
+   grey over grey. The concept art is the reference: every realm image is a
+   saturated top over a pale, warmer horizon. */
 
 export const SKY_PAL = [
   {id:'brand',   n:'Brand dusk', a:mixTok(T.onion20,T.salt10,0.24), b:T.cheese10},
   {id:'clear',   n:'Clear day',  a:mixTok(T.water10,T.salt10,0.16), b:T.salt0},
+  /* The Arcane Swarm's own weather: a bright blue zenith over a lilac horizon.
+     It is the most identifiable sky in the concept set and the picker had
+     nothing like it — orchid is a saturated magenta and blossom is pink. */
+  {id:'lilac',   n:'Lilac day',  a:mixTok(T.water10,T.salt10,0.06),
+                                 b:mixTok(T.cabbage10,T.salt10,0.62)},
   {id:'blossom', n:'Blossom',    a:mixTok(T.bacon10,T.salt10,0.28), b:T.cheese10},
   {id:'ember',   n:'Ember',      a:mixTok(T.onion90,T.bun40,0.22),  b:T.bun20},
   {id:'seaglass',n:'Seaglass',   a:mixTok(T.blue40,T.salt10,0.32),  b:T.lettuce10},
   {id:'orchid',  n:'Orchid',     a:mixTok(T.cabbage40,T.salt10,0.18),b:T.bacon10},
-  {id:'harvest', n:'Harvest',    a:mixTok(T.cheese40,T.salt10,0.12), b:T.bun10},
-  {id:'slate',   n:'Slate',      a:mixTok(T.pepper10,T.salt50,0.44), b:T.salt40},
+  /* A late afternoon, not a yellow wall: the gold belongs at the HORIZON with a
+     warm blue over it. */
+  {id:'harvest', n:'Harvest',    a:mixTok(T.water40,T.bun40,0.42),  b:T.cheese20},
+  /* Overcast with weather in it: a deep blue-grey overhead going to pale
+     silver at the horizon. */
+  {id:'slate',   n:'Slate',      a:mixTok(T.pepper60,T.water90,0.34), b:T.salt40},
 ];
 
 /* The sun is placed once and never animated, so re-aiming it costs one repaint
