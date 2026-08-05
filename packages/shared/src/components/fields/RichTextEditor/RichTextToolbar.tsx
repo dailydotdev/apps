@@ -66,6 +66,7 @@ interface ToolbarItem {
 const ToolbarDivider = (): ReactElement => (
   <span
     aria-hidden
+    data-toolbar-divider
     className="mx-1.5 h-5 w-px shrink-0 bg-border-subtlest-tertiary"
   />
 );
@@ -161,10 +162,31 @@ const OverflowMenu = ({ items }: OverflowMenuProps): ReactElement | null => {
 };
 
 const TOOLBAR_BUTTON_WIDTH = 32;
-// `ToolbarDivider` is a 1px rule with `mx-1.5` either side.
-const TOOLBAR_DIVIDER_WIDTH = 13;
-// `gap-1` between the scrolling group, the overflow menu and the right actions.
-const TOOLBAR_ROW_GAP = 4;
+// jsdom fallbacks only: the live budget measures the rendered divider and the
+// row's own column-gap, so a class change cannot desync the overflow maths.
+const FALLBACK_DIVIDER_WIDTH = 13;
+const FALLBACK_ROW_GAP = 4;
+
+const measureDividerWidth = (root: HTMLElement | null): number => {
+  const divider = root?.querySelector('[data-toolbar-divider]');
+  if (!divider) {
+    return FALLBACK_DIVIDER_WIDTH;
+  }
+  const style = getComputedStyle(divider);
+  const width =
+    divider.getBoundingClientRect().width +
+    (parseFloat(style.marginLeft) || 0) +
+    (parseFloat(style.marginRight) || 0);
+  return width > 0 ? width : FALLBACK_DIVIDER_WIDTH;
+};
+
+const measureRowGap = (root: HTMLElement | null): number => {
+  if (!root) {
+    return FALLBACK_ROW_GAP;
+  }
+  const gap = parseFloat(getComputedStyle(root).columnGap);
+  return Number.isFinite(gap) && gap > 0 ? gap : FALLBACK_ROW_GAP;
+};
 
 function RichTextToolbarComponent(
   {
@@ -395,8 +417,8 @@ function RichTextToolbarComponent(
         inlineWidth +
         rightWidth +
         TOOLBAR_BUTTON_WIDTH +
-        dividerCount * TOOLBAR_DIVIDER_WIDTH +
-        TOOLBAR_ROW_GAP * 2,
+        dividerCount * measureDividerWidth(containerRef.current) +
+        measureRowGap(containerRef.current) * 2,
     );
   }, [
     isOverflowable,
