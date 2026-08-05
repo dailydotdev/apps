@@ -112,10 +112,16 @@ export const AgentContentPane = ({
     focusContent,
     closeContent,
     closeAllContent,
+    isWorking,
   } = useAgent();
   const isLaptop = useViewSize(ViewSize.Laptop);
   useKeyboardNavigation(globalThis?.window, [
-    ['Escape', () => activeContentId && closeContent(activeContentId)],
+    // While a run is in flight Escape belongs to the stop control in the
+    // workspace; closing a tab on the same keypress would double its meaning.
+    [
+      'Escape',
+      () => !isWorking && activeContentId && closeContent(activeContentId),
+    ],
   ]);
 
   const onResizeStart = (event: React.PointerEvent) => {

@@ -15,6 +15,9 @@ export type AgentMessage = {
   blocks?: AgentBlock[];
   isPending?: boolean;
   isScheduled?: boolean;
+  isError?: boolean;
+  /** The command a failed turn re-sends when the reader hits Retry. */
+  retryText?: string;
 };
 
 const minutesAgo = (minutes: number) =>

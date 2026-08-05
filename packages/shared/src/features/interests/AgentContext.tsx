@@ -76,6 +76,9 @@ type AgentContextValue = {
   isTargetWorking: (targetId: string) => boolean;
   runCommand: (args: RunCommandArgs) => void;
   stopCommand: () => void;
+  /** Prompts sent while a run is in flight; they start as the runs finish. */
+  queuedCommands: { id: string; text: string }[];
+  removeQueuedCommand: (id: string) => void;
   update: (data: UpdateInterestInput) => void;
   isUpdating: boolean;
   activity: AgentActivityItem[];
@@ -128,14 +131,22 @@ export const AgentProvider = ({
     items: AgentContentTarget[];
     activeId?: string;
   }>({ items: [] });
+  const [queuedCommands, setQueuedCommands] = useState<
+    { id: string; args: RunCommandArgs }[]
+  >([]);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  // The completion timeout needs the *current* starter to drain the queue, and
+  // a plain closure would freeze the one from its own render.
+  const startRunRef = useRef<(args: RunCommandArgs) => void>();
+  const workingRef = useRef(false);
 
   useEffect(() => {
     return () => clearTimeout(timeoutRef.current);
   }, []);
 
-  const runCommand = useCallback(
+  const startRun = useCallback(
     ({ text, label, targetId, onComplete }: RunCommandArgs) => {
+      workingRef.current = true;
       if (!isDemo && interest) {
         sendCommand(text).catch(() => undefined);
       } else {
@@ -185,6 +196,7 @@ export const AgentProvider = ({
 
       clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => {
+        workingRef.current = false;
         setWorking(null);
         setMessages((current) =>
           current.map((message) =>
@@ -208,9 +220,47 @@ export const AgentProvider = ({
           ...current,
         ]);
         onComplete?.();
+        // Drain the queue the way Claude Code does: the next queued prompt
+        // becomes a real turn only once the previous one has resolved.
+        setQueuedCommands((current) => {
+          const [next, ...rest] = current;
+
+          if (next) {
+            setTimeout(() => startRunRef.current?.(next.args), 0);
+          }
+
+          return rest;
+        });
       }, workDurationMs);
     },
     [displayToast, interest, isDemo, sendCommand],
+  );
+
+  useEffect(() => {
+    startRunRef.current = startRun;
+  }, [startRun]);
+
+  const runCommand = useCallback(
+    (args: RunCommandArgs) => {
+      if (workingRef.current) {
+        setQueuedCommands((current) => [
+          ...current,
+          { id: `${Date.now()}-${current.length}`, args },
+        ]);
+        return;
+      }
+
+      startRun(args);
+    },
+    [startRun],
+  );
+
+  const removeQueuedCommand = useCallback(
+    (queuedId: string) =>
+      setQueuedCommands((current) =>
+        current.filter((command) => command.id !== queuedId),
+      ),
+    [],
   );
 
   // Interrupts the in-flight run the way Enter-then-Stop works in a terminal
@@ -218,7 +268,11 @@ export const AgentProvider = ({
   // vanishing, so the transcript still reads as a record of what happened.
   const stopCommand = useCallback(() => {
     clearTimeout(timeoutRef.current);
+    workingRef.current = false;
     setWorking(null);
+    // Stop is a brake on everything: restarting queued prompts after an
+    // explicit stop would resume work the user just refused.
+    setQueuedCommands([]);
     setMessages((current) =>
       current.map((message) =>
         message.isPending
@@ -319,6 +373,11 @@ export const AgentProvider = ({
       isTargetWorking: (targetId) => working?.targetId === targetId,
       runCommand,
       stopCommand,
+      queuedCommands: queuedCommands.map(({ id: queuedId, args }) => ({
+        id: queuedId,
+        text: args.text,
+      })),
+      removeQueuedCommand,
       update,
       isUpdating,
       activity,
@@ -348,6 +407,8 @@ export const AgentProvider = ({
       isDemo,
       isSettingsOpen,
       isUpdating,
+      queuedCommands,
+      removeQueuedCommand,
       runCommand,
       status,
       stopCommand,

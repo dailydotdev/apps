@@ -8,8 +8,23 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
-import { BulletListIcon, TimerIcon } from '../../../components/icons';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import {
+  BulletListIcon,
+  CopyIcon,
+  DownvoteIcon,
+  MiniCloseIcon,
+  TimerIcon,
+  UpvoteIcon,
+  WarningIcon,
+} from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import { useCopyText } from '../../../hooks/useCopy';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
@@ -105,6 +120,90 @@ const BlockRenderer = ({
   );
 };
 
+// The reply as flat text for the clipboard: markup stripped, block gaps kept.
+const messageAsText = (message: AgentMessage): string =>
+  (message.blocks ?? [])
+    .filter((block) => block.type === 'text')
+    .map(
+      (block) =>
+        new DOMParser().parseFromString(
+          (block as { html: string }).html,
+          'text/html',
+        ).body.textContent ?? '',
+    )
+    .join('\n\n')
+    .trim();
+
+// Hover-revealed, the way Claude and Codex keep reply actions out of the
+// reading flow until the pointer says they are wanted.
+const MessageActions = ({
+  message,
+}: {
+  message: AgentMessage;
+}): ReactElement => {
+  const { displayToast } = useToastNotification();
+  const [, copyText] = useCopyText();
+
+  return (
+    <FlexRow className="items-center gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100">
+      <Button
+        icon={<CopyIcon size={IconSize.Size16} />}
+        size={ButtonSize.XSmall}
+        variant={ButtonVariant.Tertiary}
+        aria-label="Copy reply"
+        // Flattened on click, not render: DOMParser only exists in the browser.
+        onClick={() => copyText({ textToCopy: messageAsText(message) })}
+      />
+      <Button
+        icon={<UpvoteIcon size={IconSize.Size16} />}
+        size={ButtonSize.XSmall}
+        variant={ButtonVariant.Tertiary}
+        aria-label="Good reply"
+        onClick={() => displayToast('Thanks — noted for future runs')}
+      />
+      <Button
+        icon={<DownvoteIcon size={IconSize.Size16} />}
+        size={ButtonSize.XSmall}
+        variant={ButtonVariant.Tertiary}
+        aria-label="Bad reply"
+        onClick={() =>
+          displayToast('Got it — the agent will adjust what clears the bar')
+        }
+      />
+    </FlexRow>
+  );
+};
+
+const ErrorTurn = ({ message }: { message: AgentMessage }): ReactElement => {
+  const { runCommand } = useAgent();
+  const { retryText } = message;
+
+  return (
+    <FlexRow className="items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-3 py-2.5">
+      <WarningIcon
+        size={IconSize.Size16}
+        className="shrink-0 text-status-error"
+      />
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+        className="min-w-0 flex-1"
+      >
+        Something went wrong and this run didn&apos;t finish.
+      </Typography>
+      {retryText && (
+        <Button
+          size={ButtonSize.XSmall}
+          variant={ButtonVariant.Subtle}
+          onClick={() => runCommand({ text: retryText })}
+        >
+          Retry
+        </Button>
+      )}
+    </FlexRow>
+  );
+};
+
 const MessageRow = ({
   message,
   onPostClick,
@@ -118,7 +217,7 @@ const MessageRow = ({
 }): ReactElement => {
   if (message.role === 'user') {
     return (
-      <FlexCol className="items-end">
+      <FlexCol className="agent-turn-in items-end">
         <div className="max-w-[85%] rounded-12 rounded-br-4 bg-surface-float px-3 py-2 tablet:max-w-[30rem]">
           <Typography type={TypographyType.Callout} className="!leading-normal">
             {message.text}
@@ -133,7 +232,7 @@ const MessageRow = ({
   // noise. Only a scheduled run gets a marker, because that one arrived on its
   // own rather than as an answer.
   return (
-    <FlexCol className="min-w-0 gap-2">
+    <FlexCol className="agent-turn-in group min-w-0 gap-2">
       {message.isScheduled && (
         <FlexRow className="items-center gap-1.5 text-text-quaternary">
           <TimerIcon size={IconSize.XXSmall} />
@@ -146,26 +245,35 @@ const MessageRow = ({
           </Typography>
         </FlexRow>
       )}
-      {message.isPending ? (
-        <AgentThinkingStrip />
-      ) : (
-        (message.blocks ?? []).map((block, index) => (
-          <BlockRenderer
-            // eslint-disable-next-line react/no-array-index-key
-            key={`${message.id}-${index}`}
-            block={block}
-            onPostClick={onPostClick}
-            onFeedClick={onFeedClick}
-            activePostId={activePostId}
-          />
-        ))
+      {message.isPending && <AgentThinkingStrip />}
+      {message.isError && <ErrorTurn message={message} />}
+      {!message.isPending && !message.isError && (
+        <>
+          {(message.blocks ?? []).map((block, index) => (
+            <BlockRenderer
+              // eslint-disable-next-line react/no-array-index-key
+              key={`${message.id}-${index}`}
+              block={block}
+              onPostClick={onPostClick}
+              onFeedClick={onFeedClick}
+              activePostId={activePostId}
+            />
+          ))}
+          {!!message.blocks?.length && <MessageActions message={message} />}
+        </>
       )}
     </FlexCol>
   );
 };
 
 export const AgentChatSection = (): ReactElement => {
-  const { messages, openContentTarget, activeContent } = useAgent();
+  const {
+    messages,
+    openContentTarget,
+    activeContent,
+    queuedCommands,
+    removeQueuedCommand,
+  } = useAgent();
   const activePostId =
     activeContent?.type === 'post' ? activeContent.post.id : undefined;
 
@@ -181,6 +289,37 @@ export const AgentChatSection = (): ReactElement => {
           }
           activePostId={activePostId}
         />
+      ))}
+      {/* Prompts waiting behind the in-flight run sit as muted bubbles under
+          the transcript, Claude Code's queued-message pattern: visible,
+          removable, and not yet part of the conversation. */}
+      {queuedCommands.map(({ id, text }) => (
+        <FlexCol key={id} className="agent-turn-in items-end">
+          <FlexRow className="max-w-[85%] items-center gap-2 rounded-12 rounded-br-4 border border-dashed border-border-subtlest-secondary px-3 py-2 tablet:max-w-[30rem]">
+            <FlexCol className="min-w-0 flex-1">
+              <Typography
+                type={TypographyType.Caption2}
+                color={TypographyColor.Quaternary}
+              >
+                Queued
+              </Typography>
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Tertiary}
+                className="truncate"
+              >
+                {text}
+              </Typography>
+            </FlexCol>
+            <Button
+              icon={<MiniCloseIcon size={IconSize.Size16} />}
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Tertiary}
+              aria-label={`Remove queued message: ${text}`}
+              onClick={() => removeQueuedCommand(id)}
+            />
+          </FlexRow>
+        </FlexCol>
       ))}
     </FlexCol>
   );

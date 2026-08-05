@@ -976,3 +976,22 @@
     background-position: 100% 50%, 50% 0%;
   }
 }
+
+/* A turn arriving in the agent transcript: a short rise-and-settle so new
+   rows read as arriving rather than popping. */
+@keyframes agent-turn-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.agent-turn-in {
+  animation: agent-turn-in 0.24s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-turn-in {
+    animation: none;
+  }
+}
