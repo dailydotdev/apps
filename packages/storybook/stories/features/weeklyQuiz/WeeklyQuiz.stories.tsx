@@ -129,10 +129,13 @@ const PreviewGame = ({
         controls={controls}
         headerRight={
           phase === WeeklyQuizPhase.Intro && quiz ? (
-            <WeeklyQuizDateChip
-              startDate={quiz.startDate}
-              endDate={quiz.endDate}
-            />
+            // Desktop only: on mobile the week pill moves above the title.
+            <span className="hidden tablet:flex">
+              <WeeklyQuizDateChip
+                startDate={quiz.startDate}
+                endDate={quiz.endDate}
+              />
+            </span>
           ) : undefined
         }
       >
