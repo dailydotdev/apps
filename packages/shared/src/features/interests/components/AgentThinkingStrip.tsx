@@ -7,7 +7,7 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexRow } from '../../../components/utilities';
 import { useAgent } from '../AgentContext';
-import { AgentThinkingMark } from './AgentThinkingMark';
+import { AgentThinkingOrb } from './AgentThinkingOrb';
 
 const formatElapsed = (ms: number): string => {
   const seconds = Math.max(0, Math.floor(ms / 1000));
@@ -43,8 +43,8 @@ export const AgentThinkingStrip = (): ReactElement => {
 
   return (
     <FlexRow className="items-center gap-2" aria-live="polite">
-      <span className="size-5 shrink-0 text-brand-default">
-        <AgentThinkingMark />
+      <span className="shrink-0 text-brand-default">
+        <AgentThinkingOrb size={22} />
       </span>
       <Typography type={TypographyType.Footnote} bold>
         Working

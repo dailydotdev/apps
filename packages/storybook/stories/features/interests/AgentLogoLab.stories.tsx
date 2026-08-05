@@ -7,91 +7,72 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
-import type { AgentThinkingMarkVariant } from '@dailydotdev/shared/src/features/interests/components/AgentThinkingMark';
-import { AgentThinkingMark } from '@dailydotdev/shared/src/features/interests/components/AgentThinkingMark';
+import { AgentThinkingOrb } from '@dailydotdev/shared/src/features/interests/components/AgentThinkingOrb';
+import type { ThinkingOrbState } from '@dailydotdev/shared/src/features/interests/thinkingOrb';
 
-const variants: {
-  variant: AgentThinkingMarkVariant;
+/**
+ * The thinking indicator, rebuilt as a particle system rather than a set of
+ * keyframe tricks: the daily.dev mark is the attractor, and each state is a
+ * different force field over the dots sampled around its outline.
+ */
+const states: {
+  state: ThinkingOrbState;
   title: string;
+  technique: string;
   description: string;
 }[] = [
   {
-    variant: 'wave',
-    title: '1 · Wave',
+    state: 'working',
+    title: '1 · Working',
+    technique: 'travelling attention beads, arc-length driven',
     description:
-      'The current production pick. Each stroke hops with a small tilt, staggered left-to-right so one wave rolls across the mark, then the assembled logo rests for the back half of the loop.',
+      'Three beads of attention — one per stroke — run the outlines at their own pace. Dots lift out of the plane and swell as a bead passes, so the mark reads as being traversed, not merely lit. The most literal "it is working through something".',
   },
   {
-    variant: 'sheen',
-    title: '2 · Sheen',
+    state: 'thinking',
+    title: '2 · Thinking',
+    technique: 'per-dot orbits + smooth-noise focus',
     description:
-      'Nothing moves. A dim wave passes through the strokes like light sweeping an embossed mark. The quietest option — for surfaces where motion would compete.',
+      'Every dot circles its own home on its own radius, and the whole field tightens and loosens on value noise. The logo drifts in and out of focus and never lands on a beat, because there is no beat — nothing here is periodic.',
   },
   {
-    variant: 'pulse',
-    title: '3 · Pulse',
+    state: 'searching',
+    title: '3 · Searching',
+    technique: 'sweeping meridian, settle-behind',
     description:
-      'The whole logo breathes once per loop, tail flaring at the top of the breath. Calm, organic, reads at any size.',
+      'A raked line sweeps the mark. Ahead of it the dots hover unsettled; the line pushes them forward as it passes and they drop into place behind it. Directional, so it reads as progress rather than activity.',
   },
   {
-    variant: 'blink',
-    title: '4 · Blink',
+    state: 'weaving',
+    title: '4 · Weaving',
+    technique: 'advection along the outline, alternating direction',
     description:
-      'The three strokes dim in sequence — the logo as its own typing indicator. The most instantly legible "thinking" signal.',
+      'Nothing sits still: every dot travels around its own stroke, and neighbouring strokes run opposite ways. The mark is drawn entirely by traffic. The closest this set gets to reading as computation.',
   },
   {
-    variant: 'slide',
-    title: '5 · Slide',
+    state: 'assembling',
+    title: '5 · Assembling',
+    technique: 'scatter and magnetic re-formation',
     description:
-      "The outer strokes slide apart along the mark's own diagonal and lock back with a slight overshoot. Disassembly and reassembly on the logo's native axis.",
-  },
-  {
-    variant: 'tilt',
-    title: '6 · Tilt',
-    description:
-      'A metronome: the assembled logo swings a few degrees each way. Steady and rhythmic — deliberately mechanical, like a process ticking.',
-  },
-  {
-    variant: 'heartbeat',
-    title: '7 · Heartbeat',
-    description:
-      'Two quick scale thumps then a long rest, like a pulse monitor. The most "alive" of the whole-mark options.',
-  },
-  {
-    variant: 'flip',
-    title: '8 · Flip',
-    description:
-      'A card flip — the logo squashes flat on its vertical axis with a brightness kick at the flat point, then springs back. It never mirrors, so every visible frame stays readable.',
-  },
-  {
-    variant: 'bloom',
-    title: '9 · Bloom',
-    description:
-      'The strokes collapse toward the centre and bloom back out with an overshoot. A gather-and-release breath built from the pieces rather than the whole.',
-  },
-  {
-    variant: 'wipe',
-    title: '10 · Wipe',
-    description:
-      'The logo draws itself on with a left-to-right reveal, holds fully assembled, then cuts out and starts again. Feels like the mark being written.',
+      'The field disperses and is pulled back, solid mark fading with it. The dispersal is a scatter, not a sphere — the logo is the only shape this system ever makes, so it always resolves to us.',
   },
 ];
 
-const sizes = [
-  { label: '20px — status strip', className: 'size-5' },
-  { label: '32px', className: 'size-8' },
-  { label: '96px', className: 'h-24 w-[10.5rem]' },
-];
+const sizes = [20, 32, 96];
 
-const VariantCard = ({
-  variant,
+const StateCard = ({
+  state,
   title,
+  technique,
   description,
-}: (typeof variants)[number]): ReactElement => (
+}: (typeof states)[number]): ReactElement => (
   <FlexCol className="gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-5">
     <FlexCol className="gap-1">
       <Typography type={TypographyType.Body} bold>
         {title}
+      </Typography>
+      <Typography type={TypographyType.Caption1} color={TypographyColor.Link}>
+        {technique}
       </Typography>
       <Typography
         type={TypographyType.Footnote}
@@ -102,16 +83,16 @@ const VariantCard = ({
     </FlexCol>
 
     <FlexRow className="items-end gap-8">
-      {sizes.map(({ label, className }) => (
-        <FlexCol key={label} className="items-center gap-2">
-          <span className={`${className} text-brand-default`}>
-            <AgentThinkingMark variant={variant} />
+      {sizes.map((size) => (
+        <FlexCol key={size} className="items-center gap-2">
+          <span className="text-brand-default">
+            <AgentThinkingOrb state={state} size={size} />
           </span>
           <Typography
             type={TypographyType.Caption2}
             color={TypographyColor.Quaternary}
           >
-            {label}
+            {size}px
           </Typography>
         </FlexCol>
       ))}
@@ -119,8 +100,8 @@ const VariantCard = ({
 
     {/* The size that actually ships: inline on the transcript status strip. */}
     <FlexRow className="items-center gap-2 rounded-12 bg-surface-float px-3 py-2">
-      <span className="size-5 shrink-0 text-brand-default">
-        <AgentThinkingMark variant={variant} />
+      <span className="shrink-0 text-brand-default">
+        <AgentThinkingOrb state={state} size={22} />
       </span>
       <Typography type={TypographyType.Footnote} bold>
         Working
@@ -148,20 +129,24 @@ const Lab = (): ReactElement => (
     <FlexCol className="mx-auto max-w-[70rem] gap-6">
       <FlexCol className="gap-1">
         <Typography type={TypographyType.Title3} bold>
-          Logo thinking-mark lab
+          Thinking indicator lab
         </Typography>
         <Typography
           type={TypographyType.Footnote}
           color={TypographyColor.Tertiary}
         >
-          Ten explorations of the daily.dev mark as a working indicator. Every
-          loop presents the intact logo for part of its cycle; all are pure CSS
-          on the same three-stroke SVG, so the pick is a one-prop change.
+          One engine, five states. The mark is not animated as a picture — it is
+          the attractor of a particle field sampled from its own outline, and
+          each state is a different force over those dots. Nothing loops:
+          positions come from travelling waves and smooth noise, so the logo is
+          continuously assembling instead of replaying. Plain 2D canvas arcs,
+          depth carried by size and alpha alone, theme-coloured through
+          currentColor, paused when offscreen, static under reduced motion.
         </Typography>
       </FlexCol>
       <div className="grid grid-cols-1 gap-4 laptop:grid-cols-2">
-        {variants.map((entry) => (
-          <VariantCard key={entry.variant} {...entry} />
+        {states.map((entry) => (
+          <StateCard key={entry.state} {...entry} />
         ))}
       </div>
     </FlexCol>
