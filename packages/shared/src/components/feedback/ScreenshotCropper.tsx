@@ -57,7 +57,10 @@ export function ScreenshotCropper({
     });
   };
 
-  const onPointerUp = () => {
+  // Shared by pointerup, pointercancel, and lostpointercapture: an
+  // OS-interrupted touch gesture must not leave a stale drag origin behind,
+  // or the next hover would keep drawing a selection with no button pressed.
+  const onPointerEnd = () => {
     dragStart.current = null;
     setSelection((current) =>
       current &&
@@ -107,7 +110,9 @@ export function ScreenshotCropper({
           className="absolute inset-0 cursor-crosshair touch-none"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
+          onPointerUp={onPointerEnd}
+          onPointerCancel={onPointerEnd}
+          onLostPointerCapture={onPointerEnd}
         >
           {selection && (
             <div
@@ -144,5 +149,3 @@ export function ScreenshotCropper({
     </div>
   );
 }
-
-export default ScreenshotCropper;

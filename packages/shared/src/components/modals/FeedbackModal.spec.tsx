@@ -24,10 +24,11 @@ jest.mock('../../contexts/SettingsContext', () => ({
 }));
 
 // jsdom implements neither object URLs nor canvas
+const mockRevokePreviewUrl = jest.fn();
 jest.mock('../../lib/screenshot', () => ({
   ...jest.requireActual('../../lib/screenshot'),
   createPreviewUrl: () => 'blob:mock-preview',
-  revokePreviewUrl: jest.fn(),
+  revokePreviewUrl: (...args: unknown[]) => mockRevokePreviewUrl(...args),
 }));
 
 const renderComponent = () => {
@@ -150,6 +151,33 @@ describe('FeedbackModal', () => {
       screen.queryByText('Drag to select the area to keep'),
     ).not.toBeInTheDocument();
     expect(screen.getByAltText('Screenshot preview')).toBeInTheDocument();
+  });
+
+  it('keeps the existing attachment when a replacement file fails validation', async () => {
+    renderComponent();
+
+    const valid = new File(['screenshot'], 'screenshot.png', {
+      type: 'image/png',
+    });
+    fireEvent.change(screen.getByLabelText('Upload screenshot'), {
+      target: { files: [valid] },
+    });
+    await screen.findByAltText('Screenshot preview');
+
+    const tooLarge = new File(['x'], 'huge.png', { type: 'image/png' });
+    Object.defineProperty(tooLarge, 'size', { value: 6 * 1024 * 1024 });
+    fireEvent.change(screen.getByLabelText('Upload screenshot'), {
+      target: { files: [tooLarge] },
+    });
+
+    await waitFor(() =>
+      expect(mockDisplayToast).toHaveBeenCalledWith(
+        'File too large. Maximum size is 5MB.',
+      ),
+    );
+    // The original attachment and its preview URL must survive the rejection
+    expect(screen.getByAltText('Screenshot preview')).toBeInTheDocument();
+    expect(mockRevokePreviewUrl).not.toHaveBeenCalled();
   });
 
   it('renders all categories and submits content quality with updated enum value', async () => {

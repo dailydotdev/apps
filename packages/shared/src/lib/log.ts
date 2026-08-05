@@ -608,6 +608,7 @@ export enum TargetId {
   On = 'on',
   Off = 'off',
   SpotlightOpen = 'spotlight open',
+  FeedbackOpen = 'feedback open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',

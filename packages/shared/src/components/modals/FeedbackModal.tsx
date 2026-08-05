@@ -74,29 +74,17 @@ const FeedbackModal = ({
     };
   }, [screenshotPreview]);
 
+  // Validate the incoming file BEFORE revoking the current preview URL, so
+  // a rejected replacement (or an oversized crop result) leaves the existing
+  // attachment and its preview intact.
   const handleScreenshotChange = useCallback(
     (file: File | null) => {
-      // Revoke old preview URL
-      if (screenshotPreview) {
-        revokePreviewUrl(screenshotPreview);
-      }
-
-      setIsCropping(false);
-
-      if (!file) {
-        setScreenshot(null);
-        setScreenshotPreview(null);
-        return;
-      }
-
-      // Validate file type
-      if (!isValidImageType(file)) {
+      if (file && !isValidImageType(file)) {
         displayToast('Invalid image type. Use PNG, JPG, WebP, or GIF.');
         return;
       }
 
-      // Validate file size
-      if (!isValidFileSize(file)) {
+      if (file && !isValidFileSize(file)) {
         displayToast(
           `File too large. Maximum size is ${
             MAX_SCREENSHOT_SIZE / 1024 / 1024
@@ -105,8 +93,13 @@ const FeedbackModal = ({
         return;
       }
 
+      if (screenshotPreview) {
+        revokePreviewUrl(screenshotPreview);
+      }
+
+      setIsCropping(false);
       setScreenshot(file);
-      setScreenshotPreview(createPreviewUrl(file));
+      setScreenshotPreview(file ? createPreviewUrl(file) : null);
     },
     [screenshotPreview, displayToast],
   );
