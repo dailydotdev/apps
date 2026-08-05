@@ -72,7 +72,7 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleAutoDismissNotifications: () => Promise<void>;
   toggleShowFeedbackButton: () => Promise<void>;
   // Settings are usable (a cached copy is in hand). NOT a promise that they
-  // match the server — see `isRemoteSettingsLoaded` for that.
+  // match the server. See `isRemoteSettingsLoaded` for that.
   loadedSettings: boolean;
   // The boot response has landed AND been applied, so `flags` reflects what the
   // account actually holds. Anything that treats a missing value as "the server
@@ -236,7 +236,7 @@ const pickClientOnlyFlags = (
 
 // Merge, never replace. The store has several owners (the rail density, the
 // dock, the panel toggles) and a caller only ever carries its own keys, so a
-// replace drops whichever ones its `flags` had not loaded yet — and loses a
+// replace drops whichever ones its `flags` had not loaded yet. It also loses a
 // second tab's write landing between this read and the set.
 const writeStoredFlags = (
   userId: string | undefined,
@@ -294,7 +294,7 @@ const withoutClientOnlyFlags = (settings: RemoteSettings): RemoteSettings => {
 };
 
 // Client-only flags are stripped from the payload, so a write that touched
-// nothing else would send a request identical to the last one — a reorder drag
+// nothing else would send a request identical to the last one. A reorder drag
 // in the shortcuts dock fires a burst of them. The seam stays honest: the day
 // the field graduates it stops counting as client-only and the write goes out.
 const isClientOnlySettingsChange = (
@@ -444,8 +444,8 @@ export const SettingsContextProvider = ({
   };
 
   // A graduated flag still lives in local storage for every existing user, so
-  // push it up once — server value wins if there already is one. Dropping the
-  // migrated keys is what stops this repeating.
+  // push it up once. The server value wins if there already is one. Dropping
+  // the migrated keys is what stops this repeating.
   //
   // Gated on the remote settings rather than `loadedSettings` (cache presence):
   // "the server has no value" has to be read off the response, not off last

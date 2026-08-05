@@ -4,7 +4,7 @@
 
 The extension renders the same sidebar from `chrome-extension://<id>/…`. A
 root-relative href (`/following`) resolves against **that** origin, so it lands
-on `chrome-extension://<id>/following` — a 404. Only absolute webapp URLs
+on `chrome-extension://<id>/following`, which 404s. Only absolute webapp URLs
 (`${webappUrl}following`) survive.
 
 But several rows are *deliberately* root-relative: on the extension new tab,
@@ -18,22 +18,22 @@ The mechanism that makes that safe is the button/link switch:
 - A `Section` given `isItemsButton` renders its rows as **buttons**
   (`SidebarItem`: `isButton={isItemsButton && !item.isForcedLink}`).
 - A button has no href, so a relative path can never navigate.
-- `isForcedLink: true` opts a row back into being a link — those rows must
-  therefore always carry an absolute URL.
+- `isForcedLink: true` opts a row back into being a link, so those rows must
+  always carry an absolute URL.
 
 So a row is safe when **either** it renders as a button on the extension,
 **or** its path is absolute. A relative path rendered as a link is the bug.
 
 Note `ClickableNavItem` renders a **link** whenever `item.path` is set, even if
-the item also has an `action` — and `combinedClicks` does not `preventDefault`.
+the item also has an `action`. `combinedClicks` does not `preventDefault`.
 An `action` alone does not save a relative path.
 
 ## What was broken
 
 v2 moved the feed rows from `MainSection` into `ProfilePanelSection` (the
 avatar panel) but rendered that panel with `isItemsButton={false}`, dropping the
-button contract v1 had. The shortcuts dock — new in v2 — has no button mode at
-all, so relative paths there always 404.
+button contract v1 had. The shortcuts dock is new in v2 and has no button mode
+at all, so relative paths there always 404.
 
 | # | Row / surface | v1 (production) | v2 before | Extension result | Fix |
 |---|---|---|---|---|---|
@@ -52,17 +52,17 @@ on the extension. **absolute** = href starts with `webappUrl`.
 | Control | Path | Renders as | Extension | Status |
 |---|---|---|---|---|
 | Brand mark / Home | `/my-feed` | link, but `onLogoClick` calls `preventDefault` on extension | in-place feed switch | OK |
-| Search | — | button (opens spotlight) | — | OK |
+| Search | n/a | button (opens spotlight) | n/a | OK |
 | Explore tab | `${webappUrl}posts` | link | absolute | OK |
 | Squads tab | `${webappUrl}squads/discover` | link | absolute | OK |
 | Game Center tab | `${webappUrl}game-center` | link | absolute | OK |
-| Profile (avatar) tab | — | button (opens panel) | — | OK |
-| New post | — | button (opens modal) | — | OK |
-| Notifications bell | — | button (opens panel) | — | OK |
-| Invite / Support | — | buttons (popovers) | — | OK |
+| Profile (avatar) tab | n/a | button (opens panel) | n/a | OK |
+| New post | n/a | button (opens modal) | n/a | OK |
+| Notifications bell | n/a | button (opens panel) | n/a | OK |
+| Invite / Support | n/a | buttons (popovers) | n/a | OK |
 | Settings gear | `${settingsUrl}/profile` | link | absolute | OK |
-| Shortcuts dock — catalog | `${webappUrl}…` ×11 | link | absolute | **fixed (#2)** |
-| Shortcuts dock — pinned page | stored per pin | link | absolute after fix | **fixed (#3)** |
+| Shortcuts dock (catalog) | `${webappUrl}…` ×11 | link | absolute | **fixed (#2)** |
+| Shortcuts dock (pinned page) | stored per pin | link | absolute after fix | **fixed (#3)** |
 
 ### Explore panel
 

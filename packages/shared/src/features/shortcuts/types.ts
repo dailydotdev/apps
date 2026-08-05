@@ -28,8 +28,8 @@ export const MAX_SHORTCUTS = 12;
 export const UNDO_TIMEOUT_MS = 6000;
 
 // Travels on the native dataTransfer under SHORTCUT_DRAG_MIME, and is stored
-// as-is for pins that aren't catalog entries — hence it lives here rather than
-// with the sidebar components, so `SettingsFlags` can reference it without
+// as-is for pins that aren't catalog entries. It therefore lives here rather
+// than with the sidebar components, so `SettingsFlags` can reference it without
 // importing a component module.
 export interface ShortcutDragData {
   title: string;

@@ -1082,8 +1082,8 @@ export const SidebarShortcutsDock = (): ReactElement | null => {
                             {/* Must match RAIL_ICON_SIZE exactly. A box even
                                 1px smaller lets preflight's
                                 `img { max-width: 100% }` cap the Cores <img>
-                                width while its height stays — a visibly
-                                stretched icon. SVG glyphs just overflow, so
+                                width while its height stays, which stretches
+                                the icon visibly. SVG glyphs just overflow, so
                                 only Cores shows it. */}
                             <span className="flex size-6 shrink-0 items-center justify-center">
                               {shortcut.icon(false)}

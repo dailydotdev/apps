@@ -41,7 +41,7 @@ interface SidebarDensityOptionProps {
 }
 
 // A native radio, not a button: this is one setting with two values, so the
-// group has to read as such — and the input brings arrow-key navigation and
+// group has to read as such. The input also brings arrow-key navigation and
 // roving focus with it.
 const SidebarDensityOption = ({
   label,

@@ -83,7 +83,7 @@ export const railTabClass =
   'focus-outline group relative flex w-full flex-col items-center gap-0.5 rounded-12 px-1 py-2 text-text-tertiary transition-[background-color,color,transform] duration-150 ease-out hover:bg-surface-hover hover:text-text-primary active:scale-95 motion-reduce:transition-none';
 export const railTabLabelClass = 'typo-caption2 leading-tight text-center';
 // Shared by every stacked group on the rail so their spacing can't drift.
-// RAIL_ROW_GAP_PX is the same value for the overflow math — keep them in sync.
+// RAIL_ROW_GAP_PX is the same value for the overflow math. Keep them in sync.
 export const railColumnGapClass = 'gap-0.5';
 export const RAIL_ROW_GAP_PX = 2;
 // One source of truth for the glyph size inside every v2 rail control — tabs,

@@ -1531,7 +1531,7 @@ export const SidebarDesktopV2 = ({
           {...defaultRenderSectionProps}
           onNavTabClick={onNavTabClick}
           // Its feed rows carry root-relative paths, which only survive the
-          // extension as buttons — see docs/sidebar-links-extension-audit.md.
+          // extension as buttons. See docs/sidebar-links-extension-audit.md.
           isItemsButton={isNavButtons ?? false}
         />
       );

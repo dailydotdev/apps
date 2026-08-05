@@ -112,7 +112,7 @@ const Grid = ({ audit }: { audit: boolean }) => (
 );
 
 // The rail as it actually stacks: one 80px column at the shared row gap, in
-// both densities. This is where the vertical rhythm is judged — the Grid above
+// both densities. This is where the vertical rhythm is judged. The Grid above
 // only answers whether the glyphs agree with each other.
 const Column = ({ compact }: { compact: boolean }) => (
   <div

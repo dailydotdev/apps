@@ -184,7 +184,7 @@ export const BootDataProvider = ({
   const loadedFromCache = !!cachedBootData;
   // `isBootReady` flips a commit before the response reaches `cachedBootData`
   // (child effects run before this provider's), so consumers that need the
-  // settings themselves to be fresh — not merely present — read this instead.
+  // settings themselves to be fresh, not merely present, read this instead.
   // It is set where the response is written into the cached data.
   const [isRemoteBootApplied, setIsRemoteBootApplied] = useState(false);
   const {

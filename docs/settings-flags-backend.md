@@ -1,9 +1,9 @@
 # Making a sidebar preference server-backed
 
-Two v2 sidebar preferences — **compact rail** and the **pinned shortcuts dock** —
-are meant to follow the account across devices. The client already writes them
-through the normal settings path; they are held in local storage today *only*
-because `daily-api` has no field for them yet.
+**Compact rail** and the **pinned shortcuts dock** are two v2 sidebar
+preferences meant to follow the account across devices. The client already
+writes them through the normal settings path; they are held in local storage
+today *only* because `daily-api` has no field for them yet.
 
 This doc is the handoff: what to add on the API side, and what happens on the
 client when you do.
@@ -13,8 +13,8 @@ client when you do.
 `updateUserSettings` takes `flags: SettingsFlagsPublicInput`, and that input type
 declares every accepted key one by one. GraphQL rejects an undeclared key, and
 because the client sends the *whole* settings object on every write, a single
-unknown flag fails the entire mutation — which silently breaks the persistence
-of every other setting in the same payload, not just the new one.
+unknown flag fails the entire mutation. That silently breaks the persistence of
+every other setting in the same payload, not just the new one.
 
 So the client keeps a short list of flags the API doesn't know
 (`clientOnlySettingsFlags` in `packages/shared/src/graphql/settings.ts`),
@@ -34,7 +34,7 @@ Two consequences of that stopgap, both of which disappear on graduation:
 
 Add these to `SettingsFlagsPublicInput` (and to the `SettingsFlags` type backing
 the `settings.flags` jsonb column). Both are per-user preferences with no
-server-side behaviour — store and return them verbatim.
+server-side behaviour. Store and return them verbatim.
 
 | Field | GraphQL type | Shape | Default |
 | --- | --- | --- | --- |
@@ -53,8 +53,8 @@ union, so entries are heterogeneous:
 
 - Max 12 entries (`MAX_SHORTCUTS`); rejecting longer arrays is fine, the client
   enforces it too.
-- Entry validity (unknown catalog ids, missing `path`) is healed client-side —
-  no server validation needed beyond shape/size.
+- Entry validity (unknown catalog ids, missing `path`) is healed client-side.
+  No server validation is needed beyond shape/size.
 - `image` is optional.
 
 Two flags already in the client's `SettingsFlags` are in the same position and
@@ -68,7 +68,7 @@ client-side change:
 
 - the provider stops stripping it, so it ships with every settings write;
 - `SettingsContextProvider` runs a one-time migration on the next load for each
-  user — it takes the value already in their local storage, writes it to the
+  user. It takes the value already in their local storage, writes it to the
   API (server value wins if one already exists), and drops that one key
   locally, leaving the flags that haven't graduated in place. Nobody loses a
   preference in the switchover.
@@ -88,7 +88,7 @@ API has learned to store up to the server").
 
 The shortcuts dock used to live in IndexedDB under `sidebar_shortcuts`.
 `useLegacyShortcutsMigration` in `SidebarShortcutsDock.tsx` lifts an existing
-local dock into settings once, then clears the IndexedDB entry — so by the time
-the API field lands, users' pins are already in the settings payload. That hook
+local dock into settings once, then clears the IndexedDB entry. By the time the
+API field lands, users' pins are already in the settings payload. That hook
 can be deleted once enough time has passed for active users to have loaded the
 app at least once.

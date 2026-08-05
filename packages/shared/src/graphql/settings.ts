@@ -62,8 +62,8 @@ export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
 // These have no API field yet, so they're kept in local storage and stripped
 // from the remote payload.
 //
-// Deleting an entry here is the only change needed once the API stores it —
-// see docs/settings-flags-backend.md.
+// Deleting an entry here is the only change needed once the API stores it.
+// See docs/settings-flags-backend.md.
 export const clientOnlySettingsFlags = [
   'sidebarCompact',
   'sidebarShortcuts',
