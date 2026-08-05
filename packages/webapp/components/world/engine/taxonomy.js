@@ -5,8 +5,9 @@ import * as THREE from 'three';
  *
  * Lifted out of the renderer because it is the only part of the world that is
  * pure data — it decides what a niche IS, not how it is drawn — and because
- * `buildWorld` has to be testable without a WebGL context. Everything here is
- * verbatim from devcraft `world-lab.html`.
+ * `buildWorld` has to be testable without a WebGL context. The ladder is
+ * devcraft's `world-lab.html`, recalibrated against the full export; the realm
+ * palettes and their light are the concept art from `concept-lab.html`.
  */
 
 /* ------------------------------------------------------------------ ladder */
@@ -80,18 +81,25 @@ export const LEVELS = [
    The load-bearing rule here is that REALMS must never be confusable. Palette
    alone can't carry that: swap the colours on two identical towns and you get
    two identical towns. So a realm owns its LANDFORM, its ARCHITECTURE, its
-   LIQUID and its MOTION, and only the district varies inside that:
+   KEEL, its LIQUID and its MOTION, and only the district varies inside that:
 
-     ARCANE SWARM   floating sky-garden   crystal spires   water   wisps
-     FRAMEWORKS     living canopy         timber & leaf    dew     butterflies
-     METAL FORGES   volcanic mesa         brick & iron     LAVA    embers
-     SHIPYARDS      harbour atoll         sheds & cranes   sea     boats
-     BASTION        walled crag           ramparts         moat    patrols
-     ARTISAN'S      old town              gables & tiles   canal   doves
+     ARCANE SWARM  white terraces on a crystal keel   domes & spires   teal water
+     FRAMEWORKS    one colossal tree on root buttress timber & glass   dew
+     METAL FORGES  basalt columns under a dark deck   brick & iron     LAVA
+     SHIPYARDS     grey crag under a concrete deck    sheds & cranes   basins
+     BASTION       snow over grey rock, icicles below ring-walls       ice-melt
+     ARTISAN'S     rounded clay boulder, shrub fringe stucco & tile    fountains
 
-   A realm also owns the SKY, deliberately: everything under one sky reads as
-   one place, so the sky is the fastest "which realm am I in" signal there is —
-   and the one that survives at share-card size.
+   THE UNDERSIDE IS REALM IDENTITY. Every concept image is a floating island and
+   in every one of them the bottom is the tell — crystal stalactites, wrapped
+   roots, hexagonal basalt columns, wet grey crag, icicles, rounded clay
+   boulders. One keel cone for all six threw that away, and it is the part that
+   reads at share-card size, from below, in shadow.
+
+   AND EVERY REALM GETS A LANDFORM, present at L1 before a single building is:
+   floating shards, a great tree, a lava vent, harbour basins, ramparts, a
+   fountain square. Three realms used to have terrain of their own and three had
+   only props, which left half the set unreadable until L3.
 
    Districts inside a realm vary by accent family, roof colour and signature
    monument. Accents lean on associations a developer already has (JS is
@@ -122,22 +130,152 @@ export const T={
 };
 export const mixTok=(a,b,t)=>new THREE.Color(a).lerp(new THREE.Color(b),t).getHex();
 
+/* ---------------------------------------------------------- realm materials
+   Two tables, deliberately kept apart.
+
+   T above is the daily.dev ramp, used ONLY for district accents and for the
+   chrome. C is the concept-art palette, read off the six reference images, used
+   for everything the realm itself is made of. Keeping them separate is what
+   stops the next person from "harmonising" a realm back into the brand ramp and
+   losing the thing the art was for.
+
+   The first pass derived every realm from token mixes, which kept the palette
+   on-brand and made all six realms siblings of the same pastel family. The
+   concept art says something louder: each realm is its own WORLD, with its own
+   light, its own rock and its own weather. The brand rides the accent — the
+   lodestone band, the roof trim, the lamps, the banners — which is where it is
+   legible and where it does not fight the light. */
+const C={
+  /* --- the arcane swarm: white marble terraces, lavender crystal, teal water
+     The crystal lives ON the island, never under it — see keelCrystal.
+     "White marble" is a trap: put every surface between 0.85 and 0.97 luminance
+     and the whole place dissolves into fog. In the reference the marble is white
+     only where the sun hits it — the terrace walls are a full step down in
+     shadow, the keel deeper again, and the colour that carries the image is the
+     SATURATED violet of the trees and crystal against a properly green lawn.
+     Pale is one note here, not the key. */
+  sw:{ skyA:0x5FADEC, skyB:0xE6D6F5,
+       cliff:0xD6C9E6, cliff2:0xB6A4D0,                      // terrace walls: mid
+       rock:0x9276BE,                                        // keel: deepest
+       crys:0xC44FF5, crys2:0x8B45E0,                        // magic: fully saturated
+       grass:0x5FBE63, grass2:0x84D477,                      // lawn: real green
+       stone:0xFAF7FC, stone2:0xDACEEA,                      // marble: lit / shaded
+       wood:0x8A5C3A, metal:0xE8C86A,
+       leaf:0x9A57D6, leaf2:0xB16BE4, water:0x45C8E0, warm:0xFFD070 },
+  /* --- the frameworks: one colossal tree, timber cottages, glass, purple dusk */
+  fr:{ skyA:0x8F7FE0, skyB:0xF7D8E9, cliff:0x8A6A50, cliff2:0x6E5340, rock:0x5C4536,
+       bark:0x8B6A4E, bark2:0x6B4F3B, canopy:0x8FD032, canopy2:0xB6E958,
+       grass:0x63B23C, grass2:0x86CC4E, stone:0xE7D2A8, stone2:0xD3B888,
+       /* Roof moss a step below the lawn: at the same value the cottages read
+          as green patches ON the grass rather than as buildings standing on it. */
+       wood:0xC08B55, metal:0xC9A05E, moss:0x497F30, moss2:0x356021,
+       glass:0xA9E7D8, water:0x5FD3E6, warm:0xFFCE6A, shroom:0xF07EC0, shroom2:0xA46BE0 },
+  /* --- the metal forges: purple dusk, basalt columns, brick, molten orange
+     Read as a VALUE ladder, not a hue. The reference is not a dark picture — it
+     is a light plaza with dark things standing on it and one blazing hot accent.
+     In order, darkest to lightest: keel columns → metal roofs → brick walls →
+     plaza deck, then the lava sitting a long way outside the whole ramp. */
+  fo:{ skyA:0x2E1854, skyB:0xF56A22,
+       cliff:0x5C4F66, cliff2:0x453A50, rock:0x3A3145,       // keel: the darkest tier
+       deck:0xBCAEC2, deck2:0xA294AA,                        // plaza: the lightest
+       brick:0xC26B45, brick2:0xDC8659,                      // walls: warm mid
+       iron:0x565064, iron2:0x3E3849,                        // roofs: dark, not black
+       wood:0x6B4C40, metal:0xAAA2B2,
+       lava:0xFF8422, lavaHot:0xFFDC7C, quench:0x3FC7C7, warm:0xFFC96A, smoke:0x9C93A8 },
+  /* --- the shipyards: noon blue, grey crag, concrete deck, turquoise basins
+     The sheds are the WHITE thing here and the deck is the mid tone they stand
+     on — cream sheds on cream concrete dissolve into the ground. Crag darker
+     again below, so the island reads as a poured slab sitting on wet rock
+     rather than as one beige mass. */
+  sh:{ skyA:0x3897E2, skyB:0xE2F0FB,
+       cliff:0x6E6E6A, cliff2:0x4A4A48, rock:0x585855,        // crag: darkest
+       deck:0xBBAD94, deck2:0x9E9078,                         // concrete: mid
+       hull:0xF2EDE2, stripe:0x2E9EC4, stripe2:0x15718F,      // sheds: white + band
+       stone:0xD2C9B6, stone2:0xB4A88F, wood:0x8A5A2E, metal:0x8A939C,
+       rust:0x96612F, lattice:0xC08F52, water:0x1FB8D6, warm:0xFFD48A,
+       grass:0x7C9668, grass2:0x94AC7C },
+  /* --- the bastion: winter blue, grey ashlar, deep snow, cyan ward-light
+     Snow is the brightest thing in the world and rock in shadow is nearly the
+     darkest — that gap IS the realm. Run the whole fortress through a narrow
+     band of mid-grey with white icing on top and it reads as a paper model. The
+     pines stay as the one deep accent anchoring an image otherwise made of
+     white and sky. */
+  ba:{ skyA:0x2A8FE0, skyB:0xEAF4FF,
+       cliff:0x4E4E58, cliff2:0x35353E, rock:0x3A3A44,        // crag: darkest
+       snow:0xF7FAFF, snow2:0xD4E2F2, ice:0xBCDDF2,           // snow: brightest
+       stone:0x6E6E7A, stone2:0x53535E, wood:0x5A4436, metal:0x848C98,
+       pine:0x24523A, pine2:0x1A3F2B, ward:0x4FC3F5, water:0x4FA6D8, warm:0xFFA23C },
+  /* --- the artisan's quarter: honey stucco, rose roofs, clay boulder, doves
+     Everything honey — towers, the paving they stand on and the boulder
+     underneath — inside half a stop of each other reads as one extruded lump of
+     clay. Paving goes up toward cream, the boulder drops toward earth, and the
+     stucco keeps the middle with a proper shadow tone of its own. */
+  qu:{ skyA:0x3AA2EC, skyB:0xEDF6FF,
+       cliff:0x8E6238, cliff2:0x6B4726, rock:0x7A5230,        // boulder: darkest
+       stucco:0xEDBA6E, stucco2:0xD4914A, stucco3:0xFADFAC,   // walls: lit / shaded
+       rose:0xDE5872, rose2:0xBE3E58, blush:0xEE7690,
+       stone:0xF9E9CA, stone2:0xE6D0A6,                        // paving: lightest
+       wood:0x8E5D2E, metal:0x33292F,
+       leaf:0x4C8A30, leaf2:0x6BA845, water:0x54C0E6, warm:0xFFD070 },
+};
+
+/* Every builder that isn't realm-specific — paving, scatter, hedges, the
+   lodestone — needs a ground, a second ground and a foliage without caring what
+   the realm calls them. Aliased here rather than repeated in each palette, so
+   the six stay readable as the art descriptions they are. */
+/* The swarm is the one realm whose CAPS are not turf: in the reference the high
+   plate is dressed white stone and the green is the lawn that surrounds it, so
+   the inner terrace paves and the outer ones stay grass. */
+C.sw.ground=C.sw.grass;   C.sw.ground2=0xE2D9EE;     C.sw.foliage=0x3F9448; C.sw.foliage2=0x64BC5E;
+C.fr.ground=C.fr.grass;   C.fr.ground2=C.fr.grass2;  C.fr.foliage=C.fr.moss; C.fr.foliage2=C.fr.canopy;
+/* Forge caps run the other way round: `ground2` dresses the innermost terrace,
+   and in the forges that terrace is the swept plaza — the brightest surface on
+   the island. Assigned like the other five it came out as the DARKEST, which
+   put the one light plane underneath everything else. */
+C.fo.ground=C.fo.deck2;   C.fo.ground2=C.fo.deck;    C.fo.foliage=0x4A4438;  C.fo.foliage2=0x3A3630;
+C.fo.stone=C.fo.deck;     C.fo.stone2=C.fo.deck2;    // the forges pave in the same dark slab they stand on
+C.fo.water=C.fo.lava;     // and their liquid is molten: the pool, the falls, the channel
+C.sh.ground=C.sh.deck;    C.sh.ground2=C.sh.deck2;   C.sh.foliage=C.sh.grass;C.sh.foliage2=C.sh.grass2;
+C.ba.ground=C.ba.snow;    C.ba.ground2=C.ba.snow2;   C.ba.foliage=C.ba.pine; C.ba.foliage2=C.ba.pine2;
+C.qu.ground=C.qu.stone;   C.qu.ground2=C.qu.stone2;  C.qu.foliage=C.qu.leaf; C.qu.foliage2=C.qu.leaf2;
+
+/* --------------------------------------------------------------- realm light
+   Each concept image is lit as its own place: the forges are a dusk workshop
+   with a hot bounce off the lava, the bastion a bright winter day where the
+   only thing separating one white plane from the next is how blue its shadow
+   goes. A realm's rig is what makes its materials read the way they were
+   painted, so entering a realm switches to it; the world view stays on the sky
+   the owner chose, because up there you are looking at all six at once.
+
+   `haze` is the horizon band. Five realms want it near-white — that is what a
+   bright day does. The forges want the EMBER, so their ramp runs indigo →
+   magenta → orange with no white in it anywhere; a white band there turns the
+   dusk into an overcast afternoon and takes the whole realm down with it. */
+export const REALM_LIGHT={
+  /* On an island made of pale material the ambient IS the contrast budget. At
+     hemi 0.42 plus a 0.75 bounce every shadow the sun cast was filled back in
+     before it landed, and the marble read as fog. Ambient down, sun up — the
+     shading does the drawing. */
+  swarm:  {haze:0xFFFFFF, sun:0xFFF4D4,si:2.45, sky:0xBBD8FF,gnd:0xB79EDC,hi:0.26, bo:0xA274D6,bi:0.48, exp:1.02},
+  frame:  {haze:0xFBE4F2, sun:0xFFE7C0,si:2.10, sky:0xC7B6F5,gnd:0x6B8F42,hi:0.32, bo:0x9A7BE8,bi:0.70, exp:1.02},
+  /* Lit from BOTH ends: a cool dusk sun still strong enough to shape the
+     buildings and throw hard shadows across the pale plaza, plus a hot bounce
+     off the lava from below. Run the sun at 0.85 and let the lava do everything
+     and nothing has form — the island comes back as one flat purple smudge. */
+  forge:  {haze:0xB03C55, sun:0xF4E6FF,si:2.05, sky:0x6B5A9E,gnd:0xD4642A,hi:0.46, bo:0xFF8422,bi:1.30, exp:1.14},
+  ship:   {haze:0xFFFFFF, sun:0xFFFBEF,si:2.55, sky:0xA8D6F8,gnd:0x8A8172,hi:0.26, bo:0x2FBFD8,bi:0.50, exp:1.02},
+  /* Cool bounce, low ambient: snow in shadow goes blue. A near-white hemi
+     ground at 0.55 lights the shadow sides back up to the value of the lit
+     ones, which is how a fortress ends up reading as a paper model of itself. */
+  bastion:{haze:0xFFFFFF, sun:0xFFFFFF,si:2.50, sky:0xBEDCFF,gnd:0x7FA0C8,hi:0.30, bo:0x6FA8E0,bi:0.50, exp:1.02},
+  quarter:{haze:0xFFF6E8, sun:0xFFEFC8,si:2.40, sky:0xB8DEFF,gnd:0xC49660,hi:0.28, bo:0xFFC98A,bi:0.55, exp:1.02},
+};
+
 export const REALMS=[
 { id:'swarm', name:'Arcane Swarm', theme:'AI, agents & data',
-  land:'a floating sky-garden, terraced and lit from within',
-  accent:T.cabbage40, seed:11,
-  sky:[T.onion20,T.cheese10],
-  /* materials */
-  /* Luminous, and violet rather than neutral. Four realms used to sit on plain
-     salt stone and were indistinguishable at world scale — the fix is not more
-     hue on the roofs but a different VALUE and CAST for each realm's rock. The
-     Swarm keeps the lightest stone in the world and takes an onion tint. */
-  cliff:mixTok(T.salt20,T.onion10,0.24), cliffDark:mixTok(T.salt50,T.onion40,0.30),
-  rock:mixTok(T.salt90,T.onion40,0.34),
-  stone:T.salt0, stone2:mixTok(T.salt30,T.cabbage10,0.16), wood:T.burger10, metal:T.cheese40,
-  ground:mixTok(T.avocado90,T.salt10,0.44), ground2:mixTok(T.avocado40,T.salt10,0.34),
-  foliage:mixTok(T.avocado90,T.salt10,0.30), foliage2:T.avocado40,
-  liquid:T.blue40, liquidGlow:0.35,
+  land:'terraced white marble on a keel of cut crystal',
+  accent:T.cabbage40, seed:11, pal:'sw', keel:'crystal', form:'shards',
+  liquidGlow:0.30,
   niches:[
     {id:'ai_llm',   label:'LLMs',      title:'THE WHISPERING LIBRARY', sig:'obelisk', seed:101,
      accent:T.cabbage10, accent2:T.onion10, roof:T.cabbage90, roof2:T.cabbage40, bloom:T.cabbage10},
@@ -156,15 +294,9 @@ export const REALMS=[
   ]},
 
 { id:'frame', name:'Frameworks', theme:'web, mobile & app dev',
-  land:'a living canopy on root buttresses',
-  accent:T.avocado40, seed:22,
-  sky:[T.water10,T.cheese10], skyMix:0.30,
-  cliff:mixTok(T.burger10,T.salt10,0.42), cliffDark:T.burger40,
-  rock:mixTok(T.burger90,T.salt40,0.34),
-  stone:mixTok(T.cheese10,T.salt10,0.45), stone2:T.burger10, wood:T.burger40, metal:T.cheese40,
-  ground:mixTok(T.avocado90,T.lettuce20,0.26), ground2:mixTok(T.avocado40,T.lettuce10,0.30),
-  foliage:T.avocado90, foliage2:T.lettuce20,
-  liquid:T.blue20, liquidGlow:0.3,
+  land:'a colossal tree on root buttresses, cottages under its canopy',
+  accent:T.avocado40, seed:22, pal:'fr', keel:'roots', form:'greattree',
+  liquidGlow:0.26,
   niches:[
     {id:'js_ts',     label:'JS / TS',  title:'THE GREAT LOOM',       sig:'loom',      seed:111,
      accent:T.cheese30, accent2:T.bun10,   roof:T.cheese90, roof2:T.cheese40, bloom:T.cheese20},
@@ -185,18 +317,9 @@ export const REALMS=[
   ]},
 
 { id:'forge', name:'Metal Forges', theme:'systems & low-level',
-  land:'a volcanic mesa on basalt columns',
-  accent:T.bun40, seed:33,
-  /* Dusk, not damnation. Deep indigo overhead and an ember horizon: the forges
-     have to feel like a warm workshop at the end of the day, not a hellscape —
-     the whole world is meant to be somewhere you'd want to live. */
-  sky:[T.onion90,T.bun40], skyMix:0.04,   // keep the dusk saturated
-  cliff:T.pepper20, cliffDark:T.pepper50, rock:mixTok(T.pepper20,T.bun90,0.34),
-  stone:mixTok(T.pepper10,T.salt40,0.46), stone2:mixTok(T.pepper30,T.salt40,0.30),
-  wood:T.burger90, metal:T.salt70,
-  ground:mixTok(T.pepper20,T.burger90,0.35), ground2:mixTok(T.pepper10,T.bun90,0.30),
-  foliage:mixTok(T.avocado90,T.pepper40,0.45), foliage2:T.burger90,
-  liquid:T.bun40, liquidGlow:1.6,          // molten, and it lights the place
+  land:'a dark deck on hexagonal basalt columns, lit from the cracks',
+  accent:T.bun40, seed:33, pal:'fo', keel:'columns', form:'lavavent',
+  liquidGlow:1.5,                          // molten, and it lights the place
   niches:[
     {id:'c_cpp',      label:'C / C++',     title:'THE DEEP FOUNDRY',   sig:'bigwheel', seed:121,
      accent:T.water10, accent2:T.blue10,  roof:T.water90,  roof2:T.water40,  bloom:T.water10},
@@ -213,20 +336,9 @@ export const REALMS=[
   ]},
 
 { id:'ship', name:'Shipyards', theme:'cloud, infra & ops',
-  land:'a harbour atoll ringed by open water',
-  accent:T.blue40, seed:44,
-  sky:[T.blue40,T.salt10], skyMix:0.44,
-  /* Warm sand on the deck, teal in the rock and the water under it. The
-     harbour is the LIGHT cold realm; the Bastion is the dark one. */
-  cliff:mixTok(T.salt40,T.blue90,0.28), cliffDark:mixTok(T.salt70,T.blue90,0.40),
-  rock:mixTok(T.salt90,T.blue90,0.44),
-  stone:mixTok(T.salt10,T.blue10,0.10), stone2:mixTok(T.salt30,T.blue10,0.14),
-  wood:T.burger10, metal:T.blue90,
-  /* Cool concrete, not warm sand. The quay used to share the Artisan's Quarter's
-     warm floor, and a floor is most of what you see of a realm from above. */
-  ground:mixTok(T.salt60,T.blue90,0.13), ground2:mixTok(T.salt40,T.blue10,0.15),
-  foliage:mixTok(T.avocado90,T.salt40,0.40), foliage2:T.avocado40,
-  liquid:T.blue40, liquidGlow:0.28,
+  land:'a concrete dock on grey crag, basins cut into the deck',
+  accent:T.blue40, seed:44, pal:'sh', keel:'crag', form:'basins',
+  liquidGlow:0.18,
   niches:[
     {id:'k8s',             label:'Kubernetes',  title:'THE GREAT DRYDOCK',  sig:'drydock',   seed:141,
      accent:T.water10, accent2:T.blue10,  roof:T.water90, roof2:T.water40, bloom:T.water10},
@@ -247,22 +359,9 @@ export const REALMS=[
   ]},
 
 { id:'bastion', name:'Bastion', theme:'security & defense',
-  land:'a snow-capped crag, ramparts on every terrace',
-  accent:T.water40, seed:55,
-  sky:[T.water40,T.salt0],
-  /* SNOW ON BLACK ROCK. A muted dark-teal fortress was correctly placed in the
-     set and boring in it — the Bastion had a slot and no character. Its
-     identity is now internal CONTRAST rather than an overall value: the palest
-     ground in the world sitting on the darkest crag, which nothing else in the
-     set does. It is still the cold dark realm from across the map, and up close
-     it is a winter fortress with lanterns burning on the walls. */
-  cliff:mixTok(T.pepper20,T.water90,0.26), cliffDark:mixTok(T.pepper40,T.water90,0.20),
-  rock:mixTok(T.pepper50,T.water90,0.30),
-  stone:mixTok(T.salt30,T.water90,0.14), stone2:mixTok(T.salt60,T.water90,0.24),
-  wood:T.burger90, metal:T.water90,
-  ground:mixTok(T.salt0,T.water10,0.12), ground2:mixTok(T.salt20,T.water10,0.20),
-  foliage:mixTok(T.avocado90,T.pepper40,0.52), foliage2:mixTok(T.avocado90,T.water90,0.34),
-  liquid:mixTok(T.blue10,T.salt10,0.32), liquidGlow:0.22,
+  land:'a snow-capped crag, ring-walls on every terrace, icicles below',
+  accent:T.water40, seed:55, pal:'ba', keel:'ice', form:'ramparts',
+  liquidGlow:0.22,
   niches:[
     {id:'sec_appsec', label:'AppSec',  title:'THE INNER KEEP',    sig:'keep',     seed:151,
      accent:T.water10, accent2:T.blue10,  roof:T.water90, roof2:T.water40, bloom:T.water10},
@@ -273,24 +372,9 @@ export const REALMS=[
   ]},
 
 { id:'quarter', name:'Artisan’s Quarter', theme:'craft, career & culture',
-  land:'a warm old town of gables and squares',
-  accent:T.bacon40, seed:66,
-  sky:[T.bacon10,T.cheese10], skyMix:0.46,
-  /* Terracotta, not cream. It used to share the Shipyards' pale sand; now the
-     whole town sits on warm clay with a rose cast, which is the one thing the
-     other five realms have none of. */
-  /* A hill town in the sun: golden sandstone cliffs over terracotta paving.
-     "Warm" was not enough on its own — the Shipyards were warm too. This is
-     the only realm in the set that is SATURATED rather than tinted. */
-  cliff:mixTok(T.bun10,T.cheese10,0.34), cliffDark:mixTok(T.bun40,T.burger40,0.32),
-  /* Lifted off near-black: a dark red root read as the Forges' from a
-     distance, and the two realms are meant to be nothing alike. */
-  rock:mixTok(mixTok(T.burger90,T.bacon90,0.35),T.salt40,0.30),
-  stone:mixTok(T.salt10,T.bun10,0.12), stone2:mixTok(T.cheese10,T.bun10,0.28),
-  wood:T.burger40, metal:T.cheese40,
-  ground:mixTok(T.burger40,T.bun10,0.44), ground2:mixTok(T.bun10,T.cheese10,0.40),
-  foliage:mixTok(T.avocado90,T.cheese10,0.30), foliage2:T.avocado40,
-  liquid:T.blue20, liquidGlow:0.3,
+  land:'honey stucco on a rounded clay boulder, shrubs over the lip',
+  accent:T.bacon40, seed:66, pal:'qu', keel:'clay', form:'square',
+  liquidGlow:0.20,
   niches:[
     {id:'devtools',       label:'Devtools',     title:'THE TOOLWRIGHTS',   sig:'workshop',  seed:161,
      accent:T.blue10,  accent2:T.water10, roof:T.blue90,  roof2:T.blue40,  bloom:T.blue10},
@@ -311,13 +395,12 @@ export const REALMS=[
   ]},
 ];
 
-/* A district's palette is its realm's materials with the niche's accents laid
-   over the top, so every builder can read one flat object and never has to know
-   which realm it is drawing for. */
+/* A district's palette is realm data + concept colours + the niche's accents,
+   flattened, so every builder reads one object and never has to know which
+   realm it is drawing for. */
 export function paletteOf(realm,niche){
-  const P={...realm,...niche};
-  P.realm=realm; P.kit=realm.id;
-  P.skyA=realm.sky[0]; P.skyB=realm.sky[1];
+  const P={...C[realm.pal],...realm,...niche};
+  P.realm=realm; P.kit=realm.id; P.c=C[realm.pal];
   return P;
 }
 
@@ -338,7 +421,7 @@ export function levelOf(articles){
    instances are a single-digit article count and score L1 whatever we do. The
    realm ladder separates the top of the userbase; it is not a progress bar for
    the median. Floored at 1: a realm you have read once is small, not absent. */
-export const REALM_DIV=8;
+const REALM_DIV=8;
 export const realmLevelOf=a=>a<=0?0:Math.max(1,levelOf(a/REALM_DIV));
 
 export const NICHE_OF={}, REALM_OF={};
