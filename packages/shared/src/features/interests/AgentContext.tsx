@@ -12,6 +12,7 @@ import type {
   UpdateInterestInput,
   UserInterest,
 } from '../../graphql/interests';
+import { UserInterestStatus } from '../../graphql/interests';
 import { useSendInterestCommand } from './hooks/useSendInterestCommand';
 import { useUpdateInterest } from './hooks/useUpdateInterest';
 import { useToastNotification } from '../../hooks/useToastNotification';
@@ -61,6 +62,12 @@ type RunCommandArgs = {
 type AgentContextValue = {
   id: string;
   interest?: UserInterest;
+  /**
+   * The agent's run state. Held here rather than read off `interest` so the
+   * toggle responds on the demo surface too, where there is no API to write
+   * back to.
+   */
+  status: UserInterestStatus;
   isDemo: boolean;
   isWorking: boolean;
   workingLabel?: string;
@@ -111,6 +118,9 @@ export const AgentProvider = ({
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
   const [messages, setMessages] = useState<AgentMessage[]>(initialMessages);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
+  const [statusOverride, setStatusOverride] = useState<UserInterestStatus>();
+  const status =
+    statusOverride ?? interest?.status ?? UserInterestStatus.Active;
   const [content, setContent] = useState<{
     items: AgentContentTarget[];
     activeId?: string;
@@ -262,19 +272,30 @@ export const AgentProvider = ({
 
   const update = useCallback(
     (data: UpdateInterestInput) => {
+      if (data.status) {
+        setStatusOverride(data.status);
+
+        // Switching the agent off stops it: leaving a run in flight would
+        // contradict the control the user just used.
+        if (data.status !== UserInterestStatus.Active && working) {
+          stopCommand();
+        }
+      }
+
       if (isDemo || !interest) {
         return;
       }
 
       updateInterest(data).catch(() => undefined);
     },
-    [interest, isDemo, updateInterest],
+    [interest, isDemo, stopCommand, updateInterest, working],
   );
 
   const value = useMemo<AgentContextValue>(
     () => ({
       id,
       interest,
+      status,
       isDemo,
       isWorking: !!working,
       workingLabel: working?.label,
@@ -311,6 +332,7 @@ export const AgentProvider = ({
       isSettingsOpen,
       isUpdating,
       runCommand,
+      status,
       stopCommand,
       update,
       working,

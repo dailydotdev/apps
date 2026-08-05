@@ -164,7 +164,13 @@ export const AgentContentPane = ({
           aria-label="Back to conversation"
           onClick={closeAllContent}
         />
-        <FlexRow className="no-scrollbar min-w-0 flex-1 items-center gap-1 overflow-x-auto">
+        {/* A full-height strip with a brand underline, not a row of pills:
+            with three tabs open, the pill fill alone was too weak to say
+            which one you are looking at. */}
+        <FlexRow
+          role="tablist"
+          className="no-scrollbar -mx-2 h-full min-w-0 flex-1 items-stretch overflow-x-auto px-2"
+        >
           {openContent.map((target) => {
             const targetId = contentTargetId(target);
             const isActive = targetId === activeContentId;
@@ -173,16 +179,21 @@ export const AgentContentPane = ({
               <span
                 key={targetId}
                 className={classNames(
-                  'group flex w-fit max-w-[11rem] shrink-0 items-center gap-1 rounded-8 py-1 pl-2 pr-1 transition-colors',
+                  'group relative flex w-fit max-w-[11rem] shrink-0 items-center gap-1.5 border-r border-border-subtlest-quaternary px-2.5 transition-colors',
                   isActive
-                    ? 'bg-surface-float text-text-primary'
-                    : 'text-text-tertiary hover:bg-surface-hover',
+                    ? 'bg-surface-float after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-brand-default'
+                    : 'hover:bg-surface-hover',
                 )}
               >
                 <button
                   type="button"
+                  role="tab"
+                  aria-selected={isActive}
                   onClick={() => focusContent(targetId)}
-                  className="flex min-w-0 flex-1 items-center gap-1.5"
+                  className={classNames(
+                    'flex h-full min-w-0 flex-1 items-center gap-1.5',
+                    isActive ? 'text-brand-default' : 'text-text-quaternary',
+                  )}
                 >
                   {tabIcon[target.type]}
                   <Typography
@@ -202,7 +213,12 @@ export const AgentContentPane = ({
                   type="button"
                   aria-label={`Close ${tabLabel(target)}`}
                   onClick={() => closeContent(targetId)}
-                  className="flex size-4 shrink-0 items-center justify-center rounded-6 text-text-quaternary hover:bg-surface-hover hover:text-text-primary"
+                  className={classNames(
+                    'flex size-4 shrink-0 items-center justify-center rounded-6 transition-opacity hover:bg-surface-hover hover:text-text-primary',
+                    isActive
+                      ? 'text-text-tertiary'
+                      : 'text-text-quaternary opacity-0 group-hover:opacity-100',
+                  )}
                 >
                   <MiniCloseIcon size={IconSize.XXSmall} />
                 </button>

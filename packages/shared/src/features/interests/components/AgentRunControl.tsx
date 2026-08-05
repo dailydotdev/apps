@@ -50,6 +50,7 @@ const MenuRow = ({
 export const AgentRunControl = (): ReactElement => {
   const {
     interest,
+    status,
     isWorking,
     update,
     setSettingsOpen,
@@ -57,8 +58,9 @@ export const AgentRunControl = (): ReactElement => {
     focusContent,
     openContent,
   } = useAgent();
-  const status = interest?.status ?? UserInterestStatus.Active;
   const isRunning = status === UserInterestStatus.Active;
+  const runningLabel = isRunning ? 'Hunting' : 'Paused';
+  const runLabel = isWorking ? 'Working' : runningLabel;
 
   const openActivity = () =>
     openContent.some((item) => item.type === 'activity')
@@ -97,7 +99,7 @@ export const AgentRunControl = (): ReactElement => {
           <FlexRow className="items-center justify-between gap-3">
             <FlexCol className="min-w-0 flex-1 gap-0.5">
               <Typography type={TypographyType.Footnote} bold>
-                {isWorking ? 'Working' : 'Hunting'}
+                {runLabel}
               </Typography>
               <Typography
                 type={TypographyType.Caption2}

@@ -27,8 +27,8 @@ export const AgentIntro = ({
   findingsCount: number;
   postsCount: number;
 }): ReactElement => {
-  const { interest } = useAgent();
-  const isPaused = interest?.status !== UserInterestStatus.Active;
+  const { interest, status } = useAgent();
+  const isPaused = status !== UserInterestStatus.Active;
   const cadence = cadenceCopy[interest?.cadence ?? 'daily'];
 
   return (
