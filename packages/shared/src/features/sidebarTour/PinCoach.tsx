@@ -6,13 +6,11 @@ import { CoachPopover } from './CoachPopover';
 import { DOCK_CUSTOMIZE_SELECTOR, PINNABLE_ROW_SELECTOR } from './steps';
 import { useCoachAnchor } from './useCoachAnchor';
 import type { SidebarTourState } from './useSidebarTourState';
+import { COACH_EXPOSURE_DWELL_MS } from './useSidebarTourState';
 
 const PIN_COACH_MESSAGE =
   'Drag anything from this panel to the dock, or use its pin button.';
 
-// A panel that flashed past under the pointer taught nobody anything, so the
-// exposure budget is only charged once the card has actually been sitting there.
-const EXPOSURE_DWELL_MS = 700;
 // A drop lands the new shortcut a tick after the drag ends. Beyond this the
 // growth belongs to something else the user did later, not to that drag.
 const DRAG_ATTRIBUTION_MS = 1000;
@@ -30,7 +28,7 @@ export const PinCoach = ({
   const { isDragging } = useSidebarDragState();
   const { resolved: shortcuts, isFetched: areShortcutsLoaded } =
     useSidebarShortcutItems();
-  const { onSuccess } = coach;
+  const { onSuccess, hasBeenShown } = coach;
   const isCoachActive = coach.isActive;
   const shortcutCount = shortcuts.length;
   const shortcutCountRef = useRef(shortcutCount);
@@ -72,10 +70,13 @@ export const PinCoach = ({
     const isFromDrag =
       Date.now() - dragEndedAtRef.current < DRAG_ATTRIBUTION_MS;
     // Growth still has to be attributable to the lesson: a drag that just
-    // happened, or a pin button in the open panel.
+    // happened, or a pin button in the open panel. And an active coach only
+    // means the budget is unspent, so the card also has to have been counted as
+    // shown at least once, or a pin the user was always going to make would
+    // retire a lesson that never appeared.
     const isAttributable = isPanelOpen || isFromDrag;
 
-    if (!grew || !isCoachActive || !isAttributable) {
+    if (!grew || !isCoachActive || !hasBeenShown || !isAttributable) {
       return;
     }
 
@@ -83,6 +84,7 @@ export const PinCoach = ({
     dragEndedAtRef.current = 0;
   }, [
     areShortcutsLoaded,
+    hasBeenShown,
     isCoachActive,
     isPanelOpen,
     onSuccess,
@@ -102,7 +104,10 @@ export const PinCoach = ({
       return undefined;
     }
 
-    const timer = setTimeout(() => onShownRef.current(), EXPOSURE_DWELL_MS);
+    const timer = setTimeout(
+      () => onShownRef.current(),
+      COACH_EXPOSURE_DWELL_MS,
+    );
     return () => clearTimeout(timer);
   }, [isVisible]);
 

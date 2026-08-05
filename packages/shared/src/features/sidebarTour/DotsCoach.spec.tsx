@@ -35,19 +35,45 @@ const renderCoach = (isActive = true) =>
     initialProps: makeCoach(isActive),
   });
 
+const dwell = (ms: number) =>
+  act(() => {
+    jest.advanceTimersByTime(ms);
+  });
+
 describe('useDotsCoach', () => {
   beforeEach(() => {
+    jest.useFakeTimers();
     jest.clearAllMocks();
   });
 
-  it('opens on the first ••• hover and counts the exposure', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('opens on the first ••• hover and counts the exposure once it is read', () => {
     const { result } = renderCoach();
 
     act(() => result.current.onCustomizeInteraction('hover'));
 
     expect(result.current.isOpen).toBe(true);
     expect(result.current.isCustomizeForcedVisible).toBe(true);
+
+    dwell(600);
+    expect(onShown).not.toHaveBeenCalled();
+
+    dwell(200);
     expect(onShown).toHaveBeenCalledTimes(1);
+  });
+
+  it('lets a pointer that only passed the dock cost nothing', () => {
+    const { result } = renderCoach();
+
+    act(() => result.current.onCustomizeInteraction('hover'));
+    dwell(300);
+    act(() => result.current.onClose());
+    dwell(2000);
+
+    expect(onShown).not.toHaveBeenCalled();
   });
 
   it('does not count a second exposure while the card is open', () => {
@@ -55,6 +81,7 @@ describe('useDotsCoach', () => {
 
     act(() => result.current.onCustomizeInteraction('hover'));
     act(() => result.current.onCustomizeInteraction('hover'));
+    dwell(1000);
 
     expect(onShown).toHaveBeenCalledTimes(1);
   });
@@ -73,6 +100,7 @@ describe('useDotsCoach', () => {
     const { result } = renderCoach(false);
 
     act(() => result.current.onCustomizeInteraction('hover'));
+    dwell(1000);
 
     expect(result.current.isOpen).toBe(false);
     expect(onShown).not.toHaveBeenCalled();
@@ -111,12 +139,14 @@ describe('useDotsCoach', () => {
     const { result } = renderCoach();
 
     act(() => result.current.onCustomizeInteraction('hover'));
+    dwell(1000);
     act(() => result.current.onClose());
 
     expect(result.current.isOpen).toBe(false);
     expect(onRetire).not.toHaveBeenCalled();
 
     act(() => result.current.onCustomizeInteraction('hover'));
+    dwell(1000);
 
     expect(result.current.isOpen).toBe(true);
     expect(onShown).toHaveBeenCalledTimes(2);

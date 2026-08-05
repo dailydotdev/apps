@@ -35,9 +35,15 @@ const onSuccess = jest.fn();
 
 const coach: SidebarTourState['pinCoach'] = {
   isActive: true,
+  hasBeenShown: true,
   onShown,
   onRetire: jest.fn(),
   onSuccess,
+};
+
+const unseenCoach: SidebarTourState['pinCoach'] = {
+  ...coach,
+  hasBeenShown: false,
 };
 
 const renderCoach = () => render(<PinCoach coach={coach} isPanelOpen />);
@@ -72,6 +78,19 @@ describe('PinCoach success detection', () => {
     rerender(<PinCoach coach={coach} isPanelOpen />);
 
     expect(onSuccess).toHaveBeenCalledWith('button');
+  });
+
+  it('claims nothing for a card that never got its exposure', () => {
+    mockShortcuts = [{ key: 'tags' }];
+    mockAreShortcutsLoaded = true;
+    const { rerender } = render(<PinCoach coach={unseenCoach} isPanelOpen />);
+
+    // The panel is open and a pin happens inside the dwell window, so the
+    // budget is still unspent, but the card has not been counted as read.
+    mockShortcuts = [{ key: 'tags' }, { key: 'bookmarks' }];
+    rerender(<PinCoach coach={unseenCoach} isPanelOpen />);
+
+    expect(onSuccess).not.toHaveBeenCalled();
   });
 
   it('ignores growth that no open panel or drag can explain', () => {

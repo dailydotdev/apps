@@ -10,6 +10,7 @@ import { CoachPopover } from './CoachPopover';
 import { DOCK_CUSTOMIZE_SELECTOR } from './steps';
 import { useCoachAnchor } from './useCoachAnchor';
 import type { SidebarTourState } from './useSidebarTourState';
+import { COACH_EXPOSURE_DWELL_MS } from './useSidebarTourState';
 
 const DOTS_COACH_MESSAGE = 'Add, reorder and remove your shortcuts from here.';
 
@@ -31,12 +32,29 @@ export const useDotsCoach = (
 ): DotsCoachState => {
   const [isOpen, setIsOpen] = useState(false);
   const { isActive, onShown, onRetire } = coach;
+  const onShownRef = useRef(onShown);
+  onShownRef.current = onShown;
 
   useEffect(() => {
     if (!isActive) {
       setIsOpen(false);
     }
   }, [isActive]);
+
+  // The card opens the moment the pointer arrives, but the dock sits under the
+  // rail's scroll path: a pointer on its way to the Support button would burn a
+  // third of the budget on a sentence nobody read.
+  useEffect(() => {
+    if (!isOpen || !isActive) {
+      return undefined;
+    }
+
+    const timer = setTimeout(
+      () => onShownRef.current(),
+      COACH_EXPOSURE_DWELL_MS,
+    );
+    return () => clearTimeout(timer);
+  }, [isActive, isOpen]);
 
   const onCustomizeInteraction = useCallback(
     (interaction: DockCustomizeInteraction) => {
@@ -56,9 +74,8 @@ export const useDotsCoach = (
       }
 
       setIsOpen(true);
-      onShown();
     },
-    [isActive, isOpen, onRetire, onShown],
+    [isActive, isOpen, onRetire],
   );
 
   // "Got it" is the strongest comprehension signal there is, so it retires the
