@@ -196,7 +196,15 @@ export const WeeklyQuizIntro = ({
       <div className="z-10 relative flex w-full max-w-lg flex-col items-center gap-5 tablet:min-w-0 tablet:flex-1">
         {/* The challenge pitch — the focus of this screen. */}
         <div className="flex flex-col items-center gap-2">
-          {/* Mobile only: the week pill sits above the title. On tablet+ it
+          <Typography
+            type={TypographyType.Title1}
+            bold
+            tag={TypographyTag.H2}
+            className="!text-text-primary"
+          >
+            The Tech News Quiz
+          </Typography>
+          {/* Mobile only: the week pill sits under the title. On tablet+ it
               rides the top bar instead (passed as the surface's headerRight). */}
           {quiz && (
             <span className="flex justify-center tablet:hidden">
@@ -206,14 +214,6 @@ export const WeeklyQuizIntro = ({
               />
             </span>
           )}
-          <Typography
-            type={TypographyType.Title1}
-            bold
-            tag={TypographyTag.H2}
-            className="!text-text-primary"
-          >
-            The Tech News Quiz
-          </Typography>
           {quiz?.welcomeText && (
             <Typography
               type={TypographyType.Body}
