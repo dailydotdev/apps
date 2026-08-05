@@ -7776,6 +7776,29 @@ return {
   leaveRealm,
   frameWorld: ()=>{ if(W) frameWorld(); },
   attachSpark: c=>drawSpark(c),
+  /* A bare render for the share card: the whole world, framed for a picture
+     rather than for the panel, with none of the DOM the overlay projects.
+
+     Three things here are load-bearing. The read is SYNCHRONOUS because the
+     drawing buffer is not preserved — an async toBlob comes back empty, and
+     preserving the buffer would tax every frame every viewer draws to serve a
+     capture that happens once. The whole thing is one task, so the browser
+     never paints the hero framing and the reader does not see the camera jump
+     and come back. And it frames worldBounds rather than frameWorld() so the
+     card shows the place, not whichever realm the reader happens to be inside. */
+  capture: quality=>{
+    if(!W||!booted) return '';
+    const pad0={...PAD}, tgt0=target.clone(), zoom0=zoom;
+    /* No rail to dodge here, and extra room at the foot so the card's scrim
+       falls on sky instead of eating the districts. */
+    Object.assign(PAD,{l:44,r:44,t:44,b:150});
+    frameBounds(W.worldBounds);
+    drawFrame(performance.now());
+    const url=renderer.domElement.toDataURL('image/jpeg',quality??0.85);
+    Object.assign(PAD,pad0); target.copy(tgt0); zoom=zoom0; syncCam();
+    drawFrame(performance.now());
+    return url;
+  },
   /* The overlay stands on the world, so the camera fit has to know where. */
   setPadding: p=>{ Object.assign(PAD,p); if(W) frameWorld(); },
   /* Look and crest are the owner's, not the viewer's, so every visitor is shown them too. */
