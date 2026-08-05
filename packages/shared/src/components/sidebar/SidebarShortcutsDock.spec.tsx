@@ -11,7 +11,7 @@ let mockLegacy: unknown[] = [];
 
 const mockUpdateFlag = jest.fn().mockResolvedValue(undefined);
 let mockStored: SidebarShortcut[] | undefined;
-let mockLoadedSettings = true;
+let mockRemoteSettingsLoaded = true;
 
 jest.mock('../../hooks/usePersistentContext', () => ({
   __esModule: true,
@@ -23,7 +23,7 @@ jest.mock('../../contexts/SettingsContext', () => ({
   useSettingsContext: () => ({
     flags: { sidebarShortcuts: mockStored },
     updateFlag: mockUpdateFlag,
-    loadedSettings: mockLoadedSettings,
+    isRemoteSettingsLoaded: mockRemoteSettingsLoaded,
   }),
 }));
 
@@ -114,13 +114,13 @@ describe('useSidebarShortcutItems device-storage migration', () => {
     expect(mockSetLegacy).toHaveBeenCalledWith([]);
   });
 
-  it('waits for settings to load before migrating', async () => {
-    mockLoadedSettings = false;
+  it('waits for the remote settings before migrating', async () => {
+    mockRemoteSettingsLoaded = false;
     mockLegacy = ['tags'];
     renderHook(() => useLegacyShortcutsMigration());
 
     await waitFor(() => expect(mockUpdateFlag).not.toHaveBeenCalled());
-    mockLoadedSettings = true;
+    mockRemoteSettingsLoaded = true;
   });
 
   it('leaves a deliberately emptied dock alone', async () => {
