@@ -46,10 +46,10 @@ const postPageGutterChildren =
   '[&_aside]:!px-4 [&_main]:!px-4 tablet:[&_aside]:!px-6 tablet:[&_main]:!px-6 laptop:[&_aside]:!px-8 laptop:[&_main]:!px-8';
 
 const tabIcon: Record<AgentContentTarget['type'], ReactElement> = {
-  post: <DocsIcon size={IconSize.XXSmall} />,
-  feed: <BulletListIcon size={IconSize.XXSmall} />,
-  activity: <TimerIcon size={IconSize.XXSmall} />,
-  debug: <TerminalIcon size={IconSize.XXSmall} />,
+  post: <DocsIcon size={IconSize.Size16} />,
+  feed: <BulletListIcon size={IconSize.Size16} />,
+  activity: <TimerIcon size={IconSize.Size16} />,
+  debug: <TerminalIcon size={IconSize.Size16} />,
 };
 
 const tabLabel = (target: AgentContentTarget): string => {
@@ -166,9 +166,6 @@ export const AgentContentPane = ({
       {/* Same inset as the conversation's header, so the two 48px control rows
           start and end on the same margin. */}
       <FlexRow className="h-12 shrink-0 items-center gap-1 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
-        {/* Floating chips rather than a full-height strip. The active one is
-            carried by the brand fill, not by a fill-versus-no-fill difference:
-            that read as "slightly lighter" when three tabs were open. */}
         <FlexRow
           role="tablist"
           className="no-scrollbar min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1"
@@ -181,14 +178,12 @@ export const AgentContentPane = ({
               <span
                 key={targetId}
                 className={classNames(
-                  'group flex h-8 w-fit max-w-[12rem] shrink-0 items-center gap-1.5 rounded-10 border pl-2.5 pr-1.5 transition-colors',
-                  // Both float tokens sit at 8% over the background, so a
-                  // purple fill against a grey one was two shades of nearly
-                  // the same dark. The selected chip is the only one that is
-                  // filled and outlined at all; the rest are bare text.
-                  isActive
-                    ? 'border-border-subtlest-secondary bg-surface-float'
-                    : 'border-transparent hover:bg-surface-hover',
+                  'group flex h-8 w-fit max-w-[13rem] shrink-0 items-center gap-1.5 rounded-8 pl-2 pr-1 transition-colors',
+                  // The selected chip is lifted onto an opaque surface — the
+                  // raised-tab read. Every float token in the set is an 8%
+                  // wash over the same background, which is too close to
+                  // "no fill" to carry selection on its own.
+                  isActive ? 'bg-background-subtle' : 'hover:bg-surface-hover',
                 )}
               >
                 <button
@@ -199,7 +194,7 @@ export const AgentContentPane = ({
                   onClick={() => focusContent(targetId)}
                   className={classNames(
                     'flex h-full min-w-0 flex-1 items-center gap-1.5',
-                    isActive ? 'text-brand-default' : 'text-text-quaternary',
+                    isActive ? 'text-text-primary' : 'text-text-quaternary',
                   )}
                 >
                   {tabIcon[target.type]}
@@ -221,11 +216,15 @@ export const AgentContentPane = ({
                   aria-label={`Close ${tabLabel(target)}`}
                   onClick={() => closeContent(targetId)}
                   className={classNames(
-                    'flex size-5 shrink-0 items-center justify-center rounded-6 transition-colors hover:bg-surface-hover hover:text-text-primary',
-                    isActive ? 'text-text-tertiary' : 'text-text-quaternary',
+                    'flex size-5 shrink-0 items-center justify-center rounded-6 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
+                    // Only the tab you are on carries a permanent close. The
+                    // rest reveal one on hover, so a full strip is labels
+                    // rather than a row of crosses.
+                    !isActive &&
+                      'opacity-0 focus-visible:opacity-100 group-hover:opacity-100',
                   )}
                 >
-                  <MiniCloseIcon size={IconSize.XXSmall} />
+                  <MiniCloseIcon size={IconSize.Size16} />
                 </button>
               </span>
             );
