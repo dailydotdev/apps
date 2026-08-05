@@ -31,51 +31,66 @@ const RailArt = ({ withLabels }: { withLabels: boolean }): ReactElement => (
   </span>
 );
 
+const densityTitleId = 'sidebar-density-title';
+
 interface SidebarDensityOptionProps {
   label: string;
   isCompact: boolean;
   isSelected: boolean;
-  onClick: () => void;
+  onSelect: () => void;
 }
 
+// A native radio, not a button: this is one setting with two values, so the
+// group has to read as such — and the input brings arrow-key navigation and
+// roving focus with it.
 const SidebarDensityOption = ({
   label,
   isCompact,
   isSelected,
-  onClick,
-}: SidebarDensityOptionProps): ReactElement => (
-  <button
-    type="button"
-    aria-pressed={isSelected}
-    onClick={onClick}
-    className="flex flex-col items-center gap-1"
-  >
-    <span
-      className={classNames(
-        'relative flex h-14 w-16 items-center justify-center rounded-10 border transition-colors',
-        isSelected
-          ? 'border-accent-cabbage-default bg-accent-cabbage-flat'
-          : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
-      )}
+  onSelect,
+}: SidebarDensityOptionProps): ReactElement => {
+  const id = `sidebar-density-${isCompact ? 'compact' : 'comfortable'}`;
+
+  return (
+    <label
+      htmlFor={id}
+      className="flex cursor-pointer flex-col items-center gap-1"
     >
-      <RailArt withLabels={!isCompact} />
-      {isSelected && (
-        <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-accent-cabbage-default">
-          <VIcon size={IconSize.XXSmall} className="text-white" />
-        </span>
-      )}
-    </span>
-    <Typography
-      type={TypographyType.Caption1}
-      className={classNames(
-        'transition-colors',
-        isSelected ? 'text-accent-cabbage-default' : 'text-text-tertiary',
-      )}
-    >
-      {label}
-    </Typography>
-  </button>
-);
+      <input
+        id={id}
+        type="radio"
+        name="sidebar-density"
+        className="peer sr-only"
+        checked={isSelected}
+        onChange={onSelect}
+      />
+      <span
+        className={classNames(
+          'relative flex h-14 w-16 items-center justify-center rounded-10 border transition-colors peer-focus-visible:ring-2 peer-focus-visible:ring-accent-blueCheese-default',
+          isSelected
+            ? 'border-accent-cabbage-default bg-accent-cabbage-flat'
+            : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
+        )}
+      >
+        <RailArt withLabels={!isCompact} />
+        {isSelected && (
+          <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-accent-cabbage-default">
+            <VIcon size={IconSize.XXSmall} className="text-surface-invert" />
+          </span>
+        )}
+      </span>
+      <Typography
+        type={TypographyType.Caption1}
+        className={classNames(
+          'transition-colors',
+          isSelected ? 'text-accent-cabbage-default' : 'text-text-tertiary',
+        )}
+      >
+        {label}
+      </Typography>
+    </label>
+  );
+};
 
 export const SidebarDensitySection = (): ReactElement => {
   const { logEvent } = useLogContext();
@@ -98,7 +113,9 @@ export const SidebarDensitySection = (): ReactElement => {
   return (
     <div className="flex flex-row items-start justify-between gap-4">
       <div className="flex flex-1 flex-col gap-0.5 pt-1">
-        <Typography type={TypographyType.Callout}>Sidebar</Typography>
+        <Typography id={densityTitleId} type={TypographyType.Callout}>
+          Sidebar
+        </Typography>
         <Typography
           color={TypographyColor.Tertiary}
           type={TypographyType.Footnote}
@@ -106,18 +123,22 @@ export const SidebarDensitySection = (): ReactElement => {
           Labels under the navigation icons
         </Typography>
       </div>
-      <div className="flex shrink-0 gap-2">
+      <div
+        role="radiogroup"
+        aria-labelledby={densityTitleId}
+        className="flex shrink-0 gap-2"
+      >
         <SidebarDensityOption
           label="Comfortable"
           isCompact={false}
           isSelected={!isCompact}
-          onClick={() => onSelect(false)}
+          onSelect={() => onSelect(false)}
         />
         <SidebarDensityOption
           label="Compact"
           isCompact
           isSelected={isCompact}
-          onClick={() => onSelect(true)}
+          onSelect={() => onSelect(true)}
         />
       </div>
     </div>
