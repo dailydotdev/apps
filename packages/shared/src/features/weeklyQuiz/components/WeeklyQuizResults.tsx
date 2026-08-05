@@ -191,8 +191,9 @@ export const WeeklyQuizResults = ({
     WeeklyQuizPeriod.Weekly,
   );
   const submittedRef = useRef(false);
-  // Shareable quiz link (placeholder until the real URL is wired up).
-  const quizUrl = 'https://daily.dev/quiz/weekly-tech-news';
+  // Shareable quiz link. Points at daily.dev for now (a real, resolvable URL
+  // with proper link-preview metadata) until the dedicated quiz page ships.
+  const quizUrl = 'https://daily.dev';
 
   const { correctCount, totalQuestions } = result;
   // Odometer-style reveal: the score, its ring arc and the time count up on
@@ -203,7 +204,7 @@ export const WeeklyQuizResults = ({
   const ratio = totalQuestions === 0 ? 0 : animatedCorrect / totalQuestions;
   const tier = getTier(correctCount, totalQuestions);
   const percentile = getPercentile(correctCount, totalQuestions);
-  const shareText = `I got ${correctCount}/${totalQuestions} on the daily.dev weekly tech news quiz. What would you get?`;
+  const shareText = `I just scored ${correctCount}/${totalQuestions} on the daily.dev Weekly Tech News Quiz. Think you know this week's tech news better than me? Take the quiz:`;
 
   const copyLink = (): void => {
     navigator.clipboard

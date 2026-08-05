@@ -5,12 +5,19 @@ import { ShareProvider, addLogQueryParams, getShareLink } from './share';
 describe('getShareLink tests', () => {
   const link = 'https://foo.bar';
   const text = 'hello world';
-  it('should return WhatsApp share link', () => {
+  it('should return WhatsApp share link with the text prepended to the link', () => {
     const result = getShareLink({
       provider: ShareProvider.WhatsApp,
       link,
       text,
     });
+    expect(result).toEqual(
+      `https://wa.me/?text=${encodeURIComponent(`${text} ${link}`)}`,
+    );
+  });
+
+  it('should return WhatsApp share link with just the link when no text', () => {
+    const result = getShareLink({ provider: ShareProvider.WhatsApp, link });
     expect(result).toEqual(`https://wa.me/?text=${encodeURIComponent(link)}`);
   });
 
