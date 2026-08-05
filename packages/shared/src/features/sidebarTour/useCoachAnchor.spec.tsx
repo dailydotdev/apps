@@ -157,6 +157,26 @@ describe('useCoachAnchor', () => {
     expect(result.current.rect?.top).toBe(300);
   });
 
+  it('holds the same anchor through re-measures that find nothing moved', () => {
+    mountRail(RAIL_RECT);
+    mount('coach-target', TARGET_RECT);
+
+    const { result } = renderHook(() => useCoachAnchor(TARGET_SELECTOR, true));
+    const first = result.current;
+
+    act(() => {
+      jest.advanceTimersByTime(SETTLE_MS);
+    });
+    resizeObserved();
+    act(() => {
+      window.dispatchEvent(new Event('resize'));
+    });
+
+    // A new object here would hand `useAnchoredRailPopup` a fresh `targetRef`
+    // and reposition the card mid-animation for nothing.
+    expect(result.current).toBe(first);
+  });
+
   it('stops listening for resizes once it unmounts', () => {
     mountRail(RAIL_RECT);
     mount('coach-target', TARGET_RECT);

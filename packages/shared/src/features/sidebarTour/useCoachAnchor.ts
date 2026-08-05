@@ -32,6 +32,20 @@ const measureLeft = (): number => {
   return Math.max(railRight, panelRight) + COACH_GAP_PX;
 };
 
+const isSameGeometry = (
+  current: CoachAnchor,
+  target: HTMLElement,
+  rect: DOMRect,
+  left: number,
+): boolean =>
+  current.targetRef.current === target &&
+  current.left === left &&
+  !!current.rect &&
+  current.rect.top === rect.top &&
+  current.rect.left === rect.left &&
+  current.rect.width === rect.width &&
+  current.rect.height === rect.height;
+
 // Resolves a coach target from the live DOM and keeps its geometry current.
 // Selectors are the rail's own stable hooks (tab ids, ARIA labels, the
 // draggable panel rows), never fixed pixel anchors: tabs are reorderable, any
@@ -50,8 +64,15 @@ export const useCoachAnchor = (
   // Layout, not passive: a step change measures before the browser paints, so
   // the card never shows one frame at the previous step's position.
   useLayoutEffect(() => {
+    const clear = () =>
+      setAnchor((current) =>
+        current.rect || current.targetRef.current
+          ? { targetRef: { current: null }, rect: null, left: 0 }
+          : current,
+      );
+
     if (!isOpen || !selector) {
-      setAnchor({ targetRef: { current: null }, rect: null, left: 0 });
+      clear();
       return undefined;
     }
 
@@ -59,15 +80,21 @@ export const useCoachAnchor = (
       const target = document.querySelector(selector);
 
       if (!(target instanceof HTMLElement)) {
-        setAnchor({ targetRef: { current: null }, rect: null, left: 0 });
+        clear();
         return;
       }
 
-      setAnchor({
-        targetRef: { current: target },
-        rect: target.getBoundingClientRect(),
-        left: measureLeft(),
-      });
+      const rect = target.getBoundingClientRect();
+      const left = measureLeft();
+
+      // Most of the triggers below re-measure something that did not move, and
+      // a fresh `targetRef` identity re-runs the whole positioning chain, so an
+      // unchanged measurement has to stop here rather than in a re-render.
+      setAnchor((current) =>
+        isSameGeometry(current, target, rect, left)
+          ? current
+          : { targetRef: { current: target }, rect, left },
+      );
     };
 
     update();
