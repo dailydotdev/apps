@@ -21,7 +21,21 @@ import { cannedReply } from './chat';
 
 export type AgentContentTarget =
   | { type: 'post'; post: Post }
-  | { type: 'feed'; label: string; posts: Post[] };
+  | { type: 'feed'; label: string; posts: Post[] }
+  | { type: 'activity' }
+  | { type: 'debug' };
+
+export const contentTargetId = (target: AgentContentTarget): string => {
+  if (target.type === 'post') {
+    return `post:${target.post.id}`;
+  }
+
+  if (target.type === 'feed') {
+    return `feed:${target.label}`;
+  }
+
+  return target.type;
+};
 
 export type AgentActivityKind =
   | 'run'
@@ -58,8 +72,13 @@ type AgentContextValue = {
   messages: AgentMessage[];
   isSettingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
+  openContent: AgentContentTarget[];
+  activeContentId?: string;
   activeContent?: AgentContentTarget;
-  setActiveContent: (target?: AgentContentTarget) => void;
+  openContentTarget: (target: AgentContentTarget) => void;
+  focusContent: (targetId: string) => void;
+  closeContent: (targetId: string) => void;
+  closeAllContent: () => void;
 };
 
 const AgentContext = createContext<AgentContextValue>({} as AgentContextValue);
@@ -91,7 +110,10 @@ export const AgentProvider = ({
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
   const [messages, setMessages] = useState<AgentMessage[]>(initialMessages);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
-  const [activeContent, setActiveContent] = useState<AgentContentTarget>();
+  const [content, setContent] = useState<{
+    items: AgentContentTarget[];
+    activeId?: string;
+  }>({ items: [] });
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
@@ -164,6 +186,50 @@ export const AgentProvider = ({
     [displayToast, interest, isDemo, sendCommand],
   );
 
+  const openContentTarget = useCallback((target: AgentContentTarget) => {
+    const targetId = contentTargetId(target);
+
+    setContent(({ items }) => ({
+      items: items.some((item) => contentTargetId(item) === targetId)
+        ? items
+        : [...items, target],
+      activeId: targetId,
+    }));
+  }, []);
+
+  const focusContent = useCallback(
+    (targetId: string) =>
+      setContent(({ items }) => ({ items, activeId: targetId })),
+    [],
+  );
+
+  const closeContent = useCallback((targetId: string) => {
+    setContent(({ items, activeId }) => {
+      const index = items.findIndex(
+        (item) => contentTargetId(item) === targetId,
+      );
+
+      if (index < 0) {
+        return { items, activeId };
+      }
+
+      const next = items.filter((_, position) => position !== index);
+      // Focus the tab that slid into the closed one's slot, falling back to the
+      // new last tab when the closed one was rightmost.
+      const successor = next[index] ?? next[next.length - 1];
+
+      return {
+        items: next,
+        activeId:
+          activeId === targetId && successor
+            ? contentTargetId(successor)
+            : activeId,
+      };
+    });
+  }, []);
+
+  const closeAllContent = useCallback(() => setContent({ items: [] }), []);
+
   const update = useCallback(
     (data: UpdateInterestInput) => {
       if (isDemo || !interest) {
@@ -190,11 +256,22 @@ export const AgentProvider = ({
       messages,
       isSettingsOpen,
       setSettingsOpen,
-      activeContent,
-      setActiveContent,
+      openContent: content.items,
+      activeContentId: content.activeId,
+      activeContent: content.items.find(
+        (item) => contentTargetId(item) === content.activeId,
+      ),
+      openContentTarget,
+      focusContent,
+      closeContent,
+      closeAllContent,
     }),
     [
-      activeContent,
+      closeAllContent,
+      closeContent,
+      content,
+      focusContent,
+      openContentTarget,
       activity,
       messages,
       id,

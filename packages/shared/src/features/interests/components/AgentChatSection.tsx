@@ -215,20 +215,20 @@ const MessageRow = ({
 };
 
 export const AgentChatSection = (): ReactElement => {
-  const { messages, setActiveContent, activeContent } = useAgent();
+  const { messages, openContentTarget, activeContent } = useAgent();
   const { ref, isNarrow } = useNarrowContainer<HTMLDivElement>();
   const activePostId =
     activeContent?.type === 'post' ? activeContent.post.id : undefined;
 
   return (
-    <FlexCol ref={ref} className="gap-8 py-2">
+    <FlexCol ref={ref} className="gap-8">
       {messages.map((message) => (
         <MessageRow
           key={message.id}
           message={message}
-          onPostClick={(post) => setActiveContent({ type: 'post', post })}
+          onPostClick={(post) => openContentTarget({ type: 'post', post })}
           onFeedClick={(label, posts) =>
-            setActiveContent({ type: 'feed', label, posts })
+            openContentTarget({ type: 'feed', label, posts })
           }
           isNarrow={isNarrow}
           activePostId={activePostId}

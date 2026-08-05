@@ -33,7 +33,7 @@ const ActivityRow = ({ item }: { item: AgentActivityItem }): ReactElement => (
     <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-8 bg-surface-float text-text-tertiary">
       {kindIcon[item.kind]}
     </span>
-    <FlexCol className="gap-0.5">
+    <FlexCol className="min-w-0 flex-1 gap-0.5">
       <Typography type={TypographyType.Callout}>{item.text}</Typography>
       <Typography
         type={TypographyType.Caption1}
