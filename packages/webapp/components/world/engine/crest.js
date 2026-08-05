@@ -8,9 +8,6 @@
    a ring can be two circles and a dot-in-ring three, with no winding to track. */
 const _c=(x,y,r)=>`M${x-r},${y}a${r},${r} 0 1 0 ${r*2},0a${r},${r} 0 1 0 ${-r*2},0Z`;
 const _r=(x,y,w,h)=>`M${x-w/2},${y-h/2}h${w}v${h}h${-w}Z`;
-/* A groove cut as a HOLE. Half-widths must stay inside the cop at the groove's
-   LOWEST point, or the ends fall outside the shape and even-odd fills them into wings. */
-const _gv=(y,w,h)=>`M-${w},${y} L${w},${y} L${w+1},${y+h} L-${w+1},${y+h} Z`;
 /* One glyph per signature in REALMS, deliberately blunt: a crest is read at
    22px in a chip and at share-card size, and interior detail is a smudge at both. */
 export const CHARGES={

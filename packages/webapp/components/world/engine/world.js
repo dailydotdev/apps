@@ -7,13 +7,12 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { WORLD_CSS } from './styles';
 import { drawCrest } from './crest';
 import { DEFAULT_LOOK_ID, lookFromPreset } from './look';
-import { DEFAULT_SKY, skyHourOf, skyPalOf } from './sky';
+import { CLOUD_FORMS, DEFAULT_SKY, skyHourOf, skyPalOf } from './sky';
 import {
   LEVELS,
   levelOf,
   mixTok,
   paletteOf,
-  REALM_LIGHT,
   realmLevelOf,
   T,
 } from './taxonomy';
@@ -2561,17 +2560,37 @@ function buildFlyers(P,n,radius,style){
    scales its children's POSITIONS, so size and placement could never be tuned
    independently. Puff size is set per cloud instead. */
 const CLOUD={cx:0,cz:0,r:60,y:-16};
+/* Built from the CURRENT sky rather than once at boot: a palette carries its own
+   cloud form and its own two colours, so switching the sky rebuilds the sea
+   under the world (see CLOUD_FORMS). Cheap enough to do on a pick — a few dozen
+   flat-shaded lumps — and it is the difference between nine skies and nine
+   backgrounds with the same cotton wool in front of them. */
 function buildClouds(){
   const g=new THREE.Group();
   const rnd=rngOf(4242);
-  const m=mat(0xFFFFFF,{rough:1,flat:false,opacity:0.62});
-  for(let i=0;i<14;i++){
+  const p0=skyPalOf(SKY.pal), h=skyHourOf(SKY.hour), F=CLOUD_FORMS[p0.cloud.form];
+  /* Toned by the hour like the sky itself is, or a night world sails under
+     fourteen white lamps. */
+  const tintC=new THREE.Color(h.tint);
+  const tone=(hex,k)=>new THREE.Color(hex).lerp(tintC,k).multiplyScalar(h.mul).getHex();
+  const opa=F.op*(0.7+h.exp*0.34);
+  /* Two materials, not one: the lit top and the shaded belly. Which one a puff
+     gets is decided by where it sits in its own cloud, so the underside colour
+     lands under the cloud rather than beside it. */
+  const mTop=mat(tone(p0.cloud.top,h.ka*0.7),{rough:1,flat:false,opacity:opa});
+  const mBot=mat(tone(p0.cloud.bot,h.kb*0.7),{rough:1,flat:false,opacity:opa});
+  for(let i=0;i<F.n;i++){
     const c=new THREE.Group();
-    const n=3+Math.floor(rnd()*3);
+    const n=F.puffs[0]+Math.floor(rnd()*(F.puffs[1]-F.puffs[0]+1));
     for(let k=0;k<n;k++){
-      const p=meshOf(new THREE.IcosahedronGeometry(lerp(1.2,2.6,rnd()),1),m,false,false);
-      p.position.set((rnd()-0.5)*5,(rnd()-0.5)*0.8,(rnd()-0.5)*3);
-      p.scale.y=0.55; c.add(p);
+      const y=(rnd()-0.5)*0.8+(F.stack?k/n*F.stack:0);
+      const p=meshOf(new THREE.IcosahedronGeometry(lerp(F.r[0],F.r[1],rnd()),1),
+        /* A stacked form tapers as it climbs — a tower of equal lumps is a
+           column, and a column is not a cloud. */
+        y>0.05?mTop:mBot,false,false);
+      p.position.set((rnd()-0.5)*F.sx,y,(rnd()-0.5)*F.sz);
+      if(F.stack) p.scale.setScalar(lerp(1,0.62,k/n));
+      p.scale.y*=F.flat; c.add(p);
     }
     const u=c.userData;
     u.a=rnd()*TAU;
@@ -5894,8 +5913,11 @@ function realmSignature(P,rnd,sp){
         emissiveIntensity:1.1,roughness:0.3,transparent:true,opacity:0.28,
         side:THREE.DoubleSide,depthWrite:false});
       const bm=meshOf(new THREE.ConeGeometry(0.55,7.0,10,1,true),beamM,false,false);
-      bm.rotation.z=Math.PI/2; bm.position.y=0.4+h+0.45;
-      const bg=new THREE.Group(); bg.add(bm); bm.position.x=3.5;
+      /* Height is the GROUP's job. Setting it on the cone as well put the beam
+         at twice the lantern's height — a light sweeping the sky with nothing
+         under it, which is what you saw from across the harbour. */
+      bm.rotation.z=Math.PI/2; bm.position.x=3.5;
+      const bg=new THREE.Group(); bg.add(bm);
       bg.position.y=0.4+h+0.45;
       bg.userData.tick=t=>{bg.rotation.y=-t*0.5;};
       g.add(bg); animated.push(bg);
@@ -8043,7 +8065,6 @@ function enterRealm(q){
   fade=0; fadeTo=1;
   frameBounds(q.bounds);
   rootEl.classList.add('inrealm');
-  skyPicked=false; applySky();            // the realm's own weather, from here in
   updateHud(); renderRank(true); buildAir(); placeClouds();
 }
 function leaveRealm(){
@@ -8071,7 +8092,6 @@ function leaveRealm(){
   fade=0; fadeTo=1;
   frameBounds(W.worldBounds);
   rootEl.classList.remove('inrealm');
-  applySky();                             // back to the sky the owner chose
   updateHud(); renderRank(true); buildAir(); placeClouds();
 }
 
@@ -8083,44 +8103,24 @@ const SKY={...DEFAULT_SKY};
    rather than by a flag: the bench can set the same palette twice, or an hour
    it is already on, and neither should force a rebuild. */
 let skyKey='';
-/* INSIDE A REALM, THE REALM OWNS THE LIGHT. Each concept image is lit as its
-   own place — the forges are a dusk workshop with a hot bounce off the lava,
-   the bastion a bright winter day where the only thing separating one white
-   plane from the next is how blue its shadow goes — and materials picked under
-   one rig do not read under another. The world view keeps the sky the owner
-   chose, because up there you are looking at all six realms at once and no
-   single realm's weather can be right for the frame.
+/* ONE SKY, EVERYWHERE. A realm rig was tried — each concept image is lit as its
+   own place, so entering a realm switched to that realm's weather — and it is
+   the wrong trade for a world somebody DRESSED: the sky is the one channel the
+   owner picked, and having it thrown away the moment a visitor walks into a
+   realm makes the choice feel like a suggestion. It also broke the one thing a
+   sky is for, which is holding the whole place together: flying out of the
+   forges into the bastion re-graded the entire frame mid-flight.
 
-   The sun VECTOR stays the one the world is framed for: a realm rig changes
-   the colour and the balance of the light, not where it comes from, so walking
-   into a realm never swings every shadow in the world around. */
-function realmLight(P){
-  const L=REALM_LIGHT[P.kit], d=skyHourOf('day');
-  sun.position.set(d.sun[0],d.sun[1],d.sun[2]).normalize().multiplyScalar(100);
-  sun.color.setHex(L.sun); sun.intensity=L.si;
-  hemi.color.setHex(L.sky); hemi.groundColor.setHex(L.gnd); hemi.intensity=L.hi;
-  fill.color.setHex(L.bo); fill.intensity=L.bi;
-  rim.intensity=d.rimI; rim.visible=!!FX.env;
-  renderer.toneMappingExposure=L.exp;
-  paintSky(P.skyA,P.skyB,L.haze);
-  if(stdCloth) stdCloth.material.emissiveIntensity=0;
-}
-/* Except while the owner is working the bench. Picking a sky has to be visible
-   the moment it is picked, wherever the camera happens to be, so an explicit
-   choice takes the frame back off the realm until the next time you walk into
-   one. */
-let skyPicked=false;
+   What the realms keep is their MATERIALS, which is where their identity
+   actually lives — the rock, the roofs, the keel, the landform. What they lost
+   is a private light rig, and the picker carries the difference: `ember` is the
+   forges' dusk, `lilac` the swarm's day, `clear` the bastion's winter. Anyone
+   who wants a realm's weather can put the whole world under it. */
 function applySky(){
   const p=skyPalOf(SKY.pal), h=skyHourOf(SKY.hour);
-  const realm=OPEN&&!skyPicked;
-  const key=realm?'realm|'+OPEN.P.kit:p.id+'|'+h.id;
+  const key=p.id+'|'+h.id;
   if(key===skyKey)return; skyKey=key;
-  if(realm){ realmLight(OPEN.P); return; }
   const a=p.a, b=p.b;
-  /* The hemisphere light's ground colour is the world's, not a realm's: the
-     realm rig sets it and nothing else would put it back. */
-  hemi.groundColor.setHex(0xA8B3CE);                              // salt.90
-  fill.color.setHex(0x887BF8);                                    // onion.10
 
   sun.position.set(h.sun[0],h.sun[1],h.sun[2]).normalize().multiplyScalar(100);
   sun.color.setHex(h.sunC); sun.intensity=h.sunI;
@@ -8149,9 +8149,10 @@ function applySky(){
 }
 function skySet(next){
   if(!next)return;
+  const was=skyKey;
   SKY.pal=next.pal||SKY.pal; SKY.hour=next.hour||SKY.hour;
-  skyPicked=true;
   applySky();
+  if(skyKey!==was) reskinClouds();
 }
 
 /* ================================================================ the names
@@ -9156,12 +9157,28 @@ listen(window,'blur',()=>POV.keys.clear());
 /* A cloud sea under the whole archipelago — it is what tells the eye the land
    is floating rather than sitting on a black page. Its ticks are held apart
    from the districts' so they never get swept up in a merge. */
-const clouds=buildClouds();
 /* No high fliers any more — at world scale a cloud above the land is a white
    blob parked in front of a quarter, and they used to be generated and then
    filtered back out. Every cloud is sea now, so there is nothing to drop. */
+const cloudA0=animated.length;
+let clouds=buildClouds();
 scene.add(clouds);        // laid out by placeClouds() per view
-const cloudTicks=animated.splice(0);
+let cloudTicks=animated.splice(cloudA0);
+/* The sky changed, so the weather under it has to. Ticks are re-taken from
+   `animated` the same way the first build took them, or the new clouds hang
+   motionless while the old ones' ticks write to a disposed group. */
+function reskinClouds(){
+  const vis=clouds.visible;
+  disposeGroup(clouds);
+  const a0=animated.length;
+  clouds=buildClouds();
+  clouds.visible=vis;
+  scene.add(clouds);
+  /* From a0, not from zero: an island being raised in the same frame has its
+     own ticks parked in here waiting for raise() to claim them. */
+  cloudTicks=animated.splice(a0);
+  placeClouds();
+}
 
 /* ==================================================== atmosphere (FX.air) */
 /* One thing, down from four. This started as haze, motes, mist and falls, and

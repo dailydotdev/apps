@@ -154,8 +154,7 @@ const C={
      shadow, the keel deeper again, and the colour that carries the image is the
      SATURATED violet of the trees and crystal against a properly green lawn.
      Pale is one note here, not the key. */
-  sw:{ skyA:0x5FADEC, skyB:0xE6D6F5,
-       cliff:0xD6C9E6, cliff2:0xB6A4D0,                      // terrace walls: mid
+  sw:{ cliff:0xD6C9E6, cliff2:0xB6A4D0,                      // terrace walls: mid
        rock:0x9276BE,                                        // keel: deepest
        crys:0xC44FF5, crys2:0x8B45E0,                        // magic: fully saturated
        grass:0x5FBE63, grass2:0x84D477,                      // lawn: real green
@@ -163,7 +162,7 @@ const C={
        wood:0x8A5C3A, metal:0xE8C86A,
        leaf:0x9A57D6, leaf2:0xB16BE4, water:0x45C8E0, warm:0xFFD070 },
   /* --- the frameworks: one colossal tree, timber cottages, glass, purple dusk */
-  fr:{ skyA:0x8F7FE0, skyB:0xF7D8E9, cliff:0x8A6A50, cliff2:0x6E5340, rock:0x5C4536,
+  fr:{ cliff:0x8A6A50, cliff2:0x6E5340, rock:0x5C4536,
        bark:0x8B6A4E, bark2:0x6B4F3B, canopy:0x8FD032, canopy2:0xB6E958,
        grass:0x63B23C, grass2:0x86CC4E, stone:0xE7D2A8, stone2:0xD3B888,
        /* Roof moss a step below the lawn: at the same value the cottages read
@@ -175,8 +174,7 @@ const C={
      is a light plaza with dark things standing on it and one blazing hot accent.
      In order, darkest to lightest: keel columns → metal roofs → brick walls →
      plaza deck, then the lava sitting a long way outside the whole ramp. */
-  fo:{ skyA:0x2E1854, skyB:0xF56A22,
-       cliff:0x5C4F66, cliff2:0x453A50, rock:0x3A3145,       // keel: the darkest tier
+  fo:{ cliff:0x5C4F66, cliff2:0x453A50, rock:0x3A3145,       // keel: the darkest tier
        deck:0xBCAEC2, deck2:0xA294AA,                        // plaza: the lightest
        brick:0xC26B45, brick2:0xDC8659,                      // walls: warm mid
        iron:0x565064, iron2:0x3E3849,                        // roofs: dark, not black
@@ -187,8 +185,7 @@ const C={
      on — cream sheds on cream concrete dissolve into the ground. Crag darker
      again below, so the island reads as a poured slab sitting on wet rock
      rather than as one beige mass. */
-  sh:{ skyA:0x3897E2, skyB:0xE2F0FB,
-       cliff:0x6E6E6A, cliff2:0x4A4A48, rock:0x585855,        // crag: darkest
+  sh:{ cliff:0x6E6E6A, cliff2:0x4A4A48, rock:0x585855,        // crag: darkest
        deck:0xBBAD94, deck2:0x9E9078,                         // concrete: mid
        hull:0xF2EDE2, stripe:0x2E9EC4, stripe2:0x15718F,      // sheds: white + band
        stone:0xD2C9B6, stone2:0xB4A88F, wood:0x8A5A2E, metal:0x8A939C,
@@ -200,8 +197,7 @@ const C={
      band of mid-grey with white icing on top and it reads as a paper model. The
      pines stay as the one deep accent anchoring an image otherwise made of
      white and sky. */
-  ba:{ skyA:0x2A8FE0, skyB:0xEAF4FF,
-       cliff:0x4E4E58, cliff2:0x35353E, rock:0x3A3A44,        // crag: darkest
+  ba:{ cliff:0x4E4E58, cliff2:0x35353E, rock:0x3A3A44,        // crag: darkest
        snow:0xF7FAFF, snow2:0xD4E2F2, ice:0xBCDDF2,           // snow: brightest
        stone:0x6E6E7A, stone2:0x53535E, wood:0x5A4436, metal:0x848C98,
        pine:0x24523A, pine2:0x1A3F2B, ward:0x4FC3F5, water:0x4FA6D8, warm:0xFFA23C },
@@ -210,8 +206,7 @@ const C={
      underneath — inside half a stop of each other reads as one extruded lump of
      clay. Paving goes up toward cream, the boulder drops toward earth, and the
      stucco keeps the middle with a proper shadow tone of its own. */
-  qu:{ skyA:0x3AA2EC, skyB:0xEDF6FF,
-       cliff:0x8E6238, cliff2:0x6B4726, rock:0x7A5230,        // boulder: darkest
+  qu:{ cliff:0x8E6238, cliff2:0x6B4726, rock:0x7A5230,        // boulder: darkest
        stucco:0xEDBA6E, stucco2:0xD4914A, stucco3:0xFADFAC,   // walls: lit / shaded
        rose:0xDE5872, rose2:0xBE3E58, blush:0xEE7690,
        stone:0xF9E9CA, stone2:0xE6D0A6,                        // paving: lightest
@@ -238,38 +233,6 @@ C.fo.water=C.fo.lava;     // and their liquid is molten: the pool, the falls, th
 C.sh.ground=C.sh.deck;    C.sh.ground2=C.sh.deck2;   C.sh.foliage=C.sh.grass;C.sh.foliage2=C.sh.grass2;
 C.ba.ground=C.ba.snow;    C.ba.ground2=C.ba.snow2;   C.ba.foliage=C.ba.pine; C.ba.foliage2=C.ba.pine2;
 C.qu.ground=C.qu.stone;   C.qu.ground2=C.qu.stone2;  C.qu.foliage=C.qu.leaf; C.qu.foliage2=C.qu.leaf2;
-
-/* --------------------------------------------------------------- realm light
-   Each concept image is lit as its own place: the forges are a dusk workshop
-   with a hot bounce off the lava, the bastion a bright winter day where the
-   only thing separating one white plane from the next is how blue its shadow
-   goes. A realm's rig is what makes its materials read the way they were
-   painted, so entering a realm switches to it; the world view stays on the sky
-   the owner chose, because up there you are looking at all six at once.
-
-   `haze` is the horizon band. Five realms want it near-white — that is what a
-   bright day does. The forges want the EMBER, so their ramp runs indigo →
-   magenta → orange with no white in it anywhere; a white band there turns the
-   dusk into an overcast afternoon and takes the whole realm down with it. */
-export const REALM_LIGHT={
-  /* On an island made of pale material the ambient IS the contrast budget. At
-     hemi 0.42 plus a 0.75 bounce every shadow the sun cast was filled back in
-     before it landed, and the marble read as fog. Ambient down, sun up — the
-     shading does the drawing. */
-  swarm:  {haze:0xFFFFFF, sun:0xFFF4D4,si:2.45, sky:0xBBD8FF,gnd:0xB79EDC,hi:0.26, bo:0xA274D6,bi:0.48, exp:1.02},
-  frame:  {haze:0xFBE4F2, sun:0xFFE7C0,si:2.10, sky:0xC7B6F5,gnd:0x6B8F42,hi:0.32, bo:0x9A7BE8,bi:0.70, exp:1.02},
-  /* Lit from BOTH ends: a cool dusk sun still strong enough to shape the
-     buildings and throw hard shadows across the pale plaza, plus a hot bounce
-     off the lava from below. Run the sun at 0.85 and let the lava do everything
-     and nothing has form — the island comes back as one flat purple smudge. */
-  forge:  {haze:0xB03C55, sun:0xF4E6FF,si:2.05, sky:0x6B5A9E,gnd:0xD4642A,hi:0.46, bo:0xFF8422,bi:1.30, exp:1.14},
-  ship:   {haze:0xFFFFFF, sun:0xFFFBEF,si:2.55, sky:0xA8D6F8,gnd:0x8A8172,hi:0.26, bo:0x2FBFD8,bi:0.50, exp:1.02},
-  /* Cool bounce, low ambient: snow in shadow goes blue. A near-white hemi
-     ground at 0.55 lights the shadow sides back up to the value of the lit
-     ones, which is how a fortress ends up reading as a paper model of itself. */
-  bastion:{haze:0xFFFFFF, sun:0xFFFFFF,si:2.50, sky:0xBEDCFF,gnd:0x7FA0C8,hi:0.30, bo:0x6FA8E0,bi:0.50, exp:1.02},
-  quarter:{haze:0xFFF6E8, sun:0xFFEFC8,si:2.40, sky:0xB8DEFF,gnd:0xC49660,hi:0.28, bo:0xFFC98A,bi:0.55, exp:1.02},
-};
 
 export const REALMS=[
 { id:'swarm', name:'Arcane Swarm', theme:'AI, agents & data',
