@@ -85,6 +85,20 @@ export const isSpecialKeyPressed = ({
   return event.ctrlKey || event.metaKey;
 };
 
+// If focus is in any iframe owned by the host page rather than the
+// extension's own surface, global shortcuts should bail out so we don't
+// steal native browser bindings (Linear-style scoping).
+export const isInExtensionIframe = (target: EventTarget | null): boolean => {
+  if (!isExtension || typeof window === 'undefined') {
+    return false;
+  }
+  const node = target instanceof HTMLElement ? target : null;
+  if (!node) {
+    return false;
+  }
+  return node.tagName === 'IFRAME';
+};
+
 const appleDeviceMatch = /(Mac|iPhone|iPod|iPad)/i;
 
 export const isAppleDevice = (): boolean => {
