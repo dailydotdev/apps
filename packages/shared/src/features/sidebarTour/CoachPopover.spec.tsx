@@ -74,7 +74,7 @@ describe('CoachPopover', () => {
     renderPopover();
 
     const card = screen.getByText('Teach me').closest('.fixed');
-    expect(card).toHaveClass('z-[1001]');
-    expect(document.querySelector('.ring-2')).toHaveClass('z-[1001]');
+    expect(card).toHaveClass('z-coach');
+    expect(document.querySelector('.ring-2')).toHaveClass('z-coach');
   });
 });

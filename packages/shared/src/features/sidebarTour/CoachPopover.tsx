@@ -28,7 +28,7 @@ export const CoachHighlight = ({
   return (
     <span
       aria-hidden
-      className="pointer-events-none fixed z-[1001] rounded-12 ring-2 ring-accent-cabbage-default"
+      className="pointer-events-none fixed z-coach rounded-12 ring-2 ring-accent-cabbage-default"
       style={{
         left: rect.left - 2,
         top: rect.top - 2,
@@ -93,7 +93,7 @@ export const CoachPopover = ({
       <CoachHighlight rect={highlightRect ?? anchor.rect} />
       <div
         ref={containerRef}
-        className="fixed z-[1001]"
+        className="fixed z-coach"
         style={{ left: anchor.left, top }}
       >
         <CoachCard

@@ -54,11 +54,11 @@ export const SkipTourButton = ({
 }): ReactElement => (
   <Button
     type="button"
-    className="active:scale-95"
     // Sits directly beside the primary action, so it trims its side padding to
     // stay a quiet text control rather than reading as a second button. A
-    // tertiary button has no fill, which makes the trim invisible.
-    style={{ paddingLeft: 6, paddingRight: 6 }}
+    // tertiary button has no fill, which makes the trim invisible. Important,
+    // because the size's own `px-2` is emitted after `px-1.5` and would win.
+    className="!px-1.5 active:scale-95"
     size={ButtonSize.XSmall}
     variant={ButtonVariant.Tertiary}
     onClick={onClick}
@@ -79,10 +79,9 @@ export const CoachPrimaryButton = ({
   <Button
     ref={buttonRef}
     type="button"
-    className="active:scale-95"
     // Keeps the primary action visibly the heavier of the pair even when its
     // label is as short as "Next".
-    style={{ minWidth: 88 }}
+    className="min-w-[5.5rem] active:scale-95"
     size={ButtonSize.Small}
     variant={ButtonVariant.Primary}
     onClick={onClick}
