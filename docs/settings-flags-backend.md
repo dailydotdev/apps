@@ -20,6 +20,16 @@ So the client keeps a short list of flags the API doesn't know
 (`clientOnlySettingsFlags` in `packages/shared/src/graphql/settings.ts`),
 persists those in local storage, and strips them from the remote payload.
 
+Two consequences of that stopgap, both of which disappear on graduation:
+
+- the store is keyed by account (`…:clientOnlyFlags:<userId>`, `:anonymous`
+  signed out) so a second login on the same device doesn't inherit the first
+  one's rail density and dock. The pre-per-account entry (`:global`) is handed
+  to the first signed-in account that loads and then deleted;
+- a write whose changed keys are *all* client-only skips `updateUserSettings`
+  entirely. The payload would be byte-identical to the previous one, and a
+  reorder drag in the dock fires several in a burst.
+
 ## What the API needs
 
 Add these to `SettingsFlagsPublicInput` (and to the `SettingsFlags` type backing
@@ -59,13 +69,20 @@ client-side change:
 - the provider stops stripping it, so it ships with every settings write;
 - `SettingsContextProvider` runs a one-time migration on the next load for each
   user — it takes the value already in their local storage, writes it to the
-  API (server value wins if one already exists), and drops it locally. Nobody
-  loses a preference in the switchover.
+  API (server value wins if one already exists), and drops that one key
+  locally, leaving the flags that haven't graduated in place. Nobody loses a
+  preference in the switchover.
 
-Regression cover for both halves lives in
-`packages/shared/src/contexts/BootProvider.spec.tsx`
-("should keep client-only flags out of the remote payload…" and
-"should push a flag the API has learned to store up to the server").
+The migration waits for `isRemoteSettingsLoaded`, not `loadedSettings`. The
+latter only says a cached boot exists; "the server has no value for this flag"
+has to be read off the response, or a value set on another device looks absent
+and this device's leftover overwrites it. `useLegacyShortcutsMigration` in
+`SidebarShortcutsDock.tsx` waits on the same signal for the same reason.
+
+Regression cover lives in `packages/shared/src/contexts/BootProvider.spec.tsx`
+("should keep client-only flags out of a real settings write", "should store a
+client-only flag locally without calling the API" and "should push a flag the
+API has learned to store up to the server").
 
 ## Note on the dock's previous storage
 

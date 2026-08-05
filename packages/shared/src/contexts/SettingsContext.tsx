@@ -71,7 +71,13 @@ export interface SettingsContextData extends Omit<RemoteSettings, 'theme'> {
   toggleQuestExperience: () => Promise<void>;
   toggleAutoDismissNotifications: () => Promise<void>;
   toggleShowFeedbackButton: () => Promise<void>;
+  // Settings are usable (a cached copy is in hand). NOT a promise that they
+  // match the server — see `isRemoteSettingsLoaded` for that.
   loadedSettings: boolean;
+  // The boot response has landed AND been applied, so `flags` reflects what the
+  // account actually holds. Anything that treats a missing value as "the server
+  // has none" has to wait for this one.
+  isRemoteSettingsLoaded: boolean;
   updateCustomLinks: (links: string[]) => Promise<unknown>;
   updateSortCommentsBy: (sort: SortCommentsBy) => Promise<unknown>;
   updateFlag: <K extends keyof SettingsFlags>(
@@ -131,6 +137,7 @@ export type SettingsContextProviderProps = {
   settings?: RemoteSettings;
   updateSettings?: (settings: RemoteSettings) => unknown;
   loadedSettings?: boolean;
+  isRemoteSettingsLoaded?: boolean;
 };
 
 const defaultSettings: RemoteSettings = {
@@ -167,28 +174,51 @@ const defaultSettings: RemoteSettings = {
   },
 };
 
-const clientOnlyFlagsStorageKey = generateStorageKey(
+// These are account preferences that happen to be parked on the device, so the
+// store is keyed by account: without it a second login on the same machine
+// inherits the first one's rail density and pinned dock.
+const clientOnlyFlagsKey = (userId?: string): string =>
+  generateStorageKey(
+    StorageTopic.Settings,
+    'clientOnlyFlags',
+    userId ?? 'anonymous',
+  );
+
+const legacyClientOnlyFlagsKey = generateStorageKey(
   StorageTopic.Settings,
   'clientOnlyFlags',
 );
 
-const readStoredFlags = (): Partial<SettingsFlags> => {
+const parseStoredFlags = (
+  raw: string | null,
+): Partial<SettingsFlags> | null => {
   try {
-    const parsed = JSON.parse(
-      storageWrapper.getItem(clientOnlyFlagsStorageKey),
-    );
+    const parsed = JSON.parse(raw);
     // A non-object (truncated write, key reused by another build) would blow
     // up the `in` checks below.
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? parsed
-      : {};
+      : null;
   } catch (err) {
-    return {};
+    return null;
   }
 };
 
-const writeStoredFlags = (flags: ClientOnlySettingsFlags): void =>
-  storageWrapper.setItem(clientOnlyFlagsStorageKey, JSON.stringify(flags));
+const readStoredFlags = (userId?: string): Partial<SettingsFlags> => {
+  const stored = parseStoredFlags(
+    storageWrapper.getItem(clientOnlyFlagsKey(userId)),
+  );
+
+  if (stored || !userId) {
+    return stored ?? {};
+  }
+
+  // First load since the store became per-account: this user reads the
+  // device-wide entry until `adoptLegacyStoredFlags` moves it across.
+  return (
+    parseStoredFlags(storageWrapper.getItem(legacyClientOnlyFlagsKey)) ?? {}
+  );
+};
 
 const isClientOnlyFlag = (flag: string): boolean =>
   clientOnlySettingsFlags.includes(flag as ClientOnlyFlagKey);
@@ -203,6 +233,45 @@ const pickClientOnlyFlags = (
 
     return picked;
   }, {});
+
+// Merge, never replace. The store has several owners (the rail density, the
+// dock, the panel toggles) and a caller only ever carries its own keys, so a
+// replace drops whichever ones its `flags` had not loaded yet — and loses a
+// second tab's write landing between this read and the set.
+const writeStoredFlags = (
+  userId: string | undefined,
+  flags: ClientOnlySettingsFlags,
+): void =>
+  storageWrapper.setItem(
+    clientOnlyFlagsKey(userId),
+    JSON.stringify({ ...readStoredFlags(userId), ...flags }),
+  );
+
+// The one write that has to remove keys: a graduated flag leaves the store for
+// good once the API holds it, which is what stops the migration repeating.
+const dropGraduatedStoredFlags = (userId?: string): void =>
+  storageWrapper.setItem(
+    clientOnlyFlagsKey(userId),
+    JSON.stringify(pickClientOnlyFlags(readStoredFlags(userId))),
+  );
+
+// Hand the pre-per-account entry to the first account that loads after the
+// change, then delete it so the next account on this device starts clean.
+// Nobody signed out keeps their flags through this: their copy was written to
+// the device-wide key and this only rescues it for a signed-in reader.
+const adoptLegacyStoredFlags = (userId: string): void => {
+  const legacy = storageWrapper.getItem(legacyClientOnlyFlagsKey);
+
+  if (!legacy) {
+    return;
+  }
+
+  if (!storageWrapper.getItem(clientOnlyFlagsKey(userId))) {
+    storageWrapper.setItem(clientOnlyFlagsKey(userId), legacy);
+  }
+
+  storageWrapper.removeItem(legacyClientOnlyFlagsKey);
+};
 
 // Graduated = dropped from `clientOnlySettingsFlags` because the API stores it
 // now, but still sitting in this user's local storage.
@@ -224,20 +293,67 @@ const withoutClientOnlyFlags = (settings: RemoteSettings): RemoteSettings => {
   return { ...settings, flags };
 };
 
+// Client-only flags are stripped from the payload, so a write that touched
+// nothing else would send a request identical to the last one — a reorder drag
+// in the shortcuts dock fires a burst of them. The seam stays honest: the day
+// the field graduates it stops counting as client-only and the write goes out.
+const isClientOnlySettingsChange = (
+  current: RemoteSettings,
+  next: RemoteSettings,
+): boolean => {
+  const changed = Object.keys(next).filter(
+    (key: keyof RemoteSettings) =>
+      key !== 'flags' && next[key] !== current[key],
+  );
+
+  if (changed.length) {
+    return false;
+  }
+
+  const currentFlags: Partial<SettingsFlags> = current.flags ?? {};
+  const nextFlags: Partial<SettingsFlags> = next.flags ?? {};
+  const changedFlags = Array.from(
+    new Set([...Object.keys(currentFlags), ...Object.keys(nextFlags)]),
+  ).filter(
+    (flag: keyof SettingsFlags) => nextFlags[flag] !== currentFlags[flag],
+  );
+
+  return changedFlags.length > 0 && changedFlags.every(isClientOnlyFlag);
+};
+
 export const SettingsContextProvider = ({
   children,
   settings: remoteSettings = defaultSettings,
   updateSettings,
   loadedSettings,
+  isRemoteSettingsLoaded,
 }: SettingsContextProviderProps): ReactElement => {
   const setTheme = useRef<ThemeMode | null>(null);
+  const { user } = useContext(AuthContext);
+  const userId = user?.id;
   // Local storage, not the boot cache: a page load overwrites the cache with
   // what the API returns, which never includes the flags it doesn't store.
-  const [clientFlags, setClientFlags] = useState<ClientOnlySettingsFlags>({});
+  //
+  // Read during render rather than in an effect. The account id arrives with
+  // the boot cache, so an effect-based read would land a render AFTER the
+  // settings it belongs to: the rail would paint full-width labels for a frame
+  // before snapping narrow, and the migration below would see a `settings` that
+  // does not carry these flags yet.
+  const [storedFlagsRevision, setStoredFlagsRevision] = useState(0);
+  const clientFlags = useMemo(
+    () => pickClientOnlyFlags(readStoredFlags(userId)),
+    // Local storage is not reactive; the revision re-reads it after our writes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [userId, storedFlagsRevision],
+  );
 
   useEffect(() => {
-    setClientFlags(pickClientOnlyFlags(readStoredFlags()));
-  }, []);
+    if (!userId) {
+      return;
+    }
+
+    adoptLegacyStoredFlags(userId);
+  }, [userId]);
 
   const settings = useMemo(() => {
     if (!Object.keys(clientFlags).length) {
@@ -249,8 +365,6 @@ export const SettingsContextProvider = ({
       flags: { ...remoteSettings.flags, ...clientFlags },
     };
   }, [remoteSettings, clientFlags]);
-  const { user } = useContext(AuthContext);
-  const userId = user?.id;
   const { unsubscribePersonalizedDigest } = usePersonalizedDigest();
 
   useEffect(() => {
@@ -312,12 +426,16 @@ export const SettingsContextProvider = ({
 
   const setSettings = async (newSettings: RemoteSettings): Promise<void> => {
     if (newSettings.flags) {
-      const nextClientFlags = pickClientOnlyFlags(newSettings.flags);
-      writeStoredFlags(nextClientFlags);
-      setClientFlags(nextClientFlags);
+      writeStoredFlags(userId, pickClientOnlyFlags(newSettings.flags));
+      setStoredFlagsRevision((revision) => revision + 1);
     }
 
     updateSettings({ ...settings, ...newSettings });
+
+    if (isClientOnlySettingsChange(settings, newSettings)) {
+      return;
+    }
+
     await updateRemoteSettingsFn(newSettings);
   };
 
@@ -326,15 +444,20 @@ export const SettingsContextProvider = ({
   };
 
   // A graduated flag still lives in local storage for every existing user, so
-  // push it up once — server value wins if there already is one. The write
-  // drops the migrated keys from storage, which is what stops this repeating.
+  // push it up once — server value wins if there already is one. Dropping the
+  // migrated keys is what stops this repeating.
+  //
+  // Gated on the remote settings rather than `loadedSettings` (cache presence):
+  // "the server has no value" has to be read off the response, not off last
+  // session's cache, or a value set on another device reads as absent and this
+  // device's leftover overwrites it.
   const hasMigratedFlagsRef = useRef(false);
   useEffect(() => {
-    if (hasMigratedFlagsRef.current || !loadedSettings || !userId) {
+    if (hasMigratedFlagsRef.current || !isRemoteSettingsLoaded || !userId) {
       return;
     }
 
-    const graduated = pickGraduatedFlags(readStoredFlags());
+    const graduated = pickGraduatedFlags(readStoredFlags(userId));
     if (!Object.keys(graduated).length) {
       return;
     }
@@ -346,19 +469,19 @@ export const SettingsContextProvider = ({
       ),
     );
 
-    if (!Object.keys(pending).length) {
-      writeStoredFlags(pickClientOnlyFlags(readStoredFlags()));
-      return;
+    if (Object.keys(pending).length) {
+      setSettings({
+        ...settings,
+        flags: { ...settings.flags, ...pending },
+      }).catch(() => undefined);
     }
 
-    setSettings({
-      ...settings,
-      flags: { ...settings.flags, ...pending },
-    }).catch(() => undefined);
+    dropGraduatedStoredFlags(userId);
+    setStoredFlagsRevision((revision) => revision + 1);
     // `settings`/`setSettings` are re-created every render; the ref bounds this
     // to one run, so their identity is noise here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadedSettings, userId]);
+  }, [isRemoteSettingsLoaded, userId]);
 
   const contextData = useMemo<SettingsContextData>(
     () => ({
@@ -475,6 +598,7 @@ export const SettingsContextProvider = ({
               : CampaignCtaPlacement.Header,
         }),
       loadedSettings: loadedSettings ?? false,
+      isRemoteSettingsLoaded: isRemoteSettingsLoaded ?? false,
       updateCustomLinks: (links: string[]) =>
         setSettings({ ...settings, customLinks: links }),
       updateSortCommentsBy: (sortCommentsBy: SortCommentsBy) =>
@@ -517,7 +641,7 @@ export const SettingsContextProvider = ({
     }),
     // @NOTE see https://dailydotdev.atlassian.net/l/cp/dK9h1zoM
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [settings, loadedSettings, userId, applyThemeMode],
+    [settings, loadedSettings, isRemoteSettingsLoaded, userId, applyThemeMode],
   );
 
   return (

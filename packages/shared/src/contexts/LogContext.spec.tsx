@@ -30,6 +30,7 @@ beforeEach(() => {
 const settings = {
   spaciness: 'roomy',
   loadedSettings: true,
+  isRemoteSettingsLoaded: true,
   setTheme: jest.fn(),
   themeMode: ThemeMode.Light,
   insaneMode: true,

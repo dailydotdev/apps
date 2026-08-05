@@ -31,6 +31,7 @@ const settings = {
   insaneMode: false,
   spaciness: 'roomy',
   loadedSettings: true,
+  isRemoteSettingsLoaded: true,
   openNewTab: false,
 };
 

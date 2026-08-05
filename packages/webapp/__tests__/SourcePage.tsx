@@ -141,6 +141,7 @@ const renderComponent = (
     toggleOpenNewTab: jest.fn(),
     insaneMode: false,
     loadedSettings: true,
+    isRemoteSettingsLoaded: true,
     toggleInsaneMode: jest.fn(),
     showTopSites: true,
     toggleShowTopSites: jest.fn(),
