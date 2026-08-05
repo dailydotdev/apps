@@ -963,7 +963,11 @@ export const SidebarDesktopV2 = ({
   // it does today for the control arm.
   const tour = useSidebarTourState();
   const dotsCoach = useDotsCoach(tour.dotsCoach);
-  const { canAutoStart: canAutoStartTour, start: startTour } = tour;
+  const {
+    canAutoStart: canAutoStartTour,
+    start: startTour,
+    interrupt: interruptTour,
+  } = tour;
   const isTourRunning = tour.isRunning;
   // An empty dock paints its ••• on hover only, and during the tour the pointer
   // is on the card, so the step would point at an invisible button.
@@ -974,15 +978,25 @@ export const SidebarDesktopV2 = ({
   }, [isTourRunning]);
   // The tour resolves its targets from the live rail, so it waits for the rail
   // to settle: the shortcuts dock reads from storage, and a tab can still fold
-  // into the "More" menu once the region height is measured.
+  // into the "More" menu once the region height is measured. A modal is above
+  // both the scrim and the lifted rail, so the tour would talk about a rail
+  // nobody can see, and the two would race for Escape.
   useEffect(() => {
-    if (!canAutoStartTour || isAnyDragging) {
+    if (!canAutoStartTour || isAnyDragging || !!modal) {
       return undefined;
     }
 
     const timer = setTimeout(() => startTour('auto'), TOUR_AUTO_START_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [canAutoStartTour, isAnyDragging, startTour]);
+  }, [canAutoStartTour, isAnyDragging, modal, startTour]);
+
+  useEffect(() => {
+    if (!modal || !isTourRunning) {
+      return;
+    }
+
+    interruptTour('modal');
+  }, [interruptTour, isTourRunning, modal]);
 
   // Ending a drag makes the browser dispatch a `click` on whatever sits under
   // the cursor, and dnd-kit doesn't swallow it. Armed at drag start; CONSUMED

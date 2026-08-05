@@ -9,6 +9,7 @@ import { LogEvent } from '../../lib/log';
 import { resolveSidebarTourSteps } from './steps';
 import type {
   SidebarPinCoachMethod,
+  SidebarTourInterruptReason,
   SidebarTourStep,
   SidebarTourTrigger,
 } from './types';
@@ -29,8 +30,16 @@ export const SIDEBAR_DOTS_COACH_KEY = 'sidebar_dots_coach';
 // whichever comes first. Success writes the cap so one counter says both.
 export const COACH_MAX_EXPOSURES = 3;
 
+// A card that flashed past under a travelling pointer taught nobody anything,
+// so both ambient coaches only charge an exposure once one has sat there.
+export const COACH_EXPOSURE_DWELL_MS = 700;
+
 // Users who joined before the v2 rail shipped are the only ones whose muscle
 // memory it broke, so they are the only ones the tour runs for on its own.
+// This is the fixed date v2 shipped, standing in for "when this user actually
+// got the v2 rail", which the layout rollout is what really decides. If that
+// ramp ever runs gradually, the cutoff belongs in the GrowthBook flag payload
+// so it can be tuned mid-ramp instead of waiting on a release.
 export const SIDEBAR_V2_ROLLOUT_DATE = new Date('2026-08-01T00:00:00.000Z');
 
 export interface SidebarCoachState {
@@ -84,7 +93,12 @@ export interface SidebarTourState {
   next: () => void;
   skip: () => void;
   finish: () => void;
+  interrupt: (reason: SidebarTourInterruptReason) => void;
+  dropStep: () => void;
   pinCoach: SidebarCoachState & {
+    // At least one exposure was actually counted, so the lesson had a chance to
+    // be the reason for whatever happens next.
+    hasBeenShown: boolean;
     onSuccess: (method: SidebarPinCoachMethod) => void;
   };
   dotsCoach: SidebarCoachState;
@@ -138,12 +152,16 @@ export const useSidebarTourState = (): SidebarTourState => {
   // tour straight back after the user dismissed it.
   const [hasEndedThisSession, setHasEndedThisSession] = useState(false);
 
-  const end = useCallback(() => {
+  const clearRun = useCallback(() => {
     setSteps(null);
     setStepIndex(0);
     setHasEndedThisSession(true);
+  }, []);
+
+  const end = useCallback(() => {
+    clearRun();
     setTourSeen(true).catch(() => undefined);
-  }, [setTourSeen]);
+  }, [clearRun, setTourSeen]);
 
   const start = useCallback(
     (trigger: SidebarTourTrigger) => {
@@ -172,17 +190,11 @@ export const useSidebarTourState = (): SidebarTourState => {
     [isEnabled, logEvent],
   );
 
-  const next = useCallback(() => {
-    if (!steps) {
-      return;
-    }
-
+  const advance = useCallback((): boolean => {
     const nextIndex = stepIndex + 1;
 
-    if (nextIndex >= steps.length) {
-      logEvent({ event_name: LogEvent.CompleteSidebarTour });
-      end();
-      return;
+    if (!steps || nextIndex >= steps.length) {
+      return false;
     }
 
     setStepIndex(nextIndex);
@@ -190,7 +202,51 @@ export const useSidebarTourState = (): SidebarTourState => {
       event_name: LogEvent.ViewSidebarTourStep,
       extra: JSON.stringify({ step: steps[nextIndex].id }),
     });
-  }, [end, logEvent, stepIndex, steps]);
+    return true;
+  }, [logEvent, stepIndex, steps]);
+
+  const next = useCallback(() => {
+    if (!steps || advance()) {
+      return;
+    }
+
+    logEvent({ event_name: LogEvent.CompleteSidebarTour });
+    end();
+  }, [advance, end, logEvent, steps]);
+
+  // A step whose target went away is dropped, not ended on: the tour still has
+  // something to say. Past the last one it has run its course, so this is the
+  // one unchosen ending that does retire the tour.
+  const dropStep = useCallback(() => {
+    if (!step || advance()) {
+      return;
+    }
+
+    logEvent({
+      event_name: LogEvent.EndSidebarTour,
+      extra: JSON.stringify({ step: step.id, reason: 'target_lost' }),
+    });
+    end();
+  }, [advance, end, logEvent, step]);
+
+  // A modal, a navigation or another rail popup took the screen. The seen flag
+  // stays unwritten so the tour comes back on a later load, and the session flag
+  // is what stops the auto-start timer re-firing under whatever just took over:
+  // SidebarDesktopV2 lives in MainLayout and does not unmount on navigation.
+  const interrupt = useCallback(
+    (reason: SidebarTourInterruptReason) => {
+      if (!step) {
+        return;
+      }
+
+      logEvent({
+        event_name: LogEvent.EndSidebarTour,
+        extra: JSON.stringify({ step: step.id, reason }),
+      });
+      clearRun();
+    },
+    [clearRun, logEvent, step],
+  );
 
   const skip = useCallback(() => {
     if (!step) {
@@ -216,6 +272,7 @@ export const useSidebarTourState = (): SidebarTourState => {
   const pinCoach = useMemo(
     () => ({
       isActive: isAmbientAudience && pinCounter.count < COACH_MAX_EXPOSURES,
+      hasBeenShown: pinCounter.count > 0,
       onShown: () => {
         pinCounter.increment();
         logEvent({ event_name: LogEvent.ViewSidebarPinCoach });
@@ -260,6 +317,8 @@ export const useSidebarTourState = (): SidebarTourState => {
     next,
     skip,
     finish,
+    interrupt,
+    dropStep,
     pinCoach,
     dotsCoach,
   };

@@ -217,6 +217,76 @@ describe('useSidebarTourState', () => {
     expect(result.current.canAutoStart).toBe(false);
   });
 
+  it('leaves the seen flag alone when something else takes the screen', async () => {
+    const { result } = await renderEnabledTour();
+
+    act(() => result.current.start('auto'));
+    act(() => result.current.interrupt('modal'));
+
+    expect(result.current.isRunning).toBe(false);
+    expect(writesTo(SIDEBAR_TOUR_SEEN_KEY)).toEqual([]);
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.EndSidebarTour,
+        extra: JSON.stringify({ step: 'rail', reason: 'modal' }),
+      }),
+    );
+    expect(eventsNamed(LogEvent.SkipSidebarTour)).toHaveLength(0);
+    expect(eventsNamed(LogEvent.CompleteSidebarTour)).toHaveLength(0);
+  });
+
+  it('keeps the auto-start timer down for the rest of an interrupted session', async () => {
+    const { result } = await renderEnabledTour();
+
+    act(() => result.current.start('auto'));
+    act(() => result.current.interrupt('navigation'));
+
+    expect(result.current.canAutoStart).toBe(false);
+  });
+
+  it('offers the tour again on a later load after an interruption', async () => {
+    const { result } = await renderEnabledTour();
+
+    act(() => result.current.start('auto'));
+    act(() => result.current.interrupt('popup'));
+
+    const { result: reloaded } = await renderEnabledTour();
+
+    await waitFor(() => expect(reloaded.current.canAutoStart).toBe(true));
+  });
+
+  it('moves on to the next step when one loses its target', async () => {
+    const { result } = await renderEnabledTour();
+
+    act(() => result.current.start('auto'));
+    act(() => result.current.dropStep());
+
+    expect(result.current.step?.id).toBe('dock');
+    expect(eventsNamed(LogEvent.EndSidebarTour)).toHaveLength(0);
+  });
+
+  it('retires the tour on a lost last step without claiming it was completed', async () => {
+    const { result } = await renderEnabledTour();
+
+    act(() => result.current.start('auto'));
+    act(() => result.current.next());
+    act(() => result.current.next());
+    expect(result.current.step?.id).toBe('gameCenter');
+
+    act(() => result.current.dropStep());
+
+    await waitFor(() => expect(result.current.canAutoStart).toBe(false));
+    expect(result.current.isRunning).toBe(false);
+    expect(writesTo(SIDEBAR_TOUR_SEEN_KEY)).toEqual([true]);
+    expect(eventsNamed(LogEvent.CompleteSidebarTour)).toHaveLength(0);
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.EndSidebarTour,
+        extra: JSON.stringify({ step: 'gameCenter', reason: 'target_lost' }),
+      }),
+    );
+  });
+
   it('restarts from the support menu after the tour was skipped', async () => {
     const { result } = await renderEnabledTour();
 
@@ -249,6 +319,20 @@ describe('useSidebarTourState', () => {
     }
 
     await waitFor(() => expect(result.current.pinCoach.isActive).toBe(false));
+  });
+
+  it('reports the pin coach as shown only once an exposure is counted', async () => {
+    const { result } = await renderEnabledTour({ user: newUser });
+
+    expect(result.current.pinCoach.hasBeenShown).toBe(false);
+
+    await act(async () => {
+      result.current.pinCoach.onShown();
+    });
+
+    await waitFor(() =>
+      expect(result.current.pinCoach.hasBeenShown).toBe(true),
+    );
   });
 
   it('retires the pin coach on the first pin', async () => {

@@ -533,6 +533,9 @@ export enum LogEvent {
   ViewSidebarTourStep = 'view sidebar tour step',
   SkipSidebarTour = 'skip sidebar tour',
   CompleteSidebarTour = 'complete sidebar tour',
+  // Every ending the user did not choose, so `skip` and `complete` stay clean
+  // enough to read a ramp decision off.
+  EndSidebarTour = 'end sidebar tour',
   ViewSidebarPinCoach = 'view sidebar pin coach',
   SidebarPinCoachSuccess = 'sidebar pin coach success',
   ViewSidebarDotsCoach = 'view sidebar dots coach',

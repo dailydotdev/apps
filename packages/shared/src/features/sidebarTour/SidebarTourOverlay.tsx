@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { Switch } from '../../components/fields/Switch';
 import { RootPortal } from '../../components/tooltips/Portal';
@@ -21,14 +21,23 @@ export const SidebarTourOverlay = ({
 }: {
   tour: SidebarTourState;
 }): ReactElement | null => {
-  const { isRunning, step, stepIndex, stepCount, skip, next, finish } = tour;
+  const {
+    isRunning,
+    step,
+    stepIndex,
+    stepCount,
+    skip,
+    next,
+    finish,
+    interrupt,
+    dropStep,
+  } = tour;
   const { value: isCompact, set: setCompact } =
     useSettingsBooleanFlag('sidebarCompact');
   const anchor = useCoachAnchor(step?.target, isRunning);
   const { isOpen, onUpdate } = useInteractivePopup(RAIL_POPUP_GROUP);
   const { events } = useRouter();
   const wasGroupOpenRef = useRef(false);
-  const primaryRef = useRef<HTMLButtonElement>(null);
   const hasFocusedRef = useRef(false);
 
   useEffect(() => {
@@ -36,8 +45,8 @@ export const SidebarTourOverlay = ({
   }, [isRunning, onUpdate]);
 
   // Another rail popup taking the group means the user reached past the tour
-  // for something else; treat that as skipping rather than leaving a card
-  // stranded under the dropdown that just opened.
+  // for something else, rather than leaving a card stranded under the dropdown
+  // that just opened. It is not a dismissal, so the tour is owed another run.
   useEffect(() => {
     if (isOpen) {
       wasGroupOpenRef.current = true;
@@ -45,11 +54,11 @@ export const SidebarTourOverlay = ({
     }
 
     if (wasGroupOpenRef.current && isRunning) {
-      skip();
+      interrupt('popup');
     }
 
     wasGroupOpenRef.current = false;
-  }, [isOpen, isRunning, skip]);
+  }, [interrupt, isOpen, isRunning]);
 
   // The rail stays clickable above the scrim, so a tab or shortcut click
   // navigates out from under the tour. Without this the scrim and card ride
@@ -59,35 +68,40 @@ export const SidebarTourOverlay = ({
       return undefined;
     }
 
-    events.on('routeChangeStart', skip);
-    return () => events.off('routeChangeStart', skip);
-  }, [events, isRunning, skip]);
+    const onNavigate = () => interrupt('navigation');
+    events.on('routeChangeStart', onNavigate);
+    return () => events.off('routeChangeStart', onNavigate);
+  }, [events, interrupt, isRunning]);
 
   // A step whose target went away leaves a full-screen scrim with no card and
-  // no visible way out, so the step is dropped; past the last one that finishes
-  // the tour.
+  // no visible way out, so the step is dropped; past the last one that ends the
+  // tour.
   useEffect(() => {
     if (!isRunning || anchor.rect) {
       return undefined;
     }
 
-    const timer = setTimeout(next, LOST_TARGET_MS);
+    const timer = setTimeout(dropStep, LOST_TARGET_MS);
     return () => clearTimeout(timer);
-  }, [anchor.rect, isRunning, next]);
+  }, [anchor.rect, dropStep, isRunning]);
 
   useEffect(() => {
     if (!isRunning) {
       hasFocusedRef.current = false;
-      return;
     }
+  }, [isRunning]);
 
-    if (hasFocusedRef.current || !primaryRef.current) {
+  // A callback ref, because the button mounts a render after the anchor
+  // resolves: an effect keyed on the tour running has already gone by, and the
+  // button survives step changes, so it is only ever focused once per run.
+  const focusPrimary = useCallback((node: HTMLButtonElement | null) => {
+    if (!node || hasFocusedRef.current) {
       return;
     }
 
     hasFocusedRef.current = true;
-    primaryRef.current.focus();
-  }, [anchor.rect, isRunning]);
+    node.focus();
+  }, []);
 
   useEffect(() => {
     if (!isRunning) {
@@ -147,7 +161,7 @@ export const SidebarTourOverlay = ({
           <>
             <SkipTourButton onClick={skip} />
             <CoachPrimaryButton
-              buttonRef={primaryRef}
+              buttonRef={focusPrimary}
               onClick={isLastStep ? finish : next}
             >
               {isLastStep ? 'Got it' : 'Next'}

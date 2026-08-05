@@ -18,6 +18,8 @@ import { featureSidebarTour } from '../../lib/featureManagement';
 import { LogEvent } from '../../lib/log';
 import { SpotlightProvider } from '../../components/spotlight/SpotlightContext';
 import { SidebarDesktopV2 } from '../../components/sidebar/SidebarDesktopV2';
+import { MODAL_KEY } from '../../hooks/useLazyModal';
+import { LazyModal } from '../../components/modals/common/types';
 import { SIDEBAR_V2_ROLLOUT_DATE } from './useSidebarTourState';
 
 jest.mock('../../hooks/layout/useLayoutVariant', () => ({
@@ -42,15 +44,32 @@ const RAIL_TOUR_LIFT_CLASS = 'laptop:!z-tooltip';
 // than the default 1s waitFor budget.
 const TOUR_TIMEOUT = 4000;
 
-const renderRail = (isFeatureEnabled: boolean): RenderResult => {
+let client: QueryClient;
+
+// Any modal the user could already have open when they land, other than the
+// composer the rail itself opens.
+const openModal = () =>
+  act(() => {
+    client.setQueryData(MODAL_KEY, { type: LazyModal.ReportPost });
+  });
+
+const renderRail = (
+  isFeatureEnabled: boolean,
+  isModalOpen = false,
+): RenderResult => {
   const gb = new GrowthBook();
   gb.setFeatures({
     [featureSidebarTour.id]: { defaultValue: isFeatureEnabled },
   });
+  client = new QueryClient();
+
+  if (isModalOpen) {
+    client.setQueryData(MODAL_KEY, { type: LazyModal.ReportPost });
+  }
 
   return render(
     <TestBootProvider
-      client={new QueryClient()}
+      client={client}
       gb={gb}
       auth={{ user: existingUser, isLoggedIn: true }}
       settings={{ updateFlag }}
@@ -242,6 +261,53 @@ describe('sidebar tour wiring', () => {
           screen.queryByTestId('sidebar-tour-scrim'),
         ).not.toBeInTheDocument(),
       );
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.EndSidebarTour,
+          extra: JSON.stringify({ step: 'rail', reason: 'navigation' }),
+        }),
+      );
+      expect(logEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: LogEvent.SkipSidebarTour }),
+      );
+    });
+
+    it('never starts on top of a modal that already owns the screen', async () => {
+      renderRail(true, true);
+
+      await screen.findByTestId('sidebar-aside');
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1200);
+      });
+
+      expect(
+        screen.queryByTestId('sidebar-tour-scrim'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('steps aside when a modal opens over a running tour', async () => {
+      renderRail(true);
+
+      await screen.findByTestId('sidebar-tour-scrim', undefined, {
+        timeout: TOUR_TIMEOUT,
+      });
+
+      openModal();
+
+      await waitFor(() =>
+        expect(
+          screen.queryByTestId('sidebar-tour-scrim'),
+        ).not.toBeInTheDocument(),
+      );
+      expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.EndSidebarTour,
+          extra: JSON.stringify({ step: 'rail', reason: 'modal' }),
+        }),
+      );
+      expect(logEvent).not.toHaveBeenCalledWith(
+        expect.objectContaining({ event_name: LogEvent.SkipSidebarTour }),
+      );
     });
 
     it('announces the card as a labelled dialog and lands focus on the primary action', async () => {
@@ -312,6 +378,12 @@ describe('sidebar tour wiring', () => {
         ).not.toBeInTheDocument(),
       );
       expect(logEvent).toHaveBeenCalledWith(
+        expect.objectContaining({
+          event_name: LogEvent.EndSidebarTour,
+          extra: JSON.stringify({ step: 'rail', reason: 'popup' }),
+        }),
+      );
+      expect(logEvent).not.toHaveBeenCalledWith(
         expect.objectContaining({ event_name: LogEvent.SkipSidebarTour }),
       );
     });
