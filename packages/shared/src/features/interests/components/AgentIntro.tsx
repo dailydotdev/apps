@@ -7,7 +7,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
-import { AiIcon } from '../../../components/icons';
+import { MagicIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
@@ -32,16 +32,16 @@ export const AgentIntro = ({
   const cadence = cadenceCopy[interest?.cadence ?? 'daily'];
 
   return (
-    <FlexCol className="gap-2 border-b border-border-subtlest-quaternary pb-6">
-      <span className="flex size-9 items-center justify-center rounded-10 bg-action-bookmark-float">
-        <AiIcon size={IconSize.Small} className="text-brand-default" />
+    <FlexCol className="gap-1.5 border-b border-border-subtlest-quaternary pb-5">
+      <span className="flex size-7 items-center justify-center rounded-8 bg-brand-float">
+        <MagicIcon size={IconSize.XSmall} className="text-brand-default" />
       </span>
-      <Typography tag={TypographyTag.H1} type={TypographyType.Title3} bold>
+      <Typography tag={TypographyTag.H1} type={TypographyType.Body} bold>
         {interest?.query ?? 'Your interest agent'}
       </Typography>
       <FlexRow className="flex-wrap items-center gap-x-1.5 gap-y-1">
         <Typography
-          type={TypographyType.Footnote}
+          type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
         >
           {isPaused ? 'Paused, no scheduled runs' : `Runs ${cadence}`}
@@ -49,7 +49,7 @@ export const AgentIntro = ({
         </Typography>
         {interest?.lastRunAt && (
           <Typography
-            type={TypographyType.Footnote}
+            type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
             {'· last run '}

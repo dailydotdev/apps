@@ -66,6 +66,7 @@ type AgentContextValue = {
   workingLabel?: string;
   isTargetWorking: (targetId: string) => boolean;
   runCommand: (args: RunCommandArgs) => void;
+  stopCommand: () => void;
   update: (data: UpdateInterestInput) => void;
   isUpdating: boolean;
   activity: AgentActivityItem[];
@@ -186,6 +187,35 @@ export const AgentProvider = ({
     [displayToast, interest, isDemo, sendCommand],
   );
 
+  // Interrupts the in-flight run the way Enter-then-Stop works in a terminal
+  // agent: the pending turn resolves into a visible "stopped" note rather than
+  // vanishing, so the transcript still reads as a record of what happened.
+  const stopCommand = useCallback(() => {
+    clearTimeout(timeoutRef.current);
+    setWorking(null);
+    setMessages((current) =>
+      current.map((message) =>
+        message.isPending
+          ? {
+              ...message,
+              isPending: false,
+              at: new Date().toISOString(),
+              blocks: [{ type: 'text', html: '<p>Stopped.</p>' }],
+            }
+          : message,
+      ),
+    );
+    setActivity((current) => [
+      {
+        id: `${Date.now()}-stopped`,
+        at: new Date().toISOString(),
+        kind: 'command',
+        text: 'You stopped the run',
+      },
+      ...current,
+    ]);
+  }, []);
+
   const openContentTarget = useCallback((target: AgentContentTarget) => {
     const targetId = contentTargetId(target);
 
@@ -250,6 +280,7 @@ export const AgentProvider = ({
       workingLabel: working?.label,
       isTargetWorking: (targetId) => working?.targetId === targetId,
       runCommand,
+      stopCommand,
       update,
       isUpdating,
       activity,
@@ -280,6 +311,7 @@ export const AgentProvider = ({
       isSettingsOpen,
       isUpdating,
       runCommand,
+      stopCommand,
       update,
       working,
     ],

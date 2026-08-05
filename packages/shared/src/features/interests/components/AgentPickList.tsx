@@ -51,13 +51,13 @@ const PickRow = ({
       type="button"
       onClick={() => onOpen(post)}
       className={classNames(
-        'group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors tablet:px-5',
+        'group flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
         isViewing ? 'bg-surface-float' : 'hover:bg-surface-float',
       )}
     >
       <Typography
         tag={TypographyTag.H3}
-        type={TypographyType.Body}
+        type={TypographyType.Callout}
         bold
         color={TypographyColor.Primary}
         className="min-w-0 flex-1 !leading-snug"

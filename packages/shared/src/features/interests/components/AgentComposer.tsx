@@ -1,12 +1,10 @@
 import type { ReactElement } from 'react';
 import React, { useRef, useState } from 'react';
-import classNames from 'classnames';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
-import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
   Typography,
   TypographyColor,
@@ -19,17 +17,18 @@ import {
   MagicIcon,
   SendAirplaneIcon,
 } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
 import { useAgent } from '../AgentContext';
 
 const quickActions = [
   { label: 'Explore more', icon: <MagicIcon />, command: 'Explore more' },
   {
-    label: 'Write me a post',
+    label: 'Write a post',
     icon: <FeatherIcon />,
     command: 'Write me a post summarising what you found',
   },
   {
-    label: 'Only the best',
+    label: 'Raise the bar',
     icon: <AiIcon />,
     command: 'Raise the bar — only surface top-tier content from now on',
   },
@@ -38,7 +37,7 @@ const quickActions = [
 const maxComposerHeight = 160;
 
 export const AgentComposer = (): ReactElement => {
-  const { isWorking, workingLabel, runCommand } = useAgent();
+  const { isWorking, workingLabel, runCommand, stopCommand } = useAgent();
   const [feedback, setFeedback] = useState('');
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -69,24 +68,15 @@ export const AgentComposer = (): ReactElement => {
   };
 
   return (
-    <div className="shrink-0 px-3 pb-3 tablet:px-4 tablet:pb-4">
-      <FlexCol className="mx-auto w-full max-w-[45rem] gap-1.5">
-        <FlexRow className="h-4 items-center gap-2 px-1">
-          {isWorking && (
-            <>
-              <span className="size-1.5 shrink-0 animate-pulse rounded-6 bg-brand-default" />
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-                className="min-w-0"
-                truncate
-              >
-                {workingLabel} — updating in the background…
-              </Typography>
-            </>
-          )}
-        </FlexRow>
-        <FlexCol className="rounded-16 border border-border-subtlest-tertiary bg-surface-float transition-colors focus-within:border-border-subtlest-secondary">
+    <div className="relative shrink-0 px-3 pb-3 tablet:px-4 tablet:pb-4">
+      {/* Softens the hard cut where the transcript disappears behind the bar,
+          so the last line fades out instead of being sliced. */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-full h-12 bg-gradient-to-t from-background-default to-transparent"
+      />
+      <FlexCol className="mx-auto w-full max-w-[45rem] gap-2">
+        <FlexRow className="min-h-12 items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 transition-colors focus-within:border-border-subtlest-secondary">
           <textarea
             ref={inputRef}
             id="agent-composer"
@@ -95,7 +85,7 @@ export const AgentComposer = (): ReactElement => {
             aria-label="Tell the agent what to change"
             placeholder="Tell the agent what to change…"
             value={feedback}
-            className="w-full resize-none bg-transparent px-3 pb-1 pt-3 text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
+            className="min-w-0 flex-1 resize-none self-center bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
             onChange={(event) => {
               setFeedback(event.target.value);
               resize();
@@ -107,39 +97,63 @@ export const AgentComposer = (): ReactElement => {
               }
             }}
           />
-          <FlexRow className="items-center gap-0.5 px-2 pb-2">
-            {quickActions.map(({ label, icon, command }) => (
-              <Tooltip key={label} content={label}>
-                <Button
-                  icon={icon}
-                  size={ButtonSize.XSmall}
-                  variant={ButtonVariant.Tertiary}
-                  aria-label={label}
-                  onClick={() => runCommand({ text: command, label })}
-                />
-              </Tooltip>
-            ))}
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Quaternary}
-              className={classNames(
-                'ml-2 hidden min-w-0 truncate tablet:block',
-                feedback && 'opacity-0',
-              )}
-            >
-              Enter to send, Shift + Enter for a new line
-            </Typography>
+          {isWorking ? (
             <Button
-              icon={<SendAirplaneIcon />}
+              // No stop glyph in the icon set, and a drawn square is the
+              // universal one — so it is rendered rather than imported.
+              icon={
+                <span
+                  aria-hidden
+                  className="size-2.5 rounded-2 bg-text-primary"
+                />
+              }
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Secondary}
+              className="self-end"
+              aria-label="Stop the agent"
+              onClick={stopCommand}
+            />
+          ) : (
+            <Button
+              icon={<SendAirplaneIcon size={IconSize.Size16} />}
               size={ButtonSize.XSmall}
               variant={ButtonVariant.Primary}
-              className="ml-auto"
+              className="self-end"
               aria-label="Send to agent"
               disabled={!feedback.trim()}
               onClick={onSubmit}
             />
+          )}
+        </FlexRow>
+
+        <FlexRow className="items-center gap-2 px-0.5">
+          <FlexRow className="no-scrollbar min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
+            {quickActions.map(({ label, icon, command }) => (
+              <Button
+                key={label}
+                icon={React.cloneElement(icon, { size: IconSize.Size16 })}
+                size={ButtonSize.XSmall}
+                variant={ButtonVariant.Subtle}
+                className="shrink-0"
+                onClick={() => runCommand({ text: command, label })}
+              >
+                {label}
+              </Button>
+            ))}
           </FlexRow>
-        </FlexCol>
+          {isWorking && (
+            <FlexRow className="min-w-0 shrink items-center gap-1.5">
+              <span className="size-1.5 shrink-0 animate-pulse rounded-6 bg-brand-default" />
+              <Typography
+                type={TypographyType.Caption2}
+                color={TypographyColor.Tertiary}
+                className="min-w-0 truncate"
+              >
+                {workingLabel}
+              </Typography>
+            </FlexRow>
+          )}
+        </FlexRow>
       </FlexCol>
     </div>
   );

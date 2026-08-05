@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { ArticleList } from '../../../components/cards/article/ArticleList';
-import { ArticleGrid } from '../../../components/cards/article/ArticleGrid';
+import classNames from 'classnames';
 import Markdown from '../../../components/Markdown';
 import {
   Typography,
@@ -9,30 +8,39 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
-import { AiIcon, ArrowIcon, TimerIcon } from '../../../components/icons';
+import { BulletListIcon, TimerIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
 import type { AgentBlock, AgentMessage } from '../chat';
 import { useAgent } from '../AgentContext';
-import { useNarrowContainer } from '../hooks/useNarrowContainer';
 import { AgentPickList } from './AgentPickList';
-import { AgentViewingChip } from './AgentViewingChip';
+import { AgentPostCard } from './AgentPostCard';
+import { AgentEmbedCard } from './blocks/AgentEmbedCard';
 
-const noop = () => undefined;
+// The shared markdown styles are tuned for reading an article (17px on a 1.7
+// leading, 24px paragraph gaps), which is far too loose at transcript density.
+// Step it down to our callout token on a prose leading, scoped to the chat so
+// post pages keep the reading rhythm. The shared rules are `:where()`-wrapped,
+// so these class-based overrides win without `!important`.
+// The `!leading-*` overrides are required, not stylistic: `typo-*` ships a
+// line-height with its size, and it wins the cascade over a plain `leading-*`.
+const transcriptProse = classNames(
+  '[&_p]:my-3 [&_p]:!leading-relaxed [&_p]:typo-callout',
+  '[&_li]:!leading-relaxed [&_li]:typo-callout [&_ol]:my-3 [&_ul]:my-3',
+  '[&_h1]:mb-1.5 [&_h1]:mt-5 [&_h1]:!leading-snug [&_h1]:typo-body',
+  '[&_h2]:mb-1.5 [&_h2]:mt-5 [&_h2]:!leading-snug [&_h2]:typo-body',
+  '[&_h3]:mb-1.5 [&_h3]:mt-5 [&_h3]:!leading-snug [&_h3]:typo-callout',
+  '[&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
+);
 
 const PendingBubble = (): ReactElement => (
-  <FlexRow className="items-center gap-1.5 py-2">
+  <FlexRow className="items-center gap-1.5 py-1">
     {[0, 150, 300].map((delay) => (
       <span
         key={delay}
-        className="size-2 animate-bounce rounded-6 bg-text-quaternary"
+        className="size-1.5 animate-bounce rounded-6 bg-text-quaternary"
         style={{ animationDelay: `${delay}ms` }}
       />
     ))}
@@ -43,39 +51,35 @@ const BlockRenderer = ({
   block,
   onPostClick,
   onFeedClick,
-  isNarrow,
   activePostId,
 }: {
   block: AgentBlock;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
-  isNarrow: boolean;
   activePostId?: string;
 }): ReactElement => {
   if (block.type === 'text') {
-    return <Markdown content={block.html} />;
+    return <Markdown className={transcriptProse} content={block.html} />;
   }
 
   if (block.type === 'feedLink') {
     return (
-      <Button
-        size={ButtonSize.Small}
-        variant={ButtonVariant.Float}
-        icon={<ArrowIcon className="rotate-90" />}
-        className="w-fit"
-        onClick={() => onFeedClick(block.label, block.posts)}
-      >
-        {block.label}
-      </Button>
+      <AgentEmbedCard
+        icon={<BulletListIcon size={IconSize.Size16} />}
+        title={block.label}
+        subtitle={`Feed · ${block.posts.length} posts`}
+        actionLabel="Open"
+        onAction={() => onFeedClick(block.label, block.posts)}
+      />
     );
   }
 
   if (block.type === 'picks') {
     return (
-      <FlexCol className="gap-2">
+      <FlexCol className="gap-1.5">
         {block.caption && (
           <Typography
-            type={TypographyType.Footnote}
+            type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
             {block.caption}
@@ -91,48 +95,23 @@ const BlockRenderer = ({
   }
 
   return (
-    <FlexCol className="gap-2">
+    <FlexCol className="gap-1.5">
       {block.caption && (
         <Typography
-          type={TypographyType.Footnote}
+          type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
         >
           {block.caption}
         </Typography>
       )}
-      {block.posts.map((post) => {
-        const CardComponent = isNarrow ? ArticleGrid : ArticleList;
-        const isViewing = post.id === activePostId;
-
-        return (
-          <CardComponent
-            key={post.id}
-            post={post}
-            domProps={{
-              className: isViewing
-                ? '!border-border-subtlest-primary !bg-surface-float'
-                : undefined,
-            }}
-            onPostClick={(clicked, event) => {
-              event?.preventDefault();
-              onPostClick(clicked);
-            }}
-            onPostAuxClick={noop}
-            onUpvoteClick={noop}
-            onDownvoteClick={noop}
-            onCommentClick={noop}
-            onBookmarkClick={noop}
-            onCopyLinkClick={noop}
-            onShare={noop}
-          >
-            {isViewing && (
-              <div className="bg-background-default/85 absolute inset-0 z-2 flex items-center justify-center rounded-16 backdrop-blur-sm">
-                <AgentViewingChip />
-              </div>
-            )}
-          </CardComponent>
-        );
-      })}
+      {block.posts.map((post) => (
+        <AgentPostCard
+          key={post.id}
+          post={post}
+          onOpen={onPostClick}
+          isViewing={post.id === activePostId}
+        />
+      ))}
     </FlexCol>
   );
 };
@@ -141,87 +120,68 @@ const MessageRow = ({
   message,
   onPostClick,
   onFeedClick,
-  isNarrow,
   activePostId,
 }: {
   message: AgentMessage;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
-  isNarrow: boolean;
   activePostId?: string;
 }): ReactElement => {
   if (message.role === 'user') {
     return (
-      <FlexCol className="items-end gap-1">
-        <div className="max-w-[85%] rounded-16 rounded-br-4 bg-surface-float px-4 py-3 tablet:max-w-[32rem]">
-          <Typography type={TypographyType.Callout}>{message.text}</Typography>
+      <FlexCol className="items-end">
+        <div className="max-w-[85%] rounded-12 rounded-br-4 bg-surface-float px-3 py-2 tablet:max-w-[30rem]">
+          <Typography type={TypographyType.Callout} className="!leading-normal">
+            {message.text}
+          </Typography>
         </div>
-        <Typography
-          type={TypographyType.Caption2}
-          color={TypographyColor.Quaternary}
-        >
-          <DateFormat date={message.at} type={TimeFormatType.Post} />
-        </Typography>
       </FlexCol>
     );
   }
 
+  // Agent turns carry no avatar or name: the right-aligned user bubbles are
+  // what separates the two voices, so repeating "Your agent" on every reply is
+  // noise. Only a scheduled run gets a marker, because that one arrived on its
+  // own rather than as an answer.
   return (
-    <FlexRow className="items-start gap-3">
-      <span className="mt-1 flex size-8 shrink-0 items-center justify-center rounded-10 bg-action-bookmark-float">
-        <AiIcon size={IconSize.Small} className="text-brand-default" />
-      </span>
-      <FlexCol className="min-w-0 flex-1 gap-3">
-        <FlexRow className="items-center gap-2">
-          <Typography type={TypographyType.Caption1} bold>
-            Your agent
-          </Typography>
-          {message.isScheduled && (
-            <FlexRow className="items-center gap-1 rounded-8 bg-surface-float px-2 py-0.5">
-              <TimerIcon size={IconSize.XXSmall} />
-              <Typography
-                type={TypographyType.Caption2}
-                color={TypographyColor.Tertiary}
-              >
-                Scheduled run
-              </Typography>
-            </FlexRow>
-          )}
+    <FlexCol className="min-w-0 gap-2">
+      {message.isScheduled && (
+        <FlexRow className="items-center gap-1.5 text-text-quaternary">
+          <TimerIcon size={IconSize.XXSmall} />
           <Typography
             type={TypographyType.Caption2}
             color={TypographyColor.Quaternary}
           >
+            {'Scheduled run · '}
             <DateFormat date={message.at} type={TimeFormatType.Post} />
           </Typography>
         </FlexRow>
-        {message.isPending ? (
-          <PendingBubble />
-        ) : (
-          (message.blocks ?? []).map((block, index) => (
-            <BlockRenderer
-              // eslint-disable-next-line react/no-array-index-key
-              key={`${message.id}-${index}`}
-              block={block}
-              onPostClick={onPostClick}
-              onFeedClick={onFeedClick}
-              isNarrow={isNarrow}
-              activePostId={activePostId}
-            />
-          ))
-        )}
-      </FlexCol>
-    </FlexRow>
+      )}
+      {message.isPending ? (
+        <PendingBubble />
+      ) : (
+        (message.blocks ?? []).map((block, index) => (
+          <BlockRenderer
+            // eslint-disable-next-line react/no-array-index-key
+            key={`${message.id}-${index}`}
+            block={block}
+            onPostClick={onPostClick}
+            onFeedClick={onFeedClick}
+            activePostId={activePostId}
+          />
+        ))
+      )}
+    </FlexCol>
   );
 };
 
 export const AgentChatSection = (): ReactElement => {
   const { messages, openContentTarget, activeContent } = useAgent();
-  const { ref, isNarrow } = useNarrowContainer<HTMLDivElement>();
   const activePostId =
     activeContent?.type === 'post' ? activeContent.post.id : undefined;
 
   return (
-    <FlexCol ref={ref} className="gap-8">
+    <FlexCol className="gap-6">
       {messages.map((message) => (
         <MessageRow
           key={message.id}
@@ -230,7 +190,6 @@ export const AgentChatSection = (): ReactElement => {
           onFeedClick={(label, posts) =>
             openContentTarget({ type: 'feed', label, posts })
           }
-          isNarrow={isNarrow}
           activePostId={activePostId}
         />
       ))}
