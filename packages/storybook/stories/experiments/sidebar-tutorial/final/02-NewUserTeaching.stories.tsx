@@ -288,7 +288,7 @@ const TeachingDemo = (): JSX.Element => {
 };
 
 const meta: Meta = {
-  title: 'Sidebar Tutorial/Final/02 Intent teaching (new users)',
+  title: 'Experiments/Sidebar Tutorial/02 Intent teaching (new users)',
   parameters: { layout: 'fullscreen' },
 };
 

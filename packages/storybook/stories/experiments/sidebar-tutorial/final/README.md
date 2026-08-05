@@ -4,8 +4,8 @@ One folder, one system. Twelve concepts were explored and reviewed before this
 one was chosen; they are recoverable from commit `9a439940d` if the comparison
 is ever needed again.
 
-Stories: `Sidebar Tutorial/Final/00 Full experience` (the whole system, both
-personas), `01 Tour (existing users)`, `02 Intent teaching (new users)`,
+Stories: `Experiments/Sidebar Tutorial/00 Full experience` (the whole system,
+both personas), `01 Tour (existing users)`, `02 Intent teaching (new users)`,
 `03 Replay from help`.
 
 ## The decision
@@ -105,9 +105,14 @@ deliberately:
   the Streak tab already is the Game Center.
 
 Log events are `start sidebar tour`, `view sidebar tour step`,
-`skip sidebar tour`, `complete sidebar tour`, `view sidebar pin coach`,
-`sidebar pin coach success` and `view sidebar dots coach`. Skip-by-step is the
-one that tells us whether three steps is still one too many.
+`skip sidebar tour`, `complete sidebar tour`, `end sidebar tour`,
+`view sidebar pin coach`, `sidebar pin coach success` and
+`view sidebar dots coach`. Skip-by-step is the one that tells us whether three
+steps is still one too many, so it only ever counts a user pressing `Skip tour`
+or Escape. Everything the user did not choose (a navigation, another rail popup
+taking over, a modal opening, a step whose target went away on the last step)
+logs `end sidebar tour` with its reason instead, and only the last of those
+sets the seen-flag.
 
 ## Deliberately not shipped
 

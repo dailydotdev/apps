@@ -98,7 +98,7 @@ const TourDemo = (): JSX.Element => {
 };
 
 const meta: Meta = {
-  title: 'Sidebar Tutorial/Final/01 Tour (existing users)',
+  title: 'Experiments/Sidebar Tutorial/01 Tour (existing users)',
   parameters: { layout: 'fullscreen' },
 };
 

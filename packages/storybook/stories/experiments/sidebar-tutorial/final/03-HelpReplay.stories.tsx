@@ -109,7 +109,7 @@ const HelpReplayDemo = (): JSX.Element => {
 };
 
 const meta: Meta = {
-  title: 'Sidebar Tutorial/Final/03 Replay from help',
+  title: 'Experiments/Sidebar Tutorial/03 Replay from help',
   parameters: { layout: 'fullscreen' },
 };
 

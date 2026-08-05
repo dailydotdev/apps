@@ -410,7 +410,7 @@ const FullExperienceDemo = (): JSX.Element => {
 };
 
 const meta: Meta = {
-  title: 'Sidebar Tutorial/Final/00 Full experience',
+  title: 'Experiments/Sidebar Tutorial/00 Full experience',
   parameters: { layout: 'fullscreen' },
 };
 
