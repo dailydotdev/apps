@@ -59,6 +59,9 @@ const RowContent = ({
   animate: boolean;
 }): ReactElement => {
   const score = Math.round(useCountUp(entry.correctCount, { start: animate }));
+  // Mobile shows just the first name so the row stays compact; tablet+ keeps
+  // the full name.
+  const firstName = entry.name.split(' ')[0];
   return (
     <>
       <span className="w-5 shrink-0 text-center font-bold text-text-secondary typo-callout">
@@ -78,7 +81,14 @@ const RowContent = ({
           bold
           className="min-w-0 truncate !text-text-primary"
         >
-          {entry.name}
+          {firstName === entry.name ? (
+            entry.name
+          ) : (
+            <>
+              <span className="tablet:hidden">{firstName}</span>
+              <span className="hidden tablet:inline">{entry.name}</span>
+            </>
+          )}
         </Typography>
         <ReputationUserBadge
           user={{ reputation: entry.reputation }}
