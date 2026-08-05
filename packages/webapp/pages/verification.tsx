@@ -5,7 +5,7 @@ import EmailCodeVerification from '@dailydotdev/shared/src/components/auth/Email
 import { useRouter } from 'next/router';
 import AuthHeader from '@dailydotdev/shared/src/components/auth/AuthHeader';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
-import { LogoPosition } from '@dailydotdev/shared/src/components/Logo';
+import { FunnelStepTopBar } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepTopBar';
 import { AuthDataProvider } from '@dailydotdev/shared/src/contexts/AuthDataContext';
 import { AuthModalText } from '@dailydotdev/shared/src/components/auth/common';
 import {
@@ -14,7 +14,6 @@ import {
 } from '@dailydotdev/shared/src/lib/betterAuth';
 import {
   Button,
-  ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { noindexSeoProps } from '../next-seo';
@@ -55,31 +54,13 @@ const Verification = (): ReactElement | null => {
   return (
     <AuthDataProvider initialEmail={email}>
       <div className="flex min-h-screen w-full flex-col items-center pb-10">
-        <div className="w-full max-w-[30rem] px-4">
-          {/* The padding keeps the header clear of the status bar (native
-              shell) and the collapsed browser chrome; EmailCodeVerification
-              undoes the keyboard reveal scroll so it stays in view. */}
-          <div className="flex flex-col gap-6 pb-2 pt-[max(var(--safe-area-top,0px),3rem)]">
-            <div className="flex w-full items-center justify-between">
-              <HeaderLogo
-                position={LogoPosition.Relative}
-                onLogoClick={() => router.push('/')}
-              />
-              <Button
-                type="button"
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                onClick={() => router.push('/')}
-              >
-                Start over
-              </Button>
-            </div>
-            <AuthHeader
-              title="Verify your email"
-              simplified
-              onboardingHeadline
-            />
-          </div>
+        {/* The same bar the funnel steps carry, so the logo keeps its
+            icon-on-mobile, wordmark-on-desktop treatment across the flow. */}
+        <FunnelStepTopBar
+          skip={{ cta: 'Start over', onClick: () => router.push('/') }}
+        />
+        <div className="w-full max-w-[30rem] px-4 pt-6">
+          <AuthHeader title="Verify your email" simplified onboardingHeadline />
           <EmailCodeVerification
             code={code}
             isOnboardingFunnel
