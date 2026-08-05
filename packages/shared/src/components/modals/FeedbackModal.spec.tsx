@@ -23,6 +23,13 @@ jest.mock('../../contexts/SettingsContext', () => ({
   useSettingsContext: () => ({ themeMode: 'dark' }),
 }));
 
+// jsdom implements neither object URLs nor canvas
+jest.mock('../../lib/screenshot', () => ({
+  ...jest.requireActual('../../lib/screenshot'),
+  createPreviewUrl: () => 'blob:mock-preview',
+  revokePreviewUrl: jest.fn(),
+}));
+
 const renderComponent = () => {
   const client = new QueryClient({
     defaultOptions: {
@@ -111,6 +118,38 @@ describe('FeedbackModal', () => {
         }),
       ),
     );
+  });
+
+  it('lets the user crop an attached screenshot and cancel out', async () => {
+    renderComponent();
+
+    expect(
+      screen.queryByRole('button', { name: 'Crop' }),
+    ).not.toBeInTheDocument();
+
+    const file = new File(['screenshot'], 'screenshot.png', {
+      type: 'image/png',
+    });
+    fireEvent.change(screen.getByLabelText('Upload screenshot'), {
+      target: { files: [file] },
+    });
+
+    const cropButton = await screen.findByRole('button', { name: 'Crop' });
+    fireEvent.click(cropButton);
+
+    expect(
+      screen.getByText('Drag to select the area to keep'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Apply crop' })).toBeDisabled();
+    // Cropping replaces the plain preview until it is applied or cancelled
+    expect(screen.queryByAltText('Screenshot preview')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(
+      screen.queryByText('Drag to select the area to keep'),
+    ).not.toBeInTheDocument();
+    expect(screen.getByAltText('Screenshot preview')).toBeInTheDocument();
   });
 
   it('renders all categories and submits content quality with updated enum value', async () => {
