@@ -141,7 +141,7 @@ export const WeeklyQuizIntro = ({
   }, [startHovered]);
 
   return (
-    <div className="relative flex animate-composer-in flex-col items-center gap-6 p-6 text-center tablet:flex-row-reverse tablet:items-center tablet:gap-8 tablet:p-8">
+    <div className="relative flex animate-composer-in flex-col items-center gap-1 p-6 text-center tablet:flex-row-reverse tablet:items-center tablet:gap-8 tablet:p-8">
       {/* A few A4 papers drifting down the whole surface, behind the content.
           Hovering Start reveals the extra sheets and speeds them all up. */}
       <span

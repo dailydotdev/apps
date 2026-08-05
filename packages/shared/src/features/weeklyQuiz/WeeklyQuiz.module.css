@@ -105,6 +105,9 @@
 .paper {
   position: absolute;
   top: 0;
+  /* How far each sheet travels before it exits. Desktop keeps the card-height
+   * fall; mobile overrides it to a full viewport height (see media query). */
+  --paper-fall: 720px;
   width: 30px;
   height: 42px; /* ~A4 ratio */
   border-radius: 3px;
@@ -138,7 +141,7 @@
     opacity: 0.9;
   }
   100% {
-    transform: translateY(720px) rotate(22deg);
+    transform: translateY(var(--paper-fall, 720px)) rotate(22deg);
     opacity: 0;
   }
 }
@@ -191,6 +194,44 @@
  * smooth playback-rate ramp driven in JS, so it eases rather than jumps). */
 .papers.papersBoost .paperExtra {
   display: block;
+}
+/* Mobile: the quiz is full-bleed, so the paper rain covers the whole screen —
+ * sheets spread edge to edge (not biased behind the mascot) and fall a full
+ * viewport height. Desktop keeps the right-biased, card-height fall above. */
+@media (max-width: 655.98px) {
+  /* Span the whole viewport height (not just the intro's content box) so sheets
+     fall past the fold; the surface's overflow clips them at the screen edge. */
+  .papers {
+    height: 100dvh;
+    bottom: auto;
+  }
+  .paper {
+    --paper-fall: 105vh;
+  }
+  .paper:nth-child(1) {
+    left: 8%;
+  }
+  .paper:nth-child(2) {
+    left: 30%;
+  }
+  .paper:nth-child(3) {
+    left: 52%;
+  }
+  .paper:nth-child(4) {
+    left: 74%;
+  }
+  .paper:nth-child(5) {
+    left: 19%;
+  }
+  .paper:nth-child(6) {
+    left: 41%;
+  }
+  .paper:nth-child(7) {
+    left: 63%;
+  }
+  .paper:nth-child(8) {
+    left: 88%;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .papers {

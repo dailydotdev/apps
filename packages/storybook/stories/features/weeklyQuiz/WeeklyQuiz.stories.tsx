@@ -202,8 +202,20 @@ const ResultsPreview = (): React.ReactElement => {
   const { status } = useWeeklyQuizStatus();
   const audio = useWeeklyQuizAudio();
   return (
-    <div className="force-dark mx-auto flex w-full max-w-[640px] items-start justify-center gap-3">
-      <WeeklyQuizSurface bare>
+    // Mirror the game-flow wrapper: full-bleed on mobile, centered card at
+    // tablet+, with the mute/close controls inside the surface on mobile.
+    <div className="force-dark -m-8 flex min-h-[100dvh] w-auto items-stretch justify-center gap-3 tablet:m-0 tablet:mx-auto tablet:min-h-0 tablet:w-full tablet:items-start tablet:max-w-[640px]">
+      <WeeklyQuizSurface
+        bare
+        controls={
+          <WeeklyQuizSideControls
+            layout="inline"
+            level={audio.level}
+            onCycleSound={audio.cycleLevel}
+            onClose={() => undefined}
+          />
+        }
+      >
         <WeeklyQuizResults
           quizId={status?.activeQuizId ?? ''}
           result={{

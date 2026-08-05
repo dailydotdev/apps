@@ -38,7 +38,13 @@ export const WeeklyQuizSurface = ({
 }: WeeklyQuizSurfaceProps): ReactElement => {
   if (bare) {
     return (
-      <div className="relative flex-1">
+      // `min-w-0` lets this flex item shrink to the viewport instead of being
+      // forced wider by the non-wrapping share row (flexbox min-width:auto).
+      // `overflow-x-clip` then contains the confetti drift without touching
+      // vertical scrolling. Mobile gets a solid fill so the results read as one
+      // full-screen surface (like the intro); desktop stays transparent so the
+      // panels float in the modal.
+      <div className="relative min-w-0 flex-1 overflow-x-clip bg-background-default tablet:bg-transparent">
         {/* Mobile-only: the bare results screen brings no top bar, so float the
             controls over its top-right corner. */}
         {controls && (

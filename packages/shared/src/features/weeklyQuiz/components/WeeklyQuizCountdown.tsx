@@ -41,7 +41,7 @@ export const WeeklyQuizCountdown = ({
   }, [index]);
 
   return (
-    <div className="flex h-80 flex-col items-center justify-center gap-4">
+    <div className="flex h-80 flex-col items-center justify-center gap-4 px-6">
       <Typography
         type={TypographyType.Title3}
         bold
