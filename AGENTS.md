@@ -89,6 +89,7 @@ The "calling platform" is not just extension vs webapp. Native iOS/Android wrapp
 - On search pages, `MainFeedLayout` renders page `children` AFTER the `<Feed>`. Content above feed results goes through the `searchChildren` prop (via `layoutProps`).
 - Feed promos between nav and feed belong in the content flow (pushing content down), not absolutely positioned on sticky nav, unless overlay behavior is explicitly requested.
 - Match existing horizontal gaps on both sides when adding buttons near search fields or other controls.
+- Tag *labels* render the backend `flags.title` or the raw value (`#react`, like post pages) — never a casing derived in the client. The API exposes titles only on `Keyword`, so surfaces holding bare tag strings (profile top tags, tag navbar) read them from `tagTitlesQueryOptions`. A keyword's own *page title* (tag page H1, `<title>`, JSON-LD) is the exception: it keeps the `formatKeyword(tag)` fallback that #6414 added for SEO.
 
 ## Forms and Interaction Lessons
 

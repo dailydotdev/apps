@@ -3,8 +3,11 @@ import React from 'react';
 import { NextSeo } from 'next-seo';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import dynamic from 'next/dynamic';
+import type { GetStaticPropsContext, GetStaticPropsResult } from 'next';
+import type { ParsedUrlQuery } from 'querystring';
 import { useRouter } from 'next/router';
 import Custom404 from '@dailydotdev/shared/src/components/Custom404';
+import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getProfileSeoDefaults,
@@ -19,8 +22,76 @@ import {
 } from '../../components/world/WorldBoot';
 import { useUserWorld } from '../../components/world/useUserWorld';
 
-export const getStaticProps = getProfileStaticProps;
 export const getStaticPaths = getProfileStaticPaths;
+
+interface WorldPageProps extends ProfileLayoutProps {
+  /** What the owner calls the place, or null if they have never named it. */
+  worldName?: string | null;
+}
+
+interface WorldParams extends ParsedUrlQuery {
+  userId: string;
+}
+
+/**
+ * The world's name, read at build time so it can reach the share card.
+ *
+ * A plain fetch rather than the app's client: this runs on the server, where
+ * there is no session to send and nothing to cache into. The same GraphQL error
+ * the client reads as "private" is what keeps this page out of the index.
+ * Anything else — a network blip, a schema change — leaves the name off the card
+ * and the page indexable, which is the harmless direction to fail in.
+ */
+const getWorldSeoData = async (
+  userId: string,
+): Promise<{ name: string | null; isPrivate: boolean }> => {
+  try {
+    const res = await fetch(graphqlUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `query UserWorldName($id: ID!) {
+          userWorldSettings(id: $id) { name }
+        }`,
+        variables: { id: userId },
+      }),
+    });
+    const body = await res.json();
+    const isPrivate = !!body?.errors?.some(
+      ({ extensions }: { extensions?: { code?: string } }) =>
+        extensions?.code === 'FORBIDDEN',
+    );
+
+    return { name: body?.data?.userWorldSettings?.name ?? null, isPrivate };
+  } catch {
+    return { name: null, isPrivate: false };
+  }
+};
+
+export async function getStaticProps(
+  context: GetStaticPropsContext<WorldParams>,
+): Promise<GetStaticPropsResult<WorldPageProps>> {
+  const result = (await getProfileStaticProps(
+    context,
+  )) as GetStaticPropsResult<ProfileLayoutProps>;
+
+  if (!('props' in result) || !result.props.user) {
+    return result as GetStaticPropsResult<WorldPageProps>;
+  }
+
+  const world = await getWorldSeoData(result.props.user.id);
+
+  return {
+    ...result,
+    props: {
+      ...result.props,
+      worldName: world.name,
+      // A world its owner has hidden has nothing to index, and a crawler that
+      // followed a share link is exactly who this is for.
+      noindex: result.props.noindex || world.isPrivate,
+    },
+  };
+}
 
 /**
  * The renderer is ~700 KB of three.js and a WebGL context, and it reads
@@ -50,7 +121,8 @@ const WorldView = dynamic(
 const ProfileWorldPage = ({
   user,
   noindex,
-}: ProfileLayoutProps): ReactElement | null => {
+  worldName,
+}: WorldPageProps): ReactElement | null => {
   const { isFallback } = useRouter();
   /* Asked for HERE rather than inside the view, which is the whole point: the
      renderer is most of a megabyte and the districts are one small query, and
@@ -71,11 +143,19 @@ const ProfileWorldPage = ({
     return <WorldBoot />;
   }
 
+  /* The name its owner gave the place leads, because that is what the link is
+     OF. Without one the page is still theirs, so it says whose it is — the same
+     line it carried before a world could be named. */
+  const title = worldName
+    ? `${worldName} — ${user.name}'s world`
+    : `${user.name}'s world (@${user.username})`;
   const seo: NextSeoProps = getProfileSeoDefaults(
     user,
     {
-      ...getPageSeoTitles(`${user.name}'s world (@${user.username})`),
-      description: `See the world ${user.name}'s reading built on daily.dev. Every topic they read grows a district in it.`,
+      ...getPageSeoTitles(title),
+      description: `See ${worldName ? `${worldName}, the` : 'the'} world ${
+        user.name
+      }'s reading built on daily.dev. Every topic they read grows a district in it.`,
     },
     noindex,
   );
