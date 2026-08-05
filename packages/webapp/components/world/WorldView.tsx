@@ -2,9 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import { WorldBack } from './WorldBack';
 import { WorldBoot } from './WorldBoot';
-import { WorldCustomizeSheet } from './WorldCustomize';
-import { WorldHeader } from './WorldHeader';
 import { useIsOwnWorld, WorldInvite } from './WorldInvite';
 import { WorldImmersiveToggle, WorldMark } from './WorldMark';
 import { WorldPanel } from './WorldPanel';
@@ -25,6 +24,7 @@ import {
   resolveLook,
   resolveSky,
 } from './worldCustomization';
+import { isHandheld } from './worldDevice';
 
 const INITIAL: WorldState = {
   status: 'loading',
@@ -42,13 +42,18 @@ const INITIAL: WorldState = {
    laptop the rail is gone and only the timeline is in the way; with the panels
    hidden nothing is, apart from the headroom the realm names always need. */
 const PAD_DESKTOP = { l: 344, r: 18, t: 96, b: 112 };
-const PAD_MOBILE = { l: 16, r: 16, t: 136, b: 128 };
+/* Below laptop nothing but two corner plates stands over the world, so the top
+   band is the same one the realm names always need. Only the foot differs, and
+   only over whether the scrubber is down there: a handheld has no replay, and a
+   narrow desktop window is laid out the same way but still does. */
+const PAD_MOBILE = { l: 16, r: 16, t: 96, b: 128 };
+const PAD_HANDHELD = { l: 16, r: 16, t: 96, b: 24 };
 const PAD_IMMERSIVE = { l: 16, r: 16, t: 96, b: 16 };
 /* Same rail, no scrubber under an unbuilt world (nothing to replay), and a
    deep band kept clear at the top for the one thing that asks anything of the
    reader, which stands on the world rather than in the rail. */
 const PAD_UNBUILT_DESKTOP = { l: 344, r: 18, t: 176, b: 40 };
-const PAD_UNBUILT_MOBILE = { l: 16, r: 16, t: 272, b: 32 };
+const PAD_UNBUILT_MOBILE = { l: 16, r: 16, t: 208, b: 32 };
 
 interface WorldViewProps {
   user: PublicProfile;
@@ -73,6 +78,10 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   const [failed, setFailed] = useState<string | null>(null);
   const [isImmersive, setIsImmersive] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  /* Answered before the engine is built and never asked again: it decides how
+     the renderer is configured, and a WebGL context cannot be reconfigured
+     without being replaced. */
+  const [isLite] = useState(isHandheld);
 
   const {
     districts,
@@ -107,6 +116,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     const engine = createWorldEngine({
       container: mountRef.current,
       onState: setState,
+      lite: isLite,
     }) as WorldEngine;
     engineRef.current = engine;
 
@@ -114,6 +124,8 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       engineRef.current = null;
       engine.dispose();
     };
+    // The tier is read once, deliberately: see `isLite`.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Districts alone put a finished world on screen: the layout packs islands by
@@ -179,8 +191,9 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       return;
     }
     // Bare ground has no history and no query on the wire for one. Said here
-    // rather than skipped, because this is what takes the scrubber down.
-    if (isEmpty) {
+    // rather than skipped, because this is what takes the scrubber down. Same
+    // for a handheld, where the log was never asked for.
+    if (isEmpty || isLite) {
       setHasNoReplay(true);
       return;
     }
@@ -201,6 +214,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     timeline,
     isHistoryPending,
     isEmpty,
+    isLite,
     failed,
     raisedFor,
     user?.id,
@@ -247,8 +261,13 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       return;
     }
 
-    engineRef.current?.setPadding(isLaptop ? PAD_DESKTOP : PAD_MOBILE);
-  }, [isLaptop, isImmersive, isEmpty]);
+    if (isLaptop) {
+      engineRef.current?.setPadding(PAD_DESKTOP);
+      return;
+    }
+
+    engineRef.current?.setPadding(isLite ? PAD_HANDHELD : PAD_MOBILE);
+  }, [isLaptop, isLite, isImmersive, isEmpty]);
 
   const onSeek = useCallback((day: number) => engineRef.current?.seek(day), []);
   const onToggle = useCallback(() => engineRef.current?.toggle(), []);
@@ -292,7 +311,9 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     [],
   );
 
-  /* The bench is the owner's only; everything else here is the same for every visitor. */
+  /* The bench is the owner's only, and the rail's only: below laptop there is
+     no room to dress a world and look at it at the same time, so a phone shows
+     the place and a laptop is where it is made yours. */
   const ownerDraft = isOwn ? draft : undefined;
   const worldName = applied?.name ?? undefined;
   /* Never on an unbuilt world: WorldInvite already makes the one ask there,
@@ -334,34 +355,21 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
               onLeaveRealm={onLeaveRealm}
             />
           ) : (
-            <>
-              <WorldHeader
-                user={user}
-                state={state}
-                unbuilt={isUnbuilt}
-                isImmersive={isImmersive}
-                worldName={worldName}
-                showNudge={showNudge && !draft.isOpen}
-                onToggleImmersive={onToggleImmersive}
-                onLeaveRealm={onLeaveRealm}
-                onCustomize={ownerDraft?.open}
-              />
-              {/* No rail here for the bench, so it takes the whole screen; the
-                  world stays live underneath. */}
-              {!!ownerDraft?.isOpen && !!ownerDraft.settings && (
-                <WorldCustomizeSheet
-                  userId={user.id}
-                  draft={ownerDraft}
-                  districts={districts}
-                  settings={ownerDraft.settings}
-                />
-              )}
-            </>
+            <WorldBack
+              user={user}
+              isInRealm={!!state.open}
+              onLeaveRealm={onLeaveRealm}
+            />
           )}
           {/* On screen while the growth log is still on the wire, inert, in the
               place it will be live in. It is the last thing to arrive and the
-              only one that changes the layout, so it reserves its own room. */}
-          {!isUnbuilt && (state.replayable || !hasNoReplay) && (
+              only one that changes the layout, so it reserves its own room.
+
+              Never on a handheld. The bar is a transport, a scrubber, three
+              speeds and a sparkline, and a phone has room for one of those
+              five; the log it drives is not fetched there either. What is left
+              is a world, which is the thing worth the screen anyway. */}
+          {!isLite && !isUnbuilt && (state.replayable || !hasNoReplay) && (
             <WorldTimeline
               state={state}
               pending={!state.replayable}
@@ -380,10 +388,9 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
 
       {isUnbuilt && !isRiding && <WorldInvite user={user} />}
 
-      {/* The mark rides in the mobile bar, which is where the space already is.
-          Everywhere else (laptop, riding, panels hidden) that bar is gone, so
-          it stands on the world instead. */}
-      {isStanding && (isLaptop || !isChromeVisible) && <WorldMark floating />}
+      {/* No bar anywhere holds it any more, so it always stands on the world:
+          top right, opposite whatever is in the other corner. */}
+      {isStanding && <WorldMark floating />}
 
       {/* The toggle lives in whatever chrome is on screen. Once none is, it
           stands on the world too, opposite the mark, because it is then the

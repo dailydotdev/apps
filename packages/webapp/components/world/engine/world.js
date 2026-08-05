@@ -39,7 +39,25 @@ import {
    one world would, and there is only ever one world on a page.
    ========================================================================== */
 export function createWorldEngine(options) {
-const { container, onState } = options;
+const { container, onState, lite } = options;
+
+/* ============================================================= the two tiers
+   A phone is not a small desktop. It has a tile-based GPU with a fraction of
+   the bandwidth, a screen with three times the pixels per CSS unit, and a
+   thermal budget that a frame costing three passes over the scene will spend
+   in about ninety seconds — after which the whole device is throttled, not
+   just this page.
+
+   So `lite` is one decision, taken by the page before this engine exists (it
+   configures a WebGL context, which cannot be reconfigured afterwards), and it
+   is spent in exactly two places: the resolution the frame is drawn at, and
+   how many times the scene is drawn for it. Nothing about the WORLD changes —
+   the same land, the same buildings, the same look. */
+const LITE = !!lite;
+/* 2 is already a cap rather than the truth: a modern phone reports 3, and the
+   difference between 2 and 3 is invisible at arm's length and 2.25x the
+   fragments. On a handheld the same argument keeps going down one more step. */
+const dprCap = () => Math.min(devicePixelRatio, LITE ? 1.5 : 2);
 
 /* ============================================================================
    THE ART, and what it is arguing.
@@ -175,6 +193,40 @@ container.appendChild(rootEl);
 const $=name=>rootEl.querySelector('.world-'+name);
 const stageEl=$('stage');
 
+/* ------------------------------------------------------------- the viewport
+   The CONTAINER's box, not the window's, and the two are NOT the same box.
+
+   Everything here maps between world space and pixels twice a frame — the
+   labels project outward, the pointer unprojects inward — and both directions
+   divide by "the size of the viewport". Read that from `innerWidth` and the
+   moment anything makes the container narrower than the window, every label
+   drifts further from the island it names the closer it gets to the right
+   edge, and every click lands on the wrong place by the same growing margin.
+   It is a SCALE error, so it does not look like an offset; it looks like the
+   world is subtly wrong.
+
+   Plenty makes the container narrower. A classic scrollbar takes layout width
+   that `innerWidth` still counts (which is every desktop that is not a Mac on
+   its default overlay-scrollbar setting). The app's own modal rules put a
+   `margin-right` on fixed layers while a dialog is open, this page's root
+   included. Neither fires a resize event, so neither can be caught by
+   listening for one — hence the observer below.
+
+   `x`/`y` matter for the other direction only: pointer events arrive in client
+   coordinates, so they have to come back to this box's origin before they mean
+   anything. Projection writes into DOM that shares this box, so it needs the
+   size and not the origin. */
+let VX=0, VY=0, VW=0, VH=0;
+function measure(){
+  const r=rootEl.getBoundingClientRect();
+  VX=r.left; VY=r.top;
+  /* Left unclamped on purpose: a world booted in a background tab measures 0,
+     and the degenerate-viewport guards downstream are what defer the camera
+     fit until there is something to fit into. */
+  VW=Math.round(r.width); VH=Math.round(r.height);
+}
+measure();
+
 /* Every listener the engine puts on window or document, so dispose() can take
    them all back off. A world still steering a camera after the page navigated
    away is the one leak this file can actually cause. */
@@ -197,9 +249,15 @@ function emit(patch){
 }
 
 /* --------------------------------------------------------------- renderer */
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(innerWidth,innerHeight);
+/* MSAA on the default framebuffer is nearly free on a desktop and buys the one
+   frame a look with all post switched off draws directly. Under the composer it
+   buys nothing at all — every pass renders into a plain render target and the
+   only thing that reaches the default framebuffer is a fullscreen quad, which
+   has no edges to sample. So on a handheld, where it is a multisampled buffer's
+   worth of memory and a resolve every frame, it goes. */
+const renderer=new THREE.WebGLRenderer({antialias:!LITE,alpha:false});
+renderer.setPixelRatio(dprCap());
+renderer.setSize(VW,VH);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 /* Trimmed from 1.02 once the bake, the rim and the structured environment were
@@ -239,7 +297,7 @@ function placeCam(){
     target.y+Math.sin(pitch)*d,
     target.z+Math.cos(pitch)*Math.sin(yaw)*d);
   cam.lookAt(target);
-  const a=innerWidth/innerHeight;
+  const a=VW/VH;
   cam.left=-zoom*a; cam.right=zoom*a; cam.top=zoom; cam.bottom=-zoom;
   cam.updateProjectionMatrix();
 }
@@ -8171,7 +8229,10 @@ function syncCam(){
    what gets returned, and the wheel handler holds two results at once. */
 const _gd=new THREE.Vector3();
 function groundAt(cx,cy,planeY){
-  const o=new THREE.Vector3((cx/innerWidth)*2-1, -(cy/innerHeight)*2+1, -1)
+  /* Client coordinates in, so they come back to the container's own origin
+     before they are anything but a number: `cx` is measured from the window
+     and this box does not always start there. */
+  const o=new THREE.Vector3(((cx-VX)/VW)*2-1, -((cy-VY)/VH)*2+1, -1)
     .unproject(cam);
   const dir=_gd.set(0,0,-1).applyQuaternion(cam.quaternion);
   if(Math.abs(dir.y)<1e-6)return null;
@@ -8183,11 +8244,52 @@ function clampTarget(){
   target.x=clamp(target.x,b.x0-m,b.x1+m);
   target.z=clamp(target.z,b.z0-m,b.z1+m);
 }
+/* ------------------------------------------------------------------ pinch
+   Two fingers are the wheel. There is no other zoom on a phone: the gesture the
+   browser would have handled is the one `touch-action:none` has to take away
+   (without it a drag across the world is a drag on the page), and a world you
+   can only pan across is a world whose far side you cannot reach.
+
+   Live touches rather than a flag, because the interesting moments are the
+   transitions — the second finger landing has to call off whatever the first
+   one had started, and the second finger LIFTING has to hand the pan back to
+   the one still on the glass without the world jumping to where the gesture
+   began. */
+const touches=new Map();
+let pinchSpan=0;
+function pinchStep(){
+  const [a,b]=[...touches.values()];
+  const span=Math.hypot(a.x-b.x,a.y-b.y);
+  if(span<1||pinchSpan<1){ pinchSpan=span; return; }
+  /* Toward the midpoint, exactly as the wheel zooms toward the cursor: pinching
+     on a district that is off to one side should bring THAT district in. */
+  const cx=(a.x+b.x)/2, cy=(a.y+b.y)/2;
+  const before=groundAt(cx,cy,0);
+  zoomTarget=clamp(zoomTarget*(pinchSpan/span),ZMIN,ZMAX);
+  zoom+=(zoomTarget-zoom)*0.6; syncCam();
+  const after=groundAt(cx,cy,0);
+  if(before&&after){ target.x+=before.x-after.x; target.z+=before.z-after.z; clampTarget(); }
+  pinchSpan=span;
+}
+
 canvas.addEventListener('pointerdown',e=>{
   if(POV.bird)return;                    // the camera belongs to the bird
+  if(e.pointerType==='touch') touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  canvas.setPointerCapture(e.pointerId);
+  /* Nobody puts a second finger down to keep doing the same thing, so the pan,
+     the click and any grip that was closing on a town are all called off. */
+  if(touches.size>1){
+    panning=rotating=false; pinchSpan=0; POV.aim=null;
+    HAND.hold=0; HAND.armed=null;
+    if(HAND.mode==='held') handRelease(clock.getElapsedTime());
+    /* Past the click threshold for good: lifting out of a pinch must never
+       land as a tap on whatever happened to be under the last finger. */
+    moved=99;
+    return;
+  }
   rotating=e.shiftKey||e.button===2; panning=!rotating;
   lx=e.clientX; ly=e.clientY; moved=0; PX=e.clientX; PY=e.clientY;
-  canvas.setPointerCapture(e.pointerId); stageEl.className='world-stage grabbing';
+  stageEl.className='world-stage grabbing';
   /* A press that stays put long enough stops being a click and becomes a grip.
      Armed here, fired from the frame loop — a timer racing the pointer stream
      is how you end up grabbing a town you already let go of. */
@@ -8198,13 +8300,25 @@ canvas.addEventListener('pointerdown',e=>{
 });
 canvas.addEventListener('pointerup',e=>{
   if(POV.bird){ unpossess(); return; }
+  const wasPinching=touches.size>1;
+  touches.delete(e.pointerId);
+  if(wasPinching){
+    pinchSpan=0;
+    /* The finger left on the glass takes the pan over from where IT is, not
+       from where the first one went down half a screen ago. */
+    const [rest]=[...touches.values()];
+    if(rest){ panning=true; lx=rest.x; ly=rest.y; PX=rest.x; PY=rest.y; }
+    return;
+  }
   panning=rotating=false; stageEl.className='world-stage grab';
   PX=e.clientX; PY=e.clientY;
   if(HAND.mode==='held'){ handRelease(clock.getElapsedTime()); return; }
   HAND.hold=0; HAND.armed=null;
   if(moved<6) pick(e.clientX,e.clientY,true);
 });
-canvas.addEventListener('pointercancel',()=>{ HAND.hold=0; HAND.armed=null;
+canvas.addEventListener('pointercancel',e=>{
+  touches.delete(e.pointerId); pinchSpan=0;
+  HAND.hold=0; HAND.armed=null;
   if(HAND.mode==='held') handRelease(clock.getElapsedTime()); });
 canvas.addEventListener('pointermove',e=>{
   /* The pointer position is read FIRST and unconditionally: while you are
@@ -8212,6 +8326,8 @@ canvas.addEventListener('pointermove',e=>{
      early return above this line silently froze the mouse look. */
   PX=e.clientX; PY=e.clientY;
   if(POV.bird)return;
+  if(touches.has(e.pointerId)) touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(touches.size>1){ pinchStep(); return; }
   const dx=e.clientX-lx, dy=e.clientY-ly; lx=e.clientX; ly=e.clientY;
   moved+=Math.abs(dx)+Math.abs(dy);
   /* Once the hand has it, the drag belongs to the town and not to the camera. */
@@ -8220,7 +8336,7 @@ canvas.addEventListener('pointermove',e=>{
   if(panning){
     const r=new THREE.Vector3(Math.sin(yaw),0,-Math.cos(yaw));
     const f=new THREE.Vector3(-Math.cos(yaw),0,-Math.sin(yaw));
-    const k=zoom/innerHeight*2;
+    const k=zoom/VH*2;
     /* Both axes drag the LAND, not the camera: push the mouse down and the
        world follows it down. The forward axis had the opposite sign. */
     target.addScaledVector(r,-dx*k).addScaledVector(f,dy*k); clampTarget();
@@ -8251,22 +8367,25 @@ listen(window,'wheel',e=>{
   if(before&&after){ target.x+=before.x-after.x; target.z+=before.z-after.z; clampTarget(); }
 },{passive:false});
 /* A fit needs a viewport to fit INTO. Boot this page in a background tab and
-   innerWidth/innerHeight are both 0; 0/0 is NaN, that NaN reaches the camera's
+   VW/VH are both 0; 0/0 is NaN, that NaN reaches the camera's
    aspect and the projection matrix goes NaN, and from then on nothing renders —
    permanently, because placeCam() re-derives from the same poisoned zoom, so no
    later resize can dig it out. A degenerate viewport therefore DEFERS the fit
    and the first real one performs it. */
 let fitPending=null;
 const reflow=()=>{
+  /* FIRST, and before anything reads a dimension: everything below sizes
+     itself off the box, so the box has to be true before any of it runs. */
+  measure();
   /* Re-read the ratio, don't just re-read the size: dragging the window to a
      second monitor changes devicePixelRatio, and sizePost below picks the new
      one up for its buffers whether the canvas does or not. */
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.setSize(innerWidth,innerHeight); drawSpark();
+  renderer.setPixelRatio(dprCap());
+  renderer.setSize(VW,VH); drawSpark();
   /* Safe despite sizePost's consts being declared further down: module
      evaluation is synchronous, so no resize can fire before they exist. */
   sizePost();
-  if(fitPending&&innerWidth>0&&innerHeight>0){ const b=fitPending; fitPending=null; frameBounds(b); }
+  if(fitPending&&VW>0&&VH>0){ const b=fitPending; fitPending=null; frameBounds(b); }
   else placeCam();
 };
 /* A drag-resize fires dozens of times a second and every one of those
@@ -8279,6 +8398,15 @@ listen(window,'resize',queueReflow);
 /* Restoring a background tab does not always fire resize, and this is exactly
    the case that boots at 0x0 — so the visibility flip has to reflow too. */
 listen(document,'visibilitychange',()=>{ if(!document.hidden) queueReflow(); });
+/* And the case neither of those catches: the WINDOW stays exactly the size it
+   was and this box does not. A scrollbar appears, a modal puts a margin on
+   every fixed layer on the page, a browser reserves a gutter — none of it is a
+   resize event, and all of it moves the pixels the world is drawn into. This
+   is also what makes the first fit reliable, since a container measured during
+   the same frame it was mounted in has not always been laid out yet. */
+const boxObserver=typeof ResizeObserver==='function'
+  ? new ResizeObserver(queueReflow) : null;
+if(boxObserver) boxObserver.observe(rootEl);
 
 /* Fit the world to the part of the screen the UI is not standing on. Fitting to
    the window instead puts a third of a 40-district world behind the panel. */
@@ -8288,10 +8416,10 @@ const PAD={l:296,r:18,t:22,b:112};
 const padT=()=>OPEN?PAD.t:96;
 function frameWorld(){ frameBounds(OPEN?OPEN.bounds:W.worldBounds); }
 function frameBounds(b){
-  if(!(innerWidth>0&&innerHeight>0)){ fitPending=b; return; }
+  if(!(VW>0&&VH>0)){ fitPending=b; return; }
   target.set((b.x0+b.x1)/2, 6, (b.z0+b.z1)/2);
   zoom=1; syncCam();
-  const aspect=innerWidth/innerHeight;
+  const aspect=VW/VH;
   let u0=1e9,u1=-1e9,v0=1e9,v1=-1e9;
   const p=new THREE.Vector3();
   /* Sample the PLACES, not the corners of the rectangle around them. An
@@ -8315,13 +8443,13 @@ function frameBounds(b){
         u0=Math.min(u0,u); u1=Math.max(u1,u); v0=Math.min(v0,v); v1=Math.max(v1,v);
       }
     }
-  const availW=Math.max(120,innerWidth-PAD.l-PAD.r);
-  const availH=Math.max(120,innerHeight-padT()-PAD.b);
-  const z=Math.max((u1-u0)*innerHeight/(2*availW),(v1-v0)*innerHeight/(2*availH));
+  const availW=Math.max(120,VW-PAD.l-PAD.r);
+  const availH=Math.max(120,VH-padT()-PAD.b);
+  const z=Math.max((u1-u0)*VH/(2*availW),(v1-v0)*VH/(2*availH));
   zoomTarget=zoom=clamp(z,ZMIN,ZMAX);
   /* Recentre on the visible rectangle rather than on the window's middle. */
-  const k=zoom/innerHeight*2;
-  const ou=k*(PAD.l+availW/2-innerWidth/2), ov=k*(innerHeight/2-padT()-availH/2);
+  const k=zoom/VH*2;
+  const ou=k*(PAD.l+availW/2-VW/2), ov=k*(VH/2-padT()-availH/2);
   const R=new THREE.Vector3(Math.sin(yaw),0,-Math.cos(yaw));
   const F=new THREE.Vector3(-Math.cos(yaw),0,-Math.sin(yaw));
   const cu=(u0+u1)/2, cv=(v0+v1)/2;   // already world units: at zoom 1 the map is 1:1
@@ -8447,8 +8575,8 @@ function placeOut(px,py,rx,ry,up,w,h,boxes,ox,oy,discs,self,bias=0){
      the top at a flat 8px because nothing was standing there; a phone puts the
      identity bar exactly where the tallest realm wants its name. */
   const onScreen=(x,y)=>
-    !(x-w/2<PAD.l+6||x+w/2>innerWidth-PAD.r-6
-      ||y-h/2<PAD.t+6||y+h/2>innerHeight-PAD.b-6);
+    !(x-w/2<PAD.l+6||x+w/2>VW-PAD.r-6
+      ||y-h/2<PAD.t+6||y+h/2>VH-PAD.b-6);
   const hitsPlate=(x,y)=>{
     for(const b of boxes)
       if(Math.abs(b.x-x)*2<b.w+w+12 && Math.abs(b.y-y)*2<b.h+h+10) return true;
@@ -8564,7 +8692,7 @@ function project(x,y,z){
      any render has refreshed the camera's inverse matrix. That one-frame-stale
      matrix is the offset between a label and the thing it points at. */
   _v.set(x,y,z).project(cam);
-  return [(_v.x*0.5+0.5)*innerWidth,(-_v.y*0.5+0.5)*innerHeight,_v.z];
+  return [(_v.x*0.5+0.5)*VW,(-_v.y*0.5+0.5)*VH,_v.z];
 }
 /* The solved layout is a pure function of these, and nothing else: the camera,
    the viewport, which view you are in, the day, and the version counter that
@@ -8580,16 +8708,16 @@ function layoutLabels(){
     labelKey='';
     return;
   }
-  const key=[yaw,zoom,target.x,target.y,target.z,fade,innerWidth,innerHeight,
+  const key=[yaw,zoom,target.x,target.y,target.z,fade,VW,VH,
              OPEN?OPEN.realm.id:'',DAY,worldVer].join(',');
   if(key===labelKey)return;
   labelKey=key;
-  const scale0=innerHeight/(2*zoom);
+  const scale0=VH/(2*zoom);
   /* The middle of everything on screen — every label points away from it. */
   const shown=OPEN?OPEN.list.filter(d=>d.built):W.quarters.filter(q=>q.shown>0);
   let ox=0,oy=0;
   for(const x of shown){ const [a,b]=project(x.x,0,x.z); ox+=a; oy+=b; }
-  if(shown.length){ ox/=shown.length; oy/=shown.length; } else { ox=innerWidth/2; oy=innerHeight/2; }
+  if(shown.length){ ox/=shown.length; oy/=shown.length; } else { ox=VW/2; oy=VH/2; }
   /* WORLD view: realm names only, always, big — there are at most six of them
      and they are the entire read at this scale. */
   if(!OPEN){
@@ -8605,7 +8733,7 @@ function layoutLabels(){
        250px plates on a 400px phone cannot be packed anywhere and the solver
        falls back to "least bad", which is six names in a heap. The narrow
        plates are the same component one size down; the CSS follows. */
-    const wide=innerWidth>=700;
+    const wide=VW>=700;
     const boxes0=[], w0=wide?250:150, h0=wide?72:56;
     const live0=[...W.quarters].filter(q=>q.shown>0).sort((a,b)=>b.shown-a.shown);
     /* The realms' own footprints, so the solver can see the ground it is about
@@ -9402,33 +9530,45 @@ composer.addPass(gradePass);
    deliberately pale palette to mush, because almost everything in this world is
    bright. Restricted to a layer, the beacons and the orrery glow and the terrain
    is not even present to be bloomed. */
-const bloomComposer=new EffectComposer(renderer);
-bloomComposer.renderToScreen=false;
-/* Threshold high on purpose: the layer already excludes the terrain, but a lamp
-   post's warm stone is on that layer too and only the lamp should bloom. */
-/* Tuned at close zoom rather than at world scale, which is where it bites: the
-   same lamp covers forty times the pixels when you walk into a realm, and a
-   strength that read as a glow across the archipelago blew the roofs out. */
-const bloomPass=new UnrealBloomPass(new THREE.Vector2(1,1),0.15,0.75,0.72);
-const bloomRenderPass=new RenderPass(scene,cam);
-bloomComposer.addPass(bloomRenderPass);
-bloomComposer.addPass(bloomPass);
+/* Not built at all on a handheld, where it would be six render targets of dead
+   memory: UnrealBloomPass allocates its whole mip chain in its constructor, and
+   a pass that never runs still holds every buffer it was born with. */
+let bloomComposer=null, bloomPass=null, bloomRenderPass=null;
+if(!LITE){
+  bloomComposer=new EffectComposer(renderer);
+  bloomComposer.renderToScreen=false;
+  /* Threshold high on purpose: the layer already excludes the terrain, but a
+     lamp post's warm stone is on that layer too and only the lamp should bloom. */
+  /* Tuned at close zoom rather than at world scale, which is where it bites: the
+     same lamp covers forty times the pixels when you walk into a realm, and a
+     strength that read as a glow across the archipelago blew the roofs out. */
+  bloomPass=new UnrealBloomPass(new THREE.Vector2(1,1),0.15,0.75,0.72);
+  bloomRenderPass=new RenderPass(scene,cam);
+  bloomComposer.addPass(bloomRenderPass);
+  bloomComposer.addPass(bloomPass);
+}
 
 /* Point every pass at a different camera at once. Both chains have to move
    together — leave the bloom chain on the old camera and the glow arrives in
    the frame from a viewpoint the frame is no longer drawn from. */
 function setView(c){
   view=c;
-  renderPass.camera=c; bloomRenderPass.camera=c;
+  renderPass.camera=c;
+  if(bloomRenderPass) bloomRenderPass.camera=c;
   outlinePass.material.uniforms.uPersp.value=c.isPerspectiveCamera?1:0;
 }
 
 function sizePost(){
-  const w=innerWidth, h=innerHeight, dpr=Math.min(devicePixelRatio,2);
+  const w=VW, h=VH, dpr=dprCap();
   composer.setSize(w,h); composer.setPixelRatio(dpr);
-  bloomComposer.setSize(Math.round(w/2),Math.round(h/2));
-  normalRT.setSize(Math.round(w*dpr/2),Math.round(h*dpr/2));
-  bloomPass.setSize(Math.round(w/2),Math.round(h/2));
+  if(bloomComposer){
+    bloomComposer.setSize(Math.round(w/2),Math.round(h/2));
+    bloomPass.setSize(Math.round(w/2),Math.round(h/2));
+  }
+  /* Left at its 1x1 birth size on a handheld: the outline pass is off there, so
+     nothing ever samples it, and a full-viewport depth+normal target is one of
+     the larger allocations on the page. */
+  if(!LITE) normalRT.setSize(Math.round(w*dpr/2),Math.round(h*dpr/2));
   const rw=w*dpr, rh=h*dpr;
   gradePass.material.uniforms.uRes.value.set(rw,rh);
   gradePass.material.uniforms.uAspect.value=w/h;
@@ -9452,9 +9592,18 @@ function lookPush(){
   bloomAdd.material.uniforms.uAmt.value=LOOK.bl;
   /* An outline strength of zero still pays for a full normal-and-depth pass, so
      the switch follows the slider to the floor rather than leaving a pass
-     rendering nothing. Same for the glow. */
-  FX.outline=LOOK.ol>0.005 && LOOK.fx.outline!==false;
-  FX.bloom  =LOOK.bl>0.005 && LOOK.fx.bloom!==false;
+     rendering nothing. Same for the glow.
+
+     On a handheld both are off whatever the look says, because each of them is
+     a SECOND full pass over the scene every frame — the ink needs a normal and
+     depth buffer, the glow needs the world again with everything that does not
+     glow painted black, and the glow then blurs its result five times over. A
+     phone drawing this world three times a frame is a phone drawing it at
+     twelve. The GRADE stays: it is one fullscreen quad and it is the whole of
+     what makes a look a look, so what the owner dressed their world in still
+     arrives, just without the ink line and the halo. */
+  FX.outline=!LITE && LOOK.ol>0.005 && LOOK.fx.outline!==false;
+  FX.bloom  =!LITE && LOOK.bl>0.005 && LOOK.fx.bloom!==false;
   FX.post   =LOOK.fx.post!==false;
 }
 /* A WHOLE look, not a preset id — the panel already forks on the first knob
@@ -10141,7 +10290,10 @@ function birdAt(cx,cy){
     e[0].getWorldPosition(_pw);
     const [sx,sy,sz]=project(_pw.x,_pw.y,_pw.z);
     if(sz<-1||sz>1)continue;
-    const d=Math.hypot(sx-cx,sy-cy);
+    /* `project` returns pixels inside the container; `cx`/`cy` arrived from
+       the window. One of them has to move before a distance between them
+       means anything. */
+    const d=Math.hypot(sx-(cx-VX),sy-(cy-VY));
     if(d<bestD){ bestD=d; best=e; }
   }
   return best;
@@ -10277,8 +10429,8 @@ function povUpdate(t,dt){
      go of the mouse in the middle of the screen and you are facing forward
      again. Read BEFORE the movement, because once you have taken the controls
      this is not a look any more, it is the stick. */
-  POV.tLookX=clamp((PX/Math.max(1,innerWidth)-0.5)*2,-1,1)*0.95;
-  POV.tLookY=clamp((PY/Math.max(1,innerHeight)-0.5)*2,-1,1)*0.45;
+  POV.tLookX=clamp(((PX-VX)/Math.max(1,VW)-0.5)*2,-1,1)*0.95;
+  POV.tLookY=clamp(((PY-VY)/Math.max(1,VH)-0.5)*2,-1,1)*0.45;
   const lk=Math.min(1,dt*5);
   POV.lookX+=(POV.tLookX-POV.lookX)*lk;
   POV.lookY+=(POV.tLookY-POV.lookY)*lk;
@@ -10521,6 +10673,7 @@ function dispose(){
   if(disposed)return;
   disposed=true;
   cancelAnimationFrame(raf);
+  if(boxObserver) boxObserver.disconnect();
   for(const [target,type,fn,opts] of listeners) target.removeEventListener(type,fn,opts);
   listeners.length=0;
   if(W){ for(const d of W.districts) hideDistrict(d);
