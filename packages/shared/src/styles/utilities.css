@@ -976,3 +976,49 @@
     background-position: 100% 50%, 50% 0%;
   }
 }
+
+/*
+ * Agent composer beam.
+ *
+ * A light runs the composer's border while the agent works, so a sent prompt
+ * is visibly received without a second status element competing with the
+ * transcript. The ring is a 1px padding box: the rotating cone lives on the
+ * pseudo-element, and the composer's own opaque surface masks everything but
+ * the edge. The base colour keeps the rest of the ring at its resting weight,
+ * so only the travelling segment reads as motion.
+ */
+@keyframes agent-beam-travel {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.agent-beam {
+  position: relative;
+  overflow: hidden;
+  background: var(--theme-border-subtlest-tertiary);
+}
+
+.agent-beam::before {
+  content: '';
+  position: absolute;
+  /* Square and oversized so the cone's centre stays on the composer's centre
+     and its corners never expose an unpainted wedge mid-rotation. */
+  inset: -150%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg 240deg,
+    color-mix(in srgb, var(--theme-brand-default), transparent 55%) 310deg,
+    var(--theme-brand-default) 352deg,
+    transparent 360deg
+  );
+  animation: agent-beam-travel 2.4s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-beam::before {
+    animation: none;
+    background: var(--theme-brand-default);
+    opacity: 0.4;
+  }
+}

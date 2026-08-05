@@ -78,7 +78,9 @@ export const AgentRunControl = (): ReactElement => {
           <MagicIcon size={IconSize.XSmall} className="text-brand-default" />
           <span
             className={classNames(
-              'absolute -bottom-0.5 -right-0.5 size-2 rounded-6 border-2 border-background-default',
+              // The 2px cut-out ring eats most of a small dot, so the box has
+              // to be generous for the colour inside it to register at all.
+              'absolute -bottom-1 -right-1 size-3.5 rounded-6 border-2 border-background-default',
               // eslint-disable-next-line no-nested-ternary
               isWorking
                 ? 'animate-pulse bg-brand-default'

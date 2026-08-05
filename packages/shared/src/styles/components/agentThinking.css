@@ -1,0 +1,73 @@
+/* All translate values below are SVG user units in the logo's 0 0 35 20
+   viewBox, not screen pixels, so the motion scales with the rendered size. */
+
+.agent-thinking-mark {
+  /* pieces hop above the viewBox edge; default svg overflow would clip them */
+  overflow: visible;
+}
+
+.agent-thinking-piece {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: agent-thinking-hop 2s ease-in-out infinite;
+}
+
+.agent-thinking-piece-left {
+  --agent-thinking-drift: -0.7px;
+  --agent-thinking-tilt: -6deg;
+}
+
+/* delays stagger the beat left-to-right so it reads as one wave across the
+   mark, not three synchronized jumps */
+.agent-thinking-piece-slash {
+  --agent-thinking-tilt: -3deg;
+  animation-delay: 0.18s;
+}
+
+.agent-thinking-piece-tail {
+  --agent-thinking-drift: 0.7px;
+  --agent-thinking-tilt: 6deg;
+  animation: agent-thinking-hop 2s ease-in-out 0.36s infinite,
+    agent-thinking-shimmer 2s ease-in-out 0.36s infinite;
+}
+
+/* rest window (46%-100%) keeps the intact logo on screen most of each loop,
+   and matching 0%/100% frames make the loop seamless */
+@keyframes agent-thinking-hop {
+  0%,
+  46%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  14% {
+    transform: translate(var(--agent-thinking-drift, 0px), -2.6px)
+      rotate(var(--agent-thinking-tilt, 0deg));
+  }
+
+  30% {
+    transform: translate(0, 0.7px) rotate(0deg);
+  }
+
+  38% {
+    transform: translate(0, -0.3px) rotate(0deg);
+  }
+}
+
+@keyframes agent-thinking-shimmer {
+  0%,
+  46%,
+  100% {
+    fill-opacity: 0.64;
+  }
+
+  14% {
+    fill-opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-thinking-piece {
+    animation: none;
+  }
+}

@@ -71,6 +71,8 @@ type AgentContextValue = {
   isDemo: boolean;
   isWorking: boolean;
   workingLabel?: string;
+  /** Epoch ms the current run started, for the elapsed counter. */
+  workingSince?: number;
   isTargetWorking: (targetId: string) => boolean;
   runCommand: (args: RunCommandArgs) => void;
   stopCommand: () => void;
@@ -114,6 +116,7 @@ export const AgentProvider = ({
   const [working, setWorking] = useState<{
     label: string;
     targetId?: string;
+    startedAt: number;
   } | null>(null);
   const [activity, setActivity] = useState<AgentActivityItem[]>([]);
   const [messages, setMessages] = useState<AgentMessage[]>(initialMessages);
@@ -141,7 +144,20 @@ export const AgentProvider = ({
 
       const stamp = `${Date.now()}`;
       setMessages((current) => [
-        ...current,
+        // Only one turn is ever in flight, and the timer below resolves the
+        // new one by id — so a turn sent over a pending one would leave the
+        // earlier reply spinning forever. Close it out instead.
+        ...current.map((message) =>
+          message.isPending
+            ? {
+                ...message,
+                isPending: false,
+                blocks: [
+                  { type: 'text' as const, html: '<p>Interrupted.</p>' },
+                ],
+              }
+            : message,
+        ),
         {
           id: `${stamp}-user`,
           role: 'user',
@@ -156,7 +172,7 @@ export const AgentProvider = ({
         },
       ]);
 
-      setWorking({ label: label ?? text, targetId });
+      setWorking({ label: label ?? text, targetId, startedAt: Date.now() });
       setActivity((current) => [
         {
           id: `${Date.now()}`,
@@ -299,6 +315,7 @@ export const AgentProvider = ({
       isDemo,
       isWorking: !!working,
       workingLabel: working?.label,
+      workingSince: working?.startedAt,
       isTargetWorking: (targetId) => working?.targetId === targetId,
       runCommand,
       stopCommand,

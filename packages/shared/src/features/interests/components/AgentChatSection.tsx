@@ -16,6 +16,7 @@ import type { Post } from '../../../graphql/posts';
 import type { AgentBlock, AgentMessage } from '../chat';
 import { useAgent } from '../AgentContext';
 import { AgentPickList } from './AgentPickList';
+import { AgentThinkingStrip } from './AgentThinkingStrip';
 import { AgentPostCard } from './AgentPostCard';
 import { AgentEmbedCard } from './blocks/AgentEmbedCard';
 
@@ -33,18 +34,6 @@ const transcriptProse = classNames(
   '[&_h2]:mb-1.5 [&_h2]:mt-5 [&_h2]:!leading-snug [&_h2]:typo-body',
   '[&_h3]:mb-1.5 [&_h3]:mt-5 [&_h3]:!leading-snug [&_h3]:typo-callout',
   '[&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
-);
-
-const PendingBubble = (): ReactElement => (
-  <FlexRow className="items-center gap-1.5 py-1">
-    {[0, 150, 300].map((delay) => (
-      <span
-        key={delay}
-        className="size-1.5 animate-bounce rounded-6 bg-text-quaternary"
-        style={{ animationDelay: `${delay}ms` }}
-      />
-    ))}
-  </FlexRow>
 );
 
 const BlockRenderer = ({
@@ -158,7 +147,7 @@ const MessageRow = ({
         </FlexRow>
       )}
       {message.isPending ? (
-        <PendingBubble />
+        <AgentThinkingStrip />
       ) : (
         (message.blocks ?? []).map((block, index) => (
           <BlockRenderer
