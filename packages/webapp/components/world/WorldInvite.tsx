@@ -61,7 +61,7 @@ export function WorldInvite({ user }: WorldInviteProps): ReactElement | null {
   return (
     <div
       data-world-overlay
-      className="pointer-events-none absolute inset-x-3 top-32 z-2 flex justify-center laptop:inset-x-auto laptop:left-80 laptop:right-0 laptop:top-6"
+      className="pointer-events-none absolute inset-x-3 top-16 z-2 flex justify-center laptop:inset-x-auto laptop:left-80 laptop:right-0 laptop:top-6"
     >
       <div className="pointer-events-auto flex w-full max-w-80 flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default px-4 py-3 text-center">
         <Typography type={TypographyType.Callout} bold>

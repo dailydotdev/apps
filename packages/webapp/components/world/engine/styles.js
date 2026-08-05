@@ -11,8 +11,18 @@
  * surface, and they have to hold against a bright sky at any theme.
  */
 export const WORLD_CSS = `
+/* Two declarations here are load-bearing on a phone and inert everywhere else.
+   touch-action, because every gesture in this world is one the browser would
+   otherwise claim: a drag is a scroll, two fingers are a page zoom, and a
+   pointer stream the browser has claimed is a pointer stream that ends in
+   pointercancel halfway through a pan. And isolation, because everything below
+   is z-indexed against its own layers (labels over leads, the ride flash over
+   both) — with no stacking context of its own, a toast at z-index 6 was
+   competing with the React chrome instead, and winning, so the feed drew over
+   the phone's header bar. */
 .world-root{--world-dim:#A8B3CE;--world-dim2:#BAC4DA;--world-line:rgba(168,179,206,.18);
-  position:absolute;inset:0;overflow:hidden;
+  position:absolute;inset:0;overflow:hidden;isolation:isolate;
+  touch-action:none;overscroll-behavior:none;
   font:13px/1.45 ui-sans-serif,-apple-system,"Segoe UI",Inter,system-ui,sans-serif;
   color:#F5F6FA;-webkit-font-smoothing:antialiased;
   user-select:none;-webkit-user-select:none}
@@ -83,6 +93,12 @@ export const WORLD_CSS = `
 .world-feed{position:absolute;right:16px;top:16px;z-index:6;display:flex;
   flex-direction:column;gap:6px;align-items:flex-end;pointer-events:none;
   max-height:52vh;overflow:hidden}
+/* Below the laptop line the mark stands in this corner rather than in a rail,
+   and the feed now sits UNDER it rather than over it, so it has to clear it
+   instead: one plate's height down. */
+@media (max-width: 1019px){
+  .world-feed{top:64px;max-height:34vh}
+}
 .world-root .toast{background:rgba(30,34,41,.92);border:1px solid var(--world-line);
   border-radius:8px;padding:6px 11px;font-size:10.5px;letter-spacing:.08em;
   font-weight:600;animation:world-toast-in .28s ease-out;white-space:nowrap;
