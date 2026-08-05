@@ -100,7 +100,7 @@ const Card = ({
   action?: ReactNode;
   children: ReactNode;
 }): ReactElement => (
-  <section className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+  <section className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
     <div className="flex items-center justify-between gap-2">
       <Typography
         tag={TypographyTag.H2}
@@ -216,14 +216,14 @@ const ToolPage = ({
         </Button>
       </section>
 
-      <section className="flex flex-wrap items-center gap-4 rounded-16 border border-border-subtlest-tertiary px-4 py-3">
+      <section className="flex flex-wrap items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-4 py-3">
         <div className="flex items-center">
           {stackers.map((stacker, index) => (
             <img
               key={stacker.id}
               src={stacker.image}
               alt={`${stacker.name}'s avatar`}
-              className={`size-7 rounded-full border-2 border-background-default object-cover ${
+              className={`size-7 rounded-full border-2 border-background-subtle object-cover ${
                 index > 0 ? '-ml-2' : ''
               }`}
             />
