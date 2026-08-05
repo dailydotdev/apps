@@ -1,5 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import {
+  ApiError,
+  getApiError,
+  gqlClient,
+} from '@dailydotdev/shared/src/graphql/common';
 import {
   generateQueryKey,
   RequestKey,
@@ -10,6 +15,7 @@ import type {
   UserWorldTimelineData,
   WorldDistrict,
   WorldGrowth,
+  WorldSettings,
 } from '../../graphql/world';
 import {
   USER_WORLD_QUERY,
@@ -19,44 +25,56 @@ import {
 export interface UserWorldResult {
   districts?: WorldDistrict[];
   timeline?: WorldGrowth[];
+  /** Null once settled: the owner has never customised anything. */
+  settings?: WorldSettings | null;
   /** The world can be raised: this is the whole of the critical path. */
   isPending: boolean;
   /** The history is still on the wire. The world stands without it. */
   isHistoryPending: boolean;
   isEmpty: boolean;
+  /** Hidden by its owner, and the viewer is not the owner. */
+  isPrivate: boolean;
   error?: Error;
 }
 
+export const userWorldQueryKey = (userId?: string): unknown[] =>
+  generateQueryKey(
+    RequestKey.UserWorld,
+    userId ? { id: userId } : undefined,
+  ) as unknown[];
+
 /**
- * Two queries, not one, and only the small one is waited for.
- *
- * The districts are at most forty rows and they are everything the world needs
- * to stand up: the layout packs islands by lifetime totals, and those are on
- * this query. The growth log is the same world's whole history, tens of
- * thousands of rows on a four-year reader, and it is only ever needed to REPLAY
- * the place. So the world is raised off the districts and the log is folded in
- * underneath it when it lands (`attachHistory`), which costs nothing to look at
- * because the day it is folded in on is the world already on screen.
- *
- * The timeline is allowed to fail. The world still stands without it; it simply
- * has no history to walk, which is what `replayable` on the model reports.
+ * Districts+settings in one blocking round trip; the heavy growth log loads
+ * behind the standing world and may fail without taking it down.
  */
 export const useUserWorld = (userId?: string): UserWorldResult => {
-  const districts = useQuery({
-    queryKey: generateQueryKey(
-      RequestKey.UserWorld,
-      userId ? { id: userId } : undefined,
-    ),
+  const world = useQuery({
+    queryKey: userWorldQueryKey(userId),
     queryFn: async () => {
       const res = await gqlClient.request<UserWorldData>(USER_WORLD_QUERY, {
         id: userId,
       });
-      return res.userWorld;
+      return {
+        districts: res.userWorld,
+        settings: res.userWorldSettings ?? null,
+      };
     },
     enabled: !!userId,
     staleTime: StaleTime.Default,
+    // A refused world stays refused, so FORBIDDEN skips the usual retries.
+    retry: (failureCount, retryError) =>
+      getApiError(retryError as unknown as ApiErrorResult, ApiError.Forbidden)
+        ? false
+        : failureCount < 3,
   });
-  const hasDistricts = !!districts.data?.length;
+  const districts = world.data?.districts;
+  const hasDistricts = !!districts?.length;
+  /* Not an error to report: a hidden world gets its own screen, never
+     "this world could not be loaded". */
+  const isPrivate = !!getApiError(
+    world.error as unknown as ApiErrorResult,
+    ApiError.Forbidden,
+  );
 
   const timeline = useQuery({
     queryKey: generateQueryKey(
@@ -76,11 +94,13 @@ export const useUserWorld = (userId?: string): UserWorldResult => {
   });
 
   return {
-    districts: districts.data,
+    districts,
     timeline: timeline.data,
-    isPending: districts.isPending,
+    settings: world.data?.settings,
+    isPending: world.isPending,
     isHistoryPending: hasDistricts && timeline.isPending,
-    isEmpty: districts.isSuccess && !hasDistricts,
-    error: (districts.error as Error) ?? undefined,
+    isEmpty: world.isSuccess && !hasDistricts,
+    isPrivate,
+    error: isPrivate ? undefined : (world.error as Error) ?? undefined,
   };
 };

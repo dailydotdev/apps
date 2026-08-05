@@ -8,6 +8,8 @@ import type {
 } from '../../../../graphql/users';
 import { ReadingOverview } from './ReadingOverview';
 import { TestBootProvider } from '../../../../../__tests__/helpers/boot';
+import { mockGraphQL } from '../../../../../__tests__/helpers/graphql';
+import { TAG_TITLES_QUERY } from '../../../../graphql/keywords';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -101,10 +103,30 @@ describe('ReadingOverview component', () => {
       screen.getByText('Posts read in the last months (16)'),
     ).toBeInTheDocument();
     expect(screen.getByText('Top tags by reading days')).toBeInTheDocument();
-    expect(screen.getByText('Javascript')).toBeInTheDocument();
-    expect(screen.getByText('React')).toBeInTheDocument();
+    expect(screen.getByText('javascript')).toBeInTheDocument();
+    expect(screen.getByText('react')).toBeInTheDocument();
     expect(screen.getByText('+60%')).toBeInTheDocument(); // javascript percentage
     expect(screen.getByText('+40%')).toBeInTheDocument(); // react percentage
+  });
+
+  it('should render the keyword title once it is available', async () => {
+    mockGraphQL({
+      request: { query: TAG_TITLES_QUERY },
+      result: {
+        data: {
+          tags: [
+            { value: 'javascript', flags: { title: 'JavaScript' } },
+            { value: 'react', flags: null },
+          ],
+        },
+      },
+    });
+
+    renderComponent();
+
+    expect(await screen.findByText('JavaScript')).toBeInTheDocument();
+    // No title on the keyword: keep the raw value rather than invent a casing.
+    expect(screen.getByText('react')).toBeInTheDocument();
   });
 
   it('should render streaks section when streak data is available', () => {

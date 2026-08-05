@@ -3,18 +3,27 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import { WorldBoot } from './WorldBoot';
+import { WorldCustomizeSheet } from './WorldCustomize';
 import { WorldHeader } from './WorldHeader';
-import { WorldInvite } from './WorldInvite';
+import { useIsOwnWorld, WorldInvite } from './WorldInvite';
 import { WorldImmersiveToggle, WorldMark } from './WorldMark';
 import { WorldPanel } from './WorldPanel';
+import { WorldPrivate } from './WorldPrivate';
 import { WorldRiding } from './WorldRiding';
 import { WorldStatus } from './WorldStatus';
 import { WorldTimeline } from './WorldTimeline';
 import type { WorldEngine, WorldState } from './worldState';
 import type { UserWorldResult } from './useUserWorld';
+import { useWorldDraft } from './useWorldDraft';
 import { buildWorld } from './engine/buildWorld';
 import { createWorldEngine } from './engine/world';
 import { buildUnbuiltWorld } from './unbuiltWorld';
+import {
+  isWorldCustomised,
+  resolveCrest,
+  resolveLook,
+  resolveSky,
+} from './worldCustomization';
 
 const INITIAL: WorldState = {
   status: 'loading',
@@ -64,8 +73,19 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   const [isImmersive, setIsImmersive] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
 
-  const { districts, timeline, isPending, isHistoryPending, isEmpty, error } =
-    world;
+  const {
+    districts,
+    timeline,
+    settings,
+    isPending,
+    isHistoryPending,
+    isEmpty,
+    isPrivate,
+    error,
+  } = world;
+  const isOwn = useIsOwnWorld(user);
+  const draft = useWorldDraft(user.id, settings);
+  const { applied } = draft;
 
   /* The app keeps a permanent scrollbar gutter on the body so feeds don't jump
      when they grow. Nothing on this page scrolls, and a fixed layer is laid out
@@ -185,6 +205,21 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     user?.id,
   ]);
 
+  /* Look and crest are the world's, not the viewer's, so every visitor sees them
+     as dressed. While the bench is open these read the draft instead, so chips
+     land live on the frame behind the panel. */
+  useEffect(() => {
+    engineRef.current?.setLook(resolveLook(applied));
+  }, [applied]);
+
+  useEffect(() => {
+    engineRef.current?.setCrest(resolveCrest(applied, user.id, districts));
+  }, [applied, districts, user.id]);
+
+  useEffect(() => {
+    engineRef.current?.setSky(resolveSky(applied));
+  }, [applied]);
+
   useEffect(() => {
     if (isImmersive) {
       engineRef.current?.setPadding(PAD_IMMERSIVE);
@@ -243,6 +278,27 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     [],
   );
 
+  /* The bench is the owner's only; everything else here is the same for every visitor. */
+  const ownerDraft = isOwn ? draft : undefined;
+  const worldName = applied?.name ?? undefined;
+  /* Never on an unbuilt world: WorldInvite already makes the one ask there,
+     and it makes it nowhere else. */
+  const showNudge = isOwn && !isUnbuilt && !isWorldCustomised(applied);
+
+  /* A hidden world draws nothing — no map, timeline or crest — so this returns
+     before the boot screen too. */
+  if (isPrivate) {
+    return (
+      <div className="fixed inset-0 overflow-hidden bg-background-default">
+        {/* Kept mounted and empty: the engine holds a WebGL context on this node,
+            and unmounting would leak it rather than release it. `load` is never
+            reached here since there are no districts. */}
+        <div ref={mountRef} className="absolute inset-0" />
+        <WorldPrivate user={user} />
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 overflow-hidden bg-background-default">
       <div ref={mountRef} className="absolute inset-0" />
@@ -255,19 +311,38 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
               state={state}
               unbuilt={isUnbuilt}
               isImmersive={isImmersive}
+              worldName={worldName}
+              draft={ownerDraft}
+              districts={districts}
+              showNudge={showNudge}
               onToggleImmersive={onToggleImmersive}
               onFocus={onFocus}
               onLeaveRealm={onLeaveRealm}
             />
           ) : (
-            <WorldHeader
-              user={user}
-              state={state}
-              unbuilt={isUnbuilt}
-              isImmersive={isImmersive}
-              onToggleImmersive={onToggleImmersive}
-              onLeaveRealm={onLeaveRealm}
-            />
+            <>
+              <WorldHeader
+                user={user}
+                state={state}
+                unbuilt={isUnbuilt}
+                isImmersive={isImmersive}
+                worldName={worldName}
+                showNudge={showNudge && !draft.isOpen}
+                onToggleImmersive={onToggleImmersive}
+                onLeaveRealm={onLeaveRealm}
+                onCustomize={ownerDraft?.open}
+              />
+              {/* No rail here for the bench, so it takes the whole screen; the
+                  world stays live underneath. */}
+              {!!ownerDraft?.isOpen && !!ownerDraft.settings && (
+                <WorldCustomizeSheet
+                  userId={user.id}
+                  draft={ownerDraft}
+                  districts={districts}
+                  settings={ownerDraft.settings}
+                />
+              )}
+            </>
           )}
           {/* On screen while the growth log is still on the wire, inert, in the
               place it will be live in. It is the last thing to arrive and the
