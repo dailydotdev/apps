@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -24,7 +24,10 @@ import { useSubmitWeeklyQuiz } from '../hooks/useSubmitWeeklyQuiz';
 import { useWeeklyQuizLeaderboard } from '../hooks/useWeeklyQuizLeaderboard';
 import { useCountUp } from '../hooks/useCountUp';
 import { fallbackImages } from '../../../lib/config';
-import { generateWeeklyQuizResultImage } from '../generateResultImage';
+import {
+  createWeeklyQuizResultImage,
+  generateWeeklyQuizResultImage,
+} from '../generateResultImage';
 import { isWeeklyQuizDemo } from '../demoMode';
 import type { WeeklyQuizGameResult } from '../hooks/useWeeklyQuizGame';
 import type { UseWeeklyQuizAudio } from '../hooks/useWeeklyQuizAudio';
@@ -191,6 +194,11 @@ export const WeeklyQuizResults = ({
     WeeklyQuizPeriod.Weekly,
   );
   const submittedRef = useRef(false);
+  // The premade result card as a File, pre-rendered on mount so the native
+  // Share sheet can attach it within the tap gesture (Web Share API level 2 —
+  // the only client-side way to send a custom image, since link-preview images
+  // are scraped from the URL's Open Graph tags server-side).
+  const shareFileRef = useRef<File | null>(null);
   // Shareable quiz link. Points at daily.dev for now (a real, resolvable URL
   // with proper link-preview metadata) until the dedicated quiz page ships.
   const quizUrl = 'https://daily.dev';
@@ -212,14 +220,24 @@ export const WeeklyQuizResults = ({
       .then(() => setLinkCopied(true))
       .catch(() => undefined);
   };
+  // Prefer sharing the premade result image itself (native share sheet, mobile)
+  // so it lands as a photo in WhatsApp/etc.; fall back to a text + link share.
   const nativeShare = (): void => {
-    navigator
-      .share?.({
+    const file = shareFileRef.current;
+    const message = `${shareText} ${quizUrl}`;
+    const run = async (): Promise<void> => {
+      if (file && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ text: message, files: [file] });
+        return;
+      }
+      await navigator.share?.({
         title: 'daily.dev weekly quiz',
         text: shareText,
         url: quizUrl,
-      })
-      .catch(() => undefined);
+      });
+    };
+    // Swallow user-dismissed / unsupported-share rejections.
+    run().catch(() => undefined);
   };
 
   // Rank comes from this week's board (the quiz just finished).
@@ -234,25 +252,64 @@ export const WeeklyQuizResults = ({
     leaderboard.find((entry) => entry.isCurrentUser)?.rank ??
     null;
 
-  // Renders the result as a shareable PNG and downloads it. Falls back to the
-  // daily.dev placeholder avatar when the player has no picture.
+  // The premade result-card params, shared by the Download button and the
+  // native Share (falls back to the daily.dev placeholder avatar with no pic).
+  const imageParams = useMemo(
+    () => ({
+      name: user?.name || user?.username || 'You',
+      imageUrl: user?.image || fallbackImages.avatar,
+      title: tier.title,
+      correctCount,
+      totalQuestions,
+      percentile,
+      rank,
+      gifUrl: tier.gif,
+      logoUrl: '/logos/weekly-quiz-logo.png',
+      brandLogoUrl: '/android-chrome-512x512.png',
+    }),
+    [
+      user?.name,
+      user?.username,
+      user?.image,
+      tier.title,
+      tier.gif,
+      correctCount,
+      totalQuestions,
+      percentile,
+      rank,
+    ],
+  );
+
+  // Renders the result as a shareable PNG and downloads it.
   const handleDownload = (): void => {
-    generateWeeklyQuizResultImage(
-      {
-        name: user?.name || user?.username || 'You',
-        imageUrl: user?.image || fallbackImages.avatar,
-        title: tier.title,
-        correctCount,
-        totalQuestions,
-        percentile,
-        rank,
-        gifUrl: tier.gif,
-        logoUrl: '/logos/weekly-quiz-logo.png',
-        brandLogoUrl: '/android-chrome-512x512.png',
-      },
-      2,
-    ).catch(() => undefined);
+    generateWeeklyQuizResultImage(imageParams, 2).catch(() => undefined);
   };
+
+  // Pre-render the same card to a File on mount so the native Share sheet can
+  // attach it the instant the player taps Share (staying inside the gesture).
+  useEffect(() => {
+    let cancelled = false;
+    createWeeklyQuizResultImage(imageParams, 2)
+      .then((dataUrl) => {
+        if (cancelled || !dataUrl) {
+          return;
+        }
+        const [meta, base64] = dataUrl.split(',');
+        const mime = meta.match(/:(.*?);/)?.[1] ?? 'image/png';
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i += 1) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        shareFileRef.current = new File([bytes], 'weekly-tech-news-quiz.png', {
+          type: mime,
+        });
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [imageParams]);
 
   // Submit once we have an authenticated player — either immediately (already
   // logged in) or right after they sign in from the prompt below. Skipped in
