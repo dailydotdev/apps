@@ -24,8 +24,6 @@ import {
 import { IconSize } from '../../../components/Icon';
 import { PostContent } from '../../../components/post/PostContent';
 import { ArticleList } from '../../../components/cards/article/ArticleList';
-import { ArticleGrid } from '../../../components/cards/article/ArticleGrid';
-import { useNarrowContainer } from '../hooks/useNarrowContainer';
 import { Origin } from '../../../lib/log';
 import type { Post } from '../../../graphql/posts';
 import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
@@ -64,41 +62,36 @@ const tabLabel = (target: AgentContentTarget): string => {
   return target.type === 'activity' ? 'Activity' : 'Debug';
 };
 
+// Always the list card, at every width. The panel is a scanning surface: grid
+// cards give each post a cover image and a card's worth of height, which turns
+// nine findings into a long scroll of artwork.
 const FeedView = ({
   posts,
   onOpenPost,
 }: {
   posts: Post[];
   onOpenPost: (post: Post) => void;
-}): ReactElement => {
-  const { ref, isNarrow } = useNarrowContainer<HTMLDivElement>();
-
-  return (
-    <FlexCol ref={ref} className={classNames('gap-2 py-4', postPageGutter)}>
-      {posts.map((post) => {
-        const CardComponent = isNarrow ? ArticleGrid : ArticleList;
-
-        return (
-          <CardComponent
-            key={post.id}
-            post={post}
-            onPostClick={(clicked, event) => {
-              event?.preventDefault();
-              onOpenPost(clicked);
-            }}
-            onPostAuxClick={noop}
-            onUpvoteClick={noop}
-            onDownvoteClick={noop}
-            onCommentClick={noop}
-            onBookmarkClick={noop}
-            onCopyLinkClick={noop}
-            onShare={noop}
-          />
-        );
-      })}
-    </FlexCol>
-  );
-};
+}): ReactElement => (
+  <FlexCol className={classNames('gap-2 py-4', postPageGutter)}>
+    {posts.map((post) => (
+      <ArticleList
+        key={post.id}
+        post={post}
+        onPostClick={(clicked, event) => {
+          event?.preventDefault();
+          onOpenPost(clicked);
+        }}
+        onPostAuxClick={noop}
+        onUpvoteClick={noop}
+        onDownvoteClick={noop}
+        onCommentClick={noop}
+        onBookmarkClick={noop}
+        onCopyLinkClick={noop}
+        onShare={noop}
+      />
+    ))}
+  </FlexCol>
+);
 
 export const AgentContentPane = ({
   width,
