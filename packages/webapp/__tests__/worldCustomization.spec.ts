@@ -168,6 +168,24 @@ describe('isWorldCustomised', () => {
     ).toBe(false);
   });
 
+  it('does not count a stored plate as making it yours', () => {
+    // The settings row is created by the first plate upload as well as by the
+    // first customisation, so its mere existence says nothing about whether the
+    // owner has touched the bench. Anything that collapses this to `!!settings`
+    // takes the nudge away from every owner who has simply opened their world.
+    expect(
+      isWorldCustomised({
+        name: null,
+        sky: null,
+        crest: null,
+        look: null,
+        private: false,
+        plateUrl: 'https://media.daily.dev/image/upload/world_plate_u1',
+        plateVersion: '1.abc123',
+      }),
+    ).toBe(false);
+  });
+
   it('is true the moment it has a name', () => {
     expect(
       isWorldCustomised({
