@@ -73,9 +73,9 @@ export const AgentRunControl = (): ReactElement => {
         <button
           type="button"
           aria-label="Agent run state"
-          className="relative flex size-6 shrink-0 items-center justify-center rounded-8 bg-brand-float transition-colors hover:bg-surface-hover"
+          className="relative flex size-8 shrink-0 items-center justify-center rounded-10 bg-brand-float transition-colors hover:bg-surface-hover"
         >
-          <MagicIcon size={IconSize.Size16} className="text-brand-default" />
+          <MagicIcon size={IconSize.XSmall} className="text-brand-default" />
           <span
             className={classNames(
               'absolute -bottom-0.5 -right-0.5 size-2 rounded-6 border-2 border-background-default',

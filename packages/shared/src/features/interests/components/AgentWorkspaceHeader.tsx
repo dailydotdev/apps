@@ -21,12 +21,12 @@ import { webappUrl } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
 import { AgentRunControl } from './AgentRunControl';
 
-// Every control in this row is the same button: XSmall tertiary, a 16px glyph,
+// Every control in this row is the same button: Small tertiary, a 20px glyph,
 // tertiary ink that lifts to primary on hover. Only the open state departs, and
 // only by colour.
 const headerIcon = (icon: IconType, isOpen = false) =>
   React.cloneElement(icon, {
-    size: IconSize.Size16,
+    size: IconSize.XSmall,
     secondary: isOpen,
     // Keep the incoming className: cloneElement replaces it outright, which
     // silently dropped the back arrow's rotation.
@@ -52,7 +52,7 @@ const PanelButton = ({
   <Tooltip content={label}>
     <Button
       icon={headerIcon(icon, isOpen)}
-      size={ButtonSize.XSmall}
+      size={ButtonSize.Small}
       variant={ButtonVariant.Tertiary}
       className="group"
       aria-label={label}
@@ -76,13 +76,13 @@ export const AgentWorkspaceHeader = (): ReactElement => {
     isOpen(type) ? focusContent(type) : openContentTarget({ type });
 
   return (
-    <FlexRow className="h-12 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-2 tablet:px-3">
+    <FlexRow className="h-12 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
       <Tooltip content="Back to agents">
         <Link href={`${webappUrl}agent`}>
           <Button
             tag="a"
             icon={headerIcon(<MoveToIcon className="rotate-180" />)}
-            size={ButtonSize.XSmall}
+            size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             className="group"
             aria-label="Back to agents"
@@ -114,7 +114,7 @@ export const AgentWorkspaceHeader = (): ReactElement => {
         <Tooltip content="Agent settings">
           <Button
             icon={headerIcon(<SettingsIcon />)}
-            size={ButtonSize.XSmall}
+            size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             className="group"
             aria-label="Agent settings"

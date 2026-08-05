@@ -68,7 +68,7 @@ export const AgentComposer = (): ReactElement => {
   };
 
   return (
-    <div className="relative shrink-0 px-3 pb-3 tablet:px-4 tablet:pb-4">
+    <div className="relative shrink-0 px-5 pb-4 tablet:px-8 tablet:pb-5 laptop:px-10">
       {/* Softens the hard cut where the transcript disappears behind the bar,
           so the last line fades out instead of being sliced. */}
       <span

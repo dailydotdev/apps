@@ -14,8 +14,7 @@ import {
 } from '../../../components/buttons/Button';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
-  ArrowIcon,
-  CardLayout,
+  BulletListIcon,
   DocsIcon,
   MiniCloseIcon,
   OpenLinkIcon,
@@ -39,7 +38,7 @@ const noop = () => undefined;
 
 const tabIcon: Record<AgentContentTarget['type'], ReactElement> = {
   post: <DocsIcon size={IconSize.XXSmall} />,
-  feed: <CardLayout size={IconSize.XXSmall} />,
+  feed: <BulletListIcon size={IconSize.XXSmall} />,
   activity: <TimerIcon size={IconSize.XXSmall} />,
   debug: <TerminalIcon size={IconSize.XXSmall} />,
 };
@@ -66,7 +65,7 @@ const FeedView = ({
   const { ref, isNarrow } = useNarrowContainer<HTMLDivElement>();
 
   return (
-    <FlexCol ref={ref} className="gap-2 p-4">
+    <FlexCol ref={ref} className="gap-2 p-5">
       {posts.map((post) => {
         const CardComponent = isNarrow ? ArticleGrid : ArticleList;
 
@@ -156,20 +155,12 @@ export const AgentContentPane = ({
       </div>
 
       <FlexRow className="h-12 shrink-0 items-center gap-1 border-b border-border-subtlest-tertiary px-2">
-        <Button
-          icon={<ArrowIcon className="-rotate-90" />}
-          size={ButtonSize.XSmall}
-          variant={ButtonVariant.Tertiary}
-          className="laptop:hidden"
-          aria-label="Back to conversation"
-          onClick={closeAllContent}
-        />
-        {/* A full-height strip with a brand underline, not a row of pills:
-            with three tabs open, the pill fill alone was too weak to say
-            which one you are looking at. */}
+        {/* Floating chips rather than a full-height strip. The active one is
+            carried by the brand fill, not by a fill-versus-no-fill difference:
+            that read as "slightly lighter" when three tabs were open. */}
         <FlexRow
           role="tablist"
-          className="no-scrollbar -mx-2 h-full min-w-0 flex-1 items-stretch overflow-x-auto px-2"
+          className="no-scrollbar min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1"
         >
           {openContent.map((target) => {
             const targetId = contentTargetId(target);
@@ -179,15 +170,16 @@ export const AgentContentPane = ({
               <span
                 key={targetId}
                 className={classNames(
-                  'group relative flex w-fit max-w-[11rem] shrink-0 items-center gap-1.5 border-r border-border-subtlest-quaternary px-2.5 transition-colors',
+                  'group flex h-8 w-fit max-w-[12rem] shrink-0 items-center gap-1.5 rounded-10 pl-2.5 pr-1.5 transition-colors',
                   isActive
-                    ? 'bg-surface-float after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-brand-default'
-                    : 'hover:bg-surface-hover',
+                    ? 'bg-brand-float'
+                    : 'bg-surface-float hover:bg-surface-hover',
                 )}
               >
                 <button
                   type="button"
                   role="tab"
+                  aria-label={tabLabel(target)}
                   aria-selected={isActive}
                   onClick={() => focusContent(targetId)}
                   className={classNames(
@@ -214,10 +206,8 @@ export const AgentContentPane = ({
                   aria-label={`Close ${tabLabel(target)}`}
                   onClick={() => closeContent(targetId)}
                   className={classNames(
-                    'flex size-4 shrink-0 items-center justify-center rounded-6 transition-opacity hover:bg-surface-hover hover:text-text-primary',
-                    isActive
-                      ? 'text-text-tertiary'
-                      : 'text-text-quaternary opacity-0 group-hover:opacity-100',
+                    'flex size-5 shrink-0 items-center justify-center rounded-6 transition-colors hover:bg-surface-hover hover:text-text-primary',
+                    isActive ? 'text-text-tertiary' : 'text-text-quaternary',
                   )}
                 >
                   <MiniCloseIcon size={IconSize.XXSmall} />
@@ -236,16 +226,25 @@ export const AgentContentPane = ({
               }
               target="_blank"
               rel="noopener"
-              size={ButtonSize.XSmall}
+              size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
-              icon={<OpenLinkIcon />}
+              icon={<OpenLinkIcon size={IconSize.XSmall} />}
               aria-label="Open original"
             />
           </Tooltip>
         )}
+        <Tooltip content="Close panel">
+          <Button
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            icon={<MiniCloseIcon size={IconSize.XSmall} />}
+            aria-label="Close panel"
+            onClick={closeAllContent}
+          />
+        </Tooltip>
       </FlexRow>
 
-      <FlexCol className="min-h-0 w-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden [&_aside]:!w-full [&_aside]:!max-w-full [&_aside]:!border-l-0 [&_aside]:!px-4 [&_main]:!border-r-0 [&_main]:!px-4">
+      <FlexCol className="min-h-0 w-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden [&_aside]:!w-full [&_aside]:!max-w-full [&_aside]:!border-l-0 [&_aside]:!px-5 [&_main]:!border-r-0 [&_main]:!px-5">
         {activeContent?.type === 'post' && (
           <PostContent
             key={activeContent.post.id}
@@ -268,12 +267,12 @@ export const AgentContentPane = ({
           />
         )}
         {activeContent?.type === 'activity' && (
-          <div className="p-4">
+          <div className="p-5">
             <AgentActivitySection />
           </div>
         )}
         {activeContent?.type === 'debug' && (
-          <div className="p-4">{debugPanel}</div>
+          <div className="p-5">{debugPanel}</div>
         )}
       </FlexCol>
     </aside>

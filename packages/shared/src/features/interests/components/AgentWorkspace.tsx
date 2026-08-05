@@ -104,7 +104,7 @@ export const AgentWorkspace = ({
           <AgentWorkspaceHeader />
           <div
             ref={transcriptRef}
-            className="min-h-0 flex-1 overflow-y-auto px-3 tablet:px-4"
+            className="min-h-0 flex-1 overflow-y-auto px-5 tablet:px-8 laptop:px-10"
           >
             <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 py-6">
               <AgentIntro

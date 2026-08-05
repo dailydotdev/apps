@@ -9,7 +9,7 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import {
-  CardLayout,
+  BulletListIcon,
   DocsIcon,
   TerminalIcon,
   TimerIcon,
@@ -56,7 +56,7 @@ const Blocks = (): ReactElement => (
       description="Points at something the agent can open in the side panel. Replaces the bare text button: the label, the kind and the action each get their own slot."
     >
       <AgentEmbedCard
-        icon={<CardLayout size={IconSize.Size16} />}
+        icon={<BulletListIcon size={IconSize.Size16} />}
         title="All 9 findings"
         subtitle="Feed · 9 posts"
         actionLabel="Open"
