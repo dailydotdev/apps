@@ -440,6 +440,7 @@ export enum LogEvent {
   UpdateUserStack = 'update user stack',
   RemoveUserStack = 'remove user stack',
   ReorderUserStack = 'reorder user stack',
+  ShareUserStack = 'share user stack',
   // Hot Takes
   StartAddHotTake = 'start add hot take',
   AddHotTake = 'add hot take',
