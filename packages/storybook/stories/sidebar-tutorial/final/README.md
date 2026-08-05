@@ -1,7 +1,8 @@
 # Teaching the new sidebar: the finalized solution
 
-One folder, one system. The exploration gallery (`../`) spanned twelve concepts;
-this is the decision that came out of it, built to be handed to engineering.
+One folder, one system. Twelve concepts were explored and reviewed before this
+one was chosen; they are recoverable from commit `9a439940d` if the comparison
+is ever needed again.
 
 Stories: `Sidebar Tutorial/Final/00 Full experience` (the whole system, both
 personas), `01 Tour (existing users)`, `02 Intent teaching (new users)`,
@@ -33,9 +34,10 @@ personas), `01 Tour (existing users)`, `02 Intent teaching (new users)`,
    `Compact mode` switch that flips the rail live: the rail visibly narrowing is
    the explanation, so there is no caption. The setting lives in
    Settings → Appearance in the real product.
-2. **The shortcuts dock.** "Drag any page into the dock below, or add it from
-   the ••• menu." Drag from any panel, drag pins to reorder, ••• as the
-   click-only alternative.
+2. **The shortcuts dock.** "Drag anything from the sidebar into the dock, or add
+   it from the ••• menu." The rows are sidebar options rather than pages, so the
+   sentence names them that way. Drag from any panel, drag pins to reorder, •••
+   as the click-only alternative.
 3. **Game Center.** "Your streak and quests now share one Game Center." The
    Streak tab glows alone and the Game Center panel opens beside it (streak
    block + quest rows). Final CTA: **Got it**.
@@ -78,52 +80,52 @@ edges), the sentence at `Footnote`, and the primary button at `ButtonSize.Small`
 
 **How this card was chosen.** Five treatments (Quiet, Counter, Segments, Dialog
 footer, Wayfinding) were built and reviewed side by side; Quiet won and the
-other four were removed. They are recoverable from commit `f32e71128` if the
-comparison is ever needed again.
+other four were removed.
 
-## Productionization map
+## Where it shipped
 
-| Piece here | Lands in |
-| --- | --- |
-| `FinalRail` regions, glow ring, spotlight scrim | `packages/shared/src/components/sidebar/SidebarDesktopV2.tsx`, where the rail is already region-shaped; the tour needs a scrim sibling and a `relative z-*` wrapper on the rail column |
-| Tour engine (`SIDEBAR_TOUR_STEPS`, `SidebarTour`) | New `features/sidebarTour/` module rendered once from the v2 layout; steps stay data so copy changes are not code changes |
-| Step 1 compact switch | Reuses the existing `sidebarCompact` settings flag (`packages/shared/src/graphql/settings.ts`), so the switch writes the same flag Settings → Appearance writes |
-| Step 2 dock + drag/drop | `SidebarShortcutsDock.tsx` and its ••• tray (`RailMoreMenu.tsx`), which both already exist; the coach only anchors to them |
-| Step 3 Game Center panel | The real Streak tab panel, which the tour opens rather than mocking |
-| In-panel pin coaching | The panel sections behind `RailHoverPanel.tsx`; the coach anchors to the first pinnable row and the dock |
-| ••• coach | `RailMoreMenu` trigger on the dock |
-| `Learn the sidebar` replay item | `SidebarSupportButton`'s popup in `SidebarDesktopV2.tsx`, alongside the existing support/legal sections |
-| Coach card motion | The `coach-card-in` keyframes ride in `finalRail.tsx` because Storybook gives this folder no stylesheet. In production they belong in `packages/shared/src/styles/utilities.css` next to `animate-rail-popup-in` |
+This folder is the design reference. The product implementation lives in
+`packages/shared/src/features/sidebarTour/`, wired into the rail from
+`SidebarDesktopV2.tsx` and gated on the `sidebar_tour` flag, which defaults off.
 
-**Seen-flags.** Three booleans decide everything above:
-`sidebarTourCompletedAt`, `sidebarPinCoachRetired`, `sidebarDotsCoachSeen`
-(the last one a counter, retiring at 3). They belong in `SettingsFlags`
-(`packages/shared/src/graphql/settings.ts`). The API rejects flags it does not
-declare, so until daily-api adds the fields they have to ride the client-only
-settings-flag seam rather than being sent in `updateUserSettings`.
+Three things resolved differently in the product than they are drawn here, all
+deliberately:
 
-**Log events.** `tour_start`, `tour_step` (step id), `tour_skip` (step id),
-`tour_complete`, `tour_replay`, `pin_from_coach` (drag | button),
-`dots_coach_seen`. Skip-by-step is the one that tells us whether three steps is
-still one too many.
+- **Anchoring.** The mock positions cards against fixed rail geometry. The
+  product measures the live DOM instead, because the rail is user-reorderable,
+  folds tabs into the More menu on short viewports, and drops the Streak tab
+  when gamification is off. A step whose target is not on screen is skipped
+  rather than pointed blind, so the tour can legitimately run two steps.
+- **Seen-flags.** They ride `usePersistentContext` (device-local) rather than
+  `SettingsFlags`, because the API rejects flags it does not declare and one
+  undeclared key fails the whole `updateUserSettings` mutation. The cross-device
+  home is a `useActions` / `ActionType` field once daily-api declares it, and
+  the swap is isolated to `useSidebarTourState.ts`.
+- **Step 3** opens the real streak and quests panel rather than a mock, since
+  the Streak tab already is the Game Center.
+
+Log events are `start sidebar tour`, `view sidebar tour step`,
+`skip sidebar tour`, `complete sidebar tour`, `view sidebar pin coach`,
+`sidebar pin coach success` and `view sidebar dots coach`. Skip-by-step is the
+one that tells us whether three steps is still one too many.
 
 ## Deliberately not shipped
 
-Each of these was built in the exploration folder and left there:
+Each of these was built during the exploration and left behind:
 
-- **Hotspot beacons** (02). Pull-based, but they add permanent visual noise to
-  a rail we just asked people to relearn.
-- **Make-it-yours checklist** (03). Measurable, but it is a second onboarding
-  surface for a navigation change nobody asked for.
-- **Teaching empty dock** (05). The dock ships with pins, so the empty state
-  almost never renders.
-- **What's-new announcement card** (07). The tour already is the one sanctioned
+- **Hotspot beacons.** Pull-based, but they add permanent visual noise to a rail
+  we just asked people to relearn.
+- **Make-it-yours checklist.** Measurable, but it is a second onboarding surface
+  for a navigation change nobody asked for.
+- **Teaching empty dock.** The dock ships with pins, so the empty state almost
+  never renders.
+- **What's-new announcement card.** The tour already is the one sanctioned
   interruption; two pushes is one too many.
-- **Interactive playground** (08). A sandbox teaches the sandbox; the real
-  panel is right there.
-- **"New" pills** (09). Every pill is a promise to remove it later, and the
-  Game Center step covers the one genuinely merged surface.
-- **Autoplaying tour** (01 Autoplay). Takes reading control away from the user
-  to save three clicks.
+- **Interactive playground.** A sandbox teaches the sandbox; the real panel is
+  right there.
+- **"New" pills.** Every pill is a promise to remove it later, and the Game
+  Center step covers the one genuinely merged surface.
+- **Autoplaying tour.** Takes reading control away from the user to save three
+  clicks.
 - **The oval progress pill.** It read as a chip you could press, and it spent
   the card's most valuable row on three dots.
