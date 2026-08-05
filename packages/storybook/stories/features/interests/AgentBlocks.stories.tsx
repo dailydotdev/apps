@@ -1,10 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthContextProvider } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
+import { AgentDemoProviders } from '@dailydotdev/shared/src/features/interests/components/AgentDemoProviders';
 import {
   Typography,
   TypographyColor,
@@ -26,69 +23,6 @@ import { AgentPickList } from '@dailydotdev/shared/src/features/interests/compon
 import { mockFeedPosts } from '@dailydotdev/shared/src/features/interests/mockFeed';
 
 const noop = (): void => undefined;
-
-const MOCK_USER = {
-  id: 'sb-user',
-  name: 'Dev Dana',
-  username: 'devdana',
-  image:
-    'https://media.daily.dev/image/upload/s--O0TOmw4y--/f_auto/v1715772965/public/noProfile',
-  permalink: 'https://app.daily.dev/devdana',
-  createdAt: '2021-01-01T00:00:00.000Z',
-  reputation: 42,
-  providers: ['github'],
-} as const;
-
-const Providers = ({ children }: { children: ReactNode }): ReactElement => {
-  const LogContext = getLogContextStatic();
-
-  return (
-    <QueryClientProvider client={new QueryClient()}>
-      <AuthContextProvider
-        user={MOCK_USER as never}
-        firstLoad={false}
-        isFetched
-        loadingUser={false}
-        tokenRefreshed
-        loadedUserFromCache
-        getRedirectUri={() => ''}
-        updateUser={noop as never}
-        refetchBoot={noop as never}
-        visit={{ visitId: 'sb', sessionId: 'sb' } as never}
-        accessToken={null as never}
-        squads={[]}
-        feeds={undefined}
-        geo={{} as never}
-        isAndroidApp={false}
-      >
-        <LogContext.Provider
-          value={{
-            logEvent: noop,
-            logEventStart: noop,
-            logEventEnd: noop,
-            sendBeacon: noop,
-          }}
-        >
-          <SettingsContext.Provider
-            value={
-              {
-                insaneMode: false,
-                spaciness: 'roomy',
-                loadedSettings: true,
-                openNewTab: false,
-                flags: {},
-              } as never
-            }
-          >
-            <div className="min-h-screen bg-background-default p-6 text-text-primary">
-              {children}
-            </div>
-          </SettingsContext.Provider>
-        </LogContext.Provider>
-      </AuthContextProvider>
-    </QueryClientProvider>
-  );
-};
 
 const Section = ({
   title,
@@ -228,9 +162,11 @@ const meta: Meta = {
   title: 'Features/Interests/AgentBlocks',
   parameters: { layout: 'fullscreen' },
   render: () => (
-    <Providers>
-      <Blocks />
-    </Providers>
+    <AgentDemoProviders>
+      <div className="min-h-screen bg-background-default p-6 text-text-primary">
+        <Blocks />
+      </div>
+    </AgentDemoProviders>
   ),
 };
 
