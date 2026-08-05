@@ -36,6 +36,15 @@ import { AgentActivitySection } from './AgentActivitySection';
 
 const noop = () => undefined;
 
+// Every tab reads on the post page's own gutters, so switching between an
+// article, a feed and the debug dump doesn't shift the text sideways.
+const postPageGutter = 'px-4 tablet:px-6 laptop:px-8';
+// `PostContent` brings its own: the article column on the ramp above, the
+// widgets column on a narrower one. They sit side by side on the post page but
+// stack in a panel this narrow, so both are pinned to the article column's.
+const postPageGutterChildren =
+  '[&_aside]:!px-4 [&_main]:!px-4 tablet:[&_aside]:!px-6 tablet:[&_main]:!px-6 laptop:[&_aside]:!px-8 laptop:[&_main]:!px-8';
+
 const tabIcon: Record<AgentContentTarget['type'], ReactElement> = {
   post: <DocsIcon size={IconSize.XXSmall} />,
   feed: <BulletListIcon size={IconSize.XXSmall} />,
@@ -65,7 +74,7 @@ const FeedView = ({
   const { ref, isNarrow } = useNarrowContainer<HTMLDivElement>();
 
   return (
-    <FlexCol ref={ref} className="gap-2 p-5">
+    <FlexCol ref={ref} className={classNames('gap-2 py-4', postPageGutter)}>
       {posts.map((post) => {
         const CardComponent = isNarrow ? ArticleGrid : ArticleList;
 
@@ -154,7 +163,9 @@ export const AgentContentPane = ({
         <span className="h-10 w-1 rounded-6 bg-transparent transition-colors group-hover:bg-text-quaternary" />
       </div>
 
-      <FlexRow className="h-12 shrink-0 items-center gap-1 border-b border-border-subtlest-tertiary px-2">
+      {/* Same inset as the conversation's header, so the two 48px control rows
+          start and end on the same margin. */}
+      <FlexRow className="h-12 shrink-0 items-center gap-1 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
         {/* Floating chips rather than a full-height strip. The active one is
             carried by the brand fill, not by a fill-versus-no-fill difference:
             that read as "slightly lighter" when three tabs were open. */}
@@ -244,7 +255,13 @@ export const AgentContentPane = ({
         </Tooltip>
       </FlexRow>
 
-      <FlexCol className="min-h-0 w-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden [&_aside]:!w-full [&_aside]:!max-w-full [&_aside]:!border-l-0 [&_aside]:!px-5 [&_main]:!border-r-0 [&_main]:!px-5">
+      <FlexCol
+        className={classNames(
+          'min-h-0 w-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden',
+          postPageGutterChildren,
+          '[&_aside]:!w-full [&_aside]:!max-w-full [&_aside]:!border-l-0 [&_main]:!border-r-0',
+        )}
+      >
         {activeContent?.type === 'post' && (
           <PostContent
             key={activeContent.post.id}
@@ -267,12 +284,12 @@ export const AgentContentPane = ({
           />
         )}
         {activeContent?.type === 'activity' && (
-          <div className="p-5">
+          <div className={classNames('py-4', postPageGutter)}>
             <AgentActivitySection />
           </div>
         )}
         {activeContent?.type === 'debug' && (
-          <div className="p-5">{debugPanel}</div>
+          <div className={classNames('py-4', postPageGutter)}>{debugPanel}</div>
         )}
       </FlexCol>
     </aside>
