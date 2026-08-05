@@ -1241,7 +1241,7 @@ export const SidebarDesktopV2 = ({
       sidebarExpanded: true,
       shouldShowLabel: true,
       activePage,
-      compact: true,
+      isV2Panel: true,
     }),
     [activePage],
   );

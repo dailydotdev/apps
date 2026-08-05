@@ -26,9 +26,9 @@ export const NetworkSection = ({
   asPin = false,
   ...defaultRenderSectionProps
 }: SidebarSectionProps & { asPin?: boolean }): ReactElement => {
-  // `compact` marks the v2 rail panels, where the add action also appears as a
-  // dedicated bottom row (Slack-style). v1 keeps only its header "+".
-  const { compact } = defaultRenderSectionProps;
+  // The v2 panels also expose the add action as a dedicated bottom row
+  // (Slack-style). v1 keeps only its header "+".
+  const { isV2Panel } = defaultRenderSectionProps;
   const { squads } = useAuthContext();
   const { openNewSquad } = useSquadNavigation();
   const { count, isModeratorInAnySquad } = useSquadPendingPosts({
@@ -71,16 +71,17 @@ export const NetworkSection = ({
           ),
         }),
       },
-      compact && createSidebarAddItem('New Squad', { onClick: handleAddSquad }),
+      isV2Panel &&
+        createSidebarAddItem('New Squad', { onClick: handleAddSquad }),
       // Border between the discovery/moderation actions and the squad list,
       // matching the settings-dropdown grouping. Skip it when there are no
       // squads so the list never ends on a dangling divider.
       squadItems.length > 0 &&
-        compact &&
+        isV2Panel &&
         createSidebarSeparatorItem('squads-divider'),
       ...squadItems,
     ].filter(Boolean) as SidebarMenuItem[];
-  }, [squads, isModeratorInAnySquad, count, asPin, compact, handleAddSquad]);
+  }, [squads, isModeratorInAnySquad, count, asPin, isV2Panel, handleAddSquad]);
 
   return (
     <Section
