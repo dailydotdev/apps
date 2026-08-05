@@ -23,11 +23,14 @@ export const AgentWorkspace = ({
   postsCount,
   onDelete,
   isDeleting,
+  isStandalone,
 }: {
   items: AgentFeedItem[];
   postsCount: number;
   onDelete: () => void;
   isDeleting: boolean;
+  /** Rendered without the app chrome, so the workspace owns the viewport. */
+  isStandalone?: boolean;
 }): ReactElement => {
   const { isSettingsOpen, setSettingsOpen, openContent, messages } = useAgent();
   const { isV2 } = useLayoutVariant();
@@ -86,11 +89,15 @@ export const AgentWorkspace = ({
           // The workspace scrolls internally, so it has to stop exactly at the
           // viewport. What sits above it differs per layout: the mobile footer
           // nav plus the global header in the control variant, the floating
-          // card's own margins in v2.
-          'h-[calc(100dvh-7.5rem-var(--safe-area-top))] tablet:h-[calc(100dvh-3.5rem)]',
-          isV2
-            ? 'laptop:h-[calc(100dvh-1.75rem)]'
-            : 'laptop:h-[calc(100dvh-4rem)]',
+          // card's own margins in v2, nothing at all standalone.
+          isStandalone
+            ? 'h-[100dvh]'
+            : classNames(
+                'h-[calc(100dvh-7.5rem-var(--safe-area-top))] tablet:h-[calc(100dvh-3.5rem)]',
+                isV2
+                  ? 'laptop:h-[calc(100dvh-1.75rem)]'
+                  : 'laptop:h-[calc(100dvh-4rem)]',
+              ),
         )}
       >
         <FlexCol className="min-w-0 flex-1">
