@@ -24,9 +24,6 @@ describe('Switch', () => {
   });
 
   it('keeps the track full size next to a long label', () => {
-    // The global `* { flex-shrink: 0 }` reset does not apply in flex rows we
-    // build manually, so the track must opt out of shrinking itself or a long
-    // label squashes it.
     renderSwitch();
 
     const track = screen

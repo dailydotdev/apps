@@ -93,7 +93,6 @@ describe('useComposerSubmit editing a share', () => {
   });
 
   it('stays submittable without a resolved preview', () => {
-    // The link is fixed while editing — there is no URL/preview to validate.
     const { result } = renderSubmit();
 
     expect(result.current.isSubmitDisabled).toBe(false);
@@ -106,8 +105,6 @@ describe('useComposerSubmit editing a share', () => {
   });
 
   it('lets a title-only freeform edit save without a body', () => {
-    // Freeform posts can exist with just a title and cover; gating the edit
-    // on a body made their titles uneditable.
     const { result } = renderSubmit({
       kind: 'text',
       text: { title: 'Just a title', body: '' },

@@ -584,7 +584,6 @@ function RichTextInput(
         if (!textarea) {
           return;
         }
-        // Caret at the end, matching where the rich editor lands.
         textarea.focus({ preventScroll: true });
         const end = textarea.value.length;
         textarea.setSelectionRange(end, end);

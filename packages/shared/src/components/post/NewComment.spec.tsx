@@ -90,8 +90,6 @@ describe('NewComment', () => {
   });
 
   it('lets the composer own its focus, since its editor mounts async', () => {
-    // The by-id focus helper can fire before the lazy editor exists; the
-    // composer's queued autofocus is what reliably lands.
     render(
       <NewComment
         post={{ id: 'post-1' } as never}

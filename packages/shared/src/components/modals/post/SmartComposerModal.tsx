@@ -385,9 +385,8 @@ export function SmartComposerModal({
       initialSquadHandle,
       initialSquadId ?? editPost?.source?.id,
     );
-  // An edit always targets the post's own source. The audience list only
-  // holds squads the user can currently post to, and falling back to the
-  // personal source would silently retarget the edit.
+  // An edit must target the post's own source — the audience list only holds
+  // currently postable squads, and its fallback would silently retarget.
   const editSource = editPost
     ? audiences.find((audience) => audience.id === editPost.source?.id) ??
       (editPost.source as Squad)
@@ -677,7 +676,6 @@ export function SmartComposerModal({
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
         </div>
       )}
-      {/* Text keeps its actions inside the editor's own bottom bar. */}
       {kind !== 'text' && kind !== 'standup' && (
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
           <div className="flex items-center justify-between gap-3">

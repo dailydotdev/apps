@@ -85,8 +85,6 @@ describe('RichTextToolbar leading actions', () => {
   });
 
   it('moves overflowed formatting into the menu with a working trigger', () => {
-    // The tooltip must ride on the trigger's own `tooltip` prop — a `Tooltip`
-    // wrapper blurs on mouseup and dismisses the non-modal menu.
     const nativeResizeObserver = global.ResizeObserver;
     let triggerResize: (() => void) | undefined;
     const observerStub = (

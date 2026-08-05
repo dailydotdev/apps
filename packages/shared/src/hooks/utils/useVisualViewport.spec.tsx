@@ -51,8 +51,6 @@ describe('useVisualViewport', () => {
   });
 
   it('does not subscribe when disabled', () => {
-    // `scroll` fires continuously on iOS while the keyboard is open, so
-    // consumers that only read the value in some states opt out of the churn.
     render(<Viewport enabled={false} />);
 
     viewport.height = 500;
@@ -64,9 +62,6 @@ describe('useVisualViewport', () => {
   });
 
   it('tracks iOS panning the layout viewport under the keyboard', () => {
-    // iOS scrolls the layout viewport instead of resizing it, which fires
-    // `scroll` (not `resize`) and moves `offsetTop` — the value fixed overlays
-    // need to stay on screen.
     render(<Viewport />);
 
     viewport.offsetTop = 40;

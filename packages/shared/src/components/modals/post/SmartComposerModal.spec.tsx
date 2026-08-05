@@ -451,8 +451,6 @@ describe('SmartComposerModal', () => {
     });
 
     it('targets the post source even when it is not a postable audience', () => {
-      // The audience list only holds squads the user can currently post to;
-      // an edit must never retarget to the personal-source fallback.
       const foreignSource = { id: 'left-squad', handle: 'left' };
       renderWithClient(
         <SmartComposerModal
