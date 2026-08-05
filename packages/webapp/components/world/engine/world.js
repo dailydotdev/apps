@@ -7,7 +7,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { WORLD_CSS } from './styles';
 import { drawCrest } from './crest';
 import { DEFAULT_LOOK_ID, lookFromPreset } from './look';
-import { CLOUD_FORMS, DEFAULT_SKY, skyHourOf, skyPalOf } from './sky';
+import { DEFAULT_SKY, skyHourOf, skyPalOf } from './sky';
 import {
   LEVELS,
   levelOf,
@@ -2560,37 +2560,17 @@ function buildFlyers(P,n,radius,style){
    scales its children's POSITIONS, so size and placement could never be tuned
    independently. Puff size is set per cloud instead. */
 const CLOUD={cx:0,cz:0,r:60,y:-16};
-/* Built from the CURRENT sky rather than once at boot: a palette carries its own
-   cloud form and its own two colours, so switching the sky rebuilds the sea
-   under the world (see CLOUD_FORMS). Cheap enough to do on a pick — a few dozen
-   flat-shaded lumps — and it is the difference between nine skies and nine
-   backgrounds with the same cotton wool in front of them. */
 function buildClouds(){
   const g=new THREE.Group();
   const rnd=rngOf(4242);
-  const p0=skyPalOf(SKY.pal), h=skyHourOf(SKY.hour), F=CLOUD_FORMS[p0.cloud.form];
-  /* Toned by the hour like the sky itself is, or a night world sails under
-     fourteen white lamps. */
-  const tintC=new THREE.Color(h.tint);
-  const tone=(hex,k)=>new THREE.Color(hex).lerp(tintC,k).multiplyScalar(h.mul).getHex();
-  const opa=F.op*(0.7+h.exp*0.34);
-  /* Two materials, not one: the lit top and the shaded belly. Which one a puff
-     gets is decided by where it sits in its own cloud, so the underside colour
-     lands under the cloud rather than beside it. */
-  const mTop=mat(tone(p0.cloud.top,h.ka*0.7),{rough:1,flat:false,opacity:opa});
-  const mBot=mat(tone(p0.cloud.bot,h.kb*0.7),{rough:1,flat:false,opacity:opa});
-  for(let i=0;i<F.n;i++){
+  const m=mat(0xFFFFFF,{rough:1,flat:false,opacity:0.62});
+  for(let i=0;i<14;i++){
     const c=new THREE.Group();
-    const n=F.puffs[0]+Math.floor(rnd()*(F.puffs[1]-F.puffs[0]+1));
+    const n=3+Math.floor(rnd()*3);
     for(let k=0;k<n;k++){
-      const y=(rnd()-0.5)*0.8+(F.stack?k/n*F.stack:0);
-      const p=meshOf(new THREE.IcosahedronGeometry(lerp(F.r[0],F.r[1],rnd()),1),
-        /* A stacked form tapers as it climbs — a tower of equal lumps is a
-           column, and a column is not a cloud. */
-        y>0.05?mTop:mBot,false,false);
-      p.position.set((rnd()-0.5)*F.sx,y,(rnd()-0.5)*F.sz);
-      if(F.stack) p.scale.setScalar(lerp(1,0.62,k/n));
-      p.scale.y*=F.flat; c.add(p);
+      const p=meshOf(new THREE.IcosahedronGeometry(lerp(1.2,2.6,rnd()),1),m,false,false);
+      p.position.set((rnd()-0.5)*5,(rnd()-0.5)*0.8,(rnd()-0.5)*3);
+      p.scale.y=0.55; c.add(p);
     }
     const u=c.userData;
     u.a=rnd()*TAU;
@@ -8149,10 +8129,8 @@ function applySky(){
 }
 function skySet(next){
   if(!next)return;
-  const was=skyKey;
   SKY.pal=next.pal||SKY.pal; SKY.hour=next.hour||SKY.hour;
   applySky();
-  if(skyKey!==was) reskinClouds();
 }
 
 /* ================================================================ the names
@@ -9157,28 +9135,12 @@ listen(window,'blur',()=>POV.keys.clear());
 /* A cloud sea under the whole archipelago — it is what tells the eye the land
    is floating rather than sitting on a black page. Its ticks are held apart
    from the districts' so they never get swept up in a merge. */
+const clouds=buildClouds();
 /* No high fliers any more — at world scale a cloud above the land is a white
    blob parked in front of a quarter, and they used to be generated and then
    filtered back out. Every cloud is sea now, so there is nothing to drop. */
-const cloudA0=animated.length;
-let clouds=buildClouds();
 scene.add(clouds);        // laid out by placeClouds() per view
-let cloudTicks=animated.splice(cloudA0);
-/* The sky changed, so the weather under it has to. Ticks are re-taken from
-   `animated` the same way the first build took them, or the new clouds hang
-   motionless while the old ones' ticks write to a disposed group. */
-function reskinClouds(){
-  const vis=clouds.visible;
-  disposeGroup(clouds);
-  const a0=animated.length;
-  clouds=buildClouds();
-  clouds.visible=vis;
-  scene.add(clouds);
-  /* From a0, not from zero: an island being raised in the same frame has its
-     own ticks parked in here waiting for raise() to claim them. */
-  cloudTicks=animated.splice(a0);
-  placeClouds();
-}
+const cloudTicks=animated.splice(0);
 
 /* ==================================================== atmosphere (FX.air) */
 /* One thing, down from four. This started as haze, motes, mist and falls, and
