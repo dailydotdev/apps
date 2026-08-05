@@ -181,10 +181,14 @@ export const AgentContentPane = ({
               <span
                 key={targetId}
                 className={classNames(
-                  'group flex h-8 w-fit max-w-[12rem] shrink-0 items-center gap-1.5 rounded-10 pl-2.5 pr-1.5 transition-colors',
+                  'group flex h-8 w-fit max-w-[12rem] shrink-0 items-center gap-1.5 rounded-10 border pl-2.5 pr-1.5 transition-colors',
+                  // Both float tokens sit at 8% over the background, so a
+                  // purple fill against a grey one was two shades of nearly
+                  // the same dark. The selected chip is the only one that is
+                  // filled and outlined at all; the rest are bare text.
                   isActive
-                    ? 'bg-brand-float'
-                    : 'bg-surface-float hover:bg-surface-hover',
+                    ? 'border-border-subtlest-secondary bg-surface-float'
+                    : 'border-transparent hover:bg-surface-hover',
                 )}
               >
                 <button

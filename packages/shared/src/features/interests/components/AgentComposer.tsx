@@ -19,6 +19,7 @@ import {
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useAgent } from '../AgentContext';
+import { AgentUsageMeter } from './AgentUsageMeter';
 
 const quickActions = [
   { label: 'Explore more', icon: <MagicIcon />, command: 'Explore more' },
@@ -107,18 +108,25 @@ export const AgentComposer = (): ReactElement => {
                   className="size-2.5 rounded-2 bg-text-primary"
                 />
               }
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Secondary}
-              className="self-end"
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Float}
+              className="self-center"
               aria-label="Stop the agent"
               onClick={stopCommand}
             />
           ) : (
             <Button
-              icon={<SendAirplaneIcon size={IconSize.Size16} />}
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Primary}
-              className="self-end"
+              icon={
+                // The airplane's mass sits left of its bounding box, so
+                // centring the box leaves it reading low and left.
+                <SendAirplaneIcon
+                  size={IconSize.XSmall}
+                  className="translate-x-px"
+                />
+              }
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Float}
+              className="self-center"
               aria-label="Send to agent"
               disabled={!feedback.trim()}
               onClick={onSubmit}
@@ -141,7 +149,10 @@ export const AgentComposer = (): ReactElement => {
               </Button>
             ))}
           </FlexRow>
-          {isWorking && (
+          {/* One slot, two jobs: what the agent is doing right now matters more
+              than what is left in the allowance, and only one of them is ever
+              true. */}
+          {isWorking ? (
             <FlexRow className="min-w-0 shrink items-center gap-1.5">
               <span className="size-1.5 shrink-0 animate-pulse rounded-6 bg-brand-default" />
               <Typography
@@ -152,6 +163,8 @@ export const AgentComposer = (): ReactElement => {
                 {workingLabel}
               </Typography>
             </FlexRow>
+          ) : (
+            <AgentUsageMeter />
           )}
         </FlexRow>
       </FlexCol>
