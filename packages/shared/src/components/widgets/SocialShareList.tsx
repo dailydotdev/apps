@@ -27,6 +27,11 @@ interface SocialShareListProps {
   onNativeShare(): void;
   onClickSocial(provider: ShareProvider): void;
   shortenUrl?: boolean;
+  // When set and the device can share files (mobile), the social buttons open
+  // the native share sheet with this image attached instead of the platform's
+  // web intent — the only client-side way to share a real image (web intents
+  // carry text + link only). Email/Copy keep their dedicated behavior.
+  nativeShareFile?: File | null;
 }
 
 export function SocialShareList({
@@ -39,6 +44,7 @@ export function SocialShareList({
   onNativeShare,
   onClickSocial,
   shortenUrl = true,
+  nativeShareFile,
 }: SocialShareListProps): ReactElement {
   const { getShortUrl } = useGetShortUrl();
 
@@ -46,6 +52,20 @@ export function SocialShareList({
     onClickSocial(provider);
 
     const isEmailShare = provider === ShareProvider.Email;
+    // On mobile, route the platform buttons through the native share sheet so
+    // the image rides along (web intents can't attach files). Called with no
+    // prior await to stay inside the tap gesture. Email keeps its mailto.
+    if (
+      !isEmailShare &&
+      nativeShareFile &&
+      globalThis.navigator?.canShare?.({ files: [nativeShareFile] })
+    ) {
+      navigator
+        .share({ text: `${description} ${link}`, files: [nativeShareFile] })
+        .catch(() => undefined);
+      return;
+    }
+
     const shortLink = shortenUrl ? await getShortUrl(link) : link;
     const shareLink = getShareLink({
       provider,

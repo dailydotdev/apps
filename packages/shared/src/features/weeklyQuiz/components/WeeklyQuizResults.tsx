@@ -197,8 +197,10 @@ export const WeeklyQuizResults = ({
   // The premade result card as a File, pre-rendered on mount so the native
   // Share sheet can attach it within the tap gesture (Web Share API level 2 —
   // the only client-side way to send a custom image, since link-preview images
-  // are scraped from the URL's Open Graph tags server-side).
-  const shareFileRef = useRef<File | null>(null);
+  // are scraped from the URL's Open Graph tags server-side). State (not a ref)
+  // so the social buttons re-render to route through the native sheet once it
+  // is ready.
+  const [shareFile, setShareFile] = useState<File | null>(null);
   // Shareable quiz link. Points at daily.dev for now (a real, resolvable URL
   // with proper link-preview metadata) until the dedicated quiz page ships.
   const quizUrl = 'https://daily.dev';
@@ -223,7 +225,7 @@ export const WeeklyQuizResults = ({
   // Prefer sharing the premade result image itself (native share sheet, mobile)
   // so it lands as a photo in WhatsApp/etc.; fall back to a text + link share.
   const nativeShare = (): void => {
-    const file = shareFileRef.current;
+    const file = shareFile;
     const message = `${shareText} ${quizUrl}`;
     const run = async (): Promise<void> => {
       if (file && navigator.canShare?.({ files: [file] })) {
@@ -301,9 +303,9 @@ export const WeeklyQuizResults = ({
         for (let i = 0; i < binary.length; i += 1) {
           bytes[i] = binary.charCodeAt(i);
         }
-        shareFileRef.current = new File([bytes], 'weekly-tech-news-quiz.png', {
-          type: mime,
-        });
+        setShareFile(
+          new File([bytes], 'weekly-tech-news-quiz.png', { type: mime }),
+        );
       })
       .catch(() => undefined);
     return () => {
@@ -428,6 +430,9 @@ export const WeeklyQuizResults = ({
               onClickSocial={() => undefined}
               // No backend link-shortener in this context; share the link as-is.
               shortenUrl={false}
+              // Mobile: route the social buttons through the native share sheet
+              // so the premade result image is attached as a photo.
+              nativeShareFile={shareFile}
             />
           </div>
         </section>
