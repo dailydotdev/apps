@@ -617,7 +617,6 @@ export function SmartComposerModal({
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
         </div>
       )}
-      {/* Text keeps its actions inside the editor's own bottom bar. */}
       {kind !== 'text' && kind !== 'standup' && (
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
           <div className="flex items-center justify-between gap-3">

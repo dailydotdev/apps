@@ -42,7 +42,6 @@ describe('Drawer', () => {
   });
 
   it('locks the page scroll behind it while open', () => {
-    // <html> is the page's actual scroller — the body class alone is not enough.
     const { unmount } = render(
       <Drawer isOpen isFullScreen onClose={jest.fn()}>
         content
@@ -117,7 +116,6 @@ describe('Drawer', () => {
   });
 
   it('closes only on a direct backdrop hit, not on bubbled child clicks', () => {
-    // Portaled dropdowns bubble synthetic clicks up the React tree.
     jest.useFakeTimers();
     const onClose = jest.fn();
     render(

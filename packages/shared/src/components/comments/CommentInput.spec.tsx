@@ -58,7 +58,6 @@ describe('CommentInput', () => {
     expect(mockDrawerProps).toHaveBeenCalledWith(
       expect.objectContaining({
         isFullScreen: true,
-        // Animated ancestors trap position:fixed, so the drawer must portal.
         appendOnRoot: true,
       }),
     );
