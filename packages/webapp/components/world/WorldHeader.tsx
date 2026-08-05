@@ -6,7 +6,10 @@ import {
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  ArrowIcon,
+  SettingsIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   Button,
   ButtonSize,
@@ -18,6 +21,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { WorldImmersiveToggle, WorldMark } from './WorldMark';
+import { WorldNudge } from './WorldNudge';
 import { WorldSignupCta } from './WorldSignupCta';
 import { WorldViewerAction } from './WorldViewerAction';
 import type { WorldState } from './worldState';
@@ -26,12 +30,17 @@ import { worldCounts } from './worldState';
 const WorldHeaderActions = memo(function WorldHeaderActions({
   user,
   unbuilt,
+  showNudge,
+  onCustomize,
 }: {
   user: PublicProfile;
   unbuilt?: boolean;
+  showNudge?: boolean;
+  onCustomize?: () => void;
 }): ReactElement {
   return (
     <>
+      {!!showNudge && !!onCustomize && <WorldNudge onCustomize={onCustomize} />}
       <WorldViewerAction user={user} block />
       {/* Nothing here on unbuilt ground: the one ask stands on the world. */}
       {!unbuilt && <WorldSignupCta compact />}
@@ -45,8 +54,14 @@ interface WorldHeaderProps {
   /** Six realms of bare ground: every number is a zero and nothing is standing. */
   unbuilt?: boolean;
   isImmersive: boolean;
+  /** What the owner calls the place, or nothing if they never named it. */
+  worldName?: string;
+  /** The owner has never made this place theirs. */
+  showNudge?: boolean;
   onToggleImmersive: () => void;
   onLeaveRealm: () => void;
+  /** Only on your own world: nobody else's place is yours to dress. */
+  onCustomize?: () => void;
 }
 
 /**
@@ -60,8 +75,11 @@ export function WorldHeader({
   state,
   unbuilt,
   isImmersive,
+  worldName,
+  showNudge,
   onToggleImmersive,
   onLeaveRealm,
+  onCustomize,
 }: WorldHeaderProps): ReactElement {
   const backIcon = <ArrowIcon className="-rotate-90" />;
   const backProps = {
@@ -99,7 +117,7 @@ export function WorldHeader({
         />
         <div className="flex min-w-0 flex-1 flex-col">
           <Typography type={TypographyType.Footnote} bold truncate>
-            {state.open ? state.open.name : user.name}
+            {state.open ? state.open.name : worldName || user.name}
           </Typography>
           <Typography
             type={TypographyType.Caption1}
@@ -111,6 +129,17 @@ export function WorldHeader({
             {unbuilt ? 'Open ground' : worldCounts(state)}
           </Typography>
         </div>
+        {!!onCustomize && (
+          <Button
+            type="button"
+            aria-label="Customise this world"
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={<SettingsIcon />}
+            className="flex-none"
+            onClick={onCustomize}
+          />
+        )}
         <WorldImmersiveToggle
           isImmersive={isImmersive}
           onToggleImmersive={onToggleImmersive}
@@ -119,7 +148,12 @@ export function WorldHeader({
       </div>
       {/* Behind a memo boundary, like the rail's header block: neither reads the
           day, and the engine pushes a new state object every frame of a replay. */}
-      <WorldHeaderActions user={user} unbuilt={unbuilt} />
+      <WorldHeaderActions
+        user={user}
+        unbuilt={unbuilt}
+        showNudge={showNudge}
+        onCustomize={onCustomize}
+      />
     </header>
   );
 }

@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import type { UserStreak, MostReadTag } from '../../../../graphql/users';
 import { largeNumberFormat, getTagPageLink } from '../../../../lib';
 import Link from '../../../../components/utilities/Link';
@@ -11,7 +12,8 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import { SummaryCard } from './BadgesAndAwardsComponents';
-import { anchorDefaultRel, capitalize } from '../../../../lib/strings';
+import { anchorDefaultRel } from '../../../../lib/strings';
+import { tagTitlesQueryOptions } from '../../../../graphql/keywords';
 import { ActivityContainer } from '../../../../components/profile/ActivitySection';
 import { ClickableText } from '../../../../components/buttons/ClickableText';
 import { ElementPlaceholder } from '../../../../components/ElementPlaceholder';
@@ -20,10 +22,12 @@ import { migrateUserToStreaks } from '../../../../lib/constants';
 // ReadingTagProgress component
 interface ReadingTagProgressProps {
   tag: MostReadTag;
+  title?: string;
 }
 
 export const ReadingTagProgress = ({
   tag: { value: tag, count, percentage, total },
+  title,
 }: ReadingTagProgressProps): ReactElement => {
   const value = `+${(percentage * 100).toFixed(0)}%`;
 
@@ -38,7 +42,7 @@ export const ReadingTagProgress = ({
             color={TypographyColor.Primary}
             truncate
           >
-            {capitalize(tag)}
+            {title || tag}
           </Typography>
         </Link>
         <Typography
@@ -86,23 +90,31 @@ interface ReadingTagsSectionProps {
 
 export const ReadingTagsSection = ({
   mostReadTags,
-}: ReadingTagsSectionProps): ReactElement => (
-  <>
-    <Typography
-      tag={TypographyTag.H3}
-      type={TypographyType.Subhead}
-      color={TypographyColor.Tertiary}
-      className="my-1"
-    >
-      Top tags by reading days
-    </Typography>
-    <div className="my-3 grid max-w-full grid-cols-2 gap-2">
-      {mostReadTags?.map((tag) => (
-        <ReadingTagProgress key={tag.value} tag={tag} />
-      ))}
-    </div>
-  </>
-);
+}: ReadingTagsSectionProps): ReactElement => {
+  const { data: tagTitles = {} } = useQuery(tagTitlesQueryOptions());
+
+  return (
+    <>
+      <Typography
+        tag={TypographyTag.H3}
+        type={TypographyType.Subhead}
+        color={TypographyColor.Tertiary}
+        className="my-1"
+      >
+        Top tags by reading days
+      </Typography>
+      <div className="my-3 grid max-w-full grid-cols-2 gap-2">
+        {mostReadTags?.map((tag) => (
+          <ReadingTagProgress
+            key={tag.value}
+            tag={tag}
+            title={tagTitles[tag.value]}
+          />
+        ))}
+      </div>
+    </>
+  );
+};
 
 // HeatmapLegend component
 export const HeatmapLegend = (): ReactElement => (

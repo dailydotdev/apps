@@ -148,6 +148,7 @@ export enum RequestKey {
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
   Tags = 'tags',
+  TagTitles = 'tag_titles',
   FeedPreview = 'feedPreview',
   FeedPreviewCustom = 'feedPreviewCustom',
   DailyFeed = 'dailyFeed',
@@ -292,6 +293,7 @@ export enum RequestKey {
   LeaderboardPosition = 'leaderboard_position',
   UserWorld = 'user_world',
   UserWorldTimeline = 'user_world_timeline',
+  UserWorldEntitlements = 'user_world_entitlements',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];
