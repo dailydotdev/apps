@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useCallback, useMemo, useState } from 'react';
 import type {
   GetStaticPathsResult,
@@ -11,22 +11,21 @@ import type { NextSeoProps } from 'next-seo';
 import type {
   AlsoStackedTool,
   ToolPageTool,
+  ToolStacker,
+  ToolTopPost,
 } from '@dailydotdev/shared/src/graphql/tools';
 import {
   getDatasetTool,
   getToolsAlsoStacked,
+  getToolStackers,
+  getToolTopPosts,
 } from '@dailydotdev/shared/src/graphql/tools';
 import type {
   ToolTopSquad,
   AddUserStackInput,
 } from '@dailydotdev/shared/src/graphql/user/userStack';
 import { getTopSquadsForTool } from '@dailydotdev/shared/src/graphql/user/userStack';
-import type {
-  TopPost,
-  TopPostsData,
-} from '@dailydotdev/shared/src/graphql/feed';
-import { TAG_TOP_POSTS_QUERY } from '@dailydotdev/shared/src/graphql/feed';
-import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
+import { ApiError } from '@dailydotdev/shared/src/graphql/common';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import {
   Typography,
@@ -39,27 +38,38 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { PlusIcon, VIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  PlusIcon,
+  ShareIcon,
+  UpvoteIcon,
+  VIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { useUserStack } from '@dailydotdev/shared/src/features/profile/hooks/useUserStack';
 import { UserStackModal } from '@dailydotdev/shared/src/features/profile/components/stack/UserStackModal';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
+import { publishTimeRelativeShort } from '@dailydotdev/shared/src/lib/dateFormat';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
 const TOP_POSTS_COUNT = 5;
+const STACKERS_COUNT = 5;
 
 export interface ToolPageProps {
   tool: ToolPageTool;
   alsoStacked: AlsoStackedTool[];
   topSquads: ToolTopSquad[];
-  topPosts: TopPost[];
+  topPosts: ToolTopPost[];
+  stackers: ToolStacker[];
 }
 
 const ToolIcon = ({
@@ -81,16 +91,30 @@ const ToolIcon = ({
     </span>
   );
 
-const SectionTitle = ({ children }: { children: string }): ReactElement => (
-  <Typography
-    tag={TypographyTag.H2}
-    type={TypographyType.Callout}
-    color={TypographyColor.Tertiary}
-    bold
-    className="uppercase"
-  >
+const Card = ({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: ReactNode;
+  children: ReactNode;
+}): ReactElement => (
+  <section className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary p-4">
+    <div className="flex items-center justify-between gap-2">
+      <Typography
+        tag={TypographyTag.H2}
+        type={TypographyType.Footnote}
+        color={TypographyColor.Quaternary}
+        bold
+        className="uppercase tracking-wide"
+      >
+        {title}
+      </Typography>
+      {action}
+    </div>
     {children}
-  </Typography>
+  </section>
 );
 
 const ToolPage = ({
@@ -98,6 +122,7 @@ const ToolPage = ({
   alsoStacked,
   topSquads,
   topPosts,
+  stackers,
 }: ToolPageProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { stackItems, add } = useUserStack(user as PublicProfile);
@@ -108,6 +133,11 @@ const ToolPage = ({
     () => stackItems.some((item) => item.tool.id === tool.id),
     [stackItems, tool.id],
   );
+
+  const [copying, onShareOrCopy] = useShareOrCopyLink({
+    link: `${webappUrl}tools/${tool.slug}`,
+    text: `Check out ${tool.title} on daily.dev`,
+  });
 
   const handleAddClick = useCallback(() => {
     if (!user) {
@@ -133,14 +163,21 @@ const ToolPage = ({
   const websiteHost = tool.url ? new URL(tool.url).hostname : null;
 
   return (
-    <main className="mx-auto flex w-full max-w-screen-laptop flex-col gap-8 px-4 py-6 laptop:px-8">
-      <section className="flex flex-wrap items-center gap-4">
+    <main className="mx-auto flex w-full max-w-screen-laptop flex-col gap-5 px-4 py-6 laptop:px-8">
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Quaternary}
+      >
+        Tools / <span className="text-text-secondary">{tool.title}</span>
+      </Typography>
+
+      <section className="flex flex-wrap items-start gap-5">
         <ToolIcon
           title={tool.title}
           faviconUrl={tool.faviconUrl}
-          className="size-16 rounded-16 object-contain"
+          className="size-[72px] rounded-16 border border-border-subtlest-tertiary object-contain p-2"
         />
-        <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
           <Typography
             tag={TypographyTag.H1}
             type={TypographyType.LargeTitle}
@@ -148,113 +185,164 @@ const ToolPage = ({
           >
             {tool.title}
           </Typography>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             {tool.url && websiteHost && (
               <a
                 href={tool.url}
                 target="_blank"
                 rel={anchorDefaultRel}
-                className="text-text-link typo-callout"
+                className="rounded-8 border border-border-subtlest-tertiary px-2.5 py-0.5 font-bold text-text-tertiary typo-footnote hover:text-text-primary"
               >
                 {websiteHost}
               </a>
             )}
             {tool.keyword && (
               <Link href={`/tags/${encodeURIComponent(tool.keyword)}`} passHref>
-                <a className="text-text-tertiary typo-callout hover:underline">
+                <a className="rounded-8 border border-border-subtlest-tertiary px-2.5 py-0.5 font-bold text-text-tertiary typo-footnote hover:text-text-primary">
                   #{tool.keyword}
                 </a>
               </Link>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          {tool.stackCount > 0 && (
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              In {largeNumberFormat(tool.stackCount)}{' '}
-              {tool.stackCount === 1 ? 'stack' : 'stacks'}
-            </Typography>
-          )}
-          <Button
-            variant={
-              isInStack ? ButtonVariant.Secondary : ButtonVariant.Primary
-            }
-            size={ButtonSize.Medium}
-            icon={isInStack ? <VIcon /> : <PlusIcon />}
-            disabled={isInStack}
-            onClick={handleAddClick}
+        <Button
+          variant={isInStack ? ButtonVariant.Secondary : ButtonVariant.Primary}
+          size={ButtonSize.Medium}
+          icon={isInStack ? <VIcon /> : <PlusIcon />}
+          disabled={isInStack}
+          onClick={handleAddClick}
+        >
+          {isInStack ? 'In your stack' : 'Add to my stack'}
+        </Button>
+      </section>
+
+      <section className="flex flex-wrap items-center gap-4 rounded-16 border border-border-subtlest-tertiary px-4 py-3">
+        <div className="flex items-center">
+          {stackers.map((stacker, index) => (
+            <img
+              key={stacker.id}
+              src={stacker.image}
+              alt={`${stacker.name}'s avatar`}
+              className={`size-7 rounded-full border-2 border-background-default object-cover ${
+                index > 0 ? '-ml-2' : ''
+              }`}
+            />
+          ))}
+        </div>
+        <div className="flex flex-col">
+          <Typography type={TypographyType.Callout} bold>
+            {largeNumberFormat(tool.stackCount) ?? tool.stackCount}
+          </Typography>
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Quaternary}
           >
-            {isInStack ? 'In your stack' : 'Add to my stack'}
+            in {tool.stackCount === 1 ? 'stack' : 'stacks'}
+          </Typography>
+        </div>
+        <div className="ml-auto">
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            icon={<ShareIcon secondary={copying} />}
+            onClick={() => onShareOrCopy()}
+          >
+            {copying ? 'Copied!' : 'Share'}
           </Button>
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-8 laptop:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-5 laptop:grid-cols-[1.3fr_1fr]">
         {topPosts.length > 0 && tool.keyword && (
-          <section className="flex flex-col gap-3">
-            <SectionTitle>Trending posts</SectionTitle>
-            <ul className="flex flex-col gap-2">
+          <Card
+            title="Trending posts"
+            action={
+              <Link href={`/tags/${encodeURIComponent(tool.keyword)}`} passHref>
+                <a className="text-text-link typo-footnote">See all</a>
+              </Link>
+            }
+          >
+            <ul className="flex flex-col">
               {topPosts.map((post) => (
-                <li key={post.id}>
+                <li
+                  key={post.id}
+                  className="border-b border-border-subtlest-tertiary py-2.5 first:pt-0 last:border-b-0 last:pb-0"
+                >
                   <Link href={`/posts/${post.slug || post.id}`} passHref>
-                    <a className="block rounded-12 border border-border-subtlest-tertiary p-3 typo-callout hover:bg-surface-hover">
-                      {post.title}
+                    <a className="flex items-center gap-3">
+                      {post.image ? (
+                        <img
+                          src={post.image}
+                          alt=""
+                          className="size-9 flex-none rounded-10 object-cover"
+                        />
+                      ) : (
+                        <span className="grid size-9 flex-none place-items-center rounded-10 bg-surface-float font-bold text-text-tertiary">
+                          {(post.title ?? '?').charAt(0)}
+                        </span>
+                      )}
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <Typography type={TypographyType.Footnote} bold>
+                          {post.title}
+                        </Typography>
+                        <span className="mt-0.5 flex items-center gap-1.5 text-text-quaternary typo-caption1">
+                          <UpvoteIcon
+                            size={IconSize.XSmall}
+                            className="text-accent-avocado-default"
+                          />
+                          <span className="font-bold text-accent-avocado-default">
+                            {largeNumberFormat(post.numUpvotes) ??
+                              post.numUpvotes}
+                          </span>
+                          · {publishTimeRelativeShort(post.createdAt)} · #
+                          {tool.keyword}
+                        </span>
+                      </span>
                     </a>
                   </Link>
                 </li>
               ))}
             </ul>
-            <Link href={`/tags/${encodeURIComponent(tool.keyword)}`} passHref>
-              <a className="text-text-link typo-callout">
-                See all #{tool.keyword} posts
-              </a>
-            </Link>
-          </section>
+          </Card>
         )}
 
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-5">
           {topSquads.length > 0 && (
-            <section className="flex flex-col gap-3">
-              <SectionTitle>Top squads running it</SectionTitle>
-              <ul className="flex flex-col gap-2">
+            <Card title="Top squads running it">
+              <ul className="flex flex-col">
                 {topSquads.map((squad) => (
-                  <li key={squad.id}>
+                  <li
+                    key={squad.id}
+                    className="border-b border-border-subtlest-tertiary py-2.5 first:pt-0 last:border-b-0 last:pb-0"
+                  >
                     <Link href={`/squads/${squad.handle}`} passHref>
-                      <a className="flex items-center gap-3 rounded-12 border border-border-subtlest-tertiary p-3 hover:bg-surface-hover">
+                      <a className="flex items-center gap-3">
                         <img
                           src={squad.image}
                           alt={`${squad.name} avatar`}
-                          className="size-10 rounded-full object-cover"
+                          className="size-9 rounded-full object-cover"
                         />
-                        <div className="flex min-w-0 flex-1 flex-col">
-                          <Typography
-                            type={TypographyType.Callout}
-                            bold
-                            truncate
-                          >
+                        <span className="flex min-w-0 flex-1 flex-col">
+                          <Typography type={TypographyType.Footnote} bold>
                             {squad.name}
                           </Typography>
                           <Typography
-                            type={TypographyType.Footnote}
-                            color={TypographyColor.Tertiary}
+                            type={TypographyType.Caption1}
+                            color={TypographyColor.Quaternary}
                           >
                             {largeNumberFormat(squad.membersCount)} members
                           </Typography>
-                        </div>
+                        </span>
                       </a>
                     </Link>
                   </li>
                 ))}
               </ul>
-            </section>
+            </Card>
           )}
 
           {alsoStacked.length > 0 && (
-            <section className="flex flex-col gap-3">
-              <SectionTitle>Devs also stack</SectionTitle>
+            <Card title="Devs also stack">
               <div className="flex flex-wrap gap-2">
                 {alsoStacked.map((related) => (
                   <Link
@@ -262,7 +350,7 @@ const ToolPage = ({
                     href={`/tools/${related.slug}`}
                     passHref
                   >
-                    <a className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-3 py-2 typo-callout hover:bg-surface-hover">
+                    <a className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-1.5 font-bold typo-footnote hover:bg-surface-hover">
                       <ToolIcon
                         title={related.title}
                         faviconUrl={related.faviconUrl}
@@ -273,7 +361,7 @@ const ToolPage = ({
                   </Link>
                 ))}
               </div>
-            </section>
+            </Card>
           )}
         </div>
       </div>
@@ -321,15 +409,14 @@ export async function getStaticProps({
   try {
     const tool = await getDatasetTool(slug);
 
-    const [alsoStacked, topSquads, topPostsData] = await Promise.all([
+    const [alsoStacked, topSquads, topPosts, stackers] = await Promise.all([
       getToolsAlsoStacked(tool.id),
       getTopSquadsForTool({ toolId: tool.id, first: 3 }),
       tool.keyword
-        ? gqlClient.request<TopPostsData>(TAG_TOP_POSTS_QUERY, {
-            tag: tool.keyword,
-            first: TOP_POSTS_COUNT,
-          })
-        : Promise.resolve(null),
+        ? getToolTopPosts(tool.keyword, TOP_POSTS_COUNT)
+        : Promise.resolve([]),
+      // Tolerate the API not exposing toolStackers yet during deploy windows.
+      getToolStackers(tool.id, STACKERS_COUNT).catch(() => []),
     ]);
 
     const seoTitles = getPageSeoTitles(
@@ -341,9 +428,8 @@ export async function getStaticProps({
         tool,
         alsoStacked,
         topSquads,
-        topPosts:
-          topPostsData?.page?.edges?.map(({ node }) => node).filter(Boolean) ??
-          [],
+        topPosts,
+        stackers,
         seo: {
           title: seoTitles.title,
           openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },

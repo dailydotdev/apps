@@ -55,3 +55,71 @@ export const getToolsAlsoStacked = async (
   }>(TOOLS_ALSO_STACKED_QUERY, { id, first });
   return result.toolsAlsoStacked;
 };
+
+export interface ToolStacker {
+  id: string;
+  name: string;
+  username: string;
+  image: string;
+}
+
+const TOOL_STACKERS_QUERY = gql`
+  query ToolStackers($id: ID!, $first: Int) {
+    toolStackers(id: $id, first: $first) {
+      id
+      name
+      username
+      image
+    }
+  }
+`;
+
+export const getToolStackers = async (
+  id: string,
+  first = 5,
+): Promise<ToolStacker[]> => {
+  const result = await gqlClient.request<{ toolStackers: ToolStacker[] }>(
+    TOOL_STACKERS_QUERY,
+    { id, first },
+  );
+  return result.toolStackers;
+};
+
+export interface ToolTopPost {
+  id: string;
+  title: string | null;
+  slug: string | null;
+  image: string | null;
+  numUpvotes: number;
+  createdAt: string;
+}
+
+const TOOL_TOP_POSTS_QUERY = gql`
+  query ToolTopPosts($tag: String!, $first: Int) {
+    page: tagFeed(tag: $tag, first: $first, ranking: POPULARITY) {
+      edges {
+        node {
+          id
+          title
+          slug
+          image
+          numUpvotes
+          createdAt
+        }
+      }
+    }
+  }
+`;
+
+export const getToolTopPosts = async (
+  tag: string,
+  first = 5,
+): Promise<ToolTopPost[]> => {
+  const result = await gqlClient.request<{
+    page?: { edges?: { node: ToolTopPost }[] };
+  }>(TOOL_TOP_POSTS_QUERY, { tag, first });
+  return (
+    result.page?.edges?.map(({ node }) => node).filter((post) => post.title) ??
+    []
+  );
+};
