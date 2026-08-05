@@ -12,8 +12,9 @@ import { useCoachAnchor } from './useCoachAnchor';
 import type { SidebarTourState } from './useSidebarTourState';
 
 const COMPACT_SWITCH_ID = 'sidebar-tour-compact';
-// One settle window of the target being unresolvable — a window shrink refolded
-// the rail, the dock stopped fitting — before the step is given up on.
+// How long the target may stay unresolvable before the step is given up on.
+// A window shrink can refold the rail into the More menu or stop the dock
+// fitting at all.
 const LOST_TARGET_MS = 600;
 
 export const SidebarTourOverlay = ({
