@@ -167,6 +167,14 @@ function WeeklyQuizModal({
               quizId={quizId}
               result={game.result}
               audio={audio}
+              headerControls={
+                <WeeklyQuizSideControls
+                  layout="inline"
+                  level={audio.level}
+                  onCycleSound={audio.cycleLevel}
+                  onClose={handleRequestClose}
+                />
+              }
             />
           )}
         </WeeklyQuizSurface>

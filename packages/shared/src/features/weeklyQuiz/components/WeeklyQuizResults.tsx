@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
@@ -35,6 +35,10 @@ interface WeeklyQuizResultsProps {
   quizId: string;
   result: WeeklyQuizGameResult;
   audio?: UseWeeklyQuizAudio;
+  // Mute + close controls, rendered on the right of the brand header (mobile
+  // only) so the header matches the intro's top bar. Desktop keeps the modal's
+  // external side column.
+  headerControls?: ReactNode;
 }
 
 // A developer "level" keyed to how many answers the player got right — the
@@ -173,6 +177,7 @@ export const WeeklyQuizResults = ({
   quizId,
   result,
   audio,
+  headerControls,
 }: WeeklyQuizResultsProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { submit } = useSubmitWeeklyQuiz();
@@ -277,9 +282,13 @@ export const WeeklyQuizResults = ({
       {/* Chunk 1 — your result: brand header, the verdict headline, GIF and
           share row. A floating panel, distinct from the panel below. */}
       <div className="flex flex-col gap-6 p-4 tablet:rounded-16 tablet:border tablet:border-border-subtlest-tertiary tablet:bg-background-subtle tablet:shadow-2">
-        {/* daily.dev brand header, inside the result panel. */}
-        <div className="-mx-4 -mt-4 border-b border-border-subtlest-tertiary px-4 py-3">
+        {/* daily.dev brand header — same markup as the intro's top bar (logo
+            left, controls right on mobile), broken out of the panel padding. */}
+        <div className="-mx-4 -mt-4 flex items-center justify-between gap-3 border-b border-border-subtlest-tertiary px-4 pb-3 pt-4">
           <WeeklyQuizLogo />
+          {headerControls && (
+            <span className="flex tablet:hidden">{headerControls}</span>
+          )}
         </div>
         {/* Verdict: the score ring on the left, level and copy on the right. */}
         <div className="flex flex-wrap items-center gap-4 text-left">

@@ -43,15 +43,9 @@ export const WeeklyQuizSurface = ({
       // `overflow-x-clip` then contains the confetti drift without touching
       // vertical scrolling. Mobile gets a solid fill so the results read as one
       // full-screen surface (like the intro); desktop stays transparent so the
-      // panels float in the modal.
+      // panels float in the modal. The bare screen supplies its own top bar
+      // (and hosts the mobile controls there), so no header is rendered here.
       <div className="relative min-w-0 flex-1 overflow-x-clip bg-background-default tablet:bg-transparent">
-        {/* Mobile-only: the bare results screen brings no top bar, so float the
-            controls over its top-right corner. */}
-        {controls && (
-          <div className="z-30 absolute right-3 top-3 tablet:hidden">
-            {controls}
-          </div>
-        )}
         {children}
       </div>
     );

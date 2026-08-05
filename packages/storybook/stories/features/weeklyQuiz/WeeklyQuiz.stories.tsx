@@ -161,6 +161,7 @@ const PreviewGame = ({
             quizId={quizId}
             result={game.result}
             audio={audio}
+            headerControls={controls}
           />
         )}
       </WeeklyQuizSurface>
@@ -205,17 +206,7 @@ const ResultsPreview = (): React.ReactElement => {
     // Mirror the game-flow wrapper: full-bleed on mobile, centered card at
     // tablet+, with the mute/close controls inside the surface on mobile.
     <div className="force-dark -m-8 flex min-h-[100dvh] w-auto items-stretch justify-center gap-3 tablet:m-0 tablet:mx-auto tablet:min-h-0 tablet:w-full tablet:items-start tablet:max-w-[640px]">
-      <WeeklyQuizSurface
-        bare
-        controls={
-          <WeeklyQuizSideControls
-            layout="inline"
-            level={audio.level}
-            onCycleSound={audio.cycleLevel}
-            onClose={() => undefined}
-          />
-        }
-      >
+      <WeeklyQuizSurface bare>
         <WeeklyQuizResults
           quizId={status?.activeQuizId ?? ''}
           result={{
@@ -225,6 +216,14 @@ const ResultsPreview = (): React.ReactElement => {
             timeMs: 104000,
           }}
           audio={audio}
+          headerControls={
+            <WeeklyQuizSideControls
+              layout="inline"
+              level={audio.level}
+              onCycleSound={audio.cycleLevel}
+              onClose={() => undefined}
+            />
+          }
         />
       </WeeklyQuizSurface>
     </div>
