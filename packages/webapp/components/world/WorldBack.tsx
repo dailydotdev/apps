@@ -59,7 +59,7 @@ export function WorldBack({
         <Button
           {...props}
           type="button"
-          aria-label="Back to the world"
+          aria-label="Back to world view"
           onClick={onLeaveRealm}
         />
       ) : (

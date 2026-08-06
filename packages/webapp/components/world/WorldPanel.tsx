@@ -114,21 +114,26 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
   user,
   worldName,
   isImmersive,
+  isInRealm,
   isOwn,
   canShare,
   onToggleImmersive,
   onCustomize,
+  onLeaveRealm,
 }: {
   user: PublicProfile;
   /** What the owner calls the place, or nothing if they never named it. */
   worldName?: string;
   isImmersive: boolean;
+  /** Inside a realm the way out is one level up, not off the world entirely. */
+  isInRealm: boolean;
   isOwn: boolean;
   /** False on a world its owner has hidden: the link would open on a wall. */
   canShare: boolean;
   onToggleImmersive: () => void;
   /** Only on your own world: nobody else's place is yours to dress. */
   onCustomize?: () => void;
+  onLeaveRealm: () => void;
 }): ReactElement {
   /* A profile carries everything a comment author does, but types its handle as
      optional, and the comment components do not. One that has no handle has no
@@ -147,16 +152,28 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
           button's own padding is what lines its label up with the content under
           it, and the icon-only one has none to give. */}
       <div className="-mx-1 flex items-center justify-between gap-2">
-        <Link href={`/${user.username || user.id}`} passHref>
+        {isInRealm ? (
           <Button
-            tag="a"
+            type="button"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<ArrowIcon className="-rotate-90" />}
+            onClick={onLeaveRealm}
           >
-            Back to profile
+            Back to world view
           </Button>
-        </Link>
+        ) : (
+          <Link href={`/${user.username || user.id}`} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<ArrowIcon className="-rotate-90" />}
+            >
+              Back to profile
+            </Button>
+          </Link>
+        )}
         <div className="flex flex-none items-center">
           {canShare && (
             <WorldShare user={user} worldName={worldName} isOwn={isOwn} />
@@ -289,10 +306,12 @@ export function WorldPanel({
         user={user}
         worldName={worldName}
         isImmersive={isImmersive}
+        isInRealm={!!open}
         isOwn={isOwn}
         canShare={canShare}
         onToggleImmersive={onToggleImmersive}
         onCustomize={draft?.open}
+        onLeaveRealm={onLeaveRealm}
       />
 
       {!!showNudge && !!draft && <WorldNudge onCustomize={draft.open} />}
@@ -320,26 +339,14 @@ export function WorldPanel({
       {/* Natural height, not flex-1: the rail scrolls as a whole, and a ranking
           that grew to fill it left the signup card underneath the list. */}
       <section className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-2">
-          <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-            bold
-          >
-            {open ? 'Districts' : 'Realms'}
-          </Typography>
-          {!!open && (
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={<ArrowIcon className="-rotate-90" />}
-              onClick={onLeaveRealm}
-            >
-              Back to the world
-            </Button>
-          )}
-        </div>
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+          bold
+        >
+          {open ? 'Districts' : 'Realms'}
+        </Typography>
         {!!open && (
           <Typography
             type={TypographyType.Caption1}
