@@ -41,7 +41,7 @@ const shipped: string[][] = [
   [
     'Working status strip',
     '✳ spinner · elapsed · what it is doing',
-    'AgentThinkingStrip: the logo as a live particle field · Working · elapsed · run label',
+    'AgentThinkingStrip: the mark turning into a globe of grain · Working · elapsed · run label',
   ],
   [
     'Composer working glow',

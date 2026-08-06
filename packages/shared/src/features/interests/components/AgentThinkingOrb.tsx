@@ -1,40 +1,36 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
-import type { ThinkingOrbState } from '../thinkingOrb';
 import {
-  dotCount,
-  dotRadius,
+  journey,
+  markWeight,
   MARK_PADDING,
-  PARALLAX,
-  solidBoost,
-  thinkingModes,
+  placeGrains,
+  SPEED,
   VIEW_HEIGHT,
   VIEW_WIDTH,
 } from '../thinkingOrb';
-import { markPaths, sampleMark } from '../logoMark';
+import { markPaths, markRingAlpha } from '../logoMark';
 import { usePrefersReducedMotion } from '../../giveback/useGivebackMotion';
 
 /**
- * The agent's thinking indicator: the daily.dev mark rendered as a live particle
- * field rather than as an animated drawing.
+ * The agent's thinking indicator: the daily.dev mark breaking into grain,
+ * flying out onto a turning sphere, and coming home again.
  *
- * A few dozen dots are sampled around the logo's outline and moved every frame
- * by the force field for the current state (see thinkingOrb.ts); the mark itself
- * is painted faintly underneath as the shape they are resolving toward. Depth
- * comes from dot size and alpha only — plain 2D canvas arcs, no filters, no
- * shadows — so it costs almost nothing and looks identical in every browser.
+ * Standing still it is the real logo — the vector path, not a mound of discs —
+ * and the grains only grow in as it leaves (see thinkingOrb.ts for why).
+ * Depth is carried by dot size and alpha alone: plain 2D canvas arcs, no
+ * filters and no shadows, so it costs almost nothing and looks the same in
+ * every browser.
  *
- * The clock is `performance.now()`, shared by every instance, so several orbs on
- * one page move as one system. Instances stop drawing while offscreen or while
- * the tab is hidden, and reduced motion gets a single static frame.
+ * The clock is `performance.now()`, shared by every instance, so several orbs
+ * on one page move as one system. Instances stop drawing while offscreen or
+ * while the tab is hidden, and reduced motion gets the resting mark.
  */
 export const AgentThinkingOrb = ({
-  state = 'working',
   size = 20,
   speed = 1,
   className,
 }: {
-  state?: ThinkingOrbState;
   /** Rendered height in CSS pixels; width follows the mark's aspect. */
   size?: number;
   speed?: number;
@@ -57,13 +53,7 @@ export const AgentThinkingOrb = ({
 
     const scale = size / VIEW_HEIGHT;
     const unit = dpr * scale;
-    const mode = thinkingModes[state];
-    const samples = sampleMark(dotCount(size));
     const paths = markPaths.map((d) => new Path2D(d));
-    // Radius is chosen in pixels, then expressed in mark units, because the
-    // whole context is scaled into the logo's coordinate space.
-    const radius = dotRadius(size) / scale;
-    const solid = solidBoost(size);
 
     let ink = window.getComputedStyle(canvas).color;
     let frames = 0;
@@ -87,41 +77,31 @@ export const AgentThinkingOrb = ({
       ctx.clearRect(-MARK_PADDING, -MARK_PADDING, VIEW_WIDTH, VIEW_HEIGHT);
       ctx.fillStyle = ink;
 
-      ctx.globalAlpha = Math.min(0.8, mode.solid(t) + solid);
-      paths.forEach((path) => ctx.fill(path));
-      ctx.globalAlpha = 1;
+      const progress = journey(t);
+      const weight = markWeight(progress);
 
-      // Overlays draw in mark units, so a hairline has to be asked for in them.
-      ctx.lineWidth = 1 / scale;
-      mode.overlay?.(ctx, t, ink);
+      if (weight > 0) {
+        paths.forEach((path, index) => {
+          ctx.globalAlpha = weight * markRingAlpha[index];
+          ctx.fill(path);
+        });
+      }
 
-      // Far to near: the near dots have to land on top of the far ones for the
-      // depth to read at all.
-      const dots = samples
-        .map((sample, index) => mode.place(sample, index, t))
-        .sort((a, b) => a.z - b.z);
-
-      dots.forEach(({ x, y, z, glow }) => {
-        const depth = (z + 1) / 2;
-        ctx.globalAlpha = Math.min(1, 0.26 + depth * 0.4 + glow * 0.55);
+      placeGrains(t, size, scale).forEach(({ x, y, radius, alpha }) => {
+        ctx.globalAlpha = Math.max(0, alpha);
         ctx.beginPath();
-        ctx.arc(
-          x + z * PARALLAX,
-          y - z * PARALLAX * 0.5,
-          radius * (0.55 + depth * 0.7 + glow * 0.6),
-          0,
-          Math.PI * 2,
-        );
+        ctx.arc(x, y, Math.max(0.04, radius), 0, Math.PI * 2);
         ctx.fill();
       });
 
       ctx.globalAlpha = 1;
     };
 
-    const now = () => (performance.now() / 1000) * speed;
+    const now = () => (performance.now() / 1000) * SPEED * speed;
 
     if (reducedMotion) {
-      frame(1.6);
+      // Zero is the resting pose, which is the mark exactly as it is drawn.
+      frame(0);
       return undefined;
     }
 
@@ -183,7 +163,7 @@ export const AgentThinkingOrb = ({
       observer?.disconnect();
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
-  }, [state, size, speed, width, reducedMotion]);
+  }, [size, speed, width, reducedMotion]);
 
   return (
     <canvas

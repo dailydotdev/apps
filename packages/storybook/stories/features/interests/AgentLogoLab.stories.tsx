@@ -3,12 +3,12 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AgentThinkingOrbLab } from '@dailydotdev/shared/src/features/interests/components/AgentThinkingOrbLab';
 
 /**
- * The thinking indicator, rebuilt as a particle system rather than a set of
- * keyframe tricks: the daily.dev mark is the attractor, and each state is a
- * different force field over the dots sampled around its outline.
+ * The thinking indicator: the daily.dev mark breaking into a few hundred
+ * grains, flying out onto a turning sphere, and coming home again. The same
+ * ink makes the trip both ways — nothing fades in or out.
  *
- * The gallery itself lives in shared so /dev/agent-indicator can render the
- * same page on a Vercel preview, where Storybook does not exist.
+ * The page itself lives in shared so /dev/agent-indicator can render it on a
+ * Vercel preview, where Storybook does not exist.
  */
 const meta: Meta = {
   title: 'Features/Interests/AgentLogoLab',

@@ -43,7 +43,8 @@ export const AgentThinkingStrip = (): ReactElement => {
 
   return (
     <FlexRow className="items-center gap-2" aria-live="polite">
-      <span className="shrink-0 text-brand-default">
+      {/* The same token the logo itself fills with: white on the dark theme. */}
+      <span className="shrink-0 text-text-primary">
         <AgentThinkingOrb size={22} />
       </span>
       <Typography type={TypographyType.Footnote} bold>
