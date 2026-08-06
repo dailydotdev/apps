@@ -8,11 +8,17 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
+import { WorldShare } from './WorldShare';
 
 interface WorldBackProps {
   user: PublicProfile;
   /** Inside a realm the way out is one level up, not off the world entirely. */
   isInRealm: boolean;
+  /** What the owner calls the place, if they have named it. */
+  worldName?: string;
+  isOwn: boolean;
+  /** False on a world its owner has hidden: the link would open on a wall. */
+  canShare: boolean;
   onLeaveRealm: () => void;
 }
 
@@ -23,13 +29,19 @@ interface WorldBackProps {
  * more than it needs anything written over it: the ranking, the stats, the name
  * and the counters are all things you read for a while, and the strip a phone
  * can spare makes them unreadable and the world smaller at the same time. So
- * the only thing left is the one control you cannot do without, standing in a
- * corner opposite the mark — the same plate, the same height, so the two read
- * as one line across the top of the world rather than as two stray buttons.
+ * what is left is the way out and the way to pass it on, standing in a corner
+ * opposite the mark — the same plate, the same height, so the two read as one
+ * line across the top of the world rather than as stray buttons.
+ *
+ * Share earns the second slot because a phone is where it is worth most: it is
+ * the one control here that opens the native sheet rather than a clipboard.
  */
 export function WorldBack({
   user,
   isInRealm,
+  worldName,
+  isOwn,
+  canShare,
   onLeaveRealm,
 }: WorldBackProps): ReactElement {
   const props = {
@@ -54,6 +66,9 @@ export function WorldBack({
         <Link href={`/${user.username || user.id}`} passHref>
           <Button {...props} tag="a" aria-label="Back to profile" />
         </Link>
+      )}
+      {canShare && (
+        <WorldShare user={user} worldName={worldName} isOwn={isOwn} />
       )}
     </div>
   );

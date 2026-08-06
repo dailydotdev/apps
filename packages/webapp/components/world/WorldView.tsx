@@ -2,6 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
+import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
+import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { WorldBack } from './WorldBack';
 import { WorldBoot } from './WorldBoot';
 import { useIsOwnWorld, WorldInvite } from './WorldInvite';
@@ -78,6 +80,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   const [failed, setFailed] = useState<string | null>(null);
   const [isImmersive, setIsImmersive] = useState(false);
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const { autoDismissNotifications } = useSettingsContext();
   /* Answered before the engine is built and never asked again: it decides how
      the renderer is configured, and a WebGL context cannot be reconfigured
      without being replaced. */
@@ -316,6 +319,12 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
      the place and a laptop is where it is made yours. */
   const ownerDraft = isOwn ? draft : undefined;
   const worldName = applied?.name ?? undefined;
+  /* Reads the STORED setting rather than the draft: what a visitor following
+     the link will hit is what has been saved, not what the bench is previewing.
+     A visitor never gets here with a hidden world at all — that returns above —
+     so this only ever takes the button off the owner's own hidden world, where
+     the link it would hand out opens on WorldPrivate for everyone else. */
+  const canShare = !settings?.private;
   /* Never on an unbuilt world: WorldInvite already makes the one ask there,
      and it makes it nowhere else. */
   const showNudge = isOwn && !isUnbuilt && !isWorldCustomised(applied);
@@ -347,6 +356,8 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
               unbuilt={isUnbuilt}
               isImmersive={isImmersive}
               worldName={worldName}
+              isOwn={isOwn}
+              canShare={canShare}
               draft={ownerDraft}
               districts={districts}
               showNudge={showNudge}
@@ -358,6 +369,9 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
             <WorldBack
               user={user}
               isInRealm={!!state.open}
+              worldName={worldName}
+              isOwn={isOwn}
+              canShare={canShare}
               onLeaveRealm={onLeaveRealm}
             />
           )}
@@ -416,6 +430,12 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
             message={state.progress > 0 ? state.message : undefined}
           />
         ))}
+
+      {/* The app mounts this in MainLayout, which this page deliberately has
+          none of, so every toast raised here would be written to a renderer
+          that is not on screen — including the one that confirms a copied
+          link, which is the whole of the share button's feedback on a pointer. */}
+      <Toast autoDismissNotifications={autoDismissNotifications} />
     </div>
   );
 }
