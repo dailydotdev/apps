@@ -19,14 +19,15 @@ import { IconSize } from '../../../components/Icon';
  * with the feed moving underneath it, throwing a little of its own colour on
  * what it covers.
  *
- * `banner` is the slot above the field: whatever the agents are doing right
- * now goes there, and the frame stays the same shape around it.
+ * `status` is the slot under the field: whatever the agents are doing right
+ * now goes there. Under, not over, because the field is what you came for and
+ * the news is what you glance at on the way past.
  */
 export const AgentGlassComposer = ({
   value,
   onChange,
   onSubmit,
-  banner,
+  status,
   placeholder = 'Spawn an agent to hunt something…',
   isBusy,
   className,
@@ -34,7 +35,7 @@ export const AgentGlassComposer = ({
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
-  banner?: ReactNode;
+  status?: ReactNode;
   placeholder?: string;
   isBusy?: boolean;
   className?: string;
@@ -46,7 +47,6 @@ export const AgentGlassComposer = ({
       className="agent-glass-bloom pointer-events-none absolute inset-x-10 bottom-0 top-4 rounded-24"
     />
     <div className="agent-glass-frame relative flex flex-col gap-1.5 rounded-20 p-1.5">
-      {banner}
       <FlexRow className="agent-glass-field items-center gap-2 rounded-16 px-3 py-2">
         <MagicIcon
           size={IconSize.Size16}
@@ -85,6 +85,7 @@ export const AgentGlassComposer = ({
           onClick={onSubmit}
         />
       </FlexRow>
+      {status}
     </div>
   </div>
 );

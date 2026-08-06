@@ -165,10 +165,10 @@ const Stage = ({
 );
 
 const Field = ({
-  banner,
+  status,
   className,
 }: {
-  banner?: ReactNode;
+  status?: ReactNode;
   className?: string;
 }): ReactElement => {
   const [value, setValue] = useState('');
@@ -178,7 +178,7 @@ const Field = ({
       value={value}
       onChange={setValue}
       onSubmit={() => undefined}
-      banner={banner}
+      status={status}
       className={className}
     />
   );
@@ -212,7 +212,7 @@ const Strip = (): ReactElement => {
 
   return (
     <Field
-      banner={
+      status={
         <FlexRow className="items-center gap-2 px-2 pt-0.5">
           <span className="size-1.5 shrink-0 animate-pulse rounded-6 bg-brand-default" />
           <Typography
@@ -244,7 +244,7 @@ const Counter = (): ReactElement => {
 
   return (
     <Field
-      banner={
+      status={
         <FlexRow className="items-center gap-2 px-2 pt-0.5">
           <span className="size-1.5 shrink-0 animate-pulse rounded-6 bg-brand-default" />
           <Typography
@@ -276,7 +276,7 @@ const Orbit = (): ReactElement => (
 // 5 — several at once, as a stack you can read at a glance.
 const Stack = (): ReactElement => (
   <Field
-    banner={
+    status={
       <FlexRow className="items-center gap-2 px-2 pt-0.5">
         <FlexRow className="shrink-0 items-center">
           {runningAgents.map((name, index) => (
@@ -344,7 +344,7 @@ const Ticker = (): ReactElement => {
 
   return (
     <Field
-      banner={
+      status={
         <FlexRow className="items-center gap-2 overflow-hidden px-2 pt-0.5">
           <MagicIcon
             size={IconSize.Size16}
@@ -367,7 +367,7 @@ const Ticker = (): ReactElement => {
 // 9 — the run as its three real stages, so "still going" has a shape.
 const Segments = (): ReactElement => (
   <Field
-    banner={
+    status={
       <FlexCol className="gap-1 px-2 pt-1">
         <FlexRow className="items-center gap-2">
           <Typography
@@ -497,8 +497,10 @@ const RunningStates = (): ReactElement => (
         color={TypographyColor.Tertiary}
       >
         All ten sit in the same glass field docked over the feed, so the only
-        thing that differs is the treatment. Pick one and it becomes the
-        default; the rest stay here.
+        thing that differs is the treatment. Two won: the status strip, which
+        moved under the field and grew into the agent monitor, and the docked
+        result, which is what the monitor's panel does when it opens. The rest
+        stay here as the record of what was considered.
       </Typography>
     </FlexCol>
     <div className="grid gap-8 laptop:grid-cols-2">

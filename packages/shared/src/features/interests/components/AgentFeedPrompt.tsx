@@ -14,11 +14,10 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureInterestAgent } from '../../../lib/featureManagement';
 import { webappUrl } from '../../../lib/constants';
-import { UserInterestStatus } from '../../../graphql/interests';
 import { interestsQueryOptions } from '../queries';
 import { useCreateInterest } from '../hooks/useCreateInterest';
 import { AgentGlassComposer } from './AgentGlassComposer';
-import { AgentRunStrip } from './AgentRunStrip';
+import { AgentMonitor, toMonitorItems } from './AgentMonitor';
 
 /**
  * The agent's way into the feed.
@@ -49,10 +48,6 @@ export const AgentFeedPrompt = (): ReactElement | null => {
     return null;
   }
 
-  const running = (interests ?? []).filter(
-    ({ status }) => status === UserInterestStatus.Active,
-  );
-
   const onSubmit = () => {
     const trimmed = query.trim();
 
@@ -72,7 +67,7 @@ export const AgentFeedPrompt = (): ReactElement | null => {
           onChange={setQuery}
           onSubmit={onSubmit}
           isBusy={isCreating}
-          banner={running.length ? <AgentRunStrip agents={running} /> : null}
+          status={<AgentMonitor items={toMonitorItems(interests ?? [])} />}
         />
         <FlexRow className="absolute -right-1 -top-1">
           <Button

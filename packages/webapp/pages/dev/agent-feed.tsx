@@ -4,7 +4,10 @@ import { NextSeo } from 'next-seo';
 import { AgentDemoProviders } from '@dailydotdev/shared/src/features/interests/components/AgentDemoProviders';
 import { AgentProvider } from '@dailydotdev/shared/src/features/interests/AgentContext';
 import { AgentGlassComposer } from '@dailydotdev/shared/src/features/interests/components/AgentGlassComposer';
-import { AgentRunStrip } from '@dailydotdev/shared/src/features/interests/components/AgentRunStrip';
+import {
+  AgentMonitor,
+  toMonitorItems,
+} from '@dailydotdev/shared/src/features/interests/components/AgentMonitor';
 import { AgentPostCard } from '@dailydotdev/shared/src/features/interests/components/AgentPostCard';
 import { mockFeedPosts } from '@dailydotdev/shared/src/features/interests/mockFeed';
 import { mockAgents } from '@dailydotdev/shared/src/features/interests/mock';
@@ -32,6 +35,7 @@ const Page = (): ReactElement => {
                 key={post.id}
                 post={post}
                 onOpen={() => undefined}
+                isViewing={false}
               />
             ))}
           </div>
@@ -40,7 +44,7 @@ const Page = (): ReactElement => {
               value={query}
               onChange={setQuery}
               onSubmit={() => undefined}
-              banner={<AgentRunStrip agents={mockAgents.slice(0, 2)} />}
+              status={<AgentMonitor items={toMonitorItems(mockAgents)} />}
               className="max-w-[36rem]"
             />
           </div>
