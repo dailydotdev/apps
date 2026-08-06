@@ -50,11 +50,14 @@ const Chip = ({
         {`+${item.found}`}
       </span>
     )}
+    {/* Subtle, not Primary: there can be four of these stacked over the feed,
+        and four solid buttons read as an alert rather than as a shelf of
+        things waiting. */}
     <Link href={`${webappUrl}agent/${item.id}`}>
       <Button
         tag="a"
         size={ButtonSize.XSmall}
-        variant={ButtonVariant.Primary}
+        variant={ButtonVariant.Subtle}
         className="shrink-0"
       >
         Review

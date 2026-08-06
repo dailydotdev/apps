@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -15,6 +15,8 @@ import { TimeFormatType } from '../../../lib/dateFormat';
 import { webappUrl } from '../../../lib/constants';
 import type { UserInterest } from '../../../graphql/interests';
 import { UserInterestStatus } from '../../../graphql/interests';
+import { useOutsideClick } from '../../../hooks/utils/useOutsideClick';
+import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 import { AgentMark } from './AgentMark';
 
 export type AgentMonitorState = 'new' | 'hunting' | 'paused';
@@ -155,8 +157,13 @@ const Row = ({ item }: { item: AgentMonitorItem }): ReactElement => (
  * Collapsed it is a ticker: each agent's latest, in rotation, so the strip is
  * never a static "3 running" that you stop seeing by the second day. The bell
  * on the right holds the only number that asks for anything, which is how many
- * came back while you were reading. Hovering opens the list and stops the
- * rotation, because text that moves under a pointer is text you cannot read.
+ * came back while you were reading.
+ *
+ * Click to open, click anywhere else or press Escape to close. Hover-to-open
+ * was tried and thrown out: it fired while the pointer was only passing over
+ * the bar on its way somewhere else, and the list has rows you have to travel
+ * to. The rotation stops while it is open, because text that moves under a
+ * pointer is text you cannot read.
  *
  * No toast and no badge elsewhere in the chrome, on purpose: a toast leaves
  * with the news, and a second badge is a second inbox to check.
@@ -169,11 +176,13 @@ export const AgentMonitor = ({
   /** Opened for you when a run lands while you are on the feed. */
   defaultOpen?: boolean;
 }): ReactElement | null => {
-  const [isPinned, setPinned] = useState(!!defaultOpen);
-  const [isHovered, setHovered] = useState(false);
+  const [isOpen, setOpen] = useState(!!defaultOpen);
   const [cursor, setCursor] = useState(0);
-  const isOpen = isPinned || isHovered;
+  const containerRef = useRef<HTMLDivElement>(null);
   const count = items.length;
+
+  useOutsideClick(containerRef, () => setOpen(false), isOpen);
+  useKeyboardNavigation(globalThis?.window, [['Escape', () => setOpen(false)]]);
 
   useEffect(() => {
     const isStill = globalThis.matchMedia?.(
@@ -210,11 +219,7 @@ export const AgentMonitor = ({
     .join(' · ');
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="relative" ref={containerRef}>
       {isOpen && (
         // The gap to the strip is padding on this wrapper, not a margin on the
         // panel: a real gap is a hole in the hover target, and the list closes
@@ -247,8 +252,7 @@ export const AgentMonitor = ({
         type="button"
         aria-expanded={isOpen}
         aria-label={`Agent monitor: ${summary}`}
-        onClick={() => setPinned((current) => !current)}
-        onKeyDown={(event) => event.key === 'Escape' && setPinned(false)}
+        onClick={() => setOpen((current) => !current)}
         className="flex w-full items-center gap-2 rounded-10 px-2 py-1 text-left transition-colors hover:bg-surface-hover"
       >
         {/* Keyed on the agent, so a turn of the ticker plays the new line in
