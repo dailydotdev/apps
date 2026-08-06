@@ -18,6 +18,7 @@ import { AgentWorkspaceHeader } from './AgentWorkspaceHeader';
 import { AgentIntro } from './AgentIntro';
 import { AgentChatSection } from './AgentChatSection';
 import { AgentComposer } from './AgentComposer';
+import { AgentQuoteAction } from './AgentQuoteAction';
 import { AgentContentPane } from './AgentContentPane';
 import { AgentDebugPanel } from './AgentDebugPanel';
 import { AgentSettingsPane } from './AgentSettingsPane';
@@ -171,6 +172,7 @@ export const AgentWorkspace = ({
                 <AgentChatSection />
               </FlexCol>
             </div>
+            <AgentQuoteAction containerRef={transcriptRef} />
             <div className="relative">
               {isAwayFromBottom && (
                 <Button

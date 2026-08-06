@@ -47,13 +47,15 @@ const PickRow = ({
   onOpen: (post: Post) => void;
   isViewing: boolean;
 }): ReactElement => (
-  <li>
+  // The corners live on the row rather than on the list: the list cannot clip
+  // its overflow without cutting the add-to-chat button off its top edge, so
+  // the ends have to round themselves.
+  <li className="[&:first-child>div]:rounded-t-12 [&:last-child>div]:rounded-b-12">
     {/* A row rather than a button, so "add to chat" can sit in it. The title
         stretches its click over the whole row. */}
     <div
       className={classNames(
         'group/item relative flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
-        'first:rounded-t-12 last:rounded-b-12',
         isViewing ? 'bg-surface-float' : 'hover:bg-surface-float',
       )}
     >
@@ -134,7 +136,7 @@ export const AgentPickList = ({
   onOpen: (post: Post) => void;
   activePostId?: string;
 }): ReactElement => (
-  <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
+  <ol className="divide-y divide-border-subtlest-quaternary rounded-12 border border-border-subtlest-quaternary bg-background-default">
     {posts.map((post) => (
       <PickRow
         key={post.id}

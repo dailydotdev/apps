@@ -10,6 +10,7 @@ import {
   AiIcon,
   BulletListIcon,
   DocsIcon,
+  FeedbackIcon,
   MiniCloseIcon,
   TimerIcon,
 } from '../../../components/icons';
@@ -19,6 +20,7 @@ import type { AgentAttachment } from '../chat';
 export const attachmentIcon: Record<AgentAttachment['kind'], ReactElement> = {
   post: <DocsIcon size={IconSize.Size16} />,
   feed: <BulletListIcon size={IconSize.Size16} />,
+  quote: <FeedbackIcon size={IconSize.Size16} />,
   guidance: <AiIcon size={IconSize.Size16} />,
   activity: <TimerIcon size={IconSize.Size16} />,
 };

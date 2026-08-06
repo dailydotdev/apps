@@ -36,6 +36,8 @@ export const AgentAddToChatButton = ({
   reveal,
   size = ButtonSize.XSmall,
   className,
+  onMouseDown,
+  onAttached,
 }: {
   attachment: AgentAttachment;
   /** For toolbars, where it sits among other icon buttons. */
@@ -44,6 +46,8 @@ export const AgentAddToChatButton = ({
   reveal?: boolean;
   size?: ButtonSize;
   className?: string;
+  onMouseDown?: (event: React.MouseEvent) => void;
+  onAttached?: () => void;
 }): ReactElement => {
   const { attachContext, attachments } = useAgent();
   const isAttached = attachments.some(({ id }) => id === attachment.id);
@@ -69,9 +73,11 @@ export const AgentAddToChatButton = ({
         )}
         aria-label={`${label}: ${attachment.label}`}
         pressed={isAttached}
+        onMouseDown={onMouseDown}
         onClick={(event: React.MouseEvent) => {
           event.stopPropagation();
           attachContext(attachment);
+          onAttached?.();
         }}
       >
         {iconOnly ? undefined : label}

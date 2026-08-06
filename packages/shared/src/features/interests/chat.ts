@@ -10,7 +10,7 @@ export type AgentBlock =
 /** Something already on screen, pulled into a prompt as context. */
 export type AgentAttachment = {
   id: string;
-  kind: 'post' | 'feed' | 'guidance' | 'activity';
+  kind: 'post' | 'feed' | 'quote' | 'guidance' | 'activity';
   label: string;
   /** Where it came from: a source name, a post count, what it holds. */
   detail?: string;

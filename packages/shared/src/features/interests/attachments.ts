@@ -26,6 +26,17 @@ export const feedAttachment = (
   detail: `${posts.length} posts`,
 });
 
+/**
+ * A passage the reader highlighted. The label is the passage itself, cut at a
+ * length a chip and a prompt line can both carry.
+ */
+export const quoteAttachment = (text: string): AgentAttachment => ({
+  id: `quote:${text}`,
+  kind: 'quote',
+  label: text.length > 140 ? `${text.slice(0, 140).trimEnd()}…` : text,
+  detail: 'Highlighted',
+});
+
 /** The agent's own context: not on screen, but still referable. */
 export const agentAttachments: AgentAttachment[] = [
   {
