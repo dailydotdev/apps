@@ -48,14 +48,23 @@ describe('ProfileSideToggle', () => {
   it('offers both sides, with the world a link away', () => {
     renderToggle(new QueryClient());
 
-    // "side" is its own element so it can drop on a phone, so the labels are
-    // read off the group rather than out of a single node.
     const group = screen.getByRole('group', { name: 'Profile sides' });
-    expect(group).toHaveTextContent(/Professional side/);
-    expect(group).toHaveTextContent(/Fun side/);
+    expect(group).toHaveTextContent('Professional side');
+    expect(group).toHaveTextContent('Fun side');
 
     const fun = screen.getByRole('link', { name: /Fun side/ });
     expect(fun).toHaveAttribute('href', '/world/ido');
+  });
+
+  it('is offered from laptop up, where the world is worth opening', () => {
+    renderToggle(new QueryClient());
+
+    /* Asserted on the class because that is where the rule lives: hiding this
+       in CSS rather than on a measured viewport is what keeps it in the first
+       paint on a desktop. jsdom applies no stylesheet, so there is nothing
+       computed to read instead. */
+    const group = screen.getByRole('group', { name: 'Profile sides' });
+    expect(group).toHaveClass('hidden', 'laptop:flex');
   });
 
   it('falls back to the id for a reader with no username', () => {

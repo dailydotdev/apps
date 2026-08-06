@@ -45,6 +45,12 @@ interface ProfileSideToggleProps {
  * "Fun side" navigates rather than swapping in place: the world is a
  * full-screen WebGL scene with no room for the profile's chrome, and it already
  * owns a route that knows how to get back here.
+ *
+ * Laptop and up only. The world it opens into is a better place on a big
+ * screen — a phone gets the lite renderer, no rail, no scrubber and no bench —
+ * so the door is offered where the room behind it is worth walking into. Hidden
+ * in CSS rather than by measuring the viewport, so it is in the first paint on
+ * a desktop instead of popping in once a hook has resolved.
  */
 export function ProfileSideToggle({
   user,
@@ -74,20 +80,15 @@ export function ProfileSideToggle({
       role="group"
       aria-label="Profile sides"
       className={classNames(
-        'flex items-center gap-0.5 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-0.5',
+        'hidden items-center gap-0.5 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-0.5 laptop:flex',
         className,
       )}
     >
-      {/* "side" is dropped on a phone rather than the labels being shortened:
-          the row also carries the edit button inside the header's padding, and
-          the pair still has to read as one switch at 320px. Each width gets its
-          own whole label — splitting one would put the flex gap mid-phrase. */}
       <span
         aria-current="page"
         className={classNames(segment, 'bg-surface-float text-text-primary')}
       >
-        <span className="tablet:hidden">Professional</span>
-        <span className="hidden tablet:inline">Professional side</span>
+        Professional side
       </span>
       <Link href={worldHref} passHref>
         {/* href is set here as well as by Link, so the anchor reads as one to
@@ -109,8 +110,7 @@ export function ProfileSideToggle({
           }
         >
           <WorldIcon size={IconSize.Size16} />
-          <span className="tablet:hidden">Fun</span>
-          <span className="hidden tablet:inline">Fun side</span>
+          Fun side
         </a>
       </Link>
     </div>
