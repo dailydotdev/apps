@@ -9,7 +9,7 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { Switch } from '../../../components/fields/Switch';
-import { SettingsIcon, TimerIcon } from '../../../components/icons';
+import { SettingsIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
@@ -50,21 +50,8 @@ const MenuRow = ({
  * doors into the same room.
  */
 export const AgentSettingsMenu = (): ReactElement => {
-  const {
-    interest,
-    status,
-    update,
-    setSettingsOpen,
-    openContentTarget,
-    focusContent,
-    openContent,
-  } = useAgent();
+  const { interest, status, update, setSettingsOpen } = useAgent();
   const isRunning = status === UserInterestStatus.Active;
-
-  const openActivity = () =>
-    openContent.some((item) => item.type === 'activity')
-      ? focusContent('activity')
-      : openContentTarget({ type: 'activity' });
 
   return (
     <Popover>
@@ -132,18 +119,13 @@ export const AgentSettingsMenu = (): ReactElement => {
 
           <span className="h-px bg-border-subtlest-tertiary" />
 
-          <FlexCol className="gap-0.5">
-            <MenuRow
-              icon={<TimerIcon size={IconSize.Size16} />}
-              label="View activity"
-              onClick={openActivity}
-            />
-            <MenuRow
-              icon={<SettingsIcon size={IconSize.Size16} />}
-              label="Settings"
-              onClick={() => setSettingsOpen(true)}
-            />
-          </FlexCol>
+          {/* Activity has its own icon in the header row, so it is not
+              repeated here. */}
+          <MenuRow
+            icon={<SettingsIcon size={IconSize.Size16} />}
+            label="Settings"
+            onClick={() => setSettingsOpen(true)}
+          />
         </FlexCol>
       </PopoverContent>
     </Popover>
