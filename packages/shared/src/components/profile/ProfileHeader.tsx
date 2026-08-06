@@ -81,8 +81,12 @@ const ProfileHeader = ({
         className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
       />
       <div className="flex flex-col gap-3 px-6">
+        {/* Edit leads and `actions` trails, because edit is only hidden, not
+            removed: it holds its width so the row keeps its height for a
+            visitor. Trailing, that reserved width sat between the actions and
+            the right edge and left them looking short of it; leading, it falls
+            on the inside and whatever trails stays flush either way. */}
         <div className="mb-4 ml-auto mt-2 flex items-center gap-2">
-          {actions}
           <Link passHref href={`${webappUrl}settings/profile`}>
             <Button
               className={classNames(
@@ -96,6 +100,7 @@ const ProfileHeader = ({
               aria-label="Edit profile"
             />
           </Link>
+          {actions}
         </div>
         <div className="flex items-center gap-1">
           <Typography type={TypographyType.Title2} bold>
