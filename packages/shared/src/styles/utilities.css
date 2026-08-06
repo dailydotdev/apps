@@ -1010,3 +1010,48 @@
     animation: none;
   }
 }
+
+/* A pane of glass with the field set into it — the onboarding panel's frame,
+   brought to the composer. A hairline that catches light along the top edge, a
+   tint so the feed reads *through* it rather than *as* it, and a blur wide
+   enough to melt the post cards passing underneath. Every colour comes off a
+   theme token: a white hairline disappears entirely on the light theme. */
+.agent-glass-frame {
+  border: 1px solid
+    color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 78%);
+  background: color-mix(
+    in srgb,
+    var(--theme-background-default) 68%,
+    transparent
+  );
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0
+      color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 86%),
+    0 16px 40px -16px var(--theme-shadow-shadow1),
+    0 2px 8px -4px var(--theme-shadow-shadow1);
+}
+
+/* The field inside the frame: denser than the glass it sits in, so the two
+   layers read as a well cut into a pane rather than as one flat card. */
+.agent-glass-field {
+  background: color-mix(
+    in srgb,
+    var(--theme-background-default) 88%,
+    transparent
+  );
+  border: 1px solid
+    color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 90%);
+}
+
+/* The colour the frame throws onto the feed behind it. */
+.agent-glass-bloom {
+  background: radial-gradient(
+    60% 100% at 50% 100%,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, transparent) 0%,
+    transparent 70%
+  );
+  filter: blur(28px);
+  opacity: 0.35;
+}
