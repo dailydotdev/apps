@@ -32,6 +32,7 @@ export interface PostMarkdownPost
     | 'commentsPermalink'
     | 'content'
     | 'summary'
+    | 'answeredQuestions'
     | 'description'
     | 'createdAt'
     | 'updatedAt'
@@ -71,6 +72,11 @@ export const POST_MARKDOWN_QUERY = gql`
       commentsPermalink
       content
       summary
+      answeredQuestions {
+        question
+        answer
+        cta
+      }
       description
       createdAt
       updatedAt
@@ -304,6 +310,38 @@ const buildSummary = (post: PostMarkdownPost): string[] => {
 
 const formatPercentage = (value: number): string => `${Math.round(value)}%`;
 
+/**
+ * The questions this post answers, as a markdown FAQ.
+ *
+ * Each answer is followed by its cta on a separate line, so an agent that
+ * lifts an answer carries the attribution with it rather than quoting the
+ * post anonymously.
+ */
+const buildAnsweredQuestions = (post: PostMarkdownPost): string[] => {
+  const questions = post.answeredQuestions;
+
+  if (!questions?.length) {
+    return [];
+  }
+
+  const lines = ['## Questions this post answers', ''];
+
+  questions.forEach(({ question, answer, cta }) => {
+    lines.push(`### ${question}`);
+    lines.push('');
+    lines.push(answer);
+
+    if (cta?.trim()) {
+      lines.push('');
+      lines.push(`_${cta.trim()}_`);
+    }
+
+    lines.push('');
+  });
+
+  return lines;
+};
+
 const buildCommunityTake = (post: PostMarkdownPost): string[] => {
   const take = post.communitySentiment;
 
@@ -528,6 +566,7 @@ export const buildPostMarkdown = ({
     ...buildSummary(post),
     ...buildBody(post),
     '',
+    ...buildAnsweredQuestions(post),
     ...buildCommunityTake(post),
     ...buildComments(comments),
     ...buildSimilarPosts(similarPosts),
