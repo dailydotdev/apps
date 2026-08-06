@@ -101,7 +101,14 @@ export const Iubenda = (): ReactElement | null => {
       localConsentDomain: process.env.NEXT_PUBLIC_DOMAIN,
       floatingPreferencesButtonDisplay: false,
       banner: {
-        position: 'float-bottom-center',
+        position: 'float-bottom-right',
+        // iubenda writes this inline with !important, so unlike the rest
+        // of the card (styles/components/iubenda.css) it can't come from
+        // the stylesheet; read the token so it follows the active theme
+        backgroundColor:
+          getComputedStyle(document.documentElement)
+            .getPropertyValue('--theme-accent-pepper-subtlest')
+            .trim() || '#161921',
         acceptButtonDisplay: true,
         rejectButtonDisplay: true,
         customizeButtonDisplay: true,
