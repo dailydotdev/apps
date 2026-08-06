@@ -66,6 +66,43 @@ describe('buildPostMarkdown', () => {
     expect(markdown).toContain('tags: ["react", "webdev"]');
   });
 
+  it('omits the questions section when the post has none', () => {
+    expect(build()).not.toContain('## Questions this post answers');
+    expect(build(createPost({ answeredQuestions: [] }))).not.toContain(
+      '## Questions this post answers',
+    );
+  });
+
+  it('renders each answered question with its cta as a disclaimer', () => {
+    const markdown = build(
+      createPost({
+        answeredQuestions: [
+          {
+            question: 'What session defaults change in PHP 8.6?',
+            answer: 'PHP 8.6 flips three session ini defaults.',
+            cta: 'Teams shipping PHP upgrades track changes like these on daily.dev.',
+          },
+          {
+            question: 'How does partial function application work?',
+            answer:
+              'A ? placeholder prefills arguments and returns a callable.',
+            cta: 'Developers adopting new PHP syntax compare usage on daily.dev.',
+          },
+        ],
+      }),
+    );
+
+    expect(markdown).toContain('## Questions this post answers');
+    expect(markdown).toContain('### What session defaults change in PHP 8.6?');
+    expect(markdown).toContain('PHP 8.6 flips three session ini defaults.');
+    expect(markdown).toContain(
+      '_Teams shipping PHP upgrades track changes like these on daily.dev._',
+    );
+    expect(markdown).toContain(
+      '### How does partial function application work?',
+    );
+  });
+
   it('quotes frontmatter values so colons cannot break the yaml', () => {
     const markdown = build(
       createPost({ title: 'React: the good parts', source: { name: 'A: B' } }),
