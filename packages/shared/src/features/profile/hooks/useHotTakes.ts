@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo, useCallback } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import type { PublicProfile } from '../../../lib/user';
 import type {
   AddHotTakeInput,
@@ -7,13 +7,13 @@ import type {
   ReorderHotTakeInput,
 } from '../../../graphql/user/userHotTake';
 import {
-  getHotTakes,
   addHotTake,
   updateHotTake,
   deleteHotTake,
   reorderHotTakes,
 } from '../../../graphql/user/userHotTake';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+import type { ProfileShowcase } from '../../../graphql/user/profileShowcase';
+import { useProfileShowcase } from './useProfileShowcase';
 import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
@@ -21,23 +21,17 @@ import { LogEvent } from '../../../lib/log';
 export const MAX_HOT_TAKES = 5;
 export const HOT_TAKE_LIMIT_REACHED_MESSAGE = `You already have all ${MAX_HOT_TAKES} hot takes. Remove one to add a new one.`;
 
+const selectHotTakes = (data: ProfileShowcase) => data.hotTakes;
+
 export const useHotTakes = (user: PublicProfile | null) => {
-  const queryClient = useQueryClient();
   const { isOwner } = useProfilePreview(user);
   const { logEvent } = useLogContext();
 
-  const queryKey = generateQueryKey(
-    RequestKey.UserHotTakes,
-    user ?? undefined,
-    'profile',
-  );
-
-  const query = useQuery({
+  const {
     queryKey,
-    queryFn: () => getHotTakes(user?.id as string),
-    staleTime: StaleTime.Default,
-    enabled: !!user?.id,
-  });
+    invalidate: invalidateQuery,
+    ...query
+  } = useProfileShowcase(user, selectHotTakes);
 
   const hotTakes = useMemo(
     () => query.data?.edges?.map(({ node }) => node) ?? [],
@@ -45,10 +39,6 @@ export const useHotTakes = (user: PublicProfile | null) => {
   );
 
   const canAddMore = hotTakes.length < MAX_HOT_TAKES;
-
-  const invalidateQuery = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey });
-  }, [queryClient, queryKey]);
 
   const addMutation = useMutation({
     mutationFn: (input: AddHotTakeInput) => addHotTake(input),
