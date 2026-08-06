@@ -324,3 +324,17 @@ it('should render company logo and company name in signal ad header', async () =
   expect(logo).toHaveAttribute('src', companyLogo);
   expect(screen.getByText(companyName)).toBeInTheDocument();
 });
+
+it.each([
+  ['grid', renderGridComponent],
+  ['list', renderListComponent],
+  ['signal list', renderSignalListComponent],
+])('should track viewability on the %s card', async (_, renderComponent) => {
+  renderComponent();
+
+  const tracker = await screen.findByTestId('adViewability');
+  // It only measures the creative's box while it stretches over the card root.
+  const card = tracker.closest('article');
+  expect(card).toBe(tracker.parentElement);
+  expect(card).toHaveClass('relative');
+});

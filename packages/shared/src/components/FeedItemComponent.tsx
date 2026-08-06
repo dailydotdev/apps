@@ -39,6 +39,9 @@ import PlusGrid from './cards/plus/PlusGrid';
 import { useFeedCardContext } from '../features/posts/FeedCardContext';
 import { AdPixel } from './cards/ad/common/AdPixel';
 import { AdMeasurement } from './cards/ad/common/AdMeasurement';
+import { AdViewability } from './cards/ad/common/AdViewability';
+import type { ViewabilityData } from '../features/monetization/viewability';
+import { viewabilityLogExtra } from '../features/monetization/viewability';
 import { BriefCard } from './cards/brief/BriefCard/BriefCard';
 import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
@@ -373,16 +376,23 @@ function FeedItemComponent({
     feedName,
   });
 
-  const onAdAction = (action: AdActions, ad: Ad) => {
+  const onAdAction = (
+    action: AdActions,
+    ad: Ad,
+    extra?: Record<string, unknown>,
+  ) => {
     logEvent(
       adLogEvent(action, ad, {
         columns: virtualizedNumCards,
         column,
         row,
-        ...feedLogExtra(feedName, ranking),
+        extra: { ...feedLogExtra(feedName, ranking).extra, ...extra },
       }),
     );
   };
+
+  const onAdViewable = (ad: Ad, data: ViewabilityData) =>
+    onAdAction(AdActions.Viewable, ad, viewabilityLogExtra(data));
 
   if (item.type === FeedItemType.Ad && isBoostedSquadAd(item)) {
     return (
@@ -390,6 +400,7 @@ function FeedItemComponent({
         item={item as AdSquadItem}
         onClickAd={() => onAdAction(AdActions.Click, item.ad)}
         onMount={() => onAdAction(AdActions.Impression, item.ad)}
+        onViewable={(data) => onAdViewable(item.ad, data)}
       />
     );
   }
@@ -471,6 +482,10 @@ function FeedItemComponent({
               <>
                 <AdPixel pixel={item.ad.pixel} />
                 <AdMeasurement ad={item.ad} />
+                <AdViewability
+                  ad={item.ad}
+                  onViewable={(data) => onAdViewable(item.ad, data)}
+                />
               </>
             )}
           </PostTag>
@@ -491,6 +506,7 @@ function FeedItemComponent({
           index={item.index}
           feedIndex={index}
           onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
+          onViewable={onAdViewable}
         />
       );
     }
