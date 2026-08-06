@@ -19,15 +19,17 @@ import { IconSize } from '../../../components/Icon';
  * with the feed moving underneath it, throwing a little of its own colour on
  * what it covers.
  *
- * `status` is the slot under the field: whatever the agents are doing right
- * now goes there. Under, not over, because the field is what you came for and
- * the news is what you glance at on the way past.
+ * Two slots, and the split matters. `status` sits under the field and is
+ * ambient: what the agents are doing, asking for nothing. `pending` sits over
+ * it and is work with your name on it, so it is above the thing you type into
+ * rather than below it.
  */
 export const AgentGlassComposer = ({
   value,
   onChange,
   onSubmit,
   status,
+  pending,
   placeholder = 'Spawn an agent to hunt something…',
   isBusy,
   className,
@@ -36,6 +38,7 @@ export const AgentGlassComposer = ({
   onChange: (value: string) => void;
   onSubmit: () => void;
   status?: ReactNode;
+  pending?: ReactNode;
   placeholder?: string;
   isBusy?: boolean;
   className?: string;
@@ -47,6 +50,7 @@ export const AgentGlassComposer = ({
       className="agent-glass-bloom pointer-events-none absolute inset-x-10 bottom-0 top-4 rounded-24"
     />
     <div className="agent-glass-frame relative flex flex-col gap-1.5 rounded-20 p-1.5">
+      {pending}
       <FlexRow className="agent-glass-field items-center gap-2 rounded-16 px-3 py-2">
         <MagicIcon
           size={IconSize.Size16}

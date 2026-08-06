@@ -8,6 +8,7 @@ import {
   AgentMonitor,
   toMonitorItems,
 } from '@dailydotdev/shared/src/features/interests/components/AgentMonitor';
+import { AgentReviewChips } from '@dailydotdev/shared/src/features/interests/components/AgentReviewChips';
 import { AgentPostCard } from '@dailydotdev/shared/src/features/interests/components/AgentPostCard';
 import { mockFeedPosts } from '@dailydotdev/shared/src/features/interests/mockFeed';
 import { mockAgents } from '@dailydotdev/shared/src/features/interests/mock';
@@ -44,6 +45,13 @@ const Page = (): ReactElement => {
               value={query}
               onChange={setQuery}
               onSubmit={() => undefined}
+              pending={
+                <AgentReviewChips
+                  items={toMonitorItems(mockAgents).filter(
+                    ({ state }) => state === 'new',
+                  )}
+                />
+              }
               status={<AgentMonitor items={toMonitorItems(mockAgents)} />}
               className="max-w-[36rem]"
             />

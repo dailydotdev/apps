@@ -2,14 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
-import { FlexRow } from '../../../components/utilities';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
-import { MiniCloseIcon } from '../../../components/icons';
-import { IconSize } from '../../../components/Icon';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { featureInterestAgent } from '../../../lib/featureManagement';
@@ -18,14 +10,16 @@ import { interestsQueryOptions } from '../queries';
 import { useCreateInterest } from '../hooks/useCreateInterest';
 import { AgentGlassComposer } from './AgentGlassComposer';
 import { AgentMonitor, toMonitorItems } from './AgentMonitor';
+import { AgentReviewChips } from './AgentReviewChips';
 
 /**
  * The agent's way into the feed.
  *
  * Docked over the bottom of whatever you are reading, because that is when the
  * thought arrives: you scroll past the third near-identical post on a topic
- * and want something to watch it for you. Dismissable, and gone for the rest
- * of the session once it is.
+ * and want something to watch it for you. It has no close button on purpose:
+ * it is also the only place a finished run reports back, so hiding it would
+ * hide the news with it.
  */
 export const AgentFeedPrompt = (): ReactElement | null => {
   const router = useRouter();
@@ -35,7 +29,6 @@ export const AgentFeedPrompt = (): ReactElement | null => {
     shouldEvaluate: isAuthReady && !!user,
   });
   const [query, setQuery] = useState('');
-  const [isDismissed, setDismissed] = useState(false);
   const { data: interests } = useQuery({
     ...interestsQueryOptions(user),
     enabled: showAgent && !!user,
@@ -44,9 +37,12 @@ export const AgentFeedPrompt = (): ReactElement | null => {
     onCreated: (id) => router.push(`${webappUrl}agent/${id}`),
   });
 
-  if (!showAgent || isDismissed) {
+  if (!showAgent) {
     return null;
   }
+
+  const items = toMonitorItems(interests ?? []);
+  const waiting = items.filter(({ state }) => state === 'new');
 
   const onSubmit = () => {
     const trimmed = query.trim();
@@ -67,18 +63,9 @@ export const AgentFeedPrompt = (): ReactElement | null => {
           onChange={setQuery}
           onSubmit={onSubmit}
           isBusy={isCreating}
-          status={<AgentMonitor items={toMonitorItems(interests ?? [])} />}
+          pending={<AgentReviewChips items={waiting} />}
+          status={<AgentMonitor items={items} />}
         />
-        <FlexRow className="absolute -right-1 -top-1">
-          <Button
-            icon={<MiniCloseIcon size={IconSize.Size16} />}
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Subtle}
-            className="!bg-background-subtle"
-            aria-label="Hide the agent field"
-            onClick={() => setDismissed(true)}
-          />
-        </FlexRow>
       </div>
     </div>
   );

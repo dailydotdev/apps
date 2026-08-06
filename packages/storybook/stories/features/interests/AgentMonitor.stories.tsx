@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AgentDemoProviders } from '@dailydotdev/shared/src/features/interests/components/AgentDemoProviders';
 import { AgentGlassComposer } from '@dailydotdev/shared/src/features/interests/components/AgentGlassComposer';
+import { AgentReviewChips } from '@dailydotdev/shared/src/features/interests/components/AgentReviewChips';
 import type { AgentMonitorItem } from '@dailydotdev/shared/src/features/interests/components/AgentMonitor';
 import {
   AgentMonitor,
@@ -94,17 +95,21 @@ const Stage = ({
 const Field = ({
   items,
   defaultOpen,
+  withChips,
 }: {
   items: AgentMonitorItem[];
   defaultOpen?: boolean;
+  withChips?: boolean;
 }): ReactElement => {
   const [value, setValue] = useState('');
+  const waiting = items.filter(({ state }) => state === 'new');
 
   return (
     <AgentGlassComposer
       value={value}
       onChange={setValue}
       onSubmit={() => undefined}
+      pending={withChips ? <AgentReviewChips items={waiting} /> : undefined}
       status={<AgentMonitor items={items} defaultOpen={defaultOpen} />}
     />
   );
@@ -156,6 +161,21 @@ const Monitor = (): ReactElement => (
         tall
       >
         <Field items={busy} defaultOpen />
+      </Stage>
+
+      <Stage
+        title="Waiting for review"
+        note="A finding is work with your name on it, so it comes out of the list and sits over the field with the action already on it. Dismissable one by one."
+      >
+        <Field items={all} withChips />
+      </Stage>
+
+      <Stage
+        title="Waiting for review, four of them"
+        note="Two at a time, then a count. Expanding shows the rest, the way a stack of pull requests does."
+        tall
+      >
+        <Field items={busy} withChips />
       </Stage>
     </div>
   </FlexCol>

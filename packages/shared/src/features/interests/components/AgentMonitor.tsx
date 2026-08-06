@@ -25,6 +25,8 @@ export type AgentMonitorItem = {
   state: AgentMonitorState;
   /** What it found, or what it is doing right now. One line. */
   line: string;
+  /** How many findings are waiting, when the run left any. */
+  found?: number;
   at?: string | null;
 };
 
@@ -56,6 +58,10 @@ export const toMonitorItems = (
       id: agent.id,
       name: agent.query,
       state,
+      // Read back out of the summary. The API returns no findings count yet,
+      // and the run's own sentence is the only place the number exists.
+      found:
+        Number(/kept (\d+)/.exec(agent.lastRunSummary ?? '')?.[1]) || undefined,
       line:
         agent.lastRunSummary ??
         (isPaused ? 'Paused. Nothing scheduled.' : 'Hunting. Nothing yet.'),
@@ -210,26 +216,31 @@ export const AgentMonitor = ({
       onMouseLeave={() => setHovered(false)}
     >
       {isOpen && (
-        <FlexCol className="agent-menu-in absolute inset-x-0 bottom-full z-popup mb-2 rounded-14 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-3">
-          <FlexRow className="items-center justify-between gap-2 px-2 py-1">
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Quaternary}
-            >
-              {summary}
-            </Typography>
-            <Link href={`${webappUrl}agent`}>
-              <a className="text-text-tertiary typo-caption2 hover:text-text-primary">
-                See all
-              </a>
-            </Link>
-          </FlexRow>
-          <ol className="max-h-72 overflow-y-auto">
-            {items.map((item) => (
-              <Row key={item.id} item={item} />
-            ))}
-          </ol>
-        </FlexCol>
+        // The gap to the strip is padding on this wrapper, not a margin on the
+        // panel: a real gap is a hole in the hover target, and the list closes
+        // under the pointer on its way up to a row.
+        <div className="absolute inset-x-0 bottom-full z-popup pb-2">
+          <FlexCol className="agent-menu-in rounded-14 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-3">
+            <FlexRow className="items-center justify-between gap-2 px-2 py-1">
+              <Typography
+                type={TypographyType.Caption2}
+                color={TypographyColor.Quaternary}
+              >
+                {summary}
+              </Typography>
+              <Link href={`${webappUrl}agent`}>
+                <a className="text-text-tertiary typo-caption2 hover:text-text-primary">
+                  See all
+                </a>
+              </Link>
+            </FlexRow>
+            <ol className="max-h-72 overflow-y-auto">
+              {items.map((item) => (
+                <Row key={item.id} item={item} />
+              ))}
+            </ol>
+          </FlexCol>
+        </div>
       )}
 
       <button
@@ -251,14 +262,19 @@ export const AgentMonitor = ({
           <strong className="text-text-primary">{showing.name}</strong>
           {` ${showing.line}`}
         </Typography>
-        <FlexRow className="shrink-0 items-center gap-1 text-text-quaternary">
-          <BellIcon size={IconSize.Size16} secondary={!!fresh} />
-          {!!fresh && (
-            <span className="rounded-6 bg-brand-float px-1 text-brand-default typo-caption2">
-              {fresh}
-            </span>
-          )}
-        </FlexRow>
+        {/* One object rather than an icon next to a number: filled and loud
+            when something is waiting, a quiet glyph when nothing is. */}
+        {fresh ? (
+          <FlexRow className="shrink-0 items-center gap-1 rounded-8 bg-brand-default py-0.5 pl-1 pr-1.5 text-white">
+            <BellIcon size={IconSize.Size16} secondary />
+            <span className="tabular-nums typo-caption2">{fresh}</span>
+          </FlexRow>
+        ) : (
+          <BellIcon
+            size={IconSize.Size16}
+            className="shrink-0 text-text-quaternary"
+          />
+        )}
         <ArrowIcon
           size={IconSize.XSmall}
           className={classNames(
