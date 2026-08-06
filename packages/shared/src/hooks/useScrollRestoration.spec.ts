@@ -96,7 +96,7 @@ describe('useScrollRestoration', () => {
     // The previous 1s budget expired here and dropped the user at the bottom of
     // the partially rendered feed.
     act(() => {
-      jest.advanceTimersByTime(2000);
+      jest.advanceTimersByTime(1500);
     });
     expect(scrollTo).not.toHaveBeenCalled();
 
