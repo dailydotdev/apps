@@ -328,7 +328,10 @@ export const featureNotificationsRedesign = new Feature(
 // `false` — GrowthBook ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
 
-export const featureInterestAgent = new Feature('interest_agent', false);
+// TEMP-REVIEW: default flipped to `true` so the agent surfaces are reachable
+// on the preview deploy, where GrowthBook devtools cannot flip a flag because
+// previews build as production. REVERT THIS LINE BEFORE MERGE.
+export const featureInterestAgent = new Feature('interest_agent', true);
 
 // Post-signup feed activation bar: a persistent, non-dismissible strip shown
 // above the header on every page for signed-in users who registered but have
