@@ -19,6 +19,7 @@ import type {
 import {
   getDatasetTool,
   getToolAdoption,
+  getToolCategoryAnchor,
   getToolsAlsoStacked,
   getToolStackers,
   getToolStackersFollowing,
@@ -215,7 +216,22 @@ const ToolPage = ({
         type={TypographyType.Footnote}
         color={TypographyColor.Quaternary}
       >
-        Tools / <span className="text-text-secondary">{tool.title}</span>
+        <Link href="/tools" passHref>
+          <a className="hover:text-text-primary">Tools</a>
+        </Link>
+        {tool.category && (
+          <>
+            {' / '}
+            <Link
+              href={`/tools#${getToolCategoryAnchor(tool.category)}`}
+              passHref
+            >
+              <a className="hover:text-text-primary">{tool.category}</a>
+            </Link>
+          </>
+        )}
+        {' / '}
+        <span className="text-text-secondary">{tool.title}</span>
       </Typography>
 
       <section className="flex flex-wrap items-start gap-5">

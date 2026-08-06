@@ -5,6 +5,7 @@ import type { DatasetTool } from './user/userStack';
 export interface ToolPageTool extends DatasetTool {
   slug: string;
   url: string | null;
+  category: string | null;
   stackCount: number;
   keyword: string | null;
 }
@@ -20,6 +21,7 @@ const DATASET_TOOL_QUERY = gql`
       title
       slug
       url
+      category
       faviconUrl
       stackCount
       keyword
@@ -221,3 +223,65 @@ export const getToolStackersFollowing = async (
   }>(TOOL_STACKERS_FOLLOWING_QUERY, { id, first });
   return result.toolStackersFollowing;
 };
+
+export interface DirectoryTool {
+  id: string;
+  title: string;
+  slug: string;
+  faviconUrl: string | null;
+  category: string | null;
+  stackCount: number;
+}
+
+const TOP_TOOLS_QUERY = gql`
+  query TopTools($first: Int, $category: String, $trending: Boolean) {
+    topTools(first: $first, category: $category, trending: $trending) {
+      id
+      title
+      slug
+      faviconUrl
+      category
+      stackCount
+    }
+  }
+`;
+
+export const getTopTools = async ({
+  first = 6,
+  category,
+  trending,
+}: {
+  first?: number;
+  category?: string;
+  trending?: boolean;
+} = {}): Promise<DirectoryTool[]> => {
+  const result = await gqlClient.request<{ topTools: DirectoryTool[] }>(
+    TOP_TOOLS_QUERY,
+    { first, category, trending },
+  );
+  return result.topTools;
+};
+
+export interface ToolCategoryStat {
+  category: string;
+  toolCount: number;
+}
+
+const TOOL_CATEGORIES_QUERY = gql`
+  query ToolCategories {
+    toolCategories {
+      category
+      toolCount
+    }
+  }
+`;
+
+export const getToolCategories = async (): Promise<ToolCategoryStat[]> => {
+  const result = await gqlClient.request<{
+    toolCategories: ToolCategoryStat[];
+  }>(TOOL_CATEGORIES_QUERY);
+  return result.toolCategories;
+};
+
+export const getToolCategoryAnchor = (category: string): string =>
+  category.toLowerCase().replace(/[^a-z0-9]+/g, '-');
