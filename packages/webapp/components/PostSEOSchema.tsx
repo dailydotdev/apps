@@ -359,9 +359,9 @@ export const getCommentsJsonLd = (
  *
  * The answer text carries the cta because this is the form an answer engine
  * extracts and quotes, so the pointer back to daily.dev travels with it. The
- * questions are not rendered visually — structured data is the channel for
- * machine-readable content, so nothing here is hidden from a human that they
- * would otherwise see.
+ * questions themselves are also rendered for anonymous visitors by
+ * PostAnsweredQuestions, which builds the same answer text so the visible copy
+ * and the structured data match.
  *
  * Returns null when the post has no questions, which is the normal case for a
  * post that predates this enrichment or one where nothing qualified.
