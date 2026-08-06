@@ -1,6 +1,9 @@
 import type { GetStaticPropsContext } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
-import { getProfile, getProfileV2Extra } from '@dailydotdev/shared/src/lib/user';
+import {
+  getProfile,
+  getProfileV2Extra,
+} from '@dailydotdev/shared/src/lib/user';
 import {
   getStaticPaths,
   getStaticProps,
@@ -21,8 +24,15 @@ const mockedGetProfile = getProfile as jest.Mock;
 const mockedGetProfileV2Extra = getProfileV2Extra as jest.Mock;
 const mockedHasPublicWorld = hasPublicWorld as jest.Mock;
 
+// Mirrors the (unexported) ProfileParams in ProfileLayout. Typing the
+// helper as GetStaticPropsContext<ParsedUrlQuery> compiles under the
+// default config but fails `typecheck:strict:changed`.
+interface ProfileParams extends ParsedUrlQuery {
+  userId: string;
+}
+
 const context = (userId?: string) =>
-  ({ params: { userId } } as unknown as GetStaticPropsContext<ParsedUrlQuery>);
+  ({ params: { userId } } as unknown as GetStaticPropsContext<ProfileParams>);
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -49,9 +59,9 @@ describe('profile getStaticProps', () => {
   it('returns notFound when the handle does not resolve to a user', async () => {
     mockedGetProfile.mockResolvedValue(null);
 
-    await expect(getStaticProps(context('definitely-not-a-user'))).resolves.toEqual(
-      { notFound: true, revalidate: 60 },
-    );
+    await expect(
+      getStaticProps(context('definitely-not-a-user')),
+    ).resolves.toEqual({ notFound: true, revalidate: 60 });
   });
 
   it('returns notFound when no handle was supplied', async () => {
