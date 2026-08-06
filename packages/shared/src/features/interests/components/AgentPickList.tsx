@@ -71,11 +71,19 @@ const PickRow = ({
           {post.title}
         </button>
       </Typography>
-      <div className="ml-auto flex shrink-0 items-center gap-2">
-        <AgentAddToChatButton
-          attachment={postAttachment(post)}
-          className="relative z-1 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
-        />
+      {/* Overlaid rather than laid out: in the flow it would take a bite out
+          of every title's width, hidden or not, which is what the old
+          "Viewing" label did wrong. Lifted out of the stretched title's layer
+          too. Where there is no pointer to hover with it goes back in the row,
+          because nothing would ever reveal it. */}
+      <AgentAddToChatButton
+        attachment={postAttachment(post)}
+        reveal
+        className="absolute right-3 top-1/2 z-1 -translate-y-1/2 [@media(hover:none)]:static [@media(hover:none)]:ml-auto [@media(hover:none)]:translate-y-0"
+      />
+      {/* Swapped for the button rather than covered by it: a half-occluded
+          comment count is worse than no comment count. */}
+      <div className="ml-auto flex shrink-0 items-center gap-2 transition-opacity group-hover:opacity-0 [@media(hover:none)]:!opacity-100">
         <InlineStat
           ariaLabel={`${post.numUpvotes ?? 0} upvotes`}
           icon={

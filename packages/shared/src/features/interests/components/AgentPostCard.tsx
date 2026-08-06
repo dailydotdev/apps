@@ -121,7 +121,8 @@ export const AgentPostCard = ({
             card clickable would swallow the press. */}
         <AgentAddToChatButton
           attachment={postAttachment(post)}
-          className="relative z-1 ml-auto opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+          reveal
+          className="relative z-1 ml-auto"
         />
       </FlexRow>
     </FlexCol>

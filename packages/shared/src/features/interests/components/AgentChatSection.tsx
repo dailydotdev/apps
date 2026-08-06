@@ -81,7 +81,7 @@ const BlockRenderer = ({
         actions={
           <AgentAddToChatButton
             attachment={feedAttachment(block.label, block.posts)}
-            className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+            reveal
           />
         }
       />

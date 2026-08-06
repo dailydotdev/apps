@@ -235,6 +235,7 @@ export const AgentContentPane = ({
         {activeAttachment && (
           <AgentAddToChatButton
             attachment={activeAttachment}
+            iconOnly
             size={ButtonSize.Small}
           />
         )}
