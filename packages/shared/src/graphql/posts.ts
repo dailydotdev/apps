@@ -418,6 +418,11 @@ export const POST_BY_ID_QUERY = gql`
       }
       description
       summary
+      answeredQuestions {
+        question
+        answer
+        cta
+      }
       toc {
         text
         id
