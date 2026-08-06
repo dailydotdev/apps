@@ -8,6 +8,9 @@ import type { ParsedUrlQuery } from 'querystring';
 import { useRouter } from 'next/router';
 import Custom404 from '@dailydotdev/shared/src/components/Custom404';
 import { graphqlUrl } from '@dailydotdev/shared/src/lib/config';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { useTrackQuestClientEvent } from '@dailydotdev/shared/src/hooks/useTrackQuestClientEvent';
+import { ClientQuestEventType } from '@dailydotdev/shared/src/graphql/quests';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getProfileSeoDefaults,
@@ -178,6 +181,21 @@ const ProfileWorldPage = ({
      page's first render they run against the download instead, and the world is
      usually raisable by the time there is anything to raise it with. */
   const world = useUserWorld(user?.id);
+  const { user: viewer } = useAuthContext();
+  /* Counted once the world has actually stood up for this viewer. A hidden one
+     never does, and landing on the door of a place you cannot enter is not a
+     visit to it. */
+  useTrackQuestClientEvent({
+    eventType: ClientQuestEventType.VisitUserWorld,
+    enabled:
+      !!user &&
+      !!viewer?.id &&
+      viewer.id !== user.id &&
+      !world.isPending &&
+      !world.isPrivate &&
+      !world.error,
+    eventKey: user ? `world:${user.id}` : undefined,
+  });
 
   if (!isFallback && !user) {
     return <Custom404 />;
