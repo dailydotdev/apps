@@ -21,15 +21,22 @@
   max-width: none !important;
 }
 
+/* radius steps mirror CookieBanner's rounded-10 tablet:rounded-0 laptop:rounded-16 */
 #iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-content {
   border: 0 solid var(--theme-border-subtlest-secondary) !important;
   border-top-width: 1px !important;
-  border-radius: 0 !important;
+  border-radius: 0.625rem !important;
   padding: 1rem !important;
   font-family: inherit !important;
   font-size: 0.8125rem !important;
   line-height: 1.125rem !important;
   color: var(--theme-text-secondary) !important;
+}
+
+@media (min-width: 656px) {
+  #iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-content {
+    border-radius: 0 !important;
+  }
 }
 
 #iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-rationale {
