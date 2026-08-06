@@ -46,6 +46,22 @@ export const userWorldQueryKey = (userId?: string): unknown[] =>
     userId ? { id: userId } : undefined,
   ) as unknown[];
 
+export interface UserWorldEntry {
+  districts: WorldDistrict[];
+  settings: WorldSettings | null;
+}
+
+/** Shared with the profile's prefetch, so a warmed cache is the same entry. */
+export const fetchUserWorld = async (
+  userId: string,
+): Promise<UserWorldEntry> => {
+  const res = await gqlClient.request<UserWorldData>(USER_WORLD_QUERY, {
+    id: userId,
+  });
+
+  return { districts: res.userWorld, settings: res.userWorldSettings ?? null };
+};
+
 /**
  * Districts+settings in one blocking round trip; the heavy growth log loads
  * behind the standing world and may fail without taking it down.
@@ -60,15 +76,7 @@ export const useUserWorld = (userId?: string): UserWorldResult => {
   const [withHistory] = useState(() => !isHandheld());
   const world = useQuery({
     queryKey: userWorldQueryKey(userId),
-    queryFn: async () => {
-      const res = await gqlClient.request<UserWorldData>(USER_WORLD_QUERY, {
-        id: userId,
-      });
-      return {
-        districts: res.userWorld,
-        settings: res.userWorldSettings ?? null,
-      };
-    },
+    queryFn: () => fetchUserWorld(userId as string),
     enabled: !!userId,
     staleTime: StaleTime.Default,
     // A refused world stays refused, so FORBIDDEN skips the usual retries.
