@@ -107,6 +107,8 @@ export interface WorldEngine {
   setCrest: (crest: WorldCrest | null) => void;
   /** Palette and hour. Repaints the environment, so it is key-guarded inside. */
   setSky: (sky: WorldSky) => void;
+  /** Whether the plates carry how far through its rung each plot is. Owner only. */
+  setLevelProgress: (on: boolean) => void;
   setViewFlags: (flags: Partial<Record<string, boolean>>) => void;
   /**
    * A bare render of the whole world as a JPEG data URL, for the share card to

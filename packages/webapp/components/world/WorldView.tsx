@@ -17,6 +17,7 @@ import { WorldTimeline } from './WorldTimeline';
 import type { WorldEngine, WorldState } from './worldState';
 import type { UserWorldResult } from './useUserWorld';
 import { useWorldDraft } from './useWorldDraft';
+import { useWorldLog } from './useWorldLog';
 import { RIDE_MUTED_KEY, useWorldMusic } from './useWorldMusic';
 import { useWorldPlate } from './useWorldPlate';
 import { buildWorld } from './engine/buildWorld';
@@ -240,6 +241,13 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     engineRef.current?.setSky(resolveSky(applied));
   }, [applied]);
 
+  /* Unlike the look and the crest, this one is the VIEWER's: how far a plot is
+     through its level is the owner's own business, and on a stranger's world it
+     is a number about somebody else's reading on a plate the size of a stamp. */
+  useEffect(() => {
+    engineRef.current?.setLevelProgress(isOwn);
+  }, [isOwn]);
+
   /* The share card is composed server-side around a render only this machine
      can cheaply make. Reads the STORED settings, not the draft: a plate is what
      the world looks like to everyone, not what the owner is trying on. */
@@ -327,6 +335,19 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     [isMuted, setIsMuted],
   );
   useWorldMusic({ isRiding, isMuted });
+
+  useWorldLog({
+    userId: user.id,
+    isOwn,
+    isLite,
+    isSettled: !isPending,
+    isPrivate,
+    isUnbuilt,
+    isReady: isStanding,
+    failure,
+    state,
+    districts,
+  });
 
   /* The bench is the owner's only, and the rail's only: below laptop there is
      no room to dress a world and look at it at the same time, so a phone shows

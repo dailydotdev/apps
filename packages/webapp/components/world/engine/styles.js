@@ -58,6 +58,14 @@ export const WORLD_CSS = `
   white-space:nowrap;margin-top:2px}
 .world-root .lb .sb{font-size:8.5px;letter-spacing:.06em;font-weight:700;margin-top:3px;
   white-space:nowrap;opacity:.9}
+/* How far through its current level a plot is, on its owner's own world only.
+   Hidden by default and shown from JS, because the tier that hides a plate's
+   count hides this with it and an inline display would beat the class doing it.
+   currentColor is the district's or realm's own accent, already on the label. */
+.world-root .lb .pg{display:none;height:2px;margin-top:5px;border-radius:2px;
+  background:rgba(168,179,206,.26);overflow:hidden}
+.world-root .lb .pg i{display:block;height:100%;border-radius:2px;
+  background:currentColor;transition:width .2s linear}
 .world-root .lb .stem,.world-root .lb .pin{display:none}
 /* Tier 1 is a bare name over the world — no plate, nothing hidden behind it. */
 .world-root .lb.t1 .box{background:none;border-color:transparent;box-shadow:none;padding:0}

@@ -372,6 +372,15 @@ export enum LogEvent {
   ShareLog = 'share log',
   ShareWorld = 'share world',
   // End Share
+  /* Start World
+     `world view` is the denominator and fires whatever happens next, so the
+     boot it precedes can be measured as a rate against it: every open resolves
+     to exactly one `world ready` or one `world boot failed`. */
+  WorldView = 'world view',
+  WorldReady = 'world ready',
+  WorldBootFailed = 'world boot failed',
+  WorldCustomize = 'world customize',
+  // End World
   // Navigation
   NavigatePrevious = 'navigate previous',
   NavigateNext = 'navigate next',

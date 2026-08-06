@@ -10,70 +10,12 @@ import * as THREE from 'three';
  * palettes and their light are the concept art from `concept-lab.html`.
  */
 
-/* ------------------------------------------------------------------ ladder */
-/* Calibrated 2026-08-02 against the FULL export — 10,404,383 districts over
-   1,325,633 users — not against a sample. That matters, because the previous
-   ladder (1/3/8/16/30/55/100/180/300/550/1000/2000) was tuned on a world
-   labelled "p50" that measures p93.9 across the real userbase, so every rung
-   sat about two percentile-decades too high:
+/* The rungs themselves live in `../ladder`, which imports nothing: a feed nudge
+   that wants to say "two more articles" should not have to load the renderer to
+   find out. Re-exported here so the engine still has one place to ask. */
+import { LEVELS, levelOf, realmLevelOf } from '../ladder';
 
-       61.6% of all districts came out L1, 84% were L1-L2, and the top four
-       rungs between them described 0.14% of the map. Half of all users owned
-       nothing above a WAYSTONE — a whole world of lodestones on bare rock.
-
-   The distribution the ladder actually has to survive is brutally long-tailed:
-   45.6% of districts hold exactly ONE article, p50=2, p75=4, p90=12, p99=87,
-   and the largest district on the platform holds 8,615. No ladder can split
-   the 45.6% — one article is one article — so L1 is a floor we accept.
-
-   The trap here, and the first recalibration walked straight into it, is that
-   the ladder has TWO jobs and only one of them is visible in that histogram:
-
-     1. GLOBAL — separate districts across the userbase. Optimising this alone
-        means equal population per rung, and since the population is dominated
-        by the singletons it drags every rung DOWN.
-     2. INTRA-WORLD — separate one user's districts from EACH OTHER. This is
-        the one you actually look at, because you look at one world at a time.
-
-   Tuning purely for (1) put 19 of a four-year reader's 40 districts on the same
-   rung: a world where everything is the same size, which is precisely the
-   saturation the twelve-step ladder exists to prevent. So the rungs DOUBLE from
-   L4 up — one rung per doubling of attention, which is scale-free and therefore
-   spreads any world's districts the same way wherever that world sits. Measured
-   over the whole export: L1 45.6% (was 61.6%), L3-L10 27.7% (was 15.6%), and a
-   four-year reader now uses 8 rungs with 40% on the modal one instead of 7 and
-   48%.
-
-   Two honest limits. With twelve rungs the bottom and the top compete: every
-   rung spent separating 1-from-2-from-3 articles is a rung not available to a
-   veteran, and a 14-rung ladder would get that reader to 9 rungs / 28% without
-   giving anything back at the bottom. And the modal pile-up is not all ladder —
-   that reader genuinely has 16 districts sitting between 320 and 640 articles,
-   which no choice of thresholds can pull apart.
-
-   SKY COURT stays endgame on purpose: 0.005% of districts, and the biggest
-   district still sits 6.7x above the top rung so there is headroom left in the
-   tail. A ladder whose ceiling is reachable stops being a ceiling.
-
-   `reads` is the only field that reaches a reader, as "L7". The names and the
-   descriptions are for whoever edits the geometry: they say what each rung is
-   supposed to BUILD, next to the threshold that triggers it. Twelve invented
-   names is a second vocabulary to learn before a level means anything, so the
-   UI counts instead of naming, and nothing here should be rendered. */
-export const LEVELS = [
-  { n:'WAYSTONE',  reads:1,    d:'A single lodestone on bare rock. One article is a real thing that happened — it gets land, however little.' },
-  { n:'CAIRN',     reads:2,    d:'Somebody stacked stones and planted the first crystal sprout. Still wild, no longer untouched.' },
-  { n:'CAMP',      reads:3,    d:'A tended camp: lantern, path, the district\'s signature motif appears — identity arrives early, before size does.' },
-  { n:'HOLD',      reads:5,    d:'Ground is cut into two terraces and the first roof goes up. The plot starts reading as built, not found.' },
-  { n:'ATELIER',   reads:10,   d:'A working hamlet with a pool at its heart. Gardens, hedges, the first real greenery.' },
-  { n:'SANCTUM',   reads:20,   d:'Three terraces, a dome, and the first spire. Birds arrive — the place is worth circling.' },
-  { n:'CONCLAVE',  reads:40,   d:'Water spills off the rim as a falls. Lamps line the paths. Density picks up faster than the land does.' },
-  { n:'SPIRE',     reads:80,   d:'Ground runs out before the reading does: cantilever decks brace out past the cliff on struts. The silhouette stops being a lump.' },
-  { n:'ACADEMY',   reads:160,  d:'Four terraces, a spire cluster, and sky bridges strung between the towers. Legible from across the map.' },
-  { n:'ARCANUM',   reads:320,  d:'Lanterns and hanging gardens spill over the terrace lips, a second hall opens, and the district starts growing downward as well as out.' },
-  { n:'CITADEL',   reads:640,  d:'The Great Spire goes up — one landmark that owns the skyline — over a full upper tier of decks and bridges.' },
-  { n:'SKY COURT', reads:1280, d:'The endgame plot. Everything lit, everything tended, everything moving. A capital of one subject.' },
-];
+export { LEVELS, levelOf, realmLevelOf };
 
 /* ------------------------------------------------------- realms & districts
    Six realms, forty districts — the whole taxonomy from world-procedural.html.
@@ -367,25 +309,6 @@ export function paletteOf(realm,niche){
   return P;
 }
 
-/* Level from a lifetime article count, on the twelve-step ladder. */
-export function levelOf(articles){
-  if(articles<=0)return 0;
-  let L=1; for(let i=0;i<LEVELS.length;i++) if(articles>=LEVELS[i].reads) L=i+1;
-  return L;
-}
-/* A REALM is scored on the same ladder with the thresholds moved out 8x. The
-   divisor tracks the ladder: on the recalibrated rungs 4x puts a four-year
-   reader at L12 / L12 / L11 / L11 / L11 / L10, which is the saturation the
-   twelve-step ladder exists to prevent, one scale up. 8x lands the same reader
-   on L11 / L11 / L11 / L11 / L10 / L10 and holds L11+L12 to 0.006% of realms.
-
-   No divisor rescues the middle of this axis, and it is honest to say so: a
-   user reads a handful of niches inside one or two realms, so 82% of realm
-   instances are a single-digit article count and score L1 whatever we do. The
-   realm ladder separates the top of the userbase; it is not a progress bar for
-   the median. Floored at 1: a realm you have read once is small, not absent. */
-const REALM_DIV=8;
-export const realmLevelOf=a=>a<=0?0:Math.max(1,levelOf(a/REALM_DIV));
 
 export const NICHE_OF={}, REALM_OF={};
 REALMS.forEach(r=>r.niches.forEach(n=>{ NICHE_OF[n.id]=n; REALM_OF[n.id]=r; }));
