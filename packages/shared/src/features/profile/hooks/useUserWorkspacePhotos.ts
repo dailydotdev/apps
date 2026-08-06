@@ -1,40 +1,34 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo, useCallback } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import type { PublicProfile } from '../../../lib/user';
 import type {
   AddUserWorkspacePhotoInput,
   ReorderUserWorkspacePhotoInput,
 } from '../../../graphql/user/userWorkspacePhoto';
 import {
-  getUserWorkspacePhotos,
   addUserWorkspacePhoto,
   deleteUserWorkspacePhoto,
   reorderUserWorkspacePhotos,
 } from '../../../graphql/user/userWorkspacePhoto';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+import type { ProfileShowcase } from '../../../graphql/user/profileShowcase';
+import { useProfileShowcase } from './useProfileShowcase';
 import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
 export const MAX_WORKSPACE_PHOTOS = 5;
 
+const selectPhotos = (data: ProfileShowcase) => data.userWorkspacePhotos;
+
 export function useUserWorkspacePhotos(user: PublicProfile | null) {
-  const queryClient = useQueryClient();
   const { isOwner } = useProfilePreview(user);
   const { logEvent } = useLogContext();
 
-  const queryKey = generateQueryKey(
-    RequestKey.UserWorkspacePhotos,
-    user ?? undefined,
-    'profile',
-  );
-
-  const query = useQuery({
+  const {
     queryKey,
-    queryFn: () => getUserWorkspacePhotos(user?.id as string),
-    staleTime: StaleTime.Default,
-    enabled: !!user?.id,
-  });
+    invalidate: invalidateQuery,
+    ...query
+  } = useProfileShowcase(user, selectPhotos);
 
   const photos = useMemo(
     () => query.data?.edges?.map(({ node }) => node) ?? [],
@@ -42,10 +36,6 @@ export function useUserWorkspacePhotos(user: PublicProfile | null) {
   );
 
   const canAddMore = photos.length < MAX_WORKSPACE_PHOTOS;
-
-  const invalidateQuery = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey });
-  }, [queryClient, queryKey]);
 
   const addMutation = useMutation({
     mutationFn: (input: AddUserWorkspacePhotoInput) =>
