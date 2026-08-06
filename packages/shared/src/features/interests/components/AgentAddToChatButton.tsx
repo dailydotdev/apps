@@ -58,9 +58,9 @@ export const AgentAddToChatButton = ({
       <Button
         icon={<AtIcon size={IconSize.Size16} />}
         size={size}
-        variant={ButtonVariant.Float}
+        variant={ButtonVariant.Subtle}
         className={classNames(
-          // Float's own surface is an 8% wash. These sit over live content, and
+          // Subtle is an outline with no fill. These sit over live content, and
           // some of them overlay it outright, so the fill has to be opaque.
           '!bg-background-subtle',
           // Named group, or the turn wrapping the whole reply is also a

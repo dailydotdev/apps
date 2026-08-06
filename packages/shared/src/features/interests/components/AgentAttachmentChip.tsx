@@ -38,14 +38,14 @@ export const AgentAttachmentChip = ({
   onRemove?: () => void;
   className?: string;
 }): ReactElement => (
-  // On an opaque surface rather than a float wash: the chip sits inside the
-  // composer, which is itself a float, and a wash on a wash has no edge. The
-  // label is primary ink for the same reason — a reference you deliberately
-  // attached is not secondary information, and tertiary on float read as
-  // disabled.
+  // Built to the Subtle button's recipe — 24px tall, an 8px radius, an outline
+  // and no fill — because it sits among Subtle buttons at the bottom of the
+  // screen and any other treatment reads as a different kind of thing. The
+  // label keeps primary ink: a reference you deliberately attached is not
+  // secondary information, and dimmer ink here read as disabled.
   <span
     className={classNames(
-      'flex max-w-[13rem] items-center gap-1 rounded-8 border border-border-subtlest-secondary bg-background-subtle py-0.5 pl-1.5',
+      'flex h-6 max-w-[13rem] items-center gap-1 rounded-8 border border-border-subtlest-secondary pl-1.5',
       onRemove ? 'pr-0.5' : 'pr-1.5',
       className,
     )}

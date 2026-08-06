@@ -105,7 +105,7 @@ export const AgentQuoteAction = ({
       <span className="agent-menu-in block">
         <AgentAddToChatButton
           attachment={quoteAttachment(spot.text)}
-          className="border border-border-subtlest-tertiary shadow-2"
+          className="shadow-2"
           // Without this the pointer going down outside the range collapses
           // the selection before the click ever reaches the button.
           onMouseDown={(event) => event.preventDefault()}

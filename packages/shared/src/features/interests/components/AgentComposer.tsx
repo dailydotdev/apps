@@ -35,6 +35,18 @@ import { AgentComposerMenu } from './AgentComposerMenu';
 
 const maxComposerHeight = 160;
 
+/**
+ * The bar the field sits in, and the field's own frame.
+ *
+ * Shared with the start field on the agents home: the two screens are one
+ * shell with a different top half, so the thing you type into cannot move or
+ * change shape between them.
+ */
+export const composerBar =
+  'relative shrink-0 px-5 pb-4 tablet:px-8 tablet:pb-5 laptop:px-10';
+export const composerFrame =
+  'relative min-h-12 justify-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 transition-colors focus-within:border-border-subtlest-secondary';
+
 /** The `@thing` being typed at the caret, if there is one. */
 const mentionQuery = (value: string): string | undefined =>
   /(?:^|\s)@([^\s@]*)$/.exec(value)?.[1];
@@ -281,7 +293,7 @@ export const AgentComposer = (): ReactElement => {
   })();
 
   return (
-    <div className="relative shrink-0 px-5 pb-4 tablet:px-8 tablet:pb-5 laptop:px-10">
+    <div className={composerBar}>
       {/* Softens the hard cut where the transcript disappears behind the bar,
           so the last line fades out instead of being sliced. */}
       <span
@@ -321,7 +333,7 @@ export const AgentComposer = (): ReactElement => {
             </BorderBeam>
           )}
         >
-          <FlexCol className="relative min-h-12 justify-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 transition-colors focus-within:border-border-subtlest-secondary">
+          <FlexCol className={composerFrame}>
             {!!attachments.length && (
               <FlexRow className="flex-wrap items-center gap-1">
                 {attachments.map((attachment) => (

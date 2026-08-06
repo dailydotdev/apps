@@ -19,6 +19,38 @@ export const mockInterest: UserInterest = {
   updatedAt: new Date().toISOString(),
 };
 
+const hoursAgo = (hours: number) =>
+  new Date(Date.now() - 1000 * 60 * 60 * hours).toISOString();
+
+/** A few agents in different states, for the home screen's design surface. */
+export const mockAgents: UserInterest[] = [
+  mockInterest,
+  {
+    ...mockInterest,
+    id: 'demo-2',
+    query: 'What is actually shipping in AI agents',
+    cadence: UserInterestCadence.Hourly,
+    lastRunAt: hoursAgo(1),
+    lastRunSummary: 'Scanned 340 posts, kept 4',
+  },
+  {
+    ...mockInterest,
+    id: 'demo-3',
+    query: 'Postgres internals, deep dives only',
+    status: UserInterestStatus.Paused,
+    cadence: UserInterestCadence.Weekly,
+    lastRunAt: hoursAgo(72),
+    lastRunSummary: null,
+  },
+  {
+    ...mockInterest,
+    id: 'demo-4',
+    query: 'Local-first sync',
+    lastRunAt: null,
+    lastRunSummary: null,
+  },
+];
+
 export const mockAgentPosts = [
   {
     id: 'mock-post-1',

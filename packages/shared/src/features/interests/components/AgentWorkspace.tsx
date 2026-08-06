@@ -11,7 +11,7 @@ import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 import usePersistentContext from '../../../hooks/usePersistentContext';
-import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
+import { useAgentShellHeight } from '../shell';
 import type { AgentFeedItem } from '../hooks/useAgentFeed';
 import { useAgent } from '../AgentContext';
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader';
@@ -43,7 +43,7 @@ export const AgentWorkspace = ({
 }): ReactElement => {
   const { isSettingsOpen, openContent, messages, isWorking, stopCommand } =
     useAgent();
-  const { isV2 } = useLayoutVariant();
+  const shellHeight = useAgentShellHeight(isStandalone);
   const [storedWidth, setStoredWidth] = usePersistentContext<number>(
     'agentPaneWidth',
     defaultPaneWidth,
@@ -137,18 +137,7 @@ export const AgentWorkspace = ({
       ref={workspaceRef}
       className={classNames(
         'relative flex w-full flex-row overflow-hidden',
-        // The workspace scrolls internally, so it has to stop exactly at the
-        // viewport. What sits above it differs per layout: the mobile footer
-        // nav plus the global header in the control variant, the floating
-        // card's own margins in v2, nothing at all standalone.
-        isStandalone
-          ? 'h-[100dvh]'
-          : classNames(
-              'h-[calc(100dvh-7.5rem-var(--safe-area-top))] tablet:h-[calc(100dvh-3.5rem)]',
-              isV2
-                ? 'laptop:h-[calc(100dvh-1.75rem)]'
-                : 'laptop:h-[calc(100dvh-4rem)]',
-            ),
+        shellHeight,
       )}
     >
       {/* Settings take the conversation's whole column, header included,
