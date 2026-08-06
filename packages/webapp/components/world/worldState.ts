@@ -1,5 +1,6 @@
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
 import { pluralize } from '@dailydotdev/shared/src/lib/strings';
+import type { WorldCrest, WorldLook, WorldSky } from '../../graphql/world';
 
 /**
  * What the engine pushes at the overlay.
@@ -100,7 +101,18 @@ export interface WorldEngine {
   frameWorld: () => void;
   attachSpark: (canvas: HTMLCanvasElement | null) => void;
   setPadding: (pad: Partial<Record<'l' | 'r' | 't' | 'b', number>>) => void;
-  setLook: (id: string) => void;
+  /** A whole look, not a preset id: a moved knob forks the preset into one. */
+  setLook: (look: WorldLook) => void;
+  /** The mark flying over the world, or nothing if it has raised none. */
+  setCrest: (crest: WorldCrest | null) => void;
+  /** Palette and hour. Repaints the environment, so it is key-guarded inside. */
+  setSky: (sky: WorldSky) => void;
   setViewFlags: (flags: Partial<Record<string, boolean>>) => void;
+  /**
+   * A bare render of the whole world as a JPEG data URL, for the share card to
+   * be composed around. Empty string if the world is not standing yet. Framing
+   * and camera are restored within the same task, so nothing is painted.
+   */
+  capture: (quality?: number) => string;
   dispose: () => void;
 }

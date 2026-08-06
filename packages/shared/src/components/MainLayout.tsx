@@ -37,7 +37,8 @@ import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { SpotlightProvider } from './spotlight/SpotlightContext';
 import { SpotlightHost } from './spotlight/SpotlightHost';
-import { FeedbackWidget } from './feedback';
+import { FeedbackWidget } from './feedback/FeedbackWidget';
+import { useFeedbackShortcut } from '../hooks/useFeedbackShortcut';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
@@ -132,6 +133,7 @@ function MainLayoutComponent({
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   useRecordRecentPages(isV2);
   useNotificationParams();
+  useFeedbackShortcut();
 
   // Settings pages render their navigation only inside the v2 context panel,
   // so the sidebar force-expands there regardless of the stored preference.

@@ -48,11 +48,13 @@ export const OnboardingPWA = ({
             translucent glass bar. An explicit height, not `bottom`: a replaced
             element's intrinsic ratio wins over an inset pair. The 7rem must
             stay below the bar rail's minimum height — past the page bottom it
-            would make the step scroll. */}
+            would make the step scroll. `cover` + `object-bottom` scales the
+            footage up to fill the whole area; the overflow it sheds at the top
+            is the frame's own blank third. */}
         <div className="relative w-full flex-1">
           <video
             {...footage}
-            className="pointer-events-none absolute inset-x-0 top-0 h-[calc(100%+7rem)] w-full object-contain object-top"
+            className="pointer-events-none absolute inset-x-0 top-0 h-[calc(100%+7rem)] w-full object-cover object-bottom"
             muted
             autoPlay
             loop

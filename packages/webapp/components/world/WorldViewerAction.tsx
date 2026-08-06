@@ -17,8 +17,6 @@ import type {
 interface WorldViewerActionProps {
   user: PublicProfile;
   className?: string;
-  /** Fills its row, for the phone bar where it is a row of its own. */
-  block?: boolean;
 }
 
 /**
@@ -32,7 +30,6 @@ interface WorldViewerActionProps {
 export function WorldViewerAction({
   user,
   className,
-  block,
 }: WorldViewerActionProps): ReactElement | null {
   const { user: viewer } = useAuthContext();
   const { data: contentPreference } = useContentPreferenceStatusQuery({
@@ -49,13 +46,7 @@ export function WorldViewerAction({
   }
 
   return (
-    <div
-      className={classNames(
-        'flex items-center gap-2',
-        block && 'w-full',
-        className,
-      )}
-    >
+    <div className={classNames('flex items-center gap-2', className)}>
       <FollowButton
         entityId={user.id}
         type={ContentPreferenceType.User}
@@ -63,8 +54,6 @@ export function WorldViewerAction({
         entityName={`@${user.username}`}
         origin={Origin.Profile}
         variant={ButtonVariant.Primary}
-        className={block ? 'flex-1' : undefined}
-        buttonClassName={block ? 'flex-1' : undefined}
         // The bell is a preferences control, and nobody came to this page to
         // set preferences. It also has no room for a second button.
         showSubscribe={false}

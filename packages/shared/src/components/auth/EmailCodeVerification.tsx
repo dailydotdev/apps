@@ -86,6 +86,62 @@ function EmailCodeVerification({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [linkedCode]);
 
+  // Opening the keyboard makes WebKit scroll the focused code row toward the
+  // centre of the shrunken viewport, dragging the heading off the top - and
+  // `position: sticky` cannot counter it, because the global body overflow
+  // guard detaches body from the document scroller. When the row already fits
+  // above the keyboard the reveal scroll adds nothing, so undo it - but only
+  // in the moments after focus or a keyboard resize, so a reader scrolling by
+  // hand is never fought.
+  useEffect(() => {
+    let resetUntil = 0;
+    const isCodeInput = (el: Element | null) =>
+      el?.getAttribute('autocomplete') === 'one-time-code';
+    const arm = () => {
+      resetUntil = Date.now() + 900;
+    };
+
+    const onFocusIn = (e: FocusEvent) => {
+      if (isCodeInput(e.target as Element)) {
+        arm();
+      }
+    };
+    const onViewportResize = () => {
+      if (isCodeInput(document.activeElement)) {
+        arm();
+      }
+    };
+    const onScroll = () => {
+      if (Date.now() > resetUntil || window.scrollY <= 0) {
+        return;
+      }
+
+      const input = document.activeElement as HTMLElement | null;
+
+      if (!input || !isCodeInput(input)) {
+        return;
+      }
+
+      const viewportHeight =
+        window.visualViewport?.height ?? window.innerHeight;
+      const { bottom } = input.getBoundingClientRect();
+
+      if (bottom + window.scrollY <= viewportHeight) {
+        window.scrollTo(0, 0);
+      }
+    };
+
+    document.addEventListener('focusin', onFocusIn);
+    window.visualViewport?.addEventListener('resize', onViewportResize);
+    window.addEventListener('scroll', onScroll);
+
+    return () => {
+      document.removeEventListener('focusin', onFocusIn);
+      window.visualViewport?.removeEventListener('resize', onViewportResize);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
   const onCodeVerification = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     logEvent({
