@@ -6,6 +6,7 @@ import type {
   GetStaticPropsResult,
 } from 'next';
 import type { ParsedUrlQuery } from 'querystring';
+import Head from 'next/head';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import type { NextSeoProps } from 'next-seo';
 import type {
@@ -25,8 +26,10 @@ import {
   getToolStackersFollowing,
   getToolTakes,
   getToolTopPosts,
+  getToolVoteState,
+  voteTool,
 } from '@dailydotdev/shared/src/graphql/tools';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   generateQueryKey,
   RequestKey,
@@ -51,6 +54,8 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import {
+  DiscussIcon,
+  DownvoteIcon,
   PlusIcon,
   ShareIcon,
   UpvoteIcon,
@@ -68,13 +73,78 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { publishTimeRelativeShort } from '@dailydotdev/shared/src/lib/dateFormat';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import classNames from 'classnames';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { defaultOpenGraph } from '../../next-seo';
+import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { getAppOrigin } from '../../lib/seo';
+import { ToolDiscussion } from '../../components/tools/ToolDiscussion';
 
 const TOP_POSTS_COUNT = 5;
 const STACKERS_COUNT = 5;
+// Mirrors the sitemap inclusion gate in daily-api.
+const MIN_INDEXABLE_STACKS = 3;
+
+const appOrigin = getAppOrigin();
+
+const getToolPageJsonLd = (
+  tool: ToolPageTool,
+  topPosts: ToolTopPost[],
+): string => {
+  const toolUrl = `${appOrigin}/tools/${tool.slug}`;
+  const breadcrumbItems = [
+    { name: 'Tools', item: `${appOrigin}/tools` },
+    ...(tool.category
+      ? [
+          {
+            name: tool.category,
+            item: `${appOrigin}/tools#${getToolCategoryAnchor(tool.category)}`,
+          },
+        ]
+      : []),
+    { name: tool.title, item: toolUrl },
+  ];
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': `${toolUrl}#page`,
+        url: toolUrl,
+        name: `${tool.title} on daily.dev`,
+        description: `How developers use ${tool.title}: adoption, squads, related tools and posts.`,
+        isPartOf: { '@type': 'WebSite', url: appOrigin },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${toolUrl}#breadcrumbs`,
+        itemListElement: breadcrumbItems.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.name,
+          item: item.item,
+        })),
+      },
+      ...(topPosts.length
+        ? [
+            {
+              '@type': 'ItemList',
+              '@id': `${toolUrl}#posts`,
+              numberOfItems: topPosts.length,
+              itemListElement: topPosts.map((post, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                url: `${appOrigin}/posts/${post.slug || post.id}`,
+                name: post.title || '',
+              })),
+            },
+          ]
+        : []),
+    ],
+  });
+};
 
 export interface ToolPageProps {
   tool: ToolPageTool;
@@ -187,6 +257,46 @@ const ToolPage = ({
     enabled: !!user,
   });
 
+  const queryClient = useQueryClient();
+  const voteKey = generateQueryKey(
+    RequestKey.UserTools,
+    user,
+    'tool-vote',
+    tool.id,
+  );
+  const { data: voteState } = useQuery({
+    queryKey: voteKey,
+    queryFn: () => getToolVoteState(tool.slug),
+    initialData: {
+      upvotes: tool.upvotes,
+      downvotes: tool.downvotes,
+      userVote: tool.userVote,
+    },
+    staleTime: 0,
+  });
+  const { mutate: sendVote } = useMutation({
+    mutationFn: (vote: number) => voteTool(tool.id, vote),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: voteKey }),
+    onError: () => displayToast('Failed to vote'),
+  });
+
+  const handleVote = useCallback(
+    (vote: number) => {
+      if (!user) {
+        showLogin({ trigger: AuthTriggers.Upvote });
+        return;
+      }
+      sendVote(voteState?.userVote === vote ? 0 : vote);
+    },
+    [user, showLogin, sendVote, voteState?.userVote],
+  );
+
+  const totalVotes = (voteState?.upvotes ?? 0) + (voteState?.downvotes ?? 0);
+  const sentiment =
+    totalVotes > 0
+      ? Math.round(((voteState?.upvotes ?? 0) / totalVotes) * 100)
+      : null;
+
   const handleAddClick = useCallback(() => {
     if (!user) {
       showLogin({ trigger: AuthTriggers.AddToStack });
@@ -212,6 +322,15 @@ const ToolPage = ({
 
   return (
     <main className="mx-auto flex w-full max-w-screen-laptop flex-col gap-5 px-4 py-6 laptop:px-8">
+      <Head>
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: getToolPageJsonLd(tool, topPosts),
+          }}
+        />
+      </Head>
       <Typography
         type={TypographyType.Footnote}
         color={TypographyColor.Quaternary}
@@ -311,7 +430,65 @@ const ToolPage = ({
             )}
           </Typography>
         </div>
-        <div className="ml-auto">
+        {sentiment !== null && (
+          <div className="hidden min-w-40 max-w-56 flex-1 flex-col gap-1 tablet:flex">
+            <div className="flex items-baseline justify-between gap-2">
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Quaternary}
+              >
+                Dev sentiment
+              </Typography>
+              <Typography
+                type={TypographyType.Caption1}
+                bold
+                className="text-accent-avocado-default"
+              >
+                {sentiment}%
+              </Typography>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-2 bg-surface-float">
+              <div
+                className="h-full rounded-2 bg-accent-avocado-default"
+                style={{ width: `${sentiment}%` }}
+              />
+            </div>
+          </div>
+        )}
+        <div className="ml-auto flex items-center gap-1">
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            icon={<UpvoteIcon secondary={voteState?.userVote === 1} />}
+            className={classNames(
+              voteState?.userVote === 1 && 'text-accent-avocado-default',
+            )}
+            onClick={() => handleVote(1)}
+            aria-label="Upvote tool"
+          >
+            {voteState?.upvotes
+              ? largeNumberFormat(voteState.upvotes) ?? voteState.upvotes
+              : null}
+          </Button>
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            icon={<DownvoteIcon secondary={voteState?.userVote === -1} />}
+            className={classNames(
+              voteState?.userVote === -1 && 'text-accent-ketchup-default',
+            )}
+            onClick={() => handleVote(-1)}
+            aria-label="Downvote tool"
+          />
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Small}
+            icon={<DiscussIcon />}
+            tag="a"
+            href="#discussion"
+          >
+            Discuss
+          </Button>
           <Button
             variant={ButtonVariant.Float}
             size={ButtonSize.Small}
@@ -539,6 +716,12 @@ const ToolPage = ({
         </div>
       </div>
 
+      <div id="discussion" className="scroll-mt-16">
+        <Card title="Discussion">
+          <ToolDiscussion toolId={tool.id} toolTitle={tool.title} />
+        </Card>
+      </div>
+
       {isModalOpen && (
         <UserStackModal
           isOpen={isModalOpen}
@@ -613,6 +796,7 @@ export async function getStaticProps({
           title: seoTitles.title,
           openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
           description: `Discover how developers use ${tool.title}: adoption on daily.dev, squads discussing it, related tools, and the latest posts.`,
+          ...(tool.stackCount < MIN_INDEXABLE_STACKS ? noindexSeoProps : {}),
         },
       },
       revalidate: 300,

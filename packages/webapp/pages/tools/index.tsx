@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { GetStaticPropsResult } from 'next';
+import Head from 'next/head';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import type { NextSeoProps } from 'next-seo';
 import type { DirectoryTool } from '@dailydotdev/shared/src/graphql/tools';
@@ -20,9 +21,47 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { getAppOrigin } from '../../lib/seo';
 
 const TOOLS_PER_SECTION = 6;
 const TRENDING_COUNT = 6;
+
+const appOrigin = getAppOrigin();
+
+const getToolsDirectoryJsonLd = (sections: CategorySection[]): string => {
+  const directoryUrl = `${appOrigin}/tools`;
+  const tools = sections.flatMap(({ tools: sectionTools }) => sectionTools);
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        '@id': `${directoryUrl}#page`,
+        url: directoryUrl,
+        name: 'Developer tools directory',
+        description:
+          'The tools developers actually run, ranked by real stacks on daily.dev.',
+        isPartOf: { '@type': 'WebSite', url: appOrigin },
+      },
+      ...(tools.length
+        ? [
+            {
+              '@type': 'ItemList',
+              '@id': `${directoryUrl}#tools`,
+              numberOfItems: tools.length,
+              itemListElement: tools.map((tool, index) => ({
+                '@type': 'ListItem',
+                position: index + 1,
+                url: `${appOrigin}/tools/${tool.slug}`,
+                name: tool.title,
+              })),
+            },
+          ]
+        : []),
+    ],
+  });
+};
 
 interface CategorySection {
   category: string;
@@ -79,6 +118,15 @@ const ToolsDirectoryPage = ({
 }: ToolsDirectoryProps): ReactElement => {
   return (
     <main className="mx-auto flex w-full max-w-screen-laptop flex-col gap-8 px-4 py-6 laptop:px-8">
+      <Head>
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: getToolsDirectoryJsonLd(sections),
+          }}
+        />
+      </Head>
       <div className="flex flex-col gap-2">
         <Typography
           tag={TypographyTag.H1}
