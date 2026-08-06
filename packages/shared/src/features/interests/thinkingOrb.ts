@@ -5,12 +5,12 @@ import { MARK_HEIGHT, MARK_WIDTH, markGrains, markRingAlpha } from './logoMark';
  * The motion behind the agent's thinking indicator.
  *
  * The mark breaks into a few hundred grains, they fly out and take up station
- * on a slowly turning sphere, a wave travels through the surface while they
+ * on a slowly turning sphere, single grains spark off its surface while they
  * wait there, and then they come home and reassemble. Rendering lives in
  * components/AgentThinkingOrb.tsx; everything here is arithmetic.
  */
 
-/** Room around the mark for the globe and for the wave that lifts off it. */
+/** Room around the mark for the globe and for the grains that spark off it. */
 export const MARK_PADDING = 4;
 export const VIEW_WIDTH = MARK_WIDTH + MARK_PADDING * 2;
 export const VIEW_HEIGHT = MARK_HEIGHT + MARK_PADDING * 2;
@@ -99,18 +99,42 @@ const grainScale = (f: number): number =>
 /** Evenly spread over a sphere; successive indices land far apart. */
 const GOLDEN = Math.PI * (3 - Math.sqrt(5));
 
-/**
- * A narrow band of raised grain travelling from one pole to the other.
- *
- * The sphere itself never changes size — only the band moves — which is what
- * makes it read as something passing through rather than the whole thing
- * breathing.
- */
-const pulse = (y: number, t: number): number => {
-  const front = fract(t * 0.42) * 2.5 - 1.25;
-  const gap = y - front;
+/** A grain's own place in the queue, stable across frames. */
+const hash = (i: number): number =>
+  fract(Math.sin(i * 127.1 + 3.7) * 43758.5453);
 
-  return 1 + Math.exp(-(gap * gap) / 0.045) * 0.44;
+/** How long a grain spends thrown out, as a share of its own cycle. */
+const SPARK_WINDOW = 0.16;
+const SPARK_RATE = 0.35;
+
+export type Spark = {
+  /** Multiplier on the grain's distance from the centre. */
+  reach: number;
+  size: number;
+  alpha: number;
+};
+
+/**
+ * Most of the sphere is still. Every so often one grain is thrown outward,
+ * brightens, and falls back into place.
+ *
+ * Each grain runs the same cycle on its own offset, so at any moment a
+ * scattered few are out and the rest are waiting. That reads as work happening
+ * at specific points rather than as the whole surface breathing at once, and
+ * it is the only motion in here that never moves the sphere itself.
+ */
+const spark = (index: number, t: number): Spark => {
+  const own = fract(t * SPARK_RATE + hash(index));
+  const jump =
+    own < SPARK_WINDOW ? Math.sin((own / SPARK_WINDOW) * Math.PI) : 0;
+
+  return {
+    reach: 1 + jump * 0.34,
+    size: 1 + jump * 0.8,
+    // The resting field sits under full strength so a spark has somewhere to
+    // brighten to.
+    alpha: 0.6 + jump * 0.4,
+  };
 };
 
 export type PlacedGrain = {
@@ -152,7 +176,8 @@ export const placeGrains = (
     const lat = 1 - (index / Math.max(1, count - 1)) * 2;
     const ring = Math.sqrt(Math.max(0, 1 - lat * lat));
     const lon = index * GOLDEN;
-    const reach = GLOBE_RADIUS * pulse(lat, t);
+    const thrown = spark(index, t);
+    const reach = GLOBE_RADIUS * thrown.reach;
 
     const x = Math.cos(lon) * ring * reach;
     const y = lat * reach;
@@ -167,10 +192,10 @@ export const placeGrains = (
     return {
       x: lerp(grain.x, CENTRE_X + spunX * depth, f),
       y: lerp(grain.y, CENTRE_Y + tiltedY * depth, f),
-      radius: lerp(rest, tip * depth, f) * grow,
+      radius: lerp(rest, tip * depth * thrown.size, f) * grow,
       alpha:
         markRingAlpha[grain.ring] *
-        lerp(1, Math.min(1, depth ** DEPTH_FADE), f),
+        lerp(1, Math.min(1, depth ** DEPTH_FADE) * thrown.alpha, f),
       depth,
     };
   });

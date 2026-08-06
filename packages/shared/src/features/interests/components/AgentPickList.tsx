@@ -11,7 +11,7 @@ import { ArrowIcon, DiscussIcon, UpvoteIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type { Post } from '../../../graphql/posts';
 import { postAttachment } from '../attachments';
-import { AgentAddToChatButton } from './AgentAddToChatButton';
+import { addToChatFloat, AgentAddToChatButton } from './AgentAddToChatButton';
 
 const InlineStat = ({
   icon,
@@ -52,7 +52,8 @@ const PickRow = ({
         stretches its click over the whole row. */}
     <div
       className={classNames(
-        'group relative flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
+        'group/item relative flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
+        'first:rounded-t-12 last:rounded-b-12',
         isViewing ? 'bg-surface-float' : 'hover:bg-surface-float',
       )}
     >
@@ -71,19 +72,15 @@ const PickRow = ({
           {post.title}
         </button>
       </Typography>
-      {/* Overlaid rather than laid out: in the flow it would take a bite out
-          of every title's width, hidden or not, which is what the old
-          "Viewing" label did wrong. Lifted out of the stretched title's layer
-          too. Where there is no pointer to hover with it goes back in the row,
-          because nothing would ever reveal it. */}
+      {/* Floated off the row's top edge rather than placed in it: the row
+          keeps every pixel of its title and every one of its counts, and
+          nothing has to be hidden to make space. */}
       <AgentAddToChatButton
         attachment={postAttachment(post)}
         reveal
-        className="absolute right-3 top-1/2 z-1 -translate-y-1/2 [@media(hover:none)]:static [@media(hover:none)]:ml-auto [@media(hover:none)]:translate-y-0"
+        className={addToChatFloat}
       />
-      {/* Swapped for the button rather than covered by it: a half-occluded
-          comment count is worse than no comment count. */}
-      <div className="ml-auto flex shrink-0 items-center gap-2 transition-opacity group-hover:opacity-0 [@media(hover:none)]:!opacity-100">
+      <div className="ml-auto flex shrink-0 items-center gap-2">
         <InlineStat
           ariaLabel={`${post.numUpvotes ?? 0} upvotes`}
           icon={
@@ -120,7 +117,7 @@ const PickRow = ({
         )}
         <ArrowIcon
           size={IconSize.XSmall}
-          className="shrink-0 rotate-90 text-text-quaternary transition-colors group-hover:text-text-tertiary"
+          className="shrink-0 rotate-90 text-text-quaternary transition-colors group-hover/item:text-text-tertiary"
           aria-hidden
         />
       </div>

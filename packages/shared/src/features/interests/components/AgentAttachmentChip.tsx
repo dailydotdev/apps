@@ -36,19 +36,24 @@ export const AgentAttachmentChip = ({
   onRemove?: () => void;
   className?: string;
 }): ReactElement => (
+  // On an opaque surface rather than a float wash: the chip sits inside the
+  // composer, which is itself a float, and a wash on a wash has no edge. The
+  // label is primary ink for the same reason — a reference you deliberately
+  // attached is not secondary information, and tertiary on float read as
+  // disabled.
   <span
     className={classNames(
-      'flex max-w-[13rem] items-center gap-1 rounded-8 border border-border-subtlest-tertiary bg-surface-float py-0.5 pl-1.5',
+      'flex max-w-[13rem] items-center gap-1 rounded-8 border border-border-subtlest-secondary bg-background-subtle py-0.5 pl-1.5',
       onRemove ? 'pr-0.5' : 'pr-1.5',
       className,
     )}
   >
-    <span className="shrink-0 text-text-quaternary">
+    <span className="shrink-0 text-text-tertiary">
       {attachmentIcon[attachment.kind]}
     </span>
     <Typography
       type={TypographyType.Caption1}
-      color={TypographyColor.Tertiary}
+      color={TypographyColor.Primary}
       className="min-w-0 flex-1 truncate"
     >
       {attachment.label}
@@ -58,7 +63,7 @@ export const AgentAttachmentChip = ({
         type="button"
         aria-label={`Remove ${attachment.label}`}
         onClick={onRemove}
-        className="flex size-4 shrink-0 items-center justify-center rounded-6 text-text-quaternary transition-colors hover:bg-surface-hover hover:text-text-primary"
+        className="flex size-4 shrink-0 items-center justify-center rounded-6 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
       >
         <MiniCloseIcon size={IconSize.Size16} />
       </button>

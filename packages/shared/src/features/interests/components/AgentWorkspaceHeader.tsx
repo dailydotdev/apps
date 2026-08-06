@@ -15,7 +15,7 @@ import { IconSize } from '../../../components/Icon';
 import { webappUrl } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
 import { AgentSettingsMenu } from './AgentSettingsMenu';
-import { AgentStatusChip } from './AgentStatusChip';
+import { AgentStatusTile } from './AgentStatusTile';
 
 // Every control in this row is the same button: Small tertiary, a 20px glyph,
 // tertiary ink that lifts to primary on hover. Only the open state departs, and
@@ -79,10 +79,10 @@ export const AgentWorkspaceHeader = (): ReactElement => {
           />
         </Link>
       </Tooltip>
+      <AgentStatusTile />
       <strong className="min-w-0 shrink truncate typo-footnote">
         {interest?.query ?? 'Your agent'}
       </strong>
-      <AgentStatusChip />
       <span className="flex-1" />
       <FlexRow className="shrink-0 items-center gap-0.5">
         <PanelButton

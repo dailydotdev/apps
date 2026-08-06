@@ -28,6 +28,8 @@ export type AgentCommand = {
   icon: ComponentType<IconProps>;
   /** What the optional argument is for. Absent when the command takes none. */
   hint?: string;
+  /** The hint as a question, for the field once the command is armed. */
+  ask?: string;
   /** `args` is whatever followed the name, already trimmed. */
   prompt?: (args: string) => string;
   opens?: 'settings' | 'activity' | 'debug';
@@ -40,6 +42,7 @@ export const agentCommands: AgentCommand[] = [
     description: 'Widen the hunt past what it has already found.',
     icon: MagicIcon,
     hint: '[angle]',
+    ask: 'What angle? Or send it as it is…',
     prompt: (args) =>
       args
         ? `Explore more around ${args}`
@@ -51,6 +54,7 @@ export const agentCommands: AgentCommand[] = [
     description: "Draft something publishable out of this run's findings.",
     icon: FeatherIcon,
     hint: '[format]',
+    ask: 'What format? Or send it as it is…',
     prompt: (args) =>
       args
         ? `Write me ${args} from what you found`
@@ -62,6 +66,7 @@ export const agentCommands: AgentCommand[] = [
     description: 'Tighten what counts as worth sending from now on.',
     icon: AiIcon,
     hint: '[what counts]',
+    ask: 'What should count from now on? Or send it as it is…',
     prompt: (args) =>
       args
         ? `Raise the bar. From now on only surface ${args}`
@@ -73,6 +78,7 @@ export const agentCommands: AgentCommand[] = [
     description: 'Add or drop the places it looks.',
     icon: SourceIcon,
     hint: '[add or drop]',
+    ask: 'What to add or drop? Or send it as it is…',
     prompt: (args) =>
       args
         ? `Change where you look: ${args}`
@@ -84,6 +90,7 @@ export const agentCommands: AgentCommand[] = [
     description: 'How often it runs on its own.',
     icon: TimerIcon,
     hint: '[how often]',
+    ask: 'How often? Or send it as it is…',
     prompt: (args) =>
       args ? `Run ${args} from now on` : 'How often are you running right now?',
   },
@@ -93,6 +100,7 @@ export const agentCommands: AgentCommand[] = [
     description: 'What made something clear the bar, in its own words.',
     icon: FilterIcon,
     hint: '[which pick]',
+    ask: 'Which pick? Or send it as it is…',
     prompt: (args) =>
       args
         ? `Explain why ${args} cleared the bar`

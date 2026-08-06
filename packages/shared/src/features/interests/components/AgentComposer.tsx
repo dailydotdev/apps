@@ -267,17 +267,11 @@ export const AgentComposer = (): ReactElement => {
     }
   };
 
-  const hasTokens = !!attachments.length || !!command;
-  const argument = command?.hint?.replace(/[[\]]/g, '');
   // The field says what will happen to what is typed into it, which is a
   // different thing in each of the four states it can be in.
   const placeholder = (() => {
-    if (argument) {
-      return `Add ${argument}, or send it as it is…`;
-    }
-
     if (command) {
-      return 'Press enter to run it…';
+      return command.ask ?? 'Press enter to run it…';
     }
 
     // A run in flight does not block the field, it queues behind it.
@@ -328,55 +322,8 @@ export const AgentComposer = (): ReactElement => {
           )}
         >
           <FlexCol className="relative min-h-12 justify-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 transition-colors focus-within:border-border-subtlest-secondary">
-            {hasTokens && (
+            {!!attachments.length && (
               <FlexRow className="flex-wrap items-center gap-1">
-                {command && (
-                  <Tooltip
-                    content={
-                      <FlexCol className="gap-0.5">
-                        <Typography type={TypographyType.Caption1} bold>
-                          /{command.name} {command.hint}
-                        </Typography>
-                        <Typography
-                          type={TypographyType.Caption2}
-                          color={TypographyColor.Tertiary}
-                        >
-                          {command.description}
-                          {argument &&
-                            ` Send it as it is, or add ${
-                              /^[aeiou]/.test(argument) ? 'an' : 'a'
-                            } ${argument}.`}
-                        </Typography>
-                      </FlexCol>
-                    }
-                  >
-                    {/* A plain span, not a classed() component: those remount
-                        every render and a Radix trigger cannot hold one. */}
-                    <span className="flex items-center gap-1 rounded-8 bg-brand-float py-0.5 pl-1.5 pr-0.5">
-                      <span className="text-brand-default">
-                        <command.icon size={IconSize.Size16} />
-                      </span>
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Brand}
-                        bold
-                      >
-                        /{command.name}
-                      </Typography>
-                      <button
-                        type="button"
-                        aria-label={`Remove the ${command.name} command`}
-                        onClick={() => {
-                          setCommand(undefined);
-                          focusInput();
-                        }}
-                        className="flex size-4 shrink-0 items-center justify-center rounded-6 text-brand-default transition-colors hover:bg-surface-hover"
-                      >
-                        <MiniCloseIcon size={IconSize.Size16} />
-                      </button>
-                    </span>
-                  </Tooltip>
-                )}
                 {attachments.map((attachment) => (
                   <AgentAttachmentChip
                     key={attachment.id}
@@ -387,7 +334,54 @@ export const AgentComposer = (): ReactElement => {
               </FlexRow>
             )}
 
-            <FlexRow className="items-center gap-1">
+            {/* On the same line as the text it governs, not on a row of its
+                own: the field grew by a whole line for a token narrower than
+                the word next to it. */}
+            <FlexRow className="items-center gap-1.5">
+              {command && (
+                <Tooltip
+                  content={
+                    <FlexCol className="gap-0.5">
+                      <Typography type={TypographyType.Caption1} bold>
+                        /{command.name} {command.hint}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Caption2}
+                        color={TypographyColor.Tertiary}
+                      >
+                        {command.description}
+                        {command.ask && ' The argument is optional.'}
+                      </Typography>
+                    </FlexCol>
+                  }
+                >
+                  {/* A plain span, not a classed() component: those remount
+                      every render and a Radix trigger cannot hold one. */}
+                  <span className="flex items-center gap-1 rounded-8 bg-brand-float py-0.5 pl-1.5 pr-0.5">
+                    <span className="text-brand-default">
+                      <command.icon size={IconSize.Size16} />
+                    </span>
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Brand}
+                      bold
+                    >
+                      /{command.name}
+                    </Typography>
+                    <button
+                      type="button"
+                      aria-label={`Remove the ${command.name} command`}
+                      onClick={() => {
+                        setCommand(undefined);
+                        focusInput();
+                      }}
+                      className="flex size-4 shrink-0 items-center justify-center rounded-6 text-brand-default transition-colors hover:bg-surface-hover"
+                    >
+                      <MiniCloseIcon size={IconSize.Size16} />
+                    </button>
+                  </span>
+                </Tooltip>
+              )}
               <textarea
                 ref={composerRef}
                 id="agent-composer"
@@ -415,7 +409,7 @@ export const AgentComposer = (): ReactElement => {
                     />
                   }
                   size={ButtonSize.Small}
-                  variant={ButtonVariant.Float}
+                  variant={ButtonVariant.Tertiary}
                   className="self-center"
                   aria-label="Stop the agent"
                   onClick={stopCommand}
@@ -431,7 +425,7 @@ export const AgentComposer = (): ReactElement => {
                     />
                   }
                   size={ButtonSize.Small}
-                  variant={ButtonVariant.Float}
+                  variant={ButtonVariant.Tertiary}
                   className="self-center"
                   aria-label="Send to agent"
                   disabled={!feedback.trim() && !command}

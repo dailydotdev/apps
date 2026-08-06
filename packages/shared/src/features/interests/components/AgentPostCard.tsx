@@ -16,7 +16,7 @@ import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
 import { postAttachment } from '../attachments';
-import { AgentAddToChatButton } from './AgentAddToChatButton';
+import { addToChatFloat, AgentAddToChatButton } from './AgentAddToChatButton';
 
 const Stat = ({
   icon,
@@ -51,7 +51,7 @@ export const AgentPostCard = ({
   // over it, which keeps the accessible name on the words that describe it.
   <div
     className={classNames(
-      'group relative flex w-full items-start gap-3 rounded-12 border p-2.5 text-left transition-colors',
+      'group/item relative flex w-full items-start gap-3 rounded-12 border p-2.5 text-left transition-colors',
       isViewing
         ? 'border-border-subtlest-secondary bg-surface-float'
         : 'border-border-subtlest-quaternary hover:bg-surface-float',
@@ -117,15 +117,15 @@ export const AgentPostCard = ({
           }
           value={post.numComments ?? 0}
         />
-        {/* Lifted out of the title's layer, or the overlay that makes the whole
-            card clickable would swallow the press. */}
-        <AgentAddToChatButton
-          attachment={postAttachment(post)}
-          reveal
-          className="relative z-1 ml-auto"
-        />
       </FlexRow>
     </FlexCol>
+    {/* After the stretched title in the DOM and lifted out of its layer, or
+        the overlay that makes the whole card clickable swallows the press. */}
+    <AgentAddToChatButton
+      attachment={postAttachment(post)}
+      reveal
+      className={addToChatFloat}
+    />
     <Image
       src={post.image}
       alt=""

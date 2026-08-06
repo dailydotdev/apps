@@ -33,7 +33,7 @@ import { useAgent } from '../AgentContext';
 import { feedAttachment } from '../attachments';
 import { AgentPickList } from './AgentPickList';
 import { AgentAttachmentChip } from './AgentAttachmentChip';
-import { AgentAddToChatButton } from './AgentAddToChatButton';
+import { addToChatFloat, AgentAddToChatButton } from './AgentAddToChatButton';
 import { AgentThinkingStrip } from './AgentThinkingStrip';
 import { AgentPostCard } from './AgentPostCard';
 import { AgentEmbedCard } from './blocks/AgentEmbedCard';
@@ -71,20 +71,22 @@ const BlockRenderer = ({
 
   if (block.type === 'feedLink') {
     return (
-      <AgentEmbedCard
-        icon={<BulletListIcon size={IconSize.Size16} />}
-        title={block.label}
-        subtitle={`Feed · ${block.posts.length} posts`}
-        actionLabel="Open"
-        onAction={() => onFeedClick(block.label, block.posts)}
-        className="group"
-        actions={
-          <AgentAddToChatButton
-            attachment={feedAttachment(block.label, block.posts)}
-            reveal
-          />
-        }
-      />
+      // The float lives on a wrapper: the card clips its own overflow for the
+      // media area, and the action reaches past its top edge.
+      <div className="group/item relative">
+        <AgentEmbedCard
+          icon={<BulletListIcon size={IconSize.Size16} />}
+          title={block.label}
+          subtitle={`Feed · ${block.posts.length} posts`}
+          actionLabel="Open"
+          onAction={() => onFeedClick(block.label, block.posts)}
+        />
+        <AgentAddToChatButton
+          attachment={feedAttachment(block.label, block.posts)}
+          reveal
+          className={addToChatFloat}
+        />
+      </div>
     );
   }
 

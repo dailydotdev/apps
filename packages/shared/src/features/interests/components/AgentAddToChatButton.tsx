@@ -13,6 +13,15 @@ import type { AgentAttachment } from '../chat';
 import { useAgent } from '../AgentContext';
 
 /**
+ * Where the button sits on a card or a row: straddling the top edge at the
+ * right, the way Slack hangs its message actions, so it reads as something
+ * belonging to the thing under it without taking any of its room. Devices with
+ * no pointer get it permanently, tucked inside the edge instead of over it.
+ */
+export const addToChatFloat =
+  'absolute -top-3 right-3 z-1 [@media(hover:none)]:top-1';
+
+/**
  * Hangs off anything the agent has put on screen. Pressing it drops a chip in
  * the composer and puts the caret in the field, so the next thing typed is
  * already about this.
@@ -50,8 +59,10 @@ export const AgentAddToChatButton = ({
           // Float's own surface is an 8% wash. These sit over live content, and
           // some of them overlay it outright, so the fill has to be opaque.
           '!bg-background-subtle',
+          // Named group, or the turn wrapping the whole reply is also a
+          // `.group` and hovering anywhere in it reveals every button at once.
           reveal &&
-            'opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100',
+            'opacity-0 transition-opacity focus-visible:opacity-100 group-hover/item:opacity-100',
           // A pointer that cannot hover would never find it.
           reveal && '[@media(hover:none)]:opacity-100',
           className,
