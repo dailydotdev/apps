@@ -4,6 +4,7 @@ import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useViewSize, ViewSize } from '@dailydotdev/shared/src/hooks';
 import Toast from '@dailydotdev/shared/src/components/notifications/Toast';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { WorldBack } from './WorldBack';
 import { WorldBoot } from './WorldBoot';
 import { useIsOwnWorld, WorldInvite } from './WorldInvite';
@@ -16,6 +17,7 @@ import { WorldTimeline } from './WorldTimeline';
 import type { WorldEngine, WorldState } from './worldState';
 import type { UserWorldResult } from './useUserWorld';
 import { useWorldDraft } from './useWorldDraft';
+import { RIDE_MUTED_KEY, useWorldMusic } from './useWorldMusic';
 import { useWorldPlate } from './useWorldPlate';
 import { buildWorld } from './engine/buildWorld';
 import { createWorldEngine } from './engine/world';
@@ -314,6 +316,18 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     [],
   );
 
+  const [isMuted, setIsMuted] = usePersistentContext<boolean>(
+    RIDE_MUTED_KEY,
+    false,
+    [true, false],
+    false,
+  );
+  const onToggleMute = useCallback(
+    () => setIsMuted(!isMuted),
+    [isMuted, setIsMuted],
+  );
+  useWorldMusic({ isRiding, isMuted });
+
   /* The bench is the owner's only, and the rail's only: below laptop there is
      no room to dress a world and look at it at the same time, so a phone shows
      the place and a laptop is where it is made yours. */
@@ -398,7 +412,13 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
         </>
       )}
 
-      {isRiding && <WorldRiding state={state} />}
+      {isRiding && (
+        <WorldRiding
+          state={state}
+          isMuted={isMuted}
+          onToggleMute={onToggleMute}
+        />
+      )}
 
       {isUnbuilt && !isRiding && <WorldInvite user={user} />}
 
