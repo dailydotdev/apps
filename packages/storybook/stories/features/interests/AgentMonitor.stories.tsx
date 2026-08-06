@@ -120,31 +120,31 @@ const Monitor = (): ReactElement => (
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
       >
-        The counts live under the field, on the same pane of glass. Hover the
-        strip to look, click it to keep it open. Every row is one agent talking
-        to you, so the panel reads like a small inbox rather than a status
-        table.
+        Collapsed, the strip is a ticker: each agent's latest in rotation, with
+        the bell on the right carrying the only number that asks for anything.
+        Hover to open the list and the rotation stops. Every row is one agent
+        on one line, so a dozen of them still fit in a glance.
       </Typography>
     </FlexCol>
 
     <div className="grid gap-8 laptop:grid-cols-2">
       <Stage
         title="Nothing to report"
-        note="No agent has come back with anything. The strip is a count of work in progress and nothing more."
+        note="No agent has come back with anything, so the bell carries no number and the ticker is just what they are working on."
       >
         <Field items={quiet} />
       </Stage>
 
       <Stage
         title="Two came back"
-        note="The purple count is the whole notification. No bell, no red dot in the chrome, no toast that leaves with the news."
+        note="Two came back while you were reading. The count on the bell is the whole notification: nothing in the chrome, no toast that leaves with the news."
       >
         <Field items={all} />
       </Stage>
 
       <Stage
         title="Open"
-        note="One row per agent: who it is, what it found, how long ago. Clicking a row opens that agent's conversation at the finding."
+        note="One line per agent: who it is, what it found, its state, how long ago. Clicking a row opens that agent's conversation at the finding."
         tall
       >
         <Field items={all} defaultOpen />

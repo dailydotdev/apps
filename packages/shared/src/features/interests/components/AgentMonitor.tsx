@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -8,7 +8,7 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import Link from '../../../components/utilities/Link';
-import { ArrowIcon } from '../../../components/icons';
+import { ArrowIcon, BellIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
@@ -29,6 +29,7 @@ export type AgentMonitorItem = {
 };
 
 const freshMs = 1000 * 60 * 60 * 6;
+const tickerMs = 3600;
 
 /**
  * The agents, as the strip sees them.
@@ -62,22 +63,22 @@ export const toMonitorItems = (
     };
   });
 
+const stateLabel: Record<AgentMonitorState, string> = {
+  new: 'New',
+  hunting: 'Hunting',
+  paused: 'Paused',
+};
+
 const pillClass: Record<AgentMonitorState, string> = {
   new: 'bg-brand-float text-brand-default',
   hunting: 'bg-surface-float text-text-tertiary',
   paused: 'bg-surface-float text-text-quaternary',
 };
 
-const StatePill = ({
-  state,
-  label,
-}: {
-  state: AgentMonitorState;
-  label: string;
-}): ReactElement => (
+const StatePill = ({ state }: { state: AgentMonitorState }): ReactElement => (
   <span
     className={classNames(
-      'flex shrink-0 items-center gap-1 rounded-8 px-1.5 py-0.5 typo-caption1',
+      'flex shrink-0 items-center gap-1 rounded-6 px-1.5 typo-caption2',
       pillClass[state],
     )}
   >
@@ -87,61 +88,54 @@ const StatePill = ({
         className="size-1.5 animate-pulse rounded-6 bg-action-upvote-default"
       />
     )}
-    {label}
+    {stateLabel[state]}
   </span>
 );
 
+/**
+ * One agent, one line: who, what, state, when.
+ *
+ * Single row on purpose. A dozen agents have to be scannable in one look, and
+ * a second line each turns the panel into a page.
+ */
 const Row = ({ item }: { item: AgentMonitorItem }): ReactElement => (
   <li>
     <Link href={`${webappUrl}agent/${item.id}`}>
-      {/* Read like a mail list: who it is from on the first line, what they
-          said underneath, everything else on the right. */}
-      <a className="flex flex-col gap-0.5 rounded-12 px-2 py-2 transition-colors hover:bg-surface-hover">
-        <FlexRow className="items-center gap-2">
-          <AgentMark
-            status={
-              item.state === 'paused'
-                ? UserInterestStatus.Paused
-                : UserInterestStatus.Active
-            }
-            isWorking={item.state === 'hunting'}
-          />
-          <Typography
-            type={TypographyType.Footnote}
-            bold
-            className="min-w-0 flex-1 truncate"
-          >
-            {item.name}
-          </Typography>
-          <StatePill
-            state={item.state}
-            label={
-              // eslint-disable-next-line no-nested-ternary
-              item.state === 'new'
-                ? 'New'
-                : item.state === 'hunting'
-                ? 'Hunting'
-                : 'Paused'
-            }
-          />
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Quaternary}
-            className="w-16 shrink-0 text-right tabular-nums"
-          >
-            {item.at ? (
-              <DateFormat date={item.at} type={TimeFormatType.LastActivity} />
-            ) : (
-              'Not yet'
-            )}
-          </Typography>
-        </FlexRow>
+      <a className="flex items-center gap-2 rounded-10 px-2 py-1 transition-colors hover:bg-surface-hover">
+        <AgentMark
+          isCompact
+          status={
+            item.state === 'paused'
+              ? UserInterestStatus.Paused
+              : UserInterestStatus.Active
+          }
+          isWorking={item.state === 'hunting'}
+        />
+        <Typography
+          type={TypographyType.Caption1}
+          bold
+          className="max-w-[10rem] shrink-0 truncate"
+        >
+          {item.name}
+        </Typography>
         <Typography
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
-          className="line-clamp-2 pl-10"
+          className="min-w-0 flex-1 truncate"
         >
           {item.line}
+        </Typography>
+        <StatePill state={item.state} />
+        <Typography
+          type={TypographyType.Caption2}
+          color={TypographyColor.Quaternary}
+          className="w-14 shrink-0 text-right tabular-nums"
+        >
+          {item.at ? (
+            <DateFormat date={item.at} type={TimeFormatType.LastActivity} />
+          ) : (
+            'Not yet'
+          )}
         </Typography>
       </a>
     </Link>
@@ -152,11 +146,14 @@ const Row = ({ item }: { item: AgentMonitorItem }): ReactElement => (
  * One line under the field for everything the agents are doing, and the whole
  * list one gesture away.
  *
- * Collapsed it is a count: how many came back with something, how many are
- * still out. Hovering opens it, clicking pins it open, and each row reads like
- * a message from the agent that sent it. This is the only place a finished run
- * announces itself, on purpose: a toast that flies past takes the news with
- * it, and a badge somewhere else in the chrome is a second inbox to check.
+ * Collapsed it is a ticker: each agent's latest, in rotation, so the strip is
+ * never a static "3 running" that you stop seeing by the second day. The bell
+ * on the right holds the only number that asks for anything, which is how many
+ * came back while you were reading. Hovering opens the list and stops the
+ * rotation, because text that moves under a pointer is text you cannot read.
+ *
+ * No toast and no badge elsewhere in the chrome, on purpose: a toast leaves
+ * with the news, and a second badge is a second inbox to check.
  */
 export const AgentMonitor = ({
   items,
@@ -168,24 +165,43 @@ export const AgentMonitor = ({
 }): ReactElement | null => {
   const [isPinned, setPinned] = useState(!!defaultOpen);
   const [isHovered, setHovered] = useState(false);
+  const [cursor, setCursor] = useState(0);
   const isOpen = isPinned || isHovered;
+  const count = items.length;
 
-  if (!items.length) {
+  useEffect(() => {
+    const isStill = globalThis.matchMedia?.(
+      '(prefers-reduced-motion: reduce)',
+    )?.matches;
+
+    if (isOpen || count < 2 || isStill) {
+      return undefined;
+    }
+
+    const timer = setInterval(
+      () => setCursor((current) => (current + 1) % count),
+      tickerMs,
+    );
+
+    return () => clearInterval(timer);
+  }, [isOpen, count]);
+
+  if (!count) {
     return null;
   }
 
-  const count = (state: AgentMonitorState) =>
-    items.filter((item) => item.state === state).length;
-  const fresh = count('new');
-  const hunting = count('hunting');
-  const paused = count('paused');
-  // The most recent run of any of them: the strip answers "when did I last
-  // hear anything", not "when did the first one in the list run".
-  const latest = items
-    .map(({ at }) => at)
+  const fresh = items.filter(({ state }) => state === 'new').length;
+  const hunting = items.filter(({ state }) => state === 'hunting').length;
+  const paused = items.filter(({ state }) => state === 'paused').length;
+  // Modulo again here: the list can shrink under a cursor that has moved on.
+  const showing = items[cursor % count];
+  const summary = [
+    !!fresh && `${fresh} new`,
+    !!hunting && `${hunting} hunting`,
+    !!paused && `${paused} paused`,
+  ]
     .filter(Boolean)
-    .sort()
-    .pop();
+    .join(' · ');
 
   return (
     <div
@@ -194,21 +210,21 @@ export const AgentMonitor = ({
       onMouseLeave={() => setHovered(false)}
     >
       {isOpen && (
-        <FlexCol className="agent-menu-in absolute inset-x-0 bottom-full z-popup mb-2 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-3">
+        <FlexCol className="agent-menu-in absolute inset-x-0 bottom-full z-popup mb-2 rounded-14 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-3">
           <FlexRow className="items-center justify-between gap-2 px-2 py-1">
             <Typography
-              type={TypographyType.Caption1}
+              type={TypographyType.Caption2}
               color={TypographyColor.Quaternary}
             >
-              Agent monitor
+              {summary}
             </Typography>
             <Link href={`${webappUrl}agent`}>
-              <a className="text-text-tertiary typo-caption1 hover:text-text-primary">
+              <a className="text-text-tertiary typo-caption2 hover:text-text-primary">
                 See all
               </a>
             </Link>
           </FlexRow>
-          <ol className="max-h-80 overflow-y-auto">
+          <ol className="max-h-72 overflow-y-auto">
             {items.map((item) => (
               <Row key={item.id} item={item} />
             ))}
@@ -219,25 +235,30 @@ export const AgentMonitor = ({
       <button
         type="button"
         aria-expanded={isOpen}
+        aria-label={`Agent monitor: ${summary}`}
         onClick={() => setPinned((current) => !current)}
         onKeyDown={(event) => event.key === 'Escape' && setPinned(false)}
-        className="flex w-full items-center gap-1.5 rounded-12 px-2 py-1 text-left transition-colors hover:bg-surface-hover"
+        className="flex w-full items-center gap-2 rounded-10 px-2 py-1 text-left transition-colors hover:bg-surface-hover"
       >
-        {!!fresh && <StatePill state="new" label={`${fresh} new`} />}
-        {!!hunting && (
-          <StatePill state="hunting" label={`${hunting} hunting`} />
-        )}
-        {!!paused && <StatePill state="paused" label={`${paused} paused`} />}
-        <span className="flex-1" />
-        {latest && (
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Quaternary}
-            className="tabular-nums"
-          >
-            <DateFormat date={latest} type={TimeFormatType.LastActivity} />
-          </Typography>
-        )}
+        {/* Keyed on the agent, so a turn of the ticker plays the new line in
+            instead of swapping the text under you. */}
+        <Typography
+          key={showing.id}
+          type={TypographyType.Caption1}
+          color={TypographyColor.Tertiary}
+          className="agent-line-in min-w-0 flex-1 truncate"
+        >
+          <strong className="text-text-primary">{showing.name}</strong>
+          {` ${showing.line}`}
+        </Typography>
+        <FlexRow className="shrink-0 items-center gap-1 text-text-quaternary">
+          <BellIcon size={IconSize.Size16} secondary={!!fresh} />
+          {!!fresh && (
+            <span className="rounded-6 bg-brand-float px-1 text-brand-default typo-caption2">
+              {fresh}
+            </span>
+          )}
+        </FlexRow>
         <ArrowIcon
           size={IconSize.XSmall}
           className={classNames(

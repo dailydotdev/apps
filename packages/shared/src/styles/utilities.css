@@ -1019,9 +1019,13 @@
 .agent-glass-frame {
   border: 1px solid
     color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 78%);
+  /* The ring around the field is the card surface, not clear glass: over a
+     feed of cards, a fully transparent frame reads as a gap in the page
+     rather than as an object resting on it. Still translucent, so the posts
+     underneath stay legible as movement. */
   background: color-mix(
     in srgb,
-    var(--theme-background-default) 68%,
+    var(--theme-background-subtle) 86%,
     transparent
   );
   backdrop-filter: blur(20px) saturate(140%);
@@ -1054,4 +1058,25 @@
   );
   filter: blur(28px);
   opacity: 0.35;
+}
+
+/* One line replacing another in place — the monitor's ticker. Shorter and
+   flatter than the menu's entrance: this fires every few seconds, and
+   anything with real travel in it becomes the loudest thing on the page. */
+@keyframes agent-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+    filter: blur(3px);
+  }
+}
+
+.agent-line-in {
+  animation: agent-line-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-line-in {
+    animation: none;
+  }
 }
