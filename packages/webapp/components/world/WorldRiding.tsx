@@ -6,6 +6,16 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  VolumeIcon,
+  VolumeOffIcon,
+} from '@dailydotdev/shared/src/components/icons';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import type { WorldState } from './worldState';
 
 const Key = ({ children }: { children: React.ReactNode }) => (
@@ -21,12 +31,20 @@ const Key = ({ children }: { children: React.ReactNode }) => (
  * inside it, so this is the only chrome left, and it has to carry the one key
  * that gets you off, because nothing else on screen says how to leave.
  */
-export function WorldRiding({ state }: { state: WorldState }): ReactElement {
+export function WorldRiding({
+  state,
+  isMuted,
+  onToggleMute,
+}: {
+  state: WorldState;
+  isMuted: boolean;
+  onToggleMute: () => void;
+}): ReactElement {
   const manual = state.riding?.manual;
 
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-6 z-2 flex justify-center px-4">
-      <div className="flex max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-16 border border-border-subtlest-tertiary bg-background-default px-4 py-2.5">
+      <div className="flex max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-16 border border-border-subtlest-tertiary bg-background-default py-2.5 pl-4 pr-2">
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Footnote}
@@ -57,6 +75,21 @@ export function WorldRiding({ state }: { state: WorldState }): ReactElement {
             </>
           )}
         </Typography>
+        {/* In the bar rather than floating on its own: this is the only thing
+            on screen while you are riding, and the music only plays while you
+            are. */}
+        <Tooltip content={isMuted ? 'Play the music' : 'Mute the music'}>
+          <Button
+            className="pointer-events-auto"
+            type="button"
+            aria-label={isMuted ? 'Play the music' : 'Mute the music'}
+            aria-pressed={isMuted}
+            variant={ButtonVariant.Tertiary}
+            size={ButtonSize.Small}
+            icon={isMuted ? <VolumeOffIcon /> : <VolumeIcon />}
+            onClick={onToggleMute}
+          />
+        </Tooltip>
       </div>
     </div>
   );
