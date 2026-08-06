@@ -10,7 +10,8 @@ import {
 import { ArrowIcon, DiscussIcon, UpvoteIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type { Post } from '../../../graphql/posts';
-import { AgentViewingChip } from './AgentViewingChip';
+import { postAttachment } from '../attachments';
+import { AgentAddToChatButton } from './AgentAddToChatButton';
 
 const InlineStat = ({
   icon,
@@ -47,11 +48,11 @@ const PickRow = ({
   isViewing: boolean;
 }): ReactElement => (
   <li>
-    <button
-      type="button"
-      onClick={() => onOpen(post)}
+    {/* A row rather than a button, so "add to chat" can sit in it. The title
+        stretches its click over the whole row. */}
+    <div
       className={classNames(
-        'group flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
+        'group relative flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
         isViewing ? 'bg-surface-float' : 'hover:bg-surface-float',
       )}
     >
@@ -62,10 +63,19 @@ const PickRow = ({
         color={TypographyColor.Primary}
         className="min-w-0 flex-1 !leading-snug"
       >
-        {post.title}
+        <button
+          type="button"
+          onClick={() => onOpen(post)}
+          className="w-full text-left after:absolute after:inset-0"
+        >
+          {post.title}
+        </button>
       </Typography>
       <div className="ml-auto flex shrink-0 items-center gap-2">
-        {isViewing && <AgentViewingChip />}
+        <AgentAddToChatButton
+          attachment={postAttachment(post)}
+          className="relative z-1 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+        />
         <InlineStat
           ariaLabel={`${post.numUpvotes ?? 0} upvotes`}
           icon={
@@ -106,7 +116,7 @@ const PickRow = ({
           aria-hidden
         />
       </div>
-    </button>
+    </div>
   </li>
 );
 

@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import { PopoverContent } from '../../../components/popover/Popover';
 import {
@@ -10,7 +9,7 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { Switch } from '../../../components/fields/Switch';
-import { MagicIcon, SettingsIcon, TimerIcon } from '../../../components/icons';
+import { SettingsIcon, TimerIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
@@ -44,14 +43,16 @@ const MenuRow = ({
   </button>
 );
 
-// The agent's identity tile doubles as its power switch, the way Claude Code
-// hangs Remote Control off the session chip: the dot tells you the state at a
-// glance, the popover is where you change it.
-export const AgentRunControl = (): ReactElement => {
+/**
+ * The gear holds everything about the agent as a thing that runs: whether it is
+ * hunting right now, when it last did, and the way into its settings. One
+ * place, because a power switch on the left and a gear on the right were two
+ * doors into the same room.
+ */
+export const AgentSettingsMenu = (): ReactElement => {
   const {
     interest,
     status,
-    isWorking,
     update,
     setSettingsOpen,
     openContentTarget,
@@ -59,8 +60,6 @@ export const AgentRunControl = (): ReactElement => {
     openContent,
   } = useAgent();
   const isRunning = status === UserInterestStatus.Active;
-  const runningLabel = isRunning ? 'Hunting' : 'Paused';
-  const runLabel = isWorking ? 'Working' : runningLabel;
 
   const openActivity = () =>
     openContent.some((item) => item.type === 'activity')
@@ -72,28 +71,18 @@ export const AgentRunControl = (): ReactElement => {
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label="Agent run state"
-          className="relative flex size-8 shrink-0 items-center justify-center rounded-10 bg-brand-float transition-colors hover:bg-surface-hover"
+          aria-label="Agent settings"
+          className="group relative flex size-8 shrink-0 items-center justify-center rounded-10 transition-colors hover:bg-surface-hover"
         >
-          <MagicIcon size={IconSize.XSmall} className="text-brand-default" />
-          <span
-            className={classNames(
-              // The 2px cut-out ring eats most of a small dot, so the box has
-              // to be generous for the colour inside it to register at all.
-              'absolute -bottom-0.5 -right-0.5 size-3 rounded-6 border-2 border-background-default',
-              // eslint-disable-next-line no-nested-ternary
-              isWorking
-                ? 'animate-pulse bg-brand-default'
-                : isRunning
-                ? 'bg-action-upvote-default'
-                : 'bg-text-quaternary',
-            )}
+          <SettingsIcon
+            size={IconSize.XSmall}
+            className="text-text-tertiary transition-colors group-hover:text-text-primary"
           />
         </button>
       </PopoverTrigger>
       <PopoverContent
         side="bottom"
-        align="start"
+        align="end"
         sideOffset={8}
         className="z-popup w-64 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-3 shadow-3"
       >
@@ -101,7 +90,7 @@ export const AgentRunControl = (): ReactElement => {
           <FlexRow className="items-center justify-between gap-3">
             <FlexCol className="min-w-0 flex-1 gap-0.5">
               <Typography type={TypographyType.Footnote} bold>
-                {runLabel}
+                {isRunning ? 'Pause the agent' : 'Resume the agent'}
               </Typography>
               <Typography
                 type={TypographyType.Caption2}
@@ -151,7 +140,7 @@ export const AgentRunControl = (): ReactElement => {
             />
             <MenuRow
               icon={<SettingsIcon size={IconSize.Size16} />}
-              label="Agent settings"
+              label="Settings"
               onClick={() => setSettingsOpen(true)}
             />
           </FlexCol>

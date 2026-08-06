@@ -15,7 +15,8 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
-import { AgentViewingChip } from './AgentViewingChip';
+import { postAttachment } from '../attachments';
+import { AgentAddToChatButton } from './AgentAddToChatButton';
 
 const Stat = ({
   icon,
@@ -45,11 +46,12 @@ export const AgentPostCard = ({
   onOpen: (post: Post) => void;
   isViewing: boolean;
 }): ReactElement => (
-  <button
-    type="button"
-    onClick={() => onOpen(post)}
+  // The card is a container rather than a button so that "add to chat" can sit
+  // inside it. The title carries the click for the whole card by stretching
+  // over it, which keeps the accessible name on the words that describe it.
+  <div
     className={classNames(
-      'flex w-full items-start gap-3 rounded-12 border p-2.5 text-left transition-colors',
+      'group relative flex w-full items-start gap-3 rounded-12 border p-2.5 text-left transition-colors',
       isViewing
         ? 'border-border-subtlest-secondary bg-surface-float'
         : 'border-border-subtlest-quaternary hover:bg-surface-float',
@@ -79,15 +81,20 @@ export const AgentPostCard = ({
         >
           <DateFormat date={post.createdAt} type={TimeFormatType.Post} />
         </Typography>
-        {isViewing && <AgentViewingChip />}
       </FlexRow>
       <Typography
         tag={TypographyTag.H3}
         type={TypographyType.Callout}
         bold
-        className="line-clamp-2 !leading-snug"
+        className="!leading-snug"
       >
-        {post.title}
+        <button
+          type="button"
+          onClick={() => onOpen(post)}
+          className="line-clamp-2 w-full text-left after:absolute after:inset-0 after:rounded-12"
+        >
+          {post.title}
+        </button>
       </Typography>
       <FlexRow className="items-center gap-3">
         <Stat
@@ -110,6 +117,12 @@ export const AgentPostCard = ({
           }
           value={post.numComments ?? 0}
         />
+        {/* Lifted out of the title's layer, or the overlay that makes the whole
+            card clickable would swallow the press. */}
+        <AgentAddToChatButton
+          attachment={postAttachment(post)}
+          className="relative z-1 ml-auto opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+        />
       </FlexRow>
     </FlexCol>
     <Image
@@ -119,5 +132,5 @@ export const AgentPostCard = ({
       fallbackSrc={cloudinaryPostImageCoverPlaceholder}
       className="size-16 shrink-0 rounded-10 object-cover"
     />
-  </button>
+  </div>
 );

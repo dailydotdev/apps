@@ -10,16 +10,12 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
-import {
-  MoveToIcon,
-  SettingsIcon,
-  TerminalIcon,
-  TimerIcon,
-} from '../../../components/icons';
+import { MoveToIcon, TerminalIcon, TimerIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { webappUrl } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
-import { AgentRunControl } from './AgentRunControl';
+import { AgentSettingsMenu } from './AgentSettingsMenu';
+import { AgentStatusChip } from './AgentStatusChip';
 
 // Every control in this row is the same button: Small tertiary, a 20px glyph,
 // tertiary ink that lifts to primary on hover. Only the open state departs, and
@@ -63,13 +59,7 @@ const PanelButton = ({
 );
 
 export const AgentWorkspaceHeader = (): ReactElement => {
-  const {
-    interest,
-    setSettingsOpen,
-    openContent,
-    openContentTarget,
-    focusContent,
-  } = useAgent();
+  const { interest, openContent, openContentTarget, focusContent } = useAgent();
   const isOpen = (type: string) =>
     openContent.some((item) => item.type === type);
   const togglePanel = (type: 'activity' | 'debug') =>
@@ -89,10 +79,10 @@ export const AgentWorkspaceHeader = (): ReactElement => {
           />
         </Link>
       </Tooltip>
-      <AgentRunControl />
       <strong className="min-w-0 shrink truncate typo-footnote">
         {interest?.query ?? 'Your agent'}
       </strong>
+      <AgentStatusChip />
       <span className="flex-1" />
       <FlexRow className="shrink-0 items-center gap-0.5">
         <PanelButton
@@ -111,16 +101,9 @@ export const AgentWorkspaceHeader = (): ReactElement => {
             onClick={() => togglePanel('debug')}
           />
         </span>
-        <Tooltip content="Agent settings">
-          <Button
-            icon={headerIcon(<SettingsIcon />)}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            className="group"
-            aria-label="Agent settings"
-            onClick={() => setSettingsOpen(true)}
-          />
-        </Tooltip>
+        {/* No tooltip: it is a popover trigger, and Tooltip blurs its child on
+            mouse-up, which dismisses the menu as it opens. */}
+        <AgentSettingsMenu />
       </FlexRow>
     </FlexRow>
   );

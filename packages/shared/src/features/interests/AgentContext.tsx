@@ -17,8 +17,8 @@ import { useSendInterestCommand } from './hooks/useSendInterestCommand';
 import { useUpdateInterest } from './hooks/useUpdateInterest';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import type { Post } from '../../graphql/posts';
-import type { AgentMessage } from './chat';
-import { cannedReply } from './chat';
+import type { AgentAttachment, AgentMessage } from './chat';
+import { cannedReply, promptWithContext } from './chat';
 
 export type AgentContentTarget =
   | { type: 'post'; post: Post }
@@ -56,6 +56,7 @@ type RunCommandArgs = {
   text: string;
   label?: string;
   targetId?: string;
+  attachments?: AgentAttachment[];
   onComplete?: () => void;
 };
 
@@ -79,6 +80,16 @@ type AgentContextValue = {
   /** Prompts sent while a run is in flight; they start as the runs finish. */
   queuedCommands: { id: string; text: string }[];
   removeQueuedCommand: (id: string) => void;
+  /**
+   * What the next prompt is pointed at. Held here rather than in the composer
+   * because anything on screen can add to it, and most of those things are
+   * nowhere near the field.
+   */
+  attachments: AgentAttachment[];
+  attachContext: (attachment: AgentAttachment) => void;
+  detachContext: (id: string) => void;
+  /** The field itself, so an attachment made elsewhere lands you in it. */
+  composerRef: React.RefObject<HTMLTextAreaElement>;
   update: (data: UpdateInterestInput) => void;
   isUpdating: boolean;
   activity: AgentActivityItem[];
@@ -134,6 +145,8 @@ export const AgentProvider = ({
   const [queuedCommands, setQueuedCommands] = useState<
     { id: string; args: RunCommandArgs }[]
   >([]);
+  const [attachments, setAttachments] = useState<AgentAttachment[]>([]);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   // The completion timeout needs the *current* starter to drain the queue, and
   // a plain closure would freeze the one from its own render.
@@ -145,10 +158,18 @@ export const AgentProvider = ({
   }, []);
 
   const startRun = useCallback(
-    ({ text, label, targetId, onComplete }: RunCommandArgs) => {
+    ({
+      text,
+      label,
+      targetId,
+      attachments: pointedAt,
+      onComplete,
+    }: RunCommandArgs) => {
       workingRef.current = true;
       if (!isDemo && interest) {
-        sendCommand(text).catch(() => undefined);
+        sendCommand(promptWithContext(text, pointedAt ?? [])).catch(
+          () => undefined,
+        );
       } else {
         displayToast('Sent to the agent — it will update in the background');
       }
@@ -174,6 +195,7 @@ export const AgentProvider = ({
           role: 'user',
           at: new Date().toISOString(),
           text,
+          attachments: pointedAt,
         },
         {
           id: `${stamp}-agent`,
@@ -242,6 +264,11 @@ export const AgentProvider = ({
 
   const runCommand = useCallback(
     (args: RunCommandArgs) => {
+      // The references have left with the prompt, whether it ran or queued.
+      if (args.attachments?.length) {
+        setAttachments([]);
+      }
+
       if (workingRef.current) {
         setQueuedCommands((current) => [
           ...current,
@@ -253,6 +280,25 @@ export const AgentProvider = ({
       startRun(args);
     },
     [startRun],
+  );
+
+  // Adding the same thing twice is a no-op rather than a second chip: the
+  // buttons that call this stay visible after you press them.
+  const attachContext = useCallback((attachment: AgentAttachment) => {
+    setAttachments((current) =>
+      current.some(({ id: existing }) => existing === attachment.id)
+        ? current
+        : [...current, attachment],
+    );
+    composerRef.current?.focus();
+  }, []);
+
+  const detachContext = useCallback(
+    (attachmentId: string) =>
+      setAttachments((current) =>
+        current.filter(({ id: existing }) => existing !== attachmentId),
+      ),
+    [],
   );
 
   const removeQueuedCommand = useCallback(
@@ -378,6 +424,10 @@ export const AgentProvider = ({
         text: args.text,
       })),
       removeQueuedCommand,
+      attachments,
+      attachContext,
+      detachContext,
+      composerRef,
       update,
       isUpdating,
       activity,
@@ -395,9 +445,12 @@ export const AgentProvider = ({
       closeAllContent,
     }),
     [
+      attachContext,
+      attachments,
       closeAllContent,
       closeContent,
       content,
+      detachContext,
       focusContent,
       openContentTarget,
       activity,

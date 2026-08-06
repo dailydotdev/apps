@@ -36,7 +36,22 @@ const shipped: string[][] = [
   [
     'Run control',
     'Session chip opens a Remote Control popover with an on/off switch',
-    'Agent tile opens the run popover: status dot, toggle (off also stops the run), cadence, last run',
+    'The gear opens it: pause / resume toggle (off also stops the run), cadence, last run, way into settings. A status chip next to the name carries the state.',
+  ],
+  [
+    'Slash commands',
+    'Typing "/" opens a compact command list; picking one leaves the argument to you',
+    'Same: narrow list, names and argument hints only, description on hover. The command becomes a token in the field; three of them also sit under it as labelled chips.',
+  ],
+  [
+    'Context references',
+    '"@" pulls a file into the prompt; each one shows as a chip',
+    'Anything the agent surfaced can be added to the chat: posts, pick rows, feeds, the open tab, its own guidance and run history. Chips stay on the turn in the transcript.',
+  ],
+  [
+    'Settings as a place',
+    'Config opens in the session rather than over it',
+    'AgentSettingsPane takes the conversation column, header included, with delete at the bottom behind a confirm step',
   ],
   [
     'Working status strip',
@@ -106,11 +121,6 @@ const shipped: string[][] = [
 ];
 
 const adapted: string[][] = [
-  [
-    'Slash commands',
-    'Typed "/" menu of workflow commands',
-    'Labelled quick-action chips under the composer — same reach, zero recall burden for a non-terminal audience',
-  ],
   [
     'Tool-call disclosure',
     'Each tool invocation is an expandable row in the turn',

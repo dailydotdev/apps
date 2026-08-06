@@ -30,7 +30,10 @@ import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
 import type { AgentBlock, AgentMessage } from '../chat';
 import { useAgent } from '../AgentContext';
+import { feedAttachment } from '../attachments';
 import { AgentPickList } from './AgentPickList';
+import { AgentAttachmentChip } from './AgentAttachmentChip';
+import { AgentAddToChatButton } from './AgentAddToChatButton';
 import { AgentThinkingStrip } from './AgentThinkingStrip';
 import { AgentPostCard } from './AgentPostCard';
 import { AgentEmbedCard } from './blocks/AgentEmbedCard';
@@ -74,6 +77,13 @@ const BlockRenderer = ({
         subtitle={`Feed · ${block.posts.length} posts`}
         actionLabel="Open"
         onAction={() => onFeedClick(block.label, block.posts)}
+        className="group"
+        actions={
+          <AgentAddToChatButton
+            attachment={feedAttachment(block.label, block.posts)}
+            className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+          />
+        }
       />
     );
   }
@@ -217,7 +227,17 @@ const MessageRow = ({
 }): ReactElement => {
   if (message.role === 'user') {
     return (
-      <FlexCol className="agent-turn-in items-end">
+      <FlexCol className="agent-turn-in items-end gap-1">
+        {!!message.attachments?.length && (
+          <FlexRow className="max-w-[85%] flex-wrap justify-end gap-1 tablet:max-w-[30rem]">
+            {message.attachments.map((attachment) => (
+              <AgentAttachmentChip
+                key={attachment.id}
+                attachment={attachment}
+              />
+            ))}
+          </FlexRow>
+        )}
         <div className="max-w-[85%] rounded-12 rounded-br-4 bg-surface-float px-3 py-2 tablet:max-w-[30rem]">
           <Typography type={TypographyType.Callout} className="!leading-normal">
             {message.text}

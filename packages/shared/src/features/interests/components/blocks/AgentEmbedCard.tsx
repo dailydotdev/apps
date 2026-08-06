@@ -25,6 +25,8 @@ export type AgentEmbedCardProps = {
   subtitle?: string;
   actionLabel?: string;
   onAction?: () => void;
+  /** Sits ahead of the action, for anything the card itself doesn't own. */
+  actions?: ReactNode;
   onMenu?: () => void;
   className?: string;
 };
@@ -36,6 +38,7 @@ export const AgentEmbedCard = ({
   subtitle,
   actionLabel,
   onAction,
+  actions,
   onMenu,
   className,
 }: AgentEmbedCardProps): ReactElement => (
@@ -74,6 +77,7 @@ export const AgentEmbedCard = ({
           </Typography>
         )}
       </FlexCol>
+      {actions}
       {actionLabel && (
         <Button
           size={ButtonSize.XSmall}
