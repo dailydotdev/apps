@@ -44,6 +44,7 @@ import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import ad from '../../__tests__/fixture/ad';
 import type { LoggedUser } from '../lib/user';
+import { webappUrl } from '../lib/constants';
 import {
   AcquisitionChannel,
   USER_ACQUISITION_MUTATION,
@@ -1327,6 +1328,54 @@ describe('Feed logged in', () => {
     const [first] = await screen.findAllByLabelText('Comments');
     fireEvent.click(first);
     await screen.findByRole('dialog');
+  });
+
+  it('should open the post modal with a shallow push', async () => {
+    const push = jest.fn().mockResolvedValue(true);
+    jest.mocked(useRouter).mockImplementation(() => ({
+      route: '/',
+      pathname: '/',
+      query: {},
+      asPath: '/',
+      push,
+      replace: jest.fn(),
+      basePath: '',
+      isLocaleDomain: true,
+      prefetch: jest.fn(),
+      beforePopState: jest.fn(),
+      reload: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      isFallback: false,
+      isReady: true,
+      isPreview: false,
+      events: {
+        on: jest.fn(),
+        off: jest.fn(),
+        emit: jest.fn(),
+      },
+    }));
+
+    nock('http://localhost:3000')
+      .persist()
+      .post('/graphql', (body: { query?: string }) =>
+        Boolean(body.query?.includes('mutation ViewPost(')),
+      )
+      .reply(200, { data: { viewPost: { _: true } } });
+
+    renderComponent();
+    const [first] = await screen.findAllByLabelText(
+      'Eminem Quotes Generator - Simple PHP RESTful API',
+    );
+    fireEvent.click(first);
+
+    await waitFor(() =>
+      expect(push).toHaveBeenCalledWith(
+        expect.stringContaining('pmid=4f354bb73009e4adfa5dbcbf9b3c4ebf'),
+        `${webappUrl}posts/4f354bb73009e4adfa5dbcbf9b3c4ebf`,
+        { scroll: false, shallow: true },
+      ),
+    );
   });
 
   const createPostMock = (

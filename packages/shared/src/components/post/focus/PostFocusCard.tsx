@@ -53,6 +53,7 @@ import { FollowButton } from '../../contentPreference/FollowButton';
 import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostMenuOptions } from '../PostMenuOptions';
+import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
@@ -591,6 +592,8 @@ export const PostFocusCard = ({
             // read as too large here).
             className="-mt-2"
           />
+
+          {!onClose && <PostAnsweredQuestions post={article} />}
 
           <div ref={discussionRef} className="scroll-mt-16">
             <PostDiscussionPanel

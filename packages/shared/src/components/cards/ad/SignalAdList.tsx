@@ -18,6 +18,7 @@ import { ButtonSize, ButtonVariant } from '../../buttons/common';
 import { RemoveAd } from './common/RemoveAd';
 import { AdPixel } from './common/AdPixel';
 import { AdMeasurement } from './common/AdMeasurement';
+import { AdViewability } from './common/AdViewability';
 import { useAdClickUrl } from '../../../features/monetization/useAdClickUrl';
 import { SourceAvatar } from '../../profile/source/SourceAvatar';
 import { MiniCloseIcon } from '../../icons';
@@ -42,7 +43,7 @@ const getLinkProps = ({
 };
 
 export const SignalAdList = forwardRef(function SignalAdList(
-  { ad, onLinkClick, domProps, index, feedIndex }: AdCardProps,
+  { ad, onLinkClick, onViewable, domProps, index, feedIndex }: AdCardProps,
   inViewRef: Ref<HTMLElement>,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
@@ -132,6 +133,7 @@ export const SignalAdList = forwardRef(function SignalAdList(
       </div>
       <AdPixel pixel={ad.pixel} />
       <AdMeasurement ad={ad} />
+      <AdViewability ad={ad} onViewable={(data) => onViewable?.(ad, data)} />
     </FeedItemContainer>
   );
 });

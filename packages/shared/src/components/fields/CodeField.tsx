@@ -1,182 +1,110 @@
-import type { ReactElement, ClipboardEventHandler, KeyboardEvent } from 'react';
+import type { ChangeEvent, ReactElement, SyntheticEvent } from 'react';
 import React, { useRef, useState } from 'react';
-import { TextField } from './TextField';
-import { ArrowKey, KeyboardCommand } from '../../lib/element';
-import { checkIsNumbersOnly } from '../../lib';
-import { nextTick } from '../../lib/func';
+import classNames from 'classnames';
+import { BaseField } from './common';
 
 interface CodeFieldProps {
   onChange?: (code: string) => void;
   onSubmit: (code: string) => void;
   length?: number;
   disabled?: boolean;
-  hint?: string;
+  defaultValue?: string;
 }
 
 const DEFAULT_LENGTH = 6;
-const INVALID_KEYS = [ArrowKey.Up, ArrowKey.Down, '.'];
+
+const toDigits = (value: string, length: number): string =>
+  value.replace(/\D/g, '').slice(0, length);
 
 export function CodeField({
   disabled,
   onChange,
   onSubmit,
+  defaultValue = '',
   length = DEFAULT_LENGTH,
 }: CodeFieldProps): ReactElement {
-  const elementsRef = useRef<HTMLInputElement[]>(
-    Array(Math.max(0, length)).fill(null),
-  );
-  const [code, setCode] = useState<string[]>(
-    Array(Math.max(0, length)).fill(''),
-  );
+  const submittedRef = useRef<string | null>(null);
+  const [code, setCode] = useState(() => toDigits(defaultValue, length));
+  const [isFocused, setIsFocused] = useState(false);
+  const caretIndex = Math.min(code.length, length - 1);
 
-  const updateCode = (value: string, index: number) => {
-    const newCode = [...code];
-    newCode[index] = value;
-    setCode(newCode);
-    onChange?.(newCode.join(''));
-
-    const finalCode = newCode.join('');
-
-    if (finalCode.length === length && index === length - 1) {
-      onSubmit(finalCode);
-    }
-  };
-
-  const focusBox = async (index: number) => {
-    const target = elementsRef.current[index];
-
-    if (!target) {
-      return;
-    }
-
-    await nextTick();
-    target.focus();
-  };
-
-  // A code copied out of an email drags the selection's whitespace and prose
-  // along with it, so take the digits rather than rejecting the whole paste.
-  const onSlice = (text: string) => {
-    const digits = text.replace(/\D/g, '').slice(0, length);
-
-    if (!digits) {
-      return;
-    }
-
-    setCode(Array.from({ length }, (_, index) => digits[index] ?? ''));
+  const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const digits = toDigits(e.target.value, length);
+    setCode(digits);
     onChange?.(digits);
 
-    if (digits.length === length) {
-      onSubmit(digits);
+    if (digits.length < length) {
+      submittedRef.current = null;
       return;
     }
 
-    focusBox(digits.length);
+    // AutoFill can deliver a single insertion as two change events.
+    if (submittedRef.current === digits) {
+      return;
+    }
+
+    submittedRef.current = digits;
+    onSubmit(digits);
   };
 
-  // Platform writes land here — iOS AutoFill and Gboard's clipboard chip insert
-  // as text and fire no paste event — but so do keystrokes from IMEs and soft
-  // keyboards whose keydown `onKeyDown` cannot cancel. Only a whole code is a
-  // fill.
-  const onFill = (value: string, index: number) => {
-    const digits = value.replace(/\D/g, '');
+  // A collapsed caret parked mid-string would scramble the order of the digits
+  // after it; a deliberate range selection (select-all, drag) stays native.
+  const keepCaretAtEnd = (e: SyntheticEvent<HTMLInputElement>) => {
+    const input = e.currentTarget;
+    const end = input.value.length;
 
-    if (digits.length >= length) {
-      onSlice(digits);
+    if (input.selectionStart !== input.selectionEnd) {
       return;
     }
 
-    const typed = digits.slice(-1);
-    updateCode(typed, index);
-
-    if (typed) {
-      focusBox(index + 1);
-    }
-  };
-
-  const onPaste: ClipboardEventHandler<HTMLInputElement> = (e) => {
-    e.preventDefault();
-    onSlice(e.clipboardData.getData('text'));
-  };
-
-  const onKeyDown = async (
-    e: KeyboardEvent<HTMLInputElement>,
-    index: number,
-  ) => {
-    const { key } = e;
-    const isNumbersOnly = checkIsNumbersOnly(key);
-
-    if ((e.ctrlKey || e.metaKey) && key === 'v') {
+    if (input.selectionStart === end) {
       return;
     }
 
-    if (key === KeyboardCommand.Enter) {
-      onSubmit(code.join(''));
-      return;
-    }
-
-    if (INVALID_KEYS.includes(key)) {
-      e.preventDefault();
-    }
-
-    if (key === KeyboardCommand.Backspace) {
-      updateCode('', index);
-
-      if (index <= 0) {
-        return;
-      }
-
-      await focusBox(index - 1);
-    }
-
-    if (!isNumbersOnly) {
-      e.preventDefault();
-    } else if (key.length === 1) {
-      e.preventDefault();
-      updateCode(key, index);
-
-      await focusBox(index + 1);
-    }
+    input.setSelectionRange(end, end);
   };
 
   return (
-    <span className="flex flex-row gap-2">
-      {/* The platform only offers a code to the field it has focused, so the
-          hint rides on the box that takes focus rather than a hidden mirror of
-          it, `text` + `inputMode` is the pair Safari documents AutoFill
-          against, and no box takes `maxLength` — a whole code written into one
-          would be cut to a digit. `name` is part of that hint and nothing
-          reads it: serialising this form would yield a single digit. */}
-      {[...Array(length)].map((_, index) => {
-        const isAutofillTarget = index === 0;
-
-        return (
-          <TextField
-            // eslint-disable-next-line react/no-array-index-key
-            key={`code-${index}`}
-            type="text"
-            inputId={`code-${index}`}
-            tabIndex={index + 1}
-            label=""
-            {...(isAutofillTarget
-              ? { autoComplete: 'one-time-code', name: 'code' }
-              : { autoComplete: 'off' })}
-            className={{ baseField: '!h-11 w-11 mobileL:!h-12 mobileL:w-12' }}
-            onPaste={onPaste}
-            value={code[index] || ''}
-            onChange={(e) => onFill(e.target.value, index)}
-            onKeyDown={(e) => onKeyDown(e, index)}
-            disabled={disabled}
-            inputMode="numeric"
-            pattern="[0-9]*"
-            autoFocus={isAutofillTarget}
-            inputRef={(el) => {
-              if (el) {
-                elementsRef.current[index] = el;
-              }
-            }}
-          />
-        );
-      })}
-    </span>
+    <div className="relative flex flex-row gap-2">
+      {Array.from({ length }, (_, index) => (
+        <BaseField
+          aria-hidden
+          // eslint-disable-next-line react/no-array-index-key
+          key={`code-${index}`}
+          className={classNames(
+            'h-11 w-11 items-center justify-center rounded-14 !px-0 text-text-primary typo-body mobileL:h-12 mobileL:w-12',
+            disabled && 'opacity-32',
+            isFocused && index === caretIndex && 'focused',
+          )}
+        >
+          {code[index] ?? ''}
+        </BaseField>
+      ))}
+      {/* iOS only offers a code to the focused field carrying the hint, refuses
+          to fill hidden fields, and zooms on fonts under 16px; browsers cut a
+          paste to `maxLength` before the digits could be sliced out — hence one
+          visible-but-transparent input over the whole row, with no cap. */}
+      <input
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus
+        aria-label="Verification code"
+        autoComplete="one-time-code"
+        className="absolute inset-0 z-1 h-full w-full bg-transparent text-transparent caret-transparent typo-body [forced-color-adjust:none] focus:outline-none"
+        disabled={disabled}
+        id="code"
+        inputMode="numeric"
+        name="code"
+        onBlur={() => setIsFocused(false)}
+        onChange={onInputChange}
+        onFocus={(e) => {
+          setIsFocused(true);
+          keepCaretAtEnd(e);
+        }}
+        onSelect={keepCaretAtEnd}
+        pattern="[0-9]*"
+        type="text"
+        value={code}
+      />
+    </div>
   );
 }

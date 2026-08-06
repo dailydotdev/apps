@@ -43,19 +43,26 @@ export const OnboardingPWA = ({
           </OnboardingHeadline>
           <OnboardingSubheadline>{PWA_EXPLAINER}</OnboardingSubheadline>
         </div>
-        {/* In flow, not an absolute full-screen layer: at `w-full` the
-            footage's aspect ratio made it tall enough on a wide phone to reach
-            into the subheadline. Bottom-anchored — its top third is empty. */}
-        <video
-          {...footage}
-          className="max-h-[45dvh] w-full max-w-64 object-cover object-bottom"
-          muted
-          autoPlay
-          loop
-          playsInline
-          disablePictureInPicture
-          controls={false}
-        />
+        {/* The area's top edge is in flow so the footage can never reach the
+            subheadline, while the height overshoot lets it run on under the
+            translucent glass bar. An explicit height, not `bottom`: a replaced
+            element's intrinsic ratio wins over an inset pair. The 7rem must
+            stay below the bar rail's minimum height — past the page bottom it
+            would make the step scroll. `cover` + `object-bottom` scales the
+            footage up to fill the whole area; the overflow it sheds at the top
+            is the frame's own blank third. */}
+        <div className="relative w-full flex-1">
+          <video
+            {...footage}
+            className="pointer-events-none absolute inset-x-0 top-0 h-[calc(100%+7rem)] w-full object-cover object-bottom"
+            muted
+            autoPlay
+            loop
+            playsInline
+            disablePictureInPicture
+            controls={false}
+          />
+        </div>
       </>
     );
   }

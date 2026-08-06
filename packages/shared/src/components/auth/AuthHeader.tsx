@@ -34,7 +34,7 @@ function AuthHeader({
   ...attrs
 }: AuthHeaderProps): ReactElement {
   if (simplified) {
-    return (
+    const heading = (
       <h2
         {...attrs}
         className={
@@ -45,6 +45,23 @@ function AuthHeader({
       >
         {title}
       </h2>
+    );
+
+    if (!onBack) {
+      return heading;
+    }
+
+    return (
+      <div className="relative">
+        <Button
+          aria-label="Go back"
+          icon={<ArrowIcon className="-rotate-90" />}
+          variant={ButtonVariant.Tertiary}
+          className="absolute left-0 top-1/2 -translate-y-1/2"
+          onClick={onBack}
+        />
+        {heading}
+      </div>
     );
   }
 
