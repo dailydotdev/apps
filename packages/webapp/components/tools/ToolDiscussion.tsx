@@ -1,12 +1,16 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { ToolComment } from '@dailydotdev/shared/src/graphql/tools';
+import { initToolDiscussion } from '@dailydotdev/shared/src/graphql/tools';
+import type { Comment } from '@dailydotdev/shared/src/graphql/comments';
 import {
-  commentOnTool,
-  deleteToolComment,
-  getToolComments,
-} from '@dailydotdev/shared/src/graphql/tools';
+  COMMENT_ON_COMMENT_MUTATION,
+  COMMENT_ON_POST_MUTATION,
+  DELETE_COMMENT_MUTATION,
+  POST_COMMENTS_QUERY,
+} from '@dailydotdev/shared/src/graphql/comments';
+import type { Connection } from '@dailydotdev/shared/src/graphql/common';
+import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
   Typography,
   TypographyColor,
@@ -31,6 +35,7 @@ import { publishTimeRelativeShort } from '@dailydotdev/shared/src/lib/dateFormat
 interface ToolDiscussionProps {
   toolId: string;
   toolTitle: string;
+  discussionPostId: string | null;
 }
 
 const CommentComposer = ({
@@ -99,7 +104,7 @@ const CommentRow = ({
   onDelete,
   viewerId,
 }: {
-  comment: ToolComment;
+  comment: Comment;
   isReply?: boolean;
   canReply: boolean;
   onReply?: () => void;
@@ -107,16 +112,16 @@ const CommentRow = ({
   viewerId?: string;
 }): ReactElement => (
   <div className={`flex items-start gap-3 ${isReply ? 'ml-10' : ''}`}>
-    {comment.user && (
+    {comment.author && (
       <img
-        src={comment.user.image}
-        alt={`${comment.user.name}'s avatar`}
+        src={comment.author.image}
+        alt={`${comment.author.name}'s avatar`}
         className="size-8 flex-none rounded-full object-cover"
       />
     )}
     <div className="flex min-w-0 flex-1 flex-col">
       <Typography type={TypographyType.Footnote} bold>
-        {comment.user?.name ?? 'Deleted user'}{' '}
+        {comment.author?.name ?? 'Deleted user'}{' '}
         <span className="font-normal text-text-quaternary">
           · {publishTimeRelativeShort(comment.createdAt)}
         </span>
@@ -136,7 +141,7 @@ const CommentRow = ({
             Reply
           </button>
         )}
-        {viewerId && comment.user?.id === viewerId && (
+        {viewerId && comment.author?.id === viewerId && (
           <button
             type="button"
             onClick={() => onDelete(comment.id)}
@@ -153,30 +158,61 @@ const CommentRow = ({
 export const ToolDiscussion = ({
   toolId,
   toolTitle,
+  discussionPostId,
 }: ToolDiscussionProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
   const { showPrompt } = usePrompt();
   const queryClient = useQueryClient();
   const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [postId, setPostId] = useState<string | null>(discussionPostId);
 
   const queryKey = generateQueryKey(
-    RequestKey.UserTools,
+    RequestKey.PostComments,
     undefined,
-    'tool-comments',
-    toolId,
+    'tool-discussion',
+    postId,
   );
 
   const { data: comments } = useQuery({
     queryKey,
-    queryFn: () => getToolComments(toolId),
+    queryFn: async () => {
+      const result = await gqlClient.request<{
+        postComments: Connection<Comment>;
+      }>(POST_COMMENTS_QUERY, { postId, first: 20 });
+      return result.postComments.edges.map(({ node }) => node);
+    },
+    enabled: !!postId,
     staleTime: StaleTime.Default,
   });
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey });
 
   const { mutate: submitComment, isPending } = useMutation({
-    mutationFn: commentOnTool,
+    mutationFn: async ({
+      content,
+      parentCommentId,
+    }: {
+      content: string;
+      parentCommentId?: string;
+    }) => {
+      // The hidden discussion post is created lazily on first comment.
+      const targetPostId = postId ?? (await initToolDiscussion(toolId));
+      if (!postId) {
+        setPostId(targetPostId);
+      }
+      if (parentCommentId) {
+        await gqlClient.request(COMMENT_ON_COMMENT_MUTATION, {
+          id: parentCommentId,
+          content,
+        });
+      } else {
+        await gqlClient.request(COMMENT_ON_POST_MUTATION, {
+          id: targetPostId,
+          content,
+        });
+      }
+    },
     onSuccess: () => {
       setReplyTo(null);
       invalidate();
@@ -185,7 +221,9 @@ export const ToolDiscussion = ({
   });
 
   const { mutate: removeComment } = useMutation({
-    mutationFn: deleteToolComment,
+    mutationFn: async (id: string) => {
+      await gqlClient.request(DELETE_COMMENT_MUTATION, { id });
+    },
     onSuccess: invalidate,
     onError: () => displayToast('Failed to delete comment'),
   });
@@ -217,7 +255,7 @@ export const ToolDiscussion = ({
       {user ? (
         <CommentComposer
           placeholder={`Share your experience with ${toolTitle}…`}
-          onSubmit={(content) => submitComment({ id: toolId, content })}
+          onSubmit={(content) => submitComment({ content })}
           isPending={isPending}
         />
       ) : (
@@ -244,7 +282,7 @@ export const ToolDiscussion = ({
               onDelete={handleDelete}
               viewerId={user?.id}
             />
-            {comment.replies?.map((reply) => (
+            {comment.children?.edges?.map(({ node: reply }) => (
               <CommentRow
                 key={reply.id}
                 comment={reply}
@@ -257,13 +295,9 @@ export const ToolDiscussion = ({
             {replyTo === comment.id && (
               <div className="ml-10">
                 <CommentComposer
-                  placeholder={`Reply to ${comment.user?.name ?? 'comment'}…`}
+                  placeholder={`Reply to ${comment.author?.name ?? 'comment'}…`}
                   onSubmit={(content) =>
-                    submitComment({
-                      id: toolId,
-                      content,
-                      parentId: comment.id,
-                    })
+                    submitComment({ content, parentCommentId: comment.id })
                   }
                   onCancel={() => setReplyTo(null)}
                   isPending={isPending}
@@ -272,7 +306,7 @@ export const ToolDiscussion = ({
             )}
           </div>
         ))}
-        {comments && comments.length === 0 && (
+        {postId && comments && comments.length === 0 && (
           <Typography
             type={TypographyType.Footnote}
             color={TypographyColor.Quaternary}

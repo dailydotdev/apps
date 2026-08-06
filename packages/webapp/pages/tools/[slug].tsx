@@ -718,7 +718,11 @@ const ToolPage = ({
 
       <div id="discussion" className="scroll-mt-16">
         <Card title="Discussion">
-          <ToolDiscussion toolId={tool.id} toolTitle={tool.title} />
+          <ToolDiscussion
+            toolId={tool.id}
+            toolTitle={tool.title}
+            discussionPostId={tool.discussionPostId}
+          />
         </Card>
       </div>
 

@@ -1,5 +1,4 @@
 import { gql } from 'graphql-request';
-import type { Connection } from './common';
 import { gqlClient } from './common';
 import type { DatasetTool } from './user/userStack';
 
@@ -12,6 +11,7 @@ export interface ToolPageTool extends DatasetTool {
   upvotes: number;
   downvotes: number;
   userVote: number | null;
+  discussionPostId: string | null;
 }
 
 export interface AlsoStackedTool extends DatasetTool {
@@ -297,6 +297,7 @@ export interface ToolVoteState {
   upvotes: number;
   downvotes: number;
   userVote: number | null;
+  discussionPostId: string | null;
 }
 
 const TOOL_VOTE_STATE_QUERY = gql`
@@ -331,91 +332,16 @@ export const voteTool = async (id: string, vote: number): Promise<void> => {
   await gqlClient.request(VOTE_TOOL_MUTATION, { id, vote });
 };
 
-export interface ToolCommentUser {
-  id: string;
-  name: string;
-  username: string;
-  image: string;
-}
-
-export interface ToolComment {
-  id: string;
-  content: string;
-  contentHtml: string;
-  createdAt: string;
-  user: ToolCommentUser | null;
-  replies?: ToolComment[];
-}
-
-const TOOL_COMMENT_FRAGMENT = gql`
-  fragment ToolCommentFragment on ToolComment {
-    id
-    content
-    contentHtml
-    createdAt
-    user {
-      id
-      name
-      username
-      image
-    }
+const INIT_TOOL_DISCUSSION_MUTATION = gql`
+  mutation InitToolDiscussion($id: ID!) {
+    initToolDiscussion(id: $id)
   }
 `;
 
-const TOOL_COMMENTS_QUERY = gql`
-  query ToolComments($id: ID!, $first: Int) {
-    toolComments(id: $id, first: $first) {
-      edges {
-        node {
-          ...ToolCommentFragment
-          replies {
-            ...ToolCommentFragment
-          }
-        }
-      }
-    }
-  }
-  ${TOOL_COMMENT_FRAGMENT}
-`;
-
-export const getToolComments = async (
-  id: string,
-  first = 20,
-): Promise<ToolComment[]> => {
-  const result = await gqlClient.request<{
-    toolComments: Connection<ToolComment>;
-  }>(TOOL_COMMENTS_QUERY, { id, first });
-  return result.toolComments.edges.map(({ node }) => node);
-};
-
-const COMMENT_ON_TOOL_MUTATION = gql`
-  mutation CommentOnTool($id: ID!, $content: String!, $parentId: ID) {
-    commentOnTool(id: $id, content: $content, parentId: $parentId) {
-      id
-    }
-  }
-`;
-
-export const commentOnTool = async ({
-  id,
-  content,
-  parentId,
-}: {
-  id: string;
-  content: string;
-  parentId?: string;
-}): Promise<void> => {
-  await gqlClient.request(COMMENT_ON_TOOL_MUTATION, { id, content, parentId });
-};
-
-const DELETE_TOOL_COMMENT_MUTATION = gql`
-  mutation DeleteToolComment($id: ID!) {
-    deleteToolComment(id: $id) {
-      _
-    }
-  }
-`;
-
-export const deleteToolComment = async (id: string): Promise<void> => {
-  await gqlClient.request(DELETE_TOOL_COMMENT_MUTATION, { id });
+export const initToolDiscussion = async (id: string): Promise<string> => {
+  const result = await gqlClient.request<{ initToolDiscussion: string }>(
+    INIT_TOOL_DISCUSSION_MUTATION,
+    { id },
+  );
+  return result.initToolDiscussion;
 };
