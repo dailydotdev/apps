@@ -123,3 +123,101 @@ export const getToolTopPosts = async (
     []
   );
 };
+
+export interface ToolAdoptionPoint {
+  date: string;
+  count: number;
+}
+
+export interface ToolAdoption {
+  stackCount: number;
+  percentile: number | null;
+  quarterGrowth: number | null;
+  monthly: ToolAdoptionPoint[];
+}
+
+const TOOL_ADOPTION_QUERY = gql`
+  query ToolAdoption($id: ID!) {
+    toolAdoption(id: $id) {
+      stackCount
+      percentile
+      quarterGrowth
+      monthly {
+        date
+        count
+      }
+    }
+  }
+`;
+
+export const getToolAdoption = async (id: string): Promise<ToolAdoption> => {
+  const result = await gqlClient.request<{ toolAdoption: ToolAdoption }>(
+    TOOL_ADOPTION_QUERY,
+    { id },
+  );
+  return result.toolAdoption;
+};
+
+export interface ToolTake {
+  id: string;
+  emoji: string;
+  title: string;
+  subtitle: string | null;
+  upvotes: number;
+  user: {
+    id: string;
+    name: string;
+    username: string;
+    image: string;
+  } | null;
+}
+
+const TOOL_TAKES_QUERY = gql`
+  query ToolTakes($id: ID!, $first: Int) {
+    toolTakes(id: $id, first: $first) {
+      id
+      emoji
+      title
+      subtitle
+      upvotes
+      user {
+        id
+        name
+        username
+        image
+      }
+    }
+  }
+`;
+
+export const getToolTakes = async (
+  id: string,
+  first = 3,
+): Promise<ToolTake[]> => {
+  const result = await gqlClient.request<{ toolTakes: ToolTake[] }>(
+    TOOL_TAKES_QUERY,
+    { id, first },
+  );
+  return result.toolTakes;
+};
+
+const TOOL_STACKERS_FOLLOWING_QUERY = gql`
+  query ToolStackersFollowing($id: ID!, $first: Int) {
+    toolStackersFollowing(id: $id, first: $first) {
+      id
+      name
+      username
+      image
+    }
+  }
+`;
+
+export const getToolStackersFollowing = async (
+  id: string,
+  first = 5,
+): Promise<ToolStacker[]> => {
+  const result = await gqlClient.request<{
+    toolStackersFollowing: ToolStacker[];
+  }>(TOOL_STACKERS_FOLLOWING_QUERY, { id, first });
+  return result.toolStackersFollowing;
+};
