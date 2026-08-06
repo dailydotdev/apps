@@ -34,6 +34,7 @@ import { getPageSeoTitles } from '../utils';
 import { getAppOrigin } from '../../../lib/seo';
 import { ProfileWidgets } from '../../../../shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 import { useProfileSidebarCollapse } from '../../../hooks/useProfileSidebarCollapse';
+import { hasPublicWorld } from '../../world/profileWorld';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
@@ -46,6 +47,8 @@ export interface ProfileLayoutProps extends Partial<ProfileV2> {
   // v2: title shown in the shared page-header strip at the top of the
   // floating card, above the profile sidebar + main + aside row.
   pageHeaderTitle?: string;
+  /** Whether this reader has a world a visitor is allowed to walk into. */
+  hasWorld?: boolean;
 }
 
 export const getOGImageUrl = (userId: string): string => {
@@ -215,12 +218,17 @@ export async function getStaticProps({
         revalidate: 60,
       };
     }
-    const data = await getProfileV2Extra(user.id);
+    // Both only need the resolved id, so neither has to wait on the other.
+    const [data, hasWorld] = await Promise.all([
+      getProfileV2Extra(user.id),
+      hasPublicWorld(user.id),
+    ]);
 
     return {
       props: {
         user,
         ...data,
+        hasWorld,
         noindex: !!user.noindex,
       },
       revalidate: 60,

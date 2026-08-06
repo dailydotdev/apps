@@ -370,6 +370,7 @@ export enum LogEvent {
   SharePost = 'share post',
   ShareComment = 'share comment',
   ShareLog = 'share log',
+  ShareWorld = 'share world',
   // End Share
   // Navigation
   NavigatePrevious = 'navigate previous',
@@ -603,6 +604,7 @@ export enum TargetType {
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
+  ProfileWorldToggle = 'profile world toggle',
 }
 
 export enum TargetId {

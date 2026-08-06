@@ -37,6 +37,7 @@ import type { Author } from '@dailydotdev/shared/src/graphql/comments';
 import type { WorldDistrict } from '../../graphql/world';
 import { WorldCustomizeRail } from './WorldCustomize';
 import { WorldImmersiveToggle } from './WorldMark';
+import { WorldShare } from './WorldShare';
 import { WorldNudge } from './WorldNudge';
 import { WorldSignupCta } from './WorldSignupCta';
 import { WorldViewerAction } from './WorldViewerAction';
@@ -113,6 +114,8 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
   user,
   worldName,
   isImmersive,
+  isOwn,
+  canShare,
   onToggleImmersive,
   onCustomize,
 }: {
@@ -120,6 +123,9 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
   /** What the owner calls the place, or nothing if they never named it. */
   worldName?: string;
   isImmersive: boolean;
+  isOwn: boolean;
+  /** False on a world its owner has hidden: the link would open on a wall. */
+  canShare: boolean;
   onToggleImmersive: () => void;
   /** Only on your own world: nobody else's place is yours to dress. */
   onCustomize?: () => void;
@@ -152,6 +158,9 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
           </Button>
         </Link>
         <div className="flex flex-none items-center">
+          {canShare && (
+            <WorldShare user={user} worldName={worldName} isOwn={isOwn} />
+          )}
           {!!onCustomize && (
             <Tooltip content="Make it yours">
               <Button
@@ -223,6 +232,9 @@ interface WorldPanelProps {
   unbuilt?: boolean;
   isImmersive: boolean;
   worldName?: string;
+  isOwn: boolean;
+  /** False on a world its owner has hidden: the link would open on a wall. */
+  canShare: boolean;
   /** Open on your own world, and only there. */
   draft?: WorldDraft;
   districts?: WorldDistrict[];
@@ -248,6 +260,8 @@ export function WorldPanel({
   unbuilt,
   isImmersive,
   worldName,
+  isOwn,
+  canShare,
   draft,
   districts,
   showNudge,
@@ -275,6 +289,8 @@ export function WorldPanel({
         user={user}
         worldName={worldName}
         isImmersive={isImmersive}
+        isOwn={isOwn}
+        canShare={canShare}
         onToggleImmersive={onToggleImmersive}
         onCustomize={draft?.open}
       />
