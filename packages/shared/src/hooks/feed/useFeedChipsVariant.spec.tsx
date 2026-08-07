@@ -33,21 +33,21 @@ describe('useFeedChipsVariant', () => {
   it('opts out of tag chip feeds entirely for the control variant', () => {
     expect(renderForVariant(FeedChipsVariant.None)).toMatchObject({
       hasTagChipFeeds: false,
-      tagChipSeedStrategy: TagChipSeedStrategy.V1,
+      tagChipSeedStrategy: TagChipSeedStrategy.V2,
     });
   });
 
   it('seeds single-tag feeds for V2', () => {
     expect(renderForVariant(FeedChipsVariant.V2)).toMatchObject({
       hasTagChipFeeds: true,
-      tagChipSeedStrategy: TagChipSeedStrategy.V1,
+      tagChipSeedStrategy: TagChipSeedStrategy.V2,
     });
   });
 
   it('seeds clustered topics for V3', () => {
     expect(renderForVariant(FeedChipsVariant.V3)).toMatchObject({
       hasTagChipFeeds: true,
-      tagChipSeedStrategy: TagChipSeedStrategy.V2,
+      tagChipSeedStrategy: TagChipSeedStrategy.V3,
     });
   });
 });

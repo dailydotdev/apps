@@ -100,7 +100,7 @@ describe('useFeeds hook', () => {
     mockUseFeedChipsVariant.mockReturnValue({
       variant: FeedChipsVariant.V2,
       hasTagChipFeeds: true,
-      tagChipSeedStrategy: TagChipSeedStrategy.V1,
+      tagChipSeedStrategy: TagChipSeedStrategy.V2,
     });
 
     mockGraphQL({
@@ -108,7 +108,7 @@ describe('useFeeds hook', () => {
         query: FEED_LIST_QUERY,
         variables: {
           includeTagChipFeeds: true,
-          tagChipSeedStrategy: TagChipSeedStrategy.V1,
+          tagChipSeedStrategy: TagChipSeedStrategy.V2,
         },
       },
       result: () => {
@@ -282,7 +282,7 @@ describe('useFeeds hook', () => {
         query: FEED_LIST_QUERY,
         variables: {
           includeTagChipFeeds: false,
-          tagChipSeedStrategy: TagChipSeedStrategy.V1,
+          tagChipSeedStrategy: TagChipSeedStrategy.V2,
         },
       },
       result: () => {
@@ -308,7 +308,7 @@ describe('useFeeds hook', () => {
     mockUseFeedChipsVariant.mockReturnValue({
       variant: FeedChipsVariant.V3,
       hasTagChipFeeds: true,
-      tagChipSeedStrategy: TagChipSeedStrategy.V2,
+      tagChipSeedStrategy: TagChipSeedStrategy.V3,
     });
 
     let clusteredCalled = false;
@@ -317,7 +317,7 @@ describe('useFeeds hook', () => {
         query: FEED_LIST_QUERY,
         variables: {
           includeTagChipFeeds: true,
-          tagChipSeedStrategy: TagChipSeedStrategy.V2,
+          tagChipSeedStrategy: TagChipSeedStrategy.V3,
         },
       },
       result: () => {

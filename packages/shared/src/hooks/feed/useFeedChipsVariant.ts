@@ -26,7 +26,7 @@ export const useFeedChipsVariant = (): UseFeedChipsVariant => {
       variant === FeedChipsVariant.V2 || variant === FeedChipsVariant.V3,
     tagChipSeedStrategy:
       variant === FeedChipsVariant.V3
-        ? TagChipSeedStrategy.V2
-        : TagChipSeedStrategy.V1,
+        ? TagChipSeedStrategy.V3
+        : TagChipSeedStrategy.V2,
   };
 };
