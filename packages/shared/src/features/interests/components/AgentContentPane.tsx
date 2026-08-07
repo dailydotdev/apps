@@ -65,6 +65,10 @@ const tabLabel = (target: AgentContentTarget): string => {
 // Always the list card, at every width. The panel is a scanning surface: grid
 // cards give each post a cover image and a card's worth of height, which turns
 // nine findings into a long scroll of artwork.
+//
+// Edge to edge, with no gutters and no gaps: the cards carry their own padding
+// and their own top rule, so this reads as one continuous list the way the feed
+// does on a phone, rather than a column of cards floating in a narrow trough.
 const FeedView = ({
   posts,
   onOpenPost,
@@ -72,7 +76,7 @@ const FeedView = ({
   posts: Post[];
   onOpenPost: (post: Post) => void;
 }): ReactElement => (
-  <FlexCol className={classNames('gap-2 py-4', postPageGutter)}>
+  <FlexCol className="agent-panel-feed">
     {posts.map((post) => (
       <ArticleList
         key={post.id}
