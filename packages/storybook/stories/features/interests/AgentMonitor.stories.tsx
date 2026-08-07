@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AgentDemoProviders } from '@dailydotdev/shared/src/features/interests/components/AgentDemoProviders';
 import { AgentGlassComposer } from '@dailydotdev/shared/src/features/interests/components/AgentGlassComposer';
-import { AgentReviewChips } from '@dailydotdev/shared/src/features/interests/components/AgentReviewChips';
 import type { AgentMonitorItem } from '@dailydotdev/shared/src/features/interests/components/AgentMonitor';
 import {
   AgentMonitor,
@@ -95,22 +94,18 @@ const Stage = ({
 const Field = ({
   items,
   defaultOpen,
-  withChips,
 }: {
   items: AgentMonitorItem[];
   defaultOpen?: boolean;
-  withChips?: boolean;
 }): ReactElement => {
   const [value, setValue] = useState('');
-  const waiting = items.filter(({ state }) => state === 'new');
 
   return (
     <AgentGlassComposer
       value={value}
       onChange={setValue}
       onSubmit={() => undefined}
-      pending={withChips ? <AgentReviewChips items={waiting} /> : undefined}
-      status={<AgentMonitor items={items} defaultOpen={defaultOpen} />}
+      pending={<AgentMonitor items={items} defaultOpen={defaultOpen} />}
     />
   );
 };
@@ -143,14 +138,14 @@ const Monitor = (): ReactElement => (
 
       <Stage
         title="Two came back"
-        note="Two came back while you were reading. The count on the bell is the whole notification: nothing in the chrome, no toast that leaves with the news."
+        note="Two came back while you were reading. They stack over the ticker with the action already on them, and the bell counts them."
       >
         <Field items={all} />
       </Stage>
 
       <Stage
         title="Open"
-        note="One line per agent: who it is, what it found, its state, how long ago. Clicking a row opens that agent's conversation at the finding."
+        note="Expanded: one line per agent, state as a word. Clicking a row opens that agent's conversation at the finding."
         tall
       >
         <Field items={all} defaultOpen />
@@ -158,25 +153,18 @@ const Monitor = (): ReactElement => (
 
       <Stage
         title="Open, four with news"
-        note="The list scrolls at eight rows. See all goes to the agents home."
+        note="Expanded with four waiting. The list scrolls once it is long enough."
         tall
       >
         <Field items={busy} defaultOpen />
       </Stage>
 
       <Stage
-        title="Waiting for review"
-        note="A finding is work with your name on it, so it comes out of the list and sits over the field with the action already on it. Dismissable one by one."
-      >
-        <Field items={all} withChips />
-      </Stage>
-
-      <Stage
         title="Waiting for review, four of them"
-        note="Two at a time, then a count. Expanding shows the rest, the way a stack of pull requests does."
+        note="Two at a time, then a count on the ticker. Expanding swaps the stack for the whole list."
         tall
       >
-        <Field items={busy} withChips />
+        <Field items={busy} />
       </Stage>
     </div>
   </FlexCol>

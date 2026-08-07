@@ -8,7 +8,12 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import Link from '../../../components/utilities/Link';
-import { ArrowIcon, BellIcon } from '../../../components/icons';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
+import { ArrowIcon, BellIcon, MiniCloseIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
@@ -33,6 +38,9 @@ export type AgentMonitorItem = {
 
 const freshMs = 1000 * 60 * 60 * 6;
 const tickerMs = 3600;
+// Two waiting rows, then a count. Any more and the field is buried under its
+// own news.
+const shownByDefault = 2;
 
 /**
  * The agents, as the strip sees them.
@@ -70,13 +78,6 @@ export const toMonitorItems = (
     };
   });
 
-/**
- * The state as a word, the way a pull-request list says "Ready for review".
- *
- * A coloured dot and a phrase carry it better than a badge does: at this size
- * a filled pill is a second object competing with the agent's own name, and
- * the words are the thing being scanned.
- */
 export const stateLabel: Record<AgentMonitorState, string> = {
   new: 'Waiting for you',
   hunting: 'Hunting',
@@ -91,10 +92,24 @@ const inkClass: Record<AgentMonitorState, string> = {
 
 const dotClass: Record<AgentMonitorState, string> = {
   new: 'bg-brand-default',
-  hunting: 'bg-action-upvote-default animate-pulse',
+  hunting: 'animate-pulse bg-action-upvote-default',
   paused: 'bg-text-quaternary',
 };
 
+const StateDot = ({ state }: { state: AgentMonitorState }): ReactElement => (
+  <span
+    aria-hidden
+    className={classNames('size-1.5 shrink-0 rounded-6', dotClass[state])}
+  />
+);
+
+/**
+ * The state as a word, the way a pull-request list says "Ready for review".
+ *
+ * A coloured dot and a phrase carry it better than a badge does: at this size
+ * a filled pill is a second object competing with the agent's own name, and
+ * the words are the thing being scanned.
+ */
 export const AgentState = ({
   state,
 }: {
@@ -106,21 +121,32 @@ export const AgentState = ({
       inkClass[state],
     )}
   >
-    <span
-      aria-hidden
-      className={classNames('size-1.5 rounded-6', dotClass[state])}
-    />
+    <StateDot state={state} />
     {stateLabel[state]}
   </span>
 );
 
+const Elapsed = ({ at }: { at?: string | null }): ReactElement => (
+  <Typography
+    type={TypographyType.Caption2}
+    color={TypographyColor.Quaternary}
+    className="shrink-0 tabular-nums"
+  >
+    {at ? (
+      <DateFormat date={at} type={TimeFormatType.LastActivity} />
+    ) : (
+      'Not yet'
+    )}
+  </Typography>
+);
+
 /**
- * One agent, one line: state, who, what, when.
+ * One agent in the expanded list: state, who, what, when.
  *
  * Single row on purpose. A dozen agents have to be scannable in one look, and
- * a second line each turns the panel into a page.
+ * a second line each turns the list into a page.
  */
-const Row = ({ item }: { item: AgentMonitorItem }): ReactElement => (
+const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => (
   <li>
     <Link href={`${webappUrl}agent/${item.id}`}>
       <a className="flex items-center gap-2 rounded-10 px-2 py-1.5 transition-colors hover:bg-surface-hover">
@@ -139,17 +165,7 @@ const Row = ({ item }: { item: AgentMonitorItem }): ReactElement => (
         >
           {item.line}
         </Typography>
-        <Typography
-          type={TypographyType.Caption2}
-          color={TypographyColor.Quaternary}
-          className="shrink-0 tabular-nums"
-        >
-          {item.at ? (
-            <DateFormat date={item.at} type={TimeFormatType.LastActivity} />
-          ) : (
-            'Not yet'
-          )}
-        </Typography>
+        <Elapsed at={item.at} />
         <ArrowIcon
           size={IconSize.XSmall}
           className="shrink-0 rotate-90 text-text-quaternary"
@@ -161,19 +177,66 @@ const Row = ({ item }: { item: AgentMonitorItem }): ReactElement => (
 );
 
 /**
- * One line under the field for everything the agents are doing, and the whole
- * list one gesture away.
+ * An agent that came back, in the collapsed stack.
  *
- * Collapsed it is a ticker: each agent's latest, in rotation, so the strip is
- * never a static "3 running" that you stop seeing by the second day. The bell
- * on the right holds the only number that asks for anything, which is how many
- * came back while you were reading.
+ * No state word on this one: there are at most two of them, they are all in
+ * the same state, and the button on the right already says what to do about
+ * it. The dot is what marks it as news.
+ */
+const WaitingRow = ({
+  item,
+  onDismiss,
+}: {
+  item: AgentMonitorItem;
+  onDismiss: () => void;
+}): ReactElement => (
+  <FlexRow className="items-center gap-2 rounded-10 bg-surface-float py-1 pl-2.5 pr-1">
+    <StateDot state={item.state} />
+    <Typography
+      type={TypographyType.Caption1}
+      bold
+      className="max-w-[9rem] shrink-0 truncate"
+    >
+      {item.name}
+    </Typography>
+    <Typography
+      type={TypographyType.Caption1}
+      color={TypographyColor.Tertiary}
+      className="min-w-0 flex-1 truncate"
+    >
+      {item.line}
+    </Typography>
+    <Elapsed at={item.at} />
+    <Link href={`${webappUrl}agent/${item.id}`}>
+      <Button
+        tag="a"
+        size={ButtonSize.XSmall}
+        variant={ButtonVariant.Subtle}
+        className="shrink-0"
+      >
+        Review
+      </Button>
+    </Link>
+    <Button
+      icon={<MiniCloseIcon size={IconSize.Size16} />}
+      size={ButtonSize.XSmall}
+      variant={ButtonVariant.Tertiary}
+      className="shrink-0"
+      aria-label={`Dismiss the update from ${item.name}`}
+      onClick={onDismiss}
+    />
+  </FlexRow>
+);
+
+/**
+ * Everything the agents are doing, stacked over the field.
  *
- * Click to open, click anywhere else or press Escape to close. Hover-to-open
- * was tried and thrown out: it fired while the pointer was only passing over
- * the bar on its way somewhere else, and the list has rows you have to travel
- * to. The rotation stops while it is open, because text that moves under a
- * pointer is text you cannot read.
+ * One object rather than two. Collapsed it is whatever is waiting on you, at
+ * most two rows, sitting on a ticker of each agent's latest in rotation with
+ * the bell carrying the count that came back while you were reading. Clicking
+ * the ticker grows the stack upward into the full list rather than opening a
+ * panel over it: they are the same rows, so a second surface to hold them was
+ * one surface too many.
  *
  * No toast and no badge elsewhere in the chrome, on purpose: a toast leaves
  * with the news, and a second badge is a second inbox to check.
@@ -186,20 +249,23 @@ export const AgentMonitor = ({
   /** Opened for you when a run lands while you are on the feed. */
   defaultOpen?: boolean;
 }): ReactElement | null => {
-  const [isOpen, setOpen] = useState(!!defaultOpen);
+  const [isExpanded, setExpanded] = useState(!!defaultOpen);
+  const [dismissed, setDismissed] = useState<string[]>([]);
   const [cursor, setCursor] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const count = items.length;
 
-  useOutsideClick(containerRef, () => setOpen(false), isOpen);
-  useKeyboardNavigation(globalThis?.window, [['Escape', () => setOpen(false)]]);
+  useOutsideClick(containerRef, () => setExpanded(false), isExpanded);
+  useKeyboardNavigation(globalThis?.window, [
+    ['Escape', () => setExpanded(false)],
+  ]);
 
   useEffect(() => {
     const isStill = globalThis.matchMedia?.(
       '(prefers-reduced-motion: reduce)',
     )?.matches;
 
-    if (isOpen || count < 2 || isStill) {
+    if (isExpanded || count < 2 || isStill) {
       return undefined;
     }
 
@@ -209,75 +275,72 @@ export const AgentMonitor = ({
     );
 
     return () => clearInterval(timer);
-  }, [isOpen, count]);
+  }, [isExpanded, count]);
 
   if (!count) {
     return null;
   }
 
-  const fresh = items.filter(({ state }) => state === 'new').length;
-  const hunting = items.filter(({ state }) => state === 'hunting').length;
-  const paused = items.filter(({ state }) => state === 'paused').length;
+  const waiting = items.filter(
+    ({ id, state }) => state === 'new' && !dismissed.includes(id),
+  );
+  const shown = waiting.slice(0, shownByDefault);
+  const hidden = waiting.length - shown.length;
+  const fresh = waiting.length;
   // Modulo again here: the list can shrink under a cursor that has moved on.
   const showing = items[cursor % count];
-  const summary = [
-    !!fresh && `${fresh} new`,
-    !!hunting && `${hunting} hunting`,
-    !!paused && `${paused} paused`,
-  ]
-    .filter(Boolean)
-    .join(' · ');
 
   return (
-    <div className="relative" ref={containerRef}>
-      {isOpen && (
-        // The gap to the strip is padding on this wrapper, not a margin on the
-        // panel: a real gap is a hole in the hover target, and the list closes
-        // under the pointer on its way up to a row.
-        <div className="absolute inset-x-0 bottom-full z-popup pb-2">
-          <FlexCol className="agent-menu-in rounded-14 border border-border-subtlest-tertiary bg-background-popover p-1 shadow-3">
-            <FlexRow className="items-center justify-between gap-2 px-2 py-1">
-              <Typography
-                type={TypographyType.Caption2}
-                color={TypographyColor.Quaternary}
-              >
-                {summary}
-              </Typography>
-              <Link href={`${webappUrl}agent`}>
-                <a className="text-text-tertiary typo-caption2 hover:text-text-primary">
-                  See all
-                </a>
-              </Link>
-            </FlexRow>
-            <ol className="max-h-72 overflow-y-auto">
-              {items.map((item) => (
-                <Row key={item.id} item={item} />
-              ))}
-            </ol>
-          </FlexCol>
-        </div>
+    <FlexCol className="gap-1" ref={containerRef}>
+      {isExpanded ? (
+        <ol className="agent-line-in max-h-72 overflow-y-auto">
+          {items.map((item) => (
+            <AgentRow key={item.id} item={item} />
+          ))}
+        </ol>
+      ) : (
+        shown.map((item) => (
+          <WaitingRow
+            key={item.id}
+            item={item}
+            onDismiss={() => setDismissed((current) => [...current, item.id])}
+          />
+        ))
       )}
 
       <button
         type="button"
-        aria-expanded={isOpen}
-        aria-label={`Agent monitor: ${summary}`}
-        onClick={() => setOpen((current) => !current)}
+        aria-expanded={isExpanded}
+        aria-label={`Agent monitor: ${fresh} waiting, ${count} in total`}
+        onClick={() => setExpanded((current) => !current)}
         className="flex w-full items-center gap-2 rounded-10 px-2 py-1 text-left transition-colors hover:bg-surface-hover"
       >
-        {/* Keyed on the agent, so a turn of the ticker plays the new line in
-            instead of swapping the text under you. */}
+        {/* Keyed on what it is showing, so a turn of the ticker plays the new
+            line in instead of swapping the text under you. */}
         <Typography
-          key={showing.id}
+          key={isExpanded ? 'expanded' : showing.id}
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
           className="agent-line-in min-w-0 flex-1 truncate"
         >
-          <strong className="text-text-primary">{showing.name}</strong>
-          {` ${showing.line}`}
+          {isExpanded ? (
+            `${count} ${count === 1 ? 'agent' : 'agents'}`
+          ) : (
+            <>
+              <strong className="text-text-primary">{showing.name}</strong>
+              {` ${showing.line}`}
+            </>
+          )}
         </Typography>
-        {/* One object rather than an icon next to a number: filled and loud
-            when something is waiting, a quiet glyph when nothing is. */}
+        {!isExpanded && !!hidden && (
+          <Typography
+            type={TypographyType.Caption2}
+            color={TypographyColor.Tertiary}
+            className="shrink-0"
+          >
+            {`Show ${hidden} more`}
+          </Typography>
+        )}
         {fresh ? (
           <FlexRow className="shrink-0 items-center gap-1 rounded-8 bg-brand-default py-0.5 pl-1 pr-1.5 text-white">
             <BellIcon size={IconSize.Size16} secondary />
@@ -293,11 +356,11 @@ export const AgentMonitor = ({
           size={IconSize.XSmall}
           className={classNames(
             'shrink-0 text-text-quaternary transition-transform',
-            !isOpen && 'rotate-180',
+            !isExpanded && 'rotate-180',
           )}
           aria-hidden
         />
       </button>
-    </div>
+    </FlexCol>
   );
 };

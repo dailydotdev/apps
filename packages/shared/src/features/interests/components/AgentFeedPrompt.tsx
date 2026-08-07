@@ -10,7 +10,6 @@ import { interestsQueryOptions } from '../queries';
 import { useCreateInterest } from '../hooks/useCreateInterest';
 import { AgentGlassComposer } from './AgentGlassComposer';
 import { AgentMonitor, toMonitorItems } from './AgentMonitor';
-import { AgentReviewChips } from './AgentReviewChips';
 
 /**
  * The agent's way into the feed.
@@ -42,7 +41,6 @@ export const AgentFeedPrompt = (): ReactElement | null => {
   }
 
   const items = toMonitorItems(interests ?? []);
-  const waiting = items.filter(({ state }) => state === 'new');
 
   const onSubmit = () => {
     const trimmed = query.trim();
@@ -63,8 +61,7 @@ export const AgentFeedPrompt = (): ReactElement | null => {
           onChange={setQuery}
           onSubmit={onSubmit}
           isBusy={isCreating}
-          pending={<AgentReviewChips items={waiting} />}
-          status={<AgentMonitor items={items} />}
+          pending={<AgentMonitor items={items} />}
         />
       </div>
     </div>
