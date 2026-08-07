@@ -88,6 +88,8 @@ export const AgentComposer = (): ReactElement => {
     attachContext,
     detachContext,
     composerRef,
+    draft,
+    clearDraft,
   } = useAgent();
   const isLight = useIsLightTheme();
   // The beam injects its stylesheet as a React `<style>` child, and SSR
@@ -158,6 +160,20 @@ export const AgentComposer = (): ReactElement => {
     // measured on the next frame rather than against the old text.
     requestAnimationFrame(resize);
   };
+
+  // Text written from elsewhere on the screen — the "tell it why" under a
+  // vote, so far. Taken and cleared, so pressing the same link twice writes
+  // it twice instead of the second press being swallowed as unchanged.
+  useEffect(() => {
+    if (typeof draft !== 'string') {
+      return;
+    }
+
+    write(draft);
+    clearDraft();
+    // `write` is redeclared every render; the draft is the only real trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft]);
 
   // Picking a command arms it instead of firing it, so one that takes an
   // argument can still be given one. Enter sends.
@@ -298,7 +314,7 @@ export const AgentComposer = (): ReactElement => {
           so the last line fades out instead of being sliced. */}
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-full h-12 bg-gradient-to-t from-background-default to-transparent"
+        className="pointer-events-none absolute inset-x-0 bottom-full -mb-px h-12 bg-gradient-to-t from-background-default to-transparent"
       />
       <FlexCol className="relative mx-auto w-full max-w-[45rem] gap-2">
         {isMenuOpen && (
@@ -449,7 +465,7 @@ export const AgentComposer = (): ReactElement => {
         </ConditionalWrapper>
 
         <FlexRow className="items-center gap-2 px-0.5">
-          <FlexRow className="no-scrollbar min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
+          <FlexRow className="agent-fade-right no-scrollbar min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
             {quickCommands.map((quick) => (
               <Tooltip
                 key={quick.name}

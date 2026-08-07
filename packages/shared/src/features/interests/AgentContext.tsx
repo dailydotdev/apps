@@ -90,6 +90,14 @@ type AgentContextValue = {
   detachContext: (id: string) => void;
   /** The field itself, so an attachment made elsewhere lands you in it. */
   composerRef: React.RefObject<HTMLTextAreaElement>;
+  /**
+   * Text for the field, written from somewhere else on the screen. Consumed
+   * once: the composer takes it, puts it in the field and clears it, so a
+   * second press writes it again rather than being swallowed as unchanged.
+   */
+  draft?: string;
+  writeDraft: (text: string) => void;
+  clearDraft: () => void;
   update: (data: UpdateInterestInput) => void;
   isUpdating: boolean;
   activity: AgentActivityItem[];
@@ -146,6 +154,7 @@ export const AgentProvider = ({
     { id: string; args: RunCommandArgs }[]
   >([]);
   const [attachments, setAttachments] = useState<AgentAttachment[]>([]);
+  const [draft, setDraft] = useState<string>();
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   // The completion timeout needs the *current* starter to drain the queue, and
@@ -428,6 +437,9 @@ export const AgentProvider = ({
       attachContext,
       detachContext,
       composerRef,
+      draft,
+      writeDraft: setDraft,
+      clearDraft: () => setDraft(undefined),
       update,
       isUpdating,
       activity,
@@ -447,6 +459,7 @@ export const AgentProvider = ({
     [
       attachContext,
       attachments,
+      draft,
       closeAllContent,
       closeContent,
       content,

@@ -1,7 +1,8 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import Markdown from '../../../components/Markdown';
+import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
   Typography,
   TypographyColor,
@@ -10,6 +11,7 @@ import {
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import {
   Button,
+  ButtonColor,
   ButtonSize,
   ButtonVariant,
 } from '../../../components/buttons/Button';
@@ -20,17 +22,17 @@ import {
   MiniCloseIcon,
   TimerIcon,
   UpvoteIcon,
+  VIcon,
   WarningIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useCopyText } from '../../../hooks/useCopy';
-import { useToastNotification } from '../../../hooks/useToastNotification';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
 import type { AgentBlock, AgentMessage } from '../chat';
 import { useAgent } from '../AgentContext';
-import { feedAttachment } from '../attachments';
+import { feedAttachment, quoteAttachment } from '../attachments';
 import { AgentPickList } from './AgentPickList';
 import { AgentAttachmentChip } from './AgentAttachmentChip';
 import { addToChatFloat, AgentAddToChatButton } from './AgentAddToChatButton';
@@ -147,42 +149,119 @@ const messageAsText = (message: AgentMessage): string =>
     .trim();
 
 // Hover-revealed, the way Claude and Codex keep reply actions out of the
-// reading flow until the pointer says they are wanted.
+// reading flow until the pointer says they are wanted. Every one of them
+// answers back: a press with no visible consequence reads as a press that did
+// not land.
 const MessageActions = ({
   message,
 }: {
   message: AgentMessage;
 }): ReactElement => {
-  const { displayToast } = useToastNotification();
+  const { attachContext, writeDraft } = useAgent();
   const [, copyText] = useCopyText();
+  const [isCopied, setCopied] = useState(false);
+  const [vote, setVote] = useState<'up' | 'down'>();
+
+  useEffect(() => {
+    if (!isCopied) {
+      return undefined;
+    }
+
+    const timer = setTimeout(() => setCopied(false), 2000);
+
+    return () => clearTimeout(timer);
+  }, [isCopied]);
+
+  // The reply goes into the field as context, so "why" is answered about this
+  // turn rather than about the conversation in general.
+  const explain = () => {
+    const text = messageAsText(message);
+
+    if (text) {
+      attachContext(quoteAttachment(text));
+    }
+
+    writeDraft(
+      vote === 'down'
+        ? 'I marked that one down because '
+        : 'I marked that one up because ',
+    );
+  };
 
   return (
-    <FlexRow className="items-center gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100">
-      <Button
-        icon={<CopyIcon size={IconSize.Size16} />}
-        size={ButtonSize.XSmall}
-        variant={ButtonVariant.Tertiary}
-        aria-label="Copy reply"
-        // Flattened on click, not render: DOMParser only exists in the browser.
-        onClick={() => copyText({ textToCopy: messageAsText(message) })}
-      />
-      <Button
-        icon={<UpvoteIcon size={IconSize.Size16} />}
-        size={ButtonSize.XSmall}
-        variant={ButtonVariant.Tertiary}
-        aria-label="Good reply"
-        onClick={() => displayToast('Thanks — noted for future runs')}
-      />
-      <Button
-        icon={<DownvoteIcon size={IconSize.Size16} />}
-        size={ButtonSize.XSmall}
-        variant={ButtonVariant.Tertiary}
-        aria-label="Bad reply"
-        onClick={() =>
-          displayToast('Got it — the agent will adjust what clears the bar')
-        }
-      />
-    </FlexRow>
+    <FlexCol className="gap-1">
+      <FlexRow className="items-center gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100">
+        <Tooltip content={isCopied ? 'Copied' : 'Copy reply'}>
+          <Button
+            icon={
+              isCopied ? (
+                <VIcon size={IconSize.Size16} className="text-status-success" />
+              ) : (
+                <CopyIcon size={IconSize.Size16} />
+              )
+            }
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
+            aria-label="Copy reply"
+            // Flattened on click, not render: DOMParser only exists in the
+            // browser.
+            onClick={() => {
+              copyText({ textToCopy: messageAsText(message) });
+              setCopied(true);
+            }}
+          />
+        </Tooltip>
+        <Button
+          icon={<UpvoteIcon size={IconSize.Size16} secondary={vote === 'up'} />}
+          size={ButtonSize.XSmall}
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Avocado}
+          pressed={vote === 'up'}
+          aria-label="Good reply"
+          aria-pressed={vote === 'up'}
+          onClick={() =>
+            setVote((current) => (current === 'up' ? undefined : 'up'))
+          }
+        />
+        <Button
+          icon={
+            <DownvoteIcon size={IconSize.Size16} secondary={vote === 'down'} />
+          }
+          size={ButtonSize.XSmall}
+          variant={ButtonVariant.Tertiary}
+          color={ButtonColor.Ketchup}
+          pressed={vote === 'down'}
+          aria-label="Bad reply"
+          aria-pressed={vote === 'down'}
+          onClick={() =>
+            setVote((current) => (current === 'down' ? undefined : 'down'))
+          }
+        />
+      </FlexRow>
+
+      {/* Stays put once voted rather than fading with the row: it carries the
+          way to say more, and a note you have to hover to re-read is a note
+          nobody reads. */}
+      {!!vote && (
+        <FlexRow className="agent-line-in items-center gap-1.5 px-1">
+          <Typography
+            type={TypographyType.Caption2}
+            color={TypographyColor.Tertiary}
+          >
+            {vote === 'up'
+              ? 'Noted. More like this one.'
+              : 'Noted. Fewer like this one.'}
+          </Typography>
+          <button
+            type="button"
+            onClick={explain}
+            className="text-text-link typo-caption2 hover:underline"
+          >
+            Tell it why
+          </button>
+        </FlexRow>
+      )}
+    </FlexCol>
   );
 };
 
