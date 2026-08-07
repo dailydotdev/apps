@@ -55,7 +55,7 @@ export const ProfilePanelSection = ({
       [
         {
           title: 'Following',
-          path: '/following',
+          path: `${webappUrl}following`,
           action: () => onNavTabClick?.(OtherFeedPage.Following),
           icon: (active: boolean) => (
             <ListIcon Icon={() => <SquadIcon secondary={active} />} />

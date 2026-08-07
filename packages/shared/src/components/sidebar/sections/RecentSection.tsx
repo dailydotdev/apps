@@ -21,6 +21,7 @@ import {
 } from '../../icons';
 import { Image, ImageType } from '../../image/Image';
 import { Section } from '../Section';
+import { webappUrl } from '../../../lib/constants';
 import { SidebarSettingsFlags } from '../../../graphql/settings';
 import { sourceQueryOptions } from '../../../graphql/sources';
 import type { SidebarSectionProps } from './common';
@@ -149,7 +150,10 @@ export const RecentSection = ({
       recentPages.map((page) => ({
         icon: () => <RecentItemIcon page={page} />,
         title: page.title,
-        path: page.path,
+        // Recorded from `router.asPath`, so always relative. The stored value
+        // stays that way — `resolveType`/`handleFromPath` match on path prefixes
+        // — and only the rendered link carries the origin.
+        path: `${webappUrl}${page.path.replace(/^\//, '')}`,
         // Recent mirrors pages you've already visited (often the current one),
         // so it should never render as the active nav item.
         disableActiveState: true,

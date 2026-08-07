@@ -747,11 +747,12 @@ export const SidebarDesktopV2 = ({
   const { openModal, modal } = useLazyModal();
   const { isLoggedIn, user } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
-  // The brand mark targets the "For You" feed. On extension there's no
-  // router, so it always uses the explicit /my-feed path.
+  // The brand mark targets the "For You" feed. On extension there's no router,
+  // so it always uses the explicit my-feed path — absolute, so opening it in a
+  // new tab lands on the webapp instead of chrome-extension://<id>/my-feed.
   let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
   if (isExtension) {
-    myFeedPath = '/my-feed';
+    myFeedPath = `${webappUrl}my-feed`;
   }
   const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
   // Compact mode reverts to the original icon-only widths (pre-label rail).
