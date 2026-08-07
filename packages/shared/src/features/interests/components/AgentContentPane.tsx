@@ -30,9 +30,7 @@ import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 import { useViewSize, ViewSize } from '../../../hooks';
 import type { AgentContentTarget } from '../AgentContext';
 import { contentTargetId, useAgent } from '../AgentContext';
-import { targetAttachment } from '../attachments';
 import { AgentActivitySection } from './AgentActivitySection';
-import { AgentAddToChatButton } from './AgentAddToChatButton';
 
 const noop = () => undefined;
 
@@ -117,7 +115,6 @@ export const AgentContentPane = ({
     isWorking,
   } = useAgent();
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const activeAttachment = activeContent && targetAttachment(activeContent);
   useKeyboardNavigation(globalThis?.window, [
     // While a run is in flight Escape belongs to the stop control in the
     // workspace; closing a tab on the same keypress would double its meaning.
@@ -232,13 +229,6 @@ export const AgentContentPane = ({
             );
           })}
         </FlexRow>
-        {activeAttachment && (
-          <AgentAddToChatButton
-            attachment={activeAttachment}
-            iconOnly
-            size={ButtonSize.Small}
-          />
-        )}
         {activeContent?.type === 'post' && (
           <Tooltip content="Open original">
             <Button

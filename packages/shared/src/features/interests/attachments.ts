@@ -1,5 +1,5 @@
 import type { Post } from '../../graphql/posts';
-import type { AgentContentTarget } from './AgentContext';
+import type { AgentActivityItem, AgentContentTarget } from './AgentContext';
 import type { AgentAttachment, AgentMessage } from './chat';
 
 /**
@@ -35,6 +35,16 @@ export const quoteAttachment = (text: string): AgentAttachment => ({
   kind: 'quote',
   label: text.length > 140 ? `${text.slice(0, 140).trimEnd()}…` : text,
   detail: 'Highlighted',
+});
+
+/** A single entry out of the run history, rather than the whole log. */
+export const activityAttachment = (
+  item: AgentActivityItem,
+): AgentAttachment => ({
+  id: `activity:${item.id}`,
+  kind: 'activity',
+  label: item.text,
+  detail: 'From the activity log',
 });
 
 /** The agent's own context: not on screen, but still referable. */
