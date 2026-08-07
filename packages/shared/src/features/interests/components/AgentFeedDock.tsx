@@ -23,6 +23,14 @@ const useColumnBox = (ref: React.RefObject<HTMLElement>) => {
     const measure = () => {
       const { left, width } = marker.getBoundingClientRect();
 
+      // A column measures zero before it has been laid out, and again whenever
+      // it is hidden. Taking that literally would leave the field zero pixels
+      // wide; spanning the window until there is a real number is the safe
+      // reading of "I don't know yet".
+      if (!width) {
+        return;
+      }
+
       setBox((current) =>
         current?.left === left && current?.width === width
           ? current

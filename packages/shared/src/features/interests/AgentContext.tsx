@@ -251,17 +251,6 @@ export const AgentProvider = ({
           ...current,
         ]);
         onComplete?.();
-        // Drain the queue the way Claude Code does: the next queued prompt
-        // becomes a real turn only once the previous one has resolved.
-        setQueuedCommands((current) => {
-          const [next, ...rest] = current;
-
-          if (next) {
-            setTimeout(() => startRunRef.current?.(next.args), 0);
-          }
-
-          return rest;
-        });
       }, workDurationMs);
     },
     [displayToast, interest, isDemo, sendCommand],
@@ -270,6 +259,23 @@ export const AgentProvider = ({
   useEffect(() => {
     startRunRef.current = startRun;
   }, [startRun]);
+
+  // Drain the queue the way Claude Code does: the next queued prompt becomes a
+  // real turn only once the previous one has resolved.
+  //
+  // In an effect rather than inside the state updater that removes it. React
+  // re-runs updaters under StrictMode — which Next has on by default — so a
+  // prompt scheduled from inside one was being sent twice.
+  useEffect(() => {
+    if (working || !queuedCommands.length) {
+      return;
+    }
+
+    const [next] = queuedCommands;
+
+    setQueuedCommands((current) => current.slice(1));
+    startRun(next.args);
+  }, [queuedCommands, startRun, working]);
 
   const runCommand = useCallback(
     (args: RunCommandArgs) => {

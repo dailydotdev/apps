@@ -207,7 +207,11 @@ const WaitingRow = ({
       {item.line}
     </Typography>
     <Elapsed at={item.at} />
-    <Link href={`${webappUrl}agent/${item.id}`}>
+    {/* `passHref`, or the anchor renders with no href at all: legacyBehavior
+        only injects one into a plain `<a>` child, not into a component. Without
+        it this is a link you cannot middle-click, open in a new tab, or hear
+        announced as a link. */}
+    <Link href={`${webappUrl}agent/${item.id}`} passHref>
       <Button
         tag="a"
         size={ButtonSize.XSmall}

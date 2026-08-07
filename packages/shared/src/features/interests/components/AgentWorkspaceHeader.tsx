@@ -70,7 +70,9 @@ export const AgentWorkspaceHeader = (): ReactElement => {
     // instead, the same softening the composer does at the other end.
     <FlexRow className="h-12 shrink-0 items-center gap-2 px-3 tablet:px-4">
       <Tooltip content="Back to agents">
-        <Link href={`${webappUrl}agent`}>
+        {/* `passHref`: legacyBehavior only injects the href into a plain `<a>`
+            child, so without it this renders as an anchor with nowhere to go. */}
+        <Link href={`${webappUrl}agent`} passHref>
           <Button
             tag="a"
             icon={headerIcon(<MoveToIcon className="rotate-180" />)}
