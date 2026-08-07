@@ -32,6 +32,7 @@ export type TransactionItemProps = {
   amount: number;
   label: ReactNode;
   extraLabel?: ReactNode;
+  note?: ReactNode;
 };
 
 const TransactionTypeToIcon: Record<
@@ -68,6 +69,7 @@ export const TransactionItem = ({
   amount,
   label,
   extraLabel,
+  note,
 }: TransactionItemProps): ReactElement => {
   const linkToProfile = (children: ReactElement): ReactElement => {
     if (!profileUser) {
@@ -116,6 +118,15 @@ export const TransactionItem = ({
                 <DateFormat date={date} type={TimeFormatType.Transaction} />
               </div>
             </div>
+            {!!note && (
+              <Typography
+                className="line-clamp-2 max-w-[200px] tablet:max-w-[360px]"
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                {note}
+              </Typography>
+            )}
           </div>
         </div>
       </div>

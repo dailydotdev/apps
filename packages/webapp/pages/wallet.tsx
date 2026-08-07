@@ -41,6 +41,7 @@ import { formatCoresCurrency } from '@dailydotdev/shared/src/lib/utils';
 import {
   getTransactionType,
   getTransactionLabel,
+  getTransactionNote,
 } from '@dailydotdev/shared/src/lib/transaction';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
@@ -324,6 +325,7 @@ const Wallet = (): ReactElement | null => {
                                     ? `${transaction.sourceName} Squad`
                                     : undefined
                                 }
+                                note={getTransactionNote({ transaction })}
                               />
                             );
                           });
