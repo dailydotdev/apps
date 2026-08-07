@@ -17,7 +17,7 @@ type ClassName = {
 
 type Props = {
   className?: ClassName;
-  defaultValue?: string;
+  defaultValue?: string | null;
   onChange?: (value: string | undefined, index: number) => void;
   icon?: ReactElement<IconProps>;
   disabled?: boolean;
@@ -99,7 +99,7 @@ export const LanguageDropdown = ({
         icon={icon}
         disabled={disabled}
       />
-      {name && selectedIndex > -1 && (
+      {name && selectedIndex > -1 && values[selectedIndex] && (
         <input
           type="text"
           className="hidden"

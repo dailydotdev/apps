@@ -37,7 +37,8 @@ import usePlusEntry from '../hooks/usePlusEntry';
 import { SearchProvider } from '../contexts/search/SearchContext';
 import { SpotlightProvider } from './spotlight/SpotlightContext';
 import { SpotlightHost } from './spotlight/SpotlightHost';
-import { FeedbackWidget } from './feedback';
+import { FeedbackWidget } from './feedback/FeedbackWidget';
+import { useFeedbackShortcut } from '../hooks/useFeedbackShortcut';
 import { isExtension } from '../lib/func';
 import { useLayoutVariant } from '../hooks/layout/useLayoutVariant';
 import { useRecordRecentPages } from '../hooks/useRecentPages';
@@ -132,6 +133,7 @@ function MainLayoutComponent({
   const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
   useRecordRecentPages(isV2);
   useNotificationParams();
+  useFeedbackShortcut();
 
   // Settings pages render their navigation only inside the v2 context panel,
   // so the sidebar force-expands there regardless of the stored preference.
@@ -178,13 +180,34 @@ function MainLayoutComponent({
     ? contentTransitionsEnabled
     : layoutSettled;
 
+  const isPageReady =
+    (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
+
+  // Everything that isn't feed-shaped (post, tag, source, profile) prerenders
+  // real data through `getStaticProps`, but `isPageReady` can never be true on
+  // the server. Unmounting the layout until boot therefore shipped an empty
+  // `<div id="__next">`, so every crawler that doesn't run JS (including the
+  // answer engines `PostSEOSchema` targets) saw nothing but meta tags.
+  //
+  // The paint still has to wait for boot, so hold it with `visibility` on the
+  // wrapper below instead of dropping the tree. `visibility` (not `display`)
+  // keeps descendants that measure themselves on mount getting real geometry.
+  const isHoldingPaint = !isPageReady && showSidebar;
+
   // On laptop the v1 and v2 chrome (sidebar + global header) look different,
   // so rendering before the experiment resolves makes v2 users flash the v1
   // layout and then swap. Hold the variant-specific chrome until the flag has
   // resolved so the correct layout paints once. Below laptop there is no v2
   // chrome and `isLayoutVariantLoading` never resolves (the flag isn't
   // evaluated there), so treat non-laptop as always resolved.
-  const isLayoutChromeResolved = !isLaptop || !isLayoutVariantLoading;
+  //
+  // The held render must also stay viewport-independent: `useMedia` seeds its
+  // state from `window.matchMedia`, so the first client render already knows
+  // the real breakpoint while the server assumed mobile. Leaving the header to
+  // `isLaptop` alone made the server emit one and the client skip it, which
+  // shifted `<main>` and broke hydration.
+  const isLayoutChromeResolved =
+    !isHoldingPaint && (!isLaptop || !isLayoutVariantLoading);
 
   // Extension new tab mounts its own `ExtensionTopBanners` strip, so
   // the webapp strip is suppressed there to avoid duplicate cards.
@@ -216,8 +239,6 @@ function MainLayoutComponent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNotificationsReady, unreadCount, hasLoggedImpression]);
 
-  const isPageReady =
-    (growthbook?.ready && router?.isReady && isAuthReady) || isTesting;
   // Feed-shaped pages hold their paint until boot so the resolved chrome
   // renders once. Broader than the onboarding gate below on purpose: this is
   // about layout stability, not about forcing onboarding.
@@ -277,17 +298,10 @@ function MainLayoutComponent({
     });
   }, [shouldShowLogin, showLogin]);
 
-  // Pages that render the app chrome (sidebar layout) wait for boot before
-  // painting — the same `isPageReady` gate the feeds already use. The v1/v2
-  // chrome differs structurally and the variant only resolves after boot, so
-  // rendering early makes v2 users paint the v1 layout and then snap. Holding
-  // until boot lets the resolved layout paint once. The gate is
-  // breakpoint-independent (false on both server and first client render until
-  // ready), so it stays free of hydration mismatches.
-  if (
-    (!isPageReady && (isFeedShapedPage || showSidebar)) ||
-    shouldRedirectOnboarding
-  ) {
+  // Feed-shaped pages have nothing prerendered worth showing (the feed is
+  // fetched on the client) and anonymous visitors may still bounce to
+  // onboarding, so they keep bailing out entirely.
+  if (shouldRedirectOnboarding || (!isPageReady && isFeedShapedPage)) {
     return null;
   }
 
@@ -298,6 +312,7 @@ function MainLayoutComponent({
     <div
       className={classNames(
         'antialiased',
+        isHoldingPaint && 'invisible',
         isV2 &&
           'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
       )}

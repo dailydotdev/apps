@@ -13,7 +13,11 @@ import {
   TruncateText,
 } from '@dailydotdev/shared/src/components/utilities';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { ArrowIcon, InfoIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  ArrowIcon,
+  InfoIcon,
+  SettingsIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   Button,
   ButtonSize,
@@ -30,9 +34,14 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { Author } from '@dailydotdev/shared/src/graphql/comments';
+import type { WorldDistrict } from '../../graphql/world';
+import { WorldCustomizeRail } from './WorldCustomize';
 import { WorldImmersiveToggle } from './WorldMark';
+import { WorldShare } from './WorldShare';
+import { WorldNudge } from './WorldNudge';
 import { WorldSignupCta } from './WorldSignupCta';
 import { WorldViewerAction } from './WorldViewerAction';
+import type { WorldDraft } from './useWorldDraft';
 import type { WorldState } from './worldState';
 
 const STAT_INFO: [string, string][] = [
@@ -103,12 +112,28 @@ const Stat = ({ label, value }: { label: string; value: string }) => (
  */
 const WorldPanelHeader = memo(function WorldPanelHeader({
   user,
+  worldName,
   isImmersive,
+  isInRealm,
+  isOwn,
+  canShare,
   onToggleImmersive,
+  onCustomize,
+  onLeaveRealm,
 }: {
   user: PublicProfile;
+  /** What the owner calls the place, or nothing if they never named it. */
+  worldName?: string;
   isImmersive: boolean;
+  /** Inside a realm the way out is one level up, not off the world entirely. */
+  isInRealm: boolean;
+  isOwn: boolean;
+  /** False on a world its owner has hidden: the link would open on a wall. */
+  canShare: boolean;
   onToggleImmersive: () => void;
+  /** Only on your own world: nobody else's place is yours to dress. */
+  onCustomize?: () => void;
+  onLeaveRealm: () => void;
 }): ReactElement {
   /* A profile carries everything a comment author does, but types its handle as
      optional, and the comment components do not. One that has no handle has no
@@ -127,20 +152,49 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
           button's own padding is what lines its label up with the content under
           it, and the icon-only one has none to give. */}
       <div className="-mx-1 flex items-center justify-between gap-2">
-        <Link href={`/${user.username || user.id}`} passHref>
+        {isInRealm ? (
           <Button
-            tag="a"
+            type="button"
             variant={ButtonVariant.Tertiary}
             size={ButtonSize.Small}
             icon={<ArrowIcon className="-rotate-90" />}
+            onClick={onLeaveRealm}
           >
-            Back to profile
+            Back to world view
           </Button>
-        </Link>
-        <WorldImmersiveToggle
-          isImmersive={isImmersive}
-          onToggleImmersive={onToggleImmersive}
-        />
+        ) : (
+          <Link href={`/${user.username || user.id}`} passHref>
+            <Button
+              tag="a"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<ArrowIcon className="-rotate-90" />}
+            >
+              Back to profile
+            </Button>
+          </Link>
+        )}
+        <div className="flex flex-none items-center">
+          {canShare && (
+            <WorldShare user={user} worldName={worldName} isOwn={isOwn} />
+          )}
+          {!!onCustomize && (
+            <Tooltip content="Make it yours">
+              <Button
+                type="button"
+                aria-label="Customise this world"
+                variant={ButtonVariant.Tertiary}
+                size={ButtonSize.Small}
+                icon={<SettingsIcon />}
+                onClick={onCustomize}
+              />
+            </Tooltip>
+          )}
+          <WorldImmersiveToggle
+            isImmersive={isImmersive}
+            onToggleImmersive={onToggleImmersive}
+          />
+        </div>
       </div>
       {/* The same block a comment puts its author in (avatar, name, handle,
           and the user card on hover), so a reader meets a person the same way
@@ -169,6 +223,17 @@ const WorldPanelHeader = memo(function WorldPanelHeader({
           )}
         </div>
       </div>
+      {/* An unnamed world shows nothing here — the suggestion belongs in the bench's placeholder, not this heading. */}
+      {!!worldName && (
+        <Typography
+          tag={TypographyTag.H1}
+          type={TypographyType.Body}
+          bold
+          className="break-words"
+        >
+          {worldName}
+        </Typography>
+      )}
       <WorldViewerAction user={user} />
     </header>
   );
@@ -183,10 +248,22 @@ interface WorldPanelProps {
   /** Six realms of bare ground: every number is a zero and nothing is standing. */
   unbuilt?: boolean;
   isImmersive: boolean;
+  worldName?: string;
+  isOwn: boolean;
+  /** False on a world its owner has hidden: the link would open on a wall. */
+  canShare: boolean;
+  /** Open on your own world, and only there. */
+  draft?: WorldDraft;
+  districts?: WorldDistrict[];
+  /** The owner has never made this place theirs. */
+  showNudge?: boolean;
   onToggleImmersive: () => void;
   onFocus: (key: string) => void;
   onLeaveRealm: () => void;
 }
+
+const RAIL =
+  'pointer-events-auto absolute inset-y-0 left-0 z-1 flex w-80 flex-col gap-3 overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default p-4';
 
 /**
  * The lab's left rail: who this world belongs to and what is in it. Every
@@ -199,25 +276,45 @@ export function WorldPanel({
   state,
   unbuilt,
   isImmersive,
+  worldName,
+  isOwn,
+  canShare,
+  draft,
+  districts,
+  showNudge,
   onToggleImmersive,
   onFocus,
   onLeaveRealm,
 }: WorldPanelProps): ReactElement {
   const { open, rank = [] } = state;
 
+  /* Bench replaces the rail's contents rather than opening beside it — the single column changes, nothing else moves. */
+  if (draft?.isOpen && draft.settings) {
+    return (
+      <WorldCustomizeRail
+        userId={user.id}
+        draft={draft}
+        districts={districts}
+        settings={draft.settings}
+      />
+    );
+  }
+
   return (
-    <aside
-      data-world-overlay
-      className={classNames(
-        'pointer-events-auto absolute inset-y-0 left-0 z-1 flex w-80 flex-col gap-3',
-        'overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default p-4',
-      )}
-    >
+    <aside data-world-overlay className={RAIL}>
       <WorldPanelHeader
         user={user}
+        worldName={worldName}
         isImmersive={isImmersive}
+        isInRealm={!!open}
+        isOwn={isOwn}
+        canShare={canShare}
         onToggleImmersive={onToggleImmersive}
+        onCustomize={draft?.open}
+        onLeaveRealm={onLeaveRealm}
       />
+
+      {!!showNudge && !!draft && <WorldNudge onCustomize={draft.open} />}
 
       {/* Four across, on one line. DataTile is the right component for a stats
           page and the wrong one for a rail this narrow: its card and its own
@@ -242,26 +339,14 @@ export function WorldPanel({
       {/* Natural height, not flex-1: the rail scrolls as a whole, and a ranking
           that grew to fill it left the signup card underneath the list. */}
       <section className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-2">
-          <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-            bold
-          >
-            {open ? 'Districts' : 'Realms'}
-          </Typography>
-          {!!open && (
-            <Button
-              variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
-              icon={<ArrowIcon className="-rotate-90" />}
-              onClick={onLeaveRealm}
-            >
-              Back to the world
-            </Button>
-          )}
-        </div>
+        <Typography
+          tag={TypographyTag.H2}
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+          bold
+        >
+          {open ? 'Districts' : 'Realms'}
+        </Typography>
         {!!open && (
           <Typography
             type={TypographyType.Caption1}

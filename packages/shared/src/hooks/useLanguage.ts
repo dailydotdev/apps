@@ -10,7 +10,7 @@ import { OtherFeedPage, RequestKey } from '../lib/query';
 import { useToastNotification } from './useToastNotification';
 
 export type UseLanguage = {
-  onLanguageChange: (value?: string) => void;
+  onLanguageChange: (value?: string | null) => void;
 };
 
 export const useLanguage = (): UseLanguage => {
@@ -20,19 +20,21 @@ export const useLanguage = (): UseLanguage => {
   const { displayToast } = useToastNotification();
 
   const { mutate: onLanguageChange } = useMutation({
-    mutationFn: async (value?: string) => {
+    mutationFn: async (value?: string | null) => {
       if (!user) {
         throw new Error('Cannot update language without an authenticated user');
       }
 
+      const language = value ?? null;
+
       await updateUser({
         ...user,
-        language: value,
+        language,
       });
 
       await gqlClient.request(UPDATE_USER_PROFILE_MUTATION, {
         data: {
-          language: value,
+          language,
         },
       });
     },
@@ -41,7 +43,7 @@ export const useLanguage = (): UseLanguage => {
       logEvent({
         event_name: LogEvent.ChangeSettings,
         target_type: TargetType.Language,
-        target_id: value,
+        target_id: value ?? 'original',
       });
     },
 

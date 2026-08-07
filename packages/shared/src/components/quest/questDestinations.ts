@@ -62,6 +62,10 @@ export const getQuestDestination = (
       return { label: 'Later', path: '/bookmarks/later' };
     case 'visit_watercooler_feed':
       return { label: 'Watercooler', path: '/watercooler' };
+    // Worlds have no index of their own: each one is reached from its owner's
+    // profile, so the leaderboards are where a tour starts.
+    case 'visit_user_world':
+      return { label: 'Profiles', path: '/users' };
     case 'feedback_submit':
       return { label: 'Feedback', path: '/settings/feedback' };
     case 'squad_join':

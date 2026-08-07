@@ -36,6 +36,7 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
+import { ProfileSideToggle } from '../../components/profile/ProfileSideToggle';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
@@ -43,6 +44,7 @@ const ProfilePage = ({
   noindex,
   userStats,
   sources,
+  hasWorld,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const router = useRouter();
@@ -97,6 +99,13 @@ const ProfilePage = ({
         userStats={userStats}
         isSameUser={isSameUser}
         isPreviewMode={isPreviewMode}
+        actions={
+          /* The owner always gets the door, even before their world has
+             anything in it — the empty world is the invitation to build one.
+             Everyone else gets it only once there is something to walk into,
+             which the static props already answered without a session. */
+          (hasWorld || isSameUser) && <ProfileSideToggle user={user} />
+        }
       />
       <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
         {shouldShowBanner && (

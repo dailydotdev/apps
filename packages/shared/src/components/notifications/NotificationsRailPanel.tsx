@@ -16,6 +16,11 @@ import {
 } from './utils';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureNotificationsRedesign } from '../../lib/featureManagement';
+import { isExtension } from '../../lib/func';
+
+const notificationsPath = (
+  category: NotificationFilterCategory | null,
+): string => `${webappUrl}notifications${category ? `?type=${category}` : ''}`;
 
 // Compact menu in the rail / v2 context panel. Lists the notification type
 // filters (driven by the `?type=` query param on the notifications page) plus
@@ -35,12 +40,12 @@ export const NotificationsRailPanel = (): ReactElement => {
     feature: featureNotificationsRedesign,
   });
 
-  // Filters navigate via `action` (button), NOT `path`. SidebarItem treats
-  // any `?type=` path as active for the whole `/notifications` route (its
-  // matcher strips the query), so a path would light up every row at once.
-  // With no path, the explicit `active` flag is the sole source of truth.
-  // Use a shallow `replace` to match the in-page filter bar — toggling a
-  // filter shouldn't push a new history entry or trigger a data refetch.
+  // On the webapp, filters navigate via `action` (button), NOT `path`.
+  // SidebarItem treats any `?type=` path as active for the whole
+  // `/notifications` route (its matcher strips the query), so a path would light
+  // up every row at once. With no path, the explicit `active` flag is the sole
+  // source of truth. Use a shallow `replace` to match the in-page filter bar —
+  // toggling a filter shouldn't push a new history entry or refetch.
   const navigate = useCallback(
     (category: NotificationFilterCategory | null) =>
       router.replace(
@@ -52,6 +57,21 @@ export const NotificationsRailPanel = (): ReactElement => {
         { shallow: true },
       ),
     [router],
+  );
+
+  // The extension has no /notifications route to shallow-replace into, so the
+  // filters can't navigate in place there — they link out to the webapp
+  // instead, and no row can ever be the page you're on.
+  const navigationFor = useCallback(
+    (category: NotificationFilterCategory | null): Partial<SidebarMenuItem> =>
+      isExtension
+        ? {
+            path: notificationsPath(category),
+            isForcedLink: true,
+            disableActiveState: true,
+          }
+        : { action: () => navigate(category) },
+    [navigate],
   );
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
@@ -99,7 +119,7 @@ export const NotificationsRailPanel = (): ReactElement => {
     const allActivity: SidebarMenuItem = {
       title: 'All activity',
       active: isListPage && !activeType,
-      action: () => navigate(null),
+      ...navigationFor(null),
       icon: (active: boolean) => (
         <ListIcon Icon={() => <BellIcon secondary={active} />} />
       ),
@@ -112,7 +132,7 @@ export const NotificationsRailPanel = (): ReactElement => {
         return {
           title: notificationFilterCategoryLabel[category],
           active: isListPage && activeType === category,
-          action: () => navigate(category),
+          ...navigationFor(category),
           icon: (active: boolean) => (
             <ListIcon Icon={() => <Icon secondary={active} />} />
           ),
@@ -127,7 +147,7 @@ export const NotificationsRailPanel = (): ReactElement => {
     hasUnread,
     isListPage,
     isRedesign,
-    navigate,
+    navigationFor,
     unreadCount,
   ]);
 

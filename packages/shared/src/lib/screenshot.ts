@@ -92,6 +92,101 @@ export const captureScreenshot = async (): Promise<File | null> => {
   }
 };
 
+export interface CropRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * Map a selection made in displayed (CSS pixel) space onto the image's
+ * natural pixel space, clamped to the natural bounds.
+ */
+export const toNaturalRect = (
+  selection: CropRect,
+  display: { width: number; height: number },
+  natural: { width: number; height: number },
+): CropRect => {
+  const scaleX = natural.width / display.width;
+  const scaleY = natural.height / display.height;
+  const x = Math.min(
+    Math.max(0, Math.round(selection.x * scaleX)),
+    natural.width,
+  );
+  const y = Math.min(
+    Math.max(0, Math.round(selection.y * scaleY)),
+    natural.height,
+  );
+
+  return {
+    x,
+    y,
+    width: Math.min(natural.width - x, Math.round(selection.width * scaleX)),
+    height: Math.min(natural.height - y, Math.round(selection.height * scaleY)),
+  };
+};
+
+/**
+ * Crop an image file to the given rect (natural pixel coordinates).
+ *
+ * @returns A new PNG File, or null if the rect is empty or cropping failed.
+ */
+export const cropImageFile = async (
+  file: File,
+  rect: CropRect,
+): Promise<File | null> => {
+  if (rect.width < 1 || rect.height < 1) {
+    return null;
+  }
+
+  const url = URL.createObjectURL(file);
+
+  try {
+    const image = new Image();
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error('Image load failed'));
+      image.src = url;
+    });
+
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(rect.width);
+    canvas.height = Math.round(rect.height);
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      return null;
+    }
+
+    ctx.drawImage(
+      image,
+      rect.x,
+      rect.y,
+      rect.width,
+      rect.height,
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
+
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, 'image/png');
+    });
+
+    if (!blob) {
+      return null;
+    }
+
+    return new File([blob], `screenshot-${Date.now()}.png`, {
+      type: 'image/png',
+    });
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+};
+
 /**
  * Create an object URL for a File object to display a preview.
  * Remember to call revokePreviewUrl() when done to free memory.
