@@ -309,6 +309,7 @@ const Wallet = (): ReactElement | null => {
                                 key={transaction.id}
                                 type={type}
                                 user={transactionUser}
+                                profileUser={transactionUser}
                                 amount={
                                   type === 'send'
                                     ? -transaction.value
