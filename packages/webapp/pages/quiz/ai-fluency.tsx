@@ -629,6 +629,6 @@ const AiFluencyQuizPage = (): ReactElement => {
 };
 
 AiFluencyQuizPage.getLayout = getMainLayout;
-AiFluencyQuizPage.layoutProps = { seo };
+AiFluencyQuizPage.layoutProps = { seo, layoutVariant: 'v1' };
 
 export default AiFluencyQuizPage;

@@ -1090,6 +1090,7 @@ JobPage.getLayout = getPageLayout;
 JobPage.layoutProps = {
   screenCentered: false,
   seo,
+  layoutVariant: 'v1',
 };
 
 export default JobPage;

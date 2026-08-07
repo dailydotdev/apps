@@ -5,6 +5,7 @@ import { middleware } from '../middleware';
 import { resolveLayoutV2 } from '../lib/layoutVariantMiddleware';
 
 jest.mock('../lib/layoutVariantMiddleware', () => ({
+  isLayoutV2EligiblePath: jest.fn(() => true),
   resolveLayoutV2: jest.fn(),
 }));
 

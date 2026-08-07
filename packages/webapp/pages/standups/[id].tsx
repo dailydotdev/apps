@@ -63,6 +63,7 @@ StandupPage.getLayout = getLayout;
 StandupPage.layoutProps = {
   screenCentered: false,
   hideFeedbackWidget: true,
+  layoutVariant: 'v1',
 };
 
 export default StandupPage;

@@ -80,7 +80,10 @@ function SquadCategoryPage({ category }: SquadCategoryPageProps): ReactElement {
 }
 
 SquadCategoryPage.getLayout = getLayout;
-SquadCategoryPage.layoutProps = mainFeedLayoutProps;
+SquadCategoryPage.layoutProps = {
+  ...mainFeedLayoutProps,
+  layoutVariant: 'v1',
+};
 
 export default SquadCategoryPage;
 

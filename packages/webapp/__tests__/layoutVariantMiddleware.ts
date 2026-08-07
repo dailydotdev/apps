@@ -2,8 +2,10 @@
 
 import { NextRequest } from 'next/server';
 import { getServerFeatureValue } from '@dailydotdev/shared/src/lib/serverFeatureValue';
+import { featureLayoutV2 } from '@dailydotdev/shared/src/lib/serverFeatures';
 import {
   isDesktopRequest,
+  isLayoutV2EligiblePath,
   resolveLayoutV2,
 } from '../lib/layoutVariantMiddleware';
 
@@ -34,6 +36,36 @@ describe('layout variant middleware resolver', () => {
     jest.mocked(getServerFeatureValue).mockResolvedValue(false);
   });
 
+  it.each([
+    '/kramer',
+    '/kramer/work',
+    '/posts/best-of',
+    '/posts/best-of/2025/8',
+    '/tags/javascript/best-of/2025',
+    '/sources/thenewstack/best-of',
+    '/gear',
+    '/jobs/test-job',
+    '/standups/test-standup',
+    '/squads/test-squad',
+    '/squads/discover/featured-category',
+    '/quiz/ai-fluency',
+  ])('recognizes the v2 route %s', (pathname) => {
+    expect(isLayoutV2EligiblePath(pathname)).toBe(true);
+  });
+
+  it.each([
+    '/popular',
+    '/favicon.ico',
+    '/settings',
+    '/kramer/unknown-section',
+    '/posts/latest',
+    '/posts/test.md',
+    '/squads/new',
+    '/tags/javascript',
+  ])('leaves the non-v2 route %s unchanged', (pathname) => {
+    expect(isLayoutV2EligiblePath(pathname)).toBe(false);
+  });
+
   it('uses the tracking id for the same allocation attributes as the client', async () => {
     jest.mocked(getServerFeatureValue).mockResolvedValue(true);
 
@@ -45,10 +77,7 @@ describe('layout variant middleware resolver', () => {
           loggedIn: true,
           userId: 'tracking-id',
         }),
-        feature: expect.objectContaining({
-          defaultValue: true,
-          id: 'layout_v2',
-        }),
+        feature: featureLayoutV2,
       }),
     );
   });

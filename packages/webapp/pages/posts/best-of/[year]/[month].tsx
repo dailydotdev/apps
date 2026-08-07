@@ -150,6 +150,7 @@ const getPageLayout: typeof getLayout = (...props) =>
 GlobalMonthlyArchivePage.getLayout = getPageLayout;
 GlobalMonthlyArchivePage.layoutProps = {
   screenCentered: false,
+  layoutVariant: 'v1',
 };
 
 export default GlobalMonthlyArchivePage;

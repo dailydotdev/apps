@@ -27,6 +27,7 @@ import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
+import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { getLayout as getFooterNavBarLayout } from '../FooterNavBarLayout';
 import { getLayout as getMainLayout } from '../MainLayout';
@@ -182,11 +183,14 @@ export default function ProfileLayout({
 export const getLayout = (
   page: ReactNode,
   props: ProfileLayoutProps,
+  layoutProps?: MainLayoutProps,
 ): ReactNode =>
   getFooterNavBarLayout(
     getMainLayout(<ProfileLayout {...props}>{page}</ProfileLayout>, undefined, {
       screenCentered: false,
       customBanner: <CustomAuthBanner />,
+      layoutVariant: 'v1',
+      ...layoutProps,
     }),
   );
 
