@@ -334,6 +334,9 @@ function MainLayoutComponent({
         />
       )}
 
+      {/* Temporary while layout v2 is experimental: production users are on
+          v1, so render its header in the initial HTML instead of waiting for
+          feature resolution and delaying the post page's LCP. */}
       {!sidebarOwnsHeader && (
         <MainLayoutHeader
           hasBanner={isBannerAvailable}
