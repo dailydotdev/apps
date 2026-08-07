@@ -9,6 +9,7 @@ import { webappUrl } from '../../../lib/constants';
 import { interestsQueryOptions } from '../queries';
 import { useCreateInterest } from '../hooks/useCreateInterest';
 import { AgentGlassComposer } from './AgentGlassComposer';
+import { AgentFeedDock } from './AgentFeedDock';
 import { AgentMonitor, toMonitorItems } from './AgentMonitor';
 
 /**
@@ -53,17 +54,14 @@ export const AgentFeedPrompt = (): ReactElement | null => {
   };
 
   return (
-    // Clear of the mobile footer nav, and never wider than the reading column.
-    <div className="pointer-events-none fixed inset-x-0 bottom-16 z-popup flex justify-center px-4 tablet:bottom-6">
-      <div className="pointer-events-auto relative w-full max-w-[36rem]">
-        <AgentGlassComposer
-          value={query}
-          onChange={setQuery}
-          onSubmit={onSubmit}
-          isBusy={isCreating}
-          pending={<AgentMonitor items={items} />}
-        />
-      </div>
-    </div>
+    <AgentFeedDock>
+      <AgentGlassComposer
+        value={query}
+        onChange={setQuery}
+        onSubmit={onSubmit}
+        isBusy={isCreating}
+        pending={<AgentMonitor items={items} />}
+      />
+    </AgentFeedDock>
   );
 };
