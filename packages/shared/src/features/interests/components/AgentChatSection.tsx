@@ -47,12 +47,15 @@ import { AgentEmbedCard } from './blocks/AgentEmbedCard';
 // so these class-based overrides win without `!important`.
 // The `!leading-*` overrides are required, not stylistic: `typo-*` ships a
 // line-height with its size, and it wins the cascade over a plain `leading-*`.
+// `text-pretty` on the prose and `text-balance` on the headings: a reply that
+// ends on one orphaned word, or a heading that breaks after "the", is the kind
+// of thing nobody points at and everybody feels.
 const transcriptProse = classNames(
-  '[&_p]:my-3 [&_p]:!leading-relaxed [&_p]:typo-callout',
-  '[&_li]:!leading-relaxed [&_li]:typo-callout [&_ol]:my-3 [&_ul]:my-3',
-  '[&_h1]:mb-1.5 [&_h1]:mt-5 [&_h1]:!leading-snug [&_h1]:typo-body',
-  '[&_h2]:mb-1.5 [&_h2]:mt-5 [&_h2]:!leading-snug [&_h2]:typo-body',
-  '[&_h3]:mb-1.5 [&_h3]:mt-5 [&_h3]:!leading-snug [&_h3]:typo-callout',
+  '[&_p]:my-3 [&_p]:text-pretty [&_p]:!leading-relaxed [&_p]:typo-callout',
+  '[&_li]:text-pretty [&_li]:!leading-relaxed [&_li]:typo-callout [&_ol]:my-3 [&_ul]:my-3',
+  '[&_h1]:mb-1.5 [&_h1]:mt-5 [&_h1]:text-balance [&_h1]:!leading-snug [&_h1]:typo-body',
+  '[&_h2]:mb-1.5 [&_h2]:mt-5 [&_h2]:text-balance [&_h2]:!leading-snug [&_h2]:typo-body',
+  '[&_h3]:mb-1.5 [&_h3]:mt-5 [&_h3]:text-balance [&_h3]:!leading-snug [&_h3]:typo-callout',
   '[&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
 );
 
@@ -203,7 +206,12 @@ const MessageActions = ({
           <Button
             icon={
               isCopied ? (
-                <VIcon size={IconSize.Size16} className="text-status-success" />
+                // Scales and unblurs into place rather than appearing: it is
+                // the same control confirming, not a second one arriving.
+                <VIcon
+                  size={IconSize.Size16}
+                  className="agent-icon-in text-status-success"
+                />
               ) : (
                 <CopyIcon size={IconSize.Size16} />
               )

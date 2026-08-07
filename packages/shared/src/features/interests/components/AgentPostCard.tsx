@@ -86,7 +86,7 @@ export const AgentPostCard = ({
         tag={TypographyTag.H3}
         type={TypographyType.Callout}
         bold
-        className="!leading-snug"
+        className="text-balance !leading-snug"
       >
         <button
           type="button"
@@ -131,7 +131,7 @@ export const AgentPostCard = ({
       alt=""
       loading="lazy"
       fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-      className="size-16 shrink-0 rounded-10 object-cover"
+      className="agent-media-ring size-16 shrink-0 rounded-10 object-cover"
     />
   </div>
 );

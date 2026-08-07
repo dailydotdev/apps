@@ -55,7 +55,7 @@ const PickRow = ({
         stretches its click over the whole row. */}
     <div
       className={classNames(
-        'group/item relative flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
+        'agent-press-row group/item relative flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
         isViewing ? 'bg-surface-float' : 'hover:bg-surface-float',
       )}
     >
@@ -64,7 +64,7 @@ const PickRow = ({
         type={TypographyType.Callout}
         bold
         color={TypographyColor.Primary}
-        className="min-w-0 flex-1 !leading-snug"
+        className="min-w-0 flex-1 text-balance !leading-snug"
       >
         <button
           type="button"

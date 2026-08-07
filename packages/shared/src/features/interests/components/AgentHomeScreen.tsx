@@ -48,7 +48,7 @@ const starters = [
 const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => (
   <li className="[&:first-child>a]:rounded-t-12 [&:last-child>a]:rounded-b-12">
     <Link href={`${webappUrl}agent/${item.id}`}>
-      <a className="group/item flex items-center gap-3 px-3 py-2 transition-colors hover:bg-surface-float">
+      <a className="agent-press-row group/item flex items-center gap-3 px-3 py-2 transition-colors hover:bg-surface-float">
         <AgentState state={item.state} />
         <Typography
           type={TypographyType.Footnote}
@@ -169,6 +169,7 @@ export const AgentHomeScreen = ({
               tag={TypographyTag.H1}
               type={TypographyType.Title2}
               bold
+              className="text-balance"
             >
               {agents.length
                 ? 'What should the next one hunt?'

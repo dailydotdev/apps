@@ -76,7 +76,7 @@ const FeedView = ({
   posts: Post[];
   onOpenPost: (post: Post) => void;
 }): ReactElement => (
-  <FlexCol className="agent-panel-feed">
+  <FlexCol className="agent-panel-feed agent-media-ring">
     {posts.map((post) => (
       <ArticleList
         key={post.id}
@@ -175,7 +175,7 @@ export const AgentContentPane = ({
         <span className="h-10 w-1 rounded-6 bg-transparent transition-colors group-hover:bg-text-quaternary" />
       </div>
 
-      <FlexCol className="agent-panel-surface min-h-0 flex-1 overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary laptop:shadow-2">
+      <FlexCol className="agent-panel-surface agent-window-shadow min-h-0 flex-1 overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary">
         {/* 8px all the way round the chips: the row is 48 tall and they are
           32, so the sides match the space above and below them. With the
           card's own 8px inset that lands the strip on the same 16px margin
@@ -193,7 +193,7 @@ export const AgentContentPane = ({
                 <span
                   key={targetId}
                   className={classNames(
-                    'group flex h-8 w-fit max-w-[13rem] shrink-0 items-center gap-1.5 rounded-8 pl-2 pr-1 transition-colors',
+                    'agent-press group flex h-8 w-fit max-w-[13rem] shrink-0 items-center gap-1.5 rounded-8 pl-2 pr-1 transition-colors',
                     // Subtle for the ones you are not on, float for the one
                     // you are: an outline against a filled chip separates them
                     // by two properties rather than by a shade of grey.

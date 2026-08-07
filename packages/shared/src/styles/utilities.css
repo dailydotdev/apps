@@ -1145,6 +1145,82 @@
   );
 }
 
+/* Something to push against.
+   Every control here changes colour under the pointer and nothing at all under
+   a click, which is the difference between a picture of a button and a button.
+   A small control takes the full 0.96; a full-width row takes a fraction of
+   that, because the same ratio across 600px reads as the row jumping. Colour
+   still carries the state on its own, so nothing is lost when motion is off. */
+.agent-press,
+.agent-press-row {
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.agent-press:active {
+  transform: scale(0.96);
+}
+
+.agent-press-row:active {
+  transform: scale(0.995);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-press,
+  .agent-press-row {
+    transition: none;
+  }
+
+  .agent-press:active,
+  .agent-press-row:active {
+    transform: none;
+  }
+}
+
+/* An icon arriving in place of another one. Small enough to read as the same
+   control changing its mind rather than two controls swapping, and with no
+   bounce: this fires on a click the reader just made, so it confirms rather
+   than performs. */
+@keyframes agent-icon-in {
+  from {
+    opacity: 0;
+    transform: scale(0.25);
+    filter: blur(4px);
+  }
+}
+
+.agent-icon-in {
+  animation: agent-icon-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-icon-in {
+    animation: none;
+  }
+}
+
+/* A window has to sit above the page, not merely be drawn on it. The border
+   stays for the edge — it holds the 1px the header rules are aligned to — and
+   the shadow underneath does the floating: a close lift plus a wide, soft
+   depth, both off the theme's own shadow colour.
+   Only from laptop up, where it is a card in a room. Below that it is the
+   whole screen and has nothing to float over. */
+@media (min-width: 1020px) {
+  .agent-window-shadow {
+    box-shadow: 0 1px 2px -1px var(--theme-shadow-shadow1),
+      0 24px 48px -24px var(--theme-shadow-shadow1);
+  }
+}
+
+/* Post covers sit on their own artwork, and a bright image against a dark
+   panel has no edge at all. A tenth-opacity ring drawn inside the corner gives
+   it one, in whichever direction the theme needs. */
+.agent-media-ring img,
+img.agent-media-ring {
+  outline: 1px solid
+    color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 90%);
+  outline-offset: -1px;
+}
+
 /* A feed inside the panel is a phone-width column standing in a desktop
    window. The list card decides where to put its cover from the window's
    width, so it lays the cover out beside the title — 15rem of image in a 24rem
