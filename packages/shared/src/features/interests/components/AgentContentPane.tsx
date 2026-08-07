@@ -100,8 +100,9 @@ export const AgentContentPane = ({
   debugPanel,
 }: {
   width: number;
-  onWidthChange: (width: number) => void;
-  onWidthCommit: () => void;
+  /** Clamps the value and returns what it settled on. */
+  onWidthChange: (width: number) => number;
+  onWidthCommit: (width: number) => void;
   debugPanel: ReactNode;
 }): ReactElement => {
   const {
@@ -128,16 +129,21 @@ export const AgentContentPane = ({
     event.preventDefault();
     const startX = event.clientX;
     const startWidth = width;
+    // The drag keeps its own last number. Everything React knows is a render
+    // behind by the time the pointer comes up, and this listener closes over
+    // the props it was born with.
+    let latest = startWidth;
 
-    const onMove = (moveEvent: PointerEvent) =>
-      onWidthChange(startWidth - (moveEvent.clientX - startX));
+    const onMove = (moveEvent: PointerEvent) => {
+      latest = onWidthChange(startWidth - (moveEvent.clientX - startX));
+    };
 
     const onUp = () => {
       globalThis.removeEventListener('pointermove', onMove);
       globalThis.removeEventListener('pointerup', onUp);
       document.body.style.removeProperty('user-select');
       document.body.style.removeProperty('cursor');
-      onWidthCommit();
+      onWidthCommit(latest);
     };
 
     document.body.style.setProperty('user-select', 'none');

@@ -44,14 +44,14 @@ export const AgentWorkspace = ({
   const { isSettingsOpen, openContent, messages, isWorking, stopCommand } =
     useAgent();
   const shellHeight = useAgentShellHeight(isStandalone);
-  const [storedWidth, setStoredWidth] = usePersistentContext<number>(
-    'agentPaneWidth',
-    defaultPaneWidth,
-  );
-  // Live width during a drag; committed to storage on pointer release so a
-  // drag doesn't write to IndexedDB on every pointermove.
-  const [draggingWidth, setDraggingWidth] = useState<number>();
-  const paneWidth = draggingWidth ?? storedWidth ?? defaultPaneWidth;
+  const [storedWidth, setStoredWidth, isWidthLoaded] =
+    usePersistentContext<number>('agentPaneWidth', defaultPaneWidth);
+  // The pane's width lives here, not in the store. The store is read once for
+  // the opening size and written on release; rendering straight off it put an
+  // async round-trip between the pointer and the panel, and the panel snapped
+  // back whenever the read landed after the write.
+  const [paneWidth, setPaneWidth] = useState(defaultPaneWidth);
+  const hasResizedRef = useRef(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
   const transcriptRef = useRef<HTMLDivElement>(null);
   // Follow the conversation only while the reader is already at its tail;
@@ -111,25 +111,36 @@ export const AgentWorkspace = ({
     return () => cancelAnimationFrame(frame);
   }, [messages.length]);
 
-  const onPaneWidthChange = (next: number) => {
-    const workspace = workspaceRef.current;
-
-    if (!workspace) {
+  // Seed it from the last session's width, once. After the first drag the
+  // workspace owns the number and a late read from the store is ignored.
+  useEffect(() => {
+    if (!isWidthLoaded || hasResizedRef.current || !storedWidth) {
       return;
     }
 
-    const max = Math.max(minPanelWidth, workspace.clientWidth - minPanelWidth);
+    setPaneWidth(storedWidth);
+  }, [isWidthLoaded, storedWidth]);
 
-    setDraggingWidth(Math.min(Math.max(next, minPanelWidth), max));
+  // Returns what it settled on: the drag needs the clamped number to hand back
+  // on release, and reading it out of state there gets the value as it was when
+  // the pointer went down, which is a drag or two behind.
+  const onPaneWidthChange = (next: number): number => {
+    const workspace = workspaceRef.current;
+    const max = workspace
+      ? Math.max(minPanelWidth, workspace.clientWidth - minPanelWidth)
+      : next;
+    // Whole pixels: a fractional width leaves the panel's border straddling
+    // two of them, which softens the one hairline the eye follows.
+    const clamped = Math.round(Math.min(Math.max(next, minPanelWidth), max));
+
+    hasResizedRef.current = true;
+    setPaneWidth(clamped);
+
+    return clamped;
   };
 
-  const onPaneWidthCommit = () => {
-    if (typeof draggingWidth === 'undefined') {
-      return;
-    }
-
-    setStoredWidth(draggingWidth);
-    setDraggingWidth(undefined);
+  const onPaneWidthCommit = (next: number) => {
+    setStoredWidth(next);
   };
 
   return (
