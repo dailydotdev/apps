@@ -55,7 +55,9 @@ const PickRow = ({
         stretches its click over the whole row. */}
     <div
       className={classNames(
-        'agent-press-row group/item relative flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors',
+        // Stacked on a phone: a title and its counts side by side in 375px
+        // leaves the title four words wide and five lines tall.
+        'agent-press-row group/item relative flex w-full flex-col items-start gap-1 px-3 py-2.5 text-left transition-colors tablet:flex-row tablet:items-center tablet:gap-3',
         isViewing ? 'bg-surface-float' : 'hover:bg-surface-float',
       )}
     >
@@ -64,7 +66,7 @@ const PickRow = ({
         type={TypographyType.Callout}
         bold
         color={TypographyColor.Primary}
-        className="min-w-0 flex-1 text-balance !leading-snug"
+        className="w-full min-w-0 flex-1 text-balance !leading-snug"
       >
         <button
           type="button"
@@ -82,7 +84,7 @@ const PickRow = ({
         reveal
         className={addToChatFloat}
       />
-      <div className="ml-auto flex shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2 tablet:ml-auto">
         <InlineStat
           ariaLabel={`${post.numUpvotes ?? 0} upvotes`}
           icon={

@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -22,6 +22,8 @@ import {
   TimerIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import type { DrawerRef } from '../../../components/drawers/Drawer';
+import { Drawer, DrawerPosition } from '../../../components/drawers/Drawer';
 import { PostContent } from '../../../components/post/PostContent';
 import { ArticleList } from '../../../components/cards/article/ArticleList';
 import { Origin } from '../../../lib/log';
@@ -120,6 +122,7 @@ export const AgentContentPane = ({
     isWorking,
   } = useAgent();
   const isLaptop = useViewSize(ViewSize.Laptop);
+  const drawerRef = useRef<DrawerRef>(null);
   useKeyboardNavigation(globalThis?.window, [
     // While a run is in flight Escape belongs to the stop control in the
     // workspace; closing a tab on the same keypress would double its meaning.
@@ -156,15 +159,15 @@ export const AgentContentPane = ({
     globalThis.addEventListener('pointerup', onUp);
   };
 
-  return (
-    <aside
-      // A window rather than a wall. On mobile it is the whole screen; from
-      // laptop up it is a card floating in the workspace, inset on every side,
-      // so the conversation stays the room and this is a thing set down in it.
-      className="absolute inset-0 z-modal flex flex-col bg-background-default laptop:relative laptop:inset-auto laptop:z-0 laptop:h-full laptop:shrink-0 laptop:bg-transparent laptop:p-2 laptop:pl-0"
-      style={isLaptop ? { width } : undefined}
-      aria-label="Agent content panel"
-    >
+  // On a phone the panel is a page in its own right, so it arrives like one:
+  // in from the right over the conversation, out the same way. `closeAllContent`
+  // runs at the end of the slide rather than the start of it, which is the only
+  // way the exit is ever seen.
+  const onCloseAll = () =>
+    isLaptop ? closeAllContent() : drawerRef.current?.onClose();
+
+  const card = (
+    <>
       <div
         role="separator"
         aria-orientation="vertical"
@@ -264,7 +267,7 @@ export const AgentContentPane = ({
               variant={ButtonVariant.Tertiary}
               icon={<MiniCloseIcon size={IconSize.XSmall} />}
               aria-label="Close panel"
-              onClick={closeAllContent}
+              onClick={onCloseAll}
             />
           </Tooltip>
         </FlexRow>
@@ -309,6 +312,42 @@ export const AgentContentPane = ({
           )}
         </FlexCol>
       </FlexCol>
+    </>
+  );
+
+  if (!isLaptop) {
+    return (
+      <Drawer
+        isOpen
+        ref={drawerRef}
+        position={DrawerPosition.Right}
+        isFullScreen
+        appendOnRoot
+        closeOnOutsideClick={false}
+        onClose={closeAllContent}
+        className={{
+          // The drawer's own padding would sit outside the card and show the
+          // page through it; the card owns its edges here.
+          wrapper: '!p-0',
+          drawer: 'p-0',
+        }}
+        aria-label="Agent content panel"
+      >
+        {card}
+      </Drawer>
+    );
+  }
+
+  return (
+    <aside
+      // A window rather than a wall: a card floating in the workspace, inset on
+      // every side, so the conversation stays the room and this is a thing set
+      // down in it.
+      className="relative flex h-full shrink-0 flex-col p-2 pl-0"
+      style={{ width }}
+      aria-label="Agent content panel"
+    >
+      {card}
     </aside>
   );
 };

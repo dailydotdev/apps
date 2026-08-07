@@ -1,7 +1,10 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Popover, PopoverTrigger } from '@radix-ui/react-popover';
 import { PopoverContent } from '../../../components/popover/Popover';
+import type { DrawerRef } from '../../../components/drawers/Drawer';
+import { Drawer } from '../../../components/drawers/Drawer';
+import { useViewSize, ViewSize } from '../../../hooks';
 import {
   Typography,
   TypographyColor,
@@ -52,81 +55,122 @@ const MenuRow = ({
 export const AgentSettingsMenu = (): ReactElement => {
   const { interest, status, update, setSettingsOpen } = useAgent();
   const isRunning = status === UserInterestStatus.Active;
+  const isLaptop = useViewSize(ViewSize.Laptop);
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
+  const drawerRef = useRef<DrawerRef>(null);
+
+  const trigger = (
+    <button
+      type="button"
+      aria-label="Agent settings"
+      className="agent-press group relative flex size-8 shrink-0 items-center justify-center rounded-10 transition-colors hover:bg-surface-hover"
+      onClick={isLaptop ? undefined : () => setDrawerOpen(true)}
+    >
+      <SettingsIcon
+        size={IconSize.XSmall}
+        className="text-text-tertiary transition-colors group-hover:text-text-primary"
+      />
+    </button>
+  );
+
+  const openSettings = () => {
+    if (isLaptop) {
+      setSettingsOpen(true);
+      return;
+    }
+
+    // Let the sheet slide out before the page underneath changes: the two
+    // moving at once reads as a glitch rather than a step.
+    drawerRef.current?.onClose();
+    setSettingsOpen(true);
+  };
+
+  const body = (
+    <FlexCol className="gap-2">
+      <FlexRow className="items-center justify-between gap-3">
+        <FlexCol className="min-w-0 flex-1 gap-0.5">
+          <Typography type={TypographyType.Footnote} bold>
+            {isRunning ? 'Pause the agent' : 'Resume the agent'}
+          </Typography>
+          <Typography
+            type={TypographyType.Caption2}
+            color={TypographyColor.Tertiary}
+            className="min-w-0 truncate"
+          >
+            {isRunning
+              ? cadenceCopy[interest?.cadence ?? 'daily']
+              : 'No scheduled runs'}
+          </Typography>
+        </FlexCol>
+        <Switch
+          inputId="agent-run-switch"
+          name="agent-run-switch"
+          compact
+          checked={isRunning}
+          onToggle={() =>
+            update({
+              status: isRunning
+                ? UserInterestStatus.Paused
+                : UserInterestStatus.Active,
+            })
+          }
+        />
+      </FlexRow>
+
+      {interest?.lastRunAt && (
+        <Typography
+          type={TypographyType.Caption2}
+          color={TypographyColor.Quaternary}
+        >
+          {'Last run '}
+          <DateFormat date={interest.lastRunAt} type={TimeFormatType.Post} />
+        </Typography>
+      )}
+
+      <span className="h-px bg-border-subtlest-tertiary" />
+
+      {/* Activity has its own icon in the header row, so it is not
+              repeated here. */}
+      <MenuRow
+        icon={<SettingsIcon size={IconSize.Size16} />}
+        label="Settings"
+        onClick={openSettings}
+      />
+    </FlexCol>
+  );
+
+  // A popover pinned to a gear in the corner is a desktop shape. On a phone the
+  // app's own answer to "a short list of choices" is a sheet from the bottom,
+  // where the thumb already is.
+  if (!isLaptop) {
+    return (
+      <>
+        {trigger}
+        {isDrawerOpen && (
+          <Drawer
+            isOpen
+            ref={drawerRef}
+            appendOnRoot
+            onClose={() => setDrawerOpen(false)}
+            className={{ drawer: 'gap-2 px-4 pb-2 pt-3' }}
+          >
+            {body}
+          </Drawer>
+        )}
+      </>
+    );
+  }
 
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          aria-label="Agent settings"
-          className="group relative flex size-8 shrink-0 items-center justify-center rounded-10 transition-colors hover:bg-surface-hover"
-        >
-          <SettingsIcon
-            size={IconSize.XSmall}
-            className="text-text-tertiary transition-colors group-hover:text-text-primary"
-          />
-        </button>
-      </PopoverTrigger>
+      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent
         side="bottom"
         align="end"
         sideOffset={8}
         className="z-popup w-64 rounded-16 border border-border-subtlest-tertiary bg-background-popover p-3 shadow-3"
       >
-        <FlexCol className="gap-2">
-          <FlexRow className="items-center justify-between gap-3">
-            <FlexCol className="min-w-0 flex-1 gap-0.5">
-              <Typography type={TypographyType.Footnote} bold>
-                {isRunning ? 'Pause the agent' : 'Resume the agent'}
-              </Typography>
-              <Typography
-                type={TypographyType.Caption2}
-                color={TypographyColor.Tertiary}
-                className="min-w-0 truncate"
-              >
-                {isRunning
-                  ? cadenceCopy[interest?.cadence ?? 'daily']
-                  : 'No scheduled runs'}
-              </Typography>
-            </FlexCol>
-            <Switch
-              inputId="agent-run-switch"
-              name="agent-run-switch"
-              compact
-              checked={isRunning}
-              onToggle={() =>
-                update({
-                  status: isRunning
-                    ? UserInterestStatus.Paused
-                    : UserInterestStatus.Active,
-                })
-              }
-            />
-          </FlexRow>
-
-          {interest?.lastRunAt && (
-            <Typography
-              type={TypographyType.Caption2}
-              color={TypographyColor.Quaternary}
-            >
-              {'Last run '}
-              <DateFormat
-                date={interest.lastRunAt}
-                type={TimeFormatType.Post}
-              />
-            </Typography>
-          )}
-
-          <span className="h-px bg-border-subtlest-tertiary" />
-
-          {/* Activity has its own icon in the header row, so it is not
-              repeated here. */}
-          <MenuRow
-            icon={<SettingsIcon size={IconSize.Size16} />}
-            label="Settings"
-            onClick={() => setSettingsOpen(true)}
-          />
-        </FlexCol>
+        {body}
       </PopoverContent>
     </Popover>
   );

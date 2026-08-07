@@ -9,6 +9,7 @@ import {
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { AtIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import { useMediaClient } from '../../../hooks/useMedia';
 import type { AgentAttachment } from '../chat';
 import { useAgent } from '../AgentContext';
 
@@ -52,9 +53,16 @@ export const AgentAddToChatButton = ({
   const { attachContext, attachments } = useAgent();
   const isAttached = attachments.some(({ id }) => id === attachment.id);
   const label = isAttached ? 'In the chat' : 'Add to chat';
+  // A finger has no hover, so a revealed button has to be on screen the whole
+  // time — and a permanent 130px button squeezes a post title into five lines.
+  // On touch it keeps the glyph and drops the words.
+  // Client-only: the label differs between the two, and deciding it during the
+  // server render is a hydration mismatch.
+  const isTouch = useMediaClient(['(hover: none)'], [true], false);
+  const isGlyphOnly = iconOnly || (reveal && isTouch);
 
   return (
-    <Tooltip content={label} visible={iconOnly}>
+    <Tooltip content={label} visible={isGlyphOnly}>
       <Button
         icon={<AtIcon size={IconSize.Size16} />}
         size={size}
@@ -80,7 +88,7 @@ export const AgentAddToChatButton = ({
           onAttached?.();
         }}
       >
-        {iconOnly ? undefined : label}
+        {isGlyphOnly ? undefined : label}
       </Button>
     </Tooltip>
   );
