@@ -122,9 +122,11 @@ const Monitor = (): ReactElement => (
       >
         Collapsed, the strip is a ticker: each agent's latest in rotation, with
         the bell on the right carrying the only number that asks for anything.
-        Click it to open the list, click out or press Escape to close, and the
-        rotation stops while it is open. Rows are built like a pull-request
-        list: state as a coloured word, then whose it is, then what it says.
+        Clicking it opens what came back, and a row under that list opens
+        every agent whatever it is doing. Click out or press Escape to close;
+        the rotation stops while it is open. Rows are built like a
+        pull-request list: state as a coloured word, then whose it is, then
+        what it says.
       </Typography>
     </FlexCol>
 
@@ -145,7 +147,7 @@ const Monitor = (): ReactElement => (
 
       <Stage
         title="Open"
-        note="Expanded: one line per agent, state as a word. Clicking a row opens that agent's conversation at the finding."
+        note="First press: only what came back, with a row under it for the rest. Clicking a row opens that agent's conversation at the finding."
         tall
       >
         <Field items={all} defaultOpen />

@@ -241,6 +241,8 @@ const WaitingRow = ({
  * No toast and no badge elsewhere in the chrome, on purpose: a toast leaves
  * with the news, and a second badge is a second inbox to check.
  */
+type AgentMonitorView = 'collapsed' | 'waiting' | 'all';
+
 export const AgentMonitor = ({
   items,
   defaultOpen,
@@ -249,15 +251,22 @@ export const AgentMonitor = ({
   /** Opened for you when a run lands while you are on the feed. */
   defaultOpen?: boolean;
 }): ReactElement | null => {
-  const [isExpanded, setExpanded] = useState(!!defaultOpen);
+  // Three steps rather than two: shut, everything that came back, then every
+  // agent whatever it is doing. Opening the list to hunt for the two rows that
+  // want you among six that do not is the thing this avoids.
+  const [view, setView] = useState<AgentMonitorView>(
+    defaultOpen ? 'waiting' : 'collapsed',
+  );
   const [dismissed, setDismissed] = useState<string[]>([]);
   const [cursor, setCursor] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const count = items.length;
 
-  useOutsideClick(containerRef, () => setExpanded(false), isExpanded);
+  const isExpanded = view !== 'collapsed';
+
+  useOutsideClick(containerRef, () => setView('collapsed'), isExpanded);
   useKeyboardNavigation(globalThis?.window, [
-    ['Escape', () => setExpanded(false)],
+    ['Escape', () => setView('collapsed')],
   ]);
 
   useEffect(() => {
@@ -287,17 +296,32 @@ export const AgentMonitor = ({
   const shown = waiting.slice(0, shownByDefault);
   const hidden = waiting.length - shown.length;
   const fresh = waiting.length;
+  // Nothing came back, so "what is waiting" would be an empty list: the first
+  // press goes straight to everything instead.
+  const listed = view === 'all' || !fresh ? items : waiting;
+  const rest = items.length - listed.length;
   // Modulo again here: the list can shrink under a cursor that has moved on.
   const showing = items[cursor % count];
 
   return (
     <FlexCol className="gap-1" ref={containerRef}>
       {isExpanded ? (
-        <ol className="agent-line-in max-h-72 overflow-y-auto">
-          {items.map((item) => (
-            <AgentRow key={item.id} item={item} />
-          ))}
-        </ol>
+        <FlexCol className="agent-line-in">
+          <ol className="max-h-72 overflow-y-auto">
+            {listed.map((item) => (
+              <AgentRow key={item.id} item={item} />
+            ))}
+          </ol>
+          {!!rest && (
+            <button
+              type="button"
+              onClick={() => setView('all')}
+              className="rounded-10 px-2 py-1.5 text-left text-text-tertiary transition-colors typo-caption1 hover:bg-surface-hover hover:text-text-primary"
+            >
+              {`Show all ${items.length} agents`}
+            </button>
+          )}
+        </FlexCol>
       ) : (
         shown.map((item) => (
           <WaitingRow
@@ -312,7 +336,11 @@ export const AgentMonitor = ({
         type="button"
         aria-expanded={isExpanded}
         aria-label={`Agent monitor: ${fresh} waiting, ${count} in total`}
-        onClick={() => setExpanded((current) => !current)}
+        onClick={() =>
+          setView((current) =>
+            current === 'collapsed' ? 'waiting' : 'collapsed',
+          )
+        }
         // The whole strip is the control, edge to edge and over the bell, and
         // tall enough to be an easy target rather than a 28px sliver.
         className="flex w-full items-center gap-2 rounded-10 px-2 py-2 text-left transition-colors hover:bg-surface-hover"
@@ -320,13 +348,15 @@ export const AgentMonitor = ({
         {/* Keyed on what it is showing, so a turn of the ticker plays the new
             line in instead of swapping the text under you. */}
         <Typography
-          key={isExpanded ? 'expanded' : showing.id}
+          key={isExpanded ? view : showing.id}
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
           className="agent-line-in min-w-0 flex-1 truncate"
         >
           {isExpanded ? (
-            `${count} ${count === 1 ? 'agent' : 'agents'}`
+            `${listed.length} ${
+              listed === waiting ? 'waiting for you' : 'agents'
+            }`
           ) : (
             <>
               <strong className="text-text-primary">{showing.name}</strong>
