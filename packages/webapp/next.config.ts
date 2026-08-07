@@ -263,6 +263,12 @@ const nextConfig: NextConfig = {
           destination: '/posts/:id',
           permanent: false,
         },
+        // layout v2 pages are selected through middleware only
+        {
+          source: '/layout-v2/:path*',
+          destination: '/:path*',
+          permanent: false,
+        },
         // so we can't access /plus/gift route directly
         {
           source: '/plus/gift',

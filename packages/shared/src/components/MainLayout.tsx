@@ -76,6 +76,8 @@ export interface MainLayoutProps
   canGoBack?: string;
   hideBackButton?: boolean;
   hideFeedbackWidget?: boolean;
+  /** Uses the server-selected layout shell before client boot resolves. */
+  layoutVariant?: 'v1' | 'v2';
   /**
    * Layout v2 only. Rendered above the floating feed card, alongside the
    * built-in reading-reminder TopHero. Pages can pass dynamic banners
@@ -102,6 +104,7 @@ function MainLayoutComponent({
   canGoBack,
   hideFeedbackWidget = false,
   topBanner,
+  layoutVariant,
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -130,7 +133,14 @@ function MainLayoutComponent({
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const { screenCenteredOnMobileLayout } = useFeedLayout();
   const { isNotificationsReady, unreadCount } = useNotificationContext();
-  const { isV2, isLoading: isLayoutVariantLoading } = useLayoutVariant();
+  const { isV2: evaluatedIsV2, isLoading: evaluatedLayoutVariantLoading } =
+    useLayoutVariant();
+  const isLayoutVariantForced = layoutVariant !== undefined;
+  const isForcedV2 = layoutVariant === 'v2';
+  const isV2 = isForcedV2 || (!isLayoutVariantForced && evaluatedIsV2);
+  const isLayoutVariantLoading = isLayoutVariantForced
+    ? false
+    : evaluatedLayoutVariantLoading;
   useRecordRecentPages(isV2);
   useNotificationParams();
   useFeedbackShortcut();
@@ -206,7 +216,8 @@ function MainLayoutComponent({
   // `isLaptop` alone made the server emit one and the client skip it, which
   // shifted `<main>` and broke hydration.
   const isLayoutChromeResolved =
-    !isHoldingChrome && (!isLaptop || !isLayoutVariantLoading);
+    isLayoutVariantForced ||
+    (!isHoldingChrome && (!isLaptop || !isLayoutVariantLoading));
 
   // Extension new tab mounts its own `ExtensionTopBanners` strip, so
   // the webapp strip is suppressed there to avoid duplicate cards.
@@ -221,7 +232,11 @@ function MainLayoutComponent({
   // floating-card treatment, and the global feedback widget is suppressed
   // because the rail provides its own.
   const sidebarOwnsHeader =
-    isV2 && (isLoggedIn || isExtension) && showSidebar && sidebarRendered;
+    isV2 &&
+    (isForcedV2 || isLoggedIn || isExtension) &&
+    showSidebar &&
+    (isForcedV2 || sidebarRendered);
+  const shouldRenderHeader = !sidebarOwnsHeader && isLayoutChromeResolved;
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
@@ -334,13 +349,10 @@ function MainLayoutComponent({
         />
       )}
 
-      {/* Temporary while layout v2 is experimental: production users are on
-          v1, so render its header in the initial HTML instead of waiting for
-          feature resolution and delaying the post page's LCP. */}
-      {!sidebarOwnsHeader && (
+      {shouldRenderHeader && (
         <MainLayoutHeader
           hasBanner={isBannerAvailable}
-          sidebarRendered={sidebarRendered}
+          sidebarRendered={layoutVariant === 'v1' ? false : sidebarRendered}
           additionalButtons={additionalButtons}
           onLogoClick={onLogoClick}
         />
@@ -350,7 +362,7 @@ function MainLayoutComponent({
           'flex flex-col',
           animateContentPadding &&
             'transition-[padding] duration-300 ease-in-out',
-          !sidebarOwnsHeader && 'laptop:pt-16',
+          shouldRenderHeader && 'laptop:pt-16',
           showSidebar &&
             (isV2 ? v2CollapsedPadding : 'tablet:pl-16 laptop:pl-11'),
           className,
@@ -358,7 +370,7 @@ function MainLayoutComponent({
             showSidebar &&
             (sidebarExpanded || forceSidebarExpanded) &&
             (isV2 ? v2ExpandedPadding : !isScreenCentered && 'laptop:!pl-60'),
-          isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
+          isBannerAvailable && shouldRenderHeader && 'laptop:pt-24',
         )}
       >
         {isAuthReady && isLayoutChromeResolved && showSidebar && (

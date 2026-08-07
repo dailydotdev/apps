@@ -52,6 +52,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
+import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -127,6 +128,7 @@ export interface Props extends DynamicSeoProps {
   initialData?: PostData;
   topComments?: Comment[];
   error?: ApiError;
+  isLayoutV2?: boolean;
 }
 
 type PostContentComponent = ComponentType<PostContentProps>;
@@ -169,6 +171,7 @@ export const PostPage = ({
   initialData,
   topComments,
   error,
+  isLayoutV2,
 }: Props): ReactElement => {
   useJoinReferral();
   const { logEvent } = useLogContext();
@@ -199,6 +202,10 @@ export const PostPage = ({
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
+    // PageBodyContainer uses `m-auto` for horizontal centering. Inside the v2
+    // flex card, its auto top margin consumes spare height and pushes the
+    // <main>/<aside> wrapper down. Keep that spare height below the content.
+    isLayoutV2 && 'laptop:!mt-0',
     [
       PostType.Share,
       PostType.Welcome,
@@ -307,10 +314,12 @@ export const PostPage = ({
 };
 
 PostPage.getLayout = getLayout;
-PostPage.layoutProps = {
+export const postPageLayoutProps: MainLayoutProps = {
   screenCentered: false,
   customBanner: <CustomAuthBanner />,
+  layoutVariant: 'v1',
 };
+PostPage.layoutProps = postPageLayoutProps;
 
 export default PostPage;
 
