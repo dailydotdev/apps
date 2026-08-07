@@ -100,7 +100,7 @@ export const FeedSettingsEditHeader = (): ReactElement | null => {
     feature: featureFeedChips,
     shouldEvaluate: !isPlus,
   });
-  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
+  const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const {
     value: { full: plusCta },
   } = useConditionalFeature({
