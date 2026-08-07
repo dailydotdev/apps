@@ -146,6 +146,7 @@ export const getProductsQueryOptions = () => {
 
 export enum UserTransactionType {
   PostBoost = 'post_boost',
+  User = 'user',
 }
 
 export enum UserTransactionStatus {
