@@ -260,7 +260,9 @@ export const AgentHomeScreen = ({
             </FlexRow>
           </FlexCol>
 
-          <FlexRow className="agent-fade-right no-scrollbar items-center gap-1.5 overflow-x-auto px-0.5">
+          {/* `pr-6` matches the fade's width, so the last starter clears the
+              mask when the row is scrolled to its end. */}
+          <FlexRow className="agent-fade-right no-scrollbar items-center gap-1.5 overflow-x-auto pl-0.5 pr-6">
             {starters.map((starter) => (
               <Tooltip
                 key={starter}

@@ -465,7 +465,10 @@ export const AgentComposer = (): ReactElement => {
         </ConditionalWrapper>
 
         <FlexRow className="items-center gap-2 px-0.5">
-          <FlexRow className="agent-fade-right no-scrollbar min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
+          {/* `pr-6` is the fade's own width: it gives the row an inch of
+              trailing space so the last chip lands clear of the mask at the
+              end of the scroll instead of sitting half-dimmed under it. */}
+          <FlexRow className="agent-fade-right no-scrollbar min-w-0 flex-1 items-center gap-1.5 overflow-x-auto pr-6">
             {quickCommands.map((quick) => (
               <Tooltip
                 key={quick.name}

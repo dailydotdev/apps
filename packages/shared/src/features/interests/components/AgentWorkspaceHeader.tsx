@@ -82,9 +82,11 @@ export const AgentWorkspaceHeader = (): ReactElement => {
         </Link>
       </Tooltip>
       <AgentStatusTile />
-      <strong className="min-w-0 shrink truncate typo-footnote">
+      {/* The page's heading now that the transcript no longer opens with one:
+          the name is only written once, and this is where it is written. */}
+      <h1 className="min-w-0 shrink truncate font-bold typo-footnote">
         {interest?.query ?? 'Your agent'}
-      </strong>
+      </h1>
       <span className="flex-1" />
       <FlexRow className="shrink-0 items-center gap-0.5">
         <PanelButton
