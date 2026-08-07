@@ -190,7 +190,15 @@ const MessageActions = ({
 
   return (
     <FlexCol className="gap-1">
-      <FlexRow className="items-center gap-0.5 opacity-0 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100">
+      <FlexRow
+        className={classNames(
+          'items-center gap-0.5 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100',
+          // Once voted the row stays: the note under it is permanent, and a
+          // line of feedback floating under buttons that vanished reads as
+          // orphaned text.
+          !vote && 'opacity-0',
+        )}
+      >
         <Tooltip content={isCopied ? 'Copied' : 'Copy reply'}>
           <Button
             icon={
