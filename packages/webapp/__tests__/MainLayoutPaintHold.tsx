@@ -73,6 +73,13 @@ describe('MainLayout before boot resolves', () => {
     expect(content.closest('div.antialiased')).not.toHaveClass('invisible');
   });
 
+  it('renders the header before the layout experiment resolves', () => {
+    mockRouter('/posts/[id]');
+    renderLayout();
+
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+  });
+
   it('still renders nothing for feed-shaped pages', () => {
     mockRouter('/popular');
     renderLayout();

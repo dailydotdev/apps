@@ -334,7 +334,7 @@ function MainLayoutComponent({
         />
       )}
 
-      {!sidebarOwnsHeader && isLayoutChromeResolved && (
+      {!sidebarOwnsHeader && (
         <MainLayoutHeader
           hasBanner={isBannerAvailable}
           sidebarRendered={sidebarRendered}
