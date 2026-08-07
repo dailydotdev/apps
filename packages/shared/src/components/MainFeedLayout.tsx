@@ -86,6 +86,7 @@ import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
 import { FeedExploreTabs } from './header/FeedExploreTabs';
+import { AgentExploreEntry } from '../features/interests/components/AgentExploreEntry';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
@@ -757,11 +758,16 @@ export default function MainFeedLayout({
   return (
     <>
       {showExploreV2PageHeader && (
-        <header className={classNames(pageHeaderClassName, '!py-0')}>
-          {/* Sort options as pill tabs — same navbar as the Tags / Squad
-              directory pages, not the underlined TabContainer. */}
-          <FeedExploreTabs />
-        </header>
+        <>
+          {/* Search and agents are the two ways of going to look for
+              something, so they sit together above the sorts. */}
+          <AgentExploreEntry />
+          <header className={classNames(pageHeaderClassName, '!py-0')}>
+            {/* Sort options as pill tabs — same navbar as the Tags / Squad
+                directory pages, not the underlined TabContainer. */}
+            <FeedExploreTabs />
+          </header>
+        </>
       )}
       {showFeedV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>

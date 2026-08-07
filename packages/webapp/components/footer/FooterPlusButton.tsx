@@ -15,11 +15,15 @@ import {
 import {
   EditIcon,
   LinkIcon,
+  MagicIcon,
   MicrophoneIcon,
   PlusIcon,
   PollIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { link } from '@dailydotdev/shared/src/lib/links';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import { featureInterestAgent } from '@dailydotdev/shared/src/lib/featureManagement';
 import { RootPortal } from '@dailydotdev/shared/src/components/tooltips/Portal';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useStandupCreation } from '@dailydotdev/shared/src/hooks/liveRooms/useStandupCreation';
@@ -51,6 +55,10 @@ export function FooterPlusButton({
 }: FooterPlusButtonProps): ReactElement {
   const { user } = useAuthContext();
   const isStandupCreationEnabled = useStandupCreation();
+  const { value: agentEnabled } = useConditionalFeature({
+    feature: featureInterestAgent,
+    shouldEvaluate: !!user,
+  });
   const drawerRef = useRef<DrawerRef>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const props = user
@@ -100,6 +108,15 @@ export function FooterPlusButton({
                 href={`${link.post.create}?standup=1`}
               >
                 Standup
+              </ActionButton>
+            )}
+            {agentEnabled && (
+              <ActionButton
+                tag="a"
+                icon={<MagicIcon />}
+                href={`${webappUrl}agent`}
+              >
+                Agent
               </ActionButton>
             )}
           </div>
