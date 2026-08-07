@@ -6,14 +6,19 @@ import {
   CREATE_FEED_MUTATION,
   UPDATE_FEED_MUTATION,
   DELETE_FEED_MUTATION,
+  TagChipSeedStrategy,
 } from '../../graphql/feed';
 import { generateQueryKey, RequestKey, StaleTime } from '../../lib/query';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { labels } from '../../lib';
 import { useToastNotification } from '../useToastNotification';
 import { gqlClient } from '../../graphql/common';
-import { useFeedChipsVariant } from './useFeedChipsVariant';
 import { useOnboardingActions } from '../auth/useOnboardingActions';
+import { useConditionalFeature } from '../useConditionalFeature';
+import {
+  FeedChipsVariant,
+  featureFeedChips,
+} from '../../lib/featureManagement';
 
 export type CreateFeedProps = {
   name: string;
@@ -36,12 +41,22 @@ export const useFeeds = (): UseFeeds => {
   const { displayToast } = useToastNotification();
   const { user, feeds: bootFeeds } = useAuthContext();
   const { isOnboardingComplete } = useOnboardingActions();
-  const { hasTagChipFeeds, tagChipSeedStrategy } = useFeedChipsVariant();
-  const includeTagChipFeeds = hasTagChipFeeds && isOnboardingComplete;
+
+  const { value: feedChipsVariant } = useConditionalFeature({
+    feature: featureFeedChips,
+    shouldEvaluate: !!user,
+  });
+  const includeTagChipFeeds =
+    feedChipsVariant !== FeedChipsVariant.None && isOnboardingComplete;
+  const seedStrategy =
+    feedChipsVariant === FeedChipsVariant.V3
+      ? TagChipSeedStrategy.V3
+      : TagChipSeedStrategy.V2;
+  const tagChipSeedStrategy = includeTagChipFeeds ? seedStrategy : undefined;
 
   const queryKey = generateQueryKey(RequestKey.Feeds, user, {
     includeTagChipFeeds,
-    tagChipSeedStrategy,
+    ...(tagChipSeedStrategy && { tagChipSeedStrategy }),
   });
 
   const initialData: FeedList['feedList'] | undefined = useMemo(() => {
@@ -61,7 +76,7 @@ export const useFeeds = (): UseFeeds => {
     queryFn: async () => {
       const result = await gqlClient.request<FeedList>(FEED_LIST_QUERY, {
         includeTagChipFeeds,
-        tagChipSeedStrategy,
+        ...(tagChipSeedStrategy && { tagChipSeedStrategy }),
       });
 
       return result.feedList;

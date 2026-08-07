@@ -17,7 +17,8 @@ import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import { NewStripCta } from './NewStripCta';
 import { findActiveChipId } from './exploreCategories';
 import type { FeedOrigin } from '../../graphql/feed';
-import { useFeedChipsVariant } from '../../hooks/feed/useFeedChipsVariant';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureFeedChips } from '../../lib/featureManagement';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -52,7 +53,10 @@ function UnifiedMobileFeedNav(): ReactElement {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const { logEvent } = useLogContext();
-  const { variant } = useFeedChipsVariant();
+  const { value: variant } = useConditionalFeature({
+    feature: featureFeedChips,
+    shouldEvaluate: isLoggedIn,
+  });
   const { isEnabled } = useDailyPage();
   const showDailySwitcher = isLoggedIn && isEnabled;
 
