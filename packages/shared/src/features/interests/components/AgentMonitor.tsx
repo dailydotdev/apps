@@ -313,7 +313,9 @@ export const AgentMonitor = ({
         aria-expanded={isExpanded}
         aria-label={`Agent monitor: ${fresh} waiting, ${count} in total`}
         onClick={() => setExpanded((current) => !current)}
-        className="flex w-full items-center gap-2 rounded-10 px-2 py-1 text-left transition-colors hover:bg-surface-hover"
+        // The whole strip is the control, edge to edge and over the bell, and
+        // tall enough to be an easy target rather than a 28px sliver.
+        className="flex w-full items-center gap-2 rounded-10 px-2 py-2 text-left transition-colors hover:bg-surface-hover"
       >
         {/* Keyed on what it is showing, so a turn of the ticker plays the new
             line in instead of swapping the text under you. */}

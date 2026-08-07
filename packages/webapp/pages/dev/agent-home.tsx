@@ -3,7 +3,7 @@ import React from 'react';
 import { NextSeo } from 'next-seo';
 import { AgentDemoProviders } from '@dailydotdev/shared/src/features/interests/components/AgentDemoProviders';
 import { AgentHomeScreen } from '@dailydotdev/shared/src/features/interests/components/AgentHomeScreen';
-import { mockAgents } from '@dailydotdev/shared/src/features/interests/mock';
+import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
 
 /**
  * /dev/agent-home — internal review surface for the agents home screen.
@@ -15,7 +15,7 @@ const Page = (): ReactElement => (
   <AgentDemoProviders>
     <NextSeo title="Agents" noindex nofollow />
     <AgentHomeScreen
-      agents={mockAgents}
+      agents={recentMockAgents()}
       onCreate={() => undefined}
       isStandalone
     />

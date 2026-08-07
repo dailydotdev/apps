@@ -22,9 +22,9 @@ import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { webappUrl } from '../../../lib/constants';
 import type { UserInterest } from '../../../graphql/interests';
-import { UserInterestStatus } from '../../../graphql/interests';
 import { useAgentShellHeight } from '../shell';
-import { AgentMark } from './AgentMark';
+import type { AgentMonitorItem } from './AgentMonitor';
+import { AgentState, toMonitorItems } from './AgentMonitor';
 import { composerBar, composerFrame } from './AgentComposer';
 
 const maxFieldHeight = 120;
@@ -38,45 +38,31 @@ const starters = [
   'CLI tools worth stealing from',
 ];
 
-const cadenceCopy: Record<string, string> = {
-  hourly: 'Hunting hourly',
-  daily: 'Hunting daily',
-  weekly: 'Hunting weekly',
-};
-
-const agentLine = (agent: UserInterest): string => {
-  if (agent.status !== UserInterestStatus.Active) {
-    return 'Paused';
-  }
-
-  return agent.lastRunSummary ?? cadenceCopy[agent.cadence] ?? 'Hunting';
-};
-
 /**
  * One agent as one line.
  *
- * A list rather than a wall of cards: what you do here is scan a dozen names
- * for the one you want, so every agent takes one row and the columns line up
- * down the screen.
+ * Same reading as the monitor over the feed: the state first as a coloured
+ * word, so the ones that came back with something are findable without
+ * reading a single name, then who it is and what it said.
  */
-const AgentRow = ({ agent }: { agent: UserInterest }): ReactElement => (
+const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => (
   <li className="[&:first-child>a]:rounded-t-12 [&:last-child>a]:rounded-b-12">
-    <Link href={`${webappUrl}agent/${agent.id}`}>
+    <Link href={`${webappUrl}agent/${item.id}`}>
       <a className="group/item flex items-center gap-3 px-3 py-2 transition-colors hover:bg-surface-float">
-        <AgentMark status={agent.status} />
+        <AgentState state={item.state} />
         <Typography
           type={TypographyType.Footnote}
           bold
           className="min-w-0 flex-1 truncate"
         >
-          {agent.query}
+          {item.name}
         </Typography>
         <Typography
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
           className="hidden min-w-0 max-w-[16rem] shrink truncate tablet:block"
         >
-          {agentLine(agent)}
+          {item.line}
         </Typography>
         {/* The column holds its width whether or not the agent has run, so
             the rows read as a table rather than as four ragged lines. */}
@@ -85,8 +71,8 @@ const AgentRow = ({ agent }: { agent: UserInterest }): ReactElement => (
           color={TypographyColor.Quaternary}
           className="w-16 shrink-0 text-right tabular-nums"
         >
-          {agent.lastRunAt ? (
-            <DateFormat date={agent.lastRunAt} type={TimeFormatType.Post} />
+          {item.at ? (
+            <DateFormat date={item.at} type={TimeFormatType.LastActivity} />
           ) : (
             'Not yet'
           )}
@@ -127,9 +113,9 @@ export const AgentHomeScreen = ({
   const shellHeight = useAgentShellHeight(isStandalone);
   const fieldRef = useRef<HTMLTextAreaElement>(null);
   const [query, setQuery] = useState('');
-  const running = agents.filter(
-    ({ status }) => status === UserInterestStatus.Active,
-  ).length;
+  const items = toMonitorItems(agents);
+  const waiting = items.filter(({ state }) => state === 'new').length;
+  const running = items.filter(({ state }) => state !== 'paused').length;
 
   const resize = () => {
     const field = fieldRef.current;
@@ -168,7 +154,9 @@ export const AgentHomeScreen = ({
           type={TypographyType.Caption1}
           color={TypographyColor.Quaternary}
         >
-          {running ? `${running} hunting` : 'None hunting'}
+          {waiting
+            ? `${waiting} waiting for you`
+            : `${running || 'None'} hunting`}
         </Typography>
       </FlexRow>
 
@@ -214,8 +202,8 @@ export const AgentHomeScreen = ({
                   : `Your ${agents.length} agents`}
               </Typography>
               <ol className="divide-y divide-border-subtlest-quaternary rounded-12 border border-border-subtlest-tertiary">
-                {agents.map((agent) => (
-                  <AgentRow key={agent.id} agent={agent} />
+                {items.map((item) => (
+                  <AgentRow key={item.id} item={item} />
                 ))}
               </ol>
             </FlexCol>
