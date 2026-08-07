@@ -160,7 +160,7 @@ export const AgentHomeScreen = ({
         </Typography>
       </FlexRow>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 tablet:px-8 laptop:px-10">
+      <div className="agent-scroll min-h-0 flex-1 overflow-y-auto px-5 tablet:px-8 laptop:px-10">
         {/* Centred while the list is short, scrolling from the top once it is
             long enough to fill the screen. */}
         <FlexCol className="mx-auto min-h-full w-full max-w-[45rem] justify-center gap-6 py-6">
@@ -215,7 +215,7 @@ export const AgentHomeScreen = ({
         {/* Softens the hard cut where the list disappears behind the bar. */}
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-full h-12 bg-gradient-to-t from-background-default to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-full -mb-px h-12 bg-gradient-to-t from-background-default to-transparent"
         />
         <FlexCol className="relative mx-auto w-full max-w-[45rem] gap-2">
           <FlexCol className={composerFrame}>
@@ -260,7 +260,7 @@ export const AgentHomeScreen = ({
             </FlexRow>
           </FlexCol>
 
-          <FlexRow className="no-scrollbar items-center gap-1.5 overflow-x-auto px-0.5">
+          <FlexRow className="agent-fade-right no-scrollbar items-center gap-1.5 overflow-x-auto px-0.5">
             {starters.map((starter) => (
               <Tooltip
                 key={starter}

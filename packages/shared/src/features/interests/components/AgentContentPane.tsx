@@ -148,7 +148,10 @@ export const AgentContentPane = ({
 
   return (
     <aside
-      className="absolute inset-0 z-modal flex flex-col bg-background-default laptop:relative laptop:inset-auto laptop:z-0 laptop:h-full laptop:shrink-0 laptop:border-l laptop:border-border-subtlest-tertiary"
+      // A window rather than a wall. On mobile it is the whole screen; from
+      // laptop up it is a card floating in the workspace, inset on every side,
+      // so the conversation stays the room and this is a thing set down in it.
+      className="absolute inset-0 z-modal flex flex-col bg-background-default laptop:relative laptop:inset-auto laptop:z-0 laptop:h-full laptop:shrink-0 laptop:bg-transparent laptop:p-2 laptop:pl-0"
       style={isLaptop ? { width } : undefined}
       aria-label="Agent content panel"
     >
@@ -162,137 +165,143 @@ export const AgentContentPane = ({
         <span className="h-10 w-1 rounded-6 bg-transparent transition-colors group-hover:bg-text-quaternary" />
       </div>
 
-      {/* Same inset as the conversation's header, so the two 48px control rows
+      <FlexCol className="min-h-0 flex-1 overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary laptop:bg-background-subtle laptop:shadow-2">
+        {/* Same inset as the conversation's header, so the two 48px control rows
           start and end on the same margin. */}
-      <FlexRow className="h-12 shrink-0 items-center gap-1 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
-        <FlexRow
-          role="tablist"
-          className="no-scrollbar min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1"
-        >
-          {openContent.map((target) => {
-            const targetId = contentTargetId(target);
-            const isActive = targetId === activeContentId;
+        <FlexRow className="h-12 shrink-0 items-center gap-1 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
+          <FlexRow
+            role="tablist"
+            className="no-scrollbar min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1"
+          >
+            {openContent.map((target) => {
+              const targetId = contentTargetId(target);
+              const isActive = targetId === activeContentId;
 
-            return (
-              <span
-                key={targetId}
-                className={classNames(
-                  'group flex h-8 w-fit max-w-[13rem] shrink-0 items-center gap-1.5 rounded-8 pl-2 pr-1 transition-colors',
-                  // The selected chip is lifted onto an opaque surface — the
-                  // raised-tab read. Every float token in the set is an 8%
-                  // wash over the same background, which is too close to
-                  // "no fill" to carry selection on its own.
-                  isActive ? 'bg-background-subtle' : 'hover:bg-surface-hover',
-                )}
-              >
-                <button
-                  type="button"
-                  role="tab"
-                  aria-label={tabLabel(target)}
-                  aria-selected={isActive}
-                  onClick={() => focusContent(targetId)}
+              return (
+                <span
+                  key={targetId}
                   className={classNames(
-                    'flex h-full min-w-0 flex-1 items-center gap-1.5',
-                    isActive ? 'text-text-primary' : 'text-text-quaternary',
+                    'group flex h-8 w-fit max-w-[13rem] shrink-0 items-center gap-1.5 rounded-8 pl-2 pr-1 transition-colors',
+                    // The selected chip is lifted onto an opaque surface — the
+                    // raised-tab read. Every float token in the set is an 8%
+                    // wash over the same background, which is too close to
+                    // "no fill" to carry selection on its own.
+                    isActive
+                      ? 'bg-background-subtle'
+                      : 'hover:bg-surface-hover',
                   )}
                 >
-                  {tabIcon[target.type]}
-                  <Typography
-                    type={TypographyType.Caption1}
-                    bold={isActive}
-                    color={
-                      isActive
-                        ? TypographyColor.Primary
-                        : TypographyColor.Tertiary
-                    }
-                    className="min-w-0 flex-1 truncate"
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-label={tabLabel(target)}
+                    aria-selected={isActive}
+                    onClick={() => focusContent(targetId)}
+                    className={classNames(
+                      'flex h-full min-w-0 flex-1 items-center gap-1.5',
+                      isActive ? 'text-text-primary' : 'text-text-quaternary',
+                    )}
                   >
-                    {tabLabel(target)}
-                  </Typography>
-                </button>
-                <button
-                  type="button"
-                  aria-label={`Close ${tabLabel(target)}`}
-                  onClick={() => closeContent(targetId)}
-                  className={classNames(
-                    'flex size-5 shrink-0 items-center justify-center rounded-6 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
-                    // Only the tab you are on carries a permanent close. The
-                    // rest reveal one on hover, so a full strip is labels
-                    // rather than a row of crosses.
-                    !isActive &&
-                      'opacity-0 focus-visible:opacity-100 group-hover:opacity-100',
-                  )}
-                >
-                  <MiniCloseIcon size={IconSize.Size16} />
-                </button>
-              </span>
-            );
-          })}
-        </FlexRow>
-        {activeContent?.type === 'post' && (
-          <Tooltip content="Open original">
+                    {tabIcon[target.type]}
+                    <Typography
+                      type={TypographyType.Caption1}
+                      bold={isActive}
+                      color={
+                        isActive
+                          ? TypographyColor.Primary
+                          : TypographyColor.Tertiary
+                      }
+                      className="min-w-0 flex-1 truncate"
+                    >
+                      {tabLabel(target)}
+                    </Typography>
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`Close ${tabLabel(target)}`}
+                    onClick={() => closeContent(targetId)}
+                    className={classNames(
+                      'flex size-5 shrink-0 items-center justify-center rounded-6 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
+                      // Only the tab you are on carries a permanent close. The
+                      // rest reveal one on hover, so a full strip is labels
+                      // rather than a row of crosses.
+                      !isActive &&
+                        'opacity-0 focus-visible:opacity-100 group-hover:opacity-100',
+                    )}
+                  >
+                    <MiniCloseIcon size={IconSize.Size16} />
+                  </button>
+                </span>
+              );
+            })}
+          </FlexRow>
+          {activeContent?.type === 'post' && (
+            <Tooltip content="Open original">
+              <Button
+                tag="a"
+                href={
+                  activeContent.post.commentsPermalink ??
+                  activeContent.post.permalink
+                }
+                target="_blank"
+                rel="noopener"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                icon={<OpenLinkIcon size={IconSize.XSmall} />}
+                aria-label="Open original"
+              />
+            </Tooltip>
+          )}
+          <Tooltip content="Close panel">
             <Button
-              tag="a"
-              href={
-                activeContent.post.commentsPermalink ??
-                activeContent.post.permalink
-              }
-              target="_blank"
-              rel="noopener"
               size={ButtonSize.Small}
               variant={ButtonVariant.Tertiary}
-              icon={<OpenLinkIcon size={IconSize.XSmall} />}
-              aria-label="Open original"
+              icon={<MiniCloseIcon size={IconSize.XSmall} />}
+              aria-label="Close panel"
+              onClick={closeAllContent}
             />
           </Tooltip>
-        )}
-        <Tooltip content="Close panel">
-          <Button
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            icon={<MiniCloseIcon size={IconSize.XSmall} />}
-            aria-label="Close panel"
-            onClick={closeAllContent}
-          />
-        </Tooltip>
-      </FlexRow>
+        </FlexRow>
 
-      <FlexCol
-        className={classNames(
-          'min-h-0 w-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden',
-          postPageGutterChildren,
-          '[&_aside]:!w-full [&_aside]:!max-w-full [&_aside]:!border-l-0 [&_main]:!border-r-0',
-        )}
-      >
-        {activeContent?.type === 'post' && (
-          <PostContent
-            key={activeContent.post.id}
-            post={activeContent.post}
-            origin={Origin.ArticleModal}
-            position="relative"
-            inlineActions
-            className={{
-              // PageBodyContainer draws its own laptop:border-x, which would
-              // double up against the pane's border.
-              container: 'w-full !max-w-none !flex-col !border-x-0',
-              navigation: { actions: 'ml-auto' },
-            }}
-          />
-        )}
-        {activeContent?.type === 'feed' && (
-          <FeedView
-            posts={activeContent.posts}
-            onOpenPost={(post) => openContentTarget({ type: 'post', post })}
-          />
-        )}
-        {activeContent?.type === 'activity' && (
-          <div className={classNames('py-4', postPageGutter)}>
-            <AgentActivitySection />
-          </div>
-        )}
-        {activeContent?.type === 'debug' && (
-          <div className={classNames('py-4', postPageGutter)}>{debugPanel}</div>
-        )}
+        <FlexCol
+          className={classNames(
+            'agent-scroll min-h-0 w-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden',
+            postPageGutterChildren,
+            '[&_aside]:!w-full [&_aside]:!max-w-full [&_aside]:!border-l-0 [&_main]:!border-r-0',
+          )}
+        >
+          {activeContent?.type === 'post' && (
+            <PostContent
+              key={activeContent.post.id}
+              post={activeContent.post}
+              origin={Origin.ArticleModal}
+              position="relative"
+              inlineActions
+              className={{
+                // PageBodyContainer draws its own laptop:border-x, which would
+                // double up against the pane's border.
+                container: 'w-full !max-w-none !flex-col !border-x-0',
+                navigation: { actions: 'ml-auto' },
+              }}
+            />
+          )}
+          {activeContent?.type === 'feed' && (
+            <FeedView
+              posts={activeContent.posts}
+              onOpenPost={(post) => openContentTarget({ type: 'post', post })}
+            />
+          )}
+          {activeContent?.type === 'activity' && (
+            <div className={classNames('py-4', postPageGutter)}>
+              <AgentActivitySection />
+            </div>
+          )}
+          {activeContent?.type === 'debug' && (
+            <div className={classNames('py-4', postPageGutter)}>
+              {debugPanel}
+            </div>
+          )}
+        </FlexCol>
       </FlexCol>
     </aside>
   );

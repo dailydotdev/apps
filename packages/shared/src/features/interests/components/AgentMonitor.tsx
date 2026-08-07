@@ -307,7 +307,7 @@ export const AgentMonitor = ({
     <FlexCol className="gap-1" ref={containerRef}>
       {isExpanded ? (
         <FlexCol className="agent-line-in">
-          <ol className="max-h-72 overflow-y-auto">
+          <ol className="agent-scroll max-h-72 overflow-y-auto">
             {listed.map((item) => (
               <AgentRow key={item.id} item={item} />
             ))}

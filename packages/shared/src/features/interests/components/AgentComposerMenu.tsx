@@ -58,7 +58,7 @@ export const AgentComposerMenu = ({
         <ul
           role="listbox"
           aria-label={label}
-          className="max-h-56 overflow-y-auto p-1"
+          className="agent-scroll max-h-56 overflow-y-auto p-1"
         >
           {items.map((item, index) => (
             <li

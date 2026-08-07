@@ -141,8 +141,10 @@ export const AgentWorkspace = ({
       )}
     >
       {/* Settings take the conversation's whole column, header included,
-          rather than floating over it in a sheet. */}
-      <FlexCol className="min-w-0 flex-1">
+          rather than floating over it in a sheet. The inset matches the
+          panel's, plus the pixel its border takes, so the two header rules
+          land on exactly the same line. */}
+      <FlexCol className="min-w-0 flex-1 laptop:pt-[calc(0.5rem+1px)]">
         {isSettingsOpen ? (
           <AgentSettingsPane onDelete={onDelete} isDeleting={isDeleting} />
         ) : (
@@ -151,7 +153,7 @@ export const AgentWorkspace = ({
             <div
               ref={transcriptRef}
               onScroll={onTranscriptScroll}
-              className="min-h-0 flex-1 overflow-y-auto px-5 tablet:px-8 laptop:px-10"
+              className="agent-scroll min-h-0 flex-1 overflow-y-auto px-5 tablet:px-8 laptop:px-10"
             >
               <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 py-6">
                 <AgentIntro

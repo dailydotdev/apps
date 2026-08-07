@@ -1078,3 +1078,57 @@
     animation: none;
   }
 }
+
+/* A quieter scrollbar for the agent's own columns.
+   Half the width of the global one and dimmer with it: these panes are narrow,
+   the bar runs right beside the line you are reading, and at 8px of solid
+   tertiary it was the loudest thing on the screen. Same hover-reveal as
+   everywhere else, so nothing is on screen until the pointer is in the pane. */
+.agent-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.agent-scroll:hover {
+  scrollbar-color: color-mix(
+      in srgb,
+      var(--theme-border-subtlest-primary),
+      transparent 60%
+    )
+    transparent;
+}
+
+.agent-scroll::-webkit-scrollbar {
+  width: 0.25rem;
+  height: 0.25rem;
+}
+
+.agent-scroll::-webkit-scrollbar-thumb {
+  border-radius: 0.125rem;
+  background: transparent;
+}
+
+.agent-scroll:hover::-webkit-scrollbar-thumb {
+  background: color-mix(
+    in srgb,
+    var(--theme-border-subtlest-primary),
+    transparent 60%
+  );
+}
+
+.agent-scroll:hover::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-text-tertiary);
+}
+
+/* The last inch of a row that scrolls sideways, faded out.
+   Only ever visible when something is actually under it: a row with room to
+   spare has empty space at that edge, so the mask has nothing to dim. Beats a
+   hard cut where a chip is sliced in half against whatever sits next to it. */
+.agent-fade-right {
+  mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - 1.5rem),
+    transparent
+  );
+}

@@ -32,31 +32,39 @@ export const AgentIntro = ({
   const cadence = cadenceCopy[interest?.cadence ?? 'daily'];
 
   return (
-    <FlexCol className="gap-1.5 border-b border-border-subtlest-quaternary pb-5">
-      <span className="flex size-7 items-center justify-center rounded-8 bg-brand-float">
-        <MagicIcon size={IconSize.XSmall} className="text-brand-default" />
+    // The mark beside the name rather than stacked over it: three lines of
+    // header for one agent was a page of its own before the conversation
+    // started.
+    <FlexRow className="items-center gap-3 border-b border-border-subtlest-quaternary pb-5">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-12 bg-brand-float">
+        <MagicIcon size={IconSize.Small} className="text-brand-default" />
       </span>
-      <Typography tag={TypographyTag.H1} type={TypographyType.Body} bold>
-        {interest?.query ?? 'Your interest agent'}
-      </Typography>
-      <FlexRow className="flex-wrap items-center gap-x-1.5 gap-y-1">
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-        >
-          {isPaused ? 'Paused, no scheduled runs' : `Runs ${cadence}`}
-          {` · ${findingsCount} in feed · ${postsCount} posts written`}
+      <FlexCol className="min-w-0 flex-1 gap-0.5">
+        <Typography tag={TypographyTag.H1} type={TypographyType.Body} bold>
+          {interest?.query ?? 'Your interest agent'}
         </Typography>
-        {interest?.lastRunAt && (
+        <FlexRow className="flex-wrap items-center gap-x-1.5 gap-y-1">
           <Typography
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
           >
-            {'· last run '}
-            <DateFormat date={interest.lastRunAt} type={TimeFormatType.Post} />
+            {isPaused ? 'Paused, no scheduled runs' : `Runs ${cadence}`}
+            {` · ${findingsCount} in feed · ${postsCount} posts written`}
           </Typography>
-        )}
-      </FlexRow>
-    </FlexCol>
+          {interest?.lastRunAt && (
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              {'· last run '}
+              <DateFormat
+                date={interest.lastRunAt}
+                type={TimeFormatType.Post}
+              />
+            </Typography>
+          )}
+        </FlexRow>
+      </FlexCol>
+    </FlexRow>
   );
 };

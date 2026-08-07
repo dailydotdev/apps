@@ -134,7 +134,7 @@ export const AgentSettingsPane = ({
         </Typography>
       </FlexRow>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 tablet:px-8 laptop:px-10">
+      <div className="agent-scroll min-h-0 flex-1 overflow-y-auto px-5 tablet:px-8 laptop:px-10">
         <FlexCol className="mx-auto w-full max-w-[45rem] pb-8">
           <Section
             title="When it runs"
