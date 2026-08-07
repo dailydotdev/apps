@@ -20,10 +20,14 @@ import { TimeFormatType } from '../../lib/dateFormat';
 import { IconSize } from '../Icon';
 import type { TransactionItemType } from '../../lib/transaction';
 import { formatCoresCurrency } from '../../lib/utils';
+import type { UserShortProfile } from '../../lib/user';
+import { ProfileLink } from '../profile/ProfileLink';
+import { ProfileTooltip } from '../profile/ProfileTooltip';
 
 export type TransactionItemProps = {
   type: TransactionItemType;
   user: UserImageProps;
+  profileUser?: UserShortProfile;
   date: Date;
   amount: number;
   label: ReactNode;
@@ -59,20 +63,39 @@ const TransactionTypeToIcon: Record<
 export const TransactionItem = ({
   type,
   user,
+  profileUser,
   date,
   amount,
   label,
   extraLabel,
 }: TransactionItemProps): ReactElement => {
+  const linkToProfile = (children: ReactElement): ReactElement => {
+    if (!profileUser) {
+      return children;
+    }
+
+    return (
+      <ProfileTooltip userId={profileUser.id} initialUser={profileUser}>
+        <ProfileLink className="w-fit" href={profileUser.permalink}>
+          {children}
+        </ProfileLink>
+      </ProfileTooltip>
+    );
+  };
+
   return (
     <li className="flex">
       <div className="flex flex-1 items-center gap-2">
         {TransactionTypeToIcon[type]}
-        <ProfilePicture size={ProfileImageSize.Medium} user={user} />{' '}
+        {linkToProfile(
+          <ProfilePicture size={ProfileImageSize.Medium} user={user} />,
+        )}{' '}
         <div className="flex flex-col gap-1">
-          <Typography type={TypographyType.Subhead} bold>
-            {user.name}
-          </Typography>
+          {linkToProfile(
+            <Typography type={TypographyType.Subhead} bold>
+              {user.name}
+            </Typography>,
+          )}
           <div className="flex flex-col flex-wrap">
             <Typography
               className="line-clamp-2 max-w-[200px] tablet:max-w-[360px]"
