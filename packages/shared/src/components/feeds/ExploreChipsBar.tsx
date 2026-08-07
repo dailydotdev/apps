@@ -47,10 +47,12 @@ export function ExploreChipsBar({
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { logEvent } = useLogContext();
   const { isLoggedIn } = useAuthContext();
-  const { value: variant } = useConditionalFeature({
-    feature: featureFeedChips,
-    shouldEvaluate: isLoggedIn,
-  });
+  const { value: variant, isLoading: isVariantLoading } = useConditionalFeature(
+    {
+      feature: featureFeedChips,
+      shouldEvaluate: isLoggedIn,
+    },
+  );
   const { isEnabled } = useDailyPage();
   const showDailySwitcher = isLoggedIn && isEnabled;
 
@@ -130,7 +132,10 @@ export function ExploreChipsBar({
             logEvent({
               event_name: LogEvent.ClickFeedTagChip,
               target_id: category.tag,
-              extra: JSON.stringify({ variant, origin: category.origin }),
+              extra: JSON.stringify({
+                variant: isVariantLoading ? undefined : variant,
+                origin: category.origin,
+              }),
             });
           };
 

@@ -108,7 +108,6 @@ describe('useFeeds hook', () => {
         query: FEED_LIST_QUERY,
         variables: {
           includeTagChipFeeds: true,
-          tagChipSeedStrategy: TagChipSeedStrategy.V2,
         },
       },
       result: () => {

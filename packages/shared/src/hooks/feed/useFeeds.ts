@@ -48,11 +48,10 @@ export const useFeeds = (): UseFeeds => {
   });
   const includeTagChipFeeds =
     feedChipsVariant !== FeedChipsVariant.None && isOnboardingComplete;
-  const seedStrategy =
-    feedChipsVariant === FeedChipsVariant.V3
+  const tagChipSeedStrategy =
+    includeTagChipFeeds && feedChipsVariant === FeedChipsVariant.V3
       ? TagChipSeedStrategy.V3
-      : TagChipSeedStrategy.V2;
-  const tagChipSeedStrategy = includeTagChipFeeds ? seedStrategy : undefined;
+      : undefined;
 
   const queryKey = generateQueryKey(RequestKey.Feeds, user, {
     includeTagChipFeeds,

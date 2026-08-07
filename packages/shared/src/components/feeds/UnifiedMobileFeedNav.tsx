@@ -53,10 +53,12 @@ function UnifiedMobileFeedNav(): ReactElement {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const { logEvent } = useLogContext();
-  const { value: variant } = useConditionalFeature({
-    feature: featureFeedChips,
-    shouldEvaluate: isLoggedIn,
-  });
+  const { value: variant, isLoading: isVariantLoading } = useConditionalFeature(
+    {
+      feature: featureFeedChips,
+      shouldEvaluate: isLoggedIn,
+    },
+  );
   const { isEnabled } = useDailyPage();
   const showDailySwitcher = isLoggedIn && isEnabled;
 
@@ -275,7 +277,7 @@ function UnifiedMobileFeedNav(): ReactElement {
                         event_name: LogEvent.ClickFeedTagChip,
                         target_id: item.tag,
                         extra: JSON.stringify({
-                          variant,
+                          variant: isVariantLoading ? undefined : variant,
                           origin: item.origin,
                         }),
                       });
