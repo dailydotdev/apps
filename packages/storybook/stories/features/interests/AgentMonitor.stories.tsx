@@ -15,10 +15,10 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
-import { mockAgents } from '@dailydotdev/shared/src/features/interests/mock';
+import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
 import { mockFeedPosts } from '@dailydotdev/shared/src/features/interests/mockFeed';
 
-const all = toMonitorItems(mockAgents);
+const all = toMonitorItems(recentMockAgents());
 const quiet: AgentMonitorItem[] = all.map((item) => ({
   ...item,
   state: item.state === 'new' ? 'hunting' : item.state,
@@ -127,8 +127,9 @@ const Monitor = (): ReactElement => (
       >
         Collapsed, the strip is a ticker: each agent's latest in rotation, with
         the bell on the right carrying the only number that asks for anything.
-        Hover to open the list and the rotation stops. Every row is one agent
-        on one line, so a dozen of them still fit in a glance.
+        Click it to open the list, click out or press Escape to close, and the
+        rotation stops while it is open. Rows are built like a pull-request
+        list: state as a coloured word, then whose it is, then what it says.
       </Typography>
     </FlexCol>
 

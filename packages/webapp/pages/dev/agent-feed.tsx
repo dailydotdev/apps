@@ -11,7 +11,7 @@ import {
 import { AgentReviewChips } from '@dailydotdev/shared/src/features/interests/components/AgentReviewChips';
 import { AgentPostCard } from '@dailydotdev/shared/src/features/interests/components/AgentPostCard';
 import { mockFeedPosts } from '@dailydotdev/shared/src/features/interests/mockFeed';
-import { mockAgents } from '@dailydotdev/shared/src/features/interests/mock';
+import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
 
 /**
  * /dev/agent-feed — the glass prompt docked over a feed.
@@ -22,6 +22,7 @@ import { mockAgents } from '@dailydotdev/shared/src/features/interests/mock';
  */
 const Page = (): ReactElement => {
   const [query, setQuery] = useState('');
+  const [agents] = useState(recentMockAgents);
 
   return (
     <AgentDemoProviders>
@@ -47,12 +48,12 @@ const Page = (): ReactElement => {
               onSubmit={() => undefined}
               pending={
                 <AgentReviewChips
-                  items={toMonitorItems(mockAgents).filter(
+                  items={toMonitorItems(agents).filter(
                     ({ state }) => state === 'new',
                   )}
                 />
               }
-              status={<AgentMonitor items={toMonitorItems(mockAgents)} />}
+              status={<AgentMonitor items={toMonitorItems(agents)} />}
               className="max-w-[36rem]"
             />
           </div>

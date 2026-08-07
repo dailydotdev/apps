@@ -51,6 +51,25 @@ export const mockAgents: UserInterest[] = [
   },
 ];
 
+/**
+ * The same agents with their last runs pulled up to a few minutes ago.
+ *
+ * The constants above are stamped once, when the module loads, so on a dev
+ * server that has been up all day every agent has aged out of the
+ * "came back recently" window and the design surfaces show no news at all.
+ */
+export const recentMockAgents = (): UserInterest[] =>
+  mockAgents.map((agent, index) =>
+    agent.lastRunAt
+      ? {
+          ...agent,
+          lastRunAt: new Date(
+            Date.now() - 1000 * 60 * (7 + index * 23),
+          ).toISOString(),
+        }
+      : agent,
+  );
+
 export const mockAgentPosts = [
   {
     id: 'mock-post-1',

@@ -17,7 +17,6 @@ import type { UserInterest } from '../../../graphql/interests';
 import { UserInterestStatus } from '../../../graphql/interests';
 import { useOutsideClick } from '../../../hooks/utils/useOutsideClick';
 import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
-import { AgentMark } from './AgentMark';
 
 export type AgentMonitorState = 'new' | 'hunting' | 'paused';
 
@@ -71,37 +70,52 @@ export const toMonitorItems = (
     };
   });
 
-const stateLabel: Record<AgentMonitorState, string> = {
-  new: 'New',
+/**
+ * The state as a word, the way a pull-request list says "Ready for review".
+ *
+ * A coloured dot and a phrase carry it better than a badge does: at this size
+ * a filled pill is a second object competing with the agent's own name, and
+ * the words are the thing being scanned.
+ */
+export const stateLabel: Record<AgentMonitorState, string> = {
+  new: 'Waiting for you',
   hunting: 'Hunting',
   paused: 'Paused',
 };
 
-const pillClass: Record<AgentMonitorState, string> = {
-  new: 'bg-brand-float text-brand-default',
-  hunting: 'bg-surface-float text-text-tertiary',
-  paused: 'bg-surface-float text-text-quaternary',
+const inkClass: Record<AgentMonitorState, string> = {
+  new: 'text-brand-default',
+  hunting: 'text-action-upvote-default',
+  paused: 'text-text-quaternary',
 };
 
-const StatePill = ({ state }: { state: AgentMonitorState }): ReactElement => (
+const dotClass: Record<AgentMonitorState, string> = {
+  new: 'bg-brand-default',
+  hunting: 'bg-action-upvote-default animate-pulse',
+  paused: 'bg-text-quaternary',
+};
+
+export const AgentState = ({
+  state,
+}: {
+  state: AgentMonitorState;
+}): ReactElement => (
   <span
     className={classNames(
-      'flex shrink-0 items-center gap-1 rounded-6 px-1.5 typo-caption2',
-      pillClass[state],
+      'flex shrink-0 items-center gap-1.5 typo-caption1',
+      inkClass[state],
     )}
   >
-    {state === 'hunting' && (
-      <span
-        aria-hidden
-        className="size-1.5 animate-pulse rounded-6 bg-action-upvote-default"
-      />
-    )}
+    <span
+      aria-hidden
+      className={classNames('size-1.5 rounded-6', dotClass[state])}
+    />
     {stateLabel[state]}
   </span>
 );
 
 /**
- * One agent, one line: who, what, state, when.
+ * One agent, one line: state, who, what, when.
  *
  * Single row on purpose. A dozen agents have to be scannable in one look, and
  * a second line each turns the panel into a page.
@@ -109,16 +123,8 @@ const StatePill = ({ state }: { state: AgentMonitorState }): ReactElement => (
 const Row = ({ item }: { item: AgentMonitorItem }): ReactElement => (
   <li>
     <Link href={`${webappUrl}agent/${item.id}`}>
-      <a className="flex items-center gap-2 rounded-10 px-2 py-1 transition-colors hover:bg-surface-hover">
-        <AgentMark
-          isCompact
-          status={
-            item.state === 'paused'
-              ? UserInterestStatus.Paused
-              : UserInterestStatus.Active
-          }
-          isWorking={item.state === 'hunting'}
-        />
+      <a className="flex items-center gap-2 rounded-10 px-2 py-1.5 transition-colors hover:bg-surface-hover">
+        <AgentState state={item.state} />
         <Typography
           type={TypographyType.Caption1}
           bold
@@ -133,11 +139,10 @@ const Row = ({ item }: { item: AgentMonitorItem }): ReactElement => (
         >
           {item.line}
         </Typography>
-        <StatePill state={item.state} />
         <Typography
           type={TypographyType.Caption2}
           color={TypographyColor.Quaternary}
-          className="w-14 shrink-0 text-right tabular-nums"
+          className="shrink-0 tabular-nums"
         >
           {item.at ? (
             <DateFormat date={item.at} type={TimeFormatType.LastActivity} />
@@ -145,6 +150,11 @@ const Row = ({ item }: { item: AgentMonitorItem }): ReactElement => (
             'Not yet'
           )}
         </Typography>
+        <ArrowIcon
+          size={IconSize.XSmall}
+          className="shrink-0 rotate-90 text-text-quaternary"
+          aria-hidden
+        />
       </a>
     </Link>
   </li>

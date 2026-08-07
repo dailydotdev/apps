@@ -14,14 +14,23 @@ import {
 } from '../../../components/buttons/Button';
 import { MiniCloseIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import { DateFormat } from '../../../components/utilities/DateFormat';
+import { TimeFormatType } from '../../../lib/dateFormat';
 import { webappUrl } from '../../../lib/constants';
 import type { AgentMonitorItem } from './AgentMonitor';
-import { AgentMark } from './AgentMark';
-import { UserInterestStatus } from '../../../graphql/interests';
+import { AgentState } from './AgentMonitor';
 
 // Two, then a count. Any more and the field is buried under its own news.
 const shownByDefault = 2;
 
+/**
+ * A finding waiting on you, as one row.
+ *
+ * Built like a pull-request row: the state first, as a coloured word, then
+ * whose it is, then what it says, with everything else muted on the right. No
+ * leading tile and no solid button — a stack of these has to read as a shelf
+ * you scan, not as four alerts.
+ */
 const Chip = ({
   item,
   onDismiss,
@@ -29,15 +38,21 @@ const Chip = ({
   item: AgentMonitorItem;
   onDismiss: () => void;
 }): ReactElement => (
-  <FlexRow className="items-center gap-2 rounded-10 bg-surface-float py-1 pl-2 pr-1">
-    <AgentMark isCompact status={UserInterestStatus.Active} />
-    <Typography
-      type={TypographyType.Caption1}
-      bold
-      className="max-w-[9rem] shrink-0 truncate"
-    >
-      {item.name}
-    </Typography>
+  <FlexRow className="relative items-center gap-2 rounded-10 bg-surface-float py-1.5 pl-2 pr-1 transition-colors hover:bg-surface-hover">
+    <AgentState state={item.state} />
+    <Link href={`${webappUrl}agent/${item.id}`}>
+      {/* Stretched over the row, so the whole thing opens the agent while the
+          dismiss keeps a hit area of its own. */}
+      <a className="min-w-0 shrink-0 after:absolute after:inset-0 after:rounded-10">
+        <Typography
+          type={TypographyType.Caption1}
+          bold
+          className="max-w-[9rem] truncate"
+        >
+          {item.name}
+        </Typography>
+      </a>
+    </Link>
     <Typography
       type={TypographyType.Caption1}
       color={TypographyColor.Tertiary}
@@ -45,29 +60,22 @@ const Chip = ({
     >
       {item.line}
     </Typography>
-    {!!item.found && (
-      <span className="shrink-0 rounded-6 bg-action-upvote-float px-1 tabular-nums text-action-upvote-default typo-caption2">
-        {`+${item.found}`}
-      </span>
-    )}
-    {/* Subtle, not Primary: there can be four of these stacked over the feed,
-        and four solid buttons read as an alert rather than as a shelf of
-        things waiting. */}
-    <Link href={`${webappUrl}agent/${item.id}`}>
-      <Button
-        tag="a"
-        size={ButtonSize.XSmall}
-        variant={ButtonVariant.Subtle}
-        className="shrink-0"
+    {/* When, not how many: the run's own sentence already says what it kept,
+        and the reader wants to know how stale this is. */}
+    {item.at && (
+      <Typography
+        type={TypographyType.Caption2}
+        color={TypographyColor.Quaternary}
+        className="shrink-0 tabular-nums"
       >
-        Review
-      </Button>
-    </Link>
+        <DateFormat date={item.at} type={TimeFormatType.LastActivity} />
+      </Typography>
+    )}
     <Button
       icon={<MiniCloseIcon size={IconSize.Size16} />}
       size={ButtonSize.XSmall}
       variant={ButtonVariant.Tertiary}
-      className="shrink-0"
+      className="relative z-1 shrink-0"
       aria-label={`Dismiss the update from ${item.name}`}
       onClick={onDismiss}
     />
@@ -77,11 +85,10 @@ const Chip = ({
 /**
  * Findings waiting on you, stacked over the field.
  *
- * The monitor under the field is ambient — it tells you what is happening and
- * asks for nothing. This is the other half: an agent that came back with
- * something is a piece of work with your name on it, so it gets a row of its
- * own above the field with the action already on it, and it stays there until
- * you open it or wave it off.
+ * The monitor under the field is ambient — it says what is happening and asks
+ * for nothing. This is the other half: an agent that came back with something
+ * is a piece of work with your name on it, so it gets a row of its own above
+ * the field and stays there until you open it or wave it off.
  */
 export const AgentReviewChips = ({
   items,
