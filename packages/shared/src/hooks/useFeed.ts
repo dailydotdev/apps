@@ -638,6 +638,7 @@ export default function useFeed<T>(
 
       const staticAd = settings?.staticAd;
       let staticAdInserted = !staticAd;
+      let marketingCtaPushed = false;
 
       const pushAndAdvance = (item: FeedItem): void => {
         if (
@@ -676,6 +677,7 @@ export default function useFeed<T>(
           marketingCta,
           dataUpdatedAt: feedQuery.dataUpdatedAt,
         });
+        marketingCtaPushed = true;
       }
 
       feedQuery.data.pages.forEach(({ page }, pageIndex) => {
@@ -712,6 +714,7 @@ export default function useFeed<T>(
                 marketingCta,
                 dataUpdatedAt: feedQuery.dataUpdatedAt,
               });
+              marketingCtaPushed = true;
             } else if (withFirstIndex(showAcquisitionForm)) {
               pushAndAdvance({
                 type: FeedItemType.UserAcquisition,
@@ -750,6 +753,15 @@ export default function useFeed<T>(
           });
         });
       });
+
+      if (marketingCtaPushed) {
+        const lastFirstPagePostIdx = newItems.findLastIndex(
+          (item) => item.type === FeedItemType.Post && item.page === 0,
+        );
+        if (lastFirstPagePostIdx !== -1) {
+          newItems.splice(lastFirstPagePostIdx, 1);
+        }
+      }
 
       if (staticAd && !staticAdInserted && newItems.length > 0) {
         newItems.push({

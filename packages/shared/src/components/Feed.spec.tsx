@@ -2291,7 +2291,7 @@ describe('Feed ad cadence with highlight cards', () => {
       .map((t, i) => (t === 'adItem' ? i : -1))
       .filter((i) => i >= 0);
     expect(adIndices).toEqual([5, 9]);
-    expect(order.filter((t) => t === 'postItem').length).toBe(posts.length);
+    expect(order.filter((t) => t === 'postItem').length).toBe(posts.length - 1);
   });
 
   it('renders highlight cards for Plus users without rendering ads', async () => {
