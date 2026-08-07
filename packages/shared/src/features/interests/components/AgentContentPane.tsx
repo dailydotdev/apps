@@ -165,10 +165,12 @@ export const AgentContentPane = ({
         <span className="h-10 w-1 rounded-6 bg-transparent transition-colors group-hover:bg-text-quaternary" />
       </div>
 
-      <FlexCol className="min-h-0 flex-1 overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary laptop:bg-background-subtle laptop:shadow-2">
-        {/* Same inset as the conversation's header, so the two 48px control rows
-          start and end on the same margin. */}
-        <FlexRow className="h-12 shrink-0 items-center gap-1 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
+      <FlexCol className="agent-panel-surface min-h-0 flex-1 overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary laptop:shadow-2">
+        {/* 8px all the way round the chips: the row is 48 tall and they are
+          32, so the sides match the space above and below them. With the
+          card's own 8px inset that lands the strip on the same 16px margin
+          the conversation's header uses. */}
+        <FlexRow className="h-12 shrink-0 items-center gap-1 border-b border-border-subtlest-tertiary px-2">
           <FlexRow
             role="tablist"
             className="no-scrollbar min-w-0 flex-1 items-center gap-1 overflow-x-auto py-1"
@@ -182,13 +184,12 @@ export const AgentContentPane = ({
                   key={targetId}
                   className={classNames(
                     'group flex h-8 w-fit max-w-[13rem] shrink-0 items-center gap-1.5 rounded-8 pl-2 pr-1 transition-colors',
-                    // The selected chip is lifted onto an opaque surface — the
-                    // raised-tab read. Every float token in the set is an 8%
-                    // wash over the same background, which is too close to
-                    // "no fill" to carry selection on its own.
+                    // Subtle for the ones you are not on, float for the one
+                    // you are: an outline against a filled chip separates them
+                    // by two properties rather than by a shade of grey.
                     isActive
-                      ? 'bg-background-subtle'
-                      : 'hover:bg-surface-hover',
+                      ? 'bg-surface-float'
+                      : 'border border-border-subtlest-tertiary hover:bg-surface-hover',
                   )}
                 >
                   <button
@@ -199,7 +200,7 @@ export const AgentContentPane = ({
                     onClick={() => focusContent(targetId)}
                     className={classNames(
                       'flex h-full min-w-0 flex-1 items-center gap-1.5',
-                      isActive ? 'text-text-primary' : 'text-text-quaternary',
+                      isActive ? 'text-text-primary' : 'text-text-tertiary',
                     )}
                   >
                     {tabIcon[target.type]}
@@ -220,14 +221,9 @@ export const AgentContentPane = ({
                     type="button"
                     aria-label={`Close ${tabLabel(target)}`}
                     onClick={() => closeContent(targetId)}
-                    className={classNames(
-                      'flex size-5 shrink-0 items-center justify-center rounded-6 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary',
-                      // Only the tab you are on carries a permanent close. The
-                      // rest reveal one on hover, so a full strip is labels
-                      // rather than a row of crosses.
-                      !isActive &&
-                        'opacity-0 focus-visible:opacity-100 group-hover:opacity-100',
-                    )}
+                    // Every tab carries its close, on or off: one that appears
+                    // only under the pointer is one you have to go looking for.
+                    className="flex size-5 shrink-0 items-center justify-center rounded-6 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
                   >
                     <MiniCloseIcon size={IconSize.Size16} />
                   </button>

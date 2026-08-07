@@ -66,7 +66,9 @@ export const AgentWorkspaceHeader = (): ReactElement => {
     isOpen(type) ? focusContent(type) : openContentTarget({ type });
 
   return (
-    <FlexRow className="h-12 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
+    // No rule under it: the transcript fades out as it passes underneath
+    // instead, the same softening the composer does at the other end.
+    <FlexRow className="h-12 shrink-0 items-center gap-2 px-3 tablet:px-4">
       <Tooltip content="Back to agents">
         <Link href={`${webappUrl}agent`}>
           <Button

@@ -51,7 +51,7 @@ export const AgentGlassComposer = ({
     />
     <div className="agent-glass-frame relative flex flex-col gap-1.5 rounded-20 p-1.5">
       {pending}
-      <FlexRow className="agent-glass-field items-center gap-2 rounded-16 px-3 py-2">
+      <FlexRow className="agent-glass-field items-center gap-2 rounded-14 px-3 py-2">
         <MagicIcon
           size={IconSize.Size16}
           className="shrink-0 text-brand-default"

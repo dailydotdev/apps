@@ -190,7 +190,7 @@ const WaitingRow = ({
   item: AgentMonitorItem;
   onDismiss: () => void;
 }): ReactElement => (
-  <FlexRow className="items-center gap-2 rounded-10 bg-surface-float py-1 pl-2.5 pr-1">
+  <FlexRow className="items-center gap-2 rounded-14 bg-surface-float py-1 pl-2.5 pr-1">
     <StateDot state={item.state} />
     <Typography
       type={TypographyType.Caption1}
@@ -343,7 +343,7 @@ export const AgentMonitor = ({
         }
         // The whole strip is the control, edge to edge and over the bell, and
         // tall enough to be an easy target rather than a 28px sliver.
-        className="flex w-full items-center gap-2 rounded-10 px-2 py-2 text-left transition-colors hover:bg-surface-hover"
+        className="flex w-full items-center gap-2 rounded-14 px-2 py-2 text-left transition-colors hover:bg-surface-hover"
       >
         {/* Keyed on what it is showing, so a turn of the ticker plays the new
             line in instead of swapping the text under you. */}

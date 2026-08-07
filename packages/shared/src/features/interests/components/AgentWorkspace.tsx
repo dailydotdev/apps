@@ -150,18 +150,27 @@ export const AgentWorkspace = ({
         ) : (
           <>
             <AgentWorkspaceHeader />
-            <div
-              ref={transcriptRef}
-              onScroll={onTranscriptScroll}
-              className="agent-scroll min-h-0 flex-1 overflow-y-auto px-5 tablet:px-8 laptop:px-10"
-            >
-              <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 py-6">
-                <AgentIntro
-                  findingsCount={items.length}
-                  postsCount={postsCount}
-                />
-                <AgentChatSection />
-              </FlexCol>
+            <div className="relative min-h-0 flex-1">
+              {/* The line under the header, as a fade rather than a rule: the
+                  conversation dissolves into the chrome instead of being cut
+                  by it. Pulled a pixel up so nothing shows between the two. */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 -top-px z-1 h-8 bg-gradient-to-b from-background-default to-transparent"
+              />
+              <div
+                ref={transcriptRef}
+                onScroll={onTranscriptScroll}
+                className="agent-scroll h-full overflow-y-auto px-5 tablet:px-8 laptop:px-10"
+              >
+                <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 py-6">
+                  <AgentIntro
+                    findingsCount={items.length}
+                    postsCount={postsCount}
+                  />
+                  <AgentChatSection />
+                </FlexCol>
+              </div>
             </div>
             <AgentQuoteAction containerRef={transcriptRef} />
             <div className="relative">

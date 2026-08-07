@@ -1132,3 +1132,15 @@
     transparent
   );
 }
+
+/* The side panel's surface, matched to the v2 rail: three percent of the
+   secondary surface over the page background. A shade lifted rather than a
+   different colour, which is what keeps a floating card from reading as a
+   second app pasted onto the first. */
+.agent-panel-surface {
+  background: color-mix(
+    in srgb,
+    var(--theme-surface-secondary) 3%,
+    var(--theme-background-default)
+  );
+}
