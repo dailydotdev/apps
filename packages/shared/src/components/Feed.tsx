@@ -45,6 +45,14 @@ import type { AllFeedPages } from '../lib/query';
 import { OtherFeedPage, RequestKey } from '../lib/query';
 
 import { MarketingCtaVariant } from './marketing/cta/common';
+import { MarketingCtaCard } from './marketing/cta';
+import { MarketingCtaList } from './marketing/cta/MarketingCtaList';
+import { MarketingCtaBriefing } from './marketing/cta/MarketingCtaBriefing';
+import { MarketingCtaYearInReview } from './marketing/cta/MarketingCtaYearInReview';
+import { MarketingCtaVideo } from './marketing/cta/MarketingCtaVideo';
+import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
+import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
+import PlusGrid from './cards/plus/PlusGrid';
 import { isNullOrUndefined } from '../lib/func';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import { SearchResultsLayout } from './search/SearchResults/SearchResultsLayout';
@@ -274,7 +282,13 @@ export default function Feed<T>({
     featureFeedAdTemplate.defaultValue?.default ?? { adStart: 1 };
 
   const { isV2 } = useLayoutVariant();
-  const showFirstSlotCard = showProfileCompletionCard || showBriefCard;
+  const showPlusEntry = !!plusEntryFeed;
+  const showFirstSlotCard =
+    showPlusEntry ||
+    showMarketingCta ||
+    showAcquisitionForm ||
+    showProfileCompletionCard ||
+    showBriefCard;
   const {
     items,
     placements: itemPlacements,
@@ -695,6 +709,45 @@ export default function Feed<T>({
         disableListFrame,
       };
 
+  const renderFirstSlotCard = (): ReactElement | null => {
+    if (showPlusEntry && plusEntryFeed) {
+      return <PlusGrid {...plusEntryFeed} />;
+    }
+    if (showMarketingCta && marketingCta) {
+      if (marketingCta.variant === MarketingCtaVariant.BriefCard) {
+        return <MarketingCtaBriefing {...marketingCta} />;
+      }
+      if (marketingCta.variant === MarketingCtaVariant.YearInReview) {
+        return <MarketingCtaYearInReview marketingCta={marketingCta} />;
+      }
+      if (marketingCta.variant === MarketingCtaVariant.Video) {
+        return <MarketingCtaVideo marketingCta={marketingCta} />;
+      }
+      const Component = shouldUseListFeedLayout
+        ? MarketingCtaList
+        : MarketingCtaCard;
+      return <Component marketingCta={marketingCta} />;
+    }
+    if (showAcquisitionForm) {
+      const Component = shouldUseListFeedLayout
+        ? AcquisitionFormList
+        : AcquisitionFormGrid;
+      return <Component />;
+    }
+    if (showProfileCompletionCard) {
+      return <ProfileCompletionCard className={{ container: 'p-4 pt-0' }} />;
+    }
+    if (showBriefCard) {
+      return (
+        <BriefCardFeed
+          targetId={TargetId.Feed}
+          className={{ container: 'p-4 pt-0' }}
+        />
+      );
+    }
+    return null;
+  };
+
   return (
     <ActiveFeedContext.Provider value={feedContextValue}>
       <FeedWrapperComponent {...containerProps}>
@@ -702,21 +755,7 @@ export default function Feed<T>({
           <>{emptyScreen}</>
         ) : (
           <>
-            {showProfileCompletionCard && (
-              <ProfileCompletionCard
-                className={{
-                  container: 'p-4 pt-0',
-                }}
-              />
-            )}
-            {showBriefCard && !showProfileCompletionCard && (
-              <BriefCardFeed
-                targetId={TargetId.Feed}
-                className={{
-                  container: 'p-4 pt-0',
-                }}
-              />
-            )}
+            {renderFirstSlotCard()}
             {items.map((item, index) => {
               const placement = itemPlacements[index];
               const { colSpan } = placement;

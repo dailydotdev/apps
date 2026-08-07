@@ -2234,7 +2234,7 @@ describe('Feed ad cadence with highlight cards', () => {
     expect(order[1]).toBe('postItem');
   });
 
-  it('places a marketing CTA at index 0 when asFirstCard is set', async () => {
+  it('renders a marketing CTA above the feed grid without displacing ads', async () => {
     const marketingCtaTitle = 'Marketing CTA title';
     const marketingCta: MarketingCta = {
       campaignId: 'cta-test',
@@ -2270,11 +2270,6 @@ describe('Feed ad cadence with highlight cards', () => {
       buildPost('p8'),
     ];
 
-    // adStart=2, adRepeat=4 → 3 slots at vcs 2, 6, 10. CTA pushed first
-    // shifts vcs by 1. Slot 0 (vcs=2) is skipped by asFirstCard; slots
-    // 1 and 2 (vcs=6, 10) fire. CTA itself has no postItem/adItem testid,
-    // so it's filtered out of the helper output — ads land at testid'd
-    // indices 5 and 9.
     renderWithHighlightLayout({
       posts,
       highlightEnabled: false,
@@ -2290,8 +2285,8 @@ describe('Feed ad cadence with highlight cards', () => {
     const adIndices = order
       .map((t, i) => (t === 'adItem' ? i : -1))
       .filter((i) => i >= 0);
-    expect(adIndices).toEqual([5, 9]);
-    expect(order.filter((t) => t === 'postItem').length).toBe(posts.length - 1);
+    expect(adIndices).toEqual([2, 6]);
+    expect(order.filter((t) => t === 'postItem').length).toBe(posts.length);
   });
 
   it('renders highlight cards for Plus users without rendering ads', async () => {
