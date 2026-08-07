@@ -189,10 +189,9 @@ function MainLayoutComponent({
   // `<div id="__next">`, so every crawler that doesn't run JS (including the
   // answer engines `PostSEOSchema` targets) saw nothing but meta tags.
   //
-  // The paint still has to wait for boot, so hold it with `visibility` on the
-  // wrapper below instead of dropping the tree. `visibility` (not `display`)
-  // keeps descendants that measure themselves on mount getting real geometry.
-  const isHoldingPaint = !isPageReady && showSidebar;
+  // Keep variant-specific chrome hidden until boot resolves, while allowing
+  // the prerendered page content itself to paint immediately.
+  const isHoldingChrome = !isPageReady && showSidebar;
 
   // On laptop the v1 and v2 chrome (sidebar + global header) look different,
   // so rendering before the experiment resolves makes v2 users flash the v1
@@ -207,7 +206,7 @@ function MainLayoutComponent({
   // `isLaptop` alone made the server emit one and the client skip it, which
   // shifted `<main>` and broke hydration.
   const isLayoutChromeResolved =
-    !isHoldingPaint && (!isLaptop || !isLayoutVariantLoading);
+    !isHoldingChrome && (!isLaptop || !isLayoutVariantLoading);
 
   // Extension new tab mounts its own `ExtensionTopBanners` strip, so
   // the webapp strip is suppressed there to avoid duplicate cards.
@@ -312,7 +311,6 @@ function MainLayoutComponent({
     <div
       className={classNames(
         'antialiased',
-        isHoldingPaint && 'invisible',
         isV2 &&
           'laptop:bg-[color-mix(in_srgb,var(--theme-surface-secondary)_3%,var(--theme-background-default))]',
       )}
@@ -336,7 +334,10 @@ function MainLayoutComponent({
         />
       )}
 
-      {!sidebarOwnsHeader && isLayoutChromeResolved && (
+      {/* Temporary while layout v2 is experimental: production users are on
+          v1, so render its header in the initial HTML instead of waiting for
+          feature resolution and delaying the post page's LCP. */}
+      {!sidebarOwnsHeader && (
         <MainLayoutHeader
           hasBanner={isBannerAvailable}
           sidebarRendered={sidebarRendered}

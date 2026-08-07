@@ -65,12 +65,19 @@ describe('MainLayout before boot resolves', () => {
     expect(screen.getByText('prerendered page content')).toBeInTheDocument();
   });
 
-  it('holds the paint with visibility rather than unmounting', () => {
+  it('paints prerendered content before boot resolves', () => {
     mockRouter('/posts/[id]');
     renderLayout();
 
     const content = screen.getByText('prerendered page content');
-    expect(content.closest('div.antialiased')).toHaveClass('invisible');
+    expect(content.closest('div.antialiased')).not.toHaveClass('invisible');
+  });
+
+  it('renders the header before the layout experiment resolves', () => {
+    mockRouter('/posts/[id]');
+    renderLayout();
+
+    expect(screen.getByRole('banner')).toBeInTheDocument();
   });
 
   it('still renders nothing for feed-shaped pages', () => {
