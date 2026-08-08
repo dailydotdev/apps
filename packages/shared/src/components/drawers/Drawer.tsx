@@ -1,6 +1,6 @@
 import type {
+  ForwardedRef,
   HTMLAttributes,
-  MutableRefObject,
   ReactElement,
   ReactNode,
 } from 'react';
@@ -11,6 +11,7 @@ import ConditionalWrapper from '../ConditionalWrapper';
 import { ButtonVariant } from '../buttons/common';
 import { Button } from '../buttons/Button';
 import { RootPortal } from '../tooltips/Portal';
+import { useVisualViewport } from '../../hooks/utils/useVisualViewport';
 
 export type PopupEventType =
   | MouseEvent
@@ -57,6 +58,10 @@ export interface DrawerOnMobileProps {
   drawerProps?: Omit<DrawerProps, 'children' | 'onClose'>;
 }
 
+// Drawers can stack; the page unlocks only when the last one leaves.
+let scrollLockCount = 0;
+let previousHtmlOverflow = '';
+
 const drawerPositionToClassName: Record<DrawerPosition, string> = {
   [DrawerPosition.Bottom]: 'bottom-0 rounded-t-16',
   [DrawerPosition.Top]: 'top-0 rounded-b-16',
@@ -86,7 +91,12 @@ function BaseDrawer({
   instantOpen = false,
   ...props
 }: DrawerProps): ReactElement {
-  const container = useRef<HTMLDivElement>();
+  const container = useRef<HTMLDivElement | null>(null);
+  const { height: viewportHeight, offsetTop } = useVisualViewport(isFullScreen);
+  const keyboardSafeStyle =
+    isFullScreen && viewportHeight
+      ? { height: viewportHeight, top: offsetTop }
+      : undefined;
   const [hasAnimated, setHasAnimated] = useState(instantOpen);
   const [animate] = useDebounceFn(() => setHasAnimated(true), 1);
   const classes = className?.drawer ?? 'px-4 py-3';
@@ -99,15 +109,40 @@ function BaseDrawer({
     };
   }, [onAfterClose, onAfterOpen]);
 
+  useEffect(() => {
+    if (!isFullScreen) {
+      return undefined;
+    }
+
+    // <html> is the page's actual scroller — body-level `overflow: hidden`
+    // alone never reaches the viewport.
+    if (scrollLockCount === 0) {
+      previousHtmlOverflow = document.documentElement.style.overflow;
+    }
+    scrollLockCount += 1;
+    document.body.classList.add('hidden-scrollbar');
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      scrollLockCount -= 1;
+      if (scrollLockCount > 0) {
+        return;
+      }
+      document.body.classList.remove('hidden-scrollbar');
+      if (previousHtmlOverflow) {
+        document.documentElement.style.overflow = previousHtmlOverflow;
+      } else {
+        document.documentElement.style.removeProperty('overflow');
+      }
+    };
+  }, [isFullScreen]);
+
   const handleOverlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (
-      closeOnOutsideClick &&
-      hasAnimated &&
-      container.current &&
-      !container.current.contains(e.target as Node)
-    ) {
+    // Not a `contains` check: portaled children (dropdowns, popovers) live
+    // under document.body, yet React bubbles their clicks to this handler.
+    if (closeOnOutsideClick && hasAnimated && e.target === e.currentTarget) {
       onClose(e.nativeEvent);
     }
   };
@@ -116,17 +151,22 @@ function BaseDrawer({
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
     <div
       className={classNames(
-        'fixed inset-0 z-modal transition-opacity duration-300 ease-in-out',
+        'fixed z-modal transition-opacity duration-300 ease-in-out',
+        // Sized to the *visual* viewport: iOS never shrinks the layout
+        // viewport for the keyboard, so `inset-0` alone leaves the bottom
+        // actions underneath it.
+        isFullScreen ? 'inset-x-0 top-0 h-full' : 'inset-0',
         !isFullScreen && 'bg-overlay-quaternary-onion',
         className?.overlay,
         isAnimating && 'opacity-0',
       )}
+      style={keyboardSafeStyle}
       onClick={handleOverlayClick}
     >
       <div
         {...props}
         className={classNames(
-          'drawer-padding absolute flex w-full flex-col overflow-y-auto bg-background-default transition-transform duration-300 ease-in-out',
+          'drawer-padding absolute flex w-full flex-col overflow-y-auto overscroll-contain bg-background-default transition-transform duration-300 ease-in-out',
           isFullScreen ? 'inset-0' : 'max-h-[calc(100%-5rem)]',
           !isFullScreen && drawerPositionToClassName[position],
           isAnimating && animatePositionClassName[position],
@@ -196,17 +236,18 @@ export interface DrawerRef {
 
 function AnimatedDrawer(
   { isOpen, onClose, appendOnRoot, ...props }: DrawerWrapperProps,
-  ref: MutableRefObject<DrawerRef>,
+  ref: ForwardedRef<DrawerRef>,
 ): ReactElement | null {
   const [isClosing, setIsClosing] = useState(false);
-  const [debounceClosing] = useDebounceFn((e: PopupEventType) => {
+  const [debounceClosing] = useDebounceFn<PopupEventType>((e) => {
     setIsClosing(false);
-    onClose?.(e);
+    // `onClosing`, the only caller, always forwards the event.
+    onClose?.(e as PopupEventType);
   }, ANIMATION_MS);
 
-  const onClosing = () => {
+  const onClosing = (e?: PopupEventType) => {
     setIsClosing(true);
-    debounceClosing();
+    debounceClosing(e);
   };
 
   useImperativeHandle(ref, () => ({ onClose: onClosing }));

@@ -371,6 +371,7 @@ export const usePostToSquad = ({
     isLinkLoading ||
     isPostModerationLoading ||
     isEditLoading ||
+    isUpdatePostLoading ||
     isPollLoading ||
     isLoadingFreeform;
 
@@ -463,7 +464,8 @@ export const usePostToSquad = ({
       const squadId = getSquadIdOrThrow(squad);
 
       if (moderationRequired(squad)) {
-        moderationCreationRef.current = PostType.Share;
+        // An edit, not a creation — must not log as one.
+        moderationCreationRef.current = null;
         return onCreatePostModeration({
           postId,
           type: PostType.Share,

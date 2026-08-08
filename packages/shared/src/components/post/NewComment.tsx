@@ -35,7 +35,7 @@ export interface NewCommentTriggerRenderProps {
 interface NewCommentProps extends CommentMarkdownInputProps {
   size?: ProfileImageSize;
   shouldHandleCommentQuery?: boolean;
-  CommentInputOrModal: React.ElementType;
+  CommentInput: React.ElementType;
   onComposerOpenChange?: (isOpen: boolean) => void;
   renderTrigger?: (props: NewCommentTriggerRenderProps) => ReactElement;
 }
@@ -53,6 +53,7 @@ const focusInputById = (inputId: string, remainingFrames = 30): void => {
   const input = document.getElementById(inputId);
   if (input) {
     input.focus();
+    input.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
     return;
   }
 
@@ -74,7 +75,7 @@ function NewCommentComponent(
     onCommented,
     post,
     shouldHandleCommentQuery = false,
-    CommentInputOrModal,
+    CommentInput,
     onComposerOpenChange,
     renderTrigger,
     ...props
@@ -154,12 +155,14 @@ function NewCommentComponent(
 
   if (isComposerOpen) {
     return (
-      <CommentInputOrModal
+      <CommentInput
         {...props}
         post={post}
         inputId={inputId}
-        autoFocus={false}
-        className={{ input: { container: 'my-4', tab: className?.tab } }}
+        // The editor mounts async (lazy chunk + deferred TipTap creation);
+        // the by-id helper below can fire before it exists, so it only scrolls.
+        autoFocus
+        className={{ container: 'my-4' }}
         onCommented={onSuccess}
         initialContent={inputContent}
         onClose={() => setInputContent(undefined)}
