@@ -318,7 +318,7 @@ function MainLayoutComponent({
       {canGoBack && <GoBackHeaderMobile />}
       <PostOnboardingActivation />
       {customBanner}
-      {isBannerAvailable && <PromotionalBanner />}
+      {isBannerAvailable && <PromotionalBanner inFlow={sidebarOwnsHeader} />}
       <InAppNotificationElement />
       <QuestUpdatesListener />
       <PromptElement />
@@ -389,7 +389,9 @@ function MainLayoutComponent({
                 'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
                 !hasTopBanners &&
                   !topBanner &&
-                  'laptop:min-h-[calc(100vh-1.5rem)]',
+                  (isBannerAvailable
+                    ? 'laptop:min-h-[calc(100vh-3.5rem)]'
+                    : 'laptop:min-h-[calc(100vh-1.5rem)]'),
               )}
             >
               <RouteProgressBar />

@@ -37,7 +37,16 @@ const classNamesByTheme: Record<BannerTheme, string[]> = {
   [Theme.Lettuce]: ['bg-accent-lettuce-default', 'text-raw-pepper-90'],
 };
 
-export default function PromotionalBanner(): ReactElement {
+interface PromotionalBannerProps {
+  // The v1 layout pins the banner and pays for it with top padding on <main>.
+  // The v2 layout owns its own header and has no such compensation, so there
+  // the banner takes up real space and everything below it moves down.
+  inFlow?: boolean;
+}
+
+export default function PromotionalBanner({
+  inFlow = false,
+}: PromotionalBannerProps = {}): ReactElement {
   const { latestBanner: banner, dismiss } = useBanner();
   const { logEvent } = useLogContext();
 
@@ -87,7 +96,8 @@ export default function PromotionalBanner(): ReactElement {
   return (
     <div
       className={classNames(
-        'relative z-3 flex w-full flex-col items-start py-3 pl-3 pr-12 typo-footnote tablet:pl-20 laptop:fixed laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0',
+        'relative z-3 flex w-full flex-col items-start py-3 pl-3 pr-12 typo-footnote tablet:pl-20 laptop:h-8 laptop:flex-row laptop:items-center laptop:justify-center laptop:p-0',
+        !inFlow && 'laptop:fixed',
         container,
         text,
       )}
