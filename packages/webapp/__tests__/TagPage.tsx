@@ -23,6 +23,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { SortCommentsBy } from '@dailydotdev/shared/src/graphql/comments';
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
+import { globalMutationCache } from '@dailydotdev/shared/src/lib/query';
 import SettingsContext, {
   ThemeMode,
   type SettingsContextData,
@@ -36,6 +37,12 @@ import { waitForNock } from '@dailydotdev/shared/__tests__/helpers/utilities';
 import { AlertContextProvider } from '@dailydotdev/shared/src/contexts/AlertContext';
 import type { Keyword } from '@dailydotdev/shared/src/graphql/keywords';
 import { ARCHIVE_INDEX_QUERY } from '@dailydotdev/shared/src/graphql/archive';
+import {
+  CONTENT_PREFERENCE_FOLLOW_MUTATION,
+  CONTENT_PREFERENCE_STATUS_QUERY,
+  ContentPreferenceStatus,
+  ContentPreferenceType,
+} from '@dailydotdev/shared/src/graphql/contentPreference';
 import TagPage from '../pages/tags/[tag]';
 import { FEED_SETTINGS_QUERY } from '../../shared/src/graphql/feedSettings';
 
@@ -132,6 +139,25 @@ const topContributor: UserShortProfile = {
   reputation: 10,
 };
 
+const createContentPreferenceMock = (
+  status: ContentPreferenceStatus,
+): MockedGraphQLResponse => ({
+  request: {
+    query: CONTENT_PREFERENCE_STATUS_QUERY,
+    variables: { id: 'react', entity: ContentPreferenceType.Keyword },
+  },
+  result: {
+    data: {
+      contentPreferenceStatus: {
+        referenceId: 'react',
+        type: ContentPreferenceType.Keyword,
+        status,
+        createdAt: new Date().toISOString(),
+      },
+    },
+  },
+});
+
 const createArchiveIndexMock = (): MockedGraphQLResponse => ({
   request: {
     query: ARCHIVE_INDEX_QUERY,
@@ -151,7 +177,10 @@ const renderComponent = (
   initialData: Keyword = initialDataObj,
   topContributors: UserShortProfile[] = [],
 ): RenderResult => {
-  client = new QueryClient();
+  // Use the app's mutation cache so `useMutationSubscription` consumers (e.g.
+  // the tag's content-preference status) react to mutations like they do in
+  // the real client.
+  client = new QueryClient({ mutationCache: globalMutationCache });
 
   (mocks ?? [createFeedMock(), createTagsSettingsMock()]).forEach(mockGraphQL);
   mockGraphQL(createArchiveIndexMock());
@@ -275,6 +304,65 @@ it('should show only unfollow button', async () => {
   expect(followButton).toBeInTheDocument();
   const blockButton = screen.queryByLabelText('Block');
   expect(blockButton).not.toBeInTheDocument();
+});
+
+it('should not show the notify button when not following the tag', async () => {
+  renderComponent();
+  await waitForNock();
+  await screen.findByLabelText('Follow');
+  expect(
+    screen.queryByLabelText('Enable notifications'),
+  ).not.toBeInTheDocument();
+});
+
+it('should show the notify button when following the tag', async () => {
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ includeTags: ['react'] }),
+    createContentPreferenceMock(ContentPreferenceStatus.Follow),
+  ]);
+  await waitForNock();
+  const notifyButton = await screen.findByLabelText('Enable notifications');
+  expect(notifyButton).toBeInTheDocument();
+});
+
+it('should show the notify button as on when subscribed to the tag', async () => {
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ includeTags: ['react'] }),
+    createContentPreferenceMock(ContentPreferenceStatus.Subscribed),
+  ]);
+  await waitForNock();
+  const notifyButton = await screen.findByLabelText('Disable notifications');
+  expect(notifyButton).toBeInTheDocument();
+});
+
+it('should subscribe to the tag on notify click', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ includeTags: ['react'] }),
+    createContentPreferenceMock(ContentPreferenceStatus.Follow),
+  ]);
+  await waitForNock();
+  mockGraphQL({
+    request: {
+      query: CONTENT_PREFERENCE_FOLLOW_MUTATION,
+      variables: {
+        id: 'react',
+        entity: ContentPreferenceType.Keyword,
+        status: ContentPreferenceStatus.Subscribed,
+      },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { _: true } };
+    },
+  });
+  const notifyButton = await screen.findByLabelText('Enable notifications');
+  notifyButton.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await screen.findByLabelText('Disable notifications');
 });
 
 it('should show follow and block buttons when logged-out', async () => {
