@@ -14,6 +14,7 @@ import {
 import {
   AlertIcon,
   CopyIcon,
+  CoreIcon,
   InviteIcon,
   LockIcon,
   OpenLinkIcon,
@@ -28,6 +29,7 @@ import {
   getDealCoverMedia,
   getDealPath,
   getDealSavingPhrase,
+  getDealUnlockCtaLabel,
   hasDealEnded,
 } from '../dealsFormat';
 import { useNowTick } from '../useNowTick';
@@ -36,6 +38,7 @@ import { DealBrandCover } from './DealBrandCover';
 import { DealCoverImage } from './DealCoverImage';
 import { DealBadge } from './DealBadge';
 import { DealValueBadge } from './DealValueBadge';
+import { DealCoresCost } from './DealCoresCost';
 import { DealCaveatStrip } from './DealCaveatStrip';
 
 interface DealCardProps {
@@ -143,6 +146,7 @@ export const DealCard = ({
 
         <div className="flex flex-wrap items-center gap-x-2">
           <DealValueBadge value={deal.value} isMuted={isMuted} />
+          {deal.unlock?.cores && <DealCoresCost cores={deal.unlock.cores} />}
           {savingPhrase && (
             <Typography
               tag={TypographyTag.Span}
@@ -202,13 +206,17 @@ export const DealCard = ({
           {isLocked && !isClaimed && (
             <Button
               type="button"
-              variant={ButtonVariant.Secondary}
+              variant={
+                deal.unlock?.cores
+                  ? ButtonVariant.Primary
+                  : ButtonVariant.Secondary
+              }
               size={ButtonSize.Small}
-              icon={<InviteIcon />}
+              icon={deal.unlock?.cores ? <CoreIcon /> : <InviteIcon />}
               onClick={() => openDetail?.(deal)}
               className="flex-1"
             >
-              Invite to unlock
+              {getDealUnlockCtaLabel(deal.unlock)}
             </Button>
           )}
           {!isMuted && !isClaimed && !isLocked && (

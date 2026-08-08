@@ -29,10 +29,10 @@ const boostDeal = getDealBySlug('warp-pro-community-boost') as Deal;
 const shareDeal = getDealBySlug('cursor-20-credit') as Deal;
 const boostLadder = boostDeal.boost as DealBoost;
 
-const withLockProgress = (invitesDone: number): Deal => ({
+const withLockProgress = (done: number): Deal => ({
   ...lockedDeal,
-  state: invitesDone >= 2 ? DealState.Available : DealState.Locked,
-  lock: { invitesRequired: 2, invitesDone },
+  state: done >= 2 ? DealState.Available : DealState.Locked,
+  unlock: { invites: { required: 2, done } },
 });
 
 const withClaims = (currentClaims: number): DealBoost => ({

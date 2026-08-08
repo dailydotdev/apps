@@ -217,6 +217,7 @@ export const mockDeals: Deal[] = [
     isCommissioned: true,
     publishedAt: daysFromMockNow(-4),
     updatedAt: hoursFromMockNow(-2),
+    claimByAt: daysFromMockNow(14),
     validFrom: daysFromMockNow(-4),
     validThrough: daysFromMockNow(58),
     priceCurrency: 'USD',
@@ -280,7 +281,7 @@ export const mockDeals: Deal[] = [
       caveat(
         DealCaveatKind.DoesNotStack,
         'Excludes bundles',
-        'Bundles and limited editions are excluded. Those stay at list price with the code applied.',
+        'Bundles and limited editions are excluded. A cart holding both takes 30% off the eligible boards only, and the bundle stays at list price.',
       ),
       caveat(
         DealCaveatKind.SingleUse,
@@ -328,7 +329,7 @@ export const mockDeals: Deal[] = [
       caveat(
         DealCaveatKind.DoesNotStack,
         'Does not stack',
-        'It does not stack with student or startup pricing. Take whichever is larger, not both.',
+        'It does not stack with student or startup pricing. JetBrains applies the single largest discount on the order, so a student licence stays cheaper than this code and the code is ignored.',
       ),
       caveat(
         DealCaveatKind.AutoRenews,
@@ -392,7 +393,101 @@ export const mockDeals: Deal[] = [
       worksRate: 0.98,
       lastVerifiedAt: minutesFromMockNow(-20),
     },
-    lock: { invitesRequired: 2, invitesDone: 1 },
+    unlock: { invites: { required: 2, done: 1 } },
+  },
+  {
+    id: 'd-cursor-cores-month',
+    slug: 'cursor-pro-month-for-cores',
+    title: 'One month of Cursor Pro for Cores',
+    description:
+      'Spend Cores from your daily.dev balance and the month of Pro is covered. No card, no invoice.',
+    whyPick:
+      'The first thing worth spending Cores on that carries a price tag outside daily.dev. If you were going to pay for a month of Pro anyway, this is that month at the cost of a balance you earned by showing up.',
+    brand: brands.cursor,
+    media: brandMedia(brands.cursor, 'Cursor logo'),
+    type: DealType.Exclusive,
+    state: DealState.Locked,
+    value: { label: '1 month Pro', savingsUsd: 20 },
+    partnerUrl: 'https://cursor.com/pricing',
+    isCommissioned: false,
+    publishedAt: daysFromMockNow(-5),
+    updatedAt: hoursFromMockNow(-4),
+    validFrom: daysFromMockNow(-5),
+    validThrough: daysFromMockNow(55),
+    priceCurrency: 'USD',
+    discountAmount: 20,
+    terms:
+      'Cores are deducted when the licence is issued. One month per member, and the Cores are not refundable once the licence lands.',
+    caveats: [
+      caveat(
+        DealCaveatKind.NewCustomersOnly,
+        'New Pro subscribers only',
+        'New Pro subscribers only. An account already paying for Cursor Pro cannot swap this month in.',
+      ),
+      caveat(
+        DealCaveatKind.SingleUse,
+        'One month per member',
+        'One month per member. A second unlock on the same account is rejected before any Cores leave your balance.',
+      ),
+    ],
+    redemptionNote:
+      'The licence lands on your Cursor account minutes after the Cores clear.',
+    categories: ['AI tools'],
+    community: {
+      upvotes: 1960,
+      comments: 154,
+      claims: 480,
+      worksRate: 0.97,
+      lastVerifiedAt: hoursFromMockNow(-4),
+    },
+    unlock: { cores: { cost: 5000 } },
+  },
+  {
+    id: 'd-raycast-members-year',
+    slug: 'raycast-pro-year-members-only',
+    title: 'A year of Raycast Pro, members only',
+    description:
+      'Twelve months of Pro at no cost. Pay in Cores today, or bring three developers in and pay nothing at all.',
+    whyPick:
+      'A year is long enough that the launcher stops being a novelty and becomes how you open everything. Two routes to the same licence: Cores if you have the balance, invites if you have the friends.',
+    brand: brands.raycast,
+    media: brandMedia(brands.raycast, 'Raycast logo'),
+    type: DealType.Exclusive,
+    state: DealState.Locked,
+    value: { label: '1 year Pro', savingsUsd: 96 },
+    partnerUrl: 'https://raycast.com/pro',
+    isCommissioned: false,
+    publishedAt: daysFromMockNow(-7),
+    updatedAt: hoursFromMockNow(-9),
+    validFrom: daysFromMockNow(-7),
+    validThrough: daysFromMockNow(46),
+    priceCurrency: 'USD',
+    discountAmount: 96,
+    terms:
+      'One licence per member on either route. Invites count once the developer finishes signup. Cores are deducted when the licence is issued.',
+    caveats: [
+      caveat(
+        DealCaveatKind.DoesNotStack,
+        'The two routes do not stack',
+        'Paying in Cores and inviting three developers does not add up to two years. Whichever route you finish first issues the licence, and the other one closes on your account.',
+      ),
+      caveat(
+        DealCaveatKind.SingleUse,
+        'One licence per member',
+        'One licence per member. It cannot be passed to a teammate or to a second Raycast account.',
+      ),
+    ],
+    redemptionNote:
+      'Sign in to daily.dev first. The licence lands on the Raycast account tied to your email.',
+    categories: ['Productivity'],
+    community: {
+      upvotes: 2280,
+      comments: 187,
+      claims: 340,
+      worksRate: 0.95,
+      lastVerifiedAt: hoursFromMockNow(-9),
+    },
+    unlock: { cores: { cost: 24000 }, invites: { required: 3, done: 1 } },
   },
   {
     id: 'd-monday-free-months',
@@ -457,6 +552,7 @@ export const mockDeals: Deal[] = [
     isCommissioned: true,
     publishedAt: daysFromMockNow(-1),
     updatedAt: minutesFromMockNow(-12),
+    claimByAt: daysFromMockNow(21),
     validFrom: daysFromMockNow(-1),
     validThrough: daysFromMockNow(89),
     priceCurrency: 'USD',
@@ -1008,7 +1104,7 @@ export const mockDeals: Deal[] = [
       caveat(
         DealCaveatKind.DoesNotStack,
         'Does not stack',
-        'The group rate replaces any other Warp discount rather than adding to it.',
+        'The group rate replaces any other Warp discount rather than adding to it. The group rate is the one that gets applied, even in the months it lands lower than the discount you already had.',
       ),
     ],
     redemptionNote:
@@ -1108,7 +1204,7 @@ export const mockDeals: Deal[] = [
       caveat(
         DealCaveatKind.DoesNotStack,
         'Does not stack with sales',
-        'It does not stack with a Udemy site wide sale. During one the sale price can be the better of the two.',
+        'It does not stack with a Udemy site wide sale. Udemy charges the lower of the two prices, so during a sale you pay the sale price and this bundle rate drops off.',
       ),
     ],
     redemptionNote:

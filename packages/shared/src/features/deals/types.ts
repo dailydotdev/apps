@@ -70,9 +70,22 @@ export interface DealPool {
   left: number;
 }
 
-export interface DealLock {
-  invitesRequired: number;
-  invitesDone: number;
+export interface DealUnlockInvites {
+  required: number;
+  done: number;
+}
+
+export interface DealUnlockCores {
+  cost: number;
+}
+
+/**
+ * The ways a locked deal opens. A deal may offer the invite path, the Cores
+ * path, or both, and the reader picks between time and currency.
+ */
+export interface DealUnlock {
+  invites?: DealUnlockInvites;
+  cores?: DealUnlockCores;
 }
 
 export interface DealBoostTier {
@@ -125,6 +138,12 @@ export interface Deal {
   publishedAt: string;
   updatedAt: string;
   expiresAt?: string;
+  /**
+   * The deadline to claim, set only when it lands before the offer's own end.
+   * A credit you have to activate this month but can then burn down for sixty
+   * days is two clocks, not one.
+   */
+  claimByAt?: string;
   validFrom?: string;
   validThrough?: string;
   price?: number;
@@ -138,7 +157,7 @@ export interface Deal {
   categories: string[];
   community: DealCommunity;
   pool?: DealPool;
-  lock?: DealLock;
+  unlock?: DealUnlock;
   boost?: DealBoost;
   isPromoted?: boolean;
 }

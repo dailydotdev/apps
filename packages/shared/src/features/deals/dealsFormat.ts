@@ -4,6 +4,9 @@ import type {
   DealCaveat,
   DealCommunity,
   DealMedia,
+  DealUnlock,
+  DealUnlockCores,
+  DealUnlockInvites,
   DealValue,
 } from './types';
 import {
@@ -13,6 +16,7 @@ import {
   DealState,
   DealType,
 } from './types';
+import { formatCoresCurrency } from '../../lib/utils';
 
 export const DEAL_AFFILIATE_DISCLOSURE =
   'daily.dev may earn a commission on some deals. It funds the free stuff for devs.';
@@ -253,7 +257,7 @@ export enum DealPageStatus {
   Gone = 'gone',
 }
 
-const getDealEndsAt = (deal: Deal): string | undefined =>
+export const getDealEndsAt = (deal: Deal): string | undefined =>
   deal.validThrough ?? deal.expiresAt;
 
 /**
@@ -325,6 +329,56 @@ export const getDealValueAriaLabel = (value: DealValue): string =>
 
 export const getDealSavingPhrase = (value: DealValue): string | undefined =>
   value.savingsUsd ? `saves about ${formatUsd(value.savingsUsd)}` : undefined;
+
+export const formatDealCores = (cost: number): string =>
+  `${formatCoresCurrency(cost)} Cores`;
+
+export const getDealInvitesLeft = ({
+  required,
+  done,
+}: DealUnlockInvites): number => Math.max(0, required - done);
+
+const getInviteCountPhrase = (invites: DealUnlockInvites): string => {
+  const left = getDealInvitesLeft(invites);
+
+  return `${left} more developer${left === 1 ? '' : 's'}`;
+};
+
+export const DEAL_INVITE_CTA_LABEL = 'Invite to unlock';
+
+export const getDealCoresCtaLabel = ({ cost }: DealUnlockCores): string =>
+  `Unlock for ${formatDealCores(cost)}`;
+
+/**
+ * The row and the card carry one CTA. Cores is the instant path, so it wins the
+ * slot whenever the deal offers it and the invite route stays on the detail
+ * surface next to the progress it belongs to.
+ */
+export const getDealUnlockCtaLabel = (unlock?: DealUnlock): string =>
+  unlock?.cores ? getDealCoresCtaLabel(unlock.cores) : DEAL_INVITE_CTA_LABEL;
+
+export const getDealUnlockSummary = ({
+  cores,
+  invites,
+}: DealUnlock): string => {
+  if (cores && invites) {
+    return `Unlock it for ${formatDealCores(
+      cores.cost,
+    )} now, or invite ${getInviteCountPhrase(invites)} and take it for free.`;
+  }
+
+  if (cores) {
+    return `Unlock it for ${formatDealCores(
+      cores.cost,
+    )} from your Cores balance.`;
+  }
+
+  if (invites) {
+    return `Invite ${getInviteCountPhrase(invites)} to unlock this offer.`;
+  }
+
+  return 'Unlock this offer to claim it.';
+};
 
 /**
  * Most consequential first. A caveat that decides whether the offer applies to
@@ -562,7 +616,7 @@ export const getClaimEvidence = (deal: Deal): string => {
 
 export const getDealDirectAnswer = (deal: Deal, now: number): string => {
   const noun = getDealOfferNoun(deal);
-  const endsAt = deal.validThrough ?? deal.expiresAt;
+  const endsAt = getDealEndsAt(deal);
 
   if (getDealPageStatus(deal, now) !== DealPageStatus.Live) {
     const ending = endsAt ? ` It ended on ${formatDealDate(endsAt)}.` : '';
@@ -596,7 +650,7 @@ export const getDealAnsweredQuestions = (
 ): DealAnsweredQuestion[] => {
   const noun = getDealOfferNoun(deal);
   const brand = deal.brand.name;
-  const endsAt = deal.validThrough ?? deal.expiresAt;
+  const endsAt = getDealEndsAt(deal);
   const stackability = getStackability(deal);
   const isLive = getDealPageStatus(deal, now) === DealPageStatus.Live;
 

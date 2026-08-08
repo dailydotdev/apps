@@ -52,6 +52,24 @@ export const ProductPhotoHero: Story = {
   ),
 };
 
+const coresDeal = getDealBySlug('cursor-pro-month-for-cores') as Deal;
+const bothRoutesDeal = getDealBySlug('raycast-pro-year-members-only') as Deal;
+
+/**
+ * The unlock cost and both unlock routes are part of the page body, not a
+ * client only overlay, so a crawler reading the raw HTML sees the price.
+ */
+export const LockedByCores: Story = {
+  render: () => <DealShareLanding deal={coresDeal} onJoin={noop} />,
+};
+
+export const LockedByCoresOrInvites: Story = {
+  decorators: [withDeals()],
+  render: () => (
+    <DealShareLanding deal={bothRoutesDeal} isSignedIn onClaim={noop} />
+  ),
+};
+
 export const ExpiredDeal: Story = {
   render: () => (
     <DealShareLanding

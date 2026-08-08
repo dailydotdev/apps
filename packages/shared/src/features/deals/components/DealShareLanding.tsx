@@ -14,10 +14,13 @@ import { DealBrandLogo } from './DealBrandLogo';
 import { DealCoverImage } from './DealCoverImage';
 import { DealBadge } from './DealBadge';
 import { DealValueBadge } from './DealValueBadge';
+import { DealCoresCost } from './DealCoresCost';
 import { DealCaveats } from './DealCaveats';
+import { DealClaimBy } from './DealClaimBy';
 import { DealRedemptionNote } from './DealRedemptionNote';
 import { DealCommunityProof } from './DealCommunityProof';
 import { DealBoostMeter } from './DealBoostMeter';
+import { DealUnlockOptions } from './DealUnlockOptions';
 import { DealCard } from './DealCard';
 import type { Deal } from '../types';
 import { DealState } from '../types';
@@ -130,6 +133,7 @@ export const DealShareLanding = ({
   className,
 }: DealShareLandingProps): ReactElement => {
   const isExpired = hasEnded ?? deal.state === DealState.Expired;
+  const isLocked = deal.state === DealState.Locked;
   const liveSimilarDeals = (similarDeals ?? []).slice(0, 2);
   const cover = getDealCoverMedia(deal);
   const savingPhrase = getDealSavingPhrase(deal.value);
@@ -202,6 +206,9 @@ export const DealShareLanding = ({
 
         <div className="flex flex-wrap items-center gap-2">
           <DealValueBadge value={deal.value} isMuted={isExpired} />
+          {deal.unlock?.cores && !isExpired && (
+            <DealCoresCost cores={deal.unlock.cores} />
+          )}
           {savingPhrase && !isExpired && (
             <Typography
               tag={TypographyTag.Span}
@@ -247,7 +254,17 @@ export const DealShareLanding = ({
           />
         )}
 
+        {!isExpired && <DealClaimBy deal={deal} />}
+
+        {!isExpired && isLocked && (
+          <DealUnlockOptions
+            deal={deal}
+            onUnlock={isSignedIn ? onClaim : () => onJoin?.()}
+          />
+        )}
+
         {!isExpired &&
+          !isLocked &&
           (isSignedIn ? (
             <Button
               tag="a"

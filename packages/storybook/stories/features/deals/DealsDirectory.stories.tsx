@@ -256,7 +256,15 @@ const rowCases: { label: string; deal: Deal }[] = [
   },
   {
     label: 'Locked behind invites',
-    deal: getDealsByState(DealState.Locked)[0],
+    deal: findDeal('linear-3-months-free'),
+  },
+  {
+    label: 'Locked behind Cores, the cost sits beside the value',
+    deal: findDeal('cursor-pro-month-for-cores'),
+  },
+  {
+    label: 'Locked behind Cores or invites, Cores takes the CTA',
+    deal: findDeal('raycast-pro-year-members-only'),
   },
   { label: 'Sold out', deal: getDealsByState(DealState.SoldOut)[0] },
   { label: 'Expired', deal: getDealsByState(DealState.Expired)[0] },

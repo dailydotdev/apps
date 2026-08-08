@@ -14,6 +14,7 @@ import { DealBrandLogo } from './DealBrandLogo';
 import { DealValueBadge } from './DealValueBadge';
 import { DealInviteCount, DealInviteProgress } from './DealInviteProgress';
 import type { Deal } from '../types';
+import { getDealInvitesLeft } from '../dealsFormat';
 
 interface DealInviteUnlockProps {
   deal: Deal;
@@ -33,13 +34,13 @@ export const DealInviteUnlock = ({
   onInvite,
   className,
 }: DealInviteUnlockProps): ReactElement => {
-  const { lock } = deal;
+  const invites = deal.unlock?.invites;
 
-  if (!lock) {
-    throw new Error('DealInviteUnlock needs a deal with an invite lock');
+  if (!invites) {
+    throw new Error('DealInviteUnlock needs a deal with an invite unlock');
   }
 
-  const remaining = Math.max(0, lock.invitesRequired - lock.invitesDone);
+  const remaining = getDealInvitesLeft(invites);
   const isUnlocked = remaining === 0;
   const friends = remaining === 1 ? 'friend' : 'friends';
 
@@ -72,7 +73,11 @@ export const DealInviteUnlock = ({
       </div>
 
       <div className="flex items-center gap-3">
-        <DealInviteProgress lock={lock} avatarUrls={inviteAvatars} isLarge />
+        <DealInviteProgress
+          invites={invites}
+          avatarUrls={inviteAvatars}
+          isLarge
+        />
         <Typography
           tag={TypographyTag.P}
           type={TypographyType.Callout}
@@ -91,7 +96,7 @@ export const DealInviteUnlock = ({
         ) : (
           <LockIcon size={IconSize.XSmall} secondary />
         )}
-        <DealInviteCount lock={lock} />
+        <DealInviteCount invites={invites} />
       </div>
 
       <InviteLinkInput

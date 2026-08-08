@@ -402,25 +402,19 @@ export const InviteProgress: Story = {
   render: () => (
     <Grid>
       <Case label="0 of 2" testId="invite-progress-0">
-        <DealInviteProgress lock={{ invitesRequired: 2, invitesDone: 0 }} />
+        <DealInviteProgress invites={{ required: 2, done: 0 }} />
       </Case>
       <Case label="1 of 2" testId="invite-progress-1">
-        <DealInviteProgress lock={{ invitesRequired: 2, invitesDone: 1 }} />
+        <DealInviteProgress invites={{ required: 2, done: 1 }} />
       </Case>
       <Case label="2 of 2" testId="invite-progress-2">
-        <DealInviteProgress lock={{ invitesRequired: 2, invitesDone: 2 }} />
+        <DealInviteProgress invites={{ required: 2, done: 2 }} />
       </Case>
       <Case label="0 of 5, large" testId="invite-progress-large-0">
-        <DealInviteProgress
-          lock={{ invitesRequired: 5, invitesDone: 0 }}
-          isLarge
-        />
+        <DealInviteProgress invites={{ required: 5, done: 0 }} isLarge />
       </Case>
       <Case label="5 of 5, large" testId="invite-progress-large-5">
-        <DealInviteProgress
-          lock={{ invitesRequired: 5, invitesDone: 5 }}
-          isLarge
-        />
+        <DealInviteProgress invites={{ required: 5, done: 5 }} isLarge />
       </Case>
     </Grid>
   ),

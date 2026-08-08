@@ -7,23 +7,23 @@ import {
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import type { DealLock } from '../types';
+import type { DealUnlockInvites } from '../types';
 
 interface DealInviteProgressProps {
-  lock: DealLock;
+  invites: DealUnlockInvites;
   avatarUrls?: string[];
   isLarge?: boolean;
   className?: string;
 }
 
 export const DealInviteCount = ({
-  lock,
+  invites,
   className,
 }: {
-  lock: DealLock;
+  invites: DealUnlockInvites;
   className?: string;
 }): ReactElement => {
-  const isUnlocked = lock.invitesDone >= lock.invitesRequired;
+  const isUnlocked = invites.done >= invites.required;
 
   return (
     <Typography
@@ -34,28 +34,28 @@ export const DealInviteCount = ({
       }
       className={classNames('tabular-nums', className)}
     >
-      {lock.invitesDone} of {lock.invitesRequired} invites in
+      {invites.done} of {invites.required} invites in
     </Typography>
   );
 };
 
 export const DealInviteProgress = ({
-  lock,
+  invites,
   avatarUrls,
   isLarge,
   className,
 }: DealInviteProgressProps): ReactElement => {
-  const { invitesRequired, invitesDone } = lock;
-  const slots = Array.from({ length: invitesRequired }, (_, index) => index);
+  const { required, done } = invites;
+  const slots = Array.from({ length: required }, (_, index) => index);
 
   return (
     <span
       role="progressbar"
       aria-label="Invites towards this unlock"
       aria-valuemin={0}
-      aria-valuemax={invitesRequired}
-      aria-valuenow={Math.min(invitesDone, invitesRequired)}
-      aria-valuetext={`${invitesDone} of ${invitesRequired} invites in`}
+      aria-valuemax={required}
+      aria-valuenow={Math.min(done, required)}
+      aria-valuetext={`${done} of ${required} invites in`}
       className={classNames(
         'flex',
         isLarge ? 'gap-2' : '-space-x-1',
@@ -63,7 +63,7 @@ export const DealInviteProgress = ({
       )}
     >
       {slots.map((index) => {
-        const isFilled = index < invitesDone;
+        const isFilled = index < done;
         const avatarUrl = isFilled ? avatarUrls?.[index] : undefined;
 
         if (!isLarge) {

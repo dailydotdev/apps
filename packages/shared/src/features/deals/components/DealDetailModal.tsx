@@ -10,7 +10,6 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
-  InviteIcon,
   LockIcon,
   OpenLinkIcon,
   ShareIcon,
@@ -44,7 +43,9 @@ import { DealRedemptionNote } from './DealRedemptionNote';
 import { DealCommunityProof } from './DealCommunityProof';
 import { DealCodeReveal } from './DealCodeReveal';
 import { DealBoostMeter } from './DealBoostMeter';
-import { DealInviteCount, DealInviteProgress } from './DealInviteProgress';
+import { DealClaimBy } from './DealClaimBy';
+import { DealCoresCost } from './DealCoresCost';
+import { DealUnlockOptions } from './DealUnlockOptions';
 
 interface DealDetailModalProps {
   deal: Deal;
@@ -144,39 +145,8 @@ const DealClaimArea = ({
     );
   }
 
-  if (deal.state === DealState.Locked && deal.lock) {
-    const remaining = Math.max(
-      0,
-      deal.lock.invitesRequired - deal.lock.invitesDone,
-    );
-
-    return (
-      <div className="flex flex-col gap-2 rounded-12 bg-surface-float p-3">
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className="flex items-center gap-2"
-        >
-          <LockIcon size={IconSize.XSmall} secondary />
-          Invite {remaining} more developer{remaining === 1 ? '' : 's'} to
-          unlock this offer.
-        </Typography>
-        <div className="flex items-center gap-2">
-          <DealInviteProgress lock={deal.lock} />
-          <DealInviteCount lock={deal.lock} />
-        </div>
-        <Button
-          type="button"
-          variant={ButtonVariant.Secondary}
-          icon={<InviteIcon />}
-          onClick={() => onClaim?.(deal)}
-          className="w-fit"
-        >
-          Invite to unlock
-        </Button>
-      </div>
-    );
+  if (deal.state === DealState.Locked) {
+    return <DealUnlockOptions deal={deal} onUnlock={onClaim} />;
   }
 
   if (deal.code) {
@@ -369,6 +339,9 @@ export const DealDetailModal = ({
               </Typography>
               <div className="flex flex-wrap items-center gap-2">
                 <DealValueBadge value={deal.value} isMuted={isMuted} />
+                {deal.unlock?.cores && (
+                  <DealCoresCost cores={deal.unlock.cores} />
+                )}
                 {savingPhrase && (
                   <Typography
                     tag={TypographyTag.Span}
@@ -432,6 +405,8 @@ export const DealDetailModal = ({
           {!isMuted && (
             <DealCaveats deal={deal} headingTag={TypographyTag.H3} />
           )}
+
+          {!isMuted && <DealClaimBy deal={deal} />}
 
           <DealClaimArea
             deal={deal}

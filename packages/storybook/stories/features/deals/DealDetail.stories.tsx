@@ -78,16 +78,30 @@ export const CreditDeal: Story = {
   render: () => <DetailStage deal={findDeal('digitalocean-200-credit')} />,
 };
 
-export const LockedExclusive: Story = {
+export const LockedByInvites: Story = {
+  render: () => <DetailStage deal={findDeal('linear-3-months-free')} />,
+};
+
+export const LockedByCores: Story = {
+  render: () => <DetailStage deal={findDeal('cursor-pro-month-for-cores')} />,
+};
+
+/**
+ * Both routes on one offer. Cores takes the primary button because it is the
+ * instant path, and the invite progress stays next to the invite button.
+ */
+export const LockedByCoresOrInvites: Story = {
   render: () => (
-    <DetailStage
-      deal={{
-        ...findDeal('vercel-pro-members-only'),
-        state: DealState.Locked,
-        lock: { invitesRequired: 2, invitesDone: 1 },
-      }}
-    />
+    <DetailStage deal={findDeal('raycast-pro-year-members-only')} />
   ),
+};
+
+/**
+ * Two clocks. The deadline to start is not the end of the offer, so the page
+ * prints both instead of collapsing them into one countdown.
+ */
+export const ClaimByDeadline: Story = {
+  render: () => <DetailStage deal={findDeal('cursor-20-credit')} />,
 };
 
 export const ExpiringGiftCard: Story = {

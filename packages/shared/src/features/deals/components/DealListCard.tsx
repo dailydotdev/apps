@@ -13,6 +13,7 @@ import {
 import {
   AlertIcon,
   CopyIcon,
+  CoreIcon,
   InviteIcon,
   LockIcon,
   OpenLinkIcon,
@@ -28,6 +29,7 @@ import {
   getDealCoverMedia,
   getDealPath,
   getDealSavingPhrase,
+  getDealUnlockCtaLabel,
   hasDealEnded,
 } from '../dealsFormat';
 import { useNowTick } from '../useNowTick';
@@ -35,6 +37,7 @@ import { DealBrandLogo } from './DealBrandLogo';
 import { DealCoverImage } from './DealCoverImage';
 import { DealBadge } from './DealBadge';
 import { DealValueBadge } from './DealValueBadge';
+import { DealCoresCost } from './DealCoresCost';
 import { DealCaveatStrip } from './DealCaveatStrip';
 import { DealCommunityProof } from './DealCommunityProof';
 
@@ -170,9 +173,14 @@ export const DealListCard = ({
           />
         </div>
 
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-3 tablet:w-52 tablet:flex-col tablet:items-end">
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-3 tablet:min-w-52 tablet:flex-col tablet:items-end">
           <div className="flex flex-col items-start tablet:items-end">
-            <DealValueBadge value={deal.value} isMuted={isMuted} />
+            <div className="flex flex-wrap items-center gap-2">
+              <DealValueBadge value={deal.value} isMuted={isMuted} />
+              {deal.unlock?.cores && (
+                <DealCoresCost cores={deal.unlock.cores} />
+              )}
+            </div>
             {savingPhrase && (
               <Typography
                 tag={TypographyTag.Span}
@@ -220,12 +228,16 @@ export const DealListCard = ({
             {isLocked && !isClaimed && (
               <Button
                 type="button"
-                variant={ButtonVariant.Secondary}
+                variant={
+                  deal.unlock?.cores
+                    ? ButtonVariant.Primary
+                    : ButtonVariant.Secondary
+                }
                 size={ButtonSize.Small}
-                icon={<InviteIcon />}
+                icon={deal.unlock?.cores ? <CoreIcon /> : <InviteIcon />}
                 onClick={() => openDetail?.(deal)}
               >
-                Invite to unlock
+                {getDealUnlockCtaLabel(deal.unlock)}
               </Button>
             )}
             {!isMuted && !isClaimed && !isLocked && (

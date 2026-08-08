@@ -66,7 +66,12 @@ const stateLabels: { label: string; deal: Deal }[] = [
   { label: 'Claimed', deal: getDealsByState(DealState.Claimed)[0] },
   { label: 'Expiring', deal: getDealsByState(DealState.Expiring)[0] },
   { label: 'Expired', deal: getDealsByState(DealState.Expired)[0] },
-  { label: 'Locked', deal: getDealsByState(DealState.Locked)[0] },
+  { label: 'Locked, invites', deal: findDeal('linear-3-months-free') },
+  { label: 'Locked, Cores', deal: findDeal('cursor-pro-month-for-cores') },
+  {
+    label: 'Locked, Cores or invites',
+    deal: findDeal('raycast-pro-year-members-only'),
+  },
   { label: 'Sold out', deal: getDealsByState(DealState.SoldOut)[0] },
   { label: 'Promoted', deal: mockDeals.filter((deal) => deal.isPromoted)[0] },
 ];
@@ -105,7 +110,9 @@ export const AllStates: Story = {
     <LabelledGrid
       items={stateLabels.map(({ label, deal }) => ({
         label,
-        testId: `deal-state-${deal.isPromoted ? 'promoted' : deal.state}`,
+        testId: `deal-state-${deal.isPromoted ? 'promoted' : deal.state}-${
+          deal.id
+        }`,
         deal,
       }))}
     />
