@@ -37,6 +37,11 @@ import { EngagementPlacement } from '../lib/engagementAds';
 import type { FeedAdTemplate } from '../lib/feed';
 import { getAdSlotIndex } from '../lib/feed';
 import {
+  exploreAdMockupEnabled,
+  exploreAdMockupPlaceholderLogo,
+  isExploreMockupFeed,
+} from '../features/exploreAdMockup/config';
+import {
   briefFeedEntrypointPage,
   featureFeedAdTemplate,
   featureHeroCards,
@@ -525,9 +530,16 @@ export default function useFeed<T>(
     dataUpdatedAt: adsUpdatedAt,
   } = adsQuery;
 
+  // Campaign mockup: on the Explore feed, guarantee an ad slot at every
+  // cadence position regardless of ad serving / Plus status. The slot is
+  // materialized as a real Ad item so FeedItemComponent swaps in the
+  // randomized advertiser card (see features/exploreAdMockup).
+  const isExploreAdMockupFeed =
+    exploreAdMockupEnabled && isExploreMockupFeed(settings?.feedName);
+
   const getAd = useCallback(
     ({ index }: { index: number }): AdItem | PlaceholderItem | undefined => {
-      if (!isAdsQueryEnabled) {
+      if (!isAdsQueryEnabled && !isExploreAdMockupFeed) {
         return undefined;
       }
 
@@ -547,6 +559,24 @@ export default function useFeed<T>(
 
       if (adPage === undefined) {
         return undefined;
+      }
+
+      if (isExploreAdMockupFeed) {
+        // Lightweight placeholder ad; the card randomizes its real creative at
+        // render time (see ExploreAdMockupCard).
+        return {
+          type: FeedItemType.Ad,
+          ad: {
+            company: 'Sponsored',
+            source: 'Sponsored',
+            description: 'Sponsored',
+            link: '#',
+            image: exploreAdMockupPlaceholderLogo,
+            companyLogo: exploreAdMockupPlaceholderLogo,
+          },
+          index: adPage,
+          updatedAt: adsUpdatedAt,
+        } as AdItem;
       }
 
       if (isLoading) {
@@ -578,6 +608,7 @@ export default function useFeed<T>(
       adsData,
       fetchNextAd,
       isAdsQueryEnabled,
+      isExploreAdMockupFeed,
       isLoading,
       adTemplate?.adStart,
       adTemplate?.adRepeat,
