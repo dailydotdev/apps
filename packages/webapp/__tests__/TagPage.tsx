@@ -6,7 +6,11 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  MutationCache,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import type {
   LoggedUser,
   UserShortProfile,
@@ -23,7 +27,7 @@ import {
 } from '@dailydotdev/shared/src/graphql/feedSettings';
 import { SortCommentsBy } from '@dailydotdev/shared/src/graphql/comments';
 import { getFeedSettingsQueryKey } from '@dailydotdev/shared/src/hooks/useFeedSettings';
-import { globalMutationCache } from '@dailydotdev/shared/src/lib/query';
+import { mutationSuccessSubscribers } from '@dailydotdev/shared/src/lib/query';
 import SettingsContext, {
   ThemeMode,
   type SettingsContextData,
@@ -177,10 +181,18 @@ const renderComponent = (
   initialData: Keyword = initialDataObj,
   topContributors: UserShortProfile[] = [],
 ): RenderResult => {
-  // Use the app's mutation cache so `useMutationSubscription` consumers (e.g.
-  // the tag's content-preference status) react to mutations like they do in
-  // the real client.
-  client = new QueryClient({ mutationCache: globalMutationCache });
+  // Reproduce the app's mutation-cache wiring so `useMutationSubscription`
+  // consumers (e.g. the tag's content-preference status) react to mutations
+  // like they do in the real client — with a cache per render, so nothing
+  // leaks between tests.
+  client = new QueryClient({
+    mutationCache: new MutationCache({
+      onSuccess: (...args) =>
+        mutationSuccessSubscribers.forEach((subscriber) =>
+          subscriber?.(...args),
+        ),
+    }),
+  });
 
   (mocks ?? [createFeedMock(), createTagsSettingsMock()]).forEach(mockGraphQL);
   mockGraphQL(createArchiveIndexMock());
@@ -363,6 +375,77 @@ it('should subscribe to the tag on notify click', async () => {
   notifyButton.click();
   await waitFor(() => expect(mutationCalled).toBeTruthy());
   await screen.findByLabelText('Disable notifications');
+});
+
+it('should unsubscribe from the tag on notify click when subscribed', async () => {
+  let mutationCalled = false;
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ includeTags: ['react'] }),
+    createContentPreferenceMock(ContentPreferenceStatus.Subscribed),
+  ]);
+  await waitForNock();
+  mockGraphQL({
+    request: {
+      query: CONTENT_PREFERENCE_FOLLOW_MUTATION,
+      variables: {
+        id: 'react',
+        entity: ContentPreferenceType.Keyword,
+        status: ContentPreferenceStatus.Follow,
+      },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { _: true } };
+    },
+  });
+  const notifyButton = await screen.findByLabelText('Disable notifications');
+  notifyButton.click();
+  await waitFor(() => expect(mutationCalled).toBeTruthy());
+  await screen.findByLabelText('Enable notifications');
+});
+
+it('should not resurrect a stale subscribed state after unfollow and re-follow', async () => {
+  renderComponent([
+    createFeedMock(),
+    createTagsSettingsMock({ includeTags: ['react'] }),
+    createContentPreferenceMock(ContentPreferenceStatus.Subscribed),
+  ]);
+  await screen.findByLabelText('Disable notifications');
+
+  // Unfollowing drops the keyword preference server-side, so the toggle has to
+  // invalidate the status query — this refetch only happens if it does.
+  mockGraphQL({
+    request: {
+      query: REMOVE_FILTERS_FROM_FEED_MUTATION,
+      variables: { filters: { includeTags: ['react'] } },
+    },
+    result: { data: { feedSettings: { id: defaultUser.id } } },
+  });
+  mockGraphQL({
+    request: {
+      query: CONTENT_PREFERENCE_STATUS_QUERY,
+      variables: { id: 'react', entity: ContentPreferenceType.Keyword },
+    },
+    result: { data: { contentPreferenceStatus: null } },
+  });
+  (await screen.findByLabelText('Unfollow')).click();
+  await screen.findByLabelText('Follow');
+
+  mockGraphQL({
+    request: {
+      query: ADD_FILTERS_TO_FEED_MUTATION,
+      variables: { filters: { includeTags: ['react'] } },
+    },
+    result: { data: { feedSettings: { id: defaultUser.id } } },
+  });
+  (await screen.findByLabelText('Follow')).click();
+
+  const notifyButton = await screen.findByLabelText('Enable notifications');
+  expect(notifyButton).toBeInTheDocument();
+  expect(
+    screen.queryByLabelText('Disable notifications'),
+  ).not.toBeInTheDocument();
 });
 
 it('should show follow and block buttons when logged-out', async () => {
