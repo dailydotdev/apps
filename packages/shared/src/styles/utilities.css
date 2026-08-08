@@ -111,6 +111,33 @@
 }
 
 /*
+ * The deals directory swaps between a list and a grid of the same offers. The
+ * whole result set fades in once rather than each row animating on its own: a
+ * hundred staggered rows reads as a loading screen, not as a layout change.
+ */
+@keyframes deals-results-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-deals-results-in {
+  animation: deals-results-in 200ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-deals-results-in {
+    animation: none;
+  }
+}
+
+/*
  * Rail dropdown feel (More / Support / Settings / customize tray / hover
  * panels). Enter: fade + a small slide out of the rail + de-blur, on the
  * GPU-friendly properties only (transform, opacity, filter) so it never
