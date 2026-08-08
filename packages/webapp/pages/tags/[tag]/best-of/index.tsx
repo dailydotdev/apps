@@ -111,6 +111,7 @@ const getPageLayout: typeof getLayout = (...props) =>
 TagArchiveIndexPage.getLayout = getPageLayout;
 TagArchiveIndexPage.layoutProps = {
   screenCentered: false,
+  layoutVariant: 'v1',
 };
 
 export default TagArchiveIndexPage;

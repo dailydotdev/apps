@@ -11,6 +11,7 @@ import {
 import { ProfileAchievements } from '@dailydotdev/shared/src/features/profile/components/achievements/ProfileAchievements';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
+import type { MainLayoutProps } from '@dailydotdev/shared/src/components/MainLayout';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
 import {
   getLayout as getProfileLayout,
@@ -75,6 +76,11 @@ const ProfileAchievementsPage = ({
 ProfileAchievementsPage.getLayout = (
   page: ReactNode,
   props: ProfileLayoutProps,
+  layoutProps?: MainLayoutProps,
 ): ReactNode =>
-  getProfileLayout(page, { ...props, pageHeaderTitle: 'Achievements' });
+  getProfileLayout(
+    page,
+    { ...props, pageHeaderTitle: 'Achievements' },
+    layoutProps,
+  );
 export default ProfileAchievementsPage;

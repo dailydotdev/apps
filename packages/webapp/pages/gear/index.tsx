@@ -120,6 +120,7 @@ GearPage.getLayout = getGearPageLayout;
 GearPage.layoutProps = {
   screenCentered: false,
   seo,
+  layoutVariant: 'v1',
 };
 export default GearPage;
 

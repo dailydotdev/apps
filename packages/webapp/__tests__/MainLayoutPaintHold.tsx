@@ -46,13 +46,17 @@ describe('MainLayout before boot resolves', () => {
       .mockReturnValue({ isV2: false, isLoading: true });
   });
 
-  const renderLayout = (): RenderResult =>
+  const renderLayout = ({
+    layoutVariant: forcedVariant,
+  }: {
+    layoutVariant?: 'v1' | 'v2';
+  } = {}): RenderResult =>
     render(
       <TestBootProvider
         client={new QueryClient()}
         auth={{ isAuthReady: false, isLoggedIn: false, user: undefined }}
       >
-        <MainLayout>
+        <MainLayout layoutVariant={forcedVariant}>
           <p>prerendered page content</p>
         </MainLayout>
       </TestBootProvider>,
@@ -73,11 +77,32 @@ describe('MainLayout before boot resolves', () => {
     expect(content.closest('div.antialiased')).not.toHaveClass('invisible');
   });
 
-  it('renders the header before the layout experiment resolves', () => {
+  it('does not reserve header space before the layout resolves', () => {
     mockRouter('/posts/[id]');
     renderLayout();
 
+    const content = screen.getByText('prerendered page content');
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+    expect(content.closest('main')).not.toHaveClass('laptop:pt-16');
+  });
+
+  it('renders the server-selected v1 header and its spacing', () => {
+    mockRouter('/posts/[id]');
+    renderLayout({ layoutVariant: 'v1' });
+
+    const content = screen.getByText('prerendered page content');
     expect(screen.getByRole('banner')).toBeInTheDocument();
+    expect(content.closest('main')).toHaveClass('laptop:pt-16');
+  });
+
+  it('renders the server-selected layout v2 shell before boot resolves', () => {
+    mockRouter('/layout-v2/posts/[id]');
+    renderLayout({ layoutVariant: 'v2' });
+
+    const content = screen.getByText('prerendered page content');
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
+    expect(content.closest('main')).not.toHaveClass('laptop:pt-16');
+    expect(content.closest('div.laptop\\:rounded-24')).toBeInTheDocument();
   });
 
   it('still renders nothing for feed-shaped pages', () => {

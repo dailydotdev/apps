@@ -100,6 +100,7 @@ const getPageLayout: typeof getLayout = (...props) =>
 GlobalArchiveIndexPage.getLayout = getPageLayout;
 GlobalArchiveIndexPage.layoutProps = {
   screenCentered: false,
+  layoutVariant: 'v1',
 };
 
 export default GlobalArchiveIndexPage;

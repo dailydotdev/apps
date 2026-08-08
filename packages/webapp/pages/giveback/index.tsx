@@ -61,6 +61,10 @@ const getGivebackLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 GivebackRoute.getLayout = getGivebackLayout;
-GivebackRoute.layoutProps = { screenCentered: false, seo };
+GivebackRoute.layoutProps = {
+  screenCentered: false,
+  seo,
+  layoutVariant: 'v1',
+};
 
 export default GivebackRoute;

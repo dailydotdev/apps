@@ -154,6 +154,6 @@ const geOpportunityLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));
 
 JobsPage.getLayout = geOpportunityLayout;
-JobsPage.layoutProps = { screenCentered: false };
+JobsPage.layoutProps = { screenCentered: false, layoutVariant: 'v1' };
 
 export default JobsPage;

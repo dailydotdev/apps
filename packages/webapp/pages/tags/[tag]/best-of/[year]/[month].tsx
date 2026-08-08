@@ -168,6 +168,7 @@ const getPageLayout: typeof getLayout = (...props) =>
 TagMonthlyArchivePage.getLayout = getPageLayout;
 TagMonthlyArchivePage.layoutProps = {
   screenCentered: false,
+  layoutVariant: 'v1',
 };
 
 export default TagMonthlyArchivePage;

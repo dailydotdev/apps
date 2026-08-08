@@ -1,4 +1,3 @@
-import type { JSONValue } from '@growthbook/growthbook';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
@@ -6,17 +5,10 @@ import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
 import type { HeroCardsConfig } from '../types';
 import { PostType } from '../types';
+import { Feature } from './feature';
 
-export class Feature<T extends JSONValue> {
-  readonly id: string;
-
-  readonly defaultValue: T;
-
-  constructor(id: string, defaultValue: T) {
-    this.id = id;
-    this.defaultValue = defaultValue;
-  }
-}
+export { Feature } from './feature';
+export { featureLayoutV2 } from './serverFeatures';
 
 const feature = {
   showError: new Feature('show_error', false),
@@ -257,8 +249,6 @@ export const featureOnboardingChrome = new Feature<OnboardingChromeVariant>(
   'onboarding_chrome',
   OnboardingChromeVariant.Control,
 );
-
-export const featureLayoutV2 = new Feature('layout_v2', false);
 
 export const featureEngagementBarV2 = new Feature('engagement_bar_v2', false);
 
