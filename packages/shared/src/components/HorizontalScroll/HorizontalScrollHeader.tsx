@@ -6,6 +6,7 @@ import { Button } from '../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../buttons/common';
 import ConditionalWrapper from '../ConditionalWrapper';
 import { ArrowIcon } from '../icons';
+import type { TypographyTag } from '../typography/Typography';
 import { Typography, TypographyType } from '../typography/Typography';
 
 export interface HorizontalScrollTitleProps {
@@ -13,6 +14,7 @@ export interface HorizontalScrollTitleProps {
   id?: string;
   icon?: ReactNode;
   type?: TypographyType;
+  tag?: TypographyTag;
 }
 
 export interface HorizontalScrollHeaderProps {
@@ -33,11 +35,12 @@ export const HorizontalScrollTitle = ({
   copy,
   icon,
   type = TypographyType.Title2,
+  tag,
 }: HorizontalScrollTitleProps): ReactElement => {
   return (
     <span className="flex flex-row items-center">
       {icon}
-      <Typography type={type} id={id} bold>
+      <Typography tag={tag} type={type} id={id} bold>
         {copy}
       </Typography>
     </span>

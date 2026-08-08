@@ -11,9 +11,12 @@ export const MARKDOWN_ROUTES: Record<string, string> = {
   '/sources': '/api/md/sources',
   '/tags': '/api/md/tags',
   '/squads/discover': '/api/md/squads',
+  '/deals': '/api/md/deals',
 } as const;
 
 export const POST_MARKDOWN_PATH = '/api/md/posts';
+
+export const DEAL_MARKDOWN_PATH = '/api/md/deals';
 
 /**
  * Single-segment `/posts/<x>` routes that are feed pages rather than posts.
@@ -40,5 +43,9 @@ export const getMarkdownRewrites = (): Array<{
   {
     source: '/posts/:id.md',
     destination: `${POST_MARKDOWN_PATH}/:id`,
+  },
+  {
+    source: '/deals/:slug.md',
+    destination: `${DEAL_MARKDOWN_PATH}/:slug`,
   },
 ];
