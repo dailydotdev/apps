@@ -45,7 +45,7 @@ export function FeedSettingsButton({
     feature: featureFeedChips,
     shouldEvaluate: !isPlus,
   });
-  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
+  const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const { feeds, deleteFeed } = useFeeds();
   const router = useRouter();
   const { showPrompt } = usePrompt();

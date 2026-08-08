@@ -19,7 +19,11 @@ import {
   VIEW_POST_MUTATION,
 } from '@dailydotdev/shared/src/graphql/posts';
 import type { PostCommentsData } from '@dailydotdev/shared/src/graphql/comments';
-import { POST_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
+import {
+  POST_COMMENTS_QUERY,
+  SortCommentsBy,
+} from '@dailydotdev/shared/src/graphql/comments';
+import commentFixture from '@dailydotdev/shared/__tests__/fixture/comment';
 import type { Action } from '@dailydotdev/shared/src/graphql/actions';
 import {
   ActionType,
@@ -210,6 +214,27 @@ const createCommentsMock = (): MockedGraphQLResponse<PostCommentsData> => ({
       postComments: {
         pageInfo: {},
         edges: [],
+      },
+    },
+  },
+});
+
+const createPostCommentsMock = (
+  edges: PostCommentsData['postComments']['edges'] = [],
+): MockedGraphQLResponse<PostCommentsData> => ({
+  request: {
+    query: POST_COMMENTS_QUERY,
+    variables: {
+      postId: '0e4005b2d3cf191f8c44c2718a457a1e',
+      first: 500,
+      sortBy: SortCommentsBy.OldestFirst,
+    },
+  },
+  result: {
+    data: {
+      postComments: {
+        pageInfo: {},
+        edges,
       },
     },
   },
@@ -613,6 +638,23 @@ it('should show impressions when it is greater than zero', async () => {
   ]);
   const el = await screen.findByTestId('statsBar');
   expect(el).toHaveTextContent('15 Impressions');
+});
+
+it('should hide the comments sort toggle when the comments empty state shows', async () => {
+  renderPost({}, [createPostMock(), createPostCommentsMock()]);
+  await screen.findByText('No comments yet');
+  expect(screen.queryByText('Sort:')).not.toBeInTheDocument();
+  expect(screen.queryByText('Oldest first')).not.toBeInTheDocument();
+});
+
+it('should show the comments sort toggle when there are comments', async () => {
+  renderPost({}, [
+    createPostMock({ numComments: 1 }),
+    createPostCommentsMock([{ node: commentFixture }]),
+  ]);
+  await screen.findByText('Oldest first');
+  expect(screen.getByText('Sort:')).toBeInTheDocument();
+  expect(screen.queryByText('No comments yet')).not.toBeInTheDocument();
 });
 
 it('should not show author link when author is null', async () => {

@@ -1,27 +1,18 @@
 import type { ReactElement } from 'react';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { useQuery } from '@tanstack/react-query';
-import AuthContext from '../../contexts/AuthContext';
-import type {
-  Comment,
-  PostCommentsData,
-  SortCommentsBy,
-} from '../../graphql/comments';
-import { POST_COMMENTS_QUERY } from '../../graphql/comments';
+import type { Comment, SortCommentsBy } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
 import type { MainCommentProps } from '../comments/MainComment';
 import MainComment from '../comments/MainComment';
 import PlaceholderCommentList from '../comments/PlaceholderCommentList';
-import { useRequestProtocol } from '../../hooks/useRequestProtocol';
-import { initialDataKey } from '../../lib/constants';
 import { Origin } from '../../lib/log';
 import type { CommentClassName } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { useDeleteComment } from '../../hooks/comments/useDeleteComment';
+import { usePostComments } from '../../hooks/comments/usePostComments';
 import { lazyCommentThreshold } from '../utilities';
 import { isNullOrUndefined } from '../../lib/func';
 import { useCommentContentPreferenceMutationSubscription } from './useCommentContentPreferenceMutationSubscription';
-import { generateCommentsQueryKey } from '../../lib/query';
 import { CharmEmptyState } from '../charm/CharmEmptyState';
 import { cloudinaryCharmNoComments } from '../../lib/image';
 
@@ -74,28 +65,16 @@ export function PostComments({
   const { id } = post;
   const container = useRef<HTMLDivElement | null>(null);
   const isModalThread = threadCommentOrigins.has(origin);
-  const { tokenRefreshed } = useContext(AuthContext);
-  const { requestMethod } = useRequestProtocol();
-  const queryKey = generateCommentsQueryKey({ postId: id, sortBy });
-  const { data: comments, isLoading: isLoadingComments } =
-    useQuery<PostCommentsData>({
-      queryKey,
-
-      queryFn: (): Promise<PostCommentsData> =>
-        requestMethod(
-          POST_COMMENTS_QUERY,
-          { postId: id, [initialDataKey]: comments, first: 500, sortBy },
-          { requestKey: JSON.stringify(queryKey) },
-        ),
-      enabled: !!id && tokenRefreshed,
-      refetchInterval: 60 * 1000,
-      refetchOnWindowFocus: false,
-    });
+  const {
+    queryKey,
+    comments,
+    isLoading: isLoadingComments,
+    commentsCount,
+  } = usePostComments({ postId: id, sortBy });
 
   useCommentContentPreferenceMutationSubscription({ queryKey });
 
   const { hash: commentHash } = globalThis?.window?.location || {};
-  const commentsCount = comments?.postComments?.edges?.length || 0;
   const commentRef = useRef<HTMLElement | null>(null);
   const { deleteComment } = useDeleteComment();
 

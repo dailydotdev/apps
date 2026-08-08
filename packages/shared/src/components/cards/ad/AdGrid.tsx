@@ -14,6 +14,7 @@ import AdAttribution from './common/AdAttribution';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
 import { AdMeasurement } from './common/AdMeasurement';
+import { AdViewability } from './common/AdViewability';
 import { useAdClickUrl } from '../../../features/monetization/useAdClickUrl';
 import type { AdCardProps } from './common/common';
 import { RemoveAd } from './common/RemoveAd';
@@ -32,7 +33,7 @@ import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions'
 import { useAdLabel } from '../../../features/monetization/useAdLabel';
 
 export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
-  { ad, onLinkClick, domProps, index, feedIndex },
+  { ad, onLinkClick, onViewable, domProps, index, feedIndex },
   forwardedRef,
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
@@ -109,6 +110,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
       )}
       <AdPixel pixel={ad.pixel} />
       <AdMeasurement ad={ad} />
+      <AdViewability ad={ad} onViewable={(data) => onViewable?.(ad, data)} />
     </Card>
   );
 });

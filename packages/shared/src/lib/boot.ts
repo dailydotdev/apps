@@ -80,7 +80,7 @@ export type Boot = {
    */
   marketingCtaVariants?: MarketingCtaVariant[];
   feeds: Feed[];
-  language?: string;
+  language?: string | null;
   geo: {
     ip?: string;
     region?: string;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import AuthHeader from './AuthHeader';
 import { onboardingHeadlineClasses } from '../onboarding/common';
 
@@ -28,5 +29,23 @@ describe('AuthHeader', () => {
 
     expect(heading).toHaveClass('typo-title2');
     expect(heading).not.toHaveClass('typo-title1');
+  });
+
+  it('offers a back button on the simplified variant when onBack is given', async () => {
+    const onBack = jest.fn();
+    render(<AuthHeader simplified title="Verify your email" onBack={onBack} />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Go back' }));
+
+    expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the bare heading DOM when simplified has no onBack', () => {
+    render(<AuthHeader simplified title="Sign up" />);
+
+    const heading = screen.getByRole('heading', { name: 'Sign up' });
+
+    expect(heading.parentElement).not.toHaveClass('relative');
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 });

@@ -5,6 +5,7 @@ import EmailCodeVerification from '@dailydotdev/shared/src/components/auth/Email
 import { useRouter } from 'next/router';
 import AuthHeader from '@dailydotdev/shared/src/components/auth/AuthHeader';
 import HeaderLogo from '@dailydotdev/shared/src/components/layout/HeaderLogo';
+import { FunnelStepTopBar } from '@dailydotdev/shared/src/features/onboarding/shared/FunnelStepTopBar';
 import { AuthDataProvider } from '@dailydotdev/shared/src/contexts/AuthDataContext';
 import { AuthModalText } from '@dailydotdev/shared/src/components/auth/common';
 import {
@@ -52,12 +53,17 @@ const Verification = (): ReactElement | null => {
 
   return (
     <AuthDataProvider initialEmail={email}>
-      <div className="flex min-h-screen w-full flex-col items-center px-4 py-10">
-        <HeaderLogo onLogoClick={() => router.push('/')} />
-        <div className="mt-10 w-full max-w-[30rem]">
-          <AuthHeader title="Verify your email" simplified />
+      <div className="flex min-h-screen w-full flex-col items-center pb-10">
+        {/* The same bar the funnel steps carry, so the logo keeps its
+            icon-on-mobile, wordmark-on-desktop treatment across the flow. */}
+        <FunnelStepTopBar
+          skip={{ cta: 'Start over', onClick: () => router.push('/') }}
+        />
+        <div className="w-full max-w-[30rem] px-4 pt-6">
+          <AuthHeader title="Verify your email" simplified onboardingHeadline />
           <EmailCodeVerification
             code={code}
+            isOnboardingFunnel
             className="mx-auto max-w-[30rem]"
             onSubmit={() => router.push('/')}
             onVerifyCode={async (verificationCode) => {

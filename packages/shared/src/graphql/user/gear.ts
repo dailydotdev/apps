@@ -1,6 +1,5 @@
 import type { ComponentType } from 'react';
 import { gql } from 'graphql-request';
-import type { Connection } from '../common';
 import { gqlClient } from '../common';
 import type { IconProps } from '../../components/Icon';
 import { TerminalIcon } from '../../components/icons/Terminal';
@@ -124,7 +123,7 @@ export interface ReorderGearInput {
   position: number;
 }
 
-const GEAR_FRAGMENT = gql`
+export const GEAR_FRAGMENT = gql`
   fragment GearFragment on Gear {
     id
     position
@@ -134,23 +133,6 @@ const GEAR_FRAGMENT = gql`
       category
     }
   }
-`;
-
-const GEAR_QUERY = gql`
-  query Gear($userId: ID!, $first: Int, $after: String) {
-    gear(userId: $userId, first: $first, after: $after) {
-      edges {
-        node {
-          ...GearFragment
-        }
-      }
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-    }
-  }
-  ${GEAR_FRAGMENT}
 `;
 
 const AUTOCOMPLETE_GEAR_QUERY = gql`
@@ -187,16 +169,6 @@ const REORDER_GEAR_MUTATION = gql`
   }
   ${GEAR_FRAGMENT}
 `;
-
-export const getGear = async (
-  userId: string,
-  first = 50,
-): Promise<Connection<Gear>> => {
-  const result = await gqlClient.request<{
-    gear: Connection<Gear>;
-  }>(GEAR_QUERY, { userId, first });
-  return result.gear;
-};
 
 export const searchGear = async (query: string): Promise<DatasetGear[]> => {
   const result = await gqlClient.request<{

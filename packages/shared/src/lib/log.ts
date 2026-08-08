@@ -370,7 +370,17 @@ export enum LogEvent {
   SharePost = 'share post',
   ShareComment = 'share comment',
   ShareLog = 'share log',
+  ShareWorld = 'share world',
   // End Share
+  /* Start World
+     `world view` is the denominator and fires whatever happens next, so the
+     boot it precedes can be measured as a rate against it: every open resolves
+     to exactly one `world ready` or one `world boot failed`. */
+  WorldView = 'world view',
+  WorldReady = 'world ready',
+  WorldBootFailed = 'world boot failed',
+  WorldCustomize = 'world customize',
+  // End World
   // Navigation
   NavigatePrevious = 'navigate previous',
   NavigateNext = 'navigate next',
@@ -440,6 +450,7 @@ export enum LogEvent {
   UpdateUserStack = 'update user stack',
   RemoveUserStack = 'remove user stack',
   ReorderUserStack = 'reorder user stack',
+  ShareUserStack = 'share user stack',
   // Hot Takes
   StartAddHotTake = 'start add hot take',
   AddHotTake = 'add hot take',
@@ -602,12 +613,14 @@ export enum TargetType {
   HighlightsCard = 'highlights card',
   AdvertiseHereCta = 'advertise here cta',
   ExtensionPromo = 'extension promo',
+  ProfileWorldToggle = 'profile world toggle',
 }
 
 export enum TargetId {
   On = 'on',
   Off = 'off',
   SpotlightOpen = 'spotlight open',
+  FeedbackOpen = 'feedback open',
   SearchReferralBadge = 'search referral badge',
   InviteBanner = 'invite banner',
   InviteProfileMenu = 'invite in profile menu',

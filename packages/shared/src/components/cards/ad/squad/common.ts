@@ -5,6 +5,7 @@ import { getCampaignById } from '../../../../graphql/campaigns';
 import type { BasicSourceMember } from '../../../../graphql/sources';
 import { getSquadMembers } from '../../../../graphql/squads';
 import type { AdSquadItem } from '../../../../hooks/useFeed';
+import type { ViewabilityData } from '../../../../features/monetization/viewability';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../../lib/query';
 import { useSquad } from '../../../../hooks';
 
@@ -12,6 +13,7 @@ export interface SquadAdFeedProps {
   item: AdSquadItem;
   onClickAd: () => void;
   onMount?: () => void;
+  onViewable?: (data: ViewabilityData) => void;
 }
 
 export const useSquadAd = ({ item }: Pick<SquadAdFeedProps, 'item'>) => {

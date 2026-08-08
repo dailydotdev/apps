@@ -25,6 +25,7 @@ import {
   TypographyType,
 } from '../../typography/Typography';
 import { useSquadsDirectoryLogging } from './common/useSquadsDirectoryLogging';
+import { AdViewability } from '../ad/common/AdViewability';
 import { useScrambler } from '../../../hooks/useScrambler';
 
 export enum SourceCardBorderColor {
@@ -85,7 +86,7 @@ export const SquadGrid = ({
     staleTime: StaleTime.OneHour,
   });
   const borderColor = border || color || SourceCardBorderColor.Avocado;
-  const { ref, onClickAd } = useSquadsDirectoryLogging(ad);
+  const { ref, onClickAd, onViewableAd } = useSquadsDirectoryLogging(ad);
   const promotedText = useScrambler('Promoted');
   const promotedByTooltip = useScrambler(
     campaign ? `Promoted by @${campaign.user.username}` : null,
@@ -167,6 +168,7 @@ export const SquadGrid = ({
         </div>
       </div>
       {children}
+      {!!ad && <AdViewability ad={ad} onViewable={onViewableAd} />}
     </Card>
   );
 };
