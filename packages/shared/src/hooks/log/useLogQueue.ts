@@ -54,7 +54,9 @@ export default function useLogQueue({
     if (enabledRef.current && queueRef.current.length) {
       const queue = queueRef.current;
       queueRef.current = [];
-      sendEvents(queue);
+      // Telemetry must never surface as an app-level error: the mutation
+      // already retries, and a dropped batch is not worth breaking a page for.
+      sendEvents(queue).catch(() => undefined);
     }
   }, 500);
 
