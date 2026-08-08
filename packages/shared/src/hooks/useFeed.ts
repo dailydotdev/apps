@@ -611,13 +611,6 @@ export default function useFeed<T>(
   const items = useMemo(() => {
     const newItems: FeedItem[] = [];
 
-    // Check if marketing CTA should be shown as first card
-    const marketingCta = settings?.marketingCta;
-    const marketingCtaAsFirstCard = marketingCta?.flags?.asFirstCard;
-    const plusEntry = settings?.plusEntry;
-    const plusEntryAsFirstCard = plusEntry?.flags?.asFirstCard;
-    const showAcquisitionForm = settings?.showAcquisitionForm ?? false;
-
     if (feedQuery.data) {
       // Track visual cells (not logical items) for ad cadence so wide
       // cards consume their full visual width against the ad schedule.
@@ -664,20 +657,6 @@ export default function useFeed<T>(
         visualCellsSoFar += placement.colSpan;
       };
 
-      if (plusEntryAsFirstCard && plusEntry) {
-        pushAndAdvance({
-          type: FeedItemType.PlusEntry,
-          plusEntry,
-          dataUpdatedAt: feedQuery.dataUpdatedAt,
-        });
-      } else if (marketingCtaAsFirstCard && marketingCta) {
-        pushAndAdvance({
-          type: FeedItemType.MarketingCta,
-          marketingCta,
-          dataUpdatedAt: feedQuery.dataUpdatedAt,
-        });
-      }
-
       feedQuery.data.pages.forEach(({ page }, pageIndex) => {
         page.edges.forEach(({ node }, index: number) => {
           // Bail before the ad slot is claimed, otherwise dropping the post
@@ -689,37 +668,7 @@ export default function useFeed<T>(
           const adItem = getAd({ index: visualCellsSoFar });
 
           if (adItem) {
-            const withFirstIndex = (condition: boolean) =>
-              pageIndex === 0 && adItem.index === 0 && condition;
-
-            // Skip ad slot if marketing CTA is shown as first card
-            const shouldSkipAdForMarketingCta = withFirstIndex(
-              (marketingCtaAsFirstCard ?? false) ||
-                (plusEntryAsFirstCard ?? false),
-            );
-
-            if (shouldSkipAdForMarketingCta) {
-              // Don't push anything - marketing CTA is already at the top
-            } else if (plusEntry && withFirstIndex(true)) {
-              pushAndAdvance({
-                type: FeedItemType.PlusEntry,
-                plusEntry,
-                dataUpdatedAt: feedQuery.dataUpdatedAt,
-              });
-            } else if (marketingCta && withFirstIndex(true)) {
-              pushAndAdvance({
-                type: FeedItemType.MarketingCta,
-                marketingCta,
-                dataUpdatedAt: feedQuery.dataUpdatedAt,
-              });
-            } else if (withFirstIndex(showAcquisitionForm)) {
-              pushAndAdvance({
-                type: FeedItemType.UserAcquisition,
-                dataUpdatedAt: feedQuery.dataUpdatedAt,
-              });
-            } else {
-              pushAndAdvance(adItem);
-            }
+            pushAndAdvance(adItem);
           }
 
           if (node.itemType === 'highlight') {
@@ -774,11 +723,8 @@ export default function useFeed<T>(
     feedQuery.data,
     feedQuery.isFetching,
     feedQuery.dataUpdatedAt,
-    settings?.marketingCta,
-    settings?.showAcquisitionForm,
     placeholdersPerPage,
     getAd,
-    settings?.plusEntry,
     settings?.staticAd,
     heroCardsConfig,
     virtualizedNumCards,
