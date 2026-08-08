@@ -77,6 +77,7 @@ function AuthHeader({
           variant={ButtonVariant.Tertiary}
           className="mr-2"
           onClick={onBack}
+          aria-label="Go back"
         />
       )}
     </Modal.Header>
