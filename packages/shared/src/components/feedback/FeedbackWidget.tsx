@@ -140,6 +140,7 @@ export function FeedbackWidget({
           className="group !h-auto w-full justify-between !gap-0 border border-border-subtlest-tertiary !bg-transparent !px-3 py-2 !text-text-secondary shadow-none hover:!bg-surface-hover hover:!text-text-primary"
           onClick={() => openModal({ type: LazyModal.Feedback })}
           aria-label="Send feedback. Real people reply."
+          aria-keyshortcuts="Control+Shift+F Meta+Shift+F"
         >
           <span className="flex min-w-0 flex-col items-start overflow-hidden whitespace-nowrap leading-tight">
             <span>Feedback</span>
@@ -184,6 +185,7 @@ export function FeedbackWidget({
       className="group fixed bottom-4 right-4 z-max !h-auto !gap-0 !px-3 py-1.5 shadow-2"
       onClick={() => openModal({ type: LazyModal.Feedback })}
       aria-label="Send feedback. Real people reply."
+      aria-keyshortcuts="Control+Shift+F Meta+Shift+F"
     >
       <span
         aria-hidden={isCompact}

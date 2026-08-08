@@ -228,7 +228,9 @@ const resolveShortcut = (entry: SidebarShortcut): ResolvedShortcut | null => {
   return {
     key: entry.path,
     label: entry.title,
-    path: entry.path,
+    // Panel rows can carry a relative path (Explore, Following, Recent), which
+    // would resolve against chrome-extension:// once pinned.
+    path: toWebappHref(entry.path),
     // Prefer the image captured at drag time (instant, no flash); fall back to
     // resolving a glyph/image from the path.
     icon: () => <SidebarEntityIcon path={entry.path} image={entry.image} />,

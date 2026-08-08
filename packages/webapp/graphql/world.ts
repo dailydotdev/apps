@@ -85,6 +85,17 @@ export interface WorldSettings {
   crest: WorldCrest | null;
   look: WorldLook | null;
   private: boolean;
+  /**
+   * A bare render of the world captured in the owner's browser. The share card
+   * is composed around it server-side, so it carries no name, stats or chrome.
+   *
+   * Optional rather than nullable because this is server-owned and not part of
+   * the dressing: the bench composes settings objects out of draft values, and
+   * a draft has no plate to speak of.
+   */
+  plateUrl?: string | null;
+  /** What the plate is a picture of, compared against the world to spot staleness. */
+  plateVersion?: string | null;
 }
 
 /** What granted an entitlement: `base`, or `niche:<slug>`. */
@@ -106,6 +117,10 @@ export interface UserWorldEntitlementsData {
 
 export interface UpdateUserWorldSettingsData {
   updateUserWorldSettings: WorldSettings | null;
+}
+
+export interface UploadUserWorldPlateData {
+  uploadUserWorldPlate: WorldSettings | null;
 }
 
 const WORLD_SETTINGS_FRAGMENT = gql`
@@ -144,6 +159,8 @@ const WORLD_SETTINGS_FRAGMENT = gql`
       }
     }
     private
+    plateUrl
+    plateVersion
   }
 `;
 
@@ -198,6 +215,20 @@ export const UPDATE_USER_WORLD_SETTINGS_MUTATION = gql`
       look: $look
       private: $private
     ) {
+      ...WorldSettings
+    }
+  }
+  ${WORLD_SETTINGS_FRAGMENT}
+`;
+
+/**
+ * Stores the render the share card is composed around. Takes no id: like every
+ * world customisation it writes the caller's own row, which is what stops a
+ * visitor putting an arbitrary image on someone else's card.
+ */
+export const UPLOAD_USER_WORLD_PLATE_MUTATION = gql`
+  mutation UploadUserWorldPlate($image: Upload!, $version: String!) {
+    uploadUserWorldPlate(image: $image, version: $version) {
       ...WorldSettings
     }
   }

@@ -8,9 +8,6 @@
    a ring can be two circles and a dot-in-ring three, with no winding to track. */
 const _c=(x,y,r)=>`M${x-r},${y}a${r},${r} 0 1 0 ${r*2},0a${r},${r} 0 1 0 ${-r*2},0Z`;
 const _r=(x,y,w,h)=>`M${x-w/2},${y-h/2}h${w}v${h}h${-w}Z`;
-/* A groove cut as a HOLE. Half-widths must stay inside the cop at the groove's
-   LOWEST point, or the ends fall outside the shape and even-odd fills them into wings. */
-const _gv=(y,w,h)=>`M-${w},${y} L${w},${y} L${w+1},${y+h} L-${w+1},${y+h} Z`;
 /* One glyph per signature in REALMS, deliberately blunt: a crest is read at
    22px in a chip and at share-card size, and interior detail is a smudge at both. */
 export const CHARGES={
@@ -21,14 +18,16 @@ export const CHARGES={
   aqueduct:  {n:'AQUEDUCT',  d:`${_r(0,-30,88,14)}M-40,44 L-40,-16 L-14,-16 L-14,44 L-24,44 L-24,-4 L-30,-4 L-30,44 Z M14,44 L14,-16 L40,-16 L40,44 L30,44 L30,-4 L24,-4 L24,44 Z`},
   wardring:  {n:'WARD RING', d:`${_c(0,0,44)}${_c(0,0,34)}M0,-22 L20,-12 L20,10 L0,26 L-20,10 L-20,-12 Z`},
   coil:      {n:'SERPENT STEPS', d:`M-44,44 L-44,18 L-17,18 L-17,-8 L10,-8 L10,-34 L44,-34 L44,44 Z`},
-  /* Whorl drawn as two wings clear of the shaft rather than a disc across it:
-     two overlapping solids under even-odd cut a slot through the middle of both. */
-  loom:      {n:'GREAT SPINDLE',
-              d:`M0,-48 L5,-37 L-5,-37 Z${_r(0,-27,7,22)}`
-               +`M-19,-34 L-4,-34 L-4,-26 L-12,-26 Z`
-               +`M19,-34 L4,-34 L4,-26 L12,-26 Z`
-               +`M-10,-16 L10,-16 L21,32 L-21,32 Z`
-               +`${_gv(-2,12,5)}${_gv(10,15,5)}${_r(0,38.5,46,13)}`},
+  /* An upright frame with the warp strung down it. It was a SPINDLE, which is
+     what the monument used to be; the monument is a loom now, and a charge that
+     draws the wrong building is worse than a plain one.
+     Beams span BETWEEN the posts and the threads stop short of both: two solids
+     that overlap under even-odd cut a hole through each other, which at 22px
+     reads as a broken glyph rather than as a joint. */
+  loom:      {n:'GREAT LOOM',
+              d:`${_r(-34,0,11,92)}${_r(34,0,11,92)}`
+               +`${_r(0,-34,57,11)}${_r(0,31,57,13)}`
+               +`${_r(-18,-1,5,50)}${_r(-6,-1,5,50)}${_r(6,-1,5,50)}${_r(18,-1,5,50)}`},
   canopywalk:{n:'CANOPY',    d:`${_r(-34,10,12,72)}${_r(34,10,12,72)}${_r(0,-12,80,10)}${_r(0,10,80,6)}`},
   greenhouse:{n:'GREENHOUSE',d:`M0,-44 L44,-8 L44,44 L-44,44 L-44,-8 Z M0,-26 L28,-2 L28,30 L-28,30 L-28,-2 Z${_r(0,14,8,32)}`},
   wellspring:{n:'WELLSPRING',d:`M-40,4 L40,4 L32,44 L-32,44 Z${_r(0,-26,10,44)}${_c(0,-38,12)}`},

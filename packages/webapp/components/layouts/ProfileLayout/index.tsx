@@ -34,6 +34,7 @@ import { getPageSeoTitles } from '../utils';
 import { getAppOrigin } from '../../../lib/seo';
 import { ProfileWidgets } from '../../../../shared/src/features/profile/components/ProfileWidgets/ProfileWidgets';
 import { useProfileSidebarCollapse } from '../../../hooks/useProfileSidebarCollapse';
+import { hasPublicWorld } from '../../world/profileWorld';
 
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../pages/404'),
@@ -46,6 +47,8 @@ export interface ProfileLayoutProps extends Partial<ProfileV2> {
   // v2: title shown in the shared page-header strip at the top of the
   // floating card, above the profile sidebar + main + aside row.
   pageHeaderTitle?: string;
+  /** Whether this reader has a world a visitor is allowed to walk into. */
+  hasWorld?: boolean;
 }
 
 export const getOGImageUrl = (userId: string): string => {
@@ -191,9 +194,32 @@ interface ProfileParams extends ParsedUrlQuery {
   userId: string;
 }
 
+// `blocking`, not `true`. `pages/[userId]` is a ROOT-LEVEL dynamic
+// route, so it claims every single-segment path on the apex — and with
+// `fallback: true` Next answers all of them with a loading shell under
+// HTTP 200 before `getStaticProps` ever runs. That made `daily.dev/`
+// plus any unknown segment indistinguishable from a real profile:
+// `/definitely-not-a-user-xyz123` and `/kramer` both returned the same
+// 10,549-byte body. Crawlers and agents read the status code, so every
+// missing page looked like a hit. `blocking` resolves the profile
+// first, which is what lets the `notFound` below produce a real 404.
 export async function getStaticPaths(): Promise<GetStaticPathsResult> {
-  return { paths: [], fallback: true };
+  return { paths: [], fallback: 'blocking' };
 }
+
+// A missing profile is a 404, not a 200 with `noindex`.
+//
+// The layout has always rendered the right thing for this case —
+// `if (!isFallback && !user) return <Custom404 />` — it just served it
+// under a success status, and `noindex` suppressed the search-engine
+// symptom rather than fixing the response. `notFound: true` renders
+// the same `pages/404.tsx` with the status to match, and keeps
+// `revalidate` so a profile created later starts resolving within the
+// window instead of being cached as missing forever.
+const profileNotFound = {
+  notFound: true,
+  revalidate: 60,
+} as const;
 
 export async function getStaticProps({
   params,
@@ -202,25 +228,24 @@ export async function getStaticProps({
 > {
   const userId = params?.userId;
   if (!userId) {
-    return {
-      props: { noindex: true },
-      revalidate: 60,
-    };
+    return profileNotFound;
   }
   try {
     const user = await getProfile(userId);
     if (!user) {
-      return {
-        props: { noindex: true },
-        revalidate: 60,
-      };
+      return profileNotFound;
     }
-    const data = await getProfileV2Extra(user.id);
+    // Both only need the resolved id, so neither has to wait on the other.
+    const [data, hasWorld] = await Promise.all([
+      getProfileV2Extra(user.id),
+      hasPublicWorld(user.id),
+    ]);
 
     return {
       props: {
         user,
         ...data,
+        hasWorld,
         noindex: !!user.noindex,
       },
       revalidate: 60,
@@ -228,10 +253,10 @@ export async function getStaticProps({
   } catch (err) {
     const clientError = err as ClientError;
     if (clientError?.response?.errors?.[0]?.extensions?.code === 'FORBIDDEN') {
-      return {
-        props: { noindex: true },
-        revalidate: 60,
-      };
+      // Same answer as a missing profile, deliberately: the viewer
+      // cannot see it, and 404 avoids confirming that the handle
+      // exists. This path already rendered `<Custom404 />` too.
+      return profileNotFound;
     }
     throw err;
   }

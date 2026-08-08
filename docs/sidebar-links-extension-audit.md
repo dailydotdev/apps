@@ -40,7 +40,7 @@ at all, so relative paths there always 404.
 | 1 | **Following** (You panel) | `MainSection`, `/following`, section `isItemsButton={isNavButtons}` → button | `ProfilePanelSection`, `/following`, section `isItemsButton={false}` → link | 404 | Panel now gets `isItemsButton={isNavButtons ?? false}` |
 | 2 | **Following** (shortcuts dock catalog) | n/a | `/following`, plain link | 404 | `${webappUrl}following` |
 | 3 | **Any row dragged into the dock** | n/a | pins `item.path` verbatim; relative rows pin a relative path | 404 | `pinPage` runs `toWebappHref` |
-| 4 | **Recent pages** (Explore panel) | n/a | `router.asPath`, i.e. relative, plain link | 404 | Absolute via `toWebappHref` on extension only |
+| 4 | **Recent pages** (Explore panel) | n/a | `router.asPath`, i.e. relative, plain link | 404 | Absolute via `toWebappHref`, on both platforms (matches how every other v2 sidebar row builds its href) |
 
 ## Full inventory (v2)
 

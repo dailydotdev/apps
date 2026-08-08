@@ -1,0 +1,128 @@
+/*
+ * Restyles the iubenda TCF banner (webapp only) to match the in-house
+ * CookieBanner card. iubenda's stylesheet uses `!important` behind
+ * `#iubenda-cs-banner.<theme>` selectors, so the doubled id keeps these
+ * rules winning no matter which theme class it applies. The banner
+ * background is written inline with `!important` by iubenda itself and
+ * therefore comes from the config in `Iubenda.tsx`, not from here.
+ */
+
+#iubenda-cs-banner#iubenda-cs-banner {
+  inset: auto 0 0 0 !important;
+  transform: none !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: calc(100vh - 3rem) !important;
+  font-family: inherit !important;
+}
+
+#iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-container {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* radius steps mirror CookieBanner's rounded-10 tablet:rounded-0 laptop:rounded-16 */
+#iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-content {
+  border: 0 solid var(--theme-border-subtlest-secondary) !important;
+  border-top-width: 1px !important;
+  border-radius: 0.625rem !important;
+  padding: 1rem !important;
+  font-family: inherit !important;
+  font-size: 0.8125rem !important;
+  line-height: 1.125rem !important;
+  color: var(--theme-text-secondary) !important;
+}
+
+@media (min-width: 656px) {
+  #iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-content {
+    border-radius: 0 !important;
+  }
+}
+
+#iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-rationale {
+  max-height: 16.25rem !important;
+  overflow-y: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#iubenda-cs-banner#iubenda-cs-banner .iubenda-banner-content {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
+#iubenda-cs-banner#iubenda-cs-banner .iubenda-banner-content h2 {
+  margin: 0 0 0.5rem !important;
+  background: transparent !important;
+  color: var(--theme-text-primary) !important;
+  font-family: inherit !important;
+  font-size: 0.9375rem !important;
+}
+
+#iubenda-cs-banner#iubenda-cs-banner .iubenda-banner-content a {
+  color: var(--theme-text-primary) !important;
+  text-decoration: underline !important;
+}
+
+#iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-opt-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  margin: 1rem 0 0 !important;
+  float: none !important;
+}
+
+#iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-opt-group > div {
+  display: flex !important;
+  gap: 0.5rem !important;
+  margin: 0 !important;
+  float: none !important;
+}
+
+#iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-opt-group button {
+  flex: 1 !important;
+  min-height: 2rem !important;
+  margin: 0 !important;
+  padding: 0.25rem 0.75rem !important;
+  border: none !important;
+  border-radius: 0.75rem !important;
+  font-family: inherit !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+}
+
+/* Accept and Reject stay visually identical: TCF equal prominence. */
+#iubenda-cs-banner#iubenda-cs-banner
+  .iubenda-cs-opt-group
+  button.iubenda-cs-btn-primary {
+  background: var(--theme-text-primary) !important;
+  color: var(--theme-background-default) !important;
+}
+
+#iubenda-cs-banner#iubenda-cs-banner
+  .iubenda-cs-opt-group
+  button.iubenda-cs-customize-btn {
+  background: transparent !important;
+  color: var(--theme-text-secondary) !important;
+  font-weight: 400 !important;
+  text-decoration: underline;
+}
+
+@media (min-width: 1020px) {
+  #iubenda-cs-banner#iubenda-cs-banner {
+    inset: auto 1.5rem 1.5rem auto !important;
+    width: auto !important;
+  }
+
+  /* matches CookieBanner's laptop:w-64 card */
+  #iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-container {
+    width: 16rem !important;
+  }
+
+  #iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-content {
+    border-width: 1px !important;
+    border-radius: 1rem !important;
+  }
+}
