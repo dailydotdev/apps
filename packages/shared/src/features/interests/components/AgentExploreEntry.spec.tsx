@@ -3,6 +3,10 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { GrowthBook } from '@growthbook/growthbook-react';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import {
+  laptopQuery,
+  mockMatchMedia,
+} from '../../../../__tests__/helpers/media';
 import { SpotlightContext } from '../../../components/spotlight/SpotlightContext';
 import { featureInterestAgent } from '../../../lib/featureManagement';
 import type { UserInterest } from '../../../graphql/interests';
@@ -49,7 +53,13 @@ const renderEntry = ({
   );
 };
 
-beforeEach(() => jest.clearAllMocks());
+const tabletQuery = '(min-width: 656px)';
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  // A phone unless a test says otherwise: this control is a phone's.
+  mockMatchMedia(() => false);
+});
 
 describe('AgentExploreEntry', () => {
   it('offers both ways of looking for something, in one control', () => {
@@ -68,6 +78,22 @@ describe('AgentExploreEntry', () => {
     fireEvent.click(screen.getByLabelText('Open search'));
 
     expect(openSearch).toHaveBeenCalled();
+  });
+
+  // The pair and the bar docked over the feed are the same door, so only one
+  // of them is ever on screen.
+  it('stands aside from tablet up, where the feed carries the bar instead', () => {
+    mockMatchMedia((query) => query === tabletQuery);
+    const { container } = renderEntry();
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('stands aside on a desktop too', () => {
+    mockMatchMedia((query) => query === tabletQuery || query === laptopQuery);
+    const { container } = renderEntry();
+
+    expect(container).toBeEmptyDOMElement();
   });
 
   it('shows nothing at all with the flag off', () => {

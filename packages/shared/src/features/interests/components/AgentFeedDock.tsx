@@ -70,10 +70,10 @@ export const AgentFeedDock = ({
   return (
     <>
       <div ref={markerRef} aria-hidden className="h-0 w-full" />
-      {/* Clear of the mobile footer nav, and never wider than the reading
-          column. */}
+      {/* Never wider than the reading column. No allowance for the phone's
+          footer nav: the bar does not appear at that width. */}
       <div
-        className="pointer-events-none fixed bottom-16 z-popup flex justify-center px-4 tablet:bottom-6"
+        className="pointer-events-none fixed bottom-6 z-popup flex justify-center px-4"
         style={
           columnBox
             ? { left: columnBox.left, width: columnBox.width }

@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 import { featureInterestAgent } from '../../../lib/featureManagement';
 import { webappUrl } from '../../../lib/constants';
 import { interestsQueryOptions } from '../queries';
@@ -20,10 +21,17 @@ import { AgentMonitor, toMonitorItems } from './AgentMonitor';
  * and want something to watch it for you. It has no close button on purpose:
  * it is also the only place a finished run reports back, so hiding it would
  * hide the news with it.
+ *
+ * From tablet up only. A phone has too little screen to give a permanent inch
+ * of it to a bar, and the software keyboard would take the rest — there the
+ * agent is reached from the pair on Explore instead.
  */
 export const AgentFeedPrompt = (): ReactElement | null => {
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
+  // Client-side, for the same reason as the Explore pair: this is present or
+  // absent rather than restyled.
+  const isTablet = useViewSizeClient(ViewSize.Tablet);
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
     shouldEvaluate: isAuthReady && !!user,
@@ -37,7 +45,7 @@ export const AgentFeedPrompt = (): ReactElement | null => {
     onCreated: (id) => router.push(`${webappUrl}agent/${id}`),
   });
 
-  if (!showAgent) {
+  if (!showAgent || !isTablet) {
     return null;
   }
 

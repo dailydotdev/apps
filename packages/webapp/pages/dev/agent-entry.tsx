@@ -11,7 +11,11 @@ import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/P
  *
  * The real mount is `MainFeedLayout` on the Explore feed, which needs boot, the
  * flag and a signed-in user. This stands the control up over a stub of the
- * header below it. Carries `noindex`/`nofollow`.
+ * header below it.
+ *
+ * Phone widths only, as in the app: from tablet up the control stands aside for
+ * the field docked over the feed, so this page is empty above 656px on purpose.
+ * Carries `noindex`/`nofollow`.
  */
 const Page = (): ReactElement => (
   <AgentDemoProviders>

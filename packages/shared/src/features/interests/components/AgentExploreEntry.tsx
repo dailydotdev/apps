@@ -9,6 +9,7 @@ import { IconSize } from '../../../components/Icon';
 import { SpotlightContext } from '../../../components/spotlight/SpotlightContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { useViewSizeClient, ViewSize } from '../../../hooks/useViewSize';
 import { featureInterestAgent } from '../../../lib/featureManagement';
 import { webappUrl } from '../../../lib/constants';
 import { interestsQueryOptions } from '../queries';
@@ -24,12 +25,21 @@ const half =
  * behind when you don't and want to be told later. Explore is where both
  * belong, so they sit in a single field split down the middle rather than as a
  * button that happens to be near a search box.
+ *
+ * A phone only. From tablet up the agent is reached through the field docked
+ * over the feed, and two ways in on the same screen is one too many: this pair
+ * and that bar are the same door.
  */
 export const AgentExploreEntry = (): ReactElement | null => {
   const { user, isAuthReady } = useAuthContext();
   // Read rather than `useSpotlight`, which throws off the app shell. Half a
   // paired control is not worth rendering, so it stands down instead.
   const spotlight = useContext(SpotlightContext);
+  // Client-side: this is present or absent rather than restyled, so deciding
+  // it during the server render is a hydration mismatch. Asking for tablet
+  // rather than "is mobile" keeps the unresolved first paint empty instead of
+  // flashing the phone layout on a desktop.
+  const isTablet = useViewSizeClient(ViewSize.Tablet);
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
     shouldEvaluate: isAuthReady && !!user,
@@ -39,7 +49,7 @@ export const AgentExploreEntry = (): ReactElement | null => {
     enabled: showAgent && !!user,
   });
 
-  if (!showAgent || !spotlight) {
+  if (!showAgent || !spotlight || isTablet !== false) {
     return null;
   }
 
