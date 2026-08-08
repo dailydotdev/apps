@@ -333,7 +333,7 @@ export default function MainFeedLayout({
     feature: featureFeedChips,
     shouldEvaluate: !!user && isLaptop && isChipStripPage,
   });
-  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
+  const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const showExploreChips =
     !!user && isLaptop && isChipStripPage && isFeedChipsEnabled;
   const { feeds } = useFeeds();

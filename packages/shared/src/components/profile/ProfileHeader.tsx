@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import React from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
@@ -47,9 +48,13 @@ const ProfileActions = dynamic(
 
 type ProfileHeaderProps = {
   user: PublicProfile;
-  userStats: Omit<UserStatsProps['stats'], 'reputation'>;
+  /** Optional for the same reason the profile's static props are: the counts
+      arrive with the user, and there is no user on the not-found path. */
+  userStats?: Omit<UserStatsProps['stats'], 'reputation'>;
   isSameUser?: boolean;
   isPreviewMode?: boolean;
+  /** Rendered in the top row, left of the edit button. */
+  actions?: ReactNode;
 };
 
 const ProfileHeader = ({
@@ -57,6 +62,7 @@ const ProfileHeader = ({
   userStats,
   isSameUser: propIsSameUser,
   isPreviewMode,
+  actions,
 }: ProfileHeaderProps) => {
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
@@ -75,19 +81,27 @@ const ProfileHeader = ({
         className="absolute left-6 top-16 h-[7.5rem] w-[7.5rem] rounded-16 object-cover"
       />
       <div className="flex flex-col gap-3 px-6">
-        <Link passHref href={`${webappUrl}settings/profile`}>
-          <Button
-            className={classNames(
-              'mb-4 ml-auto mt-2 text-text-secondary',
-              !isSameUser && 'invisible',
-            )}
-            tag="a"
-            disabled={!isSameUser}
-            variant={ButtonVariant.Float}
-            icon={<EditIcon />}
-            aria-label="Edit profile"
-          />
-        </Link>
+        {/* Edit leads and `actions` trails, because edit is only hidden, not
+            removed: it holds its width so the row keeps its height for a
+            visitor. Trailing, that reserved width sat between the actions and
+            the right edge and left them looking short of it; leading, it falls
+            on the inside and whatever trails stays flush either way. */}
+        <div className="mb-4 ml-auto mt-2 flex items-center gap-2">
+          <Link passHref href={`${webappUrl}settings/profile`}>
+            <Button
+              className={classNames(
+                'text-text-secondary',
+                !isSameUser && 'invisible',
+              )}
+              tag="a"
+              disabled={!isSameUser}
+              variant={ButtonVariant.Float}
+              icon={<EditIcon />}
+              aria-label="Edit profile"
+            />
+          </Link>
+          {actions}
+        </div>
         <div className="flex items-center gap-1">
           <Typography type={TypographyType.Title2} bold>
             {name}
@@ -144,7 +158,15 @@ const ProfileHeader = ({
           )}
           <UserStats
             userId={user.id}
-            stats={{ ...userStats, reputation: user.reputation }}
+            // The zeros are what UserStats already rendered for a missing
+            // count (`stat?.amount || 0`), stated here instead of implied.
+            stats={{
+              upvotes: 0,
+              numFollowers: 0,
+              numFollowing: 0,
+              ...userStats,
+              reputation: user.reputation,
+            }}
           />
         </div>
       </div>

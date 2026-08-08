@@ -1,7 +1,8 @@
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
-import { getStaticProps, shouldNoindexPost } from '../pages/posts/[id]/index';
+import { getStaticProps } from '../pages/posts/[id]/index';
+import { shouldNoindexPost } from '../lib/seo';
 
 jest.mock('@dailydotdev/shared/src/graphql/common', () => {
   const actual = jest.requireActual('@dailydotdev/shared/src/graphql/common');

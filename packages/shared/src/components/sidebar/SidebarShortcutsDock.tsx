@@ -130,7 +130,7 @@ export const SHORTCUT_CATALOG: ShortcutDef[] = [
   {
     id: 'following',
     label: 'Following',
-    path: '/following',
+    path: `${webappUrl}following`,
     icon: (a) => <UserIcon secondary={a} size={RAIL_ICON_SIZE} aria-hidden />,
   },
   {
@@ -228,7 +228,12 @@ const resolveShortcut = (entry: StoredShortcut): ResolvedShortcut | null => {
   return {
     key: entry.path,
     label: entry.title,
-    path: entry.path,
+    // Panel rows can carry a relative path (Explore, Following, Recent), which
+    // would resolve against chrome-extension:// once pinned. Only those need the
+    // origin — an already-absolute pin must not be prefixed twice.
+    path: entry.path.startsWith('/')
+      ? `${webappUrl}${entry.path.slice(1)}`
+      : entry.path,
     // Prefer the image captured at drag time (instant, no flash); fall back to
     // resolving a glyph/image from the path.
     icon: () => <SidebarEntityIcon path={entry.path} image={entry.image} />,

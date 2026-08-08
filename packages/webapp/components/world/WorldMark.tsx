@@ -68,6 +68,12 @@ export function WorldImmersiveToggle({
  * The signature on the frame. A page built to be screenshotted from should not
  * leave one unsigned, so the mark outlives every panel, floating top right
  * wherever there is no bar to ride in.
+ *
+ * The plate's padding is deliberately lopsided so that it LOOKS even. LogoText
+ * draws into a 77-wide viewBox but its ink stops at 69: the last eight units
+ * are reserved for the Plus star, which this logo never sets. At `h-5` that
+ * viewBox scales 1:1, so the element carries ~8px of dead space on its right
+ * that no amount of equal padding can balance out.
  */
 export function WorldMark({ floating }: { floating?: boolean }): ReactElement {
   return (
@@ -76,7 +82,7 @@ export function WorldMark({ floating }: { floating?: boolean }): ReactElement {
       className={classNames(
         'flex flex-none items-center',
         floating &&
-          'pointer-events-auto absolute right-3 top-3 z-2 rounded-16 border border-border-subtlest-tertiary bg-background-default px-3 py-2.5',
+          'pointer-events-auto absolute right-3 top-3 z-2 rounded-16 border border-border-subtlest-tertiary bg-background-default py-2.5 pl-3 pr-1',
       )}
     >
       <Logo

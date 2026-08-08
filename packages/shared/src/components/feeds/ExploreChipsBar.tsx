@@ -18,6 +18,8 @@ import type { ExploreCategory } from './exploreCategories';
 import { findActiveChipId } from './exploreCategories';
 import { LogEvent } from '../../lib/log';
 import { NewStripCta } from './NewStripCta';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureFeedChips } from '../../lib/featureManagement';
 
 interface ExploreChipsBarProps {
   categories: ExploreCategory[];
@@ -45,6 +47,12 @@ export function ExploreChipsBar({
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { logEvent } = useLogContext();
   const { isLoggedIn } = useAuthContext();
+  const { value: variant, isLoading: isVariantLoading } = useConditionalFeature(
+    {
+      feature: featureFeedChips,
+      shouldEvaluate: isLoggedIn,
+    },
+  );
   const { isEnabled } = useDailyPage();
   const showDailySwitcher = isLoggedIn && isEnabled;
 
@@ -124,6 +132,10 @@ export function ExploreChipsBar({
             logEvent({
               event_name: LogEvent.ClickFeedTagChip,
               target_id: category.tag,
+              extra: JSON.stringify({
+                variant: isVariantLoading ? undefined : variant,
+                origin: category.origin,
+              }),
             });
           };
 

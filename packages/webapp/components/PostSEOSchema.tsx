@@ -354,6 +354,40 @@ export const getCommentsJsonLd = (
   });
 };
 
+/**
+ * FAQPage structured data built from the questions the post answers.
+ *
+ * The answer text carries the cta because this is the form an answer engine
+ * extracts and quotes, so the pointer back to daily.dev travels with it. The
+ * questions themselves are also rendered for anonymous visitors by
+ * PostAnsweredQuestions, which builds the same answer text so the visible copy
+ * and the structured data match.
+ *
+ * Returns null when the post has no questions, which is the normal case for a
+ * post that predates this enrichment or one where nothing qualified.
+ */
+export const getFaqJsonLd = (post: Post): string | null => {
+  const questions = post?.answeredQuestions;
+
+  if (!questions?.length) {
+    return null;
+  }
+
+  return JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    '@id': `${post.commentsPermalink}#faq`,
+    mainEntity: questions.map(({ question, answer, cta }) => ({
+      '@type': 'Question',
+      name: question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: cta ? `${answer} ${cta}` : answer,
+      },
+    })),
+  });
+};
+
 export interface PostSEOSchemaProps {
   post: Post;
   topComments?: Comment[];
@@ -378,6 +412,7 @@ export const PostSEOSchema = ({
     topComments?.length && !isUserGeneratedPost(post)
       ? getCommentsJsonLd(post, topComments)
       : null;
+  const faqJsonLd = getFaqJsonLd(post);
 
   return (
     <>
@@ -398,6 +433,14 @@ export const PostSEOSchema = ({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: commentsJsonLd,
+          }}
+        />
+      )}
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: faqJsonLd,
           }}
         />
       )}

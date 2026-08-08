@@ -6,6 +6,9 @@ export enum AdActions {
   Click = 'click',
   Refresh = 'refresh',
   Impression = 'impression',
+  // Rendered and seen by IAB rules, unlike `Impression` which only means the
+  // creative reached the viewport.
+  Viewable = 'viewable impression',
 }
 
 export enum AdPlacement {

@@ -65,7 +65,7 @@ export const useFeedSettingsEdit = ({
     feature: featureFeedChips,
     shouldEvaluate: !isPlus,
   });
-  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
+  const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
 
   const isMobile = useViewSizeClient(ViewSize.MobileL);
   const discardNewPrompt: PromptOptions = {

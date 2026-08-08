@@ -19,7 +19,7 @@ import { Drawer, DrawerPosition } from '../drawers/Drawer';
 import { ViewSize, useViewSize } from '../../hooks';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { AuthTriggers } from '../../lib/auth';
-import { isExtension } from '../../lib/func';
+import { isExtension, isInExtensionIframe } from '../../lib/func';
 import { fallbackImages } from '../../lib/config';
 import {
   groupLabels,
@@ -403,20 +403,6 @@ const Hint = ({ label, combo }: { label: string; combo: string }) => (
     <span>{label}</span>
   </span>
 );
-
-const isInExtensionIframe = (target: EventTarget | null): boolean => {
-  if (!isExtension || typeof window === 'undefined') {
-    return false;
-  }
-  const node = target instanceof HTMLElement ? target : null;
-  if (!node) {
-    return false;
-  }
-  // If focus is in any iframe owned by the host page rather than the
-  // extension's own surface, bail out so we don't steal native browser
-  // bindings (Linear-style scoping).
-  return node.tagName === 'IFRAME';
-};
 
 export const Spotlight = ({
   isOpen,

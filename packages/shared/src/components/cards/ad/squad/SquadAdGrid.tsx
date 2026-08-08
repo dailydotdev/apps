@@ -14,6 +14,7 @@ import { Separator } from '../../common/common';
 import { HorizontalSeparator } from '../../../utilities';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
 import { AdPixel } from '../common/AdPixel';
+import { AdViewability } from '../common/AdViewability';
 import { Tooltip } from '../../../tooltip/Tooltip';
 import Link from '../../../utilities/Link';
 import { SquadOptionsButton } from '../../common/SquadOptionsButton';
@@ -28,6 +29,7 @@ export function SquadAdGrid({
   item,
   onClickAd,
   onMount,
+  onViewable,
 }: SquadAdFeedProps): ReactElement {
   const { source } = item.ad.data;
   const { squad, campaign, members, shouldShowAction, onJustJoined } =
@@ -58,6 +60,7 @@ export function SquadAdGrid({
         <CardLink href={source.permalink} />
       </Link>
       {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}
+      <AdViewability ad={item.ad} onViewable={(data) => onViewable?.(data)} />
       <div className="flex flex-row justify-between">
         <Image src={source.image} className="h-8 w-8 rounded-max" />
         <SquadOptionsButton squad={source} />
