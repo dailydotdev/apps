@@ -156,6 +156,107 @@ describe('leaderboard static props', () => {
     });
   });
 
+  it('should tolerate partial leaderboard data when a single resolver fails', async () => {
+    const highestReputation: UserLeaderboard[] = [
+      {
+        score: 500,
+        user: {
+          id: 'user-1',
+          username: 'user-1',
+          name: 'User One',
+          image: '',
+          permalink: '/users/user-1',
+          createdAt: new Date().toISOString(),
+          providers: [],
+          balance: { amount: 0 },
+        },
+      },
+    ];
+
+    const partialDataError = {
+      response: {
+        data: {
+          ...baseLeaderboardResponse,
+          highestReputation,
+          mostAchievementPoints: null,
+        },
+        errors: [{ message: 'Unexpected error' }],
+      },
+    };
+
+    mockRequest.mockImplementation((query: string) => {
+      if (query === LEADERBOARD_QUERY) {
+        return Promise.reject(partialDataError);
+      }
+
+      if (query === POPULAR_HOT_TAKES_QUERY) {
+        return Promise.resolve({ popularHotTakes: [] });
+      }
+
+      if (query === HIGHEST_LEVEL_QUERY) {
+        return Promise.resolve({ highestLevel: [] });
+      }
+
+      return Promise.reject(new Error('Unexpected query'));
+    });
+
+    const result = await getUsersStaticProps();
+
+    expect(result).toMatchObject({
+      props: {
+        highestReputation,
+        mostAchievementPoints: [],
+      },
+      revalidate: 3600,
+    });
+  });
+
+  it('should fail the build when the leaderboard response has no data at all', async () => {
+    const totalFailure = {
+      response: {
+        errors: [{ message: 'Internal server error' }],
+      },
+    };
+
+    mockRequest.mockImplementation((query: string) => {
+      if (query === LEADERBOARD_QUERY) {
+        return Promise.reject(totalFailure);
+      }
+
+      return Promise.reject(new Error('Unexpected query'));
+    });
+
+    await expect(getUsersStaticProps()).rejects.toBe(totalFailure);
+  });
+
+  it('should fail the build when every leaderboard field errored', async () => {
+    const allFieldsFailed = {
+      response: {
+        data: {
+          highestReputation: null,
+          longestStreak: null,
+          highestPostViews: null,
+          mostUpvoted: null,
+          mostReferrals: null,
+          mostReadingDays: null,
+          mostAchievementPoints: null,
+          mostVerifiedUsers: null,
+        },
+        errors: [{ message: 'Internal server error' }],
+      },
+    };
+
+    mockRequest.mockImplementation((query: string) => {
+      if (query === LEADERBOARD_QUERY) {
+        return Promise.reject(allFieldsFailed);
+      }
+
+      return Promise.reject(new Error('Unexpected query'));
+    });
+
+    await expect(getUsersStaticProps()).rejects.toBe(allFieldsFailed);
+  });
+
   it('should return notFound for highest-level detail when schema is missing', async () => {
     mockRequest.mockRejectedValue(
       createMissingSchemaError(

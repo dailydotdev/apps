@@ -51,6 +51,44 @@ interface PageProps {
   popularHotTakes: PopularHotTakes[];
 }
 
+type LeaderboardQueryData = Omit<
+  PageProps,
+  'highestLevel' | 'isHighestLevelSupported' | 'popularHotTakes'
+>;
+
+const leaderboardListFields: (keyof LeaderboardQueryData)[] = [
+  'highestReputation',
+  'longestStreak',
+  'highestPostViews',
+  'mostUpvoted',
+  'mostReferrals',
+  'mostReadingDays',
+  'mostAchievementPoints',
+  'mostVerifiedUsers',
+];
+
+// A single flaky resolver makes graphql-request throw even though the response
+// carries data for every other leaderboard; with hourly ISR an empty section is
+// better than failing the whole static export.
+const fetchLeaderboards = async (): Promise<Partial<LeaderboardQueryData>> => {
+  try {
+    return await gqlClient.request<LeaderboardQueryData>(LEADERBOARD_QUERY);
+  } catch (err) {
+    const partialData = (
+      err as { response?: { data?: Partial<LeaderboardQueryData> } }
+    )?.response?.data;
+    const hasUsableData =
+      partialData &&
+      leaderboardListFields.some((field) => Array.isArray(partialData[field]));
+
+    if (!hasUsableData) {
+      throw err;
+    }
+
+    return partialData;
+  }
+};
+
 const isHighestLevelSchemaMissing = (error: GraphQLError): boolean => {
   return (
     error?.response?.errors?.some(
@@ -210,9 +248,7 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
   try {
-    const res = await gqlClient.request<
-      Omit<PageProps, 'highestLevel' | 'popularHotTakes'>
-    >(LEADERBOARD_QUERY);
+    const res = await fetchLeaderboards();
 
     let highestLevel: UserLeaderboard[] = [];
     let isHighestLevelSupported = false;
@@ -247,16 +283,16 @@ export async function getStaticProps(): Promise<
 
     return {
       props: {
-        highestReputation: res.highestReputation,
-        longestStreak: res.longestStreak,
-        highestPostViews: res.highestPostViews,
-        mostUpvoted: res.mostUpvoted,
-        mostReferrals: res.mostReferrals,
-        mostReadingDays: res.mostReadingDays,
-        mostAchievementPoints: res.mostAchievementPoints,
+        highestReputation: res.highestReputation ?? [],
+        longestStreak: res.longestStreak ?? [],
+        highestPostViews: res.highestPostViews ?? [],
+        mostUpvoted: res.mostUpvoted ?? [],
+        mostReferrals: res.mostReferrals ?? [],
+        mostReadingDays: res.mostReadingDays ?? [],
+        mostAchievementPoints: res.mostAchievementPoints ?? [],
         highestLevel,
         isHighestLevelSupported,
-        mostVerifiedUsers: res.mostVerifiedUsers,
+        mostVerifiedUsers: res.mostVerifiedUsers ?? [],
         popularHotTakes,
       },
       revalidate: 3600,
