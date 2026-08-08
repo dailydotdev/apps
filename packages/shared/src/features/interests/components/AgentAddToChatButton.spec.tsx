@@ -77,15 +77,13 @@ describe('AgentAddToChatButton', () => {
     expect(chipCount()).toBe('1');
   });
 
-  // A finger has no hover, so a revealed button is on screen the whole time —
-  // and a 130px button beside a post title in a 375px column leaves the title
-  // four words wide.
-  it('keeps the glyph and drops the words on a touch device', () => {
+  // The same control at every width: a button that changes shape between
+  // devices is a second control to learn.
+  it('says the same thing on a touch device as under a pointer', () => {
     setPointer(false);
     renderButton({ reveal: true });
 
-    expect(screen.queryByText('Add to chat')).not.toBeInTheDocument();
-    expect(screen.getByLabelText(/^Add to chat:/)).toBeInTheDocument();
+    expect(screen.getByText('Add to chat')).toBeInTheDocument();
   });
 
   it('keeps the words where there is a pointer to reveal them', () => {

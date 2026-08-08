@@ -3,6 +3,7 @@ import { act, render } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import type { Post } from '../../graphql/posts';
+import type { AgentMessage } from './chat';
 import { AgentProvider, contentTargetId, useAgent } from './AgentContext';
 
 const post = (id: string): Post => ({ id, title: `Post ${id}` } as Post);
@@ -91,6 +92,63 @@ describe('attachments', () => {
     );
 
     expect(agent.current.attachments).toHaveLength(0);
+  });
+});
+
+// The blank page: the provider reads `initialMessages` once, and the page that
+// builds it from a query mounts before that query has answered.
+describe('an opening transcript that arrives after mount', () => {
+  const mountWithLateOpening = () => {
+    const seen: { current: Agent } = { current: undefined as never };
+
+    const Probe = () => {
+      seen.current = useAgent();
+
+      return null;
+    };
+
+    const Host = ({ messages }: { messages: AgentMessage[] }) => (
+      <TestBootProvider client={new QueryClient()}>
+        <AgentProvider id="a1" isDemo initialMessages={messages}>
+          <Probe />
+        </AgentProvider>
+      </TestBootProvider>
+    );
+
+    const opening: AgentMessage[] = [
+      { id: 'o1', role: 'user', at: '', text: 'Cool zig projects' },
+      { id: 'o2', role: 'agent', at: '', blocks: [] },
+    ];
+    const view = render(<Host messages={[]} />);
+
+    return {
+      seen,
+      opening,
+      rerender: (messages: AgentMessage[]) =>
+        view.rerender(<Host messages={messages} />),
+    };
+  };
+
+  it('is adopted, rather than leaving the page blank for good', () => {
+    const { seen, opening, rerender } = mountWithLateOpening();
+
+    expect(seen.current.messages).toHaveLength(0);
+
+    act(() => rerender(opening));
+
+    expect(seen.current.messages.map(({ id }) => id)).toEqual(['o1', 'o2']);
+  });
+
+  it('never overwrites a transcript that already has turns in it', () => {
+    const { seen, opening, rerender } = mountWithLateOpening();
+
+    act(() => seen.current.runCommand({ text: 'raise the bar' }));
+    const before = seen.current.messages.length;
+
+    act(() => rerender(opening));
+
+    expect(seen.current.messages).toHaveLength(before);
+    expect(seen.current.messages[0].text).toBe('raise the bar');
   });
 });
 

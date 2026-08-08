@@ -157,9 +157,13 @@ export const AgentHomeScreen = ({
           type={TypographyType.Caption1}
           color={TypographyColor.Quaternary}
         >
-          {waiting
-            ? `${waiting} waiting for review`
-            : `${working || 'None'} watching`}
+          {/* Nothing until the list lands: "None watching" is a claim, and it
+              was being made about agents that had not loaded yet. */}
+          {isPending && ''}
+          {!isPending &&
+            (waiting
+              ? `${waiting} waiting for review`
+              : `${working || 'None'} watching`)}
         </Typography>
       </FlexRow>
 
@@ -174,7 +178,10 @@ export const AgentHomeScreen = ({
               bold
               className="text-balance"
             >
-              {agents.length
+              {/* While the list is loading we do not know which of these is
+                  true, and telling someone with eight agents to spawn their
+                  first one is the worse guess. */}
+              {isPending || agents.length
                 ? 'What should the next one hunt?'
                 : 'Spawn your first agent'}
             </Typography>
@@ -189,9 +196,37 @@ export const AgentHomeScreen = ({
 
           {isPending && (
             <FlexCol className="gap-2">
-              {['a', 'b', 'c'].map((key) => (
-                <ElementPlaceholder key={key} className="h-11 rounded-12" />
-              ))}
+              <ElementPlaceholder className="agent-skeleton h-3 w-24 rounded-8" />
+              {/* The shape of the rows they become — dot, name, what it said,
+                  when — so the list does not jump as it fills in. Widths vary
+                  because real names do. */}
+              <FlexCol
+                className="divide-y divide-border-subtlest-quaternary rounded-12 border border-border-subtlest-tertiary"
+                aria-busy
+                aria-label="Loading your agents"
+              >
+                {['w-28', 'w-24', 'w-32'].map((stateWidth, index) => (
+                  <FlexRow
+                    key={stateWidth}
+                    className="items-center gap-3 px-3 py-2.5"
+                  >
+                    <ElementPlaceholder className="agent-skeleton size-1.5 shrink-0 rounded-6" />
+                    <ElementPlaceholder
+                      className={classNames(
+                        'agent-skeleton h-3 shrink-0 rounded-8',
+                        stateWidth,
+                      )}
+                    />
+                    <ElementPlaceholder
+                      className={classNames(
+                        'agent-skeleton h-3 min-w-0 flex-1 rounded-8',
+                        index === 1 && 'max-w-[12rem]',
+                      )}
+                    />
+                    <ElementPlaceholder className="agent-skeleton h-3 w-12 shrink-0 rounded-8" />
+                  </FlexRow>
+                ))}
+              </FlexCol>
             </FlexCol>
           )}
 

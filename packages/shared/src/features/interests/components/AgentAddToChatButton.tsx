@@ -9,18 +9,17 @@ import {
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { AtIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
-import { useMediaClient } from '../../../hooks/useMedia';
 import type { AgentAttachment } from '../chat';
 import { useAgent } from '../AgentContext';
 
 /**
  * Where the button sits on a card or a row: straddling the top edge at the
  * right, the way Slack hangs its message actions, so it reads as something
- * belonging to the thing under it without taking any of its room. Devices with
- * no pointer get it permanently, tucked inside the edge instead of over it.
+ * belonging to the thing under it without taking any of its room. The same
+ * place at every width — a control that moves between devices is a second
+ * control to learn.
  */
-export const addToChatFloat =
-  'absolute -top-3 right-3 z-1 [@media(hover:none)]:top-1';
+export const addToChatFloat = 'absolute -top-3 right-3 z-1';
 
 /**
  * Hangs off anything the agent has put on screen. Pressing it drops a chip in
@@ -53,16 +52,9 @@ export const AgentAddToChatButton = ({
   const { attachContext, attachments } = useAgent();
   const isAttached = attachments.some(({ id }) => id === attachment.id);
   const label = isAttached ? 'In the chat' : 'Add to chat';
-  // A finger has no hover, so a revealed button has to be on screen the whole
-  // time — and a permanent 130px button squeezes a post title into five lines.
-  // On touch it keeps the glyph and drops the words.
-  // Client-only: the label differs between the two, and deciding it during the
-  // server render is a hydration mismatch.
-  const isTouch = useMediaClient(['(hover: none)'], [true], false);
-  const isGlyphOnly = iconOnly || (reveal && isTouch);
 
   return (
-    <Tooltip content={label} visible={isGlyphOnly}>
+    <Tooltip content={label} visible={iconOnly}>
       <Button
         icon={<AtIcon size={IconSize.Size16} />}
         size={size}
@@ -88,7 +80,7 @@ export const AgentAddToChatButton = ({
           onAttached?.();
         }}
       >
-        {isGlyphOnly ? undefined : label}
+        {iconOnly ? undefined : label}
       </Button>
     </Tooltip>
   );

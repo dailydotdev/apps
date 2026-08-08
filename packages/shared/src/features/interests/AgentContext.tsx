@@ -166,6 +166,19 @@ export const AgentProvider = ({
     return () => clearTimeout(timeoutRef.current);
   }, []);
 
+  // `useState` reads its argument once, and the opening transcript is built
+  // from a query — so a page that mounts while that query is in flight starts
+  // empty and used to stay empty for good. Adopt it when it arrives, and only
+  // while there is nothing to lose: a transcript with anything in it, or one
+  // the reader has already spoken into, is never overwritten.
+  useEffect(() => {
+    if (!initialMessages.length) {
+      return;
+    }
+
+    setMessages((current) => (current.length ? current : initialMessages));
+  }, [initialMessages]);
+
   const startRun = useCallback(
     ({
       text,

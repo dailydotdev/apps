@@ -1145,6 +1145,27 @@
   );
 }
 
+/* A block standing in for something that is on its way.
+   Slow and shallow on purpose: a skeleton is the quietest thing on a screen
+   that is still loading, and the hard 50% pulse Tailwind ships reads as an
+   alarm when six of them run at once. Every one of them breathes together —
+   staggering them turns a placeholder into a light show. */
+@keyframes agent-skeleton {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.agent-skeleton {
+  animation: agent-skeleton 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-skeleton {
+    animation: none;
+  }
+}
+
 /* Something to push against.
    Every control here changes colour under the pointer and nothing at all under
    a click, which is the difference between a picture of a button and a button.

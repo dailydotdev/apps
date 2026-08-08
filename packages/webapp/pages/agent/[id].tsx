@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -16,6 +16,7 @@ import { useDeleteInterest } from '@dailydotdev/shared/src/features/interests/ho
 import { useAgentFeed } from '@dailydotdev/shared/src/features/interests/hooks/useAgentFeed';
 import { AgentProvider } from '@dailydotdev/shared/src/features/interests/AgentContext';
 import { AgentWorkspace } from '@dailydotdev/shared/src/features/interests/components/AgentWorkspace';
+import { AgentWorkspaceSkeleton } from '@dailydotdev/shared/src/features/interests/components/AgentWorkspaceSkeleton';
 import {
   mockAgentPosts,
   mockInterest,
@@ -67,6 +68,23 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
     onDeleted: () => router.push(`${webappUrl}agent`),
   });
 
+  const realPosts = postsQuery.data ?? [];
+  const posts = feed.isDemo && !realPosts.length ? mockAgentPosts : realPosts;
+  const interest =
+    interestQuery.data ?? (feed.isDemo ? mockInterest : undefined);
+  // Only what this agent actually found. `feed.items` falls back to mock
+  // findings for the design surface, and an opening turn citing posts the agent
+  // never saw is worse than one citing none.
+  const findings = feed.isDemo ? [] : feed.items;
+  // A real agent has no stored transcript yet, so it opens with the prompt that
+  // spawned it and the agent's answer — rebuilt from the interest. Memoised
+  // because the provider adopts it by identity.
+  const initialMessages = useMemo(
+    () => (interest ? openingMessages(interest, findings) : mockConversation),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [interest, findings.length],
+  );
+
   useEffect(() => {
     if (isAuthReady && !showAgent) {
       router.replace(webappUrl);
@@ -77,10 +95,17 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
     return null;
   }
 
-  const realPosts = postsQuery.data ?? [];
-  const posts = feed.isDemo && !realPosts.length ? mockAgentPosts : realPosts;
-  const interest =
-    interestQuery.data ?? (feed.isDemo ? mockInterest : undefined);
+  // The interest is what the whole page is about, and its findings are what the
+  // opening turn cites, so there is nothing honest to draw until both land. The
+  // skeleton holds the shape rather than the page showing an agent with no name
+  // and a conversation with no turns.
+  if (user && (interestQuery.isPending || feed.isPending)) {
+    return (
+      <ProtectedPage>
+        <AgentWorkspaceSkeleton />
+      </ProtectedPage>
+    );
+  }
 
   return (
     <ProtectedPage>
@@ -88,13 +113,7 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
         id={id}
         interest={interest}
         isDemo={feed.isDemo}
-        // A real agent has no stored transcript yet, so it opens with the
-        // prompt that spawned it and the agent's answer to it — rebuilt from
-        // the interest. Empty here left you on a blank page after creating an
-        // agent, having to type what you just typed a second time.
-        initialMessages={
-          feed.isDemo ? mockConversation : openingMessages(interest, feed.items)
-        }
+        initialMessages={initialMessages}
         key={id}
       >
         <AgentWorkspace
