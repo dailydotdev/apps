@@ -621,14 +621,14 @@ const V1EngagementBar = ({ pressed = false }: { pressed?: boolean }) => (
 );
 
 /**
- * v2 engagement bar — `density="compact"` + `feedCard` layout, the
- * production rule for grid cards. Width footprint matches v1
- * exactly (5 × 32 px), so swapping in is layout-neutral.
+ * v2 engagement bar — `density="tight"` + `feedCard` layout, the
+ * production rule for grid cards. 24 px buttons with 16 px icons,
+ * matching the v1 bar and the floating glass pill.
  */
 const V2EngagementBar = ({ pressed = false }: { pressed?: boolean }) => (
   <CardActionBar layout="feedCard">
     <CardAction
-      density="compact"
+      density="tight"
       pressed={pressed}
       icon={<UpvoteIcon />}
       iconPressed={<UpvoteIcon secondary />}
@@ -637,28 +637,28 @@ const V2EngagementBar = ({ pressed = false }: { pressed?: boolean }) => (
       count={1234}
     />
     <CardAction
-      density="compact"
+      density="tight"
       icon={<DownvoteIcon />}
       iconPressed={<DownvoteIcon secondary />}
       label="Downvote"
       color={ButtonColor.Ketchup}
     />
     <CardAction
-      density="compact"
+      density="tight"
       icon={<DiscussIcon />}
       label="Comment"
       color={ButtonColor.BlueCheese}
       count={42}
     />
     <CardAction
-      density="compact"
+      density="tight"
       icon={<BookmarkIcon />}
       iconPressed={<BookmarkIcon secondary />}
       label="Bookmark"
       color={ButtonColor.Bun}
     />
     <CardAction
-      density="compact"
+      density="tight"
       icon={<CopyIcon />}
       label="Copy link"
       color={ButtonColor.Cabbage}
@@ -1141,7 +1141,7 @@ const ButtonsDevPage = (): ReactElement => {
             Subtle = outlined chip, <em>Material 3 outlined pattern</em>).{' '}
             <strong>Card-action width contract:</strong> on a multi-column feed
             grid (where a card can render at 140 – 280 px), use{' '}
-            <code>density=&quot;compact&quot;</code> on every{' '}
+            <code>density=&quot;tight&quot;</code> on every{' '}
             <code>CardAction</code> and wrap the row in{' '}
             <code>&lt;CardActionBar layout=&quot;feedCard&quot;&gt;</code> — the
             bar then sits at <code>flex-1 min-w-0 justify-between</code>{' '}
@@ -1389,7 +1389,7 @@ const ButtonsDevPage = (): ReactElement => {
 
           <Section
             title="Card actions / engagement bar"
-            description="Dedicated v2 primitive for the upvote / comment / bookmark / share row that lives on every post card. Built on ButtonV2 (Tertiary). Two densities: comfortable (40 px) for single-column / post-detail / sticky bottom bar; compact (32 px) for multi-column feed grid cards, comment rows, dense menus. The feed-card vignettes below are wrapped in real production card-width containers — MIN 272 px (tablet 2-col grid, the floor at the 656 px breakpoint), 300 px (typical laptop 3-col), MAX 340 px (desktopL 21.25 rem clamp), and mobile single-column 360 px — so the width contract is visually verifiable. `density='compact'` + `<CardActionBar layout='feedCard'>` is the production rule for any grid card so the bar never pushes the card wider than its grid track."
+            description="Dedicated v2 primitive for the upvote / comment / bookmark / share row that lives on every post card. Built on ButtonV2 (Tertiary). Three densities: comfortable (40 px) for single-column / post-detail / sticky bottom bar; compact (32 px) for comment rows and dense menus; tight (24 px, 16 px icons) for feed grid cards, matching the floating glass bar. The feed-card vignettes below are wrapped in real production card-width containers — MIN 272 px (tablet 2-col grid, the floor at the 656 px breakpoint), 300 px (typical laptop 3-col), MAX 340 px (desktopL 21.25 rem clamp), and mobile single-column 360 px — so the width contract is visually verifiable. `density='tight'` + `<CardActionBar layout='feedCard'>` is the production rule for any grid card so the bar never pushes the card wider than its grid track: buttons never shrink (global flex-shrink: 0), so six actions with counters have to fit 272 px on their intrinsic widths alone."
           >
             <div className="space-y-3">
               <VignetteRow
@@ -1432,27 +1432,27 @@ const ButtonsDevPage = (): ReactElement => {
                   <div className="w-[272px] rounded-12 border border-border-subtlest-tertiary p-3">
                     <CardActionBar layout="feedCard">
                       <CardAction
-                        density="compact"
+                        density="tight"
                         icon={<UpvoteIcon />}
                         iconPressed={<UpvoteIcon secondary />}
                         label="Upvote"
                         color={ButtonColor.Avocado}
                       />
                       <CardAction
-                        density="compact"
+                        density="tight"
                         icon={<DiscussIcon />}
                         label="Comment"
                         color={ButtonColor.BlueCheese}
                       />
                       <CardAction
-                        density="compact"
+                        density="tight"
                         icon={<BookmarkIcon />}
                         iconPressed={<BookmarkIcon secondary />}
                         label="Bookmark"
                         color={ButtonColor.Bun}
                       />
                       <CardAction
-                        density="compact"
+                        density="tight"
                         icon={<ShareIcon />}
                         label="Share"
                       />
@@ -1506,7 +1506,7 @@ const ButtonsDevPage = (): ReactElement => {
                   <div className="w-[272px] rounded-12 border border-border-subtlest-tertiary p-3">
                     <CardActionBar layout="feedCard">
                       <CardAction
-                        density="compact"
+                        density="tight"
                         icon={<UpvoteIcon />}
                         iconPressed={<UpvoteIcon secondary />}
                         label="Upvote"
@@ -1514,21 +1514,21 @@ const ButtonsDevPage = (): ReactElement => {
                         count={1234}
                       />
                       <CardAction
-                        density="compact"
+                        density="tight"
                         icon={<DiscussIcon />}
                         label="Comment"
                         color={ButtonColor.BlueCheese}
                         count={42}
                       />
                       <CardAction
-                        density="compact"
+                        density="tight"
                         icon={<BookmarkIcon />}
                         iconPressed={<BookmarkIcon secondary />}
                         label="Bookmark"
                         color={ButtonColor.Bun}
                       />
                       <CardAction
-                        density="compact"
+                        density="tight"
                         icon={<ShareIcon />}
                         label="Share"
                       />
@@ -1584,7 +1584,7 @@ const ButtonsDevPage = (): ReactElement => {
                   <div className="w-[272px] rounded-12 border border-border-subtlest-tertiary p-3">
                     <CardActionBar layout="feedCard">
                       <CardAction
-                        density="compact"
+                        density="tight"
                         pressed
                         icon={<UpvoteIcon />}
                         iconPressed={<UpvoteIcon secondary />}
@@ -1593,14 +1593,14 @@ const ButtonsDevPage = (): ReactElement => {
                         count={1235}
                       />
                       <CardAction
-                        density="compact"
+                        density="tight"
                         icon={<DiscussIcon />}
                         label="Comment"
                         color={ButtonColor.BlueCheese}
                         count={42}
                       />
                       <CardAction
-                        density="compact"
+                        density="tight"
                         pressed
                         icon={<BookmarkIcon />}
                         iconPressed={<BookmarkIcon secondary />}
@@ -1608,7 +1608,7 @@ const ButtonsDevPage = (): ReactElement => {
                         color={ButtonColor.Bun}
                       />
                       <CardAction
-                        density="compact"
+                        density="tight"
                         icon={<ShareIcon />}
                         label="Share"
                       />
@@ -1685,34 +1685,34 @@ const ButtonsDevPage = (): ReactElement => {
                         </div>
                         <CardActionBar layout="feedCard">
                           <CardAction
-                            density="compact"
+                            density="tight"
                             icon={<UpvoteIcon />}
                             iconPressed={<UpvoteIcon secondary />}
                             label="Upvote"
                             color={ButtonColor.Avocado}
                           />
                           <CardAction
-                            density="compact"
+                            density="tight"
                             icon={<DownvoteIcon />}
                             iconPressed={<DownvoteIcon secondary />}
                             label="Downvote"
                             color={ButtonColor.Ketchup}
                           />
                           <CardAction
-                            density="compact"
+                            density="tight"
                             icon={<DiscussIcon />}
                             label="Comment"
                             color={ButtonColor.BlueCheese}
                           />
                           <CardAction
-                            density="compact"
+                            density="tight"
                             icon={<BookmarkIcon />}
                             iconPressed={<BookmarkIcon secondary />}
                             label="Bookmark"
                             color={ButtonColor.Bun}
                           />
                           <CardAction
-                            density="compact"
+                            density="tight"
                             icon={<ShareIcon />}
                             label="Share"
                           />
@@ -1773,13 +1773,13 @@ const ButtonsDevPage = (): ReactElement => {
                     </div>
                     <div className="w-[272px] rounded-12 border border-accent-avocado-default p-3">
                       <div className="mb-2 text-accent-avocado-default typo-caption1">
-                        RIGHT @ 272 px · feedCard layout + compact density — bar
+                        RIGHT @ 272 px · feedCard layout + tight density — bar
                         fills 272 px, distributes children, never pushes the
                         card
                       </div>
                       <CardActionBar layout="feedCard">
                         <CardAction
-                          density="compact"
+                          density="tight"
                           icon={<UpvoteIcon />}
                           iconPressed={<UpvoteIcon secondary />}
                           label="Upvote"
@@ -1787,28 +1787,28 @@ const ButtonsDevPage = (): ReactElement => {
                           count={1234}
                         />
                         <CardAction
-                          density="compact"
+                          density="tight"
                           icon={<DownvoteIcon />}
                           iconPressed={<DownvoteIcon secondary />}
                           label="Downvote"
                           color={ButtonColor.Ketchup}
                         />
                         <CardAction
-                          density="compact"
+                          density="tight"
                           icon={<DiscussIcon />}
                           label="Comment"
                           color={ButtonColor.BlueCheese}
                           count={42}
                         />
                         <CardAction
-                          density="compact"
+                          density="tight"
                           icon={<BookmarkIcon />}
                           iconPressed={<BookmarkIcon secondary />}
                           label="Bookmark"
                           color={ButtonColor.Bun}
                         />
                         <CardAction
-                          density="compact"
+                          density="tight"
                           icon={<ShareIcon />}
                           label="Share"
                         />
