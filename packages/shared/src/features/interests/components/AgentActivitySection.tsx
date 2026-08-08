@@ -19,6 +19,8 @@ import { TimeFormatType } from '../../../lib/dateFormat';
 import type { AgentActivityItem, AgentActivityKind } from '../AgentContext';
 import { useAgent } from '../AgentContext';
 import { mockActivity } from '../mock';
+import { activityAttachment } from '../attachments';
+import { AgentAddToChatButton } from './AgentAddToChatButton';
 
 const kindIcon: Record<AgentActivityKind, ReactElement> = {
   run: <RefreshIcon size={IconSize.XSmall} />,
@@ -28,12 +30,14 @@ const kindIcon: Record<AgentActivityKind, ReactElement> = {
   notification: <BellIcon size={IconSize.XSmall} />,
 };
 
+// Named group, or the section around it would reveal every row's button at
+// once the moment the pointer entered any of them.
 const ActivityRow = ({ item }: { item: AgentActivityItem }): ReactElement => (
-  <FlexRow className="items-start gap-3">
+  <FlexRow className="group/item items-start gap-3">
     <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-8 bg-surface-float text-text-tertiary">
       {kindIcon[item.kind]}
     </span>
-    <FlexCol className="gap-0.5">
+    <FlexCol className="min-w-0 flex-1 gap-0.5">
       <Typography type={TypographyType.Callout}>{item.text}</Typography>
       <Typography
         type={TypographyType.Caption1}
@@ -42,6 +46,13 @@ const ActivityRow = ({ item }: { item: AgentActivityItem }): ReactElement => (
         <DateFormat date={item.at} type={TimeFormatType.Post} />
       </Typography>
     </FlexCol>
+    {/* On the entry rather than on the panel header: what you want to talk
+        about is one run, not whatever tab happens to be open. */}
+    <AgentAddToChatButton
+      attachment={activityAttachment(item)}
+      reveal
+      className="shrink-0"
+    />
   </FlexRow>
 );
 

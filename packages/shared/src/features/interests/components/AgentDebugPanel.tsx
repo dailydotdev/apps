@@ -6,23 +6,15 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
+
 import Link from '../../../components/utilities/Link';
 import type { AgentFeedItem } from '../hooks/useAgentFeed';
 import { useAgent } from '../AgentContext';
 
 export const AgentDebugPanel = ({
   items,
-  onDelete,
-  isDeleting,
 }: {
   items: AgentFeedItem[];
-  onDelete: () => void;
-  isDeleting: boolean;
 }): ReactElement => {
   const { interest, isDemo } = useAgent();
 
@@ -40,14 +32,6 @@ export const AgentDebugPanel = ({
             Showing demo content
           </Typography>
         )}
-        <Button
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-          loading={isDeleting}
-          onClick={onDelete}
-        >
-          Delete interest
-        </Button>
       </FlexRow>
       <pre className="overflow-x-auto rounded-12 bg-surface-float p-3 text-text-tertiary typo-caption1">
         {JSON.stringify(interest, null, 2)}

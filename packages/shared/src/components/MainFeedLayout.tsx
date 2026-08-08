@@ -86,6 +86,7 @@ import { ProfileEmptyScreen } from './profile/ProfileEmptyScreen';
 import { Origin } from '../lib/log';
 import { ExploreTabs, tabToUrl, urlToTab } from './header';
 import { FeedExploreTabs } from './header/FeedExploreTabs';
+import { AgentExploreEntry } from '../features/interests/components/AgentExploreEntry';
 import { QueryStateKeys, useQueryState } from '../hooks/utils/useQueryState';
 import { useSearchResultsLayout } from '../hooks/search/useSearchResultsLayout';
 import useCustomDefaultFeed from '../hooks/feed/useCustomDefaultFeed';
@@ -775,6 +776,12 @@ export default function MainFeedLayout({
       <FeedPageLayoutComponent
         className={classNames('relative', disableTopPadding && '!pt-0')}
       >
+        {/* Agents and search, paired, above the sorts. Gated on nothing but
+            "this is Explore": the v2 page header above is laptop-only by
+            design, and this control is a phone's, so mounting it up there was
+            mounting it somewhere it could never appear. Its own breakpoint
+            decides whether it draws. */}
+        {isAnyExplore && <AgentExploreEntry />}
         {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
         {isSearchOn && !isSearchPageLaptop && search}
         {isSearchOn && isFinder && !isSearchPageLaptop && (

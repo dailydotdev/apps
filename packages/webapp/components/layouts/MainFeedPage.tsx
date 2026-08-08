@@ -11,6 +11,7 @@ import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import dynamic from 'next/dynamic';
 import { useDailyPage } from '@dailydotdev/shared/src/hooks/feed/useDailyPage';
 import { DailyHome } from '@dailydotdev/shared/src/features/daily/DailyHome';
+import { AgentFeedPrompt } from '@dailydotdev/shared/src/features/interests/components/AgentFeedPrompt';
 import { getLayout } from './FeedLayout';
 
 const MainFeedLayout = dynamic(
@@ -136,6 +137,7 @@ export default function MainFeedPage({
     >
       <h1 className="sr-only">{getFeedHeading(feedName)}</h1>
       {children}
+      <AgentFeedPrompt />
     </MainFeedLayout>
   );
 }

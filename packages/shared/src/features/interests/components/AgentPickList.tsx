@@ -10,7 +10,8 @@ import {
 import { ArrowIcon, DiscussIcon, UpvoteIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type { Post } from '../../../graphql/posts';
-import { AgentViewingChip } from './AgentViewingChip';
+import { postAttachment } from '../attachments';
+import { addToChatFloat, AgentAddToChatButton } from './AgentAddToChatButton';
 
 const InlineStat = ({
   icon,
@@ -46,26 +47,44 @@ const PickRow = ({
   onOpen: (post: Post) => void;
   isViewing: boolean;
 }): ReactElement => (
-  <li>
-    <button
-      type="button"
-      onClick={() => onOpen(post)}
+  // The corners live on the row rather than on the list: the list cannot clip
+  // its overflow without cutting the add-to-chat button off its top edge, so
+  // the ends have to round themselves.
+  <li className="[&:first-child>div]:rounded-t-12 [&:last-child>div]:rounded-b-12">
+    {/* A row rather than a button, so "add to chat" can sit in it. The title
+        stretches its click over the whole row. */}
+    <div
       className={classNames(
-        'group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors tablet:px-5',
+        // Stacked on a phone: a title and its counts side by side in 375px
+        // leaves the title four words wide and five lines tall.
+        'agent-press-row group/item relative flex w-full flex-col items-start gap-1 px-3 py-2.5 text-left transition-colors tablet:flex-row tablet:items-center tablet:gap-3',
         isViewing ? 'bg-surface-float' : 'hover:bg-surface-float',
       )}
     >
       <Typography
         tag={TypographyTag.H3}
-        type={TypographyType.Body}
+        type={TypographyType.Callout}
         bold
         color={TypographyColor.Primary}
-        className="min-w-0 flex-1 !leading-snug"
+        className="w-full min-w-0 flex-1 text-balance !leading-snug"
       >
-        {post.title}
+        <button
+          type="button"
+          onClick={() => onOpen(post)}
+          className="w-full text-left after:absolute after:inset-0"
+        >
+          {post.title}
+        </button>
       </Typography>
-      <div className="ml-auto flex shrink-0 items-center gap-2">
-        {isViewing && <AgentViewingChip />}
+      {/* Floated off the row's top edge rather than placed in it: the row
+          keeps every pixel of its title and every one of its counts, and
+          nothing has to be hidden to make space. */}
+      <AgentAddToChatButton
+        attachment={postAttachment(post)}
+        reveal
+        className={addToChatFloat}
+      />
+      <div className="flex shrink-0 items-center gap-2 tablet:ml-auto">
         <InlineStat
           ariaLabel={`${post.numUpvotes ?? 0} upvotes`}
           icon={
@@ -102,11 +121,11 @@ const PickRow = ({
         )}
         <ArrowIcon
           size={IconSize.XSmall}
-          className="shrink-0 rotate-90 text-text-quaternary transition-colors group-hover:text-text-tertiary"
+          className="shrink-0 rotate-90 text-text-quaternary transition-colors group-hover/item:text-text-tertiary"
           aria-hidden
         />
       </div>
-    </button>
+    </div>
   </li>
 );
 
@@ -119,7 +138,7 @@ export const AgentPickList = ({
   onOpen: (post: Post) => void;
   activePostId?: string;
 }): ReactElement => (
-  <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
+  <ol className="divide-y divide-border-subtlest-quaternary rounded-12 border border-border-subtlest-quaternary bg-background-default">
     {posts.map((post) => (
       <PickRow
         key={post.id}

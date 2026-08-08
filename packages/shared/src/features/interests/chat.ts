@@ -7,15 +7,44 @@ export type AgentBlock =
   | { type: 'picks'; caption?: string; posts: Post[] }
   | { type: 'feedLink'; label: string; posts: Post[] };
 
+/** Something already on screen, pulled into a prompt as context. */
+export type AgentAttachment = {
+  id: string;
+  kind: 'post' | 'feed' | 'quote' | 'guidance' | 'activity';
+  label: string;
+  /** Where it came from: a source name, a post count, what it holds. */
+  detail?: string;
+};
+
 export type AgentMessage = {
   id: string;
   role: 'user' | 'agent';
   at: string;
   text?: string;
+  /** What the prompt was pointed at, kept so the turn still reads later. */
+  attachments?: AgentAttachment[];
   blocks?: AgentBlock[];
   isPending?: boolean;
   isScheduled?: boolean;
+  isError?: boolean;
+  /** The command a failed turn re-sends when the reader hits Retry. */
+  retryText?: string;
 };
+
+/**
+ * What the backend gets. The chips carry the references inside the transcript,
+ * so the text of the turn stays clean; the API only ever sees one string, and
+ * it still has to be told what the prompt was pointed at.
+ */
+export const promptWithContext = (
+  text: string,
+  attachments: AgentAttachment[],
+): string =>
+  attachments.length
+    ? `${text}\n\nIn the context of: ${attachments
+        .map(({ label }) => `“${label}”`)
+        .join(', ')}`
+    : text;
 
 const minutesAgo = (minutes: number) =>
   new Date(Date.now() - 1000 * 60 * minutes).toISOString();

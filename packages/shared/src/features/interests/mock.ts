@@ -1,4 +1,5 @@
 import type { AgentActivityItem } from './AgentContext';
+import type { AgentMonitorSource } from './components/AgentMonitor';
 import type { UserInterest } from '../../graphql/interests';
 import {
   UserInterestCadence,
@@ -18,6 +19,96 @@ export const mockInterest: UserInterest = {
   createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 9).toISOString(),
   updatedAt: new Date().toISOString(),
 };
+
+const hoursAgo = (hours: number) =>
+  new Date(Date.now() - 1000 * 60 * 60 * hours).toISOString();
+
+/**
+ * One agent per state, for the design surfaces.
+ *
+ * The list is the thing being designed here, and a list where every row says
+ * the same word designs nothing — so this covers all seven: two came back with
+ * something, one is mid-run, one is watching, one has never run, one failed,
+ * one is paused and one is stopped.
+ */
+export const mockAgents: AgentMonitorSource[] = [
+  mockInterest,
+  {
+    ...mockInterest,
+    id: 'demo-2',
+    query: 'What is actually shipping in AI agents',
+    cadence: UserInterestCadence.Hourly,
+    lastRunAt: hoursAgo(1),
+    lastRunSummary: 'Scanned 340 posts, kept 4',
+  },
+  {
+    ...mockInterest,
+    id: 'demo-3',
+    query: 'WebGPU, and what browsers actually support',
+    cadence: UserInterestCadence.Hourly,
+    runState: 'running',
+    lastRunAt: hoursAgo(2),
+    lastRunSummary: 'Scanning 92 posts from the last hour',
+  },
+  {
+    ...mockInterest,
+    id: 'demo-4',
+    query: 'Rust in production, war stories only',
+    lastRunAt: hoursAgo(20),
+    lastRunSummary: 'Scanned 214 posts, kept nothing',
+  },
+  {
+    ...mockInterest,
+    id: 'demo-5',
+    query: 'Local-first sync',
+    lastRunAt: null,
+    lastRunSummary: null,
+  },
+  {
+    ...mockInterest,
+    id: 'demo-6',
+    query: 'Kubernetes cost horror stories',
+    runState: 'failed',
+    lastRunAt: hoursAgo(9),
+    lastRunSummary: 'Could not reach 2 of your sources',
+  },
+  {
+    ...mockInterest,
+    id: 'demo-7',
+    query: 'Postgres internals, deep dives only',
+    status: UserInterestStatus.Paused,
+    cadence: UserInterestCadence.Weekly,
+    lastRunAt: hoursAgo(72),
+    lastRunSummary: null,
+  },
+  {
+    ...mockInterest,
+    id: 'demo-8',
+    query: 'Crypto, for a client project that ended',
+    status: UserInterestStatus.Stopped,
+    lastRunAt: hoursAgo(24 * 12),
+    lastRunSummary: 'Scanned 61 posts, kept 1',
+  },
+];
+
+/**
+ * The same agents with their last runs pulled up to a few minutes ago.
+ *
+ * The constants above are stamped once, when the module loads, so on a dev
+ * server that has been up all day every agent has aged out of the
+ * "came back recently" window and the design surfaces show no news at all.
+ */
+export const recentMockAgents = (): AgentMonitorSource[] =>
+  mockAgents.map((agent, index) =>
+    agent.lastRunAt
+      ? {
+          ...agent,
+          lastRunAt: new Date(
+            Date.now() - 1000 * 60 * (7 + index * 23),
+          ).toISOString(),
+        }
+      : agent,
+  );
 
 export const mockAgentPosts = [
   {
