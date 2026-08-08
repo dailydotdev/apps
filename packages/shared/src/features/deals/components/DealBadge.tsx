@@ -25,6 +25,7 @@ const badgeColor: Record<DealBadgeKind, TypographyColor> = {
   [DealBadgeKind.SoldOut]: TypographyColor.Quaternary,
   [DealBadgeKind.Promoted]: TypographyColor.Quaternary,
   [DealBadgeKind.EndingSoon]: TypographyColor.StatusError,
+  [DealBadgeKind.PoolLeft]: TypographyColor.StatusWarning,
   [DealBadgeKind.CommunityPick]: TypographyColor.Brand,
   [DealBadgeKind.MembersOnly]: TypographyColor.Plus,
 };
@@ -52,11 +53,9 @@ export const DealBadge = ({
     return null;
   }
 
-  const classes = classNames(
-    'w-fit',
-    kind === DealBadgeKind.EndingSoon && 'tabular-nums',
-    className,
-  );
+  const isCounter =
+    kind === DealBadgeKind.EndingSoon || kind === DealBadgeKind.PoolLeft;
+  const classes = classNames('w-fit', isCounter && 'tabular-nums', className);
 
   if (kind === DealBadgeKind.EndingSoon && deal.expiresAt) {
     return (
@@ -70,6 +69,21 @@ export const DealBadge = ({
         <time dateTime={deal.expiresAt} aria-live="off">
           {formatDealCountdown(deal.expiresAt, now)}
         </time>
+      </Typography>
+    );
+  }
+
+  if (kind === DealBadgeKind.PoolLeft && deal.pool) {
+    return (
+      <Typography
+        tag={TypographyTag.Span}
+        type={TypographyType.Caption1}
+        color={badgeColor[kind]}
+        bold
+        aria-label={`${deal.pool.left} of ${deal.pool.total} left`}
+        className={classes}
+      >
+        {deal.pool.left} left
       </Typography>
     );
   }

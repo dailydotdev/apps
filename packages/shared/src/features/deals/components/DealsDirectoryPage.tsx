@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '../../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { CharmEmptyState } from '../../../components/charm/CharmEmptyState';
+import { BulletListIcon, CardIcon } from '../../../components/icons';
 import {
   Typography,
   TypographyColor,
@@ -10,12 +11,14 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { cloudinaryCharmSearchNoResults } from '../../../lib/image';
+import usePersistentContext from '../../../hooks/usePersistentContext';
 import { MOCK_NOW_MS } from '../mockDeals';
 import type { Deal } from '../types';
 import { DealState } from '../types';
 import { getDealsDirectoryEvidence, isLiveDeal } from '../dealsFormat';
 import type { DealsMockState } from '../useDealsMockState';
 import { useDealsMockState } from '../useDealsMockState';
+import { DealCard } from './DealCard';
 import { DealListCard } from './DealListCard';
 import { DealImpactWidget } from './DealImpactWidget';
 import {
@@ -50,6 +53,53 @@ interface DealRail {
   label?: string;
   deals: Deal[];
 }
+
+export enum DealsLayout {
+  List = 'list',
+  Grid = 'grid',
+}
+
+export const DEALS_LAYOUT_KEY = 'deals_directory_layout';
+
+const layoutOptions: {
+  layout: DealsLayout;
+  label: string;
+  icon: ReactElement;
+}[] = [
+  { layout: DealsLayout.List, label: 'List view', icon: <BulletListIcon /> },
+  { layout: DealsLayout.Grid, label: 'Grid view', icon: <CardIcon /> },
+];
+
+const DealsLayoutToggle = ({
+  layout,
+  onChange,
+}: {
+  layout: DealsLayout;
+  onChange: (next: DealsLayout) => void;
+}): ReactElement => (
+  <div
+    role="group"
+    aria-label="Deal layout"
+    className="flex items-center gap-0.5 rounded-12 bg-surface-float p-0.5"
+  >
+    {layoutOptions.map((option) => (
+      <Button
+        key={option.layout}
+        type="button"
+        size={ButtonSize.XSmall}
+        variant={
+          layout === option.layout
+            ? ButtonVariant.Secondary
+            : ButtonVariant.Tertiary
+        }
+        pressed={layout === option.layout}
+        aria-label={option.label}
+        icon={option.icon}
+        onClick={() => onChange(option.layout)}
+      />
+    ))}
+  </div>
+);
 
 const MY_TAG_CATEGORIES = ['AI tools', 'Dev tools', 'Cloud'];
 
@@ -107,12 +157,38 @@ export const DealsDirectoryPage = ({
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState(initialFilter);
   const [claimMessage, setClaimMessage] = useState('');
+  const [layout, setLayout] = useState(DealsLayout.List);
+  const [storedLayout, setStoredLayout, isStoredLayoutFetched] =
+    usePersistentContext<DealsLayout>(DEALS_LAYOUT_KEY, DealsLayout.List, [
+      DealsLayout.List,
+      DealsLayout.Grid,
+    ]);
+  const hasAdoptedStoredLayout = useRef(false);
   const ownState = useDealsMockState({ now });
   const dealsState = state ?? ownState;
-  const { claimedDealIds, upvotedIds, impact } = dealsState;
+  const { claimedDealIds, impact } = dealsState;
 
   const trimmedQuery = query.trim().toLowerCase();
   const isSearching = trimmedQuery.length > 0;
+
+  // The store seeds the live value exactly once. Reading the layout off it on
+  // every render lets a late cache read overwrite a click the user just made.
+  useEffect(() => {
+    if (!isStoredLayoutFetched || hasAdoptedStoredLayout.current) {
+      return;
+    }
+
+    hasAdoptedStoredLayout.current = true;
+
+    if (storedLayout) {
+      setLayout(storedLayout);
+    }
+  }, [isStoredLayoutFetched, storedLayout]);
+
+  const onLayoutChange = (next: DealsLayout): void => {
+    setLayout(next);
+    setStoredLayout(next);
+  };
 
   const evidence = useMemo(
     () => getDealsDirectoryEvidence(deals.filter(isLiveDeal)),
@@ -239,15 +315,13 @@ export const DealsDirectoryPage = ({
                 onDealClick={onDealClick}
                 onClaim={onClaimDeal}
                 onShare={onShareDeal}
-                onUpvote={dealsState.toggleUpvote}
                 claimedDealIds={claimedDealIds}
-                upvotedIds={upvotedIds}
                 now={now}
               />
             ))}
 
           <section className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-baseline gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <Typography
                 tag={TypographyTag.H2}
                 type={TypographyType.Title3}
@@ -265,6 +339,9 @@ export const DealsDirectoryPage = ({
                 {results.length} {results.length === 1 ? 'deal' : 'deals'}
                 {isSearching ? ` match "${query.trim()}"` : ''}
               </Typography>
+              <div className="ml-auto">
+                <DealsLayoutToggle layout={layout} onChange={onLayoutChange} />
+              </div>
             </div>
 
             <Typography
@@ -277,18 +354,39 @@ export const DealsDirectoryPage = ({
             </Typography>
 
             {results.length > 0 ? (
-              <ul className="flex flex-col gap-3">
-                {results.map((deal) => (
-                  <DealListCard
-                    key={deal.id}
-                    deal={deal}
-                    onClaim={onClaimDeal}
-                    onOpenDetail={onDealClick}
-                    onShare={onShareDeal}
-                    isClaimedByMe={claimedDealIds.has(deal.id)}
-                    now={now}
-                  />
-                ))}
+              <ul
+                key={layout}
+                className={
+                  layout === DealsLayout.Grid
+                    ? 'animate-deals-results-in grid gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3'
+                    : 'animate-deals-results-in flex flex-col'
+                }
+              >
+                {results.map((deal) =>
+                  layout === DealsLayout.Grid ? (
+                    <li key={deal.id} className="flex">
+                      <DealCard
+                        deal={deal}
+                        onClaim={onClaimDeal}
+                        onOpenDetail={onDealClick}
+                        onShare={onShareDeal}
+                        isClaimedByMe={claimedDealIds.has(deal.id)}
+                        now={now}
+                        className="w-full"
+                      />
+                    </li>
+                  ) : (
+                    <DealListCard
+                      key={deal.id}
+                      deal={deal}
+                      onClaim={onClaimDeal}
+                      onOpenDetail={onDealClick}
+                      onShare={onShareDeal}
+                      isClaimedByMe={claimedDealIds.has(deal.id)}
+                      now={now}
+                    />
+                  ),
+                )}
               </ul>
             ) : (
               <div className="flex flex-col items-center gap-4 py-8">

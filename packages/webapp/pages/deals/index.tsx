@@ -130,8 +130,10 @@ const DealsPage = ({ deals, jsonLd }: DealsPageProps): ReactElement => {
           deal={selectedDeal}
           now={MOCK_NOW_MS}
           isClaimedByMe={dealsState.claimedDealIds.has(selectedDeal.id)}
+          isUpvoted={dealsState.upvotedIds.has(selectedDeal.id)}
           onClose={() => setSelectedDeal(undefined)}
           onClaim={onClaimFromModal}
+          onUpvote={dealsState.toggleUpvote}
           onOpenDeal={setSelectedDeal}
           onCodeFeedback={(worked) =>
             dealsState.markCodeFeedback(selectedDeal.id, worked)

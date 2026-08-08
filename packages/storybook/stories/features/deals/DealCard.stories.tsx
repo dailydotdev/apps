@@ -82,13 +82,7 @@ const LabelledGrid = ({
         <span className="font-bold uppercase tracking-wider text-text-tertiary typo-caption2">
           {label}
         </span>
-        <DealCard
-          deal={deal}
-          now={MOCK_NOW_MS}
-          onClaim={noop}
-          onShare={noop}
-          onUpvote={noop}
-        />
+        <DealCard deal={deal} now={MOCK_NOW_MS} onClaim={noop} onShare={noop} />
       </div>
     ))}
   </div>
@@ -142,13 +136,11 @@ export const CommunityPick: Story = {
 const ClaimFlowDemo = () => {
   const baseDeal = getAvailableDealOfType(DealType.PromoCode);
   const [isClaimed, setIsClaimed] = useState(false);
-  const [upvotes, setUpvotes] = useState(baseDeal.community.upvotes);
   const [feedback, setFeedback] = useState<string | null>(null);
 
   const deal: Deal = {
     ...baseDeal,
     state: isClaimed ? DealState.Claimed : baseDeal.state,
-    community: { ...baseDeal.community, upvotes },
   };
 
   return (
@@ -158,7 +150,6 @@ const ClaimFlowDemo = () => {
         now={MOCK_NOW_MS}
         onClaim={() => setIsClaimed(true)}
         onShare={noop}
-        onUpvote={() => setUpvotes((current) => current + 1)}
       />
       {isClaimed && (
         <DealCodeReveal
@@ -249,7 +240,8 @@ const stackedDeal = findDeal('figma-professional-35-off');
 /**
  * Before the precedence rule this card rendered a type pill, a community pick
  * chip, a promoted caption, a countdown and a pool counter at the same time.
- * It now renders one label, and everything demoted sits in the metadata line.
+ * It now renders one label. The pool counter is no longer a separate metadata
+ * fragment either: it is a badge of its own, ranked below the countdown.
  */
 export const BadgePrecedence: Story = {
   render: () => (
@@ -262,6 +254,15 @@ export const BadgePrecedence: Story = {
             ...stackedDeal,
             isCommunityPick: true,
             isPromoted: true,
+            pool: { total: 40, left: 6 },
+          },
+        },
+        {
+          label: 'Pool only, the counter is the badge',
+          testId: 'deal-badge-pool',
+          deal: {
+            ...stackedDeal,
+            state: DealState.Available,
             pool: { total: 40, left: 6 },
           },
         },
@@ -285,8 +286,8 @@ export const BadgePrecedence: Story = {
 };
 
 /**
- * The caveat strip sits directly above the CTA, capped at two, and never
- * renders an empty row.
+ * The card shows one caveat, the most consequential, behind an alert glyph.
+ * The rest are on the deal page. A deal with no caveats renders no row at all.
  */
 export const Caveats: Story = {
   render: () => (
@@ -312,6 +313,10 @@ export const Caveats: Story = {
   ),
 };
 
+/**
+ * A boosted deal is no taller than any other. The boost meter itself moved to
+ * the deal page and the detail modal, where there is room to explain it.
+ */
 export const PromotedAndBoost: Story = {
   render: () => (
     <LabelledGrid
@@ -322,7 +327,7 @@ export const PromotedAndBoost: Story = {
           deal: mockDeals.filter((deal) => deal.isPromoted)[0],
         },
         {
-          label: 'Community boost meter',
+          label: 'Boosted deal, meter lives on the deal page',
           testId: 'deal-boost',
           deal: mockDeals.filter((deal) => !!deal.boost)[0],
         },

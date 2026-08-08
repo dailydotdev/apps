@@ -22,6 +22,8 @@ import { MOCK_NOW_MS } from '../mockDeals';
 interface DealCommunityProofProps {
   community: DealCommunity;
   isMuted?: boolean;
+  /** One scannable line: the works rate and how fresh it is, nothing else. */
+  isCompact?: boolean;
   now?: number;
   className?: string;
 }
@@ -29,6 +31,7 @@ interface DealCommunityProofProps {
 export const DealCommunityProof = ({
   community,
   isMuted,
+  isCompact,
   now = MOCK_NOW_MS,
   className,
 }: DealCommunityProofProps): ReactElement => {
@@ -42,17 +45,44 @@ export const DealCommunityProof = ({
         community.claims,
       )} worked`
     : `${formatFullNumber(community.claims)} reported back`;
+  const ariaLabel = `${formatFullNumber(
+    community.claims,
+  )} developers claimed this. ${
+    isRated
+      ? `${formatWorksRate(community.worksRate)} reported it worked.`
+      : 'Not enough reports yet to rate it.'
+  } Last verified ${verifiedLabel}.`;
+
+  if (isCompact) {
+    return (
+      <Typography
+        tag={TypographyTag.Span}
+        type={TypographyType.Caption1}
+        color={numberColor}
+        role="group"
+        aria-label={ariaLabel}
+        className={classNames(
+          'flex min-w-0 items-center gap-1.5 tabular-nums',
+          className,
+        )}
+      >
+        <VIcon
+          size={IconSize.XSmall}
+          secondary
+          className={isMuted ? 'text-text-quaternary' : 'text-status-success'}
+        />
+        <span className="truncate">
+          {rateLabel} · verified{' '}
+          <time dateTime={community.lastVerifiedAt}>{verifiedLabel}</time>
+        </span>
+      </Typography>
+    );
+  }
 
   return (
     <div
       role="group"
-      aria-label={`${formatFullNumber(
-        community.claims,
-      )} developers claimed this. ${
-        isRated
-          ? `${formatWorksRate(community.worksRate)} reported it worked.`
-          : 'Not enough reports yet to rate it.'
-      } Last verified ${verifiedLabel}.`}
+      aria-label={ariaLabel}
       className={classNames(
         'flex flex-wrap items-center gap-x-3 gap-y-1 typo-caption1',
         className,

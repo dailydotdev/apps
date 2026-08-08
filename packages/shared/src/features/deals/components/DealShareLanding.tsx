@@ -17,6 +17,7 @@ import { DealValueBadge } from './DealValueBadge';
 import { DealCaveats } from './DealCaveats';
 import { DealRedemptionNote } from './DealRedemptionNote';
 import { DealCommunityProof } from './DealCommunityProof';
+import { DealBoostMeter } from './DealBoostMeter';
 import { DealCard } from './DealCard';
 import type { Deal } from '../types';
 import { DealState } from '../types';
@@ -274,6 +275,8 @@ export const DealShareLanding = ({
           ))}
 
         {!isExpired && <DealRedemptionNote deal={deal} />}
+
+        {!isExpired && deal.boost && <DealBoostMeter boost={deal.boost} />}
 
         {isSignedIn && (
           <Typography

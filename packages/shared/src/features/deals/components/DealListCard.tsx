@@ -11,6 +11,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
+  AlertIcon,
   CopyIcon,
   InviteIcon,
   LockIcon,
@@ -18,21 +19,23 @@ import {
   ShareIcon,
   VIcon,
 } from '../../../components/icons';
+import { IconSize } from '../../../components/Icon';
 import type { Deal } from '../types';
 import { DealState, DealType } from '../types';
 import {
   dealTypeToCtaLabel,
   dealTypeToLabel,
+  getDealCoverMedia,
   getDealPath,
   getDealSavingPhrase,
   hasDealEnded,
 } from '../dealsFormat';
 import { useNowTick } from '../useNowTick';
 import { DealBrandLogo } from './DealBrandLogo';
+import { DealCoverImage } from './DealCoverImage';
 import { DealBadge } from './DealBadge';
 import { DealValueBadge } from './DealValueBadge';
 import { DealCaveatStrip } from './DealCaveatStrip';
-import { DealRedemptionNote } from './DealRedemptionNote';
 import { DealCommunityProof } from './DealCommunityProof';
 
 interface DealListCardProps {
@@ -51,10 +54,35 @@ const typeToCtaIcon: Partial<Record<DealType, ReactElement>> = {
   [DealType.Exclusive]: <LockIcon />,
 };
 
+const DealRowThumbnail = ({
+  deal,
+  isMuted,
+}: {
+  deal: Deal;
+  isMuted?: boolean;
+}): ReactElement => {
+  const cover = getDealCoverMedia(deal);
+
+  return (
+    <div className="size-16 shrink-0 tablet:size-20">
+      {cover ? (
+        <DealCoverImage
+          media={cover}
+          brand={deal.brand}
+          isMuted={isMuted}
+          className="h-full"
+        />
+      ) : (
+        <DealBrandLogo brand={deal.brand} isMuted={isMuted} isThumbnail />
+      )}
+    </div>
+  );
+};
+
 /**
- * The exhaustive listing form. It fits more offers per viewport than the grid
- * card and reads as a directory rather than a shop, so height and scroll
- * constraints stay on the grid variant.
+ * The primary directory layout. Three zones on one line: what it is, what it
+ * says, what it is worth and how to take it. Everything a reader does not need
+ * to decide "is this for me" in two seconds lives on the deal page instead.
  */
 export const DealListCard = ({
   deal,
@@ -77,11 +105,7 @@ export const DealListCard = ({
   const isMuted = isExpired || isSoldOut;
   const openDetail = onOpenDetail ?? onClaim;
   const savingPhrase = getDealSavingPhrase(deal.value);
-  const metadata = [
-    deal.brand.name,
-    dealTypeToLabel[deal.type],
-    deal.categories[0],
-  ]
+  const metadata = [deal.brand.name, dealTypeToLabel[deal.type]]
     .filter(Boolean)
     .join(' · ');
 
@@ -97,17 +121,29 @@ export const DealListCard = ({
   return (
     <li
       className={classNames(
-        'flex flex-wrap items-start gap-x-3 gap-y-3 rounded-16 border border-border-subtlest-tertiary p-4 hover:bg-surface-hover',
+        'flex gap-4 border-t border-border-subtlest-tertiary px-2 py-4 transition-colors first:border-t-0 hover:bg-surface-hover',
         isExpired && 'grayscale',
         isMuted && 'opacity-60',
         className,
       )}
     >
-      <div className="flex min-w-0 flex-1 basis-60 items-start gap-3">
-        <DealBrandLogo brand={deal.brand} isMuted={isMuted} />
+      <DealRowThumbnail deal={deal} isMuted={isMuted} />
+
+      <div className="flex min-w-0 flex-1 flex-col gap-3 tablet:flex-row tablet:items-start tablet:gap-6">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <DealBadge deal={deal} now={currentMs} />
-          <Typography tag={TypographyTag.H3} type={TypographyType.Callout} bold>
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2">
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              truncate
+            >
+              {metadata}
+            </Typography>
+            <DealBadge deal={deal} now={currentMs} />
+          </div>
+
+          <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
             <Link href={getDealPath(deal)} passHref>
               <a
                 href={getDealPath(deal)}
@@ -118,119 +154,104 @@ export const DealListCard = ({
               </a>
             </Link>
           </Typography>
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            className="tabular-nums"
-          >
-            {metadata}
-            {deal.pool && ` · ${deal.pool.left} of ${deal.pool.total} left`}
-          </Typography>
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Footnote}
-            color={TypographyColor.Tertiary}
-            className="line-clamp-2"
-          >
-            {deal.description}
-          </Typography>
-          {!isMuted && <DealCaveatStrip deal={deal} />}
+
+          {!isMuted && deal.caveats.length > 0 && (
+            <div className="flex min-w-0 items-center gap-1.5 text-text-tertiary">
+              <AlertIcon size={IconSize.XXSmall} className="shrink-0" />
+              <DealCaveatStrip deal={deal} limit={1} className="min-w-0" />
+            </div>
+          )}
+
+          <DealCommunityProof
+            community={deal.community}
+            isMuted={isMuted}
+            now={currentMs}
+            isCompact
+          />
+        </div>
+
+        <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-3 gap-y-3 tablet:w-52 tablet:flex-col tablet:items-end">
+          <div className="flex flex-col items-start tablet:items-end">
+            <DealValueBadge value={deal.value} isMuted={isMuted} />
+            {savingPhrase && (
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+                className="tabular-nums"
+              >
+                {savingPhrase}
+              </Typography>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 tablet:justify-end">
+            {isSoldOut && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                disabled
+              >
+                Sold out
+              </Button>
+            )}
+            {isExpired && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                onClick={() => openDetail?.(deal)}
+              >
+                See similar
+              </Button>
+            )}
+            {isClaimed && !isMuted && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<VIcon secondary />}
+                onClick={() => openDetail?.(deal)}
+              >
+                In your coupons
+              </Button>
+            )}
+            {isLocked && !isClaimed && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Secondary}
+                size={ButtonSize.Small}
+                icon={<InviteIcon />}
+                onClick={() => openDetail?.(deal)}
+              >
+                Invite to unlock
+              </Button>
+            )}
+            {!isMuted && !isClaimed && !isLocked && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Small}
+                icon={typeToCtaIcon[deal.type]}
+                onClick={() => (onClaim ?? openDetail)?.(deal)}
+              >
+                {dealTypeToCtaLabel[deal.type]}
+              </Button>
+            )}
+            {onShare && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<ShareIcon />}
+                aria-label={`Share the ${deal.brand.name} deal`}
+                onClick={() => onShare(deal)}
+              />
+            )}
+          </div>
         </div>
       </div>
-
-      <div className="flex shrink-0 flex-col items-start gap-0.5 tablet:items-end">
-        <DealValueBadge value={deal.value} isMuted={isMuted} />
-        {savingPhrase && (
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            className="tabular-nums"
-          >
-            {savingPhrase}
-          </Typography>
-        )}
-      </div>
-
-      <div className="flex basis-full flex-wrap items-center gap-x-3 gap-y-2">
-        {isSoldOut && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            disabled
-          >
-            Sold out
-          </Button>
-        )}
-        {isExpired && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            onClick={() => openDetail?.(deal)}
-          >
-            See similar
-          </Button>
-        )}
-        {isClaimed && !isMuted && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            icon={<VIcon secondary />}
-            onClick={() => openDetail?.(deal)}
-          >
-            In your coupons
-          </Button>
-        )}
-        {isLocked && !isClaimed && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Secondary}
-            size={ButtonSize.Small}
-            icon={<InviteIcon />}
-            onClick={() => openDetail?.(deal)}
-          >
-            Invite to unlock
-          </Button>
-        )}
-        {!isMuted && !isClaimed && !isLocked && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Primary}
-            size={ButtonSize.Small}
-            icon={typeToCtaIcon[deal.type]}
-            onClick={() => (onClaim ?? openDetail)?.(deal)}
-          >
-            {dealTypeToCtaLabel[deal.type]}
-          </Button>
-        )}
-        {onShare && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Small}
-            icon={<ShareIcon />}
-            aria-label={`Share the ${deal.brand.name} deal`}
-            onClick={() => onShare(deal)}
-          />
-        )}
-        {!isMuted && (
-          <DealRedemptionNote
-            deal={deal}
-            className="w-full min-w-0 tablet:w-auto tablet:flex-1"
-          />
-        )}
-      </div>
-
-      <DealCommunityProof
-        community={deal.community}
-        isMuted={isMuted}
-        now={currentMs}
-        className="basis-full"
-      />
     </li>
   );
 };

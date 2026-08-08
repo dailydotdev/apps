@@ -12,21 +12,19 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
+  AlertIcon,
   CopyIcon,
   InviteIcon,
   LockIcon,
   OpenLinkIcon,
   ShareIcon,
-  UpvoteIcon,
   VIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
-import type { Deal, DealLock } from '../types';
+import type { Deal } from '../types';
 import { DealState, DealType } from '../types';
 import {
   dealTypeToCtaLabel,
-  dealTypeToLabel,
-  formatCompactNumber,
   getDealCoverMedia,
   getDealPath,
   getDealSavingPhrase,
@@ -34,23 +32,18 @@ import {
 } from '../dealsFormat';
 import { useNowTick } from '../useNowTick';
 import { DealBrandLogo } from './DealBrandLogo';
+import { DealBrandCover } from './DealBrandCover';
 import { DealCoverImage } from './DealCoverImage';
 import { DealBadge } from './DealBadge';
 import { DealValueBadge } from './DealValueBadge';
 import { DealCaveatStrip } from './DealCaveatStrip';
-import { DealRedemptionNote } from './DealRedemptionNote';
-import { DealCommunityProof } from './DealCommunityProof';
-import { DealBoostMeter } from './DealBoostMeter';
-import { DealInviteCount, DealInviteProgress } from './DealInviteProgress';
 
 interface DealCardProps {
   deal: Deal;
   onClaim?: (deal: Deal) => void;
   onOpenDetail?: (deal: Deal) => void;
   onShare?: (deal: Deal) => void;
-  onUpvote?: (deal: Deal) => void;
   isClaimedByMe?: boolean;
-  isUpvoted?: boolean;
   now?: number;
   className?: string;
 }
@@ -61,22 +54,16 @@ const typeToCtaIcon: Partial<Record<DealType, ReactElement>> = {
   [DealType.Exclusive]: <LockIcon />,
 };
 
-const DealLockRow = ({ lock }: { lock: DealLock }): ReactElement => (
-  <div className="flex items-center gap-2 rounded-12 bg-surface-float px-3 py-2">
-    <LockIcon size={IconSize.XSmall} secondary />
-    <DealInviteProgress lock={lock} />
-    <DealInviteCount lock={lock} />
-  </div>
-);
-
+/**
+ * The browsing form, for rails only. It carries the six things a cover-led
+ * card needs and nothing else: the rest of the offer lives on the deal page.
+ */
 export const DealCard = ({
   deal,
   onClaim,
   onOpenDetail,
   onShare,
-  onUpvote,
   isClaimedByMe,
-  isUpvoted,
   now,
   className,
 }: DealCardProps): ReactElement => {
@@ -91,12 +78,8 @@ export const DealCard = ({
   const isLocked = deal.state === DealState.Locked;
   const isMuted = isExpired || isSoldOut;
   const openDetail = onOpenDetail ?? onClaim;
-  const upvotes = deal.community.upvotes + (isUpvoted ? 1 : 0);
   const cover = getDealCoverMedia(deal);
   const savingPhrase = getDealSavingPhrase(deal.value);
-  const metadata = [dealTypeToLabel[deal.type], deal.categories[0]]
-    .filter(Boolean)
-    .join(' · ');
 
   const onTitleClick = (event: MouseEvent<HTMLAnchorElement>): void => {
     if (!openDetail || event.metaKey || event.ctrlKey || event.shiftKey) {
@@ -110,75 +93,43 @@ export const DealCard = ({
   return (
     <Card
       className={classNames(
-        cover ? 'min-h-[33rem]' : 'min-h-[29rem]',
+        'min-h-[22rem]',
         isExpired && 'grayscale',
         isMuted && 'opacity-60',
         className,
       )}
     >
       <div className="absolute inset-0 flex flex-col gap-3 p-4">
-        {cover && (
+        {cover ? (
           <DealCoverImage
             media={cover}
             brand={deal.brand}
             isMuted={isMuted}
             className="aspect-[3/1]"
           />
+        ) : (
+          <DealBrandCover
+            brand={deal.brand}
+            isMuted={isMuted}
+            className="aspect-[3/1]"
+          />
         )}
-        <header className="flex items-start gap-3">
+
+        <header className="flex items-center gap-2">
           <DealBrandLogo brand={deal.brand} isMuted={isMuted} />
-          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Footnote}
-              bold
-              truncate
-            >
-              {deal.brand.name}
-            </Typography>
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              className="tabular-nums"
-            >
-              {metadata}
-              {deal.pool && ` · ${deal.pool.left} of ${deal.pool.total} left`}
-            </Typography>
-          </div>
-          {onUpvote && (
-            <Button
-              type="button"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.XSmall}
-              icon={<UpvoteIcon size={IconSize.XSmall} secondary={isUpvoted} />}
-              onClick={() => onUpvote(deal)}
-              pressed={!!isUpvoted}
-              aria-label={`Upvote the ${deal.brand.name} deal, ${upvotes} upvotes`}
-              className="tabular-nums"
-            >
-              {formatCompactNumber(upvotes)}
-            </Button>
-          )}
+          <Typography
+            tag={TypographyTag.Span}
+            type={TypographyType.Caption1}
+            color={TypographyColor.Tertiary}
+            truncate
+            className="min-w-0 flex-1"
+          >
+            {deal.brand.name}
+          </Typography>
+          <DealBadge deal={deal} now={currentMs} />
         </header>
 
-        <DealBadge deal={deal} now={currentMs} />
-
-        <div className="flex flex-wrap items-center gap-2">
-          <DealValueBadge value={deal.value} isMuted={isMuted} />
-          {savingPhrase && (
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-              className="tabular-nums"
-            >
-              {savingPhrase}
-            </Typography>
-          )}
-        </div>
-
-        <Typography tag={TypographyTag.H3} type={TypographyType.Title3} bold>
+        <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
           <Link href={getDealPath(deal)} passHref>
             <a
               href={getDealPath(deal)}
@@ -189,21 +140,29 @@ export const DealCard = ({
             </a>
           </Link>
         </Typography>
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-          className={cover ? 'line-clamp-2' : 'line-clamp-3'}
-        >
-          {deal.description}
-        </Typography>
 
-        {deal.boost && <DealBoostMeter boost={deal.boost} compact />}
-        {isLocked && deal.lock && <DealLockRow lock={deal.lock} />}
+        <div className="flex flex-wrap items-center gap-x-2">
+          <DealValueBadge value={deal.value} isMuted={isMuted} />
+          {savingPhrase && (
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              className="tabular-nums"
+            >
+              {savingPhrase}
+            </Typography>
+          )}
+        </div>
 
         <CardSpace />
 
-        {!isMuted && <DealCaveatStrip deal={deal} />}
+        {!isMuted && deal.caveats.length > 0 && (
+          <div className="flex min-w-0 items-center gap-1.5 text-text-tertiary">
+            <AlertIcon size={IconSize.XXSmall} className="shrink-0" />
+            <DealCaveatStrip deal={deal} limit={1} className="min-w-0" />
+          </div>
+        )}
 
         <div className="flex items-center gap-2">
           {isSoldOut && (
@@ -275,16 +234,6 @@ export const DealCard = ({
             />
           )}
         </div>
-
-        {!isMuted && (
-          <DealRedemptionNote deal={deal} className="line-clamp-2" />
-        )}
-
-        <DealCommunityProof
-          community={deal.community}
-          isMuted={isMuted}
-          now={currentMs}
-        />
       </div>
     </Card>
   );

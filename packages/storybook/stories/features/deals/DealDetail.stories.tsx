@@ -44,6 +44,7 @@ const findDeal = (slug: string): Deal => {
 
 const DetailStage = ({ deal }: { deal: Deal }) => {
   const [openDeal, setOpenDeal] = useState<Deal | null>(deal);
+  const [isUpvoted, setIsUpvoted] = useState(false);
 
   return (
     <div className="flex min-h-[45rem] items-center justify-center bg-background-subtle">
@@ -58,8 +59,10 @@ const DetailStage = ({ deal }: { deal: Deal }) => {
         <DealDetailModal
           deal={openDeal}
           now={MOCK_NOW_MS}
+          isUpvoted={isUpvoted}
           onClose={() => setOpenDeal(null)}
           onClaim={noop}
+          onUpvote={() => setIsUpvoted((current) => !current)}
           onOpenDeal={setOpenDeal}
         />
       )}
@@ -108,6 +111,14 @@ export const Promoted: Story = {
   render: () => (
     <DetailStage deal={mockDeals.filter((deal) => deal.isPromoted)[0]} />
   ),
+};
+
+/**
+ * Where the elements the row and the card gave up now live: the description,
+ * the boost meter, the redemption note, the full caveat list and the upvote.
+ */
+export const BoostedDeal: Story = {
+  render: () => <DetailStage deal={findDeal('warp-pro-community-boost')} />,
 };
 
 /**

@@ -14,6 +14,7 @@ import {
   LockIcon,
   OpenLinkIcon,
   ShareIcon,
+  UpvoteIcon,
   VIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
@@ -26,6 +27,7 @@ import {
   dealTypeToLabel,
   DEAL_AFFILIATE_DISCLOSURE,
   DEAL_NO_COMMISSION_DISCLOSURE,
+  formatCompactNumber,
   formatDealRelative,
   getDealCoverMedia,
   getDealSavingPhrase,
@@ -41,6 +43,8 @@ import { DealCaveats } from './DealCaveats';
 import { DealRedemptionNote } from './DealRedemptionNote';
 import { DealCommunityProof } from './DealCommunityProof';
 import { DealCodeReveal } from './DealCodeReveal';
+import { DealBoostMeter } from './DealBoostMeter';
+import { DealInviteCount, DealInviteProgress } from './DealInviteProgress';
 
 interface DealDetailModalProps {
   deal: Deal;
@@ -48,7 +52,9 @@ interface DealDetailModalProps {
   onClaim?: (deal: Deal) => void;
   onOpenDeal?: (deal: Deal) => void;
   onCodeFeedback?: (worked: boolean) => void;
+  onUpvote?: (deal: Deal) => void;
   isClaimedByMe?: boolean;
+  isUpvoted?: boolean;
   now?: number;
   shareBar?: ReactNode;
 }
@@ -156,6 +162,10 @@ const DealClaimArea = ({
           Invite {remaining} more developer{remaining === 1 ? '' : 's'} to
           unlock this offer.
         </Typography>
+        <div className="flex items-center gap-2">
+          <DealInviteProgress lock={deal.lock} />
+          <DealInviteCount lock={deal.lock} />
+        </div>
         <Button
           type="button"
           variant={ButtonVariant.Secondary}
@@ -236,7 +246,9 @@ export const DealDetailModal = ({
   onClaim,
   onOpenDeal,
   onCodeFeedback,
+  onUpvote,
   isClaimedByMe,
+  isUpvoted,
   now,
   shareBar,
 }: DealDetailModalProps): ReactElement => {
@@ -307,6 +319,7 @@ export const DealDetailModal = ({
   const comments = getDealComments(deal.id);
   const cover = getDealCoverMedia(deal);
   const savingPhrase = getDealSavingPhrase(deal.value);
+  const upvotes = deal.community.upvotes + (isUpvoted ? 1 : 0);
   const metadata = [dealTypeToLabel[deal.type], deal.categories[0]]
     .filter(Boolean)
     .join(' · ');
@@ -429,6 +442,8 @@ export const DealDetailModal = ({
 
           {!isMuted && <DealRedemptionNote deal={deal} />}
 
+          {deal.boost && <DealBoostMeter boost={deal.boost} />}
+
           <Typography
             tag={TypographyTag.P}
             type={TypographyType.Caption1}
@@ -477,11 +492,31 @@ export const DealDetailModal = ({
           </details>
 
           <div className="flex flex-col gap-3 border-t border-border-subtlest-tertiary pt-4">
-            <DealCommunityProof
-              community={deal.community}
-              isMuted={isMuted}
-              now={currentMs}
-            />
+            <div className="flex flex-wrap items-center gap-3">
+              <DealCommunityProof
+                community={deal.community}
+                isMuted={isMuted}
+                now={currentMs}
+                isCompact
+                className="flex-1"
+              />
+              {onUpvote && (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  icon={
+                    <UpvoteIcon size={IconSize.XSmall} secondary={isUpvoted} />
+                  }
+                  onClick={() => onUpvote(deal)}
+                  pressed={!!isUpvoted}
+                  aria-label={`Upvote the ${deal.brand.name} deal, ${upvotes} upvotes`}
+                  className="tabular-nums"
+                >
+                  {formatCompactNumber(upvotes)}
+                </Button>
+              )}
+            </div>
             <ul className="flex flex-col gap-3">
               {comments.map((comment) => (
                 <li key={comment.id} className="flex items-start gap-3">

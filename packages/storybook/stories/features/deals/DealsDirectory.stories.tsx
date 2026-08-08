@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DealsDirectoryPage } from '@dailydotdev/shared/src/features/deals/components/DealsDirectoryPage';
@@ -6,6 +7,7 @@ import { DealListCard } from '@dailydotdev/shared/src/features/deals/components/
 import { DealCard } from '@dailydotdev/shared/src/features/deals/components/DealCard';
 import { DealsHero } from '@dailydotdev/shared/src/features/deals/components/DealsHero';
 import { MyCouponsWallet } from '@dailydotdev/shared/src/features/deals/components/MyCouponsWallet';
+import type { Deal } from '@dailydotdev/shared/src/features/deals/types';
 import { DealState } from '@dailydotdev/shared/src/features/deals/types';
 import {
   getDealCoverMedia,
@@ -14,11 +16,22 @@ import {
 } from '@dailydotdev/shared/src/features/deals/dealsFormat';
 import { useDealsMockState } from '@dailydotdev/shared/src/features/deals/useDealsMockState';
 import {
+  getDealBySlug,
   getDealsByState,
   mockDeals,
   MOCK_NOW_MS,
   withDeals,
 } from './deals.mocks';
+
+const findDeal = (slug: string): Deal => {
+  const deal = getDealBySlug(slug);
+
+  if (!deal) {
+    throw new Error(`Missing mock deal for slug ${slug}`);
+  }
+
+  return deal;
+};
 
 const meta: Meta<typeof DealsDirectoryPage> = {
   title: 'Features/Deals/Directory',
@@ -177,21 +190,28 @@ export const CoverRail: Story = {
   ),
 };
 
+const SectionLabel = ({ children }: { children: ReactNode }) => (
+  <span className="font-bold uppercase tracking-wider text-text-tertiary typo-caption2">
+    {children}
+  </span>
+);
+
+const comparisonDeals = mockDeals.slice(0, 6);
+
 /**
- * Rails keep the grid card, the exhaustive listing uses the list row. Check
- * both at `mobile` too: the list row reflows its value under the title rather
- * than compressing it.
+ * The density argument, side by side and on the same six offers. The list is
+ * the directory default: six rows fit in roughly the height of two grid cards,
+ * and every row carries the same decision set (thumbnail, brand, one badge,
+ * title, one caveat, one proof line, value, CTA).
  */
 export const ListVersusGrid: Story = {
   parameters: { layout: 'padded', controls: { disable: true } },
   render: () => (
-    <div className="flex flex-col gap-10">
-      <div className="flex flex-col gap-3">
-        <span className="font-bold uppercase tracking-wider text-text-tertiary typo-caption2">
-          List rows, the all deals section
-        </span>
-        <ul className="flex flex-col gap-3">
-          {mockDeals.slice(0, 6).map((deal) => (
+    <div className="flex flex-col gap-10 laptop:flex-row laptop:items-start">
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <SectionLabel>List rows, the directory default</SectionLabel>
+        <ul className="flex flex-col">
+          {comparisonDeals.map((deal) => (
             <DealListCard
               key={deal.id}
               deal={deal}
@@ -202,23 +222,69 @@ export const ListVersusGrid: Story = {
           ))}
         </ul>
       </div>
-      <div className="flex flex-col gap-3">
-        <span className="font-bold uppercase tracking-wider text-text-tertiary typo-caption2">
-          Grid cards, the rails
-        </span>
-        <div className="grid gap-6 tablet:grid-cols-2 laptop:grid-cols-3">
-          {mockDeals.slice(0, 6).map((deal) => (
+      <div className="flex min-w-0 flex-1 flex-col gap-3">
+        <SectionLabel>Grid cards, the rails and the grid view</SectionLabel>
+        <div className="grid gap-6 tablet:grid-cols-2">
+          {comparisonDeals.map((deal) => (
             <DealCard
               key={deal.id}
               deal={deal}
               now={MOCK_NOW_MS}
               onClaim={noop}
               onShare={noop}
-              onUpvote={noop}
             />
           ))}
         </div>
       </div>
+    </div>
+  ),
+};
+
+const productRowDeal = findDeal('keychron-q1-30-off');
+const brandRowDeal = findDeal('cursor-20-credit');
+const artworkRowDeal = findDeal('amazon-10-gift-card');
+const noCaveatRowDeal: Deal = { ...brandRowDeal, caveats: [] };
+
+const rowCases: { label: string; deal: Deal }[] = [
+  { label: 'Product photo in the thumbnail slot', deal: productRowDeal },
+  { label: 'Brand logo, no product photo', deal: brandRowDeal },
+  { label: 'Gift card artwork', deal: artworkRowDeal },
+  { label: 'No caveats, the alert row is absent', deal: noCaveatRowDeal },
+  {
+    label: 'Expiring, the countdown is the badge',
+    deal: getDealsByState(DealState.Expiring)[0],
+  },
+  {
+    label: 'Locked behind invites',
+    deal: getDealsByState(DealState.Locked)[0],
+  },
+  { label: 'Sold out', deal: getDealsByState(DealState.SoldOut)[0] },
+  { label: 'Expired', deal: getDealsByState(DealState.Expired)[0] },
+];
+
+/**
+ * Every row shape in one place. The thumbnail box is a fixed square, so a
+ * missing photo, a failed photo and a monogram all reserve the same space and
+ * the list never reflows as images arrive. Check this at `mobile` too: the
+ * value, saving and CTA stack under the title instead of compressing.
+ */
+export const RowStates: Story = {
+  parameters: { layout: 'padded', controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-col gap-6">
+      {rowCases.map(({ label, deal }) => (
+        <div key={label} className="flex flex-col gap-1">
+          <SectionLabel>{label}</SectionLabel>
+          <ul className="flex flex-col">
+            <DealListCard
+              deal={deal}
+              now={MOCK_NOW_MS}
+              onClaim={noop}
+              onShare={noop}
+            />
+          </ul>
+        </div>
+      ))}
     </div>
   ),
 };

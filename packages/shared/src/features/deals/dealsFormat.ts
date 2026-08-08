@@ -324,7 +324,7 @@ export const getDealValueAriaLabel = (value: DealValue): string =>
     : value.label;
 
 export const getDealSavingPhrase = (value: DealValue): string | undefined =>
-  value.savingsUsd ? `about ${formatUsd(value.savingsUsd)} off` : undefined;
+  value.savingsUsd ? `saves about ${formatUsd(value.savingsUsd)}` : undefined;
 
 /**
  * Most consequential first. A caveat that decides whether the offer applies to
@@ -387,6 +387,7 @@ export enum DealBadgeKind {
   SoldOut = 'sold_out',
   Promoted = 'promoted',
   EndingSoon = 'ending_soon',
+  PoolLeft = 'pool_left',
   CommunityPick = 'community_pick',
   MembersOnly = 'members_only',
 }
@@ -395,6 +396,8 @@ export enum DealBadgeKind {
  * One badge per item, and the precedence is fixed so two surfaces can never
  * disagree about which one an offer earned. A promoted placement suppresses
  * every merit label, which is the editorial firewall in one line of code.
+ * Scarcity ranks above merit because it is the only label that expires while
+ * the reader is still looking at the row.
  */
 export const getDealBadgeKind = (
   deal: Deal,
@@ -419,6 +422,10 @@ export const getDealBadgeKind = (
 
   if (deal.state === DealState.Expiring && deal.expiresAt) {
     return DealBadgeKind.EndingSoon;
+  }
+
+  if (deal.pool) {
+    return DealBadgeKind.PoolLeft;
   }
 
   if (deal.isCommunityPick) {
