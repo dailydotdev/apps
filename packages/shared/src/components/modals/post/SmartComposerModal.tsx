@@ -338,8 +338,6 @@ export function SmartComposerModal({
   const isMulti = selected.length > 1;
 
   const schedule = useSchedulePost();
-  // Scheduling: single-source, non-moderated create only (any post type
-  // except standups, which schedule themselves).
   const canSchedule =
     kind !== 'standup' &&
     !isEditing &&
@@ -450,11 +448,10 @@ export function SmartComposerModal({
       {submitLabel}
     </Button>
   );
-  // Self-contained flex with its own gap so the button pair keeps identical
-  // spacing regardless of the parent (rich-text toolbar vs. bottom action bar).
+  const scheduleInHeader = !isLaptop;
   const primaryActionsNode = (
     <div className="flex items-center gap-2">
-      {scheduleButtonNode}
+      {!scheduleInHeader && scheduleButtonNode}
       {postButtonNode}
     </div>
   );
@@ -506,6 +503,7 @@ export function SmartComposerModal({
             onClick={handleViewScheduled}
             disabled={isInFlight}
           />
+          {scheduleInHeader && scheduleButtonNode}
           {kind === 'text' && (
             <Tooltip
               content={
@@ -526,25 +524,29 @@ export function SmartComposerModal({
               />
             </Tooltip>
           )}
-          <Tooltip
-            content={isExpanded ? 'Collapse composer' : 'Expand composer'}
-          >
-            <Button
-              type="button"
-              size={ButtonSize.Small}
-              variant={ButtonVariant.Tertiary}
-              icon={
-                isExpanded ? (
-                  <MinimizeIcon size={IconSize.Size16} />
-                ) : (
-                  <MaximizeIcon size={IconSize.Size16} />
-                )
-              }
-              onClick={onToggleExpand}
-              aria-label={isExpanded ? 'Collapse composer' : 'Expand composer'}
-              aria-pressed={isExpanded}
-            />
-          </Tooltip>
+          {isLaptop && (
+            <Tooltip
+              content={isExpanded ? 'Collapse composer' : 'Expand composer'}
+            >
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+                icon={
+                  isExpanded ? (
+                    <MinimizeIcon size={IconSize.Size16} />
+                  ) : (
+                    <MaximizeIcon size={IconSize.Size16} />
+                  )
+                }
+                onClick={onToggleExpand}
+                aria-label={
+                  isExpanded ? 'Collapse composer' : 'Expand composer'
+                }
+                aria-pressed={isExpanded}
+              />
+            </Tooltip>
+          )}
           <CloseButton
             type="button"
             size={ButtonSize.Small}
@@ -575,11 +577,12 @@ export function SmartComposerModal({
             cover={cover}
             onCoverChange={onCoverChange}
             toolbarLeading={kindPickerNode}
+            stackToolbarLeading={!isLaptop}
             toolbarRightActions={primaryActionsNode}
             onMarkdownModeChange={onMarkdownModeChange}
           />
-          {!isMarkdownMode && notificationToggleNode && (
-            <div className="-mt-2 flex shrink-0 px-5 pb-5">
+          {notificationToggleNode && (
+            <div className="-mt-2 flex min-w-0 shrink-0 px-5 pb-5">
               {notificationToggleNode}
             </div>
           )}
@@ -614,7 +617,7 @@ export function SmartComposerModal({
           {kind === 'poll' && <PollForm value={poll} onChange={setPoll} />}
         </div>
       )}
-      {((kind !== 'text' && kind !== 'standup') || isMarkdownMode) && (
+      {kind !== 'text' && kind !== 'standup' && (
         <div className="flex shrink-0 flex-col gap-3 px-5 pb-5 pt-4">
           <div className="flex items-center justify-between gap-3">
             {kindPickerNode}
@@ -638,7 +641,7 @@ export function SmartComposerModal({
           handleClose();
         }}
         onAfterClose={props.onAfterClose}
-        className={{ wrapper: 'flex flex-col p-0' }}
+        className={{ wrapper: 'flex flex-col !p-0' }}
       >
         {formContent}
       </Drawer>

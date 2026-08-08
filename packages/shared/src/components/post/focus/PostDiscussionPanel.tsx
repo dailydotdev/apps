@@ -3,6 +3,7 @@ import type { LegacyRef, ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
+import { useOpenPostCommentRequest } from '../../../hooks/post/useOpenPostCommentRequest';
 import { useShareComment } from '../../../hooks/useShareComment';
 import { useUpvoteQuery } from '../../../hooks/useUpvoteQuery';
 import { Origin } from '../../../lib/log';
@@ -28,10 +29,10 @@ import { usePostComments } from '../../../hooks/comments/usePostComments';
 import { DiscussionMetaBar } from './DiscussionMetaBar';
 import { DiscussionShareRow } from './DiscussionShareRow';
 
-const CommentInputOrModal = dynamic(
+const CommentInput = dynamic(
   () =>
     import(
-      /* webpackChunkName: "commentInputOrModal" */ '../../comments/CommentInputOrModal'
+      /* webpackChunkName: "commentInput" */ '../../comments/CommentInput'
     ),
 );
 
@@ -85,6 +86,8 @@ export const PostDiscussionPanel = ({
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { onShowUpvoted } = useUpvoteQuery();
   const { openShareComment } = useShareComment(origin);
+
+  useOpenPostCommentRequest(post.id, commentRef);
 
   useEffect(() => {
     if (!onRegisterFocusComment) {
@@ -165,7 +168,7 @@ export const PostDiscussionPanel = ({
           shouldHandleCommentQuery
           onComposerOpenChange={setIsComposerOpen}
           size={ProfileImageSize.Medium}
-          CommentInputOrModal={CommentInputOrModal}
+          CommentInput={CommentInput}
           renderTrigger={renderComposerTrigger}
         />
       </div>

@@ -784,7 +784,7 @@ export const isPrivilegedRole = (
   ].includes(role);
 };
 
-export const isSourcePublicSquad = (source: Source): boolean =>
+export const isSourcePublicSquad = (source?: Source): boolean =>
   !!(source?.type === SourceType.Squad && source?.public);
 
 export const SQUAD_COMMENT_JOIN_BANNER_KEY = generateStorageKey(
