@@ -1,108 +1,250 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
-import { format } from 'date-fns';
-import {
-  Typography,
-  TypographyType,
-  TypographyColor,
-} from '@dailydotdev/shared/src/components/typography/Typography';
+import { useInView } from 'react-intersection-observer';
+import classNames from 'classnames';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import {
   Button,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { TextField } from '@dailydotdev/shared/src/components/fields/TextField';
-import { Slider } from '@dailydotdev/shared/src/components/fields/Slider';
-import { Switch } from '@dailydotdev/shared/src/components/fields/Switch';
-import { Dropdown } from '@dailydotdev/shared/src/components/fields/Dropdown';
-import Markdown from '@dailydotdev/shared/src/components/Markdown';
-import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
-import { DateFormat } from '@dailydotdev/shared/src/components/utilities/DateFormat';
-import { TimeFormatType } from '@dailydotdev/shared/src/lib/dateFormat';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
-import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
+import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import {
+  Tab,
+  TabContainer,
+} from '@dailydotdev/shared/src/components/tabs/TabContainer';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from '@tanstack/react-query';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
+import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { featureInterestAgent } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
-  UserInterestCadence,
-  UserInterestStatus,
-} from '@dailydotdev/shared/src/graphql/interests';
-import {
   interestQueryOptions,
-  interestFindingsQueryOptions,
   interestPostsQueryOptions,
 } from '@dailydotdev/shared/src/features/interests/queries';
-import { useSendInterestCommand } from '@dailydotdev/shared/src/features/interests/hooks/useSendInterestCommand';
-import { useUpdateInterest } from '@dailydotdev/shared/src/features/interests/hooks/useUpdateInterest';
 import { useDeleteInterest } from '@dailydotdev/shared/src/features/interests/hooks/useDeleteInterest';
+import { useAgentFeed } from '@dailydotdev/shared/src/features/interests/hooks/useAgentFeed';
+import {
+  AgentProvider,
+  useAgent,
+} from '@dailydotdev/shared/src/features/interests/AgentContext';
+import { AgentHero } from '@dailydotdev/shared/src/features/interests/components/AgentHero';
+import { AgentToolbar } from '@dailydotdev/shared/src/features/interests/components/AgentToolbar';
+import { AgentChatSection } from '@dailydotdev/shared/src/features/interests/components/AgentChatSection';
+import { AgentContentPane } from '@dailydotdev/shared/src/features/interests/components/AgentContentPane';
+import { AgentActivitySection } from '@dailydotdev/shared/src/features/interests/components/AgentActivitySection';
+import { AgentDebugPanel } from '@dailydotdev/shared/src/features/interests/components/AgentDebugPanel';
+import { AgentSettingsModal } from '@dailydotdev/shared/src/features/interests/components/AgentSettingsModal';
+import { AgentViewToggle } from '@dailydotdev/shared/src/features/interests/components/AgentViewToggle';
+import { AgentHeaderTitle } from '@dailydotdev/shared/src/features/interests/components/AgentHeaderTitle';
+import {
+  mockAgentPosts,
+  mockInterest,
+} from '@dailydotdev/shared/src/features/interests/mock';
+import { mockConversation } from '@dailydotdev/shared/src/features/interests/chat';
+import type { AgentFeedItem } from '@dailydotdev/shared/src/features/interests/hooks/useAgentFeed';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
-const quickActions = ['Explore more', 'Write me a post'];
-const quickActionHints: Record<string, string> = {
-  'Explore more':
-    'Runs the agent now to hunt for more matching content. Note: the label is also saved to the refine history.',
-  'Write me a post':
-    'Runs the agent now and asks it to write a markdown summary post of what it found.',
-};
-const sourceLabels: Record<'dailyDev' | 'web' | 'github', string> = {
-  dailyDev: 'daily.dev',
-  web: 'Web',
-  github: 'GitHub',
-};
-const outputLabels: Record<'feed' | 'post' | 'notification', string> = {
-  feed: 'Feed',
-  post: 'Posts',
-  notification: 'Notifications',
-};
-const cadenceOptions = [
-  { value: UserInterestCadence.Hourly, label: 'Every hour' },
-  { value: UserInterestCadence.Daily, label: 'Every day' },
-  { value: UserInterestCadence.Weekly, label: 'Every week' },
-];
+const ArticlePostModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "articlePostModal" */ '@dailydotdev/shared/src/components/modals/ArticlePostModal'
+    ),
+);
+const AgentFeedModal = dynamic(() =>
+  import(
+    /* webpackChunkName: "agentFeedModal" */ '@dailydotdev/shared/src/features/interests/components/AgentFeedModal'
+  ).then((mod) => mod.AgentFeedModal),
+);
 
-const CardTimestamp = ({
-  date,
+type AgentTab = 'Chat' | 'Activity' | 'Debug';
+
+// Both columns floor at a mobile-width panel, which is also the pane default.
+const minPanelWidth = 384;
+const defaultPaneWidth = minPanelWidth;
+// Matches the `gap-6` between the chat column and the pane.
+const columnGap = 24;
+
+const AgentPageBody = ({
+  items,
+  postsCount,
+  onDelete,
+  isDeleting,
+  isModalView,
 }: {
-  date?: string | null;
-}): ReactElement | null => {
-  if (!date) {
-    return null;
-  }
+  items: AgentFeedItem[];
+  postsCount: number;
+  onDelete: () => void;
+  isDeleting: boolean;
+  isModalView: boolean;
+}): ReactElement => {
+  const { isSettingsOpen, setSettingsOpen, activeContent, setActiveContent } =
+    useAgent();
+  const { isV2 } = useLayoutVariant();
+  const [tab, setTab] = useState<AgentTab>('Chat');
+  const closeContent = () => setActiveContent(undefined);
+  const [storedWidth, setStoredWidth] = usePersistentContext<number>(
+    'agentPaneWidth',
+    defaultPaneWidth,
+  );
+  // Live width during a drag; committed to storage on pointer release so a
+  // drag doesn't write to IndexedDB on every pointermove.
+  const [draggingWidth, setDraggingWidth] = useState<number>();
+  const paneWidth = draggingWidth ?? storedWidth ?? defaultPaneWidth;
+  const columnsRef = useRef<HTMLDivElement>(null);
+
+  const onPaneWidthChange = (next: number) => {
+    const columns = columnsRef.current;
+
+    if (!columns) {
+      return;
+    }
+
+    // clientWidth includes the row's own horizontal padding, so subtract it to
+    // get the space the two columns actually share.
+    const styles = getComputedStyle(columns);
+    const available =
+      columns.clientWidth -
+      parseFloat(styles.paddingLeft) -
+      parseFloat(styles.paddingRight);
+    const max = Math.max(minPanelWidth, available - columnGap - minPanelWidth);
+
+    setDraggingWidth(Math.min(Math.max(next, minPanelWidth), max));
+  };
+
+  const onPaneWidthCommit = () => {
+    if (typeof draggingWidth === 'undefined') {
+      return;
+    }
+
+    setStoredWidth(draggingWidth);
+    setDraggingWidth(undefined);
+  };
+  const { ref: heroRef, inView: isHeroInView } = useInView({
+    initialInView: true,
+    rootMargin: '-56px 0px 0px 0px',
+  });
 
   return (
-    <FlexRow className="items-center gap-1 text-text-tertiary typo-footnote">
-      <DateFormat date={date} type={TimeFormatType.Post} />
-      <span>{`· ${format(new Date(date), 'HH:mm')}`}</span>
-    </FlexRow>
+    <>
+      <PageHeader
+        className={classNames(
+          'sticky top-0 z-header bg-background-default',
+          // v2 hands the header to the sidebar rail, so the strip sticks to
+          // the floating card's inner top (laptop:my-3 + p-0.5) rather than
+          // below a header that isn't there. The pseudo-element paints over
+          // the card's border/padding sliver above the strip, which scrolled
+          // content would otherwise peek through; the card's overflow-clip
+          // keeps it from spilling outside the rounded frame.
+          isV2
+            ? 'laptop:top-3.5 laptop:before:absolute laptop:before:inset-x-0 laptop:before:bottom-full laptop:before:h-4 laptop:before:bg-background-default'
+            : 'laptop:top-16',
+        )}
+        title={
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            <Link href={`${webappUrl}agent`}>
+              <Button
+                tag="a"
+                icon={<ArrowIcon className="-rotate-90" />}
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+              />
+            </Link>
+            <AgentHeaderTitle isCondensed={!isHeroInView} />
+          </div>
+        }
+      >
+        <AgentViewToggle view={isModalView ? 'modal' : 'pane'} />
+      </PageHeader>
+      <div
+        ref={columnsRef}
+        className="flex w-full flex-row items-start gap-6 px-4 pt-4 laptop:px-6"
+      >
+        <FlexCol className="mx-auto w-full min-w-0 max-w-[48rem] flex-1 shrink gap-6 pb-72 laptop:min-w-[384px]">
+          <div ref={heroRef}>
+            <AgentHero findingsCount={items.length} postsCount={postsCount} />
+          </div>
+          <TabContainer<AgentTab>
+            controlledActive={tab}
+            onActiveChange={setTab}
+            showBorder
+          >
+            <Tab label="Chat" className="pt-4">
+              <AgentChatSection />
+            </Tab>
+            <Tab label="Activity" className="pt-4">
+              <AgentActivitySection />
+            </Tab>
+            <Tab label="Debug" className="pt-4">
+              <AgentDebugPanel
+                items={items}
+                onDelete={onDelete}
+                isDeleting={isDeleting}
+              />
+            </Tab>
+          </TabContainer>
+        </FlexCol>
+        {activeContent && !isModalView && (
+          <AgentContentPane
+            content={activeContent}
+            onClose={closeContent}
+            width={paneWidth}
+            onWidthChange={onPaneWidthChange}
+            onWidthCommit={onPaneWidthCommit}
+          />
+        )}
+      </div>
+      {activeContent?.type === 'post' && isModalView && (
+        <ArticlePostModal
+          isOpen
+          id={activeContent.post.id}
+          post={activeContent.post}
+          onRequestClose={closeContent}
+        />
+      )}
+      {activeContent?.type === 'feed' && isModalView && (
+        <AgentFeedModal
+          isOpen
+          label={activeContent.label}
+          posts={activeContent.posts}
+          onRequestClose={closeContent}
+        />
+      )}
+      <AgentToolbar />
+      {isSettingsOpen && (
+        <AgentSettingsModal
+          isOpen
+          onRequestClose={() => setSettingsOpen(false)}
+        />
+      )}
+    </>
   );
 };
 
 const Page = (): ReactElement | null => {
   const router = useRouter();
   const id = router.query.id as string;
+  const forceDemo = router.query.demo === '1';
+  const isModalView = router.query.view === 'modal';
   const { user, isAuthReady } = useAuthContext();
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
     shouldEvaluate: isAuthReady,
   });
 
-  const [feedback, setFeedback] = useState('');
-  const [fomo, setFomo] = useState<number | null>(null);
   const interestQuery = useQuery(interestQueryOptions(id, user));
-  const findingsQuery = useQuery(interestFindingsQueryOptions(id, user));
   const postsQuery = useQuery(interestPostsQueryOptions(id, user));
-  const { isSending, sendCommand } = useSendInterestCommand(id);
-  const { isUpdating, updateInterest } = useUpdateInterest(id);
+  const feed = useAgentFeed({ id, forceDemo });
   const { isDeleting, deleteInterest } = useDeleteInterest({
     onDeleted: () => router.push(`${webappUrl}agent`),
   });
@@ -117,323 +259,29 @@ const Page = (): ReactElement | null => {
     return null;
   }
 
-  const interest = interestQuery.data;
-  const findings = findingsQuery.data ?? [];
-  const posts = postsQuery.data ?? [];
-  const isStopped = interest?.status === UserInterestStatus.Stopped;
-
-  const onSendFeedback = () => {
-    const trimmed = feedback.trim();
-    if (!trimmed || isSending) {
-      return;
-    }
-    sendCommand(trimmed);
-    setFeedback('');
-  };
+  const realPosts = postsQuery.data ?? [];
+  const useMockPosts = forceDemo || (feed.isDemo && !realPosts.length);
+  const posts = useMockPosts ? mockAgentPosts : realPosts;
+  const interest =
+    interestQuery.data ?? (feed.isDemo ? mockInterest : undefined);
 
   return (
     <ProtectedPage>
-      <PageHeader title={interest?.query ?? 'Interest'}>
-        <Link href={`${webappUrl}agent`}>
-          <Button
-            tag="a"
-            icon={<ArrowIcon className="-rotate-90" />}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-          />
-        </Link>
-      </PageHeader>
-      <div className="m-auto flex w-full max-w-[42rem] flex-col gap-6 px-4 py-6">
-        {interest && (
-          <FlexRow className="flex-wrap items-center gap-2">
-            <Typography
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-              className="mr-auto"
-            >
-              {interest.status}
-              {interest.lastRunSummary ? ` · ${interest.lastRunSummary}` : ''}
-            </Typography>
-            <Tooltip
-              content={
-                interest.status === UserInterestStatus.Active
-                  ? 'Pause the agent — stops scheduled and live hunting. Nothing new is added; existing feed and posts stay. Resume anytime.'
-                  : 'Resume the agent — re-enables scheduled and live hunting.'
-              }
-            >
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                disabled={isUpdating || isStopped}
-                onClick={() =>
-                  updateInterest({
-                    status:
-                      interest.status === UserInterestStatus.Active
-                        ? UserInterestStatus.Paused
-                        : UserInterestStatus.Active,
-                  })
-                }
-              >
-                {interest.status === UserInterestStatus.Active
-                  ? 'Pause'
-                  : 'Resume'}
-              </Button>
-            </Tooltip>
-            <Tooltip content="Stop the agent for good — permanently halts all hunting. Data is kept but it can't be resumed, only deleted.">
-              <Button
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                disabled={isUpdating || isStopped}
-                onClick={() =>
-                  updateInterest({ status: UserInterestStatus.Stopped })
-                }
-              >
-                Stop
-              </Button>
-            </Tooltip>
-            <Tooltip content="Delete this interest and everything it produced (feed findings, summary posts, its source). This can't be undone.">
-              <Button
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                loading={isDeleting}
-                onClick={() => deleteInterest(id)}
-              >
-                Delete
-              </Button>
-            </Tooltip>
-          </FlexRow>
-        )}
-
-        {interest && (
-          <FlexCol className="gap-4 rounded-16 border border-border-subtlest-tertiary p-4">
-            <Typography type={TypographyType.Body} bold>
-              Settings
-            </Typography>
-            <FlexCol className="gap-2">
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                {`FOMO vs quality: ${(fomo ?? interest.fomoThreshold).toFixed(
-                  2,
-                )} (higher = only the best)`}
-              </Typography>
-              <Slider
-                min={0}
-                max={1}
-                step={0.05}
-                value={[fomo ?? interest.fomoThreshold]}
-                onValueChange={([value]) => setFomo(value)}
-                onValueCommit={([value]) =>
-                  updateInterest({ fomoThreshold: value })
-                }
-              />
-            </FlexCol>
-            <FlexCol className="gap-2">
-              <Typography type={TypographyType.Footnote} bold>
-                Cadence
-              </Typography>
-              <Dropdown
-                className={{
-                  button: '!px-3',
-                  menu: 'menu-primary p-1',
-                  item: '*:min-h-10 *:!typo-callout',
-                }}
-                selectedIndex={Math.max(
-                  0,
-                  cadenceOptions.findIndex(
-                    ({ value }) => value === interest.cadence,
-                  ),
-                )}
-                options={cadenceOptions.map(({ label }) => label)}
-                disabled={isUpdating || isStopped}
-                onChange={(_, index) => {
-                  const cadence = cadenceOptions[index]?.value;
-                  if (cadence && cadence !== interest.cadence) {
-                    updateInterest({ cadence });
-                  }
-                }}
-              />
-            </FlexCol>
-            <FlexCol className="gap-2">
-              <Typography type={TypographyType.Footnote} bold>
-                Sources
-              </Typography>
-              {(['dailyDev', 'web', 'github'] as const).map((key) => (
-                <Switch
-                  key={key}
-                  inputId={`source-${key}`}
-                  name={`source-${key}`}
-                  checked={!!interest.sources?.[key]}
-                  disabled={isUpdating || key === 'github'}
-                  onToggle={() =>
-                    updateInterest({
-                      sources: { [key]: !interest.sources?.[key] },
-                    })
-                  }
-                >
-                  {sourceLabels[key]}
-                </Switch>
-              ))}
-            </FlexCol>
-            <FlexCol className="gap-2">
-              <Typography type={TypographyType.Footnote} bold>
-                Outputs
-              </Typography>
-              {(['feed', 'post', 'notification'] as const).map((key) => (
-                <Switch
-                  key={key}
-                  inputId={`output-${key}`}
-                  name={`output-${key}`}
-                  checked={!!interest.outputModes?.[key]}
-                  disabled={isUpdating}
-                  onToggle={() =>
-                    updateInterest({
-                      outputModes: { [key]: !interest.outputModes?.[key] },
-                    })
-                  }
-                >
-                  {outputLabels[key]}
-                </Switch>
-              ))}
-            </FlexCol>
-          </FlexCol>
-        )}
-
-        <FlexCol className="gap-3">
-          <Typography type={TypographyType.Body} bold>
-            Command the agent
-          </Typography>
-          <FlexRow className="flex-wrap gap-2">
-            {quickActions.map((action) => (
-              <Tooltip key={action} content={quickActionHints[action]}>
-                <Button
-                  variant={ButtonVariant.Float}
-                  size={ButtonSize.Small}
-                  disabled={isSending}
-                  onClick={() => sendCommand(action)}
-                >
-                  {action}
-                </Button>
-              </Tooltip>
-            ))}
-          </FlexRow>
-          <div className="flex items-end gap-2">
-            <TextField
-              className={{ container: 'flex-1' }}
-              inputId="interest-feedback"
-              label="Tell the agent how to refine"
-              placeholder="e.g. focus on production-grade projects"
-              value={feedback}
-              valueChanged={setFeedback}
-            />
-            <Tooltip content="Save this as guidance for the agent. It's applied to every future run and live match, and triggers a run now.">
-              <Button
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Large}
-                onClick={onSendFeedback}
-                loading={isSending}
-                disabled={!feedback.trim()}
-              >
-                Send
-              </Button>
-            </Tooltip>
-          </div>
-        </FlexCol>
-
-        <FlexCol className="gap-3">
-          <Typography type={TypographyType.Body} bold>
-            Posts
-          </Typography>
-          {!postsQuery.isPending && !posts.length && (
-            <Typography color={TypographyColor.Tertiary}>
-              No generated posts yet.
-            </Typography>
-          )}
-          {posts.map((post) => (
-            <FlexCol
-              key={post.id}
-              className="gap-2 rounded-16 border border-border-subtlest-tertiary p-4"
-            >
-              <Typography type={TypographyType.Title3} bold>
-                {post.title}
-              </Typography>
-              <CardTimestamp date={post.createdAt} />
-              {post.contentHtml && <Markdown content={post.contentHtml} />}
-            </FlexCol>
-          ))}
-        </FlexCol>
-
-        <FlexCol className="gap-3">
-          <FlexRow className="items-center justify-between">
-            <FlexCol>
-              <Typography type={TypographyType.Body} bold>
-                Feed
-              </Typography>
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                Sorted by relevance score
-              </Typography>
-            </FlexCol>
-            <Tooltip content="Reload the feed to pull in content found since you opened the page.">
-              <Button
-                variant={ButtonVariant.Tertiary}
-                size={ButtonSize.Small}
-                loading={findingsQuery.isFetching}
-                onClick={() => findingsQuery.refetch()}
-              >
-                Refresh
-              </Button>
-            </Tooltip>
-          </FlexRow>
-          {findingsQuery.isPending && (
-            <Typography color={TypographyColor.Tertiary}>Loading…</Typography>
-          )}
-          {!findingsQuery.isPending && !findings.length && (
-            <Typography color={TypographyColor.Tertiary}>
-              Nothing in your feed yet. The agent may still be hunting — try
-              Refresh in a moment.
-            </Typography>
-          )}
-          {findings.map((finding) => {
-            const href =
-              finding.post?.commentsPermalink ?? finding.post?.permalink;
-            const title = finding.post?.title ?? finding.postId;
-            const body = (
-              <FlexCol className="gap-1">
-                <Typography type={TypographyType.Body} bold>
-                  {title}
-                </Typography>
-                <Typography
-                  type={TypographyType.Footnote}
-                  color={TypographyColor.Tertiary}
-                >
-                  {`Score ${finding.score.toFixed(2)}`}
-                  {finding.rationale ? ` · ${finding.rationale}` : ''}
-                </Typography>
-                <CardTimestamp date={finding.createdAt} />
-              </FlexCol>
-            );
-
-            return href ? (
-              <Link key={finding.id} href={href}>
-                <a className="rounded-16 border border-border-subtlest-tertiary p-4 hover:border-border-subtlest-primary">
-                  {body}
-                </a>
-              </Link>
-            ) : (
-              <div
-                key={finding.id}
-                className="rounded-16 border border-border-subtlest-tertiary p-4"
-              >
-                {body}
-              </div>
-            );
-          })}
-        </FlexCol>
-      </div>
+      <AgentProvider
+        id={id}
+        interest={interest}
+        isDemo={feed.isDemo}
+        initialMessages={feed.isDemo ? mockConversation : []}
+        key={id}
+      >
+        <AgentPageBody
+          items={feed.items}
+          postsCount={posts.length}
+          onDelete={() => deleteInterest(id)}
+          isDeleting={isDeleting}
+          isModalView={isModalView}
+        />
+      </AgentProvider>
     </ProtectedPage>
   );
 };
