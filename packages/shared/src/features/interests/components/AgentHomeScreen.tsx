@@ -48,7 +48,9 @@ const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => (
   <li className="[&:first-child>a]:rounded-t-12 [&:last-child>a]:rounded-b-12">
     <Link href={`${webappUrl}agent/${item.id}`}>
       <a className="agent-press-row group/item flex items-center gap-3 px-3 py-2 transition-colors hover:bg-surface-float">
-        <AgentState state={item.state} />
+        {/* Fixed, so the names start on one line down the list rather than
+            stepping in and out with the length of the state. */}
+        <AgentState state={item.state} className="w-[4.75rem]" />
         <Typography
           type={TypographyType.Footnote}
           bold
@@ -71,14 +73,17 @@ const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => (
           className="w-16 shrink-0 text-right tabular-nums"
         >
           {item.at ? (
-            <DateFormat date={item.at} type={TimeFormatType.LastActivity} />
+            <DateFormat date={item.at} type={TimeFormatType.Elapsed} />
           ) : (
             'Not yet'
           )}
         </Typography>
+        {/* A repeated affordance on every row: the faintest tier there is, and
+            small, so it marks the row as tappable without being read. It comes
+            up one tier under the pointer, where it is the thing being used. */}
         <ArrowIcon
-          size={IconSize.XSmall}
-          className="shrink-0 rotate-90 text-text-quaternary transition-colors group-hover/item:text-text-tertiary"
+          size={IconSize.Size16}
+          className="shrink-0 rotate-90 text-text-disabled transition-colors group-hover/item:text-text-quaternary"
           aria-hidden
         />
       </a>

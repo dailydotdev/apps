@@ -146,7 +146,30 @@ export const toMonitorItems = (
     };
   });
 
+/**
+ * One word each, because the agent's own name is what the row is for.
+ *
+ * "Waiting for review" is the honest phrase and it took the whole row on a
+ * phone, leaving three letters of the name it was describing. In a column of
+ * states, next to a coloured dot, the short word is unambiguous.
+ */
 export const stateLabel: Record<AgentMonitorState, string> = {
+  waiting: 'Review',
+  running: 'Running',
+  watching: 'Watching',
+  starting: 'Due',
+  failed: 'Failed',
+  paused: 'Paused',
+  stopped: 'Stopped',
+};
+
+/**
+ * The same states, said in full, for the accessible name.
+ *
+ * A column makes "Review" clear; read out on its own it is a word with no
+ * subject.
+ */
+export const stateMeaning: Record<AgentMonitorState, string> = {
   waiting: 'Waiting for review',
   running: 'Running now',
   watching: 'Watching',
@@ -194,13 +217,18 @@ const StateDot = ({ state }: { state: AgentMonitorState }): ReactElement => (
  */
 export const AgentState = ({
   state,
+  className,
 }: {
   state: AgentMonitorState;
+  /** A fixed width, where the rows should read as a column. */
+  className?: string;
 }): ReactElement => (
   <span
+    aria-label={stateMeaning[state]}
     className={classNames(
       'flex shrink-0 items-center gap-1.5 typo-caption1',
       inkClass[state],
+      className,
     )}
   >
     <StateDot state={state} />
@@ -214,11 +242,7 @@ const Elapsed = ({ at }: { at?: string | null }): ReactElement => (
     color={TypographyColor.Quaternary}
     className="shrink-0 tabular-nums"
   >
-    {at ? (
-      <DateFormat date={at} type={TimeFormatType.LastActivity} />
-    ) : (
-      'Not yet'
-    )}
+    {at ? <DateFormat date={at} type={TimeFormatType.Elapsed} /> : 'Not yet'}
   </Typography>
 );
 
@@ -249,8 +273,8 @@ const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => (
         </Typography>
         <Elapsed at={item.at} />
         <ArrowIcon
-          size={IconSize.XSmall}
-          className="shrink-0 rotate-90 text-text-quaternary"
+          size={IconSize.Size16}
+          className="shrink-0 rotate-90 text-text-disabled"
           aria-hidden
         />
       </a>

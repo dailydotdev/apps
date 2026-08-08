@@ -314,6 +314,30 @@ describe('AgentMonitor', () => {
       expect(screen.getByText(stateLabel.watching)).toBeInTheDocument();
     });
 
+    it('says the state in one word and means it in full', () => {
+      renderMonitor([item({ id: 'h', name: 'Named thing', state: 'waiting' })]);
+
+      fireEvent.click(screen.getByRole('button', { name: /in total/ }));
+
+      // The row is for the name. A phrase long enough to describe the state
+      // takes the name's room, so the phrase moves to the accessible name.
+      expect(stateLabel.waiting.split(' ')).toHaveLength(1);
+      expect(screen.getByText(stateLabel.waiting)).toHaveAttribute(
+        'aria-label',
+        'Waiting for review',
+      );
+    });
+
+    it('gives the elapsed time bare, without "ago" on every row', () => {
+      const at = new Date(Date.now() - 32 * 60 * 1000).toISOString();
+      renderMonitor([item({ id: 'h', state: 'watching', at })]);
+
+      fireEvent.click(screen.getByRole('button', { name: /in total/ }));
+
+      expect(screen.getByText('32m')).toBeInTheDocument();
+      expect(screen.queryByText(/ago/)).not.toBeInTheDocument();
+    });
+
     it('links each expanded row to its agent', () => {
       renderMonitor([item({ id: 'h', name: 'Reachable', state: 'watching' })]);
 

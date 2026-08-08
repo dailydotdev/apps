@@ -88,6 +88,9 @@ export enum TimeFormatType {
   LastActivity = 'lastActivity',
   LiveTimer = 'liveTimer',
   Experience = 'experience',
+  // Bare elapsed time — "32m", "3d" — for columns of them, where "ago" is on
+  // every row and says nothing any of them do not.
+  Elapsed = 'elapsed',
 }
 
 export function postDateFormat(
@@ -302,6 +305,10 @@ export const formatDate = ({ value, type, now }: FormatDateProps): string => {
   const nowDate = now ? new Date(now) : undefined;
   if (nowDate && !isValidDate(nowDate)) {
     return '';
+  }
+
+  if (type === TimeFormatType.Elapsed) {
+    return publishTimeRelativeShort(date, nowDate);
   }
 
   if (type === TimeFormatType.Post) {
