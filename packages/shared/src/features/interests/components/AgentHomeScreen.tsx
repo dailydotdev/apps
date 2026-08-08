@@ -15,7 +15,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
-import { ArrowIcon, SendAirplaneIcon } from '../../../components/icons';
+import { SendAirplaneIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { DateFormat } from '../../../components/utilities/DateFormat';
@@ -23,7 +23,12 @@ import { TimeFormatType } from '../../../lib/dateFormat';
 import { webappUrl } from '../../../lib/constants';
 import { useAgentShellHeight } from '../shell';
 import type { AgentMonitorItem, AgentMonitorSource } from './AgentMonitor';
-import { AgentState, toMonitorItems } from './AgentMonitor';
+import {
+  inkClass,
+  stateLabel,
+  stateMeaning,
+  toMonitorItems,
+} from './AgentMonitor';
 import { composerBar, composerFrame } from './AgentComposer';
 
 const maxFieldHeight = 120;
@@ -38,58 +43,86 @@ const starters = [
 ];
 
 /**
- * One agent as one line.
+ * One agent as a card, two lines.
  *
- * Same reading as the monitor over the feed: the state first as a coloured
- * word, so the ones that came back with something are findable without
- * reading a single name, then who it is and what it said.
+ * The name leads, in full width and full weight, because it is the only thing
+ * on the row that is different from the other rows — the reading a session list
+ * gets on a phone. What the agent is doing drops to a second line, where it can
+ * be a coloured word next to what it last said without taking the name's room.
+ *
+ * The dot in the gutter is the news: an agent that came back and is waiting on
+ * you, findable down the left edge without reading anything.
  */
-const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => (
-  <li className="[&:first-child>a]:rounded-t-12 [&:last-child>a]:rounded-b-12">
-    <Link href={`${webappUrl}agent/${item.id}`}>
-      <a className="agent-press-row group/item flex items-center gap-3 px-3 py-2 transition-colors hover:bg-surface-float">
-        {/* Fixed, so the names start on one line down the list rather than
-            stepping in and out with the length of the state. */}
-        <AgentState state={item.state} className="w-[4.75rem]" />
-        <Typography
-          type={TypographyType.Footnote}
-          bold
-          className="min-w-0 flex-1 truncate"
-        >
-          {item.name}
-        </Typography>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          className="hidden min-w-0 max-w-[16rem] shrink truncate tablet:block"
-        >
-          {item.line}
-        </Typography>
-        {/* The column holds its width whether or not the agent has run, so
-            the rows read as a table rather than as four ragged lines. */}
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Quaternary}
-          className="w-16 shrink-0 text-right tabular-nums"
-        >
-          {item.at ? (
-            <DateFormat date={item.at} type={TimeFormatType.Elapsed} />
-          ) : (
-            'Not yet'
-          )}
-        </Typography>
-        {/* A repeated affordance on every row: the faintest tier there is, and
-            small, so it marks the row as tappable without being read. It comes
-            up one tier under the pointer, where it is the thing being used. */}
-        <ArrowIcon
-          size={IconSize.Size16}
-          className="shrink-0 rotate-90 text-text-disabled transition-colors group-hover/item:text-text-quaternary"
-          aria-hidden
-        />
-      </a>
-    </Link>
-  </li>
-);
+const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => {
+  const isWaiting = item.state === 'waiting';
+
+  return (
+    <li>
+      <Link href={`${webappUrl}agent/${item.id}`}>
+        <a className="agent-press-row flex items-start gap-2.5 rounded-12 bg-surface-float px-3 py-2.5 transition-colors hover:bg-surface-hover">
+          {/* The gutter holds its width whether or not there is news in it, so
+              the names start on one line down the whole stack and the dots are
+              the only thing the eye has to run down. */}
+          <span
+            aria-hidden
+            className={classNames(
+              'mt-1.5 size-2 shrink-0 rounded-6',
+              isWaiting && 'bg-brand-default',
+            )}
+          />
+
+          <FlexCol className="min-w-0 flex-1 gap-0.5">
+            <FlexRow className="items-baseline gap-2">
+              <Typography
+                type={TypographyType.Callout}
+                bold
+                className="min-w-0 flex-1 truncate"
+              >
+                {item.name}
+              </Typography>
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Quaternary}
+                className="shrink-0 tabular-nums"
+              >
+                {item.at ? (
+                  <DateFormat date={item.at} type={TimeFormatType.Elapsed} />
+                ) : (
+                  'Not yet'
+                )}
+              </Typography>
+            </FlexRow>
+            <FlexRow className="min-w-0 items-center gap-1.5">
+              <span
+                aria-label={stateMeaning[item.state]}
+                className={classNames(
+                  'shrink-0 typo-caption1',
+                  inkClass[item.state],
+                )}
+              >
+                {stateLabel[item.state]}
+              </span>
+              {!!item.line && (
+                <>
+                  <span aria-hidden className="text-text-quaternary">
+                    ·
+                  </span>
+                  <Typography
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Tertiary}
+                    className="min-w-0 flex-1 truncate"
+                  >
+                    {item.line}
+                  </Typography>
+                </>
+              )}
+            </FlexRow>
+          </FlexCol>
+        </a>
+      </Link>
+    </li>
+  );
+};
 
 /**
  * Where an agent starts.
@@ -202,33 +235,33 @@ export const AgentHomeScreen = ({
           {isPending && (
             <FlexCol className="gap-2">
               <ElementPlaceholder className="agent-skeleton h-3 w-24 rounded-8" />
-              {/* The shape of the rows they become — dot, name, what it said,
-                  when — so the list does not jump as it fills in. Widths vary
-                  because real names do. */}
+              {/* The shape of the cards they become — tile, name, the state
+                  line under it, when — so the list does not jump as it fills
+                  in. Widths vary because real names do. */}
               <FlexCol
-                className="divide-y divide-border-subtlest-quaternary rounded-12 border border-border-subtlest-tertiary"
+                className="gap-2"
                 aria-busy
                 aria-label="Loading your agents"
               >
-                {['w-28', 'w-24', 'w-32'].map((stateWidth, index) => (
+                {['w-40', 'w-28', 'w-48'].map((nameWidth) => (
                   <FlexRow
-                    key={stateWidth}
-                    className="items-center gap-3 px-3 py-2.5"
+                    key={nameWidth}
+                    className="items-start gap-2.5 rounded-12 bg-surface-float px-3 py-2.5"
                   >
-                    <ElementPlaceholder className="agent-skeleton size-1.5 shrink-0 rounded-6" />
-                    <ElementPlaceholder
-                      className={classNames(
-                        'agent-skeleton h-3 shrink-0 rounded-8',
-                        stateWidth,
-                      )}
-                    />
-                    <ElementPlaceholder
-                      className={classNames(
-                        'agent-skeleton h-3 min-w-0 flex-1 rounded-8',
-                        index === 1 && 'max-w-[12rem]',
-                      )}
-                    />
-                    <ElementPlaceholder className="agent-skeleton h-3 w-12 shrink-0 rounded-8" />
+                    <span className="mt-1.5 size-2 shrink-0" />
+                    <FlexCol className="min-w-0 flex-1 gap-1.5">
+                      <FlexRow className="items-center gap-2">
+                        <ElementPlaceholder
+                          className={classNames(
+                            'agent-skeleton h-3.5 rounded-8',
+                            nameWidth,
+                          )}
+                        />
+                        <span className="flex-1" />
+                        <ElementPlaceholder className="agent-skeleton h-3 w-8 shrink-0 rounded-8" />
+                      </FlexRow>
+                      <ElementPlaceholder className="agent-skeleton h-3 w-32 rounded-8" />
+                    </FlexCol>
                   </FlexRow>
                 ))}
               </FlexCol>
@@ -245,7 +278,10 @@ export const AgentHomeScreen = ({
                   ? 'Your agent'
                   : `Your ${agents.length} agents`}
               </Typography>
-              <ol className="divide-y divide-border-subtlest-quaternary rounded-12 border border-border-subtlest-tertiary">
+              {/* Cards with air between them rather than one bordered block:
+                  each agent is its own thing to open, and the gaps are what
+                  make a stack of them scannable at arm's length. */}
+              <ol className="flex flex-col gap-2">
                 {items.map((item) => (
                   <AgentRow key={item.id} item={item} />
                 ))}

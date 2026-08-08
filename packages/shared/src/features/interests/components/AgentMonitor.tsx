@@ -179,7 +179,7 @@ export const stateMeaning: Record<AgentMonitorState, string> = {
   stopped: 'Stopped',
 };
 
-const inkClass: Record<AgentMonitorState, string> = {
+export const inkClass: Record<AgentMonitorState, string> = {
   waiting: 'text-brand-default',
   running: 'text-status-success',
   watching: 'text-status-info',

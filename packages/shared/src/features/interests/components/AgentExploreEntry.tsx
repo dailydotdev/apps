@@ -1,11 +1,14 @@
 import type { ReactElement } from 'react';
 import React, { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import classNames from 'classnames';
 import Link from '../../../components/utilities/Link';
 import { FlexRow } from '../../../components/utilities';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '../../../components/buttons/Button';
 import { AiIcon, MagicIcon } from '../../../components/icons';
-import { IconSize } from '../../../components/Icon';
 import { SpotlightContext } from '../../../components/spotlight/SpotlightContext';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
@@ -15,16 +18,13 @@ import { webappUrl } from '../../../lib/constants';
 import { interestsQueryOptions } from '../queries';
 import { toMonitorItems } from './AgentMonitor';
 
-const half =
-  'agent-press-row flex min-w-0 flex-1 items-center gap-2 px-3 transition-colors hover:bg-surface-hover';
-
 /**
- * The two ways of going to look for something, in one object.
+ * The two ways of going to look for something, side by side.
  *
  * Search is what you do when you know what you want; an agent is what you leave
  * behind when you don't and want to be told later. Explore is where both
- * belong, so they sit in a single field split down the middle rather than as a
- * button that happens to be near a search box.
+ * belong, so both are here, as two buttons of the same weight — one field split
+ * down the middle read as a search box with something bolted to its left.
  *
  * It takes the place of Explore's own search field rather than sitting under
  * it. Mobile Explore has no header but that field, so adding a second Search
@@ -67,36 +67,39 @@ export const AgentExploreEntry = ({
   ).length;
 
   return (
-    <FlexRow className="h-12 w-full items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle">
-      <Link href={`${webappUrl}agent`}>
-        <a className={half} aria-label="Your agents">
-          <MagicIcon
-            size={IconSize.Small}
-            className="shrink-0 text-brand-default"
-            secondary={waiting > 0}
-          />
-          <span className="min-w-0 flex-1 truncate typo-callout">Agents</span>
+    <FlexRow className="w-full gap-3">
+      <Link href={`${webappUrl}agent`} passHref>
+        <Button
+          tag="a"
+          variant={ButtonVariant.Subtle}
+          size={ButtonSize.Medium}
+          className="flex-1"
+          aria-label="Your agents"
+          icon={
+            <MagicIcon className="text-brand-default" secondary={waiting > 0} />
+          }
+        >
+          Agents
           {/* The count is the reason to look: an agent that came back while
-                you were elsewhere has no other way of saying so here. */}
+              you were elsewhere has no other way of saying so here. */}
           {!!waiting && (
-            <span className="shrink-0 rounded-8 bg-brand-default px-1.5 py-0.5 tabular-nums text-white typo-caption2">
+            <span className="ml-2 rounded-8 bg-brand-default px-1.5 py-0.5 tabular-nums text-white typo-caption2">
               {waiting}
             </span>
           )}
-        </a>
+        </Button>
       </Link>
-      <span aria-hidden className="w-px bg-border-subtlest-tertiary" />
-      <button
+      <Button
         type="button"
-        onClick={spotlight.open}
+        variant={ButtonVariant.Subtle}
+        size={ButtonSize.Medium}
+        className="flex-1"
         aria-label="Open search"
-        className={classNames(half, 'text-text-tertiary')}
+        icon={<AiIcon secondary />}
+        onClick={spotlight.open}
       >
-        <AiIcon size={IconSize.Small} className="shrink-0" secondary />
-        <span className="min-w-0 flex-1 truncate text-left typo-callout">
-          Search
-        </span>
-      </button>
+        Search
+      </Button>
     </FlexRow>
   );
 };
