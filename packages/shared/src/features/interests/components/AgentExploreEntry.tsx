@@ -26,11 +26,20 @@ const half =
  * belong, so they sit in a single field split down the middle rather than as a
  * button that happens to be near a search box.
  *
+ * It takes the place of Explore's own search field rather than sitting under
+ * it. Mobile Explore has no header but that field, so adding a second Search
+ * below it asked the same question twice; the pair answers both.
+ *
  * A phone only. From tablet up the agent is reached through the field docked
  * over the feed, and two ways in on the same screen is one too many: this pair
- * and that bar are the same door.
+ * and that bar are the same door. Anywhere it stands down it renders
+ * `fallback`, so the slot it was given is never left empty.
  */
-export const AgentExploreEntry = (): ReactElement | null => {
+export const AgentExploreEntry = ({
+  fallback = null,
+}: {
+  fallback?: ReactElement | null;
+} = {}): ReactElement | null => {
   const { user, isAuthReady } = useAuthContext();
   // Read rather than `useSpotlight`, which throws off the app shell. Half a
   // paired control is not worth rendering, so it stands down instead.
@@ -50,7 +59,7 @@ export const AgentExploreEntry = (): ReactElement | null => {
   });
 
   if (!showAgent || !spotlight || isTablet !== false) {
-    return null;
+    return fallback;
   }
 
   const waiting = toMonitorItems(interests ?? []).filter(
@@ -58,38 +67,36 @@ export const AgentExploreEntry = (): ReactElement | null => {
   ).length;
 
   return (
-    <div className="w-full px-4 pt-3 tablet:px-6">
-      <FlexRow className="h-12 w-full items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle">
-        <Link href={`${webappUrl}agent`}>
-          <a className={half} aria-label="Your agents">
-            <MagicIcon
-              size={IconSize.Small}
-              className="shrink-0 text-brand-default"
-              secondary={waiting > 0}
-            />
-            <span className="min-w-0 flex-1 truncate typo-callout">Agents</span>
-            {/* The count is the reason to look: an agent that came back while
+    <FlexRow className="h-12 w-full items-stretch overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-subtle">
+      <Link href={`${webappUrl}agent`}>
+        <a className={half} aria-label="Your agents">
+          <MagicIcon
+            size={IconSize.Small}
+            className="shrink-0 text-brand-default"
+            secondary={waiting > 0}
+          />
+          <span className="min-w-0 flex-1 truncate typo-callout">Agents</span>
+          {/* The count is the reason to look: an agent that came back while
                 you were elsewhere has no other way of saying so here. */}
-            {!!waiting && (
-              <span className="shrink-0 rounded-8 bg-brand-default px-1.5 py-0.5 tabular-nums text-white typo-caption2">
-                {waiting}
-              </span>
-            )}
-          </a>
-        </Link>
-        <span aria-hidden className="w-px bg-border-subtlest-tertiary" />
-        <button
-          type="button"
-          onClick={spotlight.open}
-          aria-label="Open search"
-          className={classNames(half, 'text-text-tertiary')}
-        >
-          <AiIcon size={IconSize.Small} className="shrink-0" secondary />
-          <span className="min-w-0 flex-1 truncate text-left typo-callout">
-            Search
-          </span>
-        </button>
-      </FlexRow>
-    </div>
+          {!!waiting && (
+            <span className="shrink-0 rounded-8 bg-brand-default px-1.5 py-0.5 tabular-nums text-white typo-caption2">
+              {waiting}
+            </span>
+          )}
+        </a>
+      </Link>
+      <span aria-hidden className="w-px bg-border-subtlest-tertiary" />
+      <button
+        type="button"
+        onClick={spotlight.open}
+        aria-label="Open search"
+        className={classNames(half, 'text-text-tertiary')}
+      >
+        <AiIcon size={IconSize.Small} className="shrink-0" secondary />
+        <span className="min-w-0 flex-1 truncate text-left typo-callout">
+          Search
+        </span>
+      </button>
+    </FlexRow>
   );
 };

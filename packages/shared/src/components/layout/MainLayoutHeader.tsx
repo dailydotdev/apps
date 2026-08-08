@@ -14,6 +14,7 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
 import useActiveNav from '../../hooks/useActiveNav';
+import { AgentExploreEntry } from '../../features/interests/components/AgentExploreEntry';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -84,10 +85,18 @@ function MainLayoutHeader({
             hasBanner && 'tablet:top-18',
           )}
         >
-          <SpotlightTrigger />
+          {/* On Explore this slot is the whole mobile header, so the pair of
+              doors replaces the field rather than stacking under it — two
+              Searches on one screen is the field asked twice. Not on the search
+              page itself, where you are already searching. */}
+          {isAnyExplore && !isSearch ? (
+            <AgentExploreEntry fallback={<SpotlightTrigger />} />
+          ) : (
+            <SpotlightTrigger />
+          )}
         </div>
       ),
-    [shouldUseLoadedSettings, isSearchPage, hasBanner],
+    [shouldUseLoadedSettings, isSearchPage, isAnyExplore, isSearch, hasBanner],
   );
 
   if (shouldRenderFeedNav) {
