@@ -80,7 +80,7 @@ function FeedNav(): ReactElement | null {
     feature: featureFeedChips,
     shouldEvaluate: isBelowLaptop,
   });
-  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
+  const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const [selectedAlgo, setSelectedAlgo] = usePersistentContext(
     DEFAULT_ALGORITHM_KEY,
     DEFAULT_ALGORITHM_INDEX,

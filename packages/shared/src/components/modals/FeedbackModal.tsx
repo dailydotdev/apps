@@ -16,16 +16,20 @@ import {
   TypographyColor,
 } from '../typography/Typography';
 import { CameraIcon } from '../icons/Camera';
+import { EditIcon } from '../icons/Edit';
 import { ImageIcon } from '../icons/Image';
 import { TrashIcon } from '../icons/Trash';
+import type { CropRect } from '../../lib/screenshot';
 import {
   captureScreenshot,
   createPreviewUrl,
+  cropImageFile,
   revokePreviewUrl,
   isValidImageType,
   isValidFileSize,
   MAX_SCREENSHOT_SIZE,
 } from '../../lib/screenshot';
+import { ScreenshotCropper } from '../feedback/ScreenshotCropper';
 import { useSettingsContext } from '../../contexts/SettingsContext';
 
 const FEEDBACK_MAX_LENGTH = 2000;
@@ -59,6 +63,7 @@ const FeedbackModal = ({
     null,
   );
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isCropping, setIsCropping] = useState(false);
 
   // Clean up preview URL when component unmounts or screenshot changes
   useEffect(() => {
@@ -69,27 +74,17 @@ const FeedbackModal = ({
     };
   }, [screenshotPreview]);
 
+  // Validate the incoming file BEFORE revoking the current preview URL, so
+  // a rejected replacement (or an oversized crop result) leaves the existing
+  // attachment and its preview intact.
   const handleScreenshotChange = useCallback(
     (file: File | null) => {
-      // Revoke old preview URL
-      if (screenshotPreview) {
-        revokePreviewUrl(screenshotPreview);
-      }
-
-      if (!file) {
-        setScreenshot(null);
-        setScreenshotPreview(null);
-        return;
-      }
-
-      // Validate file type
-      if (!isValidImageType(file)) {
+      if (file && !isValidImageType(file)) {
         displayToast('Invalid image type. Use PNG, JPG, WebP, or GIF.');
         return;
       }
 
-      // Validate file size
-      if (!isValidFileSize(file)) {
+      if (file && !isValidFileSize(file)) {
         displayToast(
           `File too large. Maximum size is ${
             MAX_SCREENSHOT_SIZE / 1024 / 1024
@@ -98,8 +93,13 @@ const FeedbackModal = ({
         return;
       }
 
+      if (screenshotPreview) {
+        revokePreviewUrl(screenshotPreview);
+      }
+
+      setIsCropping(false);
       setScreenshot(file);
-      setScreenshotPreview(createPreviewUrl(file));
+      setScreenshotPreview(file ? createPreviewUrl(file) : null);
     },
     [screenshotPreview, displayToast],
   );
@@ -155,6 +155,28 @@ const FeedbackModal = ({
   const handleRemoveScreenshot = useCallback(() => {
     handleScreenshotChange(null);
   }, [handleScreenshotChange]);
+
+  const handleApplyCrop = useCallback(
+    async (rect: CropRect) => {
+      if (!screenshot) {
+        return;
+      }
+
+      try {
+        const cropped = await cropImageFile(screenshot, rect);
+        if (cropped) {
+          handleScreenshotChange(cropped);
+        } else {
+          displayToast('Failed to crop screenshot. Please try again.');
+        }
+      } catch {
+        displayToast('Failed to crop screenshot. Please try again.');
+      } finally {
+        setIsCropping(false);
+      }
+    },
+    [screenshot, handleScreenshotChange, displayToast],
+  );
 
   const [isUploading, setIsUploading] = useState(false);
 
@@ -226,7 +248,8 @@ const FeedbackModal = ({
   ]);
 
   const isOperationInProgress = isPending || isCapturing || isUploading;
-  const isSubmitDisabled = !description.trim() || isOperationInProgress;
+  const isSubmitDisabled =
+    !description.trim() || isOperationInProgress || isCropping;
 
   return (
     <Modal
@@ -305,7 +328,7 @@ const FeedbackModal = ({
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
               onClick={handleCaptureScreenshot}
-              disabled={isOperationInProgress}
+              disabled={isOperationInProgress || isCropping}
               icon={<CameraIcon />}
             >
               {isCapturing ? 'Capturing...' : 'Capture Screenshot'}
@@ -314,11 +337,22 @@ const FeedbackModal = ({
               variant={ButtonVariant.Float}
               size={ButtonSize.Small}
               onClick={() => fileInputRef.current?.click()}
-              disabled={isOperationInProgress}
+              disabled={isOperationInProgress || isCropping}
               icon={<ImageIcon />}
             >
               Upload Image
             </Button>
+            {screenshotPreview && !isCropping && (
+              <Button
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                onClick={() => setIsCropping(true)}
+                disabled={isOperationInProgress}
+                icon={<EditIcon />}
+              >
+                Crop
+              </Button>
+            )}
             <input
               ref={fileInputRef}
               type="file"
@@ -330,7 +364,14 @@ const FeedbackModal = ({
           </div>
 
           {/* Screenshot preview */}
-          {screenshotPreview && (
+          {screenshotPreview && isCropping && (
+            <ScreenshotCropper
+              src={screenshotPreview}
+              onApply={handleApplyCrop}
+              onCancel={() => setIsCropping(false)}
+            />
+          )}
+          {screenshotPreview && !isCropping && (
             <div className="relative inline-block w-fit">
               <img
                 src={screenshotPreview}

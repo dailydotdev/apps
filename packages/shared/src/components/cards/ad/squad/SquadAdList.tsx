@@ -14,6 +14,7 @@ import { Separator } from '../../common/common';
 import { HorizontalSeparator } from '../../../utilities';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
 import { AdPixel } from '../common/AdPixel';
+import { AdViewability } from '../common/AdViewability';
 import { Tooltip } from '../../../tooltip/Tooltip';
 import { CardLink } from '../../common/Card';
 import Link from '../../../utilities/Link';
@@ -27,6 +28,7 @@ export function SquadAdList({
   item,
   onClickAd,
   onMount,
+  onViewable,
 }: SquadAdFeedProps): ReactElement {
   const { source } = item.ad.data;
   const { squad, campaign, members, shouldShowAction, onJustJoined } =
@@ -57,6 +59,7 @@ export function SquadAdList({
         <CardLink href={source.permalink} />
       </Link>
       {item.ad?.pixel && <AdPixel pixel={item.ad.pixel} />}
+      <AdViewability ad={item.ad} onViewable={(data) => onViewable?.(data)} />
       <div className="mb-2 flex w-full flex-row gap-2">
         <Image src={source.image} className="h-10 w-10 rounded-max" />
         <div className="flex flex-col gap-1">

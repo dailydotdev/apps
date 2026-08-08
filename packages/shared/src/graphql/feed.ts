@@ -253,6 +253,11 @@ export enum FeedOrigin {
   TagChip = 'TAG_CHIP',
 }
 
+export enum TagChipSeedStrategy {
+  V2 = 'V2',
+  V3 = 'V3',
+}
+
 export type FeedFlags = {
   name: string;
   icon?: string;
@@ -825,8 +830,14 @@ export const PREVIEW_FEED_QUERY = gql`
 `;
 
 export const FEED_LIST_QUERY = gql`
-  query FeedList($includeTagChipFeeds: Boolean) {
-    feedList(includeTagChipFeeds: $includeTagChipFeeds) {
+  query FeedList(
+    $includeTagChipFeeds: Boolean
+    $tagChipSeedStrategy: TagChipSeedStrategy
+  ) {
+    feedList(
+      includeTagChipFeeds: $includeTagChipFeeds
+      tagChipSeedStrategy: $tagChipSeedStrategy
+    ) {
       pageInfo {
         endCursor
         hasNextPage

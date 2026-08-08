@@ -161,8 +161,12 @@ export const usePostModalNavigation = ({
           }),
         );
 
+        // shallow keeps the feed route: the masked `/posts/:id` URL matches the
+        // markdown middleware matcher, and a non-shallow push lets the server
+        // resolve it into a real post-page navigation instead of the modal
         await router.push(newPathname, `${webappUrl}posts/${postId}`, {
           scroll: false,
+          shallow: true,
         });
       }
       if (post?.type === PostType.Share) {

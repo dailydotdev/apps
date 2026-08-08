@@ -97,6 +97,7 @@ The "calling platform" is not just extension vs webapp. Native iOS/Android wrapp
 - Infinite scroll: pass `fetchNextPage`, `canFetchMore` (from `hasNextPage`), and `isFetchingNextPage` as separate props. Never derive `canFetchMore` from callback existence (`!!onScrollEnd`). Gate with `canFetchMore && !isFetchingNextPage` (see `InfiniteScrolling.tsx`).
 - Paginated dropdowns with a pre-selected value not in page one: insert a placeholder entry up front and dedupe by `id` when the real item loads. Never `findIndex(...) || 0` (silently selects the first item); use `?? -1`.
 - Portaled drawers/overlays must `stopPropagation` on the overlay click, otherwise `useOutsideClick` closes the parent modal (see `BaseDrawer`).
+- Next's `experimental.scrollRestoration` is off, so the router resets the scroll to the top in a layout effect on every route change, back/forward included. `useScrollRestoration` restores the position itself, and it has to wait for the feed to reach full height before scrolling: a short budget expires mid-render on a phone and strands the user in the middle of a partially rendered feed.
 - Tooltip requests: wrap the real interactive hover target with the tooltip component. A native `title` attribute is not a substitute.
 - When renaming visible copy, update text-asserting tests (`findByText`) in the same PR.
 - In markdown conversion utilities, never run formatting regexes across already-generated HTML (e.g. image `src` URLs containing `_`). Add regression tests for URL edge cases.

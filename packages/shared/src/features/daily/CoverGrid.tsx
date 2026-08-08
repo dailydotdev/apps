@@ -16,8 +16,10 @@ import {
 } from '../../components/icons';
 import { IconSize } from '../../components/Icon';
 import { useAdQuery } from '../monetization/useAdQuery';
-import { AdPlacement } from '../../lib/ads';
+import { AdActions, AdPlacement } from '../../lib/ads';
 import { AdPixel } from '../../components/cards/ad/common/AdPixel';
+import { AdViewability } from '../../components/cards/ad/common/AdViewability';
+import { viewabilityLogExtra } from '../monetization/viewability';
 import { getAdFaviconImageLink } from '../../components/cards/ad/common/getAdFaviconImageLink';
 import { useScrambler } from '../../hooks/useScrambler';
 import { adFaviconPlaceholder } from '../../lib/image';
@@ -103,7 +105,7 @@ const AdRow = ({ ad }: { ad: Ad }): ReactElement => {
   );
 
   return (
-    <li ref={impressionRef}>
+    <li ref={impressionRef} className="relative">
       <a
         href={ad.link}
         target="_blank"
@@ -154,6 +156,22 @@ const AdRow = ({ ad }: { ad: Ad }): ReactElement => {
         </span>
       </a>
       <AdPixel pixel={ad.pixel} />
+      <AdViewability
+        ad={ad}
+        onViewable={(data) =>
+          logEvent(
+            adLogEvent(AdActions.Viewable, ad, {
+              columns: 1,
+              column: 0,
+              row: AD_SLOT_INDEX,
+              extra: {
+                ...dailyFeedExtra().extra,
+                ...viewabilityLogExtra(data),
+              },
+            }),
+          )
+        }
+      />
     </li>
   );
 };
