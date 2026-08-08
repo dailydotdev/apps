@@ -758,16 +758,11 @@ export default function MainFeedLayout({
   return (
     <>
       {showExploreV2PageHeader && (
-        <>
-          {/* Search and agents are the two ways of going to look for
-              something, so they sit together above the sorts. */}
-          <AgentExploreEntry />
-          <header className={classNames(pageHeaderClassName, '!py-0')}>
-            {/* Sort options as pill tabs — same navbar as the Tags / Squad
-                directory pages, not the underlined TabContainer. */}
-            <FeedExploreTabs />
-          </header>
-        </>
+        <header className={classNames(pageHeaderClassName, '!py-0')}>
+          {/* Sort options as pill tabs — same navbar as the Tags / Squad
+              directory pages, not the underlined TabContainer. */}
+          <FeedExploreTabs />
+        </header>
       )}
       {showFeedV2PageHeader && (
         <header className={classNames(pageHeaderClassName, '!py-0')}>
@@ -781,6 +776,12 @@ export default function MainFeedLayout({
       <FeedPageLayoutComponent
         className={classNames('relative', disableTopPadding && '!pt-0')}
       >
+        {/* Agents and search, paired, above the sorts. Gated on nothing but
+            "this is Explore": the v2 page header above is laptop-only by
+            design, and this control is a phone's, so mounting it up there was
+            mounting it somewhere it could never appear. Its own breakpoint
+            decides whether it draws. */}
+        {isAnyExplore && <AgentExploreEntry />}
         {isAnyExplore && !showExploreV2PageHeader && <FeedExploreComponent />}
         {isSearchOn && !isSearchPageLaptop && search}
         {isSearchOn && isFinder && !isSearchPageLaptop && (

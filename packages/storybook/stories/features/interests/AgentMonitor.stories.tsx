@@ -3,9 +3,14 @@ import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { AgentDemoProviders } from '@dailydotdev/shared/src/features/interests/components/AgentDemoProviders';
 import { AgentGlassComposer } from '@dailydotdev/shared/src/features/interests/components/AgentGlassComposer';
-import type { AgentMonitorItem } from '@dailydotdev/shared/src/features/interests/components/AgentMonitor';
+import type {
+  AgentMonitorItem,
+  AgentMonitorState,
+} from '@dailydotdev/shared/src/features/interests/components/AgentMonitor';
 import {
   AgentMonitor,
+  AgentState,
+  stateLabel,
   toMonitorItems,
 } from '@dailydotdev/shared/src/features/interests/components/AgentMonitor';
 import {
@@ -20,25 +25,37 @@ import { mockFeedPosts } from '@dailydotdev/shared/src/features/interests/mockFe
 const all = toMonitorItems(recentMockAgents());
 const quiet: AgentMonitorItem[] = all.map((item) => ({
   ...item,
-  state: item.state === 'new' ? 'hunting' : item.state,
-  line: 'Hunting. Nothing yet.',
+  state: item.state === 'waiting' ? 'watching' : item.state,
+  line: 'Watching. Nothing new yet.',
 }));
 const busy: AgentMonitorItem[] = [
   ...all,
   {
-    id: 'demo-5',
+    id: 'extra-1',
     name: 'Rust in production',
-    state: 'new',
+    state: 'waiting',
     line: 'Found 3 write-ups from teams running it in anger, including one migration post-mortem.',
     at: new Date(Date.now() - 1000 * 60 * 8).toISOString(),
   },
   {
-    id: 'demo-6',
+    id: 'extra-2',
     name: 'Database internals',
-    state: 'new',
+    state: 'waiting',
     line: 'Kept 2 of 41. The rest were the same B-tree explainer with different diagrams.',
     at: new Date(Date.now() - 1000 * 60 * 21).toISOString(),
   },
+];
+
+// The seven, in the order they matter: the one that wants you, the two that are
+// fine, the one that has not started, then the three that are not working.
+const states: { state: AgentMonitorState; note: string }[] = [
+  { state: 'waiting', note: 'A run came back with something you have not seen.' },
+  { state: 'running', note: 'Scanning right now. The only dot that moves.' },
+  { state: 'watching', note: 'On schedule, between runs, nothing new.' },
+  { state: 'starting', note: 'Spawned, but its first run has not happened.' },
+  { state: 'failed', note: 'The last run did not finish. Needs you.' },
+  { state: 'paused', note: 'Switched off by you. Nothing scheduled.' },
+  { state: 'stopped', note: 'Retired. Hollow dot: it is not coming back on its own.' },
 ];
 
 const Stage = ({
@@ -128,6 +145,44 @@ const Monitor = (): ReactElement => (
         pull-request list: state as a coloured word, then whose it is, then
         what it says.
       </Typography>
+    </FlexCol>
+
+    <FlexCol className="gap-3">
+      <FlexCol className="gap-0.5">
+        <Typography type={TypographyType.Body} bold>
+          Every state
+        </Typography>
+        <Typography
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
+        >
+          One hue each, and only the running one animates. The word carries it
+          for anyone who cannot tell the hues apart.
+        </Typography>
+      </FlexCol>
+      <FlexCol className="divide-y divide-border-subtlest-quaternary rounded-16 border border-border-subtlest-tertiary">
+        {states.map(({ state, note }) => (
+          <FlexRow key={state} className="items-center gap-3 px-3 py-2.5">
+            <span className="w-40 shrink-0">
+              <AgentState state={state} />
+            </span>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+              className="min-w-0 flex-1"
+            >
+              {note}
+            </Typography>
+            <Typography
+              type={TypographyType.Caption2}
+              color={TypographyColor.Quaternary}
+              className="hidden shrink-0 tablet:block"
+            >
+              {stateLabel[state]}
+            </Typography>
+          </FlexRow>
+        ))}
+      </FlexCol>
     </FlexCol>
 
     <div className="grid gap-8 laptop:grid-cols-2">

@@ -23,7 +23,21 @@ import { UserInterestStatus } from '../../../graphql/interests';
 import { useOutsideClick } from '../../../hooks/utils/useOutsideClick';
 import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 
-export type AgentMonitorState = 'new' | 'hunting' | 'paused';
+/**
+ * Everything an agent can be, in the order it matters to the reader.
+ *
+ * `waiting` is the only one that asks anything of you. The two after it are
+ * healthy and need nothing. The last three are an agent that is not working,
+ * whether that was your decision or not.
+ */
+export type AgentMonitorState =
+  | 'waiting'
+  | 'running'
+  | 'watching'
+  | 'starting'
+  | 'failed'
+  | 'paused'
+  | 'stopped';
 
 export type AgentMonitorItem = {
   id: string;
@@ -36,32 +50,83 @@ export type AgentMonitorItem = {
   at?: string | null;
 };
 
+/**
+ * What the list reads: an interest, plus the two run states the API has no
+ * field for yet. A run in flight and a run that failed are both things the
+ * backend knows and does not return; until it does, only mock data sets this.
+ */
+export type AgentMonitorSource = UserInterest & {
+  runState?: 'running' | 'failed' | null;
+};
+
 const freshMs = 1000 * 60 * 60 * 6;
 const tickerMs = 3600;
 // Two waiting rows, then a count. Any more and the field is buried under its
 // own news.
 const shownByDefault = 2;
 
+/** What the state reads as when the agent has said nothing of its own. */
+const fallbackLine: Record<AgentMonitorState, string> = {
+  waiting: 'Came back with something.',
+  running: 'Scanning now…',
+  watching: 'Watching. Nothing new yet.',
+  starting: 'First run has not happened yet.',
+  failed: 'Last run did not finish.',
+  paused: 'Paused. Nothing scheduled.',
+  stopped: 'Stopped. It keeps what it found.',
+};
+
 /**
- * The agents, as the strip sees them.
+ * The agents, as the list sees them.
  *
- * "New" stands in for an unseen-findings count the API does not return yet: a
- * run that landed in the last few hours and had something to say.
+ * Five of the seven states come off the interest itself. `waiting` stands in
+ * for an unseen-findings count the API does not return yet: a run that landed
+ * in the last few hours and had something to say. `running` and `failed` have
+ * no field to read at all, so they are passed in.
  */
 export const toMonitorItems = (
-  agents: UserInterest[],
+  agents: AgentMonitorSource[],
   now = Date.now(),
 ): AgentMonitorItem[] =>
   agents.map((agent) => {
     const ran = agent.lastRunAt ? Date.parse(agent.lastRunAt) : 0;
-    const isFresh = !!agent.lastRunSummary && now - ran < freshMs;
-    const isPaused = agent.status !== UserInterestStatus.Active;
-    // eslint-disable-next-line no-nested-ternary
-    const state: AgentMonitorState = isPaused
-      ? 'paused'
-      : isFresh
-      ? 'new'
-      : 'hunting';
+    // A run that kept nothing is news about the agent, not something to
+    // review — "waiting for review" over a line reading "kept nothing" sends
+    // you looking for something that was never there.
+    const keptNothing = /\bkept (nothing|none|no|0)\b/i.test(
+      agent.lastRunSummary ?? '',
+    );
+    const isFresh =
+      !!agent.lastRunSummary && !keptNothing && now - ran < freshMs;
+
+    const resolve = (): AgentMonitorState => {
+      // A run in flight outranks everything: it is happening right now.
+      if (agent.runState === 'running') {
+        return 'running';
+      }
+
+      if (agent.status === UserInterestStatus.Stopped) {
+        return 'stopped';
+      }
+
+      if (agent.status !== UserInterestStatus.Active) {
+        return 'paused';
+      }
+
+      if (agent.runState === 'failed') {
+        return 'failed';
+      }
+
+      // Never run is not the same as run and found nothing, and an agent you
+      // spawned a minute ago should say which of the two it is.
+      if (!agent.lastRunAt) {
+        return 'starting';
+      }
+
+      return isFresh ? 'waiting' : 'watching';
+    };
+
+    const state = resolve();
 
     return {
       id: agent.id,
@@ -71,29 +136,46 @@ export const toMonitorItems = (
       // and the run's own sentence is the only place the number exists.
       found:
         Number(/kept (\d+)/.exec(agent.lastRunSummary ?? '')?.[1]) || undefined,
+      // A stopped or failed agent's last summary describes a state it is no
+      // longer in, so those two say what they are instead.
       line:
-        agent.lastRunSummary ??
-        (isPaused ? 'Paused. Nothing scheduled.' : 'Hunting. Nothing yet.'),
+        (state === 'failed' || state === 'stopped'
+          ? undefined
+          : agent.lastRunSummary) ?? fallbackLine[state],
       at: agent.lastRunAt,
     };
   });
 
 export const stateLabel: Record<AgentMonitorState, string> = {
-  new: 'Waiting for you',
-  hunting: 'Hunting',
+  waiting: 'Waiting for review',
+  running: 'Running now',
+  watching: 'Watching',
+  starting: 'First run due',
+  failed: 'Run failed',
   paused: 'Paused',
+  stopped: 'Stopped',
 };
 
 const inkClass: Record<AgentMonitorState, string> = {
-  new: 'text-brand-default',
-  hunting: 'text-action-upvote-default',
+  waiting: 'text-brand-default',
+  running: 'text-status-success',
+  watching: 'text-status-info',
+  starting: 'text-status-warning',
+  failed: 'text-status-error',
   paused: 'text-text-quaternary',
+  stopped: 'text-text-quaternary',
 };
 
+// One hue each, and the only moving one is the only one that is moving.
 const dotClass: Record<AgentMonitorState, string> = {
-  new: 'bg-brand-default',
-  hunting: 'animate-pulse bg-action-upvote-default',
+  waiting: 'bg-brand-default',
+  running: 'animate-pulse bg-status-success',
+  watching: 'bg-status-info',
+  starting: 'bg-status-warning',
+  failed: 'bg-status-error',
   paused: 'bg-text-quaternary',
+  // Hollow rather than filled: it is not coming back on its own.
+  stopped: 'border border-text-quaternary',
 };
 
 const StateDot = ({ state }: { state: AgentMonitorState }): ReactElement => (
@@ -295,7 +377,7 @@ export const AgentMonitor = ({
   }
 
   const waiting = items.filter(
-    ({ id, state }) => state === 'new' && !dismissed.includes(id),
+    ({ id, state }) => state === 'waiting' && !dismissed.includes(id),
   );
   const shown = waiting.slice(0, shownByDefault);
   const hidden = waiting.length - shown.length;

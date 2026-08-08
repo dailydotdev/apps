@@ -21,9 +21,8 @@ import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { webappUrl } from '../../../lib/constants';
-import type { UserInterest } from '../../../graphql/interests';
 import { useAgentShellHeight } from '../shell';
-import type { AgentMonitorItem } from './AgentMonitor';
+import type { AgentMonitorItem, AgentMonitorSource } from './AgentMonitor';
 import { AgentState, toMonitorItems } from './AgentMonitor';
 import { composerBar, composerFrame } from './AgentComposer';
 
@@ -103,7 +102,7 @@ export const AgentHomeScreen = ({
   isCreating,
   isStandalone,
 }: {
-  agents: UserInterest[];
+  agents: AgentMonitorSource[];
   isPending?: boolean;
   onCreate: (query: string) => void;
   isCreating?: boolean;
@@ -114,8 +113,12 @@ export const AgentHomeScreen = ({
   const fieldRef = useRef<HTMLTextAreaElement>(null);
   const [query, setQuery] = useState('');
   const items = toMonitorItems(agents);
-  const waiting = items.filter(({ state }) => state === 'new').length;
-  const running = items.filter(({ state }) => state !== 'paused').length;
+  const waiting = items.filter(({ state }) => state === 'waiting').length;
+  // The ones still doing their job — which is not simply "not paused": a
+  // stopped agent and one whose last run failed are not working either.
+  const working = items.filter(({ state }) =>
+    ['running', 'watching', 'starting'].includes(state),
+  ).length;
 
   const resize = () => {
     const field = fieldRef.current;
@@ -155,8 +158,8 @@ export const AgentHomeScreen = ({
           color={TypographyColor.Quaternary}
         >
           {waiting
-            ? `${waiting} waiting for you`
-            : `${running || 'None'} hunting`}
+            ? `${waiting} waiting for review`
+            : `${working || 'None'} watching`}
         </Typography>
       </FlexRow>
 

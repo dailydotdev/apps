@@ -22,6 +22,7 @@ import {
 } from '@dailydotdev/shared/src/features/interests/mock';
 import { mockFeedItems } from '@dailydotdev/shared/src/features/interests/mockFeed';
 import { mockConversation } from '@dailydotdev/shared/src/features/interests/chat';
+import { openingMessages } from '@dailydotdev/shared/src/features/interests/openingMessages';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -87,7 +88,13 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
         id={id}
         interest={interest}
         isDemo={feed.isDemo}
-        initialMessages={feed.isDemo ? mockConversation : []}
+        // A real agent has no stored transcript yet, so it opens with the
+        // prompt that spawned it and the agent's answer to it — rebuilt from
+        // the interest. Empty here left you on a blank page after creating an
+        // agent, having to type what you just typed a second time.
+        initialMessages={
+          feed.isDemo ? mockConversation : openingMessages(interest, feed.items)
+        }
         key={id}
       >
         <AgentWorkspace

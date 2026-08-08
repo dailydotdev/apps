@@ -1,17 +1,16 @@
 import React from 'react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import type { UserInterest } from '../../../graphql/interests';
 import { UserInterestStatus } from '../../../graphql/interests';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import type { AgentMonitorItem } from './AgentMonitor';
+import type { AgentMonitorItem, AgentMonitorSource } from './AgentMonitor';
 import { AgentMonitor, stateLabel, toMonitorItems } from './AgentMonitor';
 
 const now = Date.parse('2026-02-01T12:00:00.000Z');
 const hoursAgo = (hours: number) =>
   new Date(now - hours * 60 * 60 * 1000).toISOString();
 
-const interest = (over: Partial<UserInterest> = {}): UserInterest =>
+const interest = (over: Partial<AgentMonitorSource> = {}): AgentMonitorSource =>
   ({
     id: 'i1',
     query: 'Cool zig projects',
@@ -19,37 +18,116 @@ const interest = (over: Partial<UserInterest> = {}): UserInterest =>
     lastRunAt: hoursAgo(1),
     lastRunSummary: 'Scanned 128 posts, kept 6',
     ...over,
-  } as UserInterest);
+  } as AgentMonitorSource);
 
 describe('toMonitorItems', () => {
-  it('calls a run that landed inside the window, with something to say, new', () => {
+  it('calls a recent run with something to say "waiting for review"', () => {
     const [item] = toMonitorItems([interest()], now);
 
-    expect(item.state).toBe('new');
+    expect(item.state).toBe('waiting');
     expect(item.line).toBe('Scanned 128 posts, kept 6');
     expect(item.found).toBe(6);
   });
 
-  it('goes back to hunting once the run ages out of the window', () => {
+  it('goes back to watching once the run ages out of the window', () => {
     expect(
       toMonitorItems([interest({ lastRunAt: hoursAgo(7) })], now)[0].state,
-    ).toBe('hunting');
+    ).toBe('watching');
   });
 
   // Six hours exactly is outside the window, not inside it.
   it('treats the window edge as past', () => {
     expect(
       toMonitorItems([interest({ lastRunAt: hoursAgo(6) })], now)[0].state,
-    ).toBe('hunting');
+    ).toBe('watching');
     expect(
       toMonitorItems([interest({ lastRunAt: hoursAgo(5.99) })], now)[0].state,
-    ).toBe('new');
+    ).toBe('waiting');
   });
 
-  it('is hunting, not new, when a recent run found nothing to report', () => {
+  it('is watching, not waiting, when a recent run found nothing to report', () => {
     expect(
       toMonitorItems([interest({ lastRunSummary: null })], now)[0].state,
-    ).toBe('hunting');
+    ).toBe('watching');
+  });
+
+  // "Waiting for review" over a line reading "kept nothing" sends the reader
+  // looking for something that was never there.
+  it('is watching when the run says in words that it kept nothing', () => {
+    ['Scanned 214 posts, kept nothing', 'kept none', 'Kept 0 of 41'].forEach(
+      (lastRunSummary) => {
+        expect([
+          lastRunSummary,
+          toMonitorItems([interest({ lastRunSummary })], now)[0].state,
+        ]).toEqual([lastRunSummary, 'watching']);
+      },
+    );
+  });
+
+  it('still says what that run found, next to the state', () => {
+    expect(
+      toMonitorItems(
+        [interest({ lastRunSummary: 'Scanned 214 posts, kept nothing' })],
+        now,
+      )[0].line,
+    ).toBe('Scanned 214 posts, kept nothing');
+  });
+
+  // Never run and run-but-found-nothing are different things to be told.
+  it('is starting, not watching, before its first run', () => {
+    const [item] = toMonitorItems(
+      [interest({ lastRunAt: null, lastRunSummary: null })],
+      now,
+    );
+
+    expect(item.state).toBe('starting');
+    expect(item.line).toBe('First run has not happened yet.');
+  });
+
+  it('separates an agent you stopped from one you paused', () => {
+    expect(
+      toMonitorItems([interest({ status: UserInterestStatus.Stopped })], now)[0]
+        .state,
+    ).toBe('stopped');
+    expect(
+      toMonitorItems([interest({ status: UserInterestStatus.Paused })], now)[0]
+        .state,
+    ).toBe('paused');
+  });
+
+  describe('the two states the API cannot express yet', () => {
+    it('reports a run in flight, whatever the last one said', () => {
+      const [item] = toMonitorItems([interest({ runState: 'running' })], now);
+
+      expect(item.state).toBe('running');
+    });
+
+    it('lets a run in flight outrank being paused, since it is happening', () => {
+      expect(
+        toMonitorItems(
+          [
+            interest({
+              runState: 'running',
+              status: UserInterestStatus.Paused,
+            }),
+          ],
+          now,
+        )[0].state,
+      ).toBe('running');
+    });
+
+    it('reports a failed run, and says so rather than quoting the old one', () => {
+      const [item] = toMonitorItems([interest({ runState: 'failed' })], now);
+
+      expect(item.state).toBe('failed');
+      expect(item.line).toBe('Last run did not finish.');
+    });
+
+    it('leaves a failed run out of what is waiting for you', () => {
+      expect(
+        toMonitorItems([interest({ runState: 'failed' })], now)[0].state,
+      ).not.toBe('waiting');
+    });
   });
 
   it('is paused whatever the run says, when the agent is off', () => {
@@ -71,14 +149,17 @@ describe('toMonitorItems', () => {
     expect(never.line).toBe('Paused. Nothing scheduled.');
   });
 
-  it('has a line to show for an agent that has never run', () => {
-    const [item] = toMonitorItems(
-      [interest({ lastRunAt: null, lastRunSummary: null })],
-      now,
-    );
+  it('gives every state something to say when the agent has not', () => {
+    const lines = [
+      interest({ lastRunAt: null, lastRunSummary: null }),
+      interest({ runState: 'running', lastRunSummary: null }),
+      interest({ lastRunAt: hoursAgo(20), lastRunSummary: null }),
+      interest({ runState: 'failed' }),
+      interest({ status: UserInterestStatus.Paused, lastRunSummary: null }),
+      interest({ status: UserInterestStatus.Stopped }),
+    ].map((agent) => toMonitorItems([agent], now)[0].line);
 
-    expect(item.line).toBe('Hunting. Nothing yet.');
-    expect(item.found).toBeUndefined();
+    lines.forEach((line) => expect(line.length).toBeGreaterThan(0));
   });
 
   it('leaves the count off when the summary has no number in it', () => {
@@ -101,7 +182,7 @@ describe('toMonitorItems', () => {
 const item = (over: Partial<AgentMonitorItem> = {}): AgentMonitorItem => ({
   id: 'a1',
   name: 'Cool zig projects',
-  state: 'new',
+  state: 'waiting',
   line: 'Scanned 128 posts, kept 6',
   at: hoursAgo(1),
   ...over,
@@ -153,7 +234,7 @@ describe('AgentMonitor', () => {
   });
 
   it('carries the waiting count on the strip', () => {
-    renderMonitor([...waitingItems(3), item({ id: 'h', state: 'hunting' })]);
+    renderMonitor([...waitingItems(3), item({ id: 'h', state: 'watching' })]);
 
     expect(
       screen.getByRole('button', { name: /3 waiting, 4 in total/ }),
@@ -183,7 +264,7 @@ describe('AgentMonitor', () => {
 
   describe('expanding', () => {
     it('opens on a click anywhere on the strip and shuts on the next one', () => {
-      renderMonitor([...waitingItems(1), item({ id: 'h', state: 'hunting' })]);
+      renderMonitor([...waitingItems(1), item({ id: 'h', state: 'watching' })]);
       const strip = screen.getByRole('button', { name: /waiting, 2 in total/ });
 
       expect(strip).toHaveAttribute('aria-expanded', 'false');
@@ -198,7 +279,7 @@ describe('AgentMonitor', () => {
     it('lists what came back first, and everything else behind a control', () => {
       renderMonitor([
         ...waitingItems(1),
-        item({ id: 'h', name: 'Still hunting', state: 'hunting' }),
+        item({ id: 'h', name: 'Still hunting', state: 'watching' }),
       ]);
 
       fireEvent.click(screen.getByRole('button', { name: /in total/ }));
@@ -214,7 +295,7 @@ describe('AgentMonitor', () => {
 
     it('goes straight to every agent when nothing is waiting', () => {
       renderMonitor([
-        item({ id: 'h1', name: 'Still hunting', state: 'hunting' }),
+        item({ id: 'h1', name: 'Still hunting', state: 'watching' }),
         item({ id: 'h2', name: 'On pause', state: 'paused' }),
       ]);
 
@@ -226,15 +307,15 @@ describe('AgentMonitor', () => {
     });
 
     it('names the state on the expanded rows, where there is room for it', () => {
-      renderMonitor([item({ id: 'h', state: 'hunting' })]);
+      renderMonitor([item({ id: 'h', state: 'watching' })]);
 
       fireEvent.click(screen.getByRole('button', { name: /in total/ }));
 
-      expect(screen.getByText(stateLabel.hunting)).toBeInTheDocument();
+      expect(screen.getByText(stateLabel.watching)).toBeInTheDocument();
     });
 
     it('links each expanded row to its agent', () => {
-      renderMonitor([item({ id: 'h', name: 'Reachable', state: 'hunting' })]);
+      renderMonitor([item({ id: 'h', name: 'Reachable', state: 'watching' })]);
 
       fireEvent.click(screen.getByRole('button', { name: /in total/ }));
 
@@ -282,8 +363,8 @@ describe('AgentMonitor', () => {
 
     it('turns through the agents while it is shut', () => {
       const items = [
-        item({ id: 'a', name: 'First', state: 'hunting' }),
-        item({ id: 'b', name: 'Second', state: 'hunting' }),
+        item({ id: 'a', name: 'First', state: 'watching' }),
+        item({ id: 'b', name: 'Second', state: 'watching' }),
       ];
       renderMonitor(items);
       const strip = screen.getByRole('button', { name: /in total/ });
@@ -296,7 +377,7 @@ describe('AgentMonitor', () => {
     });
 
     it('stands still with only one agent to show', () => {
-      renderMonitor([item({ id: 'a', name: 'Only one', state: 'hunting' })]);
+      renderMonitor([item({ id: 'a', name: 'Only one', state: 'watching' })]);
       const strip = screen.getByRole('button', { name: /in total/ });
 
       act(() => jest.advanceTimersByTime(3600 * 3));

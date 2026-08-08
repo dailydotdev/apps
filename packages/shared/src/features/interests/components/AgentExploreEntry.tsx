@@ -54,7 +54,7 @@ export const AgentExploreEntry = (): ReactElement | null => {
   }
 
   const waiting = toMonitorItems(interests ?? []).filter(
-    ({ state }) => state === 'new',
+    ({ state }) => state === 'waiting',
   ).length;
 
   return (
