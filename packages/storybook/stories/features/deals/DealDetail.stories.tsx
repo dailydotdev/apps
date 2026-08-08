@@ -3,6 +3,14 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
 import { DealDetailModal } from '@dailydotdev/shared/src/features/deals/components/DealDetailModal';
+import { DealShareLanding } from '@dailydotdev/shared/src/features/deals/components/DealShareLanding';
+import { DealShareBar } from '@dailydotdev/shared/src/features/deals/components/DealShareBar';
+import { DealBreadcrumbs } from '@dailydotdev/shared/src/features/deals/components/DealBreadcrumbs';
+import { getDealComments } from '@dailydotdev/shared/src/features/deals/mockCommunity';
+import {
+  getDealBrandPath,
+  getSimilarDeals,
+} from '@dailydotdev/shared/src/features/deals/dealsFormat';
 import type {
   Deal,
   DealMedia,
@@ -64,11 +72,40 @@ const DetailStage = ({ deal }: { deal: Deal }) => {
           onClaim={noop}
           onUpvote={() => setIsUpvoted((current) => !current)}
           onOpenDeal={setOpenDeal}
+          shareBar={<DealShareBar deal={openDeal} username="devdana" compact />}
         />
       )}
     </div>
   );
 };
+
+const PageStage = ({
+  deal,
+  isSignedIn = true,
+}: {
+  deal: Deal;
+  isSignedIn?: boolean;
+}) => (
+  <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 tablet:px-8">
+    <DealBreadcrumbs
+      crumbs={[
+        { name: 'Deals', path: '/deals' },
+        { name: deal.brand.name, path: getDealBrandPath(deal.brand) },
+        { name: deal.title },
+      ]}
+    />
+    <DealShareLanding
+      deal={deal}
+      comments={getDealComments(deal.id)}
+      similarDeals={getSimilarDeals(deal, mockDeals, 4)}
+      isSignedIn={isSignedIn}
+      now={MOCK_NOW_MS}
+      onClaim={noop}
+      onJoin={noop}
+      shareBar={<DealShareBar deal={deal} username="devdana" />}
+    />
+  </div>
+);
 
 export const CodeDeal: Story = {
   render: () => <DetailStage deal={findDeal('keychron-q1-30-off')} />,
@@ -97,8 +134,8 @@ export const LockedByCoresOrInvites: Story = {
 };
 
 /**
- * Two clocks. The deadline to start is not the end of the offer, so the page
- * prints both instead of collapsing them into one countdown.
+ * Two clocks. The deadline to start is not the end of the offer, so the claim
+ * area prints both instead of collapsing them into one countdown.
  */
 export const ClaimByDeadline: Story = {
   render: () => <DetailStage deal={findDeal('cursor-20-credit')} />,
@@ -136,8 +173,8 @@ export const BoostedDeal: Story = {
 };
 
 /**
- * The hero is capped so the claim CTA still lands above the fold inside the
- * 44rem dialog. Check that the CTA is visible without scrolling on a laptop.
+ * The photo sits in `What you get`, below the claim area, so the primary button
+ * is the first thing under the title on every offer that carries a hero.
  */
 export const ProductPhotoHero: Story = {
   render: () => <DetailStage deal={findDeal('logitech-mx-master-20-off')} />,
@@ -167,8 +204,9 @@ export const BrokenHeroImage: Story = {
 };
 
 /**
- * `Worth knowing before you claim` sits between the reasoning and the claim
- * control, so the restriction interrupts before the click rather than after.
+ * The ranked caveats ride in the claim area directly above the button, so the
+ * restriction interrupts before the click. Their full sentences stay in
+ * `Worth knowing before you claim` further down.
  */
 export const CaveatsBeforeClaim: Story = {
   render: () => (
@@ -179,5 +217,45 @@ export const CaveatsBeforeClaim: Story = {
 export const NoCaveats: Story = {
   render: () => (
     <DetailStage deal={{ ...findDeal('cursor-20-credit'), caveats: [] }} />
+  ),
+};
+
+export const DealPage: Story = {
+  render: () => <PageStage deal={findDeal('keychron-q1-30-off')} />,
+};
+
+export const DealPageLoggedOut: Story = {
+  decorators: [withDeals({ isLoggedOut: true })],
+  render: () => (
+    <PageStage deal={findDeal('keychron-q1-30-off')} isSignedIn={false} />
+  ),
+};
+
+const parityDeal = findDeal('keychron-q1-30-off');
+
+/**
+ * The same offer in both presentations. A transformed wrapper traps the
+ * dialog's `position: fixed` inside the left column so the real modal shell
+ * renders next to the real page.
+ */
+export const ModalAndPageParity: Story = {
+  render: () => (
+    <div className="grid grid-cols-1 gap-4 laptop:grid-cols-2">
+      <div className="relative h-[50rem] transform-gpu overflow-hidden rounded-16 bg-background-subtle">
+        <DealDetailModal
+          deal={parityDeal}
+          now={MOCK_NOW_MS}
+          onClose={noop}
+          onClaim={noop}
+          onUpvote={noop}
+          shareBar={
+            <DealShareBar deal={parityDeal} username="devdana" compact />
+          }
+        />
+      </div>
+      <div className="h-[50rem] overflow-y-auto rounded-16 border border-border-subtlest-tertiary">
+        <PageStage deal={parityDeal} />
+      </div>
+    </div>
   ),
 };

@@ -106,8 +106,9 @@ export const DealCodeReveal = ({
         <Button
           type="button"
           variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
+          size={ButtonSize.Large}
           onClick={onRevealClick}
+          className="w-full tablet:w-fit"
         >
           {revealLabel}
         </Button>

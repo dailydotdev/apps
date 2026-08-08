@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Button } from '../../../components/buttons/Button';
-import { ButtonVariant } from '../../../components/buttons/common';
+import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import {
   Typography,
   TypographyColor,
@@ -39,16 +39,11 @@ export const DealUnlockOptions = ({
   const { cores, invites } = unlock;
 
   return (
-    <div
-      className={classNames(
-        'flex flex-col gap-2 rounded-12 bg-surface-float p-3',
-        className,
-      )}
-    >
+    <div className={classNames('flex flex-col gap-3', className)}>
       <Typography
         tag={TypographyTag.P}
-        type={TypographyType.Footnote}
-        color={TypographyColor.Tertiary}
+        type={TypographyType.Callout}
+        color={TypographyColor.Secondary}
         className="flex items-center gap-2"
       >
         <LockIcon size={IconSize.XSmall} secondary />
@@ -67,6 +62,7 @@ export const DealUnlockOptions = ({
           <Button
             type="button"
             variant={ButtonVariant.Primary}
+            size={ButtonSize.Large}
             icon={<CoreIcon />}
             onClick={() => onUnlock?.(deal)}
           >
@@ -77,6 +73,7 @@ export const DealUnlockOptions = ({
           <Button
             type="button"
             variant={ButtonVariant.Secondary}
+            size={ButtonSize.Large}
             icon={<InviteIcon />}
             onClick={() => onUnlock?.(deal)}
           >

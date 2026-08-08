@@ -11,10 +11,8 @@ import { DealBrandLogo } from '@dailydotdev/shared/src/features/deals/components
 import { DealCommunityProof } from '@dailydotdev/shared/src/features/deals/components/DealCommunityProof';
 import { DealInviteProgress } from '@dailydotdev/shared/src/features/deals/components/DealInviteProgress';
 import { DealImpactWidget } from '@dailydotdev/shared/src/features/deals/components/DealImpactWidget';
-import {
-  DealsFilterBar,
-  DEALS_FILTER_ALL,
-} from '@dailydotdev/shared/src/features/deals/components/DealsFilterBar';
+import { DealsDirectoryHeader } from '@dailydotdev/shared/src/features/deals/components/DealsDirectoryHeader';
+import { DEALS_FILTER_ALL } from '@dailydotdev/shared/src/features/deals/dealsFormat';
 import type { Deal } from '@dailydotdev/shared/src/features/deals/types';
 import {
   DealCaveatKind,
@@ -420,25 +418,33 @@ export const InviteProgress: Story = {
   ),
 };
 
-const FilterBarDemo = () => {
+const DirectoryHeaderDemo = () => {
   const [filter, setFilter] = useState(DEALS_FILTER_ALL);
+  const [query, setQuery] = useState('');
 
   return (
     <div className="flex flex-col gap-6">
-      <Case label="Full width, every category" testId="filter-bar-full">
-        <DealsFilterBar
+      <Case label="Full width, tabs and search" testId="directory-header-full">
+        <DealsDirectoryHeader
           deals={mockDeals}
           activeFilter={filter}
           onFilterChange={setFilter}
+          query={query}
+          onQueryChange={setQuery}
           className="w-full"
         />
       </Case>
-      <Case label="Narrow column, overflow scrolls" testId="filter-bar-narrow">
-        <div className="w-72 rounded-12 border border-border-subtlest-tertiary p-2">
-          <DealsFilterBar
+      <Case
+        label="Narrow column, the tabs scroll"
+        testId="directory-header-narrow"
+      >
+        <div className="w-72">
+          <DealsDirectoryHeader
             deals={mockDeals}
             activeFilter={filter}
             onFilterChange={setFilter}
+            query={query}
+            onQueryChange={setQuery}
           />
         </div>
       </Case>
@@ -446,13 +452,13 @@ const FilterBarDemo = () => {
   );
 };
 
-export const FilterBar: Story = {
-  render: () => <FilterBarDemo />,
+export const DirectoryHeader: Story = {
+  render: () => <DirectoryHeaderDemo />,
 };
 
-export const ImpactWidget: Story = {
+export const ImpactStrip: Story = {
   render: () => (
-    <Grid>
+    <div className="flex flex-col gap-6">
       <Case label="Nothing claimed" testId="impact-empty">
         <DealImpactWidget
           claimedCount={0}
@@ -480,6 +486,6 @@ export const ImpactWidget: Story = {
           className="w-full"
         />
       </Case>
-    </Grid>
+    </div>
   ),
 };

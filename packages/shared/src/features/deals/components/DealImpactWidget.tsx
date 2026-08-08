@@ -28,10 +28,10 @@ const Stat = ({
   label: string;
   value: string;
 }): ReactElement => (
-  <div className="flex flex-1 flex-col gap-0.5">
+  <span className="flex items-baseline gap-1.5">
     <Typography
       tag={TypographyTag.Span}
-      type={TypographyType.Title2}
+      type={TypographyType.Callout}
       bold
       className="tabular-nums"
     >
@@ -44,9 +44,13 @@ const Stat = ({
     >
       {label}
     </Typography>
-  </div>
+  </span>
 );
 
+/**
+ * A quiet strip, not a card. It closes the page under the deals rather than
+ * taking a column beside them, so the offers keep the full width.
+ */
 export const DealImpactWidget = ({
   claimedCount,
   totalSavedUsd,
@@ -63,20 +67,19 @@ export const DealImpactWidget = ({
   return (
     <aside
       className={classNames(
-        'flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4',
+        'flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-4 py-3 laptop:flex-row laptop:items-center laptop:gap-6',
         className,
       )}
     >
-      <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
-        Your impact
-      </Typography>
-
-      <div className="flex items-start gap-4">
-        <Stat label="Deals claimed" value={`${claimedCount}`} />
-        <Stat label="Saved so far" value={formatUsd(totalSavedUsd)} />
+      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <Typography tag={TypographyTag.H2} type={TypographyType.Footnote} bold>
+          Your impact
+        </Typography>
+        <Stat label="deals claimed" value={`${claimedCount}`} />
+        <Stat label="saved so far" value={formatUsd(totalSavedUsd)} />
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div
           role="progressbar"
           aria-label="Invites towards the next members only deal"
@@ -110,6 +113,7 @@ export const DealImpactWidget = ({
         size={ButtonSize.Small}
         icon={<InviteIcon />}
         onClick={onInvite}
+        className="shrink-0"
       >
         Invite friends
       </Button>

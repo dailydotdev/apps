@@ -1,9 +1,10 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DealShareLanding } from '@dailydotdev/shared/src/features/deals/components/DealShareLanding';
+import { getDealComments } from '@dailydotdev/shared/src/features/deals/mockCommunity';
+import { getSimilarDeals } from '@dailydotdev/shared/src/features/deals/dealsFormat';
 import type { Deal } from '@dailydotdev/shared/src/features/deals/types';
-import { DealState } from '@dailydotdev/shared/src/features/deals/types';
-import { getDealBySlug, getDealsByState, withDeals } from './deals.mocks';
+import { getDealBySlug, mockDeals, withDeals } from './deals.mocks';
 
 const meta: Meta<typeof DealShareLanding> = {
   title: 'Features/Deals/Share landing',
@@ -24,32 +25,40 @@ const sharer = {
 
 const liveDeal = getDealBySlug('cursor-20-credit') as Deal;
 const expiredDeal = getDealBySlug('sentry-50-credit') as Deal;
-const similarDeals = getDealsByState(DealState.Available).slice(0, 3);
 
 const noop = (): void => undefined;
 
-export const LoggedOutVisitor: Story = {
-  render: () => (
+const Stage = ({
+  deal,
+  isSignedIn = false,
+  withSharer = false,
+}: {
+  deal: Deal;
+  isSignedIn?: boolean;
+  withSharer?: boolean;
+}) => (
+  <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 tablet:px-8">
     <DealShareLanding
-      deal={liveDeal}
-      sharerName={sharer.name}
-      sharerAvatarUrl={sharer.avatar}
+      deal={deal}
+      sharerName={withSharer ? sharer.name : undefined}
+      sharerAvatarUrl={withSharer ? sharer.avatar : undefined}
+      comments={getDealComments(deal.id)}
+      similarDeals={getSimilarDeals(deal, mockDeals, 4)}
+      isSignedIn={isSignedIn}
       onJoin={noop}
+      onClaim={noop}
     />
-  ),
+  </div>
+);
+
+export const LoggedOutVisitor: Story = {
+  render: () => <Stage deal={liveDeal} withSharer />,
 };
 
 const productDeal = getDealBySlug('keychron-q1-30-off') as Deal;
 
 export const ProductPhotoHero: Story = {
-  render: () => (
-    <DealShareLanding
-      deal={productDeal}
-      sharerName={sharer.name}
-      sharerAvatarUrl={sharer.avatar}
-      onJoin={noop}
-    />
-  ),
+  render: () => <Stage deal={productDeal} withSharer />,
 };
 
 const coresDeal = getDealBySlug('cursor-pro-month-for-cores') as Deal;
@@ -60,24 +69,18 @@ const bothRoutesDeal = getDealBySlug('raycast-pro-year-members-only') as Deal;
  * client only overlay, so a crawler reading the raw HTML sees the price.
  */
 export const LockedByCores: Story = {
-  render: () => <DealShareLanding deal={coresDeal} onJoin={noop} />,
+  render: () => <Stage deal={coresDeal} />,
 };
 
 export const LockedByCoresOrInvites: Story = {
   decorators: [withDeals()],
-  render: () => (
-    <DealShareLanding deal={bothRoutesDeal} isSignedIn onClaim={noop} />
-  ),
+  render: () => <Stage deal={bothRoutesDeal} isSignedIn />,
 };
 
+/**
+ * A share link that outlived its offer keeps the URL and says so, and the live
+ * alternatives move directly under the claim area instead of the page footer.
+ */
 export const ExpiredDeal: Story = {
-  render: () => (
-    <DealShareLanding
-      deal={expiredDeal}
-      sharerName={sharer.name}
-      sharerAvatarUrl={sharer.avatar}
-      similarDeals={similarDeals}
-      onJoin={noop}
-    />
-  ),
+  render: () => <Stage deal={expiredDeal} withSharer />,
 };

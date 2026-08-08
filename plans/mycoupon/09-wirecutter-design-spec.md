@@ -234,7 +234,7 @@ The split is the whole system: **the shopping UI is sans, the journalism is seri
 | 17 | Sans for UI, serif for prose, slab for display | **Reject** | We are a single-family design system. The equivalent split is `typo-*` size and `text-*` color, not a second face |
 | 18 | was/now strikethrough pricing | **Reject** | EU price-indication rules require 30-day-lowest substantiation we do not have. See §2.5 |
 | 19 | No expiry, no countdown | **Reject** | Our codes actually expire. Keep `DealCountdown`, keep it factual |
-| 20 | Ad slots inside the deals list | **Reject** | Our promoted inventory stays labeled and rate-limited, never mid-list interstitial |
+| 20 | Ad slots inside the deals list | **Superseded, now Accept with limits** | Originally rejected. Product decision on 2026-08-09 added display inventory: exactly one ad per surface, one in the list at a fixed index (`DEALS_LIST_AD_INDEX`, never first, never repeated) and one low on the deal page, never in the modal. The original concern still binds the implementation: the ad carries a visible label from the same `useAdLabel` wording as the feed, never wears a merit badge, never sits between the offer and its caveats, and is structurally excluded from the JSON-LD, the agent feed and the markdown twins |
 | 21 | Photographic product hero per item | **Reject at scale** | We cannot shoot 500 SaaS offers. Brand mark plus value typography carries the identity; `DealCoverImage` stays optional |
 | 22 | `Best for...` ellipsis badge | **Reject** | Every label must be a complete claim |
 | 23 | Duplicate blocks across rails | **Reject** | Our rails already dedupe via the `allocated` Set in `DealsDirectoryPage` |

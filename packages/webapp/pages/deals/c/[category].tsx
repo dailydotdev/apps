@@ -66,11 +66,11 @@ const DealCategoryPage = ({
         heading={getDealCategoryHeading(category)}
         intro={getDealCategoryIntro(category, deals)}
         resultsTitle={`${category} deals`}
+        initialFilter={category}
         withRails={false}
         state={dealsState}
         now={MOCK_NOW_MS}
         onDealClick={setSelectedDeal}
-        onShare={setSelectedDeal}
       />
 
       {selectedDeal && (

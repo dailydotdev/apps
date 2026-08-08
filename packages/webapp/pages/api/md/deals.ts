@@ -8,13 +8,13 @@ import {
   formatFullNumber,
   formatWorksRate,
   getDealBrandPath,
+  getDealCategories,
   getDealCategoryPath,
   getDealCoverMedia,
   getDealPath,
   isLiveDeal,
   shouldNoindexDeal,
 } from '@dailydotdev/shared/src/features/deals/dealsFormat';
-import { getDealCategories } from '@dailydotdev/shared/src/features/deals/components/DealsFilterBar';
 import { escapeMarkdown } from '@dailydotdev/shared/src/lib/strings';
 import { getAppOrigin, getLlmsTxtUrl, toAbsoluteUrl } from '../../../lib/seo';
 import {

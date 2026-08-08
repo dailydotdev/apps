@@ -2,14 +2,17 @@ import type { ReactNode } from 'react';
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DealsDirectoryPage } from '@dailydotdev/shared/src/features/deals/components/DealsDirectoryPage';
+import { DealsDirectoryHeader } from '@dailydotdev/shared/src/features/deals/components/DealsDirectoryHeader';
 import { DealsRail } from '@dailydotdev/shared/src/features/deals/components/DealsRail';
 import { DealListCard } from '@dailydotdev/shared/src/features/deals/components/DealListCard';
 import { DealCard } from '@dailydotdev/shared/src/features/deals/components/DealCard';
 import { DealsHero } from '@dailydotdev/shared/src/features/deals/components/DealsHero';
+import { DealImpactWidget } from '@dailydotdev/shared/src/features/deals/components/DealImpactWidget';
 import { MyCouponsWallet } from '@dailydotdev/shared/src/features/deals/components/MyCouponsWallet';
 import type { Deal } from '@dailydotdev/shared/src/features/deals/types';
 import { DealState } from '@dailydotdev/shared/src/features/deals/types';
 import {
+  DEALS_FILTER_ALL,
   getDealCoverMedia,
   getDealsDirectoryEvidence,
   isLiveDeal,
@@ -46,6 +49,11 @@ type Story = StoryObj<typeof DealsDirectoryPage>;
 
 const noop = (): void => undefined;
 
+/**
+ * The shape of the page: title, header tabs with the search field, grid rails
+ * for the deals we picked for you, then every remaining deal as a list row.
+ * The impact strip closes the page instead of taking a column beside it.
+ */
 export const FullPage: Story = {
   render: () => <DealsDirectoryPage deals={mockDeals} onDealClick={noop} />,
 };
@@ -67,6 +75,28 @@ export const SearchNoResults: Story = {
   ),
 };
 
+/**
+ * A category tab is a link to its own crawlable page, so this is what
+ * `/deals/c/dev-tools` renders: no rails, the category tab active, and the
+ * offers as rows.
+ */
+export const CategoryTab: Story = {
+  render: () => (
+    <DealsDirectoryPage
+      deals={mockDeals.filter(({ categories }) =>
+        categories.includes('Dev tools'),
+      )}
+      filterDeals={mockDeals}
+      heading="Dev tools deals"
+      resultsTitle="Dev tools deals"
+      initialFilter="Dev tools"
+      withRails={false}
+      onDealClick={noop}
+    />
+  ),
+};
+
+/** The two cross-cutting tabs stay a filter on the directory itself. */
 export const FilterExpiring: Story = {
   render: () => (
     <DealsDirectoryPage
@@ -107,13 +137,51 @@ export const ClaimLoop: Story = {
   render: () => <ClaimLoopDemo />,
 };
 
+const SectionLabel = ({ children }: { children: ReactNode }) => (
+  <span className="font-bold uppercase tracking-wider text-text-tertiary typo-caption2">
+    {children}
+  </span>
+);
+
+const DirectoryHeaderDemo = () => {
+  const [filter, setFilter] = useState(DEALS_FILTER_ALL);
+  const [query, setQuery] = useState('');
+
+  return (
+    <div className="flex flex-col gap-3">
+      <DealsDirectoryHeader
+        deals={mockDeals}
+        activeFilter={filter}
+        onFilterChange={setFilter}
+        query={query}
+        onQueryChange={setQuery}
+      />
+      <SectionLabel>
+        Active tab: {filter}. Search: {query || 'empty'}
+      </SectionLabel>
+    </div>
+  );
+};
+
+/**
+ * Categories are links to `/deals/c/<slug>`, so a crawler that never clicks a
+ * filter still reaches every faceted page. Expiring and Exclusive cut across
+ * every category, so they stay a query on the directory rather than a second
+ * thin URL for the same offers. Check this at `mobile`: the search field sits
+ * above the tabs and the tab row scrolls on its own.
+ */
+export const Header: Story = {
+  parameters: { layout: 'padded', controls: { disable: true } },
+  render: () => <DirectoryHeaderDemo />,
+};
+
 const RailsDemo = () => {
   const [claimed, setClaimed] = useState<string | null>(null);
   const live = mockDeals.filter(isLiveDeal);
 
   return (
     <div className="flex flex-col gap-10">
-      <DealsHero query="" onQueryChange={noop} />
+      <DealsHero />
       <DealsRail
         title="Ending soon"
         deals={getDealsByState(DealState.Expiring)}
@@ -127,7 +195,6 @@ const RailsDemo = () => {
           .slice(0, 8)}
         now={MOCK_NOW_MS}
         onClaim={(deal) => setClaimed(deal.title)}
-        onShare={noop}
       />
       <DealsRail
         title="New this week"
@@ -175,7 +242,6 @@ export const CoverRail: Story = {
         deals={mockDeals.filter((deal) => !!getDealCoverMedia(deal))}
         now={MOCK_NOW_MS}
         onClaim={noop}
-        onShare={noop}
       />
       <DealsRail
         title="Brand led, no cover slot"
@@ -184,55 +250,36 @@ export const CoverRail: Story = {
           .slice(0, 6)}
         now={MOCK_NOW_MS}
         onClaim={noop}
-        onShare={noop}
       />
     </div>
   ),
 };
 
-const SectionLabel = ({ children }: { children: ReactNode }) => (
-  <span className="font-bold uppercase tracking-wider text-text-tertiary typo-caption2">
-    {children}
-  </span>
-);
-
 const comparisonDeals = mockDeals.slice(0, 6);
 
 /**
- * The density argument, side by side and on the same six offers. The list is
- * the directory default: six rows fit in roughly the height of two grid cards,
- * and every row carries the same decision set (thumbnail, brand, one badge,
- * title, one caveat, one proof line, value, CTA).
+ * The two forms on the same six offers. The grid card is now reserved for the
+ * rails, where a deal is there because we picked it for you and the cover
+ * earns its space. Everything else is a row: six of them fit in roughly the
+ * height of two cards, carrying the same decision set.
  */
-export const ListVersusGrid: Story = {
+export const CardVersusRow: Story = {
   parameters: { layout: 'padded', controls: { disable: true } },
   render: () => (
     <div className="flex flex-col gap-10 laptop:flex-row laptop:items-start">
       <div className="flex min-w-0 flex-1 flex-col gap-3">
-        <SectionLabel>List rows, the directory default</SectionLabel>
+        <SectionLabel>List rows, every deal outside a rail</SectionLabel>
         <ul className="flex flex-col">
           {comparisonDeals.map((deal) => (
-            <DealListCard
-              key={deal.id}
-              deal={deal}
-              now={MOCK_NOW_MS}
-              onClaim={noop}
-              onShare={noop}
-            />
+            <DealListCard key={deal.id} deal={deal} now={MOCK_NOW_MS} />
           ))}
         </ul>
       </div>
       <div className="flex min-w-0 flex-1 flex-col gap-3">
-        <SectionLabel>Grid cards, the rails and the grid view</SectionLabel>
+        <SectionLabel>Grid cards, the rails only</SectionLabel>
         <div className="grid gap-6 tablet:grid-cols-2">
           {comparisonDeals.map((deal) => (
-            <DealCard
-              key={deal.id}
-              deal={deal}
-              now={MOCK_NOW_MS}
-              onClaim={noop}
-              onShare={noop}
-            />
+            <DealCard key={deal.id} deal={deal} now={MOCK_NOW_MS} />
           ))}
         </div>
       </div>
@@ -240,16 +287,72 @@ export const ListVersusGrid: Story = {
   ),
 };
 
-const productRowDeal = findDeal('keychron-q1-30-off');
-const brandRowDeal = findDeal('cursor-20-credit');
-const artworkRowDeal = findDeal('amazon-10-gift-card');
-const noCaveatRowDeal: Deal = { ...brandRowDeal, caveats: [] };
+/**
+ * The brand is the first thing the row and the card say. A cover photo carries
+ * the mark as a chip over its corner, a brand led offer puts the mark in the
+ * thumbnail itself, and both print the name in bold beside it.
+ */
+export const BrandProminence: Story = {
+  parameters: { layout: 'padded', controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-col gap-6">
+      <SectionLabel>Rows</SectionLabel>
+      <ul className="flex flex-col">
+        {[
+          findDeal('keychron-q1-30-off'),
+          findDeal('cursor-20-credit'),
+          findDeal('amazon-10-gift-card'),
+        ].map((deal) => (
+          <DealListCard key={deal.id} deal={deal} now={MOCK_NOW_MS} />
+        ))}
+      </ul>
+      <SectionLabel>Cards</SectionLabel>
+      <div className="grid gap-6 tablet:grid-cols-3">
+        {[
+          findDeal('keychron-q1-30-off'),
+          findDeal('cursor-20-credit'),
+          findDeal('amazon-10-gift-card'),
+        ].map((deal) => (
+          <DealCard key={deal.id} deal={deal} now={MOCK_NOW_MS} />
+        ))}
+      </div>
+    </div>
+  ),
+};
+
+/**
+ * The link button on a row or a card copies the canonical
+ * `https://app.daily.dev/deals/<slug>`. Click it: the icon swaps to a check
+ * for a second, a toast confirms it, and a live region announces it to a
+ * screen reader.
+ */
+export const CopyLink: Story = {
+  parameters: { layout: 'padded', controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-col gap-6">
+      <SectionLabel>Row</SectionLabel>
+      <ul className="flex flex-col">
+        <DealListCard deal={findDeal('cursor-20-credit')} now={MOCK_NOW_MS} />
+      </ul>
+      <SectionLabel>Card</SectionLabel>
+      <div className="w-80">
+        <DealCard deal={findDeal('cursor-20-credit')} now={MOCK_NOW_MS} />
+      </div>
+    </div>
+  ),
+};
 
 const rowCases: { label: string; deal: Deal }[] = [
-  { label: 'Product photo in the thumbnail slot', deal: productRowDeal },
-  { label: 'Brand logo, no product photo', deal: brandRowDeal },
-  { label: 'Gift card artwork', deal: artworkRowDeal },
-  { label: 'No caveats, the alert row is absent', deal: noCaveatRowDeal },
+  {
+    label: 'Product photo, the brand mark sits over its corner',
+    deal: findDeal('keychron-q1-30-off'),
+  },
+  { label: 'Brand logo, no product photo', deal: findDeal('cursor-20-credit') },
+  { label: 'Gift card artwork', deal: findDeal('amazon-10-gift-card') },
+  {
+    label: 'No caveats, the alert row is absent',
+    deal: { ...findDeal('cursor-20-credit'), caveats: [] },
+  },
   {
     label: 'Expiring, the countdown is the badge',
     deal: getDealsByState(DealState.Expiring)[0],
@@ -284,15 +387,41 @@ export const RowStates: Story = {
         <div key={label} className="flex flex-col gap-1">
           <SectionLabel>{label}</SectionLabel>
           <ul className="flex flex-col">
-            <DealListCard
-              deal={deal}
-              now={MOCK_NOW_MS}
-              onClaim={noop}
-              onShare={noop}
-            />
+            <DealListCard deal={deal} now={MOCK_NOW_MS} onClaim={noop} />
           </ul>
         </div>
       ))}
+    </div>
+  ),
+};
+
+/**
+ * The impact numbers used to be a tall card in a right rail, competing with
+ * the deals for width. Same numbers and same invite progress, now one quiet
+ * strip that closes the page.
+ */
+export const ImpactStrip: Story = {
+  parameters: { layout: 'padded', controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <DealImpactWidget
+        claimedCount={0}
+        totalSavedUsd={0}
+        invitesDone={0}
+        invitesRequired={2}
+      />
+      <DealImpactWidget
+        claimedCount={4}
+        totalSavedUsd={211}
+        invitesDone={1}
+        invitesRequired={2}
+      />
+      <DealImpactWidget
+        claimedCount={12}
+        totalSavedUsd={1480}
+        invitesDone={2}
+        invitesRequired={2}
+      />
     </div>
   ),
 };
@@ -305,8 +434,6 @@ export const PageLevelDisclosure: Story = {
   parameters: { layout: 'padded', controls: { disable: true } },
   render: () => (
     <DealsHero
-      query=""
-      onQueryChange={noop}
       evidence={getDealsDirectoryEvidence(mockDeals.filter(isLiveDeal))}
     />
   ),

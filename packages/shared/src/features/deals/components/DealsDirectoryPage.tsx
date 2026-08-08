@@ -1,9 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Fragment, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import Link from '../../../components/utilities/Link';
 import { Button } from '../../../components/buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import { CharmEmptyState } from '../../../components/charm/CharmEmptyState';
-import { BulletListIcon, CardIcon } from '../../../components/icons';
 import {
   Typography,
   TypographyColor,
@@ -11,28 +12,31 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { cloudinaryCharmSearchNoResults } from '../../../lib/image';
-import usePersistentContext from '../../../hooks/usePersistentContext';
 import { MOCK_NOW_MS } from '../mockDeals';
+import { dealsListAd } from '../mockDealsAds';
 import type { Deal } from '../types';
 import { DealState } from '../types';
-import { getDealsDirectoryEvidence, isLiveDeal } from '../dealsFormat';
+import {
+  DEALS_FILTER_ALL,
+  findDealsFilterByQuery,
+  getDealCategoryPath,
+  getDealsDirectoryEvidence,
+  isLiveDeal,
+  matchesDealFilter,
+} from '../dealsFormat';
 import type { DealsMockState } from '../useDealsMockState';
 import { useDealsMockState } from '../useDealsMockState';
-import { DealCard } from './DealCard';
 import { DealListCard } from './DealListCard';
+import { DealsAdRow } from './DealsAdRow';
 import { DealImpactWidget } from './DealImpactWidget';
-import {
-  DealsFilterBar,
-  DEALS_FILTER_ALL,
-  matchesDealFilter,
-} from './DealsFilterBar';
+import { DealsDirectoryHeader } from './DealsDirectoryHeader';
 import { DealsHero } from './DealsHero';
 import { DealsRail } from './DealsRail';
 
 interface DealsDirectoryPageProps {
   deals: Deal[];
-  /** The set the filter chips are built from, so a faceted page can still link
-   * to every other category while rendering only its own deals. */
+  /** The set the tabs are built from, so a faceted page can still link to
+   * every other category while rendering only its own deals. */
   filterDeals?: Deal[];
   isLoggedOut?: boolean;
   initialQuery?: string;
@@ -42,7 +46,6 @@ interface DealsDirectoryPageProps {
   resultsTitle?: string;
   withRails?: boolean;
   onDealClick?: (deal: Deal) => void;
-  onShare?: (deal: Deal) => void;
   onClaim?: (deal: Deal) => void;
   state?: DealsMockState;
   now?: number;
@@ -54,58 +57,18 @@ interface DealRail {
   deals: Deal[];
 }
 
-export enum DealsLayout {
-  List = 'list',
-  Grid = 'grid',
-}
-
-export const DEALS_LAYOUT_KEY = 'deals_directory_layout';
-
-const layoutOptions: {
-  layout: DealsLayout;
-  label: string;
-  icon: ReactElement;
-}[] = [
-  { layout: DealsLayout.List, label: 'List view', icon: <BulletListIcon /> },
-  { layout: DealsLayout.Grid, label: 'Grid view', icon: <CardIcon /> },
-];
-
-const DealsLayoutToggle = ({
-  layout,
-  onChange,
-}: {
-  layout: DealsLayout;
-  onChange: (next: DealsLayout) => void;
-}): ReactElement => (
-  <div
-    role="group"
-    aria-label="Deal layout"
-    className="flex items-center gap-0.5 rounded-12 bg-surface-float p-0.5"
-  >
-    {layoutOptions.map((option) => (
-      <Button
-        key={option.layout}
-        type="button"
-        size={ButtonSize.XSmall}
-        variant={
-          layout === option.layout
-            ? ButtonVariant.Secondary
-            : ButtonVariant.Tertiary
-        }
-        pressed={layout === option.layout}
-        aria-label={option.label}
-        icon={option.icon}
-        onClick={() => onChange(option.layout)}
-      />
-    ))}
-  </div>
-);
-
 const MY_TAG_CATEGORIES = ['AI tools', 'Dev tools', 'Cloud'];
 
 const SHORTCUT_CATEGORIES = ['AI tools', 'Cloud', 'Hardware', 'Courses'];
 
 const RAIL_SIZE = 8;
+
+/**
+ * The single paid slot in the directory, and the only one on the page. It sits
+ * far enough down that a reader has already scanned real offers, and a shorter
+ * result set simply never reaches it.
+ */
+const DEALS_LIST_AD_INDEX = 6;
 
 const matchesQuery = (deal: Deal, query: string): boolean => {
   const haystack = [deal.title, deal.brand.name, ...deal.categories]
@@ -115,15 +78,16 @@ const matchesQuery = (deal: Deal, query: string): boolean => {
   return haystack.includes(query);
 };
 
-const JoinTeaser = (): ReactElement => (
-  <div className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
-    <Typography tag={TypographyTag.H2} type={TypographyType.Body} bold>
+const JoinStrip = (): ReactElement => (
+  <aside className="flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-4 py-3 laptop:flex-row laptop:items-center laptop:gap-6">
+    <Typography tag={TypographyTag.H2} type={TypographyType.Footnote} bold>
       Join daily.dev to claim deals
     </Typography>
     <Typography
       tag={TypographyTag.P}
-      type={TypographyType.Callout}
+      type={TypographyType.Caption1}
       color={TypographyColor.Tertiary}
+      className="min-w-0 flex-1"
     >
       Browsing is open to everyone. An account keeps your codes in one place and
       unlocks the members only drops.
@@ -132,10 +96,11 @@ const JoinTeaser = (): ReactElement => (
       type="button"
       variant={ButtonVariant.Primary}
       size={ButtonSize.Small}
+      className="shrink-0"
     >
       Join daily.dev
     </Button>
-  </div>
+  </aside>
 );
 
 export const DealsDirectoryPage = ({
@@ -149,46 +114,23 @@ export const DealsDirectoryPage = ({
   resultsTitle = 'All deals',
   withRails = true,
   onDealClick,
-  onShare,
   onClaim,
   state,
   now = MOCK_NOW_MS,
 }: DealsDirectoryPageProps): ReactElement => {
+  const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
   const [filter, setFilter] = useState(initialFilter);
   const [claimMessage, setClaimMessage] = useState('');
-  const [layout, setLayout] = useState(DealsLayout.List);
-  const [storedLayout, setStoredLayout, isStoredLayoutFetched] =
-    usePersistentContext<DealsLayout>(DEALS_LAYOUT_KEY, DealsLayout.List, [
-      DealsLayout.List,
-      DealsLayout.Grid,
-    ]);
-  const hasAdoptedStoredLayout = useRef(false);
   const ownState = useDealsMockState({ now });
   const dealsState = state ?? ownState;
   const { claimedDealIds, impact } = dealsState;
 
   const trimmedQuery = query.trim().toLowerCase();
   const isSearching = trimmedQuery.length > 0;
-
-  // The store seeds the live value exactly once. Reading the layout off it on
-  // every render lets a late cache read overwrite a click the user just made.
-  useEffect(() => {
-    if (!isStoredLayoutFetched || hasAdoptedStoredLayout.current) {
-      return;
-    }
-
-    hasAdoptedStoredLayout.current = true;
-
-    if (storedLayout) {
-      setLayout(storedLayout);
-    }
-  }, [isStoredLayoutFetched, storedLayout]);
-
-  const onLayoutChange = (next: DealsLayout): void => {
-    setLayout(next);
-    setStoredLayout(next);
-  };
+  // A deep link into a cross-cutting filter has to beat the tab click that has
+  // not landed yet, so the URL wins whenever it names one.
+  const activeFilter = findDealsFilterByQuery(router?.query?.filter) ?? filter;
 
   const evidence = useMemo(
     () => getDealsDirectoryEvidence(deals.filter(isLiveDeal)),
@@ -196,8 +138,8 @@ export const DealsDirectoryPage = ({
   );
 
   const filteredDeals = useMemo(
-    () => deals.filter((deal) => matchesDealFilter(deal, filter)),
-    [deals, filter],
+    () => deals.filter((deal) => matchesDealFilter(deal, activeFilter)),
+    [deals, activeFilter],
   );
 
   const results = useMemo(
@@ -265,11 +207,6 @@ export const DealsDirectoryPage = ({
     }, []);
   }, [filteredDeals]);
 
-  const onCategoryShortcut = (category: string): void => {
-    setQuery('');
-    setFilter(category);
-  };
-
   const onClaimDeal = (deal: Deal): void => {
     const claim = dealsState.claimDeal(deal);
 
@@ -283,161 +220,131 @@ export const DealsDirectoryPage = ({
     onClaim?.(deal);
   };
 
-  const onShareDeal = onShare ?? onDealClick;
-
   return (
     <div className="mx-auto w-full max-w-6xl px-4 tablet:px-8 laptop:px-12">
-      <DealsHero
+      <DealsHero heading={heading} intro={intro} evidence={evidence} />
+      <DealsDirectoryHeader
+        deals={filterDeals ?? deals}
+        activeFilter={activeFilter}
+        onFilterChange={setFilter}
         query={query}
         onQueryChange={setQuery}
-        heading={heading}
-        intro={intro}
-        evidence={evidence}
-      />
-      <DealsFilterBar
-        deals={filterDeals ?? deals}
-        activeFilter={filter}
-        onFilterChange={setFilter}
-        withCategoryLinks
-        className="py-2"
       />
 
-      <div className="mt-6 flex flex-col gap-8 pb-16 laptop:flex-row laptop:items-start laptop:gap-8">
-        <div className="flex min-w-0 flex-1 flex-col gap-10">
-          {withRails &&
-            !isSearching &&
-            rails.map(({ title, label, deals: railDeals }) => (
-              <DealsRail
-                key={title}
-                title={title}
-                label={label}
-                deals={railDeals}
-                onDealClick={onDealClick}
-                onClaim={onClaimDeal}
-                onShare={onShareDeal}
-                claimedDealIds={claimedDealIds}
-                now={now}
-              />
-            ))}
+      <div className="mt-6 flex flex-col gap-10 pb-16">
+        {withRails &&
+          !isSearching &&
+          rails.map(({ title, label, deals: railDeals }) => (
+            <DealsRail
+              key={title}
+              title={title}
+              label={label}
+              deals={railDeals}
+              onDealClick={onDealClick}
+              onClaim={onClaimDeal}
+              claimedDealIds={claimedDealIds}
+              now={now}
+            />
+          ))}
 
-          <section className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <Typography
-                tag={TypographyTag.H2}
-                type={TypographyType.Title3}
-                bold
-              >
-                {isSearching ? 'Search results' : resultsTitle}
-              </Typography>
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-                aria-live="polite"
-                className="tabular-nums"
-              >
-                {results.length} {results.length === 1 ? 'deal' : 'deals'}
-                {isSearching ? ` match "${query.trim()}"` : ''}
-              </Typography>
-              <div className="ml-auto">
-                <DealsLayoutToggle layout={layout} onChange={onLayoutChange} />
-              </div>
-            </div>
-
+        <section className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <Typography
-              tag={TypographyTag.P}
-              type={TypographyType.Footnote}
-              color={TypographyColor.StatusSuccess}
-              aria-live="polite"
+              tag={TypographyTag.H2}
+              type={TypographyType.Title3}
+              bold
             >
-              {claimMessage}
+              {isSearching ? 'Search results' : resultsTitle}
             </Typography>
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Footnote}
+              color={TypographyColor.Tertiary}
+              aria-live="polite"
+              className="tabular-nums"
+            >
+              {results.length} {results.length === 1 ? 'deal' : 'deals'}
+              {isSearching ? ` match "${query.trim()}"` : ''}
+            </Typography>
+          </div>
 
-            {results.length > 0 ? (
-              <ul
-                key={layout}
-                className={
-                  layout === DealsLayout.Grid
-                    ? 'animate-deals-results-in grid gap-6 tablet:grid-cols-2 laptopXL:grid-cols-3'
-                    : 'animate-deals-results-in flex flex-col'
+          <Typography
+            tag={TypographyTag.P}
+            type={TypographyType.Footnote}
+            color={TypographyColor.StatusSuccess}
+            aria-live="polite"
+          >
+            {claimMessage}
+          </Typography>
+
+          {results.length > 0 ? (
+            <ul className="animate-deals-results-in flex flex-col">
+              {results.map((deal, index) => (
+                <Fragment key={deal.id}>
+                  {index === DEALS_LIST_AD_INDEX && (
+                    <DealsAdRow ad={dealsListAd} />
+                  )}
+                  <DealListCard
+                    deal={deal}
+                    onClaim={onClaimDeal}
+                    onOpenDetail={onDealClick}
+                    isClaimedByMe={claimedDealIds.has(deal.id)}
+                    now={now}
+                  />
+                </Fragment>
+              ))}
+            </ul>
+          ) : (
+            <div className="flex flex-col items-center gap-4 py-8">
+              <CharmEmptyState
+                className="max-w-[32rem]"
+                image={cloudinaryCharmSearchNoResults}
+                imageAlt="daily.dev charm searching with a magnifying glass"
+                title={
+                  isSearching
+                    ? 'Nothing matches that search'
+                    : 'No deals in this category yet'
                 }
-              >
-                {results.map((deal) =>
-                  layout === DealsLayout.Grid ? (
-                    <li key={deal.id} className="flex">
-                      <DealCard
-                        deal={deal}
-                        onClaim={onClaimDeal}
-                        onOpenDetail={onDealClick}
-                        onShare={onShareDeal}
-                        isClaimedByMe={claimedDealIds.has(deal.id)}
-                        now={now}
-                        className="w-full"
-                      />
-                    </li>
-                  ) : (
-                    <DealListCard
-                      key={deal.id}
-                      deal={deal}
-                      onClaim={onClaimDeal}
-                      onOpenDetail={onDealClick}
-                      onShare={onShareDeal}
-                      isClaimedByMe={claimedDealIds.has(deal.id)}
-                      now={now}
-                    />
-                  ),
-                )}
-              </ul>
-            ) : (
-              <div className="flex flex-col items-center gap-4 py-8">
-                <CharmEmptyState
-                  className="max-w-[32rem]"
-                  image={cloudinaryCharmSearchNoResults}
-                  imageAlt="daily.dev charm searching with a magnifying glass"
-                  title={
-                    isSearching
-                      ? 'Nothing matches that search'
-                      : 'No deals in this category yet'
-                  }
-                  description="No live offer fits yet. Try a broader term or start from another category."
-                />
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  {SHORTCUT_CATEGORIES.map((category) => (
+                description="No live offer fits yet. Try a broader term or start from another category."
+              />
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {SHORTCUT_CATEGORIES.map((category) => (
+                  <Link
+                    key={category}
+                    href={getDealCategoryPath(category)}
+                    passHref
+                  >
                     <Button
-                      key={category}
-                      type="button"
+                      tag="a"
                       size={ButtonSize.Small}
                       variant={ButtonVariant.Float}
-                      onClick={() => onCategoryShortcut(category)}
                     >
                       {category}
                     </Button>
-                  ))}
-                </div>
-                <Button
-                  type="button"
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
-                >
-                  Request a deal
-                </Button>
+                  </Link>
+                ))}
               </div>
-            )}
-          </section>
-        </div>
-
-        <div className="hidden w-80 flex-col gap-4 laptop:flex">
-          {isLoggedOut ? (
-            <JoinTeaser />
-          ) : (
-            <DealImpactWidget
-              claimedCount={impact.claimedCount}
-              totalSavedUsd={impact.savedUsd}
-              invitesDone={impact.invitesDone}
-              invitesRequired={impact.invitesRequired}
-            />
+              <Button
+                type="button"
+                size={ButtonSize.Small}
+                variant={ButtonVariant.Tertiary}
+              >
+                Request a deal
+              </Button>
+            </div>
           )}
-        </div>
+        </section>
+
+        {isLoggedOut ? (
+          <JoinStrip />
+        ) : (
+          <DealImpactWidget
+            claimedCount={impact.claimedCount}
+            totalSavedUsd={impact.savedUsd}
+            invitesDone={impact.invitesDone}
+            invitesRequired={impact.invitesRequired}
+          />
+        )}
       </div>
     </div>
   );

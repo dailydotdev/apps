@@ -10,8 +10,7 @@ import type { ParsedUrlQuery } from 'querystring';
 import type { NextSeoProps } from 'next-seo';
 import { DealShareLanding } from '@dailydotdev/shared/src/features/deals/components/DealShareLanding';
 import { DealBreadcrumbs } from '@dailydotdev/shared/src/features/deals/components/DealBreadcrumbs';
-import { DealEvidence } from '@dailydotdev/shared/src/features/deals/components/DealEvidence';
-import { DealAnsweredQuestions } from '@dailydotdev/shared/src/features/deals/components/DealAnsweredQuestions';
+import { DealShareBar } from '@dailydotdev/shared/src/features/deals/components/DealShareBar';
 import {
   getDealBySlug,
   mockDeals,
@@ -75,29 +74,27 @@ const DealPage = ({
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-8 tablet:px-8">
+    <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-4 py-8 tablet:px-8">
       <DealsSEOSchema jsonLd={jsonLd} />
       <DealBreadcrumbs crumbs={getDealCrumbs(deal)} />
       <DealShareLanding
         deal={deal}
         sharerName={sharerName}
+        comments={comments}
         similarDeals={similarDeals}
         hasEnded={status !== DealPageStatus.Live}
         isSignedIn={!!user}
         isClaimedByMe={dealsState.claimedDealIds.has(deal.id)}
         now={MOCK_NOW_MS}
         onClaim={onClaim}
-        onSelectDeal={(selected) => router.push(`/deals/${selected.slug}`)}
+        onCodeFeedback={(worked) =>
+          dealsState.markCodeFeedback(deal.id, worked)
+        }
         onJoin={() => router.push(onboardingUrl)}
-        className="max-w-none px-0 py-0"
+        shareBar={
+          <DealShareBar deal={deal} username={user?.username ?? undefined} />
+        }
       />
-      <DealEvidence
-        deal={deal}
-        comments={comments}
-        similarDeals={similarDeals}
-        now={MOCK_NOW_MS}
-      />
-      <DealAnsweredQuestions deal={deal} now={MOCK_NOW_MS} />
     </main>
   );
 };

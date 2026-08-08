@@ -17,7 +17,6 @@ import {
   InviteIcon,
   LockIcon,
   OpenLinkIcon,
-  ShareIcon,
   VIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
@@ -40,12 +39,12 @@ import { DealValueBadge } from './DealValueBadge';
 import { DealCoresCost } from './DealCoresCost';
 import { DealCaveatStrip } from './DealCaveatStrip';
 import { DealCommunityProof } from './DealCommunityProof';
+import { DealCopyLinkButton } from './DealCopyLinkButton';
 
 interface DealListCardProps {
   deal: Deal;
   onClaim?: (deal: Deal) => void;
   onOpenDetail?: (deal: Deal) => void;
-  onShare?: (deal: Deal) => void;
   isClaimedByMe?: boolean;
   now?: number;
   className?: string;
@@ -66,18 +65,25 @@ const DealRowThumbnail = ({
 }): ReactElement => {
   const cover = getDealCoverMedia(deal);
 
-  return (
-    <div className="size-16 shrink-0 tablet:size-20">
-      {cover ? (
-        <DealCoverImage
-          media={cover}
-          brand={deal.brand}
-          isMuted={isMuted}
-          className="h-full"
-        />
-      ) : (
+  if (!cover) {
+    return (
+      <div className="size-16 shrink-0 tablet:size-20">
         <DealBrandLogo brand={deal.brand} isMuted={isMuted} isThumbnail />
-      )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative size-16 shrink-0 tablet:size-20">
+      <DealCoverImage
+        media={cover}
+        brand={deal.brand}
+        isMuted={isMuted}
+        className="h-full"
+      />
+      <span className="absolute -bottom-1 -left-1 z-1 size-8">
+        <DealBrandLogo brand={deal.brand} isMuted={isMuted} isThumbnail />
+      </span>
     </div>
   );
 };
@@ -91,7 +97,6 @@ export const DealListCard = ({
   deal,
   onClaim,
   onOpenDetail,
-  onShare,
   isClaimedByMe,
   now,
   className,
@@ -108,9 +113,6 @@ export const DealListCard = ({
   const isMuted = isExpired || isSoldOut;
   const openDetail = onOpenDetail ?? onClaim;
   const savingPhrase = getDealSavingPhrase(deal.value);
-  const metadata = [deal.brand.name, dealTypeToLabel[deal.type]]
-    .filter(Boolean)
-    .join(' · ');
 
   const onTitleClick = (event: MouseEvent<HTMLAnchorElement>): void => {
     if (!openDetail || event.metaKey || event.ctrlKey || event.shiftKey) {
@@ -137,11 +139,18 @@ export const DealListCard = ({
           <div className="flex min-w-0 flex-wrap items-center gap-x-2">
             <Typography
               tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
+              type={TypographyType.Footnote}
+              bold
               truncate
             >
-              {metadata}
+              {deal.brand.name}
+            </Typography>
+            <Typography
+              tag={TypographyTag.Span}
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              {dealTypeToLabel[deal.type]}
             </Typography>
             <DealBadge deal={deal} now={currentMs} />
           </div>
@@ -251,16 +260,7 @@ export const DealListCard = ({
                 {dealTypeToCtaLabel[deal.type]}
               </Button>
             )}
-            {onShare && (
-              <Button
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<ShareIcon />}
-                aria-label={`Share the ${deal.brand.name} deal`}
-                onClick={() => onShare(deal)}
-              />
-            )}
+            <DealCopyLinkButton deal={deal} />
           </div>
         </div>
       </div>

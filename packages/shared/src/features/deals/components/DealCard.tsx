@@ -18,7 +18,6 @@ import {
   InviteIcon,
   LockIcon,
   OpenLinkIcon,
-  ShareIcon,
   VIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
@@ -40,12 +39,12 @@ import { DealBadge } from './DealBadge';
 import { DealValueBadge } from './DealValueBadge';
 import { DealCoresCost } from './DealCoresCost';
 import { DealCaveatStrip } from './DealCaveatStrip';
+import { DealCopyLinkButton } from './DealCopyLinkButton';
 
 interface DealCardProps {
   deal: Deal;
   onClaim?: (deal: Deal) => void;
   onOpenDetail?: (deal: Deal) => void;
-  onShare?: (deal: Deal) => void;
   isClaimedByMe?: boolean;
   now?: number;
   className?: string;
@@ -65,7 +64,6 @@ export const DealCard = ({
   deal,
   onClaim,
   onOpenDetail,
-  onShare,
   isClaimedByMe,
   now,
   className,
@@ -122,8 +120,8 @@ export const DealCard = ({
           <DealBrandLogo brand={deal.brand} isMuted={isMuted} />
           <Typography
             tag={TypographyTag.Span}
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
+            type={TypographyType.Callout}
+            bold
             truncate
             className="min-w-0 flex-1"
           >
@@ -231,16 +229,7 @@ export const DealCard = ({
               {dealTypeToCtaLabel[deal.type]}
             </Button>
           )}
-          {onShare && (
-            <Button
-              type="button"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              icon={<ShareIcon />}
-              aria-label={`Share the ${deal.brand.name} deal`}
-              onClick={() => onShare(deal)}
-            />
-          )}
+          <DealCopyLinkButton deal={deal} />
         </div>
       </div>
     </Card>

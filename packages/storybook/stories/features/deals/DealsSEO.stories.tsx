@@ -1,13 +1,11 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { DealBreadcrumbs } from '@dailydotdev/shared/src/features/deals/components/DealBreadcrumbs';
-import { DealEvidence } from '@dailydotdev/shared/src/features/deals/components/DealEvidence';
 import { DealAnsweredQuestions } from '@dailydotdev/shared/src/features/deals/components/DealAnsweredQuestions';
+import { DealVerification } from '@dailydotdev/shared/src/features/deals/components/DealVerification';
 import { DealsDirectoryPage } from '@dailydotdev/shared/src/features/deals/components/DealsDirectoryPage';
-import { getDealComments } from '@dailydotdev/shared/src/features/deals/mockCommunity';
 import {
   getDealBrandPath,
-  getSimilarDeals,
   isLiveDeal,
 } from '@dailydotdev/shared/src/features/deals/dealsFormat';
 import type { Deal } from '@dailydotdev/shared/src/features/deals/types';
@@ -18,16 +16,16 @@ import {
   withDeals,
 } from './deals.mocks';
 
-const meta: Meta<typeof DealEvidence> = {
+const meta: Meta<typeof DealVerification> = {
   title: 'Features/Deals/SEO surfaces',
-  component: DealEvidence,
+  component: DealVerification,
   parameters: { layout: 'padded', controls: { disable: true } },
   decorators: [withDeals({ isLoggedOut: true })],
 };
 
 export default meta;
 
-type Story = StoryObj<typeof DealEvidence>;
+type Story = StoryObj<typeof DealVerification>;
 
 const noop = (): void => undefined;
 
@@ -63,26 +61,12 @@ export const Breadcrumbs: Story = {
   ),
 };
 
-export const Evidence: Story = {
-  render: () => (
-    <DealEvidence
-      deal={keychron}
-      comments={getDealComments(keychron.id)}
-      similarDeals={getSimilarDeals(keychron, mockDeals, 4)}
-      now={MOCK_NOW_MS}
-    />
-  ),
+export const Verification: Story = {
+  render: () => <DealVerification deal={keychron} now={MOCK_NOW_MS} />,
 };
 
-export const EvidenceOnEndedDeal: Story = {
-  render: () => (
-    <DealEvidence
-      deal={sentry}
-      comments={getDealComments(sentry.id)}
-      similarDeals={getSimilarDeals(sentry, mockDeals, 4)}
-      now={MOCK_NOW_MS}
-    />
-  ),
+export const VerificationOnEndedDeal: Story = {
+  render: () => <DealVerification deal={sentry} now={MOCK_NOW_MS} />,
 };
 
 export const AnsweredQuestions: Story = {

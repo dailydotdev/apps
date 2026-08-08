@@ -87,7 +87,7 @@ const LabelledGrid = ({
         <span className="font-bold uppercase tracking-wider text-text-tertiary typo-caption2">
           {label}
         </span>
-        <DealCard deal={deal} now={MOCK_NOW_MS} onClaim={noop} onShare={noop} />
+        <DealCard deal={deal} now={MOCK_NOW_MS} onClaim={noop} />
       </div>
     ))}
   </div>
@@ -156,7 +156,6 @@ const ClaimFlowDemo = () => {
         deal={deal}
         now={MOCK_NOW_MS}
         onClaim={() => setIsClaimed(true)}
-        onShare={noop}
       />
       {isClaimed && (
         <DealCodeReveal

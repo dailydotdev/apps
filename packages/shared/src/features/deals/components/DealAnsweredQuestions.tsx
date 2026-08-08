@@ -3,7 +3,6 @@ import React from 'react';
 import classNames from 'classnames';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { Summary, SummaryArrow } from '../../../components/utilities/common';
-import { widgetClasses } from '../../../components/widgets/common';
 import {
   Typography,
   TypographyTag,
@@ -15,6 +14,7 @@ import { getDealAnsweredQuestions, getDealAnswerText } from '../dealsFormat';
 interface DealAnsweredQuestionsProps {
   deal: Deal;
   now: number;
+  headingTag?: TypographyTag.H2 | TypographyTag.H3;
   className?: string;
 }
 
@@ -27,6 +27,7 @@ interface DealAnsweredQuestionsProps {
 export const DealAnsweredQuestions = ({
   deal,
   now,
+  headingTag = TypographyTag.H2,
   className,
 }: DealAnsweredQuestionsProps): ReactElement | null => {
   const { isLoggedIn } = useAuthContext();
@@ -38,28 +39,27 @@ export const DealAnsweredQuestions = ({
 
   return (
     <section className={classNames('flex w-full flex-col gap-3', className)}>
-      <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
+      <Typography tag={headingTag} type={TypographyType.Title3} bold>
         Questions about this deal
       </Typography>
-      {questions.map((entry) => (
-        <details
-          key={entry.question}
-          className={classNames(
-            'select-none overflow-hidden px-4 py-0',
-            widgetClasses,
-          )}
-        >
-          <Summary className="-mx-4 px-4 py-3 hover:bg-surface-hover">
-            <div className="flex items-center gap-4 font-bold text-text-primary typo-callout">
-              {entry.question}
-              <SummaryArrow />
-            </div>
-          </Summary>
-          <p className="select-text pb-3 text-text-secondary typo-callout">
-            {getDealAnswerText(entry)}
-          </p>
-        </details>
-      ))}
+      <div className="flex flex-col">
+        {questions.map((entry) => (
+          <details
+            key={entry.question}
+            className="select-none border-b border-border-subtlest-tertiary"
+          >
+            <Summary className="py-3">
+              <div className="flex items-center gap-4 font-bold text-text-primary typo-callout">
+                {entry.question}
+                <SummaryArrow />
+              </div>
+            </Summary>
+            <p className="select-text pb-3 text-text-secondary typo-callout">
+              {getDealAnswerText(entry)}
+            </p>
+          </details>
+        ))}
+      </div>
     </section>
   );
 };

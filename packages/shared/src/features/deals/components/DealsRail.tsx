@@ -16,7 +16,6 @@ interface DealsRailProps {
   label?: string;
   onDealClick?: (deal: Deal) => void;
   onClaim?: (deal: Deal) => void;
-  onShare?: (deal: Deal) => void;
   claimedDealIds?: Set<string>;
   now?: number;
   className?: string;
@@ -28,7 +27,6 @@ export const DealsRail = ({
   label,
   onDealClick,
   onClaim,
-  onShare,
   claimedDealIds,
   now,
   className,
@@ -63,7 +61,6 @@ export const DealsRail = ({
               deal={deal}
               onClaim={onClaim}
               onOpenDetail={onDealClick}
-              onShare={onShare}
               isClaimedByMe={claimedDealIds?.has(deal.id)}
               now={now}
               className="w-full"

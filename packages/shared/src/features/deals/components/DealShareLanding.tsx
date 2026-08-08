@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { Button } from '../../../components/buttons/Button';
@@ -10,42 +10,26 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { fallbackImages } from '../../../lib/config';
-import { DealBrandLogo } from './DealBrandLogo';
-import { DealCoverImage } from './DealCoverImage';
-import { DealBadge } from './DealBadge';
-import { DealValueBadge } from './DealValueBadge';
-import { DealCoresCost } from './DealCoresCost';
-import { DealCaveats } from './DealCaveats';
-import { DealClaimBy } from './DealClaimBy';
-import { DealRedemptionNote } from './DealRedemptionNote';
-import { DealCommunityProof } from './DealCommunityProof';
-import { DealBoostMeter } from './DealBoostMeter';
-import { DealUnlockOptions } from './DealUnlockOptions';
-import { DealCard } from './DealCard';
+import { DealContent, DealContentPresentation } from './DealContent';
 import type { Deal } from '../types';
 import { DealState } from '../types';
-import {
-  dealTypeToCtaLabel,
-  dealTypeToLabel,
-  DEAL_AFFILIATE_DISCLOSURE,
-  DEAL_NO_COMMISSION_DISCLOSURE,
-  getDealCoverMedia,
-  getDealSavingPhrase,
-} from '../dealsFormat';
+import type { DealComment } from '../mockCommunity';
 import { MOCK_NOW_MS } from '../mockDeals';
 
 interface DealShareLandingProps {
   deal: Deal;
   sharerName?: string;
   sharerAvatarUrl?: string;
+  comments?: DealComment[];
   similarDeals?: Deal[];
   hasEnded?: boolean;
   onJoin?: () => void;
   onClaim?: (deal: Deal) => void;
-  onSelectDeal?: (deal: Deal) => void;
+  onCodeFeedback?: (worked: boolean) => void;
   isSignedIn?: boolean;
   isClaimedByMe?: boolean;
   now?: number;
+  shareBar?: ReactNode;
   className?: string;
 }
 
@@ -118,234 +102,71 @@ const JoinWall = ({ onJoin }: { onJoin?: () => void }): ReactElement => (
   </div>
 );
 
+/**
+ * The page presentation of a deal, plus the framing a shared `?ref=` link
+ * carries: who sent it, and the wall a visitor without an account has to pass.
+ * The deal body itself is `DealContent`, the same component the modal renders.
+ */
 export const DealShareLanding = ({
   deal,
   sharerName,
   sharerAvatarUrl,
+  comments,
   similarDeals,
   hasEnded,
   onJoin,
   onClaim,
-  onSelectDeal,
+  onCodeFeedback,
   isSignedIn = false,
   isClaimedByMe = false,
   now = MOCK_NOW_MS,
+  shareBar,
   className,
-}: DealShareLandingProps): ReactElement => {
-  const isExpired = hasEnded ?? deal.state === DealState.Expired;
-  const isLocked = deal.state === DealState.Locked;
-  const liveSimilarDeals = (similarDeals ?? []).slice(0, 2);
-  const cover = getDealCoverMedia(deal);
-  const savingPhrase = getDealSavingPhrase(deal.value);
-  const metadata = [dealTypeToLabel[deal.type], deal.categories[0]]
-    .filter(Boolean)
-    .join(' · ');
-
-  return (
-    <div
-      className={classNames(
-        'mx-auto flex w-full max-w-3xl flex-col gap-8 px-4 py-8 tablet:px-8',
-        className,
-      )}
-    >
-      {sharerName && (
-        <header className="flex items-center gap-3">
-          <img
-            src={sharerAvatarUrl ?? fallbackImages.avatar}
-            alt=""
-            aria-hidden
-            className="size-10 rounded-full object-cover"
-          />
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-          >
-            <strong className="text-text-primary">{sharerName}</strong> shared
-            this deal with you
-          </Typography>
-        </header>
-      )}
-
-      <section className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-6">
-        <div className="flex items-center gap-3">
-          <DealBrandLogo brand={deal.brand} isMuted={isExpired} />
-          <div className="flex flex-1 flex-col gap-1">
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Callout}
-              bold
-            >
-              {deal.brand.name}
-            </Typography>
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-            >
-              {metadata}
-            </Typography>
-          </div>
-          <DealBadge deal={deal} now={now} />
-        </div>
-
-        {cover && (
-          <DealCoverImage
-            media={cover}
-            brand={deal.brand}
-            isMuted={isExpired}
-            isEager
-            showCaption
-            className="aspect-[3/1]"
-          />
-        )}
-
-        <Typography tag={TypographyTag.H1} type={TypographyType.Title1} bold>
-          {deal.title}
-        </Typography>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <DealValueBadge value={deal.value} isMuted={isExpired} />
-          {deal.unlock?.cores && !isExpired && (
-            <DealCoresCost cores={deal.unlock.cores} />
-          )}
-          {savingPhrase && !isExpired && (
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-              className="tabular-nums"
-            >
-              {savingPhrase}
-            </Typography>
-          )}
-          {isExpired && (
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Callout}
-              color={TypographyColor.Quaternary}
-              bold
-            >
-              This deal ended
-            </Typography>
-          )}
-        </div>
-
+}: DealShareLandingProps): ReactElement => (
+  <div className={classNames('flex w-full flex-col gap-8', className)}>
+    {sharerName && (
+      <header className="flex items-center gap-3">
+        <img
+          src={sharerAvatarUrl ?? fallbackImages.avatar}
+          alt=""
+          aria-hidden
+          className="size-10 rounded-full object-cover"
+        />
         <Typography
           tag={TypographyTag.P}
-          type={TypographyType.Body}
+          type={TypographyType.Callout}
           color={TypographyColor.Tertiary}
         >
-          {isExpired
-            ? 'This one closed before you got here. Deals like it come back most months, and the live ones below are open right now.'
-            : deal.description}
+          <strong className="text-text-primary">{sharerName}</strong> shared
+          this deal with you
         </Typography>
+      </header>
+    )}
 
-        <DealCommunityProof
-          community={deal.community}
-          isMuted={isExpired}
-          now={now}
-        />
+    <DealContent
+      deal={deal}
+      presentation={DealContentPresentation.Page}
+      now={now}
+      comments={comments}
+      similarDeals={similarDeals}
+      hasEnded={hasEnded ?? deal.state === DealState.Expired}
+      isSignedIn={isSignedIn}
+      isClaimedByMe={isClaimedByMe}
+      onClaim={onClaim}
+      onJoin={onJoin}
+      onCodeFeedback={onCodeFeedback}
+      shareBar={shareBar}
+    />
 
-        {!isExpired && (
-          <DealCaveats
-            deal={deal}
-            className="border-t border-border-subtlest-tertiary pt-4"
-          />
-        )}
+    {!isSignedIn && <JoinWall onJoin={onJoin} />}
 
-        {!isExpired && <DealClaimBy deal={deal} />}
-
-        {!isExpired && isLocked && (
-          <DealUnlockOptions
-            deal={deal}
-            onUnlock={isSignedIn ? onClaim : () => onJoin?.()}
-          />
-        )}
-
-        {!isExpired &&
-          !isLocked &&
-          (isSignedIn ? (
-            <Button
-              tag="a"
-              href={deal.partnerUrl}
-              target="_blank"
-              rel="sponsored nofollow noopener"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
-              onClick={() => onClaim?.(deal)}
-              className="w-full tablet:w-fit"
-            >
-              {dealTypeToCtaLabel[deal.type]}
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Medium}
-              disabled={isClaimedByMe}
-              onClick={() => onJoin?.()}
-              className="w-full tablet:w-fit"
-            >
-              Claim this deal
-            </Button>
-          ))}
-
-        {!isExpired && <DealRedemptionNote deal={deal} />}
-
-        {!isExpired && deal.boost && <DealBoostMeter boost={deal.boost} />}
-
-        {isSignedIn && (
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Footnote}
-            color={TypographyColor.StatusSuccess}
-            aria-live="polite"
-          >
-            {isClaimedByMe && 'Saved to My coupons.'}
-          </Typography>
-        )}
-
-        <Typography
-          tag={TypographyTag.P}
-          type={TypographyType.Caption1}
-          color={TypographyColor.Quaternary}
-        >
-          {deal.isCommissioned
-            ? DEAL_AFFILIATE_DISCLOSURE
-            : DEAL_NO_COMMISSION_DISCLOSURE}
-        </Typography>
-      </section>
-
-      {isExpired && liveSimilarDeals.length > 0 && (
-        <section className="flex flex-col gap-4">
-          <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
-            Live right now instead
-          </Typography>
-          <div className="grid grid-cols-1 gap-6 tablet:grid-cols-2">
-            {liveSimilarDeals.map((similar) => (
-              <DealCard
-                key={similar.id}
-                deal={similar}
-                onOpenDetail={onSelectDeal}
-                onClaim={isSignedIn ? onClaim : () => onJoin?.()}
-                now={now}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {!isSignedIn && <JoinWall onJoin={onJoin} />}
-
-      <Typography
-        tag={TypographyTag.P}
-        type={TypographyType.Caption1}
-        color={TypographyColor.Quaternary}
-        className="tabular-nums"
-      >
-        This is one of {directoryDealCount} deals for devs on daily.dev.
-      </Typography>
-    </div>
-  );
-};
+    <Typography
+      tag={TypographyTag.P}
+      type={TypographyType.Caption1}
+      color={TypographyColor.Quaternary}
+      className="tabular-nums"
+    >
+      This is one of {directoryDealCount} deals for devs on daily.dev.
+    </Typography>
+  </div>
+);

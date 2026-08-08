@@ -15,6 +15,17 @@ interface AdAttributionProps {
   className?: AdClassName;
 }
 
+export const getAdAttributionText = (
+  ad: Ad,
+  hideAdvertiser: boolean,
+): string => {
+  if (hideAdvertiser) {
+    return 'Ad';
+  }
+
+  return ad.referralLink ? `Promoted by ${ad.source}` : 'Promoted';
+};
+
 export default function AdAttribution({
   ad,
   className,
@@ -26,8 +37,7 @@ export default function AdAttribution({
     className?.main,
   );
 
-  const controlText = ad.referralLink ? `Promoted by ${ad.source}` : 'Promoted';
-  const promotedText = useScrambler(hideAdvertiser ? 'Ad' : controlText);
+  const promotedText = useScrambler(getAdAttributionText(ad, hideAdvertiser));
 
   // The referral link points at the advertiser, so it only ships with the
   // control wording that already names them.

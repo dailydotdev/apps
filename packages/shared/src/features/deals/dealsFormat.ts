@@ -241,6 +241,67 @@ export const findDealBrandBySlug = (
 
 export const getDealPath = (deal: Deal): string => `/deals/${deal.slug}`;
 
+// Absolute so a copied link survives the paste into a chat window.
+export const DEALS_ORIGIN = 'https://app.daily.dev';
+
+export const getDealShareUrl = (deal: Deal): string =>
+  `${DEALS_ORIGIN}${getDealPath(deal)}`;
+
+export const DEALS_DIRECTORY_PATH = '/deals';
+
+export const DEALS_FILTER_ALL = 'All';
+export const DEALS_FILTER_EXPIRING = 'Expiring';
+export const DEALS_FILTER_EXCLUSIVE = 'Exclusive';
+
+/**
+ * A category is a page of its own, but these two cut across every category, so
+ * they stay a query on the directory instead of a route that would publish the
+ * same offers under a second thin URL.
+ */
+const specialFilterToQuery: Record<string, string> = {
+  [DEALS_FILTER_EXPIRING]: 'expiring',
+  [DEALS_FILTER_EXCLUSIVE]: 'exclusive',
+};
+
+export const getDealsFilterPath = (filter: string): string => {
+  const query = specialFilterToQuery[filter];
+
+  return query
+    ? `${DEALS_DIRECTORY_PATH}?filter=${query}`
+    : DEALS_DIRECTORY_PATH;
+};
+
+export const findDealsFilterByQuery = (
+  value: string | string[] | undefined,
+): string | undefined => {
+  const raw = Array.isArray(value) ? value[0] : value;
+
+  return Object.keys(specialFilterToQuery).find(
+    (filter) => specialFilterToQuery[filter] === raw,
+  );
+};
+
+export const getDealCategories = (deals: Deal[]): string[] =>
+  Array.from(new Set(deals.flatMap((deal) => deal.categories))).sort((a, b) =>
+    a.localeCompare(b),
+  );
+
+export const matchesDealFilter = (deal: Deal, filter: string): boolean => {
+  if (filter === DEALS_FILTER_ALL) {
+    return true;
+  }
+
+  if (filter === DEALS_FILTER_EXPIRING) {
+    return deal.state === DealState.Expiring;
+  }
+
+  if (filter === DEALS_FILTER_EXCLUSIVE) {
+    return deal.type === DealType.Exclusive;
+  }
+
+  return deal.categories.includes(filter);
+};
+
 export const getDealAvailability = (deal: Deal): DealAvailability => {
   if (deal.state === DealState.SoldOut) {
     return DealAvailability.SoldOut;

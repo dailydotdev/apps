@@ -95,7 +95,6 @@ const DealsPage = ({ deals, jsonLd }: DealsPageProps): ReactElement => {
           state={dealsState}
           now={MOCK_NOW_MS}
           onDealClick={setSelectedDeal}
-          onShare={setSelectedDeal}
           onClaim={onClaimed}
         />
       ) : (

@@ -73,7 +73,6 @@ const DealBrandPage = ({
         state={dealsState}
         now={MOCK_NOW_MS}
         onDealClick={setSelectedDeal}
-        onShare={setSelectedDeal}
       />
 
       {selectedDeal && (

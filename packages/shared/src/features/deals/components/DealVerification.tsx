@@ -19,6 +19,8 @@ export const DEAL_VERIFICATION_HEADING = 'How this was verified';
 interface DealVerificationProps {
   deal: Deal;
   now: number;
+  headingTag?: TypographyTag.H2 | TypographyTag.H3;
+  action?: ReactNode;
   className?: string;
 }
 
@@ -29,39 +31,33 @@ const Stat = ({
   label: string;
   children: ReactNode;
 }): ReactElement => (
-  <div className="flex flex-col gap-1 rounded-12 bg-surface-float p-3">
-    <Typography
-      tag={TypographyTag.Span}
-      type={TypographyType.Caption1}
-      color={TypographyColor.Tertiary}
-    >
-      {label}
-    </Typography>
-    <Typography
-      tag={TypographyTag.Span}
-      type={TypographyType.Title3}
-      bold
-      className="tabular-nums"
-    >
+  <div className="flex flex-col gap-0.5">
+    <dt className="text-text-tertiary typo-caption1">{label}</dt>
+    <dd className="font-bold tabular-nums text-text-primary typo-title3">
       {children}
-    </Typography>
+    </dd>
   </div>
 );
 
 export const DealVerification = ({
   deal,
   now,
+  headingTag = TypographyTag.H2,
+  action,
   className,
 }: DealVerificationProps): ReactElement => {
   const verification = getDealVerification(deal, now);
   const isRated = hasRatedWorksRate(deal.community);
 
   return (
-    <section className={classNames('flex flex-col gap-3', className)}>
-      <Typography tag={TypographyTag.H2} type={TypographyType.Title3} bold>
-        {DEAL_VERIFICATION_HEADING}
-      </Typography>
-      <div className="grid grid-cols-2 gap-3 tablet:grid-cols-4">
+    <div className={classNames('flex flex-col gap-3', className)}>
+      <div className="flex items-center justify-between gap-3">
+        <Typography tag={headingTag} type={TypographyType.Title3} bold>
+          {DEAL_VERIFICATION_HEADING}
+        </Typography>
+        {action}
+      </div>
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-4 border-y border-border-subtlest-tertiary py-4 tablet:grid-cols-4">
         <Stat label="Developers claimed it">{verification.claimsLabel}</Stat>
         <Stat label={isRated ? 'Reported it worked' : 'Success rate'}>
           {verification.worksRateLabel}
@@ -72,7 +68,7 @@ export const DealVerification = ({
           </time>
         </Stat>
         <Stat label="Typical saving">{verification.savingLabel}</Stat>
-      </div>
+      </dl>
       <Typography
         tag={TypographyTag.P}
         type={TypographyType.Callout}
@@ -92,6 +88,6 @@ export const DealVerification = ({
         ({verification.verifiedLabel}). This page was updated on{' '}
         <time dateTime={deal.updatedAt}>{formatDealDate(deal.updatedAt)}</time>.
       </Typography>
-    </section>
+    </div>
   );
 };
