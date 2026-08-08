@@ -167,6 +167,7 @@ const renderComponent = (
     toggleOpenNewTab: jest.fn().mockResolvedValue(undefined),
     insaneMode: false,
     loadedSettings: true,
+    isRemoteSettingsLoaded: true,
     toggleInsaneMode: jest.fn().mockResolvedValue(undefined),
     showTopSites: true,
     toggleShowTopSites: jest.fn().mockResolvedValue(undefined),

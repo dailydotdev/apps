@@ -109,7 +109,7 @@ export const StreakBadge = ({
       className={classNames(
         // Matches the shared rail glyph box, so the ring is never wider than
         // the icons beside it (see railGlyphBoxClass).
-        'relative flex size-[1.625rem] items-center justify-center',
+        'relative flex size-6 items-center justify-center',
         className,
       )}
     >

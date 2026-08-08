@@ -182,6 +182,11 @@ export const BootDataProvider = ({
 
   const isBootReady = isFetched && !isError;
   const loadedFromCache = !!cachedBootData;
+  // `isBootReady` flips a commit before the response reaches `cachedBootData`
+  // (child effects run before this provider's), so consumers that need the
+  // settings themselves to be fresh, not merely present, read this instead.
+  // It is set where the response is written into the cached data.
+  const [isRemoteBootApplied, setIsRemoteBootApplied] = useState(false);
   const {
     user,
     settings,
@@ -308,6 +313,7 @@ export const BootDataProvider = ({
         setDailyOverride(remoteData.daily);
       }
       updateBootData(remoteData);
+      setIsRemoteBootApplied(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remoteData]);
@@ -399,6 +405,7 @@ export const BootDataProvider = ({
         <SettingsContextProvider
           settings={settings}
           loadedSettings={loadedFromCache}
+          isRemoteSettingsLoaded={isRemoteBootApplied}
           updateSettings={updateSettings}
         >
           <EngagementAdsProvider rawCreatives={remoteData?.engagementCreatives}>
