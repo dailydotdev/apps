@@ -41,6 +41,17 @@ The other pole of the category (vs Honey's utility pole), and the closer cultura
 
 **Design consequences adopted in the spec:** every offer carries a "Why it's worth it" reasoning blurb (Wirecutter's explain-the-pick rule, adapted to community voice); a "Community picks" tier exists independent of monetization (picks are never pay-to-play; promoted slots are separate and labeled); deal pages are indexable editorial objects, not thin coupon pages.
 
+## 2c. PartnerStack — the network we actually run on
+
+daily.dev's affiliate program is on **PartnerStack**, so its marketplace is not just inspiration, it is the shape of the supply we will be listing. Two things in its [program directory](https://market.partnerstack.com/) are worth copying and one is worth resisting.
+
+- **The category browser sits between the hero and the grid.** The page opens on "Explore. Earn. Excel.", then a category browser, then the listings. Discovery is a two-step: pick a shelf, then read the shelf. We adopted this literally — `DealsCategoryGrid` renders above the results list on `/deals`.
+- **The reward is the bolded line on every card.** A PartnerStack listing is logo, name, a two-sentence description, and then the money in bold: *"Earn $100 + up to 20% recurring commission."* No category tag, no secondary metadata competing with it. Our category tiles carry the same hierarchy: marks, name, then the best saving in the category in bold green, then the count.
+- **Alongside categories it offers Featured / Trending / Recently added** as collection entry points. We do not copy these as a second row: our tab strip already carries Expiring and Exclusive, and Trending is a badge on the rows.
+- **What not to copy:** PartnerStack's own top-level marketing page has no marketplace filters at all — discovery there is guided by a nav dropdown. That works for 250 B2B programs sold to affiliates; it fails for a reader who arrived from search wanting one keyboard discount.
+
+**Catalogue consequence:** the mix skews to what devs actually buy with their own money — hardware and gadgets lead, courses second, dev tools and SaaS present but no longer the bulk. `getDealCategorySummaries` sorts the browser by shelf weight rather than alphabetically, so the catalogue's centre of gravity is the first thing on screen.
+
 ## 3. Why daily.dev wins this category (thesis)
 
 1. **Audience-offer fit is unfair.** Devs already trust daily.dev for tool discovery; a Cursor credit or JetBrains discount inside the feed is native content, not an ad.

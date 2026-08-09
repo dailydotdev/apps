@@ -102,6 +102,7 @@ export enum DealCaveatKind {
   CreditExpires = 'credit_expires',
   NewCustomersOnly = 'new_customers_only',
   AnnualPlanOnly = 'annual_plan_only',
+  PriceCanChange = 'price_can_change',
   DoesNotStack = 'does_not_stack',
   CardRequired = 'card_required',
   AutoRenews = 'auto_renews',

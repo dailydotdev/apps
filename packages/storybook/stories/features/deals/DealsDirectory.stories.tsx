@@ -7,6 +7,7 @@ import { DealsRail } from '@dailydotdev/shared/src/features/deals/components/Dea
 import { DealListCard } from '@dailydotdev/shared/src/features/deals/components/DealListCard';
 import { DealCard } from '@dailydotdev/shared/src/features/deals/components/DealCard';
 import { DealsHero } from '@dailydotdev/shared/src/features/deals/components/DealsHero';
+import { DealsCategoryGrid } from '@dailydotdev/shared/src/features/deals/components/DealsCategoryGrid';
 import { DealImpactWidget } from '@dailydotdev/shared/src/features/deals/components/DealImpactWidget';
 import { MyCouponsWallet } from '@dailydotdev/shared/src/features/deals/components/MyCouponsWallet';
 import type { Deal } from '@dailydotdev/shared/src/features/deals/types';
@@ -172,12 +173,24 @@ const DirectoryHeaderDemo = () => {
  * Categories are links to `/deals/c/<slug>`, so a crawler that never clicks a
  * filter still reaches every faceted page. Expiring and Exclusive cut across
  * every category, so they stay a query on the directory rather than a second
- * thin URL for the same offers. Check this at `mobile`: the search field sits
- * above the tabs and the tab row scrolls on its own.
+ * thin URL for the same offers. The strip is the same page-header navbar the
+ * squads, tags and explore directories use. Check this at `mobile`: the tab
+ * row scrolls on its own beside a narrower search field.
  */
 export const Header: Story = {
   parameters: { layout: 'padded', controls: { disable: true } },
   render: () => <DirectoryHeaderDemo />,
+};
+
+/**
+ * The category browser, borrowed from how the PartnerStack marketplace opens:
+ * a tile per category with the reward stated before the name is even read.
+ * Heaviest shelf first, so the catalogue's centre of gravity is the first
+ * thing on screen, and every tile is a real link to its faceted page.
+ */
+export const CategoryGrid: Story = {
+  parameters: { layout: 'padded', controls: { disable: true } },
+  render: () => <DealsCategoryGrid deals={mockDeals.filter(isLiveDeal)} />,
 };
 
 const ForYouRailDemo = () => {

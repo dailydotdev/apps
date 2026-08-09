@@ -30,6 +30,7 @@ import { useDealsMockState } from '../useDealsMockState';
 import type { DealCrumb } from './DealBreadcrumbs';
 import { DealBreadcrumbs } from './DealBreadcrumbs';
 import { DealListCard } from './DealListCard';
+import { DealsCategoryGrid } from './DealsCategoryGrid';
 import { DealsAdRow } from './DealsAdRow';
 import { DealImpactWidget } from './DealImpactWidget';
 import { DealsDirectoryHeader } from './DealsDirectoryHeader';
@@ -189,6 +190,10 @@ export const DealsDirectoryPage = ({
     !isSearching &&
     forYouDeals.length >= MIN_FOR_YOU_RAIL_DEALS;
 
+  // A category browser on a category page is a list of the ways out of it.
+  const hasCategoryGrid =
+    activeFilter === DEALS_FILTER_ALL && !isSearching && !filterCopy;
+
   const onClaimDeal = (deal: Deal): void => {
     const claim = dealsState.claimDeal(deal);
 
@@ -232,6 +237,10 @@ export const DealsDirectoryPage = ({
               trendingDealIds={trendingDealIds}
               now={now}
             />
+          )}
+
+          {hasCategoryGrid && (
+            <DealsCategoryGrid deals={filterDeals ?? deals} />
           )}
 
           <section className="flex flex-col gap-4">

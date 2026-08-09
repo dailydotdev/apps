@@ -497,6 +497,56 @@ export const getDealCategories = (deals: Deal[]): string[] =>
     a.localeCompare(b),
   );
 
+export interface DealCategorySummary {
+  category: string;
+  path: string;
+  count: number;
+  /** The marks that make the category recognisable before its name is read. */
+  brands: DealBrand[];
+  topSavingsUsd: number;
+}
+
+/** Enough marks to identify a category, few enough to stay a row and not a set. */
+const CATEGORY_SUMMARY_BRANDS = 3;
+
+/**
+ * Heaviest category first. The catalogue leans hardware, and a browser that
+ * sorted alphabetically would open on the thinnest shelf in the shop.
+ */
+export const getDealCategorySummaries = (
+  deals: Deal[],
+): DealCategorySummary[] => {
+  const byCategory = deals.reduce<Record<string, Deal[]>>(
+    (grouped, deal) =>
+      deal.categories.reduce(
+        (acc, category) => ({
+          ...acc,
+          [category]: [...(acc[category] ?? []), deal],
+        }),
+        grouped,
+      ),
+    {},
+  );
+
+  return Object.entries(byCategory)
+    .map(([category, categoryDeals]) => ({
+      category,
+      path: getDealCategoryPath(category),
+      count: categoryDeals.length,
+      brands: getDealBrands(categoryDeals).slice(0, CATEGORY_SUMMARY_BRANDS),
+      topSavingsUsd: categoryDeals.reduce(
+        (top, deal) => Math.max(top, deal.value.savingsUsd ?? 0),
+        0,
+      ),
+    }))
+    .sort(
+      (a, b) =>
+        b.count - a.count ||
+        b.topSavingsUsd - a.topSavingsUsd ||
+        a.category.localeCompare(b.category),
+    );
+};
+
 export const matchesDealFilter = (deal: Deal, filter: string): boolean => {
   if (filter === DEALS_FILTER_ALL) {
     return true;
@@ -656,14 +706,15 @@ const caveatRank: Record<DealCaveatKind, number> = {
   [DealCaveatKind.CreditExpires]: 0,
   [DealCaveatKind.NewCustomersOnly]: 1,
   [DealCaveatKind.AnnualPlanOnly]: 2,
-  [DealCaveatKind.DoesNotStack]: 3,
-  [DealCaveatKind.CardRequired]: 4,
-  [DealCaveatKind.AutoRenews]: 5,
-  [DealCaveatKind.MinimumSpend]: 6,
-  [DealCaveatKind.SeatLimit]: 7,
-  [DealCaveatKind.AccountAgeRequired]: 8,
-  [DealCaveatKind.RegionLimited]: 9,
-  [DealCaveatKind.SingleUse]: 10,
+  [DealCaveatKind.PriceCanChange]: 3,
+  [DealCaveatKind.DoesNotStack]: 4,
+  [DealCaveatKind.CardRequired]: 5,
+  [DealCaveatKind.AutoRenews]: 6,
+  [DealCaveatKind.MinimumSpend]: 7,
+  [DealCaveatKind.SeatLimit]: 8,
+  [DealCaveatKind.AccountAgeRequired]: 9,
+  [DealCaveatKind.RegionLimited]: 10,
+  [DealCaveatKind.SingleUse]: 11,
 };
 
 export const DEAL_CAVEATS_HEADING = 'Worth knowing before you claim';
