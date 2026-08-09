@@ -9,7 +9,7 @@ import {
   VIEW_HEIGHT,
   VIEW_WIDTH,
 } from '../thinkingOrb';
-import { markPaths, markRingAlpha } from '../logoMark';
+import { markAlphas, markPaths } from '../../../svg/logoGeometry';
 import { usePrefersReducedMotion } from '../../giveback/useGivebackMotion';
 
 /**
@@ -82,7 +82,7 @@ export const AgentThinkingOrb = ({
 
       if (weight > 0) {
         paths.forEach((path, index) => {
-          ctx.globalAlpha = weight * markRingAlpha[index];
+          ctx.globalAlpha = weight * markAlphas[index];
           ctx.fill(path);
         });
       }

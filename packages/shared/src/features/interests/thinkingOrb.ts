@@ -1,5 +1,6 @@
 import type { Grain } from './logoMark';
-import { MARK_HEIGHT, MARK_WIDTH, markGrains, markRingAlpha } from './logoMark';
+import { markGrains } from './logoMark';
+import { markAlphas, MARK_HEIGHT, MARK_WIDTH } from '../../svg/logoGeometry';
 
 /**
  * The motion behind the agent's thinking indicator.
@@ -194,7 +195,7 @@ export const placeGrains = (
       y: lerp(grain.y, CENTRE_Y + tiltedY * depth, f),
       radius: lerp(rest, tip * depth * thrown.size, f) * grow,
       alpha:
-        markRingAlpha[grain.ring] *
+        markAlphas[grain.ring] *
         lerp(1, Math.min(1, depth ** DEPTH_FADE) * thrown.alpha, f),
       depth,
     };
