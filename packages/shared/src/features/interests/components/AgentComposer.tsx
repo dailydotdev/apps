@@ -1,5 +1,6 @@
 import type { ComponentType, ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
+import classNames from 'classnames';
 import type { BorderBeamProps } from 'border-beam';
 import {
   Button,
@@ -49,6 +50,22 @@ export const composerBar =
   'relative shrink-0 px-5 pb-4 tablet:px-8 tablet:pb-5 laptop:px-10';
 export const composerFrame =
   'relative min-h-12 justify-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-3 py-2 transition-colors focus-within:border-border-subtlest-secondary';
+/**
+ * The column the bar's contents sit in. Shared so the field, the agents home and
+ * the loading skeleton cannot drift: the skeleton had the frame without this and
+ * spanned the whole window while the real one stopped at the transcript's width.
+ */
+export const composerColumn = 'relative mx-auto w-full max-w-[45rem]';
+/**
+ * The first line of the field, and anything that has to sit on it.
+ *
+ * The send button is taller than a line of text, and the row bottom-aligns them
+ * so a prompt six lines long does not leave it hovering in the middle of the
+ * text. That left a single line sitting 6px below the frame's centre, so the
+ * line box is padded out to the button's height instead of the text being
+ * dragged down to meet it.
+ */
+const fieldLine = 'min-h-8 py-1.5';
 
 /** The `@thing` being typed at the caret, if there is one. */
 const mentionQuery = (value: string): string | undefined =>
@@ -350,7 +367,7 @@ export const AgentComposer = (): ReactElement => {
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-full -mb-px h-12 bg-gradient-to-t from-background-default to-transparent"
       />
-      <FlexCol className="relative mx-auto w-full max-w-[45rem] gap-2">
+      <FlexCol className={classNames(composerColumn, 'gap-2')}>
         {isMenuOpen && (
           <AgentComposerMenu
             label={isCommandMenu ? 'Commands' : 'Add context'}
@@ -432,7 +449,7 @@ export const AgentComposer = (): ReactElement => {
                       back, which is where the hand already is. */}
                     <span
                       ref={measureCommand}
-                      className="pointer-events-auto absolute left-0 top-0 whitespace-nowrap text-brand-default typo-callout"
+                      className="pointer-events-auto absolute left-0 top-1.5 whitespace-nowrap text-brand-default typo-callout"
                     >
                       /{command.name}
                     </span>
@@ -446,7 +463,10 @@ export const AgentComposer = (): ReactElement => {
                   aria-label="Tell the agent what to change"
                   placeholder={placeholder}
                   value={feedback}
-                  className="block w-full resize-none bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
+                  className={classNames(
+                    'block w-full resize-none bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary',
+                    fieldLine,
+                  )}
                   style={{ textIndent: commandIndent }}
                   onChange={(event) => {
                     setFeedback(event.target.value);

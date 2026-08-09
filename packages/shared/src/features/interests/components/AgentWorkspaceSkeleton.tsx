@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { useAgentShellHeight } from '../shell';
-import { composerBar, composerFrame } from './AgentComposer';
+import { composerBar, composerColumn, composerFrame } from './AgentComposer';
 
 const Block = ({ className }: { className: string }): ReactElement => (
   <ElementPlaceholder
@@ -78,7 +78,9 @@ export const AgentWorkspaceSkeleton = ({
       </div>
 
       <div className={composerBar}>
-        <div className={classNames(composerFrame, 'flex')}>
+        {/* The same column the real field stands in, or the loading bar spans
+            the whole window and the frame jumps inward when it lands. */}
+        <div className={classNames(composerColumn, composerFrame, 'flex')}>
           {/* Full width so the bar sits where the placeholder text does: the
               frame centres its children, and a centred stub reads as a button. */}
           <span className="flex w-full items-center">

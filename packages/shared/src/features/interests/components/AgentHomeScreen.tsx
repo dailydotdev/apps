@@ -30,7 +30,7 @@ import {
   stateMeaning,
   toMonitorItems,
 } from './AgentMonitor';
-import { composerBar, composerFrame } from './AgentComposer';
+import { composerBar, composerColumn, composerFrame } from './AgentComposer';
 
 const maxFieldHeight = 120;
 
@@ -347,7 +347,7 @@ export const AgentHomeScreen = ({
           aria-hidden
           className="pointer-events-none absolute inset-x-0 bottom-full -mb-px h-12 bg-gradient-to-t from-background-default to-transparent"
         />
-        <FlexCol className="relative mx-auto w-full max-w-[45rem] gap-2">
+        <FlexCol className={classNames(composerColumn, 'gap-2')}>
           <FlexCol className={composerFrame}>
             <FlexRow className="items-center gap-1.5">
               <textarea

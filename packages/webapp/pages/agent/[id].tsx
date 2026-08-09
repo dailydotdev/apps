@@ -105,20 +105,19 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
     return null;
   }
 
-  // The interest is what the whole page is about, and its findings are what the
-  // opening turn cites, so there is nothing honest to draw until both land. The
-  // skeleton holds the shape rather than the page showing an agent with no name
-  // and a conversation with no turns.
-  if (user && (interestQuery.isPending || feed.isPending)) {
-    return (
-      <ProtectedPage>
-        <AgentWorkspaceSkeleton />
-      </ProtectedPage>
-    );
-  }
+  // Only before the agent itself has ever arrived, and tied to not having it
+  // rather than to a pending flag: every refetch — sending a command, the window
+  // regaining focus — turns pending back on, and drawing the skeleton again on
+  // one of those would take the conversation down with it.
+  const isLoading =
+    !!user && !interest && (interestQuery.isPending || feed.isPending);
 
   return (
     <ProtectedPage>
+      {/* The provider wraps the skeleton too, so it mounts once per agent. It
+          owns the transcript, and it used to sit in the other branch of this
+          decision — which meant anything the reader had typed was destroyed the
+          moment a background refetch flipped the page back to loading. */}
       <AgentProvider
         id={id}
         interest={interest}
@@ -126,12 +125,16 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
         initialMessages={initialMessages}
         key={id}
       >
-        <AgentWorkspace
-          items={feed.items}
-          postsCount={posts.length}
-          onDelete={() => deleteInterest(id)}
-          isDeleting={isDeleting}
-        />
+        {isLoading ? (
+          <AgentWorkspaceSkeleton />
+        ) : (
+          <AgentWorkspace
+            items={feed.items}
+            postsCount={posts.length}
+            onDelete={() => deleteInterest(id)}
+            isDeleting={isDeleting}
+          />
+        )}
       </AgentProvider>
     </ProtectedPage>
   );
