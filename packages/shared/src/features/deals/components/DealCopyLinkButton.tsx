@@ -24,7 +24,7 @@ export const DealCopyLinkButton = ({
       <Button
         type="button"
         variant={ButtonVariant.Float}
-        size={ButtonSize.Small}
+        size={ButtonSize.Medium}
         icon={isCopied ? <VIcon secondary /> : <LinkIcon />}
         aria-label={`Copy the link to the ${deal.brand.name} deal`}
         onClick={() => copyLink({ message: '✅ Copied link to clipboard' })}

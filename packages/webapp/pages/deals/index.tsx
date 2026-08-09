@@ -2,21 +2,9 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import type { GetStaticPropsResult } from 'next';
 import type { NextSeoProps } from 'next-seo';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
-import {
-  Typography,
-  TypographyColor,
-  TypographyTag,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
 import { DealsDirectoryPage } from '@dailydotdev/shared/src/features/deals/components/DealsDirectoryPage';
 import { DealDetailModal } from '@dailydotdev/shared/src/features/deals/components/DealDetailModal';
 import { DealShareBar } from '@dailydotdev/shared/src/features/deals/components/DealShareBar';
-import { MyCouponsWallet } from '@dailydotdev/shared/src/features/deals/components/MyCouponsWallet';
 import {
   mockDeals,
   MOCK_NOW_MS,
@@ -44,15 +32,7 @@ interface DealsPageProps {
   jsonLd: string;
 }
 
-type DealsTab = 'directory' | 'wallet';
-
-const tabs: { id: DealsTab; label: string }[] = [
-  { id: 'directory', label: 'Directory' },
-  { id: 'wallet', label: 'My coupons' },
-];
-
 const DealsPage = ({ deals, jsonLd }: DealsPageProps): ReactElement => {
-  const [activeTab, setActiveTab] = useState<DealsTab>('directory');
   const [selectedDeal, setSelectedDeal] = useState<Deal>();
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
@@ -72,57 +52,13 @@ const DealsPage = ({ deals, jsonLd }: DealsPageProps): ReactElement => {
   return (
     <div className="flex w-full flex-col">
       <DealsSEOSchema jsonLd={jsonLd} />
-      <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-2 px-4 pt-4 tablet:px-8 laptop:px-12">
-        {tabs.map(({ id, label }) => (
-          <Button
-            key={id}
-            type="button"
-            size={ButtonSize.Small}
-            variant={
-              activeTab === id ? ButtonVariant.Secondary : ButtonVariant.Float
-            }
-            pressed={activeTab === id}
-            onClick={() => setActiveTab(id)}
-          >
-            {label}
-          </Button>
-        ))}
-      </div>
-
-      {activeTab === 'directory' ? (
-        <DealsDirectoryPage
-          deals={deals}
-          state={dealsState}
-          now={MOCK_NOW_MS}
-          onDealClick={setSelectedDeal}
-          onClaim={onClaimed}
-        />
-      ) : (
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 tablet:px-8 laptop:px-12">
-          <div className="flex flex-col gap-1">
-            <Typography
-              tag={TypographyTag.H1}
-              type={TypographyType.Title2}
-              bold
-            >
-              My coupons
-            </Typography>
-            <Typography
-              tag={TypographyTag.P}
-              type={TypographyType.Callout}
-              color={TypographyColor.Tertiary}
-            >
-              Every code, credit and free month you claimed, in one place.
-            </Typography>
-          </div>
-          <MyCouponsWallet
-            claims={dealsState.claims}
-            deals={mockDeals}
-            now={MOCK_NOW_MS}
-            onBrowse={() => setActiveTab('directory')}
-          />
-        </div>
-      )}
+      <DealsDirectoryPage
+        deals={deals}
+        state={dealsState}
+        now={MOCK_NOW_MS}
+        onDealClick={setSelectedDeal}
+        onClaim={onClaimed}
+      />
 
       {selectedDeal && (
         <DealDetailModal

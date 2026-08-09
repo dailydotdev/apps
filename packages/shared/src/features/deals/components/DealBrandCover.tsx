@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { DealBrand } from '../types';
-import { DealBrandLogo } from './DealBrandLogo';
+import { DealBrandLogo, DealBrandTileSize } from './DealBrandLogo';
 
 interface DealBrandCoverProps {
   brand: DealBrand;
@@ -37,8 +37,10 @@ export const DealBrandCover = ({
         }}
       />
     )}
-    <span className="relative size-12">
-      <DealBrandLogo brand={brand} isMuted={isMuted} isThumbnail />
-    </span>
+    <DealBrandLogo
+      brand={brand}
+      isMuted={isMuted}
+      size={DealBrandTileSize.Cover}
+    />
   </div>
 );

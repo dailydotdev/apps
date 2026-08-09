@@ -13,8 +13,8 @@ import { CoreIcon, InviteIcon, LockIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type { Deal } from '../types';
 import {
-  DEAL_INVITE_CTA_LABEL,
-  getDealCoresCtaLabel,
+  DEAL_CORES_UNLOCK_LABEL,
+  DEAL_INVITE_UNLOCK_LABEL,
   getDealUnlockSummary,
 } from '../dealsFormat';
 import { DealInviteCount, DealInviteProgress } from './DealInviteProgress';
@@ -66,7 +66,7 @@ export const DealUnlockOptions = ({
             icon={<CoreIcon />}
             onClick={() => onUnlock?.(deal)}
           >
-            {getDealCoresCtaLabel(cores)}
+            {DEAL_CORES_UNLOCK_LABEL}
           </Button>
         )}
         {invites && (
@@ -77,7 +77,7 @@ export const DealUnlockOptions = ({
             icon={<InviteIcon />}
             onClick={() => onUnlock?.(deal)}
           >
-            {DEAL_INVITE_CTA_LABEL}
+            {DEAL_INVITE_UNLOCK_LABEL}
           </Button>
         )}
       </div>

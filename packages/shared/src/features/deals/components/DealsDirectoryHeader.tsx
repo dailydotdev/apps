@@ -8,6 +8,8 @@ import {
   DEALS_FILTER_ALL,
   DEALS_FILTER_EXCLUSIVE,
   DEALS_FILTER_EXPIRING,
+  DEALS_MY_COUPONS_PATH,
+  DEALS_TAB_MY_COUPONS,
   getDealCategories,
   getDealCategoryPath,
   getDealsFilterPath,
@@ -19,8 +21,9 @@ interface DealsDirectoryHeaderProps {
   deals: Deal[];
   activeFilter: string;
   onFilterChange: (filter: string) => void;
-  query: string;
-  onQueryChange: (query: string) => void;
+  /** Omitted on the wallet route, where a deals search would filter nothing. */
+  query?: string;
+  onQueryChange?: (query: string) => void;
   className?: string;
 }
 
@@ -44,6 +47,7 @@ export const DealsDirectoryHeader = ({
     // The two cross-cutting tabs sit before the categories because the tab row
     // scrolls on every width we ship, and a filter nobody scrolls to is gone.
     return {
+      [DEALS_TAB_MY_COUPONS]: DEALS_MY_COUPONS_PATH,
       [DEALS_FILTER_ALL]: getDealsFilterPath(DEALS_FILTER_ALL),
       [DEALS_FILTER_EXPIRING]: getDealsFilterPath(DEALS_FILTER_EXPIRING),
       [DEALS_FILTER_EXCLUSIVE]: getDealsFilterPath(DEALS_FILTER_EXCLUSIVE),
@@ -52,9 +56,9 @@ export const DealsDirectoryHeader = ({
   }, [deals]);
 
   return (
-    <div
+    <header
       className={classNames(
-        'flex flex-col-reverse gap-3 border-b border-border-subtlest-tertiary tablet:flex-row tablet:items-center tablet:gap-4',
+        'flex w-full flex-col-reverse gap-2 border-b border-border-subtlest-quaternary px-4 py-3 tablet:min-h-14 tablet:flex-row tablet:items-center tablet:gap-4 tablet:px-6 tablet:py-0',
         className,
       )}
     >
@@ -78,15 +82,17 @@ export const DealsDirectoryHeader = ({
         ))}
       </TabContainer>
 
-      <SearchField
-        inputId="deals-directory-search"
-        placeholder="Search deals, brands or categories"
-        aria-label="Search deals"
-        fieldSize="medium"
-        value={query}
-        valueChanged={onQueryChange}
-        className="w-full shrink-0 tablet:w-64"
-      />
-    </div>
+      {onQueryChange && (
+        <SearchField
+          inputId="deals-directory-search"
+          placeholder="Search deals, brands or categories"
+          aria-label="Search deals"
+          fieldSize="medium"
+          value={query ?? ''}
+          valueChanged={onQueryChange}
+          className="w-full shrink-0 tablet:w-64"
+        />
+      )}
+    </header>
   );
 };

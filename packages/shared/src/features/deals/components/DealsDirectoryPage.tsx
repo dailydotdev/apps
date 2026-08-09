@@ -191,8 +191,7 @@ export const DealsDirectoryPage = ({
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 tablet:px-8 laptop:px-12">
-      <DealsHero heading={heading} intro={intro} evidence={evidence} />
+    <div className="flex w-full flex-col">
       <DealsDirectoryHeader
         deals={filterDeals ?? deals}
         activeFilter={activeFilter}
@@ -201,119 +200,123 @@ export const DealsDirectoryPage = ({
         onQueryChange={setQuery}
       />
 
-      <div className="mt-6 flex flex-col gap-10 pb-16">
-        {hasForYouRail && (
-          <DealsRail
-            title="For you"
-            label="Based on your tags"
-            deals={forYouDeals}
-            onDealClick={onDealClick}
-            onClaim={onClaimDeal}
-            claimedDealIds={claimedDealIds}
-            trendingDealIds={trendingDealIds}
-            now={now}
-          />
-        )}
+      <div className="mx-auto w-full max-w-6xl px-4 tablet:px-8 laptop:px-12">
+        <DealsHero heading={heading} intro={intro} evidence={evidence} />
 
-        <section className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <Typography
-              tag={TypographyTag.H2}
-              type={TypographyType.Title3}
-              bold
-            >
-              {isSearching ? 'Search results' : resultsTitle}
-            </Typography>
-            <Typography
-              tag={TypographyTag.Span}
-              type={TypographyType.Footnote}
-              color={TypographyColor.Tertiary}
-              aria-live="polite"
-              className="tabular-nums"
-            >
-              {results.length} {results.length === 1 ? 'deal' : 'deals'}
-              {isSearching ? ` match "${query.trim()}"` : ''}
-            </Typography>
-          </div>
-
-          <Typography
-            tag={TypographyTag.P}
-            type={TypographyType.Footnote}
-            color={TypographyColor.StatusSuccess}
-            aria-live="polite"
-          >
-            {claimMessage}
-          </Typography>
-
-          {results.length > 0 ? (
-            <ul className="animate-deals-results-in flex flex-col">
-              {results.map((deal, index) => (
-                <Fragment key={deal.id}>
-                  {index === DEALS_LIST_AD_INDEX && (
-                    <DealsAdRow ad={dealsListAd} />
-                  )}
-                  <DealListCard
-                    deal={deal}
-                    onClaim={onClaimDeal}
-                    onOpenDetail={onDealClick}
-                    isClaimedByMe={claimedDealIds.has(deal.id)}
-                    isTrending={trendingDealIds.has(deal.id)}
-                    now={now}
-                  />
-                </Fragment>
-              ))}
-            </ul>
-          ) : (
-            <div className="flex flex-col items-center gap-4 py-8">
-              <CharmEmptyState
-                className="max-w-[32rem]"
-                image={cloudinaryCharmSearchNoResults}
-                imageAlt="daily.dev charm searching with a magnifying glass"
-                title={
-                  isSearching
-                    ? 'Nothing matches that search'
-                    : 'No deals in this category yet'
-                }
-                description="No live offer fits yet. Try a broader term or start from another category."
-              />
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {SHORTCUT_CATEGORIES.map((category) => (
-                  <Link
-                    key={category}
-                    href={getDealCategoryPath(category)}
-                    passHref
-                  >
-                    <Button
-                      tag="a"
-                      size={ButtonSize.Small}
-                      variant={ButtonVariant.Float}
-                    >
-                      {category}
-                    </Button>
-                  </Link>
-                ))}
-              </div>
-              <Button
-                type="button"
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
-              >
-                Request a deal
-              </Button>
-            </div>
+        <div className="mt-6 flex flex-col gap-10 pb-16">
+          {hasForYouRail && (
+            <DealsRail
+              title="For you"
+              label="Based on your tags"
+              deals={forYouDeals}
+              onDealClick={onDealClick}
+              onClaim={onClaimDeal}
+              claimedDealIds={claimedDealIds}
+              trendingDealIds={trendingDealIds}
+              now={now}
+            />
           )}
-        </section>
 
-        {isLoggedOut ? (
-          <JoinStrip />
-        ) : (
-          <DealImpactWidget
-            claimedCount={impact.claimedCount}
-            totalSavedUsd={impact.savedUsd}
-            invitesDone={impact.invitesDone}
-            invitesRequired={impact.invitesRequired}
-          />
-        )}
+          <section className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <Typography
+                tag={TypographyTag.H2}
+                type={TypographyType.Title3}
+                bold
+              >
+                {isSearching ? 'Search results' : resultsTitle}
+              </Typography>
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+                aria-live="polite"
+                className="tabular-nums"
+              >
+                {results.length} {results.length === 1 ? 'deal' : 'deals'}
+                {isSearching ? ` match "${query.trim()}"` : ''}
+              </Typography>
+            </div>
+
+            <Typography
+              tag={TypographyTag.P}
+              type={TypographyType.Footnote}
+              color={TypographyColor.StatusSuccess}
+              aria-live="polite"
+            >
+              {claimMessage}
+            </Typography>
+
+            {results.length > 0 ? (
+              <ul className="animate-deals-results-in flex flex-col">
+                {results.map((deal, index) => (
+                  <Fragment key={deal.id}>
+                    {index === DEALS_LIST_AD_INDEX && (
+                      <DealsAdRow ad={dealsListAd} />
+                    )}
+                    <DealListCard
+                      deal={deal}
+                      onClaim={onClaimDeal}
+                      onOpenDetail={onDealClick}
+                      isClaimedByMe={claimedDealIds.has(deal.id)}
+                      isTrending={trendingDealIds.has(deal.id)}
+                      now={now}
+                    />
+                  </Fragment>
+                ))}
+              </ul>
+            ) : (
+              <div className="flex flex-col items-center gap-4 py-8">
+                <CharmEmptyState
+                  className="max-w-[32rem]"
+                  image={cloudinaryCharmSearchNoResults}
+                  imageAlt="daily.dev charm searching with a magnifying glass"
+                  title={
+                    isSearching
+                      ? 'Nothing matches that search'
+                      : 'No deals in this category yet'
+                  }
+                  description="No live offer fits yet. Try a broader term or start from another category."
+                />
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  {SHORTCUT_CATEGORIES.map((category) => (
+                    <Link
+                      key={category}
+                      href={getDealCategoryPath(category)}
+                      passHref
+                    >
+                      <Button
+                        tag="a"
+                        size={ButtonSize.Small}
+                        variant={ButtonVariant.Float}
+                      >
+                        {category}
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
+                <Button
+                  type="button"
+                  size={ButtonSize.Small}
+                  variant={ButtonVariant.Tertiary}
+                >
+                  Request a deal
+                </Button>
+              </div>
+            )}
+          </section>
+
+          {isLoggedOut ? (
+            <JoinStrip />
+          ) : (
+            <DealImpactWidget
+              claimedCount={impact.claimedCount}
+              totalSavedUsd={impact.savedUsd}
+              invitesDone={impact.invitesDone}
+              invitesRequired={impact.invitesRequired}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

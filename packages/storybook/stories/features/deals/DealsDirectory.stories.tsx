@@ -450,6 +450,67 @@ export const RowStates: Story = {
   ),
 };
 
+const actionColumnCases: { label: string; deal: Deal; isClaimed?: boolean }[] =
+  [
+    { label: 'Live', deal: findDeal('cursor-20-credit') },
+    {
+      label: 'Live, ending soon',
+      deal: getDealsByState(DealState.Expiring)[0],
+    },
+    {
+      label: 'Locked behind Cores',
+      deal: findDeal('cursor-pro-month-for-cores'),
+    },
+    { label: 'Locked behind invites', deal: findDeal('linear-3-months-free') },
+    {
+      label: 'Locked behind Cores or invites',
+      deal: findDeal('raycast-pro-year-members-only'),
+    },
+    {
+      label: 'Claimed by me',
+      deal: findDeal('figma-professional-35-off'),
+      isClaimed: true,
+    },
+    { label: 'Sold out', deal: getDealsByState(DealState.SoldOut)[0] },
+    { label: 'Expired', deal: getDealsByState(DealState.Expired)[0] },
+  ];
+
+/**
+ * One claim verb down the whole column. Read the right edge top to bottom: the
+ * primary button starts at the same x on every row whatever its state, the
+ * copy link sits to its left, and only the three non-actions (claimed, sold
+ * out, expired) drop the primary variant.
+ */
+export const ActionColumn: Story = {
+  parameters: { layout: 'padded', controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <ul className="flex flex-col">
+        {actionColumnCases.map(({ label, deal, isClaimed }) => (
+          <DealListCard
+            key={label}
+            deal={deal}
+            now={MOCK_NOW_MS}
+            isClaimedByMe={isClaimed}
+            onClaim={noop}
+          />
+        ))}
+      </ul>
+      <div className="grid gap-4 tablet:grid-cols-2 laptop:grid-cols-3">
+        {actionColumnCases.map(({ label, deal, isClaimed }) => (
+          <DealCard
+            key={label}
+            deal={deal}
+            now={MOCK_NOW_MS}
+            isClaimedByMe={isClaimed}
+            onClaim={noop}
+          />
+        ))}
+      </div>
+    </div>
+  ),
+};
+
 /**
  * The impact numbers used to be a tall card in a right rail, competing with
  * the deals for width. Same numbers and same invite progress, now one quiet

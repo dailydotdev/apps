@@ -53,7 +53,7 @@
 /* Sidebar overlay mode on profile pages below 1360px */
 @media (max-width: 1359px) and (min-width: 1020px) {
   /* Make sidebar overlay on top of content when expanded */
-  body:has(.profile-page) nav[role="navigation"] {
+  body:has(.profile-page) nav[role='navigation'] {
     position: fixed !important;
     z-index: 100 !important;
     height: 100vh !important;
@@ -236,8 +236,7 @@
 
 .live-room-reaction {
   left: var(--live-room-reaction-left);
-  animation: live-room-reaction-fly 2.2s cubic-bezier(0.19, 1, 0.22, 1)
-    forwards;
+  animation: live-room-reaction-fly 2.2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -430,11 +429,7 @@
 
 .leaderboard-rank-gold:hover {
   box-shadow: 0 0 24px
-    color-mix(
-      in srgb,
-      var(--theme-accent-cheese-default) 18%,
-      transparent
-    );
+    color-mix(in srgb, var(--theme-accent-cheese-default) 18%, transparent);
 }
 
 .leaderboard-rank-silver:hover {
@@ -444,11 +439,7 @@
 
 .leaderboard-rank-bronze:hover {
   box-shadow: 0 0 24px
-    color-mix(
-      in srgb,
-      var(--theme-accent-bacon-default) 18%,
-      transparent
-    );
+    color-mix(in srgb, var(--theme-accent-bacon-default) 18%, transparent);
 }
 
 @keyframes feed-highlights-title-gradient-shift {
@@ -536,12 +527,9 @@
 }
 
 .crown-hover-most-loved:hover {
-  box-shadow:
-    0 0 40px color-mix(in srgb, var(--theme-accent-cabbage-default) 22%, transparent),
-    inset
-      0
-      1px
-      0
+  box-shadow: 0 0 40px
+      color-mix(in srgb, var(--theme-accent-cabbage-default) 22%, transparent),
+    inset 0 1px 0
       color-mix(in srgb, var(--theme-accent-cabbage-default) 30%, transparent) !important;
 }
 
@@ -654,7 +642,10 @@
   }
 
   100% {
-    transform: translate(var(--sound-particle-ex, 14px), var(--sound-particle-ey, 0px))
+    transform: translate(
+        var(--sound-particle-ex, 14px),
+        var(--sound-particle-ey, 0px)
+      )
       scale(0.65);
     opacity: 0;
   }
@@ -671,8 +662,7 @@
   }
 
   33% {
-    transform: translate(0.6px, -1.8px) rotate(1.3deg) scaleX(1.04)
-      scaleY(1.13);
+    transform: translate(0.6px, -1.8px) rotate(1.3deg) scaleX(1.04) scaleY(1.13);
   }
 
   50% {
@@ -681,8 +671,7 @@
   }
 
   72% {
-    transform: translate(0.5px, -1.5px) rotate(1.1deg) scaleX(1.03)
-      scaleY(1.1);
+    transform: translate(0.5px, -1.5px) rotate(1.1deg) scaleX(1.03) scaleY(1.1);
   }
 
   100% {
@@ -741,7 +730,10 @@
   }
 
   100% {
-    transform: translate(var(--flame-ember-ex, 2px), var(--flame-ember-ey, -10px))
+    transform: translate(
+        var(--flame-ember-ex, 2px),
+        var(--flame-ember-ey, -10px)
+      )
       scale(0.4);
     opacity: 0;
   }
@@ -834,12 +826,12 @@
         calc(
           var(--medal-particle-sx, 0px) +
             (var(--medal-particle-ex, 0px) - var(--medal-particle-sx, 0px)) *
-              0.5
+            0.5
         ),
         calc(
           var(--medal-particle-sy, 0px) +
             (var(--medal-particle-ey, 0px) - var(--medal-particle-sy, 0px)) *
-              0.5
+            0.5
         )
       )
       scale(0.82);
@@ -847,49 +839,48 @@
   }
 
   100% {
-    transform: translate(var(--medal-particle-ex, 0px), var(--medal-particle-ey, 0px))
+    transform: translate(
+        var(--medal-particle-ex, 0px),
+        var(--medal-particle-ey, 0px)
+      )
       scale(0.38);
     opacity: 0;
   }
 }
 
 .crown-hover-most-discussed:hover {
-  box-shadow:
-    0 0 40px color-mix(in srgb, var(--theme-accent-blueCheese-default) 22%, transparent),
-    inset
-      0
-      1px
-      0
-      color-mix(in srgb, var(--theme-accent-blueCheese-default) 30%, transparent) !important;
+  box-shadow: 0 0 40px
+      color-mix(
+        in srgb,
+        var(--theme-accent-blueCheese-default) 22%,
+        transparent
+      ),
+    inset 0 1px 0
+      color-mix(
+        in srgb,
+        var(--theme-accent-blueCheese-default) 30%,
+        transparent
+      ) !important;
 }
 
 .crown-hover-developers-choice:hover {
-  box-shadow:
-    0 0 40px color-mix(in srgb, var(--theme-accent-cheese-default) 22%, transparent),
-    inset
-      0
-      1px
-      0
+  box-shadow: 0 0 40px
+      color-mix(in srgb, var(--theme-accent-cheese-default) 22%, transparent),
+    inset 0 1px 0
       color-mix(in srgb, var(--theme-accent-cheese-default) 30%, transparent) !important;
 }
 
 .crown-hover-most-controversial:hover {
-  box-shadow:
-    0 0 40px color-mix(in srgb, var(--theme-accent-ketchup-default) 22%, transparent),
-    inset
-      0
-      1px
-      0
+  box-shadow: 0 0 40px
+      color-mix(in srgb, var(--theme-accent-ketchup-default) 22%, transparent),
+    inset 0 1px 0
       color-mix(in srgb, var(--theme-accent-ketchup-default) 30%, transparent) !important;
 }
 
 .crown-hover-fastest-rising:hover {
-  box-shadow:
-    0 0 40px color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent),
-    inset
-      0
-      1px
-      0
+  box-shadow: 0 0 40px
+      color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent),
+    inset 0 1px 0
       color-mix(in srgb, var(--theme-accent-avocado-default) 30%, transparent) !important;
 }
 
@@ -1002,4 +993,11 @@
   .breaking-news-chip-glow {
     background-position: 100% 50%, 50% 0%;
   }
+}
+
+/* Apple's icon mask is a continuous curve measuring 22.37% of the tile's width.
+   Chromium 139 draws that curve, everything else keeps the plain rounded rect. */
+.brand-tile {
+  border-radius: 22.37%;
+  corner-shape: squircle;
 }

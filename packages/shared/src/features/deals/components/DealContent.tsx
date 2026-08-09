@@ -11,7 +11,6 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import {
-  LockIcon,
   OpenLinkIcon,
   ShareIcon,
   UpvoteIcon,
@@ -20,13 +19,13 @@ import {
 import { IconSize } from '../../../components/Icon';
 import type { Ad } from '../../../graphql/posts';
 import type { Deal } from '../types';
-import { DealState, DealType } from '../types';
+import { DealState } from '../types';
 import type { DealComment } from '../mockCommunity';
 import { getDealComments } from '../mockCommunity';
 import { mockDeals } from '../mockDeals';
 import { dealsPageAd } from '../mockDealsAds';
 import {
-  dealTypeToCtaLabel,
+  DEAL_CLAIM_CTA_LABEL,
   dealTypeToLabel,
   DEAL_AFFILIATE_DISCLOSURE,
   DEAL_NO_COMMISSION_DISCLOSURE,
@@ -43,7 +42,7 @@ import {
   getSimilarDeals,
 } from '../dealsFormat';
 import { useNowTick } from '../useNowTick';
-import { DealBrandLogo } from './DealBrandLogo';
+import { DealBrandLogo, DealBrandTileSize } from './DealBrandLogo';
 import { DealCoverImage } from './DealCoverImage';
 import { DealBadge } from './DealBadge';
 import { DealValueBadge } from './DealValueBadge';
@@ -66,11 +65,6 @@ export enum DealContentPresentation {
 
 const SIMILAR_DEALS_LIMIT = 4;
 const CLAIM_CAVEAT_LIMIT = 3;
-
-const typeToCtaIcon: Partial<Record<DealType, ReactElement>> = {
-  [DealType.Affiliate]: <OpenLinkIcon />,
-  [DealType.Exclusive]: <LockIcon />,
-};
 
 export interface DealContentProps {
   deal: Deal;
@@ -200,7 +194,7 @@ const ClaimControl = ({
         onClick={() => onJoin?.()}
         className="w-full tablet:w-fit"
       >
-        Claim this deal
+        {DEAL_CLAIM_CTA_LABEL}
       </Button>
     );
   }
@@ -209,7 +203,7 @@ const ClaimControl = ({
     return (
       <DealCodeReveal
         code={deal.code}
-        revealLabel={dealTypeToCtaLabel[deal.type]}
+        revealLabel={DEAL_CLAIM_CTA_LABEL}
         onReveal={() => onClaim?.(deal)}
         onFeedback={onCodeFeedback}
       />
@@ -224,11 +218,10 @@ const ClaimControl = ({
       rel="sponsored nofollow noopener"
       variant={ButtonVariant.Primary}
       size={ButtonSize.Large}
-      icon={typeToCtaIcon[deal.type]}
       onClick={() => onClaim?.(deal)}
       className="w-full tablet:w-fit"
     >
-      {dealTypeToCtaLabel[deal.type]}
+      {DEAL_CLAIM_CTA_LABEL}
     </Button>
   );
 };
@@ -343,7 +336,7 @@ export const DealContent = ({
           <DealBrandLogo
             brand={deal.brand}
             isMuted={isMuted}
-            className="size-12 rounded-14"
+            size={DealBrandTileSize.Cover}
           />
           <div className="flex min-w-0 flex-1 flex-col">
             <Typography

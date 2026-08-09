@@ -7,13 +7,22 @@ import { DealCaveatStrip } from '@dailydotdev/shared/src/features/deals/componen
 import { DealCaveats } from '@dailydotdev/shared/src/features/deals/components/DealCaveats';
 import { DealRedemptionNote } from '@dailydotdev/shared/src/features/deals/components/DealRedemptionNote';
 import { DealVerification } from '@dailydotdev/shared/src/features/deals/components/DealVerification';
-import { DealBrandLogo } from '@dailydotdev/shared/src/features/deals/components/DealBrandLogo';
+import {
+  DealBrandLogo,
+  DealBrandTileSize,
+} from '@dailydotdev/shared/src/features/deals/components/DealBrandLogo';
 import { DealCommunityProof } from '@dailydotdev/shared/src/features/deals/components/DealCommunityProof';
 import { DealInviteProgress } from '@dailydotdev/shared/src/features/deals/components/DealInviteProgress';
 import { DealImpactWidget } from '@dailydotdev/shared/src/features/deals/components/DealImpactWidget';
 import { DealsDirectoryHeader } from '@dailydotdev/shared/src/features/deals/components/DealsDirectoryHeader';
-import { DEALS_FILTER_ALL } from '@dailydotdev/shared/src/features/deals/dealsFormat';
-import type { Deal } from '@dailydotdev/shared/src/features/deals/types';
+import {
+  DEALS_FILTER_ALL,
+  getDealBrands,
+} from '@dailydotdev/shared/src/features/deals/dealsFormat';
+import type {
+  Deal,
+  DealBrand,
+} from '@dailydotdev/shared/src/features/deals/types';
 import {
   DealCaveatKind,
   DealState,
@@ -349,6 +358,105 @@ export const BrandLogo: Story = {
       </Case>
     </Grid>
   ),
+};
+
+const TILE_SIZES: { label: string; size: DealBrandTileSize }[] = [
+  { label: '64 to 80 list thumbnail', size: DealBrandTileSize.Thumbnail },
+  { label: '56 card cover', size: DealBrandTileSize.Cover },
+  { label: '40 chip and wallet', size: DealBrandTileSize.Chip },
+  { label: '32 badge over cover', size: DealBrandTileSize.Badge },
+];
+
+const EDGE_CASE_BRANDS: DealBrand[] = [
+  {
+    id: 'b-edge-no-accent',
+    name: 'Plain Brand',
+    logoUrl: 'https://cdn.simpleicons.org/nextdotjs',
+    domain: 'nextjs.org',
+  },
+  {
+    id: 'b-edge-dead-url',
+    name: 'Dead Link',
+    logoUrl: 'https://svgl.app/library/this-file-does-not-exist.svg',
+    domain: 'stripe.com',
+    accent: '#635BFF',
+  },
+  {
+    id: 'b-edge-monogram',
+    name: 'Frontend Masters',
+    logoUrl: null,
+    domain: '',
+    accent: '#C40D0D',
+  },
+  {
+    id: 'b-edge-monogram-plain',
+    name: 'Keychron',
+    logoUrl: null,
+    domain: '',
+  },
+];
+
+const TileRow = ({
+  brands,
+  label,
+  size,
+}: {
+  brands: DealBrand[];
+  label: string;
+  size: DealBrandTileSize;
+}) => (
+  <div className="flex flex-col gap-2">
+    <span className="font-bold uppercase tracking-wider text-text-tertiary typo-caption2">
+      {label}
+    </span>
+    <div className="flex flex-wrap items-end gap-3">
+      {brands.map((brand) => (
+        <DealBrandLogo key={brand.id} brand={brand} size={size} />
+      ))}
+    </div>
+  </div>
+);
+
+const TileSystemPanel = ({ brands }: { brands: DealBrand[] }) => (
+  <div className="flex flex-col gap-6 rounded-16 bg-background-default p-5">
+    {TILE_SIZES.map(({ label, size }) => (
+      <TileRow key={label} brands={brands} label={label} size={size} />
+    ))}
+    <div className="flex flex-col gap-2">
+      <span className="font-bold uppercase tracking-wider text-text-tertiary typo-caption2">
+        Muted, claimed or expired
+      </span>
+      <div className="flex flex-wrap items-center gap-3">
+        {brands.slice(0, 8).map((brand) => (
+          <DealBrandLogo
+            key={brand.id}
+            brand={brand}
+            size={DealBrandTileSize.Cover}
+            isMuted
+          />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+/**
+ * Twenty brands from three different logo sources have to read as one set, so
+ * the story puts every size and both themes on a single screen.
+ */
+export const BrandTileSystem: Story = {
+  render: () => {
+    const brands = [...getDealBrands(mockDeals), ...EDGE_CASE_BRANDS];
+
+    return (
+      <div className="flex flex-col gap-6">
+        <TileSystemPanel brands={brands} />
+        <div className="invert">
+          <TileSystemPanel brands={brands} />
+        </div>
+      </div>
+    );
+  },
 };
 
 export const CommunityProof: Story = {

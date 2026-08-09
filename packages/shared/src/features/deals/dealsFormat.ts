@@ -5,7 +5,6 @@ import type {
   DealCommunity,
   DealMedia,
   DealUnlock,
-  DealUnlockCores,
   DealUnlockInvites,
   DealValue,
 } from './types';
@@ -123,13 +122,49 @@ export const dealTypeToLabel: Record<DealType, string> = {
   [DealType.Exclusive]: 'Exclusive',
 };
 
-export const dealTypeToCtaLabel: Record<DealType, string> = {
-  [DealType.PromoCode]: 'Get code',
-  [DealType.Credit]: 'Claim credit',
-  [DealType.Affiliate]: 'Get deal',
-  [DealType.FreeMonths]: 'Start free',
-  [DealType.GiftCard]: 'Redeem card',
-  [DealType.Exclusive]: 'Unlock offer',
+export enum DealAction {
+  Claim = 'claim',
+  Claimed = 'claimed',
+  SoldOut = 'sold_out',
+  Expired = 'expired',
+}
+
+/**
+ * One verb for the claim, on every surface and every deal type. What happens
+ * after the tap is already stated by the type in the metadata line, the Cores
+ * price beside the button and the redemption note on the deal page, so the
+ * button does not have to carry six competing promises. The other three labels
+ * are states rather than actions, which is why they are allowed to differ.
+ */
+export const DEAL_CLAIM_CTA_LABEL = 'Claim';
+
+export const dealActionToLabel: Record<DealAction, string> = {
+  [DealAction.Claim]: DEAL_CLAIM_CTA_LABEL,
+  [DealAction.Claimed]: 'In your coupons',
+  [DealAction.SoldOut]: 'Sold out',
+  [DealAction.Expired]: 'See similar deals',
+};
+
+export interface DealActionInput {
+  isExpired?: boolean;
+  isSoldOut?: boolean;
+  isClaimed?: boolean;
+}
+
+export const getDealAction = ({
+  isExpired,
+  isSoldOut,
+  isClaimed,
+}: DealActionInput): DealAction => {
+  if (isSoldOut) {
+    return DealAction.SoldOut;
+  }
+
+  if (isExpired) {
+    return DealAction.Expired;
+  }
+
+  return isClaimed ? DealAction.Claimed : DealAction.Claim;
 };
 
 export const getMonogram = (name: string): string =>
@@ -150,13 +185,154 @@ export const getDealBrandFaviconUrl = (
   size = DEAL_BRAND_ICON_SIZE,
 ): string => `https://www.google.com/s2/favicons?domain=${domain}&sz=${size}`;
 
-// The endpoint above answers a decodable generic globe even for a domain it
+export enum DealBrandMarkKind {
+  /**
+   * Simple Icons serves one flat path per brand, in that brand's own hex. It is
+   * the only rung whose viewBox can be trimmed to the mark's real ink.
+   */
+  Monochrome = 'monochrome',
+  /** A vector mark drawn in the brand's own colours, often a wordmark. */
+  Vector = 'vector',
+  /** A raster site icon, usually already drawn as a square app tile. */
+  Favicon = 'favicon',
+}
+
+export interface DealBrandIconSource {
+  url: string;
+  kind: DealBrandMarkKind;
+}
+
+type Rgb = [number, number, number];
+
+const HEX_PATTERN = /^#?(?:([0-9a-f]{3})|([0-9a-f]{6}))$/i;
+
+const SIMPLE_ICONS_PATTERN = /^https:\/\/cdn\.simpleicons\.org\/([^/?#]+)/;
+
+const parseHex = (value?: string | null): Rgb | undefined => {
+  const match = value?.trim().match(HEX_PATTERN);
+
+  if (!match) {
+    return undefined;
+  }
+
+  const [, short, long] = match;
+  const full =
+    long ??
+    short
+      .split('')
+      .map((channel) => channel + channel)
+      .join('');
+
+  return [
+    parseInt(full.slice(0, 2), 16),
+    parseInt(full.slice(2, 4), 16),
+    parseInt(full.slice(4, 6), 16),
+  ];
+};
+
+const toHex = (rgb: Rgb): string =>
+  `#${rgb
+    .map((channel) =>
+      Math.max(0, Math.min(255, Math.round(channel)))
+        .toString(16)
+        .padStart(2, '0'),
+    )
+    .join('')}`;
+
+const mixChannel = (from: number, to: number, weight: number): number =>
+  from + (to - from) * weight;
+
+const mixRgb = (from: Rgb, to: Rgb, weight: number): Rgb => [
+  mixChannel(from[0], to[0], weight),
+  mixChannel(from[1], to[1], weight),
+  mixChannel(from[2], to[2], weight),
+];
+
+const WHITE: Rgb = [255, 255, 255];
+
+const INK: Rgb = [17, 18, 24];
+
+/** A brand with no colour of its own still earns a tile, in neutral graphite. */
+const NEUTRAL_FILL: Rgb = [58, 61, 79];
+
+/** The brand colour's share of the tile, the way a marketplace tile carries it. */
+const TILE_ACCENT_ALPHA = 0.1;
+
+/**
+ * Marks arrive in their own colours and several of them are near black, so the
+ * tile has to stay light in both themes or those brands vanish. This much of the
+ * page colour keeps it from reading as a hole punched in a dark layout.
+ */
+const TILE_THEME_SHARE = '10%';
+
+const getBrandFill = (brand: DealBrand): Rgb =>
+  parseHex(brand.accent) ?? NEUTRAL_FILL;
+
+const isSimpleIconsUrl = (url: string): boolean =>
+  SIMPLE_ICONS_PATTERN.test(url);
+
+/**
+ * Simple Icons pads every glyph into a square viewBox. Trimming it to the ink
+ * means a percentage size describes the mark itself rather than the box it came
+ * in, so a wordmark stops rendering as a thin band in the middle of the tile.
+ */
+const toTrimmedSimpleIconUrl = (url: string): string =>
+  url.replace(SIMPLE_ICONS_PATTERN, (_, slug) => {
+    return `https://cdn.simpleicons.org/${slug}?viewbox=auto`;
+  });
+
+// The favicon endpoint answers a decodable generic globe even for a domain it
 // cannot resolve, so the image error handler never fires on it. A brand with no
 // domain has to skip that rung outright to reach the monogram.
-export const getDealBrandIconSources = (brand: DealBrand): string[] =>
-  [brand.logoUrl, brand.domain && getDealBrandFaviconUrl(brand.domain)].filter(
-    (source): source is string => !!source,
-  );
+export const getDealBrandIconSources = (
+  brand: DealBrand,
+): DealBrandIconSource[] => {
+  const sources: DealBrandIconSource[] = [];
+
+  if (brand.logoUrl && isSimpleIconsUrl(brand.logoUrl)) {
+    sources.push({
+      url: toTrimmedSimpleIconUrl(brand.logoUrl),
+      kind: DealBrandMarkKind.Monochrome,
+    });
+  } else if (brand.logoUrl) {
+    sources.push({ url: brand.logoUrl, kind: DealBrandMarkKind.Vector });
+  }
+
+  if (brand.domain) {
+    sources.push({
+      url: getDealBrandFaviconUrl(brand.domain),
+      kind: DealBrandMarkKind.Favicon,
+    });
+  }
+
+  return sources;
+};
+
+export interface DealBrandTileStyle {
+  background: string;
+  boxShadow: string;
+  /** The monogram's colour, and the hairline's, both derived from the brand. */
+  ink: string;
+}
+
+/**
+ * One container for all three logo sources. Every mark keeps the colours its
+ * owner drew it in, and the tile carries the brand instead: its accent at a
+ * tenth strength, an inset hairline rather than a border so nothing shifts, and
+ * no authored shadow.
+ */
+export const getDealBrandTileStyle = (brand: DealBrand): DealBrandTileStyle => {
+  const fill = getBrandFill(brand);
+  const ink = toHex(mixRgb(fill, INK, 0.72));
+
+  return {
+    ink,
+    background: `color-mix(in srgb, var(--theme-background-default) ${TILE_THEME_SHARE}, ${toHex(
+      mixRgb(fill, WHITE, 1 - TILE_ACCENT_ALPHA),
+    )})`,
+    boxShadow: `inset 0 0 0 1px color-mix(in srgb, ${ink} 14%, transparent)`,
+  };
+};
 
 // Brand marks are already carried by the logo chip, so only product photos and
 // gift card artwork earn a cover slot.
@@ -248,6 +424,15 @@ export const getDealShareUrl = (deal: Deal): string =>
   `${DEALS_ORIGIN}${getDealPath(deal)}`;
 
 export const DEALS_DIRECTORY_PATH = '/deals';
+
+export const DEALS_MY_COUPONS_PATH = '/deals/my-coupons';
+
+/**
+ * The wallet leads the tab row because it is the one destination a returning
+ * reader comes back for, but it is a route rather than a filter, so nothing on
+ * the directory ever marks it active.
+ */
+export const DEALS_TAB_MY_COUPONS = 'My coupons';
 
 export const DEALS_FILTER_ALL = 'All';
 export const DEALS_FILTER_EXPIRING = 'Expiring';
@@ -405,18 +590,14 @@ const getInviteCountPhrase = (invites: DealUnlockInvites): string => {
   return `${left} more developer${left === 1 ? '' : 's'}`;
 };
 
-export const DEAL_INVITE_CTA_LABEL = 'Invite to unlock';
-
-export const getDealCoresCtaLabel = ({ cost }: DealUnlockCores): string =>
-  `Unlock for ${formatDealCores(cost)}`;
-
 /**
- * The row and the card carry one CTA. Cores is the instant path, so it wins the
- * slot whenever the deal offers it and the invite route stays on the detail
- * surface next to the progress it belongs to.
+ * The two unlock routes are a choice between prices for the same claim, so they
+ * keep the claim verb and name only the currency. The amount stays beside them
+ * as its own chip rather than inside the label.
  */
-export const getDealUnlockCtaLabel = (unlock?: DealUnlock): string =>
-  unlock?.cores ? getDealCoresCtaLabel(unlock.cores) : DEAL_INVITE_CTA_LABEL;
+export const DEAL_CORES_UNLOCK_LABEL = 'Claim with Cores';
+
+export const DEAL_INVITE_UNLOCK_LABEL = 'Claim with invites';
 
 export const getDealUnlockSummary = ({
   cores,

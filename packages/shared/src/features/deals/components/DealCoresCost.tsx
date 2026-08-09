@@ -3,6 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 import {
   Typography,
+  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
@@ -17,8 +18,10 @@ interface DealCoresCostProps {
 }
 
 /**
- * The price rides next to the value badge on every surface that lists the deal,
- * so nobody has to open the offer to find out what it costs.
+ * The price sits under the value badge on every surface that lists the deal, so
+ * nobody has to open the offer to find out what it costs. It reads as a caption
+ * rather than a second chip: matching pills made it a guess which one was the
+ * reward and which one was the price.
  */
 export const DealCoresCost = ({
   cores,
@@ -26,14 +29,11 @@ export const DealCoresCost = ({
 }: DealCoresCostProps): ReactElement => (
   <Typography
     tag={TypographyTag.Span}
-    type={TypographyType.Callout}
-    bold
+    type={TypographyType.Caption1}
+    color={TypographyColor.Tertiary}
     role="img"
     aria-label={`Costs ${formatDealCores(cores.cost)}`}
-    className={classNames(
-      'flex items-center gap-1 rounded-10 bg-surface-float px-2 py-1 tabular-nums text-text-primary',
-      className,
-    )}
+    className={classNames('flex items-center gap-1 tabular-nums', className)}
   >
     <CoreIcon size={IconSize.XSmall} />
     {formatDealCores(cores.cost)}

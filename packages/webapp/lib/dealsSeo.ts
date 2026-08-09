@@ -61,6 +61,15 @@ export const getDealsDirectorySeo = (): NextSeoProps =>
     path: '/deals',
   });
 
+export const getMyCouponsSeo = (): NextSeoProps =>
+  buildSeo({
+    title: 'My coupons',
+    description:
+      'Every code, credit and free month you claimed on daily.dev, in one place.',
+    path: '/deals/my-coupons',
+    noindex: true,
+  });
+
 export const getDealCategoryHeading = (category: string): string =>
   `${category} deals and promo codes`;
 

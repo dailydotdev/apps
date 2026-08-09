@@ -1,43 +1,27 @@
-import type { MouseEvent, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import Link from '../../../components/utilities/Link';
 import { Card, CardSpace } from '../../../components/cards/common/Card';
-import { Button } from '../../../components/buttons/Button';
-import { ButtonSize, ButtonVariant } from '../../../components/buttons/common';
 import {
   Typography,
-  TypographyColor,
   TypographyTag,
   TypographyType,
 } from '../../../components/typography/Typography';
-import {
-  AlertIcon,
-  CopyIcon,
-  CoreIcon,
-  InviteIcon,
-  LockIcon,
-  OpenLinkIcon,
-  VIcon,
-} from '../../../components/icons';
+import { AlertIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type { Deal } from '../types';
-import { DealState, DealType } from '../types';
-import {
-  dealTypeToCtaLabel,
-  getDealCoverMedia,
-  getDealPath,
-  getDealSavingPhrase,
-  getDealUnlockCtaLabel,
-  hasDealEnded,
-} from '../dealsFormat';
+import { DealState } from '../types';
+import { getDealAction, getDealCoverMedia, hasDealEnded } from '../dealsFormat';
 import { useNowTick } from '../useNowTick';
+import { useDealCardLink } from '../useDealCardLink';
 import { DealBrandLogo } from './DealBrandLogo';
 import { DealBrandCover } from './DealBrandCover';
 import { DealCoverImage } from './DealCoverImage';
 import { DealBadge } from './DealBadge';
 import { DealValueBadge } from './DealValueBadge';
 import { DealCoresCost } from './DealCoresCost';
+import { DealActionButton } from './DealActionButton';
 import { DealCaveatStrip } from './DealCaveatStrip';
 import { DealCopyLinkButton } from './DealCopyLinkButton';
 
@@ -50,12 +34,6 @@ interface DealCardProps {
   now?: number;
   className?: string;
 }
-
-const typeToCtaIcon: Partial<Record<DealType, ReactElement>> = {
-  [DealType.PromoCode]: <CopyIcon />,
-  [DealType.Affiliate]: <OpenLinkIcon />,
-  [DealType.Exclusive]: <LockIcon />,
-};
 
 /**
  * The browsing form, for rails only. It carries the six things a cover-led
@@ -81,28 +59,19 @@ export const DealCard = ({
   const isExpired = deal.state === DealState.Expired || hasEnded;
   const isSoldOut = deal.state === DealState.SoldOut;
   const isClaimed = isClaimedByMe ?? deal.state === DealState.Claimed;
-  const isLocked = deal.state === DealState.Locked;
   const isMuted = isExpired || isSoldOut;
   const openDetail = onOpenDetail ?? onClaim;
   const cover = getDealCoverMedia(deal);
-  const savingPhrase = getDealSavingPhrase(deal.value);
   // A brand led cover already carries the mark, and a dead photo falls back to
   // the same one, so in both cases the identity line stops at the name.
   const isBrandLedCover = !cover || hasCoverFailed;
-
-  const onTitleClick = (event: MouseEvent<HTMLAnchorElement>): void => {
-    if (!openDetail || event.metaKey || event.ctrlKey || event.shiftKey) {
-      return;
-    }
-
-    event.preventDefault();
-    openDetail(deal);
-  };
+  const action = getDealAction({ isExpired, isSoldOut, isClaimed });
+  const cardLink = useDealCardLink(deal, openDetail);
 
   return (
     <Card
       className={classNames(
-        '!max-h-none',
+        '!max-h-none cursor-pointer',
         isExpired && 'grayscale',
         isMuted && 'opacity-60',
         className,
@@ -143,30 +112,21 @@ export const DealCard = ({
           </header>
 
           <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
-            <Link href={getDealPath(deal)} passHref>
+            <Link href={cardLink.href} passHref>
               <a
-                href={getDealPath(deal)}
-                className="line-clamp-2 hover:underline"
-                onClick={onTitleClick}
+                href={cardLink.href}
+                className="line-clamp-2 after:absolute after:inset-0 after:content-['']"
+                onMouseDown={cardLink.onMouseDown}
+                onClick={cardLink.onClick}
               >
                 {deal.title}
               </a>
             </Link>
           </Typography>
 
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <div className="flex flex-col items-start gap-1">
             <DealValueBadge value={deal.value} isMuted={isMuted} />
             {deal.unlock?.cores && <DealCoresCost cores={deal.unlock.cores} />}
-            {savingPhrase && (
-              <Typography
-                tag={TypographyTag.Span}
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-                className="tabular-nums"
-              >
-                {savingPhrase}
-              </Typography>
-            )}
           </div>
         </div>
 
@@ -180,70 +140,13 @@ export const DealCard = ({
             </div>
           )}
 
-          <div className="flex items-center gap-2">
-            {isSoldOut && (
-              <Button
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                disabled
-                className="flex-1"
-              >
-                Sold out
-              </Button>
-            )}
-            {isExpired && (
-              <Button
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                onClick={() => openDetail?.(deal)}
-                className="flex-1"
-              >
-                See similar
-              </Button>
-            )}
-            {isClaimed && !isMuted && (
-              <Button
-                type="button"
-                variant={ButtonVariant.Float}
-                size={ButtonSize.Small}
-                icon={<VIcon secondary />}
-                onClick={() => openDetail?.(deal)}
-                className="flex-1"
-              >
-                In your coupons
-              </Button>
-            )}
-            {isLocked && !isClaimed && (
-              <Button
-                type="button"
-                variant={
-                  deal.unlock?.cores
-                    ? ButtonVariant.Primary
-                    : ButtonVariant.Secondary
-                }
-                size={ButtonSize.Small}
-                icon={deal.unlock?.cores ? <CoreIcon /> : <InviteIcon />}
-                onClick={() => openDetail?.(deal)}
-                className="flex-1"
-              >
-                {getDealUnlockCtaLabel(deal.unlock)}
-              </Button>
-            )}
-            {!isMuted && !isClaimed && !isLocked && (
-              <Button
-                type="button"
-                variant={ButtonVariant.Primary}
-                size={ButtonSize.Small}
-                icon={typeToCtaIcon[deal.type]}
-                onClick={() => (onClaim ?? openDetail)?.(deal)}
-                className="flex-1"
-              >
-                {dealTypeToCtaLabel[deal.type]}
-              </Button>
-            )}
+          <div className="relative z-1 flex items-center gap-2">
             <DealCopyLinkButton deal={deal} />
+            <DealActionButton
+              action={action}
+              onClick={() => openDetail?.(deal)}
+              className="flex-1"
+            />
           </div>
         </div>
       </div>
