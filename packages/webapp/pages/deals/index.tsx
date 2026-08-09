@@ -117,7 +117,7 @@ const DealsPage = ({ deals, jsonLd }: DealsPageProps): ReactElement => {
           </div>
           <MyCouponsWallet
             claims={dealsState.claims}
-            deals={deals}
+            deals={mockDeals}
             now={MOCK_NOW_MS}
             onBrowse={() => setActiveTab('directory')}
           />

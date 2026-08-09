@@ -163,17 +163,22 @@ export const MyCouponsWallet = ({
 
   const entries = useMemo(
     () =>
-      claims.map<WalletEntry>((claim) => {
+      claims.reduce<WalletEntry[]>((resolved, claim) => {
         const deal = deals.find(({ id }) => id === claim.dealId);
 
+        // A claim can outlive its deal once an offer is pulled or archived, so
+        // one unresolvable row must not cost the reader the rest of the wallet.
         if (!deal) {
-          throw new Error(
-            `MyCouponsWallet got claim ${claim.id} for a missing deal ${claim.dealId}`,
+          // eslint-disable-next-line no-console
+          console.error(
+            `MyCouponsWallet skipped claim ${claim.id}: no deal ${claim.dealId}`,
           );
+
+          return resolved;
         }
 
-        return { claim, deal };
-      }),
+        return [...resolved, { claim, deal }];
+      }, []),
     [claims, deals],
   );
 
