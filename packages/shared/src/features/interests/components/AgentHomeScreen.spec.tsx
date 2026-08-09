@@ -6,7 +6,9 @@ import { mockDesktop } from '../../../../__tests__/helpers/media';
 import { AgentHomeScreen } from './AgentHomeScreen';
 import { recentMockAgents } from '../mock';
 
-const renderHome = (props: Partial<{ isPending: boolean }> = {}) =>
+const renderHome = (
+  props: Partial<{ isPending: boolean; initialQuery: string }> = {},
+) =>
   render(
     <TestBootProvider client={new QueryClient()}>
       <AgentHomeScreen
@@ -87,5 +89,30 @@ describe('AgentHomeScreen rows at both readings', () => {
       expect.stringContaining('tablet:block'),
     );
     expect(chevron).toHaveAttribute('class', expect.stringContaining('hidden'));
+  });
+});
+
+/**
+ * A shared agent link hands over the standing prompt. It lands in the field
+ * rather than running: spawning off someone else's link would spend a run the
+ * reader never asked to spend.
+ */
+describe('AgentHomeScreen given a shared prompt', () => {
+  const field = () =>
+    screen.getByLabelText(
+      'What should the agent hunt for?',
+    ) as HTMLTextAreaElement;
+
+  it('puts it in the field, ready to send', () => {
+    renderHome({ initialQuery: 'Rust in production' });
+
+    expect(field().value).toBe('Rust in production');
+    expect(screen.getByLabelText('Spawn the agent')).toBeEnabled();
+  });
+
+  it('leaves the field empty when nothing was handed over', () => {
+    renderHome();
+
+    expect(field().value).toBe('');
   });
 });

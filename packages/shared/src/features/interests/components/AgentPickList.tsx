@@ -10,8 +10,7 @@ import {
 import { ArrowIcon, DiscussIcon, UpvoteIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type { Post } from '../../../graphql/posts';
-import { postAttachment } from '../attachments';
-import { addToChatFloat, AgentAddToChatButton } from './AgentAddToChatButton';
+import { AgentRowActions } from './AgentRowActions';
 
 const InlineStat = ({
   icon,
@@ -79,11 +78,7 @@ const PickRow = ({
       {/* Floated off the row's top edge rather than placed in it: the row
           keeps every pixel of its title and every one of its counts, and
           nothing has to be hidden to make space. */}
-      <AgentAddToChatButton
-        attachment={postAttachment(post)}
-        reveal
-        className={addToChatFloat}
-      />
+      <AgentRowActions post={post} reveal />
       <div className="flex shrink-0 items-center gap-2 tablet:ml-auto">
         <InlineStat
           ariaLabel={`${post.numUpvotes ?? 0} upvotes`}

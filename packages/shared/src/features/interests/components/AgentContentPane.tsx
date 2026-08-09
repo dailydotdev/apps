@@ -27,6 +27,7 @@ import { Drawer, DrawerPosition } from '../../../components/drawers/Drawer';
 import { PostContent } from '../../../components/post/PostContent';
 import { ArticleList } from '../../../components/cards/article/ArticleList';
 import { Origin } from '../../../lib/log';
+import { useSharePost } from '../../../hooks/useSharePost';
 import type { Post } from '../../../graphql/posts';
 import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 import { useViewSize, ViewSize } from '../../../hooks';
@@ -79,6 +80,9 @@ const FeedView = ({
   posts: Post[];
   onOpenPost: (post: Post) => void;
 }): ReactElement => {
+  // The card's own share affordance, wired to the app's share modal rather than
+  // left as a no-op the way the other feed callbacks are here.
+  const { openSharePost } = useSharePost(Origin.Agent);
   // The panel is a column the reader drags, so the cards ask it how wide it is
   // rather than asking the window — which is a desktop even when this is 320px.
   const { ref, isNarrow } = useNarrowContainer<HTMLDivElement>();
@@ -100,7 +104,7 @@ const FeedView = ({
           onCommentClick={noop}
           onBookmarkClick={noop}
           onCopyLinkClick={noop}
-          onShare={noop}
+          onShare={(shared) => openSharePost({ post: shared })}
         />
       ))}
     </FlexCol>

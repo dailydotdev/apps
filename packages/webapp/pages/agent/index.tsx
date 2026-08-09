@@ -29,6 +29,11 @@ const Page = (): ReactElement | null => {
   // than being bounced off a page the flag never spoke about.
   const isGatedOut = isAuthReady && !!user && !showAgent;
 
+  // Handed over from a shared agent link — see `useShareAgent`. The prompt is
+  // put in the field, not run: spawning on someone else's link would spend a run
+  // the reader never asked to spend.
+  const sharedQuery = typeof router.query.q === 'string' ? router.query.q : '';
+
   const { data: interests, isPending } = useQuery(interestsQueryOptions(user));
   const { isCreating, createInterest } = useCreateInterest({
     onCreated: (id) => router.push(`${webappUrl}agent/${id}`),
@@ -51,6 +56,7 @@ const Page = (): ReactElement | null => {
         isPending={isPending}
         onCreate={createInterest}
         isCreating={isCreating}
+        initialQuery={sharedQuery}
       />
     </ProtectedPage>
   );

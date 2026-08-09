@@ -137,7 +137,8 @@ const BlockRenderer = ({
   );
 };
 
-// The reply as flat text for the clipboard: markup stripped, block gaps kept.
+// The reply as flat text: markup stripped, block gaps kept. What the agent said,
+// with none of what it cited — which is what a quote back into the prompt wants.
 const messageAsText = (message: AgentMessage): string =>
   (message.blocks ?? [])
     .filter((block) => block.type === 'text')
@@ -148,6 +149,37 @@ const messageAsText = (message: AgentMessage): string =>
           'text/html',
         ).body.textContent ?? '',
     )
+    .join('\n\n')
+    .trim();
+
+/**
+ * The reply for the clipboard, links and all.
+ *
+ * A reply's whole value is the handful of posts it picked out, and stripping to
+ * text left someone pasting it into Slack with a paragraph about five articles
+ * and no way to reach any of them. Markdown, because that is what the places
+ * this gets pasted into render.
+ */
+const messageAsMarkdown = (message: AgentMessage): string =>
+  (message.blocks ?? [])
+    .map((block) => {
+      if (block.type === 'text') {
+        return (
+          new DOMParser().parseFromString(block.html, 'text/html').body
+            .textContent ?? ''
+        );
+      }
+
+      const links = block.posts
+        .map((post) => `- [${post.title}](${post.commentsPermalink})`)
+        .join('\n');
+
+      return block.type === 'feedLink'
+        ? `${block.label}\n${links}`
+        : [block.caption, links].filter(Boolean).join('\n');
+    })
+    .map((part) => part.trim())
+    .filter(Boolean)
     .join('\n\n')
     .trim();
 
@@ -222,7 +254,7 @@ const MessageActions = ({
             // Flattened on click, not render: DOMParser only exists in the
             // browser.
             onClick={() => {
-              copyText({ textToCopy: messageAsText(message) });
+              copyText({ textToCopy: messageAsMarkdown(message) });
               setCopied(true);
             }}
           />

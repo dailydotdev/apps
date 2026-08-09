@@ -10,10 +10,16 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
-import { MoveToIcon, TerminalIcon, TimerIcon } from '../../../components/icons';
+import {
+  MoveToIcon,
+  ShareIcon,
+  TerminalIcon,
+  TimerIcon,
+} from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { webappUrl } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
+import { useShareAgent } from '../hooks/useShareAgent';
 import { AgentSettingsMenu } from './AgentSettingsMenu';
 import { AgentStatusTile } from './AgentStatusTile';
 
@@ -60,6 +66,7 @@ const PanelButton = ({
 
 export const AgentWorkspaceHeader = (): ReactElement => {
   const { interest, openContent, openContentTarget, focusContent } = useAgent();
+  const { isCopying, onShare } = useShareAgent(interest);
   const isOpen = (type: string) =>
     openContent.some((item) => item.type === type);
   const togglePanel = (type: 'activity' | 'debug') =>
@@ -91,6 +98,20 @@ export const AgentWorkspaceHeader = (): ReactElement => {
       </h1>
       <span className="flex-1" />
       <FlexRow className="shrink-0 items-center gap-0.5">
+        {/* What travels is the standing prompt, not this transcript — see
+            `useShareAgent`. Sits with the panel buttons rather than shouting
+            from the middle of the row: it is there when it is wanted. */}
+        <Tooltip content={isCopying ? 'Link copied' : 'Share this agent'}>
+          <Button
+            icon={headerIcon(<ShareIcon />)}
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Tertiary}
+            className="group"
+            aria-label="Share this agent"
+            disabled={!interest?.query}
+            onClick={onShare}
+          />
+        </Tooltip>
         <PanelButton
           label="Activity"
           icon={<TimerIcon />}

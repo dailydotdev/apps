@@ -15,8 +15,7 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
-import { postAttachment } from '../attachments';
-import { addToChatFloat, AgentAddToChatButton } from './AgentAddToChatButton';
+import { AgentRowActions } from './AgentRowActions';
 
 const Stat = ({
   icon,
@@ -121,11 +120,7 @@ export const AgentPostCard = ({
     </FlexCol>
     {/* After the stretched title in the DOM and lifted out of its layer, or
         the overlay that makes the whole card clickable swallows the press. */}
-    <AgentAddToChatButton
-      attachment={postAttachment(post)}
-      reveal
-      className={addToChatFloat}
-    />
+    <AgentRowActions post={post} reveal />
     <Image
       src={post.image}
       alt=""

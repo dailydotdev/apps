@@ -166,6 +166,7 @@ export const AgentHomeScreen = ({
   onCreate,
   isCreating,
   isStandalone,
+  initialQuery = '',
 }: {
   agents: AgentMonitorSource[];
   isPending?: boolean;
@@ -173,10 +174,16 @@ export const AgentHomeScreen = ({
   isCreating?: boolean;
   /** Rendered without the app chrome, so the screen owns the viewport. */
   isStandalone?: boolean;
+  /**
+   * A prompt someone was handed. Arrives in the field rather than running on
+   * its own: an agent that spawns itself off a link someone else sent is a link
+   * that spends your allowance without asking.
+   */
+  initialQuery?: string;
 }): ReactElement => {
   const shellHeight = useAgentShellHeight(isStandalone);
   const fieldRef = useRef<HTMLTextAreaElement>(null);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const items = toMonitorItems(agents);
   const waiting = items.filter(({ state }) => state === 'waiting').length;
   // The ones still doing their job — which is not simply "not paused": a
