@@ -59,3 +59,33 @@ describe('AgentHomeScreen while the list is loading', () => {
     expect(screen.getByText('Spawn your first agent')).toBeInTheDocument();
   });
 });
+
+/**
+ * Two readings of the same row: a two-line card on a phone, one compact line
+ * from tablet up. CSS decides which, so what is worth pinning here is that it
+ * is CSS and not two copies of the row.
+ */
+describe('AgentHomeScreen rows at both readings', () => {
+  it('renders each agent once, not once per reading', () => {
+    const [first] = recentMockAgents();
+    renderHome();
+
+    expect(screen.getAllByText(first.query)).toHaveLength(1);
+  });
+
+  it('gives the news dot to the phone and the chevron to wider screens', () => {
+    renderHome();
+
+    const row = screen.getByText(recentMockAgents()[0].query).closest('a');
+    const gutter = row?.firstElementChild;
+    const chevron = row?.querySelector('svg');
+
+    expect(gutter).toHaveClass('tablet:hidden', 'bg-brand-default');
+    // SVG `className` is an SVGAnimatedString, not a string.
+    expect(chevron).toHaveAttribute(
+      'class',
+      expect.stringContaining('tablet:block'),
+    );
+    expect(chevron).toHaveAttribute('class', expect.stringContaining('hidden'));
+  });
+});

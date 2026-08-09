@@ -15,7 +15,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
-import { SendAirplaneIcon } from '../../../components/icons';
+import { ArrowIcon, SendAirplaneIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { DateFormat } from '../../../components/utilities/DateFormat';
@@ -24,6 +24,7 @@ import { webappUrl } from '../../../lib/constants';
 import { useAgentShellHeight } from '../shell';
 import type { AgentMonitorItem, AgentMonitorSource } from './AgentMonitor';
 import {
+  dotClass,
   inkClass,
   stateLabel,
   stateMeaning,
@@ -43,47 +44,53 @@ const starters = [
 ];
 
 /**
- * One agent as a card, two lines.
+ * One agent: a two-line card on a phone, a single compact line from tablet up.
  *
- * The name leads, in full width and full weight, because it is the only thing
- * on the row that is different from the other rows — the reading a session list
- * gets on a phone. What the agent is doing drops to a second line, where it can
- * be a coloured word next to what it last said without taking the name's room.
+ * On a phone the name leads, in full width and full weight, because it is the
+ * only thing on a row that differs from the rows around it — the reading a
+ * session list gets on a handset. What the agent is doing drops to a second
+ * line, and a dot in the left gutter marks one that came back and is waiting on
+ * you, findable without reading anything.
  *
- * The dot in the gutter is the news: an agent that came back and is waiting on
- * you, findable down the left edge without reading anything.
+ * Given width there is no reason to spend two lines on it, so from tablet up the
+ * same four facts sit on one: state, name, what it last said, when. Same DOM
+ * either way — the wrappers become `display: contents` and the fields reorder
+ * into the row, so nothing is rendered twice for a screen reader to read twice.
  */
 const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => {
   const isWaiting = item.state === 'waiting';
 
   return (
-    <li>
+    <li className="tablet:[&:first-child>a]:rounded-t-12 tablet:[&:last-child>a]:rounded-b-12">
       <Link href={`${webappUrl}agent/${item.id}`}>
-        <a className="agent-press-row flex items-start gap-2.5 rounded-12 bg-surface-float px-3 py-2.5 transition-colors hover:bg-surface-hover">
+        <a className="agent-press-row group/item flex items-start gap-2.5 rounded-12 bg-surface-float px-3 py-2.5 transition-colors hover:bg-surface-hover tablet:items-center tablet:gap-3 tablet:rounded-none tablet:bg-transparent tablet:py-2 tablet:hover:bg-surface-float">
           {/* The gutter holds its width whether or not there is news in it, so
               the names start on one line down the whole stack and the dots are
-              the only thing the eye has to run down. */}
+              the only thing the eye has to run down. The compact row says the
+              state in words, so it does not need this. */}
           <span
             aria-hidden
             className={classNames(
-              'mt-1.5 size-2 shrink-0 rounded-6',
+              'mt-1.5 size-2 shrink-0 rounded-6 tablet:hidden',
               isWaiting && 'bg-brand-default',
             )}
           />
 
-          <FlexCol className="min-w-0 flex-1 gap-0.5">
-            <FlexRow className="items-baseline gap-2">
+          <FlexCol className="min-w-0 flex-1 gap-0.5 tablet:contents">
+            <FlexRow className="items-baseline gap-2 tablet:contents">
               <Typography
                 type={TypographyType.Callout}
                 bold
-                className="min-w-0 flex-1 truncate"
+                className="min-w-0 flex-1 truncate tablet:order-2 tablet:typo-footnote"
               >
                 {item.name}
               </Typography>
+              {/* Last on the compact row, and a fixed column there so the rows
+                  read as a table rather than as ragged lines. */}
               <Typography
                 type={TypographyType.Caption1}
                 color={TypographyColor.Quaternary}
-                className="shrink-0 tabular-nums"
+                className="shrink-0 tabular-nums tablet:order-4 tablet:w-14 tablet:text-right"
               >
                 {item.at ? (
                   <DateFormat date={item.at} type={TimeFormatType.Elapsed} />
@@ -92,25 +99,35 @@ const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => {
                 )}
               </Typography>
             </FlexRow>
-            <FlexRow className="min-w-0 items-center gap-1.5">
+            <FlexRow className="min-w-0 items-center gap-1.5 tablet:contents">
               <span
                 aria-label={stateMeaning[item.state]}
                 className={classNames(
-                  'shrink-0 typo-caption1',
+                  'flex shrink-0 items-center gap-1.5 typo-caption1 tablet:order-1 tablet:w-[4.75rem]',
                   inkClass[item.state],
                 )}
               >
+                <span
+                  aria-hidden
+                  className={classNames(
+                    'hidden size-1.5 shrink-0 rounded-6 tablet:block',
+                    dotClass[item.state],
+                  )}
+                />
                 {stateLabel[item.state]}
               </span>
               {!!item.line && (
                 <>
-                  <span aria-hidden className="text-text-quaternary">
+                  <span
+                    aria-hidden
+                    className="text-text-quaternary tablet:hidden"
+                  >
                     ·
                   </span>
                   <Typography
                     type={TypographyType.Caption1}
                     color={TypographyColor.Tertiary}
-                    className="min-w-0 flex-1 truncate"
+                    className="min-w-0 flex-1 truncate tablet:order-3"
                   >
                     {item.line}
                   </Typography>
@@ -118,6 +135,16 @@ const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => {
               )}
             </FlexRow>
           </FlexCol>
+
+          {/* A repeated affordance: the faintest tier there is, and small, so it
+              marks the row as tappable without being read. Only where the row is
+              a line in a block — the phone's cards are obviously their own
+              targets. */}
+          <ArrowIcon
+            size={IconSize.Size16}
+            className="hidden shrink-0 rotate-90 text-text-disabled transition-colors group-hover/item:text-text-quaternary tablet:order-5 tablet:block"
+            aria-hidden
+          />
         </a>
       </Link>
     </li>
@@ -235,32 +262,34 @@ export const AgentHomeScreen = ({
           {isPending && (
             <FlexCol className="gap-2">
               <ElementPlaceholder className="agent-skeleton h-3 w-24 rounded-8" />
-              {/* The shape of the cards they become — tile, name, the state
-                  line under it, when — so the list does not jump as it fills
-                  in. Widths vary because real names do. */}
+              {/* The shape of the rows they become, at both readings: two lines
+                  in a card on a phone, one line in a block from tablet up, so
+                  the list does not jump as it fills in. Widths vary because real
+                  names do. */}
               <FlexCol
-                className="gap-2"
+                className="gap-2 tablet:gap-0 tablet:divide-y tablet:divide-border-subtlest-quaternary tablet:rounded-12 tablet:border tablet:border-border-subtlest-tertiary"
                 aria-busy
                 aria-label="Loading your agents"
               >
                 {['w-40', 'w-28', 'w-48'].map((nameWidth) => (
                   <FlexRow
                     key={nameWidth}
-                    className="items-start gap-2.5 rounded-12 bg-surface-float px-3 py-2.5"
+                    className="items-start gap-2.5 rounded-12 bg-surface-float px-3 py-2.5 tablet:items-center tablet:gap-3 tablet:rounded-none tablet:bg-transparent tablet:py-2.5"
                   >
-                    <span className="mt-1.5 size-2 shrink-0" />
-                    <FlexCol className="min-w-0 flex-1 gap-1.5">
-                      <FlexRow className="items-center gap-2">
+                    <span className="mt-1.5 size-2 shrink-0 tablet:hidden" />
+                    <ElementPlaceholder className="agent-skeleton hidden h-3 w-16 shrink-0 rounded-8 tablet:block" />
+                    <FlexCol className="min-w-0 flex-1 gap-1.5 tablet:contents">
+                      <FlexRow className="items-center gap-2 tablet:contents">
                         <ElementPlaceholder
                           className={classNames(
-                            'agent-skeleton h-3.5 rounded-8',
+                            'agent-skeleton h-3.5 rounded-8 tablet:order-2 tablet:h-3',
                             nameWidth,
                           )}
                         />
-                        <span className="flex-1" />
-                        <ElementPlaceholder className="agent-skeleton h-3 w-8 shrink-0 rounded-8" />
+                        <span className="flex-1 tablet:hidden" />
+                        <ElementPlaceholder className="agent-skeleton h-3 w-8 shrink-0 rounded-8 tablet:order-4 tablet:ml-auto" />
                       </FlexRow>
-                      <ElementPlaceholder className="agent-skeleton h-3 w-32 rounded-8" />
+                      <ElementPlaceholder className="agent-skeleton h-3 w-32 rounded-8 tablet:order-3" />
                     </FlexCol>
                   </FlexRow>
                 ))}
@@ -278,10 +307,11 @@ export const AgentHomeScreen = ({
                   ? 'Your agent'
                   : `Your ${agents.length} agents`}
               </Typography>
-              {/* Cards with air between them rather than one bordered block:
-                  each agent is its own thing to open, and the gaps are what
-                  make a stack of them scannable at arm's length. */}
-              <ol className="flex flex-col gap-2">
+              {/* Cards with air between them on a phone: each agent is its own
+                  thing to open, and the gaps are what make a stack of them
+                  scannable at arm's length. Given width they collapse back into
+                  one bordered block of thin lines. */}
+              <ol className="flex flex-col gap-2 tablet:gap-0 tablet:divide-y tablet:divide-border-subtlest-quaternary tablet:rounded-12 tablet:border tablet:border-border-subtlest-tertiary">
                 {items.map((item) => (
                   <AgentRow key={item.id} item={item} />
                 ))}

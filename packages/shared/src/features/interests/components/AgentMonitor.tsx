@@ -190,7 +190,7 @@ export const inkClass: Record<AgentMonitorState, string> = {
 };
 
 // One hue each, and the only moving one is the only one that is moving.
-const dotClass: Record<AgentMonitorState, string> = {
+export const dotClass: Record<AgentMonitorState, string> = {
   waiting: 'bg-brand-default',
   running: 'animate-pulse bg-status-success',
   watching: 'bg-status-info',
