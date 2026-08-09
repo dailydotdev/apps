@@ -150,20 +150,19 @@ const SectionLabel = ({ children }: { children: ReactNode }) => (
 );
 
 const DirectoryHeaderDemo = () => {
-  const [filter, setFilter] = useState(DEALS_FILTER_ALL);
   const [query, setQuery] = useState('');
 
   return (
     <div className="flex flex-col gap-3">
       <DealsDirectoryHeader
         deals={mockDeals}
-        activeFilter={filter}
-        onFilterChange={setFilter}
+        activeFilter={DEALS_FILTER_ALL}
         query={query}
         onQueryChange={setQuery}
       />
       <SectionLabel>
-        Active tab: {filter}. Search: {query || 'empty'}
+        Every tab is a link, so the route decides which one is active. Search:{' '}
+        {query || 'empty'}
       </SectionLabel>
     </div>
   );

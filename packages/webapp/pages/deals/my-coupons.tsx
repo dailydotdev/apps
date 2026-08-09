@@ -36,11 +36,7 @@ const MyCouponsPage = ({ deals }: MyCouponsPageProps): ReactElement => {
 
   return (
     <div className="flex w-full flex-col">
-      <DealsDirectoryHeader
-        deals={deals}
-        activeFilter={DEALS_TAB_MY_COUPONS}
-        onFilterChange={() => undefined}
-      />
+      <DealsDirectoryHeader deals={deals} activeFilter={DEALS_TAB_MY_COUPONS} />
 
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 tablet:px-8 laptop:px-12">
         <div className="flex flex-col gap-1">

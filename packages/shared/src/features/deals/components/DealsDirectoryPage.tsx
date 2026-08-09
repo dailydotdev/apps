@@ -17,6 +17,7 @@ import { dealsListAd } from '../mockDealsAds';
 import type { Deal } from '../types';
 import {
   DEALS_FILTER_ALL,
+  dealsFilterCopy,
   findDealsFilterByQuery,
   getDealCategoryPath,
   getDealsDirectoryEvidence,
@@ -26,6 +27,8 @@ import {
 } from '../dealsFormat';
 import type { DealsMockState } from '../useDealsMockState';
 import { useDealsMockState } from '../useDealsMockState';
+import type { DealCrumb } from './DealBreadcrumbs';
+import { DealBreadcrumbs } from './DealBreadcrumbs';
 import { DealListCard } from './DealListCard';
 import { DealsAdRow } from './DealsAdRow';
 import { DealImpactWidget } from './DealImpactWidget';
@@ -42,6 +45,12 @@ interface DealsDirectoryPageProps {
   isLoggedOut?: boolean;
   initialQuery?: string;
   initialFilter?: string;
+  /** Which tab reads as current. The filter names it on every route but a
+   * brand page, where no tab owns the view and an empty string marks none. */
+  activeTab?: string;
+  /** Rendered under the tab strip rather than above it, so the page header
+   * stays the first thing on the page on every deals route. */
+  crumbs?: DealCrumb[];
   heading?: string;
   intro?: string;
   resultsTitle?: string;
@@ -110,6 +119,8 @@ export const DealsDirectoryPage = ({
   isLoggedOut = false,
   initialQuery = '',
   initialFilter = DEALS_FILTER_ALL,
+  activeTab,
+  crumbs,
   heading,
   intro,
   resultsTitle = 'All deals',
@@ -121,7 +132,6 @@ export const DealsDirectoryPage = ({
 }: DealsDirectoryPageProps): ReactElement => {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
-  const [filter, setFilter] = useState(initialFilter);
   const [claimMessage, setClaimMessage] = useState('');
   const ownState = useDealsMockState({ now });
   const dealsState = state ?? ownState;
@@ -129,9 +139,11 @@ export const DealsDirectoryPage = ({
 
   const trimmedQuery = query.trim().toLowerCase();
   const isSearching = trimmedQuery.length > 0;
-  // A deep link into a cross-cutting filter has to beat the tab click that has
-  // not landed yet, so the URL wins whenever it names one.
-  const activeFilter = findDealsFilterByQuery(router?.query?.filter) ?? filter;
+  // Every tab is a link, so the URL is the only thing that decides which one is
+  // active. A category route names its filter through initialFilter instead.
+  const activeFilter =
+    findDealsFilterByQuery(router?.query?.filter) ?? initialFilter;
+  const filterCopy = dealsFilterCopy[activeFilter];
 
   const evidence = useMemo(
     () => getDealsDirectoryEvidence(deals.filter(isLiveDeal)),
@@ -194,14 +206,19 @@ export const DealsDirectoryPage = ({
     <div className="flex w-full flex-col">
       <DealsDirectoryHeader
         deals={filterDeals ?? deals}
-        activeFilter={activeFilter}
-        onFilterChange={setFilter}
+        activeFilter={activeTab ?? activeFilter}
         query={query}
         onQueryChange={setQuery}
       />
 
       <div className="mx-auto w-full max-w-6xl px-4 tablet:px-8 laptop:px-12">
-        <DealsHero heading={heading} intro={intro} evidence={evidence} />
+        {crumbs && <DealBreadcrumbs crumbs={crumbs} className="pt-4" />}
+        <DealsHero
+          heading={filterCopy?.heading ?? heading}
+          intro={filterCopy?.intro ?? intro}
+          evidence={filterCopy ? undefined : evidence}
+          isCompact={!!filterCopy}
+        />
 
         <div className="mt-6 flex flex-col gap-10 pb-16">
           {hasForYouRail && (
@@ -224,7 +241,9 @@ export const DealsDirectoryPage = ({
                 type={TypographyType.Title3}
                 bold
               >
-                {isSearching ? 'Search results' : resultsTitle}
+                {isSearching
+                  ? 'Search results'
+                  : filterCopy?.resultsTitle ?? resultsTitle}
               </Typography>
               <Typography
                 tag={TypographyTag.Span}

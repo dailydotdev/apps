@@ -448,6 +448,32 @@ const specialFilterToQuery: Record<string, string> = {
   [DEALS_FILTER_EXCLUSIVE]: 'exclusive',
 };
 
+interface DealsFilterCopy {
+  heading: string;
+  intro: string;
+  resultsTitle: string;
+}
+
+/**
+ * A category is a page with a heading of its own. These two are a query on the
+ * directory, so the page has to relabel itself when one is active or it keeps
+ * claiming to be the whole catalogue.
+ */
+export const dealsFilterCopy: Record<string, DealsFilterCopy> = {
+  [DEALS_FILTER_EXPIRING]: {
+    heading: 'Deals ending soon',
+    intro:
+      'Every offer here has a deadline in sight. Claim it before the window closes.',
+    resultsTitle: 'Ending soon',
+  },
+  [DEALS_FILTER_EXCLUSIVE]: {
+    heading: 'Exclusive to daily.dev',
+    intro:
+      'Negotiated for daily.dev members. These codes are not on the public coupon sites.',
+    resultsTitle: 'Exclusive deals',
+  },
+};
+
 export const getDealsFilterPath = (filter: string): string => {
   const query = specialFilterToQuery[filter];
 

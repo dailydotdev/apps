@@ -1,7 +1,12 @@
 import type { ReactElement } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
-import { Tab, TabContainer } from '../../../components/tabs/TabContainer';
+import { ButtonSize } from '../../../components/buttons/Button';
+import { pageHeaderClassName } from '../../../components/layout/PageHeader';
+import {
+  SquadDirectoryNavbar,
+  SquadDirectoryNavbarItem,
+} from '../../../components/squads/layout/SquadDirectoryNavbar';
 import { SearchField } from '../../../components/fields/SearchField';
 import type { Deal } from '../types';
 import {
@@ -20,7 +25,6 @@ interface DealsDirectoryHeaderProps {
    * every other category while rendering only its own deals. */
   deals: Deal[];
   activeFilter: string;
-  onFilterChange: (filter: string) => void;
   /** Omitted on the wallet route, where a deals search would filter nothing. */
   query?: string;
   onQueryChange?: (query: string) => void;
@@ -30,67 +34,64 @@ interface DealsDirectoryHeaderProps {
 export const DealsDirectoryHeader = ({
   deals,
   activeFilter,
-  onFilterChange,
   query,
   onQueryChange,
   className,
 }: DealsDirectoryHeaderProps): ReactElement => {
-  const filterToUrl = useMemo(() => {
-    const categories = getDealCategories(deals).reduce<Record<string, string>>(
-      (acc, category) => ({
-        ...acc,
-        [category]: getDealCategoryPath(category),
-      }),
-      {},
-    );
+  const tabs = useMemo(() => {
+    const categories = getDealCategories(deals).map((category) => ({
+      label: category,
+      path: getDealCategoryPath(category),
+    }));
 
     // The two cross-cutting tabs sit before the categories because the tab row
     // scrolls on every width we ship, and a filter nobody scrolls to is gone.
-    return {
-      [DEALS_TAB_MY_COUPONS]: DEALS_MY_COUPONS_PATH,
-      [DEALS_FILTER_ALL]: getDealsFilterPath(DEALS_FILTER_ALL),
-      [DEALS_FILTER_EXPIRING]: getDealsFilterPath(DEALS_FILTER_EXPIRING),
-      [DEALS_FILTER_EXCLUSIVE]: getDealsFilterPath(DEALS_FILTER_EXCLUSIVE),
+    return [
+      { label: DEALS_TAB_MY_COUPONS, path: DEALS_MY_COUPONS_PATH },
+      { label: DEALS_FILTER_ALL, path: getDealsFilterPath(DEALS_FILTER_ALL) },
+      {
+        label: DEALS_FILTER_EXPIRING,
+        path: getDealsFilterPath(DEALS_FILTER_EXPIRING),
+      },
+      {
+        label: DEALS_FILTER_EXCLUSIVE,
+        path: getDealsFilterPath(DEALS_FILTER_EXCLUSIVE),
+      },
       ...categories,
-    };
+    ];
   }, [deals]);
 
   return (
     <header
-      className={classNames(
-        'flex w-full flex-col-reverse gap-2 border-b border-border-subtlest-quaternary px-4 py-3 tablet:min-h-14 tablet:flex-row tablet:items-center tablet:gap-4 tablet:px-6 tablet:py-0',
-        className,
-      )}
+      className={classNames(pageHeaderClassName, 'gap-4 !py-0', className)}
     >
-      <TabContainer
-        controlledActive={activeFilter}
-        onActiveChange={onFilterChange}
-        showBorder={false}
-        tabTag="a"
-        className={{
-          container: 'min-w-0 flex-1',
-          header: 'no-scrollbar overflow-x-auto',
-        }}
-        tabListProps={{
-          autoScrollActive: true,
-          dragScroll: true,
-          className: { item: 'px-0' },
-        }}
+      <SquadDirectoryNavbar
+        aria-label="Deals navigation"
+        className="!mx-0 min-w-0 flex-1 !border-0 !px-0"
       >
-        {Object.entries(filterToUrl).map(([label, url]) => (
-          <Tab key={label} label={label} url={url} />
+        {tabs.map(({ label, path }) => (
+          <SquadDirectoryNavbarItem
+            key={label}
+            buttonSize={ButtonSize.Small}
+            isActive={label === activeFilter}
+            label={label}
+            path={path}
+            ariaLabel={label}
+          />
         ))}
-      </TabContainer>
+      </SquadDirectoryNavbar>
 
       {onQueryChange && (
         <SearchField
           inputId="deals-directory-search"
-          placeholder="Search deals, brands or categories"
+          placeholder="Search deals"
           aria-label="Search deals"
           fieldSize="medium"
           value={query ?? ''}
           valueChanged={onQueryChange}
-          className="w-full shrink-0 tablet:w-64"
+          // The navbar parks its scroll-next arrow outside its own box, so the
+          // search has to start past it rather than under it.
+          className="ml-4 w-40 shrink-0 tablet:w-64"
         />
       )}
     </header>

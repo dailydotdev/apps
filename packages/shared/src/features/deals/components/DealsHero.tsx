@@ -18,6 +18,9 @@ interface DealsHeroProps {
   heading?: string;
   intro?: string;
   evidence?: DealsDirectoryEvidence;
+  /** Set on the cross-cutting filters, which are a slice of the page the full
+   * hero already introduced rather than a destination of their own. */
+  isCompact?: boolean;
   className?: string;
 }
 
@@ -45,15 +48,26 @@ export const DealsHero = ({
   heading = 'Deals for devs',
   intro = 'Coupons, credits and free months on the tools you already use. Verified by the community.',
   evidence,
+  isCompact,
   className,
 }: DealsHeroProps): ReactElement => (
-  <section className={classNames('flex flex-col gap-2 py-6', className)}>
-    <Typography tag={TypographyTag.H1} type={TypographyType.LargeTitle} bold>
+  <section
+    className={classNames(
+      'flex flex-col gap-2',
+      isCompact ? 'py-4' : 'py-6',
+      className,
+    )}
+  >
+    <Typography
+      tag={TypographyTag.H1}
+      type={isCompact ? TypographyType.Title2 : TypographyType.LargeTitle}
+      bold
+    >
       {heading}
     </Typography>
     <Typography
       tag={TypographyTag.P}
-      type={TypographyType.Body}
+      type={isCompact ? TypographyType.Callout : TypographyType.Body}
       color={TypographyColor.Tertiary}
       className="max-w-[40rem]"
     >

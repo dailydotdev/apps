@@ -9,7 +9,6 @@ import type { ParsedUrlQuery } from 'querystring';
 import type { NextSeoProps } from 'next-seo';
 import { DealsDirectoryPage } from '@dailydotdev/shared/src/features/deals/components/DealsDirectoryPage';
 import { DealDetailModal } from '@dailydotdev/shared/src/features/deals/components/DealDetailModal';
-import { DealBreadcrumbs } from '@dailydotdev/shared/src/features/deals/components/DealBreadcrumbs';
 import {
   mockDeals,
   MOCK_NOW_MS,
@@ -60,12 +59,11 @@ const DealBrandPage = ({
   return (
     <div className="flex w-full flex-col">
       <DealsSEOSchema jsonLd={jsonLd} />
-      <div className="mx-auto w-full max-w-6xl px-4 pt-4 tablet:px-8 laptop:px-12">
-        <DealBreadcrumbs crumbs={getDealBrandCrumbs(brand.name)} />
-      </div>
       <DealsDirectoryPage
         deals={deals}
         filterDeals={filterDeals}
+        activeTab=""
+        crumbs={getDealBrandCrumbs(brand.name)}
         heading={getDealBrandHeading(brand)}
         intro={getDealBrandIntro(brand, deals)}
         resultsTitle={`${brand.name} deals`}

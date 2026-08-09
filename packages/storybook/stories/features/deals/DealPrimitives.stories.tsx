@@ -538,7 +538,6 @@ export const InviteProgress: Story = {
 };
 
 const DirectoryHeaderDemo = () => {
-  const [filter, setFilter] = useState(DEALS_FILTER_ALL);
   const [query, setQuery] = useState('');
 
   return (
@@ -546,8 +545,7 @@ const DirectoryHeaderDemo = () => {
       <Case label="Full width, tabs and search" testId="directory-header-full">
         <DealsDirectoryHeader
           deals={mockDeals}
-          activeFilter={filter}
-          onFilterChange={setFilter}
+          activeFilter={DEALS_FILTER_ALL}
           query={query}
           onQueryChange={setQuery}
           className="w-full"
@@ -560,8 +558,7 @@ const DirectoryHeaderDemo = () => {
         <div className="w-72">
           <DealsDirectoryHeader
             deals={mockDeals}
-            activeFilter={filter}
-            onFilterChange={setFilter}
+            activeFilter="AI tools"
             query={query}
             onQueryChange={setQuery}
           />
