@@ -334,6 +334,20 @@ export const getDealBrandTileStyle = (brand: DealBrand): DealBrandTileStyle => {
   };
 };
 
+/**
+ * The tile's recipe inverted for a panel the size of a photograph. A tile is
+ * mostly white so a near black mark stays visible on it; a cover that size
+ * would be a slab of white in a dark layout, so the page colour leads and the
+ * brand only tints it.
+ */
+const PANEL_ACCENT_SHARE = '22%';
+
+export const getDealBrandPanelBackground = (brand: DealBrand): string => {
+  const accent = toHex(getBrandFill(brand));
+
+  return `linear-gradient(150deg, color-mix(in srgb, ${accent} ${PANEL_ACCENT_SHARE}, var(--theme-background-default)), var(--theme-background-default))`;
+};
+
 // Brand marks are already carried by the logo chip, so only product photos and
 // gift card artwork earn a cover slot.
 export const getDealCoverMedia = (deal: Deal): DealMedia | undefined =>
@@ -503,11 +517,29 @@ export interface DealCategorySummary {
   count: number;
   /** The marks that make the category recognisable before its name is read. */
   brands: DealBrand[];
+  /** The shelf's photographs, empty on the categories that sell no object. */
+  coverMedia: DealMedia[];
   topSavingsUsd: number;
 }
 
 /** Enough marks to identify a category, few enough to stay a row and not a set. */
 const CATEGORY_SUMMARY_BRANDS = 3;
+
+/**
+ * A mosaic reads as a shelf where one photo reads as a single product, so a
+ * category with the stock for it gets three. Ordered by claims, because a shelf
+ * is recognised by the things on it people actually bought.
+ */
+const CATEGORY_COVER_PHOTOS = 3;
+
+const getDealCategoryCovers = (deals: Deal[]): DealMedia[] =>
+  [...deals]
+    .sort((a, b) => b.community.claims - a.community.claims)
+    .map((deal) => deal.media)
+    .filter(
+      (media): media is DealMedia => media?.kind === DealMediaKind.Product,
+    )
+    .slice(0, CATEGORY_COVER_PHOTOS);
 
 /**
  * Heaviest category first. The catalogue leans hardware, and a browser that
@@ -534,6 +566,7 @@ export const getDealCategorySummaries = (
       path: getDealCategoryPath(category),
       count: categoryDeals.length,
       brands: getDealBrands(categoryDeals).slice(0, CATEGORY_SUMMARY_BRANDS),
+      coverMedia: getDealCategoryCovers(categoryDeals),
       topSavingsUsd: categoryDeals.reduce(
         (top, deal) => Math.max(top, deal.value.savingsUsd ?? 0),
         0,

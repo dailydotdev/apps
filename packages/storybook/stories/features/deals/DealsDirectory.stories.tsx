@@ -187,6 +187,11 @@ export const Header: Story = {
  * a tile per category with the reward stated before the name is even read.
  * Heaviest shelf first, so the catalogue's centre of gravity is the first
  * thing on screen, and every tile is a real link to its faceted page.
+ *
+ * A category that sells objects is photographed, up to three products in a
+ * mosaic around a hero. One that sells subscriptions shows its brands on a
+ * panel tinted by the first of them. Check both at `mobile`: the marks step
+ * down a size where three of them would be wider than a two-column card.
  */
 export const CategoryGrid: Story = {
   parameters: { layout: 'padded', controls: { disable: true } },

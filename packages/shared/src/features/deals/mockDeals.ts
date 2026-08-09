@@ -701,7 +701,14 @@ export const mockDeals: Deal[] = [
     whyPick:
       'There is nothing to evaluate here, it is ten dollars. The only catch is the pool, which empties in hours rather than days.',
     brand: brands.amazon,
-    media: giftCardArtwork(brands.amazon, 'Amazon gift card artwork'),
+    media: {
+      kind: DealMediaKind.Product,
+      imageUrl:
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Amazon.de_gift_card%2C_Ommoord%2C_Rotterdam_%282021%29.jpg/1280px-Amazon.de_gift_card%2C_Ommoord%2C_Rotterdam_%282021%29.jpg',
+      alt: 'A physical Amazon gift card held in a hand',
+      isRepresentative: true,
+      credit: 'Donald Trung, CC BY-SA 4.0, via Wikimedia Commons',
+    },
     type: DealType.GiftCard,
     state: DealState.Available,
     value: { label: '$10', savingsUsd: 10 },
@@ -1542,7 +1549,14 @@ export const mockDeals: Deal[] = [
     whyPick:
       'One cable for two monitors, ethernet and power is the whole point. Two 4K displays at 60Hz needs DisplayLink on an Apple silicon Mac, so check that before you count on the second screen.',
     brand: brands.anker,
-    media: brandMedia(brands.anker, 'Anker logo'),
+    media: {
+      kind: DealMediaKind.Product,
+      imageUrl:
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Docking_station_1.jpg/1280px-Docking_station_1.jpg',
+      alt: 'A laptop docking station with its ports facing the camera',
+      isRepresentative: true,
+      credit: 'Public domain, via Wikimedia Commons',
+    },
     type: DealType.PromoCode,
     state: DealState.Available,
     value: { label: '-25%', savingsUsd: 62 },
@@ -1640,7 +1654,13 @@ export const mockDeals: Deal[] = [
     whyPick:
       'It is the keyboard for people who switch between a laptop and a desktop all day, and it is the wrong one if you came here for mechanical switches. The backlight is the thing you miss most on the cheaper model.',
     brand: brands.logitech,
-    media: brandMedia(brands.logitech, 'Logitech logo'),
+    media: {
+      kind: DealMediaKind.Product,
+      imageUrl:
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Logitech_MX_Keys_YR0073_Wireless_Keyboard.jpg/1280px-Logitech_MX_Keys_YR0073_Wireless_Keyboard.jpg',
+      alt: 'A Logitech MX Keys low profile wireless keyboard photographed from above',
+      credit: 'Bilby, CC BY-SA 4.0, via Wikimedia Commons',
+    },
     type: DealType.Exclusive,
     state: DealState.Available,
     value: { label: '-25%', savingsUsd: 32 },
