@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
 import Markdown from '../../../components/Markdown';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
@@ -19,6 +18,7 @@ import {
   BulletListIcon,
   CopyIcon,
   DownvoteIcon,
+  ShareIcon,
   MiniCloseIcon,
   TimerIcon,
   UpvoteIcon,
@@ -32,6 +32,10 @@ import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
 import type { AgentBlock, AgentMessage } from '../chat';
 import { useAgent } from '../AgentContext';
+import { transcriptProse } from '../prose';
+import { messageAsMarkdown, messageAsText } from '../replyText';
+import { agentShareLink } from '../hooks/useShareAgent';
+import { AgentShareReplyModal } from './AgentShareReplyModal';
 import { feedAttachment, quoteAttachment } from '../attachments';
 import { AgentPickList } from './AgentPickList';
 import { AgentAttachmentChip } from './AgentAttachmentChip';
@@ -50,14 +54,6 @@ import { AgentEmbedCard } from './blocks/AgentEmbedCard';
 // `text-pretty` on the prose and `text-balance` on the headings: a reply that
 // ends on one orphaned word, or a heading that breaks after "the", is the kind
 // of thing nobody points at and everybody feels.
-const transcriptProse = classNames(
-  '[&_p]:my-3 [&_p]:text-pretty [&_p]:!leading-relaxed [&_p]:typo-callout',
-  '[&_li]:text-pretty [&_li]:!leading-relaxed [&_li]:typo-callout [&_ol]:my-3 [&_ul]:my-3',
-  '[&_h1]:mb-1.5 [&_h1]:mt-5 [&_h1]:text-balance [&_h1]:!leading-snug [&_h1]:typo-body',
-  '[&_h2]:mb-1.5 [&_h2]:mt-5 [&_h2]:text-balance [&_h2]:!leading-snug [&_h2]:typo-body',
-  '[&_h3]:mb-1.5 [&_h3]:mt-5 [&_h3]:text-balance [&_h3]:!leading-snug [&_h3]:typo-callout',
-  '[&>*:first-child]:mt-0 [&>*:last-child]:mb-0',
-);
 
 const BlockRenderer = ({
   block,
@@ -137,64 +133,24 @@ const BlockRenderer = ({
   );
 };
 
-// The reply as flat text: markup stripped, block gaps kept. What the agent said,
-// with none of what it cited — which is what a quote back into the prompt wants.
-const messageAsText = (message: AgentMessage): string =>
-  (message.blocks ?? [])
-    .filter((block) => block.type === 'text')
-    .map(
-      (block) =>
-        new DOMParser().parseFromString(
-          (block as { html: string }).html,
-          'text/html',
-        ).body.textContent ?? '',
-    )
-    .join('\n\n')
-    .trim();
-
 /**
- * The reply for the clipboard, links and all.
+ * What you can do with a reply, under it.
  *
- * A reply's whole value is the handful of posts it picked out, and stripping to
- * text left someone pasting it into Slack with a paragraph about five articles
- * and no way to reach any of them. Markdown, because that is what the places
- * this gets pasted into render.
+ * Always on, not revealed on hover. These are four small glyphs on their own
+ * line rather than furniture over the text, and hiding them made the two people
+ * most likely to want them — anyone on a touch screen, anyone who had not
+ * learned they were there — hunt for them. Every one answers back: a press with
+ * no visible consequence reads as a press that did not land.
  */
-const messageAsMarkdown = (message: AgentMessage): string =>
-  (message.blocks ?? [])
-    .map((block) => {
-      if (block.type === 'text') {
-        return (
-          new DOMParser().parseFromString(block.html, 'text/html').body
-            .textContent ?? ''
-        );
-      }
-
-      const links = block.posts
-        .map((post) => `- [${post.title}](${post.commentsPermalink})`)
-        .join('\n');
-
-      return block.type === 'feedLink'
-        ? `${block.label}\n${links}`
-        : [block.caption, links].filter(Boolean).join('\n');
-    })
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .join('\n\n')
-    .trim();
-
-// Hover-revealed, the way Claude and Codex keep reply actions out of the
-// reading flow until the pointer says they are wanted. Every one of them
-// answers back: a press with no visible consequence reads as a press that did
-// not land.
 const MessageActions = ({
   message,
 }: {
   message: AgentMessage;
 }): ReactElement => {
-  const { attachContext, writeDraft } = useAgent();
+  const { attachContext, writeDraft, interest } = useAgent();
   const [, copyText] = useCopyText();
   const [isCopied, setCopied] = useState(false);
+  const [isSharing, setSharing] = useState(false);
   const [vote, setVote] = useState<'up' | 'down'>();
 
   useEffect(() => {
@@ -225,15 +181,7 @@ const MessageActions = ({
 
   return (
     <FlexCol className="gap-1">
-      <FlexRow
-        className={classNames(
-          'items-center gap-0.5 transition-opacity duration-150 focus-within:opacity-100 group-hover:opacity-100',
-          // Once voted the row stays: the note under it is permanent, and a
-          // line of feedback floating under buttons that vanished reads as
-          // orphaned text.
-          !vote && 'opacity-0',
-        )}
-      >
+      <FlexRow className="items-center gap-0.5">
         <Tooltip content={isCopied ? 'Copied' : 'Copy reply'}>
           <Button
             icon={
@@ -285,11 +233,30 @@ const MessageActions = ({
             setVote((current) => (current === 'down' ? undefined : 'down'))
           }
         />
+        {/* Last, because it is the only one of the four aimed at someone other
+            than the agent. */}
+        <Tooltip content="Share reply">
+          <Button
+            icon={<ShareIcon size={IconSize.Size16} />}
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Tertiary}
+            aria-label="Share reply"
+            onClick={() => setSharing(true)}
+          />
+        </Tooltip>
       </FlexRow>
 
-      {/* Stays put once voted rather than fading with the row: it carries the
-          way to say more, and a note you have to hover to re-read is a note
-          nobody reads. */}
+      {isSharing && (
+        <AgentShareReplyModal
+          isOpen
+          onRequestClose={() => setSharing(false)}
+          message={message}
+          title={interest?.query ?? 'This agent'}
+          link={agentShareLink(interest?.query ?? '')}
+        />
+      )}
+
+      {/* The note under the row, once voted: it carries the way to say more. */}
       {!!vote && (
         <FlexRow className="agent-line-in items-center gap-1.5 px-1">
           <Typography

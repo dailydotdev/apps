@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockDesktop } from '../../../../__tests__/helpers/media';
@@ -126,5 +126,80 @@ describe('a post the agent found', () => {
         origin: Origin.Agent,
       },
     });
+  });
+});
+
+/**
+ * Four small glyphs on their own line under a reply. Revealed on hover they were
+ * invisible to anyone on a touch screen and to anyone who had not been told they
+ * were there, and this is the only place a reply can be acted on.
+ */
+describe('the reply actions', () => {
+  it('are on screen without being hunted for', () => {
+    renderTranscript();
+
+    const row = screen.getByLabelText('Copy reply').parentElement;
+
+    expect(row).not.toHaveClass('opacity-0');
+    ['Copy reply', 'Good reply', 'Bad reply', 'Share reply'].forEach((label) =>
+      expect(screen.getByLabelText(label)).toBeInTheDocument(),
+    );
+  });
+
+  // Last of the four: the only one aimed at someone other than the agent.
+  it('put share at the end of the row', () => {
+    renderTranscript();
+
+    const row = screen.getByLabelText('Copy reply').parentElement;
+    const labels = Array.from(row?.querySelectorAll('button') ?? []).map(
+      (button) => button.getAttribute('aria-label'),
+    );
+
+    expect(labels[labels.length - 1]).toBe('Share reply');
+  });
+});
+
+/**
+ * The share sheet, shaped like the one ChatGPT opens: the reply above, one round
+ * action below. What the link opens is the agent's topic — there is no published
+ * transcript to point at — and the sheet says so rather than letting the reader
+ * believe they have published the reply.
+ */
+describe('sharing a reply', () => {
+  it('previews the reply it is about, citations and all', () => {
+    renderTranscript();
+
+    fireEvent.click(screen.getByLabelText('Share reply'));
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    const dialog = screen.getByRole('dialog');
+
+    expect(dialog).toHaveTextContent('Daily run');
+    expect(
+      within(dialog).getByRole('link', { name: 'Zig 0.15' }),
+    ).toHaveAttribute('href', 'https://app.daily.dev/posts/p1');
+  });
+
+  it('says what the link actually opens', () => {
+    renderTranscript();
+
+    fireEvent.click(screen.getByLabelText('Share reply'));
+
+    expect(
+      screen.getByText(/opens this agent with its topic ready to run/),
+    ).toBeInTheDocument();
+  });
+
+  it('copies an absolute link', () => {
+    const copyText = jest.fn();
+    jest.spyOn(copy, 'useCopyText').mockReturnValue([false, copyText] as never);
+    renderTranscript();
+
+    fireEvent.click(screen.getByLabelText('Share reply'));
+    fireEvent.click(screen.getByLabelText('Copy link'));
+
+    const [{ textToCopy }] = copyText.mock.calls[0];
+
+    expect(() => new URL(textToCopy)).not.toThrow();
   });
 });
