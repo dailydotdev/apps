@@ -10,19 +10,20 @@ import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/moc
  *
  * Same reason as `/dev/agent`: the real page is behind auth and a flag, so it
  * shows nothing on a dev server with no backend. `?loading=1` holds the list in
- * its loading state, which is otherwise too brief to review. Carries
- * `noindex`/`nofollow`.
+ * its loading state, which is otherwise too brief to review, and `?q=` stands in
+ * for arriving on a shared agent link — the receiving half of sharing, which is
+ * otherwise only reachable behind the flag. Carries `noindex`/`nofollow`.
  */
 const Page = (): ReactElement => {
   // Read off the URL rather than the router: this page is statically optimised,
   // so `router.query` is empty on the render that matters.
-  const [isLoading, setIsLoading] = useState(false);
+  const [params, setParams] = useState<URLSearchParams>();
 
   useEffect(() => {
-    setIsLoading(
-      new URLSearchParams(window.location.search).get('loading') === '1',
-    );
+    setParams(new URLSearchParams(window.location.search));
   }, []);
+
+  const isLoading = params?.get('loading') === '1';
 
   return (
     <AgentDemoProviders>
@@ -30,6 +31,7 @@ const Page = (): ReactElement => {
       <AgentHomeScreen
         agents={isLoading ? [] : recentMockAgents()}
         isPending={isLoading}
+        initialQuery={params?.get('q') ?? ''}
         onCreate={() => undefined}
         isStandalone
       />

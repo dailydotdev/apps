@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -184,6 +184,19 @@ export const AgentHomeScreen = ({
   const shellHeight = useAgentShellHeight(isStandalone);
   const fieldRef = useRef<HTMLTextAreaElement>(null);
   const [query, setQuery] = useState(initialQuery);
+  // `useState` reads its argument once, and a handed-over prompt comes off the
+  // URL — which on this statically optimised route is empty until after
+  // hydration. So it arrives a render late, and the field it was meant for has
+  // already mounted without it. Adopted only into an empty field: a prompt
+  // someone was sent is worth less than a word they typed themselves.
+  useEffect(() => {
+    if (!initialQuery) {
+      return;
+    }
+
+    setQuery((current) => current || initialQuery);
+  }, [initialQuery]);
+
   const items = toMonitorItems(agents);
   const waiting = items.filter(({ state }) => state === 'waiting').length;
   // The ones still doing their job — which is not simply "not paused": a

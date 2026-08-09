@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockDesktop } from '../../../../__tests__/helpers/media';
@@ -114,5 +114,53 @@ describe('AgentHomeScreen given a shared prompt', () => {
     renderHome();
 
     expect(field().value).toBe('');
+  });
+
+  // `/agent` is statically optimised, so `router.query` is empty on the render
+  // that mounts the field and the prompt arrives one render later. `useState`
+  // reads its argument once, so a shared link used to land on an empty field.
+  it('takes a prompt that arrives after the field has mounted', () => {
+    const { rerender } = render(
+      <TestBootProvider client={new QueryClient()}>
+        <AgentHomeScreen agents={[]} onCreate={jest.fn()} initialQuery="" />
+      </TestBootProvider>,
+    );
+
+    expect(field().value).toBe('');
+
+    rerender(
+      <TestBootProvider client={new QueryClient()}>
+        <AgentHomeScreen
+          agents={[]}
+          onCreate={jest.fn()}
+          initialQuery="Rust in production"
+        />
+      </TestBootProvider>,
+    );
+
+    expect(field().value).toBe('Rust in production');
+  });
+
+  // The reader's own words outrank a link they were sent.
+  it('does not overwrite something already typed', () => {
+    const { rerender } = render(
+      <TestBootProvider client={new QueryClient()}>
+        <AgentHomeScreen agents={[]} onCreate={jest.fn()} initialQuery="" />
+      </TestBootProvider>,
+    );
+
+    fireEvent.change(field(), { target: { value: 'My own topic' } });
+
+    rerender(
+      <TestBootProvider client={new QueryClient()}>
+        <AgentHomeScreen
+          agents={[]}
+          onCreate={jest.fn()}
+          initialQuery="Rust in production"
+        />
+      </TestBootProvider>,
+    );
+
+    expect(field().value).toBe('My own topic');
   });
 });
