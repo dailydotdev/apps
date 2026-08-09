@@ -92,14 +92,9 @@ export const AgentWorkspace = ({
     setHasUnseenReply(false);
   };
 
-  useEffect(() => {
-    if (!isPinnedRef.current) {
-      setHasUnseenReply(true);
-      return undefined;
-    }
-
-    // The new row hasn't been laid out on the commit that grew `messages`, so
-    // scrollHeight is still the pre-append value until the next frame.
+  // The new row hasn't been laid out on the commit that grew `messages`, so
+  // scrollHeight is still the pre-append value until the next frame.
+  const followTail = () => {
     const frame = requestAnimationFrame(() => {
       const transcript = transcriptRef.current;
 
@@ -109,7 +104,41 @@ export const AgentWorkspace = ({
     });
 
     return () => cancelAnimationFrame(frame);
+  };
+
+  // The transcript only ever grows when a prompt is sent — a reply resolves the
+  // turn that is already there. So growth means the reader just spoke, and
+  // sending is itself an act of arriving at the bottom: whatever they had
+  // scrolled up to read, they are done with it. Follow unconditionally, and
+  // re-pin, or the answer they just asked for lands off-screen behind a button.
+  useEffect(() => {
+    isPinnedRef.current = true;
+    setIsAwayFromBottom(false);
+    setHasUnseenReply(false);
+
+    return followTail();
   }, [messages.length]);
+
+  // What the agent says back is the other case, and the one where staying put
+  // matters: a reply landing while the reader is somewhere above it announces
+  // itself rather than yanking them down.
+  const isTailPending = !!messages.at(-1)?.isPending;
+
+  useEffect(() => {
+    if (isTailPending || !messages.length) {
+      return undefined;
+    }
+
+    if (!isPinnedRef.current) {
+      setHasUnseenReply(true);
+
+      return undefined;
+    }
+
+    return followTail();
+    // The reply landing is the trigger; the length is the other effect's.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTailPending]);
 
   // Seed it from the last session's width, once. After the first drag the
   // workspace owns the number and a late read from the store is ignored.
@@ -174,7 +203,11 @@ export const AgentWorkspace = ({
                 onScroll={onTranscriptScroll}
                 className="agent-scroll h-full overflow-y-auto px-5 tablet:px-8 laptop:px-10"
               >
-                <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 py-6">
+                {/* Deeper at the foot than at the head: the last reply's hover
+                    actions sit right above the composer, and the beam around it
+                    throws light a good inch up. Six of these would have the
+                    copy and the ratings reading through a glow. */}
+                <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 pb-14 pt-6">
                   <AgentIntro
                     findingsCount={items.length}
                     postsCount={postsCount}

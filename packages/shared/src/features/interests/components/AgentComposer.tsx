@@ -1,6 +1,6 @@
-import type { ReactElement } from 'react';
+import type { ComponentType, ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
-import { BorderBeam } from 'border-beam';
+import type { BorderBeamProps } from 'border-beam';
 import {
   Button,
   ButtonSize,
@@ -14,7 +14,7 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
-import { MiniCloseIcon, SendAirplaneIcon } from '../../../components/icons';
+import { SendAirplaneIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 import { useAgent } from '../AgentContext';
@@ -32,6 +32,9 @@ import { AgentUsageMeter } from './AgentUsageMeter';
 import { AgentAttachmentChip, attachmentIcon } from './AgentAttachmentChip';
 import type { AgentMenuItem } from './AgentComposerMenu';
 import { AgentComposerMenu } from './AgentComposerMenu';
+// Type-only, so it is erased at compile time and pulls none of the module's 74KB
+// into this chunk — which is the whole point of fetching the component below.
+// eslint-disable-next-line import/no-duplicates
 
 const maxComposerHeight = 160;
 
@@ -92,17 +95,48 @@ export const AgentComposer = (): ReactElement => {
     clearDraft,
   } = useAgent();
   const isLight = useIsLightTheme();
-  // The beam injects its stylesheet as a React `<style>` child, and SSR
-  // escapes the quotes in its selectors. `<style>` holds raw text, so those
-  // entities are never decoded and every rule silently fails to match — so it
-  // is only ever mounted on the client, where React sets the text directly.
-  const [isMounted, setIsMounted] = useState(false);
+  // Fetched rather than imported, for two reasons that were one hack before.
+  //
+  // It injects its stylesheet as a React `<style>` child, and SSR escapes the
+  // quotes in its selectors — `<style>` holds raw text, so those entities never
+  // decode and every rule silently fails to match. It can only mount on the
+  // client. And it is 74KB of generated gradients for one border on one screen,
+  // in `shared`, which the extension also bundles: as an import it rides along
+  // in builds that can never render it.
+  //
+  // So the chunk arrives only where the composer does. The frame renders bare
+  // until it lands, which is the same thing the mount gate used to do, without
+  // an unexplained flash between mount and module.
+  const [Beam, setBeam] = useState<ComponentType<BorderBeamProps>>();
 
-  useEffect(() => setIsMounted(true), []);
+  useEffect(() => {
+    let isCurrent = true;
+
+    import('border-beam').then(({ BorderBeam }) => {
+      if (isCurrent) {
+        setBeam(() => BorderBeam);
+      }
+    });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
   const [feedback, setFeedback] = useState('');
   // The command becomes a token in the field rather than staying as text, so
   // what is left in the field is only ever the argument to it.
   const [command, setCommand] = useState<AgentCommand>();
+  // How far the first line has to start in to clear the command sitting over
+  // it. Measured in a ref callback rather than an effect: that runs inside the
+  // commit, so the text never paints once under the label and then jump.
+  const [commandIndent, setCommandIndent] = useState(0);
+
+  const measureCommand = (node: HTMLSpanElement | null) => {
+    // A space between the command and the argument, as if it were typed.
+    const next = node ? node.offsetWidth + 6 : 0;
+
+    setCommandIndent((current) => (current === next ? current : next));
+  };
   const [activeIndex, setActiveIndex] = useState(0);
   // The query that Escape was pressed on. Reopening on the next keystroke is
   // right; reopening on a re-render of the same text is not.
@@ -336,18 +370,22 @@ export const AgentComposer = (): ReactElement => {
             colour ramps, the hue-shift, the fade in and out and the radius
             auto-detection, and `active` drives all of that off the run. */}
         <ConditionalWrapper
-          condition={isMounted}
-          wrapper={(children) => (
-            <BorderBeam
-              size="md"
-              colorVariant="colorful"
-              strength={1}
-              theme={isLight ? 'light' : 'dark'}
-              active={isWorking}
-            >
-              {children}
-            </BorderBeam>
-          )}
+          condition={!!Beam}
+          wrapper={(children) =>
+            Beam ? (
+              <Beam
+                size="md"
+                colorVariant="colorful"
+                strength={1}
+                theme={isLight ? 'light' : 'dark'}
+                active={isWorking}
+              >
+                {children}
+              </Beam>
+            ) : (
+              <>{children}</>
+            )
+          }
         >
           <FlexCol className={composerFrame}>
             {!!attachments.length && (
@@ -362,70 +400,62 @@ export const AgentComposer = (): ReactElement => {
               </FlexRow>
             )}
 
-            {/* On the same line as the text it governs, not on a row of its
-                own: the field grew by a whole line for a token narrower than
-                the word next to it. */}
-            <FlexRow className="items-center gap-1.5">
-              {command && (
-                <Tooltip
-                  content={
-                    <FlexCol className="gap-0.5">
-                      <Typography type={TypographyType.Caption1} bold>
-                        /{command.name} {command.hint}
-                      </Typography>
-                      <Typography
-                        type={TypographyType.Caption2}
-                        color={TypographyColor.Tertiary}
-                      >
-                        {command.description}
-                        {command.ask && ' The argument is optional.'}
-                      </Typography>
-                    </FlexCol>
-                  }
-                >
-                  {/* A plain span, not a classed() component: those remount
-                      every render and a Radix trigger cannot hold one. */}
-                  <span className="flex items-center gap-1 rounded-8 bg-brand-float py-0.5 pl-1.5 pr-0.5">
-                    <span className="text-brand-default">
-                      <command.icon size={IconSize.Size16} />
-                    </span>
-                    <Typography
-                      type={TypographyType.Caption1}
-                      color={TypographyColor.Brand}
-                      bold
+            {/* The send sits at the foot of the field rather than in the
+                middle of it, so a prompt that runs to six lines does not leave
+                it hovering in the text. */}
+            <FlexRow className="items-end gap-1.5">
+              <div className="relative min-w-0 flex-1">
+                {command && (
+                  <Tooltip
+                    content={
+                      <FlexCol className="gap-0.5">
+                        <Typography type={TypographyType.Caption1} bold>
+                          /{command.name} {command.hint}
+                        </Typography>
+                        <Typography
+                          type={TypographyType.Caption2}
+                          color={TypographyColor.Tertiary}
+                        >
+                          {command.description}
+                          {command.ask && ' The argument is optional.'}
+                        </Typography>
+                      </FlexCol>
+                    }
+                  >
+                    {/* A plain span, not a classed() component: those remount
+                      every render and a Radix trigger cannot hold one.
+
+                      Sits over the first line of the field with the text
+                      indented past it, so the command reads as the first word
+                      of the prompt and everything after it wraps full width.
+                      No close button: Backspace on an empty field takes it
+                      back, which is where the hand already is. */}
+                    <span
+                      ref={measureCommand}
+                      className="pointer-events-auto absolute left-0 top-0 whitespace-nowrap text-brand-default typo-callout"
                     >
                       /{command.name}
-                    </Typography>
-                    <button
-                      type="button"
-                      aria-label={`Remove the ${command.name} command`}
-                      onClick={() => {
-                        setCommand(undefined);
-                        focusInput();
-                      }}
-                      className="flex size-4 shrink-0 items-center justify-center rounded-6 text-brand-default transition-colors hover:bg-surface-hover"
-                    >
-                      <MiniCloseIcon size={IconSize.Size16} />
-                    </button>
-                  </span>
-                </Tooltip>
-              )}
-              <textarea
-                ref={composerRef}
-                id="agent-composer"
-                name="agent-composer"
-                rows={1}
-                aria-label="Tell the agent what to change"
-                placeholder={placeholder}
-                value={feedback}
-                className="min-w-0 flex-1 resize-none self-center bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
-                onChange={(event) => {
-                  setFeedback(event.target.value);
-                  setDismissed(undefined);
-                  resize();
-                }}
-                onKeyDown={onKeyDown}
-              />
+                    </span>
+                  </Tooltip>
+                )}
+                <textarea
+                  ref={composerRef}
+                  id="agent-composer"
+                  name="agent-composer"
+                  rows={1}
+                  aria-label="Tell the agent what to change"
+                  placeholder={placeholder}
+                  value={feedback}
+                  className="block w-full resize-none bg-transparent text-text-primary outline-none typo-callout placeholder:text-text-quaternary"
+                  style={{ textIndent: commandIndent }}
+                  onChange={(event) => {
+                    setFeedback(event.target.value);
+                    setDismissed(undefined);
+                    resize();
+                  }}
+                  onKeyDown={onKeyDown}
+                />
+              </div>
               {isWorking ? (
                 <Button
                   // No stop glyph in the icon set, and a drawn square is the
@@ -438,7 +468,7 @@ export const AgentComposer = (): ReactElement => {
                   }
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Tertiary}
-                  className="self-center"
+                  className="shrink-0"
                   aria-label="Stop the agent"
                   onClick={stopCommand}
                 />
@@ -454,7 +484,7 @@ export const AgentComposer = (): ReactElement => {
                   }
                   size={ButtonSize.Small}
                   variant={ButtonVariant.Tertiary}
-                  className="self-center"
+                  className="shrink-0"
                   aria-label="Send to agent"
                   disabled={!feedback.trim() && !command}
                   onClick={onSubmit}

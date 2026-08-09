@@ -266,26 +266,49 @@ describe('AgentWorkspace transcript', () => {
     expect(screen.queryByLabelText('Scroll to latest')).not.toBeInTheDocument();
   });
 
-  // Yanking someone down mid-read is the thing a good transcript never does,
-  // so a reply that lands while they are up the page is announced, not chased.
-  it('announces a reply that lands while the reader is up the page', () => {
+  // Sending is itself an act of arriving at the bottom: whatever the reader had
+  // scrolled up to read, they are done with it, and the answer they just asked
+  // for belongs on screen rather than behind a button.
+  it('goes down to the tail when the reader sends from up the page', async () => {
     stubStore(600);
     const { agent } = renderWorkspace();
     scrollTo(600);
 
     expect(screen.getByLabelText('Scroll to latest')).toBeInTheDocument();
-    expect(screen.queryByText('New reply')).not.toBeInTheDocument();
 
     send(agent);
 
+    expect(screen.queryByLabelText('Scroll to latest')).not.toBeInTheDocument();
+    // The new row is not laid out on the commit that appended it, so the follow
+    // waits a frame for `scrollHeight` to be the post-append number.
+    await waitFor(() => expect(transcript().scrollTop).toBe(2000));
+  });
+
+  // Yanking someone down mid-read is the thing a good transcript never does, so
+  // what the agent says back on its own is announced rather than chased.
+  it('announces a reply that lands while the reader is up the page', () => {
+    jest.useFakeTimers();
+    stubStore(600);
+    const { agent } = renderWorkspace();
+    send(agent);
+    // Up the page after sending, while the reply is still in flight.
+    scrollTo(600);
+
+    expect(screen.queryByText('New reply')).not.toBeInTheDocument();
+
+    act(() => jest.runOnlyPendingTimers());
+
     expect(screen.getByText('New reply')).toBeInTheDocument();
+    jest.useRealTimers();
   });
 
   it('takes the reader back down when they ask', () => {
+    jest.useFakeTimers();
     stubStore(600);
     const { agent } = renderWorkspace();
-    scrollTo(600);
     send(agent);
+    scrollTo(600);
+    act(() => jest.runOnlyPendingTimers());
 
     fireEvent.click(screen.getByLabelText('Scroll to latest'));
 
@@ -294,16 +317,20 @@ describe('AgentWorkspace transcript', () => {
       behavior: 'smooth',
     });
     expect(screen.queryByText('New reply')).not.toBeInTheDocument();
+    jest.useRealTimers();
   });
 
   it('drops the announcement once the reader scrolls back down themselves', () => {
+    jest.useFakeTimers();
     stubStore(600);
     const { agent } = renderWorkspace();
-    scrollTo(600);
     send(agent);
+    scrollTo(600);
+    act(() => jest.runOnlyPendingTimers());
     scrollTo(0);
 
     expect(screen.queryByLabelText('Scroll to latest')).not.toBeInTheDocument();
+    jest.useRealTimers();
   });
 });
 

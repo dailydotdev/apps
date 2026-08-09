@@ -35,6 +35,10 @@ const field = () =>
 const type = (value: string) =>
   fireEvent.change(field(), { target: { value } });
 
+/** How far the field's first line starts in, past an armed command. */
+const indent = () =>
+  parseFloat(field().style.getPropertyValue('text-indent')) || 0;
+
 const lastPrompt = (agent: { current: Agent }) =>
   agent.current.messages.filter(({ role }) => role === 'user').at(-1)?.text;
 
@@ -134,6 +138,44 @@ describe('AgentComposer', () => {
       expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
       expect(screen.getByText('/explore')).toBeInTheDocument();
       expect(field().value).toBe('');
+    });
+
+    // The armed command reads as the first word of the prompt, the way a
+    // terminal agent shows it: coloured text over the first line with the text
+    // indented past it, not a chip that takes a column out of the field.
+    it('shows the armed command inline, and takes it back on Backspace', () => {
+      mountComposer();
+
+      type('/');
+      fireEvent.keyDown(field(), { key: 'Enter' });
+
+      const label = screen.getByText('/explore');
+
+      expect(label).toHaveClass('absolute');
+      // The first line starts in past the label. jsdom measures every element
+      // at zero width, so the number is only ever the gap — what matters is
+      // that it is set at all, and that it goes back to nothing below.
+      expect(indent()).toBeGreaterThan(0);
+      // No close button on it: the hand is already on the keyboard, and
+      // Backspace in an empty field is where a terminal agent puts this.
+      expect(
+        screen.queryByLabelText('Remove the explore command'),
+      ).not.toBeInTheDocument();
+
+      fireEvent.keyDown(field(), { key: 'Backspace' });
+
+      expect(screen.queryByText('/explore')).not.toBeInTheDocument();
+      expect(indent()).toBe(0);
+    });
+
+    // A prompt that runs to six lines should not leave the send hovering in the
+    // middle of the text.
+    it('keeps the send at the foot of the field', () => {
+      mountComposer();
+
+      expect(
+        screen.getByLabelText('Send to agent').closest('.items-end'),
+      ).not.toBeNull();
     });
 
     it('moves through the list with the arrow keys', () => {

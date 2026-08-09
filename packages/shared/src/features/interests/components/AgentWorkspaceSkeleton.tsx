@@ -47,7 +47,9 @@ export const AgentWorkspaceSkeleton = ({
       </FlexRow>
 
       <div className="min-h-0 flex-1 overflow-hidden px-5 tablet:px-8 laptop:px-10">
-        <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 py-6">
+        {/* Matches the transcript's own padding, foot included, so nothing
+            shifts when the real thing lands. */}
+        <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 pb-14 pt-6">
           {/* The cadence line under the header. */}
           <FlexCol className="gap-2 border-b border-border-subtlest-quaternary pb-4">
             <Block className="h-3 w-72 max-w-full" />
