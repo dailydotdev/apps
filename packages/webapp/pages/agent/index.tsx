@@ -20,8 +20,14 @@ const Page = (): ReactElement | null => {
   const { user, isAuthReady } = useAuthContext();
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
-    shouldEvaluate: isAuthReady,
+    // Signed-in only, as at every other entry point: evaluating enrolls, and an
+    // anonymous visitor can never see the feature to be measured on it.
+    shouldEvaluate: isAuthReady && !!user,
   });
+  // A signed-in reader without the flag has nothing here. An anonymous one has
+  // not been evaluated at all, so they fall through to the sign-in wall rather
+  // than being bounced off a page the flag never spoke about.
+  const isGatedOut = isAuthReady && !!user && !showAgent;
 
   const { data: interests, isPending } = useQuery(interestsQueryOptions(user));
   const { isCreating, createInterest } = useCreateInterest({
@@ -29,12 +35,12 @@ const Page = (): ReactElement | null => {
   });
 
   useEffect(() => {
-    if (isAuthReady && !showAgent) {
+    if (isGatedOut) {
       router.replace(webappUrl);
     }
-  }, [isAuthReady, showAgent, router]);
+  }, [isGatedOut, router]);
 
-  if (isAuthReady && !showAgent) {
+  if (isGatedOut) {
     return null;
   }
 

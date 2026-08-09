@@ -58,8 +58,14 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
   const { user, isAuthReady } = useAuthContext();
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
-    shouldEvaluate: isAuthReady,
+    // Signed-in only, as at every other entry point: evaluating enrolls, and an
+    // anonymous visitor can never see the feature to be measured on it.
+    shouldEvaluate: isAuthReady && !!user,
   });
+  // A signed-in reader without the flag has nothing here. An anonymous one has
+  // not been evaluated at all, so they fall through to the sign-in wall rather
+  // than being bounced off a page the flag never spoke about.
+  const isGatedOut = isAuthReady && !!user && !showAgent;
 
   const interestQuery = useQuery(interestQueryOptions(id, user));
   const postsQuery = useQuery(interestPostsQueryOptions(id, user));
@@ -76,22 +82,26 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
   // findings for the design surface, and an opening turn citing posts the agent
   // never saw is worse than one citing none.
   const findings = feed.isDemo ? [] : feed.items;
+  // The findings by identity rather than by count: `feed.items` is a new array
+  // every render, and keying on its length left the opening turn citing the
+  // previous posts when a refetch returned the same number of different ones.
+  const findingIds = findings.map((finding) => finding.id).join();
   // A real agent has no stored transcript yet, so it opens with the prompt that
   // spawned it and the agent's answer — rebuilt from the interest. Memoised
   // because the provider adopts it by identity.
   const initialMessages = useMemo(
     () => (interest ? openingMessages(interest, findings) : mockConversation),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [interest, findings.length],
+    [interest, findingIds],
   );
 
   useEffect(() => {
-    if (isAuthReady && !showAgent) {
+    if (isGatedOut) {
       router.replace(webappUrl);
     }
-  }, [isAuthReady, showAgent, router]);
+  }, [isGatedOut, router]);
 
-  if (isAuthReady && !showAgent) {
+  if (isGatedOut) {
     return null;
   }
 

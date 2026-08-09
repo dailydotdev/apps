@@ -157,9 +157,9 @@ export const AgentProvider = ({
   const [draft, setDraft] = useState<string>();
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  // The completion timeout needs the *current* starter to drain the queue, and
-  // a plain closure would freeze the one from its own render.
-  const startRunRef = useRef<(args: RunCommandArgs) => void>();
+  // `runCommand` decides queue-or-start during an event, before a re-render has
+  // delivered the new `working`, so it reads the ref. The drain effect below
+  // reads the state, because it is the render that has to react.
   const workingRef = useRef(false);
 
   useEffect(() => {
@@ -268,10 +268,6 @@ export const AgentProvider = ({
     },
     [displayToast, interest, isDemo, sendCommand],
   );
-
-  useEffect(() => {
-    startRunRef.current = startRun;
-  }, [startRun]);
 
   // Drain the queue the way Claude Code does: the next queued prompt becomes a
   // real turn only once the previous one has resolved.

@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import {
   Typography,
@@ -32,6 +32,7 @@ import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 import { useViewSize, ViewSize } from '../../../hooks';
 import type { AgentContentTarget } from '../AgentContext';
 import { contentTargetId, useAgent } from '../AgentContext';
+import { useNarrowContainer } from '../hooks/useNarrowContainer';
 import { AgentActivitySection } from './AgentActivitySection';
 
 const noop = () => undefined;
@@ -77,27 +78,34 @@ const FeedView = ({
 }: {
   posts: Post[];
   onOpenPost: (post: Post) => void;
-}): ReactElement => (
-  <FlexCol className="agent-panel-feed agent-media-ring">
-    {posts.map((post) => (
-      <ArticleList
-        key={post.id}
-        post={post}
-        onPostClick={(clicked, event) => {
-          event?.preventDefault();
-          onOpenPost(clicked);
-        }}
-        onPostAuxClick={noop}
-        onUpvoteClick={noop}
-        onDownvoteClick={noop}
-        onCommentClick={noop}
-        onBookmarkClick={noop}
-        onCopyLinkClick={noop}
-        onShare={noop}
-      />
-    ))}
-  </FlexCol>
-);
+}): ReactElement => {
+  // The panel is a column the reader drags, so the cards ask it how wide it is
+  // rather than asking the window — which is a desktop even when this is 320px.
+  const { ref, isNarrow } = useNarrowContainer<HTMLDivElement>();
+
+  return (
+    <FlexCol className="agent-media-ring" ref={ref}>
+      {posts.map((post) => (
+        <ArticleList
+          key={post.id}
+          post={post}
+          isNarrow={isNarrow}
+          onPostClick={(clicked, event) => {
+            event?.preventDefault();
+            onOpenPost(clicked);
+          }}
+          onPostAuxClick={noop}
+          onUpvoteClick={noop}
+          onDownvoteClick={noop}
+          onCommentClick={noop}
+          onBookmarkClick={noop}
+          onCopyLinkClick={noop}
+          onShare={noop}
+        />
+      ))}
+    </FlexCol>
+  );
+};
 
 export const AgentContentPane = ({
   width,
@@ -123,6 +131,13 @@ export const AgentContentPane = ({
   } = useAgent();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const drawerRef = useRef<DrawerRef>(null);
+  // A drag holds two global listeners and two properties on `document.body`.
+  // Only the pointer coming up used to take them back, so a panel that went
+  // away mid-drag — a route change, Escape closing the last tab — left the whole
+  // app unselectable under a col-resize cursor until the next full reload.
+  const releaseDragRef = useRef<() => void>();
+
+  useEffect(() => () => releaseDragRef.current?.(), []);
   useKeyboardNavigation(globalThis?.window, [
     // While a run is in flight Escape belongs to the stop control in the
     // workspace; closing a tab on the same keypress would double its meaning.
@@ -145,18 +160,31 @@ export const AgentContentPane = ({
       latest = onWidthChange(startWidth - (moveEvent.clientX - startX));
     };
 
-    const onUp = () => {
-      globalThis.removeEventListener('pointermove', onMove);
-      globalThis.removeEventListener('pointerup', onUp);
+    // One signal takes both listeners off, whether the pointer came up or the
+    // panel went away underneath the drag.
+    const controller = new AbortController();
+    const release = () => {
+      controller.abort();
       document.body.style.removeProperty('user-select');
       document.body.style.removeProperty('cursor');
+      releaseDragRef.current = undefined;
+    };
+
+    const onUp = () => {
+      release();
       onWidthCommit(latest);
     };
 
     document.body.style.setProperty('user-select', 'none');
     document.body.style.setProperty('cursor', 'col-resize');
-    globalThis.addEventListener('pointermove', onMove);
-    globalThis.addEventListener('pointerup', onUp);
+    globalThis.addEventListener('pointermove', onMove, {
+      signal: controller.signal,
+    });
+    globalThis.addEventListener('pointerup', onUp, {
+      signal: controller.signal,
+    });
+    // Handed to the unmount cleanup above, so the drag cannot outlive the panel.
+    releaseDragRef.current = release;
   };
 
   // On a phone the panel is a page in its own right, so it arrives like one:

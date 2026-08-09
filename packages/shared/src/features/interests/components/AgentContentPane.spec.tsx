@@ -147,6 +147,43 @@ describe('AgentContentPane on a laptop', () => {
       width: '480px',
     });
   });
+
+  // A drag holds two window listeners and two properties on `document.body`.
+  // Only the pointer coming up used to take them back, so a panel that went
+  // away mid-drag left the whole app unselectable under a col-resize cursor.
+  it('lets go of the window and the body if it unmounts mid-drag', () => {
+    const { unmount } = renderPane([{ type: 'activity' }]);
+    const added: string[] = [];
+    const addSpy = jest
+      .spyOn(globalThis, 'addEventListener')
+      .mockImplementation((type, ...rest) => {
+        added.push(type);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return (EventTarget.prototype.addEventListener as any).call(
+          globalThis,
+          type,
+          ...rest,
+        );
+      });
+
+    // jsdom has no PointerEvent, and the handler only reads `clientX`.
+    fireEvent.pointerDown(screen.getByLabelText('Resize panel'), {
+      clientX: 600,
+    });
+
+    expect(added).toEqual(expect.arrayContaining(['pointermove', 'pointerup']));
+    expect(document.body.style.getPropertyValue('cursor')).toBe('col-resize');
+
+    addSpy.mockRestore();
+    unmount();
+
+    expect(document.body.style.getPropertyValue('cursor')).toBe('');
+    expect(document.body.style.getPropertyValue('user-select')).toBe('');
+
+    // And the listeners are gone with it: a move after unmount changes nothing.
+    fireEvent.pointerMove(globalThis.window, { clientX: 100 });
+    expect(document.body.style.getPropertyValue('cursor')).toBe('');
+  });
 });
 
 describe('AgentContentPane on a phone', () => {
