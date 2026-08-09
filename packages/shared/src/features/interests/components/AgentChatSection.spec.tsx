@@ -192,22 +192,34 @@ describe('sharing a reply', () => {
     ).toBeInTheDocument();
   });
 
-  // The preview is the export, so there is nothing to copy until it is drawn —
-  // and nowhere without a 2d canvas can draw it at all. jsdom is one of those,
-  // which makes this the degraded path as well as the loading one.
-  it('cannot offer an image it has not managed to draw', () => {
+  // The card on screen is what gets photographed, so it has to be the real one
+  // — citations as links included, which is the design that was asked for back.
+  it('shows the reply it is about, citations and all', () => {
     renderTranscript();
 
     fireEvent.click(screen.getByLabelText('Share reply'));
+    const dialog = screen.getByRole('dialog');
 
+    expect(dialog).toHaveTextContent('Daily run');
     expect(
-      within(screen.getByRole('dialog')).getByRole('button', {
-        name: /Copy image/,
-      }),
-    ).toBeDisabled();
+      within(dialog).getByRole('link', { name: 'Zig 0.15' }),
+    ).toHaveAttribute('href', 'https://app.daily.dev/posts/p1');
   });
 
-  it('keeps the link working when the picture cannot be drawn', () => {
+  it('signs the card, so a reply that travels says whose it is', () => {
+    renderTranscript();
+
+    fireEvent.click(screen.getByLabelText('Share reply'));
+    const dialog = screen.getByRole('dialog');
+
+    expect(dialog).toHaveTextContent('Agent');
+    expect(dialog.querySelector('.agent-share-card')).toBeInTheDocument();
+    // The glow has to be an element: a clone cannot carry a `::before`, and the
+    // copied image is a clone.
+    expect(dialog.querySelector('.agent-share-glow')).toBeInTheDocument();
+  });
+
+  it('keeps the link working alongside it', () => {
     renderTranscript();
 
     fireEvent.click(screen.getByLabelText('Share reply'));

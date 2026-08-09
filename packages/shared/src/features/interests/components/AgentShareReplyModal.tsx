@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Modal } from '../../../components/modals/common/Modal';
 import { ModalKind, ModalSize } from '../../../components/modals/common/types';
 import {
@@ -18,8 +18,7 @@ import { IconSize } from '../../../components/Icon';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useViewSize, ViewSize } from '../../../hooks';
 import type { AgentMessage } from '../chat';
-import { replyCardBlob, replyCardContent } from '../replyImage';
-import { messageAsText } from '../replyText';
+import { nodeToPng } from '../nodeToPng';
 import { useAgent } from '../AgentContext';
 import { useShareAgent } from '../hooks/useShareAgent';
 import { AgentReplyCard } from './AgentReplyCard';
@@ -56,30 +55,9 @@ export const AgentShareReplyModal = ({
   const { isCopying, onShare } = useShareAgent(interest);
   const { displayToast } = useToastNotification();
   const [isCopied, setCopied] = useState(false);
-  const [card, setCard] = useState<{ blob: Blob; src: string }>();
+  const [isDrawing, setDrawing] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   const isMobile = !useViewSize(ViewSize.Tablet);
-
-  // Drawn once, on open, and then both shown and sent. Revoked on the way out,
-  // or an object URL survives every sheet the reader ever opened.
-  useEffect(() => {
-    let src: string;
-
-    replyCardBlob(replyCardContent(message, name, 'Agent'))
-      .then((blob) => {
-        src = URL.createObjectURL(blob);
-        setCard({ blob, src });
-      })
-      // Somewhere without a 2d canvas cannot have a picture of the reply. The
-      // sheet keeps the placeholder and the link, rather than the whole thing
-      // failing over an illustration.
-      .catch(() => undefined);
-
-    return () => {
-      if (src) {
-        URL.revokeObjectURL(src);
-      }
-    };
-  }, [message, name]);
 
   useEffect(() => {
     if (!isCopied) {
@@ -93,12 +71,28 @@ export const AgentShareReplyModal = ({
 
   const shareLabel = isMobile ? 'Share agent' : 'Copy link';
 
+  // A photograph of the card above, taken when asked for rather than kept
+  // around: it is the card on screen that is the design, and rendering it early
+  // would only give the two a chance to disagree.
   const copyImage = async () => {
-    if (!card) {
+    if (!cardRef.current) {
       return;
     }
 
-    const { blob } = card;
+    setDrawing(true);
+
+    let blob: Blob;
+
+    try {
+      blob = await nodeToPng(cardRef.current);
+    } catch {
+      displayToast('Could not turn the reply into an image');
+      setDrawing(false);
+
+      return;
+    }
+
+    setDrawing(false);
 
     try {
       if (typeof ClipboardItem === 'undefined') {
@@ -133,10 +127,7 @@ export const AgentShareReplyModal = ({
     >
       <Modal.Header title="Share this reply" />
       <Modal.Body className="gap-5">
-        <AgentReplyCard
-          src={card?.src}
-          alt={`${name} — ${messageAsText(message)}`}
-        />
+        <AgentReplyCard ref={cardRef} message={message} name={name} />
 
         {/* Stacked on a phone, where a row of two would be two cramped
             buttons; side by side from tablet up, primary first. */}
@@ -172,7 +163,7 @@ export const AgentShareReplyModal = ({
                 <ImageIcon size={IconSize.Size16} />
               )
             }
-            disabled={!card}
+            loading={isDrawing}
             onClick={copyImage}
           >
             {isCopied ? 'Image copied' : 'Copy image'}

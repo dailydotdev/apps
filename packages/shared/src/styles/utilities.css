@@ -1068,6 +1068,10 @@
 .agent-share-card {
   position: relative;
   isolation: isolate;
+  /* The glow is clipped to the card's own rounded box rather than bleeding past
+     it: the export is cropped to this box, and a halo that only exists outside
+     it is a halo the copied image does not have. */
+  overflow: hidden;
   border: 1px solid
     color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 80%);
   background: linear-gradient(
@@ -1089,20 +1093,22 @@
     0 18px 40px -18px rgb(0 0 0 / 60%);
 }
 
-/* The brand's colour arriving from off the top of the card, not painted on it. */
-.agent-share-card::before {
-  content: '';
+/* The brand's colour arriving from off the top of the card, not painted on it.
+
+   A real element rather than a `::before`, because the sheet exports this card
+   by cloning it and a clone does not carry pseudo-elements — as a `::before` the
+   glow was on screen and missing from every copied image. */
+.agent-share-glow {
   position: absolute;
-  inset: -55% 12% auto 12%;
-  height: 70%;
-  z-index: -1;
+  inset: -18% 8% auto 8%;
+  height: 55%;
   background: radial-gradient(
-    50% 100% at 50% 100%,
-    color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent),
-    transparent 72%
+    50% 100% at 50% 50%,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, transparent),
+    transparent 70%
   );
-  filter: blur(44px);
-  opacity: 0.4;
+  filter: blur(40px);
+  opacity: 0.45;
   pointer-events: none;
 }
 
