@@ -65,7 +65,10 @@ export const useGetShortUrl = ({
       const { trackedUrl, queryKey } = getProps(url, cid);
 
       try {
-        return queryClient.fetchQuery({
+        // Awaited inside the `try`, or the rejection leaves before the `catch`
+        // can see it: the fallback below never ran, and a shortener that was
+        // down took the whole share with it as an unhandled rejection.
+        return await queryClient.fetchQuery({
           queryKey,
           queryFn: () => queryShortUrl(trackedUrl),
           staleTime: Infinity,

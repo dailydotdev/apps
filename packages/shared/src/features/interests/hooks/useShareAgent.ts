@@ -16,8 +16,16 @@ import type { UserInterest } from '../../../graphql/interests';
  * question rather than exposing a transcript, and the recipient gets something
  * that keeps working for them rather than a snapshot of someone else's feed.
  */
-export const agentShareLink = (query: string): string =>
-  `${webappUrl}agent?q=${encodeURIComponent(query)}`;
+export const agentShareLink = (query: string): string => {
+  const path = `${webappUrl}agent?q=${encodeURIComponent(query)}`;
+  // Absolute, because the share pipeline hangs the referral params on the link
+  // with `new URL(link)` and `webappUrl` is a bare path in development — which
+  // threw rather than degrading. The browser's own origin is what the other
+  // in-app share links are built from for the same reason.
+  const origin = globalThis?.location?.origin;
+
+  return origin ? new URL(path, origin).toString() : path;
+};
 
 export const useShareAgent = (
   interest?: Pick<UserInterest, 'query'>,
