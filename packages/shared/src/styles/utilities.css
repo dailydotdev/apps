@@ -1058,6 +1058,54 @@
   opacity: 0.35;
 }
 
+/* The reply as a thing you could have taken a picture of.
+
+   Lit from above and resting on a layered shadow, so it reads as an object
+   sitting on the sheet rather than another panel drawn in it. That is the whole
+   job: the sheet is asking "send this", and an image is easier to agree to than
+   a paragraph in a box. Authored in DOM rather than as a real image so the text
+   stays selectable and the links stay links. */
+.agent-share-card {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid
+    color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 80%);
+  background: linear-gradient(
+    180deg,
+    color-mix(
+        in srgb,
+        var(--theme-accent-cabbage-default) 8%,
+        var(--theme-background-subtle)
+      )
+      0%,
+    var(--theme-background-subtle) 46%
+  );
+  box-shadow:
+    /* The top edge catching the light. */
+    inset 0 1px 0
+      color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 82%),
+    /* Two shadows, near and far: one gives it an edge, the other gives it
+       somewhere to be. */ 0 2px 6px -3px rgb(0 0 0 / 45%),
+    0 18px 40px -18px rgb(0 0 0 / 60%);
+}
+
+/* The brand's colour arriving from off the top of the card, not painted on it. */
+.agent-share-card::before {
+  content: '';
+  position: absolute;
+  inset: -55% 12% auto 12%;
+  height: 70%;
+  z-index: -1;
+  background: radial-gradient(
+    50% 100% at 50% 100%,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 60%, transparent),
+    transparent 72%
+  );
+  filter: blur(44px);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 /* One line replacing another in place — the monitor's ticker. Shorter and
    flatter than the menu's entrance: this fires every few seconds, and
    anything with real travel in it becomes the loudest thing on the page. */

@@ -24,9 +24,20 @@ export const mockMatchMedia = (
 export const laptopQuery = '(min-width: 1020px)';
 export const noHoverQuery = '(hover: none)';
 
-/** A desktop pointer on a laptop-sized window. */
+/**
+ * A desktop pointer on a laptop-sized window.
+ *
+ * Every width breakpoint at or below laptop matches, because a 1020px window is
+ * also wider than tablet. Answering only the laptop query made a desktop that
+ * was somehow not a tablet, and any component asking for the smaller breakpoint
+ * was told it was on a phone.
+ */
 export const mockDesktop = (): void =>
-  mockMatchMedia((query) => query === laptopQuery);
+  mockMatchMedia((query) => {
+    const [, min] = /min-width:\s*(\d+)px/.exec(query) ?? [];
+
+    return !!min && Number(min) <= 1020;
+  });
 
 /** A phone: no hover, and below every width breakpoint. */
 export const mockTouchPhone = (): void =>

@@ -34,7 +34,6 @@ import type { AgentBlock, AgentMessage } from '../chat';
 import { useAgent } from '../AgentContext';
 import { transcriptProse } from '../prose';
 import { messageAsMarkdown, messageAsText } from '../replyText';
-import { agentShareLink } from '../hooks/useShareAgent';
 import { AgentShareReplyModal } from './AgentShareReplyModal';
 import { feedAttachment, quoteAttachment } from '../attachments';
 import { AgentPickList } from './AgentPickList';
@@ -147,7 +146,7 @@ const MessageActions = ({
 }: {
   message: AgentMessage;
 }): ReactElement => {
-  const { attachContext, writeDraft, interest } = useAgent();
+  const { attachContext, writeDraft } = useAgent();
   const [, copyText] = useCopyText();
   const [isCopied, setCopied] = useState(false);
   const [isSharing, setSharing] = useState(false);
@@ -251,8 +250,6 @@ const MessageActions = ({
           isOpen
           onRequestClose={() => setSharing(false)}
           message={message}
-          title={interest?.query ?? 'This agent'}
-          link={agentShareLink(interest?.query ?? '')}
         />
       )}
 

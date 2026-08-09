@@ -12,45 +12,50 @@ import {
   TypographyColor,
   TypographyType,
 } from '../../../components/typography/Typography';
-import { FlexCol } from '../../../components/utilities';
-import Markdown from '../../../components/Markdown';
-import { LinkIcon, VIcon } from '../../../components/icons';
+import { FlexCol, FlexRow } from '../../../components/utilities';
+import { CopyIcon, LinkIcon, VIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useCopyText } from '../../../hooks/useCopy';
+import { useViewSize, ViewSize } from '../../../hooks';
 import type { AgentMessage } from '../chat';
-import { messageAsHtml } from '../replyText';
-import { transcriptProse } from '../prose';
+import { messageAsMarkdown } from '../replyText';
+import { useAgent } from '../AgentContext';
+import { useShareAgent } from '../hooks/useShareAgent';
+import { AgentReplyCard } from './AgentReplyCard';
 
 /**
- * The share sheet for one reply.
+ * The sheet for passing a reply on.
  *
- * Shaped like the one ChatGPT opens: the reply itself above, fading out at the
- * foot so a long one reads as a preview rather than a truncation, and a single
- * round action under it. One button, because a sheet that opens on a press
- * should not then ask which kind of sharing was meant.
+ * The reply itself is the subject, so it is a card — signed, attributed, and
+ * sitting on the sheet like something already made rather than a quotation in a
+ * box. Everything under it is ordinary: two buttons of the shapes this app uses
+ * everywhere else, because a bespoke control is one more thing to learn on a
+ * screen whose whole job is one press.
  *
- * What the link opens is the agent's topic, not a copy of this conversation.
- * There is no published transcript to point at — and a question that keeps
- * working for the recipient is worth more than a snapshot of someone else's
- * findings anyway. The caption says so plainly rather than letting the reader
- * assume they have published the reply.
+ * Two presses, because two different things are worth sending. The link hands
+ * over the agent's topic, so the recipient can have their own watching it. The
+ * text hands over what this run actually found, for a thread that wants the
+ * findings rather than a subscription. Neither is a copy of the conversation:
+ * there is no published transcript to point at, and the line under the buttons
+ * says so rather than letting the reader believe they have published it.
  */
 export const AgentShareReplyModal = ({
   isOpen,
   onRequestClose,
   message,
-  title,
-  link,
 }: {
   isOpen: boolean;
   onRequestClose: () => void;
   message: AgentMessage;
-  /** The agent's name, the way the sheet is titled by the conversation's. */
-  title: string;
-  link: string;
 }): ReactElement => {
+  const { interest } = useAgent();
+  const name = interest?.query ?? 'This agent';
+  // The app's own share path: the system sheet where there is one, a tracked
+  // copy where there is not, and the referral params either way.
+  const { isCopying, onShare } = useShareAgent(interest);
   const [, copyText] = useCopyText();
   const [isCopied, setCopied] = useState(false);
+  const isMobile = !useViewSize(ViewSize.Tablet);
 
   useEffect(() => {
     if (!isCopied) {
@@ -62,6 +67,8 @@ export const AgentShareReplyModal = ({
     return () => clearTimeout(timer);
   }, [isCopied]);
 
+  const shareLabel = isMobile ? 'Share agent' : 'Copy link';
+
   return (
     <Modal
       isOpen={isOpen}
@@ -69,53 +76,63 @@ export const AgentShareReplyModal = ({
       kind={ModalKind.FlexibleCenter}
       size={ModalSize.Medium}
     >
-      <Modal.Header title={title} />
-      <Modal.Body className="gap-6">
-        <div className="relative max-h-72 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4">
-          {/* The transcript's own prose, so the preview reads as the reply
-              rather than as a quotation of it. */}
-          <Markdown
-            className={transcriptProse}
-            content={messageAsHtml(message)}
-          />
-          {/* The reply runs out rather than stopping: a hard cut reads as
-              content the sheet lost. */}
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-surface-float to-transparent"
-          />
-        </div>
+      <Modal.Header title="Share this reply" />
+      <Modal.Body className="gap-5">
+        <AgentReplyCard message={message} name={name} />
 
-        <FlexCol className="items-center gap-2 pb-2">
+        {/* Stacked on a phone, where a row of two would be two cramped
+            buttons; side by side from tablet up, primary first. */}
+        <FlexCol className="gap-3 tablet:flex-row">
           <Button
             variant={ButtonVariant.Primary}
-            size={ButtonSize.XLarge}
-            className="!rounded-full"
+            size={ButtonSize.Medium}
+            className="flex-1"
             icon={
-              isCopied ? (
-                <VIcon size={IconSize.Large} className="agent-icon-in" />
+              isCopying ? (
+                <VIcon size={IconSize.Size16} className="agent-icon-in" />
               ) : (
-                <LinkIcon size={IconSize.Large} />
+                <LinkIcon size={IconSize.Size16} />
               )
             }
-            aria-label={isCopied ? 'Link copied' : 'Copy link'}
+            onClick={onShare}
+          >
+            {/* The hook opens the system sheet on a phone, so the label has to
+                say the thing that is about to happen. */}
+            {isCopying ? 'Link copied' : shareLabel}
+          </Button>
+          <Button
+            variant={ButtonVariant.Float}
+            size={ButtonSize.Medium}
+            className="flex-1"
+            icon={
+              isCopied ? (
+                <VIcon
+                  size={IconSize.Size16}
+                  className="agent-icon-in text-status-success"
+                />
+              ) : (
+                <CopyIcon size={IconSize.Size16} />
+              )
+            }
             onClick={() => {
-              copyText({ textToCopy: link });
+              copyText({ textToCopy: messageAsMarkdown(message) });
               setCopied(true);
             }}
-          />
-          <Typography type={TypographyType.Callout}>
-            {isCopied ? 'Link copied' : 'Copy link'}
-          </Typography>
+          >
+            {isCopied ? 'Reply copied' : 'Copy reply'}
+          </Button>
+        </FlexCol>
+
+        <FlexRow className="justify-center pb-1">
           <Typography
             type={TypographyType.Caption1}
             color={TypographyColor.Tertiary}
-            className="max-w-xs text-center"
+            className="max-w-sm text-center"
           >
-            The link opens this agent with its topic ready to run. The reply
-            itself stays here.
+            The link opens this agent with its topic ready to run. Nothing here
+            is published.
           </Typography>
-        </FlexCol>
+        </FlexRow>
       </Modal.Body>
     </Modal>
   );

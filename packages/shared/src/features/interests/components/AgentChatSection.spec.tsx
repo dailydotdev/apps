@@ -190,16 +190,46 @@ describe('sharing a reply', () => {
     ).toBeInTheDocument();
   });
 
-  it('copies an absolute link', () => {
+  it('offers the two things worth sending, and no bespoke control', () => {
+    renderTranscript();
+
+    fireEvent.click(screen.getByLabelText('Share reply'));
+    const dialog = screen.getByRole('dialog');
+
+    // The link is the subscription, the text is this run's findings. The
+    // absolute-link guarantee itself is covered in useShareAgent's spec.
+    expect(
+      within(dialog).getByRole('button', { name: /Copy link/ }),
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole('button', { name: /Copy reply/ }),
+    ).toBeInTheDocument();
+  });
+
+  it('copies the reply as markdown, links and all', () => {
     const copyText = jest.fn();
     jest.spyOn(copy, 'useCopyText').mockReturnValue([false, copyText] as never);
     renderTranscript();
 
     fireEvent.click(screen.getByLabelText('Share reply'));
-    fireEvent.click(screen.getByLabelText('Copy link'));
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: /Copy reply/,
+      }),
+    );
 
     const [{ textToCopy }] = copyText.mock.calls[0];
 
-    expect(() => new URL(textToCopy)).not.toThrow();
+    expect(textToCopy).toContain('[Zig 0.15](https://app.daily.dev/posts/p1)');
+  });
+
+  it('signs the card, so a reply that travels says whose it is', () => {
+    renderTranscript();
+
+    fireEvent.click(screen.getByLabelText('Share reply'));
+    const dialog = screen.getByRole('dialog');
+
+    expect(dialog).toHaveTextContent('Agent');
+    expect(dialog.querySelector('.agent-share-card')).toBeInTheDocument();
   });
 });
