@@ -13,12 +13,13 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
-import { CopyIcon, LinkIcon, VIcon } from '../../../components/icons';
+import { ImageIcon, LinkIcon, VIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
-import { useCopyText } from '../../../hooks/useCopy';
+import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useViewSize, ViewSize } from '../../../hooks';
 import type { AgentMessage } from '../chat';
-import { messageAsMarkdown } from '../replyText';
+import { replyCardBlob, replyCardContent } from '../replyImage';
+import { messageAsText } from '../replyText';
 import { useAgent } from '../AgentContext';
 import { useShareAgent } from '../hooks/useShareAgent';
 import { AgentReplyCard } from './AgentReplyCard';
@@ -34,10 +35,10 @@ import { AgentReplyCard } from './AgentReplyCard';
  *
  * Two presses, because two different things are worth sending. The link hands
  * over the agent's topic, so the recipient can have their own watching it. The
- * text hands over what this run actually found, for a thread that wants the
- * findings rather than a subscription. Neither is a copy of the conversation:
- * there is no published transcript to point at, and the line under the buttons
- * says so rather than letting the reader believe they have published it.
+ * image hands over what this run found, for the places a link is not welcome —
+ * a thread, a screenshot channel, a slide. Neither publishes the conversation:
+ * there is no transcript to point at, and the line under the buttons says so
+ * rather than letting the reader believe they have published it.
  */
 export const AgentShareReplyModal = ({
   isOpen,
@@ -53,9 +54,32 @@ export const AgentShareReplyModal = ({
   // The app's own share path: the system sheet where there is one, a tracked
   // copy where there is not, and the referral params either way.
   const { isCopying, onShare } = useShareAgent(interest);
-  const [, copyText] = useCopyText();
+  const { displayToast } = useToastNotification();
   const [isCopied, setCopied] = useState(false);
+  const [card, setCard] = useState<{ blob: Blob; src: string }>();
   const isMobile = !useViewSize(ViewSize.Tablet);
+
+  // Drawn once, on open, and then both shown and sent. Revoked on the way out,
+  // or an object URL survives every sheet the reader ever opened.
+  useEffect(() => {
+    let src: string;
+
+    replyCardBlob(replyCardContent(message, name, 'Agent'))
+      .then((blob) => {
+        src = URL.createObjectURL(blob);
+        setCard({ blob, src });
+      })
+      // Somewhere without a 2d canvas cannot have a picture of the reply. The
+      // sheet keeps the placeholder and the link, rather than the whole thing
+      // failing over an illustration.
+      .catch(() => undefined);
+
+    return () => {
+      if (src) {
+        URL.revokeObjectURL(src);
+      }
+    };
+  }, [message, name]);
 
   useEffect(() => {
     if (!isCopied) {
@@ -69,6 +93,37 @@ export const AgentShareReplyModal = ({
 
   const shareLabel = isMobile ? 'Share agent' : 'Copy link';
 
+  const copyImage = async () => {
+    if (!card) {
+      return;
+    }
+
+    const { blob } = card;
+
+    try {
+      if (typeof ClipboardItem === 'undefined') {
+        throw new Error('no image clipboard');
+      }
+
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob }),
+      ]);
+      setCopied(true);
+    } catch {
+      // Firefox cannot put an image on the clipboard at all, and a card nobody
+      // can paste is worth less than a file they can drag. Saving it is the
+      // same outcome by a different route, so it is not reported as a failure.
+      const url = URL.createObjectURL(blob);
+      const download = document.createElement('a');
+
+      download.href = url;
+      download.download = 'daily-dev-agent.png';
+      download.click();
+      URL.revokeObjectURL(url);
+      displayToast('Image saved');
+    }
+  };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -78,7 +133,10 @@ export const AgentShareReplyModal = ({
     >
       <Modal.Header title="Share this reply" />
       <Modal.Body className="gap-5">
-        <AgentReplyCard message={message} name={name} />
+        <AgentReplyCard
+          src={card?.src}
+          alt={`${name} — ${messageAsText(message)}`}
+        />
 
         {/* Stacked on a phone, where a row of two would be two cramped
             buttons; side by side from tablet up, primary first. */}
@@ -111,15 +169,13 @@ export const AgentShareReplyModal = ({
                   className="agent-icon-in text-status-success"
                 />
               ) : (
-                <CopyIcon size={IconSize.Size16} />
+                <ImageIcon size={IconSize.Size16} />
               )
             }
-            onClick={() => {
-              copyText({ textToCopy: messageAsMarkdown(message) });
-              setCopied(true);
-            }}
+            disabled={!card}
+            onClick={copyImage}
           >
-            {isCopied ? 'Reply copied' : 'Copy reply'}
+            {isCopied ? 'Image copied' : 'Copy image'}
           </Button>
         </FlexCol>
 

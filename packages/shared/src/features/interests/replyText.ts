@@ -5,21 +5,32 @@ const escapeAttribute = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 /**
- * The reply as flat text: markup stripped, block gaps kept. What the agent said,
- * with none of what it cited — which is what a quote back into the prompt wants.
+ * What the agent said, one paragraph per entry.
+ *
+ * Per block-level element rather than per block: a block's `textContent` runs
+ * its paragraphs together, so "…clears your bar." and "First pass over…" arrived
+ * as one sentence with no space in the middle of it.
+ */
+export const messageParagraphs = (message: AgentMessage): string[] =>
+  (message.blocks ?? []).flatMap((block) => {
+    if (block.type !== 'text') {
+      return [];
+    }
+
+    const { body } = new DOMParser().parseFromString(block.html, 'text/html');
+
+    return Array.from(body.children)
+      .map((element) => element.textContent?.trim() ?? '')
+      .filter(Boolean);
+  });
+
+/**
+ * The reply as flat text: markup stripped, paragraph gaps kept. What the agent
+ * said, with none of what it cited — which is what a quote back into the prompt
+ * wants.
  */
 export const messageAsText = (message: AgentMessage): string =>
-  (message.blocks ?? [])
-    .map((block) =>
-      block.type === 'text'
-        ? new DOMParser().parseFromString(block.html, 'text/html').body
-            .textContent ?? ''
-        : '',
-    )
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .join('\n\n')
-    .trim();
+  messageParagraphs(message).join('\n\n');
 
 /**
  * The reply for the clipboard, links and all.

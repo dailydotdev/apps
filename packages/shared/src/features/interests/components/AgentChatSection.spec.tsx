@@ -166,20 +166,6 @@ describe('the reply actions', () => {
  * believe they have published the reply.
  */
 describe('sharing a reply', () => {
-  it('previews the reply it is about, citations and all', () => {
-    renderTranscript();
-
-    fireEvent.click(screen.getByLabelText('Share reply'));
-
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-    const dialog = screen.getByRole('dialog');
-
-    expect(dialog).toHaveTextContent('Daily run');
-    expect(
-      within(dialog).getByRole('link', { name: 'Zig 0.15' }),
-    ).toHaveAttribute('href', 'https://app.daily.dev/posts/p1');
-  });
-
   it('says what the link actually opens', () => {
     renderTranscript();
 
@@ -196,40 +182,40 @@ describe('sharing a reply', () => {
     fireEvent.click(screen.getByLabelText('Share reply'));
     const dialog = screen.getByRole('dialog');
 
-    // The link is the subscription, the text is this run's findings. The
+    // The link is the subscription, the image is this run's findings. The
     // absolute-link guarantee itself is covered in useShareAgent's spec.
     expect(
       within(dialog).getByRole('button', { name: /Copy link/ }),
     ).toBeInTheDocument();
     expect(
-      within(dialog).getByRole('button', { name: /Copy reply/ }),
+      within(dialog).getByRole('button', { name: /Copy image/ }),
     ).toBeInTheDocument();
   });
 
-  it('copies the reply as markdown, links and all', () => {
-    const copyText = jest.fn();
-    jest.spyOn(copy, 'useCopyText').mockReturnValue([false, copyText] as never);
+  // The preview is the export, so there is nothing to copy until it is drawn —
+  // and nowhere without a 2d canvas can draw it at all. jsdom is one of those,
+  // which makes this the degraded path as well as the loading one.
+  it('cannot offer an image it has not managed to draw', () => {
     renderTranscript();
 
     fireEvent.click(screen.getByLabelText('Share reply'));
-    fireEvent.click(
+
+    expect(
       within(screen.getByRole('dialog')).getByRole('button', {
-        name: /Copy reply/,
+        name: /Copy image/,
       }),
-    );
-
-    const [{ textToCopy }] = copyText.mock.calls[0];
-
-    expect(textToCopy).toContain('[Zig 0.15](https://app.daily.dev/posts/p1)');
+    ).toBeDisabled();
   });
 
-  it('signs the card, so a reply that travels says whose it is', () => {
+  it('keeps the link working when the picture cannot be drawn', () => {
     renderTranscript();
 
     fireEvent.click(screen.getByLabelText('Share reply'));
-    const dialog = screen.getByRole('dialog');
 
-    expect(dialog).toHaveTextContent('Agent');
-    expect(dialog.querySelector('.agent-share-card')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: /Copy link/,
+      }),
+    ).toBeEnabled();
   });
 });
