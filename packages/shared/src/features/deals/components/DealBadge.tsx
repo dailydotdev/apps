@@ -17,6 +17,7 @@ import {
 interface DealBadgeProps {
   deal: Deal;
   now: number;
+  isTrending?: boolean;
   className?: string;
 }
 
@@ -27,6 +28,7 @@ const badgeColor: Record<DealBadgeKind, TypographyColor> = {
   [DealBadgeKind.EndingSoon]: TypographyColor.StatusError,
   [DealBadgeKind.PoolLeft]: TypographyColor.StatusWarning,
   [DealBadgeKind.CommunityPick]: TypographyColor.Brand,
+  [DealBadgeKind.Trending]: TypographyColor.StatusHelp,
   [DealBadgeKind.MembersOnly]: TypographyColor.Plus,
 };
 
@@ -35,6 +37,7 @@ const staticBadgeLabel: Partial<Record<DealBadgeKind, string>> = {
   [DealBadgeKind.SoldOut]: 'Sold out',
   [DealBadgeKind.Promoted]: 'Promoted',
   [DealBadgeKind.CommunityPick]: 'Community pick',
+  [DealBadgeKind.Trending]: 'Trending',
   [DealBadgeKind.MembersOnly]: 'Members only',
 };
 
@@ -45,9 +48,10 @@ const staticBadgeLabel: Partial<Record<DealBadgeKind, string>> = {
 export const DealBadge = ({
   deal,
   now,
+  isTrending,
   className,
 }: DealBadgeProps): ReactElement | null => {
-  const kind = getDealBadgeKind(deal, now);
+  const kind = getDealBadgeKind(deal, now, isTrending);
 
   if (!kind) {
     return null;

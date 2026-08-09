@@ -15,6 +15,7 @@ import {
   DEALS_FILTER_ALL,
   getDealCoverMedia,
   getDealsDirectoryEvidence,
+  getTrendingDealIds,
   isLiveDeal,
 } from '@dailydotdev/shared/src/features/deals/dealsFormat';
 import { useDealsMockState } from '@dailydotdev/shared/src/features/deals/useDealsMockState';
@@ -49,10 +50,14 @@ type Story = StoryObj<typeof DealsDirectoryPage>;
 
 const noop = (): void => undefined;
 
+const trendingDealIds = getTrendingDealIds(mockDeals);
+
 /**
- * The shape of the page: title, header tabs with the search field, grid rails
- * for the deals we picked for you, then every remaining deal as a list row.
- * The impact strip closes the page instead of taking a column beside it.
+ * The shape of the page: title, header tabs with the search field, one grid
+ * rail of the deals picked for you, then every deal as a list row. Ending
+ * soon, Community pick and Trending are badges on those rows now, not rails of
+ * their own. The impact strip closes the page instead of taking a column
+ * beside it.
  */
 export const FullPage: Story = {
   render: () => <DealsDirectoryPage deals={mockDeals} onDealClick={noop} />,
@@ -77,8 +82,9 @@ export const SearchNoResults: Story = {
 
 /**
  * A category tab is a link to its own crawlable page, so this is what
- * `/deals/c/dev-tools` renders: no rails, the category tab active, and the
- * offers as rows.
+ * `/deals/c/dev-tools` renders: no rail, the category tab active, and the
+ * offers as rows. A facet is already a set the reader chose, so picking a
+ * subset of it for them says nothing.
  */
 export const CategoryTab: Story = {
   render: () => (
@@ -90,7 +96,7 @@ export const CategoryTab: Story = {
       heading="Dev tools deals"
       resultsTitle="Dev tools deals"
       initialFilter="Dev tools"
-      withRails={false}
+      withForYouRail={false}
       onDealClick={noop}
     />
   ),
@@ -175,43 +181,25 @@ export const Header: Story = {
   render: () => <DirectoryHeaderDemo />,
 };
 
-const RailsDemo = () => {
+const ForYouRailDemo = () => {
   const [claimed, setClaimed] = useState<string | null>(null);
-  const live = mockDeals.filter(isLiveDeal);
 
   return (
     <div className="flex flex-col gap-10">
       <DealsHero />
       <DealsRail
-        title="Ending soon"
-        deals={getDealsByState(DealState.Expiring)}
-        now={MOCK_NOW_MS}
-        onClaim={(deal) => setClaimed(deal.title)}
-      />
-      <DealsRail
-        title="Trending"
-        deals={[...live]
-          .sort((a, b) => b.community.upvotes - a.community.upvotes)
-          .slice(0, 8)}
-        now={MOCK_NOW_MS}
-        onClaim={(deal) => setClaimed(deal.title)}
-      />
-      <DealsRail
-        title="New this week"
-        deals={live.slice(0, 8)}
-        now={MOCK_NOW_MS}
-        onClaim={(deal) => setClaimed(deal.title)}
-      />
-      <DealsRail
         title="For you"
         label="Based on your tags"
-        deals={live
-          .filter(({ categories }) =>
-            categories.some((category) =>
-              ['AI tools', 'Dev tools', 'Cloud'].includes(category),
-            ),
+        deals={mockDeals
+          .filter(
+            (deal) =>
+              isLiveDeal(deal) &&
+              deal.categories.some((category) =>
+                ['AI tools', 'Dev tools', 'Cloud'].includes(category),
+              ),
           )
           .slice(0, 8)}
+        trendingDealIds={trendingDealIds}
         now={MOCK_NOW_MS}
         onClaim={(deal) => setClaimed(deal.title)}
       />
@@ -224,9 +212,76 @@ const RailsDemo = () => {
   );
 };
 
-export const RailsOnly: Story = {
+/**
+ * The only rail left. It is the one section a list cannot express, because it
+ * is the one section whose contents depend on who is reading. Ending soon,
+ * Community picks and Trending are badges on the rows now, and New this week
+ * is gone: nearly every offer in the directory qualified for it.
+ */
+export const ForYouRail: Story = {
   parameters: { layout: 'padded', controls: { disable: true } },
-  render: () => <RailsDemo />,
+  render: () => <ForYouRailDemo />,
+};
+
+const badgedRowCases: { label: string; deal: Deal; isTrending?: boolean }[] = [
+  {
+    label: 'Ending soon, the countdown replaces the rail',
+    deal: getDealsByState(DealState.Expiring)[0],
+  },
+  {
+    label: 'Community pick',
+    deal: findDeal('keychron-q1-30-off'),
+  },
+  {
+    label: 'Trending, top six by upvotes among the live offers',
+    deal: findDeal('linear-3-months-free'),
+    isTrending: true,
+  },
+  {
+    label: 'Trending and a community pick, the editorial label wins',
+    deal: findDeal('digitalocean-200-credit'),
+    isTrending: true,
+  },
+  {
+    label: 'Trending and members only, trending wins',
+    deal: findDeal('raycast-pro-year-members-only'),
+    isTrending: true,
+  },
+  {
+    label: 'Ending soon, community pick and trending at once, the clock wins',
+    deal: {
+      ...getDealsByState(DealState.Expiring)[1],
+      isCommunityPick: true,
+    },
+    isTrending: true,
+  },
+];
+
+/**
+ * The three deleted rails, side by side as rows. Every row still carries
+ * exactly one badge: the precedence runs Expired, Sold out, Promoted, Ending
+ * soon, pool left, Community pick, Trending, Members only, so an offer that
+ * earns three of them still prints the most consequential one.
+ */
+export const RowBadges: Story = {
+  parameters: { layout: 'padded', controls: { disable: true } },
+  render: () => (
+    <div className="flex flex-col gap-6">
+      {badgedRowCases.map(({ label, deal, isTrending }) => (
+        <div key={label} className="flex flex-col gap-1">
+          <SectionLabel>{label}</SectionLabel>
+          <ul className="flex flex-col">
+            <DealListCard
+              deal={deal}
+              isTrending={isTrending}
+              now={MOCK_NOW_MS}
+              onClaim={noop}
+            />
+          </ul>
+        </div>
+      ))}
+    </div>
+  ),
 };
 
 /**
@@ -259,7 +314,7 @@ const comparisonDeals = mockDeals.slice(0, 6);
 
 /**
  * The two forms on the same six offers. The grid card is now reserved for the
- * rails, where a deal is there because we picked it for you and the cover
+ * one rail, where a deal is there because we picked it for you and the cover
  * earns its space. Everything else is a row: six of them fit in roughly the
  * height of two cards, carrying the same decision set.
  */
@@ -342,7 +397,7 @@ export const CopyLink: Story = {
   ),
 };
 
-const rowCases: { label: string; deal: Deal }[] = [
+const rowStateCases: { label: string; deal: Deal }[] = [
   {
     label: 'Product photo, the brand mark sits over its corner',
     deal: findDeal('keychron-q1-30-off'),
@@ -383,7 +438,7 @@ export const RowStates: Story = {
   parameters: { layout: 'padded', controls: { disable: true } },
   render: () => (
     <div className="flex flex-col gap-6">
-      {rowCases.map(({ label, deal }) => (
+      {rowStateCases.map(({ label, deal }) => (
         <div key={label} className="flex flex-col gap-1">
           <SectionLabel>{label}</SectionLabel>
           <ul className="flex flex-col">

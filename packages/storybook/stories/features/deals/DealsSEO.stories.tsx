@@ -92,7 +92,7 @@ export const CategoryPage: Story = {
       heading="Cloud deals and promo codes"
       intro="4 live cloud offers for developers, with the claim counts and success rates the community reported."
       resultsTitle="Cloud deals"
-      withRails={false}
+      withForYouRail={false}
       now={MOCK_NOW_MS}
       onDealClick={noop}
     />

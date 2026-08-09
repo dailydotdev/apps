@@ -15,12 +15,12 @@ import { cloudinaryCharmSearchNoResults } from '../../../lib/image';
 import { MOCK_NOW_MS } from '../mockDeals';
 import { dealsListAd } from '../mockDealsAds';
 import type { Deal } from '../types';
-import { DealState } from '../types';
 import {
   DEALS_FILTER_ALL,
   findDealsFilterByQuery,
   getDealCategoryPath,
   getDealsDirectoryEvidence,
+  getTrendingDealIds,
   isLiveDeal,
   matchesDealFilter,
 } from '../dealsFormat';
@@ -35,8 +35,9 @@ import { DealsRail } from './DealsRail';
 
 interface DealsDirectoryPageProps {
   deals: Deal[];
-  /** The set the tabs are built from, so a faceted page can still link to
-   * every other category while rendering only its own deals. */
+  /** The whole catalogue, so a faceted page can still link to every other
+   * category while rendering only its own deals, and so a trending rank means
+   * the same thing on a thin facet as it does on the directory. */
   filterDeals?: Deal[];
   isLoggedOut?: boolean;
   initialQuery?: string;
@@ -44,29 +45,29 @@ interface DealsDirectoryPageProps {
   heading?: string;
   intro?: string;
   resultsTitle?: string;
-  withRails?: boolean;
+  withForYouRail?: boolean;
   onDealClick?: (deal: Deal) => void;
   onClaim?: (deal: Deal) => void;
   state?: DealsMockState;
   now?: number;
 }
 
-interface DealRail {
-  title: string;
-  label?: string;
-  deals: Deal[];
-}
-
 const MY_TAG_CATEGORIES = ['AI tools', 'Dev tools', 'Cloud'];
 
 const SHORTCUT_CATEGORIES = ['AI tools', 'Cloud', 'Hardware', 'Courses'];
 
-const RAIL_SIZE = 8;
+const FOR_YOU_RAIL_SIZE = 8;
+
+/**
+ * Two cards under a heading read as a bug rather than a recommendation, so a
+ * set too thin to fill the rail drops it and leaves the list to do the work.
+ */
+const MIN_FOR_YOU_RAIL_DEALS = 3;
 
 /**
  * The single paid slot in the directory, and the only one on the page. It sits
- * far enough down that a reader has already scanned real offers, and a shorter
- * result set simply never reaches it.
+ * far enough down that a reader has already scanned six real offers, and a
+ * shorter result set simply never reaches it.
  */
 const DEALS_LIST_AD_INDEX = 6;
 
@@ -112,7 +113,7 @@ export const DealsDirectoryPage = ({
   heading,
   intro,
   resultsTitle = 'All deals',
-  withRails = true,
+  withForYouRail = true,
   onDealClick,
   onClaim,
   state,
@@ -150,62 +151,31 @@ export const DealsDirectoryPage = ({
     [filteredDeals, isSearching, trimmedQuery],
   );
 
-  const rails = useMemo(() => {
-    const live = filteredDeals.filter(isLiveDeal);
-    const candidates: DealRail[] = [
-      {
-        title: 'Ending soon',
-        deals: filteredDeals
-          .filter((deal) => deal.state === DealState.Expiring)
-          .sort((a, b) => (a.expiresAt ?? '').localeCompare(b.expiresAt ?? '')),
-      },
-      {
-        title: 'Community picks',
-        label: 'Chosen on merit, never paid for',
-        deals: live.filter((deal) => deal.isCommunityPick),
-      },
-      {
-        title: 'For you',
-        label: 'Based on your tags',
-        deals: live.filter((deal) =>
-          deal.categories.some((category) =>
-            MY_TAG_CATEGORIES.includes(category),
-          ),
-        ),
-      },
-      {
-        title: 'Trending',
-        deals: [...live].sort(
-          (a, b) => b.community.upvotes - a.community.upvotes,
-        ),
-      },
-      {
-        title: 'New this week',
-        deals: [...live].sort((a, b) =>
-          b.publishedAt.localeCompare(a.publishedAt),
-        ),
-      },
-    ];
+  // Ranked over the whole catalogue, never the visible slice. Six of three
+  // offers would make trending mean nothing on a thin category page.
+  const trendingDealIds = useMemo(
+    () => getTrendingDealIds(filterDeals ?? deals),
+    [filterDeals, deals],
+  );
 
-    const allocated = new Set<string>();
+  const forYouDeals = useMemo(
+    () =>
+      filteredDeals
+        .filter(
+          (deal) =>
+            isLiveDeal(deal) &&
+            deal.categories.some((category) =>
+              MY_TAG_CATEGORIES.includes(category),
+            ),
+        )
+        .slice(0, FOR_YOU_RAIL_SIZE),
+    [filteredDeals],
+  );
 
-    return candidates.reduce<DealRail[]>((list, rail) => {
-      const allocatedDeals: Deal[] = [];
-
-      rail.deals.forEach((deal) => {
-        if (allocatedDeals.length >= RAIL_SIZE || allocated.has(deal.id)) {
-          return;
-        }
-
-        allocated.add(deal.id);
-        allocatedDeals.push(deal);
-      });
-
-      return allocatedDeals.length > 0
-        ? [...list, { ...rail, deals: allocatedDeals }]
-        : list;
-    }, []);
-  }, [filteredDeals]);
+  const hasForYouRail =
+    withForYouRail &&
+    !isSearching &&
+    forYouDeals.length >= MIN_FOR_YOU_RAIL_DEALS;
 
   const onClaimDeal = (deal: Deal): void => {
     const claim = dealsState.claimDeal(deal);
@@ -232,20 +202,18 @@ export const DealsDirectoryPage = ({
       />
 
       <div className="mt-6 flex flex-col gap-10 pb-16">
-        {withRails &&
-          !isSearching &&
-          rails.map(({ title, label, deals: railDeals }) => (
-            <DealsRail
-              key={title}
-              title={title}
-              label={label}
-              deals={railDeals}
-              onDealClick={onDealClick}
-              onClaim={onClaimDeal}
-              claimedDealIds={claimedDealIds}
-              now={now}
-            />
-          ))}
+        {hasForYouRail && (
+          <DealsRail
+            title="For you"
+            label="Based on your tags"
+            deals={forYouDeals}
+            onDealClick={onDealClick}
+            onClaim={onClaimDeal}
+            claimedDealIds={claimedDealIds}
+            trendingDealIds={trendingDealIds}
+            now={now}
+          />
+        )}
 
         <section className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -289,6 +257,7 @@ export const DealsDirectoryPage = ({
                     onClaim={onClaimDeal}
                     onOpenDetail={onDealClick}
                     isClaimedByMe={claimedDealIds.has(deal.id)}
+                    isTrending={trendingDealIds.has(deal.id)}
                     now={now}
                   />
                 </Fragment>

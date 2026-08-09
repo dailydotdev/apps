@@ -46,6 +46,7 @@ interface DealCardProps {
   onClaim?: (deal: Deal) => void;
   onOpenDetail?: (deal: Deal) => void;
   isClaimedByMe?: boolean;
+  isTrending?: boolean;
   now?: number;
   className?: string;
 }
@@ -65,6 +66,7 @@ export const DealCard = ({
   onClaim,
   onOpenDetail,
   isClaimedByMe,
+  isTrending,
   now,
   className,
 }: DealCardProps): ReactElement => {
@@ -127,7 +129,7 @@ export const DealCard = ({
           >
             {deal.brand.name}
           </Typography>
-          <DealBadge deal={deal} now={currentMs} />
+          <DealBadge deal={deal} now={currentMs} isTrending={isTrending} />
         </header>
 
         <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>

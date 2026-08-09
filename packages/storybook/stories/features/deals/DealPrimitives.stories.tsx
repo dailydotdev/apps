@@ -107,6 +107,16 @@ export const StatusBadge: Story = {
           now={MOCK_NOW_MS}
         />
       </Case>
+      <Case label="Trending" testId="badge-trending">
+        <DealBadge deal={badgeBase} now={MOCK_NOW_MS} isTrending />
+      </Case>
+      <Case label="Community pick beats trending" testId="badge-pick-over-hot">
+        <DealBadge
+          deal={{ ...badgeBase, isCommunityPick: true }}
+          now={MOCK_NOW_MS}
+          isTrending
+        />
+      </Case>
       <Case label="Members only" testId="badge-members-only">
         <DealBadge
           deal={{ ...badgeBase, type: DealType.Exclusive }}
@@ -151,6 +161,7 @@ export const StatusBadge: Story = {
             validThrough: hoursFromMockNow(-3),
           }}
           now={MOCK_NOW_MS}
+          isTrending
         />
       </Case>
     </Grid>

@@ -504,19 +504,40 @@ export enum DealBadgeKind {
   EndingSoon = 'ending_soon',
   PoolLeft = 'pool_left',
   CommunityPick = 'community_pick',
+  Trending = 'trending',
   MembersOnly = 'members_only',
 }
+
+/**
+ * Trending is a rank against the other offers, not a fact about this one, so
+ * it is derived rather than stored. Pass the whole catalogue: ranking within a
+ * facet would crown the top of every three deal category. Six of a couple of
+ * dozen live offers keeps the label rare enough to still mean something.
+ */
+export const DEALS_TRENDING_COUNT = 6;
+
+export const getTrendingDealIds = (deals: Deal[]): Set<string> =>
+  new Set(
+    deals
+      .filter(isLiveDeal)
+      .sort((a, b) => b.community.upvotes - a.community.upvotes)
+      .slice(0, DEALS_TRENDING_COUNT)
+      .map(({ id }) => id),
+  );
 
 /**
  * One badge per item, and the precedence is fixed so two surfaces can never
  * disagree about which one an offer earned. A promoted placement suppresses
  * every merit label, which is the editorial firewall in one line of code.
  * Scarcity ranks above merit because it is the only label that expires while
- * the reader is still looking at the row.
+ * the reader is still looking at the row. Between the two merit labels, an
+ * offer the community chose outranks one the crowd merely upvoted, and both
+ * outrank members only, which the locked CTA beside it already says.
  */
 export const getDealBadgeKind = (
   deal: Deal,
   now: number,
+  isTrending = false,
 ): DealBadgeKind | undefined => {
   const endsAt = getDealEndsAt(deal);
 
@@ -545,6 +566,10 @@ export const getDealBadgeKind = (
 
   if (deal.isCommunityPick) {
     return DealBadgeKind.CommunityPick;
+  }
+
+  if (isTrending) {
+    return DealBadgeKind.Trending;
   }
 
   return deal.type === DealType.Exclusive

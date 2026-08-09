@@ -17,6 +17,7 @@ interface DealsRailProps {
   onDealClick?: (deal: Deal) => void;
   onClaim?: (deal: Deal) => void;
   claimedDealIds?: Set<string>;
+  trendingDealIds?: Set<string>;
   now?: number;
   className?: string;
 }
@@ -28,6 +29,7 @@ export const DealsRail = ({
   onDealClick,
   onClaim,
   claimedDealIds,
+  trendingDealIds,
   now,
   className,
 }: DealsRailProps): ReactElement | null => {
@@ -62,6 +64,7 @@ export const DealsRail = ({
               onClaim={onClaim}
               onOpenDetail={onDealClick}
               isClaimedByMe={claimedDealIds?.has(deal.id)}
+              isTrending={trendingDealIds?.has(deal.id)}
               now={now}
               className="w-full"
             />
