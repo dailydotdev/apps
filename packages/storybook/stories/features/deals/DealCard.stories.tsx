@@ -83,7 +83,11 @@ const LabelledGrid = ({
 }) => (
   <div className="grid gap-6 tablet:grid-cols-2 laptop:grid-cols-3">
     {items.map(({ label, testId, deal }) => (
-      <div key={testId} data-testid={testId} className="flex flex-col gap-2">
+      <div
+        key={testId}
+        data-testid={testId}
+        className="grid grid-rows-[auto_1fr] gap-2"
+      >
         <span className="font-bold uppercase tracking-wider text-text-tertiary typo-caption2">
           {label}
         </span>
@@ -182,24 +186,65 @@ const productDeal = findDeal('keychron-q1-30-off');
 const artworkDeal = findDeal('amazon-10-gift-card');
 const brandDeal = findDeal('cursor-20-credit');
 
+/**
+ * The mark appears once per card. A photo does not say whose offer it is, so
+ * the header keeps its chip beside the name; a brand led cover already says it,
+ * so the header prints the name alone.
+ */
 export const CoverTreatments: Story = {
   render: () => (
     <LabelledGrid
       items={[
         {
-          label: 'Product photo, cover slot',
+          label: 'Product photo, chip beside the name',
           testId: 'deal-cover-product',
           deal: productDeal,
         },
         {
-          label: 'Brand led, logo chip only',
+          label: 'Brand led, the cover is the mark',
           testId: 'deal-cover-brand',
           deal: brandDeal,
         },
         {
-          label: 'Gift card artwork, tinted and contained',
+          label: 'Gift card artwork, chip beside the name',
           testId: 'deal-cover-artwork',
           deal: artworkDeal,
+        },
+      ]}
+    />
+  ),
+};
+
+const shortBrandLedDeal: Deal = {
+  ...brandDeal,
+  id: 'deal-row-short',
+  title: 'Free month of Pro',
+  caveats: [],
+};
+
+/**
+ * One row, mixed content. The photo card and the photo-less card sit side by
+ * side, each printing the mark once, and every card ends on its CTA: the row
+ * equalises the height and the spare space stays above the caveat line.
+ */
+export const MixedRow: Story = {
+  render: () => (
+    <LabelledGrid
+      items={[
+        {
+          label: 'Photo, two line title, caveat',
+          testId: 'deal-row-photo',
+          deal: productDeal,
+        },
+        {
+          label: 'No photo, one line title, no caveat',
+          testId: 'deal-row-short',
+          deal: shortBrandLedDeal,
+        },
+        {
+          label: 'No photo, Cores cost, caveat',
+          testId: 'deal-row-cores',
+          deal: findDeal('cursor-pro-month-for-cores'),
         },
       ]}
     />
@@ -223,7 +268,7 @@ export const BrokenCoverImage: Story = {
           deal: productDeal,
         },
         {
-          label: 'Cover 404s, brand logo takes the slot',
+          label: 'Cover 404s, the mark takes the slot and the chip stands down',
           testId: 'deal-cover-dead-photo',
           deal: { ...productDeal, media: deadCoverMedia },
         },

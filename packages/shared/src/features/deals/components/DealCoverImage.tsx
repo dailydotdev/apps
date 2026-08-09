@@ -12,6 +12,9 @@ interface DealCoverImageProps {
   isMuted?: boolean;
   isEager?: boolean;
   showCaption?: boolean;
+  /** Fires when the photo dies and the slot falls back to the brand mark, so a
+   * surface that also prints the mark can drop its own copy of it. */
+  onFallback?: () => void;
   className?: string;
 }
 
@@ -21,6 +24,7 @@ export const DealCoverImage = ({
   isMuted,
   isEager,
   showCaption,
+  onFallback,
   className,
 }: DealCoverImageProps): ReactElement => {
   const [hasFailed, setHasFailed] = useState(false);
@@ -50,7 +54,10 @@ export const DealCoverImage = ({
           src={media.imageUrl}
           alt={media.alt}
           loading={isEager ? 'eager' : 'lazy'}
-          onError={() => setHasFailed(true)}
+          onError={() => {
+            setHasFailed(true);
+            onFallback?.();
+          }}
           className={classNames(
             'relative size-full',
             isArtwork ? 'object-contain p-4' : 'object-cover',

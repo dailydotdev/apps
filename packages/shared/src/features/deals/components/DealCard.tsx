@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import Link from '../../../components/utilities/Link';
 import { Card, CardSpace } from '../../../components/cards/common/Card';
@@ -60,6 +60,8 @@ const typeToCtaIcon: Partial<Record<DealType, ReactElement>> = {
 /**
  * The browsing form, for rails only. It carries the six things a cover-led
  * card needs and nothing else: the rest of the offer lives on the deal page.
+ * It sizes to its own content and leaves the row to equalise the height, so
+ * the shared card's 27rem cap has to come off or a wide column clips it.
  */
 export const DealCard = ({
   deal,
@@ -71,6 +73,7 @@ export const DealCard = ({
   className,
 }: DealCardProps): ReactElement => {
   const currentMs = useNowTick(now);
+  const [hasCoverFailed, setHasCoverFailed] = useState(false);
   const hasEnded =
     deal.state === DealState.Expiring &&
     !!deal.expiresAt &&
@@ -83,6 +86,9 @@ export const DealCard = ({
   const openDetail = onOpenDetail ?? onClaim;
   const cover = getDealCoverMedia(deal);
   const savingPhrase = getDealSavingPhrase(deal.value);
+  // A brand led cover already carries the mark, and a dead photo falls back to
+  // the same one, so in both cases the identity line stops at the name.
+  const isBrandLedCover = !cover || hasCoverFailed;
 
   const onTitleClick = (event: MouseEvent<HTMLAnchorElement>): void => {
     if (!openDetail || event.metaKey || event.ctrlKey || event.shiftKey) {
@@ -96,18 +102,19 @@ export const DealCard = ({
   return (
     <Card
       className={classNames(
-        'min-h-[22rem]',
+        '!max-h-none',
         isExpired && 'grayscale',
         isMuted && 'opacity-60',
         className,
       )}
     >
-      <div className="absolute inset-0 flex flex-col gap-3 p-4">
+      <div className="flex flex-1 flex-col gap-4 p-4">
         {cover ? (
           <DealCoverImage
             media={cover}
             brand={deal.brand}
             isMuted={isMuted}
+            onFallback={() => setHasCoverFailed(true)}
             className="aspect-[3/1]"
           />
         ) : (
@@ -118,120 +125,126 @@ export const DealCard = ({
           />
         )}
 
-        <header className="flex items-center gap-2">
-          <DealBrandLogo brand={deal.brand} isMuted={isMuted} />
-          <Typography
-            tag={TypographyTag.Span}
-            type={TypographyType.Callout}
-            bold
-            truncate
-            className="min-w-0 flex-1"
-          >
-            {deal.brand.name}
-          </Typography>
-          <DealBadge deal={deal} now={currentMs} isTrending={isTrending} />
-        </header>
-
-        <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
-          <Link href={getDealPath(deal)} passHref>
-            <a
-              href={getDealPath(deal)}
-              className="line-clamp-2 hover:underline"
-              onClick={onTitleClick}
-            >
-              {deal.title}
-            </a>
-          </Link>
-        </Typography>
-
-        <div className="flex flex-wrap items-center gap-x-2">
-          <DealValueBadge value={deal.value} isMuted={isMuted} />
-          {deal.unlock?.cores && <DealCoresCost cores={deal.unlock.cores} />}
-          {savingPhrase && (
+        <div className="flex flex-col gap-2">
+          <header className="flex items-center gap-2">
+            {!isBrandLedCover && (
+              <DealBrandLogo brand={deal.brand} isMuted={isMuted} />
+            )}
             <Typography
               tag={TypographyTag.Span}
-              type={TypographyType.Caption1}
-              color={TypographyColor.Tertiary}
-              className="tabular-nums"
+              type={TypographyType.Callout}
+              bold
+              truncate
+              className="min-w-0 flex-1"
             >
-              {savingPhrase}
+              {deal.brand.name}
             </Typography>
-          )}
+            <DealBadge deal={deal} now={currentMs} isTrending={isTrending} />
+          </header>
+
+          <Typography tag={TypographyTag.H3} type={TypographyType.Body} bold>
+            <Link href={getDealPath(deal)} passHref>
+              <a
+                href={getDealPath(deal)}
+                className="line-clamp-2 hover:underline"
+                onClick={onTitleClick}
+              >
+                {deal.title}
+              </a>
+            </Link>
+          </Typography>
+
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <DealValueBadge value={deal.value} isMuted={isMuted} />
+            {deal.unlock?.cores && <DealCoresCost cores={deal.unlock.cores} />}
+            {savingPhrase && (
+              <Typography
+                tag={TypographyTag.Span}
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+                className="tabular-nums"
+              >
+                {savingPhrase}
+              </Typography>
+            )}
+          </div>
         </div>
 
         <CardSpace />
 
-        {!isMuted && deal.caveats.length > 0 && (
-          <div className="flex min-w-0 items-center gap-1.5 text-text-tertiary">
-            <AlertIcon size={IconSize.XXSmall} className="shrink-0" />
-            <DealCaveatStrip deal={deal} limit={1} className="min-w-0" />
-          </div>
-        )}
+        <div className="flex flex-col gap-2">
+          {!isMuted && deal.caveats.length > 0 && (
+            <div className="flex min-w-0 items-center gap-1.5 text-text-tertiary">
+              <AlertIcon size={IconSize.XXSmall} className="shrink-0" />
+              <DealCaveatStrip deal={deal} limit={1} className="min-w-0" />
+            </div>
+          )}
 
-        <div className="flex items-center gap-2">
-          {isSoldOut && (
-            <Button
-              type="button"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              disabled
-              className="flex-1"
-            >
-              Sold out
-            </Button>
-          )}
-          {isExpired && (
-            <Button
-              type="button"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              onClick={() => openDetail?.(deal)}
-              className="flex-1"
-            >
-              See similar
-            </Button>
-          )}
-          {isClaimed && !isMuted && (
-            <Button
-              type="button"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              icon={<VIcon secondary />}
-              onClick={() => openDetail?.(deal)}
-              className="flex-1"
-            >
-              In your coupons
-            </Button>
-          )}
-          {isLocked && !isClaimed && (
-            <Button
-              type="button"
-              variant={
-                deal.unlock?.cores
-                  ? ButtonVariant.Primary
-                  : ButtonVariant.Secondary
-              }
-              size={ButtonSize.Small}
-              icon={deal.unlock?.cores ? <CoreIcon /> : <InviteIcon />}
-              onClick={() => openDetail?.(deal)}
-              className="flex-1"
-            >
-              {getDealUnlockCtaLabel(deal.unlock)}
-            </Button>
-          )}
-          {!isMuted && !isClaimed && !isLocked && (
-            <Button
-              type="button"
-              variant={ButtonVariant.Primary}
-              size={ButtonSize.Small}
-              icon={typeToCtaIcon[deal.type]}
-              onClick={() => (onClaim ?? openDetail)?.(deal)}
-              className="flex-1"
-            >
-              {dealTypeToCtaLabel[deal.type]}
-            </Button>
-          )}
-          <DealCopyLinkButton deal={deal} />
+          <div className="flex items-center gap-2">
+            {isSoldOut && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                disabled
+                className="flex-1"
+              >
+                Sold out
+              </Button>
+            )}
+            {isExpired && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                onClick={() => openDetail?.(deal)}
+                className="flex-1"
+              >
+                See similar
+              </Button>
+            )}
+            {isClaimed && !isMuted && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<VIcon secondary />}
+                onClick={() => openDetail?.(deal)}
+                className="flex-1"
+              >
+                In your coupons
+              </Button>
+            )}
+            {isLocked && !isClaimed && (
+              <Button
+                type="button"
+                variant={
+                  deal.unlock?.cores
+                    ? ButtonVariant.Primary
+                    : ButtonVariant.Secondary
+                }
+                size={ButtonSize.Small}
+                icon={deal.unlock?.cores ? <CoreIcon /> : <InviteIcon />}
+                onClick={() => openDetail?.(deal)}
+                className="flex-1"
+              >
+                {getDealUnlockCtaLabel(deal.unlock)}
+              </Button>
+            )}
+            {!isMuted && !isClaimed && !isLocked && (
+              <Button
+                type="button"
+                variant={ButtonVariant.Primary}
+                size={ButtonSize.Small}
+                icon={typeToCtaIcon[deal.type]}
+                onClick={() => (onClaim ?? openDetail)?.(deal)}
+                className="flex-1"
+              >
+                {dealTypeToCtaLabel[deal.type]}
+              </Button>
+            )}
+            <DealCopyLinkButton deal={deal} />
+          </div>
         </div>
       </div>
     </Card>

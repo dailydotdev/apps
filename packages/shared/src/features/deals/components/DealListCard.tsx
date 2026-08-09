@@ -1,5 +1,5 @@
 import type { MouseEvent, ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import Link from '../../../components/utilities/Link';
 import { Button } from '../../../components/buttons/Button';
@@ -64,6 +64,7 @@ const DealRowThumbnail = ({
   deal: Deal;
   isMuted?: boolean;
 }): ReactElement => {
+  const [hasCoverFailed, setHasCoverFailed] = useState(false);
   const cover = getDealCoverMedia(deal);
 
   if (!cover) {
@@ -80,11 +81,14 @@ const DealRowThumbnail = ({
         media={cover}
         brand={deal.brand}
         isMuted={isMuted}
+        onFallback={() => setHasCoverFailed(true)}
         className="h-full"
       />
-      <span className="absolute -bottom-1 -left-1 z-1 size-8">
-        <DealBrandLogo brand={deal.brand} isMuted={isMuted} isThumbnail />
-      </span>
+      {!hasCoverFailed && (
+        <span className="absolute -bottom-1 -left-1 z-1 size-8">
+          <DealBrandLogo brand={deal.brand} isMuted={isMuted} isThumbnail />
+        </span>
+      )}
     </div>
   );
 };

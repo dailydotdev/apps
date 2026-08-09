@@ -343,9 +343,9 @@ export const CardVersusRow: Story = {
 };
 
 /**
- * The brand is the first thing the row and the card say. A cover photo carries
- * the mark as a chip over its corner, a brand led offer puts the mark in the
- * thumbnail itself, and both print the name in bold beside it.
+ * The brand is the first thing the row and the card say, and it says it once.
+ * A cover photo carries the mark as a chip beside it, a brand led offer puts
+ * the mark in the cover itself and prints the name alone.
  */
 export const BrandProminence: Story = {
   parameters: { layout: 'padded', controls: { disable: true } },
