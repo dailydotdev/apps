@@ -321,6 +321,10 @@ describe('ad_label experiment', () => {
   });
 });
 
+// These assert the class list, not the rendered gap: jsdom has no stylesheet to
+// compute against. They catch the class being dropped, not a parent rule
+// beating it, which is the failure Storybook's Ad Card Fixes page is the real
+// check for.
 describe('ad card spacing and controls', () => {
   it('should keep the disclosure off the ad copy on the grid card', async () => {
     renderGridComponent();
