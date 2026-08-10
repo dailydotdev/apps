@@ -1,7 +1,13 @@
 /* eslint-disable no-template-curly-in-string -- literal macro token in measurement fixture */
 import React from 'react';
 import type { RenderResult } from '@testing-library/react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import ad from '../../../../__tests__/fixture/ad';
 import { AdGrid } from './AdGrid';
@@ -13,6 +19,9 @@ import { ActiveFeedContext } from '../../../contexts';
 import { businessWebsiteUrl } from '../../../lib/constants';
 import { useFeature } from '../../GrowthBookProvider';
 import { AdLabelVariant, featureAdLabel } from '../../../lib/featureManagement';
+import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
+
+jest.mock('../../../hooks/useFeedCardGlassActions');
 
 jest.mock('../../GrowthBookProvider', () => ({
   ...(jest.requireActual('../../GrowthBookProvider') as Record<
@@ -23,6 +32,7 @@ jest.mock('../../GrowthBookProvider', () => ({
 }));
 
 const mockUseFeature = jest.mocked(useFeature);
+const mockUseGlassActions = jest.mocked(useFeedCardGlassActions);
 
 const mockAdLabelVariant = (variant: AdLabelVariant): void => {
   mockUseFeature.mockImplementation(((feature: { id: string }) =>
@@ -40,6 +50,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   // clearAllMocks keeps implementations, so reset the arm for every test.
   mockAdLabelVariant(AdLabelVariant.Control);
+  mockUseGlassActions.mockReturnValue(false);
 });
 
 const renderListComponent = (
@@ -300,6 +311,67 @@ describe('ad_label experiment', () => {
     expect(
       screen.getByRole('link', { name: 'Advertise here' }),
     ).toBeInTheDocument();
+  });
+});
+
+describe('ad_only options menu on the glass card', () => {
+  const optionsLabel = 'Ad options';
+
+  it('should move the advertise and remove links into the menu', async () => {
+    mockUseGlassActions.mockReturnValue(true);
+    mockAdLabelVariant(AdLabelVariant.AdOnly);
+    renderGridComponent();
+
+    expect(
+      await screen.findByRole('button', { name: optionsLabel }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Advertise here' }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Remove' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('should offer both actions once the menu is open', async () => {
+    mockUseGlassActions.mockReturnValue(true);
+    mockAdLabelVariant(AdLabelVariant.AdOnly);
+    renderGridComponent();
+
+    const trigger = await screen.findByRole('button', { name: optionsLabel });
+    // Radix opens on pointerdown, which jsdom has no event for; the keyboard
+    // path opens the same menu.
+    fireEvent.keyDown(trigger, { key: 'Enter' });
+
+    expect(await screen.findByText('Advertise with us')).toBeInTheDocument();
+    expect(await screen.findByText('Remove ads')).toBeInTheDocument();
+  });
+
+  it('should keep the links inline on the classic card', async () => {
+    mockUseGlassActions.mockReturnValue(false);
+    mockAdLabelVariant(AdLabelVariant.AdOnly);
+    renderGridComponent();
+
+    await screen.findByTestId('adItem');
+    expect(
+      screen.queryByRole('button', { name: optionsLabel }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Remove' })).toBeInTheDocument();
+  });
+
+  it('should keep the links inline on the other arms', async () => {
+    mockUseGlassActions.mockReturnValue(true);
+    mockAdLabelVariant(AdLabelVariant.Ad);
+    renderGridComponent();
+
+    await screen.findByTestId('adItem');
+    expect(
+      screen.queryByRole('button', { name: optionsLabel }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Advertise here' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Remove' })).toBeInTheDocument();
   });
 });
 
