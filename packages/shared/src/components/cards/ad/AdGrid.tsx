@@ -11,7 +11,7 @@ import {
 } from '../common/Card';
 import AdLink from './common/AdLink';
 import { combinedClicks } from '../../../lib/click';
-import AdAttribution from './common/AdAttribution';
+import AdAttribution, { adAttributionSpacing } from './common/AdAttribution';
 import { AdImage } from './common/AdImage';
 import { AdPixel } from './common/AdPixel';
 import { AdMeasurement } from './common/AdMeasurement';
@@ -84,7 +84,10 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
             className="!items-end"
           />
         ) : null}
-        <AdAttribution ad={ad} className={{ main: 'font-normal' }} />
+        <AdAttribution
+          ad={ad}
+          className={{ main: `${adAttributionSpacing} font-normal` }}
+        />
       </CardTextContainer>
       {!useGlass && (
         <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
