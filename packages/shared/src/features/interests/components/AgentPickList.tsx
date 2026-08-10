@@ -10,6 +10,7 @@ import {
 import { ArrowIcon, DiscussIcon, UpvoteIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type { Post } from '../../../graphql/posts';
+import { useNarrowContainer } from '../hooks/useNarrowContainer';
 import { AgentRowActions } from './AgentRowActions';
 
 const InlineStat = ({
@@ -41,10 +42,12 @@ const PickRow = ({
   post,
   onOpen,
   isViewing,
+  isStacked,
 }: {
   post: Post;
   onOpen: (post: Post) => void;
   isViewing: boolean;
+  isStacked: boolean;
 }): ReactElement => (
   // The corners live on the row rather than on the list: the list cannot clip
   // its overflow without cutting the add-to-chat button off its top edge, so
@@ -56,7 +59,11 @@ const PickRow = ({
       className={classNames(
         // Stacked on a phone: a title and its counts side by side in 375px
         // leaves the title four words wide and five lines tall.
-        'agent-press-row group/item relative flex w-full flex-col items-start gap-1 px-3 py-2.5 text-left transition-colors tablet:flex-row tablet:items-center tablet:gap-3',
+        'agent-press-row group/item relative flex w-full flex-col items-start gap-1 px-3 py-2.5 text-left transition-colors',
+        // The same cramping happens on a desktop whose chat column has been
+        // dragged phone-narrow, which a viewport class cannot see, so the
+        // side-by-side layout is granted by the list's own measurement.
+        !isStacked && 'tablet:flex-row tablet:items-center tablet:gap-3',
         isViewing ? 'bg-surface-float' : 'hover:bg-surface-float',
       )}
     >
@@ -79,7 +86,12 @@ const PickRow = ({
           keeps every pixel of its title and every one of its counts, and
           nothing has to be hidden to make space. */}
       <AgentRowActions post={post} reveal />
-      <div className="flex shrink-0 items-center gap-2 tablet:ml-auto">
+      <div
+        className={classNames(
+          'flex shrink-0 items-center gap-2',
+          !isStacked && 'tablet:ml-auto',
+        )}
+      >
         <InlineStat
           ariaLabel={`${post.numUpvotes ?? 0} upvotes`}
           icon={
@@ -103,7 +115,12 @@ const PickRow = ({
           value={post.numComments ?? 0}
         />
         {post.source?.image && (
-          <span className="hidden items-center pl-1 tablet:inline-flex">
+          <span
+            className={classNames(
+              'hidden items-center pl-1',
+              !isStacked && 'tablet:inline-flex',
+            )}
+          >
             <span className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float">
               <img
                 src={post.source.image}
@@ -132,15 +149,27 @@ export const AgentPickList = ({
   posts: Post[];
   onOpen: (post: Post) => void;
   activePostId?: string;
-}): ReactElement => (
-  <ol className="divide-y divide-border-subtlest-quaternary rounded-12 border border-border-subtlest-quaternary bg-background-default">
-    {posts.map((post) => (
-      <PickRow
-        key={post.id}
-        post={post}
-        onOpen={onOpen}
-        isViewing={post.id === activePostId}
-      />
-    ))}
-  </ol>
-);
+}): ReactElement => {
+  // The chat column is dragged, not fixed: with the content panel wide open it
+  // can be phone-narrow on a laptop screen, which no media query can see. The
+  // list measures the column it actually lives in, the way the content panel's
+  // cards already do.
+  const { ref, isNarrow } = useNarrowContainer<HTMLOListElement>();
+
+  return (
+    <ol
+      ref={ref}
+      className="divide-y divide-border-subtlest-quaternary rounded-12 border border-border-subtlest-quaternary bg-background-default"
+    >
+      {posts.map((post) => (
+        <PickRow
+          key={post.id}
+          post={post}
+          onOpen={onOpen}
+          isViewing={post.id === activePostId}
+          isStacked={isNarrow}
+        />
+      ))}
+    </ol>
+  );
+};
