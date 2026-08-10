@@ -5,10 +5,8 @@ import { AgentDemoProviders } from '@dailydotdev/shared/src/features/interests/c
 import { AgentProvider } from '@dailydotdev/shared/src/features/interests/AgentContext';
 import { AgentGlassComposer } from '@dailydotdev/shared/src/features/interests/components/AgentGlassComposer';
 import { AgentFeedDock } from '@dailydotdev/shared/src/features/interests/components/AgentFeedDock';
-import {
-  AgentMonitor,
-  toMonitorItems,
-} from '@dailydotdev/shared/src/features/interests/components/AgentMonitor';
+import { toMonitorItems } from '@dailydotdev/shared/src/features/interests/monitorItems';
+import { AgentMonitor } from '@dailydotdev/shared/src/features/interests/components/AgentMonitor';
 import { AgentPostCard } from '@dailydotdev/shared/src/features/interests/components/AgentPostCard';
 import { mockFeedPosts } from '@dailydotdev/shared/src/features/interests/mockFeed';
 import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
@@ -16,15 +14,8 @@ import { mockNow } from '@dailydotdev/shared/src/features/interests/mockClock';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
 
-/**
- * /dev/agent-feed — the glass prompt docked over a feed.
- *
- * The real mount is `MainFeedPage`, which needs boot and the `interest_agent`
- * flag, so it renders nothing on a dev server with no backend. This route
- * stands the same field over a mock feed, next to a stand-in sidebar that can
- * be widened, which is what the dock has to keep up with. Carries
- * `noindex`/`nofollow`.
- */
+// Stands the docked prompt over a mock feed without boot or the flag, beside a
+// widenable stand-in sidebar, which is what the dock has to keep up with.
 const Page = (): ReactElement => {
   const [query, setQuery] = useState('');
   const [agents] = useState(recentMockAgents);
@@ -33,8 +24,7 @@ const Page = (): ReactElement => {
   return (
     <AgentDemoProviders>
       <NextSeo title="Agent feed prompt" noindex nofollow />
-      {/* The cards carry an add-to-chat button, which reads the agent it
-          belongs to. */}
+      {/* The cards carry an add-to-chat button, which reads the agent. */}
       <AgentProvider id="demo" isDemo initialMessages={[]}>
         <div className="flex min-h-[100dvh] flex-row bg-background-default">
           <aside
@@ -64,9 +54,8 @@ const Page = (): ReactElement => {
                 value={query}
                 onChange={setQuery}
                 onSubmit={() => undefined}
-                // The same clock the fixtures were built from: read against the
-                // real one, a run stamped at the top of this hour is up to an
-                // hour old and half the rows fall out of the fresh window.
+                // The clock the fixtures were built from: against the real
+                // one half the rows fall out of the fresh window.
                 pending={
                   <AgentMonitor items={toMonitorItems(agents, mockNow())} />
                 }
@@ -79,11 +68,6 @@ const Page = (): ReactElement => {
   );
 };
 
-// Request time rather than build time. These surfaces are drawn from mock data
-// measured off the current hour, and prerendered HTML is from whenever the deploy
-// happened, so every elapsed time on the page hydrates as a mismatch. Applied
-// across the whole /dev/agent* family so a timestamp added to any of them later
-// cannot quietly bring it back.
-export const getServerSideProps = async () => ({ props: {} });
+export { devPageServerSideProps as getServerSideProps } from '../../lib/devPage';
 
 export default Page;

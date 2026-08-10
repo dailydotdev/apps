@@ -1,11 +1,5 @@
-/**
- * A media-query stub that answers a predicate.
- *
- * The global one in `setup.ts` reports no match and carries only the legacy
- * `addListener`, which is enough for `useMedia` but not for libraries that call
- * `addEventListener` without checking. Anything rendering a component tree deep
- * enough to include one of those needs this.
- */
+// The global stub in `setup.ts` never matches and carries only the legacy
+// `addListener`, which libraries calling `addEventListener` blow up on.
 export const mockMatchMedia = (
   matches: (query: string) => boolean = () => false,
 ): void => {
@@ -24,14 +18,8 @@ export const mockMatchMedia = (
 export const laptopQuery = '(min-width: 1020px)';
 export const noHoverQuery = '(hover: none)';
 
-/**
- * A desktop pointer on a laptop-sized window.
- *
- * Every width breakpoint at or below laptop matches, because a 1020px window is
- * also wider than tablet. Answering only the laptop query made a desktop that
- * was somehow not a tablet, and any component asking for the smaller breakpoint
- * was told it was on a phone.
- */
+// A 1020px window matches every width breakpoint at or below laptop, so
+// answering only the laptop query reports a desktop that is not a tablet.
 export const mockDesktop = (): void =>
   mockMatchMedia((query) => {
     const [, min] = /min-width:\s*(\d+)px/.exec(query) ?? [];

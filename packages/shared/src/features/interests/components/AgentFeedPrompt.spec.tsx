@@ -33,8 +33,6 @@ const field = () => screen.queryByPlaceholderText(/Spawn an agent/i);
 beforeEach(() => jest.clearAllMocks());
 
 describe('AgentFeedPrompt', () => {
-  // The floating bar and the pair on Explore are the same door. A phone gets
-  // the pair, everything from tablet up gets the bar.
   it('docks over the feed from tablet up', () => {
     mockMatchMedia((query) => query === tabletQuery);
     renderPrompt();

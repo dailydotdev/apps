@@ -9,13 +9,6 @@ import {
 import { FlexCol } from '@dailydotdev/shared/src/components/utilities';
 import { AgentTable } from '@dailydotdev/shared/src/features/interests/components/blocks/AgentTable';
 
-/**
- * The parity map: every chat/agent capability in Claude Code and Codex,
- * against what the daily.dev agent workspace does about it. This page is the
- * decision record — what shipped, what was translated into our own idiom,
- * what waits on the backend, and what we deliberately left out.
- */
-
 const columns = [
   'Capability',
   'Claude Code / Codex pattern',

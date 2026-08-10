@@ -50,8 +50,7 @@ export const AgentTable = ({
           <tr key={String(row[0])}>
             {row.map((cell, index) => (
               <td
-                // Cells are positional and can repeat their value across rows,
-                // so the column index is the only stable key here.
+                // Cell values repeat across rows, so the index is the only key.
                 // eslint-disable-next-line react/no-array-index-key
                 key={index}
                 className="px-3 py-2 align-top text-text-primary typo-caption1"

@@ -27,17 +27,6 @@ jest.mock('next/dynamic', () => (loader: () => Promise<unknown>) => {
 
 const tabletQuery = '(min-width: 656px)';
 
-/**
- * Where the Explore pair is mounted, and what it displaces.
- *
- * Mobile Explore has no header but its search field, so the pair has to take
- * that slot rather than sit under it. It was first mounted in the feed body
- * below the header, which is how Explore came to ask for a search twice.
- *
- * It was mounted before that on the v2 page header, which is laptop-only by
- * design — a phone's control in the one branch that can never draw on one.
- * Every unit test passed, because they all render the component directly.
- */
 const renderHeader = ({
   feed = OtherFeedPage.Explore,
   hasAgent = true,
@@ -74,7 +63,6 @@ describe('the agent entry in the header', () => {
     await waitFor(() =>
       expect(screen.getByLabelText('Your agents')).toBeInTheDocument(),
     );
-    // The pair carries its own half, so the field it replaced is gone.
     expect(screen.getByLabelText('Open search')).toBeInTheDocument();
     expect(screen.queryByTestId('spotlight-trigger')).not.toBeInTheDocument();
   });

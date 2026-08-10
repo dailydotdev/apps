@@ -15,12 +15,6 @@ import { AgentDemoProviders } from '@dailydotdev/shared/src/features/interests/c
 const minutesAgo = (minutes: number) =>
   new Date(Date.now() - 1000 * 60 * minutes).toISOString();
 
-/**
- * Every message state the transcript can be in, on one page: a user turn, a
- * rich agent reply (with hover actions), a scheduled-run marker, a failed
- * turn with retry, and — live, on load — a working turn with a second prompt
- * queued behind it, which then drains.
- */
 const stateMessages: AgentMessage[] = [
   {
     id: 'st-1',
@@ -67,8 +61,6 @@ const stateMessages: AgentMessage[] = [
   },
 ];
 
-// Fires one run and immediately queues a second, so the story opens straight
-// into the working strip + queued-bubble state and then drains on its own.
 const QueueDriver = (): null => {
   const { runCommand } = useAgent();
   const hasFired = useRef(false);

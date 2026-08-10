@@ -12,25 +12,12 @@ import { IconSize } from '../../../components/Icon';
 import { useCopyPostLink } from '../../../hooks/useCopyPostLink';
 import type { Post } from '../../../graphql/posts';
 
-/**
- * The post's own link, straight to the clipboard.
- *
- * Beside the share button rather than inside it: pasting a link into a thread is
- * the commonest thing anyone does with something they found, and putting it two
- * presses deep behind a sheet that offers six providers is charging for the
- * frequent case to make room for the rare one. The sheet stays for everything
- * else.
- *
- * Answers by becoming a green tick, the way the header's does — the same control
- * confirming rather than a second one arriving.
- */
 export const AgentCopyPostLinkButton = ({
   post,
   reveal,
   className,
 }: {
   post: Post;
-  /** Kept out of the way until the pointer is on the row it belongs to. */
   reveal?: boolean;
   className?: string;
 }): ReactElement => {
@@ -52,7 +39,7 @@ export const AgentCopyPostLinkButton = ({
         size={ButtonSize.XSmall}
         variant={ButtonVariant.Subtle}
         className={classNames(
-          // Subtle is an outline with no fill, and these sit over live content.
+          // Subtle has no fill, and these overlay live content.
           '!bg-background-subtle',
           reveal &&
             'opacity-0 transition-opacity focus-visible:opacity-100 group-hover/item:opacity-100',
@@ -64,8 +51,8 @@ export const AgentCopyPostLinkButton = ({
         onClick={(event: React.MouseEvent) => {
           event.stopPropagation();
           event.preventDefault();
-          // The hook already reports its own failure; without this the same
-          // failure also escapes the press as an unhandled rejection.
+          // The hook toasts its own failure; swallowed so the press does not
+          // also throw an unhandled rejection.
           Promise.resolve(copyLink()).catch(() => undefined);
         }}
       />

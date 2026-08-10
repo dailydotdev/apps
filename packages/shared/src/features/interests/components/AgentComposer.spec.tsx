@@ -35,7 +35,6 @@ const field = () =>
 const type = (value: string) =>
   fireEvent.change(field(), { target: { value } });
 
-/** How far the field's first line starts in, past an armed command. */
 const indent = () =>
   parseFloat(field().style.getPropertyValue('text-indent')) || 0;
 
@@ -43,8 +42,7 @@ const lastPrompt = (agent: { current: Agent }) =>
   agent.current.messages.filter(({ role }) => role === 'user').at(-1)?.text;
 
 beforeAll(() => {
-  // jsdom implements no scrolling, and the command menu keeps the active row
-  // in view as you arrow through it.
+  // jsdom implements no scrolling, and the menu scrolls its active row in view.
   Element.prototype.scrollIntoView = jest.fn();
 });
 
@@ -112,8 +110,6 @@ describe('AgentComposer', () => {
       expect(lastPrompt(agent)).toBe('Explore more around comptime');
     });
 
-    // Typing a name opens the list, so the first Enter picks and the second
-    // sends — the same two beats a terminal agent has.
     it('sends a bare command as its no-argument prompt', () => {
       const agent = mountComposer();
 
@@ -140,9 +136,6 @@ describe('AgentComposer', () => {
       expect(field().value).toBe('');
     });
 
-    // The armed command reads as the first word of the prompt, the way a
-    // terminal agent shows it: coloured text over the first line with the text
-    // indented past it, not a chip that takes a column out of the field.
     it('shows the armed command inline, and takes it back on Backspace', () => {
       mountComposer();
 
@@ -152,12 +145,9 @@ describe('AgentComposer', () => {
       const label = screen.getByText('/explore');
 
       expect(label).toHaveClass('absolute');
-      // The first line starts in past the label. jsdom measures every element
-      // at zero width, so the number is only ever the gap — what matters is
-      // that it is set at all, and that it goes back to nothing below.
+      // jsdom measures every element at zero width, so only the presence of an
+      // indent can be asserted, never its size.
       expect(indent()).toBeGreaterThan(0);
-      // No close button on it: the hand is already on the keyboard, and
-      // Backspace in an empty field is where a terminal agent puts this.
       expect(
         screen.queryByLabelText('Remove the explore command'),
       ).not.toBeInTheDocument();
@@ -168,8 +158,6 @@ describe('AgentComposer', () => {
       expect(indent()).toBe(0);
     });
 
-    // A prompt that runs to six lines should not leave the send hovering in the
-    // middle of the text.
     it('keeps the send at the foot of the field', () => {
       mountComposer();
 
@@ -178,9 +166,6 @@ describe('AgentComposer', () => {
       ).not.toBeNull();
     });
 
-    // The list never takes focus, so the row the arrow keys are on is only
-    // reachable by the field pointing at it: without this a screen reader hears
-    // the typing and nothing about what is being chosen.
     it('names the row it is on, so the field can point at it', () => {
       mountComposer();
 
@@ -195,7 +180,6 @@ describe('AgentComposer', () => {
       fireEvent.keyDown(field(), { key: 'ArrowDown' });
 
       expect(field()).toHaveAttribute('aria-activedescendant', options[1].id);
-      // And the option is a child of the listbox, not a list item wrapping one.
       expect(options[1].parentElement).toHaveAttribute('role', 'listbox');
     });
 
@@ -209,8 +193,6 @@ describe('AgentComposer', () => {
       expect(screen.getByText('/write')).toBeInTheDocument();
     });
 
-    // Escape belongs to the menu while the menu is up; the workspace's brake
-    // and the panel's close both listen on the window for the same key.
     it('closes the list on Escape without dropping what was typed', () => {
       mountComposer();
 
@@ -338,8 +320,6 @@ describe('AgentComposer', () => {
       expect(field().value).toBe('I marked that one down because ');
     });
 
-    // Consumed once, so pressing the same link again writes it again rather
-    // than being swallowed as an unchanged value.
     it('clears it as it takes it, so the same text can be written twice', () => {
       const agent = mountComposer();
 

@@ -23,11 +23,6 @@ const ghostty = post(
   'https://app.daily.dev/posts/p2',
 );
 
-/**
- * A block's own `textContent` runs its paragraphs together: "…clears your bar."
- * and "First pass over…" arrive as one sentence with no space in the middle.
- * Splitting per block-level element is the whole reason this exists.
- */
 describe('messageParagraphs', () => {
   it('gives one entry per paragraph rather than one run-on sentence', () => {
     expect(
@@ -97,11 +92,6 @@ describe('messageAsText', () => {
   });
 });
 
-/**
- * What goes on the clipboard. A reply's whole value is the handful of posts it
- * picked out, and stripping to flat text left someone pasting a paragraph about
- * five articles with no way to reach any of them.
- */
 describe('messageAsMarkdown', () => {
   it('carries every citation as a link under its caption', () => {
     expect(
@@ -142,9 +132,7 @@ describe('messageAsMarkdown', () => {
     );
   });
 
-  // A block's own `textContent` fuses its paragraphs: "…clears your bar.First
-  // pass over…". `mockConversation`'s opening reply has exactly this shape, so
-  // every copy of it went out mangled.
+  // A block's own `textContent` fuses its paragraphs with no space between.
   it('separates the paragraphs it flattens', () => {
     expect(
       messageAsMarkdown(
@@ -159,10 +147,6 @@ describe('messageAsMarkdown', () => {
   });
 });
 
-/**
- * The reply as its own small document, for the share sheet's preview and for the
- * picture taken of it.
- */
 describe('messageAsHtml', () => {
   it('passes the agent’s prose through as the markup it already is', () => {
     expect(
@@ -197,9 +181,6 @@ describe('messageAsHtml', () => {
     );
   });
 
-  // A permalink is interpolated straight into an attribute, so a quote or an
-  // ampersand in it would otherwise end the attribute early and take the rest
-  // of the card's markup with it.
   it('cannot have its href broken by a quote or an ampersand in the link', () => {
     const html = messageAsHtml(
       reply({
@@ -211,22 +192,18 @@ describe('messageAsHtml', () => {
     expect(html).toContain(
       'href="https://app.daily.dev/p?a=1&amp;b=&quot;x&quot;"',
     );
-    // Parsed back, the link is still the one link it was meant to be.
     const { body } = new DOMParser().parseFromString(html, 'text/html');
     const links = body.querySelectorAll('a');
 
     expect(links).toHaveLength(1);
-    // `getAttribute`, because jest-dom refuses an element from a parsed
-    // document: it has no window to check the element's type against.
+    // jest-dom refuses an element from a parsed document, which has no window
+    // to check the element's type against.
     // eslint-disable-next-line jest-dom/prefer-to-have-attribute
     expect(links[0].getAttribute('href')).toBe(
       'https://app.daily.dev/p?a=1&b="x"',
     );
   });
 
-  // A title carrying markup would otherwise be interpolated raw, so `<` opens a
-  // tag and the rest of the card's structure shifts with it. Titles come from
-  // the API, not from this file.
   it('cannot have its markup broken by a title carrying angle brackets', () => {
     const html = messageAsHtml(
       reply({

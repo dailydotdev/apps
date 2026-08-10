@@ -21,23 +21,15 @@ const demoUser = {
   providers: ['github'],
 };
 
-/**
- * The contexts the agent workspace reads, filled with static values.
- *
- * The workspace runs on mock data, but the card, post and button primitives it
- * reuses still expect a signed-in user and resolved settings. Standing those up
- * here keeps the demo renderable with no boot, no API and no auth — which is
- * what makes it reviewable locally and in Storybook alike.
- */
+// Static contexts so the demo renders with no boot, API or auth.
 export const AgentDemoProviders = ({
   children,
 }: {
   children: ReactNode;
 }): ReactElement => {
   const LogContext = getLogContextStatic();
-  // One client for the life of the tree, as `_app` does: constructing it inline
-  // hands every render a fresh cache, so a keystroke anywhere above throws away
-  // the toasts and modal state mid-flight.
+  // One client for the life of the tree: constructing it inline hands every
+  // render a fresh cache, discarding toast and modal state mid-flight.
   const [queryClient] = useState(() => new QueryClient());
 
   return (
@@ -79,10 +71,8 @@ export const AgentDemoProviders = ({
             }
           >
             {children}
-            {/* Both of these are mounted by `MainLayout`, which a dev route
-                does not use. Without them a toast is written to the cache and
-                never drawn, and a press that opens a lazy modal opens nothing —
-                which is indistinguishable from a button that does not work. */}
+            {/* `MainLayout` mounts both, and a dev route does not use it:
+                without them toasts and lazy modals silently never appear. */}
             <Toast autoDismissNotifications />
             <LazyModalElement />
           </SettingsContext.Provider>

@@ -1,18 +1,9 @@
 import { markPaths, MARK_HEIGHT, MARK_WIDTH } from '../../svg/logoGeometry';
 
-/**
- * The daily.dev mark as points rather than as a drawing.
- *
- * The thinking indicator breaks the logo into a few hundred grains and flies
- * them out onto a sphere, so what it needs from the mark is its *interior* as
- * points, not its outline as path data. The geometry itself comes from
- * `svg/logoGeometry`, which the logo draws from too.
- */
-
 export type Grain = {
   x: number;
   y: number;
-  /** Which of the three strokes this grain fell inside. */
+  // Which of the three strokes this grain fell inside.
   ring: number;
 };
 
@@ -20,18 +11,9 @@ let probe: CanvasRenderingContext2D | undefined;
 let shapes: Path2D[] | undefined;
 const byStep = new Map<string, Grain[]>();
 
-/**
- * One point per cell of a square grid laid over the mark, keeping only the
- * cells that land inside one of the three strokes.
- *
- * Ordered around the centre rather than scanned in rows, so that grains
- * sitting near each other set off towards neighbouring places on the sphere
- * and the crowd does not turn itself inside out on the way.
- *
- * Built on first use and cached per step: it needs a canvas to ask the paths
- * what is inside them, and a few hundred point-in-path tests is not something
- * to repeat every frame.
- */
+// Ordered around the centre rather than scanned in rows, so neighbouring grains
+// set off towards neighbouring places on the sphere. Cached per step: sampling
+// needs a canvas and hundreds of point-in-path tests cannot run every frame.
 export const markGrains = (step: number): Grain[] => {
   const key = step.toFixed(3);
   const cached = byStep.get(key);

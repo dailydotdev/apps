@@ -38,7 +38,6 @@ export const AgentWorkspace = ({
   postsCount: number;
   onDelete: () => void;
   isDeleting: boolean;
-  /** Rendered without the app chrome, so the workspace owns the viewport. */
   isStandalone?: boolean;
 }): ReactElement => {
   const { isSettingsOpen, openContent, messages, isWorking, stopCommand } =
@@ -46,22 +45,17 @@ export const AgentWorkspace = ({
   const shellHeight = useAgentShellHeight(isStandalone);
   const [storedWidth, setStoredWidth, isWidthLoaded] =
     usePersistentContext<number>('agentPaneWidth', defaultPaneWidth);
-  // The pane's width lives here, not in the store. The store is read once for
-  // the opening size and written on release; rendering straight off it put an
-  // async round-trip between the pointer and the panel, and the panel snapped
-  // back whenever the read landed after the write.
+  // Not rendered off the store: its async read lands after the write, and the
+  // panel snapped back mid-drag.
   const [paneWidth, setPaneWidth] = useState(defaultPaneWidth);
   const [maxPaneWidth, setMaxPaneWidth] = useState(defaultPaneWidth);
   const hasResizedRef = useRef(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
   const transcriptRef = useRef<HTMLDivElement>(null);
-  // Follow the conversation only while the reader is already at its tail;
-  // yanking them down mid-read is the thing Claude and Codex never do.
   const isPinnedRef = useRef(true);
   const [isAwayFromBottom, setIsAwayFromBottom] = useState(false);
   const [hasUnseenReply, setHasUnseenReply] = useState(false);
 
-  // Escape is the universal brake in terminal agents.
   useKeyboardNavigation(globalThis?.window, [
     ['Escape', () => isWorking && stopCommand()],
   ]);
@@ -107,11 +101,8 @@ export const AgentWorkspace = ({
     return () => cancelAnimationFrame(frame);
   };
 
-  // The transcript only ever grows when a prompt is sent — a reply resolves the
-  // turn that is already there. So growth means the reader just spoke, and
-  // sending is itself an act of arriving at the bottom: whatever they had
-  // scrolled up to read, they are done with it. Follow unconditionally, and
-  // re-pin, or the answer they just asked for lands off-screen behind a button.
+  // The transcript only grows when the reader sends a prompt (a reply resolves
+  // the turn already there), so growth re-pins unconditionally.
   useEffect(() => {
     isPinnedRef.current = true;
     setIsAwayFromBottom(false);
@@ -120,9 +111,6 @@ export const AgentWorkspace = ({
     return followTail();
   }, [messages.length]);
 
-  // What the agent says back is the other case, and the one where staying put
-  // matters: a reply landing while the reader is somewhere above it announces
-  // itself rather than yanking them down.
   const isTailPending = !!messages.at(-1)?.isPending;
 
   useEffect(() => {
@@ -141,9 +129,6 @@ export const AgentWorkspace = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTailPending]);
 
-  // The panel's ceiling depends on the window rather than being fixed, and it is
-  // held rather than measured at the moment of a drag so the separator can also
-  // say what its own range is.
   useEffect(() => {
     const measure = () => {
       const workspace = workspaceRef.current;
@@ -161,8 +146,6 @@ export const AgentWorkspace = ({
     return () => globalThis.removeEventListener('resize', measure);
   }, []);
 
-  // Seed it from the last session's width, once. After the first drag the
-  // workspace owns the number and a late read from the store is ignored.
   useEffect(() => {
     if (!isWidthLoaded || hasResizedRef.current || !storedWidth) {
       return;
@@ -171,12 +154,10 @@ export const AgentWorkspace = ({
     setPaneWidth(storedWidth);
   }, [isWidthLoaded, storedWidth]);
 
-  // Returns what it settled on: the drag needs the clamped number to hand back
-  // on release, and reading it out of state there gets the value as it was when
-  // the pointer went down, which is a drag or two behind.
+  // Returns the clamped number because the drag reads state one pointer-down
+  // behind on release.
   const onPaneWidthChange = (next: number): number => {
-    // Whole pixels: a fractional width leaves the panel's border straddling
-    // two of them, which softens the one hairline the eye follows.
+    // Whole pixels: a fractional width leaves the panel's border straddling two.
     const clamped = Math.round(
       Math.min(Math.max(next, minPanelWidth), maxPaneWidth),
     );
@@ -199,10 +180,8 @@ export const AgentWorkspace = ({
         shellHeight,
       )}
     >
-      {/* Settings take the conversation's whole column, header included,
-          rather than floating over it in a sheet. The inset matches the
-          panel's, plus the pixel its border takes, so the two header rules
-          land on exactly the same line. */}
+      {/* The extra pixel is the pane border's, so both header rules land on the
+          same line. */}
       <FlexCol className="min-w-0 flex-1 laptop:pt-[calc(0.5rem+1px)]">
         {isSettingsOpen ? (
           <AgentSettingsPane onDelete={onDelete} isDeleting={isDeleting} />
@@ -210,9 +189,6 @@ export const AgentWorkspace = ({
           <>
             <AgentWorkspaceHeader />
             <div className="relative min-h-0 flex-1">
-              {/* The line under the header, as a fade rather than a rule: the
-                  conversation dissolves into the chrome instead of being cut
-                  by it. Pulled a pixel up so nothing shows between the two. */}
               <span
                 aria-hidden
                 className="pointer-events-none absolute inset-x-0 -top-px z-1 h-8 bg-gradient-to-b from-background-default to-transparent"
@@ -222,10 +198,6 @@ export const AgentWorkspace = ({
                 onScroll={onTranscriptScroll}
                 className="agent-scroll h-full overflow-y-auto px-5 tablet:px-8 laptop:px-10"
               >
-                {/* Deeper at the foot than at the head: the last reply's hover
-                    actions sit right above the composer, and the beam around it
-                    throws light a good inch up. Six of these would have the
-                    copy and the ratings reading through a glow. */}
                 <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 pb-14 pt-6">
                   <AgentIntro
                     findingsCount={items.length}
@@ -244,9 +216,8 @@ export const AgentWorkspace = ({
                   }
                   size={ButtonSize.XSmall}
                   variant={ButtonVariant.Float}
-                  // Float's surface is an 8% wash, so over the transcript the
-                  // control reads as half-there. It floats over live content
-                  // and has to sit on something opaque.
+                  // Float's surface is an 8% wash, invisible over the scrolling
+                  // transcript, so the background is forced opaque.
                   className="absolute bottom-full left-1/2 z-1 mb-4 -translate-x-1/2 border-border-subtlest-tertiary !bg-background-subtle shadow-2"
                   aria-label="Scroll to latest"
                   onClick={scrollToBottom}

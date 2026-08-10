@@ -29,10 +29,6 @@ export const AgentIntro = ({
   const cadence = cadenceCopy[interest?.cadence ?? 'daily'];
 
   return (
-    // The mark and the name sit in the header a few pixels above this, so
-    // repeating them here spent a screenful saying the same thing twice. What
-    // is left is the part the header can't carry: how often it runs, and what
-    // it has to show for it.
     <FlexRow className="flex-wrap items-center gap-x-1.5 gap-y-1 border-b border-border-subtlest-quaternary pb-4">
       <Typography
         type={TypographyType.Caption1}

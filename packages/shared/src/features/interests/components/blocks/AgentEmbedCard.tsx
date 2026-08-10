@@ -17,9 +17,7 @@ import { MenuIcon } from '../../../../components/icons';
 import { IconSize } from '../../../../components/Icon';
 
 type AgentEmbedCardProps = {
-  /** Leading tile glyph. Shown in both variants. */
   icon?: ReactElement;
-  /** Preview area above the footer. Its presence is what makes this a card. */
   media?: ReactNode;
   title: string;
   subtitle?: string;

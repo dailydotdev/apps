@@ -55,9 +55,8 @@ jest.mock('../../hooks/feed/useFeedName', () => ({
 
 jest.mock('../../hooks/useActiveNav', () => jest.fn());
 
-// This test is about hydration, not about which door Explore offers. The pair
-// needs boot, a query client and the flag; stand it down to what it renders
-// when it is off, which is the field this test already asserts on.
+// Stood down to its flag-off fallback: the real pair needs boot, a query
+// client and the flag, none of which this hydration test provides.
 jest.mock('../../features/interests/components/AgentExploreEntry', () => ({
   AgentExploreEntry: ({ fallback }: { fallback: React.ReactNode }) => fallback,
 }));

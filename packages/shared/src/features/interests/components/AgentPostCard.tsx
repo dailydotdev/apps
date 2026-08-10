@@ -45,9 +45,8 @@ export const AgentPostCard = ({
   onOpen: (post: Post) => void;
   isViewing: boolean;
 }): ReactElement => (
-  // The card is a container rather than a button so that "add to chat" can sit
-  // inside it. The title carries the click for the whole card by stretching
-  // over it, which keeps the accessible name on the words that describe it.
+  // A container rather than a button, so "add to chat" can nest inside it; the
+  // title's stretched overlay carries the click for the whole card.
   <div
     className={classNames(
       'group/item relative flex w-full items-start gap-3 rounded-12 border p-2.5 text-left transition-colors',

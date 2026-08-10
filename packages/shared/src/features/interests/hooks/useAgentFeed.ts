@@ -27,13 +27,9 @@ export const useAgentFeed = ({
     enabled: enabled && !!user?.id && !!id && !forceDemo,
   });
   const findings = findingsQuery.data ?? [];
-  // MOCK-UP ONLY: a real agent that has legitimately found nothing yet is
-  // indistinguishable from the design surface here, so it gets served fabricated
-  // findings. This must be narrowed to `forceDemo` alone before the flag ramps
-  // to anyone outside the team, or readers will be shown posts their agent never
-  // saw.
-  const isDemo =
-    forceDemo || (!findingsQuery.isPending && findings.length === 0);
+  // Only the demo surface, never an empty response: a real agent that has
+  // genuinely kept nothing must say so rather than borrow someone else's finds.
+  const isDemo = forceDemo;
 
   const realItems = findings.reduce<AgentFeedItem[]>((acc, finding) => {
     if (!finding.post) {

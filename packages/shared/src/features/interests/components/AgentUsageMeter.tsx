@@ -18,6 +18,7 @@ import {
 import { KeyIcon, PlusIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { plusUrl } from '../../../lib/constants';
+import { useAgent } from '../AgentContext';
 
 type Allowance = {
   label: string;
@@ -26,8 +27,8 @@ type Allowance = {
   resets: string;
 };
 
-// Placeholder until the backend meters real runs. The shape is what the
-// panel needs, not a guess at the API.
+// Invented figures, so the meter is demo-only until the backend meters runs. An
+// imaginary quota next to a paid upgrade is the costliest kind of placeholder.
 const allowances: Allowance[] = [
   { label: 'Agent runs', used: 6, limit: 10, resets: 'Resets in 3h 24m' },
   { label: 'Deep research', used: 4, limit: 5, resets: 'Resets Monday' },
@@ -72,12 +73,14 @@ const Meter = ({ label, used, limit, resets }: Allowance): ReactElement => {
   );
 };
 
-// Claude Code hangs a usage panel off its composer; the same slot is where a
-// reader finds out the agent has a ceiling, which is the moment Plus is worth
-// mentioning.
-export const AgentUsageMeter = (): ReactElement => {
+export const AgentUsageMeter = (): ReactElement | null => {
+  const { isDemo } = useAgent();
   const [runs] = allowances;
   const ratio = Math.min(runs.used / runs.limit, 1);
+
+  if (!isDemo) {
+    return null;
+  }
 
   return (
     <Popover>

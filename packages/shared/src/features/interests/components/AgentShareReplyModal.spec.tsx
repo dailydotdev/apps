@@ -52,11 +52,6 @@ const renderSheet = () =>
     </TestBootProvider>,
   );
 
-/**
- * The anchor the fallback reaches for, with its press recorded — and whether it
- * was in the document at the moment it was pressed, which is the whole
- * difference between a saved file and nothing at all on Firefox.
- */
 const captureDownload = () => {
   const create = document.createElement.bind(document);
   const anchor = create('a');
@@ -75,6 +70,11 @@ const captureDownload = () => {
 const copyImage = () =>
   fireEvent.click(screen.getByRole('button', { name: /Copy image/ }));
 
+// Comfortably more microtasks than the press needs. Bounded rather than looping
+// until it lands, because an unbounded microtask loop starves the timer that
+// would otherwise fail the test, and a hang says nothing.
+const settleTicks = 20;
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockDesktop();
@@ -89,12 +89,7 @@ beforeEach(() => {
 
 afterEach(() => jest.restoreAllMocks());
 
-/**
- * Firefox cannot put an image on the clipboard at all, and a card nobody can
- * paste is worth less than a file they can drag. Saving it is the same outcome
- * by a different route, so it is not reported as a failure — and jsdom, having
- * no `ClipboardItem` either, is exactly that browser.
- */
+// jsdom has no `ClipboardItem`, so it is the Firefox case by default.
 describe('copying the reply as an image where the clipboard will not take one', () => {
   it('saves the card instead, as a named file', async () => {
     const { anchor } = captureDownload();
@@ -107,8 +102,7 @@ describe('copying the reply as an image where the clipboard will not take one', 
     expect(anchor.href).toContain('blob:card');
   });
 
-  // Firefox ignores a click on an anchor that is not in the document, so the
-  // toast said the image was saved and nothing was.
+  // Firefox ignores a click on an anchor that is not in the document.
   it('presses an anchor that is in the document, and leaves none behind', async () => {
     const { anchor, wasAttached } = captureDownload();
 
@@ -130,36 +124,41 @@ describe('copying the reply as an image where the clipboard will not take one', 
     );
   });
 
-  // After the press, and not in the same task as it: revoking the url the
-  // download is reading from cancels the download it just started. Fake timers,
-  // because "later" is the assertion and a real clock cannot state it.
+  // Revoking the url in the same task cancels the download it just started, so
+  // the delay is the assertion and fake timers are the only way to state it.
   it('lets go of the blob url it made, once the press has happened', async () => {
     jest.useFakeTimers();
 
     try {
       const { anchor } = captureDownload();
+      // A url of its own, asserted by name: the tests above run on real timers,
+      // and one of their pending revokes lands inside this test under load,
+      // against the same mock.
+      URL.createObjectURL = jest.fn().mockReturnValue('blob:not-yet');
 
       renderSheet();
       copyImage();
-      // Drawing the card and the clipboard refusing it are both promises, so
-      // they settle without the clock moving at all.
+      // Drawing the card and the clipboard refusing it settle without the clock
+      // moving, so the microtask queue is drained rather than the timers
+      // advanced.
       await act(async () => {
-        await Promise.resolve();
-        await Promise.resolve();
+        for (let tick = 0; tick < settleTicks; tick += 1) {
+          // eslint-disable-next-line no-await-in-loop
+          await Promise.resolve();
+        }
       });
 
       expect(anchor.click).toHaveBeenCalled();
-      expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+      expect(URL.revokeObjectURL).not.toHaveBeenCalledWith('blob:not-yet');
 
       act(() => jest.runOnlyPendingTimers());
 
-      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:card');
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:not-yet');
     } finally {
       jest.useRealTimers();
     }
   });
 
-  // The button must not claim a copy that never reached a clipboard.
   it('does not claim the image was copied', async () => {
     captureDownload();
     renderSheet();
@@ -219,8 +218,7 @@ describe('copying the reply as an image where the clipboard will take one', () =
   const write = jest.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
-    // Neither of these exists in jsdom, so the browser that can do this has to
-    // be built by hand.
+    // Neither exists in jsdom, so the capable browser is built by hand.
     (global as unknown as { ClipboardItem: unknown }).ClipboardItem = class {
       constructor(public items: Record<string, Blob>) {}
     };

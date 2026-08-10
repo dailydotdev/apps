@@ -56,8 +56,8 @@ export const AgentCodeBlock = ({
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
             aria-label="Copy"
-            // The hook already reports its own failure; without the catch the
-            // same failure also escapes the press as an unhandled rejection.
+            // The hook toasts its own failure; swallowed so the press does not
+            // also throw an unhandled rejection.
             onClick={() =>
               Promise.resolve(
                 copy({ link: code, message: '✅ Copied to clipboard' }),

@@ -30,8 +30,8 @@ const kindIcon: Record<AgentActivityKind, ReactElement> = {
   notification: <BellIcon size={IconSize.XSmall} />,
 };
 
-// Named group, or the section around it would reveal every row's button at
-// once the moment the pointer entered any of them.
+// Named group: an unnamed one lets the surrounding section reveal every row's
+// button at once.
 const ActivityRow = ({ item }: { item: AgentActivityItem }): ReactElement => (
   <FlexRow className="group/item items-start gap-3">
     <span className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-8 bg-surface-float text-text-tertiary">
@@ -46,8 +46,6 @@ const ActivityRow = ({ item }: { item: AgentActivityItem }): ReactElement => (
         <DateFormat date={item.at} type={TimeFormatType.Post} />
       </Typography>
     </FlexCol>
-    {/* On the entry rather than on the panel header: what you want to talk
-        about is one run, not whatever tab happens to be open. */}
     <AgentAddToChatButton
       attachment={activityAttachment(item)}
       reveal
@@ -57,8 +55,22 @@ const ActivityRow = ({ item }: { item: AgentActivityItem }): ReactElement => (
 );
 
 export const AgentActivitySection = (): ReactElement => {
-  const { activity } = useAgent();
-  const items = [...activity, ...mockActivity];
+  const { activity, isDemo } = useAgent();
+  const items = isDemo ? [...activity, ...mockActivity] : activity;
+
+  if (!items.length) {
+    return (
+      <FlexCol className="py-6">
+        <Typography
+          type={TypographyType.Callout}
+          color={TypographyColor.Tertiary}
+          className="text-center"
+        >
+          Nothing yet. Runs and findings show up here.
+        </Typography>
+      </FlexCol>
+    );
+  }
 
   return (
     <FlexCol className="gap-4 py-2">

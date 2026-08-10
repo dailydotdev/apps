@@ -12,20 +12,6 @@ import {
 import { markAlphas, markPaths } from '../../../svg/logoGeometry';
 import { usePrefersReducedMotion } from '../../giveback/useGivebackMotion';
 
-/**
- * The agent's thinking indicator: the daily.dev mark breaking into grain,
- * flying out onto a turning sphere, and coming home again.
- *
- * Standing still it is the real logo — the vector path, not a mound of discs —
- * and the grains only grow in as it leaves (see thinkingOrb.ts for why).
- * Depth is carried by dot size and alpha alone: plain 2D canvas arcs, no
- * filters and no shadows, so it costs almost nothing and looks the same in
- * every browser.
- *
- * The clock is `performance.now()`, shared by every instance, so several orbs
- * on one page move as one system. Instances stop drawing while offscreen or
- * while the tab is hidden, and reduced motion gets the resting mark.
- */
 export const AgentThinkingOrb = ({
   size = 20,
   speed = 1,
@@ -59,8 +45,8 @@ export const AgentThinkingOrb = ({
     let frames = 0;
 
     const frame = (t: number) => {
-      // currentColor only changes when the theme does, so polling it beats
-      // listening for it — and it keeps the orb correct inside any container.
+      // currentColor only changes with the theme, and canvas cannot observe it,
+      // so it is polled rather than listened for.
       if (frames % 24 === 0) {
         ink = window.getComputedStyle(canvas).color;
       }
@@ -100,7 +86,7 @@ export const AgentThinkingOrb = ({
     const now = () => (performance.now() / 1000) * SPEED * speed;
 
     if (reducedMotion) {
-      // Zero is the resting pose, which is the mark exactly as it is drawn.
+      // Zero is the resting pose: the mark exactly as it is drawn.
       frame(0);
       return undefined;
     }

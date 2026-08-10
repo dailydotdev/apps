@@ -85,10 +85,8 @@ function MainLayoutHeader({
             hasBanner && 'tablet:top-18',
           )}
         >
-          {/* On Explore this slot is the whole mobile header, so the pair of
-              doors replaces the field rather than stacking under it — two
-              Searches on one screen is the field asked twice. Not on the search
-              page itself, where you are already searching. */}
+          {/* This slot is the whole mobile Explore header, so the pair replaces
+              the field rather than stacking a second Search under it. */}
           {isAnyExplore && !isSearch ? (
             <AgentExploreEntry fallback={<SpotlightTrigger />} />
           ) : (

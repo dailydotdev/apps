@@ -43,17 +43,6 @@ import { AgentThinkingStrip } from './AgentThinkingStrip';
 import { AgentPostCard } from './AgentPostCard';
 import { AgentEmbedCard } from './blocks/AgentEmbedCard';
 
-// The shared markdown styles are tuned for reading an article (17px on a 1.7
-// leading, 24px paragraph gaps), which is far too loose at transcript density.
-// Step it down to our callout token on a prose leading, scoped to the chat so
-// post pages keep the reading rhythm. The shared rules are `:where()`-wrapped,
-// so these class-based overrides win without `!important`.
-// The `!leading-*` overrides are required, not stylistic: `typo-*` ships a
-// line-height with its size, and it wins the cascade over a plain `leading-*`.
-// `text-pretty` on the prose and `text-balance` on the headings: a reply that
-// ends on one orphaned word, or a heading that breaks after "the", is the kind
-// of thing nobody points at and everybody feels.
-
 const BlockRenderer = ({
   block,
   onPostClick,
@@ -71,8 +60,8 @@ const BlockRenderer = ({
 
   if (block.type === 'feedLink') {
     return (
-      // The float lives on a wrapper: the card clips its own overflow for the
-      // media area, and the action reaches past its top edge.
+      // The float lives on a wrapper: the card clips its own overflow and the
+      // action reaches past its top edge.
       <div className="group/item relative">
         <AgentEmbedCard
           icon={<BulletListIcon size={IconSize.Size16} />}
@@ -132,15 +121,6 @@ const BlockRenderer = ({
   );
 };
 
-/**
- * What you can do with a reply, under it.
- *
- * Always on, not revealed on hover. These are four small glyphs on their own
- * line rather than furniture over the text, and hiding them made the two people
- * most likely to want them — anyone on a touch screen, anyone who had not
- * learned they were there — hunt for them. Every one answers back: a press with
- * no visible consequence reads as a press that did not land.
- */
 const MessageActions = ({
   message,
 }: {
@@ -162,8 +142,6 @@ const MessageActions = ({
     return () => clearTimeout(timer);
   }, [isCopied]);
 
-  // The reply goes into the field as context, so "why" is answered about this
-  // turn rather than about the conversation in general.
   const explain = () => {
     const text = messageAsText(message);
 
@@ -185,8 +163,6 @@ const MessageActions = ({
           <Button
             icon={
               isCopied ? (
-                // Scales and unblurs into place rather than appearing: it is
-                // the same control confirming, not a second one arriving.
                 <VIcon
                   size={IconSize.Size16}
                   className="agent-icon-in text-status-success"
@@ -200,11 +176,6 @@ const MessageActions = ({
             aria-label="Copy reply"
             // Flattened on click, not render: DOMParser only exists in the
             // browser.
-            //
-            // The tick waits for the write to land. An insecure origin or a
-            // refused permission means nothing reached the clipboard, and a
-            // control confirming a copy that did not happen is worse than one
-            // that says nothing.
             onClick={() => {
               Promise.resolve(
                 copyText({ textToCopy: messageAsMarkdown(message) }),
@@ -240,8 +211,6 @@ const MessageActions = ({
             setVote((current) => (current === 'down' ? undefined : 'down'))
           }
         />
-        {/* Last, because it is the only one of the four aimed at someone other
-            than the agent. */}
         <Tooltip content="Share reply">
           <Button
             icon={<ShareIcon size={IconSize.Size16} />}
@@ -261,7 +230,6 @@ const MessageActions = ({
         />
       )}
 
-      {/* The note under the row, once voted: it carries the way to say more. */}
       {!!vote && (
         <FlexRow className="agent-line-in items-center gap-1.5 px-1">
           <Typography
@@ -348,10 +316,6 @@ const MessageRow = ({
     );
   }
 
-  // Agent turns carry no avatar or name: the right-aligned user bubbles are
-  // what separates the two voices, so repeating "Your agent" on every reply is
-  // noise. Only a scheduled run gets a marker, because that one arrived on its
-  // own rather than as an answer.
   return (
     <FlexCol className="agent-turn-in group min-w-0 gap-2">
       {message.isScheduled && (
@@ -411,9 +375,6 @@ export const AgentChatSection = (): ReactElement => {
           activePostId={activePostId}
         />
       ))}
-      {/* Prompts waiting behind the in-flight run sit as muted bubbles under
-          the transcript, Claude Code's queued-message pattern: visible,
-          removable, and not yet part of the conversation. */}
       {queuedCommands.map(({ id, text }) => (
         <FlexCol key={id} className="agent-turn-in items-end">
           <FlexRow className="max-w-[85%] items-center gap-2 rounded-12 rounded-br-4 border border-dashed border-border-subtlest-secondary px-3 py-2 tablet:max-w-[30rem]">

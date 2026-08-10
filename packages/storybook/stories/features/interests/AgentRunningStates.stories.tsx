@@ -20,9 +20,8 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { UserInterestStatus } from '@dailydotdev/shared/src/graphql/interests';
 import { mockFeedPosts } from '@dailydotdev/shared/src/features/interests/mockFeed';
 
-// Plain CSS rather than arbitrary Tailwind values: a story file's new
-// arbitrary classes are not in the compiled stylesheet until Storybook is
-// restarted, and these all need keyframes anyway.
+// Plain CSS: a story file's new arbitrary Tailwind classes are not compiled
+// until Storybook restarts, and these need keyframes anyway.
 const styles = `
 .arv-shimmer {
   background: linear-gradient(
@@ -116,8 +115,6 @@ const runningAgents = [
   'Local-first sync',
 ];
 
-/** Every variant is shown over the same slice of feed, so the glass has
-    something to blur and the treatments are compared on equal ground. */
 const Stage = ({
   index,
   title,
@@ -196,7 +193,6 @@ const useTick = (ms: number): number => {
   return tick;
 };
 
-// 1 — nothing but a moving hairline on the frame's top edge.
 const Hairline = (): ReactElement => (
   <div className="relative">
     <span className="pointer-events-none absolute inset-x-6 top-0 z-1 h-px overflow-hidden">
@@ -206,7 +202,6 @@ const Hairline = (): ReactElement => (
   </div>
 );
 
-// 2 — the plain strip: what, how long, and a way to stop it.
 const Strip = (): ReactElement => {
   const seconds = useTick(1000);
 
@@ -238,7 +233,6 @@ const Strip = (): ReactElement => {
   );
 };
 
-// 3 — the work itself as numbers, climbing while you watch.
 const Counter = (): ReactElement => {
   const tick = useTick(700);
 
@@ -265,7 +259,6 @@ const Counter = (): ReactElement => {
   );
 };
 
-// 4 — no extra row at all: the mark in the field wears the spinner.
 const Orbit = (): ReactElement => (
   <div className="relative">
     <span className="arv-orbit pointer-events-none absolute bottom-5 left-5 z-1 block size-4 rounded-6" />
@@ -273,7 +266,6 @@ const Orbit = (): ReactElement => (
   </div>
 );
 
-// 5 — several at once, as a stack you can read at a glance.
 const Stack = (): ReactElement => (
   <Field
     status={
@@ -301,17 +293,14 @@ const Stack = (): ReactElement => (
   />
 );
 
-// 6 — the frame itself is the indicator. No words anywhere. Stood in here
-// with a rotating conic edge; in the product this is the same BorderBeam the
-// workspace composer already runs while a turn is in flight.
+// Stood in with a rotating conic edge; the product uses the workspace
+// composer's BorderBeam.
 const Beam = (): ReactElement => (
   <div className="arv-beam relative rounded-20 p-px">
     <Field />
   </div>
 );
 
-// 7 — the result arrives as a pill docked to the frame, not as a toast that
-// flies in from a corner and takes its news away again.
 const Docked = (): ReactElement => (
   <FlexCol className="gap-1.5">
     <FlexRow className="arv-dock-in justify-center">
@@ -337,7 +326,6 @@ const steps = [
   'writing up what survived…',
 ];
 
-// 8 — the log, one line at a time. You can watch it think.
 const Ticker = (): ReactElement => {
   const tick = useTick(1900);
   const line = steps[tick % steps.length];
@@ -364,7 +352,6 @@ const Ticker = (): ReactElement => {
   );
 };
 
-// 9 — the run as its three real stages, so "still going" has a shape.
 const Segments = (): ReactElement => (
   <Field
     status={
@@ -407,8 +394,6 @@ const Segments = (): ReactElement => (
   />
 );
 
-// 10 — ambient only: the glow under the glass breathes while it works, and
-// the count on the mark is the only thing that ever changes.
 const Ambient = (): ReactElement => (
   <div className="relative">
     <span

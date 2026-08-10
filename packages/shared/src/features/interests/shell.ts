@@ -1,14 +1,8 @@
 import classNames from 'classnames';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 
-/**
- * The height both agent screens stand in.
- *
- * They scroll internally, so they have to stop exactly at the viewport. What
- * sits above them differs per layout: the mobile footer nav plus the global
- * header in the control variant, the floating card's own margins in v2,
- * nothing at all standalone.
- */
+// The agent screens scroll internally, so they must stop exactly at the
+// viewport. The subtractions are what sits above them in each layout.
 export const useAgentShellHeight = (isStandalone?: boolean): string => {
   const { isV2 } = useLayoutVariant();
 

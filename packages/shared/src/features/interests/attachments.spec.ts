@@ -32,8 +32,6 @@ describe('postAttachment', () => {
     expect(postAttachment({ id: 'a' } as Post).label).toBe('Untitled post');
   });
 
-  // The id is what dedupes a post open in the panel against the same post in
-  // the transcript, so it has to be the post's, not the label's.
   it('keys on the post id, not the title', () => {
     const first = postAttachment(makePost('a', 'One title'));
     const second = postAttachment(makePost('a', 'A different title'));
@@ -186,8 +184,6 @@ describe('promptWithContext', () => {
     expect(promptWithContext('raise the bar', [])).toBe('raise the bar');
   });
 
-  // The chips only exist in the transcript; the API sees one string, so what
-  // the prompt pointed at has to be spelled out in it.
   it('names every attachment so the backend knows what was meant', () => {
     const prompt = promptWithContext('why this one', [
       postAttachment(makePost('a', 'Zig 0.15')),

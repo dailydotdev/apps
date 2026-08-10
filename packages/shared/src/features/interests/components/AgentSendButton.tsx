@@ -8,13 +8,6 @@ import {
 import { SendAirplaneIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 
-/**
- * The press that sends what was typed at the agent.
- *
- * Three fields do it — the workspace composer, the glass one docked over the
- * feed, and the one the agents home opens with — and the same button is the
- * right answer in all three, down to the optical nudge on the glyph.
- */
 export const AgentSendButton = ({
   label,
   className,

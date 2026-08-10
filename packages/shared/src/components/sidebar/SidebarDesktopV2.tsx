@@ -1683,8 +1683,7 @@ export const SidebarDesktopV2 = ({
             props: { initialKind: kind },
           }),
       })),
-      // The fifth thing you can make here. Unlike the four above it is a page
-      // rather than a composer kind, so it is a link.
+      // A page rather than a composer kind, so it is a link.
       ...(agentEnabled
         ? [
             {

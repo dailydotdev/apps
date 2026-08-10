@@ -1,22 +1,12 @@
 import type { RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
-/**
- * The width a list card needs before its side-by-side layout reads well. Below
- * it the title column and the cover are fighting over a few hundred pixels, and
- * the card is better off stacked the way a phone stacks it.
- */
+// Below this a list card's title column and cover fight over too little width,
+// so it stacks instead.
 export const narrowContainerWidth = 500;
 
-/**
- * Whether the element is narrower than the threshold.
- *
- * The cards inside the agent's content panel decide their layout off the
- * *panel*, which the reader drags, not off the window — and a media query can
- * only ever answer for the window. Measured here and passed down as a prop, so
- * the layout decision stays with the card instead of living in a stylesheet
- * that overrides the card's utility classes by name.
- */
+// The panel the cards sit in is drag-resized, and a media query can only answer
+// for the window, so the width is measured and passed down as a prop.
 export const useNarrowContainer = <T extends HTMLElement>(
   threshold = narrowContainerWidth,
 ): { ref: RefObject<T>; isNarrow: boolean } => {
@@ -33,8 +23,8 @@ export const useNarrowContainer = <T extends HTMLElement>(
     const observer = new ResizeObserver(([entry]) => {
       const { width } = entry.contentRect;
 
-      // Zero is what an element measures before layout and again while hidden.
-      // Taking it literally would stack every card the moment the panel closed.
+      // ResizeObserver reports 0 before layout and while hidden; taking it
+      // literally would stack every card the moment the panel closed.
       if (!width) {
         return;
       }

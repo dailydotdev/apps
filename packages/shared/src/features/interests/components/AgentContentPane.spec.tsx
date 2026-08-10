@@ -14,8 +14,7 @@ import { AgentContentPane } from './AgentContentPane';
 
 const setViewport = mockMatchMedia;
 
-// The shared fixture, not a hand-rolled object: the panel renders the real
-// post page inside itself, and that reads far more of a post than a title.
+// The panel renders the real post page, which reads far more than a title.
 const post = (id: string, title: string): Post =>
   ({ ...basePost, id, title } as Post);
 
@@ -24,7 +23,7 @@ const Opener = ({ targets }: { targets: AgentContentTarget[] }) => {
 
   useEffect(() => {
     targets.forEach(openContentTarget);
-    // Opening once on mount is the point; re-running would refocus the last tab.
+    // Once on mount: re-running would refocus the last tab.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -96,8 +95,6 @@ describe('AgentContentPane tabs', () => {
     expect(screen.queryByText('Raw state')).not.toBeInTheDocument();
   });
 
-  // A close that only appears under the pointer is one you have to go hunting
-  // for, so every tab carries its own, focused or not.
   it('gives every tab a close, whether or not it is the active one', () => {
     renderPane([{ type: 'activity' }, { type: 'debug' }]);
 
@@ -154,8 +151,6 @@ describe('AgentContentPane on a laptop', () => {
     });
   });
 
-  // A separator with a pointer handler and nothing else is a control half the
-  // people on the page cannot reach.
   it('can be resized from the keyboard, and says what its range is', () => {
     const onWidthChange = jest.fn((next: number) => next);
     const onWidthCommit = jest.fn();
@@ -169,7 +164,7 @@ describe('AgentContentPane on a laptop', () => {
     expect(separator).toHaveAttribute('aria-valuemin', '384');
     expect(separator).toHaveAttribute('aria-valuemax', '960');
 
-    // Left widens, because left is the way this edge moves to widen the panel.
+    // Left widens: the panel's edge moves left to grow it.
     fireEvent.keyDown(separator, { key: 'ArrowLeft' });
 
     expect(onWidthChange).toHaveBeenLastCalledWith(504);
@@ -180,9 +175,6 @@ describe('AgentContentPane on a laptop', () => {
     expect(onWidthChange).toHaveBeenLastCalledWith(456);
   });
 
-  // A drag holds two window listeners and two properties on `document.body`.
-  // Only the pointer coming up used to take them back, so a panel that went
-  // away mid-drag left the whole app unselectable under a col-resize cursor.
   it('lets go of the window and the body if it unmounts mid-drag', () => {
     const { unmount } = renderPane([{ type: 'activity' }]);
     const added: string[] = [];
@@ -212,9 +204,25 @@ describe('AgentContentPane on a laptop', () => {
     expect(document.body.style.getPropertyValue('cursor')).toBe('');
     expect(document.body.style.getPropertyValue('user-select')).toBe('');
 
-    // And the listeners are gone with it: a move after unmount changes nothing.
     fireEvent.pointerMove(globalThis.window, { clientX: 100 });
     expect(document.body.style.getPropertyValue('cursor')).toBe('');
+  });
+
+  // An OS gesture takeover ends a touch drag with pointercancel and no
+  // pointerup, which left the whole app unselectable under a resize cursor.
+  it('lets go of the body when the OS takes the drag away', () => {
+    renderPane([{ type: 'activity' }]);
+
+    fireEvent.pointerDown(screen.getByLabelText('Resize panel'), {
+      clientX: 600,
+    });
+
+    expect(document.body.style.getPropertyValue('cursor')).toBe('col-resize');
+
+    fireEvent.pointerCancel(globalThis.window);
+
+    expect(document.body.style.getPropertyValue('cursor')).toBe('');
+    expect(document.body.style.getPropertyValue('user-select')).toBe('');
   });
 });
 
@@ -226,13 +234,11 @@ describe('AgentContentPane on a phone', () => {
 
     const panel = screen.getByLabelText('Agent content panel');
 
-    // An absence of an inline width, which `toHaveStyle` cannot express.
+    // The absence of an inline width, which `toHaveStyle` cannot express.
     expect(panel).not.toHaveAttribute('style');
     expect(panel).toHaveClass('inset-0');
   });
 
-  // The sheet has to slide out before it goes: closing the content underneath
-  // it first would leave nothing to animate.
   it('keeps the sheet up for the length of its exit', () => {
     renderPane([{ type: 'activity' }]);
 

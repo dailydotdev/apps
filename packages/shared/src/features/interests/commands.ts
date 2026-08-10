@@ -13,25 +13,16 @@ import {
   TimerIcon,
 } from '../../components/icons';
 
-/**
- * The agent's slash commands.
- *
- * Same contract as a terminal agent's: typing `/` lists them, picking one
- * writes it into the field rather than firing it, and whatever is typed after
- * the name is passed through to the prompt. A command with no `prompt` is
- * local — it opens part of the workspace instead of spending a run.
- */
 export type AgentCommand = {
   name: string;
   label: string;
   description: string;
   icon: ComponentType<IconProps>;
-  /** What the optional argument is for. Absent when the command takes none. */
   hint?: string;
-  /** The hint as a question, for the field once the command is armed. */
   ask?: string;
-  /** `args` is whatever followed the name, already trimmed. */
+  // `args` is whatever followed the name, already trimmed.
   prompt?: (args: string) => string;
+  // A command with no `prompt` is local: it opens the workspace, no run spent.
   opens?: 'settings' | 'activity' | 'debug';
 };
 
@@ -144,13 +135,11 @@ export const agentCommands: AgentCommand[] = [
   },
 ];
 
-/** The three offered as buttons under the field. */
 export const quickCommandNames = ['explore', 'write', 'raise-bar'];
 
 export const findCommand = (name: string): AgentCommand | undefined =>
   agentCommands.find((command) => command.name === name);
 
-/** Matched on the label as well as the name, so `/post` still finds `write`. */
 export const matchCommands = (query: string): AgentCommand[] => {
   const term = query.toLowerCase();
 
@@ -159,19 +148,14 @@ export const matchCommands = (query: string): AgentCommand[] => {
   );
 };
 
-/**
- * The command name being typed, when the field holds nothing else.
- *
- * Returns an empty string for a bare `/` — the moment the whole list should
- * open — so callers have to check for `undefined` rather than for falsiness.
- */
+// A bare `/` returns an empty string, so callers must check for `undefined`
+// rather than for falsiness.
 export const commandQuery = (value: string): string | undefined => {
   const match = /^\/([a-z-]*)$/.exec(value);
 
   return match ? match[1] : undefined;
 };
 
-/** The command the field resolves to, with anything typed after it. */
 export const parseCommand = (
   value: string,
 ): { command: AgentCommand; args: string } | undefined => {

@@ -2,13 +2,8 @@ import type { Post } from '../../graphql/posts';
 import type { AgentActivityItem, AgentContentTarget } from './AgentContext';
 import type { AgentAttachment, AgentMessage } from './chat';
 
-/**
- * Turning what is on screen into something a prompt can point at.
- *
- * Ids are the same strings the content tabs use, so a post that is open in the
- * panel and the same post sitting in the transcript are one entry rather than
- * two.
- */
+// Ids match the strings the content tabs use, so a post open in the panel and
+// the same post in the transcript dedupe to one entry.
 export const postAttachment = (post: Post): AgentAttachment => ({
   id: `post:${post.id}`,
   kind: 'post',
@@ -26,10 +21,6 @@ export const feedAttachment = (
   detail: `${posts.length} posts`,
 });
 
-/**
- * A passage the reader highlighted. The label is the passage itself, cut at a
- * length a chip and a prompt line can both carry.
- */
 export const quoteAttachment = (text: string): AgentAttachment => ({
   id: `quote:${text}`,
   kind: 'quote',
@@ -37,7 +28,6 @@ export const quoteAttachment = (text: string): AgentAttachment => ({
   detail: 'Highlighted',
 });
 
-/** A single entry out of the run history, rather than the whole log. */
 export const activityAttachment = (
   item: AgentActivityItem,
 ): AgentAttachment => ({
@@ -47,7 +37,6 @@ export const activityAttachment = (
   detail: 'From the activity log',
 });
 
-/** The agent's own context: not on screen, but still referable. */
 export const agentAttachments: AgentAttachment[] = [
   {
     id: 'agent:guidance',
@@ -79,13 +68,12 @@ export const targetAttachment = (
 
 const transcriptPosts = (messages: AgentMessage[]): Post[] =>
   messages
-    // Newest first: the last thing it sent is the likeliest thing to point at.
+    // Newest first, so deduping downstream keeps the most recent copy.
     .slice()
     .reverse()
     .flatMap(({ blocks }) => blocks ?? [])
     .flatMap((block) => (block.type === 'text' ? [] : block.posts));
 
-/** Everything the composer offers to `@`: what is open, what it found, itself. */
 export const mentionCandidates = ({
   openContent,
   messages,

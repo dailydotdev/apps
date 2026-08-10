@@ -6,20 +6,6 @@ import { MagicIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { AgentSendButton } from './AgentSendButton';
 
-/**
- * The composer as a pane of glass, for surfaces it does not own.
- *
- * On the workspace the field is furniture: a bar welded to the bottom of a
- * screen that is entirely the agent's. On the feed it is a visitor, so it
- * takes the onboarding panel's treatment instead — a framed sheet of glass
- * with the feed moving underneath it, throwing a little of its own colour on
- * what it covers.
- *
- * Two slots, and the split matters. `status` sits under the field and is
- * ambient: what the agents are doing, asking for nothing. `pending` sits over
- * it and is work with your name on it, so it is above the thing you type into
- * rather than below it.
- */
 export const AgentGlassComposer = ({
   value,
   onChange,
@@ -40,7 +26,6 @@ export const AgentGlassComposer = ({
   className?: string;
 }): ReactElement => (
   <div className={classNames('relative w-full', className)}>
-    {/* The colour it throws on whatever is passing underneath. */}
     <span
       aria-hidden
       className="agent-glass-bloom pointer-events-none absolute inset-x-10 bottom-0 top-4 rounded-24"

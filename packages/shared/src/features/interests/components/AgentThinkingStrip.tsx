@@ -19,10 +19,6 @@ const formatElapsed = (ms: number): string => {
   return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
 };
 
-// The transcript's answer to Claude Code's running-status row: one line that
-// says the turn was received, what it is doing and how long it has been at it.
-// It stands in for the reply until the reply exists, so the conversation never
-// shows an empty slot.
 export const AgentThinkingStrip = (): ReactElement => {
   const { workingLabel, workingSince } = useAgent();
   const [elapsed, setElapsed] = useState(0);
@@ -43,7 +39,7 @@ export const AgentThinkingStrip = (): ReactElement => {
 
   return (
     <FlexRow className="items-center gap-2" aria-live="polite">
-      {/* The same token the logo itself fills with: white on the dark theme. */}
+      {/* The orb's canvas paints in currentColor. */}
       <span className="shrink-0 text-text-primary">
         <AgentThinkingOrb size={22} />
       </span>

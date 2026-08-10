@@ -137,8 +137,8 @@ export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
 
   return {
     props: {
-      // Spread rather than set: `token` is optional, and Next refuses to
-      // serialize an explicit `undefined` while an absent key is fine.
+      // Next refuses to serialize an explicit `undefined`, and `token` is
+      // optional.
       ...(token && { token }),
       campaign,
       referringUser: result.user,

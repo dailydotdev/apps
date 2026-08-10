@@ -49,13 +49,6 @@ const measure = (width: number) =>
 const row = () =>
   screen.getByRole('heading', { name: 'Zig 0.15' }).parentElement;
 
-/**
- * The row's stats sit beside the title only when the row has the width for
- * both. That used to be a viewport question, but the chat column is dragged:
- * a laptop with the content panel wide open leaves the transcript phone-narrow
- * while every `tablet:` class still applies, and the title ends up four words
- * wide against a fixed block of counts.
- */
 describe('a pick row in a narrow column', () => {
   it('sits side by side while the column has room', () => {
     renderList();

@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { AgentFeedDock } from './AgentFeedDock';
 
-/** The fixed bar: the dock's child sits one level inside it. */
 const bar = (): HTMLElement =>
   screen.getByTestId('field').closest('.fixed') as HTMLElement;
 
@@ -29,14 +28,11 @@ describe('AgentFeedDock', () => {
     expect(bar()).toHaveStyle({ left: '240px', width: '1160px' });
   });
 
-  // Nothing has been laid out on the first paint, and a hidden column measures
-  // zero too. Taking that literally would leave the field zero pixels wide.
   it('spans the window rather than collapsing when the column measures nothing', () => {
     withColumn({ left: 0, width: 0 });
     mountDock();
 
     expect(bar()).toHaveStyle({ left: '0px', right: '0px' });
-    // No width at all rather than a zero one, so the bar spans the two insets.
     expect(bar()).not.toHaveAttribute(
       'style',
       expect.stringContaining('width'),
@@ -47,8 +43,7 @@ describe('AgentFeedDock', () => {
     withColumn({ left: 100, width: 800 });
     mountDock();
 
-    // An aria-hidden spacer has no accessible role to find it by, which is the
-    // point of it.
+    // An aria-hidden spacer has no role to query it by.
     const marker = document.querySelector('[aria-hidden]');
 
     expect(marker).toHaveClass('h-0');

@@ -34,7 +34,6 @@ const renderHeader = (agent?: UserInterest) =>
     </TestBootProvider>,
   );
 
-/** The press has already happened and the link is on the clipboard. */
 const copied = () =>
   jest.spyOn(copy, 'useCopyLink').mockReturnValue([true, jest.fn()] as never);
 
@@ -62,8 +61,7 @@ describe('the workspace header', () => {
     ).toHaveAttribute('href', '/agent');
   });
 
-  // The tooltip round that link takes a ref. Handing it straight to `Link` — a
-  // plain function component — dropped the ref, so the tooltip had no anchor.
+  // A tooltip needs a ref, and `Link` is a plain function component.
   it('gives its tooltip something that can hold a ref', () => {
     const warn = jest.spyOn(console, 'error').mockImplementation();
 
@@ -77,10 +75,6 @@ describe('the workspace header', () => {
   });
 });
 
-/**
- * The share control has to say which of the two things this press does: on a
- * desktop it copies a link, on a phone it opens the system sheet.
- */
 describe('the share control', () => {
   it('says it copies a link on a desktop', () => {
     renderHeader(interest());
@@ -97,15 +91,12 @@ describe('the share control', () => {
     expect(screen.queryByLabelText('Copy link')).not.toBeInTheDocument();
   });
 
-  // There is nothing to share before the agent has loaded.
   it('is dead until there is a prompt to share', () => {
     renderHeader(undefined);
 
     expect(screen.getByLabelText('Copy link')).toBeDisabled();
   });
 
-  // The same control confirming, rather than a second one arriving: the toast is
-  // a corner of the screen away and this is the only feedback there is.
   it('becomes a tick once the link is copied', () => {
     copied();
     renderHeader(interest());
@@ -113,10 +104,8 @@ describe('the share control', () => {
     expect(screen.getByLabelText('Link copied')).toBeInTheDocument();
   });
 
-  // The bug: the tick was built through `headerIcon`, which appends the header's
-  // tertiary ink *after* whatever the caller asked for. Two text-colour
-  // utilities of equal specificity, so the stylesheet's order decided, and the
-  // tick came out grey.
+  // `headerIcon` appends the header's tertiary ink after the caller's colour,
+  // and equal specificity leaves the stylesheet order to decide.
   it('draws that tick in the success colour, not the header’s grey', () => {
     copied();
     renderHeader(interest());
@@ -129,9 +118,8 @@ describe('the share control', () => {
 });
 
 describe('the panel buttons', () => {
-  // `Button` spreads incoming props *before* writing its own
-  // `aria-pressed={pressed}`, so a raw `aria-pressed` attribute was deleted by
-  // an undefined `pressed` and the toggles announced nothing.
+  // `Button` spreads incoming props before its own `aria-pressed={pressed}`, so
+  // an undefined `pressed` deletes a raw `aria-pressed`.
   it('report whether the panel they own is open', () => {
     renderHeader(interest());
 

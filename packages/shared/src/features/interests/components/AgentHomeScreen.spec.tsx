@@ -26,13 +26,12 @@ describe('AgentHomeScreen while the list is loading', () => {
     renderHome({ isPending: true });
 
     expect(screen.getByLabelText('Loading your agents')).toBeInTheDocument();
-    // Placeholders carry no accessible role, by design.
+    // Placeholders carry no accessible role to query them by.
     expect(document.querySelectorAll('.agent-skeleton').length).toBeGreaterThan(
       8,
     );
   });
 
-  // Both of these were claims about agents that had not arrived yet.
   it('makes no claim about how many agents there are', () => {
     renderHome({ isPending: true });
 
@@ -62,11 +61,6 @@ describe('AgentHomeScreen while the list is loading', () => {
   });
 });
 
-/**
- * Two readings of the same row: a two-line card on a phone, one compact line
- * from tablet up. CSS decides which, so what is worth pinning here is that it
- * is CSS and not two copies of the row.
- */
 describe('AgentHomeScreen rows at both readings', () => {
   it('renders each agent once, not once per reading', () => {
     const [first] = recentMockAgents();
@@ -92,11 +86,6 @@ describe('AgentHomeScreen rows at both readings', () => {
   });
 });
 
-/**
- * A shared agent link hands over the standing prompt. It lands in the field
- * rather than running: spawning off someone else's link would spend a run the
- * reader never asked to spend.
- */
 describe('AgentHomeScreen given a shared prompt', () => {
   const field = () =>
     screen.getByLabelText(
@@ -117,8 +106,7 @@ describe('AgentHomeScreen given a shared prompt', () => {
   });
 
   // `/agent` is statically optimised, so `router.query` is empty on the render
-  // that mounts the field and the prompt arrives one render later. `useState`
-  // reads its argument once, so a shared link used to land on an empty field.
+  // that mounts the field and the prompt lands one render later.
   it('takes a prompt that arrives after the field has mounted', () => {
     const { rerender } = render(
       <TestBootProvider client={new QueryClient()}>
@@ -141,7 +129,6 @@ describe('AgentHomeScreen given a shared prompt', () => {
     expect(field().value).toBe('Rust in production');
   });
 
-  // The reader's own words outrank a link they were sent.
   it('does not overwrite something already typed', () => {
     const { rerender } = render(
       <TestBootProvider client={new QueryClient()}>

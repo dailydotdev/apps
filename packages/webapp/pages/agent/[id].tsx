@@ -6,7 +6,6 @@ import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from '@tanstack/react-query';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { featureInterestAgent } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   interestQueryOptions,
@@ -17,59 +16,23 @@ import { useAgentFeed } from '@dailydotdev/shared/src/features/interests/hooks/u
 import { AgentProvider } from '@dailydotdev/shared/src/features/interests/AgentContext';
 import { AgentWorkspace } from '@dailydotdev/shared/src/features/interests/components/AgentWorkspace';
 import { AgentWorkspaceSkeleton } from '@dailydotdev/shared/src/features/interests/components/AgentWorkspaceSkeleton';
-import {
-  mockAgentPosts,
-  mockInterest,
-} from '@dailydotdev/shared/src/features/interests/mock';
-import { mockFeedItems } from '@dailydotdev/shared/src/features/interests/mockFeed';
-import { mockConversation } from '@dailydotdev/shared/src/features/interests/chat';
 import { openingMessages } from '@dailydotdev/shared/src/features/interests/openingMessages';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
-// `?demo=1` is the design surface: entirely mock data, no API calls, no
-// feature gate and no auth wall, so a preview link is reviewable by anyone.
-// The live page below is what ships once the backend lands.
-const DemoAgentPage = ({ id }: { id: string }): ReactElement => {
-  const { displayToast } = useToastNotification();
-
-  return (
-    <AgentProvider
-      id={id}
-      interest={mockInterest}
-      isDemo
-      initialMessages={mockConversation}
-      key={id}
-    >
-      <AgentWorkspace
-        items={mockFeedItems}
-        postsCount={mockAgentPosts.length}
-        onDelete={() => displayToast('Demo agent — nothing was deleted')}
-        isDeleting={false}
-      />
-    </AgentProvider>
-  );
-};
-
 const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
-    // Signed-in only, as at every other entry point: evaluating enrolls, and an
-    // anonymous visitor can never see the feature to be measured on it.
+    // Evaluating enrolls, so an anonymous visitor must not be measured.
     shouldEvaluate: isAuthReady && !!user,
   });
-  // A signed-in reader without the flag has nothing here. An anonymous one has
-  // not been evaluated at all, so they fall through to the sign-in wall rather
-  // than being bounced off a page the flag never spoke about.
+  // An anonymous reader was never evaluated, so they get the sign-in wall below
+  // rather than the redirect.
   const isGatedOut = isAuthReady && !!user && !showAgent;
-  // Nothing is asked of the API until the flag has said yes. A gated-out reader
-  // is redirected away, so their requests would only spend backend budget and
-  // muddy the feature's own request metrics with traffic from people who never
-  // saw it.
   const isQueryEnabled = showAgent && !!user?.id && !!id;
 
   const interestQuery = useQuery({
@@ -85,23 +48,17 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
     onDeleted: () => router.push(`${webappUrl}agent`),
   });
 
-  const realPosts = postsQuery.data ?? [];
-  const posts = feed.isDemo && !realPosts.length ? mockAgentPosts : realPosts;
-  const interest =
-    interestQuery.data ?? (feed.isDemo ? mockInterest : undefined);
-  // Only what this agent actually found. `feed.items` falls back to mock
-  // findings for the design surface, and an opening turn citing posts the agent
-  // never saw is worse than one citing none.
-  const findings = feed.isDemo ? [] : feed.items;
-  // The findings by identity rather than by count: `feed.items` is a new array
-  // every render, and keying on its length left the opening turn citing the
-  // previous posts when a refetch returned the same number of different ones.
+  const posts = postsQuery.data ?? [];
+  // The query resolves `null` for an agent that is not there, which everything
+  // downstream treats the same as not having loaded yet.
+  const interest = interestQuery.data ?? undefined;
+  const findings = feed.items;
+  // `feed.items` is a new array every render, and its length cannot tell a
+  // refetch of the same count apart.
   const findingIds = findings.map((finding) => finding.id).join();
-  // A real agent has no stored transcript yet, so it opens with the prompt that
-  // spawned it and the agent's answer — rebuilt from the interest. Memoised
-  // because the provider adopts it by identity.
+  // Memoised because the provider adopts it by identity.
   const initialMessages = useMemo(
-    () => (interest ? openingMessages(interest, findings) : mockConversation),
+    () => openingMessages(interest, findings),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [interest, findingIds],
   );
@@ -116,23 +73,19 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
     return null;
   }
 
-  // Only before the agent itself has ever arrived, and tied to not having it
-  // rather than to a pending flag: every refetch — sending a command, the window
-  // regaining focus — turns pending back on, and drawing the skeleton again on
-  // one of those would take the conversation down with it.
+  // Tied to not having the agent rather than to a pending query: every refetch
+  // turns pending back on, and the skeleton would take the transcript down.
   const isLoading =
     !!user && !interest && (interestQuery.isPending || feed.isPending);
 
   return (
     <ProtectedPage>
-      {/* The provider wraps the skeleton too, so it mounts once per agent. It
-          owns the transcript, and it used to sit in the other branch of this
-          decision — which meant anything the reader had typed was destroyed the
-          moment a background refetch flipped the page back to loading. */}
+      {/* Outside the loading branch, so a refetch cannot remount the provider
+          and take the transcript with it. */}
       <AgentProvider
         id={id}
         interest={interest}
-        isDemo={feed.isDemo}
+        isDemo={false}
         initialMessages={initialMessages}
         key={id}
       >
@@ -142,8 +95,8 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
           <AgentWorkspace
             items={feed.items}
             postsCount={posts.length}
-            // The mutation reports its own failure with a toast; swallowed here
-            // so it does not also escape the press as an unhandled rejection.
+            // The mutation toasts its own failure; swallowed so the press does
+            // not also reject unhandled.
             onDelete={() => deleteInterest(id).catch(() => undefined)}
             isDeleting={isDeleting}
           />
@@ -156,21 +109,12 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
 const Page = (): ReactElement | null => {
   const router = useRouter();
 
-  // `router.query` is empty until the route has resolved, so choosing a branch
-  // before then sends every `?demo=1` visitor through the live page first — and
-  // an anonymous reviewer lands on the sign-in wall for the half-second before
-  // the demo mounts.
+  // `router.query` is empty until the route resolves.
   if (!router.isReady) {
     return null;
   }
 
-  const id = router.query.id as string;
-
-  return router.query.demo === '1' ? (
-    <DemoAgentPage id={id} />
-  ) : (
-    <LiveAgentPage id={id} />
-  );
+  return <LiveAgentPage id={router.query.id as string} />;
 };
 
 const getAgentLayout: typeof getLayout = (...props) =>

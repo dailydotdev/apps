@@ -8,8 +8,8 @@ import {
 } from './commands';
 
 describe('commandQuery', () => {
-  // The composer opens the command list on `undefined` vs empty-string, so a
-  // caller that checks truthiness silently never opens it on a bare slash.
+  // The composer opens its list on empty-string vs undefined, so a truthiness
+  // check never opens it on a bare slash.
   it('returns an empty string for a bare slash, not undefined', () => {
     expect(commandQuery('/')).toBe('');
   });

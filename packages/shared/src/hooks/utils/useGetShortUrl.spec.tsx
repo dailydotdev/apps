@@ -21,12 +21,6 @@ beforeEach(() => {
   nock.cleanAll();
 });
 
-/**
- * Every share in the app goes through here. The fallback below was written and
- * never ran: the query was returned from inside its own `try`, so the rejection
- * left before the `catch` could see it — a shortener that was down took the
- * whole share with it, as an unhandled rejection and a button that did nothing.
- */
 describe('useGetShortUrl when the shortener is unreachable', () => {
   it('falls back to the tracked url rather than rejecting', async () => {
     const { result } = renderShortUrl();
@@ -38,16 +32,12 @@ describe('useGetShortUrl when the shortener is unreachable', () => {
       ReferralCampaignKey.ShareAgent,
     );
 
-    // The referral params are still on it — the share is unshortened, not lost.
     const { searchParams } = new URL(link);
 
     expect(searchParams.get('cid')).toBe(ReferralCampaignKey.ShareAgent);
     expect(searchParams.get('userid')).toBe(defaultUser.id);
   });
 
-  // The failure that actually reached a user: not a request that errors, but one
-  // that never answers. DNS stalling, a proxy swallowing it — the press waited
-  // on it indefinitely and the share button looked broken.
   it('gives up waiting on a shortener that never answers', async () => {
     jest
       .spyOn(gqlClient, 'request')

@@ -35,10 +35,6 @@ const Probe = () => {
 const measure = (width: number) =>
   act(() => notify([{ contentRect: { width } }]));
 
-/**
- * The panel's cards ask the panel how wide it is, not the window — the reader
- * drags it, and a media query can only ever answer for the viewport.
- */
 describe('useNarrowContainer', () => {
   it('starts wide, before anything has been measured', () => {
     render(<Probe />);
@@ -57,7 +53,6 @@ describe('useNarrowContainer', () => {
   });
 
   // Zero is what an element measures before layout and again while hidden.
-  // Taking it literally would stack every card the moment the panel closed.
   it('ignores a zero measurement rather than reading it as narrow', () => {
     render(<Probe />);
 

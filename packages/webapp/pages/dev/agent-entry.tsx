@@ -6,17 +6,8 @@ import { AgentExploreEntry } from '@dailydotdev/shared/src/features/interests/co
 import { SpotlightContext } from '@dailydotdev/shared/src/components/spotlight/SpotlightContext';
 import { pageHeaderClassName } from '@dailydotdev/shared/src/components/layout/PageHeader';
 
-/**
- * /dev/agent-entry — the Explore entry, in the strip it lives in.
- *
- * The real mount is `MainLayoutHeader` on the Explore feed, where it takes the
- * place of the search field — and that needs boot, the flag and a signed-in
- * user. This stands the control up over a stub of the sorts below it.
- *
- * Phone widths only, as in the app: from tablet up the control stands aside for
- * the field docked over the feed, so this page is empty above 656px on purpose.
- * Carries `noindex`/`nofollow`.
- */
+// Stands the Explore entry up without boot, the flag or a user. Empty above
+// 656px on purpose: from tablet up the docked field takes over.
 const Page = (): ReactElement => (
   <AgentDemoProviders>
     <NextSeo title="Agent entry point" noindex nofollow />
@@ -25,8 +16,6 @@ const Page = (): ReactElement => (
       // eslint-disable-next-line react/jsx-no-constructed-context-values
     >
       <div className="min-h-[100dvh] bg-background-default">
-        {/* The slot it lives in: the header's own search wrapper, which is what
-            it replaces on mobile Explore. */}
         <div className="mx-2 items-center py-3">
           <AgentExploreEntry />
         </div>
@@ -40,11 +29,6 @@ const Page = (): ReactElement => (
   </AgentDemoProviders>
 );
 
-// Request time rather than build time. These surfaces are drawn from mock data
-// measured off the current hour, and prerendered HTML is from whenever the deploy
-// happened, so every elapsed time on the page hydrates as a mismatch. Applied
-// across the whole /dev/agent* family so a timestamp added to any of them later
-// cannot quietly bring it back.
-export const getServerSideProps = async () => ({ props: {} });
+export { devPageServerSideProps as getServerSideProps } from '../../lib/devPage';
 
 export default Page;

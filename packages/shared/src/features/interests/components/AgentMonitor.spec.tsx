@@ -3,8 +3,9 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { UserInterestStatus } from '../../../graphql/interests';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import type { AgentMonitorItem, AgentMonitorSource } from './AgentMonitor';
-import { AgentMonitor, stateLabel, toMonitorItems } from './AgentMonitor';
+import type { AgentMonitorItem, AgentMonitorSource } from '../monitorItems';
+import { stateLabel, toMonitorItems } from '../monitorItems';
+import { AgentMonitor } from './AgentMonitor';
 
 const now = Date.parse('2026-02-01T12:00:00.000Z');
 const hoursAgo = (hours: number) =>
@@ -35,7 +36,6 @@ describe('toMonitorItems', () => {
     ).toBe('watching');
   });
 
-  // Six hours exactly is outside the window, not inside it.
   it('treats the window edge as past', () => {
     expect(
       toMonitorItems([interest({ lastRunAt: hoursAgo(6) })], now)[0].state,
@@ -51,8 +51,6 @@ describe('toMonitorItems', () => {
     ).toBe('watching');
   });
 
-  // "Waiting for review" over a line reading "kept nothing" sends the reader
-  // looking for something that was never there.
   it('is watching when the run says in words that it kept nothing', () => {
     ['Scanned 214 posts, kept nothing', 'kept none', 'Kept 0 of 41'].forEach(
       (lastRunSummary) => {
@@ -73,7 +71,6 @@ describe('toMonitorItems', () => {
     ).toBe('Scanned 214 posts, kept nothing');
   });
 
-  // Never run and run-but-found-nothing are different things to be told.
   it('is starting, not watching, before its first run', () => {
     const [item] = toMonitorItems(
       [interest({ lastRunAt: null, lastRunSummary: null })],
@@ -137,8 +134,6 @@ describe('toMonitorItems', () => {
     );
 
     expect(paused.state).toBe('paused');
-    // The last run still reads as the line — it is the truest thing to say
-    // about an agent that has stopped.
     expect(paused.line).toBe('Scanned 128 posts, kept 6');
 
     const [never] = toMonitorItems(
@@ -210,8 +205,8 @@ describe('AgentMonitor', () => {
   it('shows at most two waiting rows, and counts the rest', () => {
     renderMonitor(waitingItems(5));
 
-    // One dismiss per waiting row, so counting them counts the rows — the
-    // names themselves also appear in the ticker, which is not a row.
+    // Counted by their dismiss buttons: the names also appear in the ticker,
+    // which is not a row.
     expect(screen.getAllByLabelText(/^Dismiss the update from/)).toHaveLength(
       2,
     );
@@ -254,8 +249,6 @@ describe('AgentMonitor', () => {
     ).toBeInTheDocument();
   });
 
-  // The bar over the feed is the only place a finished run reports back, so it
-  // must not be dismissable as a whole.
   it('has no way to close the strip itself', () => {
     renderMonitor(waitingItems(1));
 
@@ -319,8 +312,6 @@ describe('AgentMonitor', () => {
 
       fireEvent.click(screen.getByRole('button', { name: /in total/ }));
 
-      // The row is for the name. A phrase long enough to describe the state
-      // takes the name's room, so the phrase moves to the accessible name.
       expect(stateLabel.waiting.split(' ')).toHaveLength(1);
       expect(screen.getByText(stateLabel.waiting)).toHaveAttribute(
         'aria-label',
@@ -353,9 +344,8 @@ describe('AgentMonitor', () => {
       const strip = screen.getByRole('button', { name: /in total/ });
 
       fireEvent.click(strip);
-      // On the body, which is where a keypress lands with nothing focused —
-      // the shared hook reads the event's composed path and a window target
-      // has no element in it.
+      // On the body: the shared hook reads the event's composed path, which a
+      // window target has no element in.
       fireEvent.keyDown(document.body, { key: 'Escape' });
 
       expect(strip).toHaveAttribute('aria-expanded', 'false');

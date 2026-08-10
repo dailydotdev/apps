@@ -9,13 +9,6 @@ import {
 import { FlexCol } from '../../../components/utilities';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 
-/**
- * The list and its rows, named from outside.
- *
- * The field is the combobox and this is its popup, so the field has to be able
- * to point at the list and at the row it has arrowed to — neither of which it
- * renders.
- */
 export const composerMenuId = 'agent-composer-menu';
 export const composerOptionId = (id: string): string =>
   `agent-composer-option-${id}`;
@@ -24,22 +17,10 @@ export type AgentMenuItem = {
   id: string;
   icon: ReactNode;
   name: string;
-  /** The argument the name takes, shown after it the way `/write [format]` is. */
   hint?: string;
   description?: string;
 };
 
-/**
- * The list that opens above the field for `/` and for `@`.
- *
- * Not a dropdown: a real menu would take focus off the textarea, and the whole
- * point is that you keep typing to filter it. So it never takes focus, the
- * arrow keys are handled by the field, and the pointer only ever previews the
- * row it is over.
- *
- * Deliberately narrow, and names only. What each one does is a tooltip on the
- * row rather than a second column, so the list stays something you glance at.
- */
 export const AgentComposerMenu = ({
   label,
   items,
@@ -57,8 +38,7 @@ export const AgentComposerMenu = ({
 }): ReactElement => {
   const activeRef = useRef<HTMLLIElement>(null);
 
-  // Arrowing past either end of the visible window has to bring the row with
-  // it; the list scrolls but never receives focus, so nothing else would.
+  // The list never receives focus, so nothing else scrolls the active row in.
   useEffect(() => {
     activeRef.current?.scrollIntoView({ block: 'nearest' });
   }, [activeIndex]);
@@ -73,10 +53,8 @@ export const AgentComposerMenu = ({
           className="agent-scroll max-h-56 overflow-y-auto p-1"
         >
           {items.map((item, index) => (
-            // The option is the list item itself. Wrapping options in plain
-            // `<li>`s breaks the relationship a screen reader needs: the rows
-            // stop being the listbox's options and are announced as list items
-            // with a button in them.
+            // The option must be the `<li>` itself: nesting it inside a plain
+            // one makes a screen reader announce a list item, not an option.
             <li
               key={item.id}
               id={composerOptionId(item.id)}
@@ -87,9 +65,8 @@ export const AgentComposerMenu = ({
               <Tooltip
                 side="right"
                 sideOffset={12}
-                // Undoes the app-wide `flex-shrink: 0` for this tooltip's own
-                // child: a two-line block wider than the surface otherwise
-                // refuses to shrink and the text runs out past the rounding.
+                // Undoes the app-wide `flex-shrink: 0`, without which a two-line
+                // block runs out past the surface's rounding.
                 className="[&>*]:shrink"
                 content={
                   <FlexCol className="gap-0.5">
@@ -109,9 +86,8 @@ export const AgentComposerMenu = ({
               >
                 <button
                   type="button"
-                  // Out of the tab order: an option's children are presented as
-                  // flat text, so a tab stop in here is one a screen reader
-                  // never announces. The field owns the keyboard.
+                  // An option's children are flat text, so a tab stop in here is
+                  // one a screen reader never announces.
                   tabIndex={-1}
                   // Keeps the caret in the field: without this the field blurs
                   // on press and the menu closes before the click can land.

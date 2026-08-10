@@ -87,13 +87,6 @@ const Section = ({
   </FlexCol>
 );
 
-/**
- * Settings as a place in the workspace rather than a modal over it.
- *
- * It takes the conversation's whole column, header included, because a sheet
- * floating over a transcript you cannot reach was pretending to be lighter
- * than it was. Leaving is the same gesture as leaving anything else here.
- */
 export const AgentSettingsPane = ({
   onDelete,
   isDeleting,
@@ -110,8 +103,8 @@ export const AgentSettingsPane = ({
 
   return (
     <>
-      {/* The same 48px control row as the conversation and the panel, so
-          switching between them does not shift the frame. */}
+      {/* Height must match the conversation and panel control rows, or
+          switching between them shifts the frame. */}
       <FlexRow className="h-12 shrink-0 items-center gap-2 border-b border-border-subtlest-tertiary px-3 tablet:px-4">
         <Tooltip content="Back to the conversation">
           <Button

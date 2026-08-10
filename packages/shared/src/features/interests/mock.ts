@@ -1,6 +1,6 @@
 import type { AgentActivityItem } from './AgentContext';
 import { daysAgo, hoursAgo, minutesAgo } from './mockClock';
-import type { AgentMonitorSource } from './components/AgentMonitor';
+import type { AgentMonitorSource } from './monitorItems';
 import type { UserInterest } from '../../graphql/interests';
 import {
   UserInterestCadence,
@@ -21,14 +21,6 @@ export const mockInterest: UserInterest = {
   updatedAt: minutesAgo(0),
 };
 
-/**
- * One agent per state, for the design surfaces.
- *
- * The list is the thing being designed here, and a list where every row says
- * the same word designs nothing — so this covers all seven: two came back with
- * something, one is mid-run, one is watching, one has never run, one failed,
- * one is paused and one is stopped.
- */
 export const mockAgents: AgentMonitorSource[] = [
   mockInterest,
   {
@@ -89,13 +81,8 @@ export const mockAgents: AgentMonitorSource[] = [
   },
 ];
 
-/**
- * The same agents with their last runs pulled up to a few minutes ago.
- *
- * The constants above are stamped once, when the module loads, so on a dev
- * server that has been up all day every agent has aged out of the
- * "came back recently" window and the design surfaces show no news at all.
- */
+// The constants above are stamped once at module load, so on a long-running dev
+// server every agent has aged out of the "came back recently" window.
 export const recentMockAgents = (): AgentMonitorSource[] =>
   mockAgents.map((agent, index) =>
     agent.lastRunAt

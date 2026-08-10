@@ -34,8 +34,6 @@ const html = (messages: ReturnType<typeof openingMessages>) =>
     .join(' ');
 
 describe('openingMessages', () => {
-  // The page used to land on nothing at all, so the prompt that spawned the
-  // agent had to be typed a second time to get a word out of it.
   it('opens with the prompt that spawned it, and an answer to it', () => {
     const messages = openingMessages(interest());
 
@@ -99,7 +97,6 @@ describe('openingMessages', () => {
       expect(blocks.some((block) => block.type === 'feedLink')).toBe(false);
     });
 
-    // The opening turn is a greeting, not the whole feed.
     it('shows three and puts the rest behind a feed link', () => {
       const items = ['a', 'b', 'c', 'd', 'e'].map(item);
       const [, reply] = openingMessages(interest(), items);

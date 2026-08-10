@@ -6,12 +6,11 @@ import { AgentGlassComposer } from '@dailydotdev/shared/src/features/interests/c
 import type {
   AgentMonitorItem,
   AgentMonitorState,
-} from '@dailydotdev/shared/src/features/interests/components/AgentMonitor';
+} from '@dailydotdev/shared/src/features/interests/monitorItems';
+import { stateLabel, toMonitorItems } from '@dailydotdev/shared/src/features/interests/monitorItems';
 import {
   AgentMonitor,
   AgentState,
-  stateLabel,
-  toMonitorItems,
 } from '@dailydotdev/shared/src/features/interests/components/AgentMonitor';
 import {
   Typography,
@@ -23,9 +22,8 @@ import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/moc
 import { mockFeedPosts } from '@dailydotdev/shared/src/features/interests/mockFeed';
 import { mockNow } from '@dailydotdev/shared/src/features/interests/mockClock';
 
-// The same clock the fixtures were built from: read against the real one, a run
-// stamped at the top of this hour is up to an hour old and the rows meant to be
-// waiting for review fall out of the fresh window.
+// The clock the fixtures were built from: against the real one the rows meant to
+// be waiting for review fall out of the fresh window.
 const all = toMonitorItems(recentMockAgents(), mockNow());
 const quiet: AgentMonitorItem[] = all.map((item) => ({
   ...item,
@@ -50,8 +48,6 @@ const busy: AgentMonitorItem[] = [
   },
 ];
 
-// The seven, in the order they matter: the one that wants you, the two that are
-// fine, the one that has not started, then the three that are not working.
 const states: { state: AgentMonitorState; note: string }[] = [
   { state: 'waiting', note: 'A run came back with something you have not seen.' },
   { state: 'running', note: 'Scanning right now. The only dot that moves.' },

@@ -1,12 +1,7 @@
 import classNames from 'classnames';
 
-/**
- * How the agent's prose is set, wherever it is read.
- *
- * Its own module because the share sheet previews a reply and the transcript
- * renders one: importing the classes from the transcript would have the
- * transcript and its own child modal importing each other.
- */
+// Its own module so the transcript and its child share sheet, which both set
+// this prose, do not import each other.
 export const transcriptProse = classNames(
   '[&_p]:my-3 [&_p]:text-pretty [&_p]:!leading-relaxed [&_p]:typo-callout',
   '[&_li]:text-pretty [&_li]:!leading-relaxed [&_li]:typo-callout [&_ol]:my-3 [&_ul]:my-3',

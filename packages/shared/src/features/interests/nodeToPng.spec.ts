@@ -1,13 +1,7 @@
 import { nodeToPng } from './nodeToPng';
 
-/**
- * jsdom cannot rasterise, so what is exercised here is everything up to the
- * paint: the clone that carries the screen's own computed styles, the box it is
- * given now that no parent lays it out, and the two failures that have to arrive
- * as errors rather than as a card nobody can see.
- */
+// jsdom cannot rasterise, so only everything up to the paint is exercised.
 
-/** The shape the share card has: a glow span and prose inside a column. */
 const card = (): HTMLElement => {
   const node = document.createElement('div');
 
@@ -21,13 +15,12 @@ const card = (): HTMLElement => {
   return node;
 };
 
-/** jsdom lays nothing out, so the box the clone has to carry is stubbed. */
+// jsdom lays nothing out, so the box the clone has to carry is stubbed.
 const measured = (node: HTMLElement, width: number, height: number) =>
   jest
     .spyOn(node, 'getBoundingClientRect')
     .mockReturnValue({ width, height } as DOMRect);
 
-/** Whatever the serializer is handed is what gets rasterised. */
 const capture = () => {
   const seen: { current: HTMLElement } = { current: undefined as never };
 
@@ -57,8 +50,7 @@ const paints = (blob: Blob | null) => {
 
 beforeEach(() => {
   document.body.innerHTML = '';
-  // jsdom has no image decoding at all; the SVG never has to actually load for
-  // any of the arithmetic around it to be worth checking.
+  // jsdom has no image decoding, and the SVG never has to actually load.
   Object.defineProperty(HTMLImageElement.prototype, 'decode', {
     configurable: true,
     writable: true,
@@ -82,9 +74,8 @@ describe('the clone that gets photographed', () => {
     expect(clone.current).toHaveStyle({ display: 'block' });
   });
 
-  // The recursion is the part that matters: an SVG `foreignObject` gets no
-  // stylesheet, so a child left without its own inline styles is a child drawn
-  // unstyled.
+  // An SVG `foreignObject` gets no stylesheet, so a child without inline styles
+  // is drawn unstyled.
   it('reaches every descendant, not just the node it was handed', async () => {
     const node = card();
 
@@ -114,8 +105,7 @@ describe('the clone that gets photographed', () => {
     expect(clone.current.querySelector('p')?.textContent).toBe('Kept 6.');
   });
 
-  // Nothing is laid out by a parent inside the `foreignObject`, so the box it
-  // had on screen has to travel with it — and its margin must not.
+  // No parent lays anything out inside the `foreignObject`.
   it('takes the box it had on screen and drops the margin', async () => {
     const node = card();
 
@@ -130,15 +120,12 @@ describe('the clone that gets photographed', () => {
     expect(clone.current).toHaveStyle({ margin: '0px' });
   });
 
-  // The card is on screen while it is being copied. Writing hundreds of inline
-  // styles onto the real node would be visible in the sheet behind the press.
   it('leaves the card on screen exactly as it was', async () => {
     const node = card();
 
     measured(node, 400, 200);
-    // `cssText`, not `toHaveStyle`: the assertion is that nothing was *added*,
-    // and a matcher that checks the styles it was given would pass just as
-    // happily with three hundred more alongside them.
+    // `cssText`, not `toHaveStyle`: the assertion is that nothing was added,
+    // which a matcher checking given styles cannot make.
     const before = node.style.cssText;
 
     paints(new Blob());
@@ -203,9 +190,6 @@ describe('the rasterising itself', () => {
     expect(drawnOn?.height).toBe(201);
   });
 
-  // Both failures have to be thrown: the sheet turns them into "could not turn
-  // the reply into an image", and a silent resolve would leave it reporting a
-  // copy that never happened.
   it('says so when there is nothing to draw on', async () => {
     const node = card();
 

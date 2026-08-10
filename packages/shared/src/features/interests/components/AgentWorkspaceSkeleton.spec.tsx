@@ -8,8 +8,6 @@ import { AgentWorkspaceSkeleton } from './AgentWorkspaceSkeleton';
 beforeEach(() => mockDesktop());
 
 describe('AgentWorkspaceSkeleton', () => {
-  // Not a spinner and not an empty room: the shape of what is coming, so
-  // nothing moves when it lands.
   it('says it is loading, for anyone listening rather than looking', () => {
     render(
       <TestBootProvider client={new QueryClient()}>
@@ -30,8 +28,7 @@ describe('AgentWorkspaceSkeleton', () => {
       </TestBootProvider>,
     );
 
-    // Placeholders have no accessible role by design — the region announces
-    // itself as busy and the blocks inside it are decoration.
+    // Placeholders carry no accessible role to query them by.
     expect(document.querySelectorAll('.agent-skeleton').length).toBeGreaterThan(
       8,
     );

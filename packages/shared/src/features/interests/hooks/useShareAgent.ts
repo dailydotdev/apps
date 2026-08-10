@@ -4,25 +4,10 @@ import { webappUrl } from '../../../lib/constants';
 import { ReferralCampaignKey } from '../../../lib/referral';
 import type { UserInterest } from '../../../graphql/interests';
 
-/**
- * The link that passes an agent on.
- *
- * Not a link to *this* agent — there is nowhere to send someone, and a
- * conversation of your own findings is not the interesting part anyway. What
- * travels is the standing prompt: the recipient lands on the agents screen with
- * it already in the field, one press from having their own watching the same
- * thing.
- *
- * That makes the loop honest in both directions. The sharer is recommending a
- * question rather than exposing a transcript, and the recipient gets something
- * that keeps working for them rather than a snapshot of someone else's feed.
- */
 export const agentShareLink = (query: string): string => {
   const path = `${webappUrl}agent?q=${encodeURIComponent(query)}`;
-  // Absolute, because the share pipeline hangs the referral params on the link
-  // with `new URL(link)` and `webappUrl` is a bare path in development — which
-  // threw rather than degrading. The browser's own origin is what the other
-  // in-app share links are built from for the same reason.
+  // Must be absolute: the share pipeline runs `new URL(link)`, and `webappUrl`
+  // is a bare path in development, which threw rather than degrading.
   const origin = globalThis?.location?.origin;
 
   return origin ? new URL(path, origin).toString() : path;
@@ -37,9 +22,6 @@ export const useShareAgent = (
     text: `I have an agent watching daily.dev for “${query}”`,
     cid: ReferralCampaignKey.ShareAgent,
   });
-  // Between the press and the clipboard there is a request — the link gets
-  // shortened first. It is usually instant and it is sometimes not, and a
-  // control that looks identical either way is a control that looks broken.
   const [isSharing, setSharing] = useState(false);
 
   return {
@@ -55,9 +37,8 @@ export const useShareAgent = (
       try {
         await shareOrCopy();
       } catch {
-        // A dismissed system sheet rejects, and so does a clipboard the browser
-        // refuses. Neither is worth escaping the press as an unhandled
-        // rejection; the control simply stops looking busy below.
+        // A dismissed system sheet or a refused clipboard rejects; neither is
+        // worth escaping the press as an unhandled rejection.
       } finally {
         setSharing(false);
       }

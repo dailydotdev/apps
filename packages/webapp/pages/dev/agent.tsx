@@ -11,15 +11,8 @@ import {
 import { mockFeedItems } from '@dailydotdev/shared/src/features/interests/mockFeed';
 import { mockConversation } from '@dailydotdev/shared/src/features/interests/chat';
 
-/**
- * /dev/agent — internal review surface for the agent workspace.
- *
- * `/agent/[id]?demo=1` renders the same mock workspace inside the real app
- * chrome, which means it needs boot to resolve and so shows nothing on a dev
- * server with no backend behind it. `_app` short-circuits `/dev/*` past the
- * whole app shell, so this route stands the workspace up on its own and stays
- * reviewable anywhere. Carries `noindex`/`nofollow`.
- */
+// `_app` short-circuits `/dev/*` past the app shell, so this reviews the
+// workspace without boot, which `/agent/[id]?demo=1` needs.
 const Page = (): ReactElement => (
   <AgentDemoProviders>
     <NextSeo title="Agent workspace" noindex nofollow />
@@ -40,11 +33,6 @@ const Page = (): ReactElement => (
   </AgentDemoProviders>
 );
 
-// Request time rather than build time. These surfaces are drawn from mock data
-// measured off the current hour, and prerendered HTML is from whenever the deploy
-// happened, so every elapsed time on the page hydrates as a mismatch. Applied
-// across the whole /dev/agent* family so a timestamp added to any of them later
-// cannot quietly bring it back.
-export const getServerSideProps = async () => ({ props: {} });
+export { devPageServerSideProps as getServerSideProps } from '../../lib/devPage';
 
 export default Page;

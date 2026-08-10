@@ -1,21 +1,6 @@
-/**
- * A rendered element, as a picture of itself.
- *
- * The element is cloned, every computed style is written onto the clone as an
- * inline one, and the result is handed to the renderer inside an SVG
- * `foreignObject`. That is what makes the copy match the screen: it is the same
- * layout, the same tokens and the same type, not a second drawing of them.
- *
- * No library, for the reason a reviewer already gave about a different one: this
- * is `shared`, so anything added here also ships in the extension. It is ~60
- * lines because the card it has to photograph is plain — text, inline SVG and
- * gradients. It is not a general-purpose rasteriser and should not become one.
- *
- * Two things it cannot do, both avoided by how the card is built rather than by
- * code here: pseudo-elements are not cloned, so the card's glow is a real
- * element; and an SVG image cannot reach the page's webfonts, which is only
- * survivable because the app's stack is system faces.
- */
+// No library: `shared` ships in the extension, and this only has to photograph
+// a plain card. Two limits the card is built around: pseudo-elements are not
+// cloned, and an SVG foreignObject cannot reach the page's webfonts.
 const inline = (source: Element, clone: Element): void => {
   const computed = getComputedStyle(source);
   let css = '';
@@ -42,7 +27,6 @@ const inline = (source: Element, clone: Element): void => {
 
 export const nodeToPng = async (
   node: HTMLElement,
-  /** 2 so the picture holds up on the screen it gets pasted onto. */
   scale = 2,
 ): Promise<Blob> => {
   const { width, height } = node.getBoundingClientRect();
@@ -50,8 +34,7 @@ export const nodeToPng = async (
 
   inline(node, clone);
 
-  // The clone is measured, not laid out by its parent, so it has to carry the
-  // box it had on screen.
+  // No parent lays the clone out, so it has to carry its on-screen box.
   clone.style.margin = '0';
   clone.style.width = `${width}px`;
   clone.style.height = `${height}px`;

@@ -77,8 +77,6 @@ describe('AgentAddToChatButton', () => {
     expect(chipCount()).toBe('1');
   });
 
-  // The same control at every width: a button that changes shape between
-  // devices is a second control to learn.
   it('says the same thing on a touch device as under a pointer', () => {
     setPointer(false);
     renderButton({ reveal: true });

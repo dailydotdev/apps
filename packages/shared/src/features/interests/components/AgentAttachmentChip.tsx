@@ -25,10 +25,6 @@ export const attachmentIcon: Record<AgentAttachment['kind'], ReactElement> = {
   activity: <TimerIcon size={IconSize.Size16} />,
 };
 
-/**
- * A reference the next prompt carries. Removable in the composer, fixed once
- * the turn has been sent, which is why the cross is opt-in.
- */
 export const AgentAttachmentChip = ({
   attachment,
   onRemove,
@@ -38,11 +34,7 @@ export const AgentAttachmentChip = ({
   onRemove?: () => void;
   className?: string;
 }): ReactElement => (
-  // Built to the Subtle button's recipe — 24px tall, an 8px radius, an outline
-  // and no fill — because it sits among Subtle buttons at the bottom of the
-  // screen and any other treatment reads as a different kind of thing. The
-  // label keeps primary ink: a reference you deliberately attached is not
-  // secondary information, and dimmer ink here read as disabled.
+  // Matches the Subtle button's geometry: it sits among Subtle buttons.
   <span
     className={classNames(
       'flex h-6 max-w-[13rem] items-center gap-1 rounded-8 border border-border-subtlest-secondary pl-1.5',

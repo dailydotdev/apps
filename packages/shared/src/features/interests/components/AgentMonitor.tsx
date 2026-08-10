@@ -18,188 +18,13 @@ import { IconSize } from '../../../components/Icon';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import { webappUrl } from '../../../lib/constants';
-import type { UserInterest } from '../../../graphql/interests';
-import { UserInterestStatus } from '../../../graphql/interests';
 import { useOutsideClick } from '../../../hooks/utils/useOutsideClick';
 import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
+import type { AgentMonitorItem, AgentMonitorState } from '../monitorItems';
+import { dotClass, inkClass, stateLabel, stateMeaning } from '../monitorItems';
 
-/**
- * Everything an agent can be, in the order it matters to the reader.
- *
- * `waiting` is the only one that asks anything of you. The two after it are
- * healthy and need nothing. The last three are an agent that is not working,
- * whether that was your decision or not.
- */
-export type AgentMonitorState =
-  | 'waiting'
-  | 'running'
-  | 'watching'
-  | 'starting'
-  | 'failed'
-  | 'paused'
-  | 'stopped';
-
-export type AgentMonitorItem = {
-  id: string;
-  name: string;
-  state: AgentMonitorState;
-  /** What it found, or what it is doing right now. One line. */
-  line: string;
-  /** How many findings are waiting, when the run left any. */
-  found?: number;
-  at?: string | null;
-};
-
-/**
- * What the list reads: an interest, plus the two run states the API has no
- * field for yet. A run in flight and a run that failed are both things the
- * backend knows and does not return; until it does, only mock data sets this.
- */
-export type AgentMonitorSource = UserInterest & {
-  runState?: 'running' | 'failed' | null;
-};
-
-const freshMs = 1000 * 60 * 60 * 6;
 const tickerMs = 3600;
-// Two waiting rows, then a count. Any more and the field is buried under its
-// own news.
 const shownByDefault = 2;
-
-/** What the state reads as when the agent has said nothing of its own. */
-const fallbackLine: Record<AgentMonitorState, string> = {
-  waiting: 'Came back with something.',
-  running: 'Scanning now…',
-  watching: 'Watching. Nothing new yet.',
-  starting: 'First run has not happened yet.',
-  failed: 'Last run did not finish.',
-  paused: 'Paused. Nothing scheduled.',
-  stopped: 'Stopped. It keeps what it found.',
-};
-
-/**
- * The agents, as the list sees them.
- *
- * Five of the seven states come off the interest itself. `waiting` stands in
- * for an unseen-findings count the API does not return yet: a run that landed
- * in the last few hours and had something to say. `running` and `failed` have
- * no field to read at all, so they are passed in.
- */
-export const toMonitorItems = (
-  agents: AgentMonitorSource[],
-  now = Date.now(),
-): AgentMonitorItem[] =>
-  agents.map((agent) => {
-    const ran = agent.lastRunAt ? Date.parse(agent.lastRunAt) : 0;
-    // A run that kept nothing is news about the agent, not something to
-    // review — "waiting for review" over a line reading "kept nothing" sends
-    // you looking for something that was never there.
-    const keptNothing = /\bkept (nothing|none|no|0)\b/i.test(
-      agent.lastRunSummary ?? '',
-    );
-    const isFresh =
-      !!agent.lastRunSummary && !keptNothing && now - ran < freshMs;
-
-    const resolve = (): AgentMonitorState => {
-      // A run in flight outranks everything: it is happening right now.
-      if (agent.runState === 'running') {
-        return 'running';
-      }
-
-      if (agent.status === UserInterestStatus.Stopped) {
-        return 'stopped';
-      }
-
-      if (agent.status !== UserInterestStatus.Active) {
-        return 'paused';
-      }
-
-      if (agent.runState === 'failed') {
-        return 'failed';
-      }
-
-      // Never run is not the same as run and found nothing, and an agent you
-      // spawned a minute ago should say which of the two it is.
-      if (!agent.lastRunAt) {
-        return 'starting';
-      }
-
-      return isFresh ? 'waiting' : 'watching';
-    };
-
-    const state = resolve();
-
-    return {
-      id: agent.id,
-      name: agent.query,
-      state,
-      // Read back out of the summary. The API returns no findings count yet,
-      // and the run's own sentence is the only place the number exists.
-      found:
-        Number(/kept (\d+)/.exec(agent.lastRunSummary ?? '')?.[1]) || undefined,
-      // A stopped or failed agent's last summary describes a state it is no
-      // longer in, so those two say what they are instead.
-      line:
-        (state === 'failed' || state === 'stopped'
-          ? undefined
-          : agent.lastRunSummary) ?? fallbackLine[state],
-      at: agent.lastRunAt,
-    };
-  });
-
-/**
- * One word each, because the agent's own name is what the row is for.
- *
- * "Waiting for review" is the honest phrase and it took the whole row on a
- * phone, leaving three letters of the name it was describing. In a column of
- * states, next to a coloured dot, the short word is unambiguous.
- */
-export const stateLabel: Record<AgentMonitorState, string> = {
-  waiting: 'Review',
-  running: 'Running',
-  watching: 'Watching',
-  starting: 'Due',
-  failed: 'Failed',
-  paused: 'Paused',
-  stopped: 'Stopped',
-};
-
-/**
- * The same states, said in full, for the accessible name.
- *
- * A column makes "Review" clear; read out on its own it is a word with no
- * subject.
- */
-export const stateMeaning: Record<AgentMonitorState, string> = {
-  waiting: 'Waiting for review',
-  running: 'Running now',
-  watching: 'Watching',
-  starting: 'First run due',
-  failed: 'Run failed',
-  paused: 'Paused',
-  stopped: 'Stopped',
-};
-
-export const inkClass: Record<AgentMonitorState, string> = {
-  waiting: 'text-brand-default',
-  running: 'text-status-success',
-  watching: 'text-status-info',
-  starting: 'text-status-warning',
-  failed: 'text-status-error',
-  paused: 'text-text-quaternary',
-  stopped: 'text-text-quaternary',
-};
-
-// One hue each, and the only moving one is the only one that is moving.
-export const dotClass: Record<AgentMonitorState, string> = {
-  waiting: 'bg-brand-default',
-  running: 'animate-pulse bg-status-success',
-  watching: 'bg-status-info',
-  starting: 'bg-status-warning',
-  failed: 'bg-status-error',
-  paused: 'bg-text-quaternary',
-  // Hollow rather than filled: it is not coming back on its own.
-  stopped: 'border border-text-quaternary',
-};
 
 const StateDot = ({ state }: { state: AgentMonitorState }): ReactElement => (
   <span
@@ -208,19 +33,11 @@ const StateDot = ({ state }: { state: AgentMonitorState }): ReactElement => (
   />
 );
 
-/**
- * The state as a word, the way a pull-request list says "Ready for review".
- *
- * A coloured dot and a phrase carry it better than a badge does: at this size
- * a filled pill is a second object competing with the agent's own name, and
- * the words are the thing being scanned.
- */
 export const AgentState = ({
   state,
   className,
 }: {
   state: AgentMonitorState;
-  /** A fixed width, where the rows should read as a column. */
   className?: string;
 }): ReactElement => (
   <span
@@ -246,12 +63,6 @@ const Elapsed = ({ at }: { at?: string | null }): ReactElement => (
   </Typography>
 );
 
-/**
- * One agent in the expanded list: state, who, what, when.
- *
- * Single row on purpose. A dozen agents have to be scannable in one look, and
- * a second line each turns the list into a page.
- */
 const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => (
   <li>
     <Link href={`${webappUrl}agent/${item.id}`}>
@@ -282,13 +93,6 @@ const AgentRow = ({ item }: { item: AgentMonitorItem }): ReactElement => (
   </li>
 );
 
-/**
- * An agent that came back, in the collapsed stack.
- *
- * No state word on this one: there are at most two of them, they are all in
- * the same state, and the button on the right already says what to do about
- * it. The dot is what marks it as news.
- */
 const WaitingRow = ({
   item,
   onDismiss,
@@ -314,9 +118,7 @@ const WaitingRow = ({
     </Typography>
     <Elapsed at={item.at} />
     {/* `passHref`, or the anchor renders with no href at all: legacyBehavior
-        only injects one into a plain `<a>` child, not into a component. Without
-        it this is a link you cannot middle-click, open in a new tab, or hear
-        announced as a link. */}
+        only injects one into a plain `<a>` child, not into a component. */}
     <Link href={`${webappUrl}agent/${item.id}`} passHref>
       <Button
         tag="a"
@@ -338,19 +140,6 @@ const WaitingRow = ({
   </FlexRow>
 );
 
-/**
- * Everything the agents are doing, stacked over the field.
- *
- * One object rather than two. Collapsed it is whatever is waiting on you, at
- * most two rows, sitting on a ticker of each agent's latest in rotation with
- * the bell carrying the count that came back while you were reading. Clicking
- * the ticker grows the stack upward into the full list rather than opening a
- * panel over it: they are the same rows, so a second surface to hold them was
- * one surface too many.
- *
- * No toast and no badge elsewhere in the chrome, on purpose: a toast leaves
- * with the news, and a second badge is a second inbox to check.
- */
 type AgentMonitorView = 'collapsed' | 'waiting' | 'all';
 
 export const AgentMonitor = ({
@@ -358,12 +147,8 @@ export const AgentMonitor = ({
   defaultOpen,
 }: {
   items: AgentMonitorItem[];
-  /** Opened for you when a run lands while you are on the feed. */
   defaultOpen?: boolean;
 }): ReactElement | null => {
-  // Three steps rather than two: shut, everything that came back, then every
-  // agent whatever it is doing. Opening the list to hunt for the two rows that
-  // want you among six that do not is the thing this avoids.
   const [view, setView] = useState<AgentMonitorView>(
     defaultOpen ? 'waiting' : 'collapsed',
   );
@@ -406,11 +191,10 @@ export const AgentMonitor = ({
   const shown = waiting.slice(0, shownByDefault);
   const hidden = waiting.length - shown.length;
   const fresh = waiting.length;
-  // Nothing came back, so "what is waiting" would be an empty list: the first
-  // press goes straight to everything instead.
+  // With nothing waiting, the `waiting` view would be an empty list.
   const listed = view === 'all' || !fresh ? items : waiting;
   const rest = items.length - listed.length;
-  // Modulo again here: the list can shrink under a cursor that has moved on.
+  // The list can shrink under a cursor the ticker has already moved on.
   const showing = items[cursor % count];
 
   return (
@@ -451,12 +235,9 @@ export const AgentMonitor = ({
             current === 'collapsed' ? 'waiting' : 'collapsed',
           )
         }
-        // The whole strip is the control, edge to edge and over the bell, and
-        // tall enough to be an easy target rather than a 28px sliver.
         className="agent-press-row flex w-full items-center gap-2 rounded-14 px-2 py-2 text-left transition-colors hover:bg-surface-hover"
       >
-        {/* Keyed on what it is showing, so a turn of the ticker plays the new
-            line in instead of swapping the text under you. */}
+        {/* Keyed so a turn of the ticker replays the enter animation. */}
         <Typography
           key={isExpanded ? view : showing.id}
           type={TypographyType.Caption1}

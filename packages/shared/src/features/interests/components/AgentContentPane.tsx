@@ -38,16 +38,11 @@ import { AgentActivitySection } from './AgentActivitySection';
 
 const noop = () => undefined;
 
-// One arrow press, in pixels. Coarse enough to get somewhere without holding the
-// key down, fine enough to land on a width you meant.
 const keyResizeStep = 24;
 
-// Every tab reads on the post page's own gutters, so switching between an
-// article, a feed and the debug dump doesn't shift the text sideways.
 const postPageGutter = 'px-4 tablet:px-6 laptop:px-8';
-// `PostContent` brings its own: the article column on the ramp above, the
-// widgets column on a narrower one. They sit side by side on the post page but
-// stack in a panel this narrow, so both are pinned to the article column's.
+// `PostContent`'s article and widgets columns sit side by side on the post page
+// but stack in a panel this narrow, so both are pinned to the article gutter.
 const postPageGutterChildren =
   '[&_aside]:!px-4 [&_main]:!px-4 tablet:[&_aside]:!px-6 tablet:[&_main]:!px-6 laptop:[&_aside]:!px-8 laptop:[&_main]:!px-8';
 
@@ -70,13 +65,6 @@ const tabLabel = (target: AgentContentTarget): string => {
   return target.type === 'activity' ? 'Activity' : 'Debug';
 };
 
-// Always the list card, at every width. The panel is a scanning surface: grid
-// cards give each post a cover image and a card's worth of height, which turns
-// nine findings into a long scroll of artwork.
-//
-// Edge to edge, with no gutters and no gaps: the cards carry their own padding
-// and their own top rule, so this reads as one continuous list the way the feed
-// does on a phone, rather than a column of cards floating in a narrow trough.
 const FeedView = ({
   posts,
   onOpenPost,
@@ -84,11 +72,9 @@ const FeedView = ({
   posts: Post[];
   onOpenPost: (post: Post) => void;
 }): ReactElement => {
-  // The card's own share affordance, wired to the app's share modal rather than
-  // left as a no-op the way the other feed callbacks are here.
   const { openSharePost } = useSharePost(Origin.Agent);
-  // The panel is a column the reader drags, so the cards ask it how wide it is
-  // rather than asking the window — which is a desktop even when this is 320px.
+  // Measured off the container, not the viewport: the window is a desktop even
+  // when the reader has dragged this panel down to 320px.
   const { ref, isNarrow } = useNarrowContainer<HTMLDivElement>();
 
   return (
@@ -124,7 +110,6 @@ export const AgentContentPane = ({
   debugPanel,
 }: {
   width: number;
-  /** The range the separator can announce, and the range it clamps to. */
   minWidth: number;
   maxWidth: number;
   /** Clamps the value and returns what it settled on. */
@@ -144,16 +129,13 @@ export const AgentContentPane = ({
   } = useAgent();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const drawerRef = useRef<DrawerRef>(null);
-  // A drag holds two global listeners and two properties on `document.body`.
-  // Only the pointer coming up used to take them back, so a panel that went
-  // away mid-drag — a route change, Escape closing the last tab — left the whole
-  // app unselectable under a col-resize cursor until the next full reload.
+  // A panel that goes away mid-drag otherwise leaves the whole app unselectable
+  // under a col-resize cursor until the next full reload.
   const releaseDragRef = useRef<() => void>();
 
   useEffect(() => () => releaseDragRef.current?.(), []);
   useKeyboardNavigation(globalThis?.window, [
-    // While a run is in flight Escape belongs to the stop control in the
-    // workspace; closing a tab on the same keypress would double its meaning.
+    // While a run is in flight Escape belongs to the workspace's stop control.
     [
       'Escape',
       () => !isWorking && activeContentId && closeContent(activeContentId),
@@ -164,17 +146,14 @@ export const AgentContentPane = ({
     event.preventDefault();
     const startX = event.clientX;
     const startWidth = width;
-    // The drag keeps its own last number. Everything React knows is a render
-    // behind by the time the pointer comes up, and this listener closes over
-    // the props it was born with.
+    // This listener closes over the props it was born with, and React is a
+    // render behind by the time the pointer comes up.
     let latest = startWidth;
 
     const onMove = (moveEvent: PointerEvent) => {
       latest = onWidthChange(startWidth - (moveEvent.clientX - startX));
     };
 
-    // One signal takes both listeners off, whether the pointer came up or the
-    // panel went away underneath the drag.
     const controller = new AbortController();
     const release = () => {
       controller.abort();
@@ -196,14 +175,16 @@ export const AgentContentPane = ({
     globalThis.addEventListener('pointerup', onUp, {
       signal: controller.signal,
     });
-    // Handed to the unmount cleanup above, so the drag cannot outlive the panel.
+    // An OS gesture takeover ends a touch drag with pointercancel and no
+    // pointerup, which would leave the body unselectable under a resize cursor.
+    globalThis.addEventListener('pointercancel', onUp, {
+      signal: controller.signal,
+    });
     releaseDragRef.current = release;
   };
 
-  // The same drag from the keyboard, which is the only way there was none: a
-  // separator with a pointer handler and nothing else is a control half the
-  // people on the page cannot reach. Left widens, because left is the direction
-  // this edge moves to widen the panel it belongs to.
+  // Left widens, because left is the direction this edge moves to widen the
+  // panel it belongs to.
   const onResizeKey = (event: React.KeyboardEvent) => {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
       return;
@@ -215,19 +196,15 @@ export const AgentContentPane = ({
     onWidthCommit(onWidthChange(width + delta));
   };
 
-  // On a phone the panel is a page in its own right, so it arrives like one:
-  // in from the right over the conversation, out the same way. `closeAllContent`
-  // runs at the end of the slide rather than the start of it, which is the only
-  // way the exit is ever seen.
+  // On a phone `closeAllContent` has to run at the end of the drawer's slide,
+  // not the start, or the exit animation is never seen.
   const onCloseAll = () =>
     isLaptop ? closeAllContent() : drawerRef.current?.onClose();
 
   const card = (
     <>
-      {/* A focusable separator is a window splitter: ARIA treats that as
-          interactive and gives it the `aria-value*` properties it carries below.
-          jsx-a11y models every `separator` as static, so it reads the tab stop
-          and the key handler as mistakes. */}
+      {/* jsx-a11y models every `separator` as static, so it reads the tab stop
+          and the key handler of a window splitter as mistakes. */}
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         role="separator"
@@ -242,17 +219,10 @@ export const AgentContentPane = ({
         onKeyDown={onResizeKey}
         className="group absolute inset-y-0 -left-1.5 z-1 hidden w-3 cursor-col-resize items-center justify-center outline-none laptop:flex"
       >
-        {/* The grip is the whole focus ring: a rectangle drawn round a 12px
-            column of nothing reads as a stray outline in the gap between two
-            panels. */}
         <span className="h-10 w-1 rounded-6 bg-transparent transition-colors group-hover:bg-text-quaternary group-focus-visible:bg-text-primary" />
       </div>
 
       <FlexCol className="agent-panel-surface agent-window-shadow min-h-0 flex-1 overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary">
-        {/* 8px all the way round the chips: the row is 48 tall and they are
-          32, so the sides match the space above and below them. With the
-          card's own 8px inset that lands the strip on the same 16px margin
-          the conversation's header uses. */}
         <FlexRow className="h-12 shrink-0 items-center gap-1 border-b border-border-subtlest-tertiary px-2">
           <FlexRow
             role="tablist"
@@ -267,9 +237,6 @@ export const AgentContentPane = ({
                   key={targetId}
                   className={classNames(
                     'agent-press group flex h-8 w-fit max-w-[13rem] shrink-0 items-center gap-1.5 rounded-8 pl-2 pr-1 transition-colors',
-                    // Subtle for the ones you are not on, float for the one
-                    // you are: an outline against a filled chip separates them
-                    // by two properties rather than by a shade of grey.
                     isActive
                       ? 'bg-surface-float'
                       : 'border border-border-subtlest-tertiary hover:bg-surface-hover',
@@ -304,8 +271,6 @@ export const AgentContentPane = ({
                     type="button"
                     aria-label={`Close ${tabLabel(target)}`}
                     onClick={() => closeContent(targetId)}
-                    // Every tab carries its close, on or off: one that appears
-                    // only under the pointer is one you have to go looking for.
                     className="flex size-5 shrink-0 items-center justify-center rounded-6 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
                   >
                     <MiniCloseIcon size={IconSize.Size16} />
@@ -397,7 +362,7 @@ export const AgentContentPane = ({
         onClose={closeAllContent}
         className={{
           // The drawer's own padding would sit outside the card and show the
-          // page through it; the card owns its edges here.
+          // page through it.
           wrapper: '!p-0',
           drawer: 'p-0',
         }}
@@ -410,9 +375,6 @@ export const AgentContentPane = ({
 
   return (
     <aside
-      // A window rather than a wall: a card floating in the workspace, inset on
-      // every side, so the conversation stays the room and this is a thing set
-      // down in it.
       className="relative flex h-full shrink-0 flex-col p-2 pl-0"
       style={{ width }}
       aria-label="Agent content panel"

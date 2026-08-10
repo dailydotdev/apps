@@ -5,17 +5,9 @@ import { ReferralCampaignKey } from '../../../lib/referral';
 import * as shareOrCopyLink from '../../../hooks/useShareOrCopyLink';
 import type { UserInterest } from '../../../graphql/interests';
 
-/**
- * What travels when an agent is shared is the standing prompt, not the
- * transcript: there is nowhere to send someone for a conversation, and a
- * question that keeps working for the recipient is worth more than a snapshot of
- * someone else's findings.
- */
 describe('the shared agent link', () => {
-  // The share pipeline hangs the referral params on the link with `new URL()`,
-  // and `webappUrl` is a bare path in development — so a relative link threw
-  // "Failed to construct 'URL'" the moment the button was pressed, rather than
-  // degrading to an unreferred link.
+  // The referral step runs the link through `new URL()`, and `webappUrl` is a
+  // bare path in development.
   it('is absolute, so the referral params can be hung on it', () => {
     const link = agentShareLink('Rust in production');
 
@@ -38,10 +30,8 @@ describe('the shared agent link', () => {
     expect(new URL(agentShareLink(prompt)).searchParams.get('q')).toBe(prompt);
   });
 
-  // The referral step rewrites the whole query string, turning the encoded
-  // spaces into `+`. That decodes back to a space the way Next parses a query,
-  // but it is the one step between the sharer and the recipient that could
-  // quietly mangle the prompt, so it is asserted rather than assumed.
+  // The referral step rewrites the whole query string, turning encoded spaces
+  // into `+`.
   it('still reads back as the prompt once the referral params are on it', () => {
     const prompt = 'Cool zig projects';
     const shared = addLogQueryParams({
@@ -57,15 +47,9 @@ describe('the shared agent link', () => {
   });
 });
 
-/**
- * Between the press and the clipboard there is a request: the link gets
- * shortened first. It is usually instant and it is sometimes not, and a control
- * that looks identical either way is a control that looks broken.
- */
 describe('the share press', () => {
   const interest = { query: 'Rust in production' } as UserInterest;
 
-  /** The share pipeline, held open until the test lets it finish. */
   const held = () => {
     let finish = (): void => undefined;
     let fail = (): void => undefined;
@@ -109,9 +93,6 @@ describe('the share press', () => {
     expect(result.current.isSharing).toBe(false);
   });
 
-  // The `finally`, and the reason it is one: a share that throws on its way to
-  // the clipboard would otherwise leave the button spinning for the rest of the
-  // session, with nothing the reader can do to reset it.
   it('stops saying it is working when the share fails', async () => {
     const pipeline = held();
     const { result } = renderHook(() => useShareAgent(interest));
@@ -127,9 +108,6 @@ describe('the share press', () => {
     expect(result.current.isSharing).toBe(false);
   });
 
-  // There is nothing to share before the agent has loaded, and a press that
-  // opened the system sheet on an empty prompt would share a bare link to the
-  // agents screen.
   it('does nothing at all without a prompt to carry', async () => {
     const pipeline = held();
     const { result } = renderHook(() => useShareAgent(undefined));

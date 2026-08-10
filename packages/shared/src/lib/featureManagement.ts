@@ -328,9 +328,8 @@ export const featureNotificationsRedesign = new Feature(
 // `false` — GrowthBook ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
 
-// Gates every agent surface: the `/agent` routes, the feed dock, the Explore
-// pair, and the "Create agent" rows in the sidebar and the footer `+` drawer.
-// Control hides all of them. Keep the default `false` — GrowthBook ramps it.
+// Gates every agent surface; control hides all of them. Keep the default
+// `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
 
 // Post-signup feed activation bar: a persistent, non-dismissible strip shown

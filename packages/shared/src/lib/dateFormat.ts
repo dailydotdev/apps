@@ -88,8 +88,6 @@ export enum TimeFormatType {
   LastActivity = 'lastActivity',
   LiveTimer = 'liveTimer',
   Experience = 'experience',
-  // Bare elapsed time — "32m", "3d" — for columns of them, where "ago" is on
-  // every row and says nothing any of them do not.
   Elapsed = 'elapsed',
 }
 

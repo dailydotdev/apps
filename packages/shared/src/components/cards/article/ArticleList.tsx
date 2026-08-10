@@ -48,10 +48,8 @@ export const ArticleList = forwardRef(function ArticleList(
     isNarrow = false,
   }: PostCardProps & {
     /**
-     * Take the phone's stacked layout whatever the viewport is, for a card in a
-     * column too narrow for the side-by-side one — the agent's content panel,
-     * which the reader can drag down to a few hundred pixels on a desktop. The
-     * card's own breakpoints read the window, which knows nothing about that.
+     * Takes the phone's stacked layout at any viewport, for a card in a dragged
+     * column the window's breakpoints know nothing about.
      */
     isNarrow?: boolean;
   },
@@ -63,8 +61,6 @@ export const ArticleList = forwardRef(function ArticleList(
 
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
-  // `isStacked` is the layout question — title over cover, actions underneath.
-  // A phone is one way of arriving at it; a narrow column is the other.
   const isMobile = useViewSize(ViewSize.MobileL);
   const isStacked = isMobile || isNarrow;
   const { showFeedback } = usePostFeedback({ post });
@@ -211,7 +207,6 @@ export const ArticleList = forwardRef(function ArticleList(
                   className: classNames(
                     'mobileXXL:self-start',
                     !isVideoType && 'mt-4',
-                    // The cover is the full width of the card when stacked, and
                     // `mobileXL:w-60` on the image would otherwise cap it.
                     isNarrow && '!w-full self-stretch',
                   ),

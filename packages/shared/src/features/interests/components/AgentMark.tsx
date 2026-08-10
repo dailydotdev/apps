@@ -19,12 +19,6 @@ export const agentStateLabel = ({
   return status === UserInterestStatus.Active ? 'Hunting' : 'Paused';
 };
 
-/**
- * An agent as one object: its mark, with its run state as a dot.
- *
- * The same thing on the workspace header and on every card of the home
- * screen, so an agent is recognisable before its name is read.
- */
 export const AgentMark = ({
   status,
   isWorking,
@@ -32,14 +26,11 @@ export const AgentMark = ({
 }: {
   status: UserInterestStatus;
   isWorking?: boolean;
-  /** For dense lists, where a 32px tile would set the row height. */
   isCompact?: boolean;
 }): ReactElement => (
   <span
     className={classNames(
       'relative flex shrink-0 items-center justify-center',
-      // Compact drops the tile: in a 32px row a filled square is the loudest
-      // thing on the line, and the glyph alone still reads as the agent.
       isCompact ? 'size-4' : 'size-8 rounded-10 bg-brand-float',
     )}
   >
@@ -49,8 +40,8 @@ export const AgentMark = ({
     />
     <span
       className={classNames(
-        // The 2px cut-out ring eats most of a small dot, so the box has to be
-        // generous for the colour inside it to register at all.
+        // The 2px cut-out ring eats most of the dot, so the box is oversized
+        // for the colour inside it to register.
         'absolute rounded-6 border-2 border-background-default',
         isCompact
           ? '-bottom-1 -right-1.5 size-2.5'

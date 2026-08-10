@@ -4,6 +4,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import type { Post } from '../../graphql/posts';
 import type { AgentMessage } from './chat';
+import * as command from './hooks/useSendInterestCommand';
 import { AgentProvider, contentTargetId, useAgent } from './AgentContext';
 
 const post = (id: string): Post => ({ id, title: `Post ${id}` } as Post);
@@ -16,7 +17,6 @@ const attachment = (id: string) => ({
 
 type Agent = ReturnType<typeof useAgent>;
 
-/** Hands the live context out to the test, re-read on every render. */
 const mountAgent = () => {
   const seen: { current: Agent } = { current: undefined as never };
 
@@ -59,8 +59,6 @@ describe('attachments', () => {
     expect(agent.current.attachments).toHaveLength(1);
   });
 
-  // The buttons stay on screen after you press them, so a second press must
-  // not leave two identical chips in the field.
   it('adds the same thing twice as one chip, not two', () => {
     const agent = mountAgent();
 
@@ -95,8 +93,6 @@ describe('attachments', () => {
   });
 });
 
-// The blank page: the provider reads `initialMessages` once, and the page that
-// builds it from a query mounts before that query has answered.
 describe('an opening transcript that arrives after mount', () => {
   const mountWithLateOpening = () => {
     const seen: { current: Agent } = { current: undefined as never };
@@ -161,8 +157,6 @@ describe('the draft', () => {
     expect(agent.current.draft).toBe('I marked that one down because ');
   });
 
-  // Consumed once: the composer takes it and clears it, so pressing the same
-  // link again writes it again rather than being swallowed as unchanged.
   it('can be cleared and written again', () => {
     const agent = mountAgent();
 
@@ -253,6 +247,93 @@ describe('content tabs', () => {
   });
 });
 
+/**
+ * The demo surface answers a prompt on a timer, which is the whole illusion. On
+ * the live route that same timer wrote a confident reply about work the backend
+ * may never have accepted, under a toast saying the command had failed.
+ */
+describe('a command on the live path', () => {
+  const mountLive = (send: () => Promise<unknown>) => {
+    jest
+      .spyOn(command, 'useSendInterestCommand')
+      .mockReturnValue({ isSending: false, sendCommand: send } as never);
+
+    const seen: { current: Agent } = { current: undefined as never };
+
+    const Probe = () => {
+      seen.current = useAgent();
+
+      return null;
+    };
+
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <AgentProvider
+          id="a1"
+          interest={{ id: 'a1', query: 'zig' } as never}
+          isDemo={false}
+          initialMessages={[]}
+        >
+          <Probe />
+        </AgentProvider>
+      </TestBootProvider>,
+    );
+
+    return seen;
+  };
+
+  it('waits for the mutation instead of a timer', async () => {
+    let accept: () => void = () => undefined;
+    const agent = mountLive(
+      () =>
+        new Promise<void>((resolve) => {
+          accept = resolve;
+        }),
+    );
+
+    await act(async () => {
+      agent.current.runCommand({ text: 'raise the bar' });
+    });
+    await act(async () => {
+      jest.advanceTimersByTime(10000);
+    });
+
+    expect(agent.current.messages.at(-1)?.isPending).toBe(true);
+
+    await act(async () => {
+      accept();
+    });
+
+    expect(agent.current.messages.at(-1)?.isPending).toBeFalsy();
+  });
+
+  it('reports a rejected command as an error the reader can retry', async () => {
+    const agent = mountLive(() => Promise.reject(new Error('nope')));
+
+    await act(async () => {
+      agent.current.runCommand({ text: 'raise the bar' });
+    });
+
+    const reply = agent.current.messages.at(-1);
+
+    expect(reply?.isError).toBe(true);
+    expect(reply?.retryText).toBe('raise the bar');
+    expect(agent.current.isWorking).toBe(false);
+  });
+
+  it('claims no findings of its own once the command lands', async () => {
+    const agent = mountLive(() => Promise.resolve());
+
+    await act(async () => {
+      agent.current.runCommand({ text: 'raise the bar' });
+    });
+
+    const blocks = agent.current.messages.at(-1)?.blocks ?? [];
+
+    expect(blocks.every(({ type }) => type === 'text')).toBe(true);
+  });
+});
+
 describe('running commands', () => {
   it('puts the prompt and a pending reply in the transcript', () => {
     const agent = mountAgent();
@@ -300,9 +381,8 @@ describe('running commands', () => {
     expect(agent.current.workingLabel).toBe('second');
   });
 
-  // React re-runs state updaters under StrictMode, which Next turns on by
-  // default. An updater that schedules work as a side effect therefore
-  // schedules it twice, and the queued prompt runs twice.
+  // StrictMode re-runs state updaters, so one that schedules work as a side
+  // effect schedules it twice.
   it('starts a queued prompt once, not twice, under StrictMode', () => {
     const seen: { current: Agent } = { current: undefined as never };
 
@@ -381,8 +461,6 @@ describe('stopping', () => {
     ]);
   });
 
-  // Stop is a brake on everything: resuming the queue would restart work the
-  // reader just refused.
   it('drops what was queued behind it', () => {
     const agent = mountAgent();
 
@@ -402,8 +480,7 @@ describe('stopping', () => {
     act(() => agent.current.runCommand({ text: 'second' }));
     act(() => agent.current.runCommand({ text: 'third' }));
 
-    // Each run resolves on its own timer, and the next starts from the commit
-    // that ends the previous one.
+    // Each run resolves on its own timer, so the advances cannot be merged.
     act(() => jest.advanceTimersByTime(3000));
     act(() => jest.advanceTimersByTime(3000));
     act(() => jest.advanceTimersByTime(3000));

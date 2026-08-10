@@ -10,10 +10,6 @@ import { disabledRefetch } from '../../lib/func';
 import { gqlClient } from '../../graphql/common';
 import type { LoggedUser } from '../../lib/user';
 
-/**
- * How long a press will wait for a shortened link before going with the long
- * one. Short enough that nobody wonders whether they actually clicked.
- */
 const shortUrlDeadline = 1500;
 
 interface LinkAsQuery {
@@ -70,28 +66,24 @@ export const useGetShortUrl = ({
 
       const { trackedUrl, queryKey } = getProps(url, cid);
 
-      // Settled either way, so the race below cannot leave a rejection looking
-      // for a handler once the deadline has won.
+      // Caught here, or a rejection after the deadline wins the race below has
+      // no handler left.
       const shortening = queryClient
         .fetchQuery({
           queryKey,
           queryFn: () => queryShortUrl(trackedUrl),
           staleTime: Infinity,
-          // One attempt. Three-with-backoff holds the press for seconds when
-          // the shortener is down, and the fallback is a perfectly good link —
-          // only longer. It does not always apply: when the `useQuery` branch
-          // below is already fetching this key, query-core hands back the
-          // in-flight retryer before it looks at these options, so that fetch
-          // keeps its own retry policy and only the deadline bounds the wait.
+          // One attempt: retry with backoff holds the press for seconds when the
+          // shortener is down. Not always honoured, though: if the `useQuery`
+          // branch below is already fetching this key, query-core returns the
+          // in-flight retryer before applying these options, and only the
+          // deadline bounds the wait.
           retry: false,
         })
         .catch(() => null);
 
-      // Every share in the app waits here before anything reaches the
-      // clipboard, so the wait is bounded. A request that fails is one thing; a
-      // request that never answers at all used to hold the press for as long as
-      // the reader was willing to keep looking at it, which is indistinguishable
-      // from a button that does nothing.
+      // Every share waits here before anything reaches the clipboard, and a
+      // request that never answers would hold the press indefinitely.
       let deadline: ReturnType<typeof setTimeout> | undefined;
       const shortened = await Promise.race([
         shortening,
@@ -100,8 +92,6 @@ export const useGetShortUrl = ({
         }),
       ]);
 
-      // The race is over either way, and a timer left running holds the tab
-      // awake for a second and a half after every share.
       clearTimeout(deadline);
 
       return shortened ?? trackedUrl;

@@ -9,8 +9,8 @@ type Spot = { text: string; left: number; top: number; isBelow: boolean };
 
 // A stray double-click lands one or two characters; nothing worth quoting.
 const minLength = 3;
-// Clearance for the button, so a highlight near the top of the transcript gets
-// it underneath instead of behind the header.
+// Below this much room above the highlight, the button would sit behind the
+// header, so it flips underneath instead.
 const headroom = 48;
 
 const readSelection = (container: HTMLElement | null): Spot | undefined => {
@@ -30,8 +30,8 @@ const readSelection = (container: HTMLElement | null): Spot | undefined => {
   const rect = range.getBoundingClientRect();
   const bounds = container.getBoundingClientRect();
 
-  // Scrolled out of the transcript: the coordinates are still real, but they
-  // would put the button over the header or the composer.
+  // Scrolled out of the transcript: the coordinates are still real, but would
+  // put the button over the header or the composer.
   if (rect.bottom < bounds.top || rect.top > bounds.bottom) {
     return undefined;
   }
@@ -46,13 +46,6 @@ const readSelection = (container: HTMLElement | null): Spot | undefined => {
   };
 };
 
-/**
- * Highlight a line in a reply and the way into the chat comes to it.
- *
- * The same button the cards carry, brought to the passage rather than to the
- * block that holds it, so a name, a number or one sentence can be the thing
- * the next prompt is about.
- */
 export const AgentQuoteAction = ({
   containerRef,
 }: {
@@ -62,8 +55,8 @@ export const AgentQuoteAction = ({
 
   useEffect(() => {
     const show = () => setSpot(readSelection(containerRef.current));
-    // Following every selectionchange would drag the button along under the
-    // cursor mid-highlight. It only ever takes one away.
+    // Repositioning on every selectionchange drags the button under the cursor
+    // mid-highlight, so this listener only ever removes it.
     const hideIfGone = () => {
       if (globalThis.getSelection?.()?.isCollapsed !== false) {
         setSpot(undefined);
@@ -91,8 +84,8 @@ export const AgentQuoteAction = ({
   }
 
   return createPortal(
-    // Portaled to the body: the transcript clips its own overflow, and the
-    // turns animate in on a transform, which would trap a fixed child.
+    // Portaled to the body: the transcript clips its overflow and the turns
+    // animate on a transform, which traps a fixed child.
     <div
       style={{ left: spot.left, top: spot.top }}
       className={classNames(
@@ -100,14 +93,14 @@ export const AgentQuoteAction = ({
         spot.isBelow ? 'pt-2' : '-translate-y-full pb-2',
       )}
     >
-      {/* The animation owns `transform`, so it cannot share an element with
-          the positioning translate. */}
+      {/* The animation owns `transform`, so it needs its own element apart
+          from the positioning translate. */}
       <span className="agent-menu-in block">
         <AgentAddToChatButton
           attachment={quoteAttachment(spot.text)}
           className="shadow-2"
-          // Without this the pointer going down outside the range collapses
-          // the selection before the click ever reaches the button.
+          // A pointer down outside the range would collapse the selection
+          // before the click reached the button.
           onMouseDown={(event) => event.preventDefault()}
           onAttached={() => {
             globalThis.getSelection?.()?.removeAllRanges();

@@ -20,11 +20,7 @@ jest.mock('../../../hooks/usePersistentContext');
 
 const setViewport = mockMatchMedia;
 
-/**
- * The store as it really behaves: writes are recorded, but what it hands back
- * lags behind them. That lag is what used to snap the panel to an older width
- * the moment the pointer came up.
- */
+// The store as it really behaves: what it hands back lags behind the writes.
 const stubStore = (initial?: number) => {
   const writes: number[] = [];
 
@@ -84,12 +80,11 @@ const panelWidth = () =>
     ).style.width.replace('px', ''),
   );
 
-// jsdom has no PointerEvent, so pointer events are dispatched as mouse events
-// under the right type name — which is what React's synthetic system keys on.
+// jsdom has no PointerEvent, and React's synthetic system keys on the type
+// name, so a MouseEvent named `pointerdown` is enough.
 const pointer = (type: string, clientX: number) =>
   new MouseEvent(type, { bubbles: true, cancelable: true, clientX });
 
-/** One complete drag: down on the handle, a few moves, up. */
 const drag = (handle: HTMLElement, byX: number) => {
   const startX = 800;
 
@@ -105,8 +100,7 @@ const drag = (handle: HTMLElement, byX: number) => {
 beforeEach(() => {
   jest.clearAllMocks();
   setViewport((query) => query === laptopQuery);
-  // jsdom lays nothing out, so the workspace measures 0 wide and every drag
-  // would clamp to the minimum. Give it a real room to divide up.
+  // jsdom lays nothing out, so without this every drag clamps to the minimum.
   jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(1400);
 });
 
@@ -139,9 +133,6 @@ describe('AgentWorkspace panel resize', () => {
     expect(panelWidth()).toBe(720);
   });
 
-  // The bug: the pointerup listener called the commit callback it captured on
-  // pointerdown, so it wrote the width from the *start* of the drag. Every
-  // other drag then jumped back a drag or two.
   it('keeps each drag, one after another, instead of jumping back', async () => {
     const writes = stubStore(600);
     renderWorkspace();
@@ -159,15 +150,10 @@ describe('AgentWorkspace panel resize', () => {
     drag(handle, -50);
     expect(panelWidth()).toBe(700);
 
-    // And what was persisted is what is on screen — a commit that wrote the
-    // width from the start of the drag would leave the next session opening
-    // somewhere the reader never put it.
     await waitFor(() => expect(writes).toEqual([700, 800, 650, 700]));
   });
 
-  // The other half of the bug: the width was rendered straight off the
-  // IndexedDB-backed store, so a read landing after the write put the panel
-  // back where it was. The stub never updates, so any read-back fails here.
+  // The stub never updates, so rendering the width off the store fails here.
   it('holds the dragged width even when the store keeps answering stale', async () => {
     const writes = stubStore(600);
     renderWorkspace();
@@ -177,7 +163,6 @@ describe('AgentWorkspace panel resize', () => {
 
     expect(panelWidth()).toBe(740);
     await waitFor(() => expect(writes).toEqual([740]));
-    // And it stays there, rather than snapping back a frame later.
     await waitFor(() => expect(panelWidth()).toBe(740));
   });
 
@@ -232,7 +217,6 @@ describe('AgentWorkspace transcript', () => {
   const transcript = () =>
     document.querySelector('.agent-scroll') as HTMLElement;
 
-  /** Puts the reader `fromBottom` pixels above the tail and tells the column. */
   const scrollTo = (fromBottom: number) => {
     const element = transcript();
 
@@ -266,9 +250,6 @@ describe('AgentWorkspace transcript', () => {
     expect(screen.queryByLabelText('Scroll to latest')).not.toBeInTheDocument();
   });
 
-  // Sending is itself an act of arriving at the bottom: whatever the reader had
-  // scrolled up to read, they are done with it, and the answer they just asked
-  // for belongs on screen rather than behind a button.
   it('goes down to the tail when the reader sends from up the page', async () => {
     stubStore(600);
     const { agent } = renderWorkspace();
@@ -279,19 +260,16 @@ describe('AgentWorkspace transcript', () => {
     send(agent);
 
     expect(screen.queryByLabelText('Scroll to latest')).not.toBeInTheDocument();
-    // The new row is not laid out on the commit that appended it, so the follow
-    // waits a frame for `scrollHeight` to be the post-append number.
+    // The appended row is not laid out on that commit, so the follow waits a
+    // frame for `scrollHeight`.
     await waitFor(() => expect(transcript().scrollTop).toBe(2000));
   });
 
-  // Yanking someone down mid-read is the thing a good transcript never does, so
-  // what the agent says back on its own is announced rather than chased.
   it('announces a reply that lands while the reader is up the page', () => {
     jest.useFakeTimers();
     stubStore(600);
     const { agent } = renderWorkspace();
     send(agent);
-    // Up the page after sending, while the reply is still in flight.
     scrollTo(600);
 
     expect(screen.queryByText('New reply')).not.toBeInTheDocument();

@@ -25,18 +25,11 @@ beforeEach(() => {
     .mockImplementation(() => ({ pathname: '/' } as unknown as NextRouter));
 });
 
-/**
- * `isNarrow` exists for a card in a column the window knows nothing about — the
- * agent's content panel, which the reader drags. It used to be done by a
- * stylesheet overriding this card's Tailwind classes by name, which a spacing
- * tweak here would have broken silently.
- */
 describe('ArticleList in a narrow column', () => {
   it('stacks the cover under the title', () => {
     renderCard(true);
 
-    // The cover is found by its alt text: the testid sits on the wrapper the
-    // cover component owns, not on the image whose width is the assertion.
+    // Found by alt text: the testid sits on the wrapper, not on the image.
     const cover = screen.getByAltText('Post Cover image');
 
     expect(cover).toHaveClass('!w-full');

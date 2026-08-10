@@ -26,10 +26,6 @@ export default function LogoText({
       className={className?.container}
     >
       <g fill="none" fillRule="evenodd">
-        {/* The letterforms come from the geometry module rather than living
-            here: it is the one copy of the logo, and a wordmark tweak that only
-            landed in one of two places is a wordmark that quietly disagrees with
-            itself. */}
         {wordmarkPaths.map((path, index) => (
           <path
             key={path}

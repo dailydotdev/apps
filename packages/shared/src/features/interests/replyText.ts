@@ -1,23 +1,15 @@
 import type { AgentBlock, AgentMessage } from './chat';
 
-/** So a title with a quote in it cannot break the attribute it sits in. */
+// For attribute position: a quote in an API title would otherwise close it.
 const escapeAttribute = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
-/**
- * So a title carrying markup is read as the title it is rather than as an
- * element. Titles come from the API, not from here.
- */
+// For text position.
 const escapeHtml = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-/**
- * One block's prose, one paragraph per entry.
- *
- * Per block-level element rather than per block: a block's `textContent` runs
- * its paragraphs together, so "…clears your bar." and "First pass over…" arrived
- * as one sentence with no space in the middle of it.
- */
+// Per block-level element rather than per block: a block's `textContent` runs
+// its paragraphs together into one unspaced sentence.
 const blockParagraphs = (block: AgentBlock): string[] => {
   if (block.type !== 'text') {
     return [];
@@ -30,26 +22,14 @@ const blockParagraphs = (block: AgentBlock): string[] => {
     .filter(Boolean);
 };
 
-/** What the agent said, one paragraph per entry. */
 export const messageParagraphs = (message: AgentMessage): string[] =>
   (message.blocks ?? []).flatMap(blockParagraphs);
 
-/**
- * The reply as flat text: markup stripped, paragraph gaps kept. What the agent
- * said, with none of what it cited — which is what a quote back into the prompt
- * wants.
- */
+// Prose only: none of the cited posts, which is what a quote back into the
+// prompt wants.
 export const messageAsText = (message: AgentMessage): string =>
   messageParagraphs(message).join('\n\n');
 
-/**
- * The reply for the clipboard, links and all.
- *
- * A reply's whole value is the handful of posts it picked out, and stripping to
- * text left someone pasting it into Slack with a paragraph about five articles
- * and no way to reach any of them. Markdown, because that is what the places
- * this gets pasted into render.
- */
 export const messageAsMarkdown = (message: AgentMessage): string =>
   (message.blocks ?? [])
     .map((block) => {
@@ -70,13 +50,6 @@ export const messageAsMarkdown = (message: AgentMessage): string =>
     .join('\n\n')
     .trim();
 
-/**
- * The reply as its own small document, for the share sheet's preview.
- *
- * The citations become a plain list of links rather than the cards the
- * transcript draws: a preview is a reminder of which reply this is, and nine
- * post cards in a modal is the reply again rather than a picture of it.
- */
 export const messageAsHtml = (message: AgentMessage): string =>
   (message.blocks ?? [])
     .map((block) => {

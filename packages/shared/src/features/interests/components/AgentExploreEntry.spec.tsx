@@ -34,8 +34,6 @@ const renderEntry = ({
   gb.setFeatures({ [featureInterestAgent.id]: { defaultValue: enabled } });
 
   const client = new QueryClient();
-  // Seeded rather than fetched: the entry only reads the count, and the query
-  // itself belongs to the feed bar's tests.
   client.setQueryData(interestsQueryOptions(user as never).queryKey, interests);
 
   const entry = <AgentExploreEntry />;
@@ -57,7 +55,7 @@ const tabletQuery = '(min-width: 656px)';
 
 beforeEach(() => {
   jest.clearAllMocks();
-  // A phone unless a test says otherwise: this control is a phone's.
+  // A phone unless a test says otherwise.
   mockMatchMedia(() => false);
 });
 
@@ -80,8 +78,6 @@ describe('AgentExploreEntry', () => {
     expect(openSearch).toHaveBeenCalled();
   });
 
-  // The pair and the bar docked over the feed are the same door, so only one
-  // of them is ever on screen.
   it('stands aside from tablet up, where the feed carries the bar instead', () => {
     mockMatchMedia((query) => query === tabletQuery);
     const { container } = renderEntry();
@@ -102,8 +98,6 @@ describe('AgentExploreEntry', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  // Half a paired control is worse than none, and `useSpotlight` throws off
-  // the app shell — the extension's new tab renders this layout too.
   it('stands down rather than throwing where there is no search to pair with', () => {
     const { container } = renderEntry({ withSpotlight: false });
 

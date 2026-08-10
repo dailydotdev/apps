@@ -2,7 +2,7 @@ import { daysAgo, hoursAgo, minutesAgo, mockNow } from './mockClock';
 
 const anHour = 1000 * 60 * 60;
 
-/** 2026-08-10T14:37:12.345Z — a time that is nowhere near an hour boundary. */
+// Nowhere near an hour boundary.
 const midHour = Date.UTC(2026, 7, 10, 14, 37, 12, 345);
 
 const at = (instant: number) =>
@@ -10,12 +10,8 @@ const at = (instant: number) =>
 
 afterEach(() => jest.restoreAllMocks());
 
-/**
- * Every mock timestamp is measured from the top of the hour, and that is the
- * whole point: the mocks used to measure from `Date.now()`, so the server built
- * one set of timestamps and the browser built another a few seconds later, and
- * every relative time in the tree hydrated as a mismatch.
- */
+// Measuring from the top of the hour is what keeps the server's timestamps and
+// the browser's identical, and so hydration quiet.
 describe('mockNow', () => {
   it('is the top of the hour, never the instant it was asked at', () => {
     at(midHour);
@@ -24,8 +20,6 @@ describe('mockNow', () => {
     expect(mockNow() % anHour).toBe(0);
   });
 
-  // The hydration guarantee itself: the server renders, a few seconds pass, the
-  // browser renders, and the two have to agree on what "now" was.
   it('agrees with itself across the gap between render and hydrate', () => {
     at(midHour);
     const onTheServer = minutesAgo(7);
@@ -75,13 +69,8 @@ describe('the relative helpers', () => {
   });
 });
 
-/**
- * The invariant on the data rather than on the helper. Every mock timestamp is
- * frozen at module load, so a module that reaches for `Date.now()` directly —
- * the way these all used to — puts the server's set of timestamps and the
- * browser's a few seconds apart, and every relative time in the tree hydrates as
- * a mismatch.
- */
+// The same invariant on the data: a mock module reaching for `Date.now()`
+// directly hydrates as a mismatch.
 describe('the mock data itself', () => {
   const loadMocks = () => {
     let loaded = '';
@@ -108,8 +97,7 @@ describe('the mock data itself', () => {
     at(midHour);
     const onTheServer = loadMocks();
 
-    // Non-vacuous: the mocks really are stamped from the clock, so there is
-    // something in there that could have drifted.
+    // Non-vacuous: there really are clock-stamped timestamps in there.
     expect(onTheServer).toContain('2026-08-10T');
 
     at(midHour + 1000 * 9);

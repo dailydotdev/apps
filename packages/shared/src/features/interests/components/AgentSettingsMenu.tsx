@@ -46,12 +46,6 @@ const MenuRow = ({
   </button>
 );
 
-/**
- * The gear holds everything about the agent as a thing that runs: whether it is
- * hunting right now, when it last did, and the way into its settings. One
- * place, because a power switch on the left and a gear on the right were two
- * doors into the same room.
- */
 export const AgentSettingsMenu = (): ReactElement => {
   const { interest, status, update, setSettingsOpen } = useAgent();
   const isRunning = status === UserInterestStatus.Active;
@@ -79,8 +73,8 @@ export const AgentSettingsMenu = (): ReactElement => {
       return;
     }
 
-    // Let the sheet slide out before the page underneath changes: the two
-    // moving at once reads as a glitch rather than a step.
+    // Close the sheet before the page underneath changes; both at once reads
+    // as a glitch.
     drawerRef.current?.onClose();
     setSettingsOpen(true);
   };
@@ -129,8 +123,6 @@ export const AgentSettingsMenu = (): ReactElement => {
 
       <span className="h-px bg-border-subtlest-tertiary" />
 
-      {/* Activity has its own icon in the header row, so it is not
-              repeated here. */}
       <MenuRow
         icon={<SettingsIcon size={IconSize.Size16} />}
         label="Settings"
@@ -139,9 +131,6 @@ export const AgentSettingsMenu = (): ReactElement => {
     </FlexCol>
   );
 
-  // A popover pinned to a gear in the corner is a desktop shape. On a phone the
-  // app's own answer to "a short list of choices" is a sheet from the bottom,
-  // where the thumb already is.
   if (!isLaptop) {
     return (
       <>

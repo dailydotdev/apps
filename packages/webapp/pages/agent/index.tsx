@@ -20,23 +20,17 @@ const Page = (): ReactElement | null => {
   const { user, isAuthReady } = useAuthContext();
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
-    // Signed-in only, as at every other entry point: evaluating enrolls, and an
-    // anonymous visitor can never see the feature to be measured on it.
+    // Evaluating enrolls, so an anonymous visitor must not be measured.
     shouldEvaluate: isAuthReady && !!user,
   });
-  // A signed-in reader without the flag has nothing here. An anonymous one has
-  // not been evaluated at all, so they fall through to the sign-in wall rather
-  // than being bounced off a page the flag never spoke about.
+  // An anonymous reader was never evaluated, so they get the sign-in wall below
+  // rather than the redirect.
   const isGatedOut = isAuthReady && !!user && !showAgent;
 
-  // Handed over from a shared agent link — see `useShareAgent`. The prompt is
-  // put in the field, not run: spawning on someone else's link would spend a run
-  // the reader never asked to spend.
+  // Handed over by a shared agent link, and typed into the field rather than
+  // run: see `useShareAgent`.
   const sharedQuery = typeof router.query.q === 'string' ? router.query.q : '';
 
-  // Nothing is asked of the API until the flag has said yes: a gated-out reader
-  // is redirected away, so their requests would only spend backend budget and
-  // muddy the feature's own request metrics.
   const { data: interests, isPending } = useQuery({
     ...interestsQueryOptions(user),
     enabled: showAgent && !!user?.id,
