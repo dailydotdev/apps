@@ -51,27 +51,28 @@ const beforeStyles = `
 // flex spacer behave the way it does in the feed.
 const glassRowHeight = { height: '21.5rem' };
 
-// List mode caps the feed at 42.5rem (FeedPageLayoutList). Inline rather than an
-// arbitrary Tailwind width for the same JIT reason as the before-state rules.
-const listWidth = { width: '42.5rem' };
+// A grid card is 20rem in the feed and a list card is capped at 42.5rem
+// (FeedPageLayoutList). Inline rather than arbitrary Tailwind widths for the
+// same JIT reason as the before-state rules.
+const gridWidth = '20rem';
+const listWidth = '42.5rem';
 
 const Column = ({
   title,
   note,
   tone = 'before',
   feedRow,
+  width = gridWidth,
   children,
 }: {
   title: string;
   note: string;
   tone?: 'before' | 'after';
   feedRow?: boolean;
+  width?: string;
   children: ReactNode;
 }): ReactElement => (
-  <div
-    className="flex shrink-0 flex-col gap-2"
-    style={{ width: 'fit-content', minWidth: '20rem' }}
-  >
+  <div className="flex shrink-0 flex-col gap-2" style={{ width }}>
     <span
       className={
         tone === 'after'
@@ -181,9 +182,10 @@ const ListSection = (): ReactElement => (
       <Row>
         <Column
           title="Before"
+          width={listWidth}
           note="8px above the disclosure. Only the spacing is reverted here: the remove control's old treatment is the pair below, since a class swap cannot be undone with CSS."
         >
-          <div className={beforeListSpacing} style={listWidth}>
+          <div className={beforeListSpacing}>
             <AdList ad={shortCopyAd} {...adProps} />
           </div>
         </Column>
@@ -191,12 +193,11 @@ const ListSection = (): ReactElement => (
       <Row>
         <Column
           title="After"
+          width={listWidth}
           note="12px above the disclosure, and the remove control flat like the grid card"
           tone="after"
         >
-          <div style={listWidth}>
-            <AdList ad={shortCopyAd} {...adProps} />
-          </div>
+          <AdList ad={shortCopyAd} {...adProps} />
         </Column>
       </Row>
     </div>
