@@ -25,7 +25,6 @@ import {
   updateCachedPagePost,
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
-import type { MarketingCta } from '../components/marketing/cta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
@@ -83,10 +82,6 @@ export interface AdSquadItem extends AdItem {
   ad: Ad & { data: { source?: Squad } };
 }
 
-interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
-  marketingCta: MarketingCta;
-}
-
 interface PlaceholderItem extends FeedItemBase<FeedItemType.Placeholder> {
   index?: number;
 }
@@ -102,13 +97,6 @@ export interface HighlightItem extends FeedItemBase<FeedItemType.Highlight> {
   feedMeta: string | null;
   impressionStatus?: number;
 }
-
-interface PlusEntryItem extends FeedItemBase<FeedItemType.PlusEntry> {
-  plusEntry: MarketingCta;
-}
-
-interface UserAcquisitionItem
-  extends FeedItemBase<FeedItemType.UserAcquisition> {}
 
 const createPlaceholderItem = (index?: number): PlaceholderItem => ({
   type: FeedItemType.Placeholder,
@@ -148,10 +136,7 @@ export type FeedItem =
   | HighlightItem
   | AdItem
   | AdSquadItem
-  | MarketingCtaItem
-  | PlaceholderItem
-  | UserAcquisitionItem
-  | PlusEntryItem;
+  | PlaceholderItem;
 
 export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
   item?.type === FeedItemType.Ad && !!item.ad.data?.post;
@@ -212,9 +197,6 @@ export type FeedReturnType = {
 type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
-  showAcquisitionForm?: boolean;
-  marketingCta?: MarketingCta;
-  plusEntry?: MarketingCta;
   feedName?: string;
   staticAd?: { ad: Ad; index: number };
 };
@@ -627,6 +609,7 @@ export default function useFeed<T>(
         minSpacing: heroCardsConfig.minSpacing,
         startIndex: heroCardsConfig.startIndex,
         widenableTypes,
+        firstSlotOffset,
       });
 
       const staticAd = settings?.staticAd;
@@ -734,6 +717,7 @@ export default function useFeed<T>(
     cadence,
     widenableTypes,
     excludePinnedPosts,
+    firstSlotOffset,
   ]);
 
   const placements = useMemo(
@@ -748,6 +732,7 @@ export default function useFeed<T>(
         widenableTypes,
         fullRowInsertionBeforeIndex,
         cadence,
+        firstSlotOffset,
       }),
     [
       items,
@@ -758,6 +743,7 @@ export default function useFeed<T>(
       fullRowInsertionBeforeIndex,
       cadence,
       widenableTypes,
+      firstSlotOffset,
     ],
   );
 

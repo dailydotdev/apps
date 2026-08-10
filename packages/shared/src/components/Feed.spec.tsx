@@ -2244,7 +2244,6 @@ describe('Feed ad cadence with highlight cards', () => {
         title: marketingCtaTitle,
         ctaText: 'Click me',
         ctaUrl: 'https://daily.dev/cta',
-        asFirstCard: true,
       },
     };
     jest.mocked(useBoot).mockReturnValue({
@@ -2287,6 +2286,43 @@ describe('Feed ad cadence with highlight cards', () => {
       .filter((i) => i >= 0);
     expect(adIndices).toEqual([2, 6]);
     expect(order.filter((t) => t === 'postItem').length).toBe(posts.length);
+  });
+
+  it('does not render marketing CTA on ads-disabled feeds', async () => {
+    const marketingCtaTitle = 'Should not appear';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-off',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    const posts = [buildPost('p0'), buildPost('p1'), buildPost('p2')];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      disableAds: true,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
+    });
+    expect(screen.queryByText(marketingCtaTitle)).not.toBeInTheDocument();
   });
 
   it('renders highlight cards for Plus users without rendering ads', async () => {
