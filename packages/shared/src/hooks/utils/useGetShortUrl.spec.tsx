@@ -5,6 +5,7 @@ import nock from 'nock';
 import { TestBootProvider } from '../../../__tests__/helpers/boot';
 import defaultUser from '../../../__tests__/fixture/loggedUser';
 import { ReferralCampaignKey } from '../../lib/referral';
+import { gqlClient } from '../../graphql/common';
 import { useGetShortUrl } from './useGetShortUrl';
 
 const renderShortUrl = () =>
@@ -43,4 +44,26 @@ describe('useGetShortUrl when the shortener is unreachable', () => {
     expect(searchParams.get('cid')).toBe(ReferralCampaignKey.ShareAgent);
     expect(searchParams.get('userid')).toBe(defaultUser.id);
   });
+
+  // The failure that actually reached a user: not a request that errors, but one
+  // that never answers. DNS stalling, a proxy swallowing it — the press waited
+  // on it indefinitely and the share button looked broken.
+  it('gives up waiting on a shortener that never answers', async () => {
+    jest
+      .spyOn(gqlClient, 'request')
+      .mockImplementation(() => new Promise(() => undefined));
+
+    const { result } = renderShortUrl();
+
+    await waitFor(() => expect(result.current.getShortUrl).toBeDefined());
+
+    const link = await result.current.getShortUrl(
+      'https://app.daily.dev/agent?q=Rust',
+      ReferralCampaignKey.ShareAgent,
+    );
+
+    expect(new URL(link).searchParams.get('cid')).toBe(
+      ReferralCampaignKey.ShareAgent,
+    );
+  }, 10000);
 });

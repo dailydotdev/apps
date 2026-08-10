@@ -52,7 +52,7 @@ export const AgentShareReplyModal = ({
   const name = interest?.query ?? 'This agent';
   // The app's own share path: the system sheet where there is one, a tracked
   // copy where there is not, and the referral params either way.
-  const { isCopying, onShare } = useShareAgent(interest);
+  const { isCopying, isSharing, onShare } = useShareAgent(interest);
   const { displayToast } = useToastNotification();
   const [isCopied, setCopied] = useState(false);
   const [isDrawing, setDrawing] = useState(false);
@@ -143,6 +143,7 @@ export const AgentShareReplyModal = ({
                 <LinkIcon size={IconSize.Size16} />
               )
             }
+            loading={isSharing}
             onClick={onShare}
           >
             {/* The hook opens the system sheet on a phone, so the label has to

@@ -1,4 +1,5 @@
 import type { AgentActivityItem } from './AgentContext';
+import { daysAgo, hoursAgo, minutesAgo } from './mockClock';
 import type { AgentMonitorSource } from './components/AgentMonitor';
 import type { UserInterest } from '../../graphql/interests';
 import {
@@ -14,14 +15,11 @@ export const mockInterest: UserInterest = {
   fomoThreshold: 0.62,
   sources: { dailyDev: true, web: false, github: false },
   outputModes: { feed: true, post: true, digest: false, notification: true },
-  lastRunAt: new Date(Date.now() - 1000 * 60 * 42).toISOString(),
+  lastRunAt: minutesAgo(42),
   lastRunSummary: 'Scanned 128 posts, kept 6',
-  createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 9).toISOString(),
-  updatedAt: new Date().toISOString(),
+  createdAt: daysAgo(9),
+  updatedAt: minutesAgo(0),
 };
-
-const hoursAgo = (hours: number) =>
-  new Date(Date.now() - 1000 * 60 * 60 * hours).toISOString();
 
 /**
  * One agent per state, for the design surfaces.
@@ -103,9 +101,7 @@ export const recentMockAgents = (): AgentMonitorSource[] =>
     agent.lastRunAt
       ? {
           ...agent,
-          lastRunAt: new Date(
-            Date.now() - 1000 * 60 * (7 + index * 23),
-          ).toISOString(),
+          lastRunAt: minutesAgo(7 + index * 23),
         }
       : agent,
   );
@@ -115,7 +111,7 @@ export const mockAgentPosts = [
     id: 'mock-post-1',
     title:
       'Zig this week: the self-hosted backend, and three projects worth cloning',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+    createdAt: hoursAgo(5),
     contentHtml: `<p>I went through <strong>128 posts</strong> and kept nine. Here is what actually matters.</p>
 <h3>The one thing to read</h3>
 <p><strong>Zig 0.15 makes the self-hosted backend the default.</strong> Debug builds no longer need LLVM, which is why everyone is posting compile-time screenshots. Incremental compilation is in, but behind a flag — do not plan around it yet.</p>
@@ -131,7 +127,7 @@ export const mockAgentPosts = [
   {
     id: 'mock-post-2',
     title: 'What changed in your interest since Tuesday',
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 30).toISOString(),
+    createdAt: hoursAgo(30),
     contentHtml: `<p>Two threads are converging.</p>
 <p><strong>Tooling is consolidating.</strong> <code>zig cc</code> keeps showing up as a full cross-compilation replacement rather than an experiment — the InfoQ write-up is a year of production use, not a first impression.</p>
 <p><strong>The performance debate moved on.</strong> Microbenchmarks are out; people are comparing build times and debug ergonomics instead, which is a much more useful signal for picking a language.</p>
@@ -142,37 +138,37 @@ export const mockAgentPosts = [
 export const mockActivity: AgentActivityItem[] = [
   {
     id: 'mock-activity-1',
-    at: new Date(Date.now() - 1000 * 60 * 42).toISOString(),
+    at: minutesAgo(42),
     kind: 'finding',
     text: 'Scanned 128 new posts, added 6 to your feed',
   },
   {
     id: 'mock-activity-2',
-    at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+    at: hoursAgo(5),
     kind: 'post',
     text: 'Wrote "Zig this week: the self-hosted backend, and three projects worth cloning"',
   },
   {
     id: 'mock-activity-3',
-    at: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+    at: hoursAgo(6),
     kind: 'notification',
     text: 'Notified you about 6 new findings',
   },
   {
     id: 'mock-activity-4',
-    at: new Date(Date.now() - 1000 * 60 * 60 * 14).toISOString(),
+    at: hoursAgo(14),
     kind: 'command',
     text: 'You asked for fewer announcements, more source-level deep dives',
   },
   {
     id: 'mock-activity-5',
-    at: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
+    at: hoursAgo(26),
     kind: 'run',
     text: 'Scheduled run — 41 posts scanned, nothing passed your quality bar',
   },
   {
     id: 'mock-activity-6',
-    at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
+    at: daysAgo(3),
     kind: 'finding',
     text: 'Picked up Ghostty going open source 4 minutes after it went live',
   },

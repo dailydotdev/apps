@@ -66,7 +66,7 @@ const PanelButton = ({
 
 export const AgentWorkspaceHeader = (): ReactElement => {
   const { interest, openContent, openContentTarget, focusContent } = useAgent();
-  const { isCopying, onShare } = useShareAgent(interest);
+  const { isCopying, isSharing, onShare } = useShareAgent(interest);
   const isOpen = (type: string) =>
     openContent.some((item) => item.type === type);
   const togglePanel = (type: 'activity' | 'debug') =>
@@ -109,6 +109,7 @@ export const AgentWorkspaceHeader = (): ReactElement => {
             className="group"
             aria-label="Share this agent"
             disabled={!interest?.query}
+            loading={isSharing}
             onClick={onShare}
           />
         </Tooltip>

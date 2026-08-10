@@ -1,3 +1,4 @@
+import { minutesAgo } from './mockClock';
 import type { Post } from '../../graphql/posts';
 import { mockFeedPosts } from './mockFeed';
 
@@ -45,9 +46,6 @@ export const promptWithContext = (
         .map(({ label }) => `“${label}”`)
         .join(', ')}`
     : text;
-
-const minutesAgo = (minutes: number) =>
-  new Date(Date.now() - 1000 * 60 * minutes).toISOString();
 
 export const mockConversation: AgentMessage[] = [
   {

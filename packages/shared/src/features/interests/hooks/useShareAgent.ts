@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useShareOrCopyLink } from '../../../hooks/useShareOrCopyLink';
 import { webappUrl } from '../../../lib/constants';
 import { ReferralCampaignKey } from '../../../lib/referral';
@@ -29,19 +30,32 @@ export const agentShareLink = (query: string): string => {
 
 export const useShareAgent = (
   interest?: Pick<UserInterest, 'query'>,
-): { isCopying: boolean; onShare: () => void } => {
+): { isCopying: boolean; isSharing: boolean; onShare: () => void } => {
   const query = interest?.query ?? '';
   const [isCopying, shareOrCopy] = useShareOrCopyLink({
     link: agentShareLink(query),
     text: `I have an agent watching daily.dev for “${query}”`,
     cid: ReferralCampaignKey.ShareAgent,
   });
+  // Between the press and the clipboard there is a request — the link gets
+  // shortened first. It is usually instant and it is sometimes not, and a
+  // control that looks identical either way is a control that looks broken.
+  const [isSharing, setSharing] = useState(false);
 
   return {
     isCopying,
-    onShare: () => {
-      if (query) {
-        shareOrCopy();
+    isSharing,
+    onShare: async () => {
+      if (!query) {
+        return;
+      }
+
+      setSharing(true);
+
+      try {
+        await shareOrCopy();
+      } finally {
+        setSharing(false);
       }
     },
   };

@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useEffect, useMemo } from 'react';
 import type { NextSeoProps } from 'next-seo';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from '@tanstack/react-query';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditionalFeature';
@@ -33,7 +32,7 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 // `?demo=1` is the design surface: entirely mock data, no API calls, no
 // feature gate and no auth wall, so a preview link is reviewable by anyone.
 // The live page below is what ships once the backend lands.
-const DemoAgentScreen = ({ id }: { id: string }): ReactElement => {
+const DemoAgentPage = ({ id }: { id: string }): ReactElement => {
   const { displayToast } = useToastNotification();
 
   return (
@@ -53,16 +52,6 @@ const DemoAgentScreen = ({ id }: { id: string }): ReactElement => {
     </AgentProvider>
   );
 };
-
-/*
- * Client-only, unlike the live page below it. The mock data takes its timestamps
- * from the clock when it is built, so the server's copy and the browser's are
- * seconds apart and every relative time in it hydrates as a mismatch. Only this
- * branch has that problem: the live one reads its dates off the API.
- */
-const DemoAgentPage = dynamic(() => Promise.resolve(DemoAgentScreen), {
-  ssr: false,
-});
 
 const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
   const router = useRouter();
