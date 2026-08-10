@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useState } from 'react';
 import { NextSeo } from 'next-seo';
+import dynamic from 'next/dynamic';
 import { AgentDemoProviders } from '@dailydotdev/shared/src/features/interests/components/AgentDemoProviders';
 import { AgentHomeScreen } from '@dailydotdev/shared/src/features/interests/components/AgentHomeScreen';
 import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
@@ -39,4 +40,11 @@ const Page = (): ReactElement => {
   );
 };
 
-export default Page;
+/*
+ * Client-only. The mock data takes its timestamps from the clock when it is
+ * built, so the server's copy and the browser's are seconds apart and every
+ * relative time hydrates as a mismatch — "7m" against "7m" that disagree. A
+ * review surface gains nothing from being server-rendered, and this removes the
+ * whole class rather than silencing one warning.
+ */
+export default dynamic(() => Promise.resolve(Page), { ssr: false });
