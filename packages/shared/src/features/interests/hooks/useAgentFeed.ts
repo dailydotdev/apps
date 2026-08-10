@@ -15,16 +15,23 @@ export type AgentFeedItem = {
 export const useAgentFeed = ({
   id,
   forceDemo,
+  enabled = true,
 }: {
   id: string;
   forceDemo: boolean;
+  enabled?: boolean;
 }) => {
   const { user } = useAuthContext();
   const findingsQuery = useQuery({
     ...interestFindingsQueryOptions(id, user),
-    enabled: !!user?.id && !!id && !forceDemo,
+    enabled: enabled && !!user?.id && !!id && !forceDemo,
   });
   const findings = findingsQuery.data ?? [];
+  // MOCK-UP ONLY: a real agent that has legitimately found nothing yet is
+  // indistinguishable from the design surface here, so it gets served fabricated
+  // findings. This must be narrowed to `forceDemo` alone before the flag ramps
+  // to anyone outside the team, or readers will be shown posts their agent never
+  // saw.
   const isDemo =
     forceDemo || (!findingsQuery.isPending && findings.length === 0);
 

@@ -21,8 +21,12 @@ import {
 import { FlexCol, FlexRow } from '@dailydotdev/shared/src/components/utilities';
 import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
 import { mockFeedPosts } from '@dailydotdev/shared/src/features/interests/mockFeed';
+import { mockNow } from '@dailydotdev/shared/src/features/interests/mockClock';
 
-const all = toMonitorItems(recentMockAgents());
+// The same clock the fixtures were built from: read against the real one, a run
+// stamped at the top of this hour is up to an hour old and the rows meant to be
+// waiting for review fall out of the fresh window.
+const all = toMonitorItems(recentMockAgents(), mockNow());
 const quiet: AgentMonitorItem[] = all.map((item) => ({
   ...item,
   state: item.state === 'waiting' ? 'watching' : item.state,

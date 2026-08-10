@@ -200,9 +200,17 @@ const MessageActions = ({
             aria-label="Copy reply"
             // Flattened on click, not render: DOMParser only exists in the
             // browser.
+            //
+            // The tick waits for the write to land. An insecure origin or a
+            // refused permission means nothing reached the clipboard, and a
+            // control confirming a copy that did not happen is worse than one
+            // that says nothing.
             onClick={() => {
-              copyText({ textToCopy: messageAsMarkdown(message) });
-              setCopied(true);
+              Promise.resolve(
+                copyText({ textToCopy: messageAsMarkdown(message) }),
+              )
+                .then(() => setCopied(true))
+                .catch(() => undefined);
             }}
           />
         </Tooltip>

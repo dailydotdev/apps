@@ -38,6 +38,10 @@ import { AgentActivitySection } from './AgentActivitySection';
 
 const noop = () => undefined;
 
+// One arrow press, in pixels. Coarse enough to get somewhere without holding the
+// key down, fine enough to land on a width you meant.
+const keyResizeStep = 24;
+
 // Every tab reads on the post page's own gutters, so switching between an
 // article, a feed and the debug dump doesn't shift the text sideways.
 const postPageGutter = 'px-4 tablet:px-6 laptop:px-8';
@@ -113,11 +117,16 @@ const FeedView = ({
 
 export const AgentContentPane = ({
   width,
+  minWidth,
+  maxWidth,
   onWidthChange,
   onWidthCommit,
   debugPanel,
 }: {
   width: number;
+  /** The range the separator can announce, and the range it clamps to. */
+  minWidth: number;
+  maxWidth: number;
   /** Clamps the value and returns what it settled on. */
   onWidthChange: (width: number) => number;
   onWidthCommit: (width: number) => void;
@@ -191,6 +200,21 @@ export const AgentContentPane = ({
     releaseDragRef.current = release;
   };
 
+  // The same drag from the keyboard, which is the only way there was none: a
+  // separator with a pointer handler and nothing else is a control half the
+  // people on the page cannot reach. Left widens, because left is the direction
+  // this edge moves to widen the panel it belongs to.
+  const onResizeKey = (event: React.KeyboardEvent) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') {
+      return;
+    }
+
+    event.preventDefault();
+    const delta = event.key === 'ArrowLeft' ? keyResizeStep : -keyResizeStep;
+
+    onWidthCommit(onWidthChange(width + delta));
+  };
+
   // On a phone the panel is a page in its own right, so it arrives like one:
   // in from the right over the conversation, out the same way. `closeAllContent`
   // runs at the end of the slide rather than the start of it, which is the only
@@ -200,14 +224,28 @@ export const AgentContentPane = ({
 
   const card = (
     <>
+      {/* A focusable separator is a window splitter: ARIA treats that as
+          interactive and gives it the `aria-value*` properties it carries below.
+          jsx-a11y models every `separator` as static, so it reads the tab stop
+          and the key handler as mistakes. */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
       <div
         role="separator"
         aria-orientation="vertical"
         aria-label="Resize panel"
+        aria-valuenow={width}
+        aria-valuemin={minWidth}
+        aria-valuemax={maxWidth}
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+        tabIndex={0}
         onPointerDown={onResizeStart}
-        className="group absolute inset-y-0 -left-1.5 z-1 hidden w-3 cursor-col-resize items-center justify-center laptop:flex"
+        onKeyDown={onResizeKey}
+        className="group absolute inset-y-0 -left-1.5 z-1 hidden w-3 cursor-col-resize items-center justify-center outline-none laptop:flex"
       >
-        <span className="h-10 w-1 rounded-6 bg-transparent transition-colors group-hover:bg-text-quaternary" />
+        {/* The grip is the whole focus ring: a rectangle drawn round a 12px
+            column of nothing reads as a stray outline in the gap between two
+            panels. */}
+        <span className="h-10 w-1 rounded-6 bg-transparent transition-colors group-hover:bg-text-quaternary group-focus-visible:bg-text-primary" />
       </div>
 
       <FlexCol className="agent-panel-surface agent-window-shadow min-h-0 flex-1 overflow-hidden laptop:rounded-16 laptop:border laptop:border-border-subtlest-tertiary">

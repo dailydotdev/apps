@@ -60,7 +60,10 @@ const PanelButton = ({
       variant={ButtonVariant.Tertiary}
       className="group"
       aria-label={label}
-      aria-pressed={isOpen}
+      // `pressed`, not `aria-pressed`: the button spreads incoming props before
+      // writing its own `aria-pressed`, so a raw attribute is overwritten by an
+      // undefined one and the toggle stops announcing its state.
+      pressed={isOpen}
       onClick={onClick}
     />
   </Tooltip>
@@ -83,18 +86,25 @@ export const AgentWorkspaceHeader = (): ReactElement => {
     // instead, the same softening the composer does at the other end.
     <FlexRow className="h-12 shrink-0 items-center gap-2 px-3 tablet:px-4">
       <Tooltip content="Back to agents">
-        {/* `passHref`: legacyBehavior only injects the href into a plain `<a>`
+        {/* The wrapper is what holds Radix's ref. `Link` is a plain function
+            component, so handing it one logs a warning and leaves the tooltip
+            anchored to nothing — and it cannot take `forwardRef` here, being the
+            shared wrapper every link in the app goes through.
+
+            `passHref`: legacyBehavior only injects the href into a plain `<a>`
             child, so without it this renders as an anchor with nowhere to go. */}
-        <Link href={`${webappUrl}agent`} passHref>
-          <Button
-            tag="a"
-            icon={headerIcon(<MoveToIcon className="rotate-180" />)}
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Tertiary}
-            className="group"
-            aria-label="Back to agents"
-          />
-        </Link>
+        <span className="flex">
+          <Link href={`${webappUrl}agent`} passHref>
+            <Button
+              tag="a"
+              icon={headerIcon(<MoveToIcon className="rotate-180" />)}
+              size={ButtonSize.Small}
+              variant={ButtonVariant.Tertiary}
+              className="group"
+              aria-label="Back to agents"
+            />
+          </Link>
+        </span>
       </Tooltip>
       <AgentStatusTile />
       {/* The page's heading now that the transcript no longer opens with one:

@@ -9,6 +9,17 @@ import {
 import { FlexCol } from '../../../components/utilities';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 
+/**
+ * The list and its rows, named from outside.
+ *
+ * The field is the combobox and this is its popup, so the field has to be able
+ * to point at the list and at the row it has arrowed to — neither of which it
+ * renders.
+ */
+export const composerMenuId = 'agent-composer-menu';
+export const composerOptionId = (id: string): string =>
+  `agent-composer-option-${id}`;
+
 export type AgentMenuItem = {
   id: string;
   icon: ReactNode;
@@ -56,18 +67,30 @@ export const AgentComposerMenu = ({
     <div className="agent-menu-in absolute bottom-full left-0 z-popup mb-2 w-64 overflow-hidden rounded-12 border border-border-subtlest-tertiary bg-background-popover shadow-3">
       {items.length ? (
         <ul
+          id={composerMenuId}
           role="listbox"
           aria-label={label}
           className="agent-scroll max-h-56 overflow-y-auto p-1"
         >
           {items.map((item, index) => (
+            // The option is the list item itself. Wrapping options in plain
+            // `<li>`s breaks the relationship a screen reader needs: the rows
+            // stop being the listbox's options and are announced as list items
+            // with a button in them.
             <li
               key={item.id}
+              id={composerOptionId(item.id)}
+              role="option"
+              aria-selected={index === activeIndex}
               ref={index === activeIndex ? activeRef : undefined}
             >
               <Tooltip
                 side="right"
                 sideOffset={12}
+                // Undoes the app-wide `flex-shrink: 0` for this tooltip's own
+                // child: a two-line block wider than the surface otherwise
+                // refuses to shrink and the text runs out past the rounding.
+                className="[&>*]:shrink"
                 content={
                   <FlexCol className="gap-0.5">
                     <Typography type={TypographyType.Caption1} bold>
@@ -86,8 +109,10 @@ export const AgentComposerMenu = ({
               >
                 <button
                   type="button"
-                  role="option"
-                  aria-selected={index === activeIndex}
+                  // Out of the tab order: an option's children are presented as
+                  // flat text, so a tab stop in here is one a screen reader
+                  // never announces. The field owns the keyboard.
+                  tabIndex={-1}
                   // Keeps the caret in the field: without this the field blurs
                   // on press and the menu closes before the click can land.
                   onMouseDown={(event: React.MouseEvent) =>

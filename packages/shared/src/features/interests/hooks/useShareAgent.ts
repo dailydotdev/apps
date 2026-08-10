@@ -54,6 +54,10 @@ export const useShareAgent = (
 
       try {
         await shareOrCopy();
+      } catch {
+        // A dismissed system sheet rejects, and so does a clipboard the browser
+        // refuses. Neither is worth escaping the press as an unhandled
+        // rejection; the control simply stops looking busy below.
       } finally {
         setSharing(false);
       }

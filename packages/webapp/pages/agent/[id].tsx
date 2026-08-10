@@ -66,10 +66,21 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
   // not been evaluated at all, so they fall through to the sign-in wall rather
   // than being bounced off a page the flag never spoke about.
   const isGatedOut = isAuthReady && !!user && !showAgent;
+  // Nothing is asked of the API until the flag has said yes. A gated-out reader
+  // is redirected away, so their requests would only spend backend budget and
+  // muddy the feature's own request metrics with traffic from people who never
+  // saw it.
+  const isQueryEnabled = showAgent && !!user?.id && !!id;
 
-  const interestQuery = useQuery(interestQueryOptions(id, user));
-  const postsQuery = useQuery(interestPostsQueryOptions(id, user));
-  const feed = useAgentFeed({ id, forceDemo: false });
+  const interestQuery = useQuery({
+    ...interestQueryOptions(id, user),
+    enabled: isQueryEnabled,
+  });
+  const postsQuery = useQuery({
+    ...interestPostsQueryOptions(id, user),
+    enabled: isQueryEnabled,
+  });
+  const feed = useAgentFeed({ id, forceDemo: false, enabled: isQueryEnabled });
   const { isDeleting, deleteInterest } = useDeleteInterest({
     onDeleted: () => router.push(`${webappUrl}agent`),
   });
@@ -131,7 +142,9 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
           <AgentWorkspace
             items={feed.items}
             postsCount={posts.length}
-            onDelete={() => deleteInterest(id)}
+            // The mutation reports its own failure with a toast; swallowed here
+            // so it does not also escape the press as an unhandled rejection.
+            onDelete={() => deleteInterest(id).catch(() => undefined)}
             isDeleting={isDeleting}
           />
         )}
@@ -142,6 +155,15 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
 
 const Page = (): ReactElement | null => {
   const router = useRouter();
+
+  // `router.query` is empty until the route has resolved, so choosing a branch
+  // before then sends every `?demo=1` visitor through the live page first — and
+  // an anonymous reviewer lands on the sign-in wall for the half-second before
+  // the demo mounts.
+  if (!router.isReady) {
+    return null;
+  }
+
   const id = router.query.id as string;
 
   return router.query.demo === '1' ? (

@@ -857,28 +857,6 @@
       color-mix(in srgb, var(--theme-accent-avocado-default) 30%, transparent) !important;
 }
 
-@keyframes agent-live-radar-sweep {
-  0% {
-    transform: rotate(0deg);
-    opacity: 0.65;
-  }
-
-  16.7% {
-    transform: rotate(360deg);
-    opacity: 0.65;
-  }
-
-  20.8%,
-  100% {
-    transform: rotate(360deg);
-    opacity: 0;
-  }
-}
-
-.agent-live-radar-sweep {
-  animation: agent-live-radar-sweep 20s linear infinite;
-}
-
 @keyframes breaking-news-chip-mesh {
   0% {
     background-position: 100% 0%, 80% 100%, 50% 100%, 0% 50%;
@@ -1089,8 +1067,10 @@
     inset 0 1px 0
       color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 82%),
     /* Two shadows, near and far: one gives it an edge, the other gives it
-       somewhere to be. */ 0 2px 6px -3px rgb(0 0 0 / 45%),
-    0 18px 40px -18px rgb(0 0 0 / 60%);
+       somewhere to be. Through the theme's own shadow colours, because a black
+       drop shadow under a card on a light background is a smudge. */
+      0 2px 6px -3px var(--theme-shadow-shadow2),
+    0 18px 40px -18px var(--theme-shadow-shadow3);
 }
 
 /* The brand's colour arriving from off the top of the card, not painted on it.

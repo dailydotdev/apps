@@ -64,7 +64,9 @@ export const AgentCopyPostLinkButton = ({
         onClick={(event: React.MouseEvent) => {
           event.stopPropagation();
           event.preventDefault();
-          copyLink();
+          // The hook already reports its own failure; without this the same
+          // failure also escapes the press as an unhandled rejection.
+          Promise.resolve(copyLink()).catch(() => undefined);
         }}
       />
     </Tooltip>

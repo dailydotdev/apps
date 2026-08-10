@@ -1,14 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
 import { FlexRow } from '../../../components/utilities';
-import { MagicIcon, SendAirplaneIcon } from '../../../components/icons';
+import { MagicIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import { AgentSendButton } from './AgentSendButton';
 
 /**
  * The composer as a pane of glass, for surfaces it does not own.
@@ -72,18 +68,8 @@ export const AgentGlassComposer = ({
             }
           }}
         />
-        <Button
-          icon={
-            // The airplane's mass sits left of its bounding box, so centring
-            // the box leaves it reading low and left.
-            <SendAirplaneIcon
-              size={IconSize.XSmall}
-              className="translate-x-px"
-            />
-          }
-          size={ButtonSize.Small}
-          variant={ButtonVariant.Tertiary}
-          aria-label="Spawn the agent"
+        <AgentSendButton
+          label="Spawn the agent"
           loading={isBusy}
           disabled={!value.trim()}
           onClick={onSubmit}

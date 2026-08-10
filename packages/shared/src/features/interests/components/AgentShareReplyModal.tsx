@@ -23,6 +23,9 @@ import { useAgent } from '../AgentContext';
 import { useShareAgent } from '../hooks/useShareAgent';
 import { AgentReplyCard } from './AgentReplyCard';
 
+/** Long enough for the browser to have taken the blob off the anchor. */
+const blobReleaseMs = 100;
+
 /**
  * The sheet for passing a reply on.
  *
@@ -112,8 +115,14 @@ export const AgentShareReplyModal = ({
 
       download.href = url;
       download.download = 'daily-dev-agent.png';
+      // In the document before it is pressed, and the url held a beat after:
+      // Firefox is the browser this path exists for, and it ignores a click on
+      // a detached anchor and cancels a download whose blob url was revoked in
+      // the same task. So the toast said "Image saved" and nothing was.
+      document.body.appendChild(download);
       download.click();
-      URL.revokeObjectURL(url);
+      download.remove();
+      setTimeout(() => URL.revokeObjectURL(url), blobReleaseMs);
       displayToast('Image saved');
     }
   };

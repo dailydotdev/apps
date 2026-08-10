@@ -15,7 +15,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
-import { ArrowIcon, SendAirplaneIcon } from '../../../components/icons';
+import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { DateFormat } from '../../../components/utilities/DateFormat';
@@ -31,6 +31,7 @@ import {
   toMonitorItems,
 } from './AgentMonitor';
 import { composerBar, composerColumn, composerFrame } from './AgentComposer';
+import { AgentSendButton } from './AgentSendButton';
 
 const maxFieldHeight = 120;
 
@@ -170,7 +171,7 @@ export const AgentHomeScreen = ({
 }: {
   agents: AgentMonitorSource[];
   isPending?: boolean;
-  onCreate: (query: string) => void;
+  onCreate: (query: string) => void | Promise<unknown>;
   isCreating?: boolean;
   /** Rendered without the app chrome, so the screen owns the viewport. */
   isStandalone?: boolean;
@@ -183,6 +184,7 @@ export const AgentHomeScreen = ({
 }): ReactElement => {
   const shellHeight = useAgentShellHeight(isStandalone);
   const fieldRef = useRef<HTMLTextAreaElement>(null);
+  const resizeFrame = useRef<number>();
   const [query, setQuery] = useState(initialQuery);
   // `useState` reads its argument once, and a handed-over prompt comes off the
   // URL — which on this statically optimised route is empty until after
@@ -196,6 +198,17 @@ export const AgentHomeScreen = ({
 
     setQuery((current) => current || initialQuery);
   }, [initialQuery]);
+
+  // The measuring frame is dropped on unmount: it reaches for the field, and a
+  // screen that has left takes the field with it.
+  useEffect(
+    () => () => {
+      if (resizeFrame.current) {
+        cancelAnimationFrame(resizeFrame.current);
+      }
+    },
+    [],
+  );
 
   const items = toMonitorItems(agents);
   const waiting = items.filter(({ state }) => state === 'waiting').length;
@@ -221,7 +234,7 @@ export const AgentHomeScreen = ({
     fieldRef.current?.focus();
     // The field has not re-rendered with the new value yet, so it is measured
     // on the next frame rather than against the old text.
-    requestAnimationFrame(resize);
+    resizeFrame.current = requestAnimationFrame(resize);
   };
 
   const onSubmit = () => {
@@ -231,7 +244,10 @@ export const AgentHomeScreen = ({
       return;
     }
 
-    onCreate(trimmed);
+    // The mutation behind this reports its own failure with a toast. Swallowed
+    // here so the same failure does not also escape the press as an unhandled
+    // rejection.
+    Promise.resolve(onCreate(trimmed)).catch(() => undefined);
   };
 
   return (
@@ -370,19 +386,9 @@ export const AgentHomeScreen = ({
                   }
                 }}
               />
-              <Button
-                icon={
-                  // The airplane's mass sits left of its bounding box, so
-                  // centring the box leaves it reading low and left.
-                  <SendAirplaneIcon
-                    size={IconSize.XSmall}
-                    className="translate-x-px"
-                  />
-                }
-                size={ButtonSize.Small}
-                variant={ButtonVariant.Tertiary}
+              <AgentSendButton
+                label="Spawn the agent"
                 className="self-center"
-                aria-label="Spawn the agent"
                 loading={isCreating}
                 disabled={!query.trim()}
                 onClick={onSubmit}

@@ -1,28 +1,38 @@
-import type { AgentMessage } from './chat';
+import type { AgentBlock, AgentMessage } from './chat';
 
 /** So a title with a quote in it cannot break the attribute it sits in. */
 const escapeAttribute = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 /**
- * What the agent said, one paragraph per entry.
+ * So a title carrying markup is read as the title it is rather than as an
+ * element. Titles come from the API, not from here.
+ */
+const escapeHtml = (value: string) =>
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/**
+ * One block's prose, one paragraph per entry.
  *
  * Per block-level element rather than per block: a block's `textContent` runs
  * its paragraphs together, so "…clears your bar." and "First pass over…" arrived
  * as one sentence with no space in the middle of it.
  */
+const blockParagraphs = (block: AgentBlock): string[] => {
+  if (block.type !== 'text') {
+    return [];
+  }
+
+  const { body } = new DOMParser().parseFromString(block.html, 'text/html');
+
+  return Array.from(body.children)
+    .map((element) => element.textContent?.trim() ?? '')
+    .filter(Boolean);
+};
+
+/** What the agent said, one paragraph per entry. */
 export const messageParagraphs = (message: AgentMessage): string[] =>
-  (message.blocks ?? []).flatMap((block) => {
-    if (block.type !== 'text') {
-      return [];
-    }
-
-    const { body } = new DOMParser().parseFromString(block.html, 'text/html');
-
-    return Array.from(body.children)
-      .map((element) => element.textContent?.trim() ?? '')
-      .filter(Boolean);
-  });
+  (message.blocks ?? []).flatMap(blockParagraphs);
 
 /**
  * The reply as flat text: markup stripped, paragraph gaps kept. What the agent
@@ -44,10 +54,7 @@ export const messageAsMarkdown = (message: AgentMessage): string =>
   (message.blocks ?? [])
     .map((block) => {
       if (block.type === 'text') {
-        return (
-          new DOMParser().parseFromString(block.html, 'text/html').body
-            .textContent ?? ''
-        );
+        return blockParagraphs(block).join('\n\n');
       }
 
       const links = block.posts
@@ -80,13 +87,15 @@ export const messageAsHtml = (message: AgentMessage): string =>
       const items = block.posts
         .map(
           (post) =>
-            `<li><a href="${escapeAttribute(post.commentsPermalink)}">${
-              post.title
-            }</a></li>`,
+            `<li><a href="${escapeAttribute(
+              post.commentsPermalink,
+            )}">${escapeHtml(post.title ?? '')}</a></li>`,
         )
         .join('');
       const caption = block.type === 'feedLink' ? block.label : block.caption;
 
-      return `${caption ? `<p>${caption}</p>` : ''}<ul>${items}</ul>`;
+      return `${
+        caption ? `<p>${escapeHtml(caption)}</p>` : ''
+      }<ul>${items}</ul>`;
     })
     .join('');

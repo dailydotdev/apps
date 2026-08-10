@@ -51,6 +51,7 @@ export const AgentWorkspace = ({
   // async round-trip between the pointer and the panel, and the panel snapped
   // back whenever the read landed after the write.
   const [paneWidth, setPaneWidth] = useState(defaultPaneWidth);
+  const [maxPaneWidth, setMaxPaneWidth] = useState(defaultPaneWidth);
   const hasResizedRef = useRef(false);
   const workspaceRef = useRef<HTMLDivElement>(null);
   const transcriptRef = useRef<HTMLDivElement>(null);
@@ -140,6 +141,26 @@ export const AgentWorkspace = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTailPending]);
 
+  // The panel's ceiling depends on the window rather than being fixed, and it is
+  // held rather than measured at the moment of a drag so the separator can also
+  // say what its own range is.
+  useEffect(() => {
+    const measure = () => {
+      const workspace = workspaceRef.current;
+
+      if (workspace) {
+        setMaxPaneWidth(
+          Math.max(minPanelWidth, workspace.clientWidth - minPanelWidth),
+        );
+      }
+    };
+
+    measure();
+    globalThis.addEventListener('resize', measure);
+
+    return () => globalThis.removeEventListener('resize', measure);
+  }, []);
+
   // Seed it from the last session's width, once. After the first drag the
   // workspace owns the number and a late read from the store is ignored.
   useEffect(() => {
@@ -154,13 +175,11 @@ export const AgentWorkspace = ({
   // on release, and reading it out of state there gets the value as it was when
   // the pointer went down, which is a drag or two behind.
   const onPaneWidthChange = (next: number): number => {
-    const workspace = workspaceRef.current;
-    const max = workspace
-      ? Math.max(minPanelWidth, workspace.clientWidth - minPanelWidth)
-      : next;
     // Whole pixels: a fractional width leaves the panel's border straddling
     // two of them, which softens the one hairline the eye follows.
-    const clamped = Math.round(Math.min(Math.max(next, minPanelWidth), max));
+    const clamped = Math.round(
+      Math.min(Math.max(next, minPanelWidth), maxPaneWidth),
+    );
 
     hasResizedRef.current = true;
     setPaneWidth(clamped);
@@ -243,6 +262,8 @@ export const AgentWorkspace = ({
       {!!openContent.length && (
         <AgentContentPane
           width={paneWidth}
+          minWidth={minPanelWidth}
+          maxWidth={maxPaneWidth}
           onWidthChange={onPaneWidthChange}
           onWidthCommit={onPaneWidthCommit}
           debugPanel={<AgentDebugPanel items={items} />}

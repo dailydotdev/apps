@@ -15,8 +15,9 @@ import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/moc
  * otherwise only reachable behind the flag. Carries `noindex`/`nofollow`.
  */
 const Page = (): ReactElement => {
-  // Read off the URL rather than the router: this page is statically optimised,
-  // so `router.query` is empty on the render that matters.
+  // Read off the URL after mount rather than during the render: the server has
+  // no window, and the search string is the only difference between the two, so
+  // reading it while rendering is a hydration mismatch by construction.
   const [params, setParams] = useState<URLSearchParams>();
 
   useEffect(() => {
@@ -38,5 +39,12 @@ const Page = (): ReactElement => {
     </AgentDemoProviders>
   );
 };
+
+// Request time rather than build time. These surfaces are drawn from mock data
+// measured off the current hour, and prerendered HTML is from whenever the deploy
+// happened, so every elapsed time on the page hydrates as a mismatch. Applied
+// across the whole /dev/agent* family so a timestamp added to any of them later
+// cannot quietly bring it back.
+export const getServerSideProps = async () => ({ props: {} });
 
 export default Page;

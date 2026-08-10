@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
 import Toast from '../../../components/notifications/Toast';
@@ -35,9 +35,13 @@ export const AgentDemoProviders = ({
   children: ReactNode;
 }): ReactElement => {
   const LogContext = getLogContextStatic();
+  // One client for the life of the tree, as `_app` does: constructing it inline
+  // hands every render a fresh cache, so a keystroke anywhere above throws away
+  // the toasts and modal state mid-flight.
+  const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={queryClient}>
       <AuthContextProvider
         user={demoUser as never}
         firstLoad={false}

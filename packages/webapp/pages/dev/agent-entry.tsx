@@ -40,4 +40,11 @@ const Page = (): ReactElement => (
   </AgentDemoProviders>
 );
 
+// Request time rather than build time. These surfaces are drawn from mock data
+// measured off the current hour, and prerendered HTML is from whenever the deploy
+// happened, so every elapsed time on the page hydrates as a mismatch. Applied
+// across the whole /dev/agent* family so a timestamp added to any of them later
+// cannot quietly bring it back.
+export const getServerSideProps = async () => ({ props: {} });
+
 export default Page;

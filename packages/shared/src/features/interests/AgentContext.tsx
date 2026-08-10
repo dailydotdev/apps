@@ -119,6 +119,16 @@ export const useAgent = (): AgentContextValue => useContext(AgentContext);
 
 const workDurationMs = 2600;
 
+// A timestamp alone is not unique: a command and the activity entry recording it
+// are written in the same millisecond, and two entries sharing an id are
+// duplicate React keys.
+let idSequence = 0;
+const nextId = (): string => {
+  idSequence += 1;
+
+  return `${Date.now()}-${idSequence}`;
+};
+
 export const AgentProvider = ({
   id,
   interest,
@@ -196,7 +206,7 @@ export const AgentProvider = ({
         displayToast('Sent to the agent — it will update in the background');
       }
 
-      const stamp = `${Date.now()}`;
+      const stamp = nextId();
       setMessages((current) => [
         // Only one turn is ever in flight, and the timer below resolves the
         // new one by id — so a turn sent over a pending one would leave the
@@ -230,7 +240,7 @@ export const AgentProvider = ({
       setWorking({ label: label ?? text, targetId, startedAt: Date.now() });
       setActivity((current) => [
         {
-          id: `${Date.now()}`,
+          id: nextId(),
           at: new Date().toISOString(),
           kind: 'command',
           text,
@@ -256,7 +266,7 @@ export const AgentProvider = ({
         );
         setActivity((current) => [
           {
-            id: `${Date.now()}-done`,
+            id: `${nextId()}-done`,
             at: new Date().toISOString(),
             kind: 'run',
             text: `Applied "${text}" and refreshed the results`,
@@ -357,7 +367,7 @@ export const AgentProvider = ({
     );
     setActivity((current) => [
       {
-        id: `${Date.now()}-stopped`,
+        id: `${nextId()}-stopped`,
         at: new Date().toISOString(),
         kind: 'command',
         text: 'You stopped the run',

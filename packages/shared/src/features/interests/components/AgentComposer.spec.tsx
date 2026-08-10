@@ -178,6 +178,27 @@ describe('AgentComposer', () => {
       ).not.toBeNull();
     });
 
+    // The list never takes focus, so the row the arrow keys are on is only
+    // reachable by the field pointing at it: without this a screen reader hears
+    // the typing and nothing about what is being chosen.
+    it('names the row it is on, so the field can point at it', () => {
+      mountComposer();
+
+      type('/');
+
+      const options = screen.getAllByRole('option');
+
+      expect(field()).toHaveAttribute('aria-expanded', 'true');
+      expect(field()).toHaveAttribute('aria-activedescendant', options[0].id);
+      expect(options[0]).toHaveAttribute('aria-selected', 'true');
+
+      fireEvent.keyDown(field(), { key: 'ArrowDown' });
+
+      expect(field()).toHaveAttribute('aria-activedescendant', options[1].id);
+      // And the option is a child of the listbox, not a list item wrapping one.
+      expect(options[1].parentElement).toHaveAttribute('role', 'listbox');
+    });
+
     it('moves through the list with the arrow keys', () => {
       mountComposer();
 

@@ -34,7 +34,13 @@ const Page = (): ReactElement | null => {
   // the reader never asked to spend.
   const sharedQuery = typeof router.query.q === 'string' ? router.query.q : '';
 
-  const { data: interests, isPending } = useQuery(interestsQueryOptions(user));
+  // Nothing is asked of the API until the flag has said yes: a gated-out reader
+  // is redirected away, so their requests would only spend backend budget and
+  // muddy the feature's own request metrics.
+  const { data: interests, isPending } = useQuery({
+    ...interestsQueryOptions(user),
+    enabled: showAgent && !!user?.id,
+  });
   const { isCreating, createInterest } = useCreateInterest({
     onCreated: (id) => router.push(`${webappUrl}agent/${id}`),
   });

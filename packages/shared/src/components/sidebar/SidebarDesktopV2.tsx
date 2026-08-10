@@ -749,10 +749,10 @@ export const SidebarDesktopV2 = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
   const { openModal, modal } = useLazyModal();
-  const { isLoggedIn, user } = useAuthContext();
+  const { isAuthReady, isLoggedIn, user } = useAuthContext();
   const { value: agentEnabled } = useConditionalFeature({
     feature: featureInterestAgent,
-    shouldEvaluate: isLoggedIn,
+    shouldEvaluate: isAuthReady && isLoggedIn,
   });
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   // The brand mark targets the "For You" feed. On extension there's no

@@ -79,7 +79,10 @@ export const useGetShortUrl = ({
           staleTime: Infinity,
           // One attempt. Three-with-backoff holds the press for seconds when
           // the shortener is down, and the fallback is a perfectly good link —
-          // only longer.
+          // only longer. It does not always apply: when the `useQuery` branch
+          // below is already fetching this key, query-core hands back the
+          // in-flight retryer before it looks at these options, so that fetch
+          // keeps its own retry policy and only the deadline bounds the wait.
           retry: false,
         })
         .catch(() => null);
@@ -89,12 +92,17 @@ export const useGetShortUrl = ({
       // request that never answers at all used to hold the press for as long as
       // the reader was willing to keep looking at it, which is indistinguishable
       // from a button that does nothing.
+      let deadline: ReturnType<typeof setTimeout> | undefined;
       const shortened = await Promise.race([
         shortening,
         new Promise<null>((settle) => {
-          setTimeout(() => settle(null), shortUrlDeadline);
+          deadline = setTimeout(() => settle(null), shortUrlDeadline);
         }),
       ]);
+
+      // The race is over either way, and a timer left running holds the tab
+      // awake for a second and a half after every share.
+      clearTimeout(deadline);
 
       return shortened ?? trackedUrl;
     },

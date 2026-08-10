@@ -12,6 +12,7 @@ import {
 import { AgentPostCard } from '@dailydotdev/shared/src/features/interests/components/AgentPostCard';
 import { mockFeedPosts } from '@dailydotdev/shared/src/features/interests/mockFeed';
 import { recentMockAgents } from '@dailydotdev/shared/src/features/interests/mock';
+import { mockNow } from '@dailydotdev/shared/src/features/interests/mockClock';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
 
@@ -63,7 +64,12 @@ const Page = (): ReactElement => {
                 value={query}
                 onChange={setQuery}
                 onSubmit={() => undefined}
-                pending={<AgentMonitor items={toMonitorItems(agents)} />}
+                // The same clock the fixtures were built from: read against the
+                // real one, a run stamped at the top of this hour is up to an
+                // hour old and half the rows fall out of the fresh window.
+                pending={
+                  <AgentMonitor items={toMonitorItems(agents, mockNow())} />
+                }
               />
             </AgentFeedDock>
           </div>
@@ -72,5 +78,12 @@ const Page = (): ReactElement => {
     </AgentDemoProviders>
   );
 };
+
+// Request time rather than build time. These surfaces are drawn from mock data
+// measured off the current hour, and prerendered HTML is from whenever the deploy
+// happened, so every elapsed time on the page hydrates as a mismatch. Applied
+// across the whole /dev/agent* family so a timestamp added to any of them later
+// cannot quietly bring it back.
+export const getServerSideProps = async () => ({ props: {} });
 
 export default Page;

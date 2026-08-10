@@ -38,7 +38,3 @@ export const mockDesktop = (): void =>
 
     return !!min && Number(min) <= 1020;
   });
-
-/** A phone: no hover, and below every width breakpoint. */
-export const mockTouchPhone = (): void =>
-  mockMatchMedia((query) => query === noHoverQuery);

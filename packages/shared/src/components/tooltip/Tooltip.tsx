@@ -70,11 +70,7 @@ export function Tooltip({
             // surface via className; the flex wrapper is a no-op around one item.
             className={classNames(
               styles.TooltipContent,
-              // `[&>*]:shrink` undoes the app-wide `flex-shrink: 0` reset for
-              // the tooltip's own children. Without it a block of content wider
-              // than the max-width refuses to shrink and the text runs out past
-              // the rounded surface instead of wrapping inside it.
-              'z-tooltip flex max-w-[18rem] items-center gap-1.5 rounded-8 border border-border-subtlest-tertiary bg-background-subtle px-2 py-1 font-medium text-text-primary shadow-2 typo-caption1 [&>*]:shrink',
+              'z-tooltip flex max-w-[18rem] items-center gap-1.5 rounded-8 border border-border-subtlest-tertiary bg-background-subtle px-2 py-1 font-medium text-text-primary shadow-2 typo-caption1',
               className,
             )}
             sideOffset={5}

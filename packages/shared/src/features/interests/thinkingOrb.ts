@@ -55,7 +55,7 @@ const settle = (p: number): number =>
  * and turn to mush — so the grid coarsens as the indicator shrinks and each
  * grain keeps roughly the same weight on screen.
  */
-export const gridStep = (size: number): number =>
+const gridStep = (size: number): number =>
   Math.min(3.2, Math.max(0.7, (0.8 + 32 / size) / DENSITY));
 
 /**
@@ -108,7 +108,7 @@ const hash = (i: number): number =>
 const SPARK_WINDOW = 0.16;
 const SPARK_RATE = 0.35;
 
-export type Spark = {
+type Spark = {
   /** Multiplier on the grain's distance from the centre. */
   reach: number;
   size: number;
@@ -138,7 +138,7 @@ const spark = (index: number, t: number): Spark => {
   };
 };
 
-export type PlacedGrain = {
+type PlacedGrain = {
   x: number;
   y: number;
   radius: number;

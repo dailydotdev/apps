@@ -1,6 +1,8 @@
 import type { ComponentType, ReactElement } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
+// Type-only, so it is erased at compile time and pulls none of the module's 74KB
+// into this chunk — which is the whole point of fetching the component below.
 import type { BorderBeamProps } from 'border-beam';
 import {
   Button,
@@ -15,7 +17,6 @@ import {
   TypographyType,
 } from '../../../components/typography/Typography';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
-import { SendAirplaneIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
 import { useAgent } from '../AgentContext';
@@ -32,10 +33,12 @@ import { mentionCandidates } from '../attachments';
 import { AgentUsageMeter } from './AgentUsageMeter';
 import { AgentAttachmentChip, attachmentIcon } from './AgentAttachmentChip';
 import type { AgentMenuItem } from './AgentComposerMenu';
-import { AgentComposerMenu } from './AgentComposerMenu';
-// Type-only, so it is erased at compile time and pulls none of the module's 74KB
-// into this chunk — which is the whole point of fetching the component below.
-// eslint-disable-next-line import/no-duplicates
+import {
+  AgentComposerMenu,
+  composerMenuId,
+  composerOptionId,
+} from './AgentComposerMenu';
+import { AgentSendButton } from './AgentSendButton';
 
 const maxComposerHeight = 160;
 
@@ -129,11 +132,15 @@ export const AgentComposer = (): ReactElement => {
   useEffect(() => {
     let isCurrent = true;
 
-    import('border-beam').then(({ BorderBeam }) => {
-      if (isCurrent) {
-        setBeam(() => BorderBeam);
-      }
-    });
+    import('border-beam')
+      .then(({ BorderBeam }) => {
+        if (isCurrent) {
+          setBeam(() => BorderBeam);
+        }
+      })
+      // A chunk that 404s after a deploy is a decoration that never arrives,
+      // not an error worth taking the field down with. The frame renders bare.
+      .catch(() => undefined);
 
     return () => {
       isCurrent = false;
@@ -158,6 +165,7 @@ export const AgentComposer = (): ReactElement => {
   // The query that Escape was pressed on. Reopening on the next keystroke is
   // right; reopening on a re-render of the same text is not.
   const [dismissed, setDismissed] = useState<string>();
+  const resizeFrame = useRef<number>();
 
   const slash = commandQuery(feedback);
   const mention = mentionQuery(feedback);
@@ -187,10 +195,26 @@ export const AgentComposer = (): ReactElement => {
     ? commandMatches.map(commandItem)
     : mentionMatches.map(mentionItem);
   const isMenuOpen = !!query && query !== dismissed;
+  const hasMenuItems = isMenuOpen && !!items.length;
+  const activeOptionId =
+    hasMenuItems && items[activeIndex]
+      ? composerOptionId(items[activeIndex].id)
+      : undefined;
 
   useEffect(() => setActiveIndex(0), [query]);
 
   const focusInput = () => composerRef.current?.focus();
+
+  // The measuring frame is dropped on unmount: it reaches for the field, and a
+  // composer that has left takes the field with it.
+  useEffect(
+    () => () => {
+      if (resizeFrame.current) {
+        cancelAnimationFrame(resizeFrame.current);
+      }
+    },
+    [],
+  );
 
   const resize = () => {
     const input = composerRef.current;
@@ -209,7 +233,7 @@ export const AgentComposer = (): ReactElement => {
     focusInput();
     // The field has not been re-rendered with the new value yet, so it is
     // measured on the next frame rather than against the old text.
-    requestAnimationFrame(resize);
+    resizeFrame.current = requestAnimationFrame(resize);
   };
 
   // Text written from elsewhere on the screen — the "tell it why" under a
@@ -424,6 +448,11 @@ export const AgentComposer = (): ReactElement => {
               <div className="relative min-w-0 flex-1">
                 {command && (
                   <Tooltip
+                    // Undoes the app-wide `flex-shrink: 0` for this tooltip's
+                    // own child: a two-line block wider than the surface
+                    // otherwise refuses to shrink and the text runs out past
+                    // the rounding.
+                    className="[&>*]:shrink"
                     content={
                       <FlexCol className="gap-0.5">
                         <Typography type={TypographyType.Caption1} bold>
@@ -461,6 +490,14 @@ export const AgentComposer = (): ReactElement => {
                   name="agent-composer"
                   rows={1}
                   aria-label="Tell the agent what to change"
+                  // The field is the combobox and the menu is its popup: the
+                  // list never takes focus, so the row the arrow keys are on is
+                  // only reachable by pointing at it from here.
+                  role="combobox"
+                  aria-expanded={isMenuOpen}
+                  aria-autocomplete="list"
+                  aria-controls={hasMenuItems ? composerMenuId : undefined}
+                  aria-activedescendant={activeOptionId}
                   placeholder={placeholder}
                   value={feedback}
                   className={classNames(
@@ -493,19 +530,9 @@ export const AgentComposer = (): ReactElement => {
                   onClick={stopCommand}
                 />
               ) : (
-                <Button
-                  icon={
-                    // The airplane's mass sits left of its bounding box, so
-                    // centring the box leaves it reading low and left.
-                    <SendAirplaneIcon
-                      size={IconSize.XSmall}
-                      className="translate-x-px"
-                    />
-                  }
-                  size={ButtonSize.Small}
-                  variant={ButtonVariant.Tertiary}
+                <AgentSendButton
+                  label="Send to agent"
                   className="shrink-0"
-                  aria-label="Send to agent"
                   disabled={!feedback.trim() && !command}
                   onClick={onSubmit}
                 />
@@ -522,6 +549,10 @@ export const AgentComposer = (): ReactElement => {
             {quickCommands.map((quick) => (
               <Tooltip
                 key={quick.name}
+                // Undoes the app-wide `flex-shrink: 0` for this tooltip's own
+                // child: a two-line block wider than the surface otherwise
+                // refuses to shrink and the text runs out past the rounding.
+                className="[&>*]:shrink"
                 content={
                   <FlexCol className="gap-0.5">
                     <Typography type={TypographyType.Caption1} bold>

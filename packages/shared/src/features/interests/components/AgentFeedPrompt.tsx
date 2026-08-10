@@ -34,7 +34,11 @@ export const AgentFeedPrompt = (): ReactElement | null => {
   const isTablet = useViewSizeClient(ViewSize.Tablet);
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
-    shouldEvaluate: isAuthReady && !!user,
+    // The viewport is part of the gate, so it is part of the enrolment
+    // condition: a phone reader can never be shown this dock, and evaluating
+    // would enrol them anyway. `=== true` because the client hook has not
+    // answered yet on the first paint.
+    shouldEvaluate: isAuthReady && !!user && isTablet === true,
   });
   const [query, setQuery] = useState('');
   const { data: interests } = useQuery({
@@ -58,7 +62,9 @@ export const AgentFeedPrompt = (): ReactElement | null => {
       return;
     }
 
-    createInterest(trimmed);
+    // The mutation reports its own failure with a toast; swallowed here so it
+    // does not also escape the press as an unhandled rejection.
+    createInterest(trimmed).catch(() => undefined);
   };
 
   return (

@@ -53,11 +53,11 @@ interface FooterPlusButtonProps {
 export function FooterPlusButton({
   className,
 }: FooterPlusButtonProps): ReactElement {
-  const { user } = useAuthContext();
+  const { user, isAuthReady } = useAuthContext();
   const isStandupCreationEnabled = useStandupCreation();
   const { value: agentEnabled } = useConditionalFeature({
     feature: featureInterestAgent,
-    shouldEvaluate: !!user,
+    shouldEvaluate: isAuthReady && !!user,
   });
   const drawerRef = useRef<DrawerRef>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

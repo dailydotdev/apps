@@ -56,8 +56,12 @@ export const AgentCodeBlock = ({
             size={ButtonSize.XSmall}
             variant={ButtonVariant.Tertiary}
             aria-label="Copy"
+            // The hook already reports its own failure; without the catch the
+            // same failure also escapes the press as an unhandled rejection.
             onClick={() =>
-              copy({ link: code, message: '✅ Copied to clipboard' })
+              Promise.resolve(
+                copy({ link: code, message: '✅ Copied to clipboard' }),
+              ).catch(() => undefined)
             }
           />
         </Tooltip>

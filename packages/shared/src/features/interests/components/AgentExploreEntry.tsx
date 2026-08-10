@@ -51,7 +51,12 @@ export const AgentExploreEntry = ({
   const isTablet = useViewSizeClient(ViewSize.Tablet);
   const { value: showAgent } = useConditionalFeature({
     feature: featureInterestAgent,
-    shouldEvaluate: isAuthReady && !!user,
+    // The viewport is part of the gate, so it is part of the enrolment
+    // condition: evaluating enrols, and a desktop reader who can never be
+    // shown this pair would otherwise be measured on an experience they never
+    // got. `=== false` rather than `!isTablet` because the client hook has not
+    // answered yet on the first paint, and unknown must not enrol either.
+    shouldEvaluate: isAuthReady && !!user && isTablet === false,
   });
   const { data: interests } = useQuery({
     ...interestsQueryOptions(user),

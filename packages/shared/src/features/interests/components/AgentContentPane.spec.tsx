@@ -31,16 +31,22 @@ const Opener = ({ targets }: { targets: AgentContentTarget[] }) => {
   return null;
 };
 
-const renderPane = (targets: AgentContentTarget[]) =>
+const renderPane = (
+  targets: AgentContentTarget[],
+  over: Partial<React.ComponentProps<typeof AgentContentPane>> = {},
+) =>
   render(
     <TestBootProvider client={new QueryClient()}>
       <AgentProvider id="a1" isDemo initialMessages={[]}>
         <Opener targets={targets} />
         <AgentContentPane
           width={480}
+          minWidth={384}
+          maxWidth={960}
           onWidthChange={(next) => next}
           onWidthCommit={jest.fn()}
           debugPanel={<div>Raw state</div>}
+          {...over}
         />
       </AgentProvider>
     </TestBootProvider>,
@@ -146,6 +152,32 @@ describe('AgentContentPane on a laptop', () => {
     expect(screen.getByLabelText('Agent content panel')).toHaveStyle({
       width: '480px',
     });
+  });
+
+  // A separator with a pointer handler and nothing else is a control half the
+  // people on the page cannot reach.
+  it('can be resized from the keyboard, and says what its range is', () => {
+    const onWidthChange = jest.fn((next: number) => next);
+    const onWidthCommit = jest.fn();
+
+    renderPane([{ type: 'activity' }], { onWidthChange, onWidthCommit });
+
+    const separator = screen.getByLabelText('Resize panel');
+
+    expect(separator).toHaveAttribute('tabindex', '0');
+    expect(separator).toHaveAttribute('aria-valuenow', '480');
+    expect(separator).toHaveAttribute('aria-valuemin', '384');
+    expect(separator).toHaveAttribute('aria-valuemax', '960');
+
+    // Left widens, because left is the way this edge moves to widen the panel.
+    fireEvent.keyDown(separator, { key: 'ArrowLeft' });
+
+    expect(onWidthChange).toHaveBeenLastCalledWith(504);
+    expect(onWidthCommit).toHaveBeenLastCalledWith(504);
+
+    fireEvent.keyDown(separator, { key: 'ArrowRight' });
+
+    expect(onWidthChange).toHaveBeenLastCalledWith(456);
   });
 
   // A drag holds two window listeners and two properties on `document.body`.
