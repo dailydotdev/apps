@@ -23,7 +23,7 @@ import { businessWebsiteUrl } from '../../../lib/constants';
 import { useFeature } from '../../GrowthBookProvider';
 import { AdLabelVariant, featureAdLabel } from '../../../lib/featureManagement';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
-import { LogEvent, TargetType } from '../../../lib/log';
+import { LogEvent, TargetId } from '../../../lib/log';
 
 jest.mock('../../../hooks/useFeedCardGlassActions');
 
@@ -42,6 +42,8 @@ const mockAdLabelVariant = (variant: AdLabelVariant): void => {
   mockUseFeature.mockImplementation(((feature: { id: string }) =>
     feature?.id === featureAdLabel.id ? variant : undefined) as never);
 };
+
+const plusUser = { id: 'u1', isPlus: true } as never;
 
 const defaultProps: AdCardProps = {
   ad,
@@ -88,11 +90,12 @@ const getNormalizedText = (element?: Element | null): string =>
 
 const renderGridComponent = (
   props: Partial<AdCardProps> = {},
+  boot: Partial<React.ComponentProps<typeof TestBootProvider>> = {},
 ): RenderResult => {
   const client = new QueryClient();
 
   return render(
-    <TestBootProvider client={client}>
+    <TestBootProvider client={client} {...boot}>
       <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
         <AdGrid {...defaultProps} {...props} />
       </ActiveFeedContext.Provider>
@@ -321,7 +324,7 @@ describe('ad_label experiment', () => {
 describe('ad_only options menu on the glass card', () => {
   const optionsLabel = 'Ad options';
 
-  it('should move the advertise and remove links into the menu', async () => {
+  it('should move the remove control into the menu', async () => {
     mockUseGlassActions.mockReturnValue(true);
     mockAdLabelVariant(AdLabelVariant.AdOnly);
     renderGridComponent();
@@ -330,14 +333,11 @@ describe('ad_only options menu on the glass card', () => {
       await screen.findByRole('button', { name: optionsLabel }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('link', { name: 'Advertise here' }),
-    ).not.toBeInTheDocument();
-    expect(
       screen.queryByRole('link', { name: 'Remove' }),
     ).not.toBeInTheDocument();
   });
 
-  it('should offer both actions once the menu is open', async () => {
+  it('should offer remove ads, and not the advertise link the arm removes', async () => {
     mockUseGlassActions.mockReturnValue(true);
     mockAdLabelVariant(AdLabelVariant.AdOnly);
     renderGridComponent();
@@ -347,29 +347,44 @@ describe('ad_only options menu on the glass card', () => {
     // path opens the same menu.
     fireEvent.keyDown(trigger, { key: 'Enter' });
 
-    expect(await screen.findByText('Advertise with us')).toBeInTheDocument();
     expect(await screen.findByText('Remove ads')).toBeInTheDocument();
+    expect(screen.queryByText('Advertise with us')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Advertise here' }),
+    ).not.toBeInTheDocument();
   });
 
-  it('should log the advertise impression once, on the first open', async () => {
+  it('should log the upgrade against the same funnel RemoveAd feeds', async () => {
     mockUseGlassActions.mockReturnValue(true);
     mockAdLabelVariant(AdLabelVariant.AdOnly);
     renderGridComponent();
 
     const trigger = await screen.findByRole('button', { name: optionsLabel });
     fireEvent.keyDown(trigger, { key: 'Enter' });
-    await screen.findByText('Advertise with us');
-    fireEvent.keyDown(trigger, { key: 'Escape' });
-    fireEvent.keyDown(trigger, { key: 'Enter' });
-    await screen.findByText('Advertise with us');
+    const item = await screen.findByText('Remove ads');
+    fireEvent.click(item);
 
     const logEvent = jest.mocked(defaultLogContextData.logEvent);
-    const impressions = logEvent.mock.calls.filter(
-      ([event]) =>
-        event.event_name === LogEvent.Impression &&
-        event.target_type === TargetType.AdvertiseHereCta,
+    expect(logEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_name: LogEvent.UpgradeSubscription,
+        target_id: TargetId.Ads,
+      }),
     );
-    expect(impressions).toHaveLength(1);
+  });
+
+  it('should not render the menu for a Plus subscriber', async () => {
+    mockUseGlassActions.mockReturnValue(true);
+    mockAdLabelVariant(AdLabelVariant.AdOnly);
+    renderGridComponent({}, { auth: { user: plusUser } });
+
+    await screen.findByTestId('adItem');
+    expect(
+      screen.queryByRole('button', { name: optionsLabel }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('link', { name: 'Remove' }),
+    ).not.toBeInTheDocument();
   });
 
   it('should keep the links inline on the classic card', async () => {

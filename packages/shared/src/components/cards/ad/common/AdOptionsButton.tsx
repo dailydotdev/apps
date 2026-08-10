@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import {
   DropdownMenu,
@@ -8,77 +8,35 @@ import {
   DropdownMenuTrigger,
 } from '../../../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../../../dropdown/common';
-import { DevPlusIcon, MegaphoneIcon, MenuIcon } from '../../../icons';
+import { DevPlusIcon, MenuIcon } from '../../../icons';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
-import { useLogContext } from '../../../../contexts/LogContext';
 import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
-import { businessWebsiteUrl, plusUrl } from '../../../../lib/constants';
-import { LogEvent, TargetId, TargetType } from '../../../../lib/log';
-import { anchorDefaultRel } from '../../../../lib/strings';
+import { plusUrl } from '../../../../lib/constants';
+import { LogEvent, TargetId } from '../../../../lib/log';
 import { visibleOnGroupHover } from '../../common/common';
 
 interface AdOptionsButtonProps {
-  targetId: TargetId;
   className?: string;
 }
 
 /**
- * The ad card's own links (advertise with us, remove ads) collapsed into the
- * post card's options menu, so the creative keeps the card to itself.
+ * The ad card's remove-ads link collapsed into the post card's options menu,
+ * so the creative keeps the card to itself.
  *
- * The advertise-here impression fires the first time the menu opens rather
- * than on mount: inside a menu the link is not on screen until then. It fires
- * once per card, not once per open, so the guardrail click rate stays
- * comparable with the arms that render the link inline.
+ * Deliberately not a home for "Advertise here": the arm that shows this menu
+ * is the one whose whole definition is that the advertise link is gone, and
+ * putting it back in a menu would leave the arm meaning two different things
+ * depending on an unrelated layout flag.
  */
 export function AdOptionsButton({
-  targetId,
   className,
 }: AdOptionsButtonProps): ReactElement {
   const [open, setOpen] = useState(false);
-  const impressionLogged = useRef(false);
-  const { logEvent } = useLogContext();
-  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { logSubscriptionEvent } = usePlusSubscription();
 
-  const onOpenChange = useCallback(
-    (isOpen: boolean) => {
-      setOpen(isOpen);
-
-      if (!isOpen || impressionLogged.current) {
-        return;
-      }
-
-      impressionLogged.current = true;
-      logEvent({
-        event_name: LogEvent.Impression,
-        target_type: TargetType.AdvertiseHereCta,
-        target_id: targetId,
-      });
-    },
-    [logEvent, targetId],
-  );
-
-  const options = useMemo(() => {
-    const list: MenuItemProps[] = [
+  const options = useMemo(
+    (): MenuItemProps[] => [
       {
-        label: 'Advertise with us',
-        icon: <MegaphoneIcon />,
-        anchorProps: {
-          href: businessWebsiteUrl,
-          target: '_blank',
-          rel: anchorDefaultRel,
-        },
-        action: () =>
-          logEvent({
-            event_name: LogEvent.Click,
-            target_type: TargetType.AdvertiseHereCta,
-            target_id: targetId,
-          }),
-      },
-    ];
-
-    if (!isPlus) {
-      list.push({
         label: 'Remove ads',
         icon: <DevPlusIcon />,
         anchorProps: { href: plusUrl },
@@ -89,25 +47,26 @@ export function AdOptionsButton({
             event_name: LogEvent.UpgradeSubscription,
             target_id: TargetId.Ads,
           }),
-      });
-    }
+      },
+    ],
+    [logSubscriptionEvent],
+  );
 
-    return list;
-  }, [isPlus, logEvent, logSubscriptionEvent, targetId]);
-
-  // Mirrors the post card's header actions: a span carries the hover reveal and
-  // the `ml-auto`, because `.header > button` in Card.module.css would override
-  // a margin set on the button itself and pin it next to the favicon.
   return (
     <span
       className={classNames(
         'ml-auto flex flex-row',
         visibleOnGroupHover,
+        // The trigger is the only route to the menu's actions, so it also has
+        // to appear for a keyboard reader: `visibleOnGroupHover` is
+        // `visibility: hidden`, which takes it out of the tab order until
+        // something inside the card holds focus.
+        'laptop:mouse:group-focus-within:!visible',
         open && 'laptop:mouse:!visible',
         className,
       )}
     >
-      <DropdownMenu open={open} onOpenChange={onOpenChange}>
+      <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger tooltip={{ content: 'Options' }} asChild>
           <Button
             aria-label="Ad options"
