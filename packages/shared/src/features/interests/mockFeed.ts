@@ -1,3 +1,4 @@
+import { hoursAgo } from './mockClock';
 import type { Post } from '../../graphql/posts';
 import { PostType, UserVote } from '../../graphql/posts';
 import { SourceType } from '../../graphql/sources';
@@ -63,9 +64,6 @@ const sources = {
     public: true,
   },
 } as unknown as Record<string, Post['source']>;
-
-const hoursAgo = (hours: number) =>
-  new Date(Date.now() - 1000 * 60 * 60 * hours).toISOString();
 
 type MockPostSeed = {
   id: string;

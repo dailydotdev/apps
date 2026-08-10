@@ -10,7 +10,8 @@ import {
 import { ArrowIcon, DiscussIcon, UpvoteIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import type { Post } from '../../../graphql/posts';
-import { AgentViewingChip } from './AgentViewingChip';
+import { useNarrowContainer } from '../hooks/useNarrowContainer';
+import { AgentRowActions } from './AgentRowActions';
 
 const InlineStat = ({
   icon,
@@ -41,31 +42,46 @@ const PickRow = ({
   post,
   onOpen,
   isViewing,
+  isStacked,
 }: {
   post: Post;
   onOpen: (post: Post) => void;
   isViewing: boolean;
+  isStacked: boolean;
 }): ReactElement => (
-  <li>
-    <button
-      type="button"
-      onClick={() => onOpen(post)}
+  // The rows round their own ends: the list cannot clip its overflow without
+  // cutting the add-to-chat button off the top edge.
+  <li className="[&:first-child>div]:rounded-t-12 [&:last-child>div]:rounded-b-12">
+    {/* A row rather than a button, so "add to chat" can nest inside it. */}
+    <div
       className={classNames(
-        'group flex w-full items-center gap-4 px-4 py-4 text-left transition-colors tablet:px-5',
+        'agent-press-row group/item relative flex w-full flex-col items-start gap-1 px-3 py-2.5 text-left transition-colors',
+        !isStacked && 'tablet:flex-row tablet:items-center tablet:gap-3',
         isViewing ? 'bg-surface-float' : 'hover:bg-surface-float',
       )}
     >
       <Typography
         tag={TypographyTag.H3}
-        type={TypographyType.Body}
+        type={TypographyType.Callout}
         bold
         color={TypographyColor.Primary}
-        className="min-w-0 flex-1 !leading-snug"
+        className="w-full min-w-0 flex-1 text-balance !leading-snug"
       >
-        {post.title}
+        <button
+          type="button"
+          onClick={() => onOpen(post)}
+          className="w-full text-left after:absolute after:inset-0"
+        >
+          {post.title}
+        </button>
       </Typography>
-      <div className="ml-auto flex shrink-0 items-center gap-2">
-        {isViewing && <AgentViewingChip />}
+      <AgentRowActions post={post} reveal />
+      <div
+        className={classNames(
+          'flex shrink-0 items-center gap-2',
+          !isStacked && 'tablet:ml-auto',
+        )}
+      >
         <InlineStat
           ariaLabel={`${post.numUpvotes ?? 0} upvotes`}
           icon={
@@ -89,7 +105,12 @@ const PickRow = ({
           value={post.numComments ?? 0}
         />
         {post.source?.image && (
-          <span className="hidden items-center pl-1 tablet:inline-flex">
+          <span
+            className={classNames(
+              'hidden items-center pl-1',
+              !isStacked && 'tablet:inline-flex',
+            )}
+          >
             <span className="overflow-hidden rounded-full border-2 border-background-default bg-surface-float">
               <img
                 src={post.source.image}
@@ -102,11 +123,11 @@ const PickRow = ({
         )}
         <ArrowIcon
           size={IconSize.XSmall}
-          className="shrink-0 rotate-90 text-text-quaternary transition-colors group-hover:text-text-tertiary"
+          className="shrink-0 rotate-90 text-text-quaternary transition-colors group-hover/item:text-text-tertiary"
           aria-hidden
         />
       </div>
-    </button>
+    </div>
   </li>
 );
 
@@ -118,15 +139,25 @@ export const AgentPickList = ({
   posts: Post[];
   onOpen: (post: Post) => void;
   activePostId?: string;
-}): ReactElement => (
-  <ol className="divide-y divide-border-subtlest-quaternary overflow-hidden rounded-12 border border-border-subtlest-quaternary bg-background-default">
-    {posts.map((post) => (
-      <PickRow
-        key={post.id}
-        post={post}
-        onOpen={onOpen}
-        isViewing={post.id === activePostId}
-      />
-    ))}
-  </ol>
-);
+}): ReactElement => {
+  // The chat column is dragged, so it can be phone-narrow on a laptop, which
+  // no media query can see; the rows stack on the measured width instead.
+  const { ref, isNarrow } = useNarrowContainer<HTMLOListElement>();
+
+  return (
+    <ol
+      ref={ref}
+      className="divide-y divide-border-subtlest-quaternary rounded-12 border border-border-subtlest-quaternary bg-background-default"
+    >
+      {posts.map((post) => (
+        <PickRow
+          key={post.id}
+          post={post}
+          onOpen={onOpen}
+          isViewing={post.id === activePostId}
+          isStacked={isNarrow}
+        />
+      ))}
+    </ol>
+  );
+};

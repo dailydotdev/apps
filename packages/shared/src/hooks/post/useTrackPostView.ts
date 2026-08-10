@@ -20,6 +20,8 @@ export const useTrackPostView = ({
       return;
     }
 
-    onSendViewPost(post.id);
+    // Nothing awaits this, so a rejected `mutateAsync` would surface as an
+    // unhandled rejection. A lost view is not worth reporting.
+    onSendViewPost(post.id).catch(() => undefined);
   }, [onSendViewPost, post?.id, shouldTrack, user?.id]);
 };

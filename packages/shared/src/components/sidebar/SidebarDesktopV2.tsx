@@ -76,6 +76,7 @@ import {
   HotIcon,
   JoystickIcon,
   LinkIcon,
+  MagicIcon,
   MegaphoneIcon,
   MicrophoneIcon,
   MoveToIcon,
@@ -139,7 +140,10 @@ import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureGiveback } from '../../lib/featureManagement';
+import {
+  featureGiveback,
+  featureInterestAgent,
+} from '../../lib/featureManagement';
 import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
 import { RAIL_ANCHOR_ATTRIBUTE } from '../../features/giveback/components/GivebackGiftDock';
 import { FeedbackWidget } from '../feedback';
@@ -745,7 +749,11 @@ export const SidebarDesktopV2 = ({
   const { isAvailable: isBannerAvailable } = useBanner();
   const { open: openSpotlight } = useSpotlight();
   const { openModal, modal } = useLazyModal();
-  const { isLoggedIn, user } = useAuthContext();
+  const { isAuthReady, isLoggedIn, user } = useAuthContext();
+  const { value: agentEnabled } = useConditionalFeature({
+    feature: featureInterestAgent,
+    shouldEvaluate: isAuthReady && isLoggedIn,
+  });
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   // The brand mark targets the "For You" feed. On extension there's no
   // router, so it always uses the explicit /my-feed path.
@@ -1675,6 +1683,19 @@ export const SidebarDesktopV2 = ({
             props: { initialKind: kind },
           }),
       })),
+      // A page rather than a composer kind, so it is a link.
+      ...(agentEnabled
+        ? [
+            {
+              title: 'Create agent',
+              path: `${webappUrl}agent`,
+              isForcedLink: true,
+              icon: (active: boolean) => (
+                <ListIcon Icon={() => <MagicIcon secondary={active} />} />
+              ),
+            },
+          ]
+        : []),
       // Divider below the post types, then the Posting settings page shortcut
       // (→ /settings/composition) — its open-link icon reveals on row hover.
       createSidebarSeparatorItem('create-settings-divider'),
@@ -1688,7 +1709,7 @@ export const SidebarDesktopV2 = ({
         ),
       },
     ],
-    [openModal],
+    [agentEnabled, openModal],
   );
 
   // The panel reflects the create-post options when hovering "+" OR while the

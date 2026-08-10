@@ -15,18 +15,21 @@ export type AgentFeedItem = {
 export const useAgentFeed = ({
   id,
   forceDemo,
+  enabled = true,
 }: {
   id: string;
   forceDemo: boolean;
+  enabled?: boolean;
 }) => {
   const { user } = useAuthContext();
   const findingsQuery = useQuery({
     ...interestFindingsQueryOptions(id, user),
-    enabled: !!user?.id && !!id && !forceDemo,
+    enabled: enabled && !!user?.id && !!id && !forceDemo,
   });
   const findings = findingsQuery.data ?? [];
-  const isDemo =
-    forceDemo || (!findingsQuery.isPending && findings.length === 0);
+  // Only the demo surface, never an empty response: a real agent that has
+  // genuinely kept nothing must say so rather than borrow someone else's finds.
+  const isDemo = forceDemo;
 
   const realItems = findings.reduce<AgentFeedItem[]>((acc, finding) => {
     if (!finding.post) {

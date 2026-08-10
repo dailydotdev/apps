@@ -14,6 +14,7 @@ import { useFeedName } from '../../hooks/feed/useFeedName';
 import { SharedFeedPage } from '../utilities';
 import FeedNav from '../feeds/FeedNav';
 import useActiveNav from '../../hooks/useActiveNav';
+import { AgentExploreEntry } from '../../features/interests/components/AgentExploreEntry';
 
 export interface MainLayoutHeaderProps {
   hasBanner?: boolean;
@@ -84,10 +85,16 @@ function MainLayoutHeader({
             hasBanner && 'tablet:top-18',
           )}
         >
-          <SpotlightTrigger />
+          {/* This slot is the whole mobile Explore header, so the pair replaces
+              the field rather than stacking a second Search under it. */}
+          {isAnyExplore && !isSearch ? (
+            <AgentExploreEntry fallback={<SpotlightTrigger />} />
+          ) : (
+            <SpotlightTrigger />
+          )}
         </div>
       ),
-    [shouldUseLoadedSettings, isSearchPage, hasBanner],
+    [shouldUseLoadedSettings, isSearchPage, isAnyExplore, isSearch, hasBanner],
   );
 
   if (shouldRenderFeedNav) {

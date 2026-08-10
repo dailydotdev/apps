@@ -1,10 +1,12 @@
 import type { RefObject } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
-// List cards need roughly this much room before their metadata row starts
-// wrapping; below it the grid card reads better.
-export const narrowContainerWidth = 550;
+// Below this a list card's title column and cover fight over too little width,
+// so it stacks instead.
+export const narrowContainerWidth = 500;
 
+// The panel the cards sit in is drag-resized, and a media query can only answer
+// for the window, so the width is measured and passed down as a prop.
 export const useNarrowContainer = <T extends HTMLElement>(
   threshold = narrowContainerWidth,
 ): { ref: RefObject<T>; isNarrow: boolean } => {
@@ -14,13 +16,21 @@ export const useNarrowContainer = <T extends HTMLElement>(
   useEffect(() => {
     const element = ref.current;
 
-    if (!element) {
+    if (!element || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
-    const observer = new ResizeObserver(([entry]) =>
-      setIsNarrow(entry.contentRect.width < threshold),
-    );
+    const observer = new ResizeObserver(([entry]) => {
+      const { width } = entry.contentRect;
+
+      // ResizeObserver reports 0 before layout and while hidden; taking it
+      // literally would stack every card the moment the panel closed.
+      if (!width) {
+        return;
+      }
+
+      setIsNarrow(width < threshold);
+    });
 
     observer.observe(element);
 

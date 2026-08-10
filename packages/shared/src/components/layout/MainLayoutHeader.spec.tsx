@@ -55,6 +55,12 @@ jest.mock('../../hooks/feed/useFeedName', () => ({
 
 jest.mock('../../hooks/useActiveNav', () => jest.fn());
 
+// Stood down to its flag-off fallback: the real pair needs boot, a query
+// client and the flag, none of which this hydration test provides.
+jest.mock('../../features/interests/components/AgentExploreEntry', () => ({
+  AgentExploreEntry: ({ fallback }: { fallback: React.ReactNode }) => fallback,
+}));
+
 const mockUseSettingsContext = useSettingsContext as jest.Mock;
 const mockUseActiveFeedNameContext = useActiveFeedNameContext as jest.Mock;
 const mockUseViewSize = useViewSize as jest.Mock;
