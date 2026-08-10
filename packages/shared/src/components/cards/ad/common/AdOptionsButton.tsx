@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   DropdownMenu,
@@ -13,8 +13,7 @@ import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
 import { useLogContext } from '../../../../contexts/LogContext';
 import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
 import { businessWebsiteUrl, plusUrl } from '../../../../lib/constants';
-import type { TargetId } from '../../../../lib/log';
-import { LogEvent, TargetType } from '../../../../lib/log';
+import { LogEvent, TargetId, TargetType } from '../../../../lib/log';
 import { anchorDefaultRel } from '../../../../lib/strings';
 import { visibleOnGroupHover } from '../../common/common';
 
@@ -25,16 +24,19 @@ interface AdOptionsButtonProps {
 
 /**
  * The ad card's own links (advertise with us, remove ads) collapsed into the
- * post card's options menu, so the creative keeps the card to itself. The
- * advertise-here impression fires when the menu opens rather than on mount:
- * inside a menu the link is not on screen until then, and the guardrail metric
- * is a click rate over impressions.
+ * post card's options menu, so the creative keeps the card to itself.
+ *
+ * The advertise-here impression fires the first time the menu opens rather
+ * than on mount: inside a menu the link is not on screen until then. It fires
+ * once per card, not once per open, so the guardrail click rate stays
+ * comparable with the arms that render the link inline.
  */
 export function AdOptionsButton({
   targetId,
   className,
 }: AdOptionsButtonProps): ReactElement {
   const [open, setOpen] = useState(false);
+  const impressionLogged = useRef(false);
   const { logEvent } = useLogContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
@@ -42,13 +44,16 @@ export function AdOptionsButton({
     (isOpen: boolean) => {
       setOpen(isOpen);
 
-      if (isOpen) {
-        logEvent({
-          event_name: LogEvent.Impression,
-          target_type: TargetType.AdvertiseHereCta,
-          target_id: targetId,
-        });
+      if (!isOpen || impressionLogged.current) {
+        return;
       }
+
+      impressionLogged.current = true;
+      logEvent({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.AdvertiseHereCta,
+        target_id: targetId,
+      });
     },
     [logEvent, targetId],
   );
@@ -77,10 +82,12 @@ export function AdOptionsButton({
         label: 'Remove ads',
         icon: <DevPlusIcon />,
         anchorProps: { href: plusUrl },
+        // TargetId.Ads, not the card's own target: this is the same upgrade
+        // funnel RemoveAd feeds, and the two have to stay comparable.
         action: () =>
           logSubscriptionEvent({
             event_name: LogEvent.UpgradeSubscription,
-            target_id: targetId,
+            target_id: TargetId.Ads,
           }),
       });
     }

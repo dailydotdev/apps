@@ -14,12 +14,16 @@ import { AdGrid } from './AdGrid';
 import { AdList } from './AdList';
 import { SignalAdList } from './SignalAdList';
 import type { AdCardProps } from './common/common';
-import { TestBootProvider } from '../../../../__tests__/helpers/boot';
+import {
+  defaultLogContextData,
+  TestBootProvider,
+} from '../../../../__tests__/helpers/boot';
 import { ActiveFeedContext } from '../../../contexts';
 import { businessWebsiteUrl } from '../../../lib/constants';
 import { useFeature } from '../../GrowthBookProvider';
 import { AdLabelVariant, featureAdLabel } from '../../../lib/featureManagement';
 import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
+import { LogEvent, TargetType } from '../../../lib/log';
 
 jest.mock('../../../hooks/useFeedCardGlassActions');
 
@@ -345,6 +349,27 @@ describe('ad_only options menu on the glass card', () => {
 
     expect(await screen.findByText('Advertise with us')).toBeInTheDocument();
     expect(await screen.findByText('Remove ads')).toBeInTheDocument();
+  });
+
+  it('should log the advertise impression once, on the first open', async () => {
+    mockUseGlassActions.mockReturnValue(true);
+    mockAdLabelVariant(AdLabelVariant.AdOnly);
+    renderGridComponent();
+
+    const trigger = await screen.findByRole('button', { name: optionsLabel });
+    fireEvent.keyDown(trigger, { key: 'Enter' });
+    await screen.findByText('Advertise with us');
+    fireEvent.keyDown(trigger, { key: 'Escape' });
+    fireEvent.keyDown(trigger, { key: 'Enter' });
+    await screen.findByText('Advertise with us');
+
+    const logEvent = jest.mocked(defaultLogContextData.logEvent);
+    const impressions = logEvent.mock.calls.filter(
+      ([event]) =>
+        event.event_name === LogEvent.Impression &&
+        event.target_type === TargetType.AdvertiseHereCta,
+    );
+    expect(impressions).toHaveLength(1);
   });
 
   it('should keep the links inline on the classic card', async () => {
