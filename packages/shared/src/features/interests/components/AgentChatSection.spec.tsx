@@ -109,6 +109,36 @@ describe('a post the agent found', () => {
   // Straight to the app's own share modal: squads, every external provider and
   // the tracked copy link are already there, and a second share UI in one
   // product is a second one to keep honest.
+  // Pasting a link is the commonest thing anyone does with a post they found,
+  // and it used to be two presses deep behind a sheet offering six providers.
+  it('offers its link without going through the sheet', () => {
+    const copyLink = jest.fn();
+    jest.spyOn(copy, 'useCopyLink').mockReturnValue([false, copyLink] as never);
+    renderTranscript();
+
+    fireEvent.click(screen.getByLabelText('Copy link: Zig 0.15'));
+
+    expect(copyLink).toHaveBeenCalled();
+  });
+
+  it('puts the outward actions before the one for the next prompt', () => {
+    renderTranscript();
+
+    // Document order, which `querySelectorAll` guarantees: each button is
+    // wrapped by its own tooltip, so the cluster's shape is an implementation
+    // detail and its sequence is the whole assertion.
+    const buttons = Array.from(document.querySelectorAll('button'));
+    const positionOf = (label: string) =>
+      buttons.indexOf(screen.getByLabelText(label) as HTMLButtonElement);
+
+    expect(positionOf('Copy link: Zig 0.15')).toBeLessThan(
+      positionOf('Share: Zig 0.15'),
+    );
+    expect(positionOf('Share: Zig 0.15')).toBeLessThan(
+      positionOf('Add to chat: Zig 0.15'),
+    );
+  });
+
   it('goes to the app share modal rather than a sheet of its own', () => {
     const openModal = jest.fn();
 

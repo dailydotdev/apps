@@ -4,6 +4,7 @@ import { FlexRow } from '../../../components/utilities';
 import type { Post } from '../../../graphql/posts';
 import { postAttachment } from '../attachments';
 import { AgentAddToChatButton } from './AgentAddToChatButton';
+import { AgentCopyPostLinkButton } from './AgentCopyPostLinkButton';
 import { AgentSharePostButton } from './AgentSharePostButton';
 
 /**
@@ -14,9 +15,11 @@ import { AgentSharePostButton } from './AgentSharePostButton';
  * The same place at every width — a control that moves between devices is a
  * second control to learn.
  *
- * Share first, then add-to-chat: one is for someone else and one is for the
- * next prompt, and the outward one is the one a reader reaches for without
- * having learned this screen.
+ * Outward actions first, then the inward one. Copy-link and share are both for
+ * someone else and are what a reader reaches for without having learned this
+ * screen; add-to-chat is for the next prompt and only makes sense once they
+ * have. Copy-link leads share because pasting a link is the commonest of the
+ * three by a distance, and the sheet behind share is for everything else.
  */
 export const AgentRowActions = ({
   post,
@@ -27,6 +30,7 @@ export const AgentRowActions = ({
   reveal?: boolean;
 }): ReactElement => (
   <FlexRow className="absolute -top-3 right-3 z-1 items-center gap-1">
+    <AgentCopyPostLinkButton post={post} reveal={reveal} />
     <AgentSharePostButton post={post} reveal={reveal} />
     <AgentAddToChatButton attachment={postAttachment(post)} reveal={reveal} />
   </FlexRow>

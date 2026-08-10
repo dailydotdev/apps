@@ -3,6 +3,7 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
 import Toast from '../../../components/notifications/Toast';
+import { LazyModalElement } from '../../../components/modals/LazyModalElement';
 import { getLogContextStatic } from '../../../contexts/LogContext';
 import SettingsContext from '../../../contexts/SettingsContext';
 
@@ -74,11 +75,12 @@ export const AgentDemoProviders = ({
             }
           >
             {children}
-            {/* The app mounts this in `MainLayout`, which a dev route does not
-                use — so every toast the agent screens raise had nowhere to
-                appear, and a copy that says nothing looks like a copy that did
-                not happen. */}
+            {/* Both of these are mounted by `MainLayout`, which a dev route
+                does not use. Without them a toast is written to the cache and
+                never drawn, and a press that opens a lazy modal opens nothing —
+                which is indistinguishable from a button that does not work. */}
             <Toast autoDismissNotifications />
+            <LazyModalElement />
           </SettingsContext.Provider>
         </LogContext.Provider>
       </AuthContextProvider>

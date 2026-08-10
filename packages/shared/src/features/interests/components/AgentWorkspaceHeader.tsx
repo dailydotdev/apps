@@ -114,13 +114,21 @@ export const AgentWorkspaceHeader = (): ReactElement => {
             corner of the screen away. */}
         <Tooltip content={isCopying ? 'Link copied' : shareLabel}>
           <Button
-            icon={headerIcon(
+            icon={
               isCopying ? (
-                <VIcon className="agent-icon-in text-status-success" />
+                // Not through `headerIcon`: that helper's job is the header's
+                // default ink, and it appends it *after* whatever the caller
+                // asked for. Two text-colour utilities of equal specificity —
+                // so the stylesheet's order decided, tertiary won, and the tick
+                // came out grey.
+                <VIcon
+                  size={IconSize.XSmall}
+                  className="agent-icon-in text-status-success"
+                />
               ) : (
-                <LinkIcon />
-              ),
-            )}
+                headerIcon(<LinkIcon />)
+              )
+            }
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             className="group"
