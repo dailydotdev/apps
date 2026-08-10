@@ -12,11 +12,13 @@ import {
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
   MoveToIcon,
-  ShareIcon,
+  LinkIcon,
+  VIcon,
   TerminalIcon,
   TimerIcon,
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { webappUrl } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
 import { useShareAgent } from '../hooks/useShareAgent';
@@ -67,6 +69,10 @@ const PanelButton = ({
 export const AgentWorkspaceHeader = (): ReactElement => {
   const { interest, openContent, openContentTarget, focusContent } = useAgent();
   const { isCopying, isSharing, onShare } = useShareAgent(interest);
+  // The hook opens the system sheet on a phone and copies everywhere else, so
+  // the label has to say whichever is about to happen.
+  const isMobile = !useViewSize(ViewSize.Tablet);
+  const shareLabel = isMobile ? 'Share this agent' : 'Copy link';
   const isOpen = (type: string) =>
     openContent.some((item) => item.type === type);
   const togglePanel = (type: 'activity' | 'debug') =>
@@ -101,13 +107,24 @@ export const AgentWorkspaceHeader = (): ReactElement => {
         {/* What travels is the standing prompt, not this transcript — see
             `useShareAgent`. Sits with the panel buttons rather than shouting
             from the middle of the row: it is there when it is wanted. */}
-        <Tooltip content={isCopying ? 'Link copied' : 'Share this agent'}>
+        {/* A link, not a share glyph: on a desktop this press copies one, and
+            the icon should say which of the two it is. It answers by becoming a
+            tick — the same control confirming rather than a second one
+            arriving — which is the only feedback there is when the toast is a
+            corner of the screen away. */}
+        <Tooltip content={isCopying ? 'Link copied' : shareLabel}>
           <Button
-            icon={headerIcon(<ShareIcon />)}
+            icon={headerIcon(
+              isCopying ? (
+                <VIcon className="agent-icon-in text-status-success" />
+              ) : (
+                <LinkIcon />
+              ),
+            )}
             size={ButtonSize.Small}
             variant={ButtonVariant.Tertiary}
             className="group"
-            aria-label="Share this agent"
+            aria-label={isCopying ? 'Link copied' : shareLabel}
             disabled={!interest?.query}
             loading={isSharing}
             onClick={onShare}

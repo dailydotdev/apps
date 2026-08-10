@@ -2,6 +2,7 @@ import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthContextProvider } from '../../../contexts/AuthContext';
+import Toast from '../../../components/notifications/Toast';
 import { getLogContextStatic } from '../../../contexts/LogContext';
 import SettingsContext from '../../../contexts/SettingsContext';
 
@@ -73,6 +74,11 @@ export const AgentDemoProviders = ({
             }
           >
             {children}
+            {/* The app mounts this in `MainLayout`, which a dev route does not
+                use — so every toast the agent screens raise had nowhere to
+                appear, and a copy that says nothing looks like a copy that did
+                not happen. */}
+            <Toast autoDismissNotifications />
           </SettingsContext.Provider>
         </LogContext.Provider>
       </AuthContextProvider>
