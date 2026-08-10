@@ -193,7 +193,7 @@ export const adProps = { index: 0, feedIndex: 0, onLinkClick: fn() };
 // which would leave autorotation on a NaN timer and force the v3 tag row on.
 // Every section pins the flags that change an ad card, so only the one under
 // review differs.
-export const baseFlags: Record<string, unknown> = {
+const baseFlags: Record<string, unknown> = {
   [featureAutorotateAds.id]: 0,
   [adImprovementsV3Feature.id]: false,
   [featureFeedCardGlassActions.id]: false,
@@ -312,7 +312,7 @@ interface CardSlotProps extends Omit<Slot, 'key'> {
   showGuides: boolean;
 }
 
-export const CardSlot = ({
+const CardSlot = ({
   label,
   isAd,
   node,
