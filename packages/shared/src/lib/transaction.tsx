@@ -102,4 +102,13 @@ export const getTransactionLabel = ({
   return type.toUpperCase();
 };
 
+export const getTransactionNote = ({
+  transaction,
+}: {
+  transaction: UserTransaction;
+}): string | undefined =>
+  transaction.referenceType === UserTransactionType.User
+    ? transaction.flags.note
+    : undefined;
+
 export const coreApproxValueUSD = 100;
