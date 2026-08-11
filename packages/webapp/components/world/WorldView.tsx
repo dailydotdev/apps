@@ -382,56 +382,65 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     <div className="fixed inset-0 overflow-hidden bg-background-default">
       <div ref={mountRef} className="absolute inset-0" />
 
-      {isChromeVisible && (
-        <>
-          {isLaptop ? (
-            <WorldPanel
-              user={user}
-              state={state}
-              unbuilt={isUnbuilt}
-              isImmersive={isImmersive}
-              worldName={worldName}
-              isOwn={isOwn}
-              canShare={canShare}
-              draft={ownerDraft}
-              districts={districts}
-              showNudge={showNudge}
-              onToggleImmersive={onToggleImmersive}
-              onFocus={onFocus}
-              onLeaveRealm={onLeaveRealm}
-            />
-          ) : (
-            <WorldBack
-              user={user}
-              isInRealm={!!state.open}
-              worldName={worldName}
-              isOwn={isOwn}
-              canShare={canShare}
-              onLeaveRealm={onLeaveRealm}
-            />
-          )}
-          {/* On screen while the growth log is still on the wire, inert, in the
-              place it will be live in. It is the last thing to arrive and the
-              only one that changes the layout, so it reserves its own room.
-
-              Never on a handheld. The bar is a transport, a scrubber, three
-              speeds and a sparkline, and a phone has room for one of those
-              five; the log it drives is not fetched there either. What is left
-              is a world, which is the thing worth the screen anyway. */}
-          {!isLite && !isUnbuilt && (state.replayable || !hasNoReplay) && (
-            <WorldTimeline
-              state={state}
-              pending={!state.replayable}
-              sparkRef={attachSpark}
-              onToggle={onToggle}
-              onSeek={onSeek}
-              onStart={onStart}
-              onEnd={onEnd}
-              onSpeed={onSpeed}
-            />
-          )}
-        </>
+      {/* Hidden rather than dropped: the rail carries the signup card, which
+          logs `open signup` from its mount, so dropping it reports another
+          signup open every time the panels come back. Standing is what it is
+          mounted on, because that is the visit worth counting. */}
+      {isStanding && isLaptop && (
+        <div hidden={!isChromeVisible}>
+          <WorldPanel
+            user={user}
+            state={state}
+            unbuilt={isUnbuilt}
+            isHidden={!isChromeVisible}
+            isImmersive={isImmersive}
+            worldName={worldName}
+            isOwn={isOwn}
+            canShare={canShare}
+            draft={ownerDraft}
+            districts={districts}
+            showNudge={showNudge}
+            onToggleImmersive={onToggleImmersive}
+            onFocus={onFocus}
+            onLeaveRealm={onLeaveRealm}
+          />
+        </div>
       )}
+
+      {isChromeVisible && !isLaptop && (
+        <WorldBack
+          user={user}
+          isInRealm={!!state.open}
+          worldName={worldName}
+          isOwn={isOwn}
+          canShare={canShare}
+          onLeaveRealm={onLeaveRealm}
+        />
+      )}
+
+      {/* On screen while the growth log is still on the wire, inert, in the
+          place it will be live in. It is the last thing to arrive and the
+          only one that changes the layout, so it reserves its own room.
+
+          Never on a handheld. The bar is a transport, a scrubber, three
+          speeds and a sparkline, and a phone has room for one of those
+          five; the log it drives is not fetched there either. What is left
+          is a world, which is the thing worth the screen anyway. */}
+      {isChromeVisible &&
+        !isLite &&
+        !isUnbuilt &&
+        (state.replayable || !hasNoReplay) && (
+          <WorldTimeline
+            state={state}
+            pending={!state.replayable}
+            sparkRef={attachSpark}
+            onToggle={onToggle}
+            onSeek={onSeek}
+            onStart={onStart}
+            onEnd={onEnd}
+            onSpeed={onSpeed}
+          />
+        )}
 
       {isRiding && (
         <WorldRiding

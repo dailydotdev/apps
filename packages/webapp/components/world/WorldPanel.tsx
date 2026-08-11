@@ -247,6 +247,12 @@ interface WorldPanelProps {
   state: WorldState;
   /** Six realms of bare ground: every number is a zero and nothing is standing. */
   unbuilt?: boolean;
+  /**
+   * Mounted, off screen. The rail stays in the tree while the panels are hidden
+   * so the signup card does not re-log its mount, and nothing in here has to
+   * keep up with the engine while nobody can see it.
+   */
+  isHidden?: boolean;
   isImmersive: boolean;
   worldName?: string;
   isOwn: boolean;
@@ -271,7 +277,7 @@ const RAIL =
  * own, because the engine is counting the day the scrubber is standing on and
  * the panel is not.
  */
-export function WorldPanel({
+function WorldPanelRail({
   user,
   state,
   unbuilt,
@@ -431,3 +437,14 @@ export function WorldPanel({
     </aside>
   );
 }
+
+/**
+ * Nothing in a rail nobody can see is worth a render, and the engine pushes a
+ * new state through here every frame of a replay whether the panels are up or
+ * not. Hidden to hidden is the only pass worth skipping: coming back has to
+ * land on the day the scrubber is standing on now, not the one it left.
+ */
+export const WorldPanel = memo(
+  WorldPanelRail,
+  (previous, next) => !!previous.isHidden && !!next.isHidden,
+);
