@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import { ProfileImageSize, ProfilePicture } from '../../../ProfilePicture';
 import { CardHeader } from '../../common/Card';
 import type { Ad } from '../../../../graphql/posts';
@@ -11,8 +11,14 @@ import { getAdFaviconImageLink } from './getAdFaviconImageLink';
 type AdFaviconProps = {
   ad: Ad;
   className?: string;
+  /** Rendered next to the favicon, on the same header row. */
+  children?: ReactNode;
 };
-export const AdFavicon = ({ ad, className }: AdFaviconProps): ReactElement => {
+export const AdFavicon = ({
+  ad,
+  className,
+  children,
+}: AdFaviconProps): ReactElement => {
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
   const imageLink = getAdFaviconImageLink({
     ad,
@@ -32,6 +38,7 @@ export const AdFavicon = ({ ad, className }: AdFaviconProps): ReactElement => {
         }}
         nativeLazyLoading
       />
+      {children}
     </CardHeader>
   );
 };
