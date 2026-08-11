@@ -45,6 +45,12 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
   // Only the glass card takes the options menu: it is the layout with the
   // floating action bar, where a text row under the creative reads as clutter.
   // The classic card keeps its links inline, unchanged.
+  //
+  // The menu carries "Advertise with us" even though `showAdvertiseLink` is
+  // false in this arm. That is deliberate: the arm removes the link from the
+  // card face, and the product call is to keep it reachable from the menu. It
+  // does mean the arm's advertise-click metric has to be segmented by the
+  // glass flag, since the classic half of the arm cannot reach the link at all.
   const useOptionsMenu = useGlass && isAdOnly;
   const showInlineActions = !useOptionsMenu;
   const { ref } = useAutoRotatingAds(
