@@ -414,15 +414,15 @@ const optionsMenuAnatomy: AnatomyRow[] = [
     element: 'Three-dots button',
     left: 'Never rendered',
     right:
-      'ad_only only. Top right of the header row, hover-revealed on pointer devices, always visible while the menu is open',
+      'ad_only only. Top right of the header row, hover-revealed on pointer devices, revealed by keyboard focus inside the card, always visible while the menu is open',
     aligned: false,
   },
   {
     element: 'Advertise-here impression',
-    left: 'Logged when the card mounts, since the link is on screen',
+    left: 'Logged when the card mounts, once per rendered ad',
     right:
-      'Logged when the menu opens, since that is when the link is actually shown',
-    aligned: false,
+      'Same: logged from a mount effect, not on menu open, so clicks over impressions stays comparable across arms',
+    aligned: true,
   },
   {
     element: 'Plus subscribers',
@@ -715,7 +715,7 @@ const ArmsPage = (): ReactElement => {
       <Section
         title="Glass card: the ad_only arm moves both links into the options menu"
         description="Hover the ad_only card and the three-dots button appears top right, next to the advertiser favicon, exactly where a post card puts it. The menu holds Advertise with us and Remove ads, so nothing is taken away, it just stops competing with the creative."
-        note="Only the ad_only arm and only the glass card change. Control and ad keep both links in a row above the image."
+        note="Only the ad_only arm and only the glass card change. Control and ad keep both links in a row above the image. Note that this hands the advertise link back to the slice of ad_only that also landed in feed_card_glass_actions, so the arm's advertise-click metric has to be segmented by that flag."
       >
         <div className="flex flex-row flex-nowrap items-start gap-8 overflow-x-auto pb-2">
           {arms.map((arm) => (
