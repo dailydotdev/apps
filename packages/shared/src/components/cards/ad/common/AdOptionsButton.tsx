@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import {
   DropdownMenu,
@@ -8,35 +8,65 @@ import {
   DropdownMenuTrigger,
 } from '../../../dropdown/DropdownMenu';
 import type { MenuItemProps } from '../../../dropdown/common';
-import { DevPlusIcon, MenuIcon } from '../../../icons';
+import { DevPlusIcon, MegaphoneIcon, MenuIcon } from '../../../icons';
 import { Button, ButtonSize, ButtonVariant } from '../../../buttons/Button';
+import { useLogContext } from '../../../../contexts/LogContext';
 import { usePlusSubscription } from '../../../../hooks/usePlusSubscription';
-import { plusUrl } from '../../../../lib/constants';
-import { LogEvent, TargetId } from '../../../../lib/log';
+import { businessWebsiteUrl, plusUrl } from '../../../../lib/constants';
+import { LogEvent, TargetId, TargetType } from '../../../../lib/log';
+import { anchorDefaultRel } from '../../../../lib/strings';
 import { visibleOnGroupHover } from '../../common/common';
 
 interface AdOptionsButtonProps {
+  targetId: TargetId;
   className?: string;
 }
 
 /**
- * The ad card's remove-ads link collapsed into the post card's options menu,
- * so the creative keeps the card to itself.
- *
- * Deliberately not a home for "Advertise here": the arm that shows this menu
- * is the one whose whole definition is that the advertise link is gone, and
- * putting it back in a menu would leave the arm meaning two different things
- * depending on an unrelated layout flag.
+ * The ad card's own links (advertise with us, remove ads) collapsed into the
+ * post card's options menu, so the creative keeps the card to itself.
  */
 export function AdOptionsButton({
+  targetId,
   className,
 }: AdOptionsButtonProps): ReactElement {
   const [open, setOpen] = useState(false);
-  const { logSubscriptionEvent } = usePlusSubscription();
+  const { logEvent } = useLogContext();
+  const { isPlus, logSubscriptionEvent } = usePlusSubscription();
 
-  const options = useMemo(
-    (): MenuItemProps[] => [
+  // Counted on mount, exactly like the inline `AdvertiseLink`: one impression
+  // per rendered ad card, whether or not the menu is opened. Counting opens
+  // instead would divide the same clicks by a far smaller denominator and read
+  // as a large lift in the guardrail rate that is purely instrumentation.
+  useEffect(() => {
+    logEvent({
+      event_name: LogEvent.Impression,
+      target_type: TargetType.AdvertiseHereCta,
+      target_id: targetId,
+    });
+  }, [logEvent, targetId]);
+
+  const options = useMemo(() => {
+    const list: MenuItemProps[] = [
       {
+        label: 'Advertise with us',
+        icon: <MegaphoneIcon />,
+        anchorProps: {
+          href: businessWebsiteUrl,
+          target: '_blank',
+          rel: anchorDefaultRel,
+        },
+        action: () =>
+          logEvent({
+            event_name: LogEvent.Click,
+            target_type: TargetType.AdvertiseHereCta,
+            target_id: targetId,
+          }),
+      },
+    ];
+
+    if (!isPlus) {
+      list.push({
         label: 'Remove ads',
         icon: <DevPlusIcon />,
         anchorProps: { href: plusUrl },
@@ -47,10 +77,11 @@ export function AdOptionsButton({
             event_name: LogEvent.UpgradeSubscription,
             target_id: TargetId.Ads,
           }),
-      },
-    ],
-    [logSubscriptionEvent],
-  );
+      });
+    }
+
+    return list;
+  }, [isPlus, logEvent, logSubscriptionEvent, targetId]);
 
   return (
     <span

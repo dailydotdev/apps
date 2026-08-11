@@ -44,9 +44,8 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
   const { showAdvertiseLink, isAdOnly } = useAdLabel();
   // Only the glass card takes the options menu: it is the layout with the
   // floating action bar, where a text row under the creative reads as clutter.
-  // The classic card keeps its links inline, unchanged. Plus subscribers have
-  // nothing to put in the menu, so they never get the trigger.
-  const useOptionsMenu = useGlass && isAdOnly && !isPlus;
+  // The classic card keeps its links inline, unchanged.
+  const useOptionsMenu = useGlass && isAdOnly;
   const showInlineActions = !useOptionsMenu;
   const { ref } = useAutoRotatingAds(
     ad,
@@ -68,7 +67,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
     >
       <AdLink ad={ad} onLinkClick={onLinkClick} />
       <AdFavicon ad={ad} className="mx-4">
-        {useOptionsMenu && <AdOptionsButton />}
+        {useOptionsMenu && <AdOptionsButton targetId={TargetId.AdCard} />}
       </AdFavicon>
       <CardTextContainer className="flex-1">
         <CardTitle className="typo-title3">{ad.description}</CardTitle>
