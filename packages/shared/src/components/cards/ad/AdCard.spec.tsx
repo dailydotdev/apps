@@ -321,6 +321,34 @@ describe('ad_label experiment', () => {
   });
 });
 
+// These assert the class list, not the rendered gap: jsdom has no stylesheet to
+// compute against. They catch the class being dropped, not a parent rule
+// beating it, which is the failure Storybook's Ad Card Fixes page is the real
+// check for.
+describe('ad card spacing and controls', () => {
+  it('should keep the disclosure off the ad copy on the grid card', async () => {
+    renderGridComponent();
+
+    const attribution = await screen.findByTestId('adAttribution');
+    expect(attribution).toHaveClass('mt-3');
+  });
+
+  it('should keep the disclosure off the ad copy on the list card', async () => {
+    renderListComponent();
+
+    const attribution = await screen.findByTestId('adAttribution');
+    expect(attribution).toHaveClass('mt-3');
+  });
+
+  it('should render the list remove control flat, like the grid card', async () => {
+    renderListComponent();
+
+    const remove = await screen.findByRole('link', { name: 'Remove' });
+    expect(remove).toHaveClass('btn-tertiary-bacon');
+    expect(remove).not.toHaveClass('btn-tertiaryFloat-bacon');
+  });
+});
+
 describe('ad_only options menu on the glass card', () => {
   const optionsLabel = 'Ad options';
 
