@@ -1,4 +1,7 @@
 import { gql } from 'graphql-request';
+import { SUPPORTED_TYPES } from '@dailydotdev/shared/src/graphql/feed';
+import type { Connection } from '@dailydotdev/shared/src/graphql/common';
+import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 
 export interface WorldNiche {
   slug: string;
@@ -250,6 +253,76 @@ export const USER_WORLD_TIMELINE_QUERY = gql`
         slug
       }
       reads
+    }
+  }
+`;
+
+/**
+ * A row in the district panel, and nothing more: its source's mark, a title and
+ * two counts. A share carries its title on the post it shares rather than on
+ * itself, which is the only reason `sharedPost` is here.
+ */
+export type WorldDistrictPost = Pick<
+  Post,
+  | 'id'
+  | 'title'
+  | 'commentsPermalink'
+  | 'numUpvotes'
+  | 'numComments'
+  | 'source'
+  | 'sharedPost'
+>;
+
+export interface UserWorldDistrictFeedData {
+  page: Connection<WorldDistrictPost>;
+}
+
+/**
+ * What the world's owner upvoted in one district's niche, newest vote first.
+ *
+ * Deliberately NOT the shared feed fragment. That one carries everything a feed
+ * card can draw (content, awards, flags, translations, campaign fields), and
+ * a row here is three lines in a 20rem column. The world page is already
+ * holding a WebGL context and most of a megabyte of renderer, so the fields it
+ * does not draw are the ones worth not asking for.
+ */
+export const USER_WORLD_DISTRICT_FEED_QUERY = gql`
+  query UserWorldDistrictFeed(
+    $id: ID!
+    $niches: [String!]
+    $after: String
+    $first: Int
+    ${SUPPORTED_TYPES}
+  ) {
+    page: userUpvotedFeed(
+      userId: $id
+      niches: $niches
+      after: $after
+      first: $first
+      supportedTypes: $supportedTypes
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          id
+          title
+          commentsPermalink
+          numUpvotes
+          numComments
+          source {
+            id
+            name
+            image
+          }
+          sharedPost {
+            id
+            title
+          }
+        }
+      }
     }
   }
 `;
