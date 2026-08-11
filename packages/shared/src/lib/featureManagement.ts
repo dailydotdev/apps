@@ -203,13 +203,6 @@ export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
-export const featureGiveback = new Feature('giveback', isDevelopment);
-
-export const featureGivebackSuggestCause = new Feature(
-  'giveback_suggest_cause',
-  false,
-);
-
 export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
   false,
