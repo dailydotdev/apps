@@ -290,6 +290,7 @@ export enum RequestKey {
   UserWorld = 'user_world',
   UserWorldTimeline = 'user_world_timeline',
   UserWorldEntitlements = 'user_world_entitlements',
+  UserWorldDistrictFeed = 'user_world_district_feed',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

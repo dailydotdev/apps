@@ -7,6 +7,7 @@ import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsCon
 import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentContext';
 import { WorldBack } from './WorldBack';
 import { WorldBoot } from './WorldBoot';
+import { WorldDistrictFeed } from './WorldDistrictFeed';
 import { useIsOwnWorld, WorldInvite } from './WorldInvite';
 import { WorldImmersiveToggle, WorldMark } from './WorldMark';
 import { WorldPanel } from './WorldPanel';
@@ -295,6 +296,12 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
     [],
   );
   const onLeaveRealm = useCallback(() => engineRef.current?.leaveRealm(), []);
+  /* Closing the feed drops the engine's selection rather than hiding the panel
+     in React: the lit plot border and the highlighted rail row are the same
+     fact, and a panel dismissed on its own would leave the world claiming a
+     town is open. Dropping the selection is also what lets clicking the same
+     town again reopen it. */
+  const onCloseDistrict = useCallback(() => engineRef.current?.deselect(), []);
   const attachSpark = useCallback(
     (canvas: HTMLCanvasElement | null) =>
       engineRef.current?.attachSpark(canvas),
@@ -363,6 +370,13 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   /* Never on an unbuilt world: WorldInvite already makes the one ask there,
      and it makes it nowhere else. */
   const showNudge = isOwn && !isUnbuilt && !isWorldCustomised(applied);
+  /* A district is only ever selected inside a realm, so this is also what says
+     the reader has walked in and clicked a town. Not while the bench is open:
+     dressing a world means clicking towns to see chips land on them, and a feed
+     opening over every one of those clicks is noise on top of the one job the
+     owner is there to do. */
+  const openDistrict =
+    isChromeVisible && !ownerDraft?.isOpen ? state.district : null;
 
   /* A hidden world draws nothing — no map, timeline or crest — so this returns
      before the boot screen too. */
@@ -407,6 +421,21 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
         </div>
       )}
 
+      {/* Whatever the last click selected, read out. Deliberately does NOT
+          repad the camera: `setPadding` refits the whole realm, which would
+          throw away the reader's zoom and pan every time they clicked a town,
+          a steep price for a panel that opens and closes on single clicks. So
+          it overlays the world's edge and the reader pans if they need to. */}
+      {!!openDistrict && (
+        <WorldDistrictFeed
+          userId={user.id}
+          userName={user.name}
+          isOwn={isOwn}
+          district={openDistrict}
+          onClose={onCloseDistrict}
+        />
+      )}
+
       {isChromeVisible && !isLaptop && (
         <WorldBack
           user={user}
@@ -429,11 +458,17 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       {isChromeVisible &&
         !isLite &&
         !isUnbuilt &&
-        (state.replayable || !hasNoReplay) && (
+        (state.replayable || !hasNoReplay) &&
+        /* Below laptop the district feed is a sheet across the bottom, sitting
+           exactly where this bar does. Nothing is gained by leaving a scrubber
+           under it that cannot be reached, so the bar comes down for as long as
+           the feed is up. On laptop it stops short of the panel instead. */
+        (isLaptop || !openDistrict) && (
           <WorldTimeline
             state={state}
             pending={!state.replayable}
             sparkRef={attachSpark}
+            insetRight={!!openDistrict}
             onToggle={onToggle}
             onSeek={onSeek}
             onStart={onStart}
@@ -454,7 +489,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
 
       {/* No bar anywhere holds it any more, so it always stands on the world:
           top right, opposite whatever is in the other corner. */}
-      {isStanding && <WorldMark floating />}
+      {isStanding && <WorldMark floating insetRight={!!openDistrict} />}
 
       {/* The toggle lives in whatever chrome is on screen. Once none is, it
           stands on the world too, opposite the mark, because it is then the

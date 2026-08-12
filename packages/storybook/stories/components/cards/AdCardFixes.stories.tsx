@@ -9,15 +9,9 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { featureFeedCardGlassActions } from '@dailydotdev/shared/src/lib/featureManagement';
 
 import { AdProviders, Page, Section } from '../../experiments/adLabel.mocks';
-import {
-  adProps,
-  longCopyAd,
-  shortCopyAd,
-  withFlags,
-} from './adPlacements.mocks';
+import { adProps, longCopyAd, shortCopyAd } from './adPlacements.mocks';
 
 // ---------------------------------------------------------------------------
 // Two fixes found while reviewing the ad placements against the post cards.
@@ -47,9 +41,9 @@ const beforeStyles = `
 
 // Feed rows are as tall as the tallest card in them, and a grid ad card has no
 // floor of its own, so it stretches to whatever the post cards next to it set:
-// min-h-cardGlass on a glass row. Locking that height here is what makes the
-// flex spacer behave the way it does in the feed.
-const glassRowHeight = { height: '21.5rem' };
+// min-h-card. Locking that height here is what makes the flex spacer behave
+// the way it does in the feed.
+const feedRowHeight = { height: '24rem' };
 
 // A grid card is 20rem in the feed and a list card is capped at 42.5rem
 // (FeedPageLayoutList). Inline rather than arbitrary Tailwind widths for the
@@ -84,7 +78,7 @@ const Column = ({
     </span>
     <span className="min-h-8 text-text-tertiary typo-caption1">{note}</span>
     {feedRow ? (
-      <div className="flex" style={glassRowHeight}>
+      <div className="flex" style={feedRowHeight}>
         {children}
       </div>
     ) : (
@@ -98,8 +92,6 @@ const Row = ({ children }: { children: ReactNode }): ReactElement => (
     {children}
   </div>
 );
-
-const glassOn = { [featureFeedCardGlassActions.id]: true };
 
 const SpacingSection = (): ReactElement => (
   <Section
@@ -118,7 +110,7 @@ const SpacingSection = (): ReactElement => (
             note="Disclosure flush against the ad copy"
           >
             <div className={beforeGridSpacing}>
-              {withFlags(glassOn, <AdGrid ad={longCopyAd} {...adProps} />)}
+              <AdGrid ad={longCopyAd} {...adProps} />
             </div>
           </Column>
           <Column
@@ -126,14 +118,14 @@ const SpacingSection = (): ReactElement => (
             note="12px of its own, so the line reads as metadata"
             tone="after"
           >
-            {withFlags(glassOn, <AdGrid ad={longCopyAd} {...adProps} />)}
+            <AdGrid ad={longCopyAd} {...adProps} />
           </Column>
           <Column
             title="Before, short copy"
             note="Same problem: a short creative does not give the spacer room either"
           >
             <div className={beforeGridSpacing}>
-              {withFlags(glassOn, <AdGrid ad={shortCopyAd} {...adProps} />)}
+              <AdGrid ad={shortCopyAd} {...adProps} />
             </div>
           </Column>
           <Column
@@ -141,7 +133,7 @@ const SpacingSection = (): ReactElement => (
             note="Same 12px, so both creatives read the same"
             tone="after"
           >
-            {withFlags(glassOn, <AdGrid ad={shortCopyAd} {...adProps} />)}
+            <AdGrid ad={shortCopyAd} {...adProps} />
           </Column>
         </Row>
       </div>
@@ -156,7 +148,7 @@ const SpacingSection = (): ReactElement => (
             feedRow
           >
             <div className={beforeGridSpacing}>
-              {withFlags(glassOn, <AdGrid ad={shortCopyAd} {...adProps} />)}
+              <AdGrid ad={shortCopyAd} {...adProps} />
             </div>
           </Column>
           <Column
@@ -165,7 +157,7 @@ const SpacingSection = (): ReactElement => (
             tone="after"
             feedRow
           >
-            {withFlags(glassOn, <AdGrid ad={shortCopyAd} {...adProps} />)}
+            <AdGrid ad={shortCopyAd} {...adProps} />
           </Column>
         </Row>
       </div>

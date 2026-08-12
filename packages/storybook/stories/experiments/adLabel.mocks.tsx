@@ -16,7 +16,6 @@ import {
   AdLabelVariant,
   featureAdLabel,
   featureAutorotateAds,
-  featureFeedCardGlassActions,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { FeatureOverrides } from '../../mock/GrowthBookProvider';
 
@@ -209,13 +208,12 @@ export const arms: ArmConfig[] = [
 const baseOverrides: Record<string, unknown> = {
   [featureAutorotateAds.id]: 0,
   [adImprovementsV3Feature.id]: false,
-  [featureFeedCardGlassActions.id]: false,
 };
 
 interface ArmProps {
   arm: ArmConfig;
   className?: string;
-  /** Extra flags to pin for this column, e.g. glass actions or v3 tags. */
+  /** Extra flags to pin for this column, e.g. v3 tags. */
   overrides?: Record<string, unknown>;
   children: ReactNode;
 }
