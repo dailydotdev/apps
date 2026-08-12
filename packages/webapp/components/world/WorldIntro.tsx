@@ -10,17 +10,22 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { WorldIntroStep } from './useWorldIntro';
 
-/* What a town actually opens is `userUpvotedFeed` filtered to that niche: the
-   owner's upvotes, not a reading list. Saying "read the posts" promised a feed
-   of the topic itself, which is a different product and one this page does not
-   have. */
+/* DISTRICT, not town, and it is the word everywhere else a reader can see one:
+   the stat tile, the rail heading, the guide, the level-up notification. "Town"
+   reads better and describes a third of the ladder. The bottom rungs are a
+   lodestone on bare rock, then a cairn, then a camp, and nothing is a town until
+   L4 or so, which is where most of anybody's districts sit.
+
+   What one opens is `userUpvotedFeed` filtered to that niche: the owner's
+   upvotes, not a reading list. Saying "read the posts" promised a feed of the
+   topic itself, which is a different product and one this page does not have. */
 const LINES: Record<
   WorldIntroStep,
   (options: { verb: string; isOwn: boolean }) => string
 > = {
   realm: ({ verb }) => `Six realms, one per subject. ${verb} one to walk in.`,
   district: ({ verb, isOwn }) =>
-    `Every town is a topic. ${verb} one to see what ${
+    `Every district is a topic. ${verb} one to see what ${
       isOwn ? 'you' : 'they'
     } upvoted there.`,
 };
