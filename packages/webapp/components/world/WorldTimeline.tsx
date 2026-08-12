@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import { format, parseISO } from 'date-fns';
 import {
   Button,
@@ -63,6 +64,11 @@ interface WorldTimelineProps {
      is replayable, which is well after the engine was created, so the engine
      has to be told about it at the moment it mounts. */
   sparkRef: (canvas: HTMLCanvasElement | null) => void;
+  /* Something is standing on the world's right edge (the district feed), so the
+     bar stops short of it, the same way it already stops short of the rail on
+     the left. Laptop only: below that the feed is a sheet across the bottom and
+     the bar is taken down rather than squeezed. */
+  insetRight?: boolean;
   onToggle: () => void;
   onSeek: (day: number) => void;
   onStart: () => void;
@@ -82,6 +88,7 @@ export function WorldTimeline({
   state,
   pending,
   sparkRef,
+  insetRight,
   onToggle,
   onSeek,
   onStart,
@@ -97,7 +104,10 @@ export function WorldTimeline({
   return (
     <div
       data-world-overlay
-      className="pointer-events-auto absolute bottom-3 left-3 right-3 z-1 rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 laptop:left-[21rem]"
+      className={classNames(
+        'pointer-events-auto absolute bottom-3 left-3 right-3 z-1 rounded-16 border border-border-subtlest-tertiary bg-background-default p-3 laptop:left-[21rem]',
+        insetRight && 'laptop:right-[21rem]',
+      )}
     >
       <div className="flex items-center gap-2 laptop:gap-3">
         <Transport
