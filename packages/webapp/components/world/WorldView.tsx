@@ -535,6 +535,7 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
           step={introStep}
           hasTimeline={hasTimeline}
           isTouch={isLite}
+          isOwn={isOwn}
           onDismiss={dismissIntro}
         />
       )}

@@ -10,13 +10,19 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { WorldIntroStep } from './useWorldIntro';
 
-const LINES: Record<WorldIntroStep, (isTouch: boolean) => string> = {
-  realm: (isTouch) =>
-    `Six realms, one per subject. ${isTouch ? 'Tap' : 'Click'} one to walk in.`,
-  district: (isTouch) =>
-    `Every town is a topic. ${
-      isTouch ? 'Tap' : 'Click'
-    } one to read the posts.`,
+/* What a town actually opens is `userUpvotedFeed` filtered to that niche: the
+   owner's upvotes, not a reading list. Saying "read the posts" promised a feed
+   of the topic itself, which is a different product and one this page does not
+   have. */
+const LINES: Record<
+  WorldIntroStep,
+  (options: { verb: string; isOwn: boolean }) => string
+> = {
+  realm: ({ verb }) => `Six realms, one per subject. ${verb} one to walk in.`,
+  district: ({ verb, isOwn }) =>
+    `Every town is a topic. ${verb} one to see what ${
+      isOwn ? 'you' : 'they'
+    } upvoted there.`,
 };
 
 interface WorldIntroProps {
@@ -24,6 +30,8 @@ interface WorldIntroProps {
   /** The scrubber is up, so the bar has to stand above it. */
   hasTimeline?: boolean;
   isTouch?: boolean;
+  /** Whose upvotes the second step is promising. */
+  isOwn?: boolean;
   onDismiss: () => void;
 }
 
@@ -46,6 +54,7 @@ export function WorldIntro({
   step,
   hasTimeline,
   isTouch,
+  isOwn,
   onDismiss,
 }: WorldIntroProps): ReactElement {
   return (
@@ -71,7 +80,7 @@ export function WorldIntro({
           type={TypographyType.Footnote}
           className="min-w-0"
         >
-          {LINES[step](!!isTouch)}
+          {LINES[step]({ verb: isTouch ? 'Tap' : 'Click', isOwn: !!isOwn })}
         </Typography>
         <CloseButton
           type="button"
