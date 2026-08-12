@@ -12,13 +12,18 @@ import {
   DownvoteIcon,
   LinkIcon,
 } from '../../icons';
-import { ButtonColor, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { IconSize } from '../../Icon';
+import { ButtonColor, ButtonVariant } from '../../buttons/Button';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { useFeedPreviewMode } from '../../../hooks/useFeedPreviewMode';
 import { useCardActions } from '../../../hooks/cards/useCardActions';
 import { usePostImpressionsModal } from '../../../hooks/post/usePostImpressionsModal';
 import { usePostImpressions } from '../../../hooks/post/usePostImpressions';
+import {
+  actionCounterClassName as countClasses,
+  actionCounterLabelClassName as countLabelClasses,
+  FEED_ACTION_BUTTON_SIZE,
+  FEED_ACTION_ICON_SIZE,
+} from './actionCounter';
 
 // Full-bleed cover: drop side padding/bottom margin and round only the bottom
 // corners so the image meets the card edges. Height/crop are untouched.
@@ -53,12 +58,6 @@ const pillClasses = classNames(
   '[&_.btn-quaternary]:[--button-default-color:var(--theme-text-primary)]',
   '[&_.btn]:[--button-default-color:var(--theme-text-primary)]',
 );
-
-// Keep the counter compact: monospaced digits so it never jitters, and a hair
-// of padding on each side so six actions (incl. impressions) still fit a narrow
-// card without the trailing icon clipping.
-const countLabelClasses = '!pl-0.5 pr-0.5';
-const countClasses = 'tabular-nums typo-footnote';
 
 export function FeedCardGlassActions({
   post,
@@ -109,11 +108,11 @@ export function FeedCardGlassActions({
             pressed={isUpvoteActive}
             onClick={onToggleUpvote}
             variant={ButtonVariant.Tertiary}
-            size={ButtonSize.XSmall}
+            size={FEED_ACTION_BUTTON_SIZE}
             icon={
               <UpvoteButtonIcon
                 secondary={isUpvoteActive}
-                size={IconSize.Size16}
+                size={FEED_ACTION_ICON_SIZE}
               />
             }
           >
@@ -130,11 +129,14 @@ export function FeedCardGlassActions({
             labelClassName={countLabelClasses}
             id={`post-${post.id}-comment-btn`}
             icon={
-              <CommentIcon secondary={post.commented} size={IconSize.Size16} />
+              <CommentIcon
+                secondary={post.commented}
+                size={FEED_ACTION_ICON_SIZE}
+              />
             }
             pressed={post.commented}
             onClick={() => onCommentClick?.(post)}
-            size={ButtonSize.XSmall}
+            size={FEED_ACTION_BUTTON_SIZE}
             className="btn-tertiary-blueCheese pointer-events-auto"
           >
             {commentCount > 0 && (
@@ -157,13 +159,13 @@ export function FeedCardGlassActions({
               icon={
                 <DownvoteIcon
                   secondary={isDownvoteActive}
-                  size={IconSize.Size16}
+                  size={FEED_ACTION_ICON_SIZE}
                 />
               }
               pressed={isDownvoteActive}
               onClick={onToggleDownvote}
               variant={ButtonVariant.Tertiary}
-              size={ButtonSize.XSmall}
+              size={FEED_ACTION_BUTTON_SIZE}
             />
           </Tooltip>
         )}
@@ -173,16 +175,16 @@ export function FeedCardGlassActions({
           buttonProps={{
             id: `post-${post.id}-bookmark-btn`,
             onClick: onToggleBookmark,
-            size: ButtonSize.XSmall,
+            size: FEED_ACTION_BUTTON_SIZE,
             className: 'btn-tertiary-bun pointer-events-auto',
           }}
-          iconSize={IconSize.Size16}
+          iconSize={FEED_ACTION_ICON_SIZE}
         />
         <Tooltip content="Copy link" side="bottom">
           <QuaternaryButton
             id={`post-${post.id}-copy-btn`}
-            size={ButtonSize.XSmall}
-            icon={<LinkIcon size={IconSize.Size16} />}
+            size={FEED_ACTION_BUTTON_SIZE}
+            icon={<LinkIcon size={FEED_ACTION_ICON_SIZE} />}
             onClick={onCopyLink}
             variant={ButtonVariant.Tertiary}
             color={ButtonColor.Cabbage}
@@ -194,8 +196,8 @@ export function FeedCardGlassActions({
             <QuaternaryButton
               labelClassName={countLabelClasses}
               id={`post-${post.id}-impressions-btn`}
-              icon={<AnalyticsIcon size={IconSize.Size16} />}
-              size={ButtonSize.XSmall}
+              icon={<AnalyticsIcon size={FEED_ACTION_ICON_SIZE} />}
+              size={FEED_ACTION_BUTTON_SIZE}
               variant={ButtonVariant.Tertiary}
               color={ButtonColor.Cheese}
               onClick={onImpressionsClick}

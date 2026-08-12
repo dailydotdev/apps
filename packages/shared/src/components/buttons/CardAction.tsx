@@ -14,18 +14,22 @@ import { ButtonSize, ButtonVariant, ButtonIconPosition } from './common';
 import type { ColorName } from '../../styles/colors';
 import InteractionCounter from '../InteractionCounter';
 
-export type CardActionDensity = 'comfortable' | 'compact';
+export type CardActionDensity = 'comfortable' | 'compact' | 'tight';
 
 const densityToSize: Record<CardActionDensity, ButtonSize> = {
   comfortable: ButtonSize.Medium,
   compact: ButtonSize.Small,
+  tight: ButtonSize.XSmall,
 };
 
 // Larger than buttonSizeToIconSizeV2: engagement-bar icons sit closer
 // to a 60% ratio (Material 3, Instagram, Reddit) so they read at a glance.
-const densityToIconSize: Record<CardActionDensity, IconSize> = {
+// `tight` is the feed-card tier, sized so six actions with counters fit the
+// 272px min card width without shrinking.
+export const densityToIconSize: Record<CardActionDensity, IconSize> = {
   comfortable: IconSize.Small,
   compact: IconSize.XSmall,
+  tight: IconSize.Size16,
 };
 
 type IconElement = React.ReactElement<IconProps>;
