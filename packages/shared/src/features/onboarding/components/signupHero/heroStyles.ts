@@ -202,10 +202,12 @@ export const HERO_STYLES = `.onb-bg {
 
 /* --- signup wall: horizon background --- */
 
-/* Stacked, the artwork band is deliberately shorter than the panel's 50dvh:
-   the art is scenery here, not the subject, and the form must never lose the
-   fold to it. */
-.onb-horizon-band { height: 38dvh; }
+/* Stacked, the content column bottom-anchors (thumb reach — the tested
+   pattern), so the band has to be tall enough that its fade meets the
+   content on tall phones; shorter, and a dead gap opens between the art and
+   the logo. Slightly under the panel's 50dvh because the horizon also
+   carries a value line, which raises the column's top edge. */
+.onb-horizon-band { height: 48dvh; }
 @media (max-height: 759px) and (max-width: 1019px) {
   .onb-horizon-band { height: 30dvh; }
 }
