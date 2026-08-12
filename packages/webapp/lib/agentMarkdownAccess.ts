@@ -1,3 +1,4 @@
+// @ts-expect-error GrowthBook 0.26 does not expose its declarations for bundler resolution.
 import { GrowthBook } from '@growthbook/growthbook';
 
 const MARKDOWN_TOKEN_PREFIX = 'ddm_';
@@ -108,7 +109,10 @@ export const evaluateAgentSignupWall = async (
       platform: 'web',
       userId: deviceId,
     },
-    trackingCallback: (experiment, result) => {
+    trackingCallback: (
+      experiment: { key: string },
+      result: { variationId: number },
+    ) => {
       allocation = {
         experimentId: experiment.key,
         variationId: result.variationId.toString(),
