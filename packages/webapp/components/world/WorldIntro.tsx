@@ -52,7 +52,12 @@ export function WorldIntro({
     <div
       data-world-overlay
       className={classNames(
-        'pointer-events-none absolute inset-x-0 z-2 flex justify-center px-4',
+        /* Centred on the WORLD, not on the window. The rail owns the left 320px
+           on laptop, so a container spanning the full width centres the bar half
+           a rail to the left of the map it is pointing at. Same correction, and
+           the same 20rem, that `WorldInvite` makes for the card it centres over
+           bare ground. */
+        'pointer-events-none absolute inset-x-0 z-2 flex justify-center px-4 laptop:left-80 laptop:right-0',
         /* Clears the scrubber, whose height is its own padding plus a row of
            transports, the sparkline and the dates. Hard-coded the same way the
            bar hard-codes the rail's width beside it: if the scrubber grows a
