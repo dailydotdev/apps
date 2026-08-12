@@ -5,6 +5,13 @@ import type { Ad } from '../../../../graphql/posts';
 import { useScrambler } from '../../../../hooks/useScrambler';
 import { useAdLabel } from '../../../../features/monetization/useAdLabel';
 
+/**
+ * Minimum room between the ad copy and the disclosure line. The grid card
+ * pushes the disclosure down with a flex spacer, which collapses to nothing on
+ * a long creative and leaves the line touching the title.
+ */
+export const adAttributionSpacing = 'mt-3';
+
 interface AdClassName {
   main?: string;
   typo?: string;
@@ -38,6 +45,7 @@ export default function AdAttribution({
         target="_blank"
         rel="noopener"
         className={elementClass}
+        data-testid="adAttribution"
         suppressHydrationWarning
       >
         {promotedText}
@@ -46,7 +54,11 @@ export default function AdAttribution({
   }
 
   return (
-    <div className={elementClass} suppressHydrationWarning>
+    <div
+      className={elementClass}
+      data-testid="adAttribution"
+      suppressHydrationWarning
+    >
       {promotedText}
     </div>
   );

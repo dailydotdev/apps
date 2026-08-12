@@ -1,11 +1,6 @@
 import type { ReactElement } from 'react';
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import React from 'react';
 import type { NextSeoProps } from 'next-seo';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
-import { featureGiveback } from '@dailydotdev/shared/src/lib/featureManagement';
-import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { cloudinaryGivebackOpenGraph } from '@dailydotdev/shared/src/lib/image';
 import { GivebackPage } from '@dailydotdev/shared/src/features/giveback/components/GivebackPage';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
@@ -25,37 +20,18 @@ const seo: NextSeoProps = {
         url: cloudinaryGivebackOpenGraph,
         width: 1280,
         height: 800,
-        alt: 'daily.dev Giveback — ad budgets buy clicks, ours funds real causes',
+        alt: 'daily.dev Giveback: thank you, the campaign is now closed',
       },
     ],
   },
   ...defaultSeo,
   description:
-    'daily.dev would rather fund real-world causes than pay for ads. Take small actions to help us grow, and we turn that budget into donations to the causes you choose, at no cost to you.',
+    'The daily.dev Giveback campaign has ended. See what the community unlocked together and where the donations go.',
   nofollow: true,
   noindex: true,
 };
 
-const GivebackRoute = (): ReactElement | null => {
-  const router = useRouter();
-  const { isAuthReady } = useAuthContext();
-  const { value: isEnabled, isLoading } = useConditionalFeature({
-    feature: featureGiveback,
-    shouldEvaluate: isAuthReady,
-  });
-
-  useEffect(() => {
-    if (!isLoading && !isEnabled) {
-      router.replace(webappUrl);
-    }
-  }, [isLoading, isEnabled, router]);
-
-  if (!isEnabled) {
-    return null;
-  }
-
-  return <GivebackPage />;
-};
+const GivebackRoute = (): ReactElement => <GivebackPage />;
 
 const getGivebackLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));

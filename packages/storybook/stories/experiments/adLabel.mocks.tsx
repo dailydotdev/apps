@@ -111,19 +111,26 @@ export const AdProviders = ({
 
     // Seeded for both the signed-in and anonymous key, so the widgets read
     // their ad from the cache instead of hitting the (unmocked) ad server.
+    // `useAdQuery` appends a consent fingerprint to the key it was given, and
+    // whether GDPR applies depends on the geo the story mounts with, so both
+    // fingerprints are seeded.
+    const consentFingerprints = [
+      [false, ''],
+      [true, ''],
+    ];
     [user, undefined].forEach((keyUser) => {
-      client.setQueryData(
+      [
         generateQueryKey(
           RequestKey.Ads,
           keyUser,
           SIDEBAR_POST_ID,
           'post-sidebar',
         ),
-        widgetAd,
-      );
-      client.setQueryData(
         generateQueryKey(RequestKey.Ads, keyUser, COMMENT_POST_ID),
-        widgetAd,
+      ].forEach((key) =>
+        consentFingerprints.forEach((fingerprint) =>
+          client.setQueryData([...key, ...fingerprint], widgetAd),
+        ),
       );
     });
 

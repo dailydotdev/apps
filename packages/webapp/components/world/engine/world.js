@@ -8112,7 +8112,7 @@ function enterRealm(q){
   fade=0; fadeTo=1;
   frameBounds(q.bounds);
   rootEl.classList.add('inrealm');
-  updateHud(); renderRank(true); buildAir(); placeClouds();
+  updateHud(); renderRank(true); emitDistrict(); buildAir(); placeClouds();
 }
 function leaveRealm(){
   if(!OPEN)return;
@@ -8139,7 +8139,7 @@ function leaveRealm(){
   fade=0; fadeTo=1;
   frameBounds(W.worldBounds);
   rootEl.classList.remove('inrealm');
-  updateHud(); renderRank(true); buildAir(); placeClouds();
+  updateHud(); renderRank(true); emitDistrict(); buildAir(); placeClouds();
 }
 
 /* The sky, its eight palettes and its five hours, all in `sky.js` — the bench
@@ -8505,12 +8505,12 @@ function pick(cx,cy,click){
     if(bird&&bird[0].parent){ possess(bird[0],bird[1]); return; }
     if(!OPEN) { if(hit) enterRealm(hit); }
     else{
-      /* Inside a realm a click on a town is a SLAP, full stop. It used to have
-         to earn it by selecting first, which meant the one gesture people
-         actually try on a town did nothing the first time. Selection still
-         happens — it lights the plot border and syncs the sidebar — but it
-         moves nothing, so the two never fight over the same click. */
-      if(hit&&hit.built) slap(hit,clock.getElapsedTime());
+      /* Inside a realm the first click on a town OPENS it: the plot lights and
+         the panel beside it reads out what was upvoted there, which is the
+         thing somebody clicking a district is asking for. The slap is what a
+         second click on the town already open does, so the toy is still one
+         click away and never lands on top of the answer. */
+      if(hit&&hit.built&&hit.i===selected) slap(hit,clock.getElapsedTime());
       select(hit?hit.i:null);
     }
   }
@@ -8526,7 +8526,18 @@ function pick(cx,cy,click){
 function select(i){
   if(selected===i)return;
   selected=i;
-  paintBorders(); renderRank(true);
+  paintBorders(); renderRank(true); emitDistrict();
+}
+/* Which district is selected, by NICHE ID, so the overlay can ask the API what
+   this reader upvoted in that niche. That id is the one fact about a district
+   only the engine holds: everything else the overlay has is a rank row, and a
+   rank row is capped at fourteen while a realm can hold more than fourteen
+   towns. Emitted from `select` and from both realm doors, which are the only
+   three places `selected` moves. */
+function emitDistrict(){
+  const d=OPEN&&selected!==null?W.districts[selected]:null;
+  emit({district:d?{nicheId:d.nicheId, name:nameOf(d),
+                    color:hexs(d.niche.accent)}:null});
 }
 function paintBorders(){
   const on=VIEW.border&&!!OPEN;
@@ -9131,7 +9142,12 @@ function drawSpark(c){
 
 /* ==================================================================== boot */
 async function boot(model){
-  emit({status:'loading',progress:0.05,message:'Raising the land…'});
+  /* `district` is cleared here and nowhere else in boot: a soft navigation from
+     one world to another reuses this engine, and everything else the overlay
+     reads is rewritten by the first frame of the new world. A selection is not
+     (nothing selects a town on the way in), so without this the next world opens
+     with the last one's district still named over the new reader's upvotes. */
+  emit({status:'loading',progress:0.05,message:'Raising the land…',district:null});
   booting=true; booted=false;
   if(W){ for(const d of W.districts) hideDistrict(d);
          for(const q of W.quarters) hideRealm(q); }
@@ -10747,6 +10763,10 @@ return {
   toEnd: ()=>{ if(W) seekTo(W.nT-1); },
   setSpeed: s=>{ speed=s; emit({speed:s}); },
   focus,
+  /* Drops the selection without leaving the realm: closing the district's feed
+     has to take the plot's lit border with it, or the world still says a town
+     is open after the panel reading it has gone. */
+  deselect: ()=>{ if(W) select(null); },
   leaveRealm,
   frameWorld: ()=>{ if(W) frameWorld(); },
   attachSpark: c=>drawSpark(c),
