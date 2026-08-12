@@ -59,7 +59,7 @@ export function WorldDistrictFeed({
     canFetchMore,
     isFetchingNextPage,
     fetchNextPage,
-  } = useWorldDistrictFeed(userId, district.slug);
+  } = useWorldDistrictFeed(userId, district.nicheId);
 
   return (
     <aside data-world-overlay className={PANEL}>

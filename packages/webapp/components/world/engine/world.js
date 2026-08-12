@@ -8528,15 +8528,15 @@ function select(i){
   selected=i;
   paintBorders(); renderRank(true); emitDistrict();
 }
-/* Which district is selected, by SLUG, so the overlay can ask the API what this
-   reader upvoted in that niche. The slug is the one fact about a district only
-   the engine holds: everything else the overlay has is a rank row, and a rank
-   row is capped at fourteen while a realm can hold more than fourteen towns.
-   Emitted from `select` and from both realm doors, which are the only three
-   places `selected` moves. */
+/* Which district is selected, by NICHE ID, so the overlay can ask the API what
+   this reader upvoted in that niche. That id is the one fact about a district
+   only the engine holds: everything else the overlay has is a rank row, and a
+   rank row is capped at fourteen while a realm can hold more than fourteen
+   towns. Emitted from `select` and from both realm doors, which are the only
+   three places `selected` moves. */
 function emitDistrict(){
   const d=OPEN&&selected!==null?W.districts[selected]:null;
-  emit({district:d?{slug:d.niche.id, name:nameOf(d),
+  emit({district:d?{nicheId:d.nicheId, name:nameOf(d),
                     color:hexs(d.niche.accent)}:null});
 }
 function paintBorders(){
