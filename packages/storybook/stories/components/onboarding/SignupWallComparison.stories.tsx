@@ -33,7 +33,12 @@ const FRAMES: Frame[] = [
   {
     label: 'Panel',
     storyId: 'components-onboarding-steps-funnelherolanding--panel',
-    note: 'new — framed split',
+    note: 'lost its test — framed split',
+  },
+  {
+    label: 'Horizon',
+    storyId: 'components-onboarding-steps-funnelherolanding--horizon',
+    note: 'proposed — full-bleed art, value line, Google-first',
   },
 ];
 

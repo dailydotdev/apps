@@ -200,6 +200,28 @@ export const HERO_STYLES = `.onb-bg {
     0 2px 6px -2px var(--theme-shadow-shadow1);
 }
 
+/* --- signup wall: horizon background --- */
+
+/* Stacked, the artwork band is deliberately shorter than the panel's 50dvh:
+   the art is scenery here, not the subject, and the form must never lose the
+   fold to it. */
+.onb-horizon-band { height: 38dvh; }
+@media (max-height: 759px) and (max-width: 1019px) {
+  .onb-horizon-band { height: 30dvh; }
+}
+
+/* The seam where the full-bleed artwork meets the rail: the page background
+   bleeding over the image's left edge, so the split reads as one surface
+   rather than two columns butted together. */
+.onb-horizon-seam {
+  background: linear-gradient(
+    to right,
+    var(--theme-background-default) 0%,
+    color-mix(in srgb, var(--theme-background-default) 50%, transparent) 48%,
+    transparent 100%
+  );
+}
+
 /* Ambilight — the artwork itself, blurred and over-saturated behind the panel,
    so the halo is literally the image's own colours bleeding out of the frame
    (the TV backlight / YouTube ambient-mode trick). */

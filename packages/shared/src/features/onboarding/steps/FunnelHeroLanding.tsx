@@ -57,6 +57,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
   ({
     parameters: {
       headline,
+      subline,
       background,
       imageMode,
       imageMobile,
@@ -87,7 +88,12 @@ export const FunnelHeroLanding = withIsActiveGuard(
       !isEmailSignupActive &&
       isSocialSignupUser(user);
     const preferGithub = oauthOrder !== 'googleFirst';
-    const isSplitColumnBackground = background === 'panel';
+    // Both split-column walls bottom/center-anchor their form, so both opt out
+    // of AuthOptions' min-height reservation. Only the panel also switches the
+    // button copy to "Sign up with…" — the horizon keeps the door-agnostic
+    // "Continue with…" so returning users never hit a wrong door.
+    const isSplitColumnBackground =
+      background === 'panel' || background === 'horizon';
 
     const onAuthStateUpdate = useCallback(
       (data: Partial<AuthProps>) => {
@@ -186,6 +192,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
       <OnboardingSignupHero
         isFormExpanded={isEmailSignupActive || isSocialSignupActive}
         headline={headline}
+        subline={subline}
         background={background}
         imageMode={imageMode}
         imageMobile={imageMobile}
@@ -210,7 +217,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
           }
           // "Sign up with…" / "Create account", plus the left-aligned login
           // link — the copy the split-column layouts are designed around.
-          splitSignupStyle={isSplitColumnBackground}
+          splitSignupStyle={background === 'panel'}
           preferGithub={preferGithub}
           defaultDisplay={
             isSocialSignupActive ? AuthDisplay.SocialRegistration : authDisplay

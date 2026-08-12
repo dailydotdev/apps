@@ -81,4 +81,22 @@ export const Panel: Story = {
   },
 };
 
+/**
+ * The homepage's hero artwork full-bleed as the right half — no frame, no
+ * overlays — with the tagline and one value line on the rail. Google-first.
+ */
+export const Horizon: Story = {
+  args: {
+    ...baseArgs,
+    parameters: {
+      ...baseArgs.parameters,
+      headline: "Where developers discover what's next.",
+      subline:
+        'Be the dev who already knew. Every release, tool, and breakthrough in your stack. Hours early.',
+      background: 'horizon',
+      oauthOrder: 'googleFirst',
+    },
+  },
+};
+
 
