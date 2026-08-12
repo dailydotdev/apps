@@ -2,14 +2,15 @@
 // @ts-ignore -- GrowthBook 0.26 does not expose its declarations for bundler resolution.
 import { GrowthBook } from '@growthbook/growthbook';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const MARKDOWN_TOKEN_PREFIX = 'ddm_';
 const MARKDOWN_TOKEN_AUDIENCE = 'dailydev-markdown';
-const MARKDOWN_TOKEN_ISSUER = 'https://api.daily.dev';
+const MARKDOWN_TOKEN_ISSUER = API_URL;
 const MARKDOWN_TOKEN_SCOPE = 'markdown:read';
 const SIGNUP_WALL_FEATURE = 'agent_markdown_signup_wall';
 const MARKDOWN_AUTH_PREFIX = `Bearer ${MARKDOWN_TOKEN_PREFIX}`;
 
-export const AGENT_SIGNUP_URL = 'https://api.daily.dev/agents/v1/signup';
+export const AGENT_SIGNUP_URL = `${API_URL}/agents/v1/signup`;
 
 const decodeBase64Url = (value: string): ArrayBuffer => {
   const base64 = value.replace(/-/g, '+').replace(/_/g, '/');
