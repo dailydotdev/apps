@@ -7,6 +7,8 @@ import { PostEngagementCounts } from '@dailydotdev/shared/src/components/cards/S
 import { ListItemPlaceholder } from '@dailydotdev/shared/src/components/widgets/ListItemPlaceholder';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
+import { UpvoteIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   Typography,
   TypographyColor,
@@ -139,16 +141,31 @@ export function WorldDistrictFeed({
           </InfiniteScrolling>
         )}
 
+        {/* Centred in what is left of the panel rather than tucked under the
+            header: on laptop this is a full-height column, and two lines of
+            grey text at the top of it read as a list that failed to arrive. */}
         {!isPending && !posts.length && (
-          <Typography
-            type={TypographyType.Callout}
-            color={TypographyColor.Tertiary}
-            className="px-4 py-6"
-          >
-            {isError
-              ? 'These upvotes could not be loaded.'
-              : `Nothing upvoted in ${district.name} yet. The district was built by reading, not by voting.`}
-          </Typography>
+          <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 py-10 text-center">
+            <UpvoteIcon
+              size={IconSize.XXLarge}
+              className="text-text-disabled"
+            />
+            <Typography type={TypographyType.Callout} bold>
+              {isError
+                ? 'These upvotes could not be loaded'
+                : 'Nothing upvoted yet'}
+            </Typography>
+            {!isError && (
+              <Typography
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+              >
+                {isOwn
+                  ? 'Districts grow by reading. Upvote what you rate and it lands here.'
+                  : 'Districts grow by reading, not by voting.'}
+              </Typography>
+            )}
+          </div>
         )}
       </div>
     </aside>

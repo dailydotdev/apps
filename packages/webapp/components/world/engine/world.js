@@ -8505,12 +8505,12 @@ function pick(cx,cy,click){
     if(bird&&bird[0].parent){ possess(bird[0],bird[1]); return; }
     if(!OPEN) { if(hit) enterRealm(hit); }
     else{
-      /* Inside a realm a click on a town is a SLAP, full stop. It used to have
-         to earn it by selecting first, which meant the one gesture people
-         actually try on a town did nothing the first time. Selection still
-         happens — it lights the plot border and syncs the sidebar — but it
-         moves nothing, so the two never fight over the same click. */
-      if(hit&&hit.built) slap(hit,clock.getElapsedTime());
+      /* Inside a realm the first click on a town OPENS it: the plot lights and
+         the panel beside it reads out what was upvoted there, which is the
+         thing somebody clicking a district is asking for. The slap is what a
+         second click on the town already open does, so the toy is still one
+         click away and never lands on top of the answer. */
+      if(hit&&hit.built&&hit.i===selected) slap(hit,clock.getElapsedTime());
       select(hit?hit.i:null);
     }
   }
