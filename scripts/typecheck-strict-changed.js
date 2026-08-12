@@ -116,7 +116,9 @@ const strictSkipList = new Set([
   // @growthbook/growthbook ships .d.ts files but its package.json `exports`
   // field has no `types` condition, so strict resolution intermittently fails
   // to find declarations and flags the JSONValue import as implicit any.
+  'packages/shared/src/lib/feature.ts',
   'packages/shared/src/lib/featureManagement.ts',
+  'packages/shared/src/lib/serverFeatureValue.ts',
   'packages/webapp/lib/agentMarkdownAccess.ts',
   // Layout-v2 branch — touched only to slot a v2-gated `<PageHeader>` at the
   // top of each page. Pre-existing strict violations (PublicProfile possibly
