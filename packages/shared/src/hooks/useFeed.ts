@@ -181,6 +181,13 @@ export type FeedReturnType = {
   placements: FeedItemPlacement[];
   heroCardsConfig: HeroCardsConfig;
   bannerInsertions: FeedBannerInsertions;
+  /**
+   * True when a first-slot card is eligible (per `firstSlotOffset` input)
+   * AND enough posts have loaded to justify the visual slot (respects
+   * `adPostLength` on squad feeds). Callers should gate their card
+   * rendering on this so the visual and placement math stay in sync.
+   */
+  hasFirstSlotCard: boolean;
   fetchPage: () => Promise<void>;
   updatePost: UpdateFeedPost;
   removePost: (page: number, index: number) => void;
@@ -375,6 +382,10 @@ export default function useFeed<T>(
 
   const clientError = feedQuery?.error as ClientError;
   const adPostLength = settings?.adPostLength;
+  const firstPagePostsCount = feedQuery.data?.pages[0]?.page.edges.length ?? 0;
+  const meetsAdPostLength = !adPostLength || firstPagePostsCount > adPostLength;
+  const effectiveFirstSlotOffset = meetsAdPostLength ? firstSlotOffset : 0;
+  const hasFirstSlotCard = effectiveFirstSlotOffset > 0;
 
   const isAdsQueryEnabled = Boolean(
     !isPlus &&
@@ -429,7 +440,7 @@ export default function useFeed<T>(
   const indexWhenShowingPromoBanner =
     pageSize * Number(briefBannerPage) -
     columnsDiffWithPage * Number(briefBannerPage) -
-    firstSlotOffset;
+    effectiveFirstSlotOffset;
 
   const { getCreativeForPlacement } = useEngagementAdsContext();
   const engagementStripCreative = engagementStripEligible
@@ -441,7 +452,7 @@ export default function useFeed<T>(
   // machinery pads the row above so the strip always begins a clean row (in
   // grid) and just slots inline (in list, where virtualizedNumCards === 1).
   const indexWhenShowingEngagementStrip =
-    ENGAGEMENT_STRIP_ROW * virtualizedNumCards - firstSlotOffset;
+    ENGAGEMENT_STRIP_ROW * virtualizedNumCards - effectiveFirstSlotOffset;
 
   const fullRowInsertionBeforeIndex = useMemo(() => {
     const set = new Set<number>();
@@ -609,7 +620,7 @@ export default function useFeed<T>(
         minSpacing: heroCardsConfig.minSpacing,
         startIndex: heroCardsConfig.startIndex,
         widenableTypes,
-        firstSlotOffset,
+        firstSlotOffset: effectiveFirstSlotOffset,
       });
 
       const staticAd = settings?.staticAd;
@@ -717,7 +728,7 @@ export default function useFeed<T>(
     cadence,
     widenableTypes,
     excludePinnedPosts,
-    firstSlotOffset,
+    effectiveFirstSlotOffset,
   ]);
 
   const placements = useMemo(
@@ -732,7 +743,7 @@ export default function useFeed<T>(
         widenableTypes,
         fullRowInsertionBeforeIndex,
         cadence,
-        firstSlotOffset,
+        firstSlotOffset: effectiveFirstSlotOffset,
       }),
     [
       items,
@@ -743,7 +754,7 @@ export default function useFeed<T>(
       fullRowInsertionBeforeIndex,
       cadence,
       widenableTypes,
-      firstSlotOffset,
+      effectiveFirstSlotOffset,
     ],
   );
 
@@ -807,6 +818,7 @@ export default function useFeed<T>(
     placements,
     heroCardsConfig,
     bannerInsertions,
+    hasFirstSlotCard,
     fetchPage: async () => {
       await feedQuery.fetchNextPage();
     },

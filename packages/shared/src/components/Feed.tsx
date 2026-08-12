@@ -287,10 +287,10 @@ export default function Feed<T>({
     const canShowGrowthCta =
       !disableAds &&
       !isHorizontal &&
-      !user?.isPlus &&
       feedQueryKey?.[0] !== RequestKey.FeedPreview;
+    const canShowNonPlusCta = canShowGrowthCta && !user?.isPlus;
 
-    if (canShowGrowthCta && plusEntryFeed) {
+    if (canShowNonPlusCta && plusEntryFeed) {
       return <PlusGrid {...plusEntryFeed} />;
     }
     if (canShowGrowthCta && showMarketingCta && marketingCta) {
@@ -308,7 +308,7 @@ export default function Feed<T>({
         : MarketingCtaCard;
       return <Component marketingCta={marketingCta} />;
     }
-    if (canShowGrowthCta && showAcquisitionForm) {
+    if (canShowNonPlusCta && showAcquisitionForm) {
       const Component = shouldUseListFeedLayout
         ? AcquisitionFormList
         : AcquisitionFormGrid;
@@ -328,8 +328,7 @@ export default function Feed<T>({
     return null;
   };
 
-  const firstSlotCard = getFirstSlotCard();
-  const hasFirstSlotCard = firstSlotCard !== null;
+  const eligibleFirstSlotCard = getFirstSlotCard();
   const {
     items,
     placements: itemPlacements,
@@ -342,6 +341,7 @@ export default function Feed<T>({
     isFetching,
     isInitialLoading,
     isError,
+    hasFirstSlotCard,
     error: feedError,
   } = useFeed(
     feedQueryKey,
@@ -360,7 +360,7 @@ export default function Feed<T>({
       options,
       isBriefBannerEligible: !user?.isPlus && isMyFeed,
       engagementStripEligible: !isHorizontal && isEngagementAdFeed(feedName),
-      firstSlotOffset: Number(hasFirstSlotCard),
+      firstSlotOffset: Number(eligibleFirstSlotCard !== null),
       disableTopHero: isV2,
       isHorizontal,
       excludePinnedPosts,
@@ -754,7 +754,7 @@ export default function Feed<T>({
           <>{emptyScreen}</>
         ) : (
           <>
-            {firstSlotCard}
+            {hasFirstSlotCard && eligibleFirstSlotCard}
             {items.map((item, index) => {
               const placement = itemPlacements[index];
               const { colSpan } = placement;
