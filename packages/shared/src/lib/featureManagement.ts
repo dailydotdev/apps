@@ -328,3 +328,29 @@ export const featurePostSignupActivation = new Feature(
   'post_signup_activation',
   false,
 );
+
+export type PlusSaleConfig = {
+  enabled: boolean;
+  /** Paddle discount id (`dsc_...`). The sale is inert without it. */
+  discountId: string;
+  /** Human-readable coupon code, shown as marketing copy only. */
+  code: string;
+  label: string;
+  headline: string;
+  description: string;
+  /** ISO date. The sale self-expires client-side even if the flag stays on. */
+  endDate: string;
+};
+
+// Time-limited Plus promotion. The whole campaign (discount, copy, end date)
+// lives in the flag payload so marketing can run/extend/kill a sale from
+// GrowthBook without a deploy. `enabled: false` is the committed kill switch.
+export const featurePlusSale = new Feature<PlusSaleConfig>('plus_sale', {
+  enabled: false,
+  discountId: '',
+  code: 'SUMMER50',
+  label: '50% off',
+  headline: 'Summer sale: 50% off Plus',
+  description: 'Code SUMMER50 is already applied. Offer ends August 31.',
+  endDate: '2026-09-01T00:00:00.000Z',
+});

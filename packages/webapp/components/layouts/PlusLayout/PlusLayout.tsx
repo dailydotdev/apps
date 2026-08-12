@@ -1,7 +1,8 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import React, { useEffect } from 'react';
 import { cloudinaryPlusBackground } from '@dailydotdev/shared/src/lib/image';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/payment';
+import { usePlusSale } from '@dailydotdev/shared/src/hooks/usePlusSale';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
@@ -58,10 +59,25 @@ export default function PlusLayout({
   );
 }
 
+// Scopes the running sale's discount to the Plus routes: previewed prices and
+// checkout both open with it applied. The onboarding funnel mounts its own
+// provider without a discount, so promos never leak into it.
+function PlusSalePaymentProvider({
+  children,
+}: PropsWithChildren): ReactElement {
+  const { isActive, discountId } = usePlusSale();
+
+  return (
+    <PaymentContextProvider discountId={isActive ? discountId : undefined}>
+      {children}
+    </PaymentContextProvider>
+  );
+}
+
 export function getPlusLayout(page: ReactNode): ReactNode {
   return (
-    <PaymentContextProvider>
+    <PlusSalePaymentProvider>
       <PlusLayout>{page}</PlusLayout>
-    </PaymentContextProvider>
+    </PlusSalePaymentProvider>
   );
 }

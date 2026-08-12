@@ -14,6 +14,7 @@ import type { TargetType } from '../../../lib/log';
 import { LogEvent } from '../../../lib/log';
 import { useLogContext } from '../../../contexts/LogContext';
 import { useBoot } from '../../../hooks';
+import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
 
 type PlusBannerProps = Omit<MarketingCta, 'flags'> & {
   targetType: TargetType;
@@ -96,6 +97,7 @@ const PlusMobileEntryBanner = ({
             >
               {ctaText}
             </Typography>
+            <PlusSaleLabel className="ml-1.5" />
           </Button>
           <Button
             className="flex-grow"

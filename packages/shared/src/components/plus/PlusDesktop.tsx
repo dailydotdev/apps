@@ -13,6 +13,7 @@ import { usePlusSubscription } from '../../hooks';
 
 import { PurchaseType } from '../../graphql/paddle';
 import { PlusProductToggle } from './PlusProductToggle';
+import { PlusSummerSaleBanner } from './PlusSummerSaleBanner';
 
 const PlusFAQs = dynamic(() => import('./PlusFAQ').then((mod) => mod.PlusFAQ));
 const PlusApiShowcase = dynamic(() =>
@@ -85,6 +86,9 @@ export const PlusDesktop = ({
 
   return (
     <>
+      {!giftToUser && (
+        <PlusSummerSaleBanner className="mx-auto mt-10 max-w-[62rem]" />
+      )}
       <div className="flex flex-1 justify-center gap-20 pt-10">
         <div className="flex w-[28.5rem] flex-col">
           {!giftToUser && (

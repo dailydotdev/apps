@@ -11,6 +11,8 @@ import Link from '../../../components/utilities/Link';
 import { useConditionalFeature, usePlusSubscription } from '../../../hooks';
 import { featurePlusCtaCopy } from '../../../lib/featureManagement';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { usePlusSale } from '../../../hooks/usePlusSale';
+import { PlusSaleLabel } from '../../../components/plus/PlusSaleLabel';
 
 export const BriefPlusUpgradeCTA = ({
   className,
@@ -24,6 +26,7 @@ export const BriefPlusUpgradeCTA = ({
     feature: featurePlusCtaCopy,
     shouldEvaluate: !isPlus && isAuthReady,
   });
+  const { isActive: isSaleActive } = usePlusSale();
 
   return (
     <Link href={plusUrl} passHref>
@@ -45,6 +48,10 @@ export const BriefPlusUpgradeCTA = ({
         {...attrs}
       >
         {plusCta}
+        {/* Guarded rather than left to the label's own check: an always-rendered
+            child would stop Button from wrapping its text label, changing the
+            markup even with no sale running. */}
+        {isSaleActive && <PlusSaleLabel className="ml-1.5" />}
       </Button>
     </Link>
   );

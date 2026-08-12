@@ -4,8 +4,12 @@ import type {
   ReactElement,
   SetStateAction,
 } from 'react';
-import React, { useMemo } from 'react';
-import type { OpenCheckoutProps, PaymentContextData } from './context';
+import React, { useCallback, useMemo } from 'react';
+import type {
+  OpenCheckoutFn,
+  OpenCheckoutProps,
+  PaymentContextData,
+} from './context';
 import { PaymentContext, useFunnelPaymentPricingContext } from './context';
 import { PurchaseType } from '../../graphql/paddle';
 import { PlusPriceTypeAppsId } from '../../lib/featureValues';
@@ -18,6 +22,7 @@ interface BasePaymentProviderProps {
   checkoutItemsLoading?: boolean;
   priceType: PurchaseType;
   setPriceType?: Dispatch<SetStateAction<PurchaseType>>;
+  discountId?: string;
 }
 
 export const BasePaymentProvider = ({
@@ -27,14 +32,28 @@ export const BasePaymentProvider = ({
   checkoutItemsLoading,
   priceType,
   setPriceType,
+  discountId,
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
   const { data: plusPricing, isPending: isPricesPending } = useProductPricing({
     type: priceType,
     enabled: !funnelPricing?.length,
+    discountId,
   });
   const data = funnelPricing?.length ? funnelPricing : plusPricing;
+
+  const openCheckoutWithDiscount = useCallback<OpenCheckoutFn>(
+    (props) =>
+      openCheckout({
+        ...props,
+        // Gifting buys a separate one-off product, not a subscription, so a
+        // subscription sale must not follow the buyer into the gift checkout.
+        discountId:
+          props.discountId ?? (props.giftToUserId ? undefined : discountId),
+      }),
+    [openCheckout, discountId],
+  );
 
   const giftOneYear = useMemo(
     () =>
@@ -48,7 +67,7 @@ export const BasePaymentProvider = ({
 
   const value = useMemo<PaymentContextData>(
     () => ({
-      openCheckout,
+      openCheckout: openCheckoutWithDiscount,
       productOptions:
         data?.filter(({ priceId }) => priceId !== giftOneYear?.priceId) ?? [],
       isPlusAvailable: isPlusAvailable ?? false,
@@ -61,7 +80,7 @@ export const BasePaymentProvider = ({
       setPriceType,
     }),
     [
-      openCheckout,
+      openCheckoutWithDiscount,
       data,
       giftOneYear,
       isPlusAvailable,

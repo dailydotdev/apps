@@ -17,6 +17,8 @@ import type { TargetId } from '../../lib/log';
 import { LogEvent } from '../../lib/log';
 import { featurePlusCtaCopy } from '../../lib/featureManagement';
 import Link from '../utilities/Link';
+import { usePlusSale } from '../../hooks/usePlusSale';
+import { PlusSaleLabel } from './PlusSaleLabel';
 
 type PostUpgradeToPlusProps = {
   targetId: TargetId;
@@ -40,6 +42,7 @@ export const PostUpgradeToPlus = ({
     feature: featurePlusCtaCopy,
     shouldEvaluate: !isPlus,
   });
+  const { isActive: isSaleActive } = usePlusSale();
 
   const onCloseClick = useCallback(() => {
     onClose?.();
@@ -92,6 +95,10 @@ export const PostUpgradeToPlus = ({
             }}
           >
             {plusCta}
+            {/* Guarded rather than left to the label's own check: an
+                always-rendered child would stop Button from wrapping its text
+                label, changing the markup even with no sale running. */}
+            {isSaleActive && <PlusSaleLabel />}
           </Button>
         </Link>
         <Button

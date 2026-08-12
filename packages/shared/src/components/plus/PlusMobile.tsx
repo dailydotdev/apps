@@ -11,6 +11,7 @@ import { plusUrl } from '../../lib/constants';
 import { objectToQueryParams } from '../../lib';
 import { PlusProductToggle } from './PlusProductToggle';
 import { PurchaseType } from '../../graphql/paddle';
+import { PlusSummerSaleBanner } from './PlusSummerSaleBanner';
 
 const PlusTrustRefund = dynamic(() =>
   import('./PlusTrustRefund').then((mod) => mod.PlusTrustRefund),
@@ -59,6 +60,7 @@ export const PlusMobile = ({
         }
       }}
     >
+      {!giftToUser && <PlusSummerSaleBanner className="mb-6" />}
       {!giftToUser && (
         <PlusProductToggle
           options={[

@@ -35,6 +35,8 @@ import {
 import { useLayoutVariant } from '../../../hooks/layout/useLayoutVariant';
 import { useQuestDashboard } from '../../../hooks/useQuestDashboard';
 import { Typography, TypographyColor } from '../../typography/Typography';
+import { usePlusSale } from '../../../hooks/usePlusSale';
+import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
 
 export const MainSection = ({
   isItemsButton,
@@ -45,6 +47,7 @@ export const MainSection = ({
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { isV2 } = useLayoutVariant();
   const isPlus = user?.isPlus;
+  const { isActive: isSaleActive } = usePlusSale();
   const ctaCopy = { full: 'Get API Access', short: 'API access' };
   const { value: showYearInReview } = useConditionalFeature({
     feature: featureYearInReview,
@@ -106,6 +109,7 @@ export const MainSection = ({
           color: 'text-action-plus-default',
           itemClassName: 'bg-action-plus-float/50 hover:bg-action-plus-float',
           disableDefaultBackground: true,
+          ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
         }
       : undefined;
 
@@ -221,6 +225,7 @@ export const MainSection = ({
     isCustomDefaultFeed,
     isLoggedIn,
     isPlus,
+    isSaleActive,
     isV2,
     onNavTabClick,
     showDailyPage,
