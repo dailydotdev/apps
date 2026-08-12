@@ -359,6 +359,10 @@ function MainLayoutComponent({
             (sidebarExpanded || forceSidebarExpanded) &&
             (isV2 ? v2ExpandedPadding : !isScreenCentered && 'laptop:!pl-60'),
           isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
+          // The rail is `fixed` and drops by the banner's height on its own
+          // (--safe-area-top-offset), so the content has to drop by the same
+          // 2rem or the pinned banner paints over the top of it.
+          isBannerAvailable && sidebarOwnsHeader && 'laptop:pt-8',
         )}
       >
         {isAuthReady && isLayoutChromeResolved && showSidebar && (
@@ -389,7 +393,9 @@ function MainLayoutComponent({
                 'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
                 !hasTopBanners &&
                   !topBanner &&
-                  'laptop:min-h-[calc(100vh-1.5rem)]',
+                  (isBannerAvailable
+                    ? 'laptop:min-h-[calc(100vh-3.5rem)]'
+                    : 'laptop:min-h-[calc(100vh-1.5rem)]'),
               )}
             >
               <RouteProgressBar />

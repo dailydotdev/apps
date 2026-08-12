@@ -23,7 +23,7 @@ describe('levelOf', () => {
   });
 
   it('holds the rung until the next threshold is reached', () => {
-    // 3 is CAMP and 5 is HOLD, so 4 is still a camp.
+    // L3 is 3 and L4 is 5, so 4 is still L3.
     expect(levelOf(4)).toEqual(3);
     expect(levelOf(1279)).toEqual(MAX_LEVEL - 1);
   });
@@ -35,12 +35,12 @@ describe('levelOf', () => {
 
 describe('levelProgress', () => {
   it('counts the articles left to the next rung', () => {
-    // SANCTUM is 20.
+    // L6 is 20.
     expect(levelProgress(18)).toMatchObject({ level: 5, toNext: 2 });
   });
 
   it('places the district across the rung it is on', () => {
-    // Half way from ATELIER (10) to SANCTUM (20).
+    // Half way from L5 (10) to L6 (20).
     expect(levelProgress(15).fraction).toEqual(0.5);
   });
 
@@ -109,7 +109,7 @@ describe('nearestLevelUp', () => {
   });
 
   it('picks the closest district, not the biggest', () => {
-    // The 318 district is 2 off ARCANUM; the 400 one is 240 off CITADEL.
+    // The 318 district is 2 off L10; the 400 one is 240 off L11.
     const nearest = nearestLevelUp([row('LLMs', 400), row('CSS & UI', 318)]);
 
     expect(nearest).toMatchObject({ name: 'CSS & UI', toNext: 2 });
@@ -126,16 +126,13 @@ describe('nearestLevelUp', () => {
   });
 
   it('breaks a tie towards the district further along', () => {
-    // Both one article out, from CAIRN and from SKY COURT respectively.
+    // Both one article out, from L2 and from L12 respectively.
     const nearest = nearestLevelUp([row('PHP', 1), row('LLMs', 1279)]);
 
     expect(nearest).toMatchObject({ name: 'LLMs', toNext: 1 });
   });
 
   it('carries the rung it is walking towards', () => {
-    expect(nearestLevelUp([row('Go', 39)])?.next).toMatchObject({
-      n: 'CONCLAVE',
-      reads: 40,
-    });
+    expect(nearestLevelUp([row('Go', 39)])?.next).toMatchObject({ reads: 40 });
   });
 });
