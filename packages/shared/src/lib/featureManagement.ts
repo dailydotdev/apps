@@ -329,7 +329,7 @@ export const featurePostSignupActivation = new Feature(
   false,
 );
 
-// On/off switch for the running Plus promotion; the campaign itself (discount,
-// copy, end date) is `plusSaleCampaign` in lib/plus.ts. Keep the default
-// `false` — this is the kill switch.
-export const featurePlusSale = new Feature('plus_sale', false);
+// Paddle discount id (`dsc_...`) for the running Plus promotion, or an empty
+// string for no sale. The id is the switch because it differs per Paddle
+// environment; the copy around it is `plusSaleCampaign` in lib/plus.ts.
+export const featurePlusSale = new Feature('plus_sale', '');

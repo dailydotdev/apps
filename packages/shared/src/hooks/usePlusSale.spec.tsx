@@ -22,11 +22,8 @@ jest.mock('../lib/ios', () => ({
   iOSSupportsPlusPurchase: jest.fn(),
 }));
 
-// The campaign is a shipped constant, so the spec drives its fields directly
-// instead of going through the flag payload.
 jest.mock('../lib/plus', () => ({
   plusSaleCampaign: {
-    discountId: 'dsc_summer',
     code: 'SUMMER50',
     label: '50% off',
     headline: 'Summer sale: 50% off Plus',
@@ -49,16 +46,16 @@ const mockIOSSupportsPlusPurchase =
     typeof iOSSupportsPlusPurchase
   >;
 
-const campaign = plusSaleCampaign as { discountId: string; endDate: string };
-const originalCampaign = { ...campaign };
+const campaign = plusSaleCampaign as { endDate: string };
+const originalEndDate = campaign.endDate;
 
-// Mirrors the real hook: the committed default (off) is returned until
+// Mirrors the real hook: the committed default (no discount) is returned until
 // GrowthBook is both ready and allowed to evaluate.
-const setFlag = (enabled: boolean) => {
+const setFlag = (discountId: string) => {
   mockUseConditionalFeature.mockImplementation(
     ({ shouldEvaluate }) =>
       ({
-        value: shouldEvaluate ? enabled : false,
+        value: shouldEvaluate ? discountId : '',
         isLoading: !shouldEvaluate,
       } as never),
   );
@@ -67,14 +64,14 @@ const setFlag = (enabled: boolean) => {
 describe('usePlusSale', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    Object.assign(campaign, originalCampaign);
+    campaign.endDate = originalEndDate;
     mockUseAuthContext.mockReturnValue({ isAuthReady: true } as never);
     mockUsePlusSubscription.mockReturnValue({ isPlus: false } as never);
     mockIOSSupportsPlusPurchase.mockReturnValue(false);
-    setFlag(true);
+    setFlag('dsc_summer');
   });
 
-  it('is active while the flag is on and exposes the campaign copy', () => {
+  it('is active with a discount from the flag and exposes the campaign copy', () => {
     const { result } = renderHook(() => usePlusSale());
 
     expect(result.current.isActive).toBe(true);
@@ -83,16 +80,8 @@ describe('usePlusSale', () => {
     expect(result.current.headline).toBe('Summer sale: 50% off Plus');
   });
 
-  it('is inactive while the flag is off', () => {
-    setFlag(false);
-
-    const { result } = renderHook(() => usePlusSale());
-
-    expect(result.current.isActive).toBe(false);
-  });
-
-  it('is inactive without a discount to apply', () => {
-    campaign.discountId = '';
+  it('is inactive while the flag holds no discount', () => {
+    setFlag('');
 
     const { result } = renderHook(() => usePlusSale());
 

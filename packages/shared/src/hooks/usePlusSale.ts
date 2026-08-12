@@ -5,12 +5,15 @@ import { plusSaleCampaign } from '../lib/plus';
 import { useConditionalFeature } from './useConditionalFeature';
 import { usePlusSubscription } from './usePlusSubscription';
 
-type UsePlusSale = typeof plusSaleCampaign & { isActive: boolean };
+type UsePlusSale = typeof plusSaleCampaign & {
+  isActive: boolean;
+  discountId: string;
+};
 
 export const usePlusSale = (): UsePlusSale => {
   const { isAuthReady } = useAuthContext();
   const { isPlus } = usePlusSubscription();
-  const { value: isEnabled, isLoading } = useConditionalFeature({
+  const { value: discountId, isLoading } = useConditionalFeature({
     feature: featurePlusSale,
     shouldEvaluate: isAuthReady && !isPlus,
   });
@@ -19,10 +22,10 @@ export const usePlusSale = (): UsePlusSale => {
 
   return {
     ...plusSaleCampaign,
+    discountId,
     isActive:
       !isLoading &&
-      isEnabled &&
-      !!plusSaleCampaign.discountId &&
+      !!discountId &&
       !isPlus &&
       hasNotEnded &&
       // StoreKit purchases go through Apple, which can't honour a Paddle discount.
