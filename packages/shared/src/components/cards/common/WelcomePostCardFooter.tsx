@@ -69,8 +69,7 @@ export const WelcomePostCardFooter = ({
     return (
       <p
         className={classNames(
-          'mt-1 break-words px-4 typo-callout',
-          'line-clamp-6',
+          'mt-1 line-clamp-6 break-words px-4 typo-callout',
           contentClassName,
         )}
       >
