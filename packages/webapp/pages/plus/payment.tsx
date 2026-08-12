@@ -14,6 +14,7 @@ import {
 import dynamic from 'next/dynamic';
 import { useProductPricingByIds } from '@dailydotdev/shared/src/hooks/useProductPricing';
 import { PlusCheckoutContainer } from '@dailydotdev/shared/src/components/plus/PlusCheckoutContainer';
+import { usePlusSale } from '@dailydotdev/shared/src/hooks/usePlusSale';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 
 const PlusProductList = dynamic(
@@ -26,10 +27,11 @@ const PlusProductList = dynamic(
 
 const PlusPaymentPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
-  const { isPaddleReady, openCheckout } = usePaymentContext();
+  const { isPaddleReady, openCheckout, productOptions } = usePaymentContext();
+  const { isActive: isSaleActive } = usePlusSale();
   const router = useRouter();
   const { pid, gift } = router.query;
-  const checkoutRef = useRef();
+  const checkoutRef = useRef<HTMLDivElement>(null);
   const { data: productPricing } = useProductPricingByIds({
     ids: [pid as string],
     loadMetadata: true,
@@ -41,7 +43,7 @@ const PlusPaymentPage = (): ReactElement => {
     }
 
     if (pid) {
-      openCheckout({
+      openCheckout?.({
         priceId: pid as string,
         giftToUserId: gift as string,
       });
@@ -57,9 +59,13 @@ const PlusPaymentPage = (): ReactElement => {
     }
   }, [pid, router]);
 
-  const selectedProduct = productPricing?.find(
-    ({ priceId }) => priceId === pid,
-  );
+  // pricingPreviewByIds takes no discount, so whenever the sale reaches this
+  // purchase the plan details have to come from the already-discounted options,
+  // or Paddle would charge less than the amount shown next to it.
+  const isDiscounted = isSaleActive && !gift;
+  const selectedProduct = (
+    isDiscounted ? productOptions : productPricing
+  )?.find(({ priceId }) => priceId === pid);
 
   return (
     <>
