@@ -14,8 +14,6 @@
  */
 
 export interface WorldLevel {
-  /** Build name, for whoever edits the geometry. See the note below. */
-  n: string;
   /** Lifetime article count at which this rung is reached. */
   reads: number;
   /** What this rung is supposed to BUILD. */
@@ -37,72 +35,59 @@ export interface WorldLevel {
    reader. And nothing can split the districts holding exactly one article, so
    L1 is a floor we accept rather than a rung anybody earns.
 
-   SKY COURT stays out of reach on purpose. A ladder whose ceiling is reachable
-   stops being a ceiling.
+   L12 stays out of reach on purpose. A ladder whose ceiling is reachable stops
+   being a ceiling.
 
-   `reads` is the only field that has ever reached a reader, as "L7". The names
-   and the descriptions are for whoever edits the geometry: they say what each
-   rung is supposed to BUILD, next to the threshold that triggers it. Twelve
-   invented names is a second vocabulary to learn before a level means anything,
-   so the UI counts instead of naming. */
+   The rungs are numbered and nothing else. `reads` is the only field that ever
+   reaches a reader, as "L7"; the descriptions are for whoever edits the
+   geometry, and say what each rung is supposed to BUILD next to the threshold
+   that triggers it. */
 export const LEVELS: WorldLevel[] = [
   {
-    n: 'WAYSTONE',
     reads: 1,
     d: 'A single lodestone on bare rock. One article is a real thing that happened — it gets land, however little.',
   },
   {
-    n: 'CAIRN',
     reads: 2,
     d: 'Somebody stacked stones and planted the first crystal sprout. Still wild, no longer untouched.',
   },
   {
-    n: 'CAMP',
     reads: 3,
     d: "A tended camp: lantern, path, the district's signature motif appears — identity arrives early, before size does.",
   },
   {
-    n: 'HOLD',
     reads: 5,
     d: 'Ground is cut into two terraces and the first roof goes up. The plot starts reading as built, not found.',
   },
   {
-    n: 'ATELIER',
     reads: 10,
     d: 'A working hamlet with a pool at its heart. Gardens, hedges, the first real greenery.',
   },
   {
-    n: 'SANCTUM',
     reads: 20,
     d: 'Three terraces, a dome, and the first spire. Birds arrive — the place is worth circling.',
   },
   {
-    n: 'CONCLAVE',
     reads: 40,
     d: 'Water spills off the rim as a falls. Lamps line the paths. Density picks up faster than the land does.',
   },
   {
-    n: 'SPIRE',
     reads: 80,
     d: 'Ground runs out before the reading does: cantilever decks brace out past the cliff on struts. The silhouette stops being a lump.',
   },
   {
-    n: 'ACADEMY',
     reads: 160,
     d: 'Four terraces, a spire cluster, and sky bridges strung between the towers. Legible from across the map.',
   },
   {
-    n: 'ARCANUM',
     reads: 320,
     d: 'Lanterns and hanging gardens spill over the terrace lips, a second hall opens, and the district starts growing downward as well as out.',
   },
   {
-    n: 'CITADEL',
     reads: 640,
     d: 'The Great Spire goes up — one landmark that owns the skyline — over a full upper tier of decks and bridges.',
   },
   {
-    n: 'SKY COURT',
     reads: 1280,
     d: 'The endgame plot. Everything lit, everything tended, everything moving. A capital of one subject.',
   },

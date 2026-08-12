@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { format, parseISO } from 'date-fns';
 import {
@@ -25,6 +25,18 @@ const SPEEDS = [1, 4, 16];
    it west of Greenwich. */
 const asDate = (day?: string): string =>
   day ? format(parseISO(day), 'd MMM yyyy') : '-';
+
+const caption = (state: WorldState, hasPlayed: boolean): string => {
+  if (!hasPlayed && !state.open) {
+    return 'Play to watch how this world grew';
+  }
+
+  if (state.open) {
+    return `${state.open.name} · ${worldCounts(state)}`;
+  }
+
+  return worldCounts(state);
+};
 
 /* The transport glyphs are text rather than icons, so the button has to be
    squared off by hand: the icon-only sizing never kicks in for a label. */
@@ -95,6 +107,20 @@ export function WorldTimeline({
   onEnd,
   onSpeed,
 }: WorldTimelineProps): ReactElement {
+  /* Three transport glyphs, a scrubber and a sparkline read as a media player,
+     and a media player over a map does not say what it would play. So the line
+     under the date says it, once, until the reader has pressed play and found
+     out, after which it goes back to the counts, which is the thing worth
+     having there while a replay is actually running.
+     Only at world scale: inside a realm the same line is the only place the open
+     realm is named next to its own totals. */
+  const [hasPlayed, setHasPlayed] = useState(false);
+  useEffect(() => {
+    if (state.playing) {
+      setHasPlayed(true);
+    }
+  }, [state.playing]);
+
   const max = Math.max(1, (state.totalDays ?? 1) - 1);
   /* Pinned to today while the log is on the wire, which is where the world it
      is sitting over is standing: a marker parked at the left edge would read
@@ -144,9 +170,7 @@ export function WorldTimeline({
             className="hidden laptop:block"
             truncate
           >
-            {state.open
-              ? `${state.open.name} · ${worldCounts(state)}`
-              : worldCounts(state)}
+            {caption(state, hasPlayed)}
           </Typography>
         </div>
         <ButtonGroup className="ml-auto flex-none">

@@ -8101,7 +8101,7 @@ function enterRealm(q){
   if(W.unbuilt)return;
   handAbort(); unpossess(); birdsDirty();
   worldDay=DAY;
-  OPEN=q; selected=null; hovered=null;
+  OPEN=q; selected=null; hovered=null; stageEl.classList.remove('pick');
   for(const d of W.districts) hideDistrict(d);
   for(const d of q.list){
     if(d.shown>0) raise(d,levelOf(d.shown),false);
@@ -8119,6 +8119,9 @@ function leaveRealm(){
   handAbort(); unpossess(); birdsDirty();
   for(const d of OPEN.list) hideDistrict(d);
   landRoot.clear(); OPEN=null; selected=null; hovered=null;
+  /* The ground under a stationary pointer is a different thing on either side of
+     this, so the offer is withdrawn and the next move makes it again. */
+  stageEl.classList.remove('pick');
   worldRoot.visible=true;
   landRoot.visible=townRoot.visible=false;
   /* Bring the islands up to the day the scrubber is actually on. Land is
@@ -8489,12 +8492,12 @@ function pick(cx,cy,click){
       if(Math.hypot(p.x-q.x,p.z-q.z)<=spec(Math.max(1,q.level)).radius+3){ hit=q; break; }
     }
   }
-  /* No hover card at either scale. Nothing follows the cursor now: `hovered` is
-     still tracked, but the only thing it does is light the plot border under the
-     pointer. The affordance the card used to carry — "click to walk in" — is
-     already stated in the hint bar, permanently, where it does not have to
-     appear over the world to be read. */
   if(hit!==hovered){ hovered=hit; paintBorders(); }
+  /* Only ground a click does something with. An unread realm does not open, and
+     inside one, only a district with something standing on it has a feed. Never
+     while riding: the pointer is a flight stick then, not a cursor. */
+  stageEl.classList.toggle('pick',
+    !POV.bird&&!!hit&&(OPEN?!!hit.built:hit.shown>0));
   if(click){
     /* Only the bird the reticle is already on. Re-testing the cursor here
        instead would let a bird that happened to fly under the pointer between
