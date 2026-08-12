@@ -65,7 +65,13 @@ export function WorldIntro({
         hasTimeline ? 'bottom-36' : 'bottom-6',
       )}
     >
-      <div className="pointer-events-auto flex max-w-full items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-background-default py-2 pl-4 pr-2">
+      {/* Keyed by step so the second hint arrives rather than appearing: with
+          the node kept, only the words change, and that is easy to miss on a
+          screen where a whole realm has just opened behind it. */}
+      <div
+        key={step}
+        className="pointer-events-auto relative flex max-w-full items-center gap-2 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-default py-2 pl-4 pr-2 motion-safe:animate-[fade-slide-up_0.2s_ease-out_both]"
+      >
         <Typography
           tag={TypographyTag.Span}
           type={TypographyType.Footnote}
@@ -79,6 +85,30 @@ export function WorldIntro({
           aria-label="Dismiss the tips"
           onClick={onDismiss}
         />
+        {/* The whole of the decoration, and it is the world's own, not chrome
+            borrowed from the rest of the app: every plate on the map carries a
+            level bar along its bottom edge, so the hint that points at them
+            wears the same one. What it fills is how far through the two steps
+            the reader is.
+            The light travelling along it is the motion the boot bar makes while
+            the world is raised, so the sequence reads as a continuation of what
+            the reader just sat through. Under the text rather than across it: a
+            sheen over words is the universal sign of content still loading. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-0.5 overflow-hidden"
+        >
+          <i
+            className={classNames(
+              'absolute inset-y-0 left-0 bg-gradient-to-r from-accent-cabbage-default to-accent-onion-default opacity-40 transition-[width] duration-300',
+              step === 'realm' ? 'w-1/2' : 'w-full',
+            )}
+          />
+          {/* Hidden rather than parked when motion is off: at rest it would be a
+              bright quarter stuck at the left end, which reads as a bar that
+              stopped loading. */}
+          <i className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-accent-cabbage-default to-accent-onion-default motion-safe:animate-meter-shine motion-reduce:hidden" />
+        </span>
       </div>
     </div>
   );
