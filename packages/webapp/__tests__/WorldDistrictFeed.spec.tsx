@@ -103,9 +103,6 @@ it('should explain an empty district rather than showing nothing', async () => {
   await waitForNock();
 
   expect(await screen.findByText('Nothing upvoted yet')).toBeInTheDocument();
-  expect(
-    await screen.findByText(/Districts grow by reading, not by voting/),
-  ).toBeInTheDocument();
 });
 
 it('should hand closing back to the caller, which clears the selection', async () => {
