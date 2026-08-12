@@ -8,7 +8,10 @@ import usePersistentContext from '@dailydotdev/shared/src/hooks/usePersistentCon
 import { WorldBack } from './WorldBack';
 import { WorldBoot } from './WorldBoot';
 import { WorldDistrictFeed } from './WorldDistrictFeed';
+import { WorldGuideSheet } from './WorldGuide';
+import { WorldIntro } from './WorldIntro';
 import { useIsOwnWorld, WorldInvite } from './WorldInvite';
+import { useWorldIntro } from './useWorldIntro';
 import { WorldImmersiveToggle, WorldMark } from './WorldMark';
 import { WorldPanel } from './WorldPanel';
 import { WorldPrivate } from './WorldPrivate';
@@ -378,6 +381,30 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
   const openDistrict =
     isChromeVisible && !ownerDraft?.isOpen ? state.district : null;
 
+  /* Below laptop only: on a laptop the same guide replaces the rail, and the
+     rail is where it is asked for. */
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+  /* The scrubber is the one piece of chrome the bar has to stand clear of, and
+     the conditions are the same ones that put it on screen below. */
+  const hasTimeline =
+    isChromeVisible &&
+    !isLite &&
+    !isUnbuilt &&
+    (state.replayable || !hasNoReplay) &&
+    (isLaptop || !openDistrict);
+
+  const { step: introStep, dismiss: dismissIntro } = useWorldIntro({
+    userId: user.id,
+    isOwn,
+    /* Never over bare ground, where `WorldInvite` already makes the one ask and
+       there is nothing to walk into anyway. Never while the bench is open, or
+       riding, or immersive: each of those is a reader who has found something
+       to do, and this is for one who has not. */
+    isEligible: isChromeVisible && !isUnbuilt && !ownerDraft?.isOpen,
+    isInRealm: !!state.open,
+    hasDistrict: !!state.district,
+  });
+
   /* A hidden world draws nothing — no map, timeline or crest — so this returns
      before the boot screen too. */
   if (isPrivate) {
@@ -444,6 +471,23 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
           isOwn={isOwn}
           canShare={canShare}
           onLeaveRealm={onLeaveRealm}
+          onOpenGuide={() => setIsGuideOpen(true)}
+        />
+      )}
+
+      {isStanding && !isLaptop && isGuideOpen && (
+        <WorldGuideSheet
+          state={state}
+          userName={user.name}
+          isOwn={isOwn}
+          districts={districts}
+          /* Both of these are laptop-only surfaces, so neither is promised to a
+             reader who has no way to reach them: the scrubber is not rendered
+             on a handheld, and the bench is rail-only on every screen. */
+          hasReplay={hasTimeline}
+          canCustomize={false}
+          isTouch={isLite}
+          onClose={() => setIsGuideOpen(false)}
         />
       )}
 
@@ -455,27 +499,23 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
           speeds and a sparkline, and a phone has room for one of those
           five; the log it drives is not fetched there either. What is left
           is a world, which is the thing worth the screen anyway. */}
-      {isChromeVisible &&
-        !isLite &&
-        !isUnbuilt &&
-        (state.replayable || !hasNoReplay) &&
-        /* Below laptop the district feed is a sheet across the bottom, sitting
-           exactly where this bar does. Nothing is gained by leaving a scrubber
-           under it that cannot be reached, so the bar comes down for as long as
-           the feed is up. On laptop it stops short of the panel instead. */
-        (isLaptop || !openDistrict) && (
-          <WorldTimeline
-            state={state}
-            pending={!state.replayable}
-            sparkRef={attachSpark}
-            insetRight={!!openDistrict}
-            onToggle={onToggle}
-            onSeek={onSeek}
-            onStart={onStart}
-            onEnd={onEnd}
-            onSpeed={onSpeed}
-          />
-        )}
+      {/* Below laptop the district feed is a sheet across the bottom, sitting
+          exactly where this bar does. Nothing is gained by leaving a scrubber
+          under it that cannot be reached, so the bar comes down for as long as
+          the feed is up. On laptop it stops short of the panel instead. */}
+      {hasTimeline && (
+        <WorldTimeline
+          state={state}
+          pending={!state.replayable}
+          sparkRef={attachSpark}
+          insetRight={!!openDistrict}
+          onToggle={onToggle}
+          onSeek={onSeek}
+          onStart={onStart}
+          onEnd={onEnd}
+          onSpeed={onSpeed}
+        />
+      )}
 
       {isRiding && (
         <WorldRiding
@@ -486,6 +526,18 @@ export function WorldView({ user, world }: WorldViewProps): ReactElement {
       )}
 
       {isUnbuilt && !isRiding && <WorldInvite user={user} />}
+
+      {/* Under the guide sheet on purpose: the sheet is the same explanation
+          asked for deliberately, and a hint bar poking out from under it is two
+          answers to one question. */}
+      {!!introStep && !isGuideOpen && (
+        <WorldIntro
+          step={introStep}
+          hasTimeline={hasTimeline}
+          isTouch={isLite}
+          onDismiss={dismissIntro}
+        />
+      )}
 
       {/* No bar anywhere holds it any more, so it always stands on the world:
           top right, opposite whatever is in the other corner. */}
