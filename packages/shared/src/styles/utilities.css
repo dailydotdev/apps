@@ -180,8 +180,33 @@
   animation: rail-popup-out 120ms ease-in both;
 }
 
+/*
+ * Sidebar tour / coach cards. A blur + lift rather than the X-slide above: the
+ * card stays put between tour steps, so sliding it in on every step read as the
+ * card moving rather than its copy changing.
+ */
+@keyframes coach-card-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.animate-coach-card-in {
+  will-change: transform, opacity, filter;
+  animation: coach-card-in 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-rail-popup-in,
+  .animate-coach-card-in,
   .rail-popup-panel[data-state='open'],
   .rail-popup-panel[data-state='closed'] {
     animation: none;

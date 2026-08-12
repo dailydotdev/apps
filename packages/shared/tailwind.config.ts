@@ -116,6 +116,9 @@ export default {
       popup: '90',
       modal: '100',
       max: '1000',
+      // One above `max` on purpose: Radix portals its poppers with an inline
+      // `z-index: 1000 !important`, and the coach cards have to clear those.
+      coach: '1001',
       '-1': '-1',
     },
     fontFamily: {
