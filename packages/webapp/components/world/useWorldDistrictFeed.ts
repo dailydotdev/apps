@@ -27,31 +27,31 @@ export interface WorldDistrictFeedResult {
  * The upvotes behind one district: what this reader marked as worth keeping in
  * that niche, newest vote first.
  *
- * Keyed by slug rather than held per district, so walking back into a town you
+ * Keyed by niche rather than held per district, so walking back into a town you
  * already opened reads the cache instead of the wire, and the panel opens
  * populated. Nothing is prefetched: a realm holds up to fourteen towns and only
  * the one that was clicked is worth a request.
  */
 export const useWorldDistrictFeed = (
   userId: string,
-  slug?: string,
+  nicheId?: string,
 ): WorldDistrictFeedResult => {
   const query = useInfiniteQuery({
     queryKey: generateQueryKey(RequestKey.UserWorldDistrictFeed, undefined, {
       id: userId,
-      slug,
+      nicheId,
     }),
     queryFn: ({ pageParam }) =>
       gqlClient.request<UserWorldDistrictFeedData>(
         USER_WORLD_DISTRICT_FEED_QUERY,
         {
           id: userId,
-          niches: [slug],
+          nicheIds: [nicheId],
           first: PAGE_SIZE,
           after: pageParam,
         },
       ),
-    enabled: !!userId && !!slug,
+    enabled: !!userId && !!nicheId,
     staleTime: StaleTime.Default,
     initialPageParam: '',
     getNextPageParam: ({ page }) =>

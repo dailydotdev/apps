@@ -15,8 +15,10 @@ import { USER_WORLD_DISTRICT_FEED_QUERY } from '../graphql/world';
 import { WorldDistrictFeed } from '../components/world/WorldDistrictFeed';
 import type { WorldSelectedDistrict } from '../components/world/worldState';
 
+/* A real niche id, because that is what the feed is filtered by now: the slug
+   never leaves the engine. */
 const district: WorldSelectedDistrict = {
-  slug: 'rust',
+  nicheId: '7f14a4b1-6c1c-4f0e-9b3a-2d5c8e0f1a2b',
   name: 'Rust',
   color: '#CE3F4B',
 };
@@ -29,7 +31,7 @@ const feedMock = (
     query: USER_WORLD_DISTRICT_FEED_QUERY,
     variables: {
       id: 'u1',
-      niches: ['rust'],
+      nicheIds: [district.nicheId],
       first: 20,
       after: '',
       ...variables,
@@ -83,7 +85,7 @@ it('should address the owner directly on their own world', async () => {
 });
 
 /* The whole point of the panel: the same upvote feed the profile shows, scoped
-   to the one niche the district stands for. A request without `niches` is the
+   to the one niche the district stands for. A request without `nicheIds` is the
    reader's entire upvote history under a district's name. */
 it('should ask for the upvotes of that niche only', async () => {
   renderFeed();

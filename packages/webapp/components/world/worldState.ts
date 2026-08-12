@@ -32,8 +32,8 @@ export interface WorldOpenRealm {
 
 /** The district a click has opened, and the niche its feed is filtered by. */
 export interface WorldSelectedDistrict {
-  /** The niche slug the API knows the district by. */
-  slug: string;
+  /** The niche the API knows the district by, which is what filters the feed. */
+  nicheId: string;
   /** What the taxonomy calls the topic: "Rust", "CSS & UI". */
   name: string;
   /** Hex, from the district's own accent. */
