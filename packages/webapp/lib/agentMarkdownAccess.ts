@@ -1,13 +1,12 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore -- GrowthBook 0.26 does not expose its declarations for bundler resolution.
-import { GrowthBook } from '@growthbook/growthbook';
+import { getServerFeatureValue } from '@dailydotdev/shared/src/lib/serverFeatureValue';
+import { featureAgentMarkdownSignupWall } from '@dailydotdev/shared/src/lib/serverFeatures';
+import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 const MARKDOWN_TOKEN_PREFIX = 'ddm_';
 const MARKDOWN_TOKEN_AUDIENCE = 'dailydev-markdown';
 const MARKDOWN_TOKEN_ISSUER = API_URL;
 const MARKDOWN_TOKEN_SCOPE = 'markdown:read';
-const SIGNUP_WALL_FEATURE = 'agent_markdown_signup_wall';
 const MARKDOWN_AUTH_PREFIX = `Bearer ${MARKDOWN_TOKEN_PREFIX}`;
 
 export const AGENT_SIGNUP_URL = `${API_URL}/agents/v1/signup`;
@@ -96,21 +95,18 @@ type AgentSignupWallEvaluation = {
 export const evaluateAgentSignupWall = async (
   deviceId: string,
 ): Promise<AgentSignupWallEvaluation> => {
-  const clientKey = process.env.GROWTHBOOK_CLIENT_KEY;
-  if (!clientKey) {
-    return { enabled: false };
-  }
-
   let allocation: AgentSignupWallEvaluation['allocation'];
-  const growthbook = new GrowthBook({
-    apiHost: 'https://cdn.growthbook.io',
-    clientKey,
+  const enabled = await getServerFeatureValue({
     attributes: {
       deviceId,
       loggedIn: false,
-      platform: 'web',
+      mobile: false,
+      platform: BootApp.Webapp,
       userId: deviceId,
+      version: process.env.CURRENT_VERSION,
     },
+    clientKey: process.env.GROWTHBOOK_CLIENT_KEY,
+    feature: featureAgentMarkdownSignupWall,
     trackingCallback: (
       experiment: { key: string },
       result: { variationId: number },
@@ -122,15 +118,7 @@ export const evaluateAgentSignupWall = async (
     },
   });
 
-  try {
-    await growthbook.loadFeatures({ timeout: 1000 });
-    const enabled = growthbook.getFeatureValue(SIGNUP_WALL_FEATURE, false);
-    return { allocation, enabled };
-  } catch {
-    return { enabled: false };
-  } finally {
-    growthbook.destroy();
-  }
+  return { allocation, enabled };
 };
 
 export const trackAgentSignupWallAllocation = async (

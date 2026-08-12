@@ -58,18 +58,9 @@ const getMarkdownResponse = (req: NextRequest): NextResponse => {
   return NextResponse.rewrite(url);
 };
 
-export async function middleware(req: NextRequest): Promise<NextResponse> {
-  const { pathname } = req.nextUrl;
-  const isMarkdownRequest =
-    pathname.startsWith('/api/md/') ||
-    pathname.endsWith('.md') ||
-    (pathname.startsWith(POSTS_PREFIX) &&
-      acceptsMarkdown(req.headers.get('accept')));
-
-  if (!isMarkdownRequest) {
-    return NextResponse.next();
-  }
-
+const handleMarkdownRequest = async (
+  req: NextRequest,
+): Promise<NextResponse> => {
   const deviceId = req.cookies.get('da2')?.value ?? generateTrackingId();
   const wall = await evaluateAgentSignupWall(deviceId);
   const { allocation } = wall;
@@ -96,4 +87,19 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
       'content-type': 'text/markdown; charset=utf-8',
     },
   });
+};
+
+export async function middleware(req: NextRequest): Promise<NextResponse> {
+  const { pathname } = req.nextUrl;
+  const isMarkdownRequest =
+    pathname.startsWith('/api/md/') ||
+    pathname.endsWith('.md') ||
+    (pathname.startsWith(POSTS_PREFIX) &&
+      acceptsMarkdown(req.headers.get('accept')));
+
+  if (isMarkdownRequest) {
+    return handleMarkdownRequest(req);
+  }
+
+  return NextResponse.next();
 }
