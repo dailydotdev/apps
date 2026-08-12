@@ -8,7 +8,6 @@ import {
   adImprovementsV3Feature,
   featureAdLabel,
   featureAutorotateAds,
-  featureFeedCardGlassActions,
   AdLabelVariant,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 import { FeatureOverrides } from '../../../mock/GrowthBookProvider';
@@ -196,7 +195,6 @@ export const adProps = { index: 0, feedIndex: 0, onLinkClick: fn() };
 const baseFlags: Record<string, unknown> = {
   [featureAutorotateAds.id]: 0,
   [adImprovementsV3Feature.id]: false,
-  [featureFeedCardGlassActions.id]: false,
   [featureAdLabel.id]: AdLabelVariant.Control,
 };
 

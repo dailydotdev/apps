@@ -25,7 +25,6 @@ import {
   adImprovementsV3Feature,
   AdLabelVariant,
   featureAdLabel,
-  featureFeedCardGlassActions,
 } from '@dailydotdev/shared/src/lib/featureManagement';
 
 import {
@@ -264,33 +263,9 @@ const gridAnatomy: AnatomyRow[] = [
   },
   {
     element: 'Card height floor',
-    left: 'min-h-card (24rem), min-h-cardGlass (21.5rem) in the glass variant',
+    left: 'min-h-card (24rem)',
     right:
       'No minimum: the ad card is only as tall as its content, so it can be the short one in a row',
-    aligned: false,
-  },
-];
-
-const glassAnatomy: AnatomyRow[] = [
-  {
-    element: 'Cover image position',
-    left: 'Full-bleed at the bottom of the card, top corners square, bottom corners rounded-16',
-    right:
-      'Same treatment: the image moves below the CTA row and goes full-bleed',
-    aligned: true,
-  },
-  {
-    element: 'Floating action bar',
-    left: 'FeedCardGlassActions pill floats over the bottom of the cover image',
-    right:
-      'No pill. The CTA and "Remove ads" stay in a normal row above the image',
-    aligned: false,
-  },
-  {
-    element: 'Space under the image',
-    left: 'The cover reserves room for the pill (pb-12 on the share cover)',
-    right:
-      'Nothing floats over the image, so the ad image runs to the card edge',
     aligned: false,
   },
 ];
@@ -354,12 +329,6 @@ const mobileAnatomy: AnatomyRow[] = [
       '32px favicon inline in the title block, no advertiser name line, attribution below the title',
     aligned: false,
   },
-  {
-    element: 'Glass floating bar',
-    left: 'Grid cards only. List cards keep the classic action row at every width',
-    right: 'Same: AdGrid has the glass variant, AdList does not',
-    aligned: true,
-  },
 ];
 
 const removeAdAnatomy: AnatomyRow[] = [
@@ -386,48 +355,6 @@ const removeAdAnatomy: AnatomyRow[] = [
     element: 'Ad as a comment',
     left: 'AdAsComment passes variant=Tertiary, icon only',
     right: 'Flat close icon, no label',
-    aligned: true,
-  },
-];
-
-const optionsMenuAnatomy: AnatomyRow[] = [
-  {
-    element: 'control arm',
-    left: 'Advertise here and Remove ads inline, above the image',
-    right: 'Same, inline',
-    aligned: true,
-  },
-  {
-    element: 'ad arm',
-    left: 'Advertise here and Remove ads inline',
-    right: 'Same, inline',
-    aligned: true,
-  },
-  {
-    element: 'ad_only arm',
-    left: 'Advertise here dropped, Remove ads stays inline (unchanged behaviour)',
-    right:
-      'Both move into the three-dots menu in the card header, revealed on hover',
-    aligned: false,
-  },
-  {
-    element: 'Three-dots button',
-    left: 'Never rendered',
-    right:
-      'ad_only only. Top right of the header row, hover-revealed on pointer devices, revealed by keyboard focus inside the card, always visible while the menu is open',
-    aligned: false,
-  },
-  {
-    element: 'Advertise-here impression',
-    left: 'Logged when the card mounts, once per rendered ad',
-    right:
-      'Same: logged from a mount effect, not on menu open, so clicks over impressions stays comparable across arms',
-    aligned: true,
-  },
-  {
-    element: 'Plus subscribers',
-    left: 'No Remove ads link, they already have no ads',
-    right: 'Menu holds Advertise with us only',
     aligned: true,
   },
 ];
@@ -514,7 +441,7 @@ const GridFeedPage = (): ReactElement => {
     <StoryPage>
       {toolbar}
       <Section
-        title="Grid feed: classic action row"
+        title="Grid feed"
         description="The ad card sits in the same CSS grid as every post type, so a row resolves to one height. Read down the cards: source image, title, tags, metadata line, cover image, bottom row."
         note="Post cards carry a min-h-card floor; the ad card has none, so in a sparse row it is the card that decides how short the row can get."
       >
@@ -531,39 +458,6 @@ const GridFeedPage = (): ReactElement => {
         <AnatomyTable
           caption="Grid card, element by element"
           rows={gridAnatomy}
-        />
-      </Section>
-    </StoryPage>
-  );
-};
-
-const GlassFeedPage = (): ReactElement => {
-  const { state, toolbar } = useToolbar();
-
-  return (
-    <StoryPage>
-      {toolbar}
-      <Section
-        title="Grid feed: glass variant, image at the bottom"
-        description="With feed_card_glass_actions on, the cover image moves to the bottom of the card and goes full-bleed. Post cards float the glass action pill over that image; the ad card moves its image the same way but leaves the image bare and keeps its advertise and remove links in a text row above it."
-        note="Compare the bottom edge: the post cards end on an image with the pill over it, the ad card ends on a bare image with no bar at all. The image crop, radius and full-bleed inset should match."
-      >
-        {withFlags(
-          {
-            [featureFeedCardGlassActions.id]: true,
-            [adImprovementsV3Feature.id]: state.v3Tags,
-          },
-          <SlotGrid
-            slots={gridSlots(state.v3Tags)}
-            showHeights={state.showHeights}
-            showGuides={state.showGuides}
-          />,
-        )}
-      </Section>
-      <Section title="Anatomy">
-        <AnatomyTable
-          caption="Glass variant, what moves and what does not"
-          rows={glassAnatomy}
         />
       </Section>
     </StoryPage>
@@ -659,7 +553,7 @@ const arms: { variant: AdLabelVariant; label: string; summary: string }[] = [
   {
     variant: AdLabelVariant.AdOnly,
     label: 'ad_only',
-    summary: '"Ad"; on the glass card both links move into the options menu',
+    summary: '"Ad"; the advertise link is dropped, Remove ads stays inline',
   },
 ];
 
@@ -667,13 +561,11 @@ const ArmColumn = ({
   variant,
   label,
   summary,
-  glass,
   state,
 }: {
   variant: AdLabelVariant;
   label: string;
   summary: string;
-  glass: boolean;
   state: { showHeights: boolean; showGuides: boolean; v3Tags: boolean };
 }): ReactElement => (
   <div className="flex w-80 shrink-0 flex-col gap-3">
@@ -686,14 +578,13 @@ const ArmColumn = ({
     {withFlags(
       {
         [featureAdLabel.id]: variant,
-        [featureFeedCardGlassActions.id]: glass,
         [adImprovementsV3Feature.id]: state.v3Tags,
       },
       <SlotGrid
         slots={[
           {
-            key: `arm-${label}-${glass ? 'glass' : 'classic'}`,
-            label: glass ? 'Glass card' : 'Classic card',
+            key: `arm-${label}`,
+            label: 'Ad card',
             isAd: true,
             node: <AdGrid ad={shortCopyAd} {...adProps} />,
           },
@@ -713,32 +604,14 @@ const ArmsPage = (): ReactElement => {
     <StoryPage>
       {toolbar}
       <Section
-        title="Glass card: the ad_only arm moves both links into the options menu"
-        description="Hover the ad_only card and the three-dots button appears top right, next to the advertiser favicon, exactly where a post card puts it. The menu holds Advertise with us and Remove ads, so nothing is taken away, it just stops competing with the creative."
-        note="Only the ad_only arm and only the glass card change. Control and ad keep both links in a row above the image. Note that this hands the advertise link back to the slice of ad_only that also landed in feed_card_glass_actions, so the arm's advertise-click metric has to be segmented by that flag."
+        title="ad_label arms"
+        description="The card keeps Advertise here and Remove ads visible in the card body. ad_only drops the advertise link and the remove link stays inline."
       >
         <div className="flex flex-row flex-nowrap items-start gap-8 overflow-x-auto pb-2">
           {arms.map((arm) => (
-            <ArmColumn key={arm.variant} {...arm} glass state={state} />
+            <ArmColumn key={arm.variant} {...arm} state={state} />
           ))}
         </div>
-      </Section>
-      <Section
-        title="Classic card: untouched in every arm"
-        description="The old layout keeps Advertise here and Remove ads visible in the card body. ad_only still drops the advertise link there, as it has since the experiment shipped, and the remove link stays inline."
-      >
-        <div className="flex flex-row flex-nowrap items-start gap-8 overflow-x-auto pb-2">
-          {arms.map((arm) => (
-            <ArmColumn key={arm.variant} {...arm} glass={false} state={state} />
-          ))}
-        </div>
-      </Section>
-      <Section title="Anatomy">
-        <AnatomyTable
-          caption="Where the ad card's own links live"
-          rows={optionsMenuAnatomy}
-          headers={['Classic card', 'Glass card']}
-        />
       </Section>
     </StoryPage>
   );
@@ -784,7 +657,6 @@ const MobilePage = (): ReactElement => (
     <Section
       title="Mobile and tablet"
       description="Every feed below laptop (1020px) renders the list layout, so this is the ad card most users actually see. Each frame is a real viewport, so the mobile list card shows its own layout: the cover stacks under the text and the action row moves below it."
-      note="The glass floating bar is a grid-card feature (ArticleGrid, ShareGrid, CollectionGrid, FreeformGrid, PollGrid, AdGrid and the wide hero cards). List cards never render it, so there is no mobile glass variant to review."
     >
       <div className="flex w-full flex-row flex-nowrap items-start gap-8 overflow-x-auto pb-2">
         <DeviceFrame
@@ -828,7 +700,7 @@ const AllPlacementsPage = (): ReactElement => {
     <StoryPage>
       {toolbar}
       <Section
-        title="1. Grid feed: classic action row"
+        title="1. Grid feed"
         description="Ad cards between every post type, in one grid, so a row resolves to a single height."
       >
         {withFlags(
@@ -840,23 +712,7 @@ const AllPlacementsPage = (): ReactElement => {
           />,
         )}
       </Section>
-      <Section
-        title="2. Grid feed: glass variant, image at the bottom"
-        description="feed_card_glass_actions moves the cover image to the bottom of the card. The post cards float their action pill over it; the ad card leaves it bare and keeps its advertise and remove links above it."
-      >
-        {withFlags(
-          {
-            [featureFeedCardGlassActions.id]: true,
-            [adImprovementsV3Feature.id]: state.v3Tags,
-          },
-          <SlotGrid
-            slots={gridSlots(state.v3Tags)}
-            showHeights={state.showHeights}
-            showGuides={state.showGuides}
-          />,
-        )}
-      </Section>
-      <Section title="3. List feed">
+      <Section title="2. List feed">
         {withFlags(
           { [adImprovementsV3Feature.id]: state.v3Tags },
           <SlotStack
@@ -866,7 +722,7 @@ const AllPlacementsPage = (): ReactElement => {
           />,
         )}
       </Section>
-      <Section title="4. Signal feed">
+      <Section title="3. Signal feed">
         {withFlags(
           { [adImprovementsV3Feature.id]: state.v3Tags },
           <SlotStack
@@ -877,17 +733,17 @@ const AllPlacementsPage = (): ReactElement => {
         )}
       </Section>
       <Section
-        title="5. ad_label arms on the glass card"
-        description="The ad_only arm moves Advertise with us and Remove ads into a three-dots menu in the card header. Control and ad keep them inline."
+        title="4. ad_label arms"
+        description="The ad_only arm drops the Advertise here link from the card body; the remove link stays inline."
       >
         <div className="flex flex-row flex-nowrap items-start gap-8 overflow-x-auto pb-2">
           {arms.map((arm) => (
-            <ArmColumn key={arm.variant} {...arm} glass state={state} />
+            <ArmColumn key={arm.variant} {...arm} state={state} />
           ))}
         </div>
       </Section>
       <Section
-        title="6. Mobile and tablet"
+        title="5. Mobile and tablet"
         description="Below laptop every feed renders the list layout, so this is the ad card most users see. Each frame is a real viewport."
       >
         <div className="flex w-full flex-row flex-nowrap items-start gap-8 overflow-x-auto pb-2">
@@ -906,7 +762,7 @@ const AllPlacementsPage = (): ReactElement => {
         </div>
       </Section>
       <Section
-        title="7. Post page placements"
+        title="6. Post page placements"
         description="Same ad payload, off the feed grid."
       >
         {withFlags(
@@ -918,19 +774,10 @@ const AllPlacementsPage = (): ReactElement => {
           />,
         )}
       </Section>
-      <Section title="8. Anatomy">
+      <Section title="7. Anatomy">
         <AnatomyTable
           caption="Grid card, element by element"
           rows={gridAnatomy}
-        />
-        <AnatomyTable
-          caption="Glass variant, what moves and what does not"
-          rows={glassAnatomy}
-        />
-        <AnatomyTable
-          caption="Where the ad card's own links live"
-          rows={optionsMenuAnatomy}
-          headers={['Classic card', 'Glass card']}
         />
         <AnatomyTable
           caption="List card on mobile, element by element"
@@ -957,7 +804,7 @@ const meta: Meta = {
     layout: 'fullscreen',
     docs: {
       description: {
-        component: `Every ad placement lined up against every post type, so the ad card can be read as one of the family: source image, title, tag row, metadata line, cover image, bottom action row and card height. Includes the glass variant that moves the cover image to the bottom of the card. Served with the ${baseAd.company} fixture.`,
+        component: `Every ad placement lined up against every post type, so the ad card can be read as one of the family: source image, title, tag row, metadata line, cover image, bottom action row and card height. Served with the ${baseAd.company} fixture.`,
       },
     },
   },
@@ -977,11 +824,6 @@ export const GridFeed: Story = {
   name: 'Grid feed',
 };
 
-export const GlassGridFeed: Story = {
-  render: () => <GlassFeedPage />,
-  name: 'Grid feed (glass, image at bottom)',
-};
-
 export const ListFeed: Story = {
   render: () => <ListFeedPage />,
   name: 'List and signal feeds',
@@ -989,7 +831,7 @@ export const ListFeed: Story = {
 
 export const Arms: Story = {
   render: () => <ArmsPage />,
-  name: 'ad_label arms and the options menu',
+  name: 'ad_label arms',
 };
 
 export const Mobile: Story = {

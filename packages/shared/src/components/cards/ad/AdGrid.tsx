@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React, { forwardRef } from 'react';
-import classNames from 'classnames';
 
 import {
   Card,
@@ -30,9 +29,7 @@ import { useFeature } from '../../GrowthBookProvider';
 import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
-import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { useAdLabel } from '../../../features/monetization/useAdLabel';
-import { AdOptionsButton } from './common/AdOptionsButton';
 
 export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
   { ad, onLinkClick, onViewable, domProps, index, feedIndex },
@@ -40,19 +37,7 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
 ): ReactElement {
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
-  const useGlass = useFeedCardGlassActions();
-  const { showAdvertiseLink, isAdOnly } = useAdLabel();
-  // Only the glass card takes the options menu: it is the layout with the
-  // floating action bar, where a text row under the creative reads as clutter.
-  // The classic card keeps its links inline, unchanged.
-  //
-  // The menu carries "Advertise with us" even though `showAdvertiseLink` is
-  // false in this arm. That is deliberate: the arm removes the link from the
-  // card face, and the product call is to keep it reachable from the menu. It
-  // does mean the arm's advertise-click metric has to be segmented by the
-  // glass flag, since the classic half of the arm cannot reach the link at all.
-  const useOptionsMenu = useGlass && isAdOnly;
-  const showInlineActions = !useOptionsMenu;
+  const { showAdvertiseLink } = useAdLabel();
   const { ref } = useAutoRotatingAds(
     ad,
     index,
@@ -63,18 +48,9 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
   const clickUrl = useAdClickUrl(ad);
 
   return (
-    <Card
-      {...domProps}
-      // `group` only ships with the options menu, so every other arm keeps the
-      // card's original class list.
-      className={classNames(useOptionsMenu && 'group', domProps?.className)}
-      data-testid="adItem"
-      ref={ref}
-    >
+    <Card {...domProps} data-testid="adItem" ref={ref}>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
-      <AdFavicon ad={ad} className="mx-4">
-        {useOptionsMenu && <AdOptionsButton targetId={TargetId.AdCard} />}
-      </AdFavicon>
+      <AdFavicon ad={ad} className="mx-4" />
       <CardTextContainer className="flex-1">
         <CardTitle className="typo-title3">{ad.description}</CardTitle>
         <CardSpace />
@@ -89,54 +65,41 @@ export const AdGrid = forwardRef<HTMLElement, AdCardProps>(function AdGrid(
           className={{ main: `${adAttributionSpacing} font-normal` }}
         />
       </CardTextContainer>
-      {!useGlass && (
-        <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
-      )}
-      {(showInlineActions || !!ad.callToAction) && (
-        <CardTextContainer className="!mx-1 my-1">
-          <div className="flex items-center">
-            {!!ad.callToAction && (
-              <Button
-                tag="a"
-                href={clickUrl}
-                target="_blank"
-                rel="noopener"
-                variant={ButtonVariant.Primary}
+      <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
+      <CardTextContainer className="!mx-1 my-1">
+        <div className="flex items-center">
+          {!!ad.callToAction && (
+            <Button
+              tag="a"
+              href={clickUrl}
+              target="_blank"
+              rel="noopener"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Small}
+              className="z-1"
+              {...combinedClicks(() => onLinkClick?.(ad))}
+            >
+              {ad.callToAction}
+            </Button>
+          )}
+          {showAdvertiseLink && (
+            <AdvertiseLink
+              targetId={TargetId.AdCard}
+              buttonStyle
+              size={ButtonSize.Small}
+            />
+          )}
+          <div className="ml-auto flex items-center gap-2">
+            {!isPlus && (
+              <RemoveAd
+                variant={ButtonVariant.Tertiary}
                 size={ButtonSize.Small}
-                className="z-1"
-                {...combinedClicks(() => onLinkClick?.(ad))}
-              >
-                {ad.callToAction}
-              </Button>
-            )}
-            {showInlineActions && showAdvertiseLink && (
-              <AdvertiseLink
-                targetId={TargetId.AdCard}
-                buttonStyle
-                size={ButtonSize.Small}
+                className="!font-normal typo-footnote"
               />
             )}
-            {showInlineActions && (
-              <div className="ml-auto flex items-center gap-2">
-                {!isPlus && (
-                  <RemoveAd
-                    variant={ButtonVariant.Tertiary}
-                    size={ButtonSize.Small}
-                    className="!font-normal typo-footnote"
-                  />
-                )}
-              </div>
-            )}
           </div>
-        </CardTextContainer>
-      )}
-      {useGlass && (
-        <AdImage
-          className="!mx-0 !mb-0 !rounded-b-16 !rounded-t-none [&_img]:!rounded-none"
-          ad={ad}
-          ImageComponent={CardImage}
-        />
-      )}
+        </div>
+      </CardTextContainer>
       <AdPixel pixel={ad.pixel} />
       <AdMeasurement ad={ad} />
       <AdViewability ad={ad} onViewable={(data) => onViewable?.(ad, data)} />

@@ -13,13 +13,8 @@ import {
 } from '../common/Card';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../common/ActionButtons';
-import {
-  FeedCardGlassActions,
-  glassCoverImageClassName,
-} from '../common/FeedCardGlassActions';
 import PostMetadata from '../common/PostMetadata';
 import { usePostImage } from '../../../hooks/post/usePostImage';
-import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import CardOverlay from '../common/CardOverlay';
 import PostTags from '../common/PostTags';
 import { isPostUpdated } from '../../../graphql/posts';
@@ -48,7 +43,6 @@ export const CollectionGrid = forwardRef(function CollectionCard(
   const onPostCardClick = () => onPostClick?.(post);
   const onPostCardAuxClick = () => onPostAuxClick?.(post);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
-  const useGlass = useFeedCardGlassActions();
 
   if (isHidden) {
     return (
@@ -87,7 +81,7 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         className: getPostClassNames(
           post,
           domProps.className ?? '',
-          useGlass ? 'min-h-cardGlass' : 'min-h-card',
+          'min-h-card',
         ),
       }}
       ref={ref}
@@ -120,16 +114,12 @@ export const CollectionGrid = forwardRef(function CollectionCard(
         <PostTags post={post} className="mx-4" />
         {postMetadata}
       </Container>
-      <Container className={useGlass && image ? 'flex-none' : undefined}>
+      <Container>
         <WelcomePostCardFooter
           image={image}
           contentHtml={post.contentHtml}
           post={post}
           onShare={onShare}
-          glassActions={useGlass}
-          imageClassName={
-            useGlass && image ? glassCoverImageClassName : undefined
-          }
           // Give the freeform text preview the same footer height as the cover
           // image slot (h-40 image + its mt-2/mb-1 margins = 10.5rem) so the
           // tags/date bottom-anchor to the same row as the image cards and the
@@ -137,26 +127,15 @@ export const CollectionGrid = forwardRef(function CollectionCard(
           // date and the text without growing the footer (box-border keeps min-h).
           contentClassName="min-h-[10.5rem] pt-2"
         />
-        {useGlass ? (
-          <FeedCardGlassActions
-            post={post}
-            onUpvoteClick={onUpvoteClick}
-            onCommentClick={onCommentClick}
-            onCopyLinkClick={onCopyLinkClick}
-            onBookmarkClick={onBookmarkClick}
-            onDownvoteClick={onDownvoteClick}
-          />
-        ) : (
-          <ActionButtons
-            post={post}
-            onUpvoteClick={onUpvoteClick}
-            onCommentClick={onCommentClick}
-            onCopyLinkClick={onCopyLinkClick}
-            onBookmarkClick={onBookmarkClick}
-            className="mt-auto"
-            onDownvoteClick={onDownvoteClick}
-          />
-        )}
+        <ActionButtons
+          post={post}
+          onUpvoteClick={onUpvoteClick}
+          onCommentClick={onCommentClick}
+          onCopyLinkClick={onCopyLinkClick}
+          onBookmarkClick={onBookmarkClick}
+          className="mt-auto"
+          onDownvoteClick={onDownvoteClick}
+        />
       </Container>
       {children}
     </FeedItemContainer>
