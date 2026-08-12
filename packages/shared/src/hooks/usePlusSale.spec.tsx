@@ -4,8 +4,7 @@ import { useConditionalFeature } from './useConditionalFeature';
 import { usePlusSubscription } from './usePlusSubscription';
 import { useAuthContext } from '../contexts/AuthContext';
 import { iOSSupportsPlusPurchase } from '../lib/ios';
-import type { PlusSaleConfig } from '../lib/featureManagement';
-import { featurePlusSale } from '../lib/featureManagement';
+import { plusSaleCampaign } from '../lib/plus';
 
 jest.mock('./useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -23,6 +22,19 @@ jest.mock('../lib/ios', () => ({
   iOSSupportsPlusPurchase: jest.fn(),
 }));
 
+// The campaign is a shipped constant, so the spec drives its fields directly
+// instead of going through the flag payload.
+jest.mock('../lib/plus', () => ({
+  plusSaleCampaign: {
+    discountId: 'dsc_summer',
+    code: 'SUMMER50',
+    label: '50% off',
+    headline: 'Summer sale: 50% off Plus',
+    description: 'Code SUMMER50 is already applied. Offer ends August 31.',
+    endDate: '2026-09-01T00:00:00.000Z',
+  },
+}));
+
 const mockUseConditionalFeature = useConditionalFeature as jest.MockedFunction<
   typeof useConditionalFeature
 >;
@@ -37,23 +49,16 @@ const mockIOSSupportsPlusPurchase =
     typeof iOSSupportsPlusPurchase
   >;
 
-const runningSale: PlusSaleConfig = {
-  enabled: true,
-  discountId: 'dsc_summer',
-  code: 'SUMMER50',
-  label: '50% off',
-  headline: 'Summer sale: 50% off Plus',
-  description: 'Code SUMMER50 is already applied. Offer ends August 31.',
-  endDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-};
+const campaign = plusSaleCampaign as { discountId: string; endDate: string };
+const originalCampaign = { ...campaign };
 
-// Mirrors the real hook: the committed default (a disabled sale) is returned
-// until GrowthBook is both ready and allowed to evaluate.
-const setSale = (config: PlusSaleConfig) => {
+// Mirrors the real hook: the committed default (off) is returned until
+// GrowthBook is both ready and allowed to evaluate.
+const setFlag = (enabled: boolean) => {
   mockUseConditionalFeature.mockImplementation(
     ({ shouldEvaluate }) =>
       ({
-        value: shouldEvaluate ? config : featurePlusSale.defaultValue,
+        value: shouldEvaluate ? enabled : false,
         isLoading: !shouldEvaluate,
       } as never),
   );
@@ -62,13 +67,14 @@ const setSale = (config: PlusSaleConfig) => {
 describe('usePlusSale', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    Object.assign(campaign, originalCampaign);
     mockUseAuthContext.mockReturnValue({ isAuthReady: true } as never);
     mockUsePlusSubscription.mockReturnValue({ isPlus: false } as never);
     mockIOSSupportsPlusPurchase.mockReturnValue(false);
-    setSale(runningSale);
+    setFlag(true);
   });
 
-  it('is active for a running sale and exposes its copy', () => {
+  it('is active while the flag is on and exposes the campaign copy', () => {
     const { result } = renderHook(() => usePlusSale());
 
     expect(result.current.isActive).toBe(true);
@@ -78,7 +84,7 @@ describe('usePlusSale', () => {
   });
 
   it('is inactive while the flag is off', () => {
-    setSale({ ...runningSale, enabled: false });
+    setFlag(false);
 
     const { result } = renderHook(() => usePlusSale());
 
@@ -86,7 +92,7 @@ describe('usePlusSale', () => {
   });
 
   it('is inactive without a discount to apply', () => {
-    setSale({ ...runningSale, discountId: '' });
+    campaign.discountId = '';
 
     const { result } = renderHook(() => usePlusSale());
 
@@ -94,10 +100,7 @@ describe('usePlusSale', () => {
   });
 
   it('is inactive once the end date has passed', () => {
-    setSale({
-      ...runningSale,
-      endDate: new Date(Date.now() - 1000).toISOString(),
-    });
+    campaign.endDate = new Date(Date.now() - 1000).toISOString();
 
     const { result } = renderHook(() => usePlusSale());
 
