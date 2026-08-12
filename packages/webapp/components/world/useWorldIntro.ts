@@ -54,8 +54,9 @@ const resolveStep = ({
  * Each step is cleared by the reader DOING the thing rather than by dismissing a
  * card, which is how `WorldNudge` already behaves: the sequence is two clicks
  * long and teaching them by having them made beats describing them. So there is
- * no "next" button and no step counter. Walk into a realm and the first hint is
- * replaced by the second; open a district and there is nothing left to say.
+ * no "next" button, and the two dots the bar draws are a read-out rather than a
+ * control. Walk into a realm and the first hint is replaced by the second; open
+ * a district and there is nothing left to say.
  *
  * Nothing shows until the stored flag has actually been read back. Without that
  * wait every returning reader gets a frame of the intro before it disappears,
