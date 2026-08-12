@@ -300,8 +300,11 @@ export const ACHIEVEMENT_KEYS = [
   NotificationType.UserTopReaderBadge,
   NotificationType.DevCardUnlocked,
   NotificationType.ArticleAnalytics,
-  NotificationType.WorldDistrictLevelUp,
 ];
+// Its own group rather than one of the achievement keys. Sharing that toggle
+// would mean the only way to stop hearing about a world is to also stop
+// hearing about badges, under a label that never mentions worlds.
+export const WORLD_KEYS = [NotificationType.WorldDistrictLevelUp];
 export const MENTION_KEYS = [
   NotificationType.PostMention,
   NotificationType.CommentMention,
