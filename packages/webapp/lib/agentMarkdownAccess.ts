@@ -1,4 +1,5 @@
-// @ts-expect-error GrowthBook 0.26 does not expose its declarations for bundler resolution.
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore -- GrowthBook 0.26 does not expose its declarations for bundler resolution.
 import { GrowthBook } from '@growthbook/growthbook';
 
 const MARKDOWN_TOKEN_PREFIX = 'ddm_';
