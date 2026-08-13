@@ -69,6 +69,11 @@ export interface WorldRankPosition {
   cappedAt: number;
 }
 
+export interface FollowedWorldsConnection {
+  pageInfo: { hasNextPage: boolean; endCursor: string | null };
+  edges: { node: IndexedWorld }[];
+}
+
 export interface WorldLevelUp {
   world: IndexedWorld;
   niche: WorldNiche;
@@ -177,9 +182,17 @@ export const WORLD_RECENT_LEVEL_UPS_QUERY = gql`
 `;
 
 export const FOLLOWED_WORLDS_QUERY = gql`
-  query FollowedWorlds($limit: Int) {
-    followedWorlds(limit: $limit) {
-      ...IndexedWorld
+  query FollowedWorlds($first: Int, $after: String) {
+    followedWorlds(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          ...IndexedWorld
+        }
+      }
     }
   }
   ${INDEXED_WORLD_FRAGMENT}
