@@ -16,7 +16,6 @@ export type MarketingCtaFlags = {
   tagColor?: string;
   ctaUrl: string;
   ctaText: string;
-  asFirstCard?: boolean;
   videoUrl?: string;
 };
 
