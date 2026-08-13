@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
 import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
@@ -58,6 +58,21 @@ const ProfilePage = ({
     useProfileCompletionIndicator();
 
   const { user, isUserSame: isUserSameBase } = useProfile(initialUser);
+
+  useEffect(() => {
+    if (!router.isReady || !isUserSameBase || router.query.userId !== user.id) {
+      return;
+    }
+
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: { ...router.query, userId: user.username },
+      },
+      undefined,
+      { shallow: true },
+    );
+  }, [isUserSameBase, router, user.id, user.username]);
 
   // Check if preview mode is enabled via query param
   const isPreviewMode = router.query.preview === 'true';
