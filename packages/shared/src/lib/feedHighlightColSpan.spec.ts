@@ -356,6 +356,61 @@ describe('createPlacementBuilder', () => {
     });
     expect(placement.colSpan).toBe(1);
   });
+
+  describe('firstSlotOffset', () => {
+    it('starts the first item at column offset when a top-slot card takes col 0', () => {
+      const builder = createPlacementBuilder({ ...opts, firstSlotOffset: 1 });
+      expect(builder.next(makePostItem(makePost()))).toEqual({
+        colSpan: 1,
+        row: 0,
+        column: 1,
+      });
+      expect(builder.next(makePostItem(makePost()))).toEqual({
+        colSpan: 1,
+        row: 0,
+        column: 2,
+      });
+    });
+
+    it('clamps a wide card on row 0 to the actual remaining cells', () => {
+      const builder = createPlacementBuilder({ ...opts, firstSlotOffset: 1 });
+      const placement = builder.next(
+        makePostItem(makePost({ significance: 'breaking' })),
+      );
+      expect(placement).toEqual({ colSpan: 3, row: 0, column: 1 });
+    });
+
+    it('wraps to row 1 col 0 after the first row fills, unshifted', () => {
+      const builder = createPlacementBuilder({ ...opts, firstSlotOffset: 1 });
+      builder.next(makePostItem(makePost()));
+      builder.next(makePostItem(makePost()));
+      const third = builder.next(makePostItem(makePost()));
+      const fourth = builder.next(makePostItem(makePost()));
+      expect(third).toEqual({ colSpan: 1, row: 0, column: 3 });
+      expect(fourth).toEqual({ colSpan: 1, row: 1, column: 0 });
+    });
+
+    it('shifts row/column in the layout-disabled path (list/mobile)', () => {
+      const builder = createPlacementBuilder({
+        ...opts,
+        isEnabled: false,
+        firstSlotOffset: 1,
+      });
+      const items = Array.from({ length: 4 }, () => makePostItem(makePost()));
+      expect(items.map((item) => builder.next(item))).toEqual([
+        { colSpan: 1, row: 0, column: 1 },
+        { colSpan: 1, row: 0, column: 2 },
+        { colSpan: 1, row: 0, column: 3 },
+        { colSpan: 1, row: 1, column: 0 },
+      ]);
+    });
+
+    it('caps an out-of-range offset to numCards - 1', () => {
+      const builder = createPlacementBuilder({ ...opts, firstSlotOffset: 99 });
+      const placement = builder.next(makePostItem(makePost()));
+      expect(placement).toEqual({ colSpan: 1, row: 0, column: 3 });
+    });
+  });
 });
 
 describe('computePlacements', () => {
