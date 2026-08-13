@@ -39,16 +39,20 @@ export function WorldTopicBars({
 
         return (
           <div key={topic.niche.id} className="flex items-center gap-2">
+            {/* The title takes the slack and the bar is fixed, rather than the
+                other way round: niche titles run to "JavaScript / TypeScript
+                ecosystem", and a bar is still comparable at any width so long
+                as every row shares it. It wraps rather than clipping, so the
+                row grows a line instead of hiding half a subject. */}
             <Typography
               type={TypographyType.Caption1}
               color={TypographyColor.Secondary}
-              truncate
-              className="w-20 shrink-0"
+              className="min-w-0 flex-1 break-words"
             >
               {topic.niche.title}
             </Typography>
 
-            <span className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-8 bg-accent-pepper-subtler">
+            <span className="h-1.5 w-16 shrink-0 overflow-hidden rounded-8 bg-accent-pepper-subtler">
               <span
                 className="block h-full rounded-8"
                 style={{

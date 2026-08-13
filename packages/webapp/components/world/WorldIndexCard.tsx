@@ -52,19 +52,22 @@ export function WorldIndexCard({
             size={ProfileImageSize.Medium}
             nativeLazyLoading
           />
+          {/* Wraps rather than clips. `min-w-0` is what lets it: without it a
+              flex item refuses to shrink below its content and a long handle
+              pushes out of the card instead of breaking. */}
           <div className="flex min-w-0 flex-col">
             <Typography
               tag={TypographyTag.H3}
               type={TypographyType.Footnote}
               bold
-              truncate
+              className="break-words"
             >
               {world.user.name}
             </Typography>
             <Typography
               type={TypographyType.Caption1}
               color={TypographyColor.Tertiary}
-              truncate
+              className="break-words"
             >
               @{world.user.username}
             </Typography>
@@ -76,8 +79,7 @@ export function WorldIndexCard({
         <Typography
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
-          className="mt-auto tabular-nums"
-          truncate
+          className="mt-auto break-words tabular-nums"
         >
           {world.name ? `${world.name} · ` : ''}
           {world.topics} topics · {world.articles.toLocaleString()} articles

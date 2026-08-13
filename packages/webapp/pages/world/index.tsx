@@ -184,11 +184,14 @@ const LadderRow = ({
             </Typography>
           </div>
 
+          {/* Fixed width, or a two-digit level makes this badge wider than a
+              one-digit one and every column to its left starts somewhere
+              different from the row above. */}
           <Typography
             type={TypographyType.Caption1}
             bold
             color={TypographyColor.Tertiary}
-            className="shrink-0 rounded-8 border border-border-subtlest-tertiary px-2 py-0.5"
+            className="w-14 shrink-0 rounded-8 border border-border-subtlest-tertiary px-2 py-0.5 text-center tabular-nums"
           >
             Lv {level}
           </Typography>
@@ -207,7 +210,7 @@ const RowsPlaceholder = ({ rows }: { rows: number }): ReactElement => (
 );
 
 const CardsPlaceholder = ({ cards }: { cards: number }): ReactElement => (
-  <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-4">
+  <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
     {Array.from({ length: cards }, (_, index) => (
       <ElementPlaceholder key={index} className="h-44 w-full rounded-16" />
     ))}
@@ -416,13 +419,16 @@ function WorldIndexPage(): ReactElement {
                 >
                   in {category?.name ?? ''}
                 </Typography>
+                {/* An all-time count whichever period is showing, because it
+                    is the only one the API keeps. Said plainly, so it does not
+                    read as a weekly number that never moves. */}
                 {!!topic && (
                   <Typography
                     type={TypographyType.Caption1}
                     color={TypographyColor.Tertiary}
                     className="ml-auto tabular-nums"
                   >
-                    {topic.readers.toLocaleString()} people read this topic
+                    {topic.readers.toLocaleString()} readers all time
                   </Typography>
                 )}
               </div>
@@ -492,7 +498,7 @@ function WorldIndexPage(): ReactElement {
                       key={`${entry.world.user.id}-${entry.niche.id}`}
                       world={entry.world}
                       event={`${entry.niche.title} hit level ${entry.level}`}
-                      className="w-72 shrink-0"
+                      className="w-64 shrink-0 tablet:w-80"
                     />
                   ))}
                 </div>
