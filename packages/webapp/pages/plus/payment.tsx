@@ -12,7 +12,11 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import dynamic from 'next/dynamic';
-import { useProductPricingByIds } from '@dailydotdev/shared/src/hooks/useProductPricing';
+import {
+  useProductPricing,
+  useProductPricingByIds,
+} from '@dailydotdev/shared/src/hooks/useProductPricing';
+import { PurchaseType } from '@dailydotdev/shared/src/graphql/paddle';
 import { PlusCheckoutContainer } from '@dailydotdev/shared/src/components/plus/PlusCheckoutContainer';
 import { usePlusSale } from '@dailydotdev/shared/src/hooks/usePlusSale';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
@@ -28,13 +32,24 @@ const PlusProductList = dynamic(
 const PlusPaymentPage = (): ReactElement => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const { isPaddleReady, openCheckout, productOptions } = usePaymentContext();
-  const { isActive: isSaleActive } = usePlusSale();
+  const { discountId } = usePlusSale();
   const router = useRouter();
   const { pid, gift } = router.query;
   const checkoutRef = useRef<HTMLDivElement>(null);
   const { data: productPricing } = useProductPricingByIds({
     ids: [pid as string],
     loadMetadata: true,
+  });
+  // Gifting buys a one-off product the subscription sale doesn't cover.
+  const isDiscounted = !!discountId && !gift;
+  const isPersonalPlan = productOptions?.some(({ priceId }) => priceId === pid);
+  // The provider previews personal plans, so a team purchase needs its own
+  // discounted preview: pricingPreviewByIds takes no discount, and quoting its
+  // list price next to a discounted Paddle total is what misleads the buyer.
+  const { data: teamPricing } = useProductPricing({
+    type: PurchaseType.Organization,
+    discountId,
+    enabled: isDiscounted && !isPersonalPlan,
   });
 
   useEffect(() => {
@@ -59,13 +74,10 @@ const PlusPaymentPage = (): ReactElement => {
     }
   }, [pid, router]);
 
-  // pricingPreviewByIds takes no discount, so whenever the sale reaches this
-  // purchase the plan details have to come from the already-discounted options,
-  // or Paddle would charge less than the amount shown next to it.
-  const isDiscounted = isSaleActive && !gift;
-  const selectedProduct = (
-    isDiscounted ? productOptions : productPricing
-  )?.find(({ priceId }) => priceId === pid);
+  const pricing = isDiscounted
+    ? [...(productOptions ?? []), ...(teamPricing ?? [])]
+    : productPricing;
+  const selectedProduct = pricing?.find(({ priceId }) => priceId === pid);
 
   return (
     <>

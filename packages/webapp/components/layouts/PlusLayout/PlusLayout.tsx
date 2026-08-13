@@ -59,16 +59,15 @@ export default function PlusLayout({
   );
 }
 
-// Scopes the running sale's discount to the Plus routes: previewed prices and
-// checkout both open with it applied. The onboarding funnel mounts its own
-// provider without a discount, so promos never leak into it.
+// The sale reaches Paddle only through the Plus routes; the onboarding funnel
+// mounts its own provider and must stay free of promos.
 function PlusSalePaymentProvider({
   children,
 }: PropsWithChildren): ReactElement {
-  const { isActive, discountId } = usePlusSale();
+  const { discountId } = usePlusSale();
 
   return (
-    <PaymentContextProvider discountId={isActive ? discountId : undefined}>
+    <PaymentContextProvider discountId={discountId}>
       {children}
     </PaymentContextProvider>
   );

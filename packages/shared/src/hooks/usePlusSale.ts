@@ -7,7 +7,8 @@ import { usePlusSubscription } from './usePlusSubscription';
 
 type UsePlusSale = typeof plusSaleCampaign & {
   isActive: boolean;
-  discountId: string;
+  /** Only set while the sale is active, so it can't be applied when it isn't. */
+  discountId?: string;
 };
 
 export const usePlusSale = (): UsePlusSale => {
@@ -19,16 +20,17 @@ export const usePlusSale = (): UsePlusSale => {
   });
 
   const hasNotEnded = Date.now() < new Date(plusSaleCampaign.endDate).getTime();
+  const isActive =
+    !isLoading &&
+    !!discountId &&
+    !isPlus &&
+    hasNotEnded &&
+    // StoreKit purchases go through Apple, which can't honour a Paddle discount.
+    !iOSSupportsPlusPurchase();
 
   return {
     ...plusSaleCampaign,
-    discountId,
-    isActive:
-      !isLoading &&
-      !!discountId &&
-      !isPlus &&
-      hasNotEnded &&
-      // StoreKit purchases go through Apple, which can't honour a Paddle discount.
-      !iOSSupportsPlusPurchase(),
+    isActive,
+    discountId: isActive ? discountId : undefined,
   };
 };

@@ -48,9 +48,6 @@ export const BriefPlusUpgradeCTA = ({
         {...attrs}
       >
         {plusCta}
-        {/* Guarded rather than left to the label's own check: an always-rendered
-            child would stop Button from wrapping its text label, changing the
-            markup even with no sale running. */}
         {isSaleActive && <PlusSaleLabel className="ml-1.5" />}
       </Button>
     </Link>

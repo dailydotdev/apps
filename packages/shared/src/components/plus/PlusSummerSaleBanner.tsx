@@ -58,8 +58,7 @@ export function PlusSummerSaleBanner({
         style={{ background: plusSaleBannerScrim }}
       />
 
-      {/* pr-8 keeps the headline clear of the absolutely positioned close
-          button once it wraps on narrow screens. */}
+      {/* pr-8 keeps the headline clear of the close button. */}
       <div className="flex max-w-[34rem] flex-col gap-2 pr-8">
         <Typography
           tag={TypographyTag.H2}

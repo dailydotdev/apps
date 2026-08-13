@@ -78,11 +78,8 @@ export const UpgradeToPlus = ({
         {...attrs}
       >
         {showSaleLabel ? (
-          // Button only auto-wraps its label when every child is text, so the
-          // label span is reproduced here to keep truncation once the badge
-          // turns the children into elements.
           <>
-            <span className="btn-label min-w-0 truncate">{content}</span>
+            <span className="min-w-0 truncate">{content}</span>
             <PlusSaleLabel />
           </>
         ) : (

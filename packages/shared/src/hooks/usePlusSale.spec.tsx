@@ -88,6 +88,14 @@ describe('usePlusSale', () => {
     expect(result.current.isActive).toBe(false);
   });
 
+  it('withholds the discount whenever the sale is not active', () => {
+    mockIOSSupportsPlusPurchase.mockReturnValue(true);
+
+    const { result } = renderHook(() => usePlusSale());
+
+    expect(result.current.discountId).toBeUndefined();
+  });
+
   it('is inactive once the end date has passed', () => {
     campaign.endDate = new Date(Date.now() - 1000).toISOString();
 

@@ -3,7 +3,10 @@ import { render, screen } from '@testing-library/react';
 import { useRouter } from 'next/router';
 import { usePaymentContext } from '@dailydotdev/shared/src/contexts/payment/context';
 import { usePlusSale } from '@dailydotdev/shared/src/hooks/usePlusSale';
-import { useProductPricingByIds } from '@dailydotdev/shared/src/hooks/useProductPricing';
+import {
+  useProductPricing,
+  useProductPricingByIds,
+} from '@dailydotdev/shared/src/hooks/useProductPricing';
 import type { ProductPricingPreview } from '@dailydotdev/shared/src/graphql/paddle';
 import { useViewSize } from '@dailydotdev/shared/src/hooks';
 import PlusPaymentPage from '../pages/plus/payment';
@@ -19,6 +22,7 @@ jest.mock('@dailydotdev/shared/src/hooks/usePlusSale', () => ({
 }));
 
 jest.mock('@dailydotdev/shared/src/hooks/useProductPricing', () => ({
+  useProductPricing: jest.fn(),
   useProductPricingByIds: jest.fn(),
 }));
 
@@ -46,13 +50,17 @@ const mockUsePaymentContext = usePaymentContext as jest.MockedFunction<
   typeof usePaymentContext
 >;
 const mockUsePlusSale = usePlusSale as jest.MockedFunction<typeof usePlusSale>;
+const mockUseProductPricing = useProductPricing as jest.MockedFunction<
+  typeof useProductPricing
+>;
 const mockUseProductPricingByIds =
   useProductPricingByIds as jest.MockedFunction<typeof useProductPricingByIds>;
 const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;
 
-const annual = 'pri_annual';
+const personal = 'pri_personal_annual';
+const team = 'pri_team_annual';
 
-const price = (formatted: string, priceId = annual) =>
+const price = (formatted: string, priceId: string) =>
   ({
     priceId,
     price: { amount: 1, formatted },
@@ -61,13 +69,13 @@ const price = (formatted: string, priceId = annual) =>
   } as ProductPricingPreview);
 
 const renderPage = ({
-  isSaleActive,
-  query = { pid: annual },
-  productOptions = [price('$16')],
+  discountId,
+  query = { pid: personal },
+  teamPricing = [price('$150', team)],
 }: {
-  isSaleActive: boolean;
+  discountId?: string;
   query?: Record<string, string>;
-  productOptions?: ProductPricingPreview[];
+  teamPricing?: ProductPricingPreview[];
 }) => {
   mockUseRouter.mockReturnValue({
     query,
@@ -77,11 +85,12 @@ const renderPage = ({
   mockUsePaymentContext.mockReturnValue({
     isPaddleReady: false,
     openCheckout: jest.fn(),
-    productOptions,
+    productOptions: [price('$16', personal)],
   } as never);
-  mockUsePlusSale.mockReturnValue({ isActive: isSaleActive } as never);
+  mockUsePlusSale.mockReturnValue({ discountId } as never);
+  mockUseProductPricing.mockReturnValue({ data: teamPricing } as never);
   mockUseProductPricingByIds.mockReturnValue({
-    data: [price('$32')],
+    data: [price('$32', personal), price('$300', team)],
   } as never);
 
   return render(<PlusPaymentPage />);
@@ -95,29 +104,40 @@ describe('PlusPaymentPage plan details', () => {
   });
 
   it('shows the discounted amount Paddle will charge during a sale', async () => {
-    renderPage({ isSaleActive: true });
+    renderPage({ discountId: 'dsc_summer' });
 
     expect(await screen.findByTestId('plan-details')).toHaveTextContent('$16');
   });
 
   it('shows the list price when no sale is running', async () => {
-    renderPage({ isSaleActive: false });
+    renderPage({ discountId: undefined });
 
     expect(await screen.findByTestId('plan-details')).toHaveTextContent('$32');
   });
 
   it('shows the list price for a gift, which the sale does not discount', async () => {
     renderPage({
-      isSaleActive: true,
-      query: { pid: annual, gift: 'u1' },
+      discountId: 'dsc_summer',
+      query: { pid: personal, gift: 'u1' },
     });
 
     expect(await screen.findByTestId('plan-details')).toHaveTextContent('$32');
   });
 
-  it('shows nothing rather than a price the sale may have moved', () => {
-    renderPage({ isSaleActive: true, productOptions: [price('$16', 'pri_x')] });
+  it('keeps the panel for a team plan, which the provider does not preview', async () => {
+    renderPage({ discountId: 'dsc_summer', query: { pid: team } });
 
-    expect(screen.queryByText('Plan details')).not.toBeInTheDocument();
+    expect(await screen.findByTestId('plan-details')).toHaveTextContent('$150');
+    expect(mockUseProductPricing).toHaveBeenCalledWith(
+      expect.objectContaining({ discountId: 'dsc_summer', enabled: true }),
+    );
+  });
+
+  it('only asks for team prices when the personal list misses the plan', () => {
+    renderPage({ discountId: 'dsc_summer' });
+
+    expect(mockUseProductPricing).toHaveBeenCalledWith(
+      expect.objectContaining({ enabled: false }),
+    );
   });
 });
