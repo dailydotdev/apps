@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo';
 import classNames from 'classnames';
 import {
@@ -38,13 +39,13 @@ import type {
   WorldRankEntry,
 } from '../../graphql/worldIndex';
 import { WorldRankPeriod } from '../../graphql/worldIndex';
-import type { WorldCategory } from '../../components/world/worldIndexTaxonomy';
-import { topicsOfCategory } from '../../components/world/worldIndexTaxonomy';
+import type { WorldDomain } from '../../components/world/useWorldIndex';
 import {
   useFollowedWorlds,
   useWorldCatalogue,
+  useWorldDomainRanking,
+  useWorldRankPosition,
   useWorldRecentLevelUps,
-  useWorldTopicRankPosition,
   useWorldTopicRanking,
 } from '../../components/world/useWorldIndex';
 
@@ -87,12 +88,22 @@ const SectionHeader = ({
   </div>
 );
 
+/** One row of either board, with the level only a topic board can supply. */
+interface RankingRow {
+  rank: number;
+  user: WorldRankEntry['user'];
+  worldName: string | null;
+  articles: number;
+  level?: number;
+}
+
 interface LadderRowProps {
   rank: number;
   user: WorldRankEntry['user'];
   worldName: string | null;
   articles: number;
-  level: number;
+  /** Absent on a domain row: a rung belongs to one topic, a total to none. */
+  level?: number;
   accent: string;
   accentBg: string;
   max: number;
@@ -186,15 +197,21 @@ const LadderRow = ({
 
           {/* Fixed width, or a two-digit level makes this badge wider than a
               one-digit one and every column to its left starts somewhere
-              different from the row above. */}
-          <Typography
-            type={TypographyType.Caption1}
-            bold
-            color={TypographyColor.Tertiary}
-            className="w-14 shrink-0 rounded-8 border border-border-subtlest-tertiary px-2 py-0.5 text-center tabular-nums"
-          >
-            Lv {level}
-          </Typography>
+              different from the row above. The empty span holds the column
+              open on a domain board so the rows above and below still line
+              up with the topic boards. */}
+          {typeof level === 'number' ? (
+            <Typography
+              type={TypographyType.Caption1}
+              bold
+              color={TypographyColor.Tertiary}
+              className="w-14 shrink-0 rounded-8 border border-border-subtlest-tertiary px-2 py-0.5 text-center tabular-nums"
+            >
+              Lv {level}
+            </Typography>
+          ) : (
+            <span className="w-14 shrink-0" aria-hidden />
+          )}
         </a>
       </Link>
     </li>
@@ -219,51 +236,108 @@ const CardsPlaceholder = ({ cards }: { cards: number }): ReactElement => (
 
 function WorldIndexPage(): ReactElement {
   const { isV2 } = useLayoutVariant();
+  const router = useRouter();
   const { user, isLoggedIn } = useAuthContext();
-  const {
-    bySlug,
-    categories,
-    isPending: isCataloguePending,
-  } = useWorldCatalogue();
+  const { domains, isPending: isCataloguePending } = useWorldCatalogue();
 
-  const [categoryId, setCategoryId] = useState<string | null>(null);
+  const [domainId, setDomainId] = useState<string | null>(null);
+  /* Null is the whole domain rather than "nothing selected". The domain board
+     is the one most readers place on, so it is where the page opens. */
   const [topicSlug, setTopicSlug] = useState<string | null>(null);
   const [period, setPeriod] = useState<WorldRankPeriod>(WorldRankPeriod.Week);
 
-  const category = useMemo(
-    () => categories.find((item) => item.id === categoryId) ?? categories[0],
-    [categories, categoryId],
+  const domain = useMemo(
+    () => domains.find((item) => item.id === domainId) ?? domains[0],
+    [domains, domainId],
   );
-  const topics = useMemo(
-    () => (category ? topicsOfCategory(category, bySlug) : []),
-    [category, bySlug],
-  );
+  const topics = useMemo(() => domain?.topics ?? [], [domain]);
   const topic = useMemo(
-    () => topics.find((item) => item.slug === topicSlug) ?? topics[0],
+    () => topics.find((item) => item.slug === topicSlug),
     [topics, topicSlug],
   );
+  const isWholeDomain = !topic;
 
-  /* The catalogue arrives after the first render, so the opening topic is
-     settled once it lands rather than guessed from a slug that may not exist. */
+  /**
+   * Where the page opens.
+   *
+   * The catalogue arrives after the first render, so this settles once it
+   * lands rather than guessing at an id that may not exist. A `topic` in the
+   * query wins: it is how the world's own district panel hands a reader
+   * straight to that topic's board.
+   *
+   * Matched on either the slug or the niche id, because the two callers have
+   * different halves. A hand-written link says `?topic=rust`; the district
+   * panel only carries the id the feed is filtered by.
+   */
   useEffect(() => {
-    if (!categoryId && categories.length) {
-      setCategoryId(categories[0].id);
+    if (domainId || !domains.length) {
+      return;
     }
-  }, [categories, categoryId]);
 
-  const { entries, isPending: isRankingPending } = useWorldTopicRanking({
+    const wanted = Array.isArray(router.query.topic)
+      ? router.query.topic[0]
+      : router.query.topic;
+    const found = wanted
+      ? domains.find((item) =>
+          item.topics.some(
+            (candidate) => candidate.slug === wanted || candidate.id === wanted,
+          ),
+        )
+      : undefined;
+
+    if (found) {
+      setDomainId(found.id);
+      setTopicSlug(
+        found.topics.find(
+          (candidate) => candidate.slug === wanted || candidate.id === wanted,
+        )?.slug ?? null,
+      );
+      return;
+    }
+
+    setDomainId(domains[0].id);
+  }, [domains, domainId, router.query.topic]);
+
+  const topicRanking = useWorldTopicRanking({
     nicheId: topic?.id,
     period,
     limit: RANKING_LIMIT,
   });
-  const position = useWorldTopicRankPosition({ nicheId: topic?.id, period });
+  const domainRanking = useWorldDomainRanking({
+    domain: isWholeDomain ? domain?.id : undefined,
+    period,
+    limit: RANKING_LIMIT,
+  });
+  /* Normalised in the branch that knows the type, rather than narrowed at the
+     call site: only a topic row carries a level, and a cast would let a domain
+     row through with one. */
+  const rows: RankingRow[] = useMemo(
+    () =>
+      isWholeDomain
+        ? domainRanking.entries.map((entry) => ({ ...entry, level: undefined }))
+        : topicRanking.entries.map((entry) => ({ ...entry })),
+    [isWholeDomain, domainRanking.entries, topicRanking.entries],
+  );
+  const isRankingPending = isWholeDomain
+    ? domainRanking.isPending
+    : topicRanking.isPending;
+  const position = useWorldRankPosition({
+    nicheId: isWholeDomain ? undefined : topic?.id,
+    domain: isWholeDomain ? domain?.id : undefined,
+    period,
+  });
   const { items: levelUps, isPending: isLevelUpsPending } =
     useWorldRecentLevelUps(SECTION_LIMIT);
-  const { items: followed, isPending: isFollowedPending } =
-    useFollowedWorlds(SECTION_LIMIT);
+  const {
+    items: followed,
+    isPending: isFollowedPending,
+    fetchNextPage: fetchMoreFollowed,
+    canFetchMore: canFetchMoreFollowed,
+    isFetchingNextPage: isFetchingMoreFollowed,
+  } = useFollowedWorlds(SECTION_LIMIT);
 
-  const maxArticles = entries.length ? entries[0].articles : 0;
-  const isOwnRanked = entries.some((entry) => entry.user.id === user?.id);
+  const maxArticles = rows.length ? rows[0].articles : 0;
+  const isOwnRanked = rows.some((entry) => entry.user.id === user?.id);
   /* Only when the ranking's page does not already hold the viewer, and only
      when the ranking states a placing for them at all. */
   const ownRow =
@@ -271,24 +345,26 @@ function WorldIndexPage(): ReactElement {
       ? {
           rank: position.rank,
           articles: position.articles,
-          level: position.level,
+          level: isWholeDomain ? undefined : position.level,
           user,
         }
       : null;
 
-  const onCategoryChange = (next: WorldCategory): void => {
-    setCategoryId(next.id);
+  const onDomainChange = (next: WorldDomain): void => {
+    setDomainId(next.id);
     setTopicSlug(null);
   };
 
+  const subject = isWholeDomain
+    ? (domain?.name ?? 'this field').toLowerCase()
+    : topic?.title ?? 'topic';
+  const allTimeDescription = isWholeDomain
+    ? `Ranked by every ${subject} article read, added up across the whole field. Somebody who reads broadly places here even when no single topic would show them.`
+    : `Ranked by every ${subject} article read. Someone who only reads one topic can beat someone who reads a bit of everything.`;
   const rankingDescription =
     period === WorldRankPeriod.Week
-      ? `Ranked by ${
-          topic?.title ?? 'topic'
-        } articles read in the last seven days. The count starts over every week, so a good week is enough to place.`
-      : `Ranked by every ${
-          topic?.title ?? 'topic'
-        } article read. Someone who only reads one topic can beat someone who reads a bit of everything.`;
+      ? `Ranked by ${subject} articles read in the last seven days. The count starts over every week, so a good week is enough to place.`
+      : allTimeDescription;
 
   return (
     <>
@@ -308,8 +384,8 @@ function WorldIndexPage(): ReactElement {
           {/* ---------- pick a topic ---------- */}
           <section className="flex flex-col gap-4">
             <SectionHeader
-              title="Browse by category"
-              description="Six categories, forty topics. Pick one to see who reads it most."
+              title="Browse by field"
+              description="Six fields, forty topics. Pick a field for its whole leaderboard, or a topic inside it."
             />
 
             {isCataloguePending ? (
@@ -323,15 +399,15 @@ function WorldIndexPage(): ReactElement {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2 tablet:grid-cols-3 laptop:grid-cols-6">
-                {categories.map((item) => (
+                {domains.map((item) => (
                   <button
                     key={item.id}
                     type="button"
-                    aria-pressed={item.id === category?.id}
-                    onClick={() => onCategoryChange(item)}
+                    aria-pressed={item.id === domain?.id}
+                    onClick={() => onDomainChange(item)}
                     className={classNames(
                       'flex flex-col gap-2 rounded-12 border p-3 text-left transition-colors',
-                      item.id === category?.id
+                      item.id === domain?.id
                         ? 'border-border-subtlest-secondary bg-surface-float'
                         : 'border-border-subtlest-tertiary hover:border-border-subtlest-secondary',
                     )}
@@ -354,8 +430,7 @@ function WorldIndexPage(): ReactElement {
                       color={TypographyColor.Tertiary}
                       className="mt-auto tabular-nums"
                     >
-                      {item.topics.filter((slug) => bySlug.has(slug)).length}{' '}
-                      topics
+                      {item.readers.toLocaleString()} readers
                     </Typography>
                   </button>
                 ))}
@@ -366,7 +441,9 @@ function WorldIndexPage(): ReactElement {
           {/* ---------- the ranking ---------- */}
           <section className="flex flex-col gap-4">
             <SectionHeader
-              title={topic ? `Top in ${topic.title}` : 'Top readers'}
+              title={`Top in ${
+                isWholeDomain ? domain?.name ?? 'this field' : topic.title
+              }`}
               description={rankingDescription}
               action={
                 <div className="flex gap-1">
@@ -393,6 +470,16 @@ function WorldIndexPage(): ReactElement {
             />
 
             <div className="flex gap-2 overflow-x-auto pb-1">
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                pressed={isWholeDomain}
+                onClick={() => setTopicSlug(null)}
+                className="shrink-0"
+              >
+                All of {domain?.name ?? 'this field'}
+              </Button>
               {topics.map((item: WorldNicheSummary) => (
                 <Button
                   key={item.id}
@@ -411,33 +498,37 @@ function WorldIndexPage(): ReactElement {
             <div className="rounded-16 border border-border-subtlest-tertiary bg-surface-float">
               <div className="flex flex-wrap items-center gap-2 border-b border-border-subtlest-tertiary px-4 py-3">
                 <Typography type={TypographyType.Footnote} bold>
-                  {topic?.title ?? ''}
+                  {isWholeDomain ? domain?.name : topic.title}
                 </Typography>
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  in {category?.name ?? ''}
-                </Typography>
-                {/* An all-time count whichever period is showing, because it
-                    is the only one the API keeps. Said plainly, so it does not
-                    read as a weekly number that never moves. */}
-                {!!topic && (
+                {!isWholeDomain && (
                   <Typography
                     type={TypographyType.Caption1}
                     color={TypographyColor.Tertiary}
-                    className="ml-auto tabular-nums"
                   >
-                    {topic.readers.toLocaleString()} readers all time
+                    in {domain?.name ?? ''}
                   </Typography>
                 )}
+                {/* An all-time count whichever period is showing, because it
+                    is the only one the API keeps. Said plainly, so it does not
+                    read as a weekly number that never moves. */}
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                  className="ml-auto tabular-nums"
+                >
+                  {(isWholeDomain
+                    ? domain?.readers ?? 0
+                    : topic.readers
+                  ).toLocaleString()}{' '}
+                  readers all time
+                </Typography>
               </div>
 
               {isRankingPending || isCataloguePending ? (
                 <RowsPlaceholder rows={6} />
               ) : (
                 <ol className="flex flex-col gap-0.5 p-2">
-                  {entries.map((entry) => (
+                  {rows.map((entry) => (
                     <LadderRow
                       key={entry.user.id}
                       rank={entry.rank}
@@ -445,8 +536,8 @@ function WorldIndexPage(): ReactElement {
                       worldName={entry.worldName}
                       articles={entry.articles}
                       level={entry.level}
-                      accent={category?.accent ?? ''}
-                      accentBg={category?.accentBg ?? ''}
+                      accent={domain?.accent ?? ''}
+                      accentBg={domain?.accentBg ?? ''}
                       max={maxArticles}
                       isOwn={entry.user.id === user?.id}
                     />
@@ -459,21 +550,21 @@ function WorldIndexPage(): ReactElement {
                       worldName={null}
                       articles={ownRow.articles}
                       level={ownRow.level}
-                      accent={category?.accent ?? ''}
-                      accentBg={category?.accentBg ?? ''}
+                      accent={domain?.accent ?? ''}
+                      accentBg={domain?.accentBg ?? ''}
                       max={maxArticles}
                       isOwn
                       afterGap
                     />
                   )}
 
-                  {!entries.length && (
+                  {!rows.length && (
                     <Typography
                       type={TypographyType.Callout}
                       color={TypographyColor.Tertiary}
                       className="px-2 py-6 text-center"
                     >
-                      Nobody has read enough of this topic yet. Be the first.
+                      Nobody has read enough of this yet. Be the first.
                     </Typography>
                   )}
                 </ol>
@@ -511,17 +602,30 @@ function WorldIndexPage(): ReactElement {
             <section className="flex flex-col gap-4">
               <SectionHeader
                 title="People you follow"
-                description="Worlds built by the people you follow and everyone in your squads."
+                description="Worlds built by the people you follow."
               />
 
               {isFollowedPending ? (
                 <CardsPlaceholder cards={4} />
               ) : (
-                <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-4">
+                <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
                   {followed.map((world) => (
                     <WorldIndexCard key={world.user.id} world={world} />
                   ))}
                 </div>
+              )}
+
+              {(canFetchMoreFollowed || isFetchingMoreFollowed) && (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  loading={isFetchingMoreFollowed}
+                  onClick={() => fetchMoreFollowed()}
+                  className="self-center"
+                >
+                  Show more
+                </Button>
               )}
             </section>
           )}
