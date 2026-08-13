@@ -1,16 +1,17 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import type { WorldDistrict } from '../graphql/world';
-import { WorldGuide } from '../components/world/WorldGuide';
+import { WorldGuideRail } from '../components/world/WorldGuide';
 import { LEVELS } from '../components/world/ladder';
 
 const district = (slug: string, reads: number): WorldDistrict =>
   ({ niche: { id: slug, slug }, reads } as WorldDistrict);
 
-const renderGuide = (props: Partial<Parameters<typeof WorldGuide>[0]> = {}) =>
-  render(<WorldGuide isOwn onClose={jest.fn()} {...props} />);
+const renderGuide = (
+  props: Partial<Parameters<typeof WorldGuideRail>[0]> = {},
+) => render(<WorldGuideRail isOwn onClose={jest.fn()} {...props} />);
 
-describe('WorldGuide', () => {
+describe('WorldGuideRail', () => {
   it('writes the ladder down, every rung of it', () => {
     renderGuide();
 
@@ -47,7 +48,7 @@ describe('WorldGuide', () => {
     const { rerender } = renderGuide({ hasReplay: true });
     expect(screen.getByText(/Play the bar below/)).toBeInTheDocument();
 
-    rerender(<WorldGuide isOwn onClose={jest.fn()} />);
+    rerender(<WorldGuideRail isOwn onClose={jest.fn()} />);
     expect(screen.queryByText(/Play the bar below/)).not.toBeInTheDocument();
   });
 
@@ -57,7 +58,7 @@ describe('WorldGuide', () => {
     expect(screen.getByText(/Make it yours/)).toBeInTheDocument();
 
     rerender(
-      <WorldGuide isOwn={false} canCustomize={false} onClose={jest.fn()} />,
+      <WorldGuideRail isOwn={false} canCustomize={false} onClose={jest.fn()} />,
     );
     expect(screen.queryByText(/Make it yours/)).not.toBeInTheDocument();
   });
@@ -66,7 +67,7 @@ describe('WorldGuide', () => {
     const { rerender } = renderGuide();
     expect(screen.getByText(/Every article you read/)).toBeInTheDocument();
 
-    rerender(<WorldGuide isOwn={false} onClose={jest.fn()} />);
+    rerender(<WorldGuideRail isOwn={false} onClose={jest.fn()} />);
     expect(screen.getByText(/Every article they read/)).toBeInTheDocument();
   });
 });

@@ -389,6 +389,10 @@ export enum LogEvent {
   WorldRide = 'world ride',
   WorldReplay = 'world replay',
   WorldGuideOpen = 'world guide open',
+  /* The first-visit sequence, once per visit with how it ended: `completed`
+     means the reader walked into a realm and opened a district, which is the
+     whole of what it teaches. */
+  WorldIntro = 'world intro',
   // End World
   // Navigation
   NavigatePrevious = 'navigate previous',
