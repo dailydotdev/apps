@@ -83,6 +83,11 @@ describe('ExploreChipsBar', () => {
 
     render(<ExploreChipsBar categories={createCategories()} />);
 
+    const labels = screen.getAllByRole('link').map((link) => link.textContent);
+    expect(labels.indexOf('For you')).toBeLessThan(
+      labels.indexOf('JavaScript'),
+    );
+    expect(labels.indexOf('JavaScript')).toBeLessThan(labels.indexOf('React'));
     expect(screen.getByRole('link', { name: 'For you' })).toHaveAttribute(
       'aria-current',
       'page',
