@@ -2,7 +2,10 @@ import type {
   QuestDashboard,
   UserQuest,
 } from '@dailydotdev/shared/src/graphql/quests';
-import type { UserProductSummary } from '@dailydotdev/shared/src/graphql/njord';
+import type {
+  Product,
+  UserProductSummary,
+} from '@dailydotdev/shared/src/graphql/njord';
 import {
   QuestRewardType,
   QuestStatus,
@@ -18,6 +21,7 @@ import {
   getMostProgressedQuest,
   getQuestSummary,
   getTopReaderTopicLabel,
+  getTrophyShelves,
 } from './gameCenter';
 
 const createQuest = (
@@ -347,5 +351,31 @@ describe('game center helpers', () => {
       'award-1',
       'award-3',
     ]);
+  });
+
+  it('sizes trophies by rarity (award value), rarest first and largest', () => {
+    const awards: UserProductSummary[] = [
+      { id: 'a', name: 'Cheap', image: 'a.png', count: 40 },
+      { id: 'b', name: 'Pricey', image: 'b.png', count: 1 },
+      { id: 'c', name: 'Mid', image: 'c.png', count: 5 },
+    ];
+    const catalog = [
+      { id: 'a', value: 10 },
+      { id: 'b', value: 500 },
+      { id: 'c', value: 100 },
+    ] as Product[];
+
+    const { shelves } = getAwardSummary(awards, catalog);
+    const flat = shelves.flat();
+
+    // rarest (highest value) first, regardless of how many were earned
+    expect(flat.map((item) => item.id)).toEqual(['b', 'c', 'a']);
+    // and it renders bigger the rarer it is
+    expect(flat[0].size).toBeGreaterThan(flat[1].size);
+    expect(flat[1].size).toBeGreaterThan(flat[2].size);
+  });
+
+  it('returns no shelves when there are no awards', () => {
+    expect(getTrophyShelves([])).toEqual([]);
   });
 });

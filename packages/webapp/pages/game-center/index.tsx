@@ -14,6 +14,7 @@ import {
   QUEST_COMPLETION_STATS_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
+  getProductsQueryOptions,
   ProductType,
   userProductSummaryQueryOptions,
 } from '@dailydotdev/shared/src/graphql/njord';
@@ -58,7 +59,6 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
@@ -70,10 +70,7 @@ import {
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { AchievementCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementCard';
 import { TopReaderBadge } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
-import {
-  QuestLevelProgressCircle,
-  getQuestLevelProgress,
-} from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
+import { getQuestLevelProgress } from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
 import { QuestSection } from '@dailydotdev/shared/src/components/quest/QuestButton';
 import type { QuestDestination } from '@dailydotdev/shared/src/components/quest/QuestButton';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -82,12 +79,16 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   ArrowIcon,
   CoreIcon,
+  HotIcon,
   MedalBadgeIcon,
   PinIcon,
+  ReputationLightningIcon,
+  StarIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { TrophyShelf } from '../../components/game-center/TrophyShelf';
 import ProtectedPage from '../../components/ProtectedPage';
 import { defaultOpenGraph } from '../../next-seo';
 import {
@@ -176,49 +177,157 @@ const EmptyStateCard = ({
   );
 };
 
-const StatPill = ({
+const xpSegmentCount = 10;
+
+const HudStatTile = ({
+  icon,
   label,
   value,
 }: {
+  icon: ReactElement;
   label: string;
   value: string;
 }): ReactElement => (
-  <div className="bg-background-default/70 rounded-14 border border-border-subtlest-tertiary px-4 py-3 backdrop-blur-sm">
-    <Typography type={TypographyType.Caption1} color={TypographyColor.Tertiary}>
-      {label}
-    </Typography>
-    <Typography type={TypographyType.Callout} bold className="mt-1">
+  <div className="bg-background-default/70 flex flex-col gap-1 p-4 backdrop-blur-sm">
+    <div className="flex items-center gap-1.5 text-text-tertiary">
+      {icon}
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+      >
+        {label}
+      </Typography>
+    </div>
+    <Typography type={TypographyType.Title3} bold>
       {value}
     </Typography>
   </div>
 );
 
-const TrophyCard = ({
-  name,
-  image,
-  count,
+const LevelHud = ({
+  level,
+  levelProgress,
+  totalXp,
+  xpToNextLevel,
+  currentStreak,
+  longestStreak,
+  achievements,
+  isPending,
 }: {
-  name: string;
-  image: string;
-  count: number;
+  level: number;
+  levelProgress: number;
+  totalXp: number;
+  xpToNextLevel: number;
+  currentStreak: number;
+  longestStreak: number;
+  achievements?: { unlocked: number; total: number };
+  isPending: boolean;
 }): ReactElement => {
+  const filledSegments = Math.round((levelProgress / 100) * xpSegmentCount);
+  const streakValue = isPending ? '...' : `${currentStreak.toLocaleString()}d`;
+  const longestValue = isPending ? '...' : `${longestStreak.toLocaleString()}d`;
+
   return (
-    <Tooltip content={name} side="top">
-      <div
-        role="listitem"
-        className="hover:bg-background-default/70 flex flex-col items-center justify-center rounded-16 px-2 py-1 transition"
-      >
-        <LazyImage
-          imgSrc={image}
-          imgAlt={name}
-          fit="contain"
-          className="size-12 shrink-0"
-        />
-        <Typography type={TypographyType.Body} bold className="mt-2">
-          x{count.toLocaleString()}
-        </Typography>
+    <div className="overflow-hidden rounded-20 border border-border-subtlest-tertiary">
+      <div className="flex flex-col gap-3 bg-accent-cabbage-default p-4 tablet:px-5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="bg-black/25 flex size-12 shrink-0 flex-col items-center justify-center rounded-12 text-white">
+              <Typography
+                type={TypographyType.Caption2}
+                className="leading-none text-white"
+              >
+                LVL
+              </Typography>
+              <Typography
+                type={TypographyType.Title3}
+                bold
+                className="leading-none text-white"
+              >
+                {level}
+              </Typography>
+            </div>
+            <Typography
+              type={TypographyType.Callout}
+              bold
+              className="truncate text-white"
+            >
+              {xpToNextLevel.toLocaleString()} XP to level {level + 1}
+            </Typography>
+          </div>
+          <div className="flex shrink-0 flex-col items-end">
+            <div className="flex items-center gap-1 text-white">
+              <ReputationLightningIcon secondary size={IconSize.Small} />
+              <Typography
+                type={TypographyType.Title3}
+                bold
+                className="text-white"
+              >
+                {totalXp.toLocaleString()}
+              </Typography>
+            </div>
+            <Typography
+              type={TypographyType.Caption1}
+              className="text-white/70"
+            >
+              total XP
+            </Typography>
+          </div>
+        </div>
+        <div className="flex gap-1" aria-hidden>
+          {Array.from({ length: xpSegmentCount }, (_, index) => (
+            <span
+              key={index}
+              className={classNames(
+                'h-2 flex-1 rounded-4',
+                index < filledSegments ? 'bg-white' : 'bg-black/20',
+              )}
+            />
+          ))}
+        </div>
       </div>
-    </Tooltip>
+      <div
+        className={classNames(
+          'grid grid-cols-2 gap-px bg-border-subtlest-tertiary',
+          achievements ? 'tablet:grid-cols-3' : 'tablet:grid-cols-2',
+        )}
+      >
+        <HudStatTile
+          icon={
+            <HotIcon
+              secondary
+              size={IconSize.Size16}
+              className="text-accent-bun-default"
+            />
+          }
+          label="Streak"
+          value={streakValue}
+        />
+        <HudStatTile
+          icon={
+            <StarIcon
+              secondary
+              size={IconSize.Size16}
+              className="text-accent-cheese-default"
+            />
+          }
+          label="Longest"
+          value={longestValue}
+        />
+        {achievements ? (
+          <HudStatTile
+            icon={
+              <MedalBadgeIcon
+                size={IconSize.Size16}
+                className="text-accent-cheese-default"
+              />
+            }
+            label="Badges"
+            value={`${achievements.unlocked}/${achievements.total}`}
+          />
+        ) : null}
+      </div>
+    </div>
   );
 };
 
@@ -342,9 +451,17 @@ function GameCenterPage({
     }),
     enabled: !!user?.id && hasCoresAccess,
   });
+  const { data: awardCatalog } = useQuery({
+    ...getProductsQueryOptions(),
+    enabled: !!user?.id && hasCoresAccess,
+  });
   const awardSummary = useMemo(
-    () => getAwardSummary(awardProducts),
-    [awardProducts],
+    () =>
+      getAwardSummary(
+        awardProducts,
+        awardCatalog?.edges?.map((edge) => edge.node),
+      ),
+    [awardProducts, awardCatalog],
   );
 
   const levelProgress = questDashboard
@@ -702,20 +819,7 @@ function GameCenterPage({
           />
         </div>
         <div className="rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-5">
-          <div
-            className="grid grid-cols-4 gap-x-4 gap-y-6 tablet:grid-cols-5 laptop:grid-cols-6"
-            role="list"
-            aria-label="Award collection"
-          >
-            {awardSummary.awards.map((award) => (
-              <TrophyCard
-                key={award.id}
-                name={award.name}
-                image={award.image}
-                count={award.count}
-              />
-            ))}
-          </div>
+          <TrophyShelf shelves={awardSummary.shelves} />
         </div>
       </>
     );
@@ -752,7 +856,7 @@ function GameCenterPage({
               <div className="bg-accent-cabbage-default/10 absolute -left-8 top-0 size-40 rounded-full blur-3xl" />
               <div className="bg-accent-blueCheese-default/10 absolute bottom-0 right-0 size-48 rounded-full blur-3xl" />
             </div>
-            <div className="relative grid gap-6 laptop:grid-cols-[minmax(0,1.5fr)_auto]">
+            <div className="relative flex flex-col gap-6">
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
                   <Typography
@@ -780,34 +884,46 @@ function GameCenterPage({
                   </Typography>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 tablet:max-w-[calc(75%-0.1875rem)] tablet:grid-cols-3">
-                  <StatPill
-                    label="Total XP"
-                    value={(
-                      questDashboard?.level.totalXp ?? 0
-                    ).toLocaleString()}
-                  />
-                  <StatPill
-                    label="Current quest streak"
-                    value={
-                      isQuestPending
-                        ? '...'
-                        : `${
-                            questDashboard?.currentStreak?.toLocaleString() ?? 0
-                          } days`
+                {questDashboard ? (
+                  <LevelHud
+                    level={questDashboard.level.level}
+                    levelProgress={levelProgress}
+                    totalXp={questDashboard.level.totalXp}
+                    xpToNextLevel={questDashboard.level.xpToNextLevel}
+                    currentStreak={questDashboard.currentStreak}
+                    longestStreak={questDashboard.longestStreak}
+                    achievements={
+                      showAchievements
+                        ? {
+                            unlocked: achievementSummary.unlockedCount,
+                            total: achievementSummary.totalCount,
+                          }
+                        : undefined
                     }
+                    isPending={isQuestPending}
                   />
-                  <StatPill
-                    label="Longest quest streak"
-                    value={
-                      isQuestPending
-                        ? '...'
-                        : `${
-                            questDashboard?.longestStreak?.toLocaleString() ?? 0
-                          } days`
-                    }
-                  />
-                </div>
+                ) : (
+                  showAchievements && (
+                    <div className="bg-background-default/70 flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-sm">
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                      >
+                        Personal highlight
+                      </Typography>
+                      <Typography type={TypographyType.Title2} bold>
+                        {achievementSummary.unlockedCount}/
+                        {achievementSummary.totalCount}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                      >
+                        achievements unlocked so far
+                      </Typography>
+                    </div>
+                  )
+                )}
 
                 <div className="grid gap-3 tablet:grid-cols-2">
                   <div className="bg-background-default/70 rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-sm">
@@ -920,74 +1036,6 @@ function GameCenterPage({
                     </div>
                   )}
                 </div>
-              </div>
-
-              <div className="bg-background-default/70 flex min-w-[14rem] flex-col items-start justify-center gap-4 rounded-20 border border-border-subtlest-tertiary p-5 backdrop-blur-sm">
-                {questDashboard ? (
-                  <>
-                    <div className="flex items-center gap-4">
-                      <QuestLevelProgressCircle
-                        level={questDashboard.level.level}
-                        progress={levelProgress}
-                        className="scale-125"
-                        levelClassName="text-base"
-                      />
-                      <div>
-                        <Typography
-                          type={TypographyType.Caption1}
-                          color={TypographyColor.Tertiary}
-                        >
-                          Current level
-                        </Typography>
-                        <Typography type={TypographyType.Title2} bold>
-                          Level {questDashboard.level.level}
-                        </Typography>
-                      </div>
-                    </div>
-                    <div className="w-full">
-                      <div className="mb-2 flex items-center justify-between gap-3">
-                        <Typography
-                          type={TypographyType.Footnote}
-                          color={TypographyColor.Tertiary}
-                        >
-                          XP to next level
-                        </Typography>
-                        <Typography type={TypographyType.Footnote} bold>
-                          {questDashboard.level.xpToNextLevel.toLocaleString()}
-                        </Typography>
-                      </div>
-                      <ProgressBar
-                        percentage={levelProgress}
-                        shouldShowBg
-                        className={{
-                          wrapper: 'h-2 rounded-14',
-                          bar: 'h-full rounded-14',
-                        }}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  showAchievements && (
-                    <>
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                      >
-                        Personal highlight
-                      </Typography>
-                      <Typography type={TypographyType.Title2} bold>
-                        {achievementSummary.unlockedCount}/
-                        {achievementSummary.totalCount}
-                      </Typography>
-                      <Typography
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Tertiary}
-                      >
-                        achievements unlocked so far
-                      </Typography>
-                    </>
-                  )
-                )}
               </div>
             </div>
           </section>
