@@ -7,8 +7,9 @@
  * drift apart before, and now there is nothing to drift.
  *
  * The index avoids the world's own vocabulary, so realms are domains and
- * districts are topics. The flavour name survives one size down, where it
- * connects the two without having to be learned first.
+ * districts are topics. `worldName` is the renderer's name for the same group
+ * and is shown one size down, where it connects the two; the ids are the
+ * API's, which say what they are rather than borrowing that scenery.
  */
 
 export interface WorldDomainStyle {
@@ -27,42 +28,42 @@ export interface WorldDomainStyle {
 
 export const worldDomains: WorldDomainStyle[] = [
   {
-    id: 'swarm',
+    id: 'ai',
     worldName: 'Arcane Swarm',
     name: 'AI & data',
     accent: 'var(--theme-accent-cabbage-default)',
     accentBg: 'bg-accent-cabbage-default',
   },
   {
-    id: 'frame',
+    id: 'web',
     worldName: 'Frameworks',
     name: 'Web & mobile',
     accent: 'var(--theme-accent-avocado-default)',
     accentBg: 'bg-accent-avocado-default',
   },
   {
-    id: 'forge',
+    id: 'systems',
     worldName: 'Metal Forges',
     name: 'Systems & low level',
     accent: 'var(--theme-accent-bun-default)',
     accentBg: 'bg-accent-bun-default',
   },
   {
-    id: 'ship',
+    id: 'cloud',
     worldName: 'Shipyards',
     name: 'Cloud & infra',
     accent: 'var(--theme-accent-blueCheese-default)',
     accentBg: 'bg-accent-blueCheese-default',
   },
   {
-    id: 'bastion',
+    id: 'security',
     worldName: 'Bastion',
     name: 'Security',
     accent: 'var(--theme-accent-water-default)',
     accentBg: 'bg-accent-water-default',
   },
   {
-    id: 'quarter',
+    id: 'craft',
     worldName: 'Artisan’s Quarter',
     name: 'Craft & career',
     accent: 'var(--theme-accent-bacon-default)',
