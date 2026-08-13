@@ -29,6 +29,7 @@ import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/comp
 import { Share } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/Share';
 import { useRouter } from 'next/router';
 import { useProfileCompletionIndicator } from '@dailydotdev/shared/src/hooks/profile/useProfileCompletionIndicator';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
@@ -48,6 +49,7 @@ const ProfilePage = ({
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const router = useRouter();
+  const { isAuthReady } = useAuthContext();
   const { status, onUpload, shouldShow } = useUploadCv();
   const { checkHasCompleted } = useActions();
   const hasClosedBanner = useMemo(
@@ -60,7 +62,12 @@ const ProfilePage = ({
   const { user, isUserSame: isUserSameBase } = useProfile(initialUser);
 
   useEffect(() => {
-    if (!router.isReady || !isUserSameBase || router.query.userId !== user.id) {
+    if (
+      !isAuthReady ||
+      !router.isReady ||
+      !isUserSameBase ||
+      router.query.userId !== user.id
+    ) {
       return;
     }
 
@@ -72,7 +79,7 @@ const ProfilePage = ({
       undefined,
       { shallow: true },
     );
-  }, [isUserSameBase, router, user.id, user.username]);
+  }, [isAuthReady, isUserSameBase, router, user.id, user.username]);
 
   // Check if preview mode is enabled via query param
   const isPreviewMode = router.query.preview === 'true';
