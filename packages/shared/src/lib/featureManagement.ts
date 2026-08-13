@@ -322,7 +322,26 @@ export const featurePostSignupActivation = new Feature(
   false,
 );
 
-// Paddle discount id (`dsc_...`) for the running Plus promotion, or an empty
-// string for no sale. The id is the switch because it differs per Paddle
-// environment; the copy around it is `plusSaleCampaign` in lib/plus.ts.
-export const featurePlusSale = new Feature('plus_sale', '');
+export type PlusSaleConfig = {
+  /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
+  discountId: string;
+  /** Coupon code shown as marketing copy; it is applied automatically. */
+  code: string;
+  label: string;
+  headline: string;
+  description: string;
+  /** ISO date. The sale expires here even if the flag is left on. */
+  endDate: string;
+};
+
+// The advertised discount, code and expiry travel with the id they describe, so
+// the copy can't outlive or contradict what Paddle applies. The committed
+// default is the off state; its copy is never reachable without a discount id.
+export const featurePlusSale = new Feature<PlusSaleConfig>('plus_sale', {
+  discountId: '',
+  code: 'SUMMER50',
+  label: '50% off',
+  headline: 'Summer sale: 50% off Plus',
+  description: 'Code SUMMER50 is already applied. Offer ends August 31.',
+  endDate: '2026-09-01T00:00:00.000Z',
+});

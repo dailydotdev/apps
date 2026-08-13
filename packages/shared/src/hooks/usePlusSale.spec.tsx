@@ -4,7 +4,8 @@ import { useConditionalFeature } from './useConditionalFeature';
 import { usePlusSubscription } from './usePlusSubscription';
 import { useAuthContext } from '../contexts/AuthContext';
 import { iOSSupportsPlusPurchase } from '../lib/ios';
-import { plusSaleCampaign } from '../lib/plus';
+import type { PlusSaleConfig } from '../lib/featureManagement';
+import { featurePlusSale } from '../lib/featureManagement';
 
 jest.mock('./useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -22,16 +23,6 @@ jest.mock('../lib/ios', () => ({
   iOSSupportsPlusPurchase: jest.fn(),
 }));
 
-jest.mock('../lib/plus', () => ({
-  plusSaleCampaign: {
-    code: 'SUMMER50',
-    label: '50% off',
-    headline: 'Summer sale: 50% off Plus',
-    description: 'Code SUMMER50 is already applied. Offer ends August 31.',
-    endDate: '2026-09-01T00:00:00.000Z',
-  },
-}));
-
 const mockUseConditionalFeature = useConditionalFeature as jest.MockedFunction<
   typeof useConditionalFeature
 >;
@@ -46,16 +37,24 @@ const mockIOSSupportsPlusPurchase =
     typeof iOSSupportsPlusPurchase
   >;
 
-const campaign = plusSaleCampaign as { endDate: string };
-const originalEndDate = campaign.endDate;
+const runningSale: PlusSaleConfig = {
+  discountId: 'dsc_summer',
+  code: 'SUMMER50',
+  label: '50% off',
+  headline: 'Summer sale: 50% off Plus',
+  description: 'Code SUMMER50 is already applied. Offer ends August 31.',
+  endDate: '2026-09-01T00:00:00.000Z',
+};
 
 // Mirrors the real hook: the committed default (no discount) is returned until
 // GrowthBook is both ready and allowed to evaluate.
-const setFlag = (discountId: string) => {
+const setFlag = (config: Partial<PlusSaleConfig>) => {
   mockUseConditionalFeature.mockImplementation(
     ({ shouldEvaluate }) =>
       ({
-        value: shouldEvaluate ? discountId : '',
+        value: shouldEvaluate
+          ? { ...runningSale, ...config }
+          : featurePlusSale.defaultValue,
         isLoading: !shouldEvaluate,
       } as never),
   );
@@ -64,14 +63,13 @@ const setFlag = (discountId: string) => {
 describe('usePlusSale', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    campaign.endDate = originalEndDate;
     mockUseAuthContext.mockReturnValue({ isAuthReady: true } as never);
     mockUsePlusSubscription.mockReturnValue({ isPlus: false } as never);
     mockIOSSupportsPlusPurchase.mockReturnValue(false);
-    setFlag('dsc_summer');
+    setFlag({});
   });
 
-  it('is active with a discount from the flag and exposes the campaign copy', () => {
+  it('is active with a configured campaign and exposes its copy', () => {
     const { result } = renderHook(() => usePlusSale());
 
     expect(result.current.isActive).toBe(true);
@@ -81,7 +79,23 @@ describe('usePlusSale', () => {
   });
 
   it('is inactive while the flag holds no discount', () => {
-    setFlag('');
+    setFlag({ discountId: '' });
+
+    const { result } = renderHook(() => usePlusSale());
+
+    expect(result.current.isActive).toBe(false);
+  });
+
+  it('is inactive when the campaign has no copy to show', () => {
+    setFlag({ label: '' });
+
+    const { result } = renderHook(() => usePlusSale());
+
+    expect(result.current.isActive).toBe(false);
+  });
+
+  it('is inactive once the end date has passed', () => {
+    setFlag({ endDate: new Date(Date.now() - 1000).toISOString() });
 
     const { result } = renderHook(() => usePlusSale());
 
@@ -94,14 +108,6 @@ describe('usePlusSale', () => {
     const { result } = renderHook(() => usePlusSale());
 
     expect(result.current.discountId).toBeUndefined();
-  });
-
-  it('is inactive once the end date has passed', () => {
-    campaign.endDate = new Date(Date.now() - 1000).toISOString();
-
-    const { result } = renderHook(() => usePlusSale());
-
-    expect(result.current.isActive).toBe(false);
   });
 
   it('is inactive for Plus members and skips the flag evaluation', () => {
