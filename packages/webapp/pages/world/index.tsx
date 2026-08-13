@@ -58,6 +58,9 @@ const seo: NextSeoProps = {
 
 const RANKING_LIMIT = 10;
 const SECTION_LIMIT = 8;
+/* The most one call may ask a section for, matching the API's own ceiling.
+   Past this the section needs real pagination rather than a bigger number. */
+const SECTION_EXPANDED_LIMIT = 50;
 
 interface SectionHeaderProps {
   title: string;
@@ -293,8 +296,13 @@ function WorldIndexPage(): ReactElement {
   });
   const { items: levelUps, isPending: isLevelUpsPending } =
     useWorldRecentLevelUps(SECTION_LIMIT);
+  const [followLimit, setFollowLimit] = useState(SECTION_LIMIT);
   const { items: followed, isPending: isFollowedPending } =
-    useFollowedWorlds(SECTION_LIMIT);
+    useFollowedWorlds(followLimit);
+  /* A full page is the only signal there may be more: the query answers with a
+     list, not a total. Worth one wasted press at exactly eight follows. */
+  const canExpandFollowed =
+    followLimit === SECTION_LIMIT && followed.length === SECTION_LIMIT;
 
   const maxArticles = rows.length ? rows[0].articles : 0;
   const isOwnRanked = rows.some((entry) => entry.user.id === user?.id);
@@ -562,17 +570,29 @@ function WorldIndexPage(): ReactElement {
             <section className="flex flex-col gap-4">
               <SectionHeader
                 title="People you follow"
-                description="Worlds built by the people you follow and everyone in your squads."
+                description="Worlds built by the people you follow."
               />
 
               {isFollowedPending ? (
                 <CardsPlaceholder cards={4} />
               ) : (
-                <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-4">
+                <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
                   {followed.map((world) => (
                     <WorldIndexCard key={world.user.id} world={world} />
                   ))}
                 </div>
+              )}
+
+              {canExpandFollowed && (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Float}
+                  size={ButtonSize.Small}
+                  onClick={() => setFollowLimit(SECTION_EXPANDED_LIMIT)}
+                  className="self-center"
+                >
+                  Show more
+                </Button>
               )}
             </section>
           )}
