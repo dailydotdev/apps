@@ -94,12 +94,10 @@ function FeedNav(): ReactElement | null {
   const isForYouTab =
     router.pathname === webappUrl || router.pathname === `${webappUrl}my-feed`;
   const { plusEntryForYou } = usePlusEntry();
-  const isDailyPage = router.pathname === '/daily';
   const showFeedActions =
     isMobile &&
     ((sortingEnabled && isSortableFeed) || feedName === SharedFeedPage.Custom);
-  const shouldRenderFeedChips =
-    (isBelowLaptop && isFeedChipsEnabled) || isDailyPage;
+  const shouldRenderFeedChips = isBelowLaptop && isFeedChipsEnabled;
 
   const renderFeedActions = (iconOnly?: boolean) => (
     <>
@@ -174,7 +172,7 @@ function FeedNav(): ReactElement | null {
     isCustomDefaultFeed,
   ]);
 
-  const shouldRenderNav = home || isDailyPage || (isMobile && bookmarks);
+  const shouldRenderNav = home || (isMobile && bookmarks);
   if (!shouldRenderNav || router?.pathname?.startsWith('/posts/[id]')) {
     return null;
   }

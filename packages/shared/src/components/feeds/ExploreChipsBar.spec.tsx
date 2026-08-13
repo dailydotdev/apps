@@ -1,10 +1,9 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { useRouter } from 'next/router';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLogContext } from '../../contexts/LogContext';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
-import { useDailyPage } from '../../hooks/feed/useDailyPage';
 import { ExploreChipsBar } from './ExploreChipsBar';
 import type { ExploreCategory } from './exploreCategories';
 
@@ -30,14 +29,6 @@ jest.mock('../../hooks/feed/useCustomDefaultFeed', () => ({
   default: jest.fn(),
 }));
 
-jest.mock('../../hooks/feed/useDailyPage', () => ({
-  useDailyPage: jest.fn(),
-}));
-
-jest.mock('../../features/daily/DailySwitcher', () => ({
-  DailySwitcher: () => <div data-testid="daily-switcher" />,
-}));
-
 jest.mock('./NewStripCta', () => ({
   NewStripCta: ({ className }: { className?: string }) => (
     <a href="/new" className={className}>
@@ -54,7 +45,6 @@ const mockUseRouter = useRouter as jest.Mock;
 const mockUseAuthContext = useAuthContext as jest.Mock;
 const mockUseLogContext = useLogContext as jest.Mock;
 const mockUseCustomDefaultFeed = useCustomDefaultFeed as jest.Mock;
-const mockUseDailyPage = useDailyPage as jest.Mock;
 
 const scrollIntoView = jest.fn();
 
@@ -86,7 +76,17 @@ describe('ExploreChipsBar', () => {
     mockUseAuthContext.mockReturnValue({ isLoggedIn: true });
     mockUseLogContext.mockReturnValue({ logEvent: jest.fn() });
     mockUseCustomDefaultFeed.mockReturnValue({ isCustomDefaultFeed: false });
-    mockUseDailyPage.mockReturnValue({ isEnabled: false });
+  });
+
+  it('renders the For you category ahead of the given categories', () => {
+    mockRouterPath('/');
+
+    render(<ExploreChipsBar categories={createCategories()} />);
+
+    expect(screen.getByRole('link', { name: 'For you' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
   });
 
   it('centers only when the active category identity changes', async () => {
