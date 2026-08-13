@@ -7,7 +7,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { WorldTopic } from '../../graphql/worldIndex';
-import { categoryOfSlug, worldCategories } from './worldIndexTaxonomy';
+import { domainStyle } from './worldIndexDomains';
 
 interface WorldTopicBarsProps {
   topics: WorldTopic[];
@@ -35,7 +35,7 @@ export function WorldTopicBars({
   return (
     <div className={classNames('flex flex-col gap-1.5', className)}>
       {topics.map((topic) => {
-        const category = categoryOfSlug(topic.niche.slug) ?? worldCategories[0];
+        const domain = domainStyle(topic.niche.domain);
 
         return (
           <div key={topic.niche.id} className="flex items-center gap-2">
@@ -57,7 +57,7 @@ export function WorldTopicBars({
                 className="block h-full rounded-8"
                 style={{
                   width: `${Math.round((topic.articles / max) * 100)}%`,
-                  backgroundColor: category.accent,
+                  backgroundColor: domain.accent,
                 }}
               />
             </span>

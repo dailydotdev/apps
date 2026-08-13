@@ -293,7 +293,9 @@ export enum RequestKey {
   UserWorldDistrictFeed = 'user_world_district_feed',
   WorldTopicReaders = 'world_topic_readers',
   WorldTopicRanking = 'world_topic_ranking',
-  WorldTopicRankPosition = 'world_topic_rank_position',
+  WorldRankPosition = 'world_rank_position',
+  WorldDomainReaders = 'world_domain_readers',
+  WorldDomainRanking = 'world_domain_ranking',
   WorldRecentLevelUps = 'world_recent_level_ups',
   FollowedWorlds = 'followed_worlds',
 }

@@ -9,43 +9,50 @@ import {
 } from '@dailydotdev/shared/src/lib/query';
 import type {
   IndexedWorld,
+  WorldDomainRankEntry,
+  WorldDomainReaders,
   WorldLevelUp,
   WorldNicheSummary,
   WorldRankEntry,
-  WorldRankPosition,
   WorldRankPeriod,
+  WorldRankPosition,
 } from '../../graphql/worldIndex';
 import {
   FOLLOWED_WORLDS_QUERY,
+  WORLD_DOMAIN_RANKING_QUERY,
+  WORLD_DOMAIN_RANK_POSITION_QUERY,
+  WORLD_DOMAIN_READERS_QUERY,
   WORLD_RECENT_LEVEL_UPS_QUERY,
   WORLD_TOPIC_RANKING_QUERY,
   WORLD_TOPIC_RANK_POSITION_QUERY,
   WORLD_TOPIC_READERS_QUERY,
 } from '../../graphql/worldIndex';
-import type { WorldCategory } from './worldIndexTaxonomy';
-import { worldCategories } from './worldIndexTaxonomy';
+import type { WorldDomainStyle } from './worldIndexDomains';
+import { worldDomains } from './worldIndexDomains';
 
 /** Rankings and counts are the same answer for everyone, and rebuilt nightly. */
 const indexStaleTime = StaleTime.OneHour;
 
+export interface WorldDomain extends WorldDomainStyle {
+  /** Topics the API places in this domain, in the order it returned them. */
+  topics: WorldNicheSummary[];
+  readers: number;
+}
+
 export interface WorldCatalogue {
-  /** Every topic the index knows, keyed by slug. */
-  bySlug: Map<string, WorldNicheSummary>;
-  /** Categories that actually have topics behind them. */
-  categories: WorldCategory[];
+  domains: WorldDomain[];
   isPending: boolean;
 }
 
 /**
- * The topic catalogue, which every other query on the page is keyed by.
+ * The catalogue every other query on the page is keyed by.
  *
- * The grouping is local taxonomy and the ids are the API's, so the two are
- * joined on the slug here rather than in each consumer. A category whose
- * niches the API does not return is dropped: an empty tab is worse than one
- * fewer.
+ * Topics arrive already grouped, because each one carries its domain now. A
+ * domain the API returned no topics for is dropped: an empty tab is worse than
+ * one fewer.
  */
 export const useWorldCatalogue = (): WorldCatalogue => {
-  const { data, isPending } = useQuery({
+  const topics = useQuery({
     queryKey: generateQueryKey(RequestKey.WorldTopicReaders),
     queryFn: async () => {
       const res = await gqlClient.request<{
@@ -60,21 +67,40 @@ export const useWorldCatalogue = (): WorldCatalogue => {
     staleTime: indexStaleTime,
   });
 
+  const domains = useQuery({
+    queryKey: generateQueryKey(RequestKey.WorldDomainReaders),
+    queryFn: async () => {
+      const res = await gqlClient.request<{
+        worldDomainReaders: WorldDomainReaders[];
+      }>(WORLD_DOMAIN_READERS_QUERY);
+
+      return res.worldDomainReaders;
+    },
+    staleTime: indexStaleTime,
+  });
+
   return useMemo(() => {
-    const bySlug = new Map((data ?? []).map((niche) => [niche.slug, niche]));
+    const readersOf = new Map(
+      (domains.data ?? []).map((row) => [row.domain, row.readers]),
+    );
 
     return {
-      bySlug,
-      categories: worldCategories.filter((category) =>
-        category.topics.some((slug) => bySlug.has(slug)),
-      ),
-      isPending,
+      domains: worldDomains
+        .map((style) => ({
+          ...style,
+          topics: (topics.data ?? []).filter(
+            (topic) => topic.domain === style.id,
+          ),
+          readers: readersOf.get(style.id) ?? 0,
+        }))
+        .filter((domain) => domain.topics.length > 0),
+      isPending: topics.isPending || domains.isPending,
     };
-  }, [data, isPending]);
+  }, [topics.data, topics.isPending, domains.data, domains.isPending]);
 };
 
-interface UseWorldTopicRanking {
-  entries: WorldRankEntry[];
+interface UseRanking<T> {
+  entries: T[];
   isPending: boolean;
 }
 
@@ -86,7 +112,7 @@ export const useWorldTopicRanking = ({
   nicheId?: string;
   period: WorldRankPeriod;
   limit?: number;
-}): UseWorldTopicRanking => {
+}): UseRanking<WorldRankEntry> => {
   const { data, isPending } = useQuery({
     queryKey: generateQueryKey(RequestKey.WorldTopicRanking, undefined, {
       nicheId,
@@ -108,33 +134,80 @@ export const useWorldTopicRanking = ({
 };
 
 /**
+ * A whole domain's ranking.
+ *
+ * Its rows carry no level, because a rung belongs to one topic and a total
+ * across a domain sits on none of them.
+ */
+export const useWorldDomainRanking = ({
+  domain,
+  period,
+  limit,
+}: {
+  domain?: string;
+  period: WorldRankPeriod;
+  limit?: number;
+}): UseRanking<WorldDomainRankEntry> => {
+  const { data, isPending } = useQuery({
+    queryKey: generateQueryKey(RequestKey.WorldDomainRanking, undefined, {
+      domain,
+      period,
+      limit,
+    }),
+    queryFn: async () => {
+      const res = await gqlClient.request<{
+        worldDomainRanking: WorldDomainRankEntry[];
+      }>(WORLD_DOMAIN_RANKING_QUERY, { domain, period, limit });
+
+      return res.worldDomainRanking;
+    },
+    enabled: !!domain,
+    staleTime: indexStaleTime,
+  });
+
+  return { entries: data ?? [], isPending: isPending && !!domain };
+};
+
+/**
  * Where the viewer stands, which the ranking's own page usually will not hold.
  *
  * Signed in only, and never merged into the ranking: a row that is already
  * there must not be drawn twice.
  */
-export const useWorldTopicRankPosition = ({
+export const useWorldRankPosition = ({
   nicheId,
+  domain,
   period,
 }: {
   nicheId?: string;
+  domain?: string;
   period: WorldRankPeriod;
 }): WorldRankPosition | undefined => {
   const { isLoggedIn } = useAuthContext();
+  const byDomain = !!domain;
 
   const { data } = useQuery({
-    queryKey: generateQueryKey(RequestKey.WorldTopicRankPosition, undefined, {
+    queryKey: generateQueryKey(RequestKey.WorldRankPosition, undefined, {
       nicheId,
+      domain,
       period,
     }),
     queryFn: async () => {
+      if (byDomain) {
+        const res = await gqlClient.request<{
+          worldDomainRankPosition: WorldRankPosition;
+        }>(WORLD_DOMAIN_RANK_POSITION_QUERY, { domain, period });
+
+        return res.worldDomainRankPosition;
+      }
+
       const res = await gqlClient.request<{
         worldTopicRankPosition: WorldRankPosition;
       }>(WORLD_TOPIC_RANK_POSITION_QUERY, { nicheId, period });
 
       return res.worldTopicRankPosition;
     },
-    enabled: isLoggedIn && !!nicheId,
+    enabled: isLoggedIn && (byDomain || !!nicheId),
     staleTime: indexStaleTime,
   });
 

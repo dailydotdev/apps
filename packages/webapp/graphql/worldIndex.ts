@@ -11,6 +11,21 @@ export interface WorldNiche {
   id: string;
   slug: string;
   title: string;
+  /** Null until the taxonomy places the topic in a domain. */
+  domain: string | null;
+}
+
+/** A domain and how many worlds have read anything in it. */
+export interface WorldDomainReaders {
+  domain: string;
+  readers: number;
+}
+
+export interface WorldDomainRankEntry {
+  rank: number;
+  user: WorldIndexOwner;
+  worldName: string | null;
+  articles: number;
 }
 
 /** A niche as the index holds it: the topic, plus how many worlds read it. */
@@ -83,6 +98,7 @@ const INDEXED_WORLD_FRAGMENT = gql`
         id
         slug
         title
+        domain
       }
       articles
       level
@@ -104,6 +120,7 @@ export const WORLD_TOPIC_READERS_QUERY = gql`
         id
         slug
         title
+        domain
       }
       readers
     }
@@ -150,6 +167,7 @@ export const WORLD_RECENT_LEVEL_UPS_QUERY = gql`
         id
         slug
         title
+        domain
       }
       level
       createdAt
@@ -165,4 +183,45 @@ export const FOLLOWED_WORLDS_QUERY = gql`
     }
   }
   ${INDEXED_WORLD_FRAGMENT}
+`;
+
+export const WORLD_DOMAIN_READERS_QUERY = gql`
+  query WorldDomainReaders {
+    worldDomainReaders {
+      domain
+      readers
+    }
+  }
+`;
+
+export const WORLD_DOMAIN_RANKING_QUERY = gql`
+  query WorldDomainRanking(
+    $domain: NicheDomain!
+    $period: WorldRankPeriod!
+    $limit: Int
+  ) {
+    worldDomainRanking(domain: $domain, period: $period, limit: $limit) {
+      rank
+      user {
+        ...WorldIndexOwner
+      }
+      worldName
+      articles
+    }
+  }
+  ${WORLD_OWNER_FRAGMENT}
+`;
+
+export const WORLD_DOMAIN_RANK_POSITION_QUERY = gql`
+  query WorldDomainRankPosition(
+    $domain: NicheDomain!
+    $period: WorldRankPeriod!
+  ) {
+    worldDomainRankPosition(domain: $domain, period: $period) {
+      rank
+      articles
+      level
+      cappedAt
+    }
+  }
 `;
