@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
@@ -8,6 +8,7 @@ import {
   StaleTime,
 } from '@dailydotdev/shared/src/lib/query';
 import type {
+  FollowedWorldsConnection,
   IndexedWorld,
   WorldDomainRankEntry,
   WorldDomainReaders,
@@ -239,24 +240,41 @@ export const useWorldRecentLevelUps = (
   return { items: data ?? [], isPending };
 };
 
-export const useFollowedWorlds = (
-  limit?: number,
-): UseWorldSection<IndexedWorld> => {
+export interface UseFollowedWorlds extends UseWorldSection<IndexedWorld> {
+  fetchNextPage: () => void;
+  /* Separate from `fetchNextPage` on purpose: deriving "can I fetch more" from
+     a callback's existence is always true and hides the end of the list. */
+  canFetchMore: boolean;
+  isFetchingNextPage: boolean;
+}
+
+export const useFollowedWorlds = (first?: number): UseFollowedWorlds => {
   const { user, isLoggedIn } = useAuthContext();
 
-  const { data, isPending } = useQuery({
-    queryKey: generateQueryKey(RequestKey.FollowedWorlds, user, { limit }),
-    queryFn: async () => {
-      const res = await gqlClient.request<{ followedWorlds: IndexedWorld[] }>(
-        FOLLOWED_WORLDS_QUERY,
-        { limit },
-      );
+  const query = useInfiniteQuery({
+    queryKey: generateQueryKey(RequestKey.FollowedWorlds, user, { first }),
+    queryFn: async ({ pageParam }) => {
+      const res = await gqlClient.request<{
+        followedWorlds: FollowedWorldsConnection;
+      }>(FOLLOWED_WORLDS_QUERY, { first, after: pageParam || null });
 
       return res.followedWorlds;
     },
     enabled: isLoggedIn,
     staleTime: indexStaleTime,
+    initialPageParam: '',
+    getNextPageParam: ({ pageInfo }) =>
+      pageInfo.hasNextPage ? pageInfo.endCursor : null,
   });
 
-  return { items: data ?? [], isPending: isPending && isLoggedIn };
+  return {
+    items:
+      query.data?.pages.flatMap((page) =>
+        page.edges.map((edge) => edge.node),
+      ) ?? [],
+    isPending: query.isPending && isLoggedIn,
+    fetchNextPage: query.fetchNextPage,
+    canFetchMore: !!query.hasNextPage && !query.isFetchingNextPage,
+    isFetchingNextPage: query.isFetchingNextPage,
+  };
 };

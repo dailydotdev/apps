@@ -58,9 +58,6 @@ const seo: NextSeoProps = {
 
 const RANKING_LIMIT = 10;
 const SECTION_LIMIT = 8;
-/* The most one call may ask a section for, matching the API's own ceiling.
-   Past this the section needs real pagination rather than a bigger number. */
-const SECTION_EXPANDED_LIMIT = 50;
 
 interface SectionHeaderProps {
   title: string;
@@ -296,13 +293,13 @@ function WorldIndexPage(): ReactElement {
   });
   const { items: levelUps, isPending: isLevelUpsPending } =
     useWorldRecentLevelUps(SECTION_LIMIT);
-  const [followLimit, setFollowLimit] = useState(SECTION_LIMIT);
-  const { items: followed, isPending: isFollowedPending } =
-    useFollowedWorlds(followLimit);
-  /* A full page is the only signal there may be more: the query answers with a
-     list, not a total. Worth one wasted press at exactly eight follows. */
-  const canExpandFollowed =
-    followLimit === SECTION_LIMIT && followed.length === SECTION_LIMIT;
+  const {
+    items: followed,
+    isPending: isFollowedPending,
+    fetchNextPage: fetchMoreFollowed,
+    canFetchMore: canFetchMoreFollowed,
+    isFetchingNextPage: isFetchingMoreFollowed,
+  } = useFollowedWorlds(SECTION_LIMIT);
 
   const maxArticles = rows.length ? rows[0].articles : 0;
   const isOwnRanked = rows.some((entry) => entry.user.id === user?.id);
@@ -583,12 +580,13 @@ function WorldIndexPage(): ReactElement {
                 </div>
               )}
 
-              {canExpandFollowed && (
+              {(canFetchMoreFollowed || isFetchingMoreFollowed) && (
                 <Button
                   type="button"
                   variant={ButtonVariant.Float}
                   size={ButtonSize.Small}
-                  onClick={() => setFollowLimit(SECTION_EXPANDED_LIMIT)}
+                  loading={isFetchingMoreFollowed}
+                  onClick={() => fetchMoreFollowed()}
                   className="self-center"
                 >
                   Show more
