@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo';
 import classNames from 'classnames';
 import {
@@ -235,6 +236,7 @@ const CardsPlaceholder = ({ cards }: { cards: number }): ReactElement => (
 
 function WorldIndexPage(): ReactElement {
   const { isV2 } = useLayoutVariant();
+  const router = useRouter();
   const { user, isLoggedIn } = useAuthContext();
   const { domains, isPending: isCataloguePending } = useWorldCatalogue();
 
@@ -255,13 +257,46 @@ function WorldIndexPage(): ReactElement {
   );
   const isWholeDomain = !topic;
 
-  /* The catalogue arrives after the first render, so the opening domain is
-     settled once it lands rather than guessed from an id that may not exist. */
+  /**
+   * Where the page opens.
+   *
+   * The catalogue arrives after the first render, so this settles once it
+   * lands rather than guessing at an id that may not exist. A `topic` in the
+   * query wins: it is how the world's own district panel hands a reader
+   * straight to that topic's board.
+   *
+   * Matched on either the slug or the niche id, because the two callers have
+   * different halves. A hand-written link says `?topic=rust`; the district
+   * panel only carries the id the feed is filtered by.
+   */
   useEffect(() => {
-    if (!domainId && domains.length) {
-      setDomainId(domains[0].id);
+    if (domainId || !domains.length) {
+      return;
     }
-  }, [domains, domainId]);
+
+    const wanted = Array.isArray(router.query.topic)
+      ? router.query.topic[0]
+      : router.query.topic;
+    const found = wanted
+      ? domains.find((item) =>
+          item.topics.some(
+            (candidate) => candidate.slug === wanted || candidate.id === wanted,
+          ),
+        )
+      : undefined;
+
+    if (found) {
+      setDomainId(found.id);
+      setTopicSlug(
+        found.topics.find(
+          (candidate) => candidate.slug === wanted || candidate.id === wanted,
+        )?.slug ?? null,
+      );
+      return;
+    }
+
+    setDomainId(domains[0].id);
+  }, [domains, domainId, router.query.topic]);
 
   const topicRanking = useWorldTopicRanking({
     nicheId: topic?.id,
