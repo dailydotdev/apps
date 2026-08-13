@@ -99,7 +99,6 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
-  DailyPage = 'daily page',
   EngagementBanner = 'engagement banner',
   EngagementFeedStrip = 'engagement feed strip',
 }
@@ -524,8 +523,6 @@ export enum LogEvent {
   ExtensionPrimerShown = 'impression extension primer',
   ExtensionPrimerCtaClick = 'click extension primer cta',
   ExtensionPrimerSkipped = 'skip extension primer',
-  // Daily homepage
-  DailyFeedback = 'daily feedback',
 }
 
 export enum TargetType {
