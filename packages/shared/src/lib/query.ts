@@ -285,16 +285,12 @@ export enum RequestKey {
   HackathonParticipation = 'hackathon_participation',
   BrowserExtensionInstalled = 'browser_extension_installed',
   LiveRooms = 'live_rooms',
-  ContributionOverview = 'contribution_overview',
-  ContributionLeaderboard = 'contribution_leaderboard',
-  ContributionCausePicker = 'contribution_cause_picker',
-  ContributionActions = 'contribution_actions',
-  ContributionActionLinks = 'contribution_action_links',
-  ContributionLastMilestone = 'contribution_last_milestone',
+  ContributionCauseBreakdown = 'contribution_cause_breakdown',
   LeaderboardPosition = 'leaderboard_position',
   UserWorld = 'user_world',
   UserWorldTimeline = 'user_world_timeline',
   UserWorldEntitlements = 'user_world_entitlements',
+  UserWorldDistrictFeed = 'user_world_district_feed',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

@@ -1,4 +1,3 @@
-import type { JSONValue } from '@growthbook/growthbook';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
@@ -6,17 +5,9 @@ import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
 import type { HeroCardsConfig } from '../types';
 import { PostType } from '../types';
+import { Feature } from './feature';
 
-export class Feature<T extends JSONValue> {
-  readonly id: string;
-
-  readonly defaultValue: T;
-
-  constructor(id: string, defaultValue: T) {
-    this.id = id;
-    this.defaultValue = defaultValue;
-  }
-}
+export { Feature } from './feature';
 
 const feature = {
   showError: new Feature('show_error', false),
@@ -203,13 +194,6 @@ export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
-export const featureGiveback = new Feature('giveback', isDevelopment);
-
-export const featureGivebackSuggestCause = new Feature(
-  'giveback_suggest_cause',
-  false,
-);
-
 export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
   false,
@@ -282,13 +266,6 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   },
 });
 
-// Floats the feed card action bar over the cover image with an iOS-style glass
-// (dark translucent + blur) effect and shrinks the card height.
-export const featureFeedCardGlassActions = new Feature(
-  'feed_card_glass_actions',
-  false,
-);
-
 // Experiment: skip layout/paint for off-screen feed cards via CSS
 // `content-visibility: auto` to keep long feeds responsive.
 export const featureFeedContentVisibility = new Feature(
@@ -319,10 +296,10 @@ export const featureNotificationsRedesign = new Feature(
   false,
 );
 
-// Surfaces a per-post impressions stat on the feed card action bars (glass +
-// standard) and the post page stats strip, sourced from the public
-// `analytics.impressions` field. Control hides it entirely. Keep the default
-// `false` — GrowthBook ramps it.
+// Surfaces a per-post impressions stat on the feed card action bar and the
+// post page stats strip, sourced from the public `analytics.impressions`
+// field. Control hides it entirely. Keep the default `false` — GrowthBook
+// ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
 
 export const featureInterestAgent = new Feature('interest_agent', false);

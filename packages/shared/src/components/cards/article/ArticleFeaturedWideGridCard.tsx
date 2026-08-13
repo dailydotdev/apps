@@ -10,7 +10,6 @@ import PostMetadata from '../common/PostMetadata';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { stripHtmlTags } from '../../../lib/strings';
@@ -49,10 +48,6 @@ export const ArticleFeaturedWideGridCard = forwardRef(
     const isVideoType = isVideoPost(post);
     const image = usePostImage(post);
     const { overlay } = useCardCover({ post, onShare });
-    const glassActions = useFeedCardGlassActions();
-    // The hero keeps the pill on the content column (where its bar already sat),
-    // not over the cover image.
-    const useGlass = glassActions && !showFeedback;
     const significance = post.hero?.significance;
     const isTweetPost =
       post.type === PostType.SocialTwitter ||
@@ -86,16 +81,6 @@ export const ArticleFeaturedWideGridCard = forwardRef(
       post.summary,
     ]);
 
-    // In glass mode the action pill floats over the bottom of the content
-    // column, so a full-size 3-line title + 3-line TLDR overflow the clipped
-    // area and the TLDR's last line gets cut off behind the pill. Keep the title
-    // at up to 3 lines (the title text matters) and instead drop it one type
-    // step — typo-title2, still larger than the default card's typo-title3 — when
-    // a TLDR is present, so both fit and all three TLDR lines stay visible.
-    const titleClampClass = useGlass ? 'line-clamp-3' : 'line-clamp-4';
-    const titleSizeClass =
-      useGlass && description ? 'typo-title2' : 'typo-title1';
-
     const feedbackContent = (
       <>
         <h3 className="line-clamp-2 break-words px-6 pt-6 font-bold text-text-primary typo-title3">
@@ -112,7 +97,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
 
     const standardContent = (
       <>
-        <FeaturedWideTextContainer useGlass={useGlass}>
+        <FeaturedWideTextContainer>
           <PostCardHeader
             post={post}
             className="flex"
@@ -122,16 +107,7 @@ export const ArticleFeaturedWideGridCard = forwardRef(
             onReadArticleClick={onReadArticleClick}
             showFeedback={false}
           />
-          <h3
-            className={classNames(
-              'break-words font-bold text-text-primary',
-              // Tighten the header→title gap in the compact glass layout to help
-              // a 3-line title + 3-line TLDR clear the floating pill.
-              useGlass ? 'mt-1' : 'mt-2',
-              titleClampClass,
-              titleSizeClass,
-            )}
-          >
+          <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
             {title}
           </h3>
           <div className="mt-2 flex min-w-0 items-center gap-2">
@@ -146,19 +122,13 @@ export const ArticleFeaturedWideGridCard = forwardRef(
             className="mt-1"
           />
           {!!description && (
-            <p
-              className={classNames(
-                'line-clamp-3 text-text-secondary typo-callout',
-                useGlass ? 'mt-1' : 'mt-2',
-              )}
-            >
+            <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
               {description}
             </p>
           )}
         </FeaturedWideTextContainer>
         <FeaturedWideActions
           post={post}
-          useGlass={useGlass}
           onUpvoteClick={onUpvoteClick}
           onCommentClick={onCommentClick}
           onCopyLinkClick={onCopyLinkClick}
@@ -173,7 +143,6 @@ export const ArticleFeaturedWideGridCard = forwardRef(
         ref={ref}
         post={post}
         domProps={domProps}
-        useGlass={useGlass}
         onPostClick={onPostClick}
         onPostAuxClick={onPostAuxClick}
         flagProps={{ pinnedAt }}

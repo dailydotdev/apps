@@ -25,7 +25,6 @@ export interface SharedCardCoverProps extends CommonCardCoverProps {
   isVideoType?: boolean;
   CardImageComponent: typeof CardImage;
   renderOverlay: (props: RenderProps) => ReactNode;
-  shareCoverClassName?: string;
 }
 
 export function SharedCardCover({
@@ -36,12 +35,10 @@ export function SharedCardCover({
   post,
   renderOverlay,
   CardImageComponent,
-  shareCoverClassName,
 }: SharedCardCoverProps): ReactElement {
   const { overlay } = useCardCover({
     post,
     onShare,
-    className: { share: { container: shareCoverClassName } },
   });
   const imageClasses = classNames(
     imageProps?.className,
