@@ -81,8 +81,6 @@ export interface AuthContextData {
   isValidRegion?: boolean;
   isFunnel?: boolean;
   feeds?: Feed[];
-  daily?: boolean;
-  setDaily?: (value: boolean) => void;
 }
 
 const isExtension = checkIsExtension();
@@ -149,8 +147,6 @@ export type AuthContextProviderProps = {
   | 'geo'
   | 'isAndroidApp'
   | 'feeds'
-  | 'daily'
-  | 'setDaily'
 >;
 
 export const AuthContextProvider = ({
@@ -170,8 +166,6 @@ export const AuthContextProvider = ({
   firstLoad,
   geo,
   isAndroidApp,
-  daily,
-  setDaily,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -239,8 +233,6 @@ export const AuthContextProvider = ({
       feeds,
       geo,
       isAndroidApp,
-      daily,
-      setDaily,
       isValidRegion,
       isGdprCovered: checkIfGdprCovered(geo),
       isTcfCovered: checkIfTcfCovered(geo),
@@ -267,8 +259,6 @@ export const AuthContextProvider = ({
       feeds,
       geo,
       isAndroidApp,
-      daily,
-      setDaily,
       isValidRegion,
     ],
   );

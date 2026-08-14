@@ -1,4 +1,3 @@
-import type { JSONValue } from '@growthbook/growthbook';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
@@ -6,17 +5,9 @@ import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
 import type { HeroCardsConfig } from '../types';
 import { PostType } from '../types';
+import { Feature } from './feature';
 
-export class Feature<T extends JSONValue> {
-  readonly id: string;
-
-  readonly defaultValue: T;
-
-  constructor(id: string, defaultValue: T) {
-    this.id = id;
-    this.defaultValue = defaultValue;
-  }
-}
+export { Feature } from './feature';
 
 const feature = {
   showError: new Feature('show_error', false),
@@ -285,16 +276,6 @@ export const featureFeedContentVisibility = new Feature(
 export const featurePublicSignupBanner = new Feature(
   'public_signup_banner',
   false,
-);
-
-export enum DailyPageVariant {
-  None = 'none',
-  V1 = 'v1.1',
-  DailyAsDefault = 'daily-as-default',
-}
-export const featureDailyPage = new Feature<DailyPageVariant>(
-  'daily_page',
-  DailyPageVariant.None,
 );
 
 // Experiment: redesigned notifications page (type filters, time grouping,
