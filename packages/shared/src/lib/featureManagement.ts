@@ -318,11 +318,14 @@ export type PlusSaleConfig = {
 // The advertised discount, code and expiry travel with the id they describe, so
 // the copy can't outlive or contradict what Paddle applies. The committed
 // default is the off state; its copy is never reachable without a discount id.
-export const featurePlusSale = new Feature<PlusSaleConfig>('plus_sale', {
-  discountId: '',
-  code: 'SUMMER50',
-  label: '50% off',
-  headline: 'Summer sale: 50% off Plus',
-  description: 'Code SUMMER50 is already applied. Offer ends August 31.',
-  endDate: '2026-09-01T00:00:00.000Z',
-});
+export const featurePlusSale = new Feature<PlusSaleConfig>(
+  'plus_sale_campaign',
+  {
+    discountId: '',
+    code: 'SUMMER50',
+    label: '50% off',
+    headline: 'Summer sale: 50% off Plus',
+    description: 'Code SUMMER50 is already applied. Offer ends August 31.',
+    endDate: '2026-09-01T00:00:00.000Z',
+  },
+);
