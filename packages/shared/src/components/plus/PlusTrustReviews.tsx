@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import { IconSize } from '../Icon';
 import { StarIcon } from '../icons';
 import { Typography, TypographyType } from '../typography/Typography';
+import { trustpilotReviews } from '../../lib/constants';
+import { anchorDefaultRel } from '../../lib/strings';
 
 type PlusTrustReviewsProps = {
   center?: boolean;
@@ -24,10 +26,23 @@ export const PlusTrustReviews = ({
           <StarIcon secondary key={i} size={IconSize.Small} />
         ))}
       </div>
-      <Typography type={TypographyType.Footnote}>
-        <strong className="me-1">4.8/5</strong>based on 2,598+ Chrome Store
-        reviews
-      </Typography>
+      <div className={classNames('flex flex-col gap-0.5', center && 'items-center')}>
+        <Typography type={TypographyType.Footnote}>
+          <strong className="me-1">4.8/5</strong>based on 2,598+ Chrome Store
+          reviews
+        </Typography>
+        <Typography type={TypographyType.Footnote}>
+          <strong className="me-1">4.7/5</strong>on{' '}
+          <a
+            href={trustpilotReviews}
+            target="_blank"
+            rel={anchorDefaultRel}
+            className="underline"
+          >
+            Trustpilot
+          </a>
+        </Typography>
+      </div>
     </div>
   );
 };

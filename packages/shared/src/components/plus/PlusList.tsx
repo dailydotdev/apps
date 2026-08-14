@@ -15,6 +15,7 @@ import {
   LanguageIcon,
   ShieldPlusIcon,
   SourceIcon,
+  TourIcon,
   UserShareIcon,
 } from '../icons';
 import {
@@ -32,6 +33,7 @@ import {
   plusShowcaseTeamVideo,
   plusShowcaseTranslateImage,
 } from '../../lib/image';
+import { plusOverviewDocs } from '../../lib/constants';
 
 export const defaultFeatureList: Array<PlusItem> = [
   {
@@ -177,6 +179,14 @@ export const plusFeatureListControl: Array<PlusItem> = [
     },
   },
   {
+    id: 'bonus-quest-slots',
+    label: 'Bonus quest slots',
+    status: PlusItemStatus.Ready,
+    tooltip: `Get two additional quest slots — one in your daily bucket and one in your weekly bucket. More objectives in flight, more XP, Reputation, and Cores each rotation.`,
+    icon: <TourIcon secondary />,
+    iconClasses: 'bg-overlay-float-blueCheese text-accent-blueCheese-default',
+  },
+  {
     id: 'member squad',
     label: 'Members-only Squad',
     status: PlusItemStatus.Ready,
@@ -211,17 +221,22 @@ export const plusFeatureListControl: Array<PlusItem> = [
 
 export const plusFeatureList = plusFeatureListControl;
 
-const reframeControlItem = (
-  baseId: string,
-  label: string,
-  tooltip: string,
-): PlusItem => {
+const getControlItem = (baseId: string): PlusItem => {
   const base = plusFeatureListControl.find((item) => item.id === baseId);
   if (!base) {
     throw new Error(
       `plusFeatureListControl is missing item with id: ${baseId}`,
     );
   }
+  return base;
+};
+
+const reframeControlItem = (
+  baseId: string,
+  label: string,
+  tooltip: string,
+): PlusItem => {
+  const base = getControlItem(baseId);
   return {
     ...base,
     label,
@@ -260,11 +275,27 @@ export const plusFeatureListApiFirst: Array<PlusItem> = [
     'Keyword filters',
     `Mute buzzwords once. They apply to every feed you query, so agents don't waste tokens on noise.`,
   ),
+  reframeControlItem(
+    'presidential-briefing',
+    'Presidential Briefing',
+    `Your personal AI agent scans posts, videos, Squad threads, changelogs, and releases to deliver a personalized briefing in 3–5 minutes. Auto-saved to bookmarks; customize frequency and delivery (Plus only).`,
+  ),
+  reframeControlItem(
+    'ad-free',
+    'Ad-free experience',
+    `No ads. No clutter. Just pure content — your feed, distraction-free.`,
+  ),
+  reframeControlItem(
+    'auto-translate',
+    'Auto-translate your feed',
+    `Translate post titles and summaries into your preferred language. Break language barriers and discover global sources without limitations.`,
+  ),
+  getControlItem('bonus-quest-slots'),
   {
-    id: 'plus-everything-else',
-    label: 'Everything else in daily.dev Plus',
+    id: 'plus-docs',
+    label: 'Explore all Plus features',
     status: PlusItemStatus.Ready,
-    tooltip: `Ad-free reading, auto-translate, presidential briefings, members-only Squad, and more. The full Plus experience, bundled with your API access.`,
+    href: plusOverviewDocs,
   },
 ];
 
@@ -347,6 +378,14 @@ export const PlusList = ({
     });
   };
 
+  const handleItemClick = (item: PlusItem) => {
+    logEvent({
+      event_name: LogEvent.ClickPlusFeature,
+      target_id: item.id,
+      target_type: TargetType.List,
+    });
+  };
+
   return (
     <ul className={classNames('flex flex-col gap-0.5 py-6', className)}>
       {items.map((item) => (
@@ -356,6 +395,14 @@ export const PlusList = ({
           typographyProps={item.typographyProps}
           onHover={() => handleItemHover(item)}
           {...props}
+          onClick={
+            item.href
+              ? () => {
+                  handleItemClick(item);
+                  props.onClick?.();
+                }
+              : props.onClick
+          }
         />
       ))}
     </ul>
