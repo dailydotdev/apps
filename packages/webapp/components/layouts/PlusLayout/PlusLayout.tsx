@@ -1,7 +1,8 @@
-import type { ReactElement, ReactNode } from 'react';
+import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import React, { useEffect } from 'react';
 import { cloudinaryPlusBackground } from '@dailydotdev/shared/src/lib/image';
 import { PaymentContextProvider } from '@dailydotdev/shared/src/contexts/payment';
+import { usePlusSale } from '@dailydotdev/shared/src/hooks/usePlusSale';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useRouter } from 'next/router';
@@ -58,10 +59,24 @@ export default function PlusLayout({
   );
 }
 
+// The sale reaches Paddle only through the Plus routes; the onboarding funnel
+// mounts its own provider and must stay free of promos.
+function PlusSalePaymentProvider({
+  children,
+}: PropsWithChildren): ReactElement {
+  const { discountId } = usePlusSale();
+
+  return (
+    <PaymentContextProvider discountId={discountId}>
+      {children}
+    </PaymentContextProvider>
+  );
+}
+
 export function getPlusLayout(page: ReactNode): ReactNode {
   return (
-    <PaymentContextProvider>
+    <PlusSalePaymentProvider>
       <PlusLayout>{page}</PlusLayout>
-    </PaymentContextProvider>
+    </PlusSalePaymentProvider>
   );
 }

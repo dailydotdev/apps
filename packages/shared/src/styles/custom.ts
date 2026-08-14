@@ -34,3 +34,25 @@ export const profileCompletionCardBg =
 
 export const profileCompletionButtonBg =
   'color-mix(in srgb, var(--theme-accent-cabbage-default), transparent 20%)';
+
+// Summer sale: a dusk-to-sunset wash with a retro striped sun. The Plus page
+// forces dark theme, so these are tuned against a dark surface only.
+export const plusSaleBannerBg =
+  'linear-gradient(96deg, #2A1152 0%, #6A2585 34%, #D9534B 72%, #F4A83A 100%)';
+
+export const plusSaleBannerGlow =
+  'radial-gradient(60% 120% at 78% 120%, rgba(255, 214, 132, 0.45) 0%, rgba(255, 122, 89, 0) 70%)';
+
+// Keeps the copy legible where it overlaps the bright end of the gradient,
+// which on narrow screens reaches under the text.
+export const plusSaleBannerScrim =
+  'linear-gradient(90deg, rgba(24, 9, 46, 0.88) 0%, rgba(24, 9, 46, 0.62) 45%, rgba(24, 9, 46, 0) 100%)';
+
+export const plusSaleSunBg =
+  'linear-gradient(180deg, #FFE9B0 0%, #FFB25C 52%, #F4664B 100%)';
+
+export const plusSaleSunStripes =
+  'repeating-linear-gradient(180deg, transparent 0 9px, rgba(42, 17, 82, 0.75) 9px 14px)';
+
+export const plusSaleLabelBg =
+  'linear-gradient(90deg, #F4A83A 0%, #E05C4B 100%)';
