@@ -34,7 +34,9 @@ describe('PlusListItem', () => {
       </ul>,
     );
 
-    const link = screen.getByRole('link', { name: 'Explore all Plus features' });
+    const link = screen.getByRole('link', {
+      name: 'Explore all Plus features',
+    });
     expect(link).toHaveAttribute('href', plusOverviewDocs);
     expect(link).toHaveAttribute('target', '_blank');
   });

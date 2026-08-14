@@ -26,7 +26,12 @@ export const PlusTrustReviews = ({
           <StarIcon secondary key={i} size={IconSize.Small} />
         ))}
       </div>
-      <div className={classNames('flex flex-col gap-0.5', center && 'items-center')}>
+      <div
+        className={classNames(
+          'flex flex-col gap-0.5',
+          center && 'items-center',
+        )}
+      >
         <Typography type={TypographyType.Footnote}>
           <strong className="me-1">4.8/5</strong>based on 2,598+ Chrome Store
           reviews
