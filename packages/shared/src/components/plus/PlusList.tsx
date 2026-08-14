@@ -179,14 +179,6 @@ export const plusFeatureListControl: Array<PlusItem> = [
     },
   },
   {
-    id: 'bonus-quest-slots',
-    label: 'Bonus quest slots',
-    status: PlusItemStatus.Ready,
-    tooltip: `Get two additional quest slots — one in your daily bucket and one in your weekly bucket. More objectives in flight, more XP, Reputation, and Cores each rotation.`,
-    icon: <TourIcon secondary />,
-    iconClasses: 'bg-overlay-float-blueCheese text-accent-blueCheese-default',
-  },
-  {
     id: 'member squad',
     label: 'Members-only Squad',
     status: PlusItemStatus.Ready,
@@ -290,7 +282,14 @@ export const plusFeatureListApiFirst: Array<PlusItem> = [
     'Auto-translate your feed',
     `Translate post titles and summaries into your preferred language. Break language barriers and discover global sources without limitations.`,
   ),
-  getControlItem('bonus-quest-slots'),
+  {
+    id: 'bonus-quest-slots',
+    label: 'Bonus quest slots',
+    status: PlusItemStatus.Ready,
+    tooltip: `Get two additional quest slots — one in your daily bucket and one in your weekly bucket. More objectives in flight, more XP, Reputation, and Cores each rotation.`,
+    icon: <TourIcon secondary />,
+    iconClasses: 'bg-overlay-float-blueCheese text-accent-blueCheese-default',
+  },
   {
     id: 'plus-docs',
     label: 'Explore all Plus features',

@@ -14,10 +14,12 @@ import { anchorDefaultRel } from '../../lib/strings';
 
 type PlusTrustReviewsProps = {
   center?: boolean;
+  showTrustpilot?: boolean;
 };
 
 export const PlusTrustReviews = ({
   center,
+  showTrustpilot = true,
 }: PlusTrustReviewsProps): ReactElement => {
   return (
     <div
@@ -42,30 +44,32 @@ export const PlusTrustReviews = ({
           reviews
         </Typography>
       </div>
-      <Typography
-        tag={TypographyTag.Link}
-        type={TypographyType.Footnote}
-        color={TypographyColor.Primary}
-        href={trustpilotReviews}
-        target="_blank"
-        rel={anchorDefaultRel}
-        className={classNames(
-          'flex flex-col gap-0.5 hover:underline',
-          center && 'items-center',
-        )}
-      >
-        <div
-          aria-label="Trustpilot rating: 4.7 out of 5"
-          className="flex gap-px"
+      {showTrustpilot && (
+        <Typography
+          tag={TypographyTag.Link}
+          type={TypographyType.Footnote}
+          color={TypographyColor.Primary}
+          href={trustpilotReviews}
+          target="_blank"
+          rel={anchorDefaultRel}
+          className={classNames(
+            'flex flex-col gap-0.5 hover:underline',
+            center && 'items-center',
+          )}
         >
-          {Array.from({ length: 5 }, (_, i) => (
-            <TrustpilotIcon key={i} size={IconSize.Size16} aria-hidden />
-          ))}
-        </div>
-        <span>
-          <strong className="me-1">4.7/5</strong>on Trustpilot
-        </span>
-      </Typography>
+          <div
+            aria-label="Trustpilot rating: 4.7 out of 5"
+            className="flex gap-px"
+          >
+            {Array.from({ length: 5 }, (_, i) => (
+              <TrustpilotIcon key={i} size={IconSize.Size16} aria-hidden />
+            ))}
+          </div>
+          <span>
+            <strong className="me-1">4.7/5</strong>on Trustpilot
+          </span>
+        </Typography>
+      )}
     </div>
   );
 };

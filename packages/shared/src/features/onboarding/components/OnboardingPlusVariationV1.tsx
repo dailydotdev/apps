@@ -88,8 +88,7 @@ export const OnboardingPlusVariationV1 = ({
   const { item } = useFunnelAnnualPricing();
 
   const featureCardsNew = plusFeatureListControl.filter(
-    (plusItem) =>
-      plusItem.status === PlusItemStatus.Ready && plusItem.modalProps,
+    (plusItem) => plusItem.status === PlusItemStatus.Ready,
   );
 
   const handleItemHover = (hoverItem: PlusItem) => {
