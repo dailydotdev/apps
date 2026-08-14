@@ -92,7 +92,7 @@ const BrowserExtension = ({
 
   const reviews = showReviews && (
     <div className="flex flex-col items-center gap-1">
-      <PlusTrustReviews center />
+      <PlusTrustReviews center showTrustpilot={false} />
       <Typography
         color={TypographyColor.Tertiary}
         tag={TypographyTag.P}
