@@ -19,6 +19,7 @@ export const logServerPageRequest = async (
   }
 
   const { ua } = userAgent(req);
+  const clientIp = req.headers.get('cf-connecting-ip');
 
   try {
     const now = new Date();
@@ -48,6 +49,7 @@ export const logServerPageRequest = async (
       headers: {
         'content-type': 'application/json',
         'user-agent': ua,
+        ...(clientIp && { 'x-forwarded-for': clientIp }),
       },
     });
   } catch {
