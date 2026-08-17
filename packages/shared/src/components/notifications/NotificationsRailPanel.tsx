@@ -12,8 +12,8 @@ import type { NotificationFilterCategory } from './utils';
 import {
   notificationCategoryBadge,
   notificationFilterCategoryLabel,
-  notificationFilterCategoryList,
 } from './utils';
+import { useNotificationFilterCategories } from '../../hooks/notifications/useNotificationFilterCategories';
 import { useConditionalFeature } from '../../hooks/useConditionalFeature';
 import { featureNotificationsRedesign } from '../../lib/featureManagement';
 import { isExtension } from '../../lib/func';
@@ -38,6 +38,9 @@ export const NotificationsRailPanel = (): ReactElement => {
   // ignores `?type=`, so when the experiment is off keep the simple nav.
   const { value: isRedesign } = useConditionalFeature({
     feature: featureNotificationsRedesign,
+  });
+  const filterCategories = useNotificationFilterCategories({
+    shouldEvaluate: isRedesign,
   });
 
   // On the webapp, filters navigate via `action` (button), NOT `path`.
@@ -126,7 +129,7 @@ export const NotificationsRailPanel = (): ReactElement => {
       ...unreadBadge,
     };
 
-    const categoryItems: SidebarMenuItem[] = notificationFilterCategoryList.map(
+    const categoryItems: SidebarMenuItem[] = filterCategories.map(
       (category) => {
         const { Icon } = notificationCategoryBadge[category];
         return {
@@ -144,6 +147,7 @@ export const NotificationsRailPanel = (): ReactElement => {
   }, [
     activePage,
     activeType,
+    filterCategories,
     hasUnread,
     isListPage,
     isRedesign,
