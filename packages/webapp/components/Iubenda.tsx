@@ -2,8 +2,6 @@
 import type { ReactElement } from 'react';
 import { useEffect, useRef } from 'react';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useFeature } from '@dailydotdev/shared/src/components/GrowthBookProvider';
-import { featureIubendaCmp } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   cookieAcknowledgedKey,
   GdprConsentKey,
@@ -49,8 +47,7 @@ export const openIubendaPreferences = (): boolean => {
 };
 
 export const Iubenda = (): ReactElement | null => {
-  const { isAuthReady, isGdprCovered, isFunnel } = useAuthContext();
-  const cmpEnabled = useFeature(featureIubendaCmp);
+  const { isAuthReady, isTcfCovered, isFunnel } = useAuthContext();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Necessary);
   const injectedRef = useRef(false);
 
@@ -65,8 +62,7 @@ export const Iubenda = (): ReactElement | null => {
     globalThis?.localStorage?.setItem(cookieAcknowledgedKey, 'true');
   };
 
-  const enabled =
-    isAuthReady && isGdprCovered && cmpEnabled && !isFunnel && !isIOSNative();
+  const enabled = isAuthReady && isTcfCovered && !isFunnel && !isIOSNative();
 
   useEffect(() => {
     if (!enabled || injectedRef.current) {
@@ -82,6 +78,7 @@ export const Iubenda = (): ReactElement | null => {
     injectedRef.current = true;
 
     win._iub = win._iub || {};
+    const tokens = getComputedStyle(document.documentElement);
     // Aligned with the marketing homepage's embed (same siteId/cookiePolicyId,
     // countryDetection, LGPD/USPR) so both surfaces treat consent the same.
     // Deliberate differences: enableTcf + ACM (the point of this integration)
@@ -105,7 +102,17 @@ export const Iubenda = (): ReactElement | null => {
       localConsentDomain: process.env.NEXT_PUBLIC_DOMAIN,
       floatingPreferencesButtonDisplay: false,
       banner: {
-        position: 'float-bottom-center',
+        position: 'float-bottom-right',
+        // iubenda writes these three inline with !important, so unlike the
+        // rest of the card (styles/components/iubenda.css) they can't come
+        // from the stylesheet; read the tokens so they follow the active
+        // theme
+        backgroundColor:
+          tokens.getPropertyValue('--theme-accent-pepper-subtlest').trim() ||
+          '#161921',
+        textColor:
+          tokens.getPropertyValue('--theme-text-secondary').trim() || '#CDD4E4',
+        fontSize: '13px',
         acceptButtonDisplay: true,
         rejectButtonDisplay: true,
         customizeButtonDisplay: true,

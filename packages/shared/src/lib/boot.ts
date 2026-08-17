@@ -80,7 +80,7 @@ export type Boot = {
    */
   marketingCtaVariants?: MarketingCtaVariant[];
   feeds: Feed[];
-  language?: string;
+  language?: string | null;
   geo: {
     ip?: string;
     region?: string;
@@ -89,7 +89,6 @@ export type Boot = {
   isAndroidApp?: boolean;
   engagementCreatives?: EngagementCreative[];
   liveRooms?: LiveRoomsBootData;
-  daily?: boolean;
 };
 
 export type BootCacheData = Pick<
@@ -103,7 +102,6 @@ export type BootCacheData = Pick<
   | 'exp'
   | 'feeds'
   | 'geo'
-  | 'daily'
 > & { lastModifier?: string; isAndroidApp?: boolean };
 
 /**

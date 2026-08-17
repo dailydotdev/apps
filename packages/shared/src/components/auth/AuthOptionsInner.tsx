@@ -181,6 +181,12 @@ function AuthOptionsInner({
 
   const [isForgotPasswordReturn, setIsForgotPasswordReturn] = useState(false);
   const [handleLoginCheck, setHandleLoginCheck] = useState<boolean>(null);
+  // A mistyped address is only fixable on the screen that owns the email
+  // field, and verification is reached both from signup and from an
+  // unverified login, so remember which one to return to.
+  const [emailVerificationReturn, setEmailVerificationReturn] = useState(
+    AuthDisplay.Registration,
+  );
   const socialErrorEventName = useRef(AuthEventNames.LoginError);
   const [chosenProvider, setChosenProvider] = usePersistentState(
     CHOSEN_PROVIDER_KEY,
@@ -253,6 +259,7 @@ function AuthOptionsInner({
     useRegistration({
       key: ['registration_form'],
       onInitializeVerification: () => {
+        setEmailVerificationReturn(AuthDisplay.Registration);
         onSetActiveDisplay(AuthDisplay.EmailVerification);
       },
       onInvalidRegistration: setRegistrationHints,
@@ -337,6 +344,7 @@ function AuthOptionsInner({
 
   const onLoginCheck = async (shouldVerify?: boolean) => {
     if (shouldVerify) {
+      setEmailVerificationReturn(AuthDisplay.Default);
       onSetActiveDisplay(AuthDisplay.EmailVerification);
       return;
     }
@@ -775,6 +783,7 @@ function AuthOptionsInner({
             isLoading={isProfileUpdateLoading}
             onUpdateHints={onUpdateHint}
             simplified={simplified}
+            isOnboardingFunnel={isOnboardingFunnel}
             {...(user?.isPlus && {
               title: 'Complete your profile',
             })}
@@ -924,6 +933,7 @@ function AuthOptionsInner({
             simplified={simplified}
             onboardingHeadline={isOnboardingFunnel}
             title="Verify your email"
+            onBack={() => onSetActiveDisplay(emailVerificationReturn)}
           />
           <EmailCodeVerification
             isOnboardingFunnel={isOnboardingFunnel}

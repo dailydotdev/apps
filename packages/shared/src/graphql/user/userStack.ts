@@ -48,7 +48,7 @@ export interface ReorderUserStackInput {
   section?: string;
 }
 
-const USER_STACK_FRAGMENT = gql`
+export const USER_STACK_FRAGMENT = gql`
   fragment UserStackFragment on UserStack {
     id
     section

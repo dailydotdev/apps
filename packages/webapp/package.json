@@ -24,6 +24,7 @@
   "prettier": "@dailydotdev/prettier-config",
   "dependencies": {
     "@dailydotdev/shared": "workspace:*",
+    "@growthbook/growthbook": "0.26.0",
     "@hookform/resolvers": "5.2.2",
     "@intercom/messenger-js-sdk": "^0.0.18",
     "@kickass-coderz/react": "^0.0.5",
@@ -55,6 +56,7 @@
     "react-parallax-tilt": "^1.7.326",
     "react-swipeable": "^7.0.1",
     "serwist": "9.5.10",
+    "three": "0.160.1",
     "zod": "4.1.8"
   },
   "devDependencies": {

@@ -32,6 +32,7 @@ import { usePlusSubscription } from '../../hooks/usePlusSubscription';
 import SocialBar from '../cards/socials/SocialBar';
 import { PostContentReminder } from './common/PostContentReminder';
 import { useSettingsContext } from '../../contexts/SettingsContext';
+import { usePostComments } from '../../hooks/comments/usePostComments';
 
 const AuthorOnboarding = dynamic(
   () => import(/* webpackChunkName: "authorOnboarding" */ './AuthorOnboarding'),
@@ -61,6 +62,7 @@ function PostEngagements({
   const postQueryKey = ['post', post.id];
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
+  const { commentsCount } = usePostComments({ postId: post.id, sortBy });
   const { user, showLogin } = useAuthContext();
   const { isPlus } = usePlusSubscription();
   const commentRef = useRef<NewCommentRef>();
@@ -127,31 +129,35 @@ function PostEngagements({
       <PostContentReminder post={post} />
       <PostContentShare post={post} />
       {linkClicked && <SocialBar post={post} className="mt-6" />}
-      <span className="mt-3 flex flex-row items-center">
-        <Typography type={TypographyType.Callout}>Sort:</Typography>
-        <Button
-          className="ml-1 !px-0"
-          iconPosition={ButtonIconPosition.Right}
-          size={ButtonSize.Small}
-          icon={
-            <TimeSortIcon
-              secondary
-              className={sortBy === SortCommentsBy.OldestFirst && 'rotate-180'}
-            />
-          }
-          onClick={() =>
-            setSortBy(
-              sortBy === SortCommentsBy.NewestFirst
-                ? SortCommentsBy.OldestFirst
-                : SortCommentsBy.NewestFirst,
-            )
-          }
-        >
-          {sortBy === SortCommentsBy.NewestFirst
-            ? 'Newest first'
-            : 'Oldest first'}
-        </Button>
-      </span>
+      {commentsCount > 0 && (
+        <span className="mt-3 flex flex-row items-center">
+          <Typography type={TypographyType.Callout}>Sort:</Typography>
+          <Button
+            className="ml-1 !px-0"
+            iconPosition={ButtonIconPosition.Right}
+            size={ButtonSize.Small}
+            icon={
+              <TimeSortIcon
+                secondary
+                className={
+                  sortBy === SortCommentsBy.OldestFirst && 'rotate-180'
+                }
+              />
+            }
+            onClick={() =>
+              setSortBy(
+                sortBy === SortCommentsBy.NewestFirst
+                  ? SortCommentsBy.OldestFirst
+                  : SortCommentsBy.NewestFirst,
+              )
+            }
+          >
+            {sortBy === SortCommentsBy.NewestFirst
+              ? 'Newest first'
+              : 'Oldest first'}
+          </Button>
+        </span>
+      )}
       <NewComment
         className={{ container: 'mt-3 hidden tablet:flex' }}
         post={post}

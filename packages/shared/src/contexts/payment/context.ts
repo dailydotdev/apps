@@ -48,6 +48,12 @@ export interface PaymentContextProviderProps<T = unknown, E = unknown> {
   disabledEvents?: E[];
   successCallback?: (event: T) => void;
   initialPriceType?: PurchaseType;
+  /**
+   * Paddle discount applied to both the previewed prices and checkout for
+   * everything under this provider. Opt-in per surface: the onboarding funnel
+   * mounts its own provider without it and keeps its own discount logic.
+   */
+  discountId?: string;
 }
 
 export const FunnelPaymentPricingContext = createContext<{

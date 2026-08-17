@@ -3,12 +3,10 @@ import React, { forwardRef } from 'react';
 import classNames from 'classnames';
 import { isPostUpdated } from '../../../graphql/posts';
 import { TimeFormatType } from '../../../lib/dateFormat';
-import { CardTextContainer } from '../common/Card';
 import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { CollectionCardHeader } from './CollectionCardHeader';
@@ -18,6 +16,7 @@ import { INNER_GRID_COLS } from '../common/featuredWide';
 import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
 import { FeaturedWideImageColumn } from '../common/FeaturedWideImageColumn';
 import { FeaturedWideActions } from '../common/FeaturedWideActions';
+import { FeaturedWideTextContainer } from '../common/FeaturedWideTextContainer';
 
 export const CollectionFeaturedWideGridCard = forwardRef(
   function CollectionFeaturedWideGridCard(
@@ -41,7 +40,6 @@ export const CollectionFeaturedWideGridCard = forwardRef(
     const { pinnedAt } = post;
     const { title } = useSmartTitle(post);
     const image = usePostImage(post);
-    const useGlass = useFeedCardGlassActions();
     const significance = post.hero?.significance;
     const wasUpdated = isPostUpdated(post);
     const { overlay } = useCardCover({ post, onShare });
@@ -51,7 +49,6 @@ export const CollectionFeaturedWideGridCard = forwardRef(
         ref={ref}
         post={post}
         domProps={domProps}
-        useGlass={useGlass}
         onPostClick={onPostClick}
         onPostAuxClick={onPostAuxClick}
         flagProps={{ pinnedAt }}
@@ -65,18 +62,9 @@ export const CollectionFeaturedWideGridCard = forwardRef(
           )}
         >
           <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
-            <CardTextContainer
-              className={
-                useGlass ? 'min-h-0 flex-1 overflow-hidden' : undefined
-              }
-            >
+            <FeaturedWideTextContainer>
               <CollectionCardHeader post={post} />
-              <h3
-                className={classNames(
-                  'mt-2 break-words font-bold text-text-primary typo-title1',
-                  useGlass ? 'line-clamp-3' : 'line-clamp-4',
-                )}
-              >
+              <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
                 {title}
               </h3>
               <div className="mt-2 flex min-w-0 items-center gap-2">
@@ -101,10 +89,9 @@ export const CollectionFeaturedWideGridCard = forwardRef(
                   {post.summary}
                 </p>
               )}
-            </CardTextContainer>
+            </FeaturedWideTextContainer>
             <FeaturedWideActions
               post={post}
-              useGlass={useGlass}
               onUpvoteClick={onUpvoteClick}
               onCommentClick={onCommentClick}
               onCopyLinkClick={onCopyLinkClick}

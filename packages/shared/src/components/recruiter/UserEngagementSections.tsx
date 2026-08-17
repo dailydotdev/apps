@@ -7,7 +7,6 @@ import { Chip } from '../cards/common/PostTags';
 import { MedalBadgeIcon } from '../icons';
 import { IconSize } from '../Icon';
 import { formatMonthYearOnly } from '../../lib/dateFormat';
-import { formatKeyword } from '../../lib/strings';
 import { Image, ImageType } from '../image/Image';
 import type { Squad } from '../../graphql/sources';
 import type { TopReader } from '../badges/TopReaderBadge';
@@ -47,7 +46,7 @@ export const UserEngagementSections = ({
           {recentlyRead.map((badge) => (
             <Chip key={badge.keyword.value} className="!my-0 gap-1.5">
               <MedalBadgeIcon size={IconSize.XSmall} secondary />
-              <span>{formatKeyword(badge.keyword.value)}</span>
+              <span>{badge.keyword.flags?.title || badge.keyword.value}</span>
               <span className="text-text-quaternary">·</span>
               <span className="text-text-quaternary">
                 {formatMonthYearOnly(new Date(badge.issuedAt))}

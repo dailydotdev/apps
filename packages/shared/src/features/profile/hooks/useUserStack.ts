@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo, useCallback } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import type { PublicProfile } from '../../../lib/user';
 import type {
   UserStack,
@@ -9,34 +9,28 @@ import type {
 } from '../../../graphql/user/userStack';
 import {
   MAX_STACK_ITEMS,
-  getUserStack,
   addUserStack,
   updateUserStack,
   deleteUserStack,
   reorderUserStack,
 } from '../../../graphql/user/userStack';
-import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+import type { ProfileShowcase } from '../../../graphql/user/profileShowcase';
+import { useProfileShowcase } from './useProfileShowcase';
 import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
+const selectStack = (data: ProfileShowcase) => data.userStack;
+
 export function useUserStack(user: PublicProfile | null) {
-  const queryClient = useQueryClient();
   const { isOwner } = useProfilePreview(user);
   const { logEvent } = useLogContext();
 
-  const queryKey = generateQueryKey(
-    RequestKey.UserStack,
-    user ?? undefined,
-    'profile',
-  );
-
-  const query = useQuery({
+  const {
     queryKey,
-    queryFn: () => getUserStack(user?.id as string),
-    staleTime: StaleTime.Default,
-    enabled: !!user?.id,
-  });
+    invalidate: invalidateQuery,
+    ...query
+  } = useProfileShowcase(user, selectStack);
 
   const stackItems = useMemo(
     () => query.data?.edges?.map(({ node }) => node) ?? [],
@@ -55,10 +49,6 @@ export function useUserStack(user: PublicProfile | null) {
     });
     return groups;
   }, [stackItems]);
-
-  const invalidateQuery = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey });
-  }, [queryClient, queryKey]);
 
   const addMutation = useMutation({
     mutationFn: (input: AddUserStackInput) => addUserStack(input),

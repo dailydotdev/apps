@@ -1,4 +1,16 @@
-import { isMutingDigestCompletely, NotificationType } from './utils';
+import {
+  ACHIEVEMENT_KEYS,
+  COMMENT_KEYS,
+  FOLLOWING_KEYS,
+  isMutingDigestCompletely,
+  MENTION_KEYS,
+  NotificationType,
+  OPPORTUNITY_KEYS,
+  POLL_RESULT_KEYS,
+  SQUAD_KEYS,
+  STREAK_KEYS,
+  WORLD_KEYS,
+} from './utils';
 import type { NotificationSettings } from './utils';
 import { NotificationPreferenceStatus } from '../../graphql/notifications';
 
@@ -119,5 +131,33 @@ describe('isMutingDigestCompletely', () => {
 
       expect(isMutingDigestCompletely(ns, 'inApp')).toBe(false);
     });
+  });
+});
+
+describe('world notification settings keys', () => {
+  it('should give the world its own group', () => {
+    // Bundled into the achievements toggle, the only way to stop hearing about
+    // a world was to stop hearing about badges too, under a label that never
+    // mentions worlds.
+    expect(WORLD_KEYS).toEqual([NotificationType.WorldDistrictLevelUp]);
+    expect(ACHIEVEMENT_KEYS).not.toContain(
+      NotificationType.WorldDistrictLevelUp,
+    );
+  });
+
+  it('should not share a key with any other settings group', () => {
+    const others = [
+      ACHIEVEMENT_KEYS,
+      MENTION_KEYS,
+      STREAK_KEYS,
+      COMMENT_KEYS,
+      SQUAD_KEYS,
+      FOLLOWING_KEYS,
+      POLL_RESULT_KEYS,
+      OPPORTUNITY_KEYS,
+    ].flat();
+
+    // A key in two groups makes one toggle silently move the other.
+    expect(others).not.toContain(NotificationType.WorldDistrictLevelUp);
   });
 });

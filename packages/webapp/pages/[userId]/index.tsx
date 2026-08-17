@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { AboutMe } from '@dailydotdev/shared/src/features/profile/components/AboutMe';
 import { Activity } from '@dailydotdev/shared/src/features/profile/components/Activity';
 import { useProfile } from '@dailydotdev/shared/src/hooks/profile/useProfile';
@@ -29,6 +29,7 @@ import { ProfileCompletion } from '@dailydotdev/shared/src/features/profile/comp
 import { Share } from '@dailydotdev/shared/src/features/profile/components/ProfileWidgets/Share';
 import { useRouter } from 'next/router';
 import { useProfileCompletionIndicator } from '@dailydotdev/shared/src/hooks/profile/useProfileCompletionIndicator';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
   getLayout as getProfileLayout,
   getProfileSeoDefaults,
@@ -36,6 +37,7 @@ import {
   getStaticProps as getProfileStaticProps,
 } from '../../components/layouts/ProfileLayout';
 import type { ProfileLayoutProps } from '../../components/layouts/ProfileLayout';
+import { ProfileSideToggle } from '../../components/profile/ProfileSideToggle';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ProfilePage = ({
@@ -43,9 +45,11 @@ const ProfilePage = ({
   noindex,
   userStats,
   sources,
+  hasWorld,
 }: ProfileLayoutProps): ReactElement => {
   useJoinReferral();
   const router = useRouter();
+  const { isAuthReady } = useAuthContext();
   const { status, onUpload, shouldShow } = useUploadCv();
   const { checkHasCompleted } = useActions();
   const hasClosedBanner = useMemo(
@@ -56,6 +60,26 @@ const ProfilePage = ({
     useProfileCompletionIndicator();
 
   const { user, isUserSame: isUserSameBase } = useProfile(initialUser);
+
+  useEffect(() => {
+    if (
+      !isAuthReady ||
+      !router.isReady ||
+      !isUserSameBase ||
+      router.query.userId !== user.id
+    ) {
+      return;
+    }
+
+    router.replace(
+      {
+        pathname: router.pathname,
+        query: { ...router.query, userId: user.username },
+      },
+      undefined,
+      { shallow: true },
+    );
+  }, [isAuthReady, isUserSameBase, router, user.id, user.username]);
 
   // Check if preview mode is enabled via query param
   const isPreviewMode = router.query.preview === 'true';
@@ -97,6 +121,13 @@ const ProfilePage = ({
         userStats={userStats}
         isSameUser={isSameUser}
         isPreviewMode={isPreviewMode}
+        actions={
+          /* The owner always gets the door, even before their world has
+             anything in it — the empty world is the invitation to build one.
+             Everyone else gets it only once there is something to walk into,
+             which the static props already answered without a session. */
+          (hasWorld || isSameUser) && <ProfileSideToggle user={user} />
+        }
       />
       <div className="flex flex-col divide-y divide-border-subtlest-tertiary p-6">
         {shouldShowBanner && (

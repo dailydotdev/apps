@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import ConditionalWrapper from '../ConditionalWrapper';
@@ -32,6 +32,8 @@ interface EmailCodeVerificationProps extends AuthFormProps {
 
 const noop = (): void => undefined;
 
+const CODE_LENGTH = 6;
+
 function EmailCodeVerification({
   code: codeProp,
   onSubmit,
@@ -43,7 +45,8 @@ function EmailCodeVerification({
   const { email } = useAuthData();
   const { logEvent } = useLogContext();
   const [hint, setHint] = useState('');
-  const [code, setCode] = useState(codeProp ?? '');
+  const linkedCode = (codeProp ?? '').replace(/\D/g, '').slice(0, CODE_LENGTH);
+  const [code, setCode] = useState(linkedCode);
   const [isVerifying, setIsVerifying] = useState(false);
   const verifyingRef = useRef(false);
   const { timer, setTimer, runTimer } = useTimer(noop, 60);
@@ -74,6 +77,71 @@ function EmailCodeVerification({
     }
   };
 
+  useEffect(() => {
+    if (linkedCode.length !== CODE_LENGTH) {
+      return;
+    }
+
+    handleVerify(linkedCode);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linkedCode]);
+
+  // Opening the keyboard makes WebKit scroll the focused code row toward the
+  // centre of the shrunken viewport, dragging the heading off the top - and
+  // `position: sticky` cannot counter it, because the global body overflow
+  // guard detaches body from the document scroller. When the row already fits
+  // above the keyboard the reveal scroll adds nothing, so undo it - but only
+  // in the moments after focus or a keyboard resize, so a reader scrolling by
+  // hand is never fought.
+  useEffect(() => {
+    let resetUntil = 0;
+    const isCodeInput = (el: Element | null) =>
+      el?.getAttribute('autocomplete') === 'one-time-code';
+    const arm = () => {
+      resetUntil = Date.now() + 900;
+    };
+
+    const onFocusIn = (e: FocusEvent) => {
+      if (isCodeInput(e.target as Element)) {
+        arm();
+      }
+    };
+    const onViewportResize = () => {
+      if (isCodeInput(document.activeElement)) {
+        arm();
+      }
+    };
+    const onScroll = () => {
+      if (Date.now() > resetUntil || window.scrollY <= 0) {
+        return;
+      }
+
+      const input = document.activeElement as HTMLElement | null;
+
+      if (!input || !isCodeInput(input)) {
+        return;
+      }
+
+      const viewportHeight =
+        window.visualViewport?.height ?? window.innerHeight;
+      const { bottom } = input.getBoundingClientRect();
+
+      if (bottom + window.scrollY <= viewportHeight) {
+        window.scrollTo(0, 0);
+      }
+    };
+
+    document.addEventListener('focusin', onFocusIn);
+    window.visualViewport?.addEventListener('resize', onViewportResize);
+    window.addEventListener('scroll', onScroll);
+
+    return () => {
+      document.removeEventListener('focusin', onFocusIn);
+      window.visualViewport?.removeEventListener('resize', onViewportResize);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
+
   const onCodeVerification = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     logEvent({
@@ -81,7 +149,7 @@ function EmailCodeVerification({
       target_type: TargetType.VerifyEmail,
     });
     setHint('');
-    if (!code) {
+    if (code.length !== CODE_LENGTH) {
       setHint('Enter the 6-digit code');
       return;
     }
@@ -101,13 +169,15 @@ function EmailCodeVerification({
   };
 
   const onCodeSubmit = async (newCode: string) => {
-    if (newCode.length === 6) {
+    if (newCode.length === CODE_LENGTH) {
       setCode(newCode);
       await handleVerify(newCode);
     }
   };
 
-  const onCodeChange = async () => {
+  const onCodeChange = (newCode: string) => {
+    setCode(newCode);
+
     if (hint?.length > 0) {
       setHint('');
     }
@@ -149,6 +219,7 @@ function EmailCodeVerification({
           readOnly
         />
         <CodeField
+          defaultValue={linkedCode}
           onSubmit={onCodeSubmit}
           onChange={onCodeChange}
           disabled={isVerifying}

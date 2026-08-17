@@ -44,6 +44,7 @@ import defaultFeedPage from '../../__tests__/fixture/feed';
 import defaultUser from '../../__tests__/fixture/loggedUser';
 import ad from '../../__tests__/fixture/ad';
 import type { LoggedUser } from '../lib/user';
+import { webappUrl } from '../lib/constants';
 import {
   AcquisitionChannel,
   USER_ACQUISITION_MUTATION,
@@ -70,6 +71,7 @@ import { SourceType } from '../graphql/sources';
 import { removeQueryParam } from '../lib/links';
 import { SharedFeedPage } from './utilities';
 import type { AllFeedPages } from '../lib/query';
+import { OtherFeedPage } from '../lib/query';
 import { UserVoteEntity } from '../hooks';
 import * as hooks from '../hooks/useViewSize';
 import { ActionType } from '../graphql/actions';
@@ -241,7 +243,9 @@ function renderComponent(
   const resolvedUser = arguments.length < 2 ? defaultUser : user;
 
   mocks.forEach(mockGraphQL);
-  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
+  nock('http://localhost:3000')
+    .get('/v1/a?active=false&gdpr=0')
+    .reply(200, [ad]);
   const settingsContext: SettingsContextData = {
     ...baseSettingsContext,
     setTheme: jest.fn(),
@@ -1327,6 +1331,54 @@ describe('Feed logged in', () => {
     await screen.findByRole('dialog');
   });
 
+  it('should open the post modal with a shallow push', async () => {
+    const push = jest.fn().mockResolvedValue(true);
+    jest.mocked(useRouter).mockImplementation(() => ({
+      route: '/',
+      pathname: '/',
+      query: {},
+      asPath: '/',
+      push,
+      replace: jest.fn(),
+      basePath: '',
+      isLocaleDomain: true,
+      prefetch: jest.fn(),
+      beforePopState: jest.fn(),
+      reload: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      isFallback: false,
+      isReady: true,
+      isPreview: false,
+      events: {
+        on: jest.fn(),
+        off: jest.fn(),
+        emit: jest.fn(),
+      },
+    }));
+
+    nock('http://localhost:3000')
+      .persist()
+      .post('/graphql', (body: { query?: string }) =>
+        Boolean(body.query?.includes('mutation ViewPost(')),
+      )
+      .reply(200, { data: { viewPost: { _: true } } });
+
+    renderComponent();
+    const [first] = await screen.findAllByLabelText(
+      'Eminem Quotes Generator - Simple PHP RESTful API',
+    );
+    fireEvent.click(first);
+
+    await waitFor(() =>
+      expect(push).toHaveBeenCalledWith(
+        expect.stringContaining('pmid=4f354bb73009e4adfa5dbcbf9b3c4ebf'),
+        `${webappUrl}posts/4f354bb73009e4adfa5dbcbf9b3c4ebf`,
+        { scroll: false, shallow: true },
+      ),
+    );
+  });
+
   const createPostMock = (
     data: Partial<Post> = {},
   ): MockedGraphQLResponse<PostData> => ({
@@ -1839,6 +1891,7 @@ interface HighlightLayoutRenderParams {
   disableAds?: boolean;
   user?: LoggedUser;
   isHorizontal?: boolean;
+  feedName?: AllFeedPages;
 }
 
 const renderWithHighlightLayout = ({
@@ -1855,14 +1908,17 @@ const renderWithHighlightLayout = ({
   disableAds,
   user = defaultUser,
   isHorizontal,
+  feedName = SharedFeedPage.MyFeed,
 }: HighlightLayoutRenderParams): RenderResult => {
   variables = { ...defaultVariables, first: pageSize, columns: numCards };
   mockGraphQL(createFeedMock(buildFeedPage(posts)));
   // First ad page uses active=false, subsequent pages use active=true. Mock
   // both up to a handful of refills so multi-ad scenarios don't run dry.
-  nock('http://localhost:3000').get('/v1/a?active=false').reply(200, [ad]);
   nock('http://localhost:3000')
-    .get('/v1/a?active=true')
+    .get('/v1/a?active=false&gdpr=0')
+    .reply(200, [ad]);
+  nock('http://localhost:3000')
+    .get('/v1/a?active=true&gdpr=0')
     .times(10)
     .reply(200, [ad]);
 
@@ -1951,7 +2007,7 @@ const renderWithHighlightLayout = ({
               <FeedContext.Provider value={feedContextValue}>
                 <Feed
                   feedQueryKey={['feed']}
-                  feedName={SharedFeedPage.MyFeed}
+                  feedName={feedName}
                   query={ANONYMOUS_FEED_QUERY}
                   variables={variables}
                   staticAd={staticAd}
@@ -2181,7 +2237,7 @@ describe('Feed ad cadence with highlight cards', () => {
     expect(order[1]).toBe('postItem');
   });
 
-  it('places a marketing CTA at index 0 when asFirstCard is set', async () => {
+  it('renders a marketing CTA above the feed grid without displacing ads', async () => {
     const marketingCtaTitle = 'Marketing CTA title';
     const marketingCta: MarketingCta = {
       campaignId: 'cta-test',
@@ -2191,7 +2247,6 @@ describe('Feed ad cadence with highlight cards', () => {
         title: marketingCtaTitle,
         ctaText: 'Click me',
         ctaUrl: 'https://daily.dev/cta',
-        asFirstCard: true,
       },
     };
     jest.mocked(useBoot).mockReturnValue({
@@ -2217,11 +2272,6 @@ describe('Feed ad cadence with highlight cards', () => {
       buildPost('p8'),
     ];
 
-    // adStart=2, adRepeat=4 → 3 slots at vcs 2, 6, 10. CTA pushed first
-    // shifts vcs by 1. Slot 0 (vcs=2) is skipped by asFirstCard; slots
-    // 1 and 2 (vcs=6, 10) fire. CTA itself has no postItem/adItem testid,
-    // so it's filtered out of the helper output — ads land at testid'd
-    // indices 5 and 9.
     renderWithHighlightLayout({
       posts,
       highlightEnabled: false,
@@ -2237,8 +2287,162 @@ describe('Feed ad cadence with highlight cards', () => {
     const adIndices = order
       .map((t, i) => (t === 'adItem' ? i : -1))
       .filter((i) => i >= 0);
-    expect(adIndices).toEqual([5, 9]);
+    expect(adIndices).toEqual([2, 6]);
     expect(order.filter((t) => t === 'postItem').length).toBe(posts.length);
+  });
+
+  it('does not render marketing CTA on ads-disabled feeds', async () => {
+    const marketingCtaTitle = 'Should not appear';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-off',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    const posts = [buildPost('p0'), buildPost('p1'), buildPost('p2')];
+
+    renderWithHighlightLayout({
+      posts,
+      highlightEnabled: false,
+      disableAds: true,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(posts.length);
+    });
+    expect(screen.queryByText(marketingCtaTitle)).not.toBeInTheDocument();
+  });
+
+  it('holds the marketing CTA on squad feeds until enough posts load', async () => {
+    const marketingCtaTitle = 'Squad CTA';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-squad',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    renderWithHighlightLayout({
+      posts: [buildPost('p0')],
+      highlightEnabled: false,
+      feedName: OtherFeedPage.Squad,
+    });
+
+    await waitFor(() => {
+      expect(screen.queryAllByTestId('postItem').length).toBe(1);
+    });
+    expect(screen.queryByText(marketingCtaTitle)).not.toBeInTheDocument();
+  });
+
+  it('renders marketing CTA over acquisition form when both eligible', async () => {
+    jest.mocked(useRouter).mockImplementation(
+      () =>
+        ({
+          pathname: '/',
+          query: { ua: 'true' },
+        } as unknown as NextRouter),
+    );
+    const marketingCtaTitle = 'Priority CTA';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-priority',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    renderWithHighlightLayout({
+      posts: [buildPost('p0'), buildPost('p1'), buildPost('p2')],
+      highlightEnabled: false,
+    });
+
+    expect(
+      await screen.findByText(marketingCtaTitle, undefined, { timeout: 5000 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/How did you hear about us/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the marketing CTA on squad feeds once the post threshold is exceeded', async () => {
+    const marketingCtaTitle = 'Squad CTA';
+    const marketingCta: MarketingCta = {
+      campaignId: 'cta-squad-ok',
+      variant: MarketingCtaVariant.Card,
+      createdAt: new Date(),
+      flags: {
+        title: marketingCtaTitle,
+        ctaText: 'Click me',
+        ctaUrl: 'https://daily.dev/cta',
+      },
+    };
+    jest.mocked(useBoot).mockReturnValue({
+      addSquad: jest.fn(),
+      deleteSquad: jest.fn(),
+      updateSquad: jest.fn(),
+      getMarketingCta: jest.fn((variant) =>
+        variant === MarketingCtaVariant.Card ? marketingCta : null,
+      ),
+      clearMarketingCta: jest.fn(),
+      getPlusEntryData: jest.fn().mockReturnValue(null),
+    });
+
+    renderWithHighlightLayout({
+      posts: [
+        buildPost('p0'),
+        buildPost('p1'),
+        buildPost('p2'),
+        buildPost('p3'),
+      ],
+      highlightEnabled: false,
+      feedName: OtherFeedPage.Squad,
+    });
+
+    expect(
+      await screen.findByText(marketingCtaTitle, undefined, { timeout: 5000 }),
+    ).toBeInTheDocument();
   });
 
   it('renders highlight cards for Plus users without rendering ads', async () => {

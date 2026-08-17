@@ -30,6 +30,7 @@ import { TimeSortIcon } from '../../icons/Sort/Time';
 import { AnalyticsIcon, ArrowIcon } from '../../icons';
 import { PostMenuOptions } from '../PostMenuOptions';
 import { SortCommentsBy } from '../../../graphql/comments';
+import { usePostComments } from '../../../hooks/comments/usePostComments';
 import { Tooltip } from '../../tooltip/Tooltip';
 import { ClickableText } from '../../buttons/ClickableText';
 import Link from '../../utilities/Link';
@@ -96,6 +97,7 @@ export function EngagementRail({
   const { user } = useAuthContext();
   const { sortCommentsBy: sortBy, updateSortCommentsBy: setSortBy } =
     useSettingsContext();
+  const { commentsCount } = usePostComments({ postId: post.id, sortBy });
   const commentRef = useRef<NewCommentRef | null>(null);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
   const { onShowUpvoted } = useUpvoteQuery();
@@ -283,29 +285,31 @@ export function EngagementRail({
                 </Link>
               )}
             </div>
-            <Button
-              type="button"
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Tertiary}
-              iconPosition={ButtonIconPosition.Right}
-              icon={
-                <TimeSortIcon
-                  secondary
-                  className={isNewestFirst ? undefined : 'rotate-180'}
-                />
-              }
-              onClick={() =>
-                setSortBy(
-                  isNewestFirst
-                    ? SortCommentsBy.OldestFirst
-                    : SortCommentsBy.NewestFirst,
-                )
-              }
-              aria-label={sortLabel}
-              className="!text-text-tertiary"
-            >
-              {isNewestFirst ? 'Newest first' : 'Oldest first'}
-            </Button>
+            {commentsCount > 0 && (
+              <Button
+                type="button"
+                size={ButtonSize.XSmall}
+                variant={ButtonVariant.Tertiary}
+                iconPosition={ButtonIconPosition.Right}
+                icon={
+                  <TimeSortIcon
+                    secondary
+                    className={isNewestFirst ? undefined : 'rotate-180'}
+                  />
+                }
+                onClick={() =>
+                  setSortBy(
+                    isNewestFirst
+                      ? SortCommentsBy.OldestFirst
+                      : SortCommentsBy.NewestFirst,
+                  )
+                }
+                aria-label={sortLabel}
+                className="!text-text-tertiary"
+              >
+                {isNewestFirst ? 'Newest first' : 'Oldest first'}
+              </Button>
+            )}
           </div>
           <NewComment
             post={post}

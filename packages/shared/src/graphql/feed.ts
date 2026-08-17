@@ -253,6 +253,11 @@ export enum FeedOrigin {
   TagChip = 'TAG_CHIP',
 }
 
+export enum TagChipSeedStrategy {
+  V2 = 'V2',
+  V3 = 'V3',
+}
+
 export type FeedFlags = {
   name: string;
   icon?: string;
@@ -346,28 +351,6 @@ export const FEED_QUERY = gql`
     ${SUPPORTED_TYPES}
   ) {
     page: feed(
-      first: $first
-      after: $after
-      ranking: $ranking
-      version: $version
-      supportedTypes: $supportedTypes
-    ) {
-      ...FeedPostConnection
-    }
-  }
-  ${FEED_POST_CONNECTION_FRAGMENT}
-`;
-
-export const DAILY_FEED_QUERY = gql`
-  query DailyFeed(
-    $loggedIn: Boolean! = false
-    $first: Int
-    $after: String
-    $ranking: Ranking
-    $version: Int
-    ${SUPPORTED_TYPES}
-  ) {
-    page: dailyFeed(
       first: $first
       after: $after
       ranking: $ranking
@@ -825,8 +808,14 @@ export const PREVIEW_FEED_QUERY = gql`
 `;
 
 export const FEED_LIST_QUERY = gql`
-  query FeedList($includeTagChipFeeds: Boolean) {
-    feedList(includeTagChipFeeds: $includeTagChipFeeds) {
+  query FeedList(
+    $includeTagChipFeeds: Boolean
+    $tagChipSeedStrategy: TagChipSeedStrategy
+  ) {
+    feedList(
+      includeTagChipFeeds: $includeTagChipFeeds
+      tagChipSeedStrategy: $tagChipSeedStrategy
+    ) {
       pageInfo {
         endCursor
         hasNextPage

@@ -116,7 +116,10 @@ const strictSkipList = new Set([
   // @growthbook/growthbook ships .d.ts files but its package.json `exports`
   // field has no `types` condition, so strict resolution intermittently fails
   // to find declarations and flags the JSONValue import as implicit any.
+  'packages/shared/src/lib/feature.ts',
   'packages/shared/src/lib/featureManagement.ts',
+  'packages/shared/src/lib/serverFeatureValue.ts',
+  'packages/webapp/lib/agentMarkdownAccess.ts',
   // Layout-v2 branch — touched only to slot a v2-gated `<PageHeader>` at the
   // top of each page. Pre-existing strict violations (PublicProfile possibly
   // undefined, gameCenterPath optional, TagsPageProps untyped helpers, brief
@@ -182,6 +185,21 @@ const strictSkipList = new Set([
   // image refs, Button prop unions, ConditionalWrapper element returns) live on
   // unrelated lines and should be addressed in a dedicated cleanup PR.
   'packages/shared/src/components/squads/Details.tsx',
+  // Comment-sort empty state — touched only to gate the sort strip on the
+  // comment count. Pre-existing strict violations (post.source optionality,
+  // the icon's `condition && class` className, mutable comment ref, the
+  // `false | (() => void)` onSignUp) live on unrelated lines and should be
+  // addressed in a dedicated cleanup PR.
+  'packages/shared/src/components/post/PostEngagements.tsx',
+  // Ad-viewability branch: the squad ad cards were touched only to render
+  // the viewability tracker. Pre-existing strict violations (`item.ad.data`
+  // and its `source`/`squad` members being optional, the `condition && class`
+  // className, the border-color record index, optional member lists) live on
+  // unrelated lines and should be addressed in a dedicated cleanup PR.
+  'packages/shared/src/components/cards/ad/squad/SquadAdGrid.tsx',
+  'packages/shared/src/components/cards/ad/squad/SquadAdList.tsx',
+  'packages/shared/src/components/cards/ad/squad/common.ts',
+  'packages/shared/src/components/cards/squad/SquadGrid.tsx',
 ]);
 
 const changedFiles = getChangedTypescriptFiles().filter(

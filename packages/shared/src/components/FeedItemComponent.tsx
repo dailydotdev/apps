@@ -14,15 +14,11 @@ import { LogEvent, Origin, TargetType } from '../lib/log';
 import type { UseVotePost } from '../hooks';
 import { useFeedLayout } from '../hooks';
 import { CollectionList } from './cards/collection/CollectionList';
-import { MarketingCtaCard } from './marketing/cta';
-import { MarketingCtaList } from './marketing/cta/MarketingCtaList';
 import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
 import { SignalAdList } from './cards/ad/SignalAdList';
 import type { AdCardProps } from './cards/ad/common/common';
-import { AcquisitionFormGrid } from './cards/AcquisitionForm/AcquisitionFormGrid';
-import { AcquisitionFormList } from './cards/AcquisitionForm/AcquisitionFormList';
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
 import { FreeformList } from './cards/Freeform/FreeformList';
 import type { PostClick } from '../lib/click';
@@ -35,10 +31,12 @@ import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
 import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
-import PlusGrid from './cards/plus/PlusGrid';
 import { useFeedCardContext } from '../features/posts/FeedCardContext';
 import { AdPixel } from './cards/ad/common/AdPixel';
 import { AdMeasurement } from './cards/ad/common/AdMeasurement';
+import { AdViewability } from './cards/ad/common/AdViewability';
+import type { ViewabilityData } from '../features/monetization/viewability';
+import { viewabilityLogExtra } from '../features/monetization/viewability';
 import { BriefCard } from './cards/brief/BriefCard/BriefCard';
 import { ActivePostContextProvider } from '../contexts/ActivePostContext';
 import { LogExtraContextProvider } from '../contexts/LogExtraContext';
@@ -51,10 +49,6 @@ import {
 } from '../lib/engagementAds';
 import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
-import { MarketingCtaVariant } from './marketing/cta/common';
-import { MarketingCtaBriefing } from './marketing/cta/MarketingCtaBriefing';
-import { MarketingCtaYearInReview } from './marketing/cta/MarketingCtaYearInReview';
-import { MarketingCtaVideo } from './marketing/cta/MarketingCtaVideo';
 import PollGrid from './cards/poll/PollGrid';
 import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
@@ -196,11 +190,6 @@ const getTags = ({
     AdTag: useListCards ? listAdTag : AdGrid,
     SquadAdTag: useListCards ? SquadAdList : SquadAdGrid,
     PlaceholderTag: useListCards ? listPlaceholderTag : PlaceholderGrid,
-    MarketingCtaTag: useListCards ? MarketingCtaList : MarketingCtaCard,
-    PlusGridTag: PlusGrid,
-    AcquisitionFormTag: useListCards
-      ? AcquisitionFormList
-      : AcquisitionFormGrid,
   };
 };
 
@@ -356,15 +345,7 @@ function FeedItemComponent({
     );
   }
 
-  const {
-    PostTag,
-    AdTag,
-    SquadAdTag,
-    PlaceholderTag,
-    MarketingCtaTag,
-    PlusGridTag,
-    AcquisitionFormTag,
-  } = getTags({
+  const { PostTag, AdTag, SquadAdTag, PlaceholderTag } = getTags({
     isListFeedLayout: shouldUseListFeedLayout,
     shouldUseListMode,
     postType: getPostTypeForCard(
@@ -373,16 +354,23 @@ function FeedItemComponent({
     feedName,
   });
 
-  const onAdAction = (action: AdActions, ad: Ad) => {
+  const onAdAction = (
+    action: AdActions,
+    ad: Ad,
+    extra?: Record<string, unknown>,
+  ) => {
     logEvent(
       adLogEvent(action, ad, {
         columns: virtualizedNumCards,
         column,
         row,
-        ...feedLogExtra(feedName, ranking),
+        extra: { ...feedLogExtra(feedName, ranking).extra, ...extra },
       }),
     );
   };
+
+  const onAdViewable = (ad: Ad, data: ViewabilityData) =>
+    onAdAction(AdActions.Viewable, ad, viewabilityLogExtra(data));
 
   if (item.type === FeedItemType.Ad && isBoostedSquadAd(item)) {
     return (
@@ -390,6 +378,7 @@ function FeedItemComponent({
         item={item as AdSquadItem}
         onClickAd={() => onAdAction(AdActions.Click, item.ad)}
         onMount={() => onAdAction(AdActions.Impression, item.ad)}
+        onViewable={(data) => onAdViewable(item.ad, data)}
       />
     );
   }
@@ -471,6 +460,10 @@ function FeedItemComponent({
               <>
                 <AdPixel pixel={item.ad.pixel} />
                 <AdMeasurement ad={item.ad} />
+                <AdViewability
+                  ad={item.ad}
+                  onViewable={(data) => onAdViewable(item.ad, data)}
+                />
               </>
             )}
           </PostTag>
@@ -491,32 +484,10 @@ function FeedItemComponent({
           index={item.index}
           feedIndex={index}
           onLinkClick={(ad: Ad) => onAdAction(AdActions.Click, ad)}
+          onViewable={onAdViewable}
         />
       );
     }
-    case FeedItemType.UserAcquisition:
-      return <AcquisitionFormTag key="user-acquisition-card" />;
-    case FeedItemType.MarketingCta:
-      if (item.marketingCta.variant === MarketingCtaVariant.BriefCard) {
-        return <MarketingCtaBriefing {...item.marketingCta} />;
-      }
-
-      if (item.marketingCta.variant === MarketingCtaVariant.YearInReview) {
-        return <MarketingCtaYearInReview marketingCta={item.marketingCta} />;
-      }
-
-      if (item.marketingCta.variant === MarketingCtaVariant.Video) {
-        return <MarketingCtaVideo marketingCta={item.marketingCta} />;
-      }
-
-      return (
-        <MarketingCtaTag
-          key="marketing-cta-card"
-          marketingCta={item.marketingCta}
-        />
-      );
-    case FeedItemType.PlusEntry:
-      return <PlusGridTag {...item.plusEntry} />;
     default:
       return <PlaceholderTag />;
   }

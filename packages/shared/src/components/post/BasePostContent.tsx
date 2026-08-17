@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import PostEngagements from './PostEngagements';
 import type { BasePostContentProps } from './common';
 import { PostHeaderActions } from './PostHeaderActions';
+import { PostAnsweredQuestions } from './PostAnsweredQuestions';
 import { ButtonSize } from '../buttons/common';
 
 const Custom404 = dynamic(
@@ -62,6 +63,7 @@ export function BasePostContent({
         </GoBackHeaderMobile>
       )}
       {children}
+      {isPostPage && <PostAnsweredQuestions post={post} className="mt-6" />}
       {!!engagementProps && (
         <PostEngagements
           post={post}

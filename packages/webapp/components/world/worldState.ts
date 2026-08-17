@@ -1,0 +1,134 @@
+import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
+import { pluralize } from '@dailydotdev/shared/src/lib/strings';
+import type { WorldCrest, WorldLook, WorldSky } from '../../graphql/world';
+
+/**
+ * What the engine pushes at the overlay.
+ *
+ * The renderer owns the world and the day it is standing on, so every number
+ * here is derived inside it and none of it is recomputed in React: a panel
+ * that counted its own districts would disagree with the map the moment the
+ * scrubber moved.
+ */
+export interface WorldRankRow {
+  key: string;
+  name: string;
+  level: number;
+  reads: number;
+  /** Hex, from the district's or realm's own accent. */
+  color: string;
+  /** Width of the bar under the row, as a percentage of the largest. */
+  share: number;
+  selected: boolean;
+}
+
+export interface WorldOpenRealm {
+  id: string;
+  name: string;
+  theme: string;
+  districts: number;
+  articles: number;
+}
+
+/** The district a click has opened, and the niche its feed is filtered by. */
+export interface WorldSelectedDistrict {
+  /** The niche the API knows the district by, which is what filters the feed. */
+  nicheId: string;
+  /** What the taxonomy calls the topic: "Rust", "CSS & UI". */
+  name: string;
+  /** Hex, from the district's own accent. */
+  color: string;
+}
+
+export interface WorldState {
+  status: 'loading' | 'ready';
+  progress: number;
+  message: string;
+
+  playing: boolean;
+  speed: number;
+  day: number;
+  totalDays: number;
+  /** False when there is no growth log to walk: one frame is not a replay. */
+  replayable?: boolean;
+  date?: string;
+  from?: string;
+  to?: string;
+  span?: string;
+
+  articles?: number;
+  districts?: number;
+  realms?: number;
+  open?: WorldOpenRealm | null;
+  /** Only ever set inside a realm: at world scale a click enters one instead. */
+  district?: WorldSelectedDistrict | null;
+  rank?: WorldRankRow[];
+  /** Set while you are riding a bird. */
+  riding?: { manual: boolean } | null;
+}
+
+export interface WorldModel {
+  user: string;
+  replayable: boolean;
+  nT: number;
+  /** The six realms as bare ground: no reader, no reads, nothing standing. */
+  unbuilt?: boolean;
+}
+
+/**
+ * The counter line, shared by the mobile header and the timeline so the two
+ * never drift, and formatted the same way the stat tiles are, because 22,479
+ * next to a tile reading 22.5K looks like two different numbers.
+ */
+export const worldCounts = (state: WorldState): string => {
+  const count = (value: number, word: string) =>
+    `${formatDataTileValue(value)} ${pluralize(word, value)}`;
+
+  if (state.open) {
+    return `${count(state.open.districts, 'district')} · ${count(
+      state.open.articles,
+      'article',
+    )}`;
+  }
+
+  return `${count(state.realms ?? 0, 'realm')} · ${count(
+    state.districts ?? 0,
+    'district',
+  )} · ${count(state.articles ?? 0, 'article')}`;
+};
+
+export interface WorldEngine {
+  load: (model: WorldModel) => Promise<void>;
+  /** Folds the growth log into a world that is already standing. False if it could not be. */
+  attachHistory: (model: WorldModel) => boolean;
+  play: () => void;
+  pause: () => void;
+  toggle: () => void;
+  seek: (day: number) => void;
+  toStart: () => void;
+  toEnd: () => void;
+  setSpeed: (speed: number) => void;
+  focus: (key: string) => void;
+  /** Clears the selected district without leaving the realm it is in. */
+  deselect: () => void;
+  leaveRealm: () => void;
+  frameWorld: () => void;
+  attachSpark: (canvas: HTMLCanvasElement | null) => void;
+  setPadding: (pad: Partial<Record<'l' | 'r' | 't' | 'b', number>>) => void;
+  /** A whole look, not a preset id: a moved knob forks the preset into one. */
+  setLook: (look: WorldLook) => void;
+  /** The mark flying over the world, or nothing if it has raised none. */
+  setCrest: (crest: WorldCrest | null) => void;
+  /** Palette and hour. Repaints the environment, so it is key-guarded inside. */
+  setSky: (sky: WorldSky) => void;
+  /** Whether the plates carry how far through its rung each plot is. Owner only. */
+  setLevelProgress: (on: boolean) => void;
+  setViewFlags: (flags: Partial<Record<string, boolean>>) => void;
+  /**
+   * A bare render of the whole world as a JPEG data URL, for the share card to
+   * be composed around. Empty string if the world is not standing yet. Framing
+   * and camera are restored within the same task, so nothing is painted.
+   */
+  capture: (quality?: number) => string;
+  dispose: () => void;
+}

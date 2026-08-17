@@ -1,6 +1,5 @@
 import type { Ref } from 'react';
 import React, { forwardRef } from 'react';
-import classNames from 'classnames';
 import FeedItemContainer from '../common/FeedItemContainer';
 import {
   CardTextContainer,
@@ -11,7 +10,6 @@ import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import type { PostCardProps } from '../common/common';
 import { Container } from '../common/common';
 import ActionButtons from '../common/ActionButtons';
-import { FeedCardGlassActions } from '../common/FeedCardGlassActions';
 import PollOptions from './PollOptions';
 import PostMetadata from '../common/PostMetadata';
 import { useAuthContext } from '../../../contexts/AuthContext';
@@ -19,7 +17,6 @@ import CardOverlay from '../common/CardOverlay';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
 import { usePollVote } from '../../../hooks/post/usePollVote';
 import { isSourceSquadOrMachine } from '../../../graphql/sources';
-import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 
 const PollGrid = forwardRef(function PollCard(
   {
@@ -38,7 +35,6 @@ const PollGrid = forwardRef(function PollCard(
   const { user } = useAuthContext();
   const { handleVote, shouldAnimateResults } = usePollVote({ post });
   const { title } = useSmartTitle(post);
-  const useGlass = useFeedCardGlassActions();
 
   const { pinnedAt, trending, pollOptions, endsAt, numPollVotes, source } =
     post;
@@ -51,7 +47,7 @@ const PollGrid = forwardRef(function PollCard(
         className: getPostClassNames(
           post,
           domProps?.className ?? '',
-          useGlass ? 'min-h-cardGlass' : 'min-h-card',
+          'min-h-card',
         ),
       }}
       flagProps={{ pinnedAt, trending }}
@@ -68,9 +64,7 @@ const PollGrid = forwardRef(function PollCard(
         />
         <CardTitle>{title}</CardTitle>
       </CardTextContainer>
-      <Container
-        className={classNames('justify-end gap-2', useGlass && 'pb-12')}
-      >
+      <Container className="justify-end gap-2">
         <PostMetadata
           createdAt={post.createdAt}
           className="mx-4"
@@ -91,25 +85,14 @@ const PollGrid = forwardRef(function PollCard(
           endsAt={endsAt}
           shouldAnimateResults={shouldAnimateResults}
         />
-        {useGlass ? (
-          <FeedCardGlassActions
-            post={post}
-            onUpvoteClick={onUpvoteClick}
-            onCommentClick={onCommentClick}
-            onCopyLinkClick={onCopyLinkClick}
-            onBookmarkClick={onBookmarkClick}
-            onDownvoteClick={onDownvoteClick}
-          />
-        ) : (
-          <ActionButtons
-            post={post}
-            onUpvoteClick={onUpvoteClick}
-            onCommentClick={onCommentClick}
-            onCopyLinkClick={onCopyLinkClick}
-            onBookmarkClick={onBookmarkClick}
-            onDownvoteClick={onDownvoteClick}
-          />
-        )}
+        <ActionButtons
+          post={post}
+          onUpvoteClick={onUpvoteClick}
+          onCommentClick={onCommentClick}
+          onCopyLinkClick={onCopyLinkClick}
+          onBookmarkClick={onBookmarkClick}
+          onDownvoteClick={onDownvoteClick}
+        />
       </Container>
     </FeedItemContainer>
   );

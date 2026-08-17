@@ -25,7 +25,6 @@ import {
   updateCachedPagePost,
 } from '../lib/query';
 import type { AllFeedPages } from '../lib/query';
-import type { MarketingCta } from '../components/marketing/cta/common';
 import { FeedItemType } from '../components/cards/common/common';
 import { GARMR_ERROR, gqlClient } from '../graphql/common';
 import { usePlusSubscription } from './usePlusSubscription';
@@ -83,10 +82,6 @@ export interface AdSquadItem extends AdItem {
   ad: Ad & { data: { source?: Squad } };
 }
 
-interface MarketingCtaItem extends FeedItemBase<FeedItemType.MarketingCta> {
-  marketingCta: MarketingCta;
-}
-
 interface PlaceholderItem extends FeedItemBase<FeedItemType.Placeholder> {
   index?: number;
 }
@@ -102,13 +97,6 @@ export interface HighlightItem extends FeedItemBase<FeedItemType.Highlight> {
   feedMeta: string | null;
   impressionStatus?: number;
 }
-
-interface PlusEntryItem extends FeedItemBase<FeedItemType.PlusEntry> {
-  plusEntry: MarketingCta;
-}
-
-interface UserAcquisitionItem
-  extends FeedItemBase<FeedItemType.UserAcquisition> {}
 
 const createPlaceholderItem = (index?: number): PlaceholderItem => ({
   type: FeedItemType.Placeholder,
@@ -148,10 +136,7 @@ export type FeedItem =
   | HighlightItem
   | AdItem
   | AdSquadItem
-  | MarketingCtaItem
-  | PlaceholderItem
-  | UserAcquisitionItem
-  | PlusEntryItem;
+  | PlaceholderItem;
 
 export const isBoostedPostAd = (item: FeedItem): item is AdPostItem =>
   item?.type === FeedItemType.Ad && !!item.ad.data?.post;
@@ -196,6 +181,13 @@ export type FeedReturnType = {
   placements: FeedItemPlacement[];
   heroCardsConfig: HeroCardsConfig;
   bannerInsertions: FeedBannerInsertions;
+  /**
+   * True when a first-slot card is eligible (per `firstSlotOffset` input)
+   * AND enough posts have loaded to justify the visual slot (respects
+   * `adPostLength` on squad feeds). Callers should gate their card
+   * rendering on this so the visual and placement math stay in sync.
+   */
+  hasFirstSlotCard: boolean;
   fetchPage: () => Promise<void>;
   updatePost: UpdateFeedPost;
   removePost: (page: number, index: number) => void;
@@ -212,9 +204,6 @@ export type FeedReturnType = {
 type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
-  showAcquisitionForm?: boolean;
-  marketingCta?: MarketingCta;
-  plusEntry?: MarketingCta;
   feedName?: string;
   staticAd?: { ad: Ad; index: number };
 };
@@ -393,6 +382,10 @@ export default function useFeed<T>(
 
   const clientError = feedQuery?.error as ClientError;
   const adPostLength = settings?.adPostLength;
+  const firstPagePostsCount = feedQuery.data?.pages[0]?.page.edges.length ?? 0;
+  const meetsAdPostLength = !adPostLength || firstPagePostsCount > adPostLength;
+  const effectiveFirstSlotOffset = meetsAdPostLength ? firstSlotOffset : 0;
+  const hasFirstSlotCard = effectiveFirstSlotOffset > 0;
 
   const isAdsQueryEnabled = Boolean(
     !isPlus &&
@@ -447,7 +440,7 @@ export default function useFeed<T>(
   const indexWhenShowingPromoBanner =
     pageSize * Number(briefBannerPage) -
     columnsDiffWithPage * Number(briefBannerPage) -
-    firstSlotOffset;
+    effectiveFirstSlotOffset;
 
   const { getCreativeForPlacement } = useEngagementAdsContext();
   const engagementStripCreative = engagementStripEligible
@@ -459,7 +452,7 @@ export default function useFeed<T>(
   // machinery pads the row above so the strip always begins a clean row (in
   // grid) and just slots inline (in list, where virtualizedNumCards === 1).
   const indexWhenShowingEngagementStrip =
-    ENGAGEMENT_STRIP_ROW * virtualizedNumCards - firstSlotOffset;
+    ENGAGEMENT_STRIP_ROW * virtualizedNumCards - effectiveFirstSlotOffset;
 
   const fullRowInsertionBeforeIndex = useMemo(() => {
     const set = new Set<number>();
@@ -611,13 +604,6 @@ export default function useFeed<T>(
   const items = useMemo(() => {
     const newItems: FeedItem[] = [];
 
-    // Check if marketing CTA should be shown as first card
-    const marketingCta = settings?.marketingCta;
-    const marketingCtaAsFirstCard = marketingCta?.flags?.asFirstCard;
-    const plusEntry = settings?.plusEntry;
-    const plusEntryAsFirstCard = plusEntry?.flags?.asFirstCard;
-    const showAcquisitionForm = settings?.showAcquisitionForm ?? false;
-
     if (feedQuery.data) {
       // Track visual cells (not logical items) for ad cadence so wide
       // cards consume their full visual width against the ad schedule.
@@ -634,6 +620,7 @@ export default function useFeed<T>(
         minSpacing: heroCardsConfig.minSpacing,
         startIndex: heroCardsConfig.startIndex,
         widenableTypes,
+        firstSlotOffset: effectiveFirstSlotOffset,
       });
 
       const staticAd = settings?.staticAd;
@@ -664,20 +651,6 @@ export default function useFeed<T>(
         visualCellsSoFar += placement.colSpan;
       };
 
-      if (plusEntryAsFirstCard && plusEntry) {
-        pushAndAdvance({
-          type: FeedItemType.PlusEntry,
-          plusEntry,
-          dataUpdatedAt: feedQuery.dataUpdatedAt,
-        });
-      } else if (marketingCtaAsFirstCard && marketingCta) {
-        pushAndAdvance({
-          type: FeedItemType.MarketingCta,
-          marketingCta,
-          dataUpdatedAt: feedQuery.dataUpdatedAt,
-        });
-      }
-
       feedQuery.data.pages.forEach(({ page }, pageIndex) => {
         page.edges.forEach(({ node }, index: number) => {
           // Bail before the ad slot is claimed, otherwise dropping the post
@@ -689,37 +662,7 @@ export default function useFeed<T>(
           const adItem = getAd({ index: visualCellsSoFar });
 
           if (adItem) {
-            const withFirstIndex = (condition: boolean) =>
-              pageIndex === 0 && adItem.index === 0 && condition;
-
-            // Skip ad slot if marketing CTA is shown as first card
-            const shouldSkipAdForMarketingCta = withFirstIndex(
-              (marketingCtaAsFirstCard ?? false) ||
-                (plusEntryAsFirstCard ?? false),
-            );
-
-            if (shouldSkipAdForMarketingCta) {
-              // Don't push anything - marketing CTA is already at the top
-            } else if (plusEntry && withFirstIndex(true)) {
-              pushAndAdvance({
-                type: FeedItemType.PlusEntry,
-                plusEntry,
-                dataUpdatedAt: feedQuery.dataUpdatedAt,
-              });
-            } else if (marketingCta && withFirstIndex(true)) {
-              pushAndAdvance({
-                type: FeedItemType.MarketingCta,
-                marketingCta,
-                dataUpdatedAt: feedQuery.dataUpdatedAt,
-              });
-            } else if (withFirstIndex(showAcquisitionForm)) {
-              pushAndAdvance({
-                type: FeedItemType.UserAcquisition,
-                dataUpdatedAt: feedQuery.dataUpdatedAt,
-              });
-            } else {
-              pushAndAdvance(adItem);
-            }
+            pushAndAdvance(adItem);
           }
 
           if (node.itemType === 'highlight') {
@@ -774,11 +717,8 @@ export default function useFeed<T>(
     feedQuery.data,
     feedQuery.isFetching,
     feedQuery.dataUpdatedAt,
-    settings?.marketingCta,
-    settings?.showAcquisitionForm,
     placeholdersPerPage,
     getAd,
-    settings?.plusEntry,
     settings?.staticAd,
     heroCardsConfig,
     virtualizedNumCards,
@@ -788,6 +728,7 @@ export default function useFeed<T>(
     cadence,
     widenableTypes,
     excludePinnedPosts,
+    effectiveFirstSlotOffset,
   ]);
 
   const placements = useMemo(
@@ -802,6 +743,7 @@ export default function useFeed<T>(
         widenableTypes,
         fullRowInsertionBeforeIndex,
         cadence,
+        firstSlotOffset: effectiveFirstSlotOffset,
       }),
     [
       items,
@@ -812,6 +754,7 @@ export default function useFeed<T>(
       fullRowInsertionBeforeIndex,
       cadence,
       widenableTypes,
+      effectiveFirstSlotOffset,
     ],
   );
 
@@ -875,6 +818,7 @@ export default function useFeed<T>(
     placements,
     heroCardsConfig,
     bannerInsertions,
+    hasFirstSlotCard,
     fetchPage: async () => {
       await feedQuery.fetchNextPage();
     },

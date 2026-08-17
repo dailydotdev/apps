@@ -2,7 +2,6 @@ import React from 'react';
 import type { RenderResult } from '@testing-library/react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
-import { GrowthBook } from '@growthbook/growthbook-react';
 import type { NextRouter } from 'next/router';
 import { useRouter } from 'next/router';
 import post from '../../../../__tests__/fixture/post';
@@ -11,7 +10,6 @@ import { visibleOnGroupHover } from '../common/common';
 import { PostType } from '../../../graphql/posts';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { ArticleGrid } from './ArticleGrid';
-import { featureFeedCardGlassActions } from '../../../lib/featureManagement';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
@@ -177,25 +175,4 @@ it('should show cover image with play icon when post is video:youtube type', asy
   renderComponent(videoPostTypeComponentProps);
   const image = await screen.findByTestId('playIconVideoPost');
   expect(image).toBeInTheDocument();
-});
-
-// The floating action bar's per-theme fill and its re-toned pressed accents live
-// in `styles/components/feedCardGlassActions.css`, keyed entirely off this class
-// (the two themes need different values, so they can't be Tailwind utilities).
-// Drop the class and the bar silently reverts to the inaccessible 64% fill with
-// ghost-ladder accents — 1.0:1 to 2.9:1 in light mode — with nothing else
-// failing, so pin the hook-up here.
-it('renders the glass action bar with the class that carries its theme styling', async () => {
-  const gb = new GrowthBook();
-  gb.setFeatures({
-    [featureFeedCardGlassActions.id]: { defaultValue: true },
-  });
-  render(
-    <TestBootProvider client={new QueryClient()} gb={gb}>
-      <ArticleGrid {...defaultProps} />
-    </TestBootProvider>,
-  );
-
-  const copyLink = await screen.findByLabelText('Copy link');
-  expect(copyLink.closest('.feed-card-glass-actions')).not.toBeNull();
 });

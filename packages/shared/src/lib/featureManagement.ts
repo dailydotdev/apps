@@ -1,4 +1,3 @@
-import type { JSONValue } from '@growthbook/growthbook';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
@@ -6,17 +5,9 @@ import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
 import type { HeroCardsConfig } from '../types';
 import { PostType } from '../types';
+import { Feature } from './feature';
 
-export class Feature<T extends JSONValue> {
-  readonly id: string;
-
-  readonly defaultValue: T;
-
-  constructor(id: string, defaultValue: T) {
-    this.id = id;
-    this.defaultValue = defaultValue;
-  }
-}
+export { Feature } from './feature';
 
 const feature = {
   showError: new Feature('show_error', false),
@@ -121,10 +112,6 @@ export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 // does not necessarily mean they can't boost a post if they have access to cores
 export const featurePostBoostAds = new Feature('post_boost_ads', isDevelopment);
 
-// iubenda CMP (TCF banner) for GDPR-covered users; when on, iubenda owns the
-// cookie banner and the homegrown one is suppressed for those users
-export const featureIubendaCmp = new Feature('iubenda_cmp', false);
-
 export const briefCardFeedFeature = new Feature(
   'brief_card_feed',
   isDevelopment,
@@ -207,13 +194,6 @@ export const featurePostSignupWidget = new Feature('post_signup_widget', false);
 
 export const featureShortcutsHub = new Feature('shortcuts_hub_v2', false);
 
-export const featureGiveback = new Feature('giveback', isDevelopment);
-
-export const featureGivebackSuggestCause = new Feature(
-  'giveback_suggest_cause',
-  false,
-);
-
 export const featureCompanionDemoWidget = new Feature(
   'companion_demo_widget',
   false,
@@ -234,6 +214,7 @@ export const featureUpvoteCountThreshold = new Feature<{
 export enum FeedChipsVariant {
   None = 'none',
   V2 = 'v2',
+  V3 = 'v3',
 }
 export const featureFeedChips = new Feature<FeedChipsVariant>(
   'feed_chips',
@@ -285,13 +266,6 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   },
 });
 
-// Floats the feed card action bar over the cover image with an iOS-style glass
-// (dark translucent + blur) effect and shrinks the card height.
-export const featureFeedCardGlassActions = new Feature(
-  'feed_card_glass_actions',
-  false,
-);
-
 // Experiment: skip layout/paint for off-screen feed cards via CSS
 // `content-visibility: auto` to keep long feeds responsive.
 export const featureFeedContentVisibility = new Feature(
@@ -304,16 +278,6 @@ export const featurePublicSignupBanner = new Feature(
   false,
 );
 
-export enum DailyPageVariant {
-  None = 'none',
-  V1 = 'v1.1',
-  DailyAsDefault = 'daily-as-default',
-}
-export const featureDailyPage = new Feature<DailyPageVariant>(
-  'daily_page',
-  DailyPageVariant.None,
-);
-
 // Experiment: redesigned notifications page (type filters, time grouping,
 // compact rows) backed by server-side type filtering on daily-api. Control is
 // the legacy single-list page. Keep the default `false` — GrowthBook ramps it.
@@ -322,10 +286,10 @@ export const featureNotificationsRedesign = new Feature(
   false,
 );
 
-// Surfaces a per-post impressions stat on the feed card action bars (glass +
-// standard) and the post page stats strip, sourced from the public
-// `analytics.impressions` field. Control hides it entirely. Keep the default
-// `false` — GrowthBook ramps it.
+// Surfaces a per-post impressions stat on the feed card action bar and the
+// post page stats strip, sourced from the public `analytics.impressions`
+// field. Control hides it entirely. Keep the default `false` — GrowthBook
+// ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
 
 export const featureInterestAgent = new Feature('interest_agent', false);
@@ -337,4 +301,31 @@ export const featureInterestAgent = new Feature('interest_agent', false);
 export const featurePostSignupActivation = new Feature(
   'post_signup_activation',
   false,
+);
+
+export type PlusSaleConfig = {
+  /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
+  discountId: string;
+  /** Coupon code shown as marketing copy; it is applied automatically. */
+  code: string;
+  label: string;
+  headline: string;
+  description: string;
+  /** ISO date. The sale expires here even if the flag is left on. */
+  endDate: string;
+};
+
+// The advertised discount, code and expiry travel with the id they describe, so
+// the copy can't outlive or contradict what Paddle applies. The committed
+// default is the off state; its copy is never reachable without a discount id.
+export const featurePlusSale = new Feature<PlusSaleConfig>(
+  'plus_sale_campaign',
+  {
+    discountId: '',
+    code: 'SUMMER50',
+    label: '50% off',
+    headline: 'Summer sale: 50% off Plus',
+    description: 'Code SUMMER50 is already applied. Offer ends August 31.',
+    endDate: '2026-09-01T00:00:00.000Z',
+  },
 );

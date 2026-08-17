@@ -77,7 +77,7 @@ export enum AuthTriggers {
   AddToStack = 'add to stack',
   PostPage = 'post page',
   Hackathon = 'hackathon',
-  Giveback = 'giveback',
+  World = 'world',
 }
 
 export type AuthTriggersType =
@@ -135,7 +135,7 @@ export interface SocialRegistrationParameters {
   acceptedMarketing?: boolean;
   optOutMarketing?: boolean;
   experienceLevel?: string;
-  language?: string;
+  language?: string | null;
 }
 
 export const isNativeAuthSupported = (provider: string): boolean =>

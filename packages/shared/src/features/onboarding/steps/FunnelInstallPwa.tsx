@@ -20,6 +20,7 @@ function FunnelInstallPwaComponent({
     <FunnelStepCtaWrapper
       isGlass
       cta={{ label: cta }}
+      containerClassName={isOnboarding ? 'flex' : undefined}
       onClick={() => onTransition({ type: FunnelStepTransitionType.Complete })}
     >
       <div
@@ -27,7 +28,7 @@ function FunnelInstallPwaComponent({
           isOnboarding
             ? classNames(
                 funnelStepRail,
-                'flex flex-col items-center gap-6 py-6 pt-3',
+                'flex flex-1 flex-col items-center gap-6 py-6 pt-3',
               )
             : 'flex flex-col items-center gap-6 p-6 pt-4 mobileL:pt-10 tablet:max-w-96'
         }
