@@ -121,7 +121,10 @@ export default function StreakOffersModal({
       onRequestClose={onRequestClose}
       isDrawerOnMobile
     >
-      <Modal.Body className="relative !p-0">
+      {/* The celebration gradient must clip to the same radius as the modal
+          container (tablet:rounded-16) and the mobile drawer (rounded-t-16),
+          otherwise its square corners paint outside the rounded frame. */}
+      <Modal.Body className="relative overflow-hidden rounded-t-16 !p-0 tablet:rounded-16">
         <ModalClose onClick={onRequestClose} className="right-4 top-4 z-2" />
         {isMobile ? (
           <StreakOfferCarousel
