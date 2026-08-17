@@ -88,7 +88,6 @@ export const StreakMilestonePopup = (): ReactElement | null => {
         type: LazyModal.StreakOffers,
         props: {
           currentStreak: streak.current,
-          maxStreak: streak.max,
           offers,
           onAfterClose,
         },

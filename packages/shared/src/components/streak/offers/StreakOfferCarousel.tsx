@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { UserOffer } from '../../../graphql/offers';
-import { cloudinaryStreakFire } from '../../../lib/image';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
   ClaimedChip,
@@ -11,6 +10,7 @@ import {
   OfferLogo,
   offerBadgeLabels,
 } from './common';
+import { StreakOfferCelebrationCompact } from './StreakOfferCelebration';
 
 const CARD_STEP = 13; // rem: card width plus gap, used to slide the track.
 const SWIPE_THRESHOLD = 48; // px of travel before a swipe counts as a move.
@@ -115,20 +115,9 @@ export const StreakOfferCarousel = ({
 
   return (
     <div className="flex w-full flex-col">
-      <div className="flex flex-col items-center gap-2 bg-gradient-to-b from-overlay-float-bacon to-transparent px-6 pb-4 pt-6">
-        <div className="flex items-center justify-center gap-3">
-          <img
-            src={cloudinaryStreakFire}
-            alt="A large fire icon"
-            className="h-14 w-14 shrink-0 object-contain"
-          />
-          <span className="flex items-baseline gap-2 text-text-primary">
-            <span className="font-bold typo-mega2">{currentStreak}</span>
-            <span className="typo-title3">day streak</span>
-          </span>
-        </div>
+      <StreakOfferCelebrationCompact currentStreak={currentStreak}>
         <GiftHeadline count={offers.length} centered className="pt-1" />
-      </div>
+      </StreakOfferCelebrationCompact>
 
       <div className="flex flex-col items-center gap-4 py-5">
         {/* The track slides rather than scrolls, so the centred card is always

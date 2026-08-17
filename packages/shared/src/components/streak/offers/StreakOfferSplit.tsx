@@ -1,11 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
-import classNames from 'classnames';
 import type { UserOffer } from '../../../graphql/offers';
-import {
-  cloudinaryStreakFire,
-  cloudinaryStreakSplash,
-} from '../../../lib/image';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import {
   ClaimedChip,
@@ -14,6 +9,7 @@ import {
   OfferLogo,
   offerBadgeLabels,
 } from './common';
+import { StreakOfferCelebration } from './StreakOfferCelebration';
 
 const OfferListRow = ({
   offer,
@@ -58,14 +54,12 @@ const OfferListRow = ({
 
 export const StreakOfferSplit = ({
   currentStreak,
-  maxStreak,
   offers,
   claimedUids,
   onClaim,
   onVisible,
 }: {
   currentStreak: number;
-  maxStreak: number;
   offers: UserOffer[];
   claimedUids: Set<string>;
   onClaim: (offer: UserOffer) => void;
@@ -73,8 +67,6 @@ export const StreakOfferSplit = ({
   onVisible: (offers: UserOffer[]) => void;
 }): ReactElement => {
   const reportedVisible = useRef(false);
-  const shouldShowSplash = currentStreak >= maxStreak;
-  const daysPlural = currentStreak === 1 ? 'day' : 'days';
 
   useEffect(() => {
     if (reportedVisible.current) {
@@ -87,35 +79,10 @@ export const StreakOfferSplit = ({
 
   return (
     <div className="flex w-full">
-      <div className="flex w-[19rem] shrink-0 flex-col items-center justify-center gap-4 border-r border-border-subtlest-tertiary bg-gradient-to-br from-overlay-float-bacon via-transparent to-transparent p-6 text-center">
-        <span className="relative flex flex-col items-center justify-center">
-          <img
-            src={
-              shouldShowSplash ? cloudinaryStreakSplash : cloudinaryStreakFire
-            }
-            alt={
-              shouldShowSplash
-                ? 'A splash design for background'
-                : 'A large fire icon'
-            }
-            className={classNames(
-              'h-[10rem] text-accent-bacon-default',
-              shouldShowSplash ? 'w-[15rem]' : 'w-[10rem]',
-            )}
-          />
-          <strong className="absolute typo-tera">{currentStreak}</strong>
-        </span>
-        <strong className="typo-title1">
-          {shouldShowSplash
-            ? 'New streak record!'
-            : `${currentStreak} ${daysPlural} streak`}
-        </strong>
-        <p className="text-text-tertiary typo-body">
-          {shouldShowSplash
-            ? 'Epic win! You are in a league of your own'
-            : 'New milestone reached! You are unstoppable.'}
-        </p>
-      </div>
+      <StreakOfferCelebration
+        currentStreak={currentStreak}
+        className="w-[19rem] shrink-0 border-r border-border-subtlest-tertiary"
+      />
 
       <div className="flex min-h-[24rem] min-w-0 flex-1 flex-col gap-4 p-6 pt-14">
         <GiftHeadline count={offers.length} />

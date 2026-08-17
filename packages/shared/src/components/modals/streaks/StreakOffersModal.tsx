@@ -18,13 +18,11 @@ import type { LazyModalCommonProps, ModalProps } from '../common/Modal';
 export type StreakOffersModalProps = LazyModalCommonProps &
   Pick<ModalProps, 'ariaHideApp'> & {
     currentStreak: number;
-    maxStreak: number;
     offers: UserOffer[];
   };
 
 export default function StreakOffersModal({
   currentStreak,
-  maxStreak,
   offers,
   onRequestClose,
   ...props
@@ -137,7 +135,6 @@ export default function StreakOffersModal({
         ) : (
           <StreakOfferSplit
             currentStreak={currentStreak}
-            maxStreak={maxStreak}
             offers={offers}
             claimedUids={claimedUids}
             onClaim={onClaim}

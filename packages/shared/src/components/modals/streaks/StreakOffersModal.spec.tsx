@@ -57,7 +57,6 @@ const renderComponent = () => {
       <StreakOffersModal
         isOpen
         currentStreak={7}
-        maxStreak={10}
         offers={offers}
         onRequestClose={onRequestClose}
         ariaHideApp={false}
@@ -79,7 +78,10 @@ describe('StreakOffersModal', () => {
 
     expect(screen.getByText('3 Months of Music, Free')).toBeInTheDocument();
     expect(screen.getByText('Get 50% off Notes Pro')).toBeInTheDocument();
-    expect(screen.getByText('7 days streak')).toBeInTheDocument();
+    // 7-day streak resolves to the Flame tier from the design ladder
+    expect(screen.getByText('day streak')).toBeInTheDocument();
+    expect(screen.getByText('Flame')).toBeInTheDocument();
+    expect(screen.getByText('A full week, unbroken')).toBeInTheDocument();
 
     await waitFor(() =>
       expect(mockConfirmDelivered).toHaveBeenCalledWith(

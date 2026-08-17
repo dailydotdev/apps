@@ -204,7 +204,7 @@ describe('streak milestone offers experiment', () => {
       const modal = queryClient.getQueryData(MODAL_KEY);
       expect(modal).toMatchObject({
         type: LazyModal.StreakOffers,
-        props: { currentStreak: 5, maxStreak: 5, offers },
+        props: { currentStreak: 5, offers },
       });
     });
   });
