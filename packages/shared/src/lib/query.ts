@@ -145,6 +145,7 @@ export enum RequestKey {
   StreakFreezeProducts = 'streak_freeze_products',
   StreakFreezeDates = 'streak_freeze_dates',
   StreakFreezePurchase = 'streak_freeze_purchase',
+  UserOffers = 'user_offers',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
   Tags = 'tags',
