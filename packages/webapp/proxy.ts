@@ -37,10 +37,11 @@ export const config = {
     // every other request, minus:
     // - `api`: JSON endpoints, never documents
     // - `_next/static`, `_next/image`: build output and the image optimizer
-    // - trailing extensions: `public/` assets (icons, fonts, sw.js, robots, sitemap)
+    // - `.well-known`: static platform association files without extensions
+    // - trailing extensions: `public/` assets (icons, fonts, audio, sw.js, robots, sitemap)
     // All three have to stay in one pattern: matcher entries are OR'd, so a
     // separate entry per group would re-admit what the others skip.
-    '/((?!api|_next/static|_next/image|.*\\.(?:avif|css|eot|gif|ico|jpe?g|js|json|map|mp4|otf|png|svg|ttf|txt|wasm|webm|webp|woff2?|xml)$).*)',
+    '/((?!api|_next/static|_next/image|\\.well-known(?:/|$)|.*\\.(?:avif|css|eot|gif|ico|jpe?g|js|json|map|mp3|mp4|otf|png|svg|ttf|txt|wasm|webm|webp|woff2?|xml)$).*)',
   ],
 };
 
