@@ -472,7 +472,7 @@ export const notificationFilterCategoryLabel: Record<
   [NotificationFilterCategory.Comments]: 'Comments',
   [NotificationFilterCategory.Followers]: 'Followers',
   [NotificationFilterCategory.Squads]: 'Squads',
-  [NotificationFilterCategory.Agents]: 'Agent',
+  [NotificationFilterCategory.Agents]: 'Agents',
   [NotificationFilterCategory.Updates]: 'Updates',
 };
 
