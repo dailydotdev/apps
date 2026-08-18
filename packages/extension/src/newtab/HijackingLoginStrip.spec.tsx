@@ -284,8 +284,8 @@ describe('HijackingLoginStrip', () => {
   });
 
   describe.each([
-    [HijackingVariant.Cover, 'sticky top-0'],
-    [HijackingVariant.CoverBottom, 'fixed inset-x-4 bottom-4'],
+    [HijackingVariant.Cover, 'sticky top-0 z-3'],
+    [HijackingVariant.CoverBottom, 'fixed inset-x-0 bottom-0 z-modal'],
   ])('%s variant', (variant, positionClasses) => {
     beforeEach(() => {
       setVariant(variant);
@@ -317,7 +317,11 @@ describe('HijackingLoginStrip', () => {
       expect(assignMock).toHaveBeenCalledWith(loginHref);
     });
 
-    it('pins the strip to its position while the feed scrolls', () => {
+    // Whether the strip actually pins depends on its ancestors, which jsdom
+    // has no layout for; this only guards the positioning contract the arm
+    // ships with. Real pinning is verified in Storybook against the topBanner
+    // column the arm renders into.
+    it('carries its positioning classes', () => {
       renderComponent();
 
       const section = screen
@@ -326,9 +330,7 @@ describe('HijackingLoginStrip', () => {
         // pinning classes live on the wrapper, which has no queryable role
         .closest('section');
 
-      positionClasses.split(' ').forEach((className) => {
-        expect(section).toHaveClass(className);
-      });
+      expect(section).toHaveClass(positionClasses);
     });
 
     it('logs a signup impression for new visitors', () => {
@@ -339,6 +341,29 @@ describe('HijackingLoginStrip', () => {
         target_type: TargetType.SignupButton,
         target_id: 'hijacking',
       });
+    });
+
+    it('keeps its placement once a remembered account resolves', () => {
+      mockUseSignBack.mockReturnValue({
+        isLoaded: true,
+        signBack: {
+          name: 'Tsahi Matsliah',
+          email: 'tsahi@daily.dev',
+          image: 'https://daily.dev/tsahi.png',
+        },
+        provider: SocialProvider.Google,
+        onUpdateSignBack: jest.fn(),
+      });
+
+      renderComponent();
+
+      const section = screen
+        .getByRole('heading', { name: /Welcome back, Tsahi/ })
+        // eslint-disable-next-line testing-library/no-node-access -- the
+        // pinning classes live on the wrapper, which has no queryable role
+        .closest('section');
+
+      expect(section).toHaveClass(positionClasses);
     });
   });
 

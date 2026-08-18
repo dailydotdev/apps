@@ -2,7 +2,7 @@ import React from 'react';
 import type { ReactElement } from 'react';
 
 // Deterministic stand-in feed: enough cards to scroll, no network.
-export const MOCK_POSTS = [
+const MOCK_POSTS = [
   'The pragmatic guide to shipping design systems',
   'Why your CI is slow (and the 3 fixes that matter)',
   'Postgres indexing mistakes everyone makes',
@@ -20,7 +20,7 @@ export const MOCK_POSTS = [
   'Observability on a startup budget',
 ];
 
-export function MockFeedCard({
+function MockFeedCard({
   title,
   index,
 }: {

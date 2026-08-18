@@ -42,7 +42,9 @@ import { ExtensionContextProvider } from '../contexts/ExtensionContext';
 import CustomRouter from '../lib/CustomRouter';
 import { version } from '../../package.json';
 import MainFeedPage from './MainFeedPage';
-import HijackingLoginStrip from './HijackingLoginStrip';
+import HijackingLoginStrip, {
+  usePinnedHijackingArm,
+} from './HijackingLoginStrip';
 import { BootDataProvider } from '../../../shared/src/contexts/BootProvider';
 import { getContentScriptPermissionAndRegister } from '../lib/extensionScripts';
 import { useContentScriptStatus } from '../../../shared/src/hooks';
@@ -77,6 +79,7 @@ function HijackingPage({
   onPageChanged: (page: string) => void;
 }): ReactElement {
   const { setCurrentPage } = useExtensionContext();
+  const isPinnedArm = usePinnedHijackingArm();
 
   useEffect(() => {
     setCurrentPage('/hijacking');
@@ -86,12 +89,15 @@ function HijackingPage({
     };
   }, [setCurrentPage]);
 
+  const strip = <HijackingLoginStrip />;
+
   return (
     <MainFeedPage
       onPageChanged={onPageChanged}
       initialPage="/"
       shouldInitializeCurrentPage={false}
-      shortcuts={<HijackingLoginStrip />}
+      shortcuts={isPinnedArm ? undefined : strip}
+      pinnedBanner={isPinnedArm ? strip : undefined}
     />
   );
 }

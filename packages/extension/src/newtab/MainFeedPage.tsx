@@ -47,6 +47,8 @@ export type MainFeedPageProps = {
   initialPage?: string;
   shouldInitializeCurrentPage?: boolean;
   shortcuts?: ReactNode;
+  /** Rendered above the feed, in the slot that supports pinned banners. */
+  pinnedBanner?: ReactNode;
 };
 
 const normalizePage = (page: string): string =>
@@ -71,6 +73,7 @@ const MainFeedPageInner = ({
   initialPage,
   shouldInitializeCurrentPage = true,
   shortcuts,
+  pinnedBanner,
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
@@ -169,6 +172,7 @@ const MainFeedPageInner = ({
           }
           topBanner={
             <>
+              {pinnedBanner}
               <ExtensionSignInStrip />
               {isV2 && hasShortcutsToShow && (
                 <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">

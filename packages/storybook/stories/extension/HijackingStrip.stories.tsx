@@ -3,17 +3,9 @@ import type { ReactElement } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { HijackingVariant } from '@dailydotdev/shared/src/lib/featureManagement';
 import HijackingLoginStrip from 'extension/src/newtab/HijackingLoginStrip';
-import ExtensionProviders from './_providers';
+import ExtensionProviders, { useAnonymousBoot } from './_providers';
 import { FeatureOverrides } from '../../mock/GrowthBookProvider';
 import { MockFeedGrid } from './_mockFeed';
-
-// =============================================================
-// The extension new-tab "hijacking" strip, one story per arm of
-// `hijacking_variants3`, each rendered above a fake feed so the
-// strip is judged in context. The cover arms pin while the feed
-// scrolls: `cover` sticks to the top, `cover_bottom` floats
-// fixed at the bottom of the viewport.
-// =============================================================
 
 const ARM_NOTES: Record<HijackingVariant, string> = {
   [HijackingVariant.Default]: 'control — left-aligned, cat',
@@ -30,16 +22,17 @@ type StripInFeedProps = {
 };
 
 const StripInFeed = ({ variant, showFeed }: StripInFeedProps): ReactElement => (
-  <ExtensionProviders anonymous>
+  <ExtensionProviders>
     <FeatureOverrides values={{ hijacking_variants3: variant }}>
       <div className="dark min-h-dvh bg-background-default p-6">
         <p className="mb-4 text-text-tertiary typo-footnote">
           <strong className="text-text-secondary">{variant}</strong> —{' '}
           {ARM_NOTES[variant]}
         </p>
-        {/* One shared column wraps strip + cards, mirroring the real feed
-            container, so `position: sticky` on the strip behaves as it does
-            in the extension. */}
+        {/* Approximates MainLayout's `topBanner` column — the slot the cover
+            arms render into, where a sticky child can travel the feed's
+            height. It is NOT the `shortcuts` slot the other arms use, whose
+            search-header parent gives sticky almost no travel. */}
         <div className="relative mx-auto max-w-[60rem]">
           <HijackingLoginStrip />
           {showFeed && <MockFeedGrid />}
@@ -52,6 +45,7 @@ const StripInFeed = ({ variant, showFeed }: StripInFeedProps): ReactElement => (
 const meta: Meta<typeof StripInFeed> = {
   title: 'Extension/HijackingStrip',
   component: StripInFeed,
+  beforeEach: useAnonymousBoot,
   parameters: {
     layout: 'fullscreen',
     themes: { themeOverride: 'dark' },
