@@ -133,18 +133,18 @@ const MessageActions = ({
   const [vote, setVote] = useState<'up' | 'down'>();
 
   const castVote = (next: 'up' | 'down') => {
-    const previous = vote;
-    const resolved = previous === next ? undefined : next;
-    setVote(resolved);
-
-    if (resolved) {
-      const text = messageAsText(message);
-      sendFeedback(
-        `${
-          resolved === 'up' ? 'More' : 'Fewer'
-        } replies like this one: "${text.slice(0, 140)}"`,
-      ).catch(() => setVote(previous));
+    if (vote) {
+      return;
     }
+
+    setVote(next);
+    const text = messageAsText(message);
+    sendFeedback(
+      `${next === 'up' ? 'More' : 'Fewer'} replies like this one: "${text.slice(
+        0,
+        140,
+      )}"`,
+    ).catch(() => setVote(undefined));
   };
 
   useEffect(() => {
@@ -206,6 +206,7 @@ const MessageActions = ({
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Avocado}
           pressed={vote === 'up'}
+          disabled={!!vote}
           aria-label="Good reply"
           aria-pressed={vote === 'up'}
           onClick={() => castVote('up')}
@@ -218,6 +219,7 @@ const MessageActions = ({
           variant={ButtonVariant.Tertiary}
           color={ButtonColor.Ketchup}
           pressed={vote === 'down'}
+          disabled={!!vote}
           aria-label="Bad reply"
           aria-pressed={vote === 'down'}
           onClick={() => castVote('down')}
