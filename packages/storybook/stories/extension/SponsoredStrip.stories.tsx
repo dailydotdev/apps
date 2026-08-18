@@ -14,6 +14,7 @@ import {
 } from 'extension/src/newtab/SponsoredStrip';
 import ExtensionProviders from './_providers';
 import { MockFeedGrid, MockFeedHeader } from './_mockPostFeed';
+import { NvidiaLockup } from './_nvidiaLockup';
 
 // =============================================================
 // Sponsored strip — five ways to put a "presented by" slot and a
@@ -40,20 +41,19 @@ const sponsor = (name: string, file: string, ratio: number): Sponsor => ({
 });
 
 // The lead slot keeps its brand colour, so the mark has to read on both
-// grounds. NVIDIA is not in the advertiser library, so this one is a
-// local story fixture (public/mock-logos): the full Wikimedia lockup —
-// eye mark, wordmark and (R) — recoloured to the brand green.
-//
-// The recolour is the point. NVIDIA's own lockup puts the eye in green
-// and sets the wordmark in black or white to suit the background, which
-// is two assets, and the black one vanishes on the dark feed. The
-// all-green lockup is a standard NVIDIA presentation and sits at 0.62
-// luminance, so a single file clears both themes — which is the whole
-// constraint this slot has to meet.
+// grounds. NVIDIA is not in the advertiser library, so it is a local
+// story fixture: the flat `logo` file (the 656x120 Wikimedia lockup)
+// backs the silhouette comparison, while `Artwork` renders the same
+// lockup inline so the wordmark can take `currentColor` — black on the
+// light feed, white on the dark one — with the symbol holding #76B900
+// on both. A flat file cannot do that: NVIDIA ships a black wordmark
+// and a white one, and whichever you pick is invisible on the other
+// theme.
 const PRIMARY: Sponsor = {
   name: 'NVIDIA',
   logo: '/mock-logos/nvidia.svg',
   ratio: 164 / 30,
+  Artwork: NvidiaLockup,
 };
 
 // All ten mask cleanly, and the ratios deliberately span the real
@@ -97,7 +97,7 @@ const ASSET_PROBLEMS: (Sponsor & { reason: string })[] = [
 const PRIMARY_CANDIDATES: (Sponsor & { verdict: string })[] = [
   {
     ...PRIMARY,
-    verdict: 'brand green at 0.62 luminance — holds on both',
+    verdict: 'two-tone: green symbol, wordmark on currentColor',
   },
   {
     ...sponsor('Google', 'google', 75 / 24),
@@ -347,10 +347,11 @@ export const LogoTreatment: Story = {
         <div className="mx-auto flex max-w-[64rem] flex-col gap-8 p-6">
           <Note>
             The strip splits its logo treatment. The lead slot keeps its brand
-            colour — it is the thing being paid for, and one coloured mark
-            against a neutral wall is the whole hierarchy. The partner wall goes
-            to silhouettes that inherit the strip&apos;s text colour, so ten
-            marks stay even-weighted and none of them out-shouts a post.
+            colour and sits ~20% larger — it is the thing being paid for, and
+            one coloured mark ranked above a neutral wall is the whole
+            hierarchy. The partner wall goes to silhouettes that inherit the
+            strip&apos;s text colour, so ten marks stay even-weighted and none
+            of them out-shouts a post.
           </Note>
 
           <figure>
@@ -358,10 +359,15 @@ export const LogoTreatment: Story = {
               The lead slot has to clear both grounds
             </figcaption>
             <Note>
-              Keeping brand colour means the mark gets no help from the theme,
-              so any ink near black or near white dies on one side. Both columns
-              are the same asset on both grounds at once — the right one uses
-              the app&apos;s own <code>.invert</code> class, so it is the real
+              Keeping brand colour means a flat asset gets no help from the
+              theme, so any ink near black or near white dies on one side.
+              NVIDIA is the exception that proves the rule: its lockup is
+              rendered inline rather than as a file, so the symbol holds #76B900
+              while the wordmark rides `currentColor` and flips with the
+              background — which is what the brand&apos;s own black and white
+              wordmarks do, from one source instead of two. Both columns are the
+              same asset on both grounds at once — the right one uses the
+              app&apos;s own <code>.invert</code> class, so it is the real
               theme, not a mock-up of it, and the pair swaps when you flip the
               toolbar. Of the library&apos;s vector wordmarks only a handful
               pass; the bottom two are why Sentry was dropped as the primary.
@@ -472,7 +478,7 @@ const ROWS: Row[] = [
     legibility:
       'All ten clear the fade from ~1070px; below that they drop into it one at a time',
     mobile:
-      'Poor — at 375px the 190px lockup leaves room for one partner, and it lands on the browser’s own bottom chrome',
+      'Poor — at 375px the 196px lockup leaves no partner clear of the fade, and it lands on the browser’s own bottom chrome',
   },
   {
     id: 'B',
@@ -480,12 +486,12 @@ const ROWS: Row[] = [
     cost: '44px once, above the fold',
     exposure: 'Until the first scroll',
     legibility: 'Same ~1070px threshold as A',
-    mobile: 'Weak — 1 partner clears the fade at 375px',
+    mobile: 'Weak — no partner clears the fade at 375px',
   },
   {
     id: 'C',
     concept: 'Feed band',
-    cost: '56px at 1440px, 89px at 768px, 179px at 375px',
+    cost: '56px at 1440px, 175px at 375px',
     exposure: 'On scroll past, then gone',
     legibility:
       'All ten at every width — ten columns wide, five then three as it narrows',
@@ -583,18 +589,18 @@ export const Evaluation: Story = {
               The wall is spread with `justify-between`, so a wide new tab hands
               the slack to the gaps rather than stacking the logos on the left.
               At a 16px cap their own ink measures a 746px minimum run, and the
-              “Made possible by” lockup takes another 190px, so a rail needs
-              about 1070px of viewport before the last mark reaches the fade —
-              below that the rails quietly show fewer slots than were sold, down
-              to a single partner at 375px. Some of that is the label: setting
-              it in sentence case rather than caps returned about 20px to the
-              wall, which is the difference between one partner and none on a
-              phone. The rest is the price of legible logos: dropping the cap to
-              13px buys back about 120px of it, at marks small enough to be
-              decoration. The wrapping concepts (C, D, E) hold all ten at every
-              width instead. If the inventory has to be exactly ten on one line,
-              the rails need a smaller cap height or fewer slots — not a
-              marquee.
+              “Made possible by” lockup takes another 196px — NVIDIA is
+              deliberately ranked above the wall, at 18px against a 15px median
+              partner — so a rail needs about 1070px of viewport before the last
+              mark reaches the fade. Below that the rails quietly show fewer
+              slots than were sold, and at 375px the lockup alone leaves none of
+              them clear of it. That number is the sum of three deliberate
+              choices, and each is a dial: the lead mark's size, sentence case
+              over caps (~20px), and the 16px wall cap, where dropping back to
+              13px would buy about 120px at marks small enough to be decoration.
+              The wrapping concepts (C, D, E) hold all ten at every width
+              instead. If the inventory has to be exactly ten on one line, the
+              rails need a smaller cap height or fewer slots — not a marquee.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
               The asset spec matters more than the layout

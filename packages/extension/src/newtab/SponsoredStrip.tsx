@@ -26,6 +26,13 @@ export type Sponsor = {
   ratio: number;
   /** Click-through destination. Storybook passes none. */
   href?: string;
+  /**
+   * Optional inline artwork, for a lockup that cannot be one flat
+   * file — typically a brand symbol that must hold its colour beside
+   * a wordmark that has to flip with the theme. Rendered in place of
+   * the `logo` image; `logo` is still used for the silhouette.
+   */
+  Artwork?: () => ReactElement;
 };
 
 export type SponsoredStripProps = {
@@ -44,7 +51,11 @@ export type SponsoredStripProps = {
   className?: string;
 };
 
-const PRIMARY_CAP = 21;
+// The lead mark reads a step above the wall, not a tier above it: at
+// these caps it lands ~20% taller than the median partner wordmark
+// (18px against 15px), which is enough to rank it without turning the
+// rail into a billboard.
+const PRIMARY_CAP = 23;
 const PARTNER_CAP = 16;
 
 /**
@@ -101,6 +112,16 @@ export const SponsorLogo = ({
     height: optical,
     width: optical * sponsor.ratio,
   };
+
+  if (!monochrome && sponsor.Artwork) {
+    const { Artwork } = sponsor;
+
+    return (
+      <span className={classNames('block', className)} style={style}>
+        <Artwork />
+      </span>
+    );
+  }
 
   if (!monochrome) {
     return (
