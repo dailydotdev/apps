@@ -233,25 +233,28 @@ function OnboardingSignupHero({
 }
 
 // The cover arms stay pinned in every auth state, so their placement lives
-// here rather than in each card. The bottom arm borrows the shared bottom
-// banners' primitive (BottomBannerContainer): z-modal so the sidebar (z-70)
-// can't overlap it, held clear of the scroll-to-top button's corner.
+// here rather than in each card. The bottom arm has to be `fixed` — it renders
+// from a slot above the feed, where `sticky bottom` has nothing to stick to —
+// and carries `feedStyles.cards` so it spans the same width as the feed rather
+// than a fixed cap. z-modal keeps the sidebar (z-70) from clipping it, matching
+// the shared bottom banners.
+// A fixed element's width resolves against the viewport, not the feed column,
+// so the bottom arm spans the viewport gutters and caps at the feed's own
+// max width. The cap is inline because an arbitrary `max-w-*` class is not
+// guaranteed to be in the compiled bundle from this package.
+const coverBottomMaxWidth = { maxWidth: '60rem' };
+
 const coverSectionClasses = (isBottom: boolean): string =>
   classNames(
-    'w-full pb-0',
+    'pb-0',
     feedStyles.cards,
     isBottom
-      ? // The extra right padding keeps the card clear of the scroll-to-top
-        // button, which sits in the bottom-right corner below laptop.
-        'fixed inset-x-0 bottom-0 z-modal flex justify-center p-4 pr-16 laptop:pr-4'
-      : 'sticky top-0 z-3 mb-4 px-4',
+      ? 'fixed inset-x-4 bottom-4 z-modal mx-auto'
+      : 'sticky top-0 z-3 mb-4 w-full px-4',
   );
 
-const coverCardClasses = (isBottom: boolean): string =>
-  classNames(
-    'relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2',
-    isBottom && 'w-full max-w-[40rem]',
-  );
+const coverCardClasses = (): string =>
+  'relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2';
 
 // Banner height is a controlled variable in the header-ad-impression
 // experiment, so at tablet and up an invisible in-flow block reproduces the
@@ -266,8 +269,11 @@ function CoverSignupHero({
   const isBottom = position === 'bottom';
 
   return (
-    <section className={coverSectionClasses(isBottom)}>
-      <div className={coverCardClasses(isBottom)}>
+    <section
+      className={coverSectionClasses(isBottom)}
+      style={isBottom ? coverBottomMaxWidth : undefined}
+    >
+      <div className={coverCardClasses()}>
         <img
           src={cloudinaryHijackingCoverArt}
           alt=""
@@ -550,11 +556,14 @@ function HijackingHeroStrip({
           ? coverSectionClasses(isBottomVariant)
           : classNames('mb-4 w-full pb-0', feedStyles.cards)
       }
+      style={
+        isCoverVariant && isBottomVariant ? coverBottomMaxWidth : undefined
+      }
     >
       <div
         className={
           isCoverVariant
-            ? coverCardClasses(isBottomVariant)
+            ? coverCardClasses()
             : 'relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2'
         }
       >
