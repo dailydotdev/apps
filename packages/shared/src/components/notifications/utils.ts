@@ -375,7 +375,7 @@ export enum NotificationFilterCategory {
   Comments = 'comments',
   Followers = 'followers',
   Squads = 'squads',
-  Agent = 'agent',
+  Agents = 'agents',
   Updates = 'updates',
 }
 
@@ -413,7 +413,7 @@ export const notificationCategoryToTypes: Record<
     NotificationType.SourcePostRejected,
     NotificationType.ArticlePicked,
   ],
-  [NotificationFilterCategory.Agent]: [
+  [NotificationFilterCategory.Agents]: [
     NotificationType.InterestContentAvailable,
     NotificationType.InterestContentBatch,
   ],
@@ -459,7 +459,7 @@ export const notificationFilterCategoryList: NotificationFilterCategory[] = [
   NotificationFilterCategory.Comments,
   NotificationFilterCategory.Followers,
   NotificationFilterCategory.Squads,
-  NotificationFilterCategory.Agent,
+  NotificationFilterCategory.Agents,
   NotificationFilterCategory.Updates,
 ];
 
@@ -472,7 +472,7 @@ export const notificationFilterCategoryLabel: Record<
   [NotificationFilterCategory.Comments]: 'Comments',
   [NotificationFilterCategory.Followers]: 'Followers',
   [NotificationFilterCategory.Squads]: 'Squads',
-  [NotificationFilterCategory.Agent]: 'Agent',
+  [NotificationFilterCategory.Agents]: 'Agent',
   [NotificationFilterCategory.Updates]: 'Updates',
 };
 
@@ -531,7 +531,7 @@ export const notificationCategoryBadge: Record<
     fg: 'text-white',
     Icon: SquadIcon,
   },
-  [NotificationFilterCategory.Agent]: {
+  [NotificationFilterCategory.Agents]: {
     bg: 'bg-accent-water-default',
     fg: 'text-white',
     Icon: AgentIcon,
