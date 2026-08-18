@@ -104,28 +104,53 @@ export default function StreakOffersModal({
     [currentStreak, logEvent],
   );
 
+  // Every dismissal path (X, backdrop, escape, "No thanks") funnels through
+  // here so the metric is comparable across variants and platforms; the
+  // method and claim count distinguish explicit declines in analysis.
+  const dismissLogged = useRef(false);
+  const logDismiss = useCallback(
+    (method: 'close' | 'decline') => {
+      if (dismissLogged.current) {
+        return;
+      }
+
+      dismissLogged.current = true;
+      logEvent({
+        event_name: LogEvent.DismissStreakOffers,
+        target_type: TargetType.StreakOffer,
+        target_id: currentStreak?.toString(),
+        extra: JSON.stringify({ method, claimed: claimedUids.size }),
+      });
+    },
+    [claimedUids.size, currentStreak, logEvent],
+  );
+
+  const onClose = useCallback(
+    (event?: React.MouseEvent | React.KeyboardEvent) => {
+      logDismiss('close');
+      onRequestClose(event);
+    },
+    [logDismiss, onRequestClose],
+  );
+
   const onDecline = useCallback(() => {
-    logEvent({
-      event_name: LogEvent.DismissStreakOffers,
-      target_type: TargetType.StreakOffer,
-      target_id: currentStreak?.toString(),
-    });
+    logDismiss('decline');
     onRequestClose();
-  }, [currentStreak, logEvent, onRequestClose]);
+  }, [logDismiss, onRequestClose]);
 
   return (
     <Modal
       {...props}
       kind={Modal.Kind.FlexibleCenter}
       size={Modal.Size.Large}
-      onRequestClose={onRequestClose}
+      onRequestClose={onClose}
       isDrawerOnMobile
     >
       {/* The celebration gradient must clip to the same radius as the modal
           container (tablet:rounded-16) and the mobile drawer (rounded-t-16),
           otherwise its square corners paint outside the rounded frame. */}
       <Modal.Body className="relative overflow-hidden rounded-t-16 !p-0 tablet:rounded-16">
-        <ModalClose onClick={onRequestClose} className="right-4 top-4 z-2" />
+        <ModalClose onClick={onClose} className="right-4 top-4 z-2" />
         {isMobile ? (
           <StreakOfferCarousel
             currentStreak={currentStreak}

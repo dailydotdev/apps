@@ -45,8 +45,17 @@ const streakTierLadder: StreakTierMilestone[] = [
 
 export const milestoneForStreak = (day: number): StreakTierMilestone => {
   const reached = streakTierLadder.filter((milestone) => milestone.day <= day);
+  const tier = reached[reached.length - 1] ?? streakTierLadder[0];
 
-  return reached[reached.length - 1] ?? streakTierLadder[0];
+  // The ladder's headlines are written for their exact day ("A full week,
+  // unbroken" is only true at 7), but the milestone alert fires on the API's
+  // own schedule (Fibonacci days like 2, 8, 13) — any other day keeps the
+  // tier art/label (tiers are ranges) with copy derived from the count.
+  if (tier.day === day) {
+    return tier;
+  }
+
+  return { ...tier, headline: `${day} days in a row` };
 };
 
 export const streakTierArt = (tier: string): string =>

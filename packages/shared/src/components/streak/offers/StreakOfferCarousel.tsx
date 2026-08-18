@@ -72,6 +72,10 @@ export const StreakOfferCarousel = ({
   // visual offset, but a fast flick can end before React re-renders, and the
   // release has to know how far the finger actually went.
   const travelled = useRef(0);
+  // On touch, a drag that ends on a card is followed by that card's click —
+  // without suppression the click re-selects the old card and the swipe
+  // snaps back.
+  const suppressClick = useRef(false);
   const active = offers[index];
   const isClaimed = active && claimedUids.has(active.impressionUid);
 
@@ -84,6 +88,7 @@ export const StreakOfferCarousel = ({
   const onPointerDown = useCallback((event: React.PointerEvent) => {
     startX.current = event.clientX;
     travelled.current = 0;
+    suppressClick.current = false;
   }, []);
 
   const onPointerMove = useCallback((event: React.PointerEvent) => {
@@ -105,6 +110,8 @@ export const StreakOfferCarousel = ({
     startX.current = null;
     travelled.current = 0;
     setDrag(0);
+
+    suppressClick.current = Math.abs(distance) > SWIPE_THRESHOLD;
 
     if (distance < -SWIPE_THRESHOLD) {
       setIndex((current) => Math.min(current + 1, offers.length - 1));
@@ -146,7 +153,13 @@ export const StreakOfferCarousel = ({
                 key={offer.impressionUid}
                 offer={offer}
                 isActive={cardIndex === index}
-                onSelect={() => setIndex(cardIndex)}
+                onSelect={() => {
+                  if (suppressClick.current) {
+                    suppressClick.current = false;
+                    return;
+                  }
+                  setIndex(cardIndex);
+                }}
               />
             ))}
           </div>
