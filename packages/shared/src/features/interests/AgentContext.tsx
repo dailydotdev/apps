@@ -83,7 +83,7 @@ type AgentContextValue = {
   isTargetWorking: (targetId: string) => boolean;
   runCommand: (args: RunCommandArgs) => void;
   /** Standing feedback that never spends a run (reply votes). */
-  sendFeedback: (text: string) => void;
+  sendFeedback: (text: string) => Promise<void>;
   queuedCommands: { id: string; text: string }[];
   removeQueuedCommand: (id: string) => void;
   attachments: AgentAttachment[];
@@ -586,12 +586,12 @@ export const AgentProvider = ({
   );
 
   const sendFeedback = useCallback(
-    (text: string) => {
+    async (text: string) => {
       if (isDemo || !interest) {
         return;
       }
 
-      sendCommand({ text, triggerRun: false }).catch(() => undefined);
+      await sendCommand({ text, triggerRun: false });
     },
     [interest, isDemo, sendCommand],
   );
@@ -673,10 +673,22 @@ export const AgentProvider = ({
         return;
       }
 
-      updateInterest(data).catch(() => undefined);
+      updateInterest(data).catch(() => {
+        if (data.status) {
+          setStatusOverride(undefined);
+        }
+      });
     },
     [interest, isDemo, updateInterest],
   );
+
+  // The override only bridges the gap until the refetched interest confirms
+  // it; holding it longer would pin the UI to a stale optimistic value.
+  useEffect(() => {
+    if (statusOverride && interest?.status === statusOverride) {
+      setStatusOverride(undefined);
+    }
+  }, [interest?.status, statusOverride]);
 
   const value = useMemo<AgentContextValue>(
     () => ({

@@ -19,11 +19,14 @@ import {
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { IconSize } from '../../../components/Icon';
 import { useIsLightTheme } from '../../../hooks/utils/useThemedAsset';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { isDevelopment } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
 import type { AgentCommand } from '../commands';
 import {
   commandQuery,
   findCommand,
+  isCommandAvailable,
   matchCommands,
   parseCommand,
   quickCommandNames,
@@ -94,6 +97,8 @@ export const AgentComposer = (): ReactElement => {
     draft,
     clearDraft,
   } = useAgent();
+  const { user } = useAuthContext();
+  const canDebug = isDevelopment || !!user?.isTeamMember;
   const isLight = useIsLightTheme();
   // Client-only: it injects its stylesheet as a React `<style>` child and SSR
   // escapes the quotes in its selectors, so every rule silently fails to match.
@@ -142,7 +147,9 @@ export const AgentComposer = (): ReactElement => {
     [openContent, messages],
   );
 
-  const commandMatches = typeof slash === 'string' ? matchCommands(slash) : [];
+  const commandMatches = (
+    typeof slash === 'string' ? matchCommands(slash) : []
+  ).filter((match) => isCommandAvailable(match, canDebug));
   const mentionMatches =
     typeof mention === 'string'
       ? candidates.filter(({ label, detail }) =>
@@ -245,7 +252,9 @@ export const AgentComposer = (): ReactElement => {
   const onSubmit = () => {
     const trimmed = feedback.trim();
     const typed = command ? undefined : parseCommand(trimmed);
-    const sending = command ?? typed?.command;
+    const parsed = command ?? typed?.command;
+    const sending =
+      parsed && isCommandAvailable(parsed, canDebug) ? parsed : undefined;
     const args = typed ? typed.args : trimmed;
 
     if (!sending && !trimmed) {

@@ -19,7 +19,8 @@ import {
 } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { useViewSize, ViewSize } from '../../../hooks';
-import { webappUrl } from '../../../lib/constants';
+import { isDevelopment, webappUrl } from '../../../lib/constants';
+import { useAuthContext } from '../../../contexts/AuthContext';
 import { useAgent } from '../AgentContext';
 import { useShareAgent } from '../hooks/useShareAgent';
 import { AgentSettingsMenu } from './AgentSettingsMenu';
@@ -67,6 +68,8 @@ const PanelButton = ({
 
 export const AgentWorkspaceHeader = (): ReactElement => {
   const { interest, openContent, openContentTarget, focusContent } = useAgent();
+  const { user } = useAuthContext();
+  const canDebug = isDevelopment || !!user?.isTeamMember;
   const { isCopying, isSharing, onShare } = useShareAgent(interest);
   // `onShare` opens the system sheet on a phone and copies everywhere else.
   const isMobile = !useViewSize(ViewSize.Tablet);
@@ -131,16 +134,18 @@ export const AgentWorkspaceHeader = (): ReactElement => {
           isOpen={isOpen('activity')}
           onClick={() => togglePanel('activity')}
         />
-        {/* `contents` keeps the button a direct flex child, so it centers on the
-            row instead of sitting on the wrapper's text baseline. */}
-        <span className="hidden tablet:contents">
-          <PanelButton
-            label="Debug"
-            icon={<TerminalIcon />}
-            isOpen={isOpen('debug')}
-            onClick={() => togglePanel('debug')}
-          />
-        </span>
+        {canDebug && (
+          // `contents` keeps the button a direct flex child, so it centers on
+          // the row instead of sitting on the wrapper's text baseline.
+          <span className="hidden tablet:contents">
+            <PanelButton
+              label="Debug"
+              icon={<TerminalIcon />}
+              isOpen={isOpen('debug')}
+              onClick={() => togglePanel('debug')}
+            />
+          </span>
+        )}
         {/* No Tooltip wrapper: it blurs its child on mouse-up, which dismisses
             this popover as it opens. */}
         <AgentSettingsMenu />

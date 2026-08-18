@@ -47,7 +47,7 @@ const MenuRow = ({
 );
 
 export const AgentSettingsMenu = (): ReactElement => {
-  const { interest, status, update, setSettingsOpen } = useAgent();
+  const { interest, status, update, isUpdating, setSettingsOpen } = useAgent();
   const isRunning = status === UserInterestStatus.Active;
   const isLaptop = useViewSize(ViewSize.Laptop);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
@@ -101,6 +101,7 @@ export const AgentSettingsMenu = (): ReactElement => {
           name="agent-run-switch"
           compact
           checked={isRunning}
+          disabled={isUpdating}
           onToggle={() =>
             update({
               status: isRunning

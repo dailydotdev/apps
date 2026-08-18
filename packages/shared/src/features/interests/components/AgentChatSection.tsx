@@ -133,7 +133,8 @@ const MessageActions = ({
   const [vote, setVote] = useState<'up' | 'down'>();
 
   const castVote = (next: 'up' | 'down') => {
-    const resolved = vote === next ? undefined : next;
+    const previous = vote;
+    const resolved = previous === next ? undefined : next;
     setVote(resolved);
 
     if (resolved) {
@@ -142,7 +143,7 @@ const MessageActions = ({
         `${
           resolved === 'up' ? 'More' : 'Fewer'
         } replies like this one: "${text.slice(0, 140)}"`,
-      );
+      ).catch(() => setVote(previous));
     }
   };
 

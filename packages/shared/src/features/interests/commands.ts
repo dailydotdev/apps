@@ -140,6 +140,11 @@ export const quickCommandNames = ['explore', 'write', 'raise-bar'];
 export const findCommand = (name: string): AgentCommand | undefined =>
   agentCommands.find((command) => command.name === name);
 
+export const isCommandAvailable = (
+  command: AgentCommand,
+  canDebug: boolean,
+): boolean => command.opens !== 'debug' || canDebug;
+
 export const matchCommands = (query: string): AgentCommand[] => {
   const term = query.toLowerCase();
 

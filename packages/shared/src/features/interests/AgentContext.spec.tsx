@@ -8,6 +8,7 @@ import type { InterestTurn } from '../../graphql/interests';
 import type { AgentMessage } from './chat';
 import type { AgentFeedItem } from './hooks/useAgentFeed';
 import * as command from './hooks/useSendInterestCommand';
+import * as updateHook from './hooks/useUpdateInterest';
 import * as queries from './queries';
 import { AgentProvider, contentTargetId, useAgent } from './AgentContext';
 
@@ -462,6 +463,30 @@ describe('the live path', () => {
     expect(reply?.isError).toBe(true);
     expect(reply?.retryText).toBe('raise the bar');
     expect(agent.current.isWorking).toBe(false);
+  });
+
+  it('rolls the optimistic status back when the update is rejected', async () => {
+    jest.spyOn(updateHook, 'useUpdateInterest').mockReturnValue({
+      isUpdating: false,
+      updateInterest: () => Promise.reject(new Error('nope')),
+    } as never);
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'a1-spawn',
+          role: 'user',
+          createdAt: '2026-01-01T00:00:00Z',
+          text: 'zig',
+        },
+      ],
+    });
+
+    await flushQueries();
+    await act(async () => {
+      agent.current.update({ status: 'paused' as never });
+    });
+
+    expect(agent.current.status).toBe('active');
   });
 
   it('derives the activity log from history and findings', async () => {
