@@ -190,6 +190,13 @@ export interface MainFeedLayoutProps
   isSearchOn: boolean;
   searchQuery?: string;
   children?: ReactNode;
+  /**
+   * Rendered directly above the feed, inside the feed column. Unlike
+   * MainLayout's `topBanner`, which only exists under the v2 layout, this slot
+   * is present in every layout and gives a sticky child the feed's full
+   * height to travel.
+   */
+  feedTopContent?: ReactNode;
   searchChildren?: ReactNode;
   navChildren?: ReactNode;
   isFinder?: boolean;
@@ -230,6 +237,7 @@ export default function MainFeedLayout({
   children,
   searchChildren,
   shortcuts,
+  feedTopContent,
   navChildren,
   isFinder,
   onNavTabClick,
@@ -287,6 +295,7 @@ export default function MainFeedLayout({
     setHasMounted(true);
   }, []);
   const enableSsrSafeLayout = isExploreTag && !hasMounted;
+
   const FeedPageLayoutComponent = enableSsrSafeLayout
     ? FeedPageLayoutMobile
     : FeedPageLayoutComponentRaw;
@@ -356,6 +365,15 @@ export default function MainFeedLayout({
       ) : null,
     [showExploreChips, exploreCategories, feeds, isV2],
   );
+
+  const chipsTopContent =
+    (isExploreTag || shouldUseListFeedLayout) && chipsNode ? (
+      <div
+        className={classNames('mb-8 w-full', shouldUseListFeedLayout && 'mt-8')}
+      >
+        {chipsNode}
+      </div>
+    ) : null;
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
@@ -824,15 +842,11 @@ export default function MainFeedLayout({
               {...feedProps}
               shortcuts={shortcuts}
               topContent={
-                (isExploreTag || shouldUseListFeedLayout) && chipsNode ? (
-                  <div
-                    className={classNames(
-                      'mb-8 w-full',
-                      shouldUseListFeedLayout && 'mt-8',
-                    )}
-                  >
-                    {chipsNode}
-                  </div>
+                feedTopContent || chipsTopContent ? (
+                  <>
+                    {feedTopContent}
+                    {chipsTopContent}
+                  </>
                 ) : undefined
               }
               className={classNames(

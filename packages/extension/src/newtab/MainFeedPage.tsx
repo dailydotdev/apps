@@ -45,8 +45,8 @@ export type MainFeedPageProps = {
   initialPage?: string;
   shouldInitializeCurrentPage?: boolean;
   shortcuts?: ReactNode;
-  /** Rendered above the feed, in the slot that supports pinned banners. */
-  pinnedBanner?: ReactNode;
+  /** Rendered directly above the feed, inside the feed column. */
+  feedTopContent?: ReactNode;
   /** Rendered after the feed, where `sticky bottom` can pin to the viewport. */
   feedTrailing?: ReactNode;
 };
@@ -73,7 +73,7 @@ const MainFeedPageInner = ({
   initialPage,
   shouldInitializeCurrentPage = true,
   shortcuts,
-  pinnedBanner,
+  feedTopContent,
   feedTrailing,
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
@@ -170,7 +170,6 @@ const MainFeedPageInner = ({
           }
           topBanner={
             <>
-              {pinnedBanner}
               <ExtensionSignInStrip />
               {isV2 && hasShortcutsToShow && (
                 <div className="mx-4 flex justify-center pt-2 laptop:mx-0 [&:empty]:hidden">
@@ -187,6 +186,7 @@ const MainFeedPageInner = ({
               isSearchOn={isSearchOn}
               searchQuery={searchQuery}
               onNavTabClick={onNavTabClick}
+              feedTopContent={feedTopContent}
               searchChildren={
                 <PostsSearch
                   onSubmitQuery={async (query, extraFlags) => {

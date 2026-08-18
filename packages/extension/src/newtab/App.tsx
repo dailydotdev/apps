@@ -97,7 +97,7 @@ function HijackingPage({
       initialPage="/"
       shouldInitializeCurrentPage={false}
       shortcuts={placement === 'shortcuts' ? strip : undefined}
-      pinnedBanner={placement === 'aboveFeed' ? strip : undefined}
+      feedTopContent={placement === 'aboveFeed' ? strip : undefined}
       feedTrailing={placement === 'belowFeed' ? strip : undefined}
     />
   );

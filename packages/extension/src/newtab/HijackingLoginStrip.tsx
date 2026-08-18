@@ -671,6 +671,8 @@ export type HijackingPlacement = 'shortcuts' | 'aboveFeed' | 'belowFeed';
  * travel, so the pinned arms need a container that spans the feed: above it for
  * the top arm, and after it for the bottom one — `sticky bottom` can only pull
  * an element up into view, so from a slot above the feed it does nothing.
+ * Both slots sit inside the feed column, which every layout renders;
+ * MainLayout's `topBanner` does not qualify — it only exists under v2.
  */
 export const useHijackingPlacement = (): HijackingPlacement => {
   const { value, isLoading } = useConditionalFeature({
