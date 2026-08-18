@@ -49,6 +49,8 @@ export type MainFeedPageProps = {
   shortcuts?: ReactNode;
   /** Rendered above the feed, in the slot that supports pinned banners. */
   pinnedBanner?: ReactNode;
+  /** Rendered after the feed, where `sticky bottom` can pin to the viewport. */
+  feedTrailing?: ReactNode;
 };
 
 const normalizePage = (page: string): string =>
@@ -74,6 +76,7 @@ const MainFeedPageInner = ({
   shouldInitializeCurrentPage = true,
   shortcuts,
   pinnedBanner,
+  feedTrailing,
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
@@ -225,7 +228,9 @@ const MainFeedPageInner = ({
                         />
                       )
                 }
-              />
+              >
+                {feedTrailing}
+              </MainFeedLayout>
             )}
           </FeedLayoutProvider>
           <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />

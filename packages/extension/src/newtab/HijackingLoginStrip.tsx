@@ -238,19 +238,18 @@ function OnboardingSignupHero({
 // and carries `feedStyles.cards` so it spans the same width as the feed rather
 // than a fixed cap. z-modal keeps the sidebar (z-70) from clipping it, matching
 // the shared bottom banners.
-// A fixed element's width resolves against the viewport, not the feed column,
-// so the bottom arm spans the viewport gutters and caps at the feed's own
-// max width. The cap is inline because an arbitrary `max-w-*` class is not
-// guaranteed to be in the compiled bundle from this package.
-const coverBottomMaxWidth = { maxWidth: '60rem' };
-
+// Both arms stay in flow so the card spans the feed column edge to edge, like
+// the cards themselves. The bottom arm renders after the feed, which is what
+// lets `sticky bottom` pull it up into view: from a slot above the feed its
+// natural position is already on screen and sticky does nothing. Neither arm
+// takes horizontal padding — the control insets itself by 16px, so these are
+// that much wider by design, and the sizer's copy is fixed so the extra width
+// can't change how it wraps.
 const coverSectionClasses = (isBottom: boolean): string =>
   classNames(
-    'pb-0',
+    'w-full pb-0',
     feedStyles.cards,
-    isBottom
-      ? 'fixed inset-x-4 bottom-4 z-modal mx-auto'
-      : 'sticky top-0 z-3 mb-4 w-full px-4',
+    isBottom ? 'sticky bottom-4 z-3 mt-4' : 'sticky top-0 z-3 mb-4',
   );
 
 const coverCardClasses = (): string =>
@@ -269,10 +268,7 @@ function CoverSignupHero({
   const isBottom = position === 'bottom';
 
   return (
-    <section
-      className={coverSectionClasses(isBottom)}
-      style={isBottom ? coverBottomMaxWidth : undefined}
-    >
+    <section className={coverSectionClasses(isBottom)}>
       <div className={coverCardClasses()}>
         <img
           src={cloudinaryHijackingCoverArt}
@@ -556,9 +552,6 @@ function HijackingHeroStrip({
           ? coverSectionClasses(isBottomVariant)
           : classNames('mb-4 w-full pb-0', feedStyles.cards)
       }
-      style={
-        isCoverVariant && isBottomVariant ? coverBottomMaxWidth : undefined
-      }
     >
       <div
         className={
@@ -670,26 +663,30 @@ function HijackingHeroStrip({
   );
 }
 
+export type HijackingPlacement = 'shortcuts' | 'aboveFeed' | 'belowFeed';
+
 /**
- * The cover arms pin to the viewport while the feed scrolls, which only works
- * from a slot whose container spans the feed. `shortcuts` does not — it lands
- * inside FeedContainer's search `<header>`, where a sticky child has no travel
- * — so those arms render through `topBanner` instead. Callers use this to pick
- * the slot before rendering the strip.
+ * Which slot the strip has to render into for its arm to behave. `shortcuts`
+ * lands inside FeedContainer's search `<header>`, where a sticky child has no
+ * travel, so the pinned arms need a container that spans the feed: above it for
+ * the top arm, and after it for the bottom one — `sticky bottom` can only pull
+ * an element up into view, so from a slot above the feed it does nothing.
  */
-export const usePinnedHijackingArm = (): boolean => {
+export const useHijackingPlacement = (): HijackingPlacement => {
   const { value, isLoading } = useConditionalFeature({
     feature: featureHijackingVariants,
     shouldEvaluate: true,
   });
 
   if (isLoading) {
-    return false;
+    return 'shortcuts';
   }
 
-  return (
-    value === HijackingVariant.Cover || value === HijackingVariant.CoverBottom
-  );
+  if (value === HijackingVariant.Cover) {
+    return 'aboveFeed';
+  }
+
+  return value === HijackingVariant.CoverBottom ? 'belowFeed' : 'shortcuts';
 };
 
 export default function HijackingLoginStrip(): ReactElement | null {

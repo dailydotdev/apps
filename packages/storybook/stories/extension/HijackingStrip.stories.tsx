@@ -21,26 +21,32 @@ type StripInFeedProps = {
   showFeed: boolean;
 };
 
-const StripInFeed = ({ variant, showFeed }: StripInFeedProps): ReactElement => (
-  <ExtensionProviders>
-    <FeatureOverrides values={{ hijacking_variants3: variant }}>
-      <div className="dark min-h-dvh bg-background-default p-6">
-        <p className="mb-4 text-text-tertiary typo-footnote">
-          <strong className="text-text-secondary">{variant}</strong> —{' '}
-          {ARM_NOTES[variant]}
-        </p>
-        {/* Approximates MainLayout's `topBanner` column — the slot the cover
-            arms render into, where a sticky child can travel the feed's
-            height. It is NOT the `shortcuts` slot the other arms use, whose
-            search-header parent gives sticky almost no travel. */}
-        <div className="relative mx-auto max-w-[60rem]">
-          <HijackingLoginStrip />
-          {showFeed && <MockFeedGrid />}
+const StripInFeed = ({ variant, showFeed }: StripInFeedProps): ReactElement => {
+  // Mirrors where each arm actually renders: `cover_bottom` goes after the
+  // feed (MainFeedLayout's children), everything else above it. Rendering the
+  // bottom arm above the feed here would make `sticky bottom` inert, exactly
+  // as it is in the `shortcuts` slot.
+  const isBelowFeed = variant === HijackingVariant.CoverBottom;
+  const strip = <HijackingLoginStrip />;
+
+  return (
+    <ExtensionProviders>
+      <FeatureOverrides values={{ hijacking_variants3: variant }}>
+        <div className="dark min-h-dvh bg-background-default p-6">
+          <p className="mb-4 text-text-tertiary typo-footnote">
+            <strong className="text-text-secondary">{variant}</strong> —{' '}
+            {ARM_NOTES[variant]}
+          </p>
+          <div className="relative mx-auto max-w-[60rem]">
+            {!isBelowFeed && strip}
+            {showFeed && <MockFeedGrid />}
+            {isBelowFeed && strip}
+          </div>
         </div>
-      </div>
-    </FeatureOverrides>
-  </ExtensionProviders>
-);
+      </FeatureOverrides>
+    </ExtensionProviders>
+  );
+};
 
 const meta: Meta<typeof StripInFeed> = {
   title: 'Extension/HijackingStrip',
