@@ -225,7 +225,7 @@ export const OnboardingSignupHero = ({
           >
             <img
               alt=""
-              className="absolute inset-0 size-full object-cover object-[60%_34%]"
+              className="absolute inset-0 size-full origin-[30%_78%] scale-[1.32] object-cover object-[73%_42%]"
               decoding="async"
               /* @ts-expect-error - Not supported by react yet */ /* eslint-disable react/no-unknown-property */
               fetchpriority="high"

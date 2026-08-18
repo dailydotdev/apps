@@ -145,3 +145,11 @@ export const MobileControlVsHorizon: Story = {
 export const DesktopHorizonOnly: Story = {
   args: { width: 1440, height: 900, only: 'Horizon' },
 };
+
+/**
+ * iPhone SE/8 height — the first size under the 759px compact-phone rule,
+ * where the artwork band steps down to give the form its room back.
+ */
+export const MobileCompact: Story = {
+  args: { width: 375, height: 667, only: 'Cards+Horizon' },
+};
