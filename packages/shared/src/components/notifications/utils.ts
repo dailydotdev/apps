@@ -26,6 +26,7 @@ import {
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
+import { AgentIcon } from '../icons/Agent';
 import type { NotificationPreferenceStatus } from '../../graphql/notifications';
 import type {
   NotificationChannel,
@@ -68,6 +69,8 @@ export enum NotificationType {
   UserAwardThanks = 'user_award_thanks',
   BriefingReady = 'briefing_ready',
   DigestReady = 'digest_ready',
+  InterestContentAvailable = 'interest_content_available',
+  InterestContentBatch = 'interest_content_batch',
   UserFollow = 'user_follow',
   ArticleUpvoteMilestone = 'article_upvote_milestone',
   CommentUpvoteMilestone = 'comment_upvote_milestone',
@@ -372,6 +375,7 @@ export enum NotificationFilterCategory {
   Comments = 'comments',
   Followers = 'followers',
   Squads = 'squads',
+  Agents = 'agents',
   Updates = 'updates',
 }
 
@@ -408,6 +412,10 @@ export const notificationCategoryToTypes: Record<
     NotificationType.SourcePostApproved,
     NotificationType.SourcePostRejected,
     NotificationType.ArticlePicked,
+  ],
+  [NotificationFilterCategory.Agents]: [
+    NotificationType.InterestContentAvailable,
+    NotificationType.InterestContentBatch,
   ],
   [NotificationFilterCategory.Updates]: [
     NotificationType.System,
@@ -451,6 +459,7 @@ export const notificationFilterCategoryList: NotificationFilterCategory[] = [
   NotificationFilterCategory.Comments,
   NotificationFilterCategory.Followers,
   NotificationFilterCategory.Squads,
+  NotificationFilterCategory.Agents,
   NotificationFilterCategory.Updates,
 ];
 
@@ -463,6 +472,7 @@ export const notificationFilterCategoryLabel: Record<
   [NotificationFilterCategory.Comments]: 'Comments',
   [NotificationFilterCategory.Followers]: 'Followers',
   [NotificationFilterCategory.Squads]: 'Squads',
+  [NotificationFilterCategory.Agents]: 'Agent',
   [NotificationFilterCategory.Updates]: 'Updates',
 };
 
@@ -520,6 +530,11 @@ export const notificationCategoryBadge: Record<
     bg: 'bg-accent-onion-default',
     fg: 'text-white',
     Icon: SquadIcon,
+  },
+  [NotificationFilterCategory.Agents]: {
+    bg: 'bg-accent-water-default',
+    fg: 'text-white',
+    Icon: AgentIcon,
   },
   [NotificationFilterCategory.Updates]: {
     bg: 'bg-accent-bun-default',

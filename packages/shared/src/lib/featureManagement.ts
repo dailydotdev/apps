@@ -286,14 +286,6 @@ export const featurePublicSignupBanner = new Feature(
   false,
 );
 
-// Experiment: redesigned notifications page (type filters, time grouping,
-// compact rows) backed by server-side type filtering on daily-api. Control is
-// the legacy single-list page. Keep the default `false` — GrowthBook ramps it.
-export const featureNotificationsRedesign = new Feature(
-  'notifications_redesign',
-  false,
-);
-
 // Surfaces a per-post impressions stat on the feed card action bar and the
 // post page stats strip, sourced from the public `analytics.impressions`
 // field. Control hides it entirely. Keep the default `false` — GrowthBook

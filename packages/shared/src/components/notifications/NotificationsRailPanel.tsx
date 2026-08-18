@@ -12,10 +12,8 @@ import type { NotificationFilterCategory } from './utils';
 import {
   notificationCategoryBadge,
   notificationFilterCategoryLabel,
-  notificationFilterCategoryList,
 } from './utils';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureNotificationsRedesign } from '../../lib/featureManagement';
+import { useNotificationFilterCategories } from '../../hooks/notifications/useNotificationFilterCategories';
 import { isExtension } from '../../lib/func';
 
 const notificationsPath = (
@@ -34,11 +32,7 @@ export const NotificationsRailPanel = (): ReactElement => {
   const isListPage = router.pathname === '/notifications';
   const activeType =
     typeof router.query?.type === 'string' ? router.query.type : undefined;
-  // Category filters only exist in the redesigned page; the control page
-  // ignores `?type=`, so when the experiment is off keep the simple nav.
-  const { value: isRedesign } = useConditionalFeature({
-    feature: featureNotificationsRedesign,
-  });
+  const filterCategories = useNotificationFilterCategories();
 
   // On the webapp, filters navigate via `action` (button), NOT `path`.
   // SidebarItem treats any `?type=` path as active for the whole
@@ -78,7 +72,6 @@ export const NotificationsRailPanel = (): ReactElement => {
     // Category-owned settings shortcut: keeps the Notifications panel active
     // (the canonical /settings/notifications page keeps the Settings panel).
     const settingsPath = `${webappUrl}notifications/settings`;
-    const allActivityPath = `${webappUrl}notifications`;
     const unreadBadge = hasUnread && {
       rightIcon: () => (
         <Typography
@@ -102,20 +95,6 @@ export const NotificationsRailPanel = (): ReactElement => {
       ),
     };
 
-    if (!isRedesign) {
-      const allActivity: SidebarMenuItem = {
-        title: 'All activity',
-        path: allActivityPath,
-        active: isSidebarItemActive(activePage, allActivityPath),
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <BellIcon secondary={active} />} />
-        ),
-        ...unreadBadge,
-      };
-
-      return [allActivity, settings];
-    }
-
     const allActivity: SidebarMenuItem = {
       title: 'All activity',
       active: isListPage && !activeType,
@@ -126,7 +105,7 @@ export const NotificationsRailPanel = (): ReactElement => {
       ...unreadBadge,
     };
 
-    const categoryItems: SidebarMenuItem[] = notificationFilterCategoryList.map(
+    const categoryItems: SidebarMenuItem[] = filterCategories.map(
       (category) => {
         const { Icon } = notificationCategoryBadge[category];
         return {
@@ -144,9 +123,9 @@ export const NotificationsRailPanel = (): ReactElement => {
   }, [
     activePage,
     activeType,
+    filterCategories,
     hasUnread,
     isListPage,
-    isRedesign,
     navigationFor,
     unreadCount,
   ]);
