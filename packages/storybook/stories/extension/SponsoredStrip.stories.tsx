@@ -456,7 +456,7 @@ const ROWS: Row[] = [
     cost: '48px of viewport, for the whole session',
     exposure: 'Every session, continuously',
     legibility:
-      'All ten clear the fade from ~920px; below that they drop into it one at a time',
+      'All ten clear the fade from ~1040px; below that they drop into it one at a time',
     mobile:
       'Poor — 1 partner survives at 375px, and it lands on the browser’s own bottom chrome',
   },
@@ -465,16 +465,16 @@ const ROWS: Row[] = [
     concept: 'Inline rail',
     cost: '44px once, above the fold',
     exposure: 'Until the first scroll',
-    legibility: 'Same ~920px threshold as A',
+    legibility: 'Same ~1040px threshold as A',
     mobile: 'Weak — 1 partner survives at 375px',
   },
   {
     id: 'C',
     concept: 'Feed band',
-    cost: '53px at 1440px, 112px at 375px — an eighth of a 406px card row',
+    cost: '56px at 1440px, 89px at 768px, 179px at 375px',
     exposure: 'On scroll past, then gone',
     legibility:
-      'All ten at every width — ten columns wide, five by two on mobile',
+      'All ten at every width — ten columns wide, five then three as it narrows',
     mobile: 'Good — wraps under the lockup',
   },
   {
@@ -568,13 +568,15 @@ export const Evaluation: Story = {
             <p className="text-text-secondary typo-footnote">
               The wall is spread with `justify-between`, so a wide new tab hands
               the slack to the gaps rather than stacking the logos on the left.
-              Their own ink measures a 625px minimum run, which needs about
-              920px of viewport before the last mark reaches the fade — below
-              that the rails quietly show fewer slots than were sold, down to a
-              single partner at 375px. The wrapping concepts (C, D, E) hold all
-              ten at every width instead. If the inventory has to be exactly ten
-              on one line, the rails need a smaller cap height or fewer slots —
-              not a marquee.
+              At a 16px cap their own ink measures a 746px minimum run, which
+              needs about 1040px of viewport before the last mark reaches the
+              fade — below that the rails quietly show fewer slots than were
+              sold, down to a single partner at 375px. That threshold is the
+              price of legible logos: dropping the cap to 13px buys back about
+              120px of it, at marks small enough to be decoration. The wrapping
+              concepts (C, D, E) hold all ten at every width instead. If the
+              inventory has to be exactly ten on one line, the rails need a
+              smaller cap height or fewer slots — not a marquee.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
               The asset spec matters more than the layout

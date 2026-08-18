@@ -44,10 +44,15 @@ export type SponsoredStripProps = {
   className?: string;
 };
 
-const PRIMARY_CAP = 18;
-const PARTNER_CAP = 13;
+const PRIMARY_CAP = 21;
+const PARTNER_CAP = 16;
 
 /**
+ * Cap heights are sized to the fixed 48px rail: at PARTNER_CAP the
+ * tallest optical result is ~22px, so the marks can grow inside the
+ * bar without the bar growing. Raising these past ~18 would start
+ * crowding the rail's own padding.
+ *
  * Logo files run from square marks (GitLab, 1:1) to long lockups
  * (LaunchDarkly, 6.4:1). Sizing them all to one cap height makes the
  * square ones illegible and the long ones dominate the row, so the
@@ -146,7 +151,7 @@ const SponsorSlot = ({
   <button
     aria-label={`${sponsor.name} (sponsor)`}
     className={classNames(
-      'shrink-0 text-text-tertiary transition-colors duration-150 hover:text-text-primary',
+      'shrink-0 text-text-secondary transition-colors duration-150 hover:text-text-primary',
       className,
     )}
     onClick={() => onSponsorClick?.(sponsor)}
@@ -262,7 +267,7 @@ export const SponsorRailPinned = ({
 }: SponsoredStripProps): ReactElement => (
   <div
     className={classNames(
-      'bg-background-default/80 sticky bottom-0 z-3 flex h-12 items-center gap-5 border-t border-border-subtlest-tertiary px-4 backdrop-blur-xl laptop:px-6',
+      'sticky bottom-0 z-3 flex h-12 items-center gap-5 border-t border-border-subtlest-tertiary bg-background-default px-4 laptop:px-6',
       className,
     )}
   >
@@ -325,12 +330,14 @@ export const SponsorFeedBand = ({
       <Divider />
     </div>
     {/*
-     * A grid rather than a wrapped flex row: even columns spread the
-     * wall across the band's full width and still break cleanly into
-     * rows on narrow widths, where `justify-between` would strand the
-     * last row.
+     * A grid rather than a wrapped flex row: fixed column counts break
+     * cleanly into rows, where a wrapped `justify-between` flex would
+     * strand the last one. The columns are `auto`, not equal fractions
+     * — the marks differ in width by 2x, so equal cells make the wide
+     * ones overlap their neighbours — and the grid's own
+     * `justify-between` hands the leftover space to the gaps.
      */}
-    <div className="grid flex-1 grid-cols-5 items-center justify-items-center gap-x-4 gap-y-3 laptop:grid-cols-10">
+    <div className="grid flex-1 grid-cols-[repeat(3,auto)] items-center justify-between gap-x-4 gap-y-3 tablet:grid-cols-[repeat(5,auto)] laptop:grid-cols-[repeat(10,auto)]">
       {partners.map((sponsor) => (
         <SponsorSlot
           height={PARTNER_CAP}
