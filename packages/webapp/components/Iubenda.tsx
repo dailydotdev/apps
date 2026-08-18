@@ -122,6 +122,15 @@ export const Iubenda = (): ReactElement | null => {
       callback: {
         onPreferenceExpressed: (pref: IubendaPreference) =>
           onPreferenceRef.current?.(pref),
+        // one-click consent guard: iubenda blocks Accept/Reject until its
+        // scrolled-to-bottom flag is refreshed, and its setup can race the
+        // first click; our card never clips .iubenda-banner-content, so
+        // poking its scroll listener always resolves the flag to true
+        onBannerShown: () => {
+          document
+            .querySelector('#iubenda-cs-banner .iubenda-banner-content')
+            ?.dispatchEvent(new Event('scroll'));
+        },
       },
     };
 

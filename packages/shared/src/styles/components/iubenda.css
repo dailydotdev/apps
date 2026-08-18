@@ -39,14 +39,22 @@
   }
 }
 
+/* The card grows to show the full notice; iubenda refuses one-click
+   consent while .iubenda-banner-content is clipped ("Press again to
+   continue"), so that element must never be the scroll container —
+   on short viewports the rationale scrolls with the buttons sticky. */
 #iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-rationale {
-  max-height: 16.25rem !important;
+  display: block !important;
+  max-height: calc(100vh - 10rem) !important;
   overflow-y: auto !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
 #iubenda-cs-banner#iubenda-cs-banner .iubenda-banner-content {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
   margin: 0 !important;
   padding: 0 !important;
   font-size: inherit !important;
@@ -70,7 +78,12 @@
   display: flex !important;
   flex-direction: column !important;
   gap: 0.5rem !important;
-  margin: 1rem 0 0 !important;
+  position: sticky !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  margin: 0.5rem 0 0 !important;
+  padding: 0.5rem 0 0 !important;
+  background: var(--theme-accent-pepper-subtlest) !important;
   float: none !important;
 }
 
