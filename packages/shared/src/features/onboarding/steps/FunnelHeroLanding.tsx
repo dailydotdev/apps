@@ -17,6 +17,8 @@ import type { AnonymousUser, LoggedUser } from '../../../lib/user';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { withIsActiveGuard } from '../shared/withActiveGuard';
 import { useOnboardingActions } from '../../../hooks/auth';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
+import { featureSignupWallHorizon } from '../../../lib/featureManagement';
 import { OnboardingSignupHero } from '../components/OnboardingSignupHero';
 
 type FunnelHeroLandingProps = FunnelStepHeroLanding;
@@ -53,17 +55,21 @@ const isSocialSignupUser = (
   );
 };
 
+// The horizon wall's value line, when the funnel doesn't provide one.
+const HORIZON_DEFAULT_SUBLINE =
+  'Be the dev who already knew. Every release, tool, and breakthrough in your stack. Hours early.';
+
 export const FunnelHeroLanding = withIsActiveGuard(
   ({
     parameters: {
       headline,
-      subline,
-      background,
+      subline: sublineParam,
+      background: backgroundParam,
       imageMode,
       imageMobile,
       showOrbs,
       forceDarkTheme,
-      oauthOrder,
+      oauthOrder: oauthOrderParam,
     },
     onTransition,
   }: FunnelHeroLandingProps): ReactElement => {
@@ -74,6 +80,19 @@ export const FunnelHeroLanding = withIsActiveGuard(
     const { isLoggedIn, isAuthReady, user } = useAuthContext();
     // Shared with the paid funnel, which keeps its own landing treatment.
     const isOnboarding = useIsOnboardingFunnel();
+    // Flips the wall to the horizon treatment without a Freyja change —
+    // onboarding funnel only, so paid funnels keep their served look. Funnel
+    // parameters, when present, still win over the flag's defaults.
+    const { value: isHorizonWallEnabled } = useConditionalFeature({
+      feature: featureSignupWallHorizon,
+      shouldEvaluate: isAuthReady && isOnboarding,
+    });
+    const background = isHorizonWallEnabled ? 'horizon' : backgroundParam;
+    const subline =
+      sublineParam ??
+      (isHorizonWallEnabled ? HORIZON_DEFAULT_SUBLINE : undefined);
+    const oauthOrder =
+      oauthOrderParam ?? (isHorizonWallEnabled ? 'googleFirst' : undefined);
     const { isOnboardingActionsReady, isOnboardingComplete } =
       useOnboardingActions();
     const [authDisplay, setAuthDisplay] = useState(

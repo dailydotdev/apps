@@ -210,6 +210,14 @@ export const featureCompanionDemoWidget = new Feature(
 
 export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
 
+// Switches the signup wall to the 'horizon' background (the homepage's hero
+// artwork full-bleed) regardless of what the funnel JSON serves — the same
+// enable-without-a-Freyja-change lever the swipe onboarding has.
+export const featureSignupWallHorizon = new Feature(
+  'signup_wall_horizon',
+  false,
+);
+
 export const featureUpvoteCountThreshold = new Feature<{
   threshold: number;
   belowThresholdLabel: string;
