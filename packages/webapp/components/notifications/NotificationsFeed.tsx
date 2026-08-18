@@ -242,8 +242,8 @@ export const NotificationsFeed = (): ReactElement => {
             </Link>
           </div>
         )}
-        {/* On v2 the type filters live in the sidebar rail panel; on the
-            legacy/mobile layout (no rail) keep them as in-page tabs. */}
+        {/* On v2 the type filters live in the sidebar rail panel; on mobile
+            layout (no rail) keep them as in-page tabs. */}
         {!isV2Laptop && (hasNotifications || !!activeCategory) && (
           <div className="flex min-h-14 items-center border-b border-border-subtlest-quaternary px-4">
             <NotificationFilterBar
