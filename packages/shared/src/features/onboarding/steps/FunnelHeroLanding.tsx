@@ -66,7 +66,7 @@ const isSocialSignupUser = (
 // The horizon wall's value line, when the funnel doesn't provide one. Exported
 // so the story shows the copy that actually ships rather than a stale twin.
 export const HORIZON_DEFAULT_SUBLINE =
-  'Be the dev who already knew. Every release, tool, and breakthrough in your stack. Hours early.';
+  'Be the dev who already knew. Every release, tool, and breakthrough in your stack.';
 
 export const FunnelHeroLanding = withIsActiveGuard(
   ({

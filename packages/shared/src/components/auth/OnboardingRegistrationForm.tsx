@@ -138,7 +138,7 @@ export const OnboardingRegistrationForm = ({
   // ships `secondary`, so passing it here is a no-op for that provider.
   const getProviderIcon = (icon: ReactElement): ReactElement => {
     if (singlePrimaryStyle) {
-      return cloneElement(icon, { size: IconSize.Size16, secondary: true });
+      return cloneElement(icon, { size: IconSize.XSmall, secondary: true });
     }
     if (splitSignupStyle) {
       return cloneElement(icon, { size: IconSize.Medium });
@@ -200,7 +200,9 @@ export const OnboardingRegistrationForm = ({
       className={classNames(
         getEmailButtonClass(),
         singlePrimaryStyle
-          ? '!w-full !text-text-tertiary !underline underline-offset-4'
+          ? // A link, not a button: no button box to occupy, so it hugs its
+            // label and gives the height back to the stack.
+            'mx-auto !h-auto !w-auto !px-0 !py-0 !text-text-tertiary !underline underline-offset-4'
           : (isOnboardingTrigger || splitSignupStyle) &&
               tertiarySignupButtonClass,
       )}
@@ -210,7 +212,11 @@ export const OnboardingRegistrationForm = ({
         trackOpenSignup();
         onContinueWithEmail?.();
       }}
-      size={onboardingSignupButton?.size ?? ButtonSize.Large}
+      size={
+        singlePrimaryStyle
+          ? ButtonSize.Small
+          : onboardingSignupButton?.size ?? ButtonSize.Large
+      }
       type="button"
       variant={
         isOnboardingTrigger || splitSignupStyle
@@ -230,9 +236,11 @@ export const OnboardingRegistrationForm = ({
     // onb-split-login is a styling hook for the signup hero: it tightens this
     // row on compact phones. Inert anywhere the hero's CSS is not present.
     // The single-primary rail centres this under the button column at every
-    // width — the buttons are the axis here, not the left edge of the copy.
+    // width — the buttons are the axis here, not the left edge of the copy —
+    // and drops the prompt to tertiary so it sits with the email link rather
+    // than competing with the CTAs. "Log in" keeps full strength below.
     if (singlePrimaryStyle) {
-      return 'onb-split-login mx-auto mt-4 text-center text-text-secondary typo-callout laptop:mt-5';
+      return 'onb-split-login mx-auto mt-4 justify-center text-center text-text-tertiary typo-callout laptop:mt-5';
     }
     if (splitSignupStyle) {
       return 'onb-split-login mx-auto mt-4 text-center text-text-secondary typo-callout laptop:mx-0 laptop:mt-5 laptop:text-left';
@@ -248,7 +256,7 @@ export const OnboardingRegistrationForm = ({
       onLogin={() => onExistingEmail?.('')}
       className={{
         container: getMemberAlreadyContainerClass(),
-        login: '!text-inherit',
+        login: singlePrimaryStyle ? '!text-text-primary' : '!text-inherit',
       }}
     />
   );
@@ -272,10 +280,12 @@ export const OnboardingRegistrationForm = ({
                 'w-full',
                 // The stepped-down providers stay filled rather than becoming
                 // outlines: a hairline-only button reads as disabled next to a
-                // solid primary.
+                // solid primary. Full-strength label (and, through
+                // currentColor, brand mark) for the same reason — stepping the
+                // fill down is the hierarchy, dimming the text is just noise.
                 singlePrimaryStyle &&
                   index > 0 &&
-                  '!border-border-subtlest-tertiary !bg-surface-float',
+                  '!border-border-subtlest-tertiary !bg-surface-float !text-text-primary',
               )}
               data-funnel-track={FunnelTargetId.SignupProvider}
               disabled={!isReady || isSocialAuthLoading}

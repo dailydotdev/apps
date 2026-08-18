@@ -38,7 +38,7 @@ const FRAMES: Frame[] = [
   {
     label: 'Horizon',
     storyId: 'components-onboarding-steps-funnelherolanding--horizon',
-    note: 'proposed — full-bleed art, value line, Google-first',
+    note: 'proposed — full-bleed art, value line, one primary CTA',
   },
 ];
 

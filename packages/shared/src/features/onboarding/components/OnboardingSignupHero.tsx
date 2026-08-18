@@ -195,9 +195,12 @@ export const OnboardingSignupHero = ({
           />
         )}
 
+        {/* Held to the auth stack's measure rather than the column's: a line
+            that outruns the buttons underneath it makes the rail read as two
+            different widths. */}
         {subline && (
           <p
-            className="text-pretty text-center text-text-tertiary typo-body laptop:text-left"
+            className="mx-auto w-full max-w-[22.5rem] text-pretty text-center text-text-tertiary typo-body laptop:mx-0 laptop:text-left"
             dangerouslySetInnerHTML={{ __html: sanitizeMessage(subline) }}
           />
         )}
