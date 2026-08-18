@@ -261,6 +261,9 @@ function CoverSignupHero({
         />
         <div className="cover-hero-dome pointer-events-none absolute inset-0" />
         <div className="from-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent" />
+        {/* Stacked, the control's media panel would add 12.5rem of dead space
+            below the overlaid copy, so the vertical layout keeps only the text
+            sizer and tablet+ mirrors the control's full row geometry. */}
         <div
           aria-hidden
           className="invisible flex flex-col tablet:flex-row tablet:items-stretch"
@@ -277,7 +280,7 @@ function CoverSignupHero({
               <div className="mt-4 h-10" />
             </div>
           </div>
-          <div className="flex h-[12.5rem] w-full items-center justify-center p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
+          <div className="hidden h-[12.5rem] w-full items-center justify-center p-2 tablet:flex tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
             <img
               src={cloudinaryReadingReminderCat}
               alt=""
