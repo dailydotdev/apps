@@ -81,18 +81,26 @@ export const FunnelHeroLanding = withIsActiveGuard(
     // Shared with the paid funnel, which keeps its own landing treatment.
     const isOnboarding = useIsOnboardingFunnel();
     // Flips the wall to the horizon treatment without a Freyja change —
-    // onboarding funnel only, so paid funnels keep their served look. Funnel
-    // parameters, when present, still win over the flag's defaults.
-    const { value: isHorizonWallEnabled } = useConditionalFeature({
-      feature: featureSignupWallHorizon,
-      shouldEvaluate: isAuthReady && isOnboarding,
-    });
+    // onboarding funnel only, so paid funnels keep their served look. The flag
+    // is an override, not a default: it wins over the served background, the
+    // same way the persona flag overrides the served tag-step headline. Remove
+    // once Freyja can serve `background: 'horizon'` itself.
+    const { value: isHorizonWallEnabled, isLoading: isHorizonFlagLoading } =
+      useConditionalFeature({
+        feature: featureSignupWallHorizon,
+        shouldEvaluate: isAuthReady && isOnboarding,
+      });
+    // Rendering the served wall first and swapping when the flag lands would
+    // show the control arm to treatment users and cost a wasted hero download,
+    // so hold until it resolves. Scoped to the funnel that evaluates it —
+    // elsewhere `shouldEvaluate` is false and isLoading never clears.
+    const isWallPending = isOnboarding && isHorizonFlagLoading;
     const background = isHorizonWallEnabled ? 'horizon' : backgroundParam;
+    const isHorizonWall = background === 'horizon';
     const subline =
-      sublineParam ??
-      (isHorizonWallEnabled ? HORIZON_DEFAULT_SUBLINE : undefined);
+      sublineParam ?? (isHorizonWall ? HORIZON_DEFAULT_SUBLINE : undefined);
     const oauthOrder =
-      oauthOrderParam ?? (isHorizonWallEnabled ? 'googleFirst' : undefined);
+      oauthOrderParam ?? (isHorizonWall ? 'googleFirst' : undefined);
     const { isOnboardingActionsReady, isOnboardingComplete } =
       useOnboardingActions();
     const [authDisplay, setAuthDisplay] = useState(
@@ -107,12 +115,13 @@ export const FunnelHeroLanding = withIsActiveGuard(
       !isEmailSignupActive &&
       isSocialSignupUser(user);
     const preferGithub = oauthOrder !== 'googleFirst';
-    // Both split-column walls bottom/center-anchor their form, so both opt out
-    // of AuthOptions' min-height reservation. Only the panel also switches the
-    // button copy to "Sign up with…" — the horizon keeps the door-agnostic
-    // "Continue with…" so returning users never hit a wrong door.
-    const isSplitColumnBackground =
-      background === 'panel' || background === 'horizon';
+    const isPanelWall = background === 'panel';
+    // Both split-column walls take the same column geometry and opt out of
+    // AuthOptions' min-height reservation, which is dead space under a
+    // bottom-anchored form. Only the panel takes the "Sign up with…" copy:
+    // "Continue with…" logs returning users straight in, so the horizon keeps
+    // it rather than building a wrong door.
+    const isSplitColumnBackground = isPanelWall || isHorizonWall;
 
     const onAuthStateUpdate = useCallback(
       (data: Partial<AuthProps>) => {
@@ -201,6 +210,7 @@ export const FunnelHeroLanding = withIsActiveGuard(
 
     if (
       !isAuthReady ||
+      isWallPending ||
       (isLoggedIn && user.infoConfirmed) ||
       isOnboardingComplete
     ) {
@@ -234,9 +244,9 @@ export const FunnelHeroLanding = withIsActiveGuard(
                 }
               : staticAuthProps.className
           }
-          // "Sign up with…" / "Create account", plus the left-aligned login
-          // link — the copy the split-column layouts are designed around.
-          splitSignupStyle={background === 'panel'}
+          splitSignupStyle={isSplitColumnBackground}
+          createAccountCopy={isPanelWall}
+          singlePrimaryStyle={isHorizonWall}
           preferGithub={preferGithub}
           defaultDisplay={
             isSocialSignupActive ? AuthDisplay.SocialRegistration : authDisplay

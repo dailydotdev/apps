@@ -185,16 +185,21 @@ export const OnboardingSignupHero = ({
           logoClassName={{ container: 'h-7' }}
         />
 
+        {/* Funnel copy is authored as HTML (b/strong/br), so it goes through
+            the same sanitizer the other walls use rather than rendering the
+            tags as literal text. */}
         {headline && (
-          <h1 className="onb-hero-headline text-balance text-center font-bold tracking-tight text-text-primary typo-large-title tablet:typo-mega3 laptop:text-left">
-            {headline}
-          </h1>
+          <h1
+            className="onb-hero-headline text-balance text-center font-bold tracking-tight text-text-primary typo-large-title tablet:typo-mega3 laptop:text-left"
+            dangerouslySetInnerHTML={{ __html: sanitizeMessage(headline) }}
+          />
         )}
 
         {subline && (
-          <p className="text-pretty text-center text-text-tertiary typo-body laptop:text-left">
-            {subline}
-          </p>
+          <p
+            className="text-pretty text-center text-text-tertiary typo-body laptop:text-left"
+            dangerouslySetInnerHTML={{ __html: sanitizeMessage(subline) }}
+          />
         )}
 
         {children}

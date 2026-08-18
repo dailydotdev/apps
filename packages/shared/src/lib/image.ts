@@ -152,6 +152,12 @@ export const signupWallCover =
 // The marketing homepage's hero: the dev and Dee at the daily.dev portal,
 // watching the next thing rise. Wide (2988x854) with the pair right of
 // center, so tall crops bias toward the portal to keep them with the sunrise.
+//
+// One signed URL, no width variants: the signature covers the transformation,
+// so `w_768` etc. 404 rather than resizing. Phones therefore pull the full
+// asset. To size it responsively the way cloudinaryOnboardingHeroDesk does,
+// the sized derivatives have to be exported and signed upstream first, then
+// consumed here as a srcSet.
 export const signupWallHorizon =
   'https://media.daily.dev/image/upload/s--NCILTqRq--/f_auto,q_auto/v1785661216/public/daily.dev%20-%20main%20image';
 

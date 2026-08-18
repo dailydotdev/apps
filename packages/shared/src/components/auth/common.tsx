@@ -130,8 +130,16 @@ export interface AuthOptionsProps {
   onboardingSignupButton?: ButtonProps<'button'>;
   hideLoginLink?: boolean;
   compact?: boolean;
-  /** X-style split onboarding: "Sign up with", "Create account", Sign in button */
+  /** Split-column onboarding geometry: left-aligned login row, tighter CTA
+   * spacing hooks, smaller provider marks. */
   splitSignupStyle?: boolean;
+  /** "Sign up with…" / "Create account" instead of the door-agnostic
+   * "Continue with…". Separate from the geometry above: a wall can take the
+   * split layout and keep "Continue", which logs returning users straight in. */
+  createAccountCopy?: boolean;
+  /** One solid primary provider, the rest secondary, email demoted to a text
+   * link and the "or" divider dropped. */
+  singlePrimaryStyle?: boolean;
   /** Order GitHub before Google in the OAuth provider list (developer-first). */
   preferGithub?: boolean;
   autoTriggerProvider?: string;

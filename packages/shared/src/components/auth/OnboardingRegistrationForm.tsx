@@ -40,6 +40,8 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   hideSignupDisclaimer?: boolean;
   compact?: boolean;
   splitSignupStyle?: boolean;
+  createAccountCopy?: boolean;
+  singlePrimaryStyle?: boolean;
   preferGithub?: boolean;
   onAuthOpenLogged?: () => void;
 }
@@ -119,6 +121,8 @@ export const OnboardingRegistrationForm = ({
   hideSignupDisclaimer,
   compact,
   splitSignupStyle = false,
+  createAccountCopy = false,
+  singlePrimaryStyle = false,
   preferGithub,
   onAuthOpenLogged,
 }: OnboardingRegistrationFormProps): ReactElement => {
@@ -170,16 +174,21 @@ export const OnboardingRegistrationForm = ({
     return 'mb-8';
   };
 
-  const emailButtonLabel = splitSignupStyle
+  const emailButtonLabel = createAccountCopy
     ? 'Create account'
     : 'Continue with email';
 
+  // The single-primary treatment demotes email to a text link, so it must not
+  // take the bordered button class the other walls give it.
   const emailButton = (
     <Button
-      aria-label={splitSignupStyle ? 'Create account' : 'Signup using email'}
+      aria-label={createAccountCopy ? 'Create account' : 'Signup using email'}
       className={classNames(
         getEmailButtonClass(),
-        (isOnboardingTrigger || splitSignupStyle) && tertiarySignupButtonClass,
+        singlePrimaryStyle
+          ? '!w-full !text-text-primary !underline underline-offset-4'
+          : (isOnboardingTrigger || splitSignupStyle) &&
+              tertiarySignupButtonClass,
       )}
       data-funnel-track={FunnelTargetId.SignupProvider}
       disabled={isSocialAuthLoading}
@@ -232,11 +241,11 @@ export const OnboardingRegistrationForm = ({
   return (
     <div aria-label="Login/Register options" className="flex flex-col gap-4">
       <ul aria-label="Social login buttons" className="flex flex-col gap-4">
-        {signupProviders.map((provider) => (
+        {signupProviders.map((provider, index) => (
           <li key={provider.value}>
             <Button
               aria-label={
-                splitSignupStyle
+                createAccountCopy
                   ? `Sign up with ${provider.label}`
                   : `Continue with ${provider.label}`
               }
@@ -256,21 +265,33 @@ export const OnboardingRegistrationForm = ({
               onClick={() => onProviderClick?.(provider.value, false)}
               size={onboardingSignupButton?.size ?? ButtonSize.Large}
               type="button"
-              variant={onboardingSignupButton?.variant ?? ButtonVariant.Primary}
+              // One visual primary: the leading provider keeps the solid
+              // treatment and the rest step down, so the wall recommends a
+              // default instead of offering two identical doors.
+              variant={
+                // eslint-disable-next-line no-nested-ternary
+                singlePrimaryStyle
+                  ? index === 0
+                    ? ButtonVariant.Primary
+                    : ButtonVariant.Secondary
+                  : onboardingSignupButton?.variant ?? ButtonVariant.Primary
+              }
             >
-              {splitSignupStyle
+              {createAccountCopy
                 ? `Sign up with ${provider.label}`
                 : `Continue with ${provider.label}`}
             </Button>
           </li>
         ))}
       </ul>
-      <OrDivider
-        className={{
-          text: 'text-text-tertiary typo-footnote',
-        }}
-        label={isOnboardingTrigger ? 'or' : 'OR'}
-      />
+      {!singlePrimaryStyle && (
+        <OrDivider
+          className={{
+            text: 'text-text-tertiary typo-footnote',
+          }}
+          label={isOnboardingTrigger ? 'or' : 'OR'}
+        />
+      )}
       {isOnboardingTrigger ? (
         <div
           className={classNames(
