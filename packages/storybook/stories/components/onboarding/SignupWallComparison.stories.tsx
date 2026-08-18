@@ -49,8 +49,13 @@ type ComparisonProps = {
 };
 
 const Comparison = ({ width, height, only }: ComparisonProps) => {
+  // `only` is a single label, or a `+`-joined pair for focused two-up
+  // comparisons (e.g. the experiment's actual arms, 'Cards+Horizon').
+  const wanted = only.split('+');
   const frames =
-    only === 'all' ? FRAMES : FRAMES.filter((frame) => frame.label === only);
+    only === 'all'
+      ? FRAMES
+      : FRAMES.filter((frame) => wanted.includes(frame.label));
 
   return (
     <div className="min-h-dvh bg-background-subtle p-6">
@@ -97,7 +102,11 @@ const meta: Meta<typeof Comparison> = {
     height: { control: { type: 'range', min: 568, max: 1024, step: 8 } },
     only: {
       control: 'select',
-      options: ['all', ...FRAMES.map((frame) => frame.label)],
+      options: [
+        'all',
+        ...FRAMES.map((frame) => frame.label),
+        'Cards+Horizon',
+      ],
     },
   },
 };
@@ -124,4 +133,14 @@ export const Tablet: Story = {
 /** Above `laptop` (1020px), where the split layouts take over. */
 export const Desktop: Story = {
   args: { width: 1440, height: 900, only: 'all' },
+};
+
+/** The experiment's actual arms, two-up: shipping control vs proposed. */
+export const DesktopControlVsHorizon: Story = {
+  args: { width: 1440, height: 900, only: 'Cards+Horizon' },
+};
+
+/** Same two arms at phone size. */
+export const MobileControlVsHorizon: Story = {
+  args: { width: 390, height: 844, only: 'Cards+Horizon' },
 };
