@@ -257,6 +257,12 @@ const coverSectionClasses = (
     !isBottom && (hasGlobalHeader ? 'top-14 laptop:top-16' : 'top-0'),
   );
 
+// Anchored low: the dog and the person sit ~70-85% down the artwork, and the
+// strip is short enough that a centred crop loses them entirely. Inline rather
+// than an arbitrary `object-[...]` class, which is not reliably emitted for
+// this package's classes.
+const coverArtPosition = { objectPosition: '50% 54%' };
+
 const coverCardClasses = (): string =>
   'relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2';
 
@@ -276,12 +282,16 @@ function CoverSignupHero({
   return (
     <section className={coverSectionClasses(isBottom, !isV2)}>
       <div className={coverCardClasses()}>
+        {/* Anchored low: the dog and the person sit ~70-85% down the artwork,
+            and the strip is short enough that a centred crop loses them
+            entirely. */}
         <img
           src={cloudinaryHijackingCoverArt}
           alt=""
           aria-hidden
           role="presentation"
-          className="pointer-events-none absolute inset-0 size-full object-cover object-[50%_78%]"
+          className="pointer-events-none absolute inset-0 size-full object-cover"
+          style={coverArtPosition}
         />
         <div className="cover-hero-dome pointer-events-none absolute inset-0" />
         <div className="from-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent" />
