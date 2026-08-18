@@ -321,7 +321,7 @@ describe('HijackingLoginStrip', () => {
     // has no layout for; this only guards the positioning contract the arm
     // ships with. Real pinning is verified in Storybook against the topBanner
     // column the arm renders into.
-    it('clears the fixed header when it pins to the top', () => {
+    it('never pins flush against the chrome above it', () => {
       if (variant !== HijackingVariant.Cover) {
         return;
       }
@@ -334,8 +334,9 @@ describe('HijackingLoginStrip', () => {
         // offset lives on the wrapper, which has no queryable role
         .closest('section');
 
-      // header height plus the floating gap; never flush against the header
-      expect(section).toHaveStyle({ top: '64px' });
+      // The offset is measured from whatever is pinned above the feed, and
+      // jsdom renders no such chrome, so only the floating gap remains.
+      expect(section).toHaveStyle({ top: '8px' });
     });
 
     it('carries its positioning classes', () => {

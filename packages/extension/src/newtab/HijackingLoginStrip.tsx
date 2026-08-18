@@ -1,5 +1,5 @@
-import type { CSSProperties, ReactElement, ReactNode, RefObject } from 'react';
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -25,11 +25,7 @@ import { onboardingGradientClasses } from '@dailydotdev/shared/src/components/on
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
-import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import {
-  useViewSize,
-  ViewSize,
-} from '@dailydotdev/shared/src/hooks/useViewSize';
+
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -256,28 +252,70 @@ const coverSectionClasses = (isBottom: boolean): string =>
     isBottom ? 'sticky bottom-4 z-rank mt-4' : 'sticky z-rank mb-4',
   );
 
-// The global header is fixed and 3.5rem tall (4rem on laptop), so the pinned
-// arm has to clear it or it tucks underneath. The extra gap keeps the card
-// reading as something floating over the feed rather than welded to the
-// header. Set inline: the offset depends on both the breakpoint and whether
-// the header is on screen at all, which the v2 layout hides.
-const HEADER_HEIGHT = { mobile: 56, laptop: 64 };
+// Keeps the pinned card clear of the chrome above it, plus a gap so it reads
+// as floating rather than welded to the header. The offset is measured, not
+// assumed: the header is one row on laptop but stacks a nav row under the logo
+// on phones and tablets, and the v2 layout drops it entirely — a constant is
+// wrong on at least one of those.
 const PINNED_GAP = 8;
+const TOP_CHROME_SELECTOR = 'header, nav, [role="banner"]';
 
-const coverStickyStyle = (
-  isBottom: boolean,
-  hasGlobalHeader: boolean,
-  isLaptop: boolean,
-): CSSProperties | undefined => {
-  if (isBottom) {
-    return undefined;
+const measureTopChrome = (): number => {
+  if (typeof document === 'undefined') {
+    return 0;
   }
 
-  const header = hasGlobalHeader
-    ? HEADER_HEIGHT[isLaptop ? 'laptop' : 'mobile']
-    : 0;
+  let bottom = 0;
 
-  return { top: header + PINNED_GAP };
+  document
+    .querySelectorAll<HTMLElement>(TOP_CHROME_SELECTOR)
+    .forEach((element) => {
+      const { position } = window.getComputedStyle(element);
+
+      if (position !== 'fixed' && position !== 'sticky') {
+        return;
+      }
+
+      const rect = element.getBoundingClientRect();
+
+      // Only chrome actually parked against the top edge can cover the card.
+      if (rect.top > PINNED_GAP || rect.height === 0) {
+        return;
+      }
+
+      bottom = Math.max(bottom, rect.bottom);
+    });
+
+  return bottom;
+};
+
+/** Tracks the bottom edge of whatever is pinned above the feed. */
+const useTopChromeOffset = (enabled: boolean): number => {
+  const [offset, setOffset] = useState(0);
+
+  useLayoutEffect(() => {
+    if (!enabled) {
+      setOffset(0);
+
+      return undefined;
+    }
+
+    // Measured synchronously rather than on an animation frame: the first
+    // paint has to land on the right offset, and React drops the update when
+    // the value is unchanged, so the scroll listener stays cheap.
+    const update = (): void => setOffset(measureTopChrome());
+
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, { passive: true });
+
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update);
+    };
+  }, [enabled]);
+
+  return offset;
 };
 
 // The dog and the person sit in this band of the artwork, measured from its
@@ -359,8 +397,7 @@ function CoverSignupHero({
   position = 'top',
 }: SigninHeroProps & { position?: 'top' | 'bottom' }): ReactElement {
   const isBottom = position === 'bottom';
-  const { isV2 } = useLayoutVariant();
-  const isLaptop = useViewSize(ViewSize.Laptop);
+  const topChrome = useTopChromeOffset(!isBottom);
   const artRef = useRef<HTMLImageElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
@@ -370,7 +407,7 @@ function CoverSignupHero({
   return (
     <section
       className={coverSectionClasses(isBottom)}
-      style={coverStickyStyle(isBottom, !isV2, isLaptop)}
+      style={isBottom ? undefined : { top: topChrome + PINNED_GAP }}
     >
       <div className={coverCardClasses()} ref={cardRef}>
         <img
@@ -550,8 +587,9 @@ function HijackingHeroStrip({
   const { showLogin, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { signBack, provider, isLoaded: isSignBackLoaded } = useSignBack();
-  const { isV2 } = useLayoutVariant();
-  const isLaptop = useViewSize(ViewSize.Laptop);
+  const chromeTopOffset = useTopChromeOffset(
+    experimentVariant === HijackingVariant.Cover,
+  );
   const hasLoggedImpression = useRef(false);
   const authFormRef = useRef<HTMLFormElement>(
     null,
@@ -664,8 +702,8 @@ function HijackingHeroStrip({
           : classNames('mb-4 w-full pb-0', feedStyles.cards)
       }
       style={
-        isCoverVariant
-          ? coverStickyStyle(isBottomVariant, !isV2, isLaptop)
+        isCoverVariant && !isBottomVariant
+          ? { top: chromeTopOffset + PINNED_GAP }
           : undefined
       }
     >
