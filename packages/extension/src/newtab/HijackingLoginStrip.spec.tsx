@@ -284,8 +284,8 @@ describe('HijackingLoginStrip', () => {
   });
 
   describe.each([
-    [HijackingVariant.Cover, 'sticky z-3 top-14 laptop:top-16'],
-    [HijackingVariant.CoverBottom, 'sticky bottom-4 z-3'],
+    [HijackingVariant.Cover, 'sticky z-rank top-14 laptop:top-16'],
+    [HijackingVariant.CoverBottom, 'sticky bottom-4 z-rank'],
   ])('%s variant', (variant, positionClasses) => {
     beforeEach(() => {
       setVariant(variant);

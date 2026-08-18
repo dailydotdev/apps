@@ -1,5 +1,5 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef } from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -252,16 +252,75 @@ const coverSectionClasses = (
   classNames(
     'w-full pb-0',
     feedStyles.cards,
-    isBottom && 'sticky bottom-4 z-3 mt-4',
-    !isBottom && 'sticky z-3 mb-4',
+    isBottom && 'sticky bottom-4 z-rank mt-4',
+    !isBottom && 'sticky z-rank mb-4',
     !isBottom && (hasGlobalHeader ? 'top-14 laptop:top-16' : 'top-0'),
   );
 
-// Anchored low: the dog and the person sit ~70-85% down the artwork, and the
-// strip is short enough that a centred crop loses them entirely. Inline rather
-// than an arbitrary `object-[...]` class, which is not reliably emitted for
-// this package's classes.
-const coverArtPosition = { objectPosition: '50% 54%' };
+// The dog and the person sit in this band of the artwork, measured from its
+// top edge. The strip is far wider than it is tall, so `object-cover` scales
+// the art up and crops most of its height — where that band lands depends on
+// the card's width, and no single percentage keeps the pair in frame across
+// the range. The crop is therefore measured rather than guessed.
+const SUBJECT_TOP_FRACTION = 0.67;
+
+/**
+ * Anchors the artwork so its subject sits just under the CTA row at any width.
+ * Falls back to a centred crop when the art is not tall enough to crop.
+ */
+const useCoverArtAnchor = (
+  art: RefObject<HTMLImageElement>,
+  card: RefObject<HTMLElement>,
+  cta: RefObject<HTMLElement>,
+): void => {
+  useLayoutEffect(() => {
+    const artEl = art.current;
+    const cardEl = card.current;
+    const ctaEl = cta.current;
+
+    if (!artEl || !cardEl || !ctaEl) {
+      return undefined;
+    }
+
+    const update = (): void => {
+      const width = cardEl.clientWidth;
+      const height = cardEl.clientHeight;
+
+      if (!width || !height || !artEl.naturalWidth) {
+        return;
+      }
+
+      const scaledHeight = artEl.naturalHeight * (width / artEl.naturalWidth);
+      const overflow = scaledHeight - height;
+
+      if (overflow <= 0) {
+        artEl.style.objectPosition = '50% 50%';
+        return;
+      }
+
+      const ctaBottom =
+        ctaEl.getBoundingClientRect().bottom -
+        cardEl.getBoundingClientRect().top;
+      const subjectTop = SUBJECT_TOP_FRACTION * scaledHeight;
+      const offset = Math.min(
+        Math.max(subjectTop - ctaBottom - 4, 0),
+        overflow,
+      );
+
+      artEl.style.objectPosition = `50% ${(offset / overflow) * 100}%`;
+    };
+
+    update();
+    artEl.addEventListener('load', update);
+    const observer = new ResizeObserver(update);
+    observer.observe(cardEl);
+
+    return () => {
+      artEl.removeEventListener('load', update);
+      observer.disconnect();
+    };
+  }, [art, card, cta]);
+};
 
 const coverCardClasses = (): string =>
   'relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2';
@@ -278,20 +337,22 @@ function CoverSignupHero({
 }: SigninHeroProps & { position?: 'top' | 'bottom' }): ReactElement {
   const isBottom = position === 'bottom';
   const { isV2 } = useLayoutVariant();
+  const artRef = useRef<HTMLImageElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  useCoverArtAnchor(artRef, cardRef, ctaRef);
 
   return (
     <section className={coverSectionClasses(isBottom, !isV2)}>
-      <div className={coverCardClasses()}>
-        {/* Anchored low: the dog and the person sit ~70-85% down the artwork,
-            and the strip is short enough that a centred crop loses them
-            entirely. */}
+      <div className={coverCardClasses()} ref={cardRef}>
         <img
+          ref={artRef}
           src={cloudinaryHijackingCoverArt}
           alt=""
           aria-hidden
           role="presentation"
           className="pointer-events-none absolute inset-0 size-full object-cover"
-          style={coverArtPosition}
         />
         <div className="cover-hero-dome pointer-events-none absolute inset-0" />
         <div className="from-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent" />
@@ -328,7 +389,10 @@ function CoverSignupHero({
           <p className="text-white/80 mt-1 max-w-[34rem] text-balance text-sm [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">
             The feed 1M+ developers open on every new tab. Free forever.
           </p>
-          <div className="mt-4 flex flex-row justify-center gap-2.5">
+          <div
+            className="mt-4 flex flex-row justify-center gap-2.5"
+            ref={ctaRef}
+          >
             <Button
               type="button"
               variant={ButtonVariant.Primary}
