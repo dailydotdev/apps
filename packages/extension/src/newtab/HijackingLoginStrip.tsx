@@ -25,6 +25,7 @@ import { onboardingGradientClasses } from '@dailydotdev/shared/src/components/on
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -233,11 +234,6 @@ function OnboardingSignupHero({
 }
 
 // The cover arms stay pinned in every auth state, so their placement lives
-// here rather than in each card. The bottom arm has to be `fixed` — it renders
-// from a slot above the feed, where `sticky bottom` has nothing to stick to —
-// and carries `feedStyles.cards` so it spans the same width as the feed rather
-// than a fixed cap. z-modal keeps the sidebar (z-70) from clipping it, matching
-// the shared bottom banners.
 // Both arms stay in flow so the card spans the feed column edge to edge, like
 // the cards themselves. The bottom arm renders after the feed, which is what
 // lets `sticky bottom` pull it up into view: from a slot above the feed its
@@ -245,11 +241,20 @@ function OnboardingSignupHero({
 // takes horizontal padding — the control insets itself by 16px, so these are
 // that much wider by design, and the sizer's copy is fixed so the extra width
 // can't change how it wraps.
-const coverSectionClasses = (isBottom: boolean): string =>
+// The global header is `fixed top-0 h-14 laptop:h-16` at z-header, so the top
+// arm has to pin below it or it slides underneath and gets clipped. That header
+// is hidden under the v2 layout, where the sidebar owns it, so the offset only
+// applies when it is actually on screen.
+const coverSectionClasses = (
+  isBottom: boolean,
+  hasGlobalHeader: boolean,
+): string =>
   classNames(
     'w-full pb-0',
     feedStyles.cards,
-    isBottom ? 'sticky bottom-4 z-3 mt-4' : 'sticky top-0 z-3 mb-4',
+    isBottom && 'sticky bottom-4 z-3 mt-4',
+    !isBottom && 'sticky z-3 mb-4',
+    !isBottom && (hasGlobalHeader ? 'top-14 laptop:top-16' : 'top-0'),
   );
 
 const coverCardClasses = (): string =>
@@ -266,16 +271,17 @@ function CoverSignupHero({
   position = 'top',
 }: SigninHeroProps & { position?: 'top' | 'bottom' }): ReactElement {
   const isBottom = position === 'bottom';
+  const { isV2 } = useLayoutVariant();
 
   return (
-    <section className={coverSectionClasses(isBottom)}>
+    <section className={coverSectionClasses(isBottom, !isV2)}>
       <div className={coverCardClasses()}>
         <img
           src={cloudinaryHijackingCoverArt}
           alt=""
           aria-hidden
           role="presentation"
-          className="pointer-events-none absolute inset-0 size-full object-cover object-[50%_35%]"
+          className="pointer-events-none absolute inset-0 size-full object-cover object-[50%_78%]"
         />
         <div className="cover-hero-dome pointer-events-none absolute inset-0" />
         <div className="from-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent" />
@@ -441,6 +447,7 @@ function HijackingHeroStrip({
   const { showLogin, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { signBack, provider, isLoaded: isSignBackLoaded } = useSignBack();
+  const { isV2 } = useLayoutVariant();
   const hasLoggedImpression = useRef(false);
   const authFormRef = useRef<HTMLFormElement>(
     null,
@@ -549,7 +556,7 @@ function HijackingHeroStrip({
     <section
       className={
         isCoverVariant
-          ? coverSectionClasses(isBottomVariant)
+          ? coverSectionClasses(isBottomVariant, !isV2)
           : classNames('mb-4 w-full pb-0', feedStyles.cards)
       }
     >
