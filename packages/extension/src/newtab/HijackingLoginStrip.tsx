@@ -1,4 +1,4 @@
-import type { ReactElement, ReactNode, RefObject } from 'react';
+import type { CSSProperties, ReactElement, ReactNode, RefObject } from 'react';
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import classNames from 'classnames';
 import {
@@ -26,6 +26,10 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import {
+  useViewSize,
+  ViewSize,
+} from '@dailydotdev/shared/src/hooks/useViewSize';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -245,17 +249,36 @@ function OnboardingSignupHero({
 // arm has to pin below it or it slides underneath and gets clipped. That header
 // is hidden under the v2 layout, where the sidebar owns it, so the offset only
 // applies when it is actually on screen.
-const coverSectionClasses = (
-  isBottom: boolean,
-  hasGlobalHeader: boolean,
-): string =>
+const coverSectionClasses = (isBottom: boolean): string =>
   classNames(
     'w-full pb-0',
     feedStyles.cards,
-    isBottom && 'sticky bottom-4 z-rank mt-4',
-    !isBottom && 'sticky z-rank mb-4',
-    !isBottom && (hasGlobalHeader ? 'top-14 laptop:top-16' : 'top-0'),
+    isBottom ? 'sticky bottom-4 z-rank mt-4' : 'sticky z-rank mb-4',
   );
+
+// The global header is fixed and 3.5rem tall (4rem on laptop), so the pinned
+// arm has to clear it or it tucks underneath. The extra gap keeps the card
+// reading as something floating over the feed rather than welded to the
+// header. Set inline: the offset depends on both the breakpoint and whether
+// the header is on screen at all, which the v2 layout hides.
+const HEADER_HEIGHT = { mobile: 56, laptop: 64 };
+const PINNED_GAP = 8;
+
+const coverStickyStyle = (
+  isBottom: boolean,
+  hasGlobalHeader: boolean,
+  isLaptop: boolean,
+): CSSProperties | undefined => {
+  if (isBottom) {
+    return undefined;
+  }
+
+  const header = hasGlobalHeader
+    ? HEADER_HEIGHT[isLaptop ? 'laptop' : 'mobile']
+    : 0;
+
+  return { top: header + PINNED_GAP };
+};
 
 // The dog and the person sit in this band of the artwork, measured from its
 // top edge. The strip is far wider than it is tall, so `object-cover` scales
@@ -337,6 +360,7 @@ function CoverSignupHero({
 }: SigninHeroProps & { position?: 'top' | 'bottom' }): ReactElement {
   const isBottom = position === 'bottom';
   const { isV2 } = useLayoutVariant();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const artRef = useRef<HTMLImageElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
@@ -344,7 +368,10 @@ function CoverSignupHero({
   useCoverArtAnchor(artRef, cardRef, ctaRef);
 
   return (
-    <section className={coverSectionClasses(isBottom, !isV2)}>
+    <section
+      className={coverSectionClasses(isBottom)}
+      style={coverStickyStyle(isBottom, !isV2, isLaptop)}
+    >
       <div className={coverCardClasses()} ref={cardRef}>
         <img
           ref={artRef}
@@ -382,7 +409,9 @@ function CoverSignupHero({
             <div className="w-full" style={{ aspectRatio: '1040 / 758' }} />
           </div>
         </div>
-        <div className="dark absolute inset-0 z-1 flex flex-col items-center justify-center p-5 text-center">
+        {/* Extra bottom padding lifts the centred copy, leaving the band
+            under the CTA free for the artwork's subject. */}
+        <div className="dark absolute inset-0 z-1 flex flex-col items-center justify-center p-5 pb-14 text-center">
           <h3 className="font-bold text-white typo-title2 [text-shadow:0_2px_18px_rgba(0,0,0,0.6)]">
             Start discovering what&apos;s next.
           </h3>
@@ -522,6 +551,7 @@ function HijackingHeroStrip({
   const { logEvent } = useLogContext();
   const { signBack, provider, isLoaded: isSignBackLoaded } = useSignBack();
   const { isV2 } = useLayoutVariant();
+  const isLaptop = useViewSize(ViewSize.Laptop);
   const hasLoggedImpression = useRef(false);
   const authFormRef = useRef<HTMLFormElement>(
     null,
@@ -630,8 +660,13 @@ function HijackingHeroStrip({
     <section
       className={
         isCoverVariant
-          ? coverSectionClasses(isBottomVariant, !isV2)
+          ? coverSectionClasses(isBottomVariant)
           : classNames('mb-4 w-full pb-0', feedStyles.cards)
+      }
+      style={
+        isCoverVariant
+          ? coverStickyStyle(isBottomVariant, !isV2, isLaptop)
+          : undefined
       }
     >
       <div

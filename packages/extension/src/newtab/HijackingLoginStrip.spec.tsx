@@ -284,7 +284,7 @@ describe('HijackingLoginStrip', () => {
   });
 
   describe.each([
-    [HijackingVariant.Cover, 'sticky z-rank top-14 laptop:top-16'],
+    [HijackingVariant.Cover, 'sticky z-rank'],
     [HijackingVariant.CoverBottom, 'sticky bottom-4 z-rank'],
   ])('%s variant', (variant, positionClasses) => {
     beforeEach(() => {
@@ -321,6 +321,23 @@ describe('HijackingLoginStrip', () => {
     // has no layout for; this only guards the positioning contract the arm
     // ships with. Real pinning is verified in Storybook against the topBanner
     // column the arm renders into.
+    it('clears the fixed header when it pins to the top', () => {
+      if (variant !== HijackingVariant.Cover) {
+        return;
+      }
+
+      renderComponent();
+
+      const section = screen
+        .getByRole('heading', { name: "Start discovering what's next." })
+        // eslint-disable-next-line testing-library/no-node-access -- the
+        // offset lives on the wrapper, which has no queryable role
+        .closest('section');
+
+      // header height plus the floating gap; never flush against the header
+      expect(section).toHaveStyle({ top: '64px' });
+    });
+
     it('carries its positioning classes', () => {
       renderComponent();
 
