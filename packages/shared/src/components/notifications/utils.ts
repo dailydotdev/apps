@@ -219,6 +219,7 @@ export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
     [NotificationType.UserAwardThanks]: 'text-brand-default',
     [NotificationType.BriefingReady]: 'text-brand-default',
     [NotificationType.DigestReady]: 'text-brand-default',
+    [NotificationType.InterestContentBatch]: 'text-brand-default',
     [NotificationType.UserFollow]: 'text-brand-default',
   };
 

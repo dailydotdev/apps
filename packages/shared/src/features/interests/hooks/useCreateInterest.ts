@@ -3,6 +3,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
 import { createInterest } from '../../../graphql/interests';
+import { interestQueryOptions } from '../queries';
 
 export const useCreateInterest = ({
   onCreated,
@@ -16,6 +17,12 @@ export const useCreateInterest = ({
   const { isPending, mutateAsync } = useMutation({
     mutationFn: (query: string) => createInterest(query),
     onSuccess: async (interest) => {
+      // Without priming, the page opened below mounts while the fetch is still
+      // in flight and lands on an empty transcript.
+      queryClient.setQueryData(
+        interestQueryOptions(interest.id, user).queryKey,
+        interest,
+      );
       await queryClient.invalidateQueries({
         queryKey: generateQueryKey(RequestKey.Interests, user),
       });

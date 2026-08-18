@@ -10,12 +10,22 @@ export const useSendInterestCommand = (id: string) => {
   const queryClient = useQueryClient();
 
   const { isPending, mutateAsync } = useMutation({
-    mutationFn: (text: string) => sendInterestCommand({ id, text }),
+    mutationFn: ({
+      text,
+      triggerRun,
+    }: {
+      text: string;
+      triggerRun?: boolean;
+    }) => sendInterestCommand({ id, text, triggerRun }),
     onSuccess: async () => {
-      displayToast('The agent is working on it ✅');
-      await queryClient.invalidateQueries({
-        queryKey: generateQueryKey(RequestKey.InterestFindings, user, id),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.Interests, user, id),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: generateQueryKey(RequestKey.InterestFindings, user, id),
+        }),
+      ]);
     },
     onError: () => {
       displayToast('Failed to send the command. Please try again.');

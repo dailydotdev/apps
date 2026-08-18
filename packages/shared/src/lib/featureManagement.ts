@@ -292,6 +292,8 @@ export const featurePublicSignupBanner = new Feature(
 // ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
 
+// Gates every agent surface; control hides all of them. Keep the default
+// `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
 
 // Post-signup feed activation bar: a persistent, non-dismissible strip shown
