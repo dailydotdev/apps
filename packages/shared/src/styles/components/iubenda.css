@@ -39,10 +39,6 @@
   }
 }
 
-/* The card grows to show the full notice; iubenda refuses one-click
-   consent while .iubenda-banner-content is clipped ("Press again to
-   continue"), so that element must never be the scroll container —
-   on short viewports the rationale scrolls with the buttons sticky. */
 #iubenda-cs-banner#iubenda-cs-banner .iubenda-cs-rationale {
   display: block !important;
   max-height: calc(100vh - 10rem) !important;
