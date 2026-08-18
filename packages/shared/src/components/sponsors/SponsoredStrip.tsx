@@ -16,8 +16,12 @@ import classNames from 'classnames';
 
 export type Sponsor = {
   name: string;
-  /** Absolute URL of a horizontal SVG wordmark. */
-  logo: string;
+  /**
+   * Absolute URL of a horizontal SVG wordmark. Optional only for a
+   * sponsor supplied as inline `Artwork`; the silhouette treatment
+   * needs the file, so every partner must have one.
+   */
+  logo?: string;
   /**
    * Intrinsic width / height. Logo files vary from square marks to
    * 5:1 wordmarks, so a strip that fixes only the height needs the
@@ -300,7 +304,7 @@ export const SponsorRailPinned = ({
 }: SponsoredStripProps): ReactElement => (
   <div
     className={classNames(
-      'sticky bottom-0 z-3 flex h-12 items-center gap-5 border-t border-border-subtlest-tertiary bg-background-default px-4 laptop:px-6',
+      'fixed inset-x-0 bottom-0 z-3 flex h-12 items-center gap-5 border-t border-border-subtlest-tertiary bg-background-default px-4 laptop:px-6',
       className,
     )}
   >

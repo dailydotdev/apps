@@ -11,10 +11,14 @@ import {
   SponsorSideRail,
   type Sponsor,
   type SponsoredStripProps,
-} from 'extension/src/newtab/SponsoredStrip';
+} from '@dailydotdev/shared/src/components/sponsors/SponsoredStrip';
 import ExtensionProviders from './_providers';
 import { MockFeedGrid, MockFeedHeader } from './_mockPostFeed';
-import { NvidiaLockup } from './_nvidiaLockup';
+import { NvidiaLockup } from '@dailydotdev/shared/src/components/sponsors/NvidiaLockup';
+import {
+  MOCK_LEAD_SPONSOR,
+  MOCK_PARTNER_SPONSORS,
+} from '@dailydotdev/shared/src/components/sponsors/mockSponsors';
 
 // =============================================================
 // Sponsored strip — five ways to put a "presented by" slot and a
@@ -40,41 +44,12 @@ const sponsor = (name: string, file: string, ratio: number): Sponsor => ({
   ratio,
 });
 
-// The lead slot keeps its brand colour, so the mark has to read on both
-// grounds. NVIDIA is not in the advertiser library, so it is a local
-// story fixture: the flat `logo` file (the 656x120 Wikimedia lockup)
-// backs the silhouette comparison, while `Artwork` renders the same
-// lockup inline so the wordmark can take `currentColor` — black on the
-// light feed, white on the dark one — with the symbol holding #76B900
-// on both. A flat file cannot do that: NVIDIA ships a black wordmark
-// and a white one, and whichever you pick is invisible on the other
-// theme.
-const PRIMARY: Sponsor = {
-  name: 'NVIDIA',
-  logo: '/mock-logos/nvidia.svg',
-  ratio: 164 / 30,
-  Artwork: NvidiaLockup,
-  href: 'https://www.nvidia.com',
-};
-
-// All twelve mask cleanly, and the ratios deliberately span the real
-// range of wordmark shapes — a stubby mark (Amazon, 2:1) through a
-// long lockup (LaunchDarkly, 6.4:1) — to exercise optical sizing.
-// Twelve also divides evenly into the band's 3 / 4 / 6 columns.
-const PARTNERS: Sponsor[] = [
-  sponsor('Datadog', 'datadog', 800.5 / 203.19),
-  sponsor('PostHog', 'posthog', 512 / 90),
-  sponsor('ClickHouse', 'clickhouse', 584.9 / 103.1),
-  sponsor('Retool', 'retool', 87 / 17),
-  sponsor('Snyk', 'snyk', 65 / 35),
-  sponsor('Okta', 'okta', 512 / 169),
-  sponsor('Neo4j', 'neo4j', 512 / 170),
-  sponsor('Pulumi', 'pulumi', 512 / 128),
-  sponsor('LaunchDarkly', 'launchdarkly', 512 / 80),
-  sponsor('Amazon', 'amazon', 512 / 256),
-  sponsor('dbt', 'dbt', 512 / 196),
-  sponsor('Sonar', 'sonar', 512 / 125),
-];
+// The lead and partner fixtures are imported, not redeclared: the feed
+// wiring renders these exact objects, so what is reviewed here is what
+// ships to the preview. Provenance and the two-tone rationale live in
+// mockSponsors.ts and NvidiaLockup.tsx.
+const PRIMARY = MOCK_LEAD_SPONSOR;
+const PARTNERS = MOCK_PARTNER_SPONSORS;
 
 // Marks whose artwork defeats the silhouette treatment, kept for the
 // LogoTreatment story so the constraint is shown rather than asserted.
