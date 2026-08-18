@@ -224,7 +224,7 @@ export const OnboardingSignupHero = ({
               alt=""
               className="absolute inset-0 size-full object-cover object-[60%_34%]"
               decoding="async"
-              fetchPriority="high"
+              fetchpriority="high"
               src={signupWallHorizon}
             />
             <div className="onb-art-fade absolute inset-x-0 bottom-0 h-3/5" />
@@ -262,7 +262,7 @@ export const OnboardingSignupHero = ({
             alt=""
             className="absolute inset-0 size-full object-cover object-[70%_52%]"
             decoding="async"
-            fetchPriority="high"
+            fetchpriority="high"
             src={signupWallHorizon}
           />
           <div className="onb-horizon-seam pointer-events-none absolute inset-y-0 left-0 w-1/3" />
