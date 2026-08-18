@@ -1116,6 +1116,17 @@ meter::-webkit-meter-bar {
       );
   }
 
+  /* Soft canvas-colored radial from the top center (pepper-90) so centered
+     copy stays readable over the hijacking strip's cover artwork. */
+  .cover-hero-dome {
+    background: radial-gradient(
+      72% 130% at 50% 0%,
+      rgb(15 18 24 / 88%) 0%,
+      rgb(15 18 24 / 50%) 46%,
+      transparent 76%
+    );
+  }
+
   .top-hero-stage {
     background:
       linear-gradient(

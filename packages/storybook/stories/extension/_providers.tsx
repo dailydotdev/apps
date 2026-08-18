@@ -4,7 +4,7 @@ import { Browser } from 'webextension-polyfill';
 import { FC, PropsWithChildren } from 'react';
 import { BootApp } from '@dailydotdev/shared/src/lib/boot';
 import { fn } from 'storybook/test';
-import { getBootMock } from '../../mock/boot';
+import { defaultBootData, getBootMock } from '../../mock/boot';
 import { ActiveFeedContext } from '@dailydotdev/shared/src/contexts';
 
 const queryClient = new QueryClient();
@@ -15,7 +15,28 @@ declare global {
   }
 }
 
-export const ExtensionProviders: FC<PropsWithChildren> = ({ children }) => {
+const anonymousBootData = {
+  ...defaultBootData,
+  user: { id: 'anonymous-visitor' },
+};
+
+export const ExtensionProviders: FC<
+  PropsWithChildren<{
+    /** Boot as a logged-out visitor instead of the default logged-in user. */
+    anonymous?: boolean;
+  }>
+> = ({ anonymous = false, children }) => {
+  if (anonymous) {
+    // The provider's remote boot query goes through the same mock; without
+    // this it would overwrite the anonymous local boot with the logged user.
+    getBootMock.mockImplementation((bootMock = anonymousBootData) => ({
+      ...bootMock,
+      accessToken: { token: '1', expiresIn: '1' },
+      visit: { sessionId: '1', visitId: '1' },
+      feeds: [],
+    }));
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <BootDataProvider
@@ -24,7 +45,7 @@ export const ExtensionProviders: FC<PropsWithChildren> = ({ children }) => {
         getPage={fn()}
         getRedirectUri={fn()}
         version="pwa"
-        localBootData={getBootMock()}
+        localBootData={getBootMock(anonymous ? anonymousBootData : undefined)}
       >
         <ActiveFeedContext.Provider value={{ items: [], queryKey: [] }}>
           {children}

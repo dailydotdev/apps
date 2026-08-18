@@ -29,6 +29,7 @@ import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
+  cloudinaryHijackingCoverArt,
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
   cloudinaryReadingReminderCat,
@@ -231,11 +232,111 @@ function OnboardingSignupHero({
   );
 }
 
+// The homepage's closing artwork as a full-bleed cover with centered copy.
+// Height is a controlled variable in the header-ad-impression experiment, so
+// two invisible in-flow sizers replicate the control's exact geometry (the
+// cat artwork for the media panel, the control's text block for the copy
+// column) while all visible content overlays them absolutely. The bottom
+// position floats fixed above the feed instead of occupying the top slot.
+function CoverSignupHero({
+  onSignupClick,
+  onLoginClick,
+  position = 'top',
+}: SigninHeroProps & { position?: 'top' | 'bottom' }): ReactElement {
+  return (
+    <section
+      className={
+        position === 'top'
+          ? classNames('sticky top-0 z-3 mb-4 w-full pb-0', feedStyles.cards)
+          : 'fixed inset-x-4 bottom-4 z-3 mx-auto w-auto max-w-[60rem]'
+      }
+    >
+      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
+        <img
+          src={cloudinaryHijackingCoverArt}
+          alt=""
+          aria-hidden
+          role="presentation"
+          className="pointer-events-none absolute inset-0 size-full object-cover object-[50%_35%]"
+        />
+        <div className="cover-hero-dome pointer-events-none absolute inset-0" />
+        <div className="from-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent" />
+        <div
+          aria-hidden
+          className="invisible flex flex-col tablet:flex-row tablet:items-stretch"
+        >
+          <div className="flex flex-1 flex-col items-center justify-center p-5 tablet:p-6">
+            <div className="flex w-full flex-col gap-1">
+              <h3 className="font-bold typo-title2">
+                Own your new tab. Make it your dev briefing.
+              </h3>
+              <p className="text-sm">
+                Sign in and daily.dev remembers the topics, saves, and
+                discussions that matter to you.
+              </p>
+              <div className="mt-4 h-10" />
+            </div>
+          </div>
+          <div className="flex h-[12.5rem] w-full items-center justify-center p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
+            <img
+              src={cloudinaryReadingReminderCat}
+              alt=""
+              aria-hidden
+              role="presentation"
+              className="m-0 h-full w-full max-w-none scale-105 object-contain laptopL:scale-110"
+            />
+          </div>
+        </div>
+        <div className="dark absolute inset-0 z-1 flex flex-col items-center justify-center p-5 text-center">
+          <h3 className="font-bold text-white typo-title2 [text-shadow:0_2px_18px_rgba(0,0,0,0.6)]">
+            Start discovering what&apos;s next.
+          </h3>
+          <p className="text-white/80 mt-1 max-w-[34rem] text-balance text-sm [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">
+            The feed 1M+ developers open on every new tab. Free forever.
+          </p>
+          <div className="mt-4 flex flex-row justify-center gap-2.5">
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              className={classNames(
+                'group/cta shadow-2 shadow-black/40',
+                primaryCta,
+              )}
+              onClick={onSignupClick}
+            >
+              Get started
+              <span className="ml-1 inline-block transition-transform duration-200 group-hover/cta:translate-x-0.5">
+                →
+              </span>
+            </Button>
+            <Button
+              type="button"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Medium}
+              className={glassCta}
+              onClick={onLoginClick}
+            >
+              Log in
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CoverBottomSignupHero(props: SigninHeroProps): ReactElement {
+  return <CoverSignupHero {...props} position="bottom" />;
+}
+
 const SigninHeroMap = {
   [HijackingVariant.CTA]: CatStageHero,
   [HijackingVariant.Auth]: OnboardingSignupHero,
+  [HijackingVariant.Cover]: CoverSignupHero,
+  [HijackingVariant.CoverBottom]: CoverBottomSignupHero,
 } satisfies Record<
-  HijackingVariant.CTA | HijackingVariant.Auth,
+  Exclude<HijackingVariant, HijackingVariant.Default>,
   (props: SigninHeroProps) => ReactElement
 >;
 
@@ -317,7 +418,7 @@ function DefaultHijackingStrip(): ReactElement {
 function HijackingHeroStrip({
   variant: experimentVariant,
 }: {
-  variant: HijackingVariant.CTA | HijackingVariant.Auth;
+  variant: Exclude<HijackingVariant, HijackingVariant.Default>;
 }): ReactElement {
   const { showLogin, user } = useAuthContext();
   const { logEvent } = useLogContext();
@@ -327,6 +428,8 @@ function HijackingHeroStrip({
     null,
   ) as unknown as AuthOptionsProps['formRef'];
 
+  // Only the Auth arm runs auth inline (it renders AuthOptions); CTA and
+  // Punchy hand off to the webapp onboarding flow.
   const isAuthVariant = experimentVariant === HijackingVariant.Auth;
   const isLoggedOut = !user;
   const hasContinueAs = isLoggedOut && isSignBackLoaded && !!signBack?.name;
@@ -536,7 +639,9 @@ export default function HijackingLoginStrip(): ReactElement | null {
 
   if (
     hijackingVariant === HijackingVariant.CTA ||
-    hijackingVariant === HijackingVariant.Auth
+    hijackingVariant === HijackingVariant.Auth ||
+    hijackingVariant === HijackingVariant.Cover ||
+    hijackingVariant === HijackingVariant.CoverBottom
   ) {
     return <HijackingHeroStrip variant={hijackingVariant} />;
   }

@@ -283,6 +283,65 @@ describe('HijackingLoginStrip', () => {
     });
   });
 
+  describe.each([
+    [HijackingVariant.Cover, 'sticky top-0'],
+    [HijackingVariant.CoverBottom, 'fixed inset-x-4 bottom-4'],
+  ])('%s variant', (variant, positionClasses) => {
+    beforeEach(() => {
+      setVariant(variant);
+    });
+
+    it('redirects to the webapp onboarding from the cover CTAs', () => {
+      renderComponent();
+
+      expect(
+        screen.getByRole('heading', {
+          name: "Start discovering what's next.",
+        }),
+      ).toBeVisible();
+
+      fireEvent.click(screen.getByRole('button', { name: /Get started/ }));
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Click,
+        target_type: TargetType.SignupButton,
+        target_id: 'hijacking',
+      });
+      expect(assignMock).toHaveBeenCalledWith(signupHref);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Click,
+        target_type: TargetType.LoginButton,
+        target_id: 'hijacking',
+      });
+      expect(assignMock).toHaveBeenCalledWith(loginHref);
+    });
+
+    it('pins the strip to its position while the feed scrolls', () => {
+      renderComponent();
+
+      const section = screen
+        .getByRole('heading', { name: "Start discovering what's next." })
+        // eslint-disable-next-line testing-library/no-node-access -- the
+        // pinning classes live on the wrapper, which has no queryable role
+        .closest('section');
+
+      positionClasses.split(' ').forEach((className) => {
+        expect(section).toHaveClass(className);
+      });
+    });
+
+    it('logs a signup impression for new visitors', () => {
+      renderComponent();
+
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.SignupButton,
+        target_id: 'hijacking',
+      });
+    });
+  });
+
   describe('auth variant', () => {
     beforeEach(() => {
       setVariant(HijackingVariant.Auth);
