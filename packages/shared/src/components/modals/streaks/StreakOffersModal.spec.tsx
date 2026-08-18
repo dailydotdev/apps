@@ -171,6 +171,10 @@ describe('StreakOffersModal', () => {
       .getByText(offers[0].advertiserName)
       .closest('button');
 
+    if (!firstCard) {
+      throw new Error('carousel card not found');
+    }
+
     // swipe left past the threshold; browsers then fire a click on the card
     fireEvent.pointerDown(firstCard, { clientX: 200 });
     fireEvent.pointerMove(firstCard, { clientX: 80 });
