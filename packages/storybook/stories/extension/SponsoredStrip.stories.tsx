@@ -452,10 +452,10 @@ const ROWS: Row[] = [
   {
     id: 'A',
     concept: 'Pinned rail',
-    cost: '48px of viewport, for the whole session',
+    cost: '40px of the feed column, for the whole session',
     exposure: 'Every session, continuously',
     legibility:
-      'All twelve clear the fade from ~1220px; below that they drop into it one at a time',
+      'All twelve clear the fade from ~1250px; below that they drop into it one at a time',
     mobile:
       'Poor — at 375px the 196px lockup leaves no partner clear of the fade, and it lands on the browser’s own bottom chrome',
   },
@@ -464,7 +464,7 @@ const ROWS: Row[] = [
     concept: 'Inline rail',
     cost: '44px once, above the fold',
     exposure: 'Until the first scroll',
-    legibility: 'Same ~1220px threshold as A',
+    legibility: 'Same ~1250px threshold as A',
     mobile: 'Weak — no partner clears the fade at 375px',
   },
   {
@@ -570,18 +570,20 @@ export const Evaluation: Story = {
               At a 16px cap twelve marks measure an 889px minimum run, and the
               “Made possible by” lockup takes another 196px — NVIDIA is
               deliberately ranked above the wall, at 18px against a 15px median
-              partner — so a rail needs about 1220px of viewport before the last
-              mark reaches the fade. That is wider than most laptops, so at
-              twelve slots the rails are effectively a large-desktop format.
-              Below that the rails quietly show fewer slots than were sold, and
-              at 375px the lockup alone leaves none of them clear of it. That
-              number is the sum of three deliberate choices, and each is a dial:
-              the lead mark's size, sentence case over caps (~20px), and the
-              16px wall cap, where dropping back to 13px would buy about 120px
-              at marks small enough to be decoration. The wrapping concepts (C,
-              D, E) hold all twelve at every width instead. If the inventory has
-              to be exactly twelve on one line, the rails need a smaller cap
-              height or fewer slots — not a marquee.
+              partner — so a rail needs about 1250px of viewport before the last
+              mark reaches the fade, and the pinned rail spends a further 80px
+              on the padding that lines it up with the feed column. That is
+              wider than most laptops, so at twelve slots the rails are
+              effectively a large-desktop format. Below that the rails quietly
+              show fewer slots than were sold, and at 375px the lockup alone
+              leaves none of them clear of it. That number is the sum of three
+              deliberate choices, and each is a dial: the lead mark's size,
+              sentence case over caps (~20px), and the 16px wall cap, where
+              dropping back to 13px would buy about 120px at marks small enough
+              to be decoration. The wrapping concepts (C, D, E) hold all twelve
+              at every width instead. If the inventory has to be exactly twelve
+              on one line, the rails need a smaller cap height or fewer slots —
+              not a marquee.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
               Only the lead mark is interactive
