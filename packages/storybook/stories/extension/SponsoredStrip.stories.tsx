@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
+import classNames from 'classnames';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   SponsorFeedBand,
@@ -38,7 +39,12 @@ const sponsor = (name: string, file: string, ratio: number): Sponsor => ({
   ratio,
 });
 
-const PRIMARY = sponsor('Sentry', 'sentry', 512 / 113);
+// The presenting slot keeps its brand colour, so the mark has to read
+// on both grounds. Of the library's vector wordmarks only a handful
+// have no near-black or near-white ink; Google is the most colourful
+// of them (four inks, all between 0.40 and 0.74 relative luminance).
+// Appwrite (a single #f02e65) is the fallback if Google is unwanted.
+const PRIMARY = sponsor('Google', 'google', 75 / 24);
 
 // All ten mask cleanly, and the ratios deliberately span the real
 // range of wordmark shapes — a stubby mark (Amazon, 2:1) through a
@@ -72,6 +78,28 @@ const ASSET_PROBLEMS: (Sponsor & { reason: string })[] = [
   {
     ...sponsor('GitLab', 'gitlab', 1),
     reason: 'raster WebP in an .svg wrapper, no alpha',
+  },
+];
+
+// Candidates for the coloured presenting slot, with the check that
+// matters: does every ink survive both grounds? Rendered side by side
+// in LogoTreatment against a normal and an `.invert` ground.
+const PRIMARY_CANDIDATES: (Sponsor & { verdict: string })[] = [
+  {
+    ...sponsor('Google', 'google', 75 / 24),
+    verdict: 'four inks, 0.40–0.74 luminance — holds on both',
+  },
+  {
+    ...sponsor('Appwrite', 'appwrite', 512 / 91),
+    verdict: 'a single #f02e65 — holds on both',
+  },
+  {
+    ...sponsor('Sentry', 'sentry', 512 / 113),
+    verdict: '#362D59 at 0.20 luminance — sinks into the dark ground',
+  },
+  {
+    ...sponsor('Notion', 'notion', 512 / 178),
+    verdict: 'black wordmark — gone on the dark ground',
   },
 ];
 
@@ -276,31 +304,104 @@ export const Gallery: Story = {
 // ---------------------------------------------------------------
 // Logo treatment — why the silhouette default exists
 // ---------------------------------------------------------------
+const Ground = ({
+  children,
+  invert,
+  label,
+}: {
+  children: ReactNode;
+  invert?: boolean;
+  label: string;
+}): ReactElement => (
+  <div
+    className={classNames(
+      'flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default p-4',
+      invert && 'invert',
+    )}
+  >
+    <span className="text-text-quaternary typo-caption2 uppercase tracking-wide">
+      {label}
+    </span>
+    {children}
+  </div>
+);
+
 export const LogoTreatment: Story = {
   render: (args) => (
     <ExtensionProviders>
       <Page>
         <div className="mx-auto flex max-w-[64rem] flex-col gap-8 p-6">
           <Note>
-            Advertiser logo files are full colour with dark inks — Sentry&apos;s
-            is #362D59, Notion&apos;s is black. Dropped straight onto the feed
-            they disappear in dark mode and fight the cards in light mode.
-            Silhouettes inherit the strip&apos;s text colour instead, so one
-            asset works in both themes and no logo out-shouts a post. Flip the
-            theme toolbar to check both.
+            The strip splits its logo treatment. The presenting slot keeps its
+            brand colour — it is the thing being paid for, and one coloured mark
+            against a neutral wall is the whole hierarchy. The partner wall goes
+            to silhouettes that inherit the strip&apos;s text colour, so ten
+            marks stay even-weighted and none of them out-shouts a post.
           </Note>
+
+          <figure>
+            <figcaption className="mb-1 font-bold text-text-primary typo-callout">
+              The presenting slot has to clear both grounds
+            </figcaption>
+            <Note>
+              Keeping brand colour means the mark gets no help from the theme,
+              so any ink near black or near white dies on one side. Both columns
+              are the same asset on both grounds at once — the right one uses
+              the app&apos;s own <code>.invert</code> class, so it is the real
+              theme, not a mock-up of it, and the pair swaps when you flip the
+              toolbar. Of the library&apos;s vector wordmarks only a handful
+              pass; the bottom two are why Sentry was dropped as the primary.
+            </Note>
+            <div className="flex flex-col gap-3">
+              {PRIMARY_CANDIDATES.map((candidate) => (
+                <div
+                  className="flex flex-col gap-2 tablet:flex-row tablet:items-center"
+                  key={candidate.name}
+                >
+                  <span className="w-28 shrink-0 text-text-primary typo-footnote">
+                    {candidate.name}
+                  </span>
+                  <span className="w-72 shrink-0 text-text-tertiary typo-caption1">
+                    {candidate.verdict}
+                  </span>
+                  <div className="flex gap-3">
+                    <Ground label="This theme">
+                      <SponsorLogo
+                        height={20}
+                        monochrome={false}
+                        sponsor={candidate}
+                      />
+                    </Ground>
+                    <Ground invert label="Opposite">
+                      <SponsorLogo
+                        height={20}
+                        monochrome={false}
+                        sponsor={candidate}
+                      />
+                    </Ground>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </figure>
+
           <figure>
             <figcaption className="mb-2 font-bold text-text-primary typo-callout">
-              Silhouette (default)
+              The wall, silhouetted (default)
             </figcaption>
             <SponsorRailInline {...args} monochrome />
           </figure>
           <figure>
             <figcaption className="mb-2 font-bold text-text-primary typo-callout">
-              Original brand colour
+              The wall, in original brand colour
             </figcaption>
+            <Note>
+              Ten marks all fighting for their own colour, several of them
+              near-black. This is what the silhouette default is avoiding.
+            </Note>
             <SponsorRailInline {...args} monochrome={false} />
           </figure>
+
           <figure>
             <figcaption className="mb-2 font-bold text-text-primary typo-callout">
               Where the silhouette breaks
@@ -355,25 +456,25 @@ const ROWS: Row[] = [
     cost: '48px of viewport, for the whole session',
     exposure: 'Every session, continuously',
     legibility:
-      'All ten clear the fade from ~980px; below that they drop into it one at a time',
+      'All ten clear the fade from ~920px; below that they drop into it one at a time',
     mobile:
-      'Poor — 2 partners survive at 375px, and it lands on the browser’s own bottom chrome',
+      'Poor — 1 partner survives at 375px, and it lands on the browser’s own bottom chrome',
   },
   {
     id: 'B',
     concept: 'Inline rail',
     cost: '44px once, above the fold',
     exposure: 'Until the first scroll',
-    legibility: 'Same ~980px threshold as A',
-    mobile: 'Weak — 2 partners survive at 375px',
+    legibility: 'Same ~920px threshold as A',
+    mobile: 'Weak — 1 partner survives at 375px',
   },
   {
     id: 'C',
     concept: 'Feed band',
-    cost: '52px at 1440px, 133px at 375px — an eighth of a 406px card row',
+    cost: '53px at 1440px, 112px at 375px — an eighth of a 406px card row',
     exposure: 'On scroll past, then gone',
     legibility:
-      'All ten at every width — wraps to three rows rather than clipping',
+      'All ten at every width — ten columns wide, five by two on mobile',
     mobile: 'Good — wraps under the lockup',
   },
   {
@@ -465,13 +566,15 @@ export const Evaluation: Story = {
               Where the ten-logo wall breaks
             </h2>
             <p className="text-text-secondary typo-footnote">
-              Ten marks at a 13px cap height measure a 697px run, so a rail
-              needs about 980px of viewport before the last logo clears the
-              fade. Above that the rails are fine; below it they quietly show
-              fewer slots than were sold. Only the wrapping concepts (C, D, E)
-              hold all ten at every width. If the inventory has to be exactly
-              ten on one line, the rails need a smaller cap height or fewer
-              slots — not a marquee.
+              The wall is spread with `justify-between`, so a wide new tab hands
+              the slack to the gaps rather than stacking the logos on the left.
+              Their own ink measures a 625px minimum run, which needs about
+              920px of viewport before the last mark reaches the fade — below
+              that the rails quietly show fewer slots than were sold, down to a
+              single partner at 375px. The wrapping concepts (C, D, E) hold all
+              ten at every width instead. If the inventory has to be exactly ten
+              on one line, the rails need a smaller cap height or fewer slots —
+              not a marquee.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
               The asset spec matters more than the layout

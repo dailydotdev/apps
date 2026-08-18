@@ -34,9 +34,10 @@ export type SponsoredStripProps = {
   /** Secondary logo wall, ~10 slots. */
   partners: Sponsor[];
   /**
-   * Render logos as single-colour silhouettes that inherit the
-   * surrounding text colour. Full colour is available for
-   * comparison but fails the theme test — see the stories.
+   * Render the *partner* logos as single-colour silhouettes that
+   * inherit the surrounding text colour. Full colour is available for
+   * comparison but fails the theme test — see the stories. The
+   * presenting sponsor always keeps its brand colour.
    */
   monochrome?: boolean;
   onSponsorClick?: (sponsor: Sponsor) => void;
@@ -172,13 +173,19 @@ const Label = ({
   </span>
 );
 
-/** "Presented by" + the primary mark, at full text contrast. */
+/**
+ * "Presented by" + the primary mark. The paid slot is the one place
+ * that keeps its brand colour — it is what the advertiser is buying,
+ * and one coloured mark against a neutral wall is the hierarchy. It
+ * only works with a logo whose inks survive both themes: anything
+ * near-black or near-white disappears on one of them. See the
+ * LogoTreatment story for the check.
+ */
 const PresentedBy = ({
-  monochrome,
   onSponsorClick,
   primary,
   vertical = false,
-}: Pick<SponsoredStripProps, 'primary' | 'monochrome' | 'onSponsorClick'> & {
+}: Pick<SponsoredStripProps, 'primary' | 'onSponsorClick'> & {
   vertical?: boolean;
 }): ReactElement => (
   <div
@@ -194,19 +201,19 @@ const PresentedBy = ({
       onClick={() => onSponsorClick?.(primary)}
       type="button"
     >
-      <SponsorLogo
-        height={PRIMARY_CAP}
-        monochrome={monochrome}
-        sponsor={primary}
-      />
+      <SponsorLogo height={PRIMARY_CAP} monochrome={false} sponsor={primary} />
     </button>
   </div>
 );
 
 /**
- * Partner logos on one line. Overflow is clipped behind a fade
- * rather than scrolled or animated: a marquee in the periphery of
- * a reading surface is exactly the distraction we are avoiding.
+ * Partner logos spread across the full run, the way the reference
+ * bar distributes its wall. `gap-4` is the floor and `justify-between`
+ * hands out whatever is left, so the row breathes on a wide new tab
+ * and tightens before it clips. The `pr-12` keeps the last mark clear
+ * of the fade when everything fits; only genuine overflow runs into
+ * it. Clipped, not scrolled or animated: a marquee in the periphery
+ * of a reading surface is exactly the distraction we are avoiding.
  */
 const PartnerRow = ({
   monochrome,
@@ -217,7 +224,7 @@ const PartnerRow = ({
   'partners' | 'monochrome' | 'onSponsorClick'
 >): ReactElement => (
   <div
-    className="flex min-w-0 flex-1 items-center gap-6 overflow-hidden"
+    className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden pr-12"
     style={{
       maskImage:
         'linear-gradient(to right, black calc(100% - 3rem), transparent)',
@@ -259,11 +266,7 @@ export const SponsorRailPinned = ({
       className,
     )}
   >
-    <PresentedBy
-      monochrome={monochrome}
-      onSponsorClick={onSponsorClick}
-      primary={primary}
-    />
+    <PresentedBy onSponsorClick={onSponsorClick} primary={primary} />
     <Divider />
     <PartnerRow
       monochrome={monochrome}
@@ -290,11 +293,7 @@ export const SponsorRailInline = ({
       className,
     )}
   >
-    <PresentedBy
-      monochrome={monochrome}
-      onSponsorClick={onSponsorClick}
-      primary={primary}
-    />
+    <PresentedBy onSponsorClick={onSponsorClick} primary={primary} />
     <Divider />
     <PartnerRow
       monochrome={monochrome}
@@ -321,15 +320,17 @@ export const SponsorFeedBand = ({
       className,
     )}
   >
-    <PresentedBy
-      monochrome={monochrome}
-      onSponsorClick={onSponsorClick}
-      primary={primary}
-    />
+    <PresentedBy onSponsorClick={onSponsorClick} primary={primary} />
     <div className="hidden tablet:block">
       <Divider />
     </div>
-    <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+    {/*
+     * A grid rather than a wrapped flex row: even columns spread the
+     * wall across the band's full width and still break cleanly into
+     * rows on narrow widths, where `justify-between` would strand the
+     * last row.
+     */}
+    <div className="grid flex-1 grid-cols-5 items-center justify-items-center gap-x-4 gap-y-3 laptop:grid-cols-10">
       {partners.map((sponsor) => (
         <SponsorSlot
           height={PARTNER_CAP}
@@ -360,18 +361,13 @@ export const SponsorFeedCard = ({
       className,
     )}
   >
-    <PresentedBy
-      monochrome={monochrome}
-      onSponsorClick={onSponsorClick}
-      primary={primary}
-      vertical
-    />
+    <PresentedBy onSponsorClick={onSponsorClick} primary={primary} vertical />
     <span
       className="my-4 h-px w-full bg-border-subtlest-tertiary"
       aria-hidden
     />
     <Label className="mb-3">Also backing daily.dev</Label>
-    <div className="grid flex-1 grid-cols-2 items-center gap-x-4 gap-y-3">
+    <div className="grid flex-1 grid-cols-2 items-center justify-items-center gap-x-4 gap-y-3">
       {partners.map((sponsor) => (
         <SponsorSlot
           height={PARTNER_CAP}
@@ -402,17 +398,12 @@ export const SponsorSideRail = ({
       className,
     )}
   >
-    <PresentedBy
-      monochrome={monochrome}
-      onSponsorClick={onSponsorClick}
-      primary={primary}
-      vertical
-    />
+    <PresentedBy onSponsorClick={onSponsorClick} primary={primary} vertical />
     <span
       className="my-4 h-px w-full bg-border-subtlest-tertiary"
       aria-hidden
     />
-    <div className="grid grid-cols-2 items-center gap-x-4 gap-y-3">
+    <div className="grid grid-cols-2 items-center justify-items-center gap-x-4 gap-y-3">
       {partners.map((sponsor) => (
         <SponsorSlot
           height={PARTNER_CAP}
