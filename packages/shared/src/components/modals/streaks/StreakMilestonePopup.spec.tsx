@@ -7,10 +7,14 @@ import type { Alerts } from '../../../graphql/alerts';
 import { StreakMilestonePopup } from './StreakMilestonePopup';
 import * as actionHook from '../../../hooks/useActions';
 import * as streakHook from '../../../hooks/streaks/useReadingStreak';
+import * as conditionalFeatureHook from '../../../hooks/useConditionalFeature';
 import { ActionType } from '../../../graphql/actions';
+import type { UserOffer } from '../../../graphql/offers';
+import { USER_OFFERS_QUERY } from '../../../graphql/offers';
 import { LazyModal } from '../common/types';
 import { MODAL_KEY } from '../../../hooks/useLazyModal';
 import { DayOfWeek } from '../../../lib/date';
+import { mockGraphQL } from '../../../../__tests__/helpers/graphql';
 
 const defaultAlerts: Alerts = {
   filter: true,
@@ -67,6 +71,10 @@ const renderComponent = ({
 
 beforeEach(() => {
   window.scrollTo = jest.fn();
+
+  jest
+    .spyOn(conditionalFeatureHook, 'useConditionalFeature')
+    .mockReturnValue({ value: false, isLoading: false });
 
   jest.spyOn(actionHook, 'useActions').mockReturnValue({
     completeAction: jest.fn(),
@@ -150,6 +158,69 @@ it('should not open when streaks are disabled', async () => {
   await waitFor(() => {
     const modal = queryClient.getQueryData(MODAL_KEY);
     expect(modal).toBeUndefined();
+  });
+});
+
+describe('streak milestone offers experiment', () => {
+  const offers: UserOffer[] = [
+    {
+      impressionUid: '10000000-0000-4000-8000-000000000001',
+      clickUrl: 'https://link.encorekit.com/one',
+      title: '3 Months of Music, Free',
+      advertiserName: 'Acme Music',
+      perk: '3 months free',
+      badgeLabel: 'free_trial',
+    },
+  ];
+
+  const mockOffersResponse = (userOffers: UserOffer[]) => {
+    nock.cleanAll();
+    mockGraphQL({
+      request: {
+        query: USER_OFFERS_QUERY,
+        variables: { placement: 'STREAK_MILESTONE' },
+      },
+      result: { data: { userOffers } },
+    });
+    nock('http://localhost:3000')
+      .post('/graphql')
+      .optionally()
+      .times(10)
+      .reply(200, { data: {} });
+  };
+
+  beforeEach(() => {
+    jest
+      .spyOn(conditionalFeatureHook, 'useConditionalFeature')
+      .mockReturnValue({ value: true, isLoading: false });
+  });
+
+  it('should open the offers modal when treatment returns offers', async () => {
+    mockOffersResponse(offers);
+
+    const { queryClient } = renderComponent();
+
+    await waitFor(() => {
+      const modal = queryClient.getQueryData(MODAL_KEY);
+      expect(modal).toMatchObject({
+        type: LazyModal.StreakOffers,
+        props: { currentStreak: 5, offers },
+      });
+    });
+  });
+
+  it('should fall back to the classic modal when treatment has no offers', async () => {
+    mockOffersResponse([]);
+
+    const { queryClient } = renderComponent();
+
+    await waitFor(() => {
+      const modal = queryClient.getQueryData(MODAL_KEY);
+      expect(modal).toMatchObject({
+        type: LazyModal.NewStreak,
+        props: { currentStreak: 5, maxStreak: 5 },
+      });
+    });
   });
 });
 
