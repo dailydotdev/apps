@@ -196,6 +196,11 @@ const nextConfig: NextConfig = {
           permanent: true,
         },
         {
+          source: '/daily',
+          destination: '/',
+          permanent: false,
+        },
+        {
           source: '/mobile',
           destination: '/',
           permanent: true,

@@ -145,13 +145,13 @@ export enum RequestKey {
   StreakFreezeProducts = 'streak_freeze_products',
   StreakFreezeDates = 'streak_freeze_dates',
   StreakFreezePurchase = 'streak_freeze_purchase',
+  UserOffers = 'user_offers',
   PersonalizedDigest = 'personalizedDigest',
   Changelog = 'changelog',
   Tags = 'tags',
   TagTitles = 'tag_titles',
   FeedPreview = 'feedPreview',
   FeedPreviewCustom = 'feedPreviewCustom',
-  DailyFeed = 'dailyFeed',
   ReferredUsers = 'referred',
   Post = 'post',
   Prompt = 'prompt',
@@ -291,6 +291,13 @@ export enum RequestKey {
   UserWorldTimeline = 'user_world_timeline',
   UserWorldEntitlements = 'user_world_entitlements',
   UserWorldDistrictFeed = 'user_world_district_feed',
+  WorldTopicReaders = 'world_topic_readers',
+  WorldTopicRanking = 'world_topic_ranking',
+  WorldRankPosition = 'world_rank_position',
+  WorldDomainReaders = 'world_domain_readers',
+  WorldDomainRanking = 'world_domain_ranking',
+  WorldRecentLevelUps = 'world_recent_level_ups',
+  FollowedWorlds = 'followed_worlds',
 }
 
 export const getPostByIdKey = (id: string): QueryKey => [RequestKey.Post, id];

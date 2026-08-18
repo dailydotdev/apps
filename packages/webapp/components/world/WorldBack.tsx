@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
-import { ArrowIcon } from '@dailydotdev/shared/src/components/icons';
+import { ArrowIcon, InfoIcon } from '@dailydotdev/shared/src/components/icons';
 import {
   Button,
   ButtonSize,
@@ -20,6 +20,7 @@ interface WorldBackProps {
   /** False on a world its owner has hidden: the link would open on a wall. */
   canShare: boolean;
   onLeaveRealm: () => void;
+  onOpenGuide: () => void;
 }
 
 /**
@@ -35,6 +36,11 @@ interface WorldBackProps {
  *
  * Share earns the second slot because a phone is where it is worth most: it is
  * the one control here that opens the native sheet rather than a clipboard.
+ *
+ * And the guide earns the third, because everything the rail was carrying that
+ * explained the place carried it on a laptop only. A phone had the map and no
+ * way at all to find out what it was, which is the wrong way round: a shared
+ * link is how most people meet this page, and it mostly opens on a phone.
  */
 export function WorldBack({
   user,
@@ -43,6 +49,7 @@ export function WorldBack({
   isOwn,
   canShare,
   onLeaveRealm,
+  onOpenGuide,
 }: WorldBackProps): ReactElement {
   const props = {
     variant: ButtonVariant.Tertiary,
@@ -70,6 +77,13 @@ export function WorldBack({
       {canShare && (
         <WorldShare user={user} worldName={worldName} isOwn={isOwn} />
       )}
+      <Button
+        {...props}
+        type="button"
+        icon={<InfoIcon />}
+        aria-label="How this world works"
+        onClick={onOpenGuide}
+      />
     </div>
   );
 }

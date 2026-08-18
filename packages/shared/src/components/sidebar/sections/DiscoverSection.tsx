@@ -10,6 +10,7 @@ import {
   HashtagIcon,
   HotIcon,
   TourIcon,
+  WorldIcon,
 } from '../../icons';
 import { MedalIcon } from '../../icons/Medal';
 import { Section } from '../Section';
@@ -82,6 +83,14 @@ export const DiscoverSection = ({
         ),
         title: 'Leaderboard',
         path: `${webappUrl}users`,
+        isForcedLink: true,
+      },
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <WorldIcon secondary={active} />} />
+        ),
+        title: 'Worlds',
+        path: `${webappUrl}world`,
         isForcedLink: true,
       },
       {

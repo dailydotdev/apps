@@ -1,2 +1,3 @@
 CONTACT=hi@daily.dev
 OWNERDOMAIN=daily.dev
+google.com, pub-6445455356070086, DIRECT, f08c47fec0942fa0

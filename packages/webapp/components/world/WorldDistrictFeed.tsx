@@ -7,8 +7,12 @@ import { PostEngagementCounts } from '@dailydotdev/shared/src/components/cards/S
 import { ListItemPlaceholder } from '@dailydotdev/shared/src/components/widgets/ListItemPlaceholder';
 import InfiniteScrolling from '@dailydotdev/shared/src/components/containers/InfiniteScrolling';
 import { ButtonSize } from '@dailydotdev/shared/src/components/buttons/Button';
-import { UpvoteIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  ArrowIcon,
+  UpvoteIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   Typography,
   TypographyTag,
@@ -83,6 +87,21 @@ export function WorldDistrictFeed({
           aria-label="Close district"
         />
       </header>
+
+      {/* The most pointed link the world has to the index: a reader looking at
+          one district is already asking who else built here, and the topic
+          board answers exactly that. Carries the niche id because that is what
+          a selected district knows itself by; the index accepts either. */}
+      <Link
+        href={`${webappUrl}world?topic=${district.nicheId}`}
+        passHref
+        prefetch={false}
+      >
+        <a className="mx-4 mb-1 flex items-center gap-1 rounded-8 py-1 text-text-tertiary typo-caption1 hover:text-text-primary">
+          See who else reads {district.name}
+          <ArrowIcon className="rotate-90" size={IconSize.XSmall} />
+        </a>
+      </Link>
 
       {/* The rows carry their own horizontal padding so the hover fill runs the
           full width of the panel rather than stopping inside a gutter. */}
