@@ -18,7 +18,7 @@ import { NvidiaLockup } from './_nvidiaLockup';
 
 // =============================================================
 // Sponsored strip — five ways to put a "presented by" slot and a
-// ten-logo partner wall on the new tab, evaluated over a real feed.
+// twelve-logo partner wall on the new tab, evaluated over a real feed.
 //
 // Reference: TBPN's lower third — a pinned "Presented by <primary>"
 // card plus a "Made possible by" logo ticker. That show can hold a
@@ -54,11 +54,13 @@ const PRIMARY: Sponsor = {
   logo: '/mock-logos/nvidia.svg',
   ratio: 164 / 30,
   Artwork: NvidiaLockup,
+  href: 'https://www.nvidia.com',
 };
 
-// All ten mask cleanly, and the ratios deliberately span the real
+// All twelve mask cleanly, and the ratios deliberately span the real
 // range of wordmark shapes — a stubby mark (Amazon, 2:1) through a
 // long lockup (LaunchDarkly, 6.4:1) — to exercise optical sizing.
+// Twelve also divides evenly into the band's 3 / 4 / 6 columns.
 const PARTNERS: Sponsor[] = [
   sponsor('Datadog', 'datadog', 800.5 / 203.19),
   sponsor('PostHog', 'posthog', 512 / 90),
@@ -70,6 +72,8 @@ const PARTNERS: Sponsor[] = [
   sponsor('Pulumi', 'pulumi', 512 / 128),
   sponsor('LaunchDarkly', 'launchdarkly', 512 / 80),
   sponsor('Amazon', 'amazon', 512 / 256),
+  sponsor('dbt', 'dbt', 512 / 196),
+  sponsor('Sonar', 'sonar', 512 / 125),
 ];
 
 // Marks whose artwork defeats the silhouette treatment, kept for the
@@ -350,8 +354,8 @@ export const LogoTreatment: Story = {
             colour and sits ~20% larger — it is the thing being paid for, and
             one coloured mark ranked above a neutral wall is the whole
             hierarchy. The partner wall goes to silhouettes that inherit the
-            strip&apos;s text colour, so ten marks stay even-weighted and none
-            of them out-shouts a post.
+            strip&apos;s text colour, so twelve marks stay even-weighted and
+            none of them out-shouts a post.
           </Note>
 
           <figure>
@@ -476,7 +480,7 @@ const ROWS: Row[] = [
     cost: '48px of viewport, for the whole session',
     exposure: 'Every session, continuously',
     legibility:
-      'All ten clear the fade from ~1070px; below that they drop into it one at a time',
+      'All twelve clear the fade from ~1220px; below that they drop into it one at a time',
     mobile:
       'Poor — at 375px the 196px lockup leaves no partner clear of the fade, and it lands on the browser’s own bottom chrome',
   },
@@ -485,16 +489,16 @@ const ROWS: Row[] = [
     concept: 'Inline rail',
     cost: '44px once, above the fold',
     exposure: 'Until the first scroll',
-    legibility: 'Same ~1070px threshold as A',
+    legibility: 'Same ~1220px threshold as A',
     mobile: 'Weak — no partner clears the fade at 375px',
   },
   {
     id: 'C',
     concept: 'Feed band',
-    cost: '56px at 1440px, 175px at 375px',
+    cost: '89px at 1440px, 175px at 375px',
     exposure: 'On scroll past, then gone',
     legibility:
-      'All ten at every width — ten columns wide, five then three as it narrows',
+      'All twelve at every width — six columns wide, four then three as it narrows',
     mobile: 'Good — wraps under the lockup',
   },
   {
@@ -502,7 +506,7 @@ const ROWS: Row[] = [
     concept: 'Card slot',
     cost: 'One post card — 406px at 1440px',
     exposure: 'On scroll past, then gone',
-    legibility: 'All ten — two-column grid, no clipping',
+    legibility: 'All twelve — two-column grid, no clipping',
     mobile: 'Good — full-width card',
   },
   {
@@ -510,7 +514,7 @@ const ROWS: Row[] = [
     concept: 'Side rail',
     cost: 'None',
     exposure: 'Whole session, in the periphery',
-    legibility: 'All ten — two-column grid',
+    legibility: 'All twelve — two-column grid',
     mobile: 'Absent — no rail below laptop',
   },
 ];
@@ -537,7 +541,7 @@ export const Evaluation: Story = {
               Sponsored strip — how it lands on the feed
             </h1>
             <p className="mt-2 text-text-tertiary typo-callout">
-              One presenting sponsor plus ten partner logos, in five placements.
+              One lead sponsor plus twelve partner logos, in five placements.
               The columns below are geometry, measured off these very stories at
               375px and 1440px. They are not performance data — nothing here has
               been A/B tested.
@@ -550,7 +554,7 @@ export const Evaluation: Story = {
                 <Head>Concept</Head>
                 <Head>Feed it costs</Head>
                 <Head>Exposure</Head>
-                <Head>10 logos legible?</Head>
+                <Head>12 logos legible?</Head>
                 <Head>Mobile / narrow</Head>
               </tr>
             </thead>
@@ -583,24 +587,39 @@ export const Evaluation: Story = {
               every concept here is static, and why only A and E persist.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
-              Where the ten-logo wall breaks
+              Where the twelve-logo wall breaks
             </h2>
             <p className="text-text-secondary typo-footnote">
               The wall is spread with `justify-between`, so a wide new tab hands
               the slack to the gaps rather than stacking the logos on the left.
-              At a 16px cap their own ink measures a 746px minimum run, and the
+              At a 16px cap twelve marks measure an 889px minimum run, and the
               “Made possible by” lockup takes another 196px — NVIDIA is
               deliberately ranked above the wall, at 18px against a 15px median
-              partner — so a rail needs about 1070px of viewport before the last
-              mark reaches the fade. Below that the rails quietly show fewer
-              slots than were sold, and at 375px the lockup alone leaves none of
-              them clear of it. That number is the sum of three deliberate
-              choices, and each is a dial: the lead mark's size, sentence case
-              over caps (~20px), and the 16px wall cap, where dropping back to
-              13px would buy about 120px at marks small enough to be decoration.
-              The wrapping concepts (C, D, E) hold all ten at every width
-              instead. If the inventory has to be exactly ten on one line, the
-              rails need a smaller cap height or fewer slots — not a marquee.
+              partner — so a rail needs about 1220px of viewport before the last
+              mark reaches the fade. That is wider than most laptops, so at
+              twelve slots the rails are effectively a large-desktop format.
+              Below that the rails quietly show fewer slots than were sold, and
+              at 375px the lockup alone leaves none of them clear of it. That
+              number is the sum of three deliberate choices, and each is a dial:
+              the lead mark's size, sentence case over caps (~20px), and the
+              16px wall cap, where dropping back to 13px would buy about 120px
+              at marks small enough to be decoration. The wrapping concepts (C,
+              D, E) hold all twelve at every width instead. If the inventory has
+              to be exactly twelve on one line, the rails need a smaller cap
+              height or fewer slots — not a marquee.
+            </p>
+            <h2 className="mt-2 font-bold text-text-primary typo-callout">
+              Only the lead mark is interactive
+            </h2>
+            <p className="text-text-secondary typo-footnote">
+              The lead sponsor&apos;s mark is a link to their site and the only
+              thing in the strip that answers a cursor — it lifts 5% on hover.
+              The partner wall is inert: no links, no hover, no focus stops.
+              That keeps the one paid click target unambiguous, and it keeps a
+              row of twelve hover states from competing with the posts they sit
+              between. It also means the wall costs nothing in keyboard
+              navigation, which matters most for the pinned rail, where it would
+              otherwise sit in the tab order of every session.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
               The asset spec matters more than the layout
@@ -617,8 +636,8 @@ export const Evaluation: Story = {
               Suggested pairing
             </h2>
             <p className="text-text-secondary typo-footnote">
-              C or D for the partner wall, since they hold all ten and give the
-              space back on scroll, with the lead sponsor also carried in E
+              C or D for the partner wall, since they hold all twelve and give
+              the space back on scroll, with the lead sponsor also carried in E
               where the rail exists. A is the only option that guarantees a
               session-long impression, and the only one that never returns the
               pixels — worth testing against the header-ad experiment rather

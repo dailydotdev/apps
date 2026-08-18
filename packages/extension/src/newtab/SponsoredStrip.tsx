@@ -24,7 +24,10 @@ export type Sponsor = {
    * ratio to reserve the right width and keep cap heights optical.
    */
   ratio: number;
-  /** Click-through destination. Storybook passes none. */
+  /**
+   * Click-through destination. Only the lead sponsor gets one — the
+   * partner wall is a credit, not a row of links.
+   */
   href?: string;
   /**
    * Optional inline artwork, for a lockup that cannot be one flat
@@ -161,29 +164,23 @@ type SponsorSlotProps = {
   sponsor: Sponsor;
   height: number;
   monochrome?: boolean;
-  onSponsorClick?: (sponsor: Sponsor) => void;
   className?: string;
 };
 
-/** Every logo is inventory, so every logo is a tracked click target. */
+/**
+ * A partner mark: shown, not clickable. Ten inert logos beside one
+ * live link keep the click target unambiguous, and spare the wall a
+ * row of hover states competing with the posts around it.
+ */
 const SponsorSlot = ({
   className,
   height,
   monochrome,
-  onSponsorClick,
   sponsor,
 }: SponsorSlotProps): ReactElement => (
-  <button
-    aria-label={`${sponsor.name} (sponsor)`}
-    className={classNames(
-      'shrink-0 text-text-secondary transition-colors duration-150 hover:text-text-primary',
-      className,
-    )}
-    onClick={() => onSponsorClick?.(sponsor)}
-    type="button"
-  >
+  <span className={classNames('block shrink-0 text-text-secondary', className)}>
     <SponsorLogo height={height} monochrome={monochrome} sponsor={sponsor} />
-  </button>
+  </span>
 );
 
 const Label = ({
@@ -225,14 +222,30 @@ const PrimaryLockup = ({
     )}
   >
     <Label>Made possible by</Label>
-    <button
-      aria-label={`${primary.name} (presenting sponsor)`}
-      className="shrink-0 text-text-primary"
-      onClick={() => onSponsorClick?.(primary)}
-      type="button"
-    >
-      <SponsorLogo height={PRIMARY_CAP} monochrome={false} sponsor={primary} />
-    </button>
+    {primary.href ? (
+      <a
+        aria-label={`${primary.name} (lead sponsor)`}
+        className="inline-flex shrink-0 origin-left text-text-primary transition-transform duration-200 ease-in-out hover:scale-105"
+        href={primary.href}
+        onClick={() => onSponsorClick?.(primary)}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <SponsorLogo
+          height={PRIMARY_CAP}
+          monochrome={false}
+          sponsor={primary}
+        />
+      </a>
+    ) : (
+      <span className="inline-flex shrink-0 text-text-primary">
+        <SponsorLogo
+          height={PRIMARY_CAP}
+          monochrome={false}
+          sponsor={primary}
+        />
+      </span>
+    )}
   </div>
 );
 
@@ -247,12 +260,8 @@ const PrimaryLockup = ({
  */
 const PartnerRow = ({
   monochrome,
-  onSponsorClick,
   partners,
-}: Pick<
-  SponsoredStripProps,
-  'partners' | 'monochrome' | 'onSponsorClick'
->): ReactElement => (
+}: Pick<SponsoredStripProps, 'partners' | 'monochrome'>): ReactElement => (
   <div
     className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden pr-12"
     style={{
@@ -267,7 +276,6 @@ const PartnerRow = ({
         height={PARTNER_CAP}
         key={sponsor.name}
         monochrome={monochrome}
-        onSponsorClick={onSponsorClick}
         sponsor={sponsor}
       />
     ))}
@@ -298,11 +306,7 @@ export const SponsorRailPinned = ({
   >
     <PrimaryLockup onSponsorClick={onSponsorClick} primary={primary} />
     <Divider />
-    <PartnerRow
-      monochrome={monochrome}
-      onSponsorClick={onSponsorClick}
-      partners={partners}
-    />
+    <PartnerRow monochrome={monochrome} partners={partners} />
   </div>
 );
 
@@ -325,11 +329,7 @@ export const SponsorRailInline = ({
   >
     <PrimaryLockup onSponsorClick={onSponsorClick} primary={primary} />
     <Divider />
-    <PartnerRow
-      monochrome={monochrome}
-      onSponsorClick={onSponsorClick}
-      partners={partners}
-    />
+    <PartnerRow monochrome={monochrome} partners={partners} />
   </div>
 );
 
@@ -362,13 +362,12 @@ export const SponsorFeedBand = ({
      * ones overlap their neighbours — and the grid's own
      * `justify-between` hands the leftover space to the gaps.
      */}
-    <div className="grid flex-1 grid-cols-[repeat(3,auto)] items-center justify-between gap-x-4 gap-y-3 tablet:grid-cols-[repeat(5,auto)] laptop:grid-cols-[repeat(10,auto)]">
+    <div className="grid flex-1 grid-cols-[repeat(3,auto)] items-center justify-between gap-x-4 gap-y-3 tablet:grid-cols-[repeat(4,auto)] laptop:grid-cols-[repeat(6,auto)]">
       {partners.map((sponsor) => (
         <SponsorSlot
           height={PARTNER_CAP}
           key={sponsor.name}
           monochrome={monochrome}
-          onSponsorClick={onSponsorClick}
           sponsor={sponsor}
         />
       ))}
@@ -405,7 +404,6 @@ export const SponsorFeedCard = ({
           height={PARTNER_CAP}
           key={sponsor.name}
           monochrome={monochrome}
-          onSponsorClick={onSponsorClick}
           sponsor={sponsor}
         />
       ))}
@@ -441,7 +439,6 @@ export const SponsorSideRail = ({
           height={PARTNER_CAP}
           key={sponsor.name}
           monochrome={monochrome}
-          onSponsorClick={onSponsorClick}
           sponsor={sponsor}
         />
       ))}
