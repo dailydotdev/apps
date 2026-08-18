@@ -39,16 +39,21 @@ const sponsor = (name: string, file: string, ratio: number): Sponsor => ({
   ratio,
 });
 
-// The primary slot keeps its brand colour, so the mark has to read on
-// both grounds. NVIDIA is not in the advertiser library, so this one is
-// a local story fixture (public/mock-logos): the Wikimedia wordmark
-// recoloured to the brand green. That recolour is the point — the
-// stock lockup is black, which vanishes on the dark feed, while
-// #76B900 sits at 0.62 luminance and clears both.
+// The lead slot keeps its brand colour, so the mark has to read on both
+// grounds. NVIDIA is not in the advertiser library, so this one is a
+// local story fixture (public/mock-logos): the full Wikimedia lockup —
+// eye mark, wordmark and (R) — recoloured to the brand green.
+//
+// The recolour is the point. NVIDIA's own lockup puts the eye in green
+// and sets the wordmark in black or white to suit the background, which
+// is two assets, and the black one vanishes on the dark feed. The
+// all-green lockup is a standard NVIDIA presentation and sits at 0.62
+// luminance, so a single file clears both themes — which is the whole
+// constraint this slot has to meet.
 const PRIMARY: Sponsor = {
   name: 'NVIDIA',
   logo: '/mock-logos/nvidia.svg',
-  ratio: 630.2 / 118.2,
+  ratio: 164 / 30,
 };
 
 // All ten mask cleanly, and the ratios deliberately span the real
@@ -465,17 +470,17 @@ const ROWS: Row[] = [
     cost: '48px of viewport, for the whole session',
     exposure: 'Every session, continuously',
     legibility:
-      'All ten clear the fade from ~1090px; below that they drop into it one at a time',
+      'All ten clear the fade from ~1070px; below that they drop into it one at a time',
     mobile:
-      'Poor — at 375px the 210px lockup leaves no partner clear of the fade, and it lands on the browser’s own bottom chrome',
+      'Poor — at 375px the 190px lockup leaves room for one partner, and it lands on the browser’s own bottom chrome',
   },
   {
     id: 'B',
     concept: 'Inline rail',
     cost: '44px once, above the fold',
     exposure: 'Until the first scroll',
-    legibility: 'Same ~1090px threshold as A',
-    mobile: 'Weak — no partner clears the fade at 375px',
+    legibility: 'Same ~1070px threshold as A',
+    mobile: 'Weak — 1 partner clears the fade at 375px',
   },
   {
     id: 'C',
@@ -578,13 +583,14 @@ export const Evaluation: Story = {
               The wall is spread with `justify-between`, so a wide new tab hands
               the slack to the gaps rather than stacking the logos on the left.
               At a 16px cap their own ink measures a 746px minimum run, and the
-              “Made possible by” lockup takes another 210px, so a rail needs
-              about 1090px of viewport before the last mark reaches the fade —
-              below that the rails quietly show fewer slots than were sold, and
-              at 375px the lockup alone leaves none of them clear of it. Some of
-              that is the copy: a shorter label buys back real estate the wall
-              can use. The rest is the price of legible logos: dropping the cap
-              to 13px buys back about 120px of it, at marks small enough to be
+              “Made possible by” lockup takes another 190px, so a rail needs
+              about 1070px of viewport before the last mark reaches the fade —
+              below that the rails quietly show fewer slots than were sold, down
+              to a single partner at 375px. Some of that is the label: setting
+              it in sentence case rather than caps returned about 20px to the
+              wall, which is the difference between one partner and none on a
+              phone. The rest is the price of legible logos: dropping the cap to
+              13px buys back about 120px of it, at marks small enough to be
               decoration. The wrapping concepts (C, D, E) hold all ten at every
               width instead. If the inventory has to be exactly ten on one line,
               the rails need a smaller cap height or fewer slots — not a

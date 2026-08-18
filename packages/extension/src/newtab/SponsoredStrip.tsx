@@ -174,7 +174,7 @@ const Label = ({
 }): ReactElement => (
   <span
     className={classNames(
-      'whitespace-nowrap uppercase tracking-wide text-text-quaternary typo-caption2',
+      'whitespace-nowrap text-text-quaternary typo-caption2',
       className,
     )}
   >
