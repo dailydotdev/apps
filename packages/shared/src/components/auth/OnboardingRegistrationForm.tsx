@@ -132,6 +132,20 @@ export const OnboardingRegistrationForm = ({
     preferGithub ?? isOnboardingTrigger,
   );
 
+  // The single-primary treatment sizes the brand marks to the label rather
+  // than the button, and takes GitHub's filled octocat (the icon's `secondary`
+  // asset) so it reads at the same weight as Google's mark. Google already
+  // ships `secondary`, so passing it here is a no-op for that provider.
+  const getProviderIcon = (icon: ReactElement): ReactElement => {
+    if (singlePrimaryStyle) {
+      return cloneElement(icon, { size: IconSize.Size16, secondary: true });
+    }
+    if (splitSignupStyle) {
+      return cloneElement(icon, { size: IconSize.Medium });
+    }
+    return icon;
+  };
+
   const trackOpenSignup = () => {
     logEvent({
       event_name: 'click',
@@ -186,7 +200,7 @@ export const OnboardingRegistrationForm = ({
       className={classNames(
         getEmailButtonClass(),
         singlePrimaryStyle
-          ? '!w-full !text-text-primary !underline underline-offset-4'
+          ? '!w-full !text-text-tertiary !underline underline-offset-4'
           : (isOnboardingTrigger || splitSignupStyle) &&
               tertiarySignupButtonClass,
       )}
@@ -215,6 +229,11 @@ export const OnboardingRegistrationForm = ({
     // Once the columns appear it follows the left-aligned column edge again.
     // onb-split-login is a styling hook for the signup hero: it tightens this
     // row on compact phones. Inert anywhere the hero's CSS is not present.
+    // The single-primary rail centres this under the button column at every
+    // width — the buttons are the axis here, not the left edge of the copy.
+    if (singlePrimaryStyle) {
+      return 'onb-split-login mx-auto mt-4 text-center text-text-secondary typo-callout laptop:mt-5';
+    }
     if (splitSignupStyle) {
       return 'onb-split-login mx-auto mt-4 text-center text-text-secondary typo-callout laptop:mx-0 laptop:mt-5 laptop:text-left';
     }
@@ -249,18 +268,18 @@ export const OnboardingRegistrationForm = ({
                   ? `Sign up with ${provider.label}`
                   : `Continue with ${provider.label}`
               }
-              className="w-full"
+              className={classNames(
+                'w-full',
+                // The stepped-down providers stay filled rather than becoming
+                // outlines: a hairline-only button reads as disabled next to a
+                // solid primary.
+                singlePrimaryStyle &&
+                  index > 0 &&
+                  '!border-border-subtlest-tertiary !bg-surface-float',
+              )}
               data-funnel-track={FunnelTargetId.SignupProvider}
               disabled={!isReady || isSocialAuthLoading}
-              icon={
-                // A Large button gives its icon IconSize.Large (32px); the
-                // split layouts want the brand marks a notch smaller so they
-                // sit closer to the label's weight. Next step down the scale
-                // rather than an arbitrary size.
-                splitSignupStyle
-                  ? cloneElement(provider.icon, { size: IconSize.Medium })
-                  : provider.icon
-              }
+              icon={getProviderIcon(provider.icon)}
               loading={!isReady || isSocialAuthLoading}
               onClick={() => onProviderClick?.(provider.value, false)}
               size={onboardingSignupButton?.size ?? ButtonSize.Large}
@@ -296,7 +315,9 @@ export const OnboardingRegistrationForm = ({
         <div
           className={classNames(
             'flex flex-col',
-            splitSignupStyle ? 'items-start text-left' : 'text-center',
+            splitSignupStyle && !singlePrimaryStyle
+              ? 'items-start text-left'
+              : 'text-center',
           )}
         >
           {emailButton}

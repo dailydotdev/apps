@@ -224,6 +224,7 @@ export const OnboardingSignupHero = ({
               alt=""
               className="absolute inset-0 size-full object-cover object-[60%_34%]"
               decoding="async"
+              /* @ts-expect-error - Not supported by react yet */ /* eslint-disable react/no-unknown-property */
               fetchpriority="high"
               src={signupWallHorizon}
             />
@@ -262,6 +263,7 @@ export const OnboardingSignupHero = ({
             alt=""
             className="absolute inset-0 size-full object-cover object-[70%_52%]"
             decoding="async"
+            /* @ts-expect-error - Not supported by react yet */ /* eslint-disable react/no-unknown-property */
             fetchpriority="high"
             src={signupWallHorizon}
           />

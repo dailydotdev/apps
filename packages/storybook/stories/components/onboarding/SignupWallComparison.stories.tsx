@@ -102,11 +102,7 @@ const meta: Meta<typeof Comparison> = {
     height: { control: { type: 'range', min: 568, max: 1024, step: 8 } },
     only: {
       control: 'select',
-      options: [
-        'all',
-        ...FRAMES.map((frame) => frame.label),
-        'Cards+Horizon',
-      ],
+      options: ['all', ...FRAMES.map((frame) => frame.label), 'Cards+Horizon'],
     },
   },
 };
@@ -143,4 +139,9 @@ export const DesktopControlVsHorizon: Story = {
 /** Same two arms at phone size. */
 export const MobileControlVsHorizon: Story = {
   args: { width: 390, height: 844, only: 'Cards+Horizon' },
+};
+
+/** The proposed wall alone, at the width the rail was designed around. */
+export const DesktopHorizonOnly: Story = {
+  args: { width: 1440, height: 900, only: 'Horizon' },
 };

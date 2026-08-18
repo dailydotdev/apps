@@ -30,6 +30,14 @@ const authContainerClass =
 // becomes dead space *under* the buttons that holds them off the bottom edge —
 // so they opt out and let the container hug its content instead.
 const splitAuthContainerClass = classNames(authContainerClass, '!min-h-0');
+// The horizon's auth stack is narrower than its copy column: full-width
+// buttons at the column's 440px read as a form, and the one-primary hierarchy
+// wants a target you take in at a glance. The headline and value line keep the
+// wider measure above it.
+const horizonAuthContainerClass = classNames(
+  'w-full max-w-full rounded-none tablet:max-w-[22.5rem]',
+  '!min-h-0',
+);
 
 const staticAuthProps = {
   className: {
@@ -241,7 +249,9 @@ export const FunnelHeroLanding = withIsActiveGuard(
             isSplitColumnBackground
               ? {
                   ...staticAuthProps.className,
-                  container: splitAuthContainerClass,
+                  container: isHorizonWall
+                    ? horizonAuthContainerClass
+                    : splitAuthContainerClass,
                 }
               : staticAuthProps.className
           }
