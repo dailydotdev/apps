@@ -66,10 +66,10 @@ const PRIMARY_CAP = 23;
 const PARTNER_CAP = 16;
 
 /**
- * Cap heights are sized to the fixed 48px rail: at PARTNER_CAP the
- * tallest optical result is ~22px, so the marks can grow inside the
- * bar without the bar growing. Raising these past ~18 would start
- * crowding the rail's own padding.
+ * Cap heights are sized to the 40px rail: at PARTNER_CAP the tallest
+ * optical result is ~22px, leaving 9px of air above and below, which
+ * is what sets the floor on the bar's height. Raising PARTNER_CAP
+ * past ~18 would crowd it.
  *
  * Logo files run from square marks (GitLab, 1:1) to long lockups
  * (LaunchDarkly, 6.4:1). Sizing them all to one cap height makes the
@@ -292,8 +292,18 @@ const Divider = (): ReactElement => (
 
 // ---------------------------------------------------------------
 // A. Pinned rail — the closest translation of the reference.
-// Sits on the bottom edge of the viewport for the whole session,
-// translucent so cards read through it as they scroll under.
+// Sits on the bottom edge of the viewport for the whole session, on
+// an opaque ground: a blurred plate reads as an overlay floating over
+// the feed, which is more presence than a sponsor row should take.
+//
+// `sticky`, not `fixed`. A fixed bar is positioned against the
+// viewport, so it runs the full width of the window and slides under
+// the left sidebar. Sticky keeps the bar in flow inside the layout's
+// padded main, which is where the sidebar offset already lives — so
+// the bar spans the feed and nothing else, and follows that offset
+// across layout variants and sidebar states without having to know
+// what either is. `laptop:px-10` matches the feed column's own
+// padding, so the marks line up with the card grid, not the gutter.
 // ---------------------------------------------------------------
 export const SponsorRailPinned = ({
   className,
@@ -304,7 +314,7 @@ export const SponsorRailPinned = ({
 }: SponsoredStripProps): ReactElement => (
   <div
     className={classNames(
-      'fixed inset-x-0 bottom-0 z-3 flex h-12 items-center gap-5 border-t border-border-subtlest-tertiary bg-background-default px-4 laptop:px-6',
+      'sticky bottom-0 z-3 flex h-10 w-full items-center gap-5 border-t border-border-subtlest-tertiary bg-background-default px-4 laptop:px-10',
       className,
     )}
   >
