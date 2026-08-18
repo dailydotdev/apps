@@ -39,12 +39,17 @@ const sponsor = (name: string, file: string, ratio: number): Sponsor => ({
   ratio,
 });
 
-// The presenting slot keeps its brand colour, so the mark has to read
-// on both grounds. Of the library's vector wordmarks only a handful
-// have no near-black or near-white ink; Google is the most colourful
-// of them (four inks, all between 0.40 and 0.74 relative luminance).
-// Appwrite (a single #f02e65) is the fallback if Google is unwanted.
-const PRIMARY = sponsor('Google', 'google', 75 / 24);
+// The primary slot keeps its brand colour, so the mark has to read on
+// both grounds. NVIDIA is not in the advertiser library, so this one is
+// a local story fixture (public/mock-logos): the Wikimedia wordmark
+// recoloured to the brand green. That recolour is the point — the
+// stock lockup is black, which vanishes on the dark feed, while
+// #76B900 sits at 0.62 luminance and clears both.
+const PRIMARY: Sponsor = {
+  name: 'NVIDIA',
+  logo: '/mock-logos/nvidia.svg',
+  ratio: 630.2 / 118.2,
+};
 
 // All ten mask cleanly, and the ratios deliberately span the real
 // range of wordmark shapes — a stubby mark (Amazon, 2:1) through a
@@ -81,13 +86,17 @@ const ASSET_PROBLEMS: (Sponsor & { reason: string })[] = [
   },
 ];
 
-// Candidates for the coloured presenting slot, with the check that
+// Candidates for the coloured lead slot, with the check that
 // matters: does every ink survive both grounds? Rendered side by side
 // in LogoTreatment against a normal and an `.invert` ground.
 const PRIMARY_CANDIDATES: (Sponsor & { verdict: string })[] = [
   {
+    ...PRIMARY,
+    verdict: 'brand green at 0.62 luminance — holds on both',
+  },
+  {
     ...sponsor('Google', 'google', 75 / 24),
-    verdict: 'four inks, 0.40–0.74 luminance — holds on both',
+    verdict: 'four inks, 0.40–0.74 luminance — the alternative',
   },
   {
     ...sponsor('Appwrite', 'appwrite', 512 / 91),
@@ -332,8 +341,8 @@ export const LogoTreatment: Story = {
       <Page>
         <div className="mx-auto flex max-w-[64rem] flex-col gap-8 p-6">
           <Note>
-            The strip splits its logo treatment. The presenting slot keeps its
-            brand colour — it is the thing being paid for, and one coloured mark
+            The strip splits its logo treatment. The lead slot keeps its brand
+            colour — it is the thing being paid for, and one coloured mark
             against a neutral wall is the whole hierarchy. The partner wall goes
             to silhouettes that inherit the strip&apos;s text colour, so ten
             marks stay even-weighted and none of them out-shouts a post.
@@ -341,7 +350,7 @@ export const LogoTreatment: Story = {
 
           <figure>
             <figcaption className="mb-1 font-bold text-text-primary typo-callout">
-              The presenting slot has to clear both grounds
+              The lead slot has to clear both grounds
             </figcaption>
             <Note>
               Keeping brand colour means the mark gets no help from the theme,
@@ -456,17 +465,17 @@ const ROWS: Row[] = [
     cost: '48px of viewport, for the whole session',
     exposure: 'Every session, continuously',
     legibility:
-      'All ten clear the fade from ~1040px; below that they drop into it one at a time',
+      'All ten clear the fade from ~1090px; below that they drop into it one at a time',
     mobile:
-      'Poor — 1 partner survives at 375px, and it lands on the browser’s own bottom chrome',
+      'Poor — at 375px the 210px lockup leaves no partner clear of the fade, and it lands on the browser’s own bottom chrome',
   },
   {
     id: 'B',
     concept: 'Inline rail',
     cost: '44px once, above the fold',
     exposure: 'Until the first scroll',
-    legibility: 'Same ~1040px threshold as A',
-    mobile: 'Weak — 1 partner survives at 375px',
+    legibility: 'Same ~1090px threshold as A',
+    mobile: 'Weak — no partner clears the fade at 375px',
   },
   {
     id: 'C',
@@ -568,15 +577,18 @@ export const Evaluation: Story = {
             <p className="text-text-secondary typo-footnote">
               The wall is spread with `justify-between`, so a wide new tab hands
               the slack to the gaps rather than stacking the logos on the left.
-              At a 16px cap their own ink measures a 746px minimum run, which
-              needs about 1040px of viewport before the last mark reaches the
-              fade — below that the rails quietly show fewer slots than were
-              sold, down to a single partner at 375px. That threshold is the
-              price of legible logos: dropping the cap to 13px buys back about
-              120px of it, at marks small enough to be decoration. The wrapping
-              concepts (C, D, E) hold all ten at every width instead. If the
-              inventory has to be exactly ten on one line, the rails need a
-              smaller cap height or fewer slots — not a marquee.
+              At a 16px cap their own ink measures a 746px minimum run, and the
+              “Made possible by” lockup takes another 210px, so a rail needs
+              about 1090px of viewport before the last mark reaches the fade —
+              below that the rails quietly show fewer slots than were sold, and
+              at 375px the lockup alone leaves none of them clear of it. Some of
+              that is the copy: a shorter label buys back real estate the wall
+              can use. The rest is the price of legible logos: dropping the cap
+              to 13px buys back about 120px of it, at marks small enough to be
+              decoration. The wrapping concepts (C, D, E) hold all ten at every
+              width instead. If the inventory has to be exactly ten on one line,
+              the rails need a smaller cap height or fewer slots — not a
+              marquee.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
               The asset spec matters more than the layout
@@ -594,8 +606,8 @@ export const Evaluation: Story = {
             </h2>
             <p className="text-text-secondary typo-footnote">
               C or D for the partner wall, since they hold all ten and give the
-              space back on scroll, with the presenting sponsor also carried in
-              E where the rail exists. A is the only option that guarantees a
+              space back on scroll, with the lead sponsor also carried in E
+              where the rail exists. A is the only option that guarantees a
               session-long impression, and the only one that never returns the
               pixels — worth testing against the header-ad experiment rather
               than shipping alongside it.

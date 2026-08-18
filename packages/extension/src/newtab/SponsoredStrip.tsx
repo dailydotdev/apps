@@ -78,6 +78,11 @@ type SponsorLogoProps = {
 };
 
 /**
+ * Not lazy-loaded: eleven inline SVGs weigh nothing, and deferring
+ * them would let the paid slot be the last thing on the page to
+ * appear — the masked partner marks are CSS and never defer at all,
+ * so a lazy <img> only buys an inconsistent strip.
+ *
  * Painting a currentColor block through the logo as a mask, rather
  * than filtering an <img>, keeps a single
  * implementation working in both themes: the mark simply takes the
@@ -102,7 +107,6 @@ export const SponsorLogo = ({
       <img
         alt={sponsor.name}
         className={classNames('object-contain', className)}
-        loading="lazy"
         src={sponsor.logo}
         style={style}
       />
@@ -179,14 +183,14 @@ const Label = ({
 );
 
 /**
- * "Presented by" + the primary mark. The paid slot is the one place
+ * "Made possible by" + the primary mark. The paid slot is the one place
  * that keeps its brand colour — it is what the advertiser is buying,
  * and one coloured mark against a neutral wall is the hierarchy. It
  * only works with a logo whose inks survive both themes: anything
  * near-black or near-white disappears on one of them. See the
  * LogoTreatment story for the check.
  */
-const PresentedBy = ({
+const PrimaryLockup = ({
   onSponsorClick,
   primary,
   vertical = false,
@@ -199,7 +203,7 @@ const PresentedBy = ({
       vertical ? 'flex-col items-start' : 'items-center',
     )}
   >
-    <Label>Presented by</Label>
+    <Label>Made possible by</Label>
     <button
       aria-label={`${primary.name} (presenting sponsor)`}
       className="shrink-0 text-text-primary"
@@ -271,7 +275,7 @@ export const SponsorRailPinned = ({
       className,
     )}
   >
-    <PresentedBy onSponsorClick={onSponsorClick} primary={primary} />
+    <PrimaryLockup onSponsorClick={onSponsorClick} primary={primary} />
     <Divider />
     <PartnerRow
       monochrome={monochrome}
@@ -298,7 +302,7 @@ export const SponsorRailInline = ({
       className,
     )}
   >
-    <PresentedBy onSponsorClick={onSponsorClick} primary={primary} />
+    <PrimaryLockup onSponsorClick={onSponsorClick} primary={primary} />
     <Divider />
     <PartnerRow
       monochrome={monochrome}
@@ -325,7 +329,7 @@ export const SponsorFeedBand = ({
       className,
     )}
   >
-    <PresentedBy onSponsorClick={onSponsorClick} primary={primary} />
+    <PrimaryLockup onSponsorClick={onSponsorClick} primary={primary} />
     <div className="hidden tablet:block">
       <Divider />
     </div>
@@ -368,7 +372,7 @@ export const SponsorFeedCard = ({
       className,
     )}
   >
-    <PresentedBy onSponsorClick={onSponsorClick} primary={primary} vertical />
+    <PrimaryLockup onSponsorClick={onSponsorClick} primary={primary} vertical />
     <span
       className="my-4 h-px w-full bg-border-subtlest-tertiary"
       aria-hidden
@@ -405,7 +409,7 @@ export const SponsorSideRail = ({
       className,
     )}
   >
-    <PresentedBy onSponsorClick={onSponsorClick} primary={primary} vertical />
+    <PrimaryLockup onSponsorClick={onSponsorClick} primary={primary} vertical />
     <span
       className="my-4 h-px w-full bg-border-subtlest-tertiary"
       aria-hidden
