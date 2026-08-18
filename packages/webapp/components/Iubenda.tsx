@@ -122,6 +122,11 @@ export const Iubenda = (): ReactElement | null => {
       callback: {
         onPreferenceExpressed: (pref: IubendaPreference) =>
           onPreferenceRef.current?.(pref),
+        onBannerShown: () => {
+          document
+            .querySelector('#iubenda-cs-banner .iubenda-banner-content')
+            ?.dispatchEvent(new Event('scroll'));
+        },
       },
     };
 
