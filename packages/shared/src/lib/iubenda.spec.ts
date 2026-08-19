@@ -1,4 +1,4 @@
-import { getIubendaConsent } from './iubenda';
+import { getIubendaConsent, iubendaLocalizedPolicyIds } from './iubenda';
 
 const POLICY_ID = '14695236';
 const COOKIE_NAME = `_iub_cs-${POLICY_ID}`;
@@ -74,5 +74,16 @@ describe('getIubendaConsent', () => {
     setCookieValue(ticketFixture);
 
     expect(getIubendaConsent()).toEqual({ necessary: true, marketing: true });
+  });
+
+  it('should read consent stored under a localized policy cookie', () => {
+    Object.entries(iubendaLocalizedPolicyIds).forEach(([, id]) => {
+      Object.defineProperty(document, 'cookie', {
+        writable: true,
+        value: `_iub_cs-${id}=${encode({ '1': true, '5': true })}`,
+      });
+
+      expect(getIubendaConsent()).toEqual({ necessary: true, marketing: true });
+    });
   });
 });

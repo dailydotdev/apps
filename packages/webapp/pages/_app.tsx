@@ -22,6 +22,7 @@ import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/Su
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
+import '../styles/iubenda.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { PostReferrerContextProvider } from '@dailydotdev/shared/src/contexts/PostReferrerContext';

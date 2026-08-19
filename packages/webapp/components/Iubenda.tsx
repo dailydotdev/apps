@@ -9,13 +9,23 @@ import {
 } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { iubendaLocalizedPolicyIds } from '@dailydotdev/shared/src/lib/iubenda';
 import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
+import { enhanceIubendaBannerNow, watchIubendaBanner } from './iubendaBanner';
 
 /**
  * Loads the iubenda Cookie Solution (IAB TCF mode) for GDPR-covered users and
  * mirrors its consent into the first-party `ilikecookies*` cookies so all
  * existing gating (Pixels, settings, ad consent fallback) keeps working.
  * The homegrown banner is suppressed for these users in `useCookieBanner`.
+ *
+ * The configuration mirrors the marketing sites' embed (recruiter-landing,
+ * custom-scripts/head.html) — same account, same policy, same first layer
+ * (applyStyles:false + styles/iubenda.css + iubendaBanner.ts) —
+ * so every daily.dev property shows one consent card. Deliberate deviations:
+ * `localConsentDomain` (consent shared across *.daily.dev),
+ * `invalidateConsentWithoutLog`, and no floating preferences badge —
+ * settings/privacy is the in-app withdrawal entry point.
  */
 
 type IubendaPreference = {
@@ -25,13 +35,18 @@ type IubendaPreference = {
 type IubendaWindow = typeof globalThis & {
   _iub?: {
     csConfiguration?: Record<string, unknown>;
+    csLangConfiguration?: Record<string, { cookiePolicyId: number }>;
     cs?: { api?: { openPreferences?: () => void } };
   };
 };
 
-const IUBENDA_SCRIPTS = [
+// The consent-sync call comes first and the TCF stub before anything that
+// could query `window.__tcfapi`, mirroring iubenda's dashboard snippet.
+const getIubendaScripts = (siteId: string): string[] => [
+  `https://cs.iubenda.com/sync/${siteId}.js`,
   'https://cdn.iubenda.com/cs/tcf/stub-v2.js',
   'https://cdn.iubenda.com/cs/tcf/safe-tcf-v2.js',
+  'https://cdn.iubenda.com/cs/gpp/stub.js',
   'https://cdn.iubenda.com/cs/iubenda_cs.js',
 ];
 
@@ -66,83 +81,126 @@ export const Iubenda = (): ReactElement | null => {
 
   useEffect(() => {
     if (!enabled || injectedRef.current) {
-      return;
+      return undefined;
     }
 
     const win = globalThis as IubendaWindow;
 
     if (win._iub?.csConfiguration) {
-      return;
+      // already injected by a previous mount; only the watcher needs restarting
+      return watchIubendaBanner();
+    }
+
+    const siteId = process.env.NEXT_PUBLIC_IUBENDA_SITE_ID;
+    const cookiePolicyId = Number(process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID);
+
+    if (!siteId || !cookiePolicyId) {
+      // eslint-disable-next-line no-console
+      console.error(
+        'iubenda env vars missing (NEXT_PUBLIC_IUBENDA_SITE_ID / NEXT_PUBLIC_IUBENDA_POLICY_ID): TCF-covered users get no consent banner in this environment',
+      );
+      return undefined;
     }
 
     injectedRef.current = true;
 
     win._iub = win._iub || {};
-    const tokens = getComputedStyle(document.documentElement);
-    // Aligned with the marketing homepage's embed (same siteId/cookiePolicyId,
-    // countryDetection, LGPD/USPR) so both surfaces treat consent the same.
-    // Deliberate differences: enableTcf + ACM (the point of this integration)
-    // and no floating button (settings/privacy is the re-entry point).
     win._iub.csConfiguration = {
-      siteId: Number(process.env.NEXT_PUBLIC_IUBENDA_SITE_ID),
-      cookiePolicyId: Number(process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID),
-      lang: 'en',
-      enableTcf: true,
-      googleAdditionalConsentMode: true,
-      perPurposeConsent: true,
       askConsentAtCookiePolicyUpdate: true,
-      invalidateConsentWithoutLog: true,
+      cookiePolicyInOtherWindow: true,
       countryDetection: true,
       enableLgpd: true,
+      enableTcf: true,
       enableUspr: true,
-      cookiePolicyInOtherWindow: true,
-      // consent cookie shared across *.daily.dev so the homepage recognizes
-      // webapp consent; the homepage embed should add this too for the
-      // reverse direction (its cookie is host-only today)
+      gdprAppliesGlobally: false,
+      googleAdditionalConsentMode: true,
+      inlineDelay: 100,
+      perPurposeConsent: true,
+      siteId: Number(siteId),
+      tcfPurposes: {
+        '2': 'consent_only',
+        '7': 'consent_only',
+        '8': 'consent_only',
+        '9': 'consent_only',
+        '10': 'consent_only',
+        '11': 'consent_only',
+      },
+      whitelabel: false,
+      cookiePolicyId,
+      invalidateConsentWithoutLog: true,
+      // consent cookie shared across *.daily.dev so the marketing sites
+      // recognize webapp consent and vice versa
       localConsentDomain: process.env.NEXT_PUBLIC_DOMAIN,
       floatingPreferencesButtonDisplay: false,
+      i18n: {
+        en: {
+          banner: {
+            title: 'We value your privacy',
+            dynamic: {
+              body: 'This site uses cookies to improve your experience. By continuing to use our site, you accept our use of cookies, Privacy Policy, and Terms of Service.',
+            },
+          },
+        },
+      },
       banner: {
-        position: 'float-bottom-right',
-        // iubenda writes these three inline with !important, so unlike the
-        // rest of the card (styles/components/iubenda.css) they can't come
-        // from the stylesheet; read the tokens so they follow the active
-        // theme
-        backgroundColor:
-          tokens.getPropertyValue('--theme-accent-pepper-subtlest').trim() ||
-          '#161921',
-        textColor:
-          tokens.getPropertyValue('--theme-text-secondary').trim() || '#CDD4E4',
-        fontSize: '13px',
+        // the first layer is styled by styles/iubenda.css; the
+        // preferences modal keeps iubenda's own styles
+        applyStyles: false,
         acceptButtonDisplay: true,
-        rejectButtonDisplay: true,
+        closeButtonRejects: true,
         customizeButtonDisplay: true,
-        closeButtonDisplay: false,
-        listPurposes: true,
+        customizeButtonCaption: 'Customize',
+        rejectButtonDisplay: true,
+        explicitWithdrawal: true,
+        fontSizeBody: '12px',
+        fontSizeCloseButton: '18px',
+        logo: null,
+        position: 'bottom',
+        slideDown: false,
       },
       callback: {
         onPreferenceExpressed: (pref: IubendaPreference) =>
           onPreferenceRef.current?.(pref),
         onBannerShown: () => {
+          // catches banners the watcher missed (rendered past its cost cap)
+          // and re-measures ones enhanced while still hidden
+          enhanceIubendaBannerNow();
+          // iubenda refuses consent while .iubenda-banner-content is
+          // scrollable and not scrolled to bottom, and its setup can win the
+          // race against our collapse class. Poking the listener resolves the
+          // flag before the first click, so Accept/Reject never need pressing
+          // twice.
           document
             .querySelector('#iubenda-cs-banner .iubenda-banner-content')
             ?.dispatchEvent(new Event('scroll'));
         },
       },
     };
+    win._iub.csLangConfiguration = {
+      en: { cookiePolicyId },
+      ...Object.fromEntries(
+        Object.entries(iubendaLocalizedPolicyIds).map(([lang, id]) => [
+          lang,
+          { cookiePolicyId: id },
+        ]),
+      ),
+    };
 
-    IUBENDA_SCRIPTS.forEach((src, index) => {
+    getIubendaScripts(siteId).forEach((src) => {
       const script = document.createElement('script');
       script.src = src;
       // dynamically injected scripts default to async; force in-order
       // execution — iubenda requires the TCF stub before the core script
       script.async = false;
-      if (index === 0) {
+      if (src.includes('tcf/stub-v2')) {
         // __tcfapi only exists once the stub executes; the stub then queues
         // the subscription until the core script loads
         script.onload = () => startTcfSubscription();
       }
       document.head.appendChild(script);
     });
+
+    return watchIubendaBanner();
   }, [enabled]);
 
   return null;

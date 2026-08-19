@@ -1,0 +1,439 @@
+/*
+ * The iubenda TCF banner's first layer, as the shared daily.dev consent card
+ * used on the marketing sites. `applyStyles: false` in components/Iubenda.tsx
+ * disables iubenda's own stylesheet for this layer, so this file is the
+ * complete visual definition (the preferences modal keeps iubenda's styles).
+ * Geometry and behavior mirror the marketing embed (recruiter-landing,
+ * apps/<site>/src/custom-scripts/head.html); colors come from the theme
+ * tokens so the card follows the active theme.
+ */
+
+#iubenda-cs-banner {
+  position: fixed;
+  /* Logical, not right/left: csLangConfiguration localizes the banner, so
+     an RTL locale must mirror the card with the copy. */
+  inset-inline-end: 24px;
+  inset-inline-start: auto;
+  bottom: 24px;
+  top: auto;
+  z-index: 1000;
+  /* px on purpose: a fixed panel; the type inside is rem and the button row
+     wraps when the text outgrows it. */
+  width: min(340px, calc(100vw - 32px));
+  font-family: inherit;
+  -webkit-font-smoothing: antialiased;
+}
+
+#iubenda-cs-banner.iubenda-cs-visible .iubenda-cs-container {
+  animation: iub-banner-in 250ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes iub-banner-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #iubenda-cs-banner.iubenda-cs-visible .iubenda-cs-container {
+    animation: none;
+  }
+}
+
+#iubenda-cs-banner .iubenda-cs-container {
+  background: var(--theme-accent-pepper-subtlest);
+  border: 1px solid var(--theme-border-subtlest-secondary);
+  border-radius: 1rem;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 32%),
+    0 8px 20px rgb(0 0 0 / 24%);
+  overflow: hidden;
+}
+
+/* White card, mirroring the marketing sites' light banner; the shared
+   pepper-subtlest surface reads gray next to light page backgrounds. Auto
+   theme resolves light via prefers-color-scheme (see base.css), so the
+   override needs both scopes. */
+html.light #iubenda-cs-banner .iubenda-cs-container {
+  background: var(--theme-background-popover);
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 6%),
+    0 8px 20px rgb(15 23 42 / 10%);
+}
+
+@media (prefers-color-scheme: light) {
+  html.auto #iubenda-cs-banner .iubenda-cs-container {
+    background: var(--theme-background-popover);
+    box-shadow:
+      0 1px 2px rgb(15 23 42 / 6%),
+      0 8px 20px rgb(15 23 42 / 10%);
+  }
+}
+
+#iubenda-cs-banner .iubenda-cs-content,
+#iubenda-cs-banner .iubenda-cs-rationale {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  position: relative;
+}
+
+/* TCF-mandated copy: cap and scroll, never display:none. */
+#iubenda-cs-banner .iubenda-banner-content {
+  max-height: min(276px, calc(50vh - 57px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 44px 14px 20px;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-text-quaternary) transparent;
+}
+
+#iubenda-cs-banner #iubenda-cs-title {
+  margin: 0 0 5px;
+  /* rem, not px, throughout the card: a reader who raises their browser
+     font size gets a bigger banner rather than one that ignores them. */
+  font-size: 0.875rem;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--theme-text-primary);
+}
+
+#iubenda-cs-banner #iubenda-cs-paragraph,
+#iubenda-cs-banner #iubenda-cs-paragraph p,
+#iubenda-cs-banner #iubenda-cs-paragraph .iub-p {
+  margin: 0 0 5px;
+  font-size: 0.71875rem;
+  line-height: 1.5;
+  color: var(--theme-text-secondary);
+  text-wrap: pretty;
+}
+
+/* Joins the first two mandated paragraphs; no text is removed. */
+#iubenda-cs-banner #iubenda-cs-paragraph br:first-of-type {
+  display: none;
+}
+
+#iubenda-cs-banner .iubenda-cs-cookie-policy-lnk,
+#iubenda-cs-banner #iubenda-cs-paragraph a {
+  color: var(--theme-text-link);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+#iubenda-cs-banner .iubenda-cs-close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  /* closeButtonRejects makes this the refusal path: tertiary, not
+     quaternary, keeps the glyph above the 3:1 floor for UI components. */
+  color: var(--theme-text-tertiary);
+  font-size: 1.1875rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 150ms, background-color 150ms;
+}
+
+/* U+00D7 sits above the em-box centre; the cross is drawn instead. */
+#iubenda-cs-banner .iubenda-cs-close-btn span {
+  display: none;
+}
+
+#iubenda-cs-banner .iubenda-cs-close-btn::before,
+#iubenda-cs-banner .iubenda-cs-close-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 11px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: currentcolor;
+}
+
+#iubenda-cs-banner .iubenda-cs-close-btn::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+#iubenda-cs-banner .iubenda-cs-close-btn::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+#iubenda-cs-banner .iubenda-cs-close-btn:hover {
+  background: var(--theme-surface-float);
+  color: var(--theme-text-primary);
+}
+
+/* iubenda's own stylesheet hides this until its scrolled-to-bottom gate
+   actually fires; applyStyles:false drops that rule, so without a default
+   here every visitor reads "Press again to continue 0/2". Hiding it
+   outright would be worse — if the gate ever does fire, Accept looks dead
+   with no explanation — so iubendaBanner.ts reveals it on a non-zero
+   count, which is what the vendor CSS did. */
+#iubenda-cs-banner .iubenda-cs-counter {
+  display: none;
+  padding: 0 20px 8px;
+  font-size: 0.71875rem;
+  color: var(--theme-text-tertiary);
+}
+
+#iubenda-cs-banner.dd-cs-counting .iubenda-cs-counter {
+  display: block;
+}
+
+#iubenda-cs-banner .iubenda-cs-opt-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  /* stretch, not center: Reject and Accept share one width, so a caption
+     long enough to wrap in one of them and not the other would leave the
+     pair the same width and different heights. Captions are
+     dashboard-editable, so this needs no deploy to happen. The two controls
+     that are not part of the choice opt out with `align-self` below. */
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 0;
+  /* 20px sides, matching `.iubenda-banner-content` above: the row and the
+     copy are one column, so the buttons start on the title's left edge. */
+  padding: 6px 20px 14px;
+}
+
+#iubenda-cs-banner:not(.dd-cs-collapsed) .iubenda-cs-opt-group {
+  border-top: 1px solid var(--theme-border-subtlest-tertiary);
+  padding-top: 10px;
+}
+
+/* iubenda splits this row into two wrappers — Customize and Reject in one,
+   Accept in the other — so each button sizes to its own label inside its own
+   wrapper's slack, which is why the pair never matched. `display: contents`
+   drops both boxes out of layout, leaving the controls as direct children of
+   the flex row; the equal `flex` basis below is then what actually holds
+   Reject and Accept to one width. Restore the boxes and they diverge again. */
+#iubenda-cs-banner .iubenda-cs-opt-group-custom,
+#iubenda-cs-banner .iubenda-cs-opt-group-consent {
+  display: contents;
+}
+
+#iubenda-cs-banner .iubenda-cs-opt-group button:not(.dd-cs-more) {
+  /* Equal basis so Reject and Accept always match each other; shrinkable so
+     the controls never overflow the strip (on phones they wrap onto a
+     second line instead — see below). The show-more label is pinned to a
+     fixed width in iubendaBanner.ts, which is what keeps the toggle from
+     resizing these. */
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  min-height: 28px;
+  margin: 0;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 0.75rem;
+  line-height: 1.25;
+  font-weight: 700;
+  text-align: center;
+  white-space: normal;
+  /* Last resort against clipped text: `white-space: normal` only breaks at
+     spaces, so a single long word wider than the shared width (German's
+     "Zustimmen" at a raised browser font size) would be cut off rather
+     than wrapped. Only ever applies when nothing else fits. */
+  overflow-wrap: break-word;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 200ms, border-color 200ms, box-shadow 200ms;
+}
+
+/* One rule per state, never two that happen to agree: the pair is the thing
+   regulators inspect, and any style difference is a nudge toward Accept. */
+#iubenda-cs-banner .iubenda-cs-reject-btn,
+#iubenda-cs-banner .iubenda-cs-accept-btn {
+  background: var(--theme-text-primary);
+  color: var(--theme-background-default);
+  border: 1px solid transparent;
+}
+
+#iubenda-cs-banner .iubenda-cs-reject-btn:hover,
+#iubenda-cs-banner .iubenda-cs-accept-btn:hover {
+  background: color-mix(
+    in srgb,
+    var(--theme-text-primary) 88%,
+    var(--theme-background-default)
+  );
+}
+
+/* Icon-only: the label stays in the DOM as the accessible name, and
+   iubendaBanner.ts adds aria-label/title. Accept and Reject keep full
+   labels and equal prominence — only the second-layer entry is reduced. */
+#iubenda-cs-banner .iubenda-cs-opt-group button.iubenda-cs-customize-btn {
+  position: relative;
+  flex: 0 0 auto;
+  /* Opts out of the row's stretch: this is a square icon button, and a
+     stretched one is a 28x44 rectangle with a gear floating in it. */
+  align-self: center;
+  width: 28px;
+  min-width: 0;
+  padding: 0;
+  font-size: 0;
+  /* The marketing embed's gear artwork, kept identical across properties —
+     deliberately NOT the shared SettingsIcon. Hoisted into a custom property
+     so the URI ships once instead of once per mask property. */
+  --iub-gear-glyph: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E %3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12 9.25C10.4812 9.25 9.25 10.4812 9.25 12C9.25 13.5188 10.4812 14.75 12 14.75C13.5188 14.75 14.75 13.5188 14.75 12C14.75 10.4812 13.5188 9.25 12 9.25ZM10.75 12C10.75 11.3096 11.3096 10.75 12 10.75C12.6904 10.75 13.25 11.3096 13.25 12C13.25 12.6904 12.6904 13.25 12 13.25C11.3096 13.25 10.75 12.6904 10.75 12Z'/%3E %3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M11.0739 3C10.1789 3 9.45328 3.72323 9.45328 4.61539V5.7587C9.45328 6.05327 9.2514 6.38514 8.86909 6.60605C8.49282 6.82345 8.11129 6.83096 7.8516 6.68151L6.8573 6.10931C6.08217 5.66324 5.091 5.92796 4.64347 6.70059L3.7174 8.2994C3.26987 9.07203 3.53545 10.06 4.31059 10.5061L5.30426 11.0779C5.56282 11.2267 5.74898 11.5638 5.74898 12C5.74898 12.4362 5.56283 12.7733 5.30427 12.9221L4.31059 13.4939C3.53545 13.94 3.26987 14.928 3.71739 15.7006L4.64347 17.2994C5.091 18.072 6.08216 18.3368 6.8573 17.8907L7.85159 17.3185C8.11128 17.169 8.49281 17.1765 8.86908 17.394C9.2514 17.6149 9.45328 17.9467 9.45328 18.2413V19.3846C9.45328 20.2768 10.1789 21 11.0739 21H12.9261C13.8211 21 14.5467 20.2768 14.5467 19.3846V18.2413C14.5467 17.9467 14.7486 17.6149 15.1309 17.394C15.5072 17.1765 15.8887 17.169 16.1484 17.3185L17.1427 17.8907C17.9178 18.3368 18.909 18.072 19.3565 17.2994L20.2826 15.7006C20.7301 14.928 20.4645 13.94 19.6894 13.4939L18.6957 12.9221C18.4372 12.7733 18.251 12.4362 18.251 12C18.251 11.5638 18.4372 11.2267 18.6957 11.0779L19.6894 10.5061C20.4645 10.06 20.7301 9.07203 20.2826 8.2994L19.3565 6.70059C18.909 5.92796 17.9178 5.66324 17.1427 6.10932L16.1484 6.68151C15.8887 6.83096 15.5072 6.82345 15.1309 6.60605C14.7486 6.38514 14.5467 6.05327 14.5467 5.75869V4.61538C14.5467 3.72323 13.8211 3 12.9261 3H11.0739ZM10.8424 4.61539C10.8424 4.48793 10.9461 4.38462 11.0739 4.38462H12.9261C13.0539 4.38462 13.1576 4.48793 13.1576 4.61538V5.75869C13.1576 6.6843 13.7575 7.41292 14.4343 7.80395C15.1174 8.19868 16.0422 8.34147 16.843 7.88063L17.8373 7.30843C17.948 7.2447 18.0896 7.28252 18.1535 7.39289L19.0796 8.99171C19.1435 9.10209 19.1056 9.24322 18.9949 9.30695L18.0012 9.87879C17.1992 10.3403 16.8619 11.2156 16.8619 12C16.8619 12.7844 17.1991 13.6597 18.0012 14.1212L18.9949 14.693C19.1056 14.7568 19.1435 14.8979 19.0796 15.0083L18.1535 16.6071C18.0896 16.7175 17.948 16.7553 17.8373 16.6916L16.843 16.1194C16.0422 15.6585 15.1174 15.8013 14.4343 16.196C13.7575 16.5871 13.1576 17.3157 13.1576 18.2413V19.3846C13.1576 19.5121 13.0539 19.6154 12.9261 19.6154H11.0739C10.9461 19.6154 10.8424 19.5121 10.8424 19.3846V18.2413C10.8424 17.3157 10.2425 16.5871 9.56574 16.196C8.88258 15.8013 7.95784 15.6585 7.15703 16.1194L6.16274 16.6916C6.05201 16.7553 5.91041 16.7175 5.84648 16.6071L4.9204 15.0083C4.85647 14.8979 4.89441 14.7568 5.00515 14.693L5.99883 14.1212C6.80085 13.6597 7.13809 12.7844 7.13809 12C7.13809 11.2156 6.80085 10.3403 5.99882 9.87879L5.00515 9.30695C4.89441 9.24322 4.85647 9.10209 4.92041 8.99171L5.84648 7.39289C5.91042 7.28252 6.05201 7.2447 6.16275 7.30843L7.15704 7.88062C7.95785 8.34147 8.88259 8.19868 9.56574 7.80395C10.2425 7.41292 10.8424 6.6843 10.8424 5.7587V4.61539Z'/%3E %3C/svg%3E");
+  background: transparent;
+  color: var(--theme-text-tertiary);
+  border: 1px solid var(--theme-border-subtlest-secondary);
+}
+
+#iubenda-cs-banner .iubenda-cs-opt-group button.iubenda-cs-customize-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background-color: currentcolor;
+  -webkit-mask: var(--iub-gear-glyph) center / contain no-repeat;
+  mask: var(--iub-gear-glyph) center / contain no-repeat;
+}
+
+#iubenda-cs-banner .iubenda-cs-opt-group button.iubenda-cs-customize-btn:hover {
+  background: var(--theme-surface-float);
+  border-color: var(--theme-border-subtlest-primary);
+  color: var(--theme-text-primary);
+}
+
+#iubenda-cs-banner button:focus-visible,
+#iubenda-cs-banner a:focus-visible {
+  outline: 2px solid var(--theme-brand-default);
+  outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  #iubenda-cs-banner {
+    right: 12px;
+    left: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+  }
+
+  #iubenda-cs-banner .iubenda-banner-content {
+    max-height: min(272px, calc(50vh - 67px));
+    padding: 18px 42px 12px 18px;
+  }
+
+  #iubenda-cs-banner .iubenda-cs-opt-group {
+    /* 18px sides = `.iubenda-banner-content`'s mobile inset, as above. */
+    padding: 6px 18px 14px;
+    gap: 8px;
+  }
+
+  #iubenda-cs-banner .iubenda-cs-opt-group .dd-cs-more {
+    padding-inline-end: 4px;
+  }
+
+  #iubenda-cs-banner .iubenda-cs-opt-group button.iubenda-cs-reject-btn,
+  #iubenda-cs-banner .iubenda-cs-opt-group button.iubenda-cs-accept-btn {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  #iubenda-cs-banner .iubenda-cs-opt-group button:not(.dd-cs-more) {
+    min-height: 34px;
+  }
+
+  #iubenda-cs-banner .iubenda-cs-opt-group button.iubenda-cs-customize-btn {
+    width: 34px;
+  }
+}
+
+#iubenda-cs-banner.dd-cs-collapsed .iubenda-banner-content {
+  max-height: none;
+  overflow: visible;
+}
+
+/* Keep the clamp at 4+ lines: below that the cookie-policy link is
+   clamped away, turning layering into hiding. */
+#iubenda-cs-banner.dd-cs-collapsed #iubenda-cs-paragraph {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+
+#iubenda-cs-banner.dd-cs-has-more .iubenda-banner-content {
+  padding-bottom: 8px;
+}
+
+#iubenda-cs-banner .dd-cs-more {
+  display: inline-flex;
+  align-items: center;
+  /* Text control, not a choice — it should not grow with the pair. */
+  align-self: center;
+  flex: 0 1 auto;
+  width: auto;
+  margin: 0;
+  margin-inline-end: auto;
+  /* min-height keeps the target over the 24px floor (WCAG 2.5.8) without
+     growing the 28px strip */
+  padding: 4px 8px 4px 0;
+  min-height: 24px;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 0.71875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--theme-text-tertiary);
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+#iubenda-cs-banner .dd-cs-more[hidden] {
+  display: none;
+}
+
+#iubenda-cs-banner .dd-cs-more:focus-visible {
+  border-radius: 4px;
+}
+
+@media (max-width: 520px) {
+  #iubenda-cs-banner.dd-cs-has-more .iubenda-banner-content {
+    padding-bottom: 6px;
+  }
+
+  /* Wrap rather than clip: the pair shares one width, so the WIDEST label
+     decides whether both fit, and a single long word ("Zustimmen",
+     "Ablehnen") cannot break. Handing the show-more control its own line
+     returns the row enough width for the pair in all banner languages.
+     Must stay below `.dd-cs-more`'s base rule or source order voids it. */
+  #iubenda-cs-banner .iubenda-cs-opt-group {
+    flex-wrap: wrap;
+  }
+
+  #iubenda-cs-banner .dd-cs-more {
+    flex: 1 1 100%;
+    margin-inline-end: 0;
+  }
+}
