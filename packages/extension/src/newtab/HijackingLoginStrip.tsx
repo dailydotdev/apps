@@ -425,7 +425,7 @@ function CoverSignupHero({
         <div className="from-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent" />
         <div
           aria-hidden
-          className="invisible flex flex-col tablet:flex-row tablet:items-stretch"
+          className="invisible hidden tablet:flex tablet:flex-row tablet:items-stretch"
         >
           {/* The control's own text block, element for element — a real
               Button included, so its box model tracks the design system
@@ -451,7 +451,12 @@ function CoverSignupHero({
         </div>
         {/* Extra bottom padding lifts the centred copy, leaving the band
             under the CTA free for the artwork's subject. */}
-        <div className="dark absolute inset-0 z-1 flex flex-col items-center justify-center p-5 pb-14 text-center">
+        {/* Stacked, the copy is taller than the control's row geometry, so it
+            sits in flow and gives the card its height with even padding on
+            every side — absolutely positioned it overflowed and clipped its
+            own heading. From tablet up the control's geometry is what the
+            experiment holds constant, so the copy overlays it again. */}
+        <div className="dark relative z-1 flex flex-col items-center justify-center p-5 text-center tablet:absolute tablet:inset-0 tablet:pb-14">
           <h3 className="font-bold text-white typo-title2 [text-shadow:0_2px_18px_rgba(0,0,0,0.6)]">
             Start discovering what&apos;s next.
           </h3>
