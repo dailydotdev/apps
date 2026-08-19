@@ -119,6 +119,9 @@ export const useShuffledSponsors = (partners: Sponsor[]): Sponsor[] => {
   return order;
 };
 
+/** Covers the layout's 300ms padding transition, plus a little. */
+const LAYOUT_SETTLE_MS = 400;
+
 /** Rendered width of a mark at a given cap height. */
 const markWidth = (sponsor: Sponsor, cap: number): number =>
   opticalHeight(sponsor.ratio, cap) * sponsor.ratio;
@@ -172,10 +175,15 @@ const useFittedSponsors = (
 
     const measure = () => setAvailable(el.getBoundingClientRect().width);
 
-    // Measure once directly rather than waiting on ResizeObserver's
-    // first callback: the row has to be trimmed on the initial paint,
-    // and not every environment delivers that callback.
+    // Measure directly rather than waiting on ResizeObserver's first
+    // callback: the row has to be trimmed on the initial paint, and
+    // not every environment delivers that callback.
     measure();
+
+    // The layout animates its padding when the sidebar opens or
+    // closes, so the first measurement can be of a width that is on
+    // its way somewhere else. Re-measure once the transition is over.
+    const settle = window.setTimeout(measure, LAYOUT_SETTLE_MS);
 
     if (typeof ResizeObserver === 'undefined') {
       // Window resizes are the common case; without RO the row still
@@ -183,7 +191,10 @@ const useFittedSponsors = (
       // the sidebar expanding.
       window.addEventListener('resize', measure);
 
-      return () => window.removeEventListener('resize', measure);
+      return () => {
+        window.clearTimeout(settle);
+        window.removeEventListener('resize', measure);
+      };
     }
 
     const observer = new ResizeObserver(([entry]) =>
@@ -192,14 +203,19 @@ const useFittedSponsors = (
 
     observer.observe(el);
 
-    return () => observer.disconnect();
+    return () => {
+      window.clearTimeout(settle);
+      observer.disconnect();
+    };
   }, []);
 
   const fitted = useMemo(() => {
-    // Before the first measurement, render the full wall: the row
-    // clips, so one frame of overflow is invisible, and the server
-    // markup stays complete.
-    if (available === null) {
+    // A zero width is "not laid out yet", not "nothing fits" — a row
+    // measured before layout settles would otherwise render an empty
+    // wall and, if no resize follows, stay empty. Render the full wall
+    // until a real width arrives; the row clips, so a frame of
+    // overflow is invisible and the server markup stays complete.
+    if (available === null || available <= 0) {
       return partners;
     }
 
