@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 
 // =============================================================
@@ -86,6 +86,128 @@ const opticalHeight = (ratio: number, cap: number): number =>
       Math.max(cap * 0.8, cap * Math.sqrt(REFERENCE_RATIO / ratio)),
     ),
   );
+
+/** Fisher-Yates. Callers own when this runs; it is not pure. */
+const shuffle = <T,>(items: T[]): T[] => {
+  const out = [...items];
+
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+
+  return out;
+};
+
+/**
+ * A fresh order of the partner wall per page load, so no advertiser
+ * is permanently first and — once the row starts trimming to fit —
+ * none is permanently the one that gets dropped.
+ *
+ * The shuffle deliberately waits for mount. Randomising during render
+ * would produce different markup on the server and the client, which
+ * React would flag as a hydration mismatch; this way the server order
+ * is what hydrates and the rotation lands immediately after.
+ */
+export const useShuffledSponsors = (partners: Sponsor[]): Sponsor[] => {
+  const [order, setOrder] = useState(partners);
+
+  useEffect(() => {
+    setOrder(shuffle(partners));
+  }, [partners]);
+
+  return order;
+};
+
+/** Rendered width of a mark at a given cap height. */
+const markWidth = (sponsor: Sponsor, cap: number): number =>
+  opticalHeight(sponsor.ratio, cap) * sponsor.ratio;
+
+/**
+ * How many marks fit the measured row, in order, at `gap` apart.
+ * The marks' widths are known from their ratios, so this needs no
+ * DOM measurement beyond the row itself.
+ */
+const countThatFit = (
+  partners: Sponsor[],
+  available: number,
+  cap: number,
+  gap: number,
+): number => {
+  let used = 0;
+
+  for (let i = 0; i < partners.length; i += 1) {
+    const next = used + (i > 0 ? gap : 0) + markWidth(partners[i], cap);
+
+    if (next > available) {
+      return i;
+    }
+
+    used = next;
+  }
+
+  return partners.length;
+};
+
+/**
+ * Trims the wall to what the row can actually hold, rather than
+ * letting it overflow and clipping the remainder. Twelve marks at the
+ * widest, fewer as the window narrows — an advertiser is either shown
+ * whole or not at all, never as a half logo under a fade.
+ */
+const useFittedSponsors = (
+  partners: Sponsor[],
+  cap: number,
+  gap: number,
+): { ref: React.RefObject<HTMLDivElement>; fitted: Sponsor[] } => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [available, setAvailable] = useState<number | null>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+
+    if (!el) {
+      return undefined;
+    }
+
+    const measure = () => setAvailable(el.getBoundingClientRect().width);
+
+    // Measure once directly rather than waiting on ResizeObserver's
+    // first callback: the row has to be trimmed on the initial paint,
+    // and not every environment delivers that callback.
+    measure();
+
+    if (typeof ResizeObserver === 'undefined') {
+      // Window resizes are the common case; without RO the row still
+      // reflows on those, it just misses element-only changes such as
+      // the sidebar expanding.
+      window.addEventListener('resize', measure);
+
+      return () => window.removeEventListener('resize', measure);
+    }
+
+    const observer = new ResizeObserver(([entry]) =>
+      setAvailable(entry.contentRect.width),
+    );
+
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const fitted = useMemo(() => {
+    // Before the first measurement, render the full wall: the row
+    // clips, so one frame of overflow is invisible, and the server
+    // markup stays complete.
+    if (available === null) {
+      return partners;
+    }
+
+    return partners.slice(0, countThatFit(partners, available, cap, gap));
+  }, [partners, available, cap, gap]);
+
+  return { ref, fitted };
+};
 
 type SponsorLogoProps = {
   sponsor: Sponsor;
@@ -262,29 +384,31 @@ const PrimaryLockup = ({
  * it. Clipped, not scrolled or animated: a marquee in the periphery
  * of a reading surface is exactly the distraction we are avoiding.
  */
+const PARTNER_GAP = 16;
+
 const PartnerRow = ({
   monochrome,
   partners,
-}: Pick<SponsoredStripProps, 'partners' | 'monochrome'>): ReactElement => (
-  <div
-    className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden pr-12"
-    style={{
-      maskImage:
-        'linear-gradient(to right, black calc(100% - 3rem), transparent)',
-      WebkitMaskImage:
-        'linear-gradient(to right, black calc(100% - 3rem), transparent)',
-    }}
-  >
-    {partners.map((sponsor) => (
-      <SponsorSlot
-        height={PARTNER_CAP}
-        key={sponsor.name}
-        monochrome={monochrome}
-        sponsor={sponsor}
-      />
-    ))}
-  </div>
-);
+}: Pick<SponsoredStripProps, 'partners' | 'monochrome'>): ReactElement => {
+  const rotated = useShuffledSponsors(partners);
+  const { ref, fitted } = useFittedSponsors(rotated, PARTNER_CAP, PARTNER_GAP);
+
+  return (
+    <div
+      className="flex min-w-0 flex-1 items-center justify-between gap-4 overflow-hidden"
+      ref={ref}
+    >
+      {fitted.map((sponsor) => (
+        <SponsorSlot
+          height={PARTNER_CAP}
+          key={sponsor.name}
+          monochrome={monochrome}
+          sponsor={sponsor}
+        />
+      ))}
+    </div>
+  );
+};
 
 const Divider = (): ReactElement => (
   <span className="h-5 w-px shrink-0 bg-border-subtlest-tertiary" aria-hidden />
@@ -357,37 +481,41 @@ export const SponsorFeedBand = ({
   onSponsorClick,
   partners,
   primary,
-}: SponsoredStripProps): ReactElement => (
-  <section
-    className={classNames(
-      'col-span-full flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-5 py-4 tablet:flex-row tablet:items-center tablet:gap-6',
-      className,
-    )}
-  >
-    <PrimaryLockup onSponsorClick={onSponsorClick} primary={primary} />
-    <div className="hidden tablet:block">
-      <Divider />
-    </div>
-    {/*
-     * A grid rather than a wrapped flex row: fixed column counts break
-     * cleanly into rows, where a wrapped `justify-between` flex would
-     * strand the last one. The columns are `auto`, not equal fractions
-     * — the marks differ in width by 2x, so equal cells make the wide
-     * ones overlap their neighbours — and the grid's own
-     * `justify-between` hands the leftover space to the gaps.
-     */}
-    <div className="grid flex-1 grid-cols-[repeat(3,auto)] items-center justify-between gap-x-4 gap-y-3 tablet:grid-cols-[repeat(4,auto)] laptop:grid-cols-[repeat(6,auto)]">
-      {partners.map((sponsor) => (
-        <SponsorSlot
-          height={PARTNER_CAP}
-          key={sponsor.name}
-          monochrome={monochrome}
-          sponsor={sponsor}
-        />
-      ))}
-    </div>
-  </section>
-);
+}: SponsoredStripProps): ReactElement => {
+  const rotated = useShuffledSponsors(partners);
+
+  return (
+    <section
+      className={classNames(
+        'col-span-full flex flex-col gap-3 rounded-16 border border-border-subtlest-tertiary bg-surface-float px-5 py-4 tablet:flex-row tablet:items-center tablet:gap-6',
+        className,
+      )}
+    >
+      <PrimaryLockup onSponsorClick={onSponsorClick} primary={primary} />
+      <div className="hidden tablet:block">
+        <Divider />
+      </div>
+      {/*
+       * A grid rather than a wrapped flex row: fixed column counts break
+       * cleanly into rows, where a wrapped `justify-between` flex would
+       * strand the last one. The columns are `auto`, not equal fractions
+       * — the marks differ in width by 2x, so equal cells make the wide
+       * ones overlap their neighbours — and the grid's own
+       * `justify-between` hands the leftover space to the gaps.
+       */}
+      <div className="grid flex-1 grid-cols-[repeat(3,auto)] items-center justify-between gap-x-4 gap-y-3 tablet:grid-cols-[repeat(4,auto)] laptop:grid-cols-[repeat(6,auto)]">
+        {rotated.map((sponsor) => (
+          <SponsorSlot
+            height={PARTNER_CAP}
+            key={sponsor.name}
+            monochrome={monochrome}
+            sponsor={sponsor}
+          />
+        ))}
+      </div>
+    </section>
+  );
+};
 
 // ---------------------------------------------------------------
 // D. Card slot — takes one post's place in the grid. Maximum
@@ -399,31 +527,39 @@ export const SponsorFeedCard = ({
   onSponsorClick,
   partners,
   primary,
-}: SponsoredStripProps): ReactElement => (
-  <section
-    className={classNames(
-      'flex h-full flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5',
-      className,
-    )}
-  >
-    <PrimaryLockup onSponsorClick={onSponsorClick} primary={primary} vertical />
-    <span
-      className="my-4 h-px w-full bg-border-subtlest-tertiary"
-      aria-hidden
-    />
-    <Label className="mb-3">Also backing daily.dev</Label>
-    <div className="grid flex-1 grid-cols-2 items-center justify-items-center gap-x-4 gap-y-3">
-      {partners.map((sponsor) => (
-        <SponsorSlot
-          height={PARTNER_CAP}
-          key={sponsor.name}
-          monochrome={monochrome}
-          sponsor={sponsor}
-        />
-      ))}
-    </div>
-  </section>
-);
+}: SponsoredStripProps): ReactElement => {
+  const rotated = useShuffledSponsors(partners);
+
+  return (
+    <section
+      className={classNames(
+        'flex h-full flex-col rounded-16 border border-border-subtlest-tertiary bg-surface-float p-5',
+        className,
+      )}
+    >
+      <PrimaryLockup
+        onSponsorClick={onSponsorClick}
+        primary={primary}
+        vertical
+      />
+      <span
+        className="my-4 h-px w-full bg-border-subtlest-tertiary"
+        aria-hidden
+      />
+      <Label className="mb-3">Also backing daily.dev</Label>
+      <div className="grid flex-1 grid-cols-2 items-center justify-items-center gap-x-4 gap-y-3">
+        {rotated.map((sponsor) => (
+          <SponsorSlot
+            height={PARTNER_CAP}
+            key={sponsor.name}
+            monochrome={monochrome}
+            sponsor={sponsor}
+          />
+        ))}
+      </div>
+    </section>
+  );
+};
 
 // ---------------------------------------------------------------
 // E. Side rail — zero feed displacement, lowest attention. Only
@@ -435,27 +571,35 @@ export const SponsorSideRail = ({
   onSponsorClick,
   partners,
   primary,
-}: SponsoredStripProps): ReactElement => (
-  <aside
-    className={classNames(
-      'flex w-60 shrink-0 flex-col rounded-16 border border-border-subtlest-tertiary p-4',
-      className,
-    )}
-  >
-    <PrimaryLockup onSponsorClick={onSponsorClick} primary={primary} vertical />
-    <span
-      className="my-4 h-px w-full bg-border-subtlest-tertiary"
-      aria-hidden
-    />
-    <div className="grid grid-cols-2 items-center justify-items-center gap-x-4 gap-y-3">
-      {partners.map((sponsor) => (
-        <SponsorSlot
-          height={PARTNER_CAP}
-          key={sponsor.name}
-          monochrome={monochrome}
-          sponsor={sponsor}
-        />
-      ))}
-    </div>
-  </aside>
-);
+}: SponsoredStripProps): ReactElement => {
+  const rotated = useShuffledSponsors(partners);
+
+  return (
+    <aside
+      className={classNames(
+        'flex w-60 shrink-0 flex-col rounded-16 border border-border-subtlest-tertiary p-4',
+        className,
+      )}
+    >
+      <PrimaryLockup
+        onSponsorClick={onSponsorClick}
+        primary={primary}
+        vertical
+      />
+      <span
+        className="my-4 h-px w-full bg-border-subtlest-tertiary"
+        aria-hidden
+      />
+      <div className="grid grid-cols-2 items-center justify-items-center gap-x-4 gap-y-3">
+        {rotated.map((sponsor) => (
+          <SponsorSlot
+            height={PARTNER_CAP}
+            key={sponsor.name}
+            monochrome={monochrome}
+            sponsor={sponsor}
+          />
+        ))}
+      </div>
+    </aside>
+  );
+};

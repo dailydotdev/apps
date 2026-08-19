@@ -455,17 +455,17 @@ const ROWS: Row[] = [
     cost: '40px of the feed column, for the whole session',
     exposure: 'Every session, continuously',
     legibility:
-      'All twelve clear the fade from ~1250px; below that they drop into it one at a time',
+      'All twelve from ~1250px, then the wall trims to fit: 11 at 1200, 9 at 1000, 7 at 800, 1 at 375 — always whole marks',
     mobile:
-      'Poor — at 375px the 196px lockup leaves no partner clear of the fade, and it lands on the browser’s own bottom chrome',
+      'Thin — the 196px lockup leaves room for one partner at 375px, and it lands on the browser’s own bottom chrome',
   },
   {
     id: 'B',
     concept: 'Inline rail',
     cost: '44px once, above the fold',
     exposure: 'Until the first scroll',
-    legibility: 'Same ~1250px threshold as A',
-    mobile: 'Weak — no partner clears the fade at 375px',
+    legibility: 'Same trimming as A, without the feed-column padding',
+    mobile: 'Thin — one or two partners at 375px',
   },
   {
     id: 'C',
@@ -562,28 +562,38 @@ export const Evaluation: Story = {
               every concept here is static, and why only A and E persist.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
-              Where the twelve-logo wall breaks
+              How many marks the wall shows
             </h2>
             <p className="text-text-secondary typo-footnote">
-              The wall is spread with `justify-between`, so a wide new tab hands
-              the slack to the gaps rather than stacking the logos on the left.
-              At a 16px cap twelve marks measure an 889px minimum run, and the
-              “Made possible by” lockup takes another 196px — NVIDIA is
-              deliberately ranked above the wall, at 18px against a 15px median
-              partner — so a rail needs about 1250px of viewport before the last
-              mark reaches the fade, and the pinned rail spends a further 80px
-              on the padding that lines it up with the feed column. That is
-              wider than most laptops, so at twelve slots the rails are
-              effectively a large-desktop format. Below that the rails quietly
-              show fewer slots than were sold, and at 375px the lockup alone
-              leaves none of them clear of it. That number is the sum of three
-              deliberate choices, and each is a dial: the lead mark's size,
-              sentence case over caps (~20px), and the 16px wall cap, where
-              dropping back to 13px would buy about 120px at marks small enough
-              to be decoration. The wrapping concepts (C, D, E) hold all twelve
-              at every width instead. If the inventory has to be exactly twelve
-              on one line, the rails need a smaller cap height or fewer slots —
-              not a marquee.
+              The rails no longer clip. The row measures itself and renders only
+              the marks that fit whole, so an advertiser is either shown or not
+              — never a half logo fading out at the edge. Twelve marks at a 16px
+              cap measure an 889px run, and the “Made possible by” lockup takes
+              another 196px, so all twelve need about 1250px. Below that the
+              wall steps down: 11 at 1200px, 9 at 1000px, 7 at 800px, 1 at
+              375px, measured off these stories.
+            </p>
+            <p className="text-text-secondary typo-footnote">
+              That step-down is the real inventory question, and it is a
+              commercial one rather than a layout one: twelve slots are only
+              twelve slots on a large desktop, and a laptop buyer is sharing a
+              shorter wall. The dials are slot count, the 16px cap (13px would
+              buy back about 120px, at marks small enough to be decoration), the
+              lead mark's size, and the label. The wrapping concepts (C, D, E)
+              hold all twelve at every width instead, which is the argument for
+              pairing the rail with one of them rather than relying on it alone.
+            </p>
+            <h2 className="mt-2 font-bold text-text-primary typo-callout">
+              The wall rotates every load
+            </h2>
+            <p className="text-text-secondary typo-footnote">
+              Partner order is reshuffled on every page load, so no advertiser
+              is permanently first and — since the row trims from the end — none
+              is permanently the one that gets dropped on a narrow window. Over
+              a run of sessions the exposure evens out on its own. The lead slot
+              never moves: it is the one that was paid for by position. The
+              shuffle waits for mount rather than running during render, so the
+              server and client agree on the first paint.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
               Only the lead mark is interactive
