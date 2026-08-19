@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { DatasetTool } from '../../../graphql/user/userStack';
+import type { AutocompleteTool } from '../../../graphql/user/userStack';
 import { searchTools } from '../../../graphql/user/userStack';
 import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
 import useDebounce from '../../../hooks/useDebounce';
@@ -16,7 +16,7 @@ export function useStackSearch(query: string) {
     debouncedQuery,
   );
 
-  const searchQuery = useQuery<DatasetTool[]>({
+  const searchQuery = useQuery<AutocompleteTool[]>({
     queryKey,
     queryFn: () => searchTools(debouncedQuery),
     staleTime: StaleTime.Default,

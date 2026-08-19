@@ -46,6 +46,7 @@ const SOURCE_STACK_FRAGMENT = gql`
     tool {
       id
       title
+      slug
       faviconUrl
     }
     createdBy {
