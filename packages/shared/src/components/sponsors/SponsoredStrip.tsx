@@ -436,20 +436,13 @@ const Divider = (): ReactElement => (
 //
 // The ground stays opaque — `surface-float` is a translucent token,
 // and cards scrolling through the marks costs more legibility than
-// the float is worth.
+// it buys.
 //
-// It floats clear of the edge rather than sitting flush on it, and
-// that `bottom-7` is load-bearing: browsers draw their link-status
-// bubble — the URL preview on hover — in the bottom corners, over
-// everything the page renders. A feed is almost entirely links, so a
-// flush bar spends most of its life with a black tooltip across it.
-// The gap is where that bubble goes. It cannot be measured from JS
-// (it is browser chrome, not DOM) and it scales with page zoom, so
-// the offset is deliberately generous rather than exact.
-//
-// Moving the bar horizontally does not work: Chrome relocates the
-// bubble to the opposite corner when the cursor nears it, so there is
-// no safe side — only a safe height.
+// It sits flush on the edge. An earlier version floated 28px clear to
+// dodge the browser's link-status bubble, but a detached island reads
+// as a widget bolted onto the product rather than part of it. The
+// bubble is handled by what sits underneath instead — see
+// SponsorDock, where a value rail takes the hit.
 //
 // `sticky`, not `fixed`. A fixed bar is positioned against the
 // viewport, so it runs the full width of the window and slides under
@@ -457,8 +450,8 @@ const Divider = (): ReactElement => (
 // padded main, which is where the sidebar offset already lives — so
 // the bar spans the feed and nothing else, and follows that offset
 // across layout variants and sidebar states without having to know
-// what either is. `laptop:mx-10` matches the feed column's padding,
-// so the island's edges line up with the card grid.
+// what either is. `laptop:px-10` matches the feed column's padding,
+// so the marks line up with the card grid, not the gutter.
 // ---------------------------------------------------------------
 export const SponsorRailPinned = ({
   className,
@@ -469,7 +462,7 @@ export const SponsorRailPinned = ({
 }: SponsoredStripProps): ReactElement => (
   <div
     className={classNames(
-      'sticky bottom-7 z-3 mx-4 flex h-10 items-center gap-5 rounded-16 border border-border-subtlest-tertiary bg-background-default px-4 shadow-3 laptop:mx-10',
+      'sticky bottom-0 z-3 flex h-10 w-full items-center gap-5 border-t border-border-subtlest-tertiary bg-background-default px-4 laptop:px-10',
       className,
     )}
   >

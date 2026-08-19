@@ -9,7 +9,8 @@ import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import dynamic from 'next/dynamic';
-import { SponsorRailPinned } from '@dailydotdev/shared/src/components/sponsors/SponsoredStrip';
+import { SponsorDock } from '@dailydotdev/shared/src/components/sponsors/SponsorDock';
+import { TagMomentumRail } from '@dailydotdev/shared/src/components/sponsors/ValueRails';
 import {
   MOCK_LEAD_SPONSOR,
   MOCK_PARTNER_SPONSORS,
@@ -126,15 +127,17 @@ export default function MainFeedPage({
       </MainFeedLayout>
       {/*
        * MOCK-UP — do not merge. Concept A of the sponsored strip
-       * (see Storybook: Extension/Sponsored Strip), wired onto the
-       * feed unconditionally so it can be reviewed on a preview
-       * deployment. Real inventory needs an ad-service source and a
-       * flag before this is anything but a picture.
+       * with a value rail docked under it (see Storybook:
+       * Extension/Sponsor Dock), wired onto the feed unconditionally
+       * so it can be reviewed on a preview deployment. Both the
+       * sponsors and the rail's data are fixtures; real inventory
+       * needs an ad-service source and a flag, and the rail needs
+       * wiring to trendingTags, before this is anything but a
+       * picture.
        */}
-      <SponsorRailPinned
-        partners={MOCK_PARTNER_SPONSORS}
-        primary={MOCK_LEAD_SPONSOR}
-      />
+      <SponsorDock partners={MOCK_PARTNER_SPONSORS} primary={MOCK_LEAD_SPONSOR}>
+        <TagMomentumRail />
+      </SponsorDock>
     </>
   );
 }

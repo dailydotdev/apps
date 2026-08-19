@@ -452,7 +452,7 @@ const ROWS: Row[] = [
   {
     id: 'A',
     concept: 'Pinned rail',
-    cost: '40px of the feed column, held 28px clear of the edge, for the whole session',
+    cost: '40px of the feed column for the whole session; 72px once a value rail is docked under it',
     exposure: 'Every session, continuously',
     legibility:
       'All twelve from ~1250px, then the wall trims to fit: 11 at 1200, 9 at 1000, 7 at 800, 1 at 375 — always whole marks',
@@ -591,21 +591,16 @@ export const Evaluation: Story = {
               pairing the rail with one of them rather than relying on it alone.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
-              Why the bar floats instead of sitting flush
+              The bar is flush, and something else takes the tooltip
             </h2>
             <p className="text-text-secondary typo-footnote">
-              Browsers draw their link-status bubble — the URL preview that
-              appears on hover — in the bottom corners, over everything the page
-              renders. A feed is almost entirely links, so a bar flush to the
-              bottom edge spends most of its life with a black tooltip across
-              it, and on a long URL that can be the whole strip. The 28px gap is
-              where that bubble goes. Moving the bar sideways does not help:
-              Chrome relocates the bubble to the opposite corner when the cursor
-              nears it, so there is no safe side, only a safe height. The trade
-              is that the bar reads as a floating island rather than part of the
-              browser edge, and the offset is a generous guess rather than a
-              measurement — the bubble is browser chrome, invisible to the DOM,
-              and it scales with page zoom.
+              Browsers draw their link-status bubble over the bottom corners, so
+              anything flush to the edge of a feed — which is nearly all links —
+              is covered most of the time. Floating the bar clear of the edge
+              fixes it and reads badly: it detaches from the product. The answer
+              is to stack instead, putting a value rail underneath to take the
+              hit. See the Sponsor Dock story; concept A on its own still has
+              the problem.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
               The wall rotates every load
