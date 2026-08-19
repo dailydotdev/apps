@@ -1,159 +1,30 @@
 import type { ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useMutation } from '@tanstack/react-query';
 import { initToolDiscussion } from '@dailydotdev/shared/src/graphql/tools';
-import type { Comment } from '@dailydotdev/shared/src/graphql/comments';
-import {
-  COMMENT_ON_COMMENT_MUTATION,
-  COMMENT_ON_POST_MUTATION,
-  DELETE_COMMENT_MUTATION,
-  POST_COMMENTS_QUERY,
-} from '@dailydotdev/shared/src/graphql/comments';
-import type { Connection } from '@dailydotdev/shared/src/graphql/common';
-import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '@dailydotdev/shared/src/components/typography/Typography';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '@dailydotdev/shared/src/components/buttons/Button';
+import { usePostById } from '@dailydotdev/shared/src/hooks/usePostById';
+import type { NewCommentRef } from '@dailydotdev/shared/src/components/post/NewComment';
+import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
+import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
+import PlaceholderCommentList from '@dailydotdev/shared/src/components/comments/PlaceholderCommentList';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
-import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
-import {
-  generateQueryKey,
-  RequestKey,
-  StaleTime,
-} from '@dailydotdev/shared/src/lib/query';
-import { publishTimeRelativeShort } from '@dailydotdev/shared/src/lib/dateFormat';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+
+const CommentInputOrModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "commentInputOrModal" */ '@dailydotdev/shared/src/components/comments/CommentInputOrModal'
+    ),
+);
 
 interface ToolDiscussionProps {
   toolId: string;
   toolTitle: string;
   discussionPostId: string | null;
 }
-
-const CommentComposer = ({
-  placeholder,
-  onSubmit,
-  onCancel,
-  isPending,
-}: {
-  placeholder: string;
-  onSubmit: (content: string) => void;
-  onCancel?: () => void;
-  isPending: boolean;
-}): ReactElement => {
-  const [content, setContent] = useState('');
-
-  return (
-    <form
-      className="flex flex-col gap-2"
-      onSubmit={(event) => {
-        event.preventDefault();
-        const trimmed = content.trim();
-        if (!trimmed) {
-          return;
-        }
-        onSubmit(trimmed);
-        setContent('');
-      }}
-    >
-      <textarea
-        value={content}
-        onChange={(event) => setContent(event.target.value)}
-        placeholder={placeholder}
-        maxLength={2000}
-        rows={2}
-        className="w-full resize-y rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 text-text-primary typo-callout focus:border-border-subtlest-primary focus:outline-none"
-      />
-      <div className="flex items-center justify-end gap-2">
-        {onCancel && (
-          <Button
-            type="button"
-            variant={ButtonVariant.Tertiary}
-            size={ButtonSize.Small}
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-        )}
-        <Button
-          type="submit"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          disabled={isPending || !content.trim()}
-        >
-          Comment
-        </Button>
-      </div>
-    </form>
-  );
-};
-
-const CommentRow = ({
-  comment,
-  isReply,
-  canReply,
-  onReply,
-  onDelete,
-  viewerId,
-}: {
-  comment: Comment;
-  isReply?: boolean;
-  canReply: boolean;
-  onReply?: () => void;
-  onDelete: (id: string) => void;
-  viewerId?: string;
-}): ReactElement => (
-  <div className={`flex items-start gap-3 ${isReply ? 'ml-10' : ''}`}>
-    {comment.author && (
-      <img
-        src={comment.author.image}
-        alt={`${comment.author.name}'s avatar`}
-        className="size-8 flex-none rounded-full object-cover"
-      />
-    )}
-    <div className="flex min-w-0 flex-1 flex-col">
-      <Typography type={TypographyType.Footnote} bold>
-        {comment.author?.name ?? 'Deleted user'}{' '}
-        <span className="font-normal text-text-quaternary">
-          · {publishTimeRelativeShort(comment.createdAt)}
-        </span>
-      </Typography>
-      <div
-        className="text-text-secondary typo-callout [&_a]:text-text-link"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: comment.contentHtml }}
-      />
-      <div className="mt-1 flex gap-3">
-        {canReply && onReply && (
-          <button
-            type="button"
-            onClick={onReply}
-            className="font-bold text-text-quaternary typo-caption1 hover:text-text-primary"
-          >
-            Reply
-          </button>
-        )}
-        {viewerId && comment.author?.id === viewerId && (
-          <button
-            type="button"
-            onClick={() => onDelete(comment.id)}
-            className="font-bold text-text-quaternary typo-caption1 hover:text-status-error"
-          >
-            Delete
-          </button>
-        )}
-      </div>
-    </div>
-  </div>
-);
 
 export const ToolDiscussion = ({
   toolId,
@@ -162,163 +33,75 @@ export const ToolDiscussion = ({
 }: ToolDiscussionProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { displayToast } = useToastNotification();
-  const { showPrompt } = usePrompt();
-  const queryClient = useQueryClient();
-  const [replyTo, setReplyTo] = useState<string | null>(null);
-  // The SSG prop can lag behind (ISR window); the client vote-state query
-  // delivers the fresh id as a prop update, so derive instead of seeding
-  // state.
-  const [createdPostId, setCreatedPostId] = useState<string | null>(null);
-  const postId = createdPostId ?? discussionPostId;
+  const commentRef = useRef<NewCommentRef>(null);
+  // Set once the mutation below creates the post, so the composer can be
+  // opened as soon as it finishes loading.
+  const shouldOpenOnLoad = useRef(false);
+  const [postId, setPostId] = useState<string | null>(discussionPostId);
 
-  const queryKey = generateQueryKey(
-    RequestKey.PostComments,
-    undefined,
-    'tool-discussion',
-    postId,
-  );
+  // The SSG prop can still deliver the id after the client already resolved
+  // one from `initToolDiscussion` (ISR revalidation); never downgrade it.
+  useEffect(() => {
+    setPostId((current) => current ?? discussionPostId);
+  }, [discussionPostId]);
 
-  const { data: comments } = useQuery({
-    queryKey,
-    queryFn: async () => {
-      const result = await gqlClient.request<{
-        postComments: Connection<Comment>;
-      }>(POST_COMMENTS_QUERY, { postId, first: 20 });
-      return result.postComments.edges.map(({ node }) => node);
-    },
-    enabled: !!postId,
-    staleTime: StaleTime.Default,
-  });
+  const { post, isLoading } = usePostById({ id: postId ?? '' });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey });
-
-  const { mutate: submitComment, isPending } = useMutation({
-    mutationFn: async ({
-      content,
-      parentCommentId,
-    }: {
-      content: string;
-      parentCommentId?: string;
-    }) => {
-      // The hidden discussion post is created lazily on first comment.
-      const targetPostId = postId ?? (await initToolDiscussion(toolId));
-      if (!postId) {
-        setCreatedPostId(targetPostId);
-      }
-      if (parentCommentId) {
-        await gqlClient.request(COMMENT_ON_COMMENT_MUTATION, {
-          id: parentCommentId,
-          content,
-        });
-      } else {
-        await gqlClient.request(COMMENT_ON_POST_MUTATION, {
-          id: targetPostId,
-          content,
-        });
-      }
-    },
-    onSuccess: () => {
-      setReplyTo(null);
-      invalidate();
-    },
-    onError: () => displayToast('Failed to post comment'),
-  });
-
-  const { mutate: removeComment } = useMutation({
-    mutationFn: async (id: string) => {
-      await gqlClient.request(DELETE_COMMENT_MUTATION, { id });
-    },
-    onSuccess: invalidate,
-    onError: () => displayToast('Failed to delete comment'),
-  });
-
-  const handleDelete = useCallback(
-    async (id: string) => {
-      const confirmed = await showPrompt({
-        title: 'Delete comment?',
-        description: 'This cannot be undone.',
-        okButton: { title: 'Delete', variant: ButtonVariant.Primary },
-      });
-      if (confirmed) {
-        removeComment(id);
-      }
-    },
-    [removeComment, showPrompt],
-  );
-
-  const requireLogin = useCallback((): boolean => {
-    if (user) {
-      return false;
+  useEffect(() => {
+    if (shouldOpenOnLoad.current && post) {
+      shouldOpenOnLoad.current = false;
+      commentRef.current?.onShowInput(Origin.ToolPage);
     }
-    showLogin({ trigger: AuthTriggers.Comment });
-    return true;
-  }, [user, showLogin]);
+  }, [post]);
+
+  const { mutate: startDiscussion, isPending: isStarting } = useMutation({
+    mutationFn: () => initToolDiscussion(toolId),
+    onSuccess: (id) => {
+      shouldOpenOnLoad.current = true;
+      setPostId(id);
+    },
+    onError: () => displayToast('Failed to start the discussion'),
+  });
+
+  const handleStart = (): void => {
+    if (!user) {
+      showLogin({ trigger: AuthTriggers.Comment });
+      return;
+    }
+
+    if (postId) {
+      commentRef.current?.onShowInput(Origin.ToolPage);
+      return;
+    }
+
+    startDiscussion();
+  };
+
+  if (postId && (isLoading || !post)) {
+    return <PlaceholderCommentList placeholderAmount={1} />;
+  }
+
+  if (postId && post) {
+    return (
+      <div className="flex flex-col gap-4">
+        <NewComment
+          post={post}
+          ref={commentRef}
+          CommentInputOrModal={CommentInputOrModal}
+        />
+        <PostComments post={post} origin={Origin.ToolPage} />
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col gap-4">
-      {user ? (
-        <CommentComposer
-          placeholder={`Share your experience with ${toolTitle}…`}
-          onSubmit={(content) => submitComment({ content })}
-          isPending={isPending}
-        />
-      ) : (
-        <button
-          type="button"
-          onClick={requireLogin}
-          className="rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 text-left text-text-quaternary typo-callout"
-        >
-          Share your experience with {toolTitle}…
-        </button>
-      )}
-
-      <div className="flex flex-col gap-4">
-        {comments?.map((comment) => (
-          <div key={comment.id} className="flex flex-col gap-3">
-            <CommentRow
-              comment={comment}
-              canReply
-              onReply={() => {
-                if (!requireLogin()) {
-                  setReplyTo(replyTo === comment.id ? null : comment.id);
-                }
-              }}
-              onDelete={handleDelete}
-              viewerId={user?.id}
-            />
-            {comment.children?.edges?.map(({ node: reply }) => (
-              <CommentRow
-                key={reply.id}
-                comment={reply}
-                isReply
-                canReply={false}
-                onDelete={handleDelete}
-                viewerId={user?.id}
-              />
-            ))}
-            {replyTo === comment.id && (
-              <div className="ml-10">
-                <CommentComposer
-                  placeholder={`Reply to ${comment.author?.name ?? 'comment'}…`}
-                  onSubmit={(content) =>
-                    submitComment({ content, parentCommentId: comment.id })
-                  }
-                  onCancel={() => setReplyTo(null)}
-                  isPending={isPending}
-                />
-              </div>
-            )}
-          </div>
-        ))}
-        {postId && comments && comments.length === 0 && (
-          <Typography
-            type={TypographyType.Footnote}
-            color={TypographyColor.Quaternary}
-          >
-            No comments yet — be the first to share your experience.
-          </Typography>
-        )}
-      </div>
-    </div>
+    <button
+      type="button"
+      disabled={isStarting}
+      onClick={handleStart}
+      className="disabled:opacity-70 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 text-left text-text-quaternary typo-callout"
+    >
+      Share your experience with {toolTitle}…
+    </button>
   );
 };
