@@ -11,6 +11,11 @@ export interface DatasetTool {
   faviconUrl: string | null;
 }
 
+// autocompleteTools resolves plain TypeORM entities (no GraphORM field
+// mapping), so `slug` (backed by titleNormalized) comes back null there.
+// Excluded until the API adds a resolver fallback.
+export type AutocompleteTool = Omit<DatasetTool, 'slug'>;
+
 export interface ToolTopSquad {
   id: string;
   name: string;
@@ -124,7 +129,6 @@ const AUTOCOMPLETE_TOOLS_QUERY = gql`
     autocompleteTools(query: $query) {
       id
       title
-      slug
       faviconUrl
     }
   }
@@ -161,9 +165,11 @@ export const getUserStack = async (
   return result.userStack;
 };
 
-export const searchTools = async (query: string): Promise<DatasetTool[]> => {
+export const searchTools = async (
+  query: string,
+): Promise<AutocompleteTool[]> => {
   const result = await gqlClient.request<{
-    autocompleteTools: DatasetTool[];
+    autocompleteTools: AutocompleteTool[];
   }>(AUTOCOMPLETE_TOOLS_QUERY, { query });
   return result.autocompleteTools;
 };
