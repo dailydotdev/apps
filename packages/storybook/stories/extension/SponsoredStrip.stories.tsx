@@ -574,6 +574,13 @@ export const Evaluation: Story = {
               375px, measured off these stories.
             </p>
             <p className="text-text-secondary typo-footnote">
+              Those are story widths. On the feed the sidebar and the column
+              padding take their cut first, so the same viewport yields a
+              narrower row and one fewer mark — 8 rather than 9 at 1000px,
+              measured on the preview. Read the numbers as the shape of the
+              curve, not as a rate card.
+            </p>
+            <p className="text-text-secondary typo-footnote">
               That step-down is the real inventory question, and it is a
               commercial one rather than a layout one: twelve slots are only
               twelve slots on a large desktop, and a laptop buyer is sharing a
