@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Link from '../../../../components/utilities/Link';
+import ConditionalWrapper from '../../../../components/ConditionalWrapper';
 import type { UserStack } from '../../../../graphql/user/userStack';
 import {
   Typography,
@@ -28,7 +29,7 @@ import { UserStackTopSquadsTooltip } from './UserStackTopSquadsTooltip';
 import { useEngagementAdsContext } from '../../../../contexts/EngagementAdsContext';
 import { SponsoredTooltip } from '../../../../components/brand/SponsoredTooltip';
 import { useLogContext } from '../../../../contexts/LogContext';
-import { LogEvent, Origin } from '../../../../lib/log';
+import { LogEvent, Origin, TargetType } from '../../../../lib/log';
 import { getEngagementLogExtra } from '../../../../lib/engagementAds';
 
 interface UserStackItemProps {
@@ -64,6 +65,18 @@ function UserStackItemBody({
   const hasLoggedHoverRef = useRef(false);
 
   const iconUrl = sponsoredCreative?.logo || tool.faviconUrl;
+  // Sponsored rows keep their pre-existing behavior: the tooltip CTA is the
+  // interaction, so the label doesn't also link to /tools.
+  const isLinkable = !!tool.slug && !sponsoredCreative;
+
+  const handleLinkClick = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.Tool,
+      target_id: tool.slug,
+      extra: JSON.stringify({ origin: Origin.ProfileStack }),
+    });
+  }, [logEvent, tool.slug]);
 
   const handleSponsoredHover = useCallback(() => {
     if (!sponsoredCreative || hasLoggedHoverRef.current) {
@@ -143,8 +156,21 @@ function UserStackItemBody({
       >
         <div className="flex min-w-0 items-center gap-2">
           {dragHandle}
-          <Link href={`/tools/${tool.slug}`}>
-            <a className="flex min-w-0 items-center gap-2">
+          <ConditionalWrapper
+            condition={isLinkable}
+            wrapper={(labelChildren) => (
+              <Link href={`/tools/${tool.slug}`}>
+                <a
+                  href={`/tools/${tool.slug}`}
+                  className="flex min-w-0 items-center gap-2"
+                  onClick={handleLinkClick}
+                >
+                  {labelChildren}
+                </a>
+              </Link>
+            )}
+          >
+            <div className="flex min-w-0 items-center gap-2">
               {iconUrl ? (
                 <img
                   src={iconUrl}
@@ -179,8 +205,8 @@ function UserStackItemBody({
                   )}
                 </div>
               )}
-            </a>
-          </Link>
+            </div>
+          </ConditionalWrapper>
         </div>
         {isOwner && (
           <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
