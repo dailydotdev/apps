@@ -16,6 +16,7 @@ import type {
   ToolStacker,
   ToolTake,
   ToolTopPost,
+  ToolVoteState,
 } from '@dailydotdev/shared/src/graphql/tools';
 import {
   getDatasetTool,
@@ -73,6 +74,14 @@ import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { publishTimeRelativeShort } from '@dailydotdev/shared/src/lib/dateFormat';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import { getDomainFromUrl } from '@dailydotdev/shared/src/lib/links';
+import {
+  ProfileImageSize,
+  ProfilePicture,
+} from '@dailydotdev/shared/src/components/ProfilePicture';
+import { ProfilePictureGroup } from '@dailydotdev/shared/src/components/ProfilePictureGroup';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import classNames from 'classnames';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
@@ -80,6 +89,7 @@ import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
 import { ToolDiscussion } from '../../components/tools/ToolDiscussion';
+import { ToolIcon } from '../../components/tools/ToolIcon';
 
 const TOP_POSTS_COUNT = 5;
 const STACKERS_COUNT = 5;
@@ -176,24 +186,44 @@ const getSparklinePoints = (adoption: ToolAdoption): string | null => {
     .join(' ');
 };
 
-const ToolIcon = ({
-  title,
-  faviconUrl,
-  className,
-}: {
-  title: string;
-  faviconUrl: string | null;
-  className: string;
-}): ReactElement =>
-  faviconUrl ? (
-    <img src={faviconUrl} alt={`${title} logo`} className={className} />
-  ) : (
-    <span
-      className={`${className} grid place-items-center bg-surface-float font-bold text-text-tertiary`}
-    >
-      {title.charAt(0).toUpperCase()}
-    </span>
-  );
+const getSparklineTrendDescription = (adoption: ToolAdoption): string => {
+  const counts = adoption.monthly.map(({ count }) => count);
+  const first = counts[0] ?? 0;
+  const last = counts[counts.length - 1] ?? 0;
+
+  if (last > first) {
+    return `Stack additions trended up over the trailing 12 months, from ${first} to ${last} per month.`;
+  }
+
+  if (last < first) {
+    return `Stack additions trended down over the trailing 12 months, from ${first} to ${last} per month.`;
+  }
+
+  return `Stack additions stayed roughly flat over the trailing 12 months, around ${last} per month.`;
+};
+
+// Mirrors the transition math a fresh vote count would produce server-side,
+// so the click feels instant while `sendVote` is in flight.
+const applyOptimisticVote = (
+  state: ToolVoteState,
+  vote: number,
+): ToolVoteState => {
+  let { upvotes, downvotes } = state;
+
+  if (state.userVote === 1) {
+    upvotes -= 1;
+  } else if (state.userVote === -1) {
+    downvotes -= 1;
+  }
+
+  if (vote === 1) {
+    upvotes += 1;
+  } else if (vote === -1) {
+    downvotes += 1;
+  }
+
+  return { ...state, upvotes, downvotes, userVote: vote === 0 ? null : vote };
+};
 
 const Card = ({
   title,
@@ -233,6 +263,7 @@ const ToolPage = ({
   const { user, showLogin } = useAuthContext();
   const { stackItems, add } = useUserStack(user as PublicProfile);
   const { displayToast } = useToastNotification();
+  const { logEvent } = useLogContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const isInStack = useMemo(
@@ -243,6 +274,11 @@ const ToolPage = ({
   const [copying, onShareOrCopy] = useShareOrCopyLink({
     link: `${webappUrl}tools/${tool.slug}`,
     text: `Check out ${tool.title} on daily.dev`,
+    logObject: (provider) => ({
+      event_name: LogEvent.ShareTool,
+      target_id: tool.slug,
+      extra: JSON.stringify({ provider, origin: Origin.ToolPage }),
+    }),
   });
 
   const { data: followedStackers } = useQuery({
@@ -267,18 +303,38 @@ const ToolPage = ({
   const { data: voteState } = useQuery({
     queryKey: voteKey,
     queryFn: () => getToolVoteState(tool.slug),
-    initialData: {
+    // The anonymous SSG payload only carries public counts; `userVote` is
+    // always seeded null so it's never trusted as the signed-in user's vote.
+    placeholderData: {
       upvotes: tool.upvotes,
       downvotes: tool.downvotes,
-      userVote: tool.userVote,
+      userVote: null,
       discussionPostId: tool.discussionPostId,
     },
     staleTime: 0,
   });
   const { mutate: sendVote } = useMutation({
     mutationFn: (vote: number) => voteTool(tool.id, vote),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: voteKey }),
-    onError: () => displayToast('Failed to vote'),
+    onMutate: async (vote: number) => {
+      await queryClient.cancelQueries({ queryKey: voteKey });
+      const previous = queryClient.getQueryData<ToolVoteState>(voteKey);
+
+      if (previous) {
+        queryClient.setQueryData<ToolVoteState>(
+          voteKey,
+          applyOptimisticVote(previous, vote),
+        );
+      }
+
+      return { previous };
+    },
+    onError: (_err, _vote, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(voteKey, context.previous);
+      }
+      displayToast('Failed to vote');
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: voteKey }),
   });
 
   const handleVote = useCallback(
@@ -287,9 +343,38 @@ const ToolPage = ({
         showLogin({ trigger: AuthTriggers.Upvote });
         return;
       }
-      sendVote(voteState?.userVote === vote ? 0 : vote);
+
+      const nextVote = voteState?.userVote === vote ? 0 : vote;
+      sendVote(nextVote);
+
+      const extra = JSON.stringify({ origin: Origin.ToolPage });
+      if (nextVote === 1) {
+        logEvent({
+          event_name: LogEvent.UpvoteTool,
+          target_id: tool.slug,
+          extra,
+        });
+      } else if (nextVote === -1) {
+        logEvent({
+          event_name: LogEvent.DownvoteTool,
+          target_id: tool.slug,
+          extra,
+        });
+      } else if (voteState?.userVote === 1) {
+        logEvent({
+          event_name: LogEvent.RemoveToolUpvote,
+          target_id: tool.slug,
+          extra,
+        });
+      } else if (voteState?.userVote === -1) {
+        logEvent({
+          event_name: LogEvent.RemoveToolDownvote,
+          target_id: tool.slug,
+          extra,
+        });
+      }
     },
-    [user, showLogin, sendVote, voteState?.userVote],
+    [user, showLogin, sendVote, voteState?.userVote, logEvent, tool.slug],
   );
 
   const totalVotes = (voteState?.upvotes ?? 0) + (voteState?.downvotes ?? 0);
@@ -303,8 +388,13 @@ const ToolPage = ({
       showLogin({ trigger: AuthTriggers.AddToStack });
       return;
     }
+    logEvent({
+      event_name: LogEvent.StartAddUserStack,
+      target_id: tool.slug,
+      extra: JSON.stringify({ origin: Origin.ToolPage }),
+    });
     setIsModalOpen(true);
-  }, [user, showLogin]);
+  }, [user, showLogin, logEvent, tool.slug]);
 
   const handleAdd = useCallback(
     async (input: AddUserStackInput) => {
@@ -319,7 +409,47 @@ const ToolPage = ({
     [add, displayToast],
   );
 
-  const websiteHost = tool.url ? new URL(tool.url).hostname : null;
+  const handleDiscussClick = useCallback(() => {
+    logEvent({
+      event_name: LogEvent.CommentsClick,
+      target_id: tool.slug,
+      extra: JSON.stringify({ origin: Origin.ToolPage }),
+    });
+  }, [logEvent, tool.slug]);
+
+  const handleAlsoStackedClick = useCallback(
+    (related: AlsoStackedTool) => {
+      logEvent({
+        event_name: LogEvent.Click,
+        target_type: TargetType.Tool,
+        target_id: related.slug,
+        extra: JSON.stringify({ origin: Origin.ToolPage }),
+      });
+    },
+    [logEvent],
+  );
+
+  const handleTopPostClick = useCallback(
+    (post: ToolTopPost) => {
+      logEvent({
+        event_name: LogEvent.Click,
+        target_type: TargetType.Post,
+        target_id: post.id,
+        extra: JSON.stringify({ origin: Origin.ToolPage }),
+      });
+    },
+    [logEvent],
+  );
+
+  const websiteHost = tool.url ? getDomainFromUrl(tool.url) : null;
+  const sparklinePoints = useMemo(
+    () => (adoption ? getSparklinePoints(adoption) : null),
+    [adoption],
+  );
+  const sparklineTrendDescription = useMemo(
+    () => (adoption ? getSparklineTrendDescription(adoption) : null),
+    [adoption],
+  );
 
   return (
     <main className="mx-auto flex w-full max-w-screen-laptop flex-col gap-5 px-4 py-6 laptop:px-8">
@@ -369,9 +499,9 @@ const ToolPage = ({
             {tool.title}
           </Typography>
           <div className="flex flex-wrap items-center gap-2">
-            {tool.url && websiteHost && (
+            {websiteHost && (
               <a
-                href={tool.url}
+                href={tool.url ?? undefined}
                 target="_blank"
                 rel={anchorDefaultRel}
                 className="rounded-8 border border-border-subtlest-tertiary px-2.5 py-0.5 font-bold text-text-tertiary typo-footnote hover:text-text-primary"
@@ -400,18 +530,20 @@ const ToolPage = ({
       </section>
 
       <section className="flex flex-wrap items-center gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-4 py-3">
-        <div className="flex items-center">
-          {stackers.map((stacker, index) => (
-            <img
+        <ProfilePictureGroup
+          total={tool.stackCount}
+          limit={stackers.length}
+          size={ProfileImageSize.Small}
+        >
+          {stackers.map((stacker) => (
+            <ProfilePicture
               key={stacker.id}
-              src={stacker.image}
-              alt={`${stacker.name}'s avatar`}
-              className={`size-7 rounded-full border-2 border-background-subtle object-cover ${
-                index > 0 ? '-ml-2' : ''
-              }`}
+              user={stacker}
+              size={ProfileImageSize.Small}
+              className="border-2 border-background-subtle"
             />
           ))}
-        </div>
+        </ProfilePictureGroup>
         <div className="flex flex-col">
           <Typography type={TypographyType.Callout} bold>
             {largeNumberFormat(tool.stackCount) ?? tool.stackCount}
@@ -487,6 +619,7 @@ const ToolPage = ({
             icon={<DiscussIcon />}
             tag="a"
             href="#discussion"
+            onClick={handleDiscussClick}
           >
             Discuss
           </Button>
@@ -522,7 +655,11 @@ const ToolPage = ({
                     className="border-b border-border-subtlest-tertiary py-2.5 first:pt-0 last:border-b-0 last:pb-0"
                   >
                     <Link href={`/posts/${post.slug || post.id}`} passHref>
-                      <a className="flex items-center gap-3">
+                      <a
+                        href={`/posts/${post.slug || post.id}`}
+                        className="flex items-center gap-3"
+                        onClick={() => handleTopPostClick(post)}
+                      >
                         {post.image ? (
                           <img
                             src={post.image}
@@ -546,9 +683,12 @@ const ToolPage = ({
                             <span className="font-bold text-accent-avocado-default">
                               {largeNumberFormat(post.numUpvotes) ??
                                 post.numUpvotes}
-                            </span>
-                            · {publishTimeRelativeShort(post.createdAt)} · #
-                            {tool.keyword}
+                            </span>{' '}
+                            ·{' '}
+                            <span suppressHydrationWarning>
+                              {publishTimeRelativeShort(post.createdAt)}
+                            </span>{' '}
+                            · #{tool.keyword}
                           </span>
                         </span>
                       </a>
@@ -588,7 +728,7 @@ const ToolPage = ({
                     </Typography>
                   )}
               </div>
-              {getSparklinePoints(adoption) && (
+              {sparklinePoints && (
                 <svg
                   viewBox={`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`}
                   width="100%"
@@ -597,16 +737,14 @@ const ToolPage = ({
                   aria-hidden
                 >
                   <polygon
-                    points={`0,${SPARK_HEIGHT} ${getSparklinePoints(
-                      adoption,
-                    )} ${SPARK_WIDTH},${SPARK_HEIGHT}`}
+                    points={`0,${SPARK_HEIGHT} ${sparklinePoints} ${SPARK_WIDTH},${SPARK_HEIGHT}`}
                     style={{
                       fill: 'var(--theme-accent-cabbage-default)',
                       opacity: 0.12,
                     }}
                   />
                   <polyline
-                    points={getSparklinePoints(adoption) ?? ''}
+                    points={sparklinePoints}
                     style={{
                       fill: 'none',
                       stroke: 'var(--theme-accent-cabbage-default)',
@@ -621,6 +759,9 @@ const ToolPage = ({
               >
                 Stack additions, trailing 12 months
               </Typography>
+              {sparklineTrendDescription && (
+                <span className="sr-only">{sparklineTrendDescription}</span>
+              )}
             </Card>
           )}
         </div>
@@ -669,7 +810,11 @@ const ToolPage = ({
                     href={`/tools/${related.slug}`}
                     passHref
                   >
-                    <a className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-1.5 font-bold typo-footnote hover:bg-surface-hover">
+                    <a
+                      href={`/tools/${related.slug}`}
+                      className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary bg-surface-float px-3 py-1.5 font-bold typo-footnote hover:bg-surface-hover"
+                      onClick={() => handleAlsoStackedClick(related)}
+                    >
                       <ToolIcon
                         title={related.title}
                         faviconUrl={related.faviconUrl}
