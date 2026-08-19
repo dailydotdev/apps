@@ -297,7 +297,6 @@ export interface ToolVoteState {
   upvotes: number;
   downvotes: number;
   userVote: number | null;
-  discussionPostId: string | null;
 }
 
 const TOOL_VOTE_STATE_QUERY = gql`
