@@ -62,7 +62,7 @@ import {
 import type { DynamicSeoProps } from '../../../components/common';
 import { noindexSeoProps } from '../../../next-seo';
 import useSharedByToast from '../../../hooks/useSharedByToast';
-import { getPostCanonicalUrl } from '../../../lib/seo';
+import { getPostCanonicalUrl, shouldNoindexPost } from '../../../lib/seo';
 
 const Unauthorized = dynamic(
   () =>
@@ -149,8 +149,6 @@ export interface PostParams extends ParsedUrlQuery {
   id: string;
 }
 
-const THIN_NOINDEX_POST_TYPES = [PostType.Brief, PostType.SocialTwitter];
-
 export const seoTitle = (post: Post): string | undefined => {
   if (post?.title) {
     return post.title;
@@ -164,24 +162,6 @@ export const seoTitle = (post: Post): string | undefined => {
     ? `by ${post?.author?.username}`
     : `at ${post?.source?.name}`;
   return `Shared post ${sourceName}`;
-};
-
-export const shouldNoindexPost = (post: Post): boolean => {
-  // Posts in private squads normally fail the unauthenticated ISR fetch, but a
-  // cached page can outlive a squad turning private, so fail closed here too.
-  if (post?.private || post?.source?.public === false) {
-    return true;
-  }
-
-  const hasLowReputationAuthor =
-    typeof post?.author?.reputation === 'number' &&
-    post.author.reputation <= 10;
-
-  if (hasLowReputationAuthor) {
-    return true;
-  }
-
-  return THIN_NOINDEX_POST_TYPES.includes(post.type);
 };
 
 export const PostPage = ({

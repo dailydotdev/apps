@@ -28,6 +28,8 @@ import {
 } from '../../typography/Typography';
 import { PlusUser } from '../../PlusUser';
 import { SidebarProfileStats } from '../SidebarProfileStats';
+import { usePlusSale } from '../../../hooks/usePlusSale';
+import { PlusSaleLabel } from '../../plus/PlusSaleLabel';
 
 // The avatar tab panel. Everything "you": identity + your feeds/activity, your
 // pinned squads and custom feeds. Account/app controls live in the bottom
@@ -39,6 +41,7 @@ export const ProfilePanelSection = ({
 }: SidebarSectionProps): ReactElement | null => {
   const { user } = useAuthContext();
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isActive: isSaleActive } = usePlusSale();
   const router = useRouter();
 
   // The header links to your profile, so highlight it as the active row (same
@@ -55,7 +58,7 @@ export const ProfilePanelSection = ({
       [
         {
           title: 'Following',
-          path: '/following',
+          path: `${webappUrl}following`,
           action: () => onNavTabClick?.(OtherFeedPage.Following),
           icon: (active: boolean) => (
             <ListIcon Icon={() => <SquadIcon secondary={active} />} />
@@ -112,9 +115,10 @@ export const ProfilePanelSection = ({
           icon: (active: boolean) => (
             <ListIcon Icon={() => <DevPlusIcon secondary={active} />} />
           ),
+          ...(isSaleActive && { rightIcon: () => <PlusSaleLabel /> }),
         },
       ].filter(Boolean) as SidebarMenuItem[],
-    [onNavTabClick, isPlus, logSubscriptionEvent],
+    [onNavTabClick, isPlus, isSaleActive, logSubscriptionEvent],
   );
 
   if (!user) {

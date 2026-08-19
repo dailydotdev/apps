@@ -16,7 +16,6 @@ import { WhyFeaturedButton } from './WhyFeaturedButton';
 export type FeaturedWideCardShellProps = {
   post: Post;
   domProps?: PostCardProps['domProps'];
-  useGlass?: boolean;
   onPostClick?: PostCardProps['onPostClick'];
   onPostAuxClick?: PostCardProps['onPostAuxClick'];
   overlayAriaLabel?: string;
@@ -30,7 +29,6 @@ export const FeaturedWideCardShell = forwardRef(function FeaturedWideCardShell(
   {
     post,
     domProps = {},
-    useGlass,
     onPostClick,
     onPostAuxClick,
     overlayAriaLabel,
@@ -82,7 +80,7 @@ export const FeaturedWideCardShell = forwardRef(function FeaturedWideCardShell(
         className: getPostClassNames(
           post,
           classNames(className ?? '', 'h-full overflow-hidden'),
-          useGlass ? 'min-h-cardGlass' : 'min-h-card',
+          'min-h-card',
         ),
       }}
       ref={ref}

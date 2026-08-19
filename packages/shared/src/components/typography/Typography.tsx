@@ -1,7 +1,6 @@
 import type { ReactElement, RefAttributes } from 'react';
 import React, { forwardRef } from 'react';
 import classNames from 'classnames';
-import classed from '../../lib/classed';
 import { truncateTextClassNames } from '../utilities/common';
 
 export enum TypographyTag {
@@ -97,12 +96,14 @@ function BaseTypography<TagName extends AllowedTags>(
     color ?? (tagToColor as Record<string, TypographyColor | undefined>)[tag],
     truncate && truncateTextClassNames,
   );
-  const Tag = classed(tag, classes);
 
-  return (
-    <Tag {...props} ref={ref}>
-      {children}
-    </Tag>
+  // Never build the element type with classed() here: a type created during
+  // render remounts on every pass, which makes a Radix `asChild` slot (the
+  // Tooltip trigger) detach its ref in a loop until the update depth blows.
+  return React.createElement(
+    tag,
+    { ...props, className: classes, ref },
+    children,
   );
 }
 

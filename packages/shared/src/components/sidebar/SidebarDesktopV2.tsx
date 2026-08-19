@@ -138,10 +138,6 @@ import { LazyModal } from '../modals/common/types';
 import { useCanPurchaseCores } from '../../hooks/useCoresFeature';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useStreakRingState } from '../../hooks/streaks/useStreakRingState';
-import { useConditionalFeature } from '../../hooks/useConditionalFeature';
-import { featureGiveback } from '../../lib/featureManagement';
-import { GivebackGiftEntry } from '../../features/giveback/components/GivebackGiftEntry';
-import { RAIL_ANCHOR_ATTRIBUTE } from '../../features/giveback/components/GivebackGiftDock';
 import { FeedbackWidget } from '../feedback/FeedbackWidget';
 import {
   Typography,
@@ -403,38 +399,17 @@ const RailHoverCard = ({
   );
 };
 
-const railGiftLink = (label: string, href: string): ReactElement => (
-  <Tooltip side="right" content={label}>
-    <Link href={href} passHref>
-      <a aria-label={label} className={railButtonClass}>
+// Theme toggling now lives in the profile dropdown (ThemeSection, matching
+// production), so the rail gift is the "Invite friends" shortcut.
+const SidebarInviteButton = (): ReactElement => (
+  <Tooltip side="right" content="Invite friends">
+    <Link href={`${settingsUrl}/invite`} passHref>
+      <a aria-label="Invite friends" className={railButtonClass}>
         <GiftIcon size={RAIL_ICON_SIZE} aria-hidden />
       </a>
     </Link>
   </Tooltip>
 );
-
-// Theme toggling now lives in the profile dropdown (ThemeSection, matching
-// production). When the giveback experiment is on, the rail gift becomes the
-// giveback entry point — carrying the live money jumps + invite prompt via
-// GivebackGiftEntry — and otherwise falls back to the "Invite friends"
-// shortcut.
-const SidebarInviteButton = (): ReactElement => {
-  const { isAuthReady, isLoggedIn } = useAuthContext();
-  const { value: givebackEnabled } = useConditionalFeature({
-    feature: featureGiveback,
-    shouldEvaluate: isAuthReady && isLoggedIn,
-  });
-
-  if (givebackEnabled) {
-    return (
-      <GivebackGiftEntry variant="rail" isFeatureEnabled={givebackEnabled}>
-        {railGiftLink('Giveback', `${webappUrl}giveback`)}
-      </GivebackGiftEntry>
-    );
-  }
-
-  return railGiftLink('Invite friends', `${settingsUrl}/invite`);
-};
 
 const supportItems: ProfileSectionItemProps[] = [
   {
@@ -747,11 +722,12 @@ export const SidebarDesktopV2 = ({
   const { openModal, modal } = useLazyModal();
   const { isLoggedIn, user } = useAuthContext();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
-  // The brand mark targets the "For You" feed. On extension there's no
-  // router, so it always uses the explicit /my-feed path.
+  // The brand mark targets the "For You" feed. On extension there's no router,
+  // so it always uses the explicit my-feed path — absolute, so opening it in a
+  // new tab lands on the webapp instead of chrome-extension://<id>/my-feed.
   let myFeedPath = isCustomDefaultFeed ? '/my-feed' : '/';
   if (isExtension) {
-    myFeedPath = '/my-feed';
+    myFeedPath = `${webappUrl}my-feed`;
   }
   const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
   // Compact mode reverts to the original icon-only widths (pre-label rail).
@@ -1988,9 +1964,6 @@ export const SidebarDesktopV2 = ({
         {!isSettingsSelected && (
           <nav
             aria-label="Primary navigation"
-            // Lets the giveback gift's milestone card measure the rail it has
-            // to clear (see RAIL_ANCHOR_ATTRIBUTE).
-            {...{ [RAIL_ANCHOR_ATTRIBUTE]: '' }}
             className={classNames(
               // pt matches the streak tile's side gap (54px tile centred in the
               // 68px content = 7px + px-1.5 6px = 13px) so its top/left/right

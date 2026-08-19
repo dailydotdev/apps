@@ -73,11 +73,12 @@ const getNormalizedText = (element?: Element | null): string =>
 
 const renderGridComponent = (
   props: Partial<AdCardProps> = {},
+  boot: Partial<React.ComponentProps<typeof TestBootProvider>> = {},
 ): RenderResult => {
   const client = new QueryClient();
 
   return render(
-    <TestBootProvider client={client}>
+    <TestBootProvider client={client} {...boot}>
       <ActiveFeedContext.Provider value={{ items: [], queryKey: ['test'] }}>
         <AdGrid {...defaultProps} {...props} />
       </ActiveFeedContext.Provider>
@@ -303,6 +304,34 @@ describe('ad_label experiment', () => {
   });
 });
 
+// These assert the class list, not the rendered gap: jsdom has no stylesheet to
+// compute against. They catch the class being dropped, not a parent rule
+// beating it, which is the failure Storybook's Ad Card Fixes page is the real
+// check for.
+describe('ad card spacing and controls', () => {
+  it('should keep the disclosure off the ad copy on the grid card', async () => {
+    renderGridComponent();
+
+    const attribution = await screen.findByTestId('adAttribution');
+    expect(attribution).toHaveClass('mt-3');
+  });
+
+  it('should keep the disclosure off the ad copy on the list card', async () => {
+    renderListComponent();
+
+    const attribution = await screen.findByTestId('adAttribution');
+    expect(attribution).toHaveClass('mt-3');
+  });
+
+  it('should render the list remove control flat, like the grid card', async () => {
+    renderListComponent();
+
+    const remove = await screen.findByRole('link', { name: 'Remove' });
+    expect(remove).toHaveClass('btn-tertiary-bacon');
+    expect(remove).not.toHaveClass('btn-tertiaryFloat-bacon');
+  });
+});
+
 it('should render advertise link on list ad', () => {
   renderListComponent();
 
@@ -323,4 +352,18 @@ it('should render company logo and company name in signal ad header', async () =
   const logo = await screen.findByAltText(`Avatar of ${companyName}`);
   expect(logo).toHaveAttribute('src', companyLogo);
   expect(screen.getByText(companyName)).toBeInTheDocument();
+});
+
+it.each([
+  ['grid', renderGridComponent],
+  ['list', renderListComponent],
+  ['signal list', renderSignalListComponent],
+])('should track viewability on the %s card', async (_, renderComponent) => {
+  renderComponent();
+
+  const tracker = await screen.findByTestId('adViewability');
+  // It only measures the creative's box while it stretches over the card root.
+  const card = tracker.closest('article');
+  expect(card).toBe(tracker.parentElement);
+  expect(card).toHaveClass('relative');
 });

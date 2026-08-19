@@ -10,7 +10,13 @@ jest.mock('@dailydotdev/shared/src/graphql/common', () => ({
   gqlClient: { request: jest.fn() },
 }));
 
+jest.mock('../components/world/worldDevice', () => ({
+  isHandheld: jest.fn(() => false),
+}));
+
 const request = gqlClient.request as jest.Mock;
+const isHandheld = jest.requireMock('../components/world/worldDevice')
+  .isHandheld as jest.Mock;
 
 const wrapper = ({ children }: { children: ReactNode }) => (
   <QueryClientProvider
@@ -22,7 +28,23 @@ const wrapper = ({ children }: { children: ReactNode }) => (
 
 beforeEach(() => {
   request.mockReset();
+  isHandheld.mockReturnValue(false);
 });
+
+const world = {
+  userWorld: [
+    {
+      niche: { slug: 'ai_llm' },
+      reads: 40,
+      firstReadAt: '2024-01-01',
+      lastReadAt: '2026-01-01',
+      activeDays: 12,
+    },
+  ],
+  userWorldSettings: null,
+  // The timeline is a second query; this stub answers both.
+  userWorldTimeline: [{ day: '2024-01-01', niche: 'ai_llm', reads: 3 }],
+};
 
 describe('useUserWorld', () => {
   it('raises the world and its dressing off one round trip', async () => {
@@ -104,5 +126,32 @@ describe('useUserWorld', () => {
     renderHook(() => useUserWorld(undefined), { wrapper });
 
     expect(request).not.toHaveBeenCalled();
+  });
+
+  it('follows the world with its growth log', async () => {
+    request.mockResolvedValue(world);
+
+    const { result } = renderHook(() => useUserWorld('u1'), { wrapper });
+
+    await waitFor(() =>
+      expect(result.current.timeline).toEqual(world.userWorldTimeline),
+    );
+    expect(request).toHaveBeenCalledTimes(2);
+  });
+
+  it('leaves the growth log on the server for a handheld', async () => {
+    isHandheld.mockReturnValue(true);
+    request.mockResolvedValue(world);
+
+    const { result } = renderHook(() => useUserWorld('u1'), { wrapper });
+
+    await waitFor(() => expect(result.current.districts).toBeDefined());
+    // The log is years of one row a day, and the only thing that reads it is a
+    // scrubber that is not on screen there.
+    expect(request).toHaveBeenCalledTimes(1);
+    expect(result.current.timeline).toBeUndefined();
+    // A query that is never going to run must not be reported as one that is
+    // about to: that flag holds the scrubber's place open.
+    expect(result.current.isHistoryPending).toBe(false);
   });
 });

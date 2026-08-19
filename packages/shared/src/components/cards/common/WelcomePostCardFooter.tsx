@@ -14,7 +14,6 @@ interface WelcomePostCardFooterProps {
   onShare?: (post: Post) => void;
   imageClassName?: string;
   contentClassName?: string;
-  glassActions?: boolean;
 }
 
 export const WelcomePostCardFooter = ({
@@ -24,7 +23,6 @@ export const WelcomePostCardFooter = ({
   contentHtml,
   imageClassName,
   contentClassName,
-  glassActions = false,
 }: WelcomePostCardFooterProps): ReactElement | null => {
   const { overlay } = useCardCover({
     post,
@@ -53,7 +51,6 @@ export const WelcomePostCardFooter = ({
         <CardCover
           onShare={onShare}
           post={post}
-          shareCoverClassName={glassActions ? 'pb-12' : undefined}
           imageProps={{
             src: image,
             className: classNames('mb-1 mt-2 w-full px-1', imageClassName),
@@ -72,10 +69,7 @@ export const WelcomePostCardFooter = ({
     return (
       <p
         className={classNames(
-          'mt-1 break-words px-4 typo-callout',
-          // The glass action bar floats over the card bottom. Clamp one line
-          // tighter and reserve its height (pb-12) so text never sits under it.
-          glassActions ? 'line-clamp-5 pb-12' : 'line-clamp-6',
+          'mt-1 line-clamp-6 break-words px-4 typo-callout',
           contentClassName,
         )}
       >

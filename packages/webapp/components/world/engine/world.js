@@ -5,6 +5,7 @@ import { ShaderPass }     from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { WORLD_CSS } from './styles';
+import { levelProgress, REALM_DIV } from '../ladder';
 import { drawCrest } from './crest';
 import { DEFAULT_LOOK_ID, lookFromPreset } from './look';
 import { DEFAULT_SKY, skyHourOf, skyPalOf } from './sky';
@@ -12,20 +13,17 @@ import {
   LEVELS,
   levelOf,
   mixTok,
-  NICHE_OF,
   paletteOf,
   realmLevelOf,
-  REALM_OF,
-  REALMS,
   T,
 } from './taxonomy';
 
 /* ============================================================================
    DEVCRAFT — the world your reading built.
 
-   This is devcraft's `world-lab.html` renderer, near enough verbatim, wrapped in
-   a factory so a page can mount one and take it down again. What changed on the
-   way in, and nothing else did:
+   This is devcraft's `world-lab.html` renderer wrapped in a factory so a page
+   can mount one and take it down again, with the art layer replaced by the
+   second pass from `concept-lab.html`. What changed on the way in:
 
      - the world comes from the API (`buildWorld`, its own module) rather than
        from a sharded static export;
@@ -42,29 +40,59 @@ import {
    one world would, and there is only ever one world on a page.
    ========================================================================== */
 export function createWorldEngine(options) {
-const { container, onState } = options;
+const { container, onState, lite } = options;
+
+/* ============================================================= the two tiers
+   A phone is not a small desktop. It has a tile-based GPU with a fraction of
+   the bandwidth, a screen with three times the pixels per CSS unit, and a
+   thermal budget that a frame costing three passes over the scene will spend
+   in about ninety seconds — after which the whole device is throttled, not
+   just this page.
+
+   So `lite` is one decision, taken by the page before this engine exists (it
+   configures a WebGL context, which cannot be reconfigured afterwards), and it
+   is spent in exactly two places: the resolution the frame is drawn at, and
+   how many times the scene is drawn for it. Nothing about the WORLD changes —
+   the same land, the same buildings, the same look. */
+const LITE = !!lite;
+/* 2 is already a cap rather than the truth: a modern phone reports 3, and the
+   difference between 2 and 3 is invisible at arm's length and 2.25x the
+   fragments. On a handheld the same argument keeps going down one more step. */
+const dprCap = () => Math.min(devicePixelRatio, LITE ? 1.5 : 2);
 
 /* ============================================================================
-   ARCANE LAB — concept bench for the personal world, rendered procedurally in 3D.
+   THE ART, and what it is arguing.
 
-   What this file is arguing, against the earlier iterations:
+   The GROWTH machinery is the first pass's and is untouched, because it was
+   never the part that was wrong:
 
    1. A district is NOT one building that gets taller. It is a PLACE that gets
       bigger, busier and better tended. Land area is the attention channel —
       "the more I read, the more land, the more life". Height is a supporting
       voice, not the melody.
-   2. Twelve levels, not five. The five-level ladder in world-procedural.html
-      saturates hard on real data (a four-year veteran reads a wall of 23
-      citadels), so the top of the ladder carries no information. Twelve log
-      steps span 1 → 2,000+ articles and keep separating people all the way up.
-   3. Not morbid. The old arcane realm was a night-purple crystal graveyard.
-      This one is a sunlit sky-garden: warm ivory stone, mint terraces, teal
-      water, and purple reserved for the magic itself. Growth should look like
-      somewhere you'd want to live.
-   4. Everything is generated from (niche, level) — no models, no textures, no
+   2. Twelve levels, not five. A five-level ladder saturates hard on real data
+      (a four-year veteran reads a wall of 23 citadels), so the top of it
+      carries no information. Twelve steps keep separating people all the way up.
+   3. Everything is generated from (niche, level) — no models, no textures, no
       network. Two knobs, and the whole place re-composes.
 
-   Nothing here writes to the shipped renderers; it is a standalone bench.
+   What the second pass changed is the LOOK. The first derived every realm's
+   materials from daily.dev tokens by mixing, which kept the palette on-brand
+   and made all six realms siblings of the same pastel family. The concept art
+   per realm says something louder — each realm is its own WORLD, with its own
+   light, its own rock and its own weather:
+
+   4. REALM MATERIALS COME FROM THE CONCEPT ART (`C` in taxonomy), not from
+      token mixes. DISTRICT ACCENTS STAY ON TOKENS: the realm is the place, the
+      district is the subject, and the subject is daily.dev's. Brand rides the
+      accent — lodestone band, roof trim, lamps, banners — where it is legible
+      and where it does not fight the light.
+   5. THE UNDERSIDE IS REALM IDENTITY. Every island floats, and in every concept
+      image the bottom is the tell: crystal, wrapped roots, basalt columns, wet
+      crag, icicles, clay. One keel cone for all six threw that away.
+   6. EVERY REALM GETS A LANDFORM, standing at L1 before a single building is.
+      Three realms used to have terrain of their own and three had only props,
+      which left half the set unreadable until L3.
    ==========================================================================*/
 
 /* ---------------------------------------------------------------- helpers */
@@ -143,6 +171,14 @@ const FX={vc:true,bevel:true,env:true,noise:true,air:true,water:true,
    controller can offer them later without anything else moving. */
 const VIEW={border:true,labels:true,life:true,sky:true};
 
+/* Whether the plates carry how far through its rung each plot is. OFF by
+   default, and turned on only for a reader looking at their OWN world: on
+   somebody else's it is a stranger's homework, and the plate is already
+   carrying a name, a subject and a count on a box the size of a stamp.
+   Read live by the label pass, which runs every frame, so flipping it needs
+   nothing rebuilt. */
+let LVLPROG=false;
+
 /* ------------------------------------------------------------ the engine DOM
    Only the layers that have to be placed by projecting a world point to a pixel
    live in here. The markup is built rather than handed in, so the engine can be
@@ -166,6 +202,40 @@ container.appendChild(rootEl);
 const $=name=>rootEl.querySelector('.world-'+name);
 const stageEl=$('stage');
 
+/* ------------------------------------------------------------- the viewport
+   The CONTAINER's box, not the window's, and the two are NOT the same box.
+
+   Everything here maps between world space and pixels twice a frame — the
+   labels project outward, the pointer unprojects inward — and both directions
+   divide by "the size of the viewport". Read that from `innerWidth` and the
+   moment anything makes the container narrower than the window, every label
+   drifts further from the island it names the closer it gets to the right
+   edge, and every click lands on the wrong place by the same growing margin.
+   It is a SCALE error, so it does not look like an offset; it looks like the
+   world is subtly wrong.
+
+   Plenty makes the container narrower. A classic scrollbar takes layout width
+   that `innerWidth` still counts (which is every desktop that is not a Mac on
+   its default overlay-scrollbar setting). The app's own modal rules put a
+   `margin-right` on fixed layers while a dialog is open, this page's root
+   included. Neither fires a resize event, so neither can be caught by
+   listening for one — hence the observer below.
+
+   `x`/`y` matter for the other direction only: pointer events arrive in client
+   coordinates, so they have to come back to this box's origin before they mean
+   anything. Projection writes into DOM that shares this box, so it needs the
+   size and not the origin. */
+let VX=0, VY=0, VW=0, VH=0;
+function measure(){
+  const r=rootEl.getBoundingClientRect();
+  VX=r.left; VY=r.top;
+  /* Left unclamped on purpose: a world booted in a background tab measures 0,
+     and the degenerate-viewport guards downstream are what defer the camera
+     fit until there is something to fit into. */
+  VW=Math.round(r.width); VH=Math.round(r.height);
+}
+measure();
+
 /* Every listener the engine puts on window or document, so dispose() can take
    them all back off. A world still steering a camera after the page navigated
    away is the one leak this file can actually cause. */
@@ -188,9 +258,15 @@ function emit(patch){
 }
 
 /* --------------------------------------------------------------- renderer */
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.setSize(innerWidth,innerHeight);
+/* MSAA on the default framebuffer is nearly free on a desktop and buys the one
+   frame a look with all post switched off draws directly. Under the composer it
+   buys nothing at all — every pass renders into a plain render target and the
+   only thing that reaches the default framebuffer is a fullscreen quad, which
+   has no edges to sample. So on a handheld, where it is a multisampled buffer's
+   worth of memory and a resolve every frame, it goes. */
+const renderer=new THREE.WebGLRenderer({antialias:!LITE,alpha:false});
+renderer.setPixelRatio(dprCap());
+renderer.setSize(VW,VH);
 renderer.outputColorSpace=THREE.SRGBColorSpace;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 /* Trimmed from 1.02 once the bake, the rim and the structured environment were
@@ -230,7 +306,7 @@ function placeCam(){
     target.y+Math.sin(pitch)*d,
     target.z+Math.cos(pitch)*Math.sin(yaw)*d);
   cam.lookAt(target);
-  const a=innerWidth/innerHeight;
+  const a=VW/VH;
   cam.left=-zoom*a; cam.right=zoom*a; cam.top=zoom; cam.bottom=-zoom;
   cam.updateProjectionMatrix();
 }
@@ -309,7 +385,7 @@ let envRT=null;
    anti-sun side, and a ground bounce — which between them are what tint the
    shadows. Shadowed surfaces see only the ambient term, so a cool anti-sun sky
    IS a blue shadow, and no separate shadow-colour hack is needed. */
-const sunDir=new THREE.Vector3(0.36,0.87,0.23), _sd=new THREE.Vector3();
+const sunDir=new THREE.Vector3(0.36,0.87,0.23);
 function paintEnv(a,b,hz){
   const e=envCanvas.getContext('2d');
   const hex=v=>'#'+v.toString(16).padStart(6,'0');
@@ -473,6 +549,9 @@ function mat(hex,opt={}){
   matCache.set(key,m); return m;
 }
 const glowMat=(hex,i=1.4)=>mat(hex,{emissive:hex,ei:i,rough:0.35,flat:false});
+/* Warm lit window, one material for the whole world. Every concept image has the
+   same trick in it: small windows blazing gold against a cool wall. */
+const winMat=(P,i=0.95)=>mat(P.warm,{emissive:P.warm,ei:i,rough:0.4,flat:false});
 
 /* --------------------------------------------------------- geometry utils */
 /* Island outline: a wobbled circle. Star-shaped around the origin on purpose —
@@ -511,29 +590,6 @@ function polyHole(prof, radius){
   }
   p.closePath(); return p;
 }
-/* The underside: two lofted rings tapering to a point. This is what sells
-   "floating" — a flat-bottomed island reads as a table. */
-function underside(prof, radius, depth, seed){
-  const rnd=rngOf(seed), n=prof.length, pos=[];
-  const ring=(scale,y,jit)=>{
-    const a=[];
-    for(let i=0;i<n;i++){
-      const ang=i/n*TAU, r=prof[i]*radius*scale*(1+(rnd()-0.5)*jit);
-      a.push([Math.cos(ang)*r,y,Math.sin(ang)*r]);
-    }
-    return a;
-  };
-  const r0=ring(1,0,0), r1=ring(0.66,-depth*0.42,0.28), r2=ring(0.3,-depth*0.76,0.4);
-  const apex=[(rnd()-0.5)*radius*0.15,-depth,(rnd()-0.5)*radius*0.15];
-  const quad=(A,B)=>{ for(let i=0;i<n;i++){ const j=(i+1)%n;
-    pos.push(...A[i],...B[i],...B[j], ...A[i],...B[j],...A[j]); } };
-  quad(r0,r1); quad(r1,r2);
-  for(let i=0;i<n;i++){ const j=(i+1)%n; pos.push(...r2[i],...apex,...r2[j]); }
-  const g=new THREE.BufferGeometry();
-  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
-  g.computeVertexNormals(); return g;
-}
-
 /* ---------------------------------------------- baked vertex light (FX.vc) */
 /* The thing good low-poly always has and this file did not: light baked into
    the mesh. Three signals, one pass, one colour attribute, nothing per frame:
@@ -719,7 +775,6 @@ function meshOf(geo,material,cast=true,recv=true){
 }
 
 /* ============================================================ the district */
-const world=new THREE.Group(); scene.add(world);
 const animated=[];          // things with a per-frame tick
 /* Animation that only touches a MATERIAL, held apart from the scene graph.
    A pulsing lantern used to carry its tick on the object, and mergeStatic has
@@ -737,19 +792,6 @@ const animated=[];          // things with a per-frame tick
    entry per material makes that explicit rather than accidental. */
 const matTicks=new Map();
 const matAnim=(m,fn)=>{ if(m&&!matTicks.has(m)) matTicks.set(m,fn); };
-let stage=null;             // current district group
-let stats={};
-/* Carried across rebuilds so a level change can be a transition rather than a
-   fresh start: key → world position of every prop in the outgoing build. */
-let prevKeys=new Set(), prevRadius=0, prevNicheId=null;
-/* Flat list of everything the current build wants animated, with its mode.
-   Kept separately from the scene graph because "new land" nests its own
-   paving and scatter, and the transition still has to reach all of it. */
-const nodes=[];
-const node=(obj,opt)=>{ nodes.push({obj,mode:opt.mode,delay:opt.delay||0,
-  from0:opt.from0??0,done:false}); };
-let framed=false;           // camera is framed once, never per level
-
 function disposeGroup(g){
   const cached=new Set(matCache.values());
   g.traverse(o=>{
@@ -763,6 +805,305 @@ function disposeGroup(g){
   g.removeFromParent();
 }
 
+function keelCone(prof, radius, depth, seed, taper=1){
+  const rnd=rngOf(seed), n=prof.length, pos=[];
+  const ring=(scale,y,jit)=>{
+    const a=[];
+    for(let i=0;i<n;i++){
+      const ang=i/n*TAU, r=prof[i]*radius*scale*(1+(rnd()-0.5)*jit);
+      a.push([Math.cos(ang)*r,y,Math.sin(ang)*r]);
+    }
+    return a;
+  };
+  const r0=ring(1,0,0), r1=ring(0.66*taper,-depth*0.42,0.28), r2=ring(0.3*taper,-depth*0.76,0.4);
+  const apex=[(rnd()-0.5)*radius*0.15,-depth,(rnd()-0.5)*radius*0.15];
+  const quad=(A,B)=>{ for(let i=0;i<n;i++){ const j=(i+1)%n;
+    pos.push(...A[i],...B[i],...B[j], ...A[i],...B[j],...A[j]); } };
+  quad(r0,r1); quad(r1,r2);
+  for(let i=0;i<n;i++){ const j=(i+1)%n; pos.push(...r2[i],...apex,...r2[j]); }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  g.computeVertexNormals(); return g;
+}
+
+/* A tapered shaft's wall is at a different radius at every height, and every
+   tower in this file builds its shaft as a stack of cones and then hangs
+   windows on it afterwards. Those windows were all placed at `r` — which by
+   then is the FINAL, narrowest radius at the very top — while their heights
+   were spread over the whole shaft. So every window below the top segment was
+   buried inside the brickwork, z-fighting with the wall it was meant to be cut
+   into and popping through it as the camera swung.
+
+   Record the segments on the way up, ask this for the radius at a height. */
+function taper(){
+  const segs=[];
+  return {
+    add(y0,y1,rBottom,rTop){ segs.push({y0,y1,rBottom,rTop}); },
+    at(y){
+      for(const s of segs){
+        if(y>=s.y0&&y<=s.y1)
+          return lerp(s.rBottom,s.rTop,(y-s.y0)/Math.max(1e-6,s.y1-s.y0));
+      }
+      if(!segs.length)return 0.5;
+      return y<segs[0].y0?segs[0].rBottom:segs[segs.length-1].rTop;
+    },
+  };
+}
+function keelCrystal(P,prof,R,depth,seed){
+  const g=new THREE.Group(), rnd=rngOf(seed);
+  /* No crystal down here. The skirt of hanging shards read as a hazard rather
+     than as the bottom of somewhere you would want to live, and it fought the
+     crystal ON the island — which is where the realm's magic is supposed to be.
+     The underside is plain dressed marble now, and the mineral stays above
+     ground where it means something.
+
+     What carries it instead is STRATA: the plate is a stack of scalloped
+     courses, each one narrower and a shade deeper than the one above, so the
+     keel reads as quarried stone that was cut, not as a cone that was poured.
+     Same silhouette from a distance, and it holds up close. */
+  const courses=Math.max(4,Math.round(depth/1.6));
+  for(let i=0;i<courses;i++){
+    const u0=i/courses, u1=(i+1)/courses;
+    /* Each course is an extruded slice of the island outline, shrunk as it
+       descends — the scallops in the coast carry all the way down. */
+    /* Exponent under 1 keeps the upper courses broad and then runs the taper
+       away quickly at the bottom — the difference between a keel and a stack of
+       plates. The old floor of 0.30R left a fat stub that the tip cone sat on
+       like a bucket; it goes almost to nothing now and the point is a detail
+       rather than a separate object. */
+    const sc=Math.pow(1-u0,0.55), sc1=Math.pow(1-u1,0.55);
+    const rr=R*lerp(0.06,0.995,sc), rr1=R*lerp(0.06,0.995,sc1);
+    const th=depth/courses;
+    const shape=polyShape(prof,rr);
+    const geo=new THREE.ExtrudeGeometry(shape,
+      {depth:th*1.06,bevelEnabled:false,curveSegments:1});
+    /* ExtrudeGeometry runs along +Z, and rotateX(-90) sends +Z to +Y — so an
+       untranslated course grows UPWARD out of the keel's origin. The first one
+       therefore punched a full course-height up through the outermost terrace
+       ring at exactly the same radius, and two coplanar walls fighting for the
+       same depth is what the flicker was. Every course is dropped by its own
+       thickness so it hangs BELOW the origin, where a keel goes. */
+    geo.rotateX(-Math.PI/2); geo.translate(0,-u0*depth-th*1.06,0);
+    geo.computeVertexNormals();
+    /* Alternate the courses so the bedding shows, and darken with depth: light
+       falls off under an island, and a keel of one flat tone reads as a decal. */
+    const tone=new THREE.Color(i%2?P.cliff2:P.rock)
+      .lerp(new THREE.Color(0x000000),u0*0.28);
+    g.add(meshOf(geo,mat(tone.getHex(),{rough:0.86}),true,false));
+    /* A drip edge standing proud of each course's own bottom rim, catching the
+       bounce light from below. Hung on rr, not rr1 — on the next course down it
+       would sit buried inside this one and never be seen. */
+    if(i<courses-1){
+      const lip=meshOf(new THREE.TorusGeometry(rr*1.005,th*0.11,4,26),
+        mat(P.cliff,{rough:0.8}),true,false);
+      lip.rotation.x=Math.PI/2;
+      lip.position.y=-u0*depth-th*1.06+th*0.1; g.add(lip);
+    }
+  }
+  /* The point: a short tapered plug so the strata resolve instead of stopping
+     on a flat disc. */
+  const tipH=depth*0.12;
+  const tip=meshOf(new THREE.ConeGeometry(R*0.075,tipH,9),
+    mat(mixTok(P.rock,0x000000,0.34),{rough:0.9}),true,false);
+  tip.position.y=-depth-tipH/2+0.03; g.add(tip);
+  return g;
+}
+function keelRoots(P,prof,R,depth,seed){
+  const g=new THREE.Group(), rnd=rngOf(seed);
+  g.add(meshOf(keelCone(prof,R,depth,seed),mat(P.rock,{rough:0.98}),true,false));
+  /* Root ribs running down the cone. Built as a chain of short tapering
+     segments that follow the cone's own slope rather than as one big arc —
+     a torus laid against the outside stood off the mass and read as a spider
+     leg, which is the opposite of "the roots hold this island together". Each
+     rib starts on the rim and walks inward and down, hugging the taper. */
+  const n=Math.round(9+R*1.0);
+  const rootMat=mat(P.bark2,{rough:0.98}), rootMat2=mat(P.bark,{rough:0.98});
+  for(let i=0;i<n;i++){
+    const a=i/n*TAU+rnd()*0.18;
+    const rr=radiusAt(prof,a)*R;
+    const steps=4+Math.floor(rnd()*3);
+    let th=lerp(0.26,0.5,rnd());
+    /* Slight lateral drift per rib so they are not six identical meridians. */
+    const drift=(rnd()-0.5)*0.5/steps;
+    let aa=a;
+    for(let k=0;k<steps;k++){
+      const u0=k/steps, u1=(k+1)/steps;
+      /* Match keelCone's own profile: rim → 0.66 → 0.30 → apex. */
+      const rOf=u=>rr*(u<0.42?lerp(1,0.66,u/0.42)
+                     : u<0.76?lerp(0.66,0.30,(u-0.42)/0.34)
+                     : lerp(0.30,0.04,(u-0.76)/0.24));
+      const yOf=u=>-depth*u;
+      const p0=new THREE.Vector3(Math.cos(aa)*rOf(u0)*1.02,yOf(u0),Math.sin(aa)*rOf(u0)*1.02);
+      aa+=drift;
+      const p1=new THREE.Vector3(Math.cos(aa)*rOf(u1)*1.02,yOf(u1),Math.sin(aa)*rOf(u1)*1.02);
+      g.add(beam(p0,p1,th,k%2?rootMat:rootMat2));
+      th*=lerp(0.74,0.88,rnd());
+    }
+    /* A tail root carrying on past the apex, so the mass frays into strands
+       instead of stopping at a clean point. */
+    if(rnd()<0.5){
+      const tl=meshOf(new THREE.CylinderGeometry(th*1.1,th*0.25,lerp(1.0,2.4,rnd()),5),
+        rootMat,true,false);
+      tl.position.set(Math.cos(aa)*rr*0.08,-depth-0.6,Math.sin(aa)*rr*0.08);
+      tl.rotation.set((rnd()-0.5)*0.4,rnd()*TAU,(rnd()-0.5)*0.4);
+      g.add(tl);
+    }
+  }
+  /* Vines off the rim, with a leaf or two. Cheap, and they read as growth. */
+  for(let i=0;i<Math.round(10+R*1.6);i++){
+    const a=rnd()*TAU, rr=radiusAt(prof,a)*R*lerp(0.9,1.0,rnd());
+    const len=lerp(0.7,2.4,rnd());
+    const v=meshOf(new THREE.CylinderGeometry(0.045,0.02,len,4),
+      mat(P.moss2,{rough:1}),false,false);
+    v.position.set(Math.cos(a)*rr,-len/2-0.05,Math.sin(a)*rr); g.add(v);
+    const lf=meshOf(new THREE.IcosahedronGeometry(lerp(0.14,0.28,rnd()),0),
+      mat(rnd()<0.5?P.canopy:P.moss,{rough:0.98}),false,false);
+    lf.position.set(Math.cos(a)*rr,-len-0.1,Math.sin(a)*rr); lf.scale.y=0.6; g.add(lf);
+  }
+  return g;
+}
+
+function keelColumns(P,prof,R,depth,seed){
+  const g=new THREE.Group(), rnd=rngOf(seed);
+  /* No cone at all here — the concept image's underside is COLUMNS, stepping
+     inward and downward like a pipe organ, and a cone hidden behind them just
+     fills the gaps that make the shape read. Concentric bands of hexagonal
+     prisms, each band narrower and longer than the one outside it. */
+  const bands=Math.max(3,Math.round(R/1.5));
+  const dark=mat(P.rock,{rough:0.95}), mid=mat(P.cliff2,{rough:0.95});
+  for(let b=0;b<bands;b++){
+    const u=b/(bands-1||1);
+    const rr=R*lerp(0.98,0.16,u);
+    const len=depth*lerp(0.30,1.0,u*u*0.9+u*0.1);
+    const n=Math.max(6,Math.round(TAU*rr/0.72));
+    for(let i=0;i<n;i++){
+      const a=i/n*TAU+b*0.4;
+      const w=lerp(0.30,0.46,rnd());
+      const jl=len*lerp(0.72,1.0,rnd());
+      const col=meshOf(new THREE.CylinderGeometry(w,w*0.96,jl,6),
+        rnd()<0.5?dark:mid,true,false);
+      const wr=radiusAt(prof,a)*rr;
+      col.position.set(Math.cos(a)*wr,-jl/2+0.05,Math.sin(a)*wr);
+      col.rotation.y=rnd()*TAU;
+      g.add(col);
+    }
+  }
+  /* Molten light in the gaps. The columns are dark and the light comes from
+     between them — same rule as the ground veins: a dark surface with light
+     coming out of it, never a bright surface. */
+  const lm=mat(mixTok(P.lava,0x1A0E14,0.35),{emissive:P.lava,ei:0.9,rough:0.6});
+  const nc=Math.round(10+R*1.4);
+  for(let i=0;i<nc;i++){
+    const a=i*2.399963229728653+rnd()*0.3;
+    const rr=radiusAt(prof,a)*R*lerp(0.3,0.95,rnd());
+    const h=lerp(0.6,2.0,rnd());
+    const s=meshOf(new THREE.BoxGeometry(lerp(0.1,0.26,rnd()),h,0.1),lm,false,false);
+    s.position.set(Math.cos(a)*rr,-lerp(0.4,depth*0.6,rnd()),Math.sin(a)*rr);
+    s.rotation.y=-a; g.add(s);
+  }
+  return g;
+}
+
+function keelCrag(P,prof,R,depth,seed){
+  const g=new THREE.Group(), rnd=rngOf(seed);
+  g.add(meshOf(keelCone(prof,R,depth,seed),mat(P.rock,{rough:1}),true,false));
+  /* Boulders stuck all over it. The shipyard crag in the art is not a smooth
+     wedge — it is a pile, and the pile is what makes the deck above read as
+     poured concrete rather than as more of the same stone. */
+  const n=Math.round(40+R*7);
+  const a1=mat(P.cliff,{rough:1}), a2=mat(P.cliff2,{rough:1});
+  for(let i=0;i<n;i++){
+    const a=i*2.399963229728653+rnd()*0.5;
+    const u=Math.pow(rnd(),0.7);
+    const rr=radiusAt(prof,a)*R*lerp(1.0,0.2,u);
+    const y=-depth*u*0.95;
+    const s=lerp(0.22,0.72,rnd())*lerp(1.35,0.6,u);
+    const b=meshOf(new THREE.DodecahedronGeometry(s,0),rnd()<0.5?a1:a2,true,false);
+    b.position.set(Math.cos(a)*rr,y,Math.sin(a)*rr);
+    b.rotation.set(rnd()*3,rnd()*3,rnd()*3);
+    b.scale.set(1,lerp(0.6,1.1,rnd()),1);
+    g.add(b);
+  }
+  return g;
+}
+
+function keelIce(P,prof,R,depth,seed){
+  const g=new THREE.Group(), rnd=rngOf(seed);
+  g.add(meshOf(keelCone(prof,R,depth,seed),mat(P.rock,{rough:0.95}),true,false));
+  /* Snow lying on the rim shelf, then icicles. In the art the icicles are the
+     single loudest signal that this island is cold — long, irregular, hanging in
+     a fringe all the way round, and thickest where the rim overhangs most. */
+  const nr=Math.round(TAU*R/0.55);
+  for(let i=0;i<nr;i++){
+    const a=i/nr*TAU;
+    const rr=radiusAt(prof,a)*R;
+    const sn=meshOf(new THREE.IcosahedronGeometry(lerp(0.3,0.55,rnd()),0),
+      mat(P.snow,{rough:1}),true,true);
+    sn.position.set(Math.cos(a)*rr*0.995,0.02,Math.sin(a)*rr*0.995);
+    sn.scale.set(1,0.34,1); sn.rotation.y=rnd()*TAU;
+    g.add(sn);
+  }
+  const iceMat=mat(P.ice,{rough:0.16,flat:true,opacity:0.88,emissive:P.ice,ei:0.10});
+  const ni=Math.round(16+R*3.2);
+  for(let i=0;i<ni;i++){
+    const a=i/ni*TAU+rnd()*0.25;
+    const rr=radiusAt(prof,a)*R*lerp(0.72,1.0,rnd());
+    const len=lerp(0.8,3.4,Math.pow(rnd(),1.6));
+    const w=lerp(0.09,0.2,rnd());
+    const ic=meshOf(new THREE.ConeGeometry(w,len,5),iceMat,true,false);
+    ic.position.set(Math.cos(a)*rr,-len/2-0.1,Math.sin(a)*rr);
+    ic.rotation.set(0,rnd()*TAU,Math.PI);   // point down
+    g.add(ic);
+  }
+  return g;
+}
+
+function keelClay(P,prof,R,depth,seed){
+  const g=new THREE.Group(), rnd=rngOf(seed);
+  g.add(meshOf(keelCone(prof,R,depth,seed,0.92),mat(P.rock,{rough:1}),true,false));
+  /* Rounded clay lumps rather than faceted crag — the artisan island in the art
+     is soft, almost dough-like, and that softness is the realm's whole mood. */
+  const n=Math.round(26+R*4.4);
+  const m1=mat(P.cliff,{rough:1,flat:false}), m2=mat(P.cliff2,{rough:1,flat:false});
+  for(let i=0;i<n;i++){
+    const a=i*2.399963229728653+rnd()*0.4;
+    const u=Math.pow(rnd(),0.8);
+    const rr=radiusAt(prof,a)*R*lerp(0.98,0.25,u);
+    const s=lerp(0.5,1.15,rnd())*lerp(1.2,0.55,u);
+    const b=meshOf(new THREE.SphereGeometry(s,7,6),rnd()<0.5?m1:m2,true,false);
+    b.position.set(Math.cos(a)*rr,-depth*u*0.9-0.1,Math.sin(a)*rr);
+    b.scale.set(1,lerp(0.7,1.0,rnd()),1);
+    g.add(b);
+  }
+  /* Shrubs spilling over the lip, which is what stops the boulder from reading
+     as bare earth — in the art there is a green fringe all the way round. */
+  for(let i=0;i<Math.round(14+R*2.6);i++){
+    const a=rnd()*TAU, rr=radiusAt(prof,a)*R*lerp(0.94,1.02,rnd());
+    const b=meshOf(new THREE.IcosahedronGeometry(lerp(0.2,0.42,rnd()),0),
+      mat(rnd()<0.5?P.leaf:P.leaf2,{rough:0.98}),true,false);
+    b.position.set(Math.cos(a)*rr,lerp(-0.7,-0.05,rnd()),Math.sin(a)*rr);
+    b.scale.y=0.7; g.add(b);
+  }
+  return g;
+}
+
+const KEELS={crystal:keelCrystal,roots:keelRoots,columns:keelColumns,
+             crag:keelCrag,ice:keelIce,clay:keelClay};
+
+/* A cylinder from a to b — struts, bridge posts, hanging vines, crane legs. */
+function beam(a,b,r,material,cast=true){
+  const dir=new THREE.Vector3().subVectors(b,a), len=dir.length();
+  const m=meshOf(new THREE.CylinderGeometry(r,r,len,6),material,cast,false);
+  m.position.copy(a).addScaledVector(dir,0.5);
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.clone().normalize());
+  return m;
+}
+
+/* The waterline whatever is currently being built floats on: the flooded ground
+   under a harbour district, or the open sea under a whole realm. Boats and gulls
+   read it, so it is set by buildIsland before anything that sails is placed. */
+let SEA_Y=-2.3;
+
 /* ---- spec(level): every number the builder needs, derived from one knob ---- */
 function spec(level){
   const t=(level-1)/11;
@@ -770,336 +1111,65 @@ function spec(level){
   return {
     level, radius,
     rings:  Math.round(radius/RING_W),
-    tiers:  tierOf(radius-1e-6)+1,
-    /* These are UNLOCK GATES, not counts. How many of a family exist is decided
-       by how much of its lattice falls inside the current coast and under the
-       fill threshold — and since both of those only ever open further, growth
-       can only add. No building is moved or evicted to make room for the next. */
-    /* FRONT-LOADED, and the reason is the measured distribution rather than
-       taste. p50 is 2 articles and p90 is 12, so for ninety percent of readers
-       every district in the world is L1-L3 — and with the first roof gated at
-       L4 that meant ninety percent of readers never saw a building at all. The
-       jump from landscape to town was real and it was behind a wall almost
-       nobody reaches.
-       The THRESHOLDS are untouched: land area still means what it meant, and
-       nobody's world just got bigger. What moved is which pieces of the
-       vocabulary unlock when — a roof at L2, identity and heraldry at L3,
-       hedges at L4. The top of the ladder is exactly as it was. */
+    /* UNLOCK GATES, not counts. How many of a family exist is decided by how
+       much of its lattice falls inside the coast and under the fill threshold —
+       and both of those only ever open further. */
     cottages: level<2?0:1,
-    spires:   level<6?0:clamp(Math.round((level-4)/2),1,5),
-    domes:    level<6?0:level<10?1:2,
+    towers:   level<6?0:Math.round((level-4)/2),   // capped per realm in build()
+    halls:    level<6?0:level<10?1:2,
     trees:    level<2?0:1,
-    crystals: 1,
     lamps:    level<2?0:1,
-    hedges:   level<4?0:1,
-    rocks:    1,
-    flowers:  1,
-    tufts:    1,
-    /* Density infill: a well-read district is denser per acre, not just wider.
-       Monotone by construction. */
-    /* Opens faster over the first few rungs than it used to. Unlocking a
-       cottage at L2 achieves nothing if the density gate then refuses to place
-       one — the lattice slot has to be under the threshold as well as inside
-       the coast, and at the old curve L2 sat at 0.556 on an island with barely
-       a slot to spare. Still monotone, still 1.0 at the top. */
+    gardens:  level<4?0:1,
     fill:     clamp(0.58+level*0.038,0.58,1),
     pond:     level>=5,
     falls:    level>=7,
-    /* No neighbouring islets. The finished world stands ~40 of these side by
-       side, and every stray satellite is either a collision with the next
-       district or a hole in the map — a district has to be ONE piece of land.
-       So past L7 it grows off its own rim and under its own keel instead:
-       cantilever decks, sky bridges, an undercroft, and finally a Great Spire.
-       Same job as the archipelago — break the silhouette out of a lump — with
-       nothing that can wander into a neighbour's plot. */
-    cantilevers: [0,0,0,0,0,0,0,2,3,5,6,7][level-1],
-    bridges:  level>=9,
+    expand:   level>=9,
     undercroft: level<10?0:Math.round(radius*1.1),
-    greatSpire: level>=11,
-    orrery:   level>=10,
+    great:    level>=11,
     arch:     level>=3,
     signature: level>=3,
     banners:  level>=3,
-    birds:    level>=6?Math.min(3+level,14):0,
-    wisps:    3+level*3,
+    life:     level>=6?Math.min(3+level,14):0,
+    motes:    3+level*3,
   };
 }
 
 /* --------------------------------------------------------------- terraces */
 /* One ring of land. Geometry depends only on j — never on the island's current
    size — so ring 5 built at L4 is the identical mesh at L12 and simply stays
-   put. The plateau is the high ground and each ring beyond a boundary steps
-   DOWN, so growth adds coastline at lower elevations and never lifts the
-   centre (which would drag the whole town up with it). */
+   put. */
 function buildRing(P,prof,j){
   const r1=(j+1)*RING_W, r0=j*RING_W;
-  const y=tierY(r1-1e-6)+j*0.002;   // hair of offset: no coplanar deck tops
+  const y=tierY(r1-1e-6)+j*0.002;
   const shape=polyShape(prof,r1);
-  /* Holes overlap the neighbour slightly so the shared wall is never coplanar. */
   if(j>0) shape.holes.push(polyHole(prof,r0-0.06));
   const geo=new THREE.ExtrudeGeometry(shape,
     {depth:RING_T,bevelEnabled:false,curveSegments:1});
   geo.rotateX(-Math.PI/2); geo.translate(0,y-RING_T,0); geo.computeVertexNormals();
-  /* Group 0 is the caps, group 1 the walls: grass on top, stone in the cliff. */
-  const cap=new THREE.Color(tierOf(r1-1e-6)===0?P.ground2:P.ground)
-    .lerp(new THREE.Color(0xFFFFFF),Math.max(0,3-tierOf(r1-1e-6))*0.045);
+  /* Group 0 is the caps, group 1 the walls. The upper terraces are lightened a
+     touch — in every one of the concept images the top plate catches the most
+     sun, and a flat cap colour across four terraces reads as a printed map. */
+  const tier=tierOf(r1-1e-6);
+  const cap=new THREE.Color(tier===0?P.ground2:P.ground)
+    .lerp(new THREE.Color(0xFFFFFF),Math.max(0,3-tier)*0.045);
+  /* Built by hand rather than through meshOf, because the ring wants two
+     materials — so the bake has to be asked for here or the terraces render
+     black under a vertexColors material. */
   if(FX.vc) bakeVC(geo);
   const m=new THREE.Mesh(geo,[mat(cap.getHex(),{rough:0.98}),
-    mat(j%2?P.cliff:P.cliffDark,{rough:0.95})]);
+    mat(j%2?P.cliff:P.cliff2,{rough:0.95})]);
+  m.castShadow=true; m.receiveShadow=true;
   return m;
 }
 
-/* ------------------------------------------------------------- structures */
-function buildCottage(P,rnd,scale=1){
-  const g=new THREE.Group();
-  const w=lerp(1.0,1.55,rnd())*scale, d=lerp(0.95,1.45,rnd())*scale;
-  const h=lerp(0.85,1.25,rnd())*scale;
-  const wall=rnd()<0.5?P.stone:P.stone2;
-  g.add(meshOf(boxG(w,h,d),mat(wall,{rough:0.9}))
-    .translateY(h/2));
-  /* Half the houses get a second storey, offset and rotated — the cheapest way
-     to stop a row of cottages reading as a row of boxes. */
-  let roofY=h, rw=w, rd=d;
-  if(rnd()<0.45){
-    const h2=h*0.7, w2=w*0.78, d2=d*0.78;
-    const up=meshOf(boxG(w2,h2,d2),mat(P.wood,{rough:0.88}));
-    up.position.set((rnd()-0.5)*0.16,h+h2/2,(rnd()-0.5)*0.16);
-    up.rotation.y=(rnd()-0.5)*0.4; g.add(up);
-    roofY=h+h2; rw=w2; rd=d2;
-  }
-  const rr=Math.max(rw,rd)*0.72, rh=lerp(0.42,0.72,rnd())*scale;
-  const roof=meshOf(new THREE.ConeGeometry(rr,rh,4),
-    mat(rnd()<0.6?P.roof:P.roof2,{rough:0.75}));
-  roof.rotation.y=Math.PI/4; roof.position.y=roofY+rh/2; g.add(roof);
-  const fin=meshOf(new THREE.OctahedronGeometry(0.09*scale),glowMat(P.accent,1.6));
-  fin.position.y=roofY+rh+0.08; g.add(fin);
-  /* Lit windows: emissive, and pushed proud of the wall so they never z-fight. */
-  const wm=glowMat(0xFFE9B8,0.9);
-  for(let i=0;i<2+Math.floor(rnd()*3);i++){
-    const side=Math.floor(rnd()*4), sw=0.2*scale, sh=0.26*scale;
-    const win=meshOf(boxG(sw,sh,0.06),wm,false,false);
-    const off=(rnd()-0.5)*0.5;
-    if(side===0)win.position.set(off,h*0.55,d/2+0.01);
-    else if(side===1){win.position.set(off,h*0.55,-d/2-0.01);win.rotation.y=Math.PI;}
-    else if(side===2){win.position.set(w/2+0.01,h*0.55,off);win.rotation.y=Math.PI/2;}
-    else {win.position.set(-w/2-0.01,h*0.55,off);win.rotation.y=-Math.PI/2;}
-    g.add(win);
-  }
-  if(rnd()<0.4){
-    const ch=meshOf(boxG(0.2,0.6,0.2)
-      .translate(0,0.3,0),mat(P.cliffDark));
-    ch.position.set(w*0.28,h,d*0.2); g.add(ch);
-    /* Smoke: three puffs on a slow rising loop. Chimneys with no smoke look
-       abandoned, and this district must never look abandoned. */
-    for(let k=0;k<3;k++){
-      const p=meshOf(new THREE.IcosahedronGeometry(0.11,0),
-        mat(0xFFFFFF,{opacity:0.45,flat:false,rough:1}),false,false);
-      p.position.set(w*0.28,h+0.6,d*0.2);
-      p.userData.tick=(t)=>{
-        const u=((t*0.28+k/3)%1);
-        p.position.y=h+0.6+u*1.5;
-        p.position.x=w*0.28+Math.sin(u*4+k)*0.12;
-        p.scale.setScalar(0.5+u*1.6);
-        p.material.opacity=0.4*(1-u);
-      };
-      g.add(p); animated.push(p);
-    }
-  }
-  return g;
-}
+/* =========================================================== shared pieces
+   Small parts every realm needs and none of them needs to disagree about. Where
+   a realm DOES need to disagree, the disagreement is a `style` argument rather
+   than a sixth copy of the function. */
 
-function buildSpire(P,rnd,h,great){
-  const g=new THREE.Group();
-  const segs=3+Math.floor(rnd()*3);
-  let y=0, r=lerp(0.42,0.62,rnd());
-  for(let i=0;i<segs;i++){
-    const sh=h/segs*lerp(0.85,1.15,rnd()), rt=r*lerp(0.74,0.9,rnd());
-    const s=meshOf(new THREE.CylinderGeometry(rt,r,sh,8),
-      mat(i%2?P.stone:P.stone2,{rough:0.85}));
-    s.position.y=y+sh/2; g.add(s);
-    const band=meshOf(new THREE.CylinderGeometry(rt*1.14,rt*1.14,0.1,8),
-      mat(P.metal,{metal:0.55,rough:0.35}));
-    band.position.y=y+sh; g.add(band);
-    /* One rune band per spire, and it turns — the vertical is where a district
-       gets to say "there is power here" without going dark to do it. */
-    if(i===segs-2){
-      const rune=meshOf(new THREE.TorusGeometry(rt*1.5,0.045,6,20),glowMat(P.accent,1.8),false,false);
-      rune.rotation.x=Math.PI/2; rune.position.y=y+sh*0.5;
-      rune.userData.tick=t=>{rune.rotation.z=t*0.5;};
-      g.add(rune); animated.push(rune);
-    }
-    y+=sh; r=rt;
-  }
-  const balc=meshOf(new THREE.CylinderGeometry(r*1.7,r*1.5,0.16,8),mat(P.stone2));
-  balc.position.y=y-0.1; g.add(balc);
-  const rh=lerp(1.0,1.7,rnd());
-  const roof=meshOf(new THREE.ConeGeometry(r*1.5,rh,8),mat(P.roof,{rough:0.7}));
-  roof.position.y=y+rh/2; g.add(roof);
-  const cr=meshOf(new THREE.OctahedronGeometry(0.26),glowMat(P.accent,2.0));
-  cr.position.y=y+rh+0.42; cr.scale.y=1.7;
-  cr.userData.tick=t=>{cr.rotation.y=t*0.6;cr.position.y=y+rh+0.42+Math.sin(t*1.3)*0.09;};
-  g.add(cr); animated.push(cr);
-  const halo=meshOf(new THREE.TorusGeometry(0.55,0.035,6,24),glowMat(P.accent2,1.6),false,false);
-  halo.position.y=y+rh+0.42;
-  halo.userData.tick=t=>{halo.rotation.x=Math.PI/2+Math.sin(t*0.4)*0.5;halo.rotation.z=t*0.8;};
-  g.add(halo); animated.push(halo);
-  const win=glowMat(0xFFE9B8,0.85);
-  for(let i=0;i<4;i++){
-    const w=meshOf(boxG(0.16,0.3,0.05),win,false,false);
-    const a=rnd()*TAU, wy=lerp(0.6,h-0.6,i/4+rnd()*0.12);
-    w.position.set(Math.cos(a)*r*1.06,wy,Math.sin(a)*r*1.06);
-    w.rotation.y=-a+Math.PI/2; g.add(w);
-  }
-  /* The Great Spire. Once a district can no longer widen, it needs ONE element
-     that still says "bigger" at silhouette scale — a beacon crown that reads
-     from across the map, and the flag the whole district flies. */
-  if(great){
-    const bh=y+rh+1.1;
-    const beacon=meshOf(new THREE.IcosahedronGeometry(0.4,1),glowMat(P.accent,2.4),false,false);
-    beacon.position.y=bh; g.add(beacon);
-    const cage=meshOf(new THREE.TorusGeometry(0.62,0.05,6,20),
-      mat(P.metal,{metal:0.7,rough:0.25,env:1.1}),false,false);
-    cage.position.y=bh; g.add(cage);
-    const cage2=cage.clone(); cage2.position.y=bh; g.add(cage2);
-    cage.userData.tick=t=>{cage.rotation.set(t*0.4,0,0);};
-    cage2.userData.tick=t=>{cage2.rotation.set(0,0,t*0.33);};
-    animated.push(cage,cage2);
-    beacon.userData.tick=t=>{
-      beacon.material.emissiveIntensity=2.0+Math.sin(t*1.4)*0.7;
-      beacon.scale.setScalar(1+Math.sin(t*1.4)*0.05);
-    };
-    animated.push(beacon);
-    /* Light spilling down the shaft, so the beacon lights the tower it's on. */
-    for(let k=0;k<3;k++){
-      /* Own material, not a cached one — these fade per frame, and mutating a
-         shared material would fade every other glow in the district with them. */
-      const rm=new THREE.MeshStandardMaterial({color:P.accent2,emissive:P.accent2,
-        emissiveIntensity:1.4,roughness:0.3,transparent:true,opacity:1});
-      const ring=meshOf(new THREE.TorusGeometry(r*1.3,0.03,5,18),rm,false,false);
-      ring.rotation.x=Math.PI/2;
-      ring.userData.tick=t=>{
-        const u=(t*0.3+k/3)%1;
-        ring.position.y=lerp(bh-0.6,0.4,u);
-        ring.scale.setScalar(lerp(0.8,1.5,u));
-        rm.opacity=1-u;
-      };
-      g.add(ring); animated.push(ring);
-    }
-  }
-  return g;
-}
-
-function buildDome(P,rnd){
-  const g=new THREE.Group();
-  const r=lerp(1.0,1.5,rnd()), h=lerp(0.7,1.1,rnd());
-  g.add(meshOf(new THREE.CylinderGeometry(r,r*1.06,h,12),mat(P.stone)).translateY(h/2));
-  const band=meshOf(new THREE.CylinderGeometry(r*1.06,r*1.06,0.1,12),
-    mat(P.metal,{metal:0.5,rough:0.35}));
-  band.position.y=h; g.add(band);
-  const dome=meshOf(new THREE.SphereGeometry(r*0.98,14,8,0,TAU,0,Math.PI/2),
-    mat(P.roof,{rough:0.6,flat:false}));
-  dome.position.y=h; g.add(dome);
-  const top=meshOf(new THREE.OctahedronGeometry(0.2),glowMat(P.accent,1.8));
-  top.position.y=h+r*0.98+0.18;
-  top.userData.tick=t=>{top.rotation.y=t*0.5;}; g.add(top); animated.push(top);
-  for(let i=0;i<6;i++){
-    const a=i/6*TAU;
-    const col=meshOf(new THREE.CylinderGeometry(0.09,0.09,h*0.95,6),mat(P.stone2));
-    col.position.set(Math.cos(a)*r*1.1,h*0.475,Math.sin(a)*r*1.1); g.add(col);
-  }
-  const arc=meshOf(new THREE.RingGeometry(r*0.3,r*0.42,20),
-    glowMat(P.accent2,1.1),false,false);
-  arc.rotation.x=-Math.PI/2; arc.position.y=h+0.02; g.add(arc);
-  return g;
-}
-
-function buildArch(P,rnd){
-  const g=new THREE.Group();
-  const w=lerp(1.5,2.2,rnd()), h=lerp(1.6,2.4,rnd());
-  for(const s of [-1,1]){
-    const p=meshOf(new THREE.CylinderGeometry(0.16,0.2,h,6),mat(P.stone));
-    p.position.set(s*w/2,h/2,0); g.add(p);
-  }
-  const top=meshOf(new THREE.TorusGeometry(w/2,0.15,6,16,Math.PI),mat(P.stone2));
-  top.position.y=h; g.add(top);
-  const key=meshOf(new THREE.OctahedronGeometry(0.19),glowMat(P.accent,1.7));
-  key.position.y=h+w/2*0.1+0.2;
-  key.userData.tick=t=>{key.rotation.z=t*0.7;key.position.y=h+0.3+Math.sin(t*1.6)*0.05;};
-  g.add(key); animated.push(key);
-  return g;
-}
-
-function buildTree(P,rnd){
-  const g=new THREE.Group();
-  const h=lerp(0.7,1.5,rnd());
-  g.add(meshOf(new THREE.CylinderGeometry(0.07,0.11,h,5),mat(P.wood)).translateY(h/2));
-  const n=2+Math.floor(rnd()*2);
-  for(let i=0;i<n;i++){
-    const r=lerp(0.4,0.62,rnd())*(1-i*0.18);
-    const b=meshOf(new THREE.IcosahedronGeometry(r,0),
-      mat(rnd()<0.5?P.foliage:P.foliage2,{rough:0.95}));
-    b.position.set((rnd()-0.5)*0.3,h+i*0.32,(rnd()-0.5)*0.3);
-    b.rotation.set(rnd()*3,rnd()*3,rnd()*3); g.add(b);
-  }
-  /* Blossom lights. Purple magic living in the plants, not just in the towers —
-     this is most of what keeps the realm from reading as a mineral wasteland. */
-  if(rnd()<0.5){
-    for(let i=0;i<3;i++){
-      const b=meshOf(new THREE.SphereGeometry(0.07,6,5),glowMat(P.bloom,1.3),false,false);
-      b.position.set((rnd()-0.5)*0.8,h+rnd()*0.6,(rnd()-0.5)*0.8); g.add(b);
-    }
-  }
-  const sway=rnd()*TAU;
-  g.userData.tick=t=>{g.rotation.z=Math.sin(t*0.8+sway)*0.035;};
-  animated.push(g);
-  return g;
-}
-
-function buildCrystal(P,rnd){
-  const g=new THREE.Group();
-  const n=2+Math.floor(rnd()*4);
-  for(let i=0;i<n;i++){
-    const h=lerp(0.35,1.5,rnd()), w=lerp(0.13,0.3,rnd());
-    const c=meshOf(new THREE.OctahedronGeometry(1,0),
-      mat(rnd()<0.6?P.accent:P.accent2,{emissive:rnd()<0.6?P.accent:P.accent2,
-        ei:0.55,rough:0.25,flat:true,opacity:0.92}));
-    c.scale.set(w,h,w);
-    c.position.set((rnd()-0.5)*0.6,h*0.55,(rnd()-0.5)*0.6);
-    c.rotation.set((rnd()-0.5)*0.3,rnd()*3,(rnd()-0.5)*0.3);
-    g.add(c);
-  }
-  const ph=rnd()*TAU;
-  g.userData.tick=t=>{
-    const p=0.55+Math.sin(t*1.1+ph)*0.35;
-    g.children.forEach(c=>c.material.emissiveIntensity=p);
-  };
-  animated.push(g);
-  return g;
-}
-
-/* ---------------------------------------------------------- the lodestone */
-/* The founding marker, and the only object in this file placed at EVERY level
-   from one. Reading a single article gets you this.
-
-   It exists because L1 was not keeping its own promise. The ladder copy says a
-   waystone is "a single lodestone on bare rock" and what stood there was three
-   interchangeable crystals, a rock and some grass — landscape, not a marker
-   somebody left. That matters more than any other level in the file: ~46% of
-   all districts are L1, and for the median reader this IS the product.
-
-   It sits OFF CENTRE, at a fixed offset and a fixed bearing, for the whole life
-   of the plot. Centred would have been the obvious call and it is the wrong
-   one: the middle is where the signature monument rises at L3, and a founding
-   stone that had to shuffle aside to make room would break the one rule the
-   layout is built on. Off centre from the start, the monument simply grows up
-   beside it — and at L12 there is still a small old stone standing on the
-   oldest ground in the district, which is the whole point of never moving
-   anything. */
+/* A cylinder from a to b — struts, bridge posts, hanging vines, crane legs. */
 function buildLodestone(P,rnd){
   const g=new THREE.Group();
-  /* A footing, a kerb and paving. The stone alone reads as a rock that happened
-     to be there; it is the DRESSED ground around it that says somebody set it
-     up on purpose, and that reading is the entire job at L1. */
   g.add(meshOf(new THREE.CylinderGeometry(0.50,0.60,0.17,9),
     mat(P.stone2,{rough:0.95})).translateY(0.085));
   for(let i=0;i<7;i++){
@@ -1110,21 +1180,14 @@ function buildLodestone(P,rnd){
   }
   for(let i=0;i<3;i++){
     const a=rnd()*TAU, d=0.86+rnd()*0.46;
-    const pv=meshOf(boxG(0.44,0.07,0.32),mat(P.stone2,{rough:0.98}),false,true);
+    const pv=meshOf(new THREE.BoxGeometry(0.44,0.07,0.32),mat(P.stone2,{rough:0.98}),false,true);
     pv.position.set(Math.cos(a)*d,0.04,Math.sin(a)*d);
     pv.rotation.y=rnd()*TAU; g.add(pv);
   }
-  /* The stone itself: a five-sided tapered prism, flattened on one axis so it
-     is a SLAB rather than a post, and leaned a few degrees. Standing perfectly
-     upright it read as a bollard. */
   const h=1.52+rnd()*0.26;
   const st=new THREE.Group();
   const slab=meshOf(new THREE.CylinderGeometry(0.185,0.30,h,5),mat(P.stone,{rough:0.9}));
   slab.scale.z=0.52; slab.position.y=h/2; st.add(slab);
-  /* Two carved courses, the upper one lit. The band is what makes it a marked
-     stone instead of a menhir, and it is also the district accent arriving at
-     L1 — the only colour on the plot that is about the SUBJECT rather than
-     about the realm. */
   const band=meshOf(new THREE.CylinderGeometry(0.212,0.222,0.10,5),
     glowMat(P.accent,1.35),false,false);
   band.scale.z=0.56; band.position.y=h*0.74; st.add(band);
@@ -1132,68 +1195,233 @@ function buildLodestone(P,rnd){
     mat(P.stone2,{rough:0.92}),false,false);
   band2.scale.z=0.56; band2.position.y=h*0.50; st.add(band2);
   st.position.y=0.16; st.rotation.set(0.05,rnd()*TAU,-0.05); g.add(st);
-  /* The shard. It is the one thing moving on an L1 plot, and at L1 nothing else
-     in the district has a tick at all — which is the difference between a world
-     that is small and a world that is asleep. Costs one draw call: mergeStatic
-     leaves anything with a tick alone, and this is one object per district. */
-  const c=meshOf(new THREE.OctahedronGeometry(0.25),glowMat(P.bloom||P.accent,1.9),
-    false,false);
-  c.scale.y=1.5;
-  const cy=h+0.60;
-  c.position.y=cy;
-  c.userData.tick=t=>{ c.rotation.y=t*0.5; c.position.y=cy+Math.sin(t*1.15)*0.08; };
-  g.add(c); animated.push(c);
-  return g;
-}
-
-function buildLamp(P,rnd){
-  const g=new THREE.Group();
-  const h=lerp(0.9,1.4,rnd());
-  g.add(meshOf(new THREE.CylinderGeometry(0.045,0.07,h,6),mat(P.cliffDark))
-    .translateY(h/2));
-  const orb=meshOf(new THREE.IcosahedronGeometry(0.14,1),glowMat(0xFFE3A0,2.0),false,false);
-  orb.position.y=h+0.18; g.add(orb);
-  /* Halo kept small and dim. Additive sprites STACK: a dozen lamps clustered on
-     the inner terrace summed into one blown-out white blob over the middle of
-     the district, which read as a lens flare rather than as lamplight. */
-  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:P.accent,
-    transparent:true,opacity:0.22,depthWrite:false,blending:THREE.AdditiveBlending}));
-  s.scale.setScalar(0.6); s.position.y=h+0.18; g.add(s);
-  const ph=rnd()*TAU;
-  g.userData.tick=t=>{
-    orb.position.y=h+0.18+Math.sin(t*1.4+ph)*0.06;
-    s.position.y=orb.position.y;
-    s.material.opacity=0.18+Math.sin(t*2+ph)*0.06;
-  };
-  animated.push(g);
-  return g;
-}
-
-function buildHedge(P,rnd){
-  const g=new THREE.Group();
-  const style=rnd();
-  if(style<0.45){
-    const l=lerp(0.8,1.8,rnd());
-    const b=meshOf(boxG(l,0.34,0.3),mat(P.foliage,{rough:0.98}));
-    b.position.y=0.17; b.rotation.y=rnd()*TAU; g.add(b);
-  }else if(style<0.8){
-    const r=lerp(0.24,0.4,rnd());
-    const b=meshOf(new THREE.IcosahedronGeometry(r,1),mat(P.foliage2,{rough:0.98}));
-    b.position.y=r*0.9; g.add(b);
-    g.add(meshOf(new THREE.CylinderGeometry(0.05,0.05,r,5),mat(P.wood))
-      .translateY(r*0.4));
+  /* The marker on the head of the stone, and it belongs to the realm. A
+     floating shard is right in a sky-garden and wrong on a fortress and a
+     market town, where it read as a gem somebody had left hovering over the
+     cobbles for no reason. Only the realms whose art contains levitation get
+     anything that leaves the stone at all — and it is still the one moving
+     thing on an L1 plot, which is the difference between a world that is small
+     and a world that is asleep. */
+  const cy=h+0.52;
+  if(P.kit==='swarm'){
+    const c=meshOf(new THREE.OctahedronGeometry(0.25),glowMat(P.crys,1.9),false,false);
+    c.scale.y=1.5; c.position.y=cy+0.1;
+    c.userData.tick=t=>{ c.rotation.y=t*0.5; c.position.y=cy+0.1+Math.sin(t*1.15)*0.08; };
+    g.add(c); animated.push(c);
+  }else if(P.kit==='frame'){
+    /* A seed-lantern hung off a bent twig — it swings, it does not hover. */
+    const arm=meshOf(new THREE.TorusGeometry(0.2,0.025,5,10,Math.PI*0.5),
+      mat(P.bark2,{rough:1}));
+    arm.position.y=cy; arm.rotation.set(Math.PI/2,0,Math.PI*0.5); g.add(arm);
+    const pod=meshOf(new THREE.SphereGeometry(0.13,9,7),glowMat(P.warm,1.8),false,false);
+    pod.scale.y=1.35; pod.position.set(0.2,cy-0.22,0); g.add(pod);
+    const ph=rnd()*TAU;
+    pod.userData.tick=t=>{ pod.position.x=0.2+Math.sin(t*1.1+ph)*0.03; };
+    animated.push(pod);
+  }else if(P.kit==='forge'){
+    /* A tallow lamp on an iron spike, sitting on the stone. */
+    const spike=meshOf(new THREE.CylinderGeometry(0.03,0.045,0.22,6),
+      mat(P.metal,{metal:0.5,rough:0.5}));
+    spike.position.y=cy-0.05; g.add(spike);
+    const bowl=meshOf(new THREE.CylinderGeometry(0.13,0.08,0.11,8),
+      mat(P.iron,{metal:0.4,rough:0.6}));
+    bowl.position.y=cy+0.11; g.add(bowl);
+    const f=meshOf(new THREE.ConeGeometry(0.09,0.22,6),glowMat(P.warm,2.1),false,false);
+    f.position.y=cy+0.26;
+    const ph=rnd()*TAU;
+    f.userData.tick=t=>{ f.scale.set(1,1+Math.sin(t*6+ph)*0.18,1); };
+    g.add(f); animated.push(f);
+  }else if(P.kit==='ship'){
+    /* A harbour light in a cage — bolted down, as everything here is. */
+    const cage=meshOf(new THREE.CylinderGeometry(0.13,0.15,0.24,8),
+      mat(P.metal,{metal:0.5,rough:0.45}));
+    cage.position.y=cy+0.06; g.add(cage);
+    const lens=meshOf(new THREE.CylinderGeometry(0.1,0.1,0.15,8),
+      glowMat(P.warm,1.9),false,false);
+    lens.position.y=cy+0.06; g.add(lens);
+    const cap=meshOf(new THREE.ConeGeometry(0.17,0.12,8),mat(P.stripe,{rough:0.6}));
+    cap.position.y=cy+0.24; g.add(cap);
+  }else if(P.kit==='bastion'){
+    /* A rune plate set flat into the head of the stone. */
+    const plate=meshOf(new THREE.CylinderGeometry(0.19,0.21,0.07,6),
+      mat(P.metal,{metal:0.55,rough:0.45}));
+    plate.position.y=cy-0.02; g.add(plate);
+    const rune=meshOf(new THREE.TorusGeometry(0.11,0.026,5,14),
+      mat(P.ward,{emissive:P.ward,ei:1.3,rough:0.4,flat:false}),false,false);
+    rune.rotation.x=Math.PI/2; rune.position.y=cy+0.03; g.add(rune);
+    const bar=meshOf(new THREE.BoxGeometry(0.2,0.03,0.035),
+      mat(P.ward,{emissive:P.ward,ei:1.3,rough:0.4,flat:false}),false,false);
+    bar.position.y=cy+0.03; g.add(bar);
   }else{
-    /* Flower bed — a ring of blossom dots around a low planter. */
-    const r=lerp(0.3,0.5,rnd());
-    g.add(meshOf(new THREE.CylinderGeometry(r,r*0.9,0.16,8),mat(P.cliffDark))
-      .translateY(0.08));
-    for(let i=0;i<7;i++){
-      const a=i/7*TAU;
-      const f=meshOf(new THREE.IcosahedronGeometry(0.09,0),
-        mat(P.bloom,{emissive:P.bloom,ei:0.35,rough:0.6}),false,false);
-      f.position.set(Math.cos(a)*r*0.6,0.2,Math.sin(a)*r*0.6); g.add(f);
-    }
+    /* A small iron weathervane. It turns; it does not levitate. */
+    const post=meshOf(new THREE.CylinderGeometry(0.022,0.03,0.3,6),
+      mat(P.metal,{metal:0.55,rough:0.45}));
+    post.position.y=cy; g.add(post);
+    const vane=new THREE.Group(); vane.position.y=cy+0.17; g.add(vane);
+    vane.add(meshOf(new THREE.BoxGeometry(0.3,0.02,0.02),
+      mat(P.metal,{metal:0.55,rough:0.45}),false,false));
+    const tail=meshOf(new THREE.BoxGeometry(0.11,0.1,0.015),
+      mat(P.metal,{metal:0.55,rough:0.45}),false,false);
+    tail.position.x=-0.14; vane.add(tail);
+    const head=meshOf(new THREE.ConeGeometry(0.04,0.1,4),
+      mat(P.rose2,{rough:0.8}),false,false);
+    head.rotation.z=-Math.PI/2; head.position.x=0.17; vane.add(head);
+    const ph=rnd()*TAU;
+    vane.userData.tick=t=>{ vane.rotation.y=Math.sin(t*0.4+ph)*1.2; };
+    animated.push(vane);
   }
+  return g;
+}
+
+/* --------------------------------------------------------------- lighting
+   Lamps are in every single concept image and they are always the same idea:
+   a small warm point at head height, repeated along a path. What differs is the
+   fitting, so that is all that varies here. */
+/* Six fittings, one per realm — no two realms share one. A lamp is the single
+   most repeated object on any island (30-odd at L12), so when three realms drew
+   the same post-with-a-box the repetition was multiplied by thirty before
+   anything else in the district got a chance to differ. The post is the only
+   part they still have in common, and even that changes material. */
+function postLamp(P,rnd,style){
+  const g=new THREE.Group();
+  const h=lerp(0.9,1.45,rnd());
+  const iron=mat(P.metal,{metal:0.45,rough:0.5});
+  let lx=0, ly=h+0.08;
+
+  if(style==='crystal'){
+    /* Swarm — a shard floating clear of a marble pylon. No housing at all: in
+       this realm the light IS the mineral, and a lantern would be a machine. */
+    const post=meshOf(new THREE.CylinderGeometry(0.06,0.1,h,4),
+      mat(P.stone2,{rough:0.8}));
+    post.rotation.y=Math.PI/4; post.position.y=h/2; g.add(post);
+    const cap=meshOf(new THREE.CylinderGeometry(0.14,0.1,0.1,4),
+      mat(P.stone,{rough:0.8}));
+    cap.rotation.y=Math.PI/4; cap.position.y=h+0.05; g.add(cap);
+    const c=meshOf(new THREE.OctahedronGeometry(0.16),
+      glowMat(P.crys??P.accent,1.9),false,false);
+    c.scale.y=1.7; c.position.y=h+0.36;
+    const ph=rnd()*TAU;
+    c.userData.tick=t=>{ c.rotation.y=t*0.5;
+      c.position.y=h+0.36+Math.sin(t*1.2+ph)*0.05; };
+    g.add(c); animated.push(c);
+    ly=h+0.36;
+
+  }else if(style==='timber'){
+    /* Frameworks — a bent sapling crook with the lantern swinging off the end.
+       Nothing in that reference is bolted to a straight pole. */
+    const wood=mat(P.wood,{rough:0.95});
+    g.add(meshOf(new THREE.CylinderGeometry(0.05,0.08,h,5),wood).translateY(h/2));
+    const arm=meshOf(new THREE.TorusGeometry(0.3,0.045,5,10,Math.PI*0.55),wood);
+    arm.position.y=h; arm.rotation.set(Math.PI/2,0,Math.PI*0.5); g.add(arm);
+    const tip=0.3;
+    g.add(beam(new THREE.Vector3(tip,h+0.24,0),new THREE.Vector3(tip,h+0.06,0),
+      0.018,mat(P.bark2??P.wood,{rough:1}),false));
+    const lan=meshOf(new THREE.CylinderGeometry(0.11,0.13,0.22,6),
+      glowMat(P.warm,1.9),false,false);
+    lan.position.set(tip,h-0.06,0); g.add(lan);
+    const hood=meshOf(new THREE.ConeGeometry(0.17,0.13,6),mat(P.moss,{rough:0.85}));
+    hood.position.set(tip,h+0.1,0); g.add(hood);
+    /* It swings. One tick, and it is the thing that makes the path feel windy. */
+    const ph=rnd()*TAU;
+    lan.userData.tick=t=>{ lan.position.x=tip+Math.sin(t*1.1+ph)*0.035; };
+    animated.push(lan);
+    lx=tip; ly=h-0.06;
+
+  }else if(style==='cage'){
+    /* Forges — a caged flame pot on a stubby riveted stump. Low, heavy, and
+       nothing like the dock masts or the wrought iron. */
+    const stump=meshOf(new THREE.CylinderGeometry(0.1,0.15,h*0.62,8),
+      mat(P.iron,{metal:0.4,rough:0.6}));
+    stump.position.y=h*0.31; g.add(stump);
+    const pot=meshOf(new THREE.CylinderGeometry(0.17,0.12,0.24,8),
+      mat(P.iron2,{metal:0.45,rough:0.55}));
+    pot.position.y=h*0.62+0.12; g.add(pot);
+    const coal=meshOf(new THREE.CylinderGeometry(0.14,0.14,0.06,8),
+      glowMat(P.lava,1.8),false,false);
+    coal.position.y=h*0.62+0.25; g.add(coal);
+    /* The cage: four uprights and a ring cap over the flame. */
+    for(let k=0;k<4;k++){
+      const a=k/4*TAU;
+      g.add(beam(new THREE.Vector3(Math.cos(a)*0.15,h*0.62+0.2,Math.sin(a)*0.15),
+                 new THREE.Vector3(Math.cos(a)*0.1,h*0.62+0.56,Math.sin(a)*0.1),
+                 0.022,mat(P.metal,{metal:0.55,rough:0.45}),false));
+    }
+    const lid=meshOf(new THREE.ConeGeometry(0.16,0.12,8),
+      mat(P.metal,{metal:0.55,rough:0.45}));
+    lid.position.y=h*0.62+0.62; g.add(lid);
+    const ph=rnd()*TAU;
+    coal.userData.tick=t=>{ coal.material.emissiveIntensity=1.6+Math.sin(t*5+ph)*0.5; };
+    animated.push(coal);
+    ly=h*0.62+0.3;
+
+  }else if(style==='dock'){
+    /* Shipyards — a tapered mast with a gooseneck and a downlight. Utility
+       fitting, aimed at the ground, exactly what stands along a quay. */
+    const mast=meshOf(new THREE.CylinderGeometry(0.045,0.09,h*1.25,7),iron);
+    mast.position.y=h*0.625; g.add(mast);
+    const neck=meshOf(new THREE.TorusGeometry(0.2,0.035,5,10,Math.PI*0.5),iron);
+    neck.position.set(0,h*1.25,0); neck.rotation.set(Math.PI/2,0,Math.PI); g.add(neck);
+    const shade=meshOf(new THREE.CylinderGeometry(0.17,0.09,0.14,10),
+      mat(P.stripe,{rough:0.6}));
+    shade.position.set(0.2,h*1.25-0.14,0); g.add(shade);
+    const bulb=meshOf(new THREE.SphereGeometry(0.09,8,6),glowMat(P.warm,2.0),false,false);
+    bulb.position.set(0.2,h*1.25-0.24,0); g.add(bulb);
+    lx=0.2; ly=h*1.25-0.24;
+
+  }else if(style==='brazier'){
+    /* Bastion — an iron fire-basket on a stone plinth. Nothing in a snow
+       fortress is made of glass. */
+    const plinth=meshOf(new THREE.CylinderGeometry(0.16,0.2,h*0.5,6),
+      mat(P.stone2,{rough:0.94}));
+    plinth.position.y=h*0.25; g.add(plinth);
+    const snow=meshOf(new THREE.CylinderGeometry(0.17,0.17,0.05,6),
+      mat(P.snow,{rough:1}),false,false);
+    snow.position.y=h*0.5; g.add(snow);
+    const stem=meshOf(new THREE.CylinderGeometry(0.05,0.06,h*0.4,6),iron);
+    stem.position.y=h*0.7; g.add(stem);
+    const bowl=meshOf(new THREE.CylinderGeometry(0.2,0.11,0.2,7,1,true),
+      mat(P.metal,{metal:0.5,rough:0.5,side:THREE.DoubleSide}));
+    bowl.position.y=h*0.9+0.1; g.add(bowl);
+    const fire=meshOf(new THREE.ConeGeometry(0.15,0.36,6),glowMat(P.warm,2.1),false,false);
+    fire.position.y=h*0.9+0.3; g.add(fire);
+    const ph=rnd()*TAU;
+    fire.userData.tick=t=>{ fire.scale.set(1,1+Math.sin(t*6+ph)*0.16,1);
+      fire.material.emissiveIntensity=1.9+Math.sin(t*7.3+ph)*0.5; };
+    animated.push(fire);
+    ly=h*0.9+0.3;
+
+  }else{
+    /* Artisan's — wrought iron with a scrolled arm and a glazed box, which is
+       the fitting actually drawn in that reference. */
+    const post=meshOf(new THREE.CylinderGeometry(0.04,0.08,h,8),iron);
+    post.position.y=h/2; g.add(post);
+    for(let i=0;i<2;i++){                      // collar mouldings
+      const c=meshOf(new THREE.TorusGeometry(0.055,0.022,4,10),iron,false,false);
+      c.rotation.x=Math.PI/2; c.position.y=h*(0.3+i*0.42); g.add(c);
+    }
+    const scroll=meshOf(new THREE.TorusGeometry(0.16,0.028,5,12,Math.PI*1.2),iron);
+    scroll.position.set(0.13,h-0.02,0); scroll.rotation.y=Math.PI/2; g.add(scroll);
+    const arm=meshOf(new THREE.BoxGeometry(0.3,0.04,0.04),iron);
+    arm.position.set(0.14,h+0.1,0); g.add(arm);
+    const box=meshOf(new THREE.CylinderGeometry(0.1,0.13,0.24,4),
+      glowMat(P.warm,1.9),false,false);
+    box.rotation.y=Math.PI/4; box.position.set(0.27,h-0.04,0); g.add(box);
+    const roof=meshOf(new THREE.ConeGeometry(0.16,0.13,4),iron);
+    roof.rotation.y=Math.PI/4; roof.position.set(0.27,h+0.14,0); g.add(roof);
+    const fin=meshOf(new THREE.SphereGeometry(0.035,6,5),iron,false,false);
+    fin.position.set(0.27,h+0.23,0); g.add(fin);
+    lx=0.27; ly=h-0.04;
+  }
+
+  /* Halo kept small and dim on purpose: additive sprites STACK, and a dozen
+     lamps on one terrace sum into a lens flare over the middle of the town. */
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,
+    color:style==='crystal'?(P.crys??P.warm):P.warm,
+    transparent:true,opacity:0.20,depthWrite:false,blending:THREE.AdditiveBlending}));
+  s.scale.setScalar(0.62); s.position.set(lx,ly,0); g.add(s);
+  const ph=rnd()*TAU;
+  g.userData.tick=t=>{ s.material.opacity=0.16+Math.sin(t*2+ph)*0.06; };
+  animated.push(g);
   return g;
 }
 
@@ -1202,7 +1430,7 @@ function buildBanner(P,rnd,h=1.9){
   g.add(meshOf(new THREE.CylinderGeometry(0.05,0.05,h,5),mat(P.wood)).translateY(h/2));
   const w=0.5,hh=0.85;
   const cloth=meshOf(new THREE.PlaneGeometry(w,hh,6,4),
-    mat(rnd()<0.5?P.roof:P.accent,{side:THREE.DoubleSide,flat:false,rough:0.85}),true,false);
+    mat(rnd()<0.5?P.roof2:P.accent,{side:THREE.DoubleSide,flat:false,rough:0.85}),true,false);
   cloth.position.set(w/2,h-hh/2-0.1,0); g.add(cloth);
   const base=cloth.geometry.attributes.position.array.slice();
   const ph=rnd()*TAU;
@@ -1218,228 +1446,190 @@ function buildBanner(P,rnd,h=1.9){
   return g;
 }
 
-/* ------------------------------------------------------ signature per niche */
-/* The single most important builder in the file: this is what makes a visitor
-   say "oh, that one's the data district" without reading a label. It unlocks at
-   L3 — identity should arrive before size does. */
-function buildSignature(P,rnd,sp){
+/* The gate. Every realm has one because every realm has a way IN, and the way
+   in is where the district hangs its colours — but it was two posts and a torus
+   in all six, which made the one object whose whole job is to announce a place
+   the least place-specific thing on the island. */
+function buildGate(P,rnd){
   const g=new THREE.Group();
-  /* Fixed scale, and every element positioned from its own index alone. Both
-     matter for the same reason: the monument is the first thing built and the
-     last thing that should ever shift, so growth here can only mean "another
-     one appears", never "they all rearrange to make room". */
-  const s=1.2, GA=2.399963229728653;
-  switch(P.sig){
+  const kit=P.kit;
 
-  case 'obelisk': { // LLMS — glyph stelae and a drift of open books
-    const n=clamp(2+Math.floor(sp.level/2),2,7);
-    for(let i=0;i<n;i++){
-      const a=i*GA+rnd()*0.3, r=lerp(0.9,1.9,rnd())*s;
-      const h=lerp(1.4,3.2,rnd())*s;
-      const ob=meshOf(boxG(0.28*s,h,0.28*s),mat(P.stone));
-      ob.position.set(Math.cos(a)*r,h/2,Math.sin(a)*r);
-      ob.rotation.y=rnd()*TAU; g.add(ob);
-      for(let k=0;k<3;k++){
-        const gl=meshOf(boxG(0.31*s,0.05,0.31*s),
-          glowMat(P.accent,1.5),false,false);
-        gl.position.set(ob.position.x,h*(0.25+k*0.25),ob.position.z);
-        gl.rotation.y=ob.rotation.y; g.add(gl);
-      }
-      const bk=meshOf(boxG(0.3*s,0.06*s,0.22*s),mat(P.bloom),false,false);
-      const by=h+0.5;
-      bk.userData.tick=t=>{
-        const w=t*0.35+i;
-        bk.position.set(Math.cos(a)*r+Math.cos(w)*0.5,by+Math.sin(t*1.2+i)*0.15,
-          Math.sin(a)*r+Math.sin(w)*0.5);
-        bk.rotation.set(0.3,w,Math.sin(t+i)*0.3);
-      };
-      g.add(bk); animated.push(bk);
+  if(kit==='swarm'){
+    /* A moon gate: a single ring standing on the turf, with nothing holding it
+       shut. You pass through a hole in the air. */
+    const rr=lerp(0.95,1.3,rnd());
+    const ring=meshOf(new THREE.TorusGeometry(rr,0.13,8,26),mat(P.stone,{rough:0.7}));
+    ring.position.y=rr+0.18; g.add(ring);
+    const inner=meshOf(new THREE.TorusGeometry(rr*0.82,0.045,6,24),
+      glowMat(P.crys,1.3),false,false);
+    inner.position.y=rr+0.18; g.add(inner);
+    inner.userData.tick=t=>{ inner.rotation.z=t*0.18;
+      inner.material.emissiveIntensity=1.1+Math.sin(t*1.1)*0.3; };
+    animated.push(inner);
+    for(const sd of [-1,1]){
+      const foot=meshOf(new THREE.CylinderGeometry(0.16,0.24,0.36,8),
+        mat(P.stone2,{rough:0.75}));
+      foot.position.set(sd*rr*0.72,0.18,0); g.add(foot);
     }
-    break; }
 
-  case 'roost': { // AGENTS — antenna masts with a live swarm of little drones
-    const masts=clamp(2+Math.floor(sp.level/2.5),2,6);
-    for(let i=0;i<masts;i++){
-      const a=i*GA, r=lerp(0.7,1.6,rnd())*s, h=lerp(1.6,2.8,rnd())*s;
-      const m=meshOf(new THREE.CylinderGeometry(0.06,0.11,h,6),mat(P.stone2));
-      m.position.set(Math.cos(a)*r,h/2,Math.sin(a)*r); g.add(m);
-      const dish=meshOf(new THREE.SphereGeometry(0.26*s,10,6,0,TAU,0,Math.PI/2),
-        mat(P.roof,{flat:false}));
-      dish.position.set(m.position.x,h,m.position.z);
-      dish.rotation.set(-0.6,rnd()*TAU,0); g.add(dish);
-      const tip=meshOf(new THREE.SphereGeometry(0.08,6,5),glowMat(P.accent,2),false,false);
-      tip.position.set(m.position.x,h+0.12,m.position.z); g.add(tip);
+  }else if(kit==='frame'){
+    /* Two saplings bent together and grown into an arch, with vines on it.
+       Nothing here is quarried. */
+    const woodM=mat(P.bark,{rough:0.96});
+    const h=lerp(1.9,2.5,rnd()), w=lerp(0.85,1.15,rnd());
+    for(const sd of [-1,1]){
+      g.add(meshOf(new THREE.CylinderGeometry(0.09,0.15,h*0.68,6),woodM)
+        .translateX(sd*w).translateY(h*0.34));
+      const bend=meshOf(new THREE.TorusGeometry(w,0.09,6,12,Math.PI*0.5),woodM);
+      bend.position.set(0,h*0.68,0);
+      bend.rotation.set(Math.PI/2,0,sd>0?0:Math.PI); g.add(bend);
     }
-    const swarm=clamp(6+sp.level*2,6,34);
-    for(let i=0;i<swarm;i++){
-      const d=meshOf(new THREE.TetrahedronGeometry(0.11*s),glowMat(P.accent,1.5),false,false);
-      const rr=lerp(0.6,2.4,rnd())*s, hh=lerp(1.0,3.0,rnd())*s;
-      const sp1=lerp(0.3,0.9,rnd()), off=rnd()*TAU;
-      d.userData.tick=t=>{
-        const w=t*sp1+off;
-        d.position.set(Math.cos(w)*rr,hh+Math.sin(t*1.6+off)*0.35,Math.sin(w)*rr);
-        d.rotation.set(w,w*1.3,0);
-      };
-      g.add(d); animated.push(d);
+    for(let i=0;i<7;i++){
+      const a=lerp(0.15,Math.PI-0.15,i/6);
+      const lf=meshOf(new THREE.IcosahedronGeometry(lerp(0.14,0.26,rnd()),0),
+        mat(rnd()<0.5?P.canopy:P.moss,{rough:0.96}),true,false);
+      lf.position.set(Math.cos(a)*w,h*0.68+Math.sin(a)*w,0);
+      lf.scale.y=0.6; g.add(lf);
     }
-    break; }
+    const lan=meshOf(new THREE.CylinderGeometry(0.1,0.12,0.2,6),
+      glowMat(P.warm,1.7),false,false);
+    lan.position.set(0,h*0.68+w-0.3,0); g.add(lan);
 
-  case 'conduit': { // AI INFRA — pipe arcs with light pulsing through them
-    const arcs=clamp(2+Math.floor(sp.level/2.5),2,6);
-    for(let i=0;i<arcs;i++){
-      const a=i*GA+0.2, r=lerp(1.0,2.0,rnd())*s, h=lerp(1.2,2.2,rnd())*s;
-      const pipe=meshOf(new THREE.TorusGeometry(h*0.6,0.11*s,6,14,Math.PI),
-        mat(P.stone2,{metal:0.35,rough:0.5}));
-      pipe.position.set(Math.cos(a)*r,0,Math.sin(a)*r);
-      pipe.rotation.y=-a; g.add(pipe);
-      for(let k=0;k<3;k++){
-        const pulse=meshOf(new THREE.SphereGeometry(0.13*s,7,6),glowMat(P.accent,2),false,false);
-        pulse.userData.tick=t=>{
-          const u=((t*0.45+k/3+i*0.2)%1)*Math.PI;
-          const lx=Math.cos(u)*h*0.6, ly=Math.sin(u)*h*0.6;
-          pulse.position.set(Math.cos(a)*r+Math.cos(-a+Math.PI/2)*0,ly,Math.sin(a)*r);
-          pulse.position.x=Math.cos(a)*r+lx*Math.cos(-a);
-          pulse.position.z=Math.sin(a)*r-lx*Math.sin(-a);
-        };
-        g.add(pulse); animated.push(pulse);
+  }else if(kit==='forge'){
+    /* A riveted portal frame with a warning lamp — the gate to a works, which
+       is a machine and not a monument. */
+    const iron=mat(P.iron,{metal:0.4,rough:0.55});
+    const steel=mat(P.metal,{metal:0.55,rough:0.45});
+    const h=lerp(1.9,2.4,rnd()), w=lerp(0.95,1.25,rnd());
+    for(const sd of [-1,1]){
+      const post=meshOf(new THREE.BoxGeometry(0.26,h,0.26),iron);
+      post.position.set(sd*w,h/2,0); g.add(post);
+      const base=meshOf(new THREE.BoxGeometry(0.46,0.16,0.46),steel);
+      base.position.set(sd*w,0.08,0); g.add(base);
+      for(let i=0;i<4;i++){
+        const rv=meshOf(new THREE.SphereGeometry(0.03,5,4),steel,false,false);
+        rv.position.set(sd*(w+0.14),h*(0.2+i*0.22),0); g.add(rv);
       }
     }
-    const core=meshOf(new THREE.CylinderGeometry(0.34*s,0.44*s,0.9*s,8),
-      mat(P.stone,{metal:0.3}));
-    core.position.y=0.45*s; g.add(core);
-    const cg=meshOf(new THREE.CylinderGeometry(0.3*s,0.3*s,0.2,8),glowMat(P.accent,2),false,false);
-    cg.position.y=0.95*s;
-    matAnim(cg.material,(m,t)=>{ m.emissiveIntensity=1.4+Math.sin(t*3)*0.7; });
-    g.add(cg);
-    break; }
+    const lint=meshOf(new THREE.BoxGeometry(w*2.5,0.3,0.3),iron);
+    lint.position.y=h; g.add(lint);
+    for(const sd of [-1,1]){                      // gussets
+      const gu=meshOf(new THREE.BoxGeometry(0.4,0.4,0.12),steel,true,false);
+      gu.position.set(sd*(w-0.24),h-0.24,0); gu.rotation.z=sd*Math.PI/4; g.add(gu);
+    }
+    const lamp=meshOf(new THREE.SphereGeometry(0.13,8,6),glowMat(P.lava,1.8),false,false);
+    lamp.position.y=h+0.26; g.add(lamp);
+    lamp.userData.tick=t=>{
+      lamp.material.emissiveIntensity=0.8+Math.abs(Math.sin(t*1.5))*1.6; };
+    animated.push(lamp);
 
-  case 'orrery': { // ML & DS — nested rings turning around a lit core
-    const ped=meshOf(new THREE.CylinderGeometry(0.5*s,0.72*s,0.8*s,8),mat(P.stone));
-    ped.position.y=0.4*s; g.add(ped);
-    const core=meshOf(new THREE.IcosahedronGeometry(0.34*s,1),glowMat(P.accent,2.2),false,false);
-    core.position.y=1.5*s; g.add(core);
-    for(let i=0;i<3;i++){
-      const R=(0.75+i*0.42)*s;
-      const ring=meshOf(new THREE.TorusGeometry(R,0.035*s,6,32),
-        mat(P.metal,{metal:0.7,rough:0.28}),false,false);
-      ring.position.y=1.5*s;
-      const ax=(i+1)*0.6, sp1=0.5-i*0.12;
-      ring.userData.tick=t=>{ring.rotation.set(Math.PI/2+Math.sin(t*0.2+i)*ax*0.4,t*sp1,i*0.7);};
-      g.add(ring); animated.push(ring);
-      const bead=meshOf(new THREE.SphereGeometry(0.1*s,7,6),
-        glowMat(i%2?P.accent2:P.bloom,1.8),false,false);
-      bead.userData.tick=t=>{
-        const w=t*(0.6+i*0.25);
-        bead.position.set(Math.cos(w)*R,1.5*s+Math.sin(w)*R*Math.sin(i*1.1)*0.5,Math.sin(w)*R);
-      };
-      g.add(bead); animated.push(bead);
+  }else if(kit==='ship'){
+    /* A dock gate: two bollard piers with a chain slung between them. It does
+       not arch over you, it bars the way — and it is the only gate in the world
+       you step over rather than through. */
+    const steel=mat(P.metal,{metal:0.5,rough:0.45});
+    const w=lerp(1.0,1.4,rnd());
+    for(const sd of [-1,1]){
+      const pier=meshOf(new THREE.BoxGeometry(0.42,0.9,0.42),
+        mat(P.deck2,{rough:0.9}));
+      pier.position.set(sd*w,0.45,0); g.add(pier);
+      const cap=meshOf(new THREE.BoxGeometry(0.5,0.1,0.5),mat(P.stripe,{rough:0.65}));
+      cap.position.set(sd*w,0.94,0); g.add(cap);
+      const bol=meshOf(new THREE.CylinderGeometry(0.12,0.15,0.34,9),steel);
+      bol.position.set(sd*w,1.14,0); g.add(bol);
+      const top=meshOf(new THREE.SphereGeometry(0.14,9,6,0,TAU,0,Math.PI/2),steel);
+      top.position.set(sd*w,1.3,0); g.add(top);
     }
-    break; }
+    /* The chain, hanging in a catenary. */
+    const links=9;
+    for(let i=0;i<links;i++){
+      const u=(i+0.5)/links;
+      const lk=meshOf(new THREE.TorusGeometry(0.075,0.022,4,8),
+        mat(P.rust,{rough:0.9}),false,false);
+      lk.position.set(lerp(-w,w,u),1.14-Math.sin(u*Math.PI)*0.34,0);
+      lk.rotation.set(0,i%2?Math.PI/2:0,Math.PI/2); g.add(lk);
+    }
+    const sign=meshOf(new THREE.BoxGeometry(0.44,0.3,0.04),
+      mat(P.stripe2,{rough:0.6}),false,false);
+    sign.position.set(0,0.95,0); g.add(sign);
 
-  case 'aqueduct': { // DATA ENG — an arched span with glowing flow on top
-    const span=lerp(3,5,rnd())*s, py=lerp(1.4,2.1,rnd())*s;
-    const n=Math.max(3,Math.round(span/1.1));
-    const rot=rnd()*TAU; g.rotation.y=rot;
-    for(let i=0;i<n;i++){
-      const x=lerp(-span/2,span/2,i/(n-1));
-      const p=meshOf(boxG(0.22*s,py,0.3*s),mat(P.stone));
-      p.position.set(x,py/2,0); g.add(p);
-      if(i<n-1){
-        const arc=meshOf(new THREE.TorusGeometry(span/(n-1)/2,0.08*s,6,12,Math.PI),
-          mat(P.stone2));
-        arc.position.set(x+span/(n-1)/2,py,0); g.add(arc);
-      }
+  }else if(kit==='bastion'){
+    /* A gate you could close: a stub of curtain wall, a portcullis in the
+       opening and snow on the merlons. */
+    const stoneM=mat(P.stone,{rough:0.94}), stone2M=mat(P.stone2,{rough:0.94});
+    const w=lerp(1.0,1.3,rnd()), h=lerp(1.9,2.3,rnd());
+    for(const sd of [-1,1]){
+      const jamb=meshOf(new THREE.BoxGeometry(0.52,h,0.62),stoneM);
+      jamb.position.set(sd*w,h/2,0); g.add(jamb);
+      const sn=meshOf(new THREE.BoxGeometry(0.56,0.08,0.66),
+        mat(P.snow,{rough:1}),false,false);
+      sn.position.set(sd*w,h+0.04,0); g.add(sn);
     }
-    const ch=meshOf(boxG(span+0.3,0.22*s,0.44*s),mat(P.stone2));
-    ch.position.y=py+0.11*s; g.add(ch);
-    const flow=meshOf(boxG(span+0.2,0.06,0.3*s),
-      mat(P.liquid,{emissive:P.liquid,ei:1.1,rough:0.2,flat:false}),false,false);
-    flow.position.y=py+0.2*s; g.add(flow);
-    for(let k=0;k<5;k++){
-      const d=meshOf(new THREE.SphereGeometry(0.09*s,6,5),glowMat(P.accent,1.7),false,false);
-      d.userData.tick=t=>{
-        const u=(t*0.35+k/5)%1;
-        d.position.set(lerp(-span/2,span/2,u),py+0.26*s,0);
-      };
-      g.add(d); animated.push(d);
+    const lint=meshOf(new THREE.BoxGeometry(w*2.6,0.36,0.66),stone2M);
+    lint.position.y=h; g.add(lint);
+    for(let i=0;i<5;i++){
+      const m=meshOf(new THREE.BoxGeometry(0.28,0.3,0.4),stoneM);
+      m.position.set(lerp(-w,w,i/4),h+0.33,0); g.add(m);
+      const sn=meshOf(new THREE.BoxGeometry(0.3,0.07,0.42),
+        mat(P.snow,{rough:1}),false,false);
+      sn.position.set(lerp(-w,w,i/4),h+0.51,0); g.add(sn);
     }
-    break; }
+    /* The portcullis, half lowered, glowing cold behind it. */
+    const grid=mat(P.metal,{metal:0.55,rough:0.45});
+    for(let i=0;i<6;i++){
+      const b=meshOf(new THREE.BoxGeometry(0.05,h*0.45,0.05),grid,false,false);
+      b.position.set(lerp(-w*0.8,w*0.8,i/5),h*0.78,0.1); g.add(b);
+    }
+    for(let i=0;i<2;i++){
+      const b=meshOf(new THREE.BoxGeometry(w*1.7,0.05,0.05),grid,false,false);
+      b.position.set(0,h*(0.62+i*0.28),0.1); g.add(b);
+    }
+    const glow=meshOf(new THREE.BoxGeometry(w*1.7,h*0.5,0.04),
+      mat(P.ward,{emissive:P.ward,ei:0.9,rough:0.4,flat:false}),false,false);
+    glow.position.set(0,h*0.3,-0.1); g.add(glow);
 
-  case 'wardring': { // AI SAFETY — a lantern ring under a protective shell
-    const n=9, R=lerp(1.3,2.0,rnd())*s;   // fixed: a growing ring re-spaces every post
-    for(let i=0;i<n;i++){
-      const a=i/n*TAU, h=lerp(1.0,1.5,rnd())*s;
-      const post=meshOf(new THREE.CylinderGeometry(0.07,0.1,h,6),mat(P.stone2));
-      post.position.set(Math.cos(a)*R,h/2,Math.sin(a)*R); g.add(post);
-      const lan=meshOf(new THREE.OctahedronGeometry(0.17*s),glowMat(P.accent,1.9),false,false);
-      lan.position.set(Math.cos(a)*R,h+0.16,Math.sin(a)*R);
-      lan.userData.tick=t=>{lan.position.y=h+0.16+Math.sin(t*1.2+i)*0.07;
-        lan.material.emissiveIntensity=1.5+Math.sin(t*2+i*0.7)*0.5;};
-      g.add(lan); animated.push(lan);
+  }else{
+    /* A stucco arch with a tiled cap and a wrought sign hanging off it — the
+       entrance to a street, not to a fortress. */
+    const w=lerp(0.85,1.15,rnd()), h=lerp(1.7,2.2,rnd());
+    for(const sd of [-1,1]){
+      const p=meshOf(new THREE.CylinderGeometry(0.15,0.19,h,10),
+        mat(P.stucco,{rough:0.92,flat:false}));
+      p.position.set(sd*w,h/2,0); g.add(p);
+      const base=meshOf(new THREE.CylinderGeometry(0.24,0.27,0.16,10),
+        mat(P.stucco3,{rough:0.9}));
+      base.position.set(sd*w,0.08,0); g.add(base);
     }
-    const shell=meshOf(new THREE.SphereGeometry(R*1.05,20,12,0,TAU,0,Math.PI/2),
-      mat(P.accent,{emissive:P.accent,ei:0.5,opacity:0.13,flat:false,
-        side:THREE.DoubleSide,rough:0.1}),false,false);
-    shell.userData.tick=t=>{shell.scale.setScalar(1+Math.sin(t*0.8)*0.03);
-      shell.material.opacity=0.10+Math.sin(t*0.8)*0.05;};
-    g.add(shell); animated.push(shell);
-    const seal=meshOf(new THREE.RingGeometry(R*0.5,R*0.92,32),
-      glowMat(P.accent2,0.9),false,false);
-    seal.rotation.x=-Math.PI/2; seal.position.y=0.04;
-    seal.userData.tick=t=>{seal.rotation.z=t*0.15;};
-    g.add(seal); animated.push(seal);
-    break; }
-
-  case 'coil': { // PYTHON — a coiling stair that climbs as the reading does
-    /* Step i is at a fixed angle and a fixed height, so more reading lays MORE
-       STEPS on the same staircase. The old form derived each step from i/steps,
-       which meant every step slid whenever another was added. */
-    const steps=clamp(Math.round(6+sp.level*2.4),8,36);
-    const ANG=0.46, RISE_=0.17, R0=0.62*s, R1=1.5*s;
-    for(let i=0;i<steps;i++){
-      const a=i*ANG, r=lerp(R0,R1,Math.min(1,i/22));
-      const st=meshOf(boxG(0.5*s,0.13,0.28*s),
-        mat(i%2?P.stone:P.stone2));
-      st.position.set(Math.cos(a)*r,0.1+i*RISE_,Math.sin(a)*r);
-      st.rotation.y=-a; g.add(st);
-      if(i%5===0){
-        const sc=meshOf(new THREE.SphereGeometry(0.08,6,5),
-          glowMat(P.accent,1.4),false,false);
-        sc.position.set(Math.cos(a)*r*1.12,0.24+i*RISE_,Math.sin(a)*r*1.12); g.add(sc);
-      }
-    }
-    const H=0.1+steps*RISE_;
-    const head=meshOf(new THREE.IcosahedronGeometry(0.3*s,0),
-      mat(P.roof,{emissive:P.accent,ei:0.4}));
-    head.position.y=H+0.25; g.add(head);
-    head.userData.tick=t=>{head.rotation.y=t*0.4;head.position.y=H+0.25+Math.sin(t)*0.08;};
-    animated.push(head);
-    break; }
+    const arc=meshOf(new THREE.TorusGeometry(w,0.16,7,18,Math.PI),
+      mat(P.stucco3,{rough:0.9}));
+    arc.position.y=h; g.add(arc);
+    const cap=softRoof(0.6,w*2.5,0.3,P.rose,{nu:7,nv:3,rough:0.78});
+    cap.position.y=h+w; cap.rotation.y=Math.PI/2; g.add(cap);
+    /* The hanging sign, on a scrolled bracket, swinging. */
+    const brk=meshOf(new THREE.TorusGeometry(0.18,0.03,5,10,Math.PI*0.9),
+      mat(P.metal,{metal:0.5,rough:0.5}));
+    brk.position.set(w*0.6,h*0.78,0.2); brk.rotation.y=Math.PI/2; g.add(brk);
+    const sign=new THREE.Group(); sign.position.set(w*0.78,h*0.72,0.2); g.add(sign);
+    const bd=meshOf(new THREE.BoxGeometry(0.34,0.3,0.04),
+      mat(P.rose2,{rough:0.82}),true,false);
+    bd.position.y=-0.22; sign.add(bd);
+    sign.add(beam(new THREE.Vector3(0,0,0),new THREE.Vector3(0,-0.08,0),0.014,
+      mat(P.metal,{metal:0.5,rough:0.5}),false));
+    const ph=rnd()*TAU;
+    sign.userData.tick=t=>{ sign.rotation.z=Math.sin(t*1.1+ph)*0.14; };
+    animated.push(sign);
+    const lamp=meshOf(new THREE.CylinderGeometry(0.08,0.1,0.18,4),
+      glowMat(P.warm,1.7),false,false);
+    lamp.rotation.y=Math.PI/4; lamp.position.set(-w*0.72,h*0.8,0.2); g.add(lamp);
   }
   return g;
 }
 
+/* ------------------------------------------------------------------ water
+   Colour and glow come from the realm — the same builder makes a teal garden
+   pool in the swarm, a turquoise dock basin in the shipyards and a molten
+   crucible in the forges. */
 /* ------------------------------------------------------------------ water */
-/* A disc built as concentric rings rather than a triangle fan (FX.water).
-   CircleGeometry is a fan, so every triangle owns the centre vertex — displace
-   that and the whole surface hinges around one point, and flat-shade it and you
-   get a pinwheel. Rings give the wave something to break into facets against,
-   which is the entire look: low-poly water is faceted water. */
-function waterDisc(radius,seg,rings){
-  const pos=[], p=(r,a)=>[Math.cos(a)*r,0,Math.sin(a)*r];
-  for(let ri=0;ri<rings;ri++){
-    const r0=radius*ri/rings, r1=radius*(ri+1)/rings;
-    for(let s=0;s<seg;s++){
-      const a0=s/seg*TAU, a1=(s+1)/seg*TAU;
-      const A=p(r0,a0),B=p(r1,a0),C=p(r1,a1),D=p(r0,a1);
-      if(ri===0) pos.push(...A,...B,...C);          // centre: no inner edge
-      else pos.push(...A,...B,...C, ...A,...C,...D);
-    }
-  }
-  const g=new THREE.BufferGeometry();
-  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
-  g.computeVertexNormals(); return g;
-}
 /* An annulus of water following an island's own outline, for the open sea round
    a harbour realm. Built as a quad strip between two scaled copies of the same
    profile, so the inner edge sits against the real wobbled coast instead of a
@@ -1456,7 +1646,7 @@ function seaRing(prof,r0,r1,rings){
      That makes the band a constant multiple of the coast at every bearing —
      which is also why the boats have to be given the profile too: an orbit on a
      plain circle would cross the shoreline at the narrow bearings and sail out
-     past the rim at the wide ones. See shipLife. */
+     past the rim at the wide ones. See buildFlyers. */
   const pt=(i,k)=>{ const a=i/n*TAU;
     const r=radiusAt(prof,a)*lerp(r0,r1,k);
     return [Math.cos(a)*r,0,Math.sin(a)*r]; };
@@ -1476,54 +1666,139 @@ function seaRing(prof,r0,r1,rings){
 const waveY=(x,z,t,amp)=>
   (Math.sin(t*1.5+x*1.7)*0.45+Math.sin(t*1.1+z*2.1)*0.35
    +Math.sin(t*0.7+(x+z)*0.9)*0.2)*amp;
-
 function buildPond(P,radius,y){
   const g=new THREE.Group();
-  const seg=22;
-  const geo=FX.water?waterDisc(radius,seg,3)
-                    :(()=>{ const c=new THREE.CircleGeometry(radius,seg);
-                            c.rotateX(-Math.PI/2); return c; })();
-  if(FX.vc) bakeVC(geo);
-  const water=new THREE.Mesh(geo,mat(P.liquid,{opacity:0.86,rough:0.14,metal:0.1,
-    flat:!!FX.water,emissive:P.liquid,ei:P.liquidGlow??0.16}));
-  water.position.y=y+0.06;
-  const base=geo.attributes.position.array.slice();
-  const amp=FX.water?0.11:0.1;
-  water.userData.tick=t=>{
-    const p=water.geometry.attributes.position;
-    for(let i=0;i<p.count;i++)
-      p.setY(i,waveY(base[i*3],base[i*3+2],t,amp));
-    p.needsUpdate=true;
-  };
-  g.add(water); animated.push(water);
-  /* The foam line. Water meeting land is the one place everybody knows what it
-     should look like, and a hard edge between two flat colours is the one thing
-     it never looks like. Same argument as contact occlusion, at the shore. */
-  if(FX.water){
-    const fg=new THREE.RingGeometry(radius*0.88,radius*1.04,seg);
-    fg.rotateX(-Math.PI/2);
-    const fm=new THREE.MeshBasicMaterial({color:0xFFFFFF,transparent:true,
-      opacity:0.34,depthWrite:false});
-    const foam=new THREE.Mesh(fg,fm);
-    foam.position.y=y+0.085; foam.renderOrder=2;
-    foam.userData.tick=t=>{
-      const k=1+Math.sin(t*1.6)*0.014;
-      foam.scale.set(k,1,k);
-      fm.opacity=0.30+Math.sin(t*1.6)*0.11;
-    };
-    g.add(foam); animated.push(foam);
+  const kit=P.kit;
+  /* Colour alone was carrying this: one circular pool with a torus kerb and a
+     ring of glowing dots orbiting it, in five realms. What water IS differs more
+     than what colour it is — a formal lily basin, a boggy forest pool, a frozen
+     one you can walk on, a public wash-house. So the OUTLINE changes, the edge
+     changes, and what floats on it changes. */
+  const seg=kit==='frame'?13:kit==='quarter'?8:22;
+  const geo=new THREE.CircleGeometry(radius,seg);
+  geo.rotateX(-Math.PI/2);
+  /* The frameworks' pool is irregular — a circle is a built thing, and nothing
+     in that realm is built. */
+  if(kit==='frame'){
+    const pos=geo.attributes.position;
+    for(let i=0;i<pos.count;i++){
+      const x=pos.getX(i),z=pos.getZ(i),d=Math.hypot(x,z);
+      if(d<1e-4)continue;
+      const k=1+Math.sin(Math.atan2(z,x)*3+P.seed)*0.18
+               +Math.sin(Math.atan2(z,x)*5+P.seed*2)*0.1;
+      pos.setX(i,x*k); pos.setZ(i,z*k);
+    }
   }
-  /* Stone kerb, sunk slightly so the water edge never shows a seam. */
-  const rim=meshOf(new THREE.TorusGeometry(radius*1.0,0.13,6,28),mat(P.stone2));
-  rim.rotation.x=Math.PI/2; rim.position.y=y+0.06; g.add(rim);
-  for(let i=0;i<5;i++){
-    const l=meshOf(new THREE.SphereGeometry(0.13,7,6),glowMat(P.bloom,1.2),false,false);
-    const a=i/5*TAU, rr=radius*0.62;
-    l.userData.tick=t=>{
-      const w=a+t*0.12;
-      l.position.set(Math.cos(w)*rr,y+0.14+Math.sin(t*1.4+i)*0.03,Math.sin(w)*rr);
+  const frozen=kit==='bastion';
+  if(FX.vc) bakeVC(geo);
+  const water=new THREE.Mesh(geo,mat(P.water,{opacity:frozen?0.75:0.88,
+    rough:frozen?0.28:0.14,metal:0.1,flat:false,
+    emissive:P.water,ei:P.liquidGlow??0.16}));
+  water.receiveShadow=true; water.position.y=y+0.06;
+  if(!frozen){
+    const base=geo.attributes.position.array.slice();
+    water.userData.tick=t=>{
+      const q=water.geometry.attributes.position;
+      for(let i=0;i<q.count;i++){
+        const x=base[i*3], z=base[i*3+2];
+        q.setY(i,Math.sin(t*1.5+x*1.7)*0.045+Math.sin(t*1.1+z*2.1)*0.035);
+      }
+      q.needsUpdate=true;
     };
-    g.add(l); animated.push(l);
+    animated.push(water);
+  }
+  g.add(water);
+
+  if(kit==='swarm'){
+    /* A formal basin: dressed kerb, lily pads, and one crystal standing in it. */
+    const rim=meshOf(new THREE.TorusGeometry(radius,0.13,6,28),mat(P.stone2,{rough:0.8}));
+    rim.rotation.x=Math.PI/2; rim.position.y=y+0.06; g.add(rim);
+    for(let i=0;i<5;i++){
+      const a=i*2.399963229728653, rr=radius*lerp(0.25,0.75,(i*0.37)%1);
+      const pad=meshOf(new THREE.CylinderGeometry(0.2,0.2,0.03,9),
+        mat(P.foliage2,{rough:0.95}),false,false);
+      pad.position.set(Math.cos(a)*rr,y+0.11,Math.sin(a)*rr); g.add(pad);
+    }
+    const c=meshOf(new THREE.OctahedronGeometry(0.22),
+      mat(P.crys,{emissive:P.crys,ei:0.9,rough:0.2,opacity:0.94}),false,false);
+    c.scale.y=2.4; c.position.set(radius*0.2,y+0.5,-radius*0.15);
+    c.userData.tick=t=>{ c.rotation.y=t*0.25; };
+    g.add(c); animated.push(c);
+
+  }else if(kit==='frame'){
+    /* A boggy pool: mossy boulders round the edge and reeds standing in it. */
+    for(let i=0;i<9;i++){
+      const a=i/9*TAU+P.seed*0.2, rr=radius*lerp(1.0,1.14,((i*0.41)%1));
+      const b=meshOf(new THREE.DodecahedronGeometry(lerp(0.17,0.34,(i*0.29)%1),0),
+        mat(i%2?P.rock:P.cliff2,{rough:1}));
+      b.position.set(Math.cos(a)*rr,y+0.08,Math.sin(a)*rr);
+      b.rotation.set(i,i*2,i*3); b.scale.y=0.7; g.add(b);
+      if(i%2===0){
+        const mo=meshOf(new THREE.IcosahedronGeometry(0.14,0),
+          mat(P.moss,{rough:0.98}),false,false);
+        mo.position.set(Math.cos(a)*rr,y+0.2,Math.sin(a)*rr);
+        mo.scale.y=0.5; g.add(mo);
+      }
+    }
+    for(let i=0;i<7;i++){
+      const a=i*2.399963229728653, rr=radius*lerp(0.5,0.95,((i*0.53)%1));
+      const rd=meshOf(new THREE.ConeGeometry(0.05,lerp(0.4,0.8,(i*0.31)%1),4),
+        mat(P.canopy,{rough:0.98}),true,false);
+      rd.position.set(Math.cos(a)*rr,y+0.3,Math.sin(a)*rr);
+      rd.rotation.z=(((i*0.7)%1)-0.5)*0.5; g.add(rd);
+    }
+
+  }else if(kit==='bastion'){
+    /* Frozen over: cracked plates of ice, a snow drift on the lee side and one
+       dark hole cut through it. Water you can stand on. */
+    for(let i=0;i<7;i++){
+      const a=i/7*TAU+P.seed*0.3, rr=radius*lerp(0.3,0.85,((i*0.43)%1));
+      const pl=meshOf(new THREE.CylinderGeometry(lerp(0.22,0.42,(i*0.37)%1),
+        lerp(0.22,0.42,(i*0.37)%1),0.06,6),
+        mat(P.ice,{rough:0.22,flat:true,opacity:0.9}),false,true);
+      pl.position.set(Math.cos(a)*rr,y+0.12,Math.sin(a)*rr);
+      pl.rotation.y=i; g.add(pl);
+    }
+    const drift=meshOf(new THREE.SphereGeometry(radius*0.55,12,8),
+      mat(P.snow,{rough:1}));
+    drift.position.set(-radius*0.4,y+0.06,radius*0.3); drift.scale.y=0.24; g.add(drift);
+    const hole=meshOf(new THREE.CylinderGeometry(radius*0.22,radius*0.22,0.03,12),
+      mat(mixTok(P.water,0x000000,0.5),{rough:0.2,flat:false}),false,false);
+    hole.position.set(radius*0.25,y+0.14,-radius*0.2); g.add(hole);
+    const rim=meshOf(new THREE.TorusGeometry(radius,0.11,5,26),mat(P.rock,{rough:1}));
+    rim.rotation.x=Math.PI/2; rim.position.y=y+0.05; g.add(rim);
+
+  }else{
+    /* The artisan's: a public wash-house. Octagonal, kerbed in dressed stone,
+       with steps down into it and a spout running. */
+    const kerb=meshOf(new THREE.CylinderGeometry(radius*1.14,radius*1.2,0.28,8),
+      mat(P.stone2,{rough:0.94}));
+    kerb.position.y=y+0.02; g.add(kerb);
+    const cop=meshOf(new THREE.CylinderGeometry(radius*1.18,radius*1.14,0.08,8),
+      mat(P.stucco3,{rough:0.9}),false,false);
+    cop.position.y=y+0.18; g.add(cop);
+    for(let i=0;i<2;i++){
+      const st=meshOf(new THREE.BoxGeometry(radius*0.9,0.09,0.3),
+        mat(P.stone,{rough:0.94}),false,true);
+      st.position.set(0,y+0.14-i*0.09,radius*(1.2+i*0.24)); g.add(st);
+    }
+    /* The spout: a stucco pillar with a mask and a thread of water. */
+    const px=-radius*0.9, pz=-radius*0.6;
+    const pil=meshOf(new THREE.CylinderGeometry(0.14,0.18,0.9,8),
+      mat(P.stucco,{rough:0.92,flat:false}));
+    pil.position.set(px,y+0.45,pz); g.add(pil);
+    const spout=meshOf(new THREE.CylinderGeometry(0.05,0.05,0.22,6),
+      mat(P.metal,{metal:0.6,rough:0.4}));
+    spout.rotation.z=Math.PI/2; spout.position.set(px+0.16,y+0.78,pz); g.add(spout);
+    for(let k=0;k<4;k++){
+      const d=meshOf(new THREE.SphereGeometry(0.045,6,5),
+        mat(P.water,{opacity:0.75,flat:false,emissive:P.water,ei:0.3}),false,false);
+      d.userData.tick=t=>{
+        const u=(t*0.9+k/4)%1;
+        d.position.set(px+0.26+u*0.18,y+0.74-u*u*0.66,pz);
+      };
+      g.add(d); animated.push(d);
+    }
   }
   return g;
 }
@@ -1531,249 +1806,800 @@ function buildPond(P,radius,y){
 function buildFalls(P,drop){
   const g=new THREE.Group();
   const w=0.9;
-  /* Two crossed sheets: a single plane vanished to a line every time the camera
-     swung round to face it edge-on, which on a freely-rotating iso view is a
-     quarter of all headings. */
-  const sheetMat=mat(P.liquid,{opacity:0.42,flat:false,rough:0.1,
-    emissive:P.liquid,ei:P.liquidGlow??0.3,side:THREE.DoubleSide});
+  /* Two crossed sheets: a single plane vanishes to a line whenever the camera
+     swings to face it edge-on, which on a free iso view is a quarter of all
+     headings. */
+  const sheetMat=mat(P.water,{opacity:0.45,flat:false,rough:0.1,
+    emissive:P.water,ei:P.liquidGlow??0.3,side:THREE.DoubleSide});
   for(const rot of [0,Math.PI/2]){
     const sheet=meshOf(new THREE.PlaneGeometry(w,drop),sheetMat,false,false);
     sheet.position.y=-drop/2; sheet.rotation.y=rot; g.add(sheet);
   }
-  /* The plume widens and dissolves on the way down instead of running to a
-     hard stop — a hard-ended ribbon reads as a laser, not water. */
+  const spray=P.kit==='forge'?P.lavaHot:0xFFFFFF;
   for(let i=0;i<4;i++){
     const u=(i+1)/4;
     const puff=meshOf(new THREE.IcosahedronGeometry(0.3+u*0.55,0),
-      mat(0xFFFFFF,{opacity:0.22*(1-u*0.7),flat:false}),false,false);
+      mat(spray,{opacity:0.22*(1-u*0.7),flat:false}),false,false);
     puff.position.y=-drop*u; puff.scale.y=0.7; g.add(puff);
   }
-  /* Streaks: cheap, and they carry the eye downward better than any shader
-     trick at this scale. */
-  for(let i=0;i<7;i++){
-    const st=meshOf(boxG(0.07,0.5,0.03),
-      glowMat(0xFFFFFF,0.7),false,false);
-    st.material.transparent=true; st.material.opacity=0.75;
-    const off=i/7, xo=(i/7-0.5)*w*0.8;
+  /* Own material per streak. Sharing one cached glow meant seven streaks all
+     wrote `.opacity` on the same material every frame and the falls strobed
+     instead of falling. */
+  for(let i=0;i<6;i++){
+    const sm=new THREE.MeshStandardMaterial({color:spray,emissive:spray,
+      emissiveIntensity:0.8,roughness:0.35,transparent:true,opacity:0.75});
+    const st=meshOf(new THREE.BoxGeometry(0.07,0.5,0.03),sm,false,false);
+    const off=i/6, xo=(i/6-0.5)*w*0.8;
     st.userData.tick=t=>{
       const u=(t*0.55+off)%1;
       st.position.set(xo,-u*drop,0.02);
       st.scale.y=0.6+u*1.4;
-      st.material.opacity=0.75*(1-u*0.8);
+      sm.opacity=0.75*(1-u*0.8);
     };
     g.add(st); animated.push(st);
   }
-  for(let i=0;i<4;i++){
-    const m=meshOf(new THREE.IcosahedronGeometry(0.3,0),
-      mat(0xFFFFFF,{opacity:0.3,flat:false}),false,false);
-    m.userData.tick=t=>{
-      const u=(t*0.3+i/4)%1;
-      m.position.set((Math.sin(t+i)*0.2),-drop*(0.55+u*0.45),0);
-      m.scale.setScalar(0.6+u*1.5); m.material.opacity=0.3*(1-u);
-    };
-    g.add(m); animated.push(m);
-  }
   return g;
 }
 
-/* ------------------------------------------- building off the rim, and life */
-/* A cylinder from a to b — struts, sky-bridge posts, hanging vines. */
-function beam(a,b,r,material,cast=true){
-  const dir=new THREE.Vector3().subVectors(b,a), len=dir.length();
-  const m=meshOf(new THREE.CylinderGeometry(r,r,len,6),material,cast,false);
-  m.position.copy(a).addScaledVector(dir,0.5);
-  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.clone().normalize());
-  return m;
-}
+/* -------------------------------------------- building off the rim, and life */
+/* The platform braced off the rim. It was ONE builder for all six realms —
+   struts, railing, a house or a hedge on top, a lamp in the corner — and a
+   district carries up to seven of them, so it was the most repeated large
+   object in the world after the houses. Recoloured six ways it still read as
+   the same balcony six times.
 
-/* Cantilever deck: the district has run out of ground, so it braces a platform
-   out past its own cliff. Local +x points away from the island. */
-function buildCantilever(P,rnd,sp,anchor){
+   What each realm hangs off its own cliff, and how it holds it up, is the
+   difference. Local +x points away from the island. */
+function buildDeck(P,rnd,K,anchor){
   const g=new THREE.Group();
   const w=lerp(2.0,3.2,rnd()), d=lerp(1.5,2.4,rnd());
-  g.add(meshOf(boxG(w,0.3,d),mat(P.stone2)));
-  g.add(meshOf(boxG(w-0.34,0.12,d-0.34),mat(P.ground2,{rough:0.98}))
-    .translateY(0.2));
-  /* Struts land on the CLIFF FACE — the vertical wall of the base terrace, at
-     local x = -anchor.back — not out in the air below it. Aiming them at a
-     fixed depth left them stopping short of the keel, which tapers inward fast,
-     and the deck read as floating next to the island rather than braced on it. */
-  const strutMat=mat(P.wood,{rough:0.9});
-  for(const s of [-1,1]){
-    g.add(beam(new THREE.Vector3(w*0.3,-0.15,s*d*0.32),
-               new THREE.Vector3(-anchor.back,-anchor.drop,s*d*0.2),0.09,strutMat));
-  }
-  g.add(beam(new THREE.Vector3(0,-0.15,0),
-             new THREE.Vector3(-anchor.back,-anchor.drop*0.55,0),0.11,strutMat));
-  /* Railing on the three outward sides — the island side stays open. */
-  const railMat=mat(P.stone,{rough:0.9});
-  const posts=[];
-  for(let i=0;i<=4;i++) posts.push([w/2-0.1, -d/2+0.1+i*(d-0.2)/4]);
-  for(let i=1;i<4;i++) posts.push([w/2-0.1-i*(w*0.45)/4, -d/2+0.1],[w/2-0.1-i*(w*0.45)/4, d/2-0.1]);
-  for(const [px,pz] of posts){
-    const p=meshOf(new THREE.CylinderGeometry(0.05,0.05,0.42,5),railMat);
-    p.position.set(px,0.36,pz); g.add(p);
-  }
-  const pick=rnd();
-  if(pick<0.4){
-    /* Pavilion — four posts and a cone roof. Reads at silhouette scale. */
-    const ph=lerp(1.0,1.4,rnd()), pr=Math.min(w,d)*0.42;
-    for(let i=0;i<4;i++){
-      const a=i/4*TAU+Math.PI/4;
-      const p=meshOf(new THREE.CylinderGeometry(0.07,0.07,ph,6),mat(P.wood));
-      p.position.set(Math.cos(a)*pr,0.2+ph/2,Math.sin(a)*pr); g.add(p);
-    }
-    const roof=meshOf(new THREE.ConeGeometry(pr*1.6,0.7,6),mat(P.roof,{rough:0.75}));
-    roof.position.y=0.2+ph+0.35; g.add(roof);
-    const fin=meshOf(new THREE.OctahedronGeometry(0.12),glowMat(P.accent,1.6),false,false);
-    fin.position.y=0.2+ph+0.78;
-    fin.userData.tick=t=>{fin.rotation.y=t*0.5;}; g.add(fin); animated.push(fin);
-  }else if(pick<0.72){
-    const c=buildCottage(P,rnd,0.78); c.position.set(-w*0.1,0.26,0);
-    c.rotation.y=rnd()*0.5-0.25; g.add(c);
-  }else{
-    for(let i=0;i<3;i++){
-      const h=buildHedge(P,rnd);
-      h.position.set(lerp(-w*0.3,w*0.3,rnd()),0.26,lerp(-d*0.3,d*0.3,rnd())); g.add(h);
-    }
-  }
-  const l=buildLamp(P,rnd); l.position.set(w*0.32,0.26,d*0.32); l.scale.setScalar(0.8);
-  g.add(l);
-  return g;
-}
+  const kit=P.kit;
 
-/* Sky bridge between two towers. The other half of what the islets used to do:
-   it puts something in the air, above the roofline, that the eye can read as
-   structure rather than as terrain. */
-function buildSkyBridge(P,a,b){
-  const g=new THREE.Group();
-  const flat=new THREE.Vector3(b.x-a.x,0,b.z-a.z), span=flat.length();
-  const rise=clamp(span*0.12,0.4,1.4), n=Math.max(6,Math.round(span/0.7));
-  const deck=mat(P.stone2,{rough:0.9});
-  const yaw=-Math.atan2(b.z-a.z,b.x-a.x);
-  for(let i=0;i<n;i++){
-    const u=(i+0.5)/n;
-    const p=new THREE.Vector3().lerpVectors(a,b,u);
-    p.y+=Math.sin(u*Math.PI)*rise;
-    const seg=meshOf(boxG(span/n*1.12,0.13,0.62),deck);
-    seg.position.copy(p); seg.rotation.y=yaw; g.add(seg);
-    if(i%3===1){
-      for(const s of [-1,1]){
-        const post=meshOf(new THREE.CylinderGeometry(0.04,0.04,0.36,5),deck);
-        post.position.set(p.x+Math.sin(-yaw)*s*0.28,p.y+0.24,p.z+Math.cos(-yaw)*s*0.28);
-        g.add(post);
+  if(kit==='swarm'){
+    /* Held up by nothing. This is the sky-garden — the plate simply floats, and
+       being the only realm whose decks have no visible support is worth more
+       than any amount of decoration on them. */
+    const slab=meshOf(new THREE.CylinderGeometry(w*0.5,w*0.42,0.26,14),
+      mat(P.stone,{rough:0.7}));
+    g.add(slab);
+    const turf=meshOf(new THREE.CylinderGeometry(w*0.44,w*0.44,0.1,14),
+      mat(P.ground,{rough:0.98}));
+    turf.position.y=0.17; g.add(turf);
+    /* A crystal slung underneath, lighting the underside — the tell that it is
+       held by the same thing that holds the island. */
+    const c=meshOf(new THREE.OctahedronGeometry(0.3),
+      mat(P.crys,{emissive:P.crys,ei:1.2,rough:0.2,opacity:0.92}),false,false);
+    c.scale.y=2.2; c.position.y=-0.6;
+    const ph=rnd()*TAU;
+    c.userData.tick=t=>{ c.rotation.y=t*0.3;
+      c.position.y=-0.6+Math.sin(t*0.8+ph)*0.07; };
+    g.add(c); animated.push(c);
+    /* And the whole plate drifts, very slightly. */
+    const dph=rnd()*TAU;
+    g.userData.tick=t=>{ g.position.y=g.userData.y0+Math.sin(t*0.5+dph)*0.08; };
+    for(let i=0;i<9;i++){
+      const a=i/9*TAU;
+      const p=meshOf(new THREE.CylinderGeometry(0.04,0.04,0.4,5),
+        mat(P.stone2,{rough:0.8}),true,false);
+      p.position.set(Math.cos(a)*w*0.42,0.32,Math.sin(a)*w*0.42); g.add(p);
+    }
+
+  }else if(kit==='frame'){
+    /* Grown, not built: a bough comes out of the cliff and the planks are laid
+       across it. The support is a tree limb, which no other realm has. */
+    const boughM=mat(P.bark,{rough:0.98});
+    const bough=meshOf(new THREE.CylinderGeometry(0.16,0.34,w*1.5,7),boughM);
+    bough.position.set(-w*0.15,-0.12,0); bough.rotation.z=Math.PI/2-0.12;
+    g.add(bough);
+    for(const sd of [-1,1]){
+      const br=meshOf(new THREE.CylinderGeometry(0.08,0.16,d*0.9,6),boughM);
+      br.position.set(w*0.18,-0.2,sd*d*0.24);
+      br.rotation.set(sd*0.5,0,Math.PI/2-0.2); g.add(br);
+    }
+    for(let i=0;i<6;i++){
+      const pl=meshOf(new THREE.BoxGeometry(w/6*0.94,0.09,d),
+        mat(P.wood,{rough:0.92}));
+      pl.position.set(-w/2+w/6*(i+0.5),0.06,0); g.add(pl);
+    }
+    for(let i=0;i<5;i++){
+      const lf=meshOf(new THREE.IcosahedronGeometry(lerp(0.2,0.36,rnd()),0),
+        mat(rnd()<0.5?P.canopy:P.moss,{rough:0.96}),true,false);
+      lf.position.set(lerp(-w*0.4,w*0.4,rnd()),-0.28,lerp(-d*0.5,d*0.5,rnd()));
+      lf.scale.y=0.6; g.add(lf);
+    }
+    const rope=mat(P.bark2,{rough:1});
+    for(let i=0;i<=4;i++){
+      const px=-w/2+0.15+i*(w-0.3)/4;
+      for(const sd of [-1,1]){
+        g.add(beam(new THREE.Vector3(px,0.1,sd*d*0.46),
+                   new THREE.Vector3(px,0.62,sd*d*0.46),0.025,rope,false));
       }
     }
+
+  }else if(kit==='forge'){
+    /* An iron bracket balcony: riveted knees off the cliff face, a mesh floor
+       and no soil on it at all. The only deck in the world you would not want
+       to stand on barefoot. */
+    const iron=mat(P.iron,{metal:0.4,rough:0.55});
+    const steel=mat(P.metal,{metal:0.55,rough:0.45});
+    g.add(meshOf(new THREE.BoxGeometry(w,0.14,d),iron));
+    /* Grating, drawn as bars rather than a plate. */
+    for(let i=0;i<7;i++){
+      const bar=meshOf(new THREE.BoxGeometry(w*0.96,0.05,0.07),steel,false,false);
+      bar.position.set(0,0.1,lerp(-d*0.42,d*0.42,i/6)); g.add(bar);
+    }
+    for(const sd of [-1,1]){
+      /* Knee brackets, not struts — they fold back into the cliff. */
+      const kn=meshOf(new THREE.BoxGeometry(0.12,0.9,0.14),iron);
+      kn.position.set(-w*0.1,-0.5,sd*d*0.34); kn.rotation.z=-0.9; g.add(kn);
+      g.add(beam(new THREE.Vector3(w*0.36,-0.1,sd*d*0.34),
+                 new THREE.Vector3(-anchor.back,-anchor.drop,sd*d*0.2),0.07,steel));
+    }
+    /* Pipe rail with a bend, a drum and a glowing tap. */
+    for(let i=0;i<=4;i++){
+      const px=w/2-0.12-i*(w*0.5)/4;
+      g.add(beam(new THREE.Vector3(px,0.07,-d*0.44),
+                 new THREE.Vector3(px,0.62,-d*0.44),0.028,steel,false));
+      g.add(beam(new THREE.Vector3(px,0.07,d*0.44),
+                 new THREE.Vector3(px,0.62,d*0.44),0.028,steel,false));
+    }
+    const drum=meshOf(new THREE.CylinderGeometry(0.2,0.2,0.42,9),
+      mat(P.brick2,{rough:0.85}));
+    drum.position.set(-w*0.22,0.28,d*0.2); g.add(drum);
+    const tap=meshOf(new THREE.BoxGeometry(0.3,0.07,0.07),
+      glowMat(P.lava,1.4),false,false);
+    tap.position.set(w*0.3,0.2,0); g.add(tap);
+
+  }else if(kit==='ship'){
+    /* A pontoon, and it goes DOWN rather than out — moored at the waterline
+       with a ladder off the quay. Every other realm's platform is up in the
+       air; the shipyards' is floating on the sea, which is the one place only
+       this realm can put anything. */
+    const pont=meshOf(new THREE.BoxGeometry(w,0.34,d),mat(P.stripe2,{rough:0.7}));
+    g.add(pont);
+    const deck=meshOf(new THREE.BoxGeometry(w-0.2,0.1,d-0.2),
+      mat(P.wood,{rough:0.92}));
+    deck.position.y=0.2; g.add(deck);
+    for(const sd of [-1,1]){
+      const fend=meshOf(new THREE.TorusGeometry(0.16,0.05,5,10),
+        mat(P.rust,{rough:0.95}),false,false);
+      fend.rotation.y=Math.PI/2;
+      fend.position.set(-w*0.5,0.02,sd*d*0.28); g.add(fend);
+    }
+    /* The ladder back up to the quay, which is what tells you it is below. */
+    const lad=mat(P.metal,{metal:0.5,rough:0.45});
+    for(const sd of [-1,1]){
+      g.add(beam(new THREE.Vector3(-w*0.42,0.2,sd*0.24),
+                 new THREE.Vector3(-anchor.back*0.7,anchor.drop*0.9,sd*0.24),
+                 0.035,lad));
+    }
+    for(let i=0;i<5;i++){
+      const u=(i+0.5)/5;
+      const rung=meshOf(new THREE.CylinderGeometry(0.025,0.025,0.5,5),lad,false,false);
+      rung.rotation.x=Math.PI/2;
+      rung.position.set(lerp(-w*0.42,-anchor.back*0.7,u),
+                        lerp(0.2,anchor.drop*0.9,u),0); g.add(rung);
+    }
+    const bol=meshOf(new THREE.CylinderGeometry(0.09,0.11,0.26,8),lad);
+    bol.position.set(w*0.36,0.38,d*0.3); g.add(bol);
+    for(let i=0;i<2;i++){
+      const cr=meshOf(new THREE.BoxGeometry(0.36,0.3,0.36),mat(P.wood,{rough:0.95}));
+      cr.position.set(w*0.1+i*0.42,0.4,-d*0.2); cr.rotation.y=rnd(); g.add(cr);
+    }
+    /* It rides the swell. */
+    const ph=rnd()*TAU;
+    g.userData.tick=t=>{ g.rotation.z=Math.sin(t*0.9+ph)*0.035;
+      g.rotation.x=Math.cos(t*0.7+ph)*0.03;
+      g.position.y=g.userData.y0+Math.sin(t*0.8+ph)*0.06; };
+
+  }else if(kit==='bastion'){
+    /* A corbelled bartizan: stone brackets stepping out of the wall, a
+       machicolated floor with the murder-holes showing, crenellations and snow.
+       It is a fighting position, not a balcony. */
+    const stoneM=mat(P.stone,{rough:0.94}), stone2M=mat(P.stone2,{rough:0.94});
+    /* Three corbel courses, each wider than the one below. */
+    for(let i=0;i<3;i++){
+      const u=i/2;
+      const cb=meshOf(new THREE.BoxGeometry(lerp(0.5,w,u),0.16,lerp(d*0.5,d,u)),
+        i%2?stoneM:stone2M);
+      cb.position.set(lerp(-w*0.3,0,u),-0.5+i*0.17,0); g.add(cb);
+    }
+    const floor=meshOf(new THREE.BoxGeometry(w,0.2,d),stoneM);
+    floor.position.y=0.08; g.add(floor);
+    /* Machicolations: gaps in the overhang, drawn as recesses on the underside. */
+    for(let i=0;i<5;i++){
+      const hole=meshOf(new THREE.BoxGeometry(0.16,0.1,0.16),
+        mat(P.rock,{rough:1}),false,false);
+      hole.position.set(w*0.42,-0.03,lerp(-d*0.34,d*0.34,i/4)); g.add(hole);
+    }
+    const par=Math.round(w/0.34);
+    for(let i=0;i<par;i++){
+      const px=lerp(-w*0.46,w*0.46,i/(par-1));
+      for(const [pz,skip] of [[d*0.44,false],[-d*0.44,false]]){
+        const m=meshOf(new THREE.BoxGeometry(0.26,i%2?0.42:0.26,0.18),stoneM);
+        m.position.set(px,0.18+(i%2?0.21:0.13),pz); g.add(m);
+        if(i%2){
+          const sn=meshOf(new THREE.BoxGeometry(0.28,0.06,0.2),
+            mat(P.snow,{rough:1}),false,false);
+          sn.position.set(px,0.42,pz); g.add(sn);
+        }
+      }
+    }
+    const snowFloor=meshOf(new THREE.BoxGeometry(w*0.9,0.05,d*0.7),
+      mat(P.snow,{rough:1}),false,true);
+    snowFloor.position.y=0.2; g.add(snowFloor);
+    const br=meshOf(new THREE.CylinderGeometry(0.13,0.09,0.18,7),
+      mat(P.metal,{metal:0.45,rough:0.55}));
+    br.position.set(w*0.24,0.29,0); g.add(br);
+    const f=meshOf(new THREE.ConeGeometry(0.11,0.3,6),glowMat(P.warm,2.0),false,false);
+    f.position.set(w*0.24,0.5,0);
+    const fph=rnd()*TAU;
+    f.userData.tick=t=>{ f.scale.set(1,1+Math.sin(t*6+fph)*0.16,1); };
+    g.add(f); animated.push(f);
+
+  }else{
+    /* A stucco balcony under a striped awning, with pots on the rail. Domestic,
+       shallow, and the only deck anywhere with a roof over it. */
+    const floor=meshOf(new THREE.BoxGeometry(w*0.8,0.18,d*0.8),
+      mat(P.stone2,{rough:0.94}));
+    g.add(floor);
+    const cop=meshOf(new THREE.BoxGeometry(w*0.86,0.06,d*0.86),
+      mat(P.stucco3,{rough:0.9}),false,false);
+    cop.position.y=0.12; g.add(cop);
+    /* Scrolled iron corbels under it. */
+    for(const sd of [-1,1]){
+      const scr=meshOf(new THREE.TorusGeometry(0.22,0.04,5,12,Math.PI*1.1),
+        mat(P.metal,{metal:0.5,rough:0.5}));
+      scr.position.set(-w*0.16,-0.3,sd*d*0.3);
+      scr.rotation.y=Math.PI/2; g.add(scr);
+    }
+    /* Balustrade: little turned posts, not plain sticks. */
+    const n=Math.round(w*0.8/0.26);
+    for(let i=0;i<n;i++){
+      const px=lerp(-w*0.38,w*0.38,i/(n-1));
+      const b=meshOf(new THREE.CylinderGeometry(0.045,0.06,0.34,7),
+        mat(P.stucco3,{rough:0.9}),true,false);
+      b.position.set(px,0.32,d*0.38); g.add(b);
+    }
+    const rail=meshOf(new THREE.BoxGeometry(w*0.82,0.07,0.14),
+      mat(P.stucco3,{rough:0.9}));
+    rail.position.set(0,0.52,d*0.38); g.add(rail);
+    /* The awning, in the realm's stripes. */
+    const bays=6;
+    for(let i=0;i<bays;i++){
+      const pn=meshOf(new THREE.BoxGeometry(w*0.8/bays,0.05,d*0.7),
+        mat(i%2?P.rose:P.stucco3,{rough:0.8}));
+      pn.position.set(-w*0.4+w*0.8/bays*(i+0.5),1.05,d*0.1);
+      pn.rotation.x=-0.3; g.add(pn);
+    }
+    for(const sd of [-1,1]){
+      g.add(beam(new THREE.Vector3(sd*w*0.36,0.1,-d*0.3),
+                 new THREE.Vector3(sd*w*0.36,1.05,-d*0.3),0.035,
+                 mat(P.metal,{metal:0.5,rough:0.5}),false));
+    }
+    for(let i=0;i<2;i++){
+      const pot=K.plant(P,rnd);
+      pot.position.set(lerp(-w*0.3,w*0.3,i),0.12,-d*0.2);
+      pot.scale.setScalar(0.8); g.add(pot);
+    }
   }
-  /* A light walking the span — the bridge is in use, not a ruin. */
-  for(let k=0;k<2;k++){
-    const l=meshOf(new THREE.SphereGeometry(0.1,7,6),glowMat(P.accent,1.7),false,false);
-    l.userData.tick=t=>{
-      const u=(t*0.16+k*0.5)%1;
-      l.position.lerpVectors(a,b,u); l.position.y+=Math.sin(u*Math.PI)*rise+0.28;
-    };
-    g.add(l); animated.push(l);
+
+  /* Struts, for the realms that admit to needing them. The swarm has none by
+     design and the ship hangs its ladder instead. */
+  if(kit==='frame'||kit==='bastion'||kit==='quarter'){
+    const strutMat=mat(kit==='frame'?P.bark2:P.stone2,{rough:0.92});
+    for(const sd of [-1,1]){
+      g.add(beam(new THREE.Vector3(w*0.28,-0.18,sd*d*0.3),
+                 new THREE.Vector3(-anchor.back,-anchor.drop,sd*d*0.18),
+                 0.08,strutMat));
+    }
   }
   return g;
 }
 
-/* Undercroft: lanterns and hanging gardens slung under a terrace lip. Growth
-   going DOWN, which the terraces alone can never show.
+/* The span between two towers, realm by realm. It was one builder for all six:
+   a run of stepped deck segments arcing up and over with little posts on it,
+   which at an iso angle reads as a flight of stairs — the same flight, in the
+   middle of every district in the world, from L9 on.
 
-   Hung from the TERRACE boundaries rather than from the coast, because the
-   boundaries are at fixed radii and the coast is not — a coast-hung garden
-   would have to jump outward every time the island grew, which is exactly the
-   teleporting this pass is getting rid of. */
+   The differences are structural, not decorative, and the load-bearing one is
+   the PROFILE. A rope bridge sags, a steel gangway is dead flat, a stone span
+   arcs, a garden causeway does not connect to anything at all. Get that right
+   and the six read apart at silhouette scale before any material lands. */
+function buildSkyBridge(P,a,b){
+  const g=new THREE.Group();
+  const span=new THREE.Vector3(b.x-a.x,0,b.z-a.z).length();
+  const yawA=-Math.atan2(b.z-a.z,b.x-a.x);
+  const nx=Math.sin(-yawA), nz=Math.cos(-yawA);        // unit normal, in plan
+  const at=(u,lift)=>{
+    const p=new THREE.Vector3().lerpVectors(a,b,u); p.y+=lift||0; return p;
+  };
+  const K=P.kit;
+
+  if(K==='swarm'){
+    /* A CAUSEWAY OF SLABS with air between them. Nothing structural — this is a
+       sky-garden and the path simply floats, which is the one thing this realm
+       can do that none of the others can. */
+    const n=Math.max(5,Math.round(span/1.15));
+    const rise=clamp(span*0.10,0.3,1.1);
+    const slabM=mat(P.stone,{rough:0.7}), trimM=mat(P.stone2,{rough:0.75});
+    for(let i=0;i<n;i++){
+      const u=(i+0.5)/n, lift=Math.sin(u*Math.PI)*rise;
+      const p=at(u,lift);
+      const sl=meshOf(new THREE.BoxGeometry(span/n*0.62,0.14,0.8),slabM);
+      sl.position.copy(p); sl.rotation.y=yawA; g.add(sl);
+      const tr=meshOf(new THREE.BoxGeometry(span/n*0.62,0.05,0.9),trimM,false,false);
+      tr.position.set(p.x,p.y-0.09,p.z); tr.rotation.y=yawA; g.add(tr);
+      /* Every third slab drifts, so the causeway breathes rather than hanging
+         rigid — and only every third, so it costs three ticks and not fifteen. */
+      if(i%3===1){
+        const ph=i*1.7, y0=p.y;
+        sl.userData.tick=t=>{ sl.position.y=y0+Math.sin(t*0.7+ph)*0.07; };
+        animated.push(sl);
+        const c=meshOf(new THREE.OctahedronGeometry(0.12),
+          glowMat(P.crys,1.7),false,false);
+        c.scale.y=1.8; c.position.set(p.x,p.y+0.45,p.z);
+        g.add(c);
+      }
+    }
+
+  }else if(K==='frame'){
+    /* A ROPE BRIDGE, and it SAGS. Every other span in the world rises in the
+       middle; this one is the only thing hanging from its ends. */
+    const sag=clamp(span*0.13,0.4,1.5);
+    const dip=u=>-Math.sin(u*Math.PI)*sag;
+    const ropeM=mat(P.bark2,{rough:1}), plankM=mat(P.wood,{rough:0.92});
+    const n=Math.max(8,Math.round(span/0.42));
+    for(let i=0;i<n;i++){
+      const u=(i+0.5)/n, p=at(u,dip(u));
+      const pl=meshOf(new THREE.BoxGeometry(span/n*0.82,0.06,0.66),plankM);
+      pl.position.copy(p); pl.rotation.y=yawA;
+      pl.rotation.z=Math.cos(u*Math.PI)*0.22;    // planks tilt along the curve
+      g.add(pl);
+    }
+    /* Deck ropes and handrails: chords following the same catenary, offset. */
+    for(const s of [-1,1]){
+      for(const [h,rad] of [[0,0.035],[0.62,0.028]]){
+        const segs=Math.max(8,Math.round(span/0.7));
+        for(let i=0;i<segs;i++){
+          const u0=i/segs, u1=(i+1)/segs;
+          const p0=at(u0,dip(u0)+h), p1=at(u1,dip(u1)+h);
+          p0.x+=nx*s*0.36; p0.z+=nz*s*0.36;
+          p1.x+=nx*s*0.36; p1.z+=nz*s*0.36;
+          g.add(beam(p0,p1,rad,ropeM,false));
+        }
+      }
+      /* Vertical hangers every few planks. */
+      for(let i=1;i<5;i++){
+        const u=i/5, p=at(u,dip(u));
+        g.add(beam(new THREE.Vector3(p.x+nx*s*0.36,p.y,p.z+nz*s*0.36),
+                   new THREE.Vector3(p.x+nx*s*0.36,p.y+0.62,p.z+nz*s*0.36),
+                   0.02,ropeM,false));
+      }
+    }
+    const lan=meshOf(new THREE.CylinderGeometry(0.1,0.12,0.2,6),
+      glowMat(P.warm,1.8),false,false);
+    const mp=at(0.5,dip(0.5)+0.5);
+    lan.position.copy(mp); g.add(lan);
+
+  }else if(K==='forge'){
+    /* A PIPE GANTRY. Not a walkway at all: a riveted truss carrying a hot line
+       between two stacks, with the melt visible in the seam. */
+    const trussM=mat(P.iron,{metal:0.4,rough:0.55});
+    const pipeM=mat(P.metal,{metal:0.55,rough:0.45});
+    /* Dead straight, and slung slightly BELOW the tower tops. */
+    const drop=-0.35;
+    const A=at(0,drop), B=at(1,drop);
+    for(const s of [-1,1]){
+      for(const h of [0,0.7]){
+        const c0=new THREE.Vector3(A.x+nx*s*0.3,A.y+h,A.z+nz*s*0.3);
+        const c1=new THREE.Vector3(B.x+nx*s*0.3,B.y+h,B.z+nz*s*0.3);
+        g.add(beam(c0,c1,0.055,trussM));
+      }
+      /* Zig-zag web between the chords. */
+      const segs=Math.max(4,Math.round(span/0.9));
+      for(let i=0;i<segs;i++){
+        const u0=i/segs, u1=(i+1)/segs;
+        const lo=at(u0,drop), hi=at(u1,drop+0.7);
+        g.add(beam(new THREE.Vector3(lo.x+nx*s*0.3,lo.y,lo.z+nz*s*0.3),
+                   new THREE.Vector3(hi.x+nx*s*0.3,hi.y,hi.z+nz*s*0.3),
+                   0.03,trussM,false));
+      }
+    }
+    const pipe=meshOf(new THREE.CylinderGeometry(0.19,0.19,span*0.98,9),pipeM);
+    const mid=at(0.5,drop+0.42);
+    pipe.position.copy(mid);
+    pipe.rotation.set(0,yawA,Math.PI/2); g.add(pipe);
+    /* Lagging bands along it, and the seam glowing between them. */
+    const bands=Math.max(3,Math.round(span/1.3));
+    for(let i=0;i<bands;i++){
+      const u=(i+0.5)/bands, p=at(u,drop+0.42);
+      const bd=meshOf(new THREE.CylinderGeometry(0.23,0.23,0.1,9),
+        mat(P.iron2,{metal:0.4,rough:0.6}),false,false);
+      bd.position.copy(p); bd.rotation.set(0,yawA,Math.PI/2); g.add(bd);
+    }
+    const seam=meshOf(new THREE.BoxGeometry(span*0.94,0.05,0.06),
+      glowMat(P.lava,1.4),false,false);
+    seam.position.set(mid.x,mid.y+0.19,mid.z); seam.rotation.y=yawA; g.add(seam);
+
+  }else if(K==='ship'){
+    /* A STEEL GANGWAY: dead flat, lattice sides, kick plates, painted band.
+       Flat is the tell — it is the only span in the world with no curve at all. */
+    const steel=mat(P.metal,{metal:0.5,rough:0.45});
+    const deckM=mat(P.deck,{rough:0.85});
+    const A=at(0,-0.2), B=at(1,-0.2);
+    const deck=meshOf(new THREE.BoxGeometry(span,0.1,0.85),deckM);
+    const mid=at(0.5,-0.2);
+    deck.position.copy(mid); deck.rotation.y=yawA; g.add(deck);
+    for(const s of [-1,1]){
+      const rail=new THREE.Vector3(0,0.68,0);
+      g.add(beam(new THREE.Vector3(A.x+nx*s*0.42,A.y+rail.y,A.z+nz*s*0.42),
+                 new THREE.Vector3(B.x+nx*s*0.42,B.y+rail.y,B.z+nz*s*0.42),
+                 0.04,steel));
+      const kick=meshOf(new THREE.BoxGeometry(span,0.18,0.06),
+        mat(P.stripe,{rough:0.6}),false,false);
+      kick.position.set(mid.x+nx*s*0.44,mid.y+0.1,mid.z+nz*s*0.44);
+      kick.rotation.y=yawA; g.add(kick);
+      const posts=Math.max(3,Math.round(span/1.1));
+      for(let i=0;i<=posts;i++){
+        const u=i/posts, p=at(u,-0.2);
+        g.add(beam(new THREE.Vector3(p.x+nx*s*0.42,p.y,p.z+nz*s*0.42),
+                   new THREE.Vector3(p.x+nx*s*0.42,p.y+0.68,p.z+nz*s*0.42),
+                   0.028,steel,false));
+      }
+    }
+    /* Underslung trusses, because a flat steel span this long needs depth. */
+    const segs=Math.max(4,Math.round(span/1.0));
+    for(let i=0;i<segs;i++){
+      const u0=i/segs, u1=(i+1)/segs;
+      const p0=at(u0,-0.28), p1=at(u1,-0.62);
+      g.add(beam(p0,p1,0.032,steel,false));
+      g.add(beam(at(u1,-0.28),at(u0,-0.62),0.032,steel,false));
+    }
+
+  }else if(K==='bastion'){
+    /* A COVERED STONE SPAN on ribs, crenellated, with snow lying on it. Heavy,
+       arched, and the only one you could defend. */
+    const stoneM=mat(P.stone,{rough:0.94}), stone2M=mat(P.stone2,{rough:0.94});
+    const rise=clamp(span*0.13,0.4,1.4);
+    const arc=u=>Math.sin(u*Math.PI)*rise;
+    const n=Math.max(6,Math.round(span/0.66));
+    for(let i=0;i<n;i++){
+      const u=(i+0.5)/n, p=at(u,arc(u));
+      const blk=meshOf(new THREE.BoxGeometry(span/n*1.08,0.36,1.0),
+        i%2?stoneM:stone2M);
+      blk.position.copy(p); blk.rotation.y=yawA; g.add(blk);
+      /* Parapet, merlons and snow — the wall-walk carried into the air. */
+      for(const s of [-1,1]){
+        const par=meshOf(new THREE.BoxGeometry(span/n*1.08,0.3,0.16),stoneM);
+        par.position.set(p.x+nx*s*0.42,p.y+0.32,p.z+nz*s*0.42);
+        par.rotation.y=yawA; g.add(par);
+        if(i%2===0){
+          const sn=meshOf(new THREE.BoxGeometry(span/n*1.0,0.07,0.18),
+            mat(P.snow,{rough:1}),false,false);
+          sn.position.set(p.x+nx*s*0.42,p.y+0.5,p.z+nz*s*0.42);
+          sn.rotation.y=yawA; g.add(sn);
+        }
+      }
+      if(i%3===0){
+        const sn=meshOf(new THREE.BoxGeometry(span/n*1.0,0.06,0.7),
+          mat(P.snow,{rough:1}),false,false);
+        sn.position.set(p.x,p.y+0.2,p.z); sn.rotation.y=yawA; g.add(sn);
+      }
+    }
+    /* Two ribs under it, so the arch is carried and not floating. */
+    const segs=Math.max(6,Math.round(span/0.8));
+    for(const s of [-1,1]){
+      for(let i=0;i<segs;i++){
+        const u0=i/segs, u1=(i+1)/segs;
+        const p0=at(u0,arc(u0)-0.28-Math.sin(u0*Math.PI)*0.5);
+        const p1=at(u1,arc(u1)-0.28-Math.sin(u1*Math.PI)*0.5);
+        p0.x+=nx*s*0.3; p0.z+=nz*s*0.3; p1.x+=nx*s*0.3; p1.z+=nz*s*0.3;
+        g.add(beam(p0,p1,0.09,stone2M,false));
+      }
+    }
+
+  }else{
+    /* An ENCLOSED ARCADE — a bridge of sighs in stucco, with arched openings
+       and a tiled roof. The only covered span, and the only one with windows. */
+    const wallM=mat(P.stucco,{rough:0.92,flat:false});
+    const rise=clamp(span*0.09,0.25,0.9);
+    const arc=u=>Math.sin(u*Math.PI)*rise;
+    const n=Math.max(5,Math.round(span/0.9));
+    const wm=winMat(P,0.85);
+    for(let i=0;i<n;i++){
+      const u=(i+0.5)/n, p=at(u,arc(u));
+      const bay=meshOf(new THREE.BoxGeometry(span/n*1.04,1.15,0.95),wallM);
+      bay.position.set(p.x,p.y+0.4,p.z); bay.rotation.y=yawA; g.add(bay);
+      /* An arched window in each bay, both sides. */
+      for(const s of [-1,1]){
+        const w=meshOf(new THREE.CylinderGeometry(0.16,0.16,0.05,9,1,false,0,Math.PI),
+          wm,false,false);
+        w.rotation.z=Math.PI/2; w.rotation.y=yawA+Math.PI/2;
+        w.position.set(p.x+nx*s*0.49,p.y+0.55,p.z+nz*s*0.49); g.add(w);
+        const bx=meshOf(new THREE.BoxGeometry(0.3,0.3,0.04),wm,false,false);
+        bx.rotation.y=yawA+Math.PI/2;
+        bx.position.set(p.x+nx*s*0.49,p.y+0.4,p.z+nz*s*0.49); g.add(bx);
+      }
+    }
+    /* One continuous tiled roof over the whole run, following the arch. */
+    for(let i=0;i<n;i++){
+      const u=(i+0.5)/n, p=at(u,arc(u));
+      const rf=softRoof(1.25,span/n*1.06,0.34,P.rose,{nu:7,nv:2,rough:0.78});
+      rf.position.set(p.x,p.y+0.98,p.z); rf.rotation.y=yawA+Math.PI/2; g.add(rf);
+    }
+    /* Corbels under the deck, in the lighter stucco. */
+    for(let i=0;i<=n;i++){
+      const u=i/n, p=at(u,arc(u));
+      const cb=meshOf(new THREE.BoxGeometry(0.2,0.24,1.05),
+        mat(P.stucco3,{rough:0.9}),true,false);
+      cb.position.set(p.x,p.y-0.24,p.z); cb.rotation.y=yawA; g.add(cb);
+    }
+  }
+  return g;
+}
+/* What hangs under a terrace lip, realm by realm. Growth going DOWN, which the
+   terraces alone can never show — and it was one builder for all six: a cord, a
+   lantern or a planter, everywhere. Hung from the terrace BOUNDARIES rather
+   than the coast, because the boundaries sit at fixed radii and a coast-hung
+   thing would jump outward every time the island grew. */
 function buildUndercroft(P,rnd,prof,edgeR,y){
   const g=new THREE.Group();
   const n=Math.max(5,Math.round(edgeR*1.3));
+  const kit=P.kit;
   for(let i=0;i<n;i++){
     const a=(i/n)*TAU+rnd()*0.25;
-    /* Hung just OUTSIDE the lip so they show against the cliff face — tucked
-       inside it they sit under the terrace above and are never seen. */
+    /* Just OUTSIDE the lip, so it shows against the cliff instead of tucking
+       under the terrace above where it is never seen. */
     const r=radiusAt(prof,a)*edgeR*lerp(1.0,1.07,rnd());
     const x=Math.cos(a)*r, z=Math.sin(a)*r;
-    /* Short drops, visible cords. Long thin ones read as lollipops hanging in
-       space — the eye loses the cord and the pod stops looking attached to
-       anything, which is the opposite of the point. */
-    const drop=lerp(0.3,0.78,rnd());   // must clear the terrace below
-    g.add(beam(new THREE.Vector3(x,y,z),new THREE.Vector3(x,y-drop,z),0.05,
-      mat(P.wood,{rough:1}),false));
-    if(rnd()<0.5){
-      const lan=meshOf(new THREE.OctahedronGeometry(0.15),glowMat(P.accent,1.6),false,false);
-      lan.position.set(x,y-drop-0.12,z);
-      const ph=rnd()*TAU;
-      lan.userData.tick=t=>{
-        lan.position.y=y-drop-0.12+Math.sin(t*0.9+ph)*0.06;
-        lan.material.emissiveIntensity=1.3+Math.sin(t*1.6+ph)*0.4;
-      };
-      g.add(lan); animated.push(lan);
-    }else{
-      /* A planter box with the greenery spilling over it, rather than a bare
-         sphere on a string — the box is what says "someone built this". */
-      const pr=lerp(0.42,0.72,rnd());
-      const box=meshOf(new THREE.CylinderGeometry(pr,pr*0.82,0.28,7),
-        mat(P.wood,{rough:0.95}));
-      box.position.set(x,y-drop-0.14,z); g.add(box);
-      for(let k=0;k<3;k++){
-        const leaf=meshOf(new THREE.IcosahedronGeometry(pr*lerp(0.55,0.85,rnd()),0),
-          mat(rnd()<0.5?P.foliage:P.foliage2,{rough:0.98}));
-        leaf.position.set(x+(rnd()-0.5)*pr,y-drop+0.02,z+(rnd()-0.5)*pr);
-        leaf.scale.y=0.62; g.add(leaf);
+
+    if(kit==='swarm'){
+      /* Crystal lamps and spill-over planters on marble brackets. */
+      const brk=meshOf(new THREE.BoxGeometry(0.14,0.1,0.4),
+        mat(P.stone2,{rough:0.8}));
+      brk.position.set(x,y-0.05,z); brk.rotation.y=-a; g.add(brk);
+      if(rnd()<0.5){
+        const c=meshOf(new THREE.OctahedronGeometry(0.15),
+          glowMat(P.crys,1.6),false,false);
+        c.scale.y=1.8; c.position.set(x,y-0.44,z);
+        const ph=rnd()*TAU;
+        c.userData.tick=t=>{ c.rotation.y=t*0.4;
+          c.position.y=y-0.44+Math.sin(t*0.9+ph)*0.05; };
+        g.add(c); animated.push(c);
+      }else{
+        const bowl=meshOf(new THREE.SphereGeometry(0.3,10,7,0,TAU,0,Math.PI/2),
+          mat(P.stone,{rough:0.8}));
+        bowl.rotation.x=Math.PI; bowl.position.set(x,y-0.24,z); g.add(bowl);
+        for(let k=0;k<3;k++){
+          const lf=meshOf(new THREE.IcosahedronGeometry(0.16,0),
+            mat(k%2?P.foliage:P.foliage2,{rough:0.96}),false,false);
+          lf.position.set(x+(rnd()-0.5)*0.4,y-0.16,z+(rnd()-0.5)*0.4);
+          lf.scale.y=0.6; g.add(lf);
+        }
       }
+
+    }else if(kit==='frame'){
+      /* Aerial roots and creeper, reaching for the terrace below. */
+      const len=lerp(0.6,1.5,rnd());
+      g.add(beam(new THREE.Vector3(x,y,z),new THREE.Vector3(x,y-len,z),0.05,
+        mat(P.bark2,{rough:1}),false));
+      for(let k=0;k<3;k++){
+        const lf=meshOf(new THREE.IcosahedronGeometry(lerp(0.12,0.24,rnd()),0),
+          mat(rnd()<0.5?P.moss:P.canopy,{rough:0.97}),false,false);
+        lf.position.set(x+(rnd()-0.5)*0.3,y-len*lerp(0.2,0.9,rnd()),
+                        z+(rnd()-0.5)*0.3);
+        lf.scale.y=0.6; g.add(lf);
+      }
+      if(rnd()<0.4){
+        const cap=meshOf(new THREE.SphereGeometry(0.1,8,5,0,TAU,0,Math.PI/2),
+          mat(P.shroom,{emissive:P.shroom,ei:0.4,rough:0.5,flat:false}),false,false);
+        cap.position.set(x,y-0.12,z); cap.scale.y=0.7; g.add(cap);
+      }
+
+    }else if(kit==='forge'){
+      /* Condensate pipes and drip pans, venting under the deck. */
+      const drop=lerp(0.4,0.9,rnd());
+      g.add(beam(new THREE.Vector3(x,y,z),new THREE.Vector3(x,y-drop,z),0.07,
+        mat(P.metal,{metal:0.5,rough:0.5}),false));
+      const el=meshOf(new THREE.TorusGeometry(0.16,0.07,5,8,Math.PI/2),
+        mat(P.metal,{metal:0.5,rough:0.5}),false,false);
+      el.position.set(x,y-drop,z); el.rotation.y=-a; g.add(el);
+      if(rnd()<0.45){
+        const glow=meshOf(new THREE.CylinderGeometry(0.09,0.11,0.07,7),
+          glowMat(P.lava,1.4),false,false);
+        glow.position.set(x,y-drop-0.06,z); g.add(glow);
+      }else{
+        const pan=meshOf(new THREE.CylinderGeometry(0.22,0.18,0.12,8),
+          mat(P.iron,{metal:0.4,rough:0.6}),false,false);
+        pan.position.set(x,y-drop-0.1,z); g.add(pan);
+      }
+
+    }else if(kit==='ship'){
+      /* Mooring rings, hung fenders and a net — the working face of a quay. */
+      const ring=meshOf(new THREE.TorusGeometry(0.13,0.032,5,12),
+        mat(P.metal,{metal:0.5,rough:0.45}),false,false);
+      ring.position.set(x,y-0.12,z); ring.rotation.y=-a+Math.PI/2; g.add(ring);
+      const drop=lerp(0.3,0.7,rnd());
+      g.add(beam(new THREE.Vector3(x,y-0.14,z),new THREE.Vector3(x,y-drop,z),
+        0.022,mat(P.rust,{rough:0.95}),false));
+      if(rnd()<0.55){
+        for(let k=0;k<3;k++){
+          const fd=meshOf(new THREE.TorusGeometry(0.14,0.05,5,10),
+            mat(P.rust,{rough:0.95}),false,false);
+          fd.position.set(x,y-drop-0.08-k*0.13,z);
+          fd.rotation.x=Math.PI/2; g.add(fd);
+        }
+      }else{
+        const buoy=meshOf(new THREE.SphereGeometry(0.16,9,7),
+          mat(P.stripe,{rough:0.65}),false,false);
+        buoy.position.set(x,y-drop-0.14,z); g.add(buoy);
+      }
+
+    }else if(kit==='bastion'){
+      /* Icicles and a chained cresset. Nothing is planted under a fortress. */
+      const len=lerp(0.5,1.4,Math.pow(rnd(),1.5));
+      const ic=meshOf(new THREE.ConeGeometry(lerp(0.06,0.13,rnd()),len,5),
+        mat(P.ice,{rough:0.16,flat:true,opacity:0.88,emissive:P.ice,ei:0.1}),
+        true,false);
+      ic.position.set(x,y-len/2-0.04,z); ic.rotation.set(0,rnd()*TAU,Math.PI);
+      g.add(ic);
+      if(rnd()<0.3){
+        const drop=lerp(0.5,0.9,rnd());
+        g.add(beam(new THREE.Vector3(x,y,z),new THREE.Vector3(x,y-drop,z),0.018,
+          mat(P.metal,{metal:0.55,rough:0.45}),false));
+        const cr=meshOf(new THREE.CylinderGeometry(0.13,0.08,0.16,7),
+          mat(P.metal,{metal:0.5,rough:0.5}),false,false);
+        cr.position.set(x,y-drop-0.08,z); g.add(cr);
+        const f=meshOf(new THREE.ConeGeometry(0.1,0.24,6),glowMat(P.warm,2.0),false,false);
+        f.position.set(x,y-drop+0.04,z);
+        const ph=rnd()*TAU;
+        f.userData.tick=t=>{ f.scale.set(1,1+Math.sin(t*6+ph)*0.18,1); };
+        g.add(f); animated.push(f);
+      }
+
+    }else{
+      /* Window boxes on corbels, and a washing line strung between them. The
+         only undercroft in the world with laundry on it. */
+      const cb=meshOf(new THREE.BoxGeometry(0.16,0.14,0.34),
+        mat(P.stucco3,{rough:0.9}));
+      cb.position.set(x,y-0.07,z); cb.rotation.y=-a; g.add(cb);
+      const box=meshOf(new THREE.BoxGeometry(0.42,0.16,0.22),
+        mat(P.cliff,{rough:0.92,flat:false}));
+      box.position.set(x,y-0.2,z); box.rotation.y=-a; g.add(box);
       for(let k=0;k<2;k++){
-        const f=meshOf(new THREE.IcosahedronGeometry(0.08,0),
-          mat(P.bloom,{emissive:P.bloom,ei:0.3}),false,false);
-        f.position.set(x+(rnd()-0.5)*pr*1.4,y-drop+0.14,z+(rnd()-0.5)*pr*1.4); g.add(f);
+        const lf=meshOf(new THREE.IcosahedronGeometry(0.12,0),
+          mat(k%2?P.leaf:P.leaf2,{rough:0.96}),false,false);
+        lf.position.set(x+(rnd()-0.5)*0.28,y-0.1,z+(rnd()-0.5)*0.28); g.add(lf);
+      }
+      if(i%3===0){
+        const a2=((i+1)/n)*TAU;
+        const r2=radiusAt(prof,a2)*edgeR*1.03;
+        const x2=Math.cos(a2)*r2, z2=Math.sin(a2)*r2;
+        const sag=0.24;
+        for(let k=0;k<4;k++){
+          const u=(k+0.5)/4;
+          const cl=meshOf(new THREE.PlaneGeometry(0.2,0.26,3,2),
+            mat([P.stucco3,P.blush,P.rose,0xFFFFFF][k%4],
+              {side:THREE.DoubleSide,flat:false,rough:0.9}),true,false);
+          cl.position.set(lerp(x,x2,u),y-0.28-Math.sin(u*Math.PI)*sag-0.12,
+                          lerp(z,z2,u));
+          cl.rotation.y=-a;
+          const base=cl.geometry.attributes.position.array.slice();
+          const ph=k*1.2+i;
+          cl.userData.tick=t=>{
+            const q=cl.geometry.attributes.position;
+            for(let v=0;v<q.count;v++)
+              q.setZ(v,Math.sin(t*2.4+ph+base[v*3]*6)*0.04);
+            q.needsUpdate=true;
+          };
+          g.add(cl); animated.push(cl);
+        }
       }
     }
   }
   return g;
 }
 
-function buildWisps(P,n,radius){
+/* Motes: dust in the light. Wisps in the swarm, pollen in the canopy, EMBERS in
+   the forges — the forge image is full of them and they are most of what makes
+   that sky read as hot rather than as merely dark. */
+function buildMotes(P,n,radius){
   const g=new THREE.Group();
   const rnd=rngOf(hash2(P.seed,777));
+  const ember=P.kit==='forge';
   for(let i=0;i<n;i++){
     const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,
-      color:rnd()<0.5?P.accent:P.bloom,transparent:true,opacity:0.3,
-      depthWrite:false,blending:THREE.AdditiveBlending}));
-    const sc=lerp(0.2,0.42,rnd()); s.scale.setScalar(sc);
-    /* Ellipse, not a Lissajous, and never tighter than 0.45R. The mismatched
-       frequencies used to walk every wisp through the middle of the district;
-       thirty additive sprites taking turns over one spot is a searchlight. */
+      color:ember?(rnd()<0.5?P.lava:P.lavaHot):(rnd()<0.5?P.accent:P.bloom),
+      transparent:true,opacity:0.3,depthWrite:false,blending:THREE.AdditiveBlending}));
+    s.scale.setScalar(lerp(ember?0.12:0.2,ember?0.28:0.42,rnd()));
+    /* An ellipse, never tighter than 0.45R. Mismatched frequencies used to walk
+       every mote through the middle of the district, and thirty additive sprites
+       taking turns over one spot is a searchlight. */
     const r1=lerp(0.45,1.05,rnd())*radius, r2=lerp(0.45,1.05,rnd())*radius;
-    const y0=lerp(0.9,4.5,rnd()), sp1=lerp(0.12,0.4,rnd()), off=rnd()*TAU;
+    const y0=lerp(0.9,4.5,rnd()), sp=lerp(0.12,0.4,rnd()), off=rnd()*TAU;
     const wob=lerp(0.3,1.1,rnd()), dir=rnd()<0.5?1:-1;
+    const rise=ember?lerp(0.25,0.7,rnd()):0;
     s.userData.tick=t=>{
-      const w=t*sp1*dir+off;
-      s.position.set(Math.cos(w)*r1,y0+Math.sin(t*0.7+off)*wob,Math.sin(w)*r2);
-      s.material.opacity=0.2+Math.sin(t*1.7+off)*0.12;
+      const w=t*sp*dir+off;
+      const yy=ember? y0+((t*rise+off)%3)*1.6 : y0+Math.sin(t*0.7+off)*wob;
+      s.position.set(Math.cos(w)*r1,yy,Math.sin(w)*r2);
+      s.material.opacity=(ember?0.34:0.2)+Math.sin(t*1.7+off)*0.12;
     };
     g.add(s); animated.push(s);
   }
   return g;
 }
 
-function buildBirds(P,n,radius){
+/* Flyers. Same rig, different wings: white birds over the sky-garden, gulls over
+   the docks, butterflies under the canopy, ravens over the walls, doves over the
+   square. The forges get none — nothing lives in the smoke. */
+function buildFlyers(P,n,radius,style){
   const g=new THREE.Group();
   const rnd=rngOf(hash2(P.seed,888));
-  const bodyMat=mat(0xFFFFFF,{rough:0.7});
+  /* Four silhouettes, not one. 'bird', 'gull' and 'dove' all used to fall
+     through to the same white cross with the same flap — three realms sharing
+     one animal, which at a dozen of them circling is a lot of sameness for
+     something that is always moving and therefore always being looked at.
+
+     They differ by the things you can actually read at this size: wingspan,
+     flap rate, how high they fly and how tight they turn. */
+  const S = style==='butterfly'
+      ? {span:0.22,chord:0.20,body:0.16,flap:[9,14],alt:[1.2,3.4],R:[0.5,0.95],
+         bob:0.9,spd:[0.10,0.22],cols:[P.shroom,P.shroom2,P.canopy2],glow:0.25}
+    : style==='raven'
+      ? {span:0.44,chord:0.14,body:0.26,flap:[3,4.6],alt:[3.5,8],R:[0.8,1.4],
+         bob:0.4,spd:[0.07,0.15],cols:[0x2A2A32,0x33333C],glow:0}
+    : style==='gull'
+      /* Long-winged and lazy: gulls glide. Slowest flap in the world and the
+         widest circle, low over the water. */
+      ? {span:0.62,chord:0.10,body:0.22,flap:[1.6,2.6],alt:[2.0,5.0],R:[1.0,1.5],
+         bob:0.75,spd:[0.06,0.13],cols:[0xFFFFFF,0xF2F4FA],glow:0}
+    : style==='dove'
+      /* Plump, short-winged, whirring — and they stay low over the square. */
+      ? {span:0.26,chord:0.13,body:0.24,flap:[7,10],alt:[1.4,3.2],R:[0.45,0.9],
+         bob:0.35,spd:[0.14,0.28],cols:[0xFFFFFF,0xF6F2EA],glow:0}
+      /* Songbirds: small, quick, tight turns, high up among the spires. */
+      : {span:0.3,chord:0.11,body:0.17,flap:[6,9],alt:[3.0,7.5],R:[0.6,1.2],
+         bob:0.5,spd:[0.12,0.26],cols:[0xFFFFFF,0xF2F4FA],glow:0};
+
   for(let i=0;i<n;i++){
     const b=new THREE.Group();
-    const wl=meshOf(boxG(0.34,0.03,0.11),bodyMat,false,false);
+    const c=S.cols[i%S.cols.length];
+    const wingMat=mat(c,{rough:0.7,emissive:S.glow?c:0x000000,ei:S.glow});
+    const wl=meshOf(new THREE.BoxGeometry(S.span,0.03,S.chord),wingMat,false,false);
     const wr=wl.clone();
-    wl.position.x=-0.17; wr.position.x=0.17;
+    wl.position.x=-S.span/2; wr.position.x=S.span/2;
     b.add(wl,wr);
-    b.add(meshOf(boxG(0.1,0.06,0.2),bodyMat,false,false));
-    const R=lerp(0.7,1.35,rnd())*radius, y=lerp(2.5,7,rnd());
-    const sp1=lerp(0.1,0.25,rnd())*(rnd()<0.5?1:-1), off=rnd()*TAU;
-    const flap=lerp(4,7,rnd());
+    /* Gulls get a swept tip, ravens a fingered one — one extra box each, and it
+       is what separates them at silhouette scale. */
+    if(style==='gull'||style==='raven'){
+      for(const sd of [-1,1]){
+        const tip=meshOf(new THREE.BoxGeometry(S.span*0.4,0.025,S.chord*0.7),
+          wingMat,false,false);
+        tip.position.set(sd*(S.span*0.85),0,style==='gull'?-S.chord*0.3:0);
+        tip.rotation.y=sd*(style==='gull'?0.5:0.2); b.add(tip);
+      }
+    }
+    b.add(meshOf(new THREE.BoxGeometry(S.body*0.5,S.body*0.42,S.body),
+      mat(style==='butterfly'?0x2A2A32:c,{rough:0.7}),false,false));
+    if(style==='dove'){                       // a fanned tail
+      const tail=meshOf(new THREE.BoxGeometry(S.body*0.5,0.025,S.body*0.7),
+        wingMat,false,false);
+      tail.position.z=-S.body*0.7; b.add(tail);
+    }
+    const R=lerp(S.R[0],S.R[1],rnd())*radius;
+    const y=lerp(S.alt[0],S.alt[1],rnd());
+    const sp=lerp(S.spd[0],S.spd[1],rnd())*(rnd()<0.5?1:-1), off=rnd()*TAU;
+    const flap=lerp(S.flap[0],S.flap[1],rnd());
+    const amp=style==='butterfly'?1.1:style==='gull'?0.32:0.5;
     b.userData.tick=t=>{
-      const w=t*sp1+off;
-      b.position.set(Math.cos(w)*R,y+Math.sin(t*0.5+off)*0.5,Math.sin(w)*R);
+      const w=t*sp+off;
+      b.position.set(Math.cos(w)*R,y+Math.sin(t*0.5+off)*S.bob,Math.sin(w)*R);
       b.rotation.y=-w+Math.PI/2;
-      const f=Math.sin(t*flap+off)*0.5;
+      /* A gull banks into its turn; nothing else does. */
+      if(style==='gull') b.rotation.z=0.22*Math.sign(sp);
+      const f=Math.sin(t*flap+off)*amp;
       wl.rotation.z=f; wr.rotation.z=-f;
     };
     g.add(b); animated.push(b);
@@ -1781,29 +2607,9 @@ function buildBirds(P,n,radius){
   return g;
 }
 
-/* The Arcane Swarm's crown: nested rings turning around a lit core. */
-function buildOrrery(P){
-  const g=new THREE.Group();
-  const core=meshOf(new THREE.IcosahedronGeometry(0.5,1),glowMat(P.accent,2.2),false,false);
-  g.add(core);
-  for(let i=0;i<4;i++){
-    const RR=1.1+i*0.5;
-    const ring=meshOf(new THREE.TorusGeometry(RR,0.05,6,40),
-      mat(P.metal,{metal:0.75,rough:0.25,env:1.1}),false,false);
-    /* Tilt clamped short of edge-on: a ring that flattens to a line stops
-       reading as a ring and the orrery turns into scribbles. */
-    const sp1=0.16-i*0.03, tilt=i*0.32;
-    ring.userData.tick=t=>{ring.rotation.set(Math.PI/2+Math.sin(t*0.15+i)*0.28,t*sp1,tilt);};
-    g.add(ring); animated.push(ring);
-    const b=meshOf(new THREE.SphereGeometry(0.16,8,7),
-      glowMat(i%2?P.accent2:P.bloom,1.8),false,false);
-    b.userData.tick=t=>{const w=t*(0.3+i*0.1)+i;
-      b.position.set(Math.cos(w)*RR,Math.sin(w*0.7+i)*RR*0.4,Math.sin(w)*RR);};
-    g.add(b); animated.push(b);
-  }
-  g.userData.tick=t=>{g.rotation.y=t*0.06;}; animated.push(g);
-  return g;
-}
+/* The cloud sea. It is what tells the eye the land is floating, and it gives the
+   falls somewhere to fall to. Tinted per realm — the frameworks sit over pink
+   evening cloud and the forges over none at all, only smoke. */
 
 /* The cloud sea below the land — what tells the eye the islands are floating,
    and what gives the falls somewhere to fall to. So it has to be IN THE SHOT,
@@ -1871,115 +2677,539 @@ function placeClouds(){
   const t=clock.getElapsedTime();
   for(const c of clouds.children){ c.scale.setScalar(puff); c.userData.tick(t); }
 }
-
-/* ============================================================== realm kits */
-/* Everything above this line is the Arcane Swarm's vocabulary. What follows is
-   the same set of jobs — house, tower, hall, gate, plant, feature, deck,
-   bridge, liquid, crown, life — answered in five other architectural languages.
-
-   The realms have to be un-confusable at silhouette scale, so the differences
-   are structural, not chromatic: a gabled timber cabin under a leaf canopy, a
-   brick furnace with a smoke plume, a corrugated shed beside stacked
-   containers, a battlemented barbican, a narrow shuttered townhouse. Recolour
-   any one of them and you still know which realm you are standing in — which
-   is principle 6 (never encode identity by colour alone) taken seriously. */
-
-/* ---------------------------------------------------------- shared pieces */
-/* Small parts that every realm needs and none of them needs to disagree about.
-   `style` keeps one implementation honest across six vocabularies. */
-function postLamp(P,rnd,style){
-  const g=new THREE.Group(), h=lerp(0.9,1.4,rnd());
-  const postMat=style==='iron'?mat(P.metal,{metal:0.5,rough:0.5})
-              : style==='timber'?mat(P.wood,{rough:0.95})
-              : mat(P.cliffDark,{rough:0.9});
-  g.add(meshOf(new THREE.CylinderGeometry(0.05,0.075,h,6),postMat).translateY(h/2));
-  if(style==='iron'||style==='stone'){           // a little cross-arm
-    const arm=meshOf(boxG(0.3,0.05,0.05),postMat);
-    arm.position.set(0.12,h-0.05,0); g.add(arm);
+function swarmHouse(P,rnd,scale=1){
+  const g=new THREE.Group();
+  const r=lerp(0.55,0.8,rnd())*scale, h=lerp(0.5,0.8,rnd())*scale;
+  /* Drum + hemisphere. The beehive is the realm's whole housing vocabulary in
+     the art — no gables anywhere, at any size. */
+  g.add(meshOf(new THREE.CylinderGeometry(r,r*1.05,h,12),mat(P.stone,{rough:0.72}))
+    .translateY(h/2));
+  const dome=meshOf(new THREE.SphereGeometry(r*1.02,14,9,0,TAU,0,Math.PI/2),
+    mat(rnd()<0.6?P.stone:P.stone2,{rough:0.6,flat:false}));
+  dome.position.y=h; dome.scale.y=lerp(0.8,1.15,rnd()); g.add(dome);
+  const band=meshOf(new THREE.CylinderGeometry(r*1.07,r*1.07,0.07,12),
+    mat(P.roof2,{rough:0.6}));
+  band.position.y=h; g.add(band);
+  /* Round gold windows. Discs pushed proud of the drum, never inset — an inset
+     window at this scale is a dark dot and reads as damage. */
+  const wm=winMat(P,1.0);
+  for(let i=0;i<2+Math.floor(rnd()*3);i++){
+    const a=rnd()*TAU;
+    const w=meshOf(new THREE.CylinderGeometry(0.1*scale,0.1*scale,0.05,10),wm,false,false);
+    w.rotation.z=Math.PI/2; w.rotation.y=-a;
+    w.position.set(Math.cos(a)*(r+0.01),h*0.6,Math.sin(a)*(r+0.01));
+    g.add(w);
+    const fr=meshOf(new THREE.TorusGeometry(0.11*scale,0.022,4,10),
+      mat(P.stone2,{rough:0.8}),false,false);
+    fr.position.copy(w.position); fr.rotation.y=-a+Math.PI/2; g.add(fr);
   }
-  const shade=style==='timber'
-    ? meshOf(new THREE.ConeGeometry(0.19,0.2,6),mat(P.roof,{rough:0.8}))
-    : meshOf(new THREE.ConeGeometry(0.17,0.18,4),mat(P.metal,{metal:0.4,rough:0.5}));
-  shade.position.set(style==='iron'?0.24:0,h+0.16,0); g.add(shade);
-  const orb=meshOf(new THREE.IcosahedronGeometry(0.12,1),glowMat(P.bloom,2.0),false,false);
-  orb.position.set(style==='iron'?0.24:0,h+0.02,0); g.add(orb);
-  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:P.accent,
-    transparent:true,opacity:0.22,depthWrite:false,blending:THREE.AdditiveBlending}));
-  s.scale.setScalar(0.6); s.position.copy(orb.position); g.add(s);
-  const ph=rnd()*TAU;
-  matAnim(s.material,(m,t)=>{ m.opacity=0.18+Math.sin(t*2+ph)*0.06; });
-  matAnim(orb.material,(m,t)=>{ m.emissiveIntensity=1.8+Math.sin(t*1.8+ph)*0.4; });
+  /* One arched door, in wood — the only warm material on the building, and it
+     is what gives the dome a scale to be read against. */
+  const da=rnd()*TAU;
+  const door=meshOf(new THREE.CylinderGeometry(0.13*scale,0.13*scale,0.06,8,1,false,0,Math.PI),
+    mat(P.wood,{rough:0.9}),false,false);
+  door.rotation.z=Math.PI/2; door.rotation.y=-da+Math.PI/2;
+  door.position.set(Math.cos(da)*(r+0.01),0.16*scale,Math.sin(da)*(r+0.01));
+  g.add(door);
+  const dbox=meshOf(new THREE.BoxGeometry(0.22*scale,0.2*scale,0.05),
+    mat(P.wood,{rough:0.9}),false,false);
+  dbox.rotation.y=-da+Math.PI/2;
+  dbox.position.set(Math.cos(da)*(r+0.01),0.1*scale,Math.sin(da)*(r+0.01));
+  g.add(dbox);
+  /* A crystal finial, in the district accent. */
+  const fin=meshOf(new THREE.OctahedronGeometry(0.1*scale),glowMat(P.accent,1.6),false,false);
+  fin.scale.y=1.7; fin.position.y=h+r*1.02*dome.scale.y+0.12*scale; g.add(fin);
   return g;
 }
 
-/* Plants. Realms disagree about what grows, and that disagreement is doing a
-   lot of the "which realm is this" work all by itself. */
-function realmPlant(P,rnd,kind){
+function swarmTower(P,rnd,h,great){
   const g=new THREE.Group();
-  if(kind==='conifer'){                                   // bastion — dark, upright
-    const h=lerp(1.2,2.4,rnd());
-    g.add(meshOf(new THREE.CylinderGeometry(0.06,0.1,h*0.45,5),mat(P.wood)).translateY(h*0.22));
-    for(let i=0;i<3;i++){
-      const r=lerp(0.42,0.6,rnd())*(1-i*0.24);
-      const c=meshOf(new THREE.ConeGeometry(r,h*0.42,6),
-        mat(i%2?P.foliage:P.foliage2,{rough:0.98}));
-      c.position.y=h*0.4+i*h*0.24; g.add(c);
+  /* SQUARE plan, stepped, with corner pinnacles — deliberately not another
+     drum. The houses and the hall in this realm are both round and domed, and
+     when the tower was a third drum the whole district read as one object
+     photocopied at three sizes. A four-sided shaft with setbacks gives the
+     skyline a hard edge to sit against all that curvature, and it is the
+     silhouette the tall crystal wants anyway. */
+  const segs=3+Math.floor(rnd()*2);
+  const tp=taper();
+  let y=0, r=lerp(0.36,0.5,rnd());
+  for(let i=0;i<segs;i++){
+    const sh=h/segs*lerp(0.85,1.15,rnd()), rt=r*lerp(0.80,0.9,rnd());
+    tp.add(y,y+sh,r,rt);
+    const s=meshOf(new THREE.CylinderGeometry(rt,r,sh,4),
+      mat(i%2?P.stone:P.stone2,{rough:0.68}));
+    s.rotation.y=Math.PI/4; s.position.y=y+sh/2; g.add(s);
+    /* A setback cornice at each break, in gold — the horizontal that stops the
+       shaft reading as one long taper. */
+    const cor=meshOf(new THREE.BoxGeometry(rt*2.5,0.1,rt*2.5),
+      mat(P.metal,{metal:0.5,rough:0.35}));
+    cor.position.y=y+sh; g.add(cor);
+    /* Corner pinnacles on the lower setbacks. */
+    if(i<segs-1){
+      for(let k=0;k<4;k++){
+        const a=k/4*TAU+Math.PI/4;
+        const pin=meshOf(new THREE.ConeGeometry(0.075,0.42,4),
+          mat(P.stone,{rough:0.7}),true,false);
+        pin.position.set(Math.cos(a)*rt*1.42,y+sh+0.24,Math.sin(a)*rt*1.42);
+        pin.rotation.y=Math.PI/4; g.add(pin);
+      }
     }
-  }else if(kind==='broadleaf'){                           // frame — wide, layered
-    const h=lerp(1.0,2.0,rnd());
-    g.add(meshOf(new THREE.CylinderGeometry(0.09,0.15,h,6),mat(P.wood)).translateY(h/2));
-    for(let i=0;i<3;i++){
-      const r=lerp(0.6,0.95,rnd())*(1-i*0.16);
-      const b=meshOf(new THREE.IcosahedronGeometry(r,0),
-        mat(i%2?P.foliage:P.foliage2,{rough:0.98}));
-      b.position.set((rnd()-0.5)*0.4,h+i*0.34,(rnd()-0.5)*0.4);
-      b.scale.y=0.66; b.rotation.set(rnd()*3,rnd()*3,rnd()*3); g.add(b);
+    y+=sh; r=rt;
+  }
+  /* Flat crown, not a dome: the crystal is the top of this building. */
+  const crown=meshOf(new THREE.BoxGeometry(r*2.3,0.16,r*2.3),
+    mat(P.stone2,{rough:0.7}));
+  crown.position.y=y+0.08; g.add(crown);
+  const tip=meshOf(new THREE.OctahedronGeometry(0.3),
+    mat(P.crys,{emissive:P.crys,ei:1.5,rough:0.2,flat:true,opacity:0.94}),false,false);
+  tip.scale.set(0.8,3.0,0.8); tip.position.y=y+1.05;
+  tip.userData.tick=t=>{ tip.rotation.y=t*0.4;
+    tip.material.emissiveIntensity=1.3+Math.sin(t*1.2)*0.35; };
+  g.add(tip); animated.push(tip);
+  /* Tall slot windows to match the square plan — the round portholes belong to
+     the houses, and reusing them here was half the sameness. */
+  const wm=winMat(P,0.9);
+  for(let i=0;i<6;i++){
+    /* Face centres, not corners: a 4-gon rotated by 45 degrees puts its arrises
+       on the diagonals, so the walls face the axes. And the apothem, not the
+       circumradius — r is the distance to the CORNER. */
+    const a=Math.floor(rnd()*4)/4*TAU;
+    const wy=lerp(0.7,h-0.7,i/6+rnd()*0.08);
+    const rr=tp.at(wy)*Math.SQRT1_2;
+    const w=meshOf(new THREE.BoxGeometry(0.11,0.4,0.05),wm,false,false);
+    w.position.set(Math.cos(a)*(rr+0.03),wy,Math.sin(a)*(rr+0.03));
+    w.rotation.y=-a+Math.PI/2; g.add(w);
+  }
+  if(great) greatCrown(P,g,y+2.1,r);
+  return g;
+}
+
+/* The great tower's crown. Once a district can no longer widen it needs ONE
+   element that still says "bigger" at silhouette scale, and it flies the
+   district's colours — so the biggest thing on the plot is also the thing that
+   says what the plot is about.
+
+   Six of them, because there was one: an orb with two gimbal rings around it
+   and a stack of rings sliding down the shaft, on every tower in the world. It
+   is the single most conspicuous object a district ever builds, it only appears
+   at L11, and having it be identical across six realms undid the identity work
+   everything below it was doing. Nothing here shares a motion with anything
+   else — no two crowns orbit, sweep or pulse the same way. */
+function greatCrown(P,g,bh,r){
+  const K=P.kit;
+
+  if(K==='swarm'){
+    /* THE GREAT SHARD — one enormous crystal growing out of the tower, lit from
+       inside, with smaller shards hanging motionless around it and light
+       running UP the shaft. Up, deliberately: the old rings fell down it. */
+    const core=meshOf(new THREE.OctahedronGeometry(0.5,0),
+      mat(P.crys,{emissive:P.crys,ei:2.0,rough:0.18,flat:true,opacity:0.95}),false,false);
+    core.scale.set(1,3.4,1); core.position.y=bh+0.9;
+    core.userData.tick=t=>{ core.rotation.y=t*0.22;
+      core.material.emissiveIntensity=1.8+Math.sin(t*1.1)*0.5; };
+    g.add(core); animated.push(core);
+    for(let i=0;i<5;i++){
+      const a=i/5*TAU+0.4, rr=0.85;
+      const s=meshOf(new THREE.OctahedronGeometry(0.16,0),
+        mat(P.accent,{emissive:P.accent,ei:1.5,rough:0.2,opacity:0.94}),false,false);
+      s.scale.y=2.2;
+      const y0=bh+lerp(0.2,1.6,(i*0.37)%1);
+      s.position.set(Math.cos(a)*rr,y0,Math.sin(a)*rr);
+      s.userData.tick=t=>{ s.position.y=y0+Math.sin(t*0.8+i)*0.09; };
+      g.add(s); animated.push(s);
     }
-    for(let i=0;i<3;i++){
-      const f=meshOf(new THREE.IcosahedronGeometry(0.08,0),glowMat(P.bloom,0.9),false,false);
-      f.position.set((rnd()-0.5)*1.2,h+rnd()*0.7,(rnd()-0.5)*1.2); g.add(f);
+    for(let k=0;k<5;k++){
+      const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:P.accent,
+        transparent:true,opacity:0.5,depthWrite:false,blending:THREE.AdditiveBlending}));
+      sp.scale.setScalar(0.3);
+      sp.userData.tick=t=>{
+        const u=(t*0.22+k/5)%1;
+        sp.position.set(0,lerp(bh-1.4,bh+2.6,u),0);
+        sp.material.opacity=0.5*Math.sin(u*Math.PI);
+      };
+      g.add(sp); animated.push(sp);
     }
-  }else if(kind==='charred'){                             // forge — nothing grows here
-    const h=lerp(0.5,1.1,rnd());
-    const s=meshOf(new THREE.CylinderGeometry(0.07,0.13,h,5),mat(P.rock,{rough:1}));
-    s.rotation.z=(rnd()-0.5)*0.4; s.position.y=h/2; g.add(s);
+
+  }else if(K==='frame'){
+    /* THE LANTERN BOUGH — a great seed-pod lantern hung from a curved branch,
+       swinging, with fireflies wandering around it. Nothing rotates. */
+    const arm=meshOf(new THREE.TorusGeometry(0.8,0.09,6,12,Math.PI*0.5),
+      mat(P.bark,{rough:0.96}));
+    arm.position.y=bh+0.5; arm.rotation.set(Math.PI/2,0,Math.PI*0.5); g.add(arm);
+    const swing=new THREE.Group(); swing.position.set(0.8,bh+0.5,0); g.add(swing);
+    swing.add(beam(new THREE.Vector3(0,0,0),new THREE.Vector3(0,-0.55,0),0.03,
+      mat(P.bark2,{rough:1}),false));
+    const pod=meshOf(new THREE.SphereGeometry(0.42,12,9),
+      mat(P.warm,{emissive:P.warm,ei:1.9,rough:0.3,flat:false}),false,false);
+    pod.scale.y=1.45; pod.position.y=-1.15; swing.add(pod);
+    for(let i=0;i<6;i++){
+      const rib=meshOf(new THREE.TorusGeometry(0.44,0.028,4,12,Math.PI),
+        mat(P.wood,{rough:0.9}),false,false);
+      rib.position.y=-1.15; rib.scale.y=1.45; rib.rotation.y=i/6*Math.PI; swing.add(rib);
+    }
+    const leaf=meshOf(new THREE.SphereGeometry(0.5,10,6,0,Math.PI),
+      mat(P.canopy,{rough:0.92,flat:false,side:THREE.DoubleSide}),true,false);
+    leaf.position.y=-0.55; leaf.scale.set(1,0.3,1.3); swing.add(leaf);
+    const ph=P.seed*0.3;
+    swing.userData.tick=t=>{ swing.rotation.z=Math.sin(t*0.75+ph)*0.13;
+      pod.material.emissiveIntensity=1.7+Math.sin(t*1.6+ph)*0.35; };
+    animated.push(swing);
+    for(let i=0;i<7;i++){
+      const f=meshOf(new THREE.SphereGeometry(0.06,6,5),
+        glowMat(P.accent,2.0),false,false);
+      const s1=lerp(0.5,1.1,(i*0.29)%1), s2=lerp(0.4,0.9,(i*0.53)%1), o=i*0.9;
+      f.userData.tick=t=>{
+        f.position.set(0.8+Math.sin(t*s1+o)*0.9,bh-0.4+Math.cos(t*s2+o)*0.7,
+                       Math.cos(t*s1*0.8+o)*0.9);
+      };
+      g.add(f); animated.push(f);
+    }
+
+  }else if(K==='forge'){
+    /* THE POUR — a cauldron of melt at the top of the stack, tipping on a slow
+       cycle and running a thread of lava over the lip. Embers rise off it. */
+    const cauldron=meshOf(new THREE.CylinderGeometry(0.62,0.44,0.62,10),
+      mat(P.iron,{metal:0.45,rough:0.55}));
+    cauldron.position.y=bh+0.3; g.add(cauldron);
+    const hoop=meshOf(new THREE.TorusGeometry(0.64,0.06,5,14),
+      mat(P.metal,{metal:0.6,rough:0.4}),false,false);
+    hoop.rotation.x=Math.PI/2; hoop.position.y=bh+0.58; g.add(hoop);
+    const melt=meshOf(new THREE.CylinderGeometry(0.56,0.56,0.08,12),
+      mat(P.lavaHot,{emissive:P.lavaHot,ei:2.0,rough:0.3,flat:false}),false,false);
+    melt.position.y=bh+0.56; g.add(melt);
+    melt.userData.tick=t=>{ melt.material.emissiveIntensity=1.7+Math.sin(t*0.9)*0.5; };
+    animated.push(melt);
+    /* The trunnion frame the cauldron hangs in, a launder carrying the pour
+       CLEAR of the shaft, and a catch pot under it.
+
+       The melt used to drop 2.2 units straight down from the lip on a bearing
+       that was inside the tower's own footprint — so the drips crossed the
+       stack, disappeared into the brickwork and came out the other side. A pour
+       has to land in something, and it has to land outside the thing it is
+       pouring off. Everything below now belongs to the crown, so the fall is
+       short, it is bounded, and it never meets the tower at all. */
+    const steel=mat(P.metal,{metal:0.55,rough:0.45});
+    for(const s of [-1,1]){
+      g.add(beam(new THREE.Vector3(s*0.78,bh-0.5,0),new THREE.Vector3(s*0.72,bh+0.4,0),
+        0.07,steel));
+    }
+    /* The launder: a shallow trough leaning away from the tower. */
+    const lau=meshOf(new THREE.BoxGeometry(0.9,0.07,0.34),steel);
+    lau.position.set(0.92,bh+0.36,0); lau.rotation.z=-0.26; g.add(lau);
+    for(const s of [-1,1]){
+      const wall=meshOf(new THREE.BoxGeometry(0.9,0.14,0.05),steel,false,false);
+      wall.position.set(0.92,bh+0.42,s*0.17); wall.rotation.z=-0.26; g.add(wall);
+    }
+    const run=meshOf(new THREE.BoxGeometry(0.86,0.05,0.24),
+      mat(P.lavaHot,{emissive:P.lavaHot,ei:1.9,rough:0.3,flat:false}),false,false);
+    run.position.set(0.92,bh+0.41,0); run.rotation.z=-0.26; g.add(run);
+    /* The catch pot, hung off the frame on the far side of the launder. */
+    const potX=1.42, potY=bh-0.42;
+    const pot=meshOf(new THREE.CylinderGeometry(0.34,0.26,0.34,10),
+      mat(P.iron2,{metal:0.45,rough:0.55}));
+    pot.position.set(potX,potY,0); g.add(pot);
+    const potMelt=meshOf(new THREE.CylinderGeometry(0.29,0.29,0.06,10),
+      mat(P.lavaHot,{emissive:P.lavaHot,ei:1.8,rough:0.3,flat:false}),false,false);
+    potMelt.position.set(potX,potY+0.16,0); g.add(potMelt);
+    potMelt.userData.tick=t=>{
+      potMelt.material.emissiveIntensity=1.6+Math.sin(t*1.7)*0.4; };
+    animated.push(potMelt);
+    for(const s of [-1,1]){
+      g.add(beam(new THREE.Vector3(s*0+potX,potY+0.2,s*0.3),
+                 new THREE.Vector3(0.78,bh+0.3,s*0.18),0.035,steel,false));
+    }
+    /* The thread of melt, falling from the launder lip into the pot and no
+       further. Fixed start, fixed end, nothing in between to intersect. */
+    const dropTop=bh+0.28, dropLen=dropTop-(potY+0.17);
+    for(let k=0;k<5;k++){
+      const d=meshOf(new THREE.SphereGeometry(0.075,7,6),
+        mat(P.lava,{emissive:P.lava,ei:1.8,rough:0.3,flat:false}),false,false);
+      d.userData.tick=t=>{
+        const u=(t*0.75+k/5)%1;
+        d.position.set(lerp(1.34,potX,u),dropTop-u*dropLen,0);
+        d.scale.setScalar(1-u*0.35);
+      };
+      g.add(d); animated.push(d);
+    }
+    for(let k=0;k<8;k++){
+      const e=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,
+        color:k%2?P.lava:P.lavaHot,transparent:true,opacity:0.6,
+        depthWrite:false,blending:THREE.AdditiveBlending}));
+      e.scale.setScalar(0.22);
+      e.userData.tick=t=>{
+        const u=(t*0.36+k/8)%1;
+        e.position.set(Math.sin(u*7+k)*0.5,bh+0.6+u*3.0,Math.cos(u*6+k)*0.5);
+        e.material.opacity=0.6*(1-u);
+      };
+      g.add(e); animated.push(e);
+    }
+
+  }else if(K==='ship'){
+    /* THE SIGNAL MAST — crossed yardarms with a hoist of signal flags, an
+       anemometer spinning on top, and a hard aero-beacon that sweeps. */
+    const mastM=mat(P.metal,{metal:0.5,rough:0.45});
+    const mast=meshOf(new THREE.CylinderGeometry(0.07,0.11,2.6,8),mastM);
+    mast.position.y=bh+0.9; g.add(mast);
     for(let i=0;i<2;i++){
-      const b=meshOf(new THREE.CylinderGeometry(0.03,0.05,h*0.4,4),mat(P.rock,{rough:1}));
-      b.position.set((rnd()-0.5)*0.3,h*0.8,(rnd()-0.5)*0.3);
-      b.rotation.set((rnd()-0.5)*1.2,0,(rnd()-0.5)*1.2); g.add(b);
+      const y=bh+0.5+i*0.85, len=1.5-i*0.45;
+      const yard=meshOf(new THREE.CylinderGeometry(0.045,0.045,len,6),mastM);
+      yard.rotation.z=Math.PI/2; yard.position.y=y; g.add(yard);
+      /* Signal flags on the yard — small planes that ripple. */
+      for(let k=0;k<4;k++){
+        const fx=lerp(-len*0.4,len*0.4,k/3);
+        const fl=meshOf(new THREE.PlaneGeometry(0.26,0.2,4,3),
+          mat([P.stripe,P.accent,0xC2453C,P.hull][k%4],
+            {side:THREE.DoubleSide,flat:false,rough:0.85}),true,false);
+        fl.position.set(fx,y-0.16,0);
+        const base=fl.geometry.attributes.position.array.slice();
+        const o=k*1.3+i;
+        fl.userData.tick=t=>{
+          const p=fl.geometry.attributes.position;
+          for(let v=0;v<p.count;v++)
+            p.setZ(v,Math.sin(t*4+o+base[v*3]*7)*0.05);
+          p.needsUpdate=true;
+        };
+        g.add(fl); animated.push(fl);
+      }
     }
-    const e=meshOf(new THREE.IcosahedronGeometry(0.07,0),glowMat(P.accent,1.6),false,false);
-    e.position.set(0,0.06,0); g.add(e);
-  }else if(kind==='harbour'){       // ship — a wind-bent shrub in a planter
-    /* Was a pole with a yard-arm across it, which at iso scale read as a
-       crucifix planted forty times over a harbour town. Greenery instead: it
-       carries the same "something grows here" job and gives the pale sand and
-       the white sheds a third value to sit between. */
-    const box=meshOf(boxG(0.56,0.3,0.56),mat(P.wood,{rough:0.95}));
-    box.position.y=0.15; g.add(box);
-    for(const sx of [-1,1]) for(const sz of [-1,1]){
-      const corner=meshOf(boxG(0.08,0.34,0.08),
+    /* Anemometer: three cups on a spinner. */
+    const spin=new THREE.Group(); spin.position.y=bh+2.24; g.add(spin);
+    for(let k=0;k<3;k++){
+      const a=k/3*TAU;
+      spin.add(beam(new THREE.Vector3(0,0,0),
+        new THREE.Vector3(Math.cos(a)*0.26,0,Math.sin(a)*0.26),0.02,mastM,false));
+      const cup=meshOf(new THREE.SphereGeometry(0.075,8,6,0,Math.PI),
+        mat(P.stripe,{rough:0.6,side:THREE.DoubleSide}),false,false);
+      cup.position.set(Math.cos(a)*0.28,0,Math.sin(a)*0.28);
+      cup.rotation.y=-a; spin.add(cup);
+    }
+    spin.userData.tick=t=>{ spin.rotation.y=t*2.4; }; animated.push(spin);
+    const lamp=meshOf(new THREE.CylinderGeometry(0.2,0.2,0.3,10),
+      glowMat(P.accent,2.0),false,false);
+    lamp.position.y=bh+2.0; g.add(lamp);
+    const beamM=new THREE.MeshStandardMaterial({color:P.accent,emissive:P.accent,
+      emissiveIntensity:1.1,roughness:0.3,transparent:true,opacity:0.24,
+      side:THREE.DoubleSide,depthWrite:false});
+    const bm=meshOf(new THREE.ConeGeometry(0.36,5.0,9,1,true),beamM,false,false);
+    bm.rotation.z=Math.PI/2; bm.position.x=2.5;
+    const bg=new THREE.Group(); bg.add(bm); bg.position.y=bh+2.0; g.add(bg);
+    bg.userData.tick=t=>{ bg.rotation.y=-t*0.55; }; animated.push(bg);
+
+  }else if(K==='bastion'){
+    /* THE WARD SIGIL — a rune disc standing UPRIGHT like a shield emblem,
+       turning in its own plane. It faces you; it does not orbit anything. */
+    const sig=new THREE.Group(); sig.position.y=bh+0.9; g.add(sig);
+    const rim=meshOf(new THREE.TorusGeometry(0.85,0.09,7,28),
+      mat(P.metal,{metal:0.6,rough:0.4,env:1.0}),false,false);
+    sig.add(rim);
+    const inner=meshOf(new THREE.TorusGeometry(0.55,0.05,6,22),
+      mat(P.ward,{emissive:P.ward,ei:1.6,rough:0.3,metal:0.2}),false,false);
+    sig.add(inner);
+    for(let k=0;k<6;k++){
+      const a=k/6*TAU;
+      const spoke=meshOf(new THREE.BoxGeometry(0.06,0.6,0.05),
         mat(P.stone2,{rough:0.9}),false,false);
-      corner.position.set(sx*0.26,0.17,sz*0.26); g.add(corner);
+      spoke.position.set(Math.cos(a)*0.7,Math.sin(a)*0.7,0);
+      spoke.rotation.z=a+Math.PI/2; sig.add(spoke);
     }
-    const lean=(rnd()-0.5)*0.5;                 // everything here leans downwind
-    const h=lerp(0.7,1.2,rnd());
-    const tr=meshOf(new THREE.CylinderGeometry(0.05,0.08,h,5),mat(P.wood));
-    tr.position.set(Math.sin(lean)*h*0.3,0.3+h/2,0); tr.rotation.z=-lean; g.add(tr);
+    const eye=meshOf(new THREE.OctahedronGeometry(0.26),
+      mat(P.accent,{emissive:P.accent,ei:2.2,rough:0.25,flat:true}),false,false);
+    sig.add(eye);
+    sig.userData.tick=t=>{
+      sig.rotation.z=t*0.16;
+      eye.rotation.set(t*0.5,t*0.35,0);
+      inner.material.emissiveIntensity=1.4+Math.sin(t*1.2)*0.4;
+    };
+    animated.push(sig);
+    /* Four carved standing stones, set on the parapet and lit along a cut
+       groove. Not gems, and not floating — this realm builds in ashlar and
+       everything it owns is bolted to the rock. */
+    for(let k=0;k<4;k++){
+      const a=k/4*TAU+Math.PI/4;
+      const x=Math.cos(a)*1.25, z=Math.sin(a)*1.25;
+      const st=meshOf(new THREE.CylinderGeometry(0.14,0.2,0.85,5),
+        mat(P.stone,{rough:0.94}));
+      st.position.set(x,bh+0.05,z); st.rotation.y=-a; g.add(st);
+      const cap=meshOf(new THREE.CylinderGeometry(0.16,0.16,0.07,5),
+        mat(P.snow,{rough:1}),false,false);
+      cap.position.set(x,bh+0.5,z); cap.rotation.y=-a; g.add(cap);
+      const groove=meshOf(new THREE.BoxGeometry(0.055,0.44,0.045),
+        mat(P.ward,{emissive:P.ward,ei:1.4,rough:0.4,flat:false}),false,false);
+      groove.position.set(x+Math.cos(a)*0.13,bh+0.08,z+Math.sin(a)*0.13);
+      groove.rotation.y=-a;
+      const ph=k*1.5;
+      groove.userData.tick=t=>{
+        groove.material.emissiveIntensity=1.2+Math.sin(t*1.1+ph)*0.35; };
+      g.add(groove); animated.push(groove);
+    }
+
+  }else{
+    /* THE GREAT BELL — it swings, and a weather-vane turns above it. The only
+       crown in the world whose motion is a pendulum. */
+    const canopy=new THREE.Group(); canopy.position.y=bh; g.add(canopy);
+    /* A plinth the belfry actually stands on. Without it the whole canopy —
+       posts, roof, bell and vane — hung in the air a clear metre above the
+       dome, which is why it read as floating: it WAS. The drum sinks into the
+       dome below and the posts land on its rim. */
+    const plinth=meshOf(new THREE.CylinderGeometry(0.82,0.9,0.42,14),
+      mat(P.stucco2,{rough:0.9}));
+    plinth.position.y=-0.14; canopy.add(plinth);
+    const step=meshOf(new THREE.CylinderGeometry(0.92,0.98,0.12,14),
+      mat(P.stucco3,{rough:0.9}));
+    step.position.y=0.11; canopy.add(step);
+    for(let k=0;k<4;k++){
+      const a=k/4*TAU+Math.PI/4;
+      canopy.add(meshOf(new THREE.CylinderGeometry(0.06,0.07,1.1,7),
+        mat(P.stucco3,{rough:0.9})).translateX(Math.cos(a)*0.6)
+        .translateY(0.72).translateZ(Math.sin(a)*0.6));
+    }
+    const roof=meshOf(new THREE.SphereGeometry(0.95,14,9,0,TAU,0,Math.PI/2),
+      mat(P.rose,{rough:0.76,flat:false}));
+    roof.position.y=1.27; roof.scale.y=0.85; canopy.add(roof);
+    const fin=meshOf(new THREE.SphereGeometry(0.1,8,6),
+      mat(P.metal,{metal:0.6,rough:0.4}),false,false);
+    fin.position.y=2.09; canopy.add(fin);
+    /* The vane: an arrow on a spindle, swinging back and forth rather than
+       spinning — a weather-vane hunts, it does not rotate steadily. */
+    const vane=new THREE.Group(); vane.position.y=2.33; canopy.add(vane);
+    const shaft=meshOf(new THREE.BoxGeometry(0.7,0.04,0.04),
+      mat(P.metal,{metal:0.6,rough:0.4}),false,false);
+    vane.add(shaft);
+    const head=meshOf(new THREE.ConeGeometry(0.09,0.22,4),
+      mat(P.metal,{metal:0.6,rough:0.4}),false,false);
+    head.rotation.z=-Math.PI/2; head.position.x=0.42; vane.add(head);
+    const tail=meshOf(new THREE.BoxGeometry(0.2,0.18,0.02),
+      mat(P.metal,{metal:0.6,rough:0.4}),false,false);
+    tail.position.x=-0.34; vane.add(tail);
+    vane.userData.tick=t=>{ vane.rotation.y=Math.sin(t*0.35)*1.1+Math.sin(t*1.3)*0.12; };
+    animated.push(vane);
+    /* The bell hangs from the headstock under the canopy roof, on a yoke with
+       visible straps — a bell floating in the middle of a gap was the other
+       half of the problem. */
+    const bell=new THREE.Group(); bell.position.y=bh+1.14; g.add(bell);
+    for(const sd of [-1,1]){
+      const strap=meshOf(new THREE.BoxGeometry(0.05,0.34,0.05),
+        mat(P.metal,{metal:0.6,rough:0.4}),false,false);
+      strap.position.set(sd*0.22,0.17,0); g.add(strap);
+    }
+    const body=meshOf(new THREE.CylinderGeometry(0.2,0.46,0.6,12),
+      mat(P.metal,{metal:0.65,rough:0.35,env:1.0}));
+    body.position.y=-0.3; bell.add(body);
+    const lip=meshOf(new THREE.TorusGeometry(0.46,0.06,6,16),
+      mat(P.metal,{metal:0.65,rough:0.35}),false,false);
+    lip.rotation.x=Math.PI/2; lip.position.y=-0.6; bell.add(lip);
+    const yoke=meshOf(new THREE.BoxGeometry(0.7,0.08,0.1),
+      mat(P.wood,{rough:0.92}),false,false);
+    bell.add(yoke);
+    const glow=meshOf(new THREE.SphereGeometry(0.12,8,6),
+      glowMat(P.accent,1.8),false,false);
+    glow.position.y=-0.52; bell.add(glow);
+    bell.userData.tick=t=>{ bell.rotation.z=Math.sin(t*1.15)*0.26; };
+    animated.push(bell);
+  }
+}
+
+function swarmHall(P,rnd){
+  /* A basilica: LONG, low, colonnaded, entered up a flight of steps. The houses
+     are round and squat and the tower is square and tall, so the hall takes the
+     third axis — horizontal. A bigger version of the beehive was the obvious
+     call and it is exactly the thing that made the district look like one shape
+     at three scales. */
+  const g=new THREE.Group();
+  const w=lerp(1.7,2.2,rnd()), d=lerp(2.8,3.6,rnd()), h=lerp(0.95,1.3,rnd());
+  /* Stylobate — three steps all the way round, which is most of what says
+     "temple" before any of the detail lands. */
+  for(let i=0;i<3;i++){
+    const s=meshOf(new THREE.BoxGeometry(w+1.0-i*0.26,0.13,d+1.0-i*0.26),
+      mat(i%2?P.stone:P.stone2,{rough:0.85}),true,true);
+    s.position.y=0.065+i*0.13; g.add(s);
+  }
+  const base=0.39;
+  g.add(meshOf(new THREE.BoxGeometry(w,h,d),mat(P.stone,{rough:0.7}))
+    .translateY(base+h/2));
+  /* The peristyle: columns down both long sides, on the step, with a proper
+     architrave over them. */
+  const nc=Math.max(5,Math.round(d/0.62));
+  for(let i=0;i<nc;i++){
+    const z=lerp(-d/2+0.2,d/2-0.2,i/(nc-1));
+    for(const s of [-1,1]){
+      const col=meshOf(new THREE.CylinderGeometry(0.085,0.1,h,9),
+        mat(P.stone2,{rough:0.72}));
+      col.position.set(s*(w/2+0.34),base+h/2,z); g.add(col);
+      const cap=meshOf(new THREE.BoxGeometry(0.26,0.08,0.26),mat(P.stone,{rough:0.72}));
+      cap.position.set(s*(w/2+0.34),base+h,z); g.add(cap);
+    }
+  }
+  for(const s of [-1,1]){
+    const arch=meshOf(new THREE.BoxGeometry(0.34,0.16,d),mat(P.stone,{rough:0.72}));
+    arch.position.set(s*(w/2+0.34),base+h+0.12,0); g.add(arch);
+  }
+  const cornice=meshOf(new THREE.BoxGeometry(w+1.0,0.14,d+0.24),
+    mat(P.roof2,{rough:0.6}));
+  cornice.position.y=base+h+0.24; g.add(cornice);
+  /* A shallow saucer dome on a low drum over the crossing — wide and flat, the
+     opposite proportion to the houses' tall beehives. */
+  const dr=w*0.52;
+  const drum=meshOf(new THREE.CylinderGeometry(dr,dr*1.08,0.3,14),
+    mat(P.stone2,{rough:0.7}));
+  drum.position.y=base+h+0.46; g.add(drum);
+  const dome=meshOf(new THREE.SphereGeometry(dr*1.02,16,10,0,TAU,0,Math.PI/2),
+    mat(P.stone,{rough:0.55,flat:false}));
+  dome.position.y=base+h+0.6; dome.scale.y=0.52; g.add(dome);
+  for(let i=0;i<10;i++){
+    const a=i/10*TAU;
+    const rib=meshOf(new THREE.TorusGeometry(dr*1.03,0.035,4,10,Math.PI/2),
+      mat(P.stone2,{rough:0.7}),true,false);
+    rib.position.y=base+h+0.6; rib.rotation.y=-a; rib.scale.y=0.52; g.add(rib);
+  }
+  /* A tall arched door at the short end, and clerestory slots above the
+     architrave — light comes in high in a basilica. */
+  const door=meshOf(new THREE.CylinderGeometry(w*0.19,w*0.19,0.06,10,1,false,0,Math.PI),
+    winMat(P,0.75),false,false);
+  door.rotation.z=Math.PI/2; door.rotation.y=Math.PI/2;
+  door.position.set(0,base+h*0.42,d/2+0.02); g.add(door);
+  const dbox=meshOf(new THREE.BoxGeometry(w*0.38,h*0.44,0.05),winMat(P,0.75),false,false);
+  dbox.position.set(0,base+h*0.22,d/2+0.02); g.add(dbox);
+  const wm=winMat(P,0.95);
+  for(let i=0;i<Math.max(3,nc-2);i++){
+    const z=lerp(-d*0.34,d*0.34,i/Math.max(1,Math.max(3,nc-2)-1));
+    for(const s of [-1,1]){
+      const cl=meshOf(new THREE.BoxGeometry(0.05,0.2,0.22),wm,false,false);
+      cl.position.set(s*(w/2+0.01),base+h*0.82,z); g.add(cl);
+    }
+  }
+  const top=meshOf(new THREE.OctahedronGeometry(0.2),glowMat(P.accent,1.8),false,false);
+  top.scale.y=1.8; top.position.y=base+h+0.6+dr*0.55+0.28;
+  top.userData.tick=t=>{top.rotation.y=t*0.5;}; g.add(top); animated.push(top);
+  return g;
+}
+
+function swarmPlant(P,rnd){
+  const g=new THREE.Group();
+  const h=lerp(0.9,1.9,rnd());
+  /* A leaning, kinked trunk in two segments. Straight cylinders read as
+     lampposts with salad on top; the kink is most of what makes it a tree. */
+  const t1=meshOf(new THREE.CylinderGeometry(0.09,0.14,h*0.6,6),mat(P.wood,{rough:0.95}));
+  t1.position.y=h*0.3; t1.rotation.z=(rnd()-0.5)*0.2; g.add(t1);
+  const t2=meshOf(new THREE.CylinderGeometry(0.06,0.09,h*0.5,6),mat(P.wood,{rough:0.95}));
+  t2.position.set(Math.sin(t1.rotation.z)*-h*0.3,h*0.82,0);
+  t2.rotation.z=(rnd()-0.5)*0.5; g.add(t2);
+  /* Lavender canopy: three overlapping blobs, flattened, so the crown reads as
+     one mass rather than as three balls. */
+  const n=3+Math.floor(rnd()*2);
+  const cx=Math.sin(t1.rotation.z)*-h*0.3;
+  for(let i=0;i<n;i++){
+    const r=lerp(0.42,0.72,rnd());
+    const b=meshOf(new THREE.IcosahedronGeometry(r,1),
+      mat(rnd()<0.5?P.leaf:P.leaf2,{rough:0.9,flat:false}));
+    b.position.set(cx+(rnd()-0.5)*0.6,h+0.1+(rnd()-0.5)*0.35,(rnd()-0.5)*0.6);
+    b.scale.y=0.78; g.add(b);
+  }
+  if(rnd()<0.55){
     for(let i=0;i<3;i++){
-      const b=meshOf(new THREE.IcosahedronGeometry(lerp(0.24,0.4,rnd()),0),
-        mat(i%2?P.foliage:P.foliage2,{rough:0.98}));
-      b.position.set(Math.sin(lean)*h*0.7+(rnd()-0.5)*0.3,0.3+h+i*0.16,(rnd()-0.5)*0.3);
-      b.scale.y=0.6; g.add(b);
+      const b=meshOf(new THREE.SphereGeometry(0.07,6,5),glowMat(P.bloom,1.3),false,false);
+      b.position.set(cx+(rnd()-0.5)*0.9,h+rnd()*0.5,(rnd()-0.5)*0.9); g.add(b);
     }
-  }else{                                                  // quarter — clipped street tree
-    const h=lerp(1.0,1.7,rnd());
-    g.add(meshOf(new THREE.CylinderGeometry(0.07,0.1,h,6),mat(P.wood)).translateY(h/2));
-    const b=meshOf(new THREE.IcosahedronGeometry(lerp(0.5,0.7,rnd()),1),
-      mat(rnd()<0.5?P.foliage:P.foliage2,{rough:0.98}));
-    b.position.y=h+0.32; b.scale.y=0.82; g.add(b);
-    const box=meshOf(new THREE.CylinderGeometry(0.3,0.26,0.22,8),mat(P.stone2));
-    box.position.y=0.11; g.add(box);
   }
   const sway=rnd()*TAU;
   g.userData.tick=t=>{g.rotation.z=Math.sin(t*0.8+sway)*0.03;};
@@ -1987,2154 +3217,3604 @@ function realmPlant(P,rnd,kind){
   return g;
 }
 
-/* The scatter "feature" — the arcane realm's crystal cluster, retold. */
-function realmFeature(P,rnd,kind){
+function swarmFeature(P,rnd){
   const g=new THREE.Group();
-  if(kind==='mushroom'){                                  // frame
-    const n=2+Math.floor(rnd()*4);
-    for(let i=0;i<n;i++){
-      const h=lerp(0.2,0.5,rnd()), r=lerp(0.14,0.28,rnd());
-      const st=meshOf(new THREE.CylinderGeometry(r*0.3,r*0.36,h,6),mat(P.stone));
-      st.position.set((rnd()-0.5)*0.5,h/2,(rnd()-0.5)*0.5); g.add(st);
-      const cap=meshOf(new THREE.SphereGeometry(r,8,5,0,TAU,0,Math.PI/2),
-        mat(P.accent,{emissive:P.accent,ei:0.45,rough:0.6,flat:false}));
-      cap.position.set(st.position.x,h,st.position.z); cap.scale.y=0.7; g.add(cap);
+  const n=2+Math.floor(rnd()*4);
+  /* Three behaviours, drawn per SHARD rather than per cluster. Every crystal in
+     the realm used to pulse on the same clock and sit dead still otherwise,
+     which made a field of them read as one blinking texture. Now most are
+     simply rooted and quiet, a few turn on their axis, and a few have come
+     loose and hang above the ground — so the eye finds motion where it looks
+     rather than everywhere at once.
+
+     Only the ones that move get a tick and a material of their own. The rooted
+     majority share the cached material and cost nothing per frame, which is
+     also why this is affordable at 20-odd clusters a district. */
+  for(let i=0;i<n;i++){
+    const h=lerp(0.35,1.5,rnd()), w=lerp(0.13,0.3,rnd());
+    const hot=rnd()<0.6;
+    const hex=hot?P.crys:P.crys2;
+    const roll=rnd();
+    const kind=roll<0.55?'root':roll<0.8?'spin':'float';
+
+    if(kind==='root'){
+      const c=meshOf(new THREE.OctahedronGeometry(1,0),
+        mat(hex,{emissive:hex,ei:0.5,rough:0.22,flat:true,opacity:0.94}));
+      c.scale.set(w,h,w);
+      c.position.set((rnd()-0.5)*0.6,h*0.55,(rnd()-0.5)*0.6);
+      c.rotation.set((rnd()-0.5)*0.3,rnd()*3,(rnd()-0.5)*0.3);
+      g.add(c);
+      continue;
     }
-  }else if(kind==='ore'){                                 // forge — a molten seep
-    const pool=meshOf(new THREE.CircleGeometry(lerp(0.35,0.6,rnd()),10),
-      mat(P.liquid,{emissive:P.liquid,ei:1.4,rough:0.3,flat:false}),false,false);
-    pool.rotation.x=-Math.PI/2; pool.position.y=0.03; g.add(pool);
-    for(let i=0;i<3;i++){
-      const r=meshOf(new THREE.DodecahedronGeometry(lerp(0.14,0.26,rnd()),0),
-        mat(P.rock,{rough:1}));
-      const a=rnd()*TAU; r.position.set(Math.cos(a)*0.5,0.1,Math.sin(a)*0.5);
-      r.rotation.set(rnd()*3,rnd()*3,rnd()*3); g.add(r);
-    }
-    const ph=rnd()*TAU;
-    matAnim(pool.material,(m,t)=>{ m.emissiveIntensity=1.1+Math.sin(t*1.4+ph)*0.45; });
-  }else if(kind==='crate'){                               // ship — a container stack
-    const n=1+Math.floor(rnd()*3);
-    const cols=[P.accent,P.accent2,P.roof2,P.bloom];
-    for(let i=0;i<n;i++){
-      const w=lerp(0.5,0.8,rnd());
-      const b=meshOf(boxG(w,0.34,w*0.6),
-        mat(cols[Math.floor(rnd()*cols.length)],{rough:0.8}));
-      b.position.set((rnd()-0.5)*0.16,0.17+i*0.36,(rnd()-0.5)*0.16);
-      b.rotation.y=(rnd()-0.5)*0.3; g.add(b);
-    }
-  }else if(kind==='brazier'){                             // bastion — a watch-fire
-    const h=lerp(0.5,0.8,rnd());
-    g.add(meshOf(new THREE.CylinderGeometry(0.1,0.16,h,6),mat(P.metal,{metal:0.5,rough:0.5}))
-      .translateY(h/2));
-    const bowl=meshOf(new THREE.CylinderGeometry(0.26,0.14,0.2,8),
-      mat(P.metal,{metal:0.5,rough:0.5}));
-    bowl.position.y=h+0.1; g.add(bowl);
-    for(let i=0;i<3;i++){
-      const f=meshOf(new THREE.ConeGeometry(0.13,0.34,5),glowMat(P.accent,2.0),false,false);
-      f.position.y=h+0.3; const ph=rnd()*TAU;
-      f.userData.tick=t=>{
-        f.scale.set(1+Math.sin(t*5+ph)*0.2,1+Math.sin(t*6+ph)*0.28,1);
-        f.position.y=h+0.3+Math.sin(t*4+ph)*0.04;
+
+    /* Own material: these breathe, and a shared one would breathe for every
+       crystal on the island at once. */
+    const m=new THREE.MeshStandardMaterial({color:hex,emissive:hex,
+      emissiveIntensity:0.5,roughness:0.22,flatShading:true,
+      transparent:true,opacity:0.94});
+    const c=meshOf(new THREE.OctahedronGeometry(1,0),m,true,kind==='root');
+    c.scale.set(w,h,w);
+    const px=(rnd()-0.5)*0.6, pz=(rnd()-0.5)*0.6, ph=rnd()*TAU;
+
+    if(kind==='spin'){
+      c.position.set(px,h*0.55,pz);
+      c.rotation.set((rnd()-0.5)*0.2,0,(rnd()-0.5)*0.2);
+      const sp=lerp(0.12,0.34,rnd())*(rnd()<0.5?1:-1);
+      c.userData.tick=t=>{
+        c.rotation.y=t*sp;
+        m.emissiveIntensity=0.5+Math.sin(t*1.1+ph)*0.22;
       };
-      g.add(f); animated.push(f);
+    }else{
+      /* Loose, and hanging point-down — a shard that broke off the plate and
+         never fell. Lifted clear of the turf so the gap under it is visible;
+         resting on the ground it just reads as another rooted one. */
+      const y0=h*0.55+lerp(0.45,1.1,rnd());
+      c.position.set(px,y0,pz);
+      c.receiveShadow=false;
+      const sp=lerp(0.2,0.5,rnd())*(rnd()<0.5?1:-1);
+      const bob=lerp(0.06,0.16,rnd()), rate=lerp(0.6,1.1,rnd());
+      c.userData.tick=t=>{
+        c.position.y=y0+Math.sin(t*rate+ph)*bob;
+        c.rotation.y=t*sp;
+        c.rotation.z=Math.sin(t*rate*0.7+ph)*0.12;
+        m.emissiveIntensity=0.62+Math.sin(t*1.4+ph)*0.3;
+      };
     }
-  }else if(kind==='stall'){                               // quarter — a market stall
-    const w=lerp(0.7,1.0,rnd()), d=w*0.7;
-    g.add(meshOf(boxG(w,0.4,d),mat(P.wood,{rough:0.95})).translateY(0.2));
-    for(const sx of [-1,1]) for(const sz of [-1,1]){
-      const p=meshOf(new THREE.CylinderGeometry(0.03,0.03,0.75,4),mat(P.wood));
-      p.position.set(sx*w*0.45,0.38,sz*d*0.45); g.add(p);
+    g.add(c); animated.push(c);
+  }
+  return g;
+}
+/* Frameworks planting: fern clumps, a hollow-log planter and mushroom rings.
+   It used to share the clipped hedges and topiary balls with the swarm and the
+   artisan's, which is exactly wrong — this is the one realm whose ground cover
+   is WILD. Nothing here is trimmed. */
+function frameGarden(P,rnd){
+  const g=new THREE.Group();
+  const style=rnd();
+  if(style<0.4){
+    /* A fern clump: splayed fronds, no trunk. */
+    const n=4+Math.floor(rnd()*3);
+    for(let i=0;i<n;i++){
+      const a=i/n*TAU+rnd()*0.3, len=lerp(0.3,0.55,rnd());
+      const fr=meshOf(new THREE.ConeGeometry(0.1,len,4),
+        mat(rnd()<0.5?P.moss:P.canopy,{rough:0.98}),true,false);
+      fr.position.set(Math.cos(a)*0.12,len*0.45,Math.sin(a)*0.12);
+      fr.rotation.set(Math.sin(a)*0.55,-a,-Math.cos(a)*0.55);
+      fr.scale.z=0.4; g.add(fr);
     }
-    /* Striped awning — two colours, and the stripe is what says "market". */
-    for(let i=0;i<5;i++){
-      const st=meshOf(boxG(w*1.15/5,0.05,d*1.25),
-        mat(i%2?P.accent:P.stone,{rough:0.85}));
-      st.position.set(lerp(-w*0.5,w*0.5,i/4),0.78,0); g.add(st);
+  }else if(style<0.72){
+    /* A fallen log with things growing out of it. */
+    const len=lerp(0.8,1.4,rnd());
+    const log=meshOf(new THREE.CylinderGeometry(0.16,0.19,len,7),
+      mat(P.bark2,{rough:0.98}));
+    log.rotation.set(0,rnd()*TAU,Math.PI/2); log.position.y=0.17; g.add(log);
+    for(let i=0;i<3;i++){
+      const b=meshOf(new THREE.IcosahedronGeometry(lerp(0.1,0.19,rnd()),0),
+        mat(P.moss,{rough:0.98}),false,false);
+      b.position.set((rnd()-0.5)*len*0.6,0.3,(rnd()-0.5)*0.2);
+      b.scale.y=0.55; g.add(b);
+    }
+    const cap=meshOf(new THREE.SphereGeometry(0.11,8,6,0,TAU,0,Math.PI/2),
+      mat(P.shroom,{emissive:P.shroom,ei:0.4,rough:0.5,flat:false}));
+    cap.position.set(lerp(-0.2,0.2,rnd()),0.36,0.1); cap.scale.y=0.7; g.add(cap);
+  }else{
+    /* A fairy ring — mushrooms in a circle around bare earth. */
+    const r=lerp(0.3,0.46,rnd()), n=5+Math.floor(rnd()*3);
+    for(let i=0;i<n;i++){
+      const a=i/n*TAU+rnd()*0.1, hh=lerp(0.1,0.2,rnd());
+      const st=meshOf(new THREE.CylinderGeometry(0.028,0.036,hh,5),
+        mat(0xF2E7D2,{rough:0.9}),true,false);
+      st.position.set(Math.cos(a)*r,hh/2,Math.sin(a)*r); g.add(st);
+      const cp=meshOf(new THREE.SphereGeometry(lerp(0.07,0.11,rnd()),8,5,0,TAU,0,Math.PI/2),
+        mat(rnd()<0.5?P.shroom:P.shroom2,
+          {emissive:rnd()<0.5?P.shroom:P.shroom2,ei:0.45,rough:0.5,flat:false}));
+      cp.position.set(Math.cos(a)*r,hh,Math.sin(a)*r); cp.scale.y=0.75; g.add(cp);
+    }
+  }
+  return g;
+}
+
+/* Artisan's planting: everything is in a POT. This realm's relationship with
+   nature is that it is placed, clipped and swept around — sharing the swarm's
+   loose hedges undersold the one idea the reference is clearest about. */
+function quarterGarden(P,rnd){
+  const g=new THREE.Group();
+  const style=rnd();
+  if(style<0.45){
+    /* A cluster of terracotta pots at three sizes. */
+    const n=2+Math.floor(rnd()*3);
+    for(let i=0;i<n;i++){
+      const pr=lerp(0.11,0.2,rnd()), ph=lerp(0.14,0.26,rnd());
+      const x=(rnd()-0.5)*0.5, z=(rnd()-0.5)*0.5;
+      const pot=meshOf(new THREE.CylinderGeometry(pr,pr*0.72,ph,9),
+        mat(rnd()<0.5?P.cliff:P.rose2,{rough:0.92,flat:false}));
+      pot.position.set(x,ph/2,z); g.add(pot);
+      const rim=meshOf(new THREE.TorusGeometry(pr,0.022,5,10),
+        mat(P.cliff2,{rough:0.9}),false,false);
+      rim.rotation.x=Math.PI/2; rim.position.set(x,ph,z); g.add(rim);
+      const b=meshOf(new THREE.IcosahedronGeometry(pr*lerp(1.0,1.5,rnd()),1),
+        mat(rnd()<0.5?P.leaf:P.leaf2,{rough:0.96,flat:false}));
+      b.position.set(x,ph+pr*0.9,z); g.add(b);
+    }
+  }else if(style<0.78){
+    /* A trellis with something climbing it — vertical planting, which nothing
+       else in the world has. */
+    const w=lerp(0.6,0.95,rnd()), h=lerp(0.8,1.2,rnd());
+    const ry=rnd()*TAU;
+    const frame=new THREE.Group(); frame.rotation.y=ry;
+    for(const s of [-1,1]){
+      frame.add(meshOf(new THREE.CylinderGeometry(0.028,0.032,h,5),
+        mat(P.wood,{rough:0.94}),true,false).translateX(s*w/2).translateY(h/2));
     }
     for(let i=0;i<3;i++){
-      const it=meshOf(new THREE.IcosahedronGeometry(0.09,0),glowMat(P.bloom,0.8),false,false);
-      it.position.set((rnd()-0.5)*w*0.7,0.46,(rnd()-0.5)*d*0.6); g.add(it);
+      const bar=meshOf(new THREE.BoxGeometry(w,0.04,0.04),
+        mat(P.wood,{rough:0.94}),true,false);
+      bar.position.y=h*(0.3+i*0.3); frame.add(bar);
     }
-  }else{                                                  // swarm — crystal cluster
-    return buildCrystal(P,rnd);
+    for(let i=0;i<6;i++){
+      const b=meshOf(new THREE.IcosahedronGeometry(lerp(0.09,0.16,rnd()),0),
+        mat(rnd()<0.5?P.leaf:P.leaf2,{rough:0.96}),false,false);
+      b.position.set(lerp(-w*0.45,w*0.45,rnd()),lerp(0.15,h,rnd()),0.03);
+      b.scale.z=0.6; frame.add(b);
+      if(rnd()<0.5){
+        const f=meshOf(new THREE.IcosahedronGeometry(0.05,0),
+          mat(P.blush,{emissive:P.blush,ei:0.22,rough:0.7}),false,false);
+        f.position.set(b.position.x+0.05,b.position.y+0.05,0.06); frame.add(f);
+      }
+    }
+    g.add(frame);
+  }else{
+    /* A raised planter box in dressed stone, with a low clipped edge. */
+    const w=lerp(0.7,1.1,rnd()), d=lerp(0.4,0.6,rnd());
+    const box=meshOf(new THREE.BoxGeometry(w,0.24,d),mat(P.stone2,{rough:0.94}));
+    box.rotation.y=rnd()*TAU; box.position.y=0.12; g.add(box);
+    const cop=meshOf(new THREE.BoxGeometry(w+0.06,0.05,d+0.06),
+      mat(P.stucco3,{rough:0.9}),false,false);
+    cop.rotation.y=box.rotation.y; cop.position.y=0.26; g.add(cop);
+    for(let i=0;i<4;i++){
+      const b=meshOf(new THREE.IcosahedronGeometry(lerp(0.1,0.16,rnd()),1),
+        mat(rnd()<0.5?P.leaf:P.leaf2,{rough:0.96,flat:false}));
+      const t=(i/3-0.5)*w*0.8;
+      b.position.set(Math.cos(box.rotation.y)*t,0.34,-Math.sin(box.rotation.y)*t);
+      g.add(b);
+    }
   }
   return g;
 }
 
-/* Ground dressing between the buildings. */
-function realmGarden(P,rnd,kind){
-  const g=new THREE.Group(), r=rnd();
-  if(kind==='scrap'){                                     // forge
-    if(r<0.5){
-      for(let i=0;i<4;i++){
-        const b=meshOf(boxG(lerp(0.14,0.3,rnd()),0.12,lerp(0.14,0.3,rnd())),
-          mat(P.metal,{metal:0.4,rough:0.7}));
-        b.position.set((rnd()-0.5)*0.5,0.06+i*0.1,(rnd()-0.5)*0.5);
-        b.rotation.y=rnd()*TAU; g.add(b);
-      }
-    }else{
-      const a=meshOf(boxG(0.46,0.14,0.2),mat(P.metal,{metal:0.5,rough:0.55}));
-      a.position.y=0.31; g.add(a);
-      g.add(meshOf(new THREE.CylinderGeometry(0.1,0.14,0.24,6),mat(P.wood)).translateY(0.12));
-      a.rotation.y=rnd()*TAU;
-    }
-  }else if(kind==='dock'){                                // ship
-    if(r<0.45){
-      for(let i=0;i<3;i++){
-        const b=meshOf(new THREE.CylinderGeometry(0.16,0.18,0.22,10),mat(P.wood,{rough:0.9}));
-        b.position.set((rnd()-0.5)*0.4,0.11+i*0.23,(rnd()-0.5)*0.4); g.add(b);
-      }
-    }else if(r<0.8){
-      const bol=meshOf(new THREE.CylinderGeometry(0.1,0.13,0.34,8),
-        mat(P.metal,{metal:0.5,rough:0.6}));
-      bol.position.y=0.17; g.add(bol);
-      const cap=meshOf(new THREE.SphereGeometry(0.11,8,6),mat(P.metal,{metal:0.5,rough:0.6}));
-      cap.position.y=0.36; g.add(cap);
-    }else{
-      const n=meshOf(new THREE.TorusGeometry(0.22,0.06,5,12),mat(P.wood,{rough:0.95}));
-      n.rotation.x=-Math.PI/2; n.position.y=0.06; g.add(n);
-    }
-  }else if(kind==='muster'){                               // bastion
-    if(r<0.5){
-      for(let i=0;i<3;i++){
-        const s=meshOf(new THREE.CylinderGeometry(0.02,0.02,0.9,4),mat(P.wood));
-        s.position.set((i-1)*0.1,0.45,0); s.rotation.z=(i-1)*0.12; g.add(s);
-        const tip=meshOf(new THREE.ConeGeometry(0.05,0.16,4),mat(P.metal,{metal:0.6,rough:0.4}));
-        tip.position.set((i-1)*0.1-((i-1)*0.06),0.96,0); g.add(tip);
-      }
-    }else{
-      const sh=meshOf(new THREE.CylinderGeometry(0.24,0.24,0.06,7),mat(P.roof2,{rough:0.8}));
-      sh.rotation.set(Math.PI/2,0,rnd()*TAU); sh.position.set(0,0.3,0); g.add(sh);
-      const boss=meshOf(new THREE.SphereGeometry(0.07,7,6),mat(P.metal,{metal:0.6,rough:0.4}));
-      boss.position.set(0,0.3,0.05); g.add(boss);
-      g.add(meshOf(new THREE.CylinderGeometry(0.03,0.03,0.34,4),mat(P.wood)).translateY(0.17));
-    }
-  }else{                                                   // swarm / frame / quarter
-    return buildHedge(P,rnd);
-  }
-  return g;
-}
-
-/* ------------------------------------------------------- THE FRAMEWORKS ---
-   A living canopy. Timber, thatch and leaf; nothing is cut square. */
-/* A gable roof as two slanted panels meeting at a ridge. Built from explicit
-   angles because the 3-sided-cylinder trick needed two composed Euler rotations
-   and came out as a tent as often as a roof. */
-function gableRoof(w,d,rise,m,ridge){
+/* Gardens: a hedge, a topiary or a flower bed. The swarm's own — clipped,
+   ornamental, and the only realm still using it. */
+function softGarden(P,rnd){
   const g=new THREE.Group();
-  const slope=Math.hypot(d/2,rise), ang=Math.atan2(rise,d/2);
-  for(const s of [-1,1]){
-    const pan=meshOf(boxG(w,0.1,slope),m);
-    pan.rotation.x=s*ang; pan.position.set(0,rise/2,s*d/4);
-    g.add(pan);
-  }
-  if(ridge){
-    const r=meshOf(boxG(w*1.02,0.09,0.12),ridge,false,false);
-    r.position.y=rise; g.add(r);
+  const style=rnd();
+  if(style<0.45){
+    const l=lerp(0.8,1.8,rnd());
+    const b=meshOf(new THREE.BoxGeometry(l,0.34,0.3),mat(P.foliage,{rough:0.98}));
+    b.position.y=0.17; b.rotation.y=rnd()*TAU; g.add(b);
+  }else if(style<0.8){
+    const r=lerp(0.24,0.4,rnd());
+    const b=meshOf(new THREE.IcosahedronGeometry(r,1),mat(P.foliage2,{rough:0.98}));
+    b.position.y=r*0.9; g.add(b);
+    g.add(meshOf(new THREE.CylinderGeometry(0.05,0.05,r,5),mat(P.wood))
+      .translateY(r*0.4));
+  }else{
+    const r=lerp(0.3,0.5,rnd());
+    g.add(meshOf(new THREE.CylinderGeometry(r,r*0.9,0.16,8),mat(P.stone2))
+      .translateY(0.08));
+    for(let i=0;i<7;i++){
+      const a=i/7*TAU;
+      const f=meshOf(new THREE.IcosahedronGeometry(0.09,0),
+        mat(P.bloom,{emissive:P.bloom,ei:0.35,rough:0.6}),false,false);
+      f.position.set(Math.cos(a)*r*0.6,0.2,Math.sin(a)*r*0.6); g.add(f);
+    }
   }
   return g;
+}
+
+/* The swarm's landform: crystal growing OUT of the lawn, and shards hanging in
+   the air just off the rim. The realm is legible with no buildings on it at all,
+   which is the whole reason every realm now has terrain. */
+function swarmShards(P,prof,R,sp){
+  const g=new THREE.Group(), rnd=rngOf(hash2(P.seed,4400));
+  const n=Math.round(3+R*0.5);
+  for(let i=0;i<n;i++){
+    const a=i*2.399963229728653+P.seed*0.11;
+    const rr=radiusAt(prof,a)*R*lerp(1.08,1.32,rnd());
+    const y=lerp(-1.6,2.2,rnd());
+    /* Kept small. Big ones read as flat magenta playing cards hanging in the
+       sky — at this size they are chips off the keel, which is the story. */
+    const s=lerp(0.16,0.38,rnd());
+    const c=meshOf(new THREE.OctahedronGeometry(s,0),
+      mat(rnd()<0.5?P.crys:P.crys2,{emissive:P.crys,ei:0.4,rough:0.2,opacity:0.92}),
+      false,false);
+    c.scale.y=lerp(1.3,2.4,rnd());
+    const ph=rnd()*TAU, spin=lerp(0.06,0.2,rnd())*(rnd()<0.5?1:-1);
+    c.position.set(Math.cos(a)*rr,y,Math.sin(a)*rr);
+    /* Same three-way split as the crystal on the ground: a third of them just
+       hang there. A sky full of shards all bobbing in step reads as a screen
+       saver, and the still ones are what make the moving ones read as moving. */
+    const roll=rnd();
+    if(roll<0.34){
+      c.rotation.set(0.3,ph,0.2);
+    }else if(roll<0.67){
+      c.rotation.set(0.3,ph,0.2);
+      c.userData.tick=t=>{ c.rotation.y=t*spin+ph; };
+      animated.push(c);
+    }else{
+      c.userData.tick=t=>{ c.rotation.set(0.3,t*spin*0.5+ph,0.2);
+        c.position.y=y+Math.sin(t*0.5+ph)*0.24; };
+      animated.push(c);
+    }
+    g.add(c);
+  }
+  /* And a ring of low crystal in the turf at a fixed radius — the "ward" the
+     district is built inside. Absolute, so it never moves. */
+  const wr=Math.min(2.6,R-0.5);
+  if(wr>1){
+    const m=Math.round(TAU*wr/0.7);
+    for(let i=0;i<m;i++){
+      const a=i/m*TAU;
+      const rr=radiusAt(prof,a)*wr;
+      const c=meshOf(new THREE.OctahedronGeometry(lerp(0.1,0.2,rnd()),0),
+        mat(P.crys,{emissive:P.crys,ei:0.5,rough:0.25}),false,true);
+      c.scale.y=lerp(1.6,2.6,rnd());
+      c.position.set(Math.cos(a)*rr,tierY(wr)+0.24,Math.sin(a)*rr);
+      c.rotation.y=rnd()*TAU; g.add(c);
+    }
+  }
+  return g;
+}
+
+/* ============================================================ THE FRAMEWORKS
+   Reference: one colossal gnarled tree whose roots wrap the whole island, timber
+   cottages with mossy gabled roofs and warm windows clustered under it, a glass
+   greenhouse with timber ribs and a leaf-shaped cap, a winding cobble path with
+   rail fences and lanterns, glowing mushrooms in the undergrowth, butterflies,
+   and a lilac evening sky.
+
+   The tree is not decoration — it is the landform, it exists at L1 as a sapling,
+   and everything else in the realm is built in its shade. */
+
+/* A roof with a proper gable, because a 4-sided cone is a tepee and the
+   frameworks are the one realm whose houses have to read as HOUSES — but a
+   straight-sided prism is the other wrong answer. Nothing in either the
+   frameworks or the artisan reference has a flat plane on it: the roofs BOW,
+   the ridges sag, the eaves flare out and droop. Three curves, all cheap:
+
+     arch  — the cross-section is a swollen arc rather than two straight rakes.
+             Exponent under 1 keeps it full near the ridge and turns down hard
+             at the eave, which is the thatched/tiled look both realms want.
+     droop — the last of the overhang bends below the wall line, so the eave
+             reads as a lip and casts a shadow on the wall under it.
+     sag   — the ridge dips in the middle. This is the one that does the most
+             work for the money: a dead-straight ridge is what makes procedural
+             housing look printed.
+
+   Ridge runs along +z. DoubleSide because the eaves turn under and you can see
+   the inside of the overhang from a low iso angle. */
+function softRoof(w,d,rise,hex,opt={}){
+  const nu=opt.nu??10, nv=opt.nv??5;
+  const droop=opt.droop??rise*0.22, sag=opt.sag??rise*0.13;
+  const pt=(i,j)=>{
+    const u=i/nu*2-1, v=j/nv*2-1;
+    const y=rise*Math.pow(Math.max(0,1-u*u),0.58)
+          - droop*Math.pow(Math.abs(u),5)
+          - sag*(1-v*v);
+    return [u*w/2, y, v*d/2];
+  };
+  const pos=[];
+  const tri=(a,b,c)=>pos.push(...a,...b,...c);
+  for(let j=0;j<nv;j++)for(let i=0;i<nu;i++){
+    const A=pt(i,j),B=pt(i+1,j),Cc=pt(i+1,j+1),D=pt(i,j+1);
+    tri(A,D,Cc); tri(A,Cc,B);
+  }
+  /* Gable ends, fanned from a point under the ridge so the end wall follows the
+     same arc as the slopes instead of cutting it off with a straight chord. */
+  for(const j of [0,nv]){
+    const z=pt(0,j)[2], hub=[0,-rise*0.22,z];
+    for(let i=0;i<nu;i++){
+      const A=pt(i,j), B=pt(i+1,j);
+      j===0?tri(A,hub,B):tri(A,B,hub);
+    }
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  geo.computeVertexNormals();
+  return meshOf(geo,mat(hex,{rough:opt.rough??0.9,flat:false,
+    side:THREE.DoubleSide}));
 }
 
 function frameHouse(P,rnd,scale=1){
   const g=new THREE.Group();
-  const w=lerp(1.0,1.5,rnd())*scale, d=lerp(0.9,1.3,rnd())*scale, h=lerp(0.8,1.15,rnd())*scale;
-  g.add(meshOf(boxG(w,h,d),mat(P.stone,{rough:0.92})).translateY(h/2));
-  /* Timber framing on the long faces — the single detail that reads "built of
-     wood" at any distance. */
-  const bm=mat(P.wood,{rough:0.95});
-  for(const s of [1,-1]){
-    const post=meshOf(boxG(0.09,h,0.06),bm,false,false);
-    post.position.set(s*w*0.42,h/2,d/2+0.01); g.add(post);
-    const post2=post.clone(); post2.position.z=-d/2-0.01; g.add(post2);
-    const br=meshOf(boxG(0.07,h*1.1,0.05),bm,false,false);
-    br.position.set(0,h/2,s*d/2+s*0.01); br.rotation.z=0.5*s; g.add(br);
-  }
-  const rail=meshOf(boxG(w,0.08,0.06),bm,false,false);
-  rail.position.set(0,h*0.6,d/2+0.01); g.add(rail);
-  /* Gabled thatch: a prism, not a cone. Gables are the frame realm's signature
-     roofline and the clearest break from the arcane cones. */
-  const rh=lerp(0.45,0.7,rnd())*scale;
-  const roof=gableRoof(w*1.16,d*1.2,rh,mat(rnd()<0.6?P.roof:P.roof2,{rough:0.95}),
-    mat(P.wood,{rough:0.95}));
-  roof.position.y=h; g.add(roof);
-  const wm=glowMat(P.bloom,0.85);
-  for(let i=0;i<2+Math.floor(rnd()*2);i++){
-    const win=meshOf(new THREE.CylinderGeometry(0.11*scale,0.11*scale,0.05,8),wm,false,false);
-    win.rotation.x=Math.PI/2;
-    const side=rnd()<0.5?1:-1;
-    win.position.set((rnd()-0.5)*w*0.5,h*0.55,side*(d/2+0.02)); g.add(win);
-  }
-  if(rnd()<0.5){                       // a little deck on stilts
-    const dk=meshOf(boxG(w*0.7,0.08,0.5),mat(P.wood,{rough:0.95}));
-    dk.position.set(0,h*0.28,d*0.68); g.add(dk);
-    for(const s of [-1,1]){
-      const st=meshOf(new THREE.CylinderGeometry(0.04,0.04,h*0.28,4),bm);
-      st.position.set(s*w*0.28,h*0.14,d*0.85); g.add(st);
-    }
-  }
-  return g;
-}
-function frameTower(P,rnd,h,great){
-  const g=new THREE.Group();
-  /* A living trunk with a spiral of platforms — the tower IS a tree. */
-  const trunk=meshOf(new THREE.CylinderGeometry(0.3,0.62,h,8),mat(P.wood,{rough:0.96}));
-  trunk.position.y=h/2; g.add(trunk);
-  for(let i=0;i<4;i++){                 // root buttresses
-    const a=i/4*TAU+0.4;
-    const r=meshOf(new THREE.ConeGeometry(0.2,h*0.3,5),mat(P.wood,{rough:0.96}));
-    r.position.set(Math.cos(a)*0.5,h*0.14,Math.sin(a)*0.5);
-    r.rotation.set(Math.cos(a)*0.3,0,-Math.sin(a)*0.3); g.add(r);
-  }
-  const rings=Math.max(2,Math.round(h/2.2));
-  for(let i=0;i<rings;i++){
-    const y=h*(0.32+i*0.62/rings), rr=lerp(0.95,0.65,i/rings);
-    const plat=meshOf(new THREE.CylinderGeometry(rr,rr,0.12,10),mat(P.stone,{rough:0.9}));
-    plat.position.y=y; g.add(plat);
-    const rail=meshOf(new THREE.TorusGeometry(rr,0.035,5,14),mat(P.wood));
-    rail.rotation.x=Math.PI/2; rail.position.y=y+0.2; g.add(rail);
-    const hut=meshOf(boxG(0.5,0.42,0.44),mat(P.stone2,{rough:0.92}));
-    const a=i*2.4; hut.position.set(Math.cos(a)*rr*0.45,y+0.27,Math.sin(a)*rr*0.45);
-    hut.rotation.y=-a; g.add(hut);
-    const hr=meshOf(new THREE.ConeGeometry(0.42,0.3,4),mat(P.roof,{rough:0.9}));
-    hr.rotation.y=Math.PI/4; hr.position.set(hut.position.x,y+0.62,hut.position.z); g.add(hr);
-    const w=meshOf(new THREE.SphereGeometry(0.07,7,6),glowMat(P.bloom,1.2),false,false);
-    w.position.set(hut.position.x*1.3,y+0.3,hut.position.z*1.3); g.add(w);
-  }
-  /* Leaf crown: stacked canopy discs, the realm's answer to a spire roof. */
-  for(let i=0;i<4;i++){
-    const r=lerp(1.5,0.5,i/3)*(great?1.35:1);
-    const c=meshOf(new THREE.IcosahedronGeometry(r,1),
-      mat(i%2?P.foliage:P.foliage2,{rough:0.98}));
-    c.position.y=h+i*0.62; c.scale.y=0.5; g.add(c);
-  }
-  if(great){
-    const seed=meshOf(new THREE.IcosahedronGeometry(0.55,1),glowMat(P.accent,2.2),false,false);
-    seed.position.y=h+2.9; g.add(seed);
-    seed.userData.tick=t=>{seed.material.emissiveIntensity=1.9+Math.sin(t*1.3)*0.7;
-      seed.position.y=h+2.9+Math.sin(t*0.8)*0.14;};
-    animated.push(seed);
-    for(let k=0;k<8;k++){                // spores drifting off the crown
-      const sp=meshOf(new THREE.IcosahedronGeometry(0.08,0),glowMat(P.bloom,1.5),false,false);
-      const rr=lerp(0.8,2.2,rnd()), y0=h+lerp(0.5,2.6,rnd()), off=rnd()*TAU, sd=lerp(0.15,0.4,rnd());
-      sp.userData.tick=t=>{const w=t*sd+off;
-        sp.position.set(Math.cos(w)*rr,y0+Math.sin(t*0.6+off)*0.5,Math.sin(w)*rr);};
-      g.add(sp); animated.push(sp);
-    }
-  }
-  return g;
-}
-function frameHall(P,rnd){
-  const g=new THREE.Group();
-  /* A greenhouse: timber frame, glowing glass, a leaf roof over the top. */
-  const w=lerp(2.0,2.8,rnd()), d=w*0.72, h=lerp(0.9,1.2,rnd());
-  /* Glazing, not a ghost. Half-height masonry walls carry the building and the
-     glass sits above them as solid panes — at 0.5 opacity the whole hall read
-     as a transparent smear with furniture floating inside it. */
-  const glass=mat(P.bloom,{emissive:P.bloom,ei:0.35,opacity:0.92,rough:0.2,flat:false});
-  const plinth=meshOf(boxG(w,h*0.45,d),mat(P.stone,{rough:0.92}));
-  plinth.position.y=h*0.225; g.add(plinth);
-  g.add(meshOf(boxG(w*0.98,h*0.58,d*0.98),glass,false,false)
-    .translateY(h*0.74));
-  const bm=mat(P.wood,{rough:0.95});
-  for(let i=0;i<5;i++){
-    const rib=meshOf(boxG(0.07,h+0.6,0.07),bm);
-    rib.position.set(lerp(-w/2,w/2,i/4),(h+0.6)/2,d/2); g.add(rib);
-    const rib2=rib.clone(); rib2.position.z=-d/2; g.add(rib2);
-  }
-  const roof=gableRoof(w,d*1.1,d*0.45,mat(P.roof,{rough:0.9}));
-  roof.position.y=h; g.add(roof);
-  for(let i=0;i<4;i++){
-    const b=meshOf(new THREE.IcosahedronGeometry(lerp(0.3,0.5,rnd()),0),
-      mat(P.foliage,{rough:0.98}));
-    b.position.set(lerp(-w*0.35,w*0.35,i/3),h+d*0.42,(rnd()-0.5)*d*0.4);
-    b.scale.y=0.6; g.add(b);
-  }
-  return g;
-}
-function frameLife(P,n,R){
-  /* Butterflies: two flapping wings on a wandering path. Reads completely
-     differently from the swarm's circling birds even at a glance. */
-  const g=new THREE.Group(), rnd=rngOf(hash2(P.seed,888));
-  for(let i=0;i<n;i++){
-    const b=new THREE.Group();
-    const m=mat(rnd()<0.5?P.accent:P.bloom,{side:THREE.DoubleSide,rough:0.8,
-      emissive:P.bloom,ei:0.3});
-    const wl=meshOf(new THREE.PlaneGeometry(0.3,0.22),m,false,false);
-    const wr=wl.clone(); wl.position.x=-0.15; wr.position.x=0.15;
-    b.add(wl,wr);
-    const rr=lerp(0.35,1.0,rnd())*R, y=lerp(1.2,4.5,rnd());
-    const sp=lerp(0.1,0.28,rnd())*(rnd()<0.5?1:-1), off=rnd()*TAU, flap=lerp(7,12,rnd());
-    b.userData.tick=t=>{
-      const w=t*sp+off;
-      b.position.set(Math.cos(w)*rr,y+Math.sin(t*1.3+off)*0.7,Math.sin(w*1.2+off)*rr);
-      b.rotation.y=-w; b.rotation.z=Math.sin(t*0.9+off)*0.3;
-      const f=Math.sin(t*flap+off)*0.9;
-      wl.rotation.y=f; wr.rotation.y=-f;
-    };
-    g.add(b); animated.push(b);
-  }
-  return g;
-}
-
-/* --------------------------------------------------------- THE METAL FORGES
-   A volcanic mesa. Brick, iron and molten metal — and warm, because a forge at
-   dusk is a cosy place and this world is not allowed to be grim. */
-function forgeHouse(P,rnd,scale=1){
-  const g=new THREE.Group();
-  const w=lerp(1.0,1.5,rnd())*scale, d=lerp(0.9,1.3,rnd())*scale, h=lerp(0.8,1.2,rnd())*scale;
-  g.add(meshOf(boxG(w,h,d),mat(P.stone,{rough:0.95})).translateY(h/2));
-  /* A shed roof — one flat plane at a slight pitch. No gables, no cones: the
-     forge realm is corrugated iron and it should never be mistaken for a
-     cottage. */
-  const roof=meshOf(boxG(w*1.16,0.1,d*1.16),
-    mat(rnd()<0.6?P.roof:P.roof2,{metal:0.35,rough:0.55}));
-  roof.position.y=h+0.06; roof.rotation.z=0.09; g.add(roof);
-  for(let i=0;i<4;i++){                 // corrugation
-    const rib=meshOf(boxG(w*1.16,0.04,0.05),
-      mat(P.roof2,{metal:0.4,rough:0.5}),false,false);
-    rib.position.set(0,h+0.12,lerp(-d*0.45,d*0.45,i/3)); rib.rotation.z=0.09; g.add(rib);
-  }
-  /* The furnace mouth: the light source that makes this realm warm. */
-  const mouth=meshOf(boxG(w*0.42,h*0.42,0.06),
-    glowMat(P.liquid,2.2),false,false);
-  mouth.position.set(0,h*0.3,d/2+0.02); g.add(mouth);
-  const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:P.liquid,
-    transparent:true,opacity:0.34,depthWrite:false,blending:THREE.AdditiveBlending}));
-  gl.scale.setScalar(1.5); gl.position.set(0,h*0.3,d/2+0.14); g.add(gl);
-  const ph=rnd()*TAU;
-  mouth.userData.tick=t=>{
-    const f=1.7+Math.sin(t*3.1+ph)*0.5+Math.sin(t*7.3+ph)*0.2;
-    mouth.material.emissiveIntensity=f; gl.material.opacity=0.24+f*0.06;
-  };
-  animated.push(mouth);
-  /* Chimney on every house, but a PLUME on only one in three. Fifty houses
-     each venting four puffs turned the mesa into fog and buried the buildings
-     it was supposed to be characterising. */
-  /* Shorter and in the wall material. Full-height stacks in near-black turned
-     fifty houses into a picket fence of poles. */
-  const chh=h*0.7;
-  const ch=meshOf(new THREE.CylinderGeometry(0.16*scale,0.2*scale,chh,6),
-    mat(P.stone2,{rough:0.95}));
-  ch.position.set(-w*0.3,h+chh/2,-d*0.24); g.add(ch);
-  const cap=meshOf(new THREE.CylinderGeometry(0.24*scale,0.2*scale,0.1,6),
-    mat(P.metal,{metal:0.5,rough:0.6}));
-  cap.position.set(-w*0.3,h+chh,-d*0.24); g.add(cap);
-  if(rnd()<0.34) for(let k=0;k<2;k++){
-    const p=meshOf(new THREE.IcosahedronGeometry(0.13,0),
-      mat(P.rock,{opacity:0.24,flat:false,rough:1}),false,false);
-    p.userData.tick=t=>{
-      const u=((t*0.22+k/2)%1);
-      p.position.set(-w*0.3+Math.sin(u*4+k)*0.18,h+chh+0.1+u*1.7,-d*0.24);
-      p.scale.setScalar(0.5+u*1.4); p.material.opacity=0.2*(1-u);
-    };
-    g.add(p); animated.push(p);
-  }
-  /* Sparks stay — they are small, bright and read as work rather than as haze. */
-  for(let k=0;k<2;k++){
-    const s=meshOf(new THREE.IcosahedronGeometry(0.045,0),glowMat(P.accent,2.4),false,false);
-    const off=rnd(), sx=(rnd()-0.5)*w*0.5;
-    s.userData.tick=t=>{
-      const u=((t*0.55+off+k*0.33)%1);
-      s.position.set(sx+Math.sin(u*7+k)*0.14,h*0.35+u*1.7,d/2+0.1);
-      s.material.emissiveIntensity=2.4*(1-u);
-    };
-    g.add(s); animated.push(s);
-  }
-  return g;
-}
-function forgeTower(P,rnd,h,great){
-  const g=new THREE.Group();
-  /* A blast furnace: fat brick base, iron bands, a flared crown, and smoke. */
-  const rb=0.75, rt=0.42;
-  const segs=3+Math.floor(rnd()*2);
-  let y=0, r=rb;
-  for(let i=0;i<segs;i++){
-    const sh=h/segs, nr=lerp(rb,rt,(i+1)/segs);
-    const s=meshOf(new THREE.CylinderGeometry(nr,r,sh,10),
-      mat(i%2?P.stone:P.cliff,{rough:0.95}));
-    s.position.y=y+sh/2; g.add(s);
-    const band=meshOf(new THREE.CylinderGeometry(nr*1.1,nr*1.1,0.14,10),
-      mat(P.metal,{metal:0.6,rough:0.5}));
-    band.position.y=y+sh; g.add(band);
-    for(let k=0;k<6;k++){                // rivets
-      const a=k/6*TAU;
-      const rv=meshOf(new THREE.SphereGeometry(0.045,5,4),
-        mat(P.metal,{metal:0.6,rough:0.45}),false,false);
-      rv.position.set(Math.cos(a)*nr*1.11,y+sh,Math.sin(a)*nr*1.11); g.add(rv);
-    }
-    /* Tap-holes glowing through the brick. */
-    if(i<segs-1){
-      const t1=meshOf(boxG(0.22,0.3,0.06),glowMat(P.liquid,2.0),false,false);
-      const a=rnd()*TAU;
-      t1.position.set(Math.cos(a)*nr*1.02,y+sh*0.5,Math.sin(a)*nr*1.02);
-      t1.rotation.y=-a+Math.PI/2; g.add(t1);
-    }
-    y+=sh; r=nr;
-  }
-  const crown=meshOf(new THREE.CylinderGeometry(rt*1.6,rt*1.05,0.4,10),
-    mat(P.metal,{metal:0.55,rough:0.5}));
-  crown.position.y=y+0.2; g.add(crown);
-  const stack=meshOf(new THREE.CylinderGeometry(rt*0.6,rt*0.75,great?2.4:1.3,8),
-    mat(P.cliffDark,{rough:0.95}));
-  stack.position.y=y+0.4+(great?1.2:0.65); g.add(stack);
-  const top=y+0.4+(great?2.4:1.3);
-  for(let k=0;k<3;k++){
-    const p=meshOf(new THREE.IcosahedronGeometry(0.36,0),
-      mat(P.rock,{opacity:0.26,flat:false,rough:1}),false,false);
-    p.userData.tick=t=>{
-      const u=((t*0.14+k/3)%1);
-      p.position.set(Math.sin(u*3+k)*0.6,top+u*4.6,Math.cos(u*2+k)*0.45);
-      p.scale.setScalar(0.7+u*2.0); p.material.opacity=0.24*(1-u);
-    };
-    g.add(p); animated.push(p);
-  }
-  if(great){
-    const beacon=meshOf(new THREE.IcosahedronGeometry(0.42,1),glowMat(P.liquid,2.6),false,false);
-    beacon.position.y=top+0.4; g.add(beacon);
-    matAnim(beacon.material,(m,t)=>{ m.emissiveIntensity=2.1+Math.sin(t*1.6)*0.8; });
-  }
-  return g;
-}
-function forgeHall(P,rnd){
-  /* A foundry shed: barrel vault, roof vents, molten light inside. */
-  const g=new THREE.Group();
-  const w=lerp(2.4,3.4,rnd()), d=w*0.62, h=lerp(0.7,1.0,rnd());
-  g.add(meshOf(boxG(w,h,d),mat(P.stone,{rough:0.95})).translateY(h/2));
-  const vault=meshOf(new THREE.CylinderGeometry(d*0.52,d*0.52,w,12,1,false,0,Math.PI),
-    mat(P.roof,{metal:0.35,rough:0.6}));
-  vault.rotation.z=Math.PI/2; vault.position.y=h; g.add(vault);
-  for(let i=0;i<3;i++){
-    const v=meshOf(boxG(0.3,0.22,0.3),mat(P.metal,{metal:0.5,rough:0.55}));
-    v.position.set(lerp(-w*0.3,w*0.3,i/2),h+d*0.5,0); g.add(v);
-    const hot=meshOf(boxG(0.2,0.05,0.2),glowMat(P.liquid,1.8),false,false);
-    hot.position.set(v.position.x,h+d*0.5+0.12,0); g.add(hot);
-  }
-  const door=meshOf(boxG(w*0.3,h*0.7,0.06),glowMat(P.liquid,2.0),false,false);
-  door.position.set(0,h*0.35,d/2+0.02); g.add(door);
-  const ph=rnd()*TAU;
-  matAnim(door.material,(m,t)=>{ m.emissiveIntensity=1.6+Math.sin(t*2.4+ph)*0.5; });
-  return g;
-}
-function forgeLife(P,n,R){
-  /* Embers rising off the mesa — no birds would live here, and the upward
-     drift is the opposite motion to every other realm's circling. */
-  const g=new THREE.Group(), rnd=rngOf(hash2(P.seed,888));
-  for(let i=0;i<n*3;i++){
-    const e=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,
-      color:rnd()<0.6?P.liquid:P.accent,transparent:true,opacity:0.6,
-      depthWrite:false,blending:THREE.AdditiveBlending}));
-    e.scale.setScalar(lerp(0.12,0.3,rnd()));
-    const rr=lerp(0.2,1.0,rnd())*R, a=rnd()*TAU, sp=lerp(0.06,0.16,rnd()), off=rnd();
-    e.userData.tick=t=>{
-      const u=((t*sp+off)%1);
-      e.position.set(Math.cos(a+u*0.6)*rr,-0.5+u*11,Math.sin(a+u*0.6)*rr);
-      e.material.opacity=0.55*(1-u)*(u<0.1?u*10:1);
-    };
-    g.add(e); animated.push(e);
-  }
-  return g;
-}
-
-/* ----------------------------------------------------------- THE SHIPYARDS
-   A harbour atoll. Sheds, cranes, containers — and open water at the rim. */
-function shipHouse(P,rnd,scale=1){
-  const g=new THREE.Group();
-  const w=lerp(1.3,2.0,rnd())*scale, d=lerp(0.85,1.15,rnd())*scale, h=lerp(0.7,1.0,rnd())*scale;
-  g.add(meshOf(boxG(w,h,d),mat(P.stone,{rough:0.9})).translateY(h/2));
-  /* A painted base course. White sheds on pale sand had no edge at all; a dark
-     skirt gives every building a foot the eye can find. */
-  const skirt=meshOf(boxG(w*1.03,h*0.26,d*1.03),
-    mat(P.roof,{rough:0.85}));
-  skirt.position.y=h*0.13; g.add(skirt);
-  /* Warehouse proportions: long, low, shallow-pitched. */
-  /* Shallow pitch and a wide overhang — warehouse, not cottage. */
-  const rh=0.3*scale;
-  const roof=gableRoof(w*1.02,d*1.12,rh,
-    mat(rnd()<0.6?P.roof:P.roof2,{metal:0.3,rough:0.6}));
-  roof.position.y=h; g.add(roof);
-  /* Banded cladding — the horizontal stripe reads "shed" instantly. */
-  for(let i=0;i<3;i++){
-    const band=meshOf(boxG(w*1.01,0.05,d*1.01),
-      mat(P.stone2,{rough:0.85}),false,false);
-    band.position.y=h*(0.25+i*0.28); g.add(band);
-  }
-  const door=meshOf(boxG(w*0.36,h*0.72,0.05),
-    mat(P.accent,{rough:0.8}),false,false);
-  door.position.set(w*0.14,h*0.36,d/2+0.02); g.add(door);
-  const wm=glowMat(P.bloom,0.85);
-  for(let i=0;i<3;i++){
-    const win=meshOf(boxG(0.16*scale,0.14*scale,0.05),wm,false,false);
-    win.position.set(lerp(-w*0.4,-w*0.05,i/2),h*0.68,d/2+0.02); g.add(win);
-  }
-  if(rnd()<0.5){                                  // containers alongside
-    for(let i=0;i<1+Math.floor(rnd()*2);i++){
-      const c=meshOf(boxG(0.62,0.3,0.36),
-        mat(rnd()<0.5?P.accent2:P.roof2,{rough:0.8}));
-      c.position.set(-w*0.2+(rnd()-0.5)*0.3,0.15+i*0.32,-d*0.75);
-      c.rotation.y=(rnd()-0.5)*0.2; g.add(c);
-    }
-  }
-  return g;
-}
-function shipTower(P,rnd,h,great){
-  const g=new THREE.Group();
-  if(great){
-    /* Lighthouse — banded taper, gallery, and a beam that actually sweeps. */
-    const segs=4;
-    for(let i=0;i<segs;i++){
-      const y0=h*i/segs, sh=h/segs;
-      const r0=lerp(0.62,0.3,i/segs), r1=lerp(0.62,0.3,(i+1)/segs);
-      const s=meshOf(new THREE.CylinderGeometry(r1,r0,sh,12),
-        mat(i%2?P.stone:P.accent,{rough:0.85}));
-      s.position.y=y0+sh/2; g.add(s);
-    }
-    const gal=meshOf(new THREE.CylinderGeometry(0.52,0.44,0.14,12),
-      mat(P.metal,{metal:0.5,rough:0.5}));
-    gal.position.y=h; g.add(gal);
-    const rail=meshOf(new THREE.TorusGeometry(0.5,0.03,5,16),mat(P.metal,{metal:0.5,rough:0.5}));
-    rail.rotation.x=Math.PI/2; rail.position.y=h+0.2; g.add(rail);
-    const lamp=meshOf(new THREE.CylinderGeometry(0.3,0.3,0.5,10),
-      mat(P.bloom,{emissive:P.bloom,ei:1.6,opacity:0.75,flat:false,rough:0.1}),false,false);
-    lamp.position.y=h+0.4; g.add(lamp);
-    const cap=meshOf(new THREE.ConeGeometry(0.4,0.4,10),mat(P.roof,{metal:0.4,rough:0.5}));
-    cap.position.y=h+0.85; g.add(cap);
-    /* The sweep: a long flat wedge of light turning once every few seconds. */
-    const beam=meshOf(new THREE.ConeGeometry(0.55,7,4,1,true),
-      mat(P.bloom,{emissive:P.bloom,ei:1.2,opacity:0.16,flat:false,
-        side:THREE.DoubleSide,rough:0.1}),false,false);
-    beam.rotation.z=Math.PI/2; beam.position.y=h+0.4;
-    const holder=new THREE.Group(); holder.position.y=h+0.4;
-    beam.position.set(3.5,0,0); holder.add(beam); g.add(holder);
-    holder.userData.tick=t=>{holder.rotation.y=t*0.5;};
-    animated.push(holder);
-  }else{
-    /* Gantry crane — lattice mast, slewing jib, counterweight. */
-    const mm=mat(P.metal,{metal:0.5,rough:0.55});
-    for(const sx of [-1,1]) for(const sz of [-1,1]){
-      const leg=meshOf(new THREE.CylinderGeometry(0.05,0.06,h,5),mm);
-      leg.position.set(sx*0.24,h/2,sz*0.24);
-      leg.rotation.set(sz*0.03,0,-sx*0.03); g.add(leg);
-    }
-    for(let i=1;i<Math.round(h/0.7);i++){
-      const y=i*0.7;
-      for(const ax of [0,1]){
-        const b=meshOf(boxG(ax?0.52:0.06,0.05,ax?0.06:0.52),mm,false,false);
-        b.position.set(0,y,0); g.add(b);
-      }
-      const d1=meshOf(boxG(0.72,0.04,0.04),mm,false,false);
-      d1.position.set(0,y-0.35,0.24); d1.rotation.z=0.75*(i%2?1:-1); g.add(d1);
-    }
-    const slew=new THREE.Group(); slew.position.y=h; g.add(slew);
-    const jib=meshOf(boxG(3.4,0.12,0.18),mm);
-    jib.position.set(1.1,0.1,0); slew.add(jib);
-    const cw=meshOf(boxG(0.5,0.42,0.42),mat(P.roof,{rough:0.8}));
-    cw.position.set(-0.85,0.05,0); slew.add(cw);
-    const cab=meshOf(boxG(0.36,0.3,0.32),mat(P.accent,{rough:0.8}));
-    cab.position.set(0.3,-0.12,0); slew.add(cab);
-    for(let i=0;i<3;i++){                      // stay cables
-      const c=meshOf(new THREE.CylinderGeometry(0.015,0.015,1.5,4),mm,false,false);
-      c.position.set(0.5+i*0.7,0.42-i*0.05,0);
-      c.rotation.z=Math.PI/2-0.5+i*0.12; slew.add(c);
-    }
-    const hook=meshOf(boxG(0.12,0.2,0.12),mm,false,false);
-    const line=meshOf(new THREE.CylinderGeometry(0.012,0.012,1,4),mm,false,false);
-    slew.add(hook,line);
-    const off=rnd()*TAU, hx=lerp(1.2,2.6,rnd());
-    slew.userData.tick=t=>{
-      slew.rotation.y=Math.sin(t*0.12+off)*1.1;
-      const drop=1.4+Math.sin(t*0.5+off)*0.9;
-      hook.position.set(hx,0.1-drop,0);
-      line.position.set(hx,0.1-drop/2,0); line.scale.y=drop;
-    };
-    animated.push(slew);
-    const bl=meshOf(new THREE.SphereGeometry(0.09,7,6),glowMat(P.accent,1.8),false,false);
-    bl.position.y=h+0.2; g.add(bl);
-    matAnim(bl.material,(m,t)=>{ m.emissiveIntensity=(Math.sin(t*3)>0)?2.2:0.3; });
-  }
-  return g;
-}
-function shipHall(P,rnd){
-  /* A boat shed with a hull under repair inside it. */
-  const g=new THREE.Group();
-  const w=lerp(2.6,3.4,rnd()), d=w*0.6, h=lerp(0.8,1.05,rnd());
-  const vault=meshOf(new THREE.CylinderGeometry(d*0.55,d*0.55,w,14,1,false,0,Math.PI),
-    mat(P.roof,{metal:0.3,rough:0.6}));
-  vault.rotation.z=Math.PI/2; vault.position.y=h; g.add(vault);
+  const w=lerp(1.0,1.5,rnd())*scale, d=lerp(0.9,1.3,rnd())*scale;
+  const h=lerp(0.75,1.05,rnd())*scale;
+  g.add(meshOf(new THREE.BoxGeometry(w,h,d),mat(P.wood,{rough:0.92})).translateY(h/2));
+  /* Half-timbering: two cream panels on the long walls. Cheap, and it is what
+     makes the cottages read as storybook rather than as sheds. */
   for(const s of [-1,1]){
-    const wall=meshOf(boxG(w,h,0.12),mat(P.stone,{rough:0.9}));
-    wall.position.set(0,h/2,s*d*0.5); g.add(wall);
+    const pn=meshOf(new THREE.BoxGeometry(w*0.62,h*0.42,0.04),
+      mat(P.stone,{rough:0.95}),false,false);
+    pn.position.set(0,h*0.62,s*(d/2+0.01)); if(s<0)pn.rotation.y=Math.PI; g.add(pn);
   }
-  const hull=meshOf(new THREE.CylinderGeometry(0.3,0.42,w*0.6,7,1,false,0,Math.PI),
-    mat(P.accent,{rough:0.8}));
-  hull.rotation.z=Math.PI/2; hull.rotation.x=Math.PI; hull.position.y=h*0.55; g.add(hull);
-  for(let i=0;i<3;i++){
-    const cr=meshOf(boxG(0.12,h*0.5,0.5),mat(P.wood,{rough:0.95}));
-    cr.position.set(lerp(-w*0.22,w*0.22,i/2),h*0.25,0); g.add(cr);
+  let roofY=h, rw=w, rd=d;
+  if(rnd()<0.45){
+    const h2=h*0.66, w2=w*0.8, d2=d*0.8;
+    const up=meshOf(new THREE.BoxGeometry(w2,h2,d2),mat(P.stone2,{rough:0.9}));
+    up.position.set((rnd()-0.5)*0.14,h+h2/2,(rnd()-0.5)*0.14);
+    up.rotation.y=(rnd()-0.5)*0.35; g.add(up);
+    roofY=h+h2; rw=w2; rd=d2;
   }
-  const lamp=meshOf(new THREE.SphereGeometry(0.12,8,6),glowMat(P.bloom,1.4),false,false);
-  lamp.position.set(0,h*0.9,0); g.add(lamp);
-  return g;
-}
-function shipLife(P,n,R,prof){
-  /* Little boats working the water, and gulls above them. */
-  const g=new THREE.Group(), rnd=rngOf(hash2(P.seed,888));
-  for(let i=0;i<Math.max(3,Math.round(n*0.5));i++){
-    const b=new THREE.Group();
-    const hull=meshOf(new THREE.CylinderGeometry(0.14,0.2,0.62,6,1,false,0,Math.PI),
-      mat(rnd()<0.5?P.accent:P.roof2,{rough:0.85}));
-    hull.rotation.z=Math.PI/2; hull.rotation.x=Math.PI; b.add(hull);
-    const mast=meshOf(new THREE.CylinderGeometry(0.018,0.018,0.5,4),mat(P.wood));
-    mast.position.y=0.25; b.add(mast);
-    const sail=meshOf(new THREE.PlaneGeometry(0.3,0.34),
-      mat(P.stone,{side:THREE.DoubleSide,rough:0.9}),false,false);
-    sail.position.set(0.06,0.28,0); b.add(sail);
-    /* The lane between the shore and the open edge of the bay, as a FRACTION
-       of the coast rather than an absolute radius — the sea ring follows the
-       island's wobbled profile, so a boat on a plain circle would run aground at
-       the narrow bearings and sail off the far edge at the wide ones. Given the
-       profile it tracks the coastline instead, which is what a boat working a
-       harbour would do anyway. */
-    const fr=lerp(1.04,1.15,rnd()), sp=lerp(0.05,0.12,rnd())*(rnd()<0.5?1:-1);
-    const off=rnd()*TAU;
-    b.userData.tick=t=>{
-      const w=t*sp+off;
-      const rr=(prof?radiusAt(prof,w):1)*R*fr;
-      b.position.set(Math.cos(w)*rr,SEA_Y+0.1+Math.sin(t*1.6+off)*0.06,Math.sin(w)*rr);
-      b.rotation.y=-w+Math.PI/2; b.rotation.z=Math.sin(t*1.3+off)*0.08;
-    };
-    g.add(b); animated.push(b);
+  const rise=lerp(0.45,0.72,rnd())*scale;
+  const roof=softRoof(rw*1.30,rd*1.26,rise,rnd()<0.6?P.moss:P.moss2);
+  roof.position.y=roofY; g.add(roof);
+  /* Moss and a couple of sprouts ON the roof — every roof in the reference has
+     something growing out of it. */
+  for(let i=0;i<2+Math.floor(rnd()*2);i++){
+    const t=meshOf(new THREE.IcosahedronGeometry(lerp(0.09,0.17,rnd()),0),
+      mat(P.canopy,{rough:0.98}),false,false);
+    t.position.set((rnd()-0.5)*rw*0.6,roofY+rise*lerp(0.3,0.8,rnd()),(rnd()-0.5)*rd*0.7);
+    t.scale.y=0.7; g.add(t);
   }
-  const bodyMat=mat(T.salt0,{rough:0.7});
-  for(let i=0;i<n;i++){
-    const b=new THREE.Group();
-    const wl=meshOf(boxG(0.36,0.03,0.1),bodyMat,false,false);
-    const wr=wl.clone(); wl.position.x=-0.18; wr.position.x=0.18; b.add(wl,wr);
-    b.add(meshOf(boxG(0.1,0.06,0.2),bodyMat,false,false));
-    const rr=lerp(0.7,1.3,rnd())*R, y=lerp(2.5,6,rnd());
-    const sp=lerp(0.1,0.22,rnd())*(rnd()<0.5?1:-1), off=rnd()*TAU, flap=lerp(3,5,rnd());
-    b.userData.tick=t=>{
-      const w=t*sp+off;
-      b.position.set(Math.cos(w)*rr,y+Math.sin(t*0.5+off)*0.6,Math.sin(w)*rr);
-      b.rotation.y=-w+Math.PI/2;
-      const f=Math.sin(t*flap+off)*0.42; wl.rotation.z=f; wr.rotation.z=-f;
-    };
-    g.add(b); animated.push(b);
-  }
-  return g;
-}
-
-/* -------------------------------------------------------------- THE BASTION
-   A walled crag. Every terrace edge is a rampart; nothing is open. */
-function bastionHouse(P,rnd,scale=1){
-  const g=new THREE.Group();
-  const w=lerp(1.0,1.5,rnd())*scale, d=lerp(0.9,1.3,rnd())*scale, h=lerp(0.8,1.2,rnd())*scale;
-  g.add(meshOf(boxG(w,h,d),mat(P.stone,{rough:0.94})).translateY(h/2));
-  /* A course line and a plinth: masonry, not plaster. */
-  const plinth=meshOf(boxG(w*1.08,0.16,d*1.08),mat(P.stone2,{rough:0.94}));
-  plinth.position.y=0.08; g.add(plinth);
-  const course=meshOf(boxG(w*1.03,0.06,d*1.03),
-    mat(P.stone2,{rough:0.94}),false,false);
-  course.position.y=h*0.62; g.add(course);
-  /* Steep slate hip roof — tall and severe, the opposite of the frame gable. */
-  const rh=lerp(0.7,1.0,rnd())*scale;
-  const roof=meshOf(new THREE.ConeGeometry(Math.max(w,d)*0.78,rh,4),
-    mat(rnd()<0.6?P.roof:P.roof2,{rough:0.65,metal:0.15}));
-  roof.rotation.y=Math.PI/4; roof.position.y=h+rh/2; g.add(roof);
-  /* Arrow slits, not windows. Thin, tall, and only a few. */
-  const sm=glowMat(P.bloom,1.0);
-  for(let i=0;i<2;i++){
-    const sl=meshOf(boxG(0.06,0.34,0.05),sm,false,false);
-    sl.position.set(lerp(-w*0.25,w*0.25,i),h*0.55,d/2+0.02); g.add(sl);
-  }
-  if(rnd()<0.45){                    // a corner turret
-    const th=h*0.7;
-    const tw=meshOf(new THREE.CylinderGeometry(0.22*scale,0.24*scale,h+th,8),
-      mat(P.stone2,{rough:0.94}));
-    tw.position.set(w*0.45,(h+th)/2,d*0.42); g.add(tw);
-    const tc=meshOf(new THREE.ConeGeometry(0.3*scale,0.45,8),mat(P.roof,{rough:0.65}));
-    tc.position.set(w*0.45,h+th+0.22,d*0.42); g.add(tc);
-  }
-  return g;
-}
-function bastionTower(P,rnd,h,great){
-  const g=new THREE.Group();
-  const r=great?0.85:0.62;
-  const segs=3;
-  for(let i=0;i<segs;i++){
-    const sh=h/segs, rr=r*lerp(1.06,0.94,i/segs);
-    const s=meshOf(new THREE.CylinderGeometry(rr*0.97,rr,sh,10),
-      mat(i%2?P.stone:P.stone2,{rough:0.94}));
-    s.position.y=sh*i+sh/2; g.add(s);
-  }
-  /* Machicolations: a corbelled overhang under the parapet. This one detail is
-     what makes a round tower read as a FORTRESS tower and not a wizard's. */
-  const cor=meshOf(new THREE.CylinderGeometry(r*1.28,r*1.0,0.3,12),mat(P.stone2,{rough:0.94}));
-  cor.position.y=h; g.add(cor);
-  const nCor=14;
-  for(let i=0;i<nCor;i++){
-    const a=i/nCor*TAU;
-    const b=meshOf(boxG(0.1,0.22,0.24),mat(P.stone,{rough:0.94}),false,false);
-    b.position.set(Math.cos(a)*r*1.14,h-0.16,Math.sin(a)*r*1.14); b.rotation.y=-a; g.add(b);
-  }
-  /* Battlements — merlons with gaps. Reused on the ramparts too. */
-  const nM=Math.round(r*18);
-  for(let i=0;i<nM;i++){
-    const a=i/nM*TAU;
-    const m=meshOf(boxG(0.22,0.34,0.18),mat(P.stone2,{rough:0.94}));
-    m.position.set(Math.cos(a)*r*1.22,h+0.32,Math.sin(a)*r*1.22); m.rotation.y=-a; g.add(m);
-  }
-  const roof=meshOf(new THREE.ConeGeometry(r*1.05,great?2.0:1.4,10),
-    mat(P.roof,{rough:0.65,metal:0.15}));
-  roof.position.y=h+0.5+(great?1.0:0.7); g.add(roof);
-  const flag=meshOf(new THREE.CylinderGeometry(0.03,0.03,0.8,4),mat(P.metal,{metal:0.5}));
-  flag.position.y=h+0.5+(great?2.4:1.8); g.add(flag);
-  const cloth=meshOf(new THREE.PlaneGeometry(0.44,0.3,5,3),
-    mat(P.accent,{side:THREE.DoubleSide,flat:false,rough:0.85}),true,false);
-  cloth.position.set(0.22,h+0.5+(great?2.62:2.02),0); g.add(cloth);
-  const base=cloth.geometry.attributes.position.array.slice(), ph=rnd()*TAU;
-  cloth.userData.tick=t=>{
-    const p=cloth.geometry.attributes.position;
-    for(let i=0;i<p.count;i++)
-      p.setZ(i,Math.sin(t*3.4+ph+base[i*3]*6)*0.07*(base[i*3]/0.44+0.5));
-    p.needsUpdate=true;
-  };
-  animated.push(cloth);
-  if(great){
-    const beacon=meshOf(new THREE.IcosahedronGeometry(0.4,1),glowMat(P.accent,2.4),false,false);
-    beacon.position.y=h+0.5+2.0; g.add(beacon);
-    /* A warning sweep rather than a soft glow — this realm watches. */
-    const sweep=meshOf(new THREE.ConeGeometry(0.5,6,4,1,true),
-      mat(P.accent,{emissive:P.accent,ei:1.2,opacity:0.14,flat:false,
-        side:THREE.DoubleSide,rough:0.1}),false,false);
-    const hold=new THREE.Group(); hold.position.y=h+0.5+2.0;
-    sweep.rotation.z=Math.PI/2; sweep.position.set(3,0,0); hold.add(sweep); g.add(hold);
-    hold.userData.tick=t=>{hold.rotation.y=-t*0.42;};
-    matAnim(beacon.material,(m,t)=>{ m.emissiveIntensity=2.0+Math.sin(t*2.2)*0.7; });
-    animated.push(hold);
-  }
-  return g;
-}
-function bastionHall(P,rnd){
-  /* The keep: a square block with four corner turrets. Blunt on purpose. */
-  const g=new THREE.Group();
-  const w=lerp(2.0,2.6,rnd()), h=lerp(1.6,2.2,rnd());
-  g.add(meshOf(boxG(w,h,w*0.86),mat(P.stone,{rough:0.94})).translateY(h/2));
-  const nM=Math.round(w*4);
-  for(let e=0;e<4;e++){
-    for(let i=0;i<nM;i++){
-      const u=(i+0.5)/nM-0.5;
-      const m=meshOf(boxG(0.2,0.3,0.16),mat(P.stone2,{rough:0.94}));
-      const x=e<2?u*w:(e===2?w/2:-w/2), z=e<2?(e?w*0.43:-w*0.43):u*w*0.86;
-      m.position.set(x,h+0.15,z); g.add(m);
-    }
-  }
-  for(const sx of [-1,1]) for(const sz of [-1,1]){
-    const th=h*1.25;
-    const t=meshOf(new THREE.CylinderGeometry(0.3,0.34,th,8),mat(P.stone2,{rough:0.94}));
-    t.position.set(sx*w*0.48,th/2,sz*w*0.42); g.add(t);
-    const c=meshOf(new THREE.ConeGeometry(0.42,0.6,8),mat(P.roof,{rough:0.65}));
-    c.position.set(sx*w*0.48,th+0.3,sz*w*0.42); g.add(c);
-  }
-  const gate=meshOf(boxG(w*0.26,h*0.5,0.08),mat(P.wood,{rough:0.9}));
-  gate.position.set(0,h*0.25,w*0.44); g.add(gate);
-  const glow=meshOf(boxG(w*0.2,h*0.3,0.05),glowMat(P.bloom,1.0),false,false);
-  glow.position.set(0,h*0.62,w*0.44); g.add(glow);
-  return g;
-}
-function bastionLife(P,n,R){
-  /* Patrol lanterns walking the wall line, and ravens over the crag. */
-  const g=new THREE.Group(), rnd=rngOf(hash2(P.seed,888));
-  for(let i=0;i<Math.max(3,Math.round(n*0.6));i++){
-    const l=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:P.accent,
-      transparent:true,opacity:0.5,depthWrite:false,blending:THREE.AdditiveBlending}));
-    l.scale.setScalar(0.5);
-    const tier=Math.floor(rnd()*3);
-    const rr=(TIER_R[tier]??R)*0.98, y=-tier*TIER_STEP+0.6;
-    const sp=lerp(0.05,0.11,rnd())*(rnd()<0.5?1:-1), off=rnd()*TAU;
-    l.userData.tick=t=>{
-      const w=t*sp+off;
-      l.position.set(Math.cos(w)*rr,y+Math.sin(t*3+off)*0.05,Math.sin(w)*rr);
-      l.material.opacity=0.4+Math.sin(t*2+off)*0.12;
-    };
-    g.add(l); animated.push(l);
-  }
-  const bodyMat=mat(P.rock,{rough:0.8});
-  for(let i=0;i<n;i++){
-    const b=new THREE.Group();
-    const wl=meshOf(boxG(0.3,0.03,0.1),bodyMat,false,false);
-    const wr=wl.clone(); wl.position.x=-0.15; wr.position.x=0.15; b.add(wl,wr);
-    b.add(meshOf(boxG(0.09,0.06,0.18),bodyMat,false,false));
-    const rr=lerp(0.6,1.2,rnd())*R, y=lerp(3,7,rnd());
-    const sp=lerp(0.12,0.26,rnd())*(rnd()<0.5?1:-1), off=rnd()*TAU, flap=lerp(5,8,rnd());
-    b.userData.tick=t=>{
-      const w=t*sp+off;
-      b.position.set(Math.cos(w)*rr,y+Math.sin(t*0.7+off)*0.7,Math.sin(w)*rr);
-      b.rotation.y=-w+Math.PI/2;
-      const f=Math.sin(t*flap+off)*0.6; wl.rotation.z=f; wr.rotation.z=-f;
-    };
-    g.add(b); animated.push(b);
-  }
-  return g;
-}
-
-/* ----------------------------------------------------- THE ARTISAN'S QUARTER
-   A warm old town. Narrow, tall, shuttered, and packed shoulder to shoulder. */
-function quarterHouse(P,rnd,scale=1){
-  const g=new THREE.Group();
-  /* Narrow and tall — the proportion IS the realm. A quarter house is always
-     deeper than it is wide and always has one more storey than you expect. */
-  const w=lerp(0.8,1.1,rnd())*scale, d=lerp(1.0,1.4,rnd())*scale;
-  const storeys=2+Math.floor(rnd()*2);
-  const sh=lerp(0.62,0.8,rnd())*scale;
-  const h=storeys*sh;
-  const wall=rnd()<0.5?P.stone:P.stone2;
-  g.add(meshOf(boxG(w,h,d),mat(wall,{rough:0.92})).translateY(h/2));
-  const bm=mat(P.wood,{rough:0.95});
-  for(let i=1;i<storeys;i++){          // floor bands, jettied slightly
-    const band=meshOf(boxG(w*1.06,0.09,d*1.06),bm,false,false);
-    band.position.y=i*sh; g.add(band);
-  }
-  /* Steep front gable with a hoist beam — the trading-house silhouette. */
-  const rh=lerp(0.6,0.85,rnd())*scale;
-  const roof=gableRoof(d*1.08,w*1.1,rh,mat(rnd()<0.6?P.roof:P.roof2,{rough:0.72}));
-  roof.rotation.y=Math.PI/2; roof.position.y=h; g.add(roof);
-  const hoist=meshOf(boxG(0.06,0.06,0.36),bm,false,false);
-  hoist.position.set(0,h+rh*0.7,d*0.5+0.12); g.add(hoist);
-  /* Shuttered windows in a regular grid — the "someone lives here" signal. */
-  const wm=glowMat(P.bloom,0.95);
-  const shut=mat(P.roof2,{rough:0.85});
-  for(let s=0;s<storeys;s++) for(let i=0;i<2;i++){
-    const y=s*sh+sh*0.55, x=lerp(-w*0.24,w*0.24,i);
-    const win=meshOf(boxG(0.19*scale,0.26*scale,0.05),wm,false,false);
-    win.position.set(x,y,d/2+0.02); g.add(win);
-    for(const sx of [-1,1]){
-      const sl=meshOf(boxG(0.07*scale,0.28*scale,0.04),shut,false,false);
-      sl.position.set(x+sx*0.15*scale,y,d/2+0.03); g.add(sl);
-    }
-  }
-  if(rnd()<0.55){                     // shopfront awning
-    for(let i=0;i<4;i++){
-      const st=meshOf(boxG(w*1.2/4,0.05,0.42),
-        mat(i%2?P.accent:P.stone,{rough:0.85}),false,false);
-      st.position.set(lerp(-w*0.45,w*0.45,i/3),sh*0.86,d/2+0.2);
-      st.rotation.x=-0.28; g.add(st);
-    }
+  const wm=winMat(P,1.0);
+  for(let i=0;i<2+Math.floor(rnd()*3);i++){
+    const side=Math.floor(rnd()*4), sw=0.2*scale, sh=0.26*scale;
+    const win=meshOf(new THREE.BoxGeometry(sw,sh,0.06),wm,false,false);
+    const off=(rnd()-0.5)*0.5;
+    if(side===0)win.position.set(off,h*0.55,d/2+0.02);
+    else if(side===1){win.position.set(off,h*0.55,-d/2-0.02);win.rotation.y=Math.PI;}
+    else if(side===2){win.position.set(w/2+0.02,h*0.55,off);win.rotation.y=Math.PI/2;}
+    else {win.position.set(-w/2-0.02,h*0.55,off);win.rotation.y=-Math.PI/2;}
+    g.add(win);
+    const fr=meshOf(new THREE.BoxGeometry(sw*1.4,0.05,0.05),mat(P.bark2,{rough:0.95}),false,false);
+    fr.position.copy(win.position); fr.rotation.copy(win.rotation);
+    fr.position.y+=sh*0.62; g.add(fr);
   }
   if(rnd()<0.5){
-    const ch=meshOf(boxG(0.2*scale,0.7,0.2*scale),mat(P.cliffDark));
-    ch.position.set(w*0.24,h+rh*0.5,-d*0.2); g.add(ch);
-    for(let k=0;k<3;k++){
-      const p=meshOf(new THREE.IcosahedronGeometry(0.11,0),
-        mat(T.salt0,{opacity:0.4,flat:false,rough:1}),false,false);
-      p.userData.tick=t=>{
-        const u=((t*0.26+k/3)%1);
-        p.position.set(w*0.24+Math.sin(u*4+k)*0.13,h+rh*0.9+u*1.5,-d*0.2);
-        p.scale.setScalar(0.5+u*1.7); p.material.opacity=0.36*(1-u);
-      };
-      g.add(p); animated.push(p);
+    const ch=meshOf(new THREE.BoxGeometry(0.18,0.6,0.18).translate(0,0.3,0),
+      mat(P.cliff2,{rough:0.98}));
+    ch.position.set(w*0.3,roofY,d*0.2); g.add(ch);
+    smokePlume(g,w*0.3,roofY+0.62,d*0.2,0.5,0xFFFFFF,0.28);
+  }
+  /* A rail fence along one side. The reference is full of them and they are what
+     make the cottages read as a settlement instead of as scattered huts. */
+  if(rnd()<0.6){
+    const fz=d/2+0.28;
+    for(let i=0;i<4;i++){
+      const px=lerp(-w*0.6,w*0.6,i/3);
+      g.add(meshOf(new THREE.CylinderGeometry(0.04,0.045,0.4,5),
+        mat(P.bark2,{rough:0.95}),true,false).translateX(px).translateY(0.2).translateZ(fz));
     }
+    const rail=meshOf(new THREE.BoxGeometry(w*1.24,0.05,0.05),mat(P.bark2,{rough:0.95}),true,false);
+    rail.position.set(0,0.3,fz); g.add(rail);
   }
   return g;
 }
-function quarterTower(P,rnd,h,great){
-  /* A clock tower — square shaft, open belfry, a face with moving hands. */
+
+function frameTower(P,rnd,h,great){
   const g=new THREE.Group();
-  const w=great?1.0:0.78;
-  const shaft=meshOf(boxG(w,h,w),mat(P.stone,{rough:0.92}));
-  shaft.position.y=h/2; g.add(shaft);
-  for(let i=1;i<Math.round(h/1.4);i++){
-    const band=meshOf(boxG(w*1.06,0.08,w*1.06),
-      mat(P.stone2,{rough:0.92}),false,false);
-    band.position.y=i*1.4; g.add(band);
-  }
-  /* The clock face, and hands that actually sweep. */
-  const faceY=h*0.82;
-  for(const [dx,dz,ry] of [[0,w/2+0.03,0],[w/2+0.03,0,Math.PI/2]]){
-    const face=meshOf(new THREE.CylinderGeometry(w*0.34,w*0.34,0.05,16),
-      mat(P.bloom,{emissive:P.bloom,ei:0.8,rough:0.4}),false,false);
-    face.rotation.set(Math.PI/2,0,0); face.rotation.y=ry;
-    face.position.set(dx,faceY,dz); g.add(face);
-    const rim=meshOf(new THREE.TorusGeometry(w*0.34,0.035,5,16),
-      mat(P.metal,{metal:0.6,rough:0.4}),false,false);
-    rim.rotation.y=ry; rim.position.set(dx,faceY,dz); g.add(rim);
-    for(const [len,speed,thick] of [[w*0.26,0.05,0.035],[w*0.18,0.6,0.045]]){
-      const hand=meshOf(boxG(thick,len,0.03),
-        mat(P.cliffDark,{rough:0.7}),false,false);
-      const piv=new THREE.Group(); piv.position.set(dx,faceY,dz); piv.rotation.y=ry;
-      hand.position.y=len/2; piv.add(hand); g.add(piv);
-      piv.userData.tick=t=>{hand.parent.rotation.z=-t*speed;};
-      animated.push(piv);
+  /* A tower here is a stack of cabins climbing a trunk — height in this realm is
+     always something built AROUND wood, never a masonry shaft. */
+  const trunk=meshOf(new THREE.CylinderGeometry(0.24,0.4,h,7),mat(P.bark,{rough:0.98}));
+  trunk.position.y=h/2; g.add(trunk);
+  const decks=3+Math.floor(rnd()*2);
+  for(let i=0;i<decks;i++){
+    const y=h*(0.28+i*0.62/decks)+rnd()*0.2;
+    const r=lerp(0.9,1.35,rnd())*(1-i*0.12);
+    const plat=meshOf(new THREE.CylinderGeometry(r,r,0.13,9),mat(P.wood,{rough:0.92}));
+    plat.position.y=y; g.add(plat);
+    for(let k=0;k<9;k++){
+      const a=k/9*TAU;
+      const p=meshOf(new THREE.CylinderGeometry(0.035,0.035,0.34,4),
+        mat(P.bark2,{rough:0.95}),true,false);
+      p.position.set(Math.cos(a)*r*0.92,y+0.23,Math.sin(a)*r*0.92); g.add(p);
     }
+    const ring=meshOf(new THREE.TorusGeometry(r*0.92,0.03,4,14),
+      mat(P.bark2,{rough:0.95}),true,false);
+    ring.rotation.x=Math.PI/2; ring.position.y=y+0.4; g.add(ring);
+    /* A cabin on every other deck, so the tower has mass and not just railings. */
+    if(i%2===0){
+      const cw=r*0.95, cd=r*0.8, ch=lerp(0.6,0.85,rnd());
+      const cab=meshOf(new THREE.BoxGeometry(cw,ch,cd),mat(P.wood,{rough:0.92}));
+      cab.position.set(r*0.15,y+ch/2+0.07,0); cab.rotation.y=rnd()*0.6; g.add(cab);
+      const rf=softRoof(cw*1.3,cd*1.3,0.44,P.moss);
+      rf.position.set(r*0.15,y+ch+0.07,0); rf.rotation.y=cab.rotation.y; g.add(rf);
+      const w=meshOf(new THREE.BoxGeometry(0.2,0.24,0.05),winMat(P,1.0),false,false);
+      w.position.set(r*0.15+Math.cos(cab.rotation.y)*cd*0.52,y+ch*0.6+0.07,
+                     r*0.15-Math.sin(cab.rotation.y)*cd*0.52);
+      w.rotation.y=cab.rotation.y; g.add(w);
+    }
+    /* A hanging lantern under each deck — the reference hangs them everywhere. */
+    const la=rnd()*TAU;
+    g.add(beam(new THREE.Vector3(Math.cos(la)*r*0.8,y-0.06,Math.sin(la)*r*0.8),
+               new THREE.Vector3(Math.cos(la)*r*0.8,y-0.42,Math.sin(la)*r*0.8),0.02,
+               mat(P.bark2,{rough:1}),false));
+    const lan=meshOf(new THREE.BoxGeometry(0.16,0.2,0.16),glowMat(P.warm,1.7),false,false);
+    lan.position.set(Math.cos(la)*r*0.8,y-0.55,Math.sin(la)*r*0.8); g.add(lan);
   }
-  /* Open belfry with a bell that swings. */
-  const by=h+0.35;
-  for(const sx of [-1,1]) for(const sz of [-1,1]){
-    const c=meshOf(new THREE.CylinderGeometry(0.07,0.07,0.7,6),mat(P.stone2,{rough:0.92}));
-    c.position.set(sx*w*0.4,by,sz*w*0.4); g.add(c);
+  /* Canopy on top, not a spire: the tallest thing in the frameworks is foliage. */
+  for(let i=0;i<4;i++){
+    const r=lerp(0.8,1.4,rnd());
+    const b=meshOf(new THREE.IcosahedronGeometry(r,1),
+      mat(rnd()<0.5?P.canopy:P.canopy2,{rough:0.94,flat:false}));
+    b.position.set((rnd()-0.5)*1.1,h+lerp(0.2,0.9,rnd()),(rnd()-0.5)*1.1);
+    b.scale.y=0.75; g.add(b);
   }
-  const floor=meshOf(boxG(w*1.12,0.12,w*1.12),mat(P.stone2,{rough:0.92}));
-  floor.position.y=by-0.35; g.add(floor);
-  const bell=meshOf(new THREE.CylinderGeometry(0.1,0.24,0.3,8),
-    mat(P.metal,{metal:0.7,rough:0.35,env:1.1}));
-  bell.position.y=by+0.05; g.add(bell);
-  bell.userData.tick=t=>{bell.rotation.z=Math.sin(t*1.5)*0.16;};
-  animated.push(bell);
-  const rh=great?1.5:1.0;
-  const roof=meshOf(new THREE.ConeGeometry(w*0.86,rh,4),mat(P.roof,{rough:0.72}));
-  roof.rotation.y=Math.PI/4; roof.position.y=by+0.35+rh/2; g.add(roof);
-  const vane=meshOf(boxG(0.3,0.03,0.03),mat(P.metal,{metal:0.6,rough:0.4}));
-  vane.position.y=by+0.35+rh+0.18; g.add(vane);
-  vane.userData.tick=t=>{vane.rotation.y=Math.sin(t*0.3)*1.2;};
-  animated.push(vane);
-  if(great){
-    const lantern=meshOf(new THREE.IcosahedronGeometry(0.34,1),glowMat(P.accent,2.2),false,false);
-    lantern.position.y=by+0.35+rh+0.55; g.add(lantern);
-    matAnim(lantern.material,(m,t)=>{ m.emissiveIntensity=1.9+Math.sin(t*1.4)*0.6; });
-  }
+  if(great) greatCrown(P,g,h+1.9,0.5);
   return g;
 }
-function quarterHall(P,rnd){
-  /* A covered market: colonnade, tiled roof, cupola. */
+
+function frameHall(P,rnd){
+  /* The greenhouse. A barrel vault of glass on timber ribs with a leaf-shaped
+     cap over the ridge — the single most identifiable building in the whole
+     reference set, so it is the realm's hall at every size. */
   const g=new THREE.Group();
-  const w=lerp(2.4,3.2,rnd()), d=w*0.62, h=lerp(0.9,1.2,rnd());
-  const floor=meshOf(boxG(w,0.2,d),mat(P.stone2,{rough:0.92}));
-  floor.position.y=0.1; g.add(floor);
-  const n=5;
-  for(let i=0;i<n;i++) for(const sz of [-1,1]){
-    const c=meshOf(new THREE.CylinderGeometry(0.1,0.12,h,8),mat(P.stone,{rough:0.92}));
-    c.position.set(lerp(-w*0.42,w*0.42,i/(n-1)),h/2+0.2,sz*d*0.4); g.add(c);
-    const cap=meshOf(boxG(0.26,0.1,0.26),mat(P.stone,{rough:0.92}),false,false);
-    cap.position.set(c.position.x,h+0.2,c.position.z); g.add(cap);
+  const w=lerp(1.6,2.2,rnd()), d=lerp(2.2,3.0,rnd()), h=lerp(0.5,0.7,rnd());
+  g.add(meshOf(new THREE.BoxGeometry(w,h,d),mat(P.stone2,{rough:0.95})).translateY(h/2));
+  const vault=meshOf(new THREE.CylinderGeometry(w/2,w/2,d,16,1,true,0,Math.PI),
+    mat(P.glass,{opacity:0.42,rough:0.08,metal:0.1,flat:false,
+      side:THREE.DoubleSide,env:1.2,emissive:P.glass,ei:0.12}),false,false);
+  vault.rotation.z=Math.PI/2; vault.rotation.y=Math.PI/2; vault.position.y=h;
+  g.add(vault);
+  const ribMat=mat(P.wood,{rough:0.9});
+  for(let i=0;i<=6;i++){
+    const z=lerp(-d/2,d/2,i/6);
+    const rib=meshOf(new THREE.TorusGeometry(w/2,0.045,4,14,Math.PI),ribMat);
+    rib.position.set(0,h,z); g.add(rib);
   }
-  const roof=gableRoof(w*1.05,d*1.1,d*0.42,mat(P.roof,{rough:0.72}));
-  roof.position.y=h+0.2; g.add(roof);
-  const cup=meshOf(new THREE.CylinderGeometry(0.3,0.34,0.4,8),mat(P.stone,{rough:0.92}));
-  cup.position.y=h+0.2+d*0.5; g.add(cup);
-  const dome=meshOf(new THREE.SphereGeometry(0.34,10,7,0,TAU,0,Math.PI/2),
-    mat(P.roof2,{rough:0.6,flat:false}));
-  dome.position.y=h+0.4+d*0.5; g.add(dome);
-  const fin=meshOf(new THREE.SphereGeometry(0.1,7,6),glowMat(P.accent,1.6),false,false);
-  fin.position.y=h+0.78+d*0.5; g.add(fin);
-  /* Bunting between the columns — cheap, and it does more for "festival" than
-     any amount of geometry. */
-  for(let i=0;i<n-1;i++){
-    for(let k=0;k<4;k++){
-      const f=meshOf(new THREE.ConeGeometry(0.06,0.14,3),
-        mat(k%2?P.accent:P.accent2,{rough:0.85}),false,false);
-      const x=lerp(lerp(-w*0.42,w*0.42,i/(n-1)),lerp(-w*0.42,w*0.42,(i+1)/(n-1)),(k+0.5)/4);
-      const sag=Math.sin((k+0.5)/4*Math.PI)*0.14;
-      f.position.set(x,h+0.14-sag,d*0.42); f.rotation.x=Math.PI; g.add(f);
-      const ph=i+k;
-      f.userData.tick=t=>{f.position.y=h+0.14-sag+Math.sin(t*2+ph)*0.02;};
-      animated.push(f);
-    }
+  const ridge=meshOf(new THREE.CylinderGeometry(0.05,0.05,d,5),ribMat);
+  ridge.rotation.x=Math.PI/2; ridge.position.y=h+w/2; g.add(ridge);
+  /* The leaf cap: two flattened, tapered blades laid over the ridge. */
+  for(const s of [-1,1]){
+    const leaf=meshOf(new THREE.SphereGeometry(w*0.42,10,6,0,Math.PI),
+      mat(P.canopy,{rough:0.92,flat:false,side:THREE.DoubleSide}),true,false);
+    leaf.position.set(s*w*0.12,h+w/2*0.92,0);
+    leaf.scale.set(1,0.35,d/w*1.05); leaf.rotation.z=s*0.4; g.add(leaf);
+  }
+  /* Warm light and green shapes INSIDE, seen through the glass. */
+  const glow=meshOf(new THREE.BoxGeometry(w*0.6,0.1,d*0.7),glowMat(P.warm,0.7),false,false);
+  glow.position.y=h+0.12; g.add(glow);
+  for(let i=0;i<5;i++){
+    const b=meshOf(new THREE.IcosahedronGeometry(lerp(0.16,0.3,rnd()),0),
+      mat(rnd()<0.5?P.canopy:P.moss,{rough:0.98}),false,false);
+    b.position.set((rnd()-0.5)*w*0.5,h+lerp(0.2,0.5,rnd()),(rnd()-0.5)*d*0.7); g.add(b);
+  }
+  /* A timber door at one end, with steps. */
+  const door=meshOf(new THREE.CylinderGeometry(w*0.2,w*0.2,0.08,8,1,false,0,Math.PI),
+    mat(P.wood,{rough:0.9}),false,false);
+  door.rotation.z=Math.PI/2; door.position.set(0,h*0.5+0.1,d/2+0.02); g.add(door);
+  for(let i=0;i<2;i++){
+    const st=meshOf(new THREE.BoxGeometry(w*0.55,0.09,0.24),mat(P.stone,{rough:0.95}),false,true);
+    st.position.set(0,0.09-i*0.09,d/2+0.16+i*0.2); g.add(st);
   }
   return g;
 }
-function quarterLife(P,n,R){
-  /* Doves — tight, fast circles low over the rooftops, and they land. */
-  const g=new THREE.Group(), rnd=rngOf(hash2(P.seed,888));
-  const bodyMat=mat(T.salt0,{rough:0.75});
+
+function framePlant(P,rnd){
+  const g=new THREE.Group();
+  /* Big soft-leaved undergrowth, not trees — the trees in this realm are the
+     Great Tree and the tower canopies, and a lawn of little trees under a giant
+     one destroys the scale that makes the giant read as giant. */
+  const n=3+Math.floor(rnd()*3);
   for(let i=0;i<n;i++){
-    const b=new THREE.Group();
-    const wl=meshOf(boxG(0.26,0.03,0.09),bodyMat,false,false);
-    const wr=wl.clone(); wl.position.x=-0.13; wr.position.x=0.13; b.add(wl,wr);
-    b.add(meshOf(boxG(0.08,0.06,0.16),bodyMat,false,false));
-    const rr=lerp(0.4,1.0,rnd())*R, y=lerp(1.6,4,rnd());
-    const sp=lerp(0.18,0.36,rnd())*(rnd()<0.5?1:-1), off=rnd()*TAU, flap=lerp(8,13,rnd());
-    b.userData.tick=t=>{
-      /* Perch for a beat, then take off again — makes a small town feel busy
-         without adding a single extra bird. */
-      const cyc=(t*0.09+off)%1, perched=cyc<0.3;
-      const w=t*sp+off;
-      b.position.set(Math.cos(w)*rr,perched?y-1.1:y+Math.sin(t*0.9+off)*0.5,Math.sin(w)*rr);
-      b.rotation.y=-w+Math.PI/2;
-      const f=perched?Math.sin(t*2+off)*0.06:Math.sin(t*flap+off)*0.55;
-      wl.rotation.z=f; wr.rotation.z=-f;
-    };
-    g.add(b); animated.push(b);
+    const a=i/n*TAU+rnd(), len=lerp(0.35,0.75,rnd());
+    const stem=meshOf(new THREE.CylinderGeometry(0.03,0.045,len,4),
+      mat(P.moss2,{rough:1}),false,false);
+    stem.position.set(Math.cos(a)*0.1,len/2,Math.sin(a)*0.1);
+    stem.rotation.z=Math.cos(a)*0.35; stem.rotation.x=-Math.sin(a)*0.35; g.add(stem);
+    const leaf=meshOf(new THREE.SphereGeometry(lerp(0.2,0.36,rnd()),7,5),
+      mat(rnd()<0.5?P.canopy:P.moss,{rough:0.96,flat:false}));
+    leaf.position.set(Math.cos(a)*(0.1+len*0.42),len*0.94,Math.sin(a)*(0.1+len*0.42));
+    leaf.scale.set(1,0.24,1.25); leaf.rotation.y=-a; g.add(leaf);
   }
+  const sway=rnd()*TAU;
+  g.userData.tick=t=>{g.rotation.z=Math.sin(t*1.1+sway)*0.045;};
+  animated.push(g);
   return g;
 }
 
-/* ------------------------------------------------------- arcane land dressing
-   The Arcane Swarm was reading as a pleasant hill town with purple roofs. What
-   was missing is that magic should be IN THE GROUND, not just on the roofs: a
-   ward inscribed on the plateau, ley-light running along the terrace edges, and
-   shards of the island that never quite fell. All of it on fixed absolute
-   radii, so none of it moves when the land grows. */
-function arcaneWards(P,prof,R,sp){
+function frameFeature(P,rnd){
+  /* Glowing mushrooms. In the reference they are everywhere along the path, in
+     pink and violet, and they are the realm's night-light. */
   const g=new THREE.Group();
-
-  /* The great ward: concentric glyph rings cut into the plateau, turning
-     against each other at a speed you only notice if you watch. */
-  const ringMat=()=>new THREE.MeshStandardMaterial({color:P.accent,emissive:P.accent,
-    emissiveIntensity:1.9,roughness:0.25,transparent:true,opacity:0.85});
-  for(let i=0;i<3;i++){
-    const rr=0.95+i*0.5;          // inside the monument's own clearing
-    const m=ringMat();
-    const ring=meshOf(new THREE.RingGeometry(rr,rr+0.07,48),m,false,false);
-    ring.rotation.x=-Math.PI/2; ring.position.y=0.18+i*0.002; g.add(ring);
-    const n=6+i*3;
-    for(let k=0;k<n;k++){
-      const a=k/n*TAU;
-      const glyph=meshOf(boxG(0.1,0.02,0.26),m,false,false);
-      glyph.position.set(Math.cos(a)*(rr+0.22),0.185+i*0.002,Math.sin(a)*(rr+0.22));
-      glyph.rotation.y=-a; g.add(glyph);
-    }
-    const spd=(i%2?-1:1)*(0.05-i*0.012);
-    const holder=new THREE.Group();
-    matAnim(m,(mm,t)=>{ mm.emissiveIntensity=0.85+Math.sin(t*0.9+i)*0.35; });
-    g.add(holder);
-    ring.userData.tick=t=>{ ring.rotation.z=t*spd; };
-    animated.push(ring);
-  }
-
-  /* Ley light along every terrace edge the island has reached — the terraces
-     stop being landscaping and start being circuitry.
-
-     KEPT DIM ON PURPOSE. These ran at emissive 2.4 on the palest accent in the
-     realm, which is several times over the bloom threshold — and the bloom is
-     composited over the finished frame with no depth test, so the halo of a
-     circuit at the back of the island washed straight over every roof standing
-     in front of it. A tube 5cm across was erasing half a town. Nothing was
-     wrong with the geometry: at an intensity that stays near the threshold the
-     same lines read exactly as intended, as light inlaid in the ground, and
-     the district behind them is legible again.
-
-     The rule this realm has to live by, since it is the only one that runs
-     emissive geometry THROUGH a town rather than parking it on a lamp post:
-     a long light source must not also be a bright one. */
-  for(let k=0;k<TIER_R.length;k++){
-    const b=TIER_R[k]; if(b>=R)continue;
-    const m=new THREE.MeshStandardMaterial({color:P.accent2,emissive:P.accent2,
-      emissiveIntensity:0.55,roughness:0.2,transparent:true,opacity:0.8});
-    const pts=[];
-    const n=prof.length*2;
-    for(let i=0;i<=n;i++){
-      const a=i/n*TAU, rr=radiusAt(prof,a)*b*0.985;
-      pts.push(new THREE.Vector3(Math.cos(a)*rr,tierY(b-1e-6)+0.27,Math.sin(a)*rr));
-    }
-    const line=meshOf(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts,true),
-      n,0.055,5,true),m,false,false);
-    g.add(line);
-    for(let q=0;q<3;q++){                 // a pulse running the circuit
-      /* Dimmed with the line it runs on — three dozen of these across a realm
-         were the other half of the wash. */
-      const bead=meshOf(new THREE.SphereGeometry(0.13,8,7),glowMat(P.accent,0.9),false,false);
-      bead.userData.tick=t=>{
-        const u=((t*0.07+q/3+k*0.2)%1), a=u*TAU;
-        const rr=radiusAt(prof,a)*b*0.985;
-        bead.position.set(Math.cos(a)*rr,tierY(b-1e-6)+0.31,Math.sin(a)*rr);
-      };
-      g.add(bead); animated.push(bead);
-    }
-  }
-
-  /* Shards of the island that never finished falling. Slow, heavy, and they
-     turn — the clearest "this place does not obey gravity" signal available
-     that costs almost nothing. */
-  const rnd=rngOf(hash2(P.seed,17000));
-  const n=clamp(3+Math.floor(sp.level*0.8),3,12);
+  const n=2+Math.floor(rnd()*4);
   for(let i=0;i<n;i++){
-    const shard=new THREE.Group();
-    const size=lerp(0.4,1.1,rnd());
-    const rock=meshOf(new THREE.DodecahedronGeometry(size,0),mat(P.rock,{rough:0.95}));
-    rock.scale.y=lerp(0.5,0.9,rnd()); shard.add(rock);
-    const cap=meshOf(new THREE.DodecahedronGeometry(size*0.92,0),
-      mat(P.ground2,{rough:0.98}),false,false);
-    cap.scale.y=0.3; cap.position.y=size*0.3; shard.add(cap);
-    if(rnd()<0.6){
-      const c=meshOf(new THREE.OctahedronGeometry(size*0.34),
-        mat(P.accent,{emissive:P.accent,ei:0.9,rough:0.25,opacity:0.94}),false,false);
-      c.scale.y=1.7; c.position.y=size*0.75; shard.add(c);
-    }
-    const rr=lerp(0.55,1.15,rnd())*R, y=lerp(-2.5,5.5,rnd());
-    const spd=lerp(0.012,0.035,rnd())*(rnd()<0.5?1:-1), off=rnd()*TAU;
-    const bob=lerp(0.2,0.6,rnd()), spin=lerp(0.05,0.16,rnd());
-    shard.userData.tick=t=>{
-      const w=t*spd+off;
-      shard.position.set(Math.cos(w)*rr,y+Math.sin(t*0.35+off)*bob,Math.sin(w)*rr);
-      shard.rotation.y=t*spin+off; shard.rotation.z=Math.sin(t*0.2+off)*0.12;
-    };
-    g.add(shard); animated.push(shard);
+    const h=lerp(0.16,0.42,rnd()), cr=lerp(0.11,0.24,rnd());
+    const st=meshOf(new THREE.CylinderGeometry(cr*0.28,cr*0.36,h,6),
+      mat(0xF2E7D2,{rough:0.9}),true,false);
+    const x=(rnd()-0.5)*0.5, z=(rnd()-0.5)*0.5;
+    st.position.set(x,h/2,z); g.add(st);
+    const hot=rnd()<0.55;
+    const cap=meshOf(new THREE.SphereGeometry(cr,9,6,0,TAU,0,Math.PI/2),
+      mat(hot?P.shroom:P.shroom2,{emissive:hot?P.shroom:P.shroom2,ei:0.5,
+        rough:0.5,flat:false}));
+    cap.position.set(x,h,z); cap.scale.y=lerp(0.6,0.95,rnd()); g.add(cap);
+    const ph=rnd()*TAU;
+    cap.userData.tick=t=>{cap.material.emissiveIntensity=0.4+Math.sin(t*1.3+ph)*0.22;};
+    animated.push(cap);
   }
   return g;
 }
 
-/* ------------------------------------------------- signatures, realm by realm
-   The signature is the single most important object in a district: it is what
-   makes a visitor say "oh, that one's the database one" without reading a
-   label, and it unlocks at L3 so identity arrives before size does. Every one
-   of them places its parts from the part's own index, never from the current
-   count, so levelling up adds a piece instead of rearranging the set. */
-function realmSignature(P,rnd,sp){
-  const g=new THREE.Group(), s=1.2, GA=2.399963229728653;
-  switch(P.sig){
+/* ---------------------------------------------------------- THE GREAT TREE
+   The frameworks' landform, and the clearest growth story in the file: at L1 it
+   is a sapling you could step over, at L12 it is a canopy the whole district
+   lives under. Everything about it derives from `level` alone, and it stands at
+   the exact centre for the whole life of the plot — so the district's signature
+   monument is placed off-centre in this realm (see SIG_AT). */
+function greatTree(P,level){
+  const g=new THREE.Group(), rnd=rngOf(hash2(P.seed,5500));
+  const t=(level-1)/11;
+  const h=lerp(1.1,13.5,Math.pow(t,0.85));
+  const rBase=lerp(0.1,1.5,Math.pow(t,0.9));
+  const barkMat=mat(P.bark,{rough:0.98}), bark2Mat=mat(P.bark2,{rough:0.98});
 
-  /* ---- THE FRAMEWORKS ------------------------------------------------- */
-  case 'loom': {            // js_ts, css_design — a great spindle, wound as you read
-    /* REPLACES the upright weaving frame, and then replaced a braided mast that
-       was tried first. Both failures are worth keeping written down because
-       they are the same failure: the frame was a rectangle of evenly spaced
-       bars standing on a plane, which at world zoom is not a monument but a
-       broken-image placeholder — and the braid, four helices crossing round an
-       axis, was solid in principle and read as SCAFFOLDING in practice. At low
-       poly and small scale an open lattice is noise. It only looked right in a
-       narrow band of radius and rise, which is another way of saying it was
-       going to look wrong on somebody's world.
-
-       A spindle cannot degenerate, because it is solid at every size.
-
-       And it earns its keep on the growth rule rather than on the shape. The
-       SHAFT IS FULL HEIGHT FROM L3 — the same call the file already makes about
-       spires, that verticality is a one-time event — so what your reading adds
-       is THREAD, wound further up a spindle that was always this tall. A
-       half-wound spindle and a full one are legible against each other at a
-       glance, and neither one ever moved to make room for the other. */
-    const H=5.6*s, y0=0.42*s;
-    const bm=mat(P.wood,{rough:0.95});
-    g.add(meshOf(new THREE.CylinderGeometry(s*0.86,s*0.98,y0,9),
-      mat(P.stone,{rough:0.92})).translateY(y0/2));
-    g.add(meshOf(new THREE.CylinderGeometry(0.10*s,0.13*s,H,7),bm)
-      .translateY(y0+H/2));
-    /* The whorl, and the point above it. Both sit on the SHAFT's top, which is
-       fixed — so unlike a cap on the thread they never have to move. */
-    g.add(meshOf(new THREE.CylinderGeometry(0.40*s,0.34*s,0.10*s,9),
-      mat(P.metal,{metal:0.45,rough:0.4})).translateY(y0+H*0.94));
-    g.add(meshOf(new THREE.ConeGeometry(0.11*s,0.42*s,7),
-      mat(P.metal,{metal:0.45,rough:0.4})).translateY(y0+H+0.16*s));
-    /* Thread. Many thin rings rather than a few fat ones — a short stack of
-       tall coloured drums reads as a kebab, and it is the RING COUNT that makes
-       the eye call it wound rather than stacked. Radius is a function of i and
-       never of m, so winding on more thread cannot re-taper what is already
-       there; it is the cop shape a real spindle builds, fattest at the base. */
-    const m=clamp(4+sp.level*2,4,28), rh=H*0.030;
-    const wf=[P.accent,P.accent2,P.bloom,P.roof2];
-    for(let i=0;i<m;i++){
-      const band=(i/3)|0, col=wf[band%4];
-      const r=s*(0.62-0.26*clamp(i/28,0,1))+((i%2)?0.008*s:0);
-      /* One band in four is lit, not all of them. The frame this replaced had
-         every thread glowing and read as a lightbox at night; a single lit
-         course through the wind is the same idea at a tenth the strength. */
-      const mt=(band%4===2)?glowMat(col,1.15):mat(col,{rough:0.86});
-      g.add(meshOf(new THREE.CylinderGeometry(r,r,rh*0.94,12),mt,
-        band%4!==2,band%4!==2).translateY(y0+0.06*s+i*rh));
-    }
-    /* The shuttle works at the top of the wind, which is where the work
-       actually is — so it climbs the spindle as the district grows without
-       being told the level. */
-    const shuttle=meshOf(boxG(0.34*s,0.10*s,0.14*s),
-      mat(P.metal,{metal:0.5,rough:0.4}));
-    const topY=y0+0.06*s+m*rh, topR=s*(0.62-0.26*clamp(m/28,0,1))+0.20*s;
-    shuttle.userData.tick=t=>{
-      const a=t*0.5;
-      shuttle.position.set(Math.cos(a)*topR,topY+Math.sin(t*1.3)*0.09*s,
-                           Math.sin(a)*topR);
-      shuttle.rotation.y=-a;
-    };
-    g.add(shuttle); animated.push(shuttle);
-    break; }
-
-  case 'canopywalk': {      // android, ios — a ring walk around the great trunk
-    const R=2.0*s;
-    const bm=mat(P.wood,{rough:0.95});
-    const n=clamp(8+sp.level,8,22);
+  /* Buttress roots, once the trunk is thick enough to need them. They splay out
+     over the turf and are half of why the tree reads as ancient. */
+  if(level>=4){
+    const n=5+Math.floor(t*4);
     for(let i=0;i<n;i++){
-      const a=i/22*TAU;
-      const pl=meshOf(boxG(0.62,0.1,0.44),mat(P.stone,{rough:0.9}));
-      pl.position.set(Math.cos(a)*R,1.5+Math.sin(a*2)*0.28,Math.sin(a)*R);
-      pl.rotation.y=-a; g.add(pl);
-      const post=meshOf(new THREE.CylinderGeometry(0.05,0.06,1.5,5),bm);
-      post.position.set(Math.cos(a)*R,0.75,Math.sin(a)*R); g.add(post);
-      const rail=meshOf(boxG(0.62,0.05,0.05),bm,false,false);
-      rail.position.set(Math.cos(a)*R*1.12,1.85+Math.sin(a*2)*0.28,Math.sin(a)*R*1.12);
-      rail.rotation.y=-a; g.add(rail);
-      if(i%4===0){
-        const l=meshOf(new THREE.SphereGeometry(0.1,7,6),glowMat(P.bloom,1.6),false,false);
-        l.position.set(Math.cos(a)*R,2.05+Math.sin(a*2)*0.28,Math.sin(a)*R); g.add(l);
-      }
+      const a=i/n*TAU+P.seed*0.1;
+      const len=rBase*lerp(2.0,3.2,rnd());
+      const rt=meshOf(new THREE.CylinderGeometry(rBase*0.34,rBase*0.1,len,5),bark2Mat);
+      rt.position.set(Math.cos(a)*len*0.42,rBase*0.3,Math.sin(a)*len*0.42);
+      rt.rotation.set(Math.sin(a)*1.25,0,-Math.cos(a)*1.25);
+      g.add(rt);
     }
-    for(let i=0;i<3;i++){
-      const c=meshOf(new THREE.IcosahedronGeometry(1.5-i*0.35,1),
-        mat(i%2?P.foliage:P.foliage2,{rough:0.98}));
-      c.position.y=2.4+i*0.55; c.scale.y=0.45; g.add(c);
+  }
+  /* Trunk in segments, leaning slightly and thinning — a single straight
+     cylinder reads as a pillar however much bark you paint on it. */
+  const segs=Math.max(2,Math.round(2+t*4));
+  let y=0, r=rBase, lean=0;
+  for(let i=0;i<segs;i++){
+    const sh=h/segs, rt=r*lerp(0.72,0.86,rnd());
+    const s=meshOf(new THREE.CylinderGeometry(rt,r,sh,8),i%2?barkMat:bark2Mat);
+    lean+=(rnd()-0.5)*0.14;
+    s.position.set(Math.sin(lean)*y*0.1,y+sh/2,Math.cos(lean)*0-0);
+    s.rotation.z=lean*0.5;
+    g.add(s);
+    y+=sh; r=rt;
+  }
+  const topX=Math.sin(lean)*y*0.1;
+  /* Boughs, then canopy. The canopy is a cluster of flattened blobs so it reads
+     as one mass with a silhouette, not as a bowl of green marbles. */
+  if(level>=3){
+    const nb=Math.round(2+t*5);
+    for(let i=0;i<nb;i++){
+      const a=i/nb*TAU+P.seed*0.2, len=r*lerp(3.5,6.5,rnd())+h*0.12;
+      const bo=meshOf(new THREE.CylinderGeometry(r*0.28,r*0.5,len,6),barkMat);
+      const by=y*lerp(0.68,0.95,rnd());
+      bo.position.set(topX+Math.cos(a)*len*0.35,by,Math.sin(a)*len*0.35);
+      bo.rotation.set(Math.sin(a)*1.0,0,-Math.cos(a)*1.0);
+      g.add(bo);
     }
-    g.add(meshOf(new THREE.CylinderGeometry(0.34,0.6,2.5,8),mat(P.wood,{rough:0.96}))
-      .translateY(1.25));
-    break; }
-
-  case 'greenhouse': {      // jvm, dotnet — rows of glowing seedbeds under glass
-    const w=3.2*s, d=2.0*s, h=1.3*s;
-    const glass=mat(P.bloom,{emissive:P.bloom,ei:0.32,opacity:0.93,rough:0.2,flat:false});
-    const plinth=meshOf(boxG(w,h*0.4,d),mat(P.stone,{rough:0.92}));
-    plinth.position.y=h*0.2; g.add(plinth);
-    g.add(meshOf(boxG(w*0.98,h*0.62,d*0.98),glass,false,false)
-      .translateY(h*0.71));
-    const roof=gableRoof(w,d*1.06,d*0.42,glass);
-    roof.position.y=h; g.add(roof);
-    const bm=mat(P.wood,{rough:0.95});
-    for(let i=0;i<5;i++){
-      const rib=meshOf(boxG(0.06,h+d*0.55,0.06),bm);
-      rib.position.set(lerp(-w/2,w/2,i/4),(h+d*0.55)/2,0); g.add(rib);
-    }
-    const rows=clamp(2+Math.floor(sp.level/3),2,4);
-    for(let r=0;r<rows;r++){
-      const z=lerp(-d*0.3,d*0.3,rows>1?r/(rows-1):0.5);
-      const bed=meshOf(boxG(w*0.86,0.2,0.34),mat(P.stone2,{rough:0.9}));
-      bed.position.set(0,0.1,z); g.add(bed);
-      for(let i=0;i<7;i++){
-        const sp2=meshOf(new THREE.ConeGeometry(0.08,0.3,5),
-          glowMat(i%2?P.accent:P.accent2,1.2),false,false);
-        sp2.position.set(lerp(-w*0.38,w*0.38,i/6),0.34,z);
-        const ph=i+r;
-        sp2.userData.tick=t=>{sp2.scale.y=1+Math.sin(t*1.4+ph)*0.14;};
-        g.add(sp2); animated.push(sp2);
-      }
-    }
-    break; }
-
-  case 'wellspring': {      // php, ruby — a tiered fountain at the roots
-    /* Rebuilt as a stepped fountain. The first version stacked a water disc, a
-       ring of lily pads and a translucent jet within a tenth of a unit of each
-       other, so the whole thing strobed as the depth buffer changed its mind. */
-    const R=1.6*s;
-    const kerb=meshOf(new THREE.CylinderGeometry(R,R*0.9,0.5,16),mat(P.stone,{rough:0.9}));
-    kerb.position.y=0.25; g.add(kerb);
-    const inner=meshOf(new THREE.CylinderGeometry(R*0.84,R*0.8,0.34,16),
-      mat(P.stone2,{rough:0.9}));
-    inner.position.y=0.3; g.add(inner);
-    const lower=meshOf(new THREE.CircleGeometry(R*0.82,18),
-      mat(P.liquid,{emissive:P.liquid,ei:0.4,rough:0.15,flat:false}),false,false);
-    lower.rotation.x=-Math.PI/2; lower.position.y=0.47; g.add(lower);
-    /* Pedestal and upper bowl — the vertical is what makes it read as a
-       fountain rather than as a puddle with things in it. */
-    const ped=meshOf(new THREE.CylinderGeometry(0.22*s,0.34*s,1.1*s,10),
-      mat(P.stone,{rough:0.9}));
-    ped.position.y=0.5+0.55*s; g.add(ped);
-    const bowl=meshOf(new THREE.CylinderGeometry(0.8*s,0.4*s,0.32,14),
-      mat(P.stone2,{rough:0.9}));
-    bowl.position.y=0.5+1.1*s+0.16; g.add(bowl);
-    const upper=meshOf(new THREE.CircleGeometry(0.72*s,14),
-      mat(P.liquid,{emissive:P.liquid,ei:0.5,rough:0.15,flat:false}),false,false);
-    upper.rotation.x=-Math.PI/2; upper.position.y=0.5+1.1*s+0.3; g.add(upper);
-    const finial=meshOf(new THREE.IcosahedronGeometry(0.22*s,1),
-      glowMat(P.accent,1.8),false,false);
-    finial.position.y=0.5+1.1*s+0.62; g.add(finial);
-    finial.userData.tick=t=>{finial.rotation.y=t*0.4;
-      finial.material.emissiveIntensity=1.5+Math.sin(t*1.6)*0.4;};
-    animated.push(finial);
-    /* Four spouts arcing from the upper bowl into the lower one. Solid, small
-       and well clear of every other surface. */
-    for(let i=0;i<4;i++){
-      const a=i/4*TAU+Math.PI/4;
-      const sp2=meshOf(new THREE.CylinderGeometry(0.05,0.07,0.9*s,6),
-        mat(P.liquid,{emissive:P.liquid,ei:0.9,rough:0.15,flat:false}),false,false);
-      sp2.position.set(Math.cos(a)*0.78*s,0.5+1.1*s-0.3,Math.sin(a)*0.78*s);
-      sp2.rotation.set(Math.sin(a)*0.24,0,-Math.cos(a)*0.24); g.add(sp2);
-      const ripple=meshOf(new THREE.TorusGeometry(0.2,0.03,5,14),
-        mat(P.liquid,{emissive:P.liquid,ei:0.8,transparent:true,opacity:0.7,rough:0.2}),
-        false,false);
-      ripple.rotation.x=-Math.PI/2;
-      ripple.userData.tick=t=>{
-        const u=((t*0.6+i/4)%1);
-        ripple.position.set(Math.cos(a)*0.95*s,0.5,Math.sin(a)*0.95*s);
-        ripple.scale.setScalar(0.4+u*2.2); ripple.material.opacity=0.6*(1-u);
-      };
-      g.add(ripple); animated.push(ripple);
-    }
-    /* Roots reaching in from outside, so it still belongs to a canopy realm. */
-    for(let i=0;i<4;i++){
-      const a=i*GA;
-      const root=meshOf(new THREE.CylinderGeometry(0.1,0.18,1.7,6),mat(P.wood,{rough:0.96}));
-      root.position.set(Math.cos(a)*R*1.2,0.75,Math.sin(a)*R*1.2);
-      root.rotation.set(Math.sin(a)*0.45,0,-Math.cos(a)*0.45); g.add(root);
-    }
-    break; }
-
-  /* ---- THE METAL FORGES ------------------------------------------------ */
-  case 'bigwheel': {        // c_cpp, rust — a great wheel driven by molten flow
-    const R=2.1*s;
-    const mm=mat(P.metal,{metal:0.65,rough:0.4,env:1.1});
-    const wheel=new THREE.Group(); wheel.position.y=R*0.9; g.add(wheel);
-    wheel.add(meshOf(new THREE.TorusGeometry(R,0.1,7,26),mm,false,false));
-    wheel.add(meshOf(new THREE.TorusGeometry(R*0.72,0.07,6,22),mm,false,false));
-    const blades=12;
-    for(let i=0;i<blades;i++){
-      const a=i/blades*TAU;
-      const sp2=meshOf(boxG(0.07,R*0.9,0.07),mm,false,false);
-      sp2.position.set(Math.cos(a)*R*0.5,Math.sin(a)*R*0.5,0); sp2.rotation.z=a+Math.PI/2;
-      wheel.add(sp2);
-      const bl=meshOf(boxG(0.16,0.5,0.5),mat(P.stone,{rough:0.9}),false,false);
-      bl.position.set(Math.cos(a)*R*0.92,Math.sin(a)*R*0.92,0); bl.rotation.z=a;
-      wheel.add(bl);
-      const hot=meshOf(boxG(0.1,0.34,0.34),glowMat(P.liquid,1.6),false,false);
-      hot.position.set(Math.cos(a)*R*0.9,Math.sin(a)*R*0.9,0.2); hot.rotation.z=a;
-      wheel.add(hot);
-    }
-    wheel.add(meshOf(new THREE.CylinderGeometry(0.2,0.2,0.6,10),mm,false,false)
-      .rotateX(Math.PI/2));
-    wheel.userData.tick=t=>{wheel.rotation.z=-t*0.3;};
-    animated.push(wheel);
-    for(const sx of [-1,1]){
-      const fr=meshOf(boxG(0.24,R*1.9,0.24),mat(P.stone,{rough:0.92}));
-      fr.position.set(sx*0.45,R*0.95,0); g.add(fr);
-    }
-    /* The race the wheel runs in — molten, and it lights the whole monument. */
-    const race=meshOf(boxG(R*2.6,0.16,0.7),
-      mat(P.liquid,{emissive:P.liquid,ei:1.8,rough:0.25,flat:false}),false,false);
-    race.position.y=0.14; g.add(race);
-    for(let k=0;k<5;k++){
-      const d=meshOf(new THREE.SphereGeometry(0.12,7,6),glowMat(P.accent,2.2),false,false);
-      d.userData.tick=t=>{
-        const u=(t*0.4+k/5)%1;
-        d.position.set(lerp(-R*1.3,R*1.3,u),0.26,0);
-      };
-      g.add(d); animated.push(d);
-    }
-    break; }
-
-  case 'anvilyard': {       // linux_os — a ring of anvils, struck in sequence
-    const R=1.9*s;
-    const n=clamp(4+Math.floor(sp.level/2),4,9);
+  }
+  const canopyR=lerp(0.55,5.6,Math.pow(t,0.8));
+  const nc=Math.round(3+t*9);
+  for(let i=0;i<nc;i++){
+    const a=i*2.399963229728653, rr=Math.sqrt((i+0.4)/nc)*canopyR;
+    const br=canopyR*lerp(0.34,0.55,rnd());
+    const b=meshOf(new THREE.IcosahedronGeometry(br,1),
+      mat(rnd()<0.5?P.canopy:P.canopy2,{rough:0.94,flat:false}));
+    b.position.set(topX+Math.cos(a)*rr,y+lerp(-0.1,0.6,rnd())*canopyR*0.5+br*0.2,
+                   Math.sin(a)*rr);
+    b.scale.y=0.7; g.add(b);
+  }
+  /* Walkways spiralling the trunk, and lanterns hung off the boughs. Both are
+     late unlocks: the tree has to be climbable before anybody climbs it. */
+  if(level>=7){
+    const turns=Math.round(1+t*2);
+    const n=turns*10;
+    const plankMat=mat(P.wood,{rough:0.92});
     for(let i=0;i<n;i++){
-      const a=i*GA;
-      const block=meshOf(new THREE.CylinderGeometry(0.24,0.3,0.5,7),mat(P.wood,{rough:0.96}));
-      block.position.set(Math.cos(a)*R,0.25,Math.sin(a)*R); g.add(block);
-      const anv=meshOf(boxG(0.62,0.2,0.28),
-        mat(P.metal,{metal:0.6,rough:0.45}));
-      anv.position.set(Math.cos(a)*R,0.6,Math.sin(a)*R); anv.rotation.y=-a; g.add(anv);
-      const horn=meshOf(new THREE.ConeGeometry(0.11,0.3,6),
-        mat(P.metal,{metal:0.6,rough:0.45}));
-      horn.rotation.z=-Math.PI/2; horn.position.set(Math.cos(a)*R+Math.cos(-a)*0.4,0.6,
-        Math.sin(a)*R-Math.sin(-a)*0.4); horn.rotation.y=-a; g.add(horn);
-      /* A hammer that falls, and a spark burst on the beat. */
-      const ham=meshOf(boxG(0.16,0.3,0.16),
-        mat(P.metal,{metal:0.6,rough:0.45}));
-      const spark=meshOf(new THREE.IcosahedronGeometry(0.16,0),glowMat(P.accent,2.6),false,false);
-      spark.position.set(Math.cos(a)*R,0.74,Math.sin(a)*R);
-      const off=i/n;
-      ham.userData.tick=t=>{
-        const u=((t*0.7+off)%1);
-        const drop=u<0.5?1-Math.pow(u*2,2):(u-0.5)*2;
-        ham.position.set(Math.cos(a)*R,0.86+drop*0.65,Math.sin(a)*R);
-        const hit=u<0.08?1-u/0.08:0;
-        spark.scale.setScalar(0.2+hit*1.5);
-        spark.material.emissiveIntensity=hit*3;
-      };
-      g.add(ham,spark); animated.push(ham);
-    }
-    const brz=meshOf(new THREE.CylinderGeometry(0.4,0.28,0.4,9),
-      mat(P.metal,{metal:0.55,rough:0.5}));
-    brz.position.y=0.2; g.add(brz);
-    const coals=meshOf(new THREE.CircleGeometry(0.36,10),glowMat(P.liquid,2.2),false,false);
-    coals.rotation.x=-Math.PI/2; coals.position.y=0.41; g.add(coals);
-    matAnim(coals.material,(m,t)=>{ m.emissiveIntensity=1.8+Math.sin(t*2.1)*0.6; });
-    break; }
-
-  case 'crucible': {        // embedded, gamedev — a crucible pouring on gimbals
-    const R=1.3*s;
-    for(const sx of [-1,1]){
-      const col=meshOf(boxG(0.26,2.3,0.26),mat(P.stone,{rough:0.92}));
-      col.position.set(sx*R,1.15,0); g.add(col);
-    }
-    const yoke=meshOf(boxG(R*2.2,0.16,0.2),
-      mat(P.metal,{metal:0.6,rough:0.45}));
-    yoke.position.y=2.3; g.add(yoke);
-    const pot=new THREE.Group(); pot.position.y=1.85; g.add(pot);
-    pot.add(meshOf(new THREE.CylinderGeometry(0.62,0.44,0.8,10),
-      mat(P.metal,{metal:0.5,rough:0.55}),false,false));
-    const melt=meshOf(new THREE.CircleGeometry(0.56,12),glowMat(P.liquid,2.4),false,false);
-    melt.rotation.x=-Math.PI/2; melt.position.y=0.32; pot.add(melt);
-    pot.userData.tick=t=>{
-      const c=(t*0.22)%1;
-      pot.rotation.z=c<0.5?0:-Math.sin((c-0.5)*Math.PI*2)*0.85;
-    };
-    animated.push(pot);
-    /* The pour: a molten stream that only exists while the pot is tipped. */
-    const pour=meshOf(new THREE.CylinderGeometry(0.09,0.14,1.5,7),
-      mat(P.liquid,{emissive:P.liquid,ei:2.2,opacity:0.85,flat:false}),false,false);
-    pour.position.set(-0.75,1.1,0); g.add(pour);
-    const mould=meshOf(boxG(0.9,0.3,0.7),mat(P.stone2,{rough:0.92}));
-    mould.position.set(-0.75,0.15,0); g.add(mould);
-    const ingot=meshOf(boxG(0.7,0.14,0.5),glowMat(P.liquid,1.6),false,false);
-    ingot.position.set(-0.75,0.34,0); g.add(ingot);
-    pour.userData.tick=t=>{
-      const c=(t*0.22)%1, on=c>0.55&&c<0.9;
-      pour.visible=on; ingot.material.emissiveIntensity=on?2.0:0.5+Math.sin(t)*0.2;
-    };
-    animated.push(pour);
-    break; }
-
-  case 'pipeorgan': {       // niche_langs — a bank of pipes venting steam
-    const n=clamp(5+sp.level,5,16);
-    const mm=mat(P.metal,{metal:0.6,rough:0.4,env:1.1});
-    for(let i=0;i<16;i++){
-      if(i>=n)break;
-      const x=(i-7.5)*0.32*s;
-      const h=(1.2+((i*0.37)%1)*2.2)*s;
-      const pipe=meshOf(new THREE.CylinderGeometry(0.13*s,0.13*s,h,8),mm);
-      pipe.position.set(x,h/2,0); g.add(pipe);
-      const cap=meshOf(new THREE.CylinderGeometry(0.17*s,0.14*s,0.12,8),mm,false,false);
-      cap.position.set(x,h,0); g.add(cap);
-      const glow=meshOf(new THREE.CylinderGeometry(0.1*s,0.1*s,0.1,8),
-        glowMat(P.accent,1.6),false,false);
-      glow.position.set(x,0.24,0); g.add(glow);
-      for(let k=0;k<1;k++){
-        const st=meshOf(new THREE.IcosahedronGeometry(0.16,0),
-          mat(P.rock,{opacity:0.26,flat:false,rough:1}),false,false);
-        st.userData.tick=t=>{
-          const u=((t*0.3+k*0.5+i*0.13)%1);
-          st.position.set(x,h+0.2+u*1.6,0);
-          st.scale.setScalar(0.5+u*1.6); st.material.opacity=0.3*(1-u);
-        };
-        g.add(st); animated.push(st);
-      }
-    }
-    const base=meshOf(boxG(5.4*s,0.4,0.9*s),mat(P.stone,{rough:0.92}));
-    base.position.y=0.2; g.add(base);
-    break; }
-
-  /* ---- THE SHIPYARDS --------------------------------------------------- */
-  case 'drydock': {         // k8s, cloud — a hull in a cradle, under scaffold
-    const L=4.4*s, W=1.5*s;
-    const dock=meshOf(boxG(L+0.8,0.5,W+1.0),mat(P.stone,{rough:0.9}));
-    dock.position.y=-0.15; g.add(dock);
-    const basin=meshOf(boxG(L+0.2,0.1,W+0.4),
-      mat(P.liquid,{emissive:P.liquid,ei:0.35,opacity:0.7,flat:false,rough:0.12}),false,false);
-    basin.position.y=0.06; g.add(basin);
-    const hull=meshOf(new THREE.CylinderGeometry(W*0.42,W*0.55,L,9,1,false,0,Math.PI),
-      mat(P.accent,{rough:0.8}));
-    hull.rotation.z=Math.PI/2; hull.rotation.x=Math.PI; hull.position.y=W*0.6; g.add(hull);
-    const deck=meshOf(boxG(L*0.96,0.12,W*1.02),mat(P.stone2,{rough:0.88}));
-    deck.position.y=W*0.6; g.add(deck);
-    const house=meshOf(boxG(L*0.2,0.5,W*0.7),mat(P.stone,{rough:0.9}));
-    house.position.set(-L*0.28,W*0.6+0.31,0); g.add(house);
-    const funnel=meshOf(new THREE.CylinderGeometry(0.16,0.19,0.5,8),mat(P.roof,{rough:0.8}));
-    funnel.position.set(-L*0.28,W*0.6+0.8,0); g.add(funnel);
-    const mm=mat(P.metal,{metal:0.5,rough:0.55});
-    const bays=clamp(2+Math.floor(sp.level/3),2,6);
-    for(let i=0;i<bays;i++){
-      const x=lerp(-L*0.42,L*0.42,bays>1?i/(bays-1):0.5);
-      for(const sz of [-1,1]){
-        const leg=meshOf(new THREE.CylinderGeometry(0.05,0.05,W*1.5,5),mm);
-        leg.position.set(x,W*0.75,sz*W*0.75); g.add(leg);
-      }
-      const beam2=meshOf(boxG(0.06,0.06,W*1.6),mm,false,false);
-      beam2.position.set(x,W*1.5,0); g.add(beam2);
-      const l=meshOf(new THREE.SphereGeometry(0.08,6,5),glowMat(P.bloom,1.5),false,false);
-      l.position.set(x,W*1.45,W*0.75); g.add(l);
-    }
-    for(let k=0;k<4;k++){          // welding flashes along the hull
-      const f=meshOf(new THREE.IcosahedronGeometry(0.14,0),glowMat(P.bloom,3),false,false);
-      const x=lerp(-L*0.4,L*0.4,(k*0.31)%1), z=(k%2?1:-1)*W*0.5;
-      f.position.set(x,W*0.35,z);
-      f.userData.tick=t=>{
-        const u=((t*0.9+k*0.37)%1);
-        const on=u<0.12?1-u/0.12:0;
-        f.scale.setScalar(0.2+on*1.6); f.material.emissiveIntensity=on*3.4;
-      };
-      g.add(f); animated.push(f);
-    }
-    break; }
-
-  case 'crane': {           // ci_devex, distributed_arch — a straddle gantry
-    const span=4.2*s, h=3.0*s;
-    const mm=mat(P.metal,{metal:0.55,rough:0.5});
-    for(const sx of [-1,1]) for(const sz of [-1,1]){
-      const leg=meshOf(new THREE.CylinderGeometry(0.09,0.11,h,6),mm);
-      leg.position.set(sx*span/2,h/2,sz*0.6); g.add(leg);
-      const foot=meshOf(boxG(0.4,0.16,0.5),mat(P.roof,{rough:0.8}));
-      foot.position.set(sx*span/2,0.08,sz*0.6); g.add(foot);
-    }
-    for(const sz of [-1,1]){
-      const beam2=meshOf(boxG(span+0.6,0.2,0.16),mm);
-      beam2.position.set(0,h,sz*0.6); g.add(beam2);
-    }
-    for(let i=0;i<7;i++){          // lattice web
-      const x=lerp(-span/2,span/2,i/6);
-      const d=meshOf(boxG(0.06,0.06,1.3),mm,false,false);
-      d.position.set(x,h,0); g.add(d);
-    }
-    const trolley=new THREE.Group(); trolley.position.y=h-0.2; g.add(trolley);
-    trolley.add(meshOf(boxG(0.5,0.24,0.9),mm,false,false));
-    const line=meshOf(new THREE.CylinderGeometry(0.02,0.02,1,4),mm,false,false);
-    const box=meshOf(boxG(0.8,0.42,0.5),
-      mat(P.accent,{rough:0.8}));
-    trolley.add(line,box);
-    trolley.userData.tick=t=>{
-      trolley.position.x=Math.sin(t*0.35)*span*0.42;
-      const drop=1.1+Math.sin(t*0.7)*0.8;
-      line.position.y=-drop/2; line.scale.y=drop;
-      box.position.y=-drop-0.2;
-    };
-    animated.push(trolley);
-    /* Rows of stacked boxes waiting under the gantry — the yard reads as busy
-       and the colours give the district a second identity channel. */
-    const rows=clamp(2+Math.floor(sp.level/2.5),2,7);
-    const cols=[P.accent,P.accent2,P.roof2,P.bloom];
-    for(let i=0;i<rows;i++){
-      for(let k=0;k<1+(i%2);k++){
-        const c=meshOf(boxG(0.8,0.4,0.5),
-          mat(cols[(i+k)%cols.length],{rough:0.8}));
-        c.position.set(lerp(-span*0.38,span*0.38,rows>1?i/(rows-1):0.5),0.2+k*0.42,-1.2);
-        g.add(c);
-      }
-    }
-    break; }
-
-  case 'lighthouse': {      // observability, selfhost — a beacon on a mole
-    const h=4.2*s;
-    const mole=meshOf(new THREE.CylinderGeometry(1.1,1.3,0.5,12),mat(P.stone,{rough:0.9}));
-    mole.position.y=0.25; g.add(mole);
-    for(let i=0;i<4;i++){
-      const y0=0.5+h*i/4, sh=h/4;
-      const r0=lerp(0.5,0.26,i/4), r1=lerp(0.5,0.26,(i+1)/4);
-      const seg=meshOf(new THREE.CylinderGeometry(r1,r0,sh,12),
-        mat(i%2?P.stone2:P.accent,{rough:0.86}));
-      seg.position.y=y0+sh/2; g.add(seg);
-    }
-    const gal=meshOf(new THREE.CylinderGeometry(0.44,0.36,0.12,12),
-      mat(P.metal,{metal:0.5,rough:0.5}));
-    gal.position.y=0.5+h; g.add(gal);
-    const lamp=meshOf(new THREE.CylinderGeometry(0.26,0.26,0.44,10),
-      mat(P.bloom,{emissive:P.bloom,ei:1.8,opacity:0.8,flat:false,rough:0.1}),false,false);
-    lamp.position.y=0.5+h+0.3; g.add(lamp);
-    const cap=meshOf(new THREE.ConeGeometry(0.36,0.36,10),mat(P.roof,{metal:0.4,rough:0.5}));
-    cap.position.y=0.5+h+0.7; g.add(cap);
-    const hold=new THREE.Group(); hold.position.y=0.5+h+0.3; g.add(hold);
-    const beam=meshOf(new THREE.ConeGeometry(0.5,8,4,1,true),
-      mat(P.bloom,{emissive:P.bloom,ei:1.2,opacity:0.15,flat:false,
-        side:THREE.DoubleSide,rough:0.1}),false,false);
-    beam.rotation.z=Math.PI/2; beam.position.set(4,0,0); hold.add(beam);
-    hold.userData.tick=t=>{hold.rotation.y=t*0.55;}; animated.push(hold);
-    const n=clamp(2+Math.floor(sp.level/3),2,6);
-    for(let i=0;i<n;i++){                 // buoys bobbing around the mole
-      const a=i*GA, rr=1.7+((i*0.41)%1)*0.9;
-      const b=meshOf(new THREE.ConeGeometry(0.16,0.4,7),mat(P.accent2,{rough:0.8}));
-      const l=meshOf(new THREE.SphereGeometry(0.08,6,5),glowMat(P.accent2,1.8),false,false);
-      b.position.set(Math.cos(a)*rr,0.2,Math.sin(a)*rr);
-      l.position.set(Math.cos(a)*rr,0.44,Math.sin(a)*rr);
-      const ph=i;
-      b.userData.tick=t=>{
-        const y=0.2+Math.sin(t*1.4+ph)*0.07;
-        b.position.y=y; l.position.y=y+0.24;
-        b.rotation.z=Math.sin(t*1.1+ph)*0.14;
-        l.material.emissiveIntensity=(Math.sin(t*2+ph)>0.4)?2.2:0.3;
-      };
-      g.add(b,l); animated.push(b);
-    }
-    break; }
-
-  case 'containers': {      // go, databases — a stacked yard with a reach truck
-    const cols=[P.accent,P.accent2,P.roof2,P.bloom];
-    const stacks=clamp(4+sp.level,4,16);
-    for(let i=0;i<16;i++){
-      if(i>=stacks)break;
-      const a=i*GA, rr=Math.sqrt((i+0.5)/16)*2.3*s;
-      const x=Math.cos(a)*rr, z=Math.sin(a)*rr;
-      const hgt=1+((i*0.53)%1<0.5?1:2);
-      for(let k=0;k<hgt;k++){
-        const c=meshOf(boxG(1.0,0.42,0.6),
-          mat(cols[(i+k)%cols.length],{rough:0.8}));
-        c.position.set(x,0.21+k*0.44,z); c.rotation.y=-a+((i%2)?Math.PI/2:0);
-        g.add(c);
-        for(let r=0;r<3;r++){        // corrugation ribs
-          const rb=meshOf(boxG(0.04,0.36,0.62),
-            mat(cols[(i+k)%cols.length],{rough:0.9}),false,false);
-          rb.position.set(x+Math.cos(c.rotation.y)*lerp(-0.3,0.3,r/2),
-            0.21+k*0.44,z-Math.sin(c.rotation.y)*lerp(-0.3,0.3,r/2));
-          rb.rotation.y=c.rotation.y; g.add(rb);
-        }
-      }
-    }
-    const mm=mat(P.metal,{metal:0.5,rough:0.5});
-    const truck=new THREE.Group(); g.add(truck);
-    truck.add(meshOf(boxG(0.8,0.42,0.5),mat(P.roof,{rough:0.8}),false,false));
-    const mast=meshOf(boxG(0.1,1.6,0.1),mm,false,false);
-    mast.position.set(0.4,0.8,0); truck.add(mast);
-    const fork=meshOf(boxG(0.5,0.07,0.44),mm,false,false);
-    truck.add(fork);
-    truck.userData.tick=t=>{
-      const w=t*0.25;
-      truck.position.set(Math.cos(w)*3.0*s,0.2,Math.sin(w)*3.0*s);
-      truck.rotation.y=-w+Math.PI/2;
-      fork.position.set(0.55,0.2+Math.abs(Math.sin(t*0.6))*1.0,0);
-    };
-    animated.push(truck);
-    break; }
-
-  /* ---- THE BASTION ----------------------------------------------------- */
-  case 'keep': {            // sec_appsec — the inner keep behind its own wall
-    const kw=2.0*s, kh=3.2*s;
-    g.add(meshOf(boxG(kw,kh,kw*0.9),mat(P.stone,{rough:0.94}))
-      .translateY(kh/2));
-    for(let e=0;e<4;e++) for(let i=0;i<5;i++){
-      const u=(i+0.5)/5-0.5;
-      const m=meshOf(boxG(0.22,0.32,0.18),mat(P.stone2,{rough:0.94}));
-      const x=e<2?u*kw:(e===2?kw/2:-kw/2), z=e<2?(e?kw*0.45:-kw*0.45):u*kw*0.9;
-      m.position.set(x,kh+0.16,z); g.add(m);
-    }
-    for(const sx of [-1,1]) for(const sz of [-1,1]){
-      const th=kh*1.2;
-      const t=meshOf(new THREE.CylinderGeometry(0.28,0.32,th,8),mat(P.stone2,{rough:0.94}));
-      t.position.set(sx*kw*0.5,th/2,sz*kw*0.45); g.add(t);
-      const c=meshOf(new THREE.ConeGeometry(0.42,0.66,8),mat(P.roof,{rough:0.65}));
-      c.position.set(sx*kw*0.5,th+0.33,sz*kw*0.45); g.add(c);
-      const l=meshOf(new THREE.SphereGeometry(0.08,6,5),glowMat(P.accent,1.6),false,false);
-      l.position.set(sx*kw*0.5,th-0.3,sz*kw*0.45+sz*0.3); g.add(l);
-    }
-    /* A curtain wall ring with a gatehouse, so the keep reads as defended. */
-    const R=2.9*s, n=Math.round(R*7);
-    for(let i=0;i<n;i++){
-      const a=i/n*TAU;
-      if(Math.abs(((a+Math.PI)%TAU)-Math.PI)<0.34)continue;   // the gate gap
-      const w=meshOf(boxG(0.3,0.9,R*TAU/n*1.15),mat(P.stone2,{rough:0.94}));
-      w.position.set(Math.cos(a)*R,0.45,Math.sin(a)*R); w.rotation.y=-a; g.add(w);
+      const u=i/n;
+      const a=u*TAU*turns+P.seed*0.3;
+      const rr=r*1.4+lerp(1.5,2.6,u)*0.6+rBase*0.9;
+      const py=lerp(h*0.22,h*0.78,u);
+      const pl=meshOf(new THREE.BoxGeometry(0.62,0.09,0.42),plankMat,true,false);
+      pl.position.set(topX*u+Math.cos(a)*rr,py,Math.sin(a)*rr); pl.rotation.y=-a;
+      g.add(pl);
       if(i%2===0){
-        const m=meshOf(boxG(0.28,0.26,0.22),mat(P.stone,{rough:0.94}));
-        m.position.set(Math.cos(a)*R,1.03,Math.sin(a)*R); m.rotation.y=-a; g.add(m);
+        const po=meshOf(new THREE.CylinderGeometry(0.035,0.035,0.36,4),
+          mat(P.bark2,{rough:0.95}),true,false);
+        po.position.set(topX*u+Math.cos(a)*rr*1.06,py+0.22,Math.sin(a)*rr*1.06);
+        g.add(po);
       }
     }
-    for(const s2 of [-1,1]){
-      const t=meshOf(new THREE.CylinderGeometry(0.32,0.36,1.6,8),mat(P.stone,{rough:0.94}));
-      const a=s2*0.42;
-      t.position.set(Math.cos(a)*R,0.8,Math.sin(a)*R); g.add(t);
-      const c=meshOf(new THREE.ConeGeometry(0.44,0.5,8),mat(P.roof,{rough:0.65}));
-      c.position.set(Math.cos(a)*R,1.85,Math.sin(a)*R); g.add(c);
+  }
+  if(level>=5){
+    const nl=Math.round(3+t*10);
+    for(let i=0;i<nl;i++){
+      const a=i*2.399963229728653+P.seed*0.4;
+      const rr=canopyR*lerp(0.35,0.95,rnd());
+      const ly=y+lerp(-0.9,0.1,rnd())*canopyR*0.4;
+      const drop=lerp(0.4,1.3,rnd());
+      g.add(beam(new THREE.Vector3(topX+Math.cos(a)*rr,ly,Math.sin(a)*rr),
+                 new THREE.Vector3(topX+Math.cos(a)*rr,ly-drop,Math.sin(a)*rr),
+                 0.02,mat(P.bark2,{rough:1}),false));
+      const lan=meshOf(new THREE.BoxGeometry(0.17,0.22,0.17),glowMat(P.warm,1.8),false,false);
+      lan.position.set(topX+Math.cos(a)*rr,ly-drop-0.13,Math.sin(a)*rr);
+      const ph=rnd()*TAU;
+      lan.userData.tick=tt=>{lan.material.emissiveIntensity=1.6+Math.sin(tt*1.5+ph)*0.35;};
+      g.add(lan); animated.push(lan);
     }
-    break; }
+  }
+  /* The whole tree breathes. One tick on the group, not per branch. */
+  const sway=rnd()*TAU;
+  g.userData.tick=tt=>{ g.rotation.z=Math.sin(tt*0.42+sway)*0.012;
+    g.rotation.x=Math.cos(tt*0.35+sway)*0.010; };
+  animated.push(g);
+  return g;
+}
 
-  case 'vault': {           // sec_crypto — a vault door with turning tumblers
-    const R=1.9*s;
-    const frame=meshOf(new THREE.CylinderGeometry(R*1.15,R*1.15,0.5,20),
-      mat(P.stone,{rough:0.92}));
-    frame.rotation.x=Math.PI/2; frame.position.y=R*0.95; g.add(frame);
-    const door=meshOf(new THREE.CylinderGeometry(R,R,0.3,20),
-      mat(P.metal,{metal:0.7,rough:0.3,env:1.1}));
-    door.rotation.x=Math.PI/2; door.position.set(0,R*0.95,0.2); g.add(door);
+/* ========================================================= THE METAL FORGES
+   Reference: a dark hexagonal-column mesa under a slab deck, brick halls with
+   corrugated barrel-vault roofs and glowing porthole windows, riveted stack
+   towers venting smoke, a lava fountain spilling down cut steps, small teal
+   quench pools, coal heaps — all under a deep indigo dusk with an ember horizon.
+
+   The one rule that keeps it from becoming a hellscape: this is a WORKSHOP at
+   the end of the day. Dark surfaces, warm light, nothing red-on-black. */
+function forgeHouse(P,rnd,scale=1){
+  /* A brick kiln-house with a crow-stepped gable and a low iron roof slung
+     behind it. NOT another barrel vault: the shipyards own the curved
+     corrugated shed, and while the forges built the same box-plus-half-cylinder
+     the two realms shared their most numerous object — fifty-odd buildings a
+     district, identical in structure, separated only by paint.
+
+     The stepped gable is the tell. It is masonry, and it could not be pressed
+     out of a sheet of steel. */
+  const g=new THREE.Group();
+  const w=lerp(1.0,1.5,rnd())*scale, d=lerp(0.9,1.3,rnd())*scale;
+  const h=lerp(0.6,0.9,rnd())*scale;
+  const brickM=mat(rnd()<0.5?P.brick:P.brick2,{rough:0.95});
+  g.add(meshOf(new THREE.BoxGeometry(w,h,d),brickM).translateY(h/2));
+  const steps=3;
+  const rise=lerp(0.42,0.62,rnd())*scale;
+  for(const sd of [-1,1]){
+    for(let i=0;i<steps;i++){
+      const u=i/steps;
+      const sw=w*(1-u*0.62);
+      const st=meshOf(new THREE.BoxGeometry(sw,rise/steps,0.16*scale),brickM);
+      st.position.set(0,h+rise/steps*(i+0.5),sd*(d/2-0.06*scale)); g.add(st);
+    }
+    const cope=meshOf(new THREE.BoxGeometry(w*0.42,0.07*scale,0.2*scale),
+      mat(P.metal,{metal:0.4,rough:0.6}),false,false);
+    cope.position.set(0,h+rise+0.03*scale,sd*(d/2-0.06*scale)); g.add(cope);
+  }
+  const roof=meshOf(new THREE.BoxGeometry(w*0.94,0.09*scale,d*0.9),
+    mat(P.iron,{metal:0.35,rough:0.6}));
+  roof.position.y=h+rise*0.62; g.add(roof);
+  for(let i=0;i<4;i++){
+    const rb=meshOf(new THREE.BoxGeometry(0.05*scale,0.05*scale,d*0.9),
+      mat(P.iron2,{metal:0.4,rough:0.55}),false,false);
+    rb.position.set(lerp(-w*0.36,w*0.36,i/3),h+rise*0.62+0.06*scale,0); g.add(rb);
+  }
+  const wm=winMat(P,1.5);
+  for(let i=0;i<2+Math.floor(rnd()*2);i++){
+    const sd=rnd()<0.5?1:-1, off=(rnd()-0.5)*d*0.5;
+    const win=meshOf(new THREE.CylinderGeometry(0.1*scale,0.1*scale,0.05,10),wm,false,false);
+    win.rotation.z=Math.PI/2; win.position.set(sd*(w/2+0.01),h*0.58,off); g.add(win);
+    const fr=meshOf(new THREE.TorusGeometry(0.12*scale,0.028,4,10),
+      mat(P.metal,{metal:0.5,rough:0.45}),false,false);
+    fr.position.copy(win.position); fr.rotation.y=Math.PI/2; g.add(fr);
+  }
+  const da=rnd()<0.5?1:-1;
+  const dr=meshOf(new THREE.CylinderGeometry(0.2*scale,0.2*scale,0.06,9,1,false,0,Math.PI),
+    glowMat(P.lavaHot,1.3),false,false);
+  dr.rotation.z=Math.PI/2; dr.rotation.y=Math.PI/2;
+  dr.position.set(0,0.2*scale,da*(d/2+0.01)); g.add(dr);
+  if(rnd()<0.42){
+    const ch=meshOf(new THREE.CylinderGeometry(0.11,0.13,0.75,7),
+      mat(P.iron,{metal:0.4,rough:0.6}));
+    ch.position.set(w*0.3,h+rise*0.62+0.5,d*0.22); g.add(ch);
+    forgeSmoke(P,g,w*0.3,h+rise*0.62+0.95,d*0.22,0.9);
+  }
+  return g;
+}
+
+/* Smoke, budgeted. The forges are the realm that needs it — in the reference
+   every chimney is venting, and it is what gives that flat dark deck a sky —
+   but "every chimney" is 40+ houses at L12, and at four puffs each that was 160
+   extra meshes each carrying a per-frame closure, on top of the motes and the
+   lava. The budget is a hard cap per district: the first few chimneys smoke and
+   the rest are cold, which is also true of any real works.
+
+   Each puff gets its OWN material. They used to share one out of the cache and
+   every one of them wrote `.opacity` on it every frame, so the whole district's
+   smoke flickered together at whatever value happened to be written last — the
+   fade never worked, it just strobed. A material that animates cannot be a
+   shared material. */
+let smokeBudget=0;
+function smokePlume(g,x,y,z,scale,hex,rate=0.22,puffs=3){
+  if(smokeBudget<=0)return;
+  smokeBudget--;
+  for(let k=0;k<puffs;k++){
+    const m=new THREE.MeshStandardMaterial({color:hex,roughness:1,
+      transparent:true,opacity:0.36,depthWrite:false});
+    const p=meshOf(new THREE.IcosahedronGeometry(0.17*scale,0),m,false,false);
+    p.userData.tick=t=>{
+      const u=((t*rate+k/puffs)%1);
+      p.position.set(x+Math.sin(u*3.4+k)*0.3*scale,y+u*3.2*scale,
+                     z+Math.cos(u*2.6+k)*0.24*scale);
+      p.scale.setScalar(0.6+u*2.4);
+      m.opacity=0.36*(1-u);
+    };
+    g.add(p); animated.push(p);
+  }
+}
+const forgeSmoke=(P,g,x,y,z,scale)=>smokePlume(g,x,y,z,scale,P.smoke,0.22);
+
+function forgeTower(P,rnd,h,great){
+  const g=new THREE.Group();
+  /* A riveted stack: banded drums, an external pipe running up one side, and a
+     flared cap. Straight off the two smokestack towers in the reference. */
+  const segs=3+Math.floor(rnd()*2);
+  const tp=taper();
+  let y=0, r=lerp(0.5,0.72,rnd());
+  const ironM=mat(P.iron,{metal:0.42,rough:0.55});
+  const brickM=mat(P.brick,{rough:0.95});
+  for(let i=0;i<segs;i++){
+    const sh=h/segs*lerp(0.85,1.15,rnd()), rt=r*lerp(0.82,0.92,rnd());
+    tp.add(y,y+sh,r,rt);
+    g.add(meshOf(new THREE.CylinderGeometry(rt,r,sh,10),i%2?ironM:brickM)
+      .translateY(y+sh/2));
+    const band=meshOf(new THREE.CylinderGeometry(rt*1.13,rt*1.13,0.14,10),
+      mat(P.metal,{metal:0.6,rough:0.4}));
+    band.position.y=y+sh; g.add(band);
+    /* Rivets: a ring of little studs on the band. Two draw calls of detail that
+       do more for "industrial" than any texture would. */
+    for(let k=0;k<10;k++){
+      const a=k/10*TAU;
+      const rv=meshOf(new THREE.SphereGeometry(0.035,5,4),
+        mat(P.metal,{metal:0.7,rough:0.35}),false,false);
+      rv.position.set(Math.cos(a)*rt*1.15,y+sh,Math.sin(a)*rt*1.15); g.add(rv);
+    }
+    /* A glowing slot, so the stack looks charged rather than cold. */
+    if(i===0||i===segs-2){
+      const sl=meshOf(new THREE.BoxGeometry(rt*1.5,0.16,0.06),glowMat(P.lava,1.6),false,false);
+      sl.position.y=y+sh*0.5; sl.rotation.y=rnd()*TAU; g.add(sl);
+      const sl2=sl.clone(); sl2.rotation.y=sl.rotation.y+Math.PI/2; g.add(sl2);
+    }
+    y+=sh; r=rt;
+  }
+  /* The external pipe. */
+  const pa=rnd()*TAU;
+  const pipe=meshOf(new THREE.CylinderGeometry(0.09,0.09,h*0.8,7),
+    mat(P.metal,{metal:0.55,rough:0.45}));
+  pipe.position.set(Math.cos(pa)*(r*1.5),h*0.4,Math.sin(pa)*(r*1.5)); g.add(pipe);
+  const elbow=meshOf(new THREE.TorusGeometry(0.2,0.09,5,10,Math.PI/2),
+    mat(P.metal,{metal:0.55,rough:0.45}));
+  elbow.position.set(Math.cos(pa)*(r*1.5),h*0.8,Math.sin(pa)*(r*1.5));
+  elbow.rotation.y=-pa; g.add(elbow);
+  const cap=meshOf(new THREE.CylinderGeometry(r*1.5,r*1.05,0.42,10),ironM);
+  cap.position.y=y+0.21; g.add(cap);
+  const mouth=meshOf(new THREE.CylinderGeometry(r*1.2,r*1.2,0.08,10),
+    glowMat(P.lava,1.2),false,false);
+  mouth.position.y=y+0.4; g.add(mouth);
+  forgeSmoke(P,g,0,y+0.6,0,1.5);
+  const wm=winMat(P,1.4);
+  for(let i=0;i<4;i++){
+    const a=rnd()*TAU, wy=lerp(0.6,h-0.9,i/4+rnd()*0.1);
+    const rr=tp.at(wy);
+    const w=meshOf(new THREE.CylinderGeometry(0.09,0.09,0.05,9),wm,false,false);
+    w.rotation.z=Math.PI/2; w.rotation.y=-a;
+    w.position.set(Math.cos(a)*(rr+0.02),wy,Math.sin(a)*(rr+0.02)); g.add(w);
+  }
+  if(great) greatCrown(P,g,y+1.4,r);
+  return g;
+}
+
+function forgeHall(P,rnd){
+  /* The blast furnace. NOT a bigger shed: the houses already own the brick
+     barrel vault, and making the hall a scaled-up copy of one was the clearest
+     case in the file of a realm built from a single object at two sizes.
+
+     This is a stepped mass instead — a battered brick block with corner
+     buttresses, a flat working roof carrying pipework and a charging gantry,
+     and one enormous arched maw with the melt behind it. Vertical, heavy and
+     angular against the low round-topped sheds around it. */
+  const g=new THREE.Group();
+  const w=lerp(2.2,2.8,rnd()), d=lerp(2.0,2.6,rnd());
+  /* Three stages, each stepped in — a battered stack reads as something that
+     holds heat, which a straight-sided box never does. */
+  const stages=[[1.0,1.15],[0.82,1.0],[0.62,0.7]];
+  let y=0;
+  stages.forEach(([sc,sh],i)=>{
+    const b=meshOf(new THREE.BoxGeometry(w*sc,sh,d*sc),
+      mat(i%2?P.brick:P.brick2,{rough:0.95}));
+    b.position.y=y+sh/2; g.add(b);
+    const band=meshOf(new THREE.BoxGeometry(w*sc+0.14,0.13,d*sc+0.14),
+      mat(P.iron,{metal:0.4,rough:0.55}));
+    band.position.y=y+sh; g.add(band);
+    y+=sh;
+  });
+  /* Corner buttresses on the bottom stage, battered outward at the foot. */
+  for(let k=0;k<4;k++){
+    const a=k/4*TAU+Math.PI/4;
+    const bt=meshOf(new THREE.CylinderGeometry(0.14,0.26,1.15,5),
+      mat(P.brick2,{rough:0.95}));
+    bt.position.set(Math.cos(a)*w*0.46,0.575,Math.sin(a)*d*0.46); g.add(bt);
+  }
+  /* The maw: a tall arch with the melt behind it, and a tapping spout running
+     out onto the deck. */
+  const mw=w*0.3;
+  const maw=meshOf(new THREE.CylinderGeometry(mw,mw,0.12,12,1,false,0,Math.PI),
+    glowMat(P.lavaHot,1.6),false,false);
+  maw.rotation.z=Math.PI/2; maw.rotation.y=Math.PI/2;
+  maw.position.set(0,0.72,d/2+0.04); g.add(maw);
+  const mbox=meshOf(new THREE.BoxGeometry(mw*2,0.72,0.08),glowMat(P.lavaHot,1.6),false,false);
+  mbox.position.set(0,0.36,d/2+0.04); g.add(mbox);
+  const jamb=meshOf(new THREE.TorusGeometry(mw*1.12,0.1,5,14,Math.PI),
+    mat(P.metal,{metal:0.5,rough:0.45}));
+  jamb.position.set(0,0.72,d/2+0.08); g.add(jamb);
+  const spout=meshOf(new THREE.BoxGeometry(0.34,0.06,1.0),
+    mat(mixTok(P.lava,0x18101C,0.45),{emissive:P.lava,ei:1.0,rough:0.5}),false,true);
+  spout.position.set(0,0.1,d/2+0.6); g.add(spout);
+  /* Roof furniture: a charging gantry across the top, and two offtake pipes
+     elbowing down the outside. This is the silhouette that separates it from
+     everything else on the island. */
+  const gm=mat(P.metal,{metal:0.55,rough:0.45});
+  for(const s of [-1,1]){
+    g.add(beam(new THREE.Vector3(s*w*0.28,y,-d*0.24),
+               new THREE.Vector3(s*w*0.28,y+0.9,-d*0.24),0.07,gm));
+  }
+  const gantry=meshOf(new THREE.BoxGeometry(w*0.72,0.12,0.3),gm);
+  gantry.position.set(0,y+0.92,-d*0.24); g.add(gantry);
+  const hopper=meshOf(new THREE.CylinderGeometry(0.3,0.18,0.42,8),
+    mat(P.iron,{metal:0.4,rough:0.6}));
+  const hx=w*0.2;
+  hopper.userData.tick=t=>{ hopper.position.set(Math.sin(t*0.4)*hx,y+0.62,-d*0.24); };
+  g.add(hopper); animated.push(hopper);
+  for(const s of [-1,1]){
+    const pipe=meshOf(new THREE.CylinderGeometry(0.11,0.11,y*0.8,8),gm);
+    pipe.position.set(s*(w*0.4),y*0.5,d*0.1); g.add(pipe);
+    const el=meshOf(new THREE.TorusGeometry(0.22,0.11,5,10,Math.PI/2),gm);
+    el.position.set(s*(w*0.4),y*0.9,d*0.1); el.rotation.y=s>0?0:Math.PI; g.add(el);
+  }
+  /* The stack, off-centre and taller than anything the houses carry. */
+  const st=meshOf(new THREE.CylinderGeometry(0.19,0.24,1.5,9),
+    mat(P.iron,{metal:0.4,rough:0.6}));
+  st.position.set(w*0.16,y+0.75,d*0.2); g.add(st);
+  const cap=meshOf(new THREE.CylinderGeometry(0.28,0.2,0.2,9),gm);
+  cap.position.set(w*0.16,y+1.55,d*0.2); g.add(cap);
+  forgeSmoke(P,g,w*0.16,y+1.7,d*0.2,1.4);
+  const wm=winMat(P,1.5);
+  for(let i=0;i<6;i++){
+    const s=i<3?1:-1, off=lerp(-d*0.24,d*0.24,(i%3)/2);
+    const win=meshOf(new THREE.CylinderGeometry(0.12,0.12,0.06,10),wm,false,false);
+    win.rotation.z=Math.PI/2;
+    win.position.set(s*(w*0.5+0.02),0.6+(i%3)*0.5,off); g.add(win);
+  }
+  return g;
+}
+
+function forgePlant(P,rnd){
+  /* Nothing grows here. What stands in for planting is a charred stump or a
+     scrap bollard — and the emptiness is the point: the forges are the one realm
+     where the ground is worked, not tended. */
+  const g=new THREE.Group();
+  if(rnd()<0.5){
+    const h=lerp(0.4,0.9,rnd());
+    g.add(meshOf(new THREE.CylinderGeometry(0.09,0.16,h,5),mat(P.wood,{rough:1}))
+      .translateY(h/2));
+    for(let i=0;i<2;i++){
+      const a=rnd()*TAU, len=lerp(0.3,0.6,rnd());
+      const br=meshOf(new THREE.CylinderGeometry(0.03,0.05,len,4),mat(P.wood,{rough:1}));
+      br.position.set(Math.cos(a)*len*0.3,h*0.85,Math.sin(a)*len*0.3);
+      br.rotation.set(Math.sin(a)*1.1,0,-Math.cos(a)*1.1); g.add(br);
+    }
+  }else{
+    const h=lerp(0.3,0.55,rnd());
+    g.add(meshOf(new THREE.CylinderGeometry(0.14,0.17,h,8),
+      mat(P.metal,{metal:0.45,rough:0.55})).translateY(h/2));
+    const cap=meshOf(new THREE.SphereGeometry(0.15,8,5,0,TAU,0,Math.PI/2),
+      mat(P.iron,{metal:0.5,rough:0.5}));
+    cap.position.y=h; g.add(cap);
+  }
+  return g;
+}
+
+function forgeFeature(P,rnd){
+  /* Ore and coal heaps, and the occasional glowing ingot rack. */
+  const g=new THREE.Group();
+  if(rnd()<0.62){
+    const n=4+Math.floor(rnd()*5);
+    for(let i=0;i<n;i++){
+      const s=lerp(0.1,0.24,rnd());
+      const c=meshOf(new THREE.DodecahedronGeometry(s,0),
+        mat(rnd()<0.75?0x2A2530:P.brick2,{rough:1}));
+      const a=rnd()*TAU, rr=rnd()*0.34;
+      c.position.set(Math.cos(a)*rr,s*0.8,Math.sin(a)*rr);
+      c.rotation.set(rnd()*3,rnd()*3,rnd()*3); g.add(c);
+    }
+  }else{
+    const rack=meshOf(new THREE.BoxGeometry(0.7,0.16,0.42),
+      mat(P.iron,{metal:0.4,rough:0.6}));
+    rack.position.y=0.08; g.add(rack);
     for(let i=0;i<3;i++){
-      const rr=R*(0.78-i*0.22);
-      const ring=meshOf(new THREE.TorusGeometry(rr,0.06,6,24),
-        mat(P.metal,{metal:0.7,rough:0.3,env:1.1}),false,false);
-      ring.position.set(0,R*0.95,0.38);
-      const sp2=(i%2?-1:1)*(0.3-i*0.07);
-      ring.userData.tick=t=>{ring.rotation.z=t*sp2;};
-      g.add(ring); animated.push(ring);
-      for(let k=0;k<6;k++){
-        const a=k/6*TAU;
-        const pin=meshOf(boxG(0.1,0.22,0.1),glowMat(P.accent,1.4),false,false);
-        pin.position.set(Math.cos(a)*rr,R*0.95+Math.sin(a)*rr,0.42);
-        const sp3=sp2;
-        pin.userData.tick=t=>{
-          const w=a+t*sp3;
-          pin.position.set(Math.cos(w)*rr,R*0.95+Math.sin(w)*rr,0.42);
-        };
-        g.add(pin); animated.push(pin);
-      }
+      const ing=meshOf(new THREE.BoxGeometry(0.5,0.09,0.1),
+        mat(mixTok(P.lava,0x2A1418,0.4),{emissive:P.lava,ei:0.9,rough:0.5}),false,false);
+      ing.position.set(0,0.2+i*0.1,lerp(-0.13,0.13,i/2)); g.add(ing);
     }
-    const hub=meshOf(new THREE.CylinderGeometry(0.26,0.26,0.5,10),
-      mat(P.metal,{metal:0.7,rough:0.3,env:1.1}));
-    hub.rotation.x=Math.PI/2; hub.position.set(0,R*0.95,0.5); g.add(hub);
-    for(let i=0;i<4;i++){
-      const a=i/4*TAU+Math.PI/4;
-      const spoke=meshOf(boxG(0.6,0.1,0.1),
-        mat(P.metal,{metal:0.7,rough:0.3}),false,false);
-      spoke.position.set(Math.cos(a)*0.3,R*0.95+Math.sin(a)*0.3,0.62);
-      spoke.rotation.z=a; g.add(spoke);
-    }
-    const step=meshOf(boxG(R*2.6,0.3,1.2),mat(P.stone2,{rough:0.92}));
-    step.position.set(0,0.15,0.9); g.add(step);
-    break; }
-
-  case 'watchfire': {       // sec_threats — a signal fire on a ring of posts
-    const R=2.2*s;
-    const n=clamp(4+Math.floor(sp.level/2),4,9);
-    for(let i=0;i<n;i++){
-      const a=i*GA;
-      const post=meshOf(new THREE.CylinderGeometry(0.14,0.18,1.5,7),mat(P.stone2,{rough:0.94}));
-      post.position.set(Math.cos(a)*R,0.75,Math.sin(a)*R); g.add(post);
-      const bowl=meshOf(new THREE.CylinderGeometry(0.3,0.16,0.24,8),
-        mat(P.metal,{metal:0.55,rough:0.5}));
-      bowl.position.set(Math.cos(a)*R,1.6,Math.sin(a)*R); g.add(bowl);
-      for(let k=0;k<2;k++){
-        const f=meshOf(new THREE.ConeGeometry(0.16,0.42,5),glowMat(P.accent,2.2),false,false);
-        f.position.set(Math.cos(a)*R,1.9,Math.sin(a)*R);
-        const ph=i*0.7+k;
-        f.userData.tick=t=>{
-          f.scale.set(1+Math.sin(t*6+ph)*0.22,1+Math.sin(t*7+ph)*0.3,1);
-          f.position.y=1.9+Math.sin(t*5+ph)*0.05;
-        };
-        g.add(f); animated.push(f);
-      }
-    }
-    const pyre=meshOf(new THREE.CylinderGeometry(0.7,0.95,0.8,9),mat(P.stone,{rough:0.94}));
-    pyre.position.y=0.4; g.add(pyre);
-    for(let i=0;i<5;i++){
-      const log=meshOf(new THREE.CylinderGeometry(0.09,0.09,1.3,6),mat(P.wood,{rough:0.96}));
-      const a=i/5*TAU;
-      log.position.set(Math.cos(a)*0.22,1.2,Math.sin(a)*0.22);
-      log.rotation.set(Math.cos(a)*0.42,0,-Math.sin(a)*0.42); g.add(log);
-    }
-    for(let k=0;k<4;k++){
-      const f=meshOf(new THREE.ConeGeometry(0.4,1.2,6),glowMat(P.accent2,2.4),false,false);
-      f.position.y=1.6;
-      f.userData.tick=t=>{
-        f.scale.set(1+Math.sin(t*4+k)*0.2,1+Math.sin(t*5+k*1.3)*0.28,1);
-        f.rotation.y=t*0.4+k;
-        f.material.emissiveIntensity=2.0+Math.sin(t*6+k)*0.7;
-      };
-      g.add(f); animated.push(f);
-    }
-    for(let k=0;k<6;k++){          // sparks off the pyre
-      const s2=meshOf(new THREE.IcosahedronGeometry(0.06,0),glowMat(P.accent,2.4),false,false);
-      s2.userData.tick=t=>{
-        const u=((t*0.4+k/6)%1);
-        s2.position.set(Math.sin(u*6+k)*0.5,1.8+u*3.4,Math.cos(u*5+k)*0.5);
-        s2.material.emissiveIntensity=2.4*(1-u);
-      };
-      g.add(s2); animated.push(s2);
-    }
-    break; }
-
-  /* ---- THE ARTISAN'S QUARTER ------------------------------------------- */
-  case 'clocktower': {      // career, eng_mgmt — the hour tower on its plinth
-    const t=quarterTower(P,rnd,4.6*s,true);
-    g.add(t);
-    const plinth=meshOf(boxG(2.2*s,0.4,2.2*s),mat(P.stone2,{rough:0.92}));
-    plinth.position.y=0.2; g.add(plinth);
-    t.position.y=0.4;
-    for(let i=0;i<4;i++){
-      const a=i/4*TAU+Math.PI/4;
-      const b=meshOf(boxG(0.7,0.2,0.3),mat(P.wood,{rough:0.95}));
-      b.position.set(Math.cos(a)*1.5*s,0.5,Math.sin(a)*1.5*s); b.rotation.y=-a; g.add(b);
-      const l=postLamp(P,rnd,'iron');
-      l.position.set(Math.cos(a)*2.1*s,0.4,Math.sin(a)*2.1*s); g.add(l);
-    }
-    break; }
-
-  case 'market': {          // industry_news, other — a square of striped stalls
-    const R=2.2*s;
-    const floor=meshOf(new THREE.CylinderGeometry(R*1.15,R*1.15,0.16,16),
-      mat(P.stone2,{rough:0.92}));
-    floor.position.y=0.08; g.add(floor);
-    const n=clamp(3+Math.floor(sp.level/1.5),3,10);
-    for(let i=0;i<n;i++){
-      const a=i*GA, rr=Math.sqrt((i+0.5)/10)*R;
-      const st=realmFeature(P,rngOf(hash2(P.seed,4400+i)),'stall');
-      st.position.set(Math.cos(a)*rr,0.16,Math.sin(a)*rr);
-      st.rotation.y=-a; st.scale.setScalar(1.15); g.add(st);
-    }
-    /* A well at the centre, because every market square has one. */
-    const well=meshOf(new THREE.CylinderGeometry(0.5,0.55,0.5,12),mat(P.stone,{rough:0.92}));
-    well.position.y=0.4; g.add(well);
-    const water=meshOf(new THREE.CircleGeometry(0.44,12),
-      mat(P.liquid,{emissive:P.liquid,ei:0.5,opacity:0.85,flat:false}),false,false);
-    water.rotation.x=-Math.PI/2; water.position.y=0.58; g.add(water);
-    for(const sx of [-1,1]){
-      const p=meshOf(new THREE.CylinderGeometry(0.05,0.05,1.2,5),mat(P.wood));
-      p.position.set(sx*0.42,1.05,0); g.add(p);
-    }
-    const roof=meshOf(new THREE.ConeGeometry(0.75,0.45,4),mat(P.roof,{rough:0.75}));
-    roof.rotation.y=Math.PI/4; roof.position.y=1.85; g.add(roof);
-    const bucket=meshOf(new THREE.CylinderGeometry(0.11,0.13,0.2,7),mat(P.wood));
-    g.add(bucket);
-    bucket.userData.tick=t=>{bucket.position.y=1.0+Math.sin(t*0.5)*0.35;};
-    animated.push(bucket);
-    break; }
-
-  case 'workshop': {        // devtools, software_craft — an open craft yard
-    const w=3.2*s, d=2.2*s, h=1.4*s;
-    const floor=meshOf(boxG(w,0.16,d),mat(P.stone2,{rough:0.92}));
-    floor.position.y=0.08; g.add(floor);
-    for(const sx of [-1,1]) for(const sz of [-1,1]){
-      const p=meshOf(new THREE.CylinderGeometry(0.09,0.11,h,7),mat(P.wood,{rough:0.95}));
-      p.position.set(sx*w*0.44,h/2,sz*d*0.42); g.add(p);
-    }
-    const roof=gableRoof(w*1.1,d*1.1,d*0.42,mat(P.roof,{rough:0.75}));
-    roof.position.y=h; g.add(roof);
-    /* A grindstone that turns, and a bench of tools that catch the light. */
-    const stand=meshOf(boxG(0.7,0.5,0.5),mat(P.wood,{rough:0.95}));
-    stand.position.set(-w*0.26,0.35,0); g.add(stand);
-    const stone=meshOf(new THREE.CylinderGeometry(0.42,0.42,0.16,16),
-      mat(P.cliffDark,{rough:0.9}));
-    stone.rotation.x=Math.PI/2; stone.position.set(-w*0.26,0.78,0.2); g.add(stone);
-    stone.userData.tick=t=>{stone.rotation.y=t*2.2;};
-    animated.push(stone);
-    const spark=meshOf(new THREE.IcosahedronGeometry(0.12,0),glowMat(P.accent,2.4),false,false);
-    spark.position.set(-w*0.26,0.98,0.3); g.add(spark);
-    spark.userData.tick=t=>{
-      const u=(t*1.4)%1, on=u<0.3?1-u/0.3:0;
-      spark.scale.setScalar(0.2+on*1.4); spark.material.emissiveIntensity=on*3;
+    const ph=rnd()*TAU;
+    g.userData.tick=t=>{
+      g.children.forEach(c=>{ if(c.material.emissive)
+        c.material.emissiveIntensity=0.75+Math.sin(t*0.9+ph)*0.3; });
     };
-    animated.push(spark);
-    const bench=meshOf(boxG(w*0.5,0.14,0.6),mat(P.wood,{rough:0.95}));
-    bench.position.set(w*0.2,0.68,0); g.add(bench);
-    for(const sx of [-1,1]){
-      const l=meshOf(boxG(0.1,0.6,0.1),mat(P.wood,{rough:0.95}));
-      l.position.set(w*0.2+sx*w*0.2,0.3,0); g.add(l);
-    }
-    const tools=clamp(3+sp.level,3,10);
-    for(let i=0;i<tools;i++){
-      const tl=meshOf(boxG(0.06,0.34,0.06),
-        mat(i%2?P.metal:P.accent,{metal:0.5,rough:0.45}),false,false);
-      tl.position.set(w*0.2+((i*0.37)%1-0.5)*w*0.45,0.92,-0.22);
-      tl.rotation.z=((i*0.61)%1-0.5)*0.4; g.add(tl);
-    }
-    const lamp=meshOf(new THREE.SphereGeometry(0.14,8,7),glowMat(P.bloom,1.8),false,false);
-    lamp.position.set(0,h-0.2,0); g.add(lamp);
-    break; }
+    animated.push(g);
+  }
+  return g;
+}
 
-  case 'library': {         // cs_fundamentals, git_vcs — a reading rotunda
-    const R=1.9*s, h=1.9*s;
-    const n=12;
+function forgeGarden(P,rnd){
+  /* Crates, drums and pipe stacks. The forges' equivalent of a hedge: the thing
+     that fills the ground between buildings and says the place is WORKED. */
+  const g=new THREE.Group();
+  const style=rnd();
+  if(style<0.4){
+    for(let i=0;i<2+Math.floor(rnd()*3);i++){
+      const s=lerp(0.22,0.34,rnd());
+      const b=meshOf(new THREE.BoxGeometry(s,s*0.9,s),mat(P.wood,{rough:0.98}));
+      b.position.set((rnd()-0.5)*0.4,s*0.45+i*s*0.9*(rnd()<0.4?1:0),(rnd()-0.5)*0.4);
+      b.rotation.y=rnd()*0.6; g.add(b);
+    }
+  }else if(style<0.75){
+    for(let i=0;i<2+Math.floor(rnd()*2);i++){
+      const r=lerp(0.14,0.2,rnd()), h=lerp(0.3,0.44,rnd());
+      const d=meshOf(new THREE.CylinderGeometry(r,r,h,9),
+        mat(rnd()<0.5?P.iron:P.brick2,{metal:0.3,rough:0.7}));
+      d.position.set((rnd()-0.5)*0.4,h/2,(rnd()-0.5)*0.4); g.add(d);
+      const rim=meshOf(new THREE.TorusGeometry(r,0.02,4,10),
+        mat(P.metal,{metal:0.6,rough:0.4}),false,false);
+      rim.rotation.x=Math.PI/2; rim.position.set(d.position.x,h*0.72,d.position.z); g.add(rim);
+    }
+  }else{
+    const n=3+Math.floor(rnd()*3);
     for(let i=0;i<n;i++){
-      const a=i/n*TAU;
-      const c=meshOf(new THREE.CylinderGeometry(0.12,0.14,h,8),mat(P.stone,{rough:0.9}));
-      c.position.set(Math.cos(a)*R,h/2,Math.sin(a)*R); g.add(c);
+      const len=lerp(0.6,1.0,rnd());
+      const p=meshOf(new THREE.CylinderGeometry(0.08,0.08,len,7),
+        mat(P.metal,{metal:0.5,rough:0.5}));
+      p.rotation.z=Math.PI/2; p.rotation.y=rnd()*0.5;
+      p.position.set((rnd()-0.5)*0.2,0.08+Math.floor(i/2)*0.17,(i%2)*0.17-0.08);
+      g.add(p);
     }
-    const ring=meshOf(new THREE.CylinderGeometry(R*1.18,R*1.18,0.24,18),
-      mat(P.stone2,{rough:0.9}));
-    ring.position.y=h+0.12; g.add(ring);
-    const dome=meshOf(new THREE.SphereGeometry(R*1.05,18,10,0,TAU,0,Math.PI/2),
-      mat(P.roof,{rough:0.65,flat:false}));
-    dome.position.y=h+0.2; dome.scale.y=0.72; g.add(dome);
-    const fin=meshOf(new THREE.IcosahedronGeometry(0.2,1),glowMat(P.accent,1.9),false,false);
-    fin.position.y=h+0.2+R*0.78; g.add(fin);
-    fin.userData.tick=t=>{fin.rotation.y=t*0.4;
-      fin.position.y=h+0.2+R*0.78+Math.sin(t*1.1)*0.05;};
-    animated.push(fin);
-    /* Stacks inside, and books circling the reading floor. */
-    const stacks=clamp(3+Math.floor(sp.level/2),3,8);
-    for(let i=0;i<stacks;i++){
-      const a=i*GA, rr=R*0.55;
-      const sh=meshOf(boxG(0.9,1.0,0.28),mat(P.wood,{rough:0.95}));
-      sh.position.set(Math.cos(a)*rr,0.5,Math.sin(a)*rr); sh.rotation.y=-a; g.add(sh);
-      for(let k=0;k<3;k++){
-        const b=meshOf(boxG(0.8,0.05,0.3),
-          glowMat(k%2?P.accent:P.accent2,0.8),false,false);
-        b.position.set(Math.cos(a)*rr,0.25+k*0.3,Math.sin(a)*rr); b.rotation.y=-a; g.add(b);
-      }
-    }
-    for(let i=0;i<5;i++){
-      const bk=meshOf(boxG(0.3,0.06,0.22),mat(P.bloom),false,false);
-      const rr=R*0.75, off=i*1.25, sp2=0.3+i*0.05;
-      bk.userData.tick=t=>{
-        const w=t*sp2+off;
-        bk.position.set(Math.cos(w)*rr,h*0.72+Math.sin(t*1.2+off)*0.2,Math.sin(w)*rr);
-        bk.rotation.set(0.3,w,Math.sin(t+off)*0.3);
-      };
-      g.add(bk); animated.push(bk);
-    }
-    break; }
-
-  default: return buildSignature(P,rnd,sp);      // the Arcane Swarm's seven
   }
   return g;
 }
 
-/* ------------------------------------------------------ realm land features
-   Two realms don't just decorate their land differently — they change what the
-   edge of the island IS. Both are built from the same absolute radii as
-   everything else, so they never move. */
-
-/* THE SHIPYARDS: open water outside the coast, and the island sits in it. */
-let SEA_Y=-2.3;   // set per build: just under the current coast
-/* THE SHIPYARDS' sea is NOT drawn here. In the lab a district is an island
-   floating alone, so its water is a ring around its own coast; in the world the
-   district stands on a plot, and a ring at the island's coastline is a ring
-   drawn inside the thing it is supposed to surround. The harbour realm floods
-   its own GROUND instead — see buildLand(). SEA_Y still exists because the realm's
-   boats read it to know where the waterline is. */
-
-/* THE BASTION: a battlemented rampart on every terrace edge the island has
-   reached. Fixed radii, so a wall built at L6 is the same wall at L12. */
-/* A curtain wall, not a fence. The old rampart was 0.3 thick and 1.0 tall, which
-   at any zoom read as a low kerb around the town — and "walled crag" is the
-   Bastion's whole landform. This one has a battered base, a wall-walk you can
-   see people are meant to stand on, merlons on the outer face only, drum towers
-   at intervals with conical caps and pennants, and a brazier burning on every
-   third tower. Fire on snow is the realm's one piece of spectacle. */
-function bastionFlame(P,scale=1){
-  const g=new THREE.Group();
-  const bowl=meshOf(new THREE.CylinderGeometry(0.17*scale,0.11*scale,0.16*scale,8),
-    mat(P.metal,{rough:0.6,metal:0.4}));
-  bowl.position.y=0.08*scale; g.add(bowl);
-  const fm=new THREE.MeshStandardMaterial({color:T.bun10,emissive:T.bun40,
-    emissiveIntensity:2.6,flatShading:true,transparent:true,opacity:0.92,roughness:0.3});
-  const fl=meshOf(new THREE.ConeGeometry(0.15*scale,0.42*scale,6),fm,false,false);
-  fl.position.y=0.34*scale; g.add(fl);
-  const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:T.bun20,
-    transparent:true,opacity:0.5,depthWrite:false,blending:THREE.AdditiveBlending}));
-  halo.scale.setScalar(1.5*scale); halo.position.y=0.36*scale; g.add(halo);
-  const ph=(P.seed%23)*0.41;
-  g.userData.tick=t=>{
-    const f=0.82+Math.sin(t*7.3+ph)*0.13+Math.sin(t*11.1+ph)*0.07;
-    fl.scale.set(1,f,1); fl.rotation.y=t*1.1;
-    fm.emissiveIntensity=2.2+f*0.9;
-    halo.material.opacity=0.36+f*0.2;
-  };
-  g.userData.keep=true; animated.push(g);
-  return g;
-}
-function bastionWallTower(P,h,brazier){
-  const g=new THREE.Group();
-  const r=0.46;
-  g.add(meshOf(new THREE.CylinderGeometry(r,r*1.16,h,10),mat(P.stone,{rough:0.94})));
-  const cor=meshOf(new THREE.CylinderGeometry(r*1.3,r*1.02,0.24,12),mat(P.stone2,{rough:0.94}));
-  cor.position.y=h/2; g.add(cor);
-  for(let i=0;i<9;i++){
-    const a=i/9*TAU;
-    const m=meshOf(boxG(0.2,0.3,0.16),mat(P.stone2,{rough:0.94}));
-    m.position.set(Math.cos(a)*r*1.2,h/2+0.28,Math.sin(a)*r*1.2); m.rotation.y=-a; g.add(m);
-  }
-  if(brazier){ const f=bastionFlame(P,1.1); f.position.y=h/2+0.42; g.add(f); }
-  else{
-    const c=meshOf(new THREE.ConeGeometry(r*1.34,0.9,10),mat(P.roof,{rough:0.62,metal:0.15}));
-    c.position.y=h/2+0.75; g.add(c);
-    const pole=meshOf(new THREE.CylinderGeometry(0.025,0.025,0.6,4),mat(P.metal,{metal:0.5}));
-    pole.position.y=h/2+1.45; g.add(pole);
-    const cloth=meshOf(new THREE.PlaneGeometry(0.3,0.2,4,2),
-      mat(P.accent,{side:THREE.DoubleSide,flat:false,rough:0.85}),true,false);
-    cloth.position.set(0.15,h/2+1.6,0); g.add(cloth);
-    const base=cloth.geometry.attributes.position.array.slice(), ph=(P.seed%17)*0.37;
-    cloth.userData.tick=t=>{
-      const q=cloth.geometry.attributes.position;
-      for(let i=0;i<q.count;i++)
-        q.setZ(i,Math.sin(t*3.6+ph+base[i*3]*7)*0.05*(base[i*3]/0.3+0.5));
-      q.needsUpdate=true;
-    };
-    cloth.userData.keep=true; animated.push(cloth);
-  }
-  g.position.y=h/2;
-  return g;
-}
-/* Siege engines in the muster yards. A fortress with no artillery in it is a
-   town with thick walls; a trebuchet says what the place is FOR, and it reads
-   at a glance because nothing else in the world has that silhouette. */
-function bastionSiege(P,rnd){
-  const g=new THREE.Group();
-  const timber=mat(P.wood,{rough:0.92}), iron=mat(P.metal,{metal:0.5,rough:0.55});
-  const s=lerp(0.85,1.15,rnd());
-  /* the sled */
-  const sled=meshOf(boxG(1.5*s,0.16*s,0.9*s),timber);
-  sled.position.y=0.1*s; g.add(sled);
-  for(const sx of [-1,1]) for(const sz of [-1,1]){
-    const w=meshOf(new THREE.CylinderGeometry(0.15*s,0.15*s,0.09*s,10),iron);
-    w.rotation.x=Math.PI/2;
-    w.position.set(sx*0.55*s,0.14*s,sz*0.44*s); g.add(w);
-  }
-  /* the A-frame */
-  for(const sz of [-1,1]) for(const sx of [-1,1]){
-    const leg=meshOf(boxG(0.1*s,1.5*s,0.1*s),timber);
-    leg.position.set(sx*0.42*s,0.9*s,sz*0.36*s);
-    leg.rotation.z=-sx*0.28; g.add(leg);
-  }
-  const axle=meshOf(new THREE.CylinderGeometry(0.06*s,0.06*s,0.95*s,8),iron);
-  axle.rotation.x=Math.PI/2; axle.position.y=1.6*s; g.add(axle);
-  /* the arm, pivoted — it rocks, slowly, as if being wound */
-  const arm=new THREE.Group(); arm.position.y=1.6*s;
-  const beam=meshOf(boxG(0.11*s,2.6*s,0.11*s),timber);
-  beam.position.y=0.55*s; arm.add(beam);
-  const cw=meshOf(boxG(0.5*s,0.5*s,0.42*s),mat(P.stone2,{rough:0.95}));
-  cw.position.y=-0.85*s; arm.add(cw);
-  const sling=meshOf(new THREE.CylinderGeometry(0.02*s,0.02*s,0.7*s,4),iron);
-  sling.position.set(0,1.95*s,0.2*s); sling.rotation.x=0.5; arm.add(sling);
-  const shot=meshOf(new THREE.DodecahedronGeometry(0.13*s,0),mat(P.rock,{rough:1}));
-  shot.position.set(0,1.68*s,0.5*s); arm.add(shot);
-  arm.rotation.x=-0.85;
-  g.add(arm);
-  const ph=rnd()*TAU;
-  arm.userData.tick=t=>{ arm.rotation.x=-0.85+Math.sin(t*0.32+ph)*0.1; };
-  arm.userData.keep=true; animated.push(arm);
-  /* a rack of shot beside it */
-  for(let i=0;i<3;i++){
-    const b=meshOf(new THREE.DodecahedronGeometry(0.13*s,0),mat(P.rock,{rough:1}));
-    b.position.set(0.95*s,0.13*s+(i===2?0.2*s:0),(i-1)*0.26*s*(i===2?0:1)); g.add(b);
-  }
-  return g;
-}
-
-/* ------------------------------------------------- molten ground (forge) */
-/* The Metal Forges own LAVA in the art direction and had none until the pond
-   arrived at L5, so a reader whose first article was Rust got a brown mud
-   pancake with brown pebbles on it. Bastion is the proof of the fix: its
-   ramparts are part of the LANDFORM, so the realm is legible at three articles
-   without a single building on the plot. Terrain exists at L1; props do not.
-
-   Veins are cut on a fixed set of bearings from index alone, and each one is
-   drawn only as far out as the island currently reaches — so growth extends the
-   cracks it already has and opens new ones outward, and none of them ever
-   moves. Same rule as everything else here. */
+/* The forges' landform: a vent with cracks running out of it, and — once the
+   district has terraces — a lava fall down each of them. Cut on fixed bearings
+   from index alone, so growth extends the cracks it already has and opens new
+   ones outward, and none of them ever moves. */
 function forgeVeins(P,prof,R,sp){
   const g=new THREE.Group();
-  /* The crust is DARK and the emissive is what glows. First pass set both the
-     colour and the emissive to the molten orange at 1.6 and the cracks came
-     back cream — an emissive that bright pushes every channel past one and ACES
-     hands back near-white, which reads as spilled plaster. Molten rock is a
-     dark surface with light coming out of it. */
-  const m=new THREE.MeshStandardMaterial({color:mixTok(P.liquid,T.pepper90,0.52),
-    emissive:P.liquid,emissiveIntensity:0.80,roughness:0.55});
-  matAnim(m,(mm,t)=>{ mm.emissiveIntensity=0.80*(0.74+Math.sin(t*0.7)*0.26); });
+  /* The crust is DARK and the emissive is what glows. Setting colour AND
+     emissive to molten orange gives you cream, because an emissive that bright
+     pushes every channel past one and ACES hands back near-white — which reads
+     as spilled plaster. Molten rock is a dark surface with light coming out. */
+  const m=new THREE.MeshStandardMaterial({color:mixTok(P.lava,0x18101C,0.55),
+    emissive:P.lava,emissiveIntensity:0.85,roughness:0.55});
 
-  /* One vent, at a fixed bearing, and the cracks run OUT OF IT. The first pass
-     had seven veins all starting at the island's centre at the same radius,
-     which is a sunburst — a pattern nothing geological makes. Lava comes from
-     somewhere. */
+  /* One vent, at a fixed bearing, and the cracks run OUT OF IT. Seven veins all
+     starting at the centre is a sunburst — a pattern nothing geological makes. */
   const va=P.seed*0.77+1.3, vr=0.95, vrr=radiusAt(prof,va);
   const vx=Math.cos(va)*vr*vrr, vz=Math.sin(va)*vr*vrr, vy=tierY(vr)+0.175;
+  g.userData.claims=[{x:vx,z:vz,d:(sp&&sp.pond?1.35:0.5)+0.6}];
 
-  /* Segments OVERLAP rather than abut. Laid end to end with a hair of gap they
-     read as a dotted line of planks; overlapped they read as one crack that
-     changes direction. */
+  /* Segments OVERLAP rather than abut: laid end to end with a hair of gap they
+     read as a dotted line of planks. */
   const crack=(x0,z0,a0,steps,w0)=>{
     let x=x0, z=z0, a=a0;
     for(let k=0;k<steps;k++){
       const len=lerp(0.55,0.95,((k*13+steps*7)%10)/10);
       a+=Math.sin(k*1.9+steps)*0.34;
       const w=Math.max(0.045,w0*(1-k/steps*0.65));
-      const seg=meshOf(boxG(len,0.03,w),m,false,false);
+      const seg=meshOf(new THREE.BoxGeometry(len,0.03,w),m,false,false);
       const nx=x+Math.cos(a)*len*0.5, nz=z+Math.sin(a)*len*0.5;
       const rr=Math.hypot(nx,nz);
       if(rr>R-0.30)break;
       seg.position.set(nx,tierY(rr)+0.175,nz); seg.rotation.y=-a;
       g.add(seg);
-      x+=Math.cos(a)*len*0.78; z+=Math.sin(a)*len*0.78;   // 0.78, so they lap
+      x+=Math.cos(a)*len*0.78; z+=Math.sin(a)*len*0.78;
     }
   };
   for(let i=0;i<4;i++) crack(vx,vz,i*1.57+P.seed*0.2,7,0.155);
-  /* And a few short fissures with no visible source, so the ground reads as
-     cracked rather than as plumbing. Fixed bearings from index alone. */
   for(let i=0;i<3;i++){
     const a=i*2.39996+P.seed*0.61, r=1.9+i*0.9;
     if(r>R-0.6)break;
     const rr=radiusAt(prof,a);
     crack(Math.cos(a)*r*rr,Math.sin(a)*r*rr,a+1.1,3,0.10);
   }
+  /* ---- the lake, and the river that leaves it ------------------------- */
+  /* The shipyards got moving water and the forges got a glowing crust, which
+     left the realm that OWNS liquid as the only one whose liquid did not move.
+     This is the same idea as the harbour, in the other medium: a lake with a
+     live surface, a river cut from it that steps down every terrace it crosses,
+     and a fall at each lip. Fixed bearing and fixed radii like everything else,
+     so the river a district cut at L5 is the same river at L12 — it only ever
+     gets longer as the land reaches further. */
+  const lake=sp&&sp.pond;
+  const lr=lake?1.35:0.5;
+  const surf=new THREE.MeshStandardMaterial({color:mixTok(P.lava,0x2A1410,0.22),
+    emissive:P.lava,emissiveIntensity:1.15,roughness:0.38,flatShading:false});
 
-  const pool=meshOf(new THREE.CylinderGeometry(0.44,0.36,0.08,13),m,false,false);
-  pool.position.set(vx,vy+0.01,vz); g.add(pool);
-  const lip=meshOf(new THREE.TorusGeometry(0.48,0.10,4,14),
-    mat(P.rock,{rough:1}),false,true);
+  const disc=new THREE.CircleGeometry(lr,lake?20:12);
+  disc.rotateX(-Math.PI/2);
+  const pool=new THREE.Mesh(disc,surf);
+  pool.position.set(vx,vy+0.04,vz); pool.receiveShadow=true;
+  const pbase=disc.attributes.position.array.slice();
+  pool.userData.tick=t=>{
+    /* A live surface, exactly the trick the harbour water uses — the molten
+       version just moves slower and heavier. */
+    const p=pool.geometry.attributes.position;
+    for(let i=0;i<p.count;i++){
+      const x=pbase[i*3], z=pbase[i*3+2];
+      p.setY(i,Math.sin(t*0.7+x*1.4)*0.05+Math.sin(t*0.5+z*1.8)*0.04);
+    }
+    p.needsUpdate=true;
+    surf.emissiveIntensity=1.15*(0.82+Math.sin(t*0.6)*0.18);
+    m.emissiveIntensity=0.85*(0.74+Math.sin(t*0.7)*0.26);
+  };
+  g.add(pool); animated.push(pool);
+  const lip=meshOf(new THREE.TorusGeometry(lr*1.06,0.12,4,lake?18:14),
+    mat(P.cliff,{rough:1}),false,true);
   lip.rotation.x=Math.PI/2; lip.position.set(vx,vy,vz); g.add(lip);
+  /* Crust islands floating on the melt — the black skin that forms on standing
+     lava, and the thing that makes the pool read as molten rock rather than as
+     orange paint. */
+  if(lake){
+    for(let i=0;i<5;i++){
+      const a=i*2.399963229728653, rr=lr*lerp(0.25,0.78,((i*0.37)%1));
+      const cr=meshOf(new THREE.DodecahedronGeometry(lerp(0.12,0.26,((i*0.61)%1)),0),
+        mat(P.rock,{rough:1}),false,false);
+      cr.position.set(vx+Math.cos(a)*rr,vy+0.07,vz+Math.sin(a)*rr);
+      cr.scale.y=0.3; cr.rotation.y=a; g.add(cr);
+    }
+  }
+
+  if(lake){
+    /* The channel. Segments laid on the terrain so it steps down with it. */
+    const r0=lr+0.35, r1=R-0.45;
+    const step=0.5;
+    for(let r=r0;r<r1;r+=step){
+      const wr=radiusAt(prof,va)*r;
+      const seg=meshOf(new THREE.BoxGeometry(step*1.25,0.07,0.62),surf,false,true);
+      seg.position.set(Math.cos(va)*wr,tierY(r)+0.2,Math.sin(va)*wr);
+      seg.rotation.y=-va; g.add(seg);
+      /* Cooled banks either side, so the river is cut INTO something. */
+      for(const s of [-1,1]){
+        const bank=meshOf(new THREE.BoxGeometry(step*1.25,0.14,0.18),
+          mat(P.rock,{rough:1}),false,true);
+        bank.position.set(Math.cos(va)*wr-Math.sin(-va)*s*0.4,tierY(r)+0.21,
+                          Math.sin(va)*wr-Math.cos(-va)*s*0.4);
+        bank.rotation.y=-va; g.add(bank);
+      }
+    }
+    /* Flow. Bright cells running outward down the channel — the one thing that
+       says the lava is going somewhere. Own material each, because they fade. */
+    for(let k=0;k<7;k++){
+      const fm=new THREE.MeshStandardMaterial({color:P.lavaHot,emissive:P.lavaHot,
+        emissiveIntensity:1.8,roughness:0.3,transparent:true,opacity:0.9});
+      const cell=meshOf(new THREE.BoxGeometry(0.5,0.05,0.42),fm,false,false);
+      cell.rotation.y=-va;
+      cell.userData.tick=t=>{
+        const u=(t*0.14+k/7)%1;
+        const r=lerp(r0,r1,u), wr=radiusAt(prof,va)*r;
+        cell.position.set(Math.cos(va)*wr,tierY(r)+0.24,Math.sin(va)*wr);
+        fm.opacity=0.9*Math.min(1,Math.sin(u*Math.PI)*2.2);
+      };
+      g.add(cell); animated.push(cell);
+    }
+    /* A fall at every terrace lip the river crosses, and a plume off the coast
+       once the district is big enough to have run out of land. */
+    if(sp.falls){
+      for(const b of TIER_R){
+        if(b<r0||b>=R)continue;
+        const bwr=radiusAt(prof,va)*b;
+        const c=buildFalls(P,TIER_STEP+0.25);
+        c.position.set(Math.cos(va)*bwr,tierY(b-1e-6)+0.18,Math.sin(va)*bwr);
+        c.rotation.y=-va+Math.PI/2; g.add(c);
+      }
+      const rwr=radiusAt(prof,va)*R;
+      const plume=buildFalls(P,R*0.5+3);
+      plume.position.set(Math.cos(va)*rwr*0.99,tierY(R-1e-6)+0.1,
+                         Math.sin(va)*rwr*0.99);
+      plume.rotation.y=-va+Math.PI/2; g.add(plume);
+    }
+  }
   return g;
 }
 
+/* ============================================================ THE SHIPYARDS
+   Reference: a grey crag under a poured concrete deck, rectangular basins of
+   turquoise water cut into that deck and walled in painted quay, cream sheds
+   with curved corrugated roofs and cyan stripes, lattice gantry cranes, a
+   white-and-cyan banded lighthouse, stacked containers, barrels, coiled rope,
+   bollards, gulls, and a bright noon sky.
+
+   The realm's tell is that the WATER IS INSIDE THE ISLAND. Everywhere else the
+   liquid is a pond or a moat; here the deck is cut open for it. */
+function shipHouse(P,rnd,scale=1){
+  const g=new THREE.Group();
+  const w=lerp(1.0,1.5,rnd())*scale, d=lerp(1.0,1.5,rnd())*scale;
+  const h=lerp(0.4,0.62,rnd())*scale;
+  g.add(meshOf(new THREE.BoxGeometry(w,h,d),mat(P.hull,{rough:0.75})).translateY(h/2));
+  const vault=meshOf(new THREE.CylinderGeometry(w/2,w/2,d,12,1,false,0,Math.PI),
+    mat(P.hull,{rough:0.62,metal:0.1}));
+  vault.rotation.z=Math.PI/2; vault.rotation.y=Math.PI/2; vault.position.y=h; g.add(vault);
+  /* The cyan stripe. It is the single strongest realm signal in the reference —
+     every shed, every hull, every tower has one. */
+  const stripe=meshOf(new THREE.CylinderGeometry(w/2*1.012,w/2*1.012,d*0.3,12,1,false,0,Math.PI),
+    mat(rnd()<0.6?P.stripe:P.stripe2,{rough:0.6,metal:0.1}),true,false);
+  stripe.rotation.z=Math.PI/2; stripe.rotation.y=Math.PI/2;
+  stripe.position.set(0,h,lerp(-d*0.25,d*0.25,rnd())); g.add(stripe);
+  for(let i=0;i<6;i++){
+    const z=lerp(-d/2,d/2,(i+0.5)/6);
+    const rib=meshOf(new THREE.TorusGeometry(w/2*1.02,0.025,4,10,Math.PI),
+      mat(P.metal,{metal:0.4,rough:0.5}),true,false);
+    rib.position.set(0,h,z); g.add(rib);
+  }
+  /* A big roller door in stripe blue, and a couple of portholes. */
+  const ds=rnd()<0.5?1:-1;
+  const door=meshOf(new THREE.BoxGeometry(w*0.5,h*0.8+w*0.2,0.05),
+    mat(P.stripe2,{rough:0.6}),false,false);
+  door.position.set(0,(h*0.8+w*0.2)/2,ds*(d/2+0.02)); g.add(door);
+  const wm=winMat(P,0.8);
+  for(let i=0;i<2;i++){
+    const s=rnd()<0.5?1:-1;
+    const win=meshOf(new THREE.CylinderGeometry(0.09*scale,0.09*scale,0.05,10),wm,false,false);
+    win.rotation.z=Math.PI/2; win.position.set(s*(w/2+0.01),h*0.6,(rnd()-0.5)*d*0.5);
+    g.add(win);
+    const fr=meshOf(new THREE.TorusGeometry(0.11*scale,0.025,4,10),
+      mat(P.metal,{metal:0.5,rough:0.45}),false,false);
+    fr.position.copy(win.position); fr.rotation.y=Math.PI/2; g.add(fr);
+  }
+  return g;
+}
+
+function shipTower(P,rnd,h,great){
+  const g=new THREE.Group();
+  /* A gantry crane, not a spire. In this realm the tall things are machines, and
+     the lattice is what reads at silhouette scale. */
+  const legMat=mat(P.lattice,{rough:0.72});
+  const legR=lerp(0.7,1.0,rnd());
+  for(let i=0;i<4;i++){
+    const a=i/4*TAU+Math.PI/4;
+    g.add(beam(new THREE.Vector3(Math.cos(a)*legR*1.25,0,Math.sin(a)*legR*1.25),
+               new THREE.Vector3(Math.cos(a)*legR*0.42,h*0.72,Math.sin(a)*legR*0.42),
+               0.075,legMat));
+  }
+  /* Cross-bracing: the difference between a crane and four sticks. */
+  for(let k=1;k<5;k++){
+    const y=h*0.72*k/5, r=lerp(legR*1.25,legR*0.42,k/5);
+    const ring=meshOf(new THREE.TorusGeometry(r,0.035,4,4),legMat,true,false);
+    ring.rotation.x=Math.PI/2; ring.rotation.z=Math.PI/4; ring.position.y=y; g.add(ring);
+  }
+  const cab=meshOf(new THREE.BoxGeometry(0.7,0.5,0.7),mat(P.stripe,{rough:0.6}));
+  cab.position.y=h*0.72+0.25; g.add(cab);
+  const glass=meshOf(new THREE.BoxGeometry(0.55,0.24,0.05),winMat(P,0.8),false,false);
+  glass.position.set(0,h*0.72+0.3,0.36); g.add(glass);
+  /* The jib, out over the water, with a hook on a cable that actually moves. */
+  const jibLen=lerp(2.2,3.4,rnd()), ja=rnd()*TAU;
+  const jib=meshOf(new THREE.BoxGeometry(jibLen,0.16,0.24),legMat);
+  jib.position.set(Math.cos(ja)*jibLen*0.34,h*0.72+0.62,Math.sin(ja)*jibLen*0.34);
+  jib.rotation.y=-ja; g.add(jib);
+  const tail=meshOf(new THREE.BoxGeometry(jibLen*0.4,0.14,0.2),legMat);
+  tail.position.set(-Math.cos(ja)*jibLen*0.26,h*0.72+0.62,-Math.sin(ja)*jibLen*0.26);
+  tail.rotation.y=-ja; g.add(tail);
+  const stay=meshOf(new THREE.CylinderGeometry(0.03,0.03,jibLen*0.62,4),legMat,true,false);
+  stay.position.set(Math.cos(ja)*jibLen*0.3,h*0.72+0.95,Math.sin(ja)*jibLen*0.3);
+  stay.rotation.set(0,-ja,Math.PI/2-0.35); g.add(stay);
+  const hookX=Math.cos(ja)*jibLen*0.62, hookZ=Math.sin(ja)*jibLen*0.62;
+  const cable=meshOf(new THREE.CylinderGeometry(0.02,0.02,1,4),
+    mat(P.metal,{metal:0.5,rough:0.5}),false,false);
+  const hook=meshOf(new THREE.BoxGeometry(0.22,0.26,0.22),mat(P.rust,{rough:0.85}));
+  const topY=h*0.72+0.54;
+  cable.userData.tick=t=>{
+    const drop=1.4+Math.sin(t*0.5)*1.1;
+    cable.scale.y=drop; cable.position.set(hookX,topY-drop/2,hookZ);
+    hook.position.set(hookX,topY-drop,hookZ);
+  };
+  g.add(cable,hook); animated.push(cable);
+  /* A beacon on the cab, because a crane at this height is an obstruction. */
+  const bl=meshOf(new THREE.SphereGeometry(0.09,7,6),glowMat(P.accent,1.8),false,false);
+  bl.position.y=h*0.72+0.55;
+  bl.userData.tick=t=>{bl.material.emissiveIntensity=1.0+Math.abs(Math.sin(t*1.6))*1.6;};
+  g.add(bl); animated.push(bl);
+  if(great) greatCrown(P,g,h*0.72+1.9,0.7);
+  return g;
+}
+
+function shipHall(P,rnd){
+  /* A SAWTOOTH assembly shop. The houses own the curved corrugated shed, and
+     the hall was the same shed at three times the size — the one shape the
+     shipyards repeated at two scales. A north-light roof is the other classic
+     industrial section and it could not look less like a barrel vault: a run of
+     hard asymmetric teeth, each with a glazed face, sitting on a squared-off
+     box. It also gives the realm a straight roofline, which the whole island
+     was missing. */
+  const g=new THREE.Group();
+  const w=lerp(2.4,3.0,rnd()), d=lerp(3.0,3.8,rnd()), h=lerp(0.9,1.2,rnd());
+  g.add(meshOf(new THREE.BoxGeometry(w,h,d),mat(P.hull,{rough:0.72})).translateY(h/2));
+  const teeth=Math.max(3,Math.round(d/0.95));
+  const tw=d/teeth;
+  for(let i=0;i<teeth;i++){
+    const z=-d/2+tw*(i+0.5);
+    /* The solid rake: a thin slab leaned over, tall edge to the north. */
+    const rake=meshOf(new THREE.BoxGeometry(w,0.1,tw*1.16),
+      mat(P.hull,{rough:0.65,metal:0.1}));
+    rake.position.set(0,h+0.34,z+tw*0.1); rake.rotation.x=0.62; g.add(rake);
+    /* The glazed face, near-vertical, catching the sky. */
+    const glass=meshOf(new THREE.BoxGeometry(w*0.94,0.62,0.05),
+      mat(0xCFEAF5,{opacity:0.6,rough:0.08,metal:0.25,flat:false,
+        emissive:0xCFEAF5,ei:0.24}),false,false);
+    glass.position.set(0,h+0.34,z-tw*0.34); glass.rotation.x=0.16; g.add(glass);
+    for(let k=0;k<3;k++){
+      const mul=meshOf(new THREE.BoxGeometry(0.05,0.62,0.06),
+        mat(P.metal,{metal:0.5,rough:0.45}),false,false);
+      mul.position.set(lerp(-w*0.3,w*0.3,k/2),h+0.34,z-tw*0.34-0.01);
+      mul.rotation.x=0.16; g.add(mul);
+    }
+    /* The gutter between teeth. */
+    const gut=meshOf(new THREE.BoxGeometry(w,0.09,0.14),mat(P.stripe2,{rough:0.6}));
+    gut.position.set(0,h+0.04,z-tw*0.5); g.add(gut);
+  }
+  /* Eaves band and the big sliding doors, in the realm's cyan. */
+  const band=meshOf(new THREE.BoxGeometry(w*1.02,0.18,d*1.02),mat(P.stripe,{rough:0.6}));
+  band.position.y=h*0.78; g.add(band);
+  const door=meshOf(new THREE.BoxGeometry(w*0.66,h*0.86,0.06),
+    mat(P.stripe2,{rough:0.6}),false,false);
+  door.position.set(0,h*0.43,d/2+0.02); g.add(door);
+  for(let i=0;i<4;i++){
+    const seam=meshOf(new THREE.BoxGeometry(0.05,h*0.86,0.05),
+      mat(P.hull,{rough:0.7}),false,false);
+    seam.position.set(lerp(-w*0.3,w*0.3,i/3),h*0.43,d/2+0.05); g.add(seam);
+  }
+  const wm=winMat(P,0.8);
+  for(let i=0;i<4;i++){
+    const s=i<2?1:-1;
+    const win=meshOf(new THREE.BoxGeometry(0.05,0.26,0.5),wm,false,false);
+    win.position.set(s*(w/2+0.02),h*0.5,lerp(-d*0.28,d*0.28,(i%2))); g.add(win);
+  }
+  /* A roof vent stack, so the shop reads as working. */
+  const v=meshOf(new THREE.CylinderGeometry(0.12,0.14,0.5,8),
+    mat(P.metal,{metal:0.45,rough:0.5}));
+  v.position.set(w*0.3,h+0.95,-d*0.3); g.add(v);
+  return g;
+}
+
+function shipPlant(P,rnd){
+  /* A bollard with rope on it, or a scruff of dock grass. Nothing is planted in
+     a working yard; things are TIED UP in it. */
+  const g=new THREE.Group();
+  if(rnd()<0.6){
+    const h=lerp(0.28,0.42,rnd());
+    g.add(meshOf(new THREE.CylinderGeometry(0.11,0.14,h,9),
+      mat(P.metal,{metal:0.35,rough:0.6})).translateY(h/2));
+    const cap=meshOf(new THREE.SphereGeometry(0.13,9,6,0,TAU,0,Math.PI/2),
+      mat(P.metal,{metal:0.4,rough:0.55}));
+    cap.position.y=h; g.add(cap);
+    for(let i=0;i<3;i++){
+      const rope=meshOf(new THREE.TorusGeometry(0.15+i*0.012,0.028,4,12),
+        mat(P.rust,{rough:0.95}),true,false);
+      rope.rotation.x=Math.PI/2; rope.position.y=h*0.4+i*0.06; g.add(rope);
+    }
+  }else{
+    for(let i=0;i<4;i++){
+      const b=meshOf(new THREE.ConeGeometry(0.07,lerp(0.2,0.4,rnd()),4),
+        mat(rnd()<0.5?P.grass:P.grass2,{rough:1}),false,false);
+      b.position.set((rnd()-0.5)*0.4,0.14,(rnd()-0.5)*0.4);
+      b.rotation.z=(rnd()-0.5)*0.4; g.add(b);
+    }
+  }
+  return g;
+}
+
+function shipFeature(P,rnd){
+  /* Containers, crates and barrels. The reference stacks them in reds, blues and
+     teals, and that scatter of saturated boxes is most of what makes the yard
+     look busy rather than derelict. */
+  const g=new THREE.Group();
+  const CON=[0xC2453C,0x2E6FA8,0x2FA0A8,0xC9A02E,0x8C8C87];
+  const style=rnd();
+  if(style<0.45){
+    const n=1+Math.floor(rnd()*3);
+    for(let i=0;i<n;i++){
+      const w=lerp(0.7,1.0,rnd()), h=0.34, d=lerp(0.34,0.42,rnd());
+      const c=meshOf(new THREE.BoxGeometry(w,h,d),
+        mat(CON[Math.floor(rnd()*CON.length)],{rough:0.78}));
+      c.position.set((rnd()-0.5)*0.22,h/2+i*h,(rnd()-0.5)*0.22);
+      c.rotation.y=(rnd()-0.5)*0.4; g.add(c);
+      /* Corrugation, as three ribs on the long face. */
+      for(let k=0;k<3;k++){
+        const rb=meshOf(new THREE.BoxGeometry(0.03,h*0.9,d*1.01),
+          mat(0x000000,{rough:1,opacity:0.16}),false,false);
+        rb.position.set(c.position.x+lerp(-w*0.3,w*0.3,k/2),c.position.y,c.position.z);
+        rb.rotation.y=c.rotation.y; g.add(rb);
+      }
+    }
+  }else if(style<0.78){
+    for(let i=0;i<2+Math.floor(rnd()*3);i++){
+      const r=lerp(0.13,0.18,rnd()), h=lerp(0.3,0.42,rnd());
+      const b=meshOf(new THREE.CylinderGeometry(r,r,h,10),
+        mat(rnd()<0.5?P.wood:P.stripe,{rough:0.8}));
+      b.position.set((rnd()-0.5)*0.44,h/2,(rnd()-0.5)*0.44); g.add(b);
+      for(let k=0;k<2;k++){
+        const hp=meshOf(new THREE.TorusGeometry(r*1.02,0.018,4,12),
+          mat(P.metal,{metal:0.55,rough:0.45}),false,false);
+        hp.rotation.x=Math.PI/2;
+        hp.position.set(b.position.x,h*(0.3+k*0.42),b.position.z); g.add(hp);
+      }
+    }
+  }else{
+    /* Coiled rope — flat, and unmistakably a dock. */
+    for(let i=0;i<3;i++){
+      const cr=meshOf(new THREE.TorusGeometry(0.16+i*0.07,0.045,5,16),
+        mat(P.rust,{rough:0.95}));
+      cr.rotation.x=Math.PI/2; cr.position.y=0.05; g.add(cr);
+    }
+  }
+  return g;
+}
+
+function shipGarden(P,rnd){
+  const g=new THREE.Group();
+  if(rnd()<0.5){
+    for(let i=0;i<3;i++){
+      const pl=meshOf(new THREE.BoxGeometry(0.62,0.08,0.5),mat(P.wood,{rough:0.95}));
+      pl.position.set((rnd()-0.5)*0.1,0.04+i*0.09,(rnd()-0.5)*0.1);
+      pl.rotation.y=(rnd()-0.5)*0.3; g.add(pl);
+    }
+  }else{
+    const pot=meshOf(new THREE.CylinderGeometry(0.22,0.18,0.24,8),
+      mat(P.stripe2,{rough:0.7}));
+    pot.position.y=0.12; g.add(pot);
+    for(let i=0;i<3;i++){
+      const b=meshOf(new THREE.IcosahedronGeometry(lerp(0.12,0.2,rnd()),0),
+        mat(rnd()<0.5?P.grass:P.grass2,{rough:0.98}));
+      b.position.set((rnd()-0.5)*0.2,0.3,(rnd()-0.5)*0.2); g.add(b);
+    }
+  }
+  return g;
+}
+
+/* The shipyards' landform, and the biggest of the six: open water outside the
+   coast, a painted quay wall where the land meets it, and BASINS cut into the
+   deck itself at fixed radii. */
+/* NO SEA OF ITS OWN. The bench drew a moat round every harbour island, which is
+   right for one island on a bench and wrong twice over here: a district stands
+   on the realm's ground and that ground is ALREADY flooded (buildLand), and the
+   realm island gets its own annulus in buildIsland. Drawing a third one put a
+   ring of water inside the water, once per district. What the harbour builds is
+   what the water meets — the quay wall — and the basins cut into the deck. */
+function shipHarbour(P,prof,R){
+  const g=new THREE.Group();
+  /* Quay wall, painted at the top in the realm's cyan. Land has to meet water in
+     SOMETHING, or the island looks like it was dropped in a puddle. */
+  const top=tierY(R-1e-6), hgt=top-(SEA_Y-0.6);
+  const n=Math.round(R*3.2);
+  for(let i=0;i<n;i++){
+    const a=i/n*TAU, rr=radiusAt(prof,a)*R;
+    const seg=rr*TAU/n*1.2;
+    const w=meshOf(new THREE.BoxGeometry(0.34,hgt,seg),mat(P.stone2,{rough:0.92}));
+    w.position.set(Math.cos(a)*rr,top-hgt/2,Math.sin(a)*rr); w.rotation.y=-a; g.add(w);
+    const cap=meshOf(new THREE.BoxGeometry(0.4,0.13,seg),mat(P.stripe,{rough:0.7}));
+    cap.position.set(Math.cos(a)*rr,top-0.06,Math.sin(a)*rr); cap.rotation.y=-a; g.add(cap);
+    if(i%4===0){
+      const f=meshOf(new THREE.CylinderGeometry(0.12,0.12,0.5,8),mat(P.wood,{rough:0.95}));
+      f.position.set(Math.cos(a)*(rr+0.16),SEA_Y+0.55,Math.sin(a)*(rr+0.16));
+      f.rotation.z=Math.PI/2; f.rotation.y=-a; g.add(f);
+    }
+  }
+  /* Basins cut into the deck. Fixed bearings and fixed radii, so a basin opened
+     at L5 is the same basin at L12 — the deck grows around it. */
+  const rnd=rngOf(hash2(P.seed,6600));
+  g.userData.claims=[];
+  for(let i=0;i<3;i++){
+    const a=i*2.399963229728653+P.seed*0.23, br=2.6+i*2.4;
+    if(br>R-1.4)break;
+    const wr=radiusAt(prof,a)*br;
+    const x=Math.cos(a)*wr, z=Math.sin(a)*wr, y=tierY(br)+0.16;
+    const bw=lerp(1.8,2.6,rnd()), bd=lerp(1.1,1.7,rnd());
+    const basin=new THREE.Group();
+    const water=meshOf(new THREE.BoxGeometry(bw,0.1,bd),
+      mat(P.water,{opacity:0.9,rough:0.12,metal:0.12,flat:false,
+        emissive:P.water,ei:0.16}),false,true);
+    water.position.y=-0.16; basin.add(water);
+    /* The painted coping around it — this is the detail that makes the reference
+       image's basins read as engineered rather than as spilled paint. */
+    for(const [ox,oz,sw,sd] of [[0,bd/2+0.14,bw+0.56,0.28],[0,-bd/2-0.14,bw+0.56,0.28],
+                                [bw/2+0.14,0,0.28,bd+0.02],[-bw/2-0.14,0,0.28,bd+0.02]]){
+      const k=meshOf(new THREE.BoxGeometry(sw,0.24,sd),mat(P.stripe,{rough:0.7}));
+      k.position.set(ox,-0.06,oz); basin.add(k);
+    }
+    basin.position.set(x,y,z); basin.rotation.y=-a;
+    g.userData.claims.push({x,z,d:Math.max(bw,bd)/2+0.5});
+    g.add(basin);
+  }
+  return g;
+}
+
+/* ============================================================== THE BASTION
+   Reference: concentric crenellated ring-walls climbing to a domed keep, round
+   drum towers with domed caps, deep snow lying on every ledge, icicles under the
+   rim, snow-dusted conifers, small arrow-slits glowing cold blue, and a bright
+   winter sky over distant peaks.
+
+   The realm is legible from the LANDFORM alone: nothing else in the world is
+   walled, and nothing else is white on top and grey underneath. */
+function bastionHouse(P,rnd,scale=1){
+  /* A rectangular blockhouse with a steep pitched roof, NOT a small drum tower.
+     The bastion's towers are drums with domed caps, and when the houses were
+     the same thing scaled down the whole fortress read as one turret repeated
+     forty times. Barracks are built square, and a steep roof is what a place
+     that gets this much snow actually needs — so the difference is functional
+     rather than decorative. */
+  const g=new THREE.Group();
+  const w=lerp(0.85,1.25,rnd())*scale, d=lerp(0.7,1.0,rnd())*scale;
+  const h=lerp(0.5,0.72,rnd())*scale;
+  g.add(meshOf(new THREE.BoxGeometry(w,h,d),mat(P.stone,{rough:0.94}))
+    .translateY(h/2));
+  /* Quoined corners — lighter stone at the angles. Two draw calls that do more
+     for "cut ashlar" than any amount of coursing on a curved wall could. */
+  for(let k=0;k<4;k++){
+    const a=k/4*TAU+Math.PI/4;
+    const q=meshOf(new THREE.BoxGeometry(0.11*scale,h,0.11*scale),
+      mat(P.stone2,{rough:0.94}),false,false);
+    q.position.set(Math.cos(a)*w*0.5,h/2,Math.sin(a)*d*0.5); g.add(q);
+  }
+  /* Steep pitch, and the snow lying on it as its own shell just above. */
+  const rise=lerp(0.5,0.72,rnd())*scale;
+  const roof=meshOf(new THREE.CylinderGeometry(0.001,Math.max(w,d)*0.78,rise,4),
+    mat(P.stone2,{rough:0.92}));
+  roof.rotation.y=Math.PI/4; roof.position.y=h+rise/2; g.add(roof);
+  const snow=meshOf(new THREE.CylinderGeometry(0.001,Math.max(w,d)*0.79,rise*0.62,4),
+    mat(P.snow,{rough:1}));
+  snow.rotation.y=Math.PI/4; snow.position.y=h+rise-rise*0.62/2+0.01; g.add(snow);
+  /* A snow ledge on the eaves, where it actually piles up. */
+  const eave=meshOf(new THREE.BoxGeometry(w*1.2,0.07*scale,d*1.2),
+    mat(P.snow,{rough:1}),true,false);
+  eave.position.y=h+0.02; g.add(eave);
+  if(rnd()<0.5){
+    const ch=meshOf(new THREE.BoxGeometry(0.16*scale,0.5*scale,0.16*scale),
+      mat(P.stone2,{rough:0.94}));
+    ch.position.set(w*0.28,h+rise*0.6,d*0.2); g.add(ch);
+    const cs=meshOf(new THREE.BoxGeometry(0.19*scale,0.05*scale,0.19*scale),
+      mat(P.snow,{rough:1}),false,false);
+    cs.position.set(w*0.28,h+rise*0.6+0.26*scale,d*0.2); g.add(cs);
+  }
+  /* Arrow slits, glowing cold. Warm windows would make this a cottage. */
+  const sm=mat(P.ward,{emissive:P.ward,ei:1.5,rough:0.4,flat:false});
+  for(let i=0;i<2+Math.floor(rnd()*2);i++){
+    const side=Math.floor(rnd()*4);
+    const s=meshOf(new THREE.BoxGeometry(0.07*scale,0.22*scale,0.05),sm,false,false);
+    const off=(rnd()-0.5)*0.4;
+    if(side===0)s.position.set(off,h*0.55,d/2+0.01);
+    else if(side===1){s.position.set(off,h*0.55,-d/2-0.01);s.rotation.y=Math.PI;}
+    else if(side===2){s.position.set(w/2+0.01,h*0.55,off);s.rotation.y=Math.PI/2;}
+    else {s.position.set(-w/2-0.01,h*0.55,off);s.rotation.y=-Math.PI/2;}
+    g.add(s);
+  }
+  return g;
+}
+
+function bastionTower(P,rnd,h,great){
+  const g=new THREE.Group();
+  const segs=2+Math.floor(rnd()*2);
+  const tp=taper();
+  let y=0, r=lerp(0.55,0.78,rnd());
+  for(let i=0;i<segs;i++){
+    const sh=h/segs*lerp(0.9,1.1,rnd()), rt=r*lerp(0.86,0.94,rnd());
+    tp.add(y,y+sh,r,rt);
+    g.add(meshOf(new THREE.CylinderGeometry(rt,r,sh,10),
+      mat(i%2?P.stone:P.stone2,{rough:0.94})).translateY(y+sh/2));
+    /* A machicolated corbel course between drums — the flare is what makes a
+       cylinder read as a defensive tower rather than as a silo. */
+    const cor=meshOf(new THREE.CylinderGeometry(rt*1.2,rt*1.02,0.2,10),
+      mat(P.stone2,{rough:0.94}));
+    cor.position.y=y+sh; g.add(cor);
+    y+=sh; r=rt;
+  }
+  /* Crenellations, then the dome cap, then snow on both. */
+  const merlons=10;
+  for(let i=0;i<merlons;i++){
+    const a=i/merlons*TAU;
+    const m=meshOf(new THREE.BoxGeometry(0.2,0.3,0.16),mat(P.stone,{rough:0.94}));
+    m.position.set(Math.cos(a)*r*1.16,y+0.25,Math.sin(a)*r*1.16); m.rotation.y=-a; g.add(m);
+    const sn=meshOf(new THREE.BoxGeometry(0.21,0.06,0.17),mat(P.snow,{rough:1}),false,false);
+    sn.position.set(Math.cos(a)*r*1.16,y+0.42,Math.sin(a)*r*1.16); sn.rotation.y=-a; g.add(sn);
+  }
+  const dome=meshOf(new THREE.SphereGeometry(r*1.0,12,8,0,TAU,0,Math.PI/2),
+    mat(P.stone2,{rough:0.9}));
+  dome.position.y=y+0.35; dome.scale.y=0.85; g.add(dome);
+  const cap=meshOf(new THREE.SphereGeometry(r*1.01,12,8,0,TAU,0,Math.PI*0.34),
+    mat(P.snow,{rough:1}));
+  cap.position.y=y+0.36; cap.scale.y=0.9; g.add(cap);
+  /* The ward-light on top: this realm's answer to a beacon, in cold blue. */
+  const orb=meshOf(new THREE.OctahedronGeometry(0.19),glowMat(P.ward,2.0),false,false);
+  orb.position.y=y+0.35+r*0.9+0.28;
+  orb.userData.tick=t=>{orb.rotation.y=t*0.5;
+    orb.material.emissiveIntensity=1.7+Math.sin(t*1.3)*0.5;};
+  g.add(orb); animated.push(orb);
+  const sm=mat(P.ward,{emissive:P.ward,ei:1.4,rough:0.4,flat:false});
+  for(let i=0;i<5;i++){
+    const a=rnd()*TAU, wy=lerp(0.6,h-0.5,i/5+rnd()*0.1);
+    const rr=tp.at(wy);
+    const s=meshOf(new THREE.BoxGeometry(0.08,0.28,0.05),sm,false,false);
+    s.position.set(Math.cos(a)*(rr+0.02),wy,Math.sin(a)*(rr+0.02));
+    s.rotation.y=-a; g.add(s);
+  }
+  if(great) greatCrown(P,g,y+r+1.6,r);
+  return g;
+}
+
+function bastionHall(P,rnd){
+  /* The keep. A square block with corner turrets and a dome — the thing at the
+     top of the hill in the reference, and the only building in the realm that
+     gets a proper gate. */
+  const g=new THREE.Group();
+  const w=lerp(1.8,2.4,rnd()), h=lerp(1.0,1.4,rnd());
+  g.add(meshOf(new THREE.BoxGeometry(w,h,w),mat(P.stone,{rough:0.94})).translateY(h/2));
+  const cor=meshOf(new THREE.BoxGeometry(w*1.12,0.18,w*1.12),mat(P.stone2,{rough:0.94}));
+  cor.position.y=h; g.add(cor);
+  for(let i=0;i<4;i++){
+    const a=i/4*TAU+Math.PI/4, tr=0.26;
+    const t=meshOf(new THREE.CylinderGeometry(tr,tr*1.1,h*1.15,8),mat(P.stone2,{rough:0.94}));
+    t.position.set(Math.cos(a)*w*0.62,h*0.575,Math.sin(a)*w*0.62); g.add(t);
+    const tc=meshOf(new THREE.SphereGeometry(tr*1.15,9,6,0,TAU,0,Math.PI/2),
+      mat(P.snow,{rough:1}));
+    tc.position.set(Math.cos(a)*w*0.62,h*1.15,Math.sin(a)*w*0.62); tc.scale.y=0.8; g.add(tc);
+  }
+  const dome=meshOf(new THREE.SphereGeometry(w*0.44,14,9,0,TAU,0,Math.PI/2),
+    mat(P.stone2,{rough:0.9}));
+  dome.position.y=h+0.09; dome.scale.y=0.9; g.add(dome);
+  const snow=meshOf(new THREE.SphereGeometry(w*0.445,14,9,0,TAU,0,Math.PI*0.33),
+    mat(P.snow,{rough:1}));
+  snow.position.y=h+0.1; snow.scale.y=0.95; g.add(snow);
+  /* The gate: an arch with a cold blue door and a brazier either side. */
+  const arch=meshOf(new THREE.CylinderGeometry(w*0.2,w*0.2,0.12,10,1,false,0,Math.PI),
+    mat(P.ward,{emissive:P.ward,ei:1.1,rough:0.4,flat:false}),false,false);
+  arch.rotation.z=Math.PI/2; arch.rotation.y=Math.PI/2;
+  arch.position.set(0,h*0.3,w/2+0.02); g.add(arch);
+  const jamb=meshOf(new THREE.TorusGeometry(w*0.22,0.08,5,12,Math.PI),
+    mat(P.stone2,{rough:0.92}));
+  jamb.position.set(0,h*0.3,w/2+0.04); g.add(jamb);
+  for(const s of [-1,1]){
+    const br=meshOf(new THREE.CylinderGeometry(0.12,0.08,0.16,7),
+      mat(P.metal,{metal:0.4,rough:0.6}));
+    br.position.set(s*w*0.32,0.4,w/2+0.14); g.add(br);
+    const f=meshOf(new THREE.ConeGeometry(0.1,0.26,6),glowMat(P.warm,2.0),false,false);
+    f.position.set(s*w*0.32,0.58,w/2+0.14);
+    f.userData.tick=t=>{f.scale.set(1,1+Math.sin(t*6+s)*0.16,1);};
+    g.add(f); animated.push(f);
+  }
+  return g;
+}
+
+function bastionPlant(P,rnd){
+  /* Snow-laden conifers. Three stacked cones with a white cap on each — the
+     cheapest possible spruce, and exactly what the reference is drawing. */
+  const g=new THREE.Group();
+  const h=lerp(0.9,1.8,rnd());
+  g.add(meshOf(new THREE.CylinderGeometry(0.06,0.09,h*0.3,5),mat(P.wood,{rough:1}))
+    .translateY(h*0.15));
+  for(let i=0;i<3;i++){
+    const u=i/3, r=lerp(0.42,0.18,u), ch=h*lerp(0.4,0.3,u);
+    const c=meshOf(new THREE.ConeGeometry(r,ch,7),
+      mat(rnd()<0.5?P.pine:P.pine2,{rough:0.98}));
+    c.position.y=h*(0.28+u*0.32)+ch*0.3; g.add(c);
+    const s=meshOf(new THREE.ConeGeometry(r*0.86,ch*0.5,7),mat(P.snow,{rough:1}),true,false);
+    s.position.y=h*(0.28+u*0.32)+ch*0.55; g.add(s);
+  }
+  const sway=rnd()*TAU;
+  g.userData.tick=t=>{g.rotation.z=Math.sin(t*0.7+sway)*0.02;};
+  animated.push(g);
+  return g;
+}
+
+function bastionFeature(P,rnd){
+  /* Ward-stones and snow drifts. The blue gems set into the walls in the
+     reference are the realm's only saturated colour, so they get their own prop
+     rather than being left to the lamps. */
+  const g=new THREE.Group();
+  if(rnd()<0.55){
+    const h=lerp(0.3,0.5,rnd());
+    g.add(meshOf(new THREE.CylinderGeometry(0.19,0.24,h,6),mat(P.stone,{rough:0.94}))
+      .translateY(h/2));
+    const gem=meshOf(new THREE.OctahedronGeometry(0.15),
+      mat(P.ward,{emissive:P.ward,ei:1.4,rough:0.2,flat:true,opacity:0.92}),false,false);
+    gem.scale.y=1.5; gem.position.y=h+0.2;
+    const ph=rnd()*TAU;
+    gem.userData.tick=t=>{gem.rotation.y=t*0.4;
+      gem.material.emissiveIntensity=1.2+Math.sin(t*1.2+ph)*0.4;};
+    g.add(gem); animated.push(gem);
+  }else{
+    for(let i=0;i<3+Math.floor(rnd()*3);i++){
+      const s=lerp(0.2,0.44,rnd());
+      const d=meshOf(new THREE.IcosahedronGeometry(s,0),
+        mat(rnd()<0.7?P.snow:P.rock,{rough:1}));
+      d.position.set((rnd()-0.5)*0.7,s*0.35,(rnd()-0.5)*0.7);
+      d.scale.y=0.45; d.rotation.y=rnd()*TAU; g.add(d);
+    }
+  }
+  return g;
+}
+
+function bastionGarden(P,rnd){
+  const g=new THREE.Group();
+  if(rnd()<0.5){
+    /* A muster rack: spears and shields against a low wall. */
+    const wall=meshOf(new THREE.BoxGeometry(0.9,0.32,0.2),mat(P.stone2,{rough:0.94}));
+    wall.position.y=0.16; wall.rotation.y=rnd()*TAU; g.add(wall);
+    const sn=meshOf(new THREE.BoxGeometry(0.92,0.07,0.22),mat(P.snow,{rough:1}),false,false);
+    sn.position.y=0.34; sn.rotation.y=wall.rotation.y; g.add(sn);
+    for(let i=0;i<3;i++){
+      const sp=meshOf(new THREE.CylinderGeometry(0.02,0.02,0.8,4),mat(P.wood,{rough:1}));
+      sp.position.set(lerp(-0.3,0.3,i/2),0.4,0.08);
+      sp.rotation.set(0.18,wall.rotation.y,0.1); g.add(sp);
+    }
+  }else{
+    for(let i=0;i<3;i++){
+      const s=lerp(0.16,0.3,rnd());
+      const b=meshOf(new THREE.BoxGeometry(s,s,s),mat(P.wood,{rough:0.96}));
+      b.position.set((rnd()-0.5)*0.4,s/2,(rnd()-0.5)*0.4); b.rotation.y=rnd(); g.add(b);
+      const sn=meshOf(new THREE.BoxGeometry(s*1.02,0.05,s*1.02),mat(P.snow,{rough:1}),false,false);
+      sn.position.set(b.position.x,s+0.02,b.position.z); sn.rotation.y=b.rotation.y; g.add(sn);
+    }
+  }
+  return g;
+}
+
+/* The bastion's landform: a battlemented wall on every terrace edge the island
+   has reached, plus the coast itself. Fixed radii, so a wall built at L6 is the
+   same wall at L12 — the district is walled to the water's edge from the moment
+   it has an edge, which is why this realm reads at three articles. */
 function buildRampart(P,prof,edgeR,y,seedn){
   const g=new THREE.Group();
   const rnd=rngOf(seedn);
-  const n=Math.max(14,Math.round(edgeR*4.4));
+  const n=Math.max(12,Math.round(edgeR*4.4));
   const gate=rnd()*TAU;
-  const H=1.9, TH=0.5;                        // wall height and thickness
-  const stoneA=mat(P.stone,{rough:0.94}), stoneB=mat(P.stone2,{rough:0.94});
   for(let i=0;i<n;i++){
     const a=i/n*TAU, rr=radiusAt(prof,a)*edgeR;
     const d=Math.abs(((a-gate+Math.PI)%TAU+TAU)%TAU-Math.PI);
-    if(d<0.26)continue;                       // the gate gap
-    const len=rr*TAU/n*1.16;
-    const cs=Math.cos(a), sn=Math.sin(a);
-    /* battered base — a wall that widens as it goes down reads as heavy */
-    const base=meshOf(boxG(TH*1.5,0.5,len),stoneB);
-    base.position.set(cs*rr,y+0.25,sn*rr); base.rotation.y=-a; g.add(base);
-    const seg=meshOf(boxG(TH,H,len),i%2?stoneA:stoneB);
-    seg.position.set(cs*rr,y+0.5+H/2,sn*rr); seg.rotation.y=-a; g.add(seg);
-    /* the walk: a lip proud of the inner face, so the top reads as a surface */
-    const walk=meshOf(boxG(TH*1.36,0.14,len),stoneB);
-    walk.position.set(cs*(rr-0.06),y+0.5+H,sn*(rr-0.06)); walk.rotation.y=-a; g.add(walk);
-    /* merlons on the OUTER edge only — a parapet you shelter behind */
-    for(let k=0;k<2;k++){
-      const u=(k+0.5)/2-0.5;
-      const m=meshOf(boxG(TH*0.62,0.4,len*0.36),stoneA);
-      m.position.set(cs*(rr+TH*0.34)-sn*u*len, y+0.5+H+0.27, sn*(rr+TH*0.34)+cs*u*len);
-      m.rotation.y=-a; g.add(m);
+    if(d<0.22)continue;                      // leave a gap for the gate
+    const seg=rr*TAU/n*1.2;
+    const w=meshOf(new THREE.BoxGeometry(0.3,1.0,seg),
+      mat(i%2?P.stone2:P.stone,{rough:0.94}));
+    w.position.set(Math.cos(a)*rr,y+0.5,Math.sin(a)*rr); w.rotation.y=-a; g.add(w);
+    if(i%2===0){
+      const m=meshOf(new THREE.BoxGeometry(0.3,0.3,seg*0.5),mat(P.stone,{rough:0.94}));
+      m.position.set(Math.cos(a)*rr,y+1.15,Math.sin(a)*rr); m.rotation.y=-a; g.add(m);
+      const sn=meshOf(new THREE.BoxGeometry(0.32,0.07,seg*0.52),mat(P.snow,{rough:1}),false,false);
+      sn.position.set(Math.cos(a)*rr,y+1.32,Math.sin(a)*rr); sn.rotation.y=-a; g.add(sn);
+    }else{
+      const sn=meshOf(new THREE.BoxGeometry(0.32,0.06,seg),mat(P.snow,{rough:1}),false,false);
+      sn.position.set(Math.cos(a)*rr,y+1.02,Math.sin(a)*rr); sn.rotation.y=-a; g.add(sn);
     }
-    if(i%6===3){                              // an arrow slit in the wall face
-      const sl=meshOf(boxG(0.05,0.4,0.07),glowMat(P.bloom,0.9),false,false);
-      sl.position.set(cs*(rr+TH*0.5),y+1.3,sn*(rr+TH*0.5)); sl.rotation.y=-a; g.add(sl);
+    if(i%9===4){
+      const l=meshOf(new THREE.OctahedronGeometry(0.1),glowMat(P.ward,1.4),false,false);
+      l.position.set(Math.cos(a)*rr*0.94,y+1.2,Math.sin(a)*rr*0.94); g.add(l);
     }
   }
-  /* Drum towers around the circuit, every third one burning. */
-  const nT=Math.max(4,Math.round(edgeR/2.1));
-  for(let i=0;i<nT;i++){
-    const a=gate+Math.PI*2*(i+0.5)/nT;
-    const dd=Math.abs(((a-gate+Math.PI)%TAU+TAU)%TAU-Math.PI);
-    if(dd<0.34)continue;
-    const rr=radiusAt(prof,a)*edgeR;
-    const t=bastionWallTower(P,H+0.9,i%3===0);
-    t.position.set(Math.cos(a)*rr,y+0.5,Math.sin(a)*rr);
-    g.add(t);
-  }
-  /* The gatehouse: twin drums, a portcullis, and braziers either side of it. */
-  for(const sgn of [-1,1]){
-    const a=gate+sgn*0.34, rr=radiusAt(prof,a)*edgeR;
-    const t=bastionWallTower(P,H+1.5,false);
-    t.position.set(Math.cos(a)*rr,y+0.5,Math.sin(a)*rr); g.add(t);
-    const f=bastionFlame(P,1.0);
-    f.position.set(Math.cos(a)*(rr-0.9),y+0.62,Math.sin(a)*(rr-0.9)); g.add(f);
+  /* The gatehouse: two drum towers either side of the gap. */
+  for(const s of [-1,1]){
+    const a=gate+s*0.3, rr=radiusAt(prof,a)*edgeR;
+    const t=meshOf(new THREE.CylinderGeometry(0.34,0.4,1.9,9),mat(P.stone,{rough:0.94}));
+    t.position.set(Math.cos(a)*rr,y+0.95,Math.sin(a)*rr); g.add(t);
+    const c=meshOf(new THREE.SphereGeometry(0.42,10,7,0,TAU,0,Math.PI/2),
+      mat(P.stone2,{rough:0.9}));
+    c.position.set(Math.cos(a)*rr,y+1.9,Math.sin(a)*rr); c.scale.y=0.8; g.add(c);
+    const sn=meshOf(new THREE.SphereGeometry(0.43,10,7,0,TAU,0,Math.PI*0.34),
+      mat(P.snow,{rough:1}));
+    sn.position.set(Math.cos(a)*rr,y+1.91,Math.sin(a)*rr); sn.scale.y=0.85; g.add(sn);
   }
   const ar=radiusAt(prof,gate)*edgeR;
-  const gx=Math.cos(gate)*ar, gz=Math.sin(gate)*ar;
-  const lintel=meshOf(boxG(TH*1.3,0.42,1.5),stoneB);
-  lintel.position.set(gx,y+2.1,gz); lintel.rotation.y=-gate; g.add(lintel);
-  const arch=meshOf(new THREE.TorusGeometry(0.62,0.16,6,14,Math.PI),stoneB);
-  arch.position.set(gx,y+1.1,gz); arch.rotation.y=-gate+Math.PI/2; g.add(arch);
-  const grid=new THREE.Group();
-  for(let k=0;k<5;k++){
-    const b=meshOf(boxG(0.05,1.0,0.05),mat(P.metal,{metal:0.55,rough:0.5}));
-    b.position.set(0,0.5,(k/4-0.5)*0.9); grid.add(b);
-  }
-  grid.position.set(gx,y+0.55,gz); grid.rotation.y=-gate; g.add(grid);
+  const arch=meshOf(new THREE.TorusGeometry(0.34,0.13,6,12,Math.PI),
+    mat(P.stone2,{rough:0.94}));
+  arch.position.set(Math.cos(gate)*ar,y+0.7,Math.sin(gate)*ar);
+  arch.rotation.y=-gate+Math.PI/2; g.add(arch);
+  const door=meshOf(new THREE.CylinderGeometry(0.3,0.3,0.08,9,1,false,0,Math.PI),
+    mat(P.ward,{emissive:P.ward,ei:1.0,rough:0.4,flat:false}),false,false);
+  door.rotation.z=Math.PI/2; door.rotation.y=-gate;
+  door.position.set(Math.cos(gate)*ar,y+0.55,Math.sin(gate)*ar); g.add(door);
   return g;
 }
+
+/* ================================================== THE ARTISAN'S QUARTER
+   Reference: tall narrow stucco tower-houses in honey and cream, capped with
+   rose domes and cones, an arcaded rotunda over a small fountain, a striped
+   market awning, terracotta pots and clipped topiary, a wrought-iron lamp with
+   scrollwork, white doves, and a soft blue afternoon.
+
+   Everything here is ROUNDED. There is not a hard corner in the reference image,
+   and that softness is the whole difference between this realm and the bastion,
+   which is built from the same grey geometry with sharp edges. */
+function quarterHouse(P,rnd,scale=1){
+  const g=new THREE.Group();
+  /* Tall and narrow, not wide and low. The quarter's density is vertical — a row
+     of squat cottages would read as any other village.
+
+     Plan alternates between a squared townhouse with softened corners and a
+     round tower. Every house being a cylinder made the district a bundle of
+     identical honey tubes, and it left the realm's own tower — also a cylinder —
+     with nothing to be different from. The box gets rounded corners rather than
+     sharp ones because nothing in this reference has a hard edge on it. */
+  const r=lerp(0.34,0.52,rnd())*scale, h=lerp(1.1,2.0,rnd())*scale;
+  const wall=rnd()<0.5?P.stucco:(rnd()<0.5?P.stucco2:P.stucco3);
+  const boxy=rnd()<0.55;
+  const body=boxy
+    ? meshOf(new THREE.BoxGeometry(r*1.7,h,r*1.5),mat(wall,{rough:0.92,flat:false}))
+    : meshOf(new THREE.CylinderGeometry(r*0.94,r,h,9),mat(wall,{rough:0.92,flat:false}));
+  body.position.y=h/2;
+  if(boxy) body.rotation.y=(rnd()-0.5)*0.5;
+  g.add(body);
+  if(boxy){
+    /* Corner rounds: a slim column at each angle, same colour as the wall, so
+       the block reads as moulded plaster rather than as a crate. */
+    for(let k=0;k<4;k++){
+      const a=k/4*TAU+Math.PI/4;
+      const c=meshOf(new THREE.CylinderGeometry(r*0.28,r*0.3,h,7),
+        mat(wall,{rough:0.92,flat:false}));
+      const lx=Math.cos(a)*r*0.85, lz=Math.sin(a)*r*0.75;
+      c.position.set(lx*Math.cos(body.rotation.y)+lz*Math.sin(body.rotation.y),h/2,
+                     -lx*Math.sin(body.rotation.y)+lz*Math.cos(body.rotation.y));
+      g.add(c);
+    }
+  }
+  /* Roof: a rose dome or a rose cone, both in the reference, never a gable. */
+  if(rnd()<0.55){
+    const dm=meshOf(new THREE.SphereGeometry(r*1.06,11,7,0,TAU,0,Math.PI/2),
+      mat(rnd()<0.6?P.rose:P.rose2,{rough:0.78,flat:false}));
+    dm.position.y=h; dm.scale.y=lerp(0.8,1.2,rnd()); g.add(dm);
+  }else{
+    const cn=meshOf(new THREE.ConeGeometry(r*1.14,lerp(0.5,0.9,rnd())*scale,10),
+      mat(rnd()<0.6?P.rose:P.blush,{rough:0.78}));
+    cn.position.y=h+cn.geometry.parameters.height/2; g.add(cn);
+  }
+  const eave=meshOf(new THREE.CylinderGeometry(r*1.14,r*1.08,0.08,10),
+    mat(P.stucco3,{rough:0.9}));
+  eave.position.y=h; g.add(eave);
+  /* Arched windows with rose surrounds, stacked up the tower. */
+  const wm=winMat(P,0.85);
+  const floors=Math.max(1,Math.round(h/0.62)-1);
+  for(let f=0;f<floors;f++){
+    const a=rnd()*TAU, wy=0.45*scale+f*0.62*scale;
+    if(wy>h-0.25)break;
+    const w=meshOf(new THREE.CylinderGeometry(0.09*scale,0.09*scale,0.05,8,1,false,0,Math.PI),
+      wm,false,false);
+    w.rotation.z=Math.PI/2; w.rotation.y=-a+Math.PI/2;
+    w.position.set(Math.cos(a)*(r+0.01),wy+0.06*scale,Math.sin(a)*(r+0.01)); g.add(w);
+    const bx=meshOf(new THREE.BoxGeometry(0.17*scale,0.17*scale,0.04),wm,false,false);
+    bx.rotation.y=-a+Math.PI/2;
+    bx.position.set(Math.cos(a)*(r+0.01),wy-0.02*scale,Math.sin(a)*(r+0.01)); g.add(bx);
+    const fr=meshOf(new THREE.TorusGeometry(0.115*scale,0.022,4,10,Math.PI),
+      mat(P.rose,{rough:0.8}),false,false);
+    fr.rotation.y=-a+Math.PI/2;
+    fr.position.set(Math.cos(a)*(r+0.02),wy+0.06*scale,Math.sin(a)*(r+0.02)); g.add(fr);
+    /* A flower box under one of them. */
+    if(rnd()<0.4){
+      const fb=meshOf(new THREE.BoxGeometry(0.2*scale,0.07*scale,0.09),
+        mat(P.wood,{rough:0.95}),false,false);
+      fb.rotation.y=-a+Math.PI/2;
+      fb.position.set(Math.cos(a)*(r+0.05),wy-0.13*scale,Math.sin(a)*(r+0.05)); g.add(fb);
+      const fl=meshOf(new THREE.IcosahedronGeometry(0.07*scale,0),
+        mat(P.leaf,{rough:0.98}),false,false);
+      fl.position.set(Math.cos(a)*(r+0.05),wy-0.07*scale,Math.sin(a)*(r+0.05)); g.add(fl);
+    }
+  }
+  /* A rose door at the foot. */
+  const da=rnd()*TAU;
+  const door=meshOf(new THREE.CylinderGeometry(0.12*scale,0.12*scale,0.05,8,1,false,0,Math.PI),
+    mat(P.rose2,{rough:0.85}),false,false);
+  door.rotation.z=Math.PI/2; door.rotation.y=-da+Math.PI/2;
+  door.position.set(Math.cos(da)*(r+0.01),0.26*scale,Math.sin(da)*(r+0.01)); g.add(door);
+  const db=meshOf(new THREE.BoxGeometry(0.2*scale,0.28*scale,0.04),
+    mat(P.rose2,{rough:0.85}),false,false);
+  db.rotation.y=-da+Math.PI/2;
+  db.position.set(Math.cos(da)*(r+0.01),0.14*scale,Math.sin(da)*(r+0.01)); g.add(db);
+  return g;
+}
+
+function quarterTower(P,rnd,h,great){
+  const g=new THREE.Group();
+  let y=0, r=lerp(0.5,0.68,rnd());
+  const segs=2+Math.floor(rnd()*2);
+  const tp=taper();
+  for(let i=0;i<segs;i++){
+    const sh=h/segs*lerp(0.9,1.1,rnd()), rt=r*lerp(0.86,0.94,rnd());
+    tp.add(y,y+sh,r,rt);
+    g.add(meshOf(new THREE.CylinderGeometry(rt,r,sh,10),
+      mat(i%2?P.stucco:P.stucco3,{rough:0.92,flat:false})).translateY(y+sh/2));
+    const cor=meshOf(new THREE.CylinderGeometry(rt*1.14,rt*1.02,0.11,10),
+      mat(P.stucco2,{rough:0.9}));
+    cor.position.y=y+sh; g.add(cor);
+    y+=sh; r=rt;
+  }
+  /* An open belfry under the dome — the reference's towers are all pierced near
+     the top, and the gap is what keeps a tall stucco cylinder from reading as a
+     grain silo. */
+  const bh=0.55;
+  for(let i=0;i<6;i++){
+    const a=i/6*TAU;
+    const col=meshOf(new THREE.CylinderGeometry(0.07,0.07,bh,7),
+      mat(P.stucco3,{rough:0.9}));
+    col.position.set(Math.cos(a)*r*0.86,y+bh/2,Math.sin(a)*r*0.86); g.add(col);
+  }
+  const bell=meshOf(new THREE.SphereGeometry(0.17,9,6,0,TAU,0,Math.PI/2),
+    mat(P.metal,{metal:0.6,rough:0.4}));
+  bell.position.y=y+bh*0.75; bell.rotation.x=Math.PI; g.add(bell);
+  const plate=meshOf(new THREE.CylinderGeometry(r*1.02,r*0.96,0.1,10),
+    mat(P.stucco2,{rough:0.9}));
+  plate.position.y=y+bh; g.add(plate);
+  const dome=meshOf(new THREE.SphereGeometry(r*1.02,12,8,0,TAU,0,Math.PI/2),
+    mat(P.rose,{rough:0.76,flat:false}));
+  dome.position.y=y+bh+0.05; dome.scale.y=1.15; g.add(dome);
+  /* A finial on a spindle, resting on the dome. The old floating octahedron was
+     a crystal hovering over a stucco roof, which belongs to another realm. */
+  const spindle=meshOf(new THREE.CylinderGeometry(0.03,0.045,0.3,6),
+    mat(P.metal,{metal:0.6,rough:0.4}));
+  spindle.position.y=y+bh+r*1.15+0.15; g.add(spindle);
+  const fin=meshOf(new THREE.SphereGeometry(0.11,9,7),
+    mat(P.metal,{metal:0.65,rough:0.35,env:1.0}));
+  fin.position.y=y+bh+r*1.15+0.36; g.add(fin);
+  const spike=meshOf(new THREE.ConeGeometry(0.045,0.16,6),
+    mat(P.metal,{metal:0.65,rough:0.35}),false,false);
+  spike.position.y=y+bh+r*1.15+0.5; g.add(spike);
+  const wm=winMat(P,0.85);
+  for(let i=0;i<4;i++){
+    const a=rnd()*TAU, wy=lerp(0.7,y-0.5,i/4+rnd()*0.1);
+    const rr=tp.at(wy);
+    const w=meshOf(new THREE.BoxGeometry(0.16,0.26,0.05),wm,false,false);
+    w.position.set(Math.cos(a)*(rr+0.02),wy,Math.sin(a)*(rr+0.02));
+    w.rotation.y=-a; g.add(w);
+  }
+  if(great) greatCrown(P,g,y+bh+r*1.05,r);
+  return g;
+}
+
+function quarterHall(P,rnd){
+  /* The arcaded rotunda over the square — the pavilion at the centre of the
+     reference image, arches all the way round and a low dome on top. */
+  const g=new THREE.Group();
+  const r=lerp(1.2,1.6,rnd()), h=lerp(0.9,1.2,rnd());
+  g.add(meshOf(new THREE.CylinderGeometry(r*1.16,r*1.24,0.18,16),
+    mat(P.stone2,{rough:0.94})).translateY(0.09));
+  const n=8;
+  for(let i=0;i<n;i++){
+    const a=i/n*TAU;
+    const col=meshOf(new THREE.CylinderGeometry(0.11,0.13,h,9),
+      mat(P.stucco3,{rough:0.9}));
+    col.position.set(Math.cos(a)*r,0.18+h/2,Math.sin(a)*r); g.add(col);
+    /* The arch spanning to the next column. A torus half, rotated to stand on
+       the two capitals, is a passable arcade at this scale. */
+    const mid=(i+0.5)/n*TAU, span=TAU*r/n*0.5;
+    const arc=meshOf(new THREE.TorusGeometry(span,0.075,5,10,Math.PI),
+      mat(P.stucco,{rough:0.9}));
+    arc.position.set(Math.cos(mid)*r,0.18+h,Math.sin(mid)*r);
+    arc.rotation.y=-mid+Math.PI/2; g.add(arc);
+  }
+  const arch=meshOf(new THREE.CylinderGeometry(r*1.1,r*1.06,0.16,16),
+    mat(P.stucco2,{rough:0.9}));
+  arch.position.y=0.18+h+0.08; g.add(arch);
+  const dome=meshOf(new THREE.SphereGeometry(r*1.02,16,10,0,TAU,0,Math.PI/2),
+    mat(rnd()<0.6?P.rose:P.blush,{rough:0.76,flat:false}));
+  dome.position.y=0.18+h+0.14; dome.scale.y=0.66; g.add(dome);
+  /* Ribs on the dome, in cream. */
+  for(let i=0;i<10;i++){
+    const a=i/10*TAU;
+    const rib=meshOf(new THREE.TorusGeometry(r*1.03,0.035,4,10,Math.PI/2),
+      mat(P.stucco3,{rough:0.85}),true,false);
+    rib.position.y=0.18+h+0.14; rib.rotation.y=-a; rib.scale.y=0.66; g.add(rib);
+  }
+  const fin=meshOf(new THREE.SphereGeometry(0.13,9,7),mat(P.metal,{metal:0.6,rough:0.4}));
+  fin.position.y=0.18+h+0.14+r*0.68; g.add(fin);
+  const glow=meshOf(new THREE.CylinderGeometry(r*0.7,r*0.7,0.06,16),
+    glowMat(P.warm,0.6),false,false);
+  glow.position.y=0.3; g.add(glow);
+  return g;
+}
+
+function quarterPlant(P,rnd){
+  /* Potted topiary. Not a tree in the ground — every green thing in that image
+     is in a terracotta pot, and that is the realm's whole relationship with
+     nature: cultivated, placed, swept around. */
+  const g=new THREE.Group();
+  const pr=lerp(0.16,0.26,rnd()), ph=lerp(0.2,0.32,rnd());
+  const pot=meshOf(new THREE.CylinderGeometry(pr,pr*0.74,ph,10),
+    mat(P.cliff,{rough:0.92,flat:false}));
+  pot.position.y=ph/2; g.add(pot);
+  const rim=meshOf(new THREE.TorusGeometry(pr,0.03,5,12),mat(P.cliff2,{rough:0.9}),false,false);
+  rim.rotation.x=Math.PI/2; rim.position.y=ph; g.add(rim);
+  const n=1+Math.floor(rnd()*2);
+  for(let i=0;i<n;i++){
+    const br=lerp(0.2,0.32,rnd())*(1-i*0.22);
+    const b=meshOf(new THREE.IcosahedronGeometry(br,1),
+      mat(rnd()<0.5?P.leaf:P.leaf2,{rough:0.96,flat:false}));
+    b.position.y=ph+br*0.9+i*br*1.3; g.add(b);
+  }
+  if(rnd()<0.35){
+    for(let i=0;i<3;i++){
+      const f=meshOf(new THREE.IcosahedronGeometry(0.05,0),
+        mat(P.blush,{emissive:P.blush,ei:0.2,rough:0.7}),false,false);
+      f.position.set((rnd()-0.5)*0.3,ph+lerp(0.2,0.45,rnd()),(rnd()-0.5)*0.3); g.add(f);
+    }
+  }
+  const sway=rnd()*TAU;
+  g.userData.tick=t=>{g.rotation.z=Math.sin(t*0.9+sway)*0.018;};
+  animated.push(g);
+  return g;
+}
+
+function quarterFeature(P,rnd){
+  /* Market goods: amphorae, crates of produce, a bench. The clutter is what
+     makes the square read as a place people use. */
+  const g=new THREE.Group();
+  const style=rnd();
+  if(style<0.45){
+    for(let i=0;i<2+Math.floor(rnd()*3);i++){
+      const h=lerp(0.24,0.44,rnd()), r=h*lerp(0.3,0.42,rnd());
+      const j=meshOf(new THREE.SphereGeometry(r,9,7),
+        mat(rnd()<0.5?P.cliff:P.rose2,{rough:0.9,flat:false}));
+      j.position.set((rnd()-0.5)*0.5,r*0.95,(rnd()-0.5)*0.5); j.scale.y=1.35; g.add(j);
+      const nk=meshOf(new THREE.CylinderGeometry(r*0.34,r*0.44,h*0.3,8),
+        mat(P.cliff2,{rough:0.9}),false,false);
+      nk.position.set(j.position.x,r*1.9,j.position.z); g.add(nk);
+    }
+  }else if(style<0.78){
+    for(let i=0;i<2;i++){
+      const s=lerp(0.24,0.34,rnd());
+      const c=meshOf(new THREE.BoxGeometry(s*1.4,s*0.8,s),mat(P.wood,{rough:0.95}));
+      c.position.set((rnd()-0.5)*0.3,s*0.4+i*s*0.8,(rnd()-0.5)*0.3);
+      c.rotation.y=rnd()*0.5; g.add(c);
+      for(let k=0;k<3;k++){
+        const f=meshOf(new THREE.SphereGeometry(0.055,6,5),
+          mat(k%2?P.rose:P.leaf,{rough:0.85}),false,false);
+        f.position.set(c.position.x+(rnd()-0.5)*s,c.position.y+s*0.45,
+                       c.position.z+(rnd()-0.5)*s*0.6); g.add(f);
+      }
+    }
+  }else{
+    const bench=meshOf(new THREE.BoxGeometry(0.8,0.07,0.26),mat(P.wood,{rough:0.94}));
+    bench.position.y=0.3; bench.rotation.y=rnd()*TAU; g.add(bench);
+    for(const s of [-1,1]){
+      const lg=meshOf(new THREE.BoxGeometry(0.07,0.3,0.22),mat(P.metal,{metal:0.4,rough:0.6}));
+      lg.position.set(Math.cos(bench.rotation.y)*s*0.3,0.15,-Math.sin(bench.rotation.y)*s*0.3);
+      lg.rotation.y=bench.rotation.y; g.add(lg);
+    }
+  }
+  return g;
+}
+
+/* The quarter's landform: the SQUARE. A swept paved circle at a fixed spot with
+   a fountain in it — the thing everything else in that image faces. */
+function quarterSquare(P,prof,R){
+  const g=new THREE.Group();
+  const rnd=rngOf(hash2(P.seed,7700));
+  const a=P.seed*0.41+0.7, sr=Math.min(2.9,R-0.7);
+  if(sr<1.1) return g;
+  const wr=radiusAt(prof,a)*1.5;
+  const x=Math.cos(a)*wr, z=Math.sin(a)*wr, y=tierY(1.5)+0.17;
+  const pave=meshOf(new THREE.CylinderGeometry(sr,sr,0.07,26),
+    mat(P.stone,{rough:0.95}),false,true);
+  pave.position.set(x,y,z); g.add(pave);
+  /* A square is somewhere people stand, so nothing else may be placed on it —
+     see the note by `claims` in buildIsland. */
+  g.userData.claims=[{x,z,d:sr+0.3}];
+  const ring=meshOf(new THREE.TorusGeometry(sr*0.98,0.07,5,30),
+    mat(P.stone2,{rough:0.94}),false,true);
+  ring.rotation.x=Math.PI/2; ring.position.set(x,y+0.03,z); g.add(ring);
+  /* The fountain: a basin, a stem, an upper dish, and a jet. */
+  const basin=meshOf(new THREE.CylinderGeometry(0.62,0.68,0.26,14),
+    mat(P.stone2,{rough:0.92}));
+  basin.position.set(x,y+0.13,z); g.add(basin);
+  const water=meshOf(new THREE.CylinderGeometry(0.54,0.54,0.06,14),
+    mat(P.water,{opacity:0.88,rough:0.12,flat:false,emissive:P.water,ei:0.18}),false,true);
+  water.position.set(x,y+0.25,z); g.add(water);
+  const stem=meshOf(new THREE.CylinderGeometry(0.1,0.14,0.42,9),mat(P.stucco3,{rough:0.9}));
+  stem.position.set(x,y+0.47,z); g.add(stem);
+  const dish=meshOf(new THREE.CylinderGeometry(0.3,0.18,0.1,12),mat(P.stucco3,{rough:0.9}));
+  dish.position.set(x,y+0.7,z); g.add(dish);
+  for(let i=0;i<5;i++){
+    const d=meshOf(new THREE.SphereGeometry(0.05,6,5),
+      mat(P.water,{opacity:0.7,flat:false,emissive:P.water,ei:0.3}),false,false);
+    const off=i/5;
+    d.userData.tick=t=>{
+      const u=(t*0.7+off)%1;
+      const aa=off*TAU;
+      d.position.set(x+Math.cos(aa)*(0.1+u*0.34),y+0.78-u*u*0.5,z+Math.sin(aa)*(0.1+u*0.34));
+      d.material.opacity=0.7*(1-u*0.7);
+    };
+    g.add(d); animated.push(d);
+  }
+  /* Doves on the paving, and a couple of pots around the rim. */
+  for(let i=0;i<4;i++){
+    const aa=i/4*TAU+rnd();
+    const p=quarterPlant(P,rnd);
+    p.position.set(x+Math.cos(aa)*sr*0.78,y,z+Math.sin(aa)*sr*0.78); g.add(p);
+  }
+  return g;
+}
+
+/* ============================================== signatures, realm by realm
+   The single most important builder in the file: this is what makes a visitor
+   say "oh, that one's the data district" without reading a label. It unlocks at
+   L3, because identity should arrive before size does.
+
+   Three per realm rather than one per district: forty bespoke monuments is a
+   maintenance liability and, at this scale, forty near-identical ones. Three
+   sharply different silhouettes per realm, assigned by subject, separates the
+   districts a reader actually holds side by side. */
+function realmSignature(P,rnd,sp){
+  const g=new THREE.Group();
+  const S=P.sig;
+
+  /* ---------------------------------------------------------- arcane swarm */
+  if(P.kit==='swarm'){
+    if(S==='obelisk'){
+      g.add(meshOf(new THREE.CylinderGeometry(1.3,1.55,0.24,12),mat(P.stone2,{rough:0.9})));
+      g.add(meshOf(new THREE.CylinderGeometry(1.0,1.2,0.22,12),mat(P.stone,{rough:0.88}))
+        .translateY(0.23));
+      const h=4.6;
+      const ob=meshOf(new THREE.CylinderGeometry(0.14,0.42,h,4),mat(P.stone,{rough:0.7}));
+      ob.position.y=0.34+h/2; ob.rotation.y=Math.PI/4; g.add(ob);
+      /* Glyph rings climbing the shaft, each turning at its own rate. */
+      for(let i=0;i<3;i++){
+        const y=0.9+i*1.3, rr=0.55-i*0.09;
+        const ring=meshOf(new THREE.TorusGeometry(rr,0.045,5,22),
+          glowMat(i%2?P.accent:P.accent2,1.5),false,false);
+        ring.rotation.x=Math.PI/2; ring.position.y=y;
+        const sp1=0.3-i*0.07;
+        ring.userData.tick=t=>{ring.rotation.z=t*sp1; ring.rotation.x=Math.PI/2+Math.sin(t*0.4+i)*0.16;};
+        g.add(ring); animated.push(ring);
+      }
+      const cap=meshOf(new THREE.OctahedronGeometry(0.42),glowMat(P.accent,2.1),false,false);
+      cap.scale.y=1.9; cap.position.y=0.34+h+0.5;
+      cap.userData.tick=t=>{cap.rotation.y=t*0.4; cap.position.y=0.34+h+0.5+Math.sin(t*0.9)*0.08;};
+      g.add(cap); animated.push(cap);
+      for(let i=0;i<6;i++){
+        const a=i/6*TAU;
+        const c=meshOf(new THREE.OctahedronGeometry(0.2),
+          mat(P.crys,{emissive:P.crys,ei:0.6,rough:0.22}),false,false);
+        c.scale.y=2.0; c.position.set(Math.cos(a)*1.28,0.5,Math.sin(a)*1.28); g.add(c);
+      }
+    }else if(S==='orrery'){
+      g.add(meshOf(new THREE.CylinderGeometry(1.4,1.6,0.3,14),mat(P.stone2,{rough:0.9})));
+      const drum=meshOf(new THREE.CylinderGeometry(0.8,0.95,1.5,12),mat(P.stone,{rough:0.8}));
+      drum.position.y=1.05; g.add(drum);
+      for(let i=0;i<6;i++){
+        const a=i/6*TAU;
+        const col=meshOf(new THREE.CylinderGeometry(0.09,0.09,1.4,7),mat(P.stone2,{rough:0.85}));
+        col.position.set(Math.cos(a)*1.18,1.0,Math.sin(a)*1.18); g.add(col);
+      }
+      const core=meshOf(new THREE.IcosahedronGeometry(0.44,1),glowMat(P.accent,2.2),false,false);
+      core.position.y=2.9; g.add(core);
+      core.userData.tick=t=>{core.material.emissiveIntensity=2.0+Math.sin(t*1.3)*0.5;};
+      animated.push(core);
+      for(let i=0;i<4;i++){
+        const RR=0.95+i*0.45;
+        const ring=meshOf(new THREE.TorusGeometry(RR,0.045,6,36),
+          mat(P.metal,{metal:0.7,rough:0.28,env:1.1}),false,false);
+        const sp1=0.18-i*0.03, tilt=i*0.34;
+        ring.userData.tick=t=>{ring.position.y=2.9;
+          ring.rotation.set(Math.PI/2+Math.sin(t*0.15+i)*0.28,t*sp1,tilt);};
+        g.add(ring); animated.push(ring);
+        const b=meshOf(new THREE.SphereGeometry(0.14,8,7),
+          glowMat(i%2?P.accent2:P.bloom,1.8),false,false);
+        b.userData.tick=t=>{const w=t*(0.3+i*0.1)+i;
+          b.position.set(Math.cos(w)*RR,2.9+Math.sin(w*0.7+i)*RR*0.4,Math.sin(w)*RR);};
+        g.add(b); animated.push(b);
+      }
+    }else if(S==='roost'){
+      /* Not a monument so much as a PERCH: the agents are the moving part and
+         the marble is only what they come home to. Masts on a stepped plinth,
+         a landing dish on each, and a swarm that never touches any of it. */
+      g.add(meshOf(new THREE.CylinderGeometry(1.5,1.7,0.26,12),mat(P.stone2,{rough:0.9})));
+      g.add(meshOf(new THREE.CylinderGeometry(1.15,1.35,0.22,12),mat(P.stone,{rough:0.88}))
+        .translateY(0.24));
+      for(let i=0;i<4;i++){
+        const a=i/4*TAU+0.4, r=1.0, h=2.6+((i*0.37)%1)*1.4;
+        const m=meshOf(new THREE.CylinderGeometry(0.09,0.15,h,7),mat(P.stone,{rough:0.72}));
+        m.position.set(Math.cos(a)*r,0.34+h/2,Math.sin(a)*r); g.add(m);
+        const dish=meshOf(new THREE.SphereGeometry(0.36,12,7,0,TAU,0,Math.PI/2),
+          mat(P.stone2,{flat:false,rough:0.6}));
+        dish.position.set(Math.cos(a)*r,0.34+h,Math.sin(a)*r);
+        dish.rotation.set(-0.55,a,0); g.add(dish);
+        const tip=meshOf(new THREE.OctahedronGeometry(0.13),glowMat(P.accent,2.0),false,false);
+        tip.position.set(Math.cos(a)*r,0.34+h+0.2,Math.sin(a)*r); g.add(tip);
+      }
+      /* The swarm scales with the reading, because a busy district should look
+         busy — and drones are the one thing here that can carry a count without
+         the stone underneath having to move. */
+      const swarm=clamp(8+sp.level*2,8,30);
+      for(let i=0;i<swarm;i++){
+        const d=meshOf(new THREE.TetrahedronGeometry(0.12),
+          glowMat(i%3?P.accent:P.accent2,1.6),false,false);
+        const rr=lerp(0.8,2.3,(i*0.41)%1), hh=lerp(1.2,3.6,(i*0.73)%1);
+        const sp1=lerp(0.3,0.85,(i*0.29)%1), off=(i*1.7)%TAU;
+        d.userData.tick=t=>{ const w=t*sp1+off;
+          d.position.set(Math.cos(w)*rr,hh+Math.sin(t*1.6+off)*0.34,Math.sin(w)*rr);
+          d.rotation.set(w,w*1.3,0); };
+        g.add(d); animated.push(d);
+      }
+    }else if(S==='conduit'){
+      /* Pipework in marble and gold. Infra is the one subject whose monument
+         has to show something moving from A to B, so the arcs are plumbing and
+         the light inside them is the traffic. */
+      const core=meshOf(new THREE.CylinderGeometry(0.52,0.68,1.1,10),mat(P.stone,{rough:0.82}));
+      core.position.y=0.55; g.add(core);
+      g.add(meshOf(new THREE.CylinderGeometry(0.58,0.52,0.16,10),
+        mat(P.metal,{metal:0.6,rough:0.35})).translateY(1.16));
+      const cg=meshOf(new THREE.CylinderGeometry(0.42,0.42,0.1,10),
+        glowMat(P.accent,2.0),false,false);
+      cg.position.y=1.27; g.add(cg);
+      matAnim(cg.material,(m,t)=>{ m.emissiveIntensity=1.5+Math.sin(t*2.4)*0.6; });
+      for(let i=0;i<3;i++){
+        const a=i/3*TAU+0.3, r=1.5, RR=1.36, yaw=-a+Math.PI/2;
+        const pipe=meshOf(new THREE.TorusGeometry(RR,0.13,6,18,Math.PI),
+          mat(P.stone2,{metal:0.3,rough:0.5}));
+        pipe.position.set(Math.cos(a)*r,0.1,Math.sin(a)*r); pipe.rotation.y=yaw; g.add(pipe);
+        /* Where the arc meets the ground, on both sides — an arch standing on
+           nothing reads as a hoop somebody dropped. */
+        for(const s2 of [-1,1]){
+          const foot=meshOf(new THREE.CylinderGeometry(0.17,0.21,0.34,8),mat(P.stone,{rough:0.9}));
+          foot.position.set(Math.cos(a)*r+s2*RR*Math.cos(yaw),0.17,
+                            Math.sin(a)*r-s2*RR*Math.sin(yaw));
+          g.add(foot);
+        }
+        for(let k=0;k<3;k++){
+          const pulse=meshOf(new THREE.SphereGeometry(0.12,7,6),
+            glowMat(P.accent2,2.0),false,false);
+          pulse.userData.tick=t=>{
+            const u=((t*0.4+k/3+i*0.2)%1)*Math.PI;
+            const lx=Math.cos(u)*RR, ly=Math.sin(u)*RR;
+            pulse.position.set(Math.cos(a)*r+lx*Math.cos(yaw),0.1+ly,
+                               Math.sin(a)*r-lx*Math.sin(yaw));
+          };
+          g.add(pulse); animated.push(pulse);
+        }
+      }
+    }else if(S==='wardring'){
+      /* A ring of ward lanterns under a shell that is visibly holding
+         something in. Safety is a containment shape, not a tall one — so this
+         one stays low and closed while everything around it climbs. */
+      const n=9, R=1.7;
+      for(let i=0;i<n;i++){
+        const a=i/n*TAU, h=1.25;
+        const post=meshOf(new THREE.CylinderGeometry(0.08,0.12,h,7),mat(P.stone2,{rough:0.88}));
+        post.position.set(Math.cos(a)*R,h/2,Math.sin(a)*R); g.add(post);
+        const lan=meshOf(new THREE.OctahedronGeometry(0.19),glowMat(P.accent,1.9),false,false);
+        lan.position.set(Math.cos(a)*R,h+0.18,Math.sin(a)*R);
+        lan.userData.tick=t=>{ lan.position.y=h+0.18+Math.sin(t*1.2+i)*0.07;
+          lan.material.emissiveIntensity=1.5+Math.sin(t*2+i*0.7)*0.5; };
+        g.add(lan); animated.push(lan);
+      }
+      const shell=meshOf(new THREE.SphereGeometry(R*1.08,20,12,0,TAU,0,Math.PI/2),
+        mat(P.crys,{emissive:P.crys,ei:0.5,opacity:0.14,flat:false,
+          side:THREE.DoubleSide,rough:0.1}),false,false);
+      shell.userData.tick=t=>{ shell.scale.setScalar(1+Math.sin(t*0.8)*0.03);
+        shell.material.opacity=0.10+Math.sin(t*0.8)*0.05; };
+      g.add(shell); animated.push(shell);
+      const seal=meshOf(new THREE.RingGeometry(R*0.5,R*0.94,32),
+        glowMat(P.accent2,0.9),false,false);
+      seal.rotation.x=-Math.PI/2; seal.position.y=0.05;
+      seal.userData.tick=t=>{ seal.rotation.z=t*0.15; };
+      g.add(seal); animated.push(seal);
+      const plinth=meshOf(new THREE.CylinderGeometry(R*0.42,R*0.5,0.3,12),
+        mat(P.stone,{rough:0.9}));
+      plinth.position.y=0.15; g.add(plinth);
+    }else if(S==='coil'){
+      /* THE SERPENT STEPS, and the one monument that is literally built out of
+         the reading: step i sits at a fixed angle and a fixed height, so more
+         articles lay MORE STEPS on the same staircase rather than restyling the
+         one that is already there. */
+      const steps=clamp(Math.round(8+sp.level*2.2),8,34);
+      const ANG=0.46, RISE_=0.19, R0=0.7, R1=1.7;
+      for(let i=0;i<steps;i++){
+        const a=i*ANG, r=lerp(R0,R1,Math.min(1,i/22));
+        const st=meshOf(boxG(0.62,0.14,0.34),mat(i%2?P.stone:P.stone2,{rough:0.86}));
+        st.position.set(Math.cos(a)*r,0.12+i*RISE_,Math.sin(a)*r);
+        st.rotation.y=-a; g.add(st);
+        if(i%5===0){
+          const sc=meshOf(new THREE.OctahedronGeometry(0.1),
+            mat(P.crys,{emissive:P.crys,ei:0.8,rough:0.22}),false,false);
+          sc.scale.y=1.8;
+          sc.position.set(Math.cos(a)*r*1.16,0.28+i*RISE_,Math.sin(a)*r*1.16); g.add(sc);
+        }
+      }
+      const H=0.12+steps*RISE_;
+      /* A newel the stair actually winds around: without it the steps read as a
+         helix of loose slabs hanging in the air. */
+      const newel=meshOf(new THREE.CylinderGeometry(0.3,0.42,H,10),mat(P.stone,{rough:0.84}));
+      newel.position.y=H/2; g.add(newel);
+      const head=meshOf(new THREE.IcosahedronGeometry(0.34,0),
+        mat(P.crys,{emissive:P.accent,ei:0.9,rough:0.24}),false,false);
+      head.position.y=H+0.3; g.add(head);
+      head.userData.tick=t=>{ head.rotation.y=t*0.4; head.position.y=H+0.3+Math.sin(t)*0.08; };
+      animated.push(head);
+    }else{   /* aqueduct */
+      /* A curved run of arches carrying a lit channel. Reads instantly as
+         "something flows through here", which is the point for data. */
+      const n=6, rr=2.3;
+      for(let i=0;i<n;i++){
+        const a=i/n*Math.PI*1.15-0.5;
+        const x=Math.cos(a)*rr, z=Math.sin(a)*rr;
+        const h=1.7+Math.sin(i*1.3)*0.18;
+        for(const s of [-0.34,0.34]){
+          const p=meshOf(new THREE.BoxGeometry(0.24,h,0.24),mat(P.stone,{rough:0.88}));
+          p.position.set(x+Math.sin(a)*s,h/2,z-Math.cos(a)*s); p.rotation.y=-a; g.add(p);
+        }
+        const arc=meshOf(new THREE.TorusGeometry(0.34,0.1,5,10,Math.PI),
+          mat(P.stone2,{rough:0.9}));
+        arc.position.set(x,h,z); arc.rotation.y=-a+Math.PI/2; g.add(arc);
+        const deck=meshOf(new THREE.BoxGeometry(0.5,0.22,1.0),mat(P.stone,{rough:0.88}));
+        deck.position.set(x,h+0.35,z); deck.rotation.y=-a; g.add(deck);
+        const ch=meshOf(new THREE.BoxGeometry(0.3,0.09,0.86),
+          mat(P.water,{emissive:P.water,ei:0.7,flat:false,rough:0.15,opacity:0.9}),false,false);
+        ch.position.set(x,h+0.5,z); ch.rotation.y=-a; g.add(ch);
+      }
+      for(let k=0;k<3;k++){
+        const d=meshOf(new THREE.SphereGeometry(0.11,7,6),glowMat(P.accent,1.8),false,false);
+        d.userData.tick=t=>{
+          const u=(t*0.22+k/3)%1, a=u*Math.PI*1.15-0.5;
+          d.position.set(Math.cos(a)*rr,2.25,Math.sin(a)*rr);
+        };
+        g.add(d); animated.push(d);
+      }
+    }
+  }
+
+  /* ------------------------------------------------------------ frameworks */
+  else if(P.kit==='frame'){
+    if(S==='loom'){
+      /* A great upright loom, warp threads lit, shuttle running across. */
+      const w=3.0, h=3.4;
+      for(const s of [-1,1]){
+        g.add(meshOf(new THREE.CylinderGeometry(0.17,0.22,h,7),mat(P.bark,{rough:0.96}))
+          .translateX(s*w/2).translateY(h/2));
+        g.add(meshOf(new THREE.BoxGeometry(0.5,0.2,0.9),mat(P.wood,{rough:0.94}))
+          .translateX(s*w/2).translateY(0.1));
+      }
+      for(const y of [h*0.28,h]){
+        const bar=meshOf(new THREE.CylinderGeometry(0.12,0.12,w+0.5,8),mat(P.wood,{rough:0.92}));
+        bar.rotation.z=Math.PI/2; bar.position.y=y; g.add(bar);
+      }
+      const warpMat=glowMat(P.accent,1.1);
+      for(let i=0;i<11;i++){
+        const x=lerp(-w*0.44,w*0.44,i/10);
+        const th=meshOf(new THREE.BoxGeometry(0.035,h*0.72,0.035),warpMat,false,false);
+        th.position.set(x,h*0.64,0); g.add(th);
+      }
+      const shuttle=meshOf(new THREE.BoxGeometry(0.42,0.14,0.28),
+        mat(P.accent2,{emissive:P.accent2,ei:0.7,rough:0.5}),false,false);
+      shuttle.userData.tick=t=>{
+        shuttle.position.set(Math.sin(t*0.8)*w*0.44,h*0.6+Math.sin(t*1.6)*0.05,0);
+      };
+      g.add(shuttle); animated.push(shuttle);
+      /* Finished cloth rolled at the bottom. */
+      const cloth=meshOf(new THREE.CylinderGeometry(0.3,0.3,w*0.9,10),
+        mat(P.roof2,{rough:0.85}));
+      cloth.rotation.z=Math.PI/2; cloth.position.y=h*0.28-0.34; g.add(cloth);
+    }else if(S==='greenhouse'){
+      /* A grand conservatory: the hall's language at monument size, with a
+         raised stone terrace and a lantern pair. */
+      const w=2.6, d=4.2, h=0.8;
+      g.add(meshOf(new THREE.BoxGeometry(w+1.0,0.2,d+1.0),mat(P.stone,{rough:0.95}))
+        .translateY(0.1));
+      g.add(meshOf(new THREE.BoxGeometry(w,h,d),mat(P.stone2,{rough:0.94}))
+        .translateY(0.2+h/2));
+      const vault=meshOf(new THREE.CylinderGeometry(w/2,w/2,d,20,1,true,0,Math.PI),
+        mat(P.glass,{opacity:0.42,rough:0.07,metal:0.12,flat:false,
+          side:THREE.DoubleSide,env:1.3,emissive:P.glass,ei:0.14}),false,false);
+      vault.rotation.z=Math.PI/2; vault.rotation.y=Math.PI/2; vault.position.y=0.2+h;
+      g.add(vault);
+      for(let i=0;i<=9;i++){
+        const z=lerp(-d/2,d/2,i/9);
+        const rib=meshOf(new THREE.TorusGeometry(w/2,0.055,5,16,Math.PI),
+          mat(P.wood,{rough:0.9}));
+        rib.position.set(0,0.2+h,z); g.add(rib);
+      }
+      for(const s of [-1,1]){
+        const leaf=meshOf(new THREE.SphereGeometry(w*0.46,12,7,0,Math.PI),
+          mat(P.canopy,{rough:0.92,flat:false,side:THREE.DoubleSide}),true,false);
+        leaf.position.set(s*w*0.14,0.2+h+w/2*0.9,0);
+        leaf.scale.set(1,0.32,d/w*1.02); leaf.rotation.z=s*0.42; g.add(leaf);
+      }
+      const glow=meshOf(new THREE.BoxGeometry(w*0.62,0.1,d*0.76),glowMat(P.warm,0.8),false,false);
+      glow.position.y=0.34; g.add(glow);
+      for(let i=0;i<8;i++){
+        const b=meshOf(new THREE.IcosahedronGeometry(lerp(0.2,0.42,rnd()),0),
+          mat(rnd()<0.5?P.canopy2:P.moss,{rough:0.98}),false,false);
+        b.position.set((rnd()-0.5)*w*0.5,0.4+lerp(0,0.6,rnd()),(rnd()-0.5)*d*0.76); g.add(b);
+      }
+    }else if(S==='wellspring'){
+      /* A stepped fountain in the roots. Water in this realm is dew and
+         seepage rather than plumbing, so the basin is rough stone with moss on
+         it and the roots reach in over the kerb — a spring somebody built a rim
+         around, not a civic fountain dropped in a wood. */
+      const R=1.6;
+      g.add(meshOf(new THREE.CylinderGeometry(R,R*0.9,0.5,16),mat(P.stone,{rough:0.94}))
+        .translateY(0.25));
+      g.add(meshOf(new THREE.CylinderGeometry(R*0.84,R*0.8,0.34,16),
+        mat(P.stone2,{rough:0.94})).translateY(0.3));
+      const lower=meshOf(new THREE.CircleGeometry(R*0.82,18),
+        mat(P.water,{emissive:P.water,ei:0.4,rough:0.15,flat:false}),false,false);
+      lower.rotation.x=-Math.PI/2; lower.position.y=0.47; g.add(lower);
+      /* The vertical is what makes it read as a spring rather than a puddle
+         with things in it. */
+      g.add(meshOf(new THREE.CylinderGeometry(0.24,0.36,1.2,10),mat(P.stone,{rough:0.92}))
+        .translateY(1.1));
+      g.add(meshOf(new THREE.CylinderGeometry(0.82,0.42,0.32,14),mat(P.stone2,{rough:0.92}))
+        .translateY(1.86));
+      const upper=meshOf(new THREE.CircleGeometry(0.74,14),
+        mat(P.water,{emissive:P.water,ei:0.5,rough:0.15,flat:false}),false,false);
+      upper.rotation.x=-Math.PI/2; upper.position.y=2.0; g.add(upper);
+      const finial=meshOf(new THREE.IcosahedronGeometry(0.24,1),
+        glowMat(P.accent,1.8),false,false);
+      finial.position.y=2.34; g.add(finial);
+      finial.userData.tick=t=>{ finial.rotation.y=t*0.4;
+        finial.material.emissiveIntensity=1.5+Math.sin(t*1.6)*0.4; };
+      animated.push(finial);
+      /* Four spouts arcing from the upper bowl into the lower one, and a ripple
+         where each lands. Solid and small: a translucent jet and a water disc a
+         tenth of a unit apart strobe as the depth buffer changes its mind. */
+      for(let i=0;i<4;i++){
+        const a=i/4*TAU+Math.PI/4;
+        const jet=meshOf(new THREE.CylinderGeometry(0.05,0.07,0.95,6),
+          mat(P.water,{emissive:P.water,ei:0.9,rough:0.15,flat:false}),false,false);
+        jet.position.set(Math.cos(a)*0.8,1.55,Math.sin(a)*0.8);
+        jet.rotation.set(Math.sin(a)*0.24,0,-Math.cos(a)*0.24); g.add(jet);
+        const ripple=meshOf(new THREE.TorusGeometry(0.2,0.03,5,14),
+          mat(P.water,{emissive:P.water,ei:0.8,opacity:0.7,rough:0.2}),false,false);
+        ripple.rotation.x=-Math.PI/2;
+        ripple.userData.tick=t=>{ const u=(t*0.6+i/4)%1;
+          ripple.position.set(Math.cos(a)*0.98,0.5,Math.sin(a)*0.98);
+          ripple.scale.setScalar(0.4+u*2.2); ripple.material.opacity=0.6*(1-u); };
+        g.add(ripple); animated.push(ripple);
+      }
+      for(let i=0;i<5;i++){
+        const a=i*2.399963229728653;
+        const root=meshOf(new THREE.CylinderGeometry(0.1,0.2,1.8,6),mat(P.bark,{rough:0.96}));
+        root.position.set(Math.cos(a)*R*1.24,0.78,Math.sin(a)*R*1.24);
+        root.rotation.set(Math.sin(a)*0.5,0,-Math.cos(a)*0.5); g.add(root);
+        const mo=meshOf(new THREE.IcosahedronGeometry(0.2,0),mat(P.moss,{rough:0.98}),false,false);
+        mo.scale.y=0.45; mo.position.set(Math.cos(a)*R*1.02,0.52,Math.sin(a)*R*1.02); g.add(mo);
+      }
+    }else{   /* canopywalk */
+      /* A ring of tall posts carrying a suspended walkway, lanterns hung under
+         it — the rope bridges spiralling the reference's tree, made a monument. */
+      const rr=2.5, n=7, deckY=2.6;
+      for(let i=0;i<n;i++){
+        const a=i/n*TAU;
+        const x=Math.cos(a)*rr, z=Math.sin(a)*rr;
+        const ph=deckY+lerp(0.5,1.0,rnd());
+        g.add(meshOf(new THREE.CylinderGeometry(0.14,0.22,ph,7),mat(P.bark,{rough:0.96}))
+          .translateX(x).translateY(ph/2).translateZ(z));
+        const a2=(i+1)/n*TAU;
+        const x2=Math.cos(a2)*rr, z2=Math.sin(a2)*rr;
+        const mid=(i+0.5)/n*TAU;
+        const seg=meshOf(new THREE.BoxGeometry(Math.hypot(x2-x,z2-z)*1.04,0.12,0.7),
+          mat(P.wood,{rough:0.92}));
+        seg.position.set(Math.cos(mid)*rr*0.985,deckY,Math.sin(mid)*rr*0.985);
+        seg.rotation.y=-mid+Math.PI/2; g.add(seg);
+        const rail=meshOf(new THREE.BoxGeometry(Math.hypot(x2-x,z2-z)*1.04,0.05,0.05),
+          mat(P.bark2,{rough:0.95}),true,false);
+        rail.position.set(Math.cos(mid)*rr*1.28,deckY+0.36,Math.sin(mid)*rr*1.28);
+        rail.rotation.y=-mid+Math.PI/2; g.add(rail);
+        const lan=meshOf(new THREE.BoxGeometry(0.18,0.24,0.18),glowMat(P.warm,1.8),false,false);
+        lan.position.set(Math.cos(mid)*rr,deckY-0.42,Math.sin(mid)*rr);
+        const phz=i*0.9;
+        lan.userData.tick=t=>{lan.material.emissiveIntensity=1.6+Math.sin(t*1.4+phz)*0.4;};
+        g.add(lan); animated.push(lan);
+      }
+      /* And something worth walking to: a lit platform in the middle. */
+      const plat=meshOf(new THREE.CylinderGeometry(0.95,0.85,0.16,10),mat(P.wood,{rough:0.92}));
+      plat.position.y=deckY+0.4; g.add(plat);
+      const post=meshOf(new THREE.CylinderGeometry(0.13,0.18,deckY+0.4,7),
+        mat(P.bark,{rough:0.96}));
+      post.position.y=(deckY+0.4)/2; g.add(post);
+      for(let i=0;i<4;i++){
+        const b=meshOf(new THREE.IcosahedronGeometry(lerp(0.5,0.85,rnd()),1),
+          mat(rnd()<0.5?P.canopy:P.canopy2,{rough:0.94,flat:false}));
+        b.position.set((rnd()-0.5)*1.2,deckY+1.2+rnd()*0.5,(rnd()-0.5)*1.2);
+        b.scale.y=0.72; g.add(b);
+      }
+    }
+  }
+
+  /* ---------------------------------------------------------- metal forges */
+  else if(P.kit==='forge'){
+    if(S==='bigwheel'){
+      /* A great iron wheel turning in a brick housing, over a lava trough. */
+      const hb=meshOf(new THREE.BoxGeometry(2.4,1.5,1.3),mat(P.brick,{rough:0.95}));
+      hb.position.y=0.75; g.add(hb);
+      const vault=meshOf(new THREE.CylinderGeometry(1.2,1.2,1.3,12,1,false,0,Math.PI),
+        mat(P.iron,{metal:0.35,rough:0.6}));
+      vault.rotation.z=Math.PI/2; vault.rotation.y=Math.PI/2; vault.position.y=1.5; g.add(vault);
+      const wheel=new THREE.Group();
+      const rim=meshOf(new THREE.TorusGeometry(1.5,0.12,7,26),
+        mat(P.metal,{metal:0.55,rough:0.45}));
+      wheel.add(rim);
+      const rim2=meshOf(new THREE.TorusGeometry(1.28,0.07,6,24),
+        mat(P.metal,{metal:0.55,rough:0.45}));
+      wheel.add(rim2);
+      for(let i=0;i<10;i++){
+        const a=i/10*TAU;
+        const sp1=meshOf(new THREE.BoxGeometry(0.1,3.0,0.1),
+          mat(P.iron2,{metal:0.4,rough:0.55}),true,false);
+        sp1.rotation.z=a; wheel.add(sp1);
+        const bkt=meshOf(new THREE.BoxGeometry(0.3,0.22,0.5),
+          mat(mixTok(P.lava,0x201018,0.5),{emissive:P.lava,ei:0.8,rough:0.55}),false,false);
+        bkt.position.set(Math.cos(a)*1.5,Math.sin(a)*1.5,0); bkt.rotation.z=a; wheel.add(bkt);
+      }
+      wheel.position.set(0,1.7,0.95);
+      wheel.userData.tick=t=>{wheel.rotation.z=-t*0.35;};
+      g.add(wheel); animated.push(wheel);
+      const trough=meshOf(new THREE.BoxGeometry(3.4,0.16,0.6),
+        mat(mixTok(P.lava,0x18101C,0.5),{emissive:P.lava,ei:0.95,rough:0.55}),false,true);
+      trough.position.set(0,0.14,0.95); g.add(trough);
+      for(const s of [-1,1]){
+        const st=meshOf(new THREE.CylinderGeometry(0.14,0.17,1.1,7),
+          mat(P.metal,{metal:0.45,rough:0.5}));
+        st.position.set(s*0.85,2.3,-0.4); g.add(st);
+        forgeSmoke(P,g,s*0.85,2.9,-0.4,0.9);
+      }
+    }else if(S==='crucible'){
+      /* A crucible on legs, tipped, pouring into a basin. The pour is the whole
+         monument: a district about systems should be visibly RUNNING. */
+      g.add(meshOf(new THREE.CylinderGeometry(1.5,1.7,0.3,12),mat(P.cliff,{rough:0.95})));
+      const basin=meshOf(new THREE.CylinderGeometry(1.0,0.85,0.5,12),
+        mat(P.iron,{metal:0.35,rough:0.6}));
+      basin.position.y=0.55; g.add(basin);
+      const pool=meshOf(new THREE.CylinderGeometry(0.86,0.86,0.1,12),
+        mat(mixTok(P.lava,0x1A0E14,0.35),{emissive:P.lava,ei:1.0,rough:0.5}),false,false);
+      pool.position.y=0.78;
+      pool.userData.tick=t=>{pool.material.emissiveIntensity=0.9+Math.sin(t*0.9)*0.3;};
+      g.add(pool); animated.push(pool);
+      for(let i=0;i<3;i++){
+        const a=i/3*TAU;
+        g.add(beam(new THREE.Vector3(Math.cos(a)*1.15,0.2,Math.sin(a)*1.15),
+          new THREE.Vector3(Math.cos(a)*0.55,2.5,Math.sin(a)*0.55),0.1,
+          mat(P.metal,{metal:0.5,rough:0.5})));
+      }
+      const cru=meshOf(new THREE.CylinderGeometry(0.72,0.5,0.9,10),
+        mat(P.iron2,{metal:0.4,rough:0.55}));
+      cru.position.set(0.2,2.85,0); cru.rotation.z=-0.5; g.add(cru);
+      const hoop=meshOf(new THREE.TorusGeometry(0.74,0.06,5,14),
+        mat(P.metal,{metal:0.6,rough:0.4}));
+      hoop.position.set(0.32,3.16,0); hoop.rotation.x=Math.PI/2; hoop.rotation.y=-0.5;
+      hoop.rotation.z=-0.5; g.add(hoop);
+      const stream=meshOf(new THREE.CylinderGeometry(0.09,0.14,2.1,6),
+        mat(P.lavaHot,{emissive:P.lavaHot,ei:1.5,rough:0.3,flat:false,opacity:0.95}),false,false);
+      stream.position.set(0.62,1.85,0); stream.rotation.z=0.06; g.add(stream);
+      for(let k=0;k<4;k++){
+        const sp1=meshOf(new THREE.IcosahedronGeometry(0.1,0),
+          mat(P.lavaHot,{emissive:P.lavaHot,ei:1.6,rough:0.3,opacity:0.9}),false,false);
+        sp1.userData.tick=t=>{
+          const u=(t*0.9+k/4)%1;
+          sp1.position.set(0.62+Math.sin(u*6+k)*0.2,0.85+u*0.5,Math.cos(u*5+k)*0.24);
+          sp1.scale.setScalar(0.5+u*1.4);
+          sp1.material.opacity=0.9*(1-u);
+        };
+        g.add(sp1); animated.push(sp1);
+      }
+    }else if(S==='anvilyard'){
+      /* A ring of anvils struck in sequence around a live brazier. The forges'
+         other two monuments are single machines; this one is a CREW, and the
+         thing you read from across the plot is the hammers falling out of
+         phase with each other. */
+      const R=1.9, n=clamp(4+Math.floor(sp.level/2),4,8);
+      g.add(meshOf(new THREE.CylinderGeometry(R*1.25,R*1.32,0.24,14),
+        mat(P.deck2,{rough:0.95})).translateY(0.12));
+      for(let i=0;i<n;i++){
+        const a=i/n*TAU+0.3, x=Math.cos(a)*R, z=Math.sin(a)*R;
+        const block=meshOf(new THREE.CylinderGeometry(0.24,0.3,0.5,7),mat(P.wood,{rough:0.96}));
+        block.position.set(x,0.49,z); g.add(block);
+        const anv=meshOf(boxG(0.62,0.2,0.28),mat(P.iron,{metal:0.55,rough:0.45}));
+        anv.position.set(x,0.84,z); anv.rotation.y=-a; g.add(anv);
+        const horn=meshOf(new THREE.ConeGeometry(0.11,0.3,6),mat(P.iron,{metal:0.55,rough:0.45}));
+        horn.rotation.z=-Math.PI/2; horn.rotation.y=-a;
+        horn.position.set(x+Math.cos(-a)*0.4,0.84,z-Math.sin(-a)*0.4); g.add(horn);
+        /* Hammer and spark share one tick: the flash has to land on the blow,
+           and two clocks drift. */
+        const ham=meshOf(boxG(0.16,0.32,0.16),mat(P.metal,{metal:0.5,rough:0.5}));
+        const spark=meshOf(new THREE.IcosahedronGeometry(0.16,0),
+          glowMat(P.lavaHot,2.6),false,false);
+        spark.position.set(x,0.98,z);
+        const off=i/n;
+        ham.userData.tick=t=>{
+          const u=(t*0.7+off)%1;
+          const drop=u<0.5?1-Math.pow(u*2,2):(u-0.5)*2;
+          ham.position.set(x,1.1+drop*0.65,z);
+          const hit=u<0.08?1-u/0.08:0;
+          spark.scale.setScalar(0.2+hit*1.5);
+          spark.material.emissiveIntensity=hit*3;
+        };
+        g.add(ham,spark); animated.push(ham);
+      }
+      const brz=meshOf(new THREE.CylinderGeometry(0.46,0.32,0.5,9),
+        mat(P.iron2,{metal:0.5,rough:0.5}));
+      brz.position.y=0.49; g.add(brz);
+      const coals=meshOf(new THREE.CircleGeometry(0.4,10),glowMat(P.lava,2.2),false,false);
+      coals.rotation.x=-Math.PI/2; coals.position.y=0.75; g.add(coals);
+      matAnim(coals.material,(m,t)=>{ m.emissiveIntensity=1.8+Math.sin(t*2.1)*0.6; });
+      smokePlume(g,0,0.9,0,0.8,P.smoke,0.3,3);
+    }else{   /* pipeorgan */
+      /* A stand of vertical pipes at graduated heights, venting. It is the one
+         forge silhouette that is about SOUND, and it separates instantly from
+         the wheel and the crucible at share-card size. */
+      g.add(meshOf(new THREE.BoxGeometry(3.0,0.5,1.4),mat(P.brick2,{rough:0.95}))
+        .translateY(0.25));
+      const n=9;
+      for(let i=0;i<n;i++){
+        const u=Math.abs(i-(n-1)/2)/((n-1)/2);
+        const h=lerp(4.2,1.7,u)*lerp(0.94,1.06,rnd());
+        const r=lerp(0.2,0.12,u);
+        const x=lerp(-1.3,1.3,i/(n-1));
+        const pipe=meshOf(new THREE.CylinderGeometry(r,r,h,9),
+          mat(i%2?P.metal:P.iron,{metal:0.6,rough:0.4,env:0.9}));
+        pipe.position.set(x,0.5+h/2,0); g.add(pipe);
+        const cap=meshOf(new THREE.CylinderGeometry(r*1.25,r*1.05,0.14,9),
+          mat(P.metal,{metal:0.65,rough:0.35}));
+        cap.position.set(x,0.5+h,0); g.add(cap);
+        const mouth=meshOf(new THREE.BoxGeometry(r*1.3,0.16,0.05),
+          glowMat(P.lava,1.4),false,false);
+        mouth.position.set(x,0.9,r); g.add(mouth);
+        if(i===2||i===n-3) forgeSmoke(P,g,x,0.5+h+0.2,0,0.5);
+      }
+      /* A brass manifold running along the base. */
+      const man=meshOf(new THREE.CylinderGeometry(0.16,0.16,2.9,9),
+        mat(P.metal,{metal:0.62,rough:0.38}));
+      man.rotation.z=Math.PI/2; man.position.set(0,0.66,0.55); g.add(man);
+    }
+  }
+
+  /* ------------------------------------------------------------- shipyards */
+  else if(P.kit==='ship'){
+    if(S==='drydock'){
+      /* A hull in a timber cradle on a slipway, with staging around it. This is
+         the reference image's centrepiece and it needs no explaining. */
+      const dock=meshOf(new THREE.BoxGeometry(4.4,0.24,2.4),mat(P.deck2,{rough:0.95}));
+      dock.position.y=0.12; g.add(dock);
+      for(let i=0;i<7;i++){
+        const x=lerp(-1.9,1.9,i/6);
+        const sl=meshOf(new THREE.BoxGeometry(0.24,0.2,2.2),mat(P.wood,{rough:0.94}));
+        sl.position.set(x,0.32,0); g.add(sl);
+      }
+      /* The hull: a stretched, flattened sphere with a keel and a deck line. */
+      const hull=meshOf(new THREE.SphereGeometry(1.0,16,10),
+        mat(P.stripe2,{rough:0.7,flat:false}));
+      hull.scale.set(2.6,0.62,0.85); hull.position.y=1.05; g.add(hull);
+      const upper=meshOf(new THREE.SphereGeometry(1.0,16,10,0,TAU,0,Math.PI/2),
+        mat(P.hull,{rough:0.72,flat:false}));
+      upper.scale.set(2.5,0.34,0.8); upper.position.y=1.24; g.add(upper);
+      const deck=meshOf(new THREE.BoxGeometry(4.4,0.1,1.3),mat(P.wood,{rough:0.92}));
+      deck.position.y=1.42; g.add(deck);
+      const house=meshOf(new THREE.BoxGeometry(1.1,0.62,0.9),mat(P.hull,{rough:0.7}));
+      house.position.set(-0.5,1.78,0); g.add(house);
+      const wheelh=meshOf(new THREE.BoxGeometry(0.9,0.2,0.72),winMat(P,0.7),false,false);
+      wheelh.position.set(-0.5,2.0,0); g.add(wheelh);
+      const funnel=meshOf(new THREE.CylinderGeometry(0.19,0.21,0.6,9),
+        mat(P.stripe,{rough:0.65}));
+      funnel.position.set(-0.5,2.4,0); g.add(funnel);
+      const mast=meshOf(new THREE.CylinderGeometry(0.06,0.08,2.0,6),mat(P.wood,{rough:0.9}));
+      mast.position.set(0.9,2.4,0); g.add(mast);
+      /* Staging: two lattice towers and a plank run between them. */
+      for(const s of [-1,1]){
+        for(let k=0;k<3;k++){
+          const x=lerp(-1.7,1.7,k/2);
+          g.add(beam(new THREE.Vector3(x,0.24,s*1.35),new THREE.Vector3(x,1.9,s*1.05),
+            0.06,mat(P.lattice,{rough:0.8})));
+        }
+        const plank=meshOf(new THREE.BoxGeometry(3.6,0.09,0.42),mat(P.wood,{rough:0.92}));
+        plank.position.set(0,1.55,s*1.2); g.add(plank);
+      }
+    }else if(S==='crane'){
+      /* A full gantry: two lattice legs on rails, a boom across, a travelling
+         trolley. The one shape in the realm that reads at any zoom. */
+      const span=4.6, h=4.0;
+      for(const s of [-1,1]){
+        for(let i=0;i<2;i++){
+          const z=(i-0.5)*1.2;
+          g.add(beam(new THREE.Vector3(s*span/2+s*0.4,0,z),
+                     new THREE.Vector3(s*span/2-s*0.2,h,z*0.5),0.1,
+                     mat(P.lattice,{rough:0.78})));
+        }
+        for(let k=1;k<5;k++){
+          const y=h*k/5;
+          const br=meshOf(new THREE.BoxGeometry(0.07,0.07,1.2),
+            mat(P.lattice,{rough:0.78}),true,false);
+          br.position.set(s*lerp(span/2+0.4,span/2-0.2,k/5),y,0); g.add(br);
+        }
+        const rail=meshOf(new THREE.BoxGeometry(0.9,0.16,1.7),mat(P.rust,{rough:0.85}));
+        rail.position.set(s*span/2+s*0.4,0.08,0); g.add(rail);
+      }
+      const boom=meshOf(new THREE.BoxGeometry(span+1.6,0.3,0.5),mat(P.lattice,{rough:0.78}));
+      boom.position.y=h+0.15; g.add(boom);
+      const truss=meshOf(new THREE.BoxGeometry(span+1.0,0.16,0.36),
+        mat(P.rust,{rough:0.85}));
+      truss.position.y=h+0.55; g.add(truss);
+      for(let i=0;i<9;i++){
+        const x=lerp(-span/2-0.4,span/2+0.4,i/8);
+        g.add(beam(new THREE.Vector3(x,h+0.15,0),new THREE.Vector3(x+0.35,h+0.55,0),
+          0.035,mat(P.lattice,{rough:0.78}),false));
+      }
+      const trolley=meshOf(new THREE.BoxGeometry(0.6,0.28,0.6),mat(P.stripe,{rough:0.65}));
+      const cable=meshOf(new THREE.CylinderGeometry(0.025,0.025,1,4),
+        mat(P.metal,{metal:0.5,rough:0.5}),false,false);
+      const load=meshOf(new THREE.BoxGeometry(0.85,0.42,0.42),mat(0xC2453C,{rough:0.78}));
+      trolley.userData.tick=t=>{
+        const x=Math.sin(t*0.35)*span*0.42;
+        const drop=1.9+Math.sin(t*0.55)*1.1;
+        trolley.position.set(x,h-0.1,0);
+        cable.scale.y=drop; cable.position.set(x,h-0.24-drop/2,0);
+        load.position.set(x,h-0.24-drop,0);
+      };
+      g.add(trolley,cable,load); animated.push(trolley);
+      const bl=meshOf(new THREE.SphereGeometry(0.1,7,6),glowMat(P.accent,1.8),false,false);
+      bl.position.set(0,h+0.8,0);
+      bl.userData.tick=t=>{bl.material.emissiveIntensity=0.9+Math.abs(Math.sin(t*1.7))*1.8;};
+      g.add(bl); animated.push(bl);
+    }else if(S==='containers'){
+      /* A stacked yard with a reach truck working it. The drydock and the
+         gantry are both one big frame; a yard is the opposite shape — low,
+         repeated and colour-coded — which is what makes it tell apart from
+         them at the size a plot is actually read. */
+      /* ROWS, not a scatter. Laid on the sunflower like everything else in the
+         file it came out as a flower of boxes, and a yard is the one shipyard
+         shape whose whole meaning is ORDER: lanes squared off with aisles wide
+         enough to work down. That is also what tells it apart from the
+         drydock's single frame and the gantry's single rail at plot size. */
+      const cols=[P.accent,P.accent2,P.roof2,P.bloom];
+      const rows=3, per=4, pitch=1.14, lane=1.35;
+      const W2=per*pitch/2+0.5, D2=rows*lane/2+0.5;
+      g.add(meshOf(new THREE.BoxGeometry(W2*2,0.16,D2*2+1.6),mat(P.deck2,{rough:0.96}))
+        .translateY(0.08));
+      /* Painted lane markings, because an empty apron between the rows reads as
+         a gap in the town rather than as somewhere a truck drives. */
+      for(let r=0;r<=rows;r++){
+        const z=(r-rows/2)*lane;
+        g.add(meshOf(new THREE.BoxGeometry(W2*1.9,0.02,0.07),
+          mat(P.warm,{rough:0.9}),false,false).translateY(0.17).translateZ(z));
+      }
+      const stacks=clamp(6+Math.floor(sp.level*0.6),6,rows*per);
+      for(let n2=0;n2<stacks;n2++){
+        const r=n2%rows, i=(n2/rows)|0;
+        const x=(i-(per-1)/2)*pitch, z=(r-(rows-1)/2)*lane;
+        const hgt=1+((((n2*0.53)%1)<0.45)?1:2);
+        for(let k=0;k<hgt;k++){
+          const col=cols[(n2+k)%cols.length];
+          const c=meshOf(boxG(1.0,0.42,0.6),mat(col,{rough:0.8}));
+          c.position.set(x,0.37+k*0.44,z); g.add(c);
+          /* Corrugation: ribs a hair proud of the shell, which is the whole
+             reason a box reads as a shipping container and not a brick. */
+          for(let rb2=0;rb2<3;rb2++){
+            const rb=meshOf(boxG(0.04,0.36,0.62),mat(col,{rough:0.9}),false,false);
+            rb.position.set(x+lerp(-0.3,0.3,rb2/2),0.37+k*0.44,z); g.add(rb);
+          }
+        }
+      }
+      const mm=mat(P.metal,{metal:0.5,rough:0.5});
+      const truck=new THREE.Group(); g.add(truck);
+      truck.add(meshOf(boxG(0.8,0.42,0.5),mat(P.stripe,{rough:0.8}),false,false));
+      truck.add(meshOf(boxG(0.1,1.6,0.1),mm,false,false).translateX(0.4).translateY(0.8));
+      const fork=meshOf(boxG(0.5,0.07,0.44),mm,false,false);
+      truck.add(fork);
+      /* Down the aisle and back rather than round in a circle: a reach truck
+         orbiting its own yard is a carousel. */
+      truck.userData.tick=t=>{
+        const u=Math.sin(t*0.35);
+        truck.position.set(u*W2*0.8,0.37,D2+0.5);
+        truck.rotation.y=u>=0?0:Math.PI;
+        fork.position.set(0.55,0.2+Math.abs(Math.sin(t*0.6))*1.0,0);
+      };
+      animated.push(truck);
+    }else{   /* lighthouse */
+      const h=5.2;
+      g.add(meshOf(new THREE.CylinderGeometry(1.2,1.45,0.4,14),mat(P.stone2,{rough:0.94})));
+      /* Banded white and cyan, straight off the reference. */
+      const bands=7;
+      for(let i=0;i<bands;i++){
+        const y=0.4+h*i/bands, bh=h/bands;
+        const r0=lerp(0.72,0.4,i/bands), r1=lerp(0.72,0.4,(i+1)/bands);
+        const seg=meshOf(new THREE.CylinderGeometry(r1,r0,bh,14),
+          mat(i%2?P.stripe:P.hull,{rough:0.7}));
+        seg.position.y=y+bh/2; g.add(seg);
+      }
+      const gal=meshOf(new THREE.CylinderGeometry(0.62,0.52,0.14,14),
+        mat(P.hull,{rough:0.7}));
+      gal.position.y=0.4+h; g.add(gal);
+      for(let i=0;i<12;i++){
+        const a=i/12*TAU;
+        const p=meshOf(new THREE.CylinderGeometry(0.025,0.025,0.3,4),
+          mat(P.metal,{metal:0.5,rough:0.45}),true,false);
+        p.position.set(Math.cos(a)*0.56,0.4+h+0.2,Math.sin(a)*0.56); g.add(p);
+      }
+      const lamp=meshOf(new THREE.CylinderGeometry(0.34,0.34,0.55,12),
+        mat(P.warm,{emissive:P.warm,ei:1.6,rough:0.25,flat:false,opacity:0.92}),false,false);
+      lamp.position.y=0.4+h+0.45; g.add(lamp);
+      const cap=meshOf(new THREE.ConeGeometry(0.46,0.42,12),mat(P.stripe2,{rough:0.65}));
+      cap.position.y=0.4+h+0.93; g.add(cap);
+      /* The beam. A long thin cone sweeping — cheap, and it is the whole reason
+         to put a lighthouse on an observability district. */
+      const beamM=new THREE.MeshStandardMaterial({color:P.warm,emissive:P.warm,
+        emissiveIntensity:1.1,roughness:0.3,transparent:true,opacity:0.28,
+        side:THREE.DoubleSide,depthWrite:false});
+      const bm=meshOf(new THREE.ConeGeometry(0.55,7.0,10,1,true),beamM,false,false);
+      /* Height is the GROUP's job. Setting it on the cone as well put the beam
+         at twice the lantern's height — a light sweeping the sky with nothing
+         under it, which is what you saw from across the harbour. */
+      bm.rotation.z=Math.PI/2; bm.position.x=3.5;
+      const bg=new THREE.Group(); bg.add(bm);
+      bg.position.y=0.4+h+0.45;
+      bg.userData.tick=t=>{bg.rotation.y=-t*0.5;};
+      g.add(bg); animated.push(bg);
+    }
+  }
+
+  /* --------------------------------------------------------------- bastion */
+  else if(P.kit==='bastion'){
+    if(S==='keep'){
+      /* The inner keep, on its own walled mound: the fortress inside the
+         fortress. Concentric is the realm's grammar, so the monument doubles it. */
+      const mound=meshOf(new THREE.CylinderGeometry(2.3,2.6,0.5,16),
+        mat(P.stone2,{rough:0.94}));
+      mound.position.y=0.25; g.add(mound);
+      const sn=meshOf(new THREE.CylinderGeometry(2.31,2.31,0.1,16),mat(P.snow,{rough:1}),
+        false,true);
+      sn.position.y=0.52; g.add(sn);
+      for(let i=0;i<18;i++){
+        const a=i/18*TAU;
+        if(Math.abs(((a+Math.PI)%TAU)-Math.PI)<0.3)continue;
+        const m=meshOf(new THREE.BoxGeometry(0.26,0.42,0.42),mat(P.stone,{rough:0.94}));
+        m.position.set(Math.cos(a)*2.25,0.71,Math.sin(a)*2.25); m.rotation.y=-a; g.add(m);
+      }
+      const body=meshOf(new THREE.CylinderGeometry(1.05,1.2,2.6,10),
+        mat(P.stone,{rough:0.94}));
+      body.position.y=1.8; g.add(body);
+      const cor=meshOf(new THREE.CylinderGeometry(1.4,1.15,0.26,10),
+        mat(P.stone2,{rough:0.94}));
+      cor.position.y=3.1; g.add(cor);
+      for(let i=0;i<12;i++){
+        const a=i/12*TAU;
+        const m=meshOf(new THREE.BoxGeometry(0.22,0.36,0.2),mat(P.stone,{rough:0.94}));
+        m.position.set(Math.cos(a)*1.32,3.4,Math.sin(a)*1.32); m.rotation.y=-a; g.add(m);
+        const s=meshOf(new THREE.BoxGeometry(0.24,0.07,0.22),mat(P.snow,{rough:1}),false,false);
+        s.position.set(Math.cos(a)*1.32,3.6,Math.sin(a)*1.32); s.rotation.y=-a; g.add(s);
+      }
+      const dome=meshOf(new THREE.SphereGeometry(1.15,14,9,0,TAU,0,Math.PI/2),
+        mat(P.stone2,{rough:0.9}));
+      dome.position.y=3.24; dome.scale.y=0.95; g.add(dome);
+      const cap=meshOf(new THREE.SphereGeometry(1.16,14,9,0,TAU,0,Math.PI*0.32),
+        mat(P.snow,{rough:1}));
+      cap.position.y=3.26; cap.scale.y=1.0; g.add(cap);
+      const orb=meshOf(new THREE.OctahedronGeometry(0.28),glowMat(P.accent,2.0),false,false);
+      orb.position.y=4.7;
+      orb.userData.tick=t=>{orb.rotation.y=t*0.4;
+        orb.material.emissiveIntensity=1.7+Math.sin(t*1.2)*0.5;};
+      g.add(orb); animated.push(orb);
+      const sm=mat(P.ward,{emissive:P.ward,ei:1.5,rough:0.4,flat:false});
+      for(let i=0;i<6;i++){
+        const a=i/6*TAU+0.3;
+        const s=meshOf(new THREE.BoxGeometry(0.1,0.34,0.05),sm,false,false);
+        s.position.set(Math.cos(a)*1.14,1.9,Math.sin(a)*1.14); s.rotation.y=-a; g.add(s);
+      }
+    }else if(S==='vault'){
+      /* A sealed vault door set into a stone face, with lock rings that turn. */
+      const face=meshOf(new THREE.BoxGeometry(3.4,3.0,0.9),mat(P.stone,{rough:0.94}));
+      face.position.y=1.5; g.add(face);
+      const cap=meshOf(new THREE.BoxGeometry(3.5,0.18,1.0),mat(P.snow,{rough:1}),false,false);
+      cap.position.y=3.05; g.add(cap);
+      for(const s of [-1,1]){
+        const bt=meshOf(new THREE.CylinderGeometry(0.4,0.46,3.3,9),mat(P.stone2,{rough:0.94}));
+        bt.position.set(s*1.8,1.65,0); g.add(bt);
+        const bc=meshOf(new THREE.SphereGeometry(0.48,10,7,0,TAU,0,Math.PI*0.4),
+          mat(P.snow,{rough:1}));
+        bc.position.set(s*1.8,3.3,0); bc.scale.y=0.8; g.add(bc);
+      }
+      const recess=meshOf(new THREE.CylinderGeometry(1.05,1.05,0.2,20),
+        mat(P.stone2,{rough:0.92}),false,false);
+      recess.rotation.x=Math.PI/2; recess.position.set(0,1.5,0.5); g.add(recess);
+      const door=meshOf(new THREE.CylinderGeometry(0.92,0.92,0.24,20),
+        mat(P.metal,{metal:0.6,rough:0.4,env:0.9}));
+      door.rotation.x=Math.PI/2; door.position.set(0,1.5,0.62); g.add(door);
+      for(let i=0;i<3;i++){
+        const rr=0.78-i*0.24;
+        const ring=meshOf(new THREE.TorusGeometry(rr,0.06,6,26),
+          mat(P.ward,{emissive:P.ward,ei:1.3,rough:0.35,metal:0.3}),false,false);
+        ring.position.set(0,1.5,0.76);
+        const sp1=(i%2?1:-1)*(0.22-i*0.05);
+        ring.userData.tick=t=>{ring.rotation.z=t*sp1;};
+        g.add(ring); animated.push(ring);
+        for(let k=0;k<6;k++){
+          const a=k/6*TAU;
+          const stud=meshOf(new THREE.BoxGeometry(0.1,0.16,0.1),
+            mat(P.metal,{metal:0.65,rough:0.35}),false,false);
+          stud.position.set(Math.cos(a)*rr,Math.sin(a)*rr,0);
+          ring.add(stud);
+        }
+      }
+      const core=meshOf(new THREE.OctahedronGeometry(0.22),glowMat(P.accent,2.1),false,false);
+      core.position.set(0,1.5,0.82);
+      core.userData.tick=t=>{core.rotation.z=t*0.6;
+        core.material.emissiveIntensity=1.8+Math.sin(t*1.5)*0.6;};
+      g.add(core); animated.push(core);
+      for(const s of [-1,1]){
+        const st=meshOf(new THREE.BoxGeometry(1.6,0.14,0.5),mat(P.stone2,{rough:0.94}),false,true);
+        st.position.set(0,0.07+s*0+0.0,0.95+(s>0?0.3:0.0)); g.add(st);
+      }
+    }else{   /* watchfire */
+      /* A beacon on a stepped platform: the realm's alarm, and the only thing in
+         the bastion that is warm rather than cold. */
+      for(let i=0;i<3;i++){
+        const r=2.2-i*0.5;
+        const st=meshOf(new THREE.CylinderGeometry(r,r+0.08,0.34,14),
+          mat(i%2?P.stone:P.stone2,{rough:0.94}));
+        st.position.y=0.17+i*0.34; g.add(st);
+        const sn=meshOf(new THREE.CylinderGeometry(r+0.01,r+0.01,0.07,14),
+          mat(P.snow,{rough:1}),false,true);
+        sn.position.y=0.34+i*0.34; g.add(sn);
+      }
+      const col=meshOf(new THREE.CylinderGeometry(0.34,0.46,1.5,9),mat(P.stone,{rough:0.94}));
+      col.position.y=1.77; g.add(col);
+      const basket=meshOf(new THREE.CylinderGeometry(0.92,0.5,0.7,10,1,true),
+        mat(P.metal,{metal:0.55,rough:0.5,side:THREE.DoubleSide}));
+      basket.position.y=2.85; g.add(basket);
+      for(let i=0;i<10;i++){
+        const a=i/10*TAU;
+        g.add(beam(new THREE.Vector3(Math.cos(a)*0.5,2.5,Math.sin(a)*0.5),
+                   new THREE.Vector3(Math.cos(a)*0.92,3.2,Math.sin(a)*0.92),0.035,
+                   mat(P.metal,{metal:0.6,rough:0.4}),false));
+      }
+      const fire=meshOf(new THREE.ConeGeometry(0.75,1.7,9),glowMat(P.warm,2.4),false,false);
+      fire.position.y=3.5; g.add(fire);
+      const fire2=meshOf(new THREE.ConeGeometry(0.45,2.3,8),glowMat(0xFFE08A,2.6),false,false);
+      fire2.position.y=3.8; g.add(fire2);
+      fire.userData.tick=t=>{
+        fire.scale.set(1+Math.sin(t*5)*0.08,1+Math.sin(t*6.3)*0.16,1+Math.cos(t*5.4)*0.08);
+        fire2.scale.set(1+Math.cos(t*7)*0.1,1+Math.sin(t*8.1)*0.2,1+Math.sin(t*6.6)*0.1);
+        fire.material.emissiveIntensity=2.2+Math.sin(t*4.4)*0.5;
+      };
+      animated.push(fire);
+      for(let k=0;k<6;k++){
+        const e=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex,color:P.warm,
+          transparent:true,opacity:0.5,depthWrite:false,blending:THREE.AdditiveBlending}));
+        e.scale.setScalar(0.22);
+        e.userData.tick=t=>{
+          const u=(t*0.45+k/6)%1;
+          e.position.set(Math.sin(u*7+k)*0.5,4.2+u*3.2,Math.cos(u*6+k)*0.5);
+          e.material.opacity=0.5*(1-u);
+        };
+        g.add(e); animated.push(e);
+      }
+      /* Signal banners either side, in the district's colours. */
+      for(const s of [-1,1]){
+        const b=buildBanner(P,rnd,2.4);
+        b.position.set(s*1.9,0.9,0); b.rotation.y=s>0?0:Math.PI; g.add(b);
+      }
+    }
+  }
+
+  /* ------------------------------------------------------ artisan's quarter */
+  else{
+    if(S==='clocktower'){
+      /* The hour tower: honey stucco, a big white face, a rose dome. Straight
+         off the reference and the realm's landmark. */
+      const h=5.0, r=0.82;
+      g.add(meshOf(new THREE.CylinderGeometry(r*1.24,r*1.4,0.36,12),
+        mat(P.stone2,{rough:0.94})));
+      const body=meshOf(new THREE.CylinderGeometry(r*0.88,r,h,12),
+        mat(P.stucco,{rough:0.92,flat:false}));
+      body.position.y=0.36+h/2; g.add(body);
+      for(let i=0;i<3;i++){
+        const b=meshOf(new THREE.CylinderGeometry(r*1.03,r*1.03,0.1,12),
+          mat(P.stucco3,{rough:0.9}),false,false);
+        b.position.y=0.36+h*(0.22+i*0.24); g.add(b);
+      }
+      /* The face: a white disc with a rose surround and hands that turn. */
+      const fa=P.seed*0.3;
+      const face=meshOf(new THREE.CylinderGeometry(0.56,0.56,0.1,24),
+        mat(0xFFFBF0,{rough:0.7,flat:false}),false,false);
+      face.rotation.z=Math.PI/2; face.rotation.y=-fa;
+      face.position.set(Math.cos(fa)*r*0.88,0.36+h*0.78,Math.sin(fa)*r*0.88);
+      g.add(face);
+      const surround=meshOf(new THREE.TorusGeometry(0.6,0.08,6,24),mat(P.rose,{rough:0.8}));
+      surround.position.copy(face.position); surround.rotation.y=-fa+Math.PI/2; g.add(surround);
+      for(let i=0;i<12;i++){
+        const a=i/12*TAU;
+        const tk=meshOf(new THREE.BoxGeometry(0.05,0.1,0.03),mat(0x3A3038,{rough:0.7}),false,false);
+        tk.position.set(face.position.x+Math.cos(fa+Math.PI/2)*Math.cos(a)*0.44*0+
+          Math.sin(fa)*-Math.cos(a)*0.44,
+          face.position.y+Math.sin(a)*0.44,
+          face.position.z+Math.cos(fa)*Math.cos(a)*0.44);
+        tk.rotation.set(0,-fa,a); g.add(tk);
+      }
+      for(const [len,rate,w] of [[0.38,0.06,0.05],[0.28,0.72,0.06]]){
+        const hand=meshOf(new THREE.BoxGeometry(w,len,0.04),mat(0x3A3038,{rough:0.7}),false,false);
+        hand.userData.tick=t=>{
+          const a=-t*rate;
+          hand.position.set(face.position.x+Math.sin(fa)*-Math.cos(a+Math.PI/2)*len*0.5,
+            face.position.y+Math.sin(a+Math.PI/2)*len*0.5,
+            face.position.z+Math.cos(fa)*Math.cos(a+Math.PI/2)*len*0.5);
+          hand.rotation.set(0,-fa,a);
+        };
+        g.add(hand); animated.push(hand);
+      }
+      const eave=meshOf(new THREE.CylinderGeometry(r*1.3,r*1.05,0.14,12),
+        mat(P.stucco3,{rough:0.9}));
+      eave.position.y=0.36+h; g.add(eave);
+      const bel=0.7;
+      for(let i=0;i<6;i++){
+        const a=i/6*TAU;
+        const c=meshOf(new THREE.CylinderGeometry(0.075,0.075,bel,7),
+          mat(P.stucco3,{rough:0.9}));
+        c.position.set(Math.cos(a)*r*0.72,0.36+h+bel/2,Math.sin(a)*r*0.72); g.add(c);
+      }
+      const dome=meshOf(new THREE.SphereGeometry(r*1.06,14,9,0,TAU,0,Math.PI/2),
+        mat(P.rose,{rough:0.76,flat:false}));
+      dome.position.y=0.36+h+bel; dome.scale.y=1.25; g.add(dome);
+      const fin=meshOf(new THREE.OctahedronGeometry(0.18),glowMat(P.accent,1.9),false,false);
+      fin.scale.y=1.9; fin.position.y=0.36+h+bel+r*1.35+0.3;
+      fin.userData.tick=t=>{fin.rotation.y=t*0.4;}; g.add(fin); animated.push(fin);
+    }else if(S==='market'){
+      /* A row of striped awnings over trestle tables. The realm's most
+         recognisable everyday shape, at monument size. */
+      const bays=3;
+      for(let b=0;b<bays;b++){
+        const x=lerp(-2.1,2.1,bays===1?0.5:b/(bays-1));
+        const w=1.9, d=1.5;
+        for(const [sx,sz] of [[-w/2,-d/2],[w/2,-d/2],[-w/2,d/2],[w/2,d/2]]){
+          const p=meshOf(new THREE.CylinderGeometry(0.06,0.07,1.9,7),mat(P.wood,{rough:0.92}));
+          p.position.set(x+sx,0.95,sz); g.add(p);
+        }
+        /* The awning: alternating rose and cream panels, sloping. */
+        const panels=6;
+        for(let i=0;i<panels;i++){
+          const pw=w/panels;
+          const pn=meshOf(new THREE.BoxGeometry(pw,0.06,d*1.3),
+            mat(i%2?P.rose:P.stucco3,{rough:0.8}));
+          pn.position.set(x-w/2+pw*(i+0.5),2.05,0.1);
+          pn.rotation.x=-0.24; g.add(pn);
+        }
+        const scallop=meshOf(new THREE.BoxGeometry(w+0.1,0.16,0.06),
+          mat(P.rose2,{rough:0.8}),false,false);
+        scallop.position.set(x,1.94,d*0.75); g.add(scallop);
+        const table=meshOf(new THREE.BoxGeometry(w*0.9,0.1,d*0.6),mat(P.wood,{rough:0.94}));
+        table.position.set(x,0.85,0); g.add(table);
+        const cloth=meshOf(new THREE.BoxGeometry(w*0.92,0.24,d*0.62),
+          mat(P.stucco3,{rough:0.9}),false,false);
+        cloth.position.set(x,0.72,0); g.add(cloth);
+        for(let i=0;i<5;i++){
+          const f=meshOf(new THREE.SphereGeometry(lerp(0.07,0.12,rnd()),7,6),
+            mat([P.rose,P.leaf,P.stucco2,P.blush][i%4],{rough:0.85}),false,false);
+          f.position.set(x+(rnd()-0.5)*w*0.7,0.98,(rnd()-0.5)*d*0.4); g.add(f);
+        }
+        const lan=meshOf(new THREE.BoxGeometry(0.16,0.2,0.16),glowMat(P.warm,1.7),false,false);
+        lan.position.set(x+w/2,1.78,-d/2);
+        const ph=b*1.1;
+        lan.userData.tick=t=>{lan.material.emissiveIntensity=1.5+Math.sin(t*1.5+ph)*0.35;};
+        g.add(lan); animated.push(lan);
+      }
+      for(let i=0;i<4;i++){
+        const p=quarterPlant(P,rnd);
+        p.position.set(lerp(-2.7,2.7,i/3),0,-1.5); g.add(p);
+      }
+      const b=buildBanner(P,rnd,2.6); b.position.set(-3.0,0,0.6); g.add(b);
+    }else if(S==='library'){
+      /* A reading rotunda: a colonnade under a rose-tiled dome. The quarter's
+         other monuments are a tower and a row, so the one shape left that says
+         "civic, and old" is a round one — and a dome in this realm's roof
+         colour is the loudest thing it owns. */
+      const R=1.9, h=2.0, n=12;
+      g.add(meshOf(new THREE.CylinderGeometry(R*1.3,R*1.38,0.28,18),
+        mat(P.stone,{rough:0.94})).translateY(0.14));
+      for(let i=0;i<n;i++){
+        const a=i/n*TAU;
+        const c=meshOf(new THREE.CylinderGeometry(0.13,0.15,h,9),
+          mat(P.stucco3,{rough:0.9,flat:false}));
+        c.position.set(Math.cos(a)*R,0.28+h/2,Math.sin(a)*R); g.add(c);
+      }
+      g.add(meshOf(new THREE.CylinderGeometry(R*1.18,R*1.18,0.24,18),
+        mat(P.stucco,{rough:0.9})).translateY(0.28+h+0.12));
+      const dome=meshOf(new THREE.SphereGeometry(R*1.06,18,10,0,TAU,0,Math.PI/2),
+        mat(P.rose,{rough:0.72,flat:false}));
+      dome.position.y=0.28+h+0.2; dome.scale.y=0.72; g.add(dome);
+      const lantern=meshOf(new THREE.CylinderGeometry(0.26,0.3,0.4,9),
+        mat(P.stucco3,{rough:0.9}));
+      lantern.position.y=0.28+h+0.2+R*0.74; g.add(lantern);
+      const fin=meshOf(new THREE.IcosahedronGeometry(0.18,1),glowMat(P.accent,1.9),false,false);
+      fin.position.y=0.28+h+0.2+R*0.74+0.42; g.add(fin);
+      fin.userData.tick=t=>{ fin.rotation.y=t*0.4;
+        fin.position.y=0.28+h+0.2+R*0.74+0.42+Math.sin(t*1.1)*0.05; };
+      animated.push(fin);
+      /* Stacks on the floor, and loose pages circling the reading level — the
+         only motion, so it has to be the thing the eye lands on. */
+      const stacks=clamp(3+Math.floor(sp.level/2),3,7);
+      for(let i=0;i<stacks;i++){
+        const a=i*2.399963229728653, rr=R*0.55;
+        const sh=meshOf(boxG(0.9,1.0,0.28),mat(P.wood,{rough:0.95}));
+        sh.position.set(Math.cos(a)*rr,0.78,Math.sin(a)*rr); sh.rotation.y=-a; g.add(sh);
+        for(let k=0;k<3;k++){
+          const b=meshOf(boxG(0.8,0.05,0.3),glowMat(k%2?P.accent:P.accent2,0.8),false,false);
+          b.position.set(Math.cos(a)*rr,0.53+k*0.3,Math.sin(a)*rr); b.rotation.y=-a; g.add(b);
+        }
+      }
+      for(let i=0;i<5;i++){
+        const bk=meshOf(boxG(0.3,0.06,0.22),mat(P.blush,{rough:0.85}),false,false);
+        const rr=R*0.78, off=i*1.25, sp2=0.3+i*0.05;
+        bk.userData.tick=t=>{ const w=t*sp2+off;
+          bk.position.set(Math.cos(w)*rr,1.6+Math.sin(t*1.2+off)*0.2,Math.sin(w)*rr);
+          bk.rotation.set(0.3,w,Math.sin(t+off)*0.3); };
+        g.add(bk); animated.push(bk);
+      }
+    }else{   /* workshop */
+      /* The guild row: a long stucco hall with an arcade along the front, a
+         chimney, and tools on racks. Craft, made a building. */
+      const w=4.2, d=2.0, h=1.7;
+      g.add(meshOf(new THREE.BoxGeometry(w,h,d),mat(P.stucco,{rough:0.92,flat:false}))
+        .translateY(h/2));
+      /* softRoof runs its ridge along +z, and this hall is long along x — so
+         the spans are passed swapped and the whole roof turned a quarter. Passed
+         unswapped it came out as one enormous pink lozenge lying across the
+         district, which is what a gable looks like from the wrong side. */
+      const roof=softRoof(d*1.2,w*1.12,1.3,P.rose,{rough:0.78,nu:12});
+      roof.position.y=h; roof.rotation.y=Math.PI/2; g.add(roof);
+      /* A ridge, and skylights lying IN the roof rather than dormers standing
+         proud of it. The dormers were sized and placed against the wall line,
+         not against the roof surface, so at z = 0.28d the roof is already
+         1.13 high and the whole dormer — box, roof and window — sat buried
+         inside it, showing as a lump of stucco poking through the tiles. A
+         roof light is flat by definition and cannot make that mistake. */
+      const ridge=meshOf(new THREE.BoxGeometry(w*1.12,0.12,0.2),
+        mat(P.rose2,{rough:0.8}),true,false);
+      ridge.position.y=h+1.28; g.add(ridge);
+      for(const s of [-1,1]){
+        for(let i=0;i<2;i++){
+          const dx=s*w*(0.16+i*0.2);
+          /* Sit each light ON the computed roof surface at its own z. */
+          const zz=d*0.34, u=zz/(d*1.2/2);
+          const ry=h+1.3*Math.pow(Math.max(0,1-u*u),0.58);
+          const sk=meshOf(new THREE.BoxGeometry(0.42,0.05,0.5),
+            winMat(P,0.85),false,false);
+          sk.position.set(dx,ry+0.03,zz); sk.rotation.x=-0.5; g.add(sk);
+          const frm=meshOf(new THREE.BoxGeometry(0.5,0.05,0.08),
+            mat(P.stucco3,{rough:0.9}),false,false);
+          frm.position.set(dx,ry+0.13,zz-0.18); frm.rotation.x=-0.5; g.add(frm);
+        }
+      }
+      /* Two chimneys, which is what actually breaks a long roofline. */
+      for(const s of [-1,1]){
+        const ch=meshOf(new THREE.CylinderGeometry(0.13,0.16,0.85,7),
+          mat(P.cliff,{rough:0.94}));
+        ch.position.set(s*w*0.33,h+1.35,0); g.add(ch);
+        const cap=meshOf(new THREE.CylinderGeometry(0.18,0.15,0.09,7),
+          mat(P.stucco3,{rough:0.9}),false,false);
+        cap.position.set(s*w*0.33,h+1.81,0); g.add(cap);
+      }
+      /* The arcade: five arches along the front. */
+      for(let i=0;i<5;i++){
+        const x=lerp(-w*0.4,w*0.4,i/4);
+        const col=meshOf(new THREE.CylinderGeometry(0.1,0.12,1.3,9),
+          mat(P.stucco3,{rough:0.9}));
+        col.position.set(x,0.65,d/2+0.4); g.add(col);
+        if(i<4){
+          const mid=lerp(-w*0.4,w*0.4,(i+0.5)/4);
+          const arc=meshOf(new THREE.TorusGeometry(w*0.8/4/2,0.075,5,10,Math.PI),
+            mat(P.stucco2,{rough:0.9}));
+          arc.position.set(mid,1.3,d/2+0.4); g.add(arc);
+        }
+      }
+      const lintel=meshOf(new THREE.BoxGeometry(w*0.92,0.16,0.34),mat(P.stucco3,{rough:0.9}));
+      lintel.position.set(0,1.52,d/2+0.4); g.add(lintel);
+      const canopy=meshOf(new THREE.BoxGeometry(w*0.95,0.09,0.52),mat(P.rose2,{rough:0.8}));
+      canopy.position.set(0,1.6,d/2+0.58); canopy.rotation.x=-0.2; g.add(canopy);
+      const wm=winMat(P,0.9);
+      for(let i=0;i<4;i++){
+        const x=lerp(-w*0.34,w*0.34,i/3);
+        const win=meshOf(new THREE.BoxGeometry(0.34,0.42,0.05),wm,false,false);
+        win.position.set(x,0.85,-d/2-0.02); win.rotation.y=Math.PI; g.add(win);
+      }
+      const ch=meshOf(new THREE.CylinderGeometry(0.16,0.2,1.1,8),mat(P.cliff,{rough:0.94}));
+      ch.position.set(-w*0.34,h+0.75,0); g.add(ch);
+      smokePlume(g,-w*0.34,h+1.32,0,0.7,0xFFFFFF,0.24);
+      /* A tool rack and an anvil outside — the craft, visible. */
+      const rack=meshOf(new THREE.BoxGeometry(1.2,0.09,0.28),mat(P.wood,{rough:0.94}));
+      rack.position.set(w*0.3,1.15,d/2+0.72); g.add(rack);
+      for(let i=0;i<4;i++){
+        const t=meshOf(new THREE.BoxGeometry(0.06,0.4,0.06),
+          mat(P.metal,{metal:0.5,rough:0.5}),false,false);
+        t.position.set(w*0.3+lerp(-0.45,0.45,i/3),0.92,d/2+0.72); g.add(t);
+      }
+      const anvil=meshOf(new THREE.BoxGeometry(0.5,0.22,0.24),
+        mat(P.metal,{metal:0.55,rough:0.45}));
+      anvil.position.set(-w*0.28,0.36,d/2+0.95); g.add(anvil);
+      g.add(meshOf(new THREE.CylinderGeometry(0.13,0.17,0.26,8),mat(P.wood,{rough:0.95}))
+        .translateX(-w*0.28).translateY(0.13).translateZ(d/2+0.95));
+      for(let i=0;i<3;i++){
+        const p=quarterPlant(P,rnd);
+        p.position.set(lerp(-w*0.45,w*0.45,i/2),0,d/2+1.35); g.add(p);
+      }
+    }
+  }
+  return g;
+}
+
+/* ================================================ the late game, per realm
+   What a district builds once it has run out of ground. One per realm, and no
+   two are the same kind of structure — see GROWTH below for why. */
+
+/* FRAMEWORKS — dwellings hung from the great tree. The realm's expansion is
+   upward into something already there, which is the one move no other realm can
+   make: nobody else has a tree. */
+function frameCanopyPods(P,R,level){
+  const g=new THREE.Group(), rnd=rngOf(hash2(P.seed,7100));
+  /* Same two curves the tree itself is built from, so the pods hang in its
+     canopy at every level rather than beside it. */
+  const t=(level-1)/11;
+  const h=lerp(1.1,13.5,Math.pow(t,0.85));
+  const canopyR=lerp(0.55,5.6,Math.pow(t,0.8));
+  const n=Math.min(6,Math.max(2,Math.round(2+t*5)));
+  for(let i=0;i<n;i++){
+    const a=i*2.399963229728653+P.seed*0.17;
+    const rr=canopyR*lerp(0.5,0.85,rnd());
+    const top=h*lerp(0.72,0.95,rnd());
+    const drop=lerp(1.1,2.2,rnd());
+    const x=Math.cos(a)*rr, z=Math.sin(a)*rr;
+    /* Two ropes and a pod hanging between them. */
+    for(const sd of [-1,1]){
+      g.add(beam(new THREE.Vector3(x+Math.cos(a+1.57)*sd*0.28,top,
+                                   z+Math.sin(a+1.57)*sd*0.28),
+                 new THREE.Vector3(x+Math.cos(a+1.57)*sd*0.28,top-drop,
+                                   z+Math.sin(a+1.57)*sd*0.28),
+                 0.03,mat(P.bark2,{rough:1}),false));
+    }
+    const pod=new THREE.Group(); pod.position.set(x,top-drop,z); g.add(pod);
+    const pr=lerp(0.55,0.85,rnd());
+    const deck=meshOf(new THREE.CylinderGeometry(pr*1.15,pr*1.0,0.12,9),
+      mat(P.wood,{rough:0.92}));
+    pod.add(deck);
+    const body=meshOf(new THREE.CylinderGeometry(pr*0.85,pr*0.95,lerp(0.6,0.9,rnd()),9),
+      mat(P.wood,{rough:0.92}));
+    body.position.y=body.geometry.parameters.height/2+0.06; pod.add(body);
+    const rf=meshOf(new THREE.ConeGeometry(pr*1.25,lerp(0.45,0.7,rnd()),10),
+      mat(rnd()<0.5?P.moss:P.moss2,{rough:0.9}));
+    rf.position.y=body.geometry.parameters.height+0.06+
+      rf.geometry.parameters.height/2; pod.add(rf);
+    const w=meshOf(new THREE.CylinderGeometry(0.13,0.13,0.05,9),winMat(P,1.0),false,false);
+    w.rotation.z=Math.PI/2; w.rotation.y=-a;
+    w.position.set(Math.cos(a)*pr*0.9,body.geometry.parameters.height*0.55,
+                   Math.sin(a)*pr*0.9);
+    pod.add(w);
+    /* Railing posts, and a rope ladder dropping off one side. */
+    for(let k=0;k<7;k++){
+      const aa=k/7*TAU;
+      pod.add(meshOf(new THREE.CylinderGeometry(0.025,0.025,0.26,4),
+        mat(P.bark2,{rough:0.95}),true,false)
+        .translateX(Math.cos(aa)*pr*1.05).translateY(0.18)
+        .translateZ(Math.sin(aa)*pr*1.05));
+    }
+    const ph=rnd()*TAU, sw=lerp(0.03,0.07,rnd());
+    pod.userData.tick=tt=>{ pod.rotation.z=Math.sin(tt*0.55+ph)*sw;
+      pod.rotation.x=Math.cos(tt*0.45+ph)*sw*0.7; };
+    animated.push(pod);
+  }
+  return g;
+}
+
+/* METAL FORGES — a lava launder carried across the works on brick piers. The
+   realm already moves melt along the ground; this is the same job done in the
+   air, and it is plumbing rather than a walkway. */
+function forgeAqueduct(P,prof,R){
+  const g=new THREE.Group();
+  /* Set across the river's bearing rather than along it, so the two read as a
+     network instead of one line drawn twice. */
+  const a=P.seed*0.77+1.3+Math.PI*0.62;
+  /* Offset off the origin so the run misses the monument in the middle. */
+  const EO=expandOffset(P);
+  const ox=-Math.sin(a)*EO, oz=Math.cos(a)*EO;
+  const half=Math.min(R-1.0,7.2);
+  const dirx=Math.cos(a), dirz=Math.sin(a);
+  const y=1.9;
+  const brick=mat(P.brick,{rough:0.95}), brick2=mat(P.brick2,{rough:0.95});
+  const steel=mat(P.metal,{metal:0.55,rough:0.45});
+  const piers=Math.max(3,Math.round(half*2/2.4));
+  for(let i=0;i<=piers;i++){
+    const u=i/piers, d=lerp(-half,half,u);
+    const px=dirx*d+ox, pz=dirz*d+oz;
+    if(Math.hypot(px,pz)>R-0.7)continue;
+    const gy=tierY(Math.hypot(px,pz))+0.16;
+    /* A tapered pier with an arch springing to the next one. */
+    const ph=y-gy;
+    const pier=meshOf(new THREE.BoxGeometry(0.62,ph,0.5),i%2?brick:brick2);
+    pier.position.set(px,gy+ph/2,pz); pier.rotation.y=-a; g.add(pier);
+    const cap=meshOf(new THREE.BoxGeometry(0.82,0.16,0.66),brick2);
+    cap.position.set(px,y-0.08,pz); cap.rotation.y=-a; g.add(cap);
+    if(i<piers){
+      const span=half*2/piers;
+      const mid=lerp(-half,half,(i+0.5)/piers);
+      const arch=meshOf(new THREE.TorusGeometry(span*0.42,0.14,5,12,Math.PI),brick);
+      arch.position.set(dirx*mid+ox,y-0.2,dirz*mid+oz);
+      arch.rotation.y=-a+Math.PI/2; g.add(arch);
+    }
+  }
+  /* The trough on top, and the melt running through it. */
+  const len=half*2;
+  const trough=meshOf(new THREE.BoxGeometry(len,0.18,0.72),steel);
+  trough.position.set(ox,y+0.09,oz); trough.rotation.y=-a; g.add(trough);
+  for(const sd of [-1,1]){
+    const wall=meshOf(new THREE.BoxGeometry(len,0.24,0.08),steel,true,false);
+    wall.position.set(ox-dirz*sd*0.34,y+0.2,oz+dirx*sd*0.34);
+    wall.rotation.y=-a; g.add(wall);
+  }
+  const melt=meshOf(new THREE.BoxGeometry(len*0.99,0.06,0.5),
+    mat(P.lavaHot,{emissive:P.lavaHot,ei:1.7,rough:0.3,flat:false}),false,false);
+  melt.position.set(ox,y+0.2,oz); melt.rotation.y=-a; g.add(melt);
+  for(let k=0;k<5;k++){
+    const fm=new THREE.MeshStandardMaterial({color:P.lava,emissive:P.lava,
+      emissiveIntensity:1.9,roughness:0.3,transparent:true,opacity:0.9});
+    const cell=meshOf(new THREE.BoxGeometry(0.7,0.07,0.4),fm,false,false);
+    cell.rotation.y=-a;
+    cell.userData.tick=t=>{
+      const u=(t*0.16+k/5)%1, d=lerp(-half,half,u);
+      cell.position.set(dirx*d+ox,y+0.24,dirz*d+oz);
+      fm.opacity=0.9*Math.min(1,Math.sin(u*Math.PI)*2.4);
+    };
+    g.add(cell); animated.push(cell);
+  }
+  return g;
+}
+
+/* SHIPYARDS — a crane rail down the quay. Everything the realm builds late is
+   plant, and plant runs on rails: it is long, low and horizontal, the opposite
+   of a span. */
+function shipGantryLine(P,prof,R){
+  const g=new THREE.Group(), rnd=rngOf(hash2(P.seed,7300));
+  const a=P.seed*0.31+0.9;
+  /* Offset off the origin so the run misses the monument in the middle. */
+  const EO=expandOffset(P);
+  const ox=-Math.sin(a)*EO, oz=Math.cos(a)*EO;
+  const half=Math.min(R-1.4,6.4);
+  const dirx=Math.cos(a), dirz=Math.sin(a);
+  const steel=mat(P.metal,{metal:0.5,rough:0.45});
+  const lattice=mat(P.lattice,{rough:0.78});
+  const rail=mat(P.rust,{rough:0.85});
+  const gy=()=>tierY(0.1)+0.16;
+  /* Two rails, sleepers between them. */
+  for(const sd of [-1,1]){
+    const rl=meshOf(new THREE.BoxGeometry(half*2,0.12,0.18),rail);
+    rl.position.set(ox-dirz*sd*1.5,gy()+0.06,oz+dirx*sd*1.5);
+    rl.rotation.y=-a; g.add(rl);
+  }
+  const sleepers=Math.round(half*2/0.7);
+  for(let i=0;i<sleepers;i++){
+    const d=lerp(-half,half,(i+0.5)/sleepers);
+    const sl=meshOf(new THREE.BoxGeometry(0.22,0.08,3.2),mat(P.wood,{rough:0.94}),false,true);
+    sl.position.set(dirx*d+ox,gy()+0.02,dirz*d+oz); sl.rotation.y=-a; g.add(sl);
+  }
+  /* Two portal cranes straddling the rail, at fixed stations, each with a
+     trolley that runs its own beam. */
+  const stations=[-half*0.45,half*0.5];
+  stations.forEach((d0,idx)=>{
+    const cx=dirx*d0+ox, cz=dirz*d0+oz;
+    if(Math.hypot(cx,cz)>R-1.2)return;
+    const base=tierY(Math.hypot(cx,cz))+0.16;
+    const hgt=lerp(3.2,4.2,rnd());
+    for(const sd of [-1,1]){
+      for(const fw of [-1,1]){
+        const lx=cx-dirz*sd*1.5+dirx*fw*0.5, lz=cz+dirx*sd*1.5+dirz*fw*0.5;
+        g.add(beam(new THREE.Vector3(lx,base,lz),
+                   new THREE.Vector3(cx-dirz*sd*1.35,base+hgt,cz+dirx*sd*1.35),
+                   0.08,lattice));
+      }
+      /* Bogie under each leg. */
+      const bg=meshOf(new THREE.BoxGeometry(0.7,0.22,0.4),steel);
+      bg.position.set(cx-dirz*sd*1.5,base+0.14,cz+dirx*sd*1.5);
+      bg.rotation.y=-a; g.add(bg);
+    }
+    const beamTop=base+hgt;
+    const portal=meshOf(new THREE.BoxGeometry(0.42,0.3,3.4),lattice);
+    portal.position.set(cx,beamTop,cz); portal.rotation.y=-a; g.add(portal);
+    const truss=meshOf(new THREE.BoxGeometry(0.3,0.16,3.0),rail);
+    portal.rotation.y=-a;
+    truss.position.set(cx,beamTop+0.36,cz); truss.rotation.y=-a; g.add(truss);
+    for(let i=0;i<6;i++){
+      const o=lerp(-1.5,1.5,i/5);
+      g.add(beam(new THREE.Vector3(cx-dirz*o,beamTop+0.14,cz+dirx*o),
+                 new THREE.Vector3(cx-dirz*(o+0.3),beamTop+0.36,cz+dirx*(o+0.3)),
+                 0.03,lattice,false));
+    }
+    /* Trolley and load, running the portal beam. */
+    const tr=meshOf(new THREE.BoxGeometry(0.5,0.24,0.5),mat(P.stripe,{rough:0.65}));
+    const cab=meshOf(new THREE.CylinderGeometry(0.02,0.02,1,4),steel,false,false);
+    const load=meshOf(new THREE.BoxGeometry(0.8,0.4,0.4),
+      mat([0xC2453C,0x2E6FA8,0x2FA0A8][idx%3],{rough:0.78}));
+    tr.userData.tick=t=>{
+      const o=Math.sin(t*0.3+idx*2)*1.35;
+      const drop=1.5+Math.sin(t*0.5+idx)*0.9;
+      tr.position.set(cx-dirz*o,beamTop-0.14,cz+dirx*o);
+      cab.scale.y=drop; cab.position.set(cx-dirz*o,beamTop-0.26-drop/2,cz+dirx*o);
+      load.position.set(cx-dirz*o,beamTop-0.26-drop,cz+dirx*o);
+      load.rotation.y=-a;
+    };
+    g.add(tr,cab,load); animated.push(tr);
+  });
+  /* Container stacks alongside the rail, at fixed stations. */
+  const CON=[0xC2453C,0x2E6FA8,0x2FA0A8,0xC9A02E];
+  for(let i=0;i<7;i++){
+    const d=lerp(-half*0.9,half*0.9,i/6);
+    const sd=i%2?1:-1;
+    const bx=dirx*d+ox-dirz*sd*2.5, bz=dirz*d+oz+dirx*sd*2.5;
+    if(Math.hypot(bx,bz)>R-0.9)continue;
+    const by=tierY(Math.hypot(bx,bz))+0.16;
+    const stack=1+Math.floor(rnd()*3);
+    for(let k=0;k<stack;k++){
+      const c=meshOf(new THREE.BoxGeometry(1.5,0.42,0.62),
+        mat(CON[Math.floor(rnd()*CON.length)],{rough:0.78}));
+      c.position.set(bx,by+0.21+k*0.42,bz);
+      c.rotation.y=-a+(rnd()-0.5)*0.1; g.add(c);
+    }
+  }
+  return g;
+}
+
+/* BASTION — a raised inner ward. The realm's grammar is concentric, so its late
+   growth goes UP THE MIDDLE on a walled motte rather than out across the air. */
+function bastionCitadel(P,prof,R){
+  const g=new THREE.Group();
+  const cr=Math.min(3.0,R*0.3);
+  if(cr<1.2)return g;
+  const base=tierY(0.1)+0.16, h=1.5;
+  /* The motte: a battered drum of ashlar with snow on the crown. */
+  const mound=meshOf(new THREE.CylinderGeometry(cr,cr*1.14,h,20),
+    mat(P.stone,{rough:0.94}));
+  mound.position.y=base+h/2; g.add(mound);
+  for(let i=0;i<3;i++){
+    const b=meshOf(new THREE.CylinderGeometry(cr*1.02,cr*1.02,0.08,20),
+      mat(P.stone2,{rough:0.94}),false,false);
+    b.position.y=base+h*(0.24+i*0.26); g.add(b);
+  }
+  const top=meshOf(new THREE.CylinderGeometry(cr*0.98,cr*0.98,0.12,20),
+    mat(P.snow,{rough:1}),false,true);
+  top.position.y=base+h+0.06; g.add(top);
+  /* Crenellated ring around the ward, with a gap where the ramp arrives. */
+  const gate=P.seed*0.4+1.1;
+  const n=Math.round(TAU*cr/0.46);
+  for(let i=0;i<n;i++){
+    const a=i/n*TAU;
+    const d=Math.abs(((a-gate+Math.PI)%TAU+TAU)%TAU-Math.PI);
+    if(d<0.3)continue;
+    const seg=meshOf(new THREE.BoxGeometry(0.22,0.44,cr*TAU/n*1.2),
+      mat(i%2?P.stone:P.stone2,{rough:0.94}));
+    seg.position.set(Math.cos(a)*cr*0.96,base+h+0.34,Math.sin(a)*cr*0.96);
+    seg.rotation.y=-a; g.add(seg);
+    if(i%2===0){
+      const sn=meshOf(new THREE.BoxGeometry(0.24,0.07,cr*TAU/n*1.24),
+        mat(P.snow,{rough:1}),false,false);
+      sn.position.set(Math.cos(a)*cr*0.96,base+h+0.59,Math.sin(a)*cr*0.96);
+      sn.rotation.y=-a; g.add(sn);
+    }
+  }
+  /* The ramp up to the gap — a stepped stone approach with a low wall. */
+  const steps=7;
+  for(let i=0;i<steps;i++){
+    const u=i/steps;
+    const rr=cr*1.05+u*2.0;
+    const st=meshOf(new THREE.BoxGeometry(1.3,0.2,0.62),mat(P.stone2,{rough:0.94}));
+    st.position.set(Math.cos(gate)*rr,base+h+0.05-u*(h+0.05),Math.sin(gate)*rr);
+    st.rotation.y=-gate; g.add(st);
+    if(i%2===0){
+      const sn=meshOf(new THREE.BoxGeometry(1.32,0.06,0.64),
+        mat(P.snow,{rough:1}),false,false);
+      sn.position.set(Math.cos(gate)*rr,base+h+0.18-u*(h+0.05),Math.sin(gate)*rr);
+      sn.rotation.y=-gate; g.add(sn);
+    }
+  }
+  /* Ward-braziers on the parapet. */
+  for(let i=0;i<4;i++){
+    const a=gate+Math.PI*0.5+i*Math.PI*0.33;
+    const br=meshOf(new THREE.CylinderGeometry(0.13,0.09,0.18,7),
+      mat(P.metal,{metal:0.45,rough:0.55}));
+    br.position.set(Math.cos(a)*cr*0.82,base+h+0.3,Math.sin(a)*cr*0.82); g.add(br);
+    const f=meshOf(new THREE.ConeGeometry(0.11,0.3,6),glowMat(P.warm,2.0),false,false);
+    f.position.set(Math.cos(a)*cr*0.82,base+h+0.52,Math.sin(a)*cr*0.82);
+    const ph=i*1.4;
+    f.userData.tick=t=>{ f.scale.set(1,1+Math.sin(t*6+ph)*0.16,1); };
+    g.add(f); animated.push(f);
+  }
+  return g;
+}
+
+/* ARTISAN'S QUARTER — a covered colonnade at STREET level. The realm's density
+   is in its streets, so its late growth roofs one over rather than leaving the
+   ground at all. */
+function quarterArcadeRow(P,prof,R){
+  const g=new THREE.Group();
+  const a=P.seed*0.53+2.4;
+  /* Offset off the origin so the run misses the monument in the middle. */
+  const EO=expandOffset(P);
+  const ox=-Math.sin(a)*EO, oz=Math.cos(a)*EO;
+  /* A street, not a runway. Twelve units of continuous roof read as one pink
+     plane lying across the district at this camera angle. */
+  const half=Math.min(R-1.2,4.4);
+  if(half<2)return g;
+  const dirx=Math.cos(a), dirz=Math.sin(a);
+  const bays=Math.max(3,Math.round(half*2/1.5));
+  const wallM=mat(P.stucco,{rough:0.92,flat:false});
+  const trimM=mat(P.stucco3,{rough:0.9});
+  const h=1.5;
+  for(let i=0;i<=bays;i++){
+    const u=i/bays, d=lerp(-half,half,u);
+    const px=dirx*d+ox, pz=dirz*d+oz;
+    if(Math.hypot(px,pz)>R-0.8)continue;
+    const gy=tierY(Math.hypot(px,pz))+0.16;
+    for(const sd of [-1,1]){
+      const cx=px-dirz*sd*1.05, cz=pz+dirx*sd*1.05;
+      const col=meshOf(new THREE.CylinderGeometry(0.12,0.15,h,10),trimM);
+      col.position.set(cx,gy+h/2,cz); g.add(col);
+      const cap=meshOf(new THREE.BoxGeometry(0.34,0.1,0.34),wallM);
+      cap.position.set(cx,gy+h,cz); cap.rotation.y=-a; g.add(cap);
+      if(i<bays){
+        const span=half*2/bays;
+        const mid=lerp(-half,half,(i+0.5)/bays);
+        const arc=meshOf(new THREE.TorusGeometry(span*0.42,0.085,5,12,Math.PI),wallM);
+        arc.position.set(dirx*mid+ox-dirz*sd*1.05,gy+h,dirz*mid+oz+dirx*sd*1.05);
+        arc.rotation.y=-a+Math.PI/2; g.add(arc);
+      }
+    }
+  }
+  /* Entablature and one long tiled roof over the whole run. */
+  const len=half*2;
+  const gy0=tierY(0.1)+0.16;
+  for(const sd of [-1,1]){
+    const ent=meshOf(new THREE.BoxGeometry(len,0.2,0.34),trimM);
+    ent.position.set(ox-dirz*sd*1.05,gy0+h+0.32,oz+dirx*sd*1.05);
+    ent.rotation.y=-a; g.add(ent);
+  }
+  /* Roofed bay by bay rather than in one piece, with a steeper pitch. The
+     breaks and the extra rise are what stop it reading as a slab — a single
+     continuous plane this long has no silhouette from above at all. */
+  for(let i=0;i<bays;i++){
+    const d=lerp(-half,half,(i+0.5)/bays);
+    const bx=dirx*d+ox, bz=dirz*d+oz;
+    if(Math.hypot(bx,bz)>R-0.8)continue;
+    const rf=softRoof(2.3,half*2/bays*1.04,0.8,P.rose,{nu:9,nv:2,rough:0.78});
+    rf.position.set(bx,gy0+h+0.44,bz); rf.rotation.y=-a+Math.PI/2; g.add(rf);
+    const ridge=meshOf(new THREE.BoxGeometry(half*2/bays*1.06,0.09,0.14),
+      mat(P.rose2,{rough:0.8}),true,false);
+    ridge.position.set(bx,gy0+h+1.24,bz); ridge.rotation.y=-a; g.add(ridge);
+  }
+  /* Lanterns hung between the arches, and pots along the kerb. */
+  for(let i=1;i<bays;i+=2){
+    const d=lerp(-half,half,i/bays);
+    const lx=dirx*d+ox, lz=dirz*d+oz;
+    if(Math.hypot(lx,lz)>R-0.8)continue;
+    const lan=meshOf(new THREE.CylinderGeometry(0.1,0.13,0.22,4),
+      glowMat(P.warm,1.8),false,false);
+    lan.rotation.y=Math.PI/4;
+    lan.position.set(lx,gy0+h-0.06,lz); g.add(lan);
+  }
+  return g;
+}
+
+/* ------------------------------------------------------- how a realm grows
+   Six realms were running the same growth script: the same three towers, the
+   same seven decks braced off the rim, and the same three spans strung between
+   the tower tops. Recolouring those is not diversity — at L12 every district in
+   the world had the identical skeleton, and the eye reads skeleton before it
+   reads material.
+
+   So the LATE GAME is realm data now. Each realm has its own answer to "the
+   district has run out of ground, what does it build instead", and no two
+   answers are the same kind of structure:
+
+     swarm    SPANS       causeways of floating slabs between the spires
+     frame    CANOPY      dwellings hung from the great tree's boughs
+     forge    AQUEDUCT    a lava launder on brick piers, crossing the works
+     ship     GANTRY      a crane rail down the quay with travelling cranes
+     bastion  CITADEL     a raised inner ward on a walled motte, with a ramp
+     quarter  ARCADE      a covered colonnaded street at ground level
+
+   Only the swarm builds anything that crosses open air, which is the point: it
+   is the sky-garden, and a floating walkway means something there and nothing
+   anywhere else. Tower counts and deck counts vary too, because "three towers"
+   was as much a fingerprint as the bridges were. */
+const GROWTH={
+  /* towers: the cap at L12. decks: braced platforms per level, 1-12. */
+  swarm:  {towers:5, expand:'spans',    decks:[0,0,0,0,0,0,0,2,3,5,6,7]},
+  frame:  {towers:2, expand:'canopy',   decks:[0,0,0,0,0,0,0,1,2,3,4,5]},
+  forge:  {towers:4, expand:'aqueduct', decks:[0,0,0,0,0,0,0,1,2,3,3,4]},
+  ship:   {towers:3, expand:'gantry',   decks:[0,0,0,0,0,0,0,2,3,4,5,6]},
+  bastion:{towers:6, expand:'citadel',  decks:[0,0,0,0,0,0,0,1,1,2,3,3]},
+  quarter:{towers:3, expand:'arcade',   decks:[0,0,0,0,0,0,0,2,3,4,5,6]},
+};
 
 /* ----------------------------------------------------------------- registry
    One row per realm. `build()` reads only from here, so adding a seventh realm
    is a data change plus its builders — never a change to the growth machinery. */
 const KITS={
-  swarm:{ house:buildCottage, tower:buildSpire, hall:buildDome, crown:buildOrrery,
-          plant:(P,r)=>buildTree(P,r), feature:(P,r)=>realmFeature(P,r,'crystal'),
-          garden:(P,r)=>realmGarden(P,r,'hedge'), lamp:(P,r)=>postLamp(P,r,'stone'),
-          life:(P,n,R)=>buildBirds(P,n,R), motes:true },
-  frame:{ crown:null, house:frameHouse, tower:frameTower, hall:frameHall, 
-          plant:(P,r)=>realmPlant(P,r,'broadleaf'), feature:(P,r)=>realmFeature(P,r,'mushroom'),
-          garden:(P,r)=>realmGarden(P,r,'hedge'), lamp:(P,r)=>postLamp(P,r,'timber'),
-          life:frameLife, motes:true },
-  forge:{ crown:null, house:forgeHouse, tower:forgeTower, hall:forgeHall, 
-          plant:(P,r)=>realmPlant(P,r,'charred'), feature:(P,r)=>realmFeature(P,r,'ore'),
-          garden:(P,r)=>realmGarden(P,r,'scrap'), lamp:(P,r)=>postLamp(P,r,'iron'),
-          life:forgeLife, motes:false },
-  ship:{  crown:null, house:shipHouse, tower:shipTower, hall:shipHall, 
-          plant:(P,r)=>realmPlant(P,r,'harbour'), feature:(P,r)=>realmFeature(P,r,'crate'),
-          garden:(P,r)=>realmGarden(P,r,'dock'), lamp:(P,r)=>postLamp(P,r,'iron'),
-          life:shipLife, motes:false },
-  bastion:{crown:null, house:bastionHouse, tower:bastionTower, hall:bastionHall, 
-          plant:(P,r)=>realmPlant(P,r,'conifer'),
-          feature:(P,r)=>r()<0.3?bastionSiege(P,r):realmFeature(P,r,'brazier'),
-          garden:(P,r)=>realmGarden(P,r,'muster'), lamp:(P,r)=>postLamp(P,r,'iron'),
-          life:bastionLife, motes:false },
-  quarter:{crown:null, house:quarterHouse, tower:quarterTower, hall:quarterHall, 
-          plant:(P,r)=>realmPlant(P,r,'street'), feature:(P,r)=>realmFeature(P,r,'stall'),
-          garden:(P,r)=>realmGarden(P,r,'hedge'), lamp:(P,r)=>postLamp(P,r,'iron'),
-          life:quarterLife, motes:true },
+  swarm:  {house:swarmHouse, tower:swarmTower, hall:swarmHall, plant:swarmPlant,
+           feature:swarmFeature, garden:softGarden,
+           lamp:(P,r)=>postLamp(P,r,'crystal'), fly:'bird', motes:true},
+  frame:  {house:frameHouse, tower:frameTower, hall:frameHall, plant:framePlant,
+           feature:frameFeature, garden:frameGarden,
+           lamp:(P,r)=>postLamp(P,r,'timber'), fly:'butterfly', motes:true},
+  forge:  {house:forgeHouse, tower:forgeTower, hall:forgeHall, plant:forgePlant,
+           feature:forgeFeature, garden:forgeGarden,
+           lamp:(P,r)=>postLamp(P,r,'cage'), fly:null, motes:true},
+  ship:   {house:shipHouse, tower:shipTower, hall:shipHall, plant:shipPlant,
+           feature:shipFeature, garden:shipGarden,
+           lamp:(P,r)=>postLamp(P,r,'dock'), fly:'gull', motes:false},
+  bastion:{house:bastionHouse, tower:bastionTower, hall:bastionHall, plant:bastionPlant,
+           feature:bastionFeature, garden:bastionGarden,
+           lamp:(P,r)=>postLamp(P,r,'brazier'), fly:'raven', motes:false},
+  quarter:{house:quarterHouse, tower:quarterTower, hall:quarterHall, plant:quarterPlant,
+           feature:quarterFeature, garden:quarterGarden,
+           lamp:(P,r)=>postLamp(P,r,'scroll'), fly:'dove', motes:true},
 };
+
+/* The frameworks are the one realm whose landform claims the centre — the Great
+   Tree stands there for the life of the plot — so their monument is placed off
+   it, at a fixed bearing and radius like everything else. */
+const SIG_AT={frame:{r:3.2,a:2.1}};
+
+/* How much ground each monument actually covers. Everything used to claim a
+   flat 2.4, which is roughly right for an obelisk and nowhere near right for a
+   drydock with a hull in it (4.4 long), a gantry crane (4.6 span) or a market
+   row (5.4 wide) — so houses, trees and lamps were placed straight through the
+   biggest object in the district. Measured off each builder's own extents. */
+const SIG_R={
+  obelisk:1.8, orrery:1.9, aqueduct:3.0,
+  roost:2.2,   conduit:2.2, wardring:2.1, coil:2.0,
+  loom:2.0,    greenhouse:2.9, canopywalk:3.0, wellspring:2.2,
+  bigwheel:2.6, crucible:2.0,  pipeorgan:2.0, anvilyard:2.6,
+  drydock:3.1, crane:3.2,      lighthouse:1.6, containers:3.4,
+  keep:2.8,    vault:2.4,      watchfire:2.6,
+  clocktower:1.5, market:3.4,  workshop:3.0,  library:2.6,
+};
+
+/* And the same for the late-game structure: a footprint the town has to respect.
+   Line-shaped ones (aqueduct, gantry, arcade) are claimed as a chain of discs
+   along their run, and all three are pushed OFF the centre so they stop cutting
+   through the monument standing there — the C/C++ aqueduct ran clean through
+   the great wheel because both were centred on the origin. */
+const EXPAND_W=1.7;        // half-width a line structure keeps clear
+/* The offset cannot be a constant: it has to clear whatever monument is
+   standing in the middle, and those run from a 1.5 clocktower to a 3.4 market
+   row. A flat 3.4 still put the artisan's arcade through its own guild hall. */
+const expandOffset=P=>Math.max(3.4,(SIG_R[P.sig]??2.4)+EXPAND_W+0.7);
 
 /* ================================================================== build */
 /* Lattice populations are module constants, not level-derived: the lattice has
-   to be the SAME lattice at every level or slot 7 stops meaning slot 7. */
-/* Populations are generous on purpose. A slot only becomes a building if it is
-   inside the coast, under the fill threshold AND clear of everything already
-   placed — three gates, so the lattice has to offer far more candidates than
-   the target count or a mid-size island comes out with one crystal on it. */
-const POP={cot:78,tree:130,cry:80,lamp:64,hedge:80,rock:110,tuft:1400,flower:900};
-const CAN=[0,0,0,0,0,0,0,2,3,5,6,7];      // cantilever decks per level
+   to be the SAME lattice at every level or slot 7 stops meaning slot 7.
+   They are generous on purpose — a slot only becomes a building if it is inside
+   the coast, under the fill threshold AND clear of everything already placed. */
+const POP={cot:78,tree:130,feat:80,lamp:64,garden:80,rock:110,tuft:1400,flower:900};
 const RISE=0.5;                            // how long new land takes to come up
 
-/* A deck is pinned to the coastline of the level it was BUILT at, and stays
-   there while the island grows past it — the old coast decks end up as
-   balconies over the lower terraces, which is a better story than having them
-   chase the rim outward every level. */
-function canBirthR(i){
-  for(let L=1;L<=12;L++) if(CAN[L-1]>i) return spec(L).radius;
+/* A deck is pinned to the coastline of the level it was BUILT at and stays there
+   while the island grows past it — old coast decks end up as balconies over the
+   lower terraces, which is a better story than chasing the rim outward. */
+function canBirthR(decks,i){
+  for(let L=1;L<=12;L++) if(decks[L-1]>i) return spec(L).radius;
   return RMAX;
 }
 
@@ -4143,10 +6823,9 @@ function canBirthR(i){
    ############################  T H E   W O R L D  ###########################
    ############################################################################
 
-   Everything above this line is the ART — the same procedural vocabulary the
-   Arcane Lab locked, unchanged. Everything below is the WORLD: reading a real
-   user's export, giving every district a plot, and letting you walk the whole
-   thing.
+   Everything above this line is the ART — the procedural vocabulary the concept
+   bench locked, unchanged. Everything below is the WORLD: reading a real user's
+   export, giving every district a plot, and letting you walk the whole thing.
 
    Four questions the lab never had to answer:
 
@@ -4198,7 +6877,6 @@ const arts=n=>fmt(n)+(n===1?' article':' articles');
    who is not a four-year veteran, and the people most likely to share a world
    are the ones who just made one. */
 const HC  = 2.9;                        // cell circumradius
-const HIN = HC*Math.sqrt(3)/2;          // inradius
 const DIRS=[[1,0],[0,1],[-1,1],[-1,0],[0,-1],[1,-1]];   // ordered by bearing
 const hexXZ=(q,r)=>[1.5*HC*q, Math.sqrt(3)*HC*(r+q/2)];
 const hexKey=(q,r)=>q+','+r;
@@ -4509,8 +7187,8 @@ function buildLand(){
         }
       }
       const wg=flatUp(wcap); if(FX.vc) bakeVC(wg);
-      const wm=new THREE.Mesh(wg,mat(P.liquid,{opacity:0.88,rough:0.12,
-        metal:0.15,flat:!!FX.water,emissive:P.liquid,ei:0.18}));
+      const wm=new THREE.Mesh(wg,mat(P.water,{opacity:0.88,rough:0.12,
+        metal:0.15,flat:!!FX.water,emissive:P.water,ei:0.18}));
       g.add(wm);
       if(FX.water){
         const wb=wg.attributes.position.array.slice();
@@ -4593,7 +7271,7 @@ function buildLand(){
      the cliff is the outer wall of the whole continent — the only thing beyond
      it is sky, and the only thing its shadow ever landed on was itself. */
   if(cliff.length) landRoot.add(meshOf(flat(cliff),
-    mat(mixTok(RP.cliff,RP.cliffDark,0.35),{rough:0.96}),false,false));
+    mat(mixTok(RP.cliff,RP.cliff2,0.35),{rough:0.96}),false,false));
   if(root.length) landRoot.add(meshOf(flat(root),
     mat(mixTok(RP.rock,T.pepper60,0.30),{rough:1}),false,false));
   paintBorders();
@@ -4656,6 +7334,11 @@ function buildIsland(P,level,opt){
   /* Boats ride whatever waterline this island has: the flooded ground under a
      harbour district, or the open sea under the whole realm. */
   SEA_Y=tierY(R-1e-6)+(opt.keel?-0.5:WATER_Y);
+  /* Reset the smoke allowance for this island. Whatever asks first gets it —
+     signature monument, then halls, then towers, then houses in placement
+     order — which is also the order of importance, so the plumes land on the
+     buildings worth looking at. */
+  smokeBudget=P.kit==='forge'?9:5;
 
   const oldLand=new THREE.Group(), newLand=new THREE.Group();
   newLand.userData.key='newland'; out.add(oldLand,newLand);
@@ -4666,20 +7349,18 @@ function buildIsland(P,level,opt){
 
   /* A realm floats; a district stands on the realm's ground and needs no keel. */
   if(opt.keel){
-    /* Nor the keel. It hangs BELOW the island it belongs to, so everything it
-       could ever shadow is another realm entirely — which is exactly the
-       island-on-island shadowing this change exists to stop. */
-    const keel=meshOf(underside(prof,R,R*0.95+1.2,P.seed+1),mat(P.rock,{rough:0.92}),false,false);
+    /* THE UNDERSIDE IS REALM IDENTITY — crystal stalactites, wrapped roots,
+       basalt columns, wet crag, icicles, a clay boulder. It hangs BELOW the
+       island it belongs to, so everything it could ever shadow is another realm
+       entirely, and it is the part that reads at share-card size. */
+    const keel=KEELS[P.keel](P,prof,R,R*0.95+1.2,P.seed+1);
     keel.position.y=tierY(R-1e-6)-RING_T; keel.userData.key='keel'; out.add(keel);
     node(keel,{mode:carry&&prevKeys.has('keel')?'keep':'build',delay:0});
 
-    /* A HARBOUR REALM GETS ITS OWN SEA. The note by shipLife explains why the
-       water is not drawn at district scale — a ring at the coastline would be
-       drawn inside the plot it is meant to surround, so the realm floods its own
-       ground in buildLand() instead. But that only covers the realm view. Out
-       here the realm is a lone island, and its boats orbit at 1.12 to 1.34 of
-       the radius reading SEA_Y for their waterline — which left them sailing in
-       open sky, circling a rock.
+    /* A HARBOUR REALM GETS ITS OWN SEA. The harbour basins are cut into the
+       deck at district scale; out here the realm is a lone island and its boats
+       orbit at 1.12 to 1.34 of the radius reading SEA_Y for their waterline —
+       which without this left them sailing in open sky, circling a rock.
 
        An annulus, not a disc: it follows the island's own wobbled profile so the
        shoreline sits against the actual coast rather than a circle that cuts
@@ -4688,8 +7369,8 @@ function buildIsland(P,level,opt){
     if(P.kit==='ship'){
       const R0=R*0.94, R1=R*1.22, sea=seaRing(prof,R0,R1,3);
       if(FX.vc) bakeVC(sea);
-      const sm=new THREE.Mesh(sea,mat(P.liquid,{opacity:0.88,rough:0.12,metal:0.15,
-        flat:!!FX.water,emissive:P.liquid,ei:0.18}));
+      const sm=new THREE.Mesh(sea,mat(P.water,{opacity:0.88,rough:0.12,metal:0.15,
+        flat:!!FX.water,emissive:P.water,ei:0.18}));
       sm.position.y=SEA_Y; sm.userData.key='sea';
       /* Kept out of the merge: it is one of the few things in a realm that
          genuinely moves, and the wave is a vertex animation. */
@@ -4704,13 +7385,13 @@ function buildIsland(P,level,opt){
          sun at a different angle as a crest passes under it, and THAT is what
          reads as flow — the vertical displacement is under two tenths of a unit.
 
-         LONG and SLOW on purpose. The first version had wavelengths of about
-         four units on a bay four units wide, which put a whole crest inside
-         every facet: the surface came out as small fast polygonal chop, which
-         reads as a mesh glitching rather than as water. These are 15 to 30 units
-         from crest to crest and drift at a fraction of the old speed, so the
-         facets change gradually and the whole bay swells instead of stuttering.
-         Longer waves also mean less radial detail is needed, hence 3 bands. */
+         LONG and SLOW on purpose. Wavelengths of about four units on a bay four
+         units wide put a whole crest inside every facet: the surface came out as
+         small fast polygonal chop, which reads as a mesh glitching rather than
+         as water. These are 15 to 30 units from crest to crest and drift at a
+         fraction of that speed, so the facets change gradually and the whole bay
+         swells instead of stuttering. Longer waves also mean less radial detail
+         is needed, hence 3 bands. */
       const base=sea.attributes.position.array.slice();
       sm.userData.tick=t=>{
         const p=sea.attributes.position;
@@ -4723,9 +7404,9 @@ function buildIsland(P,level,opt){
         p.needsUpdate=true;
         /* The facets re-catch the light on their own: under flat shading the
            shader takes the normal from screen-space derivatives and never reads
-           the attribute, which is why the pond above animates without this.
-           Kept behind the flag so a smooth-shaded sea would still get normals,
-           but at FX.water this was rebuilding 1600 of them a frame for nothing. */
+           the attribute, which is why the pond animates without this. Kept
+           behind the flag so a smooth-shaded sea would still get normals, but at
+           FX.water this was rebuilding 1600 of them a frame for nothing. */
         if(!FX.water) sea.computeVertexNormals();
       };
       animated.push(sm);
@@ -4734,47 +7415,63 @@ function buildIsland(P,level,opt){
     }
   }
 
-  if(P.kit==='swarm'){
-    const wd=arcaneWards(P,prof,R,sp); wd.userData.key='wards'; out.add(wd);
-    node(wd,{mode:carry&&prevKeys.has('wards')?'keep':'build',delay:0.3});
+  /* ---- the realm's landform -------------------------------------------- */
+  /* Terrain exists at L1; props do not. This is what makes a one-article plot
+     say which world it is in before a single building is placed.
+
+     BARE means nothing was built here — the unbuilt world is the six realms as
+     ground waiting on somebody's reading. Rock, shards, roots, a lava vent and
+     a harbour basin are the land; a ring-wall and a paved square are things
+     somebody put up, so those two wait. */
+  /* THE LANDFORM OWNS ITS GROUND, and has to say so. A form is built before
+     anything is placed, so a basin, a lava vent, a paved square or a ring-wall
+     is invisible to the placement below unless it hands its footprint over —
+     which is how houses ended up standing in the harbour and inside the
+     fortress walls. Two shapes: a disc, in `claims` on the group, and a RADIUS
+     BAND for a wall, which is the honest shape for a thing that runs all the
+     way round the island at a fixed radius. */
+  const claims=[], bands=[];
+  const form=g2=>{ if(g2.userData.claims) claims.push(...g2.userData.claims); return g2; };
+  if(P.form==='shards'){
+    const w=swarmShards(P,prof,R,sp); w.userData.key='form'; out.add(w);
+    node(w,{mode:carry&&prevKeys.has('form')?'keep':'build',delay:0.3});
   }
-  /* Rebuilt rather than kept, unlike the wards: the veins reach as far as the
-     coast does, so a level that adds land adds crack. */
-  if(P.kit==='forge'){
-    const lv=forgeVeins(P,prof,R,sp); lv.userData.key='veins'; out.add(lv);
-    node(lv,{mode:carry&&prevKeys.has('veins')?'keep':'build',delay:0.3});
+  if(P.form==='lavavent'){
+    const v=form(forgeVeins(P,prof,R,sp)); v.userData.key='form'; out.add(v);
+    node(v,{mode:carry&&prevKeys.has('form')?'keep':'build',delay:0.3});
   }
-  /* BARE means nothing was built here, and a rampart is a wall somebody put up.
-     The crag, its snow and its black rock are the landform and they stay: what
-     goes is everything that reads as construction. */
-  if(P.kit==='bastion'&&!opt.bare){
+  if(P.form==='basins'){
+    const s=form(shipHarbour(P,prof,R)); s.userData.key='form'; out.add(s);
+    node(s,{mode:carry&&prevKeys.has('form')?'keep':'build',delay:0.1});
+  }
+  if(P.form==='square'&&!opt.bare){
+    const q=form(quarterSquare(P,prof,R)); q.userData.key='form'; out.add(q);
+    node(q,{mode:carry&&prevKeys.has('form')?'keep':'build',delay:0.2});
+  }
+  if(P.form==='ramparts'&&!opt.bare){
     for(let k=0;k<TIER_R.length;k++){
-      const b=TIER_R[k]; if(b>=R)continue; const key='ramp'+k;
+      const b=TIER_R[k]; if(b>=R)continue;
+      const key='ramp'+k;
       const w=buildRampart(P,prof,b,tierY(b-1e-6),hash2(P.seed,15000+k));
-      w.userData.key=key; out.add(w);
+      w.userData.key=key; out.add(w); bands.push(b);
       node(w,{mode:carry&&prevKeys.has(key)?'keep':'build',delay:isNew(b)?RISE:0.05});
     }
+    /* And the coast gets the outermost wall — the district is walled to the
+       water's edge, which is the whole point of a bastion. */
     const w=buildRampart(P,prof,R-0.15,tierY(R-1e-6),hash2(P.seed,15900));
-    w.userData.key='rampC'; out.add(w); node(w,{mode:'build',delay:RISE});
+    w.userData.key='rampC'; out.add(w); bands.push(R-0.15);
+    node(w,{mode:'build',delay:RISE});
   }
 
-  for(let k=0;k<TIER_R.length;k++){
-    const b=TIER_R[k]; if(b>=R)break;
-    const a=(P.seed%7)*0.9+k*2.1, rr=radiusAt(prof,a)*b;
-    const g=new THREE.Group(); g.userData.key='stair'+k;
-    for(let s=0;s<4;s++){
-      const st=meshOf(boxG(1.0,0.16,0.44),mat(P.stone2));
-      st.position.set(Math.cos(a)*(rr+s*0.42),tierY(b-1e-6)-(s+1)*0.2,Math.sin(a)*(rr+s*0.42));
-      st.rotation.y=-a; g.add(st);
-    }
-    out.add(g);
-    node(g,{mode:carry&&prevKeys.has(g.userData.key)?'keep':'build',delay:isNew(b)?RISE:0.05});
-  }
-
-  const claimed=[];
+  /* ---- placement ------------------------------------------------------- */
+  const claimed=claims;
   const slotXZ=p=>{ const rr=radiusAt(prof,p.a)*p.r; return [Math.cos(p.a)*rr,Math.sin(p.a)*rr]; };
   const accept=(p,minD)=>{
-    if(p.r>R-minD*0.6)return false;
+    if(p.r>R-minD*0.6)return false;                    // must be on the island
+    /* A wall is tested in the radial direction alone. Both the wall and the
+       slot are placed at a radius scaled by the same profile, so "how far is
+       this slot from that ring" is a subtraction rather than a search along it. */
+    for(const b of bands) if(Math.abs(p.r-b)<0.45+minD*0.5)return false;
     const [x,z]=slotXZ(p);
     for(const c of claimed){ const dx=c.x-x,dz=c.z-z;
       if(dx*dx+dz*dz<(c.d+minD)*(c.d+minD))return false; }
@@ -4792,10 +7489,26 @@ function buildIsland(P,level,opt){
   const placeF=(lat,minD,make)=>{ let n=0;
     for(const p of lat){ if(p.f>sp.fill)continue; if(!accept(p,minD))continue; make(p,n); n++; } };
 
+  /* ---- the Great Tree (frameworks only) -------------------------------- */
+  /* Placed before everything else so it claims the centre first, and claimed
+     generously: buildings under the canopy are wanted, buildings inside the
+     trunk are not. */
+  if(P.form==='greattree'){
+    const tr=greatTree(P,level);
+    tr.position.set(0,0.16,0); tr.userData.key='tree'; tr.userData.keep=true; out.add(tr);
+    /* It genuinely changes shape every level, so it is the one carried object
+       that re-animates: it GROWS, which is exactly what it should look like. */
+    node(tr,{mode:'build',delay:0.05});
+    claimed.push({x:0,z:0,d:0.9+((level-1)/11)*2.4});
+  }
+
+  /* ---- the centrepiece ------------------------------------------------- */
   if(opt.signatures&&opt.signatures.length){
     /* The realm's skyline. The biggest district takes the middle; the rest sit
        on the lattice at a scale that tracks how much you have read there, so
-       the silhouette of a realm is a ranking you can see from across the map. */
+       the silhouette of a realm is a ranking you can see from across the map.
+       Where the landform already owns the centre — the frameworks' Great Tree —
+       every monument goes on the lattice instead. */
     const put0=(sig,key,p)=>{
       const g=realmSignature(sig.P,rngOf(hash2(sig.P.seed,1)),spec(clamp(sig.level+2,3,12)));
       /* The forge wheel, the orrery, the watchfire: a realm's monuments are the
@@ -4806,70 +7519,137 @@ function buildIsland(P,level,opt){
       if(p) return put(g,p,key,0.04);
       g.position.set(0,0.16,0); g.userData.key=key; out.add(g);
       node(g,{mode:carry&&prevKeys.has(key)?'keep':'build',delay:0});
-      claimed.push({x:0,z:0,d:2.8});
+      claimed.push({x:0,z:0,d:SIG_R[sig.P.sig]??2.4});
       return g;
     };
-    put0(opt.signatures[0],'sig0',null);
+    let n=0;
+    if(P.form!=='greattree') put0(opt.signatures[n++],'sig0',null);
     const lat=lattice(52,1.9,RMAX*0.78,hash2(P.seed,777));
-    let n=1;
     for(const p of lat){
       if(n>=opt.signatures.length)break;
-      if(!accept(p,2.5))continue;
+      if(!accept(p,(SIG_R[opt.signatures[n].P.sig]??2.4)*0.9))continue;
       put0(opt.signatures[n],'sig'+n,p); n++;
     }
   }else if(sp.signature){
     const g=realmSignature(P,rngOf(hash2(P.seed,1)),sp);
-    g.position.set(0,0.16,0); g.userData.key='sig'; g.userData.keep=true; out.add(g);
+    const at=SIG_AT[P.kit];
+    if(at){
+      /* Pulled in on a small island rather than falling back to the centre: the
+         centre belongs to the Great Tree from L1, and a monument that stood
+         there for two levels and then jumped aside would break the one rule the
+         whole layout rests on. It only ever moves OUTWARD, and only until the
+         island is big enough to hold it at its home radius. */
+      const rr=Math.min(at.r,R*0.55);
+      const wr=radiusAt(prof,at.a)*rr;
+      g.position.set(Math.cos(at.a)*wr,tierY(rr)+0.16,Math.sin(at.a)*wr);
+      g.rotation.y=-at.a+Math.PI/2;
+      claimed.push({x:g.position.x,z:g.position.z,d:SIG_R[P.sig]??2.4});
+    }else{
+      g.position.set(0,0.16,0);
+      claimed.push({x:0,z:0,d:SIG_R[P.sig]??2.4});
+    }
+    g.userData.key='sig'; g.userData.keep=true; out.add(g);
     node(g,{mode:carry&&prevKeys.has('sig')?'keep':'build',delay:0});
-    claimed.push({x:0,z:0,d:2.0});
   }
-  /* THE LODESTONE, at every level from one — see buildLodestone. It replaces a
-     placeholder "core" that existed only at L1 and L2 and was then thrown away
-     when the signature arrived, which is the one thing the layout is not
-     allowed to do: a founding marker that stops existing once you have read
-     eight articles is not a founding marker. Placed before the buildings so it
-     claims its ground first, and claimed generously — the stone wants air
-     around it, not a cottage against its shoulder. */
-  /* A founding marker marks a founding. Unbuilt ground has had none. */
+
+  /* THE LODESTONE, at every level from one — see buildLodestone. Placed before
+     the buildings so it claims its ground first, and claimed generously: the
+     stone wants air around it, not a cottage against its shoulder.
+     A founding marker marks a founding, and unbuilt ground has had none. */
   if(!opt.bare){
     const la=(P.seed%13)*0.4833+1.05, lp={r:1.34,a:la,f:0,i:-1};
     accept(lp,0.95);
     put(buildLodestone(P,rngOf(hash2(P.seed,3))),lp,'lode',0);
   }
 
-  const spireTops=[];
-  placeN(lattice(46,0.6,RMAX*0.55,hash2(P.seed,20)),sp.spires,1.1,(p,i)=>{
+  /* ---- reserve the late game's ground before anything else is placed ----
+     The structure itself is built at the end, but the town is laid out here,
+     and a chain of claims along its run is what stops houses, trees and lamps
+     from being dropped inside a crane rail or under an aqueduct. Nothing that
+     lives in the air needs one — the swarm's spans and the frameworks' pods
+     have no footprint on the ground at all. */
+  const GR=GROWTH[P.kit];
+  if(sp.expand){
+    if(GR.expand==='citadel'){
+      claimed.push({x:0,z:0,d:Math.min(3.0,R*0.3)+0.9});
+    }else if(GR.expand==='aqueduct'||GR.expand==='gantry'||GR.expand==='arcade'){
+      const ba=GR.expand==='aqueduct'?P.seed*0.77+1.3+Math.PI*0.62
+              :GR.expand==='gantry'  ?P.seed*0.31+0.9
+              :                       P.seed*0.53+2.4;
+      const lim=GR.expand==='gantry'?R-1.4:GR.expand==='arcade'?R-1.2:R-1.0;
+      const half=Math.min(lim,GR.expand==='aqueduct'?7.2:GR.expand==='gantry'?6.4:6.0);
+      const dx=Math.cos(ba), dz=Math.sin(ba);
+      const cx=-Math.sin(ba)*expandOffset(P), cz=Math.cos(ba)*expandOffset(P);
+      const w=GR.expand==='gantry'?EXPAND_W+1.4:EXPAND_W;   // the rail is wide
+      const n=Math.max(3,Math.round(half*2/w));
+      for(let i=0;i<=n;i++){
+        const t2=lerp(-half,half,i/n);
+        claimed.push({x:dx*t2+cx,z:dz*t2+cz,d:w});
+      }
+    }
+  }
+
+  /* ---- towers ---------------------------------------------------------- */
+  /* Height is drawn per SLOT, not per level: a tower that silently grew taller
+     every time you read something is a tower that never stops moving.
+     Verticality is a one-time event — the great tower at L11. */
+  const towerTops=[];
+  /* Towers and halls are metres across, not centimetres. 1.2/1.5 was measured
+     against the shaft and ignored everything bolted to it — jibs, buttresses,
+     colonnades — so neighbours were laid down inside them. */
+  placeN(lattice(46,0.6,RMAX*0.55,hash2(P.seed,20)),
+    clamp(sp.towers,1,GR.towers),2.1,(p,i)=>{
     const rs=rngOf(hash2(P.seed,2000+p.i));
-    const great=sp.greatSpire&&i===0;
-    const h=lerp(5.4,8.4,rs())*(great?1.5:1);
-    const s=put(K.tower(P,rs,h,great),p,'sp'+p.i,i*0.08);
-    spireTops.push(new THREE.Vector3(s.position.x,s.position.y+h*0.82,s.position.z));
+    const great=sp.great&&i===0;
+    const h=lerp(5.0,7.8,rs())*(great?1.45:1);
+    const s=put(K.tower(P,rs,h,great),p,'tw'+p.i,i*0.08);
+    /* The great tower carries the realm's crown, and a crown that stops turning
+       stops being magic and starts being a prop. It is also half again the size
+       of its neighbours, so it takes a wider claim than the slot gave it. */
+    if(great){ s.userData.keep=true; claimed.push({x:s.position.x,z:s.position.z,d:3.0}); }
+    towerTops.push(new THREE.Vector3(s.position.x,s.position.y+h*0.8,s.position.z));
   });
-  placeN(lattice(46,2.2,RMAX*0.6,hash2(P.seed,30)),sp.domes,1.35,
-    (p,i)=>put(K.hall(P,rngOf(hash2(P.seed,3000+p.i))),p,'dm'+p.i,i*0.08));
-  if(sp.arch) placeN(lattice(34,1.1,RMAX*0.92,hash2(P.seed,40)),1,1.0,p=>{
-    const a=buildArch(P,rngOf(hash2(P.seed,4000+p.i))); a.rotation.y=-p.a+Math.PI/2;
+
+  placeN(lattice(46,2.2,RMAX*0.6,hash2(P.seed,30)),sp.halls,2.4,
+    (p,i)=>put(K.hall(P,rngOf(hash2(P.seed,3000+p.i))),p,'hl'+p.i,i*0.08));
+
+  if(sp.arch) placeN(lattice(34,1.1,RMAX*0.92,hash2(P.seed,40)),1,1.5,p=>{
+    const a=buildGate(P,rngOf(hash2(P.seed,4000+p.i)));
+    a.rotation.y=-p.a+Math.PI/2;
     put(a,p,'ar'+p.i,0.05);
   });
-  if(sp.cottages) placeF(lattice(POP.cot,1.7,RMAX*0.95,hash2(P.seed,50)),0.78,(p,i)=>{
-    const rc=rngOf(hash2(P.seed,5000+p.i)); const c=K.house(P,rc);
-    c.rotation.y=-p.a+Math.PI/2+(rc()-0.5)*0.7; put(c,p,'ct'+p.i,i*0.012);
+
+  /* ---- the town -------------------------------------------------------- */
+  if(sp.cottages) placeF(lattice(POP.cot,1.7,RMAX*0.95,hash2(P.seed,50)),0.95,(p,i)=>{
+    const rc=rngOf(hash2(P.seed,5000+p.i));
+    const c=K.house(P,rc);
+    c.rotation.y=-p.a+Math.PI/2+(rc()-0.5)*0.7;
+    put(c,p,'ct'+p.i,i*0.012);
   });
-  if(sp.hedges) placeF(lattice(POP.hedge,3.4,RMAX*0.97,hash2(P.seed,60)),0.30,
-    (p,i)=>put(K.garden(P,rngOf(hash2(P.seed,6000+p.i))),p,'hg'+p.i,i*0.008));
+
+  if(sp.gardens) placeF(lattice(POP.garden,3.4,RMAX*0.97,hash2(P.seed,60)),0.30,
+    (p,i)=>put(K.garden(P,rngOf(hash2(P.seed,6000+p.i))),p,'gd'+p.i,i*0.008));
+
   if(sp.lamps) placeF(lattice(POP.lamp,0.3,RMAX*0.97,hash2(P.seed,70)),0.24,
     (p,i)=>put(K.lamp(P,rngOf(hash2(P.seed,7000+p.i))),p,'lp'+p.i,i*0.008));
+
   if(sp.trees) placeF(lattice(POP.tree,5.1,RMAX*0.98,hash2(P.seed,80)),0.44,
-    (p,i)=>put(K.plant(P,rngOf(hash2(P.seed,8000+p.i))),p,'tr'+p.i,i*0.01));
+    (p,i)=>put(K.plant(P,rngOf(hash2(P.seed,8000+p.i))),p,'pl'+p.i,i*0.01));
+
   /* The realm feature is a crate on the quay and a market stall in the old
      town — somebody's, not the land's. Bare ground keeps its rocks, its tufts
      and its flowers, and nothing that anybody had to put there. */
-  if(!opt.bare) placeF(lattice(POP.cry,4.2,RMAX*0.98,hash2(P.seed,90)),0.38,
-    (p,i)=>put(K.feature(P,rngOf(hash2(P.seed,9000+p.i))),p,'cr'+p.i,i*0.01));
+  if(!opt.bare) placeF(lattice(POP.feat,4.2,RMAX*0.98,hash2(P.seed,90)),0.38,
+    (p,i)=>put(K.feature(P,rngOf(hash2(P.seed,9000+p.i))),p,'ft'+p.i,i*0.01));
+
   if(sp.banners) placeN(lattice(40,2.9,RMAX*0.7,hash2(P.seed,100)),
     Math.min(4,1+Math.floor(level/3)),0.4,
     (p,i)=>put(buildBanner(P,rngOf(hash2(P.seed,10000+p.i))),p,'bn'+p.i,i*0.05));
 
+  /* ---- paving ---------------------------------------------------------- */
+  /* Ring roads at the mid-radius of each terrace band, spokes on fixed bearings.
+     All absolute, so paving laid at L4 is exactly where it was at L12 and the
+     network only ever extends. */
   if(level>=4){
     const rP=rngOf(hash2(P.seed,140));
     const geo=boxG(0.52,0.07,0.42);
@@ -4912,11 +7692,14 @@ function buildIsland(P,level,opt){
     }
   }
 
+  /* ---- ground scatter -------------------------------------------------- */
   const scatter=(pop,geo,material,rot,seed,scaleFn,yOff)=>{
     if(FX.vc) bakeVC(geo);          // instanced — see the paving above
     const lat=lattice(pop,rot,RMAX*0.99,seed), rnd=rngOf(seed+7);
     const oldM=[],newM=[], o=new THREE.Object3D();
     for(const p of lat){
+      /* Draw for EVERY slot before any gate, so a slot's look never depends on
+         which other slots happen to be admitted at this level. */
       const s=scaleFn(rnd), sy=lerp(0.7,1.4,rnd()), ry=rnd()*TAU;
       if(p.f>sp.fill||p.r>R-0.4)continue;
       const wr=radiusAt(prof,p.a)*p.r;
@@ -4933,22 +7716,34 @@ function buildIsland(P,level,opt){
   };
   scatter(POP.rock,new THREE.DodecahedronGeometry(0.16,0),mat(P.rock,{rough:1}),
     1.4,hash2(P.seed,110),r=>lerp(0.5,1.6,r()));
-  scatter(POP.tuft,new THREE.ConeGeometry(0.07,0.26,4),mat(P.ground2,{rough:1}),
-    2.7,hash2(P.seed,120),r=>lerp(0.6,1.5,r()));
-  if(sp.flowers) scatter(POP.flower,new THREE.IcosahedronGeometry(0.05,0),
+  /* Ground cover, realm by realm: grass tufts in five realms, and in the forges
+     slag chips lying flat, because nothing grows on a foundry deck. */
+  if(P.kit==='forge'){
+    scatter(POP.tuft,new THREE.DodecahedronGeometry(0.1,0),
+      mat(mixTok(P.rock,0x000000,0.3),{rough:1}),
+      2.7,hash2(P.seed,120),r=>lerp(0.5,1.3,r()));
+  }else{
+    /* Tufts take the FOLIAGE colour, not the ground: the swarm paves its inner
+       terrace, and grass tufts inherited from the cap came out marble-white. */
+    scatter(POP.tuft,new THREE.ConeGeometry(0.07,0.26,4),mat(P.foliage2,{rough:1}),
+      2.7,hash2(P.seed,120),r=>lerp(0.6,1.5,r()));
+  }
+  scatter(POP.flower,new THREE.IcosahedronGeometry(0.05,0),
     mat(P.bloom,{emissive:P.bloom,ei:0.12,rough:0.8}),
     4.9,hash2(P.seed,130),r=>lerp(0.7,1.4,r()),0.05);
 
-  if(sp.pond){
-    /* The pond, its channel and the cascades stepping down to the rim all hang
-       off this one bearing, and it used to sweep 115 to 441 degrees — which,
-       against a camera that starts at 45, is almost exactly the half of the
-       island you cannot see. The whole waterworks was being built round the
-       back by default.
+  /* ---- water ----------------------------------------------------------- */
+  /* Pinned to a fixed spot in the second terrace band. It cascades down every
+     terrace edge it meets and finally plumes off the coast — the cascades are at
+     fixed radii and never move; only the coastal plume follows the rim, and
+     water has no landmarks to give the movement away.
 
-       Re-centred on the opening view and narrowed to +/-57 degrees, so it lands
-       in front wherever the seed falls. Still derived from the seed alone and
-       NOT from the live camera: this is build-time geometry that carries across
+     The forges pour their molten channel out of the lava vent and the shipyards
+     fill basins cut into the deck, so neither takes a pond on top of it. */
+  if(sp.pond&&P.kit!=='forge'&&P.kit!=='ship'){
+    /* Re-centred on the opening view and narrowed, so the waterworks lands in
+       front wherever the seed falls. Still derived from the seed alone and NOT
+       from the live camera: this is build-time geometry that carries across
        level changes by key, so a bearing that moved with the view would make a
        district's pond jump to the other side of its island the first time it
        was rebuilt after a rotation. */
@@ -4959,16 +7754,18 @@ function buildIsland(P,level,opt){
     pond.position.set(px,0,pz); pond.userData.key='pond'; pond.userData.keep=true; out.add(pond);
     node(pond,{mode:carry&&prevKeys.has('pond')?'keep':'build',delay:isNew(pondR)?RISE:0.05});
     claimed.push({x:px,z:pz,d:pr+0.6});
+
     if(sp.falls){
       const edge=TIER_R.find(b=>b>pondR)??R;
       const ewr=radiusAt(prof,ang)*Math.min(edge,R-0.3);
       const dx=Math.cos(ang)*ewr-px, dz=Math.sin(ang)*ewr-pz, len=Math.hypot(dx,dz);
       const ch=meshOf(boxG(len,0.1,0.45),
-        mat(P.liquid,{emissive:P.liquid,ei:(P.liquidGlow??0.5)*1.1,flat:false,rough:0.15,opacity:0.85}),
-        false,true);
+        mat(P.water,{emissive:P.water,ei:(P.liquidGlow??0.5)*1.1,flat:false,
+          rough:0.15,opacity:0.88}),false,true);
       ch.position.set(px+dx/2,tierY(pondR)+0.2,pz+dz/2);
       ch.rotation.y=-Math.atan2(dz,dx); ch.userData.key='chan'; out.add(ch);
       node(ch,{mode:carry&&prevKeys.has('chan')?'keep':'build',delay:0.05});
+
       for(let k=0;k<TIER_R.length;k++){
         const b=TIER_R[k]; if(b<pondR||b>=R)continue;
         const bwr=radiusAt(prof,ang)*b;
@@ -4980,22 +7777,56 @@ function buildIsland(P,level,opt){
     }
   }
 
-  for(let i=0;i<CAN[level-1];i++){
-    const br=canBirthR(i);
+  /* ---- off the rim: decks, bridges, hanging gardens -------------------- */
+  /* All attached to this island and only this island — the finished world puts
+     ~40 districts shoulder to shoulder, and nothing here crosses the plot. */
+  for(let i=0;i<GR.decks[level-1];i++){
+    const br=canBirthR(GR.decks,i);
+    /* Golden-angle bearings, so no two decks ever end up on the same stretch of
+       coast however many the level unlocks. */
     const a=i*2.399963229728653+(P.seed%13)*0.31;
     const wr=radiusAt(prof,a)*br;
-    const c=buildCantilever(P,rngOf(hash2(P.seed,11000+i)),sp,{back:1.1,drop:1.5});
-    c.position.set(Math.cos(a)*(wr+1.1),tierY(br-1e-6),Math.sin(a)*(wr+1.1));
+    const rc=rngOf(hash2(P.seed,11000+i));
+    /* The shipyards' pontoon sits on the water, not out in the air, so it is
+       the one deck that is placed DOWN as well as out. */
+    const drop=P.kit==='ship'?tierY(R-1e-6)-1.15:tierY(br-1e-6);
+    const c=buildDeck(P,rc,K,{back:1.1,drop:1.5});
+    c.position.set(Math.cos(a)*(wr+1.1),drop,Math.sin(a)*(wr+1.1));
+    c.userData.y0=drop;
+    if(c.userData.tick){ c.userData.keep=true; animated.push(c); }
     c.rotation.y=-a; c.userData.key='can'+i; out.add(c);
     node(c,{mode:carry&&prevKeys.has('can'+i)?'keep':'build',delay:isNew(br)?RISE:0.05});
   }
-  if(sp.bridges&&spireTops.length>1){
-    for(let i=0;i<spireTops.length-1;i++){
-      const key='br'+i, b=buildSkyBridge(P,spireTops[i],spireTops[i+1]);
-      b.userData.key=key; out.add(b);
-      node(b,{mode:carry&&prevKeys.has(key)?'keep':'build',delay:RISE+0.1});
+
+  /* ---- the late game, and it is a different building in every realm ---- */
+  /* This used to be `bridges` for all six. See GROWTH for the argument; the
+     short version is that the eye reads skeleton before material, and six
+     districts with the same three spans strung between the same three towers
+     were the same district six times over however they were painted. */
+  if(sp.expand){
+    const parts=[];
+    if(GR.expand==='spans'){
+      /* The only realm that crosses open air. */
+      for(let i=0;i<towerTops.length-1;i++)
+        parts.push(buildSkyBridge(P,towerTops[i],towerTops[i+1]));
+    }else if(GR.expand==='canopy'){
+      parts.push(frameCanopyPods(P,R,level));
+    }else if(GR.expand==='aqueduct'){
+      parts.push(forgeAqueduct(P,prof,R));
+    }else if(GR.expand==='gantry'){
+      parts.push(shipGantryLine(P,prof,R));
+    }else if(GR.expand==='citadel'){
+      parts.push(bastionCitadel(P,prof,R));
+    }else{
+      parts.push(quarterArcadeRow(P,prof,R));
     }
+    parts.forEach((b,i)=>{
+      const key='ex'+i;
+      b.userData.key=key; b.userData.keep=true; out.add(b);
+      node(b,{mode:carry&&prevKeys.has(key)?'keep':'build',delay:RISE+0.1});
+    });
   }
+
   if(sp.undercroft){
     for(let k=0;k<TIER_R.length;k++){
       const b=TIER_R[k]; if(b>=R)continue; const key='uc'+k;
@@ -5004,22 +7835,23 @@ function buildIsland(P,level,opt){
       node(u,{mode:carry&&prevKeys.has(key)?'keep':'build',delay:isNew(b)?RISE:0.05});
     }
   }
-  if(sp.orrery&&K.crown){
-    /* The one thing in the world that hovers unsupported. If it stops turning
-       it stops being magic and starts being a prop. */
-    const g=K.crown(P); g.position.set(0,12.4,0);
-    g.userData.key='crown'; g.userData.keep=true; out.add(g);
-    node(g,{mode:carry&&prevKeys.has('crown')?'keep':'build',delay:RISE+0.2});
-  }
+
+  /* ---- life ------------------------------------------------------------ */
   /* Ambient life is expensive and only legible up close, so it is a privilege
      of the districts you are actually looking at. */
   if(opt.alive){
-    if(K.motes){ const w=buildWisps(P,sp.wisps,R);
-      w.userData.key='wisps'; w.userData.keep=true; out.add(w);
-      node(w,{mode:carry?'keep':'build',delay:0.5}); }
-    if(sp.birds){ const b=K.life(P,sp.birds,R,prof);
+    if(K.motes){
+      const m=buildMotes(P,sp.motes,R);
+      m.userData.key='motes'; m.userData.keep=true; out.add(m);
+      node(m,{mode:carry?'keep':'build',delay:0.5});
+    }
+    if(sp.life&&K.fly){
+      const b=buildFlyers(P,sp.life,R,K.fly);
+      /* 'birds' and not 'fly': the ride picks its target by this key, and
+         renaming it is how you quietly delete a feature. */
       b.userData.key='birds'; b.userData.keep=true; out.add(b);
-      node(b,{mode:carry&&prevKeys.has('birds')?'keep':'build',delay:0.6}); }
+      node(b,{mode:carry&&prevKeys.has('birds')?'keep':'build',delay:0.6});
+    }
   }
 
   const keys=new Set();
@@ -5196,9 +8028,6 @@ function hideDistrict(d){
   d.borderMat=null; d.realmBorderMat=null; landDirty=true;
   const i=active.indexOf(d); if(i>=0)active.splice(i,1);
 }
-/* Everything the two views agree on: what is on screen right now. */
-const shownList=()=>OPEN?OPEN.list.filter(d=>d.shown>0):W.quarters.filter(q=>q.shown>0);
-
 /* --------------------------------------------------------- the realm island */
 /* A realm is the lab island built at the realm's own level, floating on its own
    keel, carrying one signature per district. Everything here is the locked art
@@ -5272,7 +8101,7 @@ function enterRealm(q){
   if(W.unbuilt)return;
   handAbort(); unpossess(); birdsDirty();
   worldDay=DAY;
-  OPEN=q; selected=null; hovered=null;
+  OPEN=q; selected=null; hovered=null; stageEl.classList.remove('pick');
   for(const d of W.districts) hideDistrict(d);
   for(const d of q.list){
     if(d.shown>0) raise(d,levelOf(d.shown),false);
@@ -5283,13 +8112,16 @@ function enterRealm(q){
   fade=0; fadeTo=1;
   frameBounds(q.bounds);
   rootEl.classList.add('inrealm');
-  updateHud(); renderRank(true); buildAir(); placeClouds();
+  updateHud(); renderRank(true); emitDistrict(); buildAir(); placeClouds();
 }
 function leaveRealm(){
   if(!OPEN)return;
   handAbort(); unpossess(); birdsDirty();
   for(const d of OPEN.list) hideDistrict(d);
   landRoot.clear(); OPEN=null; selected=null; hovered=null;
+  /* The ground under a stationary pointer is a different thing on either side of
+     this, so the offer is withdrawn and the next move makes it again. */
+  stageEl.classList.remove('pick');
   worldRoot.visible=true;
   landRoot.visible=townRoot.visible=false;
   /* Bring the islands up to the day the scrubber is actually on. Land is
@@ -5310,7 +8142,7 @@ function leaveRealm(){
   fade=0; fadeTo=1;
   frameBounds(W.worldBounds);
   rootEl.classList.remove('inrealm');
-  updateHud(); renderRank(true); buildAir(); placeClouds();
+  updateHud(); renderRank(true); emitDistrict(); buildAir(); placeClouds();
 }
 
 /* The sky, its eight palettes and its five hours, all in `sky.js` — the bench
@@ -5321,6 +8153,19 @@ const SKY={...DEFAULT_SKY};
    rather than by a flag: the bench can set the same palette twice, or an hour
    it is already on, and neither should force a rebuild. */
 let skyKey='';
+/* ONE SKY, EVERYWHERE. A realm rig was tried — each concept image is lit as its
+   own place, so entering a realm switched to that realm's weather — and it is
+   the wrong trade for a world somebody DRESSED: the sky is the one channel the
+   owner picked, and having it thrown away the moment a visitor walks into a
+   realm makes the choice feel like a suggestion. It also broke the one thing a
+   sky is for, which is holding the whole place together: flying out of the
+   forges into the bastion re-graded the entire frame mid-flight.
+
+   What the realms keep is their MATERIALS, which is where their identity
+   actually lives — the rock, the roofs, the keel, the landform. What they lost
+   is a private light rig, and the picker carries the difference: `ember` is the
+   forges' dusk, `lilac` the swarm's day, `clear` the bastion's winter. Anyone
+   who wants a realm's weather can put the whole world under it. */
 function applySky(){
   const p=skyPalOf(SKY.pal), h=skyHourOf(SKY.hour);
   const key=p.id+'|'+h.id;
@@ -5396,7 +8241,10 @@ function syncCam(){
    what gets returned, and the wheel handler holds two results at once. */
 const _gd=new THREE.Vector3();
 function groundAt(cx,cy,planeY){
-  const o=new THREE.Vector3((cx/innerWidth)*2-1, -(cy/innerHeight)*2+1, -1)
+  /* Client coordinates in, so they come back to the container's own origin
+     before they are anything but a number: `cx` is measured from the window
+     and this box does not always start there. */
+  const o=new THREE.Vector3(((cx-VX)/VW)*2-1, -((cy-VY)/VH)*2+1, -1)
     .unproject(cam);
   const dir=_gd.set(0,0,-1).applyQuaternion(cam.quaternion);
   if(Math.abs(dir.y)<1e-6)return null;
@@ -5408,11 +8256,52 @@ function clampTarget(){
   target.x=clamp(target.x,b.x0-m,b.x1+m);
   target.z=clamp(target.z,b.z0-m,b.z1+m);
 }
+/* ------------------------------------------------------------------ pinch
+   Two fingers are the wheel. There is no other zoom on a phone: the gesture the
+   browser would have handled is the one `touch-action:none` has to take away
+   (without it a drag across the world is a drag on the page), and a world you
+   can only pan across is a world whose far side you cannot reach.
+
+   Live touches rather than a flag, because the interesting moments are the
+   transitions — the second finger landing has to call off whatever the first
+   one had started, and the second finger LIFTING has to hand the pan back to
+   the one still on the glass without the world jumping to where the gesture
+   began. */
+const touches=new Map();
+let pinchSpan=0;
+function pinchStep(){
+  const [a,b]=[...touches.values()];
+  const span=Math.hypot(a.x-b.x,a.y-b.y);
+  if(span<1||pinchSpan<1){ pinchSpan=span; return; }
+  /* Toward the midpoint, exactly as the wheel zooms toward the cursor: pinching
+     on a district that is off to one side should bring THAT district in. */
+  const cx=(a.x+b.x)/2, cy=(a.y+b.y)/2;
+  const before=groundAt(cx,cy,0);
+  zoomTarget=clamp(zoomTarget*(pinchSpan/span),ZMIN,ZMAX);
+  zoom+=(zoomTarget-zoom)*0.6; syncCam();
+  const after=groundAt(cx,cy,0);
+  if(before&&after){ target.x+=before.x-after.x; target.z+=before.z-after.z; clampTarget(); }
+  pinchSpan=span;
+}
+
 canvas.addEventListener('pointerdown',e=>{
   if(POV.bird)return;                    // the camera belongs to the bird
+  if(e.pointerType==='touch') touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  canvas.setPointerCapture(e.pointerId);
+  /* Nobody puts a second finger down to keep doing the same thing, so the pan,
+     the click and any grip that was closing on a town are all called off. */
+  if(touches.size>1){
+    panning=rotating=false; pinchSpan=0; POV.aim=null;
+    HAND.hold=0; HAND.armed=null;
+    if(HAND.mode==='held') handRelease(clock.getElapsedTime());
+    /* Past the click threshold for good: lifting out of a pinch must never
+       land as a tap on whatever happened to be under the last finger. */
+    moved=99;
+    return;
+  }
   rotating=e.shiftKey||e.button===2; panning=!rotating;
   lx=e.clientX; ly=e.clientY; moved=0; PX=e.clientX; PY=e.clientY;
-  canvas.setPointerCapture(e.pointerId); stageEl.className='world-stage grabbing';
+  stageEl.className='world-stage grabbing';
   /* A press that stays put long enough stops being a click and becomes a grip.
      Armed here, fired from the frame loop — a timer racing the pointer stream
      is how you end up grabbing a town you already let go of. */
@@ -5423,13 +8312,25 @@ canvas.addEventListener('pointerdown',e=>{
 });
 canvas.addEventListener('pointerup',e=>{
   if(POV.bird){ unpossess(); return; }
+  const wasPinching=touches.size>1;
+  touches.delete(e.pointerId);
+  if(wasPinching){
+    pinchSpan=0;
+    /* The finger left on the glass takes the pan over from where IT is, not
+       from where the first one went down half a screen ago. */
+    const [rest]=[...touches.values()];
+    if(rest){ panning=true; lx=rest.x; ly=rest.y; PX=rest.x; PY=rest.y; }
+    return;
+  }
   panning=rotating=false; stageEl.className='world-stage grab';
   PX=e.clientX; PY=e.clientY;
   if(HAND.mode==='held'){ handRelease(clock.getElapsedTime()); return; }
   HAND.hold=0; HAND.armed=null;
   if(moved<6) pick(e.clientX,e.clientY,true);
 });
-canvas.addEventListener('pointercancel',()=>{ HAND.hold=0; HAND.armed=null;
+canvas.addEventListener('pointercancel',e=>{
+  touches.delete(e.pointerId); pinchSpan=0;
+  HAND.hold=0; HAND.armed=null;
   if(HAND.mode==='held') handRelease(clock.getElapsedTime()); });
 canvas.addEventListener('pointermove',e=>{
   /* The pointer position is read FIRST and unconditionally: while you are
@@ -5437,6 +8338,8 @@ canvas.addEventListener('pointermove',e=>{
      early return above this line silently froze the mouse look. */
   PX=e.clientX; PY=e.clientY;
   if(POV.bird)return;
+  if(touches.has(e.pointerId)) touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(touches.size>1){ pinchStep(); return; }
   const dx=e.clientX-lx, dy=e.clientY-ly; lx=e.clientX; ly=e.clientY;
   moved+=Math.abs(dx)+Math.abs(dy);
   /* Once the hand has it, the drag belongs to the town and not to the camera. */
@@ -5445,7 +8348,7 @@ canvas.addEventListener('pointermove',e=>{
   if(panning){
     const r=new THREE.Vector3(Math.sin(yaw),0,-Math.cos(yaw));
     const f=new THREE.Vector3(-Math.cos(yaw),0,-Math.sin(yaw));
-    const k=zoom/innerHeight*2;
+    const k=zoom/VH*2;
     /* Both axes drag the LAND, not the camera: push the mouse down and the
        world follows it down. The forward axis had the opposite sign. */
     target.addScaledVector(r,-dx*k).addScaledVector(f,dy*k); clampTarget();
@@ -5476,22 +8379,25 @@ listen(window,'wheel',e=>{
   if(before&&after){ target.x+=before.x-after.x; target.z+=before.z-after.z; clampTarget(); }
 },{passive:false});
 /* A fit needs a viewport to fit INTO. Boot this page in a background tab and
-   innerWidth/innerHeight are both 0; 0/0 is NaN, that NaN reaches the camera's
+   VW/VH are both 0; 0/0 is NaN, that NaN reaches the camera's
    aspect and the projection matrix goes NaN, and from then on nothing renders —
    permanently, because placeCam() re-derives from the same poisoned zoom, so no
    later resize can dig it out. A degenerate viewport therefore DEFERS the fit
    and the first real one performs it. */
 let fitPending=null;
 const reflow=()=>{
+  /* FIRST, and before anything reads a dimension: everything below sizes
+     itself off the box, so the box has to be true before any of it runs. */
+  measure();
   /* Re-read the ratio, don't just re-read the size: dragging the window to a
      second monitor changes devicePixelRatio, and sizePost below picks the new
      one up for its buffers whether the canvas does or not. */
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.setSize(innerWidth,innerHeight); drawSpark();
+  renderer.setPixelRatio(dprCap());
+  renderer.setSize(VW,VH); drawSpark();
   /* Safe despite sizePost's consts being declared further down: module
      evaluation is synchronous, so no resize can fire before they exist. */
   sizePost();
-  if(fitPending&&innerWidth>0&&innerHeight>0){ const b=fitPending; fitPending=null; frameBounds(b); }
+  if(fitPending&&VW>0&&VH>0){ const b=fitPending; fitPending=null; frameBounds(b); }
   else placeCam();
 };
 /* A drag-resize fires dozens of times a second and every one of those
@@ -5504,6 +8410,15 @@ listen(window,'resize',queueReflow);
 /* Restoring a background tab does not always fire resize, and this is exactly
    the case that boots at 0x0 — so the visibility flip has to reflow too. */
 listen(document,'visibilitychange',()=>{ if(!document.hidden) queueReflow(); });
+/* And the case neither of those catches: the WINDOW stays exactly the size it
+   was and this box does not. A scrollbar appears, a modal puts a margin on
+   every fixed layer on the page, a browser reserves a gutter — none of it is a
+   resize event, and all of it moves the pixels the world is drawn into. This
+   is also what makes the first fit reliable, since a container measured during
+   the same frame it was mounted in has not always been laid out yet. */
+const boxObserver=typeof ResizeObserver==='function'
+  ? new ResizeObserver(queueReflow) : null;
+if(boxObserver) boxObserver.observe(rootEl);
 
 /* Fit the world to the part of the screen the UI is not standing on. Fitting to
    the window instead puts a third of a 40-district world behind the panel. */
@@ -5513,10 +8428,10 @@ const PAD={l:296,r:18,t:22,b:112};
 const padT=()=>OPEN?PAD.t:96;
 function frameWorld(){ frameBounds(OPEN?OPEN.bounds:W.worldBounds); }
 function frameBounds(b){
-  if(!(innerWidth>0&&innerHeight>0)){ fitPending=b; return; }
+  if(!(VW>0&&VH>0)){ fitPending=b; return; }
   target.set((b.x0+b.x1)/2, 6, (b.z0+b.z1)/2);
   zoom=1; syncCam();
-  const aspect=innerWidth/innerHeight;
+  const aspect=VW/VH;
   let u0=1e9,u1=-1e9,v0=1e9,v1=-1e9;
   const p=new THREE.Vector3();
   /* Sample the PLACES, not the corners of the rectangle around them. An
@@ -5540,13 +8455,13 @@ function frameBounds(b){
         u0=Math.min(u0,u); u1=Math.max(u1,u); v0=Math.min(v0,v); v1=Math.max(v1,v);
       }
     }
-  const availW=Math.max(120,innerWidth-PAD.l-PAD.r);
-  const availH=Math.max(120,innerHeight-padT()-PAD.b);
-  const z=Math.max((u1-u0)*innerHeight/(2*availW),(v1-v0)*innerHeight/(2*availH));
+  const availW=Math.max(120,VW-PAD.l-PAD.r);
+  const availH=Math.max(120,VH-padT()-PAD.b);
+  const z=Math.max((u1-u0)*VH/(2*availW),(v1-v0)*VH/(2*availH));
   zoomTarget=zoom=clamp(z,ZMIN,ZMAX);
   /* Recentre on the visible rectangle rather than on the window's middle. */
-  const k=zoom/innerHeight*2;
-  const ou=k*(PAD.l+availW/2-innerWidth/2), ov=k*(innerHeight/2-padT()-availH/2);
+  const k=zoom/VH*2;
+  const ou=k*(PAD.l+availW/2-VW/2), ov=k*(VH/2-padT()-availH/2);
   const R=new THREE.Vector3(Math.sin(yaw),0,-Math.cos(yaw));
   const F=new THREE.Vector3(-Math.cos(yaw),0,-Math.sin(yaw));
   const cu=(u0+u1)/2, cv=(v0+v1)/2;   // already world units: at zoom 1 the map is 1:1
@@ -5577,12 +8492,12 @@ function pick(cx,cy,click){
       if(Math.hypot(p.x-q.x,p.z-q.z)<=spec(Math.max(1,q.level)).radius+3){ hit=q; break; }
     }
   }
-  /* No hover card at either scale. Nothing follows the cursor now: `hovered` is
-     still tracked, but the only thing it does is light the plot border under the
-     pointer. The affordance the card used to carry — "click to walk in" — is
-     already stated in the hint bar, permanently, where it does not have to
-     appear over the world to be read. */
   if(hit!==hovered){ hovered=hit; paintBorders(); }
+  /* Only ground a click does something with. An unread realm does not open, and
+     inside one, only a district with something standing on it has a feed. Never
+     while riding: the pointer is a flight stick then, not a cursor. */
+  stageEl.classList.toggle('pick',
+    !POV.bird&&!!hit&&(OPEN?!!hit.built:hit.shown>0));
   if(click){
     /* Only the bird the reticle is already on. Re-testing the cursor here
        instead would let a bird that happened to fly under the pointer between
@@ -5593,12 +8508,12 @@ function pick(cx,cy,click){
     if(bird&&bird[0].parent){ possess(bird[0],bird[1]); return; }
     if(!OPEN) { if(hit) enterRealm(hit); }
     else{
-      /* Inside a realm a click on a town is a SLAP, full stop. It used to have
-         to earn it by selecting first, which meant the one gesture people
-         actually try on a town did nothing the first time. Selection still
-         happens — it lights the plot border and syncs the sidebar — but it
-         moves nothing, so the two never fight over the same click. */
-      if(hit&&hit.built) slap(hit,clock.getElapsedTime());
+      /* Inside a realm the first click on a town OPENS it: the plot lights and
+         the panel beside it reads out what was upvoted there, which is the
+         thing somebody clicking a district is asking for. The slap is what a
+         second click on the town already open does, so the toy is still one
+         click away and never lands on top of the answer. */
+      if(hit&&hit.built&&hit.i===selected) slap(hit,clock.getElapsedTime());
       select(hit?hit.i:null);
     }
   }
@@ -5614,7 +8529,18 @@ function pick(cx,cy,click){
 function select(i){
   if(selected===i)return;
   selected=i;
-  paintBorders(); renderRank(true);
+  paintBorders(); renderRank(true); emitDistrict();
+}
+/* Which district is selected, by NICHE ID, so the overlay can ask the API what
+   this reader upvoted in that niche. That id is the one fact about a district
+   only the engine holds: everything else the overlay has is a rank row, and a
+   rank row is capped at fourteen while a realm can hold more than fourteen
+   towns. Emitted from `select` and from both realm doors, which are the only
+   three places `selected` moves. */
+function emitDistrict(){
+  const d=OPEN&&selected!==null?W.districts[selected]:null;
+  emit({district:d?{nicheId:d.nicheId, name:nameOf(d),
+                    color:hexs(d.niche.accent)}:null});
 }
 function paintBorders(){
   const on=VIEW.border&&!!OPEN;
@@ -5672,8 +8598,8 @@ function placeOut(px,py,rx,ry,up,w,h,boxes,ox,oy,discs,self,bias=0){
      the top at a flat 8px because nothing was standing there; a phone puts the
      identity bar exactly where the tallest realm wants its name. */
   const onScreen=(x,y)=>
-    !(x-w/2<PAD.l+6||x+w/2>innerWidth-PAD.r-6
-      ||y-h/2<PAD.t+6||y+h/2>innerHeight-PAD.b-6);
+    !(x-w/2<PAD.l+6||x+w/2>VW-PAD.r-6
+      ||y-h/2<PAD.t+6||y+h/2>VH-PAD.b-6);
   const hitsPlate=(x,y)=>{
     for(const b of boxes)
       if(Math.abs(b.x-x)*2<b.w+w+12 && Math.abs(b.y-y)*2<b.h+h+10) return true;
@@ -5754,6 +8680,29 @@ function placeOut(px,py,rx,ry,up,w,h,boxes,ox,oy,discs,self,bias=0){
   return fall;
 }
 
+/* The rung a plate carries on its owner's own world: how far through its current
+   level the plot is, as a bar, plus how many articles are left of it. `div`
+   stretches the ladder for a realm (see REALM_DIV in ../ladder).
+
+   The count goes ON the existing line rather than on a line of its own because
+   the solver that places these plates works from fixed box sizes: every element
+   that comes and goes is another size it has to be told about, and the two
+   callers already have to widen their boxes for the text this returns.
+
+   Returns the suffix and sets the bar, because the two are the same fact and
+   splitting them across two calls is two chances to show one without the other.
+   Empty and hidden when there is nothing to say: a stranger's world, bare
+   ground, or a plot with nothing read into it yet. */
+function rung(x,shown,div){
+  if(!LVLPROG||W.unbuilt||shown<=0){ x.elPg.style.display='none'; return ''; }
+  const p=levelProgress(shown,div);
+  x.elPg.style.display='block';
+  x.elPgI.style.width=(clamp(p.fraction,0,1)*100).toFixed(1)+'%';
+  /* Nothing above L12: the bar sits full and the line says no more than the
+     count it is already carrying. */
+  return p.next?' · '+fmt(p.toNext)+' to L'+(p.level+1):'';
+}
+
 function buildLabels(){
   labelBox.querySelectorAll('.lb').forEach(e=>e.remove());
   leadBox.innerHTML='';
@@ -5761,26 +8710,29 @@ function buildLabels(){
     const e=document.createElement('div');
     e.className='lb t1'; e.style.color=hexs(d.niche.accent);
     e.innerHTML='<div class="box"><div class="nm"></div><div class="mt"></div>'
-               +'<div class="sb"></div></div><div class="stem"></div><div class="pin"></div>';
+               +'<div class="sb"></div><div class="pg"><i></i></div></div>'
+               +'<div class="stem"></div><div class="pin"></div>';
     e.onclick=()=>{ select(d.i); flyTo(d); };
     e.onmouseenter=()=>{ hovered=d; paintBorders(); };
     e.onmouseleave=()=>{ hovered=null; paintBorders(); };
     labelBox.appendChild(e);
     d.el=e; d.elNm=e.querySelector('.nm'); d.elMt=e.querySelector('.mt');
-    d.elBn=e.querySelector('.sb'); d.lead=makeLead(hexs(d.niche.accent));
+    d.elBn=e.querySelector('.sb'); d.elPg=e.querySelector('.pg');
+    d.elPgI=e.querySelector('.pg i'); d.lead=makeLead(hexs(d.niche.accent));
   }
   for(const g of W.quarters){
     const e=document.createElement('div');
     e.className='lb rl t2'; e.style.color=hexs(g.realm.accent);
     e.innerHTML=`<div class="box"><div class="nm">${g.realm.name}</div>`
                +`<div class="sb">${g.realm.theme}</div>`
-               +`<div class="mt"></div></div>`
+               +`<div class="mt"></div><div class="pg"><i></i></div></div>`
                +`<div class="stem"></div><div class="pin"></div>`;
     e.onclick=()=>enterRealm(g);
     e.onmouseenter=()=>{ if(!OPEN)hovered=g; };
     e.onmouseleave=()=>{ if(!OPEN)hovered=null; };
     labelBox.appendChild(e);
-    g.el=e; g.elS=e.querySelector('.mt'); g.lead=makeLead(hexs(g.realm.accent));
+    g.el=e; g.elS=e.querySelector('.mt'); g.elPg=e.querySelector('.pg');
+    g.elPgI=e.querySelector('.pg i'); g.lead=makeLead(hexs(g.realm.accent));
   }
 }
 const _v=new THREE.Vector3();
@@ -5789,7 +8741,7 @@ function project(x,y,z){
      any render has refreshed the camera's inverse matrix. That one-frame-stale
      matrix is the offset between a label and the thing it points at. */
   _v.set(x,y,z).project(cam);
-  return [(_v.x*0.5+0.5)*innerWidth,(-_v.y*0.5+0.5)*innerHeight,_v.z];
+  return [(_v.x*0.5+0.5)*VW,(-_v.y*0.5+0.5)*VH,_v.z];
 }
 /* The solved layout is a pure function of these, and nothing else: the camera,
    the viewport, which view you are in, the day, and the version counter that
@@ -5805,16 +8757,16 @@ function layoutLabels(){
     labelKey='';
     return;
   }
-  const key=[yaw,zoom,target.x,target.y,target.z,fade,innerWidth,innerHeight,
+  const key=[yaw,zoom,target.x,target.y,target.z,fade,VW,VH,
              OPEN?OPEN.realm.id:'',DAY,worldVer].join(',');
   if(key===labelKey)return;
   labelKey=key;
-  const scale0=innerHeight/(2*zoom);
+  const scale0=VH/(2*zoom);
   /* The middle of everything on screen — every label points away from it. */
   const shown=OPEN?OPEN.list.filter(d=>d.built):W.quarters.filter(q=>q.shown>0);
   let ox=0,oy=0;
   for(const x of shown){ const [a,b]=project(x.x,0,x.z); ox+=a; oy+=b; }
-  if(shown.length){ ox/=shown.length; oy/=shown.length; } else { ox=innerWidth/2; oy=innerHeight/2; }
+  if(shown.length){ ox/=shown.length; oy/=shown.length; } else { ox=VW/2; oy=VH/2; }
   /* WORLD view: realm names only, always, big — there are at most six of them
      and they are the entire read at this scale. */
   if(!OPEN){
@@ -5830,8 +8782,12 @@ function layoutLabels(){
        250px plates on a 400px phone cannot be packed anywhere and the solver
        falls back to "least bad", which is six names in a heap. The narrow
        plates are the same component one size down; the CSS follows. */
-    const wide=innerWidth>=700;
-    const boxes0=[], w0=wide?250:150, h0=wide?72:56;
+    const wide=VW>=700;
+    /* The rung line lengthens the count and adds a bar under it, and the solver
+       works from fixed sizes rather than from measuring the DOM, so the box has
+       to be told. Under-reserving here is plates overlapping the thing they name. */
+    const rungOn=LVLPROG&&!W.unbuilt;
+    const boxes0=[], w0=(wide?250:150)+(rungOn?54:0), h0=(wide?72:56)+(rungOn?7:0);
     const live0=[...W.quarters].filter(q=>q.shown>0).sort((a,b)=>b.shown-a.shown);
     /* The realms' own footprints, so the solver can see the ground it is about
        to cover. Without this the district fix reached the realm labels as a
@@ -5864,7 +8820,7 @@ function layoutLabels(){
       /* Name and subject, and no third line: an unbuilt realm has no count to
          show, and six labels all repeating the same instruction is the
          instruction shouted six times. The page asks once, on the world. */
-      const txt=W.unbuilt?'':arts(g.shown);
+      const txt=W.unbuilt?'':arts(g.shown)+rung(g,g.shown,REALM_DIV);
       if(g.elS.textContent!==txt) g.elS.textContent=txt;
     }
     return;
@@ -5910,7 +8866,10 @@ function layoutLabels(){
        had selected — that is gone with the rest of the pointer states, so size
        is now purely a function of how big the district is on screen. */
     const t=dpx<190?1:2;
-    const w=t>=2?168:104, h=t>=2?58:32;
+    /* Same reservation the realm plates make, one scale down. Only the second
+       tier carries a count, so only it grows. */
+    const rungOn=LVLPROG&&!W.unbuilt&&t>=2;
+    const w=t>=2?168+(rungOn?46:0):104, h=t>=2?58+(rungOn?7:0):32;
     /* Clear the LAND, not the territory. terrR is the district's plot — its
        island plus the verge the border and the open ground live in — and
        clearing that put every plate a further four world-units out, over the
@@ -5932,8 +8891,12 @@ function layoutLabels(){
     const nm=nameOf(d);
     if(d.elNm.textContent!==nm) d.elNm.textContent=nm;
     if(t>=2){
-      const mt=arts(d.shown);
+      const mt=arts(d.shown)+rung(d,d.shown,1);
       if(d.elMt.textContent!==mt) d.elMt.textContent=mt;
+    }else{
+      /* A bare name over the world hides its count in CSS, and the bar has to go
+         with it — but `rung` writes display inline, and inline beats the class. */
+      d.elPg.style.display='none';
     }
     /* The banner line only ever appeared on the third tier, which was the
        selected district's plate — so it goes with it. A district's heraldry is
@@ -6182,7 +9145,12 @@ function drawSpark(c){
 
 /* ==================================================================== boot */
 async function boot(model){
-  emit({status:'loading',progress:0.05,message:'Raising the land…'});
+  /* `district` is cleared here and nowhere else in boot: a soft navigation from
+     one world to another reuses this engine, and everything else the overlay
+     reads is rewritten by the first frame of the new world. A selection is not
+     (nothing selects a town on the way in), so without this the next world opens
+     with the last one's district still named over the new reader's upvotes. */
+  emit({status:'loading',progress:0.05,message:'Raising the land…',district:null});
   booting=true; booted=false;
   if(W){ for(const d of W.districts) hideDistrict(d);
          for(const q of W.quarters) hideRealm(q); }
@@ -6627,33 +9595,45 @@ composer.addPass(gradePass);
    deliberately pale palette to mush, because almost everything in this world is
    bright. Restricted to a layer, the beacons and the orrery glow and the terrain
    is not even present to be bloomed. */
-const bloomComposer=new EffectComposer(renderer);
-bloomComposer.renderToScreen=false;
-/* Threshold high on purpose: the layer already excludes the terrain, but a lamp
-   post's warm stone is on that layer too and only the lamp should bloom. */
-/* Tuned at close zoom rather than at world scale, which is where it bites: the
-   same lamp covers forty times the pixels when you walk into a realm, and a
-   strength that read as a glow across the archipelago blew the roofs out. */
-const bloomPass=new UnrealBloomPass(new THREE.Vector2(1,1),0.15,0.75,0.72);
-const bloomRenderPass=new RenderPass(scene,cam);
-bloomComposer.addPass(bloomRenderPass);
-bloomComposer.addPass(bloomPass);
+/* Not built at all on a handheld, where it would be six render targets of dead
+   memory: UnrealBloomPass allocates its whole mip chain in its constructor, and
+   a pass that never runs still holds every buffer it was born with. */
+let bloomComposer=null, bloomPass=null, bloomRenderPass=null;
+if(!LITE){
+  bloomComposer=new EffectComposer(renderer);
+  bloomComposer.renderToScreen=false;
+  /* Threshold high on purpose: the layer already excludes the terrain, but a
+     lamp post's warm stone is on that layer too and only the lamp should bloom. */
+  /* Tuned at close zoom rather than at world scale, which is where it bites: the
+     same lamp covers forty times the pixels when you walk into a realm, and a
+     strength that read as a glow across the archipelago blew the roofs out. */
+  bloomPass=new UnrealBloomPass(new THREE.Vector2(1,1),0.15,0.75,0.72);
+  bloomRenderPass=new RenderPass(scene,cam);
+  bloomComposer.addPass(bloomRenderPass);
+  bloomComposer.addPass(bloomPass);
+}
 
 /* Point every pass at a different camera at once. Both chains have to move
    together — leave the bloom chain on the old camera and the glow arrives in
    the frame from a viewpoint the frame is no longer drawn from. */
 function setView(c){
   view=c;
-  renderPass.camera=c; bloomRenderPass.camera=c;
+  renderPass.camera=c;
+  if(bloomRenderPass) bloomRenderPass.camera=c;
   outlinePass.material.uniforms.uPersp.value=c.isPerspectiveCamera?1:0;
 }
 
 function sizePost(){
-  const w=innerWidth, h=innerHeight, dpr=Math.min(devicePixelRatio,2);
+  const w=VW, h=VH, dpr=dprCap();
   composer.setSize(w,h); composer.setPixelRatio(dpr);
-  bloomComposer.setSize(Math.round(w/2),Math.round(h/2));
-  normalRT.setSize(Math.round(w*dpr/2),Math.round(h*dpr/2));
-  bloomPass.setSize(Math.round(w/2),Math.round(h/2));
+  if(bloomComposer){
+    bloomComposer.setSize(Math.round(w/2),Math.round(h/2));
+    bloomPass.setSize(Math.round(w/2),Math.round(h/2));
+  }
+  /* Left at its 1x1 birth size on a handheld: the outline pass is off there, so
+     nothing ever samples it, and a full-viewport depth+normal target is one of
+     the larger allocations on the page. */
+  if(!LITE) normalRT.setSize(Math.round(w*dpr/2),Math.round(h*dpr/2));
   const rw=w*dpr, rh=h*dpr;
   gradePass.material.uniforms.uRes.value.set(rw,rh);
   gradePass.material.uniforms.uAspect.value=w/h;
@@ -6677,9 +9657,18 @@ function lookPush(){
   bloomAdd.material.uniforms.uAmt.value=LOOK.bl;
   /* An outline strength of zero still pays for a full normal-and-depth pass, so
      the switch follows the slider to the floor rather than leaving a pass
-     rendering nothing. Same for the glow. */
-  FX.outline=LOOK.ol>0.005 && LOOK.fx.outline!==false;
-  FX.bloom  =LOOK.bl>0.005 && LOOK.fx.bloom!==false;
+     rendering nothing. Same for the glow.
+
+     On a handheld both are off whatever the look says, because each of them is
+     a SECOND full pass over the scene every frame — the ink needs a normal and
+     depth buffer, the glow needs the world again with everything that does not
+     glow painted black, and the glow then blurs its result five times over. A
+     phone drawing this world three times a frame is a phone drawing it at
+     twelve. The GRADE stays: it is one fullscreen quad and it is the whole of
+     what makes a look a look, so what the owner dressed their world in still
+     arrives, just without the ink line and the halo. */
+  FX.outline=!LITE && LOOK.ol>0.005 && LOOK.fx.outline!==false;
+  FX.bloom  =!LITE && LOOK.bl>0.005 && LOOK.fx.bloom!==false;
   FX.post   =LOOK.fx.post!==false;
 }
 /* A WHOLE look, not a preset id — the panel already forks on the first knob
@@ -7366,7 +10355,10 @@ function birdAt(cx,cy){
     e[0].getWorldPosition(_pw);
     const [sx,sy,sz]=project(_pw.x,_pw.y,_pw.z);
     if(sz<-1||sz>1)continue;
-    const d=Math.hypot(sx-cx,sy-cy);
+    /* `project` returns pixels inside the container; `cx`/`cy` arrived from
+       the window. One of them has to move before a distance between them
+       means anything. */
+    const d=Math.hypot(sx-(cx-VX),sy-(cy-VY));
     if(d<bestD){ bestD=d; best=e; }
   }
   return best;
@@ -7502,8 +10494,8 @@ function povUpdate(t,dt){
      go of the mouse in the middle of the screen and you are facing forward
      again. Read BEFORE the movement, because once you have taken the controls
      this is not a look any more, it is the stick. */
-  POV.tLookX=clamp((PX/Math.max(1,innerWidth)-0.5)*2,-1,1)*0.95;
-  POV.tLookY=clamp((PY/Math.max(1,innerHeight)-0.5)*2,-1,1)*0.45;
+  POV.tLookX=clamp(((PX-VX)/Math.max(1,VW)-0.5)*2,-1,1)*0.95;
+  POV.tLookY=clamp(((PY-VY)/Math.max(1,VH)-0.5)*2,-1,1)*0.45;
   const lk=Math.min(1,dt*5);
   POV.lookX+=(POV.tLookX-POV.lookX)*lk;
   POV.lookY+=(POV.tLookY-POV.lookY)*lk;
@@ -7746,6 +10738,7 @@ function dispose(){
   if(disposed)return;
   disposed=true;
   cancelAnimationFrame(raf);
+  if(boxObserver) boxObserver.disconnect();
   for(const [target,type,fn,opts] of listeners) target.removeEventListener(type,fn,opts);
   listeners.length=0;
   if(W){ for(const d of W.districts) hideDistrict(d);
@@ -7773,6 +10766,10 @@ return {
   toEnd: ()=>{ if(W) seekTo(W.nT-1); },
   setSpeed: s=>{ speed=s; emit({speed:s}); },
   focus,
+  /* Drops the selection without leaving the realm: closing the district's feed
+     has to take the plot's lit border with it, or the world still says a town
+     is open after the panel reading it has gone. */
+  deselect: ()=>{ if(W) select(null); },
   leaveRealm,
   frameWorld: ()=>{ if(W) frameWorld(); },
   attachSpark: c=>drawSpark(c),
@@ -7805,6 +10802,10 @@ return {
   setLook: lookSet,
   setCrest: crestSet,
   setSky: skySet,
+  /* The rung lines are the owner's own business, so unlike the look and the
+     crest this one IS about the viewer. Read live by the label pass, which runs
+     every frame, so there is nothing to rebuild and nothing to invalidate. */
+  setLevelProgress: on=>{ LVLPROG=!!on; },
   setViewFlags: v=>{ Object.assign(VIEW,v);
     if(W){ paintBorders();
            clouds.visible=VIEW.sky;

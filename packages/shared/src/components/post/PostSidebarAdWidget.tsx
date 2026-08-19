@@ -6,6 +6,9 @@ import EntityCard from '../cards/entity/EntityCard';
 import EntityCardSkeleton from '../cards/entity/EntityCardSkeleton';
 import AdAttribution from '../cards/ad/common/AdAttribution';
 import { AdPixel } from '../cards/ad/common/AdPixel';
+import { AdViewability } from '../cards/ad/common/AdViewability';
+import type { ViewabilityData } from '../../features/monetization/viewability';
+import { viewabilityLogExtra } from '../../features/monetization/viewability';
 import { getAdFaviconImageLink } from '../cards/ad/common/getAdFaviconImageLink';
 import { useFeature } from '../GrowthBookProvider';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -60,18 +63,24 @@ export function PostSidebarAdWidget({
   });
 
   const onAdAction = useCallback(
-    (action: AdActions) => {
+    (action: AdActions, extra?: Record<string, unknown>) => {
       if (!ad) {
         return;
       }
 
       logEvent(
         adLogEvent(action, ad, {
-          extra: { origin: 'post page sidebar widget' },
+          extra: { origin: 'post page sidebar widget', ...extra },
         }),
       );
     },
     [logEvent, ad],
+  );
+
+  const onViewable = useCallback(
+    (data: ViewabilityData) =>
+      onAdAction(AdActions.Viewable, viewabilityLogExtra(data)),
+    [onAdAction],
   );
 
   useEffect(() => {
@@ -185,6 +194,7 @@ export function PostSidebarAdWidget({
         <span className="absolute bottom-0 left-0">
           <AdPixel pixel={ad.pixel} />
         </span>
+        <AdViewability ad={ad} onViewable={onViewable} />
       </div>
     );
   }
@@ -251,6 +261,7 @@ export function PostSidebarAdWidget({
         />
       </div>
       <AdPixel pixel={ad.pixel} />
+      <AdViewability ad={ad} onViewable={onViewable} />
     </EntityCard>
   );
 }

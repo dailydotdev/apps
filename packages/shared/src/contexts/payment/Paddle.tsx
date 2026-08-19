@@ -16,6 +16,7 @@ export const PaddleSubProvider = ({
   successCallback,
   disabledEvents,
   initialPriceType = PurchaseType.Plus,
+  discountId,
 }: PaddleSubProviderProps): ReactElement => {
   const [priceType, setPriceType] = useState(initialPriceType);
 
@@ -33,6 +34,7 @@ export const PaddleSubProvider = ({
       checkoutItemsLoading={checkoutItemsLoading}
       priceType={priceType}
       setPriceType={setPriceType}
+      discountId={discountId}
     >
       {children}
     </BasePaymentProvider>

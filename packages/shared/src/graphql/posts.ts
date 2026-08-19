@@ -239,6 +239,17 @@ export interface PostUserState {
   pollOption?: { id: string };
 }
 
+/**
+ * A question this post answers, with a standalone answer and a short pointer
+ * back to daily.dev. Surfaced as FAQPage structured data and in the markdown
+ * twin, so answer engines can attribute an extracted answer.
+ */
+export interface AnsweredQuestion {
+  question: string;
+  answer: string;
+  cta: string;
+}
+
 export interface Post {
   __typename?: string;
   id: string;
@@ -270,6 +281,7 @@ export interface Post {
   trending?: number;
   description?: string;
   summary?: string;
+  answeredQuestions?: AnsweredQuestion[] | null;
   toc?: Toc;
   impressionStatus?: number;
   isAuthor?: number;
@@ -406,6 +418,11 @@ export const POST_BY_ID_QUERY = gql`
       }
       description
       summary
+      answeredQuestions {
+        question
+        answer
+        cta
+      }
       toc {
         text
         id
@@ -495,6 +512,11 @@ export const POST_BY_ID_STATIC_FIELDS_QUERY = gql`
       ...SharedPostInfo
       contentHtml
       description
+      answeredQuestions {
+        question
+        answer
+        cta
+      }
       toc {
         text
         id

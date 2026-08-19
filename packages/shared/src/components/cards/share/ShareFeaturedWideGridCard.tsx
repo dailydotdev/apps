@@ -7,7 +7,6 @@ import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { usePostImage } from '../../../hooks/post/usePostImage';
 import { useCardCover } from '../../../hooks/feed/useCardCover';
 import { BlockIcon } from '../../icons';
@@ -52,7 +51,6 @@ export const ShareFeaturedWideGridCard = forwardRef(
     const image = isDeleted ? undefined : postImage;
     const isVideoType = isVideoPost(post);
     const isSharedTweet = isSocialTwitterPost(sharedPost);
-    const useGlass = useFeedCardGlassActions();
     const significance = post.hero?.significance;
     const sharedTitle = sharedPost?.title?.trim();
     const sharedSummary = sharedPost?.summary?.trim();
@@ -66,7 +64,6 @@ export const ShareFeaturedWideGridCard = forwardRef(
         ref={ref}
         post={post}
         domProps={domProps}
-        useGlass={useGlass}
         onPostClick={onPostClick}
         onPostAuxClick={onPostAuxClick}
         overlayAriaLabel={title}
@@ -81,7 +78,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
           )}
         >
           <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
-            <FeaturedWideTextContainer useGlass={useGlass}>
+            <FeaturedWideTextContainer>
               <PostCardHeader
                 post={post}
                 className="flex"
@@ -91,12 +88,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
                 onReadArticleClick={onReadArticleClick}
               />
               {(!isSharedTweet || post.title) && (
-                <h3
-                  className={classNames(
-                    'mt-2 break-words font-bold text-text-primary typo-title1',
-                    useGlass ? 'line-clamp-3' : 'line-clamp-4',
-                  )}
-                >
+                <h3 className="mt-2 line-clamp-4 break-words font-bold text-text-primary typo-title1">
                   {title}
                 </h3>
               )}
@@ -144,7 +136,6 @@ export const ShareFeaturedWideGridCard = forwardRef(
             </FeaturedWideTextContainer>
             <FeaturedWideActions
               post={post}
-              useGlass={useGlass}
               onUpvoteClick={onUpvoteClick}
               onCommentClick={onCommentClick}
               onCopyLinkClick={onCopyLinkClick}

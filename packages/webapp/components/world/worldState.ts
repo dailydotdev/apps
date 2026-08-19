@@ -30,6 +30,16 @@ export interface WorldOpenRealm {
   articles: number;
 }
 
+/** The district a click has opened, and the niche its feed is filtered by. */
+export interface WorldSelectedDistrict {
+  /** The niche the API knows the district by, which is what filters the feed. */
+  nicheId: string;
+  /** What the taxonomy calls the topic: "Rust", "CSS & UI". */
+  name: string;
+  /** Hex, from the district's own accent. */
+  color: string;
+}
+
 export interface WorldState {
   status: 'loading' | 'ready';
   progress: number;
@@ -50,6 +60,8 @@ export interface WorldState {
   districts?: number;
   realms?: number;
   open?: WorldOpenRealm | null;
+  /** Only ever set inside a realm: at world scale a click enters one instead. */
+  district?: WorldSelectedDistrict | null;
   rank?: WorldRankRow[];
   /** Set while you are riding a bird. */
   riding?: { manual: boolean } | null;
@@ -97,6 +109,8 @@ export interface WorldEngine {
   toEnd: () => void;
   setSpeed: (speed: number) => void;
   focus: (key: string) => void;
+  /** Clears the selected district without leaving the realm it is in. */
+  deselect: () => void;
   leaveRealm: () => void;
   frameWorld: () => void;
   attachSpark: (canvas: HTMLCanvasElement | null) => void;
@@ -107,6 +121,8 @@ export interface WorldEngine {
   setCrest: (crest: WorldCrest | null) => void;
   /** Palette and hour. Repaints the environment, so it is key-guarded inside. */
   setSky: (sky: WorldSky) => void;
+  /** Whether the plates carry how far through its rung each plot is. Owner only. */
+  setLevelProgress: (on: boolean) => void;
   setViewFlags: (flags: Partial<Record<string, boolean>>) => void;
   /**
    * A bare render of the whole world as a JPEG data URL, for the share card to

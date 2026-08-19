@@ -8,11 +8,13 @@ import Link from './utilities/Link';
 import { plusUrl } from '../lib/constants';
 import { useViewSize, ViewSize } from '../hooks';
 import { usePlusSubscription } from '../hooks/usePlusSubscription';
+import { usePlusSale } from '../hooks/usePlusSale';
 import type { TargetId } from '../lib/log';
 import { LogEvent } from '../lib/log';
 import { useAuthContext } from '../contexts/AuthContext';
 import { AuthTriggers } from '../lib/auth';
 import type { WithClassNameProps } from './utilities';
+import { PlusSaleLabel } from './plus/PlusSaleLabel';
 
 type Props = {
   iconOnly?: boolean;
@@ -36,8 +38,10 @@ export const UpgradeToPlus = ({
   const isLaptopXL = useViewSize(ViewSize.LaptopXL);
   const isFullCTAText = !isLaptop || isLaptopXL;
   const { isPlus, logSubscriptionEvent } = usePlusSubscription();
+  const { isActive: isSaleActive } = usePlusSale();
   const ctaCopy = { full: 'Get API Access', short: 'API access' };
   const content = isFullCTAText ? ctaCopy.full : ctaCopy.short;
+  const showSaleLabel = isSaleActive && !iconOnly;
   const defaultColor = ButtonColor.Bacon;
 
   const onClick = useCallback(
@@ -73,7 +77,14 @@ export const UpgradeToPlus = ({
         {...(variant && { variant, color })}
         {...attrs}
       >
-        {iconOnly ? null : content}
+        {showSaleLabel ? (
+          <>
+            <span className="min-w-0 truncate">{content}</span>
+            <PlusSaleLabel />
+          </>
+        ) : (
+          !iconOnly && content
+        )}
       </Button>
     </Link>
   );

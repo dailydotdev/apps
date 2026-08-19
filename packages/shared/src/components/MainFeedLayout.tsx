@@ -333,7 +333,7 @@ export default function MainFeedLayout({
     feature: featureFeedChips,
     shouldEvaluate: !!user && isLaptop && isChipStripPage,
   });
-  const isFeedChipsEnabled = feedChipsVariant === FeedChipsVariant.V2;
+  const isFeedChipsEnabled = feedChipsVariant !== FeedChipsVariant.None;
   const showExploreChips =
     !!user && isLaptop && isChipStripPage && isFeedChipsEnabled;
   const { feeds } = useFeeds();
@@ -352,10 +352,9 @@ export default function MainFeedLayout({
           categories={exploreCategories}
           isPending={!feeds}
           compact={isV2}
-          onNavTabClick={onNavTabClick}
         />
       ) : null,
-    [showExploreChips, exploreCategories, feeds, isV2, onNavTabClick],
+    [showExploreChips, exploreCategories, feeds, isV2],
   );
 
   const { isSearchPageLaptop } = useSearchResultsLayout();

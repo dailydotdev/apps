@@ -22,9 +22,11 @@ import {
   AddUserIcon,
   SquadIcon,
   MegaphoneIcon,
+  WorldIcon,
 } from '../icons';
 import type { NotificationPromptSource } from '../../lib/log';
 import { BookmarkReminderIcon } from '../icons/Bookmark/Reminder';
+import { AgentIcon } from '../icons/Agent';
 import type { NotificationPreferenceStatus } from '../../graphql/notifications';
 import type {
   NotificationChannel,
@@ -67,6 +69,8 @@ export enum NotificationType {
   UserAwardThanks = 'user_award_thanks',
   BriefingReady = 'briefing_ready',
   DigestReady = 'digest_ready',
+  InterestContentAvailable = 'interest_content_available',
+  InterestContentBatch = 'interest_content_batch',
   UserFollow = 'user_follow',
   ArticleUpvoteMilestone = 'article_upvote_milestone',
   CommentUpvoteMilestone = 'comment_upvote_milestone',
@@ -98,6 +102,7 @@ export enum NotificationType {
   WarmIntro = 'warm_intro',
   ExperienceCompanyEnriched = 'experience_company_enriched',
   LiveRoomStarted = 'live_room_started',
+  WorldDistrictLevelUp = 'world_district_level_up',
 }
 
 export enum NotificationIconType {
@@ -118,6 +123,7 @@ export enum NotificationIconType {
   Core = 'Core',
   Analytics = 'Analytics',
   Opportunity = 'Opportunity',
+  World = 'World',
 }
 
 export const notificationIcon: Record<
@@ -141,6 +147,7 @@ export const notificationIcon: Record<
   [NotificationIconType.Core]: CoreIcon,
   [NotificationIconType.Analytics]: AnalyticsIcon,
   [NotificationIconType.Opportunity]: JobIcon,
+  [NotificationIconType.World]: WorldIcon,
 };
 
 export const notificationIconAsPrimary: NotificationIconType[] = [
@@ -166,6 +173,7 @@ export const notificationIconTypeTheme: Record<NotificationIconType, string> = {
   [NotificationIconType.Core]: '',
   [NotificationIconType.Analytics]: 'text-brand-default',
   [NotificationIconType.Opportunity]: 'text-black',
+  [NotificationIconType.World]: 'text-brand-default',
 };
 
 export const notificationIconStyle: Record<
@@ -189,6 +197,7 @@ export const notificationIconStyle: Record<
   [NotificationIconType.Core]: null,
   [NotificationIconType.Analytics]: null,
   [NotificationIconType.Opportunity]: { background: briefButtonBg },
+  [NotificationIconType.World]: null,
 };
 
 export const notificationTypeTheme: Partial<Record<NotificationType, string>> =
@@ -295,6 +304,10 @@ export const ACHIEVEMENT_KEYS = [
   NotificationType.DevCardUnlocked,
   NotificationType.ArticleAnalytics,
 ];
+// Its own group rather than one of the achievement keys. Sharing that toggle
+// would mean the only way to stop hearing about a world is to also stop
+// hearing about badges, under a label that never mentions worlds.
+export const WORLD_KEYS = [NotificationType.WorldDistrictLevelUp];
 export const MENTION_KEYS = [
   NotificationType.PostMention,
   NotificationType.CommentMention,
@@ -362,6 +375,7 @@ export enum NotificationFilterCategory {
   Comments = 'comments',
   Followers = 'followers',
   Squads = 'squads',
+  Agents = 'agents',
   Updates = 'updates',
 }
 
@@ -399,6 +413,10 @@ export const notificationCategoryToTypes: Record<
     NotificationType.SourcePostRejected,
     NotificationType.ArticlePicked,
   ],
+  [NotificationFilterCategory.Agents]: [
+    NotificationType.InterestContentAvailable,
+    NotificationType.InterestContentBatch,
+  ],
   [NotificationFilterCategory.Updates]: [
     NotificationType.System,
     NotificationType.SourcePostAdded,
@@ -430,6 +448,7 @@ export const notificationCategoryToTypes: Record<
     NotificationType.WarmIntro,
     NotificationType.ExperienceCompanyEnriched,
     NotificationType.LiveRoomStarted,
+    NotificationType.WorldDistrictLevelUp,
   ],
 };
 
@@ -440,6 +459,7 @@ export const notificationFilterCategoryList: NotificationFilterCategory[] = [
   NotificationFilterCategory.Comments,
   NotificationFilterCategory.Followers,
   NotificationFilterCategory.Squads,
+  NotificationFilterCategory.Agents,
   NotificationFilterCategory.Updates,
 ];
 
@@ -452,6 +472,7 @@ export const notificationFilterCategoryLabel: Record<
   [NotificationFilterCategory.Comments]: 'Comments',
   [NotificationFilterCategory.Followers]: 'Followers',
   [NotificationFilterCategory.Squads]: 'Squads',
+  [NotificationFilterCategory.Agents]: 'Agents',
   [NotificationFilterCategory.Updates]: 'Updates',
 };
 
@@ -509,6 +530,11 @@ export const notificationCategoryBadge: Record<
     bg: 'bg-accent-onion-default',
     fg: 'text-white',
     Icon: SquadIcon,
+  },
+  [NotificationFilterCategory.Agents]: {
+    bg: 'bg-accent-water-default',
+    fg: 'text-white',
+    Icon: AgentIcon,
   },
   [NotificationFilterCategory.Updates]: {
     bg: 'bg-accent-bun-default',

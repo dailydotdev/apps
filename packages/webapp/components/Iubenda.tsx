@@ -78,6 +78,7 @@ export const Iubenda = (): ReactElement | null => {
     injectedRef.current = true;
 
     win._iub = win._iub || {};
+    const tokens = getComputedStyle(document.documentElement);
     // Aligned with the marketing homepage's embed (same siteId/cookiePolicyId,
     // countryDetection, LGPD/USPR) so both surfaces treat consent the same.
     // Deliberate differences: enableTcf + ACM (the point of this integration)
@@ -101,7 +102,17 @@ export const Iubenda = (): ReactElement | null => {
       localConsentDomain: process.env.NEXT_PUBLIC_DOMAIN,
       floatingPreferencesButtonDisplay: false,
       banner: {
-        position: 'float-bottom-center',
+        position: 'float-bottom-right',
+        // iubenda writes these three inline with !important, so unlike the
+        // rest of the card (styles/components/iubenda.css) they can't come
+        // from the stylesheet; read the tokens so they follow the active
+        // theme
+        backgroundColor:
+          tokens.getPropertyValue('--theme-accent-pepper-subtlest').trim() ||
+          '#161921',
+        textColor:
+          tokens.getPropertyValue('--theme-text-secondary').trim() || '#CDD4E4',
+        fontSize: '13px',
         acceptButtonDisplay: true,
         rejectButtonDisplay: true,
         customizeButtonDisplay: true,
@@ -111,6 +122,11 @@ export const Iubenda = (): ReactElement | null => {
       callback: {
         onPreferenceExpressed: (pref: IubendaPreference) =>
           onPreferenceRef.current?.(pref),
+        onBannerShown: () => {
+          document
+            .querySelector('#iubenda-cs-banner .iubenda-banner-content')
+            ?.dispatchEvent(new Event('scroll'));
+        },
       },
     };
 

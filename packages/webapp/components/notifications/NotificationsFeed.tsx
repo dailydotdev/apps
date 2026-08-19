@@ -44,10 +44,10 @@ import {
 import {
   getNotificationCategory,
   notificationFilterCategoryLabel,
-  notificationFilterCategoryList,
   NotificationType,
   type NotificationFilterCategory,
 } from '@dailydotdev/shared/src/components/notifications/utils';
+import { useNotificationFilterCategories } from '@dailydotdev/shared/src/hooks/notifications/useNotificationFilterCategories';
 import { usePromotionModal } from '@dailydotdev/shared/src/hooks/notifications/usePromotionModal';
 import { useTopReaderModal } from '@dailydotdev/shared/src/hooks/modals/useTopReaderModal';
 import { usePushNotificationContext } from '@dailydotdev/shared/src/contexts/PushNotificationContext';
@@ -84,16 +84,15 @@ export const NotificationsFeed = (): ReactElement => {
   const router = useRouter();
   // Filtering is driven by the `?type=` query param so the sidebar rail panel
   // (a separate component tree) can control which category is shown.
+  const filterCategories = useNotificationFilterCategories();
   const activeCategory = useMemo<NotificationFilterCategory | null>(() => {
     const type = router.query?.type;
     const value = typeof type === 'string' ? type : undefined;
     return value &&
-      notificationFilterCategoryList.includes(
-        value as NotificationFilterCategory,
-      )
+      filterCategories.includes(value as NotificationFilterCategory)
       ? (value as NotificationFilterCategory)
       : null;
-  }, [router.query?.type]);
+  }, [router.query?.type, filterCategories]);
 
   const { mutateAsync: readNotifications } = useMutation({
     mutationFn: () => gqlClient.request(READ_NOTIFICATIONS_MUTATION),
@@ -242,12 +241,12 @@ export const NotificationsFeed = (): ReactElement => {
             </Link>
           </div>
         )}
-        {/* On v2 the type filters live in the sidebar rail panel; on the
-            legacy/mobile layout (no rail) keep them as in-page tabs. */}
+        {/* On v2 the type filters live in the sidebar rail panel; on mobile
+            layout (no rail) keep them as in-page tabs. */}
         {!isV2Laptop && (hasNotifications || !!activeCategory) && (
           <div className="flex min-h-14 items-center border-b border-border-subtlest-quaternary px-4">
             <NotificationFilterBar
-              categories={notificationFilterCategoryList}
+              categories={filterCategories}
               active={activeCategory}
               onSelect={onSelectCategory}
             />
