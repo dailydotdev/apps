@@ -9,7 +9,8 @@ export interface ToolPageTool extends DatasetTool {
   keyword: string | null;
   upvotes: number;
   downvotes: number;
-  userVote: number | null;
+  // discussionPostId is not user-scoped (it's the id of the shared hidden
+  // discussion post), so it's safe to bake into the anonymous SSG payload.
   discussionPostId: string | null;
 }
 
@@ -28,7 +29,6 @@ const DATASET_TOOL_QUERY = gql`
       keyword
       upvotes
       downvotes
-      userVote
       discussionPostId
     }
   }
