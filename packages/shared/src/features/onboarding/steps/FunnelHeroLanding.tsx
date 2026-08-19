@@ -63,6 +63,11 @@ const isSocialSignupUser = (
   );
 };
 
+// Upper bound on holding the wall for the flag. Long enough that a normal boot
+// resolves first (features arrive with the prefetched boot payload), short
+// enough that a boot without experiment data costs a blink, not a blank screen.
+const FLAG_RESOLVE_TIMEOUT_MS = 1000;
+
 // The horizon wall's value line, when the funnel doesn't provide one. Exported
 // so the story shows the copy that actually ships rather than a stale twin.
 export const HORIZON_DEFAULT_SUBLINE =
@@ -103,7 +108,21 @@ export const FunnelHeroLanding = withIsActiveGuard(
     // show the control arm to treatment users and cost a wasted hero download,
     // so hold until it resolves. Scoped to the funnel that evaluates it —
     // elsewhere `shouldEvaluate` is false and isLoading never clears.
-    const isWallPending = isOnboarding && isHorizonFlagLoading;
+    //
+    // Bounded, because GrowthBook only marks itself ready once boot returns
+    // experiment features: a boot without them would otherwise strand the
+    // funnel's entry screen on a blank page. After the deadline we render what
+    // the funnel served, which is the control.
+    const [hasWaitedForFlag, setHasWaitedForFlag] = useState(false);
+    useEffect(() => {
+      const timeout = setTimeout(
+        () => setHasWaitedForFlag(true),
+        FLAG_RESOLVE_TIMEOUT_MS,
+      );
+      return () => clearTimeout(timeout);
+    }, []);
+    const isWallPending =
+      isOnboarding && isHorizonFlagLoading && !hasWaitedForFlag;
     const background = isHorizonWallEnabled ? 'horizon' : backgroundParam;
     const isHorizonWall = background === 'horizon';
     const subline =

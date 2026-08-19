@@ -205,7 +205,7 @@ export const OnboardingRegistrationForm = ({
             // --button-background, which pops a floating fill behind the text —
             // wrong affordance here, so the background is pinned transparent
             // and hover moves the label to full strength instead.
-            'mx-auto !h-auto !w-auto !bg-transparent !px-0 !py-0 !text-text-tertiary !shadow-none !underline underline-offset-4 hover:!text-text-primary'
+            'mx-auto !h-auto !w-auto !bg-transparent !px-0 !py-0 !text-text-tertiary !underline underline-offset-4 !shadow-none hover:!text-text-primary'
           : (isOnboardingTrigger || splitSignupStyle) &&
               tertiarySignupButtonClass,
       )}
