@@ -15,6 +15,7 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import HijackingLoginStrip from './HijackingLoginStrip';
 
 jest.mock('@dailydotdev/shared/src/contexts/AuthContext', () => ({
@@ -29,6 +30,10 @@ jest.mock('@dailydotdev/shared/src/hooks', () => ({
 
 jest.mock('@dailydotdev/shared/src/hooks/auth/useSignBack', () => ({
   useSignBack: jest.fn(),
+}));
+
+jest.mock('@dailydotdev/shared/src/hooks/layout/useLayoutVariant', () => ({
+  useLayoutVariant: jest.fn(),
 }));
 
 jest.mock('@dailydotdev/shared/src/components/auth/AuthOptions', () => {
@@ -83,6 +88,9 @@ const mockUseAuthContext = useAuthContext as jest.MockedFunction<
 const mockUseSignBack = useSignBack as jest.MockedFunction<typeof useSignBack>;
 const mockUseConditionalFeature = useConditionalFeature as jest.MockedFunction<
   typeof useConditionalFeature
+>;
+const mockUseLayoutVariant = useLayoutVariant as jest.MockedFunction<
+  typeof useLayoutVariant
 >;
 const logEvent = jest.fn();
 const showLogin = jest.fn();
@@ -173,6 +181,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: false });
   setVariant(HijackingVariant.Default);
   mockUseSignBack.mockReturnValue({
     isLoaded: true,
@@ -183,6 +192,21 @@ beforeEach(() => {
 });
 
 describe('HijackingLoginStrip', () => {
+  // The v2 layout drops the slot the control renders through. Enrolling those
+  // users would pit "no strip" against "a strip" instead of one design against
+  // another, so the flag must not be evaluated for them at all.
+  it('does not enroll users whose layout cannot show the control', () => {
+    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+    setVariant(HijackingVariant.Cover);
+
+    const { container } = renderComponent();
+
+    expect(container).toBeEmptyDOMElement();
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
+  });
+
   it('renders nothing while the experiment is loading', () => {
     setVariant(HijackingVariant.Default, { isLoading: true });
 

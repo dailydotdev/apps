@@ -25,7 +25,7 @@ import { onboardingGradientClasses } from '@dailydotdev/shared/src/components/on
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
-
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
@@ -837,9 +837,10 @@ export type HijackingPlacement = 'shortcuts' | 'aboveFeed' | 'belowFeed';
  * MainLayout's `topBanner` does not qualify — it only exists under v2.
  */
 export const useHijackingPlacement = (): HijackingPlacement => {
+  const { isV2 } = useLayoutVariant();
   const { value, isLoading } = useConditionalFeature({
     feature: featureHijackingVariants,
-    shouldEvaluate: true,
+    shouldEvaluate: !isV2,
   });
 
   if (isLoading) {
@@ -854,12 +855,18 @@ export const useHijackingPlacement = (): HijackingPlacement => {
 };
 
 export default function HijackingLoginStrip(): ReactElement | null {
+  // The v2 layout drops the slot the control renders through, so the control
+  // shows nothing there while the cover arms — which render from the feed
+  // column — would still show. Enrolling those users would compare "no strip"
+  // against "a strip" rather than one design against another, so the flag is
+  // not evaluated for them at all and no arm renders.
+  const { isV2 } = useLayoutVariant();
   const { value, isLoading } = useConditionalFeature({
     feature: featureHijackingVariants,
-    shouldEvaluate: true,
+    shouldEvaluate: !isV2,
   });
 
-  if (isLoading) {
+  if (isV2 || isLoading) {
     return null;
   }
 
