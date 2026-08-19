@@ -3,6 +3,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import Link from '../../../../components/utilities/Link';
 import type { UserStack } from '../../../../graphql/user/userStack';
 import {
   Typography,
@@ -140,42 +141,46 @@ function UserStackItemBody({
           handleSponsoredHover();
         }}
       >
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           {dragHandle}
-          {iconUrl ? (
-            <img
-              src={iconUrl}
-              alt=""
-              className={classNames(
-                'size-6 flex-shrink-0',
-                sponsoredCreative
-                  ? 'rounded-full bg-white object-cover p-0.5'
-                  : 'rounded',
+          <Link href={`/tools/${tool.slug}`}>
+            <a className="flex min-w-0 items-center gap-2">
+              {iconUrl ? (
+                <img
+                  src={iconUrl}
+                  alt=""
+                  className={classNames(
+                    'size-6 flex-shrink-0',
+                    sponsoredCreative
+                      ? 'rounded-full bg-white object-cover p-0.5'
+                      : 'rounded',
+                  )}
+                />
+              ) : (
+                <PlusIcon className="size-6 flex-shrink-0 text-text-tertiary" />
               )}
-            />
-          ) : (
-            <PlusIcon className="size-6 flex-shrink-0 text-text-tertiary" />
-          )}
-          {!!title && (
-            <div className="flex min-w-0 flex-1 flex-col">
-              <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Primary}
-                bold
-                truncate
-              >
-                {title}
-              </Typography>
-              {!!usingSince && (
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                >
-                  {usingSince}
-                </Typography>
+              {!!title && (
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Primary}
+                    bold
+                    truncate
+                  >
+                    {title}
+                  </Typography>
+                  {!!usingSince && (
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Tertiary}
+                    >
+                      {usingSince}
+                    </Typography>
+                  )}
+                </div>
               )}
-            </div>
-          )}
+            </a>
+          </Link>
         </div>
         {isOwner && (
           <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">

@@ -3,7 +3,6 @@ import { gqlClient } from './common';
 import type { DatasetTool } from './user/userStack';
 
 export interface ToolPageTool extends DatasetTool {
-  slug: string;
   url: string | null;
   category: string | null;
   stackCount: number;
@@ -14,9 +13,7 @@ export interface ToolPageTool extends DatasetTool {
   discussionPostId: string | null;
 }
 
-export interface AlsoStackedTool extends DatasetTool {
-  slug: string;
-}
+export type AlsoStackedTool = DatasetTool;
 
 const DATASET_TOOL_QUERY = gql`
   query DatasetTool($slug: String!) {

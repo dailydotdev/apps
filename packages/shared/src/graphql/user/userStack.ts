@@ -7,6 +7,7 @@ export const MAX_STACK_ITEMS = 100;
 export interface DatasetTool {
   id: string;
   title: string;
+  slug: string;
   faviconUrl: string | null;
 }
 
@@ -60,6 +61,7 @@ export const USER_STACK_FRAGMENT = gql`
     tool {
       id
       title
+      slug
       faviconUrl
     }
   }
@@ -122,6 +124,7 @@ const AUTOCOMPLETE_TOOLS_QUERY = gql`
     autocompleteTools(query: $query) {
       id
       title
+      slug
       faviconUrl
     }
   }
