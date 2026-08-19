@@ -90,7 +90,7 @@ import {
   TerminalIcon,
   TrendingIcon,
 } from '../icons';
-import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
+import { useSidebarCompact } from '../../hooks/useSidebarCompact';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
@@ -729,7 +729,7 @@ export const SidebarDesktopV2 = ({
   if (isExtension) {
     myFeedPath = `${webappUrl}my-feed`;
   }
-  const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
+  const { value: isCompact } = useSidebarCompact();
   // Compact mode reverts to the original icon-only widths (pre-label rail).
   // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
   // padding so the content never overlaps the rail.
@@ -2363,7 +2363,10 @@ export const SidebarDesktopV2 = ({
                   size={ButtonSize.Small}
                   // Smaller glyph, flipped to point left (it's a back action).
                   icon={
-                    <MoveToIcon size={IconSize.Size16} className="-scale-x-100" />
+                    <MoveToIcon
+                      size={IconSize.Size16}
+                      className="-scale-x-100"
+                    />
                   }
                   onClick={onBackToApp}
                   className="-ml-1"
