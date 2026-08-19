@@ -258,7 +258,10 @@ const coverSectionClasses = (isBottom: boolean): string =>
 // on phones and tablets, and the v2 layout drops it entirely — a constant is
 // wrong on at least one of those.
 const PINNED_GAP = 8;
-const TOP_CHROME_SELECTOR = 'header, nav, [role="banner"]';
+// The chrome above the feed is not always a <header>: on phones and tablets
+// MainLayoutHeader returns <FeedNav />, whose root is a sticky <div>. What the
+// two share is the `z-header` layer, so match on that as well as the tags.
+const TOP_CHROME_SELECTOR = 'header, nav, [role="banner"], [class*="z-header"]';
 
 const measureTopChrome = (): number => {
   if (typeof document === 'undefined') {
