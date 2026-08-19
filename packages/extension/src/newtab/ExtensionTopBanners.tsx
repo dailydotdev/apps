@@ -93,14 +93,20 @@ type UseShortcutsOnboardingResult = {
 
 const useShortcutsOnboarding = (): UseShortcutsOnboardingResult => {
   const hubEnabled = useIsShortcutsHubEnabled();
-  const { showTopSites, toggleShowTopSites } = useSettingsContext();
+  const { showTopSites, toggleShowTopSites, loadedSettings } =
+    useSettingsContext();
   const { openModal } = useLazyModal();
-  const { completeAction, checkHasCompleted } = useActions();
-  const { shortcutLinks } = useShortcutLinks();
+  const { completeAction, checkHasCompleted, isActionsFetched } = useActions();
+  const { shortcutLinks, hasCheckedPermission } = useShortcutLinks();
 
   const hasShortcuts = (shortcutLinks?.length ?? 0) > 0;
   const hasClosedBanner = checkHasCompleted(ActionType.ClosedShortcutsBanner);
-  const shouldShow = !hasShortcuts && !hasClosedBanner;
+  const shouldShow =
+    isActionsFetched &&
+    loadedSettings &&
+    !!hasCheckedPermission &&
+    !hasShortcuts &&
+    !hasClosedBanner;
 
   const completeFirstSession = () => {
     if (!checkHasCompleted(ActionType.FirstShortcutsSession)) {

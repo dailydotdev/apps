@@ -99,7 +99,6 @@ export enum Origin {
   ProfileStack = 'profile stack',
   BrandedTag = 'branded tag',
   MentionedTool = 'mentioned tool',
-  DailyPage = 'daily page',
   EngagementBanner = 'engagement banner',
   EngagementFeedStrip = 'engagement feed strip',
 }
@@ -242,6 +241,7 @@ export enum LogEvent {
   // Reading Streaks
   OpenStreaks = 'open streaks',
   DismissStreaksMilestone = 'dismiss streaks milestone',
+  DismissStreakOffers = 'dismiss streak offers',
   ScheduleStreakReminder = 'schedule streak reminder',
   StreakRecover = 'restore streak',
   DismissStreakRecover = 'dimiss streaks milestone',
@@ -380,6 +380,19 @@ export enum LogEvent {
   WorldReady = 'world ready',
   WorldBootFailed = 'world boot failed',
   WorldCustomize = 'world customize',
+  /* What a reader did once the world was standing, against `world ready` as the
+     denominator. Walking into a realm is the first step of every path through
+     the place, so a visit that never fires one is a visit that only ever looked
+     at the map. */
+  WorldRealmOpen = 'world realm open',
+  WorldDistrictOpen = 'world district open',
+  WorldRide = 'world ride',
+  WorldReplay = 'world replay',
+  WorldGuideOpen = 'world guide open',
+  /* The first-visit sequence, once per visit with how it ended: `completed`
+     means the reader walked into a realm and opened a district, which is the
+     whole of what it teaches. */
+  WorldIntro = 'world intro',
   // End World
   // Navigation
   NavigatePrevious = 'navigate previous',
@@ -511,8 +524,6 @@ export enum LogEvent {
   ExtensionPrimerShown = 'impression extension primer',
   ExtensionPrimerCtaClick = 'click extension primer cta',
   ExtensionPrimerSkipped = 'skip extension primer',
-  // Daily homepage
-  DailyFeedback = 'daily feedback',
 }
 
 export enum TargetType {
@@ -520,7 +531,6 @@ export enum TargetType {
   SpotlightCommand = 'spotlight command',
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
-  PostSignupActivation = 'post signup activation',
   EnableNotifications = 'enable notifications',
   OnboardingChecklist = 'onboarding checklist',
   LoginButton = 'login button',
@@ -540,6 +550,7 @@ export enum TargetType {
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
+  StreakOffer = 'streak offer',
   StreakRecover = 'streak restore',
   StreakFreezePurchase = 'streak freeze purchase',
   PromotionCard = 'promotion_card',

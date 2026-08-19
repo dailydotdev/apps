@@ -13,6 +13,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { Tooltip } from '../tooltip/Tooltip';
+import { anchorDefaultRel } from '../../lib/strings';
 
 export enum PlusItemStatus {
   Ready = 'done',
@@ -28,6 +29,7 @@ export interface PlusItem {
   icon?: ReactElement;
   iconClasses?: string;
   highlight?: boolean;
+  href?: string;
   modalProps?: {
     title: string;
     description: string;
@@ -45,6 +47,7 @@ export interface PlusListItemProps {
   iconProps?: IconProps;
   badgeProps?: TypographyProps<TypographyTag.Span>;
   onHover?: () => void;
+  onClick?: () => void;
 }
 
 export const PlusListItem = ({
@@ -54,7 +57,34 @@ export const PlusListItem = ({
   item,
   typographyProps,
   onHover,
+  onClick,
 }: PlusListItemProps): ReactElement => {
+  if (item.href) {
+    return (
+      <li
+        className="-mx-1 flex gap-1 rounded-6 p-1 hover:bg-surface-float"
+        onMouseEnter={onHover}
+      >
+        <Typography
+          type={TypographyType.Body}
+          color={TypographyColor.Tertiary}
+          {...typographyProps}
+          tag={TypographyTag.Link}
+          href={item.href}
+          target="_blank"
+          rel={anchorDefaultRel}
+          onClick={onClick}
+          className={classNames(
+            '-mt-px flex flex-1 flex-wrap items-baseline underline',
+            typographyProps?.className,
+          )}
+        >
+          {item.label}
+        </Typography>
+      </li>
+    );
+  }
+
   return (
     <ConditionalWrapper
       condition={!!item.tooltip}
