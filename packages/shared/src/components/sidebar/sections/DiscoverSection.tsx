@@ -7,6 +7,7 @@ import {
   CookieIcon,
   DiscussIcon,
   EarthIcon,
+  GiftIcon,
   HashtagIcon,
   HotIcon,
   TourIcon,
@@ -67,6 +68,14 @@ export const DiscoverSection = ({
         ),
         title: 'Tags',
         path: `${webappUrl}tags`,
+        isForcedLink: true,
+      },
+      {
+        icon: (active: boolean) => (
+          <ListIcon Icon={() => <GiftIcon secondary={active} />} />
+        ),
+        title: 'Deals',
+        path: `${webappUrl}deals`,
         isForcedLink: true,
       },
       {

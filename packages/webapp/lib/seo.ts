@@ -1,5 +1,7 @@
 import type { Post } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/graphql/posts';
+import type { Deal } from '@dailydotdev/shared/src/features/deals/types';
+import { DealMediaKind } from '@dailydotdev/shared/src/features/deals/types';
 
 const DEFAULT_APP_ORIGIN = 'https://daily.dev';
 const DEFAULT_SITE_ORIGIN = 'https://daily.dev';
@@ -31,6 +33,34 @@ export const getLlmsTxtUrl = (): string => `${getAppOrigin()}/llms.txt`;
 
 export const getPostCanonicalUrl = (slug: string): string =>
   `${getAppOrigin()}/posts/${slug}`;
+
+export const toAbsoluteUrl = (url: string): string =>
+  url.startsWith('http') ? url : `${getAppOrigin()}${url}`;
+
+/**
+ * Crawlers, share unfurlers and the agent feeds all need an absolute image, and
+ * they all resolve it from the same media the page renders. A deal without
+ * media resolves to nothing rather than to a placeholder.
+ */
+export const getDealImageUrl = (deal: Deal): string | undefined =>
+  deal.media && toAbsoluteUrl(deal.media.imageUrl);
+
+/**
+ * Brand marks resolve to a 128px favicon, far below the ~1200px social
+ * unfurlers and Google want, so they fall back to the default share image
+ * rather than shipping a thumbnail as the preview.
+ */
+export const getDealSocialImage = (
+  deal: Deal,
+): { url: string; alt: string } | undefined => {
+  if (!deal.media || deal.media.kind === DealMediaKind.Brand) {
+    return undefined;
+  }
+
+  const url = getDealImageUrl(deal);
+
+  return url ? { url, alt: deal.media.alt } : undefined;
+};
 
 const THIN_NOINDEX_POST_TYPES = [PostType.Brief, PostType.SocialTwitter];
 
