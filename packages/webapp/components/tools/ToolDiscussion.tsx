@@ -165,7 +165,11 @@ export const ToolDiscussion = ({
   const { showPrompt } = usePrompt();
   const queryClient = useQueryClient();
   const [replyTo, setReplyTo] = useState<string | null>(null);
-  const [postId, setPostId] = useState<string | null>(discussionPostId);
+  // The SSG prop can lag behind (ISR window); the client vote-state query
+  // delivers the fresh id as a prop update, so derive instead of seeding
+  // state.
+  const [createdPostId, setCreatedPostId] = useState<string | null>(null);
+  const postId = createdPostId ?? discussionPostId;
 
   const queryKey = generateQueryKey(
     RequestKey.PostComments,
@@ -199,7 +203,7 @@ export const ToolDiscussion = ({
       // The hidden discussion post is created lazily on first comment.
       const targetPostId = postId ?? (await initToolDiscussion(toolId));
       if (!postId) {
-        setPostId(targetPostId);
+        setCreatedPostId(targetPostId);
       }
       if (parentCommentId) {
         await gqlClient.request(COMMENT_ON_COMMENT_MUTATION, {

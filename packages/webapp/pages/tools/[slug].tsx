@@ -271,6 +271,7 @@ const ToolPage = ({
       upvotes: tool.upvotes,
       downvotes: tool.downvotes,
       userVote: tool.userVote,
+      discussionPostId: tool.discussionPostId,
     },
     staleTime: 0,
   });
@@ -721,7 +722,9 @@ const ToolPage = ({
           <ToolDiscussion
             toolId={tool.id}
             toolTitle={tool.title}
-            discussionPostId={tool.discussionPostId}
+            discussionPostId={
+              voteState?.discussionPostId ?? tool.discussionPostId
+            }
           />
         </Card>
       </div>

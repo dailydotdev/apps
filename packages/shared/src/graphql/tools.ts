@@ -32,6 +32,7 @@ const DATASET_TOOL_QUERY = gql`
       upvotes
       downvotes
       userVote
+      discussionPostId
     }
   }
 `;
@@ -297,6 +298,7 @@ export interface ToolVoteState {
   upvotes: number;
   downvotes: number;
   userVote: number | null;
+  discussionPostId: string | null;
 }
 
 const TOOL_VOTE_STATE_QUERY = gql`
@@ -305,6 +307,7 @@ const TOOL_VOTE_STATE_QUERY = gql`
       upvotes
       downvotes
       userVote
+      discussionPostId
     }
   }
 `;
