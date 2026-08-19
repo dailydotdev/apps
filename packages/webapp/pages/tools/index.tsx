@@ -17,11 +17,14 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
+import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
+import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
-import { defaultOpenGraph } from '../../next-seo';
+import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
+import { ToolIcon } from '../../components/tools/ToolIcon';
 
 const TOOLS_PER_SECTION = 6;
 const TRENDING_COUNT = 6;
@@ -74,34 +77,43 @@ interface ToolsDirectoryProps {
   fallbackTop: DirectoryTool[];
 }
 
-const ToolCard = ({ tool }: { tool: DirectoryTool }): ReactElement => (
-  <Link href={`/tools/${tool.slug}`} passHref>
-    <a className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3 hover:border-border-subtlest-secondary">
-      {tool.faviconUrl ? (
-        <img
-          src={tool.faviconUrl}
-          alt={`${tool.title} logo`}
+const ToolCard = ({ tool }: { tool: DirectoryTool }): ReactElement => {
+  const { logEvent } = useLogContext();
+
+  return (
+    <Link href={`/tools/${tool.slug}`} passHref>
+      <a
+        href={`/tools/${tool.slug}`}
+        className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3 hover:border-border-subtlest-secondary"
+        onClick={() =>
+          logEvent({
+            event_name: LogEvent.Click,
+            target_type: TargetType.Tool,
+            target_id: tool.slug,
+            extra: JSON.stringify({ origin: Origin.ToolsDirectory }),
+          })
+        }
+      >
+        <ToolIcon
+          title={tool.title}
+          faviconUrl={tool.faviconUrl}
           className="size-10 flex-none rounded-12 object-contain"
         />
-      ) : (
-        <span className="grid size-10 flex-none place-items-center rounded-12 bg-surface-float font-bold text-text-tertiary">
-          {tool.title.charAt(0).toUpperCase()}
+        <span className="flex min-w-0 flex-1 flex-col">
+          <Typography type={TypographyType.Callout} bold truncate>
+            {tool.title}
+          </Typography>
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Quaternary}
+          >
+            {largeNumberFormat(tool.stackCount) ?? tool.stackCount} in stacks
+          </Typography>
         </span>
-      )}
-      <span className="flex min-w-0 flex-1 flex-col">
-        <Typography type={TypographyType.Callout} bold truncate>
-          {tool.title}
-        </Typography>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Quaternary}
-        >
-          {largeNumberFormat(tool.stackCount) ?? tool.stackCount} in stacks
-        </Typography>
-      </span>
-    </a>
-  </Link>
-);
+      </a>
+    </Link>
+  );
+};
 
 const ToolGrid = ({ tools }: { tools: DirectoryTool[] }): ReactElement => (
   <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
@@ -221,21 +233,21 @@ export default ToolsDirectoryPage;
 export async function getStaticProps(): Promise<
   GetStaticPropsResult<ToolsDirectoryProps & { seo: NextSeoProps }>
 > {
-  // Tolerate the API not exposing directory queries yet during deploy windows.
+  // These directory queries are live in production (unlike the tool-page
+  // social queries), so a failure here should fail the revalidation and let
+  // Next keep serving the last good ISR output, rather than caching an
+  // empty page.
   const [categories, trending, fallbackTop] = await Promise.all([
-    getToolCategories().catch(() => []),
-    getTopTools({ first: TRENDING_COUNT, trending: true }).catch(() => []),
-    getTopTools({ first: 12 }).catch(() => []),
+    getToolCategories(),
+    getTopTools({ first: TRENDING_COUNT, trending: true }),
+    getTopTools({ first: 12 }),
   ]);
 
   const sections = (
     await Promise.all(
       categories.map(async ({ category }) => ({
         category,
-        tools: await getTopTools({
-          first: TOOLS_PER_SECTION,
-          category,
-        }).catch(() => []),
+        tools: await getTopTools({ first: TOOLS_PER_SECTION, category }),
       })),
     )
   ).filter(({ tools }) => tools.length > 0);
@@ -243,6 +255,7 @@ export async function getStaticProps(): Promise<
   const seoTitles = getPageSeoTitles(
     'Developer tools directory — ranked by real stacks',
   );
+  const isEmpty = sections.length === 0 && fallbackTop.length === 0;
 
   return {
     props: {
@@ -254,6 +267,7 @@ export async function getStaticProps(): Promise<
         openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
         description:
           'Explore the tools developers actually use: top tools per category, rising tools this quarter, and per-tool pages with adoption, squads and community takes on daily.dev.',
+        ...(isEmpty ? noindexSeoProps : {}),
       },
     },
     revalidate: 300,
