@@ -209,9 +209,15 @@ export const featureCompanionDemoWidget = new Feature(
 
 export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
 
-// Switches the signup wall to the 'horizon' background (the homepage's hero
-// artwork full-bleed) regardless of what the funnel JSON serves — the same
-// enable-without-a-Freyja-change lever the swipe onboarding has.
+// Experiment: the horizon signup wall — the marketing homepage's hero artwork
+// full-bleed as the right half, one primary CTA, and a value line — against
+// the served wall (today's `cards`). Treatment overrides the funnel's
+// `background`, so it needs no Freyja change to run; remove the flag once
+// Freyja can serve `background: 'horizon'` itself. Enrollment is conditional
+// on the wall actually rendering in the onboarding funnel (see
+// FunnelHeroLanding's `shouldEvaluate`), so exposure is only logged for users
+// who see a wall, and the paid funnel never enrolls. Measured on signup
+// completion. Default MUST stay `false` — it is the control.
 export const featureSignupWallHorizon = new Feature(
   'signup_wall_horizon',
   false,

@@ -137,13 +137,14 @@ describe('OnboardingSignupHero', () => {
     });
 
     it('renders the homepage hero artwork full-bleed', () => {
-      const { container } = renderHorizon();
-      const art = container.querySelectorAll(
-        `img[src="${signupWallHorizon}"]`,
-      );
+      renderHorizon();
       // One for the stacked band, one for the desktop half; each is hidden at
       // the breakpoint the other serves.
+      const art = screen.getAllByTestId('horizon-art');
       expect(art).toHaveLength(2);
+      art.forEach((image) =>
+        expect(image).toHaveAttribute('src', signupWallHorizon),
+      );
     });
 
     it('renders the value line when the funnel supplies one', () => {
@@ -164,7 +165,9 @@ describe('OnboardingSignupHero', () => {
 
     it('leaves the artwork free of overlaid copy', () => {
       renderHorizon();
-      expect(screen.queryByTestId('landing-app-install')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('landing-app-install'),
+      ).not.toBeInTheDocument();
     });
   });
 
