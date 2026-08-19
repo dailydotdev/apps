@@ -108,6 +108,19 @@ describe('getIubendaConsent', () => {
     expect(getIubendaConsent()).toEqual({ necessary: true, marketing: false });
   });
 
+  it('should prefer the env policy when timestamps cannot break the tie', () => {
+    const stamped = (purposes: Record<string, boolean>): string =>
+      encodeURIComponent(JSON.stringify({ purposes }));
+    Object.defineProperty(document, 'cookie', {
+      writable: true,
+      value: `${COOKIE_NAME}=${stamped({ '1': true, '5': false })}; _iub_cs-${
+        iubendaLocalizedPolicyIds.de
+      }=${stamped({ '1': true, '5': true })}`,
+    });
+
+    expect(getIubendaConsent()).toEqual({ necessary: true, marketing: false });
+  });
+
   it('should fall through a malformed cookie to a valid localized one', () => {
     Object.defineProperty(document, 'cookie', {
       writable: true,

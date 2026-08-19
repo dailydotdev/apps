@@ -1,10 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
 import { useConsentCookie } from './useCookieConsent';
 import { isIOSNative } from '../lib/func';
 import { getIubendaConsent } from '../lib/iubenda';
-
-export const cookieAcknowledgedKey = 'cookie_acknowledged';
 
 export enum GdprConsentKey {
   Necessary = 'ilikecookies',
@@ -41,19 +39,14 @@ export const gdprConsentSettings: Record<GdprConsentKey, ConsentSettings> = {
  */
 export function useCookieBanner(): void {
   const { isAuthReady } = useAuthContext();
-  const isInitializedRef = useRef(false);
   const { saveCookies, cookieExists: hasAccepted } = useConsentCookie(
     GdprConsentKey.Necessary,
   );
 
   useEffect(() => {
-    if (!isAuthReady || isInitializedRef.current || isIOSNative()) {
-      return;
-    }
-
-    isInitializedRef.current = true;
-
-    if (hasAccepted) {
+    // no one-shot latch: the CMP cookie can land after the first render, and
+    // `hasAccepted` flipping is what stops this from writing twice
+    if (!isAuthReady || hasAccepted || isIOSNative()) {
       return;
     }
 
@@ -64,6 +57,5 @@ export function useCookieBanner(): void {
     }
 
     saveCookies(iubenda.marketing ? otherGdprConsents : []);
-    globalThis?.localStorage.setItem(cookieAcknowledgedKey, 'true');
   }, [saveCookies, isAuthReady, hasAccepted]);
 }

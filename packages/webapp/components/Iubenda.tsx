@@ -3,7 +3,6 @@ import type { ReactElement } from 'react';
 import { useEffect, useRef } from 'react';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
-  cookieAcknowledgedKey,
   GdprConsentKey,
   otherGdprConsents,
 } from '@dailydotdev/shared/src/hooks/useCookieBanner';
@@ -18,9 +17,9 @@ import { enhanceIubendaBannerNow, watchIubendaBanner } from './iubendaBanner';
  * the funnel and the iOS native wrapper; `countryDetection` +
  * `gdprAppliesGlobally:false` let iubenda decide which consent regime (if
  * any) applies, exactly like the marketing sites — where none does, no
- * banner shows. Expressed consent (or a "no consent needed" verdict) is
- * mirrored into the first-party `ilikecookies*` cookies so all existing
- * gating (Pixels, settings, ad consent fallback) keeps working.
+ * banner shows. Whatever iubenda decides is mirrored into the first-party
+ * `ilikecookies*` cookies so all existing gating (Pixels, settings, ad
+ * consent fallback) keeps working.
  *
  * The configuration mirrors the marketing sites' embed (recruiter-landing,
  * custom-scripts/head.html) — same account, same policy, same first layer
@@ -67,32 +66,35 @@ export const openIubendaPreferences = (): boolean => {
 export const Iubenda = (): ReactElement | null => {
   const { isAuthReady, isFunnel } = useAuthContext();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Necessary);
-  const injectedRef = useRef(false);
 
   // The config callback must not go stale when React re-renders.
   const onPreferenceRef = useRef<(pref: IubendaPreference | null) => void>();
   onPreferenceRef.current = (pref) => {
-    // a null preference means iubenda decided no consent regime applies to
-    // this visitor's country — a green light, not a refusal
-    const marketing = !pref || pref?.purposes?.['5'] === true;
+    // `purposes` exists only under TCF. A null preference ("no regime applies
+    // here") and the non-TCF LGPD/USPR payloads carry no per-purpose answer,
+    // so marketing is left exactly as it was: never granted without an
+    // affirmative act, never revoked on the strength of a missing field.
+    const { purposes } = pref ?? {};
+    const marketing = purposes ? purposes['5'] === true : undefined;
+
     saveCookies(
-      marketing ? otherGdprConsents : [],
-      marketing ? [] : otherGdprConsents,
+      marketing === true ? otherGdprConsents : [],
+      marketing === false ? otherGdprConsents : [],
     );
-    globalThis?.localStorage?.setItem(cookieAcknowledgedKey, 'true');
   };
 
   const enabled = isAuthReady && !isFunnel && !isIOSNative();
 
   useEffect(() => {
-    if (!enabled || injectedRef.current) {
+    if (!enabled) {
       return undefined;
     }
 
     const win = globalThis as IubendaWindow;
 
+    // `csConfiguration` is the injection record: the effect can re-run or the
+    // component remount, and either way only the banner watcher restarts
     if (win._iub?.csConfiguration) {
-      // already injected by a previous mount; only the watcher needs restarting
       return watchIubendaBanner();
     }
 
@@ -102,12 +104,10 @@ export const Iubenda = (): ReactElement | null => {
     if (!siteId || !cookiePolicyId) {
       // eslint-disable-next-line no-console
       console.error(
-        'iubenda env vars missing (NEXT_PUBLIC_IUBENDA_SITE_ID / NEXT_PUBLIC_IUBENDA_POLICY_ID): TCF-covered users get no consent banner in this environment',
+        'iubenda env vars missing (NEXT_PUBLIC_IUBENDA_SITE_ID / NEXT_PUBLIC_IUBENDA_POLICY_ID): no consent banner will be shown in this environment',
       );
       return undefined;
     }
-
-    injectedRef.current = true;
 
     win._iub = win._iub || {};
     win._iub.csConfiguration = {

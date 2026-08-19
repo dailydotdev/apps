@@ -205,3 +205,54 @@ it('disposes the counter observer with the rest of the enhancement', async () =>
 
   expect(banner).not.toHaveClass('dd-cs-counting');
 });
+
+it('falls back to English for a language it has no labels for', () => {
+  (globalThis as IubendaLangWindow)._iub = {
+    cs: { options: { lang: 'pt' } },
+  };
+  mountBanner();
+  setClamped(true);
+  cleanup = watchIubendaBanner();
+
+  expect(query('.iubenda-cs-close-btn')).toHaveAttribute(
+    'aria-label',
+    'Reject all and close',
+  );
+  expect(query('.dd-cs-more')).toHaveTextContent('Show more');
+});
+
+it('replaces an orphaned toggle instead of rendering a second one', () => {
+  const banner = mountBanner();
+  const orphan = document.createElement('button');
+  orphan.className = 'dd-cs-more';
+  query('.iubenda-cs-opt-group').appendChild(orphan);
+
+  cleanup = watchIubendaBanner();
+
+  expect(banner.querySelectorAll('.dd-cs-more')).toHaveLength(1);
+});
+
+it('disposes itself once iubenda removes the banner, and rebuilds for the next one', async () => {
+  jest.useFakeTimers();
+  try {
+    const banner = mountBanner();
+    setClamped(true);
+    cleanup = watchIubendaBanner();
+    expect(query('.dd-cs-more')).toBeInTheDocument();
+
+    // consent given: iubenda drops the banner, and the next resize must not
+    // keep measuring a detached subtree
+    banner.remove();
+    globalThis.dispatchEvent(new Event('resize'));
+    jest.advanceTimersByTime(200);
+
+    mountBanner();
+    setClamped(true);
+    enhanceIubendaBannerNow();
+
+    expect(document.querySelectorAll('.dd-cs-more')).toHaveLength(1);
+    expect(query('.dd-cs-more')).toBeInTheDocument();
+  } finally {
+    jest.useRealTimers();
+  }
+});

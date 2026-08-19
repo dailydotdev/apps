@@ -1,6 +1,5 @@
 import { renderHook } from '@testing-library/react';
 import {
-  cookieAcknowledgedKey,
   GdprConsentKey,
   otherGdprConsents,
   useCookieBanner,
@@ -68,7 +67,6 @@ describe('useCookieBanner', () => {
     renderHook(() => useCookieBanner());
 
     expect(saveCookies).toHaveBeenCalledWith(otherGdprConsents);
-    expect(localStorage.getItem(cookieAcknowledgedKey)).toBe('true');
   });
 
   it('mirrors necessary only when marketing was refused', () => {
@@ -93,7 +91,6 @@ describe('useCookieBanner', () => {
     renderHook(() => useCookieBanner());
 
     expect(saveCookies).not.toHaveBeenCalled();
-    expect(localStorage.getItem(cookieAcknowledgedKey)).toBeNull();
   });
 
   it('does nothing when there is no iubenda cookie', () => {
@@ -132,6 +129,16 @@ describe('useCookieBanner', () => {
     renderHook(() => useCookieBanner());
 
     expect(saveCookies).not.toHaveBeenCalled();
+  });
+
+  it('mirrors once per session, leaving later changes to the CMP callback', () => {
+    setup();
+    mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: true });
+
+    const { rerender } = renderHook(() => useCookieBanner());
+    rerender();
+
+    expect(saveCookies).toHaveBeenCalledTimes(1);
   });
 
   it('uses the marketing consent key for the additional cookie', () => {
