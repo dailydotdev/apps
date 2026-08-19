@@ -86,4 +86,36 @@ describe('getIubendaConsent', () => {
       expect(getIubendaConsent()).toEqual({ necessary: true, marketing: true });
     });
   });
+
+  it('should honor the newest preference when policy cookies disagree', () => {
+    const encodeStamped = (
+      timestamp: string,
+      purposes: Record<string, boolean>,
+    ): string => encodeURIComponent(JSON.stringify({ timestamp, purposes }));
+    const older = encodeStamped('2026-01-01T00:00:00.000Z', {
+      '1': true,
+      '5': true,
+    });
+    const newer = encodeStamped('2026-06-01T00:00:00.000Z', {
+      '1': true,
+      '5': false,
+    });
+    Object.defineProperty(document, 'cookie', {
+      writable: true,
+      value: `${COOKIE_NAME}=${older}; _iub_cs-${iubendaLocalizedPolicyIds.de}=${newer}`,
+    });
+
+    expect(getIubendaConsent()).toEqual({ necessary: true, marketing: false });
+  });
+
+  it('should fall through a malformed cookie to a valid localized one', () => {
+    Object.defineProperty(document, 'cookie', {
+      writable: true,
+      value: `${COOKIE_NAME}=${encodeURIComponent('not json')}; _iub_cs-${
+        iubendaLocalizedPolicyIds.de
+      }=${encode({ '1': true, '5': true })}`,
+    });
+
+    expect(getIubendaConsent()).toEqual({ necessary: true, marketing: true });
+  });
 });

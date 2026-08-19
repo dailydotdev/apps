@@ -80,11 +80,8 @@ const declared = (bodies: string[], prop: string): string[] =>
 
 describe('iubenda consent banner css', () => {
   it('keeps Reject and Accept at equal prominence', () => {
-    // Structural, not value-by-value: every rule that names one of the two
-    // buttons has to name the other in the same selector list. Comparing
-    // colours would pass for a pair that agrees by luck today; this fails
-    // the moment either button gets a style the other does not — which is
-    // the shape the nudge toward Accept always takes.
+    // structural: a rule naming one button must name the other, so any
+    // one-sided styling (the shape a nudge toward Accept takes) fails
     const unpaired = rules()
       .map(({ selector }) => selector)
       .filter(
@@ -130,11 +127,8 @@ describe('iubenda consent banner css', () => {
   });
 
   it('gives Reject and Accept the same width whatever their labels say', () => {
-    // iubenda wraps Customize+Reject in one box and Accept in another, so
-    // each button would size against its own wrapper's slack — equal
-    // styling, unequal boxes. `display: contents` removes both wrappers
-    // from layout; without it the shared `flex` basis is resolved in two
-    // different containers and the pair silently diverges.
+    // without display:contents the shared flex basis resolves inside two
+    // different iubenda wrapper boxes and the pair silently diverges
     const wrappers = rules().filter(
       ({ selector }) =>
         selector.includes('iubenda-cs-opt-group-custom') ||
@@ -155,11 +149,8 @@ describe('iubenda consent banner css', () => {
       ),
     ).toContain('1 1 0');
 
-    // Equal width is only half of equal: with one width, a caption that
-    // wraps in one button and not the other makes them different heights
-    // unless the row stretches — and captions are dashboard-editable. The
-    // gear and the show-more control opt out; stretching a square icon
-    // button gives a rectangle with a gear floating in it.
+    // the row must stretch so dashboard-edited captions cannot give the
+    // pair unequal heights; the gear and show-more control opt out
     const row = rules().filter(
       ({ selector }) =>
         selector.trim() === '#iubenda-cs-banner .iubenda-cs-opt-group',
@@ -192,10 +183,8 @@ describe('iubenda consent banner css', () => {
   });
 
   it("sizes every bit of banner text relative to the reader's font size", () => {
-    // WCAG 1.4.4: a reader who raises their browser font size should get a
-    // bigger banner, not one that ignores them. The unitless `font-size: 0`
-    // on the icon-only Customize button is not type and never reaches this
-    // list.
+    // WCAG 1.4.4; the unitless `font-size: 0` on the icon-only Customize
+    // button is not type and never reaches this list
     const pixelType = rules().flatMap(({ selector, body }) =>
       declared([body], 'font-size')
         .filter((value) => value.endsWith('px'))
@@ -205,9 +194,8 @@ describe('iubenda consent banner css', () => {
   });
 
   it('never clips a consent label, whatever the language', () => {
-    // `white-space: normal` only breaks at spaces, so one shared width plus
-    // a long single word ("Zustimmen") is clipped text rather than a
-    // narrower button.
+    // one shared width plus a long unbreakable word ("Zustimmen") clips
+    // without overflow-wrap
     const shared = rules().filter(({ selector }) =>
       selector.includes('button:not(.dd-cs-more)'),
     );
@@ -283,6 +271,12 @@ describe('iubenda consent banner css', () => {
     // Auto mode puts html.auto (not html.light) on the root and resolves
     // light via prefers-color-scheme, so a light-only override leaves
     // Auto+light-OS users with the dark treatment.
+    // The parser flattens at-rules, so guard the media scope separately: an
+    // unwrapped html.auto rule would light-theme Auto users on a dark OS.
+    expect(css).toMatch(
+      /@media \(prefers-color-scheme: light\) \{\s*html\.auto/,
+    );
+
     const overrides = (prefix: string) =>
       rules()
         .filter(({ selector }) => selector.startsWith(prefix))

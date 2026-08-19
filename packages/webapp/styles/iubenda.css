@@ -347,6 +347,10 @@ html.light #iubenda-cs-banner .iubenda-cs-container {
     gap: 8px;
   }
 
+  #iubenda-cs-banner .iubenda-cs-counter {
+    padding: 0 18px 8px;
+  }
+
   #iubenda-cs-banner .iubenda-cs-opt-group .dd-cs-more {
     padding-inline-end: 4px;
   }

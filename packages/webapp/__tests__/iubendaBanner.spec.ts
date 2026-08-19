@@ -162,6 +162,7 @@ it('enhances a banner iubenda renders after the watch starts', async () => {
 it('stops watching once cleaned up', async () => {
   const stop = watchIubendaBanner();
   stop();
+  cleanup = stop;
 
   mountBanner();
   await nextTick();
@@ -175,8 +176,8 @@ it('enhances a late banner when iubenda reports it shown', () => {
 
   mountBanner();
   setClamped(true);
-  cleanup = () => {};
   enhanceIubendaBannerNow();
+  cleanup = watchIubendaBanner();
 
   expect(document.querySelector('.dd-cs-more')).not.toBeNull();
 });
@@ -197,6 +198,7 @@ it('disposes the counter observer with the rest of the enhancement', async () =>
   const banner = mountBanner();
   const stop = watchIubendaBanner();
   stop();
+  cleanup = stop;
 
   query('.iubenda-cs-counter').textContent = 'Press again to continue 1/2';
   await nextTick();

@@ -24,8 +24,11 @@ import { enhanceIubendaBannerNow, watchIubendaBanner } from './iubendaBanner';
  * (applyStyles:false + styles/iubenda.css + iubendaBanner.ts) —
  * so every daily.dev property shows one consent card. Deliberate deviations:
  * `localConsentDomain` (consent shared across *.daily.dev),
- * `invalidateConsentWithoutLog`, and no floating preferences badge —
- * settings/privacy is the in-app withdrawal entry point.
+ * `invalidateConsentWithoutLog`, no floating preferences badge —
+ * settings/privacy is the in-app withdrawal entry point — and no
+ * `gdprAppliesGlobally:false`: injection is already gated to TCF regions by
+ * boot geo, and a second iubenda-side gate could only disagree with it and
+ * suppress the banner for a covered user.
  */
 
 type IubendaPreference = {
@@ -112,7 +115,6 @@ export const Iubenda = (): ReactElement | null => {
       enableLgpd: true,
       enableTcf: true,
       enableUspr: true,
-      gdprAppliesGlobally: false,
       googleAdditionalConsentMode: true,
       inlineDelay: 100,
       perPurposeConsent: true,

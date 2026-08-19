@@ -1,4 +1,5 @@
 /* eslint-disable no-underscore-dangle -- _iub is iubenda's mandated global */
+import type { IubendaBannerLang } from '@dailydotdev/shared/src/lib/iubenda';
 
 /**
  * Behavioral companion to styles/iubenda.css, ported from the marketing
@@ -12,35 +13,52 @@ type IubendaLangWindow = typeof globalThis & {
   _iub?: { cs?: { options?: { lang?: string } } };
 };
 
-const SHOW_MORE_LABELS: Record<string, [string, string]> = {
-  en: ['Show more', 'Show less'],
-  es: ['Mostrar más', 'Mostrar menos'],
-  de: ['Mehr anzeigen', 'Weniger anzeigen'],
-  it: ['Mostra di più', 'Mostra di meno'],
-};
+interface BannerLabels {
+  showMore: string;
+  showLess: string;
+  // closeButtonRejects makes the × a consent decision, and CSS redraws it as
+  // pseudo-elements that carry no accessible name
+  close: string;
+  // the caption is visually hidden (icon-only, font-size: 0), so this is the
+  // control's entire accessible surface; customizeButtonCaption in the config
+  // is a single global string that would put an English name inside a
+  // localized banner
+  customize: string;
+}
 
-const CLOSE_LABELS: Record<string, string> = {
-  en: 'Reject all and close',
-  es: 'Rechazar todo y cerrar',
-  de: 'Alle ablehnen und schließen',
-  it: 'Rifiuta tutto e chiudi',
-};
-
-// The visible caption is hidden (icon-only, font-size: 0), so this is the
-// control's entire accessible surface. `customizeButtonCaption` in the config
-// is a single global string, which would put an English name inside a
-// localized banner.
-const CUSTOMIZE_LABELS: Record<string, string> = {
-  en: 'Customize',
-  es: 'Personalizar',
-  de: 'Anpassen',
-  it: 'Personalizza',
+// Keyed by the shared policy table so adding a banner language without its
+// labels fails to compile.
+const BANNER_LOCALES: Record<IubendaBannerLang, BannerLabels> = {
+  en: {
+    showMore: 'Show more',
+    showLess: 'Show less',
+    close: 'Reject all and close',
+    customize: 'Customize',
+  },
+  es: {
+    showMore: 'Mostrar más',
+    showLess: 'Mostrar menos',
+    close: 'Rechazar todo y cerrar',
+    customize: 'Personalizar',
+  },
+  de: {
+    showMore: 'Mehr anzeigen',
+    showLess: 'Weniger anzeigen',
+    close: 'Alle ablehnen und schließen',
+    customize: 'Anpassen',
+  },
+  it: {
+    showMore: 'Mostra di più',
+    showLess: 'Mostra di meno',
+    close: 'Rifiuta tutto e chiudi',
+    customize: 'Personalizza',
+  },
 };
 
 // csLangConfiguration localizes the banner from the browser, so the
 // document's lang (always "en" here) is the wrong source.
-const resolveBannerLang = (): string =>
-  (
+const resolveBannerLabels = (): BannerLabels => {
+  const lang = (
     (globalThis as IubendaLangWindow)._iub?.cs?.options?.lang ||
     globalThis.navigator?.language ||
     'en'
@@ -48,29 +66,17 @@ const resolveBannerLang = (): string =>
     .slice(0, 2)
     .toLowerCase();
 
-const labelCustomizeButton = (banner: Element, lang: string): void => {
-  const customize = banner.querySelector('.iubenda-cs-customize-btn');
-
-  if (!customize) {
-    return;
-  }
-
-  const caption =
-    CUSTOMIZE_LABELS[lang] ||
-    (customize.textContent || '').trim() ||
-    CUSTOMIZE_LABELS.en;
-  customize.setAttribute('aria-label', caption);
-  customize.setAttribute('title', caption);
+  return BANNER_LOCALES[lang as IubendaBannerLang] || BANNER_LOCALES.en;
 };
 
-// The × is hidden and redrawn as pseudo-elements, which carry no accessible
-// name — and closeButtonRejects makes this a consent decision.
-const labelCloseButton = (banner: Element, lang: string): void => {
-  const close = banner.querySelector('.iubenda-cs-close-btn');
+const labelControls = (banner: Element, labels: BannerLabels): void => {
+  const customize = banner.querySelector('.iubenda-cs-customize-btn');
+  customize?.setAttribute('aria-label', labels.customize);
+  customize?.setAttribute('title', labels.customize);
 
-  if (close && !close.getAttribute('aria-label')) {
-    close.setAttribute('aria-label', CLOSE_LABELS[lang] || CLOSE_LABELS.en);
-  }
+  banner
+    .querySelector('.iubenda-cs-close-btn')
+    ?.setAttribute('aria-label', labels.close);
 };
 
 // Reveal the press-again counter only once it counts something. Match on
@@ -140,28 +146,31 @@ const buildShowMoreToggle = (
   banner: Element,
   paragraph: Element,
   row: Element,
-  labels: [string, string],
+  labels: BannerLabels,
+  onDisposed: () => void,
 ): Enhanced => {
   let pinned = false; // set once the reader has expressed a preference
 
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'dd-cs-more';
-  const [showMore, showLess] = labels;
-  btn.textContent = showMore;
+  btn.textContent = labels.showMore;
   btn.setAttribute('aria-expanded', 'false');
   btn.setAttribute('aria-controls', 'iubenda-cs-paragraph');
 
   btn.addEventListener('click', () => {
     pinned = true;
     const collapsed = banner.classList.toggle('dd-cs-collapsed');
-    btn.textContent = collapsed ? showMore : showLess;
+    btn.textContent = collapsed ? labels.showMore : labels.showLess;
     btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
   });
   row.insertBefore(btn, row.firstChild);
 
   const pinWidth = () => {
-    const minWidth = measureWidestLabelWidth(btn, labels);
+    const minWidth = measureWidestLabelWidth(btn, [
+      labels.showMore,
+      labels.showLess,
+    ]);
     if (minWidth) {
       btn.style.minWidth = `${minWidth}px`;
     }
@@ -169,7 +178,10 @@ const buildShowMoreToggle = (
   pinWidth();
 
   const disposers: Array<() => void> = [];
-  const dispose = () => disposers.splice(0).forEach((teardown) => teardown());
+  const dispose = () => {
+    disposers.splice(0).forEach((teardown) => teardown());
+    onDisposed();
+  };
 
   const measure = () => {
     // iubenda removes the banner once a preference lands; keeping the
@@ -240,15 +252,17 @@ const enhanceBanner = (banner: Element): boolean => {
 
   enhanced?.dispose();
 
-  const lang = resolveBannerLang();
-  labelCustomizeButton(banner, lang);
-  labelCloseButton(banner, lang);
-  enhanced = buildShowMoreToggle(
-    banner,
-    paragraph,
-    row,
-    SHOW_MORE_LABELS[lang] || SHOW_MORE_LABELS.en,
-  );
+  const labels = resolveBannerLabels();
+  labelControls(banner, labels);
+  // self-disposal (banner removed from the DOM) must clear the module state
+  // too, or a re-shown banner passes the dedupe above with dead listeners
+  let instance: Enhanced | null = null;
+  instance = buildShowMoreToggle(banner, paragraph, row, labels, () => {
+    if (enhanced === instance) {
+      enhanced = null;
+    }
+  });
+  enhanced = instance;
 
   return true;
 };
@@ -273,7 +287,6 @@ export const enhanceIubendaBannerNow = (): void => {
 export const watchIubendaBanner = (): (() => void) => {
   const stopEnhancements = () => {
     enhanced?.dispose();
-    enhanced = null;
   };
 
   if (attempt()) {
