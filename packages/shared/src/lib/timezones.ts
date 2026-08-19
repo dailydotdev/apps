@@ -42,7 +42,7 @@ const formatTimezoneOffset = (offsetInMinutes: number): string => {
   return `${sign}${hours}:${minutes.toString().padStart(2, '0')}`;
 };
 
-const TIME_ZONES: TimeZoneItem[] = [
+export const TIME_ZONES: TimeZoneItem[] = [
   {
     value: 'Pacific/Midway',
     label: 'Midway Island, American Samoa',
@@ -77,11 +77,19 @@ const TIME_ZONES: TimeZoneItem[] = [
   },
   {
     value: 'America/Chihuahua',
-    label: 'Chihuahua, La Paz, Mazatlan',
+    label: 'Chihuahua',
+  },
+  {
+    value: 'America/Mazatlan',
+    label: 'Mazatlan, La Paz (Baja California Sur)',
   },
   {
     value: 'America/Denver',
     label: 'Mountain Time (US and Canada), Navajo Nation',
+  },
+  {
+    value: 'America/Ciudad_Juarez',
+    label: 'Ciudad Juarez',
   },
   {
     value: 'America/Belize',
@@ -145,7 +153,7 @@ const TIME_ZONES: TimeZoneItem[] = [
   },
   {
     value: 'America/Manaus',
-    label: 'Georgetown, La Paz, Manaus, San Juan',
+    label: 'Georgetown, La Paz (Bolivia), Manaus',
   },
   {
     value: 'America/Santiago',
@@ -304,6 +312,10 @@ const TIME_ZONES: TimeZoneItem[] = [
     label: 'Moscow, St. Petersburg',
   },
   {
+    value: 'Europe/Volgograd',
+    label: 'Volgograd',
+  },
+  {
     value: 'Africa/Nairobi',
     label: 'Nairobi',
   },
@@ -317,7 +329,7 @@ const TIME_ZONES: TimeZoneItem[] = [
   },
   {
     value: 'Europe/Astrakhan',
-    label: 'Astrakhan, Ulyanovsk, Volgograd',
+    label: 'Astrakhan, Ulyanovsk',
   },
   {
     value: 'Asia/Baku',
@@ -405,7 +417,11 @@ const TIME_ZONES: TimeZoneItem[] = [
   },
   {
     value: 'Asia/Chongqing',
-    label: 'Beijing, Chongqing, Hong Kong SAR, Urumqi',
+    label: 'Beijing, Chongqing, Hong Kong SAR',
+  },
+  {
+    value: 'Asia/Urumqi',
+    label: 'Urumqi',
   },
   {
     value: 'Asia/Irkutsk',
@@ -558,6 +574,12 @@ export const getTimeZoneOptions = (): TimeZoneItem[] => {
 };
 
 export const getUserDefaultTimezone = (): string => {
+  const deviceTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  if (TIME_ZONES.some((timezone) => timezone.value === deviceTimezone)) {
+    return deviceTimezone;
+  }
+
   const timeZoneOptions = getTimeZoneOptions();
   const timeZoneOffset = formatTimezoneOffset(-new Date().getTimezoneOffset());
   const timezoneGuess = timeZoneOptions.find((timezone) =>
