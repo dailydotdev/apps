@@ -247,6 +247,34 @@ const RAIL_TOOLTIP_COLLISION_PADDING = 4;
 // Vertical slack (px) added to the safe-zone triangle so the pointer can dip
 // slightly past the panel's top/bottom edge while arcing in without losing it.
 const SAFE_ZONE_BUFFER = 26;
+const SAFE_ZONE_WATCHDOG_MS = 800;
+
+export const pointInPolygon = (
+  x: number,
+  y: number,
+  poly: Array<[number, number]>,
+): boolean => {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i, i += 1) {
+    const [xi, yi] = poly[i];
+    const [xj, yj] = poly[j];
+    if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+};
+
+export const shouldKeepSafeZone = (
+  x: number,
+  y: number,
+  panel: Pick<DOMRect, 'left' | 'right' | 'top' | 'bottom'>,
+  poly: Array<[number, number]> | null,
+): boolean => {
+  const overPanel =
+    x >= panel.left && x <= panel.right && y >= panel.top && y <= panel.bottom;
+  return overPanel || (!!poly && pointInPolygon(x, y, poly));
+};
 
 // Wraps a rail category tab so it can be reordered by cursor drag. Drag
 // listeners sit on this outer element; the tab's own button stays the focus
@@ -1117,13 +1145,16 @@ export const SidebarDesktopV2 = ({
   // collapses instead of instantly re-expanding under the cursor.
   const peekSuppressedRef = useRef(false);
   // Prediction-cone "safe zone": while the pointer arcs from the active tab
-  // into the panel, block the rail tabs' pointer events so clipping a
-  // neighbouring tab can't switch the preview (menu-aim done with pointer
-  // blocking rather than fragile slope guesses).
+  // into the panel, ignore neighbouring rail hovers so clipping a nearby row
+  // can't switch the preview.
   const panelRef = useRef<HTMLElement>(null);
   const sidebarRef = useRef<HTMLElement>(null);
   const safeBlockedRef = useRef(false);
   const safePolyRef = useRef<Array<[number, number]> | null>(null);
+  const safeZoneWatchdogRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const [safeZoneActive, setSafeZoneActive] = useState(false);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
   const [transitionsEnabled, setTransitionsEnabled] = useState(false);
   useEffect(() => {
@@ -1339,8 +1370,13 @@ export const SidebarDesktopV2 = ({
   }, [onToggleExpanded]);
 
   const exitSafeZone = useCallback(() => {
+    if (safeZoneWatchdogRef.current) {
+      clearTimeout(safeZoneWatchdogRef.current);
+      safeZoneWatchdogRef.current = null;
+    }
     safeBlockedRef.current = false;
     safePolyRef.current = null;
+    setSafeZoneActive(false);
   }, []);
 
   const handleRailMouseLeave = useCallback(() => {
@@ -1380,40 +1416,57 @@ export const SidebarDesktopV2 = ({
     setHoveredCategory(key as SidebarCategoryId);
   }, []);
 
-  const enterSafeZone = useCallback((x: number, y: number) => {
-    const panel = panelRef.current?.getBoundingClientRect();
-    if (!panel || panel.width < 8) {
-      return;
-    }
-    // Triangle from the pointer to the panel's near (left) edge, padded
-    // vertically. While the pointer stays inside it, hover-switches are
-    // ignored (via commitPreview's guard) — but tabs stay clickable.
-    safePolyRef.current = [
-      [x, y],
-      [panel.left, panel.top - SAFE_ZONE_BUFFER],
-      [panel.left, panel.bottom + SAFE_ZONE_BUFFER],
-    ];
-    safeBlockedRef.current = true;
-  }, []);
-
-  const pointInPolygon = (
-    x: number,
-    y: number,
-    poly: Array<[number, number]>,
-  ): boolean => {
-    let inside = false;
-    for (let i = 0, j = poly.length - 1; i < poly.length; j = i, i += 1) {
-      const [xi, yi] = poly[i];
-      const [xj, yj] = poly[j];
-      if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
-        inside = !inside;
+  const releaseSafeZoneAtPoint = useCallback(
+    (x: number, y: number) => {
+      const panel = panelRef.current?.getBoundingClientRect();
+      if (!panel) {
+        exitSafeZone();
+        return;
       }
-    }
-    return inside;
-  };
+      if (shouldKeepSafeZone(x, y, panel, safePolyRef.current)) {
+        return;
+      }
+      exitSafeZone();
+      const el = document.elementFromPoint(x, y) as HTMLElement | null;
+      const trigger = el?.closest('[data-sidebar-preview]');
+      const key = trigger?.getAttribute('data-sidebar-preview');
+      if (key) {
+        commitPreview(key);
+      }
+    },
+    [exitSafeZone, commitPreview],
+  );
+
+  const enterSafeZone = useCallback(
+    (x: number, y: number) => {
+      const panel = panelRef.current?.getBoundingClientRect();
+      if (!panel || panel.width < 8) {
+        return;
+      }
+      // Triangle from the pointer to the panel's near (left) edge, padded
+      // vertically. While the pointer stays inside it, hover-switches are
+      // ignored (via commitPreview's guard) — but tabs stay clickable.
+      safePolyRef.current = [
+        [x, y],
+        [panel.left, panel.top - SAFE_ZONE_BUFFER],
+        [panel.left, panel.bottom + SAFE_ZONE_BUFFER],
+      ];
+      safeBlockedRef.current = true;
+      setSafeZoneActive(true);
+      if (safeZoneWatchdogRef.current) {
+        clearTimeout(safeZoneWatchdogRef.current);
+      }
+      safeZoneWatchdogRef.current = setTimeout(
+        exitSafeZone,
+        SAFE_ZONE_WATCHDOG_MS,
+      );
+    },
+    [exitSafeZone],
+  );
 
   // Enter the safe zone when the pointer leaves the *active* trigger heading
-  // toward the panel (rightward). Pointer blocking then takes over.
+  // toward the panel (rightward). Document-level tracking releases the block
+  // even if the pointer leaves the rail before the next rail mousemove.
   const handlePreviewLeave = useCallback(
     (key: string, event: React.MouseEvent) => {
       if (safeBlockedRef.current) {
@@ -1439,37 +1492,37 @@ export const SidebarDesktopV2 = ({
       if (!safeBlockedRef.current) {
         return;
       }
-      const panel = panelRef.current?.getBoundingClientRect();
-      if (!panel) {
-        exitSafeZone();
-        return;
-      }
-      const { clientX: x, clientY: y } = event;
-      const overPanel =
-        x >= panel.left &&
-        x <= panel.right &&
-        y >= panel.top &&
-        y <= panel.bottom;
-      if (overPanel) {
-        // Reached the panel — keep the current preview, release the block.
-        exitSafeZone();
-        return;
-      }
-      if (safePolyRef.current && pointInPolygon(x, y, safePolyRef.current)) {
-        return;
-      }
-      // Left the safe zone without reaching the panel — honour the trigger
-      // the pointer actually landed on.
-      exitSafeZone();
-      const el = document.elementFromPoint(x, y) as HTMLElement | null;
-      const trigger = el?.closest('[data-sidebar-preview]');
-      const key = trigger?.getAttribute('data-sidebar-preview');
-      if (key) {
-        commitPreview(key);
-      }
+      releaseSafeZoneAtPoint(event.clientX, event.clientY);
     },
-    [exitSafeZone, commitPreview],
+    [releaseSafeZoneAtPoint],
   );
+
+  useEffect(() => {
+    if (!safeZoneActive) {
+      return undefined;
+    }
+    const handlePointerMove = (event: PointerEvent) => {
+      releaseSafeZoneAtPoint(event.clientX, event.clientY);
+    };
+    const handleRelease = () => exitSafeZone();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') {
+        exitSafeZone();
+      }
+    };
+    document.addEventListener('pointermove', handlePointerMove, {
+      passive: true,
+    });
+    window.addEventListener('pointerup', handleRelease);
+    window.addEventListener('blur', handleRelease);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handleRelease);
+      window.removeEventListener('blur', handleRelease);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [exitSafeZone, releaseSafeZoneAtPoint, safeZoneActive]);
 
   useEffect(() => () => exitSafeZone(), [exitSafeZone]);
 
