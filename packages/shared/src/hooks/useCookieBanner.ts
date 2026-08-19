@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useAuthContext } from '../contexts/AuthContext';
-import type { AcceptCookiesCallback } from './useCookieConsent';
 import { useConsentCookie } from './useCookieConsent';
 import { isIOSNative } from '../lib/func';
 import { getIubendaConsent } from '../lib/iubenda';
@@ -33,98 +32,38 @@ export const gdprConsentSettings: Record<GdprConsentKey, ConsentSettings> = {
   },
 };
 
-interface UseCookieBanner {
-  showBanner: boolean;
-  onAcceptCookies: () => void;
-  onOpenBanner: () => void;
-  onHideBanner: () => void;
-}
-
-export function useCookieBanner(): UseCookieBanner {
-  const { isAuthReady, user, isGdprCovered, isTcfCovered } = useAuthContext();
+/**
+ * iubenda owns the cookie banner in every region (webapp Iubenda component;
+ * the funnel keeps its own consent step). This hook only mirrors a consent
+ * cookie written on another *.daily.dev property or in a previous session
+ * into the first-party `ilikecookies*` cookies, so gating works before the
+ * CMP script has loaded.
+ */
+export function useCookieBanner(): void {
+  const { isAuthReady } = useAuthContext();
   const isInitializedRef = useRef(false);
-  const [isOpen, setIsOpen] = useState(false);
   const { saveCookies, cookieExists: hasAccepted } = useConsentCookie(
     GdprConsentKey.Necessary,
   );
 
-  const onAccept: AcceptCookiesCallback = useCallback(
-    (...args) => {
-      saveCookies(...args);
-      globalThis?.localStorage.setItem(cookieAcknowledgedKey, 'true');
-      setIsOpen(false);
-    },
-    [saveCookies],
-  );
-
   useEffect(() => {
-    if (!isAuthReady || isOpen || isInitializedRef.current || isIOSNative()) {
+    if (!isAuthReady || isInitializedRef.current || isIOSNative()) {
       return;
     }
 
     isInitializedRef.current = true;
 
-    if (!hasAccepted) {
-      const iubenda = getIubendaConsent();
-
-      if (iubenda?.necessary) {
-        onAccept(iubenda.marketing ? otherGdprConsents : []);
-        return;
-      }
-    }
-
-    // iubenda owns the banner in TCF regions; its consent is mirrored into
-    // our cookies by the Iubenda component.
-    if (isTcfCovered) {
-      return;
-    }
-
-    if (!isGdprCovered) {
-      if (hasAccepted) {
-        return;
-      }
-
-      if (user) {
-        saveCookies();
-        return;
-      }
-
-      setIsOpen(true);
-      return;
-    }
-
     if (hasAccepted) {
-      if (!user) {
-        return;
-      }
-
-      const acknowledged = globalThis?.localStorage?.getItem(
-        cookieAcknowledgedKey,
-      );
-
-      if (acknowledged) {
-        return;
-      }
-    } else if (user) {
-      saveCookies(); // accepting necessary ones
+      return;
     }
 
-    setIsOpen(true);
-  }, [
-    saveCookies,
-    onAccept,
-    isOpen,
-    isAuthReady,
-    user,
-    hasAccepted,
-    isGdprCovered,
-    isTcfCovered,
-  ]);
+    const iubenda = getIubendaConsent();
 
-  return {
-    showBanner: isOpen,
-    onAcceptCookies: onAccept,
-    onOpenBanner: () => setIsOpen(true),
-    onHideBanner: () => setIsOpen(false),
-  };
+    if (!iubenda?.necessary) {
+      return;
+    }
+
+    saveCookies(iubenda.marketing ? otherGdprConsents : []);
+    globalThis?.localStorage.setItem(cookieAcknowledgedKey, 'true');
+  }, [saveCookies, isAuthReady, hasAccepted]);
 }

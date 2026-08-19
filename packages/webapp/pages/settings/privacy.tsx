@@ -17,6 +17,7 @@ import {
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { CookieConsentItem } from '@dailydotdev/shared/src/components/modals/user/CookieConsentItem';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
+import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
 import { openIubendaPreferences } from '../../components/Iubenda';
@@ -35,7 +36,7 @@ const seo: NextSeoProps = {
 const AccountInvitePage = (): ReactElement | null => {
   const router = useRouter();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Marketing);
-  const { user, isAuthReady, isGdprCovered, isTcfCovered } = useAuthContext();
+  const { user, isAuthReady, isGdprCovered } = useAuthContext();
 
   useEffect(() => {
     if (!isAuthReady) {
@@ -93,9 +94,10 @@ const AccountInvitePage = (): ReactElement | null => {
           >
             Cookie Policy →
           </Typography>
-          {isTcfCovered ? (
+          {!isIOSNative() ? (
             // the custom toggles can't regenerate a TCF consent string, so
-            // consent edits must go through the CMP's own preferences UI
+            // consent edits must go through the CMP's own preferences UI;
+            // the iOS native wrapper never loads iubenda and keeps them
             <Button
               className="mt-4 self-start"
               variant={ButtonVariant.Secondary}

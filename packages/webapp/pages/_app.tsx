@@ -13,10 +13,7 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  useCookieBanner,
-  cookieAcknowledgedKey,
-} from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
@@ -61,13 +58,6 @@ import { PixelsProvider } from '../context/PixelsContext';
 import { Iubenda } from '../components/Iubenda';
 
 structuredCloneJsonPolyfill();
-
-const CookieBanner = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBanner'
-    ),
-);
 
 const AuthModal = dynamic(
   () =>
@@ -162,8 +152,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   } = useAuthContext();
   // Users arriving from the extension install link land on `/?ref=install`.
   const isComingFromInstall = router.query.ref === 'install';
-  const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
-    useCookieBanner();
+  useCookieBanner();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal, openModal } = useLazyModal();
@@ -404,19 +393,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           />
         )}
         {!isImageGenerator && <Iubenda />}
-        {showBanner && !isFunnel && !isImageGenerator && (
-          <CookieBanner
-            onAccepted={onAcceptCookies}
-            onHideBanner={onHideBanner}
-            onModalClose={() => {
-              const interacted = !!localStorage.getItem(cookieAcknowledgedKey);
-
-              if (!interacted) {
-                onOpenBanner();
-              }
-            }}
-          />
-        )}
         <div className="award-easter-egg-container" />
       </>
     </SerwistProvider>

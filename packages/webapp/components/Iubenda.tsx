@@ -14,21 +14,21 @@ import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
 import { enhanceIubendaBannerNow, watchIubendaBanner } from './iubendaBanner';
 
 /**
- * Loads the iubenda Cookie Solution (IAB TCF mode) for GDPR-covered users and
- * mirrors its consent into the first-party `ilikecookies*` cookies so all
- * existing gating (Pixels, settings, ad consent fallback) keeps working.
- * The homegrown banner is suppressed for these users in `useCookieBanner`.
+ * Loads the iubenda Cookie Solution (IAB TCF mode) for every visitor outside
+ * the funnel and the iOS native wrapper; `countryDetection` +
+ * `gdprAppliesGlobally:false` let iubenda decide which consent regime (if
+ * any) applies, exactly like the marketing sites — where none does, no
+ * banner shows. Expressed consent (or a "no consent needed" verdict) is
+ * mirrored into the first-party `ilikecookies*` cookies so all existing
+ * gating (Pixels, settings, ad consent fallback) keeps working.
  *
  * The configuration mirrors the marketing sites' embed (recruiter-landing,
  * custom-scripts/head.html) — same account, same policy, same first layer
  * (applyStyles:false + styles/iubenda.css + iubendaBanner.ts) —
  * so every daily.dev property shows one consent card. Deliberate deviations:
  * `localConsentDomain` (consent shared across *.daily.dev),
- * `invalidateConsentWithoutLog`, no floating preferences badge —
- * settings/privacy is the in-app withdrawal entry point — and no
- * `gdprAppliesGlobally:false`: injection is already gated to TCF regions by
- * boot geo, and a second iubenda-side gate could only disagree with it and
- * suppress the banner for a covered user.
+ * `invalidateConsentWithoutLog`, and no floating preferences badge —
+ * settings/privacy is the in-app withdrawal entry point.
  */
 
 type IubendaPreference = {
@@ -65,14 +65,16 @@ export const openIubendaPreferences = (): boolean => {
 };
 
 export const Iubenda = (): ReactElement | null => {
-  const { isAuthReady, isTcfCovered, isFunnel } = useAuthContext();
+  const { isAuthReady, isFunnel } = useAuthContext();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Necessary);
   const injectedRef = useRef(false);
 
   // The config callback must not go stale when React re-renders.
-  const onPreferenceRef = useRef<(pref: IubendaPreference) => void>();
+  const onPreferenceRef = useRef<(pref: IubendaPreference | null) => void>();
   onPreferenceRef.current = (pref) => {
-    const marketing = pref?.purposes?.['5'] === true;
+    // a null preference means iubenda decided no consent regime applies to
+    // this visitor's country — a green light, not a refusal
+    const marketing = !pref || pref?.purposes?.['5'] === true;
     saveCookies(
       marketing ? otherGdprConsents : [],
       marketing ? [] : otherGdprConsents,
@@ -80,7 +82,7 @@ export const Iubenda = (): ReactElement | null => {
     globalThis?.localStorage?.setItem(cookieAcknowledgedKey, 'true');
   };
 
-  const enabled = isAuthReady && isTcfCovered && !isFunnel && !isIOSNative();
+  const enabled = isAuthReady && !isFunnel && !isIOSNative();
 
   useEffect(() => {
     if (!enabled || injectedRef.current) {
@@ -115,6 +117,7 @@ export const Iubenda = (): ReactElement | null => {
       enableLgpd: true,
       enableTcf: true,
       enableUspr: true,
+      gdprAppliesGlobally: false,
       googleAdditionalConsentMode: true,
       inlineDelay: 100,
       perPurposeConsent: true,
@@ -161,7 +164,10 @@ export const Iubenda = (): ReactElement | null => {
         slideDown: false,
       },
       callback: {
-        onPreferenceExpressed: (pref: IubendaPreference) =>
+        // fires on an expressed preference AND on "no consent needed" — the
+        // only signal that separates a green light from a banner that has
+        // not rendered yet
+        onPreferenceExpressedOrNotNeeded: (pref: IubendaPreference | null) =>
           onPreferenceRef.current?.(pref),
         onBannerShown: () => {
           // catches banners the watcher missed (rendered past its cost cap)
