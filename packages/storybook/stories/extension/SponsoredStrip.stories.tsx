@@ -237,7 +237,7 @@ const CONCEPTS = [
     name: 'Pinned rail',
     note: 'the literal translation of the reference: bottom edge, whole session',
     render: (args: SponsoredStripProps) => (
-      <SponsorRailPinned {...args} className="!static rounded-12 border" />
+      <SponsorRailPinned {...args} className="!static !mx-0" />
     ),
   },
   {
@@ -452,7 +452,7 @@ const ROWS: Row[] = [
   {
     id: 'A',
     concept: 'Pinned rail',
-    cost: '40px of the feed column, for the whole session',
+    cost: '40px of the feed column, held 28px clear of the edge, for the whole session',
     exposure: 'Every session, continuously',
     legibility:
       'All twelve from ~1250px, then the wall trims to fit: 11 at 1200, 9 at 1000, 7 at 800, 1 at 375 — always whole marks',
@@ -589,6 +589,23 @@ export const Evaluation: Story = {
               lead mark's size, and the label. The wrapping concepts (C, D, E)
               hold all twelve at every width instead, which is the argument for
               pairing the rail with one of them rather than relying on it alone.
+            </p>
+            <h2 className="mt-2 font-bold text-text-primary typo-callout">
+              Why the bar floats instead of sitting flush
+            </h2>
+            <p className="text-text-secondary typo-footnote">
+              Browsers draw their link-status bubble — the URL preview that
+              appears on hover — in the bottom corners, over everything the page
+              renders. A feed is almost entirely links, so a bar flush to the
+              bottom edge spends most of its life with a black tooltip across
+              it, and on a long URL that can be the whole strip. The 28px gap is
+              where that bubble goes. Moving the bar sideways does not help:
+              Chrome relocates the bubble to the opposite corner when the cursor
+              nears it, so there is no safe side, only a safe height. The trade
+              is that the bar reads as a floating island rather than part of the
+              browser edge, and the offset is a generous guess rather than a
+              measurement — the bubble is browser chrome, invisible to the DOM,
+              and it scales with page zoom.
             </p>
             <h2 className="mt-2 font-bold text-text-primary typo-callout">
               The wall rotates every load
