@@ -188,12 +188,14 @@ function LiveAdSlot({
   }, []);
 
   return (
-    // No overflow clipping: Google resizes responsive creatives after the
-    // request, and a clipped bottom edge reads as a broken ad. min-h only
-    // reserves the request-time height against layout shift.
+    // rounded-16 + overflow-hidden matches the feed Card so a filled slot reads
+    // as page furniture rather than a pasted-in iframe. Safe against the
+    // resize-after-request problem because the box has no fixed height: a
+    // creative that grows pushes the container taller instead of being clipped.
+    // min-h only reserves the request-time height against layout shift.
     <div
       className={classNames(
-        'w-full text-center',
+        'w-full overflow-hidden rounded-16 text-center',
         FORMAT_SPEC[format].minHeight,
         className,
       )}
