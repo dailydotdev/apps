@@ -24,10 +24,11 @@ const meta: Meta<typeof AgentWorkspace> = {
           interest={mockInterest}
           isDemo
           initialMessages={mockConversation}
+          findings={mockFeedItems}
+          posts={mockAgentPosts}
         >
           <AgentWorkspace
             items={mockFeedItems}
-            postsCount={mockAgentPosts.length}
             onDelete={noop}
             isDeleting={false}
           />

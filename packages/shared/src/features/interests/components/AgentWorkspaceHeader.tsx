@@ -11,6 +11,8 @@ import {
 } from '../../../components/buttons/Button';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
+  BulletListIcon,
+  FeatherIcon,
   MoveToIcon,
   LinkIcon,
   VIcon,
@@ -21,7 +23,7 @@ import { IconSize } from '../../../components/Icon';
 import { useViewSize, ViewSize } from '../../../hooks';
 import { isDevelopment, webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
-import { useAgent } from '../AgentContext';
+import { contentTargetId, useAgent } from '../AgentContext';
 import { useShareAgent } from '../hooks/useShareAgent';
 import { AgentSettingsMenu } from './AgentSettingsMenu';
 import { AgentStatusTile } from './AgentStatusTile';
@@ -66,8 +68,16 @@ const PanelButton = ({
   </Tooltip>
 );
 
+const findingsLabel = 'Findings';
+
 export const AgentWorkspaceHeader = (): ReactElement => {
-  const { interest, openContent, openContentTarget, focusContent } = useAgent();
+  const {
+    interest,
+    openContent,
+    openContentTarget,
+    focusContent,
+    findingsPosts,
+  } = useAgent();
   const { user } = useAuthContext();
   const canDebug = isDevelopment || !!user?.isTeamMember;
   const { isCopying, isSharing, onShare } = useShareAgent(interest);
@@ -76,8 +86,20 @@ export const AgentWorkspaceHeader = (): ReactElement => {
   const shareLabel = isMobile ? 'Share this agent' : 'Copy link';
   const isOpen = (type: string) =>
     openContent.some((item) => item.type === type);
-  const togglePanel = (type: 'activity' | 'debug') =>
+  const togglePanel = (type: 'posts' | 'activity' | 'debug') =>
     isOpen(type) ? focusContent(type) : openContentTarget({ type });
+  const findingsTargetId = `feed:${findingsLabel}`;
+  const isFindingsOpen = openContent.some(
+    (item) => contentTargetId(item) === findingsTargetId,
+  );
+  const toggleFindings = () =>
+    isFindingsOpen
+      ? focusContent(findingsTargetId)
+      : openContentTarget({
+          type: 'feed',
+          label: findingsLabel,
+          posts: findingsPosts,
+        });
 
   return (
     <FlexRow className="h-12 shrink-0 items-center gap-2 px-3 tablet:px-4">
@@ -128,6 +150,18 @@ export const AgentWorkspaceHeader = (): ReactElement => {
             onClick={onShare}
           />
         </Tooltip>
+        <PanelButton
+          label="Findings"
+          icon={<BulletListIcon />}
+          isOpen={isFindingsOpen}
+          onClick={toggleFindings}
+        />
+        <PanelButton
+          label="Posts"
+          icon={<FeatherIcon />}
+          isOpen={isOpen('posts')}
+          onClick={() => togglePanel('posts')}
+        />
         <PanelButton
           label="Activity"
           icon={<TimerIcon />}

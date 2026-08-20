@@ -275,6 +275,7 @@ describe('the live path', () => {
     send = () => Promise.resolve(),
     turns = [] as InterestTurn[],
     findings = [] as AgentFeedItem[],
+    posts = [] as { id: string; title: string; createdAt: string }[],
   } = {}) => {
     jest
       .spyOn(command, 'useSendInterestCommand')
@@ -299,6 +300,7 @@ describe('the live path', () => {
           interest={{ id: 'a1', query: 'zig' } as never}
           isDemo={false}
           findings={findings}
+          posts={posts as never}
         >
           <Probe />
         </AgentProvider>
@@ -487,6 +489,37 @@ describe('the live path', () => {
     });
 
     expect(agent.current.status).toBe('active');
+  });
+
+  it('attaches the summary post to the run that wrote it and keeps quiet writers visible', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'run-1',
+          role: 'agent',
+          createdAt: '2026-01-01T00:00:00Z',
+          status: 'completed',
+          trigger: 'scheduled',
+          summaryPostId: 'sp-1',
+          blocks: [],
+        } as InterestTurn,
+      ],
+      posts: [
+        {
+          id: 'sp-1',
+          title: 'Zig this week',
+          createdAt: '2026-01-01T00:02:00Z',
+        },
+      ],
+    });
+
+    await waitForHistory(agent, (current) => current.messages.length === 1);
+
+    expect(agent.current.messages[0].summaryPost).toMatchObject({
+      id: 'sp-1',
+      title: 'Zig this week',
+    });
+    expect(agent.current.summaryPosts).toHaveLength(1);
   });
 
   it('derives the activity log from history and findings', async () => {

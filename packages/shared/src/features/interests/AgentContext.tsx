@@ -30,9 +30,15 @@ import type { AgentAttachment, AgentBlock, AgentMessage } from './chat';
 import { promptWithContext } from './chat';
 import type { AgentFeedItem } from './hooks/useAgentFeed';
 
+export type AgentSummaryPost = Pick<
+  Post,
+  'id' | 'title' | 'createdAt' | 'contentHtml'
+>;
+
 export type AgentContentTarget =
   | { type: 'post'; post: Post }
   | { type: 'feed'; label: string; posts: Post[] }
+  | { type: 'posts' }
   | { type: 'activity' }
   | { type: 'debug' };
 
@@ -98,6 +104,8 @@ type AgentContextValue = {
   isUpdating: boolean;
   activity: AgentActivityItem[];
   messages: AgentMessage[];
+  findingsPosts: Post[];
+  summaryPosts: AgentSummaryPost[];
   isSettingsOpen: boolean;
   setSettingsOpen: (open: boolean) => void;
   openContent: AgentContentTarget[];
@@ -167,11 +175,13 @@ const turnsToMessages = ({
   turns,
   postsById,
   allPosts,
+  summaryPostsById,
   interest,
 }: {
   turns: InterestTurn[];
   postsById: Map<string, Post>;
   allPosts: Post[];
+  summaryPostsById: Map<string, AgentSummaryPost>;
   interest?: UserInterest;
 }): AgentMessage[] => {
   const feedbackTextById = new Map(
@@ -199,7 +209,7 @@ const turnsToMessages = ({
         undefined;
     const blocks = mapServerBlocks(turn, postsById, allPosts);
 
-    if (!isPending && !isError && !blocks.length) {
+    if (!isPending && !isError && !blocks.length && !turn.summaryPostId) {
       // A quiet run delivered nothing; a command still deserves an answer.
       if (turn.trigger !== InterestRunTrigger.Command) {
         return acc;
@@ -219,6 +229,10 @@ const turnsToMessages = ({
       isError,
       retryText,
       blocks: isPending || isError ? undefined : blocks,
+      summaryPost:
+        !isPending && !isError && turn.summaryPostId
+          ? summaryPostsById.get(turn.summaryPostId)
+          : undefined,
     });
     return acc;
   }, []);
@@ -247,6 +261,7 @@ export const AgentProvider = ({
   isDemo,
   initialMessages = [],
   findings = [],
+  posts = [],
   children,
 }: {
   id: string;
@@ -254,6 +269,7 @@ export const AgentProvider = ({
   isDemo: boolean;
   initialMessages?: AgentMessage[];
   findings?: AgentFeedItem[];
+  posts?: AgentSummaryPost[];
   children: ReactNode;
 }): ReactElement => {
   const { user } = useAuthContext();
@@ -323,6 +339,11 @@ export const AgentProvider = ({
     return { postsById: byId, allPosts: findings.map(({ post }) => post) };
   }, [findings]);
 
+  const summaryPostsById = useMemo(
+    () => new Map(posts.map((post) => [post.id, post])),
+    [posts],
+  );
+
   const unresolvedEchoes = useMemo(
     () => echoes.filter((echo) => !echoResolved(echo, turns)),
     [echoes, turns],
@@ -360,7 +381,13 @@ export const AgentProvider = ({
     ]);
 
     return [
-      ...turnsToMessages({ turns, postsById, allPosts, interest }),
+      ...turnsToMessages({
+        turns,
+        postsById,
+        allPosts,
+        summaryPostsById,
+        interest,
+      }),
       ...echoed,
     ];
   }, [
@@ -369,6 +396,7 @@ export const AgentProvider = ({
     interest,
     isDemo,
     postsById,
+    summaryPostsById,
     turns,
     unresolvedEchoes,
   ]);
@@ -719,6 +747,8 @@ export const AgentProvider = ({
       isUpdating,
       activity,
       messages,
+      findingsPosts: allPosts,
+      summaryPosts: posts,
       isSettingsOpen,
       setSettingsOpen,
       openContent: content.items,
@@ -743,6 +773,8 @@ export const AgentProvider = ({
       openContentTarget,
       activity,
       messages,
+      allPosts,
+      posts,
       id,
       interest,
       isDemo,

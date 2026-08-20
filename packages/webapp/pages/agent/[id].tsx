@@ -76,6 +76,7 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
         interest={interest}
         isDemo={false}
         findings={feed.items}
+        posts={posts}
         key={id}
       >
         {isLoading ? (
@@ -83,7 +84,6 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
         ) : (
           <AgentWorkspace
             items={feed.items}
-            postsCount={posts.length}
             // The mutation toasts its own failure; swallowed so the press does
             // not also reject unhandled.
             onDelete={() => deleteInterest(id).catch(() => undefined)}

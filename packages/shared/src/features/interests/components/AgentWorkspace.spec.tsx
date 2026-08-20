@@ -53,12 +53,7 @@ const renderWorkspace = () => {
   render(
     <TestBootProvider client={new QueryClient()}>
       <AgentProvider id="a1" isDemo initialMessages={[]}>
-        <AgentWorkspace
-          items={[]}
-          postsCount={0}
-          onDelete={jest.fn()}
-          isDeleting={false}
-        />
+        <AgentWorkspace items={[]} onDelete={jest.fn()} isDeleting={false} />
         <Probe />
       </AgentProvider>
     </TestBootProvider>,

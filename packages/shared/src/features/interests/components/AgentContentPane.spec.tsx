@@ -45,6 +45,7 @@ const renderPane = (
           onWidthChange={(next) => next}
           onWidthCommit={jest.fn()}
           debugPanel={<div>Raw state</div>}
+          summaryPosts={[]}
           {...over}
         />
       </AgentProvider>

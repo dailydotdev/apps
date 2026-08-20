@@ -18,6 +18,7 @@ import {
   BulletListIcon,
   CopyIcon,
   DownvoteIcon,
+  FeatherIcon,
   ShareIcon,
   MiniCloseIcon,
   TimerIcon,
@@ -300,11 +301,13 @@ const MessageRow = ({
   message,
   onPostClick,
   onFeedClick,
+  onSummaryClick,
   activePostId,
 }: {
   message: AgentMessage;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
+  onSummaryClick: () => void;
   activePostId?: string;
 }): ReactElement => {
   if (message.role === 'user') {
@@ -357,6 +360,15 @@ const MessageRow = ({
               activePostId={activePostId}
             />
           ))}
+          {!!message.summaryPost && (
+            <AgentEmbedCard
+              icon={<FeatherIcon size={IconSize.Size16} />}
+              title={message.summaryPost.title ?? 'Summary post'}
+              subtitle="Post written this run"
+              actionLabel="Open"
+              onAction={onSummaryClick}
+            />
+          )}
           {!!message.blocks?.length && <MessageActions message={message} />}
         </>
       )}
@@ -385,6 +397,7 @@ export const AgentChatSection = (): ReactElement => {
           onFeedClick={(label, posts) =>
             openContentTarget({ type: 'feed', label, posts })
           }
+          onSummaryClick={() => openContentTarget({ type: 'posts' })}
           activePostId={activePostId}
         />
       ))}

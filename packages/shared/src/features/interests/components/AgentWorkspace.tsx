@@ -28,18 +28,16 @@ const defaultPaneWidth = 480;
 
 export const AgentWorkspace = ({
   items,
-  postsCount,
   onDelete,
   isDeleting,
   isStandalone,
 }: {
   items: AgentFeedItem[];
-  postsCount: number;
   onDelete: () => void;
   isDeleting: boolean;
   isStandalone?: boolean;
 }): ReactElement => {
-  const { isSettingsOpen, openContent, messages } = useAgent();
+  const { isSettingsOpen, openContent, messages, summaryPosts } = useAgent();
   const shellHeight = useAgentShellHeight(isStandalone);
   const [storedWidth, setStoredWidth, isWidthLoaded] =
     usePersistentContext<number>('agentPaneWidth', defaultPaneWidth);
@@ -195,7 +193,7 @@ export const AgentWorkspace = ({
                 <FlexCol className="mx-auto w-full max-w-[45rem] gap-8 pb-14 pt-6">
                   <AgentIntro
                     findingsCount={items.length}
-                    postsCount={postsCount}
+                    postsCount={summaryPosts.length}
                   />
                   <AgentChatSection />
                 </FlexCol>
@@ -232,6 +230,7 @@ export const AgentWorkspace = ({
           onWidthChange={onPaneWidthChange}
           onWidthCommit={onPaneWidthCommit}
           debugPanel={<AgentDebugPanel items={items} />}
+          summaryPosts={summaryPosts}
         />
       )}
     </div>

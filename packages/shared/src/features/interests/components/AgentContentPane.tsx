@@ -16,11 +16,16 @@ import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
   BulletListIcon,
   DocsIcon,
+  FeatherIcon,
   MiniCloseIcon,
   OpenLinkIcon,
   TerminalIcon,
   TimerIcon,
 } from '../../../components/icons';
+import Markdown from '../../../components/Markdown';
+import { DateFormat } from '../../../components/utilities/DateFormat';
+import { TimeFormatType } from '../../../lib/dateFormat';
+import { transcriptProse } from '../prose';
 import { IconSize } from '../../../components/Icon';
 import type { DrawerRef } from '../../../components/drawers/Drawer';
 import { Drawer, DrawerPosition } from '../../../components/drawers/Drawer';
@@ -31,7 +36,7 @@ import { useSharePost } from '../../../hooks/useSharePost';
 import type { Post } from '../../../graphql/posts';
 import { useKeyboardNavigation } from '../../../hooks/useKeyboardNavigation';
 import { useViewSize, ViewSize } from '../../../hooks';
-import type { AgentContentTarget } from '../AgentContext';
+import type { AgentContentTarget, AgentSummaryPost } from '../AgentContext';
 import { contentTargetId, useAgent } from '../AgentContext';
 import { useNarrowContainer } from '../hooks/useNarrowContainer';
 import { AgentActivitySection } from './AgentActivitySection';
@@ -49,8 +54,15 @@ const postPageGutterChildren =
 const tabIcon: Record<AgentContentTarget['type'], ReactElement> = {
   post: <DocsIcon size={IconSize.Size16} />,
   feed: <BulletListIcon size={IconSize.Size16} />,
+  posts: <FeatherIcon size={IconSize.Size16} />,
   activity: <TimerIcon size={IconSize.Size16} />,
   debug: <TerminalIcon size={IconSize.Size16} />,
+};
+
+const tabLabels: Partial<Record<AgentContentTarget['type'], string>> = {
+  posts: 'Posts',
+  activity: 'Activity',
+  debug: 'Debug',
 };
 
 const tabLabel = (target: AgentContentTarget): string => {
@@ -62,7 +74,7 @@ const tabLabel = (target: AgentContentTarget): string => {
     return target.label;
   }
 
-  return target.type === 'activity' ? 'Activity' : 'Debug';
+  return tabLabels[target.type] ?? target.type;
 };
 
 const FeedView = ({
@@ -76,6 +88,18 @@ const FeedView = ({
   // Measured off the container, not the viewport: the window is a desktop even
   // when the reader has dragged this panel down to 320px.
   const { ref, isNarrow } = useNarrowContainer<HTMLDivElement>();
+
+  if (!posts.length) {
+    return (
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+        className={classNames('py-4', postPageGutter)}
+      >
+        Nothing in the feed yet. Findings land here as the agent hunts.
+      </Typography>
+    );
+  }
 
   return (
     <FlexCol className="agent-media-ring" ref={ref}>
@@ -101,6 +125,45 @@ const FeedView = ({
   );
 };
 
+const PostsView = ({ posts }: { posts: AgentSummaryPost[] }): ReactElement => {
+  if (!posts.length) {
+    return (
+      <Typography
+        type={TypographyType.Callout}
+        color={TypographyColor.Tertiary}
+      >
+        No posts written yet. The agent writes one when a run finds enough worth
+        summarizing.
+      </Typography>
+    );
+  }
+
+  return (
+    <FlexCol className="gap-8">
+      {posts.map((post) => (
+        <FlexCol
+          key={post.id}
+          className="gap-2 border-b border-border-subtlest-quaternary pb-8 last:border-b-0"
+        >
+          <Typography type={TypographyType.Title3} bold>
+            {post.title}
+          </Typography>
+          <Typography
+            type={TypographyType.Caption1}
+            color={TypographyColor.Quaternary}
+          >
+            <DateFormat date={post.createdAt} type={TimeFormatType.Post} />
+          </Typography>
+          <Markdown
+            className={transcriptProse}
+            content={post.contentHtml ?? ''}
+          />
+        </FlexCol>
+      ))}
+    </FlexCol>
+  );
+};
+
 export const AgentContentPane = ({
   width,
   minWidth,
@@ -108,6 +171,7 @@ export const AgentContentPane = ({
   onWidthChange,
   onWidthCommit,
   debugPanel,
+  summaryPosts,
 }: {
   width: number;
   minWidth: number;
@@ -116,6 +180,7 @@ export const AgentContentPane = ({
   onWidthChange: (width: number) => number;
   onWidthCommit: (width: number) => void;
   debugPanel: ReactNode;
+  summaryPosts: AgentSummaryPost[];
 }): ReactElement => {
   const {
     openContent,
@@ -334,6 +399,11 @@ export const AgentContentPane = ({
               posts={activeContent.posts}
               onOpenPost={(post) => openContentTarget({ type: 'post', post })}
             />
+          )}
+          {activeContent?.type === 'posts' && (
+            <div className={classNames('py-4', postPageGutter)}>
+              <PostsView posts={summaryPosts} />
+            </div>
           )}
           {activeContent?.type === 'activity' && (
             <div className={classNames('py-4', postPageGutter)}>

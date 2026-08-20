@@ -20,6 +20,7 @@ export type AgentMessage = {
   text?: string;
   attachments?: AgentAttachment[];
   blocks?: AgentBlock[];
+  summaryPost?: Pick<Post, 'id' | 'title' | 'createdAt' | 'contentHtml'>;
   isPending?: boolean;
   isScheduled?: boolean;
   isError?: boolean;
