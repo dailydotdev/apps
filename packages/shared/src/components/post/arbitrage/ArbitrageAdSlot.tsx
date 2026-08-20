@@ -1,6 +1,10 @@
-import type { ReactElement } from 'react';
-import React from 'react';
+import type { CSSProperties, ReactElement } from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
+import { isProduction } from '../../../lib/constants';
+import { useReadAdsenseSlots } from './useReadAdsenseSlots';
+import type { AdsenseSlotConfig } from './adsense';
+import { ADSENSE_CLIENT_ID } from './adsense';
 
 export enum ArbitrageAdFormat {
   Leaderboard = 'leaderboard',
@@ -81,11 +85,126 @@ export interface ArbitrageAdSlotProps {
   refreshes?: boolean;
 }
 
+type InsAttributes = {
+  style: CSSProperties;
+  'data-ad-format'?: string;
+  'data-ad-layout'?: string;
+  'data-ad-layout-key'?: string;
+  'data-full-width-responsive'?: string;
+};
+
+function getInsAttributes(config: AdsenseSlotConfig): InsAttributes {
+  if (config.type === 'inArticle') {
+    return {
+      style: { display: 'block', textAlign: 'center' },
+      'data-ad-layout': 'in-article',
+      'data-ad-format': 'fluid',
+    };
+  }
+
+  if (config.type === 'inFeed') {
+    return {
+      style: { display: 'block' },
+      'data-ad-format': 'fluid',
+      'data-ad-layout-key': config.layoutKey,
+    };
+  }
+
+  if (config.type === 'multiplex') {
+    return {
+      style: { display: 'block' },
+      'data-ad-format': 'autorelaxed',
+    };
+  }
+
+  if (config.width && config.height) {
+    return {
+      style: {
+        display: 'inline-block',
+        width: config.width,
+        height: config.height,
+      },
+    };
+  }
+
+  return {
+    style: { display: 'block' },
+    'data-ad-format': 'auto',
+    'data-full-width-responsive': 'true',
+  };
+}
+
+function LiveAdSlot({
+  slot,
+  config,
+  format,
+  className,
+}: Pick<ArbitrageAdSlotProps, 'slot' | 'format' | 'className'> & {
+  config: AdsenseSlotConfig;
+}): ReactElement {
+  const insRef = useRef<HTMLModElement>(null);
+
+  useEffect(() => {
+    const element = insRef.current;
+    if (!element) {
+      return undefined;
+    }
+
+    let pushed = false;
+    // Request the ad only near the viewport: viewability drives AdSense CPMs,
+    // and never-seen impressions depress the whole page's pricing.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (pushed || !entries.some((entry) => entry.isIntersecting)) {
+          return;
+        }
+        pushed = true;
+        observer.disconnect();
+        try {
+          window.adsbygoogle = window.adsbygoogle || [];
+          window.adsbygoogle.push({});
+        } catch {
+          // adsbygoogle.js blocked (ad blocker) — leave the reserved box empty.
+        }
+      },
+      { rootMargin: '200px' },
+    );
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      className={classNames(
+        'w-full overflow-hidden text-center',
+        FORMAT_SPEC[format].minHeight,
+        className,
+      )}
+    >
+      <ins
+        ref={insRef}
+        className="adsbygoogle"
+        data-testid={`adsense-slot-${slot}`}
+        data-ad-client={ADSENSE_CLIENT_ID}
+        data-ad-slot={config.id}
+        // Test creatives everywhere except real production traffic, so local
+        // and preview builds never generate billable/invalid impressions.
+        data-adtest={isProduction ? undefined : 'on'}
+        {...getInsAttributes(config)}
+      />
+    </div>
+  );
+}
+
 /**
- * Placeholder for a programmatic ad slot. No ad tag exists in the app yet, so
- * this renders the reserved box at the real creative height — the point is to
- * review density and layout before any demand is wired up. Reserving the height
- * here is also what a live slot must do to avoid layout shift.
+ * A programmatic ad slot on the /read template. Live only when the
+ * `read_adsense_slots` remote config carries this slot number: any entry puts
+ * the template in live mode, configured slots render a real AdSense unit and
+ * unconfigured ones collapse. With the config empty (the default) it renders
+ * the reserved placeholder box at the real creative height — the density
+ * review the template shipped with, and the same height reservation a live
+ * slot needs to avoid layout shift.
  */
 export function ArbitrageAdSlot({
   slot,
@@ -93,7 +212,25 @@ export function ArbitrageAdSlot({
   className,
   reach,
   refreshes,
-}: ArbitrageAdSlotProps): ReactElement {
+}: ArbitrageAdSlotProps): ReactElement | null {
+  const slots = useReadAdsenseSlots();
+  const isLive = Object.keys(slots).length > 0;
+  const config = slots[String(slot)];
+
+  if (isLive) {
+    if (!config?.id) {
+      return null;
+    }
+    return (
+      <LiveAdSlot
+        slot={slot}
+        config={config}
+        format={format}
+        className={className}
+      />
+    );
+  }
+
   const spec = FORMAT_SPEC[format];
 
   return (

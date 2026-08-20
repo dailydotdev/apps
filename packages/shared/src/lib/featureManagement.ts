@@ -1,4 +1,5 @@
 import type { FeedAdTemplate } from './feed';
+import type { ReadAdsenseSlots } from '../components/post/arbitrage/adsense';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { isDevelopment } from './constants';
@@ -319,4 +320,14 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
     description: 'Code SUMMER50 is already applied. Offer ends August 31.',
     endDate: '2026-09-01T00:00:00.000Z',
   },
+);
+
+// Slot ids created in the AdSense UI for the /posts/[id]/read template, keyed
+// by ArbitrageAdSlot number. The empty default keeps the whole ad layer off:
+// no adsbygoogle script, no <ins> markup. Any entry flips the template to live
+// mode, so this doubles as the kill switch — clear it to pull every ad without
+// a deploy. Nothing outside the /read route reads this flag.
+export const featureReadAdsenseSlots = new Feature<ReadAdsenseSlots>(
+  'read_adsense_slots',
+  {},
 );
