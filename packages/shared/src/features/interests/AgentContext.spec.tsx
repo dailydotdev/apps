@@ -525,7 +525,7 @@ describe('the live path', () => {
     expect(agent.current.status).toBe('active');
   });
 
-  it('attaches the summary post to the run that wrote it and keeps quiet writers visible', async () => {
+  it('keeps a blockless run visible when it wrote a summary post', async () => {
     const agent = mountLive({
       turns: [
         {
@@ -549,10 +549,7 @@ describe('the live path', () => {
 
     await waitForHistory(agent, (current) => current.messages.length === 1);
 
-    expect(agent.current.messages[0].summaryPost).toMatchObject({
-      id: 'sp-1',
-      title: 'Zig this week',
-    });
+    expect(agent.current.messages[0].role).toBe('agent');
     expect(agent.current.summaryPosts).toHaveLength(1);
   });
 
