@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useMutation } from '@tanstack/react-query';
 import { initToolDiscussion } from '@dailydotdev/shared/src/graphql/tools';
@@ -14,7 +14,6 @@ import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNoti
 import { Origin } from '@dailydotdev/shared/src/lib/log';
 import { useUserCompaniesQuery } from '@dailydotdev/shared/src/hooks/userCompany/useUserCompaniesQuery';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
   Button,
   ButtonSize,
@@ -40,15 +39,18 @@ interface ToolDiscussionProps {
   discussionPostId: string | null;
 }
 
+const VERIFIED_GATE_MESSAGE =
+  'Tool discussions are limited to devs with a verified work email';
+const VERIFY_WORK_EMAIL_ROUTE = '/settings/profile/experience/work';
+
 const VerifiedGateNotice = (): ReactElement => (
   <div className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3">
     <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
-      Tool discussions are limited to devs with a verified work email
+      {VERIFIED_GATE_MESSAGE}
     </Typography>
-    <Link href={`${webappUrl}settings/profile/experience/work`} passHref>
+    <Link href={VERIFY_WORK_EMAIL_ROUTE} passHref>
       <Button
         tag="a"
-        href={`${webappUrl}settings/profile/experience/work`}
         variant={ButtonVariant.Secondary}
         size={ButtonSize.Small}
         className="self-start"
@@ -102,7 +104,15 @@ export const ToolDiscussion = ({
 
   // Logged in but no verified work email: the server rejects the mutation
   // anyway, so the composer is replaced before the user ever gets there.
+  // While the companies query is still resolving, treat replies as blocked
+  // too rather than briefly allowing a composer that then gets pulled away.
+  const isCheckingVerification = !!user && isCompaniesLoading;
   const isGated = !!user && !isCompaniesLoading && !isVerified;
+  const canReply = !user || (!isCompaniesLoading && isVerified);
+
+  const handleReplyBlocked = useCallback(() => {
+    displayToast(VERIFIED_GATE_MESSAGE);
+  }, [displayToast]);
 
   const handleStart = (): void => {
     if (!user) {
@@ -123,20 +133,39 @@ export const ToolDiscussion = ({
   }
 
   if (postId && post) {
+    const renderComposer = (): ReactElement => {
+      if (isCheckingVerification) {
+        return <PlaceholderCommentList placeholderAmount={1} />;
+      }
+
+      if (isGated) {
+        return <VerifiedGateNotice />;
+      }
+
+      return (
+        <NewComment
+          post={post}
+          ref={commentRef}
+          CommentInputOrModal={CommentInputOrModal}
+        />
+      );
+    };
+
     return (
       <div className="flex flex-col gap-4">
-        {isGated ? (
-          <VerifiedGateNotice />
-        ) : (
-          <NewComment
-            post={post}
-            ref={commentRef}
-            CommentInputOrModal={CommentInputOrModal}
-          />
-        )}
-        <PostComments post={post} origin={Origin.ToolPage} />
+        {renderComposer()}
+        <PostComments
+          post={post}
+          origin={Origin.ToolPage}
+          canReply={canReply}
+          onReplyBlocked={handleReplyBlocked}
+        />
       </div>
     );
+  }
+
+  if (isCheckingVerification) {
+    return <PlaceholderCommentList placeholderAmount={1} />;
   }
 
   if (isGated) {
