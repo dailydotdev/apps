@@ -473,6 +473,8 @@ export enum LogEvent {
   RemoveToolUpvote = 'remove tool upvote',
   DownvoteTool = 'downvote tool',
   RemoveToolDownvote = 'remove tool downvote',
+  ClickClaimTool = 'click claim tool',
+  ClaimTool = 'claim tool',
   // Hot Takes
   StartAddHotTake = 'start add hot take',
   AddHotTake = 'add hot take',
