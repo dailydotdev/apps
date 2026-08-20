@@ -26,8 +26,9 @@ const advancePastStickyWindow = (): void => {
   });
 };
 
+// Pinning is tablet-and-up only, so the class to look for is the variant.
 const isPinned = (container: HTMLElement): boolean =>
-  !!container.firstElementChild?.classList.contains('sticky');
+  !!container.firstElementChild?.classList.contains('tablet:sticky');
 
 beforeEach(() => {
   jest.useFakeTimers();
