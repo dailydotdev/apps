@@ -26,11 +26,9 @@ import { HERO_STYLES } from './signupHero/heroStyles';
 import { HeroBackgroundLayer } from './signupHero/HeroBackgroundLayer';
 import { AuroraOrbs } from './signupHero/HeroDecorations';
 import { LandingHeroCover } from './signupHero/LandingHeroCover';
+import { HorizonArt } from './signupHero/HorizonArt';
 import { LandingAppInstall } from './signupHero/LandingAppInstall';
-import {
-  cloudinaryOnboardingLoginBackground,
-  signupWallHorizon,
-} from '../../../lib/image';
+import { cloudinaryOnboardingLoginBackground } from '../../../lib/image';
 import { sanitizeMessage } from '../lib/utils';
 
 // =============================================================
@@ -223,15 +221,7 @@ export const OnboardingSignupHero = ({
             aria-hidden
             className="onb-horizon-band pointer-events-none absolute inset-x-0 top-0 select-none overflow-hidden laptop:hidden"
           >
-            <img
-              alt=""
-              className="absolute inset-0 size-full origin-[30%_78%] scale-[1.32] object-cover object-[73%_42%]"
-              data-testid="horizon-art"
-              decoding="async"
-              /* @ts-expect-error - Not supported by react yet */ /* eslint-disable react/no-unknown-property */
-              fetchpriority="high"
-              src={signupWallHorizon}
-            />
+            <HorizonArt variant="band" />
             <div className="onb-art-fade absolute inset-x-0 bottom-0 h-3/5" />
           </div>
 
@@ -263,15 +253,7 @@ export const OnboardingSignupHero = ({
           aria-hidden
           className="relative hidden select-none overflow-hidden laptop:col-start-2 laptop:row-start-1 laptop:block laptop:min-h-dvh"
         >
-          <img
-            alt=""
-            className="absolute inset-0 size-full object-cover object-[70%_52%]"
-            data-testid="horizon-art"
-            decoding="async"
-            /* @ts-expect-error - Not supported by react yet */ /* eslint-disable react/no-unknown-property */
-            fetchpriority="high"
-            src={signupWallHorizon}
-          />
+          <HorizonArt variant="column" />
           <div className="onb-horizon-seam pointer-events-none absolute inset-y-0 left-0 w-1/3" />
         </div>
       </div>

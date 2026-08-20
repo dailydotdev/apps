@@ -38,7 +38,7 @@ const FRAMES: Frame[] = [
   {
     label: 'Horizon',
     storyId: 'components-onboarding-steps-funnelherolanding--horizon',
-    note: 'proposed — full-bleed art, value line, one primary CTA',
+    note: 'proposed — full-bleed art, value line, Google-only primary',
   },
 ];
 
@@ -152,4 +152,13 @@ export const DesktopHorizonOnly: Story = {
  */
 export const MobileCompact: Story = {
   args: { width: 375, height: 667, only: 'Cards+Horizon' },
+};
+
+/**
+ * The horizon alone at phone size. Worth a frame of its own for the CTA stack:
+ * "Continue with email" reads as a text link but is a 48px row, so the tap
+ * target clears the 44px minimum without the box a button would draw.
+ */
+export const MobileHorizonOnly: Story = {
+  args: { width: 390, height: 844, only: 'Horizon' },
 };

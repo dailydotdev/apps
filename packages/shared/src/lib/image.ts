@@ -154,10 +154,21 @@ export const signupWallCover =
 // center, so tall crops bias toward the portal to keep them with the sunrise.
 //
 // One signed URL, no width variants: the signature covers the transformation,
-// so `w_768` etc. 404 rather than resizing. Phones therefore pull the full
-// asset. To size it responsively the way cloudinaryOnboardingHeroDesk does,
-// the sized derivatives have to be exported and signed upstream first, then
-// consumed here as a srcSet.
+// so `w_768` etc. 404 rather than resizing (verified against the live URL).
+// Phones therefore pull the full asset. To size it responsively the way
+// cloudinaryOnboardingHeroDesk does, the sized derivatives have to be exported
+// and signed upstream first, then consumed here as a srcSet — the one
+// prerequisite for ramping the horizon wall past a small percentage, since the
+// download lands on the treatment arm only and would otherwise read as a
+// confound rather than a perf nit. Until then the stacked band asks for it at
+// low priority (see HorizonArt), so it doesn't race the auth options on mobile.
+//
+// Byte-identical to the string the marketing homepage preloads
+// (main-site's HomepageExperiment.astro, same signature and query), so visitors
+// arriving from there can get a warm HTTP cache: Chrome partitions that cache
+// by top-level site, and daily.dev/app.daily.dev share one. Not a plan, just a
+// bonus — the homepage variant that uses this artwork is itself an experiment,
+// so most of this wall's traffic will still pay for the download.
 export const signupWallHorizon =
   'https://media.daily.dev/image/upload/s--NCILTqRq--/f_auto,q_auto/v1785661216/public/daily.dev%20-%20main%20image';
 

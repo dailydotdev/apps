@@ -96,6 +96,23 @@ export const actionToAuthDisplay: Record<OnboardingActions, AuthDisplay> = {
   [OnboardingActions.VerifyEmail]: AuthDisplay.EmailVerification,
 } as const;
 
+/** Which onboarding signup-wall treatment the auth options take.
+ *
+ * Every value implies the split-column geometry — left-aligned login row,
+ * tighter CTA spacing hooks, smaller provider marks — and then picks the copy
+ * and the CTA hierarchy on top of it. Naming the treatment rather than passing
+ * independent booleans keeps the illegal combinations unrepresentable: there is
+ * no way to ask for the single-primary hierarchy without the geometry it
+ * assumes, or to put "Create account" copy on a one-primary rail.
+ *
+ * - `split` — geometry only, door-agnostic "Continue with…".
+ * - `splitCreateAccount` — the panel wall: "Sign up with…" / "Create account".
+ * - `singlePrimary` — the horizon wall: one solid provider and the rest
+ *   secondary, email demoted to a text link, no "or" divider, and
+ *   "Continue with…" kept so returning users are logged straight in.
+ */
+export type SignupStyle = 'split' | 'splitCreateAccount' | 'singlePrimary';
+
 export interface AuthProps {
   isAuthenticating: boolean;
   isLoginFlow: boolean;
@@ -130,16 +147,8 @@ export interface AuthOptionsProps {
   onboardingSignupButton?: ButtonProps<'button'>;
   hideLoginLink?: boolean;
   compact?: boolean;
-  /** Split-column onboarding geometry: left-aligned login row, tighter CTA
-   * spacing hooks, smaller provider marks. */
-  splitSignupStyle?: boolean;
-  /** "Sign up with…" / "Create account" instead of the door-agnostic
-   * "Continue with…". Separate from the geometry above: a wall can take the
-   * split layout and keep "Continue", which logs returning users straight in. */
-  createAccountCopy?: boolean;
-  /** One solid primary provider, the rest secondary, email demoted to a text
-   * link and the "or" divider dropped. */
-  singlePrimaryStyle?: boolean;
+  /** Which signup-wall treatment the auth options take. See {@link SignupStyle}. */
+  signupStyle?: SignupStyle;
   /** Order GitHub before Google in the OAuth provider list (developer-first). */
   preferGithub?: boolean;
   autoTriggerProvider?: string;

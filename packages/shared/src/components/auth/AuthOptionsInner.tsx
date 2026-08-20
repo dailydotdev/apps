@@ -145,9 +145,7 @@ function AuthOptionsInner({
   hideSignupDisclaimer,
   isOnboardingFunnel,
   compact,
-  splitSignupStyle,
-  createAccountCopy,
-  singlePrimaryStyle,
+  signupStyle,
   preferGithub,
   autoTriggerProvider,
   socialProviderScopes,
@@ -872,9 +870,7 @@ function AuthOptionsInner({
             hideLoginLink={hideLoginLink}
             hideSignupDisclaimer={hideSignupDisclaimer}
             compact={compact}
-            splitSignupStyle={splitSignupStyle}
-            createAccountCopy={createAccountCopy}
-            singlePrimaryStyle={singlePrimaryStyle}
+            signupStyle={signupStyle}
             preferGithub={preferGithub}
             onAuthOpenLogged={() => setHasLoggedAuthOpen(true)}
           />

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { cloneElement, useEffect } from 'react';
 import classNames from 'classnames';
-import type { AuthFormProps } from './common';
+import type { AuthFormProps, SignupStyle } from './common';
 import { providerMap } from './common';
 import OrDivider from './OrDivider';
 import { useLogContext } from '../../contexts/LogContext';
@@ -39,9 +39,7 @@ interface OnboardingRegistrationFormProps extends AuthFormProps {
   hideLoginLink?: boolean;
   hideSignupDisclaimer?: boolean;
   compact?: boolean;
-  splitSignupStyle?: boolean;
-  createAccountCopy?: boolean;
-  singlePrimaryStyle?: boolean;
+  signupStyle?: SignupStyle;
   preferGithub?: boolean;
   onAuthOpenLogged?: () => void;
 }
@@ -120,9 +118,7 @@ export const OnboardingRegistrationForm = ({
   hideLoginLink,
   hideSignupDisclaimer,
   compact,
-  splitSignupStyle = false,
-  createAccountCopy = false,
-  singlePrimaryStyle = false,
+  signupStyle,
   preferGithub,
   onAuthOpenLogged,
 }: OnboardingRegistrationFormProps): ReactElement => {
@@ -131,16 +127,21 @@ export const OnboardingRegistrationForm = ({
   const signupProviders = getSignupProviders(
     preferGithub ?? isOnboardingTrigger,
   );
+  // One wall names one treatment; these three are read-only views of it, so a
+  // caller can no longer hand us a combination the layout doesn't support.
+  const isSplitLayout = !!signupStyle;
+  const isCreateAccountCopy = signupStyle === 'splitCreateAccount';
+  const isSinglePrimary = signupStyle === 'singlePrimary';
 
   // The single-primary treatment sizes the brand marks to the label rather
   // than the button, and takes GitHub's filled octocat (the icon's `secondary`
   // asset) so it reads at the same weight as Google's mark. Google already
   // ships `secondary`, so passing it here is a no-op for that provider.
   const getProviderIcon = (icon: ReactElement): ReactElement => {
-    if (singlePrimaryStyle) {
+    if (isSinglePrimary) {
       return cloneElement(icon, { size: IconSize.XSmall, secondary: true });
     }
-    if (splitSignupStyle) {
+    if (isSplitLayout) {
       return cloneElement(icon, { size: IconSize.Medium });
     }
     return icon;
@@ -179,8 +180,10 @@ export const OnboardingRegistrationForm = ({
     // This margin, not the login link's own, is most of the gap between the CTA
     // and "Already have an account". onb-split-cta lets the signup hero close
     // it further on compact phones.
-    if (splitSignupStyle) {
-      return 'onb-split-cta mb-4';
+    if (isSplitLayout) {
+      // The single-primary rail hands the spacing to the link's own padded hit
+      // area, so it doesn't stack a margin on top of it.
+      return isSinglePrimary ? 'onb-split-cta' : 'onb-split-cta mb-4';
     }
     if (isOnboardingTrigger) {
       return 'mb-3';
@@ -188,41 +191,58 @@ export const OnboardingRegistrationForm = ({
     return 'mb-8';
   };
 
-  const emailButtonLabel = createAccountCopy
+  const emailButtonLabel = isCreateAccountCopy
     ? 'Create account'
     : 'Continue with email';
+  const emailButtonAriaLabel = isCreateAccountCopy
+    ? 'Create account'
+    : 'Signup using email';
+  const onEmailClick = () => {
+    trackOpenSignup();
+    onContinueWithEmail?.();
+  };
 
-  // The single-primary treatment demotes email to a text link, so it must not
-  // take the bordered button class the other walls give it.
-  const emailButton = (
-    <Button
-      aria-label={createAccountCopy ? 'Create account' : 'Signup using email'}
+  // The single-primary rail demotes email to a text link. Building that out of
+  // `Button` meant overriding the variant's box, its shadow and its hover
+  // `--button-background` — nine `!important`s to unpick a primitive that was
+  // never a link — so it is a plain button here: same tracking hook, same
+  // disabled behaviour, no compensating CSS.
+  //
+  // The label is a link; the target is not. `min-h-12` keeps a 48px row under
+  // 20px of text, comfortably over the 44px minimum, and the row's own height
+  // is what spaces the login prompt below it (see getEmailButtonClass).
+  const emailLink = (
+    <button
+      aria-label={emailButtonAriaLabel}
       className={classNames(
         getEmailButtonClass(),
-        singlePrimaryStyle
-          ? // A link, not a button: no box to occupy, so it hugs its label and
-            // gives the height back to the stack. The button's hover swaps
-            // --button-background, which pops a floating fill behind the text —
-            // wrong affordance here, so the background is pinned transparent
-            // and hover moves the label to full strength instead.
-            'mx-auto !h-auto !w-auto !bg-transparent !px-0 !py-0 !text-text-tertiary !underline underline-offset-4 !shadow-none hover:!text-text-primary'
-          : (isOnboardingTrigger || splitSignupStyle) &&
-              tertiarySignupButtonClass,
+        'mx-auto flex min-h-12 items-center justify-center px-3 text-text-tertiary underline underline-offset-4 transition-colors typo-callout hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none',
       )}
       data-funnel-track={FunnelTargetId.SignupProvider}
       disabled={isSocialAuthLoading}
-      onClick={() => {
-        trackOpenSignup();
-        onContinueWithEmail?.();
-      }}
-      size={
-        singlePrimaryStyle
-          ? ButtonSize.Small
-          : onboardingSignupButton?.size ?? ButtonSize.Large
-      }
+      onClick={onEmailClick}
+      type="button"
+    >
+      {emailButtonLabel}
+    </button>
+  );
+
+  const emailButton = isSinglePrimary ? (
+    emailLink
+  ) : (
+    <Button
+      aria-label={emailButtonAriaLabel}
+      className={classNames(
+        getEmailButtonClass(),
+        (isOnboardingTrigger || isSplitLayout) && tertiarySignupButtonClass,
+      )}
+      data-funnel-track={FunnelTargetId.SignupProvider}
+      disabled={isSocialAuthLoading}
+      onClick={onEmailClick}
+      size={onboardingSignupButton?.size ?? ButtonSize.Large}
       type="button"
       variant={
-        isOnboardingTrigger || splitSignupStyle
+        isOnboardingTrigger || isSplitLayout
           ? ButtonVariant.Tertiary
           : ButtonVariant.Float
       }
@@ -242,10 +262,12 @@ export const OnboardingRegistrationForm = ({
     // width — the buttons are the axis here, not the left edge of the copy —
     // and drops the prompt to tertiary so it sits with the email link rather
     // than competing with the CTAs. "Log in" keeps full strength below.
-    if (singlePrimaryStyle) {
-      return 'onb-split-login mx-auto mt-4 justify-center text-center text-text-tertiary typo-callout laptop:mt-5';
+    if (isSinglePrimary) {
+      // mt-1, not mt-4: the email link's padded row already supplies most of
+      // the gap, so the visual rhythm matches the old text-only link.
+      return 'onb-split-login mx-auto mt-1 justify-center text-center text-text-tertiary typo-callout laptop:mt-2';
     }
-    if (splitSignupStyle) {
+    if (isSplitLayout) {
       return 'onb-split-login mx-auto mt-4 text-center text-text-secondary typo-callout laptop:mx-0 laptop:mt-5 laptop:text-left';
     }
     if (isOnboardingTrigger) {
@@ -259,7 +281,7 @@ export const OnboardingRegistrationForm = ({
       onLogin={() => onExistingEmail?.('')}
       className={{
         container: getMemberAlreadyContainerClass(),
-        login: singlePrimaryStyle ? '!text-text-primary' : '!text-inherit',
+        login: isSinglePrimary ? '!text-text-primary' : '!text-inherit',
       }}
     />
   );
@@ -275,7 +297,7 @@ export const OnboardingRegistrationForm = ({
           <li key={provider.value}>
             <Button
               aria-label={
-                createAccountCopy
+                isCreateAccountCopy
                   ? `Sign up with ${provider.label}`
                   : `Continue with ${provider.label}`
               }
@@ -286,7 +308,7 @@ export const OnboardingRegistrationForm = ({
                 // solid primary. Full-strength label (and, through
                 // currentColor, brand mark) for the same reason — stepping the
                 // fill down is the hierarchy, dimming the text is just noise.
-                singlePrimaryStyle &&
+                isSinglePrimary &&
                   index > 0 &&
                   '!border-border-subtlest-tertiary !bg-surface-float !text-text-primary',
               )}
@@ -302,21 +324,21 @@ export const OnboardingRegistrationForm = ({
               // default instead of offering two identical doors.
               variant={
                 // eslint-disable-next-line no-nested-ternary
-                singlePrimaryStyle
+                isSinglePrimary
                   ? index === 0
                     ? ButtonVariant.Primary
                     : ButtonVariant.Secondary
                   : onboardingSignupButton?.variant ?? ButtonVariant.Primary
               }
             >
-              {createAccountCopy
+              {isCreateAccountCopy
                 ? `Sign up with ${provider.label}`
                 : `Continue with ${provider.label}`}
             </Button>
           </li>
         ))}
       </ul>
-      {!singlePrimaryStyle && (
+      {!isSinglePrimary && (
         <OrDivider
           className={{
             text: 'text-text-tertiary typo-footnote',
@@ -328,7 +350,7 @@ export const OnboardingRegistrationForm = ({
         <div
           className={classNames(
             'flex flex-col',
-            splitSignupStyle && !singlePrimaryStyle
+            isSplitLayout && !isSinglePrimary
               ? 'items-start text-left'
               : 'text-center',
           )}
