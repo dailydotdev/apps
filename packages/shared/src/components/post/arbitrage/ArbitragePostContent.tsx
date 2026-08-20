@@ -13,8 +13,10 @@ import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
 import { TruncateText } from '../../utilities';
 import Markdown from '../../Markdown';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
+import { ArbitrageTopLeaderboard } from './ArbitrageTopLeaderboard';
+import { ARBITRAGE_SLOT } from './slots';
 import { ArbitragePostWidgets } from './ArbitragePostWidgets';
-import { ArbitrageReadButton } from './ArbitrageReadButton';
+import { ArbitrageActionBar } from './ArbitrageActionBar';
 import { ArbitrageComments } from './ArbitrageComments';
 
 export interface ArbitragePostContentProps {
@@ -41,13 +43,7 @@ export function ArbitragePostContent({
   return (
     <PostContentContainerRaw className={className}>
       <PostContainer className="relative" data-testid="postContainer">
-        <ArbitrageAdSlot
-          slot={2}
-          format={ArbitrageAdFormat.Leaderboard}
-          reach="100%"
-          refreshes
-          className="mt-4"
-        />
+        <ArbitrageTopLeaderboard />
 
         <div className="my-6">
           <div className="mb-3 flex items-center">
@@ -85,7 +81,7 @@ export function ArbitragePostContent({
         )}
 
         <ArbitrageAdSlot
-          slot={3}
+          slot={ARBITRAGE_SLOT.inlineMpu1}
           format={ArbitrageAdFormat.Rectangle}
           reach="75%"
           refreshes
@@ -97,7 +93,8 @@ export function ArbitragePostContent({
           createdAt={post.createdAt}
           readTime={post.readTime}
           isVideoType={isVideoType}
-          className="mb-6"
+          // mt-4 matches the standard template's tag-to-metadata gap.
+          className="mb-6 mt-4 !typo-callout"
           domain={
             !isVideoType &&
             !!post.domain?.length && (
@@ -136,10 +133,10 @@ export function ArbitragePostContent({
           </a>
         )}
 
-        <ArbitrageReadButton post={post} />
+        <ArbitrageActionBar post={post} />
 
         <ArbitrageAdSlot
-          slot={4}
+          slot={ARBITRAGE_SLOT.video}
           format={ArbitrageAdFormat.Video}
           reach="55%"
           className="my-6"
@@ -154,14 +151,14 @@ export function ArbitragePostContent({
         )}
 
         <ArbitrageAdSlot
-          slot={5}
+          slot={ARBITRAGE_SLOT.inlineMpu2}
           format={ArbitrageAdFormat.Rectangle}
           reach="45%"
           className="mb-6"
         />
 
         <ArbitrageAdSlot
-          slot={6}
+          slot={ARBITRAGE_SLOT.inlineMpu3}
           format={ArbitrageAdFormat.Rectangle}
           reach="32%"
           className="mb-6"
@@ -170,7 +167,7 @@ export function ArbitragePostContent({
         <ArbitrageComments post={post} />
 
         <ArbitrageAdSlot
-          slot={9}
+          slot={ARBITRAGE_SLOT.endOfArticle}
           format={ArbitrageAdFormat.RichMedia}
           reach="20%"
           className="mb-10"

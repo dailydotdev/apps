@@ -10,6 +10,7 @@ import { SourceType } from '../../../graphql/sources';
 import { Origin } from '../../../lib/log';
 import EntityCardSkeleton from '../../cards/entity/EntityCardSkeleton';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
+import { ARBITRAGE_SLOT } from './slots';
 
 const SourceEntityCard = dynamic(
   /* webpackChunkName: "sourceEntityCard" */ () =>
@@ -63,13 +64,13 @@ export function ArbitragePostWidgets({
     <PageWidgets className={className}>
       {sourceCard}
       <ArbitrageAdSlot
-        slot={11}
+        slot={ARBITRAGE_SLOT.railMpu1}
         format={ArbitrageAdFormat.Rectangle}
         reach="70%"
       />
       {tokenRefreshed && <FurtherReading currentPost={post} hideToc />}
       <ArbitrageAdSlot
-        slot={12}
+        slot={ARBITRAGE_SLOT.railMpu2}
         format={ArbitrageAdFormat.Rectangle}
         reach="45%"
       />
@@ -78,7 +79,7 @@ export function ArbitragePostWidgets({
           the column it sticks for the whole article read with nothing below
           to cover. */}
       <ArbitrageAdSlot
-        slot={10}
+        slot={ARBITRAGE_SLOT.railStickyMpu}
         format={ArbitrageAdFormat.HalfPage}
         reach="100%"
         className="laptop:sticky laptop:top-20"

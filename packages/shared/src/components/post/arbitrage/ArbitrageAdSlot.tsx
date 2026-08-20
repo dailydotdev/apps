@@ -22,6 +22,14 @@ type FormatSpec = {
   size: string;
   cpm: string;
   minHeight: string;
+  /**
+   * Caps the slot at its standard IAB width so every creative in a given
+   * format renders the same size. Without this the unit is responsive and
+   * Google picks whatever creative fits the container, so two slots side by
+   * side come back different widths. Below the cap the box still shrinks, so
+   * mobile is unaffected.
+   */
+  maxWidth?: string;
 };
 
 const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
@@ -30,24 +38,28 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     size: '728x90 / 320x100',
     cpm: '$2.50',
     minHeight: 'min-h-[90px]',
+    maxWidth: 'max-w-[728px]',
   },
   [ArbitrageAdFormat.Rectangle]: {
     label: 'In-content',
     size: '336x280',
     cpm: '$3.00',
     minHeight: 'min-h-[180px]',
+    maxWidth: 'max-w-[336px]',
   },
   [ArbitrageAdFormat.HalfPage]: {
     label: 'Sticky rail',
     size: '300x600',
     cpm: '$4.00',
     minHeight: 'min-h-[320px]',
+    maxWidth: 'max-w-[300px]',
   },
   [ArbitrageAdFormat.SidebarRail]: {
     label: 'Sidebar',
     size: '240x400',
     cpm: '$4.00',
     minHeight: 'min-h-[220px]',
+    maxWidth: 'max-w-[300px]',
   },
   [ArbitrageAdFormat.Native]: {
     label: 'Native',
@@ -72,6 +84,7 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     size: '728x90 / 320x50',
     cpm: '$2.00',
     minHeight: 'min-h-[56px]',
+    maxWidth: 'max-w-[728px]',
   },
 };
 
@@ -198,8 +211,14 @@ function LiveAdSlot({
         // `isolate` forces a stacking context: without one, WebKit paints the
         // ad's iframe on its own compositing layer that escapes the rounded
         // clip and the corners come back square.
-        'isolate w-full overflow-hidden rounded-16 text-center',
+        'isolate mx-auto w-full overflow-hidden rounded-16 text-center',
+        // AdSense stamps data-ad-status="unfilled" when no creative was
+        // returned. Without collapsing, the reserved min-height stays behind as
+        // a block of empty page — most visible in the comment thread, where an
+        // unfilled slot leaves a gap between the heading and the first comment.
+        'has-[>ins[data-ad-status="unfilled"]]:hidden',
         FORMAT_SPEC[format].minHeight,
+        FORMAT_SPEC[format].maxWidth,
         className,
       )}
     >
