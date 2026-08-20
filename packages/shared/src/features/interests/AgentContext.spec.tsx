@@ -359,6 +359,40 @@ describe('the live path', () => {
       'p1',
     ]);
     expect(blocks[2]).toMatchObject({ type: 'feedLink' });
+    expect((blocks[2] as { posts: Post[] }).posts.map(({ id }) => id)).toEqual([
+      'p1',
+    ]);
+  });
+
+  it('scopes a feed link to its own postIds instead of every finding', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'run-1',
+          role: 'agent',
+          createdAt: '2026-01-01T00:01:00Z',
+          status: 'completed',
+          trigger: 'scheduled',
+          blocks: [
+            {
+              type: 'feedLink',
+              label: 'Open all 2 findings',
+              count: 2,
+              postIds: ['p2', 'gone'],
+            },
+          ],
+        } as InterestTurn,
+      ],
+      findings: [feedItem('p1'), feedItem('p2')],
+    });
+
+    await waitForHistory(agent, (current) => current.messages.length === 1);
+
+    const blocks = agent.current.messages.at(-1)?.blocks ?? [];
+    expect(blocks[0]).toMatchObject({ type: 'feedLink' });
+    expect((blocks[0] as { posts: Post[] }).posts.map(({ id }) => id)).toEqual([
+      'p2',
+    ]);
   });
 
   it('shows a queued or running run as the working state', async () => {

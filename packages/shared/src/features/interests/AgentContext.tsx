@@ -143,6 +143,18 @@ const isRunPending = (turn: InterestTurn): boolean =>
   (turn.status === InterestRunStatus.Queued ||
     turn.status === InterestRunStatus.Running);
 
+const resolvePosts = (
+  postIds: string[],
+  postsById: Map<string, Post>,
+): Post[] =>
+  postIds.reduce<Post[]>((found, postId) => {
+    const post = postsById.get(postId);
+    if (post) {
+      found.push(post);
+    }
+    return found;
+  }, []);
+
 const mapServerBlocks = (
   turn: InterestTurn,
   postsById: Map<string, Post>,
@@ -155,13 +167,7 @@ const mapServerBlocks = (
     }
 
     if (block.type === 'picks') {
-      const posts = block.postIds.reduce<Post[]>((found, postId) => {
-        const post = postsById.get(postId);
-        if (post) {
-          found.push(post);
-        }
-        return found;
-      }, []);
+      const posts = resolvePosts(block.postIds, postsById);
 
       if (posts.length) {
         acc.push({ type: 'picks', caption: block.caption, posts });
@@ -169,8 +175,11 @@ const mapServerBlocks = (
       return acc;
     }
 
-    if (allPosts.length) {
-      acc.push({ type: 'feedLink', label: block.label, posts: allPosts });
+    const posts = block.postIds?.length
+      ? resolvePosts(block.postIds, postsById)
+      : allPosts;
+    if (posts.length) {
+      acc.push({ type: 'feedLink', label: block.label, posts });
     }
     return acc;
   }, []);

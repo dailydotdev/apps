@@ -80,7 +80,7 @@ export type InterestFinding = {
 export type InterestRunBlock =
   | { type: 'text'; html: string }
   | { type: 'picks'; caption?: string; postIds: string[] }
-  | { type: 'feedLink'; label: string; count: number };
+  | { type: 'feedLink'; label: string; count: number; postIds?: string[] };
 
 export type InterestTurn = {
   id: string;
