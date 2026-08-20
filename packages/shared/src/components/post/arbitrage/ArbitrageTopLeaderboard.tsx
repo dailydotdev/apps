@@ -6,18 +6,15 @@ import { useDelayedReveal } from './useDelayedReveal';
 import { ARBITRAGE_SLOT, TOP_LEADERBOARD_STICKY_MS } from './slots';
 
 /**
- * Top leaderboard (slot 2), between the app header and the post body.
- *
- * It sits above the two-column shell rather than inside the right rail the
- * partner's brief asked for: a 728px leaderboard cannot fit a 308px rail, and
- * full page width is the only place it renders at its booked size.
+ * Top leaderboard (slot 2), first thing in the article column above the source
+ * row. The column is 745px wide inside its padding at the layout's full width,
+ * so a 728px leaderboard renders at its booked size within the page rather than
+ * spanning it; narrower viewports get a smaller responsive creative.
  *
  * Stays pinned while the visitor scrolls for the first ten seconds, then
  * releases and scrolls away with the page. Sticky rather than fixed so it only
- * pins within its own container and can never overlap the article; `top-16`
- * clears the fixed app header. It has to live outside PostContainer, which is
- * `overflow-hidden` — an overflow ancestor becomes the sticky scroll container,
- * and since that ancestor never scrolls the pin would never engage.
+ * pins within the article column and can never overlap the rail; `top-16`
+ * clears the fixed app header.
  */
 export function ArbitrageTopLeaderboard(): ReactElement {
   const released = useDelayedReveal(TOP_LEADERBOARD_STICKY_MS);
@@ -25,7 +22,7 @@ export function ArbitrageTopLeaderboard(): ReactElement {
   return (
     <div
       className={classNames(
-        'bg-background-default px-4 pb-2 pt-4 tablet:px-6 laptop:px-8',
+        'bg-background-default pb-2 pt-4',
         // z-1 keeps it above article text while pinned but below the app header
         // and any modal layer.
         !released && 'sticky top-16 z-1',
