@@ -22,7 +22,7 @@ export function ArbitrageAnchor(): ReactElement | null {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-3 px-2 pb-2">
-      <div className="bg-background-default/95 pointer-events-auto mx-auto max-w-[69.25rem] rounded-16 shadow-2 backdrop-blur">
+      <div className="bg-background-default/95 pointer-events-auto mx-auto max-w-[69.25rem] overflow-hidden rounded-16 shadow-2 backdrop-blur">
         <ArbitrageAdSlot
           slot={13}
           format={ArbitrageAdFormat.Anchor}

@@ -195,14 +195,20 @@ function LiveAdSlot({
     // min-h only reserves the request-time height against layout shift.
     <div
       className={classNames(
-        'w-full overflow-hidden rounded-16 text-center',
+        // `isolate` forces a stacking context: without one, WebKit paints the
+        // ad's iframe on its own compositing layer that escapes the rounded
+        // clip and the corners come back square.
+        'isolate w-full overflow-hidden rounded-16 text-center',
         FORMAT_SPEC[format].minHeight,
         className,
       )}
     >
       <ins
         ref={insRef}
-        className="adsbygoogle"
+        // The radius is repeated on the <ins> because that is the closest
+        // ancestor of the injected iframe — clipping only at the wrapper leaves
+        // the creative's own corners square inside it.
+        className="adsbygoogle overflow-hidden rounded-16"
         data-testid={`adsense-slot-${slot}`}
         data-ad-client={ADSENSE_CLIENT_ID}
         data-ad-slot={config.id}
