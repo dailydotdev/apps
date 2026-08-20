@@ -184,9 +184,9 @@ export function ArbitragePostContent({
 
         {/* Everything from the action bar to the end of the thread above is the
             standard post page; the remaining units are gathered here so no ad
-            interrupts it. MPU 2 and 3 pair off from laptop, where the column
-            clears two 336px units side by side — stacking them only made the
-            page longer without earning anything. */}
+            interrupts it. They pair off from laptop, where the column clears
+            two units side by side — stacking them only made the page longer
+            without earning anything. */}
         <div className="mb-10 mt-6 flex flex-col gap-6">
           <ArbitrageAdSlot
             slot={ARBITRAGE_SLOT.video}
@@ -209,18 +209,24 @@ export function ArbitragePostContent({
             />
           </div>
 
-          <ArbitrageAdSlot
-            slot={ARBITRAGE_SLOT.commentMpu}
-            format={ArbitrageAdFormat.Rectangle}
-            reach="22%"
-          />
-
-          <ArbitrageAdSlot
-            slot={ARBITRAGE_SLOT.endOfArticle}
-            format={ArbitrageAdFormat.RichMedia}
-            reach="20%"
-            hideOnPhone
-          />
+          <div className="flex flex-col gap-6 laptop:flex-row laptop:items-start">
+            <ArbitrageAdSlot
+              slot={ARBITRAGE_SLOT.commentMpu}
+              format={ArbitrageAdFormat.Rectangle}
+              reach="22%"
+            />
+            {/* The rich media unit has no width of its own, and every flex
+                child here is flex-shrink:0 from the global reset, so it needs
+                min-w-0 with flex-1 to take the rest of the row instead of
+                overflowing it. */}
+            <ArbitrageAdSlot
+              slot={ARBITRAGE_SLOT.endOfArticle}
+              format={ArbitrageAdFormat.RichMedia}
+              reach="20%"
+              hideOnPhone
+              className="laptop:min-w-0 laptop:flex-1"
+            />
+          </div>
         </div>
       </PostContainer>
 
