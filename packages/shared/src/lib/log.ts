@@ -20,6 +20,8 @@ export enum Origin {
   BlockedFilter = 'blocked filter',
   SourcePage = 'source page',
   TagPage = 'tag page',
+  ToolPage = 'tool page',
+  ToolsDirectory = 'tools directory',
   Profile = 'profile',
   PostTags = 'post tags',
   // squads - start
@@ -372,6 +374,7 @@ export enum LogEvent {
   ShareComment = 'share comment',
   ShareLog = 'share log',
   ShareWorld = 'share world',
+  ShareTool = 'share tool',
   // End Share
   /* Start World
      `world view` is the denominator and fires whatever happens next, so the
@@ -465,6 +468,11 @@ export enum LogEvent {
   RemoveUserStack = 'remove user stack',
   ReorderUserStack = 'reorder user stack',
   ShareUserStack = 'share user stack',
+  // Tool pages
+  UpvoteTool = 'upvote tool',
+  RemoveToolUpvote = 'remove tool upvote',
+  DownvoteTool = 'downvote tool',
+  RemoveToolDownvote = 'remove tool downvote',
   // Hot Takes
   StartAddHotTake = 'start add hot take',
   AddHotTake = 'add hot take',
@@ -532,7 +540,6 @@ export enum TargetType {
   SpotlightCommand = 'spotlight command',
   MyFeedModal = 'my feed modal',
   ArticleAnonymousCTA = 'article anonymous cta',
-  PostSignupActivation = 'post signup activation',
   EnableNotifications = 'enable notifications',
   OnboardingChecklist = 'onboarding checklist',
   LoginButton = 'login button',
@@ -570,6 +577,7 @@ export enum TargetType {
   ReadingReminder = 'reading reminder',
   Source = 'source',
   Tag = 'tag',
+  Tool = 'tool',
   Quest = 'quest',
   IntroQuestModal = 'intro quest modal',
   // Settings

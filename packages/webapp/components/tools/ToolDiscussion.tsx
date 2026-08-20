@@ -1,0 +1,107 @@
+import type { ReactElement } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useMutation } from '@tanstack/react-query';
+import { initToolDiscussion } from '@dailydotdev/shared/src/graphql/tools';
+import { usePostById } from '@dailydotdev/shared/src/hooks/usePostById';
+import type { NewCommentRef } from '@dailydotdev/shared/src/components/post/NewComment';
+import { NewComment } from '@dailydotdev/shared/src/components/post/NewComment';
+import { PostComments } from '@dailydotdev/shared/src/components/post/PostComments';
+import PlaceholderCommentList from '@dailydotdev/shared/src/components/comments/PlaceholderCommentList';
+import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
+import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
+import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+
+const CommentInputOrModal = dynamic(
+  () =>
+    import(
+      /* webpackChunkName: "commentInputOrModal" */ '@dailydotdev/shared/src/components/comments/CommentInputOrModal'
+    ),
+);
+
+interface ToolDiscussionProps {
+  toolId: string;
+  toolTitle: string;
+  discussionPostId: string | null;
+}
+
+export const ToolDiscussion = ({
+  toolId,
+  toolTitle,
+  discussionPostId,
+}: ToolDiscussionProps): ReactElement => {
+  const { user, showLogin } = useAuthContext();
+  const { displayToast } = useToastNotification();
+  const commentRef = useRef<NewCommentRef>(null);
+  // Set once the mutation below creates the post, so the composer can be
+  // opened as soon as it finishes loading.
+  const shouldOpenOnLoad = useRef(false);
+  const [postId, setPostId] = useState<string | null>(discussionPostId);
+
+  // The SSG prop can still deliver the id after the client already resolved
+  // one from `initToolDiscussion` (ISR revalidation); never downgrade it.
+  useEffect(() => {
+    setPostId((current) => current ?? discussionPostId);
+  }, [discussionPostId]);
+
+  const { post, isLoading } = usePostById({ id: postId ?? '' });
+
+  useEffect(() => {
+    if (shouldOpenOnLoad.current && post) {
+      shouldOpenOnLoad.current = false;
+      commentRef.current?.onShowInput(Origin.ToolPage);
+    }
+  }, [post]);
+
+  const { mutate: startDiscussion, isPending: isStarting } = useMutation({
+    mutationFn: () => initToolDiscussion(toolId),
+    onSuccess: (id) => {
+      shouldOpenOnLoad.current = true;
+      setPostId(id);
+    },
+    onError: () => displayToast('Failed to start the discussion'),
+  });
+
+  const handleStart = (): void => {
+    if (!user) {
+      showLogin({ trigger: AuthTriggers.Comment });
+      return;
+    }
+
+    if (postId) {
+      commentRef.current?.onShowInput(Origin.ToolPage);
+      return;
+    }
+
+    startDiscussion();
+  };
+
+  if (postId && (isLoading || !post)) {
+    return <PlaceholderCommentList placeholderAmount={1} />;
+  }
+
+  if (postId && post) {
+    return (
+      <div className="flex flex-col gap-4">
+        <NewComment
+          post={post}
+          ref={commentRef}
+          CommentInputOrModal={CommentInputOrModal}
+        />
+        <PostComments post={post} origin={Origin.ToolPage} />
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      disabled={isStarting}
+      onClick={handleStart}
+      className="disabled:opacity-70 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3 text-left text-text-quaternary typo-callout"
+    >
+      Share your experience with {toolTitle}…
+    </button>
+  );
+};

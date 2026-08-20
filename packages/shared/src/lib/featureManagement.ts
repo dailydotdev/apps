@@ -296,15 +296,6 @@ export const featureCardImpressions = new Feature('card_impressions', false);
 // `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
 
-// Post-signup feed activation bar: a persistent, non-dismissible strip shown
-// above the header on every page for signed-in users who registered but have
-// not set up their feed yet (no tag/content customization). Control hides it
-// entirely. Keep the default `false` — GrowthBook ramps it.
-export const featurePostSignupActivation = new Feature(
-  'post_signup_activation',
-  false,
-);
-
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
   discountId: string;
