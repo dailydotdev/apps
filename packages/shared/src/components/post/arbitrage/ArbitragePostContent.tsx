@@ -182,6 +182,7 @@ export function ArbitragePostContent({
           slot={ARBITRAGE_SLOT.inlineMpu2}
           format={ArbitrageAdFormat.Rectangle}
           reach="45%"
+          hideOnPhone
           className="mb-6"
         />
 
@@ -189,6 +190,7 @@ export function ArbitragePostContent({
           slot={ARBITRAGE_SLOT.inlineMpu3}
           format={ArbitrageAdFormat.Rectangle}
           reach="32%"
+          hideOnPhone
           className="mb-6"
         />
 
@@ -198,6 +200,7 @@ export function ArbitragePostContent({
           slot={ARBITRAGE_SLOT.endOfArticle}
           format={ArbitrageAdFormat.RichMedia}
           reach="20%"
+          hideOnPhone
           className="mb-10"
         />
       </PostContainer>

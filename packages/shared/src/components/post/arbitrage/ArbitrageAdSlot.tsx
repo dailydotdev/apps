@@ -96,6 +96,15 @@ export interface ArbitrageAdSlotProps {
   reach?: string;
   /** Marks slots wired to a declared 30-60s in-view refresh once on Ad Manager. */
   refreshes?: boolean;
+  /**
+   * Drops the slot below the tablet breakpoint. The Better Ads Standards cap
+   * mobile ad density at 30% of page height, and a scraped post carries little
+   * body text to dilute it — running every slot on a phone measured 56%, which
+   * is what gets a site's ads filtered by Chrome. The unit is hidden rather
+   * than skipped so it also never requests: the ad only pushes on intersection,
+   * and a display:none box never intersects.
+   */
+  hideOnPhone?: boolean;
 }
 
 type InsAttributes = {
@@ -152,7 +161,11 @@ function LiveAdSlot({
   config,
   format,
   className,
-}: Pick<ArbitrageAdSlotProps, 'slot' | 'format' | 'className'> & {
+  hideOnPhone,
+}: Pick<
+  ArbitrageAdSlotProps,
+  'slot' | 'format' | 'className' | 'hideOnPhone'
+> & {
   config: AdsenseSlotConfig;
 }): ReactElement {
   const insRef = useRef<HTMLModElement>(null);
@@ -216,7 +229,11 @@ function LiveAdSlot({
         // returned. Without collapsing, the reserved min-height stays behind as
         // a block of empty page — most visible in the comment thread, where an
         // unfilled slot leaves a gap between the heading and the first comment.
-        'has-[>ins[data-ad-status="unfilled"]]:hidden',
+        // Important because `tablet:block` below sits in a media query, which
+        // the generated stylesheet emits after this plain rule — without it an
+        // unfilled phone-hidden slot would stay visible from tablet up.
+        'has-[>ins[data-ad-status="unfilled"]]:!hidden',
+        hideOnPhone && 'hidden tablet:block',
         FORMAT_SPEC[format].minHeight,
         FORMAT_SPEC[format].maxWidth,
         className,
@@ -251,6 +268,7 @@ export function ArbitrageAdSlot({
   className,
   reach,
   refreshes,
+  hideOnPhone,
 }: ArbitrageAdSlotProps): ReactElement | null {
   const slots = useReadAdsenseSlots();
   const isLive = Object.keys(slots).length > 0;
@@ -266,6 +284,7 @@ export function ArbitrageAdSlot({
         config={config}
         format={format}
         className={className}
+        hideOnPhone={hideOnPhone}
       />
     );
   }
@@ -283,6 +302,7 @@ export function ArbitrageAdSlot({
         // surface) so a filled slot reads as native page furniture rather than
         // a bolted-on iframe.
         'relative flex w-full items-center justify-center overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-3 py-4',
+        hideOnPhone && 'hidden tablet:flex',
         spec.minHeight,
         className,
       )}

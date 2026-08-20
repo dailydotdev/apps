@@ -27,6 +27,7 @@ export function ArbitrageComments({
         slot={ARBITRAGE_SLOT.commentNative}
         format={ArbitrageAdFormat.Native}
         reach="30%"
+        hideOnPhone
       />
       <PostComments post={post} origin={Origin.ArticlePage} />
       <ArbitrageAdSlot

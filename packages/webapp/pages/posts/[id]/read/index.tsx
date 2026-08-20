@@ -27,6 +27,7 @@ import { ArbitrageAnchor } from '@dailydotdev/shared/src/components/post/arbitra
 import { ADSENSE_SCRIPT_SRC } from '@dailydotdev/shared/src/components/post/arbitrage/adsense';
 import { useReadAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
 import { getLayout } from '../../../../components/layouts/MainLayout';
+import FooterNavBarLayout from '../../../../components/layouts/FooterNavBarLayout';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import {
   getSeoDescription,
@@ -107,26 +108,34 @@ const ArbitragePostPage = ({
 
   return (
     <ActivePostContextProvider post={post}>
-      <Head>
-        <link rel="preload" as="image" href={post?.image} />
-      </Head>
-      {adsLive && (
-        <Script
-          id="adsbygoogle-loader"
-          src={ADSENSE_SCRIPT_SRC}
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
+      {/* Below laptop MainLayoutHeader renders the feed nav, which a post route
+          has nothing to fill, so without this the page carries no navigation at
+          all on a phone — the single clearest doorway-page signal there is. The
+          post is deliberately not passed: that would add the mobile floating
+          comment bar, a third fixed element competing with the footer nav and
+          the anchor for the bottom of a phone screen. */}
+      <FooterNavBarLayout>
+        <Head>
+          <link rel="preload" as="image" href={post?.image} />
+        </Head>
+        {adsLive && (
+          <Script
+            id="adsbygoogle-loader"
+            src={ADSENSE_SCRIPT_SRC}
+            strategy="afterInteractive"
+            crossOrigin="anonymous"
+          />
+        )}
+        <PostSEOSchema post={post} topComments={topComments} />
+        <ArbitragePostContent
+          post={post}
+          // 72rem, wider than the standard template's 69.25rem: the main column
+          // has to clear 728px for a leaderboard to render at its full size, and
+          // at 69.25rem it only had 704px. 1152 - 340 rail - 64 padding = 748px.
+          className="min-h-page max-w-[72rem] pb-28"
         />
-      )}
-      <PostSEOSchema post={post} topComments={topComments} />
-      <ArbitragePostContent
-        post={post}
-        // 72rem, wider than the standard template's 69.25rem: the main column
-        // has to clear 728px for a leaderboard to render at its full size, and
-        // at 69.25rem it only had 704px. 1152 - 340 rail - 64 padding = 748px.
-        className="min-h-page max-w-[72rem] pb-28"
-      />
-      <ArbitrageAnchor />
+        <ArbitrageAnchor />
+      </FooterNavBarLayout>
     </ActivePostContextProvider>
   );
 };

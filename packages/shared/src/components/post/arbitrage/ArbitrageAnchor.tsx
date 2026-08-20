@@ -38,7 +38,9 @@ export function ArbitrageAnchor(): ReactElement | null {
   }
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-3 px-2 pb-2">
+    // bottom-16 below tablet clears the mobile footer nav, which is fixed to
+    // the bottom at the same z-3. pb-safe keeps it off the iOS home indicator.
+    <div className="pointer-events-none fixed inset-x-0 bottom-16 z-3 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] tablet:bottom-0">
       <div className="bg-background-default/95 pointer-events-auto mx-auto max-w-[72rem] overflow-hidden rounded-16 shadow-2 backdrop-blur">
         <ArbitrageAdSlot
           slot={ARBITRAGE_SLOT.floatingLeaderboard}
