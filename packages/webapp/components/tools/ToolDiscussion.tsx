@@ -12,6 +12,20 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { useUserCompaniesQuery } from '@dailydotdev/shared/src/hooks/userCompany/useUserCompaniesQuery';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -26,12 +40,32 @@ interface ToolDiscussionProps {
   discussionPostId: string | null;
 }
 
+const VerifiedGateNotice = (): ReactElement => (
+  <div className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3">
+    <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+      Tool discussions are limited to devs with a verified work email
+    </Typography>
+    <Link href={`${webappUrl}settings/profile/experience/work`} passHref>
+      <Button
+        tag="a"
+        href={`${webappUrl}settings/profile/experience/work`}
+        variant={ButtonVariant.Secondary}
+        size={ButtonSize.Small}
+        className="self-start"
+      >
+        Verify work email
+      </Button>
+    </Link>
+  </div>
+);
+
 export const ToolDiscussion = ({
   toolId,
   toolTitle,
   discussionPostId,
 }: ToolDiscussionProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
+  const { isVerified, isLoading: isCompaniesLoading } = useUserCompaniesQuery();
   const { displayToast } = useToastNotification();
   const commentRef = useRef<NewCommentRef>(null);
   // Set once the mutation below creates the post, so the composer can be
@@ -60,8 +94,15 @@ export const ToolDiscussion = ({
       shouldOpenOnLoad.current = true;
       setPostId(id);
     },
-    onError: () => displayToast('Failed to start the discussion'),
+    onError: (error: unknown) => {
+      const message = (error as GraphQLError)?.response?.errors?.[0]?.message;
+      displayToast(message ?? 'Failed to start the discussion');
+    },
   });
+
+  // Logged in but no verified work email: the server rejects the mutation
+  // anyway, so the composer is replaced before the user ever gets there.
+  const isGated = !!user && !isCompaniesLoading && !isVerified;
 
   const handleStart = (): void => {
     if (!user) {
@@ -84,14 +125,22 @@ export const ToolDiscussion = ({
   if (postId && post) {
     return (
       <div className="flex flex-col gap-4">
-        <NewComment
-          post={post}
-          ref={commentRef}
-          CommentInputOrModal={CommentInputOrModal}
-        />
+        {isGated ? (
+          <VerifiedGateNotice />
+        ) : (
+          <NewComment
+            post={post}
+            ref={commentRef}
+            CommentInputOrModal={CommentInputOrModal}
+          />
+        )}
         <PostComments post={post} origin={Origin.ToolPage} />
       </div>
     );
+  }
+
+  if (isGated) {
+    return <VerifiedGateNotice />;
   }
 
   return (
