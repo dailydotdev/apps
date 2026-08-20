@@ -23,9 +23,11 @@ export function ArbitrageTopLeaderboard(): ReactElement {
     <div
       className={classNames(
         'bg-background-default pb-2 pt-4',
-        // z-1 keeps it above article text while pinned but below the app header
-        // and any modal layer.
-        !released && 'sticky top-16 z-1',
+        // The fixed app header only exists from laptop up — below that
+        // MainLayoutHeader renders the feed nav instead, so pinning at 4rem
+        // would strand the unit below an empty band. z-1 keeps it above article
+        // text while pinned but below the header and any modal layer.
+        !released && 'sticky top-0 z-1 laptop:top-16',
       )}
     >
       <ArbitrageAdSlot

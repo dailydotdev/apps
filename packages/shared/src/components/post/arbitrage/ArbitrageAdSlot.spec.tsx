@@ -54,6 +54,22 @@ describe('ArbitrageAdSlot', () => {
     expect(screen.queryByTestId('adsense-slot-3')).not.toBeInTheDocument();
   });
 
+  it('drops phone-hidden slots below the tablet breakpoint', () => {
+    setSlots({ '5': { id: '1234567890', type: 'inArticle' } });
+    render(
+      <ArbitrageAdSlot
+        slot={5}
+        format={ArbitrageAdFormat.Rectangle}
+        hideOnPhone
+      />,
+    );
+
+    expect(screen.getByTestId('adsense-slot-5').parentElement).toHaveClass(
+      'hidden',
+      'tablet:block',
+    );
+  });
+
   it('renders a live in-article unit when the slot is configured', () => {
     setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
     render(<ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} />);

@@ -67,6 +67,7 @@ export function ArbitragePostWidgets({
         slot={ARBITRAGE_SLOT.railMpu1}
         format={ArbitrageAdFormat.Rectangle}
         reach="70%"
+        hideOnPhone
       />
       {/* The rail units are anchored to named widgets rather than to the block
           positions in the partner's brief: this column has far fewer than nine
@@ -81,6 +82,7 @@ export function ArbitragePostWidgets({
               slot={ARBITRAGE_SLOT.railMpu2}
               format={ArbitrageAdFormat.Rectangle}
               reach="45%"
+              hideOnPhone
             />
           }
         />
@@ -93,6 +95,7 @@ export function ArbitragePostWidgets({
         slot={ARBITRAGE_SLOT.railStickyMpu}
         format={ArbitrageAdFormat.HalfPage}
         reach="100%"
+        hideOnPhone
         className="laptop:sticky laptop:top-20"
       />
     </PageWidgets>
