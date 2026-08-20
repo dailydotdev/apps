@@ -12,6 +12,8 @@ import type { NextSeoProps } from 'next-seo';
 import type {
   AlsoStackedTool,
   ToolAdoption,
+  ToolAlternative,
+  ToolOfficialSource,
   ToolPageTool,
   ToolStacker,
   ToolTake,
@@ -21,7 +23,9 @@ import type {
 import {
   getDatasetTool,
   getToolAdoption,
+  getToolAlternatives,
   getToolCategoryAnchor,
+  getToolOfficialSource,
   getToolsAlsoStacked,
   getToolStackers,
   getToolStackersFollowing,
@@ -30,6 +34,8 @@ import {
   getToolVoteState,
   voteTool,
 } from '@dailydotdev/shared/src/graphql/tools';
+import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   generateQueryKey,
@@ -90,9 +96,11 @@ import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
 import { ToolDiscussion } from '../../components/tools/ToolDiscussion';
 import { ToolIcon } from '../../components/tools/ToolIcon';
+import { ToolCard } from '../../components/tools/ToolCard';
 
 const TOP_POSTS_COUNT = 5;
 const STACKERS_COUNT = 5;
+const ALTERNATIVES_COUNT = 6;
 // Mirrors the sitemap inclusion gate in daily-api.
 const MIN_INDEXABLE_STACKS = 3;
 
@@ -164,6 +172,8 @@ export interface ToolPageProps {
   stackers: ToolStacker[];
   adoption: ToolAdoption | null;
   takes: ToolTake[];
+  officialSource: ToolOfficialSource | null;
+  alternatives: ToolAlternative[];
 }
 
 const SPARK_WIDTH = 400;
@@ -259,6 +269,8 @@ const ToolPage = ({
   stackers,
   adoption,
   takes,
+  officialSource,
+  alternatives,
 }: ToolPageProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { stackItems, add } = useUserStack(user as PublicProfile);
@@ -441,6 +453,33 @@ const ToolPage = ({
     [logEvent],
   );
 
+  const handleOfficialSourceClick = useCallback(() => {
+    if (!officialSource) {
+      return;
+    }
+    logEvent({
+      event_name: LogEvent.Click,
+      target_type: TargetType.Source,
+      target_id: officialSource.id,
+      extra: JSON.stringify({ origin: Origin.ToolPage }),
+    });
+  }, [logEvent, officialSource]);
+
+  const handleAlternativeClick = useCallback(
+    (alternative: ToolAlternative) => {
+      logEvent({
+        event_name: LogEvent.Click,
+        target_type: TargetType.Tool,
+        target_id: alternative.slug,
+        extra: JSON.stringify({
+          origin: Origin.ToolPage,
+          section: 'alternatives',
+        }),
+      });
+    },
+    [logEvent],
+  );
+
   const websiteHost = tool.url ? getDomainFromUrl(tool.url) : null;
   const sparklinePoints = useMemo(
     () => (adoption ? getSparklinePoints(adoption) : null),
@@ -499,6 +538,24 @@ const ToolPage = ({
             {tool.title}
           </Typography>
           <div className="flex flex-wrap items-center gap-2">
+            {officialSource && (
+              <Link href={officialSource.permalink} passHref>
+                <a
+                  href={officialSource.permalink}
+                  onClick={handleOfficialSourceClick}
+                  className="border-accent-cabbage-default/40 flex items-center rounded-8 border bg-accent-cabbage-subtlest px-2.5 py-0.5 font-bold text-text-primary typo-footnote hover:border-accent-cabbage-default"
+                >
+                  <SourceAvatar
+                    source={officialSource}
+                    size={ProfileImageSize.Size16}
+                    className="!mr-1.5"
+                  />
+                  {officialSource.type === SourceType.Squad
+                    ? 'Official squad'
+                    : 'Official source'}
+                </a>
+              </Link>
+            )}
             {websiteHost && (
               <a
                 href={tool.url ?? undefined}
@@ -862,6 +919,20 @@ const ToolPage = ({
         </div>
       </div>
 
+      {alternatives.length > 0 && (
+        <Card title="Alternatives">
+          <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
+            {alternatives.map((alternative) => (
+              <ToolCard
+                key={alternative.id}
+                tool={alternative}
+                onClick={() => handleAlternativeClick(alternative)}
+              />
+            ))}
+          </div>
+        </Card>
+      )}
+
       <div id="discussion" className="scroll-mt-16">
         <Card title="Discussion">
           <ToolDiscussion
@@ -917,19 +988,29 @@ export async function getStaticProps({
   try {
     const tool = await getDatasetTool(slug);
 
-    const [alsoStacked, topSquads, topPosts, stackers, adoption, takes] =
-      await Promise.all([
-        getToolsAlsoStacked(tool.id),
-        getTopSquadsForTool({ toolId: tool.id, first: 3 }),
-        tool.keyword
-          ? getToolTopPosts(tool.keyword, TOP_POSTS_COUNT)
-          : Promise.resolve([]),
-        // Tolerate the API not exposing the social queries yet during deploy
-        // windows.
-        getToolStackers(tool.id, STACKERS_COUNT).catch(() => []),
-        getToolAdoption(tool.id).catch(() => null),
-        getToolTakes(tool.id).catch(() => []),
-      ]);
+    const [
+      alsoStacked,
+      topSquads,
+      topPosts,
+      stackers,
+      adoption,
+      takes,
+      officialSource,
+      alternatives,
+    ] = await Promise.all([
+      getToolsAlsoStacked(tool.id),
+      getTopSquadsForTool({ toolId: tool.id, first: 3 }),
+      tool.keyword
+        ? getToolTopPosts(tool.keyword, TOP_POSTS_COUNT)
+        : Promise.resolve([]),
+      // Tolerate the API not exposing the social queries yet during deploy
+      // windows.
+      getToolStackers(tool.id, STACKERS_COUNT).catch(() => []),
+      getToolAdoption(tool.id).catch(() => null),
+      getToolTakes(tool.id).catch(() => []),
+      getToolOfficialSource(slug).catch(() => null),
+      getToolAlternatives(tool.id, ALTERNATIVES_COUNT).catch(() => []),
+    ]);
 
     const seoTitles = getPageSeoTitles(
       `${tool.title} — adoption, squads and posts for developers`,
@@ -944,6 +1025,8 @@ export async function getStaticProps({
         stackers,
         adoption,
         takes,
+        officialSource,
+        alternatives,
         seo: {
           title: seoTitles.title,
           openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
