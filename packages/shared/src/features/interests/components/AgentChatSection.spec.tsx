@@ -10,7 +10,7 @@ import * as lazyModal from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { Origin } from '../../../lib/log';
 import type { AgentMessage } from '../chat';
-import { AgentProvider } from '../AgentContext';
+import { AgentProvider, useAgent } from '../AgentContext';
 import { AgentChatSection } from './AgentChatSection';
 
 const post = (id: string, title: string): Post =>
@@ -231,5 +231,69 @@ describe('sharing a reply', () => {
         name: /Copy link/,
       }),
     ).toBeEnabled();
+  });
+});
+
+describe('a post link in the reply text', () => {
+  const ActivePostProbe = () => {
+    const { activeContent } = useAgent();
+    return (
+      <div data-testid="active-post">
+        {activeContent?.type === 'post' ? activeContent.post.id : 'none'}
+      </div>
+    );
+  };
+
+  const linked: AgentMessage = {
+    id: 'm2',
+    role: 'agent',
+    at: new Date(0).toISOString(),
+    blocks: [
+      {
+        type: 'text',
+        html: '<p>Read <a href="https://app.daily.dev/posts/p1/">Zig 0.15</a> or <a href="https://example.com/posts/xyz">elsewhere</a>.</p>',
+      },
+    ],
+  };
+
+  const renderLinked = () =>
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <AgentProvider
+          id="a1"
+          isDemo
+          initialMessages={[linked]}
+          findings={[
+            {
+              id: 'f1',
+              post: post('p1', 'Zig 0.15'),
+              score: 0.9,
+              rationale: '',
+              createdAt: new Date(0).toISOString(),
+            },
+          ]}
+        >
+          <AgentChatSection />
+          <ActivePostProbe />
+        </AgentProvider>
+      </TestBootProvider>,
+    );
+
+  it('opens a known post in the side pane instead of navigating', () => {
+    renderLinked();
+
+    fireEvent.click(screen.getByRole('link', { name: 'Zig 0.15' }));
+
+    expect(screen.getByTestId('active-post')).toHaveTextContent('p1');
+  });
+
+  it('leaves links it cannot resolve alone', () => {
+    renderLinked();
+
+    const link = screen.getByRole('link', { name: 'elsewhere' });
+    link.addEventListener('click', (event) => event.preventDefault());
+    fireEvent.click(link);
+
+    expect(screen.getByTestId('active-post')).toHaveTextContent('none');
   });
 });

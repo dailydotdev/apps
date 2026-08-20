@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Markdown from '../../../components/Markdown';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
@@ -18,7 +18,6 @@ import {
   BulletListIcon,
   CopyIcon,
   DownvoteIcon,
-  FeatherIcon,
   ShareIcon,
   MiniCloseIcon,
   TimerIcon,
@@ -44,19 +43,46 @@ import { AgentThinkingStrip } from './AgentThinkingStrip';
 import { AgentPostCard } from './AgentPostCard';
 import { AgentEmbedCard } from './blocks/AgentEmbedCard';
 
+const postLinkKey = (href: string): string => {
+  try {
+    const url = new URL(href);
+    return `${url.origin}${url.pathname.replace(/\/+$/, '')}`;
+  } catch {
+    return href;
+  }
+};
+
 const BlockRenderer = ({
   block,
   onPostClick,
   onFeedClick,
+  resolvePostLink,
   activePostId,
 }: {
   block: AgentBlock;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
+  resolvePostLink: (href: string) => Post | undefined;
   activePostId?: string;
 }): ReactElement => {
   if (block.type === 'text') {
-    return <Markdown className={transcriptProse} content={block.html} />;
+    return (
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+      <div
+        onClick={(event) => {
+          const anchor = (event.target as Element).closest('a');
+          const post = anchor && resolvePostLink(anchor.href);
+          if (!post) {
+            return;
+          }
+          event.preventDefault();
+          event.stopPropagation();
+          onPostClick(post);
+        }}
+      >
+        <Markdown className={transcriptProse} content={block.html} />
+      </div>
+    );
   }
 
   if (block.type === 'feedLink') {
@@ -301,13 +327,13 @@ const MessageRow = ({
   message,
   onPostClick,
   onFeedClick,
-  onSummaryClick,
+  resolvePostLink,
   activePostId,
 }: {
   message: AgentMessage;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
-  onSummaryClick: (postId?: string) => void;
+  resolvePostLink: (href: string) => Post | undefined;
   activePostId?: string;
 }): ReactElement => {
   if (message.role === 'user') {
@@ -357,18 +383,10 @@ const MessageRow = ({
               block={block}
               onPostClick={onPostClick}
               onFeedClick={onFeedClick}
+              resolvePostLink={resolvePostLink}
               activePostId={activePostId}
             />
           ))}
-          {!!message.summaryPost && (
-            <AgentEmbedCard
-              icon={<FeatherIcon size={IconSize.Size16} />}
-              title={message.summaryPost.title ?? 'Summary post'}
-              subtitle="Post written this run"
-              actionLabel="Open"
-              onAction={() => onSummaryClick(message.summaryPost?.id)}
-            />
-          )}
           {!!message.blocks?.length && <MessageActions message={message} />}
         </>
       )}
@@ -383,9 +401,19 @@ export const AgentChatSection = (): ReactElement => {
     activeContent,
     queuedCommands,
     removeQueuedCommand,
+    findingsPosts,
   } = useAgent();
   const activePostId =
     activeContent?.type === 'post' ? activeContent.post.id : undefined;
+  const postsByLink = useMemo(
+    () =>
+      new Map(
+        findingsPosts
+          .filter((post) => post.commentsPermalink)
+          .map((post) => [postLinkKey(post.commentsPermalink), post]),
+      ),
+    [findingsPosts],
+  );
 
   return (
     <FlexCol className="gap-6">
@@ -397,9 +425,7 @@ export const AgentChatSection = (): ReactElement => {
           onFeedClick={(label, posts) =>
             openContentTarget({ type: 'feed', label, posts })
           }
-          onSummaryClick={(postId) =>
-            openContentTarget({ type: 'posts', postId })
-          }
+          resolvePostLink={(href) => postsByLink.get(postLinkKey(href))}
           activePostId={activePostId}
         />
       ))}
