@@ -34,7 +34,6 @@ import {
 } from '../../../../components/PostSEOSchema';
 import type { DynamicSeoProps } from '../../../../components/common';
 import { noindexSeoProps } from '../../../../next-seo';
-import { getPostCanonicalUrl } from '../../../../lib/seo';
 import type { PostParams } from '../index';
 import { seoTitle } from '../index';
 
@@ -165,8 +164,11 @@ export async function getStaticProps({
 
     const post = initialData.post as Post;
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
+    // noindex only, deliberately without a canonical to the parent post:
+    // canonical asks Google to consolidate while noindex asks it to drop the
+    // page — mixed signals Google warns against. This page must simply never
+    // rank, so it sends the one unambiguous directive.
     const seo: NextSeoProps = {
-      canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       ...noindexSeoProps,
