@@ -21,7 +21,7 @@ export const useNotificationFilterCategories = ({
       showAgent
         ? notificationFilterCategoryList
         : notificationFilterCategoryList.filter(
-            (category) => category !== NotificationFilterCategory.Agent,
+            (category) => category !== NotificationFilterCategory.Agents,
           ),
     [showAgent],
   );

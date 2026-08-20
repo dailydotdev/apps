@@ -28,6 +28,11 @@ const TimezoneDropdown = ({
     const findTimeZoneRow = timeZoneOptions.find((_timeZone) => {
       return _timeZone.label === timezone;
     });
+
+    if (!findTimeZoneRow) {
+      throw new Error(`Timezone option not found: ${timezone}`);
+    }
+
     setUserTimeZone(findTimeZoneRow.value);
     await updateUserProfile({ timezone: findTimeZoneRow.value });
   };

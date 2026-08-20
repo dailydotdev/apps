@@ -7,8 +7,14 @@ export const MAX_STACK_ITEMS = 100;
 export interface DatasetTool {
   id: string;
   title: string;
+  slug: string;
   faviconUrl: string | null;
 }
+
+// autocompleteTools resolves plain TypeORM entities (no GraphORM field
+// mapping), so `slug` (backed by titleNormalized) comes back null there.
+// Excluded until the API adds a resolver fallback.
+export type AutocompleteTool = Omit<DatasetTool, 'slug'>;
 
 export interface ToolTopSquad {
   id: string;
@@ -60,6 +66,7 @@ export const USER_STACK_FRAGMENT = gql`
     tool {
       id
       title
+      slug
       faviconUrl
     }
   }
@@ -158,9 +165,11 @@ export const getUserStack = async (
   return result.userStack;
 };
 
-export const searchTools = async (query: string): Promise<DatasetTool[]> => {
+export const searchTools = async (
+  query: string,
+): Promise<AutocompleteTool[]> => {
   const result = await gqlClient.request<{
-    autocompleteTools: DatasetTool[];
+    autocompleteTools: AutocompleteTool[];
   }>(AUTOCOMPLETE_TOOLS_QUERY, { query });
   return result.autocompleteTools;
 };

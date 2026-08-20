@@ -108,6 +108,14 @@ export const featureCores = new Feature('cores', isDevelopment);
 // automated streak freeze: auto-apply purchased freezes on missed reading days
 export const featureStreakFreeze = new Feature('streak_freeze', isDevelopment);
 
+// Experiment: sponsored partner offers (via Encore) replacing the classic
+// streak milestone popup. Enrollment is conditional on the popup actually
+// showing; treatment falls back to the classic popup when no offers return.
+export const featureStreakMilestoneOffers = new Feature(
+  'streak_milestone_offers',
+  isDevelopment,
+);
+
 // whether the user will see post boost ads
 // does not necessarily mean they can't boost a post if they have access to cores
 export const featurePostBoostAds = new Feature('post_boost_ads', isDevelopment);
@@ -278,30 +286,15 @@ export const featurePublicSignupBanner = new Feature(
   false,
 );
 
-// Experiment: redesigned notifications page (type filters, time grouping,
-// compact rows) backed by server-side type filtering on daily-api. Control is
-// the legacy single-list page. Keep the default `false` — GrowthBook ramps it.
-export const featureNotificationsRedesign = new Feature(
-  'notifications_redesign',
-  false,
-);
-
 // Surfaces a per-post impressions stat on the feed card action bar and the
 // post page stats strip, sourced from the public `analytics.impressions`
 // field. Control hides it entirely. Keep the default `false` — GrowthBook
 // ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
 
-export const featureInterestAgent = new Feature('interest_agent', false);
-
-// Post-signup feed activation bar: a persistent, non-dismissible strip shown
-// above the header on every page for signed-in users who registered but have
-// not set up their feed yet (no tag/content customization). Control hides it
-// entirely. Keep the default `false` — GrowthBook ramps it.
-export const featurePostSignupActivation = new Feature(
-  'post_signup_activation',
-  false,
-);
+// Gates every agent surface; control hides all of them. Keep the default
+// `false`, GrowthBook ramps it.
+export const featureInterestAgent = new Feature('interest_agent', true);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
