@@ -16,7 +16,9 @@ import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
-import HijackingLoginStrip from './HijackingLoginStrip';
+import HijackingLoginStrip, {
+  resetHijackingImpressionForTests,
+} from './HijackingLoginStrip';
 
 jest.mock('@dailydotdev/shared/src/contexts/AuthContext', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/contexts/AuthContext'),
@@ -181,6 +183,7 @@ beforeAll(() => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  resetHijackingImpressionForTests();
   mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: false });
   setVariant(HijackingVariant.Default);
   mockUseSignBack.mockReturnValue({
@@ -205,6 +208,59 @@ describe('HijackingLoginStrip', () => {
     expect(mockUseConditionalFeature).toHaveBeenCalledWith(
       expect.objectContaining({ shouldEvaluate: false }),
     );
+  });
+
+  // `isV2` is false while auth resolves, which is indistinguishable from
+  // "resolved, not v2". The extension boots GrowthBook from its localStorage
+  // cache before auth settles, so evaluating on `isV2` alone enrolls laptop v2
+  // users during that window and then shows them nothing.
+  it('does not enroll while the layout is still resolving', () => {
+    mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: true });
+    setVariant(HijackingVariant.Cover);
+
+    const { container } = renderComponent();
+
+    expect(container).toBeEmptyDOMElement();
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
+  });
+
+  // Height parity is the experiment's controlled variable, so the sizer has to
+  // reserve the control's geometry for the *same* auth state — the control's
+  // paragraph is conditional and the onboarding branch wraps to more lines.
+  it.each([
+    [true, 'Log in to pick up where you left off.'],
+    [false, /You still have a few onboarding steps left/],
+  ])('reserves the control copy for isLoggedOut=%s', (isLoggedOut, body) => {
+    setVariant(HijackingVariant.Default);
+    const { unmount } = renderComponent(
+      isLoggedOut ? {} : { user: loggedUser, isLoggedIn: true },
+    );
+
+    expect(screen.getByText(body)).toBeVisible();
+    unmount();
+
+    setVariant(HijackingVariant.Cover);
+    renderComponent(isLoggedOut ? {} : { user: loggedUser, isLoggedIn: true });
+
+    // the cover arm reserves it invisibly rather than showing it
+    expect(screen.getByText(body)).toBeInTheDocument();
+  });
+
+  it('logs one impression per visit across a remount', () => {
+    setVariant(HijackingVariant.Cover);
+
+    const { unmount } = renderComponent();
+
+    unmount();
+    renderComponent();
+
+    const impressions = logEvent.mock.calls.filter(
+      ([event]) => event.event_name === LogEvent.Impression,
+    );
+
+    expect(impressions).toHaveLength(1);
   });
 
   it('renders nothing while the experiment is loading', () => {

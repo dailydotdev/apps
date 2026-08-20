@@ -60,5 +60,3 @@ plans/*.md
 # Claude Code runtime state (hooks/skills/settings remain tracked)
 .claude/scheduled_tasks.lock
 .claude/drafts/
-# Local review builds of the extension, never committed
-dailydev-cover-strip-REVIEW-*.zip
