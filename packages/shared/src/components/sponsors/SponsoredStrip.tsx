@@ -63,7 +63,7 @@ export type SponsoredStripProps = {
 // (18px against 15px), which is enough to rank it without turning the
 // rail into a billboard.
 const PRIMARY_CAP = 23;
-const PARTNER_CAP = 16;
+export const PARTNER_CAP = 16;
 
 /**
  * Cap heights are sized to the 40px rail: at PARTNER_CAP the tallest
@@ -325,7 +325,7 @@ const SponsorSlot = ({
   </span>
 );
 
-const Label = ({
+export const Label = ({
   children,
   className,
 }: {
@@ -350,7 +350,7 @@ const Label = ({
  * near-black or near-white disappears on one of them. See the
  * LogoTreatment story for the check.
  */
-const PrimaryLockup = ({
+export const PrimaryLockup = ({
   onSponsorClick,
   primary,
   vertical = false,
@@ -402,7 +402,7 @@ const PrimaryLockup = ({
  */
 const PARTNER_GAP = 16;
 
-const PartnerRow = ({
+export const PartnerRow = ({
   monochrome,
   partners,
 }: Pick<SponsoredStripProps, 'partners' | 'monochrome'>): ReactElement => {
@@ -426,7 +426,7 @@ const PartnerRow = ({
   );
 };
 
-const Divider = (): ReactElement => (
+export const Divider = (): ReactElement => (
   <span className="h-5 w-px shrink-0 bg-border-subtlest-tertiary" aria-hidden />
 );
 
