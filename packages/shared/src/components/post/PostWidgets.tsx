@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useContext } from 'react';
 import dynamic from 'next/dynamic';
 import { PageWidgets } from '../utilities';
@@ -44,13 +44,29 @@ const SquadEntityCard = dynamic(
 );
 
 export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
-  Omit<ShareMobileProps, 'link'>;
+  Omit<ShareMobileProps, 'link'> & {
+    /** Ad templates optimise for impressions, not accounts. */
+    hideSignupWidget?: boolean;
+    /** Ad templates give the table of contents' space to a slot instead. */
+    hideToc?: boolean;
+    /** Rendered directly under the source card. */
+    afterSourceCard?: ReactNode;
+    /** Rendered between further reading's two sections. */
+    betweenFurtherReading?: ReactNode;
+    /** Rendered last, below the footer links. */
+    trailing?: ReactNode;
+  };
 
 export function PostWidgets({
   onCopyPostLink,
   post,
   className,
   origin,
+  hideSignupWidget = false,
+  hideToc = false,
+  afterSourceCard,
+  betweenFurtherReading,
+  trailing,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { source } = post;
@@ -83,8 +99,9 @@ export function PostWidgets({
 
   return (
     <PageWidgets className={className}>
-      <PostSignupWidget />
+      {!hideSignupWidget && <PostSignupWidget />}
       {sourceCard}
+      {afterSourceCard}
       {creator && (
         <UserEntityCard
           className={{
@@ -106,9 +123,16 @@ export function PostWidgets({
         onCopyPostLink={onCopyPostLink}
       />
       <HighlightPostSidebarWidget />
-      {tokenRefreshed && <FurtherReading currentPost={post} />}
+      {tokenRefreshed && (
+        <FurtherReading
+          currentPost={post}
+          hideToc={hideToc}
+          betweenSections={betweenFurtherReading}
+        />
+      )}
       <FeaturedArchives postId={post.id} />
       <FooterLinks />
+      {trailing}
     </PageWidgets>
   );
 }
