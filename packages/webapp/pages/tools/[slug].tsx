@@ -26,7 +26,6 @@ import {
   getToolAlternatives,
   getToolCategoryAnchor,
   getToolOfficialSource,
-  getToolOfficialSourceHref,
   getToolsAlsoStacked,
   getToolStackers,
   getToolStackersFollowing,
@@ -36,6 +35,7 @@ import {
   voteTool,
 } from '@dailydotdev/shared/src/graphql/tools';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import { SourceAvatar } from '@dailydotdev/shared/src/components/profile/source/SourceAvatar';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   generateQueryKey,
@@ -539,20 +539,16 @@ const ToolPage = ({
           </Typography>
           <div className="flex flex-wrap items-center gap-2">
             {officialSource && (
-              <Link href={getToolOfficialSourceHref(officialSource)} passHref>
+              <Link href={officialSource.permalink} passHref>
                 <a
-                  href={getToolOfficialSourceHref(officialSource)}
+                  href={officialSource.permalink}
                   onClick={handleOfficialSourceClick}
-                  className="border-accent-cabbage-default/40 flex items-center gap-1.5 rounded-8 border bg-accent-cabbage-subtlest px-2.5 py-0.5 font-bold text-text-primary typo-footnote hover:border-accent-cabbage-default"
+                  className="border-accent-cabbage-default/40 flex items-center rounded-8 border bg-accent-cabbage-subtlest px-2.5 py-0.5 font-bold text-text-primary typo-footnote hover:border-accent-cabbage-default"
                 >
-                  <ProfilePicture
+                  <SourceAvatar
+                    source={officialSource}
                     size={ProfileImageSize.Size16}
-                    rounded="full"
-                    user={{
-                      id: officialSource.id,
-                      image: officialSource.image,
-                      username: officialSource.handle,
-                    }}
+                    className="!mr-1.5"
                   />
                   {officialSource.type === SourceType.Squad
                     ? 'Official squad'

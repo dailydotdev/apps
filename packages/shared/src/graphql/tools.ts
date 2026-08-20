@@ -2,7 +2,6 @@ import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { DatasetTool } from './user/userStack';
 import type { Source } from './sources';
-import { SourceType } from './sources';
 
 export interface ToolPageTool extends DatasetTool {
   url: string | null;
@@ -95,11 +94,6 @@ export const getToolOfficialSource = async (
   }>(TOOL_OFFICIAL_SOURCE_QUERY, { slug });
   return result.datasetTool.officialSource;
 };
-
-export const getToolOfficialSourceHref = (source: ToolOfficialSource): string =>
-  source.type === SourceType.Squad
-    ? `/squads/${source.handle}`
-    : `/sources/${source.handle}`;
 
 export interface ToolAlternative extends DatasetTool {
   stackCount: number;
