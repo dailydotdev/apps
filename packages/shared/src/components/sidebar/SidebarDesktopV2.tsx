@@ -90,7 +90,7 @@ import {
   TerminalIcon,
   TrendingIcon,
 } from '../icons';
-import { useSettingsBooleanFlag } from '../../hooks/useSettingsBooleanFlag';
+import { useSidebarCompact } from '../../hooks/useSidebarCompact';
 import { IconSize } from '../Icon';
 import { Tooltip } from '../tooltip/Tooltip';
 import { RailHoverPanel } from './RailHoverPanel';
@@ -729,7 +729,7 @@ export const SidebarDesktopV2 = ({
   if (isExtension) {
     myFeedPath = `${webappUrl}my-feed`;
   }
-  const { value: isCompact } = useSettingsBooleanFlag('sidebarCompact');
+  const { value: isCompact } = useSidebarCompact();
   // Compact mode reverts to the original icon-only widths (pre-label rail).
   // Both width sets are known-good; MainLayout mirrors the collapsed/expanded
   // padding so the content never overlaps the rail.
@@ -2345,60 +2345,72 @@ export const SidebarDesktopV2 = ({
             suppressTransition,
           )}
         >
-          {/* pl-5 lines the panel title up with the list rows' icon glyphs
-            (icons sit ~8px into their w-9 column) and the section titles. */}
-          <div className="pl-5 pr-3 pt-6">
-            {isSettingsSelected ? (
-              <Button
-                type="button"
-                variant={ButtonVariant.Subtle}
-                size={ButtonSize.Small}
-                // Smaller glyph, flipped to point left (it's a back action).
-                icon={
-                  <MoveToIcon size={IconSize.Size16} className="-scale-x-100" />
-                }
-                onClick={onBackToApp}
-                className="-ml-1"
+          {/* Pinned to the open width so the content does not reflow while
+            the panel animates its own width. */}
+          <div
+            className={classNames(
+              'flex min-h-0 flex-1 flex-col',
+              !isSettingsSelected && 'w-60',
+            )}
+          >
+            {/* pl-5 lines the panel title up with the list rows' icon glyphs
+              (icons sit ~8px into their w-9 column) and the section titles. */}
+            <div className="pl-5 pr-3 pt-6">
+              {isSettingsSelected ? (
+                <Button
+                  type="button"
+                  variant={ButtonVariant.Subtle}
+                  size={ButtonSize.Small}
+                  // Smaller glyph, flipped to point left (it's a back action).
+                  icon={
+                    <MoveToIcon
+                      size={IconSize.Size16}
+                      className="-scale-x-100"
+                    />
+                  }
+                  onClick={onBackToApp}
+                  className="-ml-1"
+                >
+                  Back to app
+                </Button>
+              ) : (
+                <div className="flex h-10 items-center gap-1">
+                  <Typography bold type={TypographyType.Callout}>
+                    {utilityPanelTitle}
+                  </Typography>
+                </div>
+              )}
+            </div>
+
+            {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
+              <div className="mt-2 flex items-center gap-1 px-3">
+                {additionalButtons}
+              </div>
+            )}
+
+            <SidebarScrollWrapper
+              className={classNames(
+                'mt-1 min-h-0 flex-1',
+                showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
+              )}
+            >
+              <Nav
+                className={classNames(
+                  isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0',
+                  isStreakPanel && 'min-h-0 flex-1',
+                )}
               >
-                Back to app
-              </Button>
-            ) : (
-              <div className="flex h-10 items-center gap-1">
-                <Typography bold type={TypographyType.Callout}>
-                  {utilityPanelTitle}
-                </Typography>
+                {renderSelectedSection()}
+              </Nav>
+            </SidebarScrollWrapper>
+
+            {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
+            {showFeedbackWidget && !isUtilityPanelSelected && (
+              <div className="absolute inset-x-3 bottom-3">
+                <FeedbackWidget placement="sidebar" />
               </div>
             )}
           </div>
-
-          {isLoggedIn && !isUtilityPanelSelected && additionalButtons && (
-            <div className="mt-2 flex items-center gap-1 px-3">
-              {additionalButtons}
-            </div>
-          )}
-
-          <SidebarScrollWrapper
-            className={classNames(
-              'mt-1 min-h-0 flex-1',
-              showFeedbackWidget && !isUtilityPanelSelected && 'pb-16',
-            )}
-          >
-            <Nav
-              className={classNames(
-                isUtilityPanelSelected ? '!pb-2 !pt-0' : '!pt-0',
-                isStreakPanel && 'min-h-0 flex-1',
-              )}
-            >
-              {renderSelectedSection()}
-            </Nav>
-          </SidebarScrollWrapper>
-
-          {!isUtilityPanelSelected && <HelpWidget sidebarExpanded />}
-          {showFeedbackWidget && !isUtilityPanelSelected && (
-            <div className="absolute inset-x-3 bottom-3">
-              <FeedbackWidget placement="sidebar" />
-            </div>
-          )}
         </section>
       </SidebarAside>
     </SidebarDragStateProvider>

@@ -21,6 +21,7 @@ import { SharedFeedPage } from './utilities';
 import { isTesting, onboardingUrl } from '../lib/constants';
 import { isOnboardingFeedPathname } from '../lib/onboarding';
 import { useBanner } from '../hooks/useBanner';
+import { useSidebarCompact } from '../hooks/useSidebarCompact';
 import { useGrowthBookContext } from './GrowthBookProvider';
 import {
   ActiveFeedNameContextProvider,
@@ -108,9 +109,9 @@ function MainLayoutComponent({
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { sidebarExpanded, autoDismissNotifications, loadedSettings, flags } =
+  const { sidebarExpanded, autoDismissNotifications, loadedSettings } =
     useContext(SettingsContext);
-  const isSidebarCompact = !!flags?.sidebarCompact;
+  const { value: isSidebarCompact } = useSidebarCompact();
   const v2CollapsedPadding = isSidebarCompact
     ? 'tablet:pl-16 laptop:pl-16'
     : 'tablet:pl-16 laptop:pl-20';
