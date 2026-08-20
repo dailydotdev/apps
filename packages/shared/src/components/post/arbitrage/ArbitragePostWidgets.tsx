@@ -61,12 +61,6 @@ export function ArbitragePostWidgets({
 
   return (
     <PageWidgets className={className}>
-      <ArbitrageAdSlot
-        slot={10}
-        format={ArbitrageAdFormat.HalfPage}
-        reach="100%"
-        className="laptop:sticky laptop:top-20"
-      />
       {sourceCard}
       <ArbitrageAdSlot
         slot={11}
@@ -78,6 +72,16 @@ export function ArbitragePostWidgets({
         slot={12}
         format={ArbitrageAdFormat.Rectangle}
         reach="45%"
+      />
+      {/* Sticky unit must be the column's last child: a sticky element slides
+          down over any siblings that follow it once the page scrolls. Last in
+          the column it sticks for the whole article read with nothing below
+          to cover. */}
+      <ArbitrageAdSlot
+        slot={10}
+        format={ArbitrageAdFormat.HalfPage}
+        reach="100%"
+        className="laptop:sticky laptop:top-20"
       />
     </PageWidgets>
   );
