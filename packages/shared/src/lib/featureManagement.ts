@@ -209,6 +209,20 @@ export const featureCompanionDemoWidget = new Feature(
 
 export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
 
+// Experiment: the horizon signup wall — the marketing homepage's hero artwork
+// full-bleed as the right half, one primary CTA, and a value line — against
+// the served wall (today's `cards`). Treatment overrides the funnel's
+// `background`, so it needs no Freyja change to run; remove the flag once
+// Freyja can serve `background: 'horizon'` itself. Enrollment is conditional
+// on the wall actually rendering in the onboarding funnel (see
+// FunnelHeroLanding's `shouldEvaluate`), so exposure is only logged for users
+// who see a wall, and the paid funnel never enrolls. Measured on signup
+// completion. Default MUST stay `false` — it is the control.
+export const featureSignupWallHorizon = new Feature(
+  'signup_wall_horizon',
+  false,
+);
+
 export const featureUpvoteCountThreshold = new Feature<{
   threshold: number;
   belowThresholdLabel: string;

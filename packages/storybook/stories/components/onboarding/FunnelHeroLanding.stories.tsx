@@ -4,7 +4,10 @@ import { action } from 'storybook/actions';
 import { fn } from 'storybook/test';
 import type { FunnelStepHeroLanding } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
 import { FunnelStepType } from '@dailydotdev/shared/src/features/onboarding/types/funnel';
-import { FunnelHeroLanding } from '@dailydotdev/shared/src/features/onboarding/steps/FunnelHeroLanding';
+import {
+  FunnelHeroLanding,
+  HORIZON_DEFAULT_SUBLINE,
+} from '@dailydotdev/shared/src/features/onboarding/steps/FunnelHeroLanding';
 import ExtensionProviders from '../../extension/_providers';
 import { useRouter } from '../../../mock/next-router';
 import { defaultBootData, getBootMock } from '../../../mock/boot';
@@ -81,4 +84,20 @@ export const Panel: Story = {
   },
 };
 
-
+/**
+ * The homepage's hero artwork full-bleed as the right half — no frame, no
+ * overlays — with the tagline and one value line on the rail. One solid
+ * primary (Google), GitHub secondary, email demoted to a text link.
+ */
+export const Horizon: Story = {
+  args: {
+    ...baseArgs,
+    parameters: {
+      ...baseArgs.parameters,
+      headline: "Where developers discover what's next.",
+      subline: HORIZON_DEFAULT_SUBLINE,
+      background: 'horizon',
+      oauthOrder: 'googleFirst',
+    },
+  },
+};

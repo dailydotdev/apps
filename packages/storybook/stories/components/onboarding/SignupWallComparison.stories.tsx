@@ -33,7 +33,12 @@ const FRAMES: Frame[] = [
   {
     label: 'Panel',
     storyId: 'components-onboarding-steps-funnelherolanding--panel',
-    note: 'new — framed split',
+    note: 'lost its test — framed split',
+  },
+  {
+    label: 'Horizon',
+    storyId: 'components-onboarding-steps-funnelherolanding--horizon',
+    note: 'proposed — full-bleed art, value line, Google-only primary',
   },
 ];
 
@@ -44,8 +49,13 @@ type ComparisonProps = {
 };
 
 const Comparison = ({ width, height, only }: ComparisonProps) => {
+  // `only` is a single label, or a `+`-joined pair for focused two-up
+  // comparisons (e.g. the experiment's actual arms, 'Cards+Horizon').
+  const wanted = only.split('+');
   const frames =
-    only === 'all' ? FRAMES : FRAMES.filter((frame) => frame.label === only);
+    only === 'all'
+      ? FRAMES
+      : FRAMES.filter((frame) => wanted.includes(frame.label));
 
   return (
     <div className="min-h-dvh bg-background-subtle p-6">
@@ -92,7 +102,7 @@ const meta: Meta<typeof Comparison> = {
     height: { control: { type: 'range', min: 568, max: 1024, step: 8 } },
     only: {
       control: 'select',
-      options: ['all', ...FRAMES.map((frame) => frame.label)],
+      options: ['all', ...FRAMES.map((frame) => frame.label), 'Cards+Horizon'],
     },
   },
 };
@@ -119,4 +129,36 @@ export const Tablet: Story = {
 /** Above `laptop` (1020px), where the split layouts take over. */
 export const Desktop: Story = {
   args: { width: 1440, height: 900, only: 'all' },
+};
+
+/** The experiment's actual arms, two-up: shipping control vs proposed. */
+export const DesktopControlVsHorizon: Story = {
+  args: { width: 1440, height: 900, only: 'Cards+Horizon' },
+};
+
+/** Same two arms at phone size. */
+export const MobileControlVsHorizon: Story = {
+  args: { width: 390, height: 844, only: 'Cards+Horizon' },
+};
+
+/** The proposed wall alone, at the width the rail was designed around. */
+export const DesktopHorizonOnly: Story = {
+  args: { width: 1440, height: 900, only: 'Horizon' },
+};
+
+/**
+ * iPhone SE/8 height — the first size under the 759px compact-phone rule,
+ * where the artwork band steps down to give the form its room back.
+ */
+export const MobileCompact: Story = {
+  args: { width: 375, height: 667, only: 'Cards+Horizon' },
+};
+
+/**
+ * The horizon alone at phone size. Worth a frame of its own for the CTA stack:
+ * "Continue with email" reads as a text link but is a 48px row, so the tap
+ * target clears the 44px minimum without the box a button would draw.
+ */
+export const MobileHorizonOnly: Story = {
+  args: { width: 390, height: 844, only: 'Horizon' },
 };
