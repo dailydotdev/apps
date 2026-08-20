@@ -63,7 +63,21 @@ export const ValueRail = ({
     <span className="shrink-0 whitespace-nowrap text-text-quaternary typo-caption2">
       {label}
     </span>
-    <div className="flex min-w-0 flex-1 items-center gap-5 overflow-hidden">
+    {/*
+     * The row carries more than fits on purpose: it should read as a
+     * ticker continuing past the edge, not a list that happens to
+     * end. The fade is what makes that read as intentional — a hard
+     * clip chops a word in half and looks like a bug.
+     */}
+    <div
+      className="flex min-w-0 flex-1 items-center gap-5 overflow-hidden"
+      style={{
+        maskImage:
+          'linear-gradient(to right, black calc(100% - 2.5rem), transparent)',
+        WebkitMaskImage:
+          'linear-gradient(to right, black calc(100% - 2.5rem), transparent)',
+      }}
+    >
       {children}
     </div>
   </div>
@@ -121,6 +135,15 @@ export const TagMomentumRail = ({ label }: RailProps): ReactElement => (
       { tag: 'webassembly', delta: 22 },
       { tag: 'golang', delta: -11 },
       { tag: 'typescript', delta: 4 },
+      { tag: 'zig', delta: 37 },
+      { tag: 'observability', delta: 9 },
+      { tag: 'react', delta: -3 },
+      { tag: 'sqlite', delta: 26 },
+      { tag: 'devex', delta: 14 },
+      { tag: 'terraform', delta: -8 },
+      { tag: 'edge-compute', delta: 19 },
+      { tag: 'security', delta: 6 },
+      { tag: 'python', delta: -2 },
     ].map(({ tag, delta }) => (
       <Item key={tag}>
         <span className="text-text-primary">#{tag}</span>
@@ -141,6 +164,11 @@ export const ModelRankRail = ({ label }: RailProps): ReactElement => (
       { name: 'Gemini 3 Pro', move: -1 },
       { name: 'Llama 4', move: 2 },
       { name: 'DeepSeek V4', move: 0 },
+      { name: 'Qwen 3', move: 3 },
+      { name: 'Mistral Large 3', move: -2 },
+      { name: 'Grok 4', move: 1 },
+      { name: 'Command R+', move: 0 },
+      { name: 'Phi-5', move: -1 },
     ].map(({ name, move }, i) => (
       <Item key={name}>
         <span className="tabular-nums text-text-quaternary">{i + 1}</span>
@@ -167,6 +195,11 @@ export const HotPostsRail = ({ label }: RailProps): ReactElement => (
       { title: 'Postgres 18 ships async I/O', votes: 412 },
       { title: 'The case against microservices, again', votes: 289 },
       { title: 'Rust in the Linux kernel: one year on', votes: 231 },
+      { title: 'We deleted our CI cache and got faster', votes: 198 },
+      { title: 'SQLite is all you need until it isn’t', votes: 176 },
+      { title: 'Why your p99 is lying to you', votes: 154 },
+      { title: 'A year of shipping without staging', votes: 131 },
+      { title: 'The quiet death of the REST client', votes: 118 },
     ].map(({ title, votes }) => (
       <Item key={title}>
         <span className="text-text-primary">{title}</span>
@@ -185,7 +218,19 @@ export const StreakRail = ({ label }: RailProps): ReactElement => (
       <span className="text-accent-bacon-default">🔥 12 days</span>
     </Item>
     <Item>
-      <span className="text-text-tertiary">Longest 34</span>
+      <span className="text-text-tertiary">Longest 34 days</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">Weekend shield on</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">5 reading days this week</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">17 posts read · 4 bookmarked</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">Best day Tue · 9 posts</span>
     </Item>
     <Item>
       <span className="text-text-primary">3 of 5 posts read today</span>
@@ -206,10 +251,24 @@ export const RankRail = ({ label }: RailProps): ReactElement => (
       <span className="text-status-success">▲6</span>
     </Item>
     <Item>
+      <span className="text-text-primary">#118 in reputation</span>
+      <span className="text-status-success">▲12</span>
+    </Item>
+    <Item>
+      <span className="text-text-primary">#9 in your squads</span>
+      <span className="text-status-error">▼2</span>
+    </Item>
+    <Item>
       <span className="text-text-tertiary">Top 4% this week</span>
     </Item>
     <Item>
       <span className="text-text-tertiary">Next rank in 2 days of reading</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">Longest streak #63</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">Level 14 · 320 to next</span>
     </Item>
   </ValueRail>
 );
@@ -221,6 +280,11 @@ export const SquadPulseRail = ({ label }: RailProps): ReactElement => (
       { name: 'Frontend Devs', note: '3 new posts' },
       { name: 'AI Builders', note: '1 discussion' },
       { name: 'Rustaceans', note: '5 new posts' },
+      { name: 'Platform Eng', note: '2 new posts' },
+      { name: 'Data Wranglers', note: '4 new posts' },
+      { name: 'Go Gophers', note: '1 new post' },
+      { name: 'Security Club', note: '6 new posts' },
+      { name: 'Design Systems', note: '2 discussions' },
     ].map(({ name, note }) => (
       <Item key={name}>
         <span className="text-text-primary">{name}</span>
@@ -240,8 +304,28 @@ export const LiveNowRail = ({ label }: RailProps): ReactElement => (
       <span className="text-text-quaternary">214 listening</span>
     </Item>
     <Item>
+      <Dot className="animate-pulse bg-status-error" />
+      <span className="text-text-primary">Postgres office hours</span>
+      <span className="text-text-quaternary">88 listening</span>
+    </Item>
+    <Item>
       <span className="text-text-tertiary">
-        Next: Shipping agents safely, 16:00
+        Next: Shipping agents safely · 16:00
+      </span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">
+        Then: Kernel patches explained · 18:30
+      </span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">
+        Tomorrow: Zig for C people · 11:00
+      </span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">
+        3 rooms in your squads this week
       </span>
     </Item>
   </ValueRail>
@@ -258,7 +342,19 @@ export const RolePulseRail = ({ label }: RailProps): ReactElement => (
       <span className="text-text-primary">4 matching Postgres</span>
     </Item>
     <Item>
-      <span className="text-text-tertiary">3 remote · 2 senior</span>
+      <span className="text-text-primary">7 matching TypeScript</span>
+    </Item>
+    <Item>
+      <span className="text-text-primary">3 matching Kubernetes</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">9 remote · 5 senior · 2 staff</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">6 new since Monday</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">2 saved · 1 replied</span>
     </Item>
   </ValueRail>
 );
@@ -274,6 +370,13 @@ export const ReleaseRadarRail = ({ label }: RailProps): ReactElement => (
       { name: 'TypeScript', version: '5.9' },
       { name: 'Postgres', version: '18.1' },
       { name: 'Bun', version: '1.3' },
+      { name: 'Deno', version: '2.4' },
+      { name: 'Vite', version: '7.1' },
+      { name: 'Rust', version: '1.91' },
+      { name: 'Go', version: '1.26' },
+      { name: 'Python', version: '3.14' },
+      { name: 'Kubernetes', version: '1.34' },
+      { name: 'Redis', version: '8.2' },
     ].map(({ name, version }) => (
       <Item key={name}>
         <span className="text-text-primary">{name}</span>
@@ -303,6 +406,17 @@ export const PollRail = ({ label }: RailProps): ReactElement => (
     <Item>
       <span className="text-text-quaternary">1,204 votes</span>
     </Item>
+    <Item>
+      <span className="text-text-tertiary">You voted Yes</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">
+        Yesterday: Do you write tests first? No 71%
+      </span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">3 polls in your squads</span>
+    </Item>
   </ValueRail>
 );
 
@@ -322,7 +436,21 @@ export const AgentStatusRail = ({ label }: RailProps): ReactElement => (
       <span className="text-text-quaternary">idle · last run 2h ago</span>
     </Item>
     <Item>
-      <span className="text-text-tertiary">3 findings waiting</span>
+      <Dot className="bg-status-warning" />
+      <span className="text-text-primary">Release watcher</span>
+      <span className="text-text-quaternary">3 findings waiting</span>
+    </Item>
+    <Item>
+      <span className="text-text-primary">Tag curator</span>
+      <span className="text-text-quaternary">queued</span>
+    </Item>
+    <Item>
+      <Dot className="bg-status-error" />
+      <span className="text-text-primary">Changelog</span>
+      <span className="text-text-quaternary">failed · auth expired</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">14 runs today · 2 need input</span>
     </Item>
   </ValueRail>
 );
