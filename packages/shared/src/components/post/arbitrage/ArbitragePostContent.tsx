@@ -112,8 +112,13 @@ export function ArbitragePostContent({
             first ad shares the fold with real page furniture instead of
             standing alone. The slot is first in the DOM because a phone stacks
             the column and the brief puts the unit above the article, not below
-            it; from laptop `order-last` moves it to the right of the group. */}
-        <div className="mb-6 flex flex-col gap-6 laptop:flex-row laptop:items-start">
+            it; from laptop `order-last` moves it to the right of the group.
+
+            items-end so the unit's bottom edge meets the cover image's, the
+            two reading as one band. The cover renders 410x201 in this column
+            and the medium rectangle is the closest standard height to it —
+            336x280 and either leaderboard all sit further away. */}
+        <div className="mb-6 flex flex-col gap-6 laptop:flex-row laptop:items-end">
           <ArbitrageAdSlot
             slot={ARBITRAGE_SLOT.inlineMpu1}
             format={ArbitrageAdFormat.MediumRectangle}
@@ -183,51 +188,16 @@ export function ArbitragePostContent({
         <ArbitrageComments post={post} />
 
         {/* Everything from the action bar to the end of the thread above is the
-            standard post page; the remaining units are gathered here so no ad
-            interrupts it. They pair off from laptop, where the column clears
-            two units side by side — stacking them only made the page longer
-            without earning anything. */}
-        <div className="mb-10 mt-6 flex flex-col gap-6">
-          <ArbitrageAdSlot
-            slot={ARBITRAGE_SLOT.video}
-            format={ArbitrageAdFormat.Video}
-            reach="40%"
-          />
-
-          <div className="flex flex-col gap-6 laptop:flex-row laptop:items-start">
-            <ArbitrageAdSlot
-              slot={ARBITRAGE_SLOT.inlineMpu2}
-              format={ArbitrageAdFormat.Rectangle}
-              reach="30%"
-              hideOnPhone
-            />
-            <ArbitrageAdSlot
-              slot={ARBITRAGE_SLOT.inlineMpu3}
-              format={ArbitrageAdFormat.Rectangle}
-              reach="30%"
-              hideOnPhone
-            />
-          </div>
-
-          <div className="flex flex-col gap-6 laptop:flex-row laptop:items-start">
-            <ArbitrageAdSlot
-              slot={ARBITRAGE_SLOT.commentMpu}
-              format={ArbitrageAdFormat.Rectangle}
-              reach="22%"
-            />
-            {/* The rich media unit has no width of its own, and every flex
-                child here is flex-shrink:0 from the global reset, so it needs
-                min-w-0 with flex-1 to take the rest of the row instead of
-                overflowing it. */}
-            <ArbitrageAdSlot
-              slot={ARBITRAGE_SLOT.endOfArticle}
-              format={ArbitrageAdFormat.RichMedia}
-              reach="20%"
-              hideOnPhone
-              className="laptop:min-w-0 laptop:flex-1"
-            />
-          </div>
-        </div>
+            standard post page. Below it, a single multiplex unit rather than a
+            column of separate slots: one request returns a grid of creatives
+            that Google lays out for the width it is given, which is both more
+            inventory and less page than four stacked units were. */}
+        <ArbitrageAdSlot
+          slot={ARBITRAGE_SLOT.endOfArticle}
+          format={ArbitrageAdFormat.Grid}
+          reach="20%"
+          className="mb-10 mt-6"
+        />
       </PostContainer>
 
       <ArbitragePostWidgets

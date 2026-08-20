@@ -10,19 +10,19 @@ export const ARBITRAGE_SLOT = {
   sidebar: 1,
   /** Leaderboard above the article. Sticks while scrolling, then releases. */
   topLeaderboard: 2,
-  /** First in-content MPU, directly under the summary. */
+  /** Medium rectangle beside the tags, date and cover image. */
   inlineMpu1: 3,
-  /** Outstream video, mid-article. */
+  /** Outstream video. Unplaced: the grid below the thread replaced it. */
   video: 4,
-  /** Second in-content MPU. */
+  /** Second in-content MPU. Unplaced, as above. */
   inlineMpu2: 5,
-  /** Third in-content MPU, above the discussion. */
+  /** Third in-content MPU. Unplaced, as above. */
   inlineMpu3: 6,
-  /** Native unit at the top of the comment thread. */
+  /** Native unit, repeated through a long comment thread. */
   commentNative: 7,
-  /** MPU after the comment thread. */
+  /** MPU after the comment thread. Unplaced, as above. */
   commentMpu: 8,
-  /** Rich-media unit at the end of the article. */
+  /** Multiplex grid closing the page, after the discussion. */
   endOfArticle: 9,
   /** "MPU 2" in the brief: half page, sticky at the bottom of the right rail. */
   railStickyMpu: 10,
