@@ -83,6 +83,12 @@ export interface MainLayoutProps
    * anything to show.
    */
   topBanner?: ReactNode;
+  /**
+   * Renders the sidebar expanded regardless of the stored user preference.
+   * The ad template needs the 240px column present on every visit — the
+   * preference defaults to collapsed and anonymous visitors never change it.
+   */
+  expandSidebar?: boolean;
 }
 
 export const feeds = Object.values(SharedFeedPage);
@@ -101,6 +107,7 @@ function MainLayoutComponent({
   canGoBack,
   hideFeedbackWidget = false,
   topBanner,
+  expandSidebar = false,
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -140,8 +147,11 @@ function MainLayoutComponent({
   // and never slides under the panel. Matches the `activePage` resolution the
   // Sidebar receives below.
   const forceSidebarExpanded =
-    isV2 &&
-    isSidebarSettingsPath(activePage ?? router.asPath ?? router.pathname ?? '');
+    expandSidebar ||
+    (isV2 &&
+      isSidebarSettingsPath(
+        activePage ?? router.asPath ?? router.pathname ?? '',
+      ));
 
   // The main content's left padding settles from the rail width to the
   // expanded-sidebar width once auth, settings, and the layout-variant flag
@@ -371,6 +381,7 @@ function MainLayoutComponent({
             onNavTabClick={onNavTabClick}
             onLogoClick={onLogoClick}
             activePage={activePage ?? router.asPath ?? router.pathname}
+            forceExpanded={expandSidebar}
           />
         )}
         {sidebarOwnsHeader ? (
