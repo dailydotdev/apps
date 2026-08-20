@@ -23,11 +23,14 @@ export function ArbitrageTopLeaderboard(): ReactElement {
     <div
       className={classNames(
         'bg-background-default pb-2 pt-4',
-        // The fixed app header only exists from laptop up — below that
-        // MainLayoutHeader renders the feed nav instead, so pinning at 4rem
-        // would strand the unit below an empty band. z-1 keeps it above article
-        // text while pinned but below the header and any modal layer.
-        !released && 'sticky top-0 z-1 laptop:top-16',
+        // --sticky-header-offset is published by MainLayout and matches the
+        // fixed chrome this layout actually has: 4rem for the v1 header, 0 on
+        // mobile and under the v2 sidebar which owns its own header, more again
+        // with a banner. Pinning at a fixed 4rem instead would push the unit
+        // *below* its natural position wherever the chrome is shorter, covering
+        // the source row. z-1 keeps it above article text while pinned but
+        // below the header and any modal layer.
+        !released && 'sticky top-[var(--sticky-header-offset)] z-1',
       )}
     >
       <ArbitrageAdSlot
