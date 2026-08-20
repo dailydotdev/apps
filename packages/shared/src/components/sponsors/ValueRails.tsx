@@ -28,9 +28,22 @@ import classNames from 'classnames';
 
 const RAIL_HEIGHT = 'h-8';
 
+/**
+ * Every rail accepts a label override so the switcher can hand it a
+ * dropdown trigger in place of the static word, without any rail
+ * needing to know the switcher exists.
+ */
+export type RailProps = { label?: ReactNode };
+
 type ValueRailProps = {
-  /** Sacrificial left zone: the bubble covers this first. */
-  label: string;
+  /**
+   * Sacrificial left zone: the tooltip covers this first, which is
+   * why the rail's least important element lives here. When the
+   * switcher is in use this is the dropdown trigger — still the
+   * least costly thing to lose, since it says what you are already
+   * looking at.
+   */
+  label: ReactNode;
   children: ReactNode;
   className?: string;
 };
@@ -98,8 +111,8 @@ const Dot = ({ className }: { className?: string }): ReactElement => (
 // one that most obviously belongs to daily.dev: which topics are
 // moving on the feed right now. Source: trendingTags, plus a
 // week-over-week occurrence delta.
-export const TagMomentumRail = (): ReactElement => (
-  <ValueRail label="Trending">
+export const TagMomentumRail = ({ label }: RailProps): ReactElement => (
+  <ValueRail label={label ?? 'Trending'}>
     {[
       { tag: 'rust', delta: 48 },
       { tag: 'llm-agents', delta: 31 },
@@ -120,8 +133,8 @@ export const TagMomentumRail = (): ReactElement => (
 // --- 2. Model leaderboard -------------------------------------
 // What developers on daily.dev are actually discussing, ranked.
 // Source: post volume on model tags over seven days.
-export const ModelRankRail = (): ReactElement => (
-  <ValueRail label="Models this week">
+export const ModelRankRail = ({ label }: RailProps): ReactElement => (
+  <ValueRail label={label ?? 'Models this week'}>
     {[
       { name: 'Claude Opus 5', move: 0 },
       { name: 'GPT-5.2', move: 1 },
@@ -148,8 +161,8 @@ export const ModelRankRail = (): ReactElement => (
 // --- 3. Hot right now -----------------------------------------
 // A headline ticker: the posts climbing fastest, with their
 // upvote counts. Source: the feed's own trending ranking.
-export const HotPostsRail = (): ReactElement => (
-  <ValueRail label="Hot right now">
+export const HotPostsRail = ({ label }: RailProps): ReactElement => (
+  <ValueRail label={label ?? 'Hot right now'}>
     {[
       { title: 'Postgres 18 ships async I/O', votes: 412 },
       { title: 'The case against microservices, again', votes: 289 },
@@ -166,8 +179,8 @@ export const HotPostsRail = (): ReactElement => (
 // --- 4. Your streak -------------------------------------------
 // The most personal option, and the only one that changes if the
 // reader does nothing. Source: userStreak.
-export const StreakRail = (): ReactElement => (
-  <ValueRail label="Your streak">
+export const StreakRail = ({ label }: RailProps): ReactElement => (
+  <ValueRail label={label ?? 'Your streak'}>
     <Item>
       <span className="text-accent-bacon-default">🔥 12 days</span>
     </Item>
@@ -186,8 +199,8 @@ export const StreakRail = (): ReactElement => (
 // --- 5. Weekly rank -------------------------------------------
 // Source: the leaderboard queries already in the app
 // (MostReadingDays, HighestReputation, LongestStreak).
-export const RankRail = (): ReactElement => (
-  <ValueRail label="Leaderboard">
+export const RankRail = ({ label }: RailProps): ReactElement => (
+  <ValueRail label={label ?? 'Leaderboard'}>
     <Item>
       <span className="text-text-primary">#42 in reading days</span>
       <span className="text-status-success">▲6</span>
@@ -202,8 +215,8 @@ export const RankRail = (): ReactElement => (
 );
 
 // --- 6. Squad pulse -------------------------------------------
-export const SquadPulseRail = (): ReactElement => (
-  <ValueRail label="Your squads">
+export const SquadPulseRail = ({ label }: RailProps): ReactElement => (
+  <ValueRail label={label ?? 'Your squads'}>
     {[
       { name: 'Frontend Devs', note: '3 new posts' },
       { name: 'AI Builders', note: '1 discussion' },
@@ -219,8 +232,8 @@ export const SquadPulseRail = (): ReactElement => (
 
 // --- 7. Live now ----------------------------------------------
 // Source: live rooms (topic, status, listener count).
-export const LiveNowRail = (): ReactElement => (
-  <ValueRail label="Live now">
+export const LiveNowRail = ({ label }: RailProps): ReactElement => (
+  <ValueRail label={label ?? 'Live now'}>
     <Item>
       <Dot className="animate-pulse bg-status-error" />
       <span className="text-text-primary">Rust in production</span>
@@ -236,8 +249,8 @@ export const LiveNowRail = (): ReactElement => (
 
 // --- 8. Role pulse --------------------------------------------
 // Source: opportunities matched against the reader's tags.
-export const RolePulseRail = (): ReactElement => (
-  <ValueRail label="New roles">
+export const RolePulseRail = ({ label }: RailProps): ReactElement => (
+  <ValueRail label={label ?? 'New roles'}>
     <Item>
       <span className="text-text-primary">12 matching Rust</span>
     </Item>
@@ -253,8 +266,8 @@ export const RolePulseRail = (): ReactElement => (
 // --- 9. Release radar -----------------------------------------
 // Versions of the tools the reader already follows, which is the
 // single most repeated "why do I open this tab" answer.
-export const ReleaseRadarRail = (): ReactElement => (
-  <ValueRail label="Releases">
+export const ReleaseRadarRail = ({ label }: RailProps): ReactElement => (
+  <ValueRail label={label ?? 'Releases'}>
     {[
       { name: 'React', version: '19.2' },
       { name: 'Node', version: '24 LTS' },
@@ -273,8 +286,8 @@ export const ReleaseRadarRail = (): ReactElement => (
 // --- 10. Community poll ---------------------------------------
 // The app already has poll posts; this surfaces the live split
 // and takes one tap to answer.
-export const PollRail = (): ReactElement => (
-  <ValueRail label="Today's poll">
+export const PollRail = ({ label }: RailProps): ReactElement => (
+  <ValueRail label={label ?? "Today's poll"}>
     <Item>
       <span className="text-text-primary">
         Do you review AI-written code line by line?
@@ -293,11 +306,32 @@ export const PollRail = (): ReactElement => (
   </ValueRail>
 );
 
+// --- 11. Agent status -----------------------------------------
+// The most personal rail of the set: what the reader's own agents
+// are doing right now. Ambient status rather than news — closer to
+// a build indicator than a ticker.
+export const AgentStatusRail = ({ label }: RailProps): ReactElement => (
+  <ValueRail label={label ?? 'Your agents'}>
+    <Item>
+      <Dot className="animate-pulse bg-status-success" />
+      <span className="text-text-primary">Digest</span>
+      <span className="text-text-quaternary">running · 4 sources</span>
+    </Item>
+    <Item>
+      <span className="text-text-primary">PR reviewer</span>
+      <span className="text-text-quaternary">idle · last run 2h ago</span>
+    </Item>
+    <Item>
+      <span className="text-text-tertiary">3 findings waiting</span>
+    </Item>
+  </ValueRail>
+);
+
 export const VALUE_RAILS: {
   id: string;
   name: string;
   note: string;
-  Rail: () => ReactElement;
+  Rail: (props: RailProps) => ReactElement;
 }[] = [
   {
     id: 'tags',
@@ -352,6 +386,12 @@ export const VALUE_RAILS: {
     name: 'Release radar',
     note: 'versions of the tools they follow — the most repeated reason to open a new tab',
     Rail: ReleaseRadarRail,
+  },
+  {
+    id: 'agents',
+    name: 'Your agents',
+    note: 'what the reader’s own agents are doing — a build indicator, not a ticker',
+    Rail: AgentStatusRail,
   },
   {
     id: 'poll',

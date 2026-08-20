@@ -12,6 +12,7 @@ import {
   MOCK_LEAD_SPONSOR,
   MOCK_PARTNER_SPONSORS,
 } from '@dailydotdev/shared/src/components/sponsors/mockSponsors';
+import { ValueRailSwitcher } from '@dailydotdev/shared/src/components/sponsors/ValueRailSwitcher';
 import ExtensionProviders from './_providers';
 import { MockFeedGrid, MockFeedHeader } from './_mockPostFeed';
 
@@ -220,4 +221,26 @@ export const OnTheFeedStreak: Story = {
 export const OnTheFeedLive: Story = {
   name: 'On the feed · live now',
   render: () => <OnFeed>{<LiveNowRail />}</OnFeed>,
+};
+
+// ---------------------------------------------------------------
+// The rail as a channel the reader picks
+// ---------------------------------------------------------------
+export const Switcher: Story = {
+  name: 'On the feed · switchable rail',
+  render: () => (
+    <ExtensionProviders>
+      <Page>
+        <div className="flex min-h-dvh flex-col">
+          <div className="flex-1 p-6 pb-16">
+            <MockFeedHeader />
+            <MockFeedGrid />
+          </div>
+          <SponsorDock {...strip}>
+            <ValueRailSwitcher />
+          </SponsorDock>
+        </div>
+      </Page>
+    </ExtensionProviders>
+  ),
 };

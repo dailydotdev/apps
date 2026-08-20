@@ -10,7 +10,7 @@ import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import dynamic from 'next/dynamic';
 import { SponsorDock } from '@dailydotdev/shared/src/components/sponsors/SponsorDock';
-import { TagMomentumRail } from '@dailydotdev/shared/src/components/sponsors/ValueRails';
+import { ValueRailSwitcher } from '@dailydotdev/shared/src/components/sponsors/ValueRailSwitcher';
 import {
   MOCK_LEAD_SPONSOR,
   MOCK_PARTNER_SPONSORS,
@@ -133,10 +133,11 @@ export default function MainFeedPage({
        * sponsors and the rail's data are fixtures; real inventory
        * needs an ad-service source and a flag, and the rail needs
        * wiring to trendingTags, before this is anything but a
-       * picture.
+       * picture. The rail defaults to Hot right now and its label is
+       * a dropdown, so a reviewer can switch channels in place.
        */}
       <SponsorDock partners={MOCK_PARTNER_SPONSORS} primary={MOCK_LEAD_SPONSOR}>
-        <TagMomentumRail />
+        <ValueRailSwitcher />
       </SponsorDock>
     </>
   );
