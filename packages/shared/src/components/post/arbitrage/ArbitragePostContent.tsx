@@ -172,46 +172,56 @@ export function ArbitragePostContent({
 
         <ArbitrageActionBar post={post} onCopyPostLink={onCopyPostLink} />
 
-        <ArbitrageAdSlot
-          slot={ARBITRAGE_SLOT.video}
-          format={ArbitrageAdFormat.Video}
-          reach="55%"
-          className="my-6"
-        />
-
         {!!post.contentHtml && (
           <Markdown
-            className="mb-6"
+            className="my-6"
             content={post.contentHtml}
             appendTooltipTo={() => globalThis?.document?.body}
           />
         )}
 
-        <ArbitrageAdSlot
-          slot={ARBITRAGE_SLOT.inlineMpu2}
-          format={ArbitrageAdFormat.Rectangle}
-          reach="45%"
-          hideOnPhone
-          className="mb-6"
-        />
-
-        <ArbitrageAdSlot
-          slot={ARBITRAGE_SLOT.inlineMpu3}
-          format={ArbitrageAdFormat.Rectangle}
-          reach="32%"
-          hideOnPhone
-          className="mb-6"
-        />
-
         <ArbitrageComments post={post} />
 
-        <ArbitrageAdSlot
-          slot={ARBITRAGE_SLOT.endOfArticle}
-          format={ArbitrageAdFormat.RichMedia}
-          reach="20%"
-          hideOnPhone
-          className="mb-10"
-        />
+        {/* Everything from the action bar to the end of the thread above is the
+            standard post page; the remaining units are gathered here so no ad
+            interrupts it. MPU 2 and 3 pair off from laptop, where the column
+            clears two 336px units side by side — stacking them only made the
+            page longer without earning anything. */}
+        <div className="mb-10 mt-6 flex flex-col gap-6">
+          <ArbitrageAdSlot
+            slot={ARBITRAGE_SLOT.video}
+            format={ArbitrageAdFormat.Video}
+            reach="40%"
+          />
+
+          <div className="flex flex-col gap-6 laptop:flex-row laptop:items-start">
+            <ArbitrageAdSlot
+              slot={ARBITRAGE_SLOT.inlineMpu2}
+              format={ArbitrageAdFormat.Rectangle}
+              reach="30%"
+              hideOnPhone
+            />
+            <ArbitrageAdSlot
+              slot={ARBITRAGE_SLOT.inlineMpu3}
+              format={ArbitrageAdFormat.Rectangle}
+              reach="30%"
+              hideOnPhone
+            />
+          </div>
+
+          <ArbitrageAdSlot
+            slot={ARBITRAGE_SLOT.commentMpu}
+            format={ArbitrageAdFormat.Rectangle}
+            reach="22%"
+          />
+
+          <ArbitrageAdSlot
+            slot={ARBITRAGE_SLOT.endOfArticle}
+            format={ArbitrageAdFormat.RichMedia}
+            reach="20%"
+            hideOnPhone
+          />
+        </div>
       </PostContainer>
 
       <ArbitragePostWidgets

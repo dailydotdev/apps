@@ -4,36 +4,41 @@ import type { Post } from '../../../graphql/posts';
 import { Origin } from '../../../lib/log';
 import { PostComments } from '../PostComments';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
-import { ARBITRAGE_SLOT } from './slots';
+import { ARBITRAGE_SLOT, COMMENTS_PER_INTERLEAVED_AD } from './slots';
 
 export interface ArbitrageCommentsProps {
   post: Post;
 }
 
 /**
- * Comment thread with the two in-thread slots. Slot 7 sits where AdAsComment
- * already runs on the classic template; slot 8 follows the thread. The composer
- * is omitted — anonymous visitors cannot post, and it only pushes slots down.
+ * Comment thread, styled exactly as the standard post page renders it. Nothing
+ * sits between the heading and the first comment any more: the units that used
+ * to open and close the thread now follow it, so everything from the action bar
+ * to the end of the discussion reads as the normal product.
+ *
+ * The exception is a long thread, where a native unit appears after every
+ * COMMENTS_PER_INTERLEAVED_AD comments. It never renders after the last one,
+ * which would only double up with the ad block below.
+ *
+ * The composer is omitted — anonymous visitors cannot post.
  */
 export function ArbitrageComments({
   post,
 }: ArbitrageCommentsProps): ReactElement {
   return (
-    // gap-4 rather than margins on the children: an ad slot that collapses when
-    // unfilled would otherwise leave its margin behind as an empty band.
     <div className="flex flex-col gap-4">
       <h2 className="font-bold typo-body">Discussion</h2>
-      <ArbitrageAdSlot
-        slot={ARBITRAGE_SLOT.commentNative}
-        format={ArbitrageAdFormat.Native}
-        reach="30%"
-        hideOnPhone
-      />
-      <PostComments post={post} origin={Origin.ArticlePage} />
-      <ArbitrageAdSlot
-        slot={ARBITRAGE_SLOT.commentMpu}
-        format={ArbitrageAdFormat.Rectangle}
-        reach="22%"
+      <PostComments
+        post={post}
+        origin={Origin.ArticlePage}
+        interleaveEvery={COMMENTS_PER_INTERLEAVED_AD}
+        renderInterleaved={() => (
+          <ArbitrageAdSlot
+            slot={ARBITRAGE_SLOT.commentNative}
+            format={ArbitrageAdFormat.Native}
+            reach="30%"
+          />
+        )}
       />
     </div>
   );
