@@ -134,3 +134,18 @@ it('grants marketing from the fallback modal only when accept all is used', asyn
   expect(cookies[GdprConsentKey.Necessary]).toEqual('true');
   expect(cookies[GdprConsentKey.Marketing]).toEqual('true');
 });
+
+it('revokes an existing marketing consent through the fallback modal', async () => {
+  document.cookie = `${GdprConsentKey.Marketing}=true`;
+  expect(consentCookies()[GdprConsentKey.Marketing]).toEqual('true');
+  renderPage({ isGdprCovered: true });
+  fireEvent.click(await screen.findByText('Manage cookie preferences'));
+
+  const modal = client.getQueryData(MODAL_KEY) as {
+    props: { onAcceptCookies: AcceptCookiesCallback };
+  };
+  // exactly what CookieConsentModal's "Reject all" sends
+  modal.props.onAcceptCookies();
+
+  expect(consentCookies()[GdprConsentKey.Marketing]).toBeFalsy();
+});

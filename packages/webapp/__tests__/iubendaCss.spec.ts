@@ -95,6 +95,45 @@ describe('iubenda consent banner css', () => {
     expect(rulesTargeting('iubenda-cs-accept-btn').length).toBeGreaterThan(0);
   });
 
+  it('cannot recess one side of the choice through its wrapper', () => {
+    // iubenda puts Reject in .iubenda-cs-opt-group-custom and Accept in
+    // .iubenda-cs-opt-group-consent, so a rule scoped to one wrapper — by
+    // class or by position — restyles half the choice without ever naming a
+    // button, which the paired-selector check above cannot see
+    const side = (selector: string, own: string, ordinal: RegExp) =>
+      selector.includes(own) || ordinal.test(selector);
+    const oneSided = rules().filter(({ selector }) => {
+      if (!selector.includes('iubenda-cs-opt-group')) {
+        return false;
+      }
+      const custom = side(
+        selector,
+        'opt-group-custom',
+        /:(first-of-type|first-child|nth-child\(1\))/,
+      );
+      const consent = side(
+        selector,
+        'opt-group-consent',
+        /:(last-of-type|last-child|nth-child\(2\))/,
+      );
+      return custom !== consent;
+    });
+
+    oneSided.forEach(({ body }) => {
+      [
+        'display',
+        'opacity',
+        'visibility',
+        'font-weight',
+        'font-size',
+        'transform',
+        'order',
+      ].forEach((prop) => {
+        expect(declared([body], prop)).toEqual([]);
+      });
+    });
+  });
+
   it('sizes the pair from one shared rule they cannot drift from', () => {
     const shared = rules().filter(({ selector }) =>
       selector.includes('button:not(.dd-cs-more)'),
@@ -255,14 +294,21 @@ describe('iubenda consent banner css', () => {
   });
 
   it('paints from theme tokens only, so the card follows the active theme', () => {
+    // box-shadow is the deliberate exception: no theme token carries the soft
+    // two-layer treatment, so it is written raw and re-declared per theme by
+    // the light/auto overrides the next test pins
     const colorValues = rules().flatMap(({ body }) =>
-      ['color', 'background', 'background-color', 'border-color'].flatMap(
-        (prop) => declared([body], prop),
-      ),
+      [
+        'color',
+        'background',
+        'background-color',
+        'border-color',
+        'border',
+      ].flatMap((prop) => declared([body], prop)),
     );
     colorValues.forEach((value) => {
       expect(value).toMatch(
-        /var\(--theme-|currentcolor|transparent|none|color-mix/,
+        /var\(--theme-|currentcolor|transparent|none|color-mix|^0$/,
       );
     });
   });

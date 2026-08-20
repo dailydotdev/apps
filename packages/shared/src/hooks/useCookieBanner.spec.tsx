@@ -131,11 +131,25 @@ describe('useCookieBanner', () => {
     expect(saveCookies).not.toHaveBeenCalled();
   });
 
-  it('mirrors once per session, leaving later changes to the CMP callback', () => {
+  it('mirrors as soon as boot completes, not only on the first render', () => {
+    setup({ isAuthReady: false });
+    mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: true });
+
+    const { rerender } = renderHook(() => useCookieBanner());
+    expect(saveCookies).not.toHaveBeenCalled();
+
+    setup({ isAuthReady: true });
+    rerender();
+
+    expect(saveCookies).toHaveBeenCalledWith(otherGdprConsents);
+  });
+
+  it('stops mirroring once the choice is recorded locally', () => {
     setup();
     mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: true });
 
     const { rerender } = renderHook(() => useCookieBanner());
+    setup({ hasAccepted: true });
     rerender();
 
     expect(saveCookies).toHaveBeenCalledTimes(1);

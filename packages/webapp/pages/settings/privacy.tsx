@@ -14,8 +14,12 @@ import {
   privacyPolicy,
   termsOfService,
 } from '@dailydotdev/shared/src/lib/constants';
-import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import {
+  GdprConsentKey,
+  otherGdprConsents,
+} from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { CookieConsentItem } from '@dailydotdev/shared/src/components/modals/user/CookieConsentItem';
+import type { AcceptCookiesCallback } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -71,6 +75,15 @@ const AccountInvitePage = (): ReactElement | null => {
     return saveCookies([], [GdprConsentKey.Marketing]);
   };
 
+  // the modal reports "Reject all" by calling back with no arguments, so the
+  // other consents have to be named here or one granted earlier survives the
+  // refusal; "Accept all" and "Save preferences" pass their own lists
+  const onConsentPreferences: AcceptCookiesCallback = (additional, toRemove) =>
+    saveConsentPreferences(
+      additional ?? [],
+      toRemove ?? (additional?.length ? [] : otherGdprConsents),
+    );
+
   const onManagePreferences = () => {
     if (openIubendaPreferences()) {
       return;
@@ -80,7 +93,7 @@ const AccountInvitePage = (): ReactElement | null => {
     // the in-house modal still writes the first-party consent cookies
     openModal({
       type: LazyModal.CookieConsent,
-      props: { onAcceptCookies: saveConsentPreferences },
+      props: { onAcceptCookies: onConsentPreferences },
     });
   };
 

@@ -240,11 +240,15 @@ it('disposes itself once iubenda removes the banner, and rebuilds for the next o
     cleanup = watchIubendaBanner();
     expect(query('.dd-cs-more')).toBeInTheDocument();
 
-    // consent given: iubenda drops the banner, and the next resize must not
-    // keep measuring a detached subtree
+    // consent given: iubenda drops the banner, and the next resize must stop
+    // measuring the detached subtree rather than keep it alive
     banner.remove();
+    banner.classList.remove('dd-cs-collapsed', 'dd-cs-has-more');
     globalThis.dispatchEvent(new Event('resize'));
     jest.advanceTimersByTime(200);
+
+    // measure() bailed on the disconnected node instead of re-clamping it
+    expect(banner).not.toHaveClass('dd-cs-collapsed');
 
     mountBanner();
     setClamped(true);

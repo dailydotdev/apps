@@ -44,8 +44,9 @@ export function useCookieBanner(): void {
   );
 
   useEffect(() => {
-    // no one-shot latch: the CMP cookie can land after the first render, and
-    // `hasAccepted` flipping is what stops this from writing twice
+    // `hasAccepted` already stops this from writing twice, so no separate
+    // latch is needed. Consent expressed later in the session is written by
+    // the CMP callback, not here.
     if (!isAuthReady || hasAccepted || isIOSNative()) {
       return;
     }

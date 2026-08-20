@@ -1,4 +1,6 @@
 /* eslint-disable no-underscore-dangle -- _iub is iubenda's mandated global */
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
@@ -43,6 +45,7 @@ const mockWatchBanner = watchIubendaBanner as jest.MockedFunction<
 
 const SITE_ID = '1334205';
 const POLICY_ID = '14695236';
+const DOMAIN = 'daily.dev';
 
 const saveCookies = jest.fn();
 
@@ -91,6 +94,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   process.env.NEXT_PUBLIC_IUBENDA_SITE_ID = SITE_ID;
   process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID = POLICY_ID;
+  process.env.NEXT_PUBLIC_DOMAIN = DOMAIN;
   mockUseConsentCookie.mockReturnValue({ saveCookies, cookieExists: false });
   mockIsIOSNative.mockReturnValue(false);
   mockWatchBanner.mockReturnValue(jest.fn());
@@ -102,6 +106,7 @@ beforeEach(() => {
 afterEach(() => {
   delete process.env.NEXT_PUBLIC_IUBENDA_SITE_ID;
   delete process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID;
+  delete process.env.NEXT_PUBLIC_DOMAIN;
 });
 
 describe('Iubenda injection gating', () => {
@@ -280,7 +285,7 @@ describe('Iubenda configuration', () => {
 
   it('shares consent across *.daily.dev and keeps the badge off', async () => {
     await renderAndLoad();
-    expect(config().localConsentDomain).toBe(process.env.NEXT_PUBLIC_DOMAIN);
+    expect(config().localConsentDomain).toBe(DOMAIN);
     // settings/privacy is the in-app withdrawal entry point instead
     expect(config().floatingPreferencesButtonDisplay).toBe(false);
   });
@@ -301,6 +306,13 @@ describe('Iubenda consent mirroring', () => {
     renderComponent();
     await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
   };
+
+  it('writes through the necessary key, so a mirror never grants marketing', async () => {
+    await renderAndLoad();
+    // keyed on Marketing instead, every "no regime applies" callback would
+    // grant the marketing cookie it is supposed to leave alone
+    expect(mockUseConsentCookie).toHaveBeenCalledWith(GdprConsentKey.Necessary);
+  });
 
   it('grants marketing when the visitor accepted purpose 5', async () => {
     await renderAndLoad();
@@ -353,6 +365,14 @@ describe('Iubenda consent mirroring', () => {
     expect(onScroll).toHaveBeenCalled();
     banner.remove();
   });
+});
+
+it('keeps the first-layer stylesheet in the app module graph', () => {
+  // applyStyles:false means iubenda ships no CSS for the banner; losing this
+  // import renders the raw CMP markup and no test would otherwise notice
+  const app = readFileSync(join(__dirname, '../pages/_app.tsx'), 'utf8');
+
+  expect(app).toContain('styles/iubenda.css');
 });
 
 describe('openIubendaPreferences', () => {
