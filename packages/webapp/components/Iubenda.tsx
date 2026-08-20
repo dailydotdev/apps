@@ -3,35 +3,76 @@ import type { ReactElement } from 'react';
 import { useEffect, useRef } from 'react';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import {
-  cookieAcknowledgedKey,
   GdprConsentKey,
   otherGdprConsents,
 } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { iubendaLocalizedPolicyIds } from '@dailydotdev/shared/src/lib/iubenda';
 import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
+import { enhanceIubendaBannerNow, watchIubendaBanner } from './iubendaBanner';
 
 /**
- * Loads the iubenda Cookie Solution (IAB TCF mode) for GDPR-covered users and
- * mirrors its consent into the first-party `ilikecookies*` cookies so all
- * existing gating (Pixels, settings, ad consent fallback) keeps working.
- * The homegrown banner is suppressed for these users in `useCookieBanner`.
+ * Loads the iubenda Cookie Solution (IAB TCF mode) for every visitor outside
+ * the funnel and the iOS native wrapper; `countryDetection` +
+ * `gdprAppliesGlobally:false` let iubenda decide which consent regime (if
+ * any) applies, exactly like the marketing sites — where none does, no
+ * banner shows. Whatever iubenda decides is mirrored into the first-party
+ * `ilikecookies*` cookies so all existing gating (Pixels, settings, ad
+ * consent fallback) keeps working.
+ *
+ * The configuration mirrors the marketing sites' embed (recruiter-landing,
+ * custom-scripts/head.html) — same account, same policy, same first layer
+ * (applyStyles:false + styles/iubenda.css + iubendaBanner.ts) —
+ * so every daily.dev property shows one consent card. Deliberate deviations:
+ * `localConsentDomain` (consent shared across *.daily.dev),
+ * `invalidateConsentWithoutLog`, and no floating preferences badge —
+ * settings/privacy is the in-app withdrawal entry point.
  */
 
 type IubendaPreference = {
+  // TCF banners answer per purpose; LGPD/USPR report one verdict for the
+  // whole banner in `consent`
+  consent?: boolean;
   purposes?: Record<string, boolean>;
 };
 
 type IubendaWindow = typeof globalThis & {
   _iub?: {
     csConfiguration?: Record<string, unknown>;
-    cs?: { api?: { openPreferences?: () => void } };
+    csLangConfiguration?: Record<string, { cookiePolicyId: number }>;
+    cs?: {
+      api?: { openPreferences?: () => void; isConsentGiven?: () => boolean };
+    };
   };
 };
 
-const IUBENDA_SCRIPTS = [
+// TCF purpose 5 is "personalised advertising", the one `ilikecookies_marketing`
+// stands for. Outside TCF the banner records a single verdict instead, so read
+// that, and fall back to asking the CMP what it stored — never leave an
+// expressed preference unclassified, or consent granted in the CMP and the
+// consent our own gating sees drift apart.
+const readMarketingConsent = (pref: IubendaPreference): boolean => {
+  if (pref.purposes) {
+    return pref.purposes['5'] === true;
+  }
+
+  if (typeof pref.consent === 'boolean') {
+    return pref.consent;
+  }
+
+  const api = (globalThis as IubendaWindow)._iub?.cs?.api;
+
+  return api?.isConsentGiven?.() === true;
+};
+
+// The consent-sync call comes first and the TCF stub before anything that
+// could query `window.__tcfapi`, mirroring iubenda's dashboard snippet.
+const getIubendaScripts = (siteId: string): string[] => [
+  `https://cs.iubenda.com/sync/${siteId}.js`,
   'https://cdn.iubenda.com/cs/tcf/stub-v2.js',
   'https://cdn.iubenda.com/cs/tcf/safe-tcf-v2.js',
+  'https://cdn.iubenda.com/cs/gpp/stub.js',
   'https://cdn.iubenda.com/cs/iubenda_cs.js',
 ];
 
@@ -47,102 +88,154 @@ export const openIubendaPreferences = (): boolean => {
 };
 
 export const Iubenda = (): ReactElement | null => {
-  const { isAuthReady, isTcfCovered, isFunnel } = useAuthContext();
+  const { isAuthReady, isFunnel } = useAuthContext();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Necessary);
-  const injectedRef = useRef(false);
 
   // The config callback must not go stale when React re-renders.
-  const onPreferenceRef = useRef<(pref: IubendaPreference) => void>();
+  const onPreferenceRef = useRef<(pref: IubendaPreference | null) => void>();
   onPreferenceRef.current = (pref) => {
-    const marketing = pref?.purposes?.['5'] === true;
+    // No preference at all means iubenda found no consent regime for this
+    // country: nothing was ever asked, so nothing is granted or revoked and
+    // only the fact that the question is closed gets recorded.
+    if (!pref) {
+      saveCookies([], []);
+      return;
+    }
+
+    const marketing = readMarketingConsent(pref);
+
     saveCookies(
       marketing ? otherGdprConsents : [],
       marketing ? [] : otherGdprConsents,
     );
-    globalThis?.localStorage?.setItem(cookieAcknowledgedKey, 'true');
   };
 
-  const enabled = isAuthReady && isTcfCovered && !isFunnel && !isIOSNative();
+  const enabled = isAuthReady && !isFunnel && !isIOSNative();
 
   useEffect(() => {
-    if (!enabled || injectedRef.current) {
-      return;
+    if (!enabled) {
+      return undefined;
     }
 
     const win = globalThis as IubendaWindow;
 
+    // `csConfiguration` is the injection record: the effect can re-run or the
+    // component remount, and either way only the banner watcher restarts
     if (win._iub?.csConfiguration) {
-      return;
+      return watchIubendaBanner();
     }
 
-    injectedRef.current = true;
+    const siteId = process.env.NEXT_PUBLIC_IUBENDA_SITE_ID;
+    const cookiePolicyId = Number(process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID);
+
+    if (!siteId || !cookiePolicyId) {
+      // eslint-disable-next-line no-console
+      console.error(
+        'iubenda env vars missing (NEXT_PUBLIC_IUBENDA_SITE_ID / NEXT_PUBLIC_IUBENDA_POLICY_ID): no consent banner will be shown in this environment',
+      );
+      return undefined;
+    }
 
     win._iub = win._iub || {};
-    const tokens = getComputedStyle(document.documentElement);
-    // Aligned with the marketing homepage's embed (same siteId/cookiePolicyId,
-    // countryDetection, LGPD/USPR) so both surfaces treat consent the same.
-    // Deliberate differences: enableTcf + ACM (the point of this integration)
-    // and no floating button (settings/privacy is the re-entry point).
     win._iub.csConfiguration = {
-      siteId: Number(process.env.NEXT_PUBLIC_IUBENDA_SITE_ID),
-      cookiePolicyId: Number(process.env.NEXT_PUBLIC_IUBENDA_POLICY_ID),
-      lang: 'en',
-      enableTcf: true,
-      googleAdditionalConsentMode: true,
-      perPurposeConsent: true,
       askConsentAtCookiePolicyUpdate: true,
-      invalidateConsentWithoutLog: true,
+      cookiePolicyInOtherWindow: true,
       countryDetection: true,
       enableLgpd: true,
+      enableTcf: true,
       enableUspr: true,
-      cookiePolicyInOtherWindow: true,
-      // consent cookie shared across *.daily.dev so the homepage recognizes
-      // webapp consent; the homepage embed should add this too for the
-      // reverse direction (its cookie is host-only today)
+      gdprAppliesGlobally: false,
+      googleAdditionalConsentMode: true,
+      inlineDelay: 100,
+      perPurposeConsent: true,
+      siteId: Number(siteId),
+      tcfPurposes: {
+        '2': 'consent_only',
+        '7': 'consent_only',
+        '8': 'consent_only',
+        '9': 'consent_only',
+        '10': 'consent_only',
+        '11': 'consent_only',
+      },
+      whitelabel: false,
+      cookiePolicyId,
+      invalidateConsentWithoutLog: true,
+      // consent cookie shared across *.daily.dev so the marketing sites
+      // recognize webapp consent and vice versa
       localConsentDomain: process.env.NEXT_PUBLIC_DOMAIN,
       floatingPreferencesButtonDisplay: false,
+      i18n: {
+        en: {
+          banner: {
+            title: 'We value your privacy',
+            dynamic: {
+              body: 'This site uses cookies to improve your experience. By continuing to use our site, you accept our use of cookies, Privacy Policy, and Terms of Service.',
+            },
+          },
+        },
+      },
       banner: {
-        position: 'float-bottom-right',
-        // iubenda writes these three inline with !important, so unlike the
-        // rest of the card (styles/components/iubenda.css) they can't come
-        // from the stylesheet; read the tokens so they follow the active
-        // theme
-        backgroundColor:
-          tokens.getPropertyValue('--theme-accent-pepper-subtlest').trim() ||
-          '#161921',
-        textColor:
-          tokens.getPropertyValue('--theme-text-secondary').trim() || '#CDD4E4',
-        fontSize: '13px',
+        // the first layer is styled by styles/iubenda.css; the
+        // preferences modal keeps iubenda's own styles
+        applyStyles: false,
         acceptButtonDisplay: true,
-        rejectButtonDisplay: true,
+        closeButtonRejects: true,
         customizeButtonDisplay: true,
-        closeButtonDisplay: false,
-        listPurposes: true,
+        customizeButtonCaption: 'Customize',
+        rejectButtonDisplay: true,
+        explicitWithdrawal: true,
+        fontSizeBody: '12px',
+        fontSizeCloseButton: '18px',
+        logo: null,
+        position: 'bottom',
+        slideDown: false,
       },
       callback: {
-        onPreferenceExpressed: (pref: IubendaPreference) =>
+        // fires on an expressed preference AND on "no consent needed" — the
+        // only signal that separates a green light from a banner that has
+        // not rendered yet
+        onPreferenceExpressedOrNotNeeded: (pref: IubendaPreference | null) =>
           onPreferenceRef.current?.(pref),
         onBannerShown: () => {
+          // catches banners the watcher missed (rendered past its cost cap)
+          // and re-measures ones enhanced while still hidden
+          enhanceIubendaBannerNow();
+          // iubenda refuses consent while .iubenda-banner-content is
+          // scrollable and not scrolled to bottom, and its setup can win the
+          // race against our collapse class. Poking the listener resolves the
+          // flag before the first click, so Accept/Reject never need pressing
+          // twice.
           document
             .querySelector('#iubenda-cs-banner .iubenda-banner-content')
             ?.dispatchEvent(new Event('scroll'));
         },
       },
     };
+    win._iub.csLangConfiguration = {
+      en: { cookiePolicyId },
+      ...Object.fromEntries(
+        Object.entries(iubendaLocalizedPolicyIds).map(([lang, id]) => [
+          lang,
+          { cookiePolicyId: id },
+        ]),
+      ),
+    };
 
-    IUBENDA_SCRIPTS.forEach((src, index) => {
+    getIubendaScripts(siteId).forEach((src) => {
       const script = document.createElement('script');
       script.src = src;
       // dynamically injected scripts default to async; force in-order
       // execution — iubenda requires the TCF stub before the core script
       script.async = false;
-      if (index === 0) {
+      if (src.includes('tcf/stub-v2')) {
         // __tcfapi only exists once the stub executes; the stub then queues
         // the subscription until the core script loads
         script.onload = () => startTcfSubscription();
       }
       document.head.appendChild(script);
     });
+
+    return watchIubendaBanner();
   }, [enabled]);
 
   return null;
