@@ -18,6 +18,7 @@ import {
   ArbitrageAdFormat,
   ArbitrageAdSlot,
 } from '../post/arbitrage/ArbitrageAdSlot';
+import { ARBITRAGE_SLOT } from '../post/arbitrage/slots';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -124,7 +125,7 @@ export const SidebarDesktop = ({
       {forceExpanded && (
         <div className="px-2 pb-3">
           <ArbitrageAdSlot
-            slot={1}
+            slot={ARBITRAGE_SLOT.sidebar}
             format={ArbitrageAdFormat.SidebarRail}
             reach="100%"
           />

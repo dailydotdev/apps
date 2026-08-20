@@ -1,10 +1,11 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { ArbitrageAnchor } from './ArbitrageAnchor';
 import { useFeature } from '../../GrowthBookProvider';
 import type { ReadAdsenseSlots } from './adsense';
 import { ADSENSE_CLIENT_ID } from './adsense';
+import { FLOATING_LEADERBOARD_DELAY_MS } from './slots';
 
 jest.mock('../../GrowthBookProvider', () => ({
   ...(jest.requireActual('../../GrowthBookProvider') as Record<
@@ -98,9 +99,26 @@ describe('ArbitrageAdSlot', () => {
 });
 
 describe('ArbitrageAnchor', () => {
+  // The floating leaderboard is deliberately delayed, so every assertion about
+  // it rendering has to run the timer forward first.
+  const advancePastDelay = (): void => {
+    act(() => {
+      jest.advanceTimersByTime(FLOATING_LEADERBOARD_DELAY_MS);
+    });
+  };
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   it('renders nothing in production while the remote config is empty', () => {
     setSlots({});
     const { container } = render(<ArbitrageAnchor />);
+    advancePastDelay();
 
     expect(container).toBeEmptyDOMElement();
   });
@@ -109,15 +127,33 @@ describe('ArbitrageAnchor', () => {
     mockConstants.isDevelopment = true;
     setSlots({});
     render(<ArbitrageAnchor />);
+    advancePastDelay();
 
     expect(screen.getByTestId('arbitrage-ad-slot-13')).toBeInTheDocument();
   });
 
-  it('unmounts in live mode so the Auto ads anchor owns the viewport bottom', () => {
+  it('stays unmounted until the delay elapses', () => {
     mockConstants.isDevelopment = true;
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    setSlots({});
     const { container } = render(<ArbitrageAnchor />);
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('leaves the viewport bottom free when slot 13 is not configured', () => {
+    mockConstants.isDevelopment = true;
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    const { container } = render(<ArbitrageAnchor />);
+    advancePastDelay();
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders the floating leaderboard once slot 13 is configured', () => {
+    setSlots({ '13': { id: '1313131313', type: 'display' } });
+    render(<ArbitrageAnchor />);
+    advancePastDelay();
+
+    expect(screen.getByTestId('adsense-slot-13')).toBeInTheDocument();
   });
 });

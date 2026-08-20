@@ -4,6 +4,7 @@ import type { Post } from '../../../graphql/posts';
 import { Origin } from '../../../lib/log';
 import { PostComments } from '../PostComments';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
+import { ARBITRAGE_SLOT } from './slots';
 
 export interface ArbitrageCommentsProps {
   post: Post;
@@ -18,20 +19,20 @@ export function ArbitrageComments({
   post,
 }: ArbitrageCommentsProps): ReactElement {
   return (
-    <div className="flex flex-col">
-      <h2 className="mb-4 font-bold typo-body">Discussion</h2>
+    // gap-4 rather than margins on the children: an ad slot that collapses when
+    // unfilled would otherwise leave its margin behind as an empty band.
+    <div className="flex flex-col gap-4">
+      <h2 className="font-bold typo-body">Discussion</h2>
       <ArbitrageAdSlot
-        slot={7}
+        slot={ARBITRAGE_SLOT.commentNative}
         format={ArbitrageAdFormat.Native}
         reach="30%"
-        className="mb-4"
       />
       <PostComments post={post} origin={Origin.ArticlePage} />
       <ArbitrageAdSlot
-        slot={8}
+        slot={ARBITRAGE_SLOT.commentMpu}
         format={ArbitrageAdFormat.Rectangle}
         reach="22%"
-        className="my-6"
       />
     </div>
   );
