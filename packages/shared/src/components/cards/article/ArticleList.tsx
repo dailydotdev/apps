@@ -45,7 +45,14 @@ export const ArticleList = forwardRef(function ArticleList(
     domProps = {},
     onShare,
     eagerLoadImage = false,
-  }: PostCardProps,
+    isNarrow = false,
+  }: PostCardProps & {
+    /**
+     * Takes the phone's stacked layout at any viewport, for a card in a dragged
+     * column the window's breakpoints know nothing about.
+     */
+    isNarrow?: boolean;
+  },
   ref: Ref<HTMLElement>,
 ): ReactElement {
   const { className, style } = domProps;
@@ -55,6 +62,7 @@ export const ArticleList = forwardRef(function ArticleList(
   const onPostCardClick = (event: React.MouseEvent<HTMLAnchorElement>) =>
     onPostClick?.(post, event);
   const isMobile = useViewSize(ViewSize.MobileL);
+  const isStacked = isMobile || isNarrow;
   const { showFeedback } = usePostFeedback({ post });
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
   const isFeedPreview = useFeedPreviewMode();
@@ -165,8 +173,13 @@ export const ArticleList = forwardRef(function ArticleList(
               )}
             </PostCardHeader>
 
-            <CardContent>
-              <div className="mr-4 flex flex-1 flex-col">
+            <CardContent className={isNarrow ? '!flex-col' : undefined}>
+              <div
+                className={classNames(
+                  'flex flex-1 flex-col',
+                  !isNarrow && 'mr-4',
+                )}
+              >
                 <CardTitle
                   lineClamp={undefined}
                   className={post.read ? 'text-text-tertiary' : undefined}
@@ -181,7 +194,7 @@ export const ArticleList = forwardRef(function ArticleList(
                   <PostTags post={post} />
                 </div>
                 <div className="hidden flex-1 tablet:flex" />
-                {!isMobile && actionButtons}
+                {!isStacked && actionButtons}
               </div>
 
               <CardCoverList
@@ -194,6 +207,8 @@ export const ArticleList = forwardRef(function ArticleList(
                   className: classNames(
                     'mobileXXL:self-start',
                     !isVideoType && 'mt-4',
+                    // `mobileXL:w-60` on the image would otherwise cap it.
+                    isNarrow && '!w-full self-stretch',
                   ),
                   ...(eagerLoadImage
                     ? HIGH_PRIORITY_IMAGE_PROPS
@@ -201,12 +216,15 @@ export const ArticleList = forwardRef(function ArticleList(
                   src: post.image,
                 }}
                 videoProps={{
-                  className: 'mt-4 mobileXL:w-40 mobileXXL:w-56 !h-fit',
+                  className: classNames(
+                    'mt-4 !h-fit mobileXL:w-40 mobileXXL:w-56',
+                    isNarrow && '!w-full',
+                  ),
                 }}
               />
             </CardContent>
           </CardContainer>
-          {isMobile && actionButtons}
+          {isStacked && actionButtons}
           {children}
         </>
       )}

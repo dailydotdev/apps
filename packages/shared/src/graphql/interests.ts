@@ -1,5 +1,7 @@
 import { gqlClient } from './common';
 import type { Post } from './posts';
+import { FEED_POST_FRAGMENT } from './fragments';
+import { USER_POST_FRAGMENT } from './feed';
 
 export enum UserInterestStatus {
   Active = 'active',
@@ -26,6 +28,19 @@ export type InterestOutputModes = {
   notification: boolean;
 };
 
+export enum InterestRunStatus {
+  Queued = 'queued',
+  Running = 'running',
+  Completed = 'completed',
+  Failed = 'failed',
+}
+
+export enum InterestRunTrigger {
+  Spawn = 'spawn',
+  Command = 'command',
+  Scheduled = 'scheduled',
+}
+
 export type UserInterest = {
   id: string;
   query: string;
@@ -38,6 +53,8 @@ export type UserInterest = {
   sourceId?: string | null;
   lastRunAt?: string | null;
   lastRunSummary?: string | null;
+  lastRunStatus?: InterestRunStatus | null;
+  lastRunFindings?: number | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -57,10 +74,27 @@ export type InterestFinding = {
   rationale?: string | null;
   status: string;
   createdAt: string;
-  post?: Pick<
-    Post,
-    'id' | 'title' | 'image' | 'permalink' | 'commentsPermalink' | 'readTime'
-  > | null;
+  post?: Post | null;
+};
+
+export type InterestRunBlock =
+  | { type: 'text'; html: string }
+  | { type: 'picks'; caption?: string; postIds: string[] }
+  | { type: 'feedLink'; label: string; count: number };
+
+export type InterestTurn = {
+  id: string;
+  role: 'user' | 'agent';
+  createdAt: string;
+  text?: string | null;
+  status?: InterestRunStatus | null;
+  trigger?: InterestRunTrigger | null;
+  feedbackId?: string | null;
+  blocks?: InterestRunBlock[] | null;
+  findingsAdded?: number | null;
+  summaryPostId?: string | null;
+  startedAt?: string | null;
+  finishedAt?: string | null;
 };
 
 const USER_INTEREST_FRAGMENT = `
@@ -76,6 +110,8 @@ const USER_INTEREST_FRAGMENT = `
     sourceId
     lastRunAt
     lastRunSummary
+    lastRunStatus
+    lastRunFindings
     createdAt
     updatedAt
   }
@@ -100,7 +136,7 @@ export const INTEREST_QUERY = `
 `;
 
 export const INTEREST_FINDINGS_QUERY = `
-  query InterestFindings($id: ID!) {
+  query InterestFindings($id: ID!, $loggedIn: Boolean! = true) {
     interestFindings(id: $id) {
       id
       postId
@@ -109,15 +145,14 @@ export const INTEREST_FINDINGS_QUERY = `
       status
       createdAt
       post {
-        id
-        title
-        image
-        permalink
-        commentsPermalink
-        readTime
+        ...FeedPost
+        contentHtml
+        ...UserPost @include(if: $loggedIn)
       }
     }
   }
+  ${FEED_POST_FRAGMENT}
+  ${USER_POST_FRAGMENT}
 `;
 
 export const CREATE_INTEREST_MUTATION = `
@@ -130,9 +165,28 @@ export const CREATE_INTEREST_MUTATION = `
 `;
 
 export const SEND_INTEREST_COMMAND_MUTATION = `
-  mutation SendInterestCommand($id: ID!, $text: String!) {
-    sendInterestCommand(id: $id, text: $text) {
+  mutation SendInterestCommand($id: ID!, $text: String!, $triggerRun: Boolean) {
+    sendInterestCommand(id: $id, text: $text, triggerRun: $triggerRun) {
       id
+    }
+  }
+`;
+
+export const INTEREST_HISTORY_QUERY = `
+  query InterestHistory($id: ID!) {
+    interestHistory(id: $id) {
+      id
+      role
+      createdAt
+      text
+      status
+      trigger
+      feedbackId
+      blocks
+      findingsAdded
+      summaryPostId
+      startedAt
+      finishedAt
     }
   }
 `;
@@ -215,14 +269,26 @@ export const createInterest = async (query: string): Promise<UserInterest> => {
 export const sendInterestCommand = async ({
   id,
   text,
+  triggerRun,
 }: {
   id: string;
   text: string;
+  triggerRun?: boolean;
 }): Promise<Pick<UserInterest, 'id'>> => {
   const res = await gqlClient.request<{
     sendInterestCommand: Pick<UserInterest, 'id'>;
-  }>(SEND_INTEREST_COMMAND_MUTATION, { id, text });
+  }>(SEND_INTEREST_COMMAND_MUTATION, { id, text, triggerRun });
   return res.sendInterestCommand;
+};
+
+export const getInterestHistory = async (
+  id: string,
+): Promise<InterestTurn[]> => {
+  const res = await gqlClient.request<{ interestHistory: InterestTurn[] }>(
+    INTEREST_HISTORY_QUERY,
+    { id },
+  );
+  return res.interestHistory;
 };
 
 export const updateInterest = async ({

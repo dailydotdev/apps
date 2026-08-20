@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useMutation } from '@tanstack/react-query';
 import { initToolDiscussion } from '@dailydotdev/shared/src/graphql/tools';
@@ -12,6 +12,19 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { useUserCompaniesQuery } from '@dailydotdev/shared/src/hooks/userCompany/useUserCompaniesQuery';
+import Link from '@dailydotdev/shared/src/components/utilities/Link';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  Typography,
+  TypographyColor,
+  TypographyType,
+} from '@dailydotdev/shared/src/components/typography/Typography';
+import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 
 const CommentInputOrModal = dynamic(
   () =>
@@ -26,12 +39,35 @@ interface ToolDiscussionProps {
   discussionPostId: string | null;
 }
 
+const VERIFIED_GATE_MESSAGE =
+  'Tool discussions are limited to devs with a verified work email';
+const VERIFY_WORK_EMAIL_ROUTE = '/settings/profile/experience/work';
+
+const VerifiedGateNotice = (): ReactElement => (
+  <div className="flex flex-col gap-2 rounded-12 border border-border-subtlest-tertiary bg-background-default p-3">
+    <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
+      {VERIFIED_GATE_MESSAGE}
+    </Typography>
+    <Link href={VERIFY_WORK_EMAIL_ROUTE} passHref>
+      <Button
+        tag="a"
+        variant={ButtonVariant.Secondary}
+        size={ButtonSize.Small}
+        className="self-start"
+      >
+        Verify work email
+      </Button>
+    </Link>
+  </div>
+);
+
 export const ToolDiscussion = ({
   toolId,
   toolTitle,
   discussionPostId,
 }: ToolDiscussionProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
+  const { isVerified, isLoading: isCompaniesLoading } = useUserCompaniesQuery();
   const { displayToast } = useToastNotification();
   const commentRef = useRef<NewCommentRef>(null);
   // Set once the mutation below creates the post, so the composer can be
@@ -60,8 +96,23 @@ export const ToolDiscussion = ({
       shouldOpenOnLoad.current = true;
       setPostId(id);
     },
-    onError: () => displayToast('Failed to start the discussion'),
+    onError: (error: unknown) => {
+      const message = (error as GraphQLError)?.response?.errors?.[0]?.message;
+      displayToast(message ?? 'Failed to start the discussion');
+    },
   });
+
+  // Logged in but no verified work email: the server rejects the mutation
+  // anyway, so the composer is replaced before the user ever gets there.
+  // While the companies query is still resolving, treat replies as blocked
+  // too rather than briefly allowing a composer that then gets pulled away.
+  const isCheckingVerification = !!user && isCompaniesLoading;
+  const isGated = !!user && !isCompaniesLoading && !isVerified;
+  const canReply = !user || (!isCompaniesLoading && isVerified);
+
+  const handleReplyBlocked = useCallback(() => {
+    displayToast(VERIFIED_GATE_MESSAGE);
+  }, [displayToast]);
 
   const handleStart = (): void => {
     if (!user) {
@@ -82,16 +133,43 @@ export const ToolDiscussion = ({
   }
 
   if (postId && post) {
-    return (
-      <div className="flex flex-col gap-4">
+    const renderComposer = (): ReactElement => {
+      if (isCheckingVerification) {
+        return <PlaceholderCommentList placeholderAmount={1} />;
+      }
+
+      if (isGated) {
+        return <VerifiedGateNotice />;
+      }
+
+      return (
         <NewComment
           post={post}
           ref={commentRef}
           CommentInputOrModal={CommentInputOrModal}
         />
-        <PostComments post={post} origin={Origin.ToolPage} />
+      );
+    };
+
+    return (
+      <div className="flex flex-col gap-4">
+        {renderComposer()}
+        <PostComments
+          post={post}
+          origin={Origin.ToolPage}
+          canReply={canReply}
+          onReplyBlocked={handleReplyBlocked}
+        />
       </div>
     );
+  }
+
+  if (isCheckingVerification) {
+    return <PlaceholderCommentList placeholderAmount={1} />;
+  }
+
+  if (isGated) {
+    return <VerifiedGateNotice />;
   }
 
   return (

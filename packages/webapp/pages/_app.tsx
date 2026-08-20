@@ -13,15 +13,13 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import {
-  useCookieBanner,
-  cookieAcknowledgedKey,
-} from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import { useIubendaConsentMirror } from '@dailydotdev/shared/src/hooks/useIubendaConsentMirror';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
 import { canonicalFromRouter } from '@dailydotdev/shared/src/lib/canonical';
 import '@dailydotdev/shared/src/styles/globals.css';
+import '../styles/iubenda.css';
 import useLogPageView from '@dailydotdev/shared/src/hooks/log/useLogPageView';
 import { BootDataProvider } from '@dailydotdev/shared/src/contexts/BootProvider';
 import { PostReferrerContextProvider } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
@@ -60,13 +58,6 @@ import { PixelsProvider } from '../context/PixelsContext';
 import { Iubenda } from '../components/Iubenda';
 
 structuredCloneJsonPolyfill();
-
-const CookieBanner = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "cookieBanner" */ '../components/banner/CookieBanner'
-    ),
-);
 
 const AuthModal = dynamic(
   () =>
@@ -161,8 +152,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   } = useAuthContext();
   // Users arriving from the extension install link land on `/?ref=install`.
   const isComingFromInstall = router.query.ref === 'install';
-  const { showBanner, onAcceptCookies, onOpenBanner, onHideBanner } =
-    useCookieBanner();
+  useIubendaConsentMirror();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal, openModal } = useLazyModal();
@@ -403,19 +393,6 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
           />
         )}
         {!isImageGenerator && <Iubenda />}
-        {showBanner && !isFunnel && !isImageGenerator && (
-          <CookieBanner
-            onAccepted={onAcceptCookies}
-            onHideBanner={onHideBanner}
-            onModalClose={() => {
-              const interacted = !!localStorage.getItem(cookieAcknowledgedKey);
-
-              if (!interacted) {
-                onOpenBanner();
-              }
-            }}
-          />
-        )}
         <div className="award-easter-egg-container" />
       </>
     </SerwistProvider>

@@ -53,7 +53,7 @@
 /* Sidebar overlay mode on profile pages below 1360px */
 @media (max-width: 1359px) and (min-width: 1020px) {
   /* Make sidebar overlay on top of content when expanded */
-  body:has(.profile-page) nav[role="navigation"] {
+  body:has(.profile-page) nav[role='navigation'] {
     position: fixed !important;
     z-index: 100 !important;
     height: 100vh !important;
@@ -209,8 +209,7 @@
 
 .live-room-reaction {
   left: var(--live-room-reaction-left);
-  animation: live-room-reaction-fly 2.2s cubic-bezier(0.19, 1, 0.22, 1)
-    forwards;
+  animation: live-room-reaction-fly 2.2s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -403,11 +402,7 @@
 
 .leaderboard-rank-gold:hover {
   box-shadow: 0 0 24px
-    color-mix(
-      in srgb,
-      var(--theme-accent-cheese-default) 18%,
-      transparent
-    );
+    color-mix(in srgb, var(--theme-accent-cheese-default) 18%, transparent);
 }
 
 .leaderboard-rank-silver:hover {
@@ -417,11 +412,7 @@
 
 .leaderboard-rank-bronze:hover {
   box-shadow: 0 0 24px
-    color-mix(
-      in srgb,
-      var(--theme-accent-bacon-default) 18%,
-      transparent
-    );
+    color-mix(in srgb, var(--theme-accent-bacon-default) 18%, transparent);
 }
 
 @keyframes feed-highlights-title-gradient-shift {
@@ -509,12 +500,9 @@
 }
 
 .crown-hover-most-loved:hover {
-  box-shadow:
-    0 0 40px color-mix(in srgb, var(--theme-accent-cabbage-default) 22%, transparent),
-    inset
-      0
-      1px
-      0
+  box-shadow: 0 0 40px
+      color-mix(in srgb, var(--theme-accent-cabbage-default) 22%, transparent),
+    inset 0 1px 0
       color-mix(in srgb, var(--theme-accent-cabbage-default) 30%, transparent) !important;
 }
 
@@ -627,7 +615,10 @@
   }
 
   100% {
-    transform: translate(var(--sound-particle-ex, 14px), var(--sound-particle-ey, 0px))
+    transform: translate(
+        var(--sound-particle-ex, 14px),
+        var(--sound-particle-ey, 0px)
+      )
       scale(0.65);
     opacity: 0;
   }
@@ -644,8 +635,7 @@
   }
 
   33% {
-    transform: translate(0.6px, -1.8px) rotate(1.3deg) scaleX(1.04)
-      scaleY(1.13);
+    transform: translate(0.6px, -1.8px) rotate(1.3deg) scaleX(1.04) scaleY(1.13);
   }
 
   50% {
@@ -654,8 +644,7 @@
   }
 
   72% {
-    transform: translate(0.5px, -1.5px) rotate(1.1deg) scaleX(1.03)
-      scaleY(1.1);
+    transform: translate(0.5px, -1.5px) rotate(1.1deg) scaleX(1.03) scaleY(1.1);
   }
 
   100% {
@@ -714,7 +703,10 @@
   }
 
   100% {
-    transform: translate(var(--flame-ember-ex, 2px), var(--flame-ember-ey, -10px))
+    transform: translate(
+        var(--flame-ember-ex, 2px),
+        var(--flame-ember-ey, -10px)
+      )
       scale(0.4);
     opacity: 0;
   }
@@ -807,12 +799,12 @@
         calc(
           var(--medal-particle-sx, 0px) +
             (var(--medal-particle-ex, 0px) - var(--medal-particle-sx, 0px)) *
-              0.5
+            0.5
         ),
         calc(
           var(--medal-particle-sy, 0px) +
             (var(--medal-particle-ey, 0px) - var(--medal-particle-sy, 0px)) *
-              0.5
+            0.5
         )
       )
       scale(0.82);
@@ -820,72 +812,49 @@
   }
 
   100% {
-    transform: translate(var(--medal-particle-ex, 0px), var(--medal-particle-ey, 0px))
+    transform: translate(
+        var(--medal-particle-ex, 0px),
+        var(--medal-particle-ey, 0px)
+      )
       scale(0.38);
     opacity: 0;
   }
 }
 
 .crown-hover-most-discussed:hover {
-  box-shadow:
-    0 0 40px color-mix(in srgb, var(--theme-accent-blueCheese-default) 22%, transparent),
-    inset
-      0
-      1px
-      0
-      color-mix(in srgb, var(--theme-accent-blueCheese-default) 30%, transparent) !important;
+  box-shadow: 0 0 40px
+      color-mix(
+        in srgb,
+        var(--theme-accent-blueCheese-default) 22%,
+        transparent
+      ),
+    inset 0 1px 0
+      color-mix(
+        in srgb,
+        var(--theme-accent-blueCheese-default) 30%,
+        transparent
+      ) !important;
 }
 
 .crown-hover-developers-choice:hover {
-  box-shadow:
-    0 0 40px color-mix(in srgb, var(--theme-accent-cheese-default) 22%, transparent),
-    inset
-      0
-      1px
-      0
+  box-shadow: 0 0 40px
+      color-mix(in srgb, var(--theme-accent-cheese-default) 22%, transparent),
+    inset 0 1px 0
       color-mix(in srgb, var(--theme-accent-cheese-default) 30%, transparent) !important;
 }
 
 .crown-hover-most-controversial:hover {
-  box-shadow:
-    0 0 40px color-mix(in srgb, var(--theme-accent-ketchup-default) 22%, transparent),
-    inset
-      0
-      1px
-      0
+  box-shadow: 0 0 40px
+      color-mix(in srgb, var(--theme-accent-ketchup-default) 22%, transparent),
+    inset 0 1px 0
       color-mix(in srgb, var(--theme-accent-ketchup-default) 30%, transparent) !important;
 }
 
 .crown-hover-fastest-rising:hover {
-  box-shadow:
-    0 0 40px color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent),
-    inset
-      0
-      1px
-      0
+  box-shadow: 0 0 40px
+      color-mix(in srgb, var(--theme-accent-avocado-default) 22%, transparent),
+    inset 0 1px 0
       color-mix(in srgb, var(--theme-accent-avocado-default) 30%, transparent) !important;
-}
-
-@keyframes agent-live-radar-sweep {
-  0% {
-    transform: rotate(0deg);
-    opacity: 0.65;
-  }
-
-  16.7% {
-    transform: rotate(360deg);
-    opacity: 0.65;
-  }
-
-  20.8%,
-  100% {
-    transform: rotate(360deg);
-    opacity: 0;
-  }
-}
-
-.agent-live-radar-sweep {
-  animation: agent-live-radar-sweep 20s linear infinite;
 }
 
 @keyframes breaking-news-chip-mesh {
@@ -976,3 +945,340 @@
     background-position: 100% 50%, 50% 0%;
   }
 }
+
+/* A turn arriving in the agent transcript: a short rise-and-settle so new
+   rows read as arriving rather than popping. */
+@keyframes agent-turn-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.agent-turn-in {
+  animation: agent-turn-in 0.24s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-turn-in {
+    animation: none;
+  }
+}
+
+/*
+ * The composer's command and mention lists. They open upward out of the field,
+ * so the enter rises off it rather than dropping onto it, and carries the same
+ * de-blur as the rail popups.
+ */
+@keyframes agent-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(4px);
+  }
+}
+
+.agent-menu-in {
+  transform-origin: bottom center;
+  animation: agent-menu-in 0.16s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-menu-in {
+    animation: none;
+  }
+}
+
+/* A pane of glass with the field set into it — the onboarding panel's frame,
+   brought to the composer. A hairline that catches light along the top edge, a
+   tint so the feed reads *through* it rather than *as* it, and a blur wide
+   enough to melt the post cards passing underneath. Every colour comes off a
+   theme token: a white hairline disappears entirely on the light theme. */
+.agent-glass-frame {
+  border: 1px solid
+    color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 78%);
+  /* Dark on the outside, light on the inside: the frame recedes into the page
+     and the field it holds is the lit part. Still translucent, so the posts
+     underneath stay legible as movement. */
+  background: color-mix(
+    in srgb,
+    var(--theme-background-default) 82%,
+    transparent
+  );
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  box-shadow: inset 0 1px 0
+      color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 86%),
+    0 16px 40px -16px var(--theme-shadow-shadow1),
+    0 2px 8px -4px var(--theme-shadow-shadow1);
+}
+
+/* The field inside the frame: lighter and denser than the frame around it, so
+   the thing you type into is the thing that catches the eye. */
+.agent-glass-field {
+  background: color-mix(
+    in srgb,
+    var(--theme-background-subtle) 94%,
+    transparent
+  );
+  border: 1px solid
+    color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 90%);
+}
+
+/* The colour the frame throws onto the feed behind it. */
+.agent-glass-bloom {
+  background: radial-gradient(
+    60% 100% at 50% 100%,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, transparent) 0%,
+    transparent 70%
+  );
+  filter: blur(28px);
+  opacity: 0.35;
+}
+
+/* The reply as a thing you could have taken a picture of.
+
+   Lit from above and resting on a layered shadow, so it reads as an object
+   sitting on the sheet rather than another panel drawn in it. That is the whole
+   job: the sheet is asking "send this", and an image is easier to agree to than
+   a paragraph in a box. Authored in DOM rather than as a real image so the text
+   stays selectable and the links stay links. */
+.agent-share-card {
+  position: relative;
+  isolation: isolate;
+  /* The glow is clipped to the card's own rounded box rather than bleeding past
+     it: the export is cropped to this box, and a halo that only exists outside
+     it is a halo the copied image does not have. */
+  overflow: hidden;
+  border: 1px solid
+    color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 80%);
+  background: linear-gradient(
+    180deg,
+    color-mix(
+        in srgb,
+        var(--theme-accent-cabbage-default) 8%,
+        var(--theme-background-subtle)
+      )
+      0%,
+    var(--theme-background-subtle) 46%
+  );
+  box-shadow:
+    /* The top edge catching the light. */
+    inset 0 1px 0
+      color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 82%),
+    /* Two shadows, near and far: one gives it an edge, the other gives it
+       somewhere to be. Through the theme's own shadow colours, because a black
+       drop shadow under a card on a light background is a smudge. */
+      0 2px 6px -3px var(--theme-shadow-shadow2),
+    0 18px 40px -18px var(--theme-shadow-shadow3);
+}
+
+/* The brand's colour arriving from off the top of the card, not painted on it.
+
+   A real element rather than a `::before`, because the sheet exports this card
+   by cloning it and a clone does not carry pseudo-elements — as a `::before` the
+   glow was on screen and missing from every copied image. */
+.agent-share-glow {
+  position: absolute;
+  inset: -18% 8% auto 8%;
+  height: 55%;
+  background: radial-gradient(
+    50% 100% at 50% 50%,
+    color-mix(in srgb, var(--theme-accent-cabbage-default) 55%, transparent),
+    transparent 70%
+  );
+  filter: blur(40px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* One line replacing another in place — the monitor's ticker. Shorter and
+   flatter than the menu's entrance: this fires every few seconds, and
+   anything with real travel in it becomes the loudest thing on the page. */
+@keyframes agent-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+    filter: blur(3px);
+  }
+}
+
+.agent-line-in {
+  animation: agent-line-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-line-in {
+    animation: none;
+  }
+}
+
+/* A quieter scrollbar for the agent's own columns.
+   Half the width of the global one and dimmer with it: these panes are narrow,
+   the bar runs right beside the line you are reading, and at 8px of solid
+   tertiary it was the loudest thing on the screen. Same hover-reveal as
+   everywhere else, so nothing is on screen until the pointer is in the pane. */
+.agent-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.agent-scroll:hover {
+  scrollbar-color: color-mix(
+      in srgb,
+      var(--theme-border-subtlest-primary),
+      transparent 60%
+    )
+    transparent;
+}
+
+.agent-scroll::-webkit-scrollbar {
+  width: 0.25rem;
+  height: 0.25rem;
+}
+
+.agent-scroll::-webkit-scrollbar-thumb {
+  border-radius: 0.125rem;
+  background: transparent;
+}
+
+.agent-scroll:hover::-webkit-scrollbar-thumb {
+  background: color-mix(
+    in srgb,
+    var(--theme-border-subtlest-primary),
+    transparent 60%
+  );
+}
+
+.agent-scroll:hover::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-text-tertiary);
+}
+
+/* The last inch of a row that scrolls sideways, faded out.
+   Only ever visible when something is actually under it: a row with room to
+   spare has empty space at that edge, so the mask has nothing to dim. Beats a
+   hard cut where a chip is sliced in half against whatever sits next to it. */
+.agent-fade-right {
+  mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 calc(100% - 1.5rem),
+    transparent
+  );
+}
+
+/* The side panel's surface, matched to the v2 rail: three percent of the
+   secondary surface over the page background. A shade lifted rather than a
+   different colour, which is what keeps a floating card from reading as a
+   second app pasted onto the first. */
+.agent-panel-surface {
+  background: color-mix(
+    in srgb,
+    var(--theme-surface-secondary) 3%,
+    var(--theme-background-default)
+  );
+}
+
+/* A block standing in for something that is on its way.
+   Slow and shallow on purpose: a skeleton is the quietest thing on a screen
+   that is still loading, and the hard 50% pulse Tailwind ships reads as an
+   alarm when six of them run at once. Every one of them breathes together —
+   staggering them turns a placeholder into a light show. */
+@keyframes agent-skeleton {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.agent-skeleton {
+  animation: agent-skeleton 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-skeleton {
+    animation: none;
+  }
+}
+
+/* Something to push against.
+   Every control here changes colour under the pointer and nothing at all under
+   a click, which is the difference between a picture of a button and a button.
+   A small control takes the full 0.96; a full-width row takes a fraction of
+   that, because the same ratio across 600px reads as the row jumping. Colour
+   still carries the state on its own, so nothing is lost when motion is off. */
+.agent-press,
+.agent-press-row {
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.agent-press:active {
+  transform: scale(0.96);
+}
+
+.agent-press-row:active {
+  transform: scale(0.995);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-press,
+  .agent-press-row {
+    transition: none;
+  }
+
+  .agent-press:active,
+  .agent-press-row:active {
+    transform: none;
+  }
+}
+
+/* An icon arriving in place of another one. Small enough to read as the same
+   control changing its mind rather than two controls swapping, and with no
+   bounce: this fires on a click the reader just made, so it confirms rather
+   than performs. */
+@keyframes agent-icon-in {
+  from {
+    opacity: 0;
+    transform: scale(0.25);
+    filter: blur(4px);
+  }
+}
+
+.agent-icon-in {
+  animation: agent-icon-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-icon-in {
+    animation: none;
+  }
+}
+
+/* A window has to sit above the page, not merely be drawn on it. The border
+   stays for the edge — it holds the 1px the header rules are aligned to — and
+   the shadow underneath does the floating: a close lift plus a wide, soft
+   depth, both off the theme's own shadow colour.
+   Only from laptop up, where it is a card in a room. Below that it is the
+   whole screen and has nothing to float over. */
+@media (min-width: 1020px) {
+  .agent-window-shadow {
+    box-shadow: 0 1px 2px -1px var(--theme-shadow-shadow1),
+      0 24px 48px -24px var(--theme-shadow-shadow1);
+  }
+}
+
+/* Post covers sit on their own artwork, and a bright image against a dark
+   panel has no edge at all. A tenth-opacity ring drawn inside the corner gives
+   it one, in whichever direction the theme needs. */
+.agent-media-ring img,
+img.agent-media-ring {
+  outline: 1px solid
+    color-mix(in srgb, var(--theme-border-subtlest-primary), transparent 90%);
+  outline-offset: -1px;
+}
+
+/* A feed inside the panel is a phone-width column standing in a desktop
+   window. The list card decides where to put its cover from the window's
+   width, so it lays the cover out beside the title — 15rem of image in a 24rem
+   panel, hanging off the right edge. These re-run the card's own mobile rules
+   against the container instead, at the same 500px the card switches on, so a
+   panel dragged wide gets the side-by-side layout back. */

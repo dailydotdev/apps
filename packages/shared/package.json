@@ -125,6 +125,7 @@
     "@tiptap/extension-placeholder": "^3.22.5",
     "@tiptap/react": "^3.22.5",
     "@tiptap/starter-kit": "^3.22.5",
+    "border-beam": "1.3.0",
     "check-password-strength": "^2.0.10",
     "cmdk": "^1.0.0",
     "edge-aura": "0.6.0",

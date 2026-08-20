@@ -2,7 +2,6 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import type { GetStaticPropsResult } from 'next';
 import Head from 'next/head';
-import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import type { NextSeoProps } from 'next-seo';
 import type { DirectoryTool } from '@dailydotdev/shared/src/graphql/tools';
 import {
@@ -16,7 +15,6 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { getLayout } from '../../components/layouts/MainLayout';
@@ -24,7 +22,7 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
-import { ToolIcon } from '../../components/tools/ToolIcon';
+import { ToolCard } from '../../components/tools/ToolCard';
 
 const TOOLS_PER_SECTION = 6;
 const TRENDING_COUNT = 6;
@@ -77,51 +75,28 @@ interface ToolsDirectoryProps {
   fallbackTop: DirectoryTool[];
 }
 
-const ToolCard = ({ tool }: { tool: DirectoryTool }): ReactElement => {
+const ToolGrid = ({ tools }: { tools: DirectoryTool[] }): ReactElement => {
   const { logEvent } = useLogContext();
 
   return (
-    <Link href={`/tools/${tool.slug}`} passHref>
-      <a
-        href={`/tools/${tool.slug}`}
-        className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3 hover:border-border-subtlest-secondary"
-        onClick={() =>
-          logEvent({
-            event_name: LogEvent.Click,
-            target_type: TargetType.Tool,
-            target_id: tool.slug,
-            extra: JSON.stringify({ origin: Origin.ToolsDirectory }),
-          })
-        }
-      >
-        <ToolIcon
-          title={tool.title}
-          faviconUrl={tool.faviconUrl}
-          className="size-10 flex-none rounded-12 object-contain"
+    <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
+      {tools.map((tool) => (
+        <ToolCard
+          key={tool.id}
+          tool={tool}
+          onClick={() =>
+            logEvent({
+              event_name: LogEvent.Click,
+              target_type: TargetType.Tool,
+              target_id: tool.slug,
+              extra: JSON.stringify({ origin: Origin.ToolsDirectory }),
+            })
+          }
         />
-        <span className="flex min-w-0 flex-1 flex-col">
-          <Typography type={TypographyType.Callout} bold truncate>
-            {tool.title}
-          </Typography>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Quaternary}
-          >
-            {largeNumberFormat(tool.stackCount) ?? tool.stackCount} in stacks
-          </Typography>
-        </span>
-      </a>
-    </Link>
+      ))}
+    </div>
   );
 };
-
-const ToolGrid = ({ tools }: { tools: DirectoryTool[] }): ReactElement => (
-  <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
-    {tools.map((tool) => (
-      <ToolCard key={tool.id} tool={tool} />
-    ))}
-  </div>
-);
 
 const ToolsDirectoryPage = ({
   trending,
