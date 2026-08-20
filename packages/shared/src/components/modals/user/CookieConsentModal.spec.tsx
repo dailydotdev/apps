@@ -4,10 +4,8 @@ import { QueryClient } from '@tanstack/react-query';
 import ReactModal from 'react-modal';
 import { CookieConsentModal } from './CookieConsentModal';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import {
-  GdprConsentKey,
-  useCookieBanner,
-} from '../../../hooks/useCookieBanner';
+import { GdprConsentKey } from '../../../hooks/useCookieBanner';
+import { useConsentCookie } from '../../../hooks/useCookieConsent';
 import { expireCookie, getCookies } from '../../../lib/cookie';
 
 let client: QueryClient;
@@ -26,13 +24,13 @@ beforeEach(() => {
 });
 
 const Wrapper = () => {
-  const { onAcceptCookies } = useCookieBanner();
+  const { saveCookies } = useConsentCookie(GdprConsentKey.Necessary);
 
   return (
     <CookieConsentModal
       isOpen
       onRequestClose={jest.fn()}
-      onAcceptCookies={onAcceptCookies}
+      onAcceptCookies={saveCookies}
     />
   );
 };

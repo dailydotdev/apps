@@ -3,19 +3,16 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { QueryClient } from '@tanstack/react-query';
 import { CookieConsent } from './CookieConsent';
 import { LazyModal } from '../../../components/modals/common/types';
-import {
-  cookieAcknowledgedKey,
-  GdprConsentKey,
-  useCookieBanner,
-} from '../../../hooks/useCookieBanner';
+import { GdprConsentKey } from '../../../hooks/useCookieBanner';
+import { useFunnelCookies } from '../hooks/useFunnelCookies';
 import { expireCookie, getCookies } from '../../../lib/cookie';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { nextTick } from '../../../lib/func';
-import loggedUser from '../../../../__tests__/fixture/loggedUser';
 import { MODAL_KEY } from '../../../hooks/useLazyModal';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 
 let client: QueryClient;
+const trackFunnelEvent = jest.fn();
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -27,8 +24,12 @@ beforeEach(() => {
   });
 });
 
+// mirrors the FunnelStepper wiring, the component's only production driver
 const WrapperComponent = () => {
-  const { showBanner, onAcceptCookies } = useCookieBanner();
+  const { showBanner, onAccepted } = useFunnelCookies({
+    defaultOpen: true,
+    trackFunnelEvent,
+  });
 
   if (!showBanner) {
     return null;
@@ -36,7 +37,7 @@ const WrapperComponent = () => {
 
   return (
     <CookieConsent
-      onAccepted={onAcceptCookies}
+      onAccepted={onAccepted}
       onHideBanner={jest.fn()}
       onModalClose={jest.fn()}
     />
@@ -59,8 +60,8 @@ describe('Onboarding CookieConsent outside GDPR', () => {
     expect(el.tagName).toBe('BUTTON');
   });
 
-  it('should not render when cookie is accepted already', async () => {
-    document.cookie = `${GdprConsentKey.Necessary}=true`;
+  it('should not render when the consent was given already', async () => {
+    document.cookie = `${GdprConsentKey.Marketing}=true`;
     renderComponent();
 
     await nextTick();
@@ -68,15 +69,15 @@ describe('Onboarding CookieConsent outside GDPR', () => {
     expect(banner).not.toBeInTheDocument();
   });
 
-  it('should set the necessary cookies "I understand" is clicked', async () => {
+  it('should set the consent cookie when "I understand" is clicked', async () => {
     renderComponent();
 
     await screen.findByTestId('cookie_content');
     const button = await screen.findByText('I understand');
     await act(() => fireEvent.click(button));
     await nextTick();
-    const cookies = getCookies([GdprConsentKey.Necessary]);
-    expect(cookies!.ilikecookies).toEqual('true');
+    const cookies = getCookies([GdprConsentKey.Marketing]);
+    expect(cookies!.ilikecookies_marketing).toEqual('true');
   });
 });
 
@@ -93,28 +94,19 @@ describe('Onboarding CookieConsent under GDPR', () => {
     await screen.findByText('Customize');
   });
 
-  it('should not render when cookie is accepted already as anonymous user', async () => {
-    document.cookie = `${GdprConsentKey.Necessary}=true`;
+  it('should not render when the consent was given already', async () => {
+    document.cookie = `${GdprConsentKey.Marketing}=true`;
     await renderWrapper();
 
     const banner = screen.queryByTestId('cookie_content');
     expect(banner).not.toBeInTheDocument();
   });
 
-  it('should render when cookie necessary is only accepted as logged in user', async () => {
+  it('should render while the marketing consent is missing', async () => {
     document.cookie = `${GdprConsentKey.Necessary}=true`;
-    await renderWrapper({ user: loggedUser });
+    await renderWrapper();
 
     await screen.findByTestId('cookie_content');
-  });
-
-  it('should not render when logged user interacted with the consent banner', async () => {
-    document.cookie = `${GdprConsentKey.Necessary}=true`;
-    localStorage.setItem(cookieAcknowledgedKey, 'true');
-    await renderWrapper({ user: loggedUser });
-
-    const banner = screen.queryByTestId('cookie_content');
-    expect(banner).not.toBeInTheDocument();
   });
 
   it('should not render close button', async () => {
@@ -124,18 +116,14 @@ describe('Onboarding CookieConsent under GDPR', () => {
     expect(button).not.toBeInTheDocument();
   });
 
-  it('should set the cookies for all when accept all is clicked', async () => {
+  it('should set the marketing cookie when accept all is clicked', async () => {
     await renderWrapper();
 
     await screen.findByTestId('cookie_content');
     const button = await screen.findByText('Accept all');
     await act(() => fireEvent.click(button));
     await nextTick();
-    const cookies = getCookies([
-      GdprConsentKey.Necessary,
-      GdprConsentKey.Marketing,
-    ]);
-    expect(cookies!.ilikecookies).toEqual('true');
+    const cookies = getCookies([GdprConsentKey.Marketing]);
     expect(cookies!.ilikecookies_marketing).toEqual('true');
   });
 
