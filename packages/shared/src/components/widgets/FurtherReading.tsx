@@ -21,13 +21,17 @@ import { gqlClient } from '../../graphql/common';
 export type FurtherReadingProps = {
   currentPost: Post;
   className?: string;
+  /** Ad templates drop the ToC so the rail's vertical space goes to ad slots. */
+  hideToc?: boolean;
 };
 
 export default function FurtherReading({
   currentPost,
   className,
+  hideToc = false,
 }: FurtherReadingProps): ReactElement {
-  const isPublicSquad = isSourcePublicSquad(currentPost.source);
+  const isPublicSquad =
+    !!currentPost.source && isSourcePublicSquad(currentPost.source);
   const postId = currentPost.id;
   const { tags } = currentPost;
   const queryKey = ['furtherReading', postId];
@@ -44,7 +48,7 @@ export default function FurtherReading({
           {
             first: max,
             loggedIn: isLoggedIn,
-            source: squad.id,
+            source: squad?.id,
             ranking: 'TIME',
             supportedTypes: [
               PostType.Article,
@@ -94,12 +98,12 @@ export default function FurtherReading({
       ]
     : [];
 
-  const showToc = currentPost.toc?.length > 0;
+  const showToc = !hideToc && (currentPost.toc?.length ?? 0) > 0;
 
   const publicSquadProps: Partial<SimilarPostsProps> = {
-    title: `More posts from ${currentPost.source.name}`,
+    title: `More posts from ${currentPost.source?.name}`,
     moreButtonProps: {
-      href: currentPost.source.permalink,
+      href: currentPost.source?.permalink,
       text: 'Show more',
     },
     ListItem: SquadPostListItem,
@@ -115,8 +119,11 @@ export default function FurtherReading({
           {...(isPublicSquad && publicSquadProps)}
         />
       )}
-      {(isLoading || posts?.discussedPosts?.length > 0) && (
-        <BestDiscussions posts={posts?.discussedPosts} isLoading={isLoading} />
+      {(isLoading || (posts?.discussedPosts?.length ?? 0) > 0) && (
+        <BestDiscussions
+          posts={posts?.discussedPosts ?? null}
+          isLoading={isLoading}
+        />
       )}
     </div>
   );
