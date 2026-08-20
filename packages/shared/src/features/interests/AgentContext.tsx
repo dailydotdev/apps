@@ -729,7 +729,7 @@ export const AgentProvider = ({
       status,
       isDemo,
       isWorking,
-      workingLabel: isWorking ? workingMeta?.label ?? 'Working' : undefined,
+      workingLabel: isWorking ? workingMeta?.label : undefined,
       workingSince,
       isTargetWorking: (targetId) =>
         isWorking && workingMeta?.targetId === targetId,
