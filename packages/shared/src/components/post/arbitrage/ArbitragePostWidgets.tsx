@@ -67,7 +67,7 @@ export function ArbitragePostWidgets({
         format={ArbitrageAdFormat.Rectangle}
         reach="70%"
       />
-      {tokenRefreshed && <FurtherReading currentPost={post} />}
+      {tokenRefreshed && <FurtherReading currentPost={post} hideToc />}
       <ArbitrageAdSlot
         slot={12}
         format={ArbitrageAdFormat.Rectangle}

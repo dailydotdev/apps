@@ -252,16 +252,19 @@ export function ArbitrageAdSlot({
   return (
     <div
       className={classNames(
-        'bg-accent-cheese-default/[0.06] relative flex w-full items-center justify-center rounded-12 border border-dashed border-accent-cheese-default px-3 py-4',
+        // Matches the feed Card treatment (rounded-16, subtle border, subtle
+        // surface) so a filled slot reads as native page furniture rather than
+        // a bolted-on iframe.
+        'relative flex w-full items-center justify-center overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-3 py-4',
         spec.minHeight,
         className,
       )}
       data-testid={`arbitrage-ad-slot-${slot}`}
     >
-      <span className="absolute -top-2 left-3 rounded-6 bg-accent-cheese-default px-2 py-0.5 font-bold text-surface-invert typo-caption2">
+      <span className="absolute left-3 top-2 rounded-6 bg-accent-cheese-default px-2 py-0.5 font-bold text-surface-invert typo-caption2">
         {slot}
       </span>
-      <span className="absolute -top-2 right-3 rounded-6 border border-accent-cheese-default bg-background-default px-2 py-0.5 text-accent-cheese-default typo-caption2">
+      <span className="absolute right-3 top-2 rounded-6 bg-background-default px-2 py-0.5 text-text-quaternary typo-caption2">
         {spec.size} · {spec.cpm}
         {refreshes ? ' · refreshes' : ''}
       </span>
