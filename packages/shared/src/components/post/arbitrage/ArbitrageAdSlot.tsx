@@ -1,10 +1,16 @@
 import type { CSSProperties, ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { isDevelopment, webappUrl } from '../../../lib/constants';
 import { useReadAdsenseSlots } from './useReadAdsenseSlots';
 import type { AdsenseSlotConfig } from './adsense';
 import { ADSENSE_CLIENT_ID } from './adsense';
+
+/** How long a slot gets to render a creative before it counts as empty. */
+const FILL_GRACE_MS = 4_000;
+
+/** Anything shorter than this is a blank creative, not an ad. */
+const FILLED_MIN_HEIGHT_PX = 20;
 
 export enum ArbitrageAdFormat {
   Leaderboard = 'leaderboard',
@@ -169,6 +175,42 @@ function LiveAdSlot({
   config: AdsenseSlotConfig;
 }): ReactElement {
   const insRef = useRef<HTMLModElement>(null);
+  const [isEmpty, setIsEmpty] = useState(false);
+
+  // Collapsing an empty unit needs more than the CSS rule below: AdSense only
+  // stamps data-ad-status="unfilled" when it says no, and a slot that answers
+  // with a zero-height creative — or never answers, because a blocker ate the
+  // script — keeps its reserved min-height as a band of empty page. Measure the
+  // <ins> once the request has had time to land and collapse on the result. The
+  // observer stays attached so a genuinely slow fill reopens the slot.
+  useEffect(() => {
+    const element = insRef.current;
+    if (!element) {
+      return undefined;
+    }
+
+    let graceElapsed = false;
+    const evaluate = (): void => {
+      if (!graceElapsed) {
+        return;
+      }
+      const isUnfilled = element.getAttribute('data-ad-status') === 'unfilled';
+      const { height } = element.getBoundingClientRect();
+      setIsEmpty(isUnfilled || height < FILLED_MIN_HEIGHT_PX);
+    };
+
+    const observer = new ResizeObserver(evaluate);
+    observer.observe(element);
+    const graceTimer = globalThis.setTimeout(() => {
+      graceElapsed = true;
+      evaluate();
+    }, FILL_GRACE_MS);
+
+    return () => {
+      observer.disconnect();
+      globalThis.clearTimeout(graceTimer);
+    };
+  }, []);
 
   useEffect(() => {
     const element = insRef.current;
@@ -233,6 +275,7 @@ function LiveAdSlot({
         // the generated stylesheet emits after this plain rule — without it an
         // unfilled phone-hidden slot would stay visible from tablet up.
         'has-[>ins[data-ad-status="unfilled"]]:!hidden',
+        isEmpty && '!hidden',
         hideOnPhone && 'hidden tablet:block',
         FORMAT_SPEC[format].minHeight,
         FORMAT_SPEC[format].maxWidth,

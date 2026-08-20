@@ -42,3 +42,9 @@ export const TOP_LEADERBOARD_STICKY_MS = 10_000;
 
 /** The floating leaderboard loads this long after page load. Partner spec. */
 export const FLOATING_LEADERBOARD_DELAY_MS = 10_000;
+
+/**
+ * A long thread gets a native unit after every this many comments. Short
+ * threads never reach the interval, so they stay entirely ad-free.
+ */
+export const COMMENTS_PER_INTERLEAVED_AD = 5;
