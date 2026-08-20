@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React from 'react';
+import { isDevelopment } from '../../../lib/constants';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { useReadAdsenseSlots } from './useReadAdsenseSlots';
 
@@ -9,13 +10,13 @@ import { useReadAdsenseSlots } from './useReadAdsenseSlots';
  * regardless of scroll depth, which is why the signup banner gives it up here.
  *
  * In live mode the real anchor is an AdSense Auto ads overlay that Google
- * pins itself, so the whole placeholder frame unmounts rather than compete
- * with it for the viewport bottom.
+ * pins itself, so nothing renders here — and with no config at all the frame
+ * also stays out of production; the placeholder is a dev-only density tool.
  */
 export function ArbitrageAnchor(): ReactElement | null {
   const slots = useReadAdsenseSlots();
 
-  if (Object.keys(slots).length > 0) {
+  if (Object.keys(slots).length > 0 || !isDevelopment) {
     return null;
   }
 
