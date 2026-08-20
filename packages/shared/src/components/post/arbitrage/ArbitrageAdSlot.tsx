@@ -188,9 +188,12 @@ function LiveAdSlot({
   }, []);
 
   return (
+    // No overflow clipping: Google resizes responsive creatives after the
+    // request, and a clipped bottom edge reads as a broken ad. min-h only
+    // reserves the request-time height against layout shift.
     <div
       className={classNames(
-        'w-full overflow-hidden text-center',
+        'w-full text-center',
         FORMAT_SPEC[format].minHeight,
         className,
       )}
