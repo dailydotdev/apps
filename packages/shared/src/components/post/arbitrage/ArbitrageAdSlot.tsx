@@ -21,6 +21,7 @@ export enum ArbitrageAdFormat {
   Native = 'native',
   Video = 'video',
   RichMedia = 'richMedia',
+  Grid = 'grid',
   Anchor = 'anchor',
 }
 
@@ -107,6 +108,17 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
   // Leaderboard on desktop, mobile phone banner on a phone. The shortest
   // banner in the portfolio, because it sits over the content rather than in
   // it and shares the bottom of a phone screen with the footer nav.
+  // AdSense's multiplex unit: one request that returns a responsive grid of
+  // creatives, Google choosing the rows and columns for the width it is given.
+  // Spans the column rather than capping, because the grid is what fills it.
+  // The slot must be created as a Multiplex unit in AdSense — the format only
+  // styles the box, the unit type comes from the remote config.
+  [ArbitrageAdFormat.Grid]: {
+    label: 'Multiplex grid',
+    size: 'responsive grid',
+    cpm: '$2.00',
+    minHeight: 'min-h-[320px]',
+  },
   [ArbitrageAdFormat.Anchor]: {
     label: 'Anchor',
     size: '728x90 · 320x50 mobile',
