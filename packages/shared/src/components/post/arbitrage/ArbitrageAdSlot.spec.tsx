@@ -54,6 +54,28 @@ describe('ArbitrageAdSlot', () => {
     expect(screen.queryByTestId('adsense-slot-3')).not.toBeInTheDocument();
   });
 
+  it('restricts a responsive unit to its format shape', () => {
+    setSlots({ '3': { id: '1234567890', type: 'display' } });
+    render(
+      <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.MediumRectangle} />,
+    );
+
+    // Left on `auto`, a 300px-wide slot is free to answer with a 300x600.
+    const ins = screen.getByTestId('adsense-slot-3');
+    expect(ins).toHaveAttribute('data-ad-format', 'rectangle');
+    expect(ins).not.toHaveAttribute('data-full-width-responsive');
+  });
+
+  it('keeps banners horizontal so a rectangle cannot fill them', () => {
+    setSlots({ '2': { id: '1234567890', type: 'display' } });
+    render(<ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} />);
+
+    expect(screen.getByTestId('adsense-slot-2')).toHaveAttribute(
+      'data-ad-format',
+      'horizontal',
+    );
+  });
+
   it('drops phone-hidden slots below the tablet breakpoint', () => {
     setSlots({ '5': { id: '1234567890', type: 'inArticle' } });
     render(

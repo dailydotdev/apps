@@ -43,6 +43,14 @@ type FormatSpec = {
    * sizes the only ones that can serve.
    */
   maxWidth?: string;
+  /**
+   * Restricts which shapes AdSense may return. A width cap alone does not:
+   * left on `auto`, a 300px-wide slot is just as free to answer with a 300x600
+   * half page as with a 300x250, and it did. Naming the shape keeps the unit
+   * responsive across breakpoints while ruling the wrong orientations out,
+   * which a fixed pixel size could not do without breaking one of them.
+   */
+  shape?: 'rectangle' | 'horizontal' | 'vertical';
 };
 
 const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
@@ -53,6 +61,7 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     cpm: '$2.50',
     minHeight: 'min-h-[100px] tablet:min-h-[90px]',
     maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
+    shape: 'horizontal',
   },
   // The IAB medium rectangle. Reserves its exact height rather than the
   // shorter guess the in-content unit makes, because it is booked at a fixed
@@ -63,6 +72,7 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     cpm: '$3.00',
     minHeight: 'min-h-[250px]',
     maxWidth: 'max-w-[300px]',
+    shape: 'rectangle',
   },
   // 336x280 is a Google size rather than an IAB one, so on a phone this drops
   // to the medium rectangle, which is what the portfolio actually lists.
@@ -72,6 +82,7 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     cpm: '$3.00',
     minHeight: 'min-h-[250px] tablet:min-h-[180px]',
     maxWidth: 'max-w-[300px] tablet:max-w-[336px]',
+    shape: 'rectangle',
   },
   [ArbitrageAdFormat.HalfPage]: {
     label: 'Sticky rail',
@@ -79,6 +90,7 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     cpm: '$4.00',
     minHeight: 'min-h-[320px]',
     maxWidth: 'max-w-[300px]',
+    shape: 'vertical',
   },
   [ArbitrageAdFormat.SidebarRail]: {
     label: 'Sidebar',
@@ -86,6 +98,7 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     cpm: '$4.00',
     minHeight: 'min-h-[220px]',
     maxWidth: 'max-w-[300px]',
+    shape: 'vertical',
   },
   [ArbitrageAdFormat.Native]: {
     label: 'Native',
@@ -105,9 +118,6 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     cpm: '$4.00',
     minHeight: 'min-h-[160px]',
   },
-  // Leaderboard on desktop, mobile phone banner on a phone. The shortest
-  // banner in the portfolio, because it sits over the content rather than in
-  // it and shares the bottom of a phone screen with the footer nav.
   // AdSense's multiplex unit: one request that returns a responsive grid of
   // creatives, Google choosing the rows and columns for the width it is given.
   // Spans the column rather than capping, because the grid is what fills it.
@@ -119,12 +129,16 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     cpm: '$2.00',
     minHeight: 'min-h-[320px]',
   },
+  // Leaderboard on desktop, mobile phone banner on a phone. The shortest
+  // banner in the portfolio, because it sits over the content rather than in
+  // it and shares the bottom of a phone screen with the footer nav.
   [ArbitrageAdFormat.Anchor]: {
     label: 'Anchor',
     size: '728x90 · 320x50 mobile',
     cpm: '$2.00',
     minHeight: 'min-h-[50px] tablet:min-h-[90px]',
     maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
+    shape: 'horizontal',
   },
 };
 
@@ -155,7 +169,10 @@ type InsAttributes = {
   'data-full-width-responsive'?: string;
 };
 
-function getInsAttributes(config: AdsenseSlotConfig): InsAttributes {
+function getInsAttributes(
+  config: AdsenseSlotConfig,
+  shape?: FormatSpec['shape'],
+): InsAttributes {
   if (config.type === 'inArticle') {
     return {
       style: { display: 'block', textAlign: 'center' },
@@ -187,6 +204,10 @@ function getInsAttributes(config: AdsenseSlotConfig): InsAttributes {
         height: config.height,
       },
     };
+  }
+
+  if (shape) {
+    return { style: { display: 'block' }, 'data-ad-format': shape };
   }
 
   return {
@@ -325,7 +346,7 @@ function LiveAdSlot({
         data-testid={`adsense-slot-${slot}`}
         data-ad-client={ADSENSE_CLIENT_ID}
         data-ad-slot={config.id}
-        {...getInsAttributes(config)}
+        {...getInsAttributes(config, FORMAT_SPEC[format].shape)}
       />
     </div>
   );
