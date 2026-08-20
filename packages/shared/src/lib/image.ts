@@ -479,3 +479,10 @@ export const cloudinaryCharmGiveback =
 // Dedicated Open Graph / social share image for the giveback pages (1280×800).
 export const cloudinaryGivebackOpenGraph =
   'https://media.daily.dev/image/upload/s--lQzU56yU--/f_auto,q_auto/v1783863597/public/daily.dev%20Givevback%20-%201280x800%20(1)';
+
+// The daily.dev homepage's closing full-bleed artwork, reused by the
+// extension hijacking strip's cover arms. The signature covers the
+// transformation string, so a width cap can't be appended here — the asset
+// has to be re-uploaded or re-signed to serve smaller than its 2072px source.
+export const cloudinaryHijackingCoverArt =
+  'https://media.daily.dev/image/upload/s--lCzzhJXe--/f_auto,q_auto/v1783981048/public/ChatGPT%20Image%20Jul%2014%2C%202026%2C%2001_17_08%20AM';

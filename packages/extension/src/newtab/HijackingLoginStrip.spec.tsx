@@ -15,7 +15,10 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
-import HijackingLoginStrip from './HijackingLoginStrip';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
+import HijackingLoginStrip, {
+  resetHijackingImpressionForTests,
+} from './HijackingLoginStrip';
 
 jest.mock('@dailydotdev/shared/src/contexts/AuthContext', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/contexts/AuthContext'),
@@ -29,6 +32,10 @@ jest.mock('@dailydotdev/shared/src/hooks', () => ({
 
 jest.mock('@dailydotdev/shared/src/hooks/auth/useSignBack', () => ({
   useSignBack: jest.fn(),
+}));
+
+jest.mock('@dailydotdev/shared/src/hooks/layout/useLayoutVariant', () => ({
+  useLayoutVariant: jest.fn(),
 }));
 
 jest.mock('@dailydotdev/shared/src/components/auth/AuthOptions', () => {
@@ -83,6 +90,9 @@ const mockUseAuthContext = useAuthContext as jest.MockedFunction<
 const mockUseSignBack = useSignBack as jest.MockedFunction<typeof useSignBack>;
 const mockUseConditionalFeature = useConditionalFeature as jest.MockedFunction<
   typeof useConditionalFeature
+>;
+const mockUseLayoutVariant = useLayoutVariant as jest.MockedFunction<
+  typeof useLayoutVariant
 >;
 const logEvent = jest.fn();
 const showLogin = jest.fn();
@@ -173,6 +183,8 @@ beforeAll(() => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  resetHijackingImpressionForTests();
+  mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: false });
   setVariant(HijackingVariant.Default);
   mockUseSignBack.mockReturnValue({
     isLoaded: true,
@@ -183,6 +195,74 @@ beforeEach(() => {
 });
 
 describe('HijackingLoginStrip', () => {
+  // The v2 layout drops the slot the control renders through. Enrolling those
+  // users would pit "no strip" against "a strip" instead of one design against
+  // another, so the flag must not be evaluated for them at all.
+  it('does not enroll users whose layout cannot show the control', () => {
+    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+    setVariant(HijackingVariant.Cover);
+
+    const { container } = renderComponent();
+
+    expect(container).toBeEmptyDOMElement();
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
+  });
+
+  // `isV2` is false while auth resolves, which is indistinguishable from
+  // "resolved, not v2". The extension boots GrowthBook from its localStorage
+  // cache before auth settles, so evaluating on `isV2` alone enrolls laptop v2
+  // users during that window and then shows them nothing.
+  it('does not enroll while the layout is still resolving', () => {
+    mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: true });
+    setVariant(HijackingVariant.Cover);
+
+    const { container } = renderComponent();
+
+    expect(container).toBeEmptyDOMElement();
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
+  });
+
+  // Height parity is the experiment's controlled variable, so the sizer has to
+  // reserve the control's geometry for the *same* auth state — the control's
+  // paragraph is conditional and the onboarding branch wraps to more lines.
+  it.each([
+    [true, 'Log in to pick up where you left off.'],
+    [false, /You still have a few onboarding steps left/],
+  ])('reserves the control copy for isLoggedOut=%s', (isLoggedOut, body) => {
+    setVariant(HijackingVariant.Default);
+    const { unmount } = renderComponent(
+      isLoggedOut ? {} : { user: loggedUser, isLoggedIn: true },
+    );
+
+    expect(screen.getByText(body)).toBeVisible();
+    unmount();
+
+    setVariant(HijackingVariant.Cover);
+    renderComponent(isLoggedOut ? {} : { user: loggedUser, isLoggedIn: true });
+
+    // the cover arm reserves it invisibly rather than showing it
+    expect(screen.getByText(body)).toBeInTheDocument();
+  });
+
+  it('logs one impression per visit across a remount', () => {
+    setVariant(HijackingVariant.Cover);
+
+    const { unmount } = renderComponent();
+
+    unmount();
+    renderComponent();
+
+    const impressions = logEvent.mock.calls.filter(
+      ([event]) => event.event_name === LogEvent.Impression,
+    );
+
+    expect(impressions).toHaveLength(1);
+  });
+
   it('renders nothing while the experiment is loading', () => {
     setVariant(HijackingVariant.Default, { isLoading: true });
 
@@ -280,6 +360,108 @@ describe('HijackingLoginStrip', () => {
         target_type: TargetType.SignupButton,
         target_id: 'hijacking',
       });
+    });
+  });
+
+  describe.each([
+    [HijackingVariant.Cover, 'sticky z-rank'],
+    [HijackingVariant.CoverBottom, 'sticky bottom-4 z-rank'],
+  ])('%s variant', (variant, positionClasses) => {
+    beforeEach(() => {
+      setVariant(variant);
+    });
+
+    it('redirects to the webapp onboarding from the cover CTAs', () => {
+      renderComponent();
+
+      expect(
+        screen.getByRole('heading', {
+          name: "Start discovering what's next.",
+        }),
+      ).toBeVisible();
+
+      fireEvent.click(screen.getByRole('button', { name: /Get started/ }));
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Click,
+        target_type: TargetType.SignupButton,
+        target_id: 'hijacking',
+      });
+      expect(assignMock).toHaveBeenCalledWith(signupHref);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Click,
+        target_type: TargetType.LoginButton,
+        target_id: 'hijacking',
+      });
+      expect(assignMock).toHaveBeenCalledWith(loginHref);
+    });
+
+    // Whether the strip actually pins depends on its ancestors, which jsdom
+    // has no layout for; this only guards the positioning contract the arm
+    // ships with. Real pinning is verified in Storybook against the topBanner
+    // column the arm renders into.
+    it('never pins flush against the chrome above it', () => {
+      if (variant !== HijackingVariant.Cover) {
+        return;
+      }
+
+      renderComponent();
+
+      const section = screen
+        .getByRole('heading', { name: "Start discovering what's next." })
+        // eslint-disable-next-line testing-library/no-node-access -- the
+        // offset lives on the wrapper, which has no queryable role
+        .closest('section');
+
+      // The offset is measured from whatever is pinned above the feed, and
+      // jsdom renders no such chrome, so only the floating gap remains.
+      expect(section).toHaveStyle({ top: '8px' });
+    });
+
+    it('carries its positioning classes', () => {
+      renderComponent();
+
+      const section = screen
+        .getByRole('heading', { name: "Start discovering what's next." })
+        // eslint-disable-next-line testing-library/no-node-access -- the
+        // pinning classes live on the wrapper, which has no queryable role
+        .closest('section');
+
+      expect(section).toHaveClass(positionClasses);
+    });
+
+    it('logs a signup impression for new visitors', () => {
+      renderComponent();
+
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.SignupButton,
+        target_id: 'hijacking',
+      });
+    });
+
+    it('keeps its placement once a remembered account resolves', () => {
+      mockUseSignBack.mockReturnValue({
+        isLoaded: true,
+        signBack: {
+          name: 'Tsahi Matsliah',
+          email: 'tsahi@daily.dev',
+          image: 'https://daily.dev/tsahi.png',
+        },
+        provider: SocialProvider.Google,
+        onUpdateSignBack: jest.fn(),
+      });
+
+      renderComponent();
+
+      const section = screen
+        .getByRole('heading', { name: /Welcome back, Tsahi/ })
+        // eslint-disable-next-line testing-library/no-node-access -- the
+        // pinning classes live on the wrapper, which has no queryable role
+        .closest('section');
+
+      expect(section).toHaveClass(positionClasses);
     });
   });
 

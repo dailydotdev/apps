@@ -1,5 +1,5 @@
-import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useRef } from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import {
   Button,
@@ -25,10 +25,12 @@ import { onboardingGradientClasses } from '@dailydotdev/shared/src/components/on
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import {
+  cloudinaryHijackingCoverArt,
   cloudinaryOnboardingFullBackgroundDesktop,
   cloudinaryOnboardingFullBackgroundMobile,
   cloudinaryReadingReminderCat,
@@ -61,6 +63,16 @@ const buildOnboardingHref = (action?: OnboardingActions): string => {
   }
 
   return base.toString();
+};
+
+// Crossing the laptop breakpoint remounts the strip (`isV2` depends on the
+// viewport), so a per-instance ref would log a second impression for the same
+// visit and inflate whichever arm the user is in. Module scope lives exactly
+// as long as the tab.
+let hasLoggedHijackingImpression = false;
+
+export const resetHijackingImpressionForTests = (): void => {
+  hasLoggedHijackingImpression = false;
 };
 
 const onboardingHref = buildOnboardingHref();
@@ -111,6 +123,65 @@ function HeroActionButtons({
       >
         Log in
       </Button>
+    </div>
+  );
+}
+
+const CONTROL_COPY = {
+  heading: 'Unlock the full daily.dev experience',
+  loggedOut: {
+    body: 'Log in to pick up where you left off.',
+    cta: 'Log in to continue',
+  },
+  onboarding: {
+    body: 'You still have a few onboarding steps left. Finish them to unlock the full experience.',
+    cta: 'Continue onboarding',
+  },
+} as const;
+
+/**
+ * The control strip's text column. Banner height is the controlled variable of
+ * the header-ad-impression experiment, so the cover arms reserve their height
+ * by rendering this same component invisibly rather than by copying its markup
+ * — a copy drifts the moment anyone edits the control, and drifts silently.
+ */
+function ControlTextColumn({
+  isLoggedOut,
+  action,
+}: {
+  isLoggedOut: boolean;
+  action?: ReactNode;
+}): ReactElement {
+  const copy = isLoggedOut ? CONTROL_COPY.loggedOut : CONTROL_COPY.onboarding;
+
+  return (
+    <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
+      <div className="flex flex-col items-center gap-1 tablet:items-start">
+        <h3 className="font-bold text-white typo-title2">
+          {CONTROL_COPY.heading}
+        </h3>
+        <p className="text-white/80 text-sm">{copy.body}</p>
+        {action ?? (
+          <Button variant={ButtonVariant.Primary} className="mt-4 w-fit">
+            {copy.cta}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** The control's media panel, sized by the artwork's intrinsic ratio. */
+function ControlMediaPanel({
+  children,
+}: {
+  children?: ReactNode;
+}): ReactElement {
+  return (
+    <div className="bg-black/20 relative flex h-[12.5rem] w-full items-center justify-center p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
+      {children ?? (
+        <div className="w-full" style={{ aspectRatio: '1040 / 758' }} />
+      )}
     </div>
   );
 }
@@ -231,11 +302,271 @@ function OnboardingSignupHero({
   );
 }
 
+// The cover arms stay pinned in every auth state, so their placement lives
+// Both arms stay in flow so the card spans the feed column edge to edge, like
+// the cards themselves. The bottom arm renders after the feed, which is what
+// lets `sticky bottom` pull it up into view: from a slot above the feed its
+// natural position is already on screen and sticky does nothing. Neither arm
+// takes horizontal padding — the control insets itself by 16px, so these are
+// that much wider by design, and the sizer's copy is fixed so the extra width
+// can't change how it wraps.
+// The global header is `fixed top-0 h-14 laptop:h-16` at z-header, so the top
+// arm has to pin below it or it slides underneath and gets clipped. That header
+// is hidden under the v2 layout, where the sidebar owns it, so the offset only
+// applies when it is actually on screen.
+const coverSectionClasses = (isBottom: boolean): string =>
+  classNames(
+    'w-full pb-0',
+    feedStyles.cards,
+    isBottom ? 'sticky bottom-4 z-rank mt-4' : 'sticky z-rank mb-4',
+  );
+
+// Keeps the pinned card clear of the chrome above it, plus a gap so it reads
+// as floating rather than welded to the header. The offset is measured, not
+// assumed: the header is one row on laptop but stacks a nav row under the logo
+// on phones and tablets, and the v2 layout drops it entirely — a constant is
+// wrong on at least one of those.
+const PINNED_GAP = 8;
+// The chrome above the feed is not always a <header>: on phones and tablets
+// MainLayoutHeader returns <FeedNav />, whose root is a sticky <div>. What the
+// two share is the `z-header` layer, so match on that as well as the tags.
+const TOP_CHROME_SELECTOR = 'header, nav, [role="banner"], [class*="z-header"]';
+
+const measureTopChrome = (): number => {
+  if (typeof document === 'undefined') {
+    return 0;
+  }
+
+  let bottom = 0;
+
+  document
+    .querySelectorAll<HTMLElement>(TOP_CHROME_SELECTOR)
+    .forEach((element) => {
+      const { position } = window.getComputedStyle(element);
+
+      if (position !== 'fixed' && position !== 'sticky') {
+        return;
+      }
+
+      const rect = element.getBoundingClientRect();
+
+      // Only chrome actually parked against the top edge can cover the card.
+      if (rect.top > PINNED_GAP || rect.height === 0) {
+        return;
+      }
+
+      bottom = Math.max(bottom, rect.bottom);
+    });
+
+  return bottom;
+};
+
+/** Tracks the bottom edge of whatever is pinned above the feed. */
+const useTopChromeOffset = (enabled: boolean): number => {
+  const [offset, setOffset] = useState(0);
+
+  useLayoutEffect(() => {
+    if (!enabled) {
+      setOffset(0);
+
+      return undefined;
+    }
+
+    // Measured synchronously so the first paint lands on the right offset.
+    // Only on resize, never on scroll: the chrome pins at a constant height —
+    // `useScrollTopClassName` swaps background colours, not geometry — so a
+    // scroll listener would force a style and layout recalc per event on the
+    // hottest surface we ship, to recompute a number that cannot have changed.
+    const update = (): void => setOffset(measureTopChrome());
+
+    update();
+    window.addEventListener('resize', update);
+
+    return () => {
+      window.removeEventListener('resize', update);
+    };
+  }, [enabled]);
+
+  return offset;
+};
+
+// The dog and the person sit in this band of the artwork, measured from its
+// top edge. The strip is far wider than it is tall, so `object-cover` scales
+// the art up and crops most of its height — where that band lands depends on
+// the card's width, and no single percentage keeps the pair in frame across
+// the range. The crop is therefore measured rather than guessed.
+const SUBJECT_TOP_FRACTION = 0.67;
+
+/**
+ * Anchors the artwork so its subject sits just under the CTA row at any width.
+ * Falls back to a centred crop when the art is not tall enough to crop.
+ */
+const useCoverArtAnchor = (
+  art: RefObject<HTMLImageElement>,
+  card: RefObject<HTMLElement>,
+  cta: RefObject<HTMLElement>,
+): void => {
+  useLayoutEffect(() => {
+    const artEl = art.current;
+    const cardEl = card.current;
+    const ctaEl = cta.current;
+
+    if (!artEl || !cardEl || !ctaEl) {
+      return undefined;
+    }
+
+    const update = (): void => {
+      const width = cardEl.clientWidth;
+      const height = cardEl.clientHeight;
+
+      if (!width || !height || !artEl.naturalWidth) {
+        return;
+      }
+
+      const scaledHeight = artEl.naturalHeight * (width / artEl.naturalWidth);
+      const overflow = scaledHeight - height;
+
+      if (overflow <= 0) {
+        artEl.style.objectPosition = '50% 50%';
+        return;
+      }
+
+      const ctaBottom =
+        ctaEl.getBoundingClientRect().bottom -
+        cardEl.getBoundingClientRect().top;
+      const subjectTop = SUBJECT_TOP_FRACTION * scaledHeight;
+      const offset = Math.min(
+        Math.max(subjectTop - ctaBottom - 4, 0),
+        overflow,
+      );
+
+      artEl.style.objectPosition = `50% ${(offset / overflow) * 100}%`;
+    };
+
+    update();
+    artEl.addEventListener('load', update);
+    const observer = new ResizeObserver(update);
+    observer.observe(cardEl);
+
+    return () => {
+      artEl.removeEventListener('load', update);
+      observer.disconnect();
+    };
+  }, [art, card, cta]);
+};
+
+const coverCardClasses = (): string =>
+  'relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2';
+
+// Banner height is a controlled variable in the header-ad-impression
+// experiment, so at tablet and up an invisible in-flow block reproduces the
+// control's row geometry — its copy, paddings and media-panel widths — and the
+// visible content overlays it. Stacked, that geometry is mostly dead artwork
+// below the copy, so the vertical layout keeps the text block only.
+function CoverSignupHero({
+  onSignupClick,
+  onLoginClick,
+  position = 'top',
+  isLoggedOut = true,
+  topChrome = 0,
+}: SigninHeroProps & {
+  position?: 'top' | 'bottom';
+  isLoggedOut?: boolean;
+  topChrome?: number;
+}): ReactElement {
+  const isBottom = position === 'bottom';
+  const artRef = useRef<HTMLImageElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+
+  useCoverArtAnchor(artRef, cardRef, ctaRef);
+
+  return (
+    <section
+      className={coverSectionClasses(isBottom)}
+      style={isBottom ? undefined : { top: topChrome + PINNED_GAP }}
+    >
+      <div className={coverCardClasses()} ref={cardRef}>
+        <img
+          ref={artRef}
+          src={cloudinaryHijackingCoverArt}
+          alt=""
+          aria-hidden
+          role="presentation"
+          className="pointer-events-none absolute inset-0 size-full object-cover"
+        />
+        <div className="cover-hero-dome pointer-events-none absolute inset-0" />
+        <div className="from-raw-pepper-90/70 pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t to-transparent" />
+        {/* The control itself, rendered invisibly to reserve its exact
+            height. The media panel keeps the artwork's ratio rather than the
+            artwork, which would cost a download on every new tab. */}
+        <div
+          aria-hidden
+          className="invisible hidden tablet:flex tablet:flex-row tablet:items-stretch"
+        >
+          <ControlTextColumn isLoggedOut={isLoggedOut} />
+          <ControlMediaPanel />
+        </div>
+        {/* Extra bottom padding lifts the centred copy, leaving the band
+            under the CTA free for the artwork's subject. */}
+        {/* Stacked, the copy is taller than the control's row geometry, so it
+            sits in flow and gives the card its height with even padding on
+            every side — absolutely positioned it overflowed and clipped its
+            own heading. From tablet up the control's geometry is what the
+            experiment holds constant, so the copy overlays it again. */}
+        <div className="dark relative z-1 flex flex-col items-center justify-center p-5 text-center tablet:absolute tablet:inset-0 tablet:pb-14">
+          <h3 className="font-bold text-white typo-title2 [text-shadow:0_2px_18px_rgba(0,0,0,0.6)]">
+            Start discovering what&apos;s next.
+          </h3>
+          <p className="text-white/80 mt-1 max-w-[34rem] text-balance text-sm [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">
+            The feed 1M+ developers open on every new tab. Free forever.
+          </p>
+          <div
+            className="mt-4 flex flex-row justify-center gap-2.5"
+            ref={ctaRef}
+          >
+            <Button
+              type="button"
+              variant={ButtonVariant.Primary}
+              size={ButtonSize.Medium}
+              className={classNames(
+                'group/cta shadow-2 shadow-black/40',
+                primaryCta,
+              )}
+              onClick={onSignupClick}
+            >
+              Get started
+              <span className="ml-1 inline-block transition-transform duration-200 group-hover/cta:translate-x-0.5">
+                →
+              </span>
+            </Button>
+            <Button
+              type="button"
+              variant={ButtonVariant.Secondary}
+              size={ButtonSize.Medium}
+              className={glassCta}
+              onClick={onLoginClick}
+            >
+              Log in
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CoverBottomSignupHero(props: SigninHeroProps): ReactElement {
+  return <CoverSignupHero {...props} position="bottom" />;
+}
+
 const SigninHeroMap = {
   [HijackingVariant.CTA]: CatStageHero,
   [HijackingVariant.Auth]: OnboardingSignupHero,
+  [HijackingVariant.Cover]: CoverSignupHero,
+  [HijackingVariant.CoverBottom]: CoverBottomSignupHero,
 } satisfies Record<
-  HijackingVariant.CTA | HijackingVariant.Auth,
+  Exclude<HijackingVariant, HijackingVariant.Default>,
   (props: SigninHeroProps) => ReactElement
 >;
 
@@ -261,17 +592,10 @@ function DefaultHijackingStrip(): ReactElement {
         <div className="pointer-events-none absolute bottom-0 right-0 h-10 w-5 bg-gradient-to-t from-raw-pepper-90 to-transparent" />
         <div className="relative overflow-hidden rounded-b-none rounded-t-[0.9375rem] bg-raw-pepper-90 shadow-2">
           <div className="flex flex-col tablet:flex-row tablet:items-stretch">
-            <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
-              <div className="flex flex-col items-center gap-1 tablet:items-start">
-                <h3 className="font-bold text-white typo-title2">
-                  Unlock the full daily.dev experience
-                </h3>
-                <p className="text-white/80 text-sm">
-                  {isLoggedOut
-                    ? 'Log in to pick up where you left off.'
-                    : 'You still have a few onboarding steps left. Finish them to unlock the full experience.'}
-                </p>
-                {isLoggedOut ? (
+            <ControlTextColumn
+              isLoggedOut={isLoggedOut}
+              action={
+                isLoggedOut ? (
                   <Button
                     type="button"
                     variant={ButtonVariant.Primary}
@@ -285,7 +609,7 @@ function DefaultHijackingStrip(): ReactElement {
                       });
                     }}
                   >
-                    Log in to continue
+                    {CONTROL_COPY.loggedOut.cta}
                   </Button>
                 ) : (
                   <Button
@@ -295,18 +619,18 @@ function DefaultHijackingStrip(): ReactElement {
                     className="mt-4 w-fit"
                     onClick={logHijackingClick}
                   >
-                    Continue onboarding
+                    {CONTROL_COPY.onboarding.cta}
                   </Button>
-                )}
-              </div>
-            </div>
-            <div className="bg-black/20 flex h-[12.5rem] w-full items-center justify-center p-2 tablet:h-auto tablet:w-[14.5rem] tablet:p-3 laptopL:w-[16rem]">
+                )
+              }
+            />
+            <ControlMediaPanel>
               <img
                 src={cloudinaryReadingReminderCat}
                 alt="Sleeping cat on laptop"
                 className="m-0 h-full w-full max-w-none scale-105 object-contain laptopL:scale-110"
               />
-            </div>
+            </ControlMediaPanel>
           </div>
         </div>
       </div>
@@ -317,17 +641,29 @@ function DefaultHijackingStrip(): ReactElement {
 function HijackingHeroStrip({
   variant: experimentVariant,
 }: {
-  variant: HijackingVariant.CTA | HijackingVariant.Auth;
+  variant: Exclude<HijackingVariant, HijackingVariant.Default>;
 }): ReactElement {
   const { showLogin, user } = useAuthContext();
   const { logEvent } = useLogContext();
   const { signBack, provider, isLoaded: isSignBackLoaded } = useSignBack();
-  const hasLoggedImpression = useRef(false);
+  const chromeTopOffset = useTopChromeOffset(
+    experimentVariant === HijackingVariant.Cover,
+  );
+  const coverProps = {
+    isLoggedOut: !user,
+    topChrome: chromeTopOffset,
+  };
   const authFormRef = useRef<HTMLFormElement>(
     null,
   ) as unknown as AuthOptionsProps['formRef'];
 
+  // Only the Auth arm can run auth inline; the extension's own origin is
+  // rejected by the OAuth API (403), so every other arm hands off to the
+  // webapp onboarding flow.
   const isAuthVariant = experimentVariant === HijackingVariant.Auth;
+  const isBottomVariant = experimentVariant === HijackingVariant.CoverBottom;
+  const isCoverVariant =
+    isBottomVariant || experimentVariant === HijackingVariant.Cover;
   const isLoggedOut = !user;
   const hasContinueAs = isLoggedOut && isSignBackLoaded && !!signBack?.name;
   const firstName = signBack?.name?.split(' ')[0] ?? signBack?.name;
@@ -361,10 +697,10 @@ function HijackingHeroStrip({
       return;
     }
 
-    if (hasLoggedImpression.current) {
+    if (hasLoggedHijackingImpression) {
       return;
     }
-    hasLoggedImpression.current = true;
+    hasLoggedHijackingImpression = true;
 
     logEvent({
       event_name: LogEvent.Impression,
@@ -416,11 +752,54 @@ function HijackingHeroStrip({
   };
   const SigninHero = SigninHeroMap[experimentVariant];
 
+  // The sign-back and onboarding states share one card across every arm. The
+  // cover arms keep their placement here too, otherwise a remembered visitor
+  // would see the strip jump out of its pinned position the moment sign-back
+  // storage resolves.
   const chrome = (children: ReactNode): ReactElement => (
-    <section className={classNames('mb-4 w-full pb-0', feedStyles.cards)}>
-      <div className="relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2">
+    <section
+      className={
+        isCoverVariant
+          ? coverSectionClasses(isBottomVariant)
+          : classNames('mb-4 w-full pb-0', feedStyles.cards)
+      }
+      style={
+        isCoverVariant && !isBottomVariant
+          ? { top: chromeTopOffset + PINNED_GAP }
+          : undefined
+      }
+    >
+      <div
+        className={
+          isCoverVariant
+            ? coverCardClasses()
+            : 'relative overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-raw-pepper-90 shadow-2'
+        }
+      >
         <div className="top-hero-aurora pointer-events-none absolute inset-0" />
-        <div className="dark relative z-1">{children}</div>
+        {/* The sign-back and onboarding cards are shared with the cta and auth
+            arms, which reserve nothing. For the cover arms the control's
+            geometry still has to be held, or these states would be a third
+            height alongside the control and the signed-out card. */}
+        {isCoverVariant && (
+          <div
+            aria-hidden
+            className="invisible hidden tablet:flex tablet:flex-row tablet:items-stretch"
+          >
+            <ControlTextColumn isLoggedOut={!user} />
+            <ControlMediaPanel />
+          </div>
+        )}
+        <div
+          className={classNames(
+            'dark z-1',
+            isCoverVariant
+              ? 'relative tablet:absolute tablet:inset-0 tablet:flex tablet:flex-col tablet:justify-center'
+              : 'relative',
+          )}
+        >
+          {children}
+        </div>
       </div>
     </section>
   );
@@ -518,27 +897,74 @@ function HijackingHeroStrip({
       onLoginClick={onLoginClick}
       formRef={authFormRef}
       onAuthStateUpdate={onAuthStateUpdate}
+      {...coverProps}
     />
   );
 }
 
-export default function HijackingLoginStrip(): ReactElement | null {
+export type HijackingPlacement = 'shortcuts' | 'aboveFeed' | 'belowFeed';
+
+/**
+ * Which slot the strip has to render into for its arm to behave. `shortcuts`
+ * lands inside FeedContainer's search `<header>`, where a sticky child has no
+ * travel, so the pinned arms need a container that spans the feed: above it for
+ * the top arm, and after it for the bottom one — `sticky bottom` can only pull
+ * an element up into view, so from a slot above the feed it does nothing.
+ * Both slots sit inside the feed column, which every layout renders;
+ * MainLayout's `topBanner` does not qualify — it only exists under v2.
+ */
+export const useHijackingPlacement = (): HijackingPlacement => {
+  const { isV2, isLoading: isLayoutLoading } = useLayoutVariant();
   const { value, isLoading } = useConditionalFeature({
     feature: featureHijackingVariants,
-    shouldEvaluate: true,
+    shouldEvaluate: !isLayoutLoading && !isV2,
   });
 
-  if (isLoading) {
+  if (isLayoutLoading || isLoading) {
+    return 'shortcuts';
+  }
+
+  if (value === HijackingVariant.Cover) {
+    return 'aboveFeed';
+  }
+
+  return value === HijackingVariant.CoverBottom ? 'belowFeed' : 'shortcuts';
+};
+
+export default function HijackingLoginStrip(): ReactElement | null {
+  // The v2 layout drops the slot the control renders through, so the control
+  // shows nothing there while the cover arms — which render from the feed
+  // column — would still show. Enrolling those users would compare "no strip"
+  // against "a strip" rather than one design against another, so the flag is
+  // not evaluated for them at all and no arm renders.
+  //
+  // `isLoading` has to be consumed as well: it is false-y `isV2` that reports
+  // "not v2" while auth is still resolving, and the extension boots GrowthBook
+  // from the localStorage cache before that resolves — so evaluating on
+  // `!isV2` alone enrolls laptop v2 users during that window, then renders
+  // nothing once they resolve. That is the same contamination arriving
+  // through the loading state.
+  const { isV2, isLoading: isLayoutLoading } = useLayoutVariant();
+  const { value, isLoading } = useConditionalFeature({
+    feature: featureHijackingVariants,
+    shouldEvaluate: !isLayoutLoading && !isV2,
+  });
+
+  if (isLayoutLoading || isV2 || isLoading) {
     return null;
   }
 
   const hijackingVariant = value as HijackingVariant;
 
-  if (
-    hijackingVariant === HijackingVariant.CTA ||
-    hijackingVariant === HijackingVariant.Auth
-  ) {
-    return <HijackingHeroStrip variant={hijackingVariant} />;
+  // Derived from the map rather than listed again, so a new arm can't be added
+  // to the enum and the map yet silently fall through to the control here. An
+  // unrecognized remote value still lands on the control.
+  if (hijackingVariant in SigninHeroMap) {
+    return (
+      <HijackingHeroStrip
+        variant={hijackingVariant as keyof typeof SigninHeroMap}
+      />
+    );
   }
 
   return <DefaultHijackingStrip />;

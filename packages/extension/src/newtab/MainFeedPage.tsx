@@ -45,6 +45,10 @@ export type MainFeedPageProps = {
   initialPage?: string;
   shouldInitializeCurrentPage?: boolean;
   shortcuts?: ReactNode;
+  /** Rendered directly above the feed, inside the feed column. */
+  feedTopContent?: ReactNode;
+  /** Rendered after the feed, where `sticky bottom` can pin to the viewport. */
+  feedTrailing?: ReactNode;
 };
 
 const normalizePage = (page: string): string =>
@@ -69,6 +73,8 @@ const MainFeedPageInner = ({
   initialPage,
   shouldInitializeCurrentPage = true,
   shortcuts,
+  feedTopContent,
+  feedTrailing,
 }: MainFeedPageProps): ReactElement => {
   const { logEvent } = useLogContext();
   const [isSearchOn, setIsSearchOn] = useState(false);
@@ -180,6 +186,7 @@ const MainFeedPageInner = ({
               isSearchOn={isSearchOn}
               searchQuery={searchQuery}
               onNavTabClick={onNavTabClick}
+              feedTopContent={feedTopContent}
               searchChildren={
                 <PostsSearch
                   onSubmitQuery={async (query, extraFlags) => {
@@ -208,7 +215,9 @@ const MainFeedPageInner = ({
                       />
                     )
               }
-            />
+            >
+              {feedTrailing}
+            </MainFeedLayout>
           </FeedLayoutProvider>
           <DndModal isOpen={showDnd} onRequestClose={() => setShowDnd(false)} />
         </MainLayout>

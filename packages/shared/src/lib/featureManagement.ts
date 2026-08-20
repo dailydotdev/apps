@@ -233,6 +233,10 @@ export enum HijackingVariant {
   Default = 'default',
   CTA = 'cta',
   Auth = 'auth',
+  /** Homepage cover art, centered copy, sticky at the top of the feed. */
+  Cover = 'cover',
+  /** The same cover card, pinned to the bottom of the viewport instead. */
+  CoverBottom = 'cover_bottom',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
   'hijacking_variants3',
