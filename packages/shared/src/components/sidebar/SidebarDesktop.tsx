@@ -14,6 +14,10 @@ import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
 import { HelpWidget } from '../help/HelpWidget';
+import {
+  ArbitrageAdFormat,
+  ArbitrageAdSlot,
+} from '../post/arbitrage/ArbitrageAdSlot';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -23,15 +27,19 @@ type SidebarDesktopProps = {
   };
   isNavButtons?: boolean;
   onNavTabClick?: (tab: string) => void;
+  /** Ignores the stored collapse preference — see MainLayoutProps.expandSidebar. */
+  forceExpanded?: boolean;
 };
 export const SidebarDesktop = ({
   activePage: activePageProp,
   featureTheme,
   isNavButtons,
   onNavTabClick,
+  forceExpanded,
 }: SidebarDesktopProps): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded } = useSettingsContext();
+  const { sidebarExpanded: storedExpanded } = useSettingsContext();
+  const sidebarExpanded = forceExpanded || storedExpanded;
   const { isAvailable: isBannerAvailable } = useBanner();
   const activePage = activePageProp || router.asPath || router.pathname;
 
@@ -57,7 +65,7 @@ export const SidebarDesktop = ({
     >
       <SidebarScrollWrapper className="!h-auto min-h-0 flex-1">
         <Nav>
-          <SidebarMenuIcon />
+          {!forceExpanded && <SidebarMenuIcon />}
           {/* Primary Action */}
           <div
             className={classNames(
@@ -112,6 +120,16 @@ export const SidebarDesktop = ({
           />
         </Nav>
       </SidebarScrollWrapper>
+
+      {forceExpanded && (
+        <div className="px-2 pb-3">
+          <ArbitrageAdSlot
+            slot={1}
+            format={ArbitrageAdFormat.SidebarRail}
+            reach="100%"
+          />
+        </div>
+      )}
 
       {/* Help guide — pinned to sidebar bottom (renders only when a marketingCTA is targeted) */}
       <HelpWidget sidebarExpanded={sidebarExpanded} />
