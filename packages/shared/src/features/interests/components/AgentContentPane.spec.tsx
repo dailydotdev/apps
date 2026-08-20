@@ -72,6 +72,33 @@ describe('AgentContentPane tabs', () => {
     ]);
   });
 
+  it('opens a focused summary post as its own tab, titled after the post', () => {
+    renderPane([{ type: 'posts' }, { type: 'posts', postId: 'sp-1' }], {
+      summaryPosts: [
+        {
+          id: 'sp-1',
+          title: 'Zig this week',
+          createdAt: '2026-01-01T00:00:00Z',
+          contentHtml: '<p>All of it.</p>',
+        },
+        {
+          id: 'sp-2',
+          title: 'Another write-up',
+          createdAt: '2026-01-02T00:00:00Z',
+          contentHtml: '<p>More.</p>',
+        },
+      ],
+    });
+
+    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
+      'Posts',
+      'Zig this week',
+    ]);
+    // The focused tab is active and renders only its own post.
+    expect(screen.getByText('All of it.')).toBeInTheDocument();
+    expect(screen.queryByText('More.')).not.toBeInTheDocument();
+  });
+
   it('marks only the focused tab as selected', () => {
     renderPane([{ type: 'activity' }, { type: 'debug' }]);
 

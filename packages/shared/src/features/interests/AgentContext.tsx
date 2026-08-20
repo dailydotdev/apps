@@ -38,7 +38,7 @@ export type AgentSummaryPost = Pick<
 export type AgentContentTarget =
   | { type: 'post'; post: Post }
   | { type: 'feed'; label: string; posts: Post[] }
-  | { type: 'posts' }
+  | { type: 'posts'; postId?: string }
   | { type: 'activity' }
   | { type: 'debug' };
 
@@ -49,6 +49,10 @@ export const contentTargetId = (target: AgentContentTarget): string => {
 
   if (target.type === 'feed') {
     return `feed:${target.label}`;
+  }
+
+  if (target.type === 'posts' && target.postId) {
+    return `posts:${target.postId}`;
   }
 
   return target.type;

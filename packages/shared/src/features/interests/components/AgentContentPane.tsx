@@ -125,29 +125,58 @@ const FeedView = ({
   );
 };
 
-const PostsView = ({ posts }: { posts: AgentSummaryPost[] }): ReactElement => {
-  if (!posts.length) {
+const PostsView = ({
+  posts,
+  focusedPostId,
+  onOpenPost,
+}: {
+  posts: AgentSummaryPost[];
+  focusedPostId?: string;
+  onOpenPost: (postId: string) => void;
+}): ReactElement => {
+  const shown = focusedPostId
+    ? posts.filter((post) => post.id === focusedPostId)
+    : posts;
+
+  if (!shown.length) {
     return (
       <Typography
         type={TypographyType.Callout}
         color={TypographyColor.Tertiary}
       >
-        No posts written yet. The agent writes one when a run finds enough worth
-        summarizing.
+        {focusedPostId
+          ? 'This post is no longer available.'
+          : 'No posts written yet. The agent writes one when a run finds enough worth summarizing.'}
       </Typography>
     );
   }
 
   return (
     <FlexCol className="gap-8">
-      {posts.map((post) => (
+      {shown.map((post) => (
         <FlexCol
           key={post.id}
           className="gap-2 border-b border-border-subtlest-quaternary pb-8 last:border-b-0"
         >
-          <Typography type={TypographyType.Title3} bold>
-            {post.title}
-          </Typography>
+          {focusedPostId ? (
+            <Typography type={TypographyType.Title3} bold>
+              {post.title}
+            </Typography>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onOpenPost(post.id)}
+              className="text-left"
+            >
+              <Typography
+                type={TypographyType.Title3}
+                bold
+                className="hover:underline"
+              >
+                {post.title}
+              </Typography>
+            </button>
+          )}
           <Typography
             type={TypographyType.Caption1}
             color={TypographyColor.Quaternary}
@@ -194,6 +223,14 @@ export const AgentContentPane = ({
   } = useAgent();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const drawerRef = useRef<DrawerRef>(null);
+  const labelFor = (target: AgentContentTarget): string => {
+    if (target.type === 'posts' && target.postId) {
+      return (
+        summaryPosts.find((post) => post.id === target.postId)?.title ?? 'Post'
+      );
+    }
+    return tabLabel(target);
+  };
   // A panel that goes away mid-drag otherwise leaves the whole app unselectable
   // under a col-resize cursor until the next full reload.
   const releaseDragRef = useRef<() => void>();
@@ -310,7 +347,7 @@ export const AgentContentPane = ({
                   <button
                     type="button"
                     role="tab"
-                    aria-label={tabLabel(target)}
+                    aria-label={labelFor(target)}
                     aria-selected={isActive}
                     onClick={() => focusContent(targetId)}
                     className={classNames(
@@ -329,12 +366,12 @@ export const AgentContentPane = ({
                       }
                       className="min-w-0 flex-1 truncate"
                     >
-                      {tabLabel(target)}
+                      {labelFor(target)}
                     </Typography>
                   </button>
                   <button
                     type="button"
-                    aria-label={`Close ${tabLabel(target)}`}
+                    aria-label={`Close ${labelFor(target)}`}
                     onClick={() => closeContent(targetId)}
                     className="flex size-5 shrink-0 items-center justify-center rounded-6 text-text-tertiary transition-colors hover:bg-surface-hover hover:text-text-primary"
                   >
@@ -402,7 +439,13 @@ export const AgentContentPane = ({
           )}
           {activeContent?.type === 'posts' && (
             <div className={classNames('py-4', postPageGutter)}>
-              <PostsView posts={summaryPosts} />
+              <PostsView
+                posts={summaryPosts}
+                focusedPostId={activeContent.postId}
+                onOpenPost={(postId) =>
+                  openContentTarget({ type: 'posts', postId })
+                }
+              />
             </div>
           )}
           {activeContent?.type === 'activity' && (

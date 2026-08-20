@@ -307,7 +307,7 @@ const MessageRow = ({
   message: AgentMessage;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
-  onSummaryClick: () => void;
+  onSummaryClick: (postId?: string) => void;
   activePostId?: string;
 }): ReactElement => {
   if (message.role === 'user') {
@@ -366,7 +366,7 @@ const MessageRow = ({
               title={message.summaryPost.title ?? 'Summary post'}
               subtitle="Post written this run"
               actionLabel="Open"
-              onAction={onSummaryClick}
+              onAction={() => onSummaryClick(message.summaryPost?.id)}
             />
           )}
           {!!message.blocks?.length && <MessageActions message={message} />}
@@ -397,7 +397,9 @@ export const AgentChatSection = (): ReactElement => {
           onFeedClick={(label, posts) =>
             openContentTarget({ type: 'feed', label, posts })
           }
-          onSummaryClick={() => openContentTarget({ type: 'posts' })}
+          onSummaryClick={(postId) =>
+            openContentTarget({ type: 'posts', postId })
+          }
           activePostId={activePostId}
         />
       ))}
