@@ -68,12 +68,23 @@ export function ArbitragePostWidgets({
         format={ArbitrageAdFormat.Rectangle}
         reach="70%"
       />
-      {tokenRefreshed && <FurtherReading currentPost={post} hideToc />}
-      <ArbitrageAdSlot
-        slot={ARBITRAGE_SLOT.railMpu2}
-        format={ArbitrageAdFormat.Rectangle}
-        reach="45%"
-      />
+      {/* The rail units are anchored to named widgets rather than to the block
+          positions in the partner's brief: this column has far fewer than nine
+          blocks, so "6 or 9 down" resolves to nothing. Reading order is source
+          card, MPU 1, You might like, MPU 2, Best discussions, half page. */}
+      {tokenRefreshed && (
+        <FurtherReading
+          currentPost={post}
+          hideToc
+          betweenSections={
+            <ArbitrageAdSlot
+              slot={ARBITRAGE_SLOT.railMpu2}
+              format={ArbitrageAdFormat.Rectangle}
+              reach="45%"
+            />
+          }
+        />
+      )}
       {/* Sticky unit must be the column's last child: a sticky element slides
           down over any siblings that follow it once the page scrolls. Last in
           the column it sticks for the whole article read with nothing below
