@@ -241,7 +241,10 @@ export function ArbitragePostContent({
             slot={ARBITRAGE_SLOT.railStickyMpu}
             format={ArbitrageAdFormat.HalfPage}
             reach="100%"
-            className="laptop:sticky laptop:top-20"
+            // Same header offset the top leaderboard uses, plus a gap, rather
+            // than a hardcoded 5rem: under the v2 sidebar there is no fixed
+            // header to clear and the unit would pin 5rem into empty space.
+            className="laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)]"
           />
         }
       />
