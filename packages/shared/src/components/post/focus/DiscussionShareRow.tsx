@@ -59,12 +59,12 @@ export const DiscussionShareRow = ({
   const onShareToSquad = (squad: Squad) => {
     logEvent(postLogEvent(LogEvent.StartShareToSquad, post));
     openModal({
-      type: LazyModal.CreateSharedPost,
+      type: LazyModal.SmartComposer,
       props: {
-        squad,
+        initialUrl: post.permalink,
         preview: post,
-        onSharedSuccessfully: () =>
-          logEvent(postLogEvent(LogEvent.ShareToSquad, post)),
+        initialSquadId: squad.id,
+        onPosted: () => logEvent(postLogEvent(LogEvent.ShareToSquad, post)),
       },
     });
   };
