@@ -31,6 +31,9 @@ import { enhanceIubendaBannerNow, watchIubendaBanner } from './iubendaBanner';
  */
 
 type IubendaPreference = {
+  // TCF banners answer per purpose; LGPD/USPR report one verdict for the
+  // whole banner in `consent`
+  consent?: boolean;
   purposes?: Record<string, boolean>;
 };
 
@@ -38,8 +41,29 @@ type IubendaWindow = typeof globalThis & {
   _iub?: {
     csConfiguration?: Record<string, unknown>;
     csLangConfiguration?: Record<string, { cookiePolicyId: number }>;
-    cs?: { api?: { openPreferences?: () => void } };
+    cs?: {
+      api?: { openPreferences?: () => void; isConsentGiven?: () => boolean };
+    };
   };
+};
+
+// TCF purpose 5 is "personalised advertising", the one `ilikecookies_marketing`
+// stands for. Outside TCF the banner records a single verdict instead, so read
+// that, and fall back to asking the CMP what it stored — never leave an
+// expressed preference unclassified, or consent granted in the CMP and the
+// consent our own gating sees drift apart.
+const readMarketingConsent = (pref: IubendaPreference): boolean => {
+  if (pref.purposes) {
+    return pref.purposes['5'] === true;
+  }
+
+  if (typeof pref.consent === 'boolean') {
+    return pref.consent;
+  }
+
+  const api = (globalThis as IubendaWindow)._iub?.cs?.api;
+
+  return api?.isConsentGiven?.() === true;
 };
 
 // The consent-sync call comes first and the TCF stub before anything that
@@ -70,16 +94,19 @@ export const Iubenda = (): ReactElement | null => {
   // The config callback must not go stale when React re-renders.
   const onPreferenceRef = useRef<(pref: IubendaPreference | null) => void>();
   onPreferenceRef.current = (pref) => {
-    // `purposes` exists only under TCF. A null preference ("no regime applies
-    // here") and the non-TCF LGPD/USPR payloads carry no per-purpose answer,
-    // so marketing is left exactly as it was: never granted without an
-    // affirmative act, never revoked on the strength of a missing field.
-    const { purposes } = pref ?? {};
-    const marketing = purposes ? purposes['5'] === true : undefined;
+    // No preference at all means iubenda found no consent regime for this
+    // country: nothing was ever asked, so nothing is granted or revoked and
+    // only the fact that the question is closed gets recorded.
+    if (!pref) {
+      saveCookies([], []);
+      return;
+    }
+
+    const marketing = readMarketingConsent(pref);
 
     saveCookies(
-      marketing === true ? otherGdprConsents : [],
-      marketing === false ? otherGdprConsents : [],
+      marketing ? otherGdprConsents : [],
+      marketing ? [] : otherGdprConsents,
     );
   };
 

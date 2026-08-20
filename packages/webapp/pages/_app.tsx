@@ -13,7 +13,7 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
-import { useCookieBanner } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import { useIubendaConsentMirror } from '@dailydotdev/shared/src/hooks/useIubendaConsentMirror';
 import { ProgressiveEnhancementContextProvider } from '@dailydotdev/shared/src/contexts/ProgressiveEnhancementContext';
 import { SubscriptionContextProvider } from '@dailydotdev/shared/src/contexts/SubscriptionContext';
 import { ShortcutsProvider } from '@dailydotdev/shared/src/features/shortcuts/contexts/ShortcutsProvider';
@@ -152,7 +152,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
   } = useAuthContext();
   // Users arriving from the extension install link land on `/?ref=install`.
   const isComingFromInstall = router.query.ref === 'install';
-  useCookieBanner();
+  useIubendaConsentMirror();
   useWebVitals();
   useLogPageView();
   const { modal, closeModal, openModal } = useLazyModal();

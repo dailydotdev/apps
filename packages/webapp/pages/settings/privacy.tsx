@@ -22,6 +22,7 @@ import { CookieConsentItem } from '@dailydotdev/shared/src/components/modals/use
 import type { AcceptCookiesCallback } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { getIubendaConsent } from '@dailydotdev/shared/src/lib/iubenda';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
@@ -85,11 +86,15 @@ const AccountInvitePage = (): ReactElement | null => {
     );
 
   const onManagePreferences = () => {
-    if (openIubendaPreferences()) {
+    // The CMP only has something to reopen where it actually collected a
+    // preference. Its api exists as soon as the script loads — including in
+    // countries where no regime applied and no banner was ever shown — so
+    // gate on the stored preference, not on the api being there.
+    if (getIubendaConsent() && openIubendaPreferences()) {
       return;
     }
 
-    // iubenda blocked, still loading, or not applicable in this country:
+    // iubenda blocked, still loading, or nothing collected in this country:
     // the in-house modal still writes the first-party consent cookies
     openModal({
       type: LazyModal.CookieConsent,

@@ -267,10 +267,25 @@ const enhanceBanner = (banner: Element): boolean => {
   return true;
 };
 
+const BANNER_SELECTOR = '#iubenda-cs-banner';
+
 const attempt = (): boolean => {
-  const banner = document.querySelector('#iubenda-cs-banner');
+  const banner = document.querySelector(BANNER_SELECTOR);
   return banner ? enhanceBanner(banner) : false;
 };
+
+// Hydration and the first feed render churn through thousands of nodes, and
+// none of them are the banner. Checking what was actually added keeps this
+// off the critical path instead of re-querying the document each batch.
+const addedTheBanner = (records: MutationRecord[]): boolean =>
+  records.some((record) =>
+    Array.from(record.addedNodes).some(
+      (node) =>
+        node instanceof Element &&
+        (node.matches(BANNER_SELECTOR) ||
+          !!node.querySelector(BANNER_SELECTOR)),
+    ),
+  );
 
 /**
  * Called from iubenda's onBannerShown callback: enhances a banner the
@@ -293,8 +308,8 @@ export const watchIubendaBanner = (): (() => void) => {
     return stopEnhancements;
   }
 
-  const observer = new MutationObserver(() => {
-    if (attempt()) {
+  const observer = new MutationObserver((records) => {
+    if (addedTheBanner(records) && attempt()) {
       observer.disconnect();
     }
   });
@@ -302,8 +317,8 @@ export const watchIubendaBanner = (): (() => void) => {
     childList: true,
     subtree: true,
   });
-  // cost cap on the document-wide observer, not a functional deadline:
-  // onBannerShown re-enters via enhanceIubendaBannerNow for late banners
+  // cost cap only; onBannerShown is the authoritative signal and re-enters
+  // via enhanceIubendaBannerNow, so this observer is the fallback path
   const timeout = setTimeout(() => observer.disconnect(), 20000);
 
   return () => {

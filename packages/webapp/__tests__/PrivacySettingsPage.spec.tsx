@@ -6,6 +6,7 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { getIubendaConsent } from '@dailydotdev/shared/src/lib/iubenda';
 import { MODAL_KEY } from '@dailydotdev/shared/src/hooks/useLazyModal';
 import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
@@ -18,12 +19,20 @@ jest.mock('next/router', () => ({
   useRouter: () => ({ isFallback: false, push: jest.fn() }),
 }));
 
+jest.mock('@dailydotdev/shared/src/lib/iubenda', () => ({
+  ...jest.requireActual('@dailydotdev/shared/src/lib/iubenda'),
+  getIubendaConsent: jest.fn(),
+}));
+
 jest.mock('@dailydotdev/shared/src/lib/func', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/lib/func'),
   isIOSNative: jest.fn(),
 }));
 
 const mockIsIOSNative = isIOSNative as jest.MockedFunction<typeof isIOSNative>;
+const mockGetIubendaConsent = getIubendaConsent as jest.MockedFunction<
+  typeof getIubendaConsent
+>;
 
 type IubendaWindow = typeof globalThis & {
   _iub?: { cs?: { api?: { openPreferences?: () => void } } };
@@ -51,6 +60,7 @@ const renderPage = (auth: Partial<AuthContextData> = {}) => {
 beforeEach(() => {
   jest.clearAllMocks();
   mockIsIOSNative.mockReturnValue(false);
+  mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: true });
   delete win._iub;
   Object.values(GdprConsentKey).forEach((key) => expireCookie(key));
 });
@@ -148,4 +158,19 @@ it('revokes an existing marketing consent through the fallback modal', async () 
   modal.props.onAcceptCookies();
 
   expect(consentCookies()[GdprConsentKey.Marketing]).toBeFalsy();
+});
+
+it('opens the in-house modal where the CMP collected nothing to reopen', async () => {
+  // no regime applied in this country, so iubenda loaded (its api exists)
+  // but never asked anything — reopening it would show an empty CMP
+  mockGetIubendaConsent.mockReturnValue(undefined);
+  const openPreferences = jest.fn();
+  win._iub = { cs: { api: { openPreferences } } };
+  renderPage({ isGdprCovered: true });
+
+  fireEvent.click(await screen.findByText('Manage cookie preferences'));
+
+  expect(openPreferences).not.toHaveBeenCalled();
+  const modal = client.getQueryData(MODAL_KEY) as { type: string };
+  expect(modal?.type).toEqual(LazyModal.CookieConsent);
 });

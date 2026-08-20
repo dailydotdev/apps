@@ -53,7 +53,9 @@ type IubendaWindow = typeof globalThis & {
   _iub?: {
     csConfiguration?: Record<string, unknown>;
     csLangConfiguration?: Record<string, { cookiePolicyId: number }>;
-    cs?: { api?: { openPreferences?: () => void } };
+    cs?: {
+      api?: { openPreferences?: () => void; isConsentGiven?: () => boolean };
+    };
   };
 };
 
@@ -338,13 +340,38 @@ describe('Iubenda consent mirroring', () => {
     expect(saveCookies).toHaveBeenCalledWith([], []);
   });
 
-  it('leaves marketing untouched for a non-TCF payload carrying no purposes', async () => {
+  it('grants from a non-TCF acceptance, which reports one verdict not purposes', async () => {
     await renderAndLoad();
-    // LGPD/USPR preferences are not per-purpose; treating the missing field
-    // as a refusal would revoke consent the visitor just granted
+    // an LGPD/USPR visitor pressing Accept all must reach the same gating as
+    // a TCF one, or the CMP shows consent while our pixels stay revoked
+    callbacks().onPreferenceExpressedOrNotNeeded({ consent: true });
+
+    expect(saveCookies).toHaveBeenCalledWith([GdprConsentKey.Marketing], []);
+  });
+
+  it('revokes from a non-TCF refusal', async () => {
+    await renderAndLoad();
+    callbacks().onPreferenceExpressedOrNotNeeded({ consent: false });
+
+    expect(saveCookies).toHaveBeenCalledWith([], [GdprConsentKey.Marketing]);
+  });
+
+  it('prefers the per-purpose answer when both are present', async () => {
+    await renderAndLoad();
+    callbacks().onPreferenceExpressedOrNotNeeded({
+      consent: true,
+      purposes: { '5': false },
+    });
+
+    expect(saveCookies).toHaveBeenCalledWith([], [GdprConsentKey.Marketing]);
+  });
+
+  it('asks the CMP when a preference carries no answer at all', async () => {
+    await renderAndLoad();
+    win._iub = { ...win._iub, cs: { api: { isConsentGiven: () => true } } };
     callbacks().onPreferenceExpressedOrNotNeeded({});
 
-    expect(saveCookies).toHaveBeenCalledWith([], []);
+    expect(saveCookies).toHaveBeenCalledWith([GdprConsentKey.Marketing], []);
   });
 
   it('disarms the scrolled-to-bottom gate when the banner is shown', async () => {

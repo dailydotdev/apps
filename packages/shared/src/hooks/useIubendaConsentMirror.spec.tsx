@@ -1,9 +1,6 @@
 import { renderHook } from '@testing-library/react';
-import {
-  GdprConsentKey,
-  otherGdprConsents,
-  useCookieBanner,
-} from './useCookieBanner';
+import { GdprConsentKey, otherGdprConsents } from './useCookieBanner';
+import { useIubendaConsentMirror } from './useIubendaConsentMirror';
 import { useConsentCookie } from './useCookieConsent';
 import { useAuthContext } from '../contexts/AuthContext';
 import { getIubendaConsent } from '../lib/iubenda';
@@ -53,7 +50,7 @@ const setup = ({
   mockUseAuthContext.mockReturnValue({ isAuthReady } as never);
 };
 
-describe('useCookieBanner', () => {
+describe('useIubendaConsentMirror', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockIsIOSNative.mockReturnValue(false);
@@ -64,9 +61,9 @@ describe('useCookieBanner', () => {
     setup();
     mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: true });
 
-    renderHook(() => useCookieBanner());
+    renderHook(() => useIubendaConsentMirror());
 
-    expect(saveCookies).toHaveBeenCalledWith(otherGdprConsents);
+    expect(saveCookies).toHaveBeenCalledWith(otherGdprConsents, []);
   });
 
   it('mirrors necessary only when marketing was refused', () => {
@@ -76,9 +73,9 @@ describe('useCookieBanner', () => {
       marketing: false,
     });
 
-    renderHook(() => useCookieBanner());
+    renderHook(() => useIubendaConsentMirror());
 
-    expect(saveCookies).toHaveBeenCalledWith([]);
+    expect(saveCookies).toHaveBeenCalledWith([], otherGdprConsents);
   });
 
   it('does not mirror when necessary consent is not granted', () => {
@@ -88,7 +85,7 @@ describe('useCookieBanner', () => {
       marketing: true,
     });
 
-    renderHook(() => useCookieBanner());
+    renderHook(() => useIubendaConsentMirror());
 
     expect(saveCookies).not.toHaveBeenCalled();
   });
@@ -97,7 +94,7 @@ describe('useCookieBanner', () => {
     setup();
     mockGetIubendaConsent.mockReturnValue(undefined);
 
-    renderHook(() => useCookieBanner());
+    renderHook(() => useIubendaConsentMirror());
 
     expect(saveCookies).not.toHaveBeenCalled();
   });
@@ -106,7 +103,7 @@ describe('useCookieBanner', () => {
     setup({ hasAccepted: true });
     mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: true });
 
-    renderHook(() => useCookieBanner());
+    renderHook(() => useIubendaConsentMirror());
 
     expect(mockGetIubendaConsent).not.toHaveBeenCalled();
     expect(saveCookies).not.toHaveBeenCalled();
@@ -116,7 +113,7 @@ describe('useCookieBanner', () => {
     setup({ isAuthReady: false });
     mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: true });
 
-    renderHook(() => useCookieBanner());
+    renderHook(() => useIubendaConsentMirror());
 
     expect(saveCookies).not.toHaveBeenCalled();
   });
@@ -126,7 +123,7 @@ describe('useCookieBanner', () => {
     mockIsIOSNative.mockReturnValue(true);
     mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: true });
 
-    renderHook(() => useCookieBanner());
+    renderHook(() => useIubendaConsentMirror());
 
     expect(saveCookies).not.toHaveBeenCalled();
   });
@@ -135,20 +132,20 @@ describe('useCookieBanner', () => {
     setup({ isAuthReady: false });
     mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: true });
 
-    const { rerender } = renderHook(() => useCookieBanner());
+    const { rerender } = renderHook(() => useIubendaConsentMirror());
     expect(saveCookies).not.toHaveBeenCalled();
 
     setup({ isAuthReady: true });
     rerender();
 
-    expect(saveCookies).toHaveBeenCalledWith(otherGdprConsents);
+    expect(saveCookies).toHaveBeenCalledWith(otherGdprConsents, []);
   });
 
   it('stops mirroring once the choice is recorded locally', () => {
     setup();
     mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: true });
 
-    const { rerender } = renderHook(() => useCookieBanner());
+    const { rerender } = renderHook(() => useIubendaConsentMirror());
     setup({ hasAccepted: true });
     rerender();
 
@@ -158,4 +155,13 @@ describe('useCookieBanner', () => {
   it('uses the marketing consent key for the additional cookie', () => {
     expect(otherGdprConsents).toEqual([GdprConsentKey.Marketing]);
   });
+});
+
+it('carries a refusal recorded on another daily.dev property', () => {
+  setup();
+  mockGetIubendaConsent.mockReturnValue({ necessary: true, marketing: false });
+
+  renderHook(() => useIubendaConsentMirror());
+
+  expect(saveCookies).toHaveBeenCalledWith([], otherGdprConsents);
 });
