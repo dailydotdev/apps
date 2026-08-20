@@ -11,6 +11,7 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   RAIL_ICON_SIZE,
+  railColumnGapClass,
   railTabClass,
   railTabLabelClass,
 } from '@dailydotdev/shared/src/components/sidebar/common';
@@ -110,6 +111,28 @@ const Grid = ({ audit }: { audit: boolean }) => (
   </div>
 );
 
+// The rail as it actually stacks: one 80px column at the shared row gap, in
+// both densities. This is where the vertical rhythm is judged. The Grid above
+// only answers whether the glyphs agree with each other.
+const Column = ({ compact }: { compact: boolean }) => (
+  <div
+    className={classNames(
+      'flex flex-col items-center rounded-16 bg-background-default px-1.5 py-3',
+      compact ? 'w-16' : 'w-20',
+      railColumnGapClass,
+    )}
+  >
+    {TABS.filter((tab) => tab.key !== 'new-post').map((tab) => (
+      <span key={tab.key} className={railTabClass}>
+        <span className="relative flex items-center justify-center">
+          {tab.render()}
+        </span>
+        {!compact && <span className={railTabLabelClass}>{tab.label}</span>}
+      </span>
+    ))}
+  </div>
+);
+
 const meta: Meta = {
   title: 'Components/Sidebar/Rail icon set',
   decorators: [
@@ -132,3 +155,13 @@ export const Default: Story = { render: () => <Grid audit={false} /> };
 
 // Same set with each glyph's 24px box outlined, to see ink coverage per glyph.
 export const Audit: Story = { render: () => <Grid audit /> };
+
+// Comfortable vs compact, stacked as the real rail does.
+export const Density: Story = {
+  render: () => (
+    <div className="flex items-start gap-8">
+      <Column compact={false} />
+      <Column compact />
+    </div>
+  ),
+};

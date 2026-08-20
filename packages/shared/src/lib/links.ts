@@ -114,6 +114,11 @@ export const getPathnameWithQuery = (
   return `${basePath}${queryString ? `?${queryString}` : ''}`;
 };
 
+// For hrefs that must reach the webapp whoever renders them: on the extension
+// a root-relative path resolves against `chrome-extension://<id>` and 404s.
+export const toWebappHref = (path: string): string =>
+  path.startsWith('/') ? `${webappUrl}${path.slice(1)}` : path;
+
 export const agentsHighlightsPath = '/highlights/vibes';
 
 export const agentsHighlightsUrl = `${webappUrl}${agentsHighlightsPath.slice(

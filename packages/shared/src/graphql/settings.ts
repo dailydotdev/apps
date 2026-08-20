@@ -5,6 +5,7 @@ import type {
   ShortcutMeta,
   ShortcutsAppearance,
   ShortcutsMode,
+  SidebarShortcut,
 } from '../features/shortcuts/types';
 
 export type Spaciness = 'eco' | 'roomy' | 'cozy';
@@ -46,14 +47,33 @@ export type SettingsFlags = {
   shortcutsMode?: ShortcutsMode;
   shortcutsAppearance?: ShortcutsAppearance;
   showShortcutsOnWebapp?: boolean;
-  // v2 desktop rail: hide the text labels under each icon and narrow the
-  // rail back to its icon-only width.
   sidebarCompact?: boolean;
+  // In dock order.
+  sidebarShortcuts?: SidebarShortcut[];
   sidebarPinnedExpanded?: boolean;
   sidebarRecentExpanded?: boolean;
 };
 
 export type SettingsFlagValue = SettingsFlags[keyof SettingsFlags];
+
+// The API declares its accepted flags one by one in `SettingsFlagsPublicInput`.
+// Sending one it doesn't know fails GraphQL validation, and since every write
+// ships the whole `flags` object, that breaks the persistence of ALL settings.
+// These have no API field yet, so they're kept in local storage and stripped
+// from the remote payload.
+//
+// Deleting an entry here is the only change needed once the API stores it.
+// See docs/settings-flags-backend.md.
+export const clientOnlySettingsFlags = [
+  'sidebarCompact',
+  'sidebarShortcuts',
+  'sidebarPinnedExpanded',
+  'sidebarRecentExpanded',
+] as const satisfies ReadonlyArray<keyof SettingsFlags>;
+
+export type ClientOnlyFlagKey = (typeof clientOnlySettingsFlags)[number];
+
+export type ClientOnlySettingsFlags = Pick<SettingsFlags, ClientOnlyFlagKey>;
 
 export enum SidebarSettingsFlags {
   SquadExpanded = 'sidebarSquadExpanded',
