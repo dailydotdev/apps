@@ -1,6 +1,8 @@
 import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { DatasetTool } from './user/userStack';
+import type { Source } from './sources';
+import { SourceType } from './sources';
 
 export interface ToolPageTool extends DatasetTool {
   url: string | null;
@@ -61,6 +63,68 @@ export const getToolsAlsoStacked = async (
     toolsAlsoStacked: AlsoStackedTool[];
   }>(TOOLS_ALSO_STACKED_QUERY, { id, first });
   return result.toolsAlsoStacked;
+};
+
+// Fetched separately from DATASET_TOOL_QUERY so a not-yet-deployed API
+// (missing this field) can't 500 the whole page during the rollout window.
+export type ToolOfficialSource = Pick<
+  Source,
+  'id' | 'name' | 'handle' | 'image' | 'type' | 'permalink'
+>;
+
+const TOOL_OFFICIAL_SOURCE_QUERY = gql`
+  query ToolOfficialSource($slug: String!) {
+    datasetTool(slug: $slug) {
+      officialSource {
+        id
+        name
+        handle
+        image
+        type
+        permalink
+      }
+    }
+  }
+`;
+
+export const getToolOfficialSource = async (
+  slug: string,
+): Promise<ToolOfficialSource | null> => {
+  const result = await gqlClient.request<{
+    datasetTool: { officialSource: ToolOfficialSource | null };
+  }>(TOOL_OFFICIAL_SOURCE_QUERY, { slug });
+  return result.datasetTool.officialSource;
+};
+
+export const getToolOfficialSourceHref = (source: ToolOfficialSource): string =>
+  source.type === SourceType.Squad
+    ? `/squads/${source.handle}`
+    : `/sources/${source.handle}`;
+
+export interface ToolAlternative extends DatasetTool {
+  stackCount: number;
+}
+
+const TOOL_ALTERNATIVES_QUERY = gql`
+  query ToolAlternatives($id: ID!, $first: Int) {
+    toolAlternatives(id: $id, first: $first) {
+      id
+      title
+      slug
+      faviconUrl
+      stackCount
+    }
+  }
+`;
+
+export const getToolAlternatives = async (
+  id: string,
+  first = 6,
+): Promise<ToolAlternative[]> => {
+  const result = await gqlClient.request<{
+    toolAlternatives: ToolAlternative[];
+  }>(TOOL_ALTERNATIVES_QUERY, { id, first });
+  return result.toolAlternatives;
 };
 
 export interface ToolStacker {
