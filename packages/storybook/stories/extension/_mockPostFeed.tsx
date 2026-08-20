@@ -88,12 +88,27 @@ export function MockFeedGrid({
   insert,
   insertAfter = 3,
   count = MOCK_POSTS.length,
+  /**
+   * `short` swaps the long slug permalinks for id-only ones. The
+   * browser's link tooltip is as wide as the URL it shows, so this
+   * is the difference between it covering 700px of the strip and
+   * covering 180px.
+   */
+  linkStyle = 'long',
 }: {
   insert?: ReactNode;
   insertAfter?: number;
   count?: number;
+  linkStyle?: 'long' | 'short';
 }): ReactElement {
-  const posts = MOCK_POSTS.slice(0, count);
+  const posts = MOCK_POSTS.slice(0, count).map((post, index) =>
+    linkStyle === 'short'
+      ? ({
+          ...post,
+          commentsPermalink: `https://daily.dev/p/${1000 + index}`,
+        } as Post)
+      : post,
+  );
 
   return (
     <div
