@@ -18,10 +18,9 @@ import { TruncateText } from '../../utilities';
 import Markdown from '../../Markdown';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { ArbitrageTopLeaderboard } from './ArbitrageTopLeaderboard';
-import { ARBITRAGE_SLOT } from './slots';
-import { ArbitragePostWidgets } from './ArbitragePostWidgets';
-import { ArbitrageActionBar } from './ArbitrageActionBar';
-import { ArbitrageComments } from './ArbitrageComments';
+import { ARBITRAGE_SLOT, COMMENTS_PER_INTERLEAVED_AD } from './slots';
+import { PostWidgets } from '../PostWidgets';
+import PostEngagements from '../PostEngagements';
 
 export interface ArbitragePostContentProps {
   post: Post;
@@ -133,8 +132,8 @@ export function ArbitragePostContent({
               createdAt={post.createdAt}
               readTime={post.readTime}
               isVideoType={isVideoType}
-              // mt-4 matches the standard template's tag-to-metadata gap.
-              className="mt-4 !typo-callout"
+              // The production post page's own spacing, verbatim.
+              className="mb-8 mt-4 !typo-callout"
               domain={
                 !isVideoType &&
                 !!post.domain?.length && (
@@ -159,7 +158,7 @@ export function ArbitragePostContent({
                 href={post.permalink}
                 target="_blank"
                 rel="noopener"
-                className="mt-6 block cursor-pointer overflow-hidden rounded-16"
+                className="block cursor-pointer overflow-hidden rounded-16"
                 style={{ maxWidth: '25.625rem' }}
               >
                 <LazyImage
@@ -175,8 +174,6 @@ export function ArbitragePostContent({
           </div>
         </div>
 
-        <ArbitrageActionBar post={post} onCopyPostLink={onCopyPostLink} />
-
         {!!post.contentHtml && (
           <Markdown
             className="my-6"
@@ -185,7 +182,23 @@ export function ArbitragePostContent({
           />
         )}
 
-        <ArbitrageComments post={post} />
+        {/* The production engagement block verbatim — counts, actions, share,
+            sort control, composer and thread — so everything from here to the
+            end of the discussion matches the live post page exactly. The only
+            addition is a native unit every few comments in a long thread. */}
+        <PostEngagements
+          post={post}
+          onCopyLinkClick={onCopyPostLink}
+          logOrigin={Origin.ArticlePage}
+          interleaveEvery={COMMENTS_PER_INTERLEAVED_AD}
+          renderInterleaved={() => (
+            <ArbitrageAdSlot
+              slot={ARBITRAGE_SLOT.commentNative}
+              format={ArbitrageAdFormat.Native}
+              reach="30%"
+            />
+          )}
+        />
 
         {/* Everything from the action bar to the end of the thread above is the
             standard post page. Below it, a single multiplex unit rather than a
@@ -200,9 +213,37 @@ export function ArbitragePostContent({
         />
       </PostContainer>
 
-      <ArbitragePostWidgets
+      {/* The production widget column, minus the signup card and the table of
+          contents, with the rail units threaded in. */}
+      <PostWidgets
         post={post}
+        origin={Origin.ArticlePage}
+        onCopyPostLink={onCopyPostLink}
         className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
+        hideSignupWidget
+        hideToc
+        afterSourceCard={
+          <ArbitrageAdSlot
+            slot={ARBITRAGE_SLOT.railMpu1}
+            format={ArbitrageAdFormat.MediumRectangle}
+            reach="70%"
+          />
+        }
+        betweenFurtherReading={
+          <ArbitrageAdSlot
+            slot={ARBITRAGE_SLOT.railMpu2}
+            format={ArbitrageAdFormat.MediumRectangle}
+            reach="45%"
+          />
+        }
+        trailing={
+          <ArbitrageAdSlot
+            slot={ARBITRAGE_SLOT.railStickyMpu}
+            format={ArbitrageAdFormat.HalfPage}
+            reach="100%"
+            className="laptop:sticky laptop:top-20"
+          />
+        }
       />
     </PostContentContainerRaw>
   );
