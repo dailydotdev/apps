@@ -43,6 +43,8 @@ interface PostCommentsProps {
    * extra gap above the first item.
    */
   removeTopSpacing?: boolean;
+  canReply?: MainCommentProps['canReply'];
+  onReplyBlocked?: MainCommentProps['onReplyBlocked'];
 }
 
 const noopShare = (): void => {};
@@ -61,6 +63,8 @@ export function PostComments({
   className = {},
   onCommented,
   removeTopSpacing = false,
+  canReply,
+  onReplyBlocked,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const container = useRef<HTMLDivElement | null>(null);
@@ -142,6 +146,8 @@ export function PostComments({
           joinNotificationCommentId={joinNotificationCommentId}
           onCommented={onCommented}
           lazy={!commentHash && index >= lazyCommentThreshold}
+          canReply={canReply}
+          onReplyBlocked={onReplyBlocked}
         />
       ))}
     </div>
