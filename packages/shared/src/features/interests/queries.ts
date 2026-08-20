@@ -2,6 +2,7 @@ import { queryOptions } from '@tanstack/react-query';
 import {
   getInterest,
   getInterestFindings,
+  getInterestHistory,
   getInterestPosts,
   getInterests,
 } from '../../graphql/interests';
@@ -33,6 +34,16 @@ export const interestFindingsQueryOptions = (
   queryOptions({
     queryKey: generateQueryKey(RequestKey.InterestFindings, user, id),
     queryFn: () => getInterestFindings(id),
+    enabled: !!user?.id && !!id,
+  });
+
+export const interestHistoryQueryOptions = (
+  id: string,
+  user?: Pick<LoggedUser, 'id'>,
+) =>
+  queryOptions({
+    queryKey: generateQueryKey(RequestKey.Interests, user, id, 'history'),
+    queryFn: () => getInterestHistory(id),
     enabled: !!user?.id && !!id,
   });
 
