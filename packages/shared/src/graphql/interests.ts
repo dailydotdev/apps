@@ -44,6 +44,7 @@ export enum InterestRunTrigger {
 export type UserInterest = {
   id: string;
   query: string;
+  title?: string | null;
   status: UserInterestStatus;
   cadence: UserInterestCadence;
   fomoThreshold: number;
@@ -58,6 +59,11 @@ export type UserInterest = {
   createdAt: string;
   updatedAt: string;
 };
+
+export const interestDisplayName = (
+  interest: Pick<UserInterest, 'query' | 'title'> | null | undefined,
+  fallback = 'Your agent',
+): string => interest?.title ?? interest?.query ?? fallback;
 
 export type UpdateInterestInput = {
   status?: UserInterestStatus;
@@ -101,6 +107,7 @@ const USER_INTEREST_FRAGMENT = `
   fragment UserInterestFragment on UserInterest {
     id
     query
+    title
     status
     cadence
     fomoThreshold
