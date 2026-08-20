@@ -14,11 +14,19 @@ import {
   privacyPolicy,
   termsOfService,
 } from '@dailydotdev/shared/src/lib/constants';
-import { GdprConsentKey } from '@dailydotdev/shared/src/hooks/useCookieBanner';
+import {
+  GdprConsentKey,
+  otherGdprConsents,
+} from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { CookieConsentItem } from '@dailydotdev/shared/src/components/modals/user/CookieConsentItem';
+import type { AcceptCookiesCallback } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
+import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { getIubendaConsent } from '@dailydotdev/shared/src/lib/iubenda';
 import { Button } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ButtonVariant } from '@dailydotdev/shared/src/components/buttons/common';
+import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
+import { LazyModal } from '@dailydotdev/shared/src/components/modals/common/types';
 import { openIubendaPreferences } from '../../components/Iubenda';
 import AccountContentSection from '../../components/layouts/SettingsLayout/AccountContentSection';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
@@ -35,7 +43,14 @@ const seo: NextSeoProps = {
 const AccountInvitePage = (): ReactElement | null => {
   const router = useRouter();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Marketing);
-  const { user, isAuthReady, isGdprCovered, isTcfCovered } = useAuthContext();
+  // the modal's "Reject all" calls back with no arguments, meaning
+  // "necessary only" — it has to run against the necessary key or a
+  // refusal would write the marketing cookie instead
+  const { saveCookies: saveConsentPreferences } = useConsentCookie(
+    GdprConsentKey.Necessary,
+  );
+  const { user, isAuthReady } = useAuthContext();
+  const { openModal } = useLazyModal();
 
   useEffect(() => {
     if (!isAuthReady) {
@@ -61,6 +76,32 @@ const AccountInvitePage = (): ReactElement | null => {
     return saveCookies([], [GdprConsentKey.Marketing]);
   };
 
+  // the modal reports "Reject all" by calling back with no arguments, so the
+  // other consents have to be named here or one granted earlier survives the
+  // refusal; "Accept all" and "Save preferences" pass their own lists
+  const onConsentPreferences: AcceptCookiesCallback = (additional, toRemove) =>
+    saveConsentPreferences(
+      additional ?? [],
+      toRemove ?? (additional?.length ? [] : otherGdprConsents),
+    );
+
+  const onManagePreferences = () => {
+    // The CMP only has something to reopen where it actually collected a
+    // preference. Its api exists as soon as the script loads — including in
+    // countries where no regime applied and no banner was ever shown — so
+    // gate on the stored preference, not on the api being there.
+    if (getIubendaConsent() && openIubendaPreferences()) {
+      return;
+    }
+
+    // iubenda blocked, still loading, or nothing collected in this country:
+    // the in-house modal still writes the first-party consent cookies
+    openModal({
+      type: LazyModal.CookieConsent,
+      props: { onAcceptCookies: onConsentPreferences },
+    });
+  };
+
   return (
     <AccountPageContainer title="Privacy">
       <AccountContentSection
@@ -78,42 +119,43 @@ const AccountInvitePage = (): ReactElement | null => {
           Privacy Policy →
         </Typography>
       </AccountContentSection>
-      {isGdprCovered && (
-        <AccountContentSection
-          className={{ container: 'flex flex-col' }}
-          title="Cookie preferences"
-          description="Control how we use cookies on your device."
+      {/* Not gated on `isGdprCovered`: iubenda collects consent under LGPD and
+          USPR too, and withdrawal has to be as reachable as consent was. */}
+      <AccountContentSection
+        className={{ container: 'flex flex-col' }}
+        title="Cookie preferences"
+        description="Control how we use cookies on your device."
+      >
+        <Typography
+          href={cookiePolicy}
+          tag={TypographyTag.Link}
+          type={TypographyType.Callout}
+          target="_blank"
+          rel="noopener"
         >
-          <Typography
-            href={cookiePolicy}
-            tag={TypographyTag.Link}
-            type={TypographyType.Callout}
-            target="_blank"
-            rel="noopener"
+          Cookie Policy →
+        </Typography>
+        {!isIOSNative() ? (
+          // the custom toggles can't regenerate a TCF consent string, so
+          // consent edits must go through the CMP's own preferences UI;
+          // the iOS native wrapper never loads iubenda and keeps them
+          <Button
+            className="mt-4 self-start"
+            variant={ButtonVariant.Secondary}
+            onClick={onManagePreferences}
           >
-            Cookie Policy →
-          </Typography>
-          {isTcfCovered ? (
-            // the custom toggles can't regenerate a TCF consent string, so
-            // consent edits must go through the CMP's own preferences UI
-            <Button
-              className="mt-4 self-start"
-              variant={ButtonVariant.Secondary}
-              onClick={() => openIubendaPreferences()}
-            >
-              Manage cookie preferences
-            </Button>
-          ) : (
-            <div className="mt-4 flex flex-col gap-4">
-              <CookieConsentItem consent={GdprConsentKey.Necessary} />
-              <CookieConsentItem
-                consent={GdprConsentKey.Marketing}
-                onToggle={onToggleMarketing}
-              />
-            </div>
-          )}
-        </AccountContentSection>
-      )}
+            Manage cookie preferences
+          </Button>
+        ) : (
+          <div className="mt-4 flex flex-col gap-4">
+            <CookieConsentItem consent={GdprConsentKey.Necessary} />
+            <CookieConsentItem
+              consent={GdprConsentKey.Marketing}
+              onToggle={onToggleMarketing}
+            />
+          </div>
+        )}
+      </AccountContentSection>
       <AccountContentSection
         title="Legal & support"
         className={{ container: 'flex flex-col gap-4' }}
