@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
-import { useDelayedReveal } from './useDelayedReveal';
+import { useStickyRelease } from './useStickyRelease';
 import { ARBITRAGE_SLOT, TOP_LEADERBOARD_STICKY_MS } from './slots';
 
 /**
@@ -11,13 +11,12 @@ import { ARBITRAGE_SLOT, TOP_LEADERBOARD_STICKY_MS } from './slots';
  * so a 728px leaderboard renders at its booked size within the page rather than
  * spanning it; narrower viewports get a smaller responsive creative.
  *
- * Stays pinned while the visitor scrolls for the first ten seconds, then
- * releases and scrolls away with the page. Sticky rather than fixed so it only
- * pins within the article column and can never overlap the rail; `top-16`
- * clears the fixed app header.
+ * Stays pinned for the first ten seconds of scrolling, then releases and
+ * scrolls away with the page. Sticky rather than fixed so it only pins within
+ * the article column and can never overlap the rail.
  */
 export function ArbitrageTopLeaderboard(): ReactElement {
-  const released = useDelayedReveal(TOP_LEADERBOARD_STICKY_MS);
+  const released = useStickyRelease(TOP_LEADERBOARD_STICKY_MS);
 
   return (
     <div

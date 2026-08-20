@@ -108,58 +108,67 @@ export function ArbitragePostContent({
           </div>
         )}
 
-        <ArbitrageAdSlot
-          slot={ARBITRAGE_SLOT.inlineMpu1}
-          format={ArbitrageAdFormat.Rectangle}
-          reach="75%"
-          refreshes
-          className="mb-6"
-        />
+        {/* MPU 1 beside the tags, date and cover rather than above them, so the
+            first ad shares the fold with real page furniture instead of
+            standing alone. The slot is first in the DOM because a phone stacks
+            the column and the brief puts the unit above the article, not below
+            it; from laptop `order-last` moves it to the right of the group. */}
+        <div className="mb-6 flex flex-col gap-6 laptop:flex-row laptop:items-start">
+          <ArbitrageAdSlot
+            slot={ARBITRAGE_SLOT.inlineMpu1}
+            format={ArbitrageAdFormat.Rectangle}
+            reach="75%"
+            refreshes
+            className="laptop:order-last"
+          />
 
-        <PostTagList post={post} />
-        <PostMetadata
-          createdAt={post.createdAt}
-          readTime={post.readTime}
-          isVideoType={isVideoType}
-          // mt-4 matches the standard template's tag-to-metadata gap.
-          className="mb-6 mt-4 !typo-callout"
-          domain={
-            !isVideoType &&
-            !!post.domain?.length && (
-              <TruncateText>
-                From{' '}
-                <a
-                  href={post.permalink}
-                  title={post.domain}
-                  target="_blank"
-                  rel="noopener"
-                  className="hover:underline"
-                >
-                  {post.domain}
-                </a>
-              </TruncateText>
-            )
-          }
-        />
-
-        {!isVideoType && (
-          <a
-            href={post.permalink}
-            target="_blank"
-            rel="noopener"
-            className="mb-6 block cursor-pointer overflow-hidden rounded-16"
-            style={{ maxWidth: '25.625rem' }}
-          >
-            <LazyImage
-              imgSrc={post.image}
-              imgAlt="Post cover image"
-              ratio="49%"
-              eager
-              fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-              fetchPriority="high"
+          <div className="min-w-0 flex-1">
+            <PostTagList post={post} />
+            <PostMetadata
+              createdAt={post.createdAt}
+              readTime={post.readTime}
+              isVideoType={isVideoType}
+              // mt-4 matches the standard template's tag-to-metadata gap.
+              className="mt-4 !typo-callout"
+              domain={
+                !isVideoType &&
+                !!post.domain?.length && (
+                  <TruncateText>
+                    From{' '}
+                    <a
+                      href={post.permalink}
+                      title={post.domain}
+                      target="_blank"
+                      rel="noopener"
+                      className="hover:underline"
+                    >
+                      {post.domain}
+                    </a>
+                  </TruncateText>
+                )
+              }
             />
-          </a>
-        )}
+
+            {!isVideoType && (
+              <a
+                href={post.permalink}
+                target="_blank"
+                rel="noopener"
+                className="mt-6 block cursor-pointer overflow-hidden rounded-16"
+                style={{ maxWidth: '25.625rem' }}
+              >
+                <LazyImage
+                  imgSrc={post.image}
+                  imgAlt="Post cover image"
+                  ratio="49%"
+                  eager
+                  fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+                  fetchPriority="high"
+                />
+              </a>
+            )}
+          </div>
+        </div>
 
         <ArbitrageActionBar post={post} onCopyPostLink={onCopyPostLink} />
 
