@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   BUBBLE_SAFE_VARIANTS,
   TOOLTIP_HEIGHT,
+  TOOLTIP_MAX_FRACTION,
 } from '@dailydotdev/shared/src/components/sponsors/BubbleSafeStrips';
 import {
   MOCK_LEAD_SPONSOR,
@@ -109,7 +110,7 @@ const Bench = ({
   linkStyle,
 }: {
   children: ReactElement;
-  linkStyle?: 'long' | 'short';
+  linkStyle?: 'long' | 'short' | 'tracking';
 }): ReactElement => (
   <ExtensionProviders>
     <div className="min-h-dvh bg-background-default">
@@ -139,12 +140,30 @@ export const Overview: Story = {
             </h1>
             <Note>
               The bar stays exactly as it is in all ten — flush, full width,
-              sticky, no float. What is known about the tooltip: it is browser
-              chrome painted over the page, so it cannot be read or suppressed;
-              it sits in the bottom-left corner and jumps to the bottom-right if
-              the pointer comes near it; it is roughly 26px tall and scales with
-              zoom; and its width is the width of the URL inside it. That last
-              point is the cheapest lever and the one most easily missed.
+              sticky, no float. Only the geometry, the ordering, or what the
+              page hands the browser changes.
+            </Note>
+            <Note>
+              <strong className="text-text-primary">
+                What the URLs actually measure.
+              </strong>{' '}
+              Counted on the live feed, 28 links on one screen, at the 12px UI
+              font the tooltip uses: nav and tag links run 33 characters and
+              189px; post slugs run 68 characters and 393px, a quarter of a
+              1440px screen; and promoted cards link through a signed token —
+              742 characters — which Chrome clips at half the viewport. The
+              tooltip is exactly as wide as the URL inside it, so those numbers
+              are the fixes&apos; pass mark.
+            </Note>
+            <Note>
+              <strong className="text-text-primary">
+                That rules the horizontal fixes out as guarantees.
+              </strong>{' '}
+              A gutter has to be 400px to survive an ordinary post and half the
+              bar to survive a promoted one, at which point there is no bar
+              left. A vertical clearance is 26px no matter what the URL says.
+              The <em>holds</em> column below is the honest verdict: “any URL”
+              means the fix does not care how long the link is.
             </Note>
             <Note>
               Open any story and hover a card — a stand-in tooltip appears
@@ -171,8 +190,25 @@ export const Overview: Story = {
                         <td className="border-b border-border-subtlest-tertiary py-2 pr-4 align-top text-text-secondary typo-footnote">
                           {v.how}
                         </td>
-                        <td className="border-b border-border-subtlest-tertiary py-2 align-top text-text-tertiary typo-caption1">
+                        <td className="border-b border-border-subtlest-tertiary py-2 pr-4 align-top text-text-tertiary typo-caption1">
                           {v.cost}
+                        </td>
+                        <td className="whitespace-nowrap border-b border-border-subtlest-tertiary py-2 align-top typo-caption1">
+                          <span
+                            className={
+                              v.holds === 'width'
+                                ? 'text-status-success'
+                                : 'text-status-warning'
+                            }
+                          >
+                            {
+                              {
+                                width: 'holds · any URL',
+                                slug: 'holds · post links only',
+                                short: 'needs shorter URLs',
+                              }[v.holds]
+                            }
+                          </span>
                         </td>
                       </tr>
                     ),
@@ -213,6 +249,19 @@ export const Unfixed: Story = {
   ),
 };
 
+export const WorstCase: Story = {
+  name: '0b · Worst case (promoted card)',
+  render: () => (
+    <Bench linkStyle="tracking">
+      <div className="sticky bottom-0 z-3 flex h-10 w-full items-center gap-5 border-t border-border-subtlest-tertiary bg-background-default px-4 laptop:px-10">
+        <PrimaryLockup primary={strip.primary} />
+        <Divider />
+        <PartnerRow partners={strip.partners} />
+      </div>
+    </Bench>
+  ),
+};
+
 export const LeftGutter: Story = {
   name: `1 · ${gutter.name}`,
   render: () => <Bench>{<gutter.Strip {...strip} />}</Bench>,
@@ -220,12 +269,14 @@ export const LeftGutter: Story = {
 
 export const RightAnchored: Story = {
   name: `2 · ${right.name}`,
-  render: () => <Bench>{<right.Strip {...strip} />}</Bench>,
+  render: () => (
+    <Bench linkStyle="tracking">{<right.Strip {...strip} />}</Bench>
+  ),
 };
 
 export const SacrificialBand: Story = {
   name: `3 · ${band.name}`,
-  render: () => <Bench>{<band.Strip {...strip} />}</Bench>,
+  render: () => <Bench linkStyle="tracking">{<band.Strip {...strip} />}</Bench>,
 };
 
 export const ShortHref: Story = {
@@ -242,7 +293,7 @@ export const NarrowAnchor: Story = {
 
 export const LiftOnHover: Story = {
   name: `6 · ${lift.name}`,
-  render: () => <Bench>{<lift.Strip {...strip} />}</Bench>,
+  render: () => <Bench linkStyle="tracking">{<lift.Strip {...strip} />}</Bench>,
 };
 
 export const SlideOnHover: Story = {

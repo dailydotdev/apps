@@ -41,12 +41,32 @@ const BAR =
   'sticky bottom-0 z-3 flex w-full items-center gap-5 border-t border-border-subtlest-tertiary bg-background-default px-4 laptop:px-10';
 
 /**
- * Roughly what the tooltip occupies. Not measurable — browser
- * chrome is invisible to the DOM — so this is a deliberately
- * generous constant rather than a reading.
+ * Height is fixed and small. Width is neither — and that
+ * asymmetry decides which of the fixes below actually work.
+ *
+ * Measured on the live feed, 28 links on one screen, at the 12px
+ * UI font the tooltip uses:
+ *
+ *   nav and tag links      33 chars    189px    13% of a 1440 screen
+ *   post slugs             68 chars    393px    27%
+ *   ad click-throughs     742 chars    clipped  50% (the cap)
+ *
+ * So a horizontal clearance has to be ~400px to survive an
+ * ordinary post and half the viewport to survive a promoted card.
+ * At that point the bar has no room left. A vertical clearance is
+ * 26px whatever the URL says, which is why the width-independent
+ * fixes are the ones that hold.
  */
 export const TOOLTIP_HEIGHT = 26;
+
+/** Clears nav links. Does NOT clear a post slug — see above. */
 export const TOOLTIP_SAFE_WIDTH = 320;
+
+/** What a post slug actually needs. */
+export const TOOLTIP_SLUG_WIDTH = 400;
+
+/** Chrome truncates around here, so this is the true worst case. */
+export const TOOLTIP_MAX_FRACTION = 0.5;
 
 // --- shared behaviour -----------------------------------------
 
@@ -75,10 +95,12 @@ export const useHoveredHref = (): string | null => {
 };
 
 // --- 1. Left gutter -------------------------------------------
-// The simplest and the most durable: keep the bar identical and
-// start its content after the tooltip's reach. The first 320px
-// hold nothing, so there is nothing to cover. Costs horizontal
-// room, which on a wide feed is the cheapest currency here.
+// Keep the bar identical and start its content past the tooltip.
+// Sized to clear a post slug (400px), which covers the common
+// case — but NOT a promoted card's click-through, which is
+// clipped at half the viewport and would need a gutter wider than
+// the content it protects. Good for ordinary links, not a
+// guarantee.
 export const GutterStrip = ({
   partners,
   primary,
@@ -87,7 +109,7 @@ export const GutterStrip = ({
     <span
       aria-hidden
       className="shrink-0"
-      style={{ width: TOOLTIP_SAFE_WIDTH }}
+      style={{ width: TOOLTIP_SLUG_WIDTH }}
     />
     <PrimaryLockup primary={primary} />
     <Divider />
@@ -202,7 +224,7 @@ export const SlideOnHoverStrip = ({
       <div
         className="flex min-w-0 flex-1 items-center gap-5 transition-transform duration-200 ease-out"
         style={{
-          transform: href ? `translateX(${TOOLTIP_SAFE_WIDTH}px)` : undefined,
+          transform: href ? `translateX(${TOOLTIP_SLUG_WIDTH}px)` : undefined,
         }}
       >
         <PrimaryLockup primary={primary} />
@@ -223,9 +245,11 @@ export const AdaptiveStrip = ({
   primary,
 }: VariantProps): ReactElement => {
   const href = useHoveredHref();
-  // ~6px per character is a fair approximation of the tooltip's
-  // condensed UI font; anything under the gutter is harmless.
-  const estimated = href ? href.length * 6 : 0;
+  // ~5.8px per character at the tooltip's 12px UI font, checked
+  // against real hrefs. Worth keeping even though today's links
+  // trip it almost every time: if the URLs get shorter, this stops
+  // moving on its own rather than needing to be removed.
+  const estimated = href ? href.length * 5.8 : 0;
   const shift = estimated > TOOLTIP_SAFE_WIDTH;
 
   return (
@@ -299,12 +323,20 @@ export const BUBBLE_SAFE_VARIANTS: {
   family: string;
   how: string;
   cost: string;
+  /**
+   * Does it hold when the URL is long? `width` means the fix is a
+   * vertical or structural one and does not care; `slug` means it
+   * survives an ordinary post link but not a promoted card's;
+   * `short` means it only works if the URLs are shortened first.
+   */
+  holds: 'width' | 'slug' | 'short';
   Strip: (props: VariantProps) => ReactElement;
   linkStyle?: 'long' | 'short';
   narrowAnchor?: boolean;
 }[] = [
   {
     id: 'gutter',
+    holds: 'slug',
     name: 'Left gutter',
     family: 'Give it nothing to cover',
     how: 'content starts 320px in, so the corner the tooltip owns is empty',
@@ -313,6 +345,7 @@ export const BUBBLE_SAFE_VARIANTS: {
   },
   {
     id: 'right',
+    holds: 'width',
     name: 'Right-anchored',
     family: 'Give it nothing to cover',
     how: 'lead mark at the right end, wall filling leftward into the danger zone',
@@ -321,6 +354,7 @@ export const BUBBLE_SAFE_VARIANTS: {
   },
   {
     id: 'band',
+    holds: 'width',
     name: 'Sacrificial band',
     family: 'Give it nothing to cover',
     how: 'taller bar, content top-aligned, bottom 26px left as padding',
@@ -329,6 +363,7 @@ export const BUBBLE_SAFE_VARIANTS: {
   },
   {
     id: 'shorthref',
+    holds: 'short',
     name: 'Short href',
     family: 'Make it smaller',
     how: 'cards link to /p/<id>; the tooltip is as wide as the URL in it',
@@ -338,6 +373,7 @@ export const BUBBLE_SAFE_VARIANTS: {
   },
   {
     id: 'narrow',
+    holds: 'short',
     name: 'Narrow anchor',
     family: 'Make it smaller',
     how: 'only the title is a link, so most of the pointer’s time over a card draws nothing',
@@ -347,6 +383,7 @@ export const BUBBLE_SAFE_VARIANTS: {
   },
   {
     id: 'lift',
+    holds: 'width',
     name: 'Lift on hover',
     family: 'Move only when it matters',
     how: 'flush at rest; rises by the tooltip’s height while a link is hovered',
@@ -355,6 +392,7 @@ export const BUBBLE_SAFE_VARIANTS: {
   },
   {
     id: 'slide',
+    holds: 'slug',
     name: 'Slide on hover',
     family: 'Move only when it matters',
     how: 'the bar holds still; its contents shift right past the tooltip',
@@ -363,6 +401,7 @@ export const BUBBLE_SAFE_VARIANTS: {
   },
   {
     id: 'adaptive',
+    holds: 'width',
     name: 'Adaptive',
     family: 'Move only when it matters',
     how: 'estimates the tooltip’s width from the hovered href and moves only for long ones',
@@ -371,6 +410,7 @@ export const BUBBLE_SAFE_VARIANTS: {
   },
   {
     id: 'swap',
+    holds: 'width',
     name: 'Swap ends',
     family: 'Move only when it matters',
     how: 'lead mark and wall trade places on hover; geometry untouched',
@@ -379,6 +419,7 @@ export const BUBBLE_SAFE_VARIANTS: {
   },
   {
     id: 'centred',
+    holds: 'slug',
     name: 'Centred',
     family: 'Give it nothing to cover',
     how: 'both corners empty, content centred — safe from the tooltip in either corner',

@@ -89,25 +89,42 @@ export function MockFeedGrid({
   insertAfter = 3,
   count = MOCK_POSTS.length,
   /**
-   * `short` swaps the long slug permalinks for id-only ones. The
-   * browser's link tooltip is as wide as the URL it shows, so this
-   * is the difference between it covering 700px of the strip and
-   * covering 180px.
+   * The browser's link tooltip is exactly as wide as the URL it
+   * shows, so this is the single biggest lever on how much of the
+   * strip it covers. Measured on the live feed:
+   *   short     id-only route         ~25 chars   ~150px
+   *   long      post slug (today)     ~68 chars   ~393px
+   *   tracking  ad click-through      ~742 chars  clipped at 50vw
    */
   linkStyle = 'long',
 }: {
   insert?: ReactNode;
   insertAfter?: number;
   count?: number;
-  linkStyle?: 'long' | 'short';
+  linkStyle?: 'long' | 'short' | 'tracking';
 }): ReactElement {
-  const posts = MOCK_POSTS.slice(0, count).map((post, index) =>
-    linkStyle === 'short'
-      ? ({
-          ...post,
-          commentsPermalink: `https://daily.dev/p/${1000 + index}`,
-        } as Post)
-      : post,
+  // The card builds its href as `${webappUrl}posts/${slug ?? id}`
+  // (see CardOverlay), so the slug is what decides how wide the
+  // browser's tooltip gets. These three lengths are taken from the
+  // live feed.
+  const slugFor = (index: number) => {
+    if (linkStyle === 'short') {
+      return `${1000 + index}`;
+    }
+
+    if (linkStyle === 'tracking') {
+      // Stands in for a promoted card's signed click-through: the
+      // real ones carry a JWT and run past 700 characters.
+      return `c?id=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.${'eyJPYmplY3RiOnsiaSI6'.repeat(
+        30,
+      )}${index}`;
+    }
+
+    return `almost-nobody-pays-attention-to-web-standards-anymore-uqacluqm${index}`;
+  };
+
+  const posts = MOCK_POSTS.slice(0, count).map(
+    (post, index) => ({ ...post, slug: slugFor(index) } as Post),
   );
 
   return (
