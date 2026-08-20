@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import type {
   GetStaticPathsResult,
@@ -7,6 +7,8 @@ import type {
   GetStaticPropsResult,
 } from 'next';
 import Head from 'next/head';
+import Script from 'next/script';
+import { useRouter } from 'next/router';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import type { ClientError } from 'graphql-request';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
@@ -22,6 +24,8 @@ import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoa
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { ArbitragePostContent } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitragePostContent';
 import { ArbitrageAnchor } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAnchor';
+import { ADSENSE_SCRIPT_SRC } from '@dailydotdev/shared/src/components/post/arbitrage/adsense';
+import { useReadAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
 import {
@@ -63,10 +67,36 @@ const ArbitragePostPage = ({
   topComments,
   error,
 }: ArbitragePostPageProps): ReactElement => {
+  const router = useRouter();
+  const adsenseSlots = useReadAdsenseSlots();
+  const adsLive = Object.keys(adsenseSlots).length > 0;
   const { post, isError, isLoading } = usePostById({
     id,
     options: { initialData, retry: false },
   });
+
+  // adsbygoogle must never follow a client-side navigation into the rest of
+  // the app: once loaded, its Auto ads overlays (anchor/vignette) persist
+  // across soft navigations. Leaving /read forces a full page load, which
+  // tears down every Google global — combined with the script only ever being
+  // rendered by this route, ads outside /read are impossible by construction.
+  useEffect(() => {
+    if (!adsLive) {
+      return undefined;
+    }
+    const forceHardNavigation = (url: string): void => {
+      if (/^\/posts\/[^/]+\/read(?:[/?#]|$)/.test(url)) {
+        return;
+      }
+      router.events.emit('routeChangeError');
+      window.location.assign(url);
+      // Next.js has no cancel API; throwing inside the handler is the
+      // established way to abort the client-side transition.
+      throw new Error(`Aborted client navigation to ${url} to unload ads`);
+    };
+    router.events.on('routeChangeStart', forceHardNavigation);
+    return () => router.events.off('routeChangeStart', forceHardNavigation);
+  }, [adsLive, router]);
 
   if (isLoading) {
     return <PostLoadingSkeleton type={post?.type} />;
@@ -81,6 +111,14 @@ const ArbitragePostPage = ({
       <Head>
         <link rel="preload" as="image" href={post?.image} />
       </Head>
+      {adsLive && (
+        <Script
+          id="adsbygoogle-loader"
+          src={ADSENSE_SCRIPT_SRC}
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
+      )}
       <PostSEOSchema post={post} topComments={topComments} />
       <ArbitragePostContent
         post={post}
