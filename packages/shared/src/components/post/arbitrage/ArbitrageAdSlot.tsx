@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import { isProduction } from '../../../lib/constants';
+import { isDevelopment, webappUrl } from '../../../lib/constants';
 import { useReadAdsenseSlots } from './useReadAdsenseSlots';
 import type { AdsenseSlotConfig } from './adsense';
 import { ADSENSE_CLIENT_ID } from './adsense';
@@ -150,6 +150,19 @@ function LiveAdSlot({
       return undefined;
     }
 
+    // Any host but the canonical production one serves test creatives.
+    // Preview deployments are production *builds*, so a build-time flag
+    // can't make this call — it has to happen here, before the request.
+    let productionHost = '';
+    try {
+      productionHost = new URL(webappUrl).hostname;
+    } catch {
+      // Fail-safe: unset/relative webappUrl means test creatives too.
+    }
+    if (productionHost !== window.location.hostname) {
+      element.setAttribute('data-adtest', 'on');
+    }
+
     let pushed = false;
     // Request the ad only near the viewport: viewability drives AdSense CPMs,
     // and never-seen impressions depress the whole page's pricing.
@@ -188,9 +201,6 @@ function LiveAdSlot({
         data-testid={`adsense-slot-${slot}`}
         data-ad-client={ADSENSE_CLIENT_ID}
         data-ad-slot={config.id}
-        // Test creatives everywhere except real production traffic, so local
-        // and preview builds never generate billable/invalid impressions.
-        data-adtest={isProduction ? undefined : 'on'}
         {...getInsAttributes(config)}
       />
     </div>
@@ -201,10 +211,9 @@ function LiveAdSlot({
  * A programmatic ad slot on the /read template. Live only when the
  * `read_adsense_slots` remote config carries this slot number: any entry puts
  * the template in live mode, configured slots render a real AdSense unit and
- * unconfigured ones collapse. With the config empty (the default) it renders
- * the reserved placeholder box at the real creative height — the density
- * review the template shipped with, and the same height reservation a live
- * slot needs to avoid layout shift.
+ * unconfigured ones collapse. With the config empty (the default) the slot
+ * renders nothing — visitors get a clean page. The dashed density-review
+ * placeholder only ever appears in local development builds.
  */
 export function ArbitrageAdSlot({
   slot,
@@ -229,6 +238,10 @@ export function ArbitrageAdSlot({
         className={className}
       />
     );
+  }
+
+  if (!isDevelopment) {
+    return null;
   }
 
   const spec = FORMAT_SPEC[format];

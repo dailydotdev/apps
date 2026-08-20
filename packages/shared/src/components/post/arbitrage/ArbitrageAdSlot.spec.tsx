@@ -14,14 +14,38 @@ jest.mock('../../GrowthBookProvider', () => ({
   useFeature: jest.fn(),
 }));
 
+jest.mock('../../../lib/constants', () => ({
+  ...(jest.requireActual('../../../lib/constants') as Record<string, unknown>),
+  isDevelopment: false,
+}));
+
+// The mocked module object is mutable, so tests toggle the flag directly.
+const mockConstants = jest.requireMock('../../../lib/constants') as {
+  isDevelopment: boolean;
+};
+
 const mockUseFeature = jest.mocked(useFeature);
 
 const setSlots = (slots: ReadAdsenseSlots): void => {
   mockUseFeature.mockReturnValue(slots);
 };
 
+beforeEach(() => {
+  mockConstants.isDevelopment = false;
+});
+
 describe('ArbitrageAdSlot', () => {
-  it('renders the reserved placeholder while the remote config is empty', () => {
+  it('renders nothing in production while the remote config is empty', () => {
+    setSlots({});
+    const { container } = render(
+      <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders the density-review placeholder only in development', () => {
+    mockConstants.isDevelopment = true;
     setSlots({});
     render(<ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} />);
 
@@ -42,7 +66,7 @@ describe('ArbitrageAdSlot', () => {
     expect(screen.queryByTestId('arbitrage-ad-slot-3')).not.toBeInTheDocument();
   });
 
-  it('serves test creatives outside production', () => {
+  it('serves test creatives on any host but production', () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     render(<ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} />);
 
@@ -74,7 +98,15 @@ describe('ArbitrageAdSlot', () => {
 });
 
 describe('ArbitrageAnchor', () => {
-  it('renders the placeholder anchor while the remote config is empty', () => {
+  it('renders nothing in production while the remote config is empty', () => {
+    setSlots({});
+    const { container } = render(<ArbitrageAnchor />);
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('renders the placeholder anchor in development', () => {
+    mockConstants.isDevelopment = true;
     setSlots({});
     render(<ArbitrageAnchor />);
 
@@ -82,6 +114,7 @@ describe('ArbitrageAnchor', () => {
   });
 
   it('unmounts in live mode so the Auto ads anchor owns the viewport bottom', () => {
+    mockConstants.isDevelopment = true;
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     const { container } = render(<ArbitrageAnchor />);
 
