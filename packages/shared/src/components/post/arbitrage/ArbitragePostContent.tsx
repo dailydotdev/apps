@@ -116,7 +116,7 @@ export function ArbitragePostContent({
         <div className="mb-6 flex flex-col gap-6 laptop:flex-row laptop:items-start">
           <ArbitrageAdSlot
             slot={ARBITRAGE_SLOT.inlineMpu1}
-            format={ArbitrageAdFormat.Rectangle}
+            format={ArbitrageAdFormat.MediumRectangle}
             reach="75%"
             refreshes
             className="laptop:order-last"

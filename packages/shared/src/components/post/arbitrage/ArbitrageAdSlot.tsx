@@ -14,6 +14,7 @@ const FILLED_MIN_HEIGHT_PX = 20;
 
 export enum ArbitrageAdFormat {
   Leaderboard = 'leaderboard',
+  MediumRectangle = 'mediumRectangle',
   Rectangle = 'rectangle',
   HalfPage = 'halfPage',
   SidebarRail = 'sidebarRail',
@@ -32,26 +33,44 @@ type FormatSpec = {
    * Caps the slot at its standard IAB width so every creative in a given
    * format renders the same size. Without this the unit is responsive and
    * Google picks whatever creative fits the container, so two slots side by
-   * side come back different widths. Below the cap the box still shrinks, so
-   * mobile is unaffected.
+   * side come back different widths.
+   *
+   * The cap is also how a format gets its mobile variant. AdSense sizes a
+   * responsive unit from the space it is given, so a leaderboard left
+   * uncapped on a phone comes back as whatever else fits — a rectangle, not a
+   * banner. Capping at the phone width in the IAB portfolio makes the mobile
+   * sizes the only ones that can serve.
    */
   maxWidth?: string;
 };
 
 const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
+  // Leaderboard on desktop, large mobile banner on a phone.
   [ArbitrageAdFormat.Leaderboard]: {
     label: 'Leaderboard',
-    size: '728x90 / 320x100',
+    size: '728x90 · 320x100 mobile',
     cpm: '$2.50',
-    minHeight: 'min-h-[90px]',
-    maxWidth: 'max-w-[728px]',
+    minHeight: 'min-h-[100px] tablet:min-h-[90px]',
+    maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
   },
+  // The IAB medium rectangle. Reserves its exact height rather than the
+  // shorter guess the in-content unit makes, because it is booked at a fixed
+  // size and anything less would shift the article as it fills.
+  [ArbitrageAdFormat.MediumRectangle]: {
+    label: 'Medium rectangle',
+    size: '300x250',
+    cpm: '$3.00',
+    minHeight: 'min-h-[250px]',
+    maxWidth: 'max-w-[300px]',
+  },
+  // 336x280 is a Google size rather than an IAB one, so on a phone this drops
+  // to the medium rectangle, which is what the portfolio actually lists.
   [ArbitrageAdFormat.Rectangle]: {
     label: 'In-content',
-    size: '336x280',
+    size: '336x280 · 300x250 mobile',
     cpm: '$3.00',
-    minHeight: 'min-h-[180px]',
-    maxWidth: 'max-w-[336px]',
+    minHeight: 'min-h-[250px] tablet:min-h-[180px]',
+    maxWidth: 'max-w-[300px] tablet:max-w-[336px]',
   },
   [ArbitrageAdFormat.HalfPage]: {
     label: 'Sticky rail',
@@ -85,12 +104,15 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     cpm: '$4.00',
     minHeight: 'min-h-[160px]',
   },
+  // Leaderboard on desktop, mobile phone banner on a phone. The shortest
+  // banner in the portfolio, because it sits over the content rather than in
+  // it and shares the bottom of a phone screen with the footer nav.
   [ArbitrageAdFormat.Anchor]: {
     label: 'Anchor',
-    size: '728x90 / 320x50',
+    size: '728x90 · 320x50 mobile',
     cpm: '$2.00',
-    minHeight: 'min-h-[56px]',
-    maxWidth: 'max-w-[728px]',
+    minHeight: 'min-h-[50px] tablet:min-h-[90px]',
+    maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
   },
 };
 
