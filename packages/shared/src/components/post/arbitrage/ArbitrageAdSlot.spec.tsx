@@ -318,12 +318,26 @@ describe('ArbitrageAnchor', () => {
     expect(ins).toHaveAttribute('data-ad-format', 'horizontal');
   });
 
-  it('dismisses on close and stays dismissed', () => {
+  it('holds the dismiss button back until a creative has filled', () => {
     setSlots({ '13': { id: '1313131313', type: 'display' } });
     render(<ArbitrageAnchor />);
     advancePastDelay();
 
+    // jsdom boxes measure zero, which is exactly the unfilled case: a close
+    // button with no ad under it would float alone over the page.
+    expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
+  });
+
+  it('dismisses on close and stays dismissed', () => {
+    setSlots({ '13': { id: '1313131313', type: 'display' } });
+    const measure = jest
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ height: 90 } as DOMRect);
+    render(<ArbitrageAnchor />);
+    advancePastDelay();
+
     fireEvent.click(screen.getByTitle('Close'));
+    measure.mockRestore();
 
     expect(screen.queryByTestId('adsense-slot-13')).not.toBeInTheDocument();
   });
