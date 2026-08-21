@@ -82,9 +82,10 @@ export const READ_ADSENSE_SLOTS: ReadAdsenseSlots = {
   },
   [ARBITRAGE_SLOT.railMpu1]: { id: '5249052667', type: 'display' },
   [ARBITRAGE_SLOT.railMpu2]: { id: '6921226982', type: 'display' },
-  // TODO(chris): unit id for the floating leaderboard (was only ever entered
-  // in the retired read_adsense_slots remote config).
-  [ARBITRAGE_SLOT.floatingLeaderboard]: { id: '', type: 'display' },
+  // TODO(chris): this is read_s02_leaderboard doing double duty — reporting
+  // blends both placements into one row. Create a dedicated read_s13 unit and
+  // swap the id to get per-placement RPM back.
+  [ARBITRAGE_SLOT.floatingLeaderboard]: { id: '9942870945', type: 'display' },
 };
 
 /**
