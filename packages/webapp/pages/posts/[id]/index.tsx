@@ -328,7 +328,10 @@ export const PostPage = ({
                   surface="organic"
                   slot={ORGANIC_SLOT.railHalfPage}
                   format={ArbitrageAdFormat.HalfPage}
-                  className="laptop:sticky laptop:top-20"
+                  // The offset MainLayout publishes for this page's actual
+                  // chrome, plus a gap — a hardcoded 5rem is wrong whenever a
+                  // top banner adds 2rem above the header.
+                  className="laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)]"
                 />
               }
               className={{
