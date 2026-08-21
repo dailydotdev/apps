@@ -506,9 +506,10 @@ describe('ArbitrageSidebarAd', () => {
     render(<ArbitrageSidebarAd />);
 
     expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
-    expect(
-      screen.getByTestId('adsense-slot-1').closest('div.px-2'),
-    ).toHaveClass('invisible');
+    // No padding either, or the box leaves an invisible band under the nav.
+    const box = screen.getByTestId('adsense-slot-1').closest('div.h-0');
+    expect(box).toHaveClass('invisible');
+    expect(box?.className).not.toMatch(/\bp[xytb]?-[1-9]/);
   });
 
   it('clears the unit for the session when closed', async () => {

@@ -39,10 +39,14 @@ export function ArbitrageSidebarAd(): ReactElement | null {
     // something to put a floor under.
     <div
       className={classNames(
-        'bg-background-default px-2 pb-3 pt-1',
+        'bg-background-default',
+        // The padding only exists in the filled state. Cancelling it with p-0
+        // does not work: Tailwind emits the shorthand before the per-side
+        // utilities, so px-2/pt-1/pb-3 win and leave 16px of invisible
+        // padding under the nav — the gap this component is meant not to have.
         isFilled
-          ? 'border-t border-border-subtlest-tertiary'
-          : 'pointer-events-none invisible h-0 overflow-hidden p-0',
+          ? 'border-t border-border-subtlest-tertiary px-2 pb-3 pt-1'
+          : 'pointer-events-none invisible h-0 overflow-hidden',
       )}
     >
       {/* Its own row above the unit, never over it: AdSense forbids page
