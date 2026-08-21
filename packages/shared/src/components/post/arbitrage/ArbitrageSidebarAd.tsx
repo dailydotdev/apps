@@ -2,6 +2,8 @@ import type { ReactElement } from 'react';
 import React, { useState } from 'react';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { ARBITRAGE_SLOT } from './slots';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import CloseButton from '../../CloseButton';
 import { ButtonSize } from '../../buttons/common';
 
@@ -15,6 +17,7 @@ import { ButtonSize } from '../../buttons/common';
  */
 export function ArbitrageSidebarAd(): ReactElement | null {
   const [isDismissed, setIsDismissed] = useState(false);
+  const { logEvent } = useLogContext();
 
   if (isDismissed) {
     return null;
@@ -31,13 +34,18 @@ export function ArbitrageSidebarAd(): ReactElement | null {
         <CloseButton
           type="button"
           size={ButtonSize.XSmall}
-          onClick={() => setIsDismissed(true)}
+          onClick={() => {
+            setIsDismissed(true);
+            logEvent({
+              event_name: LogEvent.DismissAdsenseSlot,
+              extra: JSON.stringify({ slot: ARBITRAGE_SLOT.sidebar }),
+            });
+          }}
         />
       </div>
       <ArbitrageAdSlot
         slot={ARBITRAGE_SLOT.sidebar}
         format={ArbitrageAdFormat.SidebarCompact}
-        reach="100%"
         eager
       />
     </div>

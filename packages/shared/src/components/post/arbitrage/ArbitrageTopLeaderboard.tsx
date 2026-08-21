@@ -49,7 +49,6 @@ export function ArbitrageTopLeaderboard({
       <ArbitrageAdSlot
         slot={ARBITRAGE_SLOT.topLeaderboard}
         format={ArbitrageAdFormat.Leaderboard}
-        reach="100%"
         eager
         refreshes
       />

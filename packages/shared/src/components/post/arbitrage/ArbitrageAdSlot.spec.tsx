@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { ArbitrageAnchor } from './ArbitrageAnchor';
 import { ArbitrageSidebarAd } from './ArbitrageSidebarAd';
-import { useFeature } from '../../GrowthBookProvider';
+import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import type { ReadAdsenseSlots } from './adsense';
@@ -11,12 +11,8 @@ import { ADSENSE_CLIENT_ID } from './adsense';
 import { featurePostAdsense } from '../../../lib/featureManagement';
 import { FLOATING_LEADERBOARD_DELAY_MS, ORGANIC_SLOT } from './slots';
 
-jest.mock('../../GrowthBookProvider', () => ({
-  ...(jest.requireActual('../../GrowthBookProvider') as Record<
-    string,
-    unknown
-  >),
-  useFeature: jest.fn(),
+jest.mock('../../../hooks/useConditionalFeature', () => ({
+  useConditionalFeature: jest.fn(),
 }));
 
 jest.mock('../../../lib/constants', () => ({
@@ -40,7 +36,7 @@ const mockSlotMaps = jest.requireMock('./slots') as {
   ORGANIC_ADSENSE_SLOTS: ReadAdsenseSlots;
 };
 
-const mockUseFeature = jest.mocked(useFeature);
+const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
 
 const flags = { organic: false };
 
@@ -68,12 +64,14 @@ beforeEach(() => {
   flags.organic = false;
   mockSlotMaps.READ_ADSENSE_SLOTS = {};
   mockSlotMaps.ORGANIC_ADSENSE_SLOTS = {};
-  mockUseFeature.mockImplementation((feature) => {
-    if (feature === featurePostAdsense) {
-      return flags.organic;
-    }
-    return feature.defaultValue;
-  });
+  mockUseConditionalFeature.mockImplementation(
+    ({ feature, shouldEvaluate }) => {
+      if (feature === featurePostAdsense && shouldEvaluate) {
+        return { value: flags.organic, isLoading: false };
+      }
+      return { value: feature.defaultValue, isLoading: false };
+    },
+  );
 });
 
 describe('ArbitrageAdSlot', () => {
@@ -98,7 +96,11 @@ describe('ArbitrageAdSlot', () => {
   it('restricts a responsive unit to its format shape', () => {
     setSlots({ '3': { id: '1234567890', type: 'display' } });
     render(
-      <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.MediumRectangle} />,
+      <ArbitrageAdSlot
+        slot={3}
+        format={ArbitrageAdFormat.MediumRectangle}
+        eager
+      />,
     );
 
     // Left on `auto`, a 300px-wide slot is free to answer with a 300x600.
@@ -109,7 +111,9 @@ describe('ArbitrageAdSlot', () => {
 
   it('keeps banners horizontal so a rectangle cannot fill them', () => {
     setSlots({ '2': { id: '1234567890', type: 'display' } });
-    render(<ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} />);
+    render(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
 
     expect(screen.getByTestId('adsense-slot-2')).toHaveAttribute(
       'data-ad-format',
@@ -124,6 +128,7 @@ describe('ArbitrageAdSlot', () => {
         slot={5}
         format={ArbitrageAdFormat.Rectangle}
         hideOnPhone
+        eager
       />,
     );
 
@@ -135,7 +140,9 @@ describe('ArbitrageAdSlot', () => {
 
   it('renders a live in-article unit when the slot is configured', () => {
     setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
-    render(<ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} />);
+    render(
+      <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} eager />,
+    );
 
     const ins = screen.getByTestId('adsense-slot-3');
     expect(ins).toHaveClass('adsbygoogle');
@@ -144,6 +151,17 @@ describe('ArbitrageAdSlot', () => {
     expect(ins).toHaveAttribute('data-ad-layout', 'in-article');
     expect(ins).toHaveAttribute('data-ad-format', 'fluid');
     expect(screen.queryByTestId('arbitrage-ad-slot-3')).not.toBeInTheDocument();
+  });
+
+  it('mounts no <ins> before the slot becomes eligible', () => {
+    // adsbygoogle.push({}) binds to the first uninitialised ins in document
+    // order, not to the slot that pushed — so an ins that is not meant to be
+    // requested yet must not exist at all. The suite-wide IntersectionObserver
+    // mock never fires, which models exactly that state.
+    setSlots({ '3': { id: '1234567890', type: 'display' } });
+    render(<ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} />);
+
+    expect(screen.queryByTestId('adsense-slot-3')).not.toBeInTheDocument();
   });
 
   it('requests eager slots on mount without waiting for intersection', () => {
@@ -160,7 +178,9 @@ describe('ArbitrageAdSlot', () => {
 
   it('serves test creatives on any host but production', () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
-    render(<ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} />);
+    render(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
 
     expect(screen.getByTestId('adsense-slot-2')).toHaveAttribute(
       'data-adtest',
@@ -172,7 +192,9 @@ describe('ArbitrageAdSlot', () => {
     setSlots({
       '10': { id: '3333333333', type: 'display', width: 300, height: 600 },
     });
-    render(<ArbitrageAdSlot slot={10} format={ArbitrageAdFormat.HalfPage} />);
+    render(
+      <ArbitrageAdSlot slot={10} format={ArbitrageAdFormat.HalfPage} eager />,
+    );
 
     const ins = screen.getByTestId('adsense-slot-10');
     expect(ins).toHaveStyle({ width: '300px', height: '600px' });
@@ -207,6 +229,7 @@ describe('ArbitrageAdSlot on the organic surface', () => {
         surface="organic"
         slot={ORGANIC_SLOT.topLeaderboard}
         format={ArbitrageAdFormat.Leaderboard}
+        eager
       />,
     );
 

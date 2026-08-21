@@ -6,6 +6,9 @@ import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { isDevelopment } from '../../../lib/constants';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { useReadAdsenseSlots } from './useReadAdsenseSlots';
+import { hasLiveAdsenseUnits } from './adsense';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import { useDelayedReveal } from './useDelayedReveal';
 import { ARBITRAGE_SLOT, FLOATING_LEADERBOARD_DELAY_MS } from './slots';
 import {
@@ -97,7 +100,6 @@ function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
         <ArbitrageAdSlot
           slot={ARBITRAGE_SLOT.floatingLeaderboard}
           format={ArbitrageAdFormat.Anchor}
-          reach="100%"
           refreshes
           eager
           className="bg-background-default/95 pointer-events-auto shadow-2 backdrop-blur"
@@ -125,7 +127,8 @@ function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
 export function ArbitrageAnchor(): ReactElement | null {
   const slots = useReadAdsenseSlots();
   const [dismissed, setDismissed] = useState(false);
-  const isLive = Object.keys(slots).length > 0;
+  const { logEvent } = useLogContext();
+  const isLive = hasLiveAdsenseUnits(slots);
   const isConfigured = !!slots[String(ARBITRAGE_SLOT.floatingLeaderboard)]?.id;
   const revealed = useDelayedReveal(FLOATING_LEADERBOARD_DELAY_MS);
 
@@ -144,6 +147,20 @@ export function ArbitrageAnchor(): ReactElement | null {
   }
 
   return (
-    <AnchorBar onDismiss={isLive ? () => setDismissed(true) : undefined} />
+    <AnchorBar
+      onDismiss={
+        isLive
+          ? () => {
+              setDismissed(true);
+              logEvent({
+                event_name: LogEvent.DismissAdsenseSlot,
+                extra: JSON.stringify({
+                  slot: ARBITRAGE_SLOT.floatingLeaderboard,
+                }),
+              });
+            }
+          : undefined
+      }
+    />
   );
 }

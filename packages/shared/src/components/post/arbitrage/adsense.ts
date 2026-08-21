@@ -37,6 +37,15 @@ export type AdsenseSlotConfig = {
  */
 export type ReadAdsenseSlots = Record<string, AdsenseSlotConfig>;
 
+/**
+ * Whether a slot map has anything to serve. Key presence is not enough: units
+ * that are not yet created in AdSense sit in the map with an empty id, and a
+ * page must not load adsbygoogle.js — script, preconnects and third-party
+ * surface — for inventory that cannot fill.
+ */
+export const hasLiveAdsenseUnits = (slots: ReadAdsenseSlots): boolean =>
+  Object.values(slots).some((slot) => !!slot.id);
+
 declare global {
   interface Window {
     adsbygoogle?: Record<string, unknown>[];

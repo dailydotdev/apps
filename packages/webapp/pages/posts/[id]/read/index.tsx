@@ -24,7 +24,11 @@ import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoa
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { ArbitragePostContent } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitragePostContent';
 import { ArbitrageAnchor } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAnchor';
-import { ADSENSE_SCRIPT_SRC } from '@dailydotdev/shared/src/components/post/arbitrage/adsense';
+import { ArbitrageSidebarAd } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageSidebarAd';
+import {
+  ADSENSE_SCRIPT_SRC,
+  hasLiveAdsenseUnits,
+} from '@dailydotdev/shared/src/components/post/arbitrage/adsense';
 import { useReadAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
 import { AdsenseHeadHints } from '../../../../components/AdsenseHeadHints';
 import { getLayout } from '../../../../components/layouts/MainLayout';
@@ -70,7 +74,7 @@ const ArbitragePostPage = ({
 }: ArbitragePostPageProps): ReactElement => {
   const router = useRouter();
   const adsenseSlots = useReadAdsenseSlots();
-  const adsLive = Object.keys(adsenseSlots).length > 0;
+  const adsLive = hasLiveAdsenseUnits(adsenseSlots);
   const { post, isError, isLoading } = usePostById({
     id,
     options: { initialData, retry: false },
@@ -85,8 +89,14 @@ const ArbitragePostPage = ({
     if (!adsLive) {
       return undefined;
     }
-    const forceHardNavigation = (url: string): void => {
-      if (/^\/posts\/[^/]+\/read(?:[/?#]|$)/.test(url)) {
+    const forceHardNavigation = (
+      url: string,
+      { shallow }: { shallow: boolean },
+    ): void => {
+      // Shallow same-page updates (comment permalinks, URL-masking modals,
+      // query tweaks) never unload anything — only a genuine departure from
+      // /read has ads to tear down.
+      if (shallow || /^\/posts\/[^/]+\/read(?:[/?#]|$)/.test(url)) {
         return;
       }
       router.events.emit('routeChangeError');
@@ -149,6 +159,9 @@ ArbitragePostPage.layoutProps = {
   screenCentered: false,
   expandSidebar: true,
   hideFeedbackWidget: true,
+  // The sidebar unit rides in from here rather than living in the shared nav:
+  // the nav is also the extension's, where AdSense is prohibited.
+  sidebarTrailing: <ArbitrageSidebarAd />,
   // No customBanner on purpose: that is what mounts CustomAuthBanner.
 };
 

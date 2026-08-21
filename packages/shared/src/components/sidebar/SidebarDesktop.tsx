@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
@@ -14,7 +14,6 @@ import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
 import { HelpWidget } from '../help/HelpWidget';
-import { ArbitrageSidebarAd } from '../post/arbitrage/ArbitrageSidebarAd';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -26,6 +25,8 @@ type SidebarDesktopProps = {
   onNavTabClick?: (tab: string) => void;
   /** Ignores the stored collapse preference — see MainLayoutProps.expandSidebar. */
   forceExpanded?: boolean;
+  /** Rendered pinned below the navigation — see MainLayoutProps.sidebarTrailing. */
+  trailing?: ReactNode;
 };
 export const SidebarDesktop = ({
   activePage: activePageProp,
@@ -33,6 +34,7 @@ export const SidebarDesktop = ({
   isNavButtons,
   onNavTabClick,
   forceExpanded,
+  trailing,
 }: SidebarDesktopProps): ReactElement => {
   const router = useRouter();
   const { sidebarExpanded: storedExpanded } = useSettingsContext();
@@ -118,7 +120,7 @@ export const SidebarDesktop = ({
         </Nav>
       </SidebarScrollWrapper>
 
-      {forceExpanded && <ArbitrageSidebarAd />}
+      {trailing}
 
       {/* Help guide — pinned to sidebar bottom (renders only when a marketingCTA is targeted) */}
       <HelpWidget sidebarExpanded={sidebarExpanded} />

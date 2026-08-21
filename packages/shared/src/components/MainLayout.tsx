@@ -89,6 +89,12 @@ export interface MainLayoutProps
    * preference defaults to collapsed and anonymous visitors never change it.
    */
   expandSidebar?: boolean;
+  /**
+   * Rendered pinned below the desktop sidebar's navigation. The nav is shared
+   * with the extension, so what fills this space — the ad template's sidebar
+   * unit — is decided by the page that owns the policy, never by the nav.
+   */
+  sidebarTrailing?: ReactNode;
 }
 
 export const feeds = Object.values(SharedFeedPage);
@@ -108,6 +114,7 @@ function MainLayoutComponent({
   hideFeedbackWidget = false,
   topBanner,
   expandSidebar = false,
+  sidebarTrailing,
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -402,6 +409,7 @@ function MainLayoutComponent({
             onLogoClick={onLogoClick}
             activePage={activePage ?? router.asPath ?? router.pathname}
             forceExpanded={expandSidebar}
+            trailing={sidebarTrailing}
           />
         )}
         {sidebarOwnsHeader ? (
