@@ -51,7 +51,6 @@ const RAIL_AD: Record<
   {
     slot: number;
     format: ArbitrageAdFormat;
-    reach: string;
     className?: string;
     hideOnPhone?: boolean;
   }
@@ -59,27 +58,22 @@ const RAIL_AD: Record<
   [PostWidgetPosition.Source]: {
     slot: ARBITRAGE_SLOT.railAfterSource,
     format: ArbitrageAdFormat.MediumRectangle,
-    reach: '70%',
   },
   [PostWidgetPosition.Creator]: {
     slot: ARBITRAGE_SLOT.railAfterCreator,
     format: ArbitrageAdFormat.MediumRectangle,
-    reach: '60%',
   },
   [PostWidgetPosition.Share]: {
     slot: ARBITRAGE_SLOT.railAfterShare,
     format: ArbitrageAdFormat.MediumRectangle,
-    reach: '50%',
   },
   [PostWidgetPosition.Highlights]: {
     slot: ARBITRAGE_SLOT.railAfterHighlights,
     format: ArbitrageAdFormat.MediumRectangle,
-    reach: '45%',
   },
   [PostWidgetPosition.SimilarPosts]: {
     slot: ARBITRAGE_SLOT.railBetweenFurtherReading,
     format: ArbitrageAdFormat.MediumRectangle,
-    reach: '40%',
   },
 };
 
@@ -246,7 +240,6 @@ export function ArbitragePostContent({
           <ArbitrageAdSlot
             slot={ARBITRAGE_SLOT.inlineMpu1}
             format={ArbitrageAdFormat.Rectangle}
-            reach="75%"
             refreshes
             className="laptop:order-last"
           />
@@ -320,7 +313,6 @@ export function ArbitragePostContent({
             <ArbitrageAdSlot
               slot={ARBITRAGE_SLOT.commentNative}
               format={ArbitrageAdFormat.Native}
-              reach="30%"
             />
           )}
         />
@@ -339,14 +331,12 @@ export function ArbitragePostContent({
           <ArbitrageAdSlot
             slot={ARBITRAGE_SLOT.endOfArticleGrid}
             format={ArbitrageAdFormat.Grid}
-            reach="20%"
           />
           {/* Laptop only: below it the same unit closes the stacked rail
               instead, so it is on the page exactly once at every width. */}
           <ArbitrageAdSlot
             slot={ARBITRAGE_SLOT.endOfArticleGridSecondary}
             format={ArbitrageAdFormat.Grid}
-            reach="12%"
             className="hidden laptop:block"
           />
         </div>
@@ -371,7 +361,6 @@ export function ArbitragePostContent({
             <ArbitrageAdSlot
               slot={ARBITRAGE_SLOT.railStickyHalfPage}
               format={ArbitrageAdFormat.HalfPage}
-              reach="100%"
               // Same header offset the top leaderboard uses, plus a gap,
               // rather than a hardcoded 5rem: under the v2 sidebar there is no
               // fixed header to clear and the unit would pin into empty space.
@@ -380,7 +369,6 @@ export function ArbitragePostContent({
             <ArbitrageAdSlot
               slot={ARBITRAGE_SLOT.endOfArticleGridSecondary}
               format={ArbitrageAdFormat.Grid}
-              reach="35%"
               className="laptop:hidden"
             />
           </>
@@ -392,7 +380,6 @@ export function ArbitragePostContent({
             <ArbitrageAdSlot
               slot={spec.slot}
               format={spec.format}
-              reach={spec.reach}
               className={spec.className}
               hideOnPhone={spec.hideOnPhone}
             />

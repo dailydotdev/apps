@@ -33,8 +33,13 @@ export default function FurtherReading({
   hideToc = false,
   betweenSections,
 }: FurtherReadingProps): ReactElement {
-  const isPublicSquad =
-    !!currentPost.source && isSourcePublicSquad(currentPost.source);
+  // Narrowed once here rather than optional-chained below: a post without a
+  // source must take the generic branch, never render "More posts from
+  // undefined" or query with the source filter silently dropped.
+  const publicSquad =
+    currentPost.source && isSourcePublicSquad(currentPost.source)
+      ? currentPost.source
+      : undefined;
   const postId = currentPost.id;
   const { tags } = currentPost;
   const queryKey = ['furtherReading', postId];
@@ -43,15 +48,13 @@ export default function FurtherReading({
   const { data: posts, isLoading } = useQuery<FurtherReadingData>({
     queryKey,
     queryFn: async () => {
-      const squad = currentPost.source;
-
-      if (isPublicSquad) {
+      if (publicSquad) {
         const squadPostsResult = await gqlClient.request<FeedData>(
           SOURCE_FEED_QUERY,
           {
             first: max,
             loggedIn: isLoggedIn,
-            source: squad?.id,
+            source: publicSquad.id,
             ranking: 'TIME',
             supportedTypes: [
               PostType.Article,
@@ -103,14 +106,16 @@ export default function FurtherReading({
 
   const showToc = !hideToc && (currentPost.toc?.length ?? 0) > 0;
 
-  const publicSquadProps: Partial<SimilarPostsProps> = {
-    title: `More posts from ${currentPost.source?.name}`,
-    moreButtonProps: {
-      href: currentPost.source?.permalink,
-      text: 'Show more',
-    },
-    ListItem: SquadPostListItem,
-  };
+  const publicSquadProps: Partial<SimilarPostsProps> | undefined = publicSquad
+    ? {
+        title: `More posts from ${publicSquad.name}`,
+        moreButtonProps: {
+          href: publicSquad.permalink,
+          text: 'Show more',
+        },
+        ListItem: SquadPostListItem,
+      }
+    : undefined;
 
   return (
     <div className={classNames(className, 'flex flex-col gap-2')}>
@@ -119,7 +124,7 @@ export default function FurtherReading({
         <SimilarPosts
           posts={similarPosts}
           isLoading={isLoading}
-          {...(isPublicSquad && publicSquadProps)}
+          {...publicSquadProps}
         />
       )}
       {betweenSections}

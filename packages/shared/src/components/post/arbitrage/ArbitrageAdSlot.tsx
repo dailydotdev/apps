@@ -2,12 +2,14 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { isDevelopment, webappUrl } from '../../../lib/constants';
+import { useLogContext } from '../../../contexts/LogContext';
+import { LogEvent } from '../../../lib/log';
 import {
   useOrganicAdsenseSlots,
   useReadAdsenseSlots,
 } from './useReadAdsenseSlots';
-import type { AdsenseSlotConfig } from './adsense';
-import { ADSENSE_CLIENT_ID } from './adsense';
+import type { AdsenseSlotConfig, ReadAdsenseSlots } from './adsense';
+import { ADSENSE_CLIENT_ID, hasLiveAdsenseUnits } from './adsense';
 
 /** How long a slot gets to render a creative before it counts as empty. */
 const FILL_GRACE_MS = 4_000;
@@ -29,7 +31,6 @@ export enum ArbitrageAdFormat {
 type FormatSpec = {
   label: string;
   size: string;
-  cpm: string;
   minHeight: string;
   /**
    * Caps the slot at its standard IAB width so every creative in a given
@@ -59,7 +60,6 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
   [ArbitrageAdFormat.Leaderboard]: {
     label: 'Leaderboard',
     size: '728x90 · 320x100 mobile',
-    cpm: '$2.50',
     minHeight: 'min-h-[100px] tablet:min-h-[90px]',
     maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
     shape: 'horizontal',
@@ -70,7 +70,6 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
   [ArbitrageAdFormat.MediumRectangle]: {
     label: 'Medium rectangle',
     size: '300x250',
-    cpm: '$3.00',
     minHeight: 'min-h-[250px]',
     maxWidth: 'max-w-[300px]',
     shape: 'rectangle',
@@ -80,7 +79,6 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
   [ArbitrageAdFormat.Rectangle]: {
     label: 'In-content',
     size: '336x280 · 300x250 mobile',
-    cpm: '$3.00',
     minHeight: 'min-h-[250px] tablet:min-h-[180px]',
     maxWidth: 'max-w-[300px] tablet:max-w-[336px]',
     shape: 'rectangle',
@@ -88,7 +86,6 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
   [ArbitrageAdFormat.HalfPage]: {
     label: 'Sticky rail',
     size: '300x600',
-    cpm: '$4.00',
     minHeight: 'min-h-[320px]',
     maxWidth: 'max-w-[300px]',
     shape: 'vertical',
@@ -101,14 +98,12 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
   [ArbitrageAdFormat.SidebarCompact]: {
     label: 'Sidebar compact',
     size: '200x200 · 180x150',
-    cpm: '$1.50',
     minHeight: 'min-h-[150px]',
     shape: 'rectangle',
   },
   [ArbitrageAdFormat.Native]: {
     label: 'Native',
     size: 'fluid',
-    cpm: '$3.00',
     minHeight: 'min-h-[96px]',
   },
   // AdSense's multiplex unit: one request that returns a responsive grid of
@@ -119,7 +114,6 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
   [ArbitrageAdFormat.Grid]: {
     label: 'Multiplex grid',
     size: 'responsive grid',
-    cpm: '$2.00',
     minHeight: 'min-h-[320px]',
   },
   // Leaderboard on desktop, mobile phone banner on a phone. The shortest
@@ -128,7 +122,6 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
   [ArbitrageAdFormat.Anchor]: {
     label: 'Anchor',
     size: '728x90 · 320x50 mobile',
-    cpm: '$2.00',
     minHeight: 'min-h-[50px] tablet:min-h-[90px]',
     maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
     shape: 'horizontal',
@@ -139,8 +132,6 @@ export interface ArbitrageAdSlotProps {
   slot: number;
   format: ArbitrageAdFormat;
   className?: string;
-  /** Share of visitors expected to scroll far enough for this slot to bill. */
-  reach?: string;
   /** Marks slots wired to a declared 30-60s in-view refresh once on Ad Manager. */
   refreshes?: boolean;
   /**
@@ -236,24 +227,59 @@ function LiveAdSlot({
 > & {
   config: AdsenseSlotConfig;
 }): ReactElement {
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const insRef = useRef<HTMLModElement>(null);
+  const [isRequested, setIsRequested] = useState(eager ?? false);
   const [isEmpty, setIsEmpty] = useState(false);
+  const { logEvent } = useLogContext();
+  const hasLoggedFill = useRef(false);
 
-  // One effect for the request and the collapse, because they share a clock:
-  // the fill grace runs from the moment the ad is *requested*, never from
-  // mount. A lazy slot far down the page is not empty, it is unasked — grace
-  // from mount collapsed every below-the-fold slot to display:none before it
-  // could intersect, and a slot that cannot intersect never requests, so it
-  // stayed gone.
-  //
-  // Collapsing matters because AdSense only stamps data-ad-status="unfilled"
-  // when it says no; a slot that answers with a zero-height creative — or
-  // never answers, because a blocker ate the script — keeps its reserved
-  // min-height as a band of empty page. The observers stay attached so a
-  // genuinely slow fill reopens a collapsed slot.
+  // The <ins> below only mounts once the slot is eligible, because
+  // adsbygoogle.push({}) does not bind to a specific element: the tag
+  // processes the first uninitialised ins.adsbygoogle in document order. With
+  // every ins mounted up front and per-slot pushes firing in intersection
+  // order, a push from a slot low on the page initialises an earlier,
+  // never-pushed slot instead — wrong placement gets the request, the
+  // triggering slot stays unprocessed and collapses as empty. Mounting the
+  // ins at eligibility keeps the invariant that every uninitialised ins in
+  // the document is one that should be processed right now, which makes the
+  // pushes interchangeable. The wrapper keeps the format's min-height, so the
+  // page reserves the same space either way.
+  useEffect(() => {
+    const element = wrapperRef.current;
+    if (eager || !element) {
+      return undefined;
+    }
+
+    // Request the ad only near the viewport: viewability drives AdSense CPMs,
+    // and never-seen impressions depress the whole page's pricing. The margin
+    // is roughly a viewport of scroll — enough for the auction round-trip to
+    // finish before the slot scrolls into view at reading speed. Eager slots
+    // are visible at first paint, where the wait only adds latency.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) {
+          return;
+        }
+        observer.disconnect();
+        setIsRequested(true);
+      },
+      { rootMargin: '600px' },
+    );
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [eager]);
+
+  // Fires once the ins exists: stamps the test attribute, pushes the request
+  // and starts the fill clock. Collapsing matters because AdSense only stamps
+  // data-ad-status="unfilled" when it says no — a slot that answers with a
+  // zero-height creative, or never answers because a blocker ate the script,
+  // keeps its reserved min-height as a band of empty page. The observers stay
+  // attached so a genuinely slow fill reopens a collapsed slot.
   useEffect(() => {
     const element = insRef.current;
-    if (!element) {
+    if (!isRequested || !element) {
       return undefined;
     }
 
@@ -271,8 +297,6 @@ function LiveAdSlot({
     }
 
     let graceElapsed = false;
-    let graceTimer: ReturnType<typeof globalThis.setTimeout> | undefined;
-
     const evaluate = (): void => {
       if (!graceElapsed) {
         return;
@@ -285,20 +309,18 @@ function LiveAdSlot({
       // signal that works at any size.
       const hasCreative = !!element.querySelector('iframe');
       const { height } = element.getBoundingClientRect();
-      setIsEmpty(isUnfilled || !hasCreative || height < FILLED_MIN_HEIGHT_PX);
-    };
-
-    const requestAd = (): void => {
-      try {
-        window.adsbygoogle = window.adsbygoogle || [];
-        window.adsbygoogle.push({});
-      } catch {
-        // adsbygoogle.js blocked (ad blocker) — leave the reserved box empty.
+      const filled =
+        !isUnfilled && hasCreative && height >= FILLED_MIN_HEIGHT_PX;
+      setIsEmpty(!filled);
+      // First-party per-placement fill signal: several placements share an
+      // AdSense unit id for now, so AdSense's own reporting blends them.
+      if (filled && !hasLoggedFill.current) {
+        hasLoggedFill.current = true;
+        logEvent({
+          event_name: LogEvent.FillAdsenseSlot,
+          extra: JSON.stringify({ slot, unit: config.id, format }),
+        });
       }
-      graceTimer = globalThis.setTimeout(() => {
-        graceElapsed = true;
-        evaluate();
-      }, FILL_GRACE_MS);
     };
 
     const resizeObserver = new ResizeObserver(evaluate);
@@ -313,39 +335,23 @@ function LiveAdSlot({
       childList: true,
     });
 
-    // Request the ad only near the viewport: viewability drives AdSense CPMs,
-    // and never-seen impressions depress the whole page's pricing. The margin
-    // is roughly a viewport of scroll — enough for the auction round-trip to
-    // finish before the slot scrolls into view at reading speed. Eager slots
-    // are visible at first paint, where the wait only adds latency.
-    let pushed = false;
-    let intersectionObserver: IntersectionObserver | undefined;
-    if (eager) {
-      requestAd();
-    } else {
-      intersectionObserver = new IntersectionObserver(
-        (entries) => {
-          if (pushed || !entries.some((entry) => entry.isIntersecting)) {
-            return;
-          }
-          pushed = true;
-          intersectionObserver?.disconnect();
-          requestAd();
-        },
-        { rootMargin: '600px' },
-      );
-      intersectionObserver.observe(element);
+    try {
+      window.adsbygoogle = window.adsbygoogle || [];
+      window.adsbygoogle.push({});
+    } catch {
+      // adsbygoogle.js blocked (ad blocker) — leave the reserved box empty.
     }
+    const graceTimer = globalThis.setTimeout(() => {
+      graceElapsed = true;
+      evaluate();
+    }, FILL_GRACE_MS);
 
     return () => {
       resizeObserver.disconnect();
       mutationObserver.disconnect();
-      intersectionObserver?.disconnect();
-      if (graceTimer) {
-        globalThis.clearTimeout(graceTimer);
-      }
+      globalThis.clearTimeout(graceTimer);
     };
-  }, [eager]);
+  }, [isRequested, logEvent, slot, config.id, format]);
 
   return (
     // rounded-16 + overflow-hidden matches the feed Card so a filled slot reads
@@ -354,6 +360,7 @@ function LiveAdSlot({
     // creative that grows pushes the container taller instead of being clipped.
     // min-h only reserves the request-time height against layout shift.
     <div
+      ref={wrapperRef}
       className={classNames(
         // `isolate` forces a stacking context: without one, WebKit paints the
         // ad's iframe on its own compositing layer that escapes the rounded
@@ -374,17 +381,19 @@ function LiveAdSlot({
         className,
       )}
     >
-      <ins
-        ref={insRef}
-        // The radius is repeated on the <ins> because that is the closest
-        // ancestor of the injected iframe — clipping only at the wrapper leaves
-        // the creative's own corners square inside it.
-        className="adsbygoogle overflow-hidden rounded-16"
-        data-testid={`adsense-slot-${slot}`}
-        data-ad-client={ADSENSE_CLIENT_ID}
-        data-ad-slot={config.id}
-        {...getInsAttributes(config, FORMAT_SPEC[format].shape)}
-      />
+      {isRequested && (
+        <ins
+          ref={insRef}
+          // The radius is repeated on the <ins> because that is the closest
+          // ancestor of the injected iframe — clipping only at the wrapper
+          // leaves the creative's own corners square inside it.
+          className="adsbygoogle overflow-hidden rounded-16"
+          data-testid={`adsense-slot-${slot}`}
+          data-ad-client={ADSENSE_CLIENT_ID}
+          data-ad-slot={config.id}
+          {...getInsAttributes(config, FORMAT_SPEC[format].shape)}
+        />
+      )}
     </div>
   );
 }
@@ -396,20 +405,20 @@ function LiveAdSlot({
  * dashed density-review placeholder only ever appears in local development
  * builds of the /read template.
  */
-export function ArbitrageAdSlot({
+function MappedAdSlot({
   slot,
   format,
   className,
-  reach,
   refreshes,
   hideOnPhone,
-  surface = 'read',
   eager,
-}: ArbitrageAdSlotProps): ReactElement | null {
-  const readSlots = useReadAdsenseSlots();
-  const organicSlots = useOrganicAdsenseSlots();
-  const slots = surface === 'organic' ? organicSlots : readSlots;
-  const isLive = Object.keys(slots).length > 0;
+  slots,
+  allowPlaceholder = false,
+}: ArbitrageAdSlotProps & {
+  slots: ReadAdsenseSlots;
+  allowPlaceholder?: boolean;
+}): ReactElement | null {
+  const isLive = hasLiveAdsenseUnits(slots);
   const config = slots[String(slot)];
 
   if (isLive) {
@@ -428,7 +437,7 @@ export function ArbitrageAdSlot({
     );
   }
 
-  if (!isDevelopment || surface !== 'read') {
+  if (!isDevelopment || !allowPlaceholder) {
     return null;
   }
 
@@ -451,22 +460,41 @@ export function ArbitrageAdSlot({
         {slot}
       </span>
       <span className="absolute right-3 top-2 rounded-6 bg-background-default px-2 py-0.5 text-text-quaternary typo-caption2">
-        {spec.size} · {spec.cpm}
+        {spec.size}
         {refreshes ? ' · refreshes' : ''}
       </span>
-      <div className="flex flex-col items-center gap-1 text-center">
-        <span className="font-bold text-text-tertiary typo-footnote">
-          {spec.label}
-        </span>
-        {!!reach && (
-          <span className="text-text-quaternary typo-caption1">
-            seen by {reach} of visitors
-          </span>
-        )}
-      </div>
+      <span className="font-bold text-text-tertiary typo-footnote">
+        {spec.label}
+      </span>
       <span className="absolute bottom-1 right-2 text-text-quaternary typo-caption2">
         Ad
       </span>
     </div>
   );
+}
+
+function ReadArbitrageAdSlot(props: ArbitrageAdSlotProps): ReactElement | null {
+  const slots = useReadAdsenseSlots();
+  return <MappedAdSlot {...props} slots={slots} allowPlaceholder />;
+}
+
+function OrganicArbitrageAdSlot(
+  props: ArbitrageAdSlotProps,
+): ReactElement | null {
+  const slots = useOrganicAdsenseSlots();
+  return <MappedAdSlot {...props} slots={slots} />;
+}
+
+export function ArbitrageAdSlot({
+  surface = 'read',
+  ...props
+}: ArbitrageAdSlotProps): ReactElement | null {
+  // Split by surface so each branch evaluates only its own slot source: the
+  // organic hook conditionally evaluates the post_adsense flag, and a /read
+  // page calling it would enroll every visitor in an experiment that does not
+  // govern that route.
+  if (surface === 'organic') {
+    return <OrganicArbitrageAdSlot {...props} />;
+  }
+  return <ReadArbitrageAdSlot {...props} />;
 }

@@ -7,7 +7,10 @@ import {
   ArbitrageAdFormat,
   ArbitrageAdSlot,
 } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAdSlot';
-import { ADSENSE_SCRIPT_SRC } from '@dailydotdev/shared/src/components/post/arbitrage/adsense';
+import {
+  ADSENSE_SCRIPT_SRC,
+  hasLiveAdsenseUnits,
+} from '@dailydotdev/shared/src/components/post/arbitrage/adsense';
 import { ORGANIC_SLOT } from '@dailydotdev/shared/src/components/post/arbitrage/slots';
 import { useOrganicAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
 import type {
@@ -205,10 +208,13 @@ export const PostPage = ({
   const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
   const showRedesign =
     isRedesignEligible && !requiresClassicLayout && isRedesignFlagOn;
-  // Empty for Plus members and while post_adsense is off; the slot components
-  // check the same hook, so with it empty neither markup nor script exists.
+  // Empty for every logged-in visitor and while post_adsense is off; the slot
+  // components check the same hook, so with it empty neither markup nor script
+  // exists. Gated on a unit id being present, not key presence — the map keeps
+  // placeholder entries with empty ids, and the script must not load for
+  // inventory that cannot fill.
   const adsenseSlots = useOrganicAdsenseSlots();
-  const adsenseActive = Object.keys(adsenseSlots).length > 0;
+  const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
