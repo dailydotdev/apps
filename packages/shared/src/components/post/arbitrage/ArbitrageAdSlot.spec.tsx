@@ -202,6 +202,9 @@ describe('ArbitrageAdSlot', () => {
     );
 
     const ins = screen.getByTestId('adsense-slot-2');
+    // The tag stamps this once it has handled the element; without it the
+    // slot is still waiting on its request and must not collapse.
+    ins.setAttribute('data-adsbygoogle-status', 'done');
     act(() => {
       jest.advanceTimersByTime(FILL_GRACE_MS);
     });
@@ -212,6 +215,24 @@ describe('ArbitrageAdSlot', () => {
     ins.appendChild(document.createElement('iframe'));
     await act(async () => {
       await Promise.resolve();
+    });
+
+    expect(ins.parentElement).not.toHaveClass('!hidden');
+    jest.useRealTimers();
+  });
+
+  it('keeps a slot the tag has not handled yet out of the collapse', async () => {
+    // A slow auction looked identical to a declined ad: the slot collapsed
+    // mid-request, and Google will not render into a display:none element.
+    jest.useFakeTimers();
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    render(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    const ins = screen.getByTestId('adsense-slot-2');
+    act(() => {
+      jest.advanceTimersByTime(FILL_GRACE_MS);
     });
 
     expect(ins.parentElement).not.toHaveClass('!hidden');

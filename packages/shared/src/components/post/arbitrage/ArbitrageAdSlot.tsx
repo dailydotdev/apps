@@ -11,8 +11,17 @@ import {
 import type { AdsenseSlotConfig, ReadAdsenseSlots } from './adsense';
 import { ADSENSE_CLIENT_ID, hasLiveAdsenseUnits } from './adsense';
 
-/** How long a slot gets to render a creative before it counts as empty. */
+/** How long a *processed* slot gets to show a creative before it counts as empty. */
 export const FILL_GRACE_MS = 4_000;
+
+/**
+ * How long a slot that AdSense never touched at all gets before it counts as
+ * empty. Far longer than the fill grace: an untouched slot usually means a
+ * blocked or still-loading script, not a declined ad, and collapsing it early
+ * is unrecoverable — Google does not render into a display:none element, so a
+ * slot hidden before it was ever processed stays empty for the session.
+ */
+const UNPROCESSED_GRACE_MS = 15_000;
 
 /** Anything shorter than this is a blank creative, not an ad. */
 const FILLED_MIN_HEIGHT_PX = 20;
@@ -319,6 +328,7 @@ function LiveAdSlot({
     }
 
     let graceElapsed = false;
+    let unprocessedGraceElapsed = false;
     const evaluate = (): void => {
       const isUnfilled = element.getAttribute('data-ad-status') === 'unfilled';
       // A slot booked at a fixed size measures its booked height whether or
@@ -348,6 +358,17 @@ function LiveAdSlot({
       if (!graceElapsed) {
         return;
       }
+      // `done` is what the tag stamps once it has actually handled this
+      // element. Without checking it, a slow auction looked identical to a
+      // declined one and the slot collapsed while its request was still in
+      // flight — after which Google had a display:none element to render
+      // into and never came back. An untouched slot keeps its reserved box
+      // until the much longer unprocessed grace.
+      const isProcessed =
+        element.getAttribute('data-adsbygoogle-status') === 'done';
+      if (!isProcessed && !unprocessedGraceElapsed) {
+        return;
+      }
       setIsEmpty(!filled);
       // First-party per-placement fill signal: several placements share an
       // AdSense unit id for now, so AdSense's own reporting blends them.
@@ -368,7 +389,7 @@ function LiveAdSlot({
     const mutationObserver = new MutationObserver(evaluate);
     mutationObserver.observe(element, {
       attributes: true,
-      attributeFilter: ['data-ad-status'],
+      attributeFilter: ['data-ad-status', 'data-adsbygoogle-status'],
       childList: true,
     });
 
@@ -387,11 +408,16 @@ function LiveAdSlot({
       graceElapsed = true;
       evaluate();
     }, FILL_GRACE_MS);
+    const unprocessedTimer = globalThis.setTimeout(() => {
+      unprocessedGraceElapsed = true;
+      evaluate();
+    }, UNPROCESSED_GRACE_MS);
 
     return () => {
       resizeObserver.disconnect();
       mutationObserver.disconnect();
       globalThis.clearTimeout(graceTimer);
+      globalThis.clearTimeout(unprocessedTimer);
     };
   }, [isRequested, logEvent, slot, config.id, format]);
 
