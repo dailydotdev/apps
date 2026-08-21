@@ -73,14 +73,14 @@ export const READ_ADSENSE_SLOTS: ReadAdsenseSlots = {
     height: 200,
   },
   [ARBITRAGE_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
-  // TODO(chris): recreate as a Display 300x250 unit. The live one is
-  // in-article, so it is fluid and takes whatever height the creative wants.
-  [ARBITRAGE_SLOT.inlineMpu1]: {
-    id: '9651332107',
-    type: 'display',
-    width: 300,
-    height: 250,
-  },
+  // read_s03 (9651332107) is an in-article unit, so it is fluid: it ignored
+  // both the shape and an explicit 300x250 on the <ins> and kept answering the
+  // placement beside the cover with a card twice the cover's height. Pointing
+  // it at a responsive Display unit is what actually binds the shape — at the
+  // cost of blending its reporting with the rail unit it borrows.
+  // TODO(chris): create a dedicated read_s03 Display unit and swap the id back
+  // to get per-placement RPM.
+  [ARBITRAGE_SLOT.inlineMpu1]: { id: '6921226982', type: 'display' },
   // TODO(chris): create the three new rail units (suggested names
   // read_s04_rail_creator, read_s05_rail_share, read_s06_rail_highlights) as
   // Display 300x250. They stay collapsed until their ids are filled in.
