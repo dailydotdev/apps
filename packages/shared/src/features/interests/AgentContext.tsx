@@ -27,7 +27,7 @@ import { interestHistoryQueryOptions } from './queries';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import type { Post } from '../../graphql/posts';
 import type { AgentAttachment, AgentBlock, AgentMessage } from './chat';
-import { promptWithContext } from './chat';
+import { promptWithContext, restoreCommandText } from './chat';
 import type { AgentFeedItem } from './hooks/useAgentFeed';
 
 export type AgentSummaryPost = Pick<
@@ -188,13 +188,11 @@ const turnsToMessages = ({
   turns,
   postsById,
   allPosts,
-  summaryPostsById,
   interest,
 }: {
   turns: InterestTurn[];
   postsById: Map<string, Post>;
   allPosts: Post[];
-  summaryPostsById: Map<string, AgentSummaryPost>;
   interest?: UserInterest;
 }): AgentMessage[] => {
   const feedbackTextById = new Map(
@@ -210,6 +208,7 @@ const turnsToMessages = ({
         role: 'user',
         at: turn.createdAt,
         text: turn.text ?? '',
+        relationships: turn.relationships,
       });
       return acc;
     }
@@ -242,10 +241,6 @@ const turnsToMessages = ({
       isError,
       retryText,
       blocks: isPending || isError ? undefined : blocks,
-      summaryPost:
-        !isPending && !isError && turn.summaryPostId
-          ? summaryPostsById.get(turn.summaryPostId)
-          : undefined,
     });
     return acc;
   }, []);
@@ -264,7 +259,7 @@ const echoResolved = (echo: CommandEcho, turns: InterestTurn[]): boolean =>
   turns.some(
     (turn) =>
       turn.role === 'user' &&
-      turn.text === echo.prompt &&
+      restoreCommandText(turn) === echo.prompt &&
       new Date(turn.createdAt).getTime() >= echo.sentAt - echoMatchWindowMs,
   );
 
@@ -352,11 +347,6 @@ export const AgentProvider = ({
     return { postsById: byId, allPosts: findings.map(({ post }) => post) };
   }, [findings]);
 
-  const summaryPostsById = useMemo(
-    () => new Map(posts.map((post) => [post.id, post])),
-    [posts],
-  );
-
   const unresolvedEchoes = useMemo(
     () => echoes.filter((echo) => !echoResolved(echo, turns)),
     [echoes, turns],
@@ -398,7 +388,6 @@ export const AgentProvider = ({
         turns,
         postsById,
         allPosts,
-        summaryPostsById,
         interest,
       }),
       ...echoed,
@@ -409,7 +398,6 @@ export const AgentProvider = ({
     interest,
     isDemo,
     postsById,
-    summaryPostsById,
     turns,
     unresolvedEchoes,
   ]);

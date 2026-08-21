@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React, { useEffect, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Markdown from '../../../components/Markdown';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
@@ -18,7 +18,6 @@ import {
   BulletListIcon,
   CopyIcon,
   DownvoteIcon,
-  FeatherIcon,
   ShareIcon,
   MiniCloseIcon,
   TimerIcon,
@@ -32,6 +31,8 @@ import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
 import type { AgentBlock, AgentMessage } from '../chat';
+import { FEEDBACK_MARKER_REGEX } from '../chat';
+import { webappUrl } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
 import { transcriptProse } from '../prose';
 import { messageAsMarkdown, messageAsText } from '../replyText';
@@ -44,19 +45,46 @@ import { AgentThinkingStrip } from './AgentThinkingStrip';
 import { AgentPostCard } from './AgentPostCard';
 import { AgentEmbedCard } from './blocks/AgentEmbedCard';
 
+const postLinkKey = (href: string): string => {
+  try {
+    const url = new URL(href);
+    return `${url.origin}${url.pathname.replace(/\/+$/, '')}`;
+  } catch {
+    return href;
+  }
+};
+
 const BlockRenderer = ({
   block,
   onPostClick,
   onFeedClick,
+  resolvePostLink,
   activePostId,
 }: {
   block: AgentBlock;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
+  resolvePostLink: (href: string) => Post | undefined;
   activePostId?: string;
 }): ReactElement => {
   if (block.type === 'text') {
-    return <Markdown className={transcriptProse} content={block.html} />;
+    return (
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
+      <div
+        onClick={(event) => {
+          const anchor = (event.target as Element).closest('a');
+          const post = anchor && resolvePostLink(anchor.href);
+          if (!post) {
+            return;
+          }
+          event.preventDefault();
+          event.stopPropagation();
+          onPostClick(post);
+        }}
+      >
+        <Markdown className={transcriptProse} content={block.html} />
+      </div>
+    );
   }
 
   if (block.type === 'feedLink') {
@@ -297,17 +325,54 @@ const ErrorTurn = ({ message }: { message: AgentMessage }): ReactElement => {
   );
 };
 
+const UserMessageText = ({
+  message,
+}: {
+  message: AgentMessage;
+}): ReactElement => {
+  const text = message.text ?? '';
+  const nodes: ReactNode[] = [];
+  let cursor = 0;
+
+  Array.from(text.matchAll(FEEDBACK_MARKER_REGEX)).forEach((match) => {
+    const [marker, postId, relId] = match;
+    nodes.push(text.slice(cursor, match.index));
+    cursor = match.index + marker.length;
+
+    if (relId === 'null') {
+      nodes.push(marker);
+      return;
+    }
+
+    const entry = message.relationships?.find((rel) => rel.id === relId);
+    nodes.push(
+      <a
+        key={`${match.index}-${postId}`}
+        href={`${webappUrl}posts/${postId}`}
+        target="_blank"
+        rel="noopener"
+        className="font-bold text-text-link hover:underline"
+      >
+        @{entry?.title ?? 'post'}
+      </a>,
+    );
+  });
+  nodes.push(text.slice(cursor));
+
+  return <>{nodes}</>;
+};
+
 const MessageRow = ({
   message,
   onPostClick,
   onFeedClick,
-  onSummaryClick,
+  resolvePostLink,
   activePostId,
 }: {
   message: AgentMessage;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
-  onSummaryClick: (postId?: string) => void;
+  resolvePostLink: (href: string) => Post | undefined;
   activePostId?: string;
 }): ReactElement => {
   if (message.role === 'user') {
@@ -325,7 +390,7 @@ const MessageRow = ({
         )}
         <div className="max-w-[85%] rounded-12 rounded-br-4 bg-surface-float px-3 py-2 tablet:max-w-[30rem]">
           <Typography type={TypographyType.Callout} className="!leading-normal">
-            {message.text}
+            <UserMessageText message={message} />
           </Typography>
         </div>
       </FlexCol>
@@ -357,18 +422,10 @@ const MessageRow = ({
               block={block}
               onPostClick={onPostClick}
               onFeedClick={onFeedClick}
+              resolvePostLink={resolvePostLink}
               activePostId={activePostId}
             />
           ))}
-          {!!message.summaryPost && (
-            <AgentEmbedCard
-              icon={<FeatherIcon size={IconSize.Size16} />}
-              title={message.summaryPost.title ?? 'Summary post'}
-              subtitle="Post written this run"
-              actionLabel="Open"
-              onAction={() => onSummaryClick(message.summaryPost?.id)}
-            />
-          )}
           {!!message.blocks?.length && <MessageActions message={message} />}
         </>
       )}
@@ -383,9 +440,24 @@ export const AgentChatSection = (): ReactElement => {
     activeContent,
     queuedCommands,
     removeQueuedCommand,
+    findingsPosts,
   } = useAgent();
   const activePostId =
     activeContent?.type === 'post' ? activeContent.post.id : undefined;
+  const postsByLink = useMemo(() => {
+    const map = new Map<string, Post>();
+    findingsPosts.forEach((post) => {
+      if (!post.commentsPermalink) {
+        return;
+      }
+      map.set(postLinkKey(post.commentsPermalink), post);
+      const [origin] = post.commentsPermalink.split('/posts/');
+      if (origin) {
+        map.set(`${origin}/posts/${post.id}`, post);
+      }
+    });
+    return map;
+  }, [findingsPosts]);
 
   return (
     <FlexCol className="gap-6">
@@ -397,9 +469,7 @@ export const AgentChatSection = (): ReactElement => {
           onFeedClick={(label, posts) =>
             openContentTarget({ type: 'feed', label, posts })
           }
-          onSummaryClick={(postId) =>
-            openContentTarget({ type: 'posts', postId })
-          }
+          resolvePostLink={(href) => postsByLink.get(postLinkKey(href))}
           activePostId={activePostId}
         />
       ))}
