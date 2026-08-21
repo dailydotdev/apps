@@ -91,9 +91,9 @@ function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
             elements covering an ad, so the dismiss control gets its own row. */}
         {!!onDismiss && isFilled && (
           <CloseButton
-            className="pointer-events-auto absolute -top-8 right-0"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Primary}
+            className="pointer-events-auto absolute -top-7 right-0"
+            size={ButtonSize.XSmall}
+            variant={ButtonVariant.Subtle}
             onClick={onDismiss}
           />
         )}
