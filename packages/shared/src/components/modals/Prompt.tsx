@@ -1,9 +1,8 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { usePrompt } from '../../hooks/usePrompt';
-import type { ButtonProps } from '../buttons/Button';
-import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonVariant } from '../buttons/Button';
 import classed from '../../lib/classed';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
@@ -20,51 +19,30 @@ const Buttons = classed(
 
 export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
   const { prompt } = usePrompt();
-  const [isPending, setIsPending] = useState(false);
+  const confirmingPrompt = useRef<typeof prompt>(null);
+  const [isConfirming, setIsConfirming] = useState(false);
 
   if (!prompt || !prompt.options) {
     return null;
   }
-  const { options } = prompt;
   const { onError, onFail, onSuccess } = prompt;
+  const { options } = prompt;
   const {
     title,
     description,
     icon,
     content,
+    onConfirm,
     promptSize = Modal.Size.Small,
     cancelButton = {},
     okButton = {},
     className = {},
     shouldCloseOnOverlayClick,
   } = options;
-  const { onConfirm } = options;
-  const {
-    className: cancelButtonClassName,
-    color: cancelButtonColor,
-    disabled: cancelButtonDisabled,
-    icon: cancelButtonIcon,
-    iconPosition: cancelButtonIconPosition,
-    title: cancelButtonTitle,
-    variant: cancelButtonVariant,
-    ...cancelButtonProps
-  } = cancelButton ?? {};
-  const {
-    className: okButtonClassName,
-    color: okButtonColor,
-    disabled: okButtonDisabled,
-    icon: okButtonIcon,
-    iconPosition: okButtonIconPosition,
-    loading: okButtonLoading,
-    title: okButtonTitle,
-    variant: okButtonVariant,
-    ...okButtonProps
-  } = okButton ?? {};
+  const isPending = isConfirming && confirmingPrompt.current === prompt;
   const handleFail = () => {
-    if (isPending) {
-      return;
-    }
-
+    confirmingPrompt.current = null;
+    setIsConfirming(false);
     onFail();
   };
   const handleSuccess = () => {
@@ -77,46 +55,22 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
       return;
     }
 
-    setIsPending(true);
+    const settle = (callback: () => void) => {
+      if (confirmingPrompt.current !== prompt) {
+        return;
+      }
+
+      confirmingPrompt.current = null;
+      setIsConfirming(false);
+      callback();
+    };
+
+    confirmingPrompt.current = prompt;
+    setIsConfirming(true);
     Promise.resolve(onConfirm())
-      .then(() => {
-        setIsPending(false);
-        onSuccess();
-      })
-      .catch((error) => {
-        setIsPending(false);
-        onError(error);
-      });
+      .then(() => settle(onSuccess))
+      .catch(() => settle(onError));
   };
-  const cancelActionButtonProps = {
-    ...cancelButtonProps,
-    variant: cancelButtonVariant ?? ButtonVariant.Secondary,
-    ...(cancelButtonColor ? { color: cancelButtonColor } : {}),
-    ...(cancelButtonIcon
-      ? {
-          icon: cancelButtonIcon,
-          iconPosition: cancelButtonIconPosition ?? ButtonIconPosition.Left,
-        }
-      : {}),
-    onClick: handleFail,
-    disabled: isPending || !!cancelButtonDisabled,
-    className: classNames('w-full tablet:w-auto', cancelButtonClassName),
-  } as ButtonProps<'button'>;
-  const okActionButtonProps = {
-    ...okButtonProps,
-    variant: okButtonVariant ?? ButtonVariant.Primary,
-    ...(okButtonColor ? { color: okButtonColor } : {}),
-    ...(okButtonIcon
-      ? {
-          icon: okButtonIcon,
-          iconPosition: okButtonIconPosition ?? ButtonIconPosition.Left,
-        }
-      : {}),
-    onClick: handleSuccess,
-    disabled: isPending || !!okButtonDisabled,
-    loading: isPending || !!okButtonLoading,
-    className: classNames('w-full tablet:w-auto', okButtonClassName),
-  } as ButtonProps<'button'>;
 
   return (
     <Modal
@@ -128,7 +82,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
       overlayClassName="!z-max"
       isDrawerOnMobile
       drawerProps={{ displayCloseButton: false, appendOnRoot: true }}
-      shouldCloseOnOverlayClick={isPending ? false : shouldCloseOnOverlayClick}
+      shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}
       {...props}
     >
       <Modal.Body>
@@ -142,12 +96,35 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
         {content}
         <Buttons className={className.buttons}>
           {cancelButton !== null && (
-            <Button {...cancelActionButtonProps}>
-              {cancelButtonTitle ?? 'Cancel'}
+            <Button
+              variant={cancelButton.variant ?? ButtonVariant.Secondary}
+              color={cancelButton.color}
+              icon={cancelButton.icon}
+              iconPosition={cancelButton.iconPosition}
+              {...cancelButton}
+              onClick={handleFail}
+              className={classNames(
+                'w-full tablet:w-auto',
+                cancelButton.className,
+              )}
+            >
+              {cancelButton.title ?? 'Cancel'}
             </Button>
           )}
           {okButton !== null && (
-            <Button {...okActionButtonProps}>{okButtonTitle ?? 'Ok'}</Button>
+            <Button
+              variant={okButton.variant ?? ButtonVariant.Primary}
+              color={okButton.color}
+              icon={okButton.icon}
+              iconPosition={okButton.iconPosition}
+              {...okButton}
+              onClick={handleSuccess}
+              disabled={isPending || okButton.disabled}
+              loading={isPending || okButton.loading}
+              className={classNames('w-full tablet:w-auto', okButton.className)}
+            >
+              {okButton.title ?? 'Ok'}
+            </Button>
           )}
         </Buttons>
       </Modal.Body>

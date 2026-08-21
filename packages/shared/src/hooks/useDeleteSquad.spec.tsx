@@ -167,4 +167,32 @@ describe('useDeleteSquad', () => {
       ).not.toBeInTheDocument(),
     );
   });
+
+  it('does not report a failure when the post-delete callback rejects', async () => {
+    const squad = generateTestSquad();
+    mockedDeleteSquad.mockResolvedValue(undefined);
+    const callback = jest
+      .fn()
+      .mockRejectedValue(new Error('Route Cancelled'));
+    const { queryClient } = renderDeleteSquad(squad, callback);
+    await waitForPromptReady(queryClient);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Delete Squad' }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Yes, delete Squad' }),
+    );
+
+    await waitFor(() => expect(callback).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(
+        screen.queryByRole('button', { name: 'Yes, delete Squad' }),
+      ).not.toBeInTheDocument(),
+    );
+    expect(queryClient.getQueryData(TOAST_NOTIF_KEY)).toBeUndefined();
+    expect(
+      queryClient
+        .getQueryData<Boot>(BOOT_QUERY_KEY)
+        ?.squads.map((item) => item.id),
+    ).toEqual(['other-squad']);
+  });
 });

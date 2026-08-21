@@ -97,7 +97,7 @@ describe('PromptElement', () => {
     ).toBeInTheDocument();
   });
 
-  it('keeps prompt mounted and disables actions while async confirm is pending', async () => {
+  it('keeps prompt mounted and disables confirm while async confirm is pending', async () => {
     const deferred = createDeferred();
     const onConfirm = jest.fn(() => deferred.promise);
     const { client, controller } = renderPromptController();
@@ -113,14 +113,12 @@ describe('PromptElement', () => {
     });
 
     const okButton = await screen.findByRole('button', { name: 'Continue' });
-    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 
     await userEvent.click(okButton);
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
     expect(okButton).toHaveAttribute('aria-busy', 'true');
     expect(okButton).toBeDisabled();
-    expect(cancelButton).toBeDisabled();
     expect(screen.getByText('Confirm action')).toBeInTheDocument();
 
     await userEvent.click(okButton);
@@ -137,7 +135,7 @@ describe('PromptElement', () => {
     );
   });
 
-  it('closes prompt and rejects when async confirm fails', async () => {
+  it('allows dismissing the prompt while async confirm is pending', async () => {
     const deferred = createDeferred();
     const { client, controller } = renderPromptController();
     await waitForPromptReady(client);
@@ -155,14 +153,48 @@ describe('PromptElement', () => {
       await screen.findByRole('button', { name: 'Continue' }),
     );
 
-    const error = new Error('failed');
-    const promptRejection = expect(promptResult!).rejects.toBe(error);
+    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+    expect(cancelButton).not.toBeDisabled();
+
+    await userEvent.click(cancelButton);
+
+    await expect(promptResult!).resolves.toBe(false);
+    await waitFor(() =>
+      expect(screen.queryByText('Confirm action')).not.toBeInTheDocument(),
+    );
+
     await act(async () => {
-      deferred.reject(error);
+      deferred.resolve();
+      await deferred.promise;
+    });
+
+    expect(screen.queryByText('Confirm action')).not.toBeInTheDocument();
+  });
+
+  it('closes prompt and resolves false when async confirm fails', async () => {
+    const deferred = createDeferred();
+    const { client, controller } = renderPromptController();
+    await waitForPromptReady(client);
+
+    let promptResult: Promise<boolean>;
+    act(() => {
+      promptResult = controller.showPrompt({
+        title: 'Confirm action',
+        okButton: { title: 'Continue' },
+        onConfirm: () => deferred.promise,
+      });
+    });
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Continue' }),
+    );
+
+    await act(async () => {
+      deferred.reject(new Error('failed'));
       await deferred.promise.catch(() => undefined);
     });
 
-    await promptRejection;
+    await expect(promptResult!).resolves.toBe(false);
     await waitFor(() =>
       expect(screen.queryByText('Confirm action')).not.toBeInTheDocument(),
     );

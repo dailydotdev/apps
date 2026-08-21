@@ -33,7 +33,7 @@ type Prompt = {
   options: PromptOptions | null;
   onSuccess: () => void;
   onFail: () => void;
-  onError: (error: unknown) => void;
+  onError: () => void;
 };
 
 type PromptState = Prompt | null;
@@ -57,20 +57,16 @@ export function usePrompt(): UsePromptRet {
 
   const showPrompt = useCallback(
     (promptOptions: PromptOptions): Promise<boolean> =>
-      new Promise((resolve, reject) => {
+      new Promise((resolve) => {
         const closeWith = (result: boolean) => {
           resolve(result);
-          setPrompt(null);
-        };
-        const failWith = (error: unknown) => {
-          reject(error);
           setPrompt(null);
         };
         const newPrompt: Prompt = {
           options: promptOptions,
           onFail: () => closeWith(false),
           onSuccess: () => closeWith(true),
-          onError: failWith,
+          onError: () => closeWith(false),
         };
         setPrompt(newPrompt);
       }),

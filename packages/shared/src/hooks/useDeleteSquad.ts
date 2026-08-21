@@ -38,7 +38,7 @@ export const useDeleteSquad = ({
       });
       await deleteSquad(squad.id!);
       deleteCachedSquad(squad.id!);
-      await callback?.();
+      await Promise.resolve(callback?.()).catch(() => undefined);
     },
     onError: () => displayToast(DEFAULT_ERROR),
   });
@@ -56,7 +56,7 @@ export const useDeleteSquad = ({
       onConfirm: deleteSquadMutation,
     };
 
-    await showPrompt(options).catch(() => false);
+    await showPrompt(options);
   }, [deleteSquadMutation, showPrompt, squad.active, squad.name]);
 
   return useMemo(
