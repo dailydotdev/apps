@@ -7,10 +7,7 @@ import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import type { ReadAdsenseSlots } from './adsense';
 import { ADSENSE_CLIENT_ID } from './adsense';
-import {
-  featurePostAdsense,
-  featureReadAdsense,
-} from '../../../lib/featureManagement';
+import { featurePostAdsense } from '../../../lib/featureManagement';
 import { FLOATING_LEADERBOARD_DELAY_MS, ORGANIC_SLOT } from './slots';
 
 jest.mock('../../GrowthBookProvider', () => ({
@@ -44,20 +41,19 @@ const mockSlotMaps = jest.requireMock('./slots') as {
 
 const mockUseFeature = jest.mocked(useFeature);
 
-const flags = { read: false, organic: false };
+const flags = { organic: false };
 
-const renderAsPlus = (ui: React.ReactElement) =>
+const renderLoggedIn = (ui: React.ReactElement) =>
   render(
     <AuthContext.Provider
-      value={{ user: { isPlus: true } } as unknown as AuthContextData}
+      value={{ user: { id: 'u1' } } as unknown as AuthContextData}
     >
       {ui}
     </AuthContext.Provider>,
   );
 
-/** Fills the /read map and flips the read_adsense flag to match. */
+/** Fills the /read map — the surface has no flag, the map alone decides. */
 const setSlots = (slots: ReadAdsenseSlots): void => {
-  flags.read = Object.keys(slots).length > 0;
   mockSlotMaps.READ_ADSENSE_SLOTS = slots;
 };
 
@@ -68,14 +64,10 @@ const setOrganicSlots = (slots: ReadAdsenseSlots): void => {
 
 beforeEach(() => {
   mockConstants.isDevelopment = false;
-  flags.read = false;
   flags.organic = false;
   mockSlotMaps.READ_ADSENSE_SLOTS = {};
   mockSlotMaps.ORGANIC_ADSENSE_SLOTS = {};
   mockUseFeature.mockImplementation((feature) => {
-    if (feature === featureReadAdsense) {
-      return flags.read;
-    }
     if (feature === featurePostAdsense) {
       return flags.organic;
     }
@@ -84,7 +76,7 @@ beforeEach(() => {
 });
 
 describe('ArbitrageAdSlot', () => {
-  it('renders nothing in production while the flag is off', () => {
+  it('renders nothing while the slot map is empty', () => {
     setSlots({});
     const { container } = render(
       <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} />,
@@ -210,9 +202,9 @@ describe('ArbitrageAdSlot on the organic surface', () => {
     ).toHaveAttribute('data-ad-slot', '5555555555');
   });
 
-  it('never renders for Plus members', () => {
+  it('never renders for logged-in users', () => {
     setOrganicSlots(organicFixture);
-    const { container } = renderAsPlus(
+    const { container } = renderLoggedIn(
       <ArbitrageAdSlot
         surface="organic"
         slot={ORGANIC_SLOT.topLeaderboard}
@@ -270,7 +262,7 @@ describe('ArbitrageAnchor', () => {
     jest.useRealTimers();
   });
 
-  it('renders nothing in production while the flag is off', () => {
+  it('renders nothing while the slot map is empty', () => {
     setSlots({});
     const { container } = render(<ArbitrageAnchor />);
     advancePastDelay();
@@ -296,7 +288,6 @@ describe('ArbitrageAnchor', () => {
   });
 
   it('leaves the viewport bottom free when slot 13 is not configured', () => {
-    mockConstants.isDevelopment = true;
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     const { container } = render(<ArbitrageAnchor />);
     advancePastDelay();

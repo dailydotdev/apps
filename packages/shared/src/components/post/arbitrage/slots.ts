@@ -56,7 +56,7 @@ export const COMMENTS_PER_INTERLEAVED_AD = 5;
  * code rather than remote config: unit ids are public (visible in the page
  * source of any live page) and stable after setup, and as a GrowthBook JSON
  * value they shipped in every boot payload of every surface. The remote side
- * is now just the `read_adsense` / `post_adsense` booleans.
+ * is just the `post_adsense` boolean; the /read template needs none.
  *
  * Slots 4, 5, 6 and 8 exist in AdSense but are unplaced (see ARBITRAGE_SLOT),
  * so they are not mapped.
