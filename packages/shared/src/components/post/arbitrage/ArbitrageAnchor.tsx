@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
 import CloseButton from '../../CloseButton';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { isDevelopment } from '../../../lib/constants';
@@ -7,6 +8,11 @@ import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { useReadAdsenseSlots } from './useReadAdsenseSlots';
 import { useDelayedReveal } from './useDelayedReveal';
 import { ARBITRAGE_SLOT, FLOATING_LEADERBOARD_DELAY_MS } from './slots';
+import {
+  COLUMN_LEFT_PROPERTY,
+  COLUMN_PADDING,
+  COLUMN_WIDTH_PROPERTY,
+} from './common';
 
 /**
  * Published on the document so the mobile footer nav can sit on top of the
@@ -43,16 +49,29 @@ function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
   }, []);
 
   return (
-    // Flush to the bottom of the viewport on every breakpoint, with the mobile
-    // footer nav riding above it: the anchor is the persistent placement, and a
-    // banner that sits above the tab bar loses the screen edge that makes it
-    // read as chrome rather than as content. pb-safe keeps it off the iOS home
-    // indicator.
+    // Sits over the article column rather than the viewport: same left edge,
+    // same width and the same padding as PostContainer, so the unit lands in
+    // exactly the place and at exactly the size the top leaderboard does, and
+    // never reaches under the rail. Flush to the bottom on every breakpoint,
+    // with the mobile footer nav riding above it — the anchor is the
+    // persistent placement, and a banner sitting above the tab bar loses the
+    // screen edge that makes it read as chrome rather than as content.
+    // pb-safe keeps it off the iOS home indicator.
     <div
       ref={ref}
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-3 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+      className={classNames(
+        'pointer-events-none fixed bottom-0 z-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]',
+        COLUMN_PADDING,
+      )}
+      style={{
+        left: `var(${COLUMN_LEFT_PROPERTY}, 0px)`,
+        width: `var(${COLUMN_WIDTH_PROPERTY}, 100%)`,
+      }}
     >
-      <div className="relative mx-auto max-w-[72rem]">
+      {/* Capped to the creative's own width rather than the column's, or the
+          backdrop spreads past the banner and blurs the page either side of
+          it. */}
+      <div className="relative mx-auto w-full max-w-[320px] tablet:max-w-[728px]">
         {/* Above the bar, never over the creative: AdSense forbids page
             elements covering an ad, so the dismiss control gets its own row. */}
         {!!onDismiss && (
@@ -63,15 +82,14 @@ function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
             onClick={onDismiss}
           />
         )}
-        <div className="bg-background-default/95 pointer-events-auto overflow-hidden rounded-16 shadow-2 backdrop-blur">
-          <ArbitrageAdSlot
-            slot={ARBITRAGE_SLOT.floatingLeaderboard}
-            format={ArbitrageAdFormat.Anchor}
-            reach="100%"
-            refreshes
-            eager
-          />
-        </div>
+        <ArbitrageAdSlot
+          slot={ARBITRAGE_SLOT.floatingLeaderboard}
+          format={ArbitrageAdFormat.Anchor}
+          reach="100%"
+          refreshes
+          eager
+          className="bg-background-default/95 pointer-events-auto shadow-2 backdrop-blur"
+        />
       </div>
     </div>
   );

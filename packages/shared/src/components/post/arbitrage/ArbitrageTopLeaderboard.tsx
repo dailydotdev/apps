@@ -38,7 +38,12 @@ export function ArbitrageTopLeaderboard({
         // positioned. At equal z-index the later element in the DOM wins, so a
         // z-1 leaderboard is painted over by every comment it scrolls past.
         // Still far below z-header, tooltips and modals.
-        !released && 'sticky top-[var(--sticky-header-offset)] z-2',
+        // Laptop only. Below it the unit pins as part of the header block
+        // above, which keeps the two from sliding over each other; sticky here
+        // as well would give the block a second sticky element inside a pinned
+        // one, and it would climb to the top of it and cover the leaderboard.
+        !released &&
+          'z-2 laptop:sticky laptop:top-[var(--sticky-header-offset)]',
       )}
     >
       <ArbitrageAdSlot
