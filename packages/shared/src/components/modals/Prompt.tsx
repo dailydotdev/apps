@@ -1,8 +1,9 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import classNames from 'classnames';
 import { usePrompt } from '../../hooks/usePrompt';
-import { Button, ButtonVariant } from '../buttons/Button';
+import type { ButtonProps } from '../buttons/Button';
+import { Button, ButtonIconPosition, ButtonVariant } from '../buttons/Button';
 import classed from '../../lib/classed';
 import type { ModalProps } from './common/Modal';
 import { Modal } from './common/Modal';
@@ -19,11 +20,13 @@ const Buttons = classed(
 
 export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
   const { prompt } = usePrompt();
+  const [isPending, setIsPending] = useState(false);
+
   if (!prompt || !prompt.options) {
     return null;
   }
   const { options } = prompt;
-  const { onFail, onSuccess } = prompt;
+  const { onError, onFail, onSuccess } = prompt;
   const {
     title,
     description,
@@ -35,17 +38,97 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
     className = {},
     shouldCloseOnOverlayClick,
   } = options;
+  const { onConfirm } = options;
+  const {
+    className: cancelButtonClassName,
+    color: cancelButtonColor,
+    disabled: cancelButtonDisabled,
+    icon: cancelButtonIcon,
+    iconPosition: cancelButtonIconPosition,
+    title: cancelButtonTitle,
+    variant: cancelButtonVariant,
+    ...cancelButtonProps
+  } = cancelButton ?? {};
+  const {
+    className: okButtonClassName,
+    color: okButtonColor,
+    disabled: okButtonDisabled,
+    icon: okButtonIcon,
+    iconPosition: okButtonIconPosition,
+    loading: okButtonLoading,
+    title: okButtonTitle,
+    variant: okButtonVariant,
+    ...okButtonProps
+  } = okButton ?? {};
+  const handleFail = () => {
+    if (isPending) {
+      return;
+    }
+
+    onFail();
+  };
+  const handleSuccess = () => {
+    if (isPending) {
+      return;
+    }
+
+    if (!onConfirm) {
+      onSuccess();
+      return;
+    }
+
+    setIsPending(true);
+    Promise.resolve(onConfirm())
+      .then(() => {
+        setIsPending(false);
+        onSuccess();
+      })
+      .catch((error) => {
+        setIsPending(false);
+        onError(error);
+      });
+  };
+  const cancelActionButtonProps = {
+    ...cancelButtonProps,
+    variant: cancelButtonVariant ?? ButtonVariant.Secondary,
+    ...(cancelButtonColor ? { color: cancelButtonColor } : {}),
+    ...(cancelButtonIcon
+      ? {
+          icon: cancelButtonIcon,
+          iconPosition: cancelButtonIconPosition ?? ButtonIconPosition.Left,
+        }
+      : {}),
+    onClick: handleFail,
+    disabled: isPending || !!cancelButtonDisabled,
+    className: classNames('w-full tablet:w-auto', cancelButtonClassName),
+  } as ButtonProps<'button'>;
+  const okActionButtonProps = {
+    ...okButtonProps,
+    variant: okButtonVariant ?? ButtonVariant.Primary,
+    ...(okButtonColor ? { color: okButtonColor } : {}),
+    ...(okButtonIcon
+      ? {
+          icon: okButtonIcon,
+          iconPosition: okButtonIconPosition ?? ButtonIconPosition.Left,
+        }
+      : {}),
+    onClick: handleSuccess,
+    disabled: isPending || !!okButtonDisabled,
+    loading: isPending || !!okButtonLoading,
+    className: classNames('w-full tablet:w-auto', okButtonClassName),
+  } as ButtonProps<'button'>;
+
   return (
     <Modal
       isOpen
       kind={Modal.Kind.FlexibleCenter}
       size={promptSize}
-      onRequestClose={onFail}
+      onRequestClose={handleFail}
       className={className.modal}
       overlayClassName="!z-max"
       isDrawerOnMobile
       drawerProps={{ displayCloseButton: false, appendOnRoot: true }}
-      shouldCloseOnOverlayClick={shouldCloseOnOverlayClick}
+      shouldCloseOnOverlayClick={isPending ? false : shouldCloseOnOverlayClick}
       {...props}
     >
       <Modal.Body>
@@ -59,33 +142,12 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
         {content}
         <Buttons className={className.buttons}>
           {cancelButton !== null && (
-            <Button
-              variant={cancelButton.variant ?? ButtonVariant.Secondary}
-              color={cancelButton.color}
-              icon={cancelButton.icon}
-              iconPosition={cancelButton.iconPosition}
-              onClick={onFail}
-              {...cancelButton}
-              className={classNames(
-                'w-full tablet:w-auto',
-                cancelButton.className,
-              )}
-            >
-              {cancelButton?.title ?? 'Cancel'}
+            <Button {...cancelActionButtonProps}>
+              {cancelButtonTitle ?? 'Cancel'}
             </Button>
           )}
           {okButton !== null && (
-            <Button
-              variant={okButton.variant ?? ButtonVariant.Primary}
-              color={okButton.color}
-              icon={okButton.icon}
-              iconPosition={okButton.iconPosition}
-              onClick={onSuccess}
-              {...okButton}
-              className={classNames('w-full tablet:w-auto', okButton.className)}
-            >
-              {okButton?.title ?? 'Ok'}
-            </Button>
+            <Button {...okActionButtonProps}>{okButtonTitle ?? 'Ok'}</Button>
           )}
         </Buttons>
       </Modal.Body>

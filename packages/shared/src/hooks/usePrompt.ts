@@ -15,6 +15,7 @@ export type PromptOptions = {
   title: string;
   icon?: ReactNode;
   description?: string | ReactNode;
+  onConfirm?: () => Promise<unknown> | unknown;
   okButton?: PromptButtonProps;
   cancelButton?: PromptButtonProps | null;
   content?: ReactNode;
@@ -32,6 +33,7 @@ type Prompt = {
   options: PromptOptions | null;
   onSuccess: () => void;
   onFail: () => void;
+  onError: (error: unknown) => void;
 };
 
 type PromptState = Prompt | null;
@@ -55,15 +57,20 @@ export function usePrompt(): UsePromptRet {
 
   const showPrompt = useCallback(
     (promptOptions: PromptOptions): Promise<boolean> =>
-      new Promise((resolve) => {
+      new Promise((resolve, reject) => {
         const closeWith = (result: boolean) => {
           resolve(result);
+          setPrompt(null);
+        };
+        const failWith = (error: unknown) => {
+          reject(error);
           setPrompt(null);
         };
         const newPrompt: Prompt = {
           options: promptOptions,
           onFail: () => closeWith(false),
           onSuccess: () => closeWith(true),
+          onError: failWith,
         };
         setPrompt(newPrompt);
       }),
