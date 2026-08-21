@@ -12,7 +12,7 @@ import type { AdsenseSlotConfig, ReadAdsenseSlots } from './adsense';
 import { ADSENSE_CLIENT_ID, hasLiveAdsenseUnits } from './adsense';
 
 /** How long a slot gets to render a creative before it counts as empty. */
-const FILL_GRACE_MS = 4_000;
+export const FILL_GRACE_MS = 4_000;
 
 /** Anything shorter than this is a blank creative, not an ad. */
 const FILLED_MIN_HEIGHT_PX = 20;
@@ -308,9 +308,18 @@ function LiveAdSlot({
       // rail. AdSense fills by injecting an iframe, so its absence is the
       // signal that works at any size.
       const hasCreative = !!element.querySelector('iframe');
+      // The height check only applies while the ins is actually displayed:
+      // once a slot has collapsed, everything inside display:none measures
+      // zero, and judging a late-landing creative by that height would keep
+      // the slot collapsed forever. Reopen on the creative alone — the resize
+      // observer re-evaluates at real geometry, and a genuinely zero-height
+      // creative collapses it again.
+      const isDisplayed = element.getClientRects().length > 0;
       const { height } = element.getBoundingClientRect();
       const filled =
-        !isUnfilled && hasCreative && height >= FILLED_MIN_HEIGHT_PX;
+        !isUnfilled &&
+        hasCreative &&
+        (!isDisplayed || height >= FILLED_MIN_HEIGHT_PX);
       setIsEmpty(!filled);
       // First-party per-placement fill signal: several placements share an
       // AdSense unit id for now, so AdSense's own reporting blends them.
@@ -398,13 +407,6 @@ function LiveAdSlot({
   );
 }
 
-/**
- * A programmatic ad slot. Live only while its surface's boolean flag is on
- * AND its hardcoded map (slots.ts) carries a unit id for this slot number;
- * everything else collapses to nothing — visitors get a clean page. The
- * dashed density-review placeholder only ever appears in local development
- * builds of the /read template.
- */
 function MappedAdSlot({
   slot,
   format,
@@ -485,6 +487,13 @@ function OrganicArbitrageAdSlot(
   return <MappedAdSlot {...props} slots={slots} />;
 }
 
+/**
+ * A programmatic ad slot. Live only while its surface's boolean flag is on
+ * AND its hardcoded map (slots.ts) carries a unit id for this slot number;
+ * everything else collapses to nothing — visitors get a clean page. The
+ * dashed density-review placeholder only ever appears in local development
+ * builds of the /read template.
+ */
 export function ArbitrageAdSlot({
   surface = 'read',
   ...props

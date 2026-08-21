@@ -1,6 +1,10 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
+import {
+  ArbitrageAdFormat,
+  ArbitrageAdSlot,
+  FILL_GRACE_MS,
+} from './ArbitrageAdSlot';
 import { ArbitrageAnchor } from './ArbitrageAnchor';
 import { ArbitrageSidebarAd } from './ArbitrageSidebarAd';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
@@ -151,6 +155,30 @@ describe('ArbitrageAdSlot', () => {
     expect(ins).toHaveAttribute('data-ad-layout', 'in-article');
     expect(ins).toHaveAttribute('data-ad-format', 'fluid');
     expect(screen.queryByTestId('arbitrage-ad-slot-3')).not.toBeInTheDocument();
+  });
+
+  it('reopens a collapsed slot when the creative lands after the grace', async () => {
+    jest.useFakeTimers();
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    render(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    const ins = screen.getByTestId('adsense-slot-2');
+    act(() => {
+      jest.advanceTimersByTime(FILL_GRACE_MS);
+    });
+    expect(ins.parentElement).toHaveClass('!hidden');
+
+    // Inside display:none everything measures zero, so the reopen must key on
+    // the creative itself — a late fill judged by height stayed hidden forever.
+    ins.appendChild(document.createElement('iframe'));
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(ins.parentElement).not.toHaveClass('!hidden');
+    jest.useRealTimers();
   });
 
   it('mounts no <ins> before the slot becomes eligible', () => {
