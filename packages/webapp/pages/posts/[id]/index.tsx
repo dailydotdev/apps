@@ -2,6 +2,14 @@ import type { ComponentType, CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import Script from 'next/script';
+import {
+  ArbitrageAdFormat,
+  ArbitrageAdSlot,
+} from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAdSlot';
+import { ADSENSE_SCRIPT_SRC } from '@dailydotdev/shared/src/components/post/arbitrage/adsense';
+import { ORGANIC_SLOT } from '@dailydotdev/shared/src/components/post/arbitrage/slots';
+import { useOrganicAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -196,6 +204,10 @@ export const PostPage = ({
   const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
   const showRedesign =
     isRedesignEligible && !requiresClassicLayout && isRedesignFlagOn;
+  // Empty for Plus members and while post_adsense is off; the slot components
+  // check the same hook, so with it empty neither markup nor script exists.
+  const adsenseSlots = useOrganicAdsenseSlots();
+  const adsenseActive = Object.keys(adsenseSlots).length > 0;
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -271,7 +283,27 @@ export const PostPage = ({
           <Head>
             <link rel="preload" as="image" href={post?.image} />
           </Head>
+          {adsenseActive && (
+            <Script
+              id="adsbygoogle-loader"
+              src={ADSENSE_SCRIPT_SRC}
+              strategy="afterInteractive"
+              crossOrigin="anonymous"
+            />
+          )}
           <PostSEOSchema post={post} topComments={topComments} />
+          {/* Above the whole two-column container rather than inside the
+              article column: the classic and focus layouts differ inside, and
+              the unit must never render in post modals, which share those
+              components but not this page. */}
+          {!showRedesign && (
+            <ArbitrageAdSlot
+              surface="organic"
+              slot={ORGANIC_SLOT.topLeaderboard}
+              format={ArbitrageAdFormat.Leaderboard}
+              className="mx-auto mt-4 max-w-[69.25rem]"
+            />
+          )}
           {showRedesign ? (
             <div className="mx-auto w-full max-w-[63.75rem]">
               <PostFocusCard post={post} origin={Origin.ArticlePage} />
@@ -286,6 +318,14 @@ export const PostPage = ({
               shouldOnboardAuthor={!!router.query?.author}
               origin={Origin.ArticlePage}
               isBannerVisible={shouldShowAuthBanner && !isLaptop}
+              widgetsTrailing={
+                <ArbitrageAdSlot
+                  surface="organic"
+                  slot={ORGANIC_SLOT.railHalfPage}
+                  format={ArbitrageAdFormat.HalfPage}
+                  className="laptop:sticky laptop:top-20"
+                />
+              }
               className={{
                 container: containerClass,
                 fixedNavigation: { container: 'flex laptop:hidden' },

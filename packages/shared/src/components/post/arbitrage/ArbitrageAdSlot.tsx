@@ -2,7 +2,10 @@ import type { CSSProperties, ReactElement } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { isDevelopment, webappUrl } from '../../../lib/constants';
-import { useReadAdsenseSlots } from './useReadAdsenseSlots';
+import {
+  useOrganicAdsenseSlots,
+  useReadAdsenseSlots,
+} from './useReadAdsenseSlots';
 import type { AdsenseSlotConfig } from './adsense';
 import { ADSENSE_CLIENT_ID } from './adsense';
 
@@ -159,6 +162,12 @@ export interface ArbitrageAdSlotProps {
    * and a display:none box never intersects.
    */
   hideOnPhone?: boolean;
+  /**
+   * Which slot map and flag gate the unit: the /read arbitrage template
+   * (default) or the organic post page. The dashed density-review placeholder
+   * is a /read-template tool and never renders for the organic surface.
+   */
+  surface?: 'read' | 'organic';
 }
 
 type InsAttributes = {
@@ -353,12 +362,11 @@ function LiveAdSlot({
 }
 
 /**
- * A programmatic ad slot on the /read template. Live only when the
- * `read_adsense_slots` remote config carries this slot number: any entry puts
- * the template in live mode, configured slots render a real AdSense unit and
- * unconfigured ones collapse. With the config empty (the default) the slot
- * renders nothing — visitors get a clean page. The dashed density-review
- * placeholder only ever appears in local development builds.
+ * A programmatic ad slot. Live only while its surface's boolean flag is on
+ * AND its hardcoded map (slots.ts) carries a unit id for this slot number;
+ * everything else collapses to nothing — visitors get a clean page. The
+ * dashed density-review placeholder only ever appears in local development
+ * builds of the /read template.
  */
 export function ArbitrageAdSlot({
   slot,
@@ -367,8 +375,11 @@ export function ArbitrageAdSlot({
   reach,
   refreshes,
   hideOnPhone,
+  surface = 'read',
 }: ArbitrageAdSlotProps): ReactElement | null {
-  const slots = useReadAdsenseSlots();
+  const readSlots = useReadAdsenseSlots();
+  const organicSlots = useOrganicAdsenseSlots();
+  const slots = surface === 'organic' ? organicSlots : readSlots;
   const isLive = Object.keys(slots).length > 0;
   const config = slots[String(slot)];
 
@@ -387,7 +398,7 @@ export function ArbitrageAdSlot({
     );
   }
 
-  if (!isDevelopment) {
+  if (!isDevelopment || surface !== 'read') {
     return null;
   }
 

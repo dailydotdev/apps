@@ -3,9 +3,15 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { ArbitrageAnchor } from './ArbitrageAnchor';
 import { useFeature } from '../../GrowthBookProvider';
+import type { AuthContextData } from '../../../contexts/AuthContext';
+import AuthContext from '../../../contexts/AuthContext';
 import type { ReadAdsenseSlots } from './adsense';
 import { ADSENSE_CLIENT_ID } from './adsense';
-import { FLOATING_LEADERBOARD_DELAY_MS } from './slots';
+import {
+  featurePostAdsense,
+  featureReadAdsense,
+} from '../../../lib/featureManagement';
+import { FLOATING_LEADERBOARD_DELAY_MS, ORGANIC_SLOT } from './slots';
 
 jest.mock('../../GrowthBookProvider', () => ({
   ...(jest.requireActual('../../GrowthBookProvider') as Record<
@@ -20,23 +26,65 @@ jest.mock('../../../lib/constants', () => ({
   isDevelopment: false,
 }));
 
-// The mocked module object is mutable, so tests toggle the flag directly.
+// The slot maps ship hardcoded; tests swap in fixtures via these mutable
+// module objects rather than asserting against production unit ids.
+jest.mock('./slots', () => ({
+  ...(jest.requireActual('./slots') as Record<string, unknown>),
+  READ_ADSENSE_SLOTS: {},
+  ORGANIC_ADSENSE_SLOTS: {},
+}));
+
 const mockConstants = jest.requireMock('../../../lib/constants') as {
   isDevelopment: boolean;
+};
+const mockSlotMaps = jest.requireMock('./slots') as {
+  READ_ADSENSE_SLOTS: ReadAdsenseSlots;
+  ORGANIC_ADSENSE_SLOTS: ReadAdsenseSlots;
 };
 
 const mockUseFeature = jest.mocked(useFeature);
 
+const flags = { read: false, organic: false };
+
+const renderAsPlus = (ui: React.ReactElement) =>
+  render(
+    <AuthContext.Provider
+      value={{ user: { isPlus: true } } as unknown as AuthContextData}
+    >
+      {ui}
+    </AuthContext.Provider>,
+  );
+
+/** Fills the /read map and flips the read_adsense flag to match. */
 const setSlots = (slots: ReadAdsenseSlots): void => {
-  mockUseFeature.mockReturnValue(slots);
+  flags.read = Object.keys(slots).length > 0;
+  mockSlotMaps.READ_ADSENSE_SLOTS = slots;
+};
+
+const setOrganicSlots = (slots: ReadAdsenseSlots): void => {
+  flags.organic = Object.keys(slots).length > 0;
+  mockSlotMaps.ORGANIC_ADSENSE_SLOTS = slots;
 };
 
 beforeEach(() => {
   mockConstants.isDevelopment = false;
+  flags.read = false;
+  flags.organic = false;
+  mockSlotMaps.READ_ADSENSE_SLOTS = {};
+  mockSlotMaps.ORGANIC_ADSENSE_SLOTS = {};
+  mockUseFeature.mockImplementation((feature) => {
+    if (feature === featureReadAdsense) {
+      return flags.read;
+    }
+    if (feature === featurePostAdsense) {
+      return flags.organic;
+    }
+    return feature.defaultValue;
+  });
 });
 
 describe('ArbitrageAdSlot', () => {
-  it('renders nothing in production while the remote config is empty', () => {
+  it('renders nothing in production while the flag is off', () => {
     setSlots({});
     const { container } = render(
       <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} />,
@@ -126,10 +174,79 @@ describe('ArbitrageAdSlot', () => {
     expect(ins).not.toHaveAttribute('data-ad-format');
   });
 
-  it('collapses unconfigured slots in live mode instead of showing placeholders', () => {
-    setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
+  it('collapses unconfigured and empty-id slots in live mode', () => {
+    setSlots({
+      '3': { id: '1234567890', type: 'inArticle' },
+      '13': { id: '', type: 'display' },
+    });
     const { container } = render(
-      <ArbitrageAdSlot slot={4} format={ArbitrageAdFormat.Video} />,
+      <>
+        <ArbitrageAdSlot slot={4} format={ArbitrageAdFormat.Video} />
+        <ArbitrageAdSlot slot={13} format={ArbitrageAdFormat.Anchor} />
+      </>,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+});
+
+describe('ArbitrageAdSlot on the organic surface', () => {
+  const organicFixture: ReadAdsenseSlots = {
+    [ORGANIC_SLOT.topLeaderboard]: { id: '5555555555', type: 'display' },
+  };
+
+  it('renders when post_adsense is on for a non-Plus user', () => {
+    setOrganicSlots(organicFixture);
+    render(
+      <ArbitrageAdSlot
+        surface="organic"
+        slot={ORGANIC_SLOT.topLeaderboard}
+        format={ArbitrageAdFormat.Leaderboard}
+      />,
+    );
+
+    expect(
+      screen.getByTestId(`adsense-slot-${ORGANIC_SLOT.topLeaderboard}`),
+    ).toHaveAttribute('data-ad-slot', '5555555555');
+  });
+
+  it('never renders for Plus members', () => {
+    setOrganicSlots(organicFixture);
+    const { container } = renderAsPlus(
+      <ArbitrageAdSlot
+        surface="organic"
+        slot={ORGANIC_SLOT.topLeaderboard}
+        format={ArbitrageAdFormat.Leaderboard}
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('ignores the read flag and map entirely', () => {
+    setSlots({
+      [ORGANIC_SLOT.topLeaderboard]: { id: '9999999999', type: 'display' },
+    });
+    const { container } = render(
+      <ArbitrageAdSlot
+        surface="organic"
+        slot={ORGANIC_SLOT.topLeaderboard}
+        format={ArbitrageAdFormat.Leaderboard}
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('shows no development placeholder outside the read template', () => {
+    mockConstants.isDevelopment = true;
+    setOrganicSlots({});
+    const { container } = render(
+      <ArbitrageAdSlot
+        surface="organic"
+        slot={ORGANIC_SLOT.topLeaderboard}
+        format={ArbitrageAdFormat.Leaderboard}
+      />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -153,7 +270,7 @@ describe('ArbitrageAnchor', () => {
     jest.useRealTimers();
   });
 
-  it('renders nothing in production while the remote config is empty', () => {
+  it('renders nothing in production while the flag is off', () => {
     setSlots({});
     const { container } = render(<ArbitrageAnchor />);
     advancePastDelay();

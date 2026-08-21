@@ -1,5 +1,4 @@
 import type { FeedAdTemplate } from './feed';
-import type { ReadAdsenseSlots } from '../components/post/arbitrage/adsense';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
 import { isDevelopment } from './constants';
@@ -324,12 +323,9 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
   },
 );
 
-// Slot ids created in the AdSense UI for the /posts/[id]/read template, keyed
-// by ArbitrageAdSlot number. The empty default keeps the whole ad layer off:
-// no adsbygoogle script, no <ins> markup. Any entry flips the template to live
-// mode, so this doubles as the kill switch — clear it to pull every ad without
-// a deploy. Nothing outside the /read route reads this flag.
-export const featureReadAdsenseSlots = new Feature<ReadAdsenseSlots>(
-  'read_adsense_slots',
-  {},
-);
+// AdSense kill switches. The slot/unit maps live in code (post/arbitrage/
+// slots.ts) — unit ids are public in any live page's source, and shipping
+// them as a remote JSON value cost every surface's boot payload the whole
+// map. Off = no adsbygoogle script, no <ins> markup on the surface.
+export const featureReadAdsense = new Feature('read_adsense', false);
+export const featurePostAdsense = new Feature('post_adsense', false);
