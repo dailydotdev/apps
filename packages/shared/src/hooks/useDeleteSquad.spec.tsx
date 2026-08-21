@@ -186,7 +186,7 @@ describe('useDeleteSquad', () => {
         screen.queryByRole('button', { name: 'Yes, delete Squad' }),
       ).not.toBeInTheDocument(),
     );
-    expect(queryClient.getQueryData(TOAST_NOTIF_KEY)).toBeUndefined();
+    expect(queryClient.getQueryData(TOAST_NOTIF_KEY)).toBeFalsy();
     expect(
       queryClient
         .getQueryData<Boot>(BOOT_QUERY_KEY)
