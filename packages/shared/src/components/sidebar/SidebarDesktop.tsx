@@ -14,11 +14,7 @@ import { ButtonSize } from '../buttons/Button';
 import { BookmarkSection } from './sections/BookmarkSection';
 import { NetworkSection } from './sections/NetworkSection';
 import { HelpWidget } from '../help/HelpWidget';
-import {
-  ArbitrageAdFormat,
-  ArbitrageAdSlot,
-} from '../post/arbitrage/ArbitrageAdSlot';
-import { ARBITRAGE_SLOT } from '../post/arbitrage/slots';
+import { ArbitrageSidebarAd } from '../post/arbitrage/ArbitrageSidebarAd';
 
 type SidebarDesktopProps = {
   activePage?: string;
@@ -122,16 +118,7 @@ export const SidebarDesktop = ({
         </Nav>
       </SidebarScrollWrapper>
 
-      {forceExpanded && (
-        <div className="px-2 pb-3">
-          <ArbitrageAdSlot
-            slot={ARBITRAGE_SLOT.sidebar}
-            format={ArbitrageAdFormat.SidebarRail}
-            reach="100%"
-            eager
-          />
-        </div>
-      )}
+      {forceExpanded && <ArbitrageSidebarAd />}
 
       {/* Help guide — pinned to sidebar bottom (renders only when a marketingCTA is targeted) */}
       <HelpWidget sidebarExpanded={sidebarExpanded} />

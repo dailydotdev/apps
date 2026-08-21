@@ -8,30 +8,30 @@
 import type { ReadAdsenseSlots } from './adsense';
 
 export const ARBITRAGE_SLOT = {
-  /** Sidebar unit in the expanded left rail. */
+  /** Compact unit pinned below the left sidebar's navigation. */
   sidebar: 1,
   /** Leaderboard above the article. Sticks while scrolling, then releases. */
   topLeaderboard: 2,
   /** Medium rectangle beside the tags, date and cover image. */
   inlineMpu1: 3,
-  /** Outstream video. Unplaced: the grid below the thread replaced it. */
-  video: 4,
-  /** Second in-content MPU. Unplaced, as above. */
-  inlineMpu2: 5,
-  /** Third in-content MPU. Unplaced, as above. */
-  inlineMpu3: 6,
+  /** Rail unit after the author card. */
+  railAfterCreator: 4,
+  /** Rail unit after the share bar. */
+  railAfterShare: 5,
+  /** Rail unit after the highlights widget. */
+  railAfterHighlights: 6,
   /** Native unit, repeated through a long comment thread. */
   commentNative: 7,
-  /** MPU after the comment thread. Unplaced, as above. */
-  commentMpu: 8,
+  /** Second multiplex grid, directly below the first. */
+  endOfArticleGridSecondary: 8,
   /** Multiplex grid closing the page, after the discussion. */
-  endOfArticle: 9,
+  endOfArticleGrid: 9,
   /** "MPU 2" in the brief: half page, sticky at the bottom of the right rail. */
-  railStickyMpu: 10,
-  /** "MPU 1" in the brief: first rail unit, between page furniture. */
-  railMpu1: 11,
-  /** Second rail MPU, further down. */
-  railMpu2: 12,
+  railStickyHalfPage: 10,
+  /** "MPU 1" in the brief: first rail unit, under the source card. */
+  railAfterSource: 11,
+  /** Rail unit between the similar posts and the best discussions. */
+  railBetweenFurtherReading: 12,
   /** Floating leaderboard pinned to the bottom of the viewport. */
   floatingLeaderboard: 13,
 } as const;
@@ -58,30 +58,57 @@ export const COMMENTS_PER_INTERLEAVED_AD = 5;
  * value they shipped in every boot payload of every surface. The remote side
  * is just the `post_adsense` boolean; the /read template needs none.
  *
- * Slots 4, 5, 6 and 8 exist in AdSense but are unplaced (see ARBITRAGE_SLOT),
- * so they are not mapped.
+ * A unit's `type` is set when it is created in AdSense and cannot be
+ * overridden from here: an in-article unit is fluid whatever the <ins> asks
+ * for, which is why slot 3 was answering a 300x250 placement with a 600px
+ * tall creative. Where the two disagree the TODO says which unit to recreate.
  */
 export const READ_ADSENSE_SLOTS: ReadAdsenseSlots = {
+  // TODO(chris): recreate as a Display 200x200 unit. The live one is fixed at
+  // 240x400, which is most of the sidebar's height.
   [ARBITRAGE_SLOT.sidebar]: {
     id: '1501379344',
     type: 'display',
-    width: 240,
-    height: 400,
+    width: 200,
+    height: 200,
   },
   [ARBITRAGE_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
-  [ARBITRAGE_SLOT.inlineMpu1]: { id: '9651332107', type: 'inArticle' },
+  // TODO(chris): recreate as a Display 300x250 unit. The live one is
+  // in-article, so it is fluid and takes whatever height the creative wants.
+  [ARBITRAGE_SLOT.inlineMpu1]: {
+    id: '9651332107',
+    type: 'display',
+    width: 300,
+    height: 250,
+  },
+  // TODO(chris): create the three new rail units (suggested names
+  // read_s04_rail_creator, read_s05_rail_share, read_s06_rail_highlights) as
+  // Display 300x250. They stay collapsed until their ids are filled in.
+  [ARBITRAGE_SLOT.railAfterCreator]: { id: '', type: 'display' },
+  [ARBITRAGE_SLOT.railAfterShare]: { id: '', type: 'display' },
+  [ARBITRAGE_SLOT.railAfterHighlights]: { id: '', type: 'display' },
   // TODO(chris): layoutKey from the read_s07_comment_native "Get code" snippet
   // (data-ad-layout-key). The slot stays collapsed until it is filled in.
   [ARBITRAGE_SLOT.commentNative]: { id: '', type: 'inFeed', layoutKey: '' },
-  [ARBITRAGE_SLOT.endOfArticle]: { id: '4399005427', type: 'multiplex' },
-  [ARBITRAGE_SLOT.railStickyMpu]: {
+  // Deliberately the same unit as the first grid: AdSense allows one unit to
+  // appear more than once on a page, so the second grid works today.
+  // TODO(chris): give it its own Multiplex unit so the two report separately.
+  [ARBITRAGE_SLOT.endOfArticleGridSecondary]: {
+    id: '4399005427',
+    type: 'multiplex',
+  },
+  [ARBITRAGE_SLOT.endOfArticleGrid]: { id: '4399005427', type: 'multiplex' },
+  [ARBITRAGE_SLOT.railStickyHalfPage]: {
     id: '4307400883',
     type: 'display',
     width: 300,
     height: 600,
   },
-  [ARBITRAGE_SLOT.railMpu1]: { id: '5249052667', type: 'display' },
-  [ARBITRAGE_SLOT.railMpu2]: { id: '6921226982', type: 'display' },
+  [ARBITRAGE_SLOT.railAfterSource]: { id: '5249052667', type: 'display' },
+  [ARBITRAGE_SLOT.railBetweenFurtherReading]: {
+    id: '6921226982',
+    type: 'display',
+  },
   // TODO(chris): this is read_s02_leaderboard doing double duty — reporting
   // blends both placements into one row. Create a dedicated read_s13 unit and
   // swap the id to get per-placement RPM back.

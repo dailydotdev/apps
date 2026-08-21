@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import CloseButton from '../../CloseButton';
 import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { isDevelopment } from '../../../lib/constants';
@@ -7,6 +7,75 @@ import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { useReadAdsenseSlots } from './useReadAdsenseSlots';
 import { useDelayedReveal } from './useDelayedReveal';
 import { ARBITRAGE_SLOT, FLOATING_LEADERBOARD_DELAY_MS } from './slots';
+
+/**
+ * Published on the document so the mobile footer nav can sit on top of the
+ * anchor instead of under it. Read with a 0px fallback, so every page without
+ * an anchor keeps the bottom of the viewport exactly as it was.
+ */
+const ANCHOR_HEIGHT_PROPERTY = '--arbitrage-anchor-height';
+
+function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Measured rather than assumed: the unit is a 320x50 phone banner on a phone
+  // and a 728x90 leaderboard from tablet up, and an unfilled slot collapses to
+  // nothing, so the space the footer nav has to clear is only known at runtime.
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) {
+      return undefined;
+    }
+
+    const root = globalThis.document.documentElement;
+    const observer = new ResizeObserver(() => {
+      root.style.setProperty(
+        ANCHOR_HEIGHT_PROPERTY,
+        `${Math.round(element.getBoundingClientRect().height)}px`,
+      );
+    });
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty(ANCHOR_HEIGHT_PROPERTY);
+    };
+  }, []);
+
+  return (
+    // Flush to the bottom of the viewport on every breakpoint, with the mobile
+    // footer nav riding above it: the anchor is the persistent placement, and a
+    // banner that sits above the tab bar loses the screen edge that makes it
+    // read as chrome rather than as content. pb-safe keeps it off the iOS home
+    // indicator.
+    <div
+      ref={ref}
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-3 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+    >
+      <div className="relative mx-auto max-w-[72rem]">
+        {/* Above the bar, never over the creative: AdSense forbids page
+            elements covering an ad, so the dismiss control gets its own row. */}
+        {!!onDismiss && (
+          <CloseButton
+            className="pointer-events-auto absolute -top-8 right-0"
+            size={ButtonSize.Small}
+            variant={ButtonVariant.Primary}
+            onClick={onDismiss}
+          />
+        )}
+        <div className="bg-background-default/95 pointer-events-auto overflow-hidden rounded-16 shadow-2 backdrop-blur">
+          <ArbitrageAdSlot
+            slot={ARBITRAGE_SLOT.floatingLeaderboard}
+            format={ArbitrageAdFormat.Anchor}
+            reach="100%"
+            refreshes
+            eager
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /**
  * Floating leaderboard, pinned to the bottom of the viewport (slot 13).
@@ -45,30 +114,6 @@ export function ArbitrageAnchor(): ReactElement | null {
   }
 
   return (
-    // bottom-16 below tablet clears the mobile footer nav, which is fixed to
-    // the bottom at the same z-3. pb-safe keeps it off the iOS home indicator.
-    <div className="pointer-events-none fixed inset-x-0 bottom-16 z-3 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] tablet:bottom-0">
-      <div className="relative mx-auto max-w-[72rem]">
-        {/* Above the bar, never over the creative: AdSense forbids page
-            elements covering an ad, so the dismiss control gets its own row. */}
-        {isLive && (
-          <CloseButton
-            className="pointer-events-auto absolute -top-8 right-0"
-            size={ButtonSize.Small}
-            variant={ButtonVariant.Primary}
-            onClick={() => setDismissed(true)}
-          />
-        )}
-        <div className="bg-background-default/95 pointer-events-auto overflow-hidden rounded-16 shadow-2 backdrop-blur">
-          <ArbitrageAdSlot
-            slot={ARBITRAGE_SLOT.floatingLeaderboard}
-            format={ArbitrageAdFormat.Anchor}
-            reach="100%"
-            refreshes
-            eager
-          />
-        </div>
-      </div>
-    </div>
+    <AnchorBar onDismiss={isLive ? () => setDismissed(true) : undefined} />
   );
 }
