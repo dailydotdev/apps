@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
 import Markdown from '../../../components/Markdown';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
@@ -32,6 +32,8 @@ import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
 import type { AgentBlock, AgentMessage } from '../chat';
+import { FEEDBACK_MARKER_REGEX } from '../chat';
+import { webappUrl } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
 import { transcriptProse } from '../prose';
 import { messageAsMarkdown, messageAsText } from '../replyText';
@@ -297,6 +299,43 @@ const ErrorTurn = ({ message }: { message: AgentMessage }): ReactElement => {
   );
 };
 
+const UserMessageText = ({
+  message,
+}: {
+  message: AgentMessage;
+}): ReactElement => {
+  const text = message.text ?? '';
+  const nodes: ReactNode[] = [];
+  let cursor = 0;
+
+  Array.from(text.matchAll(FEEDBACK_MARKER_REGEX)).forEach((match) => {
+    const [marker, postId, relId] = match;
+    nodes.push(text.slice(cursor, match.index));
+    cursor = match.index + marker.length;
+
+    if (relId === 'null') {
+      nodes.push(marker);
+      return;
+    }
+
+    const entry = message.relationships?.find((rel) => rel.id === relId);
+    nodes.push(
+      <a
+        key={`${match.index}-${postId}`}
+        href={`${webappUrl}posts/${postId}`}
+        target="_blank"
+        rel="noopener"
+        className="font-bold text-text-link hover:underline"
+      >
+        @{entry?.title ?? 'post'}
+      </a>,
+    );
+  });
+  nodes.push(text.slice(cursor));
+
+  return <>{nodes}</>;
+};
+
 const MessageRow = ({
   message,
   onPostClick,
@@ -325,7 +364,7 @@ const MessageRow = ({
         )}
         <div className="max-w-[85%] rounded-12 rounded-br-4 bg-surface-float px-3 py-2 tablet:max-w-[30rem]">
           <Typography type={TypographyType.Callout} className="!leading-normal">
-            {message.text}
+            <UserMessageText message={message} />
           </Typography>
         </div>
       </FlexCol>

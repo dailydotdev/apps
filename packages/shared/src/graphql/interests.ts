@@ -88,11 +88,21 @@ export type InterestRunBlock =
   | { type: 'picks'; caption?: string; postIds: string[] }
   | { type: 'feedLink'; label: string; count: number; postIds?: string[] };
 
+export type InterestTurnRelationship = {
+  id: string;
+  entity: 'post';
+  entityId: string;
+  url: string | null;
+  title: string | null;
+  summary: string | null;
+};
+
 export type InterestTurn = {
   id: string;
   role: 'user' | 'agent';
   createdAt: string;
   text?: string | null;
+  relationships?: InterestTurnRelationship[] | null;
   status?: InterestRunStatus | null;
   trigger?: InterestRunTrigger | null;
   feedbackId?: string | null;
@@ -186,6 +196,7 @@ export const INTEREST_HISTORY_QUERY = `
       role
       createdAt
       text
+      relationships
       status
       trigger
       feedbackId

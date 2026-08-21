@@ -27,7 +27,7 @@ import { interestHistoryQueryOptions } from './queries';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import type { Post } from '../../graphql/posts';
 import type { AgentAttachment, AgentBlock, AgentMessage } from './chat';
-import { promptWithContext } from './chat';
+import { promptWithContext, restoreCommandText } from './chat';
 import type { AgentFeedItem } from './hooks/useAgentFeed';
 
 export type AgentSummaryPost = Pick<
@@ -210,6 +210,7 @@ const turnsToMessages = ({
         role: 'user',
         at: turn.createdAt,
         text: turn.text ?? '',
+        relationships: turn.relationships,
       });
       return acc;
     }
@@ -264,7 +265,7 @@ const echoResolved = (echo: CommandEcho, turns: InterestTurn[]): boolean =>
   turns.some(
     (turn) =>
       turn.role === 'user' &&
-      turn.text === echo.prompt &&
+      restoreCommandText(turn) === echo.prompt &&
       new Date(turn.createdAt).getTime() >= echo.sentAt - echoMatchWindowMs,
   );
 
