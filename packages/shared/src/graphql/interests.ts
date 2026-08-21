@@ -73,6 +73,14 @@ export type UpdateInterestInput = {
   outputModes?: Partial<InterestOutputModes>;
 };
 
+export type CreateInterestSettings = Omit<UpdateInterestInput, 'status'>;
+
+export const defaultCreateInterestSettings: CreateInterestSettings = {
+  cadence: UserInterestCadence.Hourly,
+  fomoThreshold: 0.5,
+  outputModes: { feed: true, post: true, digest: false, notification: true },
+};
+
 export type InterestFinding = {
   id: string;
   postId: string;
@@ -163,8 +171,8 @@ export const INTEREST_FINDINGS_QUERY = `
 `;
 
 export const CREATE_INTEREST_MUTATION = `
-  mutation CreateInterest($query: String!) {
-    createInterest(query: $query) {
+  mutation CreateInterest($query: String!, $settings: CreateInterestSettingsInput) {
+    createInterest(query: $query, settings: $settings) {
       ...UserInterestFragment
     }
   }
@@ -265,10 +273,16 @@ export const getInterestFindings = async (
   return res.interestFindings;
 };
 
-export const createInterest = async (query: string): Promise<UserInterest> => {
+export const createInterest = async ({
+  query,
+  settings,
+}: {
+  query: string;
+  settings?: CreateInterestSettings;
+}): Promise<UserInterest> => {
   const res = await gqlClient.request<{ createInterest: UserInterest }>(
     CREATE_INTEREST_MUTATION,
-    { query },
+    { query, settings },
   );
   return res.createInterest;
 };

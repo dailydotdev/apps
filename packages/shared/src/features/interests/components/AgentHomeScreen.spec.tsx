@@ -4,7 +4,11 @@ import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockDesktop } from '../../../../__tests__/helpers/media';
 import { AgentHomeScreen } from './AgentHomeScreen';
-import { interestDisplayName } from '../../../graphql/interests';
+import {
+  UserInterestCadence,
+  defaultCreateInterestSettings,
+  interestDisplayName,
+} from '../../../graphql/interests';
 import { recentMockAgents } from '../mock';
 
 const renderHome = (
@@ -19,6 +23,11 @@ const renderHome = (
       />
     </TestBootProvider>,
   );
+
+const field = () =>
+  screen.getByLabelText(
+    'What should the agent hunt for?',
+  ) as HTMLTextAreaElement;
 
 beforeEach(() => mockDesktop());
 
@@ -89,11 +98,6 @@ describe('AgentHomeScreen rows at both readings', () => {
 });
 
 describe('AgentHomeScreen given a shared prompt', () => {
-  const field = () =>
-    screen.getByLabelText(
-      'What should the agent hunt for?',
-    ) as HTMLTextAreaElement;
-
   it('puts it in the field, ready to send', () => {
     renderHome({ initialQuery: 'Rust in production' });
 
@@ -151,5 +155,63 @@ describe('AgentHomeScreen given a shared prompt', () => {
     );
 
     expect(field().value).toBe('My own topic');
+  });
+});
+
+describe('AgentHomeScreen spawn settings', () => {
+  it('spawns with the default settings untouched', () => {
+    const onCreate = jest.fn();
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <AgentHomeScreen agents={[]} onCreate={onCreate} />
+      </TestBootProvider>,
+    );
+
+    fireEvent.change(field(), { target: { value: 'Rust in production' } });
+    fireEvent.click(screen.getByLabelText('Spawn the agent'));
+
+    expect(onCreate).toHaveBeenCalledWith({
+      query: 'Rust in production',
+      settings: defaultCreateInterestSettings,
+    });
+  });
+
+  it('spawns with what was picked in the settings', () => {
+    const onCreate = jest.fn();
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <AgentHomeScreen agents={[]} onCreate={onCreate} />
+      </TestBootProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Agent settings' }));
+    fireEvent.click(screen.getByLabelText('Every week'));
+    fireEvent.click(screen.getByLabelText('Send a digest email'));
+    fireEvent.change(field(), { target: { value: 'Zig internals' } });
+    fireEvent.click(screen.getByLabelText('Spawn the agent'));
+
+    expect(onCreate).toHaveBeenCalledWith({
+      query: 'Zig internals',
+      settings: {
+        cadence: UserInterestCadence.Weekly,
+        fomoThreshold: 0.5,
+        outputModes: {
+          feed: true,
+          post: true,
+          digest: true,
+          notification: true,
+        },
+      },
+    });
+  });
+
+  it('keeps the settings hidden until asked for', () => {
+    renderHome();
+
+    expect(screen.queryByLabelText('Every week')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Agent settings' }));
+
+    expect(screen.getByLabelText('Every week')).toBeInTheDocument();
   });
 });

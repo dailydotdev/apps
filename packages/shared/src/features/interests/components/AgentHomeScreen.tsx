@@ -15,7 +15,7 @@ import {
   ButtonVariant,
 } from '../../../components/buttons/Button';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
-import { ArrowIcon } from '../../../components/icons';
+import { ArrowIcon, SettingsIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
 import { DateFormat } from '../../../components/utilities/DateFormat';
@@ -30,8 +30,20 @@ import {
   stateMeaning,
   toMonitorItems,
 } from '../monitorItems';
+import type { CreateInterestSettings } from '../../../graphql/interests';
+import {
+  UserInterestCadence,
+  defaultCreateInterestSettings,
+} from '../../../graphql/interests';
 import { composerBar, composerColumn, composerFrame } from './AgentComposer';
 import { AgentSendButton } from './AgentSendButton';
+import {
+  CadenceSection,
+  FomoSection,
+  OutputModesSection,
+  cadenceOptions,
+  outputOptions,
+} from './AgentSettingsFields';
 
 const maxFieldHeight = 120;
 
@@ -138,7 +150,10 @@ export const AgentHomeScreen = ({
 }: {
   agents: AgentMonitorSource[];
   isPending?: boolean;
-  onCreate: (query: string) => void | Promise<unknown>;
+  onCreate: (input: {
+    query: string;
+    settings?: CreateInterestSettings;
+  }) => void | Promise<unknown>;
   isCreating?: boolean;
   isStandalone?: boolean;
   /** Never runs on its own: a shared link must not spend someone's allowance. */
@@ -148,6 +163,10 @@ export const AgentHomeScreen = ({
   const fieldRef = useRef<HTMLTextAreaElement>(null);
   const resizeFrame = useRef<number>();
   const [query, setQuery] = useState(initialQuery);
+  const [isSettingsOpen, setSettingsOpen] = useState(false);
+  const [settings, setSettings] = useState<CreateInterestSettings>(
+    defaultCreateInterestSettings,
+  );
   // On this statically optimised route the query is empty until after hydration,
   // so it arrives a render after `useState` read its argument. Only adopted into
   // an empty field, so it cannot overwrite what was typed.
@@ -202,8 +221,18 @@ export const AgentHomeScreen = ({
 
     // The mutation reports its own failure with a toast, so swallowing here only
     // stops the same failure escaping as an unhandled rejection.
-    Promise.resolve(onCreate(trimmed)).catch(() => undefined);
+    Promise.resolve(onCreate({ query: trimmed, settings })).catch(
+      () => undefined,
+    );
   };
+
+  const cadenceSummary =
+    cadenceOptions.find(({ value }) => value === settings.cadence)?.label ??
+    'Every hour';
+  const deliverySummary = outputOptions
+    .filter(({ key }) => settings.outputModes?.[key])
+    .map(({ short }) => short)
+    .join(', ');
 
   return (
     <FlexCol className={classNames('w-full overflow-hidden', shellHeight)}>
@@ -338,6 +367,57 @@ export const AgentHomeScreen = ({
               />
             </FlexRow>
           </FlexCol>
+
+          <FlexRow className="min-w-0 items-center gap-2">
+            <Button
+              size={ButtonSize.XSmall}
+              variant={ButtonVariant.Subtle}
+              icon={<SettingsIcon size={IconSize.Size16} />}
+              aria-expanded={isSettingsOpen}
+              className="shrink-0"
+              onClick={() => setSettingsOpen((open) => !open)}
+            >
+              Agent settings
+            </Button>
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Quaternary}
+              className="min-w-0 flex-1 truncate"
+            >
+              {cadenceSummary} ·{' '}
+              {deliverySummary
+                ? `Delivers ${deliverySummary}`
+                : 'Delivers nothing'}
+            </Typography>
+          </FlexRow>
+
+          {isSettingsOpen && (
+            <FlexCol className="agent-scroll max-h-[50vh] overflow-y-auto rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4">
+              <CadenceSection
+                value={settings.cadence ?? UserInterestCadence.Hourly}
+                disabled={isCreating}
+                onChange={(cadence) =>
+                  setSettings((current) => ({ ...current, cadence }))
+                }
+              />
+              <FomoSection
+                value={settings.fomoThreshold ?? 0.5}
+                onChange={(fomoThreshold) =>
+                  setSettings((current) => ({ ...current, fomoThreshold }))
+                }
+              />
+              <OutputModesSection
+                value={settings.outputModes}
+                disabled={isCreating}
+                onChange={(outputModes) =>
+                  setSettings((current) => ({
+                    ...current,
+                    outputModes: { ...current.outputModes, ...outputModes },
+                  }))
+                }
+              />
+            </FlexCol>
+          )}
 
           {/* `pr-6` matches the fade's width, so the last starter clears the mask
               when the row is scrolled to its end. */}
