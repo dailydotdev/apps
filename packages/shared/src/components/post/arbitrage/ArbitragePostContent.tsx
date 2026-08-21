@@ -34,6 +34,12 @@ import PostEngagements from '../PostEngagements';
  * column with no article in it, so every widget there earns a unit; the two
  * that are already commercial (the house ad widget and the sponsored tools
  * card) have no position and so get none.
+ *
+ * Below laptop the rail stacks under the article rather than beside it, so
+ * every unit here also lands on a phone. Running all of them measured well
+ * over the Better Ads Standards' 30% mobile ad density cap, which is what
+ * gets a domain's ads filtered by Chrome, so the three added here are desktop
+ * only and the phone keeps the two units the density review was run against.
  */
 const RAIL_AD: Record<
   PostWidgetPosition,
@@ -42,6 +48,7 @@ const RAIL_AD: Record<
     format: ArbitrageAdFormat;
     reach: string;
     className?: string;
+    hideOnPhone?: boolean;
   }
 > = {
   [PostWidgetPosition.Source]: {
@@ -52,16 +59,19 @@ const RAIL_AD: Record<
   [PostWidgetPosition.Creator]: {
     slot: ARBITRAGE_SLOT.railAfterCreator,
     format: ArbitrageAdFormat.MediumRectangle,
+    hideOnPhone: true,
     reach: '60%',
   },
   [PostWidgetPosition.Share]: {
     slot: ARBITRAGE_SLOT.railAfterShare,
     format: ArbitrageAdFormat.MediumRectangle,
+    hideOnPhone: true,
     reach: '50%',
   },
   [PostWidgetPosition.Highlights]: {
     slot: ARBITRAGE_SLOT.railAfterHighlights,
     format: ArbitrageAdFormat.MediumRectangle,
+    hideOnPhone: true,
     reach: '45%',
   },
   [PostWidgetPosition.SimilarPosts]: {
@@ -280,6 +290,7 @@ export function ArbitragePostContent({
             slot={ARBITRAGE_SLOT.endOfArticleGridSecondary}
             format={ArbitrageAdFormat.Grid}
             reach="12%"
+            hideOnPhone
           />
         </div>
       </PostContainer>
@@ -313,6 +324,7 @@ export function ArbitragePostContent({
               format={spec.format}
               reach={spec.reach}
               className={spec.className}
+              hideOnPhone={spec.hideOnPhone}
             />
           );
         }}
