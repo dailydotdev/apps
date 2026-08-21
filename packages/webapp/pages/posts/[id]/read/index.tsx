@@ -174,13 +174,12 @@ const ArbitragePostPage = ({
           // 72rem, wider than the standard template's 69.25rem: the main column
           // has to clear 728px for a leaderboard to render at its full size, and
           // at 69.25rem it only had 704px. 1152 - 340 rail - 64 padding = 748px.
-          // Bottom padding is the container's own pb-6 plus whatever the
-          // floating leaderboard actually occupies — nothing when it is
-          // absent or unfilled. The 7rem this used to reserve dated from
-          // before the anchor measured itself, and double-counted the mobile
-          // footer nav, which FooterNavBarLayout already spaces for: on
-          // desktop it left 112px of dead page under the rail.
-          className="min-h-page max-w-[72rem] pb-[calc(1.5rem_+_var(--arbitrage-anchor-height,0px))]"
+          // The floating leaderboard is an overlay: it reserves nothing here,
+          // the way the top leaderboard takes no space beyond its own. This
+          // used to add 7rem plus the ad's height, which double-counted the
+          // mobile footer nav that FooterNavBarLayout already spaces for and
+          // left the page ending in dead space.
+          className="min-h-page max-w-[72rem] pb-6"
         />
         <ArbitrageAnchor />
       </FooterNavBarLayout>

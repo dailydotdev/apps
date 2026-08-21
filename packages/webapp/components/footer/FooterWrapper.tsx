@@ -60,10 +60,15 @@ export default function FooterWrapper({
     <div
       className={classNames(
         'fixed left-0 z-3 w-full',
-        // Only the /read template opts in: its floating leaderboard is flush
-        // to the bottom of the viewport and publishes its measured height.
+        // Only the /read template opts in, and only below laptop. There the
+        // floating leaderboard spans the width and the nav bar would sit on
+        // top of it, so the bar rides above the ad's measured height. From
+        // laptop up the ad is confined to the article column while this
+        // wrapper's only occupant is the scroll-to-top button over on the
+        // right — they never overlap, and lifting it there just parks the
+        // button in mid-air.
         offsetByAnchorAd
-          ? '!bottom-[var(--arbitrage-anchor-height,0px)]'
+          ? '!bottom-[var(--arbitrage-anchor-height,0px)] laptop:!bottom-0'
           : '!bottom-0',
         showNav &&
           'bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
