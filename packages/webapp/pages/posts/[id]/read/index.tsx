@@ -26,6 +26,7 @@ import { ArbitragePostContent } from '@dailydotdev/shared/src/components/post/ar
 import { ArbitrageAnchor } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAnchor';
 import { ADSENSE_SCRIPT_SRC } from '@dailydotdev/shared/src/components/post/arbitrage/adsense';
 import { useReadAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
+import { AdsenseHeadHints } from '../../../../components/AdsenseHeadHints';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../../components/layouts/FooterNavBarLayout';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
@@ -119,12 +120,15 @@ const ArbitragePostPage = ({
           <link rel="preload" as="image" href={post?.image} />
         </Head>
         {adsLive && (
-          <Script
-            id="adsbygoogle-loader"
-            src={ADSENSE_SCRIPT_SRC}
-            strategy="afterInteractive"
-            crossOrigin="anonymous"
-          />
+          <>
+            <AdsenseHeadHints />
+            <Script
+              id="adsbygoogle-loader"
+              src={ADSENSE_SCRIPT_SRC}
+              strategy="afterInteractive"
+              crossOrigin="anonymous"
+            />
+          </>
         )}
         <PostSEOSchema post={post} topComments={topComments} />
         <ArbitragePostContent

@@ -145,6 +145,18 @@ describe('ArbitrageAdSlot', () => {
     expect(screen.queryByTestId('arbitrage-ad-slot-3')).not.toBeInTheDocument();
   });
 
+  it('requests eager slots on mount without waiting for intersection', () => {
+    // The suite-wide IntersectionObserver mock never fires callbacks, so a
+    // push proves the eager path skipped the observer entirely.
+    window.adsbygoogle = [];
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    render(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    expect(window.adsbygoogle).toHaveLength(1);
+  });
+
   it('serves test creatives on any host but production', () => {
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     render(<ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} />);

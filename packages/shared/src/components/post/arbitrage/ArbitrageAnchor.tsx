@@ -65,6 +65,7 @@ export function ArbitrageAnchor(): ReactElement | null {
             format={ArbitrageAdFormat.Anchor}
             reach="100%"
             refreshes
+            eager
           />
         </div>
       </div>

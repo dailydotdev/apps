@@ -47,6 +47,7 @@ export function ArbitrageTopLeaderboard(): ReactElement {
         slot={ARBITRAGE_SLOT.topLeaderboard}
         format={ArbitrageAdFormat.Leaderboard}
         reach="100%"
+        eager
         refreshes
       />
     </div>
