@@ -9,6 +9,12 @@ import type { GetDefaultFeedProps } from '@dailydotdev/shared/src/lib/feed';
 import { getFeedName } from '@dailydotdev/shared/src/lib/feed';
 import { OtherFeedPage } from '@dailydotdev/shared/src/lib/query';
 import dynamic from 'next/dynamic';
+import { SponsorDock } from '@dailydotdev/shared/src/components/sponsors/SponsorDock';
+import { ValueRailSwitcher } from '@dailydotdev/shared/src/components/sponsors/ValueRailSwitcher';
+import {
+  MOCK_LEAD_SPONSOR,
+  MOCK_PARTNER_SPONSORS,
+} from '@dailydotdev/shared/src/components/sponsors/mockSponsors';
 import { getLayout } from './FeedLayout';
 
 const MainFeedLayout = dynamic(
@@ -108,16 +114,32 @@ export default function MainFeedPage({
   }
 
   return (
-    <MainFeedLayout
-      feedName={feedName}
-      isSearchOn={isSearchOn}
-      searchQuery={router.query?.q?.toString()}
-      isFinder={isFinder}
-      searchChildren={searchChildren}
-    >
-      <h1 className="sr-only">{getFeedHeading(feedName)}</h1>
-      {children}
-    </MainFeedLayout>
+    <>
+      <MainFeedLayout
+        feedName={feedName}
+        isSearchOn={isSearchOn}
+        searchQuery={router.query?.q?.toString()}
+        isFinder={isFinder}
+        searchChildren={searchChildren}
+      >
+        <h1 className="sr-only">{getFeedHeading(feedName)}</h1>
+        {children}
+      </MainFeedLayout>
+      {/*
+       * MOCK-UP — do not merge. Concept A of the sponsored strip
+       * with a value rail docked under it (see Storybook:
+       * Extension/Sponsor Dock), wired onto the feed unconditionally
+       * so it can be reviewed on a preview deployment. Both the
+       * sponsors and the rail's data are fixtures; real inventory
+       * needs an ad-service source and a flag, and the rail needs
+       * wiring to trendingTags, before this is anything but a
+       * picture. The rail defaults to Hot right now and its label is
+       * a dropdown, so a reviewer can switch channels in place.
+       */}
+      <SponsorDock partners={MOCK_PARTNER_SPONSORS} primary={MOCK_LEAD_SPONSOR}>
+        <ValueRailSwitcher />
+      </SponsorDock>
+    </>
   );
 }
 
