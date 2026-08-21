@@ -84,6 +84,9 @@ import { useUserStack } from '@dailydotdev/shared/src/features/profile/hooks/use
 import { UserStackModal } from '@dailydotdev/shared/src/features/profile/components/stack/UserStackModal';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { useUserCompaniesQuery } from '@dailydotdev/shared/src/hooks/userCompany';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
@@ -287,6 +290,8 @@ const ToolPage = ({
   const { stackItems, add } = useUserStack(user as PublicProfile);
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const { showPrompt } = usePrompt();
+  const { userCompanies } = useUserCompaniesQuery();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [claimedByState, setClaimedByState] = useState(claimedBy);
 
@@ -294,6 +299,8 @@ const ToolPage = ({
     () => stackItems.some((item) => item.tool.id === tool.id),
     [stackItems, tool.id],
   );
+
+  const websiteHost = tool.url ? getDomainFromUrl(tool.url) : null;
 
   const [copying, onShareOrCopy] = useShareOrCopyLink({
     link: `${webappUrl}tools/${tool.slug}`,
@@ -409,12 +416,28 @@ const ToolPage = ({
   );
   const { data: viewerCanClaim } = useQuery({
     queryKey: viewerCanClaimKey,
-    // Viewer-scoped and unreleased server-side, so a schema mismatch on a
-    // not-yet-deployed API must never surface as a page error.
+    // TODO(daily-api#4110): fold into TOOL_VOTE_STATE_QUERY (same
+    // datasetTool(slug) selection, also client-side/viewer-scoped) once the
+    // API ships, and narrow this catch to the unknown-field case so a real
+    // regression doesn't silently disappear.
     queryFn: () => getToolViewerCanClaim(tool.slug).catch(() => false),
     enabled: !!user && !claimedByState,
     staleTime: StaleTime.Default,
   });
+
+  // Best-effort match to the verified company whose email domain claims
+  // this tool; falls back to the viewer's first verified company for the
+  // confirm-dialog copy if the domains don't line up exactly.
+  const claimCompanyName = useMemo(() => {
+    const domain = websiteHost?.toLowerCase();
+    const domainMatch = userCompanies.find(
+      (userCompany) =>
+        !!domain && userCompany.email?.split('@')[1]?.toLowerCase() === domain,
+    );
+    return (
+      domainMatch?.company?.name ?? userCompanies[0]?.company?.name ?? null
+    );
+  }, [userCompanies, websiteHost]);
 
   const { mutate: sendClaimTool, isPending: isClaiming } = useMutation({
     mutationFn: () => claimTool(tool.id),
@@ -439,15 +462,35 @@ const ToolPage = ({
     },
   });
 
-  const handleClaimClick = useCallback(() => {
+  const handleClaimClick = useCallback(async () => {
     logEvent({
       event_name: LogEvent.ClickClaimTool,
       target_type: TargetType.Tool,
       target_id: tool.slug,
       extra: JSON.stringify({ origin: Origin.ToolPage }),
     });
+
+    const companyName = claimCompanyName ?? 'your company';
+    const options: PromptOptions = {
+      title: `Claim this page for ${companyName}?`,
+      description: `This marks ${tool.title} as claimed by ${companyName} publicly, and can't be undone from the app.`,
+      okButton: { title: 'Claim page' },
+    };
+    const confirmed = await showPrompt(options);
+
+    if (!confirmed) {
+      return;
+    }
+
     sendClaimTool();
-  }, [logEvent, sendClaimTool, tool.slug]);
+  }, [
+    logEvent,
+    tool.slug,
+    tool.title,
+    claimCompanyName,
+    showPrompt,
+    sendClaimTool,
+  ]);
 
   const totalVotes = (voteState?.upvotes ?? 0) + (voteState?.downvotes ?? 0);
   const sentiment =
@@ -540,7 +583,6 @@ const ToolPage = ({
     [logEvent],
   );
 
-  const websiteHost = tool.url ? getDomainFromUrl(tool.url) : null;
   const sparklinePoints = useMemo(
     () => (adoption ? getSparklinePoints(adoption) : null),
     [adoption],
@@ -617,7 +659,7 @@ const ToolPage = ({
               </Link>
             )}
             {claimedByState && (
-              <Tooltip content={`Officially claimed by ${claimedByState.name}`}>
+              <Tooltip content={`Claimed by ${claimedByState.name}`}>
                 <span className="border-accent-avocado-default/40 flex items-center rounded-8 border bg-accent-avocado-subtlest px-2.5 py-0.5 font-bold text-text-primary typo-footnote">
                   <ProfilePicture
                     size={ProfileImageSize.Size16}
@@ -628,7 +670,7 @@ const ToolPage = ({
                       id: claimedByState.name,
                     }}
                   />
-                  Verified by {claimedByState.name}
+                  Claimed by {claimedByState.name}
                 </span>
               </Tooltip>
             )}
@@ -1099,6 +1141,9 @@ export async function getStaticProps({
       getToolTakes(tool.id).catch(() => []),
       getToolOfficialSource(slug).catch(() => null),
       getToolAlternatives(tool.id, ALTERNATIVES_COUNT).catch(() => []),
+      // TODO(daily-api#4110): narrow this catch to the unknown-field case
+      // once the API deploys, so a real regression doesn't silently drop
+      // the claim badge for every tool.
       getToolClaimedBy(slug).catch(() => null),
     ]);
 
