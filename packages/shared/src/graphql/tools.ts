@@ -2,6 +2,7 @@ import { gql } from 'graphql-request';
 import { gqlClient } from './common';
 import type { DatasetTool } from './user/userStack';
 import type { Source } from './sources';
+import type { Company } from '../lib/userCompany';
 
 export interface ToolPageTool extends DatasetTool {
   url: string | null;
@@ -93,6 +94,74 @@ export const getToolOfficialSource = async (
     datasetTool: { officialSource: ToolOfficialSource | null };
   }>(TOOL_OFFICIAL_SOURCE_QUERY, { slug });
   return result.datasetTool.officialSource;
+};
+
+export type ToolClaimedBy = Pick<Company, 'id' | 'name' | 'image'>;
+
+const TOOL_CLAIMED_BY_QUERY = gql`
+  query ToolClaimedBy($slug: String!) {
+    datasetTool(slug: $slug) {
+      claimedBy {
+        id
+        name
+        image
+      }
+    }
+  }
+`;
+
+// Fetched separately from DATASET_TOOL_QUERY so a not-yet-deployed API
+// (missing this field) can't 500 the whole page during the rollout window.
+export const getToolClaimedBy = async (
+  slug: string,
+): Promise<ToolClaimedBy | null> => {
+  const result = await gqlClient.request<{
+    datasetTool: { claimedBy: ToolClaimedBy | null };
+  }>(TOOL_CLAIMED_BY_QUERY, { slug });
+  return result.datasetTool.claimedBy;
+};
+
+const TOOL_VIEWER_CAN_CLAIM_QUERY = gql`
+  query ToolViewerCanClaim($slug: String!) {
+    datasetTool(slug: $slug) {
+      viewerCanClaim
+    }
+  }
+`;
+
+// Viewer-scoped, so it must never be baked into the anonymous SSG payload;
+// callers fetch this client-side only, gated to logged-in users.
+export const getToolViewerCanClaim = async (slug: string): Promise<boolean> => {
+  const result = await gqlClient.request<{
+    datasetTool: { viewerCanClaim: boolean };
+  }>(TOOL_VIEWER_CAN_CLAIM_QUERY, { slug });
+  return result.datasetTool.viewerCanClaim;
+};
+
+export interface ToolClaimResult {
+  claimedBy: ToolClaimedBy | null;
+  viewerCanClaim: boolean;
+}
+
+const CLAIM_TOOL_MUTATION = gql`
+  mutation ClaimTool($id: ID!) {
+    claimTool(id: $id) {
+      claimedBy {
+        id
+        name
+        image
+      }
+      viewerCanClaim
+    }
+  }
+`;
+
+export const claimTool = async (id: string): Promise<ToolClaimResult> => {
+  const result = await gqlClient.request<{ claimTool: ToolClaimResult }>(
+    CLAIM_TOOL_MUTATION,
+    { id },
+  );
+  return result.claimTool;
 };
 
 export interface ToolAlternative extends DatasetTool {
