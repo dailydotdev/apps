@@ -49,5 +49,7 @@ export const hasLiveAdsenseUnits = (slots: ReadAdsenseSlots): boolean =>
 declare global {
   interface Window {
     adsbygoogle?: Record<string, unknown>[];
+    /** Once-per-page latch for the test-mode telemetry event. */
+    adsenseTestModeLogged?: boolean;
   }
 }

@@ -1,5 +1,10 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render as rtlRender,
+  screen,
+} from '@testing-library/react';
 import {
   ArbitrageAdFormat,
   ArbitrageAdSlot,
@@ -12,11 +17,23 @@ import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
 import type { ReadAdsenseSlots } from './adsense';
 import { ADSENSE_CLIENT_ID } from './adsense';
-import { featurePostAdsense } from '../../../lib/featureManagement';
+import {
+  featurePostAdsense,
+  featureReadAdsense,
+} from '../../../lib/featureManagement';
+import { useFeature } from '../../GrowthBookProvider';
 import { FLOATING_LEADERBOARD_DELAY_MS, ORGANIC_SLOT } from './slots';
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
+}));
+
+jest.mock('../../GrowthBookProvider', () => ({
+  ...(jest.requireActual('../../GrowthBookProvider') as Record<
+    string,
+    unknown
+  >),
+  useFeature: jest.fn(),
 }));
 
 jest.mock('../../../lib/constants', () => ({
@@ -41,13 +58,29 @@ const mockSlotMaps = jest.requireMock('./slots') as {
 };
 
 const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
+const mockUseFeature = jest.mocked(useFeature);
 
-const flags = { organic: false };
+const flags = { organic: false, read: true };
 
+// Both surfaces are anonymous-only and wait for boot, so the default render
+// is an anonymous visitor with auth resolved.
+const anonymousAuth = { isAuthReady: true } as unknown as AuthContextData;
+const render = (
+  ui: React.ReactElement,
+  options?: Parameters<typeof rtlRender>[1],
+): ReturnType<typeof rtlRender> =>
+  rtlRender(
+    <AuthContext.Provider value={anonymousAuth}>{ui}</AuthContext.Provider>,
+    options,
+  );
+
+// Nested inside the anonymous default; the closest provider wins.
 const renderLoggedIn = (ui: React.ReactElement) =>
   render(
     <AuthContext.Provider
-      value={{ user: { id: 'u1' } } as unknown as AuthContextData}
+      value={
+        { isAuthReady: true, user: { id: 'u1' } } as unknown as AuthContextData
+      }
     >
       {ui}
     </AuthContext.Provider>,
@@ -66,8 +99,12 @@ const setOrganicSlots = (slots: ReadAdsenseSlots): void => {
 beforeEach(() => {
   mockConstants.isDevelopment = false;
   flags.organic = false;
+  flags.read = true;
   mockSlotMaps.READ_ADSENSE_SLOTS = {};
   mockSlotMaps.ORGANIC_ADSENSE_SLOTS = {};
+  mockUseFeature.mockImplementation((feature) =>
+    feature === featureReadAdsense ? flags.read : feature.defaultValue,
+  );
   mockUseConditionalFeature.mockImplementation(
     ({ feature, shouldEvaluate }) => {
       if (feature === featurePostAdsense && shouldEvaluate) {
@@ -229,6 +266,38 @@ describe('ArbitrageAdSlot', () => {
     expect(ins).not.toHaveAttribute('data-ad-format');
   });
 
+  it('never renders for logged-in users', () => {
+    setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
+    const { container } = renderLoggedIn(
+      <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} eager />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('stays dark until auth resolves, so a logged-in boot never sees a flash', () => {
+    setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
+    const { container } = rtlRender(
+      <AuthContext.Provider
+        value={{ isAuthReady: false } as unknown as AuthContextData}
+      >
+        <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} eager />
+      </AuthContext.Provider>,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('goes dark when the read_adsense kill switch is off', () => {
+    flags.read = false;
+    setSlots({ '3': { id: '1234567890', type: 'inArticle' } });
+    const { container } = render(
+      <ArbitrageAdSlot slot={3} format={ArbitrageAdFormat.Rectangle} eager />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
   it('collapses unconfigured and empty-id slots in live mode', () => {
     setSlots({
       '3': { id: '1234567890', type: 'inArticle' },
@@ -292,6 +361,28 @@ describe('ArbitrageAdSlot on the organic surface', () => {
     );
 
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('never enrolls into post_adsense while no unit has an id', () => {
+    // Enrollment with nothing renderable fills the experiment with users for
+    // whom variant and control are byte-identical.
+    mockSlotMaps.ORGANIC_ADSENSE_SLOTS = {
+      [ORGANIC_SLOT.topLeaderboard]: { id: '', type: 'display' },
+    };
+    flags.organic = true;
+    const { container } = render(
+      <ArbitrageAdSlot
+        surface="organic"
+        slot={ORGANIC_SLOT.topLeaderboard}
+        format={ArbitrageAdFormat.Leaderboard}
+        eager
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
   });
 
   it('shows no development placeholder outside the read template', () => {

@@ -294,6 +294,16 @@ function LiveAdSlot({
     }
     if (productionHost !== window.location.hostname) {
       element.setAttribute('data-adtest', 'on');
+      // Once per page, into real telemetry: a misconfigured webappUrl in
+      // production silently turns every impression into an unpaid test
+      // impression, and this event is the only alarm that can catch it.
+      if (!window.adsenseTestModeLogged) {
+        window.adsenseTestModeLogged = true;
+        logEvent({
+          event_name: LogEvent.AdsenseTestMode,
+          extra: JSON.stringify({ host: window.location.hostname }),
+        });
+      }
     }
 
     let graceElapsed = false;
