@@ -128,6 +128,7 @@ export const SidebarDesktop = ({
             slot={ARBITRAGE_SLOT.sidebar}
             format={ArbitrageAdFormat.SidebarRail}
             reach="100%"
+            eager
           />
         </div>
       )}

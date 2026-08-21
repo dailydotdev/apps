@@ -168,6 +168,13 @@ export interface ArbitrageAdSlotProps {
    * is a /read-template tool and never renders for the organic surface.
    */
   surface?: 'read' | 'organic';
+  /**
+   * Requests the ad on mount instead of waiting to near the viewport. For
+   * slots visible at first paint the intersection wait only adds latency —
+   * and the adsbygoogle array queues pushes before the script has even
+   * arrived, so eager pushes ride its very first processing pass.
+   */
+  eager?: boolean;
 }
 
 type InsAttributes = {
@@ -232,9 +239,10 @@ function LiveAdSlot({
   format,
   className,
   hideOnPhone,
+  eager,
 }: Pick<
   ArbitrageAdSlotProps,
-  'slot' | 'format' | 'className' | 'hideOnPhone'
+  'slot' | 'format' | 'className' | 'hideOnPhone' | 'eager'
 > & {
   config: AdsenseSlotConfig;
 }): ReactElement {
@@ -295,9 +303,25 @@ function LiveAdSlot({
       element.setAttribute('data-adtest', 'on');
     }
 
+    const requestAd = (): void => {
+      try {
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.adsbygoogle.push({});
+      } catch {
+        // adsbygoogle.js blocked (ad blocker) — leave the reserved box empty.
+      }
+    };
+
+    if (eager) {
+      requestAd();
+      return undefined;
+    }
+
     let pushed = false;
     // Request the ad only near the viewport: viewability drives AdSense CPMs,
-    // and never-seen impressions depress the whole page's pricing.
+    // and never-seen impressions depress the whole page's pricing. The margin
+    // is roughly a viewport of scroll — enough for the auction round-trip to
+    // finish before the slot scrolls into view at reading speed.
     const observer = new IntersectionObserver(
       (entries) => {
         if (pushed || !entries.some((entry) => entry.isIntersecting)) {
@@ -305,19 +329,14 @@ function LiveAdSlot({
         }
         pushed = true;
         observer.disconnect();
-        try {
-          window.adsbygoogle = window.adsbygoogle || [];
-          window.adsbygoogle.push({});
-        } catch {
-          // adsbygoogle.js blocked (ad blocker) — leave the reserved box empty.
-        }
+        requestAd();
       },
-      { rootMargin: '200px' },
+      { rootMargin: '600px' },
     );
     observer.observe(element);
 
     return () => observer.disconnect();
-  }, []);
+  }, [eager]);
 
   return (
     // rounded-16 + overflow-hidden matches the feed Card so a filled slot reads
@@ -376,6 +395,7 @@ export function ArbitrageAdSlot({
   refreshes,
   hideOnPhone,
   surface = 'read',
+  eager,
 }: ArbitrageAdSlotProps): ReactElement | null {
   const readSlots = useReadAdsenseSlots();
   const organicSlots = useOrganicAdsenseSlots();
@@ -394,6 +414,7 @@ export function ArbitrageAdSlot({
         format={format}
         className={className}
         hideOnPhone={hideOnPhone}
+        eager={eager}
       />
     );
   }

@@ -60,6 +60,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
+import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -284,12 +285,15 @@ export const PostPage = ({
             <link rel="preload" as="image" href={post?.image} />
           </Head>
           {adsenseActive && (
-            <Script
-              id="adsbygoogle-loader"
-              src={ADSENSE_SCRIPT_SRC}
-              strategy="afterInteractive"
-              crossOrigin="anonymous"
-            />
+            <>
+              <AdsenseHeadHints />
+              <Script
+                id="adsbygoogle-loader"
+                src={ADSENSE_SCRIPT_SRC}
+                strategy="afterInteractive"
+                crossOrigin="anonymous"
+              />
+            </>
           )}
           <PostSEOSchema post={post} topComments={topComments} />
           {/* Above the whole two-column container rather than inside the
@@ -302,6 +306,7 @@ export const PostPage = ({
               slot={ORGANIC_SLOT.topLeaderboard}
               format={ArbitrageAdFormat.Leaderboard}
               className="mx-auto mt-4 max-w-[69.25rem]"
+              eager
             />
           )}
           {showRedesign ? (
