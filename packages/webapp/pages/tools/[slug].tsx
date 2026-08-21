@@ -13,6 +13,7 @@ import type {
   AlsoStackedTool,
   ToolAdoption,
   ToolAlternative,
+  ToolClaimedBy,
   ToolOfficialSource,
   ToolPageTool,
   ToolStacker,
@@ -21,16 +22,19 @@ import type {
   ToolVoteState,
 } from '@dailydotdev/shared/src/graphql/tools';
 import {
+  claimTool,
   getDatasetTool,
   getToolAdoption,
   getToolAlternatives,
   getToolCategoryAnchor,
+  getToolClaimedBy,
   getToolOfficialSource,
   getToolsAlsoStacked,
   getToolStackers,
   getToolStackersFollowing,
   getToolTakes,
   getToolTopPosts,
+  getToolViewerCanClaim,
   getToolVoteState,
   voteTool,
 } from '@dailydotdev/shared/src/graphql/tools';
@@ -47,8 +51,13 @@ import type {
   AddUserStackInput,
 } from '@dailydotdev/shared/src/graphql/user/userStack';
 import { getTopSquadsForTool } from '@dailydotdev/shared/src/graphql/user/userStack';
-import { ApiError } from '@dailydotdev/shared/src/graphql/common';
+import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
+import {
+  ApiError,
+  DEFAULT_ERROR,
+} from '@dailydotdev/shared/src/graphql/common';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import {
   Typography,
   TypographyColor,
@@ -75,6 +84,9 @@ import { useUserStack } from '@dailydotdev/shared/src/features/profile/hooks/use
 import { UserStackModal } from '@dailydotdev/shared/src/features/profile/components/stack/UserStackModal';
 import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
+import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
+import { useUserCompaniesQuery } from '@dailydotdev/shared/src/hooks/userCompany';
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
@@ -174,6 +186,7 @@ export interface ToolPageProps {
   takes: ToolTake[];
   officialSource: ToolOfficialSource | null;
   alternatives: ToolAlternative[];
+  claimedBy: ToolClaimedBy | null;
 }
 
 const SPARK_WIDTH = 400;
@@ -271,17 +284,23 @@ const ToolPage = ({
   takes,
   officialSource,
   alternatives,
+  claimedBy,
 }: ToolPageProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const { stackItems, add } = useUserStack(user as PublicProfile);
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
+  const { showPrompt } = usePrompt();
+  const { userCompanies } = useUserCompaniesQuery();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [claimedByState, setClaimedByState] = useState(claimedBy);
 
   const isInStack = useMemo(
     () => stackItems.some((item) => item.tool.id === tool.id),
     [stackItems, tool.id],
   );
+
+  const websiteHost = tool.url ? getDomainFromUrl(tool.url) : null;
 
   const [copying, onShareOrCopy] = useShareOrCopyLink({
     link: `${webappUrl}tools/${tool.slug}`,
@@ -389,6 +408,90 @@ const ToolPage = ({
     [user, showLogin, sendVote, voteState?.userVote, logEvent, tool.slug],
   );
 
+  const viewerCanClaimKey = generateQueryKey(
+    RequestKey.UserTools,
+    user,
+    'tool-viewer-can-claim',
+    tool.id,
+  );
+  const { data: viewerCanClaim } = useQuery({
+    queryKey: viewerCanClaimKey,
+    // TODO(daily-api#4110): fold into TOOL_VOTE_STATE_QUERY (same
+    // datasetTool(slug) selection, also client-side/viewer-scoped) once the
+    // API ships, and narrow this catch to the unknown-field case so a real
+    // regression doesn't silently disappear.
+    queryFn: () => getToolViewerCanClaim(tool.slug).catch(() => false),
+    enabled: !!user && !claimedByState,
+    staleTime: StaleTime.Default,
+  });
+
+  // Best-effort match to the verified company whose email domain claims
+  // this tool; falls back to the viewer's first verified company for the
+  // confirm-dialog copy if the domains don't line up exactly.
+  const claimCompanyName = useMemo(() => {
+    const domain = websiteHost?.toLowerCase();
+    const domainMatch = userCompanies.find(
+      (userCompany) =>
+        !!domain && userCompany.email?.split('@')[1]?.toLowerCase() === domain,
+    );
+    return (
+      domainMatch?.company?.name ?? userCompanies[0]?.company?.name ?? null
+    );
+  }, [userCompanies, websiteHost]);
+
+  const { mutate: sendClaimTool, isPending: isClaiming } = useMutation({
+    mutationFn: () => claimTool(tool.id),
+    onSuccess: (result) => {
+      setClaimedByState(result.claimedBy);
+      queryClient.setQueryData(viewerCanClaimKey, result.viewerCanClaim);
+      if (!result.claimedBy) {
+        return;
+      }
+      displayToast(`Page claimed for ${result.claimedBy.name}`);
+      logEvent({
+        event_name: LogEvent.ClaimTool,
+        target_type: TargetType.Tool,
+        target_id: tool.slug,
+        extra: JSON.stringify({ origin: Origin.ToolPage }),
+      });
+    },
+    onError: (error) => {
+      const message = (error as unknown as ApiErrorResult)?.response
+        ?.errors?.[0]?.message;
+      displayToast(message ?? DEFAULT_ERROR);
+    },
+  });
+
+  const handleClaimClick = useCallback(async () => {
+    logEvent({
+      event_name: LogEvent.ClickClaimTool,
+      target_type: TargetType.Tool,
+      target_id: tool.slug,
+      extra: JSON.stringify({ origin: Origin.ToolPage }),
+    });
+
+    const companyName = claimCompanyName ?? 'your company';
+    const options: PromptOptions = {
+      title: `Claim this page for ${companyName}?`,
+      description: `This marks ${tool.title} as claimed by ${companyName} publicly, and can't be undone from the app.`,
+      okButton: { title: 'Claim page' },
+    };
+    const confirmed = await showPrompt(options);
+
+    if (!confirmed) {
+      return;
+    }
+
+    sendClaimTool();
+  }, [
+    logEvent,
+    tool.slug,
+    tool.title,
+    claimCompanyName,
+    showPrompt,
+    sendClaimTool,
+  ]);
+
   const totalVotes = (voteState?.upvotes ?? 0) + (voteState?.downvotes ?? 0);
   const sentiment =
     totalVotes > 0
@@ -480,7 +583,6 @@ const ToolPage = ({
     [logEvent],
   );
 
-  const websiteHost = tool.url ? getDomainFromUrl(tool.url) : null;
   const sparklinePoints = useMemo(
     () => (adoption ? getSparklinePoints(adoption) : null),
     [adoption],
@@ -556,6 +658,22 @@ const ToolPage = ({
                 </a>
               </Link>
             )}
+            {claimedByState && (
+              <Tooltip content={`Claimed by ${claimedByState.name}`}>
+                <span className="border-accent-avocado-default/40 flex items-center rounded-8 border bg-accent-avocado-subtlest px-2.5 py-0.5 font-bold text-text-primary typo-footnote">
+                  <ProfilePicture
+                    size={ProfileImageSize.Size16}
+                    rounded="full"
+                    className="!mr-1.5"
+                    user={{
+                      image: claimedByState.image,
+                      id: claimedByState.name,
+                    }}
+                  />
+                  Claimed by {claimedByState.name}
+                </span>
+              </Tooltip>
+            )}
             {websiteHost && (
               <a
                 href={tool.url ?? undefined}
@@ -574,6 +692,18 @@ const ToolPage = ({
               </Link>
             )}
           </div>
+          {!claimedByState && !!user && !!viewerCanClaim && (
+            <Button
+              variant={ButtonVariant.Subtle}
+              size={ButtonSize.Small}
+              loading={isClaiming}
+              disabled={isClaiming}
+              onClick={handleClaimClick}
+              className="self-start"
+            >
+              {websiteHost ? `Work at ${websiteHost}? ` : ''}Claim this page
+            </Button>
+          )}
         </div>
         <Button
           variant={isInStack ? ButtonVariant.Secondary : ButtonVariant.Primary}
@@ -997,6 +1127,7 @@ export async function getStaticProps({
       takes,
       officialSource,
       alternatives,
+      claimedBy,
     ] = await Promise.all([
       getToolsAlsoStacked(tool.id),
       getTopSquadsForTool({ toolId: tool.id, first: 3 }),
@@ -1010,6 +1141,10 @@ export async function getStaticProps({
       getToolTakes(tool.id).catch(() => []),
       getToolOfficialSource(slug).catch(() => null),
       getToolAlternatives(tool.id, ALTERNATIVES_COUNT).catch(() => []),
+      // TODO(daily-api#4110): narrow this catch to the unknown-field case
+      // once the API deploys, so a real regression doesn't silently drop
+      // the claim badge for every tool.
+      getToolClaimedBy(slug).catch(() => null),
     ]);
 
     const seoTitles = getPageSeoTitles(
@@ -1027,6 +1162,7 @@ export async function getStaticProps({
         takes,
         officialSource,
         alternatives,
+        claimedBy,
         seo: {
           title: seoTitles.title,
           openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },

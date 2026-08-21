@@ -72,7 +72,7 @@ const PickRow = ({
           onClick={() => onOpen(post)}
           className="w-full text-left after:absolute after:inset-0"
         >
-          {post.title}
+          {post.title ?? post.sharedPost?.title}
         </button>
       </Typography>
       <AgentRowActions post={post} reveal />

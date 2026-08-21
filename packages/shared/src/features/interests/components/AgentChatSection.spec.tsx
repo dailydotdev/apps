@@ -10,7 +10,7 @@ import * as lazyModal from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { Origin } from '../../../lib/log';
 import type { AgentMessage } from '../chat';
-import { AgentProvider } from '../AgentContext';
+import { AgentProvider, useAgent } from '../AgentContext';
 import { AgentChatSection } from './AgentChatSection';
 
 const post = (id: string, title: string): Post =>
@@ -51,6 +51,39 @@ beforeEach(() => {
 });
 
 afterEach(() => jest.restoreAllMocks());
+
+describe('a user message with post markers', () => {
+  it('renders resolved markers as titled links and failed ones as text', () => {
+    const userMessage: AgentMessage = {
+      id: 'u1',
+      role: 'user',
+      at: new Date(0).toISOString(),
+      text: 'love @dailydev:post:p9:r1 not @dailydev:post:gone:null',
+      relationships: [
+        {
+          id: 'r1',
+          entity: 'post',
+          entityId: 'p9',
+          url: null,
+          title: 'Zig rocks',
+          summary: null,
+        },
+      ],
+    };
+
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <AgentProvider id="a1" isDemo initialMessages={[userMessage]}>
+          <AgentChatSection />
+        </AgentProvider>
+      </TestBootProvider>,
+    );
+
+    const link = screen.getByRole('link', { name: '@Zig rocks' });
+    expect(link).toHaveAttribute('href', expect.stringContaining('posts/p9'));
+    expect(document.body).toHaveTextContent('@dailydev:post:gone:null');
+  });
+});
 
 describe('copying a reply', () => {
   const copied = () => {
@@ -231,5 +264,88 @@ describe('sharing a reply', () => {
         name: /Copy link/,
       }),
     ).toBeEnabled();
+  });
+});
+
+describe('a post link in the reply text', () => {
+  const ActivePostProbe = () => {
+    const { activeContent } = useAgent();
+    return (
+      <div data-testid="active-post">
+        {activeContent?.type === 'post' ? activeContent.post.id : 'none'}
+      </div>
+    );
+  };
+
+  const linked: AgentMessage = {
+    id: 'm2',
+    role: 'agent',
+    at: new Date(0).toISOString(),
+    blocks: [
+      {
+        type: 'text',
+        html: '<p>Read <a href="https://app.daily.dev/posts/p1/">Zig 0.15</a>, <a href="https://app.daily.dev/posts/p3">Comptime tricks</a> or <a href="https://example.com/posts/xyz">elsewhere</a>.</p>',
+      },
+    ],
+  };
+
+  const renderLinked = () =>
+    render(
+      <TestBootProvider client={new QueryClient()}>
+        <AgentProvider
+          id="a1"
+          isDemo
+          initialMessages={[linked]}
+          findings={[
+            {
+              id: 'f1',
+              post: post('p1', 'Zig 0.15'),
+              score: 0.9,
+              rationale: '',
+              createdAt: new Date(0).toISOString(),
+            },
+            {
+              id: 'f3',
+              post: {
+                ...post('p3', 'Comptime tricks'),
+                commentsPermalink:
+                  'https://app.daily.dev/posts/comptime-tricks-p3',
+              },
+              score: 0.8,
+              rationale: '',
+              createdAt: new Date(0).toISOString(),
+            },
+          ]}
+        >
+          <AgentChatSection />
+          <ActivePostProbe />
+        </AgentProvider>
+      </TestBootProvider>,
+    );
+
+  it('opens a known post in the side pane instead of navigating', () => {
+    renderLinked();
+
+    fireEvent.click(screen.getByRole('link', { name: 'Zig 0.15' }));
+
+    expect(screen.getByTestId('active-post')).toHaveTextContent('p1');
+  });
+
+  it('resolves an id link when the permalink carries a slug', () => {
+    renderLinked();
+
+    fireEvent.click(screen.getByRole('link', { name: 'Comptime tricks' }));
+
+    expect(screen.getByTestId('active-post')).toHaveTextContent('p3');
+  });
+
+  it('leaves links it cannot resolve alone', () => {
+    renderLinked();
+
+    const link = screen.getByRole('link', { name: 'elsewhere' });
+    link.addEventListener('click', (event) => event.preventDefault());
+    fireEvent.click(link);
+
+    expect(screen.getByTestId('active-post')).toHaveTextContent('none');
   });
 });

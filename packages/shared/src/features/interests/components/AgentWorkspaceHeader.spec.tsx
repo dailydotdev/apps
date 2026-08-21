@@ -53,6 +53,14 @@ describe('the workspace header', () => {
     ).toBeInTheDocument();
   });
 
+  it('prefers the generated title over the raw prompt', () => {
+    renderHeader(interest({ title: 'Zig Project Radar' }));
+
+    expect(
+      screen.getByRole('heading', { name: 'Zig Project Radar' }),
+    ).toBeInTheDocument();
+  });
+
   it('leads back to the agents screen', () => {
     renderHeader(interest());
 

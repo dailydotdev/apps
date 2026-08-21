@@ -27,7 +27,7 @@ import { interestHistoryQueryOptions } from './queries';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import type { Post } from '../../graphql/posts';
 import type { AgentAttachment, AgentBlock, AgentMessage } from './chat';
-import { promptWithContext } from './chat';
+import { promptWithContext, restoreCommandText } from './chat';
 import type { AgentFeedItem } from './hooks/useAgentFeed';
 
 export type AgentSummaryPost = Pick<
@@ -143,6 +143,18 @@ const isRunPending = (turn: InterestTurn): boolean =>
   (turn.status === InterestRunStatus.Queued ||
     turn.status === InterestRunStatus.Running);
 
+const resolvePosts = (
+  postIds: string[],
+  postsById: Map<string, Post>,
+): Post[] =>
+  postIds.reduce<Post[]>((found, postId) => {
+    const post = postsById.get(postId);
+    if (post) {
+      found.push(post);
+    }
+    return found;
+  }, []);
+
 const mapServerBlocks = (
   turn: InterestTurn,
   postsById: Map<string, Post>,
@@ -155,13 +167,7 @@ const mapServerBlocks = (
     }
 
     if (block.type === 'picks') {
-      const posts = block.postIds.reduce<Post[]>((found, postId) => {
-        const post = postsById.get(postId);
-        if (post) {
-          found.push(post);
-        }
-        return found;
-      }, []);
+      const posts = resolvePosts(block.postIds, postsById);
 
       if (posts.length) {
         acc.push({ type: 'picks', caption: block.caption, posts });
@@ -169,8 +175,11 @@ const mapServerBlocks = (
       return acc;
     }
 
-    if (allPosts.length) {
-      acc.push({ type: 'feedLink', label: block.label, posts: allPosts });
+    const posts = block.postIds?.length
+      ? resolvePosts(block.postIds, postsById)
+      : allPosts;
+    if (posts.length) {
+      acc.push({ type: 'feedLink', label: block.label, posts });
     }
     return acc;
   }, []);
@@ -179,13 +188,11 @@ const turnsToMessages = ({
   turns,
   postsById,
   allPosts,
-  summaryPostsById,
   interest,
 }: {
   turns: InterestTurn[];
   postsById: Map<string, Post>;
   allPosts: Post[];
-  summaryPostsById: Map<string, AgentSummaryPost>;
   interest?: UserInterest;
 }): AgentMessage[] => {
   const feedbackTextById = new Map(
@@ -201,6 +208,7 @@ const turnsToMessages = ({
         role: 'user',
         at: turn.createdAt,
         text: turn.text ?? '',
+        relationships: turn.relationships,
       });
       return acc;
     }
@@ -233,10 +241,6 @@ const turnsToMessages = ({
       isError,
       retryText,
       blocks: isPending || isError ? undefined : blocks,
-      summaryPost:
-        !isPending && !isError && turn.summaryPostId
-          ? summaryPostsById.get(turn.summaryPostId)
-          : undefined,
     });
     return acc;
   }, []);
@@ -255,7 +259,7 @@ const echoResolved = (echo: CommandEcho, turns: InterestTurn[]): boolean =>
   turns.some(
     (turn) =>
       turn.role === 'user' &&
-      turn.text === echo.prompt &&
+      restoreCommandText(turn) === echo.prompt &&
       new Date(turn.createdAt).getTime() >= echo.sentAt - echoMatchWindowMs,
   );
 
@@ -343,11 +347,6 @@ export const AgentProvider = ({
     return { postsById: byId, allPosts: findings.map(({ post }) => post) };
   }, [findings]);
 
-  const summaryPostsById = useMemo(
-    () => new Map(posts.map((post) => [post.id, post])),
-    [posts],
-  );
-
   const unresolvedEchoes = useMemo(
     () => echoes.filter((echo) => !echoResolved(echo, turns)),
     [echoes, turns],
@@ -389,7 +388,6 @@ export const AgentProvider = ({
         turns,
         postsById,
         allPosts,
-        summaryPostsById,
         interest,
       }),
       ...echoed,
@@ -400,7 +398,6 @@ export const AgentProvider = ({
     interest,
     isDemo,
     postsById,
-    summaryPostsById,
     turns,
     unresolvedEchoes,
   ]);
@@ -729,7 +726,7 @@ export const AgentProvider = ({
       status,
       isDemo,
       isWorking,
-      workingLabel: isWorking ? workingMeta?.label ?? 'Working' : undefined,
+      workingLabel: isWorking ? workingMeta?.label : undefined,
       workingSince,
       isTargetWorking: (targetId) =>
         isWorking && workingMeta?.targetId === targetId,

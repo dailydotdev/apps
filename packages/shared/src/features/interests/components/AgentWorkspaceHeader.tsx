@@ -24,6 +24,7 @@ import { useViewSize, ViewSize } from '../../../hooks';
 import { isDevelopment, webappUrl } from '../../../lib/constants';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { contentTargetId, useAgent } from '../AgentContext';
+import { interestDisplayName } from '../../../graphql/interests';
 import { useShareAgent } from '../hooks/useShareAgent';
 import { AgentSettingsMenu } from './AgentSettingsMenu';
 import { AgentStatusTile } from './AgentStatusTile';
@@ -122,7 +123,7 @@ export const AgentWorkspaceHeader = (): ReactElement => {
       </Tooltip>
       <AgentStatusTile />
       <h1 className="min-w-0 shrink truncate font-bold typo-footnote">
-        {interest?.query ?? 'Your agent'}
+        {interestDisplayName(interest)}
       </h1>
       <span className="flex-1" />
       <FlexRow className="shrink-0 items-center gap-0.5">

@@ -19,6 +19,7 @@ import { useToastNotification } from '../../../hooks/useToastNotification';
 import { useViewSize, ViewSize } from '../../../hooks';
 import type { AgentMessage } from '../chat';
 import { nodeToPng } from '../nodeToPng';
+import { interestDisplayName } from '../../../graphql/interests';
 import { useAgent } from '../AgentContext';
 import { useShareAgent } from '../hooks/useShareAgent';
 import { AgentReplyCard } from './AgentReplyCard';
@@ -36,7 +37,7 @@ export const AgentShareReplyModal = ({
   message: AgentMessage;
 }): ReactElement => {
   const { interest } = useAgent();
-  const name = interest?.query ?? 'This agent';
+  const name = interestDisplayName(interest, 'This agent');
   const { isCopying, isSharing, onShare } = useShareAgent(interest);
   const { displayToast } = useToastNotification();
   const [isCopied, setCopied] = useState(false);

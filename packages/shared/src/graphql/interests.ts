@@ -44,6 +44,7 @@ export enum InterestRunTrigger {
 export type UserInterest = {
   id: string;
   query: string;
+  title?: string | null;
   status: UserInterestStatus;
   cadence: UserInterestCadence;
   fomoThreshold: number;
@@ -59,12 +60,25 @@ export type UserInterest = {
   updatedAt: string;
 };
 
+export const interestDisplayName = (
+  interest: Pick<UserInterest, 'query' | 'title'> | null | undefined,
+  fallback = 'Your agent',
+): string => interest?.title ?? interest?.query ?? fallback;
+
 export type UpdateInterestInput = {
   status?: UserInterestStatus;
   cadence?: UserInterestCadence;
   fomoThreshold?: number;
   sources?: Partial<InterestSources>;
   outputModes?: Partial<InterestOutputModes>;
+};
+
+export type CreateInterestSettings = Omit<UpdateInterestInput, 'status'>;
+
+export const defaultCreateInterestSettings: CreateInterestSettings = {
+  cadence: UserInterestCadence.Hourly,
+  fomoThreshold: 0.5,
+  outputModes: { feed: true, post: true, digest: false, notification: true },
 };
 
 export type InterestFinding = {
@@ -80,13 +94,23 @@ export type InterestFinding = {
 export type InterestRunBlock =
   | { type: 'text'; html: string }
   | { type: 'picks'; caption?: string; postIds: string[] }
-  | { type: 'feedLink'; label: string; count: number };
+  | { type: 'feedLink'; label: string; count: number; postIds?: string[] };
+
+export type InterestTurnRelationship = {
+  id: string;
+  entity: 'post';
+  entityId: string;
+  url: string | null;
+  title: string | null;
+  summary: string | null;
+};
 
 export type InterestTurn = {
   id: string;
   role: 'user' | 'agent';
   createdAt: string;
   text?: string | null;
+  relationships?: InterestTurnRelationship[] | null;
   status?: InterestRunStatus | null;
   trigger?: InterestRunTrigger | null;
   feedbackId?: string | null;
@@ -101,6 +125,7 @@ const USER_INTEREST_FRAGMENT = `
   fragment UserInterestFragment on UserInterest {
     id
     query
+    title
     status
     cadence
     fomoThreshold
@@ -156,8 +181,8 @@ export const INTEREST_FINDINGS_QUERY = `
 `;
 
 export const CREATE_INTEREST_MUTATION = `
-  mutation CreateInterest($query: String!) {
-    createInterest(query: $query) {
+  mutation CreateInterest($query: String!, $settings: CreateInterestSettingsInput) {
+    createInterest(query: $query, settings: $settings) {
       ...UserInterestFragment
     }
   }
@@ -179,6 +204,7 @@ export const INTEREST_HISTORY_QUERY = `
       role
       createdAt
       text
+      relationships
       status
       trigger
       feedbackId
@@ -258,10 +284,16 @@ export const getInterestFindings = async (
   return res.interestFindings;
 };
 
-export const createInterest = async (query: string): Promise<UserInterest> => {
+export const createInterest = async ({
+  query,
+  settings,
+}: {
+  query: string;
+  settings?: CreateInterestSettings;
+}): Promise<UserInterest> => {
   const res = await gqlClient.request<{ createInterest: UserInterest }>(
     CREATE_INTEREST_MUTATION,
-    { query },
+    { query, settings },
   );
   return res.createInterest;
 };

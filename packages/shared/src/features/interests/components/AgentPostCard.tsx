@@ -91,7 +91,7 @@ export const AgentPostCard = ({
           onClick={() => onOpen(post)}
           className="line-clamp-2 w-full text-left after:absolute after:inset-0 after:rounded-12"
         >
-          {post.title}
+          {post.title ?? post.sharedPost?.title}
         </button>
       </Typography>
       <FlexRow className="items-center gap-3">
