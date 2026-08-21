@@ -358,26 +358,38 @@ export const AgentHomeScreen = ({
               className="flex w-full flex-col gap-2 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
               onClick={() => setSettingsOpen((open) => !open)}
             >
-              <FlexRow className="w-full items-center gap-2">
-                <SettingsIcon
-                  size={IconSize.Size16}
-                  className="text-text-tertiary"
-                />
-                <strong className="flex-1 text-text-secondary typo-footnote">
-                  Agent settings
-                </strong>
-                <span className="text-text-quaternary typo-caption1">
-                  {isSettingsOpen ? 'Done' : 'Adjust'}
-                </span>
-                <ArrowIcon
-                  size={IconSize.Size16}
-                  className={classNames(
-                    'text-text-quaternary transition-transform',
-                    !isSettingsOpen && 'rotate-180',
-                  )}
-                  aria-hidden
-                />
-              </FlexRow>
+              <div className="flex w-full flex-col gap-1 tablet:flex-row tablet:items-center tablet:gap-2">
+                <FlexRow className="w-full items-center gap-2 tablet:w-auto tablet:flex-1">
+                  <SettingsIcon
+                    size={IconSize.Size16}
+                    className="text-text-tertiary"
+                  />
+                  <strong className="flex-1 text-text-secondary typo-footnote">
+                    Agent settings
+                  </strong>
+                  <ArrowIcon
+                    size={IconSize.Size16}
+                    className={classNames(
+                      'text-text-quaternary transition-transform tablet:hidden',
+                      isSettingsOpen ? 'rotate-180' : 'rotate-90',
+                    )}
+                    aria-hidden
+                  />
+                </FlexRow>
+                <FlexRow className="items-center gap-2 pl-6 tablet:pl-0">
+                  <span className="font-bold text-text-quaternary typo-caption1">
+                    {isSettingsOpen ? 'Done' : 'Tailor it to your needs'}
+                  </span>
+                  <ArrowIcon
+                    size={IconSize.Size16}
+                    className={classNames(
+                      'hidden text-text-quaternary transition-transform tablet:block',
+                      isSettingsOpen ? 'rotate-180' : 'rotate-90',
+                    )}
+                    aria-hidden
+                  />
+                </FlexRow>
+              </div>
               {!isSettingsOpen && (
                 <FlexCol className="w-full gap-1">
                   {peekRows.map(([label, value]) => (
