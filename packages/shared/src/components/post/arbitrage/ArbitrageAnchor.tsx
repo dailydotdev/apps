@@ -23,10 +23,14 @@ const ANCHOR_HEIGHT_PROPERTY = '--arbitrage-anchor-height';
 
 function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
   const ref = useRef<HTMLDivElement>(null);
+  const [isFilled, setIsFilled] = useState(false);
 
   // Measured rather than assumed: the unit is a 320x50 phone banner on a phone
   // and a 728x90 leaderboard from tablet up, and an unfilled slot collapses to
-  // nothing, so the space the footer nav has to clear is only known at runtime.
+  // nothing, so the space the footer nav has to clear is only known at
+  // runtime. The fill state hangs off the same measurement — while the slot
+  // is empty the bar is just its own padding, and the dismiss button would
+  // float alone over the page with nothing under it to dismiss.
   useEffect(() => {
     const element = ref.current;
     if (!element) {
@@ -34,12 +38,20 @@ function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
     }
 
     const root = globalThis.document.documentElement;
-    const observer = new ResizeObserver(() => {
+    const measure = (): void => {
+      const slot = element.querySelector('ins.adsbygoogle');
+      const filled = !!slot && slot.getBoundingClientRect().height >= 20;
+      setIsFilled(filled);
       root.style.setProperty(
         ANCHOR_HEIGHT_PROPERTY,
-        `${Math.round(element.getBoundingClientRect().height)}px`,
+        filled
+          ? `${Math.round(element.getBoundingClientRect().height)}px`
+          : '0px',
       );
-    });
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
     observer.observe(element);
 
     return () => {
@@ -74,7 +86,7 @@ function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
       <div className="relative mx-auto w-full max-w-[320px] tablet:max-w-[728px]">
         {/* Above the bar, never over the creative: AdSense forbids page
             elements covering an ad, so the dismiss control gets its own row. */}
-        {!!onDismiss && (
+        {!!onDismiss && isFilled && (
           <CloseButton
             className="pointer-events-auto absolute -top-8 right-0"
             size={ButtonSize.Small}
