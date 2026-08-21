@@ -251,7 +251,7 @@ describe('a post link in the reply text', () => {
     blocks: [
       {
         type: 'text',
-        html: '<p>Read <a href="https://app.daily.dev/posts/p1/">Zig 0.15</a> or <a href="https://example.com/posts/xyz">elsewhere</a>.</p>',
+        html: '<p>Read <a href="https://app.daily.dev/posts/p1/">Zig 0.15</a>, <a href="https://app.daily.dev/posts/p3">Comptime tricks</a> or <a href="https://example.com/posts/xyz">elsewhere</a>.</p>',
       },
     ],
   };
@@ -271,6 +271,17 @@ describe('a post link in the reply text', () => {
               rationale: '',
               createdAt: new Date(0).toISOString(),
             },
+            {
+              id: 'f3',
+              post: {
+                ...post('p3', 'Comptime tricks'),
+                commentsPermalink:
+                  'https://app.daily.dev/posts/comptime-tricks-p3',
+              },
+              score: 0.8,
+              rationale: '',
+              createdAt: new Date(0).toISOString(),
+            },
           ]}
         >
           <AgentChatSection />
@@ -285,6 +296,14 @@ describe('a post link in the reply text', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Zig 0.15' }));
 
     expect(screen.getByTestId('active-post')).toHaveTextContent('p1');
+  });
+
+  it('resolves an id link when the permalink carries a slug', () => {
+    renderLinked();
+
+    fireEvent.click(screen.getByRole('link', { name: 'Comptime tricks' }));
+
+    expect(screen.getByTestId('active-post')).toHaveTextContent('p3');
   });
 
   it('leaves links it cannot resolve alone', () => {

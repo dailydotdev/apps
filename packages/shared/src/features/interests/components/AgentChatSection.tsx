@@ -405,15 +405,20 @@ export const AgentChatSection = (): ReactElement => {
   } = useAgent();
   const activePostId =
     activeContent?.type === 'post' ? activeContent.post.id : undefined;
-  const postsByLink = useMemo(
-    () =>
-      new Map(
-        findingsPosts
-          .filter((post) => post.commentsPermalink)
-          .map((post) => [postLinkKey(post.commentsPermalink), post]),
-      ),
-    [findingsPosts],
-  );
+  const postsByLink = useMemo(() => {
+    const map = new Map<string, Post>();
+    findingsPosts.forEach((post) => {
+      if (!post.commentsPermalink) {
+        return;
+      }
+      map.set(postLinkKey(post.commentsPermalink), post);
+      const [origin] = post.commentsPermalink.split('/posts/');
+      if (origin) {
+        map.set(`${origin}/posts/${post.id}`, post);
+      }
+    });
+    return map;
+  }, [findingsPosts]);
 
   return (
     <FlexCol className="gap-6">
