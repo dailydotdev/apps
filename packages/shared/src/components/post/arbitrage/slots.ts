@@ -64,14 +64,14 @@ export const COMMENTS_PER_INTERLEAVED_AD = 5;
  * tall creative. Where the two disagree the TODO says which unit to recreate.
  */
 export const READ_ADSENSE_SLOTS: ReadAdsenseSlots = {
-  // TODO(chris): recreate as a Display 200x200 unit. The live one is fixed at
-  // 240x400, which is most of the sidebar's height.
-  [ARBITRAGE_SLOT.sidebar]: {
-    id: '1501379344',
-    type: 'display',
-    width: 200,
-    height: 200,
-  },
+  // No fixed size: read_s01 is booked at 240x400, so declaring a shorter box
+  // did not shrink the creative, it clipped it against the wrapper's
+  // overflow-hidden — the bottom of the ad was cut off, which AdSense does not
+  // allow. Left responsive the slot reserves a minimum and grows to whatever
+  // comes back, and the format's shape keeps a half page out of it.
+  // TODO(chris): recreate as a Display 200x200 unit so the sidebar keeps a
+  // predictable height instead of one the creative decides.
+  [ARBITRAGE_SLOT.sidebar]: { id: '1501379344', type: 'display' },
   [ARBITRAGE_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
   // read_s03 (9651332107) is an in-article unit, so it is fluid: it ignored
   // both the shape and an explicit 300x250 on the <ins> and kept answering the

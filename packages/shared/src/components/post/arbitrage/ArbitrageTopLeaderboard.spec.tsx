@@ -27,8 +27,10 @@ const advancePastStickyWindow = (): void => {
   });
 };
 
+// Pinning is the laptop variant now: below it the unit pins as part of the
+// header block its parent wraps around, not on its own.
 const isPinned = (container: HTMLElement): boolean =>
-  !!container.firstElementChild?.classList.contains('sticky');
+  !!container.firstElementChild?.classList.contains('laptop:sticky');
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -40,7 +42,7 @@ afterEach(() => {
 });
 
 describe('ArbitrageTopLeaderboard', () => {
-  it('pins at every breakpoint until it is released', () => {
+  it('pins from laptop up until it is released', () => {
     const { container } = render(<ArbitrageTopLeaderboard released={false} />);
 
     expect(isPinned(container)).toBe(true);

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { isVideoPost } from '../../../graphql/posts';
@@ -11,7 +11,11 @@ import { PostHeaderActions } from '../PostHeaderActions';
 import { ButtonSize } from '../../buttons/common';
 import { PostTagList } from '../tags/PostTagList';
 import { PostContainer } from '../common';
-import { PostContentContainerRaw } from './common';
+import {
+  COLUMN_LEFT_PROPERTY,
+  COLUMN_WIDTH_PROPERTY,
+  PostContentContainerRaw,
+} from './common';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
@@ -36,10 +40,11 @@ import PostEngagements from '../PostEngagements';
  * card) have no position and so get none.
  *
  * Below laptop the rail stacks under the article rather than beside it, so
- * every unit here also lands on a phone. Running all of them measured well
- * over the Better Ads Standards' 30% mobile ad density cap, which is what
- * gets a domain's ads filtered by Chrome, so the three added here are desktop
- * only and the phone keeps the two units the density review was run against.
+ * every unit here also lands on a phone, where the run costs roughly 40% of
+ * page height against the Better Ads Standards' 30% cap. Kept on both by
+ * product decision — the phone gets the same run of slots the desktop rail
+ * does. The second closing grid is still desktop only, which is what holds
+ * the phone anywhere near the cap.
  */
 const RAIL_AD: Record<
   PostWidgetPosition,
@@ -59,19 +64,16 @@ const RAIL_AD: Record<
   [PostWidgetPosition.Creator]: {
     slot: ARBITRAGE_SLOT.railAfterCreator,
     format: ArbitrageAdFormat.MediumRectangle,
-    hideOnPhone: true,
     reach: '60%',
   },
   [PostWidgetPosition.Share]: {
     slot: ARBITRAGE_SLOT.railAfterShare,
     format: ArbitrageAdFormat.MediumRectangle,
-    hideOnPhone: true,
     reach: '50%',
   },
   [PostWidgetPosition.Highlights]: {
     slot: ARBITRAGE_SLOT.railAfterHighlights,
     format: ArbitrageAdFormat.MediumRectangle,
-    hideOnPhone: true,
     reach: '45%',
   },
   [PostWidgetPosition.SimilarPosts]: {
@@ -106,6 +108,39 @@ export function ArbitragePostContent({
     post,
   });
   const leaderboardReleased = useStickyRelease(TOP_LEADERBOARD_STICKY_MS);
+  const columnRef = useRef<HTMLElement>(null);
+
+  // The floating leaderboard is fixed to the viewport, so it cannot see that
+  // the article column is inset by the sidebar. Publishing the column's
+  // geometry is what lets it line up with the top leaderboard instead of
+  // spanning the page under the rail. A resize listener alongside the observer
+  // because past 72rem of space the column stops growing and only moves, which
+  // resizes nothing for the observer to report.
+  useEffect(() => {
+    const element = columnRef.current;
+    if (!element) {
+      return undefined;
+    }
+
+    const root = globalThis.document.documentElement;
+    const publish = (): void => {
+      const { left, width } = element.getBoundingClientRect();
+      root.style.setProperty(COLUMN_LEFT_PROPERTY, `${Math.round(left)}px`);
+      root.style.setProperty(COLUMN_WIDTH_PROPERTY, `${Math.round(width)}px`);
+    };
+
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(element);
+    globalThis.addEventListener('resize', publish);
+
+    return () => {
+      observer.disconnect();
+      globalThis.removeEventListener('resize', publish);
+      root.style.removeProperty(COLUMN_LEFT_PROPERTY);
+      root.style.removeProperty(COLUMN_WIDTH_PROPERTY);
+    };
+  }, []);
 
   return (
     <PostContentContainerRaw className={className}>
@@ -114,29 +149,49 @@ export function ArbitragePostContent({
           overflow-x: clip alongside overflow-y: visible clips the column the
           same way without creating a scroll container. */}
       <PostContainer
+        ref={columnRef}
         className="relative !overflow-x-clip !overflow-y-visible"
         data-testid="postContainer"
       >
-        <ArbitrageTopLeaderboard released={leaderboardReleased} />
+        {/* Below laptop the leaderboard and the production mobile header pin
+            as one block, so the header cannot ride up over the ad the way it
+            did when each was sticky on its own. The header's own sticky is off
+            while the block is pinned, or it would climb to the top of it and
+            land on the leaderboard anyway.
 
-        {/* The production post page's mobile header. It pins itself at the top
-            of the viewport, which would collide with the leaderboard above it,
-            so it stays static until the leaderboard's sticky window closes and
-            then takes the top over — one pinned bar at a time. */}
-        <GoBackHeaderMobile
+            Once the ten second window closes the block releases: the ad
+            scrolls away with the page and the header, back on its own sticky,
+            takes the top over. `contents` rather than a class swap because the
+            header's sticky is bounded by its containing block, and a wrapper
+            that still generated a box would let it pin only as far as the
+            wrapper's own few pixels of height.
+
+            Transparent from laptop up, where the header does not render and
+            the leaderboard pins itself against the fixed chrome instead. */}
+        <div
           className={classNames(
-            '-mx-4 bg-background-subtle',
-            !leaderboardReleased && '!static',
+            leaderboardReleased
+              ? 'contents'
+              : 'sticky top-0 z-postNavigation bg-background-default laptop:contents',
           )}
         >
-          <PostHeaderActions
-            post={post}
-            className="ml-auto"
-            contextMenuId="arbitrage-post-header-actions"
-            onReadArticle={onReadArticle}
-            buttonSize={ButtonSize.Small}
-          />
-        </GoBackHeaderMobile>
+          <ArbitrageTopLeaderboard released={leaderboardReleased} />
+
+          <GoBackHeaderMobile
+            className={classNames(
+              '-mx-4 bg-background-subtle',
+              !leaderboardReleased && '!static',
+            )}
+          >
+            <PostHeaderActions
+              post={post}
+              className="ml-auto"
+              contextMenuId="arbitrage-post-header-actions"
+              onReadArticle={onReadArticle}
+              buttonSize={ButtonSize.Small}
+            />
+          </GoBackHeaderMobile>
+        </div>
 
         <div className="my-6">
           <div className="mb-3 flex items-center gap-2">
@@ -286,11 +341,13 @@ export function ArbitragePostContent({
             format={ArbitrageAdFormat.Grid}
             reach="20%"
           />
+          {/* Laptop only: below it the same unit closes the stacked rail
+              instead, so it is on the page exactly once at every width. */}
           <ArbitrageAdSlot
             slot={ARBITRAGE_SLOT.endOfArticleGridSecondary}
             format={ArbitrageAdFormat.Grid}
             reach="12%"
-            hideOnPhone
+            className="hidden laptop:block"
           />
         </div>
       </PostContainer>
@@ -305,15 +362,28 @@ export function ArbitragePostContent({
         hideSignupWidget
         hideToc
         trailing={
-          <ArbitrageAdSlot
-            slot={ARBITRAGE_SLOT.railStickyHalfPage}
-            format={ArbitrageAdFormat.HalfPage}
-            reach="100%"
-            // Same header offset the top leaderboard uses, plus a gap, rather
-            // than a hardcoded 5rem: under the v2 sidebar there is no fixed
-            // header to clear and the unit would pin 5rem into empty space.
-            className="laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)]"
-          />
+          <>
+            {/* The rail is only a rail from laptop up; below that it stacks
+                under the article, where a sticky tower has nothing to stick to
+                and a 300x600 that does not fill leaves the page ending in
+                600px of nothing. Each breakpoint gets the unit that suits it:
+                the tower on the rail, a multiplex list closing the phone. */}
+            <ArbitrageAdSlot
+              slot={ARBITRAGE_SLOT.railStickyHalfPage}
+              format={ArbitrageAdFormat.HalfPage}
+              reach="100%"
+              // Same header offset the top leaderboard uses, plus a gap,
+              // rather than a hardcoded 5rem: under the v2 sidebar there is no
+              // fixed header to clear and the unit would pin into empty space.
+              className="hidden laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)] laptop:block"
+            />
+            <ArbitrageAdSlot
+              slot={ARBITRAGE_SLOT.endOfArticleGridSecondary}
+              format={ArbitrageAdFormat.Grid}
+              reach="35%"
+              className="laptop:hidden"
+            />
+          </>
         }
         getRailAd={(position) => {
           const spec = RAIL_AD[position];

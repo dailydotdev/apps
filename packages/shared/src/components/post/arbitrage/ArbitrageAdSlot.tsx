@@ -104,16 +104,16 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     maxWidth: 'max-w-[300px]',
     shape: 'vertical',
   },
-  // The navigation's own unit, so it is sized to stay out of the way: capped
-  // at 200px the only rectangles Google can serve are the small square and the
-  // small rectangle, roughly a third of the half page the uncapped slot was
-  // answering with and short enough to leave the nav items above it reachable.
+  // The navigation's own unit. No width cap: it sizes to the sidebar column it
+  // sits in, so the sidebar's width is the only place that measurement lives.
+  // The shape is what keeps it out of the way — a rectangle at ~224px can only
+  // come back as a small square or small rectangle, where the uncapped slot
+  // was answering with a half page and taking most of the nav's height.
   [ArbitrageAdFormat.SidebarCompact]: {
     label: 'Sidebar compact',
     size: '200x200 · 180x150',
     cpm: '$1.50',
     minHeight: 'min-h-[150px]',
-    maxWidth: 'max-w-[200px]',
     shape: 'rectangle',
   },
   [ArbitrageAdFormat.Native]: {
@@ -280,19 +280,35 @@ function LiveAdSlot({
         return;
       }
       const isUnfilled = element.getAttribute('data-ad-status') === 'unfilled';
+      // A slot booked at a fixed size measures its booked height whether or
+      // not an ad arrived, so height alone cannot tell the two apart — an
+      // unanswered 300x600 held 600px of empty page open at the end of the
+      // rail. AdSense fills by injecting an iframe, so its absence is the
+      // signal that works at any size.
+      const hasCreative = !!element.querySelector('iframe');
       const { height } = element.getBoundingClientRect();
-      setIsEmpty(isUnfilled || height < FILLED_MIN_HEIGHT_PX);
+      setIsEmpty(isUnfilled || !hasCreative || height < FILLED_MIN_HEIGHT_PX);
     };
 
-    const observer = new ResizeObserver(evaluate);
-    observer.observe(element);
+    const resizeObserver = new ResizeObserver(evaluate);
+    resizeObserver.observe(element);
+    // Mutations rather than size alone, so a fill landing after the slot has
+    // already collapsed still reopens it: a display:none box reports no
+    // resizes, but the script's iframe and status attribute still land on it.
+    const mutationObserver = new MutationObserver(evaluate);
+    mutationObserver.observe(element, {
+      attributes: true,
+      attributeFilter: ['data-ad-status'],
+      childList: true,
+    });
     const graceTimer = globalThis.setTimeout(() => {
       graceElapsed = true;
       evaluate();
     }, FILL_GRACE_MS);
 
     return () => {
-      observer.disconnect();
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
       globalThis.clearTimeout(graceTimer);
     };
   }, []);

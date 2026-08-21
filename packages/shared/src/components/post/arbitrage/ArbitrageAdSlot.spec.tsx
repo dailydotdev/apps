@@ -335,8 +335,12 @@ describe('ArbitrageSidebarAd', () => {
     render(<ArbitrageSidebarAd />);
 
     const ins = screen.getByTestId('adsense-slot-1');
+    // data-ad-format is only written on the responsive branch: a slot given a
+    // fixed size gets an inline width and height instead, and a creative
+    // taller than that is clipped by the wrapper's overflow-hidden rather than
+    // growing the box.
     expect(ins).toHaveAttribute('data-ad-format', 'rectangle');
-    expect(ins.parentElement).toHaveClass('max-w-[200px]');
+    expect(ins).not.toHaveAttribute('style', expect.stringContaining('height'));
   });
 
   it('clears the unit for the session when closed', () => {
