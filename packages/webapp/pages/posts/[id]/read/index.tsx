@@ -153,7 +153,7 @@ const ArbitragePostPage = ({
           post is deliberately not passed: that would add the mobile floating
           comment bar, a third fixed element competing with the footer nav and
           the anchor for the bottom of a phone screen. */}
-      <FooterNavBarLayout>
+      <FooterNavBarLayout offsetByAnchorAd>
         <Head>
           <link rel="preload" as="image" href={post?.image} />
         </Head>

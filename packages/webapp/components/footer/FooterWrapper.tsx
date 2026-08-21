@@ -40,11 +40,14 @@ const CommentInputOrModal = dynamic(
 interface FooterNavBarProps {
   showNav?: boolean;
   post?: Post;
+  /** Lifts the bar above the /read template's floating ad — see that page. */
+  offsetByAnchorAd?: boolean;
 }
 
 export default function FooterWrapper({
   showNav = false,
   post,
+  offsetByAnchorAd = false,
 }: FooterNavBarProps): ReactElement {
   const router = useRouter();
 
@@ -56,10 +59,12 @@ export default function FooterWrapper({
   return (
     <div
       className={classNames(
-        // --arbitrage-anchor-height is set only by the /read template's
-        // floating leaderboard, which is flush to the bottom of the viewport.
-        // Unset everywhere else, so the fallback keeps this at bottom-0.
-        'fixed !bottom-[var(--arbitrage-anchor-height,0px)] left-0 z-3 w-full',
+        'fixed left-0 z-3 w-full',
+        // Only the /read template opts in: its floating leaderboard is flush
+        // to the bottom of the viewport and publishes its measured height.
+        offsetByAnchorAd
+          ? '!bottom-[var(--arbitrage-anchor-height,0px)]'
+          : '!bottom-0',
         showNav &&
           'bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
       )}

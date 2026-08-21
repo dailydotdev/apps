@@ -28,7 +28,7 @@ import {
   COMMENTS_PER_INTERLEAVED_AD,
   TOP_LEADERBOARD_STICKY_MS,
 } from './slots';
-import { useStickyRelease } from './useStickyRelease';
+import { useTimedRelease } from './useTimedRelease';
 import { GoBackHeaderMobile } from '../GoBackHeaderMobile';
 import { PostWidgets, PostWidgetPosition } from '../PostWidgets';
 import PostEngagements from '../PostEngagements';
@@ -96,6 +96,13 @@ export interface ArbitragePostContentProps {
  * three always-viewable slots. Signup surfaces (PostAuthBanner,
  * CustomAuthBanner, PostSignupWidget) are deliberately absent — the header
  * login/signup buttons remain the only account entry point.
+ *
+ * A fork rather than variant props on PostContent: threading a dozen slot
+ * positions and removed surfaces through the production component would put
+ * ad concerns in every consumer's render path (modals and the extension
+ * included) for a template that may not survive its experiment. The cost is
+ * accepted, not free — fixes to PostContent's column structure must be
+ * mirrored here, and if /read wins, folding this back is the follow-up debt.
  */
 export function ArbitragePostContent({
   post,
@@ -106,7 +113,10 @@ export function ArbitragePostContent({
     origin: Origin.ArticlePage,
     post,
   });
-  const leaderboardReleased = useStickyRelease(TOP_LEADERBOARD_STICKY_MS);
+  const leaderboardReleased = useTimedRelease(
+    TOP_LEADERBOARD_STICKY_MS,
+    'scroll',
+  );
   const columnRef = useRef<HTMLElement>(null);
 
   // The floating leaderboard is fixed to the viewport, so it cannot see that
