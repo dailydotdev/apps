@@ -359,6 +359,40 @@ describe('the live path', () => {
       'p1',
     ]);
     expect(blocks[2]).toMatchObject({ type: 'feedLink' });
+    expect((blocks[2] as { posts: Post[] }).posts.map(({ id }) => id)).toEqual([
+      'p1',
+    ]);
+  });
+
+  it('scopes a feed link to its own postIds instead of every finding', async () => {
+    const agent = mountLive({
+      turns: [
+        {
+          id: 'run-1',
+          role: 'agent',
+          createdAt: '2026-01-01T00:01:00Z',
+          status: 'completed',
+          trigger: 'scheduled',
+          blocks: [
+            {
+              type: 'feedLink',
+              label: 'Open all 2 findings',
+              count: 2,
+              postIds: ['p2', 'gone'],
+            },
+          ],
+        } as InterestTurn,
+      ],
+      findings: [feedItem('p1'), feedItem('p2')],
+    });
+
+    await waitForHistory(agent, (current) => current.messages.length === 1);
+
+    const blocks = agent.current.messages.at(-1)?.blocks ?? [];
+    expect(blocks[0]).toMatchObject({ type: 'feedLink' });
+    expect((blocks[0] as { posts: Post[] }).posts.map(({ id }) => id)).toEqual([
+      'p2',
+    ]);
   });
 
   it('shows a queued or running run as the working state', async () => {
@@ -491,7 +525,7 @@ describe('the live path', () => {
     expect(agent.current.status).toBe('active');
   });
 
-  it('attaches the summary post to the run that wrote it and keeps quiet writers visible', async () => {
+  it('keeps a blockless run visible when it wrote a summary post', async () => {
     const agent = mountLive({
       turns: [
         {
@@ -515,10 +549,7 @@ describe('the live path', () => {
 
     await waitForHistory(agent, (current) => current.messages.length === 1);
 
-    expect(agent.current.messages[0].summaryPost).toMatchObject({
-      id: 'sp-1',
-      title: 'Zig this week',
-    });
+    expect(agent.current.messages[0].role).toBe('agent');
     expect(agent.current.summaryPosts).toHaveLength(1);
   });
 

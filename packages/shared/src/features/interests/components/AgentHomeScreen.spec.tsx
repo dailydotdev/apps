@@ -4,6 +4,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
 import { mockDesktop } from '../../../../__tests__/helpers/media';
 import { AgentHomeScreen } from './AgentHomeScreen';
+import { interestDisplayName } from '../../../graphql/interests';
 import { recentMockAgents } from '../mock';
 
 const renderHome = (
@@ -66,13 +67,14 @@ describe('AgentHomeScreen rows at both readings', () => {
     const [first] = recentMockAgents();
     renderHome();
 
-    expect(screen.getAllByText(first.query)).toHaveLength(1);
+    expect(screen.getAllByText(interestDisplayName(first))).toHaveLength(1);
   });
 
   it('gives the news dot to the phone and the chevron to wider screens', () => {
     renderHome();
 
-    const row = screen.getByText(recentMockAgents()[0].query).closest('a');
+    const [first] = recentMockAgents();
+    const row = screen.getByText(interestDisplayName(first)).closest('a');
     const gutter = row?.firstElementChild;
     const chevron = row?.querySelector('svg');
 

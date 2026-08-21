@@ -1,5 +1,9 @@
 import type { UserInterest } from '../../graphql/interests';
-import { InterestRunStatus, UserInterestStatus } from '../../graphql/interests';
+import {
+  InterestRunStatus,
+  UserInterestStatus,
+  interestDisplayName,
+} from '../../graphql/interests';
 
 export type AgentMonitorState =
   | 'waiting'
@@ -115,7 +119,7 @@ export const toMonitorItems = (
 
     return {
       id: agent.id,
-      name: agent.query,
+      name: interestDisplayName(agent),
       state,
       found: agent.lastRunFindings || undefined,
       // A stopped or failed agent's last summary describes a state it has left.

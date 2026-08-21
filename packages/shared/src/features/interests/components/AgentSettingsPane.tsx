@@ -21,6 +21,7 @@ import { IconSize } from '../../../components/Icon';
 import {
   UserInterestCadence,
   UserInterestStatus,
+  interestDisplayName,
 } from '../../../graphql/interests';
 import { useAgent } from '../AgentContext';
 
@@ -121,7 +122,7 @@ export const AgentSettingsPane = ({
           color={TypographyColor.Quaternary}
           className="min-w-0 flex-1 truncate"
         >
-          {interest?.query ?? 'Your agent'}
+          {interestDisplayName(interest)}
         </Typography>
       </FlexRow>
 

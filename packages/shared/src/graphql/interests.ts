@@ -44,6 +44,7 @@ export enum InterestRunTrigger {
 export type UserInterest = {
   id: string;
   query: string;
+  title?: string | null;
   status: UserInterestStatus;
   cadence: UserInterestCadence;
   fomoThreshold: number;
@@ -58,6 +59,11 @@ export type UserInterest = {
   createdAt: string;
   updatedAt: string;
 };
+
+export const interestDisplayName = (
+  interest: Pick<UserInterest, 'query' | 'title'> | null | undefined,
+  fallback = 'Your agent',
+): string => interest?.title ?? interest?.query ?? fallback;
 
 export type UpdateInterestInput = {
   status?: UserInterestStatus;
@@ -80,13 +86,23 @@ export type InterestFinding = {
 export type InterestRunBlock =
   | { type: 'text'; html: string }
   | { type: 'picks'; caption?: string; postIds: string[] }
-  | { type: 'feedLink'; label: string; count: number };
+  | { type: 'feedLink'; label: string; count: number; postIds?: string[] };
+
+export type InterestTurnRelationship = {
+  id: string;
+  entity: 'post';
+  entityId: string;
+  url: string | null;
+  title: string | null;
+  summary: string | null;
+};
 
 export type InterestTurn = {
   id: string;
   role: 'user' | 'agent';
   createdAt: string;
   text?: string | null;
+  relationships?: InterestTurnRelationship[] | null;
   status?: InterestRunStatus | null;
   trigger?: InterestRunTrigger | null;
   feedbackId?: string | null;
@@ -101,6 +117,7 @@ const USER_INTEREST_FRAGMENT = `
   fragment UserInterestFragment on UserInterest {
     id
     query
+    title
     status
     cadence
     fomoThreshold
@@ -179,6 +196,7 @@ export const INTEREST_HISTORY_QUERY = `
       role
       createdAt
       text
+      relationships
       status
       trigger
       feedbackId
