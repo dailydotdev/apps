@@ -9,12 +9,6 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import Link from '../../../components/utilities/Link';
-import {
-  Button,
-  ButtonSize,
-  ButtonVariant,
-} from '../../../components/buttons/Button';
-import { Tooltip } from '../../../components/tooltip/Tooltip';
 import { ArrowIcon, SettingsIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import { ElementPlaceholder } from '../../../components/ElementPlaceholder';
@@ -46,13 +40,6 @@ import {
 } from './AgentSettingsFields';
 
 const maxFieldHeight = 120;
-
-const starters = [
-  'Rust in production',
-  'Database internals',
-  'What is happening with WebGPU',
-  'CLI tools worth stealing from',
-];
 
 // One DOM for both readings: the wrappers become `display: contents` from tablet
 // up and the fields reorder, so nothing is rendered twice for a screen reader.
@@ -161,7 +148,6 @@ export const AgentHomeScreen = ({
 }): ReactElement => {
   const shellHeight = useAgentShellHeight(isStandalone);
   const fieldRef = useRef<HTMLTextAreaElement>(null);
-  const resizeFrame = useRef<number>();
   const [query, setQuery] = useState(initialQuery);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<CreateInterestSettings>(
@@ -178,15 +164,6 @@ export const AgentHomeScreen = ({
     setQuery((current) => current || initialQuery);
   }, [initialQuery]);
 
-  useEffect(
-    () => () => {
-      if (resizeFrame.current) {
-        cancelAnimationFrame(resizeFrame.current);
-      }
-    },
-    [],
-  );
-
   const items = toMonitorItems(agents);
   const waiting = items.filter(({ state }) => state === 'waiting').length;
   const working = items.filter(({ state }) =>
@@ -202,14 +179,6 @@ export const AgentHomeScreen = ({
 
     field.style.height = 'auto';
     field.style.height = `${Math.min(field.scrollHeight, maxFieldHeight)}px`;
-  };
-
-  const write = (value: string) => {
-    setQuery(value);
-    fieldRef.current?.focus();
-    // The field has not re-rendered with the new value yet, so it is measured on
-    // the next frame rather than against the old text.
-    resizeFrame.current = requestAnimationFrame(resize);
   };
 
   const onSubmit = () => {
@@ -233,6 +202,19 @@ export const AgentHomeScreen = ({
     .filter(({ key }) => settings.outputModes?.[key])
     .map(({ short }) => short)
     .join(', ');
+  const threshold = settings.fomoThreshold ?? 0.5;
+  let fomoSummary = 'Balanced';
+  if (threshold > 0.7) {
+    fomoSummary = 'Only the best';
+  }
+  if (threshold < 0.3) {
+    fomoSummary = 'Show me everything';
+  }
+  const peekRows = [
+    ['When it runs', cadenceSummary],
+    ['FOMO vs quality', fomoSummary],
+    ['What it delivers', deliverySummary || 'Nothing yet'],
+  ];
 
   return (
     <FlexCol className={classNames('w-full overflow-hidden', shellHeight)}>
@@ -368,76 +350,78 @@ export const AgentHomeScreen = ({
             </FlexRow>
           </FlexCol>
 
-          <FlexRow className="min-w-0 items-center gap-2">
-            <Button
-              size={ButtonSize.XSmall}
-              variant={ButtonVariant.Subtle}
-              icon={<SettingsIcon size={IconSize.Size16} />}
+          <FlexCol className="overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+            <button
+              type="button"
+              aria-label="Agent settings"
               aria-expanded={isSettingsOpen}
-              className="shrink-0"
+              className="flex w-full flex-col gap-2 px-4 py-3 text-left transition-colors hover:bg-surface-hover"
               onClick={() => setSettingsOpen((open) => !open)}
             >
-              Agent settings
-            </Button>
-            <Typography
-              type={TypographyType.Caption1}
-              color={TypographyColor.Quaternary}
-              className="min-w-0 flex-1 truncate"
-            >
-              {cadenceSummary} ·{' '}
-              {deliverySummary
-                ? `Delivers ${deliverySummary}`
-                : 'Delivers nothing'}
-            </Typography>
-          </FlexRow>
+              <FlexRow className="w-full items-center gap-2">
+                <SettingsIcon
+                  size={IconSize.Size16}
+                  className="text-text-tertiary"
+                />
+                <strong className="flex-1 text-text-secondary typo-footnote">
+                  Agent settings
+                </strong>
+                <span className="text-text-quaternary typo-caption1">
+                  {isSettingsOpen ? 'Done' : 'Adjust'}
+                </span>
+                <ArrowIcon
+                  size={IconSize.Size16}
+                  className={classNames(
+                    'text-text-quaternary transition-transform',
+                    !isSettingsOpen && 'rotate-180',
+                  )}
+                  aria-hidden
+                />
+              </FlexRow>
+              {!isSettingsOpen && (
+                <FlexCol className="w-full gap-1">
+                  {peekRows.map(([label, value]) => (
+                    <FlexRow key={label} className="items-baseline gap-3">
+                      <span className="w-28 shrink-0 text-text-quaternary typo-caption1">
+                        {label}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-text-tertiary typo-caption1">
+                        {value}
+                      </span>
+                    </FlexRow>
+                  ))}
+                </FlexCol>
+              )}
+            </button>
 
-          {isSettingsOpen && (
-            <FlexCol className="agent-scroll max-h-[50vh] overflow-y-auto rounded-16 border border-border-subtlest-tertiary bg-surface-float px-4">
-              <CadenceSection
-                value={settings.cadence ?? UserInterestCadence.Hourly}
-                disabled={isCreating}
-                onChange={(cadence) =>
-                  setSettings((current) => ({ ...current, cadence }))
-                }
-              />
-              <FomoSection
-                value={settings.fomoThreshold ?? 0.5}
-                onChange={(fomoThreshold) =>
-                  setSettings((current) => ({ ...current, fomoThreshold }))
-                }
-              />
-              <OutputModesSection
-                value={settings.outputModes}
-                disabled={isCreating}
-                onChange={(outputModes) =>
-                  setSettings((current) => ({
-                    ...current,
-                    outputModes: { ...current.outputModes, ...outputModes },
-                  }))
-                }
-              />
-            </FlexCol>
-          )}
-
-          {/* `pr-6` matches the fade's width, so the last starter clears the mask
-              when the row is scrolled to its end. */}
-          <FlexRow className="agent-fade-right no-scrollbar items-center gap-1.5 overflow-x-auto pl-0.5 pr-6">
-            {starters.map((starter) => (
-              <Tooltip
-                key={starter}
-                content="Drops it in the field. Edit it before you send."
-              >
-                <Button
-                  size={ButtonSize.XSmall}
-                  variant={ButtonVariant.Subtle}
-                  className="shrink-0"
-                  onClick={() => write(starter)}
-                >
-                  {starter}
-                </Button>
-              </Tooltip>
-            ))}
-          </FlexRow>
+            {isSettingsOpen && (
+              <FlexCol className="agent-scroll max-h-[50vh] overflow-y-auto border-t border-border-subtlest-tertiary px-4">
+                <CadenceSection
+                  value={settings.cadence ?? UserInterestCadence.Hourly}
+                  disabled={isCreating}
+                  onChange={(cadence) =>
+                    setSettings((current) => ({ ...current, cadence }))
+                  }
+                />
+                <FomoSection
+                  value={settings.fomoThreshold ?? 0.5}
+                  onChange={(fomoThreshold) =>
+                    setSettings((current) => ({ ...current, fomoThreshold }))
+                  }
+                />
+                <OutputModesSection
+                  value={settings.outputModes}
+                  disabled={isCreating}
+                  onChange={(outputModes) =>
+                    setSettings((current) => ({
+                      ...current,
+                      outputModes: { ...current.outputModes, ...outputModes },
+                    }))
+                  }
+                />
+              </FlexCol>
+            )}
+          </FlexCol>
         </FlexCol>
       </div>
     </FlexCol>

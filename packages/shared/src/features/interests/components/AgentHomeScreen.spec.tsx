@@ -205,13 +205,27 @@ describe('AgentHomeScreen spawn settings', () => {
     });
   });
 
-  it('keeps the settings hidden until asked for', () => {
+  it('peeks the current values until the controls are asked for', () => {
     renderHome();
 
+    expect(screen.getByText('Every hour')).toBeInTheDocument();
+    expect(screen.getByText('Balanced')).toBeInTheDocument();
+    expect(screen.getByText('feed, posts, notifications')).toBeInTheDocument();
     expect(screen.queryByLabelText('Every week')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Agent settings' }));
 
     expect(screen.getByLabelText('Every week')).toBeInTheDocument();
+  });
+
+  it('reflects what was picked back into the peek', () => {
+    renderHome();
+
+    const toggle = screen.getByRole('button', { name: 'Agent settings' });
+    fireEvent.click(toggle);
+    fireEvent.click(screen.getByLabelText('Every week'));
+    fireEvent.click(toggle);
+
+    expect(screen.getByText('Every week')).toBeInTheDocument();
   });
 });
