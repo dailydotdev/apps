@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { ArbitrageAnchor } from './ArbitrageAnchor';
 import { useFeature } from '../../GrowthBookProvider';
@@ -192,6 +192,18 @@ describe('ArbitrageAnchor', () => {
     render(<ArbitrageAnchor />);
     advancePastDelay();
 
-    expect(screen.getByTestId('adsense-slot-13')).toBeInTheDocument();
+    const ins = screen.getByTestId('adsense-slot-13');
+    expect(ins).toHaveAttribute('data-ad-slot', '1313131313');
+    expect(ins).toHaveAttribute('data-ad-format', 'horizontal');
+  });
+
+  it('dismisses on close and stays dismissed', () => {
+    setSlots({ '13': { id: '1313131313', type: 'display' } });
+    render(<ArbitrageAnchor />);
+    advancePastDelay();
+
+    fireEvent.click(screen.getByTitle('Close'));
+
+    expect(screen.queryByTestId('adsense-slot-13')).not.toBeInTheDocument();
   });
 });
