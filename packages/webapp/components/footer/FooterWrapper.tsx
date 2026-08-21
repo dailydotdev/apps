@@ -56,7 +56,10 @@ export default function FooterWrapper({
   return (
     <div
       className={classNames(
-        'fixed !bottom-0 left-0 z-3 w-full',
+        // --arbitrage-anchor-height is set only by the /read template's
+        // floating leaderboard, which is flush to the bottom of the viewport.
+        // Unset everywhere else, so the fallback keeps this at bottom-0.
+        'fixed !bottom-[var(--arbitrage-anchor-height,0px)] left-0 z-3 w-full',
         showNav &&
           'bg-gradient-to-t from-background-subtle from-70% to-transparent px-2 pt-2',
       )}

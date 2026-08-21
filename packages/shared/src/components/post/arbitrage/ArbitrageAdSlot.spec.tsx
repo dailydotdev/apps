@@ -2,6 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { ArbitrageAnchor } from './ArbitrageAnchor';
+import { ArbitrageSidebarAd } from './ArbitrageSidebarAd';
 import { useFeature } from '../../GrowthBookProvider';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
@@ -325,5 +326,25 @@ describe('ArbitrageAnchor', () => {
     fireEvent.click(screen.getByTitle('Close'));
 
     expect(screen.queryByTestId('adsense-slot-13')).not.toBeInTheDocument();
+  });
+});
+
+describe('ArbitrageSidebarAd', () => {
+  it('keeps the sidebar unit to a rectangle so it cannot serve a half page', () => {
+    setSlots({ '1': { id: '1111111111', type: 'display' } });
+    render(<ArbitrageSidebarAd />);
+
+    const ins = screen.getByTestId('adsense-slot-1');
+    expect(ins).toHaveAttribute('data-ad-format', 'rectangle');
+    expect(ins.parentElement).toHaveClass('max-w-[200px]');
+  });
+
+  it('clears the unit for the session when closed', () => {
+    setSlots({ '1': { id: '1111111111', type: 'display' } });
+    const { container } = render(<ArbitrageSidebarAd />);
+
+    fireEvent.click(screen.getByTitle('Close'));
+
+    expect(container).toBeEmptyDOMElement();
   });
 });

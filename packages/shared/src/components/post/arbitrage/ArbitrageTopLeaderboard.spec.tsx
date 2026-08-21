@@ -1,6 +1,7 @@
 import React from 'react';
-import { act, render } from '@testing-library/react';
+import { act, render, renderHook } from '@testing-library/react';
 import { ArbitrageTopLeaderboard } from './ArbitrageTopLeaderboard';
+import { useStickyRelease } from './useStickyRelease';
 import { useFeature } from '../../GrowthBookProvider';
 import { TOP_LEADERBOARD_STICKY_MS } from './slots';
 
@@ -26,9 +27,8 @@ const advancePastStickyWindow = (): void => {
   });
 };
 
-// Pinning is tablet-and-up only, so the class to look for is the variant.
 const isPinned = (container: HTMLElement): boolean =>
-  !!container.firstElementChild?.classList.contains('tablet:sticky');
+  !!container.firstElementChild?.classList.contains('sticky');
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -40,20 +40,38 @@ afterEach(() => {
 });
 
 describe('ArbitrageTopLeaderboard', () => {
-  it('stays pinned while the visitor has not scrolled yet', () => {
-    const { container } = render(<ArbitrageTopLeaderboard />);
-    advancePastStickyWindow();
+  it('pins at every breakpoint until it is released', () => {
+    const { container } = render(<ArbitrageTopLeaderboard released={false} />);
 
     expect(isPinned(container)).toBe(true);
   });
 
-  it('releases once the sticky window elapses after the first scroll', () => {
-    const { container } = render(<ArbitrageTopLeaderboard />);
+  it('scrolls away with the page once released', () => {
+    const { container } = render(<ArbitrageTopLeaderboard released />);
+
+    expect(isPinned(container)).toBe(false);
+  });
+});
+
+describe('useStickyRelease', () => {
+  it('holds the sticky window open while the visitor has not scrolled yet', () => {
+    const { result } = renderHook(() =>
+      useStickyRelease(TOP_LEADERBOARD_STICKY_MS),
+    );
+    advancePastStickyWindow();
+
+    expect(result.current).toBe(false);
+  });
+
+  it('releases once the window elapses after the first scroll', () => {
+    const { result } = renderHook(() =>
+      useStickyRelease(TOP_LEADERBOARD_STICKY_MS),
+    );
     scroll();
-    expect(isPinned(container)).toBe(true);
+    expect(result.current).toBe(false);
 
     advancePastStickyWindow();
 
-    expect(isPinned(container)).toBe(false);
+    expect(result.current).toBe(true);
   });
 });

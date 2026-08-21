@@ -2,22 +2,26 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
-import { useStickyRelease } from './useStickyRelease';
-import { ARBITRAGE_SLOT, TOP_LEADERBOARD_STICKY_MS } from './slots';
+import { ARBITRAGE_SLOT } from './slots';
+
+export interface ArbitrageTopLeaderboardProps {
+  /** False while the unit is still inside its sticky window. */
+  released: boolean;
+}
 
 /**
- * Top leaderboard (slot 2), first thing in the article column above the source
- * row. The column is 745px wide inside its padding at the layout's full width,
- * so a 728px leaderboard renders at its booked size within the page rather than
- * spanning it; narrower viewports get a smaller responsive creative.
+ * Top leaderboard (slot 2), first thing in the article column. The column is
+ * 745px wide inside its padding at the layout's full width, so a 728px
+ * leaderboard renders at its booked size within the page rather than spanning
+ * it; narrower viewports get the 320x100 large mobile banner instead.
  *
  * Stays pinned for the first ten seconds of scrolling, then releases and
  * scrolls away with the page. Sticky rather than fixed so it only pins within
  * the article column and can never overlap the rail.
  */
-export function ArbitrageTopLeaderboard(): ReactElement {
-  const released = useStickyRelease(TOP_LEADERBOARD_STICKY_MS);
-
+export function ArbitrageTopLeaderboard({
+  released,
+}: ArbitrageTopLeaderboardProps): ReactElement {
   return (
     <div
       className={classNames(
@@ -29,18 +33,12 @@ export function ArbitrageTopLeaderboard(): ReactElement {
         // *below* its natural position wherever the chrome is shorter, covering
         // the source row.
         //
-        // Never pinned on a phone. A sticky unit at the top of a small screen
-        // eats the reading area for its whole window, and the bottom anchor
-        // already carries the persistent mobile placement — one pinned banner
-        // per screen, at the bottom, is the mobile convention.
-        //
         // z-2 rather than z-1: CommentContainer gives the author row and the
         // comment body z-1, and as flex items those take effect without being
         // positioned. At equal z-index the later element in the DOM wins, so a
         // z-1 leaderboard is painted over by every comment it scrolls past.
         // Still far below z-header, tooltips and modals.
-        !released &&
-          'z-2 tablet:sticky tablet:top-[var(--sticky-header-offset)]',
+        !released && 'sticky top-[var(--sticky-header-offset)] z-2',
       )}
     >
       <ArbitrageAdSlot

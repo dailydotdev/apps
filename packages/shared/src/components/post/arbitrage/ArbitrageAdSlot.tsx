@@ -21,6 +21,7 @@ export enum ArbitrageAdFormat {
   Rectangle = 'rectangle',
   HalfPage = 'halfPage',
   SidebarRail = 'sidebarRail',
+  SidebarCompact = 'sidebarCompact',
   Native = 'native',
   Video = 'video',
   RichMedia = 'richMedia',
@@ -102,6 +103,18 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     minHeight: 'min-h-[220px]',
     maxWidth: 'max-w-[300px]',
     shape: 'vertical',
+  },
+  // The navigation's own unit, so it is sized to stay out of the way: capped
+  // at 200px the only rectangles Google can serve are the small square and the
+  // small rectangle, roughly a third of the half page the uncapped slot was
+  // answering with and short enough to leave the nav items above it reachable.
+  [ArbitrageAdFormat.SidebarCompact]: {
+    label: 'Sidebar compact',
+    size: '200x200 · 180x150',
+    cpm: '$1.50',
+    minHeight: 'min-h-[150px]',
+    maxWidth: 'max-w-[200px]',
+    shape: 'rectangle',
   },
   [ArbitrageAdFormat.Native]: {
     label: 'Native',
