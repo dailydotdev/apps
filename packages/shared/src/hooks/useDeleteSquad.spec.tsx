@@ -171,9 +171,7 @@ describe('useDeleteSquad', () => {
   it('does not report a failure when the post-delete callback rejects', async () => {
     const squad = generateTestSquad();
     mockedDeleteSquad.mockResolvedValue(undefined);
-    const callback = jest
-      .fn()
-      .mockRejectedValue(new Error('Route Cancelled'));
+    const callback = jest.fn().mockRejectedValue(new Error('Route Cancelled'));
     const { queryClient } = renderDeleteSquad(squad, callback);
     await waitForPromptReady(queryClient);
 

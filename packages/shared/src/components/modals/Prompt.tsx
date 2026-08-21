@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import React, { useRef, useState } from 'react';
 import classNames from 'classnames';
 import { usePrompt } from '../../hooks/usePrompt';
+import type { ButtonProps } from '../buttons/Button';
 import { Button, ButtonVariant } from '../buttons/Button';
 import classed from '../../lib/classed';
 import type { ModalProps } from './common/Modal';
@@ -72,6 +73,21 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
       .catch(() => settle(onError));
   };
 
+  const cancelActionButtonProps = {
+    variant: ButtonVariant.Secondary,
+    ...cancelButton,
+    onClick: handleFail,
+    className: classNames('w-full tablet:w-auto', cancelButton.className),
+  } as ButtonProps<'button'>;
+  const okActionButtonProps = {
+    variant: ButtonVariant.Primary,
+    ...okButton,
+    onClick: handleSuccess,
+    disabled: isPending || okButton.disabled,
+    loading: isPending || okButton.loading,
+    className: classNames('w-full tablet:w-auto', okButton.className),
+  } as ButtonProps<'button'>;
+
   return (
     <Modal
       isOpen
@@ -96,35 +112,12 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
         {content}
         <Buttons className={className.buttons}>
           {cancelButton !== null && (
-            <Button
-              variant={cancelButton.variant ?? ButtonVariant.Secondary}
-              color={cancelButton.color}
-              icon={cancelButton.icon}
-              iconPosition={cancelButton.iconPosition}
-              {...cancelButton}
-              onClick={handleFail}
-              className={classNames(
-                'w-full tablet:w-auto',
-                cancelButton.className,
-              )}
-            >
+            <Button {...cancelActionButtonProps}>
               {cancelButton.title ?? 'Cancel'}
             </Button>
           )}
           {okButton !== null && (
-            <Button
-              variant={okButton.variant ?? ButtonVariant.Primary}
-              color={okButton.color}
-              icon={okButton.icon}
-              iconPosition={okButton.iconPosition}
-              {...okButton}
-              onClick={handleSuccess}
-              disabled={isPending || okButton.disabled}
-              loading={isPending || okButton.loading}
-              className={classNames('w-full tablet:w-auto', okButton.className)}
-            >
-              {okButton.title ?? 'Ok'}
-            </Button>
+            <Button {...okActionButtonProps}>{okButton.title ?? 'Ok'}</Button>
           )}
         </Buttons>
       </Modal.Body>
