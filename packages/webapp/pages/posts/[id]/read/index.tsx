@@ -13,6 +13,7 @@ import type { NextSeoProps } from 'next-seo/lib/types';
 import type { ClientError } from 'graphql-request';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import { POST_BY_ID_STATIC_FIELDS_QUERY } from '@dailydotdev/shared/src/graphql/posts';
+import { PostType } from '@dailydotdev/shared/src/types';
 import type {
   Comment,
   TopCommentsData,
@@ -46,6 +47,18 @@ import { seoTitle } from '../index';
 const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../404'),
 );
+
+/**
+ * The post types /read may render, all of which carry content beyond the ad
+ * slots. Deliberately excludes squad/user-generated types (share, welcome,
+ * freeform, poll) — paid traffic never targets them and their content is our
+ * members', not landing-page material — and internal types (brief, digest).
+ */
+const READ_ELIGIBLE_POST_TYPES = new Set<PostType>([
+  PostType.Article,
+  PostType.VideoYouTube,
+  PostType.Collection,
+]);
 
 export interface ArbitragePostPageProps extends DynamicSeoProps {
   id: string;
@@ -106,7 +119,22 @@ const ArbitragePostPage = ({
       throw new Error(`Aborted client navigation to ${url} to unload ads`);
     };
     router.events.on('routeChangeStart', forceHardNavigation);
-    return () => router.events.off('routeChangeStart', forceHardNavigation);
+    // Back/forward must not go through the handler above: on popstate the
+    // history pointer has already moved, so assign() would navigate *forward*
+    // and leave /read in the forward stack — Back appears broken. Cancelling
+    // the SPA transition and loading the target URL in place respects the
+    // history position the user just moved to.
+    router.beforePopState(({ as }) => {
+      if (/^\/posts\/[^/]+\/read(?:[/?#]|$)/.test(as)) {
+        return true;
+      }
+      window.location.href = as;
+      return false;
+    });
+    return () => {
+      router.events.off('routeChangeStart', forceHardNavigation);
+      router.beforePopState(() => true);
+    };
   }, [adsLive, router]);
 
   if (isLoading) {
@@ -191,6 +219,19 @@ export async function getStaticProps({
     ]);
 
     const post = initialData.post as Post;
+
+    // AdSense's low-value-content policy targets pages that are ads around
+    // scraped material, and enforcement is account-level — so the template is
+    // only generated where the page carries substance of its own: an article
+    // or video with a TLDR, or content types whose body we host. Everything
+    // else 404s rather than rendering a title-plus-ads shell.
+    const isReadEligible =
+      READ_ELIGIBLE_POST_TYPES.has(post.type) &&
+      !!(post.summary || post.contentHtml);
+    if (!isReadEligible) {
+      return { notFound: true, revalidate: 60 };
+    }
+
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
     // noindex only, deliberately without a canonical to the parent post:
     // canonical asks Google to consolidate while noindex asks it to drop the

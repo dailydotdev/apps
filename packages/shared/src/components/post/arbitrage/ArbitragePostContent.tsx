@@ -40,11 +40,12 @@ import PostEngagements from '../PostEngagements';
  * card) have no position and so get none.
  *
  * Below laptop the rail stacks under the article rather than beside it, so
- * every unit here also lands on a phone, where the run costs roughly 40% of
- * page height against the Better Ads Standards' 30% cap. Kept on both by
- * product decision — the phone gets the same run of slots the desktop rail
- * does. The second closing grid is still desktop only, which is what holds
- * the phone anywhere near the cap.
+ * an unfiltered run lands every unit on a phone too — measured at roughly 40%
+ * of page height against the Better Ads Standards' 30% mobile cap, and
+ * Chrome's ad filter for a violation applies to the whole domain, direct-sold
+ * inventory included. Only the first rail unit keeps its phone placement; the
+ * rest are desktop-only, which brings the phone run to roughly 27% with the
+ * second closing grid already desktop-only.
  */
 const RAIL_AD: Record<
   PostWidgetPosition,
@@ -62,18 +63,22 @@ const RAIL_AD: Record<
   [PostWidgetPosition.Creator]: {
     slot: ARBITRAGE_SLOT.railAfterCreator,
     format: ArbitrageAdFormat.MediumRectangle,
+    hideOnPhone: true,
   },
   [PostWidgetPosition.Share]: {
     slot: ARBITRAGE_SLOT.railAfterShare,
     format: ArbitrageAdFormat.MediumRectangle,
+    hideOnPhone: true,
   },
   [PostWidgetPosition.Highlights]: {
     slot: ARBITRAGE_SLOT.railAfterHighlights,
     format: ArbitrageAdFormat.MediumRectangle,
+    hideOnPhone: true,
   },
   [PostWidgetPosition.SimilarPosts]: {
     slot: ARBITRAGE_SLOT.railBetweenFurtherReading,
     format: ArbitrageAdFormat.MediumRectangle,
+    hideOnPhone: true,
   },
 };
 

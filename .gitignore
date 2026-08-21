@@ -55,8 +55,7 @@ node-compile-cache/
 
 # Plan files — the whole subtree, not just the top level: internal strategy
 # docs must never reach this public repository at any nesting depth.
-plans/**/*.md
-plans/**/*.sql
+plans/
 .cursor/plans/
 
 # Claude Code runtime state (hooks/skills/settings remain tracked)
