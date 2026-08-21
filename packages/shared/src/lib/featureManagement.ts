@@ -323,9 +323,9 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
   },
 );
 
-// AdSense kill switches. The slot/unit maps live in code (post/arbitrage/
-// slots.ts) — unit ids are public in any live page's source, and shipping
-// them as a remote JSON value cost every surface's boot payload the whole
-// map. Off = no adsbygoogle script, no <ins> markup on the surface.
-export const featureReadAdsense = new Feature('read_adsense', false);
+// AdSense on the organic post page: two units, anonymous visitors only. The
+// unit map lives in code (post/arbitrage/slots.ts) — ids are public in any
+// live page's source, and a remote JSON value cost every surface's boot
+// payload the whole map. The /read template carries no flag at all: it is
+// only reachable through paid placements, so its ads are always on.
 export const featurePostAdsense = new Feature('post_adsense', false);
