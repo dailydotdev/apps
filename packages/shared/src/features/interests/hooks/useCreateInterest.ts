@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useToastNotification } from '../../../hooks/useToastNotification';
 import { generateQueryKey, RequestKey } from '../../../lib/query';
+import type { CreateInterestSettings } from '../../../graphql/interests';
 import { createInterest } from '../../../graphql/interests';
 import { interestQueryOptions } from '../queries';
 
@@ -15,7 +16,8 @@ export const useCreateInterest = ({
   const queryClient = useQueryClient();
 
   const { isPending, mutateAsync } = useMutation({
-    mutationFn: (query: string) => createInterest(query),
+    mutationFn: (input: { query: string; settings?: CreateInterestSettings }) =>
+      createInterest(input),
     onSuccess: async (interest) => {
       // Without priming, the page opened below mounts while the fetch is still
       // in flight and lands on an empty transcript.

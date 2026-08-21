@@ -7,8 +7,6 @@ import {
 } from '../../../components/typography/Typography';
 import { FlexCol, FlexRow } from '../../../components/utilities';
 import { Switch } from '../../../components/fields/Switch';
-import { Slider } from '../../../components/fields/Slider';
-import { Radio } from '../../../components/fields/Radio';
 import {
   Button,
   ButtonColor,
@@ -24,68 +22,18 @@ import {
   interestDisplayName,
 } from '../../../graphql/interests';
 import { useAgent } from '../AgentContext';
-
-const cadenceOptions = [
-  { value: UserInterestCadence.Hourly, label: 'Every hour' },
-  { value: UserInterestCadence.Daily, label: 'Every day' },
-  { value: UserInterestCadence.Weekly, label: 'Every week' },
-];
-
-const outputOptions = [
-  {
-    key: 'feed',
-    label: 'Add findings to my feed',
-    hint: 'Curated cards you can browse here',
-  },
-  {
-    key: 'post',
-    label: 'Write summary posts',
-    hint: 'A markdown recap of what it found',
-  },
-  {
-    key: 'notification',
-    label: 'Notify me about new content',
-    hint: 'In-app and push ping when something lands',
-  },
-  {
-    key: 'digest',
-    label: 'Send a digest email',
-    hint: 'Up to 5 picks, delivered at your chosen time',
-  },
-] as const;
+import {
+  CadenceSection,
+  FomoSection,
+  OutputModesSection,
+  SettingsSection,
+} from './AgentSettingsFields';
 
 const sourceOptions = [
   { key: 'dailyDev', label: 'daily.dev', disabled: false },
   { key: 'web', label: 'The web', disabled: true },
   { key: 'github', label: 'GitHub', disabled: true },
 ] as const;
-
-const Section = ({
-  title,
-  hint,
-  children,
-}: {
-  title: string;
-  hint?: string;
-  children: React.ReactNode;
-}): ReactElement => (
-  <FlexCol className="gap-3 border-b border-border-subtlest-tertiary py-5 last:border-b-0">
-    <FlexCol className="gap-0.5">
-      <Typography type={TypographyType.Body} bold>
-        {title}
-      </Typography>
-      {hint && (
-        <Typography
-          type={TypographyType.Footnote}
-          color={TypographyColor.Tertiary}
-        >
-          {hint}
-        </Typography>
-      )}
-    </FlexCol>
-    {children}
-  </FlexCol>
-);
 
 export const AgentSettingsPane = ({
   onDelete,
@@ -95,10 +43,8 @@ export const AgentSettingsPane = ({
   isDeleting: boolean;
 }): ReactElement => {
   const { interest, update, isUpdating, setSettingsOpen } = useAgent();
-  const [fomo, setFomo] = useState<number | null>(null);
   const [isConfirmingDelete, setConfirmingDelete] = useState(false);
   const isStopped = interest?.status === UserInterestStatus.Stopped;
-  const threshold = fomo ?? interest?.fomoThreshold ?? 0.5;
 
   return (
     <>
@@ -128,79 +74,24 @@ export const AgentSettingsPane = ({
 
       <div className="agent-scroll min-h-0 flex-1 overflow-y-auto px-5 tablet:px-8 laptop:px-10">
         <FlexCol className="mx-auto w-full max-w-[45rem] pb-8">
-          <Section
-            title="When it runs"
-            hint="How often the agent goes hunting for new content."
-          >
-            <Radio
-              name="agent-cadence"
-              value={interest?.cadence ?? UserInterestCadence.Daily}
-              options={cadenceOptions}
-              disabled={isUpdating || isStopped}
-              onChange={(cadence) => update({ cadence })}
-            />
-          </Section>
+          <CadenceSection
+            value={interest?.cadence ?? UserInterestCadence.Daily}
+            disabled={isUpdating || isStopped}
+            onChange={(cadence) => update({ cadence })}
+          />
 
-          <Section
-            title="FOMO vs quality"
-            hint={
-              threshold > 0.7
-                ? 'Only the very best makes it through.'
-                : 'You will see more, including the borderline stuff.'
-            }
-          >
-            <Slider
-              min={0}
-              max={1}
-              step={0.05}
-              value={[threshold]}
-              onValueChange={([value]) => setFomo(value)}
-              onValueCommit={([value]) => update({ fomoThreshold: value })}
-            />
-            <FlexRow className="justify-between">
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-              >
-                Show me everything
-              </Typography>
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-              >
-                Only the best
-              </Typography>
-            </FlexRow>
-          </Section>
+          <FomoSection
+            value={interest?.fomoThreshold ?? 0.5}
+            onChange={(fomoThreshold) => update({ fomoThreshold })}
+          />
 
-          <Section title="What it delivers">
-            {outputOptions.map(({ key, label, hint }) => (
-              <FlexCol key={key} className="gap-0.5">
-                <Switch
-                  inputId={`agent-output-${key}`}
-                  name={`agent-output-${key}`}
-                  checked={!!interest?.outputModes?.[key]}
-                  disabled={isUpdating}
-                  onToggle={() =>
-                    update({
-                      outputModes: { [key]: !interest?.outputModes?.[key] },
-                    })
-                  }
-                >
-                  {label}
-                </Switch>
-                <Typography
-                  type={TypographyType.Caption1}
-                  color={TypographyColor.Tertiary}
-                  className="pl-14"
-                >
-                  {hint}
-                </Typography>
-              </FlexCol>
-            ))}
-          </Section>
+          <OutputModesSection
+            value={interest?.outputModes}
+            disabled={isUpdating}
+            onChange={(outputModes) => update({ outputModes })}
+          />
 
-          <Section
+          <SettingsSection
             title="Where it looks"
             hint="Web and GitHub discovery are coming next."
           >
@@ -218,9 +109,9 @@ export const AgentSettingsPane = ({
                 {label}
               </Switch>
             ))}
-          </Section>
+          </SettingsSection>
 
-          <Section
+          <SettingsSection
             title="Delete this agent"
             hint="Its conversation and everything it found go with it. Pausing is in the settings menu if you only want it to stop hunting."
           >
@@ -256,7 +147,7 @@ export const AgentSettingsPane = ({
                 </Button>
               )}
             </FlexRow>
-          </Section>
+          </SettingsSection>
         </FlexCol>
       </div>
     </>
