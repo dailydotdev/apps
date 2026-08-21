@@ -73,11 +73,12 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
       .catch(() => settle(onError));
   };
 
+  const cancelButtonProps = cancelButton ?? {};
   const cancelActionButtonProps = {
     variant: ButtonVariant.Secondary,
-    ...cancelButton,
+    ...cancelButtonProps,
     onClick: handleFail,
-    className: classNames('w-full tablet:w-auto', cancelButton.className),
+    className: classNames('w-full tablet:w-auto', cancelButtonProps.className),
   } as ButtonProps<'button'>;
   const okActionButtonProps = {
     variant: ButtonVariant.Primary,
@@ -113,7 +114,7 @@ export function PromptElement(props: Partial<ModalProps>): ReactElement | null {
         <Buttons className={className.buttons}>
           {cancelButton !== null && (
             <Button {...cancelActionButtonProps}>
-              {cancelButton.title ?? 'Cancel'}
+              {cancelButtonProps.title ?? 'Cancel'}
             </Button>
           )}
           {okButton !== null && (
