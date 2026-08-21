@@ -186,7 +186,7 @@ describe('ArbitrageAdSlot', () => {
     });
     const { container } = render(
       <>
-        <ArbitrageAdSlot slot={4} format={ArbitrageAdFormat.Video} />
+        <ArbitrageAdSlot slot={4} format={ArbitrageAdFormat.MediumRectangle} />
         <ArbitrageAdSlot slot={13} format={ArbitrageAdFormat.Anchor} />
       </>,
     );

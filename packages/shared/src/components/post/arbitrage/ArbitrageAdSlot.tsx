@@ -20,11 +20,8 @@ export enum ArbitrageAdFormat {
   MediumRectangle = 'mediumRectangle',
   Rectangle = 'rectangle',
   HalfPage = 'halfPage',
-  SidebarRail = 'sidebarRail',
   SidebarCompact = 'sidebarCompact',
   Native = 'native',
-  Video = 'video',
-  RichMedia = 'richMedia',
   Grid = 'grid',
   Anchor = 'anchor',
 }
@@ -96,14 +93,6 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     maxWidth: 'max-w-[300px]',
     shape: 'vertical',
   },
-  [ArbitrageAdFormat.SidebarRail]: {
-    label: 'Sidebar',
-    size: '240x400',
-    cpm: '$4.00',
-    minHeight: 'min-h-[220px]',
-    maxWidth: 'max-w-[300px]',
-    shape: 'vertical',
-  },
   // The navigation's own unit. No width cap: it sizes to the sidebar column it
   // sits in, so the sidebar's width is the only place that measurement lives.
   // The shape is what keeps it out of the way — a rectangle at ~224px can only
@@ -121,18 +110,6 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     size: 'fluid',
     cpm: '$3.00',
     minHeight: 'min-h-[96px]',
-  },
-  [ArbitrageAdFormat.Video]: {
-    label: 'Outstream video',
-    size: '16:9 muted',
-    cpm: '$7.00',
-    minHeight: 'min-h-[200px]',
-  },
-  [ArbitrageAdFormat.RichMedia]: {
-    label: 'Rich media',
-    size: 'responsive',
-    cpm: '$4.00',
-    minHeight: 'min-h-[160px]',
   },
   // AdSense's multiplex unit: one request that returns a responsive grid of
   // creatives, Google choosing the rows and columns for the width it is given.
