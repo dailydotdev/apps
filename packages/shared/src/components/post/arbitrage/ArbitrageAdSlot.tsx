@@ -262,57 +262,18 @@ function LiveAdSlot({
   const insRef = useRef<HTMLModElement>(null);
   const [isEmpty, setIsEmpty] = useState(false);
 
-  // Collapsing an empty unit needs more than the CSS rule below: AdSense only
-  // stamps data-ad-status="unfilled" when it says no, and a slot that answers
-  // with a zero-height creative — or never answers, because a blocker ate the
-  // script — keeps its reserved min-height as a band of empty page. Measure the
-  // <ins> once the request has had time to land and collapse on the result. The
-  // observer stays attached so a genuinely slow fill reopens the slot.
-  useEffect(() => {
-    const element = insRef.current;
-    if (!element) {
-      return undefined;
-    }
-
-    let graceElapsed = false;
-    const evaluate = (): void => {
-      if (!graceElapsed) {
-        return;
-      }
-      const isUnfilled = element.getAttribute('data-ad-status') === 'unfilled';
-      // A slot booked at a fixed size measures its booked height whether or
-      // not an ad arrived, so height alone cannot tell the two apart — an
-      // unanswered 300x600 held 600px of empty page open at the end of the
-      // rail. AdSense fills by injecting an iframe, so its absence is the
-      // signal that works at any size.
-      const hasCreative = !!element.querySelector('iframe');
-      const { height } = element.getBoundingClientRect();
-      setIsEmpty(isUnfilled || !hasCreative || height < FILLED_MIN_HEIGHT_PX);
-    };
-
-    const resizeObserver = new ResizeObserver(evaluate);
-    resizeObserver.observe(element);
-    // Mutations rather than size alone, so a fill landing after the slot has
-    // already collapsed still reopens it: a display:none box reports no
-    // resizes, but the script's iframe and status attribute still land on it.
-    const mutationObserver = new MutationObserver(evaluate);
-    mutationObserver.observe(element, {
-      attributes: true,
-      attributeFilter: ['data-ad-status'],
-      childList: true,
-    });
-    const graceTimer = globalThis.setTimeout(() => {
-      graceElapsed = true;
-      evaluate();
-    }, FILL_GRACE_MS);
-
-    return () => {
-      resizeObserver.disconnect();
-      mutationObserver.disconnect();
-      globalThis.clearTimeout(graceTimer);
-    };
-  }, []);
-
+  // One effect for the request and the collapse, because they share a clock:
+  // the fill grace runs from the moment the ad is *requested*, never from
+  // mount. A lazy slot far down the page is not empty, it is unasked — grace
+  // from mount collapsed every below-the-fold slot to display:none before it
+  // could intersect, and a slot that cannot intersect never requests, so it
+  // stayed gone.
+  //
+  // Collapsing matters because AdSense only stamps data-ad-status="unfilled"
+  // when it says no; a slot that answers with a zero-height creative — or
+  // never answers, because a blocker ate the script — keeps its reserved
+  // min-height as a band of empty page. The observers stay attached so a
+  // genuinely slow fill reopens a collapsed slot.
   useEffect(() => {
     const element = insRef.current;
     if (!element) {
@@ -332,6 +293,24 @@ function LiveAdSlot({
       element.setAttribute('data-adtest', 'on');
     }
 
+    let graceElapsed = false;
+    let graceTimer: ReturnType<typeof globalThis.setTimeout> | undefined;
+
+    const evaluate = (): void => {
+      if (!graceElapsed) {
+        return;
+      }
+      const isUnfilled = element.getAttribute('data-ad-status') === 'unfilled';
+      // A slot booked at a fixed size measures its booked height whether or
+      // not an ad arrived, so height alone cannot tell the two apart — an
+      // unanswered 300x600 held 600px of empty page open at the end of the
+      // rail. AdSense fills by injecting an iframe, so its absence is the
+      // signal that works at any size.
+      const hasCreative = !!element.querySelector('iframe');
+      const { height } = element.getBoundingClientRect();
+      setIsEmpty(isUnfilled || !hasCreative || height < FILLED_MIN_HEIGHT_PX);
+    };
+
     const requestAd = (): void => {
       try {
         window.adsbygoogle = window.adsbygoogle || [];
@@ -339,32 +318,56 @@ function LiveAdSlot({
       } catch {
         // adsbygoogle.js blocked (ad blocker) — leave the reserved box empty.
       }
+      graceTimer = globalThis.setTimeout(() => {
+        graceElapsed = true;
+        evaluate();
+      }, FILL_GRACE_MS);
     };
 
-    if (eager) {
-      requestAd();
-      return undefined;
-    }
+    const resizeObserver = new ResizeObserver(evaluate);
+    resizeObserver.observe(element);
+    // Mutations rather than size alone, so a fill landing after the slot has
+    // already collapsed still reopens it: a display:none box reports no
+    // resizes, but the script's iframe and status attribute still land on it.
+    const mutationObserver = new MutationObserver(evaluate);
+    mutationObserver.observe(element, {
+      attributes: true,
+      attributeFilter: ['data-ad-status'],
+      childList: true,
+    });
 
-    let pushed = false;
     // Request the ad only near the viewport: viewability drives AdSense CPMs,
     // and never-seen impressions depress the whole page's pricing. The margin
     // is roughly a viewport of scroll — enough for the auction round-trip to
-    // finish before the slot scrolls into view at reading speed.
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (pushed || !entries.some((entry) => entry.isIntersecting)) {
-          return;
-        }
-        pushed = true;
-        observer.disconnect();
-        requestAd();
-      },
-      { rootMargin: '600px' },
-    );
-    observer.observe(element);
+    // finish before the slot scrolls into view at reading speed. Eager slots
+    // are visible at first paint, where the wait only adds latency.
+    let pushed = false;
+    let intersectionObserver: IntersectionObserver | undefined;
+    if (eager) {
+      requestAd();
+    } else {
+      intersectionObserver = new IntersectionObserver(
+        (entries) => {
+          if (pushed || !entries.some((entry) => entry.isIntersecting)) {
+            return;
+          }
+          pushed = true;
+          intersectionObserver?.disconnect();
+          requestAd();
+        },
+        { rootMargin: '600px' },
+      );
+      intersectionObserver.observe(element);
+    }
 
-    return () => observer.disconnect();
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+      intersectionObserver?.disconnect();
+      if (graceTimer) {
+        globalThis.clearTimeout(graceTimer);
+      }
+    };
   }, [eager]);
 
   return (
