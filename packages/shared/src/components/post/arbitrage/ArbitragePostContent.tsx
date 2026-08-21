@@ -183,14 +183,14 @@ export function ArbitragePostContent({
             the column and the brief puts the unit above the article, not below
             it; from laptop `order-last` moves it to the right of the group.
 
-            items-end so the unit's bottom edge meets the cover image's, the
-            two reading as one band. The cover renders 410x201 in this column
-            and the medium rectangle is the closest standard height to it —
-            336x280 and either leaderboard all sit further away. */}
+            The two halves are deliberately near equal — 336 for the unit
+            against 385 for the article's, out of the column's 745 — so the ad
+            reads as the cover's counterpart rather than as a tower beside it.
+            items-end puts their bottom edges on the same line. */}
         <div className="mb-6 flex flex-col gap-6 laptop:flex-row laptop:items-end">
           <ArbitrageAdSlot
             slot={ARBITRAGE_SLOT.inlineMpu1}
-            format={ArbitrageAdFormat.MediumRectangle}
+            format={ArbitrageAdFormat.Rectangle}
             reach="75%"
             refreshes
             className="laptop:order-last"
