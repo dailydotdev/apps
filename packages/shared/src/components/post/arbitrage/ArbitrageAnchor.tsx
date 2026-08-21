@@ -9,7 +9,7 @@ import { useReadAdsenseSlots } from './useReadAdsenseSlots';
 import { hasLiveAdsenseUnits } from './adsense';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
-import { useDelayedReveal } from './useDelayedReveal';
+import { useTimedRelease } from './useTimedRelease';
 import { ARBITRAGE_SLOT, FLOATING_LEADERBOARD_DELAY_MS } from './slots';
 import {
   COLUMN_LEFT_PROPERTY,
@@ -130,7 +130,7 @@ export function ArbitrageAnchor(): ReactElement | null {
   const { logEvent } = useLogContext();
   const isLive = hasLiveAdsenseUnits(slots);
   const isConfigured = !!slots[String(ARBITRAGE_SLOT.floatingLeaderboard)]?.id;
-  const revealed = useDelayedReveal(FLOATING_LEADERBOARD_DELAY_MS);
+  const revealed = useTimedRelease(FLOATING_LEADERBOARD_DELAY_MS, 'mount');
 
   // Live but unconfigured: leave the bottom of the viewport alone.
   if (isLive && !isConfigured) {

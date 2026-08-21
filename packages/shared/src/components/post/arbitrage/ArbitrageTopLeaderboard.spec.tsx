@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, render, renderHook } from '@testing-library/react';
 import { ArbitrageTopLeaderboard } from './ArbitrageTopLeaderboard';
-import { useStickyRelease } from './useStickyRelease';
+import { useTimedRelease } from './useTimedRelease';
 import { useFeature } from '../../GrowthBookProvider';
 import { TOP_LEADERBOARD_STICKY_MS } from './slots';
 
@@ -55,10 +55,10 @@ describe('ArbitrageTopLeaderboard', () => {
   });
 });
 
-describe('useStickyRelease', () => {
+describe('useTimedRelease', () => {
   it('holds the sticky window open while the visitor has not scrolled yet', () => {
     const { result } = renderHook(() =>
-      useStickyRelease(TOP_LEADERBOARD_STICKY_MS),
+      useTimedRelease(TOP_LEADERBOARD_STICKY_MS, 'scroll'),
     );
     advancePastStickyWindow();
 
@@ -67,7 +67,7 @@ describe('useStickyRelease', () => {
 
   it('releases once the window elapses after the first scroll', () => {
     const { result } = renderHook(() =>
-      useStickyRelease(TOP_LEADERBOARD_STICKY_MS),
+      useTimedRelease(TOP_LEADERBOARD_STICKY_MS, 'scroll'),
     );
     scroll();
     expect(result.current).toBe(false);

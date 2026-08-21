@@ -354,6 +354,11 @@ function LiveAdSlot({
       childList: true,
     });
 
+    // This push is only safe because of the mount-at-eligibility invariant
+    // above: it binds to the first uninitialised ins in document order, not
+    // to this element. Adding `eager` to a slot (or any change that mounts an
+    // ins before it should be requested) re-opens the mis-binding race — an
+    // eager slot must be one that is genuinely requested at mount.
     try {
       window.adsbygoogle = window.adsbygoogle || [];
       window.adsbygoogle.push({});
