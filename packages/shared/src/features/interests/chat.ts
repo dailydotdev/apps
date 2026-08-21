@@ -25,7 +25,6 @@ export type AgentMessage = {
   relationships?: InterestTurnRelationship[] | null;
   attachments?: AgentAttachment[];
   blocks?: AgentBlock[];
-  summaryPost?: Pick<Post, 'id' | 'title' | 'createdAt' | 'contentHtml'>;
   isPending?: boolean;
   isScheduled?: boolean;
   isError?: boolean;

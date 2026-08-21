@@ -188,13 +188,11 @@ const turnsToMessages = ({
   turns,
   postsById,
   allPosts,
-  summaryPostsById,
   interest,
 }: {
   turns: InterestTurn[];
   postsById: Map<string, Post>;
   allPosts: Post[];
-  summaryPostsById: Map<string, AgentSummaryPost>;
   interest?: UserInterest;
 }): AgentMessage[] => {
   const feedbackTextById = new Map(
@@ -243,10 +241,6 @@ const turnsToMessages = ({
       isError,
       retryText,
       blocks: isPending || isError ? undefined : blocks,
-      summaryPost:
-        !isPending && !isError && turn.summaryPostId
-          ? summaryPostsById.get(turn.summaryPostId)
-          : undefined,
     });
     return acc;
   }, []);
@@ -353,11 +347,6 @@ export const AgentProvider = ({
     return { postsById: byId, allPosts: findings.map(({ post }) => post) };
   }, [findings]);
 
-  const summaryPostsById = useMemo(
-    () => new Map(posts.map((post) => [post.id, post])),
-    [posts],
-  );
-
   const unresolvedEchoes = useMemo(
     () => echoes.filter((echo) => !echoResolved(echo, turns)),
     [echoes, turns],
@@ -399,7 +388,6 @@ export const AgentProvider = ({
         turns,
         postsById,
         allPosts,
-        summaryPostsById,
         interest,
       }),
       ...echoed,
@@ -410,7 +398,6 @@ export const AgentProvider = ({
     interest,
     isDemo,
     postsById,
-    summaryPostsById,
     turns,
     unresolvedEchoes,
   ]);
