@@ -9,7 +9,7 @@ import {
   targetAttachment,
 } from './attachments';
 import type { AgentMessage } from './chat';
-import { promptWithContext } from './chat';
+import { promptWithContext, restoreCommandText } from './chat';
 
 const makePost = (id: string, title = `Post ${id}`): Post =>
   ({
@@ -184,14 +184,44 @@ describe('promptWithContext', () => {
     expect(promptWithContext('raise the bar', [])).toBe('raise the bar');
   });
 
-  it('names every attachment so the backend knows what was meant', () => {
+  it('serializes posts as markers and names other attachments', () => {
     const prompt = promptWithContext('why this one', [
       postAttachment(makePost('a', 'Zig 0.15')),
       quoteAttachment('self-hosted backend'),
     ]);
 
     expect(prompt).toContain('why this one');
-    expect(prompt).toContain('Zig 0.15');
+    expect(prompt).toContain('@dailydev:post:a');
+    expect(prompt).not.toContain('Zig 0.15');
     expect(prompt).toContain('self-hosted backend');
+  });
+});
+
+describe('restoreCommandText', () => {
+  it('strips relIds from resolved markers and restores marker-replaced urls', () => {
+    expect(
+      restoreCommandText({
+        text: 'love @dailydev:post:a:r1 and @dailydev:post:b:r2',
+        relationships: [
+          {
+            id: 'r2',
+            entity: 'post',
+            entityId: 'b',
+            url: 'https://dly.to/xyz',
+            title: 'B',
+            summary: null,
+          },
+        ],
+      }),
+    ).toBe('love @dailydev:post:a and https://dly.to/xyz');
+  });
+
+  it('leaves unswept and failed markers alone', () => {
+    expect(
+      restoreCommandText({
+        text: '@dailydev:post:a plus @dailydev:post:b:null',
+        relationships: [],
+      }),
+    ).toBe('@dailydev:post:a plus @dailydev:post:b');
   });
 });
