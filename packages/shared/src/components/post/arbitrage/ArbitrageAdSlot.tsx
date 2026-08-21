@@ -98,7 +98,9 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
   [ArbitrageAdFormat.SidebarCompact]: {
     label: 'Sidebar compact',
     size: '200x200 · 180x150',
-    minHeight: 'min-h-[150px]',
+    // Nothing to reserve: the whole box is hidden until a creative lands, so
+    // a min-height would only hold empty space open above the nav.
+    minHeight: 'min-h-0',
     shape: 'rectangle',
   },
   [ArbitrageAdFormat.Native]: {
@@ -149,6 +151,12 @@ export interface ArbitrageAdSlotProps {
    * is a /read-template tool and never renders for the organic surface.
    */
   surface?: 'read' | 'organic';
+  /**
+   * Reports whether the slot currently holds a creative. Lets a container
+   * that only exists to frame an ad — the sidebar's bordered box and its
+   * dismiss button — render nothing at all when there is no ad to frame.
+   */
+  onFilledChange?: (filled: boolean) => void;
   /**
    * Requests the ad on mount instead of waiting to near the viewport. For
    * slots visible at first paint the intersection wait only adds latency —
@@ -221,9 +229,10 @@ function LiveAdSlot({
   className,
   hideOnPhone,
   eager,
+  onFilledChange,
 }: Pick<
   ArbitrageAdSlotProps,
-  'slot' | 'format' | 'className' | 'hideOnPhone' | 'eager'
+  'slot' | 'format' | 'className' | 'hideOnPhone' | 'eager' | 'onFilledChange'
 > & {
   config: AdsenseSlotConfig;
 }): ReactElement {
@@ -233,6 +242,9 @@ function LiveAdSlot({
   const [isEmpty, setIsEmpty] = useState(false);
   const { logEvent } = useLogContext();
   const hasLoggedFill = useRef(false);
+  // Through a ref so an inline callback does not re-run the request effect.
+  const onFilledChangeRef = useRef(onFilledChange);
+  onFilledChangeRef.current = onFilledChange;
 
   // The <ins> below only mounts once the slot is eligible, because
   // adsbygoogle.push({}) does not bind to a specific element: the tag
@@ -308,9 +320,6 @@ function LiveAdSlot({
 
     let graceElapsed = false;
     const evaluate = (): void => {
-      if (!graceElapsed) {
-        return;
-      }
       const isUnfilled = element.getAttribute('data-ad-status') === 'unfilled';
       // A slot booked at a fixed size measures its booked height whether or
       // not an ad arrived, so height alone cannot tell the two apart — an
@@ -330,6 +339,15 @@ function LiveAdSlot({
         !isUnfilled &&
         hasCreative &&
         (!isDisplayed || height >= FILLED_MIN_HEIGHT_PX);
+      // Reported before the grace gate below, so a container waiting on this
+      // reveals as soon as the creative lands rather than on the timer.
+      onFilledChangeRef.current?.(filled);
+
+      // Collapsing waits for the grace: until the request has had its window
+      // to answer, "no creative yet" is not the same as "no creative".
+      if (!graceElapsed) {
+        return;
+      }
       setIsEmpty(!filled);
       // First-party per-placement fill signal: several placements share an
       // AdSense unit id for now, so AdSense's own reporting blends them.
@@ -429,6 +447,7 @@ function MappedAdSlot({
   refreshes,
   hideOnPhone,
   eager,
+  onFilledChange,
   slots,
   allowPlaceholder = false,
 }: ArbitrageAdSlotProps & {
@@ -450,6 +469,7 @@ function MappedAdSlot({
         className={className}
         hideOnPhone={hideOnPhone}
         eager={eager}
+        onFilledChange={onFilledChange}
       />
     );
   }

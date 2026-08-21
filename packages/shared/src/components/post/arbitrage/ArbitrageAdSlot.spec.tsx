@@ -499,9 +499,33 @@ describe('ArbitrageSidebarAd', () => {
     expect(ins).not.toHaveAttribute('style', expect.stringContaining('height'));
   });
 
-  it('clears the unit for the session when closed', () => {
+  it('frames nothing while the slot has no creative', () => {
+    // jsdom boxes measure zero, which is the unfilled case: a bordered band
+    // with a dismiss button and no ad under it must not reach the nav.
     setSlots({ '1': { id: '1111111111', type: 'display' } });
+    render(<ArbitrageSidebarAd />);
+
+    expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
+    expect(
+      screen.getByTestId('adsense-slot-1').closest('div.px-2'),
+    ).toHaveClass('invisible');
+  });
+
+  it('clears the unit for the session when closed', async () => {
+    setSlots({ '1': { id: '1111111111', type: 'display' } });
+    const measure = jest
+      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+      .mockReturnValue({ height: 200 } as DOMRect);
     const { container } = render(<ArbitrageSidebarAd />);
+
+    // A creative landing is what reveals the box and its dismiss button.
+    screen
+      .getByTestId('adsense-slot-1')
+      .appendChild(document.createElement('iframe'));
+    await act(async () => {
+      await Promise.resolve();
+    });
+    measure.mockRestore();
 
     fireEvent.click(screen.getByTitle('Close'));
 
