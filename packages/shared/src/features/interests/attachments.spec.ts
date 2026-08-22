@@ -90,9 +90,17 @@ describe('feedAttachment and activityAttachment', () => {
 
 describe('targetAttachment', () => {
   it('maps a post tab to the post', () => {
-    expect(targetAttachment({ type: 'post', post: makePost('a') })?.id).toBe(
-      'post:a',
-    );
+    expect(
+      targetAttachment({ type: 'post', postId: 'a', post: makePost('a') })?.id,
+    ).toBe('post:a');
+  });
+
+  it('maps a post tab that is still loading by its id alone', () => {
+    expect(targetAttachment({ type: 'post', postId: 'a' })).toEqual({
+      id: 'post:a',
+      kind: 'post',
+      label: 'Post',
+    });
   });
 
   it('maps a feed tab to the feed', () => {
@@ -117,7 +125,7 @@ describe('mentionCandidates', () => {
 
   it('offers what is open, then what it found, then the agent itself', () => {
     const candidates = mentionCandidates({
-      openContent: [{ type: 'post', post: makePost('open') }],
+      openContent: [{ type: 'post', postId: 'open', post: makePost('open') }],
       messages: withPosts([makePost('found')]),
     });
 
@@ -131,7 +139,7 @@ describe('mentionCandidates', () => {
   it('lists a post open in the panel once, not twice', () => {
     const post = makePost('same');
     const candidates = mentionCandidates({
-      openContent: [{ type: 'post', post }],
+      openContent: [{ type: 'post', postId: 'same', post }],
       messages: withPosts([post]),
     });
 

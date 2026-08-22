@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Markdown from '../../../components/Markdown';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
@@ -45,12 +45,23 @@ import { AgentThinkingStrip } from './AgentThinkingStrip';
 import { AgentPostCard } from './AgentPostCard';
 import { AgentEmbedCard } from './blocks/AgentEmbedCard';
 
-const postLinkKey = (href: string): string => {
+const postLinkId = (href: string): string | undefined => {
   try {
-    const url = new URL(href);
-    return `${url.origin}${url.pathname.replace(/\/+$/, '')}`;
+    const url = new URL(href, globalThis?.location?.origin);
+    const isOwnHost =
+      url.hostname === 'daily.dev' ||
+      url.hostname.endsWith('.daily.dev') ||
+      url.origin === globalThis?.location?.origin;
+
+    if (!isOwnHost) {
+      return undefined;
+    }
+
+    const [, id] = url.pathname.match(/^\/posts\/([^/]+)\/?$/) ?? [];
+
+    return id;
   } catch {
-    return href;
+    return undefined;
   }
 };
 
@@ -58,13 +69,13 @@ const BlockRenderer = ({
   block,
   onPostClick,
   onFeedClick,
-  resolvePostLink,
+  onPostLinkClick,
   activePostId,
 }: {
   block: AgentBlock;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
-  resolvePostLink: (href: string) => Post | undefined;
+  onPostLinkClick: (postId: string) => void;
   activePostId?: string;
 }): ReactElement => {
   if (block.type === 'text') {
@@ -73,13 +84,13 @@ const BlockRenderer = ({
       <div
         onClick={(event) => {
           const anchor = (event.target as Element).closest('a');
-          const post = anchor && resolvePostLink(anchor.href);
-          if (!post) {
+          const postId = anchor && postLinkId(anchor.href);
+          if (!postId) {
             return;
           }
           event.preventDefault();
           event.stopPropagation();
-          onPostClick(post);
+          onPostLinkClick(postId);
         }}
       >
         <Markdown className={transcriptProse} content={block.html} />
@@ -366,13 +377,13 @@ const MessageRow = ({
   message,
   onPostClick,
   onFeedClick,
-  resolvePostLink,
+  onPostLinkClick,
   activePostId,
 }: {
   message: AgentMessage;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
-  resolvePostLink: (href: string) => Post | undefined;
+  onPostLinkClick: (postId: string) => void;
   activePostId?: string;
 }): ReactElement => {
   if (message.role === 'user') {
@@ -422,7 +433,7 @@ const MessageRow = ({
               block={block}
               onPostClick={onPostClick}
               onFeedClick={onFeedClick}
-              resolvePostLink={resolvePostLink}
+              onPostLinkClick={onPostLinkClick}
               activePostId={activePostId}
             />
           ))}
@@ -440,24 +451,9 @@ export const AgentChatSection = (): ReactElement => {
     activeContent,
     queuedCommands,
     removeQueuedCommand,
-    findingsPosts,
   } = useAgent();
   const activePostId =
-    activeContent?.type === 'post' ? activeContent.post.id : undefined;
-  const postsByLink = useMemo(() => {
-    const map = new Map<string, Post>();
-    findingsPosts.forEach((post) => {
-      if (!post.commentsPermalink) {
-        return;
-      }
-      map.set(postLinkKey(post.commentsPermalink), post);
-      const [origin] = post.commentsPermalink.split('/posts/');
-      if (origin) {
-        map.set(`${origin}/posts/${post.id}`, post);
-      }
-    });
-    return map;
-  }, [findingsPosts]);
+    activeContent?.type === 'post' ? activeContent.postId : undefined;
 
   return (
     <FlexCol className="gap-6">
@@ -465,11 +461,15 @@ export const AgentChatSection = (): ReactElement => {
         <MessageRow
           key={message.id}
           message={message}
-          onPostClick={(post) => openContentTarget({ type: 'post', post })}
+          onPostClick={(post) =>
+            openContentTarget({ type: 'post', postId: post.id, post })
+          }
           onFeedClick={(label, posts) =>
             openContentTarget({ type: 'feed', label, posts })
           }
-          resolvePostLink={(href) => postsByLink.get(postLinkKey(href))}
+          onPostLinkClick={(postId) =>
+            openContentTarget({ type: 'post', postId })
+          }
           activePostId={activePostId}
         />
       ))}

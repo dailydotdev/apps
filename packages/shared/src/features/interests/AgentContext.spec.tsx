@@ -47,7 +47,7 @@ afterEach(() => jest.useRealTimers());
 
 describe('contentTargetId', () => {
   it('keys posts and feeds by what they hold, and panes by name', () => {
-    expect(contentTargetId({ type: 'post', post: post('p1') })).toBe('post:p1');
+    expect(contentTargetId({ type: 'post', postId: 'p1' })).toBe('post:p1');
     expect(
       contentTargetId({ type: 'feed', label: 'Findings', posts: [] }),
     ).toBe('feed:Findings');
@@ -203,7 +203,11 @@ describe('content tabs', () => {
     act(() => agent.current.openContentTarget({ type: 'activity' }));
     act(() => agent.current.openContentTarget({ type: 'debug' }));
     act(() =>
-      agent.current.openContentTarget({ type: 'post', post: post('p1') }),
+      agent.current.openContentTarget({
+        type: 'post',
+        postId: 'p1',
+        post: post('p1'),
+      }),
     );
     act(() => agent.current.focusContent('debug'));
     act(() => agent.current.closeContent('debug'));
@@ -229,6 +233,39 @@ describe('content tabs', () => {
     act(() => agent.current.closeContent('activity'));
 
     expect(agent.current.activeContentId).toBe('debug');
+  });
+
+  it('renames a slug-opened tab to the canonical id once the post loads', () => {
+    const agent = mountAgent();
+
+    act(() =>
+      agent.current.openContentTarget({ type: 'post', postId: 'zig-slug' }),
+    );
+    act(() => agent.current.reconcilePostTarget('post:zig-slug', post('p1')));
+
+    expect(agent.current.openContent).toEqual([
+      { type: 'post', postId: 'p1', post: post('p1') },
+    ]);
+    expect(agent.current.activeContentId).toBe('post:p1');
+  });
+
+  it('merges a slug-opened tab into one that already holds the post', () => {
+    const agent = mountAgent();
+
+    act(() =>
+      agent.current.openContentTarget({
+        type: 'post',
+        postId: 'p1',
+        post: post('p1'),
+      }),
+    );
+    act(() =>
+      agent.current.openContentTarget({ type: 'post', postId: 'zig-slug' }),
+    );
+    act(() => agent.current.reconcilePostTarget('post:zig-slug', post('p1')));
+
+    expect(agent.current.openContent).toHaveLength(1);
+    expect(agent.current.activeContentId).toBe('post:p1');
   });
 
   it('ignores a request to close something that is not open', () => {

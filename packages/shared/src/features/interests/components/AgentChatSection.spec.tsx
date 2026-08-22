@@ -272,7 +272,7 @@ describe('a post link in the reply text', () => {
     const { activeContent } = useAgent();
     return (
       <div data-testid="active-post">
-        {activeContent?.type === 'post' ? activeContent.post.id : 'none'}
+        {activeContent?.type === 'post' ? activeContent.postId : 'none'}
       </div>
     );
   };
@@ -284,7 +284,7 @@ describe('a post link in the reply text', () => {
     blocks: [
       {
         type: 'text',
-        html: '<p>Read <a href="https://app.daily.dev/posts/p1/">Zig 0.15</a>, <a href="https://app.daily.dev/posts/p3">Comptime tricks</a> or <a href="https://example.com/posts/xyz">elsewhere</a>.</p>',
+        html: '<p>Read <a href="https://app.daily.dev/posts/p1/">Zig 0.15</a>, <a href="https://app.daily.dev/posts/p3">Comptime tricks</a>, <a href="https://app.daily.dev/posts/hidden-gem-p9">Hidden gem</a> or <a href="https://example.com/posts/xyz">elsewhere</a>.</p>',
       },
     ],
   };
@@ -337,6 +337,16 @@ describe('a post link in the reply text', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Comptime tricks' }));
 
     expect(screen.getByTestId('active-post')).toHaveTextContent('p3');
+  });
+
+  it('opens a post that never became a finding', () => {
+    renderLinked();
+
+    fireEvent.click(screen.getByRole('link', { name: 'Hidden gem' }));
+
+    expect(screen.getByTestId('active-post')).toHaveTextContent(
+      'hidden-gem-p9',
+    );
   });
 
   it('leaves links it cannot resolve alone', () => {

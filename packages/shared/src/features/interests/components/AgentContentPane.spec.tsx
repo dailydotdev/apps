@@ -12,6 +12,12 @@ import type { AgentContentTarget } from '../AgentContext';
 import { AgentProvider, useAgent } from '../AgentContext';
 import { AgentContentPane } from './AgentContentPane';
 
+const mockUsePostById = jest.fn();
+jest.mock('../../../hooks/usePostById', () => ({
+  ...jest.requireActual('../../../hooks/usePostById'),
+  usePostById: (props: unknown) => mockUsePostById(props),
+}));
+
 const setViewport = mockMatchMedia;
 
 // The panel renders the real post page, which reads far more than a title.
@@ -54,6 +60,7 @@ const renderPane = (
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUsePostById.mockReturnValue({ post: undefined, isError: false });
   setViewport((query) => query === laptopQuery);
 });
 
@@ -62,7 +69,7 @@ describe('AgentContentPane tabs', () => {
     renderPane([
       { type: 'activity' },
       { type: 'debug' },
-      { type: 'post', post: post('p1', 'Zig 0.15') },
+      { type: 'post', postId: 'p1', post: post('p1', 'Zig 0.15') },
     ]);
 
     expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
@@ -157,7 +164,7 @@ describe('AgentContentPane tabs', () => {
   });
 
   it('offers the original only for a post, where there is one to open', () => {
-    renderPane([{ type: 'post', post: post('p1', 'Zig 0.15') }]);
+    renderPane([{ type: 'post', postId: 'p1', post: post('p1', 'Zig 0.15') }]);
 
     expect(screen.getByLabelText('Open original')).toBeInTheDocument();
   });
@@ -166,6 +173,39 @@ describe('AgentContentPane tabs', () => {
     renderPane([{ type: 'activity' }]);
 
     expect(screen.queryByLabelText('Open original')).not.toBeInTheDocument();
+  });
+
+  it('shows a placeholder for a post opened by id alone, with no original yet', () => {
+    renderPane([{ type: 'post', postId: 'zig-slug' }]);
+
+    expect(screen.getByRole('tab', { name: 'Post' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('Open original')).not.toBeInTheDocument();
+  });
+
+  it('renames a slug-opened tab once the post arrives', async () => {
+    mockUsePostById.mockReturnValue({
+      post: post('p1', 'Zig 0.15'),
+      isError: false,
+    });
+
+    renderPane([{ type: 'post', postId: 'zig-slug' }]);
+
+    expect(
+      await screen.findByRole('tab', { name: 'Zig 0.15' }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Open original')).toBeInTheDocument();
+  });
+
+  it('says so when the post cannot be loaded', () => {
+    mockUsePostById.mockReturnValue({ post: undefined, isError: true });
+
+    renderPane([{ type: 'post', postId: 'gone' }]);
+
+    expect(
+      screen.getByText(
+        'This post could not be loaded. It may have been removed.',
+      ),
+    ).toBeInTheDocument();
   });
 });
 
