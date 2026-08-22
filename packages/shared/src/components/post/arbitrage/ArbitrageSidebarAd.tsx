@@ -39,7 +39,9 @@ export function ArbitrageSidebarAd(): ReactElement | null {
     <div
       className={classNames(
         'bg-background-default',
-        isFilled && 'border-t border-border-subtlest-tertiary px-2 pb-3 pt-1',
+        // pb-4 rather than sitting flush on the viewport edge: the unit is
+        // the last thing in a column that otherwise ends in breathing room.
+        isFilled && 'border-t border-border-subtlest-tertiary px-2 pb-4 pt-1',
       )}
     >
       {/* Its own row above the unit, never over it: AdSense forbids page
