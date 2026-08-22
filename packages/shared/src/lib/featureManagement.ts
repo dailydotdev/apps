@@ -322,3 +322,16 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
     endDate: '2026-09-01T00:00:00.000Z',
   },
 );
+
+// AdSense on the organic post page: two units, anonymous visitors only. The
+// unit map lives in code (post/arbitrage/slots.ts) — ids are public in any
+// live page's source, and a remote JSON value cost every surface's boot
+// payload the whole map.
+export const featurePostAdsense = new Feature('post_adsense', false);
+
+// Emergency kill switch for the /read template's ads — NOT an experiment, so
+// the true default is deliberate: the surface ships always-on (it is only
+// reachable through paid placements), and the flag exists solely so a policy
+// warning, bad creative or revenue anomaly can be stopped without a deploy
+// and an ISR revalidation cycle. Never ramp or target with this flag.
+export const featureReadAdsense = new Feature('read_adsense', true);

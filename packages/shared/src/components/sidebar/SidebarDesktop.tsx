@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import { useRouter } from 'next/router';
 import { Nav, SidebarAside, SidebarScrollWrapper } from './common';
@@ -23,15 +23,22 @@ type SidebarDesktopProps = {
   };
   isNavButtons?: boolean;
   onNavTabClick?: (tab: string) => void;
+  /** Ignores the stored collapse preference — see MainLayoutProps.expandSidebar. */
+  forceExpanded?: boolean;
+  /** Rendered pinned below the navigation — see MainLayoutProps.sidebarTrailing. */
+  trailing?: ReactNode;
 };
 export const SidebarDesktop = ({
   activePage: activePageProp,
   featureTheme,
   isNavButtons,
   onNavTabClick,
+  forceExpanded,
+  trailing,
 }: SidebarDesktopProps): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded } = useSettingsContext();
+  const { sidebarExpanded: storedExpanded } = useSettingsContext();
+  const sidebarExpanded = forceExpanded || storedExpanded;
   const { isAvailable: isBannerAvailable } = useBanner();
   const activePage = activePageProp || router.asPath || router.pathname;
 
@@ -57,7 +64,7 @@ export const SidebarDesktop = ({
     >
       <SidebarScrollWrapper className="!h-auto min-h-0 flex-1">
         <Nav>
-          <SidebarMenuIcon />
+          {!forceExpanded && <SidebarMenuIcon />}
           {/* Primary Action */}
           <div
             className={classNames(
@@ -112,6 +119,8 @@ export const SidebarDesktop = ({
           />
         </Nav>
       </SidebarScrollWrapper>
+
+      {trailing}
 
       {/* Help guide — pinned to sidebar bottom (renders only when a marketingCTA is targeted) */}
       <HelpWidget sidebarExpanded={sidebarExpanded} />

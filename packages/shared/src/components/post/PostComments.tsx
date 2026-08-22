@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Comment, SortCommentsBy } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
@@ -45,6 +45,14 @@ interface PostCommentsProps {
   removeTopSpacing?: boolean;
   canReply?: MainCommentProps['canReply'];
   onReplyBlocked?: MainCommentProps['onReplyBlocked'];
+  /**
+   * Renders between top-level comments, every `interleaveEvery` of them. Used
+   * by the ad template to break a long thread up; never after the last comment,
+   * where whatever follows the thread already sits. Both props are required
+   * together, and without them the list keeps its original markup.
+   */
+  interleaveEvery?: number;
+  renderInterleaved?: (occurrence: number) => ReactNode;
 }
 
 const noopShare = (): void => {};
@@ -65,6 +73,8 @@ export function PostComments({
   removeTopSpacing = false,
   canReply,
   onReplyBlocked,
+  interleaveEvery,
+  renderInterleaved,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const container = useRef<HTMLDivElement | null>(null);
@@ -124,32 +134,51 @@ export function PostComments({
       }
       ref={container}
     >
-      {comments!.postComments.edges.map((e, index) => (
-        <MainComment
-          isModalThread={isModalThread}
-          className={{ commentBox: className }}
-          post={post}
-          origin={origin}
-          commentHash={commentHash ?? undefined}
-          commentRef={commentRef as React.MutableRefObject<HTMLElement>}
-          comment={e.node}
-          key={e.node.id}
-          onShare={onShare ?? noopShare}
-          onDelete={(comment, parentId) =>
-            deleteComment(comment.id, parentId ?? null, post)
-          }
-          onShowUpvotes={onClickUpvote ?? noopShowUpvotes}
-          postAuthorId={post.author?.id ?? null}
-          postScoutId={post.scout?.id ?? null}
-          appendTooltipTo={getAppendTooltipParent}
-          permissionNotificationCommentId={permissionNotificationCommentId}
-          joinNotificationCommentId={joinNotificationCommentId}
-          onCommented={onCommented}
-          lazy={!commentHash && index >= lazyCommentThreshold}
-          canReply={canReply}
-          onReplyBlocked={onReplyBlocked}
-        />
-      ))}
+      {comments!.postComments.edges.map((e, index) => {
+        const isLast = index === comments!.postComments.edges.length - 1;
+        const shouldInterleave =
+          !!interleaveEvery &&
+          !!renderInterleaved &&
+          !isLast &&
+          (index + 1) % interleaveEvery === 0;
+        const mainComment = (
+          <MainComment
+            isModalThread={isModalThread}
+            className={{ commentBox: className }}
+            post={post}
+            origin={origin}
+            commentHash={commentHash ?? undefined}
+            commentRef={commentRef as React.MutableRefObject<HTMLElement>}
+            comment={e.node}
+            key={e.node.id}
+            onShare={onShare ?? noopShare}
+            onDelete={(comment, parentId) =>
+              deleteComment(comment.id, parentId ?? null, post)
+            }
+            onShowUpvotes={onClickUpvote ?? noopShowUpvotes}
+            postAuthorId={post.author?.id ?? null}
+            postScoutId={post.scout?.id ?? null}
+            appendTooltipTo={getAppendTooltipParent}
+            permissionNotificationCommentId={permissionNotificationCommentId}
+            joinNotificationCommentId={joinNotificationCommentId}
+            onCommented={onCommented}
+            lazy={!commentHash && index >= lazyCommentThreshold}
+            canReply={canReply}
+            onReplyBlocked={onReplyBlocked}
+          />
+        );
+
+        if (!shouldInterleave) {
+          return mainComment;
+        }
+
+        return (
+          <Fragment key={e.node.id}>
+            {mainComment}
+            {renderInterleaved((index + 1) / interleaveEvery)}
+          </Fragment>
+        );
+      })}
     </div>
   );
 }

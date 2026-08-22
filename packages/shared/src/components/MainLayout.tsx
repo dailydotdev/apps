@@ -83,6 +83,18 @@ export interface MainLayoutProps
    * anything to show.
    */
   topBanner?: ReactNode;
+  /**
+   * Renders the sidebar expanded regardless of the stored user preference.
+   * The ad template needs the 240px column present on every visit — the
+   * preference defaults to collapsed and anonymous visitors never change it.
+   */
+  expandSidebar?: boolean;
+  /**
+   * Rendered pinned below the desktop sidebar's navigation. The nav is shared
+   * with the extension, so what fills this space — the ad template's sidebar
+   * unit — is decided by the page that owns the policy, never by the nav.
+   */
+  sidebarTrailing?: ReactNode;
 }
 
 export const feeds = Object.values(SharedFeedPage);
@@ -101,6 +113,8 @@ function MainLayoutComponent({
   canGoBack,
   hideFeedbackWidget = false,
   topBanner,
+  expandSidebar = false,
+  sidebarTrailing,
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -140,8 +154,11 @@ function MainLayoutComponent({
   // and never slides under the panel. Matches the `activePage` resolution the
   // Sidebar receives below.
   const forceSidebarExpanded =
-    isV2 &&
-    isSidebarSettingsPath(activePage ?? router.asPath ?? router.pathname ?? '');
+    expandSidebar ||
+    (isV2 &&
+      isSidebarSettingsPath(
+        activePage ?? router.asPath ?? router.pathname ?? '',
+      ));
 
   // The main content's left padding settles from the rail width to the
   // expanded-sidebar width once auth, settings, and the layout-variant flag
@@ -221,6 +238,15 @@ function MainLayoutComponent({
   // because the rail provides its own.
   const sidebarOwnsHeader =
     isV2 && (isLoggedIn || isExtension) && showSidebar && sidebarRendered;
+
+  let stickyHeaderOffset = 'laptop:[--sticky-header-offset:4rem]';
+  if (sidebarOwnsHeader) {
+    stickyHeaderOffset = isBannerAvailable
+      ? 'laptop:[--sticky-header-offset:2rem]'
+      : 'laptop:[--sticky-header-offset:0rem]';
+  } else if (isBannerAvailable) {
+    stickyHeaderOffset = 'laptop:[--sticky-header-offset:6rem]';
+  }
 
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
@@ -361,6 +387,17 @@ function MainLayoutComponent({
           // (--safe-area-top-offset), so the content has to drop by the same
           // 2rem or the pinned banner paints over the top of it.
           isBannerAvailable && sidebarOwnsHeader && 'laptop:pt-8',
+          // Mirrors the padding above as an inheritable value, so a sticky
+          // descendant can pin directly under whatever fixed chrome this
+          // layout actually has. A hardcoded offset overshoots wherever the
+          // chrome is shorter or absent (v2, tablet, mobile), and a sticky
+          // element whose `top` exceeds its natural position is pushed *down*
+          // over the content that follows it. One ternary rather than stacked
+          // classes because arbitrary properties have no reliable cascade
+          // order between them. Below laptop no chrome is fixed above the
+          // content, so the base value is zero.
+          '[--sticky-header-offset:0px]',
+          stickyHeaderOffset,
         )}
       >
         {isAuthReady && isLayoutChromeResolved && showSidebar && (
@@ -371,6 +408,8 @@ function MainLayoutComponent({
             onNavTabClick={onNavTabClick}
             onLogoClick={onLogoClick}
             activePage={activePage ?? router.asPath ?? router.pathname}
+            forceExpanded={expandSidebar}
+            trailing={sidebarTrailing}
           />
         )}
         {sidebarOwnsHeader ? (
