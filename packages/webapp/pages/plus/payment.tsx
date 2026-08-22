@@ -13,10 +13,8 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import dynamic from 'next/dynamic';
 import {
-  useProductPricing,
   useProductPricingByIds,
 } from '@dailydotdev/shared/src/hooks/useProductPricing';
-import { PurchaseType } from '@dailydotdev/shared/src/graphql/paddle';
 import { PlusCheckoutContainer } from '@dailydotdev/shared/src/components/plus/PlusCheckoutContainer';
 import { usePlusSale } from '@dailydotdev/shared/src/hooks/usePlusSale';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
@@ -40,17 +38,11 @@ const PlusPaymentPage = (): ReactElement => {
     ids: [pid as string],
     loadMetadata: true,
   });
-  // Gifting buys a one-off product the subscription sale doesn't cover.
-  const isDiscounted = !!discountId && !gift;
-  const isPersonalPlan = productOptions?.some(({ priceId }) => priceId === pid);
-  // The provider previews personal plans, so a team purchase needs its own
-  // discounted preview: pricingPreviewByIds takes no discount, and quoting its
-  // list price next to a discounted Paddle total is what misleads the buyer.
-  const { data: teamPricing } = useProductPricing({
-    type: PurchaseType.Organization,
-    discountId,
-    enabled: isDiscounted && !isPersonalPlan,
-  });
+  // The sale only covers personal Plus plans, not gifts or Team plans.
+  const isDiscountedPersonalPlan =
+    !!discountId &&
+    !gift &&
+    productOptions?.some(({ priceId }) => priceId === pid);
 
   useEffect(() => {
     if (!isPaddleReady) {
@@ -74,9 +66,7 @@ const PlusPaymentPage = (): ReactElement => {
     }
   }, [pid, router]);
 
-  const pricing = isDiscounted
-    ? [...(productOptions ?? []), ...(teamPricing ?? [])]
-    : productPricing;
+  const pricing = isDiscountedPersonalPlan ? productOptions : productPricing;
   const selectedProduct = pricing?.find(({ priceId }) => priceId === pid);
 
   return (

@@ -36,23 +36,33 @@ export const BasePaymentProvider = ({
 }: PropsWithChildren<BasePaymentProviderProps>): ReactElement => {
   const { isValidRegion: isPlusAvailable } = useAuthContext();
   const { pricing: funnelPricing } = useFunnelPaymentPricingContext() ?? {};
+  const saleDiscountId =
+    priceType === PurchaseType.Plus ? discountId : undefined;
   const { data: plusPricing, isPending: isPricesPending } = useProductPricing({
     type: priceType,
     enabled: !funnelPricing?.length,
-    discountId,
+    discountId: saleDiscountId,
   });
   const data = funnelPricing?.length ? funnelPricing : plusPricing;
 
   const openCheckoutWithDiscount = useCallback<OpenCheckoutFn>(
-    (props) =>
+    (props) => {
+      const isSaleEligiblePrice =
+        priceType === PurchaseType.Plus &&
+        data?.some(({ priceId }) => priceId === props.priceId);
+
       openCheckout({
         ...props,
-        // Gifting buys a separate one-off product, not a subscription, so a
-        // subscription sale must not follow the buyer into the gift checkout.
+        // The sale only covers personal Plus prices. Gifting and organization
+        // subscriptions must not inherit its Paddle discount.
         discountId:
-          props.discountId ?? (props.giftToUserId ? undefined : discountId),
-      }),
-    [openCheckout, discountId],
+          props.discountId ??
+          (props.giftToUserId || !isSaleEligiblePrice
+            ? undefined
+            : saleDiscountId),
+      });
+    },
+    [openCheckout, priceType, data, saleDiscountId],
   );
 
   const giftOneYear = useMemo(

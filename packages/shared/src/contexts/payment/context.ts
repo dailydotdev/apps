@@ -49,9 +49,8 @@ export interface PaymentContextProviderProps<T = unknown, E = unknown> {
   successCallback?: (event: T) => void;
   initialPriceType?: PurchaseType;
   /**
-   * Paddle discount applied to both the previewed prices and checkout for
-   * everything under this provider. Opt-in per surface: the onboarding funnel
-   * mounts its own provider without it and keeps its own discount logic.
+   * Paddle discount applied to personal Plus previews and checkouts under this
+   * provider. Organization and gift purchases are excluded.
    */
   discountId?: string;
 }
