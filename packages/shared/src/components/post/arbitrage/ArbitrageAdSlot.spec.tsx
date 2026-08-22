@@ -5,11 +5,7 @@ import {
   render as rtlRender,
   screen,
 } from '@testing-library/react';
-import {
-  ArbitrageAdFormat,
-  ArbitrageAdSlot,
-  FILL_GRACE_MS,
-} from './ArbitrageAdSlot';
+import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { ArbitrageAnchor } from './ArbitrageAnchor';
 import { ArbitrageSidebarAd } from './ArbitrageSidebarAd';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
@@ -194,48 +190,25 @@ describe('ArbitrageAdSlot', () => {
     expect(screen.queryByTestId('arbitrage-ad-slot-3')).not.toBeInTheDocument();
   });
 
-  it('reopens a collapsed slot when the creative lands after the grace', async () => {
+  it('never hides a slot AdSense has not declined', async () => {
+    // Height and a missing iframe cannot tell a slow auction from a declined
+    // ad, and hiding is unrecoverable: display:none is not something Google
+    // renders into, so a slot hidden while waiting never fills at all. Only
+    // data-ad-status="unfilled" means no ad, and the wrapper's CSS rule
+    // handles that one.
     jest.useFakeTimers();
     setSlots({ '2': { id: '2222222222', type: 'display' } });
     render(
       <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
     );
 
-    const ins = screen.getByTestId('adsense-slot-2');
-    // The tag stamps this once it has handled the element; without it the
-    // slot is still waiting on its request and must not collapse.
-    ins.setAttribute('data-adsbygoogle-status', 'done');
-    act(() => {
-      jest.advanceTimersByTime(FILL_GRACE_MS);
-    });
-    expect(ins.parentElement).toHaveClass('!hidden');
-
-    // Inside display:none everything measures zero, so the reopen must key on
-    // the creative itself — a late fill judged by height stayed hidden forever.
-    ins.appendChild(document.createElement('iframe'));
     await act(async () => {
-      await Promise.resolve();
+      jest.advanceTimersByTime(60_000);
     });
 
-    expect(ins.parentElement).not.toHaveClass('!hidden');
-    jest.useRealTimers();
-  });
-
-  it('keeps a slot the tag has not handled yet out of the collapse', async () => {
-    // A slow auction looked identical to a declined ad: the slot collapsed
-    // mid-request, and Google will not render into a display:none element.
-    jest.useFakeTimers();
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    render(
-      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    expect(screen.getByTestId('adsense-slot-2').parentElement).not.toHaveClass(
+      '!hidden',
     );
-
-    const ins = screen.getByTestId('adsense-slot-2');
-    act(() => {
-      jest.advanceTimersByTime(FILL_GRACE_MS);
-    });
-
-    expect(ins.parentElement).not.toHaveClass('!hidden');
     jest.useRealTimers();
   });
 
@@ -527,10 +500,13 @@ describe('ArbitrageSidebarAd', () => {
     render(<ArbitrageSidebarAd />);
 
     expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
-    // No padding either, or the box leaves an invisible band under the nav.
-    const box = screen.getByTestId('adsense-slot-1').closest('div.h-0');
-    expect(box).toHaveClass('invisible');
-    expect(box?.className).not.toMatch(/\bp[xytb]?-[1-9]/);
+    // No border or padding either, or the box leaves a band under the nav.
+    // The slot itself stays rendered and unhidden — hiding it is what stops
+    // an ad ever arriving.
+    const ins = screen.getByTestId('adsense-slot-1');
+    const box = ins.closest('div.bg-background-default');
+    expect(box?.className).not.toMatch(/\bp[xytb]?-[1-9]|border-t|invisible/);
+    expect(ins.parentElement).not.toHaveClass('!hidden');
   });
 
   it('clears the unit for the session when closed', async () => {

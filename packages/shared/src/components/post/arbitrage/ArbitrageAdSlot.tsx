@@ -11,20 +11,8 @@ import {
 import type { AdsenseSlotConfig, ReadAdsenseSlots } from './adsense';
 import { ADSENSE_CLIENT_ID, hasLiveAdsenseUnits } from './adsense';
 
-/** How long a *processed* slot gets to show a creative before it counts as empty. */
-export const FILL_GRACE_MS = 4_000;
-
-/**
- * How long a slot that AdSense never touched at all gets before it counts as
- * empty. Far longer than the fill grace: an untouched slot usually means a
- * blocked or still-loading script, not a declined ad, and collapsing it early
- * is unrecoverable — Google does not render into a display:none element, so a
- * slot hidden before it was ever processed stays empty for the session.
- */
-const UNPROCESSED_GRACE_MS = 15_000;
-
-/** Anything shorter than this is a blank creative, not an ad. */
-const FILLED_MIN_HEIGHT_PX = 20;
+// Module-level, not per-slot: one warning per page load says everything.
+let hasLoggedTestMode = false;
 
 export enum ArbitrageAdFormat {
   Leaderboard = 'leaderboard',
@@ -248,7 +236,6 @@ function LiveAdSlot({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const insRef = useRef<HTMLModElement>(null);
   const [isRequested, setIsRequested] = useState(eager ?? false);
-  const [isEmpty, setIsEmpty] = useState(false);
   const { logEvent } = useLogContext();
   const hasLoggedFill = useRef(false);
   // Through a ref so an inline callback does not re-run the request effect.
@@ -292,12 +279,13 @@ function LiveAdSlot({
     return () => observer.disconnect();
   }, [eager]);
 
-  // Fires once the ins exists: stamps the test attribute, pushes the request
-  // and starts the fill clock. Collapsing matters because AdSense only stamps
-  // data-ad-status="unfilled" when it says no — a slot that answers with a
-  // zero-height creative, or never answers because a blocker ate the script,
-  // keeps its reserved min-height as a band of empty page. The observers stay
-  // attached so a genuinely slow fill reopens a collapsed slot.
+  // Fires once the ins exists: stamps the test attribute and pushes the
+  // request. Nothing here decides the slot is empty on a timer — the wrapper's
+  // CSS rule collapses it on data-ad-status="unfilled", which is the only
+  // signal that actually means "no ad". Guessing from height or from a missing
+  // iframe cannot tell a slow auction from a declined one, and guessing wrong
+  // is unrecoverable: a collapsed slot is display:none, and Google does not
+  // render into one, so the ad never arrives at all.
   useEffect(() => {
     const element = insRef.current;
     if (!isRequested || !element) {
@@ -315,11 +303,11 @@ function LiveAdSlot({
     }
     if (productionHost !== window.location.hostname) {
       element.setAttribute('data-adtest', 'on');
-      // Once per page, into real telemetry: a misconfigured webappUrl in
-      // production silently turns every impression into an unpaid test
-      // impression, and this event is the only alarm that can catch it.
-      if (!window.adsenseTestModeLogged) {
-        window.adsenseTestModeLogged = true;
+      // Test mode pays nothing, so it engaging where it should not — a
+      // misconfigured webappUrl in production — must be visible in telemetry
+      // rather than silently zeroing revenue. Once per page is enough.
+      if (!hasLoggedTestMode) {
+        hasLoggedTestMode = true;
         logEvent({
           event_name: LogEvent.AdsenseTestMode,
           extra: JSON.stringify({ host: window.location.hostname }),
@@ -327,51 +315,12 @@ function LiveAdSlot({
       }
     }
 
-    let graceElapsed = false;
-    let unprocessedGraceElapsed = false;
-    const evaluate = (): void => {
-      const isUnfilled = element.getAttribute('data-ad-status') === 'unfilled';
-      // A slot booked at a fixed size measures its booked height whether or
-      // not an ad arrived, so height alone cannot tell the two apart — an
-      // unanswered 300x600 held 600px of empty page open at the end of the
-      // rail. AdSense fills by injecting an iframe, so its absence is the
-      // signal that works at any size.
-      const hasCreative = !!element.querySelector('iframe');
-      // The height check only applies while the ins is actually displayed:
-      // once a slot has collapsed, everything inside display:none measures
-      // zero, and judging a late-landing creative by that height would keep
-      // the slot collapsed forever. Reopen on the creative alone — the resize
-      // observer re-evaluates at real geometry, and a genuinely zero-height
-      // creative collapses it again.
-      const isDisplayed = element.getClientRects().length > 0;
-      const { height } = element.getBoundingClientRect();
-      const filled =
-        !isUnfilled &&
-        hasCreative &&
-        (!isDisplayed || height >= FILLED_MIN_HEIGHT_PX);
-      // Reported before the grace gate below, so a container waiting on this
-      // reveals as soon as the creative lands rather than on the timer.
+    // Reports the creative landing, for containers that only exist to frame
+    // an ad. Watching mutations rather than polling, and never hiding the
+    // slot on the strength of it.
+    const report = (): void => {
+      const filled = !!element.querySelector('iframe');
       onFilledChangeRef.current?.(filled);
-
-      // Collapsing waits for the grace: until the request has had its window
-      // to answer, "no creative yet" is not the same as "no creative".
-      if (!graceElapsed) {
-        return;
-      }
-      // `done` is what the tag stamps once it has actually handled this
-      // element. Without checking it, a slow auction looked identical to a
-      // declined one and the slot collapsed while its request was still in
-      // flight — after which Google had a display:none element to render
-      // into and never came back. An untouched slot keeps its reserved box
-      // until the much longer unprocessed grace.
-      const isProcessed =
-        element.getAttribute('data-adsbygoogle-status') === 'done';
-      if (!isProcessed && !unprocessedGraceElapsed) {
-        return;
-      }
-      setIsEmpty(!filled);
-      // First-party per-placement fill signal: several placements share an
-      // AdSense unit id for now, so AdSense's own reporting blends them.
       if (filled && !hasLoggedFill.current) {
         hasLoggedFill.current = true;
         logEvent({
@@ -380,18 +329,9 @@ function LiveAdSlot({
         });
       }
     };
-
-    const resizeObserver = new ResizeObserver(evaluate);
-    resizeObserver.observe(element);
-    // Mutations rather than size alone, so a fill landing after the slot has
-    // already collapsed still reopens it: a display:none box reports no
-    // resizes, but the script's iframe and status attribute still land on it.
-    const mutationObserver = new MutationObserver(evaluate);
-    mutationObserver.observe(element, {
-      attributes: true,
-      attributeFilter: ['data-ad-status', 'data-adsbygoogle-status'],
-      childList: true,
-    });
+    const observer = new MutationObserver(report);
+    observer.observe(element, { childList: true, subtree: true });
+    report();
 
     // This push is only safe because of the mount-at-eligibility invariant
     // above: it binds to the first uninitialised ins in document order, not
@@ -404,21 +344,8 @@ function LiveAdSlot({
     } catch {
       // adsbygoogle.js blocked (ad blocker) — leave the reserved box empty.
     }
-    const graceTimer = globalThis.setTimeout(() => {
-      graceElapsed = true;
-      evaluate();
-    }, FILL_GRACE_MS);
-    const unprocessedTimer = globalThis.setTimeout(() => {
-      unprocessedGraceElapsed = true;
-      evaluate();
-    }, UNPROCESSED_GRACE_MS);
 
-    return () => {
-      resizeObserver.disconnect();
-      mutationObserver.disconnect();
-      globalThis.clearTimeout(graceTimer);
-      globalThis.clearTimeout(unprocessedTimer);
-    };
+    return () => observer.disconnect();
   }, [isRequested, logEvent, slot, config.id, format]);
 
   return (
@@ -442,7 +369,6 @@ function LiveAdSlot({
         // the generated stylesheet emits after this plain rule — without it an
         // unfilled phone-hidden slot would stay visible from tablet up.
         'has-[>ins[data-ad-status="unfilled"]]:!hidden',
-        isEmpty && '!hidden',
         hideOnPhone && 'hidden tablet:block',
         FORMAT_SPEC[format].minHeight,
         FORMAT_SPEC[format].maxWidth,
