@@ -56,7 +56,9 @@ export const targetAttachment = (
   target: AgentContentTarget,
 ): AgentAttachment | undefined => {
   if (target.type === 'post') {
-    return postAttachment(target.post);
+    return target.post
+      ? postAttachment(target.post)
+      : { id: `post:${target.postId}`, kind: 'post', label: 'Post' };
   }
 
   if (target.type === 'feed') {

@@ -30,6 +30,8 @@ import { IconSize } from '../../../components/Icon';
 import type { DrawerRef } from '../../../components/drawers/Drawer';
 import { Drawer, DrawerPosition } from '../../../components/drawers/Drawer';
 import { PostContent } from '../../../components/post/PostContent';
+import { PostLoadingPlaceholder } from '../../../components/post/PostLoadingPlaceholder';
+import { usePostById } from '../../../hooks/usePostById';
 import { ArticleList } from '../../../components/cards/article/ArticleList';
 import { Origin } from '../../../lib/log';
 import { useSharePost } from '../../../hooks/useSharePost';
@@ -67,7 +69,7 @@ const tabLabels: Partial<Record<AgentContentTarget['type'], string>> = {
 
 const tabLabel = (target: AgentContentTarget): string => {
   if (target.type === 'post') {
-    return target.post.title ?? 'Post';
+    return target.post?.title ?? 'Post';
   }
 
   if (target.type === 'feed') {
@@ -216,13 +218,36 @@ export const AgentContentPane = ({
     activeContent,
     activeContentId,
     openContentTarget,
+    reconcilePostTarget,
     focusContent,
     closeContent,
     closeAllContent,
     isWorking,
+    isDemo,
   } = useAgent();
   const isLaptop = useViewSize(ViewSize.Laptop);
   const drawerRef = useRef<DrawerRef>(null);
+  const activePostTarget =
+    activeContent?.type === 'post' ? activeContent : undefined;
+  // The target may only carry a seed (or just an id from a transcript link);
+  // the pane always resolves the full post itself. In demo there is no API,
+  // so the seed is all there is.
+  const { post: fetchedPost, isError: isPostError } = usePostById({
+    id: isDemo ? '' : activePostTarget?.postId ?? '',
+  });
+  const activePost = fetchedPost ?? activePostTarget?.post;
+
+  useEffect(() => {
+    if (!activePostTarget || !fetchedPost) {
+      return;
+    }
+
+    if (activePostTarget.postId === fetchedPost.id && activePostTarget.post) {
+      return;
+    }
+
+    reconcilePostTarget(contentTargetId(activePostTarget), fetchedPost);
+  }, [activePostTarget, fetchedPost, reconcilePostTarget]);
   const labelFor = (target: AgentContentTarget): string => {
     if (target.type === 'posts' && target.postId) {
       return (
@@ -381,14 +406,11 @@ export const AgentContentPane = ({
               );
             })}
           </FlexRow>
-          {activeContent?.type === 'post' && (
+          {activeContent?.type === 'post' && activePost && (
             <Tooltip content="Open original">
               <Button
                 tag="a"
-                href={
-                  activeContent.post.commentsPermalink ??
-                  activeContent.post.permalink
-                }
+                href={activePost.commentsPermalink ?? activePost.permalink}
                 target="_blank"
                 rel="noopener"
                 size={ButtonSize.Small}
@@ -416,25 +438,41 @@ export const AgentContentPane = ({
             '[&_aside]:!w-full [&_aside]:!max-w-full [&_aside]:!border-l-0 [&_main]:!border-r-0',
           )}
         >
-          {activeContent?.type === 'post' && (
-            <PostContent
-              key={activeContent.post.id}
-              post={activeContent.post}
-              origin={Origin.ArticleModal}
-              position="relative"
-              inlineActions
-              className={{
-                // PageBodyContainer draws its own laptop:border-x, which would
-                // double up against the pane's border.
-                container: 'w-full !max-w-none !flex-col !border-x-0',
-                navigation: { actions: 'ml-auto' },
-              }}
-            />
-          )}
+          {activeContent?.type === 'post' &&
+            (activePost ? (
+              <PostContent
+                key={activePost.id}
+                post={activePost}
+                origin={Origin.ArticleModal}
+                position="relative"
+                inlineActions
+                className={{
+                  // PageBodyContainer draws its own laptop:border-x, which
+                  // would double up against the pane's border.
+                  container: 'w-full !max-w-none !flex-col !border-x-0',
+                  navigation: { actions: 'ml-auto' },
+                }}
+              />
+            ) : (
+              <div className={classNames('py-4', postPageGutter)}>
+                {isPostError ? (
+                  <Typography
+                    type={TypographyType.Callout}
+                    color={TypographyColor.Tertiary}
+                  >
+                    This post could not be loaded. It may have been removed.
+                  </Typography>
+                ) : (
+                  <PostLoadingPlaceholder shouldShowWidgets={false} />
+                )}
+              </div>
+            ))}
           {activeContent?.type === 'feed' && (
             <FeedView
               posts={activeContent.posts}
-              onOpenPost={(post) => openContentTarget({ type: 'post', post })}
+              onOpenPost={(post) =>
+                openContentTarget({ type: 'post', postId: post.id, post })
+              }
             />
           )}
           {activeContent?.type === 'posts' && (

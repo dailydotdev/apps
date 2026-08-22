@@ -83,10 +83,8 @@ export const defaultCreateInterestSettings: CreateInterestSettings = {
 
 export type InterestFinding = {
   id: string;
-  postId: string;
   score: number;
   rationale?: string | null;
-  status: string;
   createdAt: string;
   post?: Post | null;
 };
@@ -164,14 +162,11 @@ export const INTEREST_FINDINGS_QUERY = `
   query InterestFindings($id: ID!, $loggedIn: Boolean! = true) {
     interestFindings(id: $id) {
       id
-      postId
       score
       rationale
-      status
       createdAt
       post {
         ...FeedPost
-        contentHtml
         ...UserPost @include(if: $loggedIn)
       }
     }

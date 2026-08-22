@@ -36,7 +36,8 @@ export type AgentSummaryPost = Pick<
 >;
 
 export type AgentContentTarget =
-  | { type: 'post'; post: Post }
+  /** `post` is only a first-paint seed; the pane always fetches by `postId`. */
+  | { type: 'post'; postId: string; post?: Post }
   | { type: 'feed'; label: string; posts: Post[] }
   | { type: 'posts'; postId?: string }
   | { type: 'activity' }
@@ -44,7 +45,7 @@ export type AgentContentTarget =
 
 export const contentTargetId = (target: AgentContentTarget): string => {
   if (target.type === 'post') {
-    return `post:${target.post.id}`;
+    return `post:${target.postId}`;
   }
 
   if (target.type === 'feed') {
@@ -116,6 +117,12 @@ type AgentContextValue = {
   activeContentId?: string;
   activeContent?: AgentContentTarget;
   openContentTarget: (target: AgentContentTarget) => void;
+  /**
+   * A tab can be opened by slug (a transcript link), so once the post loads its
+   * tab is renamed to the canonical id — or merged into a tab that already has
+   * it — and the loaded post is kept for the tab chrome.
+   */
+  reconcilePostTarget: (targetId: string, post: Post) => void;
   focusContent: (targetId: string) => void;
   closeContent: (targetId: string) => void;
   closeAllContent: () => void;
@@ -661,6 +668,41 @@ export const AgentProvider = ({
     }));
   }, []);
 
+  const reconcilePostTarget = useCallback((targetId: string, post: Post) => {
+    setContent(({ items, activeId }) => {
+      const index = items.findIndex(
+        (item) => contentTargetId(item) === targetId,
+      );
+      const target = items[index];
+
+      if (!target || target.type !== 'post') {
+        return { items, activeId };
+      }
+
+      if (target.postId === post.id && target.post) {
+        return { items, activeId };
+      }
+
+      const canonicalId = `post:${post.id}`;
+      const isDuplicate = items.some(
+        (item, position) =>
+          position !== index && contentTargetId(item) === canonicalId,
+      );
+      const next = isDuplicate
+        ? items.filter((_, position) => position !== index)
+        : items.map((item, position) =>
+            position === index
+              ? { type: 'post' as const, postId: post.id, post }
+              : item,
+          );
+
+      return {
+        items: next,
+        activeId: activeId === targetId ? canonicalId : activeId,
+      };
+    });
+  }, []);
+
   const focusContent = useCallback(
     (targetId: string) =>
       setContent(({ items }) => ({ items, activeId: targetId })),
@@ -758,6 +800,7 @@ export const AgentProvider = ({
         (item) => contentTargetId(item) === content.activeId,
       ),
       openContentTarget,
+      reconcilePostTarget,
       focusContent,
       closeContent,
       closeAllContent,
@@ -772,6 +815,7 @@ export const AgentProvider = ({
       detachContext,
       focusContent,
       openContentTarget,
+      reconcilePostTarget,
       activity,
       messages,
       allPosts,

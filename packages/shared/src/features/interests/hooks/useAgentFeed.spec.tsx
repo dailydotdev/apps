@@ -29,7 +29,6 @@ describe('useAgentFeed', () => {
     mockFindings([
       {
         id: 'f1',
-        postId: 'p1',
         score: 0.9,
         rationale: 'strong match',
         createdAt: '2026-01-01T00:00:00Z',
@@ -37,7 +36,6 @@ describe('useAgentFeed', () => {
       },
       {
         id: 'f2',
-        postId: 'p2',
         score: 0.8,
         rationale: null,
         createdAt: '2026-01-01T00:00:00Z',
