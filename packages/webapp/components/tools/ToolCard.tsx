@@ -26,21 +26,21 @@ export const ToolCard = ({ tool, onClick }: ToolCardProps): ReactElement => (
   <Link href={`/tools/${tool.slug}`} passHref>
     <a
       href={`/tools/${tool.slug}`}
-      className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3 hover:border-border-subtlest-secondary"
+      className="flex items-center gap-4 rounded-16 bg-surface-float p-4 transition-colors hover:bg-surface-hover"
       onClick={onClick}
     >
       <ToolIcon
         title={tool.title}
         faviconUrl={tool.faviconUrl}
-        className="size-10 flex-none rounded-12 object-contain"
+        className="size-12 flex-none rounded-14 bg-background-default object-contain p-1.5"
       />
       <span className="flex min-w-0 flex-1 flex-col">
-        <Typography type={TypographyType.Callout} bold truncate>
+        <Typography type={TypographyType.Body} bold truncate>
           {tool.title}
         </Typography>
         <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Quaternary}
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
         >
           {largeNumberFormat(tool.stackCount) ?? tool.stackCount} in stacks
         </Typography>

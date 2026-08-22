@@ -23,6 +23,8 @@ import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
 import { ToolCard } from '../../components/tools/ToolCard';
+import { ToolPageNavbar } from '../../components/tools/ToolPageNavbar';
+import { ToolSection } from '../../components/tools/ToolSection';
 
 const TOOLS_PER_SECTION = 6;
 const TRENDING_COUNT = 6;
@@ -79,7 +81,7 @@ const ToolGrid = ({ tools }: { tools: DirectoryTool[] }): ReactElement => {
   const { logEvent } = useLogContext();
 
   return (
-    <div className="grid grid-cols-1 gap-3 tablet:grid-cols-2 laptop:grid-cols-3">
+    <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2 laptop:grid-cols-3">
       {tools.map((tool) => (
         <ToolCard
           key={tool.id}
@@ -104,96 +106,76 @@ const ToolsDirectoryPage = ({
   fallbackTop,
 }: ToolsDirectoryProps): ReactElement => {
   return (
-    <main className="mx-auto flex w-full max-w-screen-laptop flex-col gap-8 px-4 py-6 laptop:px-8">
-      <Head>
-        <script
-          type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{
-            __html: getToolsDirectoryJsonLd(sections),
-          }}
-        />
-      </Head>
-      <div className="flex flex-col gap-2">
-        <Typography
-          tag={TypographyTag.H1}
-          type={TypographyType.LargeTitle}
-          bold
-        >
-          Tools
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-          className="max-w-2xl"
-        >
-          The tools developers actually run — ranked by real stacks on
-          daily.dev, not vendor pitches.
-        </Typography>
-        {sections.length > 1 && (
-          <div className="mt-2 flex flex-wrap gap-2">
-            {sections.map(({ category }) => (
-              <a
-                key={category}
-                href={`#${getToolCategoryAnchor(category)}`}
-                className="rounded-8 border border-border-subtlest-tertiary px-2.5 py-0.5 font-bold text-text-tertiary typo-footnote hover:text-text-primary"
-              >
-                {category}
-              </a>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {trending.length > 0 && (
-        <section className="flex flex-col gap-3">
+    <>
+      <ToolPageNavbar relatedTools={trending} />
+      <main className="mx-auto flex w-full max-w-screen-laptop flex-col px-4 py-6 tablet:px-6">
+        <Head>
+          <script
+            type="application/ld+json"
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{
+              __html: getToolsDirectoryJsonLd(sections),
+            }}
+          />
+        </Head>
+        <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
           <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Footnote}
-            color={TypographyColor.Quaternary}
+            tag={TypographyTag.H1}
+            type={TypographyType.LargeTitle}
             bold
-            className="uppercase tracking-wide"
           >
-            Rising this quarter
+            Tools
           </Typography>
-          <ToolGrid tools={trending} />
-        </section>
-      )}
-
-      {sections.map(({ category, tools }) => (
-        <section
-          key={category}
-          id={getToolCategoryAnchor(category)}
-          className="flex scroll-mt-16 flex-col gap-3"
-        >
           <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Footnote}
-            color={TypographyColor.Quaternary}
-            bold
-            className="uppercase tracking-wide"
+            type={TypographyType.Body}
+            color={TypographyColor.Secondary}
+            className="max-w-[34rem]"
           >
-            {category}
+            The tools developers actually run — ranked by real stacks on
+            daily.dev, not vendor pitches.
           </Typography>
-          <ToolGrid tools={tools} />
-        </section>
-      ))}
+          {sections.length > 1 && (
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {sections.map(({ category }) => (
+                <a
+                  key={category}
+                  href={`#${getToolCategoryAnchor(category)}`}
+                  className="rounded-10 border border-border-subtlest-tertiary px-3 py-1 font-bold text-text-tertiary typo-footnote hover:border-border-subtlest-secondary hover:text-text-primary"
+                >
+                  {category}
+                </a>
+              ))}
+            </div>
+          )}
+        </header>
 
-      {sections.length === 0 && fallbackTop.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <Typography
-            tag={TypographyTag.H2}
-            type={TypographyType.Footnote}
-            color={TypographyColor.Quaternary}
-            bold
-            className="uppercase tracking-wide"
-          >
-            Most stacked
-          </Typography>
-          <ToolGrid tools={fallbackTop} />
-        </section>
-      )}
-    </main>
+        <div className="h-px w-full bg-border-subtlest-tertiary" />
+
+        <div className="flex flex-col divide-y divide-border-subtlest-tertiary">
+          {trending.length > 0 && (
+            <ToolSection title="Rising this quarter">
+              <ToolGrid tools={trending} />
+            </ToolSection>
+          )}
+
+          {sections.map(({ category, tools }) => (
+            <ToolSection
+              key={category}
+              id={getToolCategoryAnchor(category)}
+              title={category}
+            >
+              <ToolGrid tools={tools} />
+            </ToolSection>
+          ))}
+
+          {sections.length === 0 && fallbackTop.length > 0 && (
+            <ToolSection title="Most stacked">
+              <ToolGrid tools={fallbackTop} />
+            </ToolSection>
+          )}
+        </div>
+      </main>
+    </>
   );
 };
 
