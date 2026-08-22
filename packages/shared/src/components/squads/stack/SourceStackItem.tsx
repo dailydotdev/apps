@@ -2,13 +2,14 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { SourceStack } from '../../../graphql/source/sourceStack';
+import { ToolLogo } from '../../tools/ToolLogo';
 import {
   Typography,
   TypographyType,
   TypographyColor,
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
-import { EditIcon, PlusIcon, TrashIcon } from '../../icons';
+import { EditIcon, TrashIcon } from '../../icons';
 
 interface SourceStackItemProps {
   item: SourceStack;
@@ -34,15 +35,12 @@ export function SourceStackItem({
       )}
     >
       <div className="flex items-center gap-2">
-        {tool.faviconUrl ? (
-          <img
-            src={tool.faviconUrl}
-            alt=""
-            className="rounded size-6 flex-shrink-0"
-          />
-        ) : (
-          <PlusIcon className="size-6 flex-shrink-0 text-text-tertiary" />
-        )}
+        <ToolLogo
+          title={title}
+          faviconUrl={tool.faviconUrl}
+          url={tool.url}
+          className="rounded size-6 typo-footnote"
+        />
         {!!title && (
           <div className="flex min-w-0 flex-1 flex-col">
             <Typography

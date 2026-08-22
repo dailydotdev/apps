@@ -8,6 +8,7 @@ import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
+import { apiUrl } from '@dailydotdev/shared/src/lib/config';
 import type { ToolPageProps } from '../pages/tools/[slug]';
 import ToolPage from '../pages/tools/[slug]';
 
@@ -47,6 +48,7 @@ const defaultProps: ToolPageProps = {
       title: 'Kubernetes',
       slug: 'kubernetes',
       faviconUrl: null,
+      url: 'https://kubernetes.io',
     },
   ],
   topSquads: [
@@ -114,6 +116,7 @@ const defaultProps: ToolPageProps = {
       title: 'Podman',
       slug: 'podman',
       faviconUrl: null,
+      url: 'https://podman.io',
       stackCount: 120,
     },
   ],
@@ -199,4 +202,18 @@ it('should skip sections without data', async () => {
   expect(headings.map((heading) => heading.textContent)).toEqual([
     'Discussion',
   ]);
+});
+
+it('should show the real logo for tools without one in the dataset', async () => {
+  renderComponent();
+
+  expect(await screen.findByAltText('Kubernetes logo')).toHaveAttribute(
+    'src',
+    `${apiUrl}/icon?url=https%3A%2F%2Fkubernetes.io&size=96`,
+  );
+  expect(screen.getByAltText('Podman logo')).toBeInTheDocument();
+  expect(screen.getByAltText('Docker logo')).toHaveAttribute(
+    'src',
+    'https://daily.dev/docker.png',
+  );
 });

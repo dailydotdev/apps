@@ -102,6 +102,7 @@ import {
   ProfilePicture,
 } from '@dailydotdev/shared/src/components/ProfilePicture';
 import { ProfilePictureGroup } from '@dailydotdev/shared/src/components/ProfilePictureGroup';
+import { ToolLogo } from '@dailydotdev/shared/src/components/tools/ToolLogo';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import classNames from 'classnames';
@@ -111,7 +112,6 @@ import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
 import { ToolDiscussion } from '../../components/tools/ToolDiscussion';
-import { ToolIcon } from '../../components/tools/ToolIcon';
 import { ToolCard } from '../../components/tools/ToolCard';
 import { ToolPageNavbar } from '../../components/tools/ToolPageNavbar';
 import { ToolSection } from '../../components/tools/ToolSection';
@@ -633,10 +633,12 @@ const ToolPage = ({
         </Head>
 
         <header className="mx-auto flex w-full max-w-[48rem] flex-col items-center gap-4 py-8 text-center">
-          <ToolIcon
+          <ToolLogo
             title={tool.title}
             faviconUrl={tool.faviconUrl}
-            className="size-20 rounded-16 border border-border-subtlest-tertiary object-contain p-3"
+            url={tool.url}
+            size={160}
+            className="size-20 rounded-16 border border-border-subtlest-tertiary p-3 typo-title2"
           />
           <Typography
             tag={TypographyTag.H1}
@@ -1040,10 +1042,11 @@ const ToolPage = ({
                       className="flex items-center gap-2 rounded-12 border border-border-subtlest-tertiary px-3 py-2 font-bold typo-callout hover:border-border-subtlest-secondary"
                       onClick={() => handleAlsoStackedClick(related)}
                     >
-                      <ToolIcon
+                      <ToolLogo
                         title={related.title}
                         faviconUrl={related.faviconUrl}
-                        className="size-6 flex-none rounded-6 object-contain"
+                        url={related.url}
+                        className="size-6 rounded-6"
                       />
                       {related.title}
                     </a>

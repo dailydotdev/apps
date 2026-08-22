@@ -7,13 +7,14 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import { ToolIcon } from './ToolIcon';
+import { ToolLogo } from '@dailydotdev/shared/src/components/tools/ToolLogo';
 
 export interface ToolCardTool {
   id: string;
   title: string;
   slug: string;
   faviconUrl: string | null;
+  url?: string | null;
   stackCount: number;
 }
 
@@ -29,10 +30,11 @@ export const ToolCard = ({ tool, onClick }: ToolCardProps): ReactElement => (
       className="flex items-center gap-4 rounded-16 bg-surface-float p-4 transition-colors hover:bg-surface-hover"
       onClick={onClick}
     >
-      <ToolIcon
+      <ToolLogo
         title={tool.title}
         faviconUrl={tool.faviconUrl}
-        className="size-12 flex-none rounded-14 bg-background-default object-contain p-1.5"
+        url={tool.url}
+        className="size-12 rounded-14 bg-background-default p-1.5"
       />
       <span className="flex min-w-0 flex-1 flex-col">
         <Typography type={TypographyType.Body} bold truncate>

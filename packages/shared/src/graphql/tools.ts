@@ -5,7 +5,6 @@ import type { Source } from './sources';
 import type { Company } from '../lib/userCompany';
 
 export interface ToolPageTool extends DatasetTool {
-  url: string | null;
   category: string | null;
   stackCount: number;
   keyword: string | null;
@@ -43,6 +42,7 @@ const TOOLS_ALSO_STACKED_QUERY = gql`
       title
       slug
       faviconUrl
+      url
     }
   }
 `;
@@ -175,6 +175,7 @@ const TOOL_ALTERNATIVES_QUERY = gql`
       title
       slug
       faviconUrl
+      url
       stackCount
     }
   }
@@ -361,6 +362,7 @@ export interface DirectoryTool {
   title: string;
   slug: string;
   faviconUrl: string | null;
+  url?: string | null;
   category: string | null;
   stackCount: number;
 }
@@ -372,6 +374,7 @@ const TOP_TOOLS_QUERY = gql`
       title
       slug
       faviconUrl
+      url
       category
       stackCount
     }
