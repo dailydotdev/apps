@@ -11,12 +11,10 @@ import { LogEvent } from '../../../lib/log';
 /**
  * Slot 1, pinned below the sidebar's navigation.
  *
- * The box only exists to frame an ad, so it stays out of the layout until one
- * has actually filled: the slot is unconfigured on some builds and unfilled on
- * plenty of requests, and a container that renders regardless leaves a bordered
- * empty band with a dismiss button and nothing to dismiss at the bottom of the
- * nav. `hidden` rather than unmounting, because the slot has to stay mounted to
- * request an ad and report back.
+ * The box only frames an ad once there is one: the slot is unconfigured on
+ * some builds and unfilled on plenty of requests, and chrome that renders
+ * regardless leaves a bordered empty band with a dismiss button and nothing to
+ * dismiss at the bottom of the nav.
  *
  * Dismissal is component state rather than storage: the sidebar stays mounted
  * across route changes, so closing it clears the unit for the rest of the
@@ -33,20 +31,15 @@ export function ArbitrageSidebarAd(): ReactElement | null {
   }
 
   return (
-    // The nav above scrolls, so without a hard edge the unit reads as content
-    // that has slid underneath it. The border and the page background give the
-    // sidebar a floor the list visibly stops at — but only once there is
-    // something to put a floor under.
+    // The slot is never hidden or zero-sized: AdSense will not render into
+    // one, so hiding the box while waiting is what stops the ad arriving at
+    // all. Only the chrome waits — border, padding and the dismiss button
+    // appear with the creative, and an empty slot has no height of its own,
+    // so the nav simply ends where it always did.
     <div
       className={classNames(
         'bg-background-default',
-        // The padding only exists in the filled state. Cancelling it with p-0
-        // does not work: Tailwind emits the shorthand before the per-side
-        // utilities, so px-2/pt-1/pb-3 win and leave 16px of invisible
-        // padding under the nav — the gap this component is meant not to have.
-        isFilled
-          ? 'border-t border-border-subtlest-tertiary px-2 pb-3 pt-1'
-          : 'pointer-events-none invisible h-0 overflow-hidden',
+        isFilled && 'border-t border-border-subtlest-tertiary px-2 pb-3 pt-1',
       )}
     >
       {/* Its own row above the unit, never over it: AdSense forbids page
