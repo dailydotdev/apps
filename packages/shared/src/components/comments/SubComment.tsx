@@ -9,11 +9,8 @@ import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentM
 import { useComments } from '../../hooks/post';
 import { useEditCommentProps } from '../../hooks/post/useEditCommentProps';
 
-const CommentInputOrModal = dynamic(
-  () =>
-    import(
-      /* webpackChunkName: "commentInputOrModal" */ './CommentInputOrModal'
-    ),
+const CommentInput = dynamic(
+  () => import(/* webpackChunkName: "commentInput" */ './CommentInput'),
 );
 
 export interface SubCommentProps
@@ -116,7 +113,7 @@ function SubComment({
         </CommentBox>
       )}
       {editProps && (
-        <CommentInputOrModal
+        <CommentInput
           {...editProps}
           post={props.post}
           onCommented={(data, isNew) => {
@@ -124,21 +121,20 @@ function SubComment({
             onCommented?.(data, isNew);
           }}
           onClose={() => onEdit(null)}
-          className={{ input: className }}
+          className={className}
         />
       )}
       {commentId === comment.id && inputProps && (
         <div className={classNames(isModalThread && 'mt-2')}>
-          <CommentInputOrModal
+          <CommentInput
             {...inputProps}
-            className={{ input: className }}
+            className={className}
             post={props.post}
             onCommented={(...params) => {
               onReplyTo(null);
               onCommented?.(...params);
             }}
             onClose={() => onReplyTo(null)}
-            replyToCommentId={commentId}
           />
         </div>
       )}

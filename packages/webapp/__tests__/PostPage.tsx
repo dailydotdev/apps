@@ -53,6 +53,8 @@ import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import * as hooks from '@dailydotdev/shared/src/hooks/useViewSize';
 import { UserVoteEntity } from '@dailydotdev/shared/src/hooks';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
+import { Origin } from '@dailydotdev/shared/src/lib/log';
+import { requestOpenPostComment } from '@dailydotdev/shared/src/lib/postComment';
 import type { Props } from '../pages/posts/[id]';
 import { PostPage } from '../pages/posts/[id]';
 import { getSeoDescription } from '../components/PostSEOSchema';
@@ -567,7 +569,7 @@ it('should send cancel upvote mutation', async () => {
   await waitFor(() => expect(mutationCalled).toBeTruthy());
 });
 
-it('should open new comment modal and set the correct props', async () => {
+it('should open the comment composer inline on the page', async () => {
   renderPost();
   // Wait for GraphQL to return
   await screen.findByText('Learn SQL');
@@ -575,6 +577,31 @@ it('should open new comment modal and set the correct props', async () => {
   fireEvent.click(el);
   const [commentBox] = await screen.findAllByRole('textbox');
   expect(commentBox).toBeInTheDocument();
+});
+
+it('should open the comment composer when the mobile floating bar requests it', async () => {
+  renderPost();
+  await screen.findByText('Learn SQL');
+
+  act(() => {
+    requestOpenPostComment({
+      postId: 'another-post',
+      origin: Origin.PostCommentButton,
+    });
+  });
+  expect(
+    screen.queryByRole('form', { name: 'Comment' }),
+  ).not.toBeInTheDocument();
+
+  act(() => {
+    requestOpenPostComment({
+      postId: '0e4005b2d3cf191f8c44c2718a457a1e',
+      origin: Origin.PostCommentButton,
+    });
+  });
+  expect(
+    await screen.findByRole('form', { name: 'Comment' }),
+  ).toBeInTheDocument();
 });
 
 it('should not show stats when they are zero', async () => {
