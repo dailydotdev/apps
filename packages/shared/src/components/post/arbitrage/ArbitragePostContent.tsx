@@ -42,14 +42,18 @@ import PostEngagements from '../PostEngagements';
  * inventory included. Only the first rail unit keeps its phone placement; the
  * rest are desktop-only, which brings the phone run well under the cap.
  */
-const RAIL_AD: Record<
-  PostWidgetPosition,
-  {
-    slot: number;
-    format: ArbitrageAdFormat;
-    className?: string;
-    hideOnPhone?: boolean;
-  }
+// No DirectAd entry: following the direct-sold widget here would stack two
+// ads back to back in a rail that already carries a unit per real widget.
+const RAIL_AD: Partial<
+  Record<
+    PostWidgetPosition,
+    {
+      slot: number;
+      format: ArbitrageAdFormat;
+      className?: string;
+      hideOnPhone?: boolean;
+    }
+  >
 > = {
   [PostWidgetPosition.Source]: {
     slot: ARBITRAGE_SLOT.railAfterSource,
@@ -313,6 +317,10 @@ export function ArbitragePostContent({
         hideToc
         getRailAd={(position) => {
           const spec = RAIL_AD[position];
+
+          if (!spec) {
+            return null;
+          }
 
           return (
             <ArbitrageAdSlot

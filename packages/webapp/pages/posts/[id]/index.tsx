@@ -1,5 +1,5 @@
 import type { ComponentType, CSSProperties, ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Script from 'next/script';
@@ -215,8 +215,47 @@ export const PostPage = ({
   // exists. Gated on a unit id being present, not key presence — the map keeps
   // placeholder entries with empty ids, and the script must not load for
   // inventory that cannot fill.
-  const adsenseSlots = useOrganicAdsenseSlots();
+  const adsenseSlots = useOrganicAdsenseSlots(!showRedesign);
   const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
+
+  // Same boundary the /read template draws: adsbygoogle must never follow a
+  // client-side navigation off the post pages, because its Auto ads overlays
+  // persist across soft navigations. Post-to-post stays client-side — the
+  // destination carries its own slots — while any departure forces a full
+  // page load that tears every Google global down.
+  useEffect(() => {
+    if (!adsenseActive) {
+      return undefined;
+    }
+    const forceHardNavigation = (
+      url: string,
+      { shallow }: { shallow: boolean },
+    ): void => {
+      if (shallow || url.startsWith('/posts/')) {
+        return;
+      }
+      router.events.emit('routeChangeError');
+      window.location.assign(url);
+      // Next.js has no cancel API; throwing inside the handler is the
+      // established way to abort the client-side transition.
+      throw new Error(`Aborted client navigation to ${url} to unload ads`);
+    };
+    router.events.on('routeChangeStart', forceHardNavigation);
+    // On popstate the history pointer has already moved, so assign() would
+    // navigate forward again; loading the target URL in place respects the
+    // position the user just moved to.
+    router.beforePopState(({ as }) => {
+      if (as.startsWith('/posts/')) {
+        return true;
+      }
+      window.location.href = as;
+      return false;
+    });
+    return () => {
+      router.events.off('routeChangeStart', forceHardNavigation);
+      router.beforePopState(() => true);
+    };
+  }, [adsenseActive, router]);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -335,16 +374,11 @@ export const PostPage = ({
               getWidgetRailAd={
                 adsenseActive
                   ? (widgetPosition) =>
-                      widgetPosition === PostWidgetPosition.SimilarPosts ? (
+                      widgetPosition === PostWidgetPosition.DirectAd ? (
                         <ArbitrageAdSlot
                           surface="organic"
-                          slot={ORGANIC_SLOT.railSimilarPosts}
+                          slot={ORGANIC_SLOT.railAfterDirectAd}
                           format={ArbitrageAdFormat.MediumRectangle}
-                          // The offset MainLayout publishes for this page's
-                          // actual chrome, plus a gap — a hardcoded 5rem is
-                          // wrong whenever a top banner adds 2rem above the
-                          // header.
-                          className="laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)] laptop:z-1 laptop:bg-background-default"
                         />
                       ) : null
                   : undefined

@@ -44,14 +44,16 @@ const SquadEntityCard = dynamic(
 );
 
 /**
- * The points in the rail an ad template may follow with a slot: one per real
- * widget, in render order. PostSidebarAdWidget and MentionedToolsWidget are
- * absent on purpose — both are already commercial units, so following them
- * would stack two ads.
+ * The points in the rail an ad template may follow with a slot, in render
+ * order. MentionedToolsWidget has no position on purpose — it is itself a
+ * commercial unit and /read skips DirectAd for the same reason; the organic
+ * template deliberately groups its programmatic unit with the direct-sold
+ * one instead.
  */
 export enum PostWidgetPosition {
   Source = 'source',
   Creator = 'creator',
+  DirectAd = 'directAd',
   Share = 'share',
   Highlights = 'highlights',
   SimilarPosts = 'similarPosts',
@@ -155,10 +157,13 @@ export function PostWidgets({
           />
         ),
       )}
-      <PostSidebarAdWidget
-        postId={post.id}
-        className={{ container: cardClasses }}
-      />
+      {withAd(
+        PostWidgetPosition.DirectAd,
+        <PostSidebarAdWidget
+          postId={post.id}
+          className={{ container: cardClasses }}
+        />,
+      )}
       <MentionedToolsWidget postTags={post.tags || []} />
       {withAd(
         PostWidgetPosition.Share,

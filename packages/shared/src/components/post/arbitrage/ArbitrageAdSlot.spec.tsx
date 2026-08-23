@@ -245,7 +245,7 @@ describe('ArbitrageAdSlot', () => {
 
   it('renders fixed-size units at exactly the configured size', () => {
     setOrganicSlots({
-      [ORGANIC_SLOT.railSimilarPosts]: {
+      [ORGANIC_SLOT.railAfterDirectAd]: {
         id: '3333333333',
         type: 'display',
         width: 300,
@@ -255,14 +255,14 @@ describe('ArbitrageAdSlot', () => {
     render(
       <ArbitrageAdSlot
         surface="organic"
-        slot={ORGANIC_SLOT.railSimilarPosts}
+        slot={ORGANIC_SLOT.railAfterDirectAd}
         format={ArbitrageAdFormat.MediumRectangle}
         eager
       />,
     );
 
     const ins = screen.getByTestId(
-      `adsense-slot-${ORGANIC_SLOT.railSimilarPosts}`,
+      `adsense-slot-${ORGANIC_SLOT.railAfterDirectAd}`,
     );
     expect(ins).toHaveStyle({ width: '300px', height: '250px' });
     expect(ins).not.toHaveAttribute('data-ad-format');

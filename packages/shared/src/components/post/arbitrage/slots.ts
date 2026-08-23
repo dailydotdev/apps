@@ -117,14 +117,15 @@ export const READ_ADSENSE_SLOTS: AdsenseSlots = {
 export const ORGANIC_SLOT = {
   /** Leaderboard above the post content, spanning the page column. */
   topLeaderboard: 15,
-  /** Rail unit below the similar posts, sticky under the fixed chrome. */
-  railSimilarPosts: 16,
+  /** Rail unit below the direct-sold ad widget. */
+  railAfterDirectAd: 16,
 } as const;
 
-// TODO(chris): create the two organic units in AdSense (suggested names
-// post_s15_top_leaderboard, post_s16_rail_mpu as Display 300x250) and fill in
-// the ids. Both slots stay collapsed until then.
+// Borrowed /read units so the placements serve before their own exist;
+// their reporting blends with the /read rows meanwhile.
+// TODO(chris): create post_s15_top_leaderboard and post_s16_rail_mpu
+// (Display 300x250) in AdSense and swap the ids for per-placement RPM.
 export const ORGANIC_ADSENSE_SLOTS: AdsenseSlots = {
-  [ORGANIC_SLOT.topLeaderboard]: { id: '', type: 'display' },
-  [ORGANIC_SLOT.railSimilarPosts]: { id: '', type: 'display' },
+  [ORGANIC_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
+  [ORGANIC_SLOT.railAfterDirectAd]: { id: '6921226982', type: 'display' },
 };
