@@ -301,6 +301,26 @@ export const heroAd: Ad = {
   callToAction: 'Start deploying',
   adDomain: 'vercel.com',
   providerId: 'sb-provider',
+  matchingTags: ['nextjs', 'react', 'devops'],
+};
+
+export const adWithoutTags: Ad = { ...heroAd, matchingTags: undefined };
+
+export const adWithoutImage: Ad = { ...heroAd, image: undefined as never };
+
+export const adWithoutAdvertiser: Ad = {
+  ...heroAd,
+  referralLink: undefined,
+  companyLogo: undefined,
+};
+
+export const adWithLongCopy: Ad = {
+  ...heroAd,
+  company: 'Observability Cloud Platform',
+  source: 'Observability Cloud Platform',
+  description:
+    'Distributed tracing, log search, RUM and synthetic checks in one place, with alerts that route straight to the on-call engineer who owns the service.',
+  matchingTags: ['observability', 'sre', 'monitoring', 'devops'],
 };
 
 export const exploreCategories: ExploreCategory[] = [
@@ -335,6 +355,87 @@ export const exploreCategories: ExploreCategory[] = [
     tag: 'open-source',
   },
 ];
+
+const squadSource: Source = {
+  ...createSource('avengers', 'Frontend Avengers'),
+  type: SourceType.Squad,
+};
+
+export const mixedTypeHeroPosts: Post[] = [
+  heroPosts[0],
+  {
+    ...basePost,
+    id: 'hero-share',
+    type: PostType.Share,
+    title: 'This is the clearest explanation of the compiler I have read',
+    permalink: 'https://api.daily.dev/r/hero-share',
+    commentsPermalink: 'https://app.daily.dev/posts/hero-share',
+    createdAt: hoursAgo(4),
+    image: placeholder(5),
+    source: squadSource,
+    tags: ['react', 'javascript'],
+    sharedPost: {
+      id: 'shared-1',
+      title: 'React 20 ships the compiler by default',
+      summary:
+        'A walkthrough of the compiler output, the hooks it makes redundant, and the migration path for a large app.',
+      image: placeholder(1),
+      readTime: 9,
+      permalink: 'https://api.daily.dev/r/shared-1',
+      commentsPermalink: 'https://app.daily.dev/posts/shared-1',
+      createdAt: hoursAgo(6),
+      private: false,
+      type: PostType.Article,
+      tags: ['react'],
+      source: sources.tds,
+    },
+  },
+  {
+    ...basePost,
+    id: 'hero-collection',
+    type: PostType.Collection,
+    title: 'Everything we know about the npm supply-chain attack',
+    summary:
+      'Six reports on the same incident, merged into one timeline: what was published, which packages pulled it in, and how to check your lockfile.',
+    permalink: 'https://api.daily.dev/r/hero-collection',
+    commentsPermalink: 'https://app.daily.dev/posts/hero-collection',
+    createdAt: hoursAgo(8),
+    readTime: 6,
+    image: placeholder(2),
+    source: sources.tc,
+    tags: ['security', 'npm'],
+    collectionSources: [sources.tc, sources.ph, sources.tds],
+    numCollectionSources: 6,
+  },
+  {
+    ...basePost,
+    id: 'hero-freeform',
+    type: PostType.Freeform,
+    title: 'We cut our CI bill by 70% — here is the full breakdown',
+    permalink: 'https://api.daily.dev/r/hero-freeform',
+    commentsPermalink: 'https://app.daily.dev/posts/hero-freeform',
+    createdAt: hoursAgo(12),
+    readTime: 4,
+    image: placeholder(3),
+    source: squadSource,
+    tags: ['ci', 'devops'],
+    contentHtml:
+      '<p>Three changes did most of the work: caching the pnpm store, splitting the test matrix by package, and dropping the nightly full build.</p>',
+  },
+];
+
+export const readHeroPost: Post = {
+  ...heroPosts[0],
+  id: 'hero-read',
+  read: true,
+  bookmarked: true,
+};
+
+export const noImageHeroPost: Post = {
+  ...heroPosts[1],
+  id: 'hero-no-image',
+  image: undefined as never,
+};
 
 export const cardHandlers = {
   onPostClick: fn(),

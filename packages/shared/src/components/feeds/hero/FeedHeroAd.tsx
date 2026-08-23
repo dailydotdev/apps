@@ -3,19 +3,17 @@ import React from 'react';
 import classNames from 'classnames';
 import type { Ad } from '../../../graphql/posts';
 import type { ViewabilityData } from '../../../features/monetization/viewability';
-import { useAdClickUrl } from '../../../features/monetization/useAdClickUrl';
 import AdLink from '../../cards/ad/common/AdLink';
 import AdAttribution from '../../cards/ad/common/AdAttribution';
+import { AdFavicon } from '../../cards/ad/common/AdFavicon';
 import { AdImage } from '../../cards/ad/common/AdImage';
 import { AdPixel } from '../../cards/ad/common/AdPixel';
 import { AdViewability } from '../../cards/ad/common/AdViewability';
+import PostTags from '../../cards/common/PostTags';
 import { Image } from '../../image/Image';
-import { Button } from '../../buttons/Button';
-import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import { combinedClicks } from '../../../lib/click';
 import classed from '../../../lib/classed';
 
-const AdThumbnail = classed(Image, 'h-full object-cover');
+const AdCover = classed(Image, 'h-full object-cover');
 
 interface FeedHeroAdProps {
   ad: Ad;
@@ -30,47 +28,38 @@ export const FeedHeroAd = ({
   onViewable,
   className,
 }: FeedHeroAdProps): ReactElement => {
-  const clickUrl = useAdClickUrl(ad);
+  const matchingTags = ad.matchingTags ?? [];
 
   return (
     <div
       data-testid="feedHeroAd"
       className={classNames(
-        'relative flex shrink-0 items-center gap-3 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3',
+        'relative flex shrink-0 gap-3 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3',
         className,
       )}
     >
       <AdLink ad={ad} onLinkClick={onLinkClick} />
-      <AdImage
-        ad={ad}
-        ImageComponent={AdThumbnail}
-        className="!my-0 size-12 shrink-0"
-      />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <p className="truncate font-bold text-text-primary typo-callout">
-          {ad.tagLine || ad.company}
-        </p>
-        <p className="line-clamp-2 text-text-tertiary typo-footnote">
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex min-w-0 items-center gap-2">
+          <AdFavicon ad={ad} className="!m-0 !h-6 shrink-0" />
+          <AdAttribution
+            ad={ad}
+            className={{ main: 'min-w-0 truncate', typo: 'typo-caption1' }}
+          />
+        </div>
+        <p className="line-clamp-2 break-words font-bold text-text-primary typo-callout">
           {ad.description}
         </p>
-        <AdAttribution
-          ad={ad}
-          className={{ main: 'mt-0.5', typo: 'typo-caption1' }}
-        />
+        {matchingTags.length > 0 && (
+          <PostTags post={{ tags: matchingTags }} className="[&>*]:!my-0.5" />
+        )}
       </div>
-      {!!ad.callToAction && (
-        <Button
-          tag="a"
-          href={clickUrl}
-          target="_blank"
-          rel="noopener"
-          variant={ButtonVariant.Primary}
-          size={ButtonSize.Small}
-          className="z-1 shrink-0"
-          {...combinedClicks(() => onLinkClick?.(ad))}
-        >
-          {ad.callToAction}
-        </Button>
+      {!!ad.image && (
+        <AdImage
+          ad={ad}
+          ImageComponent={AdCover}
+          className="!my-0 w-20 shrink-0"
+        />
       )}
       <AdPixel pixel={ad.pixel} />
       {!!onViewable && (
