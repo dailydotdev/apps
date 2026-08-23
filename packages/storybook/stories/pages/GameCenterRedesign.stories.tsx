@@ -23,6 +23,7 @@ import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
 import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { MilestoneQuestList } from '../../../webapp/components/game-center/MilestoneQuestList';
+import { CommunityPulse } from '../../../webapp/components/game-center/CommunityPulse';
 import { TrophyGrid } from '../../../webapp/components/game-center/TrophyGrid';
 import type { AwardWithRarity } from '../../../webapp/lib/gameCenter';
 
@@ -251,6 +252,87 @@ const awards: AwardWithRarity[] = [
   { id: 'clap', name: 'Clap', image: '', count: 41, value: 20 },
 ].map((award) => ({ ...award, imageGlow: null })) as AwardWithRarity[];
 
+const leaders = [
+  [
+    'Bobby Iliev',
+    'bobbyiliev',
+    'https://avatars3.githubusercontent.com/u/21223421?v=4',
+    76550,
+    328,
+  ],
+  [
+    'Joud Awad',
+    'joudawad',
+    'https://media.daily.dev/image/upload/s--dOB9RaXY--/f_auto/v1773320801/avatars/avatar_iaC4JsBU0lV8wBsc85fSh',
+    74620,
+    210,
+  ],
+  [
+    'Randy',
+    'randy',
+    'https://media.daily.dev/image/upload/s--UjV4-KkB--/f_auto/v1708097210/avatars/avatar_HXYbbGcBO38Rfv7RrCBdA',
+    69050,
+    198,
+  ],
+  [
+    'Ole-Martin',
+    'ombratteng',
+    'https://avatars.githubusercontent.com/u/1681525?v=4',
+    65260,
+    176,
+  ],
+  [
+    'Denis Bolkovskis',
+    'denisb0',
+    'https://media.daily.dev/image/upload/s--PGCuYx85--/f_auto,q_auto/v1/avatars/avatar_yRuVFf6IbfTylBjx9Dzvt',
+    56520,
+    155,
+  ],
+  [
+    'OrcDev',
+    'orcdev',
+    'https://avatars.githubusercontent.com/u/7549148?v=4',
+    56390,
+    149,
+  ],
+  [
+    'Anja P',
+    'anjapcodes',
+    'https://media.daily.dev/image/upload/s--M_c0s8Ky--/f_auto/v1721658650/avatars/avatar_WVJSfJtDe63PxQFAsmXFO',
+    51350,
+    141,
+  ],
+  [
+    'Chris Bongers',
+    'dailydevtips',
+    'https://media.daily.dev/image/upload/s--9gxFz1e7--/f_auto/v1705902590/avatars/avatar_JUNiIGCV-',
+    51285,
+    138,
+  ],
+] as const;
+
+const board = (byQuests: boolean) =>
+  leaders.map(([name, username, image, rep, quests], i) => ({
+    score: byQuests ? quests : rep,
+    user: { id: `${byQuests ? 'q' : 'r'}${i}`, name, username, image },
+  })) as never;
+
+const communityStats = {
+  totalCount: 90000,
+  allTimeLeader: {
+    questId: '1',
+    questName: 'To the back of the queue',
+    questDescription: 'Bookmark 1 post',
+    count: 15871,
+  },
+  weeklyLeader: {
+    questId: '2',
+    questName: "I'll Get to It Any Day Now",
+    questDescription: 'Bookmark 3 posts',
+    count: 534,
+  },
+};
+
 const dividerClass = 'bg-border-subtlest-tertiary';
 
 const GameCenterRedesign = () => (
@@ -288,6 +370,17 @@ const GameCenterRedesign = () => (
         quests={milestoneQuests}
         showLevelSystem
         onClaim={() => undefined}
+      />
+    </section>
+
+    <Divider className={dividerClass} />
+
+    <section className="flex flex-col gap-4">
+      <SectionHeader title="Community pulse" />
+      <CommunityPulse
+        stats={communityStats}
+        highestReputation={board(false)}
+        mostQuestsCompleted={board(true)}
       />
     </section>
 

@@ -20,8 +20,7 @@ export const TopReaderBadgeCompact = ({
   });
 
   return (
-    <div className="badge-sheen relative w-max min-w-36 overflow-hidden rounded-16 bg-border-subtlest-tertiary p-px transition-transform hover:-translate-y-0.5">
-      <div className="relative z-1 flex flex-col items-center gap-2 rounded-[15px] bg-surface-float p-4 text-center">
+    <div className="flex w-max min-w-36 flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-center">
         <Typography type={TypographyType.Callout} bold>
           Top reader
         </Typography>
@@ -47,7 +46,6 @@ export const TopReaderBadgeCompact = ({
             {keyword.flags?.title || keyword.value}
           </Typography>
         </div>
-      </div>
     </div>
   );
 };

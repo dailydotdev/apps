@@ -1119,36 +1119,6 @@ meter::-webkit-meter-bar {
     }
   }
 
-  /* A slow highlight travelling around the badge's 1px border. The arc is
-     narrow and low-opacity so it reads as a reflection catching the edge
-     rather than a spinning gradient. */
-  @keyframes badge-sheen-spin {
-    to {
-      transform: rotate(1turn);
-    }
-  }
-
-  .badge-sheen::before {
-    content: '';
-    position: absolute;
-    inset: -75%;
-    background: conic-gradient(
-      from 0deg,
-      transparent 0deg,
-      rgb(255 255 255 / 0.5) 22deg,
-      transparent 50deg,
-      transparent 360deg
-    );
-    animation: badge-sheen-spin 7s linear infinite;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .badge-sheen::before {
-      animation: none;
-      opacity: 0.2;
-    }
-  }
-
   @keyframes float {
     0%, 100% {
       transform: translateY(0);
