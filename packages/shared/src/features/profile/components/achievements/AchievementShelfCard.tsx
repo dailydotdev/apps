@@ -56,8 +56,8 @@ const isEmerald = (tier: AchievementRarityTier | null) =>
   tier === AchievementRarityTier.Emerald;
 
 const slabRingClasses: Record<'gold' | 'emerald', string> = {
-  gold: 'border-[#efab27] shadow-[0_0_32px_-4px_#efab27]',
-  emerald: 'border-[#1dbf8c] shadow-[0_0_32px_-4px_#1dbf8c]',
+  gold: 'border-[#efab27] shadow-[0_0_16px_-2px_#efab27]',
+  emerald: 'border-[#1dbf8c] shadow-[0_0_16px_-2px_#1dbf8c]',
 };
 
 const slabPillClasses: Record<'gold' | 'emerald', string> = {
@@ -93,7 +93,7 @@ export function AchievementShelfCard({
 
   return (
     <>
-      <article className="group relative flex h-[464px] w-[352px] shrink-0 flex-col justify-end overflow-hidden rounded-32 bg-background-subtle text-left transition-transform hover:-translate-y-1">
+      <article className="group relative flex h-[232px] w-44 shrink-0 flex-col justify-end overflow-hidden rounded-16 bg-background-subtle text-left transition-transform hover:-translate-y-1">
         {/* `absolute` has to come from the prop: LazyImage appends its own
             `relative` after our classes, and that wins in the compiled CSS. */}
         <LazyImage
@@ -112,7 +112,7 @@ export function AchievementShelfCard({
         {slabTier && (
           <div
             className={classNames(
-              'pointer-events-none absolute inset-0 z-3 rounded-32 border-4',
+              'pointer-events-none absolute inset-0 z-3 rounded-16 border-2',
               slabRingClasses[slabTier],
             )}
           />
@@ -130,7 +130,7 @@ export function AchievementShelfCard({
         {slabTier && (
           <span
             className={classNames(
-              'absolute left-5 top-5 z-3 rounded-max px-4 py-2 text-[22px] font-semibold leading-none text-[#08110c]',
+              'absolute left-2.5 top-2.5 z-3 rounded-max px-2 py-1 text-[11px] font-semibold leading-none text-[#08110c]',
               slabPillClasses[slabTier],
             )}
           >
@@ -142,7 +142,7 @@ export function AchievementShelfCard({
           <button
             type="button"
             disabled={isTracked ? isUntrackPending : isTrackPending}
-            className="absolute right-5 top-5 z-3 inline-flex h-12 items-center rounded-16 border-2 border-[rgba(255,255,255,0.28)] bg-[rgba(8,10,13,0.55)] px-4 text-[26px] font-medium leading-none text-white backdrop-blur-[12px]"
+            className="absolute right-2.5 top-2.5 z-3 inline-flex h-6 items-center rounded-8 border border-[rgba(255,255,255,0.28)] bg-[rgba(8,10,13,0.55)] px-2 text-[13px] font-medium leading-none text-white backdrop-blur-[6px]"
             onClick={(event: MouseEvent) => {
               event.stopPropagation();
               if (isTracked) {
@@ -156,27 +156,27 @@ export function AchievementShelfCard({
           </button>
         )}
 
-        <div className="pointer-events-none relative z-2 px-[26px] pb-[26px] pt-6">
+        <div className="pointer-events-none relative z-2 px-[13px] pb-[13px] pt-3">
           <Typography
             tag={TypographyTag.H3}
-            className="text-[29px] font-semibold leading-[1.2] tracking-[-0.01em] text-white"
+            className="text-[14.5px] font-semibold leading-[1.2] tracking-[-0.01em] text-white"
           >
             {achievement.name}
           </Typography>
-          <Typography className="mt-[6px] line-clamp-1 text-[23px] leading-[1.32] text-[rgba(255,255,255,0.78)]">
+          <Typography className="mt-[3px] line-clamp-1 text-[11.5px] leading-[1.32] text-[rgba(255,255,255,0.78)]">
             {achievement.description}
           </Typography>
 
           {isUnlocked ? (
-            <Typography className="mt-[14px] text-[21px] text-[rgba(255,255,255,0.7)]">
+            <Typography className="mt-[7px] text-[10.5px] text-[rgba(255,255,255,0.7)]">
               Unlocked {formatUnlockedAt(unlockedAt)}
             </Typography>
           ) : (
             <>
-              <Typography className="mt-[14px] text-[21px] text-[rgba(255,255,255,0.7)]">
+              <Typography className="mt-[7px] text-[10.5px] text-[rgba(255,255,255,0.7)]">
                 {progressLabel}
               </Typography>
-              <div className="mt-4 h-[10px] overflow-hidden rounded-max bg-[rgba(255,255,255,0.22)]">
+              <div className="mt-2 h-[5px] overflow-hidden rounded-max bg-[rgba(255,255,255,0.22)]">
                 <div
                   className="h-full rounded-max bg-white"
                   style={{ width: `${progressPercentage}%` }}
