@@ -80,6 +80,10 @@ export function AuthenticationBanner({
             defaultDisplay={AuthDisplay.OnboardingSignup}
             forceDefaultDisplay
             className={{
+              // The signup display's min-height is modal sizing; here it
+              // stretches both columns ~5rem past their content and the strip
+              // ends in dead space instead of its own padding.
+              container: '!min-h-0',
               onboardingSignup: compact ? '!gap-3' : '!gap-4',
             }}
             onAuthStateUpdate={(props) => {
