@@ -176,11 +176,13 @@ export function PostWidgets({
         </>,
       )}
       {withAd(PostWidgetPosition.Highlights, <HighlightPostSidebarWidget />)}
-      {tokenRefreshed &&
-        withAd(
-          PostWidgetPosition.SimilarPosts,
-          <FurtherReading currentPost={post} hideToc={hideToc} />,
-        )}
+      {tokenRefreshed && (
+        <FurtherReading
+          currentPost={post}
+          hideToc={hideToc}
+          betweenSections={getRailAd?.(PostWidgetPosition.SimilarPosts)}
+        />
+      )}
       <FeaturedArchives postId={post.id} />
       <FooterLinks />
       {trailing}

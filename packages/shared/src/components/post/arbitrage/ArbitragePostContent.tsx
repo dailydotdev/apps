@@ -74,14 +74,15 @@ const RAIL_AD: Record<
     format: ArbitrageAdFormat.MediumRectangle,
     hideOnPhone: true,
   },
-  // The rail's last unit, and the only one that stays with the visitor: it
-  // pins under the fixed chrome and rides the rest of the scroll. Sticky is
-  // bounded by the containing block, which here is the rail itself — the rail
-  // is a flex item stretched to the article column's height, so the unit has
-  // the whole page to travel. Anything that gave this slot a shorter box (a
-  // wrapper, or moving it inside a widget) would cut the travel to that box.
-  // z-1 puts it over the widgets that scroll underneath, and the background
-  // keeps them from showing through the space the creative does not fill.
+  // Between "You might like" and the discussions, and the only unit that
+  // stays with the visitor: it pins under the fixed chrome and rides the rest
+  // of the scroll. Sticky is bounded by the containing block, which must be
+  // the rail itself — stretched to the article column's height — for the unit
+  // to have the whole page to travel; FurtherReading flattens to `contents`
+  // around it for exactly that reason, and any wrapper that generates a box
+  // here would cut the travel to that box. z-1 puts it over the widgets that
+  // scroll underneath, and the background keeps them from showing through the
+  // space the creative does not fill.
   [PostWidgetPosition.SimilarPosts]: {
     slot: ARBITRAGE_SLOT.railBetweenFurtherReading,
     format: ArbitrageAdFormat.MediumRectangle,
