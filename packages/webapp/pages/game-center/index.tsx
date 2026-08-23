@@ -19,6 +19,7 @@ import {
   userProductSummaryQueryOptions,
 } from '@dailydotdev/shared/src/graphql/njord';
 import type { QuestType } from '@dailydotdev/shared/src/graphql/quests';
+import { getTargetCount } from '@dailydotdev/shared/src/graphql/user/achievements';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useSettingsContext } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { useProfileAchievements } from '@dailydotdev/shared/src/hooks/profile/useProfileAchievements';
@@ -33,6 +34,7 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { featuredAwardImage } from '@dailydotdev/shared/src/lib/image';
 import { achievementTrackingWidgetFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { fetchTopReaders } from '@dailydotdev/shared/src/lib/topReader';
+import { getFirstName } from '@dailydotdev/shared/src/lib/user';
 import {
   generateQueryKey,
   RequestKey,
@@ -55,9 +57,17 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
 import { Image } from '@dailydotdev/shared/src/components/image/Image';
+import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
+import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import { AchievementShelfCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementShelfCard';
 import { TopReaderBadgeCompact } from '@dailydotdev/shared/src/components/badges/TopReaderBadgeCompact';
 import { getQuestLevelProgress } from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
+import { LevelHud } from '@dailydotdev/shared/src/components/quest/LevelHud';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -65,12 +75,12 @@ import {
   ArrowIcon,
   CoreIcon,
   MedalBadgeIcon,
+  PinIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { MilestoneQuestList } from '../../components/game-center/MilestoneQuestList';
-import { HeroCard } from '../../components/game-center/HeroCard';
 import { TrophyGrid } from '../../components/game-center/TrophyGrid';
 import ProtectedPage from '../../components/ProtectedPage';
 import { defaultOpenGraph } from '../../next-seo';
@@ -286,7 +296,9 @@ function GameCenterPage({
   const levelProgress = questDashboard
     ? getQuestLevelProgress(questDashboard.level)
     : 0;
+  const firstName = user?.name ? getFirstName(user.name) : 'there';
   const { featuredAchievements } = achievementSummary;
+  const [featuredAchievement] = featuredAchievements;
   const upcomingMilestoneQuest = useMemo(
     () => getMostProgressedQuest(milestoneQuests),
     [milestoneQuests],
@@ -295,6 +307,33 @@ function GameCenterPage({
     highestReputation.length > 0 || mostQuestsCompleted.length > 0;
   const milestoneHash = `#${gameCenterMilestoneSectionId}`;
 
+  const isFeaturedAchievementTrackable =
+    shouldTrackAchievements &&
+    !!featuredAchievement &&
+    !featuredAchievement.unlockedAt;
+  const isFeaturedAchievementTracked =
+    isFeaturedAchievementTrackable &&
+    trackedAchievementState.trackedAchievement?.achievement.id ===
+      featuredAchievement.achievement.id;
+  const isFeaturedAchievementTrackingPending =
+    trackedAchievementState.isPending ||
+    trackedAchievementState.isTrackPending ||
+    trackedAchievementState.isUntrackPending;
+
+  const handleFeaturedAchievementTracking = async () => {
+    if (!isFeaturedAchievementTrackable || !featuredAchievement) {
+      return;
+    }
+
+    if (isFeaturedAchievementTracked) {
+      await trackedAchievementState.untrackAchievement();
+      return;
+    }
+
+    await trackedAchievementState.trackAchievement(
+      featuredAchievement.achievement.id,
+    );
+  };
   const handleMilestoneClaim = useCallback(
     (userQuestId: string, questId: string, questType: QuestType) => {
       claimQuestReward({
@@ -319,59 +358,6 @@ function GameCenterPage({
       .getElementById(gameCenterMilestoneSectionId)
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [claimableMilestoneCount, milestoneHash, router.asPath, router.isReady]);
-
-  const heroCard = user ? (
-    <HeroCard
-      user={user}
-      level={questDashboard?.level.level ?? 0}
-      levelProgress={levelProgress}
-      totalXp={questDashboard?.level.totalXp ?? 0}
-      xpToNextLevel={questDashboard?.level.xpToNextLevel ?? 0}
-      currentStreak={questDashboard?.currentStreak ?? 0}
-      longestStreak={questDashboard?.longestStreak ?? 0}
-      achievements={
-        showAchievements
-          ? {
-              unlocked: achievementSummary.unlockedCount,
-              total: achievementSummary.totalCount,
-            }
-          : undefined
-      }
-      footnote={
-        <>
-          <Typography
-            type={TypographyType.Caption2}
-            color={TypographyColor.Tertiary}
-            bold
-            className="uppercase tracking-[0.12em]"
-          >
-            Next up
-          </Typography>
-          <Typography
-            type={TypographyType.Caption1}
-            color={TypographyColor.Tertiary}
-            className="mt-1"
-          >
-            {upcomingMilestoneQuest ? (
-              <>
-                <strong className="font-bold text-text-primary">
-                  {upcomingMilestoneQuest.quest.name}
-                </strong>{' '}
-                —{' '}
-                {Math.min(
-                  upcomingMilestoneQuest.progress,
-                  upcomingMilestoneQuest.quest.targetCount,
-                )}
-                /{upcomingMilestoneQuest.quest.targetCount} so far.
-              </>
-            ) : (
-              'Your next milestone will show up here.'
-            )}
-          </Typography>
-        </>
-      }
-    />
-  ) : null;
 
   let milestoneQuestContent: ReactElement;
 
@@ -594,203 +580,362 @@ function GameCenterPage({
             </Typography>
           </LayoutHeader>
         )}
-        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full pb-10">
-          <div className="grid gap-6 laptop:grid-cols-[19rem_1fr] laptop:items-start">
-            {/* The card follows the reader down the page so the level, streak
-                and next claim stay in view while the sections scroll. */}
-            <div className="laptop:sticky laptop:top-6">{heroCard}</div>
-
-            <div className="flex min-w-0 flex-col gap-6">
-              <section
-                id={gameCenterMilestoneSectionId}
-                className="flex scroll-mt-16 flex-col gap-4"
+        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10">
+          <section className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+                bold
               >
-                <SectionHeader
-                  title="Milestone quests"
-                  description="Longer-running quest goals that track your progress until they are ready to claim."
-                />
+                Progress snapshot
+              </Typography>
+              <Typography
+                tag={TypographyTag.H1}
+                type={TypographyType.Title1}
+                bold
+              >
+                {firstName}, here&apos;s how you&apos;re doing.
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Tertiary}
+              >
+                The Game Center pulls together your quest progress, achievement
+                milestones, recent badges, creator rewards, and a few community
+                benchmarks so you can see both momentum and upside at a glance.
+              </Typography>
+            </div>
 
-                {milestoneQuestContent}
-              </section>
+            {questDashboard ? (
+              <LevelHud
+                level={questDashboard.level.level}
+                levelProgress={levelProgress}
+                totalXp={questDashboard.level.totalXp}
+                xpToNextLevel={questDashboard.level.xpToNextLevel}
+                currentStreak={questDashboard.currentStreak}
+                longestStreak={questDashboard.longestStreak}
+                achievements={
+                  showAchievements
+                    ? {
+                        unlocked: achievementSummary.unlockedCount,
+                        total: achievementSummary.totalCount,
+                      }
+                    : undefined
+                }
+                isPending={isQuestPending}
+              />
+            ) : (
+              showAchievements && (
+                <div className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+                  <Typography
+                    type={TypographyType.Caption1}
+                    color={TypographyColor.Tertiary}
+                  >
+                    Personal highlight
+                  </Typography>
+                  <Typography type={TypographyType.Title2} bold>
+                    {achievementSummary.unlockedCount}/
+                    {achievementSummary.totalCount}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Footnote}
+                    color={TypographyColor.Tertiary}
+                  >
+                    achievements unlocked so far
+                  </Typography>
+                </div>
+              )
+            )}
 
-              <Divider className={dividerClassName} />
-
-              <section className="flex flex-col gap-4">
-                <SectionHeader
-                  title="Community pulse"
-                  description="A quick look at what the community is up to"
-                  action={
-                    <Link href="/users" passHref>
-                      <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-footnote">
-                        Open full leaderboards
-                        <ArrowIcon className="rotate-90" />
-                      </a>
-                    </Link>
-                  }
-                />
-                {questCompletionStats && (
-                  <div className="grid gap-4 tablet:grid-cols-3">
-                    <DataTile
-                      label="Most completed of all time"
-                      value={
-                        questCompletionStats.allTimeLeader?.questName ??
-                        'No quest data yet'
-                      }
-                      valueClassName="max-w-full truncate !text-lg !leading-6"
-                      info="The quest with the most completed or claimed runs across the whole community."
-                      subtitle={
-                        <div className="mt-1 flex flex-col gap-1">
-                          <Typography
-                            type={TypographyType.Caption1}
-                            color={TypographyColor.Tertiary}
-                            className="truncate"
-                          >
-                            {questCompletionStats.allTimeLeader
-                              ?.questDescription ??
-                              'Criteria will show once the first quest is completed'}
-                          </Typography>
-                          <Typography
-                            type={TypographyType.Footnote}
-                            color={TypographyColor.Tertiary}
-                          >
-                            {questCompletionStats.allTimeLeader
-                              ? formatQuestCompletionCount(
-                                  questCompletionStats.allTimeLeader.count,
-                                )
-                              : 'Waiting on the first completion'}
-                          </Typography>
-                        </div>
-                      }
-                    />
-                    <DataTile
-                      label="Most completed this week"
-                      value={
-                        questCompletionStats.weeklyLeader?.questName ??
-                        'No quest data yet'
-                      }
-                      valueClassName="max-w-full truncate !text-lg !leading-6"
-                      info="The quest leading community completions since this week began."
-                      subtitle={
-                        <div className="mt-1 flex flex-col gap-1">
-                          <Typography
-                            type={TypographyType.Caption1}
-                            color={TypographyColor.Tertiary}
-                            className="truncate"
-                          >
-                            {questCompletionStats.weeklyLeader
-                              ?.questDescription ??
-                              'Criteria will show once a quest is completed this week'}
-                          </Typography>
-                          <Typography
-                            type={TypographyType.Footnote}
-                            color={TypographyColor.Tertiary}
-                          >
-                            {questCompletionStats.weeklyLeader
-                              ? formatQuestCompletionCount(
-                                  questCompletionStats.weeklyLeader.count,
-                                )
-                              : 'No completed quests yet this week'}
-                          </Typography>
-                        </div>
-                      }
-                    />
-                    <DataTile
-                      label="Total quests completed"
-                      value={questCompletionStats.totalCount}
-                      info="Every completed or claimed quest across the community."
-                      subtitle={
-                        <Typography
-                          type={TypographyType.Caption1}
-                          color={TypographyColor.Tertiary}
-                        >
-                          all-time community total
-                        </Typography>
-                      }
-                    />
-                  </div>
-                )}
-                {hasCommunityLeaderboards ? (
-                  <div className="grid gap-4 tablet:grid-cols-2">
-                    {highestReputation.length > 0 && (
-                      <UserTopList
-                        containerProps={{
-                          title: 'Highest reputation',
-                          titleHref: `/users/${LeaderboardType.HighestReputation}`,
-                        }}
-                        items={highestReputation}
-                        isLoading={false}
-                      />
-                    )}
-                    {mostQuestsCompleted.length > 0 && (
-                      <UserTopList
-                        containerProps={{
-                          title: 'Most quests completed',
-                          titleHref: `/users/${LeaderboardType.MostQuestsCompleted}`,
-                        }}
-                        items={mostQuestsCompleted}
-                        isLoading={false}
-                      />
-                    )}
-                  </div>
-                ) : (
-                  <EmptyStateCard
-                    title="Community stats are unavailable right now"
-                    description="We could not load the global leaderboards for this build, but your personal Game Center data is still live."
-                  />
-                )}
-              </section>
+            <div className="grid gap-3 tablet:grid-cols-2">
+              <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                  bold
+                >
+                  Upcoming milestone
+                </Typography>
+                <Typography type={TypographyType.Callout} bold className="mt-1">
+                  {upcomingMilestoneQuest?.quest.name ??
+                    'No upcoming milestone yet'}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                  className="mt-1"
+                >
+                  {upcomingMilestoneQuest
+                    ? `${Math.min(
+                        upcomingMilestoneQuest.progress,
+                        upcomingMilestoneQuest.quest.targetCount,
+                      )}/${upcomingMilestoneQuest.quest.targetCount} progress`
+                    : 'Your next milestone will show up here.'}
+                </Typography>
+              </div>
 
               {showAchievements && (
-                <>
-                  <Divider className={dividerClassName} />
-
-                  <section className="flex flex-col gap-4">
-                    <SectionHeader
-                      title="Achievement shelf"
-                      description="A mix of what you just unlocked, what is rare, and what is closest to completion."
-                      action={
-                        user?.username ? (
-                          <Link
-                            href={`/${user.username}/achievements`}
-                            passHref
-                          >
-                            <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-footnote">
-                              View all achievements
-                              <ArrowIcon className="rotate-90" />
-                            </a>
-                          </Link>
-                        ) : undefined
-                      }
-                    />
-
-                    {achievementShelfContent}
-                  </section>
-                </>
+                <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Tertiary}
+                      bold
+                    >
+                      Closest achievement
+                    </Typography>
+                    {isFeaturedAchievementTrackable && (
+                      <Tooltip
+                        content={
+                          isFeaturedAchievementTracked
+                            ? 'Stop tracking achievement'
+                            : 'Track achievement'
+                        }
+                        side="top"
+                      >
+                        <Button
+                          variant={ButtonVariant.Subtle}
+                          size={ButtonSize.Small}
+                          icon={
+                            <PinIcon secondary={isFeaturedAchievementTracked} />
+                          }
+                          pressed={isFeaturedAchievementTracked}
+                          disabled={isFeaturedAchievementTrackingPending}
+                          onClick={handleFeaturedAchievementTracking}
+                          aria-label={
+                            isFeaturedAchievementTracked
+                              ? `Stop tracking ${featuredAchievement.achievement.name}`
+                              : `Track ${featuredAchievement.achievement.name}`
+                          }
+                        />
+                      </Tooltip>
+                    )}
+                  </div>
+                  <div className="mt-3 flex items-start gap-3">
+                    {featuredAchievement && (
+                      <LazyImage
+                        imgSrc={featuredAchievement.achievement.image}
+                        imgAlt={featuredAchievement.achievement.name}
+                        className="size-14 shrink-0 rounded-12 border border-border-subtlest-tertiary bg-background-subtle"
+                        fallbackSrc="https://daily.dev/default-achievement.png"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <Typography
+                        type={TypographyType.Callout}
+                        bold
+                        className={classNames(
+                          'line-clamp-2',
+                          !featuredAchievement && 'mt-1',
+                        )}
+                      >
+                        {featuredAchievement?.achievement.name ??
+                          'No tracked achievement'}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                        className="mt-1"
+                      >
+                        {featuredAchievement
+                          ? `${featuredAchievement.progress}/${getTargetCount(
+                              featuredAchievement.achievement,
+                            )} progress`
+                          : 'Once achievements load, your closest milestone shows here.'}
+                      </Typography>
+                    </div>
+                  </div>
+                </div>
               )}
-
-              <Divider className={dividerClassName} />
-
-              <section className="flex flex-col gap-4">
-                <SectionHeader
-                  title="Badge case"
-                  description="Every top-reader badge you've earned and the subjects you have gone deepest on."
-                />
-
-                {badgeCaseContent}
-              </section>
-
-              <Divider className={dividerClassName} />
-
-              <section className="flex flex-col gap-4">
-                <SectionHeader
-                  title="Trophy case"
-                  description="Every award you've earned"
-                />
-
-                {trophyCaseContent}
-              </section>
             </div>
-          </div>
+          </section>
+
+          <Divider className={dividerClassName} />
+
+          <section
+            id={gameCenterMilestoneSectionId}
+            className="flex scroll-mt-16 flex-col gap-4"
+          >
+            <SectionHeader
+              title="Milestone quests"
+              description="Longer-running quest goals that track your progress until they are ready to claim."
+            />
+
+            {milestoneQuestContent}
+          </section>
+
+          <Divider className={dividerClassName} />
+
+          <section className="flex flex-col gap-4">
+            <SectionHeader
+              title="Community pulse"
+              description="A quick look at what the community is up to"
+              action={
+                <Link href="/users" passHref>
+                  <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-footnote">
+                    Open full leaderboards
+                    <ArrowIcon className="rotate-90" />
+                  </a>
+                </Link>
+              }
+            />
+            {questCompletionStats && (
+              <div className="grid gap-4 tablet:grid-cols-3">
+                <DataTile
+                  label="Most completed of all time"
+                  value={
+                    questCompletionStats.allTimeLeader?.questName ??
+                    'No quest data yet'
+                  }
+                  valueClassName="max-w-full truncate !text-lg !leading-6"
+                  info="The quest with the most completed or claimed runs across the whole community."
+                  subtitle={
+                    <div className="mt-1 flex flex-col gap-1">
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                        className="truncate"
+                      >
+                        {questCompletionStats.allTimeLeader?.questDescription ??
+                          'Criteria will show once the first quest is completed'}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                      >
+                        {questCompletionStats.allTimeLeader
+                          ? formatQuestCompletionCount(
+                              questCompletionStats.allTimeLeader.count,
+                            )
+                          : 'Waiting on the first completion'}
+                      </Typography>
+                    </div>
+                  }
+                />
+                <DataTile
+                  label="Most completed this week"
+                  value={
+                    questCompletionStats.weeklyLeader?.questName ??
+                    'No quest data yet'
+                  }
+                  valueClassName="max-w-full truncate !text-lg !leading-6"
+                  info="The quest leading community completions since this week began."
+                  subtitle={
+                    <div className="mt-1 flex flex-col gap-1">
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                        className="truncate"
+                      >
+                        {questCompletionStats.weeklyLeader?.questDescription ??
+                          'Criteria will show once a quest is completed this week'}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                      >
+                        {questCompletionStats.weeklyLeader
+                          ? formatQuestCompletionCount(
+                              questCompletionStats.weeklyLeader.count,
+                            )
+                          : 'No completed quests yet this week'}
+                      </Typography>
+                    </div>
+                  }
+                />
+                <DataTile
+                  label="Total quests completed"
+                  value={questCompletionStats.totalCount}
+                  info="Every completed or claimed quest across the community."
+                  subtitle={
+                    <Typography
+                      type={TypographyType.Caption1}
+                      color={TypographyColor.Tertiary}
+                    >
+                      all-time community total
+                    </Typography>
+                  }
+                />
+              </div>
+            )}
+            {hasCommunityLeaderboards ? (
+              <div className="grid gap-4 tablet:grid-cols-2">
+                {highestReputation.length > 0 && (
+                  <UserTopList
+                    containerProps={{
+                      title: 'Highest reputation',
+                      titleHref: `/users/${LeaderboardType.HighestReputation}`,
+                    }}
+                    items={highestReputation}
+                    isLoading={false}
+                  />
+                )}
+                {mostQuestsCompleted.length > 0 && (
+                  <UserTopList
+                    containerProps={{
+                      title: 'Most quests completed',
+                      titleHref: `/users/${LeaderboardType.MostQuestsCompleted}`,
+                    }}
+                    items={mostQuestsCompleted}
+                    isLoading={false}
+                  />
+                )}
+              </div>
+            ) : (
+              <EmptyStateCard
+                title="Community stats are unavailable right now"
+                description="We could not load the global leaderboards for this build, but your personal Game Center data is still live."
+              />
+            )}
+          </section>
+
+          {showAchievements && (
+            <>
+              <Divider className={dividerClassName} />
+
+              <section className="flex flex-col gap-4">
+                <SectionHeader
+                  title="Achievement shelf"
+                  description="A mix of what you just unlocked, what is rare, and what is closest to completion."
+                  action={
+                    user?.username ? (
+                      <Link href={`/${user.username}/achievements`} passHref>
+                        <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-footnote">
+                          View all achievements
+                          <ArrowIcon className="rotate-90" />
+                        </a>
+                      </Link>
+                    ) : undefined
+                  }
+                />
+
+                {achievementShelfContent}
+              </section>
+            </>
+          )}
+
+          <Divider className={dividerClassName} />
+
+          <section className="flex flex-col gap-4">
+            <SectionHeader
+              title="Badge case"
+              description="Every top-reader badge you've earned and the subjects you have gone deepest on."
+            />
+
+            {badgeCaseContent}
+          </section>
+
+          <Divider className={dividerClassName} />
+
+          <section className="flex flex-col gap-4">
+            <SectionHeader
+              title="Trophy case"
+              description="Every award you've earned"
+            />
+
+            {trophyCaseContent}
+          </section>
         </ResponsivePageContainer>
       </div>
     </ProtectedPage>
