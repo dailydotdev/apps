@@ -343,17 +343,6 @@ export const PostPage = ({
             </>
           )}
           <PostSEOSchema post={post} topComments={topComments} />
-          {/* Above the whole two-column container rather than inside the
-              article column: the classic and focus layouts differ inside, and
-              the unit must never render in post modals, which share those
-              components but not this page. */}
-          {!showRedesign && (
-            <ArbitrageTopLeaderboard
-              surface="organic"
-              slot={ORGANIC_SLOT.topLeaderboard}
-              className="mx-auto w-full max-w-[69.25rem]"
-            />
-          )}
           {showRedesign ? (
             <div className="mx-auto w-full max-w-[63.75rem]">
               <PostFocusCard post={post} origin={Origin.ArticlePage} />
@@ -368,6 +357,14 @@ export const PostPage = ({
               shouldOnboardAuthor={!!router.query?.author}
               origin={Origin.ArticlePage}
               isBannerVisible={shouldShowAuthBanner && !isLaptop}
+              contentLeading={
+                adsenseActive ? (
+                  <ArbitrageTopLeaderboard
+                    surface="organic"
+                    slot={ORGANIC_SLOT.topLeaderboard}
+                  />
+                ) : undefined
+              }
               // Only while ads are actually live: a truthy hook flattens the
               // further-reading widget around the slot, and without an ad that
               // changes rail spacing for members who never see one.

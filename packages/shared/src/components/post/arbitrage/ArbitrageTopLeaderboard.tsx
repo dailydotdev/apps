@@ -33,7 +33,7 @@ export function ArbitrageTopLeaderboard({
   surface = 'read',
   className,
 }: ArbitrageTopLeaderboardProps): ReactElement {
-  const ownReleased = useTimedRelease(TOP_LEADERBOARD_STICKY_MS, 'scroll');
+  const ownReleased = useTimedRelease(TOP_LEADERBOARD_STICKY_MS);
   const isReleased = released ?? ownReleased;
 
   return (

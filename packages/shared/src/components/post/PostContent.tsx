@@ -91,6 +91,7 @@ export function PostContentRaw({
   isBannerVisible,
   isPostPage,
   getWidgetRailAd,
+  contentLeading,
 }: PostContentRawProps): ReactElement {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -160,9 +161,14 @@ export function PostContentRaw({
 
   const postMainColumn = (
     <PostContainer
-      className={classNames('relative', className?.content)}
+      className={classNames(
+        'relative',
+        !!contentLeading && '!overflow-x-clip !overflow-y-visible',
+        className?.content,
+      )}
       data-testid="postContainer"
     >
+      {contentLeading}
       <BasePostContent
         className={{
           ...className,

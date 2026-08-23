@@ -97,6 +97,13 @@ export interface PostContentProps
    * extensions.
    */
   getWidgetRailAd?: (position: PostWidgetPosition) => ReactNode;
+  /**
+   * Rendered first in the article column, same page-only rule as
+   * getWidgetRailAd. The column's overflow-hidden is relaxed while this is
+   * set, because the ad template's leaderboard pins with position: sticky and
+   * an overflow-hidden ancestor silently stops it.
+   */
+  contentLeading?: ReactNode;
 }
 
 export const PostContainer = classed(
