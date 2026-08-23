@@ -16,6 +16,7 @@ import useDebounceFn from '../../hooks/useDebounceFn';
 interface ReaderPostModalProps extends ModalProps, PassedPostNavigationProps {
   id: string;
   post: Post;
+  targetPost?: Post;
 }
 
 export default function ReaderPostModal({
@@ -26,6 +27,7 @@ export default function ReaderPostModal({
   onNextPost,
   postPosition,
   post,
+  targetPost,
   ...props
 }: ReaderPostModalProps): ReactElement {
   const usePostReferrer =
@@ -74,6 +76,7 @@ export default function ReaderPostModal({
     >
       <ReaderPostLayout
         post={post}
+        targetPost={targetPost}
         postPosition={postPosition}
         onPreviousPost={onPreviousPost}
         onNextPost={onNextPost}

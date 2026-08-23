@@ -251,7 +251,7 @@ export const PostFocusCard = ({
   const { onReadClick: onReaderInstallGateClick } =
     useReaderInstallPromptGate(post);
   const { isReaderEnabled } = useReaderModalEligibility();
-  const isReaderVariant = isReaderEnabled && post.type === PostType.Article;
+  const isReaderVariant = isReaderEnabled && article.type === PostType.Article;
   const showCodeSnippets = useFeature(feature.showCodeSnippets);
   const communitySentimentData = article.communitySentiment
     ? mapCommunitySentimentPost(article.communitySentiment)
