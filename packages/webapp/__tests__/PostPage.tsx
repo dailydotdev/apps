@@ -105,10 +105,11 @@ jest.mock('@dailydotdev/shared/src/hooks/useConditionalFeature', () => ({
   },
 }));
 
-beforeEach(() => {
-  nock.cleanAll();
-  jest.clearAllMocks();
-  mockRedesignOn = false;
+// The ad-teardown effect subscribes to router events on anonymous renders,
+// so the mock has to carry the emitter surface.
+const routerEvents = { on: jest.fn(), off: jest.fn(), emit: jest.fn() };
+
+const mockRouter = (overrides: Partial<NextRouter> = {}): void => {
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -116,8 +117,18 @@ beforeEach(() => {
         pathname: '/posts',
         isReady: true,
         query: {},
+        events: routerEvents,
+        beforePopState: jest.fn(),
+        ...overrides,
       } as unknown as NextRouter),
   );
+};
+
+beforeEach(() => {
+  nock.cleanAll();
+  jest.clearAllMocks();
+  mockRedesignOn = false;
+  mockRouter();
 });
 
 const defaultPost = {
@@ -643,13 +654,7 @@ it('should not show author onboarding by default', () => {
 });
 
 it('should show author onboarding when the query param is set', async () => {
-  jest.mocked(useRouter).mockImplementation(
-    () =>
-      ({
-        isFallback: false,
-        query: { author: 'true' },
-      } as unknown as NextRouter),
-  );
+  mockRouter({ query: { author: 'true' } });
   renderPost();
   const el = await screen.findByTestId('authorOnboarding');
   expect(el).toBeInTheDocument();
@@ -1125,15 +1130,7 @@ describe('article', () => {
 
 describe('post redesign', () => {
   const mockRouterQuery = (query: Record<string, string>) => {
-    jest.mocked(useRouter).mockImplementation(
-      () =>
-        ({
-          isFallback: false,
-          pathname: '/posts',
-          isReady: true,
-          query,
-        } as unknown as NextRouter),
-    );
+    mockRouter({ query });
   };
 
   it('should render the focus card redesign when the flag is on', async () => {
