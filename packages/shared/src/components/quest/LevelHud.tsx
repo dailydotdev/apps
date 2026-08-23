@@ -25,7 +25,7 @@ const HudStatTile = ({
   label: string;
   value: string;
 }): ReactElement => (
-  <div className="bg-background-default/70 flex flex-col gap-1 p-4 backdrop-blur-sm">
+  <div className="flex flex-col gap-1 bg-background-default p-4">
     <div className="flex items-center gap-1.5 text-text-tertiary">
       {icon}
       <Typography
@@ -107,7 +107,7 @@ export const LevelHud = ({
             </div>
             <Typography
               type={TypographyType.Caption1}
-              className="text-white/70"
+              className="text-overlay-primary-white"
             >
               total XP
             </Typography>

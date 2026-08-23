@@ -583,8 +583,8 @@ function GameCenterPage({
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10">
           <section className="relative overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-6">
             <div className="pointer-events-none absolute inset-0">
-              <div className="bg-accent-cabbage-default/10 absolute -left-8 top-0 size-40 rounded-full blur-3xl" />
-              <div className="bg-accent-blueCheese-default/10 absolute bottom-0 right-0 size-48 rounded-full blur-3xl" />
+              <div className="absolute -left-8 top-0 size-40 rounded-full bg-overlay-active-cabbage blur-3xl" />
+              <div className="absolute bottom-0 right-0 size-48 rounded-full bg-overlay-active-blueCheese blur-3xl" />
             </div>
             <div className="relative flex flex-col gap-6">
               <div className="flex flex-col gap-4">
@@ -634,7 +634,7 @@ function GameCenterPage({
                   />
                 ) : (
                   showAchievements && (
-                    <div className="bg-background-default/70 flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-sm">
+                    <div className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
                       <Typography
                         type={TypographyType.Caption1}
                         color={TypographyColor.Tertiary}
@@ -656,7 +656,7 @@ function GameCenterPage({
                 )}
 
                 <div className="grid gap-3 tablet:grid-cols-2">
-                  <div className="bg-background-default/70 rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-sm">
+                  <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
                     <Typography
                       type={TypographyType.Caption1}
                       color={TypographyColor.Tertiary}
@@ -689,7 +689,7 @@ function GameCenterPage({
                   </div>
 
                   {showAchievements && (
-                    <div className="bg-background-default/70 rounded-16 border border-border-subtlest-tertiary p-4 backdrop-blur-sm">
+                    <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
                       <div className="flex items-start justify-between gap-3">
                         <Typography
                           type={TypographyType.Caption1}

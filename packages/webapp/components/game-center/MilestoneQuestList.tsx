@@ -49,18 +49,23 @@ enum MilestoneAccent {
   Default = 'default',
 }
 
+// Tinted fills come from the overlay palette: an alpha modifier on an
+// accent token (`/12`) resolves to a bare `var()` and renders transparent.
 const accentClasses: Record<MilestoneAccent, string> = {
   [MilestoneAccent.Streak]:
-    'border-accent-bacon-default/50 bg-accent-bacon-default/[0.12] text-accent-bacon-default',
+    'border-accent-bacon-default bg-overlay-active-bacon text-accent-bacon-default',
   [MilestoneAccent.Upvote]:
-    'border-accent-avocado-default/50 bg-accent-avocado-default/[0.12] text-accent-avocado-default',
+    'border-accent-avocado-default bg-overlay-active-avocado text-accent-avocado-default',
   [MilestoneAccent.Default]:
-    'border-accent-cabbage-default/50 bg-accent-cabbage-default/[0.12] text-accent-cabbage-default',
+    'border-accent-cabbage-default bg-overlay-active-cabbage text-accent-cabbage-default',
 };
 
 type MilestoneVisual = {
   Icon: ComponentType<IconProps>;
   accent: MilestoneAccent;
+  // Some glyphs only get their solid fill from the secondary variant; the
+  // outline reads as an empty circle at badge size.
+  secondary?: boolean;
 };
 
 const eventVisuals: Record<string, MilestoneVisual> = {
@@ -86,11 +91,13 @@ const eventVisuals: Record<string, MilestoneVisual> = {
 const fallbackVisual: MilestoneVisual = {
   Icon: StarIcon,
   accent: MilestoneAccent.Default,
+  secondary: true,
 };
 
 const streakVisual: MilestoneVisual = {
   Icon: ReadingStreakIcon,
   accent: MilestoneAccent.Streak,
+  secondary: true,
 };
 
 // Streak milestones are named by the server, so match on the event family
@@ -103,35 +110,33 @@ const getMilestoneVisual = (eventType: string): MilestoneVisual => {
   return eventVisuals[eventType] ?? fallbackVisual;
 };
 
-const rewardChipClasses: Record<QuestRewardType, string> = {
-  [QuestRewardType.Cores]: 'text-accent-cheese-default',
-  [QuestRewardType.Reputation]: 'text-accent-onion-default',
-  [QuestRewardType.Xp]: 'text-accent-avocado-default',
-};
-
+// Only the glyph carries the reward's colour — the amount inherits the text
+// token so the chip stays legible on the light surface too.
 const RewardChipIcon = ({ type }: { type: QuestRewardType }): ReactElement => {
   if (type === QuestRewardType.Cores) {
-    return <CoreIcon size={IconSize.XSmall} />;
+    return (
+      <CoreIcon size={IconSize.XSmall} className="text-accent-cheese-default" />
+    );
   }
 
   if (type === QuestRewardType.Reputation) {
-    return <ReputationIcon size={IconSize.XSmall} />;
+    return (
+      <ReputationIcon
+        size={IconSize.XSmall}
+        className="text-accent-onion-default"
+      />
+    );
   }
 
   return (
-    <span className="inline-flex w-3.5 justify-center font-black lowercase leading-none typo-caption2">
+    <span className="inline-flex w-3.5 justify-center font-black lowercase leading-none text-accent-avocado-default typo-caption2">
       xp
     </span>
   );
 };
 
 const RewardChip = ({ reward }: { reward: QuestReward }): ReactElement => (
-  <span
-    className={classNames(
-      'inline-flex items-center gap-1 whitespace-nowrap rounded-8 border border-border-subtlest-tertiary bg-surface-float px-1.5 py-0.5 font-bold tabular-nums typo-caption2',
-      rewardChipClasses[reward.type],
-    )}
-  >
+  <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-8 border border-border-subtlest-tertiary bg-surface-float px-1.5 py-0.5 font-bold tabular-nums text-text-primary typo-caption2">
     <RewardChipIcon type={reward.type} />+{reward.amount.toLocaleString()}
   </span>
 );
@@ -149,7 +154,7 @@ const MilestoneQuestCard = ({
   isClaiming,
   onClaim,
 }: MilestoneQuestCardProps): ReactElement => {
-  const { Icon, accent } = getMilestoneVisual(quest.quest.eventType);
+  const { Icon, accent, secondary } = getMilestoneVisual(quest.quest.eventType);
   const target = Math.max(quest.quest.targetCount, 1);
   const value = Math.min(Math.max(quest.progress, 0), target);
   const percentage = Math.min(100, Math.round((value / target) * 100));
@@ -172,7 +177,7 @@ const MilestoneQuestCard = ({
         )}
         aria-hidden
       >
-        <Icon size={IconSize.Small} />
+        <Icon size={IconSize.Small} secondary={secondary} />
       </span>
 
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
