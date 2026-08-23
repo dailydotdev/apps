@@ -5,23 +5,36 @@ import { PageContainer } from './utilities';
 import { Button, ButtonVariant } from './buttons/Button';
 import { cloudinaryCharm404 } from '../lib/image';
 import { Image } from './image/Image';
+import { squadCategoriesPaths, webappUrl } from '../lib/constants';
 
 interface Custom404Props {
   children?: ReactNode;
+  /**
+   * Opt in to the secondary recovery nav. Off by default: this component
+   * also renders inside the post modal, the agent side pane and the
+   * extension new tab, where a full-site nav is the wrong furniture and
+   * navigating away is not what the surface wants.
+   */
+  showRecoveryLinks?: boolean;
 }
 
-// Every destination here is reachable on both hosts this renders on
-// (daily.dev and app.daily.dev). A dead end on the 404 page is worse than
-// no link at all, so keep that true if this list changes.
+// Absolute, because this component reaches the browser extension through
+// BasePostContent, where a root-relative href resolves against
+// chrome-extension://<id>/ and dies.
 const recoveryLinks = [
-  { label: 'Explore', href: '/posts' },
-  { label: 'Tags', href: '/tags' },
-  { label: 'Sources', href: '/sources' },
-  { label: 'Squads', href: '/squads/discover' },
-  { label: 'Blog', href: '/blog' },
+  { label: 'Explore', href: `${webappUrl}posts` },
+  { label: 'Tags', href: `${webappUrl}tags` },
+  { label: 'Sources', href: `${webappUrl}sources` },
+  {
+    label: 'Squads',
+    href: `${webappUrl}${squadCategoriesPaths.discover.substring(1)}`,
+  },
 ];
 
-export default function Custom404({ children }: Custom404Props): ReactElement {
+export default function Custom404({
+  children,
+  showRecoveryLinks = false,
+}: Custom404Props): ReactElement {
   return (
     <PageContainer
       className="min-h-page !items-center justify-center"
@@ -45,19 +58,22 @@ export default function Custom404({ children }: Custom404Props): ReactElement {
           </Button>
         </Link>
 
-        <nav aria-label="Other places to go" className="mt-2">
-          <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-            {recoveryLinks.map(({ label, href }) => (
-              <li key={href}>
-                <Link href={href} passHref prefetch={false}>
-                  <a className="text-text-tertiary underline typo-footnote hover:text-text-primary">
+        {showRecoveryLinks && (
+          <nav aria-label="Other places to go">
+            <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+              {recoveryLinks.map(({ label, href }) => (
+                <li key={href}>
+                  <a
+                    href={href}
+                    className="text-text-tertiary underline typo-footnote hover:text-text-primary"
+                  >
                     {label}
                   </a>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
       </div>
     </PageContainer>
   );

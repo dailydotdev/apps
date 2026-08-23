@@ -1,8 +1,10 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import Custom404 from './Custom404';
+import { webappUrl } from '../lib/constants';
 
-const renderComponent = () => render(<Custom404 />);
+const renderComponent = (showRecoveryLinks = false) =>
+  render(<Custom404 showRecoveryLinks={showRecoveryLinks} />);
 
 describe('Custom404', () => {
   it('should render the not-found container', () => {
@@ -20,29 +22,46 @@ describe('Custom404', () => {
     );
   });
 
-  // The page used to be a dead end with a single link, which left both
-  // people and crawlers with nowhere to go.
-  it.each([
-    ['Explore', '/posts'],
-    ['Tags', '/tags'],
-    ['Sources', '/sources'],
-    ['Squads', '/squads/discover'],
-    ['Blog', '/blog'],
-  ])('should offer %s as a recovery link', (label, href) => {
+  it('should not render the recovery nav by default', () => {
     renderComponent();
+
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+  });
+
+  it.each([
+    ['Explore', 'posts'],
+    ['Tags', 'tags'],
+    ['Sources', 'sources'],
+    ['Squads', 'squads/discover'],
+  ])('should offer %s as a recovery link', (label, path) => {
+    renderComponent(true);
 
     expect(screen.getByRole('link', { name: label })).toHaveAttribute(
       'href',
-      href,
+      `${webappUrl}${path}`,
     );
   });
 
   it('should group the recovery links in a labelled nav', () => {
-    renderComponent();
+    renderComponent(true);
 
     const nav = screen.getByRole('navigation', { name: 'Other places to go' });
 
-    expect(nav).toBeInTheDocument();
-    expect(within(nav).getAllByRole('link')).toHaveLength(5);
+    expect(within(nav).getAllByRole('link')).toHaveLength(4);
+  });
+
+  it('should build every recovery href from the per-build webapp prefix', () => {
+    renderComponent(true);
+
+    const nav = screen.getByRole('navigation', { name: 'Other places to go' });
+
+    within(nav)
+      .getAllByRole('link')
+      .forEach((link) => {
+        const href = link.getAttribute('href');
+
+        expect(href.startsWith(webappUrl)).toBe(true);
+        expect(href).not.toContain('//squads');
+      });
   });
 });
