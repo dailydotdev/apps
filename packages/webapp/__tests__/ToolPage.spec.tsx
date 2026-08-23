@@ -5,6 +5,8 @@ import type { RenderResult } from '@testing-library/react';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
+import type { LoggedUser } from '@dailydotdev/shared/src/lib/user';
+import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
@@ -57,6 +59,7 @@ const defaultProps: ToolPageProps = {
       name: 'Platform crew',
       handle: 'platform',
       image: 'https://daily.dev/squad.png',
+      description: null,
       membersCount: 42,
     },
   ],
@@ -123,12 +126,16 @@ const defaultProps: ToolPageProps = {
   claimedBy: null,
 };
 
-const renderComponent = (props: ToolPageProps = defaultProps): RenderResult =>
+const renderComponent = (
+  props: ToolPageProps = defaultProps,
+  user?: LoggedUser,
+): RenderResult =>
   render(
     <QueryClientProvider client={new QueryClient()}>
       <AuthContext.Provider
         value={{
-          isLoggedIn: false,
+          user,
+          isLoggedIn: !!user,
           shouldShowLogin: false,
           showLogin: jest.fn(),
           logout: jest.fn(),
@@ -200,6 +207,7 @@ it('should skip sections without data', async () => {
   const headings = await screen.findAllByRole('heading', { level: 2 });
 
   expect(headings.map((heading) => heading.textContent)).toEqual([
+    'Adoption on daily.dev',
     'Discussion',
   ]);
 });
@@ -216,4 +224,46 @@ it('should show the real logo for tools without one in the dataset', async () =>
     'src',
     'https://daily.dev/docker.png',
   );
+});
+
+it('should show the discussion empty state when nobody commented yet', async () => {
+  renderComponent();
+
+  expect(await screen.findByText('No comments yet')).toBeInTheDocument();
+  expect(
+    screen.getByRole('button', { name: 'Start the discussion' }),
+  ).toBeInTheDocument();
+});
+
+it('should hold the discussion behind the verification check when logged in', async () => {
+  renderComponent(defaultProps, loggedUser);
+
+  await screen.findByRole('heading', { level: 1, name: 'Docker' });
+
+  // The companies query never resolves here, so the placeholder wins.
+  expect(screen.queryByText('No comments yet')).not.toBeInTheDocument();
+});
+
+it('should render squads with the directory card details', async () => {
+  const props: ToolPageProps = {
+    ...defaultProps,
+    topSquads: [
+      {
+        id: 's1',
+        name: 'Platform crew',
+        handle: 'platform',
+        image: 'https://daily.dev/squad.png',
+        description: 'Where the platform folks hang out.',
+        membersCount: 42,
+      },
+    ],
+  };
+  renderComponent(props);
+
+  expect(await screen.findByText('Platform crew')).toBeInTheDocument();
+  expect(
+    screen.getByText('Where the platform folks hang out.'),
+  ).toBeInTheDocument();
+  expect(screen.getByText(/@platform/)).toBeInTheDocument();
+  expect(screen.getByText('42 members')).toBeInTheDocument();
 });

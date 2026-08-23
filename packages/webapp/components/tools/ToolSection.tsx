@@ -9,9 +9,6 @@ interface ToolSectionProps {
   id?: string;
 }
 
-// Flat section block used across the tools pages: a heading (plus an optional
-// trailing action) above its content, with the divider coming from the parent
-// `divide-y` stack rather than a card border.
 export const ToolSection = ({
   title,
   action,
@@ -19,10 +16,11 @@ export const ToolSection = ({
   id,
 }: ToolSectionProps): ReactElement => (
   <section id={id} className="flex scroll-mt-16 flex-col gap-4 py-8">
-    <div className="flex items-center justify-between gap-2">
+    <div className="flex items-center gap-3">
       <EntitySectionHeading className="!mb-0 !mt-0">
         {title}
       </EntitySectionHeading>
+      <div className="h-px flex-1 bg-border-subtlest-tertiary" />
       {action}
     </div>
     {children}

@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { GetStaticPropsResult } from 'next';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo';
@@ -17,6 +17,10 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
+import { getDomainFromUrl } from '@dailydotdev/shared/src/lib/links';
+import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
+import { CharmEmptyState } from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
+import { cloudinaryCharmSearchNoResults } from '@dailydotdev/shared/src/lib/image';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
@@ -25,11 +29,21 @@ import { getAppOrigin } from '../../lib/seo';
 import { ToolCard } from '../../components/tools/ToolCard';
 import { ToolPageNavbar } from '../../components/tools/ToolPageNavbar';
 import { ToolSection } from '../../components/tools/ToolSection';
+import { ToolDirectorySearch } from '../../components/tools/ToolDirectorySearch';
+import { useAddToolToStack } from '../../components/tools/useAddToolToStack';
 
 const TOOLS_PER_SECTION = 6;
 const TRENDING_COUNT = 6;
+const CATEGORY_FETCH_LIMIT = 100;
+const RECOMMENDED_COUNT = 5;
+const SEARCH_LOG_DELAY = 1000;
 
 const appOrigin = getAppOrigin();
+
+interface CategorySection {
+  category: string;
+  tools: DirectoryTool[];
+}
 
 const getToolsDirectoryJsonLd = (sections: CategorySection[]): string => {
   const directoryUrl = `${appOrigin}/tools`;
@@ -66,45 +80,132 @@ const getToolsDirectoryJsonLd = (sections: CategorySection[]): string => {
   });
 };
 
-interface CategorySection {
-  category: string;
-  tools: DirectoryTool[];
-}
-
 interface ToolsDirectoryProps {
-  trending: DirectoryTool[];
-  sections: CategorySection[];
-  fallbackTop: DirectoryTool[];
+  tools: DirectoryTool[];
+  trendingIds: string[];
+  sections: { category: string; toolIds: string[] }[];
+  fallbackTopIds: string[];
 }
-
-const ToolGrid = ({ tools }: { tools: DirectoryTool[] }): ReactElement => {
-  const { logEvent } = useLogContext();
-
-  return (
-    <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2 laptop:grid-cols-3">
-      {tools.map((tool) => (
-        <ToolCard
-          key={tool.id}
-          tool={tool}
-          onClick={() =>
-            logEvent({
-              event_name: LogEvent.Click,
-              target_type: TargetType.Tool,
-              target_id: tool.slug,
-              extra: JSON.stringify({ origin: Origin.ToolsDirectory }),
-            })
-          }
-        />
-      ))}
-    </div>
-  );
-};
 
 const ToolsDirectoryPage = ({
-  trending,
+  tools,
+  trendingIds,
   sections,
-  fallbackTop,
+  fallbackTopIds,
 }: ToolsDirectoryProps): ReactElement => {
+  const { logEvent } = useLogContext();
+  const { stackedToolIds, openAddModal, modal } = useAddToolToStack(
+    Origin.ToolsDirectory,
+  );
+  const [inputValue, setInputValue] = useState('');
+  const [search, setSearch] = useState('');
+
+  const toolsById = useMemo(
+    () => new Map(tools.map((tool) => [tool.id, tool])),
+    [tools],
+  );
+  const pickTools = useCallback(
+    (ids: string[]): DirectoryTool[] =>
+      ids.flatMap((id) => toolsById.get(id) ?? []),
+    [toolsById],
+  );
+
+  const trending = useMemo(
+    () => pickTools(trendingIds),
+    [pickTools, trendingIds],
+  );
+  const categorySections = useMemo<CategorySection[]>(
+    () =>
+      sections.map(({ category, toolIds }) => ({
+        category,
+        tools: pickTools(toolIds),
+      })),
+    [sections, pickTools],
+  );
+  const fallbackTop = useMemo(
+    () => pickTools(fallbackTopIds),
+    [pickTools, fallbackTopIds],
+  );
+
+  const searchIndex = useMemo(
+    () =>
+      tools.map((tool) => ({
+        tool,
+        haystack: [
+          tool.title,
+          tool.category,
+          tool.url ? getDomainFromUrl(tool.url) : '',
+        ]
+          .join(' ')
+          .toLowerCase(),
+      })),
+    [tools],
+  );
+
+  const normalizedSearch = search.trim().toLowerCase();
+  const isSearching = normalizedSearch.length > 0;
+  const searchResults = useMemo(() => {
+    if (!isSearching) {
+      return [];
+    }
+    return searchIndex
+      .filter(({ haystack }) => haystack.includes(normalizedSearch))
+      .map(({ tool }) => tool);
+  }, [searchIndex, isSearching, normalizedSearch]);
+
+  const [logSearch, cancelLogSearch] = useDebounceFn((extra?: string) => {
+    logEvent({ event_name: LogEvent.SearchTools, extra });
+  }, SEARCH_LOG_DELAY);
+
+  useEffect(() => {
+    if (isSearching) {
+      logSearch(
+        JSON.stringify({
+          query: normalizedSearch,
+          resultCount: searchResults.length,
+        }),
+      );
+    }
+  }, [isSearching, normalizedSearch, searchResults.length, logSearch]);
+
+  const clearSearch = useCallback(() => {
+    cancelLogSearch();
+    setInputValue('');
+    setSearch('');
+  }, [cancelLogSearch]);
+
+  const renderGrid = useCallback(
+    (gridTools: DirectoryTool[], extraProps?: Record<string, unknown>) => (
+      <div className="grid grid-cols-1 gap-2 tablet:grid-cols-2 laptop:grid-cols-3">
+        {gridTools.map((tool) => (
+          <ToolCard
+            key={tool.id}
+            tool={tool}
+            isInStack={stackedToolIds.has(tool.id)}
+            onAddToStack={openAddModal}
+            onClick={() =>
+              logEvent({
+                event_name: LogEvent.Click,
+                target_type: TargetType.Tool,
+                target_id: tool.slug,
+                extra: JSON.stringify({
+                  origin: Origin.ToolsDirectory,
+                  ...extraProps,
+                }),
+              })
+            }
+          />
+        ))}
+      </div>
+    ),
+    [stackedToolIds, openAddModal, logEvent],
+  );
+
+  const recommendedTools = useMemo(
+    () => trending.slice(0, RECOMMENDED_COUNT),
+    [trending],
+  );
+
   return (
     <>
       <ToolPageNavbar relatedTools={trending} />
@@ -114,7 +215,7 @@ const ToolsDirectoryPage = ({
             type="application/ld+json"
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{
-              __html: getToolsDirectoryJsonLd(sections),
+              __html: getToolsDirectoryJsonLd(categorySections),
             }}
           />
         </Head>
@@ -134,9 +235,16 @@ const ToolsDirectoryPage = ({
             The tools developers actually run — ranked by real stacks on
             daily.dev, not vendor pitches.
           </Typography>
-          {sections.length > 1 && (
+          <ToolDirectorySearch
+            value={inputValue}
+            onValueChange={setInputValue}
+            onQueryChange={setSearch}
+            recommendedTools={recommendedTools}
+            className="max-w-screen-tablet"
+          />
+          {!isSearching && categorySections.length > 1 && (
             <div className="flex flex-wrap items-center justify-center gap-2">
-              {sections.map(({ category }) => (
+              {categorySections.map(({ category }) => (
                 <a
                   key={category}
                   href={`#${getToolCategoryAnchor(category)}`}
@@ -149,31 +257,50 @@ const ToolsDirectoryPage = ({
           )}
         </header>
 
-        <div className="h-px w-full bg-border-subtlest-tertiary" />
+        {isSearching && searchResults.length === 0 && (
+          <CharmEmptyState
+            className="my-10"
+            image={cloudinaryCharmSearchNoResults}
+            imageAlt="daily.dev charm looking through a magnifying glass"
+            title={`No tools match “${search.trim()}”`}
+            description="Try the tool's full name, its category, or its website domain."
+            action={{ label: 'Clear search', onClick: clearSearch }}
+          />
+        )}
 
-        <div className="flex flex-col divide-y divide-border-subtlest-tertiary">
-          {trending.length > 0 && (
-            <ToolSection title="Rising this quarter">
-              <ToolGrid tools={trending} />
-            </ToolSection>
-          )}
+        {isSearching && searchResults.length > 0 && (
+          <ToolSection title={`Results for “${search.trim()}”`}>
+            {renderGrid(searchResults, { searched: true })}
+          </ToolSection>
+        )}
 
-          {sections.map(({ category, tools }) => (
-            <ToolSection
-              key={category}
-              id={getToolCategoryAnchor(category)}
-              title={category}
-            >
-              <ToolGrid tools={tools} />
-            </ToolSection>
-          ))}
+        {!isSearching && (
+          <div className="flex flex-col">
+            {trending.length > 0 && (
+              <ToolSection title="Rising this quarter">
+                {renderGrid(trending)}
+              </ToolSection>
+            )}
 
-          {sections.length === 0 && fallbackTop.length > 0 && (
-            <ToolSection title="Most stacked">
-              <ToolGrid tools={fallbackTop} />
-            </ToolSection>
-          )}
-        </div>
+            {categorySections.map(({ category, tools: categoryTools }) => (
+              <ToolSection
+                key={category}
+                id={getToolCategoryAnchor(category)}
+                title={category}
+              >
+                {renderGrid(categoryTools)}
+              </ToolSection>
+            ))}
+
+            {categorySections.length === 0 && fallbackTop.length > 0 && (
+              <ToolSection title="Most stacked">
+                {renderGrid(fallbackTop)}
+              </ToolSection>
+            )}
+          </div>
+        )}
+
+        {modal}
       </main>
     </>
   );
@@ -200,14 +327,38 @@ export async function getStaticProps(): Promise<
     getTopTools({ first: 12 }),
   ]);
 
-  const sections = (
+  const fullCategories = (
     await Promise.all(
       categories.map(async ({ category }) => ({
         category,
-        tools: await getTopTools({ first: TOOLS_PER_SECTION, category }),
+        tools: await getTopTools({ first: CATEGORY_FETCH_LIMIT, category }),
       })),
     )
   ).filter(({ tools }) => tools.length > 0);
+
+  fullCategories.forEach(({ category, tools }) => {
+    if (tools.length >= CATEGORY_FETCH_LIMIT) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `tools directory: category "${category}" hit the fetch limit; search is missing tools`,
+      );
+    }
+  });
+
+  const tools = Array.from(
+    new Map(
+      [
+        ...fullCategories.flatMap(({ tools: categoryTools }) => categoryTools),
+        ...trending,
+        ...fallbackTop,
+      ].map((tool) => [tool.id, tool]),
+    ).values(),
+  ).sort((a, b) => a.title.localeCompare(b.title));
+
+  const sections = fullCategories.map(({ category, tools: categoryTools }) => ({
+    category,
+    toolIds: categoryTools.slice(0, TOOLS_PER_SECTION).map(({ id }) => id),
+  }));
 
   const seoTitles = getPageSeoTitles(
     'Developer tools directory — ranked by real stacks',
@@ -216,9 +367,10 @@ export async function getStaticProps(): Promise<
 
   return {
     props: {
-      trending,
+      tools,
+      trendingIds: trending.map(({ id }) => id),
       sections,
-      fallbackTop,
+      fallbackTopIds: fallbackTop.map(({ id }) => id),
       seo: {
         title: seoTitles.title,
         openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },
