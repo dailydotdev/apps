@@ -19,9 +19,7 @@ export enum ArbitrageAdFormat {
   MediumRectangle = 'mediumRectangle',
   Rectangle = 'rectangle',
   HalfPage = 'halfPage',
-  SidebarCompact = 'sidebarCompact',
   Native = 'native',
-  Grid = 'grid',
   Anchor = 'anchor',
 }
 
@@ -87,33 +85,10 @@ const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
     maxWidth: 'max-w-[300px]',
     shape: 'vertical',
   },
-  // The navigation's own unit. No width cap: it sizes to the sidebar column it
-  // sits in, so the sidebar's width is the only place that measurement lives.
-  // The shape is what keeps it out of the way — a rectangle at ~224px can only
-  // come back as a small square or small rectangle, where the uncapped slot
-  // was answering with a half page and taking most of the nav's height.
-  [ArbitrageAdFormat.SidebarCompact]: {
-    label: 'Sidebar compact',
-    size: '200x200 · 180x150',
-    // Nothing to reserve: the whole box is hidden until a creative lands, so
-    // a min-height would only hold empty space open above the nav.
-    minHeight: 'min-h-0',
-    shape: 'rectangle',
-  },
   [ArbitrageAdFormat.Native]: {
     label: 'Native',
     size: 'fluid',
     minHeight: 'min-h-[96px]',
-  },
-  // AdSense's multiplex unit: one request that returns a responsive grid of
-  // creatives, Google choosing the rows and columns for the width it is given.
-  // Spans the column rather than capping, because the grid is what fills it.
-  // The slot must be created as a Multiplex unit in AdSense — the format only
-  // styles the box, the unit type comes from the remote config.
-  [ArbitrageAdFormat.Grid]: {
-    label: 'Multiplex grid',
-    size: 'responsive grid',
-    minHeight: 'min-h-[320px]',
   },
   // Leaderboard on desktop, mobile phone banner on a phone. The shortest
   // banner in the portfolio, because it sits over the content rather than in
@@ -349,18 +324,14 @@ function LiveAdSlot({
   }, [isRequested, logEvent, slot, config.id, format]);
 
   return (
-    // rounded-16 + overflow-hidden matches the feed Card so a filled slot reads
-    // as page furniture rather than a pasted-in iframe. Safe against the
-    // resize-after-request problem because the box has no fixed height: a
-    // creative that grows pushes the container taller instead of being clipped.
-    // min-h only reserves the request-time height against layout shift.
+    // Square-cornered and unclipped: the box only centres the unit and
+    // reserves its request-time height against layout shift. No overflow
+    // clipping, so a creative that comes back taller than the reservation
+    // grows the container instead of being cut off, which AdSense forbids.
     <div
       ref={wrapperRef}
       className={classNames(
-        // `isolate` forces a stacking context: without one, WebKit paints the
-        // ad's iframe on its own compositing layer that escapes the rounded
-        // clip and the corners come back square.
-        'isolate mx-auto w-full overflow-hidden rounded-16 text-center',
+        'mx-auto w-full text-center',
         // AdSense stamps data-ad-status="unfilled" when no creative was
         // returned. Without collapsing, the reserved min-height stays behind as
         // a block of empty page — most visible in the comment thread, where an
@@ -378,10 +349,7 @@ function LiveAdSlot({
       {isRequested && (
         <ins
           ref={insRef}
-          // The radius is repeated on the <ins> because that is the closest
-          // ancestor of the injected iframe — clipping only at the wrapper
-          // leaves the creative's own corners square inside it.
-          className="adsbygoogle overflow-hidden rounded-16"
+          className="adsbygoogle"
           data-testid={`adsense-slot-${slot}`}
           data-ad-client={ADSENSE_CLIENT_ID}
           data-ad-slot={config.id}
@@ -435,10 +403,7 @@ function MappedAdSlot({
   return (
     <div
       className={classNames(
-        // Matches the feed Card treatment (rounded-16, subtle border, subtle
-        // surface) so a filled slot reads as native page furniture rather than
-        // a bolted-on iframe.
-        'relative flex w-full items-center justify-center overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle px-3 py-4',
+        'relative flex w-full items-center justify-center border border-border-subtlest-tertiary bg-background-subtle px-3 py-4',
         hideOnPhone && 'hidden tablet:flex',
         spec.minHeight,
         className,

@@ -1,14 +1,10 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import classNames from 'classnames';
-import CloseButton from '../../CloseButton';
-import { ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { isDevelopment } from '../../../lib/constants';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { useReadAdsenseSlots } from './useReadAdsenseSlots';
 import { hasLiveAdsenseUnits } from './adsense';
-import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent } from '../../../lib/log';
 import { useTimedRelease } from './useTimedRelease';
 import { ARBITRAGE_SLOT, FLOATING_LEADERBOARD_DELAY_MS } from './slots';
 import {
@@ -24,16 +20,13 @@ import {
  */
 const ANCHOR_HEIGHT_PROPERTY = '--arbitrage-anchor-height';
 
-function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
+function AnchorBar(): ReactElement {
   const ref = useRef<HTMLDivElement>(null);
-  const [isFilled, setIsFilled] = useState(false);
 
   // Measured rather than assumed: the unit is a 320x50 phone banner on a phone
   // and a 728x90 leaderboard from tablet up, and an unfilled slot collapses to
   // nothing, so the space the footer nav has to clear is only known at
-  // runtime. The fill state hangs off the same measurement — while the slot
-  // is empty the bar is just its own padding, and the dismiss button would
-  // float alone over the page with nothing under it to dismiss.
+  // runtime.
   useEffect(() => {
     const element = ref.current;
     if (!element) {
@@ -44,7 +37,6 @@ function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
     const measure = (): void => {
       const slot = element.querySelector('ins.adsbygoogle');
       const filled = !!slot && slot.getBoundingClientRect().height >= 20;
-      setIsFilled(filled);
       root.style.setProperty(
         ANCHOR_HEIGHT_PROPERTY,
         filled
@@ -87,16 +79,6 @@ function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
           backdrop spreads past the banner and blurs the page either side of
           it. */}
       <div className="relative mx-auto w-full max-w-[320px] tablet:max-w-[728px]">
-        {/* Above the bar, never over the creative: AdSense forbids page
-            elements covering an ad, so the dismiss control gets its own row. */}
-        {!!onDismiss && isFilled && (
-          <CloseButton
-            className="pointer-events-auto absolute -top-7 right-0"
-            size={ButtonSize.XSmall}
-            variant={ButtonVariant.Subtle}
-            onClick={onDismiss}
-          />
-        )}
         <ArbitrageAdSlot
           slot={ARBITRAGE_SLOT.floatingLeaderboard}
           format={ArbitrageAdFormat.Anchor}
@@ -119,15 +101,9 @@ function AnchorBar({ onDismiss }: { onDismiss?: () => void }): ReactElement {
  *
  * Renders only when slot 13 is configured. If it is absent the viewport bottom
  * is left free for an AdSense Auto ads anchor, so the two can never stack.
- *
- * The dismiss button is not optional: sticky bottom units must be
- * user-closable to stay inside the Better Ads Standards, and a violation
- * risks Chrome's sitewide ad filter.
  */
 export function ArbitrageAnchor(): ReactElement | null {
   const slots = useReadAdsenseSlots();
-  const [dismissed, setDismissed] = useState(false);
-  const { logEvent } = useLogContext();
   const isLive = hasLiveAdsenseUnits(slots);
   const isConfigured = !!slots[String(ARBITRAGE_SLOT.floatingLeaderboard)]?.id;
   const revealed = useTimedRelease(FLOATING_LEADERBOARD_DELAY_MS, 'mount');
@@ -142,25 +118,9 @@ export function ArbitrageAnchor(): ReactElement | null {
     return null;
   }
 
-  if (!revealed || dismissed) {
+  if (!revealed) {
     return null;
   }
 
-  return (
-    <AnchorBar
-      onDismiss={
-        isLive
-          ? () => {
-              setDismissed(true);
-              logEvent({
-                event_name: LogEvent.DismissAdsenseSlot,
-                extra: JSON.stringify({
-                  slot: ARBITRAGE_SLOT.floatingLeaderboard,
-                }),
-              });
-            }
-          : undefined
-      }
-    />
-  );
+  return <AnchorBar />;
 }

@@ -1,13 +1,7 @@
 import React from 'react';
-import {
-  act,
-  fireEvent,
-  render as rtlRender,
-  screen,
-} from '@testing-library/react';
+import { act, render as rtlRender, screen } from '@testing-library/react';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { ArbitrageAnchor } from './ArbitrageAnchor';
-import { ArbitrageSidebarAd } from './ArbitrageSidebarAd';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
@@ -248,14 +242,24 @@ describe('ArbitrageAdSlot', () => {
   });
 
   it('renders fixed-size units at exactly the configured size', () => {
-    setSlots({
-      '10': { id: '3333333333', type: 'display', width: 300, height: 600 },
+    setOrganicSlots({
+      [ORGANIC_SLOT.railHalfPage]: {
+        id: '3333333333',
+        type: 'display',
+        width: 300,
+        height: 600,
+      },
     });
     render(
-      <ArbitrageAdSlot slot={10} format={ArbitrageAdFormat.HalfPage} eager />,
+      <ArbitrageAdSlot
+        surface="organic"
+        slot={ORGANIC_SLOT.railHalfPage}
+        format={ArbitrageAdFormat.HalfPage}
+        eager
+      />,
     );
 
-    const ins = screen.getByTestId('adsense-slot-10');
+    const ins = screen.getByTestId(`adsense-slot-${ORGANIC_SLOT.railHalfPage}`);
     expect(ins).toHaveStyle({ width: '300px', height: '600px' });
     expect(ins).not.toHaveAttribute('data-ad-format');
   });
@@ -454,79 +458,11 @@ describe('ArbitrageAnchor', () => {
     expect(ins).toHaveAttribute('data-ad-format', 'horizontal');
   });
 
-  it('holds the dismiss button back until a creative has filled', () => {
+  it('never covers the creative with page furniture', () => {
     setSlots({ '13': { id: '1313131313', type: 'display' } });
     render(<ArbitrageAnchor />);
     advancePastDelay();
 
-    // jsdom boxes measure zero, which is exactly the unfilled case: a close
-    // button with no ad under it would float alone over the page.
     expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
-  });
-
-  it('dismisses on close and stays dismissed', () => {
-    setSlots({ '13': { id: '1313131313', type: 'display' } });
-    const measure = jest
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockReturnValue({ height: 90 } as DOMRect);
-    render(<ArbitrageAnchor />);
-    advancePastDelay();
-
-    fireEvent.click(screen.getByTitle('Close'));
-    measure.mockRestore();
-
-    expect(screen.queryByTestId('adsense-slot-13')).not.toBeInTheDocument();
-  });
-});
-
-describe('ArbitrageSidebarAd', () => {
-  it('keeps the sidebar unit to a rectangle so it cannot serve a half page', () => {
-    setSlots({ '1': { id: '1111111111', type: 'display' } });
-    render(<ArbitrageSidebarAd />);
-
-    const ins = screen.getByTestId('adsense-slot-1');
-    // data-ad-format is only written on the responsive branch: a slot given a
-    // fixed size gets an inline width and height instead, and a creative
-    // taller than that is clipped by the wrapper's overflow-hidden rather than
-    // growing the box.
-    expect(ins).toHaveAttribute('data-ad-format', 'rectangle');
-    expect(ins).not.toHaveAttribute('style', expect.stringContaining('height'));
-  });
-
-  it('frames nothing while the slot has no creative', () => {
-    // jsdom boxes measure zero, which is the unfilled case: a bordered band
-    // with a dismiss button and no ad under it must not reach the nav.
-    setSlots({ '1': { id: '1111111111', type: 'display' } });
-    render(<ArbitrageSidebarAd />);
-
-    expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
-    // No border or padding either, or the box leaves a band under the nav.
-    // The slot itself stays rendered and unhidden — hiding it is what stops
-    // an ad ever arriving.
-    const ins = screen.getByTestId('adsense-slot-1');
-    const box = ins.closest('div.bg-background-default');
-    expect(box?.className).not.toMatch(/\bp[xytb]?-[1-9]|border-t|invisible/);
-    expect(ins.parentElement).not.toHaveClass('!hidden');
-  });
-
-  it('clears the unit for the session when closed', async () => {
-    setSlots({ '1': { id: '1111111111', type: 'display' } });
-    const measure = jest
-      .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockReturnValue({ height: 200 } as DOMRect);
-    const { container } = render(<ArbitrageSidebarAd />);
-
-    // A creative landing is what reveals the box and its dismiss button.
-    screen
-      .getByTestId('adsense-slot-1')
-      .appendChild(document.createElement('iframe'));
-    await act(async () => {
-      await Promise.resolve();
-    });
-    measure.mockRestore();
-
-    fireEvent.click(screen.getByTitle('Close'));
-
-    expect(container).toBeEmptyDOMElement();
   });
 });

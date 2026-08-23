@@ -111,7 +111,6 @@ export enum LogEvent {
   // per-placement signal — the shared unit ids blend AdSense's own reporting.
   FillAdsenseSlot = 'fill adsense slot',
   AdsenseTestMode = 'adsense test mode',
-  DismissAdsenseSlot = 'dismiss adsense slot',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',

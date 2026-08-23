@@ -44,8 +44,7 @@ import PostEngagements from '../PostEngagements';
  * of page height against the Better Ads Standards' 30% mobile cap, and
  * Chrome's ad filter for a violation applies to the whole domain, direct-sold
  * inventory included. Only the first rail unit keeps its phone placement; the
- * rest are desktop-only, which brings the phone run to roughly 27% with the
- * second closing grid already desktop-only.
+ * rest are desktop-only, which brings the phone run well under the cap.
  */
 const RAIL_AD: Record<
   PostWidgetPosition,
@@ -75,9 +74,19 @@ const RAIL_AD: Record<
     format: ArbitrageAdFormat.MediumRectangle,
     hideOnPhone: true,
   },
+  // The rail's last unit, and the only one that stays with the visitor: it
+  // pins under the fixed chrome and rides the rest of the scroll. Sticky is
+  // bounded by the containing block, which here is the rail itself — the rail
+  // is a flex item stretched to the article column's height, so the unit has
+  // the whole page to travel. Anything that gave this slot a shorter box (a
+  // wrapper, or moving it inside a widget) would cut the travel to that box.
+  // z-1 puts it over the widgets that scroll underneath, and the background
+  // keeps them from showing through the space the creative does not fill.
   [PostWidgetPosition.SimilarPosts]: {
     slot: ARBITRAGE_SLOT.railBetweenFurtherReading,
     format: ArbitrageAdFormat.MediumRectangle,
+    className:
+      'laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)] laptop:z-1 laptop:bg-background-default',
     hideOnPhone: true,
   },
 };
@@ -331,30 +340,6 @@ export function ArbitragePostContent({
             />
           )}
         />
-
-        {/* Everything from the action bar to the end of the thread above is the
-            standard post page. Below it, multiplex units rather than a column
-            of separate slots: one request returns a grid of creatives that
-            Google lays out for the width it is given, which is both more
-            inventory and less page than stacked single units were.
-
-            Two grids rather than one, because past the end of the discussion
-            there is no article left to interrupt — the visitor is either
-            leaving or browsing, and a second grid is the only placement here
-            that adds inventory without taking anything from the page. */}
-        <div className="mb-10 mt-6 flex flex-col gap-6">
-          <ArbitrageAdSlot
-            slot={ARBITRAGE_SLOT.endOfArticleGrid}
-            format={ArbitrageAdFormat.Grid}
-          />
-          {/* Laptop only: below it the same unit closes the stacked rail
-              instead, so it is on the page exactly once at every width. */}
-          <ArbitrageAdSlot
-            slot={ARBITRAGE_SLOT.endOfArticleGridSecondary}
-            format={ArbitrageAdFormat.Grid}
-            className="hidden laptop:block"
-          />
-        </div>
       </PostContainer>
 
       {/* The production widget column, minus the signup card and the table of
@@ -366,28 +351,6 @@ export function ArbitragePostContent({
         className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
         hideSignupWidget
         hideToc
-        trailing={
-          <>
-            {/* The rail is only a rail from laptop up; below that it stacks
-                under the article, where a sticky tower has nothing to stick to
-                and a 300x600 that does not fill leaves the page ending in
-                600px of nothing. Each breakpoint gets the unit that suits it:
-                the tower on the rail, a multiplex list closing the phone. */}
-            <ArbitrageAdSlot
-              slot={ARBITRAGE_SLOT.railStickyHalfPage}
-              format={ArbitrageAdFormat.HalfPage}
-              // Same header offset the top leaderboard uses, plus a gap,
-              // rather than a hardcoded 5rem: under the v2 sidebar there is no
-              // fixed header to clear and the unit would pin into empty space.
-              className="hidden laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)] laptop:block"
-            />
-            <ArbitrageAdSlot
-              slot={ARBITRAGE_SLOT.endOfArticleGridSecondary}
-              format={ArbitrageAdFormat.Grid}
-              className="laptop:hidden"
-            />
-          </>
-        }
         getRailAd={(position) => {
           const spec = RAIL_AD[position];
 

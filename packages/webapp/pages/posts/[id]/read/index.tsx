@@ -25,7 +25,6 @@ import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoa
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
 import { ArbitragePostContent } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitragePostContent';
 import { ArbitrageAnchor } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAnchor';
-import { ArbitrageSidebarAd } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageSidebarAd';
 import {
   ADSENSE_SCRIPT_SRC,
   hasLiveAdsenseUnits,
@@ -73,8 +72,9 @@ export interface ArbitragePostPageProps extends DynamicSeoProps {
  * Lives on its own route so `/posts/[id]` and the focus-card redesign are
  * untouched. Differences from the standard template, all deliberate: no
  * PostAuthBanner, no CustomAuthBanner (never passed in layoutProps), no
- * PostSignupWidget, and the sidebar is forced open to carry slot 1. The header
- * login/signup buttons are unaffected and render as usual.
+ * PostSignupWidget, and the sidebar is forced open rather than left at the
+ * stored collapse preference. The header login/signup buttons are unaffected
+ * and render as usual.
  *
  * Noindexed for now — it duplicates `/posts/[id]`, so it must not compete in
  * search until we decide it is the canonical version for organic traffic.
@@ -192,9 +192,6 @@ ArbitragePostPage.layoutProps = {
   screenCentered: false,
   expandSidebar: true,
   hideFeedbackWidget: true,
-  // The sidebar unit rides in from here rather than living in the shared nav:
-  // the nav is also the extension's, where AdSense is prohibited.
-  sidebarTrailing: <ArbitrageSidebarAd />,
   // No customBanner on purpose: that is what mounts CustomAuthBanner.
 };
 

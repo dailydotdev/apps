@@ -8,8 +8,6 @@
 import type { ReadAdsenseSlots } from './adsense';
 
 export const ARBITRAGE_SLOT = {
-  /** Compact unit pinned below the left sidebar's navigation. */
-  sidebar: 1,
   /** Leaderboard above the article. Sticks while scrolling, then releases. */
   topLeaderboard: 2,
   /** Medium rectangle beside the tags, date and cover image. */
@@ -22,19 +20,20 @@ export const ARBITRAGE_SLOT = {
   railAfterHighlights: 6,
   /** Native unit, repeated through a long comment thread. */
   commentNative: 7,
-  /** Second multiplex grid, directly below the first. */
-  endOfArticleGridSecondary: 8,
-  /** Multiplex grid closing the page, after the discussion. */
-  endOfArticleGrid: 9,
-  /** "MPU 2" in the brief: half page, sticky at the bottom of the right rail. */
-  railStickyHalfPage: 10,
   /** "MPU 1" in the brief: first rail unit, under the source card. */
   railAfterSource: 11,
-  /** Rail unit between the similar posts and the best discussions. */
+  /** Sticky rail unit after the further reading widget. */
   railBetweenFurtherReading: 12,
   /** Floating leaderboard pinned to the bottom of the viewport. */
   floatingLeaderboard: 13,
 } as const;
+
+/*
+ * Slot numbers 1, 8, 9 and 10 are retired rather than reused: the sidebar
+ * unit, the two closing multiplex grids and the half-page rail tower were all
+ * dropped, and their AdSense reporting rows stay readable only while no other
+ * placement inherits the number.
+ */
 
 /**
  * The top leaderboard stays pinned this long while the visitor scrolls, then
@@ -64,14 +63,6 @@ export const COMMENTS_PER_INTERLEAVED_AD = 5;
  * tall creative. Where the two disagree the TODO says which unit to recreate.
  */
 export const READ_ADSENSE_SLOTS: ReadAdsenseSlots = {
-  // No fixed size: read_s01 is booked at 240x400, so declaring a shorter box
-  // did not shrink the creative, it clipped it against the wrapper's
-  // overflow-hidden — the bottom of the ad was cut off, which AdSense does not
-  // allow. Left responsive the slot reserves a minimum and grows to whatever
-  // comes back, and the format's shape keeps a half page out of it.
-  // TODO(chris): recreate as a Display 200x200 unit so the sidebar keeps a
-  // predictable height instead of one the creative decides.
-  [ARBITRAGE_SLOT.sidebar]: { id: '1501379344', type: 'display' },
   [ARBITRAGE_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
   // read_s03 (9651332107) is an in-article unit, so it is fluid: it ignored
   // both the shape and an explicit 300x250 on the <ins> and kept answering the
@@ -90,20 +81,6 @@ export const READ_ADSENSE_SLOTS: ReadAdsenseSlots = {
   // TODO(chris): layoutKey from the read_s07_comment_native "Get code" snippet
   // (data-ad-layout-key). The slot stays collapsed until it is filled in.
   [ARBITRAGE_SLOT.commentNative]: { id: '', type: 'inFeed', layoutKey: '' },
-  // Deliberately the same unit as the first grid: AdSense allows one unit to
-  // appear more than once on a page, so the second grid works today.
-  // TODO(chris): give it its own Multiplex unit so the two report separately.
-  [ARBITRAGE_SLOT.endOfArticleGridSecondary]: {
-    id: '4399005427',
-    type: 'multiplex',
-  },
-  [ARBITRAGE_SLOT.endOfArticleGrid]: { id: '4399005427', type: 'multiplex' },
-  [ARBITRAGE_SLOT.railStickyHalfPage]: {
-    id: '4307400883',
-    type: 'display',
-    width: 300,
-    height: 600,
-  },
   [ARBITRAGE_SLOT.railAfterSource]: { id: '5249052667', type: 'display' },
   [ARBITRAGE_SLOT.railBetweenFurtherReading]: {
     id: '6921226982',

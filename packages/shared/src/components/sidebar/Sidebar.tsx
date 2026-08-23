@@ -31,8 +31,6 @@ interface SidebarProps {
   onLogoClick?: (e: React.MouseEvent) => unknown;
   /** Ignores the stored collapse preference — see MainLayoutProps.expandSidebar. */
   forceExpanded?: boolean;
-  /** Rendered pinned below the desktop navigation. */
-  trailing?: ReactNode;
 }
 
 export const Sidebar = ({
@@ -43,7 +41,6 @@ export const Sidebar = ({
   onLogoClick,
   activePage,
   forceExpanded,
-  trailing,
 }: SidebarProps): ReactElement | null => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
@@ -81,7 +78,6 @@ export const Sidebar = ({
         isNavButtons={isNavButtons}
         onNavTabClick={onNavTabClick}
         forceExpanded={forceExpanded}
-        trailing={trailing}
       />
     );
   }
