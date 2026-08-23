@@ -9,7 +9,6 @@ import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
   HIGHEST_REPUTATION_QUERY,
-  LeaderboardType,
   MOST_QUESTS_COMPLETED_QUERY,
   QUEST_COMPLETION_STATS_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
@@ -70,7 +69,6 @@ import { TopReaderBadgeCompact } from '@dailydotdev/shared/src/components/badges
 import { getQuestLevelProgress } from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
 import { LevelHud } from '@dailydotdev/shared/src/components/quest/LevelHud';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
-import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   ArrowIcon,
@@ -82,6 +80,7 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { MilestoneQuestList } from '../../components/game-center/MilestoneQuestList';
+import { CommunityPulse } from '../../components/game-center/CommunityPulse';
 import { TrophyGrid } from '../../components/game-center/TrophyGrid';
 import ProtectedPage from '../../components/ProtectedPage';
 import { defaultOpenGraph } from '../../next-seo';
@@ -113,10 +112,6 @@ const isQuestCompletionStatsSchemaMissing = (error: GraphQLError): boolean => {
       message?.includes('Cannot query field "questCompletionStats"'),
     ) ?? false
   );
-};
-
-const formatQuestCompletionCount = (count: number): string => {
-  return count === 1 ? '1 completion' : `${count.toLocaleString()} completions`;
 };
 
 const SectionHeader = ({
@@ -799,108 +794,12 @@ function GameCenterPage({
                 </Link>
               }
             />
-            {questCompletionStats && (
-              <div className="grid gap-4 tablet:grid-cols-3">
-                <DataTile
-                  label="Most completed of all time"
-                  value={
-                    questCompletionStats.allTimeLeader?.questName ??
-                    'No quest data yet'
-                  }
-                  valueClassName="max-w-full truncate !text-lg !leading-6"
-                  info="The quest with the most completed or claimed runs across the whole community."
-                  subtitle={
-                    <div className="mt-1 flex flex-col gap-1">
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                        className="truncate"
-                      >
-                        {questCompletionStats.allTimeLeader?.questDescription ??
-                          'Criteria will show once the first quest is completed'}
-                      </Typography>
-                      <Typography
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Tertiary}
-                      >
-                        {questCompletionStats.allTimeLeader
-                          ? formatQuestCompletionCount(
-                              questCompletionStats.allTimeLeader.count,
-                            )
-                          : 'Waiting on the first completion'}
-                      </Typography>
-                    </div>
-                  }
-                />
-                <DataTile
-                  label="Most completed this week"
-                  value={
-                    questCompletionStats.weeklyLeader?.questName ??
-                    'No quest data yet'
-                  }
-                  valueClassName="max-w-full truncate !text-lg !leading-6"
-                  info="The quest leading community completions since this week began."
-                  subtitle={
-                    <div className="mt-1 flex flex-col gap-1">
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                        className="truncate"
-                      >
-                        {questCompletionStats.weeklyLeader?.questDescription ??
-                          'Criteria will show once a quest is completed this week'}
-                      </Typography>
-                      <Typography
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Tertiary}
-                      >
-                        {questCompletionStats.weeklyLeader
-                          ? formatQuestCompletionCount(
-                              questCompletionStats.weeklyLeader.count,
-                            )
-                          : 'No completed quests yet this week'}
-                      </Typography>
-                    </div>
-                  }
-                />
-                <DataTile
-                  label="Total quests completed"
-                  value={questCompletionStats.totalCount}
-                  info="Every completed or claimed quest across the community."
-                  subtitle={
-                    <Typography
-                      type={TypographyType.Caption1}
-                      color={TypographyColor.Tertiary}
-                    >
-                      all-time community total
-                    </Typography>
-                  }
-                />
-              </div>
-            )}
-            {hasCommunityLeaderboards ? (
-              <div className="grid gap-4 tablet:grid-cols-2">
-                {highestReputation.length > 0 && (
-                  <UserTopList
-                    containerProps={{
-                      title: 'Highest reputation',
-                      titleHref: `/users/${LeaderboardType.HighestReputation}`,
-                    }}
-                    items={highestReputation}
-                    isLoading={false}
-                  />
-                )}
-                {mostQuestsCompleted.length > 0 && (
-                  <UserTopList
-                    containerProps={{
-                      title: 'Most quests completed',
-                      titleHref: `/users/${LeaderboardType.MostQuestsCompleted}`,
-                    }}
-                    items={mostQuestsCompleted}
-                    isLoading={false}
-                  />
-                )}
-              </div>
+            {hasCommunityLeaderboards || questCompletionStats ? (
+              <CommunityPulse
+                stats={questCompletionStats}
+                highestReputation={highestReputation}
+                mostQuestsCompleted={mostQuestsCompleted}
+              />
             ) : (
               <EmptyStateCard
                 title="Community stats are unavailable right now"
