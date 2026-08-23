@@ -66,7 +66,7 @@ export function AuthenticationBanner({
               <OnboardingHeadline
                 className={{
                   title: 'typo-mega3',
-                  description: 'mb-8 typo-title3',
+                  description: 'typo-title3',
                 }}
               />
             ))}

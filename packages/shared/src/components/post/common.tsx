@@ -13,6 +13,7 @@ import type {
   UsePostContentProps,
 } from '../../hooks/usePostContent';
 import type { ButtonSize } from '../buttons/common';
+import type { PostWidgetPosition } from './PostWidgets';
 
 export interface PostContentClassName {
   container?: string;
@@ -90,11 +91,12 @@ export interface PostContentProps
   backToSquad?: boolean;
   isPostPage?: boolean;
   /**
-   * Rendered as the widget column's last child. Only the webapp post page
-   * passes it (an AdSense unit) — post modals and the extension must never,
-   * as the ad script only exists on the page and AdSense bans extensions.
+   * Forwarded to the widget column's per-position ad hook. Only the webapp
+   * post page passes it (AdSense units) — post modals and the extension must
+   * never, as the ad script only exists on the page and AdSense bans
+   * extensions.
    */
-  widgetsTrailing?: ReactNode;
+  getWidgetRailAd?: (position: PostWidgetPosition) => ReactNode;
 }
 
 export const PostContainer = classed(

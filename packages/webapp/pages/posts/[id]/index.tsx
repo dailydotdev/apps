@@ -7,6 +7,8 @@ import {
   ArbitrageAdFormat,
   ArbitrageAdSlot,
 } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAdSlot';
+import { ArbitrageTopLeaderboard } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageTopLeaderboard';
+import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
 import {
   ADSENSE_SCRIPT_SRC,
   hasLiveAdsenseUnits,
@@ -307,12 +309,10 @@ export const PostPage = ({
               the unit must never render in post modals, which share those
               components but not this page. */}
           {!showRedesign && (
-            <ArbitrageAdSlot
+            <ArbitrageTopLeaderboard
               surface="organic"
               slot={ORGANIC_SLOT.topLeaderboard}
-              format={ArbitrageAdFormat.Leaderboard}
-              className="mx-auto mt-4 max-w-[69.25rem]"
-              eager
+              className="mx-auto w-full max-w-[69.25rem]"
             />
           )}
           {showRedesign ? (
@@ -329,16 +329,25 @@ export const PostPage = ({
               shouldOnboardAuthor={!!router.query?.author}
               origin={Origin.ArticlePage}
               isBannerVisible={shouldShowAuthBanner && !isLaptop}
-              widgetsTrailing={
-                <ArbitrageAdSlot
-                  surface="organic"
-                  slot={ORGANIC_SLOT.railHalfPage}
-                  format={ArbitrageAdFormat.HalfPage}
-                  // The offset MainLayout publishes for this page's actual
-                  // chrome, plus a gap — a hardcoded 5rem is wrong whenever a
-                  // top banner adds 2rem above the header.
-                  className="laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)]"
-                />
+              // Only while ads are actually live: a truthy hook flattens the
+              // further-reading widget around the slot, and without an ad that
+              // changes rail spacing for members who never see one.
+              getWidgetRailAd={
+                adsenseActive
+                  ? (widgetPosition) =>
+                      widgetPosition === PostWidgetPosition.SimilarPosts ? (
+                        <ArbitrageAdSlot
+                          surface="organic"
+                          slot={ORGANIC_SLOT.railSimilarPosts}
+                          format={ArbitrageAdFormat.MediumRectangle}
+                          // The offset MainLayout publishes for this page's
+                          // actual chrome, plus a gap — a hardcoded 5rem is
+                          // wrong whenever a top banner adds 2rem above the
+                          // header.
+                          className="laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)] laptop:z-1 laptop:bg-background-default"
+                        />
+                      ) : null
+                  : undefined
               }
               className={{
                 container: containerClass,

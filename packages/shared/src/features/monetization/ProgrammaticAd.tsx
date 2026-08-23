@@ -19,7 +19,6 @@ export enum ProgrammaticAdFormat {
   Leaderboard = 'leaderboard',
   MediumRectangle = 'mediumRectangle',
   Rectangle = 'rectangle',
-  HalfPage = 'halfPage',
   Native = 'native',
 }
 
@@ -77,13 +76,6 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
     minHeight: 'min-h-[250px] tablet:min-h-[180px]',
     maxWidth: 'max-w-[300px] tablet:max-w-[336px]',
     shape: 'rectangle',
-  },
-  [ProgrammaticAdFormat.HalfPage]: {
-    label: 'Sticky rail',
-    size: '300x600',
-    minHeight: 'min-h-[320px]',
-    maxWidth: 'max-w-[300px]',
-    shape: 'vertical',
   },
   [ProgrammaticAdFormat.Native]: {
     label: 'Native',

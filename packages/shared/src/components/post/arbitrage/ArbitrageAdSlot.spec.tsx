@@ -245,24 +245,26 @@ describe('ArbitrageAdSlot', () => {
 
   it('renders fixed-size units at exactly the configured size', () => {
     setOrganicSlots({
-      [ORGANIC_SLOT.railHalfPage]: {
+      [ORGANIC_SLOT.railSimilarPosts]: {
         id: '3333333333',
         type: 'display',
         width: 300,
-        height: 600,
+        height: 250,
       },
     });
     render(
       <ArbitrageAdSlot
         surface="organic"
-        slot={ORGANIC_SLOT.railHalfPage}
-        format={ArbitrageAdFormat.HalfPage}
+        slot={ORGANIC_SLOT.railSimilarPosts}
+        format={ArbitrageAdFormat.MediumRectangle}
         eager
       />,
     );
 
-    const ins = screen.getByTestId(`adsense-slot-${ORGANIC_SLOT.railHalfPage}`);
-    expect(ins).toHaveStyle({ width: '300px', height: '600px' });
+    const ins = screen.getByTestId(
+      `adsense-slot-${ORGANIC_SLOT.railSimilarPosts}`,
+    );
+    expect(ins).toHaveStyle({ width: '300px', height: '250px' });
     expect(ins).not.toHaveAttribute('data-ad-format');
   });
 

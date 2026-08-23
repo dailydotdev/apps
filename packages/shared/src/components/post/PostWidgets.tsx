@@ -65,8 +65,6 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
     hideToc?: boolean;
     /** Renders a slot after the widget at each position. */
     getRailAd?: (position: PostWidgetPosition) => ReactNode;
-    /** Rendered last, below the footer links. */
-    trailing?: ReactNode;
   };
 
 /**
@@ -99,7 +97,6 @@ export function PostWidgets({
   hideSignupWidget = false,
   hideToc = false,
   getRailAd,
-  trailing,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { source } = post;
@@ -185,7 +182,6 @@ export function PostWidgets({
       )}
       <FeaturedArchives postId={post.id} />
       <FooterLinks />
-      {trailing}
     </PageWidgets>
   );
 }

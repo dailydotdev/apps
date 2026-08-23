@@ -117,19 +117,14 @@ export const READ_ADSENSE_SLOTS: AdsenseSlots = {
 export const ORGANIC_SLOT = {
   /** Leaderboard above the post content, spanning the page column. */
   topLeaderboard: 15,
-  /** Half page closing the widget column, sticky for the rest of the read. */
-  railHalfPage: 16,
+  /** Rail unit below the similar posts, sticky under the fixed chrome. */
+  railSimilarPosts: 16,
 } as const;
 
 // TODO(chris): create the two organic units in AdSense (suggested names
-// post_s15_top_leaderboard, post_s16_rail_half_page) and fill in the ids.
-// Both slots stay collapsed until then.
+// post_s15_top_leaderboard, post_s16_rail_mpu as Display 300x250) and fill in
+// the ids. Both slots stay collapsed until then.
 export const ORGANIC_ADSENSE_SLOTS: AdsenseSlots = {
   [ORGANIC_SLOT.topLeaderboard]: { id: '', type: 'display' },
-  [ORGANIC_SLOT.railHalfPage]: {
-    id: '',
-    type: 'display',
-    width: 300,
-    height: 600,
-  },
+  [ORGANIC_SLOT.railSimilarPosts]: { id: '', type: 'display' },
 };
