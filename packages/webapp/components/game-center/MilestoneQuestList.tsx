@@ -166,13 +166,13 @@ const MilestoneQuestCard = ({
   return (
     <article
       className={classNames(
-        'relative flex items-center gap-3 overflow-hidden rounded-14 border border-border-subtlest-tertiary bg-background-subtle p-3.5',
+        'relative flex w-60 shrink-0 flex-col gap-2 overflow-hidden rounded-14 border border-border-subtlest-tertiary bg-background-subtle p-4',
         quest.locked && 'opacity-64',
       )}
     >
       <span
         className={classNames(
-          'flex size-12 shrink-0 items-center justify-center self-start rounded-full border-2',
+          'flex size-12 items-center justify-center rounded-full border-2',
           accentClasses[accent],
         )}
         aria-hidden
@@ -180,36 +180,52 @@ const MilestoneQuestCard = ({
         <Icon size={IconSize.Small} secondary={secondary} />
       </span>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <Typography
-          tag={TypographyTag.H4}
-          type={TypographyType.Footnote}
-          bold
-          className="line-clamp-2"
-        >
-          {quest.quest.name}
-        </Typography>
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          className="line-clamp-2"
-        >
-          {quest.quest.description}
-        </Typography>
+      <Typography
+        tag={TypographyTag.H4}
+        type={TypographyType.Footnote}
+        bold
+        className="line-clamp-2"
+      >
+        {quest.quest.name}
+      </Typography>
+      <Typography
+        type={TypographyType.Caption1}
+        color={TypographyColor.Tertiary}
+        className="line-clamp-2"
+      >
+        {quest.quest.description}
+      </Typography>
 
-        {visibleRewards.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {visibleRewards.map((reward, index) => (
-              <RewardChip
-                key={`${quest.rotationId}-${reward.type}-${index.toString()}`}
-                reward={reward}
-              />
-            ))}
-          </div>
-        )}
+      {visibleRewards.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {visibleRewards.map((reward, index) => (
+            <RewardChip
+              key={`${quest.rotationId}-${reward.type}-${index.toString()}`}
+              reward={reward}
+            />
+          ))}
+        </div>
+      )}
 
-        {!canClaim && (
-          <div className="flex flex-col gap-1">
+      {/* Pushes the claim button and progress bar to a shared baseline so
+          neighbouring cards in the scroller line up. */}
+      <div className="mt-auto flex flex-col gap-1 pt-1">
+        {canClaim ? (
+          <Button
+            variant={ButtonVariant.Primary}
+            color={ColorName.Cheese}
+            size={ButtonSize.Small}
+            className="quest-claim-shine w-full"
+            disabled={isClaiming}
+            loading={isClaiming}
+            onClick={() =>
+              onClaim(quest.userQuestId!, quest.quest.id, quest.quest.type)
+            }
+          >
+            Claim
+          </Button>
+        ) : (
+          <>
             <ProgressBar
               percentage={percentage}
               shouldShowBg
@@ -243,25 +259,9 @@ const MilestoneQuestCard = ({
                 {statusLabel}
               </Typography>
             </div>
-          </div>
+          </>
         )}
       </div>
-
-      {canClaim && (
-        <Button
-          variant={ButtonVariant.Primary}
-          color={ColorName.Cheese}
-          size={ButtonSize.Small}
-          className="quest-claim-shine shrink-0"
-          disabled={isClaiming}
-          loading={isClaiming}
-          onClick={() =>
-            onClaim(quest.userQuestId!, quest.quest.id, quest.quest.type)
-          }
-        >
-          Claim
-        </Button>
-      )}
 
       {isClaimed && (
         <span
@@ -293,7 +293,7 @@ export const MilestoneQuestList = ({
   const ordered = sortMilestoneQuests(quests);
 
   return (
-    <div className="flex flex-col gap-2.5">
+    <div className="-mx-4 flex items-stretch gap-3 overflow-x-auto px-4 pb-2 laptop:mx-0 laptop:px-0">
       {ordered.map((quest) => (
         <MilestoneQuestCard
           key={quest.rotationId}

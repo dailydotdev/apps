@@ -19,7 +19,7 @@ const Cell = ({ award }: { award: AwardWithRarity }): ReactElement => {
     <Tooltip content={`${award.name} · ×${award.count.toLocaleString()}`}>
       <div
         role="listitem"
-        className="group flex flex-col items-center gap-1.5 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4 transition hover:-translate-y-1 hover:border-border-subtlest-secondary"
+        className="group flex flex-col items-center gap-1.5 p-4 transition hover:-translate-y-1"
       >
         <Image
           src={award.image}

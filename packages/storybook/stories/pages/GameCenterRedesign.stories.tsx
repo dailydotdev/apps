@@ -19,6 +19,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { Divider } from '@dailydotdev/shared/src/components/utilities';
+import { featuredAwardImage } from '@dailydotdev/shared/src/lib/image';
 import { MilestoneQuestList } from '../../../webapp/components/game-center/MilestoneQuestList';
 import { TrophyGrid } from '../../../webapp/components/game-center/TrophyGrid';
 import type { AwardWithRarity } from '../../../webapp/lib/gameCenter';
@@ -172,7 +173,7 @@ const achievement = (
     id,
     name,
     description,
-    image: `https://media.daily.dev/image/upload/s--placeholder--/f_auto/v1/achievements/${id}`,
+    image: featuredAwardImage,
     type: AchievementType.Milestone,
     criteria: { targetCount },
     points: 100,
