@@ -2,16 +2,18 @@ import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import Custom404 from './Custom404';
 
-describe('Custom404', () => {
-  beforeEach(() => {
-    render(<Custom404 />);
-  });
+const renderComponent = () => render(<Custom404 />);
 
+describe('Custom404', () => {
   it('should render the not-found container', () => {
+    renderComponent();
+
     expect(screen.getByTestId('notFound')).toBeInTheDocument();
   });
 
   it('should keep a primary route home', () => {
+    renderComponent();
+
     expect(screen.getByRole('link', { name: 'Go home' })).toHaveAttribute(
       'href',
       '/',
@@ -27,6 +29,8 @@ describe('Custom404', () => {
     ['Squads', '/squads/discover'],
     ['Blog', '/blog'],
   ])('should offer %s as a recovery link', (label, href) => {
+    renderComponent();
+
     expect(screen.getByRole('link', { name: label })).toHaveAttribute(
       'href',
       href,
@@ -34,9 +38,9 @@ describe('Custom404', () => {
   });
 
   it('should group the recovery links in a labelled nav', () => {
-    const nav = screen.getByRole('navigation', {
-      name: 'Other places to go',
-    });
+    renderComponent();
+
+    const nav = screen.getByRole('navigation', { name: 'Other places to go' });
 
     expect(nav).toBeInTheDocument();
     expect(within(nav).getAllByRole('link')).toHaveLength(5);
