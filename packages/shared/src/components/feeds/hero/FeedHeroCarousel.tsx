@@ -82,9 +82,6 @@ export const FeedHeroCarousel = ({
             ))}
           </div>
           <div className="flex items-center gap-1">
-            <span className="mr-1 tabular-nums text-text-tertiary typo-footnote">
-              {active + 1}/{total}
-            </span>
             <Tooltip content={previous.title}>
               <Button
                 type="button"

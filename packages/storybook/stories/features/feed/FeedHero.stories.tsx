@@ -89,7 +89,7 @@ export const FullLayout: Story = {
       />
       <div className="flex flex-col gap-4">
         <FeedSectionToolbar
-          title="Recommended for you"
+          title="Recommended"
           searchHref="/search"
           bookmarksHref="/bookmarks"
           onFiltersClick={fn()}
@@ -285,19 +285,19 @@ export const Toolbar: Story = {
     <Page>
       <Case title="All actions">
         <FeedSectionToolbar
-          title="Recommended for you"
+          title="Recommended"
           searchHref="/search"
           bookmarksHref="/bookmarks"
           onFiltersClick={fn()}
         />
       </Case>
       <Case title="Title only" note="Every action is opt-in.">
-        <FeedSectionToolbar title="Recommended for you" />
+        <FeedSectionToolbar title="Recommended" />
       </Case>
       <Case title="With the tag chips below">
         <div className="flex flex-col gap-4">
           <FeedSectionToolbar
-            title="Recommended for you"
+            title="Recommended"
             searchHref="/search"
             bookmarksHref="/bookmarks"
             onFiltersClick={fn()}
