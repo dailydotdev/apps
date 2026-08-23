@@ -190,63 +190,43 @@ const achievement = (
 
 const achievements: UserAchievement[] = [
   achievement(
-    "Can't spend it all",
-    'Spend 10000 Cores',
-    'https://media.daily.dev/image/upload/s--_MjhSTze--/q_auto/v1773608417/achievements/cant_spend_it_all',
+    'Committed',
+    'Reach a 50-day reading streak',
+    'https://media.daily.dev/image/upload/v1770222887/achievements/Comitted.png',
     null,
-    10000,
-    10000,
-    0.003,
-    '2026-08-14T00:00:00.000Z',
-  ),
-  achievement(
-    'Upvote economy',
-    'Upvote 100 posts',
-    'https://media.daily.dev/image/upload/s--yaK6lPac--/c_fill,h_512,q_auto,w_512/v1770800203/achievements/upvote_economy.png',
-    'posts upvoted',
-    64,
-    100,
-    1.302,
-    null,
-  ),
-  achievement(
-    'Hero',
-    'Complete 100 quests',
-    'https://media.daily.dev/image/upload/s--5WqXv9y7--/q_auto/v1773743176/achievements/heros_quest',
-    null,
-    38,
-    100,
-    0.064,
-    null,
-  ),
-  achievement(
-    'Town crier',
-    'Share a link (post)',
-    'https://media.daily.dev/image/upload/v1770222937/achievements/Town_crier.png',
-    null,
-    1,
-    1,
-    2.607,
-    '2026-07-02T00:00:00.000Z',
-  ),
-  achievement(
-    "You're the cool kid!",
-    'Receive 100 upvotes',
-    'https://media.daily.dev/image/upload/v1770222932/achievements/You_re_the_cool_kid.png',
-    'upvotes received',
-    100,
-    100,
-    0.541,
-    '2026-06-19T00:00:00.000Z',
+    50,
+    50,
+    1.99,
+    '2026-08-02T00:00:00.000Z',
   ),
   achievement(
     'In the big league',
     'Gain 10000 reputation',
     'https://media.daily.dev/image/upload/v1770222928/achievements/In_the_big_league.png',
     'reputation',
-    4120,
+    6420,
     10000,
     0.051,
+    null,
+  ),
+  achievement(
+    'Boosted',
+    'Boost a post',
+    'https://media.daily.dev/image/upload/v1770222884/achievements/Boosted.png',
+    null,
+    1,
+    1,
+    0.061,
+    '2026-08-09T00:00:00.000Z',
+  ),
+  achievement(
+    "You're the cool kid!",
+    'Receive 100 upvotes',
+    'https://media.daily.dev/image/upload/v1770222932/achievements/You_re_the_cool_kid.png',
+    'upvotes received',
+    63,
+    100,
+    0.541,
     null,
   ),
 ];
@@ -335,6 +315,9 @@ const GameCenterRedesign = () => (
             key={item.achievement.id}
             userAchievement={item}
             isOwner
+            isTracked={item.achievement.name === "You're the cool kid!"}
+            onTrack={async () => undefined}
+            onUntrack={async () => undefined}
           />
         ))}
       </div>
@@ -381,8 +364,12 @@ const meta: Meta<typeof GameCenterRedesign> = {
   parameters: { layout: 'fullscreen' },
   decorators: [
     (Story) => (
+      // react-modal binds to #__next, which Next.js renders but Storybook
+      // does not; without it the achievement detail modal throws on open.
       <QueryClientProvider client={queryClient}>
-        <Story />
+        <div id="__next">
+          <Story />
+        </div>
       </QueryClientProvider>
     ),
   ],

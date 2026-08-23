@@ -2,10 +2,7 @@ import type { MouseEvent, ReactElement } from 'react';
 import React, { useState } from 'react';
 import classNames from 'classnames';
 import type { UserAchievement } from '../../../../graphql/user/achievements';
-import {
-  AchievementType,
-  getTargetCount,
-} from '../../../../graphql/user/achievements';
+import { getTargetCount } from '../../../../graphql/user/achievements';
 import {
   Typography,
   TypographyColor,
@@ -13,24 +10,20 @@ import {
   TypographyType,
 } from '../../../../components/typography/Typography';
 import {
-  Button,
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { LazyImage } from '../../../../components/LazyImage';
-import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import CloseButton from '../../../../components/CloseButton';
 import { Modal } from '../../../../components/modals/common/Modal';
 import {
   ModalKind,
   ModalSize,
 } from '../../../../components/modals/common/types';
-import { PinIcon } from '../../../../components/icons';
 import {
   AchievementRarityTier,
   getAchievementRarityTier,
-  rarityGlowClasses,
 } from './achievementRarity';
 
 interface AchievementShelfCardProps {
@@ -44,6 +37,21 @@ interface AchievementShelfCardProps {
 }
 
 const fallbackImage = 'https://daily.dev/default-achievement.png';
+
+// The slab treatment only distinguishes two rarity bands; the shared four-tier
+// scale collapses onto them so the other achievement surfaces keep their tiers.
+const isEmerald = (tier: AchievementRarityTier | null) =>
+  tier === AchievementRarityTier.Emerald;
+
+const slabRingClasses: Record<'gold' | 'emerald', string> = {
+  gold: 'border-[#efab27] shadow-[0_0_16px_-2px_#efab27]',
+  emerald: 'border-[#1dbf8c] shadow-[0_0_16px_-2px_#1dbf8c]',
+};
+
+const slabPillClasses: Record<'gold' | 'emerald', string> = {
+  gold: 'bg-[#efab27]',
+  emerald: 'bg-[#1dbf8c]',
+};
 
 export function AchievementShelfCard({
   userAchievement,
@@ -59,125 +67,111 @@ export function AchievementShelfCard({
   const targetCount = getTargetCount(achievement);
   const isUnlocked = unlockedAt !== null;
   const progressPercentage = Math.min((progress / targetCount) * 100, 100);
-  const showProgress =
-    achievement.type === AchievementType.Milestone && !isUnlocked;
   const rarityTier = isUnlocked
     ? getAchievementRarityTier(achievement.rarity)
     : null;
-  const rarityLabel =
-    rarityTier === AchievementRarityTier.Emerald
-      ? '<1%'
-      : `${Math.round(achievement.rarity ?? 0)}%`;
+  const slabTier = rarityTier
+    ? ((isEmerald(rarityTier) ? 'emerald' : 'gold') as 'gold' | 'emerald')
+    : null;
+  const rarityLabel = isEmerald(rarityTier)
+    ? '<1%'
+    : `${Math.round(achievement.rarity ?? 0)}%`;
   const canTrack = !isUnlocked && isOwner && !!onTrack;
+  const progressLabel = `${progress.toLocaleString()} / ${targetCount.toLocaleString()}`;
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setIsExpanded(true)}
-        className={classNames(
-          'group relative flex h-[232px] w-44 shrink-0 flex-col justify-end overflow-hidden rounded-16 border text-left transition-transform hover:-translate-y-1',
-          rarityTier
-            ? rarityGlowClasses[rarityTier]
-            : 'border-border-subtlest-tertiary',
-        )}
-      >
+      <article className="group relative flex h-[232px] w-44 shrink-0 flex-col justify-end overflow-hidden rounded-16 bg-background-subtle text-left transition-transform hover:-translate-y-1">
         <LazyImage
           imgSrc={achievement.image}
           imgAlt={achievement.name}
           className={classNames(
             'absolute inset-0 size-full object-cover',
-            !isUnlocked && 'brightness-[.6] grayscale',
+            !isUnlocked && 'brightness-[.6] grayscale-[.85]',
           )}
           fallbackSrc={fallbackImage}
         />
-        <div className="via-surface-invert/70 absolute inset-0 bg-gradient-to-t from-surface-invert to-transparent" />
 
-        {rarityTier && (
-          <span className="absolute left-2.5 top-2.5 z-2 rounded-8 border border-white/24 bg-overlay-secondary-pepper px-2 py-0.5 font-bold text-white backdrop-blur-md typo-caption2">
+        <div className="absolute inset-0 z-1 bg-[linear-gradient(to_top,rgba(6,8,11,0.94)_0%,rgba(6,8,11,0.72)_34%,rgba(6,8,11,0.12)_66%,rgba(6,8,11,0)_100%)]" />
+
+        {slabTier && (
+          <div
+            className={classNames(
+              'pointer-events-none absolute inset-0 z-3 rounded-16 border-2',
+              slabRingClasses[slabTier],
+            )}
+          />
+        )}
+
+        {/* Covers the slab so the whole card opens the detail modal, without
+            nesting the track control inside another button. */}
+        <button
+          type="button"
+          aria-label={`View ${achievement.name}`}
+          className="absolute inset-0 z-2"
+          onClick={() => setIsExpanded(true)}
+        />
+
+        {slabTier && (
+          <span
+            className={classNames(
+              'absolute left-2.5 top-2.5 z-3 rounded-max px-2 py-1 text-[11px] font-semibold leading-none text-[#08110c]',
+              slabPillClasses[slabTier],
+            )}
+          >
             {rarityLabel} rare
           </span>
         )}
 
         {canTrack && (
-          <span className="absolute right-2.5 top-2.5 z-2">
-            {isTracked ? (
-              <Button
-                size={ButtonSize.XSmall}
-                variant={ButtonVariant.Secondary}
-                icon={<PinIcon />}
-                disabled={isUntrackPending}
-                onClick={(event: MouseEvent) => {
-                  event.stopPropagation();
-                  onUntrack?.();
-                }}
-              >
-                Tracked
-              </Button>
-            ) : (
-              <Button
-                size={ButtonSize.XSmall}
-                variant={ButtonVariant.Secondary}
-                icon={<PinIcon />}
-                disabled={isTrackPending}
-                onClick={(event: MouseEvent) => {
-                  event.stopPropagation();
-                  onTrack(achievement.id);
-                }}
-              >
-                Track
-              </Button>
-            )}
-          </span>
+          <button
+            type="button"
+            disabled={isTracked ? isUntrackPending : isTrackPending}
+            className="absolute right-2.5 top-2.5 z-3 inline-flex h-6 items-center rounded-8 border border-[rgba(255,255,255,0.28)] bg-[rgba(8,10,13,0.55)] px-2 text-[13px] font-medium leading-none text-white backdrop-blur-[6px]"
+            onClick={(event: MouseEvent) => {
+              event.stopPropagation();
+              if (isTracked) {
+                onUntrack?.();
+                return;
+              }
+              onTrack(achievement.id);
+            }}
+          >
+            {isTracked ? 'Tracked' : 'Track'}
+          </button>
         )}
 
-        <div className="relative z-1 flex flex-col gap-1 p-3">
+        <div className="pointer-events-none relative z-2 px-[13px] pb-[13px] pt-3">
           <Typography
-            type={TypographyType.Callout}
             tag={TypographyTag.H3}
-            className="truncate !text-white"
-            bold
+            className="text-[14.5px] font-semibold leading-[1.2] tracking-[-0.01em] text-white"
           >
             {achievement.name}
           </Typography>
-          <Typography
-            type={TypographyType.Caption1}
-            className="text-white/70 line-clamp-1"
-          >
+          <Typography className="mt-[3px] line-clamp-1 text-[11.5px] leading-[1.32] text-[rgba(255,255,255,0.78)]">
             {achievement.description}
           </Typography>
-          {showProgress ? (
-            <div className="mt-1 flex flex-col gap-1">
-              <Typography
-                type={TypographyType.Caption1}
-                className="text-white/70"
-              >
-                {progress}/{targetCount}
-              </Typography>
-              <ProgressBar
-                percentage={progressPercentage}
-                shouldShowBg
-                className={{
-                  wrapper: '!bg-white/25 h-1.5 rounded-14',
-                  bar: 'h-full rounded-14',
-                  barColor: 'bg-white',
-                }}
-              />
-            </div>
+
+          {isUnlocked ? (
+            <Typography className="mt-[7px] text-[10.5px] text-[rgba(255,255,255,0.7)]">
+              Unlocked{' '}
+              {formatDate({ value: unlockedAt, type: TimeFormatType.Post })}
+            </Typography>
           ) : (
-            isUnlocked &&
-            unlockedAt && (
-              <Typography
-                type={TypographyType.Caption1}
-                className="text-white/70 mt-1"
-              >
-                Unlocked{' '}
-                {formatDate({ value: unlockedAt, type: TimeFormatType.Post })}
+            <>
+              <Typography className="mt-[7px] text-[10.5px] text-[rgba(255,255,255,0.7)]">
+                {progressLabel}
               </Typography>
-            )
+              <div className="mt-2 h-[5px] overflow-hidden rounded-max bg-[rgba(255,255,255,0.22)]">
+                <div
+                  className="h-full rounded-max bg-white"
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+            </>
           )}
         </div>
-      </button>
+      </article>
 
       {isExpanded && (
         <Modal
@@ -185,6 +179,7 @@ export function AchievementShelfCard({
           onRequestClose={() => setIsExpanded(false)}
           kind={ModalKind.FlexibleCenter}
           size={ModalSize.XSmall}
+          className="overflow-hidden"
         >
           <div className="relative flex flex-col">
             <div className="relative aspect-square w-full overflow-hidden bg-background-subtle">
@@ -193,67 +188,66 @@ export function AchievementShelfCard({
                 alt={achievement.name}
                 className={classNames(
                   'size-full object-cover',
-                  !isUnlocked && 'brightness-[.6] grayscale',
+                  !isUnlocked && 'brightness-[.6] grayscale-[.85]',
                 )}
               />
-              {rarityTier && (
-                <span className="absolute left-3 top-3 rounded-8 border border-white/24 bg-overlay-secondary-pepper px-2 py-0.5 font-bold text-white backdrop-blur-md typo-caption1">
+              {slabTier && (
+                <span
+                  className={classNames(
+                    'absolute left-3 top-3 rounded-max px-2.5 py-1 text-xs font-semibold leading-none text-[#08110c]',
+                    slabPillClasses[slabTier],
+                  )}
+                >
                   {rarityLabel} rare
                 </span>
               )}
               <CloseButton
                 size={ButtonSize.Small}
                 variant={ButtonVariant.Primary}
-                className="absolute right-3 top-3"
+                className="absolute right-2.5 top-2.5"
                 onClick={() => setIsExpanded(false)}
               />
             </div>
-            <div className="flex flex-col gap-2 p-4">
+            <div className="px-[18px] pb-[18px] pt-4">
               <Typography
-                type={TypographyType.Title3}
                 tag={TypographyTag.H3}
-                color={TypographyColor.Primary}
-                bold
+                className="text-[17px] font-semibold leading-tight tracking-[-0.01em] text-text-primary"
               >
                 {achievement.name}
               </Typography>
               <Typography
-                type={TypographyType.Callout}
-                color={TypographyColor.Secondary}
+                type={TypographyType.Footnote}
+                color={TypographyColor.Tertiary}
+                className="mt-1 leading-[1.45]"
               >
                 {achievement.description}
               </Typography>
-              {showProgress ? (
-                <div className="mt-1 flex flex-col gap-1.5">
-                  <Typography
-                    type={TypographyType.Footnote}
-                    color={TypographyColor.Tertiary}
-                  >
-                    {progress}/{targetCount}
-                  </Typography>
-                  <ProgressBar
-                    percentage={progressPercentage}
-                    shouldShowBg
-                    className={{
-                      wrapper: 'h-1.5 rounded-14',
-                      bar: 'h-full rounded-14',
-                    }}
-                  />
-                </div>
+
+              {isUnlocked ? (
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                  className="mt-2.5"
+                >
+                  Unlocked{' '}
+                  {formatDate({ value: unlockedAt, type: TimeFormatType.Post })}
+                </Typography>
               ) : (
-                isUnlocked &&
-                unlockedAt && (
+                <>
                   <Typography
-                    type={TypographyType.Footnote}
+                    type={TypographyType.Caption1}
                     color={TypographyColor.Tertiary}
+                    className="mt-2.5"
                   >
-                    Unlocked{' '}
-                    {formatDate({
-                      value: unlockedAt,
-                      type: TimeFormatType.Post,
-                    })}
+                    {progressLabel}
                   </Typography>
-                )
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-max bg-border-subtlest-tertiary">
+                    <div
+                      className="h-full rounded-max bg-text-primary"
+                      style={{ width: `${progressPercentage}%` }}
+                    />
+                  </div>
+                </>
               )}
             </div>
           </div>
