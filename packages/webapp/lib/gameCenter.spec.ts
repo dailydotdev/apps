@@ -21,7 +21,6 @@ import {
   getMostProgressedQuest,
   getQuestSummary,
   getTopReaderTopicLabel,
-  getTrophyShelves,
 } from './gameCenter';
 
 const createQuest = (
@@ -353,7 +352,7 @@ describe('game center helpers', () => {
     ]);
   });
 
-  it('sizes trophies by rarity (award value), rarest first and largest', () => {
+  it('orders the trophy grid rarest-first by award value', () => {
     const awards: UserProductSummary[] = [
       { id: 'a', name: 'Cheap', image: 'a.png', count: 40 },
       { id: 'b', name: 'Pricey', image: 'b.png', count: 1 },
@@ -365,17 +364,13 @@ describe('game center helpers', () => {
       { id: 'c', value: 100 },
     ] as Product[];
 
-    const { shelves } = getAwardSummary(awards, catalog);
-    const flat = shelves.flat();
+    const { awardsByRarity } = getAwardSummary(awards, catalog);
 
     // rarest (highest value) first, regardless of how many were earned
-    expect(flat.map((item) => item.id)).toEqual(['b', 'c', 'a']);
-    // and it renders bigger the rarer it is
-    expect(flat[0].size).toBeGreaterThan(flat[1].size);
-    expect(flat[1].size).toBeGreaterThan(flat[2].size);
+    expect(awardsByRarity.map((award) => award.id)).toEqual(['b', 'c', 'a']);
   });
 
-  it('returns no shelves when there are no awards', () => {
-    expect(getTrophyShelves([])).toEqual([]);
+  it('has an empty trophy grid when there are no awards', () => {
+    expect(getAwardSummary([], []).awardsByRarity).toEqual([]);
   });
 });

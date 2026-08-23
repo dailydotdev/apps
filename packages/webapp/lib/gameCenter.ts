@@ -283,23 +283,14 @@ export type AwardWithRarity = UserProductSummary & {
   imageGlow?: string | null;
 };
 
-export type TrophyShelfItem = AwardWithRarity & { size: number };
-
 export type GameCenterAwardSummary = {
   awards: UserProductSummary[];
-  shelves: TrophyShelfItem[][];
+  // Awards ordered rarest-first for the trophy grid.
+  awardsByRarity: AwardWithRarity[];
   totalAwards: number;
   uniqueAwards: number;
   favoriteAward: UserProductSummary | null;
 };
-
-// Trophies scale with rarity (an award's Cores value). Sizes are in px and are
-// consumed as inline width so the shelf can render server-side without JS.
-const TROPHY_SIZE_MIN = 64;
-const TROPHY_SIZE_MAX = 148;
-// Width a single shelf row tries to fill before wrapping to the next plank.
-const SHELF_ROW_BUDGET = 540;
-const TROPHY_GAP = 32;
 
 const enrichAwardsWithRarity = (
   awards: UserProductSummary[],
@@ -316,28 +307,12 @@ const enrichAwardsWithRarity = (
   });
 };
 
-const getTrophySize = (value: number, min: number, max: number): number => {
-  if (max <= min) {
-    return Math.round((TROPHY_SIZE_MIN + TROPHY_SIZE_MAX) / 2);
-  }
-  // sqrt easing keeps the cheapest awards from collapsing to nothing while the
-  // rarest still tower over them.
-  const ratio = Math.sqrt((value - min) / (max - min));
-  return Math.round(
-    TROPHY_SIZE_MIN + ratio * (TROPHY_SIZE_MAX - TROPHY_SIZE_MIN),
-  );
-};
-
-// Rarest-first, packed into shelf rows by width so the big trophies get their
-// own roomy plank up top and the commons cluster below.
-export const getTrophyShelves = (
+// Rarest-first: an award's Cores value is the rarity signal, with the earned
+// count and name as tie-breakers.
+export const sortAwardsByRarity = (
   awards: AwardWithRarity[],
-): TrophyShelfItem[][] => {
-  if (awards.length === 0) {
-    return [];
-  }
-
-  const sorted = [...awards].sort((left, right) => {
+): AwardWithRarity[] => {
+  return [...awards].sort((left, right) => {
     if (left.value !== right.value) {
       return right.value - left.value;
     }
@@ -346,34 +321,6 @@ export const getTrophyShelves = (
     }
     return left.name.localeCompare(right.name);
   });
-
-  const values = sorted.map((award) => award.value);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-
-  const items: TrophyShelfItem[] = sorted.map((award) => ({
-    ...award,
-    size: getTrophySize(award.value, min, max),
-  }));
-
-  const shelves: TrophyShelfItem[][] = [];
-  let row: TrophyShelfItem[] = [];
-  let rowWidth = 0;
-  items.forEach((item) => {
-    const itemWidth = item.size + TROPHY_GAP;
-    if (row.length > 0 && rowWidth + itemWidth > SHELF_ROW_BUDGET) {
-      shelves.push(row);
-      row = [];
-      rowWidth = 0;
-    }
-    row.push(item);
-    rowWidth += itemWidth;
-  });
-  if (row.length > 0) {
-    shelves.push(row);
-  }
-
-  return shelves;
 };
 
 export const getAwardSummary = (
@@ -381,13 +328,13 @@ export const getAwardSummary = (
   products?: Product[],
 ): GameCenterAwardSummary => {
   const allAwards = sortAwardsByCount(awards ?? []);
-  const shelves = getTrophyShelves(
+  const awardsByRarity = sortAwardsByRarity(
     enrichAwardsWithRarity(allAwards, products ?? []),
   );
 
   return {
     awards: allAwards,
-    shelves,
+    awardsByRarity,
     totalAwards: allAwards.reduce((total, award) => total + award.count, 0),
     uniqueAwards: allAwards.length,
     favoriteAward: allAwards[0] ?? null,
