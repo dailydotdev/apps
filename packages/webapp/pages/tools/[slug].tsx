@@ -99,10 +99,12 @@ import { ToolLogo } from '@dailydotdev/shared/src/components/tools/ToolLogo';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
 import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
+import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
 import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
-import { getLayout } from '../../components/layouts/FeedLayout';
+import { getLayout } from '../../components/layouts/MainLayout';
+import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
@@ -877,20 +879,22 @@ const ToolPage = ({
               <ActiveFeedNameContext.Provider
                 value={{ feedName: OtherFeedPage.TagsTopPosts }}
               >
-                <EntityRailWithFade>
-                  <HorizontalFeed
-                    feedName={OtherFeedPage.TagsTopPosts}
-                    feedQueryKey={[
-                      'toolTopPosts',
-                      user?.id ?? 'anonymous',
-                      tool.keyword,
-                    ]}
-                    query={TAG_FEED_QUERY}
-                    variables={topPostsQueryVariables}
-                    className="!mx-0 !mb-0"
-                    emptyScreen={<></>}
-                  />
-                </EntityRailWithFade>
+                <FeedLayoutProvider maxNumCards={3}>
+                  <EntityRailWithFade>
+                    <HorizontalFeed
+                      feedName={OtherFeedPage.TagsTopPosts}
+                      feedQueryKey={[
+                        'toolTopPosts',
+                        user?.id ?? 'anonymous',
+                        tool.keyword,
+                      ]}
+                      query={TAG_FEED_QUERY}
+                      variables={topPostsQueryVariables}
+                      className="!mx-0 !mb-0"
+                      emptyScreen={<></>}
+                    />
+                  </EntityRailWithFade>
+                </FeedLayoutProvider>
               </ActiveFeedNameContext.Provider>
             </ToolSection>
           )}
@@ -1001,7 +1005,10 @@ const ToolPage = ({
   );
 };
 
-ToolPage.getLayout = getLayout;
+const getToolPageLayout: typeof getLayout = (...props) =>
+  getFooterNavBarLayout(getLayout(...props));
+
+ToolPage.getLayout = getToolPageLayout;
 ToolPage.layoutProps = { screenCentered: false };
 
 export default ToolPage;
