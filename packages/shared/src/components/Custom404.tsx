@@ -10,6 +10,17 @@ interface Custom404Props {
   children?: ReactNode;
 }
 
+// Every destination here is reachable on both hosts this renders on
+// (daily.dev and app.daily.dev). A dead end on the 404 page is worse than
+// no link at all, so keep that true if this list changes.
+const recoveryLinks = [
+  { label: 'Explore', href: '/posts' },
+  { label: 'Tags', href: '/tags' },
+  { label: 'Sources', href: '/sources' },
+  { label: 'Squads', href: '/squads/discover' },
+  { label: 'Blog', href: '/blog' },
+];
+
 export default function Custom404({ children }: Custom404Props): ReactElement {
   return (
     <PageContainer
@@ -33,6 +44,20 @@ export default function Custom404({ children }: Custom404Props): ReactElement {
             Go home
           </Button>
         </Link>
+
+        <nav aria-label="Other places to go" className="mt-2">
+          <ul className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            {recoveryLinks.map(({ label, href }) => (
+              <li key={href}>
+                <Link href={href} passHref prefetch={false}>
+                  <a className="text-text-tertiary underline typo-footnote hover:text-text-primary">
+                    {label}
+                  </a>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </PageContainer>
   );
