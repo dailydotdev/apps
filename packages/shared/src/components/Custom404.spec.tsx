@@ -58,7 +58,7 @@ describe('Custom404', () => {
     within(nav)
       .getAllByRole('link')
       .forEach((link) => {
-        const href = link.getAttribute('href');
+        const href = link.getAttribute('href') ?? '';
 
         expect(href.startsWith(webappUrl)).toBe(true);
         expect(href).not.toContain('//squads');
