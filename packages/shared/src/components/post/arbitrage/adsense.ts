@@ -17,7 +17,7 @@ export const ADSENSE_PRECONNECT_ORIGINS = [
 
 // Which AdSense ad-unit type the slot id was created as in the AdSense UI —
 // the <ins> data attributes must match the unit type, not our visual format.
-export type AdsenseUnitType = 'display' | 'inArticle' | 'inFeed' | 'multiplex';
+export type AdsenseUnitType = 'display' | 'inArticle' | 'inFeed';
 
 export type AdsenseSlotConfig = {
   /** The 10-digit `data-ad-slot` from the unit's generated code. */
@@ -49,7 +49,5 @@ export const hasLiveAdsenseUnits = (slots: ReadAdsenseSlots): boolean =>
 declare global {
   interface Window {
     adsbygoogle?: Record<string, unknown>[];
-    /** Once-per-page latch for the test-mode telemetry event. */
-    adsenseTestModeLogged?: boolean;
   }
 }

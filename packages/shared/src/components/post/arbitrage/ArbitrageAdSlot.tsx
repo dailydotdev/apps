@@ -124,12 +124,6 @@ export interface ArbitrageAdSlotProps {
    */
   surface?: 'read' | 'organic';
   /**
-   * Reports whether the slot currently holds a creative. Lets a container
-   * that only exists to frame an ad — the sidebar's bordered box and its
-   * dismiss button — render nothing at all when there is no ad to frame.
-   */
-  onFilledChange?: (filled: boolean) => void;
-  /**
    * Requests the ad on mount instead of waiting to near the viewport. For
    * slots visible at first paint the intersection wait only adds latency —
    * and the adsbygoogle array queues pushes before the script has even
@@ -166,13 +160,6 @@ function getInsAttributes(
     };
   }
 
-  if (config.type === 'multiplex') {
-    return {
-      style: { display: 'block' },
-      'data-ad-format': 'autorelaxed',
-    };
-  }
-
   if (config.width && config.height) {
     return {
       style: {
@@ -201,10 +188,9 @@ function LiveAdSlot({
   className,
   hideOnPhone,
   eager,
-  onFilledChange,
 }: Pick<
   ArbitrageAdSlotProps,
-  'slot' | 'format' | 'className' | 'hideOnPhone' | 'eager' | 'onFilledChange'
+  'slot' | 'format' | 'className' | 'hideOnPhone' | 'eager'
 > & {
   config: AdsenseSlotConfig;
 }): ReactElement {
@@ -213,9 +199,6 @@ function LiveAdSlot({
   const [isRequested, setIsRequested] = useState(eager ?? false);
   const { logEvent } = useLogContext();
   const hasLoggedFill = useRef(false);
-  // Through a ref so an inline callback does not re-run the request effect.
-  const onFilledChangeRef = useRef(onFilledChange);
-  onFilledChangeRef.current = onFilledChange;
 
   // The <ins> below only mounts once the slot is eligible, because
   // adsbygoogle.push({}) does not bind to a specific element: the tag
@@ -290,23 +273,29 @@ function LiveAdSlot({
       }
     }
 
-    // Reports the creative landing, for containers that only exist to frame
-    // an ad. Watching mutations rather than polling, and never hiding the
-    // slot on the strength of it.
-    const report = (): void => {
-      const filled = !!element.querySelector('iframe');
-      onFilledChangeRef.current?.(filled);
-      if (filled && !hasLoggedFill.current) {
-        hasLoggedFill.current = true;
-        logEvent({
-          event_name: LogEvent.FillAdsenseSlot,
-          extra: JSON.stringify({ slot, unit: config.id, format }),
-        });
+    // Logs the creative landing, watching mutations rather than polling —
+    // and never hiding the slot on the strength of it. True once means done:
+    // a refreshing unit mutates forever, and one impression event per slot is
+    // the measurement, so the observer disconnects after the first fill.
+    const reportFill = (): boolean => {
+      if (hasLoggedFill.current || !element.querySelector('iframe')) {
+        return false;
       }
+      hasLoggedFill.current = true;
+      logEvent({
+        event_name: LogEvent.FillAdsenseSlot,
+        extra: JSON.stringify({ slot, unit: config.id, format }),
+      });
+      return true;
     };
-    const observer = new MutationObserver(report);
-    observer.observe(element, { childList: true, subtree: true });
-    report();
+    const observer = new MutationObserver(() => {
+      if (reportFill()) {
+        observer.disconnect();
+      }
+    });
+    if (!reportFill()) {
+      observer.observe(element, { childList: true, subtree: true });
+    }
 
     // This push is only safe because of the mount-at-eligibility invariant
     // above: it binds to the first uninitialised ins in document order, not
@@ -367,7 +356,6 @@ function MappedAdSlot({
   refreshes,
   hideOnPhone,
   eager,
-  onFilledChange,
   slots,
   allowPlaceholder = false,
 }: ArbitrageAdSlotProps & {
@@ -389,7 +377,6 @@ function MappedAdSlot({
         className={className}
         hideOnPhone={hideOnPhone}
         eager={eager}
-        onFilledChange={onFilledChange}
       />
     );
   }
