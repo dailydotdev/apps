@@ -68,7 +68,7 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { AchievementCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementCard';
+import { AchievementShelfCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementShelfCard';
 import { TopReaderBadge } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
 import { getQuestLevelProgress } from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
 import { LevelHud } from '@dailydotdev/shared/src/components/quest/LevelHud';
@@ -442,9 +442,9 @@ function GameCenterPage({
     );
   } else if (featuredAchievements.length > 0) {
     achievementShelfContent = (
-      <div className="grid gap-4 laptop:grid-cols-3">
+      <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 laptop:mx-0 laptop:px-0">
         {featuredAchievements.map((achievement) => (
-          <AchievementCard
+          <AchievementShelfCard
             key={achievement.achievement.id}
             userAchievement={achievement}
             isOwner
