@@ -327,7 +327,11 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
 // unit map lives in code (post/arbitrage/slots.ts) — ids are public in any
 // live page's source, and a remote JSON value cost every surface's boot
 // payload the whole map.
-export const featurePostAdsense = new Feature('post_adsense', false);
+// TEMP-REVIEW: forced on so the preview deploy renders the organic slots
+// (previews are production builds, so devtools cannot flip the flag there).
+// MUST be reverted to `false` before merge — a truthy default ships the
+// experiment to 100% of anonymous visitors.
+export const featurePostAdsense = new Feature('post_adsense', true);
 
 // Emergency kill switch for the /read template's ads — NOT an experiment, so
 // the true default is deliberate: the surface ships always-on (it is only
