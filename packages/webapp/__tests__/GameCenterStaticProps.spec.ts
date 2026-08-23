@@ -42,6 +42,9 @@ jest.mock('@tanstack/react-query', () => {
   return {
     ...actual,
     useQuery: jest.fn(),
+    // The hero card renders a ProfilePicture, which reads the request protocol
+    // off the query client; the page tests render without a provider.
+    useQueryClient: jest.fn(() => ({ getQueryData: jest.fn() })),
   };
 });
 
@@ -403,7 +406,9 @@ describe('game center client gating', () => {
 
     expect(screen.getByText('Milestone quests')).toBeInTheDocument();
     expect(screen.getByText('Reader marathon')).toBeInTheDocument();
-    expect(screen.getByText('No upcoming milestone yet')).toBeInTheDocument();
+    expect(
+      screen.getByText('Your next milestone will show up here.'),
+    ).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Claim' }));
 
@@ -487,7 +492,7 @@ describe('game center client gating', () => {
     });
   });
 
-  it('should highlight the most progressed milestone in the progress snapshot card', () => {
+  it('should highlight the most progressed milestone on the hero card', () => {
     mockUseConditionalFeature.mockReturnValue({
       value: false,
       isLoading: false,
@@ -582,22 +587,14 @@ describe('game center client gating', () => {
       }),
     );
 
-    const upcomingMilestoneCard = screen
-      .getByText('Upcoming milestone')
-      .closest('div');
+    const nextUp = screen.getByText('Next up').closest('div');
 
-    expect(upcomingMilestoneCard).not.toBeNull();
-    expect(
-      within(upcomingMilestoneCard as HTMLElement).getByText(
-        'Almost there milestone',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      within(upcomingMilestoneCard as HTMLElement).getByText('7/8 progress'),
-    ).toBeInTheDocument();
+    expect(nextUp).not.toBeNull();
+    expect(nextUp).toHaveTextContent('Almost there milestone');
+    expect(nextUp).toHaveTextContent('7/8 so far');
   });
 
-  it('should skip claimable milestones in the progress snapshot card and show the next upcoming one', () => {
+  it('should skip claimable milestones on the hero card and show the next upcoming one', () => {
     mockUseConditionalFeature.mockReturnValue({
       value: false,
       isLoading: false,
@@ -672,24 +669,12 @@ describe('game center client gating', () => {
       }),
     );
 
-    const upcomingMilestoneCard = screen
-      .getByText('Upcoming milestone')
-      .closest('div');
+    const nextUp = screen.getByText('Next up').closest('div');
 
-    expect(upcomingMilestoneCard).not.toBeNull();
-    expect(
-      within(upcomingMilestoneCard as HTMLElement).queryByText(
-        'Ready to claim milestone',
-      ),
-    ).not.toBeInTheDocument();
-    expect(
-      within(upcomingMilestoneCard as HTMLElement).getByText(
-        'Next upcoming milestone',
-      ),
-    ).toBeInTheDocument();
-    expect(
-      within(upcomingMilestoneCard as HTMLElement).getByText('7/8 progress'),
-    ).toBeInTheDocument();
+    expect(nextUp).not.toBeNull();
+    expect(nextUp).not.toHaveTextContent('Ready to claim milestone');
+    expect(nextUp).toHaveTextContent('Next upcoming milestone');
+    expect(nextUp).toHaveTextContent('7/8 so far');
   });
 
   it('should render every milestone quest as a stacked card without a show more toggle', () => {

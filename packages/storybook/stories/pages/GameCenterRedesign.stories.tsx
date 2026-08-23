@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { LevelHud } from '@dailydotdev/shared/src/components/quest/LevelHud';
+import { HeroCard } from '../../../webapp/components/game-center/HeroCard';
 import { TopReaderBadgeCompact } from '@dailydotdev/shared/src/components/badges/TopReaderBadgeCompact';
 import { AchievementShelfCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementShelfCard';
 import type { UserAchievement } from '@dailydotdev/shared/src/graphql/user/achievements';
@@ -263,19 +263,18 @@ const dividerClass = 'bg-border-subtlest-tertiary';
 
 const GameCenterRedesign = () => (
   <div className="mx-auto flex w-full max-w-[72rem] flex-col gap-6 p-4 pb-10">
-    <section>
-      <div className="flex flex-col gap-4">
-        <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Tertiary}
-          bold
-        >
-          Progress snapshot
-        </Typography>
-        <Typography tag={TypographyTag.H1} type={TypographyType.Title1} bold>
-          Tomer, here&apos;s how you&apos;re doing.
-        </Typography>
-        <LevelHud
+    <div className="grid gap-6 laptop:grid-cols-[19rem_1fr] laptop:items-start">
+      <div className="laptop:sticky laptop:top-6">
+        <HeroCard
+          user={
+            {
+              id: 'u1',
+              name: 'Tomer Redlich',
+              username: 'tomer',
+              image:
+                'https://media.daily.dev/image/upload/s--qsFuKGv_--/t_logo,f_auto/public/noProfile',
+            } as never
+          }
           level={14}
           levelProgress={70}
           totalXp={3420}
@@ -283,11 +282,21 @@ const GameCenterRedesign = () => (
           currentStreak={12}
           longestStreak={28}
           achievements={{ unlocked: 9, total: 24 }}
-          isPending={false}
+          footnote={
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Tertiary}
+            >
+              <strong className="font-bold text-text-primary">
+                Upvote 200 posts
+              </strong>{' '}
+              is ready to claim.
+            </Typography>
+          }
         />
       </div>
-    </section>
 
+      <div className="flex min-w-0 flex-col gap-6">
     <Divider className={dividerClass} />
 
     <section className="flex flex-col gap-4">
@@ -353,6 +362,8 @@ const GameCenterRedesign = () => (
       />
       <TrophyGrid awards={awards} />
     </section>
+      </div>
+    </div>
   </div>
 );
 

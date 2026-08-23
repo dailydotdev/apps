@@ -1119,6 +1119,109 @@ meter::-webkit-meter-bar {
     }
   }
 
+  /* Holographic trading-card treatment, after simeydotme/pokemon-cards-css:
+     the pointer drives --pointer-* / --rotate-*, a repeating rainbow foil
+     rides --background-*, and a radial glare tracks the cursor. */
+  .hero-card {
+    --pointer-x: 50%;
+    --pointer-y: 50%;
+    --background-x: 50%;
+    --background-y: 50%;
+    --rotate-x: 0deg;
+    --rotate-y: 0deg;
+    --card-opacity: 0;
+    perspective: 900px;
+  }
+
+  .hero-card-inner {
+    transform: rotateY(var(--rotate-x)) rotateX(var(--rotate-y));
+    transform-origin: center;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
+  }
+
+  .hero-card.is-active .hero-card-inner {
+    transition: none;
+  }
+
+  .hero-card-shine,
+  .hero-card-glare {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: var(--card-opacity);
+    transition: opacity 0.3s ease-out;
+  }
+
+  .hero-card-shine {
+    /* color-dodge over the gold frame blows out at full strength, so the
+       foil is held back to a sheen rather than a full rainbow wash. */
+    opacity: calc(var(--card-opacity) * 0.45);
+    mix-blend-mode: color-dodge;
+    background-position: var(--background-x) var(--background-y);
+    background-size: 300% 300%;
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgb(255 119 115 / 0.5) 4%,
+      rgb(255 237 95 / 0.5) 8%,
+      rgb(168 255 95 / 0.5) 12%,
+      rgb(131 255 247 / 0.5) 16%,
+      rgb(120 148 255 / 0.5) 20%,
+      rgb(216 117 255 / 0.5) 24%,
+      rgb(255 119 115 / 0.5) 28%
+    );
+    filter: brightness(0.7) contrast(1.9) saturate(1.4);
+  }
+
+  .hero-card-glare {
+    opacity: calc(var(--card-opacity) * 0.6);
+    mix-blend-mode: overlay;
+    background-image: radial-gradient(
+      farthest-corner circle at var(--pointer-x) var(--pointer-y),
+      rgb(255 255 255 / 0.8) 10%,
+      rgb(255 255 255 / 0.65) 20%,
+      rgb(0 0 0 / 0.5) 90%
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-card-inner {
+      transform: none;
+    }
+
+    .hero-card-shine,
+    .hero-card-glare {
+      opacity: 0;
+    }
+  }
+
+  @keyframes hero-card-rays {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .hero-card-rays {
+    background: conic-gradient(
+      from 0deg,
+      rgb(206 61 243 / 0.3) 0 12deg,
+      transparent 12deg 30deg
+    );
+    animation: hero-card-rays 22s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-card-foil::after {
+      animation: none;
+      opacity: 0.25;
+    }
+
+    .hero-card-rays {
+      animation: none;
+    }
+  }
+
   @keyframes float {
     0%, 100% {
       transform: translateY(0);
