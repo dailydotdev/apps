@@ -127,15 +127,11 @@ export const OnboardingRegistrationForm = ({
   const signupProviders = getSignupProviders(
     preferGithub ?? isOnboardingTrigger,
   );
-  // Read-only views of the one treatment the wall named.
   const isSplitLayout = !!signupStyle;
   const isCreateAccountCopy = signupStyle === 'splitCreateAccount';
   const isSinglePrimary = signupStyle === 'singlePrimary';
 
-  // The single-primary treatment sizes the brand marks to the label rather
-  // than the button, and takes GitHub's filled octocat (the icon's `secondary`
-  // asset) so it reads at the same weight as Google's mark. Google already
-  // ships `secondary`, so passing it here is a no-op for that provider.
+  // `secondary` is GitHub's filled octocat, so it reads at Google's weight.
   const getProviderIcon = (icon: ReactElement): ReactElement => {
     if (isSinglePrimary) {
       return cloneElement(icon, { size: IconSize.XSmall, secondary: true });
@@ -144,6 +140,15 @@ export const OnboardingRegistrationForm = ({
       return cloneElement(icon, { size: IconSize.Medium });
     }
     return icon;
+  };
+
+  // The rest step down to a fill rather than an outline, which would read as
+  // disabled beside a solid primary.
+  const getProviderVariant = (index: number): ButtonVariant => {
+    if (!isSinglePrimary) {
+      return onboardingSignupButton?.variant ?? ButtonVariant.Primary;
+    }
+    return index === 0 ? ButtonVariant.Primary : ButtonVariant.Float;
   };
 
   const trackOpenSignup = () => {
@@ -180,8 +185,6 @@ export const OnboardingRegistrationForm = ({
     // and "Already have an account". onb-split-cta lets the signup hero close
     // it further on compact phones.
     if (isSplitLayout) {
-      // The single-primary rail hands the spacing to the link's own padded hit
-      // area, so it doesn't stack a margin on top of it.
       return isSinglePrimary ? 'onb-split-cta' : 'onb-split-cta mb-4';
     }
     if (isOnboardingTrigger) {
@@ -201,14 +204,11 @@ export const OnboardingRegistrationForm = ({
     onContinueWithEmail?.();
   };
 
-  // The single-primary rail demotes email to a text link. A plain button, not
-  // `Button`: the variant's box, shadow and hover `--button-background` would
-  // each need overriding to look like a link. `min-h-12` keeps a 48px row under
-  // 20px of text, so the target clears 44px while the label stays a link — and
-  // that row is what spaces the login prompt below it (see getEmailButtonClass).
+  // A plain button, not `Button`: the variant's box, shadow and hover
+  // `--button-background` would each need overriding to look like a link.
+  // `min-h-12` keeps the tap target at 48px under a 20px label.
   const emailLink = (
     <button
-      aria-label={emailButtonAriaLabel}
       className={classNames(
         getEmailButtonClass(),
         'mx-auto flex min-h-12 items-center justify-center px-3 text-text-tertiary underline underline-offset-4 transition-colors typo-callout hover:text-text-primary disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none',
@@ -253,13 +253,9 @@ export const OnboardingRegistrationForm = ({
     // Once the columns appear it follows the left-aligned column edge again.
     // onb-split-login is a styling hook for the signup hero: it tightens this
     // row on compact phones. Inert anywhere the hero's CSS is not present.
-    // The single-primary rail centres this under the button column at every
-    // width — the buttons are the axis here, not the left edge of the copy —
-    // and drops the prompt to tertiary so it sits with the email link rather
-    // than competing with the CTAs. "Log in" keeps full strength below.
+    // Centred on the buttons, not the left edge of the copy. mt-1 because the
+    // email link's padded row already supplies most of the gap.
     if (isSinglePrimary) {
-      // mt-1, not mt-4: the email link's padded row already supplies most of
-      // the gap, so the visual rhythm matches the old text-only link.
       return 'onb-split-login mx-auto mt-1 justify-center text-center text-text-tertiary typo-callout laptop:mt-2';
     }
     if (isSplitLayout) {
@@ -298,14 +294,10 @@ export const OnboardingRegistrationForm = ({
               }
               className={classNames(
                 'w-full',
-                // The stepped-down providers stay filled rather than becoming
-                // outlines: a hairline-only button reads as disabled next to a
-                // solid primary. Full-strength label (and, through
-                // currentColor, brand mark) for the same reason — stepping the
-                // fill down is the hierarchy, dimming the text is just noise.
-                isSinglePrimary &&
-                  index > 0 &&
-                  '!border-border-subtlest-tertiary !bg-surface-float !text-text-primary',
+                // Float's label is text-secondary and the brand mark follows
+                // it through currentColor; the fill is the hierarchy, not the
+                // label.
+                isSinglePrimary && index > 0 && '!text-text-primary',
               )}
               data-funnel-track={FunnelTargetId.SignupProvider}
               disabled={!isReady || isSocialAuthLoading}
@@ -314,17 +306,7 @@ export const OnboardingRegistrationForm = ({
               onClick={() => onProviderClick?.(provider.value, false)}
               size={onboardingSignupButton?.size ?? ButtonSize.Large}
               type="button"
-              // One visual primary: the leading provider keeps the solid
-              // treatment and the rest step down, so the wall recommends a
-              // default instead of offering two identical doors.
-              variant={
-                // eslint-disable-next-line no-nested-ternary
-                isSinglePrimary
-                  ? index === 0
-                    ? ButtonVariant.Primary
-                    : ButtonVariant.Secondary
-                  : onboardingSignupButton?.variant ?? ButtonVariant.Primary
-              }
+              variant={getProviderVariant(index)}
             >
               {isCreateAccountCopy
                 ? `Sign up with ${provider.label}`

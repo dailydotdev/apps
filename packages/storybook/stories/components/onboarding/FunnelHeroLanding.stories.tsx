@@ -81,11 +81,7 @@ export const Panel: Story = {
   },
 };
 
-/**
- * The homepage's hero artwork full-bleed as the right half — no frame, no
- * overlays — with the tagline on the rail. One solid primary (Google), GitHub
- * secondary, email demoted to a text link.
- */
+/** Full-bleed hero artwork on the right, one solid primary CTA on the rail. */
 export const Horizon: Story = {
   args: {
     ...baseArgs,

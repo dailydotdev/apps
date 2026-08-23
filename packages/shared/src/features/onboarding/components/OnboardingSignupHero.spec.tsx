@@ -138,8 +138,6 @@ describe('OnboardingSignupHero', () => {
 
     it('renders the homepage hero artwork full-bleed', () => {
       renderHorizon();
-      // One for the stacked band, one for the desktop half; each is hidden at
-      // the breakpoint the other serves.
       const art = screen.getAllByTestId('horizon-art');
       expect(art).toHaveLength(2);
       art.forEach((image) =>

@@ -8,15 +8,8 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useOnboardingActions } from '../../../hooks/auth';
 import { useIsOnboardingFunnel } from '../shared/FunnelStepDots';
 
-// =============================================================
-// These specs are about one thing: who gets enrolled in the
-// horizon experiment, and what the screen shows while that is
-// being decided. Evaluating the flag is what fires GrowthBook's
-// trackingCallback and therefore the allocation POST, so
-// `shouldEvaluate` is the assertion target throughout — a visit
-// that never paints a wall must never allocate, or it lands in
-// the denominator of both arms without being able to convert.
-// =============================================================
+// Evaluating the flag is what fires the allocation POST, so `shouldEvaluate`
+// is the assertion target throughout.
 
 jest.mock('../../../hooks/useConditionalFeature');
 jest.mock('../../../contexts/AuthContext');
@@ -27,8 +20,6 @@ jest.mock('../../../hooks', () => ({
   useViewSize: jest.fn().mockReturnValue(false),
 }));
 
-// The wall itself is covered by OnboardingSignupHero.spec; here it only needs
-// to report which background it was handed.
 jest.mock('../components/OnboardingSignupHero', () => ({
   OnboardingSignupHero: ({
     background,
@@ -132,8 +123,6 @@ describe('FunnelHeroLanding', () => {
 
       renderStep();
 
-      // No wall, so no allocation: this visit is transitioned straight past
-      // the step and could never have converted on it.
       expect(shouldEvaluate()).toBe(false);
       expect(screen.queryByTestId('signup-hero')).not.toBeInTheDocument();
     });
@@ -192,12 +181,63 @@ describe('FunnelHeroLanding', () => {
 
       expect(screen.queryByTestId('signup-hero')).not.toBeInTheDocument();
 
-      // The deadline exists so a boot that never returns experiment features
-      // costs a blink rather than a permanently blank entry screen.
       act(() => {
         jest.advanceTimersByTime(250);
       });
 
+      expect(screen.getByTestId('signup-hero')).toHaveAttribute(
+        'data-background',
+        'cards',
+      );
+    });
+
+    it('holds a signed-in visit until its actions land, then skips the control', () => {
+      setAuth({
+        isLoggedIn: true,
+        user: { id: 'u2', infoConfirmed: false, providers: ['github'] },
+      });
+      setOnboardingActions({ isOnboardingActionsReady: false });
+      setFlag({ value: true });
+
+      const { rerender } = renderStep('cards');
+
+      expect(screen.queryByTestId('signup-hero')).not.toBeInTheDocument();
+
+      setOnboardingActions({ isOnboardingActionsReady: true });
+      rerender(
+        <FunnelHeroLanding
+          {...({
+            id: 'hero',
+            type: FunnelStepType.HeroLanding,
+            isActive: true,
+            parameters: { background: 'cards' },
+            onTransition: jest.fn(),
+          } as unknown as FunnelStepHeroLanding)}
+        />,
+      );
+
+      expect(screen.getByTestId('signup-hero')).toHaveAttribute(
+        'data-background',
+        'horizon',
+      );
+    });
+
+    it('gives up the hold when the actions request never resolves', () => {
+      setAuth({
+        isLoggedIn: true,
+        user: { id: 'u3', infoConfirmed: false, providers: ['github'] },
+      });
+      setOnboardingActions({ isOnboardingActionsReady: false });
+
+      renderStep('cards');
+
+      expect(screen.queryByTestId('signup-hero')).not.toBeInTheDocument();
+
+      act(() => {
+        jest.advanceTimersByTime(1500);
+      });
+
+      // Nothing may hold the funnel's entry screen indefinitely.
       expect(screen.getByTestId('signup-hero')).toHaveAttribute(
         'data-background',
         'cards',

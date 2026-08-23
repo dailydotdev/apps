@@ -202,17 +202,14 @@ export const HERO_STYLES = `.onb-bg {
 
 /* --- signup wall: horizon background --- */
 
-/* The band takes the panel's 50dvh, but not its compact-phone step-down: this
-   column has no divider and no bordered email button, so it ends ~100px
-   shorter and the panel's 32dvh would leave a dead gap between the fade and
-   the logo. */
+/* Takes the panel's 50dvh but not its compact-phone step-down: this column has
+   no divider and no bordered email button, so 32dvh leaves a dead gap. */
 @media (max-height: 759px) and (max-width: 1019px) {
   .onb-horizon-band { height: 40dvh; }
 }
 
-/* The seam where the full-bleed artwork meets the rail: the page background
-   bleeding over the image's left edge, so the split reads as one surface
-   rather than two columns butted together. */
+/* The page background bleeding over the artwork's left edge, so the split
+   reads as one surface rather than two columns butted together. */
 .onb-horizon-seam {
   background: linear-gradient(
     to right,

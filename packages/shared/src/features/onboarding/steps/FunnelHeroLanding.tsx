@@ -30,10 +30,7 @@ const authContainerClass =
 // becomes dead space *under* the buttons that holds them off the bottom edge —
 // so they opt out and let the container hug its content instead.
 const splitAuthContainerClass = classNames(authContainerClass, '!min-h-0');
-// The horizon's auth stack is narrower than its copy column: full-width
-// buttons at the column's 440px read as a form, and the one-primary hierarchy
-// wants a target you take in at a glance. The headline keeps the wider
-// measure above it.
+// Narrower than the copy column: full-width buttons at 440px read as a form.
 const horizonAuthContainerClass = classNames(
   'w-full max-w-full rounded-none tablet:max-w-[22.5rem]',
   '!min-h-0',
@@ -63,12 +60,11 @@ const isSocialSignupUser = (
   );
 };
 
-// Upper bound on holding the wall for the flag. `isAuthReady` and GrowthBook's
-// `ready` come out of the same boot payload one commit apart, so this is a
-// safety net rather than a budget — and a short one, because `ready` never
-// flips when boot returns no experiment features, and a long deadline would
-// blank the funnel's entry screen for both arms every time that happens.
+// Safety nets, not budgets — nothing may hold the funnel's entry screen
+// indefinitely. The flag rides the boot payload and lands a commit after auth,
+// so it gets the short one; onboarding actions are a real round trip.
 const FLAG_RESOLVE_TIMEOUT_MS = 200;
+const ACTIONS_RESOLVE_TIMEOUT_MS = 1000;
 
 export const FunnelHeroLanding = withIsActiveGuard(
   ({
@@ -92,20 +88,18 @@ export const FunnelHeroLanding = withIsActiveGuard(
     const isOnboarding = useIsOnboardingFunnel();
     const { isOnboardingActionsReady, isOnboardingComplete } =
       useOnboardingActions();
-    // The render's own bail-outs, hoisted so enrollment can be gated on them:
-    // a visit that never paints a wall must not allocate, or it sits in the
-    // denominator of both arms unable to convert.
+    // A signed-in user's completion is only known once their actions land;
+    // until then we can't tell a wall viewer from someone about to be
+    // transitioned past this step. Anonymous visitors have nothing to fetch.
+    const isResolvingEnrollment = isLoggedIn && !isOnboardingActionsReady;
+    // Enrollment must not fire for a visit that never paints a wall, or it
+    // sits in the denominator of both arms unable to convert.
     const isSkippingWall =
       (isLoggedIn && user?.infoConfirmed) ||
       isOnboardingComplete ||
-      // A signed-in user's completion is only known once their actions land;
-      // until then we can't tell a wall viewer from someone about to be
-      // transitioned past this step. Anonymous visitors have nothing to fetch.
-      (isLoggedIn && !isOnboardingActionsReady);
-    // Flips the wall to the horizon treatment without a Freyja change, on the
-    // onboarding funnel only. Evaluating is what enrolls — `getFeatureValue`
-    // fires GrowthBook's trackingCallback, which POSTs the allocation — so
-    // `shouldEvaluate` mirrors the render predicate above.
+      isResolvingEnrollment;
+    // Evaluating is what enrolls: `getFeatureValue` fires GrowthBook's
+    // trackingCallback, which POSTs the allocation.
     const shouldEvaluateWallFlag =
       isAuthReady && isOnboarding && !isSkippingWall;
     const { value: isHorizonWallEnabled, isLoading: isHorizonFlagLoading } =
@@ -113,23 +107,26 @@ export const FunnelHeroLanding = withIsActiveGuard(
         feature: featureSignupWallHorizon,
         shouldEvaluate: shouldEvaluateWallFlag,
       });
-    // Rendering the served wall first and swapping when the flag lands would
-    // show the control arm to treatment users and waste a hero download, so
-    // hold until it resolves — bounded, and only for visits being enrolled.
-    // After the deadline we render what the funnel served, i.e. the control.
-    const [hasWaitedForFlag, setHasWaitedForFlag] = useState(false);
+    const isHoldingForEnrollment =
+      isResolvingEnrollment || (shouldEvaluateWallFlag && isHorizonFlagLoading);
+    const holdTimeoutMs = isLoggedIn
+      ? ACTIONS_RESOLVE_TIMEOUT_MS
+      : FLAG_RESOLVE_TIMEOUT_MS;
+    const [hasWaitedForEnrollment, setHasWaitedForEnrollment] = useState(false);
     useEffect(() => {
-      if (!shouldEvaluateWallFlag) {
+      if (!isHoldingForEnrollment) {
         return undefined;
       }
       const timeout = setTimeout(
-        () => setHasWaitedForFlag(true),
-        FLAG_RESOLVE_TIMEOUT_MS,
+        () => setHasWaitedForEnrollment(true),
+        holdTimeoutMs,
       );
       return () => clearTimeout(timeout);
-    }, [shouldEvaluateWallFlag]);
-    const isWallPending =
-      shouldEvaluateWallFlag && isHorizonFlagLoading && !hasWaitedForFlag;
+    }, [isHoldingForEnrollment, holdTimeoutMs]);
+    // Painting the served wall and swapping later would show the control arm
+    // to treatment users and waste a hero download. Enrollment resolves
+    // through the actions fetch as well as the flag, so both are held.
+    const isWallPending = isHoldingForEnrollment && !hasWaitedForEnrollment;
     const background = isHorizonWallEnabled ? 'horizon' : backgroundParam;
     const isHorizonWall = background === 'horizon';
     const oauthOrder =
@@ -147,11 +144,8 @@ export const FunnelHeroLanding = withIsActiveGuard(
       isSocialSignupUser(user);
     const preferGithub = oauthOrder !== 'googleFirst';
     const isPanelWall = background === 'panel';
-    // Both split-column walls take the same column geometry and opt out of
-    // AuthOptions' min-height reservation, which is dead space under a
-    // bottom-anchored form. Only the panel takes the "Sign up with…" copy:
-    // "Continue with…" logs returning users straight in, so the horizon keeps
-    // it rather than building a wrong door.
+    // Only the panel takes the "Sign up with…" copy: "Continue with…" logs
+    // returning users straight in, so the horizon keeps it.
     const isSplitColumnBackground = isPanelWall || isHorizonWall;
     const getSignupStyle = (): SignupStyle | undefined => {
       if (isHorizonWall) {

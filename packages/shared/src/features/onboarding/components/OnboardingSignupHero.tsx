@@ -162,10 +162,6 @@ export const OnboardingSignupHero = ({
     );
   }
 
-  // The horizon: the homepage's hero artwork full-bleed as the right half —
-  // no frame, no overlays — dissolving into the page at the seam, with the
-  // tagline and the auth options on the rail. Stacked, it takes the panel's
-  // shape: an artwork band on top, the form bottom-anchored underneath.
   if (isHorizonLayout) {
     const signupColumn = (
       <div
@@ -180,8 +176,6 @@ export const OnboardingSignupHero = ({
           logoClassName={{ container: 'h-7' }}
         />
 
-        {/* Funnel copy is authored as HTML (b/strong/br), so it takes the
-            same sanitizer the other walls use. */}
         {headline && (
           <h1
             className="onb-hero-headline text-balance text-center font-bold tracking-tight text-text-primary typo-large-title tablet:typo-mega3 laptop:text-left"
@@ -198,9 +192,7 @@ export const OnboardingSignupHero = ({
         <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
 
         <div className="relative z-1 flex min-w-0 flex-1 flex-col laptop:col-start-1 laptop:row-start-1 laptop:min-h-dvh">
-          {/* Stacked, the artwork is scenery rather than the subject: a band
-              that fades into the page so the form keeps the fold. Absolute,
-              not in flow, so the form can bottom-anchor into the fade. */}
+          {/* Absolute, not in flow, so the form bottom-anchors into the fade. */}
           <div
             aria-hidden
             className="onb-art-half onb-horizon-band pointer-events-none absolute inset-x-0 top-0 select-none overflow-hidden laptop:hidden"
@@ -213,8 +205,6 @@ export const OnboardingSignupHero = ({
             {signupColumn}
           </main>
 
-          {/* Same legal-row policy as the panel: constrained to the form's
-              column width, `tablet` up, footer links `laptop` up. */}
           <div className="onb-split-legal pointer-events-auto relative z-1 hidden w-full flex-col items-center gap-3 px-5 pb-6 pt-5 tablet:flex laptop:px-10 laptop:pb-8 laptop:pt-0">
             <div
               className={classNames(
@@ -230,9 +220,6 @@ export const OnboardingSignupHero = ({
           </div>
         </div>
 
-        {/* The right half IS the image: full-bleed, no frame, no overlays.
-            The seam lets the page background bleed over the artwork's left
-            edge so the split reads as one surface. */}
         <div
           aria-hidden
           className="relative hidden select-none overflow-hidden laptop:col-start-2 laptop:row-start-1 laptop:block laptop:min-h-dvh"
