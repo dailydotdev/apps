@@ -94,11 +94,14 @@ export function AchievementShelfCard({
   return (
     <>
       <article className="group relative flex h-[232px] w-44 shrink-0 flex-col justify-end overflow-hidden rounded-16 bg-background-subtle text-left transition-transform hover:-translate-y-1">
+        {/* `absolute` has to come from the prop: LazyImage appends its own
+            `relative` after our classes, and that wins in the compiled CSS. */}
         <LazyImage
+          absolute
           imgSrc={achievement.image}
           imgAlt={achievement.name}
           className={classNames(
-            'absolute inset-0 size-full object-cover',
+            'inset-0 size-full',
             !isUnlocked && 'brightness-[.6] grayscale-[.85]',
           )}
           fallbackSrc={fallbackImage}
