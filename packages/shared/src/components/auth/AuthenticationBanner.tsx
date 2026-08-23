@@ -7,7 +7,6 @@ import AuthOptions from './AuthOptions';
 import { AuthTriggers } from '../../lib/auth';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { authGradientBg, BottomBannerContainer } from '../marketing/banners';
-import { ButtonVariant } from '../buttons/common';
 import { Image } from '../image/Image';
 import {
   cloudinaryAuthBannerBackground as bg,
@@ -79,6 +78,11 @@ export function AuthenticationBanner({
             simplified
             defaultDisplay={AuthDisplay.OnboardingSignup}
             forceDefaultDisplay
+            // The horizon wall's CTA hierarchy: Google is the one solid
+            // primary, GitHub steps down to a fill, email is a text link and
+            // the divider goes — three identical buttons recommend nothing.
+            signupStyle="singlePrimary"
+            preferGithub={false}
             className={{
               // The signup display's min-height is modal sizing; here it
               // stretches both columns ~5rem past their content and the strip
@@ -95,9 +99,6 @@ export function AuthenticationBanner({
                   formValues: props.email ? { email: props.email } : undefined,
                 },
               });
-            }}
-            onboardingSignupButton={{
-              variant: ButtonVariant.Primary,
             }}
             hideLoginLink={compact}
             compact={compact}

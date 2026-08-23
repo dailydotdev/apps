@@ -210,7 +210,9 @@ export const FunnelHeroLanding = withIsActiveGuard(
           }
           // "Sign up with…" / "Create account", plus the left-aligned login
           // link — the copy the split-column layouts are designed around.
-          splitSignupStyle={isSplitColumnBackground}
+          signupStyle={
+            isSplitColumnBackground ? 'splitCreateAccount' : undefined
+          }
           preferGithub={preferGithub}
           defaultDisplay={
             isSocialSignupActive ? AuthDisplay.SocialRegistration : authDisplay
