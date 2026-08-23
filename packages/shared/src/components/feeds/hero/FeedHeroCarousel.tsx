@@ -4,13 +4,13 @@ import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import type { FeaturedWideCardProps } from '../../cards/common/featuredWide';
 import { PostTypeToWideCard } from '../../cards/common/wideCards';
+import { PostTypeToListCard } from '../../cards/common/listCards';
 import { ArticleFeaturedWideGridCard } from '../../cards/article/ArticleFeaturedWideGridCard';
+import { ArticleList } from '../../cards/article/ArticleList';
+import { useViewSize, ViewSize } from '../../../hooks';
 import { Button } from '../../buttons/Button';
-import {
-  ButtonIconPosition,
-  ButtonSize,
-  ButtonVariant,
-} from '../../buttons/common';
+import { ButtonSize, ButtonVariant } from '../../buttons/common';
+import { Tooltip } from '../../tooltip/Tooltip';
 import { ArrowIcon } from '../../icons';
 
 export type FeedHeroCarouselProps = Omit<FeaturedWideCardProps, 'post'> & {
@@ -28,6 +28,9 @@ export const FeedHeroCarousel = ({
   ...cardProps
 }: FeedHeroCarouselProps): ReactElement | null => {
   const [index, setIndex] = useState(0);
+  // Below laptop the feed itself renders list cards, so the featured post does
+  // too — a two-column wide card leaves the headline about 180px on a phone.
+  const isLaptop = useViewSize(ViewSize.Laptop);
 
   if (!posts.length) {
     return null;
@@ -36,7 +39,9 @@ export const FeedHeroCarousel = ({
   const total = posts.length;
   const active = wrapIndex(index, total);
   const post = posts[active];
-  const WideCard = PostTypeToWideCard[post.type] ?? ArticleFeaturedWideGridCard;
+  const Card = isLaptop
+    ? PostTypeToWideCard[post.type] ?? ArticleFeaturedWideGridCard
+    : PostTypeToListCard[post.type] ?? ArticleList;
   const previous = posts[wrapIndex(active - 1, total)];
   const next = posts[wrapIndex(active + 1, total)];
 
@@ -46,11 +51,14 @@ export const FeedHeroCarousel = ({
       aria-roledescription="carousel"
       className={classNames('flex min-w-0 flex-col gap-3', className)}
     >
-      <div className="flex min-h-card flex-1 flex-col" aria-live="polite">
-        <WideCard
+      <div
+        className="flex flex-1 flex-col laptop:min-h-card"
+        aria-live="polite"
+      >
+        <Card
           key={post.id}
           post={post}
-          wideColSpan={wideColSpan}
+          {...(isLaptop && { wideColSpan })}
           {...cardProps}
         />
       </div>
@@ -73,34 +81,31 @@ export const FeedHeroCarousel = ({
               />
             ))}
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              icon={<ArrowIcon className="-rotate-90" />}
-              onClick={() => setIndex(active - 1)}
-              aria-label={`Previous: ${previous.title}`}
-            >
-              <span className="hidden max-w-[10rem] truncate tablet:block">
-                {previous.title}
-              </span>
-            </Button>
-            <Button
-              type="button"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              icon={<ArrowIcon className="rotate-90" />}
-              iconPosition={ButtonIconPosition.Right}
-              onClick={() => setIndex(active + 1)}
-              aria-label={`Next: ${next.title}`}
-            >
-              <span className="hidden max-w-[10rem] truncate tablet:block">
-                {next.title}
-              </span>
-            </Button>
+          <div className="flex items-center gap-1">
+            <span className="mr-1 tabular-nums text-text-tertiary typo-footnote">
+              {active + 1}/{total}
+            </span>
+            <Tooltip content={previous.title}>
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<ArrowIcon className="-rotate-90" />}
+                onClick={() => setIndex(active - 1)}
+                aria-label={`Previous: ${previous.title}`}
+              />
+            </Tooltip>
+            <Tooltip content={next.title}>
+              <Button
+                type="button"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={<ArrowIcon className="rotate-90" />}
+                onClick={() => setIndex(active + 1)}
+                aria-label={`Next: ${next.title}`}
+              />
+            </Tooltip>
           </div>
-          <div className="hidden flex-1 tablet:block" aria-hidden />
         </div>
       )}
     </section>

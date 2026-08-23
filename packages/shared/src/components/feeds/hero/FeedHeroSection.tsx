@@ -6,9 +6,6 @@ import type { PostHighlight } from '../../../graphql/highlights';
 import type { ViewabilityData } from '../../../features/monetization/viewability';
 import type { FeaturedWideCardProps } from '../../cards/common/featuredWide';
 import { HighlightCardContent } from '../../cards/highlight/common';
-import { Button } from '../../buttons/Button';
-import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import Link from '../../utilities/Link';
 import { FeedHeroAd } from './FeedHeroAd';
 import { FeedHeroCarousel } from './FeedHeroCarousel';
 
@@ -16,7 +13,6 @@ interface FeedHeroSectionProps {
   posts: Post[];
   highlights: PostHighlight[];
   ad?: Ad;
-  exploreHref?: string;
   cardProps?: Omit<FeaturedWideCardProps, 'post'>;
   onAdLinkClick?: (ad: Ad) => unknown;
   onAdViewable?: (ad: Ad, data: ViewabilityData) => void;
@@ -29,7 +25,6 @@ export const FeedHeroSection = ({
   posts,
   highlights,
   ad,
-  exploreHref,
   cardProps,
   onAdLinkClick,
   onAdViewable,
@@ -56,7 +51,7 @@ export const FeedHeroSection = ({
           onViewable={onAdViewable}
         />
       )}
-      <div className="group flex min-h-0 flex-1 flex-col overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-surface-float">
+      <div className="group flex min-h-0 flex-1 flex-col overflow-hidden">
         <HighlightCardContent
           highlights={highlights}
           onHighlightClick={onHighlightClick}
@@ -64,18 +59,6 @@ export const FeedHeroSection = ({
           variant="grid"
         />
       </div>
-      {!!exploreHref && (
-        <Link href={exploreHref} passHref>
-          <Button
-            tag="a"
-            variant={ButtonVariant.Float}
-            size={ButtonSize.Medium}
-            className="w-full"
-          >
-            Explore all
-          </Button>
-        </Link>
-      )}
     </aside>
   </section>
 );

@@ -82,7 +82,6 @@ export const FullLayout: Story = {
         posts={heroPosts}
         highlights={highlights}
         ad={heroAd}
-        exploreHref="/tags"
         cardProps={cardHandlers}
         onAdLinkClick={fn()}
         onHighlightClick={fn()}
@@ -90,7 +89,7 @@ export const FullLayout: Story = {
       />
       <div className="flex flex-col gap-4">
         <FeedSectionToolbar
-          title="All posts"
+          title="Recommended for you"
           searchHref="/search"
           bookmarksHref="/bookmarks"
           onFiltersClick={fn()}
@@ -110,7 +109,6 @@ export const HeroOnly: Story = {
         posts={heroPosts}
         highlights={highlights}
         ad={heroAd}
-        exploreHref="/tags"
         cardProps={cardHandlers}
       />
     </Page>
@@ -165,7 +163,6 @@ export const HeroStates: Story = {
           posts={heroPosts}
           highlights={highlights}
           ad={heroAd}
-          exploreHref="/tags"
           cardProps={cardHandlers}
         />
       </Case>
@@ -176,7 +173,6 @@ export const HeroStates: Story = {
         <FeedHeroSection
           posts={heroPosts}
           highlights={highlights}
-          exploreHref="/tags"
           cardProps={cardHandlers}
         />
       </Case>
@@ -188,7 +184,6 @@ export const HeroStates: Story = {
           posts={heroPosts.slice(0, 1)}
           highlights={highlights}
           ad={heroAd}
-          exploreHref="/tags"
           cardProps={cardHandlers}
         />
       </Case>
@@ -200,7 +195,6 @@ export const HeroStates: Story = {
           posts={heroPosts}
           highlights={highlights.slice(0, 2)}
           ad={heroAd}
-          exploreHref="/tags"
           cardProps={cardHandlers}
         />
       </Case>
@@ -291,19 +285,19 @@ export const Toolbar: Story = {
     <Page>
       <Case title="All actions">
         <FeedSectionToolbar
-          title="All posts"
+          title="Recommended for you"
           searchHref="/search"
           bookmarksHref="/bookmarks"
           onFiltersClick={fn()}
         />
       </Case>
       <Case title="Title only" note="Every action is opt-in.">
-        <FeedSectionToolbar title="All posts" />
+        <FeedSectionToolbar title="Recommended for you" />
       </Case>
       <Case title="With the tag chips below">
         <div className="flex flex-col gap-4">
           <FeedSectionToolbar
-            title="All posts"
+            title="Recommended for you"
             searchHref="/search"
             bookmarksHref="/bookmarks"
             onFiltersClick={fn()}

@@ -34,7 +34,7 @@ export const FeedHeroAd = ({
     <div
       data-testid="feedHeroAd"
       className={classNames(
-        'relative flex shrink-0 gap-3 overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3',
+        'relative flex shrink-0 gap-3 overflow-hidden rounded-12 p-2 transition-colors hover:bg-surface-hover',
         className,
       )}
     >

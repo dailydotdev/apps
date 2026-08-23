@@ -13,21 +13,19 @@ import type { FeedPostClick } from '../hooks/feed/useFeedOnPostClick';
 import { LogEvent, Origin, TargetType } from '../lib/log';
 import type { UseVotePost } from '../hooks';
 import { useFeedLayout } from '../hooks';
-import { CollectionList } from './cards/collection/CollectionList';
 import { FeedItemType } from './cards/common/common';
 import { AdGrid } from './cards/ad/AdGrid';
 import { AdList } from './cards/ad/AdList';
 import { SignalAdList } from './cards/ad/SignalAdList';
 import type { AdCardProps } from './cards/ad/common/common';
 import { FreeformGrid } from './cards/Freeform/FreeformGrid';
-import { FreeformList } from './cards/Freeform/FreeformList';
 import type { PostClick } from '../lib/click';
 import { ArticleList } from './cards/article/ArticleList';
 import { ArticleGrid } from './cards/article/ArticleGrid';
 import type { FeaturedWideColSpan } from './cards/common/featuredWide';
 import { PostTypeToWideCard } from './cards/common/wideCards';
+import { PostTypeToListCard } from './cards/common/listCards';
 import { ShareGrid } from './cards/share/ShareGrid';
-import { ShareList } from './cards/share/ShareList';
 import { CollectionGrid } from './cards/collection';
 import type { UseBookmarkPost } from '../hooks/useBookmarkPost';
 import { AdActions } from '../lib/ads';
@@ -50,11 +48,8 @@ import {
 import { useEngagementAdsContext } from '../contexts/EngagementAdsContext';
 import { useLogContext } from '../contexts/LogContext';
 import PollGrid from './cards/poll/PollGrid';
-import { PollList } from './cards/poll/PollList';
 import { SocialTwitterGrid } from './cards/socialTwitter/SocialTwitterGrid';
-import { SocialTwitterList } from './cards/socialTwitter/SocialTwitterList';
 import { LiveRoomPostGrid } from './cards/liveRoom/LiveRoomPostGrid';
-import { LiveRoomPostList } from './cards/liveRoom/LiveRoomPostList';
 import { SignalList } from './cards/common/list/SignalList';
 import { OtherFeedPage } from '../lib/query';
 import { isSourceSquadOrMachine } from '../graphql/sources';
@@ -135,21 +130,6 @@ const PostTypeToTagCard: Record<PostType, React.ComponentType<any>> = {
   [PostType.LiveRoom]: LiveRoomPostGrid,
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const PostTypeToTagList: Record<PostType, React.ComponentType<any>> = {
-  [PostType.Article]: ArticleList,
-  [PostType.Share]: ShareList,
-  [PostType.Welcome]: FreeformList,
-  [PostType.Freeform]: FreeformList,
-  [PostType.VideoYouTube]: ArticleList,
-  [PostType.Collection]: CollectionList,
-  [PostType.Brief]: BriefCard,
-  [PostType.Poll]: PollList,
-  [PostType.SocialTwitter]: SocialTwitterList,
-  [PostType.Digest]: ArticleList,
-  [PostType.LiveRoom]: LiveRoomPostList,
-};
-
 const getPostTypeForCard = (post?: Post): PostType => {
   if (!post) {
     return PostType.Article;
@@ -177,7 +157,7 @@ const getTags = ({
 }: GetTagsProps) => {
   const useListCards = isListFeedLayout || shouldUseListMode;
   const isSignalFeed = feedName === OtherFeedPage.AgentsVibes;
-  const listPostTag = isSignalFeed ? SignalList : PostTypeToTagList[postType];
+  const listPostTag = isSignalFeed ? SignalList : PostTypeToListCard[postType];
   const listPlaceholderTag = isSignalFeed
     ? SignalPlaceholderList
     : PlaceholderList;
