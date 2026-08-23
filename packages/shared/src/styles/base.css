@@ -1075,6 +1075,50 @@ meter::-webkit-meter-bar {
     will-change: transform, opacity, filter;
   }
 
+  @keyframes quest-claim-shine {
+    0% {
+      left: -60%;
+    }
+
+    22% {
+      left: 130%;
+    }
+
+    100% {
+      left: 130%;
+    }
+  }
+
+  .quest-claim-shine {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .quest-claim-shine::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -60%;
+    width: 45%;
+    transform: skewX(-18deg);
+    pointer-events: none;
+    background: linear-gradient(
+      100deg,
+      transparent,
+      rgb(255 255 255 / 0.75),
+      transparent
+    );
+    animation: quest-claim-shine 2.6s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quest-claim-shine::after {
+      display: none;
+    }
+  }
+
   @keyframes float {
     0%, 100% {
       transform: translateY(0);

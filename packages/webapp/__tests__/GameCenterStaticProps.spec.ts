@@ -692,7 +692,7 @@ describe('game center client gating', () => {
     ).toBeInTheDocument();
   });
 
-  it('should render all milestone quests in a two-column grid without a show more toggle', () => {
+  it('should render every milestone quest as a stacked card without a show more toggle', () => {
     mockUseConditionalFeature.mockReturnValue({
       value: false,
       isLoading: false,
@@ -746,15 +746,31 @@ describe('game center client gating', () => {
       }),
     );
 
-    const milestoneGrid = screen.getByText('Milestones').nextElementSibling;
+    const milestoneSection = document.getElementById(
+      gameCenterMilestoneSectionId,
+    );
 
-    expect(milestoneGrid).toBeInTheDocument();
-    expect(screen.getByText('Milestone quest 4')).toBeInTheDocument();
+    expect(milestoneSection).toBeInTheDocument();
+
+    const renderedNames = Array.from(
+      within(milestoneSection as HTMLElement).getAllByRole('heading', {
+        level: 4,
+      }),
+    ).map((heading) => heading.textContent);
+
+    // Every quest here is claimable, so the closest-to-target one leads.
+    expect(renderedNames).toEqual([
+      'Milestone quest 5',
+      'Milestone quest 4',
+      'Milestone quest 3',
+      'Milestone quest 2',
+      'Milestone quest 1',
+    ]);
     expect(
-      within(milestoneGrid as HTMLElement).getByText('Milestone quest 5'),
-    ).toBeInTheDocument();
-
-    expect(milestoneGrid).toHaveClass('grid', 'tablet:grid-cols-2');
+      within(milestoneSection as HTMLElement).getAllByRole('button', {
+        name: 'Claim',
+      }),
+    ).toHaveLength(5);
     expect(
       screen.queryByRole('button', { name: /Show (more|less)/ }),
     ).not.toBeInTheDocument();

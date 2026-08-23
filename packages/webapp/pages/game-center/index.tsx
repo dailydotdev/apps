@@ -30,10 +30,6 @@ import { useHasAccessToCores } from '@dailydotdev/shared/src/hooks/useCoresFeatu
 import { useQuestDashboard } from '@dailydotdev/shared/src/hooks/useQuestDashboard';
 import { shouldShowAchievementTracker } from '@dailydotdev/shared/src/lib/achievements';
 import { gameCenterMilestoneSectionId } from '@dailydotdev/shared/src/lib/constants';
-import {
-  formatDate,
-  TimeFormatType,
-} from '@dailydotdev/shared/src/lib/dateFormat';
 import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { featuredAwardImage } from '@dailydotdev/shared/src/lib/image';
 import { achievementTrackingWidgetFeature } from '@dailydotdev/shared/src/lib/featureManagement';
@@ -69,11 +65,9 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { AchievementShelfCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementShelfCard';
-import { TopReaderBadge } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
+import { TopReaderBadgeCompact } from '@dailydotdev/shared/src/components/badges/TopReaderBadgeCompact';
 import { getQuestLevelProgress } from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
 import { LevelHud } from '@dailydotdev/shared/src/components/quest/LevelHud';
-import { QuestSection } from '@dailydotdev/shared/src/components/quest/QuestButton';
-import type { QuestDestination } from '@dailydotdev/shared/src/components/quest/QuestButton';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { UserTopList } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -86,15 +80,14 @@ import {
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { MilestoneQuestList } from '../../components/game-center/MilestoneQuestList';
 import { TrophyGrid } from '../../components/game-center/TrophyGrid';
 import ProtectedPage from '../../components/ProtectedPage';
 import { defaultOpenGraph } from '../../next-seo';
 import {
   getAchievementSummary,
   getAwardSummary,
-  getBadgeSummary,
   getMostProgressedQuest,
-  getTopReaderTopicLabel,
 } from '../../lib/gameCenter';
 
 type GameCenterPageProps = {
@@ -256,7 +249,6 @@ function GameCenterPage({
   const claimingMilestoneQuestId = isClaimQuestPending
     ? claimQuestVariables?.userQuestId
     : undefined;
-  const emptyQuestAnimationState = useMemo(() => new Set<string>(), []);
 
   const topReaderQueryKey = generateQueryKey(
     RequestKey.TopReaderBadge,
@@ -275,14 +267,7 @@ function GameCenterPage({
     staleTime: StaleTime.OneHour,
     enabled: !!user?.id,
   });
-  const badgeCaseBadges = useMemo(
-    () => topReaderBadges.slice(0, 3),
-    [topReaderBadges],
-  );
-  const badgeSummary = useMemo(
-    () => getBadgeSummary(topReaderBadges),
-    [topReaderBadges],
-  );
+
   const {
     data: awardProducts = [],
     isPending: isAwardsPending,
@@ -321,15 +306,6 @@ function GameCenterPage({
   const hasCommunityLeaderboards =
     highestReputation.length > 0 || mostQuestsCompleted.length > 0;
   const milestoneHash = `#${gameCenterMilestoneSectionId}`;
-  let mostEarnedBadgeSubtitle =
-    'Read in a topic more than once to see a favorite';
-
-  if (badgeSummary.mostEarnedBadge) {
-    mostEarnedBadgeSubtitle =
-      badgeSummary.mostEarnedBadgeCount === 1
-        ? 'earned once'
-        : `earned ${badgeSummary.mostEarnedBadgeCount.toLocaleString()} times`;
-  }
 
   const isFeaturedAchievementTrackable =
     shouldTrackAchievements &&
@@ -358,20 +334,6 @@ function GameCenterPage({
       featuredAchievement.achievement.id,
     );
   };
-  const handleMilestoneDestinationClick = useCallback(
-    async (destination: QuestDestination) => {
-      if ('href' in destination) {
-        if (destination.openInNewTab) {
-          window.open(destination.href!, '_blank', 'noopener,noreferrer');
-          return;
-        }
-        window.location.assign(destination.href!);
-        return;
-      }
-      await router.push(destination.path);
-    },
-    [router],
-  );
   const handleMilestoneClaim = useCallback(
     (userQuestId: string, questId: string, questType: QuestType) => {
       claimQuestReward({
@@ -408,17 +370,10 @@ function GameCenterPage({
     );
   } else if (milestoneQuests.length > 0) {
     milestoneQuestContent = (
-      <QuestSection
-        title="Milestones"
+      <MilestoneQuestList
         quests={milestoneQuests}
-        layout="grid"
         showLevelSystem={showLevelSystem}
-        onDestinationClick={handleMilestoneDestinationClick}
         claimingQuestId={claimingMilestoneQuestId}
-        animatingClaimRotationIds={emptyQuestAnimationState}
-        claimedStampRotationIds={emptyQuestAnimationState}
-        animatingClaimedStampRotationIds={emptyQuestAnimationState}
-        deferredClaimedStampRotationIds={emptyQuestAnimationState}
         onClaim={handleMilestoneClaim}
       />
     );
@@ -488,85 +443,18 @@ function GameCenterPage({
     );
   } else if (topReaderBadges.length > 0) {
     badgeCaseContent = (
-      <>
-        <div className="grid gap-4 tablet:grid-cols-3">
-          <DataTile
-            label="Latest badge"
-            value={
-              badgeSummary.latestBadge
-                ? getTopReaderTopicLabel(badgeSummary.latestBadge)
-                : 'No badge yet'
-            }
-            valueClassName="truncate"
-            info="Your most recently earned top-reader badge."
-            subtitle={
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-                className="truncate"
-              >
-                {badgeSummary.latestBadge
-                  ? formatDate({
-                      value: badgeSummary.latestBadge.issuedAt,
-                      type: TimeFormatType.TopReaderBadge,
-                    })
-                  : 'Read deeply to earn your first badge'}
-              </Typography>
-            }
-          />
-          <DataTile
-            label="Topics mastered"
-            value={badgeSummary.uniqueTopics}
-            info="Distinct subjects where you earned a top-reader badge."
-            icon={
-              <MedalBadgeIcon
-                size={IconSize.Small}
-                className="text-text-tertiary"
+      <div className="overflow-x-auto pb-2">
+        <div className="flex w-max gap-4">
+          {topReaderBadges.map((badge) => (
+            <div key={badge.id} className="shrink-0">
+              <TopReaderBadgeCompact
+                issuedAt={badge.issuedAt}
+                keyword={badge.keyword}
               />
-            }
-            subtitle={
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-              >
-                breadth of expertise
-              </Typography>
-            }
-          />
-          <DataTile
-            label="Most earned badge"
-            value={
-              badgeSummary.mostEarnedBadge
-                ? getTopReaderTopicLabel(badgeSummary.mostEarnedBadge)
-                : 'No badge yet'
-            }
-            valueClassName="truncate"
-            info="The badge topic that shows up most often in your collection."
-            subtitle={
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-                className="truncate"
-              >
-                {mostEarnedBadgeSubtitle}
-              </Typography>
-            }
-          />
+            </div>
+          ))}
         </div>
-        <div className="overflow-x-auto pb-2">
-          <div className="mx-auto flex w-max gap-4">
-            {badgeCaseBadges.map((badge) => (
-              <div key={badge.id} className="shrink-0">
-                <TopReaderBadge
-                  user={badge.user}
-                  issuedAt={badge.issuedAt}
-                  keyword={badge.keyword}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </>
+      </div>
     );
   } else {
     badgeCaseContent = (
@@ -1051,7 +939,7 @@ function GameCenterPage({
           <section className="flex flex-col gap-4">
             <SectionHeader
               title="Badge case"
-              description="Recent top-reader badges and the subjects you have gone deepest on."
+              description="Every top-reader badge you've earned and the subjects you have gone deepest on."
             />
 
             {badgeCaseContent}

@@ -133,6 +133,42 @@ export const getMostProgressedQuest = (
   })[0];
 };
 
+const MILESTONE_RANK_CLAIMABLE = 0;
+const MILESTONE_RANK_IN_PROGRESS = 1;
+const MILESTONE_RANK_CLAIMED = 2;
+
+const getMilestoneRank = (quest: UserQuest): number => {
+  if (quest.status === QuestStatus.Claimed) {
+    return MILESTONE_RANK_CLAIMED;
+  }
+
+  if (quest.claimable) {
+    return MILESTONE_RANK_CLAIMABLE;
+  }
+
+  return MILESTONE_RANK_IN_PROGRESS;
+};
+
+// A claimable milestone is a reward the user can collect right now, so it wins
+// the top of the list over anything still running, and spent ones sink.
+export const sortMilestoneQuests = (quests: UserQuest[]): UserQuest[] =>
+  [...quests].sort((left, right) => {
+    const rankDifference = getMilestoneRank(left) - getMilestoneRank(right);
+
+    if (rankDifference !== 0) {
+      return rankDifference;
+    }
+
+    const ratioDifference =
+      getQuestProgressRatio(right) - getQuestProgressRatio(left);
+
+    if (ratioDifference !== 0) {
+      return ratioDifference;
+    }
+
+    return getQuestRewardTotal(right) - getQuestRewardTotal(left);
+  });
+
 export const getQuestSummary = (
   dashboard?: QuestDashboard,
 ): GameCenterQuestSummary => {

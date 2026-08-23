@@ -21,6 +21,7 @@ import {
   getMostProgressedQuest,
   getQuestSummary,
   getTopReaderTopicLabel,
+  sortMilestoneQuests,
 } from './gameCenter';
 
 const createQuest = (
@@ -210,6 +211,49 @@ describe('game center helpers', () => {
     ]);
 
     expect(mostProgressedQuest?.quest.id).toBe('ratio-winner');
+  });
+
+  it('orders milestones claimable first, then closest to done, then claimed', () => {
+    const milestone = (
+      questId: string,
+      overrides: Partial<UserQuest>,
+      targetCount = 10,
+    ) =>
+      createQuest({
+        questId,
+        name: questId,
+        ...overrides,
+        quest: {
+          id: questId,
+          name: questId,
+          description: `${questId} description`,
+          type: QuestType.Milestone,
+          eventType: 'read_post',
+          targetCount,
+        },
+      });
+
+    const ordered = sortMilestoneQuests([
+      milestone('claimed', {
+        progress: 10,
+        status: QuestStatus.Claimed,
+        claimedAt: new Date('2025-02-01T00:00:00.000Z'),
+      }),
+      milestone('barely-started', { progress: 1 }),
+      milestone('almost-done', { progress: 9 }),
+      milestone('claimable', {
+        progress: 10,
+        claimable: true,
+        status: QuestStatus.Completed,
+      }),
+    ]);
+
+    expect(ordered.map((quest) => quest.quest.id)).toEqual([
+      'claimable',
+      'almost-done',
+      'barely-started',
+      'claimed',
+    ]);
   });
 
   it('builds achievement summaries with deduped featured cards', () => {
