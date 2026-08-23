@@ -19,7 +19,6 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { Divider } from '@dailydotdev/shared/src/components/utilities';
-import { featuredAwardImage } from '@dailydotdev/shared/src/lib/image';
 import { MilestoneQuestList } from '../../../webapp/components/game-center/MilestoneQuestList';
 import { TrophyGrid } from '../../../webapp/components/game-center/TrophyGrid';
 import type { AwardWithRarity } from '../../../webapp/lib/gameCenter';
@@ -160,25 +159,28 @@ const milestoneQuests: UserQuest[] = [
   ),
 ];
 
+// Real entries from the achievements catalogue, so the shelf shows the
+// actual artwork and rarity spread rather than one repeated placeholder.
 const achievement = (
-  id: string,
   name: string,
   description: string,
+  image: string,
+  unit: string | null,
   progress: number,
   targetCount: number,
   rarity: number | null,
   unlockedAt: string | null,
 ): UserAchievement => ({
   achievement: {
-    id,
+    id: name,
     name,
     description,
-    image: featuredAwardImage,
+    image,
     type: AchievementType.Milestone,
     criteria: { targetCount },
     points: 100,
     rarity,
-    unit: 'posts',
+    unit,
   },
   progress,
   unlockedAt,
@@ -188,39 +190,63 @@ const achievement = (
 
 const achievements: UserAchievement[] = [
   achievement(
-    'night-owl',
-    'Night Owl',
-    'Read 50 posts after midnight.',
-    32,
-    50,
+    "Can't spend it all",
+    'Spend 10000 Cores',
+    'https://media.daily.dev/image/upload/s--_MjhSTze--/q_auto/v1773608417/achievements/cant_spend_it_all',
     null,
+    10000,
+    10000,
+    0.003,
+    '2026-08-14T00:00:00.000Z',
+  ),
+  achievement(
+    'Upvote economy',
+    'Upvote 100 posts',
+    'https://media.daily.dev/image/upload/s--yaK6lPac--/c_fill,h_512,q_auto,w_512/v1770800203/achievements/upvote_economy.png',
+    'posts upvoted',
+    64,
+    100,
+    1.302,
     null,
   ),
   achievement(
-    'deep-diver',
-    'Deep Diver',
-    'Finish 100 long reads.',
+    'Hero',
+    'Complete 100 quests',
+    'https://media.daily.dev/image/upload/s--5WqXv9y7--/q_auto/v1773743176/achievements/heros_quest',
+    null,
+    38,
     100,
-    100,
-    0.4,
-    '2026-08-10T00:00:00.000Z',
+    0.064,
+    null,
   ),
   achievement(
-    'first-light',
-    'First Light',
-    'Read on 30 consecutive mornings.',
-    30,
-    30,
-    12,
+    'Town crier',
+    'Share a link (post)',
+    'https://media.daily.dev/image/upload/v1770222937/achievements/Town_crier.png',
+    null,
+    1,
+    1,
+    2.607,
     '2026-07-02T00:00:00.000Z',
   ),
   achievement(
-    'tastemaker',
-    'Tastemaker',
-    'Have 250 upvotes on your comments.',
-    180,
-    250,
-    null,
+    "You're the cool kid!",
+    'Receive 100 upvotes',
+    'https://media.daily.dev/image/upload/v1770222932/achievements/You_re_the_cool_kid.png',
+    'upvotes received',
+    100,
+    100,
+    0.541,
+    '2026-06-19T00:00:00.000Z',
+  ),
+  achievement(
+    'In the big league',
+    'Gain 10000 reputation',
+    'https://media.daily.dev/image/upload/v1770222928/achievements/In_the_big_league.png',
+    'reputation',
+    4120,
+    10000,
+    0.051,
     null,
   ),
 ];

@@ -19,7 +19,7 @@ const Cell = ({ award }: { award: AwardWithRarity }): ReactElement => {
     <Tooltip content={`${award.name} · ×${award.count.toLocaleString()}`}>
       <div
         role="listitem"
-        className="group flex flex-col items-center gap-1.5 p-4 transition hover:-translate-y-1"
+        className="group flex flex-col items-center gap-0.5 py-2 transition hover:-translate-y-1"
       >
         <Image
           src={award.image}
@@ -28,7 +28,7 @@ const Cell = ({ award }: { award: AwardWithRarity }): ReactElement => {
           loading="lazy"
           className="size-16 object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)] transition-transform group-hover:scale-105"
         />
-        <Typography type={TypographyType.Caption1} bold className="mt-1">
+        <Typography type={TypographyType.Caption1} bold>
           {award.name}
         </Typography>
         <Typography
@@ -45,7 +45,7 @@ const Cell = ({ award }: { award: AwardWithRarity }): ReactElement => {
 export const TrophyGrid = ({ awards }: TrophyGridProps): ReactElement => {
   return (
     <div
-      className="grid grid-cols-3 gap-3 tablet:grid-cols-4 laptop:grid-cols-6"
+      className="grid grid-cols-4 gap-x-2 gap-y-3 tablet:grid-cols-6 laptop:grid-cols-8"
       role="list"
       aria-label="Award collection"
     >
