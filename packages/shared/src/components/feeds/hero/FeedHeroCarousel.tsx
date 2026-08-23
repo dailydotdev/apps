@@ -1,0 +1,108 @@
+import type { ReactElement } from 'react';
+import React, { useState } from 'react';
+import classNames from 'classnames';
+import type { Post } from '../../../graphql/posts';
+import type { FeaturedWideCardProps } from '../../cards/common/featuredWide';
+import { PostTypeToWideCard } from '../../cards/common/wideCards';
+import { ArticleFeaturedWideGridCard } from '../../cards/article/ArticleFeaturedWideGridCard';
+import { Button } from '../../buttons/Button';
+import {
+  ButtonIconPosition,
+  ButtonSize,
+  ButtonVariant,
+} from '../../buttons/common';
+import { ArrowIcon } from '../../icons';
+
+export type FeedHeroCarouselProps = Omit<FeaturedWideCardProps, 'post'> & {
+  posts: Post[];
+  className?: string;
+};
+
+const wrapIndex = (index: number, total: number): number =>
+  (index + total) % total;
+
+export const FeedHeroCarousel = ({
+  posts,
+  className,
+  wideColSpan = 2,
+  ...cardProps
+}: FeedHeroCarouselProps): ReactElement | null => {
+  const [index, setIndex] = useState(0);
+
+  if (!posts.length) {
+    return null;
+  }
+
+  const total = posts.length;
+  const active = wrapIndex(index, total);
+  const post = posts[active];
+  const WideCard = PostTypeToWideCard[post.type] ?? ArticleFeaturedWideGridCard;
+  const previous = posts[wrapIndex(active - 1, total)];
+  const next = posts[wrapIndex(active + 1, total)];
+
+  return (
+    <section
+      aria-label="Featured posts"
+      aria-roledescription="carousel"
+      className={classNames('flex min-w-0 flex-col gap-3', className)}
+    >
+      <div className="flex min-h-card flex-1 flex-col" aria-live="polite">
+        <WideCard
+          key={post.id}
+          post={post}
+          wideColSpan={wideColSpan}
+          {...cardProps}
+        />
+      </div>
+      {total > 1 && (
+        <div className="flex items-center gap-3">
+          <div className="flex flex-1 items-center gap-1.5">
+            {posts.map((item, position) => (
+              <button
+                key={item.id}
+                type="button"
+                aria-label={`Show featured post ${position + 1}`}
+                aria-current={position === active}
+                onClick={() => setIndex(position)}
+                className={classNames(
+                  'h-1.5 rounded-max transition-all',
+                  position === active
+                    ? 'w-6 bg-text-primary'
+                    : 'w-1.5 bg-border-subtlest-primary hover:bg-text-quaternary',
+                )}
+              />
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              icon={<ArrowIcon className="-rotate-90" />}
+              onClick={() => setIndex(active - 1)}
+              aria-label={`Previous: ${previous.title}`}
+            >
+              <span className="hidden max-w-[10rem] truncate tablet:block">
+                {previous.title}
+              </span>
+            </Button>
+            <Button
+              type="button"
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              icon={<ArrowIcon className="rotate-90" />}
+              iconPosition={ButtonIconPosition.Right}
+              onClick={() => setIndex(active + 1)}
+              aria-label={`Next: ${next.title}`}
+            >
+              <span className="hidden max-w-[10rem] truncate tablet:block">
+                {next.title}
+              </span>
+            </Button>
+          </div>
+          <div className="hidden flex-1 tablet:block" aria-hidden />
+        </div>
+      )}
+    </section>
+  );
+};
