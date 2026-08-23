@@ -130,7 +130,7 @@ export function AchievementShelfCard({
         {slabTier && (
           <span
             className={classNames(
-              'absolute left-2.5 top-2.5 z-3 rounded-max px-2 py-1 text-[11px] font-semibold leading-none text-[#08110c]',
+              'absolute left-2.5 top-2.5 z-3 rounded-max px-2 py-1 text-[14px] font-semibold leading-none text-[#08110c]',
               slabPillClasses[slabTier],
             )}
           >
@@ -142,7 +142,7 @@ export function AchievementShelfCard({
           <button
             type="button"
             disabled={isTracked ? isUntrackPending : isTrackPending}
-            className="absolute right-2.5 top-2.5 z-3 inline-flex h-6 items-center rounded-8 border border-[rgba(255,255,255,0.28)] bg-[rgba(8,10,13,0.55)] px-2 text-[13px] font-medium leading-none text-white backdrop-blur-[6px]"
+            className="absolute right-2.5 top-2.5 z-3 inline-flex h-6 items-center rounded-8 border border-[rgba(255,255,255,0.28)] bg-[rgba(8,10,13,0.55)] px-2 text-[14px] font-medium leading-none text-white backdrop-blur-[6px]"
             onClick={(event: MouseEvent) => {
               event.stopPropagation();
               if (isTracked) {
@@ -163,17 +163,17 @@ export function AchievementShelfCard({
           >
             {achievement.name}
           </Typography>
-          <Typography className="mt-[3px] line-clamp-1 text-[11.5px] leading-[1.32] text-[rgba(255,255,255,0.78)]">
+          <Typography className="mt-[3px] line-clamp-1 text-[14px] leading-[1.32] text-[rgba(255,255,255,0.78)]">
             {achievement.description}
           </Typography>
 
           {isUnlocked ? (
-            <Typography className="mt-[7px] text-[10.5px] text-[rgba(255,255,255,0.7)]">
+            <Typography className="mt-[7px] text-[14px] text-[rgba(255,255,255,0.7)]">
               Unlocked {formatUnlockedAt(unlockedAt)}
             </Typography>
           ) : (
             <>
-              <Typography className="mt-[7px] text-[10.5px] text-[rgba(255,255,255,0.7)]">
+              <Typography className="mt-[7px] text-[14px] text-[rgba(255,255,255,0.7)]">
                 {progressLabel}
               </Typography>
               <div className="mt-2 h-[5px] overflow-hidden rounded-max bg-[rgba(255,255,255,0.22)]">
@@ -230,7 +230,7 @@ export function AchievementShelfCard({
                 {achievement.name}
               </Typography>
               <Typography
-                type={TypographyType.Footnote}
+                type={TypographyType.Subhead}
                 color={TypographyColor.Tertiary}
                 className="mt-1 leading-[1.45]"
               >
@@ -239,7 +239,7 @@ export function AchievementShelfCard({
 
               {isUnlocked ? (
                 <Typography
-                  type={TypographyType.Caption1}
+                  type={TypographyType.Subhead}
                   color={TypographyColor.Tertiary}
                   className="mt-2.5"
                 >
@@ -248,7 +248,7 @@ export function AchievementShelfCard({
               ) : (
                 <>
                   <Typography
-                    type={TypographyType.Caption1}
+                    type={TypographyType.Subhead}
                     color={TypographyColor.Tertiary}
                     className="mt-2.5"
                   >

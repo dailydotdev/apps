@@ -20,31 +20,33 @@ export const TopReaderBadgeCompact = ({
   });
 
   return (
-    <div className="flex w-max min-w-36 flex-col items-center gap-2 rounded-16 border border-border-subtlest-tertiary bg-surface-float p-4 text-center">
-      <Typography type={TypographyType.Callout} bold>
-        Top reader
-      </Typography>
-
-      <Typography
-        tag={TypographyTag.Time}
-        type={TypographyType.Caption1}
-        color={TypographyColor.Tertiary}
-        dateTime={new Date(issuedAt).toISOString()}
-      >
-        {formattedDate}
-      </Typography>
-
-      <div
-        className="mt-1 rounded-8 px-3 py-1"
-        style={{ backgroundImage: themeToLinearGradient[DevCardTheme.Gold] }}
-      >
-        <Typography
-          type={TypographyType.Subhead}
-          bold
-          className="whitespace-nowrap text-black"
-        >
-          {keyword.flags?.title || keyword.value}
+    <div className="badge-sheen relative w-max min-w-36 overflow-hidden rounded-16 bg-border-subtlest-tertiary p-px transition-transform hover:-translate-y-0.5">
+      <div className="relative z-1 flex flex-col items-center gap-2 rounded-[15px] bg-surface-float p-4 text-center">
+        <Typography type={TypographyType.Callout} bold>
+          Top reader
         </Typography>
+
+        <Typography
+          tag={TypographyTag.Time}
+          type={TypographyType.Subhead}
+          color={TypographyColor.Tertiary}
+          dateTime={new Date(issuedAt).toISOString()}
+        >
+          {formattedDate}
+        </Typography>
+
+        <div
+          className="mt-1 rounded-8 px-3 py-1"
+          style={{ backgroundImage: themeToLinearGradient[DevCardTheme.Gold] }}
+        >
+          <Typography
+            type={TypographyType.Subhead}
+            bold
+            className="whitespace-nowrap text-black"
+          >
+            {keyword.flags?.title || keyword.value}
+          </Typography>
+        </div>
       </div>
     </div>
   );

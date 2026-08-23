@@ -28,11 +28,11 @@ const Cell = ({ award }: { award: AwardWithRarity }): ReactElement => {
           loading="lazy"
           className="size-16 object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)] transition-transform group-hover:scale-105"
         />
-        <Typography type={TypographyType.Caption1} bold>
+        <Typography type={TypographyType.Subhead} bold>
           {award.name}
         </Typography>
         <Typography
-          type={TypographyType.Caption1}
+          type={TypographyType.Subhead}
           color={TypographyColor.Tertiary}
         >
           ×{award.count.toLocaleString()}

@@ -42,7 +42,7 @@ const Counter = ({ value, label, caption }: CounterProps): ReactElement => (
       {value}
     </Typography>
     <Typography
-      type={TypographyType.Caption1}
+      type={TypographyType.Subhead}
       color={TypographyColor.Tertiary}
       className="truncate"
     >
@@ -50,7 +50,7 @@ const Counter = ({ value, label, caption }: CounterProps): ReactElement => (
     </Typography>
     {caption && (
       <Typography
-        type={TypographyType.Caption2}
+        type={TypographyType.Subhead}
         color={TypographyColor.Quaternary}
         className="truncate"
       >
@@ -69,7 +69,7 @@ type RailProps = {
 const Rail = ({ label, items, unit }: RailProps): ReactElement => (
   <div className="flex items-center gap-3">
     <Typography
-      type={TypographyType.Caption1}
+      type={TypographyType.Subhead}
       color={TypographyColor.Tertiary}
       bold
       className="w-28 shrink-0"
@@ -97,7 +97,7 @@ const Rail = ({ label, items, unit }: RailProps): ReactElement => (
             {index < 3 && (
               <span
                 className={classNames(
-                  'absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-max px-1 font-black text-black typo-caption2',
+                  'absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-max px-1 font-black text-black typo-subhead',
                   podiumBadge[index],
                 )}
               >

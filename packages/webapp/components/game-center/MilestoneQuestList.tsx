@@ -1,4 +1,4 @@
-import type { ComponentType, ReactElement } from 'react';
+import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import {
@@ -7,17 +7,10 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
-import type { IconProps } from '@dailydotdev/shared/src/components/Icon';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
-  BookmarkIcon,
   CoreIcon,
-  DiscussIcon,
-  EyeIcon,
-  ReadingStreakIcon,
   ReputationIcon,
-  StarIcon,
-  UpvoteIcon,
 } from '@dailydotdev/shared/src/components/icons';
 import {
   getQuestStatusLabel,
@@ -41,75 +34,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/quests';
 import { sortMilestoneQuests } from '../../lib/gameCenter';
 
-// The badge takes the colour of the action it tracks, not of the claim state,
-// so a milestone is recognisable before its title is read.
-enum MilestoneAccent {
-  Streak = 'streak',
-  Upvote = 'upvote',
-  Default = 'default',
-}
-
-// Tinted fills come from the overlay palette: an alpha modifier on an
-// accent token (`/12`) resolves to a bare `var()` and renders transparent.
-const accentClasses: Record<MilestoneAccent, string> = {
-  [MilestoneAccent.Streak]:
-    'border-accent-bacon-default bg-overlay-active-bacon text-accent-bacon-default',
-  [MilestoneAccent.Upvote]:
-    'border-accent-avocado-default bg-overlay-active-avocado text-accent-avocado-default',
-  [MilestoneAccent.Default]:
-    'border-accent-cabbage-default bg-overlay-active-cabbage text-accent-cabbage-default',
-};
-
-type MilestoneVisual = {
-  Icon: ComponentType<IconProps>;
-  accent: MilestoneAccent;
-  // Some glyphs only get their solid fill from the secondary variant; the
-  // outline reads as an empty circle at badge size.
-  secondary?: boolean;
-};
-
-const eventVisuals: Record<string, MilestoneVisual> = {
-  read_post: { Icon: EyeIcon, accent: MilestoneAccent.Default },
-  brief_read: { Icon: EyeIcon, accent: MilestoneAccent.Default },
-  visit_explore_page: { Icon: EyeIcon, accent: MilestoneAccent.Default },
-  post_upvote: { Icon: UpvoteIcon, accent: MilestoneAccent.Upvote },
-  comment_upvote: { Icon: UpvoteIcon, accent: MilestoneAccent.Upvote },
-  comment_create: { Icon: DiscussIcon, accent: MilestoneAccent.Default },
-  hot_take_create: { Icon: DiscussIcon, accent: MilestoneAccent.Default },
-  hot_take_vote: { Icon: DiscussIcon, accent: MilestoneAccent.Default },
-  visit_discussions_page: {
-    Icon: DiscussIcon,
-    accent: MilestoneAccent.Default,
-  },
-  bookmark_post: { Icon: BookmarkIcon, accent: MilestoneAccent.Default },
-  visit_read_it_later_page: {
-    Icon: BookmarkIcon,
-    accent: MilestoneAccent.Default,
-  },
-};
-
-const fallbackVisual: MilestoneVisual = {
-  Icon: StarIcon,
-  accent: MilestoneAccent.Default,
-  secondary: true,
-};
-
-const streakVisual: MilestoneVisual = {
-  Icon: ReadingStreakIcon,
-  accent: MilestoneAccent.Streak,
-  secondary: true,
-};
-
-// Streak milestones are named by the server, so match on the event family
-// rather than enumerating every `*_streak` variant it may add.
-const getMilestoneVisual = (eventType: string): MilestoneVisual => {
-  if (eventType.includes('streak')) {
-    return streakVisual;
-  }
-
-  return eventVisuals[eventType] ?? fallbackVisual;
-};
-
 // Only the glyph carries the reward's colour — the amount inherits the text
 // token so the chip stays legible on the light surface too.
 const RewardChipIcon = ({ type }: { type: QuestRewardType }): ReactElement => {
@@ -129,14 +53,14 @@ const RewardChipIcon = ({ type }: { type: QuestRewardType }): ReactElement => {
   }
 
   return (
-    <span className="inline-flex w-3.5 justify-center font-black lowercase leading-none text-accent-avocado-default typo-caption2">
+    <span className="inline-flex w-3.5 justify-center font-black lowercase leading-none text-accent-avocado-default typo-subhead">
       xp
     </span>
   );
 };
 
 const RewardChip = ({ reward }: { reward: QuestReward }): ReactElement => (
-  <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-8 border border-border-subtlest-tertiary bg-surface-float px-1.5 py-0.5 font-bold tabular-nums text-text-primary typo-caption2">
+  <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-8 border border-border-subtlest-tertiary bg-surface-float px-1.5 py-0.5 font-bold tabular-nums text-text-primary typo-subhead">
     <RewardChipIcon type={reward.type} />+{reward.amount.toLocaleString()}
   </span>
 );
@@ -154,7 +78,6 @@ const MilestoneQuestCard = ({
   isClaiming,
   onClaim,
 }: MilestoneQuestCardProps): ReactElement => {
-  const { Icon, accent, secondary } = getMilestoneVisual(quest.quest.eventType);
   const target = Math.max(quest.quest.targetCount, 1);
   const value = Math.min(Math.max(quest.progress, 0), target);
   const percentage = Math.min(100, Math.round((value / target) * 100));
@@ -170,26 +93,16 @@ const MilestoneQuestCard = ({
         quest.locked && 'opacity-64',
       )}
     >
-      <span
-        className={classNames(
-          'flex size-12 items-center justify-center rounded-full border-2',
-          accentClasses[accent],
-        )}
-        aria-hidden
-      >
-        <Icon size={IconSize.Small} secondary={secondary} />
-      </span>
-
       <Typography
         tag={TypographyTag.H4}
-        type={TypographyType.Footnote}
+        type={TypographyType.Subhead}
         bold
         className="line-clamp-2"
       >
         {quest.quest.name}
       </Typography>
       <Typography
-        type={TypographyType.Caption1}
+        type={TypographyType.Subhead}
         color={TypographyColor.Tertiary}
         className="line-clamp-2"
       >
@@ -214,7 +127,7 @@ const MilestoneQuestCard = ({
           <Button
             variant={ButtonVariant.Primary}
             color={ColorName.Cheese}
-            size={ButtonSize.Small}
+            size={ButtonSize.Medium}
             className="quest-claim-shine w-full"
             disabled={isClaiming}
             loading={isClaiming}
@@ -241,14 +154,14 @@ const MilestoneQuestCard = ({
             />
             <div className="flex items-center justify-between gap-2">
               <Typography
-                type={TypographyType.Caption1}
+                type={TypographyType.Subhead}
                 color={TypographyColor.Tertiary}
                 className="tabular-nums"
               >
                 {value}/{target}
               </Typography>
               <Typography
-                type={TypographyType.Caption1}
+                type={TypographyType.Subhead}
                 color={
                   isClaimed
                     ? TypographyColor.StatusSuccess
@@ -268,7 +181,7 @@ const MilestoneQuestCard = ({
           className="pointer-events-none absolute inset-0 z-1 grid place-items-center"
           aria-hidden
         >
-          <span className="-rotate-12 rounded-8 border-[3px] border-accent-avocado-default px-2.5 py-0.5 font-black uppercase tracking-[0.16em] text-accent-avocado-default typo-footnote">
+          <span className="-rotate-12 rounded-8 border-[3px] border-accent-avocado-default px-2.5 py-0.5 font-black uppercase tracking-[0.16em] text-accent-avocado-default typo-subhead">
             Claimed
           </span>
         </span>

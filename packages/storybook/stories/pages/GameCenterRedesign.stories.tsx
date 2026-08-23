@@ -26,26 +26,15 @@ import { MilestoneQuestList } from '../../../webapp/components/game-center/Miles
 import { TrophyGrid } from '../../../webapp/components/game-center/TrophyGrid';
 import type { AwardWithRarity } from '../../../webapp/lib/gameCenter';
 
-const SectionHeader = ({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) => (
-  <div className="flex flex-col gap-1">
-    <Typography
-      tag={TypographyTag.H2}
-      type={TypographyType.Body}
-      color={TypographyColor.Primary}
-      bold
-    >
-      {title}
-    </Typography>
-    <Typography type={TypographyType.Callout} color={TypographyColor.Tertiary}>
-      {description}
-    </Typography>
-  </div>
+const SectionHeader = ({ title }: { title: string }) => (
+  <Typography
+    tag={TypographyTag.H2}
+    type={TypographyType.Body}
+    color={TypographyColor.Primary}
+    bold
+  >
+    {title}
+  </Typography>
 );
 
 const quest = (
@@ -105,7 +94,7 @@ const milestoneQuests: UserQuest[] = [
   quest(
     'streak',
     'Maintain a 7-day streak',
-    'You did it — claim before it resets.',
+    'You did it. Claim before it resets.',
     'reading_streak',
     7,
     7,
@@ -147,7 +136,7 @@ const milestoneQuests: UserQuest[] = [
   quest(
     'upvotes',
     'Upvote 200 posts',
-    'Milestone complete — reward waiting.',
+    'Milestone complete. Reward waiting.',
     'post_upvote',
     200,
     200,
@@ -269,7 +258,7 @@ const GameCenterRedesign = () => (
     <section>
       <div className="flex flex-col gap-4">
         <Typography
-          type={TypographyType.Caption1}
+          type={TypographyType.Subhead}
           color={TypographyColor.Tertiary}
           bold
         >
@@ -294,10 +283,7 @@ const GameCenterRedesign = () => (
     <Divider className={dividerClass} />
 
     <section className="flex flex-col gap-4">
-      <SectionHeader
-        title="Milestone quests"
-        description="Longer-running quest goals that track your progress until they are ready to claim."
-      />
+      <SectionHeader title="Milestone quests" />
       <MilestoneQuestList
         quests={milestoneQuests}
         showLevelSystem
@@ -308,10 +294,7 @@ const GameCenterRedesign = () => (
     <Divider className={dividerClass} />
 
     <section className="flex flex-col gap-4">
-      <SectionHeader
-        title="Achievement shelf"
-        description="A mix of what you just unlocked, what is rare, and what is closest to completion."
-      />
+      <SectionHeader title="Achievement shelf" />
       <div className="flex gap-4 overflow-x-auto pb-2">
         {achievements.map((item) => (
           <AchievementShelfCard
@@ -329,10 +312,7 @@ const GameCenterRedesign = () => (
     <Divider className={dividerClass} />
 
     <section className="flex flex-col gap-4">
-      <SectionHeader
-        title="Badge case"
-        description="Every top-reader badge you've earned and the subjects you have gone deepest on."
-      />
+      <SectionHeader title="Badge case" />
       <div className="overflow-x-auto pb-2">
         <div className="flex w-max gap-4">
           {badges.map((badge) => (
@@ -351,16 +331,18 @@ const GameCenterRedesign = () => (
 
     <section className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 laptop:flex-row laptop:items-end laptop:justify-between">
-        <SectionHeader
-          title="Trophy case"
-          description="Every award you've earned"
-        />
+        <SectionHeader title="Trophy case" />
         <DataTile
           label="Total awards"
           value={87}
           info="Every award you have earned across all award types."
-          icon={<CoreIcon size={IconSize.Small} className="text-text-tertiary" />}
-          className={{ container: '!flex-row items-center gap-2 !border-0 !p-0' }}
+          icon={
+            <CoreIcon size={IconSize.Small} className="text-text-tertiary" />
+          }
+          className={{
+            container: '!flex-row items-center gap-2 !border-0 !p-0',
+            label: '!typo-subhead',
+          }}
         />
       </div>
       <TrophyGrid awards={awards} />

@@ -99,7 +99,6 @@ type GameCenterPageProps = {
 
 type SectionProps = {
   title: string;
-  description: string;
   action?: ReactElement;
 };
 
@@ -114,29 +113,17 @@ const isQuestCompletionStatsSchemaMissing = (error: GraphQLError): boolean => {
   );
 };
 
-const SectionHeader = ({
-  title,
-  description,
-  action,
-}: SectionProps): ReactElement => {
+const SectionHeader = ({ title, action }: SectionProps): ReactElement => {
   return (
-    <div className="flex flex-col gap-2 laptop:flex-row laptop:items-end laptop:justify-between">
-      <div className="flex flex-col gap-1">
-        <Typography
-          tag={TypographyTag.H2}
-          type={TypographyType.Body}
-          color={TypographyColor.Primary}
-          bold
-        >
-          {title}
-        </Typography>
-        <Typography
-          type={TypographyType.Callout}
-          color={TypographyColor.Tertiary}
-        >
-          {description}
-        </Typography>
-      </div>
+    <div className="flex flex-col gap-2 laptop:flex-row laptop:items-center laptop:justify-between">
+      <Typography
+        tag={TypographyTag.H2}
+        type={TypographyType.Body}
+        color={TypographyColor.Primary}
+        bold
+      >
+        {title}
+      </Typography>
       {action}
     </div>
   );
@@ -155,7 +142,7 @@ const EmptyStateCard = ({
         {title}
       </Typography>
       <Typography
-        type={TypographyType.Footnote}
+        type={TypographyType.Subhead}
         color={TypographyColor.Tertiary}
         className="mt-1"
       >
@@ -441,7 +428,10 @@ function GameCenterPage({
             className="text-text-tertiary"
           />
         }
-        className={{ container: '!flex-row items-center gap-2 !border-0 !p-0' }}
+        className={{
+          container: '!flex-row items-center gap-2 !border-0 !p-0',
+          label: '!typo-subhead',
+        }}
       />
     ) : undefined;
 
@@ -491,7 +481,10 @@ function GameCenterPage({
       value={awardSummary.totalAwards}
       info="Every award you have earned across all award types."
       icon={<CoreIcon size={IconSize.Small} className="text-text-tertiary" />}
-      className={{ container: '!flex-row items-center gap-2 !border-0 !p-0' }}
+      className={{
+        container: '!flex-row items-center gap-2 !border-0 !p-0',
+        label: '!typo-subhead',
+      }}
     />
   ) : undefined;
 
@@ -534,7 +527,7 @@ function GameCenterPage({
             }
             subtitle={
               <Typography
-                type={TypographyType.Caption1}
+                type={TypographyType.Subhead}
                 color={TypographyColor.Tertiary}
               >
                 unique trophies earned
@@ -555,7 +548,7 @@ function GameCenterPage({
             }
             subtitle={
               <Typography
-                type={TypographyType.Caption1}
+                type={TypographyType.Subhead}
                 color={TypographyColor.Tertiary}
                 className="truncate"
               >
@@ -598,7 +591,7 @@ function GameCenterPage({
           <section className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <Typography
-                type={TypographyType.Caption1}
+                type={TypographyType.Subhead}
                 color={TypographyColor.Tertiary}
                 bold
               >
@@ -610,14 +603,6 @@ function GameCenterPage({
                 bold
               >
                 {firstName}, here&apos;s how you&apos;re doing.
-              </Typography>
-              <Typography
-                type={TypographyType.Body}
-                color={TypographyColor.Tertiary}
-              >
-                The Game Center pulls together your quest progress, achievement
-                milestones, recent badges, creator rewards, and a few community
-                benchmarks so you can see both momentum and upside at a glance.
               </Typography>
             </div>
 
@@ -643,7 +628,7 @@ function GameCenterPage({
               showAchievements && (
                 <div className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
                   <Typography
-                    type={TypographyType.Caption1}
+                    type={TypographyType.Subhead}
                     color={TypographyColor.Tertiary}
                   >
                     Personal highlight
@@ -653,7 +638,7 @@ function GameCenterPage({
                     {achievementSummary.totalCount}
                   </Typography>
                   <Typography
-                    type={TypographyType.Footnote}
+                    type={TypographyType.Subhead}
                     color={TypographyColor.Tertiary}
                   >
                     achievements unlocked so far
@@ -665,7 +650,7 @@ function GameCenterPage({
             <div className="grid gap-3 tablet:grid-cols-2">
               <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
                 <Typography
-                  type={TypographyType.Caption1}
+                  type={TypographyType.Subhead}
                   color={TypographyColor.Tertiary}
                   bold
                 >
@@ -676,7 +661,7 @@ function GameCenterPage({
                     'No upcoming milestone yet'}
                 </Typography>
                 <Typography
-                  type={TypographyType.Footnote}
+                  type={TypographyType.Subhead}
                   color={TypographyColor.Tertiary}
                   className="mt-1"
                 >
@@ -693,7 +678,7 @@ function GameCenterPage({
                 <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
                   <div className="flex items-start justify-between gap-3">
                     <Typography
-                      type={TypographyType.Caption1}
+                      type={TypographyType.Subhead}
                       color={TypographyColor.Tertiary}
                       bold
                     >
@@ -748,7 +733,7 @@ function GameCenterPage({
                           'No tracked achievement'}
                       </Typography>
                       <Typography
-                        type={TypographyType.Footnote}
+                        type={TypographyType.Subhead}
                         color={TypographyColor.Tertiary}
                         className="mt-1"
                       >
@@ -771,10 +756,7 @@ function GameCenterPage({
             id={gameCenterMilestoneSectionId}
             className="flex scroll-mt-16 flex-col gap-4"
           >
-            <SectionHeader
-              title="Milestone quests"
-              description="Longer-running quest goals that track your progress until they are ready to claim."
-            />
+            <SectionHeader title="Milestone quests" />
 
             {milestoneQuestContent}
           </section>
@@ -784,10 +766,9 @@ function GameCenterPage({
           <section className="flex flex-col gap-4">
             <SectionHeader
               title="Community pulse"
-              description="A quick look at what the community is up to"
               action={
                 <Link href="/users" passHref>
-                  <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-footnote">
+                  <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-subhead">
                     Open full leaderboards
                     <ArrowIcon className="rotate-90" />
                   </a>
@@ -815,14 +796,13 @@ function GameCenterPage({
               <section className="flex flex-col gap-4">
                 <SectionHeader
                   title="Achievement shelf"
-                  description="A mix of what you just unlocked, what is rare, and what is closest to completion."
                   action={
                     user?.username ? (
                       <Button
                         tag="a"
                         href={`/${user.username}/achievements`}
                         variant={ButtonVariant.Secondary}
-                        size={ButtonSize.Small}
+                        size={ButtonSize.Medium}
                         icon={<ArrowIcon className="rotate-90" />}
                         iconPosition={ButtonIconPosition.Right}
                       >
@@ -840,11 +820,7 @@ function GameCenterPage({
           <Divider className={dividerClassName} />
 
           <section className="flex flex-col gap-4">
-            <SectionHeader
-              title="Badge case"
-              description="Every top-reader badge you've earned and the subjects you have gone deepest on."
-              action={badgeTopics}
-            />
+            <SectionHeader title="Badge case" action={badgeTopics} />
 
             {badgeCaseContent}
           </section>
@@ -852,11 +828,7 @@ function GameCenterPage({
           <Divider className={dividerClassName} />
 
           <section className="flex flex-col gap-4">
-            <SectionHeader
-              title="Trophy case"
-              description="Every award you've earned"
-              action={trophyTotal}
-            />
+            <SectionHeader title="Trophy case" action={trophyTotal} />
 
             {trophyCaseContent}
           </section>

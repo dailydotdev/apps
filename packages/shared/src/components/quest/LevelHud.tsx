@@ -29,7 +29,7 @@ const HudStatTile = ({
     <div className="flex items-center gap-1.5 text-text-tertiary">
       {icon}
       <Typography
-        type={TypographyType.Caption1}
+        type={TypographyType.Subhead}
         color={TypographyColor.Tertiary}
       >
         {label}
@@ -73,7 +73,7 @@ export const LevelHud = ({
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-12 bg-accent-cabbage-default text-white">
               <Typography
-                type={TypographyType.Caption2}
+                type={TypographyType.Subhead}
                 className="leading-none text-white"
               >
                 LVL
@@ -106,7 +106,7 @@ export const LevelHud = ({
               </Typography>
             </div>
             <Typography
-              type={TypographyType.Caption1}
+              type={TypographyType.Subhead}
               className="text-overlay-primary-white"
             >
               total XP
