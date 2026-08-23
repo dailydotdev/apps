@@ -581,192 +581,173 @@ function GameCenterPage({
           </LayoutHeader>
         )}
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10">
-          <section className="relative overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-6">
-            <div className="pointer-events-none absolute inset-0">
-              <div className="absolute -left-8 top-0 size-40 rounded-full bg-overlay-active-cabbage blur-3xl" />
-              <div className="absolute bottom-0 right-0 size-48 rounded-full bg-overlay-active-blueCheese blur-3xl" />
+          <section className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <Typography
+                type={TypographyType.Caption1}
+                color={TypographyColor.Tertiary}
+                bold
+              >
+                Progress snapshot
+              </Typography>
+              <Typography
+                tag={TypographyTag.H1}
+                type={TypographyType.Title1}
+                bold
+              >
+                {firstName}, here&apos;s how you&apos;re doing.
+              </Typography>
+              <Typography
+                type={TypographyType.Body}
+                color={TypographyColor.Tertiary}
+              >
+                The Game Center pulls together your quest progress, achievement
+                milestones, recent badges, creator rewards, and a few community
+                benchmarks so you can see both momentum and upside at a glance.
+              </Typography>
             </div>
-            <div className="relative flex flex-col gap-6">
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-2">
+
+            {questDashboard ? (
+              <LevelHud
+                level={questDashboard.level.level}
+                levelProgress={levelProgress}
+                totalXp={questDashboard.level.totalXp}
+                xpToNextLevel={questDashboard.level.xpToNextLevel}
+                currentStreak={questDashboard.currentStreak}
+                longestStreak={questDashboard.longestStreak}
+                achievements={
+                  showAchievements
+                    ? {
+                        unlocked: achievementSummary.unlockedCount,
+                        total: achievementSummary.totalCount,
+                      }
+                    : undefined
+                }
+                isPending={isQuestPending}
+              />
+            ) : (
+              showAchievements && (
+                <div className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
                   <Typography
                     type={TypographyType.Caption1}
                     color={TypographyColor.Tertiary}
-                    bold
                   >
-                    Progress snapshot
+                    Personal highlight
+                  </Typography>
+                  <Typography type={TypographyType.Title2} bold>
+                    {achievementSummary.unlockedCount}/
+                    {achievementSummary.totalCount}
                   </Typography>
                   <Typography
-                    tag={TypographyTag.H1}
-                    type={TypographyType.Title1}
-                    bold
-                  >
-                    {firstName}, here&apos;s how you&apos;re doing.
-                  </Typography>
-                  <Typography
-                    type={TypographyType.Body}
+                    type={TypographyType.Footnote}
                     color={TypographyColor.Tertiary}
                   >
-                    The Game Center pulls together your quest progress,
-                    achievement milestones, recent badges, creator rewards, and
-                    a few community benchmarks so you can see both momentum and
-                    upside at a glance.
+                    achievements unlocked so far
                   </Typography>
                 </div>
+              )
+            )}
 
-                {questDashboard ? (
-                  <LevelHud
-                    level={questDashboard.level.level}
-                    levelProgress={levelProgress}
-                    totalXp={questDashboard.level.totalXp}
-                    xpToNextLevel={questDashboard.level.xpToNextLevel}
-                    currentStreak={questDashboard.currentStreak}
-                    longestStreak={questDashboard.longestStreak}
-                    achievements={
-                      showAchievements
-                        ? {
-                            unlocked: achievementSummary.unlockedCount,
-                            total: achievementSummary.totalCount,
-                          }
-                        : undefined
-                    }
-                    isPending={isQuestPending}
-                  />
-                ) : (
-                  showAchievements && (
-                    <div className="flex flex-col gap-1 rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-                      <Typography
-                        type={TypographyType.Caption1}
-                        color={TypographyColor.Tertiary}
-                      >
-                        Personal highlight
-                      </Typography>
-                      <Typography type={TypographyType.Title2} bold>
-                        {achievementSummary.unlockedCount}/
-                        {achievementSummary.totalCount}
-                      </Typography>
-                      <Typography
-                        type={TypographyType.Footnote}
-                        color={TypographyColor.Tertiary}
-                      >
-                        achievements unlocked so far
-                      </Typography>
-                    </div>
-                  )
-                )}
+            <div className="grid gap-3 tablet:grid-cols-2">
+              <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+                <Typography
+                  type={TypographyType.Caption1}
+                  color={TypographyColor.Tertiary}
+                  bold
+                >
+                  Upcoming milestone
+                </Typography>
+                <Typography type={TypographyType.Callout} bold className="mt-1">
+                  {upcomingMilestoneQuest?.quest.name ??
+                    'No upcoming milestone yet'}
+                </Typography>
+                <Typography
+                  type={TypographyType.Footnote}
+                  color={TypographyColor.Tertiary}
+                  className="mt-1"
+                >
+                  {upcomingMilestoneQuest
+                    ? `${Math.min(
+                        upcomingMilestoneQuest.progress,
+                        upcomingMilestoneQuest.quest.targetCount,
+                      )}/${upcomingMilestoneQuest.quest.targetCount} progress`
+                    : 'Your next milestone will show up here.'}
+                </Typography>
+              </div>
 
-                <div className="grid gap-3 tablet:grid-cols-2">
-                  <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+              {showAchievements && (
+                <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
+                  <div className="flex items-start justify-between gap-3">
                     <Typography
                       type={TypographyType.Caption1}
                       color={TypographyColor.Tertiary}
                       bold
                     >
-                      Upcoming milestone
+                      Closest achievement
                     </Typography>
-                    <Typography
-                      type={TypographyType.Callout}
-                      bold
-                      className="mt-1"
-                    >
-                      {upcomingMilestoneQuest?.quest.name ??
-                        'No upcoming milestone yet'}
-                    </Typography>
-                    <Typography
-                      type={TypographyType.Footnote}
-                      color={TypographyColor.Tertiary}
-                      className="mt-1"
-                    >
-                      {upcomingMilestoneQuest
-                        ? `${Math.min(
-                            upcomingMilestoneQuest.progress,
-                            upcomingMilestoneQuest.quest.targetCount,
-                          )}/${
-                            upcomingMilestoneQuest.quest.targetCount
-                          } progress`
-                        : 'Your next milestone will show up here.'}
-                    </Typography>
+                    {isFeaturedAchievementTrackable && (
+                      <Tooltip
+                        content={
+                          isFeaturedAchievementTracked
+                            ? 'Stop tracking achievement'
+                            : 'Track achievement'
+                        }
+                        side="top"
+                      >
+                        <Button
+                          variant={ButtonVariant.Subtle}
+                          size={ButtonSize.Small}
+                          icon={
+                            <PinIcon secondary={isFeaturedAchievementTracked} />
+                          }
+                          pressed={isFeaturedAchievementTracked}
+                          disabled={isFeaturedAchievementTrackingPending}
+                          onClick={handleFeaturedAchievementTracking}
+                          aria-label={
+                            isFeaturedAchievementTracked
+                              ? `Stop tracking ${featuredAchievement.achievement.name}`
+                              : `Track ${featuredAchievement.achievement.name}`
+                          }
+                        />
+                      </Tooltip>
+                    )}
                   </div>
-
-                  {showAchievements && (
-                    <div className="rounded-16 border border-border-subtlest-tertiary bg-background-default p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <Typography
-                          type={TypographyType.Caption1}
-                          color={TypographyColor.Tertiary}
-                          bold
-                        >
-                          Closest achievement
-                        </Typography>
-                        {isFeaturedAchievementTrackable && (
-                          <Tooltip
-                            content={
-                              isFeaturedAchievementTracked
-                                ? 'Stop tracking achievement'
-                                : 'Track achievement'
-                            }
-                            side="top"
-                          >
-                            <Button
-                              variant={ButtonVariant.Subtle}
-                              size={ButtonSize.Small}
-                              icon={
-                                <PinIcon
-                                  secondary={isFeaturedAchievementTracked}
-                                />
-                              }
-                              pressed={isFeaturedAchievementTracked}
-                              disabled={isFeaturedAchievementTrackingPending}
-                              onClick={handleFeaturedAchievementTracking}
-                              aria-label={
-                                isFeaturedAchievementTracked
-                                  ? `Stop tracking ${featuredAchievement.achievement.name}`
-                                  : `Track ${featuredAchievement.achievement.name}`
-                              }
-                            />
-                          </Tooltip>
+                  <div className="mt-3 flex items-start gap-3">
+                    {featuredAchievement && (
+                      <LazyImage
+                        imgSrc={featuredAchievement.achievement.image}
+                        imgAlt={featuredAchievement.achievement.name}
+                        className="size-14 shrink-0 rounded-12 border border-border-subtlest-tertiary bg-background-subtle"
+                        fallbackSrc="https://daily.dev/default-achievement.png"
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <Typography
+                        type={TypographyType.Callout}
+                        bold
+                        className={classNames(
+                          'line-clamp-2',
+                          !featuredAchievement && 'mt-1',
                         )}
-                      </div>
-                      <div className="mt-3 flex items-start gap-3">
-                        {featuredAchievement && (
-                          <LazyImage
-                            imgSrc={featuredAchievement.achievement.image}
-                            imgAlt={featuredAchievement.achievement.name}
-                            className="size-14 shrink-0 rounded-12 border border-border-subtlest-tertiary bg-background-subtle"
-                            fallbackSrc="https://daily.dev/default-achievement.png"
-                          />
-                        )}
-                        <div className="min-w-0">
-                          <Typography
-                            type={TypographyType.Callout}
-                            bold
-                            className={classNames(
-                              'line-clamp-2',
-                              !featuredAchievement && 'mt-1',
-                            )}
-                          >
-                            {featuredAchievement?.achievement.name ??
-                              'No tracked achievement'}
-                          </Typography>
-                          <Typography
-                            type={TypographyType.Footnote}
-                            color={TypographyColor.Tertiary}
-                            className="mt-1"
-                          >
-                            {featuredAchievement
-                              ? `${
-                                  featuredAchievement.progress
-                                }/${getTargetCount(
-                                  featuredAchievement.achievement,
-                                )} progress`
-                              : 'Once achievements load, your closest milestone shows here.'}
-                          </Typography>
-                        </div>
-                      </div>
+                      >
+                        {featuredAchievement?.achievement.name ??
+                          'No tracked achievement'}
+                      </Typography>
+                      <Typography
+                        type={TypographyType.Footnote}
+                        color={TypographyColor.Tertiary}
+                        className="mt-1"
+                      >
+                        {featuredAchievement
+                          ? `${featuredAchievement.progress}/${getTargetCount(
+                              featuredAchievement.achievement,
+                            )} progress`
+                          : 'Once achievements load, your closest milestone shows here.'}
+                      </Typography>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </section>
 

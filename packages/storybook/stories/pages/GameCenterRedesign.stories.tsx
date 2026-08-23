@@ -283,12 +283,8 @@ const dividerClass = 'bg-border-subtlest-tertiary';
 
 const GameCenterRedesign = () => (
   <div className="mx-auto flex w-full max-w-[72rem] flex-col gap-6 p-4 pb-10">
-    <section className="relative overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-background-subtle p-6">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-8 top-0 size-40 rounded-full bg-overlay-active-cabbage blur-3xl" />
-        <div className="absolute bottom-0 right-0 size-48 rounded-full bg-overlay-active-blueCheese blur-3xl" />
-      </div>
-      <div className="relative flex flex-col gap-4">
+    <section>
+      <div className="flex flex-col gap-4">
         <Typography
           type={TypographyType.Caption1}
           color={TypographyColor.Tertiary}
