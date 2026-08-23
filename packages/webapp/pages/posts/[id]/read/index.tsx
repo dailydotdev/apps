@@ -72,9 +72,9 @@ export interface ArbitragePostPageProps extends DynamicSeoProps {
  * Lives on its own route so `/posts/[id]` and the focus-card redesign are
  * untouched. Differences from the standard template, all deliberate: no
  * PostAuthBanner, no CustomAuthBanner (never passed in layoutProps), no
- * PostSignupWidget, and the sidebar is forced open rather than left at the
- * stored collapse preference. The header login/signup buttons are unaffected
- * and render as usual.
+ * PostSignupWidget, and the sidebar starts expanded instead of at the stored
+ * collapse preference (which the visitor can still toggle as usual). The
+ * header login/signup buttons are unaffected and render as usual.
  *
  * Noindexed for now — it duplicates `/posts/[id]`, so it must not compete in
  * search until we decide it is the canonical version for organic traffic.

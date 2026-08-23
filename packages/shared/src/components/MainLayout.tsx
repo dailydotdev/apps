@@ -1,5 +1,5 @@
 import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -84,9 +84,10 @@ export interface MainLayoutProps
    */
   topBanner?: ReactNode;
   /**
-   * Renders the sidebar expanded regardless of the stored user preference.
-   * The ad template needs the 240px column present on every visit — the
-   * preference defaults to collapsed and anonymous visitors never change it.
+   * Opens the sidebar on landing by seeding the stored preference, which
+   * defaults to collapsed and anonymous visitors never change. A default
+   * rather than a force: the toggle, its label and persistence keep their
+   * production behavior, so the visitor can collapse it again at will.
    */
   expandSidebar?: boolean;
 }
@@ -115,8 +116,13 @@ function MainLayoutComponent({
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const { sidebarExpanded, autoDismissNotifications, loadedSettings, flags } =
-    useContext(SettingsContext);
+  const {
+    sidebarExpanded,
+    toggleSidebarExpanded,
+    autoDismissNotifications,
+    loadedSettings,
+    flags,
+  } = useContext(SettingsContext);
   const isSidebarCompact = !!flags?.sidebarCompact;
   const v2CollapsedPadding = isSidebarCompact
     ? 'tablet:pl-16 laptop:pl-16'
@@ -147,11 +153,24 @@ function MainLayoutComponent({
   // and never slides under the panel. Matches the `activePage` resolution the
   // Sidebar receives below.
   const forceSidebarExpanded =
-    expandSidebar ||
-    (isV2 &&
-      isSidebarSettingsPath(
-        activePage ?? router.asPath ?? router.pathname ?? '',
-      ));
+    isV2 &&
+    isSidebarSettingsPath(activePage ?? router.asPath ?? router.pathname ?? '');
+
+  // Once per mount and only after the stored settings resolve, or the seed
+  // would race the loaded preference and win against a visitor's own choice.
+  const hasSeededSidebarExpanded = useRef(false);
+  useEffect(() => {
+    if (
+      !expandSidebar ||
+      !loadedSettings ||
+      sidebarExpanded ||
+      hasSeededSidebarExpanded.current
+    ) {
+      return;
+    }
+    hasSeededSidebarExpanded.current = true;
+    toggleSidebarExpanded();
+  }, [expandSidebar, loadedSettings, sidebarExpanded, toggleSidebarExpanded]);
 
   // The main content's left padding settles from the rail width to the
   // expanded-sidebar width once auth, settings, and the layout-variant flag
@@ -401,7 +420,6 @@ function MainLayoutComponent({
             onNavTabClick={onNavTabClick}
             onLogoClick={onLogoClick}
             activePage={activePage ?? router.asPath ?? router.pathname}
-            forceExpanded={expandSidebar}
           />
         )}
         {sidebarOwnsHeader ? (

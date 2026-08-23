@@ -29,8 +29,6 @@ interface SidebarProps {
   showFeedbackWidget?: boolean;
   onNavTabClick?: (tab: string) => void;
   onLogoClick?: (e: React.MouseEvent) => unknown;
-  /** Ignores the stored collapse preference — see MainLayoutProps.expandSidebar. */
-  forceExpanded?: boolean;
 }
 
 export const Sidebar = ({
@@ -40,7 +38,6 @@ export const Sidebar = ({
   onNavTabClick,
   onLogoClick,
   activePage,
-  forceExpanded,
 }: SidebarProps): ReactElement | null => {
   const isLaptop = useViewSize(ViewSize.Laptop);
   const isTablet = useViewSize(ViewSize.Tablet);
@@ -77,7 +74,6 @@ export const Sidebar = ({
         featureTheme={featureTheme}
         isNavButtons={isNavButtons}
         onNavTabClick={onNavTabClick}
-        forceExpanded={forceExpanded}
       />
     );
   }

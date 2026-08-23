@@ -23,19 +23,15 @@ type SidebarDesktopProps = {
   };
   isNavButtons?: boolean;
   onNavTabClick?: (tab: string) => void;
-  /** Ignores the stored collapse preference — see MainLayoutProps.expandSidebar. */
-  forceExpanded?: boolean;
 };
 export const SidebarDesktop = ({
   activePage: activePageProp,
   featureTheme,
   isNavButtons,
   onNavTabClick,
-  forceExpanded,
 }: SidebarDesktopProps): ReactElement => {
   const router = useRouter();
-  const { sidebarExpanded: storedExpanded } = useSettingsContext();
-  const sidebarExpanded = forceExpanded || storedExpanded;
+  const { sidebarExpanded } = useSettingsContext();
   const { isAvailable: isBannerAvailable } = useBanner();
   const activePage = activePageProp || router.asPath || router.pathname;
 
