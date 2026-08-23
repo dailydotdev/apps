@@ -2,7 +2,10 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { OnboardingSignupHero } from './OnboardingSignupHero';
 import { FunnelProgressContext } from '../shared/FunnelStepDots';
-import { cloudinaryOnboardingLoginBackground } from '../../../lib/image';
+import {
+  cloudinaryOnboardingLoginBackground,
+  signupWallHorizon,
+} from '../../../lib/image';
 import { useViewSize } from '../../../hooks';
 
 jest.mock('../../../contexts/SettingsContext', () => ({
@@ -121,6 +124,44 @@ describe('OnboardingSignupHero', () => {
     renderHero({ headline: 'Hello devs' });
     expect(screen.getByText('Hello devs')).toHaveClass('typo-title2');
     expect(screen.getByText('Hello devs')).not.toHaveClass('onb-headline');
+  });
+
+  describe('horizon background', () => {
+    const renderHorizon = (
+      props: Partial<React.ComponentProps<typeof OnboardingSignupHero>> = {},
+    ) => renderHero({ background: 'horizon', ...props });
+
+    it('owns its artwork instead of delegating to the background layer', () => {
+      renderHorizon();
+      expect(screen.queryByTestId('bg-layer')).not.toBeInTheDocument();
+    });
+
+    it('renders the homepage hero artwork full-bleed', () => {
+      renderHorizon();
+      // One for the stacked band, one for the desktop half; each is hidden at
+      // the breakpoint the other serves.
+      const art = screen.getAllByTestId('horizon-art');
+      expect(art).toHaveLength(2);
+      art.forEach((image) =>
+        expect(image).toHaveAttribute('src', signupWallHorizon),
+      );
+    });
+
+    it('sanitizes funnel copy rather than printing markup', () => {
+      renderHorizon({
+        headline: 'Where developers <b>discover</b><script>bad()</script>',
+      });
+      const heading = screen.getByRole('heading', { level: 1 });
+      expect(heading.innerHTML).toContain('<b>discover</b>');
+      expect(heading.innerHTML).not.toContain('script');
+    });
+
+    it('leaves the artwork free of overlaid copy', () => {
+      renderHorizon();
+      expect(
+        screen.queryByTestId('landing-app-install'),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it('renders aurora orbs by default', () => {

@@ -342,7 +342,10 @@ export type FunnelSignupHeroBackground =
   | 'desk'
   // Marketing-site parity: the form in a left column with the long landing
   // page's hero cover artwork framed in the right one.
-  | 'panel';
+  | 'panel'
+  // The homepage's hero artwork full-bleed as the right half: no frame, no
+  // overlays, dissolving into the page at the seam.
+  | 'horizon';
 export type FunnelSignupHeroImageMode = 'image' | 'colors';
 export type FunnelSignupOauthOrder = 'githubFirst' | 'googleFirst';
 

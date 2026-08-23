@@ -149,6 +149,16 @@ export const cloudinaryOnboardingHeroDesk = {
 export const signupWallCover =
   'https://media.daily.dev/image/upload/s--a8E1hVet--/f_auto,q_auto/v1785059413/public/daily.dev%20-%20signup%20wall';
 
+// The marketing homepage's hero, 2988x854 with the pair right of center.
+//
+// No width variants: the signature covers the transformation, so `w_768` 404s
+// rather than resizing and phones pull the full asset. Sized derivatives have
+// to be exported and signed upstream before a srcSet can exist — worth doing
+// before this ramps far, since the download lands on the treatment arm only.
+// Until then the stacked band requests at low priority (see HorizonArt).
+export const signupWallHorizon =
+  'https://media.daily.dev/image/upload/s--NCILTqRq--/f_auto,q_auto/v1785661216/public/daily.dev%20-%20main%20image';
+
 export const cloudinaryStreakSplash =
   'https://media.daily.dev/image/upload/v1705386465/Splash_v1lxjk.svg';
 

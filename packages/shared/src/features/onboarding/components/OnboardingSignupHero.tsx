@@ -26,6 +26,7 @@ import { HERO_STYLES } from './signupHero/heroStyles';
 import { HeroBackgroundLayer } from './signupHero/HeroBackgroundLayer';
 import { AuroraOrbs } from './signupHero/HeroDecorations';
 import { LandingHeroCover } from './signupHero/LandingHeroCover';
+import { HorizonArt } from './signupHero/HorizonArt';
 import { LandingAppInstall } from './signupHero/LandingAppInstall';
 import { cloudinaryOnboardingLoginBackground } from '../../../lib/image';
 import { sanitizeMessage } from '../lib/utils';
@@ -91,6 +92,7 @@ export const OnboardingSignupHero = ({
   const isSplitLayout = background === 'split';
   const isDeskVariant = background === 'desk';
   const isPanelLayout = background === 'panel';
+  const isHorizonLayout = background === 'horizon';
   const showOrbsLayer = showOrbs;
 
   // Once the user moves to the email registration / verification step, drop the
@@ -156,6 +158,88 @@ export const OnboardingSignupHero = ({
             </div>
           </>
         )}
+      </div>
+    );
+  }
+
+  // The horizon: the homepage's hero artwork full-bleed as the right half —
+  // no frame, no overlays — dissolving into the page at the seam, with the
+  // tagline and the auth options on the rail. Stacked, it takes the panel's
+  // shape: an artwork band on top, the form bottom-anchored underneath.
+  if (isHorizonLayout) {
+    const signupColumn = (
+      <div
+        className={classNames(
+          'onb-hero-column flex w-full flex-col gap-6 tablet:gap-7 laptop:items-start laptop:gap-8',
+          SIGNUP_SPLIT_COLUMN_MAX_W,
+        )}
+      >
+        <Logo
+          position={LogoPosition.Relative}
+          className="onb-hero-logo !left-0 !top-0 !mt-0 !translate-x-0 self-center laptop:!self-start"
+          logoClassName={{ container: 'h-7' }}
+        />
+
+        {/* Funnel copy is authored as HTML (b/strong/br), so it takes the
+            same sanitizer the other walls use. */}
+        {headline && (
+          <h1
+            className="onb-hero-headline text-balance text-center font-bold tracking-tight text-text-primary typo-large-title tablet:typo-mega3 laptop:text-left"
+            dangerouslySetInnerHTML={{ __html: sanitizeMessage(headline) }}
+          />
+        )}
+
+        {children}
+      </div>
+    );
+
+    return (
+      <div className="onb-split relative isolate z-3 flex min-h-dvh w-full flex-col overflow-hidden bg-background-default text-text-primary laptop:grid laptop:grid-cols-2 laptop:items-stretch">
+        <style dangerouslySetInnerHTML={{ __html: HERO_STYLES }} />
+
+        <div className="relative z-1 flex min-w-0 flex-1 flex-col laptop:col-start-1 laptop:row-start-1 laptop:min-h-dvh">
+          {/* Stacked, the artwork is scenery rather than the subject: a band
+              that fades into the page so the form keeps the fold. Absolute,
+              not in flow, so the form can bottom-anchor into the fade. */}
+          <div
+            aria-hidden
+            className="onb-art-half onb-horizon-band pointer-events-none absolute inset-x-0 top-0 select-none overflow-hidden laptop:hidden"
+          >
+            <HorizonArt variant="band" />
+            <div className="onb-art-fade absolute inset-x-0 bottom-0 h-3/5" />
+          </div>
+
+          <main className="onb-hero-main relative z-1 flex w-full flex-1 flex-col items-center px-5 pb-10 tablet:pb-0 laptop:px-10">
+            {signupColumn}
+          </main>
+
+          {/* Same legal-row policy as the panel: constrained to the form's
+              column width, `tablet` up, footer links `laptop` up. */}
+          <div className="onb-split-legal pointer-events-auto relative z-1 hidden w-full flex-col items-center gap-3 px-5 pb-6 pt-5 tablet:flex laptop:px-10 laptop:pb-8 laptop:pt-0">
+            <div
+              className={classNames(
+                'flex w-full flex-col items-center gap-3 laptop:items-start',
+                SIGNUP_SPLIT_COLUMN_MAX_W,
+              )}
+            >
+              <div className="hidden laptop:block [&_footer]:!pb-0 [&_ul]:!mb-0 laptop:[&_ul]:!flex-nowrap laptop:[&_ul]:!justify-start laptop:[&_ul]:!gap-x-2.5">
+                <FooterLinks />
+              </div>
+              <SignupDisclaimer className="!text-text-tertiary typo-caption1 laptop:!text-left" />
+            </div>
+          </div>
+        </div>
+
+        {/* The right half IS the image: full-bleed, no frame, no overlays.
+            The seam lets the page background bleed over the artwork's left
+            edge so the split reads as one surface. */}
+        <div
+          aria-hidden
+          className="relative hidden select-none overflow-hidden laptop:col-start-2 laptop:row-start-1 laptop:block laptop:min-h-dvh"
+        >
+          <HorizonArt variant="column" />
+          <div className="onb-horizon-seam pointer-events-none absolute inset-y-0 left-0 w-1/3" />
+        </div>
       </div>
     );
   }
