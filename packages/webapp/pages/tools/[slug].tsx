@@ -45,6 +45,7 @@ import {
   generateQueryKey,
   RequestKey,
   StaleTime,
+  OtherFeedPage,
 } from '@dailydotdev/shared/src/lib/query';
 import type { ToolTopSquad } from '@dailydotdev/shared/src/graphql/user/userStack';
 import { getTopSquadsForTool } from '@dailydotdev/shared/src/graphql/user/userStack';
@@ -87,7 +88,6 @@ import { useUserCompaniesQuery } from '@dailydotdev/shared/src/hooks/userCompany
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import { publishTimeRelativeShort } from '@dailydotdev/shared/src/lib/dateFormat';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getDomainFromUrl } from '@dailydotdev/shared/src/lib/links';
 import {
@@ -98,7 +98,10 @@ import { ProfilePictureGroup } from '@dailydotdev/shared/src/components/ProfileP
 import { ToolLogo } from '@dailydotdev/shared/src/components/tools/ToolLogo';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
-import classNames from 'classnames';
+import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
+import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
+import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
@@ -251,10 +254,6 @@ const applyOptimisticVote = (
 
 const rowClassName =
   'flex items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-4 transition-colors';
-const linkRowClassName = classNames(
-  rowClassName,
-  'hover:border-border-subtlest-secondary',
-);
 
 const MetaSeparator = (): ReactElement => <span aria-hidden>·</span>;
 
@@ -285,6 +284,11 @@ const ToolPage = ({
   const isInStack = stackedToolIds.has(tool.id);
 
   const websiteHost = tool.url ? getDomainFromUrl(tool.url) : null;
+
+  const topPostsQueryVariables = useMemo(
+    () => ({ tag: tool.keyword, ranking: 'POPULARITY' }),
+    [tool.keyword],
+  );
 
   const [copying, onShareOrCopy] = useShareOrCopyLink({
     link: `${webappUrl}tools/${tool.slug}`,
@@ -500,18 +504,6 @@ const ToolPage = ({
         event_name: LogEvent.Click,
         target_type: TargetType.Tool,
         target_id: related.slug,
-        extra: JSON.stringify({ origin: Origin.ToolPage }),
-      });
-    },
-    [logEvent],
-  );
-
-  const handleTopPostClick = useCallback(
-    (post: ToolTopPost) => {
-      logEvent({
-        event_name: LogEvent.Click,
-        target_type: TargetType.Post,
-        target_id: post.id,
         extra: JSON.stringify({ origin: Origin.ToolPage }),
       });
     },
@@ -883,61 +875,24 @@ const ToolPage = ({
                 </Link>
               }
             >
-              <ul className="flex flex-col gap-2">
-                {topPosts.map((post) => (
-                  <li key={post.id}>
-                    <Link href={`/posts/${post.slug || post.id}`} passHref>
-                      <a
-                        href={`/posts/${post.slug || post.id}`}
-                        className={linkRowClassName}
-                        onClick={() => handleTopPostClick(post)}
-                      >
-                        {post.image ? (
-                          <img
-                            src={post.image}
-                            alt=""
-                            className="size-12 flex-none rounded-14 object-cover"
-                          />
-                        ) : (
-                          <span className="grid size-12 flex-none place-items-center rounded-14 bg-background-default font-bold text-text-tertiary">
-                            {(post.title ?? '?').charAt(0)}
-                          </span>
-                        )}
-                        <span className="flex min-w-0 flex-1 flex-col gap-1">
-                          <Typography
-                            type={TypographyType.Body}
-                            bold
-                            className="multi-truncate line-clamp-2"
-                          >
-                            {post.title}
-                          </Typography>
-                          <Typography
-                            tag={TypographyTag.Span}
-                            type={TypographyType.Footnote}
-                            color={TypographyColor.Tertiary}
-                            className="flex w-full flex-wrap items-center gap-x-1.5"
-                          >
-                            <UpvoteIcon
-                              size={IconSize.Size16}
-                              className="text-accent-avocado-default"
-                            />
-                            <span className="font-bold text-accent-avocado-default">
-                              {largeNumberFormat(post.numUpvotes) ??
-                                post.numUpvotes}
-                            </span>
-                            <MetaSeparator />
-                            <span suppressHydrationWarning>
-                              {publishTimeRelativeShort(post.createdAt)}
-                            </span>
-                            <MetaSeparator />
-                            <span>#{tool.keyword}</span>
-                          </Typography>
-                        </span>
-                      </a>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+              <ActiveFeedNameContext.Provider
+                value={{ feedName: OtherFeedPage.TagsTopPosts }}
+              >
+                <EntityRailWithFade>
+                  <HorizontalFeed
+                    feedName={OtherFeedPage.TagsTopPosts}
+                    feedQueryKey={[
+                      'toolTopPosts',
+                      user?.id ?? 'anonymous',
+                      tool.keyword,
+                    ]}
+                    query={TAG_FEED_QUERY}
+                    variables={topPostsQueryVariables}
+                    className="!mx-0 !mb-0"
+                    emptyScreen={<></>}
+                  />
+                </EntityRailWithFade>
+              </ActiveFeedNameContext.Provider>
             </ToolSection>
           )}
 
