@@ -13,7 +13,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import { formatDate, TimeFormatType } from '../../../../lib/dateFormat';
 import { LazyImage } from '../../../../components/LazyImage';
 import CloseButton from '../../../../components/CloseButton';
 import { Modal } from '../../../../components/modals/common/Modal';
@@ -37,6 +36,19 @@ interface AchievementShelfCardProps {
 }
 
 const fallbackImage = 'https://daily.dev/default-achievement.png';
+
+// The slab always spells the unlock date out as "Aug 2". The shared post
+// formatter zero-pads the day and swaps in "Today"/"Yesterday", so it can't be
+// reused here.
+const formatUnlockedAt = (value: string): string => {
+  const date = new Date(value);
+  const now = new Date();
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    ...(date.getFullYear() === now.getFullYear() ? {} : { year: 'numeric' }),
+  });
+};
 
 // The slab treatment only distinguishes two rarity bands; the shared four-tier
 // scale collapses onto them so the other achievement surfaces keep their tiers.
@@ -154,8 +166,7 @@ export function AchievementShelfCard({
 
           {isUnlocked ? (
             <Typography className="mt-[7px] text-[10.5px] text-[rgba(255,255,255,0.7)]">
-              Unlocked{' '}
-              {formatDate({ value: unlockedAt, type: TimeFormatType.Post })}
+              Unlocked {formatUnlockedAt(unlockedAt)}
             </Typography>
           ) : (
             <>
@@ -229,8 +240,7 @@ export function AchievementShelfCard({
                   color={TypographyColor.Tertiary}
                   className="mt-2.5"
                 >
-                  Unlocked{' '}
-                  {formatDate({ value: unlockedAt, type: TimeFormatType.Post })}
+                  Unlocked {formatUnlockedAt(unlockedAt)}
                 </Typography>
               ) : (
                 <>
