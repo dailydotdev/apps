@@ -61,6 +61,7 @@ import { LazyImage } from '@dailydotdev/shared/src/components/LazyImage';
 import { Tooltip } from '@dailydotdev/shared/src/components/tooltip/Tooltip';
 import {
   Button,
+  ButtonIconPosition,
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
@@ -87,6 +88,7 @@ import { defaultOpenGraph } from '../../next-seo';
 import {
   getAchievementSummary,
   getAwardSummary,
+  getBadgeSummary,
   getMostProgressedQuest,
 } from '../../lib/gameCenter';
 
@@ -432,6 +434,22 @@ function GameCenterPage({
     );
   }
 
+  const badgeTopics =
+    !isBadgesPending && topReaderBadges.length > 0 ? (
+      <DataTile
+        label="Topics mastered"
+        value={getBadgeSummary(topReaderBadges).uniqueTopics}
+        info="Distinct subjects where you earned a top-reader badge."
+        icon={
+          <MedalBadgeIcon
+            size={IconSize.Small}
+            className="text-text-tertiary"
+          />
+        }
+        className={{ container: '!flex-row items-center gap-2 !border-0 !p-0' }}
+      />
+    ) : undefined;
+
   let badgeCaseContent: ReactElement;
 
   if (isBadgesPending) {
@@ -465,6 +483,23 @@ function GameCenterPage({
     );
   }
 
+  const hasAwards =
+    hasCoresAccess &&
+    !isAwardsPending &&
+    !awardsError &&
+    awardSummary.awards.length > 0;
+  // Laid out horizontally so it reads as one line beside the section title
+  // rather than as a stacked tile.
+  const trophyTotal = hasAwards ? (
+    <DataTile
+      label="Total awards"
+      value={awardSummary.totalAwards}
+      info="Every award you have earned across all award types."
+      icon={<CoreIcon size={IconSize.Small} className="text-text-tertiary" />}
+      className={{ container: '!flex-row items-center gap-2 !border-0 !p-0' }}
+    />
+  ) : undefined;
+
   let trophyCaseContent: ReactElement;
 
   if (!hasCoresAccess) {
@@ -491,23 +526,7 @@ function GameCenterPage({
   } else if (awardSummary.awards.length > 0) {
     trophyCaseContent = (
       <>
-        <div className="grid gap-4 tablet:grid-cols-3">
-          <DataTile
-            label="Total awards"
-            value={awardSummary.totalAwards}
-            info="Every award you have earned across all award types."
-            icon={
-              <CoreIcon size={IconSize.Small} className="text-text-tertiary" />
-            }
-            subtitle={
-              <Typography
-                type={TypographyType.Caption1}
-                color={TypographyColor.Tertiary}
-              >
-                all-time collection
-              </Typography>
-            }
-          />
+        <div className="grid gap-4 tablet:grid-cols-2">
           <DataTile
             label="Award types"
             value={awardSummary.uniqueAwards}
@@ -900,12 +919,16 @@ function GameCenterPage({
                   description="A mix of what you just unlocked, what is rare, and what is closest to completion."
                   action={
                     user?.username ? (
-                      <Link href={`/${user.username}/achievements`} passHref>
-                        <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-footnote">
-                          View all achievements
-                          <ArrowIcon className="rotate-90" />
-                        </a>
-                      </Link>
+                      <Button
+                        tag="a"
+                        href={`/${user.username}/achievements`}
+                        variant={ButtonVariant.Secondary}
+                        size={ButtonSize.Small}
+                        icon={<ArrowIcon className="rotate-90" />}
+                        iconPosition={ButtonIconPosition.Right}
+                      >
+                        See all achievements
+                      </Button>
                     ) : undefined
                   }
                 />
@@ -921,6 +944,7 @@ function GameCenterPage({
             <SectionHeader
               title="Badge case"
               description="Every top-reader badge you've earned and the subjects you have gone deepest on."
+              action={badgeTopics}
             />
 
             {badgeCaseContent}
@@ -932,6 +956,7 @@ function GameCenterPage({
             <SectionHeader
               title="Trophy case"
               description="Every award you've earned"
+              action={trophyTotal}
             />
 
             {trophyCaseContent}

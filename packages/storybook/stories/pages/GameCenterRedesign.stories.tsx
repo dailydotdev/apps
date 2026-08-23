@@ -19,6 +19,9 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { Divider } from '@dailydotdev/shared/src/components/utilities';
+import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
+import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { MilestoneQuestList } from '../../../webapp/components/game-center/MilestoneQuestList';
 import { TrophyGrid } from '../../../webapp/components/game-center/TrophyGrid';
 import type { AwardWithRarity } from '../../../webapp/lib/gameCenter';
@@ -347,10 +350,19 @@ const GameCenterRedesign = () => (
     <Divider className={dividerClass} />
 
     <section className="flex flex-col gap-4">
-      <SectionHeader
-        title="Trophy case"
-        description="Every award you've earned"
-      />
+      <div className="flex flex-col gap-2 laptop:flex-row laptop:items-end laptop:justify-between">
+        <SectionHeader
+          title="Trophy case"
+          description="Every award you've earned"
+        />
+        <DataTile
+          label="Total awards"
+          value={87}
+          info="Every award you have earned across all award types."
+          icon={<CoreIcon size={IconSize.Small} className="text-text-tertiary" />}
+          className={{ container: '!flex-row items-center gap-2 !border-0 !p-0' }}
+        />
+      </div>
       <TrophyGrid awards={awards} />
     </section>
   </div>
