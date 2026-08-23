@@ -102,8 +102,7 @@ import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
 import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
 import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
 import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
-import { getLayout } from '../../components/layouts/MainLayout';
-import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
+import { getLayout } from '../../components/layouts/FeedLayout';
 import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
@@ -1002,10 +1001,7 @@ const ToolPage = ({
   );
 };
 
-const getToolPageLayout: typeof getLayout = (...props) =>
-  getFooterNavBarLayout(getLayout(...props));
-
-ToolPage.getLayout = getToolPageLayout;
+ToolPage.getLayout = getLayout;
 ToolPage.layoutProps = { screenCentered: false };
 
 export default ToolPage;
