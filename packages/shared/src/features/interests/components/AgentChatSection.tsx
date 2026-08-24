@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import Markdown from '../../../components/Markdown';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
@@ -30,7 +31,7 @@ import { useCopyText } from '../../../hooks/useCopy';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
-import type { AgentBlock, AgentMessage } from '../chat';
+import type { AgentBlock, AgentMessage, AgentTurnHighlight } from '../chat';
 import { FEEDBACK_MARKER_REGEX } from '../chat';
 import { webappUrl } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
@@ -379,13 +380,16 @@ const MessageRow = ({
   onFeedClick,
   onPostLinkClick,
   activePostId,
+  highlight,
 }: {
   message: AgentMessage;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
   onPostLinkClick: (postId: string) => void;
   activePostId?: string;
+  highlight?: AgentTurnHighlight;
 }): ReactElement => {
+  const isHighlightTarget = highlight?.id === message.id;
   if (message.role === 'user') {
     return (
       <FlexCol className="agent-turn-in items-end gap-1">
@@ -409,7 +413,18 @@ const MessageRow = ({
   }
 
   return (
-    <FlexCol className="agent-turn-in group min-w-0 gap-2">
+    <FlexCol
+      id={isHighlightTarget ? `agent-turn-${message.id}` : undefined}
+      className={classNames(
+        'agent-turn-in group min-w-0 gap-2',
+        isHighlightTarget &&
+          '-m-3 rounded-16 border p-3 transition-colors duration-700',
+        isHighlightTarget &&
+          (highlight.isActive
+            ? 'border-accent-cabbage-default'
+            : 'border-transparent'),
+      )}
+    >
       {message.isScheduled && (
         <FlexRow className="items-center gap-1.5 text-text-quaternary">
           <TimerIcon size={IconSize.XXSmall} />
@@ -444,7 +459,11 @@ const MessageRow = ({
   );
 };
 
-export const AgentChatSection = (): ReactElement => {
+export const AgentChatSection = ({
+  highlight,
+}: {
+  highlight?: AgentTurnHighlight;
+}): ReactElement => {
   const {
     messages,
     openContentTarget,
@@ -461,6 +480,7 @@ export const AgentChatSection = (): ReactElement => {
         <MessageRow
           key={message.id}
           message={message}
+          highlight={highlight}
           onPostClick={(post) =>
             openContentTarget({ type: 'post', postId: post.id, post })
           }
