@@ -232,15 +232,21 @@ const achievements: UserAchievement[] = [
   ),
 ];
 
+// Real logos, resolved from the sources library by keyword. GitHub Actions
+// has no matching source, so it exercises the initial fallback.
+const logo = (slug: string) =>
+  `https://media.daily.dev/image/upload/t_logo,f_auto/v1/logos/${slug}`;
+
 const badges = [
   {
     issuedAt: new Date('2026-06-01'),
     keyword: { value: 'clickhouse', flags: { title: 'ClickHouse' } },
-    image: undefined as string | undefined,
+    image: logo('clickhouse') as string | undefined,
   },
   {
     issuedAt: new Date('2026-05-01'),
     keyword: { value: 'rust', flags: { title: 'Rust' } },
+    image: logo('8fb725c4025846578f65c8eada2fc5b8'),
   },
   {
     issuedAt: new Date('2026-04-01'),
@@ -249,6 +255,7 @@ const badges = [
   {
     issuedAt: new Date('2026-03-01'),
     keyword: { value: 'react', flags: { title: 'React' } },
+    image: logo('react_js'),
   },
 ];
 
