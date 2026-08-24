@@ -76,7 +76,14 @@ const readMarketingConsent = (pref: IubendaPreference): boolean => {
 // a worldwide stub gated ads on consent in countries where no consent is
 // required (and where Google itself requires no CMP). Outside GDPR scope the
 // banner still shows and records preferences; ads just don't wait for it.
-const getIubendaScripts = (siteId: string, withTcf: boolean): string[] => [
+// The GPP stub is scoped the same way for the same reason: `window.__gpp` is
+// another consent API Google's tags can wait on, and the US state laws it
+// carries (enableUspr) apply to US visitors only.
+const getIubendaScripts = (
+  siteId: string,
+  withTcf: boolean,
+  withGpp: boolean,
+): string[] => [
   `https://cs.iubenda.com/sync/${siteId}.js`,
   ...(withTcf
     ? [
@@ -84,7 +91,7 @@ const getIubendaScripts = (siteId: string, withTcf: boolean): string[] => [
         'https://cdn.iubenda.com/cs/tcf/safe-tcf-v2.js',
       ]
     : []),
-  'https://cdn.iubenda.com/cs/gpp/stub.js',
+  ...(withGpp ? ['https://cdn.iubenda.com/cs/gpp/stub.js'] : []),
   'https://cdn.iubenda.com/cs/iubenda_cs.js',
 ];
 
@@ -110,6 +117,7 @@ export const Iubenda = (): ReactElement | null => {
   // that still errs safe (a few non-EEA European countries get the gate);
   // unknown geo keeps the full treatment.
   const withTcf = !geo?.continent || geo.continent === Continent.Europe;
+  const withGpp = !geo?.region || geo.region === 'US';
 
   // The config callback must not go stale when React re-renders.
   const onPreferenceRef = useRef<(pref: IubendaPreference | null) => void>();
@@ -242,7 +250,7 @@ export const Iubenda = (): ReactElement | null => {
       ),
     };
 
-    getIubendaScripts(siteId, withTcf).forEach((src) => {
+    getIubendaScripts(siteId, withTcf, withGpp).forEach((src) => {
       const script = document.createElement('script');
       script.src = src;
       // dynamically injected scripts default to async; force in-order
@@ -257,7 +265,7 @@ export const Iubenda = (): ReactElement | null => {
     });
 
     return watchIubendaBanner();
-  }, [enabled, withTcf]);
+  }, [enabled, withTcf, withGpp]);
 
   return null;
 };
