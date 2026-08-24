@@ -26,7 +26,7 @@ const Cell = ({ award }: { award: AwardWithRarity }): ReactElement => {
           alt={award.name}
           fallbackSrc={featuredAwardImage}
           loading="lazy"
-          className="size-12 object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)] transition-transform group-hover:scale-105"
+          className="size-20 object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,0.4)] transition-transform group-hover:scale-105"
         />
         <Typography
           type={TypographyType.Subhead}
@@ -49,7 +49,7 @@ const Cell = ({ award }: { award: AwardWithRarity }): ReactElement => {
 export const TrophyGrid = ({ awards }: TrophyGridProps): ReactElement => {
   return (
     <div
-      className="grid grid-cols-5 gap-x-2 gap-y-3 tablet:grid-cols-8 laptop:grid-cols-12"
+      className="grid grid-cols-3 gap-x-2 gap-y-4 tablet:grid-cols-5"
       role="list"
       aria-label="Award collection"
     >

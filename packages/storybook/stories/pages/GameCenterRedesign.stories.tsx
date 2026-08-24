@@ -26,6 +26,7 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { MilestoneQuestList } from '../../../webapp/components/game-center/MilestoneQuestList';
+import { OfferCard } from '../../../webapp/components/game-center/MilestoneOffers';
 import { CommunityPulse } from '../../../webapp/components/game-center/CommunityPulse';
 import { TrophyGrid } from '../../../webapp/components/game-center/TrophyGrid';
 import {
@@ -235,6 +236,7 @@ const badges = [
   {
     issuedAt: new Date('2026-06-01'),
     keyword: { value: 'clickhouse', flags: { title: 'ClickHouse' } },
+    image: undefined as string | undefined,
   },
   {
     issuedAt: new Date('2026-05-01'),
@@ -247,6 +249,33 @@ const badges = [
   {
     issuedAt: new Date('2026-03-01'),
     keyword: { value: 'react', flags: { title: 'React' } },
+  },
+];
+
+const offers = [
+  {
+    impressionUid: 'offer-disney',
+    clickUrl: '#',
+    title: 'Disney+ for $4.99/mo for 3 months',
+    advertiserName: 'Disney+',
+    perk: 'Unlimited entertainment',
+    badgeLabel: 'discount' as const,
+  },
+  {
+    impressionUid: 'offer-hulu',
+    clickUrl: '#',
+    title: '30 days free trial on Hulu',
+    advertiserName: 'Hulu',
+    perk: 'Movies, shows & live TV',
+    badgeLabel: 'free_trial' as const,
+  },
+  {
+    impressionUid: 'offer-notion',
+    clickUrl: '#',
+    title: '3 months of Notion Business, free',
+    advertiserName: 'Notion',
+    perk: 'Notes, Tasks, AI',
+    badgeLabel: 'free_trial' as const,
   },
 ];
 
@@ -375,6 +404,18 @@ const GameCenterRedesign = () => (
         quests={milestoneQuests}
         showLevelSystem
         onClaim={() => undefined}
+        trailing={
+          <>
+            {offers.map((offer) => (
+              <OfferCard
+                key={offer.impressionUid}
+                offer={offer}
+                isClaimed={offer.impressionUid === 'offer-notion'}
+                onClaim={() => undefined}
+              />
+            ))}
+          </>
+        }
       />
     </section>
 
@@ -409,6 +450,7 @@ const GameCenterRedesign = () => (
                 key={badge.keyword.value}
                 issuedAt={badge.issuedAt}
                 keyword={badge.keyword}
+                image={badge.image}
               />
             ))}
           </div>

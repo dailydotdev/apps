@@ -27,7 +27,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 
-const OfferCard = ({
+export const OfferCard = ({
   offer,
   isClaimed,
   onClaim,
@@ -36,10 +36,14 @@ const OfferCard = ({
   isClaimed: boolean;
   onClaim: (offer: UserOffer) => void;
 }): ReactElement => {
-  const subtitle =
+  const subtitle = [
+    offer.advertiserName,
     offer.perk ??
-    offer.description ??
-    (offer.badgeLabel && offerBadgeLabels[offer.badgeLabel]);
+      offer.description ??
+      (offer.badgeLabel && offerBadgeLabels[offer.badgeLabel]),
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <article className="relative flex w-60 shrink-0 flex-col gap-2 overflow-hidden rounded-14 border border-border-subtlest-tertiary p-4">

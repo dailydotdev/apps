@@ -9,6 +9,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { Image } from '@dailydotdev/shared/src/components/image/Image';
 import type { TopReader } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
 import {
   formatDate,
@@ -18,12 +19,28 @@ import {
 export const BadgeRow = ({
   issuedAt,
   keyword,
-}: Pick<TopReader, 'issuedAt' | 'keyword'>): ReactElement => {
+  image,
+}: Pick<TopReader, 'issuedAt' | 'keyword' | 'image'>): ReactElement => {
+  const title = keyword.flags?.title || keyword.value;
+
   return (
-    <div className="flex items-center justify-between gap-3 rounded-12 bg-background-default p-3">
-      <div className="flex min-w-0 flex-col">
+    <div className="flex items-center gap-3 rounded-12 bg-background-default p-3">
+      {image ? (
+        <Image
+          src={image}
+          alt={`${title} badge`}
+          className="size-8 shrink-0 rounded-8 object-cover"
+          loading="lazy"
+        />
+      ) : (
+        // The keyword carries no artwork of its own, so an initial stands in.
+        <span className="grid size-8 shrink-0 place-items-center rounded-8 bg-background-subtle font-bold text-text-tertiary typo-subhead">
+          {title.charAt(0).toUpperCase()}
+        </span>
+      )}
+      <div className="flex min-w-0 flex-1 flex-col">
         <Typography type={TypographyType.Subhead} bold className="truncate">
-          {keyword.flags?.title || keyword.value}
+          {title}
         </Typography>
         <Typography
           type={TypographyType.Subhead}

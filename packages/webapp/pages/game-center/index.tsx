@@ -446,6 +446,7 @@ function GameCenterPage({
             key={badge.id}
             issuedAt={badge.issuedAt}
             keyword={badge.keyword}
+            image={badge.image}
           />
         ))}
       </div>
