@@ -105,11 +105,38 @@ export const BaseFeedPage = classed(
   styles.feedPage,
 );
 
-// v2 (dual-sidebar layout) ships the feed inside the floating-card chrome,
-// which provides its own outer inset. The legacy `pageMainClassNames`
-// (`laptop:p-10`) adds another 40px on top, which reads as way too much
-// side spacing inside the card. Drop that padding under v2; control keeps
-// the existing behavior unchanged.
+/**
+ * The feed's horizontal inset, under the v2 (dual-sidebar) layout.
+ * Smaller than the legacy `laptop:p-10`, which reads as far too much
+ * side spacing inside v2's floating-card chrome.
+ */
+export const feedGutterV2 = 'px-4 tablet:px-6';
+
+/** The legacy inset, horizontal only — `pageMainClassNames` without its vertical padding. */
+export const feedGutterLegacy = 'tablet:px-4 laptop:px-10';
+
+/**
+ * The feed's current horizontal inset. Chrome that sits outside
+ * `FeedPage` — the breadcrumbs and tab strip — has to line up with the
+ * cards, and the value depends on a flag that resolves after mount, so
+ * it cannot be hardcoded at the call site.
+ */
+export const useFeedGutter = (): string => {
+  const { isV2 } = useLayoutVariant();
+
+  return isV2 ? feedGutterV2 : feedGutterLegacy;
+};
+
+// v2 used to drop `pageMainClassNames` and put nothing in its place,
+// on the assumption that the card chrome always supplies the inset.
+// On the feed surfaces it does not, so the cards ran flush into the
+// sidebar on one side and the window edge on the other.
+//
+// Both variants now set an inset here, and only here. That matters
+// beyond the missing gutter: `isV2` resolves asynchronously, so any
+// second source of horizontal padding elsewhere in the tree would
+// stack on top of this one for whichever state the flag settles into,
+// and the feed would visibly change width after load.
 export const FeedPage = ({
   className,
   ...props
@@ -118,7 +145,10 @@ export const FeedPage = ({
   return (
     <BaseFeedPage
       {...props}
-      className={classNames(!isV2 && pageMainClassNames, className)}
+      className={classNames(
+        isV2 ? feedGutterV2 : pageMainClassNames,
+        className,
+      )}
     />
   );
 };

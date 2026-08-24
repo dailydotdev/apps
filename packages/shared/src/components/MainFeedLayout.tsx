@@ -17,7 +17,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
-import { FeedPageLayoutMobile } from './utilities/common';
+import { FeedPageLayoutMobile, useFeedGutter } from './utilities/common';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
@@ -222,14 +222,6 @@ const feedWithDateRange = [
   ExploreTabs.MostUpvoted,
   ExploreTabs.BestDiscussions,
 ];
-
-/**
- * The feed's horizontal gutter. The page container forces `!px-0`
- * (FeedPageLayoutList), so this is the only inset the feed surface
- * gets — and the breadcrumbs, the tab strip and the cards all have to
- * use the same one or they line up on different left edges.
- */
-const feedGutter = 'px-4 tablet:px-6';
 
 export default function MainFeedLayout({
   feedName: feedNameProp,
@@ -696,6 +688,10 @@ export default function MainFeedLayout({
     [isExtension, onNavTabClick],
   );
 
+  // Matches whatever inset FeedPage is applying to the cards, so the
+  // breadcrumbs and tabs never sit on a different left edge.
+  const feedGutter = useFeedGutter();
+
   const FeedExploreComponent = useCallback(() => {
     if (isLaptop) {
       return (
@@ -731,7 +727,7 @@ export default function MainFeedLayout({
         }}
       />
     );
-  }, [isLaptop, onTabChange, tab]);
+  }, [feedGutter, isLaptop, onTabChange, tab]);
 
   // v2 reaches the Explore hub sections (Explore, Tags, Sources, Leaderboard,
   // Discussions) from the sidebar's Explore panel, so the page header no longer
@@ -854,7 +850,9 @@ export default function MainFeedLayout({
                   </div>
                 ) : undefined
               }
-              className={classNames(!isFinder && feedGutter)}
+              className={classNames(
+                shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
+              )}
             />
           )
         )}
