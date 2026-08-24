@@ -23,6 +23,7 @@ import {
   cloudinaryShortcutsIconsReddit,
   uploadCvBgMobile,
 } from '@dailydotdev/shared/src/lib/image';
+import { useJobsFeature } from '@dailydotdev/shared/src/hooks/useJobsFeature';
 
 // Bare-illustration frame matched across the three top cards so they
 // line up vertically. Slightly wider than tall to give the CV cluster
@@ -140,6 +141,7 @@ export const ExtensionTopBanners = (): ReactElement | null => {
   const { completeAction } = useActions();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const shortcuts = useShortcutsOnboarding();
+  const { isJobsEnabled } = useJobsFeature();
 
   // Logged-out users get the dedicated sticky sign-in strip rendered
   // higher up in `MainFeedPage`. This component is logged-in cards only.
@@ -166,7 +168,7 @@ export const ExtensionTopBanners = (): ReactElement | null => {
     );
   }
 
-  if (shouldShowCv) {
+  if (isJobsEnabled && shouldShowCv) {
     cards.push(
       <TopHero
         key="cv"

@@ -11,10 +11,12 @@ import { FunnelUploadCv } from './FunnelUploadCv';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useJobsFeature } from '../../../hooks/useJobsFeature';
 
 // Mock the hooks
 jest.mock('../../profile/hooks/useUploadCv');
 jest.mock('../../../contexts/AuthContext');
+jest.mock('../../../hooks/useJobsFeature');
 jest.mock('../../../hooks', () => ({
   useActions: jest.fn(() => ({
     checkHasCompleted: jest.fn(() => false),
@@ -131,9 +133,16 @@ describe('FunnelUploadCv', () => {
   const mockUseAuthContext = useAuthContext as jest.MockedFunction<
     typeof useAuthContext
   >;
+  const mockUseJobsFeature = useJobsFeature as jest.MockedFunction<
+    typeof useJobsFeature
+  >;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseJobsFeature.mockReturnValue({
+      isJobsEnabled: true,
+      isLoading: false,
+    });
     mockUseUploadCv.mockReturnValue({
       onUpload: mockOnUpload,
       status: 'idle',
@@ -257,6 +266,20 @@ describe('FunnelUploadCv', () => {
         isLoggedIn: false,
         shouldShowLogin: false,
       } as never);
+
+      const { container } = renderComponent(
+        defaultParameters,
+        mockOnTransition,
+      );
+
+      expect(container).toBeEmptyDOMElement();
+    });
+
+    it('should return null when jobs UI is disabled', () => {
+      mockUseJobsFeature.mockReturnValue({
+        isJobsEnabled: false,
+        isLoading: false,
+      });
 
       const { container } = renderComponent(
         defaultParameters,

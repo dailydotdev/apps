@@ -70,6 +70,7 @@ import { VolunteeringIcon } from '../icons/Volunteering';
 import { GraduationIcon } from '../icons/Graduation';
 import { MedalBadgeIcon } from '../icons/MedalBadge';
 import { MedalIcon } from '../icons/Medal';
+import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 type MenuItems = Record<
   string,
@@ -87,6 +88,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
   const { user } = useAuthContext();
   const { optOutAchievements, optOutLevelSystem, optOutQuestSystem } =
     useSettingsContext();
+  const { isJobsEnabled } = useJobsFeature();
   const shouldHideGameCenter =
     optOutAchievements && optOutLevelSystem && optOutQuestSystem;
 
@@ -111,17 +113,21 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
               icon: BellIcon,
               href: `${settingsUrl}/notifications`,
             },
-            'job-preferences': {
-              title: 'Job preferences',
-              icon: JobIcon,
-              href: `${settingsUrl}/job-preferences`,
-              onClick: () => {
-                logEvent({
-                  event_name: LogEvent.ClickCandidatePreferences,
-                  target_id: TargetId.ProfileSettingsMenu,
-                });
-              },
-            },
+            ...(isJobsEnabled
+              ? {
+                  'job-preferences': {
+                    title: 'Job preferences',
+                    icon: JobIcon,
+                    href: `${settingsUrl}/job-preferences`,
+                    onClick: () => {
+                      logEvent({
+                        event_name: LogEvent.ClickCandidatePreferences,
+                        target_id: TargetId.ProfileSettingsMenu,
+                      });
+                    },
+                  },
+                }
+              : {}),
             appearance: {
               title: 'Appearance',
               icon: NewTabIcon,
@@ -348,6 +354,7 @@ const useAccountPageItems = ({ onClose }: { onClose?: () => void } = {}) => {
       user?.username,
       optOutAchievements,
       shouldHideGameCenter,
+      isJobsEnabled,
     ],
   );
 

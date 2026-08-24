@@ -95,6 +95,7 @@ import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { SocialMediaType } from '@dailydotdev/shared/src/features/organizations/types';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../../components/layouts/FooterNavBarLayout';
+import { JobsFeatureGate } from '../../../components/JobsFeatureGate';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -165,19 +166,19 @@ const socialMediaIconMap: SocialMediaIconMap = {
   [SocialMediaType.Hashnode]: <HashnodeIcon />,
 };
 
-const locationTypeMap = {
+const locationTypeMap: Record<number, string> = {
   [LocationType.UNSPECIFIED]: 'N/A',
   [LocationType.REMOTE]: 'Remote',
   [LocationType.OFFICE]: 'On-site',
   [LocationType.HYBRID]: 'Hybrid',
 };
 
-const roleTypeMap = {
+const roleTypeMap: Record<number, string> = {
   0: 'Individual Contributor',
   1: 'Management',
 };
 
-const employmentTypeMap = {
+const employmentTypeMap: Record<number, string> = {
   [EmploymentType.UNSPECIFIED]: 'N/A',
   [EmploymentType.FULL_TIME]: 'Full-time',
   [EmploymentType.PART_TIME]: 'Part-time',
@@ -185,7 +186,7 @@ const employmentTypeMap = {
   [EmploymentType.INTERNSHIP]: 'Internship',
 };
 
-const salaryPeriodMap = {
+const salaryPeriodMap: Record<number, string> = {
   [SalaryPeriod.UNSPECIFIED]: 'N/A',
   [SalaryPeriod.ANNUAL]: 'year',
   [SalaryPeriod.MONTHLY]: 'month',
@@ -194,7 +195,7 @@ const salaryPeriodMap = {
   [SalaryPeriod.HOURLY]: 'hour',
 };
 
-const companySizeMap = {
+const companySizeMap: Record<number, string> = {
   [CompanySize.COMPANY_SIZE_UNSPECIFIED]: 'N/A',
   [CompanySize.COMPANY_SIZE_1_10]: '1-10',
   [CompanySize.COMPANY_SIZE_11_50]: '11-50',
@@ -205,7 +206,7 @@ const companySizeMap = {
   [CompanySize.COMPANY_SIZE_5000_PLUS]: '5000+',
 };
 
-const companyStageMap = {
+const companyStageMap: Record<number, string> = {
   [CompanyStage.UNSPECIFIED]: 'N/A',
   [CompanyStage.PRE_SEED]: 'Pre-Seed',
   [CompanyStage.SEED]: 'Seed',
@@ -218,6 +219,8 @@ const companyStageMap = {
   [CompanyStage.NON_PROFIT]: 'Non-Profit',
   [CompanyStage.GOVERNMENT]: 'Government',
 };
+
+const seniorityLevelLabels = seniorityLevelMap as Record<number, string>;
 
 const metaMap = {
   location: {
@@ -247,19 +250,19 @@ const metaMap = {
   salary: {
     title: 'Salary range',
     transformer: (value: OpportunityMeta['salary']) => {
-      const min = value?.min / 1000;
-      const max = value?.max / 1000;
-      const period = salaryPeriodMap[value?.period || SalaryPeriod.UNSPECIFIED];
-      if (!min || !max) {
+      if (!value?.min || !value.max) {
         return 'N/A';
       }
+      const min = value.min / 1000;
+      const max = value.max / 1000;
+      const period = salaryPeriodMap[value.period ?? SalaryPeriod.UNSPECIFIED];
       return `$${min}k/${period} - $${max}k/${period}`;
     },
   },
   locationType: {
     title: 'Work site',
     transformer: (value: Opportunity['locations']) =>
-      locationTypeMap[value?.[0]?.type || LocationType.UNSPECIFIED],
+      locationTypeMap[value?.[0]?.type ?? LocationType.UNSPECIFIED],
   },
   equity: {
     title: 'Equity',
@@ -269,17 +272,17 @@ const metaMap = {
   seniorityLevel: {
     title: 'Seniority level',
     transformer: (value: OpportunityMeta['seniorityLevel']) =>
-      seniorityLevelMap[value || SeniorityLevel.UNSPECIFIED],
+      seniorityLevelLabels[value ?? SeniorityLevel.UNSPECIFIED],
   },
   employmentType: {
     title: 'Employment type',
     transformer: (value: OpportunityMeta['employmentType']) =>
-      employmentTypeMap[value || EmploymentType.UNSPECIFIED],
+      employmentTypeMap[value ?? EmploymentType.UNSPECIFIED],
   },
   roleType: {
     title: 'Role type',
     transformer: (value: OpportunityMeta['roleType']) =>
-      roleTypeMap[value] || 'N/A',
+      value === undefined ? 'N/A' : roleTypeMap[value] || 'N/A',
   },
   teamSize: {
     title: 'Team size',
@@ -287,6 +290,9 @@ const metaMap = {
       `${value || 0} engineers` || 'N/A',
   },
 };
+
+type MetaMapKey = keyof typeof metaMap;
+const metaMapKeys = Object.keys(metaMap) as MetaMapKey[];
 
 // Role info display component - extracted for use with InlineRoleInfoEditor
 const RoleInfoDisplay = ({
@@ -301,9 +307,9 @@ const RoleInfoDisplay = ({
     </Typography>
 
     {/* Tags */}
-    {opportunity.keywords?.length > 0 && (
+    {(opportunity.keywords?.length ?? 0) > 0 && (
       <div className="flex flex-wrap gap-2">
-        {opportunity.keywords?.map((tag) => (
+        {(opportunity.keywords ?? []).map((tag) => (
           <Chip key={tag.keyword} className="!my-0 !text-text-tertiary">
             {tag.keyword}
           </Chip>
@@ -320,14 +326,14 @@ const RoleInfoDisplay = ({
     {/* Details */}
     <div className="w-full @container">
       <div className="grid grid-cols-1 gap-x-4 gap-y-2 text-white @[400px]:grid-cols-[max-content_1fr] @[600px]:grid-cols-[max-content_1fr_max-content_1fr]">
-        {Object.keys(metaMap).map((metaKey) => {
+        {metaMapKeys.map((metaKey) => {
           const { title, transformer } = metaMap[metaKey];
           const isLocation =
             metaKey === 'location' || metaKey === 'locationType';
 
           const value = isLocation
             ? opportunity.locations
-            : opportunity.meta[metaKey];
+            : opportunity.meta[metaKey as keyof OpportunityMeta];
 
           if (value === false || value === null) {
             return false;
@@ -348,7 +354,7 @@ const RoleInfoDisplay = ({
                 type={TypographyType.Subhead}
                 color={TypographyColor.Primary}
               >
-                {transformer(value)}
+                {(transformer as (input: typeof value) => string | null)(value)}
               </Typography>
             </Fragment>
           );
@@ -383,9 +389,12 @@ export type JobPageProps = {
    * Used to sync accordion state with edit panel focus.
    */
   expandedSections?: Set<ContentSection>;
+  bypassJobsFeatureGate?: boolean;
 };
 
-const JobPage = ({
+type JobPageContentProps = Omit<JobPageProps, 'bypassJobsFeatureGate'>;
+
+const JobPageContent = ({
   id: propId,
   hideHeader,
   hideCompanyBadge,
@@ -395,7 +404,7 @@ const JobPage = ({
   previewMode,
   previewData,
   expandedSections,
-}: JobPageProps = {}): ReactElement => {
+}: JobPageContentProps = {}): ReactElement | null => {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { logEvent } = useLogContext();
   const { checkHasCompleted, isActionsFetched } = useActions();
@@ -458,10 +467,6 @@ const JobPage = ({
 
   const [showMore, setShowMore] = useState(false);
 
-  const hasLinks =
-    opportunity?.organization?.customLinks?.length > 0 ||
-    opportunity?.organization?.pressLinks?.length > 0;
-
   // Log opportunity view for all users
   // For logged-in users: wait for match query to resolve to include match_status
   // For anonymous users: log immediately with 'no-match' status
@@ -476,7 +481,7 @@ const JobPage = ({
       return;
     }
 
-    logRef.current({
+    logRef.current?.({
       event_name: LogEvent.OpportunityMatchView,
       target_id: id,
       extra: JSON.stringify({ match_status: match?.status ?? 'no-match' }),
@@ -491,6 +496,13 @@ const JobPage = ({
   if (!opportunity) {
     return <NoOpportunity />;
   }
+
+  const { organization } = opportunity;
+  const customLinks = organization?.customLinks ?? [];
+  const pressLinks = organization?.pressLinks ?? [];
+  const socialLinks = organization?.socialLinks ?? [];
+  const perks = organization?.perks ?? [];
+  const hasLinks = customLinks.length > 0 || pressLinks.length > 0;
 
   const showFooterNav = true; // Always show footer nav for interest/response buttons
 
@@ -565,12 +577,12 @@ const JobPage = ({
 
           {/* Content */}
           <div className="flex flex-col gap-4 px-8 py-6">
-            {!hideCompanyBadge && !!opportunity.organization && (
+            {!hideCompanyBadge && !!organization && (
               <div className="flex items-center">
                 <SourceAvatar
                   source={{
-                    image: opportunity.organization.image,
-                    handle: opportunity.organization.name,
+                    image: organization.image ?? '',
+                    handle: organization.name,
                   }}
                   size={ProfileImageSize.Medium}
                 />
@@ -580,7 +592,7 @@ const JobPage = ({
                   type={TypographyType.Callout}
                   color={TypographyColor.Primary}
                 >
-                  {opportunity.organization.name}{' '}
+                  {organization.name}{' '}
                   <Typography
                     tag={TypographyTag.Span}
                     color={TypographyColor.Tertiary}
@@ -727,8 +739,8 @@ const JobPage = ({
                     Company
                   </Typography>
 
-                  {!!opportunity.organization?.website && (
-                    <Link href={opportunity.organization.website} passHref>
+                  {!!organization?.website && (
+                    <Link href={organization.website} passHref>
                       <Button
                         tag="a"
                         target="_blank"
@@ -744,12 +756,12 @@ const JobPage = ({
                   )}
                 </div>
                 {/* Company information */}
-                {!!opportunity.organization && (
+                {!!organization && (
                   <div className="flex px-4">
                     <SourceAvatar
                       source={{
-                        image: opportunity.organization.image,
-                        handle: opportunity.organization.name,
+                        image: organization.image ?? '',
+                        handle: organization.name,
                       }}
                       size={ProfileImageSize.Large}
                     />
@@ -759,15 +771,17 @@ const JobPage = ({
                         type={TypographyType.Body}
                         color={TypographyColor.Primary}
                       >
-                        {opportunity.organization.name}
+                        {organization.name}
                       </Typography>
                       <Typography
                         type={TypographyType.Footnote}
                         color={TypographyColor.Tertiary}
                       >
-                        {companyStageMap[opportunity.organization.stage]}
-                        {opportunity.organization?.category
-                          ? ` • ${opportunity.organization.category}`
+                        {organization.stage === undefined
+                          ? 'N/A'
+                          : companyStageMap[organization.stage]}
+                        {organization.category
+                          ? ` • ${organization.category}`
                           : null}
                       </Typography>
                     </div>
@@ -775,26 +789,20 @@ const JobPage = ({
                 )}
 
                 {/* SoMe Links */}
-                {opportunity.organization?.socialLinks?.length > 0 && (
+                {socialLinks.length > 0 && (
                   <div className="flex gap-2 px-4">
-                    {opportunity.organization.socialLinks.map(
-                      ({ link, socialType }) => (
-                        <Link key={link} href={link} passHref>
-                          <Button
-                            tag="a"
-                            variant={ButtonVariant.Subtle}
-                            size={ButtonSize.Small}
-                            icon={
-                              socialMediaIconMap[
-                                socialType.toLowerCase() as keyof typeof socialMediaIconMap
-                              ]
-                            }
-                            target="_blank"
-                            rel={anchorDefaultRel}
-                          />
-                        </Link>
-                      ),
-                    )}
+                    {socialLinks.map(({ link, socialType }) => (
+                      <Link key={link} href={link} passHref>
+                        <Button
+                          tag="a"
+                          variant={ButtonVariant.Subtle}
+                          size={ButtonSize.Small}
+                          icon={socialMediaIconMap[socialType]}
+                          target="_blank"
+                          rel={anchorDefaultRel}
+                        />
+                      </Link>
+                    ))}
                   </div>
                 )}
 
@@ -807,7 +815,7 @@ const JobPage = ({
                     Founded
                   </Typography>
                   <Typography type={TypographyType.Footnote} bold>
-                    {opportunity.organization?.founded || 'N/A'}
+                    {organization?.founded || 'N/A'}
                   </Typography>
 
                   <Typography
@@ -817,8 +825,9 @@ const JobPage = ({
                     HQ
                   </Typography>
                   <Typography type={TypographyType.Footnote} bold>
-                    {locationToString(opportunity.organization?.location) ||
-                      'N/A'}
+                    {organization?.location
+                      ? locationToString(organization.location)
+                      : 'N/A'}
                   </Typography>
 
                   <Typography
@@ -828,30 +837,32 @@ const JobPage = ({
                     Employees
                   </Typography>
                   <Typography type={TypographyType.Footnote} bold>
-                    {companySizeMap[opportunity.organization?.size] || 'N/A'}
+                    {organization?.size === undefined
+                      ? 'N/A'
+                      : companySizeMap[organization.size] || 'N/A'}
                   </Typography>
                 </div>
 
                 {/* Description */}
-                {!!opportunity.organization?.description && (
+                {!!organization?.description && (
                   <Typography
                     className="px-4"
                     type={TypographyType.Callout}
                     color={TypographyColor.Secondary}
                   >
-                    {opportunity.organization.description}
+                    {organization.description}
                   </Typography>
                 )}
 
                 {/* Perks & Benefits */}
-                {opportunity.organization?.perks?.length > 0 && (
+                {perks.length > 0 && (
                   <div className="flex flex-col gap-2 px-4">
                     <Typography bold type={TypographyType.Callout}>
                       Perks & Benefits
                     </Typography>
 
                     <ul className="list-disc pl-7">
-                      {opportunity.organization.perks.map((perk) => (
+                      {perks.map((perk) => (
                         <Typography
                           key={perk}
                           tag={TypographyTag.Li}
@@ -867,7 +878,7 @@ const JobPage = ({
                 {hasLinks && (
                   <>
                     {/* Resources */}
-                    {opportunity.organization.customLinks?.length > 0 && (
+                    {customLinks.length > 0 && (
                       <div
                         className={classNames(
                           'flex flex-col gap-2 px-4 pb-2',
@@ -878,33 +889,31 @@ const JobPage = ({
                           Resources
                         </Typography>
 
-                        {opportunity.organization.customLinks.map(
-                          ({ link, title }) => (
-                            <Link key={link} href={link} passHref>
-                              <Button
-                                tag="a"
-                                target="_blank"
-                                rel={anchorDefaultRel}
-                                variant={ButtonVariant.Subtle}
-                                icon={
-                                  <OpenLinkIcon
-                                    className="text-text-disabled"
-                                    size={IconSize.Small}
-                                  />
-                                }
-                                iconPosition={ButtonIconPosition.Right}
-                                className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
-                              >
-                                {title}
-                              </Button>
-                            </Link>
-                          ),
-                        )}
+                        {customLinks.map(({ link, title }) => (
+                          <Link key={link} href={link} passHref>
+                            <Button
+                              tag="a"
+                              target="_blank"
+                              rel={anchorDefaultRel}
+                              variant={ButtonVariant.Subtle}
+                              icon={
+                                <OpenLinkIcon
+                                  className="text-text-disabled"
+                                  size={IconSize.Small}
+                                />
+                              }
+                              iconPosition={ButtonIconPosition.Right}
+                              className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
+                            >
+                              {title}
+                            </Button>
+                          </Link>
+                        ))}
                       </div>
                     )}
 
                     {/* Featured press */}
-                    {opportunity.organization.pressLinks?.length > 0 && (
+                    {pressLinks.length > 0 && (
                       <div
                         className={classNames(
                           'flex flex-col gap-2 px-4 pb-2',
@@ -915,40 +924,38 @@ const JobPage = ({
                           Featured press
                         </Typography>
 
-                        {opportunity.organization.pressLinks.map(
-                          ({ link, title }) => (
-                            <Link key={link} href={link} passHref>
-                              <Button
-                                tag="a"
-                                target="_blank"
-                                rel={anchorDefaultRel}
-                                variant={ButtonVariant.Subtle}
-                                icon={
-                                  <OpenLinkIcon
-                                    className="text-text-disabled"
-                                    size={IconSize.Small}
-                                  />
-                                }
-                                iconPosition={ButtonIconPosition.Right}
-                                className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
-                              >
-                                <Image
-                                  className={classNames(
-                                    'mr-2 rounded-full object-cover',
-                                    sizeClasses[ProfileImageSize.Small],
-                                  )}
-                                  src={`${apiUrl}/icon?url=${encodeURIComponent(
-                                    link,
-                                  )}&size=${iconSize}`}
-                                  type={ImageType.Squad}
+                        {pressLinks.map(({ link, title }) => (
+                          <Link key={link} href={link} passHref>
+                            <Button
+                              tag="a"
+                              target="_blank"
+                              rel={anchorDefaultRel}
+                              variant={ButtonVariant.Subtle}
+                              icon={
+                                <OpenLinkIcon
+                                  className="text-text-disabled"
+                                  size={IconSize.Small}
                                 />
-                                <span className="flex-1 truncate text-left">
-                                  {title}
-                                </span>
-                              </Button>
-                            </Link>
-                          ),
-                        )}
+                              }
+                              iconPosition={ButtonIconPosition.Right}
+                              className="justify-between !pl-2 !pr-3 font-normal text-text-secondary"
+                            >
+                              <Image
+                                className={classNames(
+                                  'mr-2 rounded-full object-cover',
+                                  sizeClasses[ProfileImageSize.Small],
+                                )}
+                                src={`${apiUrl}/icon?url=${encodeURIComponent(
+                                  link,
+                                )}&size=${iconSize}`}
+                                type={ImageType.Squad}
+                              />
+                              <span className="flex-1 truncate text-left">
+                                {title}
+                              </span>
+                            </Button>
+                          </Link>
+                        ))}
                       </div>
                     )}
 
@@ -1029,7 +1036,7 @@ const JobPage = ({
                     </div>
                     {/* Description */}
                     <ShowMoreContent
-                      content={recruiter?.bio}
+                      content={recruiter?.bio ?? ''}
                       className={{ text: '!text-text-secondary !typo-callout' }}
                     />
                   </FlexCol>
@@ -1040,6 +1047,21 @@ const JobPage = ({
         )}
       </div>
     </>
+  );
+};
+
+const JobPage = ({
+  bypassJobsFeatureGate,
+  ...props
+}: JobPageProps = {}): ReactElement => {
+  if (bypassJobsFeatureGate) {
+    return <JobPageContent {...props} />;
+  }
+
+  return (
+    <JobsFeatureGate>
+      <JobPageContent {...props} />
+    </JobsFeatureGate>
   );
 };
 

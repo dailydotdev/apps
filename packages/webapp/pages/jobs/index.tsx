@@ -30,6 +30,7 @@ import { settingsUrl, webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import Link from '@dailydotdev/shared/src/components/utilities/Link';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
+import { JobsFeatureGate } from '../../components/JobsFeatureGate';
 
 const JobsPageHeader = (): ReactElement => (
   <PageHeader title="Jobs">
@@ -55,7 +56,7 @@ const activeStatuses = [
   OpportunityMatchStatus.CandidateAccepted,
 ];
 
-const JobsPage = (): ReactElement | null => {
+const JobsPageContent = (): ReactElement | null => {
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
   const { sidebarRendered } = useSidebarRendered();
   const hasUploadedCV = checkHasCompleted(ActionType.UploadedCV);
@@ -149,6 +150,12 @@ const JobsPage = (): ReactElement | null => {
     </>
   );
 };
+
+const JobsPage = (): ReactElement => (
+  <JobsFeatureGate>
+    <JobsPageContent />
+  </JobsFeatureGate>
+);
 
 const geOpportunityLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));

@@ -32,6 +32,7 @@ import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
 import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -197,8 +198,12 @@ export const FeedContainer = ({
       }
     },
   });
+  const { isJobsEnabled } = useJobsFeature();
   const shouldEvaluateBanner =
-    !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
+    isJobsEnabled &&
+    !!marketingCta &&
+    shouldShow &&
+    activeFeedName === SharedFeedPage.MyFeed;
   const hasIntroQuests = useHasIntroQuests({
     shouldEvaluate: shouldEvaluateBanner,
   });

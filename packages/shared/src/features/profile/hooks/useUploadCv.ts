@@ -12,6 +12,7 @@ import { useActions, useToastNotification } from '../../../hooks';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import { useJobsFeature } from '../../../hooks/useJobsFeature';
 
 export const fileValidation = {
   acceptedTypes: [
@@ -34,6 +35,7 @@ export const useUploadCv = ({
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
+  const { isJobsEnabled } = useJobsFeature();
   const hasUploadedCv = useMemo(
     () => checkHasCompleted(ActionType.UploadedCV),
     [checkHasCompleted],
@@ -53,7 +55,7 @@ export const useUploadCv = ({
   } = useMutation({
     mutationFn: uploadCv,
     onSuccess: () => {
-      if (shouldOpenModal) {
+      if (shouldOpenModal && isJobsEnabled) {
         openModal({
           type: LazyModal.ActionSuccess,
           props: {
@@ -85,7 +87,8 @@ export const useUploadCv = ({
     status,
     isSuccess,
     isPending,
-    shouldShow: isActionsFetched && !hasUploadedCv && !hasClosedBanner,
+    shouldShow:
+      isJobsEnabled && isActionsFetched && !hasUploadedCv && !hasClosedBanner,
     onCloseBanner,
   };
 };

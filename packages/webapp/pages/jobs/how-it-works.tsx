@@ -28,6 +28,7 @@ import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph, defaultSeo, defaultSeoTitle } from '../../next-seo';
+import { JobsFeatureGate } from '../../components/JobsFeatureGate';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -37,10 +38,12 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
-const JobsHowItWorksPage = (): ReactElement => {
+const JobsHowItWorksPageContent = (): ReactElement | null => {
   const { user, isAuthReady } = useAuthContext();
 
-  const { isPending } = useQuery(getCandidatePreferencesOptions(user?.id));
+  const { isPending } = useQuery(
+    getCandidatePreferencesOptions(user?.id ?? ''),
+  );
 
   if (isAuthReady && isPending) {
     return null;
@@ -72,6 +75,12 @@ const JobsHowItWorksPage = (): ReactElement => {
     </div>
   );
 };
+
+const JobsHowItWorksPage = (): ReactElement => (
+  <JobsFeatureGate>
+    <JobsHowItWorksPageContent />
+  </JobsFeatureGate>
+);
 
 const geOpportunityLayout: typeof getLayout = (...props) =>
   getFooterNavBarLayout(getLayout(...props));

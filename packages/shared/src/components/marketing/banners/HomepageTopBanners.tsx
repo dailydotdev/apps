@@ -12,6 +12,7 @@ import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { uploadCvBgMobile } from '../../../lib/image';
+import { useJobsFeature } from '../../../hooks/useJobsFeature';
 
 const illustrationFrameClass =
   '!m-0 flex h-24 w-32 shrink-0 items-center justify-center self-center tablet:h-28 tablet:w-36';
@@ -44,9 +45,10 @@ export const useHomepageTopBannersVisibility = (): {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const reminder = useReadingReminderHero({ requireMobile: false });
   const { shouldShow: shouldShowCv } = useUploadCv();
+  const { isJobsEnabled } = useJobsFeature();
   const enabled = isAuthReady && isLoggedIn;
   const showReminder = enabled && reminder.shouldShow;
-  const showCv = enabled && shouldShowCv;
+  const showCv = enabled && isJobsEnabled && shouldShowCv;
   return { showReminder, showCv, hasAny: showReminder || showCv };
 };
 
@@ -62,6 +64,7 @@ export const HomepageTopBanners = ({
   const { onUpload, shouldShow: shouldShowCv } = useUploadCv();
   const { completeAction } = useActions();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { isJobsEnabled } = useJobsFeature();
 
   if (!isAuthReady || !isLoggedIn) {
     return null;
@@ -86,7 +89,7 @@ export const HomepageTopBanners = ({
     );
   }
 
-  if (shouldShowCv) {
+  if (isJobsEnabled && shouldShowCv) {
     cards.push(
       <TopHero
         key="cv"

@@ -24,7 +24,7 @@ import {
   defaultSeoTitle,
 } from '../../../next-seo';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
-import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
+import { getCandidateOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -75,7 +75,7 @@ const PassiveDonePage = (): ReactElement => {
   );
 };
 
-PassiveDonePage.getLayout = getOpportunityProtectedLayout;
+PassiveDonePage.getLayout = getCandidateOpportunityProtectedLayout;
 PassiveDonePage.layoutProps = {
   ...opportunityPageLayoutProps,
   hideBackButton: true,

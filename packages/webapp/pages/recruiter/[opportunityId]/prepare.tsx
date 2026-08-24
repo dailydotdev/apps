@@ -89,7 +89,7 @@ function PreparePageContent(): ReactElement {
     await router.push(`${webappUrl}recruiter/${opportunityId}/questions`);
   }, [isDirty, handleSave, router, opportunityId]);
 
-  if (isLoading || !opportunity) {
+  if (isLoading || !opportunity || !liveOpportunity) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <Loader />
@@ -170,6 +170,7 @@ function PreparePageContent(): ReactElement {
               >
                 <JobPage
                   id={opportunityId}
+                  bypassJobsFeatureGate
                   hideHeader
                   hideCompanyBadge
                   hideRecruiterBadge
@@ -260,6 +261,7 @@ function PreparePageContent(): ReactElement {
             <div className="bg-background-subtle py-6">
               <JobPage
                 id={opportunityId}
+                bypassJobsFeatureGate
                 hideHeader
                 hideCompanyBadge
                 hideRecruiterBadge

@@ -61,6 +61,8 @@ export const featureLuckyButton = new Feature('lucky_button', false);
 
 export const featureStandupCreation = new Feature('standup_creation', false);
 
+export const featureJobsUI = new Feature('jobs_ui', false);
+
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
