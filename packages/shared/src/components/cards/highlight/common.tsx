@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import type { PostHighlight } from '../../../graphql/highlights';
@@ -114,10 +114,13 @@ export const HighlightCardContent = ({
   onReadAllClick,
   variant,
   compact,
+  leadingItem,
 }: HighlightCardProps & {
   variant: 'grid' | 'list';
   /** Flush against its container, for a surface without card chrome. */
   compact?: boolean;
+  /** Sits above the headlines, sharing their row treatment. */
+  leadingItem?: ReactNode;
 }): ReactElement => {
   const isFlushGrid = variant === 'grid' && compact;
   const headerClassName = classNames(
@@ -156,6 +159,7 @@ export const HighlightCardContent = ({
         <HighlightCardOptions className="ml-auto" />
       </header>
       <div className={contentClassName}>
+        {leadingItem}
         {highlights.map((highlight, index) => (
           <HighlightRow
             key={highlight.id}

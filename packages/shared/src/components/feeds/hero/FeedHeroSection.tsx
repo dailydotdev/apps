@@ -43,26 +43,23 @@ export const FeedHeroSection = ({
       className="laptop:col-span-2"
       {...cardProps}
     />
-    {/* Everything in the rail shares one text edge; the hover surfaces bleed
-        past it and are clipped here, so they read as full-width bands. */}
-    <aside className="flex min-h-0 min-w-0 flex-col gap-1 overflow-hidden">
-      {!!ad && (
-        <FeedHeroAd
-          ad={ad}
-          className="-mx-2"
-          onLinkClick={onAdLinkClick}
-          onViewable={onAdViewable}
-        />
-      )}
-      <div className="group flex min-h-0 flex-1 flex-col overflow-hidden">
-        <HighlightCardContent
-          highlights={highlights}
-          onHighlightClick={onHighlightClick}
-          onReadAllClick={onReadAllClick}
-          variant="grid"
-          compact
-        />
-      </div>
+    <aside className="group flex min-h-0 min-w-0 flex-col overflow-hidden">
+      <HighlightCardContent
+        highlights={highlights}
+        onHighlightClick={onHighlightClick}
+        onReadAllClick={onReadAllClick}
+        variant="grid"
+        compact
+        leadingItem={
+          !!ad && (
+            <FeedHeroAd
+              ad={ad}
+              onLinkClick={onAdLinkClick}
+              onViewable={onAdViewable}
+            />
+          )
+        }
+      />
     </aside>
   </section>
 );

@@ -26,55 +26,98 @@ export const FeedHeroCarousel = ({
   posts,
   autoplayMs = 6000,
   className,
-  wideColSpan = 2,
+  wideColSpan,
   ...cardProps
 }: FeedHeroCarouselProps): ReactElement | null => {
-  const [index, setIndex] = useState(0);
+  const [slide, setSlide] = useState<{ index: number; from: number | null }>({
+    index: 0,
+    from: null,
+  });
   const [isManualChange, setIsManualChange] = useState(false);
   // Below laptop the feed itself renders list cards, so the featured post does
   // too — a two-column wide card leaves the headline about 180px on a phone.
   const isLaptop = useViewSize(ViewSize.Laptop);
+  // Two thirds of the card is cover only once the text column can still hold a
+  // headline; on a 1024px laptop that same split leaves it about 190px.
+  const isLaptopL = useViewSize(ViewSize.LaptopL);
 
   if (!posts.length) {
     return null;
   }
 
-  const goTo = (position: number) => {
-    setIsManualChange(true);
-    setIndex(position);
+  const total = posts.length;
+  const active = wrapIndex(slide.index, total);
+
+  const moveTo = (position: number) => {
+    if (wrapIndex(position, total) === active) {
+      return;
+    }
+    setSlide({ index: position, from: active });
   };
 
-  const total = posts.length;
-  const active = wrapIndex(index, total);
+  const goTo = (position: number) => {
+    setIsManualChange(true);
+    moveTo(position);
+  };
+
   const post = posts[active];
-  const Card = isLaptop
-    ? PostTypeToWideCard[post.type] ?? ArticleFeaturedWideGridCard
-    : PostTypeToListCard[post.type] ?? ArticleList;
+  const outgoing = slide.from === null ? null : posts[slide.from];
+  const cardFor = (item: Post) =>
+    isLaptop
+      ? PostTypeToWideCard[item.type] ?? ArticleFeaturedWideGridCard
+      : PostTypeToListCard[item.type] ?? ArticleList;
+  const Card = cardFor(post);
+  const wideProps = isLaptop
+    ? { wideColSpan: wideColSpan ?? (isLaptopL ? 3 : 2), hero: true }
+    : {};
   const previous = posts[wrapIndex(active - 1, total)];
   const next = posts[wrapIndex(active + 1, total)];
+
+  // The slide being replaced stays mounted on top of the new one until its
+  // fade finishes, so the two cross over instead of the card popping.
+  let outgoingSlide: ReactElement | null = null;
+  if (outgoing) {
+    const OutgoingCard = cardFor(outgoing);
+    outgoingSlide = (
+      <div
+        key={outgoing.id}
+        aria-hidden
+        data-testid="carouselOutgoing"
+        className="feed-hero-slide-out pointer-events-none col-start-1 row-start-1 flex flex-col"
+        onAnimationEnd={(event) => {
+          if (event.target !== event.currentTarget) {
+            return;
+          }
+          setSlide((current) => ({ ...current, from: null }));
+        }}
+      >
+        <OutgoingCard post={outgoing} {...wideProps} {...cardProps} />
+      </div>
+    );
+  }
 
   return (
     <section
       aria-label="Featured posts"
       aria-roledescription="carousel"
-      className={classNames('group/hero flex min-w-0 flex-col gap-3', className)}
+      className={classNames(
+        'group/hero flex min-w-0 flex-col gap-3',
+        className,
+      )}
     >
       <div
-        className="flex flex-1 flex-col laptop:min-h-card"
+        className="grid flex-1 laptop:min-h-card"
         // Announcing every automatic rotation would talk over the reader, so
         // only a change the user asked for is live.
         aria-live={isManualChange ? 'polite' : 'off'}
       >
-        <Card
+        {outgoingSlide}
+        <div
           key={post.id}
-          post={post}
-          {...(isLaptop && {
-            wideColSpan,
-            coverImage: true,
-            expandDescription: true,
-          })}
-          {...cardProps}
-        />
+          className="feed-hero-slide-in col-start-1 row-start-1 flex flex-col"
+        >
+          <Card post={post} {...wideProps} {...cardProps} />
+        </div>
       </div>
       {total > 1 && (
         <div className="flex items-center gap-3">
@@ -105,7 +148,7 @@ export const FeedHeroCarousel = ({
                     className="feed-hero-carousel-progress block h-full w-full rounded-max bg-text-primary group-focus-within/hero:[animation-play-state:paused] group-hover/hero:[animation-play-state:paused]"
                     onAnimationEnd={() => {
                       setIsManualChange(false);
-                      setIndex(active + 1);
+                      moveTo(active + 1);
                     }}
                   />
                 )}

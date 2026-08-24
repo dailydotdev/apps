@@ -450,6 +450,45 @@
   }
 }
 
+@keyframes feed-hero-slide-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes feed-hero-slide-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.feed-hero-slide-in {
+  animation: feed-hero-slide-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.feed-hero-slide-out {
+  animation: feed-hero-slide-out 320ms ease-out both;
+}
+
+/* Near-zero rather than `none`: the outgoing slide is unmounted on its own
+   `animationend`, which never arrives if the animation is removed outright. */
+@media (prefers-reduced-motion: reduce) {
+  .feed-hero-slide-in,
+  .feed-hero-slide-out {
+    animation-duration: 1ms;
+  }
+}
+
 @keyframes feed-hero-carousel-progress {
   from {
     transform: scaleX(0);

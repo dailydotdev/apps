@@ -98,6 +98,20 @@ describe('FeedHeroCarousel', () => {
     ).toContainElement(screen.getByTestId('carouselProgress'));
   });
 
+  it('keeps the outgoing post mounted until its fade finishes', () => {
+    renderComponent();
+
+    fireEvent.click(screen.getByRole('button', { name: `Next: ${titles[1]}` }));
+
+    const leaving = screen.getByTestId('carouselOutgoing');
+    expect(leaving).toHaveTextContent(titles[0]);
+    expect(getTitle(titles[1])).toBeInTheDocument();
+
+    fireEvent.animationEnd(leaving);
+
+    expect(screen.queryByTestId('carouselOutgoing')).not.toBeInTheDocument();
+  });
+
   it('only announces a change the reader asked for', () => {
     renderComponent();
 

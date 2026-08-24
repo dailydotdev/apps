@@ -235,10 +235,10 @@ export const Carousel: Story = {
         <FeedHeroCarousel posts={[noImageHeroPost]} {...cardHandlers} />
       </Case>
       <Case
-        title="Wider text column"
-        note="wideColSpan={3} gives the headline two thirds of the card."
+        title="Even split"
+        note="wideColSpan={2} gives the headline half the card. The hero picks this itself below 1360px, where a third of the column is too narrow for a headline."
       >
-        <FeedHeroCarousel posts={heroPosts} wideColSpan={3} {...cardHandlers} />
+        <FeedHeroCarousel posts={heroPosts} wideColSpan={2} {...cardHandlers} />
       </Case>
     </Page>
   ),
@@ -249,8 +249,8 @@ export const AdPlacement: Story = {
   render: () => (
     <Page>
       <Case
-        title="Advertiser, title, tags and cover"
-        note="Rail width (20rem). Same elements as the feed ad card, in the same order: advertiser, title, tags, then the cover."
+        title="As a Happening Now row"
+        note="Rail width (20rem). Same elements as the feed ad card — advertiser, title, tags — with the cover on the right at the card's ratio."
         width="20rem"
       >
         <FeedHeroAd ad={heroAd} onLinkClick={fn()} />
@@ -260,7 +260,7 @@ export const AdPlacement: Story = {
       </Case>
       <Case
         title="No cover image"
-        note="The copy takes the full width."
+        note="The copy takes the full row width."
         width="20rem"
       >
         <FeedHeroAd ad={adWithoutImage} onLinkClick={fn()} />
@@ -281,7 +281,7 @@ export const AdPlacement: Story = {
       </Case>
       <Case
         title="Full-width (mobile rail)"
-        note="How the placement looks once the rail stacks under the carousel."
+        note="How the row looks once the rail stacks under the carousel."
       >
         <FeedHeroAd ad={heroAd} onLinkClick={fn()} />
       </Case>
