@@ -6,23 +6,14 @@ import {
   TypographyColor,
   TypographyType,
 } from '../typography/Typography';
-import { IconSize } from '../Icon';
 import { ProgressBar } from '../fields/ProgressBar';
-import {
-  HotIcon,
-  MedalBadgeIcon,
-  ReputationLightningIcon,
-  StarIcon,
-} from '../icons';
 
 type HudStat = {
-  icon: ReactElement;
   label: string;
   value: string;
 };
 
 const HudStatTile = ({
-  icon,
   label,
   value,
   className,
@@ -33,15 +24,9 @@ const HudStatTile = ({
       className,
     )}
   >
-    <div className="flex items-center gap-1.5 text-text-tertiary">
-      {icon}
-      <Typography
-        type={TypographyType.Subhead}
-        color={TypographyColor.Tertiary}
-      >
-        {label}
-      </Typography>
-    </div>
+    <Typography type={TypographyType.Subhead} color={TypographyColor.Tertiary}>
+      {label}
+    </Typography>
     <Typography type={TypographyType.Title3} bold>
       {value}
     </Typography>
@@ -59,6 +44,14 @@ const levelPanelStyle = {
     'radial-gradient(rgba(255,255,255,0.10) 1px, transparent 1px)',
   ].join(', '),
   backgroundSize: 'auto, auto, auto, 16px 16px',
+};
+
+// Frosted glass over the patterned panel: a translucent white wash, a
+// lit top edge and a soft border, so the panel's pattern shows through.
+const levelBadgeStyle = {
+  background:
+    'linear-gradient(145deg, rgba(255,255,255,0.42), rgba(255,255,255,0.10))',
+  border: '1px solid rgba(255,255,255,0.45)',
 };
 
 export interface LevelHudProps {
@@ -89,49 +82,22 @@ export const LevelHud = ({
 
   const stats: HudStat[] = [
     {
-      icon: (
-        <HotIcon
-          secondary
-          size={IconSize.Size16}
-          className="text-accent-cabbage-default"
-        />
-      ),
       label: 'Streak',
       value: streakValue,
     },
     {
-      icon: (
-        <StarIcon
-          secondary
-          size={IconSize.Size16}
-          className="text-accent-cabbage-default"
-        />
-      ),
       label: 'Longest',
       value: longestValue,
     },
     ...(achievements
       ? [
           {
-            icon: (
-              <MedalBadgeIcon
-                size={IconSize.Size16}
-                className="text-accent-cabbage-default"
-              />
-            ),
             label: 'Badges',
             value: `${achievements.unlocked}/${achievements.total}`,
           },
         ]
       : []),
     {
-      icon: (
-        <ReputationLightningIcon
-          secondary
-          size={IconSize.Size16}
-          className="text-accent-cabbage-default"
-        />
-      ),
       label: 'Total XP',
       value: isPending ? '...' : totalXp.toLocaleString(),
     },
@@ -146,7 +112,8 @@ export const LevelHud = ({
         {/* The number stands alone, so the chip carries the meaning for
             screen readers. */}
         <div
-          className="mb-2 flex size-18 shrink-0 items-center justify-center rounded-16 border-4 border-white bg-white text-accent-cabbage-default"
+          className="mb-2 flex size-18 shrink-0 items-center justify-center rounded-16 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.12),0_8px_24px_-8px_rgba(0,0,0,0.65)] backdrop-blur-[6px]"
+          style={levelBadgeStyle}
           aria-label={`Level ${level}`}
         >
           <Typography
