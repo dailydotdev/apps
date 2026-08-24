@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
-import { pageMainClassNames } from '../layout/PageWrapperLayout';
 import { SourceMemberRole } from '../../graphql/sources';
 import type { OrganizationMemberRole } from '../../features/organizations/types';
 
@@ -105,30 +104,34 @@ export const BaseFeedPage = classed(
 );
 
 /**
- * The feed's horizontal inset, as a horizontal-only echo of
- * `pageMainClassNames`. Chrome that sits outside `FeedPage` — the
- * breadcrumbs and the tab strip — uses this to line up with the cards.
+ * The feed's horizontal inset — the single source of it.
+ *
+ * It lives on FeedContainer rather than on a page container because
+ * the feed renders through two different ones depending on layout and
+ * route: FeedPage, which carries `pageMainClassNames`, and
+ * FeedPageLayoutList, which forces `!px-0`. FeedContainer is the only
+ * element common to both, so it is the only place an inset applies
+ * everywhere and can never stack with another.
+ *
+ * Chrome outside the container — the breadcrumbs and the tab strip —
+ * uses the same constant to line up with the cards.
  */
-export const feedGutter = 'tablet:px-4 laptop:px-10';
+export const feedGutter = 'px-4 tablet:px-6 laptop:px-10';
 
-// v2 used to drop `pageMainClassNames` here and put nothing in its
-// place, on the assumption that its floating-card chrome always
-// supplies the inset. On the feed surfaces it does not, so the cards
-// ran flush into the sidebar on one side and the window edge on the
-// other.
-//
-// The inset is no longer conditional at all. `isV2` is not stable
-// across client-side navigation — it reads true on load and false
-// after a route change — so anything keyed to it made the feed
-// visibly change width as you moved around the app. The feed keeps
-// one inset whatever the layout experiment is doing.
+// Vertical padding only. The horizontal inset moved to FeedContainer
+// (see `feedGutter`) because this component is not in the tree on
+// every feed route — FeedPageLayoutList is used instead on some — and
+// an inset here would both miss those routes and stack with the one
+// that covers them.
+const feedPageVerticalPadding = 'tablet:py-4 laptop:py-10';
+
 export const FeedPage = ({
   className,
   ...props
 }: HTMLAttributes<HTMLElement>): ReactElement => (
   <BaseFeedPage
     {...props}
-    className={classNames(pageMainClassNames, className)}
+    className={classNames(feedPageVerticalPadding, className)}
   />
 );
 export const FeedPageLayoutList = classed(
