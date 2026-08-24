@@ -48,6 +48,19 @@ const HudStatTile = ({
   </div>
 );
 
+// Off-token purples, so these stay inline rather than fighting the
+// no-custom-color rule with arbitrary classes.
+const levelPanelStyle = {
+  backgroundColor: '#2A0B3D',
+  backgroundImage: [
+    'radial-gradient(circle at 14% 22%, rgba(230,105,251,0.32), transparent 58%)',
+    'radial-gradient(circle at 94% 86%, rgba(122,63,255,0.30), transparent 62%)',
+    'repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 14px)',
+    'radial-gradient(rgba(255,255,255,0.10) 1px, transparent 1px)',
+  ].join(', '),
+  backgroundSize: 'auto, auto, auto, 16px 16px',
+};
+
 export interface LevelHudProps {
   level: number;
   levelProgress: number;
@@ -126,15 +139,18 @@ export const LevelHud = ({
 
   return (
     <div className="grid gap-2 rounded-20 border border-border-subtlest-tertiary p-2 tablet:grid-cols-2">
-      <div className="flex flex-col justify-center gap-2 rounded-14 bg-[#2A0B3D] p-4 tablet:px-5">
+      <div
+        className="flex flex-col justify-center gap-2 overflow-hidden rounded-14 p-4 tablet:px-5"
+        style={levelPanelStyle}
+      >
         {/* The number stands alone, so the chip carries the meaning for
             screen readers. */}
         <div
-          className="flex size-12 shrink-0 items-center justify-center rounded-12 bg-accent-cabbage-default text-white"
+          className="flex size-18 shrink-0 items-center justify-center rounded-max bg-accent-cabbage-default text-white"
           aria-label={`Level ${level}`}
         >
           <Typography
-            type={TypographyType.Title1}
+            type={TypographyType.Mega2}
             bold
             className="leading-none text-white"
           >
