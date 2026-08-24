@@ -4,7 +4,7 @@ import Head from 'next/head';
 import {
   ADSENSE_PRECONNECT_ORIGINS,
   ADSENSE_SCRIPT_SRC,
-} from '@dailydotdev/shared/src/components/post/arbitrage/adsense';
+} from '@dailydotdev/shared/src/features/monetization/adsense';
 
 /**
  * Warms the ad path while the app is still hydrating: connections to the

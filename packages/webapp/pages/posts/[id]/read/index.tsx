@@ -14,30 +14,26 @@ import type { ClientError } from 'graphql-request';
 import type { Post, PostData } from '@dailydotdev/shared/src/graphql/posts';
 import { POST_BY_ID_STATIC_FIELDS_QUERY } from '@dailydotdev/shared/src/graphql/posts';
 import { PostType } from '@dailydotdev/shared/src/types';
-import type {
-  Comment,
-  TopCommentsData,
-} from '@dailydotdev/shared/src/graphql/comments';
-import { TOP_COMMENTS_QUERY } from '@dailydotdev/shared/src/graphql/comments';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import { usePostById } from '@dailydotdev/shared/src/hooks';
 import PostLoadingSkeleton from '@dailydotdev/shared/src/components/post/PostLoadingSkeleton';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
+import {
+  ThemeMode,
+  useSettingsContext,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ArbitragePostContent } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitragePostContent';
 import { ArbitrageAnchor } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAnchor';
 import {
   ADSENSE_SCRIPT_SRC,
   hasLiveAdsenseUnits,
-} from '@dailydotdev/shared/src/components/post/arbitrage/adsense';
+} from '@dailydotdev/shared/src/features/monetization/adsense';
 import { useReadAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
 import { AdsenseHeadHints } from '../../../../components/AdsenseHeadHints';
 import { getLayout } from '../../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../../components/layouts/FooterNavBarLayout';
 import { getPageSeoTitles } from '../../../../components/layouts/utils';
-import {
-  getSeoDescription,
-  PostSEOSchema,
-} from '../../../../components/PostSEOSchema';
+import { getSeoDescription } from '../../../../components/PostSEOSchema';
 import type { DynamicSeoProps } from '../../../../components/common';
 import { noindexSeoProps } from '../../../../next-seo';
 import type { PostParams } from '../index';
@@ -47,8 +43,11 @@ const Custom404 = dynamic(
   () => import(/* webpackChunkName: "404" */ '../../../404'),
 );
 
+const ARBITRAGE_ARTICLE_ROUTE_PATTERN =
+  /^\/(?:articles\/[^/]+|posts\/[^/]+\/read)(?:[/?#]|$)/;
+
 /**
- * The post types /read may render, all of which carry content beyond the ad
+ * The post types /articles may render, all of which carry content beyond the ad
  * slots. Deliberately excludes squad/user-generated types (share, welcome,
  * freeform, poll) — paid traffic never targets them and their content is our
  * members', not landing-page material — and internal types (brief, digest).
@@ -62,7 +61,6 @@ const READ_ELIGIBLE_POST_TYPES = new Set<PostType>([
 export interface ArbitragePostPageProps extends DynamicSeoProps {
   id: string;
   initialData?: PostData;
-  topComments?: Comment[];
   error?: ApiError;
 }
 
@@ -76,16 +74,17 @@ export interface ArbitragePostPageProps extends DynamicSeoProps {
  * collapse preference (which the visitor can still toggle as usual). The
  * header login/signup buttons are unaffected and render as usual.
  *
- * Noindexed for now — it duplicates `/posts/[id]`, so it must not compete in
- * search until we decide it is the canonical version for organic traffic.
+ * Noindexed because it duplicates `/posts/[id]` and exists for paid/ad
+ * traffic, not search discovery. Forces light mode while mounted: the ad
+ * partner's creatives are designed against light pages.
  */
 const ArbitragePostPage = ({
   id,
   initialData,
-  topComments,
   error,
 }: ArbitragePostPageProps): ReactElement => {
   const router = useRouter();
+  const { applyThemeMode } = useSettingsContext();
   const adsenseSlots = useReadAdsenseSlots();
   const adsLive = hasLiveAdsenseUnits(adsenseSlots);
   const { post, isError, isLoading } = usePostById({
@@ -93,11 +92,21 @@ const ArbitragePostPage = ({
     options: { initialData, retry: false },
   });
 
+  // Display-only override; the stored theme preference is untouched and
+  // restored the moment the visitor leaves.
+  useEffect(() => {
+    applyThemeMode(ThemeMode.Light);
+    return () => {
+      applyThemeMode();
+    };
+  }, [applyThemeMode]);
+
   // adsbygoogle must never follow a client-side navigation into the rest of
   // the app: once loaded, its Auto ads overlays (anchor/vignette) persist
-  // across soft navigations. Leaving /read forces a full page load, which
-  // tears down every Google global — combined with the script only ever being
-  // rendered by this route, ads outside /read are impossible by construction.
+  // across soft navigations. Leaving the article ad route forces a full page
+  // load, which tears down every Google global — combined with the script only
+  // ever being rendered by this route, ads outside it are impossible by
+  // construction.
   useEffect(() => {
     if (!adsLive) {
       return undefined;
@@ -108,8 +117,8 @@ const ArbitragePostPage = ({
     ): void => {
       // Shallow same-page updates (comment permalinks, URL-masking modals,
       // query tweaks) never unload anything — only a genuine departure from
-      // /read has ads to tear down.
-      if (shallow || /^\/posts\/[^/]+\/read(?:[/?#]|$)/.test(url)) {
+      // the article ad route has ads to tear down.
+      if (shallow || ARBITRAGE_ARTICLE_ROUTE_PATTERN.test(url)) {
         return;
       }
       router.events.emit('routeChangeError');
@@ -125,7 +134,7 @@ const ArbitragePostPage = ({
     // the SPA transition and loading the target URL in place respects the
     // history position the user just moved to.
     router.beforePopState(({ as }) => {
-      if (/^\/posts\/[^/]+\/read(?:[/?#]|$)/.test(as)) {
+      if (ARBITRAGE_ARTICLE_ROUTE_PATTERN.test(as)) {
         return true;
       }
       window.location.href = as;
@@ -155,7 +164,7 @@ const ArbitragePostPage = ({
           the anchor for the bottom of a phone screen. */}
       <FooterNavBarLayout offsetByAnchorAd>
         <Head>
-          <link rel="preload" as="image" href={post?.image} />
+          {!!post.image && <link rel="preload" as="image" href={post.image} />}
         </Head>
         {adsLive && (
           <>
@@ -168,7 +177,6 @@ const ArbitragePostPage = ({
             />
           </>
         )}
-        <PostSEOSchema post={post} topComments={topComments} />
         <ArbitragePostContent
           post={post}
           // 72rem, wider than the standard template's 69.25rem: the main column
@@ -213,12 +221,12 @@ export async function getStaticProps({
   const { id } = params;
 
   try {
-    const [initialData, commentsData] = await Promise.all([
-      gqlClient.request<PostData>(POST_BY_ID_STATIC_FIELDS_QUERY, { id }),
-      gqlClient
-        .request<TopCommentsData>(TOP_COMMENTS_QUERY, { postId: id, first: 5 })
-        .catch(() => ({ topComments: [] })),
-    ]);
+    // No comments prefetch and no JSON-LD: the page is noindexed, so
+    // structured data serves nothing, and the thread hydrates client-side.
+    const initialData = await gqlClient.request<PostData>(
+      POST_BY_ID_STATIC_FIELDS_QUERY,
+      { id },
+    );
 
     const post = initialData.post as Post;
 
@@ -249,7 +257,6 @@ export async function getStaticProps({
       props: {
         id: initialData.post.id,
         initialData,
-        topComments: commentsData.topComments || [],
         seo,
       },
       revalidate: 60,

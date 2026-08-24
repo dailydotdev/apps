@@ -7,11 +7,11 @@ import AuthContext from '../../../contexts/AuthContext';
 import { isDevelopment } from '../../../lib/constants';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import { useFeature } from '../../GrowthBookProvider';
-import type { ReadAdsenseSlots } from './adsense';
-import { hasLiveAdsenseUnits } from './adsense';
+import type { AdsenseSlots } from '../../../features/monetization/adsense';
+import { hasLiveAdsenseUnits } from '../../../features/monetization/adsense';
 import { ORGANIC_ADSENSE_SLOTS, READ_ADSENSE_SLOTS } from './slots';
 
-const NO_SLOTS: ReadAdsenseSlots = {};
+const NO_SLOTS: AdsenseSlots = {};
 
 /**
  * Anonymous is a post-boot fact, not the absence of a user object: `user` is
@@ -32,7 +32,7 @@ const useIsAnonymous = (): boolean => {
  * is no ramp. Development builds get the dashed density placeholders instead
  * of live units, hence the empty map there.
  */
-export const useReadAdsenseSlots = (): ReadAdsenseSlots => {
+export const useReadAdsenseSlots = (): AdsenseSlots => {
   const isAnonymous = useIsAnonymous();
   const enabled = useFeature(featureReadAdsense);
 
@@ -48,7 +48,7 @@ export const useReadAdsenseSlots = (): ReadAdsenseSlots => {
  * and only for anonymous visitors — any logged-in user (member or Plus)
  * never sees programmatic ads on their post pages.
  */
-export const useOrganicAdsenseSlots = (): ReadAdsenseSlots => {
+export const useOrganicAdsenseSlots = (): AdsenseSlots => {
   const isAnonymous = useIsAnonymous();
   // Conditional evaluation, because evaluating enrolls: a visitor who is
   // logged in — or whose units have no AdSense id yet and so cannot render

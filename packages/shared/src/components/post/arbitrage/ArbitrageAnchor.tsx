@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { isDevelopment } from '../../../lib/constants';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { useReadAdsenseSlots } from './useReadAdsenseSlots';
-import { hasLiveAdsenseUnits } from './adsense';
+import { hasLiveAdsenseUnits } from '../../../features/monetization/adsense';
 import { useTimedRelease } from './useTimedRelease';
 import { ARBITRAGE_SLOT, FLOATING_LEADERBOARD_DELAY_MS } from './slots';
 import {

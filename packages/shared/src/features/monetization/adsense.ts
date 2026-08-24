@@ -30,12 +30,7 @@ export type AdsenseSlotConfig = {
   height?: number;
 };
 
-/**
- * Remote config value for the /read template: ArbitrageAdSlot number →
- * AdSense unit. An empty object (the flag default) means no ad code renders
- * or loads anywhere; any entry switches the template to live mode.
- */
-export type ReadAdsenseSlots = Record<string, AdsenseSlotConfig>;
+export type AdsenseSlots = Record<string, AdsenseSlotConfig>;
 
 /**
  * Whether a slot map has anything to serve. Key presence is not enough: units
@@ -43,7 +38,7 @@ export type ReadAdsenseSlots = Record<string, AdsenseSlotConfig>;
  * page must not load adsbygoogle.js — script, preconnects and third-party
  * surface — for inventory that cannot fill.
  */
-export const hasLiveAdsenseUnits = (slots: ReadAdsenseSlots): boolean =>
+export const hasLiveAdsenseUnits = (slots: AdsenseSlots): boolean =>
   Object.values(slots).some((slot) => !!slot.id);
 
 declare global {

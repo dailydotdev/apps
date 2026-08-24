@@ -10,7 +10,7 @@ import {
 import {
   ADSENSE_SCRIPT_SRC,
   hasLiveAdsenseUnits,
-} from '@dailydotdev/shared/src/components/post/arbitrage/adsense';
+} from '@dailydotdev/shared/src/features/monetization/adsense';
 import { ORGANIC_SLOT } from '@dailydotdev/shared/src/components/post/arbitrage/slots';
 import { useOrganicAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
 import type {

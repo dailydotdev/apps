@@ -1,110 +1,29 @@
-import type { CSSProperties, ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import type { ReactElement } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { isDevelopment, webappUrl } from '../../../lib/constants';
-import { useLogContext } from '../../../contexts/LogContext';
-import { LogEvent } from '../../../lib/log';
+import { isDevelopment } from '../../../lib/constants';
 import {
   useOrganicAdsenseSlots,
   useReadAdsenseSlots,
 } from './useReadAdsenseSlots';
-import type { AdsenseSlotConfig, ReadAdsenseSlots } from './adsense';
-import { ADSENSE_CLIENT_ID, hasLiveAdsenseUnits } from './adsense';
+import type { AdsenseSlots } from '../../../features/monetization/adsense';
+import { hasLiveAdsenseUnits } from '../../../features/monetization/adsense';
+import type { ProgrammaticAdFormat } from '../../../features/monetization/ProgrammaticAd';
+import {
+  FORMAT_SPEC,
+  ProgrammaticAd,
+} from '../../../features/monetization/ProgrammaticAd';
 
-// Module-level, not per-slot: one warning per page load says everything.
-let hasLoggedTestMode = false;
+export type ArbitrageAdSurface = 'read' | 'organic';
 
-export enum ArbitrageAdFormat {
-  Leaderboard = 'leaderboard',
-  MediumRectangle = 'mediumRectangle',
-  Rectangle = 'rectangle',
-  HalfPage = 'halfPage',
-  Native = 'native',
-  Anchor = 'anchor',
-}
-
-type FormatSpec = {
-  label: string;
-  size: string;
-  minHeight: string;
-  /**
-   * Caps the slot at its standard IAB width so every creative in a given
-   * format renders the same size. Without this the unit is responsive and
-   * Google picks whatever creative fits the container, so two slots side by
-   * side come back different widths.
-   *
-   * The cap is also how a format gets its mobile variant. AdSense sizes a
-   * responsive unit from the space it is given, so a leaderboard left
-   * uncapped on a phone comes back as whatever else fits — a rectangle, not a
-   * banner. Capping at the phone width in the IAB portfolio makes the mobile
-   * sizes the only ones that can serve.
-   */
-  maxWidth?: string;
-  /**
-   * Restricts which shapes AdSense may return. A width cap alone does not:
-   * left on `auto`, a 300px-wide slot is just as free to answer with a 300x600
-   * half page as with a 300x250, and it did. Naming the shape keeps the unit
-   * responsive across breakpoints while ruling the wrong orientations out,
-   * which a fixed pixel size could not do without breaking one of them.
-   */
-  shape?: 'rectangle' | 'horizontal' | 'vertical';
-};
-
-const FORMAT_SPEC: Record<ArbitrageAdFormat, FormatSpec> = {
-  // Leaderboard on desktop, large mobile banner on a phone.
-  [ArbitrageAdFormat.Leaderboard]: {
-    label: 'Leaderboard',
-    size: '728x90 · 320x100 mobile',
-    minHeight: 'min-h-[100px] tablet:min-h-[90px]',
-    maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
-    shape: 'horizontal',
-  },
-  // The IAB medium rectangle. Reserves its exact height rather than the
-  // shorter guess the in-content unit makes, because it is booked at a fixed
-  // size and anything less would shift the article as it fills.
-  [ArbitrageAdFormat.MediumRectangle]: {
-    label: 'Medium rectangle',
-    size: '300x250',
-    minHeight: 'min-h-[250px]',
-    maxWidth: 'max-w-[300px]',
-    shape: 'rectangle',
-  },
-  // 336x280 is a Google size rather than an IAB one, so on a phone this drops
-  // to the medium rectangle, which is what the portfolio actually lists.
-  [ArbitrageAdFormat.Rectangle]: {
-    label: 'In-content',
-    size: '336x280 · 300x250 mobile',
-    minHeight: 'min-h-[250px] tablet:min-h-[180px]',
-    maxWidth: 'max-w-[300px] tablet:max-w-[336px]',
-    shape: 'rectangle',
-  },
-  [ArbitrageAdFormat.HalfPage]: {
-    label: 'Sticky rail',
-    size: '300x600',
-    minHeight: 'min-h-[320px]',
-    maxWidth: 'max-w-[300px]',
-    shape: 'vertical',
-  },
-  [ArbitrageAdFormat.Native]: {
-    label: 'Native',
-    size: 'fluid',
-    minHeight: 'min-h-[96px]',
-  },
-  // Leaderboard on desktop, mobile phone banner on a phone. The shortest
-  // banner in the portfolio, because it sits over the content rather than in
-  // it and shares the bottom of a phone screen with the footer nav.
-  [ArbitrageAdFormat.Anchor]: {
-    label: 'Anchor',
-    size: '728x90 · 320x50 mobile',
-    minHeight: 'min-h-[50px] tablet:min-h-[90px]',
-    maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
-    shape: 'horizontal',
-  },
-};
+export {
+  getAdsenseSlotLogExtra,
+  ProgrammaticAdFormat as ArbitrageAdFormat,
+} from '../../../features/monetization/ProgrammaticAd';
 
 export interface ArbitrageAdSlotProps {
   slot: number;
-  format: ArbitrageAdFormat;
+  format: ProgrammaticAdFormat;
   className?: string;
   /** Marks slots wired to a declared 30-60s in-view refresh once on Ad Manager. */
   refreshes?: boolean;
@@ -122,7 +41,7 @@ export interface ArbitrageAdSlotProps {
    * (default) or the organic post page. The dashed density-review placeholder
    * is a /read-template tool and never renders for the organic surface.
    */
-  surface?: 'read' | 'organic';
+  surface?: ArbitrageAdSurface;
   /**
    * Requests the ad on mount instead of waiting to near the viewport. For
    * slots visible at first paint the intersection wait only adds latency —
@@ -130,223 +49,6 @@ export interface ArbitrageAdSlotProps {
    * arrived, so eager pushes ride its very first processing pass.
    */
   eager?: boolean;
-}
-
-type InsAttributes = {
-  style: CSSProperties;
-  'data-ad-format'?: string;
-  'data-ad-layout'?: string;
-  'data-ad-layout-key'?: string;
-  'data-full-width-responsive'?: string;
-};
-
-function getInsAttributes(
-  config: AdsenseSlotConfig,
-  shape?: FormatSpec['shape'],
-): InsAttributes {
-  if (config.type === 'inArticle') {
-    return {
-      style: { display: 'block', textAlign: 'center' },
-      'data-ad-layout': 'in-article',
-      'data-ad-format': 'fluid',
-    };
-  }
-
-  if (config.type === 'inFeed') {
-    return {
-      style: { display: 'block' },
-      'data-ad-format': 'fluid',
-      'data-ad-layout-key': config.layoutKey,
-    };
-  }
-
-  if (config.width && config.height) {
-    return {
-      style: {
-        display: 'inline-block',
-        width: config.width,
-        height: config.height,
-      },
-    };
-  }
-
-  if (shape) {
-    return { style: { display: 'block' }, 'data-ad-format': shape };
-  }
-
-  return {
-    style: { display: 'block' },
-    'data-ad-format': 'auto',
-    'data-full-width-responsive': 'true',
-  };
-}
-
-function LiveAdSlot({
-  slot,
-  config,
-  format,
-  className,
-  hideOnPhone,
-  eager,
-}: Pick<
-  ArbitrageAdSlotProps,
-  'slot' | 'format' | 'className' | 'hideOnPhone' | 'eager'
-> & {
-  config: AdsenseSlotConfig;
-}): ReactElement {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const insRef = useRef<HTMLModElement>(null);
-  const [isRequested, setIsRequested] = useState(eager ?? false);
-  const { logEvent } = useLogContext();
-  const hasLoggedFill = useRef(false);
-
-  // The <ins> below only mounts once the slot is eligible, because
-  // adsbygoogle.push({}) does not bind to a specific element: the tag
-  // processes the first uninitialised ins.adsbygoogle in document order. With
-  // every ins mounted up front and per-slot pushes firing in intersection
-  // order, a push from a slot low on the page initialises an earlier,
-  // never-pushed slot instead — wrong placement gets the request, the
-  // triggering slot stays unprocessed and collapses as empty. Mounting the
-  // ins at eligibility keeps the invariant that every uninitialised ins in
-  // the document is one that should be processed right now, which makes the
-  // pushes interchangeable. The wrapper keeps the format's min-height, so the
-  // page reserves the same space either way.
-  useEffect(() => {
-    const element = wrapperRef.current;
-    if (eager || !element) {
-      return undefined;
-    }
-
-    // Request the ad only near the viewport: viewability drives AdSense CPMs,
-    // and never-seen impressions depress the whole page's pricing. The margin
-    // is roughly a viewport of scroll — enough for the auction round-trip to
-    // finish before the slot scrolls into view at reading speed. Eager slots
-    // are visible at first paint, where the wait only adds latency.
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) {
-          return;
-        }
-        observer.disconnect();
-        setIsRequested(true);
-      },
-      { rootMargin: '600px' },
-    );
-    observer.observe(element);
-
-    return () => observer.disconnect();
-  }, [eager]);
-
-  // Fires once the ins exists: stamps the test attribute and pushes the
-  // request. Nothing here decides the slot is empty on a timer — the wrapper's
-  // CSS rule collapses it on data-ad-status="unfilled", which is the only
-  // signal that actually means "no ad". Guessing from height or from a missing
-  // iframe cannot tell a slow auction from a declined one, and guessing wrong
-  // is unrecoverable: a collapsed slot is display:none, and Google does not
-  // render into one, so the ad never arrives at all.
-  useEffect(() => {
-    const element = insRef.current;
-    if (!isRequested || !element) {
-      return undefined;
-    }
-
-    // Any host but the canonical production one serves test creatives.
-    // Preview deployments are production *builds*, so a build-time flag
-    // can't make this call — it has to happen here, before the request.
-    let productionHost = '';
-    try {
-      productionHost = new URL(webappUrl).hostname;
-    } catch {
-      // Fail-safe: unset/relative webappUrl means test creatives too.
-    }
-    if (productionHost !== window.location.hostname) {
-      element.setAttribute('data-adtest', 'on');
-      // Test mode pays nothing, so it engaging where it should not — a
-      // misconfigured webappUrl in production — must be visible in telemetry
-      // rather than silently zeroing revenue. Once per page is enough.
-      if (!hasLoggedTestMode) {
-        hasLoggedTestMode = true;
-        logEvent({
-          event_name: LogEvent.AdsenseTestMode,
-          extra: JSON.stringify({ host: window.location.hostname }),
-        });
-      }
-    }
-
-    // Logs the creative landing, watching mutations rather than polling —
-    // and never hiding the slot on the strength of it. True once means done:
-    // a refreshing unit mutates forever, and one impression event per slot is
-    // the measurement, so the observer disconnects after the first fill.
-    const reportFill = (): boolean => {
-      if (hasLoggedFill.current || !element.querySelector('iframe')) {
-        return false;
-      }
-      hasLoggedFill.current = true;
-      logEvent({
-        event_name: LogEvent.FillAdsenseSlot,
-        extra: JSON.stringify({ slot, unit: config.id, format }),
-      });
-      return true;
-    };
-    const observer = new MutationObserver(() => {
-      if (reportFill()) {
-        observer.disconnect();
-      }
-    });
-    if (!reportFill()) {
-      observer.observe(element, { childList: true, subtree: true });
-    }
-
-    // This push is only safe because of the mount-at-eligibility invariant
-    // above: it binds to the first uninitialised ins in document order, not
-    // to this element. Adding `eager` to a slot (or any change that mounts an
-    // ins before it should be requested) re-opens the mis-binding race — an
-    // eager slot must be one that is genuinely requested at mount.
-    try {
-      window.adsbygoogle = window.adsbygoogle || [];
-      window.adsbygoogle.push({});
-    } catch {
-      // adsbygoogle.js blocked (ad blocker) — leave the reserved box empty.
-    }
-
-    return () => observer.disconnect();
-  }, [isRequested, logEvent, slot, config.id, format]);
-
-  return (
-    // Square-cornered and unclipped: the box only centres the unit and
-    // reserves its request-time height against layout shift. No overflow
-    // clipping, so a creative that comes back taller than the reservation
-    // grows the container instead of being cut off, which AdSense forbids.
-    <div
-      ref={wrapperRef}
-      className={classNames(
-        'mx-auto w-full text-center',
-        // AdSense stamps data-ad-status="unfilled" when no creative was
-        // returned. Without collapsing, the reserved min-height stays behind as
-        // a block of empty page — most visible in the comment thread, where an
-        // unfilled slot leaves a gap between the heading and the first comment.
-        // Important because `tablet:block` below sits in a media query, which
-        // the generated stylesheet emits after this plain rule — without it an
-        // unfilled phone-hidden slot would stay visible from tablet up.
-        'has-[>ins[data-ad-status="unfilled"]]:!hidden',
-        hideOnPhone && 'hidden tablet:block',
-        FORMAT_SPEC[format].minHeight,
-        FORMAT_SPEC[format].maxWidth,
-        className,
-      )}
-    >
-      {isRequested && (
-        <ins
-          ref={insRef}
-          className="adsbygoogle"
-          data-testid={`adsense-slot-${slot}`}
-          data-ad-client={ADSENSE_CLIENT_ID}
-          data-ad-slot={config.id}
-          {...getInsAttributes(config, FORMAT_SPEC[format].shape)}
-        />
-      )}
-    </div>
-  );
 }
 
 function MappedAdSlot({
@@ -357,9 +59,11 @@ function MappedAdSlot({
   hideOnPhone,
   eager,
   slots,
+  surface,
   allowPlaceholder = false,
 }: ArbitrageAdSlotProps & {
-  slots: ReadAdsenseSlots;
+  slots: AdsenseSlots;
+  surface: ArbitrageAdSurface;
   allowPlaceholder?: boolean;
 }): ReactElement | null {
   const isLive = hasLiveAdsenseUnits(slots);
@@ -370,11 +74,18 @@ function MappedAdSlot({
       return null;
     }
     return (
-      <LiveAdSlot
+      // An <ins> can only be initialised once, so any change to the unit's
+      // identity has to remount rather than re-render.
+      <ProgrammaticAd
+        key={`${surface}:${slot}:${format}:${config.id}:${config.type}:${
+          config.layoutKey ?? ''
+        }:${config.width ?? ''}:${config.height ?? ''}`}
         slot={slot}
         config={config}
         format={format}
+        surface={surface}
         className={className}
+        refreshes={refreshes}
         hideOnPhone={hideOnPhone}
         eager={eager}
       />
@@ -416,14 +127,16 @@ function MappedAdSlot({
 
 function ReadArbitrageAdSlot(props: ArbitrageAdSlotProps): ReactElement | null {
   const slots = useReadAdsenseSlots();
-  return <MappedAdSlot {...props} slots={slots} allowPlaceholder />;
+  return (
+    <MappedAdSlot {...props} slots={slots} surface="read" allowPlaceholder />
+  );
 }
 
 function OrganicArbitrageAdSlot(
   props: ArbitrageAdSlotProps,
 ): ReactElement | null {
   const slots = useOrganicAdsenseSlots();
-  return <MappedAdSlot {...props} slots={slots} />;
+  return <MappedAdSlot {...props} slots={slots} surface="organic" />;
 }
 
 /**

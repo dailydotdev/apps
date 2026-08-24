@@ -5,7 +5,7 @@
  * IAB names: a "leaderboard" is 728x90, an "MPU" (mid page unit) is the
  * 300x250 / 336x280 rectangle, and a "half page" is 300x600.
  */
-import type { ReadAdsenseSlots } from './adsense';
+import type { AdsenseSlots } from '../../../features/monetization/adsense';
 
 export const ARBITRAGE_SLOT = {
   /** Leaderboard above the article. Sticks while scrolling, then releases. */
@@ -62,7 +62,7 @@ export const COMMENTS_PER_INTERLEAVED_AD = 5;
  * for, which is why slot 3 was answering a 300x250 placement with a 600px
  * tall creative. Where the two disagree the TODO says which unit to recreate.
  */
-export const READ_ADSENSE_SLOTS: ReadAdsenseSlots = {
+export const READ_ADSENSE_SLOTS: AdsenseSlots = {
   [ARBITRAGE_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
   // read_s03 (9651332107) is an in-article unit, so it is fluid: it ignored
   // both the shape and an explicit 300x250 on the <ins> and kept answering the
@@ -107,7 +107,7 @@ export const ORGANIC_SLOT = {
 // TODO(chris): create the two organic units in AdSense (suggested names
 // post_s15_top_leaderboard, post_s16_rail_half_page) and fill in the ids.
 // Both slots stay collapsed until then.
-export const ORGANIC_ADSENSE_SLOTS: ReadAdsenseSlots = {
+export const ORGANIC_ADSENSE_SLOTS: AdsenseSlots = {
   [ORGANIC_SLOT.topLeaderboard]: { id: '', type: 'display' },
   [ORGANIC_SLOT.railHalfPage]: {
     id: '',

@@ -5,8 +5,11 @@ import { ArbitrageAnchor } from './ArbitrageAnchor';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
-import type { ReadAdsenseSlots } from './adsense';
-import { ADSENSE_CLIENT_ID } from './adsense';
+import { getLogContextStatic } from '../../../contexts/LogContext';
+import type { LogContextData } from '../../../hooks/log/useLogContextData';
+import { LogEvent } from '../../../lib/log';
+import type { AdsenseSlots } from '../../../features/monetization/adsense';
+import { ADSENSE_CLIENT_ID } from '../../../features/monetization/adsense';
 import {
   featurePostAdsense,
   featureReadAdsense,
@@ -43,8 +46,8 @@ const mockConstants = jest.requireMock('../../../lib/constants') as {
   isDevelopment: boolean;
 };
 const mockSlotMaps = jest.requireMock('./slots') as {
-  READ_ADSENSE_SLOTS: ReadAdsenseSlots;
-  ORGANIC_ADSENSE_SLOTS: ReadAdsenseSlots;
+  READ_ADSENSE_SLOTS: AdsenseSlots;
+  ORGANIC_ADSENSE_SLOTS: AdsenseSlots;
 };
 
 const mockUseConditionalFeature = jest.mocked(useConditionalFeature);
@@ -77,11 +80,11 @@ const renderLoggedIn = (ui: React.ReactElement) =>
   );
 
 /** Fills the /read map — the surface has no flag, the map alone decides. */
-const setSlots = (slots: ReadAdsenseSlots): void => {
+const setSlots = (slots: AdsenseSlots): void => {
   mockSlotMaps.READ_ADSENSE_SLOTS = slots;
 };
 
-const setOrganicSlots = (slots: ReadAdsenseSlots): void => {
+const setOrganicSlots = (slots: AdsenseSlots): void => {
   flags.organic = Object.keys(slots).length > 0;
   mockSlotMaps.ORGANIC_ADSENSE_SLOTS = slots;
 };
@@ -313,7 +316,7 @@ describe('ArbitrageAdSlot', () => {
 });
 
 describe('ArbitrageAdSlot on the organic surface', () => {
-  const organicFixture: ReadAdsenseSlots = {
+  const organicFixture: AdsenseSlots = {
     [ORGANIC_SLOT.topLeaderboard]: { id: '5555555555', type: 'display' },
   };
 
@@ -464,5 +467,99 @@ describe('ArbitrageAnchor', () => {
     advancePastDelay();
 
     expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
+  });
+});
+
+describe('ProgrammaticAd telemetry', () => {
+  const LogContext = getLogContextStatic();
+  const logEvent = jest.fn();
+
+  const renderWithLog = (ui: React.ReactElement) =>
+    rtlRender(
+      <LogContext.Provider value={{ logEvent } as unknown as LogContextData}>
+        <AuthContext.Provider
+          value={{ isAuthReady: true } as unknown as AuthContextData}
+        >
+          {ui}
+        </AuthContext.Provider>
+      </LogContext.Provider>,
+    );
+
+  const loggedEvents = (): string[] =>
+    logEvent.mock.calls.map(([event]) => event.event_name);
+
+  beforeEach(() => {
+    logEvent.mockClear();
+  });
+
+  it('logs the request exactly once with the standardized extras', () => {
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    const { rerender } = renderWithLog(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+    rerender(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    const requests = logEvent.mock.calls.filter(
+      ([event]) => event.event_name === LogEvent.RequestAdsenseSlot,
+    );
+    expect(requests).toHaveLength(1);
+    expect(JSON.parse(requests[0][0].extra)).toMatchObject({
+      slot: 2,
+      unit: '2222222222',
+      unit_type: 'display',
+      format: 'leaderboard',
+      surface: 'read',
+    });
+  });
+
+  it('logs an empty slot when AdSense answers unfilled', async () => {
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    renderWithLog(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    screen
+      .getByTestId('adsense-slot-2')
+      .setAttribute('data-ad-status', 'unfilled');
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(loggedEvents()).toContain(LogEvent.EmptyAdsenseSlot);
+    expect(loggedEvents()).not.toContain(LogEvent.FillAdsenseSlot);
+  });
+
+  it('logs a fill when the creative iframe lands', async () => {
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    renderWithLog(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    screen
+      .getByTestId('adsense-slot-2')
+      .appendChild(document.createElement('iframe'));
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(loggedEvents()).toContain(LogEvent.FillAdsenseSlot);
+  });
+
+  it('logs a push error when adsbygoogle rejects the request', () => {
+    // Simulates the tag being present but broken (partial ad-block).
+    window.adsbygoogle = {
+      push: () => {
+        throw new Error('adsbygoogle push blocked');
+      },
+    } as unknown as typeof window.adsbygoogle;
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    renderWithLog(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+    window.adsbygoogle = [];
+
+    expect(loggedEvents()).toContain(LogEvent.AdsenseSlotError);
   });
 });
