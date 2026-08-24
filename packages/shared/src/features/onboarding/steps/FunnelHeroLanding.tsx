@@ -60,11 +60,10 @@ const isSocialSignupUser = (
   );
 };
 
-// Safety nets, not budgets — nothing may hold the funnel's entry screen
-// indefinitely. The flag rides the boot payload and lands a commit after auth,
-// so it gets the short one; onboarding actions are a real round trip.
+// A safety net, not a budget: `ready` never flips when boot returns no
+// experiment features, and holding longer would blank the funnel's entry
+// screen for both arms every time that happens.
 const FLAG_RESOLVE_TIMEOUT_MS = 200;
-const ACTIONS_RESOLVE_TIMEOUT_MS = 1000;
 
 export const FunnelHeroLanding = withIsActiveGuard(
   ({
@@ -88,45 +87,32 @@ export const FunnelHeroLanding = withIsActiveGuard(
     const isOnboarding = useIsOnboardingFunnel();
     const { isOnboardingActionsReady, isOnboardingComplete } =
       useOnboardingActions();
-    // A signed-in user's completion is only known once their actions land;
-    // until then we can't tell a wall viewer from someone about to be
-    // transitioned past this step. Anonymous visitors have nothing to fetch.
-    const isResolvingEnrollment = isLoggedIn && !isOnboardingActionsReady;
-    // Enrollment must not fire for a visit that never paints a wall, or it
-    // sits in the denominator of both arms unable to convert.
-    const isSkippingWall =
-      (isLoggedIn && user?.infoConfirmed) ||
-      isOnboardingComplete ||
-      isResolvingEnrollment;
-    // Evaluating is what enrolls: `getFeatureValue` fires GrowthBook's
-    // trackingCallback, which POSTs the allocation.
-    const shouldEvaluateWallFlag =
-      isAuthReady && isOnboarding && !isSkippingWall;
+    // Anonymous onboarding visitors only: they always render a wall (every
+    // render bail-out below is a logged-in state), and evaluating is what
+    // enrolls — `getFeatureValue` fires GrowthBook's trackingCallback, which
+    // POSTs the allocation. Logged-in users keep the served wall and stay out
+    // of the experiment entirely.
+    const shouldEvaluateWallFlag = isAuthReady && isOnboarding && !isLoggedIn;
     const { value: isHorizonWallEnabled, isLoading: isHorizonFlagLoading } =
       useConditionalFeature({
         feature: featureSignupWallHorizon,
         shouldEvaluate: shouldEvaluateWallFlag,
       });
-    const isHoldingForEnrollment =
-      isResolvingEnrollment || (shouldEvaluateWallFlag && isHorizonFlagLoading);
-    const holdTimeoutMs = isLoggedIn
-      ? ACTIONS_RESOLVE_TIMEOUT_MS
-      : FLAG_RESOLVE_TIMEOUT_MS;
-    const [hasWaitedForEnrollment, setHasWaitedForEnrollment] = useState(false);
+    const [hasWaitedForFlag, setHasWaitedForFlag] = useState(false);
     useEffect(() => {
-      if (!isHoldingForEnrollment) {
+      if (!shouldEvaluateWallFlag) {
         return undefined;
       }
       const timeout = setTimeout(
-        () => setHasWaitedForEnrollment(true),
-        holdTimeoutMs,
+        () => setHasWaitedForFlag(true),
+        FLAG_RESOLVE_TIMEOUT_MS,
       );
       return () => clearTimeout(timeout);
-    }, [isHoldingForEnrollment, holdTimeoutMs]);
-    // Painting the served wall and swapping later would show the control arm
-    // to treatment users and waste a hero download. Enrollment resolves
-    // through the actions fetch as well as the flag, so both are held.
-    const isWallPending = isHoldingForEnrollment && !hasWaitedForEnrollment;
+    }, [shouldEvaluateWallFlag]);
+    // Painting the served wall and swapping when the flag lands would show
+    // the control arm to treatment users and waste a hero download.
+    const isWallPending =
+      shouldEvaluateWallFlag && isHorizonFlagLoading && !hasWaitedForFlag;
     const background = isHorizonWallEnabled ? 'horizon' : backgroundParam;
     const isHorizonWall = background === 'horizon';
     const oauthOrder =

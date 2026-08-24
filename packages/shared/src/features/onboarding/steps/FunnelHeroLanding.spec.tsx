@@ -128,6 +128,10 @@ describe('FunnelHeroLanding', () => {
     });
 
     it('does not evaluate when onboarding is already complete', () => {
+      setAuth({
+        isLoggedIn: true,
+        user: { id: 'u2', infoConfirmed: false, providers: ['github'] },
+      });
       setOnboardingActions({ isOnboardingComplete: true });
 
       renderStep();
@@ -136,12 +140,11 @@ describe('FunnelHeroLanding', () => {
       expect(screen.queryByTestId('signup-hero')).not.toBeInTheDocument();
     });
 
-    it('does not evaluate for a signed-in user until their actions land', () => {
+    it('does not evaluate for any signed-in user', () => {
       setAuth({
         isLoggedIn: true,
         user: { id: 'u2', infoConfirmed: false, providers: ['github'] },
       });
-      setOnboardingActions({ isOnboardingActionsReady: false });
 
       renderStep();
 
@@ -191,53 +194,16 @@ describe('FunnelHeroLanding', () => {
       );
     });
 
-    it('holds a signed-in visit until its actions land, then skips the control', () => {
-      setAuth({
-        isLoggedIn: true,
-        user: { id: 'u2', infoConfirmed: false, providers: ['github'] },
-      });
-      setOnboardingActions({ isOnboardingActionsReady: false });
-      setFlag({ value: true });
-
-      const { rerender } = renderStep('cards');
-
-      expect(screen.queryByTestId('signup-hero')).not.toBeInTheDocument();
-
-      setOnboardingActions({ isOnboardingActionsReady: true });
-      rerender(
-        <FunnelHeroLanding
-          {...({
-            id: 'hero',
-            type: FunnelStepType.HeroLanding,
-            isActive: true,
-            parameters: { background: 'cards' },
-            onTransition: jest.fn(),
-          } as unknown as FunnelStepHeroLanding)}
-        />,
-      );
-
-      expect(screen.getByTestId('signup-hero')).toHaveAttribute(
-        'data-background',
-        'horizon',
-      );
-    });
-
-    it('gives up the hold when the actions request never resolves', () => {
+    it('never holds a signed-in visit, even mid-actions-fetch', () => {
       setAuth({
         isLoggedIn: true,
         user: { id: 'u3', infoConfirmed: false, providers: ['github'] },
       });
       setOnboardingActions({ isOnboardingActionsReady: false });
+      setFlag({ isLoading: true });
 
       renderStep('cards');
 
-      expect(screen.queryByTestId('signup-hero')).not.toBeInTheDocument();
-
-      act(() => {
-        jest.advanceTimersByTime(1500);
-      });
-
-      // Nothing may hold the funnel's entry screen indefinitely.
       expect(screen.getByTestId('signup-hero')).toHaveAttribute(
         'data-background',
         'cards',
