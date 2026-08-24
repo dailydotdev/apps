@@ -240,7 +240,7 @@ export const AdPlacement: Story = {
     <Page>
       <Case
         title="Advertiser, title, tags and cover"
-        note="Rail width (20rem). Same elements as the feed ad card, laid out for a short row."
+        note="Rail width (20rem). Same elements as the feed ad card, in the same order: advertiser, title, tags, then the cover."
         width="20rem"
       >
         <FeedHeroAd ad={heroAd} onLinkClick={fn()} />

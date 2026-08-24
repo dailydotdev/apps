@@ -35,6 +35,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
       enableSourceHeader = false,
       wideColSpan = 2,
       coverImage,
+      expandDescription,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -88,7 +89,12 @@ export const FreeformFeaturedWideGridCard = forwardRef(
                 className="mt-1"
               />
               {!!description && (
-                <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
+                <p
+                  className={classNames(
+                    'mt-2 text-text-secondary typo-callout',
+                    expandDescription ? 'line-clamp-6' : 'line-clamp-3',
+                  )}
+                >
                   {description}
                 </p>
               )}

@@ -35,6 +35,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
       eagerLoadImage = false,
       wideColSpan = 2,
       coverImage,
+      expandDescription,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -86,7 +87,12 @@ export const CollectionFeaturedWideGridCard = forwardRef(
                 className="mt-1"
               />
               {!!post.summary && (
-                <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
+                <p
+                  className={classNames(
+                    'mt-2 text-text-secondary typo-callout',
+                    expandDescription ? 'line-clamp-6' : 'line-clamp-3',
+                  )}
+                >
                   {post.summary}
                 </p>
               )}

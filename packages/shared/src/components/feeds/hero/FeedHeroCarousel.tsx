@@ -58,7 +58,11 @@ export const FeedHeroCarousel = ({
         <Card
           key={post.id}
           post={post}
-          {...(isLaptop && { wideColSpan, coverImage: true })}
+          {...(isLaptop && {
+            wideColSpan,
+            coverImage: true,
+            expandDescription: true,
+          })}
           {...cardProps}
         />
       </div>

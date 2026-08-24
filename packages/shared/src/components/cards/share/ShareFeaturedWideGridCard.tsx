@@ -41,6 +41,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
       eagerLoadImage = false,
       wideColSpan = 2,
       coverImage,
+      expandDescription,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -123,7 +124,12 @@ export const ShareFeaturedWideGridCard = forwardRef(
               ) : (
                 <>
                   {!!sharedSummary && (
-                    <p className="mt-2 line-clamp-3 text-text-secondary typo-callout">
+                    <p
+                      className={classNames(
+                        'mt-2 text-text-secondary typo-callout',
+                        expandDescription ? 'line-clamp-6' : 'line-clamp-3',
+                      )}
+                    >
                       {sharedSummary}
                     </p>
                   )}

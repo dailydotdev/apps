@@ -39,13 +39,6 @@ export const FeedHeroAd = ({
       )}
     >
       <AdLink ad={ad} onLinkClick={onLinkClick} />
-      {!!ad.image && (
-        <AdImage
-          ad={ad}
-          ImageComponent={AdCover}
-          className="!my-0 h-24 w-full shrink-0"
-        />
-      )}
       <div className="flex min-w-0 items-center gap-2">
         <AdFavicon ad={ad} className="!m-0 !h-6 shrink-0" />
         <AdAttribution
@@ -58,6 +51,13 @@ export const FeedHeroAd = ({
       </p>
       {matchingTags.length > 0 && (
         <PostTags post={{ tags: matchingTags }} className="[&>*]:!my-0" />
+      )}
+      {!!ad.image && (
+        <AdImage
+          ad={ad}
+          ImageComponent={AdCover}
+          className="!my-0 h-24 w-full shrink-0"
+        />
       )}
       <AdPixel pixel={ad.pixel} />
       {!!onViewable && (

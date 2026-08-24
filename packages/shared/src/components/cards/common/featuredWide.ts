@@ -6,6 +6,11 @@ export type FeaturedWideCardProps = PostCardProps & {
   wideColSpan?: FeaturedWideColSpan;
   /** Crop the cover to fill its column instead of letterboxing it. */
   coverImage?: boolean;
+  /**
+   * Let the summary run to the height the card actually has. The in-feed wide
+   * cards share a row with normal cards and keep the shorter clamp.
+   */
+  expandDescription?: boolean;
 };
 
 export const INNER_GRID_COLS: Record<FeaturedWideColSpan, string> = {
