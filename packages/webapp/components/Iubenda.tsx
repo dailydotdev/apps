@@ -8,6 +8,7 @@ import {
 } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { Continent } from '@dailydotdev/shared/src/lib/geo';
 import { iubendaLocalizedPolicyIds } from '@dailydotdev/shared/src/lib/iubenda';
 import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
 import { enhanceIubendaBannerNow, watchIubendaBanner } from './iubendaBanner';
@@ -99,11 +100,16 @@ export const openIubendaPreferences = (): boolean => {
 };
 
 export const Iubenda = (): ReactElement | null => {
-  const { isAuthReady, isFunnel, isGdprCovered } = useAuthContext();
+  const { isAuthReady, isFunnel, geo } = useAuthContext();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Necessary);
-  // Fail-safe: only skip the TCF layer when the boot geo affirmatively says
-  // the visitor is outside GDPR scope. Unknown geo gets the full treatment.
-  const withTcf = isGdprCovered !== false;
+  // Google's certified-CMP mandate covers the EEA, the UK and Switzerland —
+  // not "everywhere we haven't listed". checkIfGdprCovered counts the whole
+  // world minus US/IL as covered, which is deliberately conservative for
+  // pixels and banner copy but wrong for gating ad delivery: it held ads
+  // hostage to the banner in South Africa. Continent Europe is the superset
+  // that still errs safe (a few non-EEA European countries get the gate);
+  // unknown geo keeps the full treatment.
+  const withTcf = !geo?.continent || geo.continent === Continent.Europe;
 
   // The config callback must not go stale when React re-renders.
   const onPreferenceRef = useRef<(pref: IubendaPreference | null) => void>();
