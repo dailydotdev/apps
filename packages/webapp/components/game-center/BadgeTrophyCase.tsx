@@ -20,7 +20,7 @@ export const BadgeRow = ({
   keyword,
 }: Pick<TopReader, 'issuedAt' | 'keyword'>): ReactElement => {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-12 bg-background-subtle p-3">
+    <div className="flex items-center justify-between gap-3 rounded-12 bg-background-default p-3">
       <div className="flex min-w-0 flex-col">
         <Typography type={TypographyType.Subhead} bold className="truncate">
           {keyword.flags?.title || keyword.value}
@@ -62,7 +62,7 @@ const Pane = ({
   label: string;
   children: ReactNode;
 }): ReactElement => (
-  <div className="flex flex-col gap-3 bg-background-default p-4">
+  <div className="flex flex-col gap-3 rounded-14 bg-background-subtle p-4">
     <div className="flex min-w-0 flex-col">
       <Typography type={TypographyType.Title2} bold className="tabular-nums">
         {value}
@@ -93,7 +93,7 @@ export const BadgeTrophyCase = ({
   awardCount,
 }: BadgeTrophyCaseProps): ReactElement => {
   return (
-    <div className="grid gap-px overflow-hidden rounded-16 border border-border-subtlest-tertiary bg-border-subtlest-tertiary laptop:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
+    <div className="grid gap-2 laptop:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
       <Pane value={badgeCount} label="Topics mastered">
         {badges}
       </Pane>
