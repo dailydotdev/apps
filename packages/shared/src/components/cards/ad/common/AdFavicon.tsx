@@ -10,9 +10,14 @@ import { getAdFaviconImageLink } from './getAdFaviconImageLink';
 
 type AdFaviconProps = {
   ad: Ad;
+  size?: ProfileImageSize;
   className?: string;
 };
-export const AdFavicon = ({ ad, className }: AdFaviconProps): ReactElement => {
+export const AdFavicon = ({
+  ad,
+  size = ProfileImageSize.Medium,
+  className,
+}: AdFaviconProps): ReactElement => {
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
   const imageLink = getAdFaviconImageLink({
     ad,
@@ -23,7 +28,7 @@ export const AdFavicon = ({ ad, className }: AdFaviconProps): ReactElement => {
     <CardHeader className={className}>
       <ProfilePicture
         rounded="full"
-        size={ProfileImageSize.Medium}
+        size={size}
         fallbackSrc={adFaviconPlaceholder}
         user={{
           id: ad.link,

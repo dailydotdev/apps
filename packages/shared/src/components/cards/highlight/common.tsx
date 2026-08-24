@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { Fragment } from 'react';
 import classNames from 'classnames';
 import type { PostHighlight } from '../../../graphql/highlights';
 import { webappUrl } from '../../../lib/constants';
@@ -114,13 +114,17 @@ export const HighlightCardContent = ({
   onReadAllClick,
   variant,
   compact,
-  leadingItem,
+  insertedItem,
 }: HighlightCardProps & {
   variant: 'grid' | 'list';
   /** Flush against its container, for a surface without card chrome. */
   compact?: boolean;
-  /** Sits above the headlines, sharing their row treatment. */
-  leadingItem?: ReactNode;
+  /**
+   * Slots in as the second row, sharing the headlines' treatment, so the
+   * freshest headline still leads the list. Takes the first row when there
+   * are no headlines to sit under.
+   */
+  insertedItem?: ReactNode;
 }): ReactElement => {
   const isFlushGrid = variant === 'grid' && compact;
   const headerClassName = classNames(
@@ -143,6 +147,23 @@ export const HighlightCardContent = ({
     variant === 'grid' && (isFlushGrid ? 'pt-2' : 'px-1 pb-1'),
   );
   const firstHighlight = highlights[0];
+  const rows: ReactNode[] = highlights.map((highlight, index) => (
+    <HighlightRow
+      key={highlight.id}
+      highlight={highlight}
+      index={index}
+      onHighlightClick={onHighlightClick}
+      compact={compact}
+    />
+  ));
+
+  if (insertedItem) {
+    rows.splice(
+      Math.min(1, rows.length),
+      0,
+      <Fragment key="inserted">{insertedItem}</Fragment>,
+    );
+  }
 
   return (
     <>
@@ -158,18 +179,7 @@ export const HighlightCardContent = ({
         </h3>
         <HighlightCardOptions className="ml-auto" />
       </header>
-      <div className={contentClassName}>
-        {leadingItem}
-        {highlights.map((highlight, index) => (
-          <HighlightRow
-            key={highlight.id}
-            highlight={highlight}
-            index={index}
-            onHighlightClick={onHighlightClick}
-            compact={compact}
-          />
-        ))}
-      </div>
+      <div className={contentClassName}>{rows}</div>
       <ReadAllHighlightsFooter
         highlightId={firstHighlight?.id}
         onClick={onReadAllClick}

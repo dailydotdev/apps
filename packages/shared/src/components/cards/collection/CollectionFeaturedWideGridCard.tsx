@@ -17,6 +17,7 @@ import {
   HERO_DESCRIPTION_CLAMP_CLASS_NAME,
   HERO_TITLE_CLASS_NAME,
   INNER_GRID_COLS,
+  TEXT_COL_SPAN,
   TITLE_CLASS_NAME,
 } from '../common/featuredWide';
 import { FeaturedWideCardShell } from '../common/FeaturedWideCardShell';
@@ -68,7 +69,12 @@ export const CollectionFeaturedWideGridCard = forwardRef(
             image || overlay ? INNER_GRID_COLS[wideColSpan] : 'grid-cols-1',
           )}
         >
-          <div className="relative flex min-h-0 min-w-0 flex-col overflow-hidden">
+          <div
+            className={classNames(
+              'relative flex min-h-0 min-w-0 flex-col overflow-hidden',
+              image || overlay ? TEXT_COL_SPAN[wideColSpan] : undefined,
+            )}
+          >
             <FeaturedWideTextContainer>
               <CollectionCardHeader post={post} />
               <h3

@@ -50,7 +50,7 @@ export const FeedHeroSection = ({
         onReadAllClick={onReadAllClick}
         variant="grid"
         compact
-        leadingItem={
+        insertedItem={
           !!ad && (
             <FeedHeroAd
               ad={ad}

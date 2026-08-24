@@ -37,8 +37,9 @@ export const FeedHeroCarousel = ({
   // Below laptop the feed itself renders list cards, so the featured post does
   // too — a two-column wide card leaves the headline about 180px on a phone.
   const isLaptop = useViewSize(ViewSize.Laptop);
-  // Two thirds of the card is cover only once the text column can still hold a
-  // headline; on a 1024px laptop that same split leaves it about 190px.
+  // The 40/60 split is only readable once the text column can still hold a
+  // headline; on a 1024px laptop it leaves about 230px, so that falls back to
+  // an even split.
   const isLaptopL = useViewSize(ViewSize.LaptopL);
 
   if (!posts.length) {
@@ -68,7 +69,7 @@ export const FeedHeroCarousel = ({
       : PostTypeToListCard[item.type] ?? ArticleList;
   const Card = cardFor(post);
   const wideProps = isLaptop
-    ? { wideColSpan: wideColSpan ?? (isLaptopL ? 3 : 2), hero: true }
+    ? { wideColSpan: wideColSpan ?? (isLaptopL ? 5 : 2), hero: true }
     : {};
   const previous = posts[wrapIndex(active - 1, total)];
   const next = posts[wrapIndex(active + 1, total)];
