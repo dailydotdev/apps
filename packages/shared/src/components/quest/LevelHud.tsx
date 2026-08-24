@@ -7,6 +7,7 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { ProgressBar } from '../fields/ProgressBar';
+import { gameCenterLevelBackground } from '../../lib/image';
 
 type HudStat = {
   label: string;
@@ -38,12 +39,13 @@ const HudStatTile = ({
 const levelPanelStyle = {
   backgroundColor: '#2A0B3D',
   backgroundImage: [
-    'radial-gradient(circle at 14% 22%, rgba(230,105,251,0.32), transparent 58%)',
-    'radial-gradient(circle at 94% 86%, rgba(122,63,255,0.30), transparent 62%)',
-    'repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 14px)',
-    'radial-gradient(rgba(255,255,255,0.10) 1px, transparent 1px)',
+    // A dark wash over the art, so the level, bar and readout keep their
+    // contrast wherever the artwork happens to be bright.
+    'linear-gradient(100deg, rgba(42,11,61,0.94) 0%, rgba(42,11,61,0.70) 42%, rgba(42,11,61,0.42) 100%)',
+    `url("${gameCenterLevelBackground}")`,
   ].join(', '),
-  backgroundSize: 'auto, auto, auto, 16px 16px',
+  backgroundSize: 'auto, cover',
+  backgroundPosition: 'center, 46% 50%',
 };
 
 // Frosted glass over the patterned panel: a translucent white wash, a
