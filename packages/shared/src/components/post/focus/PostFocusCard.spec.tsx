@@ -1,11 +1,16 @@
 import React from 'react';
 import { QueryClient } from '@tanstack/react-query';
+import { GrowthBook } from '@growthbook/growthbook-react';
 import { render, screen } from '@testing-library/react';
 import { TestBootProvider } from '../../../../__tests__/helpers/boot';
-import post, { sharePost } from '../../../../__tests__/fixture/post';
+import post, {
+  postWithCommunitySentiment,
+  sharePost,
+} from '../../../../__tests__/fixture/post';
 import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { Origin } from '../../../lib/log';
+import { featureCommunitySentiment } from '../../../lib/featureManagement';
 import { PostFocusCard } from './PostFocusCard';
 
 const freeformPost: Post = {
@@ -24,10 +29,20 @@ const sharedFreeformPost: Post = {
   },
 } as Post;
 
-const renderCard = (postToRender: Post) =>
+const renderCard = (
+  postToRender: Post,
+  options: {
+    gb?: GrowthBook;
+    onClose?: () => void;
+  } = {},
+) =>
   render(
-    <TestBootProvider client={new QueryClient()}>
-      <PostFocusCard post={postToRender} origin={Origin.ArticlePage} />
+    <TestBootProvider client={new QueryClient()} gb={options.gb}>
+      <PostFocusCard
+        post={postToRender}
+        origin={Origin.ArticlePage}
+        onClose={options.onClose}
+      />
     </TestBootProvider>,
   );
 
@@ -77,5 +92,31 @@ describe('PostFocusCard opening the source article', () => {
     expect(
       screen.getByTestId('post-modal-title').querySelector('a'),
     ).toBeNull();
+  });
+});
+
+describe('PostFocusCard community sentiment', () => {
+  it('renders in the post modal when the flag is enabled', () => {
+    const gb = new GrowthBook();
+    gb.setFeatures({
+      [featureCommunitySentiment.id]: {
+        defaultValue: true,
+      },
+    });
+
+    renderCard(postWithCommunitySentiment, { gb, onClose: jest.fn() });
+
+    expect(
+      screen.getByRole('region', { name: 'What the community thinks' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Most agree it is worth reading.')).toBeVisible();
+  });
+
+  it('stays hidden in the post modal when the flag is disabled', () => {
+    renderCard(postWithCommunitySentiment, { onClose: jest.fn() });
+
+    expect(
+      screen.queryByRole('region', { name: 'What the community thinks' }),
+    ).not.toBeInTheDocument();
   });
 });
