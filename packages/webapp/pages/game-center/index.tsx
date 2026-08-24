@@ -79,6 +79,7 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { MilestoneQuestList } from '../../components/game-center/MilestoneQuestList';
+import { SeeAllAchievementsCard } from '../../components/game-center/SeeAllAchievementsCard';
 import { CommunityPulse } from '../../components/game-center/CommunityPulse';
 import { TrophyGrid } from '../../components/game-center/TrophyGrid';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -403,6 +404,9 @@ function GameCenterPage({
             }
           />
         ))}
+        {user?.username && (
+          <SeeAllAchievementsCard href={`/${user.username}/achievements`} />
+        )}
       </div>
     );
   } else {
@@ -758,32 +762,6 @@ function GameCenterPage({
             {milestoneQuestContent}
           </section>
 
-          <section className="flex flex-col gap-4">
-            <SectionHeader
-              title="Community pulse"
-              action={
-                <Link href="/users" passHref>
-                  <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-subhead">
-                    Open full leaderboards
-                    <ArrowIcon className="rotate-90" />
-                  </a>
-                </Link>
-              }
-            />
-            {hasCommunityLeaderboards || questCompletionStats ? (
-              <CommunityPulse
-                stats={questCompletionStats}
-                highestReputation={highestReputation}
-                mostQuestsCompleted={mostQuestsCompleted}
-              />
-            ) : (
-              <EmptyStateCard
-                title="Community stats are unavailable right now"
-                description="We could not load the global leaderboards for this build, but your personal Game Center data is still live."
-              />
-            )}
-          </section>
-
           {showAchievements && (
             <>
               <section className="flex flex-col gap-4">
@@ -820,6 +798,32 @@ function GameCenterPage({
             <SectionHeader title="Trophy case" action={trophyTotal} />
 
             {trophyCaseContent}
+          </section>
+
+          <section className="flex flex-col gap-4">
+            <SectionHeader
+              title="Community pulse"
+              action={
+                <Link href="/users" passHref>
+                  <a className="inline-flex items-center gap-1 font-bold text-accent-cabbage-default typo-subhead">
+                    Open full leaderboards
+                    <ArrowIcon className="rotate-90" />
+                  </a>
+                </Link>
+              }
+            />
+            {hasCommunityLeaderboards || questCompletionStats ? (
+              <CommunityPulse
+                stats={questCompletionStats}
+                highestReputation={highestReputation}
+                mostQuestsCompleted={mostQuestsCompleted}
+              />
+            ) : (
+              <EmptyStateCard
+                title="Community stats are unavailable right now"
+                description="We could not load the global leaderboards for this build, but your personal Game Center data is still live."
+              />
+            )}
           </section>
         </ResponsivePageContainer>
       </div>

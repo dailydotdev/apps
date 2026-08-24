@@ -2,6 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LevelHud } from '@dailydotdev/shared/src/components/quest/LevelHud';
+import { SeeAllAchievementsCard } from '../../../webapp/components/game-center/SeeAllAchievementsCard';
 import { TopReaderBadgeCompact } from '@dailydotdev/shared/src/components/badges/TopReaderBadgeCompact';
 import { AchievementShelfCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementShelfCard';
 import type { UserAchievement } from '@dailydotdev/shared/src/graphql/user/achievements';
@@ -371,14 +372,6 @@ const GameCenterRedesign = () => (
     </section>
 
 
-    <section className="flex flex-col gap-4">
-      <SectionHeader title="Community pulse" />
-      <CommunityPulse
-        stats={communityStats}
-        highestReputation={board(false)}
-        mostQuestsCompleted={board(true)}
-      />
-    </section>
 
 
     <section className="flex flex-col gap-4">
@@ -394,6 +387,7 @@ const GameCenterRedesign = () => (
             onUntrack={async () => undefined}
           />
         ))}
+        <SeeAllAchievementsCard href="/tomer/achievements" />
       </div>
     </section>
 
@@ -432,6 +426,15 @@ const GameCenterRedesign = () => (
         />
       </div>
       <TrophyGrid awards={awards} />
+    </section>
+
+    <section className="flex flex-col gap-4">
+      <SectionHeader title="Community pulse" />
+      <CommunityPulse
+        stats={communityStats}
+        highestReputation={board(false)}
+        mostQuestsCompleted={board(true)}
+      />
     </section>
   </div>
 );
