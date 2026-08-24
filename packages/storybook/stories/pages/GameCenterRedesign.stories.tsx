@@ -26,7 +26,7 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { MilestoneQuestList } from '../../../webapp/components/game-center/MilestoneQuestList';
-import { OfferCard } from '../../../webapp/components/game-center/MilestoneOffers';
+import { ClaimableGiftsSection } from '../../../webapp/components/game-center/ClaimableGifts';
 import { CommunityPulse } from '../../../webapp/components/game-center/CommunityPulse';
 import { TrophyGrid } from '../../../webapp/components/game-center/TrophyGrid';
 import {
@@ -404,20 +404,15 @@ const GameCenterRedesign = () => (
         quests={milestoneQuests}
         showLevelSystem
         onClaim={() => undefined}
-        trailing={
-          <>
-            {offers.map((offer) => (
-              <OfferCard
-                key={offer.impressionUid}
-                offer={offer}
-                isClaimed={offer.impressionUid === 'offer-notion'}
-                onClaim={() => undefined}
-              />
-            ))}
-          </>
-        }
+      
       />
     </section>
+
+    <ClaimableGiftsSection
+      offers={offers}
+      claimedUids={new Set(['offer-notion'])}
+      onClaim={() => undefined}
+    />
 
 
 

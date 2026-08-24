@@ -96,13 +96,54 @@ export const OfferCard = ({
   );
 };
 
-type MilestoneOffersProps = {
+type ClaimableGiftsSectionProps = {
+  offers: UserOffer[];
+  claimedUids: Set<string>;
+  onClaim: (offer: UserOffer) => void;
+};
+
+export const ClaimableGiftsSection = ({
+  offers,
+  claimedUids,
+  onClaim,
+}: ClaimableGiftsSectionProps): ReactElement => (
+  <section className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2 laptop:flex-row laptop:items-center laptop:justify-between">
+      <Typography
+        tag={TypographyTag.H2}
+        type={TypographyType.Body}
+        color={TypographyColor.Primary}
+        bold
+      >
+        Claimable gifts
+      </Typography>
+      <Typography
+        type={TypographyType.Subhead}
+        color={TypographyColor.Quaternary}
+      >
+        Sponsored offers. No charge until a trial ends, cancel anytime.
+      </Typography>
+    </div>
+    <div className="-mx-4 flex items-stretch gap-3 overflow-x-auto px-4 pb-2 laptop:mx-0 laptop:px-0">
+      {offers.map((offer) => (
+        <OfferCard
+          key={offer.impressionUid}
+          offer={offer}
+          isClaimed={claimedUids.has(offer.impressionUid)}
+          onClaim={onClaim}
+        />
+      ))}
+    </div>
+  </section>
+);
+
+type ClaimableGiftsProps = {
   currentStreak: number;
 };
 
-export const MilestoneOffers = ({
+export const ClaimableGifts = ({
   currentStreak,
-}: MilestoneOffersProps): ReactElement | null => {
+}: ClaimableGiftsProps): ReactElement | null => {
   const { user } = useAuthContext();
   const { logEvent } = useLogContext();
   const [claimedUids, setClaimedUids] = useState<Set<string>>(new Set());
@@ -163,20 +204,16 @@ export const MilestoneOffers = ({
     [currentStreak, logEvent],
   );
 
+  // No offers means no section at all, header included.
   if (!offers.length) {
     return null;
   }
 
   return (
-    <>
-      {offers.map((offer) => (
-        <OfferCard
-          key={offer.impressionUid}
-          offer={offer}
-          isClaimed={claimedUids.has(offer.impressionUid)}
-          onClaim={onClaim}
-        />
-      ))}
-    </>
+    <ClaimableGiftsSection
+      offers={offers}
+      claimedUids={claimedUids}
+      onClaim={onClaim}
+    />
   );
 };

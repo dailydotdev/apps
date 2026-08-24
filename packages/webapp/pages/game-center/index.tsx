@@ -81,7 +81,7 @@ import {
   BadgeRow,
   BadgeTrophyCase,
 } from '../../components/game-center/BadgeTrophyCase';
-import { MilestoneOffers } from '../../components/game-center/MilestoneOffers';
+import { ClaimableGifts } from '../../components/game-center/ClaimableGifts';
 import { MilestoneQuestList } from '../../components/game-center/MilestoneQuestList';
 import { SeeAllAchievementsCard } from '../../components/game-center/SeeAllAchievementsCard';
 import { CommunityPulse } from '../../components/game-center/CommunityPulse';
@@ -362,9 +362,6 @@ function GameCenterPage({
         showLevelSystem={showLevelSystem}
         claimingQuestId={claimingMilestoneQuestId}
         onClaim={handleMilestoneClaim}
-        trailing={
-          <MilestoneOffers currentStreak={questDashboard?.currentStreak ?? 0} />
-        }
       />
     );
   } else {
@@ -740,6 +737,8 @@ function GameCenterPage({
 
             {milestoneQuestContent}
           </section>
+
+          <ClaimableGifts currentStreak={questDashboard?.currentStreak ?? 0} />
 
           {showAchievements && (
             <>
