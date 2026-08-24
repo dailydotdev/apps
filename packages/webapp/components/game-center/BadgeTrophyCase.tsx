@@ -110,7 +110,7 @@ export const BadgeTrophyCase = ({
   awardCount,
 }: BadgeTrophyCaseProps): ReactElement => {
   return (
-    <div className="grid gap-2 rounded-20 border border-border-subtlest-tertiary p-2 laptop:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
+    <div className="grid gap-2 rounded-20 border border-border-subtlest-tertiary p-2 laptop:grid-cols-2">
       <Pane value={badgeCount} label="Topics mastered">
         {badges}
       </Pane>
