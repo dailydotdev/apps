@@ -146,13 +146,15 @@ export const LevelHud = ({
         {/* The number stands alone, so the chip carries the meaning for
             screen readers. */}
         <div
-          className="flex size-18 shrink-0 items-center justify-center rounded-max bg-accent-cabbage-default text-white"
+          className="flex size-18 shrink-0 items-center justify-center rounded-16 border-4 border-white text-white"
           aria-label={`Level ${level}`}
         >
           <Typography
             type={TypographyType.Mega2}
             bold
-            className="leading-none text-white"
+            // Centering the em box leaves digits sitting low: the box
+            // reserves descender space the glyphs never use.
+            className="-translate-y-[0.75px] tabular-nums !leading-none text-white"
           >
             {level}
           </Typography>

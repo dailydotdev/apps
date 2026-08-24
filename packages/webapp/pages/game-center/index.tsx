@@ -43,7 +43,6 @@ import { LayoutHeader } from '@dailydotdev/shared/src/components/layout/common';
 import { PageHeader } from '@dailydotdev/shared/src/components/layout/PageHeader';
 import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import {
-  Divider,
   ResponsivePageContainer,
   pageBorders,
 } from '@dailydotdev/shared/src/components/utilities';
@@ -102,7 +101,6 @@ type SectionProps = {
   action?: ReactElement;
 };
 
-const dividerClassName = 'bg-border-subtlest-tertiary';
 const leaderboardLimit = 3;
 
 const isQuestCompletionStatsSchemaMissing = (error: GraphQLError): boolean => {
@@ -751,8 +749,6 @@ function GameCenterPage({
             </div>
           </section>
 
-          <Divider className={dividerClassName} />
-
           <section
             id={gameCenterMilestoneSectionId}
             className="flex scroll-mt-16 flex-col gap-4"
@@ -761,8 +757,6 @@ function GameCenterPage({
 
             {milestoneQuestContent}
           </section>
-
-          <Divider className={dividerClassName} />
 
           <section className="flex flex-col gap-4">
             <SectionHeader
@@ -792,8 +786,6 @@ function GameCenterPage({
 
           {showAchievements && (
             <>
-              <Divider className={dividerClassName} />
-
               <section className="flex flex-col gap-4">
                 <SectionHeader
                   title="Achievement shelf"
@@ -818,15 +810,11 @@ function GameCenterPage({
             </>
           )}
 
-          <Divider className={dividerClassName} />
-
           <section className="flex flex-col gap-4">
             <SectionHeader title="Badge case" action={badgeTopics} />
 
             {badgeCaseContent}
           </section>
-
-          <Divider className={dividerClassName} />
 
           <section className="flex flex-col gap-4">
             <SectionHeader title="Trophy case" action={trophyTotal} />

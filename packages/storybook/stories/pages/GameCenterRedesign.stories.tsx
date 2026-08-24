@@ -18,7 +18,6 @@ import {
   TypographyTag,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { Divider } from '@dailydotdev/shared/src/components/utilities';
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
 import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
@@ -333,7 +332,6 @@ const communityStats = {
   },
 };
 
-const dividerClass = 'bg-border-subtlest-tertiary';
 
 const GameCenterRedesign = () => (
   <div className="mx-auto flex w-full max-w-[72rem] flex-col gap-6 p-4 pb-10">
@@ -363,8 +361,6 @@ const GameCenterRedesign = () => (
       </div>
     </section>
 
-    <Divider className={dividerClass} />
-
     <section className="flex flex-col gap-4">
       <SectionHeader title="Milestone quests" />
       <MilestoneQuestList
@@ -374,7 +370,6 @@ const GameCenterRedesign = () => (
       />
     </section>
 
-    <Divider className={dividerClass} />
 
     <section className="flex flex-col gap-4">
       <SectionHeader title="Community pulse" />
@@ -385,7 +380,6 @@ const GameCenterRedesign = () => (
       />
     </section>
 
-    <Divider className={dividerClass} />
 
     <section className="flex flex-col gap-4">
       <SectionHeader title="Achievement shelf" />
@@ -403,7 +397,6 @@ const GameCenterRedesign = () => (
       </div>
     </section>
 
-    <Divider className={dividerClass} />
 
     <section className="flex flex-col gap-4">
       <SectionHeader title="Badge case" />
@@ -421,7 +414,6 @@ const GameCenterRedesign = () => (
       </div>
     </section>
 
-    <Divider className={dividerClass} />
 
     <section className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 laptop:flex-row laptop:items-end laptop:justify-between">

@@ -178,7 +178,7 @@ export function AchievementShelfCard({
               </Typography>
               <div className="mt-2 h-[5px] overflow-hidden rounded-max bg-[rgba(255,255,255,0.22)]">
                 <div
-                  className="h-full rounded-max bg-white"
+                  className="h-full rounded-max bg-accent-cabbage-default"
                   style={{ width: `${progressPercentage}%` }}
                 />
               </div>
@@ -256,7 +256,7 @@ export function AchievementShelfCard({
                   </Typography>
                   <div className="mt-2 h-1.5 overflow-hidden rounded-max bg-border-subtlest-tertiary">
                     <div
-                      className="h-full rounded-max bg-text-primary"
+                      className="h-full rounded-max bg-accent-cabbage-default"
                       style={{ width: `${progressPercentage}%` }}
                     />
                   </div>
