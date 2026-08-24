@@ -70,32 +70,20 @@ export const LevelHud = ({
 
   return (
     <div className="overflow-hidden rounded-20 border border-border-subtlest-tertiary">
-      <div className="flex flex-col gap-3 bg-[#2A0B3D] p-4 tablet:px-5">
-        <div className="flex items-center gap-4">
-          <div className="flex min-w-0 items-center gap-3">
-            {/* The number stands alone, so the chip carries the meaning for
-                screen readers. */}
-            <div
-              className="flex size-12 shrink-0 items-center justify-center rounded-12 bg-accent-cabbage-default text-white"
-              aria-label={`Level ${level}`}
-            >
-              <Typography
-                type={TypographyType.Title1}
-                bold
-                className="leading-none text-white"
-              >
-                {level}
-              </Typography>
-            </div>
-            <Typography
-              type={TypographyType.Callout}
-              bold
-              className="truncate text-white"
-            >
-              {xpInLevel.toLocaleString()} /{' '}
-              {(xpInLevel + xpToNextLevel).toLocaleString()}
-            </Typography>
-          </div>
+      <div className="flex flex-col gap-2 bg-[#2A0B3D] p-4 tablet:px-5">
+        {/* The number stands alone, so the chip carries the meaning for
+            screen readers. */}
+        <div
+          className="flex size-12 shrink-0 items-center justify-center rounded-12 bg-accent-cabbage-default text-white"
+          aria-label={`Level ${level}`}
+        >
+          <Typography
+            type={TypographyType.Title1}
+            bold
+            className="leading-none text-white"
+          >
+            {level}
+          </Typography>
         </div>
         <div className="flex gap-1" aria-hidden>
           {Array.from({ length: xpSegmentCount }, (_, index) => (
@@ -108,6 +96,14 @@ export const LevelHud = ({
             />
           ))}
         </div>
+        <Typography
+          type={TypographyType.Callout}
+          bold
+          className="truncate text-white"
+        >
+          {xpInLevel.toLocaleString()} /{' '}
+          {(xpInLevel + xpToNextLevel).toLocaleString()}
+        </Typography>
       </div>
       <div
         className={classNames(
