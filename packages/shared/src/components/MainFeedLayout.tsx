@@ -846,9 +846,7 @@ export default function MainFeedLayout({
                   </div>
                 ) : undefined
               }
-              className={classNames(
-                shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
-              )}
+              className={classNames(!isFinder && feedGutter)}
             />
           )
         )}
