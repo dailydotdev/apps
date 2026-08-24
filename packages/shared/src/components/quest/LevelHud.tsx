@@ -125,7 +125,7 @@ export const LevelHud = ({
   ];
 
   return (
-    <div className="grid gap-px overflow-hidden rounded-20 border border-border-subtlest-tertiary bg-border-subtlest-tertiary laptop:grid-cols-2">
+    <div className="grid overflow-hidden rounded-20 laptop:grid-cols-2">
       <div className="flex flex-col justify-center gap-2 bg-[#2A0B3D] p-4 tablet:px-5">
         {/* The number stands alone, so the chip carries the meaning for
             screen readers. */}
@@ -159,14 +159,13 @@ export const LevelHud = ({
           {(xpInLevel + xpToNextLevel).toLocaleString()}
         </Typography>
       </div>
-      <div className="grid grid-cols-2 gap-px bg-border-subtlest-tertiary">
+      <div className="grid grid-cols-2">
         {stats.map((stat, index) => (
           <HudStatTile
             key={stat.label}
             {...stat}
             className={classNames(
-              // An odd stat count would leave a hole in the 2x2, and the
-              // divider background shows through it.
+              // An odd stat count would otherwise leave a hole in the 2x2.
               stats.length % 2 === 1 &&
                 index === stats.length - 1 &&
                 'col-span-2',
