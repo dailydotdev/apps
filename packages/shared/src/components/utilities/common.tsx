@@ -31,7 +31,13 @@ export enum Justify {
 export const pageBorders =
   'laptop:border-r laptop:border-l border-border-subtlest-tertiary';
 
-const pagePaddings = 'px-4 tablet:px-8';
+/**
+ * The horizontal padding every page container uses. Exported so
+ * surfaces that sit outside a page container — the sponsor dock, for
+ * one — can line up with the feed instead of inventing their own
+ * inset.
+ */
+export const pagePaddings = 'px-4 tablet:px-8';
 const basePageClassNames = classNames(
   styles.pageContainer,
   'relative z-1 flex w-full flex-col',

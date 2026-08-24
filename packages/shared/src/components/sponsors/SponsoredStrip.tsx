@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
+import { pagePaddings } from '../utilities/common';
 
 // =============================================================
 // Sponsored strip — a TBPN-style "presented by" lockup plus a
@@ -463,8 +464,9 @@ export const Divider = (): ReactElement => (
 // padded main, which is where the sidebar offset already lives — so
 // the bar spans the feed and nothing else, and follows that offset
 // across layout variants and sidebar states without having to know
-// what either is. `laptop:px-10` matches the feed column's padding,
-// so the marks line up with the card grid, not the gutter.
+// what either is. The horizontal inset is the app's own
+// `pagePaddings`, so the strip lines up with every other page
+// surface rather than inventing its own number.
 // ---------------------------------------------------------------
 export const SponsorRailPinned = ({
   className,
@@ -475,7 +477,8 @@ export const SponsorRailPinned = ({
 }: SponsoredStripProps): ReactElement => (
   <div
     className={classNames(
-      'sticky bottom-0 z-3 flex h-10 w-full items-center gap-5 border-t border-border-subtlest-tertiary bg-background-default px-4 laptop:px-10',
+      'sticky bottom-0 z-3 flex h-10 w-full items-center gap-5 border-t border-border-subtlest-tertiary bg-background-default',
+      pagePaddings,
       className,
     )}
   >

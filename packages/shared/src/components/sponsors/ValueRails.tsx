@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
+import { pagePaddings } from '../utilities/common';
 
 // =============================================================
 // Value rails — the second row of the dock.
@@ -55,7 +56,8 @@ export const ValueRail = ({
 }: ValueRailProps): ReactElement => (
   <div
     className={classNames(
-      'flex w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default px-4 laptop:px-10',
+      'flex w-full items-center gap-4 border-t border-border-subtlest-tertiary bg-background-default',
+      pagePaddings,
       RAIL_HEIGHT,
       className,
     )}
