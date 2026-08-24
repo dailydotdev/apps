@@ -1,16 +1,19 @@
 import { featureJobsUI } from '../lib/featureManagement';
-import { useConditionalFeature } from './useConditionalFeature';
+import {
+  useFeature,
+  useFeaturesReadyContext,
+} from '../components/GrowthBookProvider';
 
 export const useJobsFeature = (): {
   isJobsEnabled: boolean;
   isLoading: boolean;
 } => {
-  const { value, isLoading } = useConditionalFeature({
-    feature: featureJobsUI,
-  });
+  const value = useFeature(featureJobsUI);
+  const { ready } = useFeaturesReadyContext();
+  const isLoading = !ready;
 
   return {
-    isJobsEnabled: !!value,
+    isJobsEnabled: isLoading || !!value,
     isLoading,
   };
 };

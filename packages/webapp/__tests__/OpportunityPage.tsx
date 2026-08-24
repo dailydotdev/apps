@@ -152,7 +152,10 @@ const createCompletedActionsMock = (): MockedGraphQLResponse => ({
 const renderOpportunityPage = (
   opportunityData: Partial<Opportunity> = {},
   matchStatus = OpportunityMatchStatus.Pending,
-  { jobsEnabled = true }: { jobsEnabled?: boolean } = {},
+  {
+    jobsEnabled = true,
+    jobsFeatureLoading = false,
+  }: { jobsEnabled?: boolean; jobsFeatureLoading?: boolean } = {},
 ): RenderResult => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -179,7 +182,7 @@ const renderOpportunityPage = (
 
   mockUseJobsFeature.mockReturnValue({
     isJobsEnabled: jobsEnabled,
-    isLoading: false,
+    isLoading: jobsFeatureLoading,
   });
 
   return render(
@@ -217,6 +220,17 @@ describe('OpportunityPage', () => {
       expect(
         screen.queryByText('Senior Software Engineer'),
       ).not.toBeInTheDocument();
+    });
+
+    it('should render while jobs UI flag is loading', async () => {
+      renderOpportunityPage({}, OpportunityMatchStatus.Pending, {
+        jobsFeatureLoading: true,
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Senior Software Engineer')).toBeVisible();
+      });
+      expect(mockReplace).not.toHaveBeenCalled();
     });
   });
 

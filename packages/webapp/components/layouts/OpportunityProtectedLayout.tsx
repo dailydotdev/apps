@@ -49,8 +49,8 @@ export const getOpportunityProtectedLayout: typeof getRecruiterLayout = (
   );
 
 export const getCandidateOpportunityProtectedLayout: typeof getRecruiterLayout =
-  (page, ...props) => (
-    <JobsFeatureGate>
-      {getOpportunityProtectedLayout(page, ...props)}
-    </JobsFeatureGate>
-  );
+  (page, ...props) =>
+    getOpportunityProtectedLayout(
+      <JobsFeatureGate>{page}</JobsFeatureGate>,
+      ...props,
+    );

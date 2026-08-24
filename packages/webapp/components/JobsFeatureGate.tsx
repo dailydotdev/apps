@@ -16,7 +16,7 @@ export const JobsFeatureGate = ({
     }
   }, [isJobsEnabled, isLoading, router]);
 
-  if (isLoading || !isJobsEnabled) {
+  if (!isLoading && !isJobsEnabled) {
     return null;
   }
 

@@ -55,6 +55,8 @@ const InAppNotificationsTab = (): ReactElement => {
     getGroupStatus,
   } = useNotificationSettings();
   const { isJobsEnabled } = useJobsFeature();
+  const showOpportunitiesToggle =
+    isJobsEnabled || getGroupStatus('opportunities', 'inApp');
 
   const onTogglePush = async () => {
     logEvent({
@@ -243,7 +245,7 @@ const InAppNotificationsTab = (): ReactElement => {
               toggleGroup('world', !getGroupStatus('world', 'inApp'), 'inApp')
             }
           />
-          {isJobsEnabled && (
+          {showOpportunitiesToggle && (
             <NotificationSwitch
               id="opportunities"
               label="Personalized job matches"

@@ -489,6 +489,9 @@ export const useSidebarShortcutItems = (): SidebarShortcutsApi => {
     (payload: ShortcutDragData, index?: number) => {
       const normalized = normalizePath(payload.path);
       if (!isJobsEnabled && isJobsPath(payload.path)) {
+        displayToast('Jobs shortcuts are currently unavailable', {
+          forceAutoDismiss: true,
+        });
         return;
       }
       if (pinnedPaths.has(normalized)) {

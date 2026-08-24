@@ -38,7 +38,7 @@ import {
   defaultSeo,
   defaultSeoTitle,
 } from '../../../next-seo';
-import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
+import { getCandidateOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 
 const seo: NextSeoProps = {
   title: defaultSeoTitle,
@@ -48,7 +48,7 @@ const seo: NextSeoProps = {
   noindex: true,
 };
 
-const QuestionsSetupPage = (): ReactElement => {
+const QuestionsSetupPage = (): ReactElement | null => {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const { openModal } = useLazyModal();
   const {
@@ -66,6 +66,8 @@ const QuestionsSetupPage = (): ReactElement => {
   if (!opportunity || !isLoggedIn) {
     return <NoOpportunity />;
   }
+
+  const questions = opportunity.questions ?? [];
 
   return (
     <>
@@ -96,7 +98,7 @@ const QuestionsSetupPage = (): ReactElement => {
       </div>
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 laptop:flex-row">
         <div className="flex h-full min-w-0 max-w-full flex-1 flex-shrink-0 flex-col gap-4 rounded-16">
-          {opportunity.questions.map((question, index) => {
+          {questions.map((question, index) => {
             return (
               <article
                 key={question.id}
@@ -144,7 +146,7 @@ const QuestionsSetupPage = (): ReactElement => {
               </article>
             );
           })}
-          {opportunity.questions.length < 3 && (
+          {questions.length < 3 && (
             <article className="flex items-center justify-between gap-4 rounded-16 bg-surface-float p-4">
               <Typography color={TypographyColor.Tertiary}>
                 New questions
@@ -159,7 +161,7 @@ const QuestionsSetupPage = (): ReactElement => {
                       type: 'question',
                       payload: {
                         id: opportunity.id,
-                        index: opportunity.questions.length,
+                        index: questions.length,
                       },
                     },
                   });
@@ -208,14 +210,14 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
   }
 };
 
-const GetPageLayout: typeof getOpportunityProtectedLayout = (
+const GetPageLayout: typeof getCandidateOpportunityProtectedLayout = (
   page,
   layoutProps,
 ) => {
   const router = useRouter();
   const opportunityId = router?.query?.id as string;
 
-  return getOpportunityProtectedLayout(
+  return getCandidateOpportunityProtectedLayout(
     <OpportunityEditProvider opportunityId={opportunityId} allowDraft>
       {page}
     </OpportunityEditProvider>,

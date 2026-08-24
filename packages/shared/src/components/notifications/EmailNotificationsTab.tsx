@@ -29,6 +29,8 @@ const EmailNotificationsTab = (): ReactElement => {
     emailsDisabled,
   } = useNotificationSettings();
   const { isJobsEnabled } = useJobsFeature();
+  const showOpportunitiesToggle =
+    isJobsEnabled || getGroupStatus('opportunities', 'email');
 
   return (
     <section className="flex flex-col gap-6 py-4">
@@ -145,7 +147,7 @@ const EmailNotificationsTab = (): ReactElement => {
               )
             }
           />
-          {isJobsEnabled && (
+          {showOpportunitiesToggle && (
             <NotificationSwitch
               id="opportunities"
               label="Personalized job matches"
