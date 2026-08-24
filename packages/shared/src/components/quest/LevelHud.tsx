@@ -125,7 +125,7 @@ export const LevelHud = ({
   ];
 
   return (
-    <div className="grid overflow-hidden rounded-20 laptop:grid-cols-2">
+    <div className="grid overflow-hidden rounded-20 border border-border-subtlest-tertiary tablet:grid-cols-2">
       <div className="flex flex-col justify-center gap-2 bg-[#2A0B3D] p-4 tablet:px-5">
         {/* The number stands alone, so the chip carries the meaning for
             screen readers. */}
