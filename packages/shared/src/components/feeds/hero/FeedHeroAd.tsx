@@ -59,7 +59,10 @@ export const FeedHeroAd = ({
           className="!my-0 h-24 w-full shrink-0"
         />
       )}
-      <AdPixel pixel={ad.pixel} />
+      {/* Out of flow so the column's `gap-2` doesn't reserve a row for it. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <AdPixel pixel={ad.pixel} />
+      </div>
       {!!onViewable && (
         <AdViewability ad={ad} onViewable={(data) => onViewable(ad, data)} />
       )}

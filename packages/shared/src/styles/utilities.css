@@ -450,6 +450,31 @@
   }
 }
 
+@keyframes feed-hero-carousel-progress {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* The slide advances on this animation's `animationend`, so pausing it also
+   pauses the rotation and reduced motion stops the carousel altogether. */
+.feed-hero-carousel-progress {
+  transform-origin: left center;
+  animation: feed-hero-carousel-progress
+    var(--feed-hero-carousel-duration, 6s) linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-hero-carousel-progress {
+    animation: none;
+    transform: scaleX(1);
+  }
+}
+
 .feed-highlights-new-item-border-bottom {
   border-style: solid;
   border-width: 0 0 0.0625rem;

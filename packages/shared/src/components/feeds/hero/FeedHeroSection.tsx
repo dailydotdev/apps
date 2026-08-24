@@ -34,7 +34,7 @@ export const FeedHeroSection = ({
 }: FeedHeroSectionProps): ReactElement => (
   <section
     className={classNames(
-      'mx-auto flex w-full max-w-[80rem] flex-col gap-4 laptop:grid laptop:h-[30rem] laptop:grid-cols-3',
+      'mx-auto flex w-full max-w-[80rem] flex-col gap-6 laptop:grid laptop:h-[30rem] laptop:grid-cols-3',
       className,
     )}
   >
@@ -43,10 +43,13 @@ export const FeedHeroSection = ({
       className="laptop:col-span-2"
       {...cardProps}
     />
-    <aside className="flex min-h-0 min-w-0 flex-col gap-4">
+    {/* Everything in the rail shares one text edge; the hover surfaces bleed
+        past it and are clipped here, so they read as full-width bands. */}
+    <aside className="flex min-h-0 min-w-0 flex-col gap-1 overflow-hidden">
       {!!ad && (
         <FeedHeroAd
           ad={ad}
+          className="-mx-2"
           onLinkClick={onAdLinkClick}
           onViewable={onAdViewable}
         />

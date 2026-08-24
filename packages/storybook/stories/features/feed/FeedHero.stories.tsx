@@ -213,6 +213,16 @@ export const Carousel: Story = {
         <FeedHeroCarousel posts={mixedTypeHeroPosts} {...cardHandlers} />
       </Case>
       <Case
+        title="Fast autoplay"
+        note="Two seconds per slide instead of six, so the indicator fill is easy to watch. Hovering or focusing the carousel pauses it."
+      >
+        <FeedHeroCarousel
+          posts={heroPosts}
+          autoplayMs={2000}
+          {...cardHandlers}
+        />
+      </Case>
+      <Case
         title="Read and bookmarked"
         note="Carries the same read/bookmark treatment as any feed card."
       >

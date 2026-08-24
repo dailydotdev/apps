@@ -27,10 +27,12 @@ const getHighlightUrl = (highlight: PostHighlight): string =>
 export const ReadAllHighlightsFooter = ({
   highlightId,
   onClick,
+  compact,
   className,
 }: {
   highlightId?: string;
   onClick?: () => void;
+  compact?: boolean;
   className?: string;
 }): ReactElement => {
   const href = getHighlightsUrl(highlightId);
@@ -39,7 +41,10 @@ export const ReadAllHighlightsFooter = ({
       <Link href={href}>
         <a
           aria-label="Read all highlights"
-          className="bg-surface-float/70 flex h-8 w-full items-center rounded-10 px-3 backdrop-blur-xl"
+          className={classNames(
+            'flex h-8 w-full items-center',
+            !compact && 'bg-surface-float/70 rounded-10 px-3 backdrop-blur-xl',
+          )}
           href={href}
           onClick={() => onClick?.()}
         >
@@ -164,6 +169,7 @@ export const HighlightCardContent = ({
       <ReadAllHighlightsFooter
         highlightId={firstHighlight?.id}
         onClick={onReadAllClick}
+        compact={isFlushGrid}
         className={footerClassName}
       />
     </>

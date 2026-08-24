@@ -79,5 +79,35 @@ describe('FeedHeroCarousel', () => {
     expect(
       screen.queryByRole('button', { name: /^Show featured post/ }),
     ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('carouselProgress')).not.toBeInTheDocument();
+  });
+
+  it('advances once the active indicator finishes filling', () => {
+    renderComponent();
+
+    const progress = screen.getByTestId('carouselProgress');
+    expect(
+      screen.getByRole('button', { name: 'Show featured post 1' }),
+    ).toContainElement(progress);
+
+    fireEvent.animationEnd(progress);
+
+    expect(getTitle(titles[1])).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Show featured post 2' }),
+    ).toContainElement(screen.getByTestId('carouselProgress'));
+  });
+
+  it('only announces a change the reader asked for', () => {
+    renderComponent();
+
+    const slide = getTitle(titles[0]).closest('[aria-live]');
+    expect(slide).toHaveAttribute('aria-live', 'off');
+
+    fireEvent.click(screen.getByRole('button', { name: `Next: ${titles[1]}` }));
+    expect(getTitle(titles[1]).closest('[aria-live]')).toHaveAttribute(
+      'aria-live',
+      'polite',
+    );
   });
 });
