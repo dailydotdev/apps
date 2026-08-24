@@ -16,6 +16,17 @@ import {
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
 
+// Frosted glass, matching the level badge: a translucent wash and a lit
+// top edge rather than a flat fill.
+const badgeRowStyle = {
+  background:
+    'linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.16))',
+  border: '1px solid rgba(255,255,255,0.35)',
+  boxShadow:
+    'inset 0 1px 0 rgba(255,255,255,0.6), 0 4px 14px -6px rgba(0,0,0,0.35)',
+  padding: '0.75rem',
+};
+
 export const BadgeRow = ({
   issuedAt,
   keyword,
@@ -24,7 +35,10 @@ export const BadgeRow = ({
   const title = keyword.flags?.title || keyword.value;
 
   return (
-    <div className="flex items-center gap-3 rounded-12 bg-background-default p-3">
+    <div
+      className="flex items-center gap-3 rounded-12 backdrop-blur-[6px]"
+      style={badgeRowStyle}
+    >
       {image ? (
         <Image
           src={image}
@@ -68,8 +82,6 @@ export const BadgeRow = ({
   );
 };
 
-// The count leads and the label captions it, matching the community pulse
-// counters.
 const Pane = ({
   value,
   label,
@@ -81,15 +93,15 @@ const Pane = ({
 }): ReactElement => (
   <div className="flex flex-col gap-3 rounded-14 bg-background-subtle p-4">
     <div className="flex min-w-0 flex-col">
-      <Typography type={TypographyType.Title2} bold className="tabular-nums">
-        {value}
-      </Typography>
       <Typography
         type={TypographyType.Subhead}
         color={TypographyColor.Tertiary}
         className="truncate"
       >
         {label}
+      </Typography>
+      <Typography type={TypographyType.Title2} bold className="tabular-nums">
+        {value}
       </Typography>
     </div>
     {children}

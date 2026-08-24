@@ -34,8 +34,6 @@ import {
 } from '@dailydotdev/shared/src/graphql/quests';
 import { sortMilestoneQuests } from '../../lib/gameCenter';
 
-// Only the glyph carries the reward's colour — the amount inherits the text
-// token so the chip stays legible on the light surface too.
 const RewardChipIcon = ({ type }: { type: QuestRewardType }): ReactElement => {
   if (type === QuestRewardType.Cores) {
     return (
@@ -89,7 +87,7 @@ const MilestoneQuestCard = ({
   return (
     <article
       className={classNames(
-        'relative flex flex-col gap-2 overflow-hidden rounded-14 border border-border-subtlest-tertiary p-4',
+        'flex flex-col gap-2 overflow-hidden rounded-14 border border-border-subtlest-tertiary p-4',
         // Only a claimable milestone gets a filled surface, so the ones you
         // can act on read forward of the ones you cannot.
         canClaim && 'bg-background-subtle',
@@ -146,12 +144,13 @@ const MilestoneQuestCard = ({
               percentage={percentage}
               shouldShowBg
               className={{
-                wrapper: 'h-1.5 rounded-14',
-                bar: 'h-full rounded-14',
+                wrapper: 'h-1 rounded-max',
+                bar: 'h-full rounded-max',
+                // text-primary rather than a literal white, so the bar stays
+                // visible when the theme is light.
                 barColor: classNames(
                   isClaimed && 'bg-accent-avocado-default',
-                  !isClaimed && quest.locked && 'bg-accent-cabbage-bolder',
-                  !isClaimed && !quest.locked && 'bg-accent-cabbage-default',
+                  !isClaimed && 'bg-text-primary',
                 ),
               }}
             />
@@ -178,17 +177,6 @@ const MilestoneQuestCard = ({
           </>
         )}
       </div>
-
-      {isClaimed && (
-        <span
-          className="pointer-events-none absolute inset-0 z-1 grid place-items-center"
-          aria-hidden
-        >
-          <span className="-rotate-12 rounded-8 border-[3px] border-accent-avocado-default px-2.5 py-0.5 font-black uppercase tracking-[0.16em] text-accent-avocado-default typo-subhead">
-            Claimed
-          </span>
-        </span>
-      )}
     </article>
   );
 };

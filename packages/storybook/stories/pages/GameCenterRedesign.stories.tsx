@@ -26,7 +26,6 @@ import {
 } from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { MilestoneQuestList } from '../../../webapp/components/game-center/MilestoneQuestList';
-import { ClaimableGiftsSection } from '../../../webapp/components/game-center/ClaimableGifts';
 import { CommunityPulse } from '../../../webapp/components/game-center/CommunityPulse';
 import { TrophyGrid } from '../../../webapp/components/game-center/TrophyGrid';
 import {
@@ -259,40 +258,38 @@ const badges = [
   },
 ];
 
-const offers = [
-  {
-    impressionUid: 'offer-disney',
-    clickUrl: '#',
-    title: 'Disney+ for $4.99/mo for 3 months',
-    advertiserName: 'Disney+',
-    perk: 'Unlimited entertainment',
-    badgeLabel: 'discount' as const,
-  },
-  {
-    impressionUid: 'offer-hulu',
-    clickUrl: '#',
-    title: '30 days free trial on Hulu',
-    advertiserName: 'Hulu',
-    perk: 'Movies, shows & live TV',
-    badgeLabel: 'free_trial' as const,
-  },
-  {
-    impressionUid: 'offer-notion',
-    clickUrl: '#',
-    title: '3 months of Notion Business, free',
-    advertiserName: 'Notion',
-    perk: 'Notes, Tasks, AI',
-    badgeLabel: 'free_trial' as const,
-  },
-];
+// The real catalogue art, so the grid shows the spread of awards rather
+// than the same default for every one.
+const awardArt = (name: string) =>
+  `https://media.daily.dev/image/upload/s--10Rf2kyK--/f_auto/v1743595864/public/${name}`;
 
 const awards: AwardWithRarity[] = [
-  { id: 'diamond', name: 'Diamond', image: '', count: 1, value: 5000 },
-  { id: 'crown', name: 'Crown', image: '', count: 2, value: 2000 },
-  { id: 'medal', name: 'Medal', image: '', count: 4, value: 800 },
-  { id: 'rocket', name: 'Rocket', image: '', count: 9, value: 300 },
-  { id: 'fire', name: 'Fire', image: '', count: 14, value: 120 },
-  { id: 'clap', name: 'Clap', image: '', count: 41, value: 20 },
+  { id: 'bug', name: 'Bug', image: awardArt('Bug'), count: 1, value: 750 },
+  { id: 'duck', name: 'Duck', image: awardArt('Duck'), count: 2, value: 600 },
+  {
+    id: 'terminal',
+    name: 'Terminal',
+    image: awardArt('Terminal'),
+    count: 4,
+    value: 400,
+  },
+  { id: 'cash', name: 'Cash', image: awardArt('Cash'), count: 9, value: 250 },
+  { id: 'pizza', name: 'Pizza', image: awardArt('Pizza'), count: 14, value: 150 },
+  {
+    id: 'hotdog',
+    name: 'Hotdog',
+    image: awardArt('Hotdog'),
+    count: 21,
+    value: 125,
+  },
+  { id: 'star', name: 'Star', image: awardArt('Star'), count: 33, value: 100 },
+  {
+    id: 'coffee',
+    name: 'Coffee',
+    image: awardArt('Coffee'),
+    count: 41,
+    value: 75,
+  },
 ].map((award) => ({ ...award, imageGlow: null })) as AwardWithRarity[];
 
 const leaders = [
@@ -414,12 +411,6 @@ const GameCenterRedesign = () => (
       
       />
     </section>
-
-    <ClaimableGiftsSection
-      offers={offers}
-      claimedUids={new Set(['offer-notion'])}
-      onClaim={() => undefined}
-    />
 
 
 

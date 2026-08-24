@@ -121,7 +121,7 @@ export const LevelHud = ({
             bold
             // Centering the em box leaves digits sitting low: the box
             // reserves descender space the glyphs never use.
-            className="-translate-y-[0.75px] !font-black tabular-nums !leading-none"
+            className="w-full -translate-y-[0.75px] text-center !font-black tabular-nums !leading-none"
           >
             {level}
           </Typography>
