@@ -702,7 +702,16 @@ export default function MainFeedLayout({
         <FeedExploreHeader
           tab={tab}
           setTab={onTabChange}
-          className={{ container: feedGutter, tabWrapper: 'my-4' }}
+          // The breadcrumbs used to start flush against the header
+          // with 0px above them, and then sat 16px off the tab strip —
+          // spacing that read as one loose block rather than a
+          // heading and its tabs. Give the group room above and pull
+          // the tabs up under the breadcrumbs they belong to; the
+          // 16px down to the cards is unchanged.
+          className={{
+            container: classNames(feedGutter, 'pt-4'),
+            tabWrapper: 'mb-4 mt-2',
+          }}
         />
       );
     }
