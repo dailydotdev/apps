@@ -42,6 +42,9 @@ jest.mock('@tanstack/react-query', () => {
   return {
     ...actual,
     useQuery: jest.fn(),
+    // The offer cards mutate on mount, and these tests render without a
+    // QueryClientProvider.
+    useMutation: jest.fn(() => ({ mutate: jest.fn(), isPending: false })),
   };
 });
 

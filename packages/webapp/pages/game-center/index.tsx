@@ -78,6 +78,7 @@ import {
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import { MilestoneOffers } from '../../components/game-center/MilestoneOffers';
 import { MilestoneQuestList } from '../../components/game-center/MilestoneQuestList';
 import { SeeAllAchievementsCard } from '../../components/game-center/SeeAllAchievementsCard';
 import { CommunityPulse } from '../../components/game-center/CommunityPulse';
@@ -358,6 +359,9 @@ function GameCenterPage({
         showLevelSystem={showLevelSystem}
         claimingQuestId={claimingMilestoneQuestId}
         onClaim={handleMilestoneClaim}
+        trailing={
+          <MilestoneOffers currentStreak={questDashboard?.currentStreak ?? 0} />
+        }
       />
     );
   } else {

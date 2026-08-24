@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import {
@@ -198,6 +198,8 @@ type MilestoneQuestListProps = {
   showLevelSystem: boolean;
   claimingQuestId?: string;
   onClaim: (userQuestId: string, questId: string, questType: QuestType) => void;
+  /** Trails the quests, so sponsored cards never sit ahead of earned ones. */
+  trailing?: ReactNode;
 };
 
 export const MilestoneQuestList = ({
@@ -205,6 +207,7 @@ export const MilestoneQuestList = ({
   showLevelSystem,
   claimingQuestId,
   onClaim,
+  trailing,
 }: MilestoneQuestListProps): ReactElement => {
   const ordered = sortMilestoneQuests(quests);
 
@@ -219,6 +222,7 @@ export const MilestoneQuestList = ({
           onClaim={onClaim}
         />
       ))}
+      {trailing}
     </div>
   );
 };
