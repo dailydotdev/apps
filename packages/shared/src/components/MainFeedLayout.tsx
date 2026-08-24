@@ -223,6 +223,14 @@ const feedWithDateRange = [
   ExploreTabs.BestDiscussions,
 ];
 
+/**
+ * The feed's horizontal gutter. The page container forces `!px-0`
+ * (FeedPageLayoutList), so this is the only inset the feed surface
+ * gets — and the breadcrumbs, the tab strip and the cards all have to
+ * use the same one or they line up on different left edges.
+ */
+const feedGutter = 'px-4 tablet:px-6';
+
 export default function MainFeedLayout({
   feedName: feedNameProp,
   searchQuery,
@@ -694,7 +702,7 @@ export default function MainFeedLayout({
         <FeedExploreHeader
           tab={tab}
           setTab={onTabChange}
-          className={{ tabWrapper: 'my-4' }}
+          className={{ container: feedGutter, tabWrapper: 'my-4' }}
         />
       );
     }
@@ -705,8 +713,10 @@ export default function MainFeedLayout({
         setTab={onTabChange}
         showBreadcrumbs={false}
         className={{
-          container:
+          container: classNames(
             'sticky top-[4.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+            feedGutter,
+          ),
           tabBarHeader: 'no-scrollbar overflow-x-auto',
           tabBarContainer: 'min-w-0 flex-1',
         }}
@@ -835,14 +845,7 @@ export default function MainFeedLayout({
                   </div>
                 ) : undefined
               }
-              // The page container this sits in forces `!px-0`
-              // (FeedPageLayoutList), so this is the only horizontal
-              // inset the feed gets. Scoping it to `laptop:` and to the
-              // list layout left every other case flush against the
-              // frame — cards touched the sidebar on one side and the
-              // window edge on the other. Give every feed the same
-              // gutter; laptop keeps the 24px it already had.
-              className={classNames(!isFinder && 'px-4 tablet:px-6')}
+              className={classNames(!isFinder && feedGutter)}
             />
           )
         )}
