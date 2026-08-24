@@ -69,8 +69,8 @@ export interface ArbitragePostPageProps extends DynamicSeoProps {
  * Lives on its own route so `/posts/[id]` and the focus-card redesign are
  * untouched. Differences from the standard template, all deliberate: no
  * PostAuthBanner, no CustomAuthBanner (never passed in layoutProps), no
- * PostSignupWidget, and the sidebar starts expanded instead of at the stored
- * collapse preference (which the visitor can still toggle as usual). The
+ * PostSignupWidget, and no sidebar at all — it carries no ad unit anymore,
+ * and its post-boot mount was the page's last source of layout shift. The
  * header login/signup buttons are unaffected and render as usual.
  *
  * Noindexed because it duplicates `/posts/[id]` and exists for paid/ad
@@ -191,7 +191,7 @@ const ArbitragePostPage = ({
 ArbitragePostPage.getLayout = getLayout;
 ArbitragePostPage.layoutProps = {
   screenCentered: false,
-  expandSidebar: true,
+  showSidebar: false,
   hideFeedbackWidget: true,
   // No customBanner on purpose: that is what mounts CustomAuthBanner.
 };
@@ -244,6 +244,14 @@ export async function getStaticProps({
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
       ...noindexSeoProps,
+      // The article's own cover rather than the og.daily.dev generated card:
+      // an ad-bought click should land on exactly the image that sold it.
+      ...(post.image && {
+        openGraph: {
+          ...pageSeoTitles.openGraph,
+          images: [{ url: post.image, alt: post.title || 'Article cover' }],
+        },
+      }),
     };
 
     return {
