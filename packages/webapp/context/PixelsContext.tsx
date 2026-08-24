@@ -59,10 +59,6 @@ function WebPixelsProvider({
       if (typeof globalThis.ttq?.track === 'function') {
         globalThis.ttq.track('CompletePayment', { value: 1 });
       }
-
-      if (typeof globalThis.qp === 'function') {
-        globalThis.qp('track', 'CompleteRegistration');
-      }
     },
     trackPayment() {
       // if (typeof globalThis.gtag === 'function') {
