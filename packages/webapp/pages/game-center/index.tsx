@@ -33,7 +33,6 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { featuredAwardImage } from '@dailydotdev/shared/src/lib/image';
 import { achievementTrackingWidgetFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { fetchTopReaders } from '@dailydotdev/shared/src/lib/topReader';
-import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
 import { getFirstName } from '@dailydotdev/shared/src/lib/user';
 import {
   generateQueryKey,
@@ -81,8 +80,6 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { MilestoneQuestList } from '../../components/game-center/MilestoneQuestList';
-import type { SpineTile } from '../../components/game-center/SectionSpine';
-import { SectionSpine } from '../../components/game-center/SectionSpine';
 import { CommunityPulse } from '../../components/game-center/CommunityPulse';
 import { TrophyGrid } from '../../components/game-center/TrophyGrid';
 import ProtectedPage from '../../components/ProtectedPage';
@@ -115,11 +112,6 @@ const isQuestCompletionStatsSchemaMissing = (error: GraphQLError): boolean => {
     ) ?? false
   );
 };
-
-const communitySectionId = 'community-pulse';
-const achievementSectionId = 'achievement-shelf';
-const badgeSectionId = 'badge-case';
-const trophySectionId = 'trophy-case';
 
 const SectionHeader = ({ title, action }: SectionProps): ReactElement => {
   return (
@@ -298,56 +290,6 @@ function GameCenterPage({
   const hasCommunityLeaderboards =
     highestReputation.length > 0 || mostQuestsCompleted.length > 0;
   const milestoneHash = `#${gameCenterMilestoneSectionId}`;
-
-  const spineTiles = useMemo<SpineTile[]>(() => {
-    const tiles: SpineTile[] = [
-      {
-        id: gameCenterMilestoneSectionId,
-        label: 'Milestones',
-        value: `${claimableMilestoneCount}/${milestoneQuests.length}`,
-      },
-    ];
-
-    if (questCompletionStats) {
-      tiles.push({
-        id: communitySectionId,
-        label: 'Community',
-        value: formatDataTileValue(questCompletionStats.totalCount),
-      });
-    }
-
-    if (showAchievements) {
-      tiles.push({
-        id: achievementSectionId,
-        label: 'Achievements',
-        value: `${achievementSummary.unlockedCount}/${achievementSummary.totalCount}`,
-      });
-    }
-
-    tiles.push(
-      {
-        id: badgeSectionId,
-        label: 'Badges',
-        value: topReaderBadges.length.toLocaleString(),
-      },
-      {
-        id: trophySectionId,
-        label: 'Trophies',
-        value: awardSummary.totalAwards.toLocaleString(),
-      },
-    );
-
-    return tiles;
-  }, [
-    achievementSummary.totalCount,
-    achievementSummary.unlockedCount,
-    awardSummary.totalAwards,
-    claimableMilestoneCount,
-    milestoneQuests.length,
-    questCompletionStats,
-    showAchievements,
-    topReaderBadges.length,
-  ]);
 
   const isFeaturedAchievementTrackable =
     shouldTrackAchievements &&
@@ -809,8 +751,6 @@ function GameCenterPage({
             </div>
           </section>
 
-          <SectionSpine tiles={spineTiles} />
-
           <Divider className={dividerClassName} />
 
           <section
@@ -824,10 +764,7 @@ function GameCenterPage({
 
           <Divider className={dividerClassName} />
 
-          <section
-            id={communitySectionId}
-            className="flex scroll-mt-16 flex-col gap-4"
-          >
+          <section className="flex flex-col gap-4">
             <SectionHeader
               title="Community pulse"
               action={
@@ -857,10 +794,7 @@ function GameCenterPage({
             <>
               <Divider className={dividerClassName} />
 
-              <section
-                id={achievementSectionId}
-                className="flex scroll-mt-16 flex-col gap-4"
-              >
+              <section className="flex flex-col gap-4">
                 <SectionHeader
                   title="Achievement shelf"
                   action={
@@ -886,10 +820,7 @@ function GameCenterPage({
 
           <Divider className={dividerClassName} />
 
-          <section
-            id={badgeSectionId}
-            className="flex scroll-mt-16 flex-col gap-4"
-          >
+          <section className="flex flex-col gap-4">
             <SectionHeader title="Badge case" action={badgeTopics} />
 
             {badgeCaseContent}
@@ -897,10 +828,7 @@ function GameCenterPage({
 
           <Divider className={dividerClassName} />
 
-          <section
-            id={trophySectionId}
-            className="flex scroll-mt-16 flex-col gap-4"
-          >
+          <section className="flex flex-col gap-4">
             <SectionHeader title="Trophy case" action={trophyTotal} />
 
             {trophyCaseContent}
