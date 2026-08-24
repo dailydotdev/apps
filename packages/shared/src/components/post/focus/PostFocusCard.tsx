@@ -282,10 +282,6 @@ export const PostFocusCard = ({
   const videoWrapperRef = useRef<HTMLDivElement>(null);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
-  // An external article to open: drives the title link, the cover link and the
-  // read button. Tested against `article` (the shared post when there is one)
-  // — a Share wrapping a freeform/welcome/collection is itself type Share, so
-  // testing the wrapper would treat those daily.dev posts as external articles.
   const canReadArticle = !!readHref && !isInternalReadType(article);
 
   useTrackPostView({ post });
@@ -472,17 +468,11 @@ export const PostFocusCard = ({
                   )}
                   data-testid="post-modal-title"
                 >
-                  {/* The biggest text target on the card, and the HN/Reddit
-                      convention — the title opens the source article. */}
                   {canReadArticle ? (
                     <a
                       href={readHref}
                       target="_blank"
                       rel="noopener"
-                      // Middle-click opens a background tab without firing
-                      // React's onClick, so log the read from onAuxClick too;
-                      // the selection guard keeps double-click-to-select a
-                      // word from navigating away.
                       {...combinedClicks<HTMLAnchorElement>(
                         withSelectionGuard(handleReadClick),
                       )}
@@ -494,16 +484,8 @@ export const PostFocusCard = ({
                     title
                   )}
                 </h1>
-                {/* Full-width tap target on mobile, hugs its label from tablet. */}
                 {renderReadButton('w-full tablet:w-fit')}
               </div>
-              {/* The cover is the biggest target on the card, so when there is
-                  a source article it opens it — same href, reader gate and read
-                  logging as the title and the read button. It duplicates the
-                  title link, so it stays out of the tab order and the
-                  accessibility tree rather than adding a third identical stop.
-                  Native posts have nothing to open, so there the cover keeps
-                  the zoom-in lightbox. */}
               {coverImage &&
                 (canReadArticle ? (
                   <a

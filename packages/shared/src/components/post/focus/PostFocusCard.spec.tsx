@@ -15,8 +15,6 @@ const freeformPost: Post = {
   contentHtml: '<p>Freeform body</p>',
 };
 
-// A squad post shared into another squad: the wrapper is type Share, but the
-// thing being opened is a freeform daily.dev post, not an external article.
 const sharedFreeformPost: Post = {
   ...sharePost,
   id: 'shared-freeform-id',
@@ -40,7 +38,6 @@ describe('PostFocusCard opening the source article', () => {
     const cover = screen.getByTestId('post-cover-link');
     expect(cover).toHaveAttribute('href', post.permalink);
     expect(cover).toHaveAttribute('target', '_blank');
-    // Duplicates the title link, so it stays out of the tab / AT order.
     expect(cover).toHaveAttribute('aria-hidden', 'true');
     expect(cover).toHaveAttribute('tabindex', '-1');
     expect(screen.queryByLabelText('View cover image')).not.toBeInTheDocument();
