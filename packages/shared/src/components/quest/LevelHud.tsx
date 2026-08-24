@@ -7,14 +7,13 @@ import {
   TypographyType,
 } from '../typography/Typography';
 import { IconSize } from '../Icon';
+import { ProgressBar } from '../fields/ProgressBar';
 import {
   HotIcon,
   MedalBadgeIcon,
   ReputationLightningIcon,
   StarIcon,
 } from '../icons';
-
-const xpSegmentCount = 10;
 
 const HudStatTile = ({
   icon,
@@ -64,7 +63,6 @@ export const LevelHud = ({
   achievements,
   isPending,
 }: LevelHudProps): ReactElement => {
-  const filledSegments = Math.round((levelProgress / 100) * xpSegmentCount);
   const streakValue = isPending ? '...' : `${currentStreak.toLocaleString()}d`;
   const longestValue = isPending ? '...' : `${longestStreak.toLocaleString()}d`;
 
@@ -85,17 +83,15 @@ export const LevelHud = ({
             {level}
           </Typography>
         </div>
-        <div className="flex gap-1" aria-hidden>
-          {Array.from({ length: xpSegmentCount }, (_, index) => (
-            <span
-              key={index}
-              className={classNames(
-                'h-2 flex-1 rounded-4',
-                index < filledSegments ? 'bg-[#E669FB]' : 'bg-[#5A1E75]',
-              )}
-            />
-          ))}
-        </div>
+        <ProgressBar
+          percentage={levelProgress}
+          shouldShowBg
+          className={{
+            wrapper: 'h-2 rounded-max !bg-[#5A1E75]',
+            bar: 'h-full rounded-max',
+            barColor: 'bg-[#E669FB]',
+          }}
+        />
         <Typography
           type={TypographyType.Callout}
           bold
