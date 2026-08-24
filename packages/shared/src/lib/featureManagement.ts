@@ -274,6 +274,10 @@ export const featureHeroCards = new Feature<HeroCardsConfig>('hero_cards', {
   },
 });
 
+// Experiment: a hero section above the feed — a carousel of the current
+// headlines, with the Happening Now list and a direct ad placement beside it.
+export const featureFeedHero = new Feature('feed_hero', false);
+
 // Experiment: skip layout/paint for off-screen feed cards via CSS
 // `content-visibility: auto` to keep long feeds responsive.
 export const featureFeedContentVisibility = new Feature(

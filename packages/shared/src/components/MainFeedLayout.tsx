@@ -71,6 +71,7 @@ import {
   discussedFeedVersion,
   feature,
   featureFeedChips,
+  featureFeedHero,
   FeedChipsVariant,
   followingFeedVersion,
   latestFeedVersion,
@@ -78,6 +79,7 @@ import {
   upvotedFeedVersion,
 } from '../lib/featureManagement';
 import type { FeedContainerProps } from './feeds';
+import { FeedHero } from './feeds/hero/FeedHero';
 import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
@@ -356,6 +358,13 @@ export default function MainFeedLayout({
       ) : null,
     [showExploreChips, exploreCategories, feeds, isV2],
   );
+
+  const isMainFeedPage =
+    feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
+  const { value: isFeedHeroEnabled } = useConditionalFeature({
+    feature: featureFeedHero,
+    shouldEvaluate: isMainFeedPage,
+  });
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
@@ -746,6 +755,25 @@ export default function MainFeedLayout({
     }
     return '';
   }, [customFeedsData, feedName, router.query.slugOrId]);
+  const chipsTopContent =
+    (isExploreTag || shouldUseListFeedLayout) && chipsNode ? (
+      <div
+        className={classNames('mb-8 w-full', shouldUseListFeedLayout && 'mt-8')}
+      >
+        {chipsNode}
+      </div>
+    ) : undefined;
+  // Left undefined when the hero is off so `Feed` keeps its own top slot for
+  // the reading reminder.
+  const topContent = isFeedHeroEnabled ? (
+    <>
+      <FeedHero className="mb-8 w-full" />
+      {chipsTopContent}
+    </>
+  ) : (
+    chipsTopContent
+  );
+
   const v2ActionButtons = feedProps?.actionButtons;
   const showFeedV2PageHeader =
     isV2 &&
@@ -823,18 +851,8 @@ export default function MainFeedLayout({
             <Feed
               {...feedProps}
               shortcuts={shortcuts}
-              topContent={
-                (isExploreTag || shouldUseListFeedLayout) && chipsNode ? (
-                  <div
-                    className={classNames(
-                      'mb-8 w-full',
-                      shouldUseListFeedLayout && 'mt-8',
-                    )}
-                  >
-                    {chipsNode}
-                  </div>
-                ) : undefined
-              }
+              topContent={topContent}
+              disableHighlightCards={isFeedHeroEnabled}
               className={classNames(
                 shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
               )}

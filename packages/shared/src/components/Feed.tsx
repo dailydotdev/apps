@@ -101,6 +101,8 @@ export interface FeedProps<T>
   showSearch?: boolean;
   actionButtons?: ReactNode;
   disableAds?: boolean;
+  /** The surface shows the highlights itself, so keep them out of the grid. */
+  disableHighlightCards?: boolean;
   staticAd?: { ad: Ad; index: number };
   disableAdRefresh?: boolean;
   allowFetchMore?: boolean;
@@ -203,6 +205,7 @@ export default function Feed<T>({
   shortcuts,
   actionButtons,
   disableAds,
+  disableHighlightCards,
   staticAd,
   disableAdRefresh = false,
   allowFetchMore,
@@ -366,6 +369,7 @@ export default function Feed<T>({
       excludePinnedPosts,
       settings: {
         disableAds,
+        disableHighlightCards,
         staticAd,
         adPostLength: isSquadFeed ? 2 : undefined,
         feedName,

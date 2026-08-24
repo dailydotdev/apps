@@ -556,6 +556,64 @@ describe('Feed logged in', () => {
     ).toEqual(['postItem', 'postItem', 'highlightItem', 'postItem']);
   });
 
+  it('should drop feedV2 highlights when the surface shows them itself', async () => {
+    renderComponent(
+      [
+        {
+          request: {
+            query: FEED_V2_QUERY,
+            variables,
+          },
+          result: {
+            data: {
+              page: {
+                pageInfo: defaultFeedPage.pageInfo,
+                edges: [
+                  {
+                    node: {
+                      __typename: 'FeedPostItem',
+                      post: defaultFeedPage.edges[0].node,
+                      feedMeta: defaultFeedPage.edges[0].node.feedMeta ?? null,
+                    },
+                  },
+                  {
+                    node: {
+                      __typename: 'FeedHighlightsItem',
+                      feedMeta: null,
+                      highlights: [
+                        {
+                          id: 'highlight-1',
+                          channel: 'agents',
+                          headline: 'The first highlight',
+                          highlightedAt: '2026-04-05T09:00:00.000Z',
+                          post: {
+                            id: defaultFeedPage.edges[0].node.id,
+                            commentsPermalink:
+                              defaultFeedPage.edges[0].node.commentsPermalink,
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      ],
+      defaultUser,
+      SharedFeedPage.MyFeed,
+      FEED_V2_QUERY,
+      { disableHighlightCards: true },
+    );
+
+    await waitForNock();
+
+    expect(await screen.findByTestId('postItem')).toBeInTheDocument();
+    expect(screen.queryByTestId('highlightItem')).not.toBeInTheDocument();
+    expect(screen.queryByText('Happening Now')).not.toBeInTheDocument();
+  });
+
   it('should send upvote mutation', async () => {
     let mutationCalled = false;
     renderComponent([

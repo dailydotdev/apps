@@ -204,6 +204,11 @@ export type FeedReturnType = {
 type UseFeedSettingParams = {
   adPostLength?: number;
   disableAds?: boolean;
+  /**
+   * Set when the surface already shows the highlights somewhere else (the feed
+   * hero), so the grid doesn't repeat them in a card.
+   */
+  disableHighlightCards?: boolean;
   feedName?: string;
   staticAd?: { ad: Ad; index: number };
 };
@@ -666,7 +671,7 @@ export default function useFeed<T>(
           }
 
           if (node.itemType === 'highlight') {
-            if (!node.highlights.length) {
+            if (!node.highlights.length || settings?.disableHighlightCards) {
               return;
             }
             pushAndAdvance({
@@ -719,6 +724,7 @@ export default function useFeed<T>(
     feedQuery.dataUpdatedAt,
     placeholdersPerPage,
     getAd,
+    settings?.disableHighlightCards,
     settings?.staticAd,
     heroCardsConfig,
     virtualizedNumCards,
