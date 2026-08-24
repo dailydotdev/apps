@@ -33,6 +33,7 @@ import type { GraphQLError } from '@dailydotdev/shared/src/lib/errors';
 import { featuredAwardImage } from '@dailydotdev/shared/src/lib/image';
 import { achievementTrackingWidgetFeature } from '@dailydotdev/shared/src/lib/featureManagement';
 import { fetchTopReaders } from '@dailydotdev/shared/src/lib/topReader';
+import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
 import { getFirstName } from '@dailydotdev/shared/src/lib/user';
 import {
   generateQueryKey,
@@ -70,7 +71,6 @@ import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/L
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   ArrowIcon,
-  CoreIcon,
   MedalBadgeIcon,
   PinIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -425,24 +425,9 @@ function GameCenterPage({
     );
   }
 
-  const badgeTopics =
-    !isBadgesPending && topReaderBadges.length > 0 ? (
-      <DataTile
-        label="Topics mastered"
-        value={getBadgeSummary(topReaderBadges).uniqueTopics}
-        info="Distinct subjects where you earned a top-reader badge."
-        icon={
-          <MedalBadgeIcon
-            size={IconSize.Small}
-            className="text-text-tertiary"
-          />
-        }
-        className={{
-          container: '!flex-row items-center gap-2 !border-0 !p-0',
-          label: '!typo-subhead',
-        }}
-      />
-    ) : undefined;
+  const badgeCountLabel = isBadgesPending
+    ? '...'
+    : formatDataTileValue(getBadgeSummary(topReaderBadges).uniqueTopics);
 
   let badgeCaseContent: ReactElement;
 
@@ -479,20 +464,9 @@ function GameCenterPage({
     !isAwardsPending &&
     !awardsError &&
     awardSummary.awards.length > 0;
-  // Laid out horizontally so it reads as one line beside the section title
-  // rather than as a stacked tile.
-  const trophyTotal = hasAwards ? (
-    <DataTile
-      label="Total awards"
-      value={awardSummary.totalAwards}
-      info="Every award you have earned across all award types."
-      icon={<CoreIcon size={IconSize.Small} className="text-text-tertiary" />}
-      className={{
-        container: '!flex-row items-center gap-2 !border-0 !p-0',
-        label: '!typo-subhead',
-      }}
-    />
-  ) : undefined;
+  const awardCountLabel = hasAwards
+    ? formatDataTileValue(awardSummary.totalAwards)
+    : '0';
 
   let trophyCaseContent: ReactElement;
 
@@ -793,21 +767,13 @@ function GameCenterPage({
           )}
 
           <section className="flex flex-col gap-4">
-            <SectionHeader
-              title="Badges & Trophies"
-              action={
-                (badgeTopics || trophyTotal) && (
-                  <div className="flex items-center gap-5">
-                    {badgeTopics}
-                    {trophyTotal}
-                  </div>
-                )
-              }
-            />
+            <SectionHeader title="Badges & Trophies" />
 
             <BadgeTrophyCase
               badges={badgeCaseContent}
+              badgeCount={badgeCountLabel}
               awards={trophyCaseContent}
+              awardCount={awardCountLabel}
             />
           </section>
 

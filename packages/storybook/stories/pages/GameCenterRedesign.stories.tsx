@@ -400,38 +400,7 @@ const GameCenterRedesign = () => (
 
 
     <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2 laptop:flex-row laptop:items-center laptop:justify-between">
-        <SectionHeader title="Badges & Trophies" />
-        <div className="flex items-center gap-5">
-          <DataTile
-            label="Topics mastered"
-            value={badges.length}
-            info="Distinct subjects where you earned a top-reader badge."
-            icon={
-              <MedalBadgeIcon
-                size={IconSize.Small}
-                className="text-text-tertiary"
-              />
-            }
-            className={{
-              container: '!flex-row items-center gap-2 !border-0 !p-0',
-              label: '!typo-subhead',
-            }}
-          />
-          <DataTile
-            label="Total awards"
-            value={87}
-            info="Every award you have earned across all award types."
-            icon={
-              <CoreIcon size={IconSize.Small} className="text-text-tertiary" />
-            }
-            className={{
-              container: '!flex-row items-center gap-2 !border-0 !p-0',
-              label: '!typo-subhead',
-            }}
-          />
-        </div>
-      </div>
+      <SectionHeader title="Badges & Trophies" />
       <BadgeTrophyCase
         badges={
           <div className="flex max-h-80 flex-col gap-2 overflow-y-auto">
@@ -444,7 +413,9 @@ const GameCenterRedesign = () => (
             ))}
           </div>
         }
+        badgeCount={badges.length.toString()}
         awards={<TrophyGrid awards={awards} />}
+        awardCount="87"
       />
     </section>
 
