@@ -15,6 +15,17 @@ const freeformPost: Post = {
   contentHtml: '<p>Freeform body</p>',
 };
 
+// A squad post shared into another squad: the wrapper is type Share, but the
+// thing being opened is a freeform daily.dev post, not an external article.
+const sharedFreeformPost: Post = {
+  ...sharePost,
+  id: 'shared-freeform-id',
+  sharedPost: {
+    ...sharePost.sharedPost,
+    type: PostType.Freeform,
+  },
+} as Post;
+
 const renderCard = (postToRender: Post) =>
   render(
     <TestBootProvider client={new QueryClient()}>
@@ -49,6 +60,16 @@ describe('PostFocusCard opening the source article', () => {
 
     const title = screen.getByTestId('post-modal-title');
     expect(title.querySelector('a')).toHaveAttribute('href', post.permalink);
+  });
+
+  it('keeps the lightbox when a share wraps a native post', () => {
+    renderCard(sharedFreeformPost);
+
+    expect(screen.queryByTestId('post-cover-link')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('View cover image')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('post-modal-title').querySelector('a'),
+    ).toBeNull();
   });
 
   it('keeps the lightbox and a plain title on a native post', () => {

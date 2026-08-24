@@ -34,7 +34,7 @@ import { getReadPostButtonIcon } from '../../cards/common/ReadArticleButton';
 import { PostUpvotesCommentsCount } from '../PostUpvotesCommentsCount';
 import { PostTagList } from '../tags/PostTagList';
 import { TruncateText } from '../../utilities';
-import { combinedClicks } from '../../../lib/click';
+import { combinedClicks, withSelectionGuard } from '../../../lib/click';
 import { useFeature } from '../../GrowthBookProvider';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import {
@@ -282,10 +282,11 @@ export const PostFocusCard = ({
   const videoWrapperRef = useRef<HTMLDivElement>(null);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
-  // An external article to open: drives the title link, the cover link and
-  // the read button. Native posts (freeform / welcome / collection) have
-  // nothing to open.
-  const canReadArticle = !!readHref && !isInternalReadType(post);
+  // An external article to open: drives the title link, the cover link and the
+  // read button. Tested against `article` (the shared post when there is one)
+  // — a Share wrapping a freeform/welcome/collection is itself type Share, so
+  // testing the wrapper would treat those daily.dev posts as external articles.
+  const canReadArticle = !!readHref && !isInternalReadType(article);
 
   useTrackPostView({ post });
 
@@ -338,7 +339,7 @@ export const PostFocusCard = ({
         target="_blank"
         rel="noopener"
         icon={isReaderVariant ? <EarthIcon /> : getReadPostButtonIcon(post)}
-        onClick={handleReadClick}
+        {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
         variant={ButtonVariant.Primary}
         size={ButtonSize.Medium}
         className={className}
@@ -478,7 +479,13 @@ export const PostFocusCard = ({
                       href={readHref}
                       target="_blank"
                       rel="noopener"
-                      onClick={handleReadClick}
+                      // Middle-click opens a background tab without firing
+                      // React's onClick, so log the read from onAuxClick too;
+                      // the selection guard keeps double-click-to-select a
+                      // word from navigating away.
+                      {...combinedClicks<HTMLAnchorElement>(
+                        withSelectionGuard(handleReadClick),
+                      )}
                       className="transition-colors hover:text-text-link"
                     >
                       {title}
@@ -503,7 +510,7 @@ export const PostFocusCard = ({
                     href={readHref}
                     target="_blank"
                     rel="noopener"
-                    onClick={handleReadClick}
+                    {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
                     aria-hidden
                     tabIndex={-1}
                     data-testid="post-cover-link"
