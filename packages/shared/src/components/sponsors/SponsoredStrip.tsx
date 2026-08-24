@@ -122,6 +122,16 @@ export const useShuffledSponsors = (partners: Sponsor[]): Sponsor[] => {
 /** Covers the layout's 300ms padding transition, plus a little. */
 const LAYOUT_SETTLE_MS = 400;
 
+/**
+ * Narrower than any single mark, so a row this size cannot have been
+ * laid out yet. Treated as "not measured" rather than "nothing fits":
+ * a transient narrow reading must not be able to strand the wall
+ * empty, because nothing else is guaranteed to come along and correct
+ * it — ResizeObserver is the only other corrector, and an environment
+ * that throttles it would leave the strip permanently blank.
+ */
+const MIN_MEASURABLE_WIDTH = 80;
+
 /** Rendered width of a mark at a given cap height. */
 const markWidth = (sponsor: Sponsor, cap: number): number =>
   opticalHeight(sponsor.ratio, cap) * sponsor.ratio;
@@ -210,16 +220,19 @@ const useFittedSponsors = (
   }, []);
 
   const fitted = useMemo(() => {
-    // A zero width is "not laid out yet", not "nothing fits" — a row
-    // measured before layout settles would otherwise render an empty
-    // wall and, if no resize follows, stay empty. Render the full wall
-    // until a real width arrives; the row clips, so a frame of
-    // overflow is invisible and the server markup stays complete.
-    if (available === null || available <= 0) {
+    // Render the full wall until a real width arrives; the row clips,
+    // so a frame of overflow is invisible and the server markup stays
+    // complete.
+    if (available === null || available < MIN_MEASURABLE_WIDTH) {
       return partners;
     }
 
-    return partners.slice(0, countThatFit(partners, available, cap, gap));
+    // Never fewer than one: a clipped mark is a worse look than a
+    // tidy row, but an empty sponsor wall is a broken one.
+    return partners.slice(
+      0,
+      Math.max(1, countThatFit(partners, available, cap, gap)),
+    );
   }, [partners, available, cap, gap]);
 
   return { ref, fitted };
