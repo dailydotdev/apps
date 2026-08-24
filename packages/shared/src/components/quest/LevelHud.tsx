@@ -69,7 +69,7 @@ export const LevelHud = ({
   return (
     <div className="overflow-hidden rounded-20 border border-border-subtlest-tertiary">
       <div className="flex flex-col gap-3 bg-[#2A0B3D] p-4 tablet:px-5">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-12 bg-accent-cabbage-default text-white">
               <Typography
@@ -94,24 +94,6 @@ export const LevelHud = ({
               {xpToNextLevel.toLocaleString()} XP to level {level + 1}
             </Typography>
           </div>
-          <div className="flex shrink-0 flex-col items-end">
-            <div className="flex items-center gap-1 text-white">
-              <ReputationLightningIcon secondary size={IconSize.Small} />
-              <Typography
-                type={TypographyType.Title3}
-                bold
-                className="text-white"
-              >
-                {totalXp.toLocaleString()}
-              </Typography>
-            </div>
-            <Typography
-              type={TypographyType.Subhead}
-              className="text-overlay-primary-white"
-            >
-              total XP
-            </Typography>
-          </div>
         </div>
         <div className="flex gap-1" aria-hidden>
           {Array.from({ length: xpSegmentCount }, (_, index) => (
@@ -128,7 +110,7 @@ export const LevelHud = ({
       <div
         className={classNames(
           'grid grid-cols-2 gap-px bg-border-subtlest-tertiary',
-          achievements ? 'tablet:grid-cols-3' : 'tablet:grid-cols-2',
+          achievements ? 'tablet:grid-cols-4' : 'tablet:grid-cols-3',
         )}
       >
         <HudStatTile
@@ -165,6 +147,17 @@ export const LevelHud = ({
             value={`${achievements.unlocked}/${achievements.total}`}
           />
         ) : null}
+        <HudStatTile
+          icon={
+            <ReputationLightningIcon
+              secondary
+              size={IconSize.Size16}
+              className="text-accent-onion-default"
+            />
+          }
+          label="Total XP"
+          value={isPending ? '...' : totalXp.toLocaleString()}
+        />
       </div>
     </div>
   );
