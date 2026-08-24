@@ -2,6 +2,7 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LevelHud } from '@dailydotdev/shared/src/components/quest/LevelHud';
+import { SectionSpine } from '../../../webapp/components/game-center/SectionSpine';
 import { TopReaderBadgeCompact } from '@dailydotdev/shared/src/components/badges/TopReaderBadgeCompact';
 import { AchievementShelfCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementShelfCard';
 import type { UserAchievement } from '@dailydotdev/shared/src/graphql/user/achievements';
@@ -363,9 +364,19 @@ const GameCenterRedesign = () => (
       </div>
     </section>
 
+    <SectionSpine
+      tiles={[
+        { id: 'milestone-quests', label: 'Milestones', value: '2/5' },
+        { id: 'community-pulse', label: 'Community', value: '90K' },
+        { id: 'achievement-shelf', label: 'Achievements', value: '9/24' },
+        { id: 'badge-case', label: 'Badges', value: '6' },
+        { id: 'trophy-case', label: 'Trophies', value: '18' },
+      ]}
+    />
+
     <Divider className={dividerClass} />
 
-    <section className="flex flex-col gap-4">
+    <section id="milestone-quests" className="flex scroll-mt-16 flex-col gap-4">
       <SectionHeader title="Milestone quests" />
       <MilestoneQuestList
         quests={milestoneQuests}
@@ -376,7 +387,7 @@ const GameCenterRedesign = () => (
 
     <Divider className={dividerClass} />
 
-    <section className="flex flex-col gap-4">
+    <section id="community-pulse" className="flex scroll-mt-16 flex-col gap-4">
       <SectionHeader title="Community pulse" />
       <CommunityPulse
         stats={communityStats}
@@ -387,7 +398,7 @@ const GameCenterRedesign = () => (
 
     <Divider className={dividerClass} />
 
-    <section className="flex flex-col gap-4">
+    <section id="achievement-shelf" className="flex scroll-mt-16 flex-col gap-4">
       <SectionHeader title="Achievement shelf" />
       <div className="flex gap-4 overflow-x-auto pb-2">
         {achievements.map((item) => (
@@ -405,7 +416,7 @@ const GameCenterRedesign = () => (
 
     <Divider className={dividerClass} />
 
-    <section className="flex flex-col gap-4">
+    <section id="badge-case" className="flex scroll-mt-16 flex-col gap-4">
       <SectionHeader title="Badge case" />
       <div className="overflow-x-auto pb-2">
         <div className="flex w-max gap-4">
@@ -423,7 +434,7 @@ const GameCenterRedesign = () => (
 
     <Divider className={dividerClass} />
 
-    <section className="flex flex-col gap-4">
+    <section id="trophy-case" className="flex scroll-mt-16 flex-col gap-4">
       <div className="flex flex-col gap-2 laptop:flex-row laptop:items-end laptop:justify-between">
         <SectionHeader title="Trophy case" />
         <DataTile
