@@ -671,7 +671,14 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const disableTopPadding = isFinder || shouldUseListFeedLayout;
+  // Explore keeps the page's top padding in both layouts. It renders a
+  // breadcrumb and tab header above the feed, and zeroing the padding
+  // leaves that header jammed under the site header — while
+  // `shouldUseListFeedLayout` flips between first paint and mount
+  // (see `enableSsrSafeLayout`), so keying the spacing to it made the
+  // gap change size on navigation and settle differently on reload.
+  const disableTopPadding =
+    isFinder || (shouldUseListFeedLayout && !isAnyExplore);
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
       if (clickedTab === ExploreTabs.BestOf && isExtension) {
@@ -700,10 +707,7 @@ export default function MainFeedLayout({
           // heading and its tabs. Give the group room above and pull
           // the tabs up under the breadcrumbs they belong to; the
           // 16px down to the cards is unchanged.
-          className={{
-            container: classNames(feedGutter, 'pt-4'),
-            tabWrapper: 'mb-4 mt-2',
-          }}
+          className={{ container: feedGutter, tabWrapper: 'mb-4 mt-2' }}
         />
       );
     }
