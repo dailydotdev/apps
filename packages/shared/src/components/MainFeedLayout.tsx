@@ -80,6 +80,7 @@ import {
 } from '../lib/featureManagement';
 import type { FeedContainerProps } from './feeds';
 import { FeedHero } from './feeds/hero/FeedHero';
+import { useFeedHeroPreview } from './feeds/hero/useFeedHeroPreview';
 import { getFeedName } from '../lib/feed';
 import CommentFeed from './CommentFeed';
 import { COMMENT_FEED_QUERY } from '../graphql/comments';
@@ -361,10 +362,13 @@ export default function MainFeedLayout({
 
   const isMainFeedPage =
     feedName === SharedFeedPage.MyFeed || feedName === SharedFeedPage.Popular;
-  const { value: isFeedHeroEnabled } = useConditionalFeature({
+  const { value: isFeedHeroFlagOn } = useConditionalFeature({
     feature: featureFeedHero,
     shouldEvaluate: isMainFeedPage,
   });
+  const isFeedHeroPreview = useFeedHeroPreview();
+  const isFeedHeroEnabled =
+    isMainFeedPage && (isFeedHeroFlagOn || isFeedHeroPreview);
 
   const { isSearchPageLaptop } = useSearchResultsLayout();
 
