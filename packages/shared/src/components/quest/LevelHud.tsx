@@ -93,7 +93,7 @@ export const LevelHud = ({
         <HotIcon
           secondary
           size={IconSize.Size16}
-          className="text-accent-bun-default"
+          className="text-accent-cabbage-default"
         />
       ),
       label: 'Streak',
@@ -104,7 +104,7 @@ export const LevelHud = ({
         <StarIcon
           secondary
           size={IconSize.Size16}
-          className="text-accent-cheese-default"
+          className="text-accent-cabbage-default"
         />
       ),
       label: 'Longest',
@@ -116,7 +116,7 @@ export const LevelHud = ({
             icon: (
               <MedalBadgeIcon
                 size={IconSize.Size16}
-                className="text-accent-cheese-default"
+                className="text-accent-cabbage-default"
               />
             ),
             label: 'Badges',
@@ -129,7 +129,7 @@ export const LevelHud = ({
         <ReputationLightningIcon
           secondary
           size={IconSize.Size16}
-          className="text-accent-onion-default"
+          className="text-accent-cabbage-default"
         />
       ),
       label: 'Total XP',
