@@ -233,6 +233,8 @@ export enum HijackingVariant {
   Default = 'default',
   CTA = 'cta',
   Auth = 'auth',
+  /** Homepage cover art behind centered copy and a pair of CTAs. */
+  Cover = 'cover',
 }
 export const featureHijackingVariants = new Feature<HijackingVariant>(
   'hijacking_variants3',

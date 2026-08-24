@@ -4,7 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { AuthContextData } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { getLogContextStatic } from '@dailydotdev/shared/src/contexts/LogContext';
-import { useConditionalFeature } from '@dailydotdev/shared/src/hooks';
+import {
+  useConditionalFeature,
+  useViewSize,
+} from '@dailydotdev/shared/src/hooks';
 import { useSignBack } from '@dailydotdev/shared/src/hooks/auth/useSignBack';
 import {
   AuthDisplay,
@@ -15,6 +18,7 @@ import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
 import { onboardingUrl } from '@dailydotdev/shared/src/lib/constants';
 import { LogEvent, TargetType } from '@dailydotdev/shared/src/lib/log';
 import loggedUser from '@dailydotdev/shared/__tests__/fixture/loggedUser';
+import { useLayoutVariant } from '@dailydotdev/shared/src/hooks/layout/useLayoutVariant';
 import HijackingLoginStrip from './HijackingLoginStrip';
 
 jest.mock('@dailydotdev/shared/src/contexts/AuthContext', () => ({
@@ -25,10 +29,15 @@ jest.mock('@dailydotdev/shared/src/contexts/AuthContext', () => ({
 jest.mock('@dailydotdev/shared/src/hooks', () => ({
   ...jest.requireActual('@dailydotdev/shared/src/hooks'),
   useConditionalFeature: jest.fn(),
+  useViewSize: jest.fn(),
 }));
 
 jest.mock('@dailydotdev/shared/src/hooks/auth/useSignBack', () => ({
   useSignBack: jest.fn(),
+}));
+
+jest.mock('@dailydotdev/shared/src/hooks/layout/useLayoutVariant', () => ({
+  useLayoutVariant: jest.fn(),
 }));
 
 jest.mock('@dailydotdev/shared/src/components/auth/AuthOptions', () => {
@@ -84,6 +93,10 @@ const mockUseSignBack = useSignBack as jest.MockedFunction<typeof useSignBack>;
 const mockUseConditionalFeature = useConditionalFeature as jest.MockedFunction<
   typeof useConditionalFeature
 >;
+const mockUseLayoutVariant = useLayoutVariant as jest.MockedFunction<
+  typeof useLayoutVariant
+>;
+const mockUseViewSize = useViewSize as jest.MockedFunction<typeof useViewSize>;
 const logEvent = jest.fn();
 const showLogin = jest.fn();
 const assignMock = jest.fn();
@@ -173,6 +186,8 @@ beforeAll(() => {
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockUseViewSize.mockReturnValue(true);
+  mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: false });
   setVariant(HijackingVariant.Default);
   mockUseSignBack.mockReturnValue({
     isLoaded: true,
@@ -182,7 +197,84 @@ beforeEach(() => {
   });
 });
 
+const CONTROL_LOGGED_OUT_BODY = 'Log in to pick up where you left off.';
+
 describe('HijackingLoginStrip', () => {
+  // v2 drops the slot the control renders through, so enrolling those users
+  // would pit "no strip" against "a strip".
+  it('does not enroll users whose layout cannot show the control', () => {
+    mockUseLayoutVariant.mockReturnValue({ isV2: true, isLoading: false });
+    setVariant(HijackingVariant.Cover);
+
+    const { container } = renderComponent();
+
+    expect(container).toBeEmptyDOMElement();
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
+  });
+
+  // `isV2` is false while auth resolves, indistinguishable from a settled
+  // "not v2".
+  it('does not enroll on laptop while the layout is still resolving', () => {
+    mockUseViewSize.mockReturnValue(true);
+    mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: true });
+    setVariant(HijackingVariant.Cover);
+
+    const { container } = renderComponent();
+
+    expect(container).toBeEmptyDOMElement();
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: false }),
+    );
+  });
+
+  // Below laptop the layout hook never evaluates, so `isLoading` stays true
+  // for good; treating that as "resolving" hid the control too.
+  it('still renders below laptop, where the layout never resolves', () => {
+    mockUseViewSize.mockReturnValue(false);
+    mockUseLayoutVariant.mockReturnValue({ isV2: false, isLoading: true });
+    setVariant(HijackingVariant.Default);
+
+    renderComponent();
+
+    expect(screen.getByText(CONTROL_LOGGED_OUT_BODY)).toBeVisible();
+    expect(mockUseConditionalFeature).toHaveBeenCalledWith(
+      expect.objectContaining({ shouldEvaluate: true }),
+    );
+  });
+
+  // Fails if the sizer and the control drift apart.
+  it('reserves the control copy on the signed-out cover card', () => {
+    setVariant(HijackingVariant.Default);
+    const { unmount } = renderComponent();
+
+    expect(screen.getByText(CONTROL_LOGGED_OUT_BODY)).toBeVisible();
+    unmount();
+
+    setVariant(HijackingVariant.Cover);
+    renderComponent();
+
+    // the cover arm reserves it invisibly rather than showing it
+    expect(screen.getByText(CONTROL_LOGGED_OUT_BODY)).toBeInTheDocument();
+  });
+
+  // These cards are ~460px against the control's ~178px; reserving the
+  // control's geometry clips them rather than matching it.
+  it('does not force the control geometry on the onboarding state', () => {
+    setVariant(HijackingVariant.Cover);
+
+    renderComponent({ user: loggedUser, isLoggedIn: true });
+
+    expect(
+      screen.getByRole('heading', { name: /jump back in/i }),
+    ).toBeVisible();
+    expect(screen.queryByText(CONTROL_LOGGED_OUT_BODY)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/You still have a few onboarding steps left/),
+    ).not.toBeInTheDocument();
+  });
+
   it('renders nothing while the experiment is loading', () => {
     setVariant(HijackingVariant.Default, { isLoading: true });
 
@@ -280,6 +372,67 @@ describe('HijackingLoginStrip', () => {
         target_type: TargetType.SignupButton,
         target_id: 'hijacking',
       });
+    });
+  });
+
+  describe('cover variant', () => {
+    beforeEach(() => {
+      setVariant(HijackingVariant.Cover);
+    });
+
+    it('redirects to the webapp onboarding from the cover CTAs', () => {
+      renderComponent();
+
+      expect(
+        screen.getByRole('heading', {
+          name: "Start discovering what's next.",
+        }),
+      ).toBeVisible();
+
+      fireEvent.click(screen.getByRole('button', { name: /Get started/ }));
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Click,
+        target_type: TargetType.SignupButton,
+        target_id: 'hijacking',
+      });
+      expect(assignMock).toHaveBeenCalledWith(signupHref);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Click,
+        target_type: TargetType.LoginButton,
+        target_id: 'hijacking',
+      });
+      expect(assignMock).toHaveBeenCalledWith(loginHref);
+    });
+
+    it('logs a signup impression for new visitors', () => {
+      renderComponent();
+
+      expect(logEvent).toHaveBeenCalledWith({
+        event_name: LogEvent.Impression,
+        target_type: TargetType.SignupButton,
+        target_id: 'hijacking',
+      });
+    });
+
+    it('hands a remembered account the shared welcome-back card', () => {
+      mockUseSignBack.mockReturnValue({
+        isLoaded: true,
+        signBack: {
+          name: 'Tsahi Matsliah',
+          email: 'tsahi@daily.dev',
+          image: 'https://daily.dev/tsahi.png',
+        },
+        provider: SocialProvider.Google,
+        onUpdateSignBack: jest.fn(),
+      });
+
+      renderComponent();
+
+      expect(
+        screen.getByRole('heading', { name: /Welcome back, Tsahi/ }),
+      ).toBeVisible();
     });
   });
 
