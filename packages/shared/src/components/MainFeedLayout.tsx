@@ -17,7 +17,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
-import { FeedPageLayoutMobile, useFeedGutter } from './utilities/common';
+import { FeedPageLayoutMobile, feedGutter } from './utilities/common';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
@@ -688,10 +688,6 @@ export default function MainFeedLayout({
     [isExtension, onNavTabClick],
   );
 
-  // Matches whatever inset FeedPage is applying to the cards, so the
-  // breadcrumbs and tabs never sit on a different left edge.
-  const feedGutter = useFeedGutter();
-
   const FeedExploreComponent = useCallback(() => {
     if (isLaptop) {
       return (
@@ -727,7 +723,7 @@ export default function MainFeedLayout({
         }}
       />
     );
-  }, [feedGutter, isLaptop, onTabChange, tab]);
+  }, [isLaptop, onTabChange, tab]);
 
   // v2 reaches the Explore hub sections (Explore, Tags, Sources, Leaderboard,
   // Discussions) from the sidebar's Explore panel, so the page header no longer

@@ -5,7 +5,6 @@ import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
 import { pageMainClassNames } from '../layout/PageWrapperLayout';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { SourceMemberRole } from '../../graphql/sources';
 import type { OrganizationMemberRole } from '../../features/organizations/types';
 
@@ -106,52 +105,32 @@ export const BaseFeedPage = classed(
 );
 
 /**
- * The feed's horizontal inset, under the v2 (dual-sidebar) layout.
- * Smaller than the legacy `laptop:p-10`, which reads as far too much
- * side spacing inside v2's floating-card chrome.
+ * The feed's horizontal inset, as a horizontal-only echo of
+ * `pageMainClassNames`. Chrome that sits outside `FeedPage` — the
+ * breadcrumbs and the tab strip — uses this to line up with the cards.
  */
-export const feedGutterV2 = 'px-4 tablet:px-6';
+export const feedGutter = 'tablet:px-4 laptop:px-10';
 
-/** The legacy inset, horizontal only — `pageMainClassNames` without its vertical padding. */
-export const feedGutterLegacy = 'tablet:px-4 laptop:px-10';
-
-/**
- * The feed's current horizontal inset. Chrome that sits outside
- * `FeedPage` — the breadcrumbs and tab strip — has to line up with the
- * cards, and the value depends on a flag that resolves after mount, so
- * it cannot be hardcoded at the call site.
- */
-export const useFeedGutter = (): string => {
-  const { isV2 } = useLayoutVariant();
-
-  return isV2 ? feedGutterV2 : feedGutterLegacy;
-};
-
-// v2 used to drop `pageMainClassNames` and put nothing in its place,
-// on the assumption that the card chrome always supplies the inset.
-// On the feed surfaces it does not, so the cards ran flush into the
-// sidebar on one side and the window edge on the other.
+// v2 used to drop `pageMainClassNames` here and put nothing in its
+// place, on the assumption that its floating-card chrome always
+// supplies the inset. On the feed surfaces it does not, so the cards
+// ran flush into the sidebar on one side and the window edge on the
+// other.
 //
-// Both variants now set an inset here, and only here. That matters
-// beyond the missing gutter: `isV2` resolves asynchronously, so any
-// second source of horizontal padding elsewhere in the tree would
-// stack on top of this one for whichever state the flag settles into,
-// and the feed would visibly change width after load.
+// The inset is no longer conditional at all. `isV2` is not stable
+// across client-side navigation — it reads true on load and false
+// after a route change — so anything keyed to it made the feed
+// visibly change width as you moved around the app. The feed keeps
+// one inset whatever the layout experiment is doing.
 export const FeedPage = ({
   className,
   ...props
-}: HTMLAttributes<HTMLElement>): ReactElement => {
-  const { isV2 } = useLayoutVariant();
-  return (
-    <BaseFeedPage
-      {...props}
-      className={classNames(
-        isV2 ? feedGutterV2 : pageMainClassNames,
-        className,
-      )}
-    />
-  );
-};
+}: HTMLAttributes<HTMLElement>): ReactElement => (
+  <BaseFeedPage
+    {...props}
+    className={classNames(pageMainClassNames, className)}
+  />
+);
 export const FeedPageLayoutList = classed(
   BasePageContainer,
   pageContainerClassNames,
