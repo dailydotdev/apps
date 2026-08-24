@@ -118,37 +118,24 @@ describe('FunnelHeroLanding', () => {
       expect(screen.getByTestId('signup-hero')).toBeInTheDocument();
     });
 
-    it('does not evaluate for an authenticated, confirmed user', () => {
+    it('evaluates for signed-in visitors too — no special-casing', () => {
+      setAuth({
+        isLoggedIn: true,
+        user: { id: 'u2', infoConfirmed: false, providers: ['github'] },
+      });
+
+      renderStep();
+
+      expect(shouldEvaluate()).toBe(true);
+      expect(screen.getByTestId('signup-hero')).toBeInTheDocument();
+    });
+
+    it('still transitions a confirmed user past the step without a wall', () => {
       setAuth({ isLoggedIn: true, user: confirmedUser });
 
       renderStep();
 
-      expect(shouldEvaluate()).toBe(false);
       expect(screen.queryByTestId('signup-hero')).not.toBeInTheDocument();
-    });
-
-    it('does not evaluate when onboarding is already complete', () => {
-      setAuth({
-        isLoggedIn: true,
-        user: { id: 'u2', infoConfirmed: false, providers: ['github'] },
-      });
-      setOnboardingActions({ isOnboardingComplete: true });
-
-      renderStep();
-
-      expect(shouldEvaluate()).toBe(false);
-      expect(screen.queryByTestId('signup-hero')).not.toBeInTheDocument();
-    });
-
-    it('does not evaluate for any signed-in user', () => {
-      setAuth({
-        isLoggedIn: true,
-        user: { id: 'u2', infoConfirmed: false, providers: ['github'] },
-      });
-
-      renderStep();
-
-      expect(shouldEvaluate()).toBe(false);
     });
 
     it('does not evaluate before auth is ready', () => {
@@ -194,15 +181,20 @@ describe('FunnelHeroLanding', () => {
       );
     });
 
-    it('never holds a signed-in visit, even mid-actions-fetch', () => {
+    it('holds signed-in visits the same way, then falls back', () => {
       setAuth({
         isLoggedIn: true,
         user: { id: 'u3', infoConfirmed: false, providers: ['github'] },
       });
-      setOnboardingActions({ isOnboardingActionsReady: false });
       setFlag({ isLoading: true });
 
       renderStep('cards');
+
+      expect(screen.queryByTestId('signup-hero')).not.toBeInTheDocument();
+
+      act(() => {
+        jest.advanceTimersByTime(250);
+      });
 
       expect(screen.getByTestId('signup-hero')).toHaveAttribute(
         'data-background',

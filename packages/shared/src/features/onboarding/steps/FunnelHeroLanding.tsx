@@ -87,12 +87,10 @@ export const FunnelHeroLanding = withIsActiveGuard(
     const isOnboarding = useIsOnboardingFunnel();
     const { isOnboardingActionsReady, isOnboardingComplete } =
       useOnboardingActions();
-    // Anonymous onboarding visitors only: they always render a wall (every
-    // render bail-out below is a logged-in state), and evaluating is what
-    // enrolls — `getFeatureValue` fires GrowthBook's trackingCallback, which
-    // POSTs the allocation. Logged-in users keep the served wall and stay out
-    // of the experiment entirely.
-    const shouldEvaluateWallFlag = isAuthReady && isOnboarding && !isLoggedIn;
+    // Evaluating is what enrolls — `getFeatureValue` fires GrowthBook's
+    // trackingCallback, which POSTs the allocation — so it waits for auth and
+    // is scoped to the onboarding funnel; paid funnels keep their served look.
+    const shouldEvaluateWallFlag = isAuthReady && isOnboarding;
     const { value: isHorizonWallEnabled, isLoading: isHorizonFlagLoading } =
       useConditionalFeature({
         feature: featureSignupWallHorizon,
