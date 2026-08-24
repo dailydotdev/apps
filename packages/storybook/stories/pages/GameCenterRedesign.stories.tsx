@@ -353,7 +353,8 @@ const GameCenterRedesign = () => (
           level={14}
           levelProgress={70}
           totalXp={3420}
-          xpToNextLevel={580}
+          xpInLevel={1400}
+          xpToNextLevel={600}
           currentStreak={12}
           longestStreak={28}
           achievements={{ unlocked: 9, total: 24 }}

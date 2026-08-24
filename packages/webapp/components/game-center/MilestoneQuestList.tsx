@@ -89,7 +89,10 @@ const MilestoneQuestCard = ({
   return (
     <article
       className={classNames(
-        'relative flex w-60 shrink-0 flex-col gap-2 overflow-hidden rounded-14 border border-border-subtlest-tertiary bg-background-subtle p-4',
+        'relative flex w-60 shrink-0 flex-col gap-2 overflow-hidden rounded-14 border border-border-subtlest-tertiary p-4',
+        // Only a claimable milestone gets a filled surface, so the ones you
+        // can act on read forward of the ones you cannot.
+        canClaim && 'bg-background-subtle',
         quest.locked && 'opacity-64',
       )}
     >

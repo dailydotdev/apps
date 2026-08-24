@@ -611,6 +611,7 @@ function GameCenterPage({
                 level={questDashboard.level.level}
                 levelProgress={levelProgress}
                 totalXp={questDashboard.level.totalXp}
+                xpInLevel={questDashboard.level.xpInLevel}
                 xpToNextLevel={questDashboard.level.xpToNextLevel}
                 currentStreak={questDashboard.currentStreak}
                 longestStreak={questDashboard.longestStreak}

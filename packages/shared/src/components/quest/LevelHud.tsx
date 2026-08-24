@@ -45,6 +45,7 @@ export interface LevelHudProps {
   level: number;
   levelProgress: number;
   totalXp: number;
+  xpInLevel: number;
   xpToNextLevel: number;
   currentStreak: number;
   longestStreak: number;
@@ -56,6 +57,7 @@ export const LevelHud = ({
   level,
   levelProgress,
   totalXp,
+  xpInLevel,
   xpToNextLevel,
   currentStreak,
   longestStreak,
@@ -71,15 +73,14 @@ export const LevelHud = ({
       <div className="flex flex-col gap-3 bg-[#2A0B3D] p-4 tablet:px-5">
         <div className="flex items-center gap-4">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-12 bg-accent-cabbage-default text-white">
+            {/* The number stands alone, so the chip carries the meaning for
+                screen readers. */}
+            <div
+              className="flex size-12 shrink-0 items-center justify-center rounded-12 bg-accent-cabbage-default text-white"
+              aria-label={`Level ${level}`}
+            >
               <Typography
-                type={TypographyType.Subhead}
-                className="leading-none text-white"
-              >
-                LVL
-              </Typography>
-              <Typography
-                type={TypographyType.Title3}
+                type={TypographyType.Title1}
                 bold
                 className="leading-none text-white"
               >
@@ -91,7 +92,8 @@ export const LevelHud = ({
               bold
               className="truncate text-white"
             >
-              {xpToNextLevel.toLocaleString()} XP to level {level + 1}
+              {xpInLevel.toLocaleString()} /{' '}
+              {(xpInLevel + xpToNextLevel).toLocaleString()}
             </Typography>
           </div>
         </div>
