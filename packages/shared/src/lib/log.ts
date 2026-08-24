@@ -242,6 +242,7 @@ export enum LogEvent {
   // Reading Streaks
   OpenStreaks = 'open streaks',
   DismissStreaksMilestone = 'dismiss streaks milestone',
+  DismissStreakOffers = 'dismiss streak offers',
   ScheduleStreakReminder = 'schedule streak reminder',
   StreakRecover = 'restore streak',
   DismissStreakRecover = 'dimiss streaks milestone',
@@ -549,6 +550,7 @@ export enum TargetType {
   VerifyEmail = 'verify email',
   ResendVerificationCode = 'resend verification code',
   StreaksMilestone = 'streaks milestone',
+  StreakOffer = 'streak offer',
   StreakRecover = 'streak restore',
   StreakFreezePurchase = 'streak freeze purchase',
   PromotionCard = 'promotion_card',
