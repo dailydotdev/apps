@@ -835,9 +835,14 @@ export default function MainFeedLayout({
                   </div>
                 ) : undefined
               }
-              className={classNames(
-                shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
-              )}
+              // The page container this sits in forces `!px-0`
+              // (FeedPageLayoutList), so this is the only horizontal
+              // inset the feed gets. Scoping it to `laptop:` and to the
+              // list layout left every other case flush against the
+              // frame — cards touched the sidebar on one side and the
+              // window edge on the other. Give every feed the same
+              // gutter; laptop keeps the 24px it already had.
+              className={classNames(!isFinder && 'px-4 tablet:px-6')}
             />
           )
         )}
