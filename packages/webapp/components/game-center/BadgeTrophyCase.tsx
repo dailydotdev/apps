@@ -16,17 +16,6 @@ import {
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
 
-// Frosted glass, matching the level badge: a translucent wash and a lit
-// top edge rather than a flat fill.
-const badgeRowStyle = {
-  background:
-    'linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.16))',
-  border: '1px solid rgba(255,255,255,0.35)',
-  boxShadow:
-    'inset 0 1px 0 rgba(255,255,255,0.6), 0 4px 14px -6px rgba(0,0,0,0.35)',
-  padding: '0.75rem',
-};
-
 export const BadgeRow = ({
   issuedAt,
   keyword,
@@ -35,10 +24,7 @@ export const BadgeRow = ({
   const title = keyword.flags?.title || keyword.value;
 
   return (
-    <div
-      className="flex items-center gap-3 rounded-12 backdrop-blur-[6px]"
-      style={badgeRowStyle}
-    >
+    <div className="flex items-center gap-3 rounded-12 bg-background-default p-3">
       {image ? (
         <Image
           src={image}
