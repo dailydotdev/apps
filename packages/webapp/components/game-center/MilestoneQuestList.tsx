@@ -89,7 +89,7 @@ const MilestoneQuestCard = ({
   return (
     <article
       className={classNames(
-        'relative flex w-60 shrink-0 flex-col gap-2 overflow-hidden rounded-14 border border-border-subtlest-tertiary p-4',
+        'relative flex flex-col gap-2 overflow-hidden rounded-14 border border-border-subtlest-tertiary p-4',
         // Only a claimable milestone gets a filled surface, so the ones you
         // can act on read forward of the ones you cannot.
         canClaim && 'bg-background-subtle',
@@ -209,7 +209,7 @@ export const MilestoneQuestList = ({
   const ordered = sortMilestoneQuests(quests);
 
   return (
-    <div className="-mx-4 flex items-stretch gap-3 overflow-x-auto px-4 pb-2 laptop:mx-0 laptop:px-0">
+    <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-4">
       {ordered.map((quest) => (
         <MilestoneQuestCard
           key={quest.rotationId}
