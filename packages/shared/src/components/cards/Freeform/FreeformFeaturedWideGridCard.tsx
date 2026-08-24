@@ -12,8 +12,9 @@ import { stripHtmlTags } from '../../../lib/strings';
 import { HighlightChip } from '../common/HighlightChip';
 import type { FeaturedWideCardProps } from '../common/featuredWide';
 import {
-  DESCRIPTION_CLAMP_CLASS_NAME,
-  HERO_DESCRIPTION_CLAMP_CLASS_NAME,
+  DESCRIPTION_CLASS_NAME,
+  HERO_DESCRIPTION_CLASS_NAME,
+  HERO_TEXT_FIT_CLASS_NAME,
   HERO_TITLE_CLASS_NAME,
   INNER_GRID_COLS,
   TEXT_COL_SPAN,
@@ -78,7 +79,9 @@ export const FreeformFeaturedWideGridCard = forwardRef(
               image || overlay ? TEXT_COL_SPAN[wideColSpan] : undefined,
             )}
           >
-            <FeaturedWideTextContainer>
+            <FeaturedWideTextContainer
+              className={hero ? HERO_TEXT_FIT_CLASS_NAME : undefined}
+            >
               <SquadPostCardHeader
                 post={post}
                 enableSourceHeader={enableSourceHeader}
@@ -108,9 +111,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
                 <p
                   className={classNames(
                     'mt-2 text-text-secondary typo-callout',
-                    hero
-                      ? HERO_DESCRIPTION_CLAMP_CLASS_NAME
-                      : DESCRIPTION_CLAMP_CLASS_NAME,
+                    hero ? HERO_DESCRIPTION_CLASS_NAME : DESCRIPTION_CLASS_NAME,
                   )}
                 >
                   {description}

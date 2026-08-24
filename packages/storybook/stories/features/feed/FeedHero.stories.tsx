@@ -20,6 +20,7 @@ import {
   heroAd,
   heroPosts,
   highlights,
+  longTitleHeroPost,
   mixedTypeHeroPosts,
   noImageHeroPost,
   readHeroPost,
@@ -182,6 +183,17 @@ export const HeroStates: Story = {
       >
         <FeedHeroSection
           posts={heroPosts.slice(0, 1)}
+          highlights={highlights}
+          ad={heroAd}
+          cardProps={cardHandlers}
+        />
+      </Case>
+      <Case
+        title="Headline long enough to fill the column"
+        note="The summary gives up lines so the action row keeps its place instead of being clipped off the bottom of the card."
+      >
+        <FeedHeroSection
+          posts={[longTitleHeroPost]}
           highlights={highlights}
           ad={heroAd}
           cardProps={cardHandlers}

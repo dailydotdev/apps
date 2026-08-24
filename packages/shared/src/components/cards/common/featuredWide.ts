@@ -15,8 +15,26 @@ export type FeaturedWideCardProps = PostCardProps & {
 
 export const TITLE_CLASS_NAME = 'line-clamp-4 typo-title1';
 export const HERO_TITLE_CLASS_NAME = 'line-clamp-5 typo-title2';
-export const DESCRIPTION_CLAMP_CLASS_NAME = 'line-clamp-3';
-export const HERO_DESCRIPTION_CLAMP_CLASS_NAME = 'line-clamp-6';
+export const DESCRIPTION_CLASS_NAME = 'line-clamp-3';
+
+/**
+ * The hero's card height is fixed, so a headline that runs to five lines would
+ * otherwise push the action row out through the bottom edge. `base.css` resets
+ * every element to `flex-shrink: 0`, so the text block and the summary opt back
+ * in: the summary is the only shrinkable child, which makes it the one that
+ * gives way while the headline above it keeps every line.
+ */
+/**
+ * The bottom padding matches the fade, so at full height the gradient covers
+ * only padding and the last line stays solid; once the block is squeezed the
+ * padding goes first and the line being cut fades out instead of showing a row
+ * of sliced glyphs. The padding belongs here rather than on the summary because
+ * `overflow: hidden` clips at the padding edge, which would let a seventh line
+ * leak out past the clamp.
+ */
+export const HERO_TEXT_FIT_CLASS_NAME =
+  'min-h-0 shrink overflow-hidden pb-5 [mask-image:linear-gradient(to_bottom,black_calc(100%-1.25rem),transparent)]';
+export const HERO_DESCRIPTION_CLASS_NAME = 'line-clamp-6 min-h-0 shrink';
 
 export const INNER_GRID_COLS: Record<FeaturedWideColSpan, string> = {
   2: 'grid-cols-2',

@@ -437,6 +437,15 @@ export const noImageHeroPost: Post = {
   image: undefined as never,
 };
 
+export const longTitleHeroPost: Post = {
+  ...heroPosts[0],
+  id: 'hero-long-title',
+  title:
+    'MTIA 300: Meta’s First Training Chip with Built-in NICs and Communication-Offloading Engines',
+  summary:
+    'Meta introduces MTIA 300, its first training-optimized chip built specifically for recommendation and ranking models, featuring built-in NIC chiplets and dedicated communication-offloading engines. Unlike GPUs, where collective operations contend with compute for memory bandwidth, MTIA 300 runs them on separate silicon so a training step never stalls waiting on the network.',
+};
+
 export const cardHandlers = {
   onPostClick: fn(),
   onPostAuxClick: fn(),
