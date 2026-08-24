@@ -125,8 +125,8 @@ export const LevelHud = ({
   ];
 
   return (
-    <div className="grid items-stretch gap-4 laptop:grid-cols-2">
-      <div className="flex flex-col justify-center gap-2 overflow-hidden rounded-20 border border-border-subtlest-tertiary bg-[#2A0B3D] p-4 tablet:px-5">
+    <div className="grid gap-px overflow-hidden rounded-20 border border-border-subtlest-tertiary bg-border-subtlest-tertiary laptop:grid-cols-2">
+      <div className="flex flex-col justify-center gap-2 bg-[#2A0B3D] p-4 tablet:px-5">
         {/* The number stands alone, so the chip carries the meaning for
             screen readers. */}
         <div
@@ -159,7 +159,7 @@ export const LevelHud = ({
           {(xpInLevel + xpToNextLevel).toLocaleString()}
         </Typography>
       </div>
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-20 border border-border-subtlest-tertiary bg-border-subtlest-tertiary">
+      <div className="grid grid-cols-2 gap-px bg-border-subtlest-tertiary">
         {stats.map((stat, index) => (
           <HudStatTile
             key={stat.label}
