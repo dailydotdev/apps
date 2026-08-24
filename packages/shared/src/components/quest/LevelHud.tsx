@@ -15,16 +15,24 @@ import {
   StarIcon,
 } from '../icons';
 
+type HudStat = {
+  icon: ReactElement;
+  label: string;
+  value: string;
+};
+
 const HudStatTile = ({
   icon,
   label,
   value,
-}: {
-  icon: ReactElement;
-  label: string;
-  value: string;
-}): ReactElement => (
-  <div className="flex flex-col gap-1 bg-background-default p-4">
+  className,
+}: HudStat & { className?: string }): ReactElement => (
+  <div
+    className={classNames(
+      'flex flex-col gap-1 bg-background-default p-4',
+      className,
+    )}
+  >
     <div className="flex items-center gap-1.5 text-text-tertiary">
       {icon}
       <Typography
@@ -66,9 +74,59 @@ export const LevelHud = ({
   const streakValue = isPending ? '...' : `${currentStreak.toLocaleString()}d`;
   const longestValue = isPending ? '...' : `${longestStreak.toLocaleString()}d`;
 
+  const stats: HudStat[] = [
+    {
+      icon: (
+        <HotIcon
+          secondary
+          size={IconSize.Size16}
+          className="text-accent-bun-default"
+        />
+      ),
+      label: 'Streak',
+      value: streakValue,
+    },
+    {
+      icon: (
+        <StarIcon
+          secondary
+          size={IconSize.Size16}
+          className="text-accent-cheese-default"
+        />
+      ),
+      label: 'Longest',
+      value: longestValue,
+    },
+    ...(achievements
+      ? [
+          {
+            icon: (
+              <MedalBadgeIcon
+                size={IconSize.Size16}
+                className="text-accent-cheese-default"
+              />
+            ),
+            label: 'Badges',
+            value: `${achievements.unlocked}/${achievements.total}`,
+          },
+        ]
+      : []),
+    {
+      icon: (
+        <ReputationLightningIcon
+          secondary
+          size={IconSize.Size16}
+          className="text-accent-onion-default"
+        />
+      ),
+      label: 'Total XP',
+      value: isPending ? '...' : totalXp.toLocaleString(),
+    },
+  ];
+
   return (
-    <div className="overflow-hidden rounded-20 border border-border-subtlest-tertiary">
-      <div className="flex flex-col gap-2 bg-[#2A0B3D] p-4 tablet:px-5">
+    <div className="grid items-stretch gap-4 laptop:grid-cols-2">
+      <div className="flex flex-col justify-center gap-2 overflow-hidden rounded-20 border border-border-subtlest-tertiary bg-[#2A0B3D] p-4 tablet:px-5">
         {/* The number stands alone, so the chip carries the meaning for
             screen readers. */}
         <div
@@ -101,57 +159,20 @@ export const LevelHud = ({
           {(xpInLevel + xpToNextLevel).toLocaleString()}
         </Typography>
       </div>
-      <div
-        className={classNames(
-          'grid grid-cols-2 gap-px bg-border-subtlest-tertiary',
-          achievements ? 'tablet:grid-cols-4' : 'tablet:grid-cols-3',
-        )}
-      >
-        <HudStatTile
-          icon={
-            <HotIcon
-              secondary
-              size={IconSize.Size16}
-              className="text-accent-bun-default"
-            />
-          }
-          label="Streak"
-          value={streakValue}
-        />
-        <HudStatTile
-          icon={
-            <StarIcon
-              secondary
-              size={IconSize.Size16}
-              className="text-accent-cheese-default"
-            />
-          }
-          label="Longest"
-          value={longestValue}
-        />
-        {achievements ? (
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-20 border border-border-subtlest-tertiary bg-border-subtlest-tertiary">
+        {stats.map((stat, index) => (
           <HudStatTile
-            icon={
-              <MedalBadgeIcon
-                size={IconSize.Size16}
-                className="text-accent-cheese-default"
-              />
-            }
-            label="Badges"
-            value={`${achievements.unlocked}/${achievements.total}`}
+            key={stat.label}
+            {...stat}
+            className={classNames(
+              // An odd stat count would leave a hole in the 2x2, and the
+              // divider background shows through it.
+              stats.length % 2 === 1 &&
+                index === stats.length - 1 &&
+                'col-span-2',
+            )}
           />
-        ) : null}
-        <HudStatTile
-          icon={
-            <ReputationLightningIcon
-              secondary
-              size={IconSize.Size16}
-              className="text-accent-onion-default"
-            />
-          }
-          label="Total XP"
-          value={isPending ? '...' : totalXp.toLocaleString()}
-        />
+        ))}
       </div>
     </div>
   );
