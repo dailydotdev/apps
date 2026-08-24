@@ -64,7 +64,6 @@ import {
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
 import { AchievementShelfCard } from '@dailydotdev/shared/src/features/profile/components/achievements/AchievementShelfCard';
-import { TopReaderBadgeCompact } from '@dailydotdev/shared/src/components/badges/TopReaderBadgeCompact';
 import { getQuestLevelProgress } from '@dailydotdev/shared/src/components/quest/QuestLevelProgressCircle';
 import { LevelHud } from '@dailydotdev/shared/src/components/quest/LevelHud';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
@@ -78,6 +77,10 @@ import {
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
+import {
+  BadgeRow,
+  BadgeTrophyCase,
+} from '../../components/game-center/BadgeTrophyCase';
 import { MilestoneOffers } from '../../components/game-center/MilestoneOffers';
 import { MilestoneQuestList } from '../../components/game-center/MilestoneQuestList';
 import { SeeAllAchievementsCard } from '../../components/game-center/SeeAllAchievementsCard';
@@ -452,17 +455,14 @@ function GameCenterPage({
     );
   } else if (topReaderBadges.length > 0) {
     badgeCaseContent = (
-      <div className="overflow-x-auto pb-2">
-        <div className="flex w-max gap-4">
-          {topReaderBadges.map((badge) => (
-            <div key={badge.id} className="shrink-0">
-              <TopReaderBadgeCompact
-                issuedAt={badge.issuedAt}
-                keyword={badge.keyword}
-              />
-            </div>
-          ))}
-        </div>
+      <div className="flex max-h-80 flex-col gap-2 overflow-y-auto">
+        {topReaderBadges.map((badge) => (
+          <BadgeRow
+            key={badge.id}
+            issuedAt={badge.issuedAt}
+            keyword={badge.keyword}
+          />
+        ))}
       </div>
     );
   } else {
@@ -793,15 +793,22 @@ function GameCenterPage({
           )}
 
           <section className="flex flex-col gap-4">
-            <SectionHeader title="Badge case" action={badgeTopics} />
+            <SectionHeader
+              title="Badges & Trophies"
+              action={
+                (badgeTopics || trophyTotal) && (
+                  <div className="flex items-center gap-5">
+                    {badgeTopics}
+                    {trophyTotal}
+                  </div>
+                )
+              }
+            />
 
-            {badgeCaseContent}
-          </section>
-
-          <section className="flex flex-col gap-4">
-            <SectionHeader title="Trophy case" action={trophyTotal} />
-
-            {trophyCaseContent}
+            <BadgeTrophyCase
+              badges={badgeCaseContent}
+              awards={trophyCaseContent}
+            />
           </section>
 
           <section className="flex flex-col gap-4">

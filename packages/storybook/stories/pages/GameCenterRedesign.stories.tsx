@@ -20,11 +20,18 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
-import { CoreIcon } from '@dailydotdev/shared/src/components/icons';
+import {
+  CoreIcon,
+  MedalBadgeIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { MilestoneQuestList } from '../../../webapp/components/game-center/MilestoneQuestList';
 import { CommunityPulse } from '../../../webapp/components/game-center/CommunityPulse';
 import { TrophyGrid } from '../../../webapp/components/game-center/TrophyGrid';
+import {
+  BadgeRow,
+  BadgeTrophyCase,
+} from '../../../webapp/components/game-center/BadgeTrophyCase';
 import type { AwardWithRarity } from '../../../webapp/lib/gameCenter';
 
 const SectionHeader = ({ title }: { title: string }) => (
@@ -393,39 +400,52 @@ const GameCenterRedesign = () => (
 
 
     <section className="flex flex-col gap-4">
-      <SectionHeader title="Badge case" />
-      <div className="overflow-x-auto pb-2">
-        <div className="flex w-max gap-4">
-          {badges.map((badge) => (
-            <div key={badge.keyword.value} className="shrink-0">
-              <TopReaderBadgeCompact
+      <div className="flex flex-col gap-2 laptop:flex-row laptop:items-center laptop:justify-between">
+        <SectionHeader title="Badges & Trophies" />
+        <div className="flex items-center gap-5">
+          <DataTile
+            label="Topics mastered"
+            value={badges.length}
+            info="Distinct subjects where you earned a top-reader badge."
+            icon={
+              <MedalBadgeIcon
+                size={IconSize.Small}
+                className="text-text-tertiary"
+              />
+            }
+            className={{
+              container: '!flex-row items-center gap-2 !border-0 !p-0',
+              label: '!typo-subhead',
+            }}
+          />
+          <DataTile
+            label="Total awards"
+            value={87}
+            info="Every award you have earned across all award types."
+            icon={
+              <CoreIcon size={IconSize.Small} className="text-text-tertiary" />
+            }
+            className={{
+              container: '!flex-row items-center gap-2 !border-0 !p-0',
+              label: '!typo-subhead',
+            }}
+          />
+        </div>
+      </div>
+      <BadgeTrophyCase
+        badges={
+          <div className="flex max-h-80 flex-col gap-2 overflow-y-auto">
+            {badges.map((badge) => (
+              <BadgeRow
+                key={badge.keyword.value}
                 issuedAt={badge.issuedAt}
                 keyword={badge.keyword}
               />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-
-
-    <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2 laptop:flex-row laptop:items-end laptop:justify-between">
-        <SectionHeader title="Trophy case" />
-        <DataTile
-          label="Total awards"
-          value={87}
-          info="Every award you have earned across all award types."
-          icon={
-            <CoreIcon size={IconSize.Small} className="text-text-tertiary" />
-          }
-          className={{
-            container: '!flex-row items-center gap-2 !border-0 !p-0',
-            label: '!typo-subhead',
-          }}
-        />
-      </div>
-      <TrophyGrid awards={awards} />
+            ))}
+          </div>
+        }
+        awards={<TrophyGrid awards={awards} />}
+      />
     </section>
 
     <section className="flex flex-col gap-4">

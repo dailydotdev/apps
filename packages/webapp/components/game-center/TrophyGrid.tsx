@@ -48,16 +48,14 @@ const Cell = ({ award }: { award: AwardWithRarity }): ReactElement => {
 
 export const TrophyGrid = ({ awards }: TrophyGridProps): ReactElement => {
   return (
-    <div className="rounded-16 border border-border-subtlest-tertiary p-4">
-      <div
-        className="grid grid-cols-5 gap-x-2 gap-y-3 tablet:grid-cols-8 laptop:grid-cols-12"
-        role="list"
-        aria-label="Award collection"
-      >
-        {awards.map((award) => (
-          <Cell key={award.id} award={award} />
-        ))}
-      </div>
+    <div
+      className="grid grid-cols-5 gap-x-2 gap-y-3 tablet:grid-cols-8 laptop:grid-cols-12"
+      role="list"
+      aria-label="Award collection"
+    >
+      {awards.map((award) => (
+        <Cell key={award.id} award={award} />
+      ))}
     </div>
   );
 };
