@@ -29,7 +29,7 @@ const HudStatTile = ({
 }: HudStat & { className?: string }): ReactElement => (
   <div
     className={classNames(
-      'flex flex-col gap-1 bg-background-default p-4',
+      'flex flex-col gap-1 rounded-14 bg-background-subtle p-4',
       className,
     )}
   >
@@ -125,8 +125,8 @@ export const LevelHud = ({
   ];
 
   return (
-    <div className="grid overflow-hidden rounded-20 border border-border-subtlest-tertiary tablet:grid-cols-2">
-      <div className="flex flex-col justify-center gap-2 bg-[#2A0B3D] p-4 tablet:px-5">
+    <div className="grid gap-2 rounded-20 border border-border-subtlest-tertiary p-2 tablet:grid-cols-2">
+      <div className="flex flex-col justify-center gap-2 rounded-14 bg-[#2A0B3D] p-4 tablet:px-5">
         {/* The number stands alone, so the chip carries the meaning for
             screen readers. */}
         <div
@@ -159,7 +159,7 @@ export const LevelHud = ({
           {(xpInLevel + xpToNextLevel).toLocaleString()}
         </Typography>
       </div>
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-2 gap-2">
         {stats.map((stat, index) => (
           <HudStatTile
             key={stat.label}
