@@ -35,8 +35,10 @@ export const AgentSharePostButton = ({
           '!bg-background-subtle',
           reveal &&
             'opacity-0 transition-opacity focus-visible:opacity-100 group-hover/item:opacity-100',
-          // A pointer that cannot hover would never find it.
-          reveal && '[@media(hover:none)]:opacity-100',
+          // opacity-0 stays tappable and hover never comes to reveal it, so a
+          // touch pointer would tap invisible buttons; touch shares from the
+          // pane's post view or the feed tab's card share instead.
+          reveal && '[@media(hover:none)]:hidden',
           className,
         )}
         aria-label={`Share: ${post.title}`}
