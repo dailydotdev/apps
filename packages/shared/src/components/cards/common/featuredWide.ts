@@ -4,6 +4,8 @@ export type FeaturedWideColSpan = 2 | 3 | 4;
 
 export type FeaturedWideCardProps = PostCardProps & {
   wideColSpan?: FeaturedWideColSpan;
+  /** Crop the cover to fill its column instead of letterboxing it. */
+  coverImage?: boolean;
 };
 
 export const INNER_GRID_COLS: Record<FeaturedWideColSpan, string> = {

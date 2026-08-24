@@ -40,6 +40,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
       domProps = {},
       eagerLoadImage = false,
       wideColSpan = 2,
+      coverImage,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -148,6 +149,7 @@ export const ShareFeaturedWideGridCard = forwardRef(
               image={image}
               alt={sharedTitle || post.title || ''}
               wideColSpan={wideColSpan}
+              coverImage={coverImage}
               overlay={overlay}
               isVideoType={isVideoType}
               eagerLoadImage={eagerLoadImage}

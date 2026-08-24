@@ -34,32 +34,30 @@ export const FeedHeroAd = ({
     <div
       data-testid="feedHeroAd"
       className={classNames(
-        'relative flex shrink-0 gap-3 overflow-hidden rounded-12 p-2 transition-colors hover:bg-surface-hover',
+        'relative flex shrink-0 flex-col gap-2 overflow-hidden rounded-12 p-2 transition-colors hover:bg-surface-hover',
         className,
       )}
     >
       <AdLink ad={ad} onLinkClick={onLinkClick} />
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <div className="flex min-w-0 items-center gap-2">
-          <AdFavicon ad={ad} className="!m-0 !h-6 shrink-0" />
-          <AdAttribution
-            ad={ad}
-            className={{ main: 'min-w-0 truncate', typo: 'typo-caption1' }}
-          />
-        </div>
-        <p className="line-clamp-2 break-words font-bold text-text-primary typo-callout">
-          {ad.description}
-        </p>
-        {matchingTags.length > 0 && (
-          <PostTags post={{ tags: matchingTags }} className="[&>*]:!my-0.5" />
-        )}
-      </div>
       {!!ad.image && (
         <AdImage
           ad={ad}
           ImageComponent={AdCover}
-          className="!my-0 w-20 shrink-0"
+          className="!my-0 h-24 w-full shrink-0"
         />
+      )}
+      <div className="flex min-w-0 items-center gap-2">
+        <AdFavicon ad={ad} className="!m-0 !h-6 shrink-0" />
+        <AdAttribution
+          ad={ad}
+          className={{ main: 'min-w-0 truncate', typo: 'typo-caption1' }}
+        />
+      </div>
+      <p className="line-clamp-2 break-words font-bold text-text-primary typo-callout">
+        {ad.description}
+      </p>
+      {matchingTags.length > 0 && (
+        <PostTags post={{ tags: matchingTags }} className="[&>*]:!my-0" />
       )}
       <AdPixel pixel={ad.pixel} />
       {!!onViewable && (

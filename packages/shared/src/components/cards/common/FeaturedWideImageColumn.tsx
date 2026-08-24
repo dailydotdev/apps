@@ -14,6 +14,12 @@ export type FeaturedWideImageColumnProps = {
   overlay?: ReactNode;
   isVideoType?: boolean;
   eagerLoadImage?: boolean;
+  /**
+   * Crop the image to fill its column, inset with its own corners, the way the
+   * feed cards treat a cover. Off keeps the letterboxed image over a blurred
+   * backdrop that the in-feed wide cards use.
+   */
+  coverImage?: boolean;
 };
 
 export const FeaturedWideImageColumn = ({
@@ -23,14 +29,16 @@ export const FeaturedWideImageColumn = ({
   overlay,
   isVideoType,
   eagerLoadImage,
+  coverImage,
 }: FeaturedWideImageColumnProps): ReactElement => (
   <div
     className={classNames(
-      'relative flex h-full min-w-0 items-center justify-center overflow-hidden rounded-r-16',
+      'relative flex h-full min-w-0 items-center justify-center overflow-hidden',
+      coverImage ? 'p-2' : 'rounded-r-16',
       IMAGE_COL_SPAN[wideColSpan],
     )}
   >
-    {!!image && (
+    {!!image && !coverImage && (
       <Image
         aria-hidden
         alt=""
@@ -60,7 +68,8 @@ export const FeaturedWideImageColumn = ({
         src={image}
         type={ImageType.Post}
         className={classNames(
-          'relative size-full object-contain',
+          'relative size-full',
+          coverImage ? 'rounded-12 object-cover' : 'object-contain',
           !!overlay && 'opacity-16',
         )}
         {...(eagerLoadImage ? HIGH_PRIORITY_IMAGE_PROPS : {})}

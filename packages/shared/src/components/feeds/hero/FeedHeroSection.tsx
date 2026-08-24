@@ -34,7 +34,7 @@ export const FeedHeroSection = ({
 }: FeedHeroSectionProps): ReactElement => (
   <section
     className={classNames(
-      'flex flex-col gap-4 laptop:grid laptop:h-[30rem] laptop:grid-cols-3',
+      'mx-auto flex w-full max-w-[80rem] flex-col gap-4 laptop:grid laptop:h-[30rem] laptop:grid-cols-3',
       className,
     )}
   >
@@ -43,7 +43,7 @@ export const FeedHeroSection = ({
       className="laptop:col-span-2"
       {...cardProps}
     />
-    <aside className="flex min-h-0 min-w-0 flex-col gap-3">
+    <aside className="flex min-h-0 min-w-0 flex-col gap-4">
       {!!ad && (
         <FeedHeroAd
           ad={ad}
@@ -57,6 +57,7 @@ export const FeedHeroSection = ({
           onHighlightClick={onHighlightClick}
           onReadAllClick={onReadAllClick}
           variant="grid"
+          compact
         />
       </div>
     </aside>

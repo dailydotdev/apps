@@ -34,6 +34,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
       domProps = {},
       eagerLoadImage = false,
       wideColSpan = 2,
+      coverImage,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -104,6 +105,7 @@ export const CollectionFeaturedWideGridCard = forwardRef(
               image={image}
               alt={post.title ?? ''}
               wideColSpan={wideColSpan}
+              coverImage={coverImage}
               overlay={overlay}
               eagerLoadImage={eagerLoadImage}
             />

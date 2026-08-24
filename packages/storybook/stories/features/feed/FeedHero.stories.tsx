@@ -28,7 +28,7 @@ import {
 const Page = ({ children }: { children: ReactNode }): ReactElement => (
   <FeedHeroProviders>
     <div className="min-h-screen bg-background-default p-4 laptop:p-8">
-      <div className="mx-auto flex max-w-[76rem] flex-col gap-8">
+      <div className="mx-auto flex max-w-[80rem] flex-col gap-8">
         {children}
       </div>
     </div>

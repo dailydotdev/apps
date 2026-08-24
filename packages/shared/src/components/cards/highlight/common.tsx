@@ -65,25 +65,38 @@ const HighlightRow = ({
   highlight,
   index,
   onHighlightClick,
+  compact,
 }: {
   highlight: PostHighlight;
   index: number;
   onHighlightClick?: (highlight: PostHighlight, position: number) => void;
+  compact?: boolean;
 }): ReactElement => {
   return (
     <Link href={getHighlightUrl(highlight)}>
       <a
-        className="flex w-full flex-col gap-0 rounded-8 border-b border-border-subtlest-tertiary px-3 py-2 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover"
+        className={classNames(
+          'flex w-full flex-col gap-0 rounded-8 border-b border-border-subtlest-tertiary px-3 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover',
+          compact ? 'py-1.5' : 'py-2',
+        )}
         href={getHighlightUrl(highlight)}
         onClick={() => onHighlightClick?.(highlight, index + 1)}
       >
-        <span className="break-words font-bold text-text-primary typo-callout">
+        <span
+          className={classNames(
+            'break-words font-bold text-text-primary',
+            compact ? 'typo-footnote' : 'typo-callout',
+          )}
+        >
           {highlight.headline}
         </span>
         <RelativeTime
           dateTime={highlight.highlightedAt}
           maxHoursAgo={72}
-          className="mt-0.5 text-text-tertiary typo-footnote"
+          className={classNames(
+            'mt-0.5 text-text-tertiary',
+            compact ? 'typo-caption1' : 'typo-footnote',
+          )}
         />
       </a>
     </Link>
@@ -95,16 +108,32 @@ export const HighlightCardContent = ({
   onHighlightClick,
   onReadAllClick,
   variant,
-}: HighlightCardProps & { variant: 'grid' | 'list' }): ReactElement => {
-  const headerClassName =
-    variant === 'list'
-      ? 'flex items-center pb-4'
-      : 'flex items-center px-4 py-4';
-  const contentClassName =
-    variant === 'list'
-      ? 'flex flex-col gap-2'
-      : 'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto px-2.5 pb-1 pt-0';
-  const footerClassName = variant === 'list' ? 'pt-1.5' : 'px-1 pb-1';
+  compact,
+}: HighlightCardProps & {
+  variant: 'grid' | 'list';
+  /** Flush against its container, for a surface without card chrome. */
+  compact?: boolean;
+}): ReactElement => {
+  const isFlushGrid = variant === 'grid' && compact;
+  const headerClassName = classNames(
+    'flex items-center',
+    variant === 'list' && 'pb-4',
+    variant === 'grid' && (isFlushGrid ? 'pb-2' : 'px-4 py-4'),
+  );
+  const contentClassName = classNames(
+    variant === 'list' && 'flex flex-col gap-2',
+    variant === 'grid' &&
+      'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto pt-0',
+    variant === 'grid' && (isFlushGrid ? '-mx-3' : 'px-2.5 pb-1'),
+    // The list scrolls, so let the last visible row fade out instead of being
+    // sliced flat by the pinned footer.
+    isFlushGrid &&
+      '[mask-image:linear-gradient(to_bottom,black_calc(100%-1.25rem),transparent)]',
+  );
+  const footerClassName = classNames(
+    variant === 'list' && 'pt-1.5',
+    variant === 'grid' && (isFlushGrid ? 'pt-2' : 'px-1 pb-1'),
+  );
   const firstHighlight = highlights[0];
 
   return (
@@ -113,7 +142,8 @@ export const HighlightCardContent = ({
         <h3
           className={classNames(
             highlightsTitleGradientClassName,
-            'font-bold typo-title3',
+            'font-bold',
+            compact ? 'typo-callout' : 'typo-title3',
           )}
         >
           Happening Now
@@ -127,6 +157,7 @@ export const HighlightCardContent = ({
             highlight={highlight}
             index={index}
             onHighlightClick={onHighlightClick}
+            compact={compact}
           />
         ))}
       </div>

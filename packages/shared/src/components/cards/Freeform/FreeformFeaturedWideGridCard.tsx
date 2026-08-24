@@ -34,6 +34,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
       eagerLoadImage = false,
       enableSourceHeader = false,
       wideColSpan = 2,
+      coverImage,
     }: FeaturedWideCardProps,
     ref: Ref<HTMLElement>,
   ): ReactElement {
@@ -106,6 +107,7 @@ export const FreeformFeaturedWideGridCard = forwardRef(
               image={image}
               alt={post.title ?? ''}
               wideColSpan={wideColSpan}
+              coverImage={coverImage}
               overlay={overlay}
               eagerLoadImage={eagerLoadImage}
             />
