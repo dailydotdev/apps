@@ -282,6 +282,10 @@ export const PostFocusCard = ({
   const videoWrapperRef = useRef<HTMLDivElement>(null);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
+  // An external article to open: drives the title link, the cover link and
+  // the read button. Native posts (freeform / welcome / collection) have
+  // nothing to open.
+  const canReadArticle = !!readHref && !isInternalReadType(post);
 
   useTrackPostView({ post });
 
@@ -327,7 +331,7 @@ export const PostFocusCard = ({
   // to the title regardless of the cover image height. The engagement bar lives
   // further down by the comment composer where the reader's cursor rests.
   const renderReadButton = (className: string): ReactElement | null =>
-    readHref && !isInternalReadType(post) ? (
+    canReadArticle ? (
       <Button
         tag="a"
         href={readHref}
@@ -336,11 +340,27 @@ export const PostFocusCard = ({
         icon={isReaderVariant ? <EarthIcon /> : getReadPostButtonIcon(post)}
         onClick={handleReadClick}
         variant={ButtonVariant.Primary}
-        size={ButtonSize.Small}
+        size={ButtonSize.Medium}
         className={className}
       >
         {getReadPostButtonText(post)}
       </Button>
+    ) : null;
+
+  const coverClassName =
+    'block h-fit w-24 shrink-0 overflow-hidden rounded-16 bg-background-subtle tablet:w-40';
+  const coverImage =
+    !isVideoType && article.image ? (
+      <LazyImage
+        eager
+        // Small square thumbnail below tablet; from tablet (656px) up it uses
+        // the original wide cover ratio (52% => 25/13).
+        className="aspect-square w-full tablet:aspect-[25/13]"
+        fallbackSrc={cloudinaryPostImageCoverPlaceholder}
+        fetchPriority="high"
+        imgAlt="Post cover image"
+        imgSrc={article.image}
+      />
     ) : null;
 
   return (
@@ -435,9 +455,8 @@ export const PostFocusCard = ({
             {!isShared && isCollection && (
               <p className="text-text-tertiary typo-footnote">Collection</p>
             )}
-            {/* Title and image are top-aligned columns. The cover image opens a
-                lightbox rather than navigating away. The read button lives in
-                the title column (right under the title) so it hugs the title
+            {/* Title and image are top-aligned columns. The read button lives
+                in the title column (right under the title) so it hugs the title
                 regardless of the image height — a short title next to a tall
                 image keeps the button close instead of dragging it down. */}
             <div className="flex min-w-0 flex-row items-start gap-4">
@@ -452,38 +471,65 @@ export const PostFocusCard = ({
                   )}
                   data-testid="post-modal-title"
                 >
-                  {title}
+                  {/* The biggest text target on the card, and the HN/Reddit
+                      convention — the title opens the source article. */}
+                  {canReadArticle ? (
+                    <a
+                      href={readHref}
+                      target="_blank"
+                      rel="noopener"
+                      onClick={handleReadClick}
+                      className="transition-colors hover:text-text-link"
+                    >
+                      {title}
+                    </a>
+                  ) : (
+                    title
+                  )}
                 </h1>
-                {renderReadButton('w-fit')}
+                {/* Full-width tap target on mobile, hugs its label from tablet. */}
+                {renderReadButton('w-full tablet:w-fit')}
               </div>
-              {!isVideoType && article.image && (
-                <button
-                  type="button"
-                  aria-label="View cover image"
-                  className="block h-fit w-24 shrink-0 cursor-zoom-in overflow-hidden rounded-16 bg-background-subtle tablet:w-40"
-                  onClick={(event) => {
-                    openModal({
-                      type: LazyModal.ImageView,
-                      props: {
-                        src: article.image as string,
-                        alt: 'Post cover image',
-                        originRect: getImageOriginRect(event.currentTarget),
-                      },
-                    });
-                  }}
-                >
-                  <LazyImage
-                    eager
-                    // Small square thumbnail below tablet; from tablet (656px)
-                    // up it uses the original wide cover ratio (52% => 25/13).
-                    className="aspect-square w-full tablet:aspect-[25/13]"
-                    fallbackSrc={cloudinaryPostImageCoverPlaceholder}
-                    fetchPriority="high"
-                    imgAlt="Post cover image"
-                    imgSrc={article.image}
-                  />
-                </button>
-              )}
+              {/* The cover is the biggest target on the card, so when there is
+                  a source article it opens it — same href, reader gate and read
+                  logging as the title and the read button. It duplicates the
+                  title link, so it stays out of the tab order and the
+                  accessibility tree rather than adding a third identical stop.
+                  Native posts have nothing to open, so there the cover keeps
+                  the zoom-in lightbox. */}
+              {coverImage &&
+                (canReadArticle ? (
+                  <a
+                    href={readHref}
+                    target="_blank"
+                    rel="noopener"
+                    onClick={handleReadClick}
+                    aria-hidden
+                    tabIndex={-1}
+                    data-testid="post-cover-link"
+                    className={classNames(coverClassName, 'cursor-pointer')}
+                  >
+                    {coverImage}
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    aria-label="View cover image"
+                    className={classNames(coverClassName, 'cursor-zoom-in')}
+                    onClick={(event) => {
+                      openModal({
+                        type: LazyModal.ImageView,
+                        props: {
+                          src: article.image as string,
+                          alt: 'Post cover image',
+                          originRect: getImageOriginRect(event.currentTarget),
+                        },
+                      });
+                    }}
+                  >
+                    {coverImage}
+                  </button>
+                ))}
             </div>
           </div>
 
