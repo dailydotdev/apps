@@ -1,26 +1,15 @@
 import { useEffect, useState } from 'react';
 
 /**
- * True once `delayMs` has elapsed since the trigger.
- *
- * One hook for both of the ad partner's timed placements. `'mount'` counts
- * from mount — the floating leaderboard loads ten seconds after the page so
- * it does not compete with the top leaderboard for the first impression, and
- * delaying the mount (not just visibility) keeps the ad request from firing
- * for a unit that is not going to be shown yet.
- *
- * `'scroll'` counts from the visitor's first scroll — the top leaderboard is
- * meant to stay pinned for the first ten seconds of *reading*. Counting from
- * mount instead means a visitor who studies the headline for ten seconds has
- * spent the whole window before their first scroll, so the unit never pins
- * for them and the placement looks broken. A page nobody scrolls never
- * elapses, which costs nothing: the unit sits at its natural position, where
- * pinned and unpinned look identical.
+ * True once `delayMs` has elapsed since the visitor's first scroll — the top
+ * leaderboard is meant to stay pinned for the first ten seconds of *reading*.
+ * Counting from mount instead means a visitor who studies the headline for
+ * ten seconds has spent the whole window before their first scroll, so the
+ * unit never pins for them and the placement looks broken. A page nobody
+ * scrolls never elapses, which costs nothing: the unit sits at its natural
+ * position, where pinned and unpinned look identical.
  */
-export function useTimedRelease(
-  delayMs: number,
-  startOn: 'mount' | 'scroll',
-): boolean {
+export function useTimedRelease(delayMs: number): boolean {
   const [released, setReleased] = useState(false);
 
   useEffect(() => {
@@ -34,15 +23,6 @@ export function useTimedRelease(
       timer = globalThis.setTimeout(() => setReleased(true), delayMs);
     };
 
-    if (startOn === 'mount') {
-      startCountdown();
-      return () => {
-        if (timer) {
-          globalThis.clearTimeout(timer);
-        }
-      };
-    }
-
     globalThis.addEventListener('scroll', startCountdown, {
       passive: true,
       once: true,
@@ -54,7 +34,7 @@ export function useTimedRelease(
         globalThis.clearTimeout(timer);
       }
     };
-  }, [delayMs, startOn]);
+  }, [delayMs]);
 
   return released;
 }

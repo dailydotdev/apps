@@ -58,7 +58,7 @@ describe('ArbitrageTopLeaderboard', () => {
 describe('useTimedRelease', () => {
   it('holds the sticky window open while the visitor has not scrolled yet', () => {
     const { result } = renderHook(() =>
-      useTimedRelease(TOP_LEADERBOARD_STICKY_MS, 'scroll'),
+      useTimedRelease(TOP_LEADERBOARD_STICKY_MS),
     );
     advancePastStickyWindow();
 
@@ -67,7 +67,7 @@ describe('useTimedRelease', () => {
 
   it('releases once the window elapses after the first scroll', () => {
     const { result } = renderHook(() =>
-      useTimedRelease(TOP_LEADERBOARD_STICKY_MS, 'scroll'),
+      useTimedRelease(TOP_LEADERBOARD_STICKY_MS),
     );
     scroll();
     expect(result.current).toBe(false);

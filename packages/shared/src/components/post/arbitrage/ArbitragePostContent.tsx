@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { isVideoPost } from '../../../graphql/posts';
@@ -11,11 +11,7 @@ import { PostHeaderActions } from '../PostHeaderActions';
 import { ButtonSize } from '../../buttons/common';
 import { PostTagList } from '../tags/PostTagList';
 import { PostContainer } from '../common';
-import {
-  COLUMN_LEFT_PROPERTY,
-  COLUMN_WIDTH_PROPERTY,
-  PostContentContainerRaw,
-} from './common';
+import { PostContentContainerRaw } from './common';
 import YoutubeVideo from '../../video/YoutubeVideo';
 import { LazyImage } from '../../LazyImage';
 import { cloudinaryPostImageCoverPlaceholder } from '../../../lib/image';
@@ -123,43 +119,7 @@ export function ArbitragePostContent({
     origin: Origin.ArticlePage,
     post,
   });
-  const leaderboardReleased = useTimedRelease(
-    TOP_LEADERBOARD_STICKY_MS,
-    'scroll',
-  );
-  const columnRef = useRef<HTMLElement>(null);
-
-  // The floating leaderboard is fixed to the viewport, so it cannot see that
-  // the article column is inset by the sidebar. Publishing the column's
-  // geometry is what lets it line up with the top leaderboard instead of
-  // spanning the page under the rail. A resize listener alongside the observer
-  // because past 72rem of space the column stops growing and only moves, which
-  // resizes nothing for the observer to report.
-  useEffect(() => {
-    const element = columnRef.current;
-    if (!element) {
-      return undefined;
-    }
-
-    const root = globalThis.document.documentElement;
-    const publish = (): void => {
-      const { left, width } = element.getBoundingClientRect();
-      root.style.setProperty(COLUMN_LEFT_PROPERTY, `${Math.round(left)}px`);
-      root.style.setProperty(COLUMN_WIDTH_PROPERTY, `${Math.round(width)}px`);
-    };
-
-    publish();
-    const observer = new ResizeObserver(publish);
-    observer.observe(element);
-    globalThis.addEventListener('resize', publish);
-
-    return () => {
-      observer.disconnect();
-      globalThis.removeEventListener('resize', publish);
-      root.style.removeProperty(COLUMN_LEFT_PROPERTY);
-      root.style.removeProperty(COLUMN_WIDTH_PROPERTY);
-    };
-  }, []);
+  const leaderboardReleased = useTimedRelease(TOP_LEADERBOARD_STICKY_MS);
 
   return (
     <PostContentContainerRaw className={className}>
@@ -168,7 +128,6 @@ export function ArbitragePostContent({
           overflow-x: clip alongside overflow-y: visible clips the column the
           same way without creating a scroll container. */}
       <PostContainer
-        ref={columnRef}
         className="relative !overflow-x-clip !overflow-y-visible"
         data-testid="postContainer"
       >

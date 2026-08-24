@@ -13,14 +13,11 @@ const FooterWrapper = dynamic(
 interface FooterNavBarLayoutProps {
   children?: ReactNode;
   post?: Post;
-  /** Lifts the bar above the /read template's floating ad. */
-  offsetByAnchorAd?: boolean;
 }
 
 export default function FooterNavBarLayout({
   children,
   post,
-  offsetByAnchorAd,
 }: FooterNavBarLayoutProps): ReactElement {
   const { windowLoaded } = useContext(ProgressiveEnhancementContext);
   const isMobile = useViewSize(ViewSize.MobileL);
@@ -31,11 +28,7 @@ export default function FooterNavBarLayout({
     <>
       {children}
       {showNav && <div className={post ? 'h-40' : 'h-16'} />}
-      <FooterWrapper
-        showNav={showNav}
-        post={post}
-        offsetByAnchorAd={offsetByAnchorAd}
-      />
+      <FooterWrapper showNav={showNav} post={post} />
     </>
   );
 }

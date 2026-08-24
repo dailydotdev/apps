@@ -21,7 +21,6 @@ export enum ProgrammaticAdFormat {
   Rectangle = 'rectangle',
   HalfPage = 'halfPage',
   Native = 'native',
-  Anchor = 'anchor',
 }
 
 type FormatSpec = {
@@ -90,16 +89,6 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
     label: 'Native',
     size: 'fluid',
     minHeight: 'min-h-[96px]',
-  },
-  // Leaderboard on desktop, mobile phone banner on a phone. The shortest
-  // banner in the portfolio, because it sits over the content rather than in
-  // it and shares the bottom of a phone screen with the footer nav.
-  [ProgrammaticAdFormat.Anchor]: {
-    label: 'Anchor',
-    size: '728x90 · 320x50 mobile',
-    minHeight: 'min-h-[50px] tablet:min-h-[90px]',
-    maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
-    shape: 'horizontal',
   },
 };
 

@@ -1,7 +1,6 @@
 import React from 'react';
 import { act, render as rtlRender, screen } from '@testing-library/react';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
-import { ArbitrageAnchor } from './ArbitrageAnchor';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import type { AuthContextData } from '../../../contexts/AuthContext';
 import AuthContext from '../../../contexts/AuthContext';
@@ -15,7 +14,7 @@ import {
   featureReadAdsense,
 } from '../../../lib/featureManagement';
 import { useFeature } from '../../GrowthBookProvider';
-import { FLOATING_LEADERBOARD_DELAY_MS, ORGANIC_SLOT } from './slots';
+import { ORGANIC_SLOT } from './slots';
 
 jest.mock('../../../hooks/useConditionalFeature', () => ({
   useConditionalFeature: jest.fn(),
@@ -302,12 +301,12 @@ describe('ArbitrageAdSlot', () => {
   it('collapses unconfigured and empty-id slots in live mode', () => {
     setSlots({
       '3': { id: '1234567890', type: 'inArticle' },
-      '13': { id: '', type: 'display' },
+      '12': { id: '', type: 'display' },
     });
     const { container } = render(
       <>
         <ArbitrageAdSlot slot={4} format={ArbitrageAdFormat.MediumRectangle} />
-        <ArbitrageAdSlot slot={13} format={ArbitrageAdFormat.Anchor} />
+        <ArbitrageAdSlot slot={12} format={ArbitrageAdFormat.MediumRectangle} />
       </>,
     );
 
@@ -398,75 +397,6 @@ describe('ArbitrageAdSlot on the organic surface', () => {
     );
 
     expect(container).toBeEmptyDOMElement();
-  });
-});
-
-describe('ArbitrageAnchor', () => {
-  // The floating leaderboard is deliberately delayed, so every assertion about
-  // it rendering has to run the timer forward first.
-  const advancePastDelay = (): void => {
-    act(() => {
-      jest.advanceTimersByTime(FLOATING_LEADERBOARD_DELAY_MS);
-    });
-  };
-
-  beforeEach(() => {
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  it('renders nothing while the slot map is empty', () => {
-    setSlots({});
-    const { container } = render(<ArbitrageAnchor />);
-    advancePastDelay();
-
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  it('renders the placeholder anchor in development', () => {
-    mockConstants.isDevelopment = true;
-    setSlots({});
-    render(<ArbitrageAnchor />);
-    advancePastDelay();
-
-    expect(screen.getByTestId('arbitrage-ad-slot-13')).toBeInTheDocument();
-  });
-
-  it('stays unmounted until the delay elapses', () => {
-    mockConstants.isDevelopment = true;
-    setSlots({});
-    const { container } = render(<ArbitrageAnchor />);
-
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  it('leaves the viewport bottom free when slot 13 is not configured', () => {
-    setSlots({ '2': { id: '2222222222', type: 'display' } });
-    const { container } = render(<ArbitrageAnchor />);
-    advancePastDelay();
-
-    expect(container).toBeEmptyDOMElement();
-  });
-
-  it('renders the floating leaderboard once slot 13 is configured', () => {
-    setSlots({ '13': { id: '1313131313', type: 'display' } });
-    render(<ArbitrageAnchor />);
-    advancePastDelay();
-
-    const ins = screen.getByTestId('adsense-slot-13');
-    expect(ins).toHaveAttribute('data-ad-slot', '1313131313');
-    expect(ins).toHaveAttribute('data-ad-format', 'horizontal');
-  });
-
-  it('never covers the creative with page furniture', () => {
-    setSlots({ '13': { id: '1313131313', type: 'display' } });
-    render(<ArbitrageAnchor />);
-    advancePastDelay();
-
-    expect(screen.queryByTitle('Close')).not.toBeInTheDocument();
   });
 });
 

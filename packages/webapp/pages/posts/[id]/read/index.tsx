@@ -23,7 +23,6 @@ import {
   useSettingsContext,
 } from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { ArbitragePostContent } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitragePostContent';
-import { ArbitrageAnchor } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAnchor';
 import {
   ADSENSE_SCRIPT_SRC,
   hasLiveAdsenseUnits,
@@ -162,7 +161,7 @@ const ArbitragePostPage = ({
           post is deliberately not passed: that would add the mobile floating
           comment bar, a third fixed element competing with the footer nav and
           the anchor for the bottom of a phone screen. */}
-      <FooterNavBarLayout offsetByAnchorAd>
+      <FooterNavBarLayout>
         <Head>
           {!!post.image && <link rel="preload" as="image" href={post.image} />}
         </Head>
@@ -182,14 +181,8 @@ const ArbitragePostPage = ({
           // 72rem, wider than the standard template's 69.25rem: the main column
           // has to clear 728px for a leaderboard to render at its full size, and
           // at 69.25rem it only had 704px. 1152 - 340 rail - 64 padding = 748px.
-          // The floating leaderboard is an overlay: it reserves nothing here,
-          // the way the top leaderboard takes no space beyond its own. This
-          // used to add 7rem plus the ad's height, which double-counted the
-          // mobile footer nav that FooterNavBarLayout already spaces for and
-          // left the page ending in dead space.
           className="min-h-page max-w-[72rem] pb-6"
         />
-        <ArbitrageAnchor />
       </FooterNavBarLayout>
     </ActivePostContextProvider>
   );

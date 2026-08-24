@@ -24,15 +24,23 @@ export const ARBITRAGE_SLOT = {
   railAfterSource: 11,
   /** Sticky rail unit after the further reading widget. */
   railBetweenFurtherReading: 12,
-  /** Floating leaderboard pinned to the bottom of the viewport. */
-  floatingLeaderboard: 13,
 } as const;
 
 /*
- * Slot numbers 1, 8, 9 and 10 are retired rather than reused: the sidebar
- * unit, the two closing multiplex grids and the half-page rail tower were all
- * dropped, and their AdSense reporting rows stay readable only while no other
- * placement inherits the number.
+ * Slot numbers 1, 8, 9, 10 and 13 are retired rather than reused: the sidebar
+ * unit, the two closing multiplex grids, the half-page rail tower and the
+ * custom floating leaderboard were all dropped, and their AdSense reporting
+ * rows stay readable only while no other placement inherits the number.
+ *
+ * The bottom leaderboard is Google's Anchor format now, not a slot in this
+ * map: a publisher-implemented sticky is capped at 300px wide and desktop
+ * only, while Google's own anchor serves a full-width leaderboard on every
+ * breakpoint and renders its own dismiss control — which must never be
+ * hidden, styled or covered.
+ * TODO(chris): enable "Anchor ads" under Auto ads in the AdSense account.
+ * The script only ever loads on /read and the post page, so anchors cannot
+ * appear anywhere else; add URL exclusions in AdSense if the post page
+ * should not carry one.
  */
 
 /**
@@ -40,9 +48,6 @@ export const ARBITRAGE_SLOT = {
  * releases and scrolls away with the page. Partner spec.
  */
 export const TOP_LEADERBOARD_STICKY_MS = 10_000;
-
-/** The floating leaderboard loads this long after page load. Partner spec. */
-export const FLOATING_LEADERBOARD_DELAY_MS = 10_000;
 
 /**
  * A long thread gets a native unit after every this many comments. Short
@@ -86,10 +91,6 @@ export const READ_ADSENSE_SLOTS: AdsenseSlots = {
     id: '6921226982',
     type: 'display',
   },
-  // TODO(chris): this is read_s02_leaderboard doing double duty — reporting
-  // blends both placements into one row. Create a dedicated read_s13 unit and
-  // swap the id to get per-placement RPM back.
-  [ARBITRAGE_SLOT.floatingLeaderboard]: { id: '9942870945', type: 'display' },
 };
 
 /**
