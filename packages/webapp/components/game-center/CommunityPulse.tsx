@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
 import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/Leaderboard';
 import {
@@ -13,103 +12,83 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import {
+  MedalBadgeIcon,
+  ReputationLightningIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
 
-const railLength = 10;
+const raceLength = 5;
 
-// Gold, silver, bronze for the first three; everyone else rides plain.
-const podiumRing = [
-  'ring-accent-cheese-default',
-  'ring-accent-salt-subtle',
-  'ring-accent-bun-default',
-];
-
-const podiumBadge = [
-  'bg-accent-cheese-default',
-  'bg-accent-salt-subtle',
-  'bg-accent-bun-default',
-];
-
-type CounterProps = {
-  value: string;
-  label: string;
-  caption?: string;
-};
-
-const Counter = ({ value, label, caption }: CounterProps): ReactElement => (
-  <div className="flex min-w-0 flex-col">
-    <Typography type={TypographyType.Title2} bold className="tabular-nums">
-      {value}
-    </Typography>
-    <Typography
-      type={TypographyType.Subhead}
-      color={TypographyColor.Tertiary}
-      className="truncate"
-    >
-      {label}
-    </Typography>
-    {caption && (
-      <Typography
-        type={TypographyType.Subhead}
-        color={TypographyColor.Quaternary}
-        className="truncate"
-      >
-        {caption}
-      </Typography>
-    )}
-  </div>
-);
-
-type RailProps = {
-  label: string;
-  items: UserLeaderboard[];
+type RaceProps = {
+  title: string;
+  icon: ReactElement;
+  entries: UserLeaderboard[];
   unit: string;
 };
 
-const Rail = ({ label, items, unit }: RailProps): ReactElement => (
-  <div className="flex items-center gap-3">
-    <Typography
-      type={TypographyType.Subhead}
-      color={TypographyColor.Tertiary}
-      bold
-      className="w-28 shrink-0"
-    >
-      {label}
-    </Typography>
-    <div className="-my-1 flex min-w-0 flex-1 items-center gap-2 overflow-x-auto py-1">
-      {items.slice(0, railLength).map((entry, index) => (
-        <Tooltip
-          key={entry.user.id}
-          content={`#${index + 1} · ${entry.user.name} · ${formatDataTileValue(
-            entry.score,
-          )} ${unit}`}
-        >
-          <span className="relative shrink-0">
-            <ProfilePicture
-              user={entry.user}
-              size={ProfileImageSize.Large}
-              className={classNames(
-                'rounded-max',
-                index < 3 && `ring-2 ${podiumRing[index]}`,
-              )}
-              nativeLazyLoading
-            />
-            {index < 3 && (
-              <span
-                className={classNames(
-                  'absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-max px-1 font-black text-black typo-subhead',
-                  podiumBadge[index],
-                )}
-              >
-                {index + 1}
-              </span>
-            )}
-          </span>
-        </Tooltip>
-      ))}
+const Race = ({ title, icon, entries, unit }: RaceProps): ReactElement => {
+  const ranked = entries.slice(0, raceLength);
+  // The bars are relative to the leader, so the field reads as a race rather
+  // than as a set of unrelated numbers.
+  const top = ranked[0]?.score ?? 0;
+
+  return (
+    <div className="flex flex-col gap-3 rounded-14 bg-background-subtle p-4">
+      <div className="flex items-center gap-1.5">
+        {icon}
+        <Typography type={TypographyType.Subhead} bold>
+          {title}
+        </Typography>
+      </div>
+      <div className="flex flex-col gap-2">
+        {ranked.map((entry, index) => (
+          <div key={entry.user.id} className="flex items-center gap-2">
+            <Typography
+              type={TypographyType.Subhead}
+              color={TypographyColor.Tertiary}
+              className="w-4 shrink-0 tabular-nums"
+            >
+              {index + 1}
+            </Typography>
+            <Tooltip content={`${entry.user.name} · ${entry.score} ${unit}`}>
+              <a href={`/${entry.user.username}`} className="shrink-0">
+                <ProfilePicture
+                  user={entry.user}
+                  size={ProfileImageSize.Small}
+                  nativeLazyLoading
+                />
+              </a>
+            </Tooltip>
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <div className="flex items-baseline justify-between gap-2">
+                <Typography type={TypographyType.Subhead} className="truncate">
+                  {entry.user.name}
+                </Typography>
+                <Typography
+                  type={TypographyType.Subhead}
+                  bold
+                  className="shrink-0 tabular-nums"
+                >
+                  {formatDataTileValue(entry.score)}
+                </Typography>
+              </div>
+              <div className="h-1.5 rounded-max bg-background-default">
+                <div
+                  className="h-full rounded-max bg-accent-cabbage-default"
+                  style={{
+                    width: top ? `${(entry.score / top) * 100}%` : '0%',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 type CommunityPulseProps = {
   stats: QuestCompletionStats | null;
@@ -122,50 +101,44 @@ export const CommunityPulse = ({
   highestReputation,
   mostQuestsCompleted,
 }: CommunityPulseProps): ReactElement => (
-  <div className="flex flex-col gap-4 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-4">
+  <div className="flex flex-col gap-2 rounded-20 border border-border-subtlest-tertiary p-2">
     {stats && (
-      <div className="grid gap-4 tablet:grid-cols-3">
-        <Counter
-          value={formatDataTileValue(stats.totalCount)}
-          label="quests completed all-time"
-        />
-        {/* The count leads and the quest name captions it — the other way
-            round the name is what gets truncated, and it is the useful half. */}
-        {stats.allTimeLeader && (
-          <Counter
-            value={stats.allTimeLeader.count.toLocaleString()}
-            label="most completed, all time"
-            caption={stats.allTimeLeader.questName}
-          />
-        )}
-        {stats.weeklyLeader && (
-          <Counter
-            value={stats.weeklyLeader.count.toLocaleString()}
-            label="most completed this week"
-            caption={stats.weeklyLeader.questName}
-          />
-        )}
+      <div className="px-2 pt-2">
+        <Typography type={TypographyType.Title2} bold className="tabular-nums">
+          {formatDataTileValue(stats.totalCount)}
+        </Typography>
+        <Typography
+          type={TypographyType.Subhead}
+          color={TypographyColor.Tertiary}
+        >
+          quests completed all-time
+        </Typography>
       </div>
     )}
-
-    {(highestReputation.length > 0 || mostQuestsCompleted.length > 0) && (
-      <div
-        className={classNames(
-          'flex flex-col gap-3',
-          stats && 'border-t border-border-subtlest-tertiary pt-4',
-        )}
-      >
-        {highestReputation.length > 0 && (
-          <Rail
-            label="Top reputation"
-            items={highestReputation}
-            unit="reputation"
+    <div className="grid gap-2 tablet:grid-cols-2">
+      <Race
+        title="Top reputation"
+        icon={
+          <ReputationLightningIcon
+            secondary
+            size={IconSize.Size16}
+            className="text-accent-cabbage-default"
           />
-        )}
-        {mostQuestsCompleted.length > 0 && (
-          <Rail label="Most quests" items={mostQuestsCompleted} unit="quests" />
-        )}
-      </div>
-    )}
+        }
+        entries={highestReputation}
+        unit="reputation"
+      />
+      <Race
+        title="Most quests"
+        icon={
+          <MedalBadgeIcon
+            size={IconSize.Size16}
+            className="text-accent-cabbage-default"
+          />
+        }
+        entries={mostQuestsCompleted}
+        unit="quests"
+      />
+    </div>
   </div>
 );
