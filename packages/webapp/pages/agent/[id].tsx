@@ -95,6 +95,7 @@ const LiveAgentPage = ({
             onDelete={() => deleteInterest(id).catch(() => undefined)}
             isDeleting={isDeleting}
             runId={runId}
+            isFeedReady={!feed.isPending}
           />
         )}
       </AgentProvider>

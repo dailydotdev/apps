@@ -203,6 +203,17 @@ const buildShowMoreToggle = (
     if (!hides) {
       banner.classList.remove('dd-cs-collapsed');
     }
+
+    // iubenda swallows Accept/Reject while .iubenda-banner-content is
+    // scrollable and not scrolled to bottom (the "press again" counter).
+    // Iubenda.tsx pokes its scroll listener once at onBannerShown, but every
+    // re-measure here (resize, fonts landing) can re-clamp the content after
+    // that poke — so re-poke whenever the clamp state may have changed, or
+    // the first press after a rotation/font-swap silently counts instead of
+    // consenting.
+    banner
+      .querySelector('.iubenda-banner-content')
+      ?.dispatchEvent(new Event('scroll'));
   };
 
   measure();

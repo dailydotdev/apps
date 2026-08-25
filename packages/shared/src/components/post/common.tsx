@@ -89,6 +89,12 @@ export interface PostContentProps
   position?: CSSProperties['position'];
   backToSquad?: boolean;
   isPostPage?: boolean;
+  /**
+   * Rendered as the widget column's last child. Only the webapp post page
+   * passes it (an AdSense unit) — post modals and the extension must never,
+   * as the ad script only exists on the page and AdSense bans extensions.
+   */
+  widgetsTrailing?: ReactNode;
 }
 
 export const PostContainer = classed(

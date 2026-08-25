@@ -45,9 +45,11 @@ type Agent = ReturnType<typeof useAgent>;
 const renderWorkspace = ({
   initialMessages = [],
   runId,
+  isFeedReady,
 }: {
   initialMessages?: AgentMessage[];
   runId?: string;
+  isFeedReady?: boolean;
 } = {}) => {
   const agent: { current: Agent } = { current: undefined as never };
 
@@ -65,6 +67,7 @@ const renderWorkspace = ({
           onDelete={jest.fn()}
           isDeleting={false}
           runId={runId}
+          isFeedReady={isFeedReady}
         />
         <Probe />
       </AgentProvider>
@@ -363,6 +366,21 @@ describe('AgentWorkspace run deep-link', () => {
     expect(document.getElementById('agent-turn-run-1')).toHaveClass(
       'border-transparent',
     );
+    jest.useRealTimers();
+  });
+
+  it('waits for the findings before scrolling', () => {
+    jest.useFakeTimers();
+    stubStore(600);
+    renderWorkspace({
+      initialMessages: [runReply],
+      runId: 'run-1',
+      isFeedReady: false,
+    });
+
+    act(() => jest.runOnlyPendingTimers());
+
+    expect(scrollIntoView).not.toHaveBeenCalled();
     jest.useRealTimers();
   });
 
