@@ -62,17 +62,6 @@ contains a collection of smaller projects or libraries that are used across the 
 
   The web app project. This is a Next.js project and has more pages than the extension, such as a registration page, post page, profile page, etc. For more information [click here](https://github.com/dailydotdev/apps/tree/master/packages/webapp).
 
-## Local Environment
-
-To spin up a local environment, you will need Docker. Do the steps below and you should be able to start trying to center a div:
-
-- Fork this repo
-- Pull it locally
-- Run `docker compose up`
-- Once done, seed your local data by running `docker compose exec daily-api node ./bin/import`
-- Then lastly, run npm run dev:oss
-- The app should run at `http://localhost:5002/`
-
 ## Want to Help?
 
 So you want to contribute to daily.dev app suite and make an impact, we are glad to hear it. :heart_eyes:

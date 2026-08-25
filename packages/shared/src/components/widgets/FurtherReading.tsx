@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useContext } from 'react';
 import classNames from 'classnames';
 import { useQuery } from '@tanstack/react-query';
@@ -21,13 +21,25 @@ import { gqlClient } from '../../graphql/common';
 export type FurtherReadingProps = {
   currentPost: Post;
   className?: string;
+  /** Ad templates drop the ToC so the rail's vertical space goes to ad slots. */
+  hideToc?: boolean;
+  /** Rendered between the similar posts and the discussions section. */
+  betweenSections?: ReactNode;
 };
 
 export default function FurtherReading({
   currentPost,
   className,
+  hideToc = false,
+  betweenSections,
 }: FurtherReadingProps): ReactElement {
-  const isPublicSquad = isSourcePublicSquad(currentPost.source);
+  // Narrowed once here rather than optional-chained below: a post without a
+  // source must take the generic branch, never render "More posts from
+  // undefined" or query with the source filter silently dropped.
+  const publicSquad =
+    currentPost.source && isSourcePublicSquad(currentPost.source)
+      ? currentPost.source
+      : undefined;
   const postId = currentPost.id;
   const { tags } = currentPost;
   const queryKey = ['furtherReading', postId];
@@ -36,15 +48,13 @@ export default function FurtherReading({
   const { data: posts, isLoading } = useQuery<FurtherReadingData>({
     queryKey,
     queryFn: async () => {
-      const squad = currentPost.source;
-
-      if (isPublicSquad) {
+      if (publicSquad) {
         const squadPostsResult = await gqlClient.request<FeedData>(
           SOURCE_FEED_QUERY,
           {
             first: max,
             loggedIn: isLoggedIn,
-            source: squad.id,
+            source: publicSquad.id,
             ranking: 'TIME',
             supportedTypes: [
               PostType.Article,
@@ -94,29 +104,45 @@ export default function FurtherReading({
       ]
     : [];
 
-  const showToc = currentPost.toc?.length > 0;
+  const showToc = !hideToc && (currentPost.toc?.length ?? 0) > 0;
 
-  const publicSquadProps: Partial<SimilarPostsProps> = {
-    title: `More posts from ${currentPost.source.name}`,
-    moreButtonProps: {
-      href: currentPost.source.permalink,
-      text: 'Show more',
-    },
-    ListItem: SquadPostListItem,
-  };
+  const publicSquadProps: Partial<SimilarPostsProps> | undefined = publicSquad
+    ? {
+        title: `More posts from ${publicSquad.name}`,
+        moreButtonProps: {
+          href: publicSquad.permalink,
+          text: 'Show more',
+        },
+        ListItem: SquadPostListItem,
+      }
+    : undefined;
 
   return (
-    <div className={classNames(className, 'flex flex-col gap-2')}>
+    // `contents` when hosting a slot: a sticky unit is bounded by its
+    // containing block, and this widget's own box would end its travel at the
+    // discussions section. Flattened, the sections and the slot sit directly
+    // in the rail, which stretches the whole page. Consumers without a slot
+    // keep the original box and spacing.
+    <div
+      className={classNames(
+        className,
+        betweenSections ? 'contents' : 'flex flex-col gap-2',
+      )}
+    >
       {showToc && <PostToc post={currentPost} className="hidden laptop:flex" />}
       {(isLoading || similarPosts?.length > 0) && (
         <SimilarPosts
           posts={similarPosts}
           isLoading={isLoading}
-          {...(isPublicSquad && publicSquadProps)}
+          {...publicSquadProps}
         />
       )}
-      {(isLoading || posts?.discussedPosts?.length > 0) && (
-        <BestDiscussions posts={posts?.discussedPosts} isLoading={isLoading} />
+      {betweenSections}
+      {(isLoading || (posts?.discussedPosts?.length ?? 0) > 0) && (
+        <BestDiscussions
+          posts={posts?.discussedPosts ?? null}
+          isLoading={isLoading}
+        />
       )}
     </div>
   );

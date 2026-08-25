@@ -1,7 +1,11 @@
 import React from 'react';
 import type { ReactElement } from 'react';
 import classNames from 'classnames';
-import { fileValidation, useUploadCv } from '../../profile/hooks/useUploadCv';
+import {
+  fileValidation,
+  uploadCvOpportunitySuccessContent,
+  useUploadCv,
+} from '../../profile/hooks/useUploadCv';
 import { FlexCol } from '../../../components/utilities';
 import {
   Typography,
@@ -17,7 +21,9 @@ import { FeelingLazy } from '../../profile/components/FeelingLazy';
 
 export const OpportunityCVUpload = (): ReactElement => {
   const { sidebarRendered } = useSidebarRendered();
-  const { onUpload } = useUploadCv();
+  const { onUpload } = useUploadCv({
+    modalContent: uploadCvOpportunitySuccessContent,
+  });
 
   const handleFileSelect = (files: File[]) => {
     if (files.length > 0) {

@@ -42,6 +42,7 @@ import { TargetId } from '../../lib/log';
 import { ActionType } from '../../graphql/actions';
 import { useNotificationContext } from '../../contexts/NotificationsContext';
 import { getUnreadText } from '../notifications/utils';
+import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 export const SidebarTablet = ({
   activePage,
@@ -81,6 +82,7 @@ export const SidebarTablet = ({
   const logOpportunityNudgeClick = useLogOpportunityNudgeClick(
     TargetId.Sidebar,
   );
+  const { isJobsEnabled } = useJobsFeature();
 
   return (
     <SidebarAside
@@ -180,57 +182,59 @@ export const SidebarTablet = ({
         </Button>
       </Link>
 
-      <ConditionalWrapper
-        condition={hasOpportunityAlert && hasNotClickedOpportunity}
-        wrapper={(component) => (
-          <SimpleTooltip
-            interactive
-            placement="right-start"
-            forceLoad={!isTesting}
-            visible
-            showArrow={false}
-            container={{
-              bgClassName: 'bg-background-popover',
-              className:
-                'border border-accent-onion-default !rounded-12 w-full',
-            }}
-            content={<NewOpportunityPopover />}
-          >
-            {component as ReactElement}
-          </SimpleTooltip>
-        )}
-      >
-        <div className="relative">
-          <Link
-            href={
-              hasOpportunityAlert
-                ? `${webappUrl}jobs/${alerts.opportunityId}`
-                : `${webappUrl}jobs`
-            }
-            prefetch={false}
-            passHref
-          >
-            <Button
-              {...buttonProps}
-              tag="a"
-              icon={
-                <JobIcon secondary={activeNav.jobs} size={IconSize.Medium} />
-              }
-              iconPosition={ButtonIconPosition.Top}
-              variant={ButtonVariant.Option}
-              pressed={activeNav.jobs}
-              onClick={logOpportunityNudgeClick}
+      {isJobsEnabled && (
+        <ConditionalWrapper
+          condition={hasOpportunityAlert && hasNotClickedOpportunity}
+          wrapper={(component) => (
+            <SimpleTooltip
+              interactive
+              placement="right-start"
+              forceLoad={!isTesting}
+              visible
+              showArrow={false}
+              container={{
+                bgClassName: 'bg-background-popover',
+                className:
+                  'border border-accent-onion-default !rounded-12 w-full',
+              }}
+              content={<NewOpportunityPopover />}
             >
-              Jobs
-              {hasOpportunityAlert && (
-                <Bubble className="-right-0.5 -top-1.5 cursor-pointer !rounded-full !bg-accent-bacon-default px-1">
-                  1
-                </Bubble>
-              )}
-            </Button>
-          </Link>
-        </div>
-      </ConditionalWrapper>
+              {component as ReactElement}
+            </SimpleTooltip>
+          )}
+        >
+          <div className="relative">
+            <Link
+              href={
+                hasOpportunityAlert
+                  ? `${webappUrl}jobs/${alerts.opportunityId}`
+                  : `${webappUrl}jobs`
+              }
+              prefetch={false}
+              passHref
+            >
+              <Button
+                {...buttonProps}
+                tag="a"
+                icon={
+                  <JobIcon secondary={activeNav.jobs} size={IconSize.Medium} />
+                }
+                iconPosition={ButtonIconPosition.Top}
+                variant={ButtonVariant.Option}
+                pressed={activeNav.jobs}
+                onClick={logOpportunityNudgeClick}
+              >
+                Jobs
+                {hasOpportunityAlert && (
+                  <Bubble className="-right-0.5 -top-1.5 cursor-pointer !rounded-full !bg-accent-bacon-default px-1">
+                    1
+                  </Bubble>
+                )}
+              </Button>
+            </Link>
+          </div>
+        </ConditionalWrapper>
+      )}
 
       {isLoggedIn && user && (
         <Link href={user.permalink} prefetch={false} passHref>
