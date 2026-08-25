@@ -1,6 +1,10 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import { Typography, TypographyType } from '../typography/Typography';
+import {
+  Typography,
+  TypographyTag,
+  TypographyType,
+} from '../typography/Typography';
 import { ProgressBar } from '../fields/ProgressBar';
 import { gameCenterLevelBackground } from '../../lib/image';
 
@@ -111,21 +115,14 @@ export const LevelHud = ({
             {level}
           </Typography>
         </div>
-        <div className="flex min-w-0 flex-col">
-          <Typography
-            type={TypographyType.Callout}
-            bold
-            className="truncate text-white"
-          >
-            {name}
-          </Typography>
-          <Typography
-            type={TypographyType.Subhead}
-            className="text-white opacity-64"
-          >
-            Level {level}
-          </Typography>
-        </div>
+        <Typography
+          tag={TypographyTag.H1}
+          type={TypographyType.Title1}
+          bold
+          className="min-w-0 truncate text-white"
+        >
+          {name}, here&apos;s how you&apos;re doing.
+        </Typography>
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -146,12 +143,6 @@ export const LevelHud = ({
           >
             {xpInLevel.toLocaleString()} /{' '}
             {(xpInLevel + xpToNextLevel).toLocaleString()}
-          </Typography>
-          <Typography
-            type={TypographyType.Subhead}
-            className="truncate text-white opacity-64"
-          >
-            {xpToNextLevel.toLocaleString()} XP to level {level + 1}
           </Typography>
         </div>
       </div>
