@@ -47,7 +47,7 @@ const sponsor = (name: string, file: string, ratio: number): Sponsor => ({
 // The lead and partner fixtures are imported, not redeclared: the feed
 // wiring renders these exact objects, so what is reviewed here is what
 // ships to the preview. Provenance and the two-tone rationale live in
-// mockSponsors.ts and NvidiaLockup.tsx.
+// mockSponsors.ts and CodeRabbitLockup.tsx.
 const PRIMARY = MOCK_LEAD_SPONSOR;
 const PARTNERS = MOCK_PARTNER_SPONSORS;
 
@@ -76,7 +76,13 @@ const ASSET_PROBLEMS: (Sponsor & { reason: string })[] = [
 const PRIMARY_CANDIDATES: (Sponsor & { verdict: string })[] = [
   {
     ...PRIMARY,
-    verdict: 'two-tone: green symbol, wordmark on currentColor',
+    verdict: 'two-tone: orange mark, wordmark on currentColor',
+  },
+  {
+    name: 'NVIDIA',
+    ratio: 164 / 30,
+    Artwork: NvidiaLockup,
+    verdict: 'two-tone as well — now a regular mark in the wall',
   },
   {
     ...sponsor('Google', 'google', 75 / 24),
