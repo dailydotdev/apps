@@ -113,7 +113,6 @@ export enum LogEvent {
   RequestAdsenseSlot = 'request adsense slot',
   FillAdsenseSlot = 'fill adsense slot',
   EmptyAdsenseSlot = 'empty adsense slot',
-  ViewAdsenseSlot = 'view adsense slot',
   AdsenseSlotError = 'adsense slot error',
   AdsenseTestMode = 'adsense test mode',
   OpenSmartComposer = 'open smart composer',
