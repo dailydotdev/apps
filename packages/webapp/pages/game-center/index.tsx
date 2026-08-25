@@ -383,7 +383,7 @@ function GameCenterPage({
     );
   } else if (featuredAchievements.length > 0) {
     achievementShelfContent = (
-      <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3 laptop:grid-cols-5">
         {featuredAchievements.map((achievement) => (
           <AchievementShelfCard
             key={achievement.achievement.id}

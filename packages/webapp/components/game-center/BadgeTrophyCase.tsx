@@ -15,6 +15,8 @@ import {
   formatDate,
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
+import { IconSize } from '@dailydotdev/shared/src/components/Icon';
+import { MedalBadgeIcon } from '@dailydotdev/shared/src/components/icons';
 
 export const BadgeRow = ({
   issuedAt,
@@ -59,8 +61,9 @@ export const BadgeRow = ({
         <Typography
           type={TypographyType.Subhead}
           bold
-          className="whitespace-nowrap text-black"
+          className="flex items-center gap-1 whitespace-nowrap text-black"
         >
+          <MedalBadgeIcon size={IconSize.Size16} />
           Top reader
         </Typography>
       </span>

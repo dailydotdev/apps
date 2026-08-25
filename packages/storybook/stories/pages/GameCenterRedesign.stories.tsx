@@ -407,7 +407,7 @@ const GameCenterRedesign = () => (
 
     <section className="flex flex-col gap-4">
       <SectionHeader title="Achievement shelf" />
-      <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3 laptop:grid-cols-5">
         {achievements.map((item) => (
           <AchievementShelfCard
             key={item.achievement.id}
