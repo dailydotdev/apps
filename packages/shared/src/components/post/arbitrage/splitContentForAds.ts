@@ -34,7 +34,11 @@ const visibleLength = (text: string): number =>
  * A short tail is merged into the chunk before it, so the article never ends
  * on an ad followed by a stray line.
  */
-export function splitContentForAds(html: string, minChars: number): string[] {
+export function splitContentForAds(
+  html: string,
+  minChars: number,
+  maxParts = Infinity,
+): string[] {
   const chunks: string[] = [];
   let depth = 0;
   let chunkStart = 0;
@@ -74,6 +78,13 @@ export function splitContentForAds(html: string, minChars: number): string[] {
     chunks.push(tail);
   }
 
+  // Density cap: everything past the last allowed boundary folds into the
+  // final chunk rather than earning more ads.
+  while (chunks.length > maxParts) {
+    const overflow = chunks.pop() as string;
+    chunks[chunks.length - 1] += overflow;
+  }
+
   // The last chunk earns its preceding ad only when it carries real content.
   if (chunks.length > 1) {
     const last = chunks[chunks.length - 1];
@@ -93,9 +104,16 @@ export function splitContentForAds(html: string, minChars: number): string[] {
  * middle sentence, not wherever the threshold first ran out. Falls back to
  * word boundaries for text without sentence punctuation.
  */
-export function splitTextForAds(text: string, targetChars: number): string[] {
+export function splitTextForAds(
+  text: string,
+  targetChars: number,
+  maxParts = Infinity,
+): string[] {
   const total = text.length;
-  const count = Math.max(1, Math.round(total / targetChars));
+  const count = Math.min(
+    Math.max(1, Math.round(total / targetChars)),
+    maxParts,
+  );
 
   if (count === 1) {
     return [text];

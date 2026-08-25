@@ -23,9 +23,9 @@ import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
 import { splitContentForAds, splitTextForAds } from './splitContentForAds';
 import {
   ARBITRAGE_SLOT,
-  BODY_CHARS_PER_AD,
   COMMENTS_PER_INTERLEAVED_AD,
-  SUMMARY_CHARS_PER_AD,
+  CONTENT_CHARS_PER_AD,
+  MAX_CONTENT_ADS_PER_SECTION,
   TOP_LEADERBOARD_STICKY_MS,
 } from './slots';
 import { useTimedRelease } from './useTimedRelease';
@@ -102,13 +102,23 @@ export function ArbitragePostContent({
   // it carries the same MPU cadence as a hosted body.
   const summaryParts = useMemo(
     () =>
-      post.summary ? splitTextForAds(post.summary, SUMMARY_CHARS_PER_AD) : [],
+      post.summary
+        ? splitTextForAds(
+            post.summary,
+            CONTENT_CHARS_PER_AD,
+            MAX_CONTENT_ADS_PER_SECTION + 1,
+          )
+        : [],
     [post.summary],
   );
   const bodyChunks = useMemo(
     () =>
       post.contentHtml
-        ? splitContentForAds(post.contentHtml, BODY_CHARS_PER_AD)
+        ? splitContentForAds(
+            post.contentHtml,
+            CONTENT_CHARS_PER_AD,
+            MAX_CONTENT_ADS_PER_SECTION + 1,
+          )
         : [],
     [post.contentHtml],
   );
@@ -262,8 +272,8 @@ export function ArbitragePostContent({
 
         {/* One MPU per BODY_CHARS_PER_AD of visible text, only ever between
             top-level blocks — splitContentForAds cannot cut a paragraph, list
-            or code block in half. Section and occurrence ride the events so
-            analytics can tell the first in-body unit from the sixth. */}
+            or code block in half — and capped per section. Section and
+            occurrence ride the events for per-position analytics. */}
         {bodyChunks.map((chunk, index, chunks) => (
           // eslint-disable-next-line react/no-array-index-key
           <React.Fragment key={index}>

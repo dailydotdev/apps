@@ -63,22 +63,22 @@ export const TOP_LEADERBOARD_STICKY_MS = 10_000;
 export const COMMENTS_PER_INTERLEAVED_AD = 8;
 
 /**
- * Visible characters of article body between in-body MPUs — ~250 words, the
- * partner brief's cadence. Content-proportional by construction: a phone
- * renders this many characters far taller than the 250px unit, so the
- * density cap holds at any article length.
+ * Visible characters of content between in-content MPUs — 250, per Nick's
+ * confirmed spec (characters, not words; re-confirmed Aug 25 after the
+ * words reading shipped first). At this cadence density is carried by
+ * MAX_CONTENT_ADS_PER_SECTION below, not by the interval.
  */
-export const BODY_CHARS_PER_AD = 1500;
+export const CONTENT_CHARS_PER_AD = 250;
 
 /**
- * The TLDR's own cadence (~100 words). A summary is dense by construction,
- * and the 250-word figure was written for article bodies: at 1500 a typical
- * 150-200 word TLDR carried nothing at all (product call, Aug 25: a
- * ~160-word TLDR should carry one unit — calibrated against a real one).
- * With the splitter's no-sliver rule the first ad appears from roughly a
- * 150-word summary, breaking about two-thirds through at a sentence end.
+ * Hard cap per section (TLDR, body): 250 characters is ~3 lines of rendered
+ * text per 282px unit, so an uncapped long body would be a wall of ads —
+ * the exact shape the Better Ads 30% mobile cap and AdSense's low-value
+ * policy act on, both of which punish the whole domain. The balanced
+ * splitters spread the capped units evenly through the section instead of
+ * front-loading them.
  */
-export const SUMMARY_CHARS_PER_AD = 600;
+export const MAX_CONTENT_ADS_PER_SECTION = 4;
 
 /**
  * The AdSense units behind each slot, keyed by slot number. Deliberately in
@@ -104,10 +104,9 @@ export const READ_ADSENSE_SLOTS: AdsenseSlots = {
   // Phone density, the written gate the previous map kept slot 7 behind:
   // - The comment MPU stays hideOnPhone in the template until a long-thread
   //   phone measurement with the interval live says otherwise.
-  // - The in-body MPUs are phone-visible by construction, not by measurement:
-  //   one 250px unit per BODY_CHARS_PER_AD (1500) visible characters is
-  //   ~1100px of rendered text per unit at phone width — under 20% added
-  //   density at any article length, against the Better Ads 30% cap.
+  // - The in-content MPUs are phone-visible but capped: at the 250-char
+  //   cadence the interval no longer bounds density, so
+  //   MAX_CONTENT_ADS_PER_SECTION does — see its comment for the math.
   [ARBITRAGE_SLOT.commentMpu]: { id: '6921226982', type: 'display' },
   [ARBITRAGE_SLOT.railAfterSource]: { id: '5249052667', type: 'display' },
   [ARBITRAGE_SLOT.railBetweenFurtherReading]: {
