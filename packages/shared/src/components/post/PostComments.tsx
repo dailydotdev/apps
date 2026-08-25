@@ -136,46 +136,45 @@ export function PostComments({
     >
       {comments!.postComments.edges.map((e, index) => {
         const isLast = index === comments!.postComments.edges.length - 1;
+        // Never after the last comment, where whatever follows the thread
+        // already sits.
         const shouldInterleave =
           !!interleaveEvery &&
           !!renderInterleaved &&
           !isLast &&
           (index + 1) % interleaveEvery === 0;
-        const mainComment = (
-          <MainComment
-            isModalThread={isModalThread}
-            className={{ commentBox: className }}
-            post={post}
-            origin={origin}
-            commentHash={commentHash ?? undefined}
-            commentRef={commentRef as React.MutableRefObject<HTMLElement>}
-            comment={e.node}
-            key={e.node.id}
-            onShare={onShare ?? noopShare}
-            onDelete={(comment, parentId) =>
-              deleteComment(comment.id, parentId ?? null, post)
-            }
-            onShowUpvotes={onClickUpvote ?? noopShowUpvotes}
-            postAuthorId={post.author?.id ?? null}
-            postScoutId={post.scout?.id ?? null}
-            appendTooltipTo={getAppendTooltipParent}
-            permissionNotificationCommentId={permissionNotificationCommentId}
-            joinNotificationCommentId={joinNotificationCommentId}
-            onCommented={onCommented}
-            lazy={!commentHash && index >= lazyCommentThreshold}
-            canReply={canReply}
-            onReplyBlocked={onReplyBlocked}
-          />
-        );
 
-        if (!shouldInterleave) {
-          return mainComment;
-        }
-
+        // Always the Fragment, even rows that interleave nothing: the type at
+        // a given key must not flip as the boundary moves (a new comment
+        // landing shifts every index), or React remounts that comment's
+        // subtree and open reply boxes lose their state.
         return (
           <Fragment key={e.node.id}>
-            {mainComment}
-            {renderInterleaved((index + 1) / interleaveEvery)}
+            <MainComment
+              isModalThread={isModalThread}
+              className={{ commentBox: className }}
+              post={post}
+              origin={origin}
+              commentHash={commentHash ?? undefined}
+              commentRef={commentRef as React.MutableRefObject<HTMLElement>}
+              comment={e.node}
+              onShare={onShare ?? noopShare}
+              onDelete={(comment, parentId) =>
+                deleteComment(comment.id, parentId ?? null, post)
+              }
+              onShowUpvotes={onClickUpvote ?? noopShowUpvotes}
+              postAuthorId={post.author?.id ?? null}
+              postScoutId={post.scout?.id ?? null}
+              appendTooltipTo={getAppendTooltipParent}
+              permissionNotificationCommentId={permissionNotificationCommentId}
+              joinNotificationCommentId={joinNotificationCommentId}
+              onCommented={onCommented}
+              lazy={!commentHash && index >= lazyCommentThreshold}
+              canReply={canReply}
+              onReplyBlocked={onReplyBlocked}
+            />
+            {shouldInterleave &&
+              renderInterleaved((index + 1) / interleaveEvery)}
           </Fragment>
         );
       })}

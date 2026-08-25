@@ -8,7 +8,7 @@ import {
 } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
-import { Continent } from '@dailydotdev/shared/src/lib/geo';
+import { requiresCertifiedCmp } from '@dailydotdev/shared/src/lib/geo';
 import { iubendaLocalizedPolicyIds } from '@dailydotdev/shared/src/lib/iubenda';
 import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
 import { enhanceIubendaBannerNow, watchIubendaBanner } from './iubendaBanner';
@@ -113,10 +113,11 @@ export const Iubenda = (): ReactElement | null => {
   // not "everywhere we haven't listed". checkIfGdprCovered counts the whole
   // world minus US/IL as covered, which is deliberately conservative for
   // pixels and banner copy but wrong for gating ad delivery: it held ads
-  // hostage to the banner in South Africa. Continent Europe is the superset
-  // that still errs safe (a few non-EEA European countries get the gate);
-  // unknown geo keeps the full treatment.
-  const withTcf = !geo?.continent || geo.continent === Continent.Europe;
+  // hostage to the banner in South Africa. The scope is an explicit country
+  // list rather than a continent: the EU's outermost regions live on other
+  // continents and continental Europe overshoots the mandate. Unknown geo
+  // keeps the full treatment.
+  const withTcf = requiresCertifiedCmp(geo?.region);
   const withGpp = !geo?.region || geo.region === 'US';
 
   // The config callback must not go stale when React re-renders.
@@ -171,7 +172,9 @@ export const Iubenda = (): ReactElement | null => {
       countryDetection: true,
       enableLgpd: true,
       enableTcf: withTcf,
-      enableUspr: true,
+      // Scoped with its stub: a framework enabled without the __gpp stub
+      // answers no one, and US privacy signals mean nothing elsewhere.
+      enableUspr: withGpp,
       gdprAppliesGlobally: false,
       googleAdditionalConsentMode: withTcf,
       inlineDelay: 100,

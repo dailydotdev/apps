@@ -37,10 +37,16 @@ export const ARBITRAGE_SLOT = {
  * only, while Google's own anchor serves a full-width leaderboard on every
  * breakpoint and renders its own dismiss control — which must never be
  * hidden, styled or covered.
- * TODO(chris): enable "Anchor ads" under Auto ads in the AdSense account.
- * The script only ever loads on /read and the post page, so anchors cannot
- * appear anywhere else; add URL exclusions in AdSense if the post page
- * should not carry one.
+ * TODO(chris): enable "Anchor ads" under Auto ads in the AdSense account,
+ * with BOTH preconditions met first:
+ * 1. Scope it with an AdSense URL group to /articles only. The script also
+ *    loads on /posts/[id] whenever post_adsense is on, so an unscoped
+ *    account-level anchor lands on the organic post page too, on top of the
+ *    two reviewed units there.
+ * 2. Verify the anchor against FooterNavBarLayout's fixed bottom bar on a
+ *    real phone before traffic. The custom anchor's offsetByAnchorAd
+ *    compensation retired with it; if Google's overlay and the bar collide,
+ *    an obscured ad is itself a policy violation.
  */
 
 /**
@@ -85,6 +91,16 @@ export const READ_ADSENSE_SLOTS: AdsenseSlots = {
   [ARBITRAGE_SLOT.railAfterHighlights]: { id: '', type: 'display' },
   // TODO(chris): layoutKey from the read_s07_comment_native "Get code" snippet
   // (data-ad-layout-key). The slot stays collapsed until it is filled in.
+  //
+  // PRECONDITIONS on filling this in — this comment is the gate, since the
+  // workflow is "ship reviewed once, switch on by editing this map":
+  // 1. The rendered unit must carry a visible ad label, like our in-feed
+  //    inventory: an unlabeled native between comments is the "confusable
+  //    with site content" implementation AdSense prohibits.
+  // 2. Re-measure phone ad density on a long thread with the interval live.
+  //    The ~27% figure was measured with this slot inert, it is the only
+  //    repeating slot on the page, and Chrome's Better Ads filter applies to
+  //    the whole domain, direct-sold inventory included.
   [ARBITRAGE_SLOT.commentNative]: { id: '', type: 'inFeed', layoutKey: '' },
   [ARBITRAGE_SLOT.railAfterSource]: { id: '5249052667', type: 'display' },
   [ARBITRAGE_SLOT.railBetweenFurtherReading]: {

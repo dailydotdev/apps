@@ -1,5 +1,5 @@
 import type { HTMLAttributes, ReactElement, ReactNode } from 'react';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -83,13 +83,6 @@ export interface MainLayoutProps
    * anything to show.
    */
   topBanner?: ReactNode;
-  /**
-   * Opens the sidebar on landing by seeding the stored preference, which
-   * defaults to collapsed and anonymous visitors never change. A default
-   * rather than a force: the toggle, its label and persistence keep their
-   * production behavior, so the visitor can collapse it again at will.
-   */
-  expandSidebar?: boolean;
 }
 
 export const feeds = Object.values(SharedFeedPage);
@@ -108,7 +101,6 @@ function MainLayoutComponent({
   canGoBack,
   hideFeedbackWidget = false,
   topBanner,
-  expandSidebar = false,
 }: MainLayoutProps): ReactElement | null {
   const router = useRouter();
   const { logEvent } = useLogContext();
@@ -116,13 +108,8 @@ function MainLayoutComponent({
   const { growthbook } = useGrowthBookContext();
   const { sidebarRendered } = useSidebarRendered();
   const { isAvailable: isBannerAvailable } = useBanner();
-  const {
-    sidebarExpanded,
-    toggleSidebarExpanded,
-    autoDismissNotifications,
-    loadedSettings,
-    flags,
-  } = useContext(SettingsContext);
+  const { sidebarExpanded, autoDismissNotifications, loadedSettings, flags } =
+    useContext(SettingsContext);
   const isSidebarCompact = !!flags?.sidebarCompact;
   const v2CollapsedPadding = isSidebarCompact
     ? 'tablet:pl-16 laptop:pl-16'
@@ -155,22 +142,6 @@ function MainLayoutComponent({
   const forceSidebarExpanded =
     isV2 &&
     isSidebarSettingsPath(activePage ?? router.asPath ?? router.pathname ?? '');
-
-  // Once per mount and only after the stored settings resolve, or the seed
-  // would race the loaded preference and win against a visitor's own choice.
-  const hasSeededSidebarExpanded = useRef(false);
-  useEffect(() => {
-    if (
-      !expandSidebar ||
-      !loadedSettings ||
-      sidebarExpanded ||
-      hasSeededSidebarExpanded.current
-    ) {
-      return;
-    }
-    hasSeededSidebarExpanded.current = true;
-    toggleSidebarExpanded();
-  }, [expandSidebar, loadedSettings, sidebarExpanded, toggleSidebarExpanded]);
 
   // The main content's left padding settles from the rail width to the
   // expanded-sidebar width once auth, settings, and the layout-variant flag
