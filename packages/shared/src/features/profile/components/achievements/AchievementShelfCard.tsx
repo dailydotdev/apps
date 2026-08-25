@@ -56,11 +56,6 @@ const formatUnlockedAt = (value: string): string => {
 const isEmerald = (tier: AchievementRarityTier | null) =>
   tier === AchievementRarityTier.Emerald;
 
-const slabRingClasses: Record<'gold' | 'emerald', string> = {
-  gold: 'border-[#efab27] shadow-[0_0_16px_-2px_#efab27]',
-  emerald: 'border-[#1dbf8c] shadow-[0_0_16px_-2px_#1dbf8c]',
-};
-
 const slabPillClasses: Record<'gold' | 'emerald', string> = {
   gold: 'bg-[#efab27]',
   emerald: 'bg-[#1dbf8c]',
@@ -109,15 +104,6 @@ export function AchievementShelfCard({
         />
 
         <div className="absolute inset-0 z-1 bg-[linear-gradient(to_top,rgba(6,8,11,0.94)_0%,rgba(6,8,11,0.72)_34%,rgba(6,8,11,0.12)_66%,rgba(6,8,11,0)_100%)]" />
-
-        {slabTier && (
-          <div
-            className={classNames(
-              'pointer-events-none absolute inset-0 z-3 rounded-16 border-2',
-              slabRingClasses[slabTier],
-            )}
-          />
-        )}
 
         {/* Covers the slab so the whole card opens the detail modal, without
             nesting the track control inside another button. */}

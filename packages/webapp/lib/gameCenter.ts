@@ -326,8 +326,10 @@ export type AwardWithRarity = UserProductSummary & {
 
 export type GameCenterAwardSummary = {
   awards: UserProductSummary[];
-  // Awards ordered rarest-first for the trophy grid.
+  // Awards ordered rarest-first.
   awardsByRarity: AwardWithRarity[];
+  // Awards ordered by how many you hold, for the trophy grid.
+  awardsByCount: AwardWithRarity[];
   totalAwards: number;
   // What the collection is worth in Cores, counting duplicates.
   totalAwardValue: number;
@@ -378,6 +380,9 @@ export const getAwardSummary = (
   return {
     awards: allAwards,
     awardsByRarity,
+    awardsByCount: [...awardsByRarity].sort(
+      (left, right) => right.count - left.count,
+    ),
     totalAwards: allAwards.reduce((total, award) => total + award.count, 0),
     totalAwardValue: awardsByRarity.reduce(
       (total, award) => total + award.value * award.count,

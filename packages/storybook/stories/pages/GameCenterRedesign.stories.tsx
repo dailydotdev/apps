@@ -312,6 +312,8 @@ const awards: AwardWithRarity[] = [
   },
 ].map((award) => ({ ...award, imageGlow: null })) as AwardWithRarity[];
 
+const awardsByCount = [...awards].sort((left, right) => right.count - left.count);
+
 const leaders = [
   [
     'Bobby Iliev',
@@ -459,7 +461,7 @@ const GameCenterRedesign = () => (
         badgeStats={[
           { label: 'Topics mastered', value: badges.length.toString() },
         ]}
-        awards={<TrophyGrid awards={awards} />}
+        awards={<TrophyGrid awards={awardsByCount} />}
         awardStats={[
           { label: 'Total awards', value: '87' },
           {

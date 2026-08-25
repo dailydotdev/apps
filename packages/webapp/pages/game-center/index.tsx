@@ -533,7 +533,7 @@ function GameCenterPage({
             }
           />
         </div>
-        <TrophyGrid awards={awardSummary.awardsByRarity} />
+        <TrophyGrid awards={awardSummary.awardsByCount} />
       </>
     );
   } else {
