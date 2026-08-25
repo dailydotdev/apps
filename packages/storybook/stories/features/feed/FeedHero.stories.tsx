@@ -83,6 +83,7 @@ export const FullLayout: Story = {
         posts={heroPosts}
         highlights={highlights}
         ad={heroAd}
+        cardAd={heroAd}
         cardProps={cardHandlers}
         onAdLinkClick={fn()}
         onHighlightClick={fn()}
@@ -110,6 +111,7 @@ export const HeroOnly: Story = {
         posts={heroPosts}
         highlights={highlights}
         ad={heroAd}
+        cardAd={heroAd}
         cardProps={cardHandlers}
       />
     </Page>
@@ -159,17 +161,21 @@ export const HeroStates: Story = {
   name: 'Hero section states',
   render: () => (
     <Page>
-      <Case title="With a direct ad placement">
+      <Case
+        title="Both ad placements"
+        note="The compact row in the headline list, and the full-size flat card under the rail."
+      >
         <FeedHeroSection
           posts={heroPosts}
           highlights={highlights}
           ad={heroAd}
+          cardAd={heroAd}
           cardProps={cardHandlers}
         />
       </Case>
       <Case
         title="No ad to serve"
-        note="The rail drops the placement and the highlights card takes the full height."
+        note="The rail drops both placements and ends at the headline list."
       >
         <FeedHeroSection
           posts={heroPosts}

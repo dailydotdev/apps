@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import type { Post } from '../../../graphql/posts';
+import type { Ad, Post } from '../../../graphql/posts';
 import type { Connection } from '../../../graphql/common';
 import { gqlClient } from '../../../graphql/common';
 import {
@@ -27,6 +27,53 @@ import { FeedHeroSection } from './FeedHeroSection';
 
 const HIGHLIGHT_COUNT = 6;
 const FEATURED_POST_COUNT = 4;
+
+type AdSlot = {
+  ad?: Ad;
+  onAction: (action: AdActions, extra?: Record<string, unknown>) => void;
+};
+
+/**
+ * One rail placement. Each slot keeps its own query key so the two ask the ad
+ * server separately and can come back with different creatives.
+ */
+const useHeroAdSlot = (slot: string, enabled: boolean): AdSlot => {
+  const { user } = useAuthContext();
+  const { logEvent } = useLogContext();
+
+  const { data: ad } = useAdQuery({
+    placement: AdPlacement.Feed,
+    queryKey: generateQueryKey(RequestKey.Ads, user, `feed-hero-${slot}`),
+    enabled,
+    staleTime: StaleTime.OneHour,
+  });
+
+  const onAction = useCallback(
+    (action: AdActions, extra?: Record<string, unknown>) => {
+      if (!ad) {
+        return;
+      }
+
+      logEvent(
+        adLogEvent(action, ad, {
+          extra: { origin: 'feed hero', slot, ...extra },
+        }),
+      );
+    },
+    [ad, logEvent, slot],
+  );
+
+  useEffect(() => {
+    if (!ad || ad.impressionStatus === ImpressionStatus.LOGGED) {
+      return;
+    }
+
+    onAction(AdActions.Impression);
+    ad.impressionStatus = ImpressionStatus.LOGGED;
+  }, [ad, onAction]);
+
+  return { ad: ad ?? undefined, onAction };
+};
 
 /**
  * The carousel and the Happening Now list are the same headlines: the top few
@@ -82,34 +129,9 @@ export const FeedHero = ({
     return postIds.map((id) => byId.get(id)).filter(Boolean) as Post[];
   }, [featured, postIds]);
 
-  const { data: ad } = useAdQuery({
-    placement: AdPlacement.Feed,
-    queryKey: generateQueryKey(RequestKey.Ads, user, 'feed-hero'),
-    enabled: !isPlus && tokenRefreshed,
-    staleTime: StaleTime.OneHour,
-  });
-
-  const onAdAction = useCallback(
-    (action: AdActions, extra?: Record<string, unknown>) => {
-      if (!ad) {
-        return;
-      }
-
-      logEvent(
-        adLogEvent(action, ad, { extra: { origin: 'feed hero', ...extra } }),
-      );
-    },
-    [ad, logEvent],
-  );
-
-  useEffect(() => {
-    if (!ad || ad.impressionStatus === ImpressionStatus.LOGGED) {
-      return;
-    }
-
-    onAdAction(AdActions.Impression);
-    ad.impressionStatus = ImpressionStatus.LOGGED;
-  }, [ad, onAdAction]);
+  const adsEnabled = !isPlus && tokenRefreshed;
+  const rowAd = useHeroAdSlot('row', adsEnabled);
+  const cardAd = useHeroAdSlot('card', adsEnabled);
 
   const cardProps = useMemo(
     () => ({
@@ -147,11 +169,16 @@ export const FeedHero = ({
       className={className}
       posts={posts}
       highlights={highlights}
-      ad={ad ?? undefined}
+      ad={rowAd.ad}
+      cardAd={cardAd.ad}
       cardProps={cardProps}
-      onAdLinkClick={() => onAdAction(AdActions.Click)}
+      onAdLinkClick={() => rowAd.onAction(AdActions.Click)}
       onAdViewable={(_, data: ViewabilityData) =>
-        onAdAction(AdActions.Viewable, viewabilityLogExtra(data))
+        rowAd.onAction(AdActions.Viewable, viewabilityLogExtra(data))
+      }
+      onCardAdLinkClick={() => cardAd.onAction(AdActions.Click)}
+      onCardAdViewable={(_, data: ViewabilityData) =>
+        cardAd.onAction(AdActions.Viewable, viewabilityLogExtra(data))
       }
     />
   );
