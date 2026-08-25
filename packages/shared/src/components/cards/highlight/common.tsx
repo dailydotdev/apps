@@ -81,8 +81,8 @@ const HighlightRow = ({
     <Link href={getHighlightUrl(highlight)}>
       <a
         className={classNames(
-          'flex w-full flex-col gap-0 rounded-8 border-b border-border-subtlest-tertiary px-3 text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover',
-          compact ? 'py-1.5' : 'py-2',
+          'flex w-full flex-col gap-0 border-b border-border-subtlest-tertiary text-left transition-colors hover:bg-surface-hover focus-visible:bg-surface-hover',
+          compact ? 'rounded-12 px-4 py-3' : 'rounded-8 px-3 py-2',
         )}
         href={getHighlightUrl(highlight)}
         onClick={() => onHighlightClick?.(highlight, index + 1)}
@@ -130,13 +130,13 @@ export const HighlightCardContent = ({
   const headerClassName = classNames(
     'flex items-center',
     variant === 'list' && 'pb-4',
-    variant === 'grid' && (isFlushGrid ? 'pb-2' : 'px-4 py-4'),
+    variant === 'grid' && (isFlushGrid ? 'px-4 pb-2' : 'px-4 py-4'),
   );
   const contentClassName = classNames(
     variant === 'list' && 'flex flex-col gap-2',
     variant === 'grid' &&
       'no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto pt-0',
-    variant === 'grid' && (isFlushGrid ? '-mx-3' : 'px-2.5 pb-1'),
+    variant === 'grid' && (isFlushGrid ? '' : 'px-2.5 pb-1'),
     // The list scrolls, so let the last visible row fade out instead of being
     // sliced flat by the pinned footer.
     isFlushGrid &&
@@ -144,7 +144,7 @@ export const HighlightCardContent = ({
   );
   const footerClassName = classNames(
     variant === 'list' && 'pt-1.5',
-    variant === 'grid' && (isFlushGrid ? 'pt-2' : 'px-1 pb-1'),
+    variant === 'grid' && (isFlushGrid ? 'px-4 pt-2' : 'px-1 pb-1'),
   );
   const firstHighlight = highlights[0];
   const rows: ReactNode[] = highlights.map((highlight, index) => (

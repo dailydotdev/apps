@@ -23,11 +23,6 @@ export const FeedHeroAdCard = ({
   className,
 }: FeedHeroAdCardProps): ReactElement => (
   <FlatCard data-testid="feedHeroAdCard" className={className}>
-    <AdCardContent
-      flush
-      ad={ad}
-      onLinkClick={onLinkClick}
-      onViewable={onViewable}
-    />
+    <AdCardContent ad={ad} onLinkClick={onLinkClick} onViewable={onViewable} />
   </FlatCard>
 );

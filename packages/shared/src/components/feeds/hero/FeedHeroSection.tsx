@@ -51,7 +51,10 @@ export const FeedHeroSection = ({
   return (
     <section
       className={classNames(
-        'mx-auto flex w-full max-w-[80rem] flex-col gap-6 laptop:grid laptop:h-[30rem]',
+        // No width of its own: the feed container caps this box at the card
+        // grid's width, which tracks the reader's column count, so anything
+        // fixed here would be too wide at three columns and too narrow at five.
+        'flex w-full flex-col gap-6 laptop:grid laptop:h-[30rem]',
         cardAd
           ? 'laptop:grid-cols-3 laptopL:grid-cols-4'
           : 'laptop:grid-cols-3',

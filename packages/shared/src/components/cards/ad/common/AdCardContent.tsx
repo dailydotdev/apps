@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
 import type { Ad } from '../../../../graphql/posts';
 import type { ViewabilityData } from '../../../../features/monetization/viewability';
 import {
@@ -33,12 +32,6 @@ interface AdCardContentProps {
   ad: Ad;
   onLinkClick?: (ad: Ad) => unknown;
   onViewable?: (ad: Ad, data: ViewabilityData) => void;
-  /**
-   * Drop the inset the card's own chrome pays for. Without a card box around
-   * it, that inset reads as the creative sitting crooked against whatever it
-   * shares an edge with.
-   */
-  flush?: boolean;
 }
 
 /**
@@ -50,7 +43,6 @@ export const AdCardContent = ({
   ad,
   onLinkClick,
   onViewable,
-  flush,
 }: AdCardContentProps): ReactElement => {
   const { isPlus } = usePlusSubscription();
   const adImprovementsV3 = useFeature(adImprovementsV3Feature);
@@ -61,8 +53,8 @@ export const AdCardContent = ({
   return (
     <>
       <AdLink ad={ad} onLinkClick={onLinkClick} />
-      <AdFavicon ad={ad} className={flush ? 'mx-0' : 'mx-4'} />
-      <CardTextContainer className={classNames('flex-1', flush && '!mx-0')}>
+      <AdFavicon ad={ad} className="mx-4" />
+      <CardTextContainer className="flex-1">
         <CardTitle className="typo-title3">{ad.description}</CardTitle>
         <CardSpace />
         {adImprovementsV3 && matchingTags.length > 0 ? (
@@ -76,14 +68,8 @@ export const AdCardContent = ({
           className={{ main: `${adAttributionSpacing} font-normal` }}
         />
       </CardTextContainer>
-      <AdImage
-        className={classNames('mb-0', flush ? 'mx-0' : 'mx-1')}
-        ad={ad}
-        ImageComponent={CardImage}
-      />
-      <CardTextContainer
-        className={classNames('my-1', flush ? '!mx-0' : '!mx-1')}
-      >
+      <AdImage className="mx-1 mb-0" ad={ad} ImageComponent={CardImage} />
+      <CardTextContainer className="!mx-1 my-1">
         <div className="flex items-center">
           {!!ad.callToAction && (
             <Button
