@@ -8,6 +8,7 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
+import { gameCenterLevelBackground } from '@dailydotdev/shared/src/lib/image';
 
 /* ── shared bits ────────────────────────────────────────────────────── */
 
@@ -23,17 +24,16 @@ const STATS = [
   { label: 'Total XP', value: '3,420' },
 ];
 
-// Same treatment the shipped panel uses: off-token purples, so they live in a
-// style object rather than arbitrary classes the no-custom-color rule rejects.
+// The shipped panel's treatment: the marketing hero under a purple wash
+// that lifts on the right, where nothing overlaps it.
 const panelStyle = {
   backgroundColor: '#2A0B3D',
   backgroundImage: [
-    'radial-gradient(circle at 14% 22%, rgba(230,105,251,0.32), transparent 58%)',
-    'radial-gradient(circle at 94% 86%, rgba(122,63,255,0.30), transparent 62%)',
-    'repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 14px)',
-    'radial-gradient(rgba(255,255,255,0.10) 1px, transparent 1px)',
+    'linear-gradient(100deg, rgba(42,11,61,0.94) 0%, rgba(42,11,61,0.70) 42%, rgba(42,11,61,0.42) 100%)',
+    `url("${gameCenterLevelBackground}")`,
   ].join(', '),
-  backgroundSize: 'auto, auto, auto, 16px 16px',
+  backgroundSize: 'auto, cover',
+  backgroundPosition: 'center, 46% 50%',
 };
 
 const glassStyle = {
