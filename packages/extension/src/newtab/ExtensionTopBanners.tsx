@@ -168,11 +168,15 @@ export const ExtensionTopBanners = (): ReactElement | null => {
     );
   }
 
-  if (isJobsEnabled && shouldShowCv) {
+  if (shouldShowCv) {
     cards.push(
       <TopHero
         key="cv"
-        subtitle="Upload your CV and let your next job quietly come to you."
+        subtitle={
+          isJobsEnabled
+            ? 'Upload your CV and let your next job quietly come to you.'
+            : 'Upload your CV to autofill your profile in seconds.'
+        }
         ctaLabel="Upload CV"
         illustration={<CvIllustration />}
         onCtaClick={() => fileInputRef.current?.click()}

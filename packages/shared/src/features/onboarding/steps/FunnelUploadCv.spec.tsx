@@ -27,13 +27,19 @@ jest.mock('../../../hooks', () => ({
 // Mock the UploadCv component to make testing easier
 jest.mock('../components/UploadCv', () => ({
   UploadCv: ({
+    headline,
+    description,
     onFilesDrop,
     status,
   }: {
+    headline: string;
+    description: string;
     onFilesDrop: (files: File[]) => void;
     status: string;
   }) => (
     <div data-testid="upload-cv-mock">
+      <div data-testid="headline">{headline}</div>
+      <div data-testid="description">{description}</div>
       <div data-testid="status">{status}</div>
       <button
         type="button"
@@ -188,6 +194,12 @@ describe('FunnelUploadCv', () => {
       renderComponent(defaultParameters, mockOnTransition);
 
       expect(screen.getByTestId('upload-cv-mock')).toBeInTheDocument();
+      expect(screen.getByTestId('headline')).toHaveTextContent(
+        'Upload your CV',
+      );
+      expect(screen.getByTestId('description')).toHaveTextContent(
+        'Upload your CV to get started',
+      );
       expect(screen.getByTestId('cta-wrapper')).toBeInTheDocument();
     });
 
@@ -275,18 +287,21 @@ describe('FunnelUploadCv', () => {
       expect(container).toBeEmptyDOMElement();
     });
 
-    it('should return null when jobs UI is disabled', () => {
+    it('should render profile copy when jobs UI is disabled', () => {
       mockUseJobsFeature.mockReturnValue({
         isJobsEnabled: false,
         isLoading: false,
       });
 
-      const { container } = renderComponent(
-        defaultParameters,
-        mockOnTransition,
-      );
+      renderComponent(defaultParameters, mockOnTransition);
 
-      expect(container).toBeEmptyDOMElement();
+      expect(screen.getByTestId('upload-cv-mock')).toBeInTheDocument();
+      expect(screen.getByTestId('headline')).toHaveTextContent(
+        'Autofill your profile with your CV',
+      );
+      expect(screen.getByTestId('description')).toHaveTextContent(
+        'Upload your CV to import your experience and skills into your profile.',
+      );
     });
   });
 

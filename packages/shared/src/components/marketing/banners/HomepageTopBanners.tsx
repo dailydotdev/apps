@@ -45,10 +45,9 @@ export const useHomepageTopBannersVisibility = (): {
   const { isLoggedIn, isAuthReady } = useAuthContext();
   const reminder = useReadingReminderHero({ requireMobile: false });
   const { shouldShow: shouldShowCv } = useUploadCv();
-  const { isJobsEnabled } = useJobsFeature();
   const enabled = isAuthReady && isLoggedIn;
   const showReminder = enabled && reminder.shouldShow;
-  const showCv = enabled && isJobsEnabled && shouldShowCv;
+  const showCv = enabled && shouldShowCv;
   return { showReminder, showCv, hasAny: showReminder || showCv };
 };
 
@@ -89,11 +88,15 @@ export const HomepageTopBanners = ({
     );
   }
 
-  if (isJobsEnabled && shouldShowCv) {
+  if (shouldShowCv) {
     cards.push(
       <TopHero
         key="cv"
-        subtitle="Upload your CV and let your next job quietly come to you."
+        subtitle={
+          isJobsEnabled
+            ? 'Upload your CV and let your next job quietly come to you.'
+            : 'Upload your CV to autofill your profile in seconds.'
+        }
         ctaLabel="Upload CV"
         illustration={<CvIllustration />}
         onCtaClick={() => fileInputRef.current?.click()}

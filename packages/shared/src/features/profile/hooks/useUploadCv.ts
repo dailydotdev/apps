@@ -47,6 +47,17 @@ export const useUploadCv = ({
 
   const onCloseBanner = () => completeAction(ActionType.ClosedProfileBanner);
   const { openModal } = useLazyModal();
+  const uploadSuccessContent = isJobsEnabled
+    ? {
+        title: 'All set! We’ll take it from here',
+        description:
+          'You’re in. Now we’ll search behind the scenes and surface only what’s actually worth considering.',
+      }
+    : {
+        title: 'CV uploaded',
+        description:
+          'We’ll use it to help complete your profile. You can update your profile details anytime.',
+      };
   const {
     mutateAsync: onUpload,
     isSuccess,
@@ -55,15 +66,13 @@ export const useUploadCv = ({
   } = useMutation({
     mutationFn: uploadCv,
     onSuccess: () => {
-      if (shouldOpenModal && isJobsEnabled) {
+      if (shouldOpenModal) {
         openModal({
           type: LazyModal.ActionSuccess,
           props: {
             withCloseOnTablet: true,
             content: {
-              title: 'All set! We’ll take it from here',
-              description:
-                'You’re in. Now we’ll search behind the scenes and surface only what’s actually worth considering.',
+              ...uploadSuccessContent,
               cover: uploadCvModalSuccess,
               coverDrawer: uploadCvModalSuccessMobile,
             },
@@ -87,8 +96,7 @@ export const useUploadCv = ({
     status,
     isSuccess,
     isPending,
-    shouldShow:
-      isJobsEnabled && isActionsFetched && !hasUploadedCv && !hasClosedBanner,
+    shouldShow: isActionsFetched && !hasUploadedCv && !hasClosedBanner,
     onCloseBanner,
   };
 };

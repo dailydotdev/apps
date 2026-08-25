@@ -77,7 +77,7 @@ export const BootPopups = (): ReactElement => {
   const [interactiveBootPopup, setInteractiveBootPopup] =
     useState<InteractivePopupProps | null>(null);
   const { getMarketingCta } = useBoot();
-  const { isJobsEnabled } = useJobsFeature();
+  const { isJobsEnabled, isLoading: isJobsFeatureLoading } = useJobsFeature();
   const marketingCtaPopover = getMarketingCta(MarketingCtaVariant.Popover);
   const marketingCtaPopoverSmall = getMarketingCta(
     MarketingCtaVariant.PopoverSmall,
@@ -338,6 +338,7 @@ export const BootPopups = (): ReactElement => {
    */
   useEffect(() => {
     if (
+      isJobsFeatureLoading ||
       !isJobsEnabled ||
       !alerts?.opportunityId ||
       alerts?.flags?.hasSeenOpportunity
@@ -359,6 +360,7 @@ export const BootPopups = (): ReactElement => {
     alerts.opportunityId,
     alerts?.flags?.hasSeenOpportunity,
     isJobsEnabled,
+    isJobsFeatureLoading,
     updateHasSeenOpportunity,
     updateLastBootPopup,
   ]);

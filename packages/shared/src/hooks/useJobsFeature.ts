@@ -13,7 +13,9 @@ export const useJobsFeature = (): {
   const isLoading = !ready;
 
   return {
-    isJobsEnabled: isLoading || !!value,
+    // Keep this as the resolved flag value. Route gates can choose to render
+    // optimistically while `isLoading`; passive UI should treat unknown as off.
+    isJobsEnabled: !!value,
     isLoading,
   };
 };
