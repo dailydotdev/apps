@@ -106,6 +106,22 @@ type SectionProps = {
   action?: ReactElement;
 };
 
+// PLACEHOLDER. No leaderboard exists for top reader badge counts, so these
+// rows are invented. Do not ship: wire a real query or drop the column.
+const placeholderTopReaderBoard: UserLeaderboard[] = [
+  { score: 24, user: { id: 't1', name: 'Ole-Martin', username: 'ombratteng' } },
+  {
+    score: 19,
+    user: { id: 't2', name: 'Bobby Iliev', username: 'bobbyiliev' },
+  },
+  { score: 17, user: { id: 't3', name: 'Ante Baric', username: 'capjavert' } },
+  { score: 15, user: { id: 't4', name: 'Jay', username: 'finallyjay' } },
+  {
+    score: 12,
+    user: { id: 't5', name: 'Keith Solomon', username: 'ksolomon' },
+  },
+] as UserLeaderboard[];
+
 const leaderboardLimit = 3;
 
 const isQuestCompletionStatsSchemaMissing = (error: GraphQLError): boolean => {
@@ -748,7 +764,7 @@ function GameCenterPage({
           )}
 
           <section className="flex flex-col gap-4">
-            <SectionHeader title="Trophies & Awards" />
+            <SectionHeader title="Badges & Awards" />
 
             <BadgeTrophyCase
               badges={badgeCaseContent}
@@ -789,6 +805,7 @@ function GameCenterPage({
                 stats={questCompletionStats}
                 highestReputation={highestReputation}
                 mostQuestsCompleted={mostQuestsCompleted}
+                mostTopics={placeholderTopReaderBoard}
                 viewerId={user?.id}
               />
             ) : (

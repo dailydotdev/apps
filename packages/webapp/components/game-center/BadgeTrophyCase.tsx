@@ -164,7 +164,6 @@ const goldPaneStyle = {
   backgroundImage: [
     'radial-gradient(120% 90% at 78% 8%, rgba(255,214,102,0.20), transparent 62%)',
     'radial-gradient(80% 70% at 12% 96%, rgba(214,158,46,0.14), transparent 58%)',
-    'repeating-linear-gradient(122deg, rgba(255,214,102,0.05) 0 1px, transparent 1px 16px)',
   ].join(', '),
 };
 

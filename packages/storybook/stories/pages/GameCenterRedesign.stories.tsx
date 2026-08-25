@@ -487,6 +487,18 @@ const board = (byQuests: boolean) =>
     }),
   ) as never;
 
+// PLACEHOLDER, matching the page: no leaderboard exists for badge counts.
+const topReaderBoard = [
+  ['Ole-Martin', 'ombratteng', 24],
+  ['Bobby Iliev', 'bobbyiliev', 19],
+  ['Ante Baric', 'capjavert', 17],
+  ['Jay', 'finallyjay', 15],
+  ['Keith Solomon', 'ksolomon', 12],
+].map(([name, username, score], i) => ({
+  score,
+  user: { id: `t${i.toString()}`, name, username, image: '' },
+})) as never;
+
 const communityStats = {
   totalCount: 90000,
   allTimeLeader: {
@@ -554,7 +566,7 @@ const GameCenterRedesign = () => (
 
 
     <section className="flex flex-col gap-4">
-      <SectionHeader title="Trophies & Awards" />
+      <SectionHeader title="Badges & Awards" />
       <BadgeTrophyCase
         badges={
           <BadgePager
@@ -594,6 +606,7 @@ const GameCenterRedesign = () => (
         stats={communityStats}
         highestReputation={board(false)}
         mostQuestsCompleted={board(true)}
+        mostTopics={topReaderBoard}
       />
     </section>
   </div>

@@ -88,6 +88,9 @@ const MilestoneQuestCard = ({
     <article
       className={classNames(
         'flex flex-col gap-2 overflow-hidden rounded-14 border border-border-subtlest-tertiary p-4',
+        // A spent milestone recedes: it stays readable but stops competing
+        // with the ones still worth acting on.
+        isClaimed && 'opacity-64',
         // Only a claimable milestone gets a filled surface, so the ones you
         // can act on read forward of the ones you cannot.
         canClaim && 'bg-background-subtle',

@@ -96,6 +96,7 @@ type CommunityPulseProps = {
   stats: QuestCompletionStats | null;
   highestReputation: UserLeaderboard[];
   mostQuestsCompleted: UserLeaderboard[];
+  mostTopics?: UserLeaderboard[];
   viewerId?: string;
 };
 
@@ -103,17 +104,31 @@ export const CommunityPulse = ({
   stats,
   highestReputation,
   mostQuestsCompleted,
+  mostTopics,
   viewerId,
 }: CommunityPulseProps): ReactElement => (
   <div className="flex flex-col gap-2 rounded-20 border border-border-subtlest-tertiary p-2">
-    <div className="grid gap-2 tablet:grid-cols-2">
+    <div className="grid gap-2 tablet:grid-cols-3">
       <Race
-        title="Most badges"
+        title="Awards"
         entries={highestReputation}
         unit="achievement points"
         viewerId={viewerId}
       />
-      <Race title="Most quests" entries={mostQuestsCompleted} unit="quests" />
+      <Race
+        title="Quests"
+        entries={mostQuestsCompleted}
+        unit="quests"
+        viewerId={viewerId}
+      />
+      {mostTopics && (
+        <Race
+          title="Top reader badges"
+          entries={mostTopics}
+          unit="top reader badges"
+          viewerId={viewerId}
+        />
+      )}
     </div>
 
     {stats && (
