@@ -95,7 +95,7 @@ export const LevelHud = ({
 
   return (
     <div
-      className="flex flex-col gap-4 px-4 py-4 tablet:px-8 laptop:flex-row laptop:items-center laptop:gap-6"
+      className="flex flex-col gap-4 px-4 py-5 tablet:px-8"
       style={levelPanelStyle}
     >
       <div className="flex items-center gap-3">
