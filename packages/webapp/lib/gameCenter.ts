@@ -229,6 +229,9 @@ export type GameCenterAchievementSummary = {
   rarestUnlocked: UserAchievement | null;
   nextToUnlock: UserAchievement | null;
   featuredAchievements: UserAchievement[];
+  // Everything unlocked or under way, for the shelf. Untouched achievements
+  // stay out: an empty progress bar says nothing about your history.
+  shelfAchievements: UserAchievement[];
 };
 
 export const getAchievementSummary = (
@@ -289,6 +292,16 @@ export const getAchievementSummary = (
       getAchievementProgressRatio(right) - getAchievementProgressRatio(left),
   );
 
+  const shelfAchievements = [...allAchievements]
+    .filter(
+      (achievement) =>
+        achievement.unlockedAt !== null || achievement.progress > 0,
+    )
+    .sort(
+      (left, right) =>
+        getAchievementProgressRatio(right) - getAchievementProgressRatio(left),
+    );
+
   return {
     unlockedCount: unlocked.length,
     totalCount: allAchievements.length,
@@ -300,6 +313,7 @@ export const getAchievementSummary = (
     rarestUnlocked,
     nextToUnlock,
     featuredAchievements,
+    shelfAchievements,
   };
 };
 

@@ -97,9 +97,9 @@ export const CommunityPulse = ({
   <div className="flex flex-col gap-2 rounded-20 border border-border-subtlest-tertiary p-2">
     <div className="grid gap-2 tablet:grid-cols-2">
       <Race
-        title="Top reputation"
+        title="Most badges"
         entries={highestReputation}
-        unit="reputation"
+        unit="achievement points"
       />
       <Race title="Most quests" entries={mostQuestsCompleted} unit="quests" />
     </div>

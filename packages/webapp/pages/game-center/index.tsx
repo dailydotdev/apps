@@ -8,7 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
-  HIGHEST_REPUTATION_QUERY,
+  MOST_ACHIEVEMENT_POINTS_QUERY,
   MOST_QUESTS_COMPLETED_QUERY,
   QUEST_COMPLETION_STATS_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
@@ -284,7 +284,7 @@ function GameCenterPage({
     ? getQuestLevelProgress(questDashboard.level)
     : 0;
   const firstName = user?.name ? getFirstName(user.name) : 'there';
-  const { featuredAchievements } = achievementSummary;
+  const { featuredAchievements, shelfAchievements } = achievementSummary;
   const [featuredAchievement] = featuredAchievements;
   const upcomingMilestoneQuest = useMemo(
     () => getMostProgressedQuest(milestoneQuests),
@@ -382,10 +382,10 @@ function GameCenterPage({
         description="Your unlock history is on the way."
       />
     );
-  } else if (featuredAchievements.length > 0) {
+  } else if (shelfAchievements.length > 0) {
     achievementShelfContent = (
       <div className="grid grid-cols-2 gap-3 tablet:grid-cols-3 laptop:grid-cols-5">
-        {featuredAchievements.map((achievement) => (
+        {shelfAchievements.map((achievement) => (
           <AchievementShelfCard
             key={achievement.achievement.id}
             userAchievement={achievement}
@@ -817,8 +817,8 @@ export async function getStaticProps(): Promise<
   try {
     const [highestReputationRes, mostQuestsCompletedRes] = await Promise.all([
       gqlClient.request<{
-        highestReputation: UserLeaderboard[];
-      }>(HIGHEST_REPUTATION_QUERY, { limit: leaderboardLimit }),
+        mostAchievementPoints: UserLeaderboard[];
+      }>(MOST_ACHIEVEMENT_POINTS_QUERY, { limit: leaderboardLimit }),
       gqlClient.request<{
         mostQuestsCompleted: UserLeaderboard[];
       }>(MOST_QUESTS_COMPLETED_QUERY, { limit: leaderboardLimit }),
@@ -841,7 +841,7 @@ export async function getStaticProps(): Promise<
 
     return {
       props: {
-        highestReputation: highestReputationRes.highestReputation ?? [],
+        highestReputation: highestReputationRes.mostAchievementPoints ?? [],
         mostQuestsCompleted: mostQuestsCompletedRes.mostQuestsCompleted ?? [],
         questCompletionStats,
       },

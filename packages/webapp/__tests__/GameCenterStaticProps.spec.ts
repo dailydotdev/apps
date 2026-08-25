@@ -7,7 +7,7 @@ import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/L
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
-  HIGHEST_REPUTATION_QUERY,
+  MOST_ACHIEVEMENT_POINTS_QUERY,
   MOST_QUESTS_COMPLETED_QUERY,
   QUEST_COMPLETION_STATS_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
@@ -180,8 +180,8 @@ describe('game center static props', () => {
 
   it('should include quest completion stats when the schema supports them', async () => {
     mockRequest.mockImplementation((query: string) => {
-      if (query === HIGHEST_REPUTATION_QUERY) {
-        return Promise.resolve({ highestReputation });
+      if (query === MOST_ACHIEVEMENT_POINTS_QUERY) {
+        return Promise.resolve({ mostAchievementPoints: highestReputation });
       }
 
       if (query === MOST_QUESTS_COMPLETED_QUERY) {
@@ -208,8 +208,8 @@ describe('game center static props', () => {
 
   it('should keep leaderboards when quest completion stats are not yet in the schema', async () => {
     mockRequest.mockImplementation((query: string) => {
-      if (query === HIGHEST_REPUTATION_QUERY) {
-        return Promise.resolve({ highestReputation });
+      if (query === MOST_ACHIEVEMENT_POINTS_QUERY) {
+        return Promise.resolve({ mostAchievementPoints: highestReputation });
       }
 
       if (query === MOST_QUESTS_COMPLETED_QUERY) {
