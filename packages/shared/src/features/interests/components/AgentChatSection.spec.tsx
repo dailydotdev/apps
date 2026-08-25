@@ -9,7 +9,7 @@ import * as copy from '../../../hooks/useCopy';
 import * as lazyModal from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../../components/modals/common/types';
 import { Origin } from '../../../lib/log';
-import type { AgentMessage, AgentTurnHighlight } from '../chat';
+import type { AgentMessage } from '../chat';
 import { AgentProvider, useAgent } from '../AgentContext';
 import { AgentChatSection } from './AgentChatSection';
 
@@ -45,11 +45,11 @@ const renderTranscript = () =>
     </TestBootProvider>,
   );
 
-const renderHighlightedTranscript = (highlight: AgentTurnHighlight) =>
+const renderHighlightedTranscript = (focusedRunId: string) =>
   render(
     <TestBootProvider client={new QueryClient()}>
       <AgentProvider id="a1" isDemo initialMessages={[reply]}>
-        <AgentChatSection highlight={highlight} />
+        <AgentChatSection focusedRunId={focusedRunId} />
       </AgentProvider>
     </TestBootProvider>,
   );
@@ -370,24 +370,16 @@ describe('a post link in the reply text', () => {
 });
 
 describe('a deep-linked turn', () => {
-  it('gets an addressable id and the highlight ring while active', () => {
-    renderHighlightedTranscript({ id: 'm1', isActive: true });
+  it('gets an addressable id and the flash animation', () => {
+    renderHighlightedTranscript('m1');
 
     const turn = document.getElementById('agent-turn-m1');
     expect(turn).not.toBeNull();
-    expect(turn).toHaveClass('border-accent-cabbage-default');
-  });
-
-  it('keeps the frame but drops the tint once faded', () => {
-    renderHighlightedTranscript({ id: 'm1', isActive: false });
-
-    const turn = document.getElementById('agent-turn-m1');
-    expect(turn).toHaveClass('border-transparent');
-    expect(turn).not.toHaveClass('border-accent-cabbage-default');
+    expect(turn).toHaveClass('agent-turn-flash');
   });
 
   it('marks no turn when the target is not in the transcript', () => {
-    renderHighlightedTranscript({ id: 'other-run', isActive: true });
+    renderHighlightedTranscript('other-run');
 
     expect(document.getElementById('agent-turn-m1')).toBeNull();
     expect(document.getElementById('agent-turn-other-run')).toBeNull();

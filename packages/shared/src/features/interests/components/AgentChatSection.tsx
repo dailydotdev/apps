@@ -31,7 +31,7 @@ import { useCopyText } from '../../../hooks/useCopy';
 import { DateFormat } from '../../../components/utilities/DateFormat';
 import { TimeFormatType } from '../../../lib/dateFormat';
 import type { Post } from '../../../graphql/posts';
-import type { AgentBlock, AgentMessage, AgentTurnHighlight } from '../chat';
+import type { AgentBlock, AgentMessage } from '../chat';
 import { FEEDBACK_MARKER_REGEX } from '../chat';
 import { webappUrl } from '../../../lib/constants';
 import { useAgent } from '../AgentContext';
@@ -380,16 +380,16 @@ const MessageRow = ({
   onFeedClick,
   onPostLinkClick,
   activePostId,
-  highlight,
+  focusedRunId,
 }: {
   message: AgentMessage;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
   onPostLinkClick: (postId: string) => void;
   activePostId?: string;
-  highlight?: AgentTurnHighlight;
+  focusedRunId?: string;
 }): ReactElement => {
-  const isHighlightTarget = highlight?.id === message.id;
+  const isHighlightTarget = !!focusedRunId && focusedRunId === message.id;
   if (message.role === 'user') {
     return (
       <FlexCol className="agent-turn-in items-end gap-1">
@@ -418,11 +418,7 @@ const MessageRow = ({
       className={classNames(
         'agent-turn-in group min-w-0 gap-2',
         isHighlightTarget &&
-          '-m-3 rounded-16 border p-3 transition-colors duration-700',
-        isHighlightTarget &&
-          (highlight.isActive
-            ? 'border-accent-cabbage-default'
-            : 'border-transparent'),
+          'agent-turn-flash -m-3 rounded-16 border border-transparent p-3',
       )}
     >
       {message.isScheduled && (
@@ -460,9 +456,9 @@ const MessageRow = ({
 };
 
 export const AgentChatSection = ({
-  highlight,
+  focusedRunId,
 }: {
-  highlight?: AgentTurnHighlight;
+  focusedRunId?: string;
 }): ReactElement => {
   const {
     messages,
@@ -480,7 +476,7 @@ export const AgentChatSection = ({
         <MessageRow
           key={message.id}
           message={message}
-          highlight={highlight}
+          focusedRunId={focusedRunId}
           onPostClick={(post) =>
             openContentTarget({ type: 'post', postId: post.id, post })
           }
