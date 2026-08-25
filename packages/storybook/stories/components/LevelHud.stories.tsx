@@ -14,6 +14,7 @@ const meta: Meta<typeof LevelHud> = {
     xpToNextLevel: 600,
     currentStreak: 12,
     longestStreak: 28,
+    badges: 4,
     achievements: { unlocked: 9, total: 24 },
     isPending: false,
   },

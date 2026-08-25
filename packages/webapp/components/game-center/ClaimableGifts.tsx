@@ -46,7 +46,7 @@ export const OfferCard = ({
     .join(' · ');
 
   return (
-    <article className="relative flex w-60 shrink-0 flex-col gap-2 overflow-hidden rounded-14 border border-border-subtlest-tertiary p-4">
+    <article className="relative flex flex-col gap-2 overflow-hidden rounded-14 border border-border-subtlest-tertiary p-4">
       <div className="flex items-center justify-between gap-2">
         <OfferLogo offer={offer} className="size-8 rounded-8" />
         <Typography
@@ -124,7 +124,7 @@ export const ClaimableGiftsSection = ({
         Sponsored offers. No charge until a trial ends, cancel anytime.
       </Typography>
     </div>
-    <div className="-mx-4 flex items-stretch gap-3 overflow-x-auto px-4 pb-2 laptop:mx-0 laptop:px-0">
+    <div className="grid items-stretch gap-3 tablet:grid-cols-2 laptop:grid-cols-4">
       {offers.map((offer) => (
         <OfferCard
           key={offer.impressionUid}

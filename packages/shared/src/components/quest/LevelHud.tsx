@@ -55,6 +55,7 @@ export interface LevelHudProps {
   xpToNextLevel: number;
   currentStreak: number;
   longestStreak: number;
+  badges?: number;
   achievements?: { unlocked: number; total: number };
   isPending: boolean;
 }
@@ -68,6 +69,7 @@ export const LevelHud = ({
   xpToNextLevel,
   currentStreak,
   longestStreak,
+  badges,
   achievements,
   isPending,
 }: LevelHudProps): ReactElement => {
@@ -83,10 +85,13 @@ export const LevelHud = ({
       label: 'Longest',
       value: longestValue,
     },
+    ...(badges === undefined
+      ? []
+      : [{ label: 'Badges', value: badges.toLocaleString() }]),
     ...(achievements
       ? [
           {
-            label: 'Badges',
+            label: 'Achievements',
             value: `${achievements.unlocked}/${achievements.total}`,
           },
         ]

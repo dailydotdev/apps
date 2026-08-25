@@ -386,6 +386,7 @@ const GameCenterRedesign = () => (
           xpToNextLevel={600}
           currentStreak={12}
           longestStreak={28}
+          badges={4}
           achievements={{ unlocked: 9, total: 24 }}
           isPending={false}
         />
@@ -406,7 +407,7 @@ const GameCenterRedesign = () => (
 
     <section className="flex flex-col gap-4">
       <SectionHeader title="Achievement shelf" />
-      <div className="flex gap-4 overflow-x-auto pb-2">
+      <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-4">
         {achievements.map((item) => (
           <AchievementShelfCard
             key={item.achievement.id}
@@ -426,7 +427,7 @@ const GameCenterRedesign = () => (
       <SectionHeader title="Badges & Trophies" />
       <BadgeTrophyCase
         badges={
-          <div className="flex max-h-80 flex-col gap-2 overflow-y-auto">
+          <div className="flex flex-col gap-2">
             {badges.map((badge) => (
               <BadgeRow
                 key={badge.keyword.value}

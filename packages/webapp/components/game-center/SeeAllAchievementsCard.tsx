@@ -18,7 +18,7 @@ export const SeeAllAchievementsCard = ({
 }: SeeAllAchievementsCardProps): ReactElement => {
   return (
     <Link href={href} passHref>
-      <a className="group flex h-[272px] w-52 shrink-0 flex-col items-center justify-center gap-3 rounded-16 border border-border-subtlest-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover">
+      <a className="group flex h-[272px] w-full flex-col items-center justify-center gap-3 rounded-16 border border-border-subtlest-tertiary transition-colors hover:border-border-subtlest-primary hover:bg-surface-hover">
         <span className="flex size-14 items-center justify-center rounded-max bg-background-subtle text-text-primary transition-transform group-hover:translate-x-1">
           <ArrowIcon size={IconSize.Large} className="rotate-90" />
         </span>

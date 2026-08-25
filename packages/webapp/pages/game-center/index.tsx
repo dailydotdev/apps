@@ -383,7 +383,7 @@ function GameCenterPage({
     );
   } else if (featuredAchievements.length > 0) {
     achievementShelfContent = (
-      <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-2 laptop:mx-0 laptop:px-0">
+      <div className="grid gap-3 tablet:grid-cols-2 laptop:grid-cols-4">
         {featuredAchievements.map((achievement) => (
           <AchievementShelfCard
             key={achievement.achievement.id}
@@ -436,7 +436,7 @@ function GameCenterPage({
     );
   } else if (topReaderBadges.length > 0) {
     badgeCaseContent = (
-      <div className="flex max-h-80 flex-col gap-2 overflow-y-auto">
+      <div className="flex flex-col gap-2">
         {topReaderBadges.map((badge) => (
           <BadgeRow
             key={badge.id}
@@ -576,6 +576,7 @@ function GameCenterPage({
                 xpToNextLevel={questDashboard.level.xpToNextLevel}
                 currentStreak={questDashboard.currentStreak}
                 longestStreak={questDashboard.longestStreak}
+                badges={isBadgesPending ? undefined : topReaderBadges.length}
                 achievements={
                   showAchievements
                     ? {

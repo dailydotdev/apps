@@ -93,7 +93,7 @@ export function AchievementShelfCard({
 
   return (
     <>
-      <article className="group relative flex h-[272px] w-52 shrink-0 flex-col justify-end overflow-hidden rounded-16 bg-background-subtle text-left transition-transform hover:-translate-y-1">
+      <article className="group relative flex h-[272px] w-full flex-col justify-end overflow-hidden rounded-16 bg-background-subtle text-left transition-transform hover:-translate-y-1">
         {/* `absolute` has to come from the prop: LazyImage appends its own
             `relative` after our classes, and that wins in the compiled CSS. */}
         <LazyImage
