@@ -29,9 +29,9 @@ import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId, TargetType } from '../../../lib/log';
 
 const defaultBanner = {
-  title: 'Your next job should apply to you',
+  title: 'Complete your profile faster',
   description:
-    'Upload your CV so we quietly match you with roles you might actually want. Nothing is shared without your ok.',
+    'Upload your CV to import your experience, skills, and education. You can review and edit everything after.',
   cover: {
     laptop: uploadCvBgLaptop,
     tablet: uploadCvBgTablet,
