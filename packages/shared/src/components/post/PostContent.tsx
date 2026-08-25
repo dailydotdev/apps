@@ -90,6 +90,7 @@ export function PostContentRaw({
   backToSquad,
   isBannerVisible,
   isPostPage,
+  widgetsTrailing,
 }: PostContentRawProps): ReactElement {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -297,6 +298,7 @@ export function PostContentRaw({
       onClose={onClose}
       origin={origin}
       onCopyPostLink={onCopyPostLink}
+      trailing={widgetsTrailing}
     />
   );
 

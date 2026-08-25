@@ -11,10 +11,12 @@ import { FunnelUploadCv } from './FunnelUploadCv';
 import { FunnelStepTransitionType, FunnelStepType } from '../types/funnel';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
 import { useAuthContext } from '../../../contexts/AuthContext';
+import { useJobsFeature } from '../../../hooks/useJobsFeature';
 
 // Mock the hooks
 jest.mock('../../profile/hooks/useUploadCv');
 jest.mock('../../../contexts/AuthContext');
+jest.mock('../../../hooks/useJobsFeature');
 jest.mock('../../../hooks', () => ({
   useActions: jest.fn(() => ({
     checkHasCompleted: jest.fn(() => false),
@@ -25,13 +27,19 @@ jest.mock('../../../hooks', () => ({
 // Mock the UploadCv component to make testing easier
 jest.mock('../components/UploadCv', () => ({
   UploadCv: ({
+    headline,
+    description,
     onFilesDrop,
     status,
   }: {
+    headline: string;
+    description: string;
     onFilesDrop: (files: File[]) => void;
     status: string;
   }) => (
     <div data-testid="upload-cv-mock">
+      <div data-testid="headline">{headline}</div>
+      <div data-testid="description">{description}</div>
       <div data-testid="status">{status}</div>
       <button
         type="button"
@@ -131,9 +139,16 @@ describe('FunnelUploadCv', () => {
   const mockUseAuthContext = useAuthContext as jest.MockedFunction<
     typeof useAuthContext
   >;
+  const mockUseJobsFeature = useJobsFeature as jest.MockedFunction<
+    typeof useJobsFeature
+  >;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseJobsFeature.mockReturnValue({
+      isJobsEnabled: true,
+      isLoading: false,
+    });
     mockUseUploadCv.mockReturnValue({
       onUpload: mockOnUpload,
       status: 'idle',
@@ -179,6 +194,12 @@ describe('FunnelUploadCv', () => {
       renderComponent(defaultParameters, mockOnTransition);
 
       expect(screen.getByTestId('upload-cv-mock')).toBeInTheDocument();
+      expect(screen.getByTestId('headline')).toHaveTextContent(
+        'Upload your CV',
+      );
+      expect(screen.getByTestId('description')).toHaveTextContent(
+        'Upload your CV to get started',
+      );
       expect(screen.getByTestId('cta-wrapper')).toBeInTheDocument();
     });
 
@@ -264,6 +285,23 @@ describe('FunnelUploadCv', () => {
       );
 
       expect(container).toBeEmptyDOMElement();
+    });
+
+    it('should render profile copy when jobs UI is disabled', () => {
+      mockUseJobsFeature.mockReturnValue({
+        isJobsEnabled: false,
+        isLoading: false,
+      });
+
+      renderComponent(defaultParameters, mockOnTransition);
+
+      expect(screen.getByTestId('upload-cv-mock')).toBeInTheDocument();
+      expect(screen.getByTestId('headline')).toHaveTextContent(
+        'Autofill your profile with your CV',
+      );
+      expect(screen.getByTestId('description')).toHaveTextContent(
+        'Upload your CV to import your experience and skills into your profile.',
+      );
     });
   });
 

@@ -28,10 +28,15 @@ import {
   uploadCvBgTablet,
   uploadCvBgMobile,
 } from '../../lib/image';
-import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
+import {
+  uploadCvOpportunitySuccessContent,
+  uploadCvProfileSuccessContent,
+  useUploadCv,
+} from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
 import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
+import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 export interface FeedContainerProps {
   children: ReactNode;
@@ -190,7 +195,11 @@ export const FeedContainer = ({
 
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
+  const { isJobsEnabled } = useJobsFeature();
   const { onUpload, status, shouldShow } = useUploadCv({
+    modalContent: isJobsEnabled
+      ? uploadCvOpportunitySuccessContent
+      : uploadCvProfileSuccessContent,
     onUploadSuccess: () => {
       if (marketingCta) {
         clearMarketingCta(marketingCta.campaignId);
@@ -203,6 +212,27 @@ export const FeedContainer = ({
     shouldEvaluate: shouldEvaluateBanner,
   });
   const shouldShowBanner = shouldEvaluateBanner && !hasIntroQuests;
+  let uploadCvBannerTitle = 'Complete your profile faster';
+  let uploadCvBannerDescription =
+    'Upload your CV to import your experience, skills, and education. You can review and edit everything after.';
+
+  if (isJobsEnabled) {
+    uploadCvBannerTitle =
+      marketingCta?.flags?.title || 'Your next job should apply to you';
+    uploadCvBannerDescription =
+      marketingCta?.flags?.description ||
+      'Upload your CV so we quietly match you with roles you might actually want. Nothing is shared without your ok.';
+  }
+
+  const uploadCvBanner = {
+    title: uploadCvBannerTitle,
+    description: uploadCvBannerDescription,
+    cover: {
+      laptop: isList ? uploadCvBgTablet : uploadCvBgLaptop,
+      tablet: uploadCvBgTablet,
+      base: uploadCvBgMobile,
+    },
+  };
 
   const clearMarketingCtaRef = useRef(clearMarketingCta);
   clearMarketingCtaRef.current = clearMarketingCta;
@@ -248,19 +278,7 @@ export const FeedContainer = ({
             onClose={() =>
               marketingCta && clearMarketingCta(marketingCta.campaignId)
             }
-            banner={
-              marketingCta?.flags?.title && marketingCta?.flags?.description
-                ? {
-                    title: marketingCta.flags.title,
-                    description: marketingCta.flags.description,
-                    cover: {
-                      laptop: isList ? uploadCvBgTablet : uploadCvBgLaptop,
-                      tablet: uploadCvBgTablet,
-                      base: uploadCvBgMobile,
-                    },
-                  }
-                : undefined
-            }
+            banner={uploadCvBanner}
             targetId={TargetId.Feed}
           />
         </div>

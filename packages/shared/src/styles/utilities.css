@@ -1029,6 +1029,22 @@
   }
 }
 
+/* The turn a run link points at: hold the tint long enough to spot, then hand
+   the row back to the transcript. Color-only, so reduced motion keeps it. */
+@keyframes agent-turn-flash {
+  0%,
+  81% {
+    border-color: var(--theme-accent-cabbage-default);
+  }
+  100% {
+    border-color: transparent;
+  }
+}
+
+.agent-turn-flash {
+  animation: agent-turn-flash 3.7s ease-out forwards;
+}
+
 /*
  * The composer's command and mention lists. They open upward out of the field,
  * so the enter rises off it rather than dropping onto it, and carries the same
