@@ -35,7 +35,7 @@ import { ScreeningQuestionStep } from '@dailydotdev/shared/src/features/opportun
 import { CVUploadStep } from '@dailydotdev/shared/src/features/opportunity/components/CVUploadStep';
 import { PreferenceFormStep } from '@dailydotdev/shared/src/features/opportunity/components/PreferenceFormStep';
 import { StepNavigation } from '@dailydotdev/shared/src/features/opportunity/components/StepNavigation';
-import { getCandidateOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 import { opportunityPageLayoutProps } from '../../../components/layouts/utils';
 import {
   defaultOpenGraph,
@@ -58,7 +58,7 @@ enum DeclineStep {
   PREFERENCES = 'preferences',
 }
 
-const DeclinePage = (): ReactElement | null => {
+const DeclinePage = (): ReactElement => {
   const {
     query: { id },
     push,
@@ -87,7 +87,7 @@ const DeclinePage = (): ReactElement | null => {
     ActionType.UserCandidatePreferencesSaved,
   );
 
-  const opts = getCandidatePreferencesOptions(user?.id ?? '');
+  const opts = getCandidatePreferencesOptions(user?.id);
   const updateQuery = useUpdateQuery(opts);
   const { data: preferences } = useQuery(opts);
 
@@ -181,7 +181,7 @@ const DeclinePage = (): ReactElement | null => {
   const handleNext = () => {
     if (currentStep === DeclineStep.STATUS) {
       // Always save the status when moving forward
-      if (selectedStatus !== null && preferences?.status !== selectedStatus) {
+      if (preferences?.status !== selectedStatus) {
         updatePreferences({ status: selectedStatus });
       }
 
@@ -437,7 +437,7 @@ const DeclinePage = (): ReactElement | null => {
   );
 };
 
-DeclinePage.getLayout = getCandidateOpportunityProtectedLayout;
+DeclinePage.getLayout = getOpportunityProtectedLayout;
 DeclinePage.layoutProps = {
   ...opportunityPageLayoutProps,
   seo,

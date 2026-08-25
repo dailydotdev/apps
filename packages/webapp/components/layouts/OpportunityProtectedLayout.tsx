@@ -7,7 +7,6 @@ import { opportunityUrl } from '@dailydotdev/shared/src/lib/constants';
 import { useQuery } from '@tanstack/react-query';
 import { opportunityByIdOptions } from '@dailydotdev/shared/src/features/opportunity/queries';
 import { getLayout as getRecruiterLayout } from './RecruiterLayout';
-import { JobsFeatureGate } from '../JobsFeatureGate';
 
 export const OpportunityProtectedLayout = ({
   children,
@@ -47,10 +46,3 @@ export const getOpportunityProtectedLayout: typeof getRecruiterLayout = (
     <OpportunityProtectedLayout>{page}</OpportunityProtectedLayout>,
     ...props,
   );
-
-export const getCandidateOpportunityProtectedLayout: typeof getRecruiterLayout =
-  (page, ...props) =>
-    getOpportunityProtectedLayout(
-      <JobsFeatureGate>{page}</JobsFeatureGate>,
-      ...props,
-    );

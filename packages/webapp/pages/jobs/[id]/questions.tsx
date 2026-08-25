@@ -43,7 +43,7 @@ import {
   AcceptStep,
 } from '@dailydotdev/shared/src/features/recruiter/hooks/useOpportunityAcceptanceSteps';
 import { useOpportunityAcceptanceHandlers } from '@dailydotdev/shared/src/features/recruiter/hooks/useOpportunityAcceptanceHandlers';
-import { getCandidateOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
+import { getOpportunityProtectedLayout } from '../../../components/layouts/OpportunityProtectedLayout';
 import {
   defaultOpenGraph,
   defaultSeo,
@@ -407,7 +407,7 @@ const AcceptPage = (): ReactElement => {
   );
 };
 
-AcceptPage.getLayout = getCandidateOpportunityProtectedLayout;
+AcceptPage.getLayout = getOpportunityProtectedLayout;
 AcceptPage.layoutProps = {
   ...opportunityPageLayoutProps,
   seo,

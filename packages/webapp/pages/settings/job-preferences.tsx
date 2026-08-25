@@ -58,7 +58,6 @@ import { getSettingsLayout } from '../../components/layouts/SettingsLayout';
 import { defaultSeo, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { AccountPageContainer } from '../../components/layouts/SettingsLayout/AccountPageContainer';
-import { JobsFeatureGate } from '../../components/JobsFeatureGate';
 
 const seo: NextSeoProps = {
   ...defaultSeo,
@@ -81,7 +80,7 @@ const options = [
   },
 ];
 
-const JobPreferencesPageContent = (): ReactElement => {
+const JobPreferencesPage = (): ReactElement => {
   const { logEvent } = useLogContext();
   const { user } = useAuthContext();
   const { displayToast } = useToastNotification();
@@ -282,12 +281,6 @@ const JobPreferencesPageContent = (): ReactElement => {
     </AccountPageContainer>
   );
 };
-
-const JobPreferencesPage = (): ReactElement => (
-  <JobsFeatureGate>
-    <JobPreferencesPageContent />
-  </JobsFeatureGate>
-);
 
 export const getStaticProps: GetStaticProps<{
   dehydratedState: DehydratedState | null;

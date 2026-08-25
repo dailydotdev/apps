@@ -19,22 +19,11 @@ import { EmploymentType } from '@dailydotdev/shared/src/features/opportunity/pro
 import { SocialMediaType } from '@dailydotdev/shared/src/features/organizations/types';
 import { OpportunityEditProvider } from '@dailydotdev/shared/src/components/opportunity/OpportunityEditContext';
 import { COMPLETED_USER_ACTIONS } from '@dailydotdev/shared/src/graphql/actions';
-import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
-import { useJobsFeature } from '@dailydotdev/shared/src/hooks/useJobsFeature';
 import JobPage from '../pages/jobs/[id]';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
 }));
-
-jest.mock('@dailydotdev/shared/src/hooks/useJobsFeature', () => ({
-  useJobsFeature: jest.fn(),
-}));
-
-let mockReplace: jest.Mock;
-const mockUseJobsFeature = useJobsFeature as jest.MockedFunction<
-  typeof useJobsFeature
->;
 
 const mockOpportunity: Opportunity = {
   id: 'test-jobs-id',
@@ -90,11 +79,6 @@ const mockOpportunity: Opportunity = {
 beforeEach(() => {
   nock.cleanAll();
   jest.clearAllMocks();
-  mockReplace = jest.fn();
-  mockUseJobsFeature.mockReturnValue({
-    isJobsEnabled: true,
-    isLoading: false,
-  });
   jest.mocked(useRouter).mockImplementation(
     () =>
       ({
@@ -103,7 +87,6 @@ beforeEach(() => {
         isReady: true,
         query: { id: 'test-jobs-id' },
         push: jest.fn(),
-        replace: mockReplace,
       } as unknown as NextRouter),
   );
 });
@@ -152,10 +135,6 @@ const createCompletedActionsMock = (): MockedGraphQLResponse => ({
 const renderOpportunityPage = (
   opportunityData: Partial<Opportunity> = {},
   matchStatus = OpportunityMatchStatus.Pending,
-  {
-    jobsEnabled = true,
-    jobsFeatureLoading = false,
-  }: { jobsEnabled?: boolean; jobsFeatureLoading?: boolean } = {},
 ): RenderResult => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -180,11 +159,6 @@ const renderOpportunityPage = (
 
   mocks.forEach(mockGraphQL);
 
-  mockUseJobsFeature.mockReturnValue({
-    isJobsEnabled: jobsEnabled,
-    isLoading: jobsFeatureLoading,
-  });
-
   return render(
     <TestBootProvider
       client={queryClient}
@@ -207,33 +181,6 @@ const renderOpportunityPage = (
 };
 
 describe('OpportunityPage', () => {
-  describe('Feature flag', () => {
-    it('should redirect when jobs UI is disabled', async () => {
-      renderOpportunityPage({}, OpportunityMatchStatus.Pending, {
-        jobsEnabled: false,
-      });
-
-      await waitFor(() => {
-        expect(mockReplace).toHaveBeenCalledWith(webappUrl);
-      });
-
-      expect(
-        screen.queryByText('Senior Software Engineer'),
-      ).not.toBeInTheDocument();
-    });
-
-    it('should render while jobs UI flag is loading', async () => {
-      renderOpportunityPage({}, OpportunityMatchStatus.Pending, {
-        jobsFeatureLoading: true,
-      });
-
-      await waitFor(() => {
-        expect(screen.getByText('Senior Software Engineer')).toBeVisible();
-      });
-      expect(mockReplace).not.toHaveBeenCalled();
-    });
-  });
-
   describe('Response buttons', () => {
     it('should render "Not for me" button with correct link', async () => {
       renderOpportunityPage();

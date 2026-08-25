@@ -119,7 +119,7 @@ function EditPageContent(): ReactElement {
         error.response?.errors?.[0]?.extensions?.code ===
         ApiError.PaymentRequired
       ) {
-        if ((opportunity?.organization?.recruiterTotalSeats ?? 0) > 0) {
+        if (opportunity?.organization?.recruiterTotalSeats > 0) {
           displayToast('You need more seats to publish this job.');
 
           openModal({
@@ -217,7 +217,7 @@ function EditPageContent(): ReactElement {
   const isSaveDisabled =
     isSaving || isPendingOpportunityState || hasIncompleteFields;
 
-  if (isLoading || !opportunity || !liveOpportunity || isCheckingPayment) {
+  if (isLoading || !opportunity || isCheckingPayment) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <Loader />
@@ -311,7 +311,6 @@ function EditPageContent(): ReactElement {
               >
                 <JobPage
                   id={opportunityId}
-                  bypassJobsFeatureGate
                   hideHeader
                   hideCompanyBadge
                   hideRecruiterBadge
@@ -395,7 +394,6 @@ function EditPageContent(): ReactElement {
             <div className="bg-background-subtle py-6">
               <JobPage
                 id={opportunityId}
-                bypassJobsFeatureGate
                 hideHeader
                 hideCompanyBadge
                 hideRecruiterBadge
