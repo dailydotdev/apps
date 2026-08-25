@@ -34,12 +34,14 @@ export const AgentWorkspace = ({
   isDeleting,
   isStandalone,
   runId,
+  isFeedReady = true,
 }: {
   items: AgentFeedItem[];
   onDelete: () => void;
   isDeleting: boolean;
   isStandalone?: boolean;
   runId?: string;
+  isFeedReady?: boolean;
 }): ReactElement => {
   const { isSettingsOpen, openContent, messages, summaryPosts } = useAgent();
   const shellHeight = useAgentShellHeight(isStandalone);
@@ -129,7 +131,8 @@ export const AgentWorkspace = ({
     runId ? { id: runId, isActive: true } : null,
   );
   const hasFocusedTurnRef = useRef(false);
-  const hasFocusTarget = !!runId && messages.some(({ id }) => id === runId);
+  const hasFocusTarget =
+    !!runId && isFeedReady && messages.some(({ id }) => id === runId);
 
   useEffect(() => {
     if (!hasFocusTarget || hasFocusedTurnRef.current) {
