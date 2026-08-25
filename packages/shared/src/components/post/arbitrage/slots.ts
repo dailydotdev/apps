@@ -56,10 +56,11 @@ export const ARBITRAGE_SLOT = {
 export const TOP_LEADERBOARD_STICKY_MS = 10_000;
 
 /**
- * A long thread gets an MPU after every this many comments (the expert brief
- * says 6-8). Short threads never reach the interval, so they stay ad-free.
+ * A long thread gets an MPU each time this many comments have gone by —
+ * replies included, every comment counts, 8 flat (product call, Aug 25).
+ * Short threads never reach the interval, so they stay ad-free.
  */
-export const COMMENTS_PER_INTERLEAVED_AD = 7;
+export const COMMENTS_PER_INTERLEAVED_AD = 8;
 
 /**
  * Visible characters of article body between in-body MPUs — ~250 words, the
@@ -89,6 +90,14 @@ export const READ_ADSENSE_SLOTS: AdsenseSlots = {
   // queryable in ClickHouse.
   // TODO(chris): create dedicated Display units (read_s17_in_body,
   // read_s18_above_comments) and swap the ids for clean AdSense-side rows.
+  //
+  // Phone density, the written gate the previous map kept slot 7 behind:
+  // - The comment MPU stays hideOnPhone in the template until a long-thread
+  //   phone measurement with the interval live says otherwise.
+  // - The in-body MPUs are phone-visible by construction, not by measurement:
+  //   one 250px unit per BODY_CHARS_PER_AD (1500) visible characters is
+  //   ~1100px of rendered text per unit at phone width — under 20% added
+  //   density at any article length, against the Better Ads 30% cap.
   [ARBITRAGE_SLOT.commentMpu]: { id: '6921226982', type: 'display' },
   [ARBITRAGE_SLOT.railAfterSource]: { id: '5249052667', type: 'display' },
   [ARBITRAGE_SLOT.railBetweenFurtherReading]: {

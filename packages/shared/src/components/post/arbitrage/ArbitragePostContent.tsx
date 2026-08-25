@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
 import { isVideoPost } from '../../../graphql/posts';
@@ -20,7 +20,7 @@ import Markdown from '../../Markdown';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { ArbitrageTopLeaderboard } from './ArbitrageTopLeaderboard';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
-import { splitContentForAds } from './splitContentForAds';
+import { splitContentForAds, splitTextForAds } from './splitContentForAds';
 import {
   ARBITRAGE_SLOT,
   BODY_CHARS_PER_AD,
@@ -33,17 +33,10 @@ import { PostWidgets, PostWidgetPosition } from '../PostWidgets';
 import PostEngagements from '../PostEngagements';
 
 /**
- * One slot per real rail widget, in render order. The rail is the page's only
- * column with no article in it, so every widget there earns a unit; the two
- * that are already commercial (the house ad widget and the sponsored tools
- * card) have no position and so get none.
- *
- * Below laptop the rail stacks under the article rather than beside it, so
- * an unfiltered run lands every unit on a phone too — measured at roughly 40%
- * of page height against the Better Ads Standards' 30% mobile cap, and
- * Chrome's ad filter for a violation applies to the whole domain, direct-sold
- * inventory included. Only the first rail unit keeps its phone placement; the
- * rest are desktop-only, which brings the phone run well under the cap.
+ * The rail carries two in-flow units between its widgets, and the closing
+ * sticky half page arrives separately via PostWidgets' `trailing`. Only the
+ * first keeps a phone placement: below laptop the rail stacks under the
+ * article, where the body and comment cadences already carry the density.
  */
 const RAIL_AD: Partial<
   Record<
@@ -102,6 +95,22 @@ export function ArbitragePostContent({
     post,
   });
   const leaderboardReleased = useTimedRelease(TOP_LEADERBOARD_STICKY_MS);
+  // Memoised: the splits re-scan the whole text, and this component
+  // re-renders on comment sorting, hover state and auth resolution. The TLDR
+  // is main content here — for a scraped article it is the only content — so
+  // it carries the same MPU cadence as a hosted body.
+  const summaryParts = useMemo(
+    () =>
+      post.summary ? splitTextForAds(post.summary, BODY_CHARS_PER_AD) : [],
+    [post.summary],
+  );
+  const bodyChunks = useMemo(
+    () =>
+      post.contentHtml
+        ? splitContentForAds(post.contentHtml, BODY_CHARS_PER_AD)
+        : [],
+    [post.contentHtml],
+  );
 
   return (
     <PostContentContainerRaw className={className}>
@@ -184,13 +193,22 @@ export function ArbitragePostContent({
           />
         )}
 
-        {!!post.summary && (
-          <div className="mb-6 overflow-hidden text-text-secondary">
-            <p className="select-text break-words typo-markdown">
-              {post.summary}
-            </p>
-          </div>
-        )}
+        {summaryParts.map((part, index, parts) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <React.Fragment key={index}>
+            <div className="mb-6 overflow-hidden text-text-secondary">
+              <p className="select-text break-words typo-markdown">{part}</p>
+            </div>
+            {index < parts.length - 1 && (
+              <ArbitrageAdSlot
+                slot={ARBITRAGE_SLOT.inBodyMpu}
+                format={ArbitrageAdFormat.MediumRectangle}
+                className="my-6"
+                logExtra={{ section: 'summary', occurrence: index + 1 }}
+              />
+            )}
+          </React.Fragment>
+        ))}
 
         <div className="mb-6">
           <div className="min-w-0 flex-1">
@@ -243,26 +261,26 @@ export function ArbitragePostContent({
 
         {/* One MPU per BODY_CHARS_PER_AD of visible text, only ever between
             top-level blocks — splitContentForAds cannot cut a paragraph, list
-            or code block in half. */}
-        {!!post.contentHtml &&
-          splitContentForAds(post.contentHtml, BODY_CHARS_PER_AD).map(
-            (chunk, index, chunks) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <React.Fragment key={index}>
-                <Markdown
-                  className="my-6"
-                  content={chunk}
-                  appendTooltipTo={() => globalThis?.document?.body}
-                />
-                {index < chunks.length - 1 && (
-                  <ArbitrageAdSlot
-                    slot={ARBITRAGE_SLOT.inBodyMpu}
-                    format={ArbitrageAdFormat.MediumRectangle}
-                  />
-                )}
-              </React.Fragment>
-            ),
-          )}
+            or code block in half. Section and occurrence ride the events so
+            analytics can tell the first in-body unit from the sixth. */}
+        {bodyChunks.map((chunk, index, chunks) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <React.Fragment key={index}>
+            <Markdown
+              className="my-6"
+              content={chunk}
+              appendTooltipTo={() => globalThis?.document?.body}
+            />
+            {index < chunks.length - 1 && (
+              <ArbitrageAdSlot
+                slot={ARBITRAGE_SLOT.inBodyMpu}
+                format={ArbitrageAdFormat.MediumRectangle}
+                className="my-6"
+                logExtra={{ section: 'body', occurrence: index + 1 }}
+              />
+            )}
+          </React.Fragment>
+        ))}
 
         {/* Same block the post page shows: the questions that likely brought
             an anonymous visitor here (the component self-hides for logged-in
@@ -278,17 +296,22 @@ export function ArbitragePostContent({
         {/* The production engagement block verbatim — counts, actions, share,
             sort control, composer and thread — so everything from here to the
             end of the discussion matches the live post page exactly. The only
-            addition is a native unit every few comments in a long thread. */}
+            addition is an MPU as a long thread grows. */}
         <PostEngagements
           post={post}
           onCopyLinkClick={onCopyPostLink}
           logOrigin={Origin.ArticlePage}
           hideInternalAd
           interleaveEvery={COMMENTS_PER_INTERLEAVED_AD}
-          renderInterleaved={() => (
+          renderInterleaved={(occurrence) => (
+            // Phone-hidden until the density precondition in slots.ts is
+            // satisfied: a repeating unit, and the phone figure was measured
+            // without it.
             <ArbitrageAdSlot
               slot={ARBITRAGE_SLOT.commentMpu}
               format={ArbitrageAdFormat.MediumRectangle}
+              hideOnPhone
+              logExtra={{ occurrence }}
             />
           )}
         />

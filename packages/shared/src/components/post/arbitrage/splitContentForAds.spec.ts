@@ -1,4 +1,4 @@
-import { splitContentForAds } from './splitContentForAds';
+import { splitContentForAds, splitTextForAds } from './splitContentForAds';
 
 const para = (chars: number, label: string): string =>
   `<p>${label.repeat(Math.ceil(chars / label.length)).slice(0, chars)}</p>`;
@@ -66,5 +66,31 @@ describe('splitContentForAds', () => {
 
     expect(chunks.join('')).toBe(html);
     expect(chunks.length).toBeGreaterThan(1);
+  });
+  it('ignores tags inside HTML comments when balancing depth', () => {
+    const html = `<!-- <div> -->${para(300, 'a')}${para(300, 'b')}`;
+    const chunks = splitContentForAds(html, 250);
+
+    expect(chunks.join('')).toBe(html);
+    expect(chunks.length).toBe(2);
+  });
+});
+
+describe('splitTextForAds', () => {
+  it('keeps a short TLDR whole', () => {
+    expect(splitTextForAds('short summary.', 250)).toEqual(['short summary.']);
+  });
+
+  it('breaks a long TLDR at a sentence end past the threshold', () => {
+    const first = `${'a'.repeat(260)}.`;
+    const second = 'b'.repeat(300);
+    const parts = splitTextForAds(`${first} ${second}`, 250);
+
+    expect(parts).toEqual([first, second]);
+  });
+
+  it('never ends on a sliver', () => {
+    const text = `${'a'.repeat(260)}. ${'b'.repeat(30)}`;
+    expect(splitTextForAds(text, 250)).toHaveLength(1);
   });
 });

@@ -1,4 +1,7 @@
-const TAG_RE = /<\/?([a-zA-Z][\w-]*)(?:[^>'"]|"[^"]*"|'[^']*')*?\/?>/g;
+// Comments first, so a tag inside `<!-- <div> -->` can never touch the
+// depth count; the alternation consumes the whole comment as one token.
+const TAG_RE =
+  /<!--[\s\S]*?-->|<\/?([a-zA-Z][\w-]*)(?:[^>'"]|"[^"]*"|'[^']*')*?\/?>/g;
 
 // Elements that never take a closing tag, so an opening token must not
 // increase the nesting depth.
@@ -45,6 +48,12 @@ export function splitContentForAds(html: string, minChars: number): string[] {
     visible += visibleLength(html.slice(cursor, match.index));
     cursor = match.index + token.length;
 
+    if (token.startsWith('<!--')) {
+      match = TAG_RE.exec(html);
+      // eslint-disable-next-line no-continue
+      continue;
+    }
+
     const name = rawName.toLowerCase();
     if (token.startsWith('</')) {
       depth = Math.max(0, depth - 1);
@@ -75,4 +84,30 @@ export function splitContentForAds(html: string, minChars: number): string[] {
   }
 
   return chunks;
+}
+
+/**
+ * Same cadence for plain text (the TLDR): parts of at least `minChars`,
+ * broken at a sentence end where one lands within reach, else at a word
+ * boundary — and no trailing sliver, same as the HTML splitter.
+ */
+export function splitTextForAds(text: string, minChars: number): string[] {
+  const parts: string[] = [];
+  let rest = text;
+
+  while (rest.length > minChars * 1.5) {
+    const window = rest.slice(minChars, minChars + 200);
+    const sentence = window.search(/[.!?]\s/);
+    const word = window.search(/\s/);
+    const offset = sentence >= 0 ? sentence + 1 : Math.max(word, 0);
+    const cut = minChars + offset;
+    parts.push(rest.slice(0, cut).trimEnd());
+    rest = rest.slice(cut).trimStart();
+  }
+
+  if (rest.trim()) {
+    parts.push(rest);
+  }
+
+  return parts;
 }

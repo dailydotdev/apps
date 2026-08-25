@@ -46,10 +46,12 @@ interface PostCommentsProps {
   canReply?: MainCommentProps['canReply'];
   onReplyBlocked?: MainCommentProps['onReplyBlocked'];
   /**
-   * Renders between top-level comments, every `interleaveEvery` of them. Used
-   * by the ad template to break a long thread up; never after the last comment,
-   * where whatever follows the thread already sits. Both props are required
-   * together, and without them the list keeps its original markup.
+   * Renders after the top-level comment at which the running total of
+   * comments — replies included, every comment counts — crosses a multiple
+   * of `interleaveEvery`. Used by the ad template to break a long thread up;
+   * never after the last top-level comment, where whatever follows the
+   * thread already sits. Both props are required together, and without them
+   * the list keeps its original markup.
    */
   interleaveEvery?: number;
   renderInterleaved?: (occurrence: number) => ReactNode;
@@ -134,15 +136,28 @@ export function PostComments({
       }
       ref={container}
     >
-      {comments!.postComments.edges.map((e, index) => {
-        const isLast = index === comments!.postComments.edges.length - 1;
+      {comments!.postComments.edges.map((e, index, edges) => {
+        const isLast = index === edges.length - 1;
+        // Replies count too: the interval is over everything the reader
+        // scrolls past, not just top-level rows, and the boundary can only
+        // sit after a top-level block — never inside one.
+        const countThrough = (through: number): number =>
+          edges
+            .slice(0, through)
+            .reduce(
+              (total, edge) =>
+                total + 1 + (edge.node.children?.edges?.length ?? 0),
+              0,
+            );
+        const seen = countThrough(index + 1);
         // Never after the last comment, where whatever follows the thread
         // already sits.
         const shouldInterleave =
           !!interleaveEvery &&
           !!renderInterleaved &&
           !isLast &&
-          (index + 1) % interleaveEvery === 0;
+          Math.floor(seen / interleaveEvery) >
+            Math.floor(countThrough(index) / interleaveEvery);
 
         // Always the Fragment, even rows that interleave nothing: the type at
         // a given key must not flip as the boundary moves (a new comment
@@ -174,7 +189,7 @@ export function PostComments({
               onReplyBlocked={onReplyBlocked}
             />
             {shouldInterleave &&
-              renderInterleaved((index + 1) / interleaveEvery)}
+              renderInterleaved(Math.floor(seen / interleaveEvery))}
           </Fragment>
         );
       })}
