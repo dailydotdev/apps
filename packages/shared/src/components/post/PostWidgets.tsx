@@ -67,6 +67,8 @@ export type PostWidgetsProps = Omit<PostHeaderActionsProps, 'contextMenuId'> &
     getRailAd?: (position: PostWidgetPosition) => ReactNode;
     /** Rendered last, below the footer links. */
     trailing?: ReactNode;
+    /** Drops the internal sidebar ad — for templates carrying their own. */
+    hideAdWidget?: boolean;
   };
 
 /**
@@ -100,6 +102,7 @@ export function PostWidgets({
   hideToc = false,
   getRailAd,
   trailing,
+  hideAdWidget,
 }: PostWidgetsProps): ReactElement {
   const { tokenRefreshed } = useContext(AuthContext);
   const { source } = post;
@@ -158,10 +161,12 @@ export function PostWidgets({
           />
         ),
       )}
-      <PostSidebarAdWidget
-        postId={post.id}
-        className={{ container: cardClasses }}
-      />
+      {!hideAdWidget && (
+        <PostSidebarAdWidget
+          postId={post.id}
+          className={{ container: cardClasses }}
+        />
+      )}
       <MentionedToolsWidget postTags={post.tags || []} />
       {withAd(
         PostWidgetPosition.Share,

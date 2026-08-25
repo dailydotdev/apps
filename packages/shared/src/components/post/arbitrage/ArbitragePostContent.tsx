@@ -19,8 +19,11 @@ import { TruncateText } from '../../utilities';
 import Markdown from '../../Markdown';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { ArbitrageTopLeaderboard } from './ArbitrageTopLeaderboard';
+import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
+import { splitContentForAds } from './splitContentForAds';
 import {
   ARBITRAGE_SLOT,
+  BODY_CHARS_PER_AD,
   COMMENTS_PER_INTERLEAVED_AD,
   TOP_LEADERBOARD_STICKY_MS,
 } from './slots';
@@ -42,48 +45,27 @@ import PostEngagements from '../PostEngagements';
  * inventory included. Only the first rail unit keeps its phone placement; the
  * rest are desktop-only, which brings the phone run well under the cap.
  */
-const RAIL_AD: Record<
-  PostWidgetPosition,
-  {
-    slot: number;
-    format: ArbitrageAdFormat;
-    className?: string;
-    hideOnPhone?: boolean;
-  }
+const RAIL_AD: Partial<
+  Record<
+    PostWidgetPosition,
+    {
+      slot: number;
+      format: ArbitrageAdFormat;
+      className?: string;
+      hideOnPhone?: boolean;
+    }
+  >
 > = {
   [PostWidgetPosition.Source]: {
     slot: ARBITRAGE_SLOT.railAfterSource,
     format: ArbitrageAdFormat.MediumRectangle,
   },
-  [PostWidgetPosition.Creator]: {
-    slot: ARBITRAGE_SLOT.railAfterCreator,
-    format: ArbitrageAdFormat.MediumRectangle,
-    hideOnPhone: true,
-  },
-  [PostWidgetPosition.Share]: {
-    slot: ARBITRAGE_SLOT.railAfterShare,
-    format: ArbitrageAdFormat.MediumRectangle,
-    hideOnPhone: true,
-  },
-  [PostWidgetPosition.Highlights]: {
-    slot: ARBITRAGE_SLOT.railAfterHighlights,
-    format: ArbitrageAdFormat.MediumRectangle,
-    hideOnPhone: true,
-  },
-  // Between "You might like" and the discussions, and the only unit that
-  // stays with the visitor: it pins under the fixed chrome and rides the rest
-  // of the scroll. Sticky is bounded by the containing block, which must be
-  // the rail itself — stretched to the article column's height — for the unit
-  // to have the whole page to travel; FurtherReading flattens to `contents`
-  // around it for exactly that reason, and any wrapper that generates a box
-  // here would cut the travel to that box. z-1 puts it over the widgets that
-  // scroll underneath, and the background keeps them from showing through the
-  // space the creative does not fill.
+  // In flow, not sticky: a sticky unit mid-rail slides over the widgets
+  // below it, and the rail's one sticky lives at its very end (slot 19),
+  // where nothing follows for it to cover.
   [PostWidgetPosition.SimilarPosts]: {
     slot: ARBITRAGE_SLOT.railBetweenFurtherReading,
     format: ArbitrageAdFormat.MediumRectangle,
-    className:
-      'laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)] laptop:z-1 laptop:bg-background-default',
     hideOnPhone: true,
   },
 };
@@ -210,24 +192,7 @@ export function ArbitragePostContent({
           </div>
         )}
 
-        {/* MPU 1 beside the tags, date and cover rather than above them, so the
-            first ad shares the fold with real page furniture instead of
-            standing alone. The slot is first in the DOM because a phone stacks
-            the column and the brief puts the unit above the article, not below
-            it; from laptop `order-last` moves it to the right of the group.
-
-            The two halves are deliberately near equal — 336 for the unit
-            against 385 for the article's, out of the column's 745 — so the ad
-            reads as the cover's counterpart rather than as a tower beside it.
-            items-end puts their bottom edges on the same line. */}
-        <div className="mb-6 flex flex-col gap-6 laptop:flex-row laptop:items-end">
-          <ArbitrageAdSlot
-            slot={ARBITRAGE_SLOT.inlineMpu1}
-            format={ArbitrageAdFormat.Rectangle}
-            refreshes
-            className="laptop:order-last"
-          />
-
+        <div className="mb-6">
           <div className="min-w-0 flex-1">
             <PostTagList post={post} />
             <PostMetadata
@@ -276,13 +241,39 @@ export function ArbitragePostContent({
           </div>
         </div>
 
-        {!!post.contentHtml && (
-          <Markdown
-            className="my-6"
-            content={post.contentHtml}
-            appendTooltipTo={() => globalThis?.document?.body}
-          />
-        )}
+        {/* One MPU per BODY_CHARS_PER_AD of visible text, only ever between
+            top-level blocks — splitContentForAds cannot cut a paragraph, list
+            or code block in half. */}
+        {!!post.contentHtml &&
+          splitContentForAds(post.contentHtml, BODY_CHARS_PER_AD).map(
+            (chunk, index, chunks) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <React.Fragment key={index}>
+                <Markdown
+                  className="my-6"
+                  content={chunk}
+                  appendTooltipTo={() => globalThis?.document?.body}
+                />
+                {index < chunks.length - 1 && (
+                  <ArbitrageAdSlot
+                    slot={ARBITRAGE_SLOT.inBodyMpu}
+                    format={ArbitrageAdFormat.MediumRectangle}
+                  />
+                )}
+              </React.Fragment>
+            ),
+          )}
+
+        {/* Same block the post page shows: the questions that likely brought
+            an anonymous visitor here (the component self-hides for logged-in
+            users and question-less posts). */}
+        <PostAnsweredQuestions post={post} />
+
+        <ArbitrageAdSlot
+          slot={ARBITRAGE_SLOT.aboveCommentsMpu}
+          format={ArbitrageAdFormat.MediumRectangle}
+          className="my-6"
+        />
 
         {/* The production engagement block verbatim — counts, actions, share,
             sort control, composer and thread — so everything from here to the
@@ -292,11 +283,12 @@ export function ArbitragePostContent({
           post={post}
           onCopyLinkClick={onCopyPostLink}
           logOrigin={Origin.ArticlePage}
+          hideInternalAd
           interleaveEvery={COMMENTS_PER_INTERLEAVED_AD}
           renderInterleaved={() => (
             <ArbitrageAdSlot
-              slot={ARBITRAGE_SLOT.commentNative}
-              format={ArbitrageAdFormat.Native}
+              slot={ARBITRAGE_SLOT.commentMpu}
+              format={ArbitrageAdFormat.MediumRectangle}
             />
           )}
         />
@@ -311,8 +303,13 @@ export function ArbitragePostContent({
         className="!gap-2 pb-8 pt-4 tablet:border-l tablet:border-border-subtlest-tertiary"
         hideSignupWidget
         hideToc
+        hideAdWidget
         getRailAd={(position) => {
           const spec = RAIL_AD[position];
+
+          if (!spec) {
+            return null;
+          }
 
           return (
             <ArbitrageAdSlot
@@ -323,6 +320,18 @@ export function ArbitragePostContent({
             />
           );
         }}
+        // The page's only sticky unit, closing the rail: last in the column,
+        // so pinning under the fixed chrome can never slide it over content —
+        // the overlap the mid-rail sticky produced. Compliant as a publisher
+        // sticky at exactly 300px wide, desktop only, one per viewport.
+        trailing={
+          <ArbitrageAdSlot
+            slot={ARBITRAGE_SLOT.railBottomSticky}
+            format={ArbitrageAdFormat.HalfPage}
+            className="laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)] laptop:z-1"
+            hideOnPhone
+          />
+        }
       />
     </PostContentContainerRaw>
   );

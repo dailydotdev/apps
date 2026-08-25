@@ -321,7 +321,9 @@ export function ProgrammaticAd({
         observer.disconnect();
         setIsRequested(true);
       },
-      { rootMargin: '600px' },
+      // Expert-tuned: request just as the slot approaches rather than a
+      // viewport ahead — viewability over prefetch.
+      { rootMargin: '50px' },
     );
     observer.observe(element);
 
@@ -483,7 +485,9 @@ export function ProgrammaticAd({
     <div
       ref={setWrapperRef}
       className={classNames(
-        'mx-auto w-full text-center',
+        // Centered on a lighter block, so the unit reads as a deliberate
+        // frame rather than a creative floating on the page background.
+        'mx-auto w-full rounded-8 bg-surface-float p-2 text-center',
         // AdSense stamps data-ad-status="unfilled" when no creative was
         // returned. Without collapsing, the reserved min-height stays behind as
         // a block of empty page — most visible in the comment thread, where an
@@ -498,12 +502,12 @@ export function ProgrammaticAd({
         className,
       )}
     >
-      {/* A fluid native unit is the "confusable with site content" shape
-          AdSense prohibits shipping unlabeled — "Advertisements" is one of
-          the two label strings its policy permits. Inside the wrapper, so an
-          unfilled slot's collapse takes the label down with it. */}
-      {isRequested && config.type === 'inFeed' && (
-        <span className="mb-1 block text-left text-text-quaternary typo-caption2">
+      {/* Every unit is labeled so none can be confused with site content —
+          "Advertisements" is one of the two label strings AdSense permits
+          (a bare "Advertisement" is not). Inside the wrapper, so an unfilled
+          slot's collapse takes the label down with it. */}
+      {isRequested && (
+        <span className="block pb-1 pr-1 text-right text-text-quaternary typo-caption2">
           Advertisements
         </span>
       )}
