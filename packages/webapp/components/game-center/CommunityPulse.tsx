@@ -12,37 +12,28 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
-import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import {
-  MedalBadgeIcon,
-  ReputationLightningIcon,
-} from '@dailydotdev/shared/src/components/icons';
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
 
 const raceLength = 5;
 
 type RaceProps = {
   title: string;
-  icon: ReactElement;
   entries: UserLeaderboard[];
   unit: string;
 };
 
-const Race = ({ title, icon, entries, unit }: RaceProps): ReactElement => {
+const Race = ({ title, entries, unit }: RaceProps): ReactElement => {
   const ranked = entries.slice(0, raceLength);
   // The bars are relative to the leader, so the field reads as a race rather
   // than as a set of unrelated numbers.
   const top = ranked[0]?.score ?? 0;
 
   return (
-    <div className="flex flex-col gap-3 rounded-14 bg-background-subtle p-4">
-      <div className="flex items-center gap-1.5">
-        {icon}
-        <Typography type={TypographyType.Subhead} bold>
-          {title}
-        </Typography>
-      </div>
-      <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4 rounded-14 bg-background-subtle p-5">
+      <Typography type={TypographyType.Subhead} bold>
+        {title}
+      </Typography>
+      <div className="flex flex-col gap-4">
         {ranked.map((entry, index) => (
           <div key={entry.user.id} className="flex items-center gap-2">
             <Typography
@@ -61,7 +52,7 @@ const Race = ({ title, icon, entries, unit }: RaceProps): ReactElement => {
                 />
               </a>
             </Tooltip>
-            <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
               <div className="flex items-baseline justify-between gap-2">
                 <Typography type={TypographyType.Subhead} className="truncate">
                   {entry.user.name}
@@ -102,43 +93,27 @@ export const CommunityPulse = ({
   mostQuestsCompleted,
 }: CommunityPulseProps): ReactElement => (
   <div className="flex flex-col gap-2 rounded-20 border border-border-subtlest-tertiary p-2">
+    <div className="grid gap-2 tablet:grid-cols-2">
+      <Race
+        title="Top reputation"
+        entries={highestReputation}
+        unit="reputation"
+      />
+      <Race title="Most quests" entries={mostQuestsCompleted} unit="quests" />
+    </div>
+
     {stats && (
-      <div className="px-2 pt-2">
-        <Typography type={TypographyType.Title2} bold className="tabular-nums">
-          {formatDataTileValue(stats.totalCount)}
-        </Typography>
+      <div className="flex items-baseline gap-1.5 px-2 pb-1">
         <Typography
           type={TypographyType.Subhead}
           color={TypographyColor.Tertiary}
         >
           quests completed all-time
         </Typography>
+        <Typography type={TypographyType.Callout} bold className="tabular-nums">
+          {formatDataTileValue(stats.totalCount)}
+        </Typography>
       </div>
     )}
-    <div className="grid gap-2 tablet:grid-cols-2">
-      <Race
-        title="Top reputation"
-        icon={
-          <ReputationLightningIcon
-            secondary
-            size={IconSize.Size16}
-            className="text-accent-cabbage-default"
-          />
-        }
-        entries={highestReputation}
-        unit="reputation"
-      />
-      <Race
-        title="Most quests"
-        icon={
-          <MedalBadgeIcon
-            size={IconSize.Size16}
-            className="text-accent-cabbage-default"
-          />
-        }
-        entries={mostQuestsCompleted}
-        unit="quests"
-      />
-    </div>
   </div>
 );

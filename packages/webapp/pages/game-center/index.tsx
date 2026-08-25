@@ -71,6 +71,7 @@ import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/L
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import {
   ArrowIcon,
+  CoreIcon,
   MedalBadgeIcon,
   PinIcon,
 } from '@dailydotdev/shared/src/components/icons';
@@ -78,7 +79,7 @@ import { getLayout as getFooterNavBarLayout } from '../../components/layouts/Foo
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import {
-  BadgeRow,
+  BadgePager,
   BadgeTrophyCase,
 } from '../../components/game-center/BadgeTrophyCase';
 import { MilestoneQuestList } from '../../components/game-center/MilestoneQuestList';
@@ -421,6 +422,12 @@ function GameCenterPage({
     );
   }
 
+  // Heaviest reading first, so the strongest topics lead the column.
+  const sortedBadges = useMemo(
+    () => [...topReaderBadges].sort((left, right) => right.total - left.total),
+    [topReaderBadges],
+  );
+
   const badgeCountLabel = isBadgesPending
     ? '...'
     : formatDataTileValue(getBadgeSummary(topReaderBadges).uniqueTopics);
@@ -435,18 +442,7 @@ function GameCenterPage({
       />
     );
   } else if (topReaderBadges.length > 0) {
-    badgeCaseContent = (
-      <div className="flex flex-col gap-2">
-        {topReaderBadges.map((badge) => (
-          <BadgeRow
-            key={badge.id}
-            issuedAt={badge.issuedAt}
-            keyword={badge.keyword}
-            image={badge.image}
-          />
-        ))}
-      </div>
-    );
+    badgeCaseContent = <BadgePager badges={sortedBadges} />;
   } else {
     badgeCaseContent = (
       <EmptyStateCard
@@ -463,6 +459,9 @@ function GameCenterPage({
     awardSummary.awards.length > 0;
   const awardCountLabel = hasAwards
     ? formatDataTileValue(awardSummary.totalAwards)
+    : '0';
+  const awardValueLabel = hasAwards
+    ? formatDataTileValue(awardSummary.totalAwardValue)
     : '0';
 
   let trophyCaseContent: ReactElement;
@@ -564,7 +563,7 @@ function GameCenterPage({
             </Typography>
           </LayoutHeader>
         )}
-        <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10">
+        <ResponsivePageContainer className="pointer-default !mx-0 !w-full !max-w-full gap-6 pb-10">
           <section className="-mx-4 -mt-6 flex flex-col tablet:-mx-8">
             {questDashboard ? (
               <LevelHud
@@ -753,9 +752,23 @@ function GameCenterPage({
 
             <BadgeTrophyCase
               badges={badgeCaseContent}
-              badgeCount={badgeCountLabel}
+              badgeStats={[
+                { label: 'Topics mastered', value: badgeCountLabel },
+              ]}
               awards={trophyCaseContent}
-              awardCount={awardCountLabel}
+              awardStats={[
+                { label: 'Total awards', value: awardCountLabel },
+                {
+                  label: 'Total earned',
+                  value: awardValueLabel,
+                  icon: (
+                    <CoreIcon
+                      size={IconSize.Size16}
+                      className="text-accent-cheese-default"
+                    />
+                  ),
+                },
+              ]}
             />
           </section>
 

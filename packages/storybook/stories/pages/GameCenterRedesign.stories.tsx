@@ -29,7 +29,7 @@ import { MilestoneQuestList } from '../../../webapp/components/game-center/Miles
 import { CommunityPulse } from '../../../webapp/components/game-center/CommunityPulse';
 import { TrophyGrid } from '../../../webapp/components/game-center/TrophyGrid';
 import {
-  BadgeRow,
+  BadgePager,
   BadgeTrophyCase,
 } from '../../../webapp/components/game-center/BadgeTrophyCase';
 import type { AwardWithRarity } from '../../../webapp/lib/gameCenter';
@@ -256,6 +256,26 @@ const badges = [
     keyword: { value: 'react', flags: { title: 'React' } },
     image: logo('react_js'),
   },
+  {
+    issuedAt: new Date('2026-02-01'),
+    keyword: { value: 'typescript', flags: { title: 'TypeScript' } },
+  },
+  {
+    issuedAt: new Date('2026-01-01'),
+    keyword: { value: 'postgresql', flags: { title: 'PostgreSQL' } },
+  },
+  {
+    issuedAt: new Date('2025-12-01'),
+    keyword: { value: 'kubernetes', flags: { title: 'Kubernetes' } },
+  },
+  {
+    issuedAt: new Date('2025-11-01'),
+    keyword: { value: 'go', flags: { title: 'Go' } },
+  },
+  {
+    issuedAt: new Date('2025-10-01'),
+    keyword: { value: 'webassembly', flags: { title: 'WebAssembly' } },
+  },
 ];
 
 // The real catalogue art, so the grid shows the spread of awards rather
@@ -375,7 +395,7 @@ const communityStats = {
 
 
 const GameCenterRedesign = () => (
-  <div className="mx-auto flex w-full max-w-[72rem] flex-col gap-6 p-4 pb-10">
+  <div className="pointer-default mx-auto flex w-full max-w-[72rem] flex-col gap-6 p-4 pb-10">
     <section className="-mx-4 -mt-4 flex flex-col">
         <LevelHud
           name="Tomer"
@@ -427,20 +447,34 @@ const GameCenterRedesign = () => (
       <SectionHeader title="Badges & Trophies" />
       <BadgeTrophyCase
         badges={
-          <div className="flex flex-col gap-2">
-            {badges.map((badge) => (
-              <BadgeRow
-                key={badge.keyword.value}
-                issuedAt={badge.issuedAt}
-                keyword={badge.keyword}
-                image={badge.image}
-              />
-            ))}
-          </div>
+          <BadgePager
+            badges={badges.map((badge, index) => ({
+              ...badge,
+              id: badge.keyword.value,
+              total: badges.length - index,
+              user: { name: 'Tomer', username: 'tomer', image: '' },
+            }))}
+          />
         }
-        badgeCount={badges.length.toString()}
+        badgeStats={[
+          { label: 'Topics mastered', value: badges.length.toString() },
+        ]}
         awards={<TrophyGrid awards={awards} />}
-        awardCount="87"
+        awardStats={[
+          { label: 'Total awards', value: '87' },
+          {
+            label: 'Total earned',
+            icon: (
+              <CoreIcon
+                size={IconSize.Size16}
+                className="text-accent-cheese-default"
+              />
+            ),
+            value: awards
+              .reduce((total, award) => total + award.value * award.count, 0)
+              .toLocaleString(),
+          },
+        ]}
       />
     </section>
 

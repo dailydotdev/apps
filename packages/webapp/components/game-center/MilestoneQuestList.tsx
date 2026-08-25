@@ -91,7 +91,6 @@ const MilestoneQuestCard = ({
         // Only a claimable milestone gets a filled surface, so the ones you
         // can act on read forward of the ones you cannot.
         canClaim && 'bg-background-subtle',
-        quest.locked && 'opacity-64',
       )}
     >
       <Typography
@@ -127,9 +126,9 @@ const MilestoneQuestCard = ({
         {canClaim ? (
           <Button
             variant={ButtonVariant.Primary}
-            color={ColorName.Cheese}
+            color={ColorName.Cabbage}
             size={ButtonSize.Medium}
-            className="quest-claim-shine w-full"
+            className="quest-claim-shine w-full !font-black text-white"
             disabled={isClaiming}
             loading={isClaiming}
             onClick={() =>
@@ -149,8 +148,8 @@ const MilestoneQuestCard = ({
                 // text-primary rather than a literal white, so the bar stays
                 // visible when the theme is light.
                 barColor: classNames(
-                  isClaimed && 'bg-accent-avocado-default',
-                  !isClaimed && 'bg-text-primary',
+                  isClaimed && 'bg-text-tertiary',
+                  !isClaimed && 'bg-accent-cabbage-default',
                 ),
               }}
             />

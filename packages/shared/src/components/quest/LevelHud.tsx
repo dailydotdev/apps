@@ -109,7 +109,7 @@ export const LevelHud = ({
     >
       <div className="flex items-center gap-3">
         <div
-          className="flex size-14 shrink-0 items-center justify-center rounded-16 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.12),0_8px_24px_-8px_rgba(0,0,0,0.65)] backdrop-blur-[6px]"
+          className="level-badge-glass flex size-14 shrink-0 items-center justify-center rounded-16 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.12),0_8px_24px_-8px_rgba(0,0,0,0.65)] backdrop-blur-[6px]"
           style={levelBadgeStyle}
           aria-label={`Level ${level}`}
         >

@@ -1,5 +1,14 @@
 import type { ReactElement, ReactNode } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
+import {
+  ArrowIcon,
+  MedalBadgeIcon,
+} from '@dailydotdev/shared/src/components/icons';
 import {
   DevCardTheme,
   themeToLinearGradient,
@@ -16,7 +25,6 @@ import {
   TimeFormatType,
 } from '@dailydotdev/shared/src/lib/dateFormat';
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
-import { MedalBadgeIcon } from '@dailydotdev/shared/src/components/icons';
 
 export const BadgeRow = ({
   issuedAt,
@@ -71,53 +79,121 @@ export const BadgeRow = ({
   );
 };
 
+export const badgePageSize = 4;
+
+type BadgePagerProps = {
+  badges: TopReader[];
+};
+
+export const BadgePager = ({ badges }: BadgePagerProps): ReactElement => {
+  const [page, setPage] = useState(0);
+  const pageCount = Math.ceil(badges.length / badgePageSize);
+  const start = page * badgePageSize;
+  const visible = badges.slice(start, start + badgePageSize);
+
+  return (
+    <div className="flex flex-col gap-2">
+      {visible.map((badge) => (
+        <BadgeRow
+          key={badge.id}
+          issuedAt={badge.issuedAt}
+          keyword={badge.keyword}
+          image={badge.image}
+        />
+      ))}
+
+      {pageCount > 1 && (
+        <div className="flex items-center justify-between gap-2 pt-1">
+          <Typography
+            type={TypographyType.Subhead}
+            color={TypographyColor.Tertiary}
+            className="tabular-nums"
+          >
+            {start + 1}-{start + visible.length} of {badges.length}
+          </Typography>
+          <div className="flex gap-1">
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<ArrowIcon className="-rotate-90" />}
+              aria-label="Previous badges"
+              disabled={page === 0}
+              onClick={() => setPage((current) => current - 1)}
+            />
+            <Button
+              type="button"
+              variant={ButtonVariant.Tertiary}
+              size={ButtonSize.Small}
+              icon={<ArrowIcon className="rotate-90" />}
+              aria-label="Next badges"
+              disabled={page >= pageCount - 1}
+              onClick={() => setPage((current) => current + 1)}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+type PaneStat = {
+  label: string;
+  value: string;
+  icon?: ReactNode;
+};
+
 const Pane = ({
-  value,
-  label,
+  stats,
   children,
 }: {
-  value: string;
-  label: string;
+  stats: PaneStat[];
   children: ReactNode;
 }): ReactElement => (
   <div className="flex flex-col gap-3 rounded-14 bg-background-subtle p-4">
-    <div className="flex min-w-0 flex-col">
-      <Typography
-        type={TypographyType.Subhead}
-        color={TypographyColor.Tertiary}
-        className="truncate"
-      >
-        {label}
-      </Typography>
-      <Typography type={TypographyType.Title2} bold className="tabular-nums">
-        {value}
-      </Typography>
-    </div>
     {children}
+    {/* Reads as one line under the content, matching the HUD stats. */}
+    <div className="mt-auto flex flex-wrap items-baseline gap-x-5 gap-y-1 pt-1">
+      {stats.map((stat) => (
+        <div key={stat.label} className="flex items-center gap-1.5">
+          <Typography
+            type={TypographyType.Subhead}
+            color={TypographyColor.Tertiary}
+            className="truncate"
+          >
+            {stat.label}
+          </Typography>
+          {stat.icon}
+          <Typography
+            type={TypographyType.Callout}
+            bold
+            className="tabular-nums"
+          >
+            {stat.value}
+          </Typography>
+        </div>
+      ))}
+    </div>
   </div>
 );
 
 type BadgeTrophyCaseProps = {
   badges: ReactNode;
-  badgeCount: string;
+  badgeStats: PaneStat[];
   awards: ReactNode;
-  awardCount: string;
+  awardStats: PaneStat[];
 };
 
 export const BadgeTrophyCase = ({
   badges,
-  badgeCount,
+  badgeStats,
   awards,
-  awardCount,
+  awardStats,
 }: BadgeTrophyCaseProps): ReactElement => {
   return (
     <div className="grid gap-2 rounded-20 border border-border-subtlest-tertiary p-2 laptop:grid-cols-2">
-      <Pane value={badgeCount} label="Topics mastered">
-        {badges}
-      </Pane>
-      <Pane value={awardCount} label="Total awards">
-        {awards}
-      </Pane>
+      <Pane stats={badgeStats}>{badges}</Pane>
+      <Pane stats={awardStats}>{awards}</Pane>
     </div>
   );
 };

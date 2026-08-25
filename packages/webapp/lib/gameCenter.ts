@@ -277,12 +277,17 @@ export const getAchievementSummary = (
       return right.achievement.points - left.achievement.points;
     })[0] ?? null;
 
+  // The four are picked by role, then ordered by how far along they are, so
+  // the shelf reads left to right from unlocked to furthest away.
   const featuredAchievements = dedupeAchievements([
     trackedAchievement?.unlockedAt ? null : trackedAchievement ?? null,
     nextToUnlock,
     latestUnlocked,
     rarestUnlocked,
-  ]);
+  ]).sort(
+    (left, right) =>
+      getAchievementProgressRatio(right) - getAchievementProgressRatio(left),
+  );
 
   return {
     unlockedCount: unlocked.length,
@@ -324,6 +329,8 @@ export type GameCenterAwardSummary = {
   // Awards ordered rarest-first for the trophy grid.
   awardsByRarity: AwardWithRarity[];
   totalAwards: number;
+  // What the collection is worth in Cores, counting duplicates.
+  totalAwardValue: number;
   uniqueAwards: number;
   favoriteAward: UserProductSummary | null;
 };
@@ -372,6 +379,10 @@ export const getAwardSummary = (
     awards: allAwards,
     awardsByRarity,
     totalAwards: allAwards.reduce((total, award) => total + award.count, 0),
+    totalAwardValue: awardsByRarity.reduce(
+      (total, award) => total + award.value * award.count,
+      0,
+    ),
     uniqueAwards: allAwards.length,
     favoriteAward: allAwards[0] ?? null,
   };
