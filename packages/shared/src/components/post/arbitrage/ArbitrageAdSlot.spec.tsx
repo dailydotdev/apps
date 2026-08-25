@@ -1,5 +1,10 @@
 import React from 'react';
-import { act, render as rtlRender, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render as rtlRender,
+  screen,
+} from '@testing-library/react';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import type { AuthContextData } from '../../../contexts/AuthContext';
@@ -475,6 +480,58 @@ describe('ProgrammaticAd telemetry', () => {
     });
 
     expect(loggedEvents()).toContain(LogEvent.FillAdsenseSlot);
+  });
+
+  it('logs a click once when focus moves into the filled creative', async () => {
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    renderWithLog(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    const iframe = document.createElement('iframe');
+    screen.getByTestId('adsense-slot-2').appendChild(iframe);
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // A click on a cross-origin creative never bubbles here; the observable
+    // is focus landing on the iframe as the window blurs.
+    iframe.focus();
+    fireEvent.blur(window);
+    fireEvent.blur(window);
+
+    const clicks = logEvent.mock.calls.filter(
+      ([event]) =>
+        event.event_name === LogEvent.Click && event.target_type === 'ad',
+    );
+    expect(clicks).toHaveLength(1);
+    expect(clicks[0][0]).toMatchObject({
+      target_id: '2222222222',
+      ad_provider_id: 'adsense',
+    });
+    expect(JSON.parse(clicks[0][0].extra)).toMatchObject({
+      slot: 2,
+      unit: '2222222222',
+      surface: 'read',
+    });
+  });
+
+  it('ignores window blur while focus is outside the creative', async () => {
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    renderWithLog(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    screen
+      .getByTestId('adsense-slot-2')
+      .appendChild(document.createElement('iframe'));
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    fireEvent.blur(window);
+
+    expect(loggedEvents()).not.toContain(LogEvent.Click);
   });
 
   it('logs a push error when adsbygoogle rejects the request', () => {

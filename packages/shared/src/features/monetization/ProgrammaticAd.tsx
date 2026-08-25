@@ -214,6 +214,7 @@ export function ProgrammaticAd({
   const hasPushed = useRef(false);
   const hasLoggedFill = useRef(false);
   const hasLoggedEmpty = useRef(false);
+  const hasLoggedClick = useRef(false);
   const { id: unitId, type: unitType, layoutKey: unitLayoutKey } = config;
 
   const logSlotEvent = useCallback(
@@ -244,13 +245,48 @@ export function ProgrammaticAd({
     ],
   );
 
+  // Impressions and clicks use the exact shape of the internal ads' events
+  // (adLogEvent): same event names and target_type, the provider carried in
+  // ad_provider_id and the AdSense unit as the target — so one query covers
+  // every ad on the platform and GROUP BY ad_provider_id splits the demand.
+  const logAdInteraction = useCallback(
+    (eventName: LogEvent, extra?: Record<string, unknown>): void => {
+      logEvent({
+        event_name: eventName,
+        target_type: 'ad',
+        target_id: unitId,
+        ad_provider_id: 'adsense',
+        extra: JSON.stringify(
+          getAdsenseSlotLogExtra({
+            slot,
+            config: { id: unitId, type: unitType, layoutKey: unitLayoutKey },
+            format,
+            surface,
+            refreshes,
+            extra,
+          }),
+        ),
+      });
+    },
+    [
+      format,
+      logEvent,
+      refreshes,
+      slot,
+      surface,
+      unitId,
+      unitLayoutKey,
+      unitType,
+    ],
+  );
+
   // The MRC viewable impression, measured only once a creative is actually in
   // the slot — an empty reservation scrolling by is not an impression.
   const { ref: setViewabilityRef } = useViewability<HTMLDivElement>({
     enabled: isFilled,
     trackingKey: `${surface}:${slot}:${unitId}:${format}`,
     onViewable: (data) => {
-      logSlotEvent(LogEvent.ViewAdsenseSlot, viewabilityLogExtra(data));
+      logAdInteraction(LogEvent.Impression, viewabilityLogExtra(data));
     },
   });
 
@@ -391,6 +427,38 @@ export function ProgrammaticAd({
 
     return () => observer.disconnect();
   }, [isRequested, logSlotEvent]);
+
+  // First-party click signal. The creative is a cross-origin iframe, so no
+  // click event ever reaches this document — but engaging it moves focus:
+  // the window blurs and document.activeElement becomes the iframe. That
+  // inference is the industry-standard AdSense click proxy; it can overcount
+  // the rare tap that focuses without completing the click-through, so
+  // AdSense's own reporting stays the exact source of truth while this event
+  // gives the per-user join our internal ads have. Logged once per slot: a
+  // second click on the same creative is the same user leaving again.
+  useEffect(() => {
+    const element = wrapperRef.current;
+    if (!isFilled || !element) {
+      return undefined;
+    }
+
+    const onWindowBlur = (): void => {
+      const active = document.activeElement;
+      if (
+        hasLoggedClick.current ||
+        !active ||
+        active.tagName !== 'IFRAME' ||
+        !element.contains(active)
+      ) {
+        return;
+      }
+      hasLoggedClick.current = true;
+      logAdInteraction(LogEvent.Click);
+    };
+
+    window.addEventListener('blur', onWindowBlur);
+    return () => window.removeEventListener('blur', onWindowBlur);
+  }, [isFilled, logAdInteraction]);
 
   return (
     // Square-cornered and unclipped: the box only centres the unit and
