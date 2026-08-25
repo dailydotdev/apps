@@ -1,34 +1,20 @@
 import type { ReactElement } from 'react';
 import React from 'react';
-import classNames from 'classnames';
-import {
-  Typography,
-  TypographyColor,
-  TypographyType,
-} from '../typography/Typography';
+import { Typography, TypographyType } from '../typography/Typography';
 import { ProgressBar } from '../fields/ProgressBar';
 import { gameCenterLevelBackground } from '../../lib/image';
 
-type HudStat = {
+type HudStatProps = {
   label: string;
   value: string;
 };
 
-const HudStatTile = ({
-  label,
-  value,
-  className,
-}: HudStat & { className?: string }): ReactElement => (
-  <div
-    className={classNames(
-      'flex flex-col gap-1 rounded-14 bg-background-subtle p-4',
-      className,
-    )}
-  >
-    <Typography type={TypographyType.Subhead} color={TypographyColor.Tertiary}>
+const HudStat = ({ label, value }: HudStatProps): ReactElement => (
+  <div className="flex items-baseline gap-1.5">
+    <Typography type={TypographyType.Subhead} className="text-white opacity-64">
       {label}
     </Typography>
-    <Typography type={TypographyType.Title3} bold>
+    <Typography type={TypographyType.Callout} bold className="text-white">
       {value}
     </Typography>
   </div>
@@ -57,6 +43,7 @@ const levelBadgeStyle = {
 };
 
 export interface LevelHudProps {
+  name: string;
   level: number;
   levelProgress: number;
   totalXp: number;
@@ -69,6 +56,7 @@ export interface LevelHudProps {
 }
 
 export const LevelHud = ({
+  name,
   level,
   levelProgress,
   totalXp,
@@ -82,7 +70,7 @@ export const LevelHud = ({
   const streakValue = isPending ? '...' : `${currentStreak.toLocaleString()}d`;
   const longestValue = isPending ? '...' : `${longestStreak.toLocaleString()}d`;
 
-  const stats: HudStat[] = [
+  const stats: HudStatProps[] = [
     {
       label: 'Streak',
       value: streakValue,
@@ -106,28 +94,41 @@ export const LevelHud = ({
   ];
 
   return (
-    <div className="grid gap-2 rounded-20 border border-border-subtlest-tertiary p-2 tablet:grid-cols-2">
-      <div
-        className="flex flex-col justify-center gap-2 overflow-hidden rounded-14 p-4 tablet:px-5"
-        style={levelPanelStyle}
-      >
-        {/* The number stands alone, so the chip carries the meaning for
-            screen readers. */}
+    <div
+      className="flex flex-col gap-4 px-4 py-4 tablet:px-8 laptop:flex-row laptop:items-center laptop:gap-6"
+      style={levelPanelStyle}
+    >
+      <div className="flex items-center gap-3">
         <div
-          className="mb-2 flex size-18 shrink-0 items-center justify-center rounded-16 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.12),0_8px_24px_-8px_rgba(0,0,0,0.65)] backdrop-blur-[6px]"
+          className="flex size-14 shrink-0 items-center justify-center rounded-16 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.55),inset_0_-1px_0_rgba(255,255,255,0.12),0_8px_24px_-8px_rgba(0,0,0,0.65)] backdrop-blur-[6px]"
           style={levelBadgeStyle}
           aria-label={`Level ${level}`}
         >
           <Typography
-            type={TypographyType.Mega2}
-            bold
-            // Centering the em box leaves digits sitting low: the box
-            // reserves descender space the glyphs never use.
-            className="w-full -translate-y-[0.75px] text-center !font-black tabular-nums !leading-none"
+            type={TypographyType.Title2}
+            className="w-full text-center !font-black tabular-nums !leading-none"
           >
             {level}
           </Typography>
         </div>
+        <div className="flex min-w-0 flex-col">
+          <Typography
+            type={TypographyType.Callout}
+            bold
+            className="truncate text-white"
+          >
+            {name}
+          </Typography>
+          <Typography
+            type={TypographyType.Subhead}
+            className="text-white opacity-64"
+          >
+            Level {level}
+          </Typography>
+        </div>
+      </div>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <ProgressBar
           percentage={levelProgress}
           shouldShowBg
@@ -137,27 +138,27 @@ export const LevelHud = ({
             barColor: 'bg-[#E669FB]',
           }}
         />
-        <Typography
-          type={TypographyType.Callout}
-          bold
-          className="truncate text-white"
-        >
-          {xpInLevel.toLocaleString()} /{' '}
-          {(xpInLevel + xpToNextLevel).toLocaleString()}
-        </Typography>
+        <div className="flex items-baseline justify-between gap-3">
+          <Typography
+            type={TypographyType.Subhead}
+            bold
+            className="tabular-nums text-white"
+          >
+            {xpInLevel.toLocaleString()} /{' '}
+            {(xpInLevel + xpToNextLevel).toLocaleString()}
+          </Typography>
+          <Typography
+            type={TypographyType.Subhead}
+            className="truncate text-white opacity-64"
+          >
+            {xpToNextLevel.toLocaleString()} XP to level {level + 1}
+          </Typography>
+        </div>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        {stats.map((stat, index) => (
-          <HudStatTile
-            key={stat.label}
-            {...stat}
-            className={classNames(
-              // An odd stat count would otherwise leave a hole in the 2x2.
-              stats.length % 2 === 1 &&
-                index === stats.length - 1 &&
-                'col-span-2',
-            )}
-          />
+
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+        {stats.map((stat) => (
+          <HudStat key={stat.label} {...stat} />
         ))}
       </div>
     </div>

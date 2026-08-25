@@ -565,26 +565,10 @@ function GameCenterPage({
           </LayoutHeader>
         )}
         <ResponsivePageContainer className="!mx-0 !w-full !max-w-full gap-6 pb-10">
-          <section className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Typography
-                type={TypographyType.Subhead}
-                color={TypographyColor.Tertiary}
-                bold
-              >
-                Progress snapshot
-              </Typography>
-              <Typography
-                tag={TypographyTag.H1}
-                type={TypographyType.Title1}
-                bold
-              >
-                {firstName}, here&apos;s how you&apos;re doing.
-              </Typography>
-            </div>
-
+          <section className="-mx-4 -mt-6 flex flex-col tablet:-mx-8">
             {questDashboard ? (
               <LevelHud
+                name={firstName}
                 level={questDashboard.level.level}
                 levelProgress={levelProgress}
                 totalXp={questDashboard.level.totalXp}

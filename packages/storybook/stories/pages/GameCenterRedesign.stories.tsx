@@ -376,19 +376,9 @@ const communityStats = {
 
 const GameCenterRedesign = () => (
   <div className="mx-auto flex w-full max-w-[72rem] flex-col gap-6 p-4 pb-10">
-    <section>
-      <div className="flex flex-col gap-4">
-        <Typography
-          type={TypographyType.Subhead}
-          color={TypographyColor.Tertiary}
-          bold
-        >
-          Progress snapshot
-        </Typography>
-        <Typography tag={TypographyTag.H1} type={TypographyType.Title1} bold>
-          Tomer, here&apos;s how you&apos;re doing.
-        </Typography>
+    <section className="-mx-4 -mt-4 flex flex-col">
         <LevelHud
+          name="Tomer"
           level={14}
           levelProgress={70}
           totalXp={3420}
@@ -399,7 +389,6 @@ const GameCenterRedesign = () => (
           achievements={{ unlocked: 9, total: 24 }}
           isPending={false}
         />
-      </div>
     </section>
 
     <section className="flex flex-col gap-4">

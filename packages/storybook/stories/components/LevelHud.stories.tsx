@@ -6,6 +6,7 @@ const meta: Meta<typeof LevelHud> = {
   title: 'Components/Quest/LevelHud',
   component: LevelHud,
   args: {
+    name: 'Tomer',
     level: 14,
     levelProgress: 70,
     totalXp: 3420,
