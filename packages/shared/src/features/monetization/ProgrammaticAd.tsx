@@ -415,6 +415,15 @@ export function ProgrammaticAd({
         className,
       )}
     >
+      {/* A fluid native unit is the "confusable with site content" shape
+          AdSense prohibits shipping unlabeled — "Advertisements" is one of
+          the two label strings its policy permits. Inside the wrapper, so an
+          unfilled slot's collapse takes the label down with it. */}
+      {isRequested && config.type === 'inFeed' && (
+        <span className="mb-1 block text-left text-text-quaternary typo-caption2">
+          Advertisements
+        </span>
+      )}
       {isRequested && (
         <ins
           ref={insRef}

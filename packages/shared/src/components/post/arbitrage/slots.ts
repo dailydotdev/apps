@@ -94,9 +94,9 @@ export const READ_ADSENSE_SLOTS: AdsenseSlots = {
   //
   // PRECONDITIONS on filling this in — this comment is the gate, since the
   // workflow is "ship reviewed once, switch on by editing this map":
-  // 1. The rendered unit must carry a visible ad label, like our in-feed
-  //    inventory: an unlabeled native between comments is the "confusable
-  //    with site content" implementation AdSense prohibits.
+  // 1. Ad label: DONE in code — ProgrammaticAd renders the policy-permitted
+  //    "Advertisements" caption above every inFeed unit, so an unlabeled
+  //    native between comments cannot ship by omission.
   // 2. Re-measure phone ad density on a long thread with the interval live.
   //    The ~27% figure was measured with this slot inert, it is the only
   //    repeating slot on the page, and Chrome's Better Ads filter applies to
