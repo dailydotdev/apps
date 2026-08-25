@@ -5,18 +5,20 @@ import type { LockupProps } from './SponsoredStrip';
 /**
  * CodeRabbit's lockup, inline so it can be drawn two ways.
  *
- * In colour the mark is orange with a white detail inside it and the
- * wordmark takes `currentColor` — the shipped asset's wordmark is
- * near-black (#171717) and disappears on the dark feed.
+ * In colour the mark is the brand disc with the rabbit reversed out of
+ * it, and the wordmark takes `currentColor` — the shipped asset's
+ * wordmark is near-black (#171717) and disappears on the dark feed.
  *
- * As a silhouette the same two shapes become a single path under
- * `evenodd`, so the detail is a hole rather than paint. That matters:
- * the wall silhouettes through a CSS mask, which reads paint as
- * opaque, so drawing the detail as a filled shape turned the rabbit
- * into a flat blob.
+ * As a silhouette only the rabbit is drawn. Keeping the disc and
+ * punching the rabbit out of it is the faithful transcription, but it
+ * inverts the mark: at the 16-20px the partner wall gives a logo, the
+ * disc is the ink and the rabbit is a smudge of background, so it
+ * reads as a plain circle beside marks that are all light-on-dark.
+ * Dropping the disc puts the rabbit back in the ink where the eye
+ * expects it, at any size and in either theme.
  *
  * Paths are CodeRabbit's own artwork (viewBox 0 0 2152 314); only the
- * fills and the knockout are ours.
+ * fills and the choice of shape are ours.
  */
 export const CodeRabbitLockup = ({ monochrome }: LockupProps): ReactElement => (
   <svg
@@ -28,11 +30,7 @@ export const CodeRabbitLockup = ({ monochrome }: LockupProps): ReactElement => (
     xmlns="http://www.w3.org/2000/svg"
   >
     {monochrome ? (
-      <path
-        clipRule="evenodd"
-        d="M156.513 313.5C242.945 313.5 313.013 243.433 313.013 157C313.013 70.5674 242.945 0.5 156.513 0.5C70.0801 0.5 0.0126953 70.5674 0.0126953 157C0.0126953 243.433 70.0801 313.5 156.513 313.5Z M262.786 131.077C262.786 131.077 240.981 103.203 213.571 101.609C195.883 100.565 191.598 102.928 190.83 104.688C189.732 95.5622 181.932 53.2825 128.046 44.3223C134.925 93.7713 163.334 80.8866 180.065 114.969C180.065 114.969 151.832 76.5941 105.416 90.7232C105.416 90.7232 122.334 126.24 172.374 133.497C172.374 133.497 176.384 147.241 177.593 149.661C177.593 149.661 100.527 109.471 77.1269 186.606C59.7121 182.661 53.8708 201.566 73.8868 214.48C73.8868 214.48 77.2926 200.955 85.5858 196.942C85.5858 196.942 67.7888 216.79 88.7167 240.561H163.831C165.646 237.554 173.679 221.736 153.812 209.763C167.836 209.562 179.251 236.015 191.532 240.743H209.395C209.999 239.274 211.263 234.876 208.295 230.919C203.721 225.672 193.706 226.382 193.795 216.679C197.254 171.54 264.938 185.402 262.786 131.077Z"
-        fillRule="evenodd"
-      />
+      <path d="M262.786 131.077C262.786 131.077 240.981 103.203 213.571 101.609C195.883 100.565 191.598 102.928 190.83 104.688C189.732 95.5622 181.932 53.2825 128.046 44.3223C134.925 93.7713 163.334 80.8866 180.065 114.969C180.065 114.969 151.832 76.5941 105.416 90.7232C105.416 90.7232 122.334 126.24 172.374 133.497C172.374 133.497 176.384 147.241 177.593 149.661C177.593 149.661 100.527 109.471 77.1269 186.606C59.7121 182.661 53.8708 201.566 73.8868 214.48C73.8868 214.48 77.2926 200.955 85.5858 196.942C85.5858 196.942 67.7888 216.79 88.7167 240.561H163.831C165.646 237.554 173.679 221.736 153.812 209.763C167.836 209.562 179.251 236.015 191.532 240.743H209.395C209.999 239.274 211.263 234.876 208.295 230.919C203.721 225.672 193.706 226.382 193.795 216.679C197.254 171.54 264.938 185.402 262.786 131.077Z" />
     ) : (
       <>
         <path
