@@ -12,7 +12,6 @@ import { useActions, useToastNotification } from '../../../hooks';
 import type { ApiErrorResult } from '../../../graphql/common';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
-import { useJobsFeature } from '../../../hooks/useJobsFeature';
 
 export const fileValidation = {
   acceptedTypes: [
@@ -23,19 +22,37 @@ export const fileValidation = {
   acceptedExtensions: ['pdf', 'docx'],
 };
 
+export interface UploadCvModalContent {
+  title: string;
+  description: string;
+}
+
+export const uploadCvProfileSuccessContent: UploadCvModalContent = {
+  title: 'CV uploaded',
+  description:
+    'We’ll use it to help complete your profile. You can update your profile details anytime.',
+};
+
+export const uploadCvOpportunitySuccessContent: UploadCvModalContent = {
+  title: 'All set! We’ll take it from here',
+  description:
+    'You’re in. Now we’ll search behind the scenes and surface only what’s actually worth considering.',
+};
+
 interface UseUploadCvProps {
   onUploadSuccess?: () => void;
   shouldOpenModal?: boolean;
+  modalContent?: UploadCvModalContent;
 }
 
 export const useUploadCv = ({
   onUploadSuccess,
   shouldOpenModal = true,
+  modalContent = uploadCvProfileSuccessContent,
 }: UseUploadCvProps = {}) => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
   const { checkHasCompleted, isActionsFetched, completeAction } = useActions();
-  const { isJobsEnabled } = useJobsFeature();
   const hasUploadedCv = useMemo(
     () => checkHasCompleted(ActionType.UploadedCV),
     [checkHasCompleted],
@@ -47,17 +64,6 @@ export const useUploadCv = ({
 
   const onCloseBanner = () => completeAction(ActionType.ClosedProfileBanner);
   const { openModal } = useLazyModal();
-  const uploadSuccessContent = isJobsEnabled
-    ? {
-        title: 'All set! We’ll take it from here',
-        description:
-          'You’re in. Now we’ll search behind the scenes and surface only what’s actually worth considering.',
-      }
-    : {
-        title: 'CV uploaded',
-        description:
-          'We’ll use it to help complete your profile. You can update your profile details anytime.',
-      };
   const {
     mutateAsync: onUpload,
     isSuccess,
@@ -72,7 +78,7 @@ export const useUploadCv = ({
           props: {
             withCloseOnTablet: true,
             content: {
-              ...uploadSuccessContent,
+              ...modalContent,
               cover: uploadCvModalSuccess,
               coverDrawer: uploadCvModalSuccessMobile,
             },

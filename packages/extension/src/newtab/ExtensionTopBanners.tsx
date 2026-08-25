@@ -5,6 +5,8 @@ import { TopHero } from '@dailydotdev/shared/src/components/marketing/banners/He
 import { useReadingReminderHero } from '@dailydotdev/shared/src/hooks/notifications/useReadingReminderHero';
 import {
   fileValidation,
+  uploadCvOpportunitySuccessContent,
+  uploadCvProfileSuccessContent,
   useUploadCv,
 } from '@dailydotdev/shared/src/features/profile/hooks/useUploadCv';
 import { useLazyModal } from '@dailydotdev/shared/src/hooks/useLazyModal';
@@ -137,11 +139,15 @@ export const ExtensionTopBanners = (): ReactElement | null => {
   // new tabs, which is where the extension lives).
   const reminder = useReadingReminderHero({ requireMobile: false });
   const { isLoggedIn, isAuthReady } = useAuthContext();
-  const { onUpload, shouldShow: shouldShowCv } = useUploadCv();
+  const { isJobsEnabled } = useJobsFeature();
+  const { onUpload, shouldShow: shouldShowCv } = useUploadCv({
+    modalContent: isJobsEnabled
+      ? uploadCvOpportunitySuccessContent
+      : uploadCvProfileSuccessContent,
+  });
   const { completeAction } = useActions();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const shortcuts = useShortcutsOnboarding();
-  const { isJobsEnabled } = useJobsFeature();
 
   // Logged-out users get the dedicated sticky sign-in strip rendered
   // higher up in `MainFeedPage`. This component is logged-in cards only.

@@ -28,7 +28,11 @@ import {
   uploadCvBgTablet,
   uploadCvBgMobile,
 } from '../../lib/image';
-import { useUploadCv } from '../../features/profile/hooks/useUploadCv';
+import {
+  uploadCvOpportunitySuccessContent,
+  uploadCvProfileSuccessContent,
+  useUploadCv,
+} from '../../features/profile/hooks/useUploadCv';
 import { TargetId } from '../../lib/log';
 import { useHasIntroQuests } from '../../hooks/useHasIntroQuests';
 import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
@@ -191,14 +195,17 @@ export const FeedContainer = ({
 
   const { getMarketingCta, clearMarketingCta } = useBoot();
   const marketingCta = getMarketingCta(MarketingCtaVariant.FeedBanner);
+  const { isJobsEnabled } = useJobsFeature();
   const { onUpload, status, shouldShow } = useUploadCv({
+    modalContent: isJobsEnabled
+      ? uploadCvOpportunitySuccessContent
+      : uploadCvProfileSuccessContent,
     onUploadSuccess: () => {
       if (marketingCta) {
         clearMarketingCta(marketingCta.campaignId);
       }
     },
   });
-  const { isJobsEnabled } = useJobsFeature();
   const shouldEvaluateBanner =
     !!marketingCta && shouldShow && activeFeedName === SharedFeedPage.MyFeed;
   const hasIntroQuests = useHasIntroQuests({

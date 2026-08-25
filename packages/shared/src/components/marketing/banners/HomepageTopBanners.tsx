@@ -6,6 +6,8 @@ import ReadingReminderCatLaptop from './ReadingReminderCatLaptop';
 import { useReadingReminderHero } from '../../../hooks/notifications/useReadingReminderHero';
 import {
   fileValidation,
+  uploadCvOpportunitySuccessContent,
+  uploadCvProfileSuccessContent,
   useUploadCv,
 } from '../../../features/profile/hooks/useUploadCv';
 import { useActions } from '../../../hooks';
@@ -60,10 +62,14 @@ export const HomepageTopBanners = ({
 }: HomepageTopBannersProps): ReactElement | null => {
   const reminder = useReadingReminderHero({ requireMobile: false });
   const { isLoggedIn, isAuthReady } = useAuthContext();
-  const { onUpload, shouldShow: shouldShowCv } = useUploadCv();
+  const { isJobsEnabled } = useJobsFeature();
+  const { onUpload, shouldShow: shouldShowCv } = useUploadCv({
+    modalContent: isJobsEnabled
+      ? uploadCvOpportunitySuccessContent
+      : uploadCvProfileSuccessContent,
+  });
   const { completeAction } = useActions();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { isJobsEnabled } = useJobsFeature();
 
   if (!isAuthReady || !isLoggedIn) {
     return null;
