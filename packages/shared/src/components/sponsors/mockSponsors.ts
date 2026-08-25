@@ -1,4 +1,5 @@
 import type { Sponsor } from './SponsoredStrip';
+import { CodeRabbitLockup } from './CodeRabbitLockup';
 import { NvidiaLockup } from './NvidiaLockup';
 
 // ===========================================================
@@ -36,7 +37,15 @@ export const MOCK_LEAD_SPONSOR: Sponsor = {
 
 /** The wall: silhouetted, even-weighted, inert. */
 export const MOCK_PARTNER_SPONSORS: Sponsor[] = [
-  sponsor('CodeRabbit', 'coderabbit', 2152 / 314),
+  // Inline rather than the library file: CodeRabbit's mark carries a
+  // painted white detail, and the wall masks by alpha, so the flat
+  // asset silhouettes into a featureless blob. The lockup punches the
+  // detail out instead.
+  {
+    name: 'CodeRabbit',
+    ratio: 2152 / 314,
+    Artwork: CodeRabbitLockup,
+  },
   sponsor('Datadog', 'datadog', 800.5 / 203.19),
   sponsor('PostHog', 'posthog', 512 / 90),
   sponsor('ClickHouse', 'clickhouse', 584.9 / 103.1),

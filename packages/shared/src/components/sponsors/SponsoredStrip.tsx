@@ -15,6 +15,14 @@ import { pagePaddings } from '../utilities/common';
 // `SponsoredStrip.stories.tsx` rather than shipped all at once.
 // =============================================================
 
+/**
+ * What an inline lockup is told when it renders. `monochrome` is the
+ * wall treatment: draw in `currentColor` and punch any knockout out
+ * of the shape, because the wall masks by alpha and painted detail
+ * comes through solid.
+ */
+export type LockupProps = { monochrome?: boolean };
+
 export type Sponsor = {
   name: string;
   /**
@@ -38,9 +46,11 @@ export type Sponsor = {
    * Optional inline artwork, for a lockup that cannot be one flat
    * file — typically a brand symbol that must hold its colour beside
    * a wordmark that has to flip with the theme. Rendered in place of
-   * the `logo` image; `logo` is still used for the silhouette.
+   * the `logo` image in both treatments: the lockup is told which one
+   * it is drawing, because a silhouette needs its knockouts punched
+   * out rather than painted.
    */
-  Artwork?: () => ReactElement;
+  Artwork?: (props: LockupProps) => ReactElement;
 };
 
 export type SponsoredStripProps = {
@@ -272,12 +282,12 @@ export const SponsorLogo = ({
     width: optical * sponsor.ratio,
   };
 
-  if (!monochrome && sponsor.Artwork) {
+  if (sponsor.Artwork) {
     const { Artwork } = sponsor;
 
     return (
       <span className={classNames('block', className)} style={style}>
-        <Artwork />
+        <Artwork monochrome={monochrome} />
       </span>
     );
   }
