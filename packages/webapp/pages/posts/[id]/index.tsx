@@ -74,7 +74,11 @@ import {
 import type { DynamicSeoProps } from '../../../components/common';
 import { noindexSeoProps } from '../../../next-seo';
 import useSharedByToast from '../../../hooks/useSharedByToast';
-import { getPostCanonicalUrl, shouldNoindexPost } from '../../../lib/seo';
+import {
+  getPostCanonicalUrl,
+  getPostMarkdownUrl,
+  shouldNoindexPost,
+} from '../../../lib/seo';
 
 const Unauthorized = dynamic(
   () =>
@@ -395,11 +399,22 @@ export async function getStaticProps({
     const post = initialData.post as Post;
     const topComments = commentsData.topComments || [];
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
+    const noindex = shouldNoindexPost(post);
     const seo: NextSeoProps = {
       canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
-      noindex: shouldNoindexPost(post),
+      noindex,
+      additionalLinkTags:
+        post && !noindex
+          ? [
+              {
+                rel: 'alternate',
+                type: 'text/markdown',
+                href: getPostMarkdownUrl({ post }),
+              },
+            ]
+          : undefined,
       openGraph: {
         ...pageSeoTitles.openGraph,
         images: [
