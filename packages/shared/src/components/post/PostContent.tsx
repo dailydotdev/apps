@@ -124,9 +124,7 @@ export function PostContentRaw({
     shouldEvaluate: !!communitySentimentData,
   });
   const showCommunitySentiment =
-    isPostPage &&
-    !!communitySentimentData &&
-    (communitySentimentEnabled || isDevelopment);
+    !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
   const hasToc = (post.toc?.length ?? 0) > 0;
@@ -282,7 +280,10 @@ export function PostContentRaw({
           />
         )}
         {showCommunitySentiment && (
-          <CommunitySentiment data={communitySentimentData} className="mb-6" />
+          <CommunitySentiment
+            data={communitySentimentData}
+            className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
+          />
         )}
       </BasePostContent>
     </PostContainer>
