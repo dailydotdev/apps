@@ -11,7 +11,7 @@ import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { Origin } from '../../../lib/log';
 import { featureCommunitySentiment } from '../../../lib/featureManagement';
-import { getPostByIdKey } from '../../../hooks/usePostById';
+import { getPostByIdKey } from '../../../lib/query';
 import { PostFocusCard } from './PostFocusCard';
 
 const freeformPost: Post = {
