@@ -27,6 +27,7 @@ const componentsMap: ReferralRecord<FunctionComponent<JoinPageProps>> = {
   [ReferralCampaignKey.ShareProfile]: Referral,
   [ReferralCampaignKey.ShareSource]: Referral,
   [ReferralCampaignKey.ShareTag]: Referral,
+  [ReferralCampaignKey.ShareAgent]: Referral,
 };
 
 const referralCampaignValues = new Set<string>(
@@ -105,7 +106,7 @@ export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
   const validateUserId = (value: string) => !!value && value !== '404';
   const userId = getFirstQueryParam(query.userid);
   const campaignValue = getFirstQueryParam(query.cid);
-  const token = getFirstQueryParam(query.ctoken) ?? null;
+  const token = getFirstQueryParam(query.ctoken);
 
   if (
     !userId ||
@@ -136,9 +137,11 @@ export const getServerSideProps: GetServerSideProps<JoinPageProps> = async ({
 
   return {
     props: {
-      token,
+      // Next refuses to serialize an explicit `undefined`, and `token` is
+      // optional.
+      ...(token && { token }),
       campaign,
-      referringUser: result?.user,
+      referringUser: result.user,
     },
   };
 };

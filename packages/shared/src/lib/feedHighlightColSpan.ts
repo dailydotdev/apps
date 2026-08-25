@@ -58,6 +58,7 @@ export interface PlacementBuilderOptions {
   minSpacing: number;
   startIndex: number;
   widenableTypes: ReadonlySet<PostType>;
+  firstSlotOffset?: number;
 }
 
 /**
@@ -165,12 +166,17 @@ export const createPlacementBuilder = ({
   minSpacing,
   startIndex,
   widenableTypes,
+  firstSlotOffset = 0,
 }: PlacementBuilderOptions): PlacementBuilder => {
   const layoutEnabled = isEnabled && !isMobile && !isList && numCards > 1;
   const safeNumCards = Math.max(numCards, 1);
+  const safeFirstSlotOffset = Math.max(
+    0,
+    Math.min(firstSlotOffset, safeNumCards - 1),
+  );
 
   let row = 0;
-  let col = 0;
+  let col = safeFirstSlotOffset;
   let lastLargeIndex = -Infinity;
   let itemIdx = 0;
 
@@ -180,10 +186,11 @@ export const createPlacementBuilder = ({
       { fullRowBefore = false, maxColSpan = Infinity } = {},
     ): FeedItemPlacement {
       if (!layoutEnabled) {
+        const shifted = itemIdx + safeFirstSlotOffset;
         const placement: FeedItemPlacement = {
           colSpan: 1,
-          row: Math.floor(itemIdx / safeNumCards),
-          column: itemIdx % safeNumCards,
+          row: Math.floor(shifted / safeNumCards),
+          column: shifted % safeNumCards,
         };
         itemIdx += 1;
         return placement;

@@ -46,6 +46,7 @@ import { requestFrameEmbeddingPermissionFromPage } from '../../features/extensio
 
 interface ReaderInstallPromptModalProps extends LazyModalCommonProps {
   post: Post;
+  targetPost?: Post;
   /**
    * Close handler for the surface that owns the Read post click (e.g. the
    * classic post modal). Fired alongside the prompt's own dismiss paths
@@ -245,6 +246,7 @@ function BlurredArticleBackdrop(): ReactElement {
 
 function ReaderInstallPromptModal({
   post,
+  targetPost = post,
   isOpen,
   onRequestClose,
   onCloseParent,
@@ -306,7 +308,7 @@ function ReaderInstallPromptModal({
     ? 'Install Chrome extension'
     : 'Install Edge extension';
   const browser = isChromeBrowser ? 'chrome' : 'edge';
-  const host = getPostHost(post);
+  const host = getPostHost(targetPost);
   const faviconSrc = useFaviconSrc(host);
   const displayUrl = getDisplayUrl(host);
 
@@ -334,7 +336,7 @@ function ReaderInstallPromptModal({
   const [embedStatus, setEmbedStatus] =
     useState<ExtensionSiteEmbedStatus>('idle');
   const hasOpenedReaderRef = useRef(false);
-  const isTargetEmbeddable = isEmbeddableSiteTarget(post.permalink ?? '');
+  const isTargetEmbeddable = isEmbeddableSiteTarget(targetPost.permalink ?? '');
   const canRequestPermissions =
     !!embedExtensionId && isTargetEmbeddable && hasInstalledExtension;
 
@@ -349,9 +351,9 @@ function ReaderInstallPromptModal({
     // (e.g. the classic post modal behind it).
     openModal({
       type: LazyModal.ReaderPreview,
-      props: { post, onCloseParent },
+      props: { post, targetPost, onCloseParent },
     });
-  }, [closeModal, onCloseParent, openModal, post]);
+  }, [closeModal, onCloseParent, openModal, post, targetPost]);
 
   // `preparing-tab` arrives once `PermissionsReady` has fired (the user has
   // either just granted access or had it from a previous session). Transition
@@ -428,8 +430,12 @@ function ReaderInstallPromptModal({
       event_name: LogEvent.ClickReaderInstallSkip,
       extra: JSON.stringify({ browser, post_id: post.id }),
     });
-    if (post.permalink) {
-      globalThis.window?.open(post.permalink, '_blank', 'noopener,noreferrer');
+    if (targetPost.permalink) {
+      globalThis.window?.open(
+        targetPost.permalink,
+        '_blank',
+        'noopener,noreferrer',
+      );
     }
     onRequestClose({} as MouseEvent<HTMLButtonElement>);
   };
@@ -443,8 +449,12 @@ function ReaderInstallPromptModal({
       event_name: LogEvent.ClickReaderInstallSkip,
       extra: JSON.stringify({ browser, post_id: post.id }),
     });
-    if (post.permalink) {
-      globalThis.window?.open(post.permalink, '_blank', 'noopener,noreferrer');
+    if (targetPost.permalink) {
+      globalThis.window?.open(
+        targetPost.permalink,
+        '_blank',
+        'noopener,noreferrer',
+      );
     }
     onRequestClose(event);
   };
@@ -480,7 +490,7 @@ function ReaderInstallPromptModal({
             <div className="z-10 relative flex min-h-0 w-full flex-1 flex-col">
               <ExtensionSiteEmbed
                 extensionId={embedExtensionId}
-                targetUrl={post.permalink ?? ''}
+                targetUrl={targetPost.permalink ?? ''}
                 enabled
                 className="h-full w-full"
                 permissionFrameTitle="Embedded browsing permissions"

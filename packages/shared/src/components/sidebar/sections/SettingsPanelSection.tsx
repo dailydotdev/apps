@@ -34,6 +34,7 @@ import { useLazyModal } from '../../../hooks/useLazyModal';
 import { LazyModal } from '../../modals/common/types';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent, TargetId } from '../../../lib/log';
+import { useJobsFeature } from '../../../hooks/useJobsFeature';
 
 const settingsDefaultPath = `${settingsUrl}/profile`;
 
@@ -49,6 +50,7 @@ export const SettingsPanelSection = ({
 }: SidebarSectionProps): ReactElement => {
   const { openModal } = useLazyModal();
   const { logEvent } = useLogContext();
+  const { isJobsEnabled } = useJobsFeature();
 
   const groups: SettingsGroup[] = useMemo(
     () => [
@@ -76,18 +78,22 @@ export const SettingsPanelSection = ({
               <ListIcon Icon={() => <BellIcon secondary={active} />} />
             ),
           },
-          {
-            title: 'Job preferences',
-            path: `${settingsUrl}/job-preferences`,
-            icon: (active: boolean) => (
-              <ListIcon Icon={() => <JobIcon secondary={active} />} />
-            ),
-            action: () =>
-              logEvent({
-                event_name: LogEvent.ClickCandidatePreferences,
-                target_id: TargetId.ProfileSettingsMenu,
-              }),
-          },
+          ...(isJobsEnabled
+            ? [
+                {
+                  title: 'Job preferences',
+                  path: `${settingsUrl}/job-preferences`,
+                  icon: (active: boolean) => (
+                    <ListIcon Icon={() => <JobIcon secondary={active} />} />
+                  ),
+                  action: () =>
+                    logEvent({
+                      event_name: LogEvent.ClickCandidatePreferences,
+                      target_id: TargetId.ProfileSettingsMenu,
+                    }),
+                },
+              ]
+            : []),
           {
             title: 'Appearance',
             path: `${settingsUrl}/appearance`,
@@ -270,7 +276,7 @@ export const SettingsPanelSection = ({
         ],
       },
     ],
-    [logEvent, openModal],
+    [isJobsEnabled, logEvent, openModal],
   );
 
   return (

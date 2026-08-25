@@ -25,6 +25,46 @@ const post: Post = {
   type: PostType.Article,
 };
 
+export const postWithCommunitySentiment: Post = {
+  ...post,
+  communitySentiment: {
+    breakdown: { positive: 62, mixed: 24, critical: 14 },
+    tldr: 'Most agree it is worth reading.',
+    postCount: 2,
+    sources: ['Hacker News', 'Lobsters'],
+    pros: ['Clear explanation'],
+    cons: ['Skips some trade-offs'],
+    bySource: [
+      {
+        source: 'Hacker News',
+        lean: 'positive',
+        note: 'Mostly supportive',
+        url: 'https://news.ycombinator.com/item?id=1',
+      },
+    ],
+    hottestDebate: 'Whether the advice applies broadly.',
+    openQuestions: ['How does it behave at scale?'],
+    highlights: [
+      {
+        quote: 'This helped clarify the trade-off.',
+        author: 'someone',
+        source: 'Hacker News',
+        url: 'https://news.ycombinator.com/item?id=2',
+        metrics: { points: 214, replies: 88 },
+      },
+    ],
+    discussions: [
+      {
+        provider: 'hackernews',
+        url: 'https://news.ycombinator.com/item?id=1',
+        points: 214,
+        commentsCount: 88,
+      },
+    ],
+    updatedAt: '2026-07-18T00:00:00.000Z',
+  },
+};
+
 export const sharePost: Post = {
   id: '5nLQHVNHi',
   title: 'Good read about react-query',

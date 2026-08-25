@@ -38,11 +38,12 @@ import {
 import type { Author } from '@dailydotdev/shared/src/graphql/comments';
 import type { WorldDistrict } from '../../graphql/world';
 import { WorldCustomizeRail } from './WorldCustomize';
-import { WorldGuide } from './WorldGuide';
+import { WorldGuideRail } from './WorldGuide';
 import { WorldImmersiveToggle } from './WorldMark';
 import { WorldShare } from './WorldShare';
 import { WorldNudge } from './WorldNudge';
 import { WorldSignupCta } from './WorldSignupCta';
+import { WorldStats } from './WorldStats';
 import { WorldViewerAction } from './WorldViewerAction';
 import { levelProgress, REALM_DIV } from './ladder';
 import type { WorldDraft } from './useWorldDraft';
@@ -89,26 +90,6 @@ const levelHint = (row: WorldRankRow, isDistrict: boolean): string => {
     toNext,
   )} to L${level + 1}`;
 };
-
-const Stat = ({ label, value }: { label: string; value: string }) => (
-  <div className="flex min-w-0 flex-1 flex-col">
-    <Typography
-      type={TypographyType.Callout}
-      bold
-      className="tabular-nums"
-      truncate
-    >
-      {value}
-    </Typography>
-    <Typography
-      type={TypographyType.Caption1}
-      color={TypographyColor.Tertiary}
-      truncate
-    >
-      {label}
-    </Typography>
-  </div>
-);
 
 /**
  * Memoised on purpose. The engine pushes a new state object every frame while
@@ -331,7 +312,7 @@ function WorldPanelRail({
      with unsaved state in it, and reading about it is not. */
   if (isGuideOpen) {
     return (
-      <WorldGuide
+      <WorldGuideRail
         isOwn={isOwn}
         districts={districts}
         hasReplay={!unbuilt && !!state.replayable}
@@ -357,23 +338,10 @@ function WorldPanelRail({
 
       {!!showNudge && !!draft && <WorldNudge onCustomize={draft.open} />}
 
-      {/* Four across, on one line. DataTile is the right component for a stats
-          page and the wrong one for a rail this narrow: its card and its own
-          info icon are together taller than these four numbers need to be. */}
-      <div className="flex items-center gap-2 border-y border-border-subtlest-tertiary py-3">
-        <Stat
-          label={pluralize('Article', state.articles ?? 0)}
-          value={formatDataTileValue(state.articles ?? 0)}
-        />
-        <Stat
-          label={pluralize('District', state.districts ?? 0)}
-          value={formatDataTileValue(state.districts ?? 0)}
-        />
-        <Stat
-          label={pluralize('Realm', state.realms ?? 0)}
-          value={formatDataTileValue(state.realms ?? 0)}
-        />
-        <Stat label="Active" value={state.span ?? '-'} />
+      <WorldStats
+        state={state}
+        className="border-y border-border-subtlest-tertiary py-3"
+      >
         <StatsLegend
           onOpen={() => {
             setIsGuideOpen(true);
@@ -384,7 +352,7 @@ function WorldPanelRail({
             });
           }}
         />
-      </div>
+      </WorldStats>
 
       {/* Natural height, not flex-1: the rail scrolls as a whole, and a ranking
           that grew to fill it left the signup card underneath the list. */}

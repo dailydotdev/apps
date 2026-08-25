@@ -22,7 +22,7 @@ import { useViewSize, ViewSize } from '../../../../hooks';
 import type {
   UserStack,
   AddUserStackInput,
-  DatasetTool,
+  AutocompleteTool,
 } from '../../../../graphql/user/userStack';
 import { useStackSearch } from '../../hooks/useStackSearch';
 import YearSelect from '../../../../components/profile/YearSelect';
@@ -105,7 +105,7 @@ export function UserStackModal({
   const finalSection = isCustomSection ? customSection || section : section;
   const canSubmit = title.trim().length > 0 && finalSection.trim().length > 0;
 
-  const handleSelectSuggestion = (suggestion: DatasetTool) => {
+  const handleSelectSuggestion = (suggestion: AutocompleteTool) => {
     setValue('title', suggestion.title);
     setShowSuggestions(false);
   };

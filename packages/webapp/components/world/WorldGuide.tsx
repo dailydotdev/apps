@@ -11,6 +11,8 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import type { WorldDistrict } from '../../graphql/world';
 import { LEVELS, levelOf } from './ladder';
+import { WorldStats } from './WorldStats';
+import type { WorldState } from './worldState';
 
 /* The four numbers the rail puts on one line, defined in the order they stand
    in. The level badge used to be defined here with them, as a fifth row reading
@@ -69,61 +71,46 @@ const Term = ({
   </li>
 );
 
-interface WorldGuideProps {
+interface WorldGuideContentProps {
   isOwn: boolean;
   districts?: WorldDistrict[];
   /** No replay on bare ground and none on a handheld, so it is not promised. */
   hasReplay?: boolean;
-  /** Only the owner has a bench to be pointed at. */
+  /** Only the owner has a bench to be pointed at, and only on a laptop. */
   canCustomize?: boolean;
-  onClose: () => void;
+  /** Changes the verbs, and drops what a finger cannot do at all. */
+  isTouch?: boolean;
 }
 
 /**
  * What this place is, how it grows, and what the things on it do.
- *
- * It replaces the rail rather than opening over the world, the same way the
- * bench does: the one thing a reader is here to look at is the world, and an
- * explanation of a map that covers the map is answering the question by taking
- * away the reason to ask it.
  *
  * The ladder is the whole of the mechanic and the one part of it that was never
  * written down anywhere a reader could reach: the rungs were dev-facing, and all
  * anyone ever saw was "L7" with nothing to measure it against. Twelve
  * thresholds and a mark on the one this world is standing on is the shortest
  * honest answer.
+ *
+ * Sections only, no container: a laptop reads this in the rail and a phone reads
+ * it in a sheet, and the two disagree about everything except the words.
  */
-export function WorldGuide({
+export function WorldGuideContent({
   isOwn,
   districts,
   hasReplay,
   canCustomize,
-  onClose,
-}: WorldGuideProps): ReactElement {
+  isTouch,
+}: WorldGuideContentProps): ReactElement {
   /* Off the districts rather than the rank rows, which hold REALMS at world
      scale and are scored on the stretched ladder. The level anyone is ever shown
      is a district's, so the one marked here has to be too. */
   const topLevel =
     districts?.reduce((top, { reads }) => Math.max(top, levelOf(reads)), 0) ??
     0;
+  const tap = isTouch ? 'Tap' : 'Click';
 
   return (
-    <aside
-      data-world-overlay
-      className="pointer-events-auto absolute inset-y-0 left-0 z-1 flex w-80 flex-col gap-4 overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default p-4"
-    >
-      <header className="flex items-center justify-between gap-2">
-        <Typography type={TypographyType.Body} bold>
-          How this world works
-        </Typography>
-        <CloseButton
-          type="button"
-          size={ButtonSize.Small}
-          aria-label="Close the guide"
-          onClick={onClose}
-        />
-      </header>
-
+    <>
       <Section title="What this is">
         <Line>
           Every article {isOwn ? 'you read' : 'they read'} on daily.dev grows a
@@ -190,17 +177,26 @@ export function WorldGuide({
 
       <Section title="What you can do here">
         <ul className="flex flex-col gap-1">
-          <Term term="Click a realm">to go inside and see its districts.</Term>
-          <Term term="Click a district">
+          <Term term={`${tap} a realm`}>
+            to go inside and see its districts.
+          </Term>
+          <Term term={`${tap} a district`}>
             to read the posts {isOwn ? 'you' : 'they'} upvoted there.
           </Term>
           {/* The one interaction on the world with no permanent sign that it
               exists: birds only announce themselves once the pointer is already
-              on one, and nothing leads a pointer there. */}
-          <Term term="Click a bird">
-            to ride it. They circle the bigger districts.
+              on one, and nothing leads a pointer there.
+              Not offered on touch, where it is not merely undiscoverable but
+              unreachable: mounting a bird requires the reticle a HOVER puts on
+              it, and a finger never hovers. */}
+          {!isTouch && (
+            <Term term="Click a bird">
+              to ride it. They circle the bigger districts.
+            </Term>
+          )}
+          <Term term={isTouch ? 'Drag and pinch' : 'Drag and scroll'}>
+            to move around the map and zoom.
           </Term>
-          <Term term="Drag and scroll">to move around the map and zoom.</Term>
           {!!hasReplay && (
             <Term term="Play the bar below">
               to watch the world grow from the first article to today.
@@ -224,6 +220,87 @@ export function WorldGuide({
           ))}
         </ul>
       </Section>
+    </>
+  );
+}
+
+const GuideHeader = ({ onClose }: { onClose: () => void }) => (
+  <header className="flex flex-none items-center justify-between gap-2">
+    <Typography type={TypographyType.Body} bold>
+      How this world works
+    </Typography>
+    <CloseButton
+      type="button"
+      size={ButtonSize.Small}
+      aria-label="Close the guide"
+      onClick={onClose}
+    />
+  </header>
+);
+
+/**
+ * The guide in the rail it replaces, on laptop and up.
+ *
+ * It replaces the rail rather than opening over the world, the same way the
+ * bench does: the one thing a reader is here to look at is the world, and an
+ * explanation of a map that covers the map is answering the question by taking
+ * away the reason to ask it.
+ */
+export function WorldGuideRail({
+  onClose,
+  ...content
+}: WorldGuideContentProps & { onClose: () => void }): ReactElement {
+  return (
+    <aside
+      data-world-overlay
+      className="pointer-events-auto absolute inset-y-0 left-0 z-1 flex w-80 flex-col gap-4 overflow-y-auto border-r border-border-subtlest-tertiary bg-background-default p-4"
+    >
+      <GuideHeader onClose={onClose} />
+      <WorldGuideContent {...content} />
     </aside>
+  );
+}
+
+/**
+ * The same words on a phone, in a card over the world.
+ *
+ * Below laptop there is no rail, which until now meant no stats, no legend and
+ * no explanation of any kind: a visitor following a shared link got a map and
+ * nothing else. So this carries the two things the rail would have shown them
+ * as well as the guide, and whose world it is, which a phone never says either.
+ *
+ * A card rather than a partial drawer, matching the bench: the guide is read for
+ * a while, and a strip along the bottom of a phone makes it unreadable without
+ * making the world any more useful behind it. Closing is one tap.
+ */
+export function WorldGuideSheet({
+  state,
+  userName,
+  isOwn,
+  onClose,
+  ...content
+}: WorldGuideContentProps & {
+  state: WorldState;
+  userName: string;
+  onClose: () => void;
+}): ReactElement {
+  return (
+    <div
+      data-world-overlay
+      className="pointer-events-auto absolute inset-3 z-3 flex flex-col gap-4 overflow-y-auto rounded-16 border border-border-subtlest-tertiary bg-background-default p-4"
+    >
+      <GuideHeader onClose={onClose} />
+      <Typography
+        type={TypographyType.Footnote}
+        color={TypographyColor.Tertiary}
+      >
+        {isOwn ? 'Your world' : `${userName}'s world`}
+      </Typography>
+      <WorldStats
+        state={state}
+        className="border-y border-border-subtlest-tertiary py-3"
+      />
+      <WorldGuideContent isOwn={isOwn} {...content} />
+    </div>
   );
 }

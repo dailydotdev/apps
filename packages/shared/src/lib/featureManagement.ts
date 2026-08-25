@@ -1,4 +1,3 @@
-import type { JSONValue } from '@growthbook/growthbook';
 import type { FeedAdTemplate } from './feed';
 import type { FeedSettingsKeys } from '../contexts/FeedContext';
 import type { PlusItemStatus } from '../components/plus/PlusListItem';
@@ -6,17 +5,9 @@ import { isDevelopment } from './constants';
 import { BriefingType } from '../graphql/posts';
 import type { HeroCardsConfig } from '../types';
 import { PostType } from '../types';
+import { Feature } from './feature';
 
-export class Feature<T extends JSONValue> {
-  readonly id: string;
-
-  readonly defaultValue: T;
-
-  constructor(id: string, defaultValue: T) {
-    this.id = id;
-    this.defaultValue = defaultValue;
-  }
-}
+export { Feature } from './feature';
 
 const feature = {
   showError: new Feature('show_error', false),
@@ -69,6 +60,8 @@ export const featurePlusCtaCopy = new Feature('plus_cta_copy', {
 export const featureLuckyButton = new Feature('lucky_button', false);
 
 export const featureStandupCreation = new Feature('standup_creation', false);
+
+export const featureJobsUI = new Feature('jobs_ui', false);
 
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
@@ -295,37 +288,52 @@ export const featurePublicSignupBanner = new Feature(
   false,
 );
 
-export enum DailyPageVariant {
-  None = 'none',
-  V1 = 'v1.1',
-  DailyAsDefault = 'daily-as-default',
-}
-export const featureDailyPage = new Feature<DailyPageVariant>(
-  'daily_page',
-  DailyPageVariant.None,
-);
-
-// Experiment: redesigned notifications page (type filters, time grouping,
-// compact rows) backed by server-side type filtering on daily-api. Control is
-// the legacy single-list page. Keep the default `false` — GrowthBook ramps it.
-export const featureNotificationsRedesign = new Feature(
-  'notifications_redesign',
-  false,
-);
-
 // Surfaces a per-post impressions stat on the feed card action bar and the
 // post page stats strip, sourced from the public `analytics.impressions`
 // field. Control hides it entirely. Keep the default `false` — GrowthBook
 // ramps it.
 export const featureCardImpressions = new Feature('card_impressions', false);
 
+// Gates every agent surface; control hides all of them. Keep the default
+// `false`, GrowthBook ramps it.
 export const featureInterestAgent = new Feature('interest_agent', false);
 
-// Post-signup feed activation bar: a persistent, non-dismissible strip shown
-// above the header on every page for signed-in users who registered but have
-// not set up their feed yet (no tag/content customization). Control hides it
-// entirely. Keep the default `false` — GrowthBook ramps it.
-export const featurePostSignupActivation = new Feature(
-  'post_signup_activation',
-  false,
+export type PlusSaleConfig = {
+  /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
+  discountId: string;
+  /** Coupon code shown as marketing copy; it is applied automatically. */
+  code: string;
+  label: string;
+  headline: string;
+  description: string;
+  /** ISO date. The sale expires here even if the flag is left on. */
+  endDate: string;
+};
+
+// The advertised discount, code and expiry travel with the id they describe, so
+// the copy can't outlive or contradict what Paddle applies. The committed
+// default is the off state; its copy is never reachable without a discount id.
+export const featurePlusSale = new Feature<PlusSaleConfig>(
+  'plus_sale_campaign',
+  {
+    discountId: '',
+    code: 'SUMMER50',
+    label: '50% off',
+    headline: 'Summer sale: 50% off Plus',
+    description: 'Code SUMMER50 is already applied. Offer ends August 31.',
+    endDate: '2026-09-01T00:00:00.000Z',
+  },
 );
+
+// AdSense on the organic post page: two units, anonymous visitors only. The
+// unit map lives in code (post/arbitrage/slots.ts) — ids are public in any
+// live page's source, and a remote JSON value cost every surface's boot
+// payload the whole map.
+export const featurePostAdsense = new Feature('post_adsense', false);
+
+// Emergency kill switch for the /read template's ads — NOT an experiment, so
+// the true default is deliberate: the surface ships always-on (it is only
+// reachable through paid placements), and the flag exists solely so a policy
+// warning, bad creative or revenue anomaly can be stopped without a deploy
+// and an ISR revalidation cycle. Never ramp or target with this flag.
+export const featureReadAdsense = new Feature('read_adsense', true);
