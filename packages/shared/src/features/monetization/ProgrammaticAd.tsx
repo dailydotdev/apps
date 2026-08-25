@@ -29,8 +29,9 @@ type FormatSpec = {
   size: string;
   /**
    * Reserves the creative's height PLUS the chrome that renders with it —
-   * the label row (~1rem) and the wrapper's vertical padding (1rem) — so the
-   * box never grows under the reader when the request lands in-viewport.
+   * the label row (1rem line + pb-1) and the wrapper's py-2, 36px in all —
+   * so the box never grows under the reader when the request lands
+   * in-viewport.
    */
   minHeight: string;
   /**
@@ -61,7 +62,7 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
   [ProgrammaticAdFormat.Leaderboard]: {
     label: 'Leaderboard',
     size: '728x90 · 320x100 mobile',
-    minHeight: 'min-h-[132px] tablet:min-h-[122px]',
+    minHeight: 'min-h-[136px] tablet:min-h-[126px]',
     maxWidth: 'max-w-[320px] tablet:max-w-[728px]',
     shape: 'horizontal',
   },
@@ -71,7 +72,7 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
   [ProgrammaticAdFormat.MediumRectangle]: {
     label: 'Medium rectangle',
     size: '300x250',
-    minHeight: 'min-h-[282px]',
+    minHeight: 'min-h-[286px]',
     maxWidth: 'max-w-[300px]',
     shape: 'rectangle',
   },
@@ -80,21 +81,21 @@ export const FORMAT_SPEC: Record<ProgrammaticAdFormat, FormatSpec> = {
   [ProgrammaticAdFormat.Rectangle]: {
     label: 'In-content',
     size: '336x280 · 300x250 mobile',
-    minHeight: 'min-h-[282px] tablet:min-h-[212px]',
+    minHeight: 'min-h-[286px] tablet:min-h-[216px]',
     maxWidth: 'max-w-[300px] tablet:max-w-[336px]',
     shape: 'rectangle',
   },
   [ProgrammaticAdFormat.HalfPage]: {
     label: 'Sticky rail',
     size: '300x600',
-    minHeight: 'min-h-[352px]',
+    minHeight: 'min-h-[356px]',
     maxWidth: 'max-w-[300px]',
     shape: 'vertical',
   },
   [ProgrammaticAdFormat.Native]: {
     label: 'Native',
     size: 'fluid',
-    minHeight: 'min-h-[128px]',
+    minHeight: 'min-h-[132px]',
   },
 };
 
@@ -233,6 +234,10 @@ export function ProgrammaticAd({
   // forward-marker for the Ad Manager migration, where this must be revisited
   // before declared refresh goes live.
   const hasLoggedClick = useRef(false);
+  // Ref, not dependency: callers pass inline objects whose identity changes
+  // every render, and the ad effects must not re-run for that.
+  const logExtraRef = useRef(logExtra);
+  logExtraRef.current = logExtra;
   const { id: unitId, type: unitType, layoutKey: unitLayoutKey } = config;
 
   const logSlotEvent = useCallback(
@@ -259,7 +264,7 @@ export function ProgrammaticAd({
             format,
             surface,
             refreshes,
-            extra: { ...logExtra, ...extra },
+            extra: { ...logExtraRef.current, ...extra },
           }),
         ),
       });
@@ -267,7 +272,6 @@ export function ProgrammaticAd({
     [
       format,
       logEvent,
-      logExtra,
       refreshes,
       slot,
       surface,

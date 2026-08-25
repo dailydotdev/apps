@@ -35,9 +35,11 @@ import PostEngagements from '../PostEngagements';
 
 /**
  * The rail carries two in-flow units between its widgets, and the closing
- * sticky half page arrives separately via PostWidgets' `trailing`. Only the
- * first keeps a phone placement: below laptop the rail stacks under the
- * article, where the body and comment cadences already carry the density.
+ * sticky half page arrives separately via PostWidgets' `trailing`. None of
+ * them keep a phone placement: below laptop the rail stacks under the
+ * article, and the phone's density budget is spent on the leaderboard, the
+ * first in-content unit and the above-comments MPU (~17-22% of a scraped
+ * page against the Better Ads 30% cap).
  */
 const RAIL_AD: Partial<
   Record<
@@ -53,6 +55,7 @@ const RAIL_AD: Partial<
   [PostWidgetPosition.Source]: {
     slot: ARBITRAGE_SLOT.railAfterSource,
     format: ArbitrageAdFormat.MediumRectangle,
+    hideOnPhone: true,
   },
   // In flow, not sticky: a sticky unit mid-rail slides over the widgets
   // below it, and the rail's one sticky lives at its very end (slot 19),
@@ -211,10 +214,14 @@ export function ArbitragePostContent({
               <p className="select-text break-words typo-markdown">{part}</p>
             </div>
             {index < parts.length - 1 && (
+              // Phone density policy: only the page's first in-content unit
+              // keeps a phone placement — the 250-char cadence would stack
+              // the rest into a wall on a small screen.
               <ArbitrageAdSlot
                 slot={ARBITRAGE_SLOT.inBodyMpu}
                 format={ArbitrageAdFormat.MediumRectangle}
                 className="my-6"
+                hideOnPhone={index > 0}
                 logExtra={{ section: 'summary', occurrence: index + 1 }}
               />
             )}
@@ -287,6 +294,7 @@ export function ArbitragePostContent({
                 slot={ARBITRAGE_SLOT.inBodyMpu}
                 format={ArbitrageAdFormat.MediumRectangle}
                 className="my-6"
+                hideOnPhone={summaryParts.length > 1 || index > 0}
                 logExtra={{ section: 'body', occurrence: index + 1 }}
               />
             )}

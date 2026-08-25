@@ -28,20 +28,22 @@ const visibleLength = (text: string): number =>
     .trim().length;
 
 /**
- * Splits rendered article HTML into chunks of at least `minChars` of visible
- * text, cutting only where a top-level block element closes — an ad between
- * chunks can never land inside a paragraph, list, blockquote or code block.
- * A short tail is merged into the chunk before it, so the article never ends
- * on an ad followed by a stray line.
+ * Splits rendered article HTML into chunks for in-content ads, cutting only
+ * where a top-level block element closes — an ad can never land inside a
+ * paragraph, list, blockquote or code block. Like the TLDR splitter, cuts
+ * aim at even split points across the whole article (no front-loading) and
+ * carry the cadence as a hard floor: never within `minChars` of visible text
+ * of the previous cut, never with less than half a cadence after them.
  */
 export function splitContentForAds(
   html: string,
   minChars: number,
   maxParts = Infinity,
 ): string[] {
-  const chunks: string[] = [];
+  // First pass: every depth-0 block boundary with the cumulative visible
+  // text before it.
+  const candidates: Array<{ index: number; visible: number }> = [];
   let depth = 0;
-  let chunkStart = 0;
   let cursor = 0;
   let visible = 0;
 
@@ -61,10 +63,8 @@ export function splitContentForAds(
     const name = rawName.toLowerCase();
     if (token.startsWith('</')) {
       depth = Math.max(0, depth - 1);
-      if (depth === 0 && visible >= minChars) {
-        chunks.push(html.slice(chunkStart, cursor));
-        chunkStart = cursor;
-        visible = 0;
+      if (depth === 0) {
+        candidates.push({ index: cursor, visible });
       }
     } else if (!VOID_ELEMENTS.has(name) && !token.endsWith('/>')) {
       depth += 1;
@@ -72,37 +72,58 @@ export function splitContentForAds(
 
     match = TAG_RE.exec(html);
   }
+  visible += visibleLength(html.slice(cursor));
 
-  const tail = html.slice(chunkStart);
-  if (tail.trim()) {
-    chunks.push(tail);
+  const total = visible;
+  const count = Math.min(Math.max(1, Math.round(total / minChars)), maxParts);
+
+  if (count === 1 || !candidates.length) {
+    return [html];
   }
 
-  // Density cap: everything past the last allowed boundary folds into the
-  // final chunk rather than earning more ads.
-  while (chunks.length > maxParts) {
-    const overflow = chunks.pop() as string;
-    chunks[chunks.length - 1] += overflow;
-  }
+  const chunks: string[] = [];
+  let fromIndex = 0;
+  let fromVisible = 0;
+  for (let i = 1; i < count; i += 1) {
+    const ideal = (total * i) / count;
+    // Per-iteration captures: the closures must not reference the mutable
+    // cursors (no-loop-func).
+    const afterIndex = fromIndex;
+    const floorFrom = fromVisible;
+    const cut = candidates
+      .filter(
+        (candidate) =>
+          candidate.index > afterIndex &&
+          candidate.visible >= floorFrom + minChars &&
+          candidate.visible <= total - minChars / 2,
+      )
+      .reduce<{ index: number; visible: number } | null>(
+        (best, candidate) =>
+          !best ||
+          Math.abs(candidate.visible - ideal) < Math.abs(best.visible - ideal)
+            ? candidate
+            : best,
+        null,
+      );
 
-  // The last chunk earns its preceding ad only when it carries real content.
-  if (chunks.length > 1) {
-    const last = chunks[chunks.length - 1];
-    if (visibleLength(last.replace(TAG_RE, ' ')) < minChars / 2) {
-      chunks[chunks.length - 2] += last;
-      chunks.pop();
+    if (!cut) {
+      break;
     }
+    chunks.push(html.slice(fromIndex, cut.index));
+    fromIndex = cut.index;
+    fromVisible = cut.visible;
   }
 
+  chunks.push(html.slice(fromIndex));
   return chunks;
 }
 
 /**
- * The TLDR's cadence works by balance, not by greedy threshold: the part
- * count comes from the target size, and each break lands on the sentence end
- * nearest to its even split point — one ad in a two-part summary sits at the
- * middle sentence, not wherever the threshold first ran out. Falls back to
- * word boundaries for text without sentence punctuation.
+ * The TLDR's cadence: the part count comes from the target size and each
+ * break lands on the sentence end nearest to its even split point, with the
+ * cadence as a hard minimum between ads — a break can aim at balance but
+ * never land within `targetChars` of the previous one. Falls back to word
+ * boundaries for text without sentence punctuation.
  */
 export function splitTextForAds(
   text: string,
@@ -139,10 +160,15 @@ export function splitTextForAds(
     // Per-iteration capture: the closures below must not reference the
     // mutable `start` (no-loop-func).
     const from = start;
-    // Nearest boundary to the even split point, strictly inside the
-    // remaining text so a cut can never produce an empty part.
+    // Nearest boundary to the even split point, with the cadence as a hard
+    // floor on both sides: never within targetChars of the previous ad
+    // (nearest-snapping alone pulled a break to ~130 chars) and never so
+    // late that less than half a cadence of text would follow it.
     const cut = boundaries
-      .filter((position) => position > from && position < total - 1)
+      .filter(
+        (position) =>
+          position >= from + targetChars && position <= total - targetChars / 2,
+      )
       .reduce(
         (best, position) =>
           Math.abs(position - ideal) < Math.abs(best - ideal) ? position : best,

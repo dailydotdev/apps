@@ -103,8 +103,42 @@ describe('splitTextForAds', () => {
     expect(parts[0].endsWith(`${'b'.repeat(100)}.`)).toBe(true);
   });
 
+  it('never places an ad within the cadence of the previous one', () => {
+    // Sentence ends at ~130 and ~380: nearest-to-midpoint alone would pick
+    // 130, putting an ad after half a cadence of text.
+    const text = `${'a'.repeat(130)}. ${'b'.repeat(250)}. ${'c'.repeat(300)}`;
+    const parts = splitTextForAds(text, 250);
+
+    parts.slice(0, -1).forEach((part) => {
+      expect(part.length).toBeGreaterThanOrEqual(250);
+    });
+  });
+
   it('never ends on a sliver', () => {
-    const text = `${'a'.repeat(260)}. ${'b'.repeat(30)}`;
-    expect(splitTextForAds(text, 250)).toHaveLength(1);
+    // 720 chars rounds to a 3-part target; the only boundary near the last
+    // even point would leave a 20-char tail, which the floor rejects.
+    const text = `${'a'.repeat(300)}. ${'b'.repeat(400)}. ${'c'.repeat(20)}`;
+    const parts = splitTextForAds(text, 250);
+
+    expect(parts.length).toBeGreaterThan(1);
+    expect(parts[parts.length - 1].length).toBeGreaterThanOrEqual(125);
+  });
+
+  it('caps the part count at maxParts', () => {
+    const text = Array.from({ length: 10 }, () => `${'a'.repeat(250)}.`).join(
+      ' ',
+    );
+    expect(splitTextForAds(text, 250, 3)).toHaveLength(3);
+  });
+
+  it('falls back to word boundaries without sentence punctuation', () => {
+    const text = Array.from({ length: 120 }, () => 'word').join(' ');
+    const parts = splitTextForAds(text, 250);
+
+    expect(parts.length).toBeGreaterThan(1);
+    parts.forEach((part) => {
+      expect(part.startsWith('word')).toBe(true);
+      expect(part.endsWith('word')).toBe(true);
+    });
   });
 });

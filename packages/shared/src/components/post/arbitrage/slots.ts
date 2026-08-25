@@ -22,6 +22,13 @@ export const ARBITRAGE_SLOT = {
   aboveCommentsMpu: 18,
   /** Half page closing the rail — the page's only sticky unit. */
   railBottomSticky: 19,
+  /**
+   * The top leaderboard's phone twin: the same AdSense unit requested at a
+   * fixed 320x100. A responsive request can come back as expandable video,
+   * which inside the phone-sticky header block pinned half the screen; a
+   * fixed-size request can only return its exact size.
+   */
+  topLeaderboardPhone: 20,
 } as const;
 
 /*
@@ -57,10 +64,10 @@ export const TOP_LEADERBOARD_STICKY_MS = 10_000;
 
 /**
  * A long thread gets an MPU each time this many comments have gone by —
- * replies included, every comment counts, 8 flat (product call, Aug 25).
- * Short threads never reach the interval, so they stay ad-free.
+ * replies included, every comment counts (product call, Aug 25; interval
+ * revised 8 → 6 the same day). Short threads stay ad-free.
  */
-export const COMMENTS_PER_INTERLEAVED_AD = 8;
+export const COMMENTS_PER_INTERLEAVED_AD = 6;
 
 /**
  * Visible characters of content between in-content MPUs — 250, per Nick's
@@ -94,6 +101,12 @@ export const MAX_CONTENT_ADS_PER_SECTION = 4;
  */
 export const READ_ADSENSE_SLOTS: AdsenseSlots = {
   [ARBITRAGE_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
+  [ARBITRAGE_SLOT.topLeaderboardPhone]: {
+    id: '9942870945',
+    type: 'display',
+    width: 320,
+    height: 100,
+  },
   // The three MPU placements below share existing Display units while the
   // dedicated ones don't exist: Google's per-unit reporting blends them, but
   // our first-party events split by slot number, so per-placement RPM stays

@@ -46,10 +46,23 @@ export function ArbitrageTopLeaderboard({
           'z-2 laptop:sticky laptop:top-[var(--sticky-header-offset)]',
       )}
     >
+      {/* Two breakpoint twins of one unit: the phone requests a fixed
+          320x100 (a responsive request can answer with expandable video —
+          half a pinned phone screen), tablet+ keeps the responsive 728x90.
+          Neither is eager: an eager push from a display:none twin would
+          initialise the visible one out of order, and both sit at the top of
+          the page where the intersection observer fires on first paint
+          anyway. A hidden ins never intersects, so exactly one requests. */}
+      <ArbitrageAdSlot
+        slot={ARBITRAGE_SLOT.topLeaderboardPhone}
+        format={ArbitrageAdFormat.Leaderboard}
+        className="tablet:hidden"
+        refreshes
+      />
       <ArbitrageAdSlot
         slot={ARBITRAGE_SLOT.topLeaderboard}
         format={ArbitrageAdFormat.Leaderboard}
-        eager
+        hideOnPhone
         refreshes
       />
     </div>
