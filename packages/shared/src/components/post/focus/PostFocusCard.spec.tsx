@@ -11,6 +11,7 @@ import type { Post } from '../../../graphql/posts';
 import { PostType } from '../../../graphql/posts';
 import { Origin } from '../../../lib/log';
 import { featureCommunitySentiment } from '../../../lib/featureManagement';
+import { getPostByIdKey } from '../../../hooks/usePostById';
 import { PostFocusCard } from './PostFocusCard';
 
 const freeformPost: Post = {
@@ -34,10 +35,14 @@ const renderCard = (
   options: {
     gb?: GrowthBook;
     onClose?: () => void;
+    client?: QueryClient;
   } = {},
 ) =>
   render(
-    <TestBootProvider client={new QueryClient()} gb={options.gb}>
+    <TestBootProvider
+      client={options.client ?? new QueryClient()}
+      gb={options.gb}
+    >
       <PostFocusCard
         post={postToRender}
         origin={Origin.ArticlePage}
@@ -110,6 +115,31 @@ describe('PostFocusCard community sentiment', () => {
       screen.getByRole('region', { name: 'What the community thinks' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Most agree it is worth reading.')).toBeVisible();
+  });
+
+  it('hydrates the take from the post-by-id cache when the feed post omits it', () => {
+    const gb = new GrowthBook();
+    gb.setFeatures({
+      [featureCommunitySentiment.id]: {
+        defaultValue: true,
+      },
+    });
+    // Feed payloads omit `communitySentiment`, so the modal must read the
+    // hydrated post from the post-by-id cache instead of the feed prop.
+    const client = new QueryClient();
+    client.setQueryData(getPostByIdKey(postWithCommunitySentiment.id), {
+      post: postWithCommunitySentiment,
+    });
+    const feedPost: Post = {
+      ...postWithCommunitySentiment,
+      communitySentiment: undefined,
+    };
+
+    renderCard(feedPost, { gb, client, onClose: jest.fn() });
+
+    expect(
+      screen.getByRole('region', { name: 'What the community thinks' }),
+    ).toBeInTheDocument();
   });
 
   it('stays hidden in the post modal when the flag is disabled', () => {
