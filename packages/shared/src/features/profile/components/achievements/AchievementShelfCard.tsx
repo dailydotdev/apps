@@ -14,6 +14,7 @@ import {
   ButtonVariant,
 } from '../../../../components/buttons/Button';
 import { LazyImage } from '../../../../components/LazyImage';
+import { ProgressBar } from '../../../../components/fields/ProgressBar';
 import CloseButton from '../../../../components/CloseButton';
 import { Modal } from '../../../../components/modals/common/Modal';
 import {
@@ -176,12 +177,15 @@ export function AchievementShelfCard({
               <Typography className="mt-[7px] text-[14px] text-[rgba(255,255,255,0.7)]">
                 {progressLabel}
               </Typography>
-              <div className="mt-2 h-[5px] overflow-hidden rounded-max bg-[rgba(255,255,255,0.22)]">
-                <div
-                  className="h-full rounded-max bg-accent-cabbage-default"
-                  style={{ width: `${progressPercentage}%` }}
-                />
-              </div>
+              <ProgressBar
+                percentage={progressPercentage}
+                shouldShowBg
+                className={{
+                  wrapper: 'mt-2 h-1 rounded-max',
+                  bar: 'h-full rounded-max',
+                  barColor: 'bg-accent-cabbage-default',
+                }}
+              />
             </>
           )}
         </div>
@@ -254,12 +258,15 @@ export function AchievementShelfCard({
                   >
                     {progressLabel}
                   </Typography>
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-max bg-border-subtlest-tertiary">
-                    <div
-                      className="h-full rounded-max bg-accent-cabbage-default"
-                      style={{ width: `${progressPercentage}%` }}
-                    />
-                  </div>
+                  <ProgressBar
+                    percentage={progressPercentage}
+                    shouldShowBg
+                    className={{
+                      wrapper: 'mt-2 h-1 rounded-max',
+                      bar: 'h-full rounded-max',
+                      barColor: 'bg-accent-cabbage-default',
+                    }}
+                  />
                 </>
               )}
             </div>

@@ -12,6 +12,7 @@ import {
   TypographyColor,
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
+import { ProgressBar } from '@dailydotdev/shared/src/components/fields/ProgressBar';
 import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
 
 const raceLength = 5;
@@ -65,14 +66,15 @@ const Race = ({ title, entries, unit }: RaceProps): ReactElement => {
                   {formatDataTileValue(entry.score)}
                 </Typography>
               </div>
-              <div className="h-1.5 rounded-max bg-background-default">
-                <div
-                  className="h-full rounded-max bg-accent-cabbage-default"
-                  style={{
-                    width: top ? `${(entry.score / top) * 100}%` : '0%',
-                  }}
-                />
-              </div>
+              <ProgressBar
+                percentage={top ? (entry.score / top) * 100 : 0}
+                shouldShowBg
+                className={{
+                  wrapper: 'h-1 rounded-max',
+                  bar: 'h-full rounded-max',
+                  barColor: 'bg-accent-cabbage-default',
+                }}
+              />
             </div>
           </div>
         ))}

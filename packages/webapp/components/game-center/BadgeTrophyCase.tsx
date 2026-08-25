@@ -92,7 +92,7 @@ export const BadgePager = ({ badges }: BadgePagerProps): ReactElement => {
   const visible = badges.slice(start, start + badgePageSize);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-1 flex-col gap-2">
       {visible.map((badge) => (
         <BadgeRow
           key={badge.id}
@@ -103,7 +103,7 @@ export const BadgePager = ({ badges }: BadgePagerProps): ReactElement => {
       ))}
 
       {pageCount > 1 && (
-        <div className="flex items-center justify-between gap-2 pt-1">
+        <div className="mt-auto flex items-center justify-between gap-2 pt-1">
           <Typography
             type={TypographyType.Subhead}
             color={TypographyColor.Tertiary}
