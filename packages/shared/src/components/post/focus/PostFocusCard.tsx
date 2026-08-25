@@ -61,6 +61,7 @@ import {
   CommunitySentiment,
   mapCommunitySentimentPost,
 } from './CommunitySentiment';
+import { withPostById } from '../withPostById';
 
 const PostCodeSnippets = dynamic(() =>
   import(/* webpackChunkName: "postCodeSnippets" */ '../PostCodeSnippets').then(
@@ -216,7 +217,7 @@ const VideoSummary = ({ summary }: { summary: string }): ReactElement => {
   );
 };
 
-export const PostFocusCard = ({
+const PostFocusCardRaw = ({
   post,
   origin,
   leftVariant,
@@ -643,3 +644,9 @@ export const PostFocusCard = ({
     </article>
   );
 };
+
+// Feed cards only carry the `FeedPostInfo` fields, so when the card is opened
+// from a feed (post modal) fields such as `communitySentiment` are missing.
+// Wrapping with `withPostById` hydrates the post from the by-id query (cache
+// hit on the post page, where the post is already fetched).
+export const PostFocusCard = withPostById(PostFocusCardRaw);
