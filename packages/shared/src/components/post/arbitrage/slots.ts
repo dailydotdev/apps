@@ -71,6 +71,16 @@ export const COMMENTS_PER_INTERLEAVED_AD = 8;
 export const BODY_CHARS_PER_AD = 1500;
 
 /**
+ * The TLDR's own cadence (~100 words). A summary is dense by construction,
+ * and the 250-word figure was written for article bodies: at 1500 a typical
+ * 150-200 word TLDR carried nothing at all (product call, Aug 25: a
+ * ~160-word TLDR should carry one unit — calibrated against a real one).
+ * With the splitter's no-sliver rule the first ad appears from roughly a
+ * 150-word summary, breaking about two-thirds through at a sentence end.
+ */
+export const SUMMARY_CHARS_PER_AD = 600;
+
+/**
  * The AdSense units behind each slot, keyed by slot number. Deliberately in
  * code rather than remote config: unit ids are public (visible in the page
  * source of any live page) and stable after setup, and as a GrowthBook JSON

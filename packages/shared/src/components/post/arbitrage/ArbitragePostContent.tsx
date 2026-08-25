@@ -25,6 +25,7 @@ import {
   ARBITRAGE_SLOT,
   BODY_CHARS_PER_AD,
   COMMENTS_PER_INTERLEAVED_AD,
+  SUMMARY_CHARS_PER_AD,
   TOP_LEADERBOARD_STICKY_MS,
 } from './slots';
 import { useTimedRelease } from './useTimedRelease';
@@ -101,7 +102,7 @@ export function ArbitragePostContent({
   // it carries the same MPU cadence as a hosted body.
   const summaryParts = useMemo(
     () =>
-      post.summary ? splitTextForAds(post.summary, BODY_CHARS_PER_AD) : [],
+      post.summary ? splitTextForAds(post.summary, SUMMARY_CHARS_PER_AD) : [],
     [post.summary],
   );
   const bodyChunks = useMemo(
