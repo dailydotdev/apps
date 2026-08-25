@@ -21,9 +21,10 @@ type RaceProps = {
   title: string;
   entries: UserLeaderboard[];
   unit: string;
+  viewerId?: string;
 };
 
-const Race = ({ title, entries, unit }: RaceProps): ReactElement => {
+const Race = ({ title, entries, unit, viewerId }: RaceProps): ReactElement => {
   const ranked = entries.slice(0, raceLength);
   // The bars are relative to the leader, so the field reads as a race rather
   // than as a set of unrelated numbers.
@@ -35,49 +36,57 @@ const Race = ({ title, entries, unit }: RaceProps): ReactElement => {
         {title}
       </Typography>
       <div className="flex flex-col gap-4">
-        {ranked.map((entry, index) => (
-          <div key={entry.user.id} className="flex items-center gap-2">
-            <Typography
-              type={TypographyType.Subhead}
-              color={TypographyColor.Tertiary}
-              className="w-4 shrink-0 tabular-nums"
-            >
-              {index + 1}
-            </Typography>
-            <Tooltip content={`${entry.user.name} · ${entry.score} ${unit}`}>
-              <a href={`/${entry.user.username}`} className="shrink-0">
-                <ProfilePicture
-                  user={entry.user}
-                  size={ProfileImageSize.Small}
-                  nativeLazyLoading
+        {ranked.map((entry, index) => {
+          const isViewer = !!viewerId && entry.user.id === viewerId;
+
+          return (
+            <div key={entry.user.id} className="flex items-center gap-2">
+              <Typography
+                type={TypographyType.Subhead}
+                color={TypographyColor.Tertiary}
+                className="w-4 shrink-0 tabular-nums"
+              >
+                {index + 1}
+              </Typography>
+              <Tooltip content={`${entry.user.name} · ${entry.score} ${unit}`}>
+                <a href={`/${entry.user.username}`} className="shrink-0">
+                  <ProfilePicture
+                    user={entry.user}
+                    size={ProfileImageSize.Small}
+                    nativeLazyLoading
+                  />
+                </a>
+              </Tooltip>
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+                <div className="flex items-baseline justify-between gap-2">
+                  <Typography
+                    type={TypographyType.Subhead}
+                    bold={isViewer}
+                    className="truncate"
+                  >
+                    {isViewer ? 'You' : entry.user.name}
+                  </Typography>
+                  <Typography
+                    type={TypographyType.Subhead}
+                    bold
+                    className="shrink-0 tabular-nums"
+                  >
+                    {formatDataTileValue(entry.score)}
+                  </Typography>
+                </div>
+                <ProgressBar
+                  percentage={top ? (entry.score / top) * 100 : 0}
+                  shouldShowBg
+                  className={{
+                    wrapper: 'h-1 rounded-max',
+                    bar: 'h-full rounded-max',
+                    barColor: 'bg-accent-cabbage-default',
+                  }}
                 />
-              </a>
-            </Tooltip>
-            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-              <div className="flex items-baseline justify-between gap-2">
-                <Typography type={TypographyType.Subhead} className="truncate">
-                  {entry.user.name}
-                </Typography>
-                <Typography
-                  type={TypographyType.Subhead}
-                  bold
-                  className="shrink-0 tabular-nums"
-                >
-                  {formatDataTileValue(entry.score)}
-                </Typography>
               </div>
-              <ProgressBar
-                percentage={top ? (entry.score / top) * 100 : 0}
-                shouldShowBg
-                className={{
-                  wrapper: 'h-1 rounded-max',
-                  bar: 'h-full rounded-max',
-                  barColor: 'bg-accent-cabbage-default',
-                }}
-              />
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -87,12 +96,14 @@ type CommunityPulseProps = {
   stats: QuestCompletionStats | null;
   highestReputation: UserLeaderboard[];
   mostQuestsCompleted: UserLeaderboard[];
+  viewerId?: string;
 };
 
 export const CommunityPulse = ({
   stats,
   highestReputation,
   mostQuestsCompleted,
+  viewerId,
 }: CommunityPulseProps): ReactElement => (
   <div className="flex flex-col gap-2 rounded-20 border border-border-subtlest-tertiary p-2">
     <div className="grid gap-2 tablet:grid-cols-2">
@@ -100,6 +111,7 @@ export const CommunityPulse = ({
         title="Most badges"
         entries={highestReputation}
         unit="achievement points"
+        viewerId={viewerId}
       />
       <Race title="Most quests" entries={mostQuestsCompleted} unit="quests" />
     </div>

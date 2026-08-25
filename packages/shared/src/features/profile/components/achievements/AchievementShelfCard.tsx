@@ -56,9 +56,11 @@ const formatUnlockedAt = (value: string): string => {
 const isEmerald = (tier: AchievementRarityTier | null) =>
   tier === AchievementRarityTier.Emerald;
 
-const slabPillClasses: Record<'gold' | 'emerald', string> = {
-  gold: 'bg-[#efab27]',
-  emerald: 'bg-[#1dbf8c]',
+// Gold is reserved for the sub-1% band, so it means something when it shows
+// up; every other tier states its number on a plain dark chip.
+const slabPillClasses: Record<'gold' | 'plain', string> = {
+  gold: 'bg-[#efab27] text-[#08110c]',
+  plain: 'bg-[rgba(8,10,13,0.72)] text-white',
 };
 
 export function AchievementShelfCard({
@@ -79,7 +81,7 @@ export function AchievementShelfCard({
     ? getAchievementRarityTier(achievement.rarity)
     : null;
   const slabTier = rarityTier
-    ? ((isEmerald(rarityTier) ? 'emerald' : 'gold') as 'gold' | 'emerald')
+    ? ((isEmerald(rarityTier) ? 'gold' : 'plain') as 'gold' | 'plain')
     : null;
   const rarityLabel = isEmerald(rarityTier)
     ? '<1%'
@@ -117,7 +119,7 @@ export function AchievementShelfCard({
         {slabTier && (
           <span
             className={classNames(
-              'absolute left-2.5 top-2.5 z-3 rounded-max px-2 py-1 text-[14px] font-semibold leading-none text-[#08110c]',
+              'absolute left-2.5 top-2.5 z-3 rounded-max px-2 py-1 text-[14px] font-semibold leading-none',
               slabPillClasses[slabTier],
             )}
           >
@@ -129,7 +131,13 @@ export function AchievementShelfCard({
           <button
             type="button"
             disabled={isTracked ? isUntrackPending : isTrackPending}
-            className="absolute right-2.5 top-2.5 z-3 inline-flex h-6 items-center rounded-8 border border-[rgba(255,255,255,0.28)] bg-[rgba(8,10,13,0.55)] px-2 text-[14px] font-medium leading-none text-white backdrop-blur-[6px]"
+            className={classNames(
+              'absolute right-2.5 top-2.5 z-3 inline-flex h-6 items-center rounded-8 border border-[rgba(255,255,255,0.28)] bg-[rgba(8,10,13,0.55)] px-2 text-[14px] font-medium leading-none text-white backdrop-blur-[6px] transition-opacity',
+              // Tracked is a state worth seeing at rest; Track is an
+              // affordance, so it waits for the pointer or the keyboard.
+              !isTracked &&
+                'opacity-0 focus-visible:opacity-100 group-hover:opacity-100',
+            )}
             onClick={(event: MouseEvent) => {
               event.stopPropagation();
               if (isTracked) {
@@ -156,7 +164,7 @@ export function AchievementShelfCard({
 
           {isUnlocked ? (
             <Typography className="mt-[7px] text-[14px] text-[rgba(255,255,255,0.7)]">
-              Unlocked {formatUnlockedAt(unlockedAt)}
+              Completed {formatUnlockedAt(unlockedAt)}
             </Typography>
           ) : (
             <>
@@ -198,7 +206,7 @@ export function AchievementShelfCard({
               {slabTier && (
                 <span
                   className={classNames(
-                    'absolute left-3 top-3 rounded-max px-2.5 py-1 text-xs font-semibold leading-none text-[#08110c]',
+                    'absolute left-3 top-3 rounded-max px-2.5 py-1 text-xs font-semibold leading-none',
                     slabPillClasses[slabTier],
                   )}
                 >
@@ -233,7 +241,7 @@ export function AchievementShelfCard({
                   color={TypographyColor.Tertiary}
                   className="mt-2.5"
                 >
-                  Unlocked {formatUnlockedAt(unlockedAt)}
+                  Completed {formatUnlockedAt(unlockedAt)}
                 </Typography>
               ) : (
                 <>

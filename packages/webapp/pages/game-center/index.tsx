@@ -748,7 +748,7 @@ function GameCenterPage({
           )}
 
           <section className="flex flex-col gap-4">
-            <SectionHeader title="Badges & Trophies" />
+            <SectionHeader title="Trophies & Awards" />
 
             <BadgeTrophyCase
               badges={badgeCaseContent}
@@ -789,6 +789,7 @@ function GameCenterPage({
                 stats={questCompletionStats}
                 highestReputation={highestReputation}
                 mostQuestsCompleted={mostQuestsCompleted}
+                viewerId={user?.id}
               />
             ) : (
               <EmptyStateCard

@@ -297,10 +297,21 @@ export const getAchievementSummary = (
       (achievement) =>
         achievement.unlockedAt !== null || achievement.progress > 0,
     )
-    .sort(
-      (left, right) =>
-        getAchievementProgressRatio(right) - getAchievementProgressRatio(left),
-    );
+    .sort((left, right) => {
+      const ratioDifference =
+        getAchievementProgressRatio(right) - getAchievementProgressRatio(left);
+
+      if (ratioDifference !== 0) {
+        return ratioDifference;
+      }
+
+      // Everything completed ties at 100%, so rarity breaks it and the
+      // hardest-won achievement leads the row.
+      const leftRarity = left.achievement.rarity ?? Number.POSITIVE_INFINITY;
+      const rightRarity = right.achievement.rarity ?? Number.POSITIVE_INFINITY;
+
+      return leftRarity - rightRarity;
+    });
 
   return {
     unlockedCount: unlocked.length,

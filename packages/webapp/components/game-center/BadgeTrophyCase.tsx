@@ -102,6 +102,21 @@ export const BadgePager = ({ badges }: BadgePagerProps): ReactElement => {
         />
       ))}
 
+      {/* A short last page would otherwise change the column's height and
+          shift everything below it. */}
+      {Array.from({ length: badgePageSize - visible.length }, (_, index) => (
+        <div
+          key={`filler-${index.toString()}`}
+          className="invisible"
+          aria-hidden
+        >
+          <BadgeRow
+            issuedAt={visible[0].issuedAt}
+            keyword={visible[0].keyword}
+          />
+        </div>
+      ))}
+
       {pageCount > 1 && (
         <div className="mt-auto flex items-center justify-between gap-2 pt-1">
           <Typography
@@ -143,14 +158,29 @@ type PaneStat = {
   icon?: ReactNode;
 };
 
+// A faint gold wash and a glint above it, giving the top reader pane the
+// vibe of the gold chips it holds.
+const goldPaneStyle = {
+  backgroundImage: [
+    'radial-gradient(120% 90% at 78% 8%, rgba(255,214,102,0.20), transparent 62%)',
+    'radial-gradient(80% 70% at 12% 96%, rgba(214,158,46,0.14), transparent 58%)',
+    'repeating-linear-gradient(122deg, rgba(255,214,102,0.05) 0 1px, transparent 1px 16px)',
+  ].join(', '),
+};
+
 const Pane = ({
   stats,
   children,
+  isGold,
 }: {
   stats: PaneStat[];
   children: ReactNode;
+  isGold?: boolean;
 }): ReactElement => (
-  <div className="flex flex-col gap-3 rounded-14 bg-background-subtle p-4">
+  <div
+    className="flex flex-col gap-3 rounded-14 bg-background-subtle p-4"
+    style={isGold ? goldPaneStyle : undefined}
+  >
     {children}
     {/* Reads as one line under the content, matching the HUD stats. */}
     <div className="mt-auto flex flex-wrap items-baseline gap-x-5 gap-y-1 pt-1">
@@ -192,7 +222,9 @@ export const BadgeTrophyCase = ({
 }: BadgeTrophyCaseProps): ReactElement => {
   return (
     <div className="grid gap-2 rounded-20 border border-border-subtlest-tertiary p-2 laptop:grid-cols-2">
-      <Pane stats={badgeStats}>{badges}</Pane>
+      <Pane stats={badgeStats} isGold>
+        {badges}
+      </Pane>
       <Pane stats={awardStats}>{awards}</Pane>
     </div>
   );
