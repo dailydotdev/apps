@@ -19,6 +19,7 @@ import { MarketingCtaPopoverSmall } from '../marketing/cta/MarketingCtaPopoverSm
 import { ButtonVariant } from '../buttons/common';
 import { isNullOrUndefined } from '../../lib/func';
 import useProfileForm from '../../hooks/useProfileForm';
+import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 const REP_TRESHOLD = 250;
 
@@ -76,6 +77,7 @@ export const BootPopups = (): ReactElement => {
   const [interactiveBootPopup, setInteractiveBootPopup] =
     useState<InteractivePopupProps | null>(null);
   const { getMarketingCta } = useBoot();
+  const { isJobsEnabled, isLoading: isJobsFeatureLoading } = useJobsFeature();
   const marketingCtaPopover = getMarketingCta(MarketingCtaVariant.Popover);
   const marketingCtaPopoverSmall = getMarketingCta(
     MarketingCtaVariant.PopoverSmall,
@@ -335,7 +337,12 @@ export const BootPopups = (): ReactElement => {
    * Job opportunity modal
    */
   useEffect(() => {
-    if (!alerts?.opportunityId || alerts?.flags?.hasSeenOpportunity) {
+    if (
+      isJobsFeatureLoading ||
+      !isJobsEnabled ||
+      !alerts?.opportunityId ||
+      alerts?.flags?.hasSeenOpportunity
+    ) {
       return;
     }
 
@@ -352,6 +359,8 @@ export const BootPopups = (): ReactElement => {
   }, [
     alerts.opportunityId,
     alerts?.flags?.hasSeenOpportunity,
+    isJobsEnabled,
+    isJobsFeatureLoading,
     updateHasSeenOpportunity,
     updateLastBootPopup,
   ]);
