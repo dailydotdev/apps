@@ -11,7 +11,6 @@ import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import usePersistentContext from '../../../hooks/usePersistentContext';
 import { useAgentShellHeight } from '../shell';
-import type { AgentTurnHighlight } from '../chat';
 import type { AgentFeedItem } from '../hooks/useAgentFeed';
 import { useAgent } from '../AgentContext';
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader';
@@ -26,7 +25,6 @@ import { AgentSettingsPane } from './AgentSettingsPane';
 // Both columns floor at a mobile-width panel.
 const minPanelWidth = 384;
 const defaultPaneWidth = 480;
-const highlightFadeDelay = 3000;
 
 export const AgentWorkspace = ({
   items,
@@ -127,19 +125,27 @@ export const AgentWorkspace = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTailPending]);
 
-  const [turnHighlight, setTurnHighlight] = useState<AgentTurnHighlight | null>(
-    runId ? { id: runId, isActive: true } : null,
-  );
-  const hasFocusedTurnRef = useRef(false);
+  // Tracks WHICH run was focused, not whether one ever was: back/forward
+  // navigation swaps `runId` without remounting the workspace, and a boolean
+  // guard silenced every focus after the first.
+  const focusedRunIdRef = useRef<string>();
   const hasFocusTarget =
     !!runId && isFeedReady && messages.some(({ id }) => id === runId);
 
   useEffect(() => {
-    if (!hasFocusTarget || hasFocusedTurnRef.current) {
+    if (!runId) {
+      // Leaving the runId URL re-arms the target, so returning to it via
+      // history focuses again.
+      focusedRunIdRef.current = undefined;
+
       return undefined;
     }
 
-    hasFocusedTurnRef.current = true;
+    if (!hasFocusTarget || focusedRunIdRef.current === runId) {
+      return undefined;
+    }
+
+    focusedRunIdRef.current = runId;
     const frame = requestAnimationFrame(() => {
       document
         .getElementById(`agent-turn-${runId}`)
@@ -147,18 +153,8 @@ export const AgentWorkspace = ({
       isPinnedRef.current = false;
       setIsAwayFromBottom(true);
     });
-    const fadeTimeout = window.setTimeout(
-      () =>
-        setTurnHighlight(
-          (current) => current && { ...current, isActive: false },
-        ),
-      highlightFadeDelay,
-    );
 
-    return () => {
-      cancelAnimationFrame(frame);
-      window.clearTimeout(fadeTimeout);
-    };
+    return () => cancelAnimationFrame(frame);
   }, [hasFocusTarget, runId]);
 
   useEffect(() => {
@@ -235,7 +231,9 @@ export const AgentWorkspace = ({
                     findingsCount={items.length}
                     postsCount={summaryPosts.length}
                   />
-                  <AgentChatSection highlight={turnHighlight ?? undefined} />
+                  <AgentChatSection
+                    focusedRunId={hasFocusTarget ? runId : undefined}
+                  />
                 </FlexCol>
               </div>
             </div>
