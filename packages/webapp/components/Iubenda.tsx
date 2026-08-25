@@ -147,6 +147,7 @@ export const Iubenda = (): ReactElement | null => {
       gdprAppliesGlobally: false,
       googleAdditionalConsentMode: true,
       inlineDelay: 100,
+      lgpdAppliesGlobally: false,
       perPurposeConsent: true,
       siteId: Number(siteId),
       tcfPurposes: {
