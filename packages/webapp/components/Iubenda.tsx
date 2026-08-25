@@ -147,8 +147,6 @@ export const Iubenda = (): ReactElement | null => {
       gdprAppliesGlobally: false,
       googleAdditionalConsentMode: true,
       inlineDelay: 100,
-      // iubenda defaults this to true, which asks for LGPD consent (and shows
-      // the banner) worldwide instead of in Brazil only
       lgpdAppliesGlobally: false,
       perPurposeConsent: true,
       siteId: Number(siteId),
