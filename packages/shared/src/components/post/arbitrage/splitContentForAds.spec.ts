@@ -89,6 +89,20 @@ describe('splitTextForAds', () => {
     expect(parts).toEqual([first, second]);
   });
 
+  it('breaks at the sentence end nearest the midpoint, not the first past a threshold', () => {
+    const sentences = [
+      `${'a'.repeat(100)}.`,
+      `${'b'.repeat(100)}.`,
+      `${'c'.repeat(100)}.`,
+      `${'d'.repeat(100)}.`,
+    ].join(' ');
+    const parts = splitTextForAds(sentences, 200);
+
+    // Two parts of two sentences each — a greedy threshold would cut 3/1.
+    expect(parts).toHaveLength(2);
+    expect(parts[0].endsWith(`${'b'.repeat(100)}.`)).toBe(true);
+  });
+
   it('never ends on a sliver', () => {
     const text = `${'a'.repeat(260)}. ${'b'.repeat(30)}`;
     expect(splitTextForAds(text, 250)).toHaveLength(1);

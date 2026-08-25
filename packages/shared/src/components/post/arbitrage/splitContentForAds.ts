@@ -87,27 +87,54 @@ export function splitContentForAds(html: string, minChars: number): string[] {
 }
 
 /**
- * Same cadence for plain text (the TLDR): parts of at least `minChars`,
- * broken at a sentence end where one lands within reach, else at a word
- * boundary — and no trailing sliver, same as the HTML splitter.
+ * The TLDR's cadence works by balance, not by greedy threshold: the part
+ * count comes from the target size, and each break lands on the sentence end
+ * nearest to its even split point — one ad in a two-part summary sits at the
+ * middle sentence, not wherever the threshold first ran out. Falls back to
+ * word boundaries for text without sentence punctuation.
  */
-export function splitTextForAds(text: string, minChars: number): string[] {
+export function splitTextForAds(text: string, targetChars: number): string[] {
+  const total = text.length;
+  const count = Math.max(1, Math.round(total / targetChars));
+
+  if (count === 1) {
+    return [text];
+  }
+
+  const boundaryAfter = (re: RegExp): number[] => {
+    const positions: number[] = [];
+    let match = re.exec(text);
+    while (match) {
+      positions.push(match.index + match[0].length);
+      match = re.exec(text);
+    }
+    return positions;
+  };
+
+  const sentenceEnds = boundaryAfter(/[.!?]["')\]]?\s+/g);
+  const boundaries = sentenceEnds.length ? sentenceEnds : boundaryAfter(/\s+/g);
+
   const parts: string[] = [];
-  let rest = text;
+  let start = 0;
+  for (let i = 1; i < count; i += 1) {
+    const ideal = Math.round((total * i) / count);
+    // Nearest boundary to the even split point, strictly inside the
+    // remaining text so a cut can never produce an empty part.
+    const cut = boundaries
+      .filter((position) => position > start && position < total - 1)
+      .reduce(
+        (best, position) =>
+          Math.abs(position - ideal) < Math.abs(best - ideal) ? position : best,
+        -Infinity,
+      );
 
-  while (rest.length > minChars * 1.5) {
-    const window = rest.slice(minChars, minChars + 200);
-    const sentence = window.search(/[.!?]\s/);
-    const word = window.search(/\s/);
-    const offset = sentence >= 0 ? sentence + 1 : Math.max(word, 0);
-    const cut = minChars + offset;
-    parts.push(rest.slice(0, cut).trimEnd());
-    rest = rest.slice(cut).trimStart();
+    if (!Number.isFinite(cut)) {
+      break;
+    }
+    parts.push(text.slice(start, cut).trimEnd());
+    start = cut;
   }
 
-  if (rest.trim()) {
-    parts.push(rest);
-  }
-
+  parts.push(text.slice(start).trimStart());
   return parts;
 }
