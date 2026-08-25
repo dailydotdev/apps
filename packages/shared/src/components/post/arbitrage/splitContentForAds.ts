@@ -136,10 +136,13 @@ export function splitTextForAds(
   let start = 0;
   for (let i = 1; i < count; i += 1) {
     const ideal = Math.round((total * i) / count);
+    // Per-iteration capture: the closures below must not reference the
+    // mutable `start` (no-loop-func).
+    const from = start;
     // Nearest boundary to the even split point, strictly inside the
     // remaining text so a cut can never produce an empty part.
     const cut = boundaries
-      .filter((position) => position > start && position < total - 1)
+      .filter((position) => position > from && position < total - 1)
       .reduce(
         (best, position) =>
           Math.abs(position - ideal) < Math.abs(best - ideal) ? position : best,
