@@ -58,7 +58,10 @@ export const ValueRailSwitcher = (): ReactElement => {
         <button
           aria-haspopup="menu"
           aria-label={`Change rail — currently ${name}`}
-          className="flex items-center gap-1 whitespace-nowrap rounded-6 px-1 py-0.5 text-text-quaternary transition-colors duration-150 typo-caption2 hover:bg-surface-float hover:text-text-secondary"
+          // `-ml-1` cancels the trigger's own `px-1`, so the label's
+          // text starts on the same left edge as the sponsor row above
+          // it. The padding stays for the hover chip to sit on.
+          className="-ml-1 flex items-center gap-1 whitespace-nowrap rounded-6 px-1 py-0.5 text-text-quaternary transition-colors duration-150 typo-caption2 hover:bg-surface-float hover:text-text-secondary"
           type="button"
         >
           {name}

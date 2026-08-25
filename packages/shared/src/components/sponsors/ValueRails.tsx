@@ -188,11 +188,11 @@ const ModelRankRail = ({ label }: RailProps): ReactElement => (
   </ValueRail>
 );
 
-// --- 3. Hot right now -----------------------------------------
+// --- 3. Breaking news ------------------------------------------
 // A headline ticker: the posts climbing fastest, with their
 // upvote counts. Source: the feed's own trending ranking.
 const HotPostsRail = ({ label }: RailProps): ReactElement => (
-  <ValueRail label={label ?? 'Hot right now'}>
+  <ValueRail label={label ?? 'Breaking news'}>
     {[
       { title: 'Postgres 18 ships async I/O', votes: 412 },
       { title: 'The case against microservices, again', votes: 289 },
@@ -477,7 +477,7 @@ export const VALUE_RAILS: {
   },
   {
     id: 'hot',
-    name: 'Hot right now',
+    name: 'Breaking news',
     note: 'headline ticker of the posts climbing fastest',
     Rail: HotPostsRail,
   },
