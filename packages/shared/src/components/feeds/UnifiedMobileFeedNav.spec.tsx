@@ -7,7 +7,6 @@ import { useLogContext } from '../../contexts/LogContext';
 import { useFeeds } from '../../hooks';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { useSortedFeeds } from '../../hooks/feed/useSortedFeeds';
-import { useDailyPage } from '../../hooks/feed/useDailyPage';
 import UnifiedMobileFeedNav from './UnifiedMobileFeedNav';
 
 jest.mock('next/router', () => ({
@@ -44,14 +43,6 @@ jest.mock('../../hooks/feed/useSortedFeeds', () => ({
   useSortedFeeds: jest.fn(),
 }));
 
-jest.mock('../../hooks/feed/useDailyPage', () => ({
-  useDailyPage: jest.fn(),
-}));
-
-jest.mock('../../features/daily/DailySwitcher', () => ({
-  DailySwitcher: () => <div data-testid="daily-switcher" />,
-}));
-
 jest.mock('./NewStripCta', () => ({
   NewStripCta: ({ className }: { className?: string }) => (
     <a href="/new" className={className}>
@@ -71,7 +62,6 @@ const mockUseLogContext = useLogContext as jest.Mock;
 const mockUseFeeds = useFeeds as jest.Mock;
 const mockUseCustomDefaultFeed = useCustomDefaultFeed as jest.Mock;
 const mockUseSortedFeeds = useSortedFeeds as jest.Mock;
-const mockUseDailyPage = useDailyPage as jest.Mock;
 
 const scrollIntoView = jest.fn();
 
@@ -127,13 +117,23 @@ describe('UnifiedMobileFeedNav', () => {
       ({ edges }: { edges?: unknown[] }) => edges ?? [],
     );
     mockUseFeeds.mockReturnValue({ feeds: { edges: createFeedEdges() } });
-    mockUseDailyPage.mockReturnValue({ isEnabled: false });
   });
 
   it('renders the final Game Center chip', () => {
     render(<UnifiedMobileFeedNav />);
 
     expect(screen.getByRole('link', { name: 'Game Center' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+  });
+
+  it('renders the For you chip for logged-in users', () => {
+    mockRouterPath('/');
+
+    render(<UnifiedMobileFeedNav />);
+
+    expect(screen.getByRole('link', { name: 'For you' })).toHaveAttribute(
       'aria-current',
       'page',
     );

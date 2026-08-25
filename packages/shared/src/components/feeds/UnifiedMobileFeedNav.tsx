@@ -12,10 +12,11 @@ import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
-import { useDailyPage } from '../../hooks/feed/useDailyPage';
-import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import { NewStripCta } from './NewStripCta';
 import { findActiveChipId } from './exploreCategories';
+import type { FeedOrigin } from '../../graphql/feed';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureFeedChips } from '../../lib/featureManagement';
 
 type ChipGroup = 'forYou' | 'categories' | 'rest';
 
@@ -27,6 +28,7 @@ interface ChipItem {
   group: ChipGroup;
   isIconOnly?: boolean;
   tag?: string;
+  origin?: FeedOrigin;
 }
 
 const GROUP_ORDER: ChipGroup[] = ['forYou', 'categories', 'rest'];
@@ -49,27 +51,28 @@ function UnifiedMobileFeedNav(): ReactElement {
   const { isCustomDefaultFeed, defaultFeedId } = useCustomDefaultFeed();
   const sortedFeeds = useSortedFeeds({ edges: feeds?.edges });
   const { logEvent } = useLogContext();
-  const { isEnabled } = useDailyPage();
-  const showDailySwitcher = isLoggedIn && isEnabled;
-
+  const { value: variant, isLoading: isVariantLoading } = useConditionalFeature(
+    {
+      feature: featureFeedChips,
+      shouldEvaluate: isLoggedIn,
+    },
+  );
   const items: ChipItem[] = useMemo(() => {
     const list: ChipItem[] = [];
 
     const myFeedHref = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
-    if (!showDailySwitcher) {
-      list.push({
-        id: 'foryou',
-        label: isLoggedIn ? 'For you' : 'Home',
-        href: myFeedHref,
-        // When a custom feed is the default, `/` shows that feed (not "For you"
-        // content) — so restrict matching to `/my-feed`. Without a custom
-        // default `/` is MyFeed, so include both.
-        matchPaths: isCustomDefaultFeed
-          ? [`${webappUrl}my-feed`]
-          : [myFeedHref, webappUrl, `${webappUrl}my-feed`],
-        group: 'forYou',
-      });
-    }
+    list.push({
+      id: 'foryou',
+      label: isLoggedIn ? 'For you' : 'Home',
+      href: myFeedHref,
+      // When a custom feed is the default, `/` shows that feed (not "For you"
+      // content) — so restrict matching to `/my-feed`. Without a custom
+      // default `/` is MyFeed, so include both.
+      matchPaths: isCustomDefaultFeed
+        ? [`${webappUrl}my-feed`]
+        : [myFeedHref, webappUrl, `${webappUrl}my-feed`],
+      group: 'forYou',
+    });
 
     sortedFeeds.forEach(({ node: feed }) => {
       const isDefault = isCustomDefaultFeed && feed.id === defaultFeedId;
@@ -88,6 +91,8 @@ function UnifiedMobileFeedNav(): ReactElement {
         href: isDefault ? webappUrl : idPath,
         matchPaths,
         group: 'categories',
+        tag: feed.id,
+        origin: feed.flags?.origin,
       });
     });
     if (isLoggedIn) {
@@ -198,7 +203,6 @@ function UnifiedMobileFeedNav(): ReactElement {
     sortedFeeds,
     defaultFeedId,
     shouldHideGameCenter,
-    showDailySwitcher,
   ]);
 
   const activeId = useMemo(
@@ -232,7 +236,6 @@ function UnifiedMobileFeedNav(): ReactElement {
       ref={scrollRef}
       className="no-scrollbar flex min-w-0 flex-1 items-center gap-2 overflow-x-auto bg-background-default px-3 py-4"
     >
-      {showDailySwitcher && <DailySwitcher reverse compact />}
       <NewStripCta className="rounded-10 px-2.5 py-1.5" />
       {GROUP_ORDER.map((group) => {
         const groupItems = items.filter((item) => item.group === group);
@@ -264,6 +267,10 @@ function UnifiedMobileFeedNav(): ReactElement {
                       logEvent({
                         event_name: LogEvent.ClickFeedTagChip,
                         target_id: item.tag,
+                        extra: JSON.stringify({
+                          variant: isVariantLoading ? undefined : variant,
+                          origin: item.origin,
+                        }),
                       });
                     }}
                     aria-current={isActive ? 'page' : undefined}

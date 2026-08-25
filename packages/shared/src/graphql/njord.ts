@@ -3,7 +3,7 @@ import { gql } from 'graphql-request';
 import type { Connection, Edge } from './common';
 import { gqlClient } from './common';
 import type { AwardTypes } from '../contexts/GiveAwardModalContext';
-import type { LoggedUser } from '../lib/user';
+import type { LoggedUser, UserShortProfile } from '../lib/user';
 import {
   FEATURED_AWARD_FRAGMENT,
   PRODUCT_FRAGMENT,
@@ -146,6 +146,7 @@ export const getProductsQueryOptions = () => {
 
 export enum UserTransactionType {
   PostBoost = 'post_boost',
+  User = 'user',
 }
 
 export enum UserTransactionStatus {
@@ -162,8 +163,8 @@ export type UserTransaction = {
   id: string;
   product?: Product;
   status: number;
-  receiver: Author;
-  sender?: Author;
+  receiver: UserShortProfile;
+  sender?: UserShortProfile;
   value: number;
   valueIncFees: number;
   flags: Partial<{

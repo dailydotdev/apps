@@ -23,19 +23,19 @@ type ShowcaseCard = {
 const showcaseCards: Array<ShowcaseCard> = [
   {
     title: 'Keep your coding agent current',
-    body: `LLMs stop learning the day they ship. Wire daily.dev in so your agent can reference current libraries, recent CVEs, and what senior devs are actually reading. Pre-built integrations for Claude Code, Cursor, Codex, and OpenClaw.`,
+    body: `Pre-built integrations for Claude Code, Cursor, Codex, and OpenClaw. Your agent stays current on libraries, CVEs, and what senior devs are reading.`,
     icon: AiIcon,
     iconClasses: 'bg-overlay-float-water text-accent-water-default',
   },
   {
     title: `Ship the internal tool you've been putting off`,
-    body: `The Slack bot for #engineering. The weekly team digest. The tech radar dashboard. Whatever's been sitting in your Notes doc is a few endpoints away.`,
+    body: `Slack bots, team digests, tech radar dashboards — a few endpoints away.`,
     icon: TerminalIcon,
     iconClasses: 'bg-overlay-float-bun text-accent-bun-default',
   },
   {
     title: 'Automate your own reading exactly how you want it',
-    body: `Mirror your personalized feed to Notion, Obsidian, or email. Get alerts when the topics you follow start trending. Your workflow, no copy-paste.`,
+    body: `Mirror your feed to Notion, Obsidian, or email. No copy-paste.`,
     icon: MagicIcon,
     iconClasses: 'bg-overlay-float-cabbage text-accent-cabbage-default',
   },

@@ -29,7 +29,10 @@ const defaultLoggedUser: LoggedUser = {
 
 const updateUser = jest.fn();
 
-const renderComponent = (): RenderResult => {
+const renderComponent = (
+  userTimeZone = 'Europe/Amsterdam',
+  setUserTimeZone = jest.fn(),
+): RenderResult => {
   const client = new QueryClient();
 
   return render(
@@ -41,8 +44,8 @@ const renderComponent = (): RenderResult => {
         tokenRefreshed
       >
         <TimezoneDropdown
-          userTimeZone="Europe/Amsterdam"
-          setUserTimeZone={jest.fn()}
+          userTimeZone={userTimeZone}
+          setUserTimeZone={setUserTimeZone}
         />
       </AuthContextProvider>
     </QueryClientProvider>,
@@ -69,5 +72,36 @@ it('should change user timezone', async () => {
   });
   fireEvent.click(timezone);
   await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+  expect(mutationCalled).toBeTruthy();
+});
+
+it('should select and persist Mazatlan timezone by IANA value', async () => {
+  const setUserTimeZone = jest.fn();
+  renderComponent('America/Mazatlan', setUserTimeZone);
+
+  const { firstChild } = await screen.findByTestId('timezone_dropdown');
+  expect(firstChild).toHaveTextContent('Mazatlan');
+  fireEvent.click(firstChild!);
+
+  const timezone = await screen.findByRole('menuitem', {
+    name: '(UTC -7) Mazatlan, La Paz (Baja California Sur)',
+  });
+  let mutationCalled = false;
+
+  mockGraphQL({
+    request: {
+      query: UPDATE_USER_PROFILE_MUTATION,
+      variables: { data: { timezone: 'America/Mazatlan' } },
+    },
+    result: () => {
+      mutationCalled = true;
+      return { data: { id: '' } };
+    },
+  });
+
+  fireEvent.click(timezone);
+  await act(() => new Promise((resolve) => setTimeout(resolve, 100)));
+
+  expect(setUserTimeZone).toHaveBeenCalledWith('America/Mazatlan');
   expect(mutationCalled).toBeTruthy();
 });

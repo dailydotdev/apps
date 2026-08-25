@@ -41,6 +41,13 @@ const securityHeaders = [
   },
 ];
 
+const noindexHeaders = [
+  {
+    key: 'X-Robots-Tag',
+    value: 'noindex, nofollow',
+  },
+];
+
 const nextConfig: NextConfig = {
   transpilePackages: ['@dailydotdev/shared'],
   allowedDevOrigins: ['app.local.fylla.dev', 'app.staging.daily.dev'],
@@ -196,6 +203,11 @@ const nextConfig: NextConfig = {
           permanent: true,
         },
         {
+          source: '/daily',
+          destination: '/',
+          permanent: false,
+        },
+        {
           source: '/mobile',
           destination: '/',
           permanent: true,
@@ -261,6 +273,11 @@ const nextConfig: NextConfig = {
         {
           source: '/posts/:id/share',
           destination: '/posts/:id',
+          permanent: false,
+        },
+        {
+          source: '/posts/:id/read',
+          destination: '/articles/:id',
           permanent: false,
         },
         // so we can't access /plus/gift route directly
@@ -354,6 +371,14 @@ const nextConfig: NextConfig = {
             { key: 'Content-Type', value: 'application/json' },
             { key: 'Cache-Control', value: 'no-cache' },
           ],
+        },
+        {
+          source: '/articles/:path*',
+          headers: noindexHeaders,
+        },
+        {
+          source: '/posts/:id/read',
+          headers: noindexHeaders,
         },
         {
           // Static page (headers can't come from the page itself); framing is

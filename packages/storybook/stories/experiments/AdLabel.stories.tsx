@@ -7,10 +7,7 @@ import { SignalAdList } from '@dailydotdev/shared/src/components/cards/ad/Signal
 import { PostSidebarAdWidget } from '@dailydotdev/shared/src/components/post/PostSidebarAdWidget';
 import { AdAsComment } from '@dailydotdev/shared/src/components/comments/AdAsComment';
 import type { Ad } from '@dailydotdev/shared/src/graphql/posts';
-import {
-  adImprovementsV3Feature,
-  featureFeedCardGlassActions,
-} from '@dailydotdev/shared/src/lib/featureManagement';
+import { adImprovementsV3Feature } from '@dailydotdev/shared/src/lib/featureManagement';
 import {
   AdProviders,
   Arm,
@@ -157,16 +154,6 @@ export const FeedGrid: StoryObj = {
         >
           <ArmRow
             className="max-w-[24rem]"
-            render={() => <AdGrid ad={baseAd} {...feedProps} />}
-          />
-        </Section>
-        <Section
-          title="Feed ad card — grid, glass actions"
-          description="The `feed_card_glass_actions` layout moves the creative to the bottom of the card. Attribution and the advertise link keep the same behaviour in every arm."
-        >
-          <ArmRow
-            className="max-w-[24rem]"
-            overrides={{ [featureFeedCardGlassActions.id]: true }}
             render={() => <AdGrid ad={baseAd} {...feedProps} />}
           />
         </Section>

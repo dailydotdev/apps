@@ -16,7 +16,7 @@ import type {
   SourceStack,
   AddSourceStackInput,
 } from '../../../graphql/source/sourceStack';
-import type { DatasetTool } from '../../../graphql/user/userStack';
+import type { AutocompleteTool } from '../../../graphql/user/userStack';
 import { useStackSearch } from '../../../features/profile/hooks/useStackSearch';
 import { PlusIcon } from '../../icons';
 
@@ -62,7 +62,7 @@ export function SourceStackModal({
 
   const canSubmit = title.trim().length > 0;
 
-  const handleSelectSuggestion = (suggestion: DatasetTool) => {
+  const handleSelectSuggestion = (suggestion: AutocompleteTool) => {
     setValue('title', suggestion.title);
     setShowSuggestions(false);
   };

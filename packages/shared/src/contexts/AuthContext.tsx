@@ -18,7 +18,7 @@ import type { Squad } from '../graphql/sources';
 import type { Feed } from '../graphql/feed';
 import { checkIsExtension, isIOSNative, isNullOrUndefined } from '../lib/func';
 import { AFTER_AUTH_PARAM } from '../components/auth/common';
-import { Continent, outsideGdpr, tcfRegions } from '../lib/geo';
+import { Continent, outsideGdpr } from '../lib/geo';
 import {
   invalidPlusRegions,
   onboardingUrl,
@@ -77,12 +77,9 @@ export interface AuthContextData {
   geo?: Boot['geo'];
   isAndroidApp?: boolean;
   isGdprCovered?: boolean;
-  isTcfCovered?: boolean;
   isValidRegion?: boolean;
   isFunnel?: boolean;
   feeds?: Feed[];
-  daily?: boolean;
-  setDaily?: (value: boolean) => void;
 }
 
 const isExtension = checkIsExtension();
@@ -125,11 +122,6 @@ export function checkIfGdprCovered(geo?: Boot['geo']): boolean {
   );
 }
 
-// Strictly geographic (no iOS special-case): gates the iubenda CMP only.
-export function checkIfTcfCovered(geo?: Boot['geo']): boolean {
-  return tcfRegions.includes(geo?.region ?? '');
-}
-
 export type AuthContextProviderProps = {
   user?: LoggedUser | AnonymousUser;
   isFetched?: boolean;
@@ -149,8 +141,6 @@ export type AuthContextProviderProps = {
   | 'geo'
   | 'isAndroidApp'
   | 'feeds'
-  | 'daily'
-  | 'setDaily'
 >;
 
 export const AuthContextProvider = ({
@@ -170,8 +160,6 @@ export const AuthContextProvider = ({
   firstLoad,
   geo,
   isAndroidApp,
-  daily,
-  setDaily,
 }: AuthContextProviderProps): ReactElement => {
   const [loginState, setLoginState] = useState<LoginState | null>(null);
   const endUser = user && 'providers' in user ? user : null;
@@ -239,11 +227,8 @@ export const AuthContextProvider = ({
       feeds,
       geo,
       isAndroidApp,
-      daily,
-      setDaily,
       isValidRegion,
       isGdprCovered: checkIfGdprCovered(geo),
-      isTcfCovered: checkIfTcfCovered(geo),
     }),
     [
       firstLoad,
@@ -267,8 +252,6 @@ export const AuthContextProvider = ({
       feeds,
       geo,
       isAndroidApp,
-      daily,
-      setDaily,
       isValidRegion,
     ],
   );

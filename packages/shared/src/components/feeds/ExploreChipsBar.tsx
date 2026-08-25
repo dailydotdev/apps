@@ -6,18 +6,16 @@ import Link from '../utilities/Link';
 import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { PlusIcon } from '../icons';
 import { webappUrl } from '../../lib/constants';
-import { isExtension } from '../../lib/func';
-import { SharedFeedPage } from '../utilities';
 import useCustomDefaultFeed from '../../hooks/feed/useCustomDefaultFeed';
 import { ElementPlaceholder } from '../ElementPlaceholder';
 import { useLogContext } from '../../contexts/LogContext';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { useDailyPage } from '../../hooks/feed/useDailyPage';
-import { DailySwitcher } from '../../features/daily/DailySwitcher';
 import type { ExploreCategory } from './exploreCategories';
 import { findActiveChipId } from './exploreCategories';
 import { LogEvent } from '../../lib/log';
 import { NewStripCta } from './NewStripCta';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureFeedChips } from '../../lib/featureManagement';
 
 interface ExploreChipsBarProps {
   categories: ExploreCategory[];
@@ -27,7 +25,6 @@ interface ExploreChipsBarProps {
   // (text + active Float background + bottom-border underline) so the chips
   // header matches the canonical tabbed page header. Off → legacy pills.
   compact?: boolean;
-  onNavTabClick?: (tab: string) => void;
 }
 
 const PLACEHOLDER_WIDTHS = ['w-20', 'w-16', 'w-24', 'w-20', 'w-28', 'w-16'];
@@ -39,20 +36,17 @@ export function ExploreChipsBar({
   isPending,
   className,
   compact,
-  onNavTabClick,
 }: ExploreChipsBarProps): ReactElement | null {
   const router = useRouter();
   const { isCustomDefaultFeed } = useCustomDefaultFeed();
   const { logEvent } = useLogContext();
   const { isLoggedIn } = useAuthContext();
-  const { isEnabled } = useDailyPage();
-  const showDailySwitcher = isLoggedIn && isEnabled;
-
-  const onFeedClick =
-    isExtension && onNavTabClick
-      ? () => onNavTabClick(isCustomDefaultFeed ? SharedFeedPage.MyFeed : '/')
-      : undefined;
-
+  const { value: variant, isLoading: isVariantLoading } = useConditionalFeature(
+    {
+      feature: featureFeedChips,
+      shouldEvaluate: isLoggedIn,
+    },
+  );
   const forYouCategory: ExploreCategory = useMemo(() => {
     const path = isCustomDefaultFeed ? `${webappUrl}my-feed` : webappUrl;
     return {
@@ -69,8 +63,8 @@ export function ExploreChipsBar({
   }, [isCustomDefaultFeed]);
 
   const allCategories = useMemo(
-    () => (showDailySwitcher ? categories : [forYouCategory, ...categories]),
-    [showDailySwitcher, forYouCategory, categories],
+    () => [forYouCategory, ...categories],
+    [forYouCategory, categories],
   );
 
   const activeId = useMemo(
@@ -108,9 +102,6 @@ export function ExploreChipsBar({
         ref={scrollRef}
         className="no-scrollbar flex items-center gap-2 overflow-x-auto pr-12"
       >
-        {showDailySwitcher && (
-          <DailySwitcher reverse compact={compact} onFeedClick={onFeedClick} />
-        )}
         <NewStripCta
           className={compact ? 'h-8 rounded-10 px-2.5' : 'h-10 rounded-12 px-3'}
         />
@@ -124,6 +115,10 @@ export function ExploreChipsBar({
             logEvent({
               event_name: LogEvent.ClickFeedTagChip,
               target_id: category.tag,
+              extra: JSON.stringify({
+                variant: isVariantLoading ? undefined : variant,
+                origin: category.origin,
+              }),
             });
           };
 

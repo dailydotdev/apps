@@ -5,6 +5,7 @@ import { ShaderPass }     from 'three/addons/postprocessing/ShaderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { WORLD_CSS } from './styles';
+import { levelProgress, REALM_DIV } from '../ladder';
 import { drawCrest } from './crest';
 import { DEFAULT_LOOK_ID, lookFromPreset } from './look';
 import { DEFAULT_SKY, skyHourOf, skyPalOf } from './sky';
@@ -169,6 +170,14 @@ const FX={vc:true,bevel:true,env:true,noise:true,air:true,water:true,
    the plot borders and the ambient motion all read these live, so the
    controller can offer them later without anything else moving. */
 const VIEW={border:true,labels:true,life:true,sky:true};
+
+/* Whether the plates carry how far through its rung each plot is. OFF by
+   default, and turned on only for a reader looking at their OWN world: on
+   somebody else's it is a stranger's homework, and the plate is already
+   carrying a name, a subject and a count on a box the size of a stamp.
+   Read live by the label pass, which runs every frame, so flipping it needs
+   nothing rebuilt. */
+let LVLPROG=false;
 
 /* ------------------------------------------------------------ the engine DOM
    Only the layers that have to be placed by projecting a world point to a pixel
@@ -8092,7 +8101,7 @@ function enterRealm(q){
   if(W.unbuilt)return;
   handAbort(); unpossess(); birdsDirty();
   worldDay=DAY;
-  OPEN=q; selected=null; hovered=null;
+  OPEN=q; selected=null; hovered=null; stageEl.classList.remove('pick');
   for(const d of W.districts) hideDistrict(d);
   for(const d of q.list){
     if(d.shown>0) raise(d,levelOf(d.shown),false);
@@ -8103,13 +8112,16 @@ function enterRealm(q){
   fade=0; fadeTo=1;
   frameBounds(q.bounds);
   rootEl.classList.add('inrealm');
-  updateHud(); renderRank(true); buildAir(); placeClouds();
+  updateHud(); renderRank(true); emitDistrict(); buildAir(); placeClouds();
 }
 function leaveRealm(){
   if(!OPEN)return;
   handAbort(); unpossess(); birdsDirty();
   for(const d of OPEN.list) hideDistrict(d);
   landRoot.clear(); OPEN=null; selected=null; hovered=null;
+  /* The ground under a stationary pointer is a different thing on either side of
+     this, so the offer is withdrawn and the next move makes it again. */
+  stageEl.classList.remove('pick');
   worldRoot.visible=true;
   landRoot.visible=townRoot.visible=false;
   /* Bring the islands up to the day the scrubber is actually on. Land is
@@ -8130,7 +8142,7 @@ function leaveRealm(){
   fade=0; fadeTo=1;
   frameBounds(W.worldBounds);
   rootEl.classList.remove('inrealm');
-  updateHud(); renderRank(true); buildAir(); placeClouds();
+  updateHud(); renderRank(true); emitDistrict(); buildAir(); placeClouds();
 }
 
 /* The sky, its eight palettes and its five hours, all in `sky.js` — the bench
@@ -8480,12 +8492,12 @@ function pick(cx,cy,click){
       if(Math.hypot(p.x-q.x,p.z-q.z)<=spec(Math.max(1,q.level)).radius+3){ hit=q; break; }
     }
   }
-  /* No hover card at either scale. Nothing follows the cursor now: `hovered` is
-     still tracked, but the only thing it does is light the plot border under the
-     pointer. The affordance the card used to carry — "click to walk in" — is
-     already stated in the hint bar, permanently, where it does not have to
-     appear over the world to be read. */
   if(hit!==hovered){ hovered=hit; paintBorders(); }
+  /* Only ground a click does something with. An unread realm does not open, and
+     inside one, only a district with something standing on it has a feed. Never
+     while riding: the pointer is a flight stick then, not a cursor. */
+  stageEl.classList.toggle('pick',
+    !POV.bird&&!!hit&&(OPEN?!!hit.built:hit.shown>0));
   if(click){
     /* Only the bird the reticle is already on. Re-testing the cursor here
        instead would let a bird that happened to fly under the pointer between
@@ -8496,12 +8508,12 @@ function pick(cx,cy,click){
     if(bird&&bird[0].parent){ possess(bird[0],bird[1]); return; }
     if(!OPEN) { if(hit) enterRealm(hit); }
     else{
-      /* Inside a realm a click on a town is a SLAP, full stop. It used to have
-         to earn it by selecting first, which meant the one gesture people
-         actually try on a town did nothing the first time. Selection still
-         happens — it lights the plot border and syncs the sidebar — but it
-         moves nothing, so the two never fight over the same click. */
-      if(hit&&hit.built) slap(hit,clock.getElapsedTime());
+      /* Inside a realm the first click on a town OPENS it: the plot lights and
+         the panel beside it reads out what was upvoted there, which is the
+         thing somebody clicking a district is asking for. The slap is what a
+         second click on the town already open does, so the toy is still one
+         click away and never lands on top of the answer. */
+      if(hit&&hit.built&&hit.i===selected) slap(hit,clock.getElapsedTime());
       select(hit?hit.i:null);
     }
   }
@@ -8517,7 +8529,18 @@ function pick(cx,cy,click){
 function select(i){
   if(selected===i)return;
   selected=i;
-  paintBorders(); renderRank(true);
+  paintBorders(); renderRank(true); emitDistrict();
+}
+/* Which district is selected, by NICHE ID, so the overlay can ask the API what
+   this reader upvoted in that niche. That id is the one fact about a district
+   only the engine holds: everything else the overlay has is a rank row, and a
+   rank row is capped at fourteen while a realm can hold more than fourteen
+   towns. Emitted from `select` and from both realm doors, which are the only
+   three places `selected` moves. */
+function emitDistrict(){
+  const d=OPEN&&selected!==null?W.districts[selected]:null;
+  emit({district:d?{nicheId:d.nicheId, name:nameOf(d),
+                    color:hexs(d.niche.accent)}:null});
 }
 function paintBorders(){
   const on=VIEW.border&&!!OPEN;
@@ -8657,6 +8680,29 @@ function placeOut(px,py,rx,ry,up,w,h,boxes,ox,oy,discs,self,bias=0){
   return fall;
 }
 
+/* The rung a plate carries on its owner's own world: how far through its current
+   level the plot is, as a bar, plus how many articles are left of it. `div`
+   stretches the ladder for a realm (see REALM_DIV in ../ladder).
+
+   The count goes ON the existing line rather than on a line of its own because
+   the solver that places these plates works from fixed box sizes: every element
+   that comes and goes is another size it has to be told about, and the two
+   callers already have to widen their boxes for the text this returns.
+
+   Returns the suffix and sets the bar, because the two are the same fact and
+   splitting them across two calls is two chances to show one without the other.
+   Empty and hidden when there is nothing to say: a stranger's world, bare
+   ground, or a plot with nothing read into it yet. */
+function rung(x,shown,div){
+  if(!LVLPROG||W.unbuilt||shown<=0){ x.elPg.style.display='none'; return ''; }
+  const p=levelProgress(shown,div);
+  x.elPg.style.display='block';
+  x.elPgI.style.width=(clamp(p.fraction,0,1)*100).toFixed(1)+'%';
+  /* Nothing above L12: the bar sits full and the line says no more than the
+     count it is already carrying. */
+  return p.next?' · '+fmt(p.toNext)+' to L'+(p.level+1):'';
+}
+
 function buildLabels(){
   labelBox.querySelectorAll('.lb').forEach(e=>e.remove());
   leadBox.innerHTML='';
@@ -8664,26 +8710,29 @@ function buildLabels(){
     const e=document.createElement('div');
     e.className='lb t1'; e.style.color=hexs(d.niche.accent);
     e.innerHTML='<div class="box"><div class="nm"></div><div class="mt"></div>'
-               +'<div class="sb"></div></div><div class="stem"></div><div class="pin"></div>';
+               +'<div class="sb"></div><div class="pg"><i></i></div></div>'
+               +'<div class="stem"></div><div class="pin"></div>';
     e.onclick=()=>{ select(d.i); flyTo(d); };
     e.onmouseenter=()=>{ hovered=d; paintBorders(); };
     e.onmouseleave=()=>{ hovered=null; paintBorders(); };
     labelBox.appendChild(e);
     d.el=e; d.elNm=e.querySelector('.nm'); d.elMt=e.querySelector('.mt');
-    d.elBn=e.querySelector('.sb'); d.lead=makeLead(hexs(d.niche.accent));
+    d.elBn=e.querySelector('.sb'); d.elPg=e.querySelector('.pg');
+    d.elPgI=e.querySelector('.pg i'); d.lead=makeLead(hexs(d.niche.accent));
   }
   for(const g of W.quarters){
     const e=document.createElement('div');
     e.className='lb rl t2'; e.style.color=hexs(g.realm.accent);
     e.innerHTML=`<div class="box"><div class="nm">${g.realm.name}</div>`
                +`<div class="sb">${g.realm.theme}</div>`
-               +`<div class="mt"></div></div>`
+               +`<div class="mt"></div><div class="pg"><i></i></div></div>`
                +`<div class="stem"></div><div class="pin"></div>`;
     e.onclick=()=>enterRealm(g);
     e.onmouseenter=()=>{ if(!OPEN)hovered=g; };
     e.onmouseleave=()=>{ if(!OPEN)hovered=null; };
     labelBox.appendChild(e);
-    g.el=e; g.elS=e.querySelector('.mt'); g.lead=makeLead(hexs(g.realm.accent));
+    g.el=e; g.elS=e.querySelector('.mt'); g.elPg=e.querySelector('.pg');
+    g.elPgI=e.querySelector('.pg i'); g.lead=makeLead(hexs(g.realm.accent));
   }
 }
 const _v=new THREE.Vector3();
@@ -8734,7 +8783,11 @@ function layoutLabels(){
        falls back to "least bad", which is six names in a heap. The narrow
        plates are the same component one size down; the CSS follows. */
     const wide=VW>=700;
-    const boxes0=[], w0=wide?250:150, h0=wide?72:56;
+    /* The rung line lengthens the count and adds a bar under it, and the solver
+       works from fixed sizes rather than from measuring the DOM, so the box has
+       to be told. Under-reserving here is plates overlapping the thing they name. */
+    const rungOn=LVLPROG&&!W.unbuilt;
+    const boxes0=[], w0=(wide?250:150)+(rungOn?54:0), h0=(wide?72:56)+(rungOn?7:0);
     const live0=[...W.quarters].filter(q=>q.shown>0).sort((a,b)=>b.shown-a.shown);
     /* The realms' own footprints, so the solver can see the ground it is about
        to cover. Without this the district fix reached the realm labels as a
@@ -8767,7 +8820,7 @@ function layoutLabels(){
       /* Name and subject, and no third line: an unbuilt realm has no count to
          show, and six labels all repeating the same instruction is the
          instruction shouted six times. The page asks once, on the world. */
-      const txt=W.unbuilt?'':arts(g.shown);
+      const txt=W.unbuilt?'':arts(g.shown)+rung(g,g.shown,REALM_DIV);
       if(g.elS.textContent!==txt) g.elS.textContent=txt;
     }
     return;
@@ -8813,7 +8866,10 @@ function layoutLabels(){
        had selected — that is gone with the rest of the pointer states, so size
        is now purely a function of how big the district is on screen. */
     const t=dpx<190?1:2;
-    const w=t>=2?168:104, h=t>=2?58:32;
+    /* Same reservation the realm plates make, one scale down. Only the second
+       tier carries a count, so only it grows. */
+    const rungOn=LVLPROG&&!W.unbuilt&&t>=2;
+    const w=t>=2?168+(rungOn?46:0):104, h=t>=2?58+(rungOn?7:0):32;
     /* Clear the LAND, not the territory. terrR is the district's plot — its
        island plus the verge the border and the open ground live in — and
        clearing that put every plate a further four world-units out, over the
@@ -8835,8 +8891,12 @@ function layoutLabels(){
     const nm=nameOf(d);
     if(d.elNm.textContent!==nm) d.elNm.textContent=nm;
     if(t>=2){
-      const mt=arts(d.shown);
+      const mt=arts(d.shown)+rung(d,d.shown,1);
       if(d.elMt.textContent!==mt) d.elMt.textContent=mt;
+    }else{
+      /* A bare name over the world hides its count in CSS, and the bar has to go
+         with it — but `rung` writes display inline, and inline beats the class. */
+      d.elPg.style.display='none';
     }
     /* The banner line only ever appeared on the third tier, which was the
        selected district's plate — so it goes with it. A district's heraldry is
@@ -9085,7 +9145,12 @@ function drawSpark(c){
 
 /* ==================================================================== boot */
 async function boot(model){
-  emit({status:'loading',progress:0.05,message:'Raising the land…'});
+  /* `district` is cleared here and nowhere else in boot: a soft navigation from
+     one world to another reuses this engine, and everything else the overlay
+     reads is rewritten by the first frame of the new world. A selection is not
+     (nothing selects a town on the way in), so without this the next world opens
+     with the last one's district still named over the new reader's upvotes. */
+  emit({status:'loading',progress:0.05,message:'Raising the land…',district:null});
   booting=true; booted=false;
   if(W){ for(const d of W.districts) hideDistrict(d);
          for(const q of W.quarters) hideRealm(q); }
@@ -10701,6 +10766,10 @@ return {
   toEnd: ()=>{ if(W) seekTo(W.nT-1); },
   setSpeed: s=>{ speed=s; emit({speed:s}); },
   focus,
+  /* Drops the selection without leaving the realm: closing the district's feed
+     has to take the plot's lit border with it, or the world still says a town
+     is open after the panel reading it has gone. */
+  deselect: ()=>{ if(W) select(null); },
   leaveRealm,
   frameWorld: ()=>{ if(W) frameWorld(); },
   attachSpark: c=>drawSpark(c),
@@ -10733,6 +10802,10 @@ return {
   setLook: lookSet,
   setCrest: crestSet,
   setSky: skySet,
+  /* The rung lines are the owner's own business, so unlike the look and the
+     crest this one IS about the viewer. Read live by the label pass, which runs
+     every frame, so there is nothing to rebuild and nothing to invalidate. */
+  setLevelProgress: on=>{ LVLPROG=!!on; },
   setViewFlags: v=>{ Object.assign(VIEW,v);
     if(W){ paintBorders();
            clouds.visible=VIEW.sky;
