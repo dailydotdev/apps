@@ -17,6 +17,7 @@ export const mockInterest: UserInterest = {
   fomoThreshold: 0.62,
   sources: { dailyDev: true, web: false, github: false },
   outputModes: { feed: true, post: true, digest: false, notification: true },
+  showHistory: true,
   lastRunAt: minutesAgo(42),
   lastRunSummary: 'Scanned 128 posts, kept 6',
   lastRunStatus: InterestRunStatus.Completed,
