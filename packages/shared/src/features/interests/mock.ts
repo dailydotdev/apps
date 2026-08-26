@@ -13,7 +13,7 @@ export const mockInterest: UserInterest = {
   query: 'Cool zig projects',
   title: 'Zig Project Radar',
   status: UserInterestStatus.Active,
-  cadence: UserInterestCadence.Daily,
+  cadence: UserInterestCadence.Auto,
   fomoThreshold: 0.62,
   sources: { dailyDev: true, web: false, github: false },
   outputModes: { feed: true, post: true, digest: false, notification: true },
