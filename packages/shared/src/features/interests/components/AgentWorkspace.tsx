@@ -154,6 +154,32 @@ export const AgentWorkspace = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length]);
 
+  const wasRunViewRef = useRef(isRunView);
+
+  useEffect(() => {
+    const wasRunView = wasRunViewRef.current;
+    wasRunViewRef.current = isRunView;
+
+    if (!wasRunView || isRunView) {
+      return undefined;
+    }
+
+    isPinnedRef.current = true;
+    setIsAwayFromBottom(false);
+
+    return followTail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRunView]);
+
+  useEffect(() => {
+    if (!isFeedReady || !isPinnedRef.current) {
+      return undefined;
+    }
+
+    return followTail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFeedReady]);
+
   const latestMessage = messages[messages.length - 1];
   const isLatestStale =
     isHistoryLimited &&
@@ -268,7 +294,7 @@ export const AgentWorkspace = ({
             </div>
             <AgentQuoteAction containerRef={transcriptRef} />
             <div className="relative">
-              {isAwayFromBottom && (
+              {isAwayFromBottom && !isRunView && (
                 <Button
                   icon={
                     <ArrowIcon size={IconSize.Size16} className="rotate-180" />

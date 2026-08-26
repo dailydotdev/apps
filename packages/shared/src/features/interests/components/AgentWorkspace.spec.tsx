@@ -492,12 +492,13 @@ describe('AgentWorkspace history window', () => {
       queryFn: async () => run,
     } as never);
 
-    render(
-      <TestBootProvider client={new QueryClient()} auth={{ user: defaultUser }}>
+    const client = new QueryClient();
+    const tree = (currentRunId?: string) => (
+      <TestBootProvider client={client} auth={{ user: defaultUser }}>
         <AgentProvider
           id="a1"
           isDemo={false}
-          runId={runId}
+          runId={currentRunId}
           onLeaveRunView={onLeaveRunView}
           interest={
             {
@@ -514,13 +515,17 @@ describe('AgentWorkspace history window', () => {
             items={[]}
             onDelete={jest.fn()}
             isDeleting={false}
-            runId={runId}
+            runId={currentRunId}
           />
         </AgentProvider>
-      </TestBootProvider>,
+      </TestBootProvider>
     );
+    const view = render(tree(runId));
 
-    return { onLeaveRunView };
+    return {
+      onLeaveRunView,
+      leaveRunView: () => view.rerender(tree(undefined)),
+    };
   };
 
   it('shows only the deep-linked run with a way to the latest one', async () => {
@@ -541,6 +546,30 @@ describe('AgentWorkspace history window', () => {
     );
 
     expect(onLeaveRunView).toHaveBeenCalled();
+  });
+
+  it('hides the scroll-to-latest arrow on the run view and pins the tail after leaving it', async () => {
+    const { leaveRunView } = renderLive({
+      runId: 'run-1',
+      run: turnAt('run-1', '2026-01-01T00:00:00Z'),
+      turns: [
+        turnAt('run-1', '2026-01-01T00:00:00Z'),
+        turnAt('run-2', '2026-01-02T00:00:00Z'),
+      ],
+    });
+
+    await screen.findByText('Findings from run-1.');
+    expect(screen.queryByLabelText('Scroll to latest')).not.toBeInTheDocument();
+
+    const transcript = document.querySelector('.agent-scroll') as HTMLElement;
+    Object.defineProperty(transcript, 'scrollHeight', {
+      configurable: true,
+      value: 2000,
+    });
+    leaveRunView();
+
+    await screen.findByText('Findings from run-2.');
+    await waitFor(() => expect(transcript.scrollTop).toBe(2000));
   });
 
   it('shows the latest turn with a way back into history when history is off', async () => {
