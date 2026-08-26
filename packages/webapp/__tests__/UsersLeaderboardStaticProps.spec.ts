@@ -46,6 +46,53 @@ describe('leaderboard static props', () => {
     mockRequest.mockReset();
   });
 
+  it('renders the boards that resolved when one resolver errors', async () => {
+    // graphql-request throws on any errors entry even when the response
+    // carries data for every other board — the exact shape that took the
+    // /users prerender (and with it every deploy) down.
+    mockRequest.mockImplementation((query: string) => {
+      if (query === LEADERBOARD_QUERY) {
+        return Promise.reject({
+          response: {
+            data: { ...baseLeaderboardResponse, mostAchievementPoints: null },
+            errors: [{ message: 'Unexpected error' }],
+            status: 200,
+          },
+        });
+      }
+
+      if (query === POPULAR_HOT_TAKES_QUERY) {
+        return Promise.resolve({ popularHotTakes: [] });
+      }
+
+      if (query === HIGHEST_LEVEL_QUERY) {
+        return Promise.resolve({ highestLevel: [] });
+      }
+
+      return Promise.reject(new Error('Unexpected query'));
+    });
+
+    const result = await getUsersStaticProps();
+
+    expect(result).toMatchObject({
+      props: {
+        highestReputation: [],
+        mostAchievementPoints: [],
+      },
+      revalidate: 3600,
+    });
+  });
+
+  it('still throws when the failure carries no board data at all', async () => {
+    mockRequest.mockImplementation(() =>
+      Promise.reject({
+        response: { errors: [{ message: 'Unexpected error' }] },
+      }),
+    );
+
+    await expect(getUsersStaticProps()).rejects.toBeTruthy();
+  });
+
   it('should hide highest-level data when API schema does not support it', async () => {
     mockRequest.mockImplementation((query: string) => {
       if (query === LEADERBOARD_QUERY) {

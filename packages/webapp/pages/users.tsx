@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import React from 'react';
 import type { GetStaticPropsResult } from 'next';
+import type { ClientError } from 'graphql-request';
 import type { NextSeoProps } from 'next-seo/lib/types';
 import { ApiError, gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import {
@@ -210,9 +211,24 @@ export async function getStaticProps(): Promise<
   GetStaticPropsResult<PageProps>
 > {
   try {
-    const res = await gqlClient.request<
-      Omit<PageProps, 'highestLevel' | 'popularHotTakes'>
-    >(LEADERBOARD_QUERY);
+    type LeaderboardData = Omit<PageProps, 'highestLevel' | 'popularHotTakes'>;
+    let res: LeaderboardData;
+    try {
+      res = await gqlClient.request<LeaderboardData>(LEADERBOARD_QUERY);
+    } catch (leaderboardError: unknown) {
+      const partial = (leaderboardError as ClientError)?.response?.data as
+        | LeaderboardData
+        | undefined;
+
+      // One failing resolver must not take the whole page's prerender (and
+      // with it every deploy) down: graphql-request throws on any `errors`
+      // entry even when the response carries data for every other board.
+      // Render what came back; the boards below null-coalesce per field.
+      if (!partial?.highestReputation) {
+        throw leaderboardError;
+      }
+      res = partial;
+    }
 
     let highestLevel: UserLeaderboard[] = [];
     let isHighestLevelSupported = false;
@@ -247,16 +263,16 @@ export async function getStaticProps(): Promise<
 
     return {
       props: {
-        highestReputation: res.highestReputation,
-        longestStreak: res.longestStreak,
-        highestPostViews: res.highestPostViews,
-        mostUpvoted: res.mostUpvoted,
-        mostReferrals: res.mostReferrals,
-        mostReadingDays: res.mostReadingDays,
-        mostAchievementPoints: res.mostAchievementPoints,
+        highestReputation: res.highestReputation ?? [],
+        longestStreak: res.longestStreak ?? [],
+        highestPostViews: res.highestPostViews ?? [],
+        mostUpvoted: res.mostUpvoted ?? [],
+        mostReferrals: res.mostReferrals ?? [],
+        mostReadingDays: res.mostReadingDays ?? [],
+        mostAchievementPoints: res.mostAchievementPoints ?? [],
         highestLevel,
         isHighestLevelSupported,
-        mostVerifiedUsers: res.mostVerifiedUsers,
+        mostVerifiedUsers: res.mostVerifiedUsers ?? [],
         popularHotTakes,
       },
       revalidate: 3600,
