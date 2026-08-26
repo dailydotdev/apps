@@ -8,6 +8,7 @@ import { ArrowIcon } from '../icons/Arrow';
 import { IconSize } from '../Icon';
 import Link from '../utilities/Link';
 import { RelativeTime } from '../utilities/RelativeTime';
+import { SnapshotButton } from '../imageShare/SnapshotButton';
 
 interface HighlightItemProps {
   highlight: PostHighlightFeed;
@@ -81,11 +82,17 @@ export const HighlightItem = ({
       {expanded && tldr && (
         <div className="flex flex-col gap-3 px-4 pb-3">
           <p className="text-text-secondary typo-markdown">{tldr}</p>
-          <Link href={highlight.post.commentsPermalink}>
-            <a className="flex items-center gap-1 font-bold text-text-link typo-footnote hover:underline">
-              Read more
-            </a>
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href={highlight.post.commentsPermalink}>
+              <a className="flex items-center gap-1 font-bold text-text-link typo-footnote hover:underline">
+                Read more
+              </a>
+            </Link>
+            <SnapshotButton
+              filename={`daily-highlight-${highlight.id}`}
+              target={ref}
+            />
+          </div>
         </div>
       )}
     </article>

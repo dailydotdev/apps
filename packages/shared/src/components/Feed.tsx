@@ -526,13 +526,14 @@ export default function Feed<T>({
   const feedContextValue = useMemo(() => {
     return {
       queryKey: feedQueryKey,
+      feedName,
       items,
       logOpts,
       allowPin,
       origin,
       onRemovePost,
     };
-  }, [feedQueryKey, items, logOpts, allowPin, origin, onRemovePost]);
+  }, [feedQueryKey, feedName, items, logOpts, allowPin, origin, onRemovePost]);
 
   const { ranking } = (variables as RankVariables) || {};
 

@@ -66,6 +66,9 @@ export function UserTopList({
             TOP_RANK_STYLES[i]?.hoverClass,
           )}
           onMouseEnter={TOP_RANK_STYLES[i] ? createRowMouseEnter(i) : undefined}
+          snapshotFilename={`daily-leaderboard-${
+            item.user.username ?? item.user.id
+          }`}
         >
           <TopRankBadge rankIndex={i} />
           {showLevel && item.level && (

@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import type { Post } from '../../../graphql/posts';
@@ -46,6 +46,8 @@ export interface ActionButtonsProps {
   variant?: ActionButtonsVariant;
   showDownvoteAction?: boolean;
   showAwardAction?: boolean;
+  /** Rendered in the trailing group, right after the bookmark button. */
+  trailing?: ReactNode;
 }
 
 const variantConfig = {
@@ -85,6 +87,7 @@ const ActionButtonsV1 = ({
   variant = 'grid',
   showDownvoteAction = true,
   showAwardAction = true,
+  trailing,
 }: ActionButtonsProps): ReactElement | null => {
   const config = variantConfig[variant];
   const isFeedPreview = useFeedPreviewMode();
@@ -274,6 +277,7 @@ const ActionButtonsV1 = ({
           }}
           iconSize={iconSize}
         />
+        {trailing}
         <Tooltip
           content="Copy link"
           side={variant === 'grid' ? 'bottom' : undefined}

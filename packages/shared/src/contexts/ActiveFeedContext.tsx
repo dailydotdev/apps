@@ -2,9 +2,11 @@ import { createContext, useContext } from 'react';
 import type { QueryKey } from '@tanstack/react-query';
 import type { FeedReturnType } from '../hooks/useFeed';
 import type { Origin } from '../lib/log';
+import type { AllFeedPages } from '../lib/query';
 
 export type ActiveFeedContextValue = {
   queryKey?: QueryKey;
+  feedName?: AllFeedPages;
   items: FeedReturnType['items'];
   logOpts?: {
     columns: number;

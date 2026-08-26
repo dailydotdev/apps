@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import classNames from 'classnames';
 import type { UserAchievement } from '../../../../graphql/user/achievements';
 import {
@@ -29,6 +29,7 @@ import {
   rarityGlowClasses,
 } from './achievementRarity';
 import { RaritySparkles } from './RaritySparkles';
+import { SnapshotButton } from '../../../../components/imageShare/SnapshotButton';
 
 interface AchievementCardProps {
   userAchievement: UserAchievement;
@@ -49,6 +50,7 @@ export function AchievementCard({
   onUntrack,
   isUntrackPending = false,
 }: AchievementCardProps): ReactElement {
+  const cardRef = useRef<HTMLDivElement>(null);
   const { achievement, progress, unlockedAt } = userAchievement;
   const targetCount = getTargetCount(achievement);
   const isUnlocked = unlockedAt !== null;
@@ -64,8 +66,9 @@ export function AchievementCard({
       : `${Math.round(achievement.rarity ?? 0)}%`;
   return (
     <div
+      ref={cardRef}
       className={classNames(
-        'relative flex flex-col rounded-16 border p-4 transition-colors',
+        'group relative flex flex-col rounded-16 border p-4 transition-colors',
         isUnlocked ? 'bg-surface-float' : 'bg-surface-subtle',
         rarityTier
           ? ['overflow-visible', rarityGlowClasses[rarityTier]]
@@ -121,7 +124,15 @@ export function AchievementCard({
             {achievement.description}
           </Typography>
         </div>
-        <div className="flex shrink-0 items-center self-center">
+        <div className="flex shrink-0 items-center gap-1 self-center">
+          <SnapshotButton
+            className="opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100"
+            filename={`daily-achievement-${achievement.id}`}
+            showLabel={false}
+            size={ButtonSize.XSmall}
+            target={cardRef}
+            variant={ButtonVariant.Float}
+          />
           <Typography
             type={TypographyType.Callout}
             color={

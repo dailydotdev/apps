@@ -3,6 +3,7 @@ import type {
   CaptureTarget,
 } from './captureShareImage';
 import { captureShareImage } from './captureShareImage';
+import { downloadShareImage } from './downloadShareImage';
 
 export interface DevCaptureShareImageOptions extends CaptureShareImageOptions {
   download?: boolean;
@@ -21,13 +22,7 @@ export async function devCaptureShareImage(
   const blob = await captureShareImage(target, captureOptions);
 
   if (download) {
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `${filename}.png`;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
+    downloadShareImage(blob, filename);
   }
 
   return blob;

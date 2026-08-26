@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import dynamic from 'next/dynamic';
 import classNames from 'classnames';
 import { Image } from '../image/Image';
@@ -14,7 +14,7 @@ import type { UserStatsProps } from './UserStats';
 import { UserStats } from './UserStats';
 import JoinedDate from './JoinedDate';
 import { Separator } from '../cards/common/common';
-import { Button, ButtonVariant } from '../buttons/Button';
+import { Button, ButtonSize, ButtonVariant } from '../buttons/Button';
 import { webappUrl } from '../../lib/constants';
 import Link from '../utilities/Link';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -24,6 +24,7 @@ import { locationToString } from '../../lib/utils';
 import { IconSize } from '../Icon';
 import { fallbackImages } from '../../lib/config';
 import { ProfileDesktopPwaBackButton } from './ProfileBackButton';
+import { SnapshotButton } from '../imageShare/SnapshotButton';
 
 import { ElementPlaceholder } from '../ElementPlaceholder';
 
@@ -67,9 +68,13 @@ const ProfileHeader = ({
   const { name, username, bio, image, cover, isPlus } = user;
   const { user: loggedUser } = useAuthContext();
   const isSameUser = propIsSameUser ?? loggedUser?.id === user.id;
+  const headerRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="relative w-full overflow-hidden laptop:rounded-t-16">
+    <div
+      ref={headerRef}
+      className="relative w-full overflow-hidden laptop:rounded-t-16"
+    >
       <ProfileDesktopPwaBackButton className="absolute left-4 top-4 z-1" />
       <div className="h-36">
         <Image src={cover} alt="Cover" className="h-full w-full object-cover" />
@@ -100,6 +105,14 @@ const ProfileHeader = ({
               aria-label="Edit profile"
             />
           </Link>
+          <SnapshotButton
+            filename={`daily-profile-${username ?? user.id}`}
+            showLabel={false}
+            // Matches the edit button beside it, which takes Button's default.
+            size={ButtonSize.Medium}
+            target={headerRef}
+            variant={ButtonVariant.Float}
+          />
           {actions}
         </div>
         <div className="flex items-center gap-1">

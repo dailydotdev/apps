@@ -54,6 +54,9 @@ import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostMenuOptions } from '../PostMenuOptions';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
+import { SnapshotButton } from '../../imageShare/SnapshotButton';
+import { PostSnapshotCard } from '../../../features/snapshot/PostSnapshotCard';
+import { SNAPSHOT_SIZE } from '../../../features/snapshot/snapshotGradient';
 import { withPostById } from '../withPostById';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
@@ -278,6 +281,7 @@ const PostFocusCardRaw = ({
   // instead we detect the click landing inside the cross-origin iframe via the
   // window losing focus to it, then animate the container open.
   const videoWrapperRef = useRef<HTMLDivElement>(null);
+  const snapshotRef = useRef<HTMLDivElement>(null);
   const [isVideoExpanded, setIsVideoExpanded] = useState(false);
   const readHref = getReadArticleHref(post);
   const canReadArticle = !!readHref && !isInternalReadType(article);
@@ -408,186 +412,210 @@ const PostFocusCardRaw = ({
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-col gap-3">
-            {sharedVia && (
-              <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
-                <span>Shared via</span>
-                <HoverCard
-                  appendTo={globalThis?.document?.body}
-                  side="top"
-                  align="start"
-                  sideOffset={8}
-                  trigger={
-                    <span className="inline-flex items-center">
-                      <Link
-                        href={sharedVia.permalink}
-                        passHref
-                        prefetch={false}
+          <div className="flex min-w-0 flex-col gap-4">
+            <div className="flex min-w-0 flex-col gap-3">
+              {sharedVia && (
+                <p className="flex items-center gap-1 text-text-tertiary typo-footnote">
+                  <span>Shared via</span>
+                  <HoverCard
+                    appendTo={globalThis?.document?.body}
+                    side="top"
+                    align="start"
+                    sideOffset={8}
+                    trigger={
+                      <span className="inline-flex items-center">
+                        <Link
+                          href={sharedVia.permalink}
+                          passHref
+                          prefetch={false}
+                        >
+                          <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
+                            {sharedVia.image && (
+                              <img
+                                src={sharedVia.image}
+                                alt=""
+                                aria-hidden
+                                className="size-4 rounded-full object-cover"
+                                loading="lazy"
+                              />
+                            )}
+                            {sharedVia.name}
+                          </a>
+                        </Link>
+                      </span>
+                    }
+                  >
+                    <SourceEntityCard source={sharedVia as SourceTooltip} />
+                  </HoverCard>
+                </p>
+              )}
+              {isShared && !sharedVia && (
+                <p className="text-text-tertiary typo-footnote">Shared post</p>
+              )}
+              {!isShared && isCollection && (
+                <p className="text-text-tertiary typo-footnote">Collection</p>
+              )}
+              {/* Title and image are top-aligned columns. The read button lives
+                  in the title column (right under the title) so it hugs the title
+                  regardless of the image height — a short title next to a tall
+                  image keeps the button close instead of dragging it down. */}
+              <div className="flex min-w-0 flex-row items-start gap-4">
+                <div className="flex min-w-0 flex-1 flex-col gap-4">
+                  <h1
+                    className={classNames(
+                      'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
+                      // On the post page the reader came to read, so the title is
+                      // always shown in full and the button flows below it; only
+                      // the modal (a feed preview) clamps it.
+                      onClose && 'line-clamp-3',
+                    )}
+                    data-testid="post-modal-title"
+                  >
+                    {canReadArticle ? (
+                      <a
+                        href={readHref}
+                        target="_blank"
+                        rel="noopener"
+                        {...combinedClicks<HTMLAnchorElement>(
+                          withSelectionGuard(handleReadClick),
+                        )}
+                        className="transition-colors hover:text-text-link"
                       >
-                        <a className="inline-flex items-center gap-1 font-bold text-text-link hover:underline">
-                          {sharedVia.image && (
-                            <img
-                              src={sharedVia.image}
-                              alt=""
-                              aria-hidden
-                              className="size-4 rounded-full object-cover"
-                              loading="lazy"
-                            />
-                          )}
-                          {sharedVia.name}
-                        </a>
-                      </Link>
-                    </span>
-                  }
-                >
-                  <SourceEntityCard source={sharedVia as SourceTooltip} />
-                </HoverCard>
-              </p>
-            )}
-            {isShared && !sharedVia && (
-              <p className="text-text-tertiary typo-footnote">Shared post</p>
-            )}
-            {!isShared && isCollection && (
-              <p className="text-text-tertiary typo-footnote">Collection</p>
-            )}
-            {/* Title and image are top-aligned columns. The read button lives
-                in the title column (right under the title) so it hugs the title
-                regardless of the image height — a short title next to a tall
-                image keeps the button close instead of dragging it down. */}
-            <div className="flex min-w-0 flex-row items-start gap-4">
-              <div className="flex min-w-0 flex-1 flex-col gap-4">
-                <h1
-                  className={classNames(
-                    'break-words font-bold text-text-primary typo-title3 tablet:typo-title1',
-                    // On the post page the reader came to read, so the title is
-                    // always shown in full and the button flows below it; only
-                    // the modal (a feed preview) clamps it.
-                    onClose && 'line-clamp-3',
-                  )}
-                  data-testid="post-modal-title"
-                >
-                  {canReadArticle ? (
+                        {title}
+                      </a>
+                    ) : (
+                      title
+                    )}
+                  </h1>
+                  {renderReadButton('w-full tablet:w-fit')}
+                </div>
+                {coverImage &&
+                  (canReadArticle ? (
                     <a
                       href={readHref}
                       target="_blank"
                       rel="noopener"
-                      {...combinedClicks<HTMLAnchorElement>(
-                        withSelectionGuard(handleReadClick),
-                      )}
-                      className="transition-colors hover:text-text-link"
+                      {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
+                      aria-hidden
+                      tabIndex={-1}
+                      data-testid="post-cover-link"
+                      className={classNames(coverClassName, 'cursor-pointer')}
                     >
-                      {title}
+                      {coverImage}
                     </a>
                   ) : (
-                    title
-                  )}
-                </h1>
-                {renderReadButton('w-full tablet:w-fit')}
+                    <button
+                      type="button"
+                      aria-label="View cover image"
+                      className={classNames(coverClassName, 'cursor-zoom-in')}
+                      onClick={(event) => {
+                        openModal({
+                          type: LazyModal.ImageView,
+                          props: {
+                            src: article.image as string,
+                            alt: 'Post cover image',
+                            originRect: getImageOriginRect(event.currentTarget),
+                          },
+                        });
+                      }}
+                    >
+                      {coverImage}
+                    </button>
+                  ))}
               </div>
-              {coverImage &&
-                (canReadArticle ? (
-                  <a
-                    href={readHref}
-                    target="_blank"
-                    rel="noopener"
-                    {...combinedClicks<HTMLAnchorElement>(handleReadClick)}
-                    aria-hidden
-                    tabIndex={-1}
-                    data-testid="post-cover-link"
-                    className={classNames(coverClassName, 'cursor-pointer')}
-                  >
-                    {coverImage}
-                  </a>
-                ) : (
-                  <button
-                    type="button"
-                    aria-label="View cover image"
-                    className={classNames(coverClassName, 'cursor-zoom-in')}
-                    onClick={(event) => {
-                      openModal({
-                        type: LazyModal.ImageView,
-                        props: {
-                          src: article.image as string,
-                          alt: 'Post cover image',
-                          originRect: getImageOriginRect(event.currentTarget),
-                        },
-                      });
-                    }}
-                  >
-                    {coverImage}
-                  </button>
-                ))}
             </div>
+
+            <PostMetadata
+              className="!typo-callout"
+              createdAt={article.createdAt}
+              domain={
+                !isVideoType &&
+                article.domain &&
+                article.domain.length > 0 && (
+                  <TruncateText>
+                    From{' '}
+                    <ArticleLink
+                      className="hover:underline"
+                      href={article.permalink}
+                      onClick={onReadArticle}
+                      title={article.domain}
+                    >
+                      {article.domain}
+                    </ArticleLink>
+                  </TruncateText>
+                )
+              }
+              isVideoType={isVideoType}
+              readTime={article.readTime}
+            />
+
+            {isVideoType && (
+              <div
+                ref={videoWrapperRef}
+                className={classNames(
+                  'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
+                  // Phones (below mobileXL, the mobileL bucket and smaller) and
+                  // the expanded state use the full width; tablet/desktop start
+                  // as a smaller floating preview until the user plays the video.
+                  isVideoExpanded
+                    ? 'max-w-full'
+                    : 'max-w-full mobileXL:max-w-[70%]',
+                )}
+              >
+                {/* Embed YouTube's native player directly so the first click
+                    plays inside the iframe with sound — no custom overlay or
+                    muted autoplay. */}
+                <YoutubeVideo
+                  placeholderProps={{
+                    post: article,
+                    onWatchVideo: onReadArticle,
+                  }}
+                  videoId={article.videoId ?? ''}
+                />
+              </div>
+            )}
+
+            {article.contentHtml ? (
+              <>
+                <Markdown
+                  content={article.contentHtml}
+                  className="break-words"
+                />
+                <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
+              </>
+            ) : (
+              article.summary &&
+              (isVideoType ? (
+                <VideoSummary summary={article.summary} />
+              ) : (
+                <p
+                  className="select-text break-words text-text-secondary typo-markdown"
+                  data-testid="tldr-container"
+                >
+                  {article.summary}
+                </p>
+              ))
+            )}
           </div>
 
-          <PostMetadata
-            className="!typo-callout"
-            createdAt={article.createdAt}
-            domain={
-              !isVideoType &&
-              article.domain &&
-              article.domain.length > 0 && (
-                <TruncateText>
-                  From{' '}
-                  <ArticleLink
-                    className="hover:underline"
-                    href={article.permalink}
-                    onClick={onReadArticle}
-                    title={article.domain}
-                  >
-                    {article.domain}
-                  </ArticleLink>
-                </TruncateText>
-              )
-            }
-            isVideoType={isVideoType}
-            readTime={article.readTime}
+          <div
+            aria-hidden
+            className="pointer-events-none fixed left-[-200vw] top-0"
+          >
+            <PostSnapshotCard ref={snapshotRef} post={article} />
+          </div>
+
+          <SnapshotButton
+            captureOptions={{
+              width: SNAPSHOT_SIZE,
+              height: SNAPSHOT_SIZE,
+              padding: 0,
+              branded: false,
+            }}
+            className="self-start"
+            filename={`daily-${article.id}`}
+            target={snapshotRef}
           />
-
-          {isVideoType && (
-            <div
-              ref={videoWrapperRef}
-              className={classNames(
-                'shadow-1 w-full overflow-hidden rounded-24 border border-border-subtlest-tertiary bg-surface-float p-3 transition-[max-width] duration-300 ease-out',
-                // Phones (below mobileXL, the mobileL bucket and smaller) and
-                // the expanded state use the full width; tablet/desktop start
-                // as a smaller floating preview until the user plays the video.
-                isVideoExpanded
-                  ? 'max-w-full'
-                  : 'max-w-full mobileXL:max-w-[70%]',
-              )}
-            >
-              {/* Embed YouTube's native player directly so the first click
-                  plays inside the iframe with sound — no custom overlay or
-                  muted autoplay. */}
-              <YoutubeVideo
-                placeholderProps={{
-                  post: article,
-                  onWatchVideo: onReadArticle,
-                }}
-                videoId={article.videoId ?? ''}
-              />
-            </div>
-          )}
-
-          {article.contentHtml ? (
-            <>
-              <Markdown content={article.contentHtml} className="break-words" />
-              <ContentEmbeds embeds={article.contentEmbeds} variant="post" />
-            </>
-          ) : (
-            article.summary &&
-            (isVideoType ? (
-              <VideoSummary summary={article.summary} />
-            ) : (
-              <p
-                className="select-text break-words text-text-secondary typo-markdown"
-                data-testid="tldr-container"
-              >
-                {article.summary}
-              </p>
-            ))
-          )}
 
           <PostTagList post={article} />
 

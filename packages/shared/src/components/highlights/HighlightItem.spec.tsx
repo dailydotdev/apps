@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { PostHighlightFeed } from '../../graphql/highlights';
 import { HighlightItem } from './HighlightItem';
 
@@ -32,11 +33,19 @@ beforeEach(() => {
 
 describe('HighlightItem', () => {
   it('should expand when the route-driven default changes after mount', () => {
-    const { rerender } = render(<HighlightItem highlight={highlight} />);
+    const { rerender } = render(
+      <QueryClientProvider client={new QueryClient()}>
+        <HighlightItem highlight={highlight} />
+      </QueryClientProvider>,
+    );
 
     expect(screen.queryByText(summary)).not.toBeInTheDocument();
 
-    rerender(<HighlightItem highlight={highlight} defaultExpanded />);
+    rerender(
+      <QueryClientProvider client={new QueryClient()}>
+        <HighlightItem highlight={highlight} defaultExpanded />
+      </QueryClientProvider>,
+    );
 
     expect(screen.getByText(summary)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /read more/i })).toHaveAttribute(
