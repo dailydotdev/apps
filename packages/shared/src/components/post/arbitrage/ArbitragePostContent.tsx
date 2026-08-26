@@ -41,6 +41,8 @@ import PostEngagements from '../PostEngagements';
  * first in-content unit and the above-comments MPU (~17-22% of a scraped
  * page against the Better Ads 30% cap).
  */
+// No DirectAd entry: following the direct-sold widget here would stack two
+// ads back to back in a rail that already carries a unit per real widget.
 const RAIL_AD: Partial<
   Record<
     PostWidgetPosition,

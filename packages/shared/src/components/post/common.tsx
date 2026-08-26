@@ -13,6 +13,7 @@ import type {
   UsePostContentProps,
 } from '../../hooks/usePostContent';
 import type { ButtonSize } from '../buttons/common';
+import type { PostWidgetPosition } from './PostWidgets';
 
 export interface PostContentClassName {
   container?: string;
@@ -90,11 +91,33 @@ export interface PostContentProps
   backToSquad?: boolean;
   isPostPage?: boolean;
   /**
-   * Rendered as the widget column's last child. Only the webapp post page
-   * passes it (an AdSense unit) — post modals and the extension must never,
-   * as the ad script only exists on the page and AdSense bans extensions.
+   * Forwarded to the widget column's per-position ad hook. Only the webapp
+   * post page passes it (AdSense units) — post modals and the extension must
+   * never, as the ad script only exists on the page and AdSense bans
+   * extensions.
    */
-  widgetsTrailing?: ReactNode;
+  getWidgetRailAd?: (position: PostWidgetPosition) => ReactNode;
+  /**
+   * Replaces the default TLDR paragraph so an ad template can interleave
+   * units between summary segments. Like every ad prop here: only the
+   * webapp post page passes it — post modals and the extension render the
+   * same component and must never carry ad markup.
+   */
+  renderSummarySegments?: (summary: string) => ReactNode;
+  /** Rendered between the article content and the engagement block. */
+  aboveComments?: ReactNode;
+  /** Interleaves the comment thread — see PostEngagements. */
+  commentAds?: {
+    interleaveEvery: number;
+    renderInterleaved: (occurrence: number) => ReactNode;
+  };
+  /**
+   * Rendered first in the article column, same page-only rule as
+   * getWidgetRailAd. The column's overflow-hidden is relaxed while this is
+   * set, because the ad template's leaderboard pins with position: sticky and
+   * an overflow-hidden ancestor silently stops it.
+   */
+  contentLeading?: ReactNode;
 }
 
 export const PostContainer = classed(
@@ -110,6 +133,11 @@ export interface BasePostContentProps extends UsePostContentProps {
   navigationProps?: PostNavigationProps;
   engagementProps?: UsePostContent;
   shouldOnboardAuthor?: boolean;
+  aboveComments?: ReactNode;
+  commentAds?: {
+    interleaveEvery: number;
+    renderInterleaved: (occurrence: number) => ReactNode;
+  };
   loadingPlaceholder?: ReactNode;
   customNavigation?: ReactNode;
   isPostPage?: boolean;
