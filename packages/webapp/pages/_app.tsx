@@ -339,6 +339,7 @@ function InternalApp({ Component, pageProps, router }: AppProps): ReactElement {
             title="Sitemap"
             href="/sitemap.xml"
           />
+          <link rel="llms-txt" href="/llms.txt" />
           <link
             rel="alternate"
             type="text/plain"

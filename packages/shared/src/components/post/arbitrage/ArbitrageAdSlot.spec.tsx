@@ -1,5 +1,10 @@
 import React from 'react';
-import { act, render as rtlRender, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render as rtlRender,
+  screen,
+} from '@testing-library/react';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
 import { useConditionalFeature } from '../../../hooks/useConditionalFeature';
 import type { AuthContextData } from '../../../contexts/AuthContext';
@@ -7,6 +12,7 @@ import AuthContext from '../../../contexts/AuthContext';
 import { getLogContextStatic } from '../../../contexts/LogContext';
 import type { LogContextData } from '../../../hooks/log/useLogContextData';
 import { LogEvent } from '../../../lib/log';
+import { AdActions } from '../../../lib/ads';
 import type { AdsenseSlots } from '../../../features/monetization/adsense';
 import { ADSENSE_CLIENT_ID } from '../../../features/monetization/adsense';
 import {
@@ -475,6 +481,130 @@ describe('ProgrammaticAd telemetry', () => {
     });
 
     expect(loggedEvents()).toContain(LogEvent.FillAdsenseSlot);
+  });
+
+  it('logs a click once when focus moves into the filled creative', async () => {
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    renderWithLog(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    const iframe = document.createElement('iframe');
+    screen.getByTestId('adsense-slot-2').appendChild(iframe);
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // A click on a cross-origin creative never bubbles here; the observable
+    // is focus landing on the iframe as the window blurs.
+    iframe.focus();
+    fireEvent.blur(window);
+    fireEvent.blur(window);
+
+    const clicks = logEvent.mock.calls.filter(
+      ([event]) =>
+        event.event_name === AdActions.Click && event.target_type === 'ad',
+    );
+    expect(clicks).toHaveLength(1);
+    expect(clicks[0][0]).toMatchObject({
+      target_id: '2222222222',
+      ad_provider_id: 'adsense',
+    });
+    expect(JSON.parse(clicks[0][0].extra)).toMatchObject({
+      slot: 2,
+      unit: '2222222222',
+      surface: 'read',
+      signal: 'focus-blur',
+    });
+  });
+
+  it('logs the loose impression at fill, in the internal ads shape', async () => {
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    renderWithLog(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    screen
+      .getByTestId('adsense-slot-2')
+      .appendChild(document.createElement('iframe'));
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const impressions = logEvent.mock.calls.filter(
+      ([event]) => event.event_name === AdActions.Impression,
+    );
+    expect(impressions).toHaveLength(1);
+    expect(impressions[0][0]).toMatchObject({
+      target_type: 'ad',
+      target_id: '2222222222',
+      ad_provider_id: 'adsense',
+    });
+    // The strict name is reserved for the MRC measurement from useViewability.
+    expect(loggedEvents()).not.toContain(AdActions.Viewable);
+  });
+
+  it('logs a same-tab click-through on pagehide', async () => {
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    renderWithLog(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    const iframe = document.createElement('iframe');
+    screen.getByTestId('adsense-slot-2').appendChild(iframe);
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    iframe.focus();
+    fireEvent(window, new Event('pagehide'));
+
+    const clicks = logEvent.mock.calls.filter(
+      ([event]) => event.event_name === AdActions.Click,
+    );
+    expect(clicks).toHaveLength(1);
+    expect(JSON.parse(clicks[0][0].extra)).toMatchObject({
+      signal: 'pagehide',
+    });
+  });
+
+  it('disarms a focused creative when the visitor returns without leaving', async () => {
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    renderWithLog(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    const iframe = document.createElement('iframe');
+    screen.getByTestId('adsense-slot-2').appendChild(iframe);
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // Tap focuses the creative; the visitor stays, the window regains focus,
+    // and only minutes later blurs for an unrelated reason (alt-tab).
+    iframe.focus();
+    fireEvent.focus(window);
+    fireEvent.blur(window);
+
+    expect(loggedEvents()).not.toContain(AdActions.Click);
+  });
+
+  it('ignores window blur while focus is outside the creative', async () => {
+    setSlots({ '2': { id: '2222222222', type: 'display' } });
+    renderWithLog(
+      <ArbitrageAdSlot slot={2} format={ArbitrageAdFormat.Leaderboard} eager />,
+    );
+
+    screen
+      .getByTestId('adsense-slot-2')
+      .appendChild(document.createElement('iframe'));
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    fireEvent.blur(window);
+
+    expect(loggedEvents()).not.toContain(AdActions.Click);
   });
 
   it('logs a push error when adsbygoogle rejects the request', () => {
