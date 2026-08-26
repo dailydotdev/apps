@@ -78,12 +78,14 @@ export const agentCommands: AgentCommand[] = [
   {
     name: 'schedule',
     label: 'Change cadence',
-    description: 'How often it runs on its own.',
+    description: 'How often it reports, or let it decide.',
     icon: TimerIcon,
     hint: '[how often]',
     ask: 'How often? Or send it as it is…',
     prompt: (args) =>
-      args ? `Run ${args} from now on` : 'How often are you running right now?',
+      args
+        ? `Report ${args} from now on`
+        : 'How often are you reporting right now?',
   },
   {
     name: 'why',

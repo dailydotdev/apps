@@ -75,7 +75,7 @@ export const AgentSettingsPane = ({
       <div className="agent-scroll min-h-0 flex-1 overflow-y-auto px-5 tablet:px-8 laptop:px-10">
         <FlexCol className="mx-auto w-full max-w-[45rem] pb-8">
           <CadenceSection
-            value={interest?.cadence ?? UserInterestCadence.Daily}
+            value={interest?.cadence ?? UserInterestCadence.Auto}
             disabled={isUpdating || isStopped}
             onChange={(cadence) => update({ cadence })}
           />
