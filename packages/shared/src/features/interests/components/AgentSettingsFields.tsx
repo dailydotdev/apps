@@ -13,6 +13,7 @@ import type { InterestOutputModes } from '../../../graphql/interests';
 import { UserInterestCadence } from '../../../graphql/interests';
 
 export const cadenceOptions = [
+  { value: UserInterestCadence.Auto, label: 'Whenever it matters' },
   { value: UserInterestCadence.Hourly, label: 'Every hour' },
   { value: UserInterestCadence.Daily, label: 'Every day' },
   { value: UserInterestCadence.Weekly, label: 'Every week' },
@@ -82,8 +83,8 @@ export const CadenceSection = ({
   onChange: (cadence: UserInterestCadence) => void;
 }): ReactElement => (
   <SettingsSection
-    title="When it runs"
-    hint="How often the agent goes hunting for new content."
+    title="When it reports"
+    hint="Whenever it matters lets the agent keep looking on its own and only reach out when it has something worth your time."
   >
     <Radio
       name="agent-cadence"
