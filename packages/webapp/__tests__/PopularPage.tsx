@@ -19,6 +19,17 @@ import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import { TestBootProvider } from '@dailydotdev/shared/__tests__/helpers/boot';
 import Popular from '../pages/popular';
 
+// Compiling the feed module graph takes seconds on a cold jest transform cache,
+// so both the compile in beforeAll and the render need more than the defaults.
+jest.setTimeout(30000);
+const feedTimeout = 5000;
+
+beforeAll(async () => {
+  // MainFeedLayout only reaches the page through next/dynamic, so without this
+  // its compile lands inside the first findBy* wait and eats the whole budget.
+  await import('@dailydotdev/shared/src/components/MainFeedLayout');
+});
+
 beforeEach(() => {
   jest.restoreAllMocks();
   jest.clearAllMocks();
@@ -86,6 +97,8 @@ it('should request anonymous popular feed', async () => {
     ],
     undefined,
   );
-  const elements = await screen.findAllByTestId('postItem');
+  const elements = await screen.findAllByTestId('postItem', undefined, {
+    timeout: feedTimeout,
+  });
   expect(elements.length).toBeTruthy();
 });
