@@ -9,6 +9,9 @@ import {
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { EditIcon, PlusIcon, TrashIcon } from '../../icons';
+import Link from '../../utilities/Link';
+import ConditionalWrapper from '../../ConditionalWrapper';
+import { webappUrl } from '../../../lib/constants';
 
 interface SourceStackItemProps {
   item: SourceStack;
@@ -25,6 +28,8 @@ export function SourceStackItem({
 }: SourceStackItemProps): ReactElement {
   const { tool } = item;
   const title = item.title ?? tool.title;
+  const isLinkable = !!tool.slug;
+  const toolUrl = `${webappUrl}tools/${tool.slug}`;
 
   return (
     <div
@@ -33,29 +38,40 @@ export function SourceStackItem({
         'hover:border-border-subtlest-secondary',
       )}
     >
-      <div className="flex items-center gap-2">
-        {tool.faviconUrl ? (
-          <img
-            src={tool.faviconUrl}
-            alt=""
-            className="rounded size-6 flex-shrink-0"
-          />
-        ) : (
-          <PlusIcon className="size-6 flex-shrink-0 text-text-tertiary" />
+      <ConditionalWrapper
+        condition={isLinkable}
+        wrapper={(children) => (
+          <Link href={toolUrl}>
+            <a href={toolUrl} className="flex min-w-0 items-center gap-2">
+              {children}
+            </a>
+          </Link>
         )}
-        {!!title && (
-          <div className="flex min-w-0 flex-1 flex-col">
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Primary}
-              bold
-              truncate
-            >
-              {title}
-            </Typography>
-          </div>
-        )}
-      </div>
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          {tool.faviconUrl ? (
+            <img
+              src={tool.faviconUrl}
+              alt=""
+              className="rounded size-6 flex-shrink-0"
+            />
+          ) : (
+            <PlusIcon className="size-6 flex-shrink-0 text-text-tertiary" />
+          )}
+          {!!title && (
+            <div className="flex min-w-0 flex-1 flex-col">
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Primary}
+                bold
+                truncate
+              >
+                {title}
+              </Typography>
+            </div>
+          )}
+        </div>
+      </ConditionalWrapper>
       {canEdit && (
         <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           {onEdit && (
