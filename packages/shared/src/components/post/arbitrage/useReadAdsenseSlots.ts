@@ -47,16 +47,21 @@ export const useReadAdsenseSlots = (): AdsenseSlots => {
  * The organic post page's units: only while the `post_adsense` flag is on,
  * and only for anonymous visitors — any logged-in user (member or Plus)
  * never sees programmatic ads on their post pages.
+ *
+ * `canRender` is the caller's own knowledge of whether its slots can appear
+ * at all — the post page passes false in the focus-card redesign arm, whose
+ * layout carries no slot markup.
  */
-export const useOrganicAdsenseSlots = (): AdsenseSlots => {
+export const useOrganicAdsenseSlots = (canRender = true): AdsenseSlots => {
   const isAnonymous = useIsAnonymous();
   // Conditional evaluation, because evaluating enrolls: a visitor who is
-  // logged in — or whose units have no AdSense id yet and so cannot render
-  // anything — would fill the experiment with byte-identical variants.
+  // logged in — or who cannot be shown a unit — would fill the experiment
+  // with byte-identical variants.
   const { value: enabled } = useConditionalFeature({
     feature: featurePostAdsense,
-    shouldEvaluate: isAnonymous && hasLiveAdsenseUnits(ORGANIC_ADSENSE_SLOTS),
+    shouldEvaluate:
+      canRender && isAnonymous && hasLiveAdsenseUnits(ORGANIC_ADSENSE_SLOTS),
   });
 
-  return enabled && isAnonymous ? ORGANIC_ADSENSE_SLOTS : NO_SLOTS;
+  return enabled && isAnonymous && canRender ? ORGANIC_ADSENSE_SLOTS : NO_SLOTS;
 };

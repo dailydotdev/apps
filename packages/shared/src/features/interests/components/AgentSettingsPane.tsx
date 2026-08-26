@@ -25,6 +25,7 @@ import { useAgent } from '../AgentContext';
 import {
   CadenceSection,
   FomoSection,
+  HistorySection,
   OutputModesSection,
   SettingsSection,
 } from './AgentSettingsFields';
@@ -89,6 +90,12 @@ export const AgentSettingsPane = ({
             value={interest?.outputModes}
             disabled={isUpdating}
             onChange={(outputModes) => update({ outputModes })}
+          />
+
+          <HistorySection
+            value={interest?.showHistory ?? true}
+            disabled={isUpdating}
+            onChange={(showHistory) => update({ showHistory })}
           />
 
           <SettingsSection
