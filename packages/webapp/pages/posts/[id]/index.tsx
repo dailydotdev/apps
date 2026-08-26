@@ -72,6 +72,7 @@ import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePo
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
+import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -80,7 +81,6 @@ import {
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
 import type { DynamicSeoProps } from '../../../components/common';
-import { noindexSeoProps } from '../../../next-seo';
 import useSharedByToast from '../../../hooks/useSharedByToast';
 import {
   getPostCanonicalUrl,
@@ -563,7 +563,7 @@ export async function getStaticProps({
         ...pageSeoTitles.openGraph,
         images: [
           {
-            url: `https://og.daily.dev/api/posts/${post?.id}`,
+            url: getShareImageUrl('posts', post?.id ?? ''),
             width: 1200,
             height: 630,
             alt: post?.title || 'Post cover image',
