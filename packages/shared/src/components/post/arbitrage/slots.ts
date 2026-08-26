@@ -10,27 +10,34 @@ import type { AdsenseSlots } from '../../../features/monetization/adsense';
 export const ARBITRAGE_SLOT = {
   /** Leaderboard above the article. Sticks while scrolling, then releases. */
   topLeaderboard: 2,
-  /** Medium rectangle beside the tags, date and cover image. */
-  inlineMpu1: 3,
-  /** Rail unit after the author card. */
-  railAfterCreator: 4,
-  /** Rail unit after the share bar. */
-  railAfterShare: 5,
-  /** Rail unit after the highlights widget. */
-  railAfterHighlights: 6,
-  /** Native unit, repeated through a long comment thread. */
-  commentNative: 7,
+  /** MPU repeated through a long comment thread. */
+  commentMpu: 7,
   /** "MPU 1" in the brief: first rail unit, under the source card. */
   railAfterSource: 11,
-  /** Sticky rail unit after the further reading widget. */
+  /** Second rail unit, after the further reading widget. */
   railBetweenFurtherReading: 12,
+  /** MPU repeated through the article body, one per BODY_CHARS_PER_AD. */
+  inBodyMpu: 17,
+  /** MPU directly above the comment section. */
+  aboveCommentsMpu: 18,
+  /** Half page closing the rail — the page's only sticky unit. */
+  railBottomSticky: 19,
+  /**
+   * The top leaderboard's phone twin: the same AdSense unit requested at a
+   * fixed 320x100. A responsive request can come back as expandable video,
+   * which inside the phone-sticky header block pinned half the screen; a
+   * fixed-size request can only return its exact size.
+   */
+  topLeaderboardPhone: 20,
 } as const;
 
 /*
- * Slot numbers 1, 8, 9, 10 and 13 are retired rather than reused: the sidebar
- * unit, the two closing multiplex grids, the half-page rail tower and the
- * custom floating leaderboard were all dropped, and their AdSense reporting
- * rows stay readable only while no other placement inherits the number.
+ * Slot numbers 1, 3, 4, 5, 6, 8, 9, 10 and 13 are retired rather than reused:
+ * the sidebar unit, the MPU beside the cover, the three extra rail units, the
+ * two closing multiplex grids, the half-page rail tower and the custom
+ * floating leaderboard were all dropped, and their AdSense reporting rows
+ * stay readable only while no other placement inherits the number. 15 and 16
+ * belong to the organic post page below.
  *
  * The bottom leaderboard is Google's Anchor format now, not a slot in this
  * map: a publisher-implemented sticky is capped at 300px wide and desktop
@@ -56,10 +63,29 @@ export const ARBITRAGE_SLOT = {
 export const TOP_LEADERBOARD_STICKY_MS = 10_000;
 
 /**
- * A long thread gets a native unit after every this many comments. Short
- * threads never reach the interval, so they stay entirely ad-free.
+ * A long thread gets an MPU each time this many comments have gone by —
+ * replies included, every comment counts (product call, Aug 25; interval
+ * revised 8 → 6 the same day). Short threads stay ad-free.
  */
-export const COMMENTS_PER_INTERLEAVED_AD = 5;
+export const COMMENTS_PER_INTERLEAVED_AD = 6;
+
+/**
+ * Visible characters of content between in-content MPUs — 250, per Nick's
+ * confirmed spec (characters, not words; re-confirmed Aug 25 after the
+ * words reading shipped first). At this cadence density is carried by
+ * MAX_CONTENT_ADS_PER_SECTION below, not by the interval.
+ */
+export const CONTENT_CHARS_PER_AD = 250;
+
+/**
+ * Hard cap per section (TLDR, body): 250 characters is ~3 lines of rendered
+ * text per 282px unit, so an uncapped long body would be a wall of ads —
+ * the exact shape the Better Ads 30% mobile cap and AdSense's low-value
+ * policy act on, both of which punish the whole domain. The balanced
+ * splitters spread the capped units evenly through the section instead of
+ * front-loading them.
+ */
+export const MAX_CONTENT_ADS_PER_SECTION = 4;
 
 /**
  * The AdSense units behind each slot, keyed by slot number. Deliberately in
@@ -75,37 +101,41 @@ export const COMMENTS_PER_INTERLEAVED_AD = 5;
  */
 export const READ_ADSENSE_SLOTS: AdsenseSlots = {
   [ARBITRAGE_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
-  // read_s03 (9651332107) is an in-article unit, so it is fluid: it ignored
-  // both the shape and an explicit 300x250 on the <ins> and kept answering the
-  // placement beside the cover with a card twice the cover's height. Pointing
-  // it at a responsive Display unit is what actually binds the shape — at the
-  // cost of blending its reporting with the rail unit it borrows.
-  // TODO(chris): create a dedicated read_s03 Display unit and swap the id back
-  // to get per-placement RPM.
-  [ARBITRAGE_SLOT.inlineMpu1]: { id: '6921226982', type: 'display' },
-  // TODO(chris): create the three new rail units (suggested names
-  // read_s04_rail_creator, read_s05_rail_share, read_s06_rail_highlights) as
-  // Display 300x250. They stay collapsed until their ids are filled in.
-  [ARBITRAGE_SLOT.railAfterCreator]: { id: '', type: 'display' },
-  [ARBITRAGE_SLOT.railAfterShare]: { id: '', type: 'display' },
-  [ARBITRAGE_SLOT.railAfterHighlights]: { id: '', type: 'display' },
-  // TODO(chris): layoutKey from the read_s07_comment_native "Get code" snippet
-  // (data-ad-layout-key). The slot stays collapsed until it is filled in.
+  [ARBITRAGE_SLOT.topLeaderboardPhone]: {
+    id: '9942870945',
+    type: 'display',
+    width: 320,
+    height: 100,
+  },
+  // The three MPU placements below share existing Display units while the
+  // dedicated ones don't exist: Google's per-unit reporting blends them, but
+  // our first-party events split by slot number, so per-placement RPM stays
+  // queryable in ClickHouse.
+  // TODO(chris): create dedicated Display units (read_s17_in_body,
+  // read_s18_above_comments) and swap the ids for clean AdSense-side rows.
   //
-  // PRECONDITIONS on filling this in — this comment is the gate, since the
-  // workflow is "ship reviewed once, switch on by editing this map":
-  // 1. Ad label: DONE in code — ProgrammaticAd renders the policy-permitted
-  //    "Advertisements" caption above every inFeed unit, so an unlabeled
-  //    native between comments cannot ship by omission.
-  // 2. Re-measure phone ad density on a long thread with the interval live.
-  //    The ~27% figure was measured with this slot inert, it is the only
-  //    repeating slot on the page, and Chrome's Better Ads filter applies to
-  //    the whole domain, direct-sold inventory included.
-  [ARBITRAGE_SLOT.commentNative]: { id: '', type: 'inFeed', layoutKey: '' },
+  // Phone density, the written gate the previous map kept slot 7 behind:
+  // - The comment MPU stays hideOnPhone in the template until a long-thread
+  //   phone measurement with the interval live says otherwise.
+  // - The in-content MPUs are phone-visible but capped: at the 250-char
+  //   cadence the interval no longer bounds density, so
+  //   MAX_CONTENT_ADS_PER_SECTION does — see its comment for the math.
+  [ARBITRAGE_SLOT.commentMpu]: { id: '6921226982', type: 'display' },
   [ARBITRAGE_SLOT.railAfterSource]: { id: '5249052667', type: 'display' },
   [ARBITRAGE_SLOT.railBetweenFurtherReading]: {
     id: '6921226982',
     type: 'display',
+  },
+  [ARBITRAGE_SLOT.inBodyMpu]: { id: '6921226982', type: 'display' },
+  [ARBITRAGE_SLOT.aboveCommentsMpu]: { id: '5249052667', type: 'display' },
+  // read_s10's fixed 300x600, back as the rail's closing unit. Compliant as a
+  // publisher sticky: 300px wide, desktop only, and the page's ONLY sticky —
+  // AdSense allows exactly one per viewport.
+  [ARBITRAGE_SLOT.railBottomSticky]: {
+    id: '4307400883',
+    type: 'display',
+    width: 300,
+    height: 600,
   },
 };
 
