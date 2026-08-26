@@ -505,13 +505,17 @@ export function ProgrammaticAd({
     <div
       ref={setWrapperRef}
       className={classNames(
-        // Centered on a lighter block, so the unit reads as a deliberate
-        // frame rather than a creative floating on the page background.
+        // A constant light island, deliberately NOT a theme token: display
+        // creatives are designed against light backgrounds, and on a dark
+        // page a white-bodied ad floating on the theme surface reads as a
+        // hole punched in the UI. The white card makes the unit an
+        // intentional object in both themes — the standard dark-mode ad
+        // treatment — without touching the visitor's theme.
         // Vertical padding only: these boxes are border-box, so horizontal
         // padding would shrink the usable width below the IAB cap the
         // FORMAT_SPEC widths exist to guarantee (300x250 no longer fits a
         // padded max-w-[300px]).
-        'mx-auto w-full rounded-8 bg-surface-float py-2 text-center',
+        'mx-auto w-full rounded-8 bg-white py-2 text-center',
         // AdSense stamps data-ad-status="unfilled" when no creative was
         // returned. Without collapsing, the reserved min-height stays behind as
         // a block of empty page — most visible in the comment thread, where an
@@ -530,8 +534,10 @@ export function ProgrammaticAd({
           "Advertisements" is one of the two label strings AdSense permits
           (a bare "Advertisement" is not). Inside the wrapper, so an unfilled
           slot's collapse takes the label down with it. */}
+      {/* Constant gray, not a theme token: the label sits on the card's
+          constant white, where a dark-theme quaternary would vanish. */}
       {isRequested && (
-        <span className="block pb-1 pr-1 text-right text-text-quaternary typo-caption2">
+        <span className="block pb-1 pr-1 text-right text-raw-pepper-10 typo-caption2">
           Advertisements
         </span>
       )}
