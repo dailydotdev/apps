@@ -10,15 +10,15 @@ export const ADSENSE_SCRIPT_SRC = `https://pagead2.googlesyndication.com/pagead/
  * few hundred ms in the whole chain.
  */
 /**
- * Hosts that serve paying creatives. Any other host — preview deployments,
- * local dev — requests test creatives via `data-adtest`. Not derived from
- * NEXT_PUBLIC_WEBAPP_URL: that is a relative `/` in production, which made
- * every live unit request test creatives and zeroed AdSense impressions.
+ * The only host that serves paying creatives. Any other host — preview
+ * deployments, local dev — requests test creatives via `data-adtest`. Not
+ * derived from NEXT_PUBLIC_WEBAPP_URL: that is a relative `/` in production,
+ * which made every live unit request test creatives and zeroed impressions.
  */
-export const ADSENSE_PRODUCTION_HOSTS = ['daily.dev', 'app.daily.dev'];
+export const ADSENSE_PRODUCTION_HOST = 'daily.dev';
 
 export const isAdsenseProductionHost = (hostname: string): boolean =>
-  ADSENSE_PRODUCTION_HOSTS.includes(hostname);
+  hostname === ADSENSE_PRODUCTION_HOST;
 
 export const ADSENSE_PRECONNECT_ORIGINS = [
   'https://pagead2.googlesyndication.com',
