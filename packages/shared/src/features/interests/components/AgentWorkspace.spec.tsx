@@ -450,7 +450,15 @@ describe('AgentWorkspace panel on a phone', () => {
 });
 
 describe('AgentWorkspace history window', () => {
-  beforeEach(() => jest.useRealTimers());
+  beforeEach(() => {
+    jest.useRealTimers();
+    HTMLElement.prototype.scrollIntoView = jest.fn();
+  });
+
+  afterEach(() => {
+    delete (HTMLElement.prototype as { scrollIntoView?: unknown })
+      .scrollIntoView;
+  });
 
   const turnAt = (id: string, at: string): InterestTurn =>
     ({
