@@ -17,11 +17,6 @@ export type AgentAttachment = {
   detail?: string;
 };
 
-export type AgentTurnHighlight = {
-  id: string;
-  isActive: boolean;
-};
-
 export type AgentMessage = {
   id: string;
   role: 'user' | 'agent';

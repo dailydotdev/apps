@@ -12,6 +12,13 @@ import { UploadCv } from '../components/UploadCv';
 import { useUploadCv } from '../../profile/hooks/useUploadCv';
 import { useActions } from '../../../hooks';
 import { ActionType } from '../../../graphql/actions';
+import { useJobsFeature } from '../../../hooks/useJobsFeature';
+
+const profileUploadCvCopy = {
+  headline: 'Autofill your profile with your CV',
+  description:
+    'Upload your CV to import your experience and skills into your profile.',
+};
 
 function FunnelUploadCvComponent({
   parameters,
@@ -20,6 +27,7 @@ function FunnelUploadCvComponent({
   const { user } = useAuthContext();
   // Shared with the paid funnel, which keeps its original chrome.
   const isOnboarding = useIsOnboardingFunnel();
+  const { isJobsEnabled } = useJobsFeature();
   const { onUpload, status, isSuccess } = useUploadCv({
     shouldOpenModal: false,
   });
@@ -27,6 +35,13 @@ function FunnelUploadCvComponent({
   if (!user) {
     return null;
   }
+
+  const uploadCvParameters = isJobsEnabled
+    ? parameters
+    : {
+        ...parameters,
+        ...profileUploadCvCopy,
+      };
 
   const handleComplete = () => {
     onTransition({
@@ -68,7 +83,7 @@ function FunnelUploadCvComponent({
         }
       >
         <UploadCv
-          {...parameters}
+          {...uploadCvParameters}
           isOnboarding={isOnboarding}
           onFilesDrop={([file]) => onUpload(file)}
           status={status}
@@ -97,6 +112,8 @@ export const FunnelUploadCv = withShouldSkipStepGuard(
       }
     }, [isActionsFetched, hasUploadedCv]);
 
-    return { shouldSkip };
+    return {
+      shouldSkip,
+    };
   },
 );
