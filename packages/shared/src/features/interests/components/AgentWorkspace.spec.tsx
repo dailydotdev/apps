@@ -45,9 +45,11 @@ type Agent = ReturnType<typeof useAgent>;
 const renderWorkspace = ({
   initialMessages = [],
   runId,
+  isFeedReady,
 }: {
   initialMessages?: AgentMessage[];
   runId?: string;
+  isFeedReady?: boolean;
 } = {}) => {
   const agent: { current: Agent } = { current: undefined as never };
 
@@ -57,21 +59,28 @@ const renderWorkspace = ({
     return null;
   };
 
-  render(
-    <TestBootProvider client={new QueryClient()}>
+  const client = new QueryClient();
+  const tree = (currentRunId?: string) => (
+    <TestBootProvider client={client}>
       <AgentProvider id="a1" isDemo initialMessages={initialMessages}>
         <AgentWorkspace
           items={[]}
           onDelete={jest.fn()}
           isDeleting={false}
-          runId={runId}
+          runId={currentRunId}
+          isFeedReady={isFeedReady}
         />
         <Probe />
       </AgentProvider>
-    </TestBootProvider>,
+    </TestBootProvider>
   );
 
-  return { agent };
+  const view = render(tree(runId));
+
+  return {
+    agent,
+    setRunId: (nextRunId?: string) => view.rerender(tree(nextRunId)),
+  };
 };
 
 const openPanel = async () => {
@@ -349,20 +358,22 @@ describe('AgentWorkspace run deep-link', () => {
       }),
     );
     expect(document.getElementById('agent-turn-run-1')).toHaveClass(
-      'border-accent-cabbage-default',
+      'agent-turn-flash',
     );
   });
 
-  it('drops the highlight tint after the fade delay', () => {
+  it('waits for the findings before scrolling', () => {
     jest.useFakeTimers();
     stubStore(600);
-    renderWorkspace({ initialMessages: [runReply], runId: 'run-1' });
+    renderWorkspace({
+      initialMessages: [runReply],
+      runId: 'run-1',
+      isFeedReady: false,
+    });
 
     act(() => jest.runOnlyPendingTimers());
 
-    expect(document.getElementById('agent-turn-run-1')).toHaveClass(
-      'border-transparent',
-    );
+    expect(scrollIntoView).not.toHaveBeenCalled();
     jest.useRealTimers();
   });
 
@@ -376,6 +387,44 @@ describe('AgentWorkspace run deep-link', () => {
     expect(scrollIntoView).not.toHaveBeenCalled();
     expect(document.getElementById('agent-turn-run-1')).toBeNull();
     jest.useRealTimers();
+  });
+
+  it('focuses again when history navigation swaps the target run', async () => {
+    stubStore(600);
+    const secondReply = { ...runReply, id: 'run-2' };
+    const { setRunId } = renderWorkspace({
+      initialMessages: [runReply, secondReply],
+      runId: 'run-1',
+    });
+
+    await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1));
+
+    setRunId('run-2');
+
+    await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(2));
+    expect(document.getElementById('agent-turn-run-2')).toHaveClass(
+      'agent-turn-flash',
+    );
+  });
+
+  it('re-focuses the same run after its id left and re-entered the url', async () => {
+    stubStore(600);
+    const { setRunId } = renderWorkspace({
+      initialMessages: [runReply],
+      runId: 'run-1',
+    });
+
+    await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(1));
+
+    setRunId(undefined);
+    expect(document.getElementById('agent-turn-run-1')).toBeNull();
+
+    setRunId('run-1');
+
+    await waitFor(() => expect(scrollIntoView).toHaveBeenCalledTimes(2));
+    expect(document.getElementById('agent-turn-run-1')).toHaveClass(
+      'agent-turn-flash',
+    );
   });
 });
 

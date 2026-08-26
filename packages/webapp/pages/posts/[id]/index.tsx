@@ -2,6 +2,17 @@ import type { ComponentType, CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import Script from 'next/script';
+import {
+  ArbitrageAdFormat,
+  ArbitrageAdSlot,
+} from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAdSlot';
+import {
+  ADSENSE_SCRIPT_SRC,
+  hasLiveAdsenseUnits,
+} from '@dailydotdev/shared/src/features/monetization/adsense';
+import { ORGANIC_SLOT } from '@dailydotdev/shared/src/components/post/arbitrage/slots';
+import { useOrganicAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -52,6 +63,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
+import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -62,7 +74,11 @@ import {
 import type { DynamicSeoProps } from '../../../components/common';
 import { noindexSeoProps } from '../../../next-seo';
 import useSharedByToast from '../../../hooks/useSharedByToast';
-import { getPostCanonicalUrl, shouldNoindexPost } from '../../../lib/seo';
+import {
+  getPostCanonicalUrl,
+  getPostMarkdownUrl,
+  shouldNoindexPost,
+} from '../../../lib/seo';
 
 const Unauthorized = dynamic(
   () =>
@@ -196,6 +212,13 @@ export const PostPage = ({
   const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
   const showRedesign =
     isRedesignEligible && !requiresClassicLayout && isRedesignFlagOn;
+  // Empty for every logged-in visitor and while post_adsense is off; the slot
+  // components check the same hook, so with it empty neither markup nor script
+  // exists. Gated on a unit id being present, not key presence — the map keeps
+  // placeholder entries with empty ids, and the script must not load for
+  // inventory that cannot fill.
+  const adsenseSlots = useOrganicAdsenseSlots();
+  const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -271,7 +294,31 @@ export const PostPage = ({
           <Head>
             <link rel="preload" as="image" href={post?.image} />
           </Head>
+          {adsenseActive && (
+            <>
+              <AdsenseHeadHints />
+              <Script
+                id="adsbygoogle-loader"
+                src={ADSENSE_SCRIPT_SRC}
+                strategy="afterInteractive"
+                crossOrigin="anonymous"
+              />
+            </>
+          )}
           <PostSEOSchema post={post} topComments={topComments} />
+          {/* Above the whole two-column container rather than inside the
+              article column: the classic and focus layouts differ inside, and
+              the unit must never render in post modals, which share those
+              components but not this page. */}
+          {!showRedesign && (
+            <ArbitrageAdSlot
+              surface="organic"
+              slot={ORGANIC_SLOT.topLeaderboard}
+              format={ArbitrageAdFormat.Leaderboard}
+              className="mx-auto mt-4 max-w-[69.25rem]"
+              eager
+            />
+          )}
           {showRedesign ? (
             <div className="mx-auto w-full max-w-[63.75rem]">
               <PostFocusCard post={post} origin={Origin.ArticlePage} />
@@ -286,6 +333,17 @@ export const PostPage = ({
               shouldOnboardAuthor={!!router.query?.author}
               origin={Origin.ArticlePage}
               isBannerVisible={shouldShowAuthBanner && !isLaptop}
+              widgetsTrailing={
+                <ArbitrageAdSlot
+                  surface="organic"
+                  slot={ORGANIC_SLOT.railHalfPage}
+                  format={ArbitrageAdFormat.HalfPage}
+                  // The offset MainLayout publishes for this page's actual
+                  // chrome, plus a gap — a hardcoded 5rem is wrong whenever a
+                  // top banner adds 2rem above the header.
+                  className="laptop:sticky laptop:top-[calc(var(--sticky-header-offset)+1rem)]"
+                />
+              }
               className={{
                 container: containerClass,
                 fixedNavigation: { container: 'flex laptop:hidden' },
@@ -341,11 +399,22 @@ export async function getStaticProps({
     const post = initialData.post as Post;
     const topComments = commentsData.topComments || [];
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
+    const noindex = shouldNoindexPost(post);
     const seo: NextSeoProps = {
       canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
-      noindex: shouldNoindexPost(post),
+      noindex,
+      additionalLinkTags:
+        post && !noindex
+          ? [
+              {
+                rel: 'alternate',
+                type: 'text/markdown',
+                href: getPostMarkdownUrl({ post }),
+              },
+            ]
+          : undefined,
       openGraph: {
         ...pageSeoTitles.openGraph,
         images: [

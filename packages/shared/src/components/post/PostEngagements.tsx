@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { Post } from '../../graphql/posts';
@@ -50,6 +50,9 @@ interface PostEngagementsProps {
   logOrigin: PostOrigin;
   shouldOnboardAuthor?: boolean;
   onCopyLinkClick?: (post?: Post) => void;
+  /** Ad templates break a long thread up — see PostComments. */
+  interleaveEvery?: number;
+  renderInterleaved?: (occurrence: number) => ReactNode;
 }
 
 function PostEngagements({
@@ -57,6 +60,8 @@ function PostEngagements({
   onCopyLinkClick,
   logOrigin,
   shouldOnboardAuthor,
+  interleaveEvery,
+  renderInterleaved,
 }: PostEngagementsProps): ReactElement {
   const { completeAction } = useActions();
   const postQueryKey = ['post', post.id];
@@ -172,6 +177,8 @@ function PostEngagements({
         post={post}
         sortBy={sortBy}
         origin={logOrigin}
+        interleaveEvery={interleaveEvery}
+        renderInterleaved={renderInterleaved}
         isComposerOpen={isComposerOpen}
         onShare={(comment) => openShareComment(comment, post)}
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}

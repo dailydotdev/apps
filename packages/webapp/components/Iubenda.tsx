@@ -8,6 +8,7 @@ import {
 } from '@dailydotdev/shared/src/hooks/useCookieBanner';
 import { useConsentCookie } from '@dailydotdev/shared/src/hooks/useCookieConsent';
 import { isIOSNative } from '@dailydotdev/shared/src/lib/func';
+import { requiresCertifiedCmp } from '@dailydotdev/shared/src/lib/geo';
 import { iubendaLocalizedPolicyIds } from '@dailydotdev/shared/src/lib/iubenda';
 import { startTcfSubscription } from '@dailydotdev/shared/src/lib/tcf';
 import { enhanceIubendaBannerNow, watchIubendaBanner } from './iubendaBanner';
@@ -68,11 +69,29 @@ const readMarketingConsent = (pref: IubendaPreference): boolean => {
 
 // The consent-sync call comes first and the TCF stub before anything that
 // could query `window.__tcfapi`, mirroring iubenda's dashboard snippet.
-const getIubendaScripts = (siteId: string): string[] => [
+//
+// The TCF pair loads only for GDPR-covered visitors: Google's ad tags hold
+// every ad request on any page where `__tcfapi` exists until the CMP delivers
+// a terminal answer, which iubenda only does once the banner is actioned — so
+// a worldwide stub gated ads on consent in countries where no consent is
+// required (and where Google itself requires no CMP). Outside GDPR scope the
+// banner still shows and records preferences; ads just don't wait for it.
+// The GPP stub is scoped the same way for the same reason: `window.__gpp` is
+// another consent API Google's tags can wait on, and the US state laws it
+// carries (enableUspr) apply to US visitors only.
+const getIubendaScripts = (
+  siteId: string,
+  withTcf: boolean,
+  withGpp: boolean,
+): string[] => [
   `https://cs.iubenda.com/sync/${siteId}.js`,
-  'https://cdn.iubenda.com/cs/tcf/stub-v2.js',
-  'https://cdn.iubenda.com/cs/tcf/safe-tcf-v2.js',
-  'https://cdn.iubenda.com/cs/gpp/stub.js',
+  ...(withTcf
+    ? [
+        'https://cdn.iubenda.com/cs/tcf/stub-v2.js',
+        'https://cdn.iubenda.com/cs/tcf/safe-tcf-v2.js',
+      ]
+    : []),
+  ...(withGpp ? ['https://cdn.iubenda.com/cs/gpp/stub.js'] : []),
   'https://cdn.iubenda.com/cs/iubenda_cs.js',
 ];
 
@@ -88,8 +107,18 @@ export const openIubendaPreferences = (): boolean => {
 };
 
 export const Iubenda = (): ReactElement | null => {
-  const { isAuthReady, isFunnel } = useAuthContext();
+  const { isAuthReady, isFunnel, geo } = useAuthContext();
   const { saveCookies } = useConsentCookie(GdprConsentKey.Necessary);
+  // Google's certified-CMP mandate covers the EEA, the UK and Switzerland —
+  // not "everywhere we haven't listed". checkIfGdprCovered counts the whole
+  // world minus US/IL as covered, which is deliberately conservative for
+  // pixels and banner copy but wrong for gating ad delivery: it held ads
+  // hostage to the banner in South Africa. The scope is an explicit country
+  // list rather than a continent: the EU's outermost regions live on other
+  // continents and continental Europe overshoots the mandate. Unknown geo
+  // keeps the full treatment.
+  const withTcf = requiresCertifiedCmp(geo?.region);
+  const withGpp = !geo?.region || geo.region === 'US';
 
   // The config callback must not go stale when React re-renders.
   const onPreferenceRef = useRef<(pref: IubendaPreference | null) => void>();
@@ -142,11 +171,14 @@ export const Iubenda = (): ReactElement | null => {
       cookiePolicyInOtherWindow: true,
       countryDetection: true,
       enableLgpd: true,
-      enableTcf: true,
-      enableUspr: true,
+      enableTcf: withTcf,
+      // Scoped with its stub: a framework enabled without the __gpp stub
+      // answers no one, and US privacy signals mean nothing elsewhere.
+      enableUspr: withGpp,
       gdprAppliesGlobally: false,
-      googleAdditionalConsentMode: true,
+      googleAdditionalConsentMode: withTcf,
       inlineDelay: 100,
+      lgpdAppliesGlobally: false,
       perPurposeConsent: true,
       siteId: Number(siteId),
       tcfPurposes: {
@@ -221,7 +253,7 @@ export const Iubenda = (): ReactElement | null => {
       ),
     };
 
-    getIubendaScripts(siteId).forEach((src) => {
+    getIubendaScripts(siteId, withTcf, withGpp).forEach((src) => {
       const script = document.createElement('script');
       script.src = src;
       // dynamically injected scripts default to async; force in-order
@@ -236,7 +268,7 @@ export const Iubenda = (): ReactElement | null => {
     });
 
     return watchIubendaBanner();
-  }, [enabled]);
+  }, [enabled, withTcf, withGpp]);
 
   return null;
 };
