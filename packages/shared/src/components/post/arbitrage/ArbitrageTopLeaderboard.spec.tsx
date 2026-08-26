@@ -53,6 +53,16 @@ describe('ArbitrageTopLeaderboard', () => {
 
     expect(isPinned(container)).toBe(false);
   });
+
+  it('owns its release window when no released prop is passed', () => {
+    const { container } = render(<ArbitrageTopLeaderboard />);
+    expect(isPinned(container)).toBe(true);
+
+    scroll();
+    advancePastStickyWindow();
+
+    expect(isPinned(container)).toBe(false);
+  });
 });
 
 describe('useTimedRelease', () => {

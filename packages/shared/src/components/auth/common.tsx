@@ -96,6 +96,11 @@ export const actionToAuthDisplay: Record<OnboardingActions, AuthDisplay> = {
   [OnboardingActions.VerifyEmail]: AuthDisplay.EmailVerification,
 } as const;
 
+/** Signup-wall treatment. Both values imply the split-column geometry and
+ * then differ in copy and CTA hierarchy. One name rather than independent
+ * booleans, so a caller cannot ask for a hierarchy without its geometry. */
+export type SignupStyle = 'splitCreateAccount' | 'singlePrimary';
+
 export interface AuthProps {
   isAuthenticating: boolean;
   isLoginFlow: boolean;
@@ -130,8 +135,7 @@ export interface AuthOptionsProps {
   onboardingSignupButton?: ButtonProps<'button'>;
   hideLoginLink?: boolean;
   compact?: boolean;
-  /** X-style split onboarding: "Sign up with", "Create account", Sign in button */
-  splitSignupStyle?: boolean;
+  signupStyle?: SignupStyle;
   /** Order GitHub before Google in the OAuth provider list (developer-first). */
   preferGithub?: boolean;
   autoTriggerProvider?: string;
