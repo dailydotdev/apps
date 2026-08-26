@@ -1,14 +1,13 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { AdActions } from '../../lib/ads';
 import { useViewability } from './useViewability';
 import { viewabilityLogExtra } from './viewability';
 import type { AdsenseSlotConfig } from './adsense';
-import { ADSENSE_CLIENT_ID } from './adsense';
+import { ADSENSE_CLIENT_ID, isAdsenseProductionHost } from './adsense';
 
 // Module-level, not per-slot: one warning per page load says everything.
 let hasLoggedTestMode = false;
@@ -363,19 +362,13 @@ export function ProgrammaticAd({
       return undefined;
     }
 
-    // Any host but the canonical production one serves test creatives.
-    // Preview deployments are production *builds*, so a build-time flag
-    // can't make this call — it has to happen here, before the request.
-    let productionHost = '';
-    try {
-      productionHost = new URL(webappUrl).hostname;
-    } catch {
-      // Fail-safe: unset/relative webappUrl means test creatives too.
-    }
-    if (productionHost !== window.location.hostname) {
+    // Any host but the production ones serves test creatives. Preview
+    // deployments are production *builds*, so a build-time flag can't make
+    // this call — it has to happen here, before the request.
+    if (!isAdsenseProductionHost(window.location.hostname)) {
       element.setAttribute('data-adtest', 'on');
       // Test mode pays nothing, so it engaging where it should not — a
-      // misconfigured webappUrl in production — must be visible in telemetry
+      // production host missing from the list — must be visible in telemetry
       // rather than silently zeroing revenue. Once per page is enough.
       if (!hasLoggedTestMode) {
         hasLoggedTestMode = true;
