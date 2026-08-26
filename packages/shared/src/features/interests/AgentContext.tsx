@@ -113,6 +113,7 @@ type AgentContextValue = {
   isUpdating: boolean;
   activity: AgentActivityItem[];
   messages: AgentMessage[];
+  historyUpdatedAt: number;
   isRunView: boolean;
   isOldRunView: boolean;
   leaveRunView: () => void;
@@ -835,6 +836,7 @@ export const AgentProvider = ({
       isUpdating,
       activity,
       messages,
+      historyUpdatedAt: historyQuery.dataUpdatedAt,
       isRunView,
       isOldRunView,
       leaveRunView,
@@ -868,6 +870,7 @@ export const AgentProvider = ({
       reconcilePostTarget,
       activity,
       messages,
+      historyQuery.dataUpdatedAt,
       isRunView,
       isOldRunView,
       leaveRunView,

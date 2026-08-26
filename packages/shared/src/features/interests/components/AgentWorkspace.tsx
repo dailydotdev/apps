@@ -49,6 +49,7 @@ export const AgentWorkspace = ({
     openContent,
     messages,
     summaryPosts,
+    historyUpdatedAt,
     isRunView,
     isHistoryLimited,
   } = useAgent();
@@ -160,25 +161,24 @@ export const AgentWorkspace = ({
     const wasRunView = wasRunViewRef.current;
     wasRunViewRef.current = isRunView;
 
-    if (!wasRunView || isRunView) {
-      return undefined;
+    if (isRunView) {
+      return;
     }
 
-    isPinnedRef.current = true;
+    if (wasRunView) {
+      isPinnedRef.current = true;
+    }
+
+    const transcript = transcriptRef.current;
+
+    if (!isPinnedRef.current || !transcript) {
+      return;
+    }
+
+    transcript.scrollTop = transcript.scrollHeight;
     setIsAwayFromBottom(false);
-
-    return followTail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRunView]);
-
-  useEffect(() => {
-    if (!isFeedReady || !isPinnedRef.current) {
-      return undefined;
-    }
-
-    return followTail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFeedReady]);
+    setHasUnseenReply(false);
+  }, [historyUpdatedAt, isRunView]);
 
   const latestMessage = messages[messages.length - 1];
   const isLatestStale =

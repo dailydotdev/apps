@@ -83,7 +83,7 @@ const LiveAgentPage = ({
         isDemo={false}
         runId={runId}
         onLeaveRunView={() =>
-          router.replace(
+          router.push(
             { pathname: router.pathname, query: { id } },
             undefined,
             { shallow: true },
