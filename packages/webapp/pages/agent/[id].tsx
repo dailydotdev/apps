@@ -83,11 +83,9 @@ const LiveAgentPage = ({
         isDemo={false}
         runId={runId}
         onLeaveRunView={() =>
-          router.push(
-            { pathname: router.pathname, query: { id } },
-            undefined,
-            { shallow: true },
-          )
+          router.push({ pathname: router.pathname, query: { id } }, undefined, {
+            shallow: true,
+          })
         }
         findings={feed.items}
         posts={posts}
