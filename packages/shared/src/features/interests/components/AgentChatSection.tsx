@@ -381,6 +381,7 @@ const MessageRow = ({
   onPostLinkClick,
   activePostId,
   focusedRunId,
+  onFocusRun,
 }: {
   message: AgentMessage;
   onPostClick: (post: Post) => void;
@@ -388,8 +389,16 @@ const MessageRow = ({
   onPostLinkClick: (postId: string) => void;
   activePostId?: string;
   focusedRunId?: string;
+  onFocusRun?: (turnId: string) => void;
 }): ReactElement => {
   const isHighlightTarget = !!focusedRunId && focusedRunId === message.id;
+
+  useEffect(() => {
+    if (isHighlightTarget) {
+      onFocusRun?.(message.id);
+    }
+  }, [isHighlightTarget, message.id, onFocusRun]);
+
   if (message.role === 'user') {
     return (
       <FlexCol className="agent-turn-in items-end gap-1">
@@ -457,8 +466,10 @@ const MessageRow = ({
 
 export const AgentChatSection = ({
   focusedRunId,
+  onFocusRun,
 }: {
   focusedRunId?: string;
+  onFocusRun?: (turnId: string) => void;
 }): ReactElement => {
   const {
     messages,
@@ -477,6 +488,7 @@ export const AgentChatSection = ({
           key={message.id}
           message={message}
           focusedRunId={focusedRunId}
+          onFocusRun={onFocusRun}
           onPostClick={(post) =>
             openContentTarget({ type: 'post', postId: post.id, post })
           }

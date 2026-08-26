@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { FlexCol } from '../../../components/utilities';
 import {
@@ -97,20 +97,57 @@ export const AgentWorkspace = ({
     return () => cancelAnimationFrame(frame);
   };
 
+  const focusedRunIdRef = useRef<string>();
+  // Render-time read: in the commit where the target row mounts and scrolls
+  // itself, the tail effects below must stand down or they yank the transcript
+  // back to the bottom. A runId with no matching turn never counts as pending,
+  // or a stale link would disable tail-following for good.
+  const isFocusPending =
+    !!runId &&
+    focusedRunIdRef.current !== runId &&
+    messages.some(({ id }) => id === runId);
+
+  // Leaving the runId URL re-arms the target, so returning to it via history
+  // focuses again.
+  useEffect(() => {
+    if (!runId) {
+      focusedRunIdRef.current = undefined;
+    }
+  }, [runId]);
+
+  const onFocusRun = useCallback((turnId: string) => {
+    if (focusedRunIdRef.current === turnId) {
+      return;
+    }
+
+    focusedRunIdRef.current = turnId;
+    document
+      .getElementById(`agent-turn-${turnId}`)
+      ?.scrollIntoView({ block: 'center', inline: 'nearest' });
+    isPinnedRef.current = false;
+    setIsAwayFromBottom(true);
+  }, []);
+
   // The transcript only grows when the reader sends a prompt (a reply resolves
   // the turn already there), so growth re-pins unconditionally.
   useEffect(() => {
+    if (isFocusPending) {
+      return undefined;
+    }
+
     isPinnedRef.current = true;
     setIsAwayFromBottom(false);
     setHasUnseenReply(false);
 
     return followTail();
+    // Growth is the trigger; a pending focus only stands the effect down.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length]);
 
   const isTailPending = !!messages.at(-1)?.isPending;
 
   useEffect(() => {
-    if (isTailPending || !messages.length) {
+    if (isFocusPending || isTailPending || !messages.length) {
       return undefined;
     }
 
@@ -124,38 +161,6 @@ export const AgentWorkspace = ({
     // The reply landing is the trigger; the length is the other effect's.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isTailPending]);
-
-  // Tracks WHICH run was focused, not whether one ever was: back/forward
-  // navigation swaps `runId` without remounting the workspace, and a boolean
-  // guard silenced every focus after the first.
-  const focusedRunIdRef = useRef<string>();
-  const hasFocusTarget =
-    !!runId && isFeedReady && messages.some(({ id }) => id === runId);
-
-  useEffect(() => {
-    if (!runId) {
-      // Leaving the runId URL re-arms the target, so returning to it via
-      // history focuses again.
-      focusedRunIdRef.current = undefined;
-
-      return undefined;
-    }
-
-    if (!hasFocusTarget || focusedRunIdRef.current === runId) {
-      return undefined;
-    }
-
-    focusedRunIdRef.current = runId;
-    const frame = requestAnimationFrame(() => {
-      document
-        .getElementById(`agent-turn-${runId}`)
-        ?.scrollIntoView({ block: 'center', inline: 'nearest' });
-      isPinnedRef.current = false;
-      setIsAwayFromBottom(true);
-    });
-
-    return () => cancelAnimationFrame(frame);
-  }, [hasFocusTarget, runId]);
 
   useEffect(() => {
     const measure = () => {
@@ -232,7 +237,8 @@ export const AgentWorkspace = ({
                     postsCount={summaryPosts.length}
                   />
                   <AgentChatSection
-                    focusedRunId={hasFocusTarget ? runId : undefined}
+                    focusedRunId={isFeedReady ? runId : undefined}
+                    onFocusRun={onFocusRun}
                   />
                 </FlexCol>
               </div>

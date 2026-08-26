@@ -300,7 +300,7 @@ export const featureCardImpressions = new Feature('card_impressions', false);
 
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
-export const featureInterestAgent = new Feature('interest_agent', true);
+export const featureInterestAgent = new Feature('interest_agent', false);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
