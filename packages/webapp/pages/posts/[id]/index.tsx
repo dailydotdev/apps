@@ -64,7 +64,7 @@ import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePo
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
 import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
-import { getShareImageUrl } from '../../../next-seo';
+import { getShareImageUrl, noindexSeoProps } from '../../../next-seo';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -73,7 +73,6 @@ import {
   PostSEOSchema,
 } from '../../../components/PostSEOSchema';
 import type { DynamicSeoProps } from '../../../components/common';
-import { noindexSeoProps } from '../../../next-seo';
 import useSharedByToast from '../../../hooks/useSharedByToast';
 import {
   getPostCanonicalUrl,
