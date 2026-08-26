@@ -61,6 +61,10 @@ import CustomAuthBanner from '@dailydotdev/shared/src/components/auth/CustomAuth
 import { isSourceUserSource } from '@dailydotdev/shared/src/graphql/sources';
 import { usePostReferrerContext } from '@dailydotdev/shared/src/contexts/PostReferrerContext';
 import { ActivePostContextProvider } from '@dailydotdev/shared/src/contexts/ActivePostContext';
+import {
+  ThemeMode,
+  useSettingsContext,
+} from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { LogExtraContextProvider } from '@dailydotdev/shared/src/contexts/LogExtraContext';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
@@ -246,6 +250,23 @@ export const PostPage = ({
   // inventory that cannot fill.
   const adsenseSlots = useOrganicAdsenseSlots(!showRedesign);
   const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
+  const { applyThemeMode } = useSettingsContext();
+
+  // Same light forcing the /articles template ships, but only for visitors
+  // actually enrolled in the ad treatment — the partner's creatives are
+  // designed against light pages. Display-only: the stored preference is
+  // untouched and restored on leave. The flip lands ~half a second after
+  // first paint (the flag resolves with boot), a color-only flash with no
+  // layout shift — the same trade /articles already makes.
+  useEffect(() => {
+    if (!adsenseActive) {
+      return undefined;
+    }
+    applyThemeMode(ThemeMode.Light);
+    return () => {
+      applyThemeMode();
+    };
+  }, [adsenseActive, applyThemeMode]);
   // The same in-content treatment the /articles template ships, reused on
   // the organic page: the TLDR splits at the shared cadence with an MPU
   // between segments (phones keep only the first), an MPU sits above the
