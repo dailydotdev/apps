@@ -147,19 +147,34 @@ export const READ_ADSENSE_SLOTS: AdsenseSlots = {
 export const ORGANIC_SLOT = {
   /** Leaderboard above the post content, spanning the page column. */
   topLeaderboard: 15,
-  /** Half page closing the widget column, sticky for the rest of the read. */
-  railHalfPage: 16,
+  /** Rail unit below the direct-sold ad widget. */
+  railAfterDirectAd: 16,
+  /** The organic leaderboard's fixed 320x100 phone twin — see slot 20. */
+  topLeaderboardPhone: 21,
+  /** MPU repeated through the TLDR, same cadence as the articles page. */
+  inContentMpu: 22,
+  /** MPU directly above the comment section. */
+  aboveCommentsMpu: 23,
+  /** MPU through a long thread, every COMMENTS_PER_INTERLEAVED_AD. */
+  commentMpu: 24,
 } as const;
 
-// TODO(chris): create the two organic units in AdSense (suggested names
-// post_s15_top_leaderboard, post_s16_rail_half_page) and fill in the ids.
-// Both slots stay collapsed until then.
+// Borrowed /read units so the placements serve before their own exist;
+// their reporting blends with the /read rows meanwhile.
+// TODO(chris): create post_s15_top_leaderboard and post_s16_rail_mpu
+// (Display 300x250) in AdSense and swap the ids for per-placement RPM.
 export const ORGANIC_ADSENSE_SLOTS: AdsenseSlots = {
-  [ORGANIC_SLOT.topLeaderboard]: { id: '', type: 'display' },
-  [ORGANIC_SLOT.railHalfPage]: {
-    id: '',
+  [ORGANIC_SLOT.topLeaderboard]: { id: '9942870945', type: 'display' },
+  [ORGANIC_SLOT.topLeaderboardPhone]: {
+    id: '9942870945',
     type: 'display',
-    width: 300,
-    height: 600,
+    width: 320,
+    height: 100,
   },
+  [ORGANIC_SLOT.railAfterDirectAd]: { id: '6921226982', type: 'display' },
+  // Shared units, same trade as the articles map: Google's per-unit rows
+  // blend, first-party events split by slot number.
+  [ORGANIC_SLOT.inContentMpu]: { id: '6921226982', type: 'display' },
+  [ORGANIC_SLOT.aboveCommentsMpu]: { id: '5249052667', type: 'display' },
+  [ORGANIC_SLOT.commentMpu]: { id: '6921226982', type: 'display' },
 };
