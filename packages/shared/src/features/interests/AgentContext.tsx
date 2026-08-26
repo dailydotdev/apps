@@ -23,7 +23,11 @@ import { useSendInterestCommand } from './hooks/useSendInterestCommand';
 import { useUpdateInterest } from './hooks/useUpdateInterest';
 import { useToastNotification } from '../../hooks/useToastNotification';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { interestHistoryQueryOptions } from './queries';
+import {
+  historyPageSize,
+  interestHistoryQueryOptions,
+  interestRunQueryOptions,
+} from './queries';
 import { generateQueryKey, RequestKey } from '../../lib/query';
 import type { Post } from '../../graphql/posts';
 import type { AgentAttachment, AgentBlock, AgentMessage } from './chat';
@@ -109,6 +113,12 @@ type AgentContextValue = {
   isUpdating: boolean;
   activity: AgentActivityItem[];
   messages: AgentMessage[];
+  isHistoryPending: boolean;
+  isRunView: boolean;
+  isOldRunView: boolean;
+  leaveRunView: () => void;
+  isHistoryLimited: boolean;
+  showEarlier: () => void;
   findingsPosts: Post[];
   summaryPosts: AgentSummaryPost[];
   isSettingsOpen: boolean;
@@ -274,6 +284,8 @@ export const AgentProvider = ({
   id,
   interest,
   isDemo,
+  runId,
+  onLeaveRunView,
   initialMessages = [],
   findings = [],
   posts = [],
@@ -282,6 +294,8 @@ export const AgentProvider = ({
   id: string;
   interest?: UserInterest;
   isDemo: boolean;
+  runId?: string;
+  onLeaveRunView?: () => void;
   initialMessages?: AgentMessage[];
   findings?: AgentFeedItem[];
   posts?: AgentSummaryPost[];
@@ -335,17 +349,49 @@ export const AgentProvider = ({
   // A sent echo also keeps the poll alive: its queued run may not be visible on
   // the replica yet, and without polling it would stay pending forever.
   const hasSentEcho = echoes.some((echo) => echo.state === 'sent');
+  const [historyLastOverride, setHistoryLastOverride] = useState<number>();
+  const historyLast =
+    historyLastOverride ??
+    (interest?.showHistory === false ? 1 : historyPageSize);
+  const isHistoryEnabled = !isDemo && !!user?.id && !!id && !!interest;
   const historyQuery = useQuery({
-    ...interestHistoryQueryOptions(id, user),
-    enabled: !isDemo && !!user?.id && !!id,
+    ...interestHistoryQueryOptions(id, user, historyLast),
+    enabled: isHistoryEnabled,
     refetchInterval: (query) =>
-      query.state.data?.some(isRunPending) || hasSentEcho
+      query.state.data?.edges.some(({ node }) => isRunPending(node)) ||
+      hasSentEcho
         ? pendingPollMs
         : false,
   });
-  const turns = useMemo(
-    () => (isDemo ? [] : historyQuery.data ?? []),
+  const runQuery = useQuery({
+    ...interestRunQueryOptions(id, runId ?? '', user),
+    enabled: isHistoryEnabled && !!runId,
+  });
+  const historyTurns = useMemo(
+    () =>
+      isDemo ? [] : (historyQuery.data?.edges ?? []).map(({ node }) => node),
     [historyQuery.data, isDemo],
+  );
+  const isRunView = !!runId && !runQuery.isError;
+  const turns = useMemo(() => {
+    if (!isRunView) {
+      return historyTurns;
+    }
+
+    return runQuery.data ? [runQuery.data] : [];
+  }, [historyTurns, isRunView, runQuery.data]);
+  const latestRunId = historyTurns
+    .filter(({ role }) => role === 'agent')
+    .map(({ id: turnId }) => turnId)
+    .pop();
+  const isOldRunView = isRunView && !!latestRunId && latestRunId !== runId;
+  const isHistoryLimited = !isRunView && historyLast === 1;
+  const leaveRunView = useCallback(() => {
+    onLeaveRunView?.();
+  }, [onLeaveRunView]);
+  const showEarlier = useCallback(
+    () => setHistoryLastOverride(historyPageSize),
+    [],
   );
 
   const { postsById, allPosts } = useMemo(() => {
@@ -355,8 +401,8 @@ export const AgentProvider = ({
   }, [findings]);
 
   const unresolvedEchoes = useMemo(
-    () => echoes.filter((echo) => !echoResolved(echo, turns)),
-    [echoes, turns],
+    () => echoes.filter((echo) => !echoResolved(echo, historyTurns)),
+    [echoes, historyTurns],
   );
 
   // Resolved echoes exist in the server history now; holding them longer would
@@ -467,7 +513,7 @@ export const AgentProvider = ({
     );
   }, [findings, isDemo, turns]);
 
-  const serverPending = turns.some(isRunPending);
+  const serverPending = historyTurns.some(isRunPending);
   const echoPending = unresolvedEchoes.some((echo) => echo.state !== 'error');
   const isWorking = isDemo
     ? !!workingMeta && workingRef.current
@@ -790,6 +836,12 @@ export const AgentProvider = ({
       isUpdating,
       activity,
       messages,
+      isHistoryPending: historyQuery.isPending,
+      isRunView,
+      isOldRunView,
+      leaveRunView,
+      isHistoryLimited,
+      showEarlier,
       findingsPosts: allPosts,
       summaryPosts: posts,
       isSettingsOpen,
@@ -818,6 +870,12 @@ export const AgentProvider = ({
       reconcilePostTarget,
       activity,
       messages,
+      historyQuery.isPending,
+      isRunView,
+      isOldRunView,
+      leaveRunView,
+      isHistoryLimited,
+      showEarlier,
       allPosts,
       posts,
       id,
