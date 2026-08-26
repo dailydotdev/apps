@@ -49,7 +49,7 @@ export const AgentWorkspace = ({
     openContent,
     messages,
     summaryPosts,
-    historyUpdatedAt,
+    isHistoryPending,
     isRunView,
     isHistoryLimited,
   } = useAgent();
@@ -155,30 +155,18 @@ export const AgentWorkspace = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length]);
 
-  const wasRunViewRef = useRef(isRunView);
-
   useEffect(() => {
-    const wasRunView = wasRunViewRef.current;
-    wasRunViewRef.current = isRunView;
-
-    if (isRunView) {
-      return;
-    }
-
-    if (wasRunView) {
-      isPinnedRef.current = true;
-    }
-
     const transcript = transcriptRef.current;
 
-    if (!isPinnedRef.current || !transcript) {
+    if (isRunView || isHistoryPending || !transcript) {
       return;
     }
 
     transcript.scrollTop = transcript.scrollHeight;
+    isPinnedRef.current = true;
     setIsAwayFromBottom(false);
     setHasUnseenReply(false);
-  }, [historyUpdatedAt, isRunView]);
+  }, [isHistoryPending, isRunView]);
 
   const latestMessage = messages[messages.length - 1];
   const isLatestStale =
