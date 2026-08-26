@@ -54,6 +54,7 @@ import { ContentPreferenceType } from '../../../graphql/contentPreference';
 import { PostSidebarAdWidget } from '../PostSidebarAdWidget';
 import { PostMenuOptions } from '../PostMenuOptions';
 import { PostAnsweredQuestions } from '../PostAnsweredQuestions';
+import { withPostById } from '../withPostById';
 import { FocusCardActionBar } from './FocusCardActionBar';
 import { PostDiscussionPanel } from './PostDiscussionPanel';
 import { CollectionSources } from './CollectionSources';
@@ -216,7 +217,7 @@ const VideoSummary = ({ summary }: { summary: string }): ReactElement => {
   );
 };
 
-export const PostFocusCard = ({
+const PostFocusCardRaw = ({
   post,
   origin,
   leftVariant,
@@ -264,14 +265,11 @@ export const PostFocusCard = ({
     feature: featureCommunitySentiment,
     shouldEvaluate: !!communitySentimentData,
   });
-  // Only on the full post page, not the preview modal (which passes
-  // `onClose`), and only when the post actually has a take. `isDevelopment`
-  // lets the surface be previewed locally without flipping the committed
-  // (always-`false`) flag default.
+  // Only when the post actually has a take. `isDevelopment` lets the surface be
+  // previewed locally without flipping the committed (always-`false`) flag
+  // default.
   const showCommunitySentiment =
-    !onClose &&
-    !!communitySentimentData &&
-    (communitySentimentEnabled || isDevelopment);
+    !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
   const focusCommentRef = useRef<() => void>(() => {});
   const discussionRef = useRef<HTMLDivElement>(null);
   // The video is a small floating preview on tablet/desktop and expands to the
@@ -646,3 +644,8 @@ export const PostFocusCard = ({
     </article>
   );
 };
+
+// Feed-opened modals hand over the feed's lighter post payload, which omits
+// fields like `communitySentiment`. Hydrating from the post-by-id cache keeps
+// the modal and the standalone post page rendering the same surfaces.
+export const PostFocusCard = withPostById(PostFocusCardRaw);

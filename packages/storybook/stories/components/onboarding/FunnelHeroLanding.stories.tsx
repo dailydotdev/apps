@@ -81,4 +81,15 @@ export const Panel: Story = {
   },
 };
 
-
+/** Full-bleed hero artwork on the right, one solid primary CTA on the rail. */
+export const Horizon: Story = {
+  args: {
+    ...baseArgs,
+    parameters: {
+      ...baseArgs.parameters,
+      headline: "Where developers discover what's next.",
+      background: 'horizon',
+      oauthOrder: 'googleFirst',
+    },
+  },
+};

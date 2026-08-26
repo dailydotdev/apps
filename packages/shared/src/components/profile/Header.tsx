@@ -45,6 +45,7 @@ import {
 import Link from '../utilities/Link';
 import type { MenuItemProps } from '../dropdown/common';
 import { ProfileMobileBackButton } from './ProfileBackButton';
+import { useJobsFeature } from '../../hooks/useJobsFeature';
 
 export interface HeaderProps {
   user: PublicProfile;
@@ -83,6 +84,7 @@ export function Header({
   });
   const hasCoresAccess = useHasAccessToCores();
   const canPurchaseCores = useCanPurchaseCores();
+  const { isJobsEnabled } = useJobsFeature();
 
   const onReportUser = React.useCallback(
     (defaultBlocked = false) => {
@@ -256,33 +258,35 @@ export function Header({
       </div>
       {isSameUser && (
         <>
-          <Link
-            href={
-              alerts?.opportunityId
-                ? `${webappUrl}jobs/${alerts.opportunityId}`
-                : `${webappUrl}jobs`
-            }
-            passHref
-          >
-            <Button
-              tag="a"
-              className="ml-2 tablet:hidden"
-              variant={ButtonVariant.Float}
-              size={ButtonSize.Small}
-              icon={
-                <span className="relative">
-                  <JobIcon />
-                  {!!alerts?.opportunityId && (
-                    <Bubble className="-right-1.5 -top-0.5 !min-h-4 !min-w-4 !rounded-full !bg-accent-bacon-default px-1 !typo-caption2">
-                      1
-                    </Bubble>
-                  )}
-                </span>
+          {isJobsEnabled && (
+            <Link
+              href={
+                alerts?.opportunityId
+                  ? `${webappUrl}jobs/${alerts.opportunityId}`
+                  : `${webappUrl}jobs`
               }
-              onClick={logOpportunityNudgeClick}
-              aria-label="Jobs"
-            />
-          </Link>
+              passHref
+            >
+              <Button
+                tag="a"
+                className="ml-2 tablet:hidden"
+                variant={ButtonVariant.Float}
+                size={ButtonSize.Small}
+                icon={
+                  <span className="relative">
+                    <JobIcon />
+                    {!!alerts?.opportunityId && (
+                      <Bubble className="-right-1.5 -top-0.5 !min-h-4 !min-w-4 !rounded-full !bg-accent-bacon-default px-1 !typo-caption2">
+                        1
+                      </Bubble>
+                    )}
+                  </span>
+                }
+                onClick={logOpportunityNudgeClick}
+                aria-label="Jobs"
+              />
+            </Link>
+          )}
           <Button
             className="ml-2 laptop:hidden"
             variant={ButtonVariant.Float}

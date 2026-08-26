@@ -61,6 +61,8 @@ export const featureLuckyButton = new Feature('lucky_button', false);
 
 export const featureStandupCreation = new Feature('standup_creation', false);
 
+export const featureJobsUI = new Feature('jobs_ui', false);
+
 export const featureAutorotateAds = new Feature('autorotate_ads', 0);
 
 export const featureFeedAdTemplate = new Feature('feed_ad_template', {
@@ -209,6 +211,14 @@ export const featureCompanionDemoWidget = new Feature(
 
 export const swipeOnboardingFeature = new Feature('swipe_onboarding', false);
 
+// Experiment: the horizon signup wall against the served one, measured on
+// signup completion. Remove once Freyja can serve `background: 'horizon'`
+// itself. Default MUST stay `false` — it is the control.
+export const featureSignupWallHorizon = new Feature(
+  'signup_wall_horizon',
+  false,
+);
+
 export const featureUpvoteCountThreshold = new Feature<{
   threshold: number;
   belowThresholdLabel: string;
@@ -294,7 +304,7 @@ export const featureCardImpressions = new Feature('card_impressions', false);
 
 // Gates every agent surface; control hides all of them. Keep the default
 // `false`, GrowthBook ramps it.
-export const featureInterestAgent = new Feature('interest_agent', true);
+export const featureInterestAgent = new Feature('interest_agent', false);
 
 export type PlusSaleConfig = {
   /** Paddle discount id (`dsc_...`). Empty means no sale is running. */
@@ -322,3 +332,16 @@ export const featurePlusSale = new Feature<PlusSaleConfig>(
     endDate: '2026-09-01T00:00:00.000Z',
   },
 );
+
+// AdSense on the organic post page: two units, anonymous visitors only. The
+// unit map lives in code (post/arbitrage/slots.ts) — ids are public in any
+// live page's source, and a remote JSON value cost every surface's boot
+// payload the whole map.
+export const featurePostAdsense = new Feature('post_adsense', false);
+
+// Emergency kill switch for the /read template's ads — NOT an experiment, so
+// the true default is deliberate: the surface ships always-on (it is only
+// reachable through paid placements), and the flag exists solely so a policy
+// warning, bad creative or revenue anomaly can be stopped without a deploy
+// and an ISR revalidation cycle. Never ramp or target with this flag.
+export const featureReadAdsense = new Feature('read_adsense', true);

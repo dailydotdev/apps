@@ -1,7 +1,26 @@
 import type { ComponentType, CSSProperties, ReactElement } from 'react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import Script from 'next/script';
+import {
+  ArbitrageAdFormat,
+  ArbitrageAdSlot,
+} from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageAdSlot';
+import { ArbitrageTopLeaderboard } from '@dailydotdev/shared/src/components/post/arbitrage/ArbitrageTopLeaderboard';
+import { PostWidgetPosition } from '@dailydotdev/shared/src/components/post/PostWidgets';
+import {
+  ADSENSE_SCRIPT_SRC,
+  hasLiveAdsenseUnits,
+} from '@dailydotdev/shared/src/features/monetization/adsense';
+import {
+  COMMENTS_PER_INTERLEAVED_AD,
+  CONTENT_CHARS_PER_AD,
+  MAX_CONTENT_ADS_PER_SECTION,
+  ORGANIC_SLOT,
+} from '@dailydotdev/shared/src/components/post/arbitrage/slots';
+import { splitTextForAds } from '@dailydotdev/shared/src/components/post/arbitrage/splitContentForAds';
+import { useOrganicAdsenseSlots } from '@dailydotdev/shared/src/components/post/arbitrage/useReadAdsenseSlots';
 import type {
   GetStaticPathsResult,
   GetStaticPropsContext,
@@ -52,6 +71,7 @@ import { useConditionalFeature } from '@dailydotdev/shared/src/hooks/useConditio
 import { isPostRedesignEligible } from '@dailydotdev/shared/src/hooks/post/usePostRedesign';
 import { featurePostRedesign } from '@dailydotdev/shared/src/lib/featureManagement';
 import { PostFocusCard } from '@dailydotdev/shared/src/components/post/focus/PostFocusCard';
+import { AdsenseHeadHints } from '../../../components/AdsenseHeadHints';
 import { getPageSeoTitles } from '../../../components/layouts/utils';
 import { getLayout } from '../../../components/layouts/MainLayout';
 import FooterNavBarLayout from '../../../components/layouts/FooterNavBarLayout';
@@ -62,7 +82,11 @@ import {
 import type { DynamicSeoProps } from '../../../components/common';
 import { noindexSeoProps } from '../../../next-seo';
 import useSharedByToast from '../../../hooks/useSharedByToast';
-import { getPostCanonicalUrl, shouldNoindexPost } from '../../../lib/seo';
+import {
+  getPostCanonicalUrl,
+  getPostMarkdownUrl,
+  shouldNoindexPost,
+} from '../../../lib/seo';
 
 const Unauthorized = dynamic(
   () =>
@@ -121,6 +145,25 @@ const DigestPostContent = dynamic(() =>
     /* webpackChunkName: "lazyDigestPostContent" */ '@dailydotdev/shared/src/components/post/digest/DigestPostContent'
   ).then((module) => module.DigestPostContent),
 );
+
+/**
+ * Whether a URL is another post detail page — the only destinations that keep
+ * client-side navigation while ads are live, because they re-enter this same
+ * ad-carrying route. A bare `/posts/` prefix is NOT that: /posts/best-of/*,
+ * /posts/latest, /posts/discussed and /posts/upvoted are list pages with no
+ * slots, linked from this page's own rail, and navigating to them must tear
+ * the ad globals down like any other departure.
+ */
+const POST_LIST_SEGMENTS = new Set([
+  'best-of',
+  'latest',
+  'discussed',
+  'upvoted',
+]);
+export const isPostDetailPath = (url: string): boolean => {
+  const match = /^\/posts\/([^/?#]+)(?:[/?#]|$)/.exec(url);
+  return !!match && !POST_LIST_SEGMENTS.has(match[1]);
+};
 
 export interface Props extends DynamicSeoProps {
   id: string;
@@ -196,6 +239,103 @@ export const PostPage = ({
   const requiresClassicLayout = !!router.query?.author || !!router.query?.squad;
   const showRedesign =
     isRedesignEligible && !requiresClassicLayout && isRedesignFlagOn;
+  // Empty for every logged-in visitor and while post_adsense is off; the slot
+  // components check the same hook, so with it empty neither markup nor script
+  // exists. Gated on a unit id being present, not key presence — the map keeps
+  // placeholder entries with empty ids, and the script must not load for
+  // inventory that cannot fill.
+  const adsenseSlots = useOrganicAdsenseSlots(!showRedesign);
+  const adsenseActive = hasLiveAdsenseUnits(adsenseSlots);
+  // The same in-content treatment the /articles template ships, reused on
+  // the organic page: the TLDR splits at the shared cadence with an MPU
+  // between segments (phones keep only the first), an MPU sits above the
+  // comments, and a long thread carries one per interval — all only while
+  // ads are live, so members and modal/extension surfaces keep the
+  // untouched production markup.
+  const summarySegments = useMemo(
+    () =>
+      adsenseActive && post?.summary
+        ? splitTextForAds(
+            post.summary,
+            CONTENT_CHARS_PER_AD,
+            MAX_CONTENT_ADS_PER_SECTION + 1,
+          )
+        : null,
+    [adsenseActive, post?.summary],
+  );
+  const renderSummarySegments = useMemo(() => {
+    if (!summarySegments) {
+      return undefined;
+    }
+    // A render prop, not a component: PostContent calls it as a function.
+    // eslint-disable-next-line react/display-name
+    return () => (
+      <>
+        {summarySegments.map((segment, index, segments) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <React.Fragment key={index}>
+            <div className="mb-6 overflow-hidden text-text-secondary">
+              <p
+                className="select-text break-words typo-markdown"
+                data-testid={index === 0 ? 'tldr-container' : undefined}
+              >
+                {segment}
+              </p>
+            </div>
+            {index < segments.length - 1 && (
+              <ArbitrageAdSlot
+                surface="organic"
+                slot={ORGANIC_SLOT.inContentMpu}
+                format={ArbitrageAdFormat.MediumRectangle}
+                className="my-6"
+                hideOnPhone={index > 0}
+                logExtra={{ section: 'summary', occurrence: index + 1 }}
+              />
+            )}
+          </React.Fragment>
+        ))}
+      </>
+    );
+  }, [summarySegments]);
+
+  // Same boundary the /read template draws: adsbygoogle must never follow a
+  // client-side navigation off the post pages, because its Auto ads overlays
+  // persist across soft navigations. Post-to-post stays client-side — the
+  // destination carries its own slots — while any departure forces a full
+  // page load that tears every Google global down.
+  useEffect(() => {
+    if (!adsenseActive) {
+      return undefined;
+    }
+    const forceHardNavigation = (
+      url: string,
+      { shallow }: { shallow: boolean },
+    ): void => {
+      if (shallow || isPostDetailPath(url)) {
+        return;
+      }
+      router.events.emit('routeChangeError');
+      window.location.assign(url);
+      // Next.js has no cancel API; throwing inside the handler is the
+      // established way to abort the client-side transition.
+      throw new Error(`Aborted client navigation to ${url} to unload ads`);
+    };
+    router.events.on('routeChangeStart', forceHardNavigation);
+    // On popstate the history pointer has already moved, so assign() would
+    // navigate forward again; loading the target URL in place respects the
+    // position the user just moved to.
+    router.beforePopState(({ as }) => {
+      if (isPostDetailPath(as)) {
+        return true;
+      }
+      window.location.href = as;
+      return false;
+    });
+    return () => {
+      router.events.off('routeChangeStart', forceHardNavigation);
+      router.beforePopState(() => true);
+    };
+  }, [adsenseActive, router]);
   const featureTheme = useFeatureTheme();
   const containerClass = classNames(
     'mb-16 min-h-page max-w-[69.25rem] tablet:mb-8 laptop:mb-0 laptop:pb-6 laptopL:pb-0',
@@ -271,6 +411,17 @@ export const PostPage = ({
           <Head>
             <link rel="preload" as="image" href={post?.image} />
           </Head>
+          {adsenseActive && (
+            <>
+              <AdsenseHeadHints />
+              <Script
+                id="adsbygoogle-loader"
+                src={ADSENSE_SCRIPT_SRC}
+                strategy="afterInteractive"
+                crossOrigin="anonymous"
+              />
+            </>
+          )}
           <PostSEOSchema post={post} topComments={topComments} />
           {showRedesign ? (
             <div className="mx-auto w-full max-w-[63.75rem]">
@@ -286,6 +437,57 @@ export const PostPage = ({
               shouldOnboardAuthor={!!router.query?.author}
               origin={Origin.ArticlePage}
               isBannerVisible={shouldShowAuthBanner && !isLaptop}
+              contentLeading={
+                adsenseActive ? (
+                  <ArbitrageTopLeaderboard
+                    surface="organic"
+                    slot={ORGANIC_SLOT.topLeaderboard}
+                    phoneSlot={ORGANIC_SLOT.topLeaderboardPhone}
+                  />
+                ) : undefined
+              }
+              // Only while ads are actually live: a truthy hook flattens the
+              // further-reading widget around the slot, and without an ad that
+              // changes rail spacing for members who never see one.
+              renderSummarySegments={renderSummarySegments}
+              aboveComments={
+                adsenseActive ? (
+                  <ArbitrageAdSlot
+                    surface="organic"
+                    slot={ORGANIC_SLOT.aboveCommentsMpu}
+                    format={ArbitrageAdFormat.MediumRectangle}
+                    className="my-6"
+                  />
+                ) : undefined
+              }
+              commentAds={
+                adsenseActive
+                  ? {
+                      interleaveEvery: COMMENTS_PER_INTERLEAVED_AD,
+                      renderInterleaved: (occurrence) => (
+                        <ArbitrageAdSlot
+                          surface="organic"
+                          slot={ORGANIC_SLOT.commentMpu}
+                          format={ArbitrageAdFormat.MediumRectangle}
+                          hideOnPhone
+                          logExtra={{ occurrence }}
+                        />
+                      ),
+                    }
+                  : undefined
+              }
+              getWidgetRailAd={
+                adsenseActive
+                  ? (widgetPosition) =>
+                      widgetPosition === PostWidgetPosition.DirectAd ? (
+                        <ArbitrageAdSlot
+                          surface="organic"
+                          slot={ORGANIC_SLOT.railAfterDirectAd}
+                          format={ArbitrageAdFormat.MediumRectangle}
+                        />
+                      ) : null
+                  : undefined
+              }
               className={{
                 container: containerClass,
                 fixedNavigation: { container: 'flex laptop:hidden' },
@@ -341,11 +543,22 @@ export async function getStaticProps({
     const post = initialData.post as Post;
     const topComments = commentsData.topComments || [];
     const pageSeoTitles = getPageSeoTitles(seoTitle(post) ?? '');
+    const noindex = shouldNoindexPost(post);
     const seo: NextSeoProps = {
       canonical: post?.slug ? getPostCanonicalUrl(post.slug) : undefined,
       title: pageSeoTitles.title,
       description: getSeoDescription(post),
-      noindex: shouldNoindexPost(post),
+      noindex,
+      additionalLinkTags:
+        post && !noindex
+          ? [
+              {
+                rel: 'alternate',
+                type: 'text/markdown',
+                href: getPostMarkdownUrl({ post }),
+              },
+            ]
+          : undefined,
       openGraph: {
         ...pageSeoTitles.openGraph,
         images: [

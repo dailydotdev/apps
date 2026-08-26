@@ -45,6 +45,15 @@ const renderTranscript = () =>
     </TestBootProvider>,
   );
 
+const renderHighlightedTranscript = (focusedRunId: string) =>
+  render(
+    <TestBootProvider client={new QueryClient()}>
+      <AgentProvider id="a1" isDemo initialMessages={[reply]}>
+        <AgentChatSection focusedRunId={focusedRunId} />
+      </AgentProvider>
+    </TestBootProvider>,
+  );
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockDesktop();
@@ -357,5 +366,22 @@ describe('a post link in the reply text', () => {
     fireEvent.click(link);
 
     expect(screen.getByTestId('active-post')).toHaveTextContent('none');
+  });
+});
+
+describe('a deep-linked turn', () => {
+  it('gets an addressable id and the flash animation', () => {
+    renderHighlightedTranscript('m1');
+
+    const turn = document.getElementById('agent-turn-m1');
+    expect(turn).not.toBeNull();
+    expect(turn).toHaveClass('agent-turn-flash');
+  });
+
+  it('marks no turn when the target is not in the transcript', () => {
+    renderHighlightedTranscript('other-run');
+
+    expect(document.getElementById('agent-turn-m1')).toBeNull();
+    expect(document.getElementById('agent-turn-other-run')).toBeNull();
   });
 });
