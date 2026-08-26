@@ -198,6 +198,7 @@ beforeEach(() => {
 });
 
 const CONTROL_LOGGED_OUT_BODY = 'Log in to pick up where you left off.';
+const LIVE_HEADING = 'Own your new tab. Make it your dev briefing.';
 
 describe('HijackingLoginStrip', () => {
   // v2 drops the slot the control renders through, so enrolling those users
@@ -385,11 +386,11 @@ describe('HijackingLoginStrip', () => {
 
       expect(
         screen.getByRole('heading', {
-          name: "Start discovering what's next.",
+          name: LIVE_HEADING,
         }),
       ).toBeVisible();
 
-      fireEvent.click(screen.getByRole('button', { name: /Get started/ }));
+      fireEvent.click(screen.getByRole('button', { name: /Sign up/ }));
       expect(logEvent).toHaveBeenCalledWith({
         event_name: LogEvent.Click,
         target_type: TargetType.SignupButton,

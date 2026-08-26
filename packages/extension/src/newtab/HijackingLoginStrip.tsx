@@ -56,6 +56,13 @@ const primaryCta =
 const glassCta =
   '!border-white/20 !bg-white/[0.06] !text-white backdrop-blur-sm transition-colors duration-200 hover:!bg-white/[0.12]';
 
+const LIVE_COPY = {
+  heading: 'Own your new tab. Make it your dev briefing.',
+  body: 'Sign in and daily.dev remembers the topics, saves, and discussions that matter to you.',
+  signup: 'Sign up',
+  login: 'Log in',
+} as const;
+
 // The extension can't run social OAuth from its own origin (the API rejects it
 // with a 403). The CTA arm hands auth off to the webapp onboarding flow, which
 // runs on a trusted origin and auto-triggers the relevant auth screen.
@@ -107,7 +114,7 @@ function HeroActionButtons({
         className={classNames('flex-1', primaryCta)}
         onClick={onSignupClick}
       >
-        Sign up
+        {LIVE_COPY.signup}
       </Button>
       <Button
         type="button"
@@ -116,7 +123,7 @@ function HeroActionButtons({
         className={classNames('flex-1', glassCta)}
         onClick={onLoginClick}
       >
-        Log in
+        {LIVE_COPY.login}
       </Button>
     </div>
   );
@@ -201,12 +208,9 @@ function CatStageHero({
           <div className="flex flex-1 flex-col items-center p-5 text-center tablet:items-start tablet:p-6 tablet:text-left">
             <div className="flex flex-col items-center gap-1 tablet:items-start">
               <h3 className="font-bold text-white typo-title2">
-                Own your new tab. Make it your dev briefing.
+                {LIVE_COPY.heading}
               </h3>
-              <p className="text-white/70 text-sm">
-                Sign in and daily.dev remembers the topics, saves, and
-                discussions that matter to you.
-              </p>
+              <p className="text-white/70 text-sm">{LIVE_COPY.body}</p>
               <HeroActionButtons
                 onSignupClick={onSignupClick}
                 onLoginClick={onLoginClick}
@@ -325,8 +329,11 @@ function CoverSignupHero({
         </div>
         <div className="dark relative z-1 flex flex-col items-center justify-center p-5 text-center tablet:absolute tablet:inset-0">
           <h3 className="font-bold text-white typo-title2 [text-shadow:0_2px_18px_rgba(0,0,0,0.6)]">
-            Start discovering what&apos;s next.
+            {LIVE_COPY.heading}
           </h3>
+          <p className="text-white/80 mt-1 max-w-[34rem] text-balance text-sm [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">
+            {LIVE_COPY.body}
+          </p>
           <div className="mt-4 flex flex-row justify-center gap-2.5">
             <Button
               type="button"
@@ -338,7 +345,7 @@ function CoverSignupHero({
               )}
               onClick={onSignupClick}
             >
-              Get started
+              {LIVE_COPY.signup}
               <span className="ml-1 inline-block transition-transform duration-200 group-hover/cta:translate-x-0.5">
                 →
               </span>
@@ -350,7 +357,7 @@ function CoverSignupHero({
               className={glassCta}
               onClick={onLoginClick}
             >
-              Log in
+              {LIVE_COPY.login}
             </Button>
           </div>
         </div>
