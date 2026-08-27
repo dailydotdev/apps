@@ -396,9 +396,19 @@ export interface DirectoryTool {
   stackCount: number;
 }
 
-const TOP_TOOLS_QUERY = gql`
-  query TopTools($first: Int, $category: String, $trending: Boolean) {
-    topTools(first: $first, category: $category, trending: $trending) {
+export const TOP_TOOLS_QUERY = gql`
+  query TopTools(
+    $first: Int
+    $category: String
+    $trending: Boolean
+    $query: String
+  ) {
+    topTools(
+      first: $first
+      category: $category
+      trending: $trending
+      query: $query
+    ) {
       id
       title
       slug
@@ -414,14 +424,16 @@ export const getTopTools = async ({
   first = 6,
   category,
   trending,
+  query,
 }: {
   first?: number;
   category?: string;
   trending?: boolean;
+  query?: string;
 } = {}): Promise<DirectoryTool[]> => {
   const result = await gqlClient.request<{ topTools: DirectoryTool[] }>(
     TOP_TOOLS_QUERY,
-    { first, category, trending },
+    { first, category, trending, query },
   );
   return result.topTools;
 };
@@ -431,7 +443,7 @@ export interface ToolCategoryStat {
   toolCount: number;
 }
 
-const TOOL_CATEGORIES_QUERY = gql`
+export const TOOL_CATEGORIES_QUERY = gql`
   query ToolCategories {
     toolCategories {
       category

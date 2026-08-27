@@ -11,8 +11,14 @@ interface ToolLogoProps {
   url?: string | null;
   /** Pixel size to request from the icon service. */
   size?: number;
-  /** Styles the tile: size, radius, background, border, padding. */
+  /** Styles the tile: size, radius, border. */
   className?: string;
+  /**
+   * Plate styles (background, inset) applied only while a real logo renders.
+   * The initial fallback stays on the ambient surface so its token color
+   * keeps contrast in both themes.
+   */
+  plateClassName?: string;
   /** Replaces the initial when there is no logo to show. */
   fallback?: ReactNode;
 }
@@ -26,12 +32,14 @@ export const ToolLogo = ({
   url,
   size,
   className,
+  plateClassName,
   fallback,
 }: ToolLogoProps): ReactElement => {
   const [hasFailed, setHasFailed] = useState(false);
   const src = faviconUrl || (url ? getSiteIconUrl({ url, size }) : null);
+  const showsLogo = !!src && !hasFailed;
 
-  if (fallback && (!src || hasFailed)) {
+  if (fallback && !showsLogo) {
     return <>{fallback}</>;
   }
 
@@ -40,9 +48,10 @@ export const ToolLogo = ({
       className={classNames(
         'grid flex-none place-items-center overflow-hidden',
         className,
+        showsLogo && plateClassName,
       )}
     >
-      {!src || hasFailed ? (
+      {!showsLogo ? (
         <span aria-hidden className="font-bold text-text-tertiary">
           {title.charAt(0).toUpperCase()}
         </span>

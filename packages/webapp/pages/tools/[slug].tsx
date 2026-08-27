@@ -47,11 +47,9 @@ import {
   generateQueryKey,
   RequestKey,
   StaleTime,
+  OtherFeedPage,
 } from '@dailydotdev/shared/src/lib/query';
-import type {
-  ToolTopSquad,
-  AddUserStackInput,
-} from '@dailydotdev/shared/src/graphql/user/userStack';
+import type { ToolTopSquad } from '@dailydotdev/shared/src/graphql/user/userStack';
 import { getTopSquadsForTool } from '@dailydotdev/shared/src/graphql/user/userStack';
 import type { ApiErrorResult } from '@dailydotdev/shared/src/graphql/common';
 import {
@@ -72,7 +70,6 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '@dailydotdev/shared/src/components/buttons/Button';
-import { CardAction } from '@dailydotdev/shared/src/components/buttons/CardAction';
 import { DataTile } from '@dailydotdev/shared/src/components/DataTile';
 import {
   DiscussIcon,
@@ -86,9 +83,6 @@ import {
 import { IconSize } from '@dailydotdev/shared/src/components/Icon';
 import { useAuthContext } from '@dailydotdev/shared/src/contexts/AuthContext';
 import { AuthTriggers } from '@dailydotdev/shared/src/lib/auth';
-import { useUserStack } from '@dailydotdev/shared/src/features/profile/hooks/useUserStack';
-import { UserStackModal } from '@dailydotdev/shared/src/features/profile/components/stack/UserStackModal';
-import type { PublicProfile } from '@dailydotdev/shared/src/lib/user';
 import { useToastNotification } from '@dailydotdev/shared/src/hooks/useToastNotification';
 import type { PromptOptions } from '@dailydotdev/shared/src/hooks/usePrompt';
 import { usePrompt } from '@dailydotdev/shared/src/hooks/usePrompt';
@@ -107,13 +101,19 @@ import { ProfilePictureGroup } from '@dailydotdev/shared/src/components/ProfileP
 import { ToolLogo } from '@dailydotdev/shared/src/components/tools/ToolLogo';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
-import classNames from 'classnames';
+import { ActiveFeedNameContext } from '@dailydotdev/shared/src/contexts';
+import { FeedLayoutProvider } from '@dailydotdev/shared/src/contexts/FeedContext';
+import { TAG_FEED_QUERY } from '@dailydotdev/shared/src/graphql/feed';
+import HorizontalFeed from '@dailydotdev/shared/src/components/feeds/HorizontalFeed';
+import { EntityRailWithFade } from '@dailydotdev/shared/src/components/entity/EntityRailWithFade';
 import { getLayout } from '../../components/layouts/MainLayout';
 import { getLayout as getFooterNavBarLayout } from '../../components/layouts/FooterNavBarLayout';
 import { defaultOpenGraph, noindexSeoProps } from '../../next-seo';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 import { getAppOrigin } from '../../lib/seo';
 import { ToolDiscussion } from '../../components/tools/ToolDiscussion';
+import { useAddToolToStack } from '../../components/tools/useAddToolToStack';
+import { ToolSquadCard } from '../../components/tools/ToolSquadCard';
 import { ToolCard } from '../../components/tools/ToolCard';
 import { ToolPageNavbar } from '../../components/tools/ToolPageNavbar';
 import { ToolSection } from '../../components/tools/ToolSection';
@@ -131,6 +131,9 @@ const getToolPageJsonLd = (
   topPosts: ToolTopPost[],
 ): string => {
   const toolUrl = `${appOrigin}/tools/${tool.slug}`;
+  // Mirrors the server-rendered "Top reads" list exactly - structured data
+  // must describe content that is actually in the HTML.
+  const linkablePosts = topPosts.filter((post) => !!post.title);
   const breadcrumbItems = [
     { name: 'Tools', item: `${appOrigin}/tools` },
     ...(tool.category
@@ -165,17 +168,17 @@ const getToolPageJsonLd = (
           item: item.item,
         })),
       },
-      ...(topPosts.length
+      ...(linkablePosts.length
         ? [
             {
               '@type': 'ItemList',
               '@id': `${toolUrl}#posts`,
-              numberOfItems: topPosts.length,
-              itemListElement: topPosts.map((post, index) => ({
+              numberOfItems: linkablePosts.length,
+              itemListElement: linkablePosts.map((post, index) => ({
                 '@type': 'ListItem',
                 position: index + 1,
                 url: `${appOrigin}/posts/${post.slug || post.id}`,
-                name: post.title || '',
+                name: post.title,
               })),
             },
           ]
@@ -298,11 +301,8 @@ const applyOptimisticVote = (
   return { ...state, upvotes, downvotes, userVote: vote === 0 ? null : vote };
 };
 
-// Row chrome shared by the tool page's lists — the filled, hoverable row the
-// profile page uses for stack items and hot takes.
 const rowClassName =
-  'flex items-center gap-4 rounded-16 bg-surface-float p-4 transition-colors';
-const linkRowClassName = classNames(rowClassName, 'hover:bg-surface-hover');
+  'flex items-center gap-4 rounded-16 border border-border-subtlest-tertiary p-4 transition-colors';
 
 const MetaSeparator = (): ReactElement => <span aria-hidden>·</span>;
 
@@ -320,21 +320,25 @@ const ToolPage = ({
   facts,
 }: ToolPageProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
-  const { stackItems, add } = useUserStack(user as PublicProfile);
+  const {
+    stackedToolIds,
+    openAddModal,
+    modal: stackModal,
+  } = useAddToolToStack(Origin.ToolPage);
   const { displayToast } = useToastNotification();
   const { logEvent } = useLogContext();
   const { showPrompt } = usePrompt();
   const { userCompanies } = useUserCompaniesQuery();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [claimedByState, setClaimedByState] = useState(claimedBy);
 
-  const isInStack = useMemo(
-    () => stackItems.some((item) => item.tool.id === tool.id),
-    [stackItems, tool.id],
-  );
+  const isInStack = stackedToolIds.has(tool.id);
 
   const websiteHost = tool.url ? getDomainFromUrl(tool.url) : null;
 
+  const topPostsQueryVariables = useMemo(
+    () => ({ tag: tool.keyword, ranking: 'POPULARITY' }),
+    [tool.keyword],
+  );
   const descriptionFact = useMemo(
     () => getToolFact(facts, 'description'),
     [facts],
@@ -541,36 +545,14 @@ const ToolPage = ({
     sendClaimTool,
   ]);
 
-  const totalVotes = (voteState?.upvotes ?? 0) + (voteState?.downvotes ?? 0);
+  const upvoteCount = voteState?.upvotes ?? 0;
+  const totalVotes = upvoteCount + (voteState?.downvotes ?? 0);
   const sentiment =
-    totalVotes > 0
-      ? Math.round(((voteState?.upvotes ?? 0) / totalVotes) * 100)
-      : null;
+    totalVotes > 0 ? Math.round((upvoteCount / totalVotes) * 100) : null;
 
-  const handleAddClick = useCallback(() => {
-    if (!user) {
-      showLogin({ trigger: AuthTriggers.AddToStack });
-      return;
-    }
-    logEvent({
-      event_name: LogEvent.StartAddUserStack,
-      target_id: tool.slug,
-      extra: JSON.stringify({ origin: Origin.ToolPage }),
-    });
-    setIsModalOpen(true);
-  }, [user, showLogin, logEvent, tool.slug]);
-
-  const handleAdd = useCallback(
-    async (input: AddUserStackInput) => {
-      try {
-        await add(input);
-        displayToast('Added to your stack');
-      } catch (error) {
-        displayToast('Failed to add item');
-        throw error;
-      }
-    },
-    [add, displayToast],
+  const handleAddClick = useCallback(
+    () => openAddModal({ id: tool.id, title: tool.title, slug: tool.slug }),
+    [openAddModal, tool.id, tool.title, tool.slug],
   );
 
   const handleDiscussClick = useCallback(() => {
@@ -587,18 +569,6 @@ const ToolPage = ({
         event_name: LogEvent.Click,
         target_type: TargetType.Tool,
         target_id: related.slug,
-        extra: JSON.stringify({ origin: Origin.ToolPage }),
-      });
-    },
-    [logEvent],
-  );
-
-  const handleTopPostClick = useCallback(
-    (post: ToolTopPost) => {
-      logEvent({
-        event_name: LogEvent.Click,
-        target_type: TargetType.Post,
-        target_id: post.id,
         extra: JSON.stringify({ origin: Origin.ToolPage }),
       });
     },
@@ -699,7 +669,8 @@ const ToolPage = ({
             faviconUrl={tool.faviconUrl}
             url={tool.url}
             size={160}
-            className="size-20 rounded-16 border border-border-subtlest-tertiary p-3 typo-title2"
+            className="size-20 rounded-16 border border-border-subtlest-tertiary typo-title2"
+            plateClassName="bg-white p-3"
           />
           <Typography
             tag={TypographyTag.H1}
@@ -830,38 +801,39 @@ const ToolPage = ({
               variant={
                 isInStack ? ButtonVariant.Secondary : ButtonVariant.Primary
               }
-              size={ButtonSize.Medium}
+              size={ButtonSize.Small}
               icon={isInStack ? <VIcon /> : <PlusIcon />}
               disabled={isInStack}
               onClick={handleAddClick}
             >
               {isInStack ? 'In your stack' : 'Add to my stack'}
             </Button>
-            <div className="flex items-center rounded-12 bg-surface-float px-1">
-              <CardAction
-                label="Upvote"
-                labelVisible
-                icon={<UpvoteIcon />}
-                iconPressed={<UpvoteIcon secondary />}
-                color={ButtonColor.Avocado}
-                pressed={voteState?.userVote === 1}
-                count={voteState?.upvotes}
-                onClick={() => handleVote(1)}
-              />
-              <CardAction
-                label="Downvote"
-                icon={<DownvoteIcon />}
-                iconPressed={<DownvoteIcon secondary />}
-                color={ButtonColor.Ketchup}
-                pressed={voteState?.userVote === -1}
-                onClick={() => handleVote(-1)}
-              />
-            </div>
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              color={ButtonColor.Avocado}
+              pressed={voteState?.userVote === 1}
+              icon={<UpvoteIcon secondary={voteState?.userVote === 1} />}
+              onClick={() => handleVote(1)}
+            >
+              {upvoteCount > 0
+                ? `Upvote ${largeNumberFormat(upvoteCount) ?? upvoteCount}`
+                : 'Upvote'}
+            </Button>
+            <Button
+              variant={ButtonVariant.Float}
+              size={ButtonSize.Small}
+              color={ButtonColor.Ketchup}
+              pressed={voteState?.userVote === -1}
+              icon={<DownvoteIcon secondary={voteState?.userVote === -1} />}
+              aria-label="Downvote"
+              onClick={() => handleVote(-1)}
+            />
             <Button
               tag="a"
               href="#discussion"
               variant={ButtonVariant.Float}
-              size={ButtonSize.Medium}
+              size={ButtonSize.Small}
               icon={<DiscussIcon />}
               onClick={handleDiscussClick}
             >
@@ -869,7 +841,7 @@ const ToolPage = ({
             </Button>
             <Button
               variant={ButtonVariant.Float}
-              size={ButtonSize.Medium}
+              size={ButtonSize.Small}
               icon={<ShareIcon secondary={copying} />}
               onClick={() => onShareOrCopy()}
             >
@@ -892,126 +864,133 @@ const ToolPage = ({
 
         <div className="h-px w-full bg-border-subtlest-tertiary" />
 
-        <div className="flex flex-col divide-y divide-border-subtlest-tertiary">
-          <section className="grid grid-cols-2 gap-4 py-8 tablet:grid-cols-4">
-            <DataTile
-              label="In stacks"
-              value={tool.stackCount}
-              info={`How many developers have ${tool.title} on their daily.dev profile`}
-              subtitle={
-                stackers.length > 0 && (
-                  <span className="mt-1 flex flex-wrap items-center gap-2">
-                    <ProfilePictureGroup
-                      limit={stackers.length}
-                      size={ProfileImageSize.Small}
-                    >
-                      {stackers.map((stacker) => (
-                        <ProfilePicture
-                          key={stacker.id}
-                          user={stacker}
+        <div className="flex flex-col">
+          <ToolSection title="Adoption on daily.dev">
+            <div className="overflow-hidden rounded-16 border border-border-subtlest-tertiary">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-6 p-4 tablet:grid-cols-4">
+                <DataTile
+                  className={{ container: '!rounded-none !border-0 !p-0' }}
+                  label="In stacks"
+                  value={tool.stackCount}
+                  info={`How many developers have ${tool.title} on their daily.dev profile`}
+                  subtitle={
+                    stackers.length > 0 && (
+                      <span className="mt-1 flex flex-wrap items-center gap-2">
+                        <ProfilePictureGroup
+                          limit={stackers.length}
                           size={ProfileImageSize.Small}
-                          className="border-2 border-background-default"
+                        >
+                          {stackers.map((stacker) => (
+                            <ProfilePicture
+                              key={stacker.id}
+                              user={stacker}
+                              size={ProfileImageSize.Small}
+                              className="border-2 border-background-default"
+                            />
+                          ))}
+                        </ProfilePictureGroup>
+                        {!!followedStackers?.length && (
+                          <Typography
+                            type={TypographyType.Caption1}
+                            color={TypographyColor.Tertiary}
+                          >
+                            {followedStackers.length} you follow
+                          </Typography>
+                        )}
+                      </span>
+                    )
+                  }
+                />
+                {sentiment !== null && (
+                  <DataTile
+                    className={{ container: '!rounded-none !border-0 !p-0' }}
+                    label="Dev sentiment"
+                    value={`${sentiment}%`}
+                    info="Share of votes on this page that are upvotes"
+                    subtitle={
+                      <span className="mt-2 flex h-1.5 overflow-hidden rounded-6 bg-surface-float">
+                        <span
+                          className="h-full rounded-6 bg-accent-avocado-default"
+                          style={{ width: `${sentiment}%` }}
                         />
-                      ))}
-                    </ProfilePictureGroup>
-                    {!!followedStackers?.length && (
+                      </span>
+                    }
+                  />
+                )}
+                {adoption && adoption.percentile !== null && (
+                  <DataTile
+                    className={{ container: '!rounded-none !border-0 !p-0' }}
+                    label="Adoption"
+                    value={`Top ${Math.max(
+                      1,
+                      Math.round((1 - adoption.percentile) * 100),
+                    )}%`}
+                    info="Where this tool ranks against every other tool by stack presence"
+                    subtitle={
                       <Typography
                         type={TypographyType.Caption1}
                         color={TypographyColor.Tertiary}
                       >
-                        {followedStackers.length} you follow
+                        of all tools on daily.dev
                       </Typography>
-                    )}
-                  </span>
-                )
-              }
-            />
-            {sentiment !== null && (
-              <DataTile
-                label="Dev sentiment"
-                value={`${sentiment}%`}
-                info="Share of votes on this page that are upvotes"
-                subtitle={
-                  <span className="mt-2 flex h-1.5 overflow-hidden rounded-6 bg-surface-float">
-                    <span
-                      className="h-full rounded-6 bg-accent-avocado-default"
-                      style={{ width: `${sentiment}%` }}
+                    }
+                  />
+                )}
+                {!!adoption?.quarterGrowth && adoption.quarterGrowth > 0 && (
+                  <DataTile
+                    className={{ container: '!rounded-none !border-0 !p-0' }}
+                    label="This quarter"
+                    value={`+${Math.round(adoption.quarterGrowth)}%`}
+                    info="Growth in stack additions over the last quarter"
+                    valueClassName="text-accent-avocado-default"
+                    subtitle={
+                      <Typography
+                        type={TypographyType.Caption1}
+                        color={TypographyColor.Tertiary}
+                      >
+                        new stack additions
+                      </Typography>
+                    }
+                  />
+                )}
+              </div>
+              {adoption && adoption.monthly.length > 0 && sparklinePoints && (
+                <div className="flex flex-col gap-2 border-t border-border-subtlest-tertiary p-4">
+                  <svg
+                    viewBox={`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`}
+                    className="h-28 w-full"
+                    preserveAspectRatio="none"
+                    aria-hidden
+                  >
+                    <polygon
+                      points={`0,${SPARK_HEIGHT} ${sparklinePoints} ${SPARK_WIDTH},${SPARK_HEIGHT}`}
+                      style={{
+                        fill: 'var(--theme-accent-cabbage-default)',
+                        opacity: 0.12,
+                      }}
                     />
-                  </span>
-                }
-              />
-            )}
-            {adoption && adoption.percentile !== null && (
-              <DataTile
-                label="Adoption"
-                value={`Top ${Math.max(
-                  1,
-                  Math.round((1 - adoption.percentile) * 100),
-                )}%`}
-                info="Where this tool ranks against every other tool by stack presence"
-                subtitle={
+                    <polyline
+                      points={sparklinePoints}
+                      style={{
+                        fill: 'none',
+                        stroke: 'var(--theme-accent-cabbage-default)',
+                        strokeWidth: 2.5,
+                      }}
+                    />
+                  </svg>
                   <Typography
-                    type={TypographyType.Caption1}
+                    type={TypographyType.Footnote}
                     color={TypographyColor.Tertiary}
                   >
-                    of all tools on daily.dev
+                    Stack additions, trailing 12 months
                   </Typography>
-                }
-              />
-            )}
-            {!!adoption?.quarterGrowth && adoption.quarterGrowth > 0 && (
-              <DataTile
-                label="This quarter"
-                value={`+${Math.round(adoption.quarterGrowth)}%`}
-                info="Growth in stack additions over the last quarter"
-                valueClassName="text-accent-avocado-default"
-                subtitle={
-                  <Typography
-                    type={TypographyType.Caption1}
-                    color={TypographyColor.Tertiary}
-                  >
-                    new stack additions
-                  </Typography>
-                }
-              />
-            )}
-          </section>
-
-          {adoption && adoption.monthly.length > 0 && sparklinePoints && (
-            <ToolSection title="Adoption on daily.dev">
-              <svg
-                viewBox={`0 0 ${SPARK_WIDTH} ${SPARK_HEIGHT}`}
-                className="h-28 w-full"
-                preserveAspectRatio="none"
-                aria-hidden
-              >
-                <polygon
-                  points={`0,${SPARK_HEIGHT} ${sparklinePoints} ${SPARK_WIDTH},${SPARK_HEIGHT}`}
-                  style={{
-                    fill: 'var(--theme-accent-cabbage-default)',
-                    opacity: 0.12,
-                  }}
-                />
-                <polyline
-                  points={sparklinePoints}
-                  style={{
-                    fill: 'none',
-                    stroke: 'var(--theme-accent-cabbage-default)',
-                    strokeWidth: 2.5,
-                  }}
-                />
-              </svg>
-              <Typography
-                type={TypographyType.Footnote}
-                color={TypographyColor.Tertiary}
-              >
-                Stack additions, trailing 12 months
-              </Typography>
-              {sparklineTrendDescription && (
-                <span className="sr-only">{sparklineTrendDescription}</span>
+                  {sparklineTrendDescription && (
+                    <span className="sr-only">{sparklineTrendDescription}</span>
+                  )}
+                </div>
               )}
-            </ToolSection>
-          )}
+            </div>
+          </ToolSection>
 
           {topPosts.length > 0 && tool.keyword && (
             <ToolSection
@@ -1025,60 +1004,42 @@ const ToolPage = ({
                 </Link>
               }
             >
-              <ul className="flex flex-col gap-2">
-                {topPosts.map((post) => (
-                  <li key={post.id}>
-                    <Link href={`/posts/${post.slug || post.id}`} passHref>
-                      <a
-                        href={`/posts/${post.slug || post.id}`}
-                        className={linkRowClassName}
-                        onClick={() => handleTopPostClick(post)}
-                      >
-                        {post.image ? (
-                          <img
-                            src={post.image}
-                            alt=""
-                            className="size-12 flex-none rounded-14 object-cover"
-                          />
-                        ) : (
-                          <span className="grid size-12 flex-none place-items-center rounded-14 bg-background-default font-bold text-text-tertiary">
-                            {(post.title ?? '?').charAt(0)}
-                          </span>
-                        )}
-                        <span className="flex min-w-0 flex-1 flex-col gap-1">
-                          <Typography
-                            type={TypographyType.Body}
-                            bold
-                            className="multi-truncate line-clamp-2"
-                          >
-                            {post.title}
-                          </Typography>
-                          <Typography
-                            tag={TypographyTag.Span}
-                            type={TypographyType.Footnote}
-                            color={TypographyColor.Tertiary}
-                            className="flex w-full flex-wrap items-center gap-x-1.5"
-                          >
-                            <UpvoteIcon
-                              size={IconSize.Size16}
-                              className="text-accent-avocado-default"
-                            />
-                            <span className="font-bold text-accent-avocado-default">
-                              {largeNumberFormat(post.numUpvotes) ??
-                                post.numUpvotes}
-                            </span>
-                            <MetaSeparator />
-                            <span suppressHydrationWarning>
-                              {publishTimeRelativeShort(post.createdAt)}
-                            </span>
-                            <MetaSeparator />
-                            <span>#{tool.keyword}</span>
-                          </Typography>
-                        </span>
-                      </a>
-                    </Link>
-                  </li>
-                ))}
+              <ActiveFeedNameContext.Provider
+                value={{ feedName: OtherFeedPage.TagsTopPosts }}
+              >
+                <FeedLayoutProvider maxNumCards={3}>
+                  <EntityRailWithFade>
+                    <HorizontalFeed
+                      feedName={OtherFeedPage.TagsTopPosts}
+                      feedQueryKey={[
+                        'toolTopPosts',
+                        user?.id ?? 'anonymous',
+                        tool.keyword,
+                      ]}
+                      query={TAG_FEED_QUERY}
+                      variables={topPostsQueryVariables}
+                      className="!mx-0 !mb-0"
+                      emptyScreen={<></>}
+                    />
+                  </EntityRailWithFade>
+                </FeedLayoutProvider>
+              </ActiveFeedNameContext.Provider>
+              {/* Server-rendered counterpart of the JSON-LD ItemList: the rail
+                  above only exists after hydration, so crawlers and JS-off
+                  visitors get these links instead. */}
+              <ul className="flex flex-wrap items-center gap-x-2 gap-y-1 text-text-tertiary typo-footnote">
+                <li aria-hidden>Top reads:</li>
+                {topPosts
+                  .filter((post) => !!post.title)
+                  .map((post) => (
+                    <li key={post.id}>
+                      <Link href={`/posts/${post.slug || post.id}`} passHref>
+                        <a className="text-text-secondary underline decoration-border-subtlest-tertiary underline-offset-2 hover:text-text-primary">
+                          {post.title}
+                        </a>
+                      </Link>
+                    </li>
+                  ))}
               </ul>
             </ToolSection>
           )}
@@ -1087,30 +1048,8 @@ const ToolPage = ({
             <ToolSection title="Squads running it">
               <ul className="grid grid-cols-1 gap-2 tablet:grid-cols-2 laptop:grid-cols-3">
                 {topSquads.map((squad) => (
-                  <li key={squad.id}>
-                    <Link href={`/squads/${squad.handle}`} passHref>
-                      <a
-                        href={`/squads/${squad.handle}`}
-                        className={linkRowClassName}
-                      >
-                        <img
-                          src={squad.image}
-                          alt={`${squad.name} avatar`}
-                          className="size-12 flex-none rounded-full object-cover"
-                        />
-                        <span className="flex min-w-0 flex-1 flex-col">
-                          <Typography type={TypographyType.Body} bold truncate>
-                            {squad.name}
-                          </Typography>
-                          <Typography
-                            type={TypographyType.Footnote}
-                            color={TypographyColor.Tertiary}
-                          >
-                            {largeNumberFormat(squad.membersCount)} members
-                          </Typography>
-                        </span>
-                      </a>
-                    </Link>
+                  <li key={squad.id} className="h-full">
+                    <ToolSquadCard squad={squad} />
                   </li>
                 ))}
               </ul>
@@ -1171,6 +1110,7 @@ const ToolPage = ({
                         faviconUrl={related.faviconUrl}
                         url={related.url}
                         className="size-6 rounded-6"
+                        plateClassName="bg-white p-0.5"
                       />
                       {related.title}
                     </a>
@@ -1205,15 +1145,7 @@ const ToolPage = ({
           </ToolSection>
         </div>
 
-        {isModalOpen && (
-          <UserStackModal
-            isOpen={isModalOpen}
-            onRequestClose={() => setIsModalOpen(false)}
-            onSubmit={handleAdd}
-            defaultTitle={tool.title}
-            modalTitle="Add stack/tool to profile"
-          />
-        )}
+        {stackModal}
       </main>
     </>
   );

@@ -22,6 +22,7 @@ export interface ToolTopSquad {
   name: string;
   handle: string;
   image: string;
+  description: string | null;
   membersCount: number;
 }
 
@@ -151,6 +152,7 @@ const TOP_SQUADS_FOR_TOOL_QUERY = gql`
           name
           handle
           image
+          description
           membersCount
         }
       }
