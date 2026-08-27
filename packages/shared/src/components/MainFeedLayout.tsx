@@ -17,7 +17,7 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import type { FeedProps } from './Feed';
 import Feed from './Feed';
-import { FeedPageLayoutMobile } from './utilities/common';
+import { FeedPageLayoutMobile, feedGutter } from './utilities/common';
 import { ExploreChipsBar } from './feeds/ExploreChipsBar';
 import { buildPersonalizedCategories } from './feeds/exploreCategories';
 import { useFeeds } from '../hooks/feed/useFeeds';
@@ -671,7 +671,14 @@ export default function MainFeedLayout({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sortingEnabled, selectedAlgo, loadedSettings, loadedAlgo]);
 
-  const disableTopPadding = isFinder || shouldUseListFeedLayout;
+  // Explore keeps the page's top padding in both layouts. It renders a
+  // breadcrumb and tab header above the feed, and zeroing the padding
+  // leaves that header jammed under the site header — while
+  // `shouldUseListFeedLayout` flips between first paint and mount
+  // (see `enableSsrSafeLayout`), so keying the spacing to it made the
+  // gap change size on navigation and settle differently on reload.
+  const disableTopPadding =
+    isFinder || (shouldUseListFeedLayout && !isAnyExplore);
   const onTabChange = useCallback(
     (clickedTab: ExploreTabs) => {
       if (clickedTab === ExploreTabs.BestOf && isExtension) {
@@ -694,7 +701,13 @@ export default function MainFeedLayout({
         <FeedExploreHeader
           tab={tab}
           setTab={onTabChange}
-          className={{ tabWrapper: 'my-4' }}
+          // The breadcrumbs used to start flush against the header
+          // with 0px above them, and then sat 16px off the tab strip —
+          // spacing that read as one loose block rather than a
+          // heading and its tabs. Give the group room above and pull
+          // the tabs up under the breadcrumbs they belong to; the
+          // 16px down to the cards is unchanged.
+          className={{ container: feedGutter, tabWrapper: 'mb-4 mt-2' }}
         />
       );
     }
@@ -705,8 +718,10 @@ export default function MainFeedLayout({
         setTab={onTabChange}
         showBreadcrumbs={false}
         className={{
-          container:
+          container: classNames(
             'sticky top-[4.5rem] z-header w-full border-b border-border-subtlest-tertiary bg-background-default',
+            feedGutter,
+          ),
           tabBarHeader: 'no-scrollbar overflow-x-auto',
           tabBarContainer: 'min-w-0 flex-1',
         }}
@@ -835,9 +850,7 @@ export default function MainFeedLayout({
                   </div>
                 ) : undefined
               }
-              className={classNames(
-                shouldUseListFeedLayout && !isFinder && 'laptop:px-6',
-              )}
+              className={classNames(!isFinder && feedGutter)}
             />
           )
         )}

@@ -4,8 +4,6 @@ import classNames from 'classnames';
 import classed from '../../lib/classed';
 import styles from './utilities.module.css';
 import { ArrowIcon } from '../icons';
-import { pageMainClassNames } from '../layout/PageWrapperLayout';
-import { useLayoutVariant } from '../../hooks/layout/useLayoutVariant';
 import { SourceMemberRole } from '../../graphql/sources';
 import type { OrganizationMemberRole } from '../../features/organizations/types';
 
@@ -31,7 +29,13 @@ export enum Justify {
 export const pageBorders =
   'laptop:border-r laptop:border-l border-border-subtlest-tertiary';
 
-const pagePaddings = 'px-4 tablet:px-8';
+/**
+ * The horizontal padding every page container uses. Exported so
+ * surfaces that sit outside a page container — the sponsor dock, for
+ * one — can line up with the feed instead of inventing their own
+ * inset.
+ */
+export const pagePaddings = 'px-4 tablet:px-8';
 const basePageClassNames = classNames(
   styles.pageContainer,
   'relative z-1 flex w-full flex-col',
@@ -99,23 +103,37 @@ export const BaseFeedPage = classed(
   styles.feedPage,
 );
 
-// v2 (dual-sidebar layout) ships the feed inside the floating-card chrome,
-// which provides its own outer inset. The legacy `pageMainClassNames`
-// (`laptop:p-10`) adds another 40px on top, which reads as way too much
-// side spacing inside the card. Drop that padding under v2; control keeps
-// the existing behavior unchanged.
+/**
+ * The feed's horizontal inset — the single source of it.
+ *
+ * It lives on FeedContainer rather than on a page container because
+ * the feed renders through two different ones depending on layout and
+ * route: FeedPage, which carries `pageMainClassNames`, and
+ * FeedPageLayoutList, which forces `!px-0`. FeedContainer is the only
+ * element common to both, so it is the only place an inset applies
+ * everywhere and can never stack with another.
+ *
+ * Chrome outside the container — the breadcrumbs and the tab strip —
+ * uses the same constant to line up with the cards.
+ */
+export const feedGutter = 'px-4 tablet:px-6 laptop:px-10';
+
+// Vertical padding only. The horizontal inset moved to FeedContainer
+// (see `feedGutter`) because this component is not in the tree on
+// every feed route — FeedPageLayoutList is used instead on some — and
+// an inset here would both miss those routes and stack with the one
+// that covers them.
+const feedPageVerticalPadding = 'tablet:py-4 laptop:py-10';
+
 export const FeedPage = ({
   className,
   ...props
-}: HTMLAttributes<HTMLElement>): ReactElement => {
-  const { isV2 } = useLayoutVariant();
-  return (
-    <BaseFeedPage
-      {...props}
-      className={classNames(!isV2 && pageMainClassNames, className)}
-    />
-  );
-};
+}: HTMLAttributes<HTMLElement>): ReactElement => (
+  <BaseFeedPage
+    {...props}
+    className={classNames(feedPageVerticalPadding, className)}
+  />
+);
 export const FeedPageLayoutList = classed(
   BasePageContainer,
   pageContainerClassNames,
