@@ -48,6 +48,7 @@ export const ToolLogo = ({
         </span>
       ) : (
         <img
+          key={src}
           src={src}
           alt={`${title} logo`}
           className="size-full object-contain"

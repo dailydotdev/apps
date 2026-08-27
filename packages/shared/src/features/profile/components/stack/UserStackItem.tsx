@@ -115,6 +115,7 @@ function UserStackItemBody({
     <UserStackTopSquadsTooltip
       toolTitle={title}
       toolFaviconUrl={tool.faviconUrl}
+      toolUrl={tool.url}
       topSquads={topSquads}
       isPending={isPending}
       hasError={isError}
@@ -170,7 +171,9 @@ function UserStackItemBody({
               <ToolLogo
                 title={title}
                 faviconUrl={iconUrl}
-                url={tool.url}
+                // Sponsored rows stay creative-only: a site-resolved logo on
+                // an ad surface could misrepresent what the sponsor supplied.
+                url={sponsoredCreative ? null : tool.url}
                 className={classNames(
                   'size-6 typo-footnote',
                   sponsoredCreative ? 'rounded-full bg-white p-0.5' : 'rounded',
