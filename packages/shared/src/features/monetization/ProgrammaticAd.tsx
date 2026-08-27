@@ -8,6 +8,7 @@ import { useViewability } from './useViewability';
 import { viewabilityLogExtra } from './viewability';
 import type { AdsenseSlotConfig } from './adsense';
 import { ADSENSE_CLIENT_ID, isAdsenseProductionHost } from './adsense';
+import { useAdsenseUtmChannel } from './useAdsenseUtmChannel';
 
 // Module-level, not per-slot: one warning per page load says everything.
 let hasLoggedTestMode = false;
@@ -238,6 +239,7 @@ export function ProgrammaticAd({
   const logExtraRef = useRef(logExtra);
   logExtraRef.current = logExtra;
   const { id: unitId, type: unitType, layoutKey: unitLayoutKey } = config;
+  const { channel: adChannel, utm } = useAdsenseUtmChannel();
 
   const logSlotEvent = useCallback(
     (
@@ -263,12 +265,21 @@ export function ProgrammaticAd({
             format,
             surface,
             refreshes,
-            extra: { ...logExtraRef.current, ...extra },
+            extra: {
+              utm_source: utm?.source,
+              utm_medium: utm?.medium,
+              utm_campaign: utm?.campaign,
+              utm_content: utm?.content,
+              ad_channel: adChannel,
+              ...logExtraRef.current,
+              ...extra,
+            },
           }),
         ),
       });
     },
     [
+      adChannel,
       format,
       logEvent,
       refreshes,
@@ -277,6 +288,7 @@ export function ProgrammaticAd({
       unitId,
       unitLayoutKey,
       unitType,
+      utm,
     ],
   );
 
@@ -541,6 +553,7 @@ export function ProgrammaticAd({
           data-testid={`adsense-slot-${slot}`}
           data-ad-client={ADSENSE_CLIENT_ID}
           data-ad-slot={config.id}
+          data-ad-channel={adChannel}
           {...getInsAttributes(config, FORMAT_SPEC[format].shape)}
         />
       )}

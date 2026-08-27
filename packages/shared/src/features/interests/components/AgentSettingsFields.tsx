@@ -117,9 +117,9 @@ export const FomoSection = ({
     >
       <Slider
         min={0}
-        max={1}
+        max={0.95}
         step={0.05}
-        value={[threshold]}
+        value={[Math.min(threshold, 0.95)]}
         onValueChange={([next]) => setDraft(next)}
         onValueCommit={([next]) => onChange(next)}
       />
