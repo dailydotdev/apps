@@ -201,6 +201,7 @@ describe('AgentHomeScreen spawn settings', () => {
           digest: true,
           notification: true,
         },
+        showHistory: true,
       },
     });
   });
@@ -208,9 +209,10 @@ describe('AgentHomeScreen spawn settings', () => {
   it('peeks the current values until the controls are asked for', () => {
     renderHome();
 
-    expect(screen.getByText('Every hour')).toBeInTheDocument();
+    expect(screen.getByText('Whenever it matters')).toBeInTheDocument();
     expect(screen.getByText('Balanced')).toBeInTheDocument();
     expect(screen.getByText('feed, posts, notifications')).toBeInTheDocument();
+    expect(screen.getByText('Full history')).toBeInTheDocument();
     expect(screen.queryByLabelText('Every week')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Agent settings' }));

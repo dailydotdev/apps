@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { FlexCol } from '../../../components/utilities';
 import {
@@ -10,12 +10,15 @@ import {
 import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import usePersistentContext from '../../../hooks/usePersistentContext';
+import { oneDay } from '../../../lib/dateFormat';
 import { useAgentShellHeight } from '../shell';
 import type { AgentFeedItem } from '../hooks/useAgentFeed';
 import { useAgent } from '../AgentContext';
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader';
 import { AgentIntro } from './AgentIntro';
 import { AgentChatSection } from './AgentChatSection';
+import { AgentHistoryEdge } from './AgentHistoryEdge';
+import { AgentEmptyState } from './AgentEmptyState';
 import { AgentComposer } from './AgentComposer';
 import { AgentQuoteAction } from './AgentQuoteAction';
 import { AgentContentPane } from './AgentContentPane';
@@ -31,13 +34,25 @@ export const AgentWorkspace = ({
   onDelete,
   isDeleting,
   isStandalone,
+  runId,
+  isFeedReady = true,
 }: {
   items: AgentFeedItem[];
   onDelete: () => void;
   isDeleting: boolean;
   isStandalone?: boolean;
+  runId?: string;
+  isFeedReady?: boolean;
 }): ReactElement => {
-  const { isSettingsOpen, openContent, messages, summaryPosts } = useAgent();
+  const {
+    isSettingsOpen,
+    openContent,
+    messages,
+    summaryPosts,
+    isHistoryPending,
+    isRunView,
+    isHistoryLimited,
+  } = useAgent();
   const shellHeight = useAgentShellHeight(isStandalone);
   const [storedWidth, setStoredWidth, isWidthLoaded] =
     usePersistentContext<number>('agentPaneWidth', defaultPaneWidth);
@@ -93,20 +108,77 @@ export const AgentWorkspace = ({
     return () => cancelAnimationFrame(frame);
   };
 
+  const focusedRunIdRef = useRef<string>();
+  // Render-time read: in the commit where the target row mounts and scrolls
+  // itself, the tail effects below must stand down or they yank the transcript
+  // back to the bottom. A runId with no matching turn never counts as pending,
+  // or a stale link would disable tail-following for good.
+  const isFocusPending =
+    !!runId &&
+    focusedRunIdRef.current !== runId &&
+    messages.some(({ id }) => id === runId);
+
+  // Leaving the runId URL re-arms the target, so returning to it via history
+  // focuses again.
+  useEffect(() => {
+    if (!runId) {
+      focusedRunIdRef.current = undefined;
+    }
+  }, [runId]);
+
+  const onFocusRun = useCallback((turnId: string) => {
+    if (focusedRunIdRef.current === turnId) {
+      return;
+    }
+
+    focusedRunIdRef.current = turnId;
+    document
+      .getElementById(`agent-turn-${turnId}`)
+      ?.scrollIntoView({ block: 'center', inline: 'nearest' });
+    isPinnedRef.current = false;
+    setIsAwayFromBottom(true);
+  }, []);
+
   // The transcript only grows when the reader sends a prompt (a reply resolves
   // the turn already there), so growth re-pins unconditionally.
   useEffect(() => {
+    if (isFocusPending) {
+      return undefined;
+    }
+
     isPinnedRef.current = true;
     setIsAwayFromBottom(false);
     setHasUnseenReply(false);
 
     return followTail();
+    // Growth is the trigger; a pending focus only stands the effect down.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length]);
+
+  useEffect(() => {
+    const transcript = transcriptRef.current;
+
+    if (isRunView || isHistoryPending || !transcript) {
+      return;
+    }
+
+    transcript.scrollTop = transcript.scrollHeight;
+    isPinnedRef.current = true;
+    setIsAwayFromBottom(false);
+    setHasUnseenReply(false);
+  }, [isHistoryPending, isRunView]);
+
+  const latestMessage = messages[messages.length - 1];
+  const isLatestStale =
+    isHistoryLimited &&
+    !!latestMessage &&
+    !latestMessage.isPending &&
+    Date.now() - new Date(latestMessage.at).getTime() > oneDay * 1000;
 
   const isTailPending = !!messages.at(-1)?.isPending;
 
   useEffect(() => {
-    if (isTailPending || !messages.length) {
+    if (isFocusPending || isTailPending || !messages.length) {
       return undefined;
     }
 
@@ -195,13 +267,22 @@ export const AgentWorkspace = ({
                     findingsCount={items.length}
                     postsCount={summaryPosts.length}
                   />
-                  <AgentChatSection />
+                  {!isRunView && <AgentHistoryEdge />}
+                  {isLatestStale ? (
+                    <AgentEmptyState />
+                  ) : (
+                    <AgentChatSection
+                      focusedRunId={isFeedReady ? runId : undefined}
+                      onFocusRun={onFocusRun}
+                    />
+                  )}
+                  {isRunView && <AgentHistoryEdge />}
                 </FlexCol>
               </div>
             </div>
             <AgentQuoteAction containerRef={transcriptRef} />
             <div className="relative">
-              {isAwayFromBottom && (
+              {isAwayFromBottom && !isRunView && (
                 <Button
                   icon={
                     <ArrowIcon size={IconSize.Size16} className="rotate-180" />

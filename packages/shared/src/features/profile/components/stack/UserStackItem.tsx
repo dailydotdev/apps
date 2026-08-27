@@ -16,12 +16,8 @@ import {
   ButtonSize,
   ButtonVariant,
 } from '../../../../components/buttons/Button';
-import {
-  EditIcon,
-  MenuIcon,
-  PlusIcon,
-  TrashIcon,
-} from '../../../../components/icons';
+import { EditIcon, MenuIcon, TrashIcon } from '../../../../components/icons';
+import { ToolLogo } from '../../../../components/tools/ToolLogo';
 import { formatMonthYearOnly } from '../../../../lib/dateFormat';
 import { Tooltip } from '../../../../components/tooltip/Tooltip';
 import { useToolTopSquads } from '../../hooks/useToolTopSquads';
@@ -119,6 +115,7 @@ function UserStackItemBody({
     <UserStackTopSquadsTooltip
       toolTitle={title}
       toolFaviconUrl={tool.faviconUrl}
+      toolUrl={tool.url}
       topSquads={topSquads}
       isPending={isPending}
       hasError={isError}
@@ -171,20 +168,20 @@ function UserStackItemBody({
             )}
           >
             <div className="flex min-w-0 items-center gap-2">
-              {iconUrl ? (
-                <img
-                  src={iconUrl}
-                  alt=""
-                  className={classNames(
-                    'size-6 flex-shrink-0',
-                    sponsoredCreative
-                      ? 'rounded-full bg-white object-cover p-0.5'
-                      : 'rounded',
-                  )}
-                />
-              ) : (
-                <PlusIcon className="size-6 flex-shrink-0 text-text-tertiary" />
-              )}
+              <ToolLogo
+                title={title}
+                faviconUrl={iconUrl}
+                // Sponsored rows stay creative-only: a site-resolved logo on
+                // an ad surface could misrepresent what the sponsor supplied.
+                url={sponsoredCreative ? null : tool.url}
+                className={classNames(
+                  'size-6 typo-footnote',
+                  sponsoredCreative ? 'rounded-full' : 'rounded',
+                )}
+                plateClassName={
+                  sponsoredCreative ? 'bg-white p-0.5' : undefined
+                }
+              />
               {!!title && (
                 <div className="flex min-w-0 flex-1 flex-col">
                   <Typography

@@ -34,6 +34,7 @@ import { AgentSendButton } from './AgentSendButton';
 import {
   CadenceSection,
   FomoSection,
+  HistorySection,
   OutputModesSection,
   cadenceOptions,
   outputOptions,
@@ -197,7 +198,7 @@ export const AgentHomeScreen = ({
 
   const cadenceSummary =
     cadenceOptions.find(({ value }) => value === settings.cadence)?.label ??
-    'Every hour';
+    'Whenever it matters';
   const deliverySummary = outputOptions
     .filter(({ key }) => settings.outputModes?.[key])
     .map(({ short }) => short)
@@ -211,9 +212,13 @@ export const AgentHomeScreen = ({
     fomoSummary = 'Show me everything';
   }
   const peekRows = [
-    ['When it runs', cadenceSummary],
+    ['When it reports', cadenceSummary],
     ['FOMO vs quality', fomoSummary],
     ['What it delivers', deliverySummary || 'Nothing yet'],
+    [
+      'History',
+      settings.showHistory === false ? 'Latest only' : 'Full history',
+    ],
   ];
 
   return (
@@ -409,7 +414,7 @@ export const AgentHomeScreen = ({
             {isSettingsOpen && (
               <FlexCol className="agent-scroll max-h-[50vh] overflow-y-auto border-t border-border-subtlest-tertiary px-4">
                 <CadenceSection
-                  value={settings.cadence ?? UserInterestCadence.Hourly}
+                  value={settings.cadence ?? UserInterestCadence.Auto}
                   disabled={isCreating}
                   onChange={(cadence) =>
                     setSettings((current) => ({ ...current, cadence }))
@@ -429,6 +434,13 @@ export const AgentHomeScreen = ({
                       ...current,
                       outputModes: { ...current.outputModes, ...outputModes },
                     }))
+                  }
+                />
+                <HistorySection
+                  value={settings.showHistory ?? true}
+                  disabled={isCreating}
+                  onChange={(showHistory) =>
+                    setSettings((current) => ({ ...current, showHistory }))
                   }
                 />
               </FlexCol>

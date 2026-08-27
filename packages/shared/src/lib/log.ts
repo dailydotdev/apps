@@ -107,6 +107,14 @@ export enum Origin {
 }
 
 export enum LogEvent {
+  // AdSense slots on the /read template and the organic post page. First-party
+  // per-placement lifecycle — the shared unit ids blend AdSense's own
+  // reporting, and Google reports nothing about requests it never answered.
+  RequestAdsenseSlot = 'request adsense slot',
+  FillAdsenseSlot = 'fill adsense slot',
+  EmptyAdsenseSlot = 'empty adsense slot',
+  AdsenseSlotError = 'adsense slot error',
+  AdsenseTestMode = 'adsense test mode',
   OpenSmartComposer = 'open smart composer',
   CloseSmartComposer = 'close smart composer',
   SubmitSmartComposer = 'submit smart composer',
@@ -130,6 +138,7 @@ export enum LogEvent {
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',
+  SearchTools = 'search tools',
   ClickFeedTagChip = 'click feed tag chip',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',
