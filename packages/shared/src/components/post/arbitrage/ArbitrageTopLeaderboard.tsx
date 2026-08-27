@@ -2,11 +2,25 @@ import type { ReactElement } from 'react';
 import React from 'react';
 import classNames from 'classnames';
 import { ArbitrageAdFormat, ArbitrageAdSlot } from './ArbitrageAdSlot';
-import { ARBITRAGE_SLOT } from './slots';
+import { ARBITRAGE_SLOT, TOP_LEADERBOARD_STICKY_MS } from './slots';
+import { useTimedRelease } from './useTimedRelease';
 
 export interface ArbitrageTopLeaderboardProps {
-  /** False while the unit is still inside its sticky window. */
-  released: boolean;
+  /**
+   * False while the unit is still inside its sticky window. Owned internally
+   * when omitted — /read passes it because the mobile header block shares the
+   * same window, while the organic page has no other consumer.
+   */
+  released?: boolean;
+  slot?: number;
+  /**
+   * The fixed 320x100 twin the phone requests instead of the responsive
+   * unit. Must come from the same surface's map as `slot`, or the twin
+   * would ride the other surface's flag gating.
+   */
+  phoneSlot?: number;
+  surface?: 'read' | 'organic';
+  className?: string;
 }
 
 /**
@@ -21,11 +35,19 @@ export interface ArbitrageTopLeaderboardProps {
  */
 export function ArbitrageTopLeaderboard({
   released,
+  slot = ARBITRAGE_SLOT.topLeaderboard,
+  phoneSlot = ARBITRAGE_SLOT.topLeaderboardPhone,
+  surface = 'read',
+  className,
 }: ArbitrageTopLeaderboardProps): ReactElement {
+  const ownReleased = useTimedRelease(TOP_LEADERBOARD_STICKY_MS);
+  const isReleased = released ?? ownReleased;
+
   return (
     <div
       className={classNames(
         'bg-background-default pb-2 pt-4',
+        className,
         // --sticky-header-offset is published by MainLayout and matches the
         // fixed chrome this layout actually has: 4rem for the v1 header, 0 on
         // mobile and under the v2 sidebar which owns its own header, more again
@@ -42,14 +64,29 @@ export function ArbitrageTopLeaderboard({
         // above, which keeps the two from sliding over each other; sticky here
         // as well would give the block a second sticky element inside a pinned
         // one, and it would climb to the top of it and cover the leaderboard.
-        !released &&
+        !isReleased &&
           'z-2 laptop:sticky laptop:top-[var(--sticky-header-offset)]',
       )}
     >
+      {/* Two breakpoint twins of one unit: the phone requests a fixed
+          320x100 (a responsive request can answer with expandable video —
+          half a pinned phone screen), tablet+ keeps the responsive 728x90.
+          Neither is eager: an eager push from a display:none twin would
+          initialise the visible one out of order, and both sit at the top of
+          the page where the intersection observer fires on first paint
+          anyway. A hidden ins never intersects, so exactly one requests. */}
       <ArbitrageAdSlot
-        slot={ARBITRAGE_SLOT.topLeaderboard}
+        slot={phoneSlot}
+        surface={surface}
         format={ArbitrageAdFormat.Leaderboard}
-        eager
+        className="tablet:hidden"
+        refreshes
+      />
+      <ArbitrageAdSlot
+        slot={slot}
+        surface={surface}
+        format={ArbitrageAdFormat.Leaderboard}
+        hideOnPhone
         refreshes
       />
     </div>

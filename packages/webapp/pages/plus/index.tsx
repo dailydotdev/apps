@@ -18,7 +18,7 @@ import { LogEvent, TargetId } from '@dailydotdev/shared/src/lib/log';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { getPlusLayout } from '../../components/layouts/PlusLayout/PlusLayout';
 import { getPageSeoTitles } from '../../components/layouts/utils';
-import { defaultOpenGraph } from '../../next-seo';
+import { defaultOpenGraph, getShareImageUrl } from '../../next-seo';
 
 const PlusMobile = dynamic(() =>
   import(
@@ -43,7 +43,13 @@ const seoTitlesControl = getPageSeoTitles(
 );
 const seoControl: NextSeoProps = {
   title: seoTitlesControl.title,
-  openGraph: { ...seoTitlesControl.openGraph, ...defaultOpenGraph },
+  openGraph: {
+    ...seoTitlesControl.openGraph,
+    ...defaultOpenGraph,
+    images: [
+      { url: getShareImageUrl('plus', 'default'), width: 1200, height: 630 },
+    ],
+  },
   description:
     'Upgrade to daily.dev Plus for an ad-free experience, custom feeds, bookmark folders, clickbait shield, and more.',
 };
