@@ -124,7 +124,8 @@ export const useComposerSubmit = ({
       if (editPostId) {
         return;
       }
-      // A scheduled post's page isn't visible yet — confirm instead.
+      // Scheduled posts aren't visible yet, so don't navigate to the post
+      // page — just confirm and let onComplete close the composer.
       if (post.flags?.scheduledAt) {
         displayToast('✅ Your post has been scheduled!');
         return;
@@ -174,9 +175,7 @@ export const useComposerSubmit = ({
       return true;
     }
     if (kind === 'text') {
-      // Freeform posts can legitimately have no body (title + cover only),
-      // so an edit only requires the title.
-      return editPostId ? !text.title.trim() : !isTextValid(text);
+      return !isTextValid(text);
     }
     if (kind === 'link') {
       return !isLinkValid(link, preview);
@@ -184,8 +183,9 @@ export const useComposerSubmit = ({
     return !isPollValid(poll);
   };
 
-  // `scheduledAt` is gated by the caller: undefined unless the post is
-  // schedulable (single-source, non-moderated).
+  // Scheduling is single-source and non-moderated only. The `scheduledAt` here
+  // is already gated by the caller (undefined unless the post is schedulable),
+  // and it routes through the dedicated single-source mutation for each type.
   const submitText = async (scheduledAt?: string) => {
     const payload = {
       title: text.title.trim(),

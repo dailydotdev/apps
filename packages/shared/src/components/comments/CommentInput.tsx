@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import type { CommentMarkdownInputProps } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { CommentMarkdownInput } from '../fields/MarkdownInput/CommentMarkdownInput';
 import { WriteCommentContext } from '../../contexts/WriteCommentContext';
@@ -17,6 +17,9 @@ export default function CommentInput({
   ...props
 }: CommentInputProps): ReactElement {
   const isFullScreen = !useViewSize(ViewSize.Laptop);
+  // Crossing the Laptop breakpoint (tablet rotation) swaps the drawer and
+  // inline trees, remounting the editor — the draft has to survive up here.
+  const [draft, setDraft] = useState<string>();
 
   const mutateCommentResult = useMutateComment({
     post: props.post,
@@ -31,6 +34,11 @@ export default function CommentInput({
       autoFocus={isFullScreen || props.autoFocus}
       fills={isFullScreen}
       className={isFullScreen ? undefined : className}
+      initialContent={draft ?? props.initialContent}
+      onChange={(value) => {
+        setDraft(value);
+        props.onChange?.(value);
+      }}
       onClose={onClose}
     />
   );
