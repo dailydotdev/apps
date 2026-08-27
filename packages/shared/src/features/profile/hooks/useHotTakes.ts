@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import type { PublicProfile } from '../../../lib/user';
 import type {
   AddHotTakeInput,
+  HotTake,
   UpdateHotTakeInput,
   ReorderHotTakeInput,
 } from '../../../graphql/user/userHotTake';
@@ -17,21 +18,55 @@ import { useProfileShowcase } from './useProfileShowcase';
 import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
+import type { Connection } from '../../../graphql/common';
 
 export const MAX_HOT_TAKES = 5;
 export const HOT_TAKE_LIMIT_REACHED_MESSAGE = `You already have all ${MAX_HOT_TAKES} hot takes. Remove one to add a new one.`;
 
 const selectHotTakes = (data: ProfileShowcase) => data.hotTakes;
 
+const sortHotTakes = (left: HotTake, right: HotTake) => {
+  if (left.position !== right.position) {
+    return left.position - right.position;
+  }
+
+  return left.createdAt.localeCompare(right.createdAt);
+};
+
+const replaceHotTakeConnection = (
+  connection: Connection<HotTake>,
+  hotTakes: HotTake[],
+): Connection<HotTake> => ({
+  ...connection,
+  edges: hotTakes.sort(sortHotTakes).map((node) => ({ node })),
+});
+
+const updateHotTakesCache =
+  (
+    updater: (hotTakes: HotTake[]) => HotTake[],
+  ): ((data: ProfileShowcase | undefined) => ProfileShowcase | undefined) =>
+  (data) => {
+    if (!data) {
+      return data;
+    }
+
+    return {
+      ...data,
+      hotTakes: replaceHotTakeConnection(
+        data.hotTakes,
+        updater(data.hotTakes.edges.map(({ node }) => node)),
+      ),
+    };
+  };
+
 export const useHotTakes = (user: PublicProfile | null) => {
   const { isOwner } = useProfilePreview(user);
   const { logEvent } = useLogContext();
 
-  const {
-    queryKey,
-    invalidate: invalidateQuery,
-    ...query
-  } = useProfileShowcase(user, selectHotTakes);
+  const { cancel, queryKey, setData, ...query } = useProfileShowcase(
+    user,
+    selectHotTakes,
+  );
 
   const hotTakes = useMemo(
     () => query.data?.edges?.map(({ node }) => node) ?? [],
@@ -42,8 +77,14 @@ export const useHotTakes = (user: PublicProfile | null) => {
 
   const addMutation = useMutation({
     mutationFn: (input: AddHotTakeInput) => addHotTake(input),
-    onSuccess: (_, input) => {
-      invalidateQuery();
+    onSuccess: async (hotTake, input) => {
+      await cancel();
+      setData(
+        updateHotTakesCache((items) => [
+          ...items.filter((item) => item.id !== hotTake.id),
+          hotTake,
+        ]),
+      );
       logEvent({
         event_name: LogEvent.AddHotTake,
         target_id: input.title,
@@ -54,8 +95,13 @@ export const useHotTakes = (user: PublicProfile | null) => {
   const updateMutation = useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdateHotTakeInput }) =>
       updateHotTake(id, input),
-    onSuccess: (_, { id }) => {
-      invalidateQuery();
+    onSuccess: async (hotTake, { id }) => {
+      await cancel();
+      setData(
+        updateHotTakesCache((items) =>
+          items.map((item) => (item.id === hotTake.id ? hotTake : item)),
+        ),
+      );
       logEvent({
         event_name: LogEvent.UpdateHotTake,
         extra: JSON.stringify({ id }),
@@ -65,8 +111,11 @@ export const useHotTakes = (user: PublicProfile | null) => {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteHotTake(id),
-    onSuccess: (_, id) => {
-      invalidateQuery();
+    onSuccess: async (_, id) => {
+      await cancel();
+      setData(
+        updateHotTakesCache((items) => items.filter((item) => item.id !== id)),
+      );
       logEvent({
         event_name: LogEvent.RemoveHotTake,
         extra: JSON.stringify({ id }),
@@ -76,8 +125,17 @@ export const useHotTakes = (user: PublicProfile | null) => {
 
   const reorderMutation = useMutation({
     mutationFn: (items: ReorderHotTakeInput[]) => reorderHotTakes(items),
-    onSuccess: (_, items) => {
-      invalidateQuery();
+    onSuccess: async (reorderedHotTakes, items) => {
+      const hotTakesById = new Map(
+        reorderedHotTakes.map((item) => [item.id, item]),
+      );
+
+      await cancel();
+      setData(
+        updateHotTakesCache((currentItems) =>
+          currentItems.map((item) => hotTakesById.get(item.id) ?? item),
+        ),
+      );
       logEvent({
         event_name: LogEvent.ReorderHotTake,
         extra: JSON.stringify({ count: items.length }),

@@ -10,7 +10,11 @@ type ShowcaseUser = Pick<PublicProfile, 'id'> | null | undefined;
 
 export type UseProfileShowcase<TSlice> = UseQueryResult<TSlice> & {
   queryKey: QueryKey;
+  cancel: () => Promise<void>;
   invalidate: () => void;
+  setData: (
+    updater: (data: ProfileShowcase | undefined) => ProfileShowcase | undefined,
+  ) => void;
 };
 
 /**
@@ -51,5 +55,21 @@ export function useProfileShowcase<TSlice>(
     queryClient.invalidateQueries({ queryKey });
   }, [queryClient, queryKey]);
 
-  return { ...query, queryKey, invalidate };
+  const cancel = useCallback(
+    () => queryClient.cancelQueries({ queryKey }),
+    [queryClient, queryKey],
+  );
+
+  const setData = useCallback(
+    (
+      updater: (
+        data: ProfileShowcase | undefined,
+      ) => ProfileShowcase | undefined,
+    ) => {
+      queryClient.setQueryData<ProfileShowcase>(queryKey, updater);
+    },
+    [queryClient, queryKey],
+  );
+
+  return { ...query, queryKey, cancel, invalidate, setData };
 }
