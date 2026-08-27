@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 import type { Post } from '../../graphql/posts';
 import { useViewSize } from '../../hooks';
@@ -73,6 +73,21 @@ describe('CommentInput', () => {
 
     const { className } = mockDrawerProps.mock.calls[0][0];
     expect(className.wrapper).toContain('!p-0');
+  });
+
+  it('keeps the draft when crossing the breakpoint remounts the editor', () => {
+    jest.mocked(useViewSize).mockReturnValue(true);
+    const { rerender } = render(<CommentInput post={post} />);
+
+    const { onChange } = mockComposerProps.mock.calls.at(-1)[0];
+    act(() => onChange('my draft'));
+
+    jest.mocked(useViewSize).mockReturnValue(false);
+    rerender(<CommentInput post={post} />);
+
+    expect(mockComposerProps).toHaveBeenLastCalledWith(
+      expect.objectContaining({ initialContent: 'my draft' }),
+    );
   });
 
   it('stays inline on desktop', () => {

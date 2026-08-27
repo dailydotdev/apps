@@ -395,6 +395,8 @@ export function SmartComposerModal({
   const isMulti = !editPost && selected.length > 1;
 
   const schedule = useSchedulePost();
+  // Scheduling: single-source, non-moderated create only (any post type
+  // except standups, which schedule themselves).
   const canSchedule =
     kind !== 'standup' &&
     !isEditing &&
