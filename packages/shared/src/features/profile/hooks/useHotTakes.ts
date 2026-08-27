@@ -13,7 +13,6 @@ import {
   deleteHotTake,
   reorderHotTakes,
 } from '../../../graphql/user/userHotTake';
-import type { ProfileShowcase } from '../../../graphql/user/profileShowcase';
 import { useProfileShowcase } from './useProfileShowcase';
 import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 import { useLogContext } from '../../../contexts/LogContext';
@@ -23,8 +22,6 @@ import type { Connection } from '../../../graphql/common';
 export const MAX_HOT_TAKES = 5;
 export const HOT_TAKE_LIMIT_REACHED_MESSAGE = `You already have all ${MAX_HOT_TAKES} hot takes. Remove one to add a new one.`;
 
-const selectHotTakes = (data: ProfileShowcase) => data.hotTakes;
-
 const sortHotTakes = (left: HotTake, right: HotTake) => {
   if (left.position !== right.position) {
     return left.position - right.position;
@@ -33,39 +30,24 @@ const sortHotTakes = (left: HotTake, right: HotTake) => {
   return left.createdAt.localeCompare(right.createdAt);
 };
 
-const replaceHotTakeConnection = (
-  connection: Connection<HotTake>,
-  hotTakes: HotTake[],
-): Connection<HotTake> => ({
-  ...connection,
-  edges: hotTakes.sort(sortHotTakes).map((node) => ({ node })),
-});
-
 const updateHotTakesCache =
   (
     updater: (hotTakes: HotTake[]) => HotTake[],
-  ): ((data: ProfileShowcase | undefined) => ProfileShowcase | undefined) =>
-  (data) => {
-    if (!data) {
-      return data;
-    }
-
-    return {
-      ...data,
-      hotTakes: replaceHotTakeConnection(
-        data.hotTakes,
-        updater(data.hotTakes.edges.map(({ node }) => node)),
-      ),
-    };
-  };
+  ): ((connection: Connection<HotTake>) => Connection<HotTake>) =>
+  (connection) => ({
+    ...connection,
+    edges: [...updater(connection.edges.map(({ node }) => node))]
+      .sort(sortHotTakes)
+      .map((node) => ({ node })),
+  });
 
 export const useHotTakes = (user: PublicProfile | null) => {
   const { isOwner } = useProfilePreview(user);
   const { logEvent } = useLogContext();
 
-  const { cancel, queryKey, setData, ...query } = useProfileShowcase(
+  const { queryKey, updateSlice, ...query } = useProfileShowcase(
     user,
-    selectHotTakes,
+    'hotTakes',
   );
 
   const hotTakes = useMemo(
@@ -78,8 +60,7 @@ export const useHotTakes = (user: PublicProfile | null) => {
   const addMutation = useMutation({
     mutationFn: (input: AddHotTakeInput) => addHotTake(input),
     onSuccess: async (hotTake, input) => {
-      await cancel();
-      setData(
+      await updateSlice(
         updateHotTakesCache((items) => [
           ...items.filter((item) => item.id !== hotTake.id),
           hotTake,
@@ -96,8 +77,7 @@ export const useHotTakes = (user: PublicProfile | null) => {
     mutationFn: ({ id, input }: { id: string; input: UpdateHotTakeInput }) =>
       updateHotTake(id, input),
     onSuccess: async (hotTake, { id }) => {
-      await cancel();
-      setData(
+      await updateSlice(
         updateHotTakesCache((items) =>
           items.map((item) => (item.id === hotTake.id ? hotTake : item)),
         ),
@@ -112,8 +92,7 @@ export const useHotTakes = (user: PublicProfile | null) => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteHotTake(id),
     onSuccess: async (_, id) => {
-      await cancel();
-      setData(
+      await updateSlice(
         updateHotTakesCache((items) => items.filter((item) => item.id !== id)),
       );
       logEvent({
@@ -130,8 +109,7 @@ export const useHotTakes = (user: PublicProfile | null) => {
         reorderedHotTakes.map((item) => [item.id, item]),
       );
 
-      await cancel();
-      setData(
+      await updateSlice(
         updateHotTakesCache((currentItems) =>
           currentItems.map((item) => hotTakesById.get(item.id) ?? item),
         ),

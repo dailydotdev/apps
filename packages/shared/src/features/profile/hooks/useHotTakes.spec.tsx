@@ -153,4 +153,33 @@ describe('useHotTakes', () => {
     await waitFor(() => expect(result.current.hotTakes).toEqual(reordered));
     expect(profileShowcaseCalls()).toHaveLength(1);
   });
+
+  it('refetches instead of writing when the mutation beats the first showcase response', async () => {
+    const added = hotTake({ id: 'h1', title: 'Tabs are state' });
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    // The first showcase read never resolves: cancelling it would revert the
+    // query to empty and blank all four sections, so the mutation has to fall
+    // back to a refetch.
+    request.mockImplementationOnce(() => new Promise(() => {}));
+
+    const { result } = renderHook(() => useHotTakes(user), { wrapper });
+
+    await waitFor(() => expect(profileShowcaseCalls()).toHaveLength(1));
+
+    request.mockResolvedValueOnce({ addHotTake: added });
+    request.mockResolvedValueOnce(showcase([added]));
+
+    await act(() =>
+      result.current.add({ emoji: added.emoji, title: added.title }),
+    );
+
+    await waitFor(() => expect(result.current.hotTakes).toEqual([added]));
+    expect(profileShowcaseCalls()).toHaveLength(2);
+  });
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ReactNode } from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { gqlClient } from '../../../graphql/common';
 import type { PublicProfile } from '../../../lib/user';
@@ -102,5 +102,33 @@ describe('the profile showcase sections', () => {
     renderHook(() => useUserStack(null), { wrapper });
 
     expect(request).not.toHaveBeenCalled();
+  });
+
+  it('keep their siblings intact when one section writes its own slice', async () => {
+    request.mockResolvedValueOnce(showcase);
+
+    const { result } = renderHook(
+      () => ({
+        stack: useUserStack(user),
+        hotTakes: useHotTakes(user),
+        photos: useUserWorkspacePhotos(user),
+        gear: useGear(user),
+      }),
+      { wrapper },
+    );
+
+    await waitFor(() =>
+      expect(result.current.hotTakes.hotTakes).toHaveLength(1),
+    );
+
+    request.mockResolvedValueOnce({ deleteHotTake: { _: true } });
+    await act(() => result.current.hotTakes.remove('h1'));
+
+    await waitFor(() => expect(result.current.hotTakes.hotTakes).toEqual([]));
+    expect(result.current.stack.stackItems[0].id).toBe('s1');
+    expect(result.current.photos.photos[0].id).toBe('p1');
+    expect(result.current.gear.gearItems[0].id).toBe('g1');
+    // The write reconciled the cache in place — no showcase refetch.
+    expect(request).toHaveBeenCalledTimes(2);
   });
 });
