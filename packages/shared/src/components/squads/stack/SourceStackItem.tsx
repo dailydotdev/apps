@@ -10,6 +10,9 @@ import {
 } from '../../typography/Typography';
 import { Button, ButtonSize, ButtonVariant } from '../../buttons/Button';
 import { EditIcon, TrashIcon } from '../../icons';
+import Link from '../../utilities/Link';
+import ConditionalWrapper from '../../ConditionalWrapper';
+import { webappUrl } from '../../../lib/constants';
 
 interface SourceStackItemProps {
   item: SourceStack;
@@ -26,6 +29,8 @@ export function SourceStackItem({
 }: SourceStackItemProps): ReactElement {
   const { tool } = item;
   const title = item.title ?? tool.title;
+  const isLinkable = !!tool.slug;
+  const toolUrl = `${webappUrl}tools/${tool.slug}`;
 
   return (
     <div
@@ -34,26 +39,37 @@ export function SourceStackItem({
         'hover:border-border-subtlest-secondary',
       )}
     >
-      <div className="flex items-center gap-2">
-        <ToolLogo
-          title={title}
-          faviconUrl={tool.faviconUrl}
-          url={tool.url}
-          className="rounded size-6 typo-footnote"
-        />
-        {!!title && (
-          <div className="flex min-w-0 flex-1 flex-col">
-            <Typography
-              type={TypographyType.Callout}
-              color={TypographyColor.Primary}
-              bold
-              truncate
-            >
-              {title}
-            </Typography>
-          </div>
+      <ConditionalWrapper
+        condition={isLinkable}
+        wrapper={(children) => (
+          <Link href={toolUrl}>
+            <a href={toolUrl} className="flex min-w-0 items-center gap-2">
+              {children}
+            </a>
+          </Link>
         )}
-      </div>
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          <ToolLogo
+            title={title}
+            faviconUrl={tool.faviconUrl}
+            url={tool.url}
+            className="rounded size-6 typo-footnote"
+          />
+          {!!title && (
+            <div className="flex min-w-0 flex-1 flex-col">
+              <Typography
+                type={TypographyType.Callout}
+                color={TypographyColor.Primary}
+                bold
+                truncate
+              >
+                {title}
+              </Typography>
+            </div>
+          )}
+        </div>
+      </ConditionalWrapper>
       {canEdit && (
         <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
           {onEdit && (

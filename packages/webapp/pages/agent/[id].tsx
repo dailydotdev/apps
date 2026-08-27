@@ -21,7 +21,13 @@ import { getLayout } from '../../components/layouts/MainLayout';
 import ProtectedPage from '../../components/ProtectedPage';
 import { getPageSeoTitles } from '../../components/layouts/utils';
 
-const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
+const LiveAgentPage = ({
+  id,
+  runId,
+}: {
+  id: string;
+  runId?: string;
+}): ReactElement | null => {
   const router = useRouter();
   const { user, isAuthReady } = useAuthContext();
   const { value: showAgent } = useConditionalFeature({
@@ -88,6 +94,8 @@ const LiveAgentPage = ({ id }: { id: string }): ReactElement | null => {
             // not also reject unhandled.
             onDelete={() => deleteInterest(id).catch(() => undefined)}
             isDeleting={isDeleting}
+            runId={runId}
+            isFeedReady={!feed.isPending}
           />
         )}
       </AgentProvider>
@@ -103,7 +111,14 @@ const Page = (): ReactElement | null => {
     return null;
   }
 
-  return <LiveAgentPage id={router.query.id as string} />;
+  return (
+    <LiveAgentPage
+      id={router.query.id as string}
+      runId={
+        typeof router.query.run === 'string' ? router.query.run : undefined
+      }
+    />
+  );
 };
 
 const getAgentLayout: typeof getLayout = (...props) =>

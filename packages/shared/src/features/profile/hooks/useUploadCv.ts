@@ -22,14 +22,33 @@ export const fileValidation = {
   acceptedExtensions: ['pdf', 'docx'],
 };
 
+export interface UploadCvModalContent {
+  title: string;
+  description: string;
+}
+
+export const uploadCvProfileSuccessContent: UploadCvModalContent = {
+  title: 'CV uploaded',
+  description:
+    'We’ll use it to help complete your profile. You can update your profile details anytime.',
+};
+
+export const uploadCvOpportunitySuccessContent: UploadCvModalContent = {
+  title: 'All set! We’ll take it from here',
+  description:
+    'You’re in. Now we’ll search behind the scenes and surface only what’s actually worth considering.',
+};
+
 interface UseUploadCvProps {
   onUploadSuccess?: () => void;
   shouldOpenModal?: boolean;
+  modalContent?: UploadCvModalContent;
 }
 
 export const useUploadCv = ({
   onUploadSuccess,
   shouldOpenModal = true,
+  modalContent = uploadCvProfileSuccessContent,
 }: UseUploadCvProps = {}) => {
   const { logEvent } = useLogContext();
   const { displayToast } = useToastNotification();
@@ -59,9 +78,7 @@ export const useUploadCv = ({
           props: {
             withCloseOnTablet: true,
             content: {
-              title: 'All set! We’ll take it from here',
-              description:
-                'You’re in. Now we’ll search behind the scenes and surface only what’s actually worth considering.',
+              ...modalContent,
               cover: uploadCvModalSuccess,
               coverDrawer: uploadCvModalSuccessMobile,
             },

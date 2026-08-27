@@ -1,5 +1,5 @@
-import type { ReactElement } from 'react';
-import React, { useEffect, useRef, useState } from 'react';
+import type { ReactElement, ReactNode } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import type { Comment, SortCommentsBy } from '../../graphql/comments';
 import type { Post } from '../../graphql/posts';
@@ -45,6 +45,16 @@ interface PostCommentsProps {
   removeTopSpacing?: boolean;
   canReply?: MainCommentProps['canReply'];
   onReplyBlocked?: MainCommentProps['onReplyBlocked'];
+  /**
+   * Renders after the top-level comment at which the running total of
+   * comments — replies included, every comment counts — crosses a multiple
+   * of `interleaveEvery`. Used by the ad template to break a long thread up;
+   * never after the last top-level comment, where whatever follows the
+   * thread already sits. Both props are required together, and without them
+   * the list keeps its original markup.
+   */
+  interleaveEvery?: number;
+  renderInterleaved?: (occurrence: number) => ReactNode;
 }
 
 const noopShare = (): void => {};
@@ -65,6 +75,8 @@ export function PostComments({
   removeTopSpacing = false,
   canReply,
   onReplyBlocked,
+  interleaveEvery,
+  renderInterleaved,
 }: PostCommentsProps): ReactElement {
   const { id } = post;
   const container = useRef<HTMLDivElement | null>(null);
@@ -124,32 +136,63 @@ export function PostComments({
       }
       ref={container}
     >
-      {comments!.postComments.edges.map((e, index) => (
-        <MainComment
-          isModalThread={isModalThread}
-          className={{ commentBox: className }}
-          post={post}
-          origin={origin}
-          commentHash={commentHash ?? undefined}
-          commentRef={commentRef as React.MutableRefObject<HTMLElement>}
-          comment={e.node}
-          key={e.node.id}
-          onShare={onShare ?? noopShare}
-          onDelete={(comment, parentId) =>
-            deleteComment(comment.id, parentId ?? null, post)
-          }
-          onShowUpvotes={onClickUpvote ?? noopShowUpvotes}
-          postAuthorId={post.author?.id ?? null}
-          postScoutId={post.scout?.id ?? null}
-          appendTooltipTo={getAppendTooltipParent}
-          permissionNotificationCommentId={permissionNotificationCommentId}
-          joinNotificationCommentId={joinNotificationCommentId}
-          onCommented={onCommented}
-          lazy={!commentHash && index >= lazyCommentThreshold}
-          canReply={canReply}
-          onReplyBlocked={onReplyBlocked}
-        />
-      ))}
+      {(() => {
+        // Replies count too: the interval is over everything the reader
+        // scrolls past, not just top-level rows (loaded replies — collapsed
+        // pagination beyond the first page is not on screen and not counted),
+        // and the boundary can only sit after a top-level block. One prefix
+        // pass instead of two reductions per row.
+        const totals: number[] = [0];
+        comments!.postComments.edges.forEach((edge, i) => {
+          totals.push(totals[i] + 1 + (edge.node.children?.edges?.length ?? 0));
+        });
+        return comments!.postComments.edges.map((e, index, edges) => {
+          const isLast = index === edges.length - 1;
+          const seen = totals[index + 1];
+          const shouldInterleave =
+            !!interleaveEvery &&
+            !!renderInterleaved &&
+            !isLast &&
+            Math.floor(seen / interleaveEvery) >
+              Math.floor(totals[index] / interleaveEvery);
+
+          // Always the Fragment, even rows that interleave nothing: the type at
+          // a given key must not flip as the boundary moves (a new comment
+          // landing shifts every index), or React remounts that comment's
+          // subtree and open reply boxes lose their state.
+          return (
+            <Fragment key={e.node.id}>
+              <MainComment
+                isModalThread={isModalThread}
+                className={{ commentBox: className }}
+                post={post}
+                origin={origin}
+                commentHash={commentHash ?? undefined}
+                commentRef={commentRef as React.MutableRefObject<HTMLElement>}
+                comment={e.node}
+                onShare={onShare ?? noopShare}
+                onDelete={(comment, parentId) =>
+                  deleteComment(comment.id, parentId ?? null, post)
+                }
+                onShowUpvotes={onClickUpvote ?? noopShowUpvotes}
+                postAuthorId={post.author?.id ?? null}
+                postScoutId={post.scout?.id ?? null}
+                appendTooltipTo={getAppendTooltipParent}
+                permissionNotificationCommentId={
+                  permissionNotificationCommentId
+                }
+                joinNotificationCommentId={joinNotificationCommentId}
+                onCommented={onCommented}
+                lazy={!commentHash && index >= lazyCommentThreshold}
+                canReply={canReply}
+                onReplyBlocked={onReplyBlocked}
+              />
+              {shouldInterleave &&
+                renderInterleaved(Math.floor(seen / interleaveEvery))}
+            </Fragment>
+          );
+        });
+      })()}
     </div>
   );
 }
