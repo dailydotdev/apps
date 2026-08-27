@@ -1,14 +1,14 @@
 import type { CSSProperties, ReactElement } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { webappUrl } from '../../lib/constants';
 import { useLogContext } from '../../contexts/LogContext';
 import { LogEvent } from '../../lib/log';
 import { AdActions } from '../../lib/ads';
 import { useViewability } from './useViewability';
 import { viewabilityLogExtra } from './viewability';
 import type { AdsenseSlotConfig } from './adsense';
-import { ADSENSE_CLIENT_ID } from './adsense';
+import { ADSENSE_CLIENT_ID, isAdsenseProductionHost } from './adsense';
+import { useAdsenseUtmChannel } from './useAdsenseUtmChannel';
 
 // Module-level, not per-slot: one warning per page load says everything.
 let hasLoggedTestMode = false;
@@ -239,6 +239,7 @@ export function ProgrammaticAd({
   const logExtraRef = useRef(logExtra);
   logExtraRef.current = logExtra;
   const { id: unitId, type: unitType, layoutKey: unitLayoutKey } = config;
+  const { channel: adChannel, utm } = useAdsenseUtmChannel();
 
   const logSlotEvent = useCallback(
     (
@@ -264,12 +265,21 @@ export function ProgrammaticAd({
             format,
             surface,
             refreshes,
-            extra: { ...logExtraRef.current, ...extra },
+            extra: {
+              utm_source: utm?.source,
+              utm_medium: utm?.medium,
+              utm_campaign: utm?.campaign,
+              utm_content: utm?.content,
+              ad_channel: adChannel,
+              ...logExtraRef.current,
+              ...extra,
+            },
           }),
         ),
       });
     },
     [
+      adChannel,
       format,
       logEvent,
       refreshes,
@@ -278,6 +288,7 @@ export function ProgrammaticAd({
       unitId,
       unitLayoutKey,
       unitType,
+      utm,
     ],
   );
 
@@ -363,19 +374,13 @@ export function ProgrammaticAd({
       return undefined;
     }
 
-    // Any host but the canonical production one serves test creatives.
-    // Preview deployments are production *builds*, so a build-time flag
-    // can't make this call — it has to happen here, before the request.
-    let productionHost = '';
-    try {
-      productionHost = new URL(webappUrl).hostname;
-    } catch {
-      // Fail-safe: unset/relative webappUrl means test creatives too.
-    }
-    if (productionHost !== window.location.hostname) {
+    // Any host but the production ones serves test creatives. Preview
+    // deployments are production *builds*, so a build-time flag can't make
+    // this call — it has to happen here, before the request.
+    if (!isAdsenseProductionHost(window.location.hostname)) {
       element.setAttribute('data-adtest', 'on');
       // Test mode pays nothing, so it engaging where it should not — a
-      // misconfigured webappUrl in production — must be visible in telemetry
+      // production host missing from the list — must be visible in telemetry
       // rather than silently zeroing revenue. Once per page is enough.
       if (!hasLoggedTestMode) {
         hasLoggedTestMode = true;
@@ -505,13 +510,17 @@ export function ProgrammaticAd({
     <div
       ref={setWrapperRef}
       className={classNames(
-        // Centered on a lighter block, so the unit reads as a deliberate
-        // frame rather than a creative floating on the page background.
+        // A constant light island, deliberately NOT a theme token: display
+        // creatives are designed against light backgrounds, and on a dark
+        // page a white-bodied ad floating on the theme surface reads as a
+        // hole punched in the UI. The white card makes the unit an
+        // intentional object in both themes — the standard dark-mode ad
+        // treatment — without touching the visitor's theme.
         // Vertical padding only: these boxes are border-box, so horizontal
         // padding would shrink the usable width below the IAB cap the
         // FORMAT_SPEC widths exist to guarantee (300x250 no longer fits a
         // padded max-w-[300px]).
-        'mx-auto w-full rounded-8 bg-surface-float py-2 text-center',
+        'mx-auto w-full rounded-8 bg-white py-2 text-center',
         // AdSense stamps data-ad-status="unfilled" when no creative was
         // returned. Without collapsing, the reserved min-height stays behind as
         // a block of empty page — most visible in the comment thread, where an
@@ -530,8 +539,10 @@ export function ProgrammaticAd({
           "Advertisements" is one of the two label strings AdSense permits
           (a bare "Advertisement" is not). Inside the wrapper, so an unfilled
           slot's collapse takes the label down with it. */}
+      {/* Constant gray, not a theme token: the label sits on the card's
+          constant white, where a dark-theme quaternary would vanish. */}
       {isRequested && (
-        <span className="block pb-1 pr-1 text-right text-text-quaternary typo-caption2">
+        <span className="block pb-1 pr-1 text-right text-raw-pepper-10 typo-caption2">
           Advertisements
         </span>
       )}
@@ -542,6 +553,7 @@ export function ProgrammaticAd({
           data-testid={`adsense-slot-${slot}`}
           data-ad-client={ADSENSE_CLIENT_ID}
           data-ad-slot={config.id}
+          data-ad-channel={adChannel}
           {...getInsAttributes(config, FORMAT_SPEC[format].shape)}
         />
       )}

@@ -34,6 +34,7 @@ import { AgentSendButton } from './AgentSendButton';
 import {
   CadenceSection,
   FomoSection,
+  HistorySection,
   OutputModesSection,
   cadenceOptions,
   outputOptions,
@@ -214,6 +215,10 @@ export const AgentHomeScreen = ({
     ['When it reports', cadenceSummary],
     ['FOMO vs quality', fomoSummary],
     ['What it delivers', deliverySummary || 'Nothing yet'],
+    [
+      'History',
+      settings.showHistory === false ? 'Latest only' : 'Full history',
+    ],
   ];
 
   return (
@@ -429,6 +434,13 @@ export const AgentHomeScreen = ({
                       ...current,
                       outputModes: { ...current.outputModes, ...outputModes },
                     }))
+                  }
+                />
+                <HistorySection
+                  value={settings.showHistory ?? true}
+                  disabled={isCreating}
+                  onChange={(showHistory) =>
+                    setSettings((current) => ({ ...current, showHistory }))
                   }
                 />
               </FlexCol>
