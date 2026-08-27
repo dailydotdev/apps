@@ -7,13 +7,14 @@ import {
   TypographyType,
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
-import { ToolIcon } from './ToolIcon';
+import { ToolLogo } from '@dailydotdev/shared/src/components/tools/ToolLogo';
 
 export interface ToolCardTool {
   id: string;
   title: string;
   slug: string;
   faviconUrl: string | null;
+  url?: string | null;
   stackCount: number;
 }
 
@@ -26,21 +27,22 @@ export const ToolCard = ({ tool, onClick }: ToolCardProps): ReactElement => (
   <Link href={`/tools/${tool.slug}`} passHref>
     <a
       href={`/tools/${tool.slug}`}
-      className="flex items-center gap-3 rounded-16 border border-border-subtlest-tertiary bg-background-subtle p-3 hover:border-border-subtlest-secondary"
+      className="flex items-center gap-4 rounded-16 bg-surface-float p-4 transition-colors hover:bg-surface-hover"
       onClick={onClick}
     >
-      <ToolIcon
+      <ToolLogo
         title={tool.title}
         faviconUrl={tool.faviconUrl}
-        className="size-10 flex-none rounded-12 object-contain"
+        url={tool.url}
+        className="size-12 rounded-14 bg-background-default p-1.5"
       />
       <span className="flex min-w-0 flex-1 flex-col">
-        <Typography type={TypographyType.Callout} bold truncate>
+        <Typography type={TypographyType.Body} bold truncate>
           {tool.title}
         </Typography>
         <Typography
-          type={TypographyType.Caption1}
-          color={TypographyColor.Quaternary}
+          type={TypographyType.Footnote}
+          color={TypographyColor.Tertiary}
         >
           {largeNumberFormat(tool.stackCount) ?? tool.stackCount} in stacks
         </Typography>

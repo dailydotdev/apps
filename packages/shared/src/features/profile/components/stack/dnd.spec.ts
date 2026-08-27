@@ -24,6 +24,7 @@ const createItem = ({
     title: `${id}-tool`,
     slug: `${id}-tool`,
     faviconUrl: null,
+    url: null,
   },
   startedAt: null,
   icon: null,

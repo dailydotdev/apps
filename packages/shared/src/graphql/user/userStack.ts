@@ -9,6 +9,7 @@ export interface DatasetTool {
   title: string;
   slug: string;
   faviconUrl: string | null;
+  url: string | null;
 }
 
 // autocompleteTools resolves plain TypeORM entities (no GraphORM field
@@ -68,6 +69,7 @@ export const USER_STACK_FRAGMENT = gql`
       title
       slug
       faviconUrl
+      url
     }
   }
 `;
@@ -130,6 +132,7 @@ const AUTOCOMPLETE_TOOLS_QUERY = gql`
       id
       title
       faviconUrl
+      url
     }
   }
 `;
