@@ -7,7 +7,7 @@ import type { UserLeaderboard } from '@dailydotdev/shared/src/components/cards/L
 import { gqlClient } from '@dailydotdev/shared/src/graphql/common';
 import type { QuestCompletionStats } from '@dailydotdev/shared/src/graphql/leaderboard';
 import {
-  HIGHEST_REPUTATION_QUERY,
+  MOST_ACHIEVEMENT_POINTS_QUERY,
   MOST_QUESTS_COMPLETED_QUERY,
   QUEST_COMPLETION_STATS_QUERY,
 } from '@dailydotdev/shared/src/graphql/leaderboard';
@@ -42,6 +42,9 @@ jest.mock('@tanstack/react-query', () => {
   return {
     ...actual,
     useQuery: jest.fn(),
+    // The offer cards mutate on mount, and these tests render without a
+    // QueryClientProvider.
+    useMutation: jest.fn(() => ({ mutate: jest.fn(), isPending: false })),
   };
 });
 
@@ -177,8 +180,8 @@ describe('game center static props', () => {
 
   it('should include quest completion stats when the schema supports them', async () => {
     mockRequest.mockImplementation((query: string) => {
-      if (query === HIGHEST_REPUTATION_QUERY) {
-        return Promise.resolve({ highestReputation });
+      if (query === MOST_ACHIEVEMENT_POINTS_QUERY) {
+        return Promise.resolve({ mostAchievementPoints: highestReputation });
       }
 
       if (query === MOST_QUESTS_COMPLETED_QUERY) {
@@ -205,8 +208,8 @@ describe('game center static props', () => {
 
   it('should keep leaderboards when quest completion stats are not yet in the schema', async () => {
     mockRequest.mockImplementation((query: string) => {
-      if (query === HIGHEST_REPUTATION_QUERY) {
-        return Promise.resolve({ highestReputation });
+      if (query === MOST_ACHIEVEMENT_POINTS_QUERY) {
+        return Promise.resolve({ mostAchievementPoints: highestReputation });
       }
 
       if (query === MOST_QUESTS_COMPLETED_QUERY) {
@@ -692,7 +695,7 @@ describe('game center client gating', () => {
     ).toBeInTheDocument();
   });
 
-  it('should render all milestone quests in a two-column grid without a show more toggle', () => {
+  it('should render every milestone quest as a stacked card without a show more toggle', () => {
     mockUseConditionalFeature.mockReturnValue({
       value: false,
       isLoading: false,
@@ -746,15 +749,31 @@ describe('game center client gating', () => {
       }),
     );
 
-    const milestoneGrid = screen.getByText('Milestones').nextElementSibling;
+    const milestoneSection = document.getElementById(
+      gameCenterMilestoneSectionId,
+    );
 
-    expect(milestoneGrid).toBeInTheDocument();
-    expect(screen.getByText('Milestone quest 4')).toBeInTheDocument();
+    expect(milestoneSection).toBeInTheDocument();
+
+    const renderedNames = Array.from(
+      within(milestoneSection as HTMLElement).getAllByRole('heading', {
+        level: 4,
+      }),
+    ).map((heading) => heading.textContent);
+
+    // Every quest here is claimable, so the closest-to-target one leads.
+    expect(renderedNames).toEqual([
+      'Milestone quest 5',
+      'Milestone quest 4',
+      'Milestone quest 3',
+      'Milestone quest 2',
+      'Milestone quest 1',
+    ]);
     expect(
-      within(milestoneGrid as HTMLElement).getByText('Milestone quest 5'),
-    ).toBeInTheDocument();
-
-    expect(milestoneGrid).toHaveClass('grid', 'tablet:grid-cols-2');
+      within(milestoneSection as HTMLElement).getAllByRole('button', {
+        name: 'Claim',
+      }),
+    ).toHaveLength(5);
     expect(
       screen.queryByRole('button', { name: /Show (more|less)/ }),
     ).not.toBeInTheDocument();

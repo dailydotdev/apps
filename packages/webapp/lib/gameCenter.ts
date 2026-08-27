@@ -1,5 +1,8 @@
 import type { TopReader } from '@dailydotdev/shared/src/components/badges/TopReaderBadge';
-import type { UserProductSummary } from '@dailydotdev/shared/src/graphql/njord';
+import type {
+  Product,
+  UserProductSummary,
+} from '@dailydotdev/shared/src/graphql/njord';
 import type {
   QuestBucket,
   QuestDashboard,
@@ -130,6 +133,42 @@ export const getMostProgressedQuest = (
   })[0];
 };
 
+const MILESTONE_RANK_CLAIMABLE = 0;
+const MILESTONE_RANK_IN_PROGRESS = 1;
+const MILESTONE_RANK_CLAIMED = 2;
+
+const getMilestoneRank = (quest: UserQuest): number => {
+  if (quest.status === QuestStatus.Claimed) {
+    return MILESTONE_RANK_CLAIMED;
+  }
+
+  if (quest.claimable) {
+    return MILESTONE_RANK_CLAIMABLE;
+  }
+
+  return MILESTONE_RANK_IN_PROGRESS;
+};
+
+// A claimable milestone is a reward the user can collect right now, so it wins
+// the top of the list over anything still running, and spent ones sink.
+export const sortMilestoneQuests = (quests: UserQuest[]): UserQuest[] =>
+  [...quests].sort((left, right) => {
+    const rankDifference = getMilestoneRank(left) - getMilestoneRank(right);
+
+    if (rankDifference !== 0) {
+      return rankDifference;
+    }
+
+    const ratioDifference =
+      getQuestProgressRatio(right) - getQuestProgressRatio(left);
+
+    if (ratioDifference !== 0) {
+      return ratioDifference;
+    }
+
+    return getQuestRewardTotal(right) - getQuestRewardTotal(left);
+  });
+
 export const getQuestSummary = (
   dashboard?: QuestDashboard,
 ): GameCenterQuestSummary => {
@@ -190,6 +229,9 @@ export type GameCenterAchievementSummary = {
   rarestUnlocked: UserAchievement | null;
   nextToUnlock: UserAchievement | null;
   featuredAchievements: UserAchievement[];
+  // Everything unlocked or under way, for the shelf. Untouched achievements
+  // stay out: an empty progress bar says nothing about your history.
+  shelfAchievements: UserAchievement[];
 };
 
 export const getAchievementSummary = (
@@ -238,12 +280,38 @@ export const getAchievementSummary = (
       return right.achievement.points - left.achievement.points;
     })[0] ?? null;
 
+  // The four are picked by role, then ordered by how far along they are, so
+  // the shelf reads left to right from unlocked to furthest away.
   const featuredAchievements = dedupeAchievements([
     trackedAchievement?.unlockedAt ? null : trackedAchievement ?? null,
     nextToUnlock,
     latestUnlocked,
     rarestUnlocked,
-  ]);
+  ]).sort(
+    (left, right) =>
+      getAchievementProgressRatio(right) - getAchievementProgressRatio(left),
+  );
+
+  const shelfAchievements = [...allAchievements]
+    .filter(
+      (achievement) =>
+        achievement.unlockedAt !== null || achievement.progress > 0,
+    )
+    .sort((left, right) => {
+      const ratioDifference =
+        getAchievementProgressRatio(right) - getAchievementProgressRatio(left);
+
+      if (ratioDifference !== 0) {
+        return ratioDifference;
+      }
+
+      // Everything completed ties at 100%, so rarity breaks it and the
+      // hardest-won achievement leads the row.
+      const leftRarity = left.achievement.rarity ?? Number.POSITIVE_INFINITY;
+      const rightRarity = right.achievement.rarity ?? Number.POSITIVE_INFINITY;
+
+      return leftRarity - rightRarity;
+    });
 
   return {
     unlockedCount: unlocked.length,
@@ -256,6 +324,7 @@ export const getAchievementSummary = (
     rarestUnlocked,
     nextToUnlock,
     featuredAchievements,
+    shelfAchievements,
   };
 };
 
@@ -275,21 +344,75 @@ const sortAwardsByCount = (
   });
 };
 
+export type AwardWithRarity = UserProductSummary & {
+  value: number;
+  imageGlow?: string | null;
+};
+
 export type GameCenterAwardSummary = {
   awards: UserProductSummary[];
+  // Awards ordered rarest-first.
+  awardsByRarity: AwardWithRarity[];
+  // Awards ordered by how many you hold, for the trophy grid.
+  awardsByCount: AwardWithRarity[];
   totalAwards: number;
+  // What the collection is worth in Cores, counting duplicates.
+  totalAwardValue: number;
   uniqueAwards: number;
   favoriteAward: UserProductSummary | null;
 };
 
+const enrichAwardsWithRarity = (
+  awards: UserProductSummary[],
+  products: Product[],
+): AwardWithRarity[] => {
+  const byId = new Map(products.map((product) => [product.id, product]));
+  return awards.map((award) => {
+    const product = byId.get(award.id);
+    return {
+      ...award,
+      value: product?.value ?? 0,
+      imageGlow: product?.flags?.imageGlow ?? null,
+    };
+  });
+};
+
+// Rarest-first: an award's Cores value is the rarity signal, with the earned
+// count and name as tie-breakers.
+export const sortAwardsByRarity = (
+  awards: AwardWithRarity[],
+): AwardWithRarity[] => {
+  return [...awards].sort((left, right) => {
+    if (left.value !== right.value) {
+      return right.value - left.value;
+    }
+    if (left.count !== right.count) {
+      return right.count - left.count;
+    }
+    return left.name.localeCompare(right.name);
+  });
+};
+
 export const getAwardSummary = (
   awards?: UserProductSummary[],
+  products?: Product[],
 ): GameCenterAwardSummary => {
   const allAwards = sortAwardsByCount(awards ?? []);
+  const awardsByRarity = sortAwardsByRarity(
+    enrichAwardsWithRarity(allAwards, products ?? []),
+  );
 
   return {
     awards: allAwards,
+    awardsByRarity,
+    awardsByCount: [...awardsByRarity].sort(
+      (left, right) => right.count - left.count,
+    ),
     totalAwards: allAwards.reduce((total, award) => total + award.count, 0),
+    totalAwardValue: awardsByRarity.reduce(
+      (total, award) => total + award.value * award.count,
+      0,
+    ),
     uniqueAwards: allAwards.length,
     favoriteAward: allAwards[0] ?? null,
   };

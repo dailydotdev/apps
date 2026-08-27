@@ -296,6 +296,9 @@ export const purchaseCoinsCheckoutVideo =
 export const purchaseCoinsCheckoutVideoPoster =
   'https://media.daily.dev/image/upload/s--A_4rXIh7--/f_auto/v1741779750/public/Giving%20cores';
 
+export const gameCenterLevelBackground =
+  'https://media.daily.dev/image/upload/s--NCILTqRq--/f_auto,q_auto/v1785661216/public/daily.dev%20-%20main%20image';
+
 export const featuredAwardImage =
   'https://media.daily.dev/image/upload/s--10Rf2kyK--/f_auto/v1743595864/public/Default';
 
