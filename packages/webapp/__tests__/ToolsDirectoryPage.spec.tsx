@@ -6,7 +6,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AuthContext from '@dailydotdev/shared/src/contexts/AuthContext';
 import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
+import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import type { DirectoryTool } from '@dailydotdev/shared/src/graphql/tools';
+import { TOP_TOOLS_QUERY } from '@dailydotdev/shared/src/graphql/tools';
 import ToolsDirectoryPage from '../pages/tools/index';
 
 jest.mock('next/router', () => ({
@@ -25,7 +27,7 @@ beforeEach(() => {
 const tool = (
   id: string,
   title: string,
-  category: string,
+  category: string | null,
   url: string,
 ): DirectoryTool => ({
   id,
@@ -53,9 +55,15 @@ const defaultProps = {
   fallbackTopIds: [],
 };
 
-const renderComponent = (): RenderResult =>
+const renderComponent = (
+  props: typeof defaultProps = defaultProps,
+): RenderResult =>
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider
+      client={
+        new QueryClient({ defaultOptions: { queries: { retry: false } } })
+      }
+    >
       <AuthContext.Provider
         value={{
           isLoggedIn: false,
@@ -72,7 +80,7 @@ const renderComponent = (): RenderResult =>
         }}
       >
         <SettingsContext.Provider value={settingsContext}>
-          <ToolsDirectoryPage {...defaultProps} />
+          <ToolsDirectoryPage {...props} />
         </SettingsContext.Provider>
       </AuthContext.Provider>
     </QueryClientProvider>,
@@ -81,6 +89,16 @@ const renderComponent = (): RenderResult =>
 const searchFor = (query: string): void => {
   fireEvent.input(screen.getByLabelText('Search all tools'), {
     target: { value: query },
+  });
+};
+
+const mockSearch = (query: string, result: DirectoryTool[]): void => {
+  mockGraphQL({
+    request: {
+      query: TOP_TOOLS_QUERY,
+      variables: { first: 100, query },
+    },
+    result: { data: { topTools: result } },
   });
 };
 
@@ -94,33 +112,52 @@ it('should render the category sections until a search starts', async () => {
     screen.getByRole('heading', { level: 2, name: 'Databases' }),
   ).toBeInTheDocument();
 
+  mockSearch('postgres', [
+    tool('postgresql', 'PostgreSQL', 'Databases', 'https://www.postgresql.org'),
+  ]);
   searchFor('postgres');
   await screen.findByText('Results for “postgres”');
 
   expect(screen.queryByText('Rising this quarter')).not.toBeInTheDocument();
-  expect(screen.getByText('PostgreSQL')).toBeInTheDocument();
+  expect(await screen.findByText('PostgreSQL')).toBeInTheDocument();
   expect(
     screen.queryByRole('link', { name: 'React, 100 in stacks' }),
   ).not.toBeInTheDocument();
 });
 
-it('should match tools by category and website domain', async () => {
+it('should surface tools from the API beyond the build-time list', async () => {
   renderComponent();
 
-  searchFor('databases');
-  await screen.findByText('Results for “databases”');
-  expect(screen.getByText('PostgreSQL')).toBeInTheDocument();
-  expect(screen.getByText('MongoDB')).toBeInTheDocument();
+  mockSearch('grafana', [
+    tool('grafana', 'Grafana', null, 'https://grafana.com'),
+  ]);
+  searchFor('grafana');
 
-  searchFor('mongodb.com');
-  await screen.findByText('Results for “mongodb.com”');
-  expect(screen.getByText('MongoDB')).toBeInTheDocument();
-  expect(screen.queryByText('PostgreSQL')).not.toBeInTheDocument();
+  expect(await screen.findByText('Grafana')).toBeInTheDocument();
+});
+
+it('should fall back to a local title match when the API errors', async () => {
+  renderComponent();
+
+  mockGraphQL({
+    request: {
+      query: TOP_TOOLS_QUERY,
+      variables: { first: 100, query: 'react' },
+    },
+    result: () => ({ errors: [{ message: 'unknown argument' }] }),
+  });
+  searchFor('react');
+
+  await screen.findByText('Results for “react”');
+  expect(
+    screen.getByRole('link', { name: 'React, 100 in stacks' }),
+  ).toBeInTheDocument();
 });
 
 it('should offer to clear a search with no matches', async () => {
   renderComponent();
 
+  mockSearch('zzzzz', []);
   searchFor('zzzzz');
   expect(await screen.findByText('No tools match “zzzzz”')).toBeInTheDocument();
 
@@ -133,4 +170,31 @@ it('should offer to clear a search with no matches', async () => {
   );
   expect(screen.getByText('Rising this quarter')).toBeInTheDocument();
   expect(screen.getByLabelText('Search all tools')).toHaveValue('');
+});
+
+it('should expand a category section past the first six tools', async () => {
+  const frameworkTools = Array.from({ length: 8 }, (_, index) =>
+    tool(`tool-${index}`, `Tool ${index}`, 'Frameworks', 'https://example.com'),
+  );
+  renderComponent({
+    tools: frameworkTools,
+    trendingIds: [],
+    sections: [
+      { category: 'Frameworks', toolIds: frameworkTools.map(({ id }) => id) },
+    ],
+    fallbackTopIds: [],
+  });
+
+  await screen.findByRole('heading', { level: 2, name: 'Frameworks' });
+  expect(screen.getByText('Tool 5')).toBeInTheDocument();
+  expect(screen.queryByText('Tool 6')).not.toBeInTheDocument();
+
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Show all 8 Frameworks tools' }),
+  );
+
+  expect(screen.getByText('Tool 7')).toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Show all 8 Frameworks tools' }),
+  ).not.toBeInTheDocument();
 });

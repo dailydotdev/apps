@@ -3,12 +3,19 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { GetStaticPropsResult } from 'next';
 import Head from 'next/head';
 import type { NextSeoProps } from 'next-seo';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { DirectoryTool } from '@dailydotdev/shared/src/graphql/tools';
 import {
   getToolCategories,
   getToolCategoryAnchor,
   getTopTools,
 } from '@dailydotdev/shared/src/graphql/tools';
+import { StaleTime } from '@dailydotdev/shared/src/lib/query';
+import {
+  Button,
+  ButtonSize,
+  ButtonVariant,
+} from '@dailydotdev/shared/src/components/buttons/Button';
 import {
   Typography,
   TypographyColor,
@@ -17,7 +24,6 @@ import {
 } from '@dailydotdev/shared/src/components/typography/Typography';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent, Origin, TargetType } from '@dailydotdev/shared/src/lib/log';
-import { getDomainFromUrl } from '@dailydotdev/shared/src/lib/links';
 import useDebounceFn from '@dailydotdev/shared/src/hooks/useDebounceFn';
 import { CharmEmptyState } from '@dailydotdev/shared/src/components/charm/CharmEmptyState';
 import { cloudinaryCharmSearchNoResults } from '@dailydotdev/shared/src/lib/image';
@@ -34,7 +40,10 @@ import { useAddToolToStack } from '../../components/tools/useAddToolToStack';
 
 const TOOLS_PER_SECTION = 6;
 const TRENDING_COUNT = 6;
+// Matches the API's topTools cap, so a category at the limit means tools
+// were actually dropped.
 const CATEGORY_FETCH_LIMIT = 100;
+const SEARCH_RESULTS_LIMIT = 100;
 const RECOMMENDED_COUNT = 5;
 const SEARCH_LOG_DELAY = 1000;
 
@@ -99,6 +108,9 @@ const ToolsDirectoryPage = ({
   );
   const [inputValue, setInputValue] = useState('');
   const [search, setSearch] = useState('');
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   const toolsById = useMemo(
     () => new Map(tools.map((tool) => [tool.id, tool])),
@@ -127,46 +139,55 @@ const ToolsDirectoryPage = ({
     [pickTools, fallbackTopIds],
   );
 
-  const searchIndex = useMemo(
-    () =>
-      tools.map((tool) => ({
-        tool,
-        haystack: [
-          tool.title,
-          tool.category,
-          tool.url ? getDomainFromUrl(tool.url) : '',
-        ]
-          .join(' ')
-          .toLowerCase(),
-      })),
-    [tools],
-  );
-
-  const normalizedSearch = search.trim().toLowerCase();
+  const normalizedSearch = search.trim();
   const isSearching = normalizedSearch.length > 0;
+  const {
+    data: apiResults,
+    isPending: isSearchPending,
+    isError: isSearchError,
+  } = useQuery({
+    queryKey: ['toolsDirectorySearch', normalizedSearch.toLowerCase()],
+    queryFn: () =>
+      getTopTools({ query: normalizedSearch, first: SEARCH_RESULTS_LIMIT }),
+    enabled: isSearching,
+    staleTime: StaleTime.Default,
+    placeholderData: keepPreviousData,
+  });
+
+  // Tolerate the API not supporting the query argument yet during deploy
+  // windows by falling back to a title match over the tools already loaded.
   const searchResults = useMemo(() => {
     if (!isSearching) {
       return [];
     }
-    return searchIndex
-      .filter(({ haystack }) => haystack.includes(normalizedSearch))
-      .map(({ tool }) => tool);
-  }, [searchIndex, isSearching, normalizedSearch]);
+    if (isSearchError) {
+      const query = normalizedSearch.toLowerCase();
+      return tools.filter(({ title }) => title.toLowerCase().includes(query));
+    }
+    return apiResults ?? [];
+  }, [isSearching, isSearchError, apiResults, normalizedSearch, tools]);
+  const isSearchLoading = isSearching && isSearchPending && !isSearchError;
 
   const [logSearch, cancelLogSearch] = useDebounceFn((extra?: string) => {
     logEvent({ event_name: LogEvent.SearchTools, extra });
   }, SEARCH_LOG_DELAY);
 
   useEffect(() => {
-    if (isSearching) {
+    if (isSearching && !isSearchLoading) {
       logSearch(
         JSON.stringify({
-          query: normalizedSearch,
+          query: normalizedSearch.toLowerCase(),
           resultCount: searchResults.length,
         }),
       );
     }
-  }, [isSearching, normalizedSearch, searchResults.length, logSearch]);
+  }, [
+    isSearching,
+    isSearchLoading,
+    normalizedSearch,
+    searchResults.length,
+    logSearch,
+  ]);
 
   const clearSearch = useCallback(() => {
     cancelLogSearch();
@@ -257,13 +278,13 @@ const ToolsDirectoryPage = ({
           )}
         </header>
 
-        {isSearching && searchResults.length === 0 && (
+        {isSearching && !isSearchLoading && searchResults.length === 0 && (
           <CharmEmptyState
             className="my-10"
             image={cloudinaryCharmSearchNoResults}
             imageAlt="daily.dev charm looking through a magnifying glass"
             title={`No tools match “${search.trim()}”`}
-            description="Try the tool's full name, its category, or its website domain."
+            description="Try the tool's full name or a different spelling."
             action={{ label: 'Clear search', onClick: clearSearch }}
           />
         )}
@@ -282,15 +303,37 @@ const ToolsDirectoryPage = ({
               </ToolSection>
             )}
 
-            {categorySections.map(({ category, tools: categoryTools }) => (
-              <ToolSection
-                key={category}
-                id={getToolCategoryAnchor(category)}
-                title={category}
-              >
-                {renderGrid(categoryTools)}
-              </ToolSection>
-            ))}
+            {categorySections.map(({ category, tools: categoryTools }) => {
+              const isExpanded = expandedCategories.has(category);
+              const visibleTools = isExpanded
+                ? categoryTools
+                : categoryTools.slice(0, TOOLS_PER_SECTION);
+
+              return (
+                <ToolSection
+                  key={category}
+                  id={getToolCategoryAnchor(category)}
+                  title={category}
+                >
+                  {renderGrid(visibleTools)}
+                  {!isExpanded &&
+                    categoryTools.length > visibleTools.length && (
+                      <Button
+                        variant={ButtonVariant.Subtle}
+                        size={ButtonSize.Small}
+                        className="self-center"
+                        onClick={() =>
+                          setExpandedCategories((previous) =>
+                            new Set(previous).add(category),
+                          )
+                        }
+                      >
+                        Show all {categoryTools.length} {category} tools
+                      </Button>
+                    )}
+                </ToolSection>
+              );
+            })}
 
             {categorySections.length === 0 && fallbackTop.length > 0 && (
               <ToolSection title="Most stacked">
@@ -340,7 +383,7 @@ export async function getStaticProps(): Promise<
     if (tools.length >= CATEGORY_FETCH_LIMIT) {
       // eslint-disable-next-line no-console
       console.warn(
-        `tools directory: category "${category}" hit the fetch limit; search is missing tools`,
+        `tools directory: category "${category}" hit the fetch limit; some tools are not listed`,
       );
     }
   });
@@ -357,7 +400,7 @@ export async function getStaticProps(): Promise<
 
   const sections = fullCategories.map(({ category, tools: categoryTools }) => ({
     category,
-    toolIds: categoryTools.slice(0, TOOLS_PER_SECTION).map(({ id }) => id),
+    toolIds: categoryTools.map(({ id }) => id),
   }));
 
   const seoTitles = getPageSeoTitles(

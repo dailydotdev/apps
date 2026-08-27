@@ -11,6 +11,7 @@ import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { SourceType } from '@dailydotdev/shared/src/graphql/sources';
 import { apiUrl } from '@dailydotdev/shared/src/lib/config';
+import { formatDataTileValue } from '@dailydotdev/shared/src/lib/numberFormat';
 import type { ToolPageProps } from '../pages/tools/[slug]';
 import ToolPage from '../pages/tools/[slug]';
 
@@ -170,7 +171,9 @@ it('should render the stat tiles from adoption and vote data', async () => {
   renderComponent();
 
   expect(await screen.findByText('In stacks')).toBeInTheDocument();
-  expect(screen.getByText('1,200')).toBeInTheDocument();
+  // Rendered via toLocaleString, so the exact output depends on the machine
+  // locale — derive the expectation the same way.
+  expect(screen.getByText(formatDataTileValue(1200))).toBeInTheDocument();
   expect(screen.getByText('Dev sentiment')).toBeInTheDocument();
   expect(screen.getByText('80%')).toBeInTheDocument();
   expect(screen.getByText('Top 3%')).toBeInTheDocument();
