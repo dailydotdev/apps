@@ -437,6 +437,29 @@ describe('HijackingLoginStrip', () => {
     });
   });
 
+  // The cover arm is a design change, not a copy change: it must render the
+  // same words as the arm that is live today.
+  it('renders the same visible copy as the live cta arm', () => {
+    const visibleCopy = (): string => {
+      const heading = screen.getByRole('heading', { name: LIVE_HEADING });
+      // eslint-disable-next-line testing-library/no-node-access -- comparing
+      // the whole rendered block, which has no queryable role
+      const block = heading.parentElement as HTMLElement;
+
+      return (block.textContent ?? '').replace(/\u2192/g, '').trim();
+    };
+
+    setVariant(HijackingVariant.CTA);
+    const { unmount } = renderComponent();
+    const live = visibleCopy();
+    unmount();
+
+    setVariant(HijackingVariant.Cover);
+    renderComponent();
+
+    expect(visibleCopy()).toBe(live);
+  });
+
   describe('auth variant', () => {
     beforeEach(() => {
       setVariant(HijackingVariant.Auth);
