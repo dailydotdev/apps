@@ -443,7 +443,7 @@ export interface ToolCategoryStat {
   toolCount: number;
 }
 
-const TOOL_CATEGORIES_QUERY = gql`
+export const TOOL_CATEGORIES_QUERY = gql`
   query ToolCategories {
     toolCategories {
       category

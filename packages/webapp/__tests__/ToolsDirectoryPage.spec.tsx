@@ -8,8 +8,11 @@ import SettingsContext from '@dailydotdev/shared/src/contexts/SettingsContext';
 import { settingsContext } from '@dailydotdev/shared/__tests__/helpers/boot';
 import { mockGraphQL } from '@dailydotdev/shared/__tests__/helpers/graphql';
 import type { DirectoryTool } from '@dailydotdev/shared/src/graphql/tools';
-import { TOP_TOOLS_QUERY } from '@dailydotdev/shared/src/graphql/tools';
-import ToolsDirectoryPage from '../pages/tools/index';
+import {
+  TOOL_CATEGORIES_QUERY,
+  TOP_TOOLS_QUERY,
+} from '@dailydotdev/shared/src/graphql/tools';
+import ToolsDirectoryPage, { getStaticProps } from '../pages/tools/index';
 
 jest.mock('next/router', () => ({
   useRouter: jest.fn().mockImplementation(() => ({
@@ -197,4 +200,67 @@ it('should expand a category section past the first six tools', async () => {
   expect(
     screen.queryByRole('button', { name: 'Show all 8 Frameworks tools' }),
   ).not.toBeInTheDocument();
+});
+
+it('should collect uncategorized tools into an Other section below the categories', async () => {
+  mockGraphQL({
+    request: { query: TOOL_CATEGORIES_QUERY },
+    result: {
+      data: { toolCategories: [{ category: 'Databases', toolCount: 1 }] },
+    },
+  });
+  mockGraphQL({
+    request: {
+      query: TOP_TOOLS_QUERY,
+      variables: { first: 6, trending: true },
+    },
+    result: { data: { topTools: [] } },
+  });
+  mockGraphQL({
+    request: { query: TOP_TOOLS_QUERY, variables: { first: 100 } },
+    result: {
+      data: {
+        topTools: [
+          tool(
+            'postgresql',
+            'PostgreSQL',
+            'Databases',
+            'https://www.postgresql.org',
+          ),
+          tool('nextjs', 'Next.js', null, 'https://nextjs.org'),
+          tool('vite', 'Vite', null, 'https://vitejs.dev'),
+        ],
+      },
+    },
+  });
+  mockGraphQL({
+    request: {
+      query: TOP_TOOLS_QUERY,
+      variables: { first: 100, category: 'Databases' },
+    },
+    result: {
+      data: {
+        topTools: [
+          tool(
+            'postgresql',
+            'PostgreSQL',
+            'Databases',
+            'https://www.postgresql.org',
+          ),
+        ],
+      },
+    },
+  });
+
+  const result = (await getStaticProps()) as {
+    props: { sections: { category: string; toolIds: string[] }[] };
+  };
+
+  expect(result.props.sections.map(({ category }) => category)).toEqual([
+    'Databases',
+    'Other',
+  ]);
+  expect(
+    result.props.sections.find(({ category }) => category === 'Other')?.toolIds,
+  ).toEqual(['nextjs', 'vite']);
 });

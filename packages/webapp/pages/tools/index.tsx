@@ -46,6 +46,9 @@ const CATEGORY_FETCH_LIMIT = 100;
 const SEARCH_RESULTS_LIMIT = 100;
 const RECOMMENDED_COUNT = 5;
 const SEARCH_LOG_DELAY = 1000;
+// Catch-all section for stacked tools without a curated category, rendered
+// below the curated ones. Only sees tools inside the overall top-N fetch.
+const OTHER_CATEGORY = 'Other';
 
 const appOrigin = getAppOrigin();
 
@@ -364,11 +367,12 @@ export async function getStaticProps(): Promise<
   // social queries), so a failure here should fail the revalidation and let
   // Next keep serving the last good ISR output, rather than caching an
   // empty page.
-  const [categories, trending, fallbackTop] = await Promise.all([
+  const [categories, trending, allTop] = await Promise.all([
     getToolCategories(),
     getTopTools({ first: TRENDING_COUNT, trending: true }),
-    getTopTools({ first: 12 }),
+    getTopTools({ first: CATEGORY_FETCH_LIMIT }),
   ]);
+  const fallbackTop = allTop.slice(0, 12);
 
   const fullCategories = (
     await Promise.all(
@@ -379,8 +383,19 @@ export async function getStaticProps(): Promise<
     )
   ).filter(({ tools }) => tools.length > 0);
 
+  const uncategorized = allTop.filter((tool) => !tool.category);
+  if (uncategorized.length > 0) {
+    fullCategories.push({ category: OTHER_CATEGORY, tools: uncategorized });
+  }
+  if (allTop.length >= CATEGORY_FETCH_LIMIT) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `tools directory: the overall top-tools fetch hit the limit; the "${OTHER_CATEGORY}" section may be missing uncategorized tools`,
+    );
+  }
+
   fullCategories.forEach(({ category, tools }) => {
-    if (tools.length >= CATEGORY_FETCH_LIMIT) {
+    if (category !== OTHER_CATEGORY && tools.length >= CATEGORY_FETCH_LIMIT) {
       // eslint-disable-next-line no-console
       console.warn(
         `tools directory: category "${category}" hit the fetch limit; some tools are not listed`,
@@ -393,7 +408,7 @@ export async function getStaticProps(): Promise<
       [
         ...fullCategories.flatMap(({ tools: categoryTools }) => categoryTools),
         ...trending,
-        ...fallbackTop,
+        ...allTop,
       ].map((tool) => [tool.id, tool]),
     ).values(),
   ).sort((a, b) => a.title.localeCompare(b.title));
