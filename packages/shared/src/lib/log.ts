@@ -138,6 +138,7 @@ export enum LogEvent {
   Impression = 'impression',
   ManageTags = 'click manage tags',
   SearchTags = 'search tags',
+  SearchTools = 'search tools',
   ClickFeedTagChip = 'click feed tag chip',
   ClickOnboardingBack = 'click onboarding back',
   ClickOnboardingNext = 'click onboarding next',

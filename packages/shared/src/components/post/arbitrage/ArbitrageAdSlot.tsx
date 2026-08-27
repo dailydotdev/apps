@@ -28,11 +28,10 @@ export interface ArbitrageAdSlotProps {
   /** Marks slots wired to a declared 30-60s in-view refresh once on Ad Manager. */
   refreshes?: boolean;
   /**
-   * Drops the slot below the tablet breakpoint. The Better Ads Standards cap
-   * mobile ad density at 30% of page height, and a scraped post carries little
-   * body text to dilute it — running every slot on a phone measured 56%, which
-   * is what gets a site's ads filtered by Chrome. The unit is hidden rather
-   * than skipped so it also never requests: the ad only pushes on intersection,
+   * Drops the slot below the tablet breakpoint — the Better Ads Standards cap
+   * mobile ad density at 30% of page height, and Chrome's filter for a
+   * violation applies to the whole domain. The unit is hidden rather than
+   * skipped so it also never requests: the ad only pushes on intersection,
    * and a display:none box never intersects.
    */
   hideOnPhone?: boolean;
@@ -49,6 +48,8 @@ export interface ArbitrageAdSlotProps {
    * arrived, so eager pushes ride its very first processing pass.
    */
   eager?: boolean;
+  /** Per-instance extra for repeated placements — see ProgrammaticAd. */
+  logExtra?: Record<string, unknown>;
 }
 
 function MappedAdSlot({
@@ -58,6 +59,7 @@ function MappedAdSlot({
   refreshes,
   hideOnPhone,
   eager,
+  logExtra,
   slots,
   surface,
   allowPlaceholder = false,
@@ -88,6 +90,7 @@ function MappedAdSlot({
         refreshes={refreshes}
         hideOnPhone={hideOnPhone}
         eager={eager}
+        logExtra={logExtra}
       />
     );
   }

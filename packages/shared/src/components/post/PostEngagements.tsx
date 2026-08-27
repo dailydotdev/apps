@@ -52,6 +52,11 @@ interface PostEngagementsProps {
   onCopyLinkClick?: (post?: Post) => void;
   /** Ad templates break a long thread up — see PostComments. */
   interleaveEvery?: number;
+  /**
+   * Drops the internal AdAsComment. The programmatic template carries its own
+   * comment-thread units, and two ad systems in one thread double the density.
+   */
+  hideInternalAd?: boolean;
   renderInterleaved?: (occurrence: number) => ReactNode;
 }
 
@@ -60,6 +65,7 @@ function PostEngagements({
   onCopyLinkClick,
   logOrigin,
   shouldOnboardAuthor,
+  hideInternalAd,
   interleaveEvery,
   renderInterleaved,
 }: PostEngagementsProps): ReactElement {
@@ -172,7 +178,7 @@ function PostEngagements({
         shouldHandleCommentQuery
         CommentInputOrModal={CommentInputOrModal}
       />
-      {!isPlus && <AdAsComment postId={post.id} />}
+      {!isPlus && !hideInternalAd && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}
         sortBy={sortBy}
