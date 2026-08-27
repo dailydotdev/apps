@@ -23,7 +23,7 @@ export default function Custom404Seo(): ReactElement {
 
   return (
     <ErrorBoundary feature="404-page">
-      <Custom404>
+      <Custom404 showRecoveryLinks>
         <NextSeo title="Page not found" nofollow noindex />
       </Custom404>
     </ErrorBoundary>

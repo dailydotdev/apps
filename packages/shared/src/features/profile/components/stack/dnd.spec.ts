@@ -22,7 +22,9 @@ const createItem = ({
   tool: {
     id: `${id}-tool`,
     title: `${id}-tool`,
+    slug: `${id}-tool`,
     faviconUrl: null,
+    url: null,
   },
   startedAt: null,
   icon: null,

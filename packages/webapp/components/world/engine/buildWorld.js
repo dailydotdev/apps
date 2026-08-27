@@ -26,7 +26,13 @@ const day=v=>{
 
 export function buildWorld(userId,districts,timeline){
   const ds=(districts||[])
-    .map(d=>({ slug:d.niche&&d.niche.slug, articles:d.reads,
+    /* Both keys, and they are not interchangeable. The SLUG keys the taxonomy,
+       which is what decides where a district stands and what it looks like; the
+       nicheId is what the API filters posts by. Copied off here because `niche`
+       is replaced with the taxonomy entry below, and that entry's own `id` is
+       the slug. */
+    .map(d=>({ slug:d.niche&&d.niche.slug, nicheId:d.niche&&d.niche.id,
+               articles:d.reads,
                first:day(d.firstReadAt), last:day(d.lastReadAt),
                activeDays:d.activeDays }))
     /* Placeable, and standing. `articles>0` is not a rule of its own — it is

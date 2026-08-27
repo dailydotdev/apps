@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import PromotionalBanner from './PromotionalBanner';
-import { PostOnboardingActivation } from './post/PostOnboardingActivation';
 import useSidebarRendered from '../hooks/useSidebarRendered';
 import { useLogContext } from '../contexts/LogContext';
 import SettingsContext from '../contexts/SettingsContext';
@@ -223,6 +222,15 @@ function MainLayoutComponent({
   const sidebarOwnsHeader =
     isV2 && (isLoggedIn || isExtension) && showSidebar && sidebarRendered;
 
+  let stickyHeaderOffset = 'laptop:[--sticky-header-offset:4rem]';
+  if (sidebarOwnsHeader) {
+    stickyHeaderOffset = isBannerAvailable
+      ? 'laptop:[--sticky-header-offset:2rem]'
+      : 'laptop:[--sticky-header-offset:0rem]';
+  } else if (isBannerAvailable) {
+    stickyHeaderOffset = 'laptop:[--sticky-header-offset:6rem]';
+  }
+
   useEffect(() => {
     if (!isNotificationsReady || unreadCount === 0 || hasLoggedImpression) {
       return;
@@ -316,7 +324,6 @@ function MainLayoutComponent({
       )}
     >
       {canGoBack && <GoBackHeaderMobile />}
-      <PostOnboardingActivation />
       {customBanner}
       {isBannerAvailable && <PromotionalBanner />}
       <InAppNotificationElement />
@@ -359,6 +366,21 @@ function MainLayoutComponent({
             (sidebarExpanded || forceSidebarExpanded) &&
             (isV2 ? v2ExpandedPadding : !isScreenCentered && 'laptop:!pl-60'),
           isBannerAvailable && !sidebarOwnsHeader && 'laptop:pt-24',
+          // The rail is `fixed` and drops by the banner's height on its own
+          // (--safe-area-top-offset), so the content has to drop by the same
+          // 2rem or the pinned banner paints over the top of it.
+          isBannerAvailable && sidebarOwnsHeader && 'laptop:pt-8',
+          // Mirrors the padding above as an inheritable value, so a sticky
+          // descendant can pin directly under whatever fixed chrome this
+          // layout actually has. A hardcoded offset overshoots wherever the
+          // chrome is shorter or absent (v2, tablet, mobile), and a sticky
+          // element whose `top` exceeds its natural position is pushed *down*
+          // over the content that follows it. One ternary rather than stacked
+          // classes because arbitrary properties have no reliable cascade
+          // order between them. Below laptop no chrome is fixed above the
+          // content, so the base value is zero.
+          '[--sticky-header-offset:0px]',
+          stickyHeaderOffset,
         )}
       >
         {isAuthReady && isLayoutChromeResolved && showSidebar && (
@@ -389,7 +411,9 @@ function MainLayoutComponent({
                 'laptop:overflow-clip laptop:rounded-24 laptop:border laptop:border-border-subtlest-quaternary laptop:bg-background-default laptop:p-0.5',
                 !hasTopBanners &&
                   !topBanner &&
-                  'laptop:min-h-[calc(100vh-1.5rem)]',
+                  (isBannerAvailable
+                    ? 'laptop:min-h-[calc(100vh-3.5rem)]'
+                    : 'laptop:min-h-[calc(100vh-1.5rem)]'),
               )}
             >
               <RouteProgressBar />

@@ -29,7 +29,7 @@ const Important = () => (
 
 export function SquadDangerZone({ squad }: SquadDangerZoneProps): ReactElement {
   const router = useRouter();
-  const { onDeleteSquad } = useDeleteSquad({
+  const { isPending, onDeleteSquad } = useDeleteSquad({
     squad,
     callback: () => router.replace('/'),
   });
@@ -47,6 +47,8 @@ export function SquadDangerZone({ squad }: SquadDangerZoneProps): ReactElement {
           'Allow your Squad name to become available to anyone.',
         ]}
         important={<Important />}
+        buttonDisabled={isPending}
+        buttonLoading={isPending}
       />
     </SquadSettingsSection>
   );

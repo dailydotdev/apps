@@ -11,17 +11,19 @@ export interface ProductPricingConfig {
   type: PurchaseType;
   locale?: string;
   enabled?: boolean;
+  discountId?: string;
 }
 
 export const useProductPricing = ({
   type,
   enabled = true,
+  discountId,
 }: ProductPricingConfig) => {
   const { user, isValidRegion } = useAuthContext();
 
   return useQuery({
-    queryKey: generateQueryKey(RequestKey.PricePreview, user, type),
-    queryFn: () => fetchPricingPreview(type),
+    queryKey: generateQueryKey(RequestKey.PricePreview, user, type, discountId),
+    queryFn: () => fetchPricingPreview(type, undefined, discountId),
     enabled: enabled && isValidRegion,
     staleTime: StaleTime.Default,
   });

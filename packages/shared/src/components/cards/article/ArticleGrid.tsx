@@ -23,14 +23,9 @@ import PostTags from '../common/PostTags';
 import PostMetadata from '../common/PostMetadata';
 import { PostCardFooter } from '../common/PostCardFooter';
 import ActionButtons from '../common/ActionButtons';
-import {
-  FeedCardGlassActions,
-  glassCoverImageClassName,
-} from '../common/FeedCardGlassActions';
 import { FeedbackGrid } from './feedback/FeedbackGrid';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 
 export const ArticleGrid = forwardRef(function ArticleGrid(
   {
@@ -60,7 +55,6 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
   const { showFeedback } = usePostFeedback({ post });
   const { title } = useSmartTitle(post);
   const isVideoType = isVideoPost(post);
-  const glassActions = useFeedCardGlassActions();
 
   if (isHidden) {
     return (
@@ -97,7 +91,7 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
         className: getPostClassNames(
           post,
           classNames(className, showFeedback && '!p-0'),
-          glassActions && !showFeedback ? 'min-h-cardGlass' : 'min-h-card',
+          'min-h-card',
         ),
       }}
       ref={ref}
@@ -156,41 +150,27 @@ export const ArticleGrid = forwardRef(function ArticleGrid(
             />
           </Container>
         )}
-        <Container className={glassActions ? 'flex-none' : undefined}>
+        <Container>
           <PostCardFooter
             openNewTab={openNewTab ?? false}
             post={post}
             onShare={onShare}
             className={{
               image: classNames('px-1', showFeedback && 'mb-0'),
-              cover:
-                glassActions && !showFeedback
-                  ? glassCoverImageClassName
-                  : undefined,
             }}
             eagerLoadImage={eagerLoadImage}
           />
 
-          {!showFeedback &&
-            (glassActions ? (
-              <FeedCardGlassActions
-                post={post}
-                onUpvoteClick={onUpvoteClick}
-                onCommentClick={onCommentClick}
-                onCopyLinkClick={onCopyLinkClick}
-                onBookmarkClick={onBookmarkClick}
-                onDownvoteClick={onDownvoteClick}
-              />
-            ) : (
-              <ActionButtons
-                post={post}
-                onUpvoteClick={onUpvoteClick}
-                onCommentClick={onCommentClick}
-                onCopyLinkClick={onCopyLinkClick}
-                onBookmarkClick={onBookmarkClick}
-                onDownvoteClick={onDownvoteClick}
-              />
-            ))}
+          {!showFeedback && (
+            <ActionButtons
+              post={post}
+              onUpvoteClick={onUpvoteClick}
+              onCommentClick={onCommentClick}
+              onCopyLinkClick={onCopyLinkClick}
+              onBookmarkClick={onBookmarkClick}
+              onDownvoteClick={onDownvoteClick}
+            />
+          )}
         </Container>
       </div>
       {children}

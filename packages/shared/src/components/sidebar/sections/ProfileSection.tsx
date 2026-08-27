@@ -16,6 +16,7 @@ import { useAuthContext } from '../../../contexts/AuthContext';
 import { useHasAccessToCores } from '../../../hooks/useCoresFeature';
 import { useAlertsContext } from '../../../contexts/AlertContext';
 import { useLogOpportunityNudgeClick } from '../../../hooks/log/useLogOpportunityNudgeClick';
+import { useJobsFeature } from '../../../hooks/useJobsFeature';
 
 export const ProfileSection = ({
   isItemsButton,
@@ -25,6 +26,7 @@ export const ProfileSection = ({
   const { user } = useAuthContext();
   const { alerts } = useAlertsContext();
   const logOpportunityNudgeClick = useLogOpportunityNudgeClick();
+  const { isJobsEnabled } = useJobsFeature();
 
   const menuItems: SidebarMenuItem[] = useMemo(() => {
     if (!user?.username) {
@@ -46,16 +48,20 @@ export const ProfileSection = ({
           <ListIcon Icon={() => <AnalyticsIcon secondary={active} />} />
         ),
       },
-      {
-        title: 'Jobs',
-        path: `${webappUrl}jobs${
-          alerts.opportunityId ? `/${alerts.opportunityId}` : ''
-        }`,
-        action: logOpportunityNudgeClick,
-        icon: (active: boolean) => (
-          <ListIcon Icon={() => <JobIcon secondary={active} />} />
-        ),
-      },
+      ...(isJobsEnabled
+        ? [
+            {
+              title: 'Jobs',
+              path: `${webappUrl}jobs${
+                alerts.opportunityId ? `/${alerts.opportunityId}` : ''
+              }`,
+              action: logOpportunityNudgeClick,
+              icon: (active: boolean) => (
+                <ListIcon Icon={() => <JobIcon secondary={active} />} />
+              ),
+            },
+          ]
+        : []),
       ...(hasAccessToCores
         ? [
             {
@@ -75,7 +81,13 @@ export const ProfileSection = ({
         ),
       },
     ];
-  }, [alerts.opportunityId, hasAccessToCores, logOpportunityNudgeClick, user]);
+  }, [
+    alerts.opportunityId,
+    hasAccessToCores,
+    isJobsEnabled,
+    logOpportunityNudgeClick,
+    user,
+  ]);
 
   if (menuItems.length === 0) {
     return null;

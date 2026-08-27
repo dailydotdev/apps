@@ -15,14 +15,9 @@ import { SquadPostCardHeader } from '../common/SquadPostCardHeader';
 import PostMetadata from '../common/PostMetadata';
 import { WelcomePostCardFooter } from '../common/WelcomePostCardFooter';
 import ActionButtons from '../common/ActionButtons';
-import {
-  FeedCardGlassActions,
-  glassCoverImageClassName,
-} from '../common/FeedCardGlassActions';
 import { ClickbaitShield } from '../common/ClickbaitShield';
 import PostTags from '../common/PostTags';
 import { useSmartTitle } from '../../../hooks/post/useSmartTitle';
-import { useFeedCardGlassActions } from '../../../hooks/useFeedCardGlassActions';
 import { useHiddenFeedbackPanel } from '../../../hooks/post/useHiddenFeedbackPanel';
 
 export const FreeformGrid = forwardRef(function SharePostCard(
@@ -48,7 +43,6 @@ export const FreeformGrid = forwardRef(function SharePostCard(
   const image = usePostImage(post);
   const { title } = useSmartTitle(post);
   const { isHidden, content: hiddenPanel } = useHiddenFeedbackPanel(post);
-  const useGlass = useFeedCardGlassActions();
 
   if (isHidden) {
     return (
@@ -70,11 +64,7 @@ export const FreeformGrid = forwardRef(function SharePostCard(
     <FeedItemContainer
       domProps={{
         ...domProps,
-        className: getPostClassNames(
-          post,
-          domProps.className,
-          useGlass ? 'min-h-cardGlass' : 'min-h-card',
-        ),
+        className: getPostClassNames(post, domProps.className, 'min-h-card'),
       }}
       ref={ref}
       flagProps={{ pinnedAt, trending }}
@@ -106,42 +96,24 @@ export const FreeformGrid = forwardRef(function SharePostCard(
           readTime={post.readTime}
         />
       </Container>
-      <Container
-        ref={containerRef}
-        className={useGlass && image ? 'flex-none' : undefined}
-      >
+      <Container ref={containerRef}>
         <WelcomePostCardFooter
           image={image}
           contentHtml={post.contentHtml}
           post={post}
-          glassActions={useGlass}
-          imageClassName={
-            useGlass && image ? glassCoverImageClassName : undefined
-          }
           // pt-2 gives the text a bit of breathing room below the date without
           // growing the footer (box-border keeps min-h), matching the collection.
           contentClassName="min-h-[10.5rem] pt-2"
         />
-        {useGlass ? (
-          <FeedCardGlassActions
-            post={post}
-            onUpvoteClick={onUpvoteClick}
-            onCommentClick={onCommentClick}
-            onCopyLinkClick={onCopyLinkClick}
-            onBookmarkClick={onBookmarkClick}
-            onDownvoteClick={onDownvoteClick}
-          />
-        ) : (
-          <ActionButtons
-            post={post}
-            onUpvoteClick={onUpvoteClick}
-            onCommentClick={onCommentClick}
-            onCopyLinkClick={onCopyLinkClick}
-            onBookmarkClick={onBookmarkClick}
-            className="mt-auto"
-            onDownvoteClick={onDownvoteClick}
-          />
-        )}
+        <ActionButtons
+          post={post}
+          onUpvoteClick={onUpvoteClick}
+          onCommentClick={onCommentClick}
+          onCopyLinkClick={onCopyLinkClick}
+          onBookmarkClick={onBookmarkClick}
+          className="mt-auto"
+          onDownvoteClick={onDownvoteClick}
+        />
       </Container>
       {children}
     </FeedItemContainer>

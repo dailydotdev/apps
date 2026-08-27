@@ -10,15 +10,12 @@ import {
   deleteUserWorkspacePhoto,
   reorderUserWorkspacePhotos,
 } from '../../../graphql/user/userWorkspacePhoto';
-import type { ProfileShowcase } from '../../../graphql/user/profileShowcase';
 import { useProfileShowcase } from './useProfileShowcase';
 import { useProfilePreview } from '../../../hooks/profile/useProfilePreview';
 import { useLogContext } from '../../../contexts/LogContext';
 import { LogEvent } from '../../../lib/log';
 
 export const MAX_WORKSPACE_PHOTOS = 5;
-
-const selectPhotos = (data: ProfileShowcase) => data.userWorkspacePhotos;
 
 export function useUserWorkspacePhotos(user: PublicProfile | null) {
   const { isOwner } = useProfilePreview(user);
@@ -28,7 +25,7 @@ export function useUserWorkspacePhotos(user: PublicProfile | null) {
     queryKey,
     invalidate: invalidateQuery,
     ...query
-  } = useProfileShowcase(user, selectPhotos);
+  } = useProfileShowcase(user, 'userWorkspacePhotos');
 
   const photos = useMemo(
     () => query.data?.edges?.map(({ node }) => node) ?? [],

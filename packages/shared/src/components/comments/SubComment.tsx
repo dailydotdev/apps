@@ -21,6 +21,8 @@ export interface SubCommentProps
   isFirst?: boolean;
   isLast?: boolean;
   extendTopConnector?: boolean;
+  canReply?: boolean;
+  onReplyBlocked?: () => void;
 }
 
 function SubComment({
@@ -32,6 +34,8 @@ function SubComment({
   isFirst = false,
   isLast = false,
   extendTopConnector = false,
+  canReply = true,
+  onReplyBlocked,
   ...props
 }: SubCommentProps): ReactElement {
   const { inputProps, commentId, onReplyTo } = useComments(props.post);
@@ -65,13 +69,18 @@ function SubComment({
                 '!text-[0.9375rem] [&_a]:!text-[0.9375rem] [&_li]:!text-[0.9375rem] [&_li]:!leading-[1.55] [&_p]:!text-[0.9375rem] [&_p]:!leading-[1.55]',
             ),
           }}
-          onComment={(selected, parent) =>
+          onComment={(selected, parent) => {
+            if (!canReply) {
+              onReplyBlocked?.();
+              return;
+            }
+
             onReplyTo({
               username: comment.author?.username ?? null,
               parentCommentId: parent,
               commentId: selected.id,
-            })
-          }
+            });
+          }}
           isModalThread={isModalThread}
         >
           {!isModalThread && (

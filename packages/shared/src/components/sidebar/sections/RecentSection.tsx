@@ -30,6 +30,7 @@ import { useRecentPages } from '../../../hooks/useRecentPages';
 import { useAuthContext } from '../../../contexts/AuthContext';
 import { useSquad } from '../../../hooks/squads/useSquad';
 import { useUserShortByIdQuery } from '../../../hooks/user/useUserShortByIdQuery';
+import { useJobsFeature } from '../../../hooks/useJobsFeature';
 
 // Older stored entries predate `type`; fall back to the path prefix so they
 // still get a recognizable icon until they're re-recorded with a type.
@@ -51,6 +52,8 @@ const resolveType = (page: RecentPage): RecentPageType => {
 
 const firstSegment = (path: string): string =>
   path.split('?')[0].split('#')[0].split('/').filter(Boolean)[0] ?? '';
+
+const isJobsPath = (path: string): boolean => firstSegment(path) === 'jobs';
 
 // Recognizable glyphs for known internal destinations, keyed by the leading
 // path segment, so a recent page reads as itself (Game Center, Settings,
@@ -144,24 +147,27 @@ export const RecentSection = ({
   ...defaultRenderSectionProps
 }: SidebarSectionProps): ReactElement | null => {
   const recentPages = useRecentPages();
+  const { isJobsEnabled } = useJobsFeature();
 
   const menuItems: SidebarMenuItem[] = useMemo(
     () =>
-      recentPages.map((page) => ({
-        icon: () => <RecentItemIcon page={page} />,
-        title: page.title,
-        // Recorded from `router.asPath`, so always relative. The stored value
-        // stays that way — `resolveType`/`handleFromPath` match on path prefixes
-        // — and only the rendered link carries the origin.
-        path: `${webappUrl}${page.path.replace(/^\//, '')}`,
-        // Recent mirrors pages you've already visited (often the current one),
-        // so it should never render as the active nav item.
-        disableActiveState: true,
-      })),
-    [recentPages],
+      recentPages
+        .filter((page) => isJobsEnabled || !isJobsPath(page.path))
+        .map((page) => ({
+          icon: () => <RecentItemIcon page={page} />,
+          title: page.title,
+          // Recorded from `router.asPath`, so always relative. The stored value
+          // stays that way — `resolveType`/`handleFromPath` match on path prefixes
+          // — and only the rendered link carries the origin.
+          path: `${webappUrl}${page.path.replace(/^\//, '')}`,
+          // Recent mirrors pages you've already visited (often the current one),
+          // so it should never render as the active nav item.
+          disableActiveState: true,
+        })),
+    [isJobsEnabled, recentPages],
   );
 
-  if (!recentPages.length) {
+  if (!menuItems.length) {
     return null;
   }
 

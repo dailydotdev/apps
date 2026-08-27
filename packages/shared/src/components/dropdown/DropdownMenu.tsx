@@ -200,7 +200,11 @@ export const DropdownMenuOptions = ({
                     role="menuitem"
                     {...anchorProps}
                   >
-                    <a className={className} target={anchorProps?.target}>
+                    <a
+                      className={className}
+                      target={anchorProps?.target}
+                      rel={anchorProps?.rel}
+                    >
                       {icon} {label}
                     </a>
                   </Link>
