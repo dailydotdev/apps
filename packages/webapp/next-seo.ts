@@ -50,16 +50,57 @@ export const noindexSeoProps: Pick<NextSeoProps, 'nofollow' | 'noindex'> = {
   noindex: true,
 };
 
+// Contextual share images rendered by the webapp and screenshotted by
+// daily-api at /og/<type>/<id>.png (mirrors the devcard v2 image pipeline).
+export type ShareImageType =
+  | 'posts'
+  | 'comments'
+  | 'sources'
+  | 'squads'
+  | 'profile'
+  | 'tags'
+  | 'invite'
+  | 'plus';
+
+export const getShareImageUrl = (
+  type: ShareImageType,
+  id: string,
+  params?: Record<string, string | undefined>,
+): string => {
+  const url = new URL(
+    `/og/${type}/${encodeURIComponent(id)}.png`,
+    process.env.NEXT_PUBLIC_API_URL,
+  );
+  Object.entries(params ?? {}).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    }
+  });
+  return url.toString();
+};
+
 export const getSquadOpenGraph = ({
   squad,
 }: {
-  squad?: Pick<Source, 'image'>;
-}): Partial<OpenGraph> => ({
-  images:
-    squad?.image && squad.image !== cloudinarySquadsImageFallback
-      ? [{ url: squad.image }]
-      : defaultOpenGraph.images,
-});
+  squad?: Pick<Source, 'id' | 'image' | 'public'>;
+}): Partial<OpenGraph> => {
+  // The share card is screenshotted from an anonymous render, which can only
+  // read public squads — private ones keep the plain image behavior.
+  if (squad?.id && squad.public) {
+    return {
+      images: [
+        { url: getShareImageUrl('squads', squad.id), width: 1200, height: 630 },
+      ],
+    };
+  }
+
+  return {
+    images:
+      squad?.image && squad.image !== cloudinarySquadsImageFallback
+        ? [{ url: squad.image }]
+        : defaultOpenGraph.images,
+  };
+};
 
 // Canonical marketing tagline. Static surfaces that can't import this TS
 // constant keep their own copy — the extension locale JSON

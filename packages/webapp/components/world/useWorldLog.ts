@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useLogContext } from '@dailydotdev/shared/src/contexts/LogContext';
 import { LogEvent } from '@dailydotdev/shared/src/lib/log';
 import type { WorldDistrict } from '../../graphql/world';
@@ -51,7 +51,8 @@ interface UseWorldLogProps {
 
 /**
  * The world's own funnel: one `world view` per visit, resolving to exactly one
- * `world ready` or one `world boot failed`.
+ * `world ready` or one `world boot failed`, and then whatever the reader did
+ * with the world once it was standing.
  *
  * Kept as three events rather than one with an outcome field because the view is
  * knowable long before the outcome is, and a single event would have to wait for
@@ -183,4 +184,97 @@ export const useWorldLog = ({
       }),
     });
   }, [failure, isReady, isUnbuilt, userId]);
+
+  /* One event per distinct thing per visit. Opening a realm you have already
+     been in is the reader going back rather than a second realm opened, and the
+     ride and the replay are each a binary "did they ever find it" rather than a
+     count of play/pause. So the rate against `world ready` is readable straight
+     off, and the number of DISTINCT realms or districts in a visit still falls
+     out of counting the events.
+     Keyed by reader, like every guard above: a soft navigation to another world
+     keeps this hook and its refs, and that is another visit. */
+  const fired = useRef<{ userId: string | null; keys: Set<string> }>({
+    userId: null,
+    keys: new Set(),
+  });
+  const logOnce = useCallback(
+    (key: string, eventName: LogEvent, extra: Record<string, unknown>) => {
+      if (fired.current.userId !== userId) {
+        fired.current = { userId, keys: new Set() };
+      }
+      if (fired.current.keys.has(key)) {
+        return;
+      }
+      fired.current.keys.add(key);
+
+      const { current } = latest;
+      current.logEvent({
+        event_name: eventName,
+        target_id: userId,
+        extra: JSON.stringify({
+          is_own: current.isOwn,
+          is_lite: current.isLite,
+          ...extra,
+        }),
+      });
+    },
+    [userId],
+  );
+
+  /* Each of these watches ONE primitive pulled off the state object rather than
+     the object itself. The engine replaces that object every frame the replay
+     runs, so an effect depending on `state` (or on `state.open`, which is a new
+     object every time) would re-run sixty times a second to do nothing. */
+  const realmId = state.open?.id ?? null;
+  const districtId = state.district?.nicheId ?? null;
+  const isRiding = !!state.riding;
+  const { playing } = state;
+
+  useEffect(() => {
+    if (!isReady || !realmId) {
+      return;
+    }
+    const realm = latest.current.state.open;
+    logOnce(`realm:${realmId}`, LogEvent.WorldRealmOpen, {
+      realm: realmId,
+      districts: realm?.districts ?? 0,
+      articles: realm?.articles ?? 0,
+    });
+  }, [isReady, logOnce, realmId]);
+
+  useEffect(() => {
+    if (!isReady || !districtId) {
+      return;
+    }
+    const { current } = latest;
+    /* Off the districts query rather than off the selection, which carries only
+       what the plate needs to draw itself: the reads are the point of the event,
+       because a district opened at L1 and one opened at L9 are different reads
+       of the same click. */
+    const reads =
+      current.districts?.find(({ niche }) => niche.id === districtId)?.reads ??
+      0;
+    logOnce(`district:${districtId}`, LogEvent.WorldDistrictOpen, {
+      district: current.state.district?.name ?? null,
+      realm: current.state.open?.id ?? null,
+      reads,
+      level: levelOf(reads),
+    });
+  }, [districtId, isReady, logOnce]);
+
+  useEffect(() => {
+    if (!isReady || !isRiding) {
+      return;
+    }
+    logOnce('ride', LogEvent.WorldRide, { realm: realmId });
+  }, [isReady, isRiding, logOnce, realmId]);
+
+  useEffect(() => {
+    if (!isReady || !playing) {
+      return;
+    }
+    logOnce('replay', LogEvent.WorldReplay, {
+      total_days: latest.current.state.totalDays ?? 0,
+    });
+  }, [isReady, logOnce, playing]);
 };

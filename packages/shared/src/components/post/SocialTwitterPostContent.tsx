@@ -31,12 +31,19 @@ import {
   getSocialTwitterMetadataLabel,
 } from '../cards/socialTwitter/socialTwitterHelpers';
 import { Separator } from '../cards/common/common';
+import { useConditionalFeature } from '../../hooks/useConditionalFeature';
+import { featureCommunitySentiment } from '../../lib/featureManagement';
+import { isDevelopment } from '../../lib/constants';
+import {
+  CommunitySentiment,
+  mapCommunitySentimentPost,
+} from './focus/CommunitySentiment';
 
 type SocialTwitterPostContentRawProps = Omit<PostContentProps, 'post'> & {
   post: Post;
 };
 
-function SocialTwitterPostContentRaw({
+export function SocialTwitterPostContentRaw({
   post,
   isFallback,
   shouldOnboardAuthor,
@@ -104,6 +111,18 @@ function SocialTwitterPostContentRaw({
     !post.content?.trim();
   const metadataLabel = getSocialTwitterMetadataLabel();
   const socialTextDirectionProps = getSocialTextDirectionProps(post.language);
+  const communitySentimentData = post.communitySentiment
+    ? mapCommunitySentimentPost(post.communitySentiment)
+    : undefined;
+  // Conditional enrollment: only evaluate (and log exposure for) the
+  // community_sentiment experiment on posts that actually have a take, so
+  // take-less posts don't dilute the treatment/control split.
+  const { value: communitySentimentEnabled } = useConditionalFeature({
+    feature: featureCommunitySentiment,
+    shouldEvaluate: !!communitySentimentData,
+  });
+  const showCommunitySentiment =
+    !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
 
   return (
     <PostContentContainer
@@ -224,6 +243,12 @@ function SocialTwitterPostContentRaw({
               textClampClass=""
               bodyClassName="typo-markdown"
               showImage
+            />
+          )}
+          {showCommunitySentiment && (
+            <CommunitySentiment
+              data={communitySentimentData}
+              className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
             />
           )}
         </BasePostContent>

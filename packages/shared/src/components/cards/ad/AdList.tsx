@@ -22,7 +22,6 @@ import type { InViewRef } from '../../../hooks/feed/useAutoRotatingAds';
 import { useAutoRotatingAds } from '../../../hooks/feed/useAutoRotatingAds';
 import { Button } from '../../buttons/Button';
 import { ButtonSize, ButtonVariant } from '../../buttons/common';
-import AdAttribution from './common/AdAttribution';
 import { AdFavicon } from './common/AdFavicon';
 import PostTags from '../common/PostTags';
 import { useFeature } from '../../GrowthBookProvider';
@@ -30,6 +29,7 @@ import { adImprovementsV3Feature } from '../../../lib/featureManagement';
 import { TargetId } from '../../../lib/log';
 import { AdvertiseLink } from './common/AdvertiseLink';
 import { useAdLabel } from '../../../features/monetization/useAdLabel';
+import AdAttribution, { adAttributionSpacing } from './common/AdAttribution';
 
 const getLinkProps = ({
   ad,
@@ -87,7 +87,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
           ) : null}
           <AdAttribution
             ad={ad}
-            className={{ main: 'mt-2 block font-normal' }}
+            className={{ main: `${adAttributionSpacing} block font-normal` }}
           />
         </CardTextContainer>
         <AdImage ad={ad} ImageComponent={CardImage} />
@@ -117,6 +117,7 @@ export const AdList = forwardRef<HTMLElement, AdCardProps>(function AdCard(
         <div className="ml-auto">
           {!isPlus && (
             <RemoveAd
+              variant={ButtonVariant.Tertiary}
               size={ButtonSize.Small}
               className="!font-normal typo-footnote"
             />

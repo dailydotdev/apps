@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContext';
 import type { Post } from '../../graphql/posts';
@@ -49,6 +49,14 @@ interface PostEngagementsProps {
   logOrigin: PostOrigin;
   shouldOnboardAuthor?: boolean;
   onCopyLinkClick?: (post?: Post) => void;
+  /** Ad templates break a long thread up — see PostComments. */
+  interleaveEvery?: number;
+  /**
+   * Drops the internal AdAsComment. The programmatic template carries its own
+   * comment-thread units, and two ad systems in one thread double the density.
+   */
+  hideInternalAd?: boolean;
+  renderInterleaved?: (occurrence: number) => ReactNode;
 }
 
 function PostEngagements({
@@ -56,6 +64,9 @@ function PostEngagements({
   onCopyLinkClick,
   logOrigin,
   shouldOnboardAuthor,
+  hideInternalAd,
+  interleaveEvery,
+  renderInterleaved,
 }: PostEngagementsProps): ReactElement {
   const { completeAction } = useActions();
   const postQueryKey = ['post', post.id];
@@ -170,11 +181,13 @@ function PostEngagements({
         shouldHandleCommentQuery
         CommentInput={CommentInput}
       />
-      {!isPlus && <AdAsComment postId={post.id} />}
+      {!isPlus && !hideInternalAd && <AdAsComment postId={post.id} />}
       <PostComments
         post={post}
         sortBy={sortBy}
         origin={logOrigin}
+        interleaveEvery={interleaveEvery}
+        renderInterleaved={renderInterleaved}
         isComposerOpen={isComposerOpen}
         onShare={(comment) => openShareComment(comment, post)}
         onClickUpvote={(id, count) => onShowUpvoted(id, count, 'comment')}

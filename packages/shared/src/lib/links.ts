@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { apiUrl } from './config';
 import { webappUrl } from './constants';
 import { checkIsExtension, isExtension } from './func';
 
@@ -54,6 +55,23 @@ export const getDomainFromUrl = (link: string): string => {
     return link;
   }
 };
+
+// Anything smaller comes back upscaled from the icon service, so it's the floor.
+const MIN_SITE_ICON_SIZE = 96;
+
+// A site's own icon — a company or technology's real logo — proxied and cached
+// by the API from the given domain or URL.
+export const getSiteIconUrl = ({
+  url,
+  size = MIN_SITE_ICON_SIZE,
+}: {
+  url: string;
+  size?: number;
+}): string =>
+  `${apiUrl}/icon?url=${encodeURIComponent(url)}&size=${Math.max(
+    Math.round(size),
+    MIN_SITE_ICON_SIZE,
+  )}`;
 
 export const removeQueryParam = (url: string, param: string): string => {
   const link = new URL(url);

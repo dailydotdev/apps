@@ -21,7 +21,7 @@ const growth = (date: string, slug: string, reads: number) => ({
 });
 
 interface BuiltWorld {
-  districts: { slug: string; i: number; first: string }[];
+  districts: { slug: string; nicheId?: string; i: number; first: string }[];
   days: string[];
   cum: Int32Array;
   lvl: Uint8Array;
@@ -173,6 +173,28 @@ describe('buildWorld', () => {
       expect(readsOn(full, full.nT - 1, i)).toBe(readsOn(bare, 0, i));
       expect(full.lvl[(full.nT - 1) * full.nD + i]).toBe(bare.lvl[i]);
     }
+  });
+
+  /* The taxonomy is keyed by slug and the API filters posts by niche id, and the
+     taxonomy entry that replaces `niche` on every district carries the SLUG as
+     its own `id`. So the two have to survive side by side: a district that lost
+     its niche id opens a feed panel that can never fill. */
+  it('keeps the niche id beside the slug it is not', () => {
+    const world = build(
+      'u1',
+      [
+        { ...district('js_ts', 5), niche: { slug: 'js_ts', id: 'niche-js' } },
+        { ...district('rust', 2), niche: { slug: 'rust', id: 'niche-rs' } },
+      ],
+      [],
+    );
+
+    expect(
+      world.districts.map(({ slug, nicheId }) => ({ slug, nicheId })),
+    ).toEqual([
+      { slug: 'js_ts', nicheId: 'niche-js' },
+      { slug: 'rust', nicheId: 'niche-rs' },
+    ]);
   });
 
   it('refuses a world with nothing placeable in it', () => {

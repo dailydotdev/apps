@@ -1,17 +1,36 @@
-import { useContributionOverview } from './useContributionOverview';
+import { useQuery } from '@tanstack/react-query';
+import { useAuthContext } from '../../../contexts/AuthContext';
+import { gqlClient } from '../../../graphql/common';
+import { disabledRefetch } from '../../../lib/func';
+import { generateQueryKey, RequestKey, StaleTime } from '../../../lib/query';
+import { CONTRIBUTION_CAUSE_BREAKDOWN_QUERY } from '../graphql';
 import type { ContributionCauseCategoryBreakdown } from '../types';
+
+interface ContributionCauseBreakdownResult {
+  contributionCauseBreakdown: ContributionCauseCategoryBreakdown[];
+}
 
 interface UseContributionCauseBreakdown {
   breakdown: ContributionCauseCategoryBreakdown[];
   isPending: boolean;
 }
 
-// The projected pool split across cause categories, powering the causes
-// breakdown donut. Public campaign data, so it rides the shared overview query
-// (see `useContributionOverview`) rather than firing its own request.
+// Where the closed campaign's pool goes, grouped by cause category. Public data,
+// so it resolves for anonymous visitors too.
 export const useContributionCauseBreakdown =
   (): UseContributionCauseBreakdown => {
-    const { data, isPending } = useContributionOverview();
+    const { isAuthReady } = useAuthContext();
+
+    const { data, isPending } = useQuery({
+      queryKey: generateQueryKey(RequestKey.ContributionCauseBreakdown),
+      queryFn: () =>
+        gqlClient.request<ContributionCauseBreakdownResult>(
+          CONTRIBUTION_CAUSE_BREAKDOWN_QUERY,
+        ),
+      enabled: isAuthReady,
+      staleTime: StaleTime.Default,
+      ...disabledRefetch,
+    });
 
     return {
       breakdown: data?.contributionCauseBreakdown ?? [],

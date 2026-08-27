@@ -7,6 +7,7 @@ import ReaderPostModal from './ReaderPostModal';
 
 interface ReaderPreviewLazyModalProps extends LazyModalCommonProps {
   post: Post;
+  targetPost?: Post;
   /**
    * Close handler for the surface that owns the original Read post click
    * (e.g. the classic post modal). Forwarded from the install prompt so
@@ -19,6 +20,7 @@ interface ReaderPreviewLazyModalProps extends LazyModalCommonProps {
 
 function ReaderPreviewLazyModal({
   post,
+  targetPost,
   isOpen,
   onRequestClose,
   onCloseParent,
@@ -32,6 +34,7 @@ function ReaderPreviewLazyModal({
     <ReaderPostModal
       id={post.id}
       post={post}
+      targetPost={targetPost}
       isOpen={isOpen}
       onRequestClose={onRequestCloseWithParent}
       postPosition={PostPosition.Only}

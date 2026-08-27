@@ -32,6 +32,8 @@ export function BasePostContent({
   navigationProps,
   engagementProps,
   shouldOnboardAuthor,
+  aboveComments,
+  commentAds,
   isPostPage,
 }: BasePostContentProps): ReactElement {
   const { id } = post ?? {};
@@ -64,12 +66,16 @@ export function BasePostContent({
       )}
       {children}
       {isPostPage && <PostAnsweredQuestions post={post} className="mt-6" />}
+      {aboveComments}
       {!!engagementProps && (
         <PostEngagements
           post={post}
           onCopyLinkClick={onCopyPostLink}
           logOrigin={origin}
           shouldOnboardAuthor={shouldOnboardAuthor}
+          hideInternalAd={!!commentAds}
+          interleaveEvery={commentAds?.interleaveEvery}
+          renderInterleaved={commentAds?.renderInterleaved}
         />
       )}
     </>
