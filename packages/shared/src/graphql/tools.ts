@@ -121,6 +121,35 @@ export const getToolClaimedBy = async (
   return result.datasetTool.claimedBy;
 };
 
+export interface ToolFact {
+  key: string;
+  value: string;
+  sourceUrl: string | null;
+  verifiedAt: string;
+}
+
+const TOOL_FACTS_QUERY = gql`
+  query ToolFacts($slug: String!) {
+    datasetTool(slug: $slug) {
+      facts {
+        key
+        value
+        sourceUrl
+        verifiedAt
+      }
+    }
+  }
+`;
+
+// Fetched separately from DATASET_TOOL_QUERY so a not-yet-deployed API
+// (missing this field) can't 500 the whole page during the rollout window.
+export const getToolFacts = async (slug: string): Promise<ToolFact[]> => {
+  const result = await gqlClient.request<{
+    datasetTool: { facts: ToolFact[] };
+  }>(TOOL_FACTS_QUERY, { slug });
+  return result.datasetTool.facts;
+};
+
 const TOOL_VIEWER_CAN_CLAIM_QUERY = gql`
   query ToolViewerCanClaim($slug: String!) {
     datasetTool(slug: $slug) {

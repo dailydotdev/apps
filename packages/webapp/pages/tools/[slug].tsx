@@ -14,6 +14,7 @@ import type {
   ToolAdoption,
   ToolAlternative,
   ToolClaimedBy,
+  ToolFact,
   ToolOfficialSource,
   ToolPageTool,
   ToolStacker,
@@ -28,6 +29,7 @@ import {
   getToolAlternatives,
   getToolCategoryAnchor,
   getToolClaimedBy,
+  getToolFacts,
   getToolOfficialSource,
   getToolsAlsoStacked,
   getToolStackers,
@@ -88,6 +90,7 @@ import { useUserCompaniesQuery } from '@dailydotdev/shared/src/hooks/userCompany
 import { useShareOrCopyLink } from '@dailydotdev/shared/src/hooks/useShareOrCopyLink';
 import { anchorDefaultRel } from '@dailydotdev/shared/src/lib/strings';
 import { largeNumberFormat } from '@dailydotdev/shared/src/lib/numberFormat';
+import { publishTimeRelativeShort } from '@dailydotdev/shared/src/lib/dateFormat';
 import { webappUrl } from '@dailydotdev/shared/src/lib/constants';
 import { getDomainFromUrl } from '@dailydotdev/shared/src/lib/links';
 import {
@@ -192,7 +195,49 @@ export interface ToolPageProps {
   officialSource: ToolOfficialSource | null;
   alternatives: ToolAlternative[];
   claimedBy: ToolClaimedBy | null;
+  facts: ToolFact[];
 }
+
+// The strip only ever surfaces these keys, in this order; `description`
+// renders separately as the hero subtitle.
+const FACT_STRIP_KEYS = ['pricingModel', 'license', 'integrations'] as const;
+
+const FACT_STRIP_LABELS: Record<(typeof FACT_STRIP_KEYS)[number], string> = {
+  pricingModel: 'Pricing',
+  license: 'License',
+  integrations: 'Integrates with',
+};
+
+const PRICING_MODEL_LABELS: Record<string, string> = {
+  free: 'Free',
+  freemium: 'Freemium',
+  paid: 'Paid',
+  'open-core': 'Open core',
+};
+
+const getToolFact = (facts: ToolFact[], key: string): ToolFact | undefined =>
+  facts.find((fact) => fact.key === key);
+
+const formatFactValue = (key: string, value: string): string => {
+  if (key === 'pricingModel') {
+    return PRICING_MODEL_LABELS[value] ?? value;
+  }
+
+  if (key === 'license' && value === 'proprietary') {
+    return 'Proprietary';
+  }
+
+  return value;
+};
+
+const getNewestFactVerifiedAt = (facts: ToolFact[]): string | null =>
+  facts.reduce<string | null>(
+    (newest, fact) =>
+      !newest || new Date(fact.verifiedAt) > new Date(newest)
+        ? fact.verifiedAt
+        : newest,
+    null,
+  );
 
 const SPARK_WIDTH = 400;
 const SPARK_HEIGHT = 70;
@@ -269,6 +314,7 @@ const ToolPage = ({
   officialSource,
   alternatives,
   claimedBy,
+  facts,
 }: ToolPageProps): ReactElement => {
   const { user, showLogin } = useAuthContext();
   const {
@@ -289,6 +335,21 @@ const ToolPage = ({
   const topPostsQueryVariables = useMemo(
     () => ({ tag: tool.keyword, ranking: 'POPULARITY' }),
     [tool.keyword],
+  );
+  const descriptionFact = useMemo(
+    () => getToolFact(facts, 'description'),
+    [facts],
+  );
+  const factStripItems = useMemo(
+    () =>
+      FACT_STRIP_KEYS.map((key) => getToolFact(facts, key)).filter(
+        (fact): fact is ToolFact => !!fact,
+      ),
+    [facts],
+  );
+  const newestFactVerifiedAt = useMemo(
+    () => getNewestFactVerifiedAt(facts),
+    [facts],
   );
 
   const [copying, onShareOrCopy] = useShareOrCopyLink({
@@ -629,6 +690,17 @@ const ToolPage = ({
             ))}
           </Typography>
 
+          {descriptionFact && (
+            <Typography
+              type={TypographyType.Callout}
+              color={TypographyColor.Secondary}
+              truncate
+              className="max-w-full"
+            >
+              {descriptionFact.value}
+            </Typography>
+          )}
+
           {(!!officialSource || !!claimedByState) && (
             <div className="flex flex-wrap items-center justify-center gap-2">
               {officialSource && (
@@ -666,6 +738,58 @@ const ToolPage = ({
                 </Tooltip>
               )}
             </div>
+          )}
+
+          {!!factStripItems.length && (
+            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-text-tertiary typo-footnote">
+              {factStripItems.map((fact, index) => (
+                <React.Fragment key={fact.key}>
+                  {index > 0 && <MetaSeparator />}
+                  <span>
+                    {
+                      FACT_STRIP_LABELS[
+                        fact.key as (typeof FACT_STRIP_KEYS)[number]
+                      ]
+                    }{' '}
+                    ·{' '}
+                    {fact.sourceUrl ? (
+                      <a
+                        href={fact.sourceUrl}
+                        target="_blank"
+                        rel={anchorDefaultRel}
+                        className="font-bold text-text-secondary underline decoration-border-subtlest-tertiary underline-offset-2 hover:text-text-primary"
+                      >
+                        {formatFactValue(fact.key, fact.value)}
+                      </a>
+                    ) : (
+                      <span className="font-bold text-text-secondary">
+                        {formatFactValue(fact.key, fact.value)}
+                      </span>
+                    )}
+                  </span>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
+          {!!factStripItems.length && newestFactVerifiedAt && (
+            <Typography
+              type={TypographyType.Caption1}
+              color={TypographyColor.Quaternary}
+            >
+              From public docs · checked{' '}
+              <span suppressHydrationWarning>
+                {publishTimeRelativeShort(newestFactVerifiedAt)} ago
+              </span>{' '}
+              ·{' '}
+              <a
+                href={`mailto:support@daily.dev?subject=${encodeURIComponent(
+                  `Tool page correction: ${tool.title}`,
+                )}`}
+                className="text-text-link"
+              >
+                See something wrong?
+              </a>
+            </Typography>
           )}
 
           <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
@@ -1045,6 +1169,7 @@ export async function getStaticProps({
       officialSource,
       alternatives,
       claimedBy,
+      facts,
     ] = await Promise.all([
       getToolsAlsoStacked(tool.id),
       getTopSquadsForTool({ toolId: tool.id, first: 3 }),
@@ -1062,6 +1187,9 @@ export async function getStaticProps({
       // once the API deploys, so a real regression doesn't silently drop
       // the claim badge for every tool.
       getToolClaimedBy(slug).catch(() => null),
+      // Facts are not yet deployed on the paired API PR; tolerate the
+      // missing field during the rollout window.
+      getToolFacts(slug).catch(() => []),
     ]);
 
     const seoTitles = getPageSeoTitles(
@@ -1080,6 +1208,7 @@ export async function getStaticProps({
         officialSource,
         alternatives,
         claimedBy,
+        facts,
         seo: {
           title: seoTitles.title,
           openGraph: { ...seoTitles.openGraph, ...defaultOpenGraph },

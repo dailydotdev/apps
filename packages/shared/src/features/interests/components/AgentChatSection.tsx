@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import Markdown from '../../../components/Markdown';
 import { Tooltip } from '../../../components/tooltip/Tooltip';
 import {
@@ -379,13 +380,25 @@ const MessageRow = ({
   onFeedClick,
   onPostLinkClick,
   activePostId,
+  focusedRunId,
+  onFocusRun,
 }: {
   message: AgentMessage;
   onPostClick: (post: Post) => void;
   onFeedClick: (label: string, posts: Post[]) => void;
   onPostLinkClick: (postId: string) => void;
   activePostId?: string;
+  focusedRunId?: string;
+  onFocusRun?: (turnId: string) => void;
 }): ReactElement => {
+  const isHighlightTarget = !!focusedRunId && focusedRunId === message.id;
+
+  useEffect(() => {
+    if (isHighlightTarget) {
+      onFocusRun?.(message.id);
+    }
+  }, [isHighlightTarget, message.id, onFocusRun]);
+
   if (message.role === 'user') {
     return (
       <FlexCol className="agent-turn-in items-end gap-1">
@@ -409,7 +422,14 @@ const MessageRow = ({
   }
 
   return (
-    <FlexCol className="agent-turn-in group min-w-0 gap-2">
+    <FlexCol
+      id={isHighlightTarget ? `agent-turn-${message.id}` : undefined}
+      className={classNames(
+        'agent-turn-in group min-w-0 gap-2',
+        isHighlightTarget &&
+          'agent-turn-flash -m-3 rounded-16 border border-transparent p-3',
+      )}
+    >
       {message.isScheduled && (
         <FlexRow className="items-center gap-1.5 text-text-quaternary">
           <TimerIcon size={IconSize.XXSmall} />
@@ -444,7 +464,13 @@ const MessageRow = ({
   );
 };
 
-export const AgentChatSection = (): ReactElement => {
+export const AgentChatSection = ({
+  focusedRunId,
+  onFocusRun,
+}: {
+  focusedRunId?: string;
+  onFocusRun?: (turnId: string) => void;
+}): ReactElement => {
   const {
     messages,
     openContentTarget,
@@ -461,6 +487,8 @@ export const AgentChatSection = (): ReactElement => {
         <MessageRow
           key={message.id}
           message={message}
+          focusedRunId={focusedRunId}
+          onFocusRun={onFocusRun}
           onPostClick={(post) =>
             openContentTarget({ type: 'post', postId: post.id, post })
           }

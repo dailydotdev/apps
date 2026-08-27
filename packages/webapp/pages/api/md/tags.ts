@@ -104,8 +104,6 @@ ${allTagsMarkdown}
       'Cache-Control',
       'public, s-maxage=86400, stale-while-revalidate=604800',
     );
-    res.setHeader('Link', '</llms.txt>; rel="llms-txt"');
-    res.setHeader('X-Llms-Txt', '/llms.txt');
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.status(200).send(markdown);
   } catch (error: unknown) {

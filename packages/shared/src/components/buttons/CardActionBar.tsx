@@ -10,7 +10,9 @@ export type CardActionBarLayout =
 
 const layoutToClass: Record<CardActionBarLayout, string> = {
   default: 'gap-1',
-  feedCard: 'flex-1 min-w-0 gap-1 justify-between',
+  // No `gap`: `justify-between` already spreads the actions, and since buttons
+  // never shrink a gap only adds width the 272px min card cannot give back.
+  feedCard: 'flex-1 min-w-0 justify-between',
   between: 'gap-1 justify-between w-full',
   compact: 'gap-0.5',
 };

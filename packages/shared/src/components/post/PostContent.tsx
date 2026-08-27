@@ -90,6 +90,11 @@ export function PostContentRaw({
   backToSquad,
   isBannerVisible,
   isPostPage,
+  getWidgetRailAd,
+  contentLeading,
+  renderSummarySegments,
+  aboveComments,
+  commentAds,
 }: PostContentRawProps): ReactElement {
   const { subject } = useToastNotification();
   const engagementActions = usePostContent({
@@ -124,9 +129,7 @@ export function PostContentRaw({
     shouldEvaluate: !!communitySentimentData,
   });
   const showCommunitySentiment =
-    isPostPage &&
-    !!communitySentimentData &&
-    (communitySentimentEnabled || isDevelopment);
+    !!communitySentimentData && (communitySentimentEnabled || isDevelopment);
   const hasNavigation = !!onPreviousPost || !!onNextPost;
   const isVideoType = isVideoPost(post);
   const hasToc = (post.toc?.length ?? 0) > 0;
@@ -161,10 +164,17 @@ export function PostContentRaw({
 
   const postMainColumn = (
     <PostContainer
-      className={classNames('relative', className?.content)}
+      className={classNames(
+        'relative',
+        !!contentLeading && '!overflow-x-clip !overflow-y-visible',
+        className?.content,
+      )}
       data-testid="postContainer"
     >
+      {contentLeading}
       <BasePostContent
+        aboveComments={aboveComments}
+        commentAds={commentAds}
         className={{
           ...className,
           onboarding: classNames(className?.onboarding, backToSquad && 'mb-6'),
@@ -209,21 +219,24 @@ export function PostContentRaw({
             className="mb-7"
           />
         )}
-        {post.summary && (
-          <div
-            className={classNames(
-              'mb-6 overflow-hidden text-text-secondary',
-              isCompactModalSpacing && 'mb-4',
-            )}
-          >
-            <p
-              className="select-text break-words typo-markdown"
-              data-testid="tldr-container"
+        {post.summary &&
+          (renderSummarySegments ? (
+            renderSummarySegments(post.summary)
+          ) : (
+            <div
+              className={classNames(
+                'mb-6 overflow-hidden text-text-secondary',
+                isCompactModalSpacing && 'mb-4',
+              )}
             >
-              {post.summary}
-            </p>
-          </div>
-        )}
+              <p
+                className="select-text break-words typo-markdown"
+                data-testid="tldr-container"
+              >
+                {post.summary}
+              </p>
+            </div>
+          ))}
         <PostTagList post={post} />
         <PostMetadata
           createdAt={post.createdAt}
@@ -282,7 +295,10 @@ export function PostContentRaw({
           />
         )}
         {showCommunitySentiment && (
-          <CommunitySentiment data={communitySentimentData} className="mb-6" />
+          <CommunitySentiment
+            data={communitySentimentData}
+            className={isCompactModalSpacing ? 'mb-4' : 'mb-6'}
+          />
         )}
       </BasePostContent>
     </PostContainer>
@@ -296,6 +312,7 @@ export function PostContentRaw({
       onClose={onClose}
       origin={origin}
       onCopyPostLink={onCopyPostLink}
+      getRailAd={getWidgetRailAd}
     />
   );
 

@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 import { useLazyModal } from './useLazyModal';
 import { LazyModal } from '../components/modals/common/types';
 import type { Post } from '../graphql/posts';
-import { PostType } from '../graphql/posts';
+import { getPostReadTarget, PostType } from '../graphql/posts';
 import { useReaderModalEligibility } from '../components/post/reader/hooks/useReaderModalEligibility';
 import { useSettingsContext } from '../contexts/SettingsContext';
 
@@ -42,15 +42,16 @@ export function useReaderInstallPromptGate(
   const { isReaderEnabled, canShowReaderInstallPrompt } =
     useReaderModalEligibility();
   const { updateFlag } = useSettingsContext();
+  const readerPost = post ? getPostReadTarget(post).target : undefined;
 
   const isGated =
-    !!post &&
-    READER_GATE_ELIGIBLE_TYPES.has(post.type) &&
+    !!readerPost &&
+    READER_GATE_ELIGIBLE_TYPES.has(readerPost.type) &&
     (isReaderEnabled || canShowReaderInstallPrompt);
 
   const onReadClick = useCallback(
     (event: MouseEvent): boolean => {
-      if (!isGated || !post) {
+      if (!isGated || !post || !readerPost) {
         return false;
       }
       // Preserve cmd/ctrl/shift/middle-click escape hatches so power users
@@ -70,18 +71,26 @@ export function useReaderInstallPromptGate(
       if (isReaderEnabled) {
         openModal({
           type: LazyModal.ReaderPreview,
-          props: { post, onCloseParent },
+          props: { post, targetPost: readerPost, onCloseParent },
         });
       } else {
         updateFlag('readerInstallPromptSeen', true);
         openModal({
           type: LazyModal.ReaderInstallPrompt,
-          props: { post, onCloseParent },
+          props: { post, targetPost: readerPost, onCloseParent },
         });
       }
       return true;
     },
-    [isGated, isReaderEnabled, onCloseParent, openModal, post, updateFlag],
+    [
+      isGated,
+      isReaderEnabled,
+      onCloseParent,
+      openModal,
+      post,
+      readerPost,
+      updateFlag,
+    ],
   );
 
   return { isGated, onReadClick };

@@ -43,7 +43,7 @@ export const ToolLogo = ({
       )}
     >
       {!src || hasFailed ? (
-        <span className="font-bold text-text-tertiary">
+        <span aria-hidden className="font-bold text-text-tertiary">
           {title.charAt(0).toUpperCase()}
         </span>
       ) : (

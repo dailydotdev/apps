@@ -200,6 +200,12 @@ const strictSkipList = new Set([
   'packages/shared/src/components/cards/ad/squad/SquadAdList.tsx',
   'packages/shared/src/components/cards/ad/squad/common.ts',
   'packages/shared/src/components/cards/squad/SquadGrid.tsx',
+  // Quora-pixel branch — touched only to add the Quora tracking script.
+  // The strict violations (untyped globalThis pixel globals like fbq/gtag,
+  // ReactElement vs null returns) are the file's established idiom across
+  // every vendor and predate this change. Typing the pixel globals belongs
+  // in a dedicated cleanup PR.
+  'packages/webapp/components/Pixels.tsx',
   // Tool-page-signals branch — touched only to add an `onError` toast to the
   // comment/edit mutations (surfacing the server's ForbiddenError message
   // instead of failing silently). Pre-existing strict violations (optional

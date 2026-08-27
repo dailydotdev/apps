@@ -10,6 +10,7 @@ export enum UserInterestStatus {
 }
 
 export enum UserInterestCadence {
+  Auto = 'auto',
   Hourly = 'hourly',
   Daily = 'daily',
   Weekly = 'weekly',
@@ -76,7 +77,7 @@ export type UpdateInterestInput = {
 export type CreateInterestSettings = Omit<UpdateInterestInput, 'status'>;
 
 export const defaultCreateInterestSettings: CreateInterestSettings = {
-  cadence: UserInterestCadence.Hourly,
+  cadence: UserInterestCadence.Auto,
   fomoThreshold: 0.5,
   outputModes: { feed: true, post: true, digest: false, notification: true },
 };

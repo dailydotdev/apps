@@ -72,6 +72,9 @@ const callbacks = (): Record<string, (arg?: unknown) => void> =>
 const injectedScripts = (): HTMLScriptElement[] =>
   Array.from(document.querySelectorAll('script[src*="iubenda.com"]'));
 
+const hasScriptFor = (fragment: string): boolean =>
+  injectedScripts().some((item) => item.src.includes(fragment));
+
 const scriptFor = (fragment: string): HTMLScriptElement => {
   const script = injectedScripts().find((item) => item.src.includes(fragment));
 
@@ -300,6 +303,49 @@ describe('Iubenda configuration', () => {
       de: { cookiePolicyId: iubendaLocalizedPolicyIds.de },
       it: { cookiePolicyId: iubendaLocalizedPolicyIds.it },
     });
+  });
+});
+
+describe('Iubenda consent scoping by region', () => {
+  it('gives certified-CMP treatment inside the mandate, EU outermost included', async () => {
+    renderComponent({ geo: { region: 'RE' } } as never);
+
+    await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
+    expect(config().enableTcf).toBe(true);
+    expect(config().googleAdditionalConsentMode).toBe(true);
+    expect(hasScriptFor('tcf/stub-v2')).toBe(true);
+  });
+
+  it('loads no TCF machinery outside the EEA, UK and Switzerland', async () => {
+    renderComponent({ geo: { region: 'ZA' } } as never);
+
+    await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
+    expect(config().enableTcf).toBe(false);
+    expect(config().googleAdditionalConsentMode).toBe(false);
+    expect(config().enableUspr).toBe(false);
+    expect(hasScriptFor('tcf/stub-v2')).toBe(false);
+    expect(hasScriptFor('gpp/stub')).toBe(false);
+    expect(startTcfSubscription).not.toHaveBeenCalled();
+  });
+
+  it('scopes the US privacy framework with its stub to US visitors', async () => {
+    renderComponent({ geo: { region: 'US' } } as never);
+
+    await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
+    expect(config().enableTcf).toBe(false);
+    expect(config().enableUspr).toBe(true);
+    expect(hasScriptFor('gpp/stub')).toBe(true);
+    expect(hasScriptFor('tcf/stub-v2')).toBe(false);
+  });
+
+  it('keeps the full treatment when geo is unknown', async () => {
+    renderComponent({ geo: undefined } as never);
+
+    await waitFor(() => expect(win._iub?.csConfiguration).toBeDefined());
+    expect(config().enableTcf).toBe(true);
+    expect(config().enableUspr).toBe(true);
+    expect(hasScriptFor('tcf/stub-v2')).toBe(true);
+    expect(hasScriptFor('gpp/stub')).toBe(true);
   });
 });
 

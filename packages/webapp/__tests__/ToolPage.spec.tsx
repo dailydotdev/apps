@@ -125,6 +125,7 @@ const defaultProps: ToolPageProps = {
     },
   ],
   claimedBy: null,
+  facts: [],
 };
 
 const renderComponent = (

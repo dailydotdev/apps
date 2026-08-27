@@ -20,6 +20,8 @@ export const logServerPageRequest = async (
 
   const { ua } = userAgent(req);
   const clientIp = req.headers.get('cf-connecting-ip');
+  const referer = req.headers.get('referer');
+  const acceptLanguage = req.headers.get('accept-language');
 
   try {
     const now = new Date();
@@ -32,6 +34,7 @@ export const logServerPageRequest = async (
       event_page: req.nextUrl.pathname,
       event_timestamp: now,
       extra: JSON.stringify({ content_variant: variant }),
+      ...(referer && { page_referrer: referer }),
       session_id: crypto.randomUUID(),
       user_agent: ua,
       user_id: deviceId,
@@ -50,6 +53,7 @@ export const logServerPageRequest = async (
         'content-type': 'application/json',
         'user-agent': ua,
         ...(clientIp && { 'x-forwarded-for': clientIp }),
+        ...(acceptLanguage && { 'accept-language': acceptLanguage }),
       },
     });
   } catch {
