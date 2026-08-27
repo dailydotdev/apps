@@ -1,4 +1,5 @@
 import { gqlClient } from './common';
+import type { Connection } from './common';
 import type { Post } from './posts';
 import { FEED_POST_FRAGMENT } from './fragments';
 import { USER_POST_FRAGMENT } from './feed';
@@ -51,6 +52,7 @@ export type UserInterest = {
   fomoThreshold: number;
   sources: InterestSources;
   outputModes: InterestOutputModes;
+  showHistory: boolean;
   feedId?: string | null;
   sourceId?: string | null;
   lastRunAt?: string | null;
@@ -72,6 +74,7 @@ export type UpdateInterestInput = {
   fomoThreshold?: number;
   sources?: Partial<InterestSources>;
   outputModes?: Partial<InterestOutputModes>;
+  showHistory?: boolean;
 };
 
 export type CreateInterestSettings = Omit<UpdateInterestInput, 'status'>;
@@ -80,6 +83,7 @@ export const defaultCreateInterestSettings: CreateInterestSettings = {
   cadence: UserInterestCadence.Auto,
   fomoThreshold: 0.5,
   outputModes: { feed: true, post: true, digest: false, notification: true },
+  showHistory: true,
 };
 
 export type InterestFinding = {
@@ -130,6 +134,7 @@ const USER_INTEREST_FRAGMENT = `
     fomoThreshold
     sources
     outputModes
+    showHistory
     feedId
     sourceId
     lastRunAt
@@ -194,21 +199,44 @@ export const SEND_INTEREST_COMMAND_MUTATION = `
 `;
 
 export const INTEREST_HISTORY_QUERY = `
-  query InterestHistory($id: ID!) {
-    interestHistory(id: $id) {
-      id
-      role
-      createdAt
-      text
-      relationships
-      status
-      trigger
-      feedbackId
-      blocks
-      findingsAdded
-      summaryPostId
-      startedAt
-      finishedAt
+  query InterestHistory(
+    $id: ID!
+    $first: Int
+    $after: String
+    $last: Int
+    $before: String
+  ) {
+    interestHistory(
+      id: $id
+      first: $first
+      after: $after
+      last: $last
+      before: $before
+    ) {
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+      edges {
+        cursor
+        node {
+          id
+          role
+          createdAt
+          text
+          relationships
+          status
+          trigger
+          feedbackId
+          blocks
+          findingsAdded
+          summaryPostId
+          startedAt
+          finishedAt
+        }
+      }
     }
   }
 `;
@@ -309,14 +337,55 @@ export const sendInterestCommand = async ({
   return res.sendInterestCommand;
 };
 
+export type InterestHistoryArgs = {
+  id: string;
+  first?: number;
+  after?: string;
+  last?: number;
+  before?: string;
+};
+
 export const getInterestHistory = async (
-  id: string,
-): Promise<InterestTurn[]> => {
-  const res = await gqlClient.request<{ interestHistory: InterestTurn[] }>(
-    INTEREST_HISTORY_QUERY,
-    { id },
-  );
+  args: InterestHistoryArgs,
+): Promise<Connection<InterestTurn>> => {
+  const res = await gqlClient.request<{
+    interestHistory: Connection<InterestTurn>;
+  }>(INTEREST_HISTORY_QUERY, args);
   return res.interestHistory;
+};
+
+export const INTEREST_RUN_QUERY = `
+  query InterestRun($id: ID!, $runId: ID!) {
+    interestRun(id: $id, runId: $runId) {
+      id
+      role
+      createdAt
+      text
+      relationships
+      status
+      trigger
+      feedbackId
+      blocks
+      findingsAdded
+      summaryPostId
+      startedAt
+      finishedAt
+    }
+  }
+`;
+
+export const getInterestRun = async ({
+  id,
+  runId,
+}: {
+  id: string;
+  runId: string;
+}): Promise<InterestTurn> => {
+  const res = await gqlClient.request<{ interestRun: InterestTurn }>(
+    INTEREST_RUN_QUERY,
+    { id, runId },
+  );
+  return res.interestRun;
 };
 
 export const updateInterest = async ({

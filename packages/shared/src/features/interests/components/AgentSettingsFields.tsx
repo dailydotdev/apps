@@ -173,3 +173,28 @@ export const OutputModesSection = ({
     ))}
   </SettingsSection>
 );
+
+export const HistorySection = ({
+  value,
+  disabled,
+  onChange,
+}: {
+  value: boolean;
+  disabled?: boolean;
+  onChange: (showHistory: boolean) => void;
+}): ReactElement => (
+  <SettingsSection
+    title="History"
+    hint="Off shows only the latest update when you open this agent."
+  >
+    <Switch
+      inputId="agent-show-history"
+      name="agent-show-history"
+      checked={value}
+      disabled={disabled}
+      onToggle={() => onChange(!value)}
+    >
+      Show history
+    </Switch>
+  </SettingsSection>
+);

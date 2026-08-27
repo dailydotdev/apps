@@ -42,7 +42,11 @@ export function ToolPageNavbar({
 
   return (
     <header
-      className={classNames(pageHeaderClassName, 'gap-4 !py-0', className)}
+      className={classNames(
+        pageHeaderClassName,
+        'gap-4 !px-4 !py-0 tablet:!px-6',
+        className,
+      )}
     >
       <SquadDirectoryNavbar
         aria-label="Tools navigation"

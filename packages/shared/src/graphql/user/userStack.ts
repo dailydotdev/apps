@@ -9,9 +9,7 @@ export interface DatasetTool {
   title: string;
   slug: string;
   faviconUrl: string | null;
-  // Selected by every tool query, but optional so fixtures and older cached
-  // payloads without it still type-check.
-  url?: string | null;
+  url: string | null;
 }
 
 // autocompleteTools resolves plain TypeORM entities (no GraphORM field

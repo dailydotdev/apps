@@ -16,6 +16,7 @@ const buildItem = (overrides?: Partial<SourceStack>): SourceStack => ({
     title: 'TypeScript',
     slug: 'typescript',
     faviconUrl: null,
+    url: null,
   },
   position: 0,
   icon: null,
@@ -61,6 +62,7 @@ describe('SourceStackItem', () => {
             title: 'TypeScript',
             slug: '',
             faviconUrl: null,
+            url: null,
           },
         })}
         canEdit={false}

@@ -10,12 +10,15 @@ import {
 import { ArrowIcon } from '../../../components/icons';
 import { IconSize } from '../../../components/Icon';
 import usePersistentContext from '../../../hooks/usePersistentContext';
+import { oneDay } from '../../../lib/dateFormat';
 import { useAgentShellHeight } from '../shell';
 import type { AgentFeedItem } from '../hooks/useAgentFeed';
 import { useAgent } from '../AgentContext';
 import { AgentWorkspaceHeader } from './AgentWorkspaceHeader';
 import { AgentIntro } from './AgentIntro';
 import { AgentChatSection } from './AgentChatSection';
+import { AgentHistoryEdge } from './AgentHistoryEdge';
+import { AgentEmptyState } from './AgentEmptyState';
 import { AgentComposer } from './AgentComposer';
 import { AgentQuoteAction } from './AgentQuoteAction';
 import { AgentContentPane } from './AgentContentPane';
@@ -41,7 +44,15 @@ export const AgentWorkspace = ({
   runId?: string;
   isFeedReady?: boolean;
 }): ReactElement => {
-  const { isSettingsOpen, openContent, messages, summaryPosts } = useAgent();
+  const {
+    isSettingsOpen,
+    openContent,
+    messages,
+    summaryPosts,
+    isHistoryPending,
+    isRunView,
+    isHistoryLimited,
+  } = useAgent();
   const shellHeight = useAgentShellHeight(isStandalone);
   const [storedWidth, setStoredWidth, isWidthLoaded] =
     usePersistentContext<number>('agentPaneWidth', defaultPaneWidth);
@@ -144,6 +155,26 @@ export const AgentWorkspace = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length]);
 
+  useEffect(() => {
+    const transcript = transcriptRef.current;
+
+    if (isRunView || isHistoryPending || !transcript) {
+      return;
+    }
+
+    transcript.scrollTop = transcript.scrollHeight;
+    isPinnedRef.current = true;
+    setIsAwayFromBottom(false);
+    setHasUnseenReply(false);
+  }, [isHistoryPending, isRunView]);
+
+  const latestMessage = messages[messages.length - 1];
+  const isLatestStale =
+    isHistoryLimited &&
+    !!latestMessage &&
+    !latestMessage.isPending &&
+    Date.now() - new Date(latestMessage.at).getTime() > oneDay * 1000;
+
   const isTailPending = !!messages.at(-1)?.isPending;
 
   useEffect(() => {
@@ -236,16 +267,22 @@ export const AgentWorkspace = ({
                     findingsCount={items.length}
                     postsCount={summaryPosts.length}
                   />
-                  <AgentChatSection
-                    focusedRunId={isFeedReady ? runId : undefined}
-                    onFocusRun={onFocusRun}
-                  />
+                  {!isRunView && <AgentHistoryEdge />}
+                  {isLatestStale ? (
+                    <AgentEmptyState />
+                  ) : (
+                    <AgentChatSection
+                      focusedRunId={isFeedReady ? runId : undefined}
+                      onFocusRun={onFocusRun}
+                    />
+                  )}
+                  {isRunView && <AgentHistoryEdge />}
                 </FlexCol>
               </div>
             </div>
             <AgentQuoteAction containerRef={transcriptRef} />
             <div className="relative">
-              {isAwayFromBottom && (
+              {isAwayFromBottom && !isRunView && (
                 <Button
                   icon={
                     <ArrowIcon size={IconSize.Size16} className="rotate-180" />

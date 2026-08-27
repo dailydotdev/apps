@@ -81,6 +81,12 @@ const LiveAgentPage = ({
         id={id}
         interest={interest}
         isDemo={false}
+        runId={runId}
+        onLeaveRunView={() =>
+          router.push({ pathname: router.pathname, query: { id } }, undefined, {
+            shallow: true,
+          })
+        }
         findings={feed.items}
         posts={posts}
         key={id}
